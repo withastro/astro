@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
-import { expect } from 'chai';
+import { describe, it, before, after } from 'node:test';
+import * as assert from 'node:assert/strict';
 import { astroCli, wranglerCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/wasm-function-per-route/', import.meta.url);
@@ -12,11 +13,11 @@ describe('WasmFunctionPerRouteImport', () => {
 		wrangler = wranglerCli(fileURLToPath(root));
 		await new Promise((resolve) => {
 			wrangler.stdout.on('data', (data) => {
-				console.log('[stdout]', data.toString());
+				// console.log('[stdout]', data.toString());
 				if (data.toString().includes('http://127.0.0.1:8788')) resolve();
 			});
 			wrangler.stderr.on('data', (data) => {
-				console.log('[stderr]', data.toString());
+				// console.log('[stderr]', data.toString());
 			});
 		});
 	});
@@ -24,20 +25,20 @@ describe('WasmFunctionPerRouteImport', () => {
 	after((done) => {
 		wrangler.kill();
 		setTimeout(() => {
-			console.log('CLEANED');
+			// console.log('CLEANED');
 			done();
 		}, 1000);
 	});
 
 	it('can render', async () => {
 		let res = await fetch('http://127.0.0.1:8788/');
-		expect(res.status).to.equal(200);
+		assert.equal(res.status, 200);
 		let json = await res.json();
-		expect(json).to.deep.equal({ answer: 42 });
+		assert.deepEqual(json, { answer: 42 });
 
 		res = await fetch('http://127.0.0.1:8788/deeply/nested/route');
-		expect(res.status).to.equal(200);
+		assert.equal(res.status, 200);
 		json = await res.json();
-		expect(json).to.deep.equal({ answer: 84 });
+		assert.deepEqual(json, { answer: 84 });
 	});
 });

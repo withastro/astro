@@ -4,8 +4,8 @@ import * as assert from 'node:assert/strict';
 import * as cheerio from 'cheerio';
 import { astroCli } from './_test-utils.js';
 
-const root = new URL('./fixtures/dev-runtime-workers/', import.meta.url);
-describe('DevRuntimeWorkers', () => {
+const root = new URL('./fixtures/dev-runtime-pages/', import.meta.url);
+describe('DevRuntimePages', () => {
 	let cli;
 	before(async () => {
 		cli = astroCli(fileURLToPath(root), 'dev', '--host', '127.0.0.1');

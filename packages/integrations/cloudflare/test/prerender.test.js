@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
-import { expect } from 'chai';
+import { describe, it, before } from 'node:test';
+import * as assert from 'node:assert/strict';
 import { astroCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/prerender/', import.meta.url);
@@ -13,7 +14,7 @@ describe('Prerendering', () => {
 	it('includes non prerendered routes in the routes.json config', async () => {
 		const foundRoutes = JSON.parse(readFileSync(fileURLToPath(new URL('dist/_routes.json', root))));
 
-		expect(foundRoutes).to.deep.equal({
+			assert.deepEqual(foundRoutes, {
 			version: 1,
 			include: ['/', '/_image'],
 			exclude: [],

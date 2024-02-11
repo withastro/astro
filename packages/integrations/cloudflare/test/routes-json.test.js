@@ -1,5 +1,6 @@
 import { loadFixture } from '@astrojs/test-utils';
-import { expect } from 'chai';
+import { describe, it, before } from 'node:test';
+import * as assert from 'node:assert/strict';
 import cloudflare from '../dist/index.js';
 
 /** @type {import('./test-utils.js').Fixture} */
@@ -26,7 +27,7 @@ describe('_routes.json generation', () => {
 						const _routesJson = await fixture.readFile('/_routes.json');
 						const routes = JSON.parse(_routesJson);
 
-						expect(routes).to.deep.equal({
+						assert.deepEqual(routes, {
 							version: 1,
 							include: ['/a/*', '/_image'],
 							exclude: ['/a/', '/a/redirect', '/a/index.html'],
@@ -53,7 +54,7 @@ describe('_routes.json generation', () => {
 						const _routesJson = await fixture.readFile('/_routes.json');
 						const routes = JSON.parse(_routesJson);
 
-						expect(routes).to.deep.equal({
+						assert.deepEqual(routes, {
 							version: 1,
 							include: ['/*'],
 							exclude: ['/public.txt', '/redirectme', '/a/redirect'],
@@ -80,7 +81,7 @@ describe('_routes.json generation', () => {
 						const _routesJson = await fixture.readFile('/_routes.json');
 						const routes = JSON.parse(_routesJson);
 
-						expect(routes).to.deep.equal({
+						assert.deepEqual(routes, {
 							version: 1,
 							include: ['/_image'],
 							exclude: [],
@@ -108,7 +109,7 @@ describe('_routes.json generation', () => {
 						const _routesJson = await fixture.readFile('/_routes.json');
 						const routes = JSON.parse(_routesJson);
 
-						expect(routes).to.deep.equal({
+						assert.deepEqual(routes, {
 							version: 1,
 							include: ['/', '/_image', '/dynamic1', '/dynamic2', '/dynamic3'],
 							exclude: [],
@@ -136,7 +137,7 @@ describe('_routes.json generation', () => {
 						const _routesJson = await fixture.readFile('/_routes.json');
 						const routes = JSON.parse(_routesJson);
 
-						expect(routes).to.deep.equal({
+						assert.deepEqual(routes, {
 							version: 1,
 							include: ['/*'],
 							exclude: ['/', '/index.html', '/public.txt', '/redirectme', '/a/redirect'],
@@ -167,7 +168,7 @@ describe('_routes.json generation', () => {
 						const _routesJson = await fixture.readFile('/_routes.json');
 						const routes = JSON.parse(_routesJson);
 
-						expect(routes).to.deep.equal({
+						assert.deepEqual(routes, {
 							version: 1,
 							include: ['/a/*', '/_image', '/another'],
 							exclude: ['/a/', '/a/redirect', '/a/index.html'],
@@ -198,7 +199,7 @@ describe('_routes.json generation', () => {
 						const _routesJson = await fixture.readFile('/_routes.json');
 						const routes = JSON.parse(_routesJson);
 
-						expect(routes).to.deep.equal({
+						assert.deepEqual(routes, {
 							version: 1,
 							include: ['/a/*', '/_image'],
 							exclude: ['/a/*', '/another'],
