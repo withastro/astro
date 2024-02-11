@@ -18,15 +18,11 @@ describe('plugins', () => {
 			],
 		});
 
-		await processor.render('test', {
+		await processor.render(`test`, {
 			fileURL: new URL('virtual.md', import.meta.url),
 		});
 
-		assert.ok(typeof context === 'object', 'Context should be an object');
-		assert.equal(
-			context.path,
-			fileURLToPath(new URL('virtual.md', import.meta.url)),
-			'Context path should match expected file path'
-		);
+		assert.ok(typeof context === 'object');
+		assert.equal(context.path, fileURLToPath(new URL('virtual.md', import.meta.url)));
 	});
 });

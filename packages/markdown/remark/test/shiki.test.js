@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createMarkdownProcessor, createShikiHighlighter } from '../dist/index.js'; // Ensure path is correct
+import { createMarkdownProcessor, createShikiHighlighter } from '../dist/index.js';
 
 describe('shiki syntax highlighting', () => {
 	it('does not add is:raw to the output', async () => {
 		const processor = await createMarkdownProcessor();
 		const { code } = await processor.render('```\ntest\n```');
 
-		assert.ok(!code.includes('is:raw'), 'Output should not contain is:raw');
+		assert.ok(!code.includes('is:raw'));
 	});
 
 	it('supports light/dark themes', async () => {

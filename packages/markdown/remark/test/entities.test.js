@@ -13,10 +13,6 @@ describe('entities', async () => {
 		const markdown = `&lt;i&gt;This should NOT be italic&lt;/i&gt;`;
 		const { code } = await processor.render(markdown);
 
-		assert.equal(
-			code,
-			`<p>&#x3C;i>This should NOT be italic&#x3C;/i></p>`,
-			'Entities should not be unescaped'
-		);
+		assert.equal(code, `<p>&#x3C;i>This should NOT be italic&#x3C;/i></p>`);
 	});
 });

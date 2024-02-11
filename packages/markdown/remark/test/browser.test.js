@@ -11,7 +11,7 @@ describe('Bundle for browsers', async () => {
 				bundle: true,
 				write: false,
 			});
-			assert.ok(result.outputFiles.length > 0, 'Output files should be generated');
+			assert.ok(result.outputFiles.length > 0);
 		} catch (error) {
 			// Capture any esbuild errors and fail the test
 			assert.fail(error.message);
