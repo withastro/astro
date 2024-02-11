@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { describe, it, before } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
+import { fileURLToPath } from 'url';
 import { astroCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/hybrid/', import.meta.url);
@@ -18,6 +18,6 @@ describe('Hybrid rendering', () => {
 			version: 1,
 			include: ['/one', '/_image'],
 			exclude: [],
-		})
+		});
 	});
 });

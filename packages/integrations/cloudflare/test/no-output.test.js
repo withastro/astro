@@ -1,6 +1,6 @@
-import { fileURLToPath } from 'node:url';
-import { describe, it, before } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { astroCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/no-output/', import.meta.url);
@@ -14,6 +14,6 @@ describe('MissingOutputConfig', () => {
 			error = err;
 		}
 		assert.notEqual(error, undefined);
-		assert.equal(error.message.includes(`output: "server"`),true);
+		assert.equal(error.message.includes(`output: "server"`), true);
 	});
 });

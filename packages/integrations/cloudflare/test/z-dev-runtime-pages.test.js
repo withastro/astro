@@ -1,6 +1,6 @@
-import { fileURLToPath } from 'node:url';
-import { describe, it, before, after } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
 import { astroCli } from './_test-utils.js';
 
