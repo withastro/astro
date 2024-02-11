@@ -1,39 +1,43 @@
-import { createMarkdownProcessor } from '../dist/index.js';
-import chai from 'chai';
+import assert from 'node:assert/strict';
+import { describe, it, before } from 'node:test';
+import { createMarkdownProcessor } from '../dist/index.js'; // Ensure path is correct
 
 describe('collect images', async () => {
-	const processor = await createMarkdownProcessor();
+	let processor;
+
+	before(async () => {
+		processor = await createMarkdownProcessor();
+	});
 
 	it('should collect inline image paths', async () => {
-		const {
+		const markdown = `Hello ![inline image url](./img.png)`;
+		const fileURL = 'file.md';
+
+		const { code, metadata } = await processor.render(markdown, { fileURL });
+
+		// Use `assert.equal` for direct string comparisons
+		assert.equal(
 			code,
-			metadata: { imagePaths },
-		} = await processor.render(`Hello ![inline image url](./img.png)`, {
-			fileURL: 'file.md',
-		});
+			'<p>Hello <img __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;./img.png&#x22;,&#x22;alt&#x22;:&#x22;inline image url&#x22;,&#x22;index&#x22;:0}"></p>'
+		);
 
-		chai
-			.expect(code)
-			.to.equal(
-				'<p>Hello <img __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;./img.png&#x22;,&#x22;alt&#x22;:&#x22;inline image url&#x22;,&#x22;index&#x22;:0}"></p>'
-			);
-
-		chai.expect(Array.from(imagePaths)).to.deep.equal(['./img.png']);
+		// Use `assert.deepStrictEqual` for exact object comparison
+		assert.deepStrictEqual(Array.from(metadata.imagePaths), ['./img.png']);
 	});
 
 	it('should add image paths from definition', async () => {
-		const {
-			code,
-			metadata: { imagePaths },
-		} = await processor.render(`Hello ![image ref][img-ref]\n\n[img-ref]: ./img.webp`, {
-			fileURL: 'file.md',
-		});
+		const markdown = `Hello ![image ref][img-ref]\n\n[img-ref]: ./img.webp`;
+		const fileURL = 'file.md';
 
-		chai
-			.expect(code)
-			.to.equal(
-				'<p>Hello <img __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;./img.webp&#x22;,&#x22;alt&#x22;:&#x22;image ref&#x22;,&#x22;index&#x22;:0}"></p>'
-			);
-		chai.expect(Array.from(imagePaths)).to.deep.equal(['./img.webp']);
+		const { code, metadata } = await processor.render(markdown, { fileURL });
+
+		// Use `assert.equal` for direct string comparisons
+		assert.equal(
+			code,
+			'<p>Hello <img __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;./img.webp&#x22;,&#x22;alt&#x22;:&#x22;image ref&#x22;,&#x22;index&#x22;:0}"></p>'
+		);
+
+		// Use `assert.deepStrictEqual` for exact object comparison
+		assert.deepStrictEqual(Array.from(metadata.imagePaths), ['./img.webp']);
 	});
 });
