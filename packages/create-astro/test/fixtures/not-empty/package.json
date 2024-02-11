@@ -5,5 +5,9 @@
     "dev": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.5.2",
+    "typescript": "^5.3.3"
   }
 }
