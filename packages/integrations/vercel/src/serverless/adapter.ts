@@ -8,16 +8,16 @@ import type {
 import { AstroError } from 'astro/errors';
 import glob from 'fast-glob';
 import { basename } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import {
 	getAstroImageConfig,
 	getDefaultImageConfig,
 	type DevImageService,
 	type VercelImageConfig,
 } from '../image/shared.js';
-import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
+import { removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
-import { getRedirects } from '../lib/redirects.js';
+import { escapeRegex, getRedirects } from '../lib/redirects.js';
 import {
 	getSpeedInsightsViteConfig,
 	type VercelSpeedInsightsConfig,
@@ -29,8 +29,31 @@ import {
 import { generateEdgeMiddleware } from './middleware.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
+
+/**
+ * The edge function calls the node server at /_render,
+ * with the original path as the value of this header.
+ */
+export const ASTRO_PATH_HEADER = 'x-astro-path';
+export const ASTRO_PATH_PARAM = 'x_astro_path';
+
+/**
+ * The edge function calls the node server at /_render,
+ * with the locals serialized into this header.
+ */
 export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
+export const ASTRO_MIDDLEWARE_SECRET_HEADER = 'x-astro-middleware-secret';
 export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
+
+// Vercel routes the folder names to a path on the deployed website.
+// We attempt to avoid interfering by prefixing with an underscore.
+export const NODE_PATH = '_render';
+const MIDDLEWARE_PATH = '_middleware';
+
+// This isn't documented by vercel anywhere, but unlike serverless
+// and edge functions, isr functions are not passed the original path.
+// Instead, we have to use $0 to refer to the regex match from "src".
+const ISR_PATH = `/_isr?${ASTRO_PATH_PARAM}=$0`;
 
 // https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/node-js#node.js-version
 const SUPPORTED_NODE_VERSIONS: Record<
@@ -45,14 +68,17 @@ const SUPPORTED_NODE_VERSIONS: Record<
 function getAdapter({
 	edgeMiddleware,
 	functionPerRoute,
+	middlewareSecret,
 }: {
 	edgeMiddleware: boolean;
 	functionPerRoute: boolean;
+	middlewareSecret: string;
 }): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
 		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
 		exports: ['default'],
+		args: { middlewareSecret },
 		adapterFeatures: {
 			edgeMiddleware,
 			functionPerRoute,
@@ -66,6 +92,7 @@ function getAdapter({
 				isSharpCompatible: true,
 				isSquooshCompatible: true,
 			},
+			i18nDomains: 'experimental',
 		},
 	};
 }
@@ -74,7 +101,13 @@ export interface VercelServerlessConfig {
 	/** Configuration for [Vercel Web Analytics](https://vercel.com/docs/concepts/analytics). */
 	webAnalytics?: VercelWebAnalyticsConfig;
 
-	/** Configuration for [Vercel Speed Insights](https://vercel.com/docs/concepts/speed-insights). */
+	/**
+	 * @deprecated This option lets you configure the legacy speed insights API which is now deprecated by Vercel.
+	 *
+	 * See [Vercel Speed Insights Quickstart](https://vercel.com/docs/speed-insights/quickstart) for instructions on how to use the library instead.
+	 *
+	 * https://vercel.com/docs/speed-insights/quickstart
+	 */
 	speedInsights?: VercelSpeedInsightsConfig;
 
 	/** Force files to be bundled with your function. This is helpful when you notice missing files. */
@@ -100,19 +133,50 @@ export interface VercelServerlessConfig {
 
 	/** The maximum duration (in seconds) that Serverless Functions can run before timing out. See the [Vercel documentation](https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration) for the default and maximum limit for your account plan. */
 	maxDuration?: number;
+
+	/** Whether to cache on-demand rendered pages in the same way as static files. */
+	isr?: boolean | VercelISRConfig;
+}
+
+interface VercelISRConfig {
+	/**
+	 * A secret random string that you create.
+	 * Its presence in the `__prerender_bypass` cookie will result in fresh responses being served, bypassing the cache. See Vercel’s documentation on [Draft Mode](https://vercel.com/docs/build-output-api/v3/features#draft-mode) for more information.
+	 * Its presence in the `x-prerender-revalidate` header will result in a fresh response which will then be cached for all future requests to be used. See Vercel’s documentation on [On-Demand Incremental Static Regeneration (ISR)](https://vercel.com/docs/build-output-api/v3/features#on-demand-incremental-static-regeneration-isr) for more information.
+	 *
+	 * @default `undefined`
+	 */
+	bypassToken?: string;
+
+	/**
+	 * Expiration time (in seconds) before the pages will be re-generated.
+	 *
+	 * Setting to `false` means that the page will stay cached as long as the current deployment is in production.
+	 *
+	 * @default `false`
+	 */
+	expiration?: number | false;
+
+	/**
+	 * Paths that will always be served by a serverless function instead of an ISR function.
+	 *
+	 * @default `[]`
+	 */
+	exclude?: string[];
 }
 
 export default function vercelServerless({
 	webAnalytics,
 	speedInsights,
-	includeFiles,
-	excludeFiles,
+	includeFiles: _includeFiles = [],
+	excludeFiles: _excludeFiles = [],
 	imageService,
 	imagesConfig,
 	devImageService = 'sharp',
 	functionPerRoute = false,
 	edgeMiddleware = false,
 	maxDuration,
+	isr = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	if (maxDuration) {
 		if (typeof maxDuration !== 'number') {
@@ -124,13 +188,14 @@ export default function vercelServerless({
 	}
 
 	let _config: AstroConfig;
-	let buildTempFolder: URL;
-	let serverEntry: string;
+	let _buildTempFolder: URL;
+	let _serverEntry: string;
 	let _entryPoints: Map<RouteData, URL>;
+	let _middlewareEntryPoint: URL | undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
-
-	const NTF_CACHE = Object.create(null);
+	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
+	const middlewareSecret = crypto.randomUUID();
 
 	return {
 		name: PACKAGE_NAME,
@@ -156,13 +221,12 @@ export default function vercelServerless({
 				if (command === 'build' && speedInsights?.enabled) {
 					injectScript('page', 'import "@astrojs/vercel/speed-insights"');
 				}
-				const outDir = getVercelOutput(config.root);
+
 				updateConfig({
-					outDir,
+					outDir: new URL('./.vercel/output/', config.root),
 					build: {
-						serverEntry: 'entry.mjs',
-						client: new URL('./static/', outDir),
-						server: new URL('./dist/', config.root),
+						client: new URL('./.vercel/output/static/', config.root),
+						server: new URL('./.vercel/output/_functions/', config.root),
 						redirects: false,
 					},
 					vite: {
@@ -183,15 +247,18 @@ export default function vercelServerless({
 			'astro:config:done': ({ setAdapter, config, logger }) => {
 				if (functionPerRoute === true) {
 					logger.warn(
-						`Vercel's hosting plans might have limits to the number of functions you can create.
-Make sure to check your plan carefully to avoid incurring additional costs.
-You can set functionPerRoute: false to prevent surpassing the limit.`
+						`\n` +
+							`\tVercel's hosting plans might have limits to the number of functions you can create.\n` +
+							`\tMake sure to check your plan carefully to avoid incurring additional costs.\n` +
+							`\tYou can set functionPerRoute: false to prevent surpassing the limit.\n`
 					);
 				}
-				setAdapter(getAdapter({ functionPerRoute, edgeMiddleware }));
+
+				setAdapter(getAdapter({ functionPerRoute, edgeMiddleware, middlewareSecret }));
+
 				_config = config;
-				buildTempFolder = config.build.server;
-				serverEntry = config.build.serverEntry;
+				_buildTempFolder = config.build.server;
+				_serverEntry = config.build.serverEntry;
 
 				if (config.output === 'static') {
 					throw new AstroError(
@@ -199,25 +266,24 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 					);
 				}
 			},
-
-			'astro:build:ssr': async ({ entryPoints, middlewareEntryPoint }) => {
-				_entryPoints = entryPoints;
-				if (middlewareEntryPoint) {
-					const outPath = fileURLToPath(buildTempFolder);
-					const vercelEdgeMiddlewareHandlerPath = new URL(
-						VERCEL_EDGE_MIDDLEWARE_FILE,
-						_config.srcDir
-					);
-					const bundledMiddlewarePath = await generateEdgeMiddleware(
-						middlewareEntryPoint,
-						outPath,
-						vercelEdgeMiddlewareHandlerPath
-					);
-					// let's tell the adapter that we need to save this file
-					extraFilesToInclude.push(bundledMiddlewarePath);
+			'astro:server:setup'({ server }) {
+				// isr functions do not have access to search params, this middleware removes them for the dev mode
+				if (isr) {
+					const exclude_ = typeof isr === 'object' ? isr.exclude ?? [] : [];
+					// we create a regex to emulate vercel's production behavior
+					const exclude = exclude_.concat('/_image').map((ex) => new RegExp(escapeRegex(ex)));
+					server.middlewares.use(function removeIsrParams(req, _, next) {
+						const { pathname } = new URL(`https://example.com${req.url}`);
+						if (exclude.some((ex) => ex.test(pathname))) return next();
+						req.url = pathname;
+						return next();
+					});
 				}
 			},
-
+			'astro:build:ssr': async ({ entryPoints, middlewareEntryPoint }) => {
+				_entryPoints = entryPoints;
+				_middlewareEntryPoint = middlewareEntryPoint;
+			},
 			'astro:build:done': async ({ routes, logger }) => {
 				// Merge any includes from `vite.assetsInclude
 				if (_config.vite.assetsInclude) {
@@ -235,11 +301,18 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 					mergeGlobbedIncludes(_config.vite.assetsInclude);
 				}
 
-				const routeDefinitions: { src: string; dest: string }[] = [];
-				const filesToInclude = includeFiles?.map((file) => new URL(file, _config.root)) || [];
-				filesToInclude.push(...extraFilesToInclude);
+				const routeDefinitions: Array<{
+					src: string;
+					dest: string;
+					middlewarePath?: string;
+				}> = [];
 
-				validateRuntime();
+				const includeFiles = _includeFiles
+					.map((file) => new URL(file, _config.root))
+					.concat(extraFilesToInclude);
+				const excludeFiles = _excludeFiles.map((file) => new URL(file, _config.root));
+
+				const builder = new VercelBuilder(_config, excludeFiles, includeFiles, logger, maxDuration);
 
 				// Multiple entrypoint support
 				if (_entryPoints.size) {
@@ -255,35 +328,47 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 							? getRouteFuncName(route)
 							: getFallbackFuncName(entryFile);
 
-						await createFunctionFolder({
-							functionName: func,
-							entry: entryFile,
-							config: _config,
-							logger,
-							NTF_CACHE,
-							includeFiles: filesToInclude,
-							excludeFiles,
-							maxDuration,
-						});
+						await builder.buildServerlessFolder(entryFile, func);
+
 						routeDefinitions.push({
 							src: route.pattern.source,
 							dest: func,
 						});
 					}
 				} else {
-					await createFunctionFolder({
-						functionName: 'render',
-						entry: new URL(serverEntry, buildTempFolder),
-						config: _config,
-						logger,
-						NTF_CACHE,
-						includeFiles: filesToInclude,
-						excludeFiles,
-						maxDuration,
-					});
-					routeDefinitions.push({ src: '/.*', dest: 'render' });
+					const entryFile = new URL(_serverEntry, _buildTempFolder);
+					if (isr) {
+						const isrConfig = typeof isr === 'object' ? isr : {};
+						await builder.buildServerlessFolder(entryFile, NODE_PATH);
+						if (isrConfig.exclude?.length) {
+							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
+							for (const route of isrConfig.exclude) {
+								// vercel interprets src as a regex pattern, so we need to escape it
+								routeDefinitions.push({ src: escapeRegex(route), dest });
+							}
+						}
+						await builder.buildISRFolder(entryFile, '_isr', isrConfig);
+						for (const route of routes) {
+							const src = route.pattern.source;
+							const dest = src.startsWith('^\\/_image') ? NODE_PATH : ISR_PATH;
+							if (!route.prerender) routeDefinitions.push({ src, dest });
+						}
+					} else {
+						await builder.buildServerlessFolder(entryFile, NODE_PATH);
+						const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
+						for (const route of routes) {
+							if (!route.prerender) routeDefinitions.push({ src: route.pattern.source, dest });
+						}
+					}
 				}
-
+				if (_middlewareEntryPoint) {
+					await builder.buildMiddlewareFolder(
+						_middlewareEntryPoint,
+						MIDDLEWARE_PATH,
+						middlewareSecret
+					);
+				}
+				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
 				// Output configuration
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
 				await writeJson(new URL(`./config.json`, _config.outDir), {
@@ -297,6 +382,19 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 						},
 						{ handle: 'filesystem' },
 						...routeDefinitions,
+						...(fourOhFourRoute
+							? [
+									{
+										src: '/.*',
+										dest: fourOhFourRoute.prerender
+											? '/404.html'
+											: _middlewareEntryPoint
+												? MIDDLEWARE_PATH
+												: NODE_PATH,
+										status: 404,
+									},
+								]
+							: []),
 					],
 					...(imageService || imagesConfig
 						? {
@@ -315,103 +413,125 @@ You can set functionPerRoute: false to prevent surpassing the limit.`
 				});
 
 				// Remove temporary folder
-				await removeDir(buildTempFolder);
+				await removeDir(_buildTempFolder);
 			},
 		},
 	};
 }
 
-interface CreateFunctionFolderArgs {
-	functionName: string;
-	entry: URL;
-	config: AstroConfig;
-	logger: AstroIntegrationLogger;
-	NTF_CACHE: any;
-	includeFiles: URL[];
-	excludeFiles?: string[];
-	maxDuration: number | undefined;
-}
+type Runtime = `nodejs${string}.x`;
 
-async function createFunctionFolder({
-	functionName,
-	entry,
-	config,
-	logger,
-	NTF_CACHE,
-	includeFiles,
-	excludeFiles,
-	maxDuration,
-}: CreateFunctionFolderArgs) {
-	const functionFolder = new URL(`./functions/${functionName}.func/`, config.outDir);
+class VercelBuilder {
+	readonly NTF_CACHE = {};
 
-	// Copy necessary files (e.g. node_modules/)
-	const { handler } = await copyDependenciesToFunction(
-		{
+	constructor(
+		readonly config: AstroConfig,
+		readonly excludeFiles: URL[],
+		readonly includeFiles: URL[],
+		readonly logger: AstroIntegrationLogger,
+		readonly maxDuration?: number,
+		readonly runtime = getRuntime(process, logger)
+	) {}
+
+	async buildServerlessFolder(entry: URL, functionName: string) {
+		const { config, includeFiles, excludeFiles, logger, NTF_CACHE, runtime, maxDuration } = this;
+		// .vercel/output/functions/<name>.func/
+		const functionFolder = new URL(`./functions/${functionName}.func/`, config.outDir);
+		const packageJson = new URL(`./functions/${functionName}.func/package.json`, config.outDir);
+		const vcConfig = new URL(`./functions/${functionName}.func/.vc-config.json`, config.outDir);
+
+		// Copy necessary files (e.g. node_modules/)
+		const { handler } = await copyDependenciesToFunction(
+			{
+				entry,
+				outDir: functionFolder,
+				includeFiles,
+				excludeFiles,
+				logger,
+			},
+			NTF_CACHE
+		);
+
+		// Enable ESM
+		// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
+		await writeJson(packageJson, { type: 'module' });
+
+		// Serverless function config
+		// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
+		await writeJson(vcConfig, {
+			runtime,
+			handler: handler.replaceAll('\\', '/'),
+			launcherType: 'Nodejs',
+			maxDuration,
+			supportsResponseStreaming: true,
+		});
+	}
+
+	async buildISRFolder(entry: URL, functionName: string, isr: VercelISRConfig) {
+		await this.buildServerlessFolder(entry, functionName);
+		const prerenderConfig = new URL(
+			`./functions/${functionName}.prerender-config.json`,
+			this.config.outDir
+		);
+		// https://vercel.com/docs/build-output-api/v3/primitives#prerender-configuration-file
+		await writeJson(prerenderConfig, {
+			expiration: isr.expiration ?? false,
+			bypassToken: isr.bypassToken,
+			allowQuery: [ASTRO_PATH_PARAM],
+			passQuery: true,
+		});
+	}
+
+	async buildMiddlewareFolder(entry: URL, functionName: string, middlewareSecret: string) {
+		const functionFolder = new URL(`./functions/${functionName}.func/`, this.config.outDir);
+
+		await generateEdgeMiddleware(
 			entry,
-			outDir: functionFolder,
-			includeFiles,
-			excludeFiles: excludeFiles?.map((file) => new URL(file, config.root)) || [],
-			logger,
-		},
-		NTF_CACHE
-	);
+			new URL(VERCEL_EDGE_MIDDLEWARE_FILE, this.config.srcDir),
+			new URL('./middleware.mjs', functionFolder),
+			middlewareSecret
+		);
 
-	// Enable ESM
-	// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
-	await writeJson(new URL(`./package.json`, functionFolder), {
-		type: 'module',
-	});
-
-	// Serverless function config
-	// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
-	await writeJson(new URL(`./.vc-config.json`, functionFolder), {
-		runtime: getRuntime(),
-		handler,
-		launcherType: 'Nodejs',
-		maxDuration,
-		supportsResponseStreaming: true,
-	});
-}
-
-function validateRuntime() {
-	const version = process.version.slice(1); // 'v16.5.0' --> '16.5.0'
-	const major = version.split('.')[0]; // '16.5.0' --> '16'
-	const support = SUPPORTED_NODE_VERSIONS[major];
-	if (support === undefined) {
-		console.warn(
-			`[${PACKAGE_NAME}] The local Node.js version (${major}) is not supported by Vercel Serverless Functions.`
-		);
-		console.warn(`[${PACKAGE_NAME}] Your project will use Node.js 18 as the runtime instead.`);
-		console.warn(`[${PACKAGE_NAME}] Consider switching your local version to 18.`);
-		return;
-	}
-	if (support.status === 'beta') {
-		console.warn(
-			`[${PACKAGE_NAME}] The local Node.js version (${major}) is currently in beta for Vercel Serverless Functions.`
-		);
-		console.warn(`[${PACKAGE_NAME}] Make sure to update your Vercel settings to use ${major}.`);
-		return;
-	}
-	if (support.status === 'deprecated') {
-		console.warn(
-			`[${PACKAGE_NAME}] Your project is being built for Node.js ${major} as the runtime.`
-		);
-		console.warn(
-			`[${PACKAGE_NAME}] This version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${new Intl.DateTimeFormat(
-				undefined,
-				{ dateStyle: 'long' }
-			).format(support.removal)}.`
-		);
-		console.warn(`[${PACKAGE_NAME}] Consider upgrading your local version to 18.`);
+		await writeJson(new URL(`./.vc-config.json`, functionFolder), {
+			runtime: 'edge',
+			entrypoint: 'middleware.mjs',
+		});
 	}
 }
 
-function getRuntime() {
-	const version = process.version.slice(1); // 'v16.5.0' --> '16.5.0'
-	const major = version.split('.')[0]; // '16.5.0' --> '16'
+function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Runtime {
+	const version = process.version.slice(1); // 'v18.19.0' --> '18.19.0'
+	const major = version.split('.')[0]; // '18.19.0' --> '18'
 	const support = SUPPORTED_NODE_VERSIONS[major];
 	if (support === undefined) {
+		logger.warn(
+			`\n` +
+				`\tThe local Node.js version (${major}) is not supported by Vercel Serverless Functions.\n` +
+				`\tYour project will use Node.js 18 as the runtime instead.\n` +
+				`\tConsider switching your local version to 18.\n`
+		);
 		return 'nodejs18.x';
 	}
-	return `nodejs${major}.x`;
+	if (support.status === 'current') {
+		return `nodejs${major}.x`;
+	}
+	if (support.status === 'beta') {
+		logger.warn(
+			`Your project is being built for Node.js ${major} as the runtime, which is currently in beta for Vercel Serverless Functions.`
+		);
+		return `nodejs${major}.x`;
+	}
+	if (support.status === 'deprecated') {
+		const removeDate = new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(
+			support.removal
+		);
+		logger.warn(
+			`\n` +
+				`\tYour project is being built for Node.js ${major} as the runtime.\n` +
+				`\tThis version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${removeDate}.\n` +
+				`\tConsider upgrading your local version to 18.\n`
+		);
+		return `nodejs${major}.x`;
+	}
+	return 'nodejs18.x';
 }

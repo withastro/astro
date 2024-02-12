@@ -21,7 +21,7 @@ jobs:
       MAIN-BENCH: ${{ steps.benchmark-main.outputs.BENCH_RESULT }}
     steps:
       # https://github.com/actions/checkout/issues/331#issuecomment-1438220926
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
           ref: refs/pull/${{ github.event.issue.number }}/head
@@ -30,9 +30,9 @@ jobs:
         uses: pnpm/action-setup@v2
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 18
           cache: "pnpm"
 
       - name: Install dependencies
@@ -63,7 +63,7 @@ jobs:
         shell: bash
 
       # main benchmark
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
           ref: "main"
@@ -94,7 +94,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Comment PR
-        uses: peter-evans/create-or-update-comment@v2
+        uses: peter-evans/create-or-update-comment@v4
         continue-on-error: true
         with:
           issue-number: ${{ github.event.issue.number }}

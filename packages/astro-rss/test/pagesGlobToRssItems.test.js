@@ -1,9 +1,8 @@
-import chai from 'chai';
-import chaiPromises from 'chai-as-promised';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+
 import { phpFeedItem, web1FeedItem } from './test-utils.js';
 import { pagesGlobToRssItems } from '../dist/index.js';
-
-chai.use(chaiPromises);
 
 describe('pagesGlobToRssItems', () => {
 	it('should generate on valid result', async () => {
@@ -33,8 +32,7 @@ describe('pagesGlobToRssItems', () => {
 		};
 
 		const items = await pagesGlobToRssItems(globResult);
-
-		chai.expect(items.sort((a, b) => a.pubDate - b.pubDate)).to.deep.equal([
+		const expected = [
 			{
 				title: phpFeedItem.title,
 				link: phpFeedItem.link,
@@ -47,7 +45,12 @@ describe('pagesGlobToRssItems', () => {
 				pubDate: new Date(web1FeedItem.pubDate),
 				description: web1FeedItem.description,
 			},
-		]);
+		];
+
+		assert.deepStrictEqual(
+			items.sort((a, b) => a.pubDate - b.pubDate),
+			expected
+		);
 	});
 
 	it('should fail on missing "url"', () => {
@@ -63,10 +66,27 @@ describe('pagesGlobToRssItems', () => {
 					})
 				),
 		};
-		return chai.expect(pagesGlobToRssItems(globResult)).to.be.rejected;
+		return assert.rejects(pagesGlobToRssItems(globResult));
 	});
 
-	it('should fail on missing "title" key', () => {
+	it('should fail on missing "title" key and "description"', () => {
+		const globResult = {
+			'./posts/php.md': () =>
+				new Promise((resolve) =>
+					resolve({
+						url: phpFeedItem.link,
+						frontmatter: {
+							title: undefined,
+							pubDate: phpFeedItem.pubDate,
+							description: undefined,
+						},
+					})
+				),
+		};
+		return assert.rejects(pagesGlobToRssItems(globResult));
+	});
+
+	it('should not fail on missing "title" key if "description" is present', () => {
 		const globResult = {
 			'./posts/php.md': () =>
 				new Promise((resolve) =>
@@ -80,6 +100,23 @@ describe('pagesGlobToRssItems', () => {
 					})
 				),
 		};
-		return chai.expect(pagesGlobToRssItems(globResult)).to.be.rejected;
+		return assert.doesNotReject(pagesGlobToRssItems(globResult));
+	});
+
+	it('should not fail on missing "description" key if "title" is present', () => {
+		const globResult = {
+			'./posts/php.md': () =>
+				new Promise((resolve) =>
+					resolve({
+						url: phpFeedItem.link,
+						frontmatter: {
+							title: phpFeedItem.title,
+							pubDate: phpFeedItem.pubDate,
+							description: undefined,
+						},
+					})
+				),
+		};
+		return assert.doesNotReject(pagesGlobToRssItems(globResult));
 	});
 });

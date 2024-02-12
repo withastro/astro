@@ -67,7 +67,6 @@ export class BuildPipeline extends Pipeline {
 		this.#internals = internals;
 		this.#staticBuildOptions = staticBuildOptions;
 		this.#manifest = manifest;
-		this.setEndpointHandler(this.#handleEndpointResult);
 	}
 
 	getInternals(): Readonly<BuildInternals> {
@@ -126,6 +125,13 @@ export class BuildPipeline extends Pipeline {
 
 		const renderersEntryUrl = new URL(`renderers.mjs?time=${Date.now()}`, baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
+
+		const middleware = await import(new URL('middleware.mjs', baseDirectory).toString())
+			.then((mod) => mod.onRequest)
+			// middleware.mjs is not emitted if there is no user middleware
+			// in which case the import fails with ERR_MODULE_NOT_FOUND, and we fall back to a no-op middleware
+			.catch(() => manifest.middleware);
+
 		if (!renderers) {
 			throw new Error(
 				"Astro couldn't find the emitted renderers. This is an internal error, please file an issue."
@@ -134,6 +140,7 @@ export class BuildPipeline extends Pipeline {
 		return {
 			...manifest,
 			renderers: renderers.renderers as SSRLoadedRenderer[],
+			middleware,
 		};
 	}
 
@@ -192,9 +199,5 @@ export class BuildPipeline extends Pipeline {
 		}
 
 		return pages;
-	}
-
-	async #handleEndpointResult(_: Request, response: Response): Promise<Response> {
-		return response;
 	}
 }

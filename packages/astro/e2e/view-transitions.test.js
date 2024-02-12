@@ -413,10 +413,7 @@ test.describe('View Transitions', () => {
 		await expect(locator).toBeInViewport();
 
 		// Scroll back to top
-		// back returns immediately, but we need to wait for navigate() to complete
-		const waitForReady = page.waitForEvent('console');
 		await page.goBack();
-		await waitForReady;
 		locator = page.locator('#longpage');
 		await expect(locator).toBeInViewport();
 
@@ -424,6 +421,85 @@ test.describe('View Transitions', () => {
 		await page.goForward();
 		locator = page.locator('#click-one-again');
 		await expect(locator).toBeInViewport();
+	});
+
+	test('View Transitions Rule', async ({ page, astro }) => {
+		let consoleCount = 0;
+		page.on('console', (msg) => {
+			// This count is used for transition events
+			if (msg.text() === 'ready') consoleCount++;
+		});
+		// Don't test back and forward '' to '', because They are not stored in the history.
+		// click '' to '' (transition)
+		await page.goto(astro.resolveUrl('/long-page'));
+		let locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+		let consolePromise = page.waitForEvent('console');
+		await page.click('#click-self');
+		await consolePromise;
+		locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(1);
+
+		// click '' to 'hash' (no transition)
+		await page.click('#click-scroll-down');
+		locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(1);
+
+		// back 'hash' to '' (no transition)
+		await page.goBack();
+		locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(1);
+
+		// forward '' to 'hash' (no transition)
+		await page.goForward();
+		locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(1);
+
+		// click 'hash' to 'hash' (no transition)
+		await page.click('#click-scroll-up');
+		locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(1);
+
+		// back 'hash' to 'hash' (no transition)
+		await page.goBack();
+		locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(1);
+
+		// forward 'hash' to 'hash' (no transition)
+		await page.goForward();
+		locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(1);
+
+		// click 'hash' to '' (transition)
+		consolePromise = page.waitForEvent('console');
+		await page.click('#click-self');
+		await consolePromise;
+		locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(2);
+
+		// back '' to 'hash' (transition)
+		consolePromise = page.waitForEvent('console');
+		await page.goBack();
+		await consolePromise;
+		locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(3);
+
+		// forward 'hash' to '' (transition)
+		consolePromise = page.waitForEvent('console');
+		await page.goForward();
+		await consolePromise;
+		locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(4);
 	});
 
 	test('<Image /> component forwards transitions to the <img>', async ({ page, astro }) => {
@@ -932,6 +1008,13 @@ test.describe('View Transitions', () => {
 		).toEqual(1);
 	});
 
+	test('form POST that action for cross-origin is opt-out', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/form-five'));
+		page.on('request', (request) => expect(request.method()).toBe('POST'));
+		// Submit the form
+		await page.click('#submit');
+	});
+
 	test('form GET that redirects to another page is handled', async ({ page, astro }) => {
 		const loads = [];
 		page.addListener('load', async (p) => {
@@ -1186,5 +1269,86 @@ test.describe('View Transitions', () => {
 		await expect(page.locator('dialog')).not.toHaveAttribute('open');
 
 		expect(requests).toHaveLength(0);
+	});
+
+	test('view transition should also work with 404 page', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to 404
+		await page.click('#click-404');
+		p = page.locator('#FourOhFour');
+		await expect(p, 'should have content').toHaveText('Page not found');
+
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
+	test('custom elements can trigger a view transition', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', (p) => {
+			loads.push(p.title());
+		});
+		await page.goto(astro.resolveUrl('/one'));
+		await expect(page.locator('#one'), 'should have content').toHaveText('Page 1');
+		// go to page 2
+		await page.click('#custom-click-two');
+		await expect(page.locator('#two'), 'should have content').toHaveText('Page 2');
+
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
+	test('transition:name should be escaped correctly', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/transition-name'));
+		await expect(page.locator('#one'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'front-end'
+		);
+		await expect(page.locator('#two'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'开源'
+		);
+		await expect(page.locator('#three'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'开a源'
+		);
+		await expect(page.locator('#four'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'c开a源c'
+		);
+		await expect(page.locator('#five'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'オープンソース'
+		);
+		await expect(page.locator('#six'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'开\\$源'
+		);
+		await expect(page.locator('#seven'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'开\\.源'
+		);
+		await expect(page.locator('#eight'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'🐎👱❤'
+		);
+		await expect(page.locator('#nine'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'--9'
+		);
+		await expect(page.locator('#ten'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'\\31 0'
+		);
+		await expect(page.locator('#eleven'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'-\\31 1'
+		);
 	});
 });

@@ -53,6 +53,9 @@ const { fallback = 'animate' } = Astro.props;
 	if (supportsViewTransitions || getFallback() !== 'none') {
 		document.addEventListener('click', (ev) => {
 			let link = ev.target;
+			if (ev.composed) {
+				link = ev.composedPath()[0];
+			}
 			if (link instanceof Element) {
 				link = link.closest('a, area');
 			}
@@ -106,7 +109,9 @@ const { fallback = 'animate' } = Astro.props;
 
 			// the "dialog" method is a special keyword used within <dialog> elements
 			// https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#attr-fs-method
-			if (method === 'dialog') {
+			if (method === 'dialog' || location.origin !== new URL(action, location.href).origin) {
+				// No page transitions in these cases,
+				// Let the browser standard action handle this
 				return;
 			}
 

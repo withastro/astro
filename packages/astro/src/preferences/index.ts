@@ -35,6 +35,7 @@ type DeepPartial<T> = T extends object
 
 export type PreferenceKey = DotKeys<Preferences>;
 export interface PreferenceList extends Record<PreferenceLocation, DeepPartial<Preferences>> {
+	fromAstroConfig: DeepPartial<Preferences>;
 	defaults: Preferences;
 }
 
@@ -65,7 +66,10 @@ export function coerce(key: string, value: unknown) {
 		case 'boolean': {
 			if (value === 'true' || value === 1) return true;
 			if (value === 'false' || value === 0) return false;
+			break;
 		}
+		default:
+			throw new Error(`Incorrect value for ${key}`);
 	}
 	return value as any;
 }
@@ -95,8 +99,15 @@ export default function createPreferences(config: AstroConfig): AstroPreferences
 			return {
 				global: stores['global'].getAll(),
 				project: stores['project'].getAll(),
+				fromAstroConfig: mapFrom(DEFAULT_PREFERENCES, config),
 				defaults: DEFAULT_PREFERENCES,
 			};
+
+			function mapFrom(defaults: Preferences, astroConfig: Record<string, any>) {
+				return Object.fromEntries(
+					Object.entries(defaults).map(([key, _]) => [key, astroConfig[key]])
+				);
+			}
 		},
 	};
 }

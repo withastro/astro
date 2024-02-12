@@ -1,5 +1,6 @@
 import './astro-jsx';
-import { AstroBuiltinAttributes } from './dist/@types/astro.js';
+import type { AstroBuiltinAttributes } from './dist/@types/astro.js';
+import type { Simplify } from './dist/type-utils.js';
 
 /** Any supported HTML or SVG element name, as defined by the HTML specification */
 export type HTMLTag = keyof astroHTML.JSX.DefinedIntrinsicElements;
@@ -20,3 +21,5 @@ type PolymorphicAttributes<P extends { as: HTMLTag }> = Omit<P & HTMLAttributes<
 export type Polymorphic<P extends { as: HTMLTag }> = PolymorphicAttributes<
 	Omit<P, 'as'> & { as: NonNullable<P['as']> }
 >;
+
+export type ComponentProps<T extends (args: any) => any> = Simplify<Parameters<T>[0]>;

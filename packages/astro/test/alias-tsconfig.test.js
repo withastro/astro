@@ -86,6 +86,13 @@ describe('Aliases with tsconfig.json', () => {
 
 			expect($('#alias').text()).to.equal('foo');
 		});
+
+		it('works for import.meta.glob', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			const $ = cheerio.load(html);
+
+			expect($('#glob').text()).to.equal('/src/components/glob/a.js');
+		});
 	});
 
 	describe('build', () => {
@@ -134,6 +141,13 @@ describe('Aliases with tsconfig.json', () => {
 			const $ = cheerio.load(html);
 
 			expect($('#alias').text()).to.equal('foo');
+		});
+
+		it('works for import.meta.glob', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+
+			expect($('#glob').text()).to.equal('/src/components/glob/a.js');
 		});
 	});
 });

@@ -11,6 +11,6 @@ export default defineConfig({
 					path: "spanish",
 					codes: ["es", "es-SP"]
 				}
-			]
+			],
 		}
 })

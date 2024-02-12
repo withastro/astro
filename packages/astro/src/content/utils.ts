@@ -11,12 +11,11 @@ import type {
 	AstroSettings,
 	ContentEntryType,
 	DataEntryType,
-	ImageInputFormat,
 } from '../@types/astro.js';
-import { VALID_INPUT_FORMATS } from '../assets/consts.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 
-import { formatYAMLException, isYAMLException } from '../core/errors/utils.js';
+import { MarkdownError } from '../core/errors/index.js';
+import { isYAMLException } from '../core/errors/utils.js';
 import { CONTENT_FLAGS, CONTENT_TYPES_FILE } from './consts.js';
 import { errorMap } from './error-map.js';
 import { createImage } from './runtime-assets.js';
@@ -127,7 +126,7 @@ export async function getEntryData(
 
 		// Use `safeParseAsync` to allow async transforms
 		let formattedError;
-		const parsed = await (schema as z.ZodSchema).safeParseAsync(entry.unvalidatedData, {
+		const parsed = await (schema as z.ZodSchema).safeParseAsync(data, {
 			errorMap(error, ctx) {
 				if (error.code === 'custom' && error.params?.isHoistedAstroError) {
 					formattedError = error.params?.astroError;
@@ -247,15 +246,11 @@ export function getEntryType(
 	paths: Pick<ContentPaths, 'config' | 'contentDir'>,
 	contentFileExts: string[],
 	dataFileExts: string[]
-): 'content' | 'data' | 'config' | 'ignored' | 'unsupported' {
-	const { ext, base } = path.parse(entryPath);
+): 'content' | 'data' | 'config' | 'ignored' {
+	const { ext } = path.parse(entryPath);
 	const fileUrl = pathToFileURL(entryPath);
 
-	if (
-		hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir) ||
-		isOnIgnoreList(base) ||
-		isImageAsset(ext)
-	) {
+	if (hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir)) {
 		return 'ignored';
 	} else if (contentFileExts.includes(ext)) {
 		return 'content';
@@ -264,19 +259,8 @@ export function getEntryType(
 	} else if (fileUrl.href === paths.config.url.href) {
 		return 'config';
 	} else {
-		return 'unsupported';
+		return 'ignored';
 	}
-}
-
-function isOnIgnoreList(fileName: string) {
-	return ['.DS_Store'].includes(fileName);
-}
-
-/**
- * Return if a file extension is a valid image asset, so we can avoid outputting a warning for them.
- */
-function isImageAsset(fileExt: string) {
-	return VALID_INPUT_FORMATS.includes(fileExt.slice(1) as ImageInputFormat);
 }
 
 export function hasUnderscoreBelowContentDirectoryPath(
@@ -304,18 +288,32 @@ function getYAMLErrorLine(rawData: string | undefined, objectKey: string) {
 	return numNewlinesBeforeKey;
 }
 
-export function parseFrontmatter(fileContents: string) {
+export function safeParseFrontmatter(source: string, id?: string) {
 	try {
-		// `matter` is empty string on cache results
-		// clear cache to prevent this
-		(matter as any).clearCache();
-		return matter(fileContents);
-	} catch (e) {
-		if (isYAMLException(e)) {
-			throw formatYAMLException(e);
-		} else {
-			throw e;
+		return matter(source);
+	} catch (err: any) {
+		const markdownError = new MarkdownError({
+			name: 'MarkdownError',
+			message: err.message,
+			stack: err.stack,
+			location: id
+				? {
+						file: id,
+					}
+				: undefined,
+		});
+
+		if (isYAMLException(err)) {
+			markdownError.setLocation({
+				file: id,
+				line: err.mark.line,
+				column: err.mark.column,
+			});
+
+			markdownError.setMessage(err.reason);
 		}
+
+		throw markdownError;
 	}
 }
 

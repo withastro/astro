@@ -1,5 +1,32 @@
 # @astrojs/node
 
+## 8.2.0
+
+### Minor Changes
+
+- [#9143](https://github.com/withastro/astro/pull/9143) [`041fdd5c89920f7ccf944b095f29e451f78b0e28`](https://github.com/withastro/astro/commit/041fdd5c89920f7ccf944b095f29e451f78b0e28) Thanks [@ematipico](https://github.com/ematipico)! - Adds experimental support for internationalization domains
+
+## 8.1.0
+
+### Minor Changes
+
+- [#9080](https://github.com/withastro/astro/pull/9080) [`a12196d6b59e39f5d405734ecdbf6f6b42b39a93`](https://github.com/withastro/astro/commit/a12196d6b59e39f5d405734ecdbf6f6b42b39a93) Thanks [@msxdan](https://github.com/msxdan)! - Add trailingSlash support to NodeJS adapter
+
+## 8.0.0
+
+### Major Changes
+
+- [#9661](https://github.com/withastro/astro/pull/9661) [`d6edc7540864cf5d294d7b881eb886a3804f6d05`](https://github.com/withastro/astro/commit/d6edc7540864cf5d294d7b881eb886a3804f6d05) Thanks [@ematipico](https://github.com/ematipico)! - If host is unset in standalone mode, the server host will now fallback to `localhost` instead of `127.0.0.1`. When `localhost` is used, the operating system can decide to use either `::1` (ipv6) or `127.0.0.1` (ipv4) itself. This aligns with how the Astro dev and preview server works by default.
+
+  If you relied on `127.0.0.1` (ipv4) before, you can set the `HOST` environment variable to `127.0.0.1` to explicitly use ipv4. For example, `HOST=127.0.0.1 node ./dist/server/entry.mjs`.
+
+- [#9661](https://github.com/withastro/astro/pull/9661) [`d6edc7540864cf5d294d7b881eb886a3804f6d05`](https://github.com/withastro/astro/commit/d6edc7540864cf5d294d7b881eb886a3804f6d05) Thanks [@ematipico](https://github.com/ematipico)! - **Breaking**: Minimum required Astro version is now 4.2.0.
+  Reorganizes internals to be more maintainable.
+
+### Patch Changes
+
+- [#9661](https://github.com/withastro/astro/pull/9661) [`d6edc7540864cf5d294d7b881eb886a3804f6d05`](https://github.com/withastro/astro/commit/d6edc7540864cf5d294d7b881eb886a3804f6d05) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the preview server appeared to be ready to serve requests before binding to a port.
+
 ## 7.0.4
 
 ### Patch Changes

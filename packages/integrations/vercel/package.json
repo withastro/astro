@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "6.1.2",
+  "version": "7.3.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -46,7 +46,7 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "mocha --exit --timeout 20000 --file \"./test/setup.js\" test/ --ignore test/hosted",
+    "test": "mocha --exit --timeout 20000 --file \"./test/setup.js\" test/ --ignore test/hosted --ignore **/*.nodetest.js",
     "test:hosted": "mocha --exit --timeout 30000 test/hosted"
   },
   "dependencies": {
@@ -59,7 +59,7 @@
     "web-vitals": "^3.4.0"
   },
   "peerDependencies": {
-    "astro": "^4.0.2"
+    "astro": "^4.2.0"
   },
   "devDependencies": {
     "@types/set-cookie-parser": "^2.4.6",

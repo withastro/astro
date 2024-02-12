@@ -17,9 +17,11 @@ import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } f
 // This import is required to appease TypeScript!
 // See https://github.com/withastro/astro/pull/8762
 import 'mdast-util-to-hast';
+import 'shikiji-core';
 
 type ShikiLangs = NonNullable<ShikiConfig['langs']>;
 type ShikiTheme = NonNullable<ShikiConfig['theme']>;
+type ShikiTransformers = NonNullable<ShikiConfig['transformers']>;
 
 const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
@@ -58,10 +60,19 @@ const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		optimizeHoistedScript: false,
 		contentCollectionCache: false,
+		clientPrerender: false,
+		globalRoutePriority: false,
+		i18nDomains: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
-type RoutingStrategies = 'prefix-always' | 'prefix-other-locales';
+export type RoutingStrategies =
+	| 'pathname-prefix-always'
+	| 'pathname-prefix-other-locales'
+	| 'pathname-prefix-always-no-redirect'
+	| 'domains-prefix-always'
+	| 'domains-prefix-other-locales'
+	| 'domains-prefix-always-no-redirect';
 
 export const AstroConfigSchema = z.object({
 	root: z
@@ -105,6 +116,7 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default('attribute'),
 	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
+	db: z.object({}).passthrough().default({}).optional(),
 	integrations: z.preprocess(
 		// preprocess
 		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
@@ -116,7 +128,7 @@ export const AstroConfigSchema = z.object({
 	build: z
 		.object({
 			format: z
-				.union([z.literal('file'), z.literal('directory')])
+				.union([z.literal('file'), z.literal('directory'), z.literal('preserve')])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.format),
 			client: z
@@ -274,6 +286,10 @@ export const AstroConfigSchema = z.object({
 						)
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.experimentalThemes!),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
+					transformers: z
+						.custom<ShikiTransformers[number]>()
+						.array()
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.transformers!),
 				})
 				.default({}),
 			remarkPlugins: z
@@ -318,31 +334,69 @@ export const AstroConfigSchema = z.object({
 						}),
 					])
 				),
+				domains: z
+					.record(
+						z.string(),
+						z
+							.string()
+							.url(
+								"The domain value must be a valid URL, and it has to start with 'https' or 'http'."
+							)
+					)
+					.optional(),
 				fallback: z.record(z.string(), z.string()).optional(),
 				routing: z
 					.object({
 						prefixDefaultLocale: z.boolean().default(false),
+						redirectToDefaultLocale: z.boolean().default(true),
 						strategy: z.enum(['pathname']).default('pathname'),
 					})
 					.default({})
-					.transform((routing) => {
-						let strategy: RoutingStrategies;
-						switch (routing.strategy) {
-							case 'pathname': {
-								if (routing.prefixDefaultLocale === true) {
-									strategy = 'prefix-always';
-								} else {
-									strategy = 'prefix-other-locales';
-								}
-							}
+					.refine(
+						({ prefixDefaultLocale, redirectToDefaultLocale }) => {
+							return !(prefixDefaultLocale === false && redirectToDefaultLocale === false);
+						},
+						{
+							message:
+								'The option `i18n.redirectToDefaultLocale` is only useful when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change its value to `true`.',
 						}
-						return strategy;
-					}),
+					),
 			})
 			.optional()
+			.transform((i18n) => {
+				if (i18n) {
+					let { routing, domains } = i18n;
+					let strategy: RoutingStrategies;
+					const hasDomains = domains ? Object.keys(domains).length > 0 : false;
+					if (!hasDomains) {
+						if (routing.prefixDefaultLocale === true) {
+							if (routing.redirectToDefaultLocale) {
+								strategy = 'pathname-prefix-always';
+							} else {
+								strategy = 'pathname-prefix-always-no-redirect';
+							}
+						} else {
+							strategy = 'pathname-prefix-other-locales';
+						}
+					} else {
+						if (routing.prefixDefaultLocale === true) {
+							if (routing.redirectToDefaultLocale) {
+								strategy = 'domains-prefix-always';
+							} else {
+								strategy = 'domains-prefix-always-no-redirect';
+							}
+						} else {
+							strategy = 'domains-prefix-other-locales';
+						}
+					}
+
+					return { ...i18n, routing: strategy };
+				}
+				return undefined;
+			})
 			.superRefine((i18n, ctx) => {
 				if (i18n) {
-					const { defaultLocale, locales: _locales, fallback } = i18n;
+					const { defaultLocale, locales: _locales, fallback, domains, routing } = i18n;
 					const locales = _locales.map((locale) => {
 						if (typeof locale === 'string') {
 							return locale;
@@ -380,6 +434,51 @@ export const AstroConfigSchema = z.object({
 							}
 						}
 					}
+					if (domains) {
+						const entries = Object.entries(domains);
+						if (entries.length > 0) {
+							if (
+								routing !== 'domains-prefix-other-locales' &&
+								routing !== 'domains-prefix-always-no-redirect' &&
+								routing !== 'domains-prefix-always'
+							) {
+								ctx.addIssue({
+									code: z.ZodIssueCode.custom,
+									message: `When specifying some domains, the property \`i18n.routingStrategy\` must be set to \`"domains"\`.`,
+								});
+							}
+						}
+
+						for (const [domainKey, domainValue] of Object.entries(domains)) {
+							if (!locales.includes(domainKey)) {
+								ctx.addIssue({
+									code: z.ZodIssueCode.custom,
+									message: `The locale \`${domainKey}\` key in the \`i18n.domains\` record doesn't exist in the \`i18n.locales\` array.`,
+								});
+							}
+							if (!domainValue.startsWith('https') && !domainValue.startsWith('http')) {
+								ctx.addIssue({
+									code: z.ZodIssueCode.custom,
+									message:
+										"The domain value must be a valid URL, and it has to start with 'https' or 'http'.",
+									path: ['domains'],
+								});
+							} else {
+								try {
+									const domainUrl = new URL(domainValue);
+									if (domainUrl.pathname !== '/') {
+										ctx.addIssue({
+											code: z.ZodIssueCode.custom,
+											message: `The URL \`${domainValue}\` must contain only the origin. A subsequent pathname isn't allowed here. Remove \`${domainUrl.pathname}\`.`,
+											path: ['domains'],
+										});
+									}
+								} catch {
+									// no need to catch the error
+								}
+							}
+						}
+					}
 				}
 			})
 	),
@@ -393,6 +492,15 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
+			clientPrerender: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.clientPrerender),
+			globalRoutePriority: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.globalRoutePriority),
+			i18nDomains: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.i18nDomains),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`
@@ -431,7 +539,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		build: z
 			.object({
 				format: z
-					.union([z.literal('file'), z.literal('directory')])
+					.union([z.literal('file'), z.literal('directory'), z.literal('preserve')])
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.format),
 				client: z
@@ -513,6 +621,30 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		.refine((obj) => !obj.outDir.toString().startsWith(obj.publicDir.toString()), {
 			message:
 				'The value of `outDir` must not point to a path within the folder set as `publicDir`, this will cause an infinite loop',
+		})
+		.superRefine((configuration, ctx) => {
+			const { site, experimental, i18n, output } = configuration;
+			if (experimental.i18nDomains) {
+				if (
+					i18n?.routing === 'domains-prefix-other-locales' ||
+					i18n?.routing === 'domains-prefix-always-no-redirect' ||
+					i18n?.routing === 'domains-prefix-always'
+				) {
+					if (!site) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message:
+								"The option `site` isn't set. When using the 'domains' strategy for `i18n`, `site` is required to create absolute URLs for locales that aren't mapped to a domain.",
+						});
+					}
+					if (output !== 'server') {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: 'Domain support is only available when `output` is `"server"`.',
+						});
+					}
+				}
+			}
 		});
 
 	return AstroConfigRelativeSchema;

@@ -1,12 +1,13 @@
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { createMarkdownProcessor, createShikiHighlighter } from '../dist/index.js';
-import chai from 'chai';
 
 describe('shiki syntax highlighting', () => {
 	it('does not add is:raw to the output', async () => {
 		const processor = await createMarkdownProcessor();
 		const { code } = await processor.render('```\ntest\n```');
 
-		chai.expect(code).not.to.contain('is:raw');
+		assert.ok(!code.includes('is:raw'));
 	});
 
 	it('supports light/dark themes', async () => {
@@ -21,11 +22,12 @@ describe('shiki syntax highlighting', () => {
 		const { code } = await processor.render('```\ntest\n```');
 
 		// light theme is there:
-		chai.expect(code).to.contain('background-color:');
-		chai.expect(code).to.contain('github-light');
+		assert.match(code, /background-color:/);
+		assert.match(code, /github-light/);
+
 		// dark theme is there:
-		chai.expect(code).to.contain('--shiki-dark-bg:');
-		chai.expect(code).to.contain('github-dark');
+		assert.match(code, /--shiki-dark-bg:/);
+		assert.match(code, /github-dark/);
 	});
 
 	it('createShikiHighlighter works', async () => {
@@ -33,8 +35,8 @@ describe('shiki syntax highlighting', () => {
 
 		const html = highlighter.highlight('const foo = "bar";', 'js');
 
-		chai.expect(html).to.contain('astro-code github-dark');
-		chai.expect(html).to.contain('background-color:#24292e;color:#e1e4e8;');
+		assert.match(html, /astro-code github-dark/);
+		assert.match(html, /background-color:#24292e;color:#e1e4e8;/);
 	});
 
 	it('diff +/- text has user-select: none', async () => {
@@ -46,8 +48,9 @@ describe('shiki syntax highlighting', () => {
 + const foo = "world";`,
 			'diff'
 		);
-		chai.expect(html).to.contain('user-select: none');
-		chai.expect(html).to.contain('>-</span>');
-		chai.expect(html).to.contain('>+</span>');
+
+		assert.match(html, /user-select: none/);
+		assert.match(html, />-<\/span>/);
+		assert.match(html, />+<\/span>/);
 	});
 });

@@ -48,6 +48,8 @@ async function getRotationForEXIF(
 		case 7:
 		case 8:
 			return { type: 'rotate', numRotations: 3 };
+		default:
+			return undefined;
 	}
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "4.0.9",
+  "version": "4.3.6",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -96,6 +96,7 @@
     "content-types.template.d.ts",
     "content-module.template.mjs",
     "astro-jsx.d.ts",
+    "types/content.d.ts",
     "types.d.ts",
     "README.md",
     "vendor"
@@ -106,15 +107,16 @@
     "build:ci": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" && pnpm run postbuild",
     "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\" && astro-scripts copy \"src/**/*.wasm\"",
-    "test:unit": "mocha --exit --timeout 30000 ./test/units/**/*.test.js",
-    "test:unit:match": "mocha --exit --timeout 30000 ./test/units/**/*.test.js -g",
-    "test": "pnpm run test:unit && mocha --exit --timeout 30000 --ignore **/lit-element.test.js && mocha --timeout 30000 **/lit-element.test.js",
+    "test:unit": "mocha --exit --timeout 30000 ./test/units/**/*.test.js --ignore **/*.nodetest.js",
+    "test:unit:match": "mocha --exit --timeout 30000 ./test/units/**/*.test.js -g --ignore **/*.nodetest.js",
+    "test": "pnpm run test:node && pnpm run test:unit && mocha --exit --timeout 30000 --ignore **/*.nodetest.js --ignore **/lit-element.test.js && mocha --timeout 30000 **/lit-element.test.js --ignore **/*.nodetest.js",
     "test:match": "mocha --timeout 30000 -g",
     "test:e2e": "playwright test",
-    "test:e2e:match": "playwright test -g"
+    "test:e2e:match": "playwright test -g",
+    "test:node": "astro-scripts test \"test/**/*.nodetest.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "^2.3.4",
+    "@astrojs/compiler": "^2.5.3",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
@@ -134,6 +136,7 @@
     "clsx": "^2.0.0",
     "common-ancestor-path": "^1.0.1",
     "cookie": "^0.6.0",
+    "cssesc": "^3.0.0",
     "debug": "^4.3.4",
     "deterministic-object-hash": "^2.0.1",
     "devalue": "^4.3.2",
@@ -166,20 +169,21 @@
     "resolve": "^1.22.4",
     "semver": "^7.5.4",
     "server-destroy": "^1.0.1",
-    "shikiji": "^0.6.13",
+    "shikiji": "^0.9.19",
+    "shikiji-core": "^0.9.19",
     "string-width": "^7.0.0",
     "strip-ansi": "^7.1.0",
     "tsconfck": "^3.0.0",
     "unist-util-visit": "^5.0.0",
     "vfile": "^6.0.1",
-    "vite": "^5.0.10",
+    "vite": "^5.0.12",
     "vitefu": "^0.2.5",
     "which-pm": "^2.1.1",
     "yargs-parser": "^21.1.1",
     "zod": "^3.22.4"
   },
   "optionalDependencies": {
-    "sharp": "^0.33.1"
+    "sharp": "^0.32.6"
   },
   "devDependencies": {
     "@astrojs/check": "^0.3.1",
@@ -191,6 +195,7 @@
     "@types/common-ancestor-path": "^1.0.2",
     "@types/connect": "^3.4.38",
     "@types/cookie": "^0.5.4",
+    "@types/cssesc": "^3.0.2",
     "@types/debug": "^4.1.12",
     "@types/diff": "^5.0.8",
     "@types/dlv": "^1.1.4",

@@ -40,6 +40,8 @@ const first = defineMiddleware(async (context, next) => {
 			status: 200,
 			headers: response.headers,
 		});
+	} else if (context.url.pathname === '/prerendered/') {
+		context.locals.canBeReadDuringPrerendering = "yes they can!";
 	} else {
 		if (context.url.pathname === '/') {
 			context.cookies.set('foo', 'bar');

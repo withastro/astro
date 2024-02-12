@@ -19,7 +19,8 @@ import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
-const assetRegex = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})$`, 'i');
+const assetRegex = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})`, 'i');
+const assetRegexEnds = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})$`, 'i');
 
 export default function assets({
 	settings,
@@ -81,7 +82,7 @@ export default function assets({
 					return;
 				}
 
-				globalThis.astroAsset.addStaticImage = (options, hashProperties) => {
+				globalThis.astroAsset.addStaticImage = (options, hashProperties, originalPath) => {
 					if (!globalThis.astroAsset.staticImages) {
 						globalThis.astroAsset.staticImages = new Map<
 							string,
@@ -96,11 +97,6 @@ export default function assets({
 					const finalOriginalImagePath = (
 						isESMImportedImage(options.src) ? options.src.src : options.src
 					).replace(settings.config.build.assetsPrefix || '', '');
-
-					// This, however, is the real original path, in `src` and all.
-					const originalSrcPath = isESMImportedImage(options.src)
-						? options.src.fsPath
-						: options.src;
 
 					const hash = hashTransform(
 						options,
@@ -120,7 +116,7 @@ export default function assets({
 
 						if (!transformsForPath) {
 							globalThis.astroAsset.staticImages.set(finalOriginalImagePath, {
-								originalSrcPath: originalSrcPath,
+								originalSrcPath: originalPath,
 								transforms: new Map(),
 							});
 							transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalImagePath)!;
@@ -178,15 +174,25 @@ export default function assets({
 				resolvedConfig = viteConfig;
 			},
 			async load(id, options) {
-				// If our import has any query params, we'll let Vite handle it
-				// See https://github.com/withastro/astro/issues/8333
-				if (id !== removeQueryString(id)) {
-					return;
-				}
 				if (assetRegex.test(id)) {
-					const meta = await emitESMImage(id, this.meta.watchMode, this.emitFile);
+					if (!globalThis.astroAsset.referencedImages)
+						globalThis.astroAsset.referencedImages = new Set();
 
-					if (!meta) {
+					if (id !== removeQueryString(id)) {
+						// If our import has any query params, we'll let Vite handle it, nonetheless we'll make sure to not delete it
+						// See https://github.com/withastro/astro/issues/8333
+						globalThis.astroAsset.referencedImages.add(removeQueryString(id));
+						return;
+					}
+
+					// If the requested ID doesn't end with a valid image extension, we'll let Vite handle it
+					if (!assetRegexEnds.test(id)) {
+						return;
+					}
+
+					const imageMetadata = await emitESMImage(id, this.meta.watchMode, this.emitFile);
+
+					if (!imageMetadata) {
 						throw new AstroError({
 							...AstroErrorData.ImageNotFound,
 							message: AstroErrorData.ImageNotFound.message(id),
@@ -197,13 +203,13 @@ export default function assets({
 					// Since you cannot use image optimization on the client anyway, it's safe to assume that if the user imported
 					// an image on the client, it should be present in the final build.
 					if (options?.ssr) {
-						return `export default ${getProxyCode(meta, isServerLikeOutput(settings.config))}`;
+						return `export default ${getProxyCode(
+							imageMetadata,
+							isServerLikeOutput(settings.config)
+						)}`;
 					} else {
-						if (!globalThis.astroAsset.referencedImages)
-							globalThis.astroAsset.referencedImages = new Set();
-
-						globalThis.astroAsset.referencedImages.add(meta.fsPath);
-						return `export default ${JSON.stringify(meta)}`;
+						globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);
+						return `export default ${JSON.stringify(imageMetadata)}`;
 					}
 				}
 			},

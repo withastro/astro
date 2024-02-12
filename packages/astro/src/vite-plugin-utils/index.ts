@@ -8,17 +8,6 @@ import {
 } from '../core/path.js';
 import { viteID } from '../core/util.js';
 
-/**
- * Converts the first dot in `import.meta.env` to its Unicode escape sequence,
- * which prevents Vite from replacing strings like `import.meta.env.SITE`
- * in our JS representation of modules like Markdown
- */
-export function escapeViteEnvReferences(code: string) {
-	return code
-		.replace(/import\.meta\.env/g, 'import\\u002Emeta.env')
-		.replace(/process\.env/g, 'process\\u002Eenv');
-}
-
 export function getFileInfo(id: string, config: AstroConfig) {
 	const sitePathname = appendForwardSlash(
 		config.site ? new URL(config.base, config.site).pathname : config.base
@@ -28,7 +17,7 @@ export function getFileInfo(id: string, config: AstroConfig) {
 	let fileUrl = fileId.includes('/pages/')
 		? fileId
 				.replace(/^.*?\/pages\//, sitePathname)
-				.replace(/(\/index)?\.(md|markdown|mdown|mkdn|mkd|mdwn|md|astro)$/, '')
+				.replace(/(?:\/index)?\.(?:md|markdown|mdown|mkdn|mkd|mdwn|astro)$/, '')
 		: undefined;
 	if (fileUrl && config.trailingSlash === 'always') {
 		fileUrl = appendForwardSlash(fileUrl);

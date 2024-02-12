@@ -1,36 +1,50 @@
 import type { SSRManifest } from 'astro';
-import { App } from 'astro/app';
-import { applyPolyfills } from 'astro/app/node';
+import { applyPolyfills, NodeApp } from 'astro/app/node';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-
-import { ASTRO_LOCALS_HEADER } from './adapter.js';
-import { getRequest, setResponse } from './request-transform.js';
+import {
+	ASTRO_PATH_HEADER,
+	ASTRO_PATH_PARAM,
+	ASTRO_LOCALS_HEADER,
+	ASTRO_MIDDLEWARE_SECRET_HEADER,
+} from './adapter.js';
 
 applyPolyfills();
 
-export const createExports = (manifest: SSRManifest) => {
-	const app = new App(manifest);
-
+export const createExports = (
+	manifest: SSRManifest,
+	{ middlewareSecret }: { middlewareSecret: string }
+) => {
+	const app = new NodeApp(manifest);
 	const handler = async (req: IncomingMessage, res: ServerResponse) => {
-		let request: Request;
-
-		try {
-			request = await getRequest(`https://${req.headers.host}`, req);
-		} catch (err: any) {
-			res.statusCode = err.status || 400;
-			return res.end(err.reason || 'Invalid request body');
+		const url = new URL(`https://example.com${req.url}`);
+		const clientAddress = req.headers['x-forwarded-for'] as string | undefined;
+		const localsHeader = req.headers[ASTRO_LOCALS_HEADER];
+		const middlewareSecretHeader = req.headers[ASTRO_MIDDLEWARE_SECRET_HEADER];
+		const realPath = req.headers[ASTRO_PATH_HEADER] ?? url.searchParams.get(ASTRO_PATH_PARAM);
+		if (typeof realPath === 'string') {
+			req.url = realPath;
 		}
 
-		let routeData = app.match(request);
 		let locals = {};
-		if (request.headers.has(ASTRO_LOCALS_HEADER)) {
-			let localsAsString = request.headers.get(ASTRO_LOCALS_HEADER);
-			if (localsAsString) {
-				locals = JSON.parse(localsAsString);
+		if (localsHeader) {
+			if (middlewareSecretHeader !== middlewareSecret) {
+				res.statusCode = 403;
+				res.end('Forbidden');
+				return;
 			}
+			locals =
+				typeof localsHeader === 'string' ? JSON.parse(localsHeader) : JSON.parse(localsHeader[0]);
 		}
-		await setResponse(app, res, await app.render(request, { routeData, locals }));
+		// hide the secret from the rest of user code
+		delete req.headers[ASTRO_MIDDLEWARE_SECRET_HEADER];
+
+		const webResponse = await app.render(req, { addCookieHeader: true, clientAddress, locals });
+		await NodeApp.writeResponse(webResponse, res);
 	};
 
 	return { default: handler };
 };
+
+// HACK: prevent warning
+// @astrojs-ssr-virtual-entry (22:23) "start" is not exported by "dist/serverless/entrypoint.js", imported by "@astrojs-ssr-virtual-entry".
+export function start() {}

@@ -5,9 +5,11 @@ import { fileURLToPath } from 'node:url';
 import PQueue from 'p-queue';
 import type { OutputAsset, OutputChunk } from 'rollup';
 import type {
+	AstroConfig,
 	AstroSettings,
 	ComponentInstance,
 	GetStaticPathsItem,
+	MiddlewareHandler,
 	RouteData,
 	RouteType,
 	SSRError,
@@ -65,6 +67,7 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -145,10 +148,19 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		const baseDirectory = getOutputDirectory(opts.settings.config);
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
+		let middleware: MiddlewareHandler = (_, next) => next();
+		try {
+			// middleware.mjs is not emitted if there is no user middleware
+			// in which case the import fails with ERR_MODULE_NOT_FOUND, and we fall back to a no-op middleware
+			middleware = await import(new URL('middleware.mjs', baseDirectory).toString()).then(
+				(mod) => mod.onRequest
+			);
+		} catch {}
 		manifest = createBuildManifest(
 			opts.settings,
 			internals,
-			renderers.renderers as SSRLoadedRenderer[]
+			renderers.renderers as SSRLoadedRenderer[],
+			middleware
 		);
 	}
 	const pipeline = new BuildPipeline(opts, internals, manifest);
@@ -169,9 +181,18 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
 	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
+	const config = pipeline.getConfig();
 	if (ssr) {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (pageData.route.prerender) {
+				// i18n domains won't work with pre rendered routes at the moment, so we need to to throw an error
+				if (config.experimental.i18nDomains) {
+					throw new AstroError({
+						...NoPrerenderedRoutesWithDomains,
+						message: NoPrerenderedRoutesWithDomains.message(pageData.component),
+					});
+				}
+
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const ssrEntryPage = await import(ssrEntryURLPage.toString());
 				if (opts.settings.adapter?.adapterFeatures?.functionPerRoute) {
@@ -249,8 +270,9 @@ async function generatePage(
 	// prepare information we need
 	const logger = pipeline.getLogger();
 	const config = pipeline.getConfig();
+	const manifest = pipeline.getManifest();
 	const pageModulePromise = ssrEntry.page;
-	const onRequest = ssrEntry.onRequest;
+	const onRequest = manifest.middleware;
 	const pageInfo = getPageDataByComponent(pipeline.getInternals(), pageData.route.component);
 
 	// Calculate information of the page, like scripts, links and styles
@@ -263,18 +285,15 @@ async function generatePage(
 	const scripts = pageInfo?.hoistedScript ?? null;
 	// prepare the middleware
 	const i18nMiddleware = createI18nMiddleware(
-		pipeline.getManifest().i18n,
-		pipeline.getManifest().base,
-		pipeline.getManifest().trailingSlash
+		manifest.i18n,
+		manifest.base,
+		manifest.trailingSlash,
+		manifest.buildFormat
 	);
 	if (config.i18n && i18nMiddleware) {
-		if (onRequest) {
-			pipeline.setMiddlewareFunction(sequence(i18nMiddleware, onRequest));
-		} else {
-			pipeline.setMiddlewareFunction(i18nMiddleware);
-		}
+		pipeline.setMiddlewareFunction(sequence(i18nMiddleware, onRequest));
 		pipeline.onBeforeRenderRoute(i18nPipelineHook);
-	} else if (onRequest) {
+	} else {
 		pipeline.setMiddlewareFunction(onRequest);
 	}
 	if (!pageModulePromise) {
@@ -447,7 +466,8 @@ function getUrlForPath(
 	pathname: string,
 	base: string,
 	origin: string,
-	format: 'directory' | 'file',
+	format: AstroConfig['build']['format'],
+	trailingSlash: AstroConfig['trailingSlash'],
 	routeType: RouteType
 ): URL {
 	/**
@@ -455,7 +475,7 @@ function getUrlForPath(
 	 * pathname: /, /foo
 	 * base: /
 	 */
-	const ending = format === 'directory' ? '/' : '.html';
+	const ending = format === 'directory' ? (trailingSlash === 'never' ? '' : '/') : '.html';
 	let buildPathname: string;
 	if (pathname === '/' || pathname === '') {
 		buildPathname = base;
@@ -484,10 +504,10 @@ async function generatePath(
 	gopts: GeneratePathOptions,
 	route: RouteData
 ) {
-	const { mod, scripts: hoistedScripts, styles: _styles, pageData } = gopts;
+	const { mod, scripts: hoistedScripts, styles: _styles } = gopts;
 	const manifest = pipeline.getManifest();
 	const logger = pipeline.getLogger();
-	pipeline.getEnvironment().logger.debug('build', `Generating: ${pathname}`);
+	logger.debug('build', `Generating: ${pathname}`);
 
 	const links = new Set<never>();
 	const scripts = createModuleScriptsSet(
@@ -530,6 +550,7 @@ async function generatePath(
 		pipeline.getConfig().base,
 		pipeline.getStaticBuildOptions().origin,
 		pipeline.getConfig().build.format,
+		pipeline.getConfig().trailingSlash,
 		route.type
 	);
 
@@ -601,8 +622,8 @@ async function generatePath(
 		body = Buffer.from(await response.arrayBuffer());
 	}
 
-	const outFolder = getOutFolder(pipeline.getConfig(), pathname, route.type);
-	const outFile = getOutFile(pipeline.getConfig(), outFolder, pathname, route.type);
+	const outFolder = getOutFolder(pipeline.getConfig(), pathname, route);
+	const outFile = getOutFile(pipeline.getConfig(), outFolder, pathname, route);
 	route.distURL = outFile;
 
 	await fs.promises.mkdir(outFolder, { recursive: true });
@@ -628,10 +649,11 @@ function getPrettyRouteName(route: RouteData): string {
  * @param settings
  * @param renderers
  */
-export function createBuildManifest(
+function createBuildManifest(
 	settings: AstroSettings,
 	internals: BuildInternals,
-	renderers: SSRLoadedRenderer[]
+	renderers: SSRLoadedRenderer[],
+	middleware: MiddlewareHandler
 ): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
 	if (settings.config.i18n) {
@@ -640,6 +662,7 @@ export function createBuildManifest(
 			routing: settings.config.i18n.routing,
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
+			domainLookupTable: {},
 		};
 	}
 	return {
@@ -658,5 +681,7 @@ export function createBuildManifest(
 			: settings.config.site,
 		componentMetadata: internals.componentMetadata,
 		i18n: i18nManifest,
+		buildFormat: settings.config.build.format,
+		middleware,
 	};
 }

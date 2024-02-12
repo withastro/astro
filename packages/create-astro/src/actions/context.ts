@@ -4,6 +4,7 @@ import arg from 'arg';
 import os from 'node:os';
 
 import { getName, getVersion } from '../messages.js';
+import getSeasonalData from '../data/seasonal.js';
 
 export interface Context {
 	help: boolean;
@@ -25,7 +26,9 @@ export interface Context {
 	stdin?: typeof process.stdin;
 	stdout?: typeof process.stdout;
 	exit(code: number): never;
+	welcome?: string;
 	hat?: string;
+	tie?: string;
 	tasks: Task[];
 }
 
@@ -83,19 +86,23 @@ export async function getContext(argv: string[]): Promise<Context> {
 		((os.platform() === 'win32' && !fancy) || skipHouston) ??
 		[yes, no, install, git, typescript].some((v) => v !== undefined);
 
+	const { messages, hats, ties } = getSeasonalData({ fancy });
+
 	const context: Context = {
 		help,
 		prompt,
 		packageManager,
 		username: getName(),
-		version: getVersion(packageManager),
+		version: getVersion(packageManager, 'astro'),
 		skipHouston,
 		fancy,
 		dryRun,
 		projectName,
 		template,
 		ref: ref ?? 'latest',
-		hat: random(['❄️', '🎄', '🎁']), // fancy ? random(['🎩', '🎩', '🎩', '🎩', '🎓', '👑', '🧢', '🍦']) : undefined,
+		welcome: random(messages),
+		hat: hats ? random(hats) : undefined,
+		tie: ties ? random(ties) : undefined,
 		yes,
 		install: install ?? (noInstall ? false : undefined),
 		git: git ?? (noGit ? false : undefined),

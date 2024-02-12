@@ -2,7 +2,7 @@ import type http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type {
 	ComponentInstance,
-	DevOverlayMetadata,
+	DevToolbarMetadata,
 	ManifestData,
 	MiddlewareHandler,
 	RouteData,
@@ -24,6 +24,7 @@ import {
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { isPage, resolveIdToUrl } from '../core/util.js';
+import { normalizeTheLocale } from '../i18n/index.js';
 import { createI18nMiddleware, i18nPipelineHook } from '../i18n/middleware.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
@@ -34,7 +35,7 @@ import { preload } from './index.js';
 import { getComponentMetadata } from './metadata.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 import { getScriptsForURL } from './scripts.js';
-import { normalizeTheLocale } from '../i18n/index.js';
+import { REROUTE_DIRECTIVE_HEADER } from '../runtime/server/consts.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -107,7 +108,7 @@ export async function matchRoute(
 	// Try without `.html` extensions or `index.html` in request URLs to mimic
 	// routing behavior in production builds. This supports both file and directory
 	// build formats, and is necessary based on how the manifest tracks build targets.
-	const altPathname = pathname.replace(/(index)?\.html$/, '');
+	const altPathname = pathname.replace(/(?:index)?\.html$/, '');
 	if (altPathname !== pathname) {
 		return await matchRoute(altPathname, manifestData, pipeline);
 	}
@@ -228,12 +229,15 @@ export async function handleRoute({
 					return '';
 				},
 				params: [],
+				// Disable eslint as we only want to generate an empty RegExp
+				// eslint-disable-next-line prefer-regex-literals
 				pattern: new RegExp(''),
 				prerender: false,
 				segments: [],
 				type: 'fallback',
 				route: '',
 				fallbackRoutes: [],
+				isIndex: false,
 			};
 			renderContext = await createRenderContext({
 				request,
@@ -276,10 +280,8 @@ export async function handleRoute({
 			pathname,
 			request,
 			route,
+			middleware,
 		};
-		if (middleware) {
-			options.middleware = middleware;
-		}
 
 		mod = options.preload;
 
@@ -306,21 +308,22 @@ export async function handleRoute({
 		});
 	}
 
-	const onRequest = middleware?.onRequest as MiddlewareHandler | undefined;
+	const onRequest: MiddlewareHandler = middleware.onRequest;
 	if (config.i18n) {
-		const i18Middleware = createI18nMiddleware(config.i18n, config.base, config.trailingSlash);
+		const i18Middleware = createI18nMiddleware(
+			manifest.i18n,
+			config.base,
+			config.trailingSlash,
+			config.build.format
+		);
 
 		if (i18Middleware) {
-			if (onRequest) {
-				pipeline.setMiddlewareFunction(sequence(i18Middleware, onRequest));
-			} else {
-				pipeline.setMiddlewareFunction(i18Middleware);
-			}
+			pipeline.setMiddlewareFunction(sequence(i18Middleware, onRequest));
 			pipeline.onBeforeRenderRoute(i18nPipelineHook);
-		} else if (onRequest) {
+		} else {
 			pipeline.setMiddlewareFunction(onRequest);
 		}
-	} else if (onRequest) {
+	} else {
 		pipeline.setMiddlewareFunction(onRequest);
 	}
 
@@ -337,7 +340,11 @@ export async function handleRoute({
 			})
 		);
 	}
-	if (response.status === 404 && has404Route(manifestData)) {
+	if (
+		response.status === 404 &&
+		has404Route(manifestData) &&
+		response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
+	) {
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
 		if (options && fourOhFourRoute?.route !== options.route)
 			return handleRoute({
@@ -370,7 +377,10 @@ export async function handleRoute({
 	// Apply the `status` override to the response object before responding.
 	// Response.status is read-only, so a clone is required to override.
 	if (status && response.status !== status && (status === 404 || status === 500)) {
-		response = new Response(response.body, { ...response, status });
+		response = new Response(response.body, {
+			status: status,
+			headers: response.headers,
+		});
 	}
 	await writeSSRResult(request, response, incomingResponse);
 }
@@ -385,7 +395,7 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 	const settings = pipeline.getSettings();
 	const mode = pipeline.getEnvironment().mode;
 	// Add hoisted script tags
-	const scripts = await getScriptsForURL(filePath, settings.config.root, moduleLoader);
+	const { scripts } = await getScriptsForURL(filePath, settings.config.root, moduleLoader);
 
 	// Inject HMR scripts
 	if (isPage(filePath, settings) && mode === 'development') {
@@ -401,12 +411,12 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 			scripts.add({
 				props: {
 					type: 'module',
-					src: await resolveIdToUrl(moduleLoader, 'astro/runtime/client/dev-overlay/entrypoint.js'),
+					src: await resolveIdToUrl(moduleLoader, 'astro/runtime/client/dev-toolbar/entrypoint.js'),
 				},
 				children: '',
 			});
 
-			const additionalMetadata: DevOverlayMetadata['__astro_dev_overlay__'] = {
+			const additionalMetadata: DevToolbarMetadata['__astro_dev_toolbar__'] = {
 				root: fileURLToPath(settings.config.root),
 				version: ASTRO_VERSION,
 				debugInfo: await getInfoOutput({ userConfig: settings.config, print: false }),
@@ -415,7 +425,7 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 			// Additional data for the dev overlay
 			scripts.add({
 				props: {},
-				children: `window.__astro_dev_overlay__ = ${JSON.stringify(additionalMetadata)}`,
+				children: `window.__astro_dev_toolbar__ = ${JSON.stringify(additionalMetadata)}`,
 			});
 		}
 	}

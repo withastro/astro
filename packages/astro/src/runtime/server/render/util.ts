@@ -7,17 +7,17 @@ import { HTMLString, markHTMLString } from '../escape.js';
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 const htmlBooleanAttributes =
-	/^(allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|itemscope)$/i;
-const htmlEnumAttributes = /^(contenteditable|draggable|spellcheck|value)$/i;
+	/^(?:allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|itemscope)$/i;
+const htmlEnumAttributes = /^(?:contenteditable|draggable|spellcheck|value)$/i;
 // Note: SVG is case-sensitive!
-const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
+const svgEnumAttributes = /^(?:autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
 
 const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 
 // converts (most) arbitrary strings to valid JS identifiers
 const toIdent = (k: string) =>
-	k.trim().replace(/(?:(?!^)\b\w|\s+|[^\w]+)/g, (match, index) => {
-		if (/[^\w]|\s/.test(match)) return '';
+	k.trim().replace(/(?!^)\b\w|\s+|\W+/g, (match, index) => {
+		if (/\W/.test(match)) return '';
 		return index === 0 ? match : match.toUpperCase();
 	});
 
@@ -28,7 +28,7 @@ const kebab = (k: string) =>
 	k.toLowerCase() === k ? k : k.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
 const toStyleString = (obj: Record<string, any>) =>
 	Object.entries(obj)
-		.filter(([k, v]) => (typeof v === 'string' && v.trim()) || typeof v === 'number')
+		.filter(([_, v]) => (typeof v === 'string' && v.trim()) || typeof v === 'number')
 		.map(([k, v]) => {
 			if (k[0] !== '-' && k[1] !== '-') return `${kebab(k)}:${v}`;
 			return `${k}:${v}`;

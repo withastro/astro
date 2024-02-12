@@ -35,14 +35,7 @@ name: Ben
 			root
 		);
 
-		try {
-			await sync({ fs });
-			expect.fail(0, 1, 'Expected sync to throw');
-		} catch (e) {
-			expect(e).to.be.instanceOf(Error);
-			expect(e.type).to.equal('AstroError');
-			expect(e.message).to.include('authors');
-		}
+		expect(await sync({ fs })).to.equal(1);
 	});
 
 	it('raises "mixed content" error when data in content collection', async () => {
@@ -70,15 +63,7 @@ title: Post
 			root
 		);
 
-		try {
-			await sync({ fs });
-			expect.fail(0, 1, 'Expected sync to throw');
-		} catch (e) {
-			expect(e).to.be.instanceOf(Error);
-			expect(e.type).to.equal('AstroError');
-
-			expect(e.message).to.include('blog');
-		}
+		expect(await sync({ fs })).to.equal(1);
 	});
 
 	it('raises error when data collection configured as content collection', async () => {
@@ -101,14 +86,7 @@ title: Post
 			root
 		);
 
-		try {
-			await sync({ fs });
-			expect.fail(0, 1, 'Expected sync to throw');
-		} catch (e) {
-			expect(e).to.be.instanceOf(Error);
-			expect(e.type).to.equal('AstroError');
-			expect(e.hint).to.include("Try adding `type: 'data'`");
-		}
+		expect(await sync({ fs })).to.equal(1);
 	});
 
 	it('does not raise error for empty collection with config', async () => {

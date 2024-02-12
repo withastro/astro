@@ -10,6 +10,7 @@ describe('getStaticPaths - build calls', () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-get-static-paths/',
 			site: 'https://mysite.dev/',
+			trailingSlash: 'never',
 			base: '/blog',
 		});
 		await fixture.build();
@@ -29,7 +30,7 @@ describe('getStaticPaths - build calls', () => {
 		const html = await fixture.readFile('/food/tacos/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#url').text()).to.equal('/blog/food/tacos/');
+		expect($('#url').text()).to.equal('/blog/food/tacos');
 	});
 });
 

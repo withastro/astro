@@ -79,6 +79,8 @@ async function verifyTemplate(tmpl: string, ref?: string) {
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+// Disable eslint rule to not touch the original code
+// eslint-disable-next-line regexp/no-misleading-capturing-group
 const GIT_RE = /^(?<repo>[\w.-]+\/[\w.-]+)(?<subdir>[^#]+)?(?<ref>#[\w.-]+)?/;
 
 function parseGitURI(input: string) {

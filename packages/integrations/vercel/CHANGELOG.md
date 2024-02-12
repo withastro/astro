@@ -1,5 +1,123 @@
 # @astrojs/vercel
 
+## 7.3.0
+
+### Minor Changes
+
+- [#9987](https://github.com/withastro/astro/pull/9987) [`0699f34d5c4481c027c4d29d73944f79f97008df`](https://github.com/withastro/astro/commit/0699f34d5c4481c027c4d29d73944f79f97008df) Thanks [@lilnasy](https://github.com/lilnasy)! - Implements verification for edge middleware. This is a security measure to ensure that your serverless functions are only ever called by your edge middleware and not a third party.
+
+  When `edgeMiddleware` is enabled, the serverless function will now respond with `403 Forbidden` for requests that are not verified to have come from the generated edge middleware. No user action is necessary.
+
+## 7.2.0
+
+### Minor Changes
+
+- [#9714](https://github.com/withastro/astro/pull/9714) [`e2fe51c828dc7ea8204788e59e3953fe36c97836`](https://github.com/withastro/astro/commit/e2fe51c828dc7ea8204788e59e3953fe36c97836) Thanks [@lilnasy](https://github.com/lilnasy)! - Introduces a new config option, `isr`, that allows you to deploy your project as an ISR function. [ISR (Incremental Static Regeneration)](https://vercel.com/docs/incremental-static-regeneration) caches your on-demand rendered pages in the same way as prerendered pages after first request.
+
+  To enable this feature, set `isr` to true in your Vercel adapter configuration in `astro.config.mjs`:
+
+  ```js
+  export default defineConfig({
+    output: 'server',
+    adapter: vercel({ isr: true }),
+  });
+  ```
+
+  ## Cache invalidation options
+
+  By default, ISR responses are cached for the duration of your deployment. You can further control caching by setting an `expiration` time or prevent caching entirely for certain routes.
+
+  ### Time-based invalidation
+
+  You can change the length of time to cache routes this by configuring an `expiration` value in seconds:
+
+  ```js
+  export default defineConfig({
+    output: 'server',
+    adapter: vercel({
+      isr: {
+        // caches all pages on first request and saves for 1 day
+        expiration: 60 * 60 * 24,
+      },
+    }),
+  });
+  ```
+
+  ### Manual invalidation
+
+  To implement Vercel's [Draft mode](https://vercel.com/docs/build-output-api/v3/features#draft-mode), or [On-Demand Incremental Static Regeneration (ISR)](https://vercel.com/docs/build-output-api/v3/features#on-demand-incremental-static-regeneration-isr), you can create a bypass token and provide it to the `isr` config along with the paths to exclude from caching:
+
+  ```js
+  export default defineConfig({
+    output: 'server',
+    adapter: vercel({
+      isr: {
+        // A secret random string that you create.
+        bypassToken: '005556d774a8',
+        // Paths that will always be served fresh.
+        exclude: ['/api/invalidate'],
+      },
+    }),
+  });
+  ```
+
+## 7.1.1
+
+### Patch Changes
+
+- [#9955](https://github.com/withastro/astro/pull/9955) [`bc1742df9423ba66e33dcbf65fbebf67a236175d`](https://github.com/withastro/astro/commit/bc1742df9423ba66e33dcbf65fbebf67a236175d) Thanks [@matthewp](https://github.com/matthewp)! - Fix regression with bundling of @libsql/client
+
+## 7.1.0
+
+### Minor Changes
+
+- [#9143](https://github.com/withastro/astro/pull/9143) [`041fdd5c89920f7ccf944b095f29e451f78b0e28`](https://github.com/withastro/astro/commit/041fdd5c89920f7ccf944b095f29e451f78b0e28) Thanks [@ematipico](https://github.com/ematipico)! - Adds experimental support for internationalization domains
+
+### Patch Changes
+
+- [#9885](https://github.com/withastro/astro/pull/9885) [`49e0c24d7f90d00e986533fcf546665967540ce7`](https://github.com/withastro/astro/commit/49e0c24d7f90d00e986533fcf546665967540ce7) Thanks [@matthewp](https://github.com/matthewp)! - Better ignores for Vercel file-tracer
+
+  The Vercel adapter has a file-tracer it uses to detect which files should be moved over to the `dist/` folder. When it's done, it prints warnings for things that it detected that maybe should be moved.
+
+  This change expands how we do ignores so that:
+
+  - Ignores happen within dot folders like `.pnpm`.
+  - `@libsql/client` is ignored, a package we know is not bundled.
+
+## 7.0.2
+
+### Patch Changes
+
+- [#9809](https://github.com/withastro/astro/pull/9809) [`3435b7f1e1ca38fdee8f3b89e2d2667f125d01b5`](https://github.com/withastro/astro/commit/3435b7f1e1ca38fdee8f3b89e2d2667f125d01b5) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where the serverless function ignored cookies added using Astro.cookies.
+
+## 7.0.1
+
+### Patch Changes
+
+- [#9585](https://github.com/withastro/astro/pull/9585) [`05adaaa2d217a3ecb34244d9b40603f35cef4a37`](https://github.com/withastro/astro/commit/05adaaa2d217a3ecb34244d9b40603f35cef4a37) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where edge middleware did not work.
+
+## 7.0.0
+
+### Major Changes
+
+- [#9661](https://github.com/withastro/astro/pull/9661) [`d6edc7540864cf5d294d7b881eb886a3804f6d05`](https://github.com/withastro/astro/commit/d6edc7540864cf5d294d7b881eb886a3804f6d05) Thanks [@ematipico](https://github.com/ematipico)! - **Breaking**: Minimum required Astro version is now 4.2.0.
+  Reorganizes internals to be more maintainable.
+  ***
+
+## 6.1.4
+
+### Patch Changes
+
+- [#9648](https://github.com/withastro/astro/pull/9648) [`d7f1903cded3e864b392d1dd7502672d37936f11`](https://github.com/withastro/astro/commit/d7f1903cded3e864b392d1dd7502672d37936f11) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where the serverless function could not respond with a prerendered 404 page.
+
+## 6.1.3
+
+### Patch Changes
+
+- [#9591](https://github.com/withastro/astro/pull/9591) [`22a5405b4a4b7948458ad170b0a7bde6954058c1`](https://github.com/withastro/astro/commit/22a5405b4a4b7948458ad170b0a7bde6954058c1) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where 404.astro was not used in static mode.
+
+- [#9598](https://github.com/withastro/astro/pull/9598) [`bd8fa7acd23ba6e7afa2c435807bd5fd6b24f505`](https://github.com/withastro/astro/commit/bd8fa7acd23ba6e7afa2c435807bd5fd6b24f505) Thanks [@lilnasy](https://github.com/lilnasy)! - Marks the `speedInsights` configuration as deprecated. Vercel has migrated features of the Speed Insights API into a framework-agnostic library with `@vercel/speed-insights`. See [Vercel Speed Insights Quickstart](https://vercel.com/docs/speed-insights/quickstart) for instructions on how to use the library instead.
+
 ## 6.1.2
 
 ### Patch Changes

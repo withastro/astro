@@ -1,6 +1,7 @@
-import chai from 'chai';
-import chaiPromises from 'chai-as-promised';
-import chaiXml from 'chai-xml';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+
+import { z } from 'astro/zod';
 import rss, { getRssString } from '../dist/index.js';
 import { rssSchema } from '../dist/schema.js';
 import {
@@ -13,17 +14,13 @@ import {
 	web1FeedItem,
 	web1FeedItemWithAllData,
 	web1FeedItemWithContent,
+	parseXmlString,
 } from './test-utils.js';
-
-chai.use(chaiPromises);
-chai.use(chaiXml);
 
 // note: I spent 30 minutes looking for a nice node-based snapshot tool
 // ...and I gave up. Enjoy big strings!
 // prettier-ignore
 const validXmlResult = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link><item><title><![CDATA[${phpFeedItem.title}]]></title><link>${site}${phpFeedItem.link}/</link><guid isPermaLink="true">${site}${phpFeedItem.link}/</guid><description><![CDATA[${phpFeedItem.description}]]></description><pubDate>${new Date(phpFeedItem.pubDate).toUTCString()}</pubDate></item><item><title><![CDATA[${web1FeedItem.title}]]></title><link>${site}${web1FeedItem.link}/</link><guid isPermaLink="true">${site}${web1FeedItem.link}/</guid><description><![CDATA[${web1FeedItem.description}]]></description><pubDate>${new Date(web1FeedItem.pubDate).toUTCString()}</pubDate></item></channel></rss>`;
-// prettier-ignore
-const validXmlWithoutWeb1FeedResult = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link><item><title><![CDATA[${phpFeedItem.title}]]></title><link>${site}${phpFeedItem.link}/</link><guid isPermaLink="true">${site}${phpFeedItem.link}/</guid><description><![CDATA[${phpFeedItem.description}]]></description><pubDate>${new Date(phpFeedItem.pubDate).toUTCString()}</pubDate></item></channel></rss>`;
 // prettier-ignore
 const validXmlWithContentResult = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link><item><title><![CDATA[${phpFeedItemWithContent.title}]]></title><link>${site}${phpFeedItemWithContent.link}/</link><guid isPermaLink="true">${site}${phpFeedItemWithContent.link}/</guid><description><![CDATA[${phpFeedItemWithContent.description}]]></description><pubDate>${new Date(phpFeedItemWithContent.pubDate).toUTCString()}</pubDate><content:encoded><![CDATA[${phpFeedItemWithContent.content}]]></content:encoded></item><item><title><![CDATA[${web1FeedItemWithContent.title}]]></title><link>${site}${web1FeedItemWithContent.link}/</link><guid isPermaLink="true">${site}${web1FeedItemWithContent.link}/</guid><description><![CDATA[${web1FeedItemWithContent.description}]]></description><pubDate>${new Date(web1FeedItemWithContent.pubDate).toUTCString()}</pubDate><content:encoded><![CDATA[${web1FeedItemWithContent.content}]]></content:encoded></item></channel></rss>`;
 // prettier-ignore
@@ -35,6 +32,15 @@ const validXmlWithStylesheet = `<?xml version="1.0" encoding="UTF-8"?><?xml-styl
 // prettier-ignore
 const validXmlWithXSLStylesheet = `<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="/feedstylesheet.xsl" type="text/xsl"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link></channel></rss>`;
 
+function assertXmlDeepEqual(a, b) {
+	const parsedA = parseXmlString(a);
+	const parsedB = parseXmlString(b);
+
+	assert.strictEqual(parsedA.err, null);
+	assert.strictEqual(parsedB.err, null);
+	assert.deepStrictEqual(parsedA.result, parsedB.result);
+}
+
 describe('rss', () => {
 	it('should return a response', async () => {
 		const response = await rss({
@@ -45,10 +51,14 @@ describe('rss', () => {
 		});
 
 		const str = await response.text();
-		chai.expect(str).xml.to.equal(validXmlResult);
+
+		// NOTE: Chai used the below parser to perform the tests, but I have omitted it for now.
+		// parser = new xml2js.Parser({ trim: flag(this, 'deep') });
+
+		assertXmlDeepEqual(str, validXmlResult);
 
 		const contentType = response.headers.get('Content-Type');
-		chai.expect(contentType).to.equal('application/xml');
+		assert.strictEqual(contentType, 'application/xml');
 	});
 
 	it('should be the same string as getRssString', async () => {
@@ -63,7 +73,7 @@ describe('rss', () => {
 		const str1 = await response.text();
 		const str2 = await getRssString(options);
 
-		chai.expect(str1).to.equal(str2);
+		assert.strictEqual(str1, str2);
 	});
 });
 
@@ -76,7 +86,7 @@ describe('getRssString', () => {
 			site,
 		});
 
-		chai.expect(str).xml.to.equal(validXmlResult);
+		assertXmlDeepEqual(str, validXmlResult);
 	});
 
 	it('should generate on valid RSSFeedItem array with HTML content included', async () => {
@@ -87,7 +97,7 @@ describe('getRssString', () => {
 			site,
 		});
 
-		chai.expect(str).xml.to.equal(validXmlWithContentResult);
+		assertXmlDeepEqual(str, validXmlWithContentResult);
 	});
 
 	it('should generate on valid RSSFeedItem array with all RSS content included', async () => {
@@ -98,7 +108,7 @@ describe('getRssString', () => {
 			site,
 		});
 
-		chai.expect(str).xml.to.equal(validXmlResultWithAllData);
+		assertXmlDeepEqual(str, validXmlResultWithAllData);
 	});
 
 	it('should generate on valid RSSFeedItem array with custom data included', async () => {
@@ -112,7 +122,7 @@ describe('getRssString', () => {
 			site,
 		});
 
-		chai.expect(str).xml.to.equal(validXmlWithCustomDataResult);
+		assertXmlDeepEqual(str, validXmlWithCustomDataResult);
 	});
 
 	it('should include xml-stylesheet instruction when stylesheet is defined', async () => {
@@ -124,7 +134,7 @@ describe('getRssString', () => {
 			stylesheet: '/feedstylesheet.css',
 		});
 
-		chai.expect(str).xml.to.equal(validXmlWithStylesheet);
+		assertXmlDeepEqual(str, validXmlWithStylesheet);
 	});
 
 	it('should include xml-stylesheet instruction with xsl type when stylesheet is set to xsl file', async () => {
@@ -136,7 +146,7 @@ describe('getRssString', () => {
 			stylesheet: '/feedstylesheet.xsl',
 		});
 
-		chai.expect(str).xml.to.equal(validXmlWithXSLStylesheet);
+		assertXmlDeepEqual(str, validXmlWithXSLStylesheet);
 	});
 
 	it('should preserve self-closing tags on `customData`', async () => {
@@ -153,7 +163,7 @@ describe('getRssString', () => {
 			customData,
 		});
 
-		chai.expect(str).to.contain(customData);
+		assert.ok(str.includes(customData));
 	});
 
 	it('should not append trailing slash to URLs with the given option', async () => {
@@ -165,8 +175,8 @@ describe('getRssString', () => {
 			trailingSlash: false,
 		});
 
-		chai.expect(str).xml.to.contain('https://example.com/<');
-		chai.expect(str).xml.to.contain('https://example.com/php<');
+		assert.ok(str.includes('https://example.com/<'));
+		assert.ok(str.includes('https://example.com/php<'));
 	});
 
 	it('Deprecated import.meta.glob mapping still works', async () => {
@@ -202,7 +212,7 @@ describe('getRssString', () => {
 			site,
 		});
 
-		chai.expect(str).xml.to.equal(validXmlResult);
+		assertXmlDeepEqual(str, validXmlResult);
 	});
 
 	it('should fail when an invalid date string is provided', async () => {
@@ -213,7 +223,47 @@ describe('getRssString', () => {
 			link: phpFeedItem.link,
 		});
 
-		chai.expect(res.success).to.be.false;
-		chai.expect(res.error.issues[0].path[0]).to.equal('pubDate');
+		assert.strictEqual(res.success, false);
+		assert.strictEqual(res.error.issues[0].path[0], 'pubDate');
+	});
+
+	it('should be extendable', () => {
+		let error = null;
+		try {
+			rssSchema.extend({
+				category: z.string().optional(),
+			});
+		} catch (e) {
+			error = e.message;
+		}
+		assert.strictEqual(error, null);
+	});
+
+	it('should not fail when an enclosure has a length of 0', async () => {
+		let error = null;
+		try {
+			await getRssString({
+				title,
+				description,
+				items: [
+					{
+						title: 'Title',
+						pubDate: new Date().toISOString(),
+						description: 'Description',
+						link: '/link',
+						enclosure: {
+							url: '/enclosure',
+							length: 0,
+							type: 'audio/mpeg',
+						},
+					},
+				],
+				site,
+			});
+		} catch (e) {
+			error = e.message;
+		}
+
+		assert.strictEqual(error, null);
 	});
 });

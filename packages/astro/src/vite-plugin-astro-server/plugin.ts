@@ -121,10 +121,12 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			routing: settings.config.i18n.routing,
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
+			domainLookupTable: {},
 		};
 	}
 	return {
 		trailingSlash: settings.config.trailingSlash,
+		buildFormat: settings.config.build.format,
 		compressHTML: settings.config.compressHTML,
 		assets: new Set(),
 		entryModules: {},
@@ -139,5 +141,8 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			: settings.config.site,
 		componentMetadata: new Map(),
 		i18n: i18nManifest,
+		middleware(_, next) {
+			return next();
+		},
 	};
 }

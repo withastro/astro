@@ -160,6 +160,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 					possibleConfigFiles: [
 						'./tailwind.config.cjs',
 						'./tailwind.config.mjs',
+						'./tailwind.config.ts',
+						'./tailwind.config.mts',
+						'./tailwind.config.cts',
 						'./tailwind.config.js',
 					],
 					defaultConfigFile: './tailwind.config.mjs',
@@ -208,6 +211,8 @@ export async function add(names: string[], { flags }: AddOptions) {
 		case UpdateResult.failure: {
 			throw createPrettyError(new Error(`Unable to install dependencies`));
 		}
+		case UpdateResult.none:
+			break;
 	}
 
 	const rawConfigPath = await resolveConfigPath({
@@ -379,11 +384,11 @@ const toIdent = (name: string) => {
 	const ident = name
 		.trim()
 		// Remove astro or (astrojs) prefix and suffix
-		.replace(/[-_\.\/]?astro(?:js)?[-_\.]?/g, '')
+		.replace(/[-_./]?astro(?:js)?[-_.]?/g, '')
 		// drop .js suffix
 		.replace(/\.js/, '')
 		// convert to camel case
-		.replace(/(?:[\.\-\_\/]+)([a-zA-Z])/g, (_, w) => w.toUpperCase())
+		.replace(/[.\-_/]+([a-zA-Z])/g, (_, w) => w.toUpperCase())
 		// drop invalid first characters
 		.replace(/^[^a-zA-Z$_]+/, '');
 	return `${ident[0].toLowerCase()}${ident.slice(1)}`;

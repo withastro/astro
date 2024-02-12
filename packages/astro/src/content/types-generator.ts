@@ -56,8 +56,6 @@ type CreateContentGeneratorParams = {
 	fs: typeof fsMod;
 };
 
-class UnsupportedFileTypeError extends Error {}
-
 export async function createContentTypesGenerator({
 	contentConfigObserver,
 	fs,
@@ -109,9 +107,7 @@ export async function createContentTypesGenerator({
 		return { typesGenerated: true };
 	}
 
-	async function handleEvent(
-		event: ContentEvent
-	): Promise<{ shouldGenerateTypes: boolean; error?: Error }> {
+	async function handleEvent(event: ContentEvent): Promise<{ shouldGenerateTypes: boolean }> {
 		if (event.name === 'addDir' || event.name === 'unlinkDir') {
 			const collection = normalizePath(
 				path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry))
@@ -146,21 +142,6 @@ export async function createContentTypesGenerator({
 		if (fileType === 'config') {
 			await reloadContentConfigObserver({ fs, settings, viteServer });
 			return { shouldGenerateTypes: true };
-		}
-		if (fileType === 'unsupported') {
-			// Avoid warning if file was deleted.
-			if (event.name === 'unlink') {
-				return { shouldGenerateTypes: false };
-			}
-			const { id } = getContentEntryIdAndSlug({
-				entry: event.entry,
-				contentDir: contentPaths.contentDir,
-				collection: '',
-			});
-			return {
-				shouldGenerateTypes: false,
-				error: new UnsupportedFileTypeError(id),
-			};
 		}
 
 		const { entry } = event;
@@ -319,16 +300,6 @@ export async function createContentTypesGenerator({
 		}
 
 		events = [];
-		for (const response of eventResponses) {
-			if (response.error instanceof UnsupportedFileTypeError) {
-				logger.warn(
-					'content',
-					`Unsupported file type ${bold(
-						response.error.message
-					)} found. Prefix filename with an underscore (\`_\`) to ignore.`
-				);
-			}
-		}
 		const observable = contentConfigObserver.get();
 		if (eventResponses.some((r) => r.shouldGenerateTypes)) {
 			await writeContentFiles({
@@ -360,6 +331,24 @@ function invalidateVirtualMod(viteServer: ViteDevServer) {
 	if (!virtualMod) return;
 
 	viteServer.moduleGraph.invalidateModule(virtualMod);
+}
+
+/**
+ * Takes the source (`from`) and destination (`to`) of a config path and
+ * returns a normalized relative version:
+ *  -   If is not relative, it adds `./` to the beginning.
+ *  -   If it ends with `.ts`, it replaces it with `.js`.
+ *  -   It adds `""` around the string.
+ * @param from Config path source.
+ * @param to Config path destination.
+ * @returns Normalized config path.
+ */
+function normalizeConfigPath(from: string, to: string) {
+	const configPath = path.relative(from, to).replace(/\.ts$/, '.js');
+	// on windows `path.relative` will use backslashes, these must be replaced with forward slashes
+	const normalizedPath = configPath.replaceAll('\\', '/');
+
+	return `"${isRelativePath(configPath) ? '' : './'}${normalizedPath}"` as const;
 }
 
 async function writeContentFiles({
@@ -444,17 +433,10 @@ async function writeContentFiles({
 		fs.mkdirSync(contentPaths.cacheDir, { recursive: true });
 	}
 
-	let configPathRelativeToCacheDir = normalizePath(
-		path.relative(contentPaths.cacheDir.pathname, contentPaths.config.url.pathname)
+	const configPathRelativeToCacheDir = normalizeConfigPath(
+		contentPaths.cacheDir.pathname,
+		contentPaths.config.url.pathname
 	);
-
-	if (!isRelativePath(configPathRelativeToCacheDir))
-		configPathRelativeToCacheDir = './' + configPathRelativeToCacheDir;
-
-	// Remove `.ts` from import path
-	if (configPathRelativeToCacheDir.endsWith('.ts')) {
-		configPathRelativeToCacheDir = configPathRelativeToCacheDir.replace(/\.ts$/, '');
-	}
 
 	for (const contentEntryType of contentEntryTypes) {
 		if (contentEntryType.contentModuleTypes) {
@@ -465,7 +447,7 @@ async function writeContentFiles({
 	typeTemplateContent = typeTemplateContent.replace('// @@DATA_ENTRY_MAP@@', dataTypesStr);
 	typeTemplateContent = typeTemplateContent.replace(
 		"'@@CONTENT_CONFIG_TYPE@@'",
-		contentConfig ? `typeof import(${JSON.stringify(configPathRelativeToCacheDir)})` : 'never'
+		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never'
 	);
 
 	await fs.promises.writeFile(
