@@ -1,4 +1,7 @@
 /// <reference lib="dom" />
+
+import { AstroReloadAttribute } from './dist/@types/astro.js';
+
 /* eslint @typescript-eslint/no-unused-vars: off */
 /**
  * Adapted from babel-plugin-react-html-attrs's TypeScript definition from DefinitelyTyped.
@@ -32,8 +35,11 @@ declare namespace astroHTML.JSX {
 	type AstroClientDirectives = import('./dist/@types/astro.js').AstroClientDirectives;
 	type AstroBuiltinAttributes = import('./dist/@types/astro.js').AstroBuiltinAttributes;
 	type AstroDefineVarsAttribute = import('./dist/@types/astro.js').AstroDefineVarsAttribute;
+	type AstroAnchorAttributes = import('./dist/@types/astro.js').AstroReloadAttribute;
+	type AstroAreaAttributes = import('./dist/@types/astro.js').AstroReloadAttribute;
+	type AstroFormAttributes = import('./dist/@types/astro.js').AstroReloadAttribute;
 	type AstroScriptAttributes = import('./dist/@types/astro.js').AstroScriptAttributes &
-		AstroDefineVarsAttribute;
+		AstroDefineVarsAttribute & AstroReloadAttribute;
 	type AstroStyleAttributes = import('./dist/@types/astro.js').AstroStyleAttributes &
 		AstroDefineVarsAttribute;
 	type AstroSlotAttributes = import('./dist/@types/astro.js').AstroSlotAttributes;
@@ -1348,10 +1354,10 @@ declare namespace astroHTML.JSX {
 
 	interface DefinedIntrinsicElements {
 		// HTML
-		a: AnchorHTMLAttributes;
+		a: AnchorHTMLAttributes & AstroAnchorAttributes;
 		abbr: HTMLAttributes;
 		address: HTMLAttributes;
-		area: AreaHTMLAttributes;
+		area: AreaHTMLAttributes & AstroAreaAttributes;
 		article: HTMLAttributes;
 		aside: HTMLAttributes;
 		audio: AudioHTMLAttributes;
@@ -1386,7 +1392,7 @@ declare namespace astroHTML.JSX {
 		figcaption: HTMLAttributes;
 		figure: HTMLAttributes;
 		footer: HTMLAttributes;
-		form: FormHTMLAttributes;
+		form: FormHTMLAttributes & AstroFormAttributes;
 		h1: HTMLAttributes;
 		h2: HTMLAttributes;
 		h3: HTMLAttributes;
