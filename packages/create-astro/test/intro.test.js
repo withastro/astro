@@ -13,7 +13,7 @@ describe('intro', () => {
 	});
 	it('--skip-houston', async () => {
 		await intro({ skipHouston: true, version: '0.0.0', username: 'user' });
-		assert.strictEqual(fixture.length(), 1);
+		assert.equal(fixture.length(), 1);
 		assert.ok(!fixture.hasMessage('Houston:'));
 		assert.ok(fixture.hasMessage('Launch sequence initiated'));
 	});

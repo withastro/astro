@@ -12,7 +12,7 @@ describe('verify', async () => {
 	it('basics', async () => {
 		const context = { template: 'basics', exit };
 		await verify(context);
-		assert.strictEqual(fixture.messages().length, 0, 'Did not expect `verify` to log any messages');
+		assert.equal(fixture.messages().length, 0, 'Did not expect `verify` to log any messages');
 	});
 
 	it('missing', async () => {
@@ -23,19 +23,19 @@ describe('verify', async () => {
 		} catch (e) {
 			err = e;
 		}
-		assert.strictEqual(err, 1);
+		assert.equal(err, 1);
 		assert.ok(!fixture.hasMessage('Template missing does not exist!'));
 	});
 
 	it('starlight', async () => {
 		const context = { template: 'starlight', exit };
 		await verify(context);
-		assert.strictEqual(fixture.messages().length, 0, 'Did not expect `verify` to log any messages');
+		assert.equal(fixture.messages().length, 0, 'Did not expect `verify` to log any messages');
 	});
 
 	it('starlight/tailwind', async () => {
 		const context = { template: 'starlight/tailwind', exit };
 		await verify(context);
-		assert.strictEqual(fixture.messages().length, 0, 'Did not expect `verify` to log any messages');
+		assert.equal(fixture.messages().length, 0, 'Did not expect `verify` to log any messages');
 	});
 });

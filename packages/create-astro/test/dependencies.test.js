@@ -31,7 +31,7 @@ describe('dependencies', () => {
 		await dependencies(context);
 
 		assert.ok(fixture.hasMessage('Skipping dependency installation'));
-		assert.strictEqual(context.install, true);
+		assert.equal(context.install, true);
 	});
 
 	it('prompt no', async () => {
@@ -47,7 +47,7 @@ describe('dependencies', () => {
 		await dependencies(context);
 
 		assert.ok(fixture.hasMessage('Skipping dependency installation'));
-		assert.strictEqual(context.install, false);
+		assert.equal(context.install, false);
 	});
 
 	it('--install', async () => {
@@ -60,7 +60,7 @@ describe('dependencies', () => {
 		};
 		await dependencies(context);
 		assert.ok(fixture.hasMessage('Skipping dependency installation'));
-		assert.strictEqual(context.install, true);
+		assert.equal(context.install, true);
 	});
 
 	it('--no-install ', async () => {
@@ -75,6 +75,6 @@ describe('dependencies', () => {
 		await dependencies(context);
 
 		assert.ok(fixture.hasMessage('Skipping dependency installation'));
-		assert.strictEqual(context.install, false);
+		assert.equal(context.install, false);
 	});
 });

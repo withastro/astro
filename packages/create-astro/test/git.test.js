@@ -17,7 +17,7 @@ describe('git', () => {
 	});
 
 	it('yes (--dry-run)', async () => {
-		const context = { cwd: '', dryRun: true, prompt: () => ({ git: false }) };
+		const context = { cwd: '', dryRun: true, prompt: () => ({ git: true }) };
 		await git(context);
 		assert.ok(fixture.hasMessage('Skipping Git initialization'));
 	});

@@ -10,7 +10,7 @@ describe('template', async () => {
 		const context = { template: '', cwd: '', dryRun: true, prompt: () => ({ template: 'blog' }) };
 		await template(context);
 		assert.ok(fixture.hasMessage('Skipping template copying'));
-		assert.strictEqual(context.template, 'blog');
+		assert.equal(context.template, 'blog');
 	});
 
 	it('minimal (--dry-run)', async () => {

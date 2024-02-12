@@ -75,7 +75,7 @@ describe('typescript', async () => {
 		} catch (e) {
 			err = e;
 		}
-		assert.strictEqual(err, 1);
+		assert.equal(err, 1);
 	});
 });
 
@@ -116,7 +116,7 @@ describe('typescript: setup package', async () => {
 	it('none', async () => {
 		const root = new URL('./fixtures/not-empty/', import.meta.url);
 		const packageJson = new URL('./package.json', root);
-		assert.strictEqual(
+		assert.equal(
 			JSON.parse(fs.readFileSync(packageJson, { encoding: 'utf-8' })).scripts.build,
 			'astro build'
 		);
@@ -130,6 +130,6 @@ describe('typescript: setup package', async () => {
 			'does not override existing scripts'
 		);
 
-		assert.strictEqual(scripts.build, 'astro check && astro build', 'prepends astro check command');
+		assert.equal(scripts.build, 'astro check && astro build', 'prepends astro check command');
 	});
 });
