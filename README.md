@@ -10,7 +10,7 @@ This repository is a monorepo managed through [Turbo](https://turborepo.org/), w
 
 ### [`@astrojs/language-server`](packages/language-server)
 
-The Astro language server, powered by [Volar](https://volarjs.github.io/).
+The Astro language server, powered by [Volar](https://volarjs.dev/).
 
 ### [`astro-vscode`](packages/vscode)
 
