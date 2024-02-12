@@ -18,6 +18,6 @@ The algorithm would make the following comparisons:
 - `/blog` is more specific than `/blog/[...slug]` (correct)
 
 Although the incorrect first comparison is not a problem by itself, it could cause the algorithm to make the wrong decision.
-Depending on the other routes in the project, the sorting could perform just the first two comparisons and by transitivity infer the inverse of the third (`/blog/[...slug` > `/` > `/blog`), which is incorrect.
+Depending on the other routes in the project, the sorting could perform just the last two comparisons and by transitivity infer the inverse of the third (`/blog/[...slug` > `/` > `/blog`), which is incorrect.
 
 Now the algorithm doesn't have a special case for index pages and instead does the comparison soleley for rest parameter segments and their immediate parents, which is consistent with the transitivity property.
