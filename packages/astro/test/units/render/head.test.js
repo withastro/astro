@@ -10,17 +10,17 @@ import {
 	Fragment,
 } from '../../../dist/runtime/server/index.js';
 import { RenderContext } from '../../../dist/core/render-context.js';
-import { createBasicEnvironment } from '../test-utils.js';
+import { createBasicPipeline } from '../test-utils.js';
 import * as cheerio from 'cheerio';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
 
 describe('core/render', () => {
 	describe('Injected head contents', () => {
-		let environment;
+		let pipeline;
 		before(async () => {
-			environment = createBasicEnvironment();
-			environment.headElements = () => ({
+			pipeline = createBasicPipeline();
+			pipeline.headElements = () => ({
 				links: new Set([{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }]),
 				scripts: new Set,
 				styles: new Set
@@ -96,7 +96,7 @@ describe('core/render', () => {
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.astro', params: {} };
-			const renderContext = RenderContext.create({ environment, request, routeData });
+			const renderContext = RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();
@@ -172,7 +172,7 @@ describe('core/render', () => {
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.astro', params: {} };
-			const renderContext = RenderContext.create({ environment, request, routeData });
+			const renderContext = RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();
@@ -215,7 +215,7 @@ describe('core/render', () => {
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.astro', params: {} };
-			const renderContext = RenderContext.create({ environment, request, routeData });
+			const renderContext = RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();

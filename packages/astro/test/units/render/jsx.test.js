@@ -10,16 +10,16 @@ import { jsx } from '../../../dist/jsx-runtime/index.js';
 import { loadRenderer } from '../../../dist/core/render/index.js';
 import { RenderContext } from '../../../dist/core/render-context.js';
 import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
-import { createBasicEnvironment } from '../test-utils.js';
+import { createBasicPipeline } from '../test-utils.js';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
 const loadJSXRenderer = () => loadRenderer(jsxRenderer, { import: (s) => import(s) });
 
 describe('core/render', () => {
 	describe('Astro JSX components', () => {
-		let environment;
+		let pipeline;
 		before(async () => {
-			environment = createBasicEnvironment({
+			pipeline = createBasicPipeline({
 				renderers: [await loadJSXRenderer()],
 			});
 		});
@@ -44,7 +44,7 @@ describe('core/render', () => {
 			const mod = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.mdx', params: {} };
-			const renderContext = RenderContext.create({ environment, request, routeData });
+			const renderContext = RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(mod);
 
 			assert.equal(response.status, 200);
@@ -86,7 +86,7 @@ describe('core/render', () => {
 			const mod = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.mdx', params: {} };
-			const renderContext = RenderContext.create({ environment, request, routeData });
+			const renderContext = RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(mod);
 
 			assert.equal(response.status, 200);
@@ -112,7 +112,7 @@ describe('core/render', () => {
 			const mod = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.mdx', params: {} };
-			const renderContext = RenderContext.create({ environment, request, routeData });
+			const renderContext = RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(mod);
 
 			try {

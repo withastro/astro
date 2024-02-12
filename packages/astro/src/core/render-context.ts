@@ -7,7 +7,7 @@ import { AstroCookies } from './cookies/index.js';
 import { createResult } from './render/index.js';
 import { renderPage } from '../runtime/server/index.js';
 import { ASTRO_VERSION, ROUTE_TYPE_HEADER, clientAddressSymbol, clientLocalsSymbol } from './constants.js';
-import { getParams, getProps, type Environment } from './render/index.js';
+import { getParams, getProps, type Pipeline } from './render/index.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import {
 	computeCurrentLocale,
@@ -18,7 +18,7 @@ import { renderRedirect } from './redirects/render.js';
 
 export class RenderContext {
 	private constructor(
-		readonly environment: Environment,
+		readonly pipeline: Pipeline,
 		public locals: App.Locals,
 		readonly middleware: MiddlewareHandler,
 		readonly pathname: string,
@@ -29,8 +29,8 @@ export class RenderContext {
 		readonly params = getParams(routeData, pathname),
 	) {}
 
-	static create({ environment, locals = {}, middleware, pathname, request, routeData, status = 200 }: Pick<RenderContext, 'environment' | 'pathname' | 'request' | 'routeData'> & Partial<Pick<RenderContext, 'locals' | 'middleware' | 'status'>>) {
-		return new RenderContext(environment, locals, sequence(...environment.internalMiddleware, middleware ?? environment.middleware), pathname, request, routeData, status);
+	static create({ locals = {}, middleware, pathname, pipeline, request, routeData, status = 200 }: Pick<RenderContext, 'pathname' |'pipeline' |  'request' | 'routeData'> & Partial<Pick<RenderContext, 'locals' | 'middleware' | 'status'>>) {
+		return new RenderContext(pipeline, locals, sequence(...pipeline.internalMiddleware, middleware ?? pipeline.middleware), pathname, request, routeData, status);
 	}
 
 	/**
@@ -45,8 +45,8 @@ export class RenderContext {
 	 * - fallback
 	 */
 	async render(componentInstance: ComponentInstance | undefined): Promise<Response> {
-		const { cookies, environment, middleware, pathname, routeData } = this;
-		const { logger, routeCache, serverLike, streaming } = environment;
+		const { cookies, middleware, pathname, pipeline, routeData } = this;
+		const { logger, routeCache, serverLike, streaming } = pipeline;
 		const props = await getProps({ mod: componentInstance, routeData, routeCache, pathname, logger, serverLike });
 		const apiContext = this.createAPIContext(props);
 		const { type } = routeData;
@@ -76,11 +76,11 @@ export class RenderContext {
 
 	createAPIContext(props: APIContext['props']): APIContext {
 		const renderContext = this;
-		const { cookies, environment, i18nData, params, request } = this;
+		const { cookies, i18nData, params, pipeline, request } = this;
 		const { currentLocale, preferredLocale, preferredLocaleList } = i18nData;
 		const generator = `Astro v${ASTRO_VERSION}`;
 		const redirect = (path: string, status = 302) => new Response(null, { status, headers: { Location: path } });
-		const site = environment.site ? new URL(environment.site) : undefined;
+		const site = pipeline.site ? new URL(pipeline.site) : undefined;
 		const url = new URL(request.url);
 		return {
 			cookies, currentLocale, generator, params, preferredLocale, preferredLocaleList, props, redirect, request, site, url,
@@ -88,10 +88,10 @@ export class RenderContext {
 				if (clientAddressSymbol in request) {
 					return Reflect.get(request, clientAddressSymbol) as string;
 				}
-				if (environment.adapterName) {
+				if (pipeline.adapterName) {
 					throw new AstroError({
 						...AstroErrorData.ClientAddressNotAvailable,
-						message: AstroErrorData.ClientAddressNotAvailable.message(environment.adapterName),
+						message: AstroErrorData.ClientAddressNotAvailable.message(pipeline.adapterName),
 					});
 				} else {
 					throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
@@ -115,10 +115,10 @@ export class RenderContext {
 	}
 
 	async createResult(mod: ComponentInstance) {
-		const { cookies, environment, locals, params, pathname, request, routeData, status } = this;
-		const { adapterName, clientDirectives, compressHTML, i18n, manifest, logger, renderers, resolve, site, serverLike } = environment;
-		const { links, scripts, styles } = await environment.headElements(routeData);
-		const componentMetadata = await environment.componentMetadata(routeData) ?? manifest.componentMetadata;
+		const { cookies, locals, params, pathname, pipeline, request, routeData, status } = this;
+		const { adapterName, clientDirectives, compressHTML, i18n, manifest, logger, renderers, resolve, site, serverLike } = pipeline;
+		const { links, scripts, styles } = await pipeline.headElements(routeData);
+		const componentMetadata = await pipeline.componentMetadata(routeData) ?? manifest.componentMetadata;
 		const { defaultLocale, locales, routing: routingStrategy } = i18n ?? {};
 		const partial = Boolean(mod.partial);
 		return createResult({ adapterName, clientDirectives, componentMetadata, compressHTML, cookies, defaultLocale, locales, locals, logger, links, params, partial, pathname, renderers, resolve, request, route: routeData.route, routingStrategy, site, scripts, ssr: serverLike, status, styles });
@@ -132,7 +132,7 @@ export class RenderContext {
 
 	get i18nData() {
 		if (this.#i18nData) return this.#i18nData
-		const { environment: { i18n }, request, routeData } = this;
+		const { pipeline: { i18n }, request, routeData } = this;
 		if (!i18n) return {
 			currentLocale: undefined,
 			preferredLocale: undefined,

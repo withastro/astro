@@ -3,7 +3,7 @@ import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
-import { Environment } from '../render/index.js';
+import { Pipeline } from '../render/index.js';
 import { createAssetLink, createModuleScriptsSet, createStylesheetElementSet } from '../render/ssr-element.js';
 import { getPageDataByComponent, type BuildInternals, cssOrder, mergeInlineCss } from './internal.js';
 import {
@@ -18,7 +18,7 @@ import { i18nHasFallback } from './util.js';
 /**
  * This build environment is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
  */
-export class BuildEnvironment extends Environment {
+export class BuildEnvironment extends Pipeline {
 	private constructor(
 		readonly internals: BuildInternals,
 		readonly manifest: SSRManifest,

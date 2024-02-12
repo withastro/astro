@@ -208,7 +208,7 @@ export async function handleRoute({
 				fallbackRoutes: [],
 				isIndex: false,
 			};
-			renderContext = RenderContext.create({ environment, pathname, middleware, request, routeData: route });
+			renderContext = RenderContext.create({ pipeline: environment, pathname, middleware, request, routeData: route });
 		} else {
 			return handle404Response(origin, incomingRequest, incomingResponse);
 		}
@@ -234,7 +234,7 @@ export async function handleRoute({
 		}
 
 		options = {
-			env: environment,
+			pipeline: environment,
 			filePath,
 			preload: preloadedComponent,
 			pathname,
@@ -243,7 +243,7 @@ export async function handleRoute({
 		};
 
 		mod = preloadedComponent;
-		renderContext = RenderContext.create({ environment, pathname, middleware, request, routeData: route });
+		renderContext = RenderContext.create({ pipeline: environment, pathname, middleware, request, routeData: route });
 	}
 
 	let response = await renderContext.render(mod);

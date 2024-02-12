@@ -6,7 +6,7 @@ import npath from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getDefaultClientDirectives } from '../../dist/core/client-directive/index.js';
 import { nodeLogDestination } from '../../dist/core/logger/node.js';
-import { Environment } from '../../dist/core/render/index.js';
+import { Pipeline } from '../../dist/core/render/index.js';
 import { RouteCache } from '../../dist/core/render/route-cache.js';
 import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
@@ -181,12 +181,12 @@ export function buffersToString(buffers) {
 export const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
 
 /**
- * @param {Partial<Environment>} options
- * @returns {Environment}
+ * @param {Partial<Pipeline>} options
+ * @returns {Pipeline}
  */
-export function createBasicEnvironment(options = {}) {
+export function createBasicPipeline(options = {}) {
 	const mode = options.mode ?? 'development';
-	const environment = new Environment(
+	const pipeline = new Pipeline(
 		options.logger ?? defaultLogger,
 		options.manifest ?? {},
 		options.mode ?? 'development',
@@ -202,9 +202,9 @@ export function createBasicEnvironment(options = {}) {
 		options.routeCache ?? new RouteCache(options.logging, mode),
 		options.site
 	);
-	environment.headElements = () => ({ scripts: new Set, styles: new Set, links: new Set });
-	environment.componentMetadata = () => {};
-	return environment
+	pipeline.headElements = () => ({ scripts: new Set, styles: new Set, links: new Set });
+	pipeline.componentMetadata = () => {};
+	return pipeline
 }
 
 /**

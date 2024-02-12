@@ -300,7 +300,7 @@ export class App {
 
 		let response;
 		try {
-			const renderContext = RenderContext.create({ environment: this.#environment, locals, pathname, request, routeData, status: defaultStatus })
+			const renderContext = RenderContext.create({ pipeline: this.#environment, locals, pathname, request, routeData, status: defaultStatus })
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
@@ -386,7 +386,7 @@ export class App {
 			const mod = await this.#getModuleForRoute(errorRouteData);
 			try {
 				const renderContext = RenderContext.create({
-					environment: this.#environment,
+					pipeline: this.#environment,
 					middleware: skipMiddleware ? (_, next) => next() : undefined,
 					pathname: this.#getPathnameFromRequest(request),
 					request,

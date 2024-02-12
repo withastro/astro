@@ -499,7 +499,7 @@ async function generatePath(
 		logger,
 		ssr: serverLike,
 	});
-	const renderContext = RenderContext.create({ environment, pathname, request, routeData: route })
+	const renderContext = RenderContext.create({ pipeline: environment, pathname, request, routeData: route })
 
 	let body: string | Uint8Array;
 	let response: Response;
