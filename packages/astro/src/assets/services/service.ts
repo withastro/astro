@@ -140,71 +140,88 @@ export type BaseServiceTransform = {
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {
 	propertiesToHash: DEFAULT_HASH_PROPS,
-	async validateOptions(options) {
-        // `src` is missing or is `undefined`.
-        if (!options.src || (typeof options.src !== 'string' && typeof options.src !== 'object')) {
-            throw new AstroError({
-                ...AstroErrorData.ExpectedImage,
-                message: AstroErrorData.ExpectedImage.message(
-                    JSON.stringify(options.src),
-                    typeof options.src,
-                    JSON.stringify(options)
-                ),
-            });
-        }
+	validateOptions(options) {
+		// `src` is missing or is `undefined`.
+		if (!options.src || (typeof options.src !== 'string' && typeof options.src !== 'object')) {
+			throw new AstroError({
+				...AstroErrorData.ExpectedImage,
+				message: AstroErrorData.ExpectedImage.message(
+					JSON.stringify(options.src),
+					typeof options.src,
+					JSON.stringify(options, (_, v) => (v === undefined ? null : v))
+				),
+			});
+		}
 
-        // Handle local and ESM-imported images
-        if (!isESMImportedImage(options.src)) {
-            if (options.src.startsWith('/@fs/') || (!isRemotePath(options.src) && !options.src.startsWith('/'))) {
-                throw new AstroError({
-                    ...AstroErrorData.LocalImageUsedWrongly,
-                    message: AstroErrorData.LocalImageUsedWrongly.message(options.src),
-                });
-            }
+		if (!isESMImportedImage(options.src)) {
+			// User passed an `/@fs/` path or a filesystem path instead of the full image.
+			if (
+				options.src.startsWith('/@fs/') ||
+				(!isRemotePath(options.src) && !options.src.startsWith('/'))
+			) {
+				throw new AstroError({
+					...AstroErrorData.LocalImageUsedWrongly,
+					message: AstroErrorData.LocalImageUsedWrongly.message(options.src),
+				});
+			}
 
-            if (!options.width || !options.height) {
-                const missingDimension = !options.width && !options.height ? 'both' :
-                                        !options.width ? 'width' : 'height';
-                throw new AstroError({
-                    ...AstroErrorData.MissingImageDimension,
-                    message: AstroErrorData.MissingImageDimension.message(missingDimension, options.src),
-                });
-            }
-        } else {
-            if (!VALID_SUPPORTED_FORMATS.includes(options.src.format)) {
-                throw new AstroError({
-                    ...AstroErrorData.UnsupportedImageFormat,
-                    message: AstroErrorData.UnsupportedImageFormat.message(
-                        options.src.format,
-                        options.src.src,
-                        VALID_SUPPORTED_FORMATS
-                    ),
-                });
-            }
+			// For remote images, width and height are explicitly required as we can't infer them from the file
+			let missingDimension: 'width' | 'height' | 'both' | undefined;
+			if (!options.width && !options.height) {
+				missingDimension = 'both';
+			} else if (!options.width && options.height) {
+				missingDimension = 'width';
+			} else if (options.width && !options.height) {
+				missingDimension = 'height';
+			}
 
-            if (options.widths && options.densities) {
-                throw new AstroError(AstroErrorData.IncompatibleDescriptorOptions);
-            }
+			if (missingDimension) {
+				throw new AstroError({
+					...AstroErrorData.MissingImageDimension,
+					message: AstroErrorData.MissingImageDimension.message(missingDimension, options.src),
+				});
+			}
+		} else {
+			if (!VALID_SUPPORTED_FORMATS.includes(options.src.format as any)) {
+				throw new AstroError({
+					...AstroErrorData.UnsupportedImageFormat,
+					message: AstroErrorData.UnsupportedImageFormat.message(
+						options.src.format,
+						options.src.src,
+						VALID_SUPPORTED_FORMATS
+					),
+				});
+			}
 
-            if (options.src.format === 'svg') {
-                options.format = 'svg';
-            }
+			if (options.widths && options.densities) {
+				throw new AstroError(AstroErrorData.IncompatibleDescriptorOptions);
+			}
 
-            if ((options.src.format === 'svg' && options.format !== 'svg') ||
-                (options.src.format !== 'svg' && options.format === 'svg')) {
-                throw new AstroError(AstroErrorData.UnsupportedImageConversion);
-            }
-        }
+			// We currently do not support processing SVGs, so whenever the input format is a SVG, force the output to also be one
+			if (options.src.format === 'svg') {
+				options.format = 'svg';
+			}
 
-        // Default to 'webp' format if none is specified
-        options.format = options.format || DEFAULT_OUTPUT_FORMAT;
+			if (
+				(options.src.format === 'svg' && options.format !== 'svg') ||
+				(options.src.format !== 'svg' && options.format === 'svg')
+			) {
+				throw new AstroError(AstroErrorData.UnsupportedImageConversion);
+			}
+		}
 
-        // Round width and height to avoid floating point numbers
-        if (options.width) options.width = Math.round(options.width);
-        if (options.height) options.height = Math.round(options.height);
+		// If the user didn't specify a format, we'll default to `webp`. It offers the best ratio of compatibility / quality
+		// In the future, hopefully we can replace this with `avif`, alas, Edge. See https://caniuse.com/avif
+		if (!options.format) {
+			options.format = DEFAULT_OUTPUT_FORMAT;
+		}
 
-        return options;
-    },
+		// Sometimes users will pass number generated from division, which can result in floating point numbers
+		if (options.width) options.width = Math.round(options.width);
+		if (options.height) options.height = Math.round(options.height);
+
+		return options;
+	},
 	getHTMLAttributes(options) {
 		const { targetWidth, targetHeight } = getTargetDimensions(options);
 		const { src, width, height, format, quality, densities, widths, formats, ...attributes } =
