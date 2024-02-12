@@ -43,7 +43,7 @@ import { callGetStaticPaths } from '../render/route-cache.js';
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
-import { BuildEnvironment } from './environment.js';
+import { BuildPipeline } from './pipeline.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
 import {
 	cssOrder,
@@ -135,7 +135,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	const ssr = isServerLikeOutput(options.settings.config);
 	let manifest: SSRManifest;
 	if (ssr) {
-		manifest = await BuildEnvironment.retrieveManifest(options, internals);
+		manifest = await BuildPipeline.retrieveManifest(options, internals);
 	} else {
 		const baseDirectory = getOutputDirectory(options.settings.config);
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
@@ -155,8 +155,8 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 			middleware
 		);
 	}
-	const environment = BuildEnvironment.create({ internals, manifest, options });
-	const { config, logger } = environment;
+	const pipeline = BuildPipeline.create({ internals, manifest, options });
+	const { config, logger } = pipeline;
 
 	const outFolder = ssr
 		? options.settings.config.build.server
@@ -172,7 +172,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	const verb = ssr ? 'prerendering' : 'generating';
 	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
-	const pagesToGenerate = environment.retrieveRoutesToGenerate();
+	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
 	if (ssr) {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (pageData.route.prerender) {
@@ -190,7 +190,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 					// forcing to use undefined, so we fail in an expected way if the module is not even there.
 					const ssrEntry = ssrEntryPage?.pageModule;
 					if (ssrEntry) {
-						await generatePage(pageData, ssrEntry, builtPaths, environment);
+						await generatePage(pageData, ssrEntry, builtPaths, pipeline);
 					} else {
 						throw new Error(
 							`Unable to find the manifest for the module ${ssrEntryURLPage.toString()}. This is unexpected and likely a bug in Astro, please report.`
@@ -198,7 +198,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 					}
 				} else {
 					const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
-					await generatePage(pageData, ssrEntry, builtPaths, environment);
+					await generatePage(pageData, ssrEntry, builtPaths, pipeline);
 				}
 			}
 		}
@@ -206,15 +206,15 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (routeIsRedirect(pageData.route)) {
 				const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-				await generatePage(pageData, entry, builtPaths, environment);
+				await generatePage(pageData, entry, builtPaths, pipeline);
 			} else if (routeIsFallback(pageData.route)) {
 				const entry = await getEntryForFallbackRoute(pageData.route, internals, outFolder);
-				await generatePage(pageData, entry, builtPaths, environment);
+				await generatePage(pageData, entry, builtPaths, pipeline);
 			} else {
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const entry: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
 
-				await generatePage(pageData, entry, builtPaths, environment);
+				await generatePage(pageData, entry, builtPaths, pipeline);
 			}
 		}
 	}
@@ -231,12 +231,12 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 			.map((x) => x.transforms.size)
 			.reduce((a, b) => a + b, 0);
 		const cpuCount = os.cpus().length;
-		const assetsCreationEnvironment = await prepareAssetsGenerationEnv(environment, totalCount);
+		const assetsCreationpipeline = await prepareAssetsGenerationEnv(pipeline, totalCount);
 		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
 
 		const assetsTimer = performance.now();
 		for (const [originalPath, transforms] of staticImageList) {
-			await generateImagesForPath(originalPath, transforms, assetsCreationEnvironment, queue);
+			await generateImagesForPath(originalPath, transforms, assetsCreationpipeline, queue);
 		}
 
 		await queue.onIdle();
@@ -253,10 +253,10 @@ async function generatePage(
 	pageData: PageBuildData,
 	ssrEntry: SinglePageBuiltModule,
 	builtPaths: Set<string>,
-	environment: BuildEnvironment
+	pipeline: BuildPipeline
 ) {
 	// prepare information we need
-	const { config, internals, logger } = environment;
+	const { config, internals, logger } = pipeline;
 	const pageModulePromise = ssrEntry.page;
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
 
@@ -289,16 +289,16 @@ async function generatePage(
 				: magenta('λ');
 		logger.info(null, `${icon} ${getPrettyRouteName(route)}`);
 		// Get paths for the route, calling getStaticPaths if needed.
-		const paths = await getPathsForRoute(route, pageModule, environment, builtPaths);
+		const paths = await getPathsForRoute(route, pageModule, pipeline, builtPaths);
 		let timeStart = performance.now();
 		let prevTimeEnd = timeStart;
 		for (let i = 0; i < paths.length; i++) {
 			const path = paths[i];
-			environment.logger.debug('build', `Generating: ${path}`);
+			pipeline.logger.debug('build', `Generating: ${path}`);
 			const filePath = getOutputFilename(config, path, pageData.route.type);
 			const lineIcon = i === paths.length - 1 ? '└─' : '├─';
 			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
-			await generatePath(path, environment, generationOptions, route);
+			await generatePath(path, pipeline, generationOptions, route);
 			const timeEnd = performance.now();
 			const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 			const timeIncrease = `(+${timeChange})`;
@@ -318,10 +318,10 @@ function* eachRouteInRouteData(data: PageBuildData) {
 async function getPathsForRoute(
 	route: RouteData,
 	mod: ComponentInstance,
-	environment: BuildEnvironment,
+	pipeline: BuildPipeline,
 	builtPaths: Set<string>
 ): Promise<Array<string>> {
-	const { logger, options, routeCache, serverLike } = environment;
+	const { logger, options, routeCache, serverLike } = pipeline;
 	let paths: Array<string> = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
@@ -471,12 +471,12 @@ interface GeneratePathOptions {
 }
 async function generatePath(
 	pathname: string,
-	environment: BuildEnvironment,
+	pipeline: BuildPipeline,
 	gopts: GeneratePathOptions,
 	route: RouteData
 ) {
 	const { mod } = gopts;
-	const { config, logger, options, serverLike } = environment;
+	const { config, logger, options, serverLike } = pipeline;
 	logger.debug('build', `Generating: ${pathname}`);
 
 	// This adds the page name to the array so it can be shown as part of stats.
@@ -499,7 +499,7 @@ async function generatePath(
 		logger,
 		ssr: serverLike,
 	});
-	const renderContext = RenderContext.create({ pipeline: environment, pathname, request, routeData: route })
+	const renderContext = RenderContext.create({ pipeline, pathname, request, routeData: route })
 
 	let body: string | Uint8Array;
 	let response: Response;

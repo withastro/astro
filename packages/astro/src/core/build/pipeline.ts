@@ -1,4 +1,4 @@
-import type { RouteData, SSRComponentMetadata, SSRLoadedRenderer, SSRResult } from '../../@types/astro.js';
+import type { RouteData, SSRLoadedRenderer, SSRResult } from '../../@types/astro.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
@@ -16,9 +16,9 @@ import type { PageBuildData, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
 
 /**
- * This build environment is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
+ * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
  */
-export class BuildEnvironment extends Pipeline {
+export class BuildPipeline extends Pipeline {
 	private constructor(
 		readonly internals: BuildInternals,
 		readonly manifest: SSRManifest,
@@ -50,8 +50,8 @@ export class BuildEnvironment extends Pipeline {
 		super(options.logger, manifest, options.mode, manifest.renderers, resolve, serverLike, streaming)
 	}
 
-	static create({ internals, manifest, options }: Pick<BuildEnvironment, 'internals' | 'manifest' | 'options'>) {
-		return new BuildEnvironment(internals, manifest, options);
+	static create({ internals, manifest, options }: Pick<BuildPipeline, 'internals' | 'manifest' | 'options'>) {
+		return new BuildPipeline(internals, manifest, options);
 	}
 
 	/**
