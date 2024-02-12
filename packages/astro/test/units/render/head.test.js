@@ -91,15 +91,16 @@ describe('core/render', () => {
 
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
+			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.astro', params: {} };
 			const ctx = await createRenderContext({
-				route: { type: 'page', pathname: '/index', component: 'src/pages/index.astro' },
+				route: routeData,
 				request,
 				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
 				mod: PageModule,
 				env,
 			});
 
-			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request });
+			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request, routeData });
 			const response = await pipeline.renderRoute(PageModule);
 
 			const html = await response.text();
@@ -174,15 +175,16 @@ describe('core/render', () => {
 
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
+			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.astro', params: {} };
 			const ctx = await createRenderContext({
-				route: { type: 'page', pathname: '/index', component: 'src/pages/index.astro' },
+				route: routeData,
 				request,
 				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
 				env,
 				mod: PageModule,
 			});
 			
-			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request });
+			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request, routeData });
 			const response = await pipeline.renderRoute(PageModule);
 
 			const html = await response.text();
@@ -224,15 +226,16 @@ describe('core/render', () => {
 
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
+			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.astro', params: {} };
 			const ctx = await createRenderContext({
-				route: { type: 'page', pathname: '/index', component: 'src/pages/index.astro' },
+				route: routeData,
 				request,
 				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
 				env,
 				mod: PageModule,
 			});
 
-			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request });
+			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request, routeData });
 			const response = await pipeline.renderRoute(PageModule);
 
 			const html = await response.text();

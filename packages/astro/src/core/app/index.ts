@@ -317,7 +317,7 @@ export class App {
 		);
 		let response;
 		try {
-			const pipeline = Pipeline.create({ environment: this.#environment, locals, pathname, renderContext, request })
+			const pipeline = Pipeline.create({ environment: this.#environment, locals, pathname, renderContext, request, routeData })
 			response = await pipeline.renderRoute(pageModule);
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
@@ -474,7 +474,8 @@ export class App {
 					middleware: skipMiddleware ? (_, next) => next() : undefined,
 					pathname: this.#getPathnameFromRequest(request),
 					renderContext: newRenderContext,
-					request
+					request,
+					routeData: errorRouteData,
 				})
 				const response = await pipeline.renderRoute(await mod.page());
 				return this.#mergeResponses(response, originalResponse);

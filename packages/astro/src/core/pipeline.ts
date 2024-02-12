@@ -7,7 +7,7 @@ import { AstroCookies } from './cookies/index.js';
 import { createResult } from './render/index.js';
 import { renderPage } from '../runtime/server/index.js';
 import { ASTRO_VERSION, ROUTE_TYPE_HEADER, clientAddressSymbol, clientLocalsSymbol } from './constants.js';
-import { getParamsAndProps, type Environment, type RenderContext } from './render/index.js';
+import { getParams, getProps, type Environment, type RenderContext } from './render/index.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import {
 	computeCurrentLocale,
@@ -30,11 +30,13 @@ export class Pipeline {
 		readonly pathname: string,
 		readonly renderContext: RenderContext,
 		readonly request: Request,
+		readonly routeData: RouteData,
 		readonly cookies = new AstroCookies(request),
+		readonly params = getParams(routeData, pathname),
 	) {}
 
-	static create({ environment, locals, middleware, pathname, renderContext, request }: Pick<Pipeline, 'environment' | 'pathname' | 'renderContext' | 'request'> & Partial<Pick<Pipeline, 'locals' | 'middleware'>>) {
-		return new Pipeline(environment, locals ?? {}, sequence(...environment.internalMiddleware, middleware ?? environment.middleware), pathname, renderContext, request)
+	static create({ environment, locals, middleware, pathname, renderContext, request, routeData }: Pick<Pipeline, 'environment' | 'pathname' | 'renderContext' | 'request' | 'routeData'> & Partial<Pick<Pipeline, 'locals' | 'middleware'>>) {
+		return new Pipeline(environment, locals ?? {}, sequence(...environment.internalMiddleware, middleware ?? environment.middleware), pathname, renderContext, request, routeData)
 	}
 
 	/**
@@ -48,22 +50,24 @@ export class Pipeline {
 	async renderRoute(
 		componentInstance: ComponentInstance | undefined
 	): Promise<Response> {
-		const { cookies, environment, middleware, renderContext } = this;
-		const [ params, props ] = await this.getParamsAndProps(componentInstance!, renderContext.route);
-		const { logger, serverLike, streaming } = environment;
-		const { type } = renderContext.route;
-		const apiContext = this.createAPIContext({ props, params });
+		const { cookies, environment, middleware, pathname, routeData } = this;
+		const { logger, routeCache, serverLike, streaming } = environment;
+		const props = await getProps({ mod: componentInstance, routeData, routeCache, pathname, logger, serverLike });
+		const apiContext = this.createAPIContext(props);
+		const { type } = routeData;
+		
 		const lastNext =
 			type === 'endpoint' ? () => renderEndpoint(componentInstance as any, apiContext, serverLike, logger) :
-			type === 'redirect' ? () => renderRedirect(this, renderContext) :
-			type === 'page'     ? async () => {
-				const result = await this.createResult(componentInstance!, renderContext.route);
-				const response = await renderPage(result, componentInstance?.default as any, props, {}, streaming, renderContext.route);
+			type === 'redirect' ? () => renderRedirect(this) :
+			type === 'page' ? async () => {
+				const result = await this.createResult(componentInstance!);
+				const response = await renderPage(result, componentInstance?.default as any, props, {}, streaming, routeData);
 				response.headers.set(ROUTE_TYPE_HEADER, "page");
 				return response;
 			} :
 			type === 'fallback' ? () => new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: "fallback" } }) :
 			() => { throw new Error("Unknown type of route: " + type) }
+		
 		const response = await callMiddleware(middleware, apiContext, lastNext);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
 			response.headers.delete(ROUTE_TYPE_HEADER)
@@ -75,9 +79,9 @@ export class Pipeline {
 		return response;
 	}
 
-	createAPIContext({ params, props }: Pick<APIContext, 'params' | 'props'>): APIContext {
+	createAPIContext(props: APIContext['props']): APIContext {
 		const pipeline = this;
-		const { cookies, environment, i18nData, request } = this;
+		const { cookies, environment, i18nData, params, request } = this;
 		const { currentLocale, preferredLocale, preferredLocaleList } = i18nData;
 		const generator = `Astro v${ASTRO_VERSION}`;
 		const redirect = (path: string, status = 302) => new Response(null, { status, headers: { Location: path } });
@@ -101,13 +105,13 @@ export class Pipeline {
 			get locals() {
 				return pipeline.locals;
 			},
-			// We define a custom property, so we can check the value passed to locals
+			// TODO(breaking): disallow replacing the locals object
 			set locals(val) {
 				if (typeof val !== 'object') {
 					throw new AstroError(AstroErrorData.LocalsNotAnObject);
 				} else {
 					pipeline.locals = val;
-					// LEGACY: we also put it on the original Request object,
+					// we also put it on the original Request object,
 					// where the adapter might be expecting to read it after the response.
 					Reflect.set(request, clientLocalsSymbol, val);
 				}
@@ -115,19 +119,13 @@ export class Pipeline {
 		}
 	}
 
-	async createResult(mod: ComponentInstance, routeData: RouteData) {
-		const { cookies, environment, locals, pathname, renderContext, request } = this;
-		const { componentMetadata, links, route: { route }, scripts, styles, status = 200 } = renderContext;
+	async createResult(mod: ComponentInstance) {
+		const { cookies, environment, locals, params, pathname, renderContext, request, routeData: { route } } = this;
+		const { componentMetadata, links, scripts, styles, status = 200 } = renderContext;
 		const { adapterName, clientDirectives, compressHTML, i18n, logger, renderers, resolve, site, serverLike } = environment;
 		const { defaultLocale, locales, routing: routingStrategy } = i18n ?? {};
-		const [ params, props ] = await this.getParamsAndProps(mod, routeData);
 		const partial = Boolean(mod.partial);
 		return createResult({ adapterName, clientDirectives, componentMetadata, compressHTML, cookies, defaultLocale, locales, locals, logger, links, params, partial, pathname, renderers, resolve, request, route, routingStrategy, site, scripts, ssr: serverLike, status, styles });
-	}
-
-	getParamsAndProps(mod: ComponentInstance, routeData: RouteData) {
-		const { environment: { logger, routeCache, serverLike }, pathname } = this;
-		return getParamsAndProps({ mod, routeData, routeCache, pathname, logger, serverLike })
 	}
 
 	/**
@@ -138,7 +136,7 @@ export class Pipeline {
 
 	get i18nData() {
 		if (this.#i18nData) return this.#i18nData
-		const { environment: { i18n }, request, renderContext } = this;
+		const { environment: { i18n }, request, routeData } = this;
 		if (!i18n) return {
 			currentLocale: undefined,
 			preferredLocale: undefined,
@@ -146,7 +144,7 @@ export class Pipeline {
 		}
 		const { defaultLocale, locales, routing } = i18n
 		return this.#i18nData = {
-			currentLocale: computeCurrentLocale(renderContext.route.route, locales, routing, defaultLocale),
+			currentLocale: computeCurrentLocale(routeData.route, locales, routing, defaultLocale),
 			preferredLocale: computePreferredLocale(request, locales),
 			preferredLocaleList: computePreferredLocaleList(request, locales)
 		}

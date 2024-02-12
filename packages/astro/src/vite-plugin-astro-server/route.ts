@@ -14,7 +14,8 @@ import { req } from '../core/messages.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import {
 	createRenderContext,
-	getParamsAndProps,
+	getParams,
+	getProps,
 	type RenderContext,
 	type SSROptions,
 } from '../core/render/index.js';
@@ -76,7 +77,7 @@ export async function matchRoute(
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!
 		try {
-			await getParamsAndProps({
+			await getProps({
 				mod: preloadedComponent,
 				routeData: maybeRoute,
 				routeCache,
@@ -175,9 +176,11 @@ export async function handleRoute({
 
 	let request: Request;
 	let renderContext: RenderContext;
+	let pipeline: Pipeline;
 	let mod: ComponentInstance | undefined = undefined;
 	let options: SSROptions | undefined = undefined;
 	let route: RouteData;
+	const middleware = (await loadMiddleware(environment.loader)).onRequest;
 	
 	if (!matchedRoute) {
 		if (config.i18n) {
@@ -235,6 +238,7 @@ export async function handleRoute({
 				mod,
 				route,
 			});
+			pipeline = Pipeline.create({ environment, pathname, renderContext, middleware, request, routeData: route });
 		} else {
 			return handle404Response(origin, incomingRequest, incomingResponse);
 		}
@@ -275,8 +279,6 @@ export async function handleRoute({
 			filePath: options.filePath,
 		});
 
-		const i18n = environment.config.i18n;
-
 		renderContext = await createRenderContext({
 			request: options.request,
 			pathname: options.pathname,
@@ -284,13 +286,12 @@ export async function handleRoute({
 			links,
 			styles,
 			componentMetadata: metadata,
-			route: options.route,
+			route,
 			mod,
 			env: environment,
 		});
+		pipeline = Pipeline.create({ environment, pathname, renderContext, middleware, request, routeData: route });
 	}
-	const middleware = (await loadMiddleware(environment.loader)).onRequest;
-	const pipeline = Pipeline.create({ environment, pathname, renderContext, middleware, request });
 
 	let response = await pipeline.renderRoute(mod);
 	if (isLoggedRequest(pathname)) {

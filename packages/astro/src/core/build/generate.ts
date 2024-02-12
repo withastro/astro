@@ -537,8 +537,6 @@ async function generatePath(
 		logger,
 		ssr: serverLike,
 	});
-	const { i18n } = config;
-
 	const renderContext = await createRenderContext({
 		pathname,
 		request,
@@ -550,7 +548,7 @@ async function generatePath(
 		env: environment,
 		mod,
 	});
-	const pipeline = Pipeline.create({ environment, pathname, renderContext, request })
+	const pipeline = Pipeline.create({ environment, pathname, renderContext, request, routeData: route })
 
 	let body: string | Uint8Array;
 

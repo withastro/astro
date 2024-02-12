@@ -1,8 +1,6 @@
 import type {
 	ComponentInstance,
 	Locales,
-	Params,
-	Props,
 	RouteData,
 	SSRElement,
 	SSRResult,
@@ -10,7 +8,6 @@ import type {
 import { normalizeTheLocale, toCodes } from '../../i18n/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Environment } from '../environment.js';
-import { getParamsAndProps } from './params-and-props.js';
 import type { RoutingStrategies } from '../config/schema.js';
 import { clientLocalsSymbol } from '../constants.js';
 
@@ -26,7 +23,6 @@ export interface RenderContext {
 	componentMetadata?: SSRResult['componentMetadata'];
 	route: RouteData;
 	status?: number;
-	params: Params;
 }
 
 export type CreateRenderContextArgs = Partial<
@@ -43,19 +39,9 @@ export async function createRenderContext(
 ): Promise<RenderContext> {
 	const request = options.request;
 	const pathname = options.pathname ?? new URL(request.url).pathname;
-	const [params, props] = await getParamsAndProps({
-		mod: options.mod as any,
-		routeData: options.route,
-		routeCache: options.env.routeCache,
-		pathname: pathname,
-		logger: options.env.logger,
-		serverLike: options.env.serverLike,
-	});
-
 	const context: RenderContext = {
 		...options,
 		pathname,
-		params,
 	};
 
 	// We define a custom property, so we can check the value passed to locals

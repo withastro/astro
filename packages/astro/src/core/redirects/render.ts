@@ -1,19 +1,18 @@
-import type { RenderContext } from '../render/context.js';
 import type { Pipeline } from '../pipeline.js';
 
-export async function renderRedirect(pipeline: Pipeline, renderContext: RenderContext) {
-	const { method } = pipeline.request;
-	const { redirect, redirectRoute } = renderContext.route;
+export async function renderRedirect(pipeline: Pipeline) {
+	const { request: { method }, routeData } = pipeline;
+	const { redirect, redirectRoute } = routeData;
 	const status =
 		redirectRoute && typeof redirect === "object" ? redirect.status
 		: method === "GET" ? 301
 		: 308
-	const headers = { location: redirectRouteGenerate(renderContext) }; 
+	const headers = { location: redirectRouteGenerate(pipeline) }; 
 	return new Response(null, { status, headers });
 }
 
-function redirectRouteGenerate(renderContext: RenderContext): string {
-	const { params, route: { redirect, redirectRoute } } = renderContext;
+function redirectRouteGenerate(pipeline: Pipeline): string {
+	const { params, routeData: { redirect, redirectRoute } } = pipeline;
 
 	if (typeof redirectRoute !== 'undefined') {
 		return redirectRoute?.generate(params) || redirectRoute?.pathname || '/';
