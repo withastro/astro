@@ -1,5 +1,5 @@
 import type http from 'node:http';
-import type { ManifestData, SSRManifest } from '../@types/astro.js';
+import type { ManifestData } from '../@types/astro.js';
 import { collapseDuplicateSlashes, removeTrailingForwardSlash } from '../core/path.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import type { DevServerController } from './controller.js';

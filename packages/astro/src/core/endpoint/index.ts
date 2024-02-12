@@ -3,8 +3,8 @@ import type {
 	Locales,
 	Params,
 } from '../../@types/astro.js';
-import { ASTRO_VERSION } from '../constants.js';
-import { AstroCookies } from '../cookies/index.js';
+import { ASTRO_VERSION, clientAddressSymbol, clientLocalsSymbol } from '../constants.js';
+import type { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import {
 	computeCurrentLocale,
@@ -12,9 +12,6 @@ import {
 	computePreferredLocaleList,
 } from '../render/context.js';
 import type { RoutingStrategies } from '../config/schema.js';
-
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
-const clientLocalsSymbol = Symbol.for('astro.locals');
 
 type CreateAPIContext = {
 	request: Request;
@@ -26,6 +23,7 @@ type CreateAPIContext = {
 	routingStrategy: RoutingStrategies | undefined;
 	defaultLocale: string | undefined;
 	route: string;
+	cookies: AstroCookies
 };
 
 /**
@@ -42,14 +40,15 @@ export function createAPIContext({
 	locales,
 	routingStrategy,
 	defaultLocale,
-	route
+	route,
+	cookies
 }: CreateAPIContext): APIContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
 	let currentLocale: string | undefined = undefined;
 
 	const context = {
-		cookies: new AstroCookies(request),
+		cookies,
 		request,
 		params,
 		site: site ? new URL(site) : undefined,

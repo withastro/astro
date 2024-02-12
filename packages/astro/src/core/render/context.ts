@@ -29,17 +29,13 @@ export interface RenderContext {
 	status?: number;
 	params: Params;
 	props: Props;
-	locals?: object;
-	locales: Locales | undefined;
-	defaultLocale: string | undefined;
-	routing: RoutingStrategies | undefined;
 }
 
 export type CreateRenderContextArgs = Partial<
 	Omit<RenderContext, 'params' | 'props' | 'locals'>
 > & {
 	route: RouteData;
-	request: RenderContext['request'];
+	request: Request;
 	mod: ComponentInstance | undefined;
 	env: Environment;
 };
@@ -51,11 +47,11 @@ export async function createRenderContext(
 	const pathname = options.pathname ?? new URL(request.url).pathname;
 	const [params, props] = await getParamsAndProps({
 		mod: options.mod as any,
-		route: options.route,
+		routeData: options.route,
 		routeCache: options.env.routeCache,
 		pathname: pathname,
 		logger: options.env.logger,
-		ssr: options.env.serverLike,
+		serverLike: options.env.serverLike,
 	});
 
 	const context: RenderContext = {
@@ -63,9 +59,6 @@ export async function createRenderContext(
 		pathname,
 		params,
 		props,
-		locales: options.locales,
-		routing: options.routing,
-		defaultLocale: options.defaultLocale,
 	};
 
 	// We define a custom property, so we can check the value passed to locals

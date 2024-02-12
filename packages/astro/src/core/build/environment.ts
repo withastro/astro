@@ -1,4 +1,3 @@
-import type { B } from 'shikiji-core/dist/chunk-types.mjs';
 import type { SSRLoadedRenderer } from '../../@types/astro.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';

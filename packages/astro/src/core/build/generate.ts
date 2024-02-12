@@ -549,11 +549,8 @@ async function generatePath(
 		route,
 		env: environment,
 		mod,
-		locales: i18n?.locales,
-		routing: i18n?.routing,
-		defaultLocale: i18n?.defaultLocale,
 	});
-	const pipeline = Pipeline.create({ environment, pathname, renderContext })
+	const pipeline = Pipeline.create({ environment, pathname, renderContext, request })
 
 	let body: string | Uint8Array;
 

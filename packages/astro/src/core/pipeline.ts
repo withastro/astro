@@ -1,11 +1,19 @@
-import type { ComponentInstance, EndpointHandler, MiddlewareHandler } from '../@types/astro.js';
+import type { APIContext, ComponentInstance, MiddlewareHandler, RouteData } from '../@types/astro.js';
 import { renderEndpoint } from '../runtime/server/endpoint.js';
-import { attachCookiesToResponse } from './cookies/response.js';
-import { createAPIContext } from './endpoint/index.js';
+import { attachCookiesToResponse } from './cookies/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
+import { AstroCookies } from './cookies/index.js';
+import { ASTRO_VERSION, ROUTE_TYPE_HEADER, clientAddressSymbol, clientLocalsSymbol } from './constants.js';
 import { renderPage } from './render/core.js';
-import type { Environment, RenderContext } from './render/index.js';
+import { getParamsAndProps, type Environment, type RenderContext } from './render/index.js';
+import { AstroError, AstroErrorData } from './errors/index.js';
+import {
+	computeCurrentLocale,
+	computePreferredLocale,
+	computePreferredLocaleList,
+} from './render/context.js';
+import { renderRedirect } from './redirects/render.js';
 
 /**
  * This is the basic class of a pipeline.
@@ -13,17 +21,24 @@ import type { Environment, RenderContext } from './render/index.js';
  * Check the {@link ./README.md|README} for more information about the pipeline.
  */
 export class Pipeline {
+
 	private constructor(
 		readonly environment: Environment,
-		readonly locals: App.Locals,
+		public locals: App.Locals,
 		readonly middleware: MiddlewareHandler,
 		readonly pathname: string,
 		readonly renderContext: RenderContext,
-		readonly request = renderContext.request,
+		readonly request: Request,
+		readonly cookies = new AstroCookies(request),
 	) {}
 
-	static create({ environment, locals, middleware, pathname, renderContext }: Pick<Pipeline, 'environment' | 'pathname' | 'renderContext'> & Partial<Pick<Pipeline, 'locals' | 'middleware'>>) {
-		return new Pipeline(environment, locals ?? {}, sequence(...environment.internalMiddleware, middleware ?? environment.middleware), pathname, renderContext)
+	static create({ environment, locals, middleware, pathname, renderContext, request }: Pick<Pipeline, 'environment' | 'pathname' | 'renderContext' | 'request'> & Partial<Pick<Pipeline, 'locals' | 'middleware'>>) {
+		return new Pipeline(environment, locals ?? {}, sequence(...environment.internalMiddleware, middleware ?? environment.middleware), pathname, renderContext, request)
+	}
+
+	getParamsAndProps(mod: ComponentInstance, routeData: RouteData) {
+		const { environment: { logger, routeCache, serverLike }, pathname } = this;
+		return getParamsAndProps({ mod, routeData, routeCache, pathname, logger, serverLike });
 	}
 
 	/**
@@ -32,62 +47,149 @@ export class Pipeline {
 	 * - page
 	 * - redirect
 	 * - endpoint
-	 *
-	 * ## Errors
-	 *
-	 * It throws an error if the page can't be rendered.
+	 * - fallback
 	 */
 	async renderRoute(
 		componentInstance: ComponentInstance | undefined
 	): Promise<Response> {
-		const { renderContext, environment } = this;
-		const { defaultLocale, locales, params, props, request, route: { route }, routing: routingStrategy } = renderContext;
-		const { adapterName, logger, site, serverLike } = environment;
-		const apiContext = createAPIContext({ adapterName, defaultLocale, locales, params, props, request, route, routingStrategy, site });
-		HiddenPipeline.set(request, this);
-		const lastNext = renderContext.route.type === 'endpoint'
-			? () => renderEndpoint(componentInstance as any as EndpointHandler, apiContext, serverLike, logger)
-			: () => renderPage({ mod: componentInstance, renderContext, env: environment, cookies: apiContext.cookies });
-		const response = await callMiddleware(this.middleware, apiContext, lastNext);
-		attachCookiesToResponse(response, apiContext.cookies);
+		const { cookies, environment, middleware, renderContext } = this;
+		const { params, props } = renderContext;
+		const { logger, serverLike } = environment;
+		const { type } = renderContext.route;
+		const apiContext = createAPIContext(this, { props, params });
+		const lastNext =
+			type === 'endpoint' ? () => renderEndpoint(componentInstance as any, apiContext, serverLike, logger) :
+			type === 'redirect' ? () => renderRedirect(this, renderContext) :
+			type === 'page'     ? () => renderPage({ mod: componentInstance!, pipeline: this, renderContext, env: environment, cookies }) :
+			type === 'fallback' ? () => new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: "fallback" } }) :
+			() => { throw new Error("Unknown type of route: " + type) }
+		const response = await callMiddleware(middleware, apiContext, lastNext);
+		if (response.headers.get(ROUTE_TYPE_HEADER)) {
+			response.headers.delete(ROUTE_TYPE_HEADER)
+		}
+		// LEGACY: we put cookies on the response object,
+		// where the adapter might be expecting to read it.
+		// New code should be using `app.render({ addCookieHeader: true })` instead.
+		attachCookiesToResponse(response, cookies);
 		return response;
 	}
+<<<<<<< Updated upstream
+=======
 
-	static get(request: Request) {
-		return HiddenPipeline.get(request)
+	createAPIContext({ params, props }: Pick<APIContext, 'params' | 'props'>): APIContext {
+		const pipeline = this;
+		const { cookies, environment, i18nData, request } = this;
+		const { currentLocale, preferredLocale, preferredLocaleList } = i18nData;
+		const generator = `Astro v${ASTRO_VERSION}`;
+		const redirect = (path: string, status = 302) => new Response(null, { status, headers: { Location: path } });
+		const site = environment.site ? new URL(environment.site) : undefined;
+		const url = new URL(request.url);
+		return {
+			cookies, currentLocale, generator, params, preferredLocale, preferredLocaleList, props, redirect, request, site, url,
+			get clientAddress() {
+				if (clientAddressSymbol in request) {
+					return Reflect.get(request, clientAddressSymbol) as string;
+				}
+				if (environment.adapterName) {
+					throw new AstroError({
+						...AstroErrorData.ClientAddressNotAvailable,
+						message: AstroErrorData.ClientAddressNotAvailable.message(environment.adapterName),
+					});
+				} else {
+					throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
+				}
+			},
+			get locals() {
+				return pipeline.locals;
+			},
+			// We define a custom property, so we can check the value passed to locals
+			set locals(val) {
+				if (typeof val !== 'object') {
+					throw new AstroError(AstroErrorData.LocalsNotAnObject);
+				} else {
+					pipeline.locals = val;
+					// LEGACY: we also put it on the original Request object,
+					// where the adapter might be expecting to read it after the response.
+					Reflect.set(request, clientLocalsSymbol, val);
+				}
+			}
+		}
+	}
+
+	async createResult(mod: ComponentInstance, routeData: RouteData) {
+		const { cookies, environment, locals, pathname, renderContext, request } = this;
+		const { componentMetadata, links, route: { route }, scripts, styles, status = 200 } = renderContext;
+		const { adapterName, clientDirectives, compressHTML, i18n, logger, renderers, resolve, site, serverLike } = environment;
+		const { defaultLocale, locales, routing: routingStrategy } = i18n ?? {};
+		const [ params, props ] = await this.getParamsAndProps(mod, routeData);
+		const partial = Boolean(mod.partial);
+		return createResult({ adapterName, clientDirectives, componentMetadata, compressHTML, cookies, defaultLocale, locales, locals, logger, links, params, partial, pathname, renderers, resolve, request, route, routingStrategy, site, scripts, ssr: serverLike, status, styles });
+	}
+
+	getParamsAndProps(mod: ComponentInstance, routeData: RouteData) {
+		const { environment: { logger, routeCache, serverLike }, pathname } = this;
+		return getParamsAndProps({ mod, routeData, routeCache, pathname, logger, serverLike })
+	}
+
+>>>>>>> Stashed changes
+	/**
+	 * API Context may be created multiple times per request, i18n data needs to be computed only once.
+	 * So, it is computed and saved here on creation of the first APIContext and reused for later ones.
+	 */
+	#i18nData?: Pick<APIContext, "currentLocale" | "preferredLocale" | "preferredLocaleList">
+
+	get i18nData() {
+		if (this.#i18nData) return this.#i18nData
+		const { environment: { i18n }, request, renderContext } = this;
+		if (!i18n) return {
+			currentLocale: undefined,
+			preferredLocale: undefined,
+			preferredLocaleList: undefined
+		}
+		const { defaultLocale, locales, routing } = i18n
+		return this.#i18nData = {
+			currentLocale: computeCurrentLocale(renderContext.route.route, locales, routing, defaultLocale),
+			preferredLocale: computePreferredLocale(request, locales),
+			preferredLocaleList: computePreferredLocaleList(request, locales)
+		}
 	}
 }
 
-/** 
- * The constructor of this class returns the passed object, which allows private fields to be set by a subclass.
- */
-class AllowPrivateFields {
-	constructor(request: Request) {
-		return request
-	}
-}
-
-/**
- * Allows internal middleware to read the pipeline associated with the current request.
- * 
- * It works by setting a private field on the request object called #pipeline.
- * This prevents user code from having access to routeData and other internals,
- * as only the HiddenPipeline class and its static methods can see the #pipeline field.
- */
-class HiddenPipeline extends AllowPrivateFields {
-	#pipeline!: Pipeline
-	static get(request: Request) {
-		if (#pipeline in request) return request.#pipeline 
-		throw new Error("The request does not have an associated pipeline.")
-	}
-	static set(request: Request, pipeline: Pipeline) {
-		// this if-branch only needs to exist until `App` starts reusing the original pipeline for `renderError()`
-		// it can start to error afterwards as there shouldnt be multiple pipelines per request
-		if (#pipeline in request)  {
-			request.#pipeline = pipeline
-		} else {
-			const req = new HiddenPipeline(request)
-			req.#pipeline = pipeline
+function createAPIContext(pipeline: Pipeline, { params, props }: Pick<APIContext, 'params' | 'props'>): APIContext {
+	const { cookies, environment, request } = pipeline;
+	const { currentLocale, preferredLocale, preferredLocaleList } = pipeline.i18nData;
+	const generator = `Astro v${ASTRO_VERSION}`;
+	const redirect = (path: string, status = 302) => new Response(null, { status, headers: { Location: path } });
+	const site = environment.site ? new URL(environment.site) : undefined;
+	const url = new URL(request.url);
+	return {
+		cookies, currentLocale, generator, params, preferredLocale, preferredLocaleList, props, redirect, request, site, url,
+		get clientAddress() {
+			if (clientAddressSymbol in request) {
+				return Reflect.get(request, clientAddressSymbol) as string;
+			}
+			if (environment.adapterName) {
+				throw new AstroError({
+					...AstroErrorData.ClientAddressNotAvailable,
+					message: AstroErrorData.ClientAddressNotAvailable.message(environment.adapterName),
+				});
+			} else {
+				throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
+			}
+		},
+		get locals() {
+			return pipeline.locals;
+		},
+		// We define a custom property, so we can check the value passed to locals
+		set locals(val) {
+			if (typeof val !== 'object') {
+				throw new AstroError(AstroErrorData.LocalsNotAnObject);
+			} else {
+				pipeline.locals = val;
+				// LEGACY: we also put it on the original Request object,
+				// where the adapter might be expecting to read it after the response.
+				Reflect.set(request, clientLocalsSymbol, val);
+			}
 		}
 	}
 }

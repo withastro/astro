@@ -42,14 +42,15 @@ describe('core/render', () => {
 			});
 
 			const mod = createAstroModule(Page);
+			const request = new Request('http://example.com/');
 			const ctx = await createRenderContext({
 				route: { type: 'page', pathname: '/index', component: 'src/pages/index.mdx' },
-				request: new Request('http://example.com/'),
+				request,
 				env,
 				mod,
 			});
 
-			const pipeline = Pipeline.create({ environment: env, renderContext: ctx });
+			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request });
 			const response = await pipeline.renderRoute(mod);
 
 			assert.equal(response.status, 200);
@@ -89,13 +90,14 @@ describe('core/render', () => {
 			});
 
 			const mod = createAstroModule(Page);
+			const request = new Request('http://example.com/');
 			const ctx = await createRenderContext({
 				route: { type: 'page', pathname: '/index', component: 'src/pages/index.mdx' },
-				request: new Request('http://example.com/'),
+				request,
 				env,
 				mod,
 			});
-			const pipeline = Pipeline.create({ environment: env, renderContext: ctx });
+			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request });
 			const response = await pipeline.renderRoute(mod);
 
 			assert.equal(response.status, 200);
@@ -119,14 +121,15 @@ describe('core/render', () => {
 			});
 
 			const mod = createAstroModule(Page);
+			const request = new Request('http://example.com/');
 			const ctx = await createRenderContext({
 				route: { type: 'page', pathname: '/index', component: 'src/pages/index.mdx' },
-				request: new Request('http://example.com/'),
+				request,
 				env,
 				mod,
 			});
 
-			const pipeline = Pipeline.create({ environment: env, renderContext: ctx });
+			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request });
 			const response = await pipeline.renderRoute(mod);
 
 			try {

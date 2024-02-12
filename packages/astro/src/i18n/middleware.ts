@@ -4,6 +4,7 @@ import { getPathByLocale, normalizeTheLocale } from './index.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { Pipeline } from '../core/pipeline.js';
 import type { SSRManifestI18n } from '../core/app/types.js'
+import { ROUTE_TYPE_HEADER } from '../core/constants.js';
 
 // Checks if the pathname has any locale, exception for the defaultLocale, which is ignored on purpose.
 function pathnameHasLocale(pathname: string, locales: Locales): boolean {
@@ -98,18 +99,16 @@ export function createI18nMiddleware(
 	};
 
 	return async (context, next) => {
-		const type = Pipeline.get(context.request).renderContext.route.type;
+		const response = await next();
+		const type = response.headers.get(ROUTE_TYPE_HEADER);
 		// If the route we're processing is not a page, then we ignore it
 		if (type !== 'page' && type !== 'fallback') {
-			return await next();
+			return response
 		}
-		const currentLocale = context.currentLocale;
 
-		const url = context.url;
+		const { url, currentLocale } = context;
 		const { locales, defaultLocale, fallback, routing } = i18n;
-		const response = await next();
 
-		if (response instanceof Response) {
 			switch (i18n.routing) {
 				case 'domains-prefix-other-locales': {
 					if (localeHasntDomain(i18n, currentLocale)) {
@@ -198,7 +197,6 @@ export function createI18nMiddleware(
 					return context.redirect(newPathname);
 				}
 			}
-		}
 
 		return response;
 	};

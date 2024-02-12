@@ -5,7 +5,6 @@ import type {
 	SSRElement,
 	SSRManifest,
 } from '../../@types/astro.js';
-import { REROUTE_DIRECTIVE_HEADER } from '../../runtime/server/consts.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
@@ -19,7 +18,6 @@ import {
 } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { createRenderContext, type RenderContext } from '../render/index.js';
-import { RouteCache } from '../render/route-cache.js';
 import {
 	createAssetLink,
 	createModuleScriptElement,
@@ -30,17 +28,9 @@ import { AppEnvironment } from './environment.js';
 import type { RouteInfo } from './types.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
 import { Pipeline } from '../pipeline.js';
+import { clientAddressSymbol, clientLocalsSymbol, responseSentSymbol, REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER } from '../constants.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 export { deserializeManifest } from './common.js';
-
-const localsSymbol = Symbol.for('astro.locals');
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
-const responseSentSymbol = Symbol.for('astro.responseSent');
-
-/**
- * A response with one of these status codes will be rewritten
- * with the result of rendering the respective error page.
- */
-const REROUTABLE_STATUS_CODES = new Set([404, 500]);
 
 export interface RenderOptions {
 	/**
@@ -292,7 +282,11 @@ export class App {
 			}
 		}
 		if (locals) {
-			Reflect.set(request, localsSymbol, locals);
+			if (typeof locals !== 'object') {
+				this.#logger.error(null, new AstroError(AstroErrorData.LocalsNotAnObject).stack!);
+				return this.#renderError(request, { status: 500 });
+			}
+			Reflect.set(request, clientLocalsSymbol, locals);
 		}
 		if (clientAddress) {
 			Reflect.set(request, clientAddressSymbol, clientAddress);
@@ -323,7 +317,7 @@ export class App {
 		);
 		let response;
 		try {
-			const pipeline = Pipeline.create({ environment: this.#environment, pathname, renderContext })
+			const pipeline = Pipeline.create({ environment: this.#environment, locals, pathname, renderContext, request })
 			response = await pipeline.renderRoute(pageModule);
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
@@ -331,7 +325,7 @@ export class App {
 		}
 
 		if (
-			REROUTABLE_STATUS_CODES.has(response.status) &&
+			REROUTABLE_STATUS_CODES.includes(response.status) &&
 			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 		) {
 			return this.#renderError(request, {
@@ -402,9 +396,6 @@ export class App {
 				status,
 				env: this.#environment,
 				mod: handler as any,
-				locales: this.#manifest.i18n?.locales,
-				routing: this.#manifest.i18n?.routing,
-				defaultLocale: this.#manifest.i18n?.defaultLocale,
 			});
 		} else {
 			const pathname = prependForwardSlash(this.removeBase(url.pathname));
@@ -439,9 +430,6 @@ export class App {
 				status,
 				mod,
 				env: this.#environment,
-				locales: this.#manifest.i18n?.locales,
-				routing: this.#manifest.i18n?.routing,
-				defaultLocale: this.#manifest.i18n?.defaultLocale,
 			});
 		}
 	}
@@ -486,6 +474,7 @@ export class App {
 					middleware: skipMiddleware ? (_, next) => next() : undefined,
 					pathname: this.#getPathnameFromRequest(request),
 					renderContext: newRenderContext,
+					request
 				})
 				const response = await pipeline.renderRoute(await mod.page());
 				return this.#mergeResponses(response, originalResponse);

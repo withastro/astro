@@ -4,10 +4,8 @@ import type {
 	ComponentInstance,
 	DevToolbarMetadata,
 	ManifestData,
-	MiddlewareHandler,
 	RouteData,
 	SSRElement,
-	SSRManifest,
 } from '../@types/astro.js';
 import { getInfoOutput } from '../cli/info/index.js';
 import { ASTRO_VERSION } from '../core/constants.js';
@@ -32,7 +30,7 @@ import type { DevEnvironment } from './environment.js';
 import { getComponentMetadata } from './metadata.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 import { getScriptsForURL } from './scripts.js';
-import { REROUTE_DIRECTIVE_HEADER } from '../runtime/server/consts.js';
+import { REROUTE_DIRECTIVE_HEADER } from '../core/constants.js';
 import { Pipeline } from '../core/pipeline.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -65,7 +63,7 @@ export async function matchRoute(
 	manifestData: ManifestData,
 	environment: DevEnvironment
 ): Promise<MatchedRoute | undefined> {
-	const { routeCache, logger } = environment;
+	const { logger, routeCache, serverLike } = environment;
 	let matches = matchAllRoutes(pathname, manifestData);
 
 	const preloadedMatches = await getSortedPreloadedMatches({
@@ -80,11 +78,11 @@ export async function matchRoute(
 		try {
 			await getParamsAndProps({
 				mod: preloadedComponent,
-				route: maybeRoute,
+				routeData: maybeRoute,
 				routeCache,
 				pathname: pathname,
 				logger,
-				ssr: environment.serverLike,
+				serverLike,
 			});
 			return {
 				route: maybeRoute,
@@ -236,9 +234,6 @@ export async function handleRoute({
 				env: environment,
 				mod,
 				route,
-				locales: manifest.i18n?.locales,
-				routing: manifest.i18n?.routing,
-				defaultLocale: manifest.i18n?.defaultLocale,
 			});
 		} else {
 			return handle404Response(origin, incomingRequest, incomingResponse);
@@ -292,13 +287,10 @@ export async function handleRoute({
 			route: options.route,
 			mod,
 			env: environment,
-			locales: i18n?.locales,
-			routing: i18n?.routing,
-			defaultLocale: i18n?.defaultLocale,
 		});
 	}
 	const middleware = (await loadMiddleware(environment.loader)).onRequest;
-	const pipeline = Pipeline.create({ environment, pathname, renderContext, middleware });
+	const pipeline = Pipeline.create({ environment, pathname, renderContext, middleware, request });
 
 	let response = await pipeline.renderRoute(mod);
 	if (isLoggedRequest(pathname)) {

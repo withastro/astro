@@ -9,15 +9,15 @@ import { callGetStaticPaths, findPathItemByKey } from './route-cache.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance | undefined;
-	route?: RouteData | undefined;
+	routeData?: RouteData | undefined;
 	routeCache: RouteCache;
 	pathname: string;
 	logger: Logger;
-	ssr: boolean;
+	serverLike: boolean;
 }
 
 export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise<[Params, Props]> {
-	const { logger, mod, route, routeCache, pathname, ssr } = opts;
+	const { logger, mod, routeData: route, routeCache, pathname, serverLike } = opts;
 
 	// If there's no route, or if there's a pathname (e.g. a static `src/pages/normal.astro` file),
 	// then we know for sure they don't have params and props, return a fallback value.
@@ -43,11 +43,11 @@ export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise
 		route,
 		routeCache,
 		logger,
-		ssr,
+		ssr: serverLike,
 	});
 
 	const matchedStaticPath = findPathItemByKey(staticPaths, params, route, logger);
-	if (!matchedStaticPath && (ssr ? route.prerender : true)) {
+	if (!matchedStaticPath && (serverLike ? route.prerender : true)) {
 		throw new AstroError({
 			...AstroErrorData.NoMatchingStaticPathFound,
 			message: AstroErrorData.NoMatchingStaticPathFound.message(pathname),

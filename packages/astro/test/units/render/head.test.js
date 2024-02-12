@@ -90,15 +90,16 @@ describe('core/render', () => {
 			});
 
 			const PageModule = createAstroModule(Page);
+			const request = new Request('http://example.com/');
 			const ctx = await createRenderContext({
 				route: { type: 'page', pathname: '/index', component: 'src/pages/index.astro' },
-				request: new Request('http://example.com/'),
+				request,
 				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
 				mod: PageModule,
 				env,
 			});
 
-			const pipeline = Pipeline.create({ environment: env, renderContext: ctx });
+			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request });
 			const response = await pipeline.renderRoute(PageModule);
 
 			const html = await response.text();
@@ -172,15 +173,16 @@ describe('core/render', () => {
 			});
 
 			const PageModule = createAstroModule(Page);
+			const request = new Request('http://example.com/');
 			const ctx = await createRenderContext({
 				route: { type: 'page', pathname: '/index', component: 'src/pages/index.astro' },
-				request: new Request('http://example.com/'),
+				request,
 				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
 				env,
 				mod: PageModule,
 			});
 			
-			const pipeline = Pipeline.create({ environment: env, renderContext: ctx });
+			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request });
 			const response = await pipeline.renderRoute(PageModule);
 
 			const html = await response.text();
@@ -221,15 +223,16 @@ describe('core/render', () => {
 			});
 
 			const PageModule = createAstroModule(Page);
+			const request = new Request('http://example.com/');
 			const ctx = await createRenderContext({
 				route: { type: 'page', pathname: '/index', component: 'src/pages/index.astro' },
-				request: new Request('http://example.com/'),
+				request,
 				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
 				env,
 				mod: PageModule,
 			});
 
-			const pipeline = Pipeline.create({ environment: env, renderContext: ctx });
+			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request });
 			const response = await pipeline.renderRoute(PageModule);
 
 			const html = await response.text();

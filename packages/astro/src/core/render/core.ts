@@ -1,39 +1,20 @@
 import type { AstroCookies, ComponentInstance } from '../../@types/astro.js';
 import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
-import { attachCookiesToResponse } from '../cookies/index.js';
-import { CantRenderPage } from '../errors/errors-data.js';
-import { AstroError } from '../errors/index.js';
-import { routeIsFallback } from '../redirects/helpers.js';
-import { redirectRouteGenerate, redirectRouteStatus, routeIsRedirect } from '../redirects/index.js';
 import type { RenderContext } from './context.js';
 import type { Environment } from '../environment.js';
 import { createResult } from './result.js';
+import type { Pipeline } from '../pipeline.js';
+import { ROUTE_TYPE_HEADER } from '../constants.js';
 
 export type RenderPage = {
-	mod: ComponentInstance | undefined;
+	mod: ComponentInstance;
 	renderContext: RenderContext;
 	env: Environment;
+	pipeline: Pipeline;
 	cookies: AstroCookies;
 };
 
-export async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
-	if (routeIsRedirect(renderContext.route)) {
-		return new Response(null, {
-			status: redirectRouteStatus(renderContext.route, renderContext.request.method),
-			headers: {
-				location: redirectRouteGenerate(renderContext.route, renderContext.params),
-			},
-		});
-	} else if (routeIsFallback(renderContext.route)) {
-		// We return a 404 because fallback routes don't exist.
-		// It's responsibility of the middleware to catch them and re-route the requests
-		return new Response(null, {
-			status: 404,
-		});
-	} else if (!mod) {
-		throw new AstroError(CantRenderPage);
-	}
-
+export async function renderPage({ mod, pipeline, renderContext, env }: RenderPage) {
 	// Validate the page component before rendering the page
 	const Component = mod.default;
 	if (!Component)
@@ -57,11 +38,11 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		scripts: renderContext.scripts,
 		ssr: env.serverLike,
 		status: renderContext.status ?? 200,
-		cookies,
-		locals: renderContext.locals ?? {},
-		locales: renderContext.locales,
-		defaultLocale: renderContext.defaultLocale,
-		routingStrategy: renderContext.routing,
+		cookies: pipeline.cookies,
+		locals: pipeline.locals,
+		locales: pipeline.environment.i18n?.locales,
+		defaultLocale: pipeline.environment.i18n?.defaultLocale,
+		routingStrategy: pipeline.environment.i18n?.routing,
 		route: renderContext.route.route,
 	});
 
@@ -73,12 +54,6 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		env.streaming,
 		renderContext.route
 	);
-
-	// If there is an Astro.cookies instance, attach it to the response so that
-	// adapters can grab the Set-Cookie headers.
-	if (result.cookies) {
-		attachCookiesToResponse(response, result.cookies);
-	}
-
+	response.headers.set(ROUTE_TYPE_HEADER, "page")
 	return response;
 }
