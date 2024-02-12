@@ -1,11 +1,11 @@
-import { expect } from 'chai';
-import { cli, parseCliDevStart, cliServerLogSetup, loadFixture } from './test-utils.js';
-import stripAnsi from 'strip-ansi';
 import { promises as fs, readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { isIPv4 } from 'node:net';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
+import { fileURLToPath } from 'node:url';
+import { expect } from 'chai';
+import stripAnsi from 'strip-ansi';
+import { cli, cliServerLogSetup, loadFixture, parseCliDevStart } from './test-utils.js';
 
 describe('astro cli', () => {
 	const cliServerLogSetupWithFixture = (flags, cmd) => {

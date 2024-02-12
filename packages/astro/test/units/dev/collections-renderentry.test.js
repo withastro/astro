@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-import * as cheerio from 'cheerio';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
+import { expect } from 'chai';
+import * as cheerio from 'cheerio';
 
 import { attachContentServerListeners } from '../../../dist/content/server-listeners.js';
 import { createFsWithFallback, createRequestAndResponse, runInContainer } from '../test-utils.js';

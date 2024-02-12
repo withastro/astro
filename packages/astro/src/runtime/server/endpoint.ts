@@ -1,7 +1,7 @@
 import { bold } from 'kleur/colors';
-import { REROUTE_DIRECTIVE_HEADER } from './consts.js';
 import type { APIContext, EndpointHandler } from '../../@types/astro.js';
 import type { Logger } from '../../core/logger/core.js';
+import { REROUTE_DIRECTIVE_HEADER } from './consts.js';
 
 /** Renders an endpoint request to completion, returning the body. */
 export async function renderEndpoint(

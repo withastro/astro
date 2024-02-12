@@ -1,13 +1,13 @@
+import { fileURLToPath } from 'node:url';
+import { expect } from 'chai';
+import { createContainer } from '../../../dist/core/dev/container.js';
+import testAdapter from '../../test-adapter.js';
 import {
 	createBasicSettings,
 	createFs,
 	createRequestAndResponse,
 	defaultLogger,
 } from '../test-utils.js';
-import { fileURLToPath } from 'node:url';
-import { expect } from 'chai';
-import { createContainer } from '../../../dist/core/dev/container.js';
-import testAdapter from '../../test-adapter.js';
 
 const root = new URL('../../fixtures/api-routes/', import.meta.url);
 const fileSystem = {

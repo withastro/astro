@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { loadFixture, isWindows } from './test-utils.js';
+import { isWindows, loadFixture } from './test-utils.js';
 
 describe('Pages', () => {
 	let fixture;

@@ -1,12 +1,12 @@
-import {
-	getLocaleRelativeUrl,
-	getLocaleRelativeUrlList,
-	getLocaleAbsoluteUrl,
-	getLocaleAbsoluteUrlList,
-} from '../../../dist/i18n/index.js';
-import { parseLocale } from '../../../dist/core/render/context.js';
 import { expect } from 'chai';
 import { validateConfig } from '../../../dist/core/config/config.js';
+import { parseLocale } from '../../../dist/core/render/context.js';
+import {
+	getLocaleAbsoluteUrl,
+	getLocaleAbsoluteUrlList,
+	getLocaleRelativeUrl,
+	getLocaleRelativeUrlList,
+} from '../../../dist/i18n/index.js';
 
 describe('getLocaleRelativeUrl', () => {
 	it('should correctly return the URL with the base', () => {

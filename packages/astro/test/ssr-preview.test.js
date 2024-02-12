@@ -1,5 +1,5 @@
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('SSR Preview', () => {
 	/** @type {import('./test-utils').Fixture} */

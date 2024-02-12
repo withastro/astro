@@ -1,5 +1,5 @@
-import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
+import { loadFixture } from './test-utils.js';
 
 describe('streaming', () => {
 	/** @type {import('./test-utils.js').Fixture} */

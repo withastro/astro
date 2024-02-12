@@ -1,6 +1,6 @@
+import { pathToFileURL } from 'node:url';
 import { prompt } from '@astrojs/cli-kit';
 import arg from 'arg';
-import { pathToFileURL } from 'node:url';
 import detectPackageManager from 'which-pm-runs';
 
 export interface Context {

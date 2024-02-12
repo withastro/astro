@@ -1,6 +1,6 @@
-import { dim, green } from 'kleur/colors';
 import fs, { readFileSync } from 'node:fs';
 import { basename, join } from 'node:path/posix';
+import { dim, green } from 'kleur/colors';
 import type PQueue from 'p-queue';
 import type { AstroConfig } from '../../@types/astro.js';
 import type { BuildPipeline } from '../../core/build/buildPipeline.js';
@@ -16,7 +16,7 @@ import { getConfiguredImageService } from '../internal.js';
 import type { LocalImageService } from '../services/service.js';
 import type { AssetsGlobalStaticImagesList, ImageMetadata, ImageTransform } from '../types.js';
 import { isESMImportedImage } from '../utils/imageKind.js';
-import { loadRemoteImage, type RemoteCacheEntry } from './remote.js';
+import { type RemoteCacheEntry, loadRemoteImage } from './remote.js';
 
 interface GenerationDataUncached {
 	cached: false;

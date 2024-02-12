@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { loadFixture, isWindows } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { isWindows, loadFixture } from './test-utils.js';
 
 const describe = isWindows ? global.describe.skip : global.describe;
 

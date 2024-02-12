@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import {
-	matchProtocol,
-	matchPort,
 	matchHostname,
 	matchPathname,
 	matchPattern,
+	matchPort,
+	matchProtocol,
 } from '../../../dist/assets/utils/remotePattern.js';
 
 describe('astro/src/assets/utils/remotePattern', () => {
