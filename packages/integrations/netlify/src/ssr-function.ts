@@ -22,7 +22,10 @@ export const createExports = (manifest: SSRManifest, { middlewareSecret }: Args)
 		return async function handler(request: Request, context: Context) {
 			const routeData = app.match(request);
 			if (!routeData && typeof integrationConfig.notFoundContent !== 'undefined') {
-				return new Response(integrationConfig.notFoundContent, { status: 404 });
+				return new Response(integrationConfig.notFoundContent, {
+					status: 404,
+					headers: { 'Content-Type': 'text/html; charset=utf-8' },
+				});
 			}
 
 			Reflect.set(request, clientAddressSymbol, context.ip);
