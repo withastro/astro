@@ -189,13 +189,17 @@ export async function renderToAsyncIterable(
     await bufferHeadContent(result);
   }
 
+	let error: Error | null = null;
   let next = promiseWithResolvers<void>();
-  let done = false;
   const chunks: Uint8Array[] = []; // []Uint8Array
 
   const iterator = {
     async next() {
       await next.promise;
+
+			if(error) {
+				throw error;
+			}
 
       // Get the total length of all arrays.
       let length = 0;
@@ -215,13 +219,9 @@ export async function renderToAsyncIterable(
       chunks.length = 0;
 
       const returnValue = {
-        done: done || !mergedArray.length,
+        done: !mergedArray.length,
         value: mergedArray
       };
-
-			if(returnValue.done) {
-				next.resolve();
-			}
 
       return returnValue;
     }
@@ -249,10 +249,9 @@ export async function renderToAsyncIterable(
   };
 
 	const renderPromise = templateResult.render(destination);
-  renderPromise.then(() => {
-    done = true;
-		next.resolve();
-  });
+  renderPromise.then(() => next.resolve()).catch(err => {
+		error = err;
+	});
 
   return {
     [Symbol.asyncIterator]() {
