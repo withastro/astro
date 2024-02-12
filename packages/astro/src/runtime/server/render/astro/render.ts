@@ -248,8 +248,10 @@ export async function renderToAsyncIterable(
     }
   };
 
-  templateResult.render(destination).then(() => {
+	const renderPromise = templateResult.render(destination);
+  renderPromise.then(() => {
     done = true;
+		next.resolve();
   });
 
   return {
