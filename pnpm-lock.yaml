@@ -5065,8 +5065,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       shikiji:
-        specifier: ^0.9.18
-        version: 0.9.18
+        specifier: ^0.9.19
+        version: 0.9.19
       unified:
         specifier: ^11.0.4
         version: 11.0.4
@@ -14391,18 +14391,8 @@ packages:
       vscode-textmate: 5.2.0
     dev: true
 
-  /shikiji-core@0.9.18:
-    resolution: {integrity: sha512-PKTXptbrp/WEDjNHV8OFG9KkfhmR0pSd161kzlDDlgQ0HXAnqJYNDSjqsy1CYZMx5bSvLMy42yJj9oFTqmkNTQ==}
-    dev: false
-
   /shikiji-core@0.9.19:
     resolution: {integrity: sha512-AFJu/vcNT21t0e6YrfadZ+9q86gvPum6iywRyt1OtIPjPFe25RQnYJyxHQPMLKCCWA992TPxmEmbNcOZCAJclw==}
-    dev: false
-
-  /shikiji@0.9.18:
-    resolution: {integrity: sha512-/tFMIdV7UQklzN13VjF0/XFzmii6C606Jc878hNezvB8ZR8FG8FW9j0I4J9EJre0owlnPntgLVPpHqy27Gs+DQ==}
-    dependencies:
-      shikiji-core: 0.9.18
     dev: false
 
   /shikiji@0.9.19:
