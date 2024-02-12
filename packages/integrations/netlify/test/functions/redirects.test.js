@@ -35,7 +35,7 @@ describe('SSR - Redirects', () => {
 		const { default: handler } = await import(entryURL);
 		const resp = await handler(new Request('http://example.com/nonexistant-page'), {});
 		expect(resp.status).to.equal(404);
-		expect(resp.headers.get("content-type")).to.equal("text/html; charset=utf-8")
+		expect(resp.headers.get('content-type')).to.equal('text/html; charset=utf-8');
 		const text = await resp.text();
 		expect(text).to.contain('This is my static 404 page');
 	});
