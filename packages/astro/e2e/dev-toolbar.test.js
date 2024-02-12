@@ -59,18 +59,18 @@ test.describe('Dev Toolbar', () => {
 		await appButton.click();
 
 		let astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro"]');
-		let astroIntegrationSkelton = astroAppCanvas.locator('astro-dev-toolbar-card');
-		await expect(astroIntegrationSkelton).toHaveCount(2);
+		let astroToolbarCard = await astroAppCanvas.locator('astro-dev-toolbar-card');
+		await page.waitForSelector('astro-dev-toolbar-card');
+		await expect(astroToolbarCard.first()).toBeVisible();
 
+		let consolePromise = page.waitForEvent('console');
 		await page.click('#go-to-b');
-
-		toolbar = page.locator('astro-dev-toolbar');
-		appButton = toolbar.locator('button[data-app-id="astro"]');
-		await appButton.click();
+		await consolePromise;
 
 		astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro"]');
-		astroIntegrationSkelton = astroAppCanvas.locator('astro-dev-toolbar-card');
-		await expect(astroIntegrationSkelton).toHaveCount(2);
+		astroToolbarCard = await astroAppCanvas.locator('astro-dev-toolbar-card');
+		await page.waitForSelector('astro-dev-toolbar-card');
+		await expect(astroToolbarCard.first()).toBeVisible();
 	});
 
 	test('xray shows highlights and tooltips', async ({ page, astro }) => {

@@ -5,6 +5,12 @@ import { ViewTransitions } from 'astro:transitions';
   <head>
     <title>View Transition Test</title>
     <ViewTransitions />
+		<script is:inline>
+			// let playwright know when navigate() is done
+			document.addEventListener('astro:before-swap', (e) => {
+				e.viewTransition.ready.then(()=>console.log("ready"))
+			});
+		</script>
   </head>
   <body>
 		<slot />
