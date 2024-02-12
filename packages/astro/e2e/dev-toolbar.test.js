@@ -51,7 +51,7 @@ test.describe('Dev Toolbar', () => {
 		await expect(astroWindow).not.toBeVisible();
 	});
 
-	test('show integration data app', async ({ page, astro }) => {
+	test('show integration app', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/view-transition-a'));
 
 		let toolbar = page.locator('astro-dev-toolbar');
@@ -59,18 +59,18 @@ test.describe('Dev Toolbar', () => {
 		await appButton.click();
 
 		let astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro"]');
-		let astroToolbarCard = await astroAppCanvas.locator('astro-dev-toolbar-card');
+		let astroToolbarCards = await astroAppCanvas.locator('astro-dev-toolbar-card');
 		await page.waitForSelector('astro-dev-toolbar-card');
-		await expect(astroToolbarCard.first()).toBeVisible();
+		await expect(astroToolbarCards.first()).toBeVisible();
 
 		let consolePromise = page.waitForEvent('console');
 		await page.click('#go-to-b');
 		await consolePromise;
 
 		astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro"]');
-		astroToolbarCard = await astroAppCanvas.locator('astro-dev-toolbar-card');
+		astroToolbarCards = await astroAppCanvas.locator('astro-dev-toolbar-card');
 		await page.waitForSelector('astro-dev-toolbar-card');
-		await expect(astroToolbarCard.first()).toBeVisible();
+		await expect(astroToolbarCards.first()).toBeVisible();
 	});
 
 	test('xray shows highlights and tooltips', async ({ page, astro }) => {
