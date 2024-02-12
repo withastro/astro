@@ -1,14 +1,14 @@
+import fsMod, { existsSync, promises as fs } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import boxen from 'boxen';
 import { diffWords } from 'diff';
 import { execa } from 'execa';
 import { bold, cyan, dim, green, magenta, red, yellow } from 'kleur/colors';
-import fsMod, { existsSync, promises as fs } from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import maxSatisfying from 'semver/ranges/max-satisfying.js';
 import ora from 'ora';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
+import maxSatisfying from 'semver/ranges/max-satisfying.js';
 import type yargs from 'yargs-parser';
 import {
 	loadTSConfig,
@@ -18,9 +18,9 @@ import {
 } from '../../core/config/index.js';
 import {
 	defaultTSConfig,
+	type frameworkWithTSSettings,
 	presets,
 	updateTSConfigForFramework,
-	type frameworkWithTSSettings,
 } from '../../core/config/tsconfig.js';
 import type { Logger } from '../../core/logger/core.js';
 import * as msg from '../../core/messages.js';

@@ -1,9 +1,9 @@
 import { fileURLToPath } from 'node:url';
+import type { CreatePreviewServer } from 'astro';
 import { AstroError } from 'astro/errors';
 import { logListeningOn } from './log-listening-on.js';
-import { createServer } from './standalone.js';
-import type { CreatePreviewServer } from 'astro';
 import type { createExports } from './server.js';
+import { createServer } from './standalone.js';
 
 type ServerModule = ReturnType<typeof createExports>;
 type MaybeServerModule = Partial<ServerModule>;

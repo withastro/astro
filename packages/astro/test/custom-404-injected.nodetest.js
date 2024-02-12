@@ -1,7 +1,7 @@
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
-import assert from 'node:assert/strict';
-import { after, describe, before, it } from 'node:test';
 
 describe('Custom 404 with injectRoute', () => {
 	let fixture;

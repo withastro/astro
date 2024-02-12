@@ -2,9 +2,9 @@ import path from 'node:path';
 import type { Options as VueOptions } from '@vitejs/plugin-vue';
 import vue from '@vitejs/plugin-vue';
 import type { Options as VueJsxOptions } from '@vitejs/plugin-vue-jsx';
+import { MagicString } from '@vue/compiler-sfc';
 import type { AstroIntegration, AstroRenderer } from 'astro';
 import type { Plugin, UserConfig } from 'vite';
-import { MagicString } from '@vue/compiler-sfc';
 
 interface Options extends VueOptions {
 	jsx?: boolean | VueJsxOptions;

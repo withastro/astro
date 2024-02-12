@@ -1,4 +1,4 @@
-import { defineCollection, z, reference } from 'astro:content';
+import { defineCollection, reference, z } from 'astro:content';
 
 const banners = defineCollection({
 	type: 'data',

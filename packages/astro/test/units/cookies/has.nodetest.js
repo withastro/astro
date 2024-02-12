@@ -1,5 +1,5 @@
-import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { AstroCookies } from '../../../dist/core/cookies/index.js';
 import { apply as applyPolyfill } from '../../../dist/core/polyfill.js';
 

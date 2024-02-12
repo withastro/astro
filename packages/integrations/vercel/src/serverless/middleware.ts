@@ -1,9 +1,9 @@
 import { existsSync } from 'node:fs';
-import { fileURLToPath, pathToFileURL } from 'node:url';
 import { builtinModules } from 'node:module';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
-	ASTRO_MIDDLEWARE_SECRET_HEADER,
 	ASTRO_LOCALS_HEADER,
+	ASTRO_MIDDLEWARE_SECRET_HEADER,
 	ASTRO_PATH_HEADER,
 	NODE_PATH,
 } from './adapter.js';

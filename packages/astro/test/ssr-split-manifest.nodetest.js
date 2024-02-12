@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import { describe, before, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
-import * as cheerio from 'cheerio';
-import { fileURLToPath } from 'node:url';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
+import * as cheerio from 'cheerio';
+import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('astro:ssr-manifest, split', () => {
 	/** @type {import('./test-utils').Fixture} */

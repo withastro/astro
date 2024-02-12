@@ -1,5 +1,5 @@
-import ancestor from 'common-ancestor-path';
 import { fileURLToPath } from 'node:url';
+import ancestor from 'common-ancestor-path';
 import type { AstroConfig } from '../@types/astro.js';
 import {
 	appendExtension,

@@ -1,4 +1,4 @@
-import { getEntry, getEntries } from 'astro:content';
+import { getEntries, getEntry } from 'astro:content';
 
 export async function GET() {
 	const welcomePost = await getEntry('blog', 'welcome');

@@ -2,9 +2,9 @@ import { createHash } from 'node:crypto';
 import fsMod from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import pLimit from 'p-limit';
-import { normalizePath, type Plugin as VitePlugin } from 'vite';
+import { type Plugin as VitePlugin, normalizePath } from 'vite';
 import { CONTENT_RENDER_FLAG, PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
-import { hasContentFlag, type ContentLookupMap } from '../../../content/utils.js';
+import { type ContentLookupMap, hasContentFlag } from '../../../content/utils.js';
 import {
 	generateContentEntryFile,
 	generateLookupMap,

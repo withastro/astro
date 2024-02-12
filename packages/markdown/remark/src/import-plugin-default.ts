@@ -1,7 +1,7 @@
-// This file should be imported as `#import-plugin`
-import { resolve as importMetaResolve } from 'import-meta-resolve';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+// This file should be imported as `#import-plugin`
+import { resolve as importMetaResolve } from 'import-meta-resolve';
 import type * as unified from 'unified';
 
 let cwdUrlStr: string | undefined;

@@ -1,8 +1,8 @@
-import { escape } from 'html-escaper';
-import { bold, underline } from 'kleur/colors';
 import * as fs from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { escape } from 'html-escaper';
+import { bold, underline } from 'kleur/colors';
 import stripAnsi from 'strip-ansi';
 import type { ESBuildTransformResult } from 'vite';
 import { normalizePath } from 'vite';

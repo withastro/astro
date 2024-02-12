@@ -1,4 +1,4 @@
-import { customElements as litCE, HTMLElement as litShimHTMLElement } from '@lit-labs/ssr-dom-shim';
+import { HTMLElement as litShimHTMLElement, customElements as litCE } from '@lit-labs/ssr-dom-shim';
 
 // Something at build time injects document.currentScript = undefined instead of
 // document.currentScript = null. This causes Sass build to fail because it

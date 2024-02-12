@@ -1,8 +1,8 @@
 import path from 'node:path';
 import type { Arguments } from 'yargs-parser';
+import { ensureProcessNodeEnv } from '../../core/util.js';
 import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { getPackage } from '../install-package.js';
-import { ensureProcessNodeEnv } from '../../core/util.js';
 
 export async function check(flags: Arguments) {
 	ensureProcessNodeEnv('production');

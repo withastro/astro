@@ -41,7 +41,7 @@ export type {
 export { createTransitionScope, renderTransition } from './transition.js';
 
 import { markHTMLString } from './escape.js';
-import { addAttribute, Renderer } from './render/index.js';
+import { Renderer, addAttribute } from './render/index.js';
 
 export function mergeSlots(...slotted: unknown[]) {
 	const slots: Record<string, () => any> = {};

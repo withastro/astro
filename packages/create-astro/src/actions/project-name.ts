@@ -1,7 +1,7 @@
 import type { Context } from './context.js';
 
-import { color, generateProjectName } from '@astrojs/cli-kit';
 import path from 'node:path';
+import { color, generateProjectName } from '@astrojs/cli-kit';
 import { info, log, title } from '../messages.js';
 
 import { isEmpty, toValidName } from './shared.js';

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import type { DevToolbarApp as DevToolbarAppDefinition } from '../../../@types/astro.js';
 import { settings } from './settings.js';
-import { getIconElement, isDefinedIcon, type Icon } from './ui-library/icons.js';
+import { type Icon, getIconElement, isDefinedIcon } from './ui-library/icons.js';
 
 export type DevToolbarApp = DevToolbarAppDefinition & {
 	builtIn: boolean;

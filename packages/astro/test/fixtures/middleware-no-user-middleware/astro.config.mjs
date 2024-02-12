@@ -1,5 +1,5 @@
-import {defineConfig} from "astro/config";
 import {fileURLToPath} from "node:url";
+import {defineConfig} from "astro/config";
 
 export default defineConfig({
 	integrations: [

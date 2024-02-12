@@ -1,6 +1,6 @@
+import { Writable } from 'node:stream';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { Writable } from 'node:stream';
 
 import { Logger } from '../dist/core/logger/core.js';
 import { loadFixture } from './test-utils.js';

@@ -1,5 +1,5 @@
-import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
+import { defineConfig } from 'astro/config';
 import plugin from "./remarkPlugin"
 
 // https://astro.build/config

@@ -1,18 +1,18 @@
 import { expect } from 'chai';
 
-import {
-	createComponent,
-	render,
-	renderComponent,
-	renderSlot,
-	maybeRenderHead,
-	renderHead,
-	Fragment,
-} from '../../../dist/runtime/server/index.js';
-import { createRenderContext } from '../../../dist/core/render/index.js';
-import { createBasicEnvironment } from '../test-utils.js';
 import * as cheerio from 'cheerio';
 import { Pipeline } from '../../../dist/core/pipeline.js';
+import { createRenderContext } from '../../../dist/core/render/index.js';
+import {
+	Fragment,
+	createComponent,
+	maybeRenderHead,
+	render,
+	renderComponent,
+	renderHead,
+	renderSlot,
+} from '../../../dist/runtime/server/index.js';
+import { createBasicEnvironment } from '../test-utils.js';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
 

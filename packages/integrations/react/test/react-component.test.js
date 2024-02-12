@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { describe, it, before, after } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import { isWindows, loadFixture } from '../../../astro/test/test-utils.js';
 

@@ -6,6 +6,7 @@ import type {
 	Params,
 } from '../../@types/astro.js';
 import { renderEndpoint } from '../../runtime/server/index.js';
+import type { RoutingStrategies } from '../config/schema.js';
 import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachCookiesToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -16,7 +17,6 @@ import {
 	computePreferredLocaleList,
 } from '../render/context.js';
 import { type Environment, type RenderContext } from '../render/index.js';
-import type { RoutingStrategies } from '../config/schema.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');

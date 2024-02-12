@@ -1,4 +1,4 @@
-import { getIconElement, isDefinedIcon, type Icon } from './icons.js';
+import { type Icon, getIconElement, isDefinedIcon } from './icons.js';
 
 export class DevToolbarHighlight extends HTMLElement {
 	icon?: Icon | undefined | null;

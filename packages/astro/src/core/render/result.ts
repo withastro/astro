@@ -7,9 +7,10 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro.js';
-import { renderSlotToString, type ComponentSlots } from '../../runtime/server/index.js';
+import { type ComponentSlots, renderSlotToString } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { chunkToString } from '../../runtime/server/render/index.js';
+import type { RoutingStrategies } from '../config/schema.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
@@ -18,7 +19,6 @@ import {
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from './context.js';
-import type { RoutingStrategies } from '../config/schema.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');

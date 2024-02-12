@@ -1,6 +1,6 @@
-import { h, Fragment } from 'preact';
-import { useState } from 'preact/hooks';
+import { Fragment, h } from 'preact';
 import { Suspense, lazy } from 'preact/compat';
+import { useState } from 'preact/hooks';
 import './Counter.css';
 
 const LazyCounterMessage = lazy(() => import('./CounterMessage'))

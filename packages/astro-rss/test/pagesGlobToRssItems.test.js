@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { phpFeedItem, web1FeedItem } from './test-utils.js';
 import { pagesGlobToRssItems } from '../dist/index.js';
+import { phpFeedItem, web1FeedItem } from './test-utils.js';
 
 describe('pagesGlobToRssItems', () => {
 	it('should generate on valid result', async () => {

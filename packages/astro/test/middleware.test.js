@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-import * as cheerio from 'cheerio';
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { expect } from 'chai';
+import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 

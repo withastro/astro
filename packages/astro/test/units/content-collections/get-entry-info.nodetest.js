@@ -1,6 +1,6 @@
-import { getContentEntryIdAndSlug, getEntryCollectionName } from '../../../dist/content/utils.js';
-import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { getContentEntryIdAndSlug, getEntryCollectionName } from '../../../dist/content/utils.js';
 
 describe('Content Collections - entry info', () => {
 	const contentDir = new URL('src/content/', import.meta.url);

@@ -1,8 +1,8 @@
-import { z } from '../../../zod.mjs';
-import { errorMap } from '../../../dist/content/index.js';
-import { fixLineEndings } from '../../test-utils.js';
-import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { errorMap } from '../../../dist/content/index.js';
+import { z } from '../../../zod.mjs';
+import { fixLineEndings } from '../../test-utils.js';
 
 describe('Content Collections - error map', () => {
 	it('Prefixes messages with object key', () => {

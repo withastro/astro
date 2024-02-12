@@ -1,6 +1,6 @@
-import { Redirects } from '../dist/index.js';
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { Redirects } from '../dist/index.js';
 
 describe('Weight', () => {
 	it('Puts higher weighted definitions on top', () => {

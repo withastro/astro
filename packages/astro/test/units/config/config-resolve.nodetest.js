@@ -1,8 +1,8 @@
+import * as assert from 'node:assert/strict';
 import path from 'node:path';
+import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { resolveConfig } from '../../../dist/core/config/index.js';
-import { describe, it } from 'node:test';
-import * as assert from 'node:assert/strict';
 
 describe('resolveConfig', () => {
 	it('resolves relative inline root correctly', async () => {

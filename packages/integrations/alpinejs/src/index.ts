@@ -1,6 +1,6 @@
+import { resolve } from 'node:path';
 import type { AstroIntegration } from 'astro';
 import type { Plugin } from 'vite';
-import { resolve } from 'node:path';
 
 interface Options {
 	/**

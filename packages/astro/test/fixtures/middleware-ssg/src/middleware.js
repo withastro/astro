@@ -1,4 +1,4 @@
-import { sequence, defineMiddleware } from 'astro:middleware';
+import { defineMiddleware, sequence } from 'astro:middleware';
 
 const first = defineMiddleware(async (context, next) => {
 	if (context.request.url.includes('/second')) {

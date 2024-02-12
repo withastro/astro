@@ -1,7 +1,7 @@
-import { blue, bold, green } from 'kleur/colors';
 import fs from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
+import { blue, bold, green } from 'kleur/colors';
 import type * as vite from 'vite';
 import type {
 	AstroConfig,
@@ -29,11 +29,11 @@ import { levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createRouteManifest } from '../routing/index.js';
+import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
-import { ensureProcessNodeEnv } from '../util.js';
 
 export interface BuildOptions {
 	/**

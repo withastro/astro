@@ -1,9 +1,9 @@
+import fs from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { markdownConfigDefaults, setVfileFrontmatter } from '@astrojs/markdown-remark';
 import type { AstroIntegration, ContentEntryType, HookParameters, SSRError } from 'astro';
 import astroJSXRenderer from 'astro/jsx/renderer.js';
 import { parse as parseESM } from 'es-module-lexer';
-import fs from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
 import { VFile } from 'vfile';

@@ -1,15 +1,15 @@
 import { expect } from 'chai';
+import { Pipeline } from '../../../dist/core/pipeline.js';
+import { createRenderContext, loadRenderer } from '../../../dist/core/render/index.js';
+import { jsx } from '../../../dist/jsx-runtime/index.js';
+import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
 import {
 	createComponent,
 	render,
 	renderComponent,
 	renderSlot,
 } from '../../../dist/runtime/server/index.js';
-import { jsx } from '../../../dist/jsx-runtime/index.js';
-import { createRenderContext, loadRenderer } from '../../../dist/core/render/index.js';
-import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
 import { createBasicEnvironment } from '../test-utils.js';
-import { Pipeline } from '../../../dist/core/pipeline.js';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
 const loadJSXRenderer = () => loadRenderer(jsxRenderer, { import: (s) => import(s) });

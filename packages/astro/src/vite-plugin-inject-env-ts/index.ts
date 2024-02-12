@@ -1,8 +1,8 @@
-import { bold } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { normalizePath, type Plugin } from 'vite';
+import { bold } from 'kleur/colors';
+import { type Plugin, normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { getContentPaths, getDotAstroTypeReference } from '../content/index.js';
 import { type Logger } from '../core/logger/core.js';

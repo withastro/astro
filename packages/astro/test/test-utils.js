@@ -1,19 +1,19 @@
-import { execa } from 'execa';
-import fastGlob from 'fast-glob';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execa } from 'execa';
+import fastGlob from 'fast-glob';
 import stripAnsi from 'strip-ansi';
 import { check } from '../dist/cli/check/index.js';
-import { dev, preview } from '../dist/core/index.js';
 import build from '../dist/core/build/index.js';
-import sync from '../dist/core/sync/index.js';
 import { RESOLVED_SPLIT_MODULE_ID } from '../dist/core/build/plugins/plugin-ssr.js';
 import { getVirtualModulePageNameFromPath } from '../dist/core/build/plugins/util.js';
 import { makeSplitEntryPointFileName } from '../dist/core/build/static-build.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
+import { dev, preview } from '../dist/core/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
+import sync from '../dist/core/sync/index.js';
 
 // Disable telemetry when running tests
 process.env.ASTRO_TELEMETRY_DISABLED = true;

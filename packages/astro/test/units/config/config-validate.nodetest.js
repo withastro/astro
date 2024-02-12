@@ -1,9 +1,9 @@
-import { z } from 'zod';
-import stripAnsi from 'strip-ansi';
-import { formatConfigErrorMessage } from '../../../dist/core/messages.js';
-import { validateConfig } from '../../../dist/core/config/config.js';
-import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import stripAnsi from 'strip-ansi';
+import { z } from 'zod';
+import { validateConfig } from '../../../dist/core/config/config.js';
+import { formatConfigErrorMessage } from '../../../dist/core/messages.js';
 
 describe('Config Validation', () => {
 	it('empty user config is valid', async () => {

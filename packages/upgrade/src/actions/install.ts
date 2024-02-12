@@ -1,10 +1,10 @@
 import type { Context, PackageInfo } from './context.js';
 
-import { color, say } from '@astrojs/cli-kit';
-import { random, sleep } from '@astrojs/cli-kit/utils';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { color, say } from '@astrojs/cli-kit';
+import { random, sleep } from '@astrojs/cli-kit/utils';
 import {
 	banner,
 	bye,

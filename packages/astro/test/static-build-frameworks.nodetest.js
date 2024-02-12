@@ -1,7 +1,7 @@
-import * as cheerio from 'cheerio';
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture, isWindows } from './test-utils.js';
+import * as cheerio from 'cheerio';
+import { isWindows, loadFixture } from './test-utils.js';
 
 describe('Static build - frameworks', () => {
 	if (isWindows) {

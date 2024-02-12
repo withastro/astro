@@ -6,11 +6,11 @@ import type {
 	RouteData,
 	SSRManifest,
 } from '../@types/astro.js';
-import type { PipelineHookFunction } from '../core/pipeline.js';
-import { getPathByLocale, normalizeTheLocale } from './index.js';
+import type { SSRManifestI18n } from '../core/app/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { ROUTE_DATA_SYMBOL } from '../core/constants.js';
-import type { SSRManifestI18n } from '../core/app/types.js';
+import type { PipelineHookFunction } from '../core/pipeline.js';
+import { getPathByLocale, normalizeTheLocale } from './index.js';
 
 const routeDataSymbol = Symbol.for(ROUTE_DATA_SYMBOL);
 

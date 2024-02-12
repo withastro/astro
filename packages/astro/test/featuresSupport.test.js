@@ -1,6 +1,6 @@
-import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Adapter', () => {
 	let fixture;

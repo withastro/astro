@@ -4,7 +4,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../../@types/astro.js';
-import { createRenderInstruction, type RenderInstruction } from './instruction.js';
+import { type RenderInstruction, createRenderInstruction } from './instruction.js';
 
 import { clsx } from 'clsx';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
@@ -14,20 +14,20 @@ import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
 import { isPromise } from '../util.js';
-import { isAstroComponentFactory, type AstroComponentFactory } from './astro/factory.js';
+import { type AstroComponentFactory, isAstroComponentFactory } from './astro/factory.js';
 import { renderTemplate } from './astro/index.js';
 import { createAstroComponentInstance } from './astro/instance.js';
 
 import {
 	Fragment,
-	Renderer,
-	chunkToString,
 	type RenderDestination,
 	type RenderInstance,
+	Renderer,
+	chunkToString,
 } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { maybeRenderHead } from './head.js';
-import { renderSlotToString, renderSlots, type ComponentSlots } from './slot.js';
+import { type ComponentSlots, renderSlotToString, renderSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');

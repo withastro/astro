@@ -3,6 +3,7 @@ import { ZodIssueCode, string as zodString } from 'zod';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 import {
+	type AstroComponentFactory,
 	createComponent,
 	createHeadAndContent,
 	renderComponent,
@@ -10,7 +11,6 @@ import {
 	renderTemplate,
 	renderUniqueStylesheet,
 	unescapeHTML,
-	type AstroComponentFactory,
 } from '../runtime/server/index.js';
 import type { ContentLookupMap } from './utils.js';
 

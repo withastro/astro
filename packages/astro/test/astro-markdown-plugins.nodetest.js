@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import { describe, before, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import addClasses from './fixtures/astro-markdown-plugins/add-classes.mjs';
+import { loadFixture } from './test-utils.js';
 
 const defaultMarkdownConfig = {
 	gfm: true,

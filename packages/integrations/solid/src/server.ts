@@ -1,11 +1,11 @@
 import {
+	NoHydration,
+	Suspense,
 	createComponent,
 	generateHydrationScript,
-	NoHydration,
 	renderToString,
 	renderToStringAsync,
 	ssr,
-	Suspense,
 } from 'solid-js/web';
 import { getContext, incrementId } from './context.js';
 import type { RendererContext } from './types.js';

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import StaticHtml from './static-html.js';
 import { incrementId } from './context.js';
+import StaticHtml from './static-html.js';
 import opts from 'astro:react:opts';
 
 const slotName = (str) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());

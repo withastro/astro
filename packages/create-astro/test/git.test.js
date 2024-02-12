@@ -1,6 +1,6 @@
-import { expect } from 'chai';
-import { mkdir, writeFile } from 'node:fs/promises';
 import { rmSync } from 'node:fs';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { expect } from 'chai';
 
 import { git } from '../dist/index.js';
 import { setup } from './utils.js';

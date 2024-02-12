@@ -1,8 +1,8 @@
 import * as assert from 'node:assert/strict';
-import { describe, it, before, after } from 'node:test';
+import { after, before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
 import { loadFixture, waitServerListen } from './test-utils.js';
-import * as cheerio from 'cheerio';
 
 /**
  * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture

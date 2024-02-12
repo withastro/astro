@@ -1,5 +1,5 @@
-import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
 import * as xml2js from 'xml2js';
+import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
 
 /**
  * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture

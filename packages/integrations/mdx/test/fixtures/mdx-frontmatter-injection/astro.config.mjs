@@ -1,5 +1,5 @@
-import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
+import { defineConfig } from 'astro/config';
 import { rehypeReadingTime, remarkDescription, remarkTitle } from './src/markdown-plugins.mjs';
 
 // https://astro.build/config

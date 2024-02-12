@@ -1,11 +1,11 @@
-import { parseHTML } from 'linkedom';
-import Markdoc from '@markdoc/markdoc';
-import shiki from '../dist/extensions/shiki.js';
-import prism from '../dist/extensions/prism.js';
-import { setupConfig } from '../dist/runtime.js';
-import { isHTMLString } from 'astro/runtime/server/index.js';
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import Markdoc from '@markdoc/markdoc';
+import { isHTMLString } from 'astro/runtime/server/index.js';
+import { parseHTML } from 'linkedom';
+import prism from '../dist/extensions/prism.js';
+import shiki from '../dist/extensions/shiki.js';
+import { setupConfig } from '../dist/runtime.js';
 
 const entry = `
 \`\`\`ts

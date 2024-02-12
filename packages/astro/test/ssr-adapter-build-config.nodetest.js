@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { describe, before, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { before, describe, it } from 'node:test';
 import { viteID } from '../dist/core/util.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Integration buildConfig hook', () => {
 	/** @type {import('./test-utils').Fixture} */

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import type { CompilerOptions } from 'typescript';
-import { normalizePath, type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
+import { type Plugin as VitePlugin, type ResolvedConfig, normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 
 type Alias = {

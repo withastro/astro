@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'node:url';
-import type * as vite from 'vite';
-import { loadEnv } from 'vite';
 import { transform } from 'esbuild';
 import MagicString from 'magic-string';
+import type * as vite from 'vite';
+import { loadEnv } from 'vite';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 
 interface EnvPluginOptions {

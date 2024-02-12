@@ -1,10 +1,10 @@
-import { LitElement, html } from 'lit';
-import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
+import { LitElement, html } from 'lit';
 // Must come after lit import because @lit/reactive-element defines
 // globalThis.customElements which the server shim expects to be defined.
 import server from '../server.js';
-import * as cheerio from 'cheerio';
 
 const { check, renderToStaticMarkup } = server;
 
