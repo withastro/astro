@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 import * as cheerio from 'cheerio';
 import { fileURLToPath } from 'node:url';
 import {
@@ -37,8 +38,8 @@ describe('dev container', () => {
 			container.handle(req, res);
 			const html = await text();
 			const $ = cheerio.load(html);
-			expect(res.statusCode).to.equal(200);
-			expect($('h1')).to.have.a.lengthOf(1);
+			assert.equal(res.statusCode, 200);
+			assert.equal($('h1').length, 1);
 		});
 	});
 
@@ -72,7 +73,7 @@ describe('dev container', () => {
 			container.handle(r.req, r.res);
 			let html = await r.text();
 			let $ = cheerio.load(html);
-			expect($('body.one')).to.have.a.lengthOf(1);
+			assert.equal($('body.one').length, 1);
 
 			fs.writeFileFromRootSync(
 				'/src/components/Header.astro',
@@ -106,8 +107,8 @@ describe('dev container', () => {
 			container.handle(r.req, r.res);
 			html = await r.text();
 			$ = cheerio.load(html);
-			expect($('body.one')).to.have.a.lengthOf(0);
-			expect($('body.two')).to.have.a.lengthOf(1);
+			assert.equal($('body.one').length, 0);
+			assert.equal($('body.two').length, 1);
 		});
 	});
 
@@ -148,7 +149,7 @@ describe('dev container', () => {
 				});
 				container.handle(r.req, r.res);
 				await r.done;
-				expect(r.res.statusCode).to.equal(200);
+				assert.equal(r.res.statusCode, 200);
 
 				// Try with the injected route
 				r = createRequestAndResponse({
@@ -157,7 +158,7 @@ describe('dev container', () => {
 				});
 				container.handle(r.req, r.res);
 				await r.done;
-				expect(r.res.statusCode).to.equal(200);
+				assert.equal(r.res.statusCode, 200);
 			}
 		);
 	});
@@ -199,8 +200,8 @@ describe('dev container', () => {
 					container.handle(r.req, r.res);
 					await r.done;
 					const doc = await r.text();
-					expect(doc).to.match(/Regular page/);
-					expect(r.res.statusCode).to.equal(200);
+					assert.equal(/Regular page/.test(doc), true);
+					assert.equal(r.res.statusCode, 200);
 				}
 				{
 					// `/404` serves the custom 404 page as expected.
@@ -208,8 +209,8 @@ describe('dev container', () => {
 					container.handle(r.req, r.res);
 					await r.done;
 					const doc = await r.text();
-					expect(doc).to.match(/Custom 404/);
-					expect(r.res.statusCode).to.equal(404);
+					assert.equal(/Custom 404/.test(doc), true);
+					assert.equal(r.res.statusCode, 404);
 				}
 				{
 					// A non-existent page also serves the custom 404 page.
@@ -217,8 +218,8 @@ describe('dev container', () => {
 					container.handle(r.req, r.res);
 					await r.done;
 					const doc = await r.text();
-					expect(doc).to.match(/Custom 404/);
-					expect(r.res.statusCode).to.equal(404);
+					assert.equal(/Custom 404/.test(doc), true);
+					assert.equal(r.res.statusCode, 404);
 				}
 			}
 		);
@@ -242,7 +243,7 @@ describe('dev container', () => {
 				container.handle(r.req, r.res);
 				await r.done;
 
-				expect(r.res.statusCode).to.equal(200);
+				assert.equal(r.res.statusCode, 200);
 
 				// Next try the root path
 				r = createRequestAndResponse({
@@ -253,7 +254,7 @@ describe('dev container', () => {
 				container.handle(r.req, r.res);
 				await r.done;
 
-				expect(r.res.statusCode).to.equal(404);
+				assert.equal(r.res.statusCode, 404);
 			}
 		);
 	});
@@ -269,7 +270,7 @@ describe('dev container', () => {
 			container.handle(r.req, r.res);
 			await r.done;
 
-			expect(r.res.statusCode).to.equal(200);
+			assert.equal(r.res.statusCode, 200);
 		});
 	});
 });

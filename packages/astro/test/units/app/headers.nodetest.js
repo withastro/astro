@@ -1,29 +1,29 @@
-import { expect } from 'chai';
-
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 import { createOutgoingHttpHeaders } from '../../../dist/core/app/createOutgoingHttpHeaders.js';
 
 describe('createOutgoingHttpHeaders', () => {
 	it('undefined input headers', async () => {
 		const result = createOutgoingHttpHeaders(undefined);
-		expect(result).to.equal(undefined);
+		assert.equal(result, undefined);
 	});
 
 	it('null input headers', async () => {
 		const result = createOutgoingHttpHeaders(undefined);
-		expect(result).to.equal(undefined);
+		assert.equal(result, undefined);
 	});
 
 	it('Empty Headers', async () => {
 		const headers = new Headers();
 		const result = createOutgoingHttpHeaders(headers);
-		expect(result).to.equal(undefined);
+		assert.equal(result, undefined);
 	});
 
 	it('Headers with single key', async () => {
 		const headers = new Headers();
 		headers.append('x-test', 'hello world');
 		const result = createOutgoingHttpHeaders(headers);
-		expect(result).to.deep.equal({ 'x-test': 'hello world' });
+		assert.deepEqual(result, { 'x-test': 'hello world' });
 	});
 
 	it('Headers with multiple keys', async () => {
@@ -31,7 +31,7 @@ describe('createOutgoingHttpHeaders', () => {
 		headers.append('x-test1', 'hello');
 		headers.append('x-test2', 'world');
 		const result = createOutgoingHttpHeaders(headers);
-		expect(result).to.deep.equal({ 'x-test1': 'hello', 'x-test2': 'world' });
+		assert.deepEqual(result, { 'x-test1': 'hello', 'x-test2': 'world' });
 	});
 
 	it('Headers with multiple values (not set-cookie)', async () => {
@@ -39,7 +39,7 @@ describe('createOutgoingHttpHeaders', () => {
 		headers.append('x-test', 'hello');
 		headers.append('x-test', 'world');
 		const result = createOutgoingHttpHeaders(headers);
-		expect(result).to.deep.equal({ 'x-test': 'hello, world' });
+		assert.deepEqual(result, { 'x-test': 'hello, world' });
 	});
 
 	it('Headers with multiple values (set-cookie special case)', async () => {
@@ -47,7 +47,7 @@ describe('createOutgoingHttpHeaders', () => {
 		headers.append('set-cookie', 'hello');
 		headers.append('set-cookie', 'world');
 		const result = createOutgoingHttpHeaders(headers);
-		expect(result).to.deep.equal({ 'set-cookie': ['hello', 'world'] });
+		assert.deepEqual(result, { 'set-cookie': ['hello', 'world'] });
 	});
 
 	it('Headers with multiple values (set-cookie case handling)', async () => {
@@ -55,7 +55,7 @@ describe('createOutgoingHttpHeaders', () => {
 		headers.append('Set-cookie', 'hello');
 		headers.append('Set-Cookie', 'world');
 		const result = createOutgoingHttpHeaders(headers);
-		expect(result).to.deep.equal({ 'set-cookie': ['hello', 'world'] });
+		assert.deepEqual(result, { 'set-cookie': ['hello', 'world'] });
 	});
 
 	it('Headers with all use cases', async () => {
@@ -67,7 +67,7 @@ describe('createOutgoingHttpHeaders', () => {
 		headers.append('Set-cookie', 'hello');
 		headers.append('Set-Cookie', 'world');
 		const result = createOutgoingHttpHeaders(headers);
-		expect(result).to.deep.equal({
+		assert.deepEqual(result, {
 			'x-single': 'single',
 			'x-triple': 'one, two, three',
 			'set-cookie': ['hello', 'world'],

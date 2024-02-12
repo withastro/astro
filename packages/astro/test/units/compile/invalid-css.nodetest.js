@@ -1,5 +1,6 @@
 import { resolveConfig } from 'vite';
-import { expect } from 'chai';
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 import { compile } from '../../../dist/core/compile/index.js';
 import { AggregateError } from '../../../dist/core/errors/index.js';
 import { pathToFileURL } from 'node:url';
@@ -35,8 +36,8 @@ describe('astro/src/core/compile', () => {
 				error = err;
 			}
 
-			expect(error).to.be.an.instanceOf(AggregateError);
-			expect(error.errors[0].message).to.contain('expected ")"');
+			assert.equal(error instanceof AggregateError, true);
+			assert.equal(error.errors[0].message.includes('expected ")"'), true);
 		});
 	});
 });
