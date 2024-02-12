@@ -25,11 +25,6 @@ describe("When Vite's preloadModule polyfill is used", async () => {
 				const cssReferences = contents.match(cssAssetReferenceRegExp);
 
 				if (cssReferences === null) return;
-
-				// expect(filePaths).to.contain.members(
-				// 	cssReferences,
-				// 	filePath + ' contains a reference to a deleted css asset: ' + cssReferences
-				// );
 				assert.deepEqual(
 					filePaths,
 					cssReferences,
