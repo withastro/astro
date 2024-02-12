@@ -219,7 +219,7 @@ export async function renderToAsyncIterable(
       chunks.length = 0;
 
       const returnValue = {
-        done: !mergedArray.length,
+        done: length === 0,
         value: mergedArray
       };
 
@@ -242,9 +242,11 @@ export async function renderToAsyncIterable(
         });
       }
       const bytes = chunkToByteArray(result, chunk);
-      chunks.push(bytes);
-      next.resolve();
-      next = promiseWithResolvers<void>();
+			if(bytes.length) {
+				chunks.push(bytes);
+				next.resolve();
+				next = promiseWithResolvers<void>();
+			}
     }
   };
 
