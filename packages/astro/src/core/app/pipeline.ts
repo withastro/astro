@@ -2,9 +2,9 @@ import type { RouteData, SSRElement, SSRResult } from "../../@types/astro.js";
 import { Pipeline } from "../base-pipeline.js";
 import { createModuleScriptElement, createStylesheetElementSet } from "../render/ssr-element.js";
 
-export class AppEnvironment extends Pipeline {
-    static create({ logger, manifest, mode, renderers, resolve, serverLike, streaming }: Pick<AppEnvironment, 'logger' | 'manifest' | 'mode' | 'renderers' | 'resolve' | 'serverLike' | 'streaming'>) {
-        return new AppEnvironment(logger, manifest, mode, renderers, resolve, serverLike, streaming);
+export class AppPipeline extends Pipeline {
+    static create({ logger, manifest, mode, renderers, resolve, serverLike, streaming }: Pick<AppPipeline, 'logger' | 'manifest' | 'mode' | 'renderers' | 'resolve' | 'serverLike' | 'streaming'>) {
+        return new AppPipeline(logger, manifest, mode, renderers, resolve, serverLike, streaming);
     }
 
     headElements(routeData: RouteData): Pick<SSRResult, 'scripts' | 'styles' | 'links'> {

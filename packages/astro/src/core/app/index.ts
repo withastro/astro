@@ -17,8 +17,7 @@ import {
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { createAssetLink } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
-import { AppEnvironment } from './environment.js';
-import type { RouteInfo } from './types.js';
+import { AppPipeline } from './pipeline.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
 import { RenderContext } from '../render-context.js';
 import { clientAddressSymbol, clientLocalsSymbol, responseSentSymbol, REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER } from '../constants.js';
@@ -68,18 +67,14 @@ export interface RenderErrorOptions {
 }
 
 export class App {
-	/**
-	 * The current environment of the application
-	 */
 	#manifest: SSRManifest;
 	#manifestData: ManifestData;
-	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
 	#logger = new Logger({
 		dest: consoleLogDestination,
 		level: 'info',
 	});
 	#baseWithoutTrailingSlash: string;
-	#environment: AppEnvironment;
+	#pipeline: AppPipeline;
 	#adapterLogger: AstroIntegrationLogger;
 	#renderOptionsDeprecationWarningShown = false;
 
@@ -88,9 +83,8 @@ export class App {
 		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
 		};
-		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
-		this.#environment = this.#createEnvironment(streaming);
+		this.#pipeline = this.#createPipeline(streaming);
 		this.#adapterLogger = new AstroIntegrationLogger(
 			this.#logger.options,
 			this.#manifest.adapterName
@@ -102,13 +96,13 @@ export class App {
 	}
 
 	/**
-	 * Creates an environment by reading the stored manifest
+	 * Creates a pipeline by reading the stored manifest
 	 *
 	 * @param streaming
 	 * @private
 	 */
-	#createEnvironment(streaming = false) {
-		return AppEnvironment.create({
+	#createPipeline(streaming = false) {
+		return AppPipeline.create({
 			logger: this.#logger,
 			manifest: this.#manifest,
 			mode: 'production',
@@ -300,7 +294,7 @@ export class App {
 
 		let response;
 		try {
-			const renderContext = RenderContext.create({ pipeline: this.#environment, locals, pathname, request, routeData, status: defaultStatus })
+			const renderContext = RenderContext.create({ pipeline: this.#pipeline, locals, pathname, request, routeData, status: defaultStatus })
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
@@ -386,7 +380,7 @@ export class App {
 			const mod = await this.#getModuleForRoute(errorRouteData);
 			try {
 				const renderContext = RenderContext.create({
-					pipeline: this.#environment,
+					pipeline: this.#pipeline,
 					middleware: skipMiddleware ? (_, next) => next() : undefined,
 					pathname: this.#getPathnameFromRequest(request),
 					request,
