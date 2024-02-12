@@ -242,7 +242,7 @@ export async function renderToAsyncIterable(
         });
       }
       const bytes = chunkToByteArray(result, chunk);
-			if(bytes.length) {
+			if(bytes.length > 0) {
 				chunks.push(bytes);
 				next.resolve();
 				next = promiseWithResolvers<void>();
@@ -251,8 +251,11 @@ export async function renderToAsyncIterable(
   };
 
 	const renderPromise = templateResult.render(destination);
-  renderPromise.then(() => next.resolve()).catch(err => {
+  renderPromise.then(() => {
+		next.resolve();
+	}).catch(err => {
 		error = err;
+		next.resolve();
 	});
 
   return {
