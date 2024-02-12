@@ -31,7 +31,7 @@
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "postbuild": "astro-scripts copy \"src/**/*.js\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "mocha --exit --timeout 20000"
+    "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
     "@astrojs/prism": "^3.0.0",
@@ -44,7 +44,7 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.0.0",
     "remark-smartypants": "^2.0.0",
-    "shikiji": "^0.9.18",
+    "shikiji": "^0.9.19",
     "unified": "^11.0.4",
     "unist-util-visit": "^5.0.0",
     "vfile": "^6.0.1"

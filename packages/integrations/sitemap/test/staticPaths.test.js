@@ -38,6 +38,6 @@ describe('getStaticPaths support', () => {
 
 	it('should render the endpoint', async () => {
 		const page = await fixture.readFile('./it/manifest');
-		assert.match(page, /I\'m a route in the "it" language./);
+		assert.match(page, /I'm a route in the "it" language./);
 	});
 });

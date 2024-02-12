@@ -13,12 +13,16 @@ interface ImportedStyle {
 export async function getStylesForURL(
 	filePath: URL,
 	loader: ModuleLoader
-): Promise<{ urls: Set<string>; styles: ImportedStyle[] }> {
+): Promise<{ urls: Set<string>; styles: ImportedStyle[]; crawledFiles: Set<string> }> {
 	const importedCssUrls = new Set<string>();
 	// Map of url to injected style object. Use a `url` key to deduplicate styles
 	const importedStylesMap = new Map<string, ImportedStyle>();
+	const crawledFiles = new Set<string>();
 
 	for await (const importedModule of crawlGraph(loader, viteID(filePath), true)) {
+		if (importedModule.file) {
+			crawledFiles.add(importedModule.file);
+		}
 		if (isBuildableCSSRequest(importedModule.url)) {
 			// In dev, we inline all styles if possible
 			let css = '';
@@ -60,5 +64,6 @@ export async function getStylesForURL(
 	return {
 		urls: importedCssUrls,
 		styles: [...importedStylesMap.values()],
+		crawledFiles,
 	};
 }
