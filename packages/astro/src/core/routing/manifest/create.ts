@@ -227,55 +227,33 @@ function routeComparator(a: RouteData, b: RouteData) {
 		}
 	}
 
-	// Special case to have `/[foo].astro` be equivalent to `/[foo]/index.astro`
-	// when compared against `/[foo]/[...rest].astro`.
-	if (Math.abs(a.segments.length - b.segments.length) === 1) {
+	const aLength = a.segments.length;
+	const bLength = b.segments.length;
+
+	if (aLength !== bLength) {
 		const aEndsInRest = a.segments.at(-1)?.some((part) => part.spread);
 		const bEndsInRest = b.segments.at(-1)?.some((part) => part.spread);
 
-		// Routes with rest parameters are less specific than their parent route.
-		// For example, `/foo/[...bar]` is sorted after `/foo`.
+		if (aEndsInRest !== bEndsInRest && Math.abs(aLength - bLength) === 1) {
+			// If only one of the routes ends in a rest parameter
+			// and the difference in length is exactly 1
+			// and the shorter route is the one that ends in a rest parameter
+			// the shorter route is considered more specific.
+			// I.e. `/foo` is considered more specific than `/foo/[...bar]`
+			if (aLength > bLength && aEndsInRest) {
+				// b: /foo
+				// a: /foo/[...bar]
+				return 1;
+			}
 
-		if (a.segments.length > b.segments.length && !bEndsInRest) {
-			return 1;
+			if (bLength > aLength && bEndsInRest) {
+				// a: /foo
+				// b: /foo/[...bar]
+				return -1;
+			}
 		}
 
-		if (b.segments.length > a.segments.length && !aEndsInRest) {
-			return -1;
-		}
-	}
-
-	if (a.isIndex !== b.isIndex) {
-		// Index pages are lower priority than other static segments in the same prefix.
-		// They match the path up to their parent, but are more specific than the parent.
-		// For example:
-		//  - `/foo/index.astro` is sorted before `/foo`
-		//  - `/foo/index.astro` is sorted before `/foo/[bar].astro`
-		//  - `/[...foo]/index.astro` is sorted after `/[...foo]/bar.astro`
-
-		if (a.isIndex) {
-			const followingBSegment = b.segments.at(a.segments.length);
-			const followingBSegmentIsStatic = followingBSegment?.every(
-				(part) => !part.dynamic && !part.spread
-			);
-
-			return followingBSegmentIsStatic ? 1 : -1;
-		}
-
-		const followingASegment = a.segments.at(b.segments.length);
-		const followingASegmentIsStatic = followingASegment?.every(
-			(part) => !part.dynamic && !part.spread
-		);
-
-		return followingASegmentIsStatic ? -1 : 1;
-	}
-
-	// For sorting purposes, an index route is considered to have one more segment than the URL it represents.
-	const aLength = a.isIndex ? a.segments.length + 1 : a.segments.length;
-	const bLength = b.isIndex ? b.segments.length + 1 : b.segments.length;
-
-	if (aLength !== bLength) {
-		// Routes are equal up to the smaller of the two lengths, so the longer route is more specific
+		// Sort routes by length
 		return aLength > bLength ? -1 : 1;
 	}
 
