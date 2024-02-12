@@ -38,10 +38,12 @@ export async function renderEndpoint(
 		// 404. Should be handled by 404.astro route if possible.
 		return new Response(null, { status: 404 });
 	}
-	if (typeof handler !== "function") {
+	if (typeof handler !== 'function') {
 		logger.error(
 			'router',
-			`The route "${url.pathname}" exports a value for the method "${method}", but it is of the type ${typeof handler} instead of a function.`
+			`The route "${
+				url.pathname
+			}" exports a value for the method "${method}", but it is of the type ${typeof handler} instead of a function.`
 		);
 		return new Response(null, { status: 500 });
 	}
