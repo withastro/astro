@@ -15,7 +15,7 @@ describe('Vue with multi-renderer', () => {
 		try {
 			await fixture.build();
 		} catch (e) {
-			assert.equal(e, undefined, `Should not throw`)
+			assert.equal(e, undefined, `Should not throw`);
 		}
 	});
 });
