@@ -1,15 +1,27 @@
 name: Format
 
 on:
+  # Run nightly at 1am PST
+  schedule:
+    - cron: '0 8 * * *'
+  # Run on demand from GitHub UI
   workflow_dispatch:
+  # Run on push to main
   push:
     branches:
       - main
 
 jobs:
-  prettier:
-    if: github.repository_owner == 'withastro'
+  format-fast:
+    if: github.repository_owner == 'withastro' && github.event_name == 'push'
     uses: withastro/automation/.github/workflows/format.yml@main
     with:
       command: "format:ci"
+    secrets: inherit
+
+  format-all:
+    if: github.repository_owner == 'withastro' && github.event_name != 'push'
+    uses: withastro/automation/.github/workflows/format.yml@main
+    with:
+      command: "format:all"
     secrets: inherit
