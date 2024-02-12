@@ -1328,11 +1328,11 @@ test.describe('View Transitions', () => {
 		);
 		await expect(page.locator('#six'), 'should be escaped correctly').toHaveCSS(
 			'view-transition-name',
-			'开\\$源'
+			'开_24源'
 		);
 		await expect(page.locator('#seven'), 'should be escaped correctly').toHaveCSS(
 			'view-transition-name',
-			'开\\.源'
+			'开_2e源'
 		);
 		await expect(page.locator('#eight'), 'should be escaped correctly').toHaveCSS(
 			'view-transition-name',
@@ -1340,7 +1340,7 @@ test.describe('View Transitions', () => {
 		);
 		await expect(page.locator('#nine'), 'should be escaped correctly').toHaveCSS(
 			'view-transition-name',
-			'--9'
+			'_2d-9'
 		);
 		await expect(page.locator('#ten'), 'should be escaped correctly').toHaveCSS(
 			'view-transition-name',
@@ -1348,7 +1348,11 @@ test.describe('View Transitions', () => {
 		);
 		await expect(page.locator('#eleven'), 'should be escaped correctly').toHaveCSS(
 			'view-transition-name',
-			'-\\31 1'
+			'_2d11'
+		);
+		await expect(page.locator('#twelve'), 'should be escaped correctly').toHaveCSS(
+			'view-transition-name',
+			'_23_21_20_2f'
 		);
 	});
 });
