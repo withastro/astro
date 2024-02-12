@@ -61,7 +61,7 @@ const numberFieldOptsSchema: z.ZodType<
 	},
 	ZodTypeDef,
 	z.input<typeof numberFieldBaseSchema> & {
-		references?: () => NumberFieldInput;
+		references?: () => z.input<typeof numberFieldSchema>;
 	}
 > = numberFieldBaseSchema.and(
 	z.object({
@@ -108,7 +108,7 @@ const textFieldOptsSchema: z.ZodType<
 	},
 	ZodTypeDef,
 	z.input<typeof textFieldBaseSchema> & {
-		references?: () => TextFieldInput;
+		references?: () => z.input<typeof textFieldSchema>;
 	}
 > = textFieldBaseSchema.and(
 	z.object({
@@ -219,15 +219,15 @@ export const collectionsSchema = z.preprocess((rawCollections) => {
 }, z.record(collectionSchema));
 
 export type BooleanField = z.infer<typeof booleanFieldSchema>;
-export type BooleanFieldInput = z.input<typeof booleanFieldSchema>;
+export type BooleanFieldInput = z.input<typeof booleanFieldSchema>['schema'];
 export type NumberField = z.infer<typeof numberFieldSchema>;
-export type NumberFieldInput = z.input<typeof numberFieldSchema>;
+export type NumberFieldInput = z.input<typeof numberFieldSchema>['schema'];
 export type TextField = z.infer<typeof textFieldSchema>;
-export type TextFieldInput = z.input<typeof textFieldSchema>;
+export type TextFieldInput = z.input<typeof textFieldSchema>['schema'];
 export type DateField = z.infer<typeof dateFieldSchema>;
-export type DateFieldInput = z.input<typeof dateFieldSchema>;
+export type DateFieldInput = z.input<typeof dateFieldSchema>['schema'];
 export type JsonField = z.infer<typeof jsonFieldSchema>;
-export type JsonFieldInput = z.input<typeof jsonFieldSchema>;
+export type JsonFieldInput = z.input<typeof jsonFieldSchema>['schema'];
 
 export type FieldType =
 	| BooleanField['type']
