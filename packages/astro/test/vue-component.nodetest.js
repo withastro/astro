@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it, after } from 'node:test';
 import * as cheerio from 'cheerio';
 import { isWindows, loadFixture } from './test-utils.js';
 
@@ -25,23 +26,23 @@ describe('Vue component', () => {
 				.map((el) => $(el).text());
 
 			// test 1: renders all components correctly
-			expect(allPreValues).to.deep.equal(['0', '1', '1', '1', '10', '100', '1000']);
+			assert.deepEqual(allPreValues, ['0', '1', '1', '1', '10', '100', '1000']);
 
 			// test 2: renders 3 <astro-island>s
-			expect($('astro-island')).to.have.lengthOf(6);
+			assert.equal($('astro-island').length, 6);
 
 			// test 3: all <astro-island>s have uid attributes
-			expect($('astro-island[uid]')).to.have.lengthOf(6);
+			assert.equal($('astro-island[uid]').length, 6);
 
 			// test 4: treats <my-button> as a custom element
-			expect($('my-button')).to.have.lengthOf(7);
+			assert.equal($('my-button').length, 7);
 
 			// test 5: components with identical render output and props have been deduplicated
 			const uniqueRootUIDs = $('astro-island').map((i, el) => $(el).attr('uid'));
-			expect(new Set(uniqueRootUIDs).size).to.equal(5);
+			assert.equal(new Set(uniqueRootUIDs).size, 5);
 
 			// test 6: import public files work
-			expect($('#vue-img')).to.be.ok;
+			assert.ok($('#vue-img'));
 		});
 	});
 
@@ -65,7 +66,8 @@ describe('Vue component', () => {
 			for (const script of $('script').toArray()) {
 				const { src } = script.attribs;
 				if (!src) continue;
-				expect((await fixture.fetch(src)).status, `404: ${src}`).to.equal(200);
+				const response = await fixture.fetch(src);
+				assert.equal(response.status, 200, `404: ${src}`);
 			}
 		});
 	});

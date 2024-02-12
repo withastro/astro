@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { describe, before, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 import * as cheerio from 'cheerio';
@@ -25,12 +26,12 @@ describe('astro:ssr-manifest', () => {
 		const html = await response.text();
 
 		const $ = cheerio.load(html);
-		expect($('#assets').text()).to.match(/\["\/_astro\/index.([\w-]{8})\.css"\]/);
+		assert.match($('#assets').text(), /\["\/_astro\/index.([\w-]{8})\.css"\]/);
 	});
 
 	it('includes compressHTML', async () => {
 		const app = await fixture.loadTestAdapterApp();
-		expect(app.manifest).to.haveOwnProperty('compressHTML');
-		expect(app.manifest.compressHTML).to.be.true;
+		assert.equal(app.manifest.compressHTML, true);
+		assert.equal(app.manifest.compressHTML, true);
 	});
 });
