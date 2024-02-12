@@ -12,8 +12,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Environment } from '../environment.js';
 import { getParamsAndProps } from './params-and-props.js';
 import type { RoutingStrategies } from '../config/schema.js';
-
-const clientLocalsSymbol = Symbol.for('astro.locals');
+import { clientLocalsSymbol } from '../constants.js';
 
 /**
  * The RenderContext represents the parts of rendering that are specific to one request.
@@ -28,11 +27,10 @@ export interface RenderContext {
 	route: RouteData;
 	status?: number;
 	params: Params;
-	props: Props;
 }
 
 export type CreateRenderContextArgs = Partial<
-	Omit<RenderContext, 'params' | 'props' | 'locals'>
+	Omit<RenderContext, 'params' | 'props'>
 > & {
 	route: RouteData;
 	request: Request;
@@ -58,7 +56,6 @@ export async function createRenderContext(
 		...options,
 		pathname,
 		params,
-		props,
 	};
 
 	// We define a custom property, so we can check the value passed to locals

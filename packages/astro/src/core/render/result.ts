@@ -19,9 +19,7 @@ import {
 	computePreferredLocaleList,
 } from './context.js';
 import type { RoutingStrategies } from '../config/schema.js';
-
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
-const responseSentSymbol = Symbol.for('astro.responseSent');
+import { clientAddressSymbol, responseSentSymbol } from '../constants.js';
 
 export interface CreateResultArgs {
 	/**

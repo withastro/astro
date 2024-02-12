@@ -1,10 +1,11 @@
-import type { AstroMiddlewareInstance, ComponentInstance, RouteData } from '../../@types/astro.js';
+import type { ComponentInstance, RouteData } from '../../@types/astro.js';
 import type { Environment } from '../environment.js';
 export { computePreferredLocale, createRenderContext } from './context.js';
 export type { RenderContext } from './context.js';
 export { Environment } from '../environment.js';
 export { getParamsAndProps } from './params-and-props.js';
 export { loadRenderer } from './renderer.js';
+export { createResult } from './result.js';
 
 export interface SSROptions {
 	/** The environment instance */
