@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 5.1.1
+
+### Patch Changes
+
+- [#162](https://github.com/withastro/adapters/pull/162) [`07217c07e89d4596b464d05c4873e7039aa616f4`](https://github.com/withastro/adapters/commit/07217c07e89d4596b464d05c4873e7039aa616f4) Thanks [@Skn0tt](https://github.com/Skn0tt)! - Fixes bug where prerendered 404 pages were served as `text/plain` instead of `text/html` for hybrid/server apps, leading to browsers displaying source code instead of rendering it
+
 ## 5.1.0
 
 ### Minor Changes
