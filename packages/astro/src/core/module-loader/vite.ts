@@ -1,9 +1,13 @@
 import { EventEmitter } from 'node:events';
 import path from 'node:path';
+import type { ViteRuntime } from 'vite/runtime';
 import type * as vite from 'vite';
 import type { ModuleLoader, ModuleLoaderEventEmitter } from './loader.js';
 
-export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
+export function createViteLoader(
+	viteServer: vite.ViteDevServer,
+	viteRuntime: ViteRuntime
+): ModuleLoader {
 	const events = new EventEmitter() as ModuleLoaderEventEmitter;
 
 	let isTsconfigUpdated = false;
@@ -50,7 +54,7 @@ export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 
 	return {
 		import(src) {
-			return viteServer.ssrLoadModule(src);
+			return viteRuntime.executeUrl(src);
 		},
 		async resolveId(spec, parent) {
 			const ret = await viteServer.pluginContainer.resolveId(spec, parent);

@@ -17,6 +17,7 @@ import { IncomingMessage } from 'node:http';
 import { setRouteError } from './server-state.js';
 import { recordServerError } from './error.js';
 import { toRoutingStrategy } from '../i18n/utils.js';
+import { createViteRuntime } from 'vite';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -29,12 +30,22 @@ export default function createVitePluginAstroServer({
 	logger,
 	fs: fsMod,
 }: AstroPluginOptions): vite.Plugin {
+	let teardown: (() => void | Promise<void>) | undefined;
 	return {
 		name: 'astro:server',
-		configureServer(viteServer) {
-			const loader = createViteLoader(viteServer);
+		async configureServer(viteServer) {
+			const viteRuntime = await createViteRuntime(viteServer);
+			// @ts-ignore
+			teardown = 'teardown' in viteRuntime ? viteRuntime.teardown : undefined;
+
+			const loader = createViteLoader(viteServer, viteRuntime);
 			const manifest = createDevelopmentManifest(settings);
-			const pipeline = DevPipeline.create({ loader, logger, manifest, settings });
+			const pipeline = DevPipeline.create({
+				loader,
+				logger,
+				manifest,
+				settings,
+			});
 			let manifestData: ManifestData = createRouteManifest({ settings, fsMod }, logger);
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();
@@ -102,6 +113,9 @@ export default function createVitePluginAstroServer({
 
 			// Replace the Vite overlay with ours
 			return patchOverlay(code);
+		},
+		async buildEnd() {
+			await teardown?.();
 		},
 	};
 }

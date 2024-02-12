@@ -1,6 +1,6 @@
 import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import type { Plugin, Rollup } from 'vite';
+import { createViteRuntime, type Plugin, type Rollup } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
 import { getPageDataByViteID, type BuildInternals } from '../core/build/internal.js';
@@ -28,6 +28,7 @@ export function astroContentAssetPropagationPlugin({
 	settings: AstroSettings;
 }): Plugin {
 	let devModuleLoader: ModuleLoader;
+	let teardown: (() => void | Promise<void>) | undefined;
 	return {
 		name: 'astro:content-asset-propagation',
 		enforce: 'pre',
@@ -48,9 +49,12 @@ export function astroContentAssetPropagationPlugin({
 				return this.resolve(base, importer, { skipSelf: true, ...opts });
 			}
 		},
-		configureServer(server) {
+		async configureServer(server) {
 			if (mode === 'dev') {
-				devModuleLoader = createViteLoader(server);
+				const runtime = await createViteRuntime(server);
+				// @ts-ignore
+				teardown = 'teardown' in runtime ? runtime.teardown : undefined;
+				devModuleLoader = createViteLoader(server, runtime);
 			}
 		},
 		async transform(_, id, options) {
@@ -114,6 +118,9 @@ export function astroContentAssetPropagationPlugin({
 				// to catch the `__astroPropagation` identifier
 				return { code, map: { mappings: '' } };
 			}
+		},
+		async buildEnd() {
+			await teardown?.();
 		},
 	};
 }
