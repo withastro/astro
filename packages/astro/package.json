@@ -113,7 +113,7 @@
     "test:match": "mocha --timeout 30000 -g",
     "test:e2e": "playwright test",
     "test:e2e:match": "playwright test -g",
-    "test:node": "astro-scripts test \"test/**/*.nodetest.js\""
+    "test:node": "astro-scripts test \"test/**/*.nodetest.js\" --parallel"
   },
   "dependencies": {
     "@astrojs/compiler": "^2.5.3",
