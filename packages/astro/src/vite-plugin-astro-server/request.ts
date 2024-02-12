@@ -4,13 +4,13 @@ import { collapseDuplicateSlashes, removeTrailingForwardSlash } from '../core/pa
 import { isServerLikeOutput } from '../prerender/utils.js';
 import type { DevServerController } from './controller.js';
 import { runWithErrorHandling } from './controller.js';
-import type { DevEnvironment } from './environment.js';
+import type { DevPipeline } from './pipeline.js';
 import { handle500Response } from './response.js';
 import { handleRoute, matchRoute } from './route.js';
 import { recordServerError } from './error.js';
 
 type HandleRequest = {
-	environment: DevEnvironment;
+	pipeline: DevPipeline;
 	manifestData: ManifestData;
 	controller: DevServerController;
 	incomingRequest: http.IncomingMessage;
@@ -19,13 +19,13 @@ type HandleRequest = {
 
 /** The main logic to route dev server requests to pages in Astro. */
 export async function handleRequest({
-	environment,
+	pipeline,
 	manifestData,
 	controller,
 	incomingRequest,
 	incomingResponse,
 }: HandleRequest) {
-	const { config, loader } = environment;
+	const { config, loader } = pipeline;
 	const origin = `${loader.isHttps() ? 'https' : 'http'}://${incomingRequest.headers.host}`;
 	const buildingToSSR = isServerLikeOutput(config);
 
@@ -67,7 +67,7 @@ export async function handleRequest({
 		controller,
 		pathname,
 		async run() {
-			const matchedRoute = await matchRoute(pathname, manifestData, environment);
+			const matchedRoute = await matchRoute(pathname, manifestData, pipeline);
 			const resolvedPathname = matchedRoute?.resolvedPathname ?? pathname;
 			return await handleRoute({
 				matchedRoute,
@@ -75,14 +75,14 @@ export async function handleRequest({
 				pathname: resolvedPathname,
 				body,
 				origin,
-				environment,
+				pipeline,
 				manifestData,
 				incomingRequest: incomingRequest,
 				incomingResponse: incomingResponse,
 			});
 		},
 		onError(_err) {
-			const { error, errorWithMetadata } = recordServerError(loader, config, environment, _err);
+			const { error, errorWithMetadata } = recordServerError(loader, config, pipeline, _err);
 			handle500Response(loader, incomingResponse, errorWithMetadata);
 			return error;
 		},

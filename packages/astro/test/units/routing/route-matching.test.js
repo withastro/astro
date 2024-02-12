@@ -14,7 +14,7 @@ import * as cheerio from 'cheerio';
 import testAdapter from '../../test-adapter.js';
 import { getSortedPreloadedMatches } from '../../../dist/prerender/routing.js';
 import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
-import { DevEnvironment } from '../../../dist/vite-plugin-astro-server/environment.js';
+import { DevPipeline } from '../../../dist/vite-plugin-astro-server/pipeline.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 const fileSystem = {
@@ -125,7 +125,7 @@ const fileSystem = {
 };
 
 describe('Route matching', () => {
-	let environment;
+	let pipeline;
 	let manifestData;
 	let container;
 	let settings;
@@ -146,7 +146,7 @@ describe('Route matching', () => {
 
 		const loader = createViteLoader(container.viteServer);
 		const manifest = createDevelopmentManifest(container.settings);
-		environment = DevEnvironment.create({ loader, logger: defaultLogger, manifest, settings });
+		pipeline = DevPipeline.create({ loader, logger: defaultLogger, manifest, settings });
 		manifestData = createRouteManifest(
 			{
 				cwd: fileURLToPath(root),
@@ -164,7 +164,7 @@ describe('Route matching', () => {
 	describe('Matched routes', () => {
 		it('should be sorted correctly', async () => {
 			const matches = matchAllRoutes('/try-matching-a-route', manifestData);
-			const preloadedMatches = await getSortedPreloadedMatches({ environment, matches, settings });
+			const preloadedMatches = await getSortedPreloadedMatches({ pipeline, matches, settings });
 			const sortedRouteNames = preloadedMatches.map((match) => match.route.route);
 
 			assert.deepEqual(sortedRouteNames, [
@@ -178,7 +178,7 @@ describe('Route matching', () => {
 		});
 		it('nested should be sorted correctly', async () => {
 			const matches = matchAllRoutes('/nested/try-matching-a-route', manifestData);
-			const preloadedMatches = await getSortedPreloadedMatches({ environment, matches, settings });
+			const preloadedMatches = await getSortedPreloadedMatches({ pipeline, matches, settings });
 			const sortedRouteNames = preloadedMatches.map((match) => match.route.route);
 
 			assert.deepEqual(sortedRouteNames, [

@@ -13,7 +13,7 @@ import { matchAllRoutes } from '../core/routing/index.js';
 import { normalizeTheLocale } from '../i18n/index.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
-import type { DevEnvironment } from './environment.js';
+import type { DevPipeline } from './pipeline.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 import { REROUTE_DIRECTIVE_HEADER, clientLocalsSymbol } from '../core/constants.js';
 import { RenderContext } from '../core/render-context.js';
@@ -44,12 +44,12 @@ function getCustom404Route(manifestData: ManifestData): RouteData | undefined {
 export async function matchRoute(
 	pathname: string,
 	manifestData: ManifestData,
-	environment: DevEnvironment
+	pipeline: DevPipeline
 ): Promise<MatchedRoute | undefined> {
-	const { config, logger, routeCache, serverLike, settings } = environment;
+	const { config, logger, routeCache, serverLike, settings } = pipeline;
 	const matches = matchAllRoutes(pathname, manifestData);
 
-	const preloadedMatches = await getSortedPreloadedMatches({ environment, matches, settings });
+	const preloadedMatches = await getSortedPreloadedMatches({ pipeline, matches, settings });
 
 	for await (const { preloadedComponent, route: maybeRoute, filePath } of preloadedMatches) {
 		// attempt to get static paths
@@ -84,7 +84,7 @@ export async function matchRoute(
 	// build formats, and is necessary based on how the manifest tracks build targets.
 	const altPathname = pathname.replace(/(?:index)?\.html$/, '');
 	if (altPathname !== pathname) {
-		return await matchRoute(altPathname, manifestData, environment);
+		return await matchRoute(altPathname, manifestData, pipeline);
 	}
 
 	if (matches.length) {
@@ -102,7 +102,7 @@ export async function matchRoute(
 
 	if (custom404) {
 		const filePath = new URL(`./${custom404.component}`, config.root);
-		const preloadedComponent = await environment.preload(filePath);
+		const preloadedComponent = await pipeline.preload(filePath);
 
 		return {
 			route: custom404,
@@ -126,7 +126,7 @@ type HandleRoute = {
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
 	status?: 404 | 500;
-	environment: DevEnvironment;
+	pipeline: DevPipeline;
 };
 
 export async function handleRoute({
@@ -136,13 +136,13 @@ export async function handleRoute({
 	status = getStatus(matchedRoute),
 	body,
 	origin,
-	environment,
+	pipeline,
 	manifestData,
 	incomingRequest,
 	incomingResponse,
 }: HandleRoute): Promise<void> {
 	const timeStart = performance.now();
-	const { config, loader, logger } = environment;
+	const { config, loader, logger } = pipeline;
 	if (!matchedRoute && !config.i18n) {
 		if (isLoggedRequest(pathname)) {
 			logger.info(null, req({ url: pathname, method: incomingRequest.method, statusCode: 404 }));
@@ -208,7 +208,7 @@ export async function handleRoute({
 				fallbackRoutes: [],
 				isIndex: false,
 			};
-			renderContext = RenderContext.create({ pipeline: environment, pathname, middleware, request, routeData: route });
+			renderContext = RenderContext.create({ pipeline: pipeline, pathname, middleware, request, routeData: route });
 		} else {
 			return handle404Response(origin, incomingRequest, incomingResponse);
 		}
@@ -234,7 +234,7 @@ export async function handleRoute({
 		}
 
 		options = {
-			pipeline: environment,
+			pipeline: pipeline,
 			filePath,
 			preload: preloadedComponent,
 			pathname,
@@ -243,7 +243,7 @@ export async function handleRoute({
 		};
 
 		mod = preloadedComponent;
-		renderContext = RenderContext.create({ pipeline: environment, pathname, middleware, request, routeData: route });
+		renderContext = RenderContext.create({ pipeline: pipeline, pathname, middleware, request, routeData: route });
 	}
 
 	let response = await renderContext.render(mod);
@@ -264,7 +264,7 @@ export async function handleRoute({
 		has404Route(manifestData) &&
 		response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 	) {
-		const fourOhFourRoute = await matchRoute('/404', manifestData, environment);
+		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
 		if (options && fourOhFourRoute?.route !== options.route)
 			return handleRoute({
 				...options,
@@ -273,7 +273,7 @@ export async function handleRoute({
 				status: 404,
 				body,
 				origin,
-				environment,
+				pipeline,
 				manifestData,
 				incomingRequest,
 				incomingResponse,

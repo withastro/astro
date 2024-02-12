@@ -16,7 +16,7 @@ import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
 import { getComponentMetadata } from './metadata.js';
 
-export class DevEnvironment extends Pipeline {
+export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
 	// so it needs to be mutable here unlike in other environments
 	override renderers = new Array<SSRLoadedRenderer>
@@ -35,8 +35,8 @@ export class DevEnvironment extends Pipeline {
 		super(logger, manifest, mode, [], resolve, serverLike, streaming);
 	}
 
-	static create({ loader, logger, manifest, settings }: Pick<DevEnvironment, 'loader' | 'logger' | 'manifest' | 'settings'>) {
-		return new DevEnvironment(loader, logger, manifest, settings)
+	static create({ loader, logger, manifest, settings }: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>) {
+		return new DevPipeline(loader, logger, manifest, settings)
 	}
 
 	async headElements(routeData: RouteData): Promise<HeadElements> {

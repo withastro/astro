@@ -12,20 +12,20 @@ import {
 	defaultLogger,
 } from '../test-utils.js';
 import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
-import { DevEnvironment } from '../../../dist/vite-plugin-astro-server/environment.js';
+import { DevPipeline } from '../../../dist/vite-plugin-astro-server/pipeline.js';
 
-async function createDevEnvironment(overrides = {}) {
+async function createDevPipeline(overrides = {}) {
 	const settings = overrides.settings ?? (await createBasicSettings({ root: '/' }));
 	const loader = overrides.loader ?? createLoader();
 	const manifest = createDevelopmentManifest(settings);
 
-	return DevEnvironment.create({ loader, logger: defaultLogger, manifest, settings });
+	return DevPipeline.create({ loader, logger: defaultLogger, manifest, settings });
 }
 
 describe('vite-plugin-astro-server', () => {
 	describe('request', () => {
 		it('renders a request', async () => {
-			const environment = await createDevEnvironment({
+			const pipeline = await createDevPipeline({
 				loader: createLoader({
 					import(id) {
 						if (id === '\0astro-internal:middleware') {
@@ -38,7 +38,7 @@ describe('vite-plugin-astro-server', () => {
 					},
 				}),
 			});
-			const controller = createController({ loader: environment.loader });
+			const controller = createController({ loader: pipeline.loader });
 			const { req, res, text } = createRequestAndResponse();
 			const fs = createFs(
 				{
@@ -50,14 +50,14 @@ describe('vite-plugin-astro-server', () => {
 			const manifestData = createRouteManifest(
 				{
 					fsMod: fs,
-					settings: environment.settings,
+					settings: pipeline.settings,
 				},
 				defaultLogger
 			);
 
 			try {
 				await handleRequest({
-					environment,
+					pipeline,
 					manifestData,
 					controller,
 					incomingRequest: req,
