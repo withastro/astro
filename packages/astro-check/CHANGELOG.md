@@ -1,5 +1,13 @@
 # @astrojs/check
 
+## 0.5.3
+
+### Patch Changes
+
+- de58706: Fix imports from certain packages not working correctly in certain cases
+- Updated dependencies [de58706]
+  - @astrojs/language-server@2.7.3
+
 ## 0.5.2
 
 ### Patch Changes

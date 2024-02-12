@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.5.1
+
+### Patch Changes
+
+- de58706: Fix imports from certain packages not working correctly in certain cases
+
 ## 1.5.0
 
 ### Minor Changes

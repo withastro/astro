@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.7.3
+
+### Patch Changes
+
+- de58706: Fix imports from certain packages not working correctly in certain cases
+
 ## 2.7.2
 
 ### Patch Changes
