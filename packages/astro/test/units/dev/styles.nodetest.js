@@ -1,4 +1,4 @@
-import { describe, it } from 'node:test';
+import { describe, it, before } from 'node:test';
 import * as assert from 'node:assert/strict';
 import { getStylesForURL } from '../../../dist/vite-plugin-astro-server/css.js';
 import { viteID } from '../../../dist/core/util.js';
