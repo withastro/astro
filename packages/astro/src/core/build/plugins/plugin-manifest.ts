@@ -241,7 +241,7 @@ function buildManifest(
 		i18n.domains &&
 		(i18n.routing === 'domains-prefix-always' ||
 			i18n.routing === 'domains-prefix-other-locales' ||
-			i18n.routing === 'domains-prefix-other-no-redirect')
+			i18n.routing === 'domains-prefix-always-no-redirect')
 	) {
 		for (const [locale, domainValue] of Object.entries(i18n.domains)) {
 			domainLookupTable[domainValue] = normalizeTheLocale(locale);
