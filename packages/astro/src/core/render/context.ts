@@ -8,11 +8,11 @@ import type {
 	SSRResult,
 } from '../../@types/astro.js';
 import { normalizeTheLocale, toCodes } from '../../i18n/index.js';
+import type { RoutingStrategies } from '../config/schema.js';
+import { ROUTE_DATA_SYMBOL } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Environment } from './environment.js';
 import { getParamsAndProps } from './params-and-props.js';
-import type { RoutingStrategies } from '../config/schema.js';
-import { ROUTE_DATA_SYMBOL } from '../constants.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 const routeDataSymbol = Symbol.for(ROUTE_DATA_SYMBOL);

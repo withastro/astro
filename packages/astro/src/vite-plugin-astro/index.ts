@@ -1,5 +1,4 @@
 import type { SourceDescription } from 'rollup';
-import type * as vite from 'vite';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
 import type { PluginMetadata as AstroPluginMetadata, CompileMetadata } from './types.js';

@@ -1,4 +1,3 @@
-import type * as vite from 'vite';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';

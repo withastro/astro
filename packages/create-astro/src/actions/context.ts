@@ -3,8 +3,8 @@ import { random } from '@astrojs/cli-kit/utils';
 import arg from 'arg';
 import os from 'node:os';
 
-import { getName, getVersion } from '../messages.js';
 import getSeasonalData from '../data/seasonal.js';
+import { getName, getVersion } from '../messages.js';
 
 export interface Context {
 	help: boolean;

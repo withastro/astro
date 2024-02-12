@@ -1,10 +1,10 @@
+import type { NodeApp } from 'astro/app/node';
+import fs from 'node:fs';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import path from 'node:path';
 import url from 'node:url';
-import fs from 'node:fs';
 import send from 'send';
-import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Options } from './types.js';
-import type { NodeApp } from 'astro/app/node';
 
 /**
  * Creates a Node.js http listener for static files and prerendered pages.

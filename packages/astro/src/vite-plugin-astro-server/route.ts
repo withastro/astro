@@ -28,6 +28,7 @@ import { normalizeTheLocale } from '../i18n/index.js';
 import { createI18nMiddleware, i18nPipelineHook } from '../i18n/middleware.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
+import { REROUTE_DIRECTIVE_HEADER } from '../runtime/server/consts.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
 import type DevPipeline from './devPipeline.js';
@@ -35,7 +36,6 @@ import { preload } from './index.js';
 import { getComponentMetadata } from './metadata.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 import { getScriptsForURL } from './scripts.js';
-import { REROUTE_DIRECTIVE_HEADER } from '../runtime/server/consts.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 

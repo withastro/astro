@@ -1,6 +1,6 @@
+import type { SSRManifest } from 'astro';
 import type { NodeApp } from 'astro/app/node';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { SSRManifest } from 'astro';
 
 export interface UserOptions {
 	/**

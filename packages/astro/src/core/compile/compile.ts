@@ -5,12 +5,12 @@ import type { AstroConfig } from '../../@types/astro.js';
 import { transform } from '@astrojs/compiler';
 import { fileURLToPath } from 'node:url';
 import { normalizePath } from 'vite';
+import type { AstroPreferences } from '../../preferences/index.js';
 import type { AstroError } from '../errors/errors.js';
 import { AggregateError, CompilerError } from '../errors/errors.js';
 import { AstroErrorData } from '../errors/index.js';
 import { resolvePath } from '../util.js';
 import { createStylePreprocessor } from './style.js';
-import type { AstroPreferences } from '../../preferences/index.js';
 
 export interface CompileProps {
 	astroConfig: AstroConfig;

@@ -1,8 +1,7 @@
-import { NodeApp, applyPolyfills } from 'astro/app/node';
-import { createStandaloneHandler } from './standalone.js';
-import startServer from './standalone.js';
-import createMiddleware from './middleware.js';
 import type { SSRManifest } from 'astro';
+import { NodeApp, applyPolyfills } from 'astro/app/node';
+import createMiddleware from './middleware.js';
+import startServer, { createStandaloneHandler } from './standalone.js';
 import type { Options } from './types.js';
 
 applyPolyfills();

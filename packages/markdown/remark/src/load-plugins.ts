@@ -1,5 +1,5 @@
-import type * as unified from 'unified';
 import { importPlugin as _importPlugin } from '#import-plugin';
+import type * as unified from 'unified';
 
 async function importPlugin(p: string | unified.Plugin<any[], any>) {
 	if (typeof p === 'string') {

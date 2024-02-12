@@ -5,6 +5,7 @@ import type {
 	SSRElement,
 	SSRManifest,
 } from '../../@types/astro.js';
+import { normalizeTheLocale } from '../../i18n/index.js';
 import { createI18nMiddleware, i18nPipelineHook } from '../../i18n/middleware.js';
 import { REROUTE_DIRECTIVE_HEADER } from '../../runtime/server/consts.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
@@ -30,7 +31,6 @@ import {
 import { matchRoute } from '../routing/match.js';
 import { SSRRoutePipeline } from './ssrPipeline.js';
 import type { RouteInfo } from './types.js';
-import { normalizeTheLocale } from '../../i18n/index.js';
 export { deserializeManifest } from './common.js';
 
 const localsSymbol = Symbol.for('astro.locals');

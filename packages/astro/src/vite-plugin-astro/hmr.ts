@@ -1,5 +1,5 @@
-import path from 'node:path';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
+import path from 'node:path';
 import type { HmrContext } from 'vite';
 import type { Logger } from '../core/logger/core.js';
 import type { CompileAstroResult } from './compile.js';

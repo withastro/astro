@@ -1,4 +1,3 @@
-import type * as vite from 'vite';
 import type { AstroPluginOptions } from '../@types/astro.js';
 import { telemetry } from '../events/index.js';
 import { eventAppToggled } from '../events/toolbar.js';

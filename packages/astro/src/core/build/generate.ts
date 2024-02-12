@@ -34,6 +34,7 @@ import { runHookBuildGenerated } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifestI18n } from '../app/types.js';
+import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { sequence } from '../middleware/index.js';
 import { routeIsFallback } from '../redirects/helpers.js';
@@ -67,7 +68,6 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
-import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);

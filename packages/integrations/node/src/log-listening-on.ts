@@ -1,9 +1,9 @@
-import os from 'node:os';
+import type { AstroIntegrationLogger } from 'astro';
 import type http from 'node:http';
 import https from 'node:https';
-import type { AstroIntegrationLogger } from 'astro';
-import type { Options } from './types.js';
 import type { AddressInfo } from 'node:net';
+import os from 'node:os';
+import type { Options } from './types.js';
 
 export async function logListeningOn(
 	logger: AstroIntegrationLogger,

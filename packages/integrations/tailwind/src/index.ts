@@ -1,6 +1,6 @@
-import { fileURLToPath } from 'node:url';
 import type { AstroIntegration } from 'astro';
 import autoprefixerPlugin from 'autoprefixer';
+import { fileURLToPath } from 'node:url';
 import tailwindPlugin from 'tailwindcss';
 import type { CSSOptions, UserConfig } from 'vite';
 
