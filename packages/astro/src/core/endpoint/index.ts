@@ -10,7 +10,7 @@ import {
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
-} from '../render/context.js';
+} from '../../i18n/utils.js';
 import type { RoutingStrategies } from '../config/schema.js';
 
 type CreateAPIContext = {

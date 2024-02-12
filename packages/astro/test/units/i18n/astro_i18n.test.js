@@ -4,7 +4,7 @@ import {
 	getLocaleAbsoluteUrl,
 	getLocaleAbsoluteUrlList,
 } from '../../../dist/i18n/index.js';
-import { parseLocale } from '../../../dist/core/render/context.js';
+import { parseLocale } from '../../../dist/i18n/utils.js';
 import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
 import { validateConfig } from '../../../dist/core/config/config.js';

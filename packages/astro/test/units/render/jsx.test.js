@@ -7,7 +7,7 @@ import {
 	renderSlot,
 } from '../../../dist/runtime/server/index.js';
 import { jsx } from '../../../dist/jsx-runtime/index.js';
-import { createRenderContext, loadRenderer } from '../../../dist/core/render/index.js';
+import { loadRenderer } from '../../../dist/core/render/index.js';
 import { Pipeline } from '../../../dist/core/pipeline.js';
 import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
 import { createBasicEnvironment } from '../test-utils.js';
@@ -17,9 +17,9 @@ const loadJSXRenderer = () => loadRenderer(jsxRenderer, { import: (s) => import(
 
 describe('core/render', () => {
 	describe('Astro JSX components', () => {
-		let env;
+		let environment;
 		before(async () => {
-			env = createBasicEnvironment({
+			environment = createBasicEnvironment({
 				renderers: [await loadJSXRenderer()],
 			});
 		});
@@ -44,14 +44,7 @@ describe('core/render', () => {
 			const mod = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.mdx', params: {} };
-			const ctx = await createRenderContext({
-				route: routeData,
-				request,
-				env,
-				mod,
-			});
-
-			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request, routeData });
+			const pipeline = Pipeline.create({ environment, request, routeData });
 			const response = await pipeline.renderRoute(mod);
 
 			assert.equal(response.status, 200);
@@ -93,13 +86,7 @@ describe('core/render', () => {
 			const mod = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.mdx', params: {} };
-			const ctx = await createRenderContext({
-				route: routeData,
-				request,
-				env,
-				mod,
-			});
-			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request, routeData });
+			const pipeline = Pipeline.create({ environment, request, routeData });
 			const response = await pipeline.renderRoute(mod);
 
 			assert.equal(response.status, 200);
@@ -125,14 +112,7 @@ describe('core/render', () => {
 			const mod = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.mdx', params: {} };
-			const ctx = await createRenderContext({
-				route: routeData,
-				request,
-				env,
-				mod,
-			});
-
-			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request, routeData });
+			const pipeline = Pipeline.create({ environment, request, routeData });
 			const response = await pipeline.renderRoute(mod);
 
 			try {

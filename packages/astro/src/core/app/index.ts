@@ -1,8 +1,6 @@
 import type {
-	EndpointHandler,
 	ManifestData,
 	RouteData,
-	SSRElement,
 	SSRManifest,
 } from '../../@types/astro.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
@@ -17,12 +15,7 @@ import {
 	removeTrailingForwardSlash,
 } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { createRenderContext, type RenderContext } from '../render/index.js';
-import {
-	createAssetLink,
-	createModuleScriptElement,
-	createStylesheetElementSet,
-} from '../render/ssr-element.js';
+import { createAssetLink } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 import { AppEnvironment } from './environment.js';
 import type { RouteInfo } from './types.js';
@@ -305,20 +298,10 @@ export class App {
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
 		const mod = await this.#getModuleForRoute(routeData);
 
-		const pageModule = (await mod.page()) as any;
-		const url = new URL(request.url);
-
-		const renderContext = await this.#createRenderContext(
-			url,
-			request,
-			routeData,
-			mod,
-			defaultStatus
-		);
 		let response;
 		try {
-			const pipeline = Pipeline.create({ environment: this.#environment, locals, pathname, renderContext, request, routeData })
-			response = await pipeline.renderRoute(pageModule);
+			const pipeline = Pipeline.create({ environment: this.#environment, locals, pathname, request, routeData, status: defaultStatus })
+			response = await pipeline.renderRoute(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
 			return this.#renderError(request, { status: 500 });
@@ -375,66 +358,6 @@ export class App {
 	static getSetCookieFromResponse = getSetCookiesFromResponse;
 
 	/**
-	 * Creates the render context of the current route
-	 */
-	async #createRenderContext(
-		url: URL,
-		request: Request,
-		routeData: RouteData,
-		page: SinglePageBuiltModule,
-		status = 200
-	): Promise<RenderContext> {
-		if (routeData.type === 'endpoint') {
-			const pathname = '/' + this.removeBase(url.pathname);
-			const mod = await page.page();
-			const handler = mod as unknown as EndpointHandler;
-
-			return await createRenderContext({
-				request,
-				pathname,
-				route: routeData,
-				status,
-				env: this.#environment,
-				mod: handler as any,
-			});
-		} else {
-			const pathname = prependForwardSlash(this.removeBase(url.pathname));
-			const info = this.#routeDataToRouteInfo.get(routeData)!;
-			// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
-			const links = new Set<never>();
-			const styles = createStylesheetElementSet(info.styles);
-
-			let scripts = new Set<SSRElement>();
-			for (const script of info.scripts) {
-				if ('stage' in script) {
-					if (script.stage === 'head-inline') {
-						scripts.add({
-							props: {},
-							children: script.children,
-						});
-					}
-				} else {
-					scripts.add(createModuleScriptElement(script));
-				}
-			}
-			const mod = await page.page();
-
-			return await createRenderContext({
-				request,
-				pathname,
-				componentMetadata: this.#manifest.componentMetadata,
-				scripts,
-				styles,
-				links,
-				route: routeData,
-				status,
-				mod,
-				env: this.#environment,
-			});
-		}
-	}
-
-	/**
 	 * If it is a known error code, try sending the according page (e.g. 404.astro / 500.astro).
 	 * This also handles pre-rendered /404 or /500 routes
 	 */
@@ -462,20 +385,13 @@ export class App {
 			}
 			const mod = await this.#getModuleForRoute(errorRouteData);
 			try {
-				const newRenderContext = await this.#createRenderContext(
-					url,
-					request,
-					errorRouteData,
-					mod,
-					status
-				);
 				const pipeline = Pipeline.create({
 					environment: this.#environment,
 					middleware: skipMiddleware ? (_, next) => next() : undefined,
 					pathname: this.#getPathnameFromRequest(request),
-					renderContext: newRenderContext,
 					request,
 					routeData: errorRouteData,
+					status,
 				})
 				const response = await pipeline.renderRoute(await mod.page());
 				return this.#mergeResponses(response, originalResponse);

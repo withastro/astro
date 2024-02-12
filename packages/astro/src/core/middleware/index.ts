@@ -7,7 +7,7 @@ import {
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
-} from '../render/context.js';
+} from '../../i18n/utils.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');

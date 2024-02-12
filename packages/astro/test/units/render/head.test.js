@@ -9,7 +9,6 @@ import {
 	renderHead,
 	Fragment,
 } from '../../../dist/runtime/server/index.js';
-import { createRenderContext } from '../../../dist/core/render/index.js';
 import { Pipeline } from '../../../dist/core/pipeline.js';
 import { createBasicEnvironment } from '../test-utils.js';
 import * as cheerio from 'cheerio';
@@ -18,9 +17,14 @@ const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
 
 describe('core/render', () => {
 	describe('Injected head contents', () => {
-		let env;
+		let environment;
 		before(async () => {
-			env = createBasicEnvironment();
+			environment = createBasicEnvironment();
+			environment.headElements = () => ({
+				links: new Set([{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }]),
+				scripts: new Set,
+				styles: new Set
+			});
 		});
 
 		it('Multi-level layouts and head injection, with explicit head', async () => {
@@ -92,15 +96,7 @@ describe('core/render', () => {
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.astro', params: {} };
-			const ctx = await createRenderContext({
-				route: routeData,
-				request,
-				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
-				mod: PageModule,
-				env,
-			});
-
-			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request, routeData });
+			const pipeline = Pipeline.create({ environment, request, routeData });
 			const response = await pipeline.renderRoute(PageModule);
 
 			const html = await response.text();
@@ -176,15 +172,7 @@ describe('core/render', () => {
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.astro', params: {} };
-			const ctx = await createRenderContext({
-				route: routeData,
-				request,
-				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
-				env,
-				mod: PageModule,
-			});
-			
-			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request, routeData });
+			const pipeline = Pipeline.create({ environment, request, routeData });
 			const response = await pipeline.renderRoute(PageModule);
 
 			const html = await response.text();
@@ -227,15 +215,7 @@ describe('core/render', () => {
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.astro', params: {} };
-			const ctx = await createRenderContext({
-				route: routeData,
-				request,
-				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
-				env,
-				mod: PageModule,
-			});
-
-			const pipeline = Pipeline.create({ environment: env, renderContext: ctx, request, routeData });
+			const pipeline = Pipeline.create({ environment, request, routeData });
 			const response = await pipeline.renderRoute(PageModule);
 
 			const html = await response.text();

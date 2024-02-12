@@ -1,66 +1,6 @@
-import type {
-	ComponentInstance,
-	Locales,
-	RouteData,
-	SSRElement,
-	SSRResult,
-} from '../../@types/astro.js';
-import { normalizeTheLocale, toCodes } from '../../i18n/index.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { Environment } from '../environment.js';
-import type { RoutingStrategies } from '../config/schema.js';
-import { clientLocalsSymbol } from '../constants.js';
-
-/**
- * The RenderContext represents the parts of rendering that are specific to one request.
- */
-export interface RenderContext {
-	request: Request;
-	pathname: string;
-	scripts?: Set<SSRElement>;
-	links?: Set<SSRElement>;
-	styles?: Set<SSRElement>;
-	componentMetadata?: SSRResult['componentMetadata'];
-	route: RouteData;
-	status?: number;
-}
-
-export type CreateRenderContextArgs = Partial<
-	Omit<RenderContext, 'params' | 'props'>
-> & {
-	route: RouteData;
-	request: Request;
-	mod: ComponentInstance | undefined;
-	env: Environment;
-};
-
-export async function createRenderContext(
-	options: CreateRenderContextArgs
-): Promise<RenderContext> {
-	const request = options.request;
-	const pathname = options.pathname ?? new URL(request.url).pathname;
-	const context: RenderContext = {
-		...options,
-		pathname,
-	};
-
-	// We define a custom property, so we can check the value passed to locals
-	Object.defineProperty(context, 'locals', {
-		enumerable: true,
-		get() {
-			return Reflect.get(request, clientLocalsSymbol);
-		},
-		set(val) {
-			if (typeof val !== 'object') {
-				throw new AstroError(AstroErrorData.LocalsNotAnObject);
-			} else {
-				Reflect.set(request, clientLocalsSymbol, val);
-			}
-		},
-	});
-
-	return context;
-}
+import type { Locales } from '../@types/astro.js';
+import { normalizeTheLocale, toCodes } from './index.js';
+import type { RoutingStrategies } from '../core/config/schema.js';
 
 type BrowserLocale = {
 	locale: string;

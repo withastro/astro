@@ -1,13 +1,20 @@
-import type { AstroConfig, AstroSettings, ComponentInstance, SSRLoadedRenderer, SSRManifest } from '../@types/astro.js';
+import url from 'node:url'
+import type { AstroSettings, ComponentInstance, DevToolbarMetadata, RouteData, SSRElement, SSRLoadedRenderer, SSRManifest } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Environment, loadRenderer } from '../core/render/index.js';
-import { RouteCache } from '../core/render/route-cache.js';
-import { viteID } from '../core/util.js';
+import { isPage, resolveIdToUrl, viteID } from '../core/util.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { createResolve } from './resolve.js';
 import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
+import type { HeadElements } from '../core/environment.js';
+import { getScriptsForURL } from './scripts.js';
+import { ASTRO_VERSION } from '../core/constants.js';
+import { getInfoOutput } from '../cli/info/index.js';
+import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
+import { getStylesForURL } from './css.js';
+import { getComponentMetadata } from './metadata.js';
 
 export class DevEnvironment extends Environment {
 	// renderers are loaded on every request,
@@ -22,14 +29,85 @@ export class DevEnvironment extends Environment {
 		readonly config = settings.config,
 	) {
 		const mode = 'development'
-		const resolve = createResolve(loader, settings.config.root);
-		const serverLike = isServerLikeOutput(settings.config);
+		const resolve = createResolve(loader, config.root);
+		const serverLike = isServerLikeOutput(config);
 		const streaming = true;
 		super(logger, manifest, mode, [], resolve, serverLike, streaming);
 	}
 
 	static create({ loader, logger, manifest, settings }: Pick<DevEnvironment, 'loader' | 'logger' | 'manifest' | 'settings'>) {
 		return new DevEnvironment(loader, logger, manifest, settings)
+	}
+
+	async headElements(routeData: RouteData): Promise<HeadElements> {
+		const { config: { root }, loader, mode, settings } = this;
+		const filePath = new URL(`./${routeData.component}`, root);
+		const { scripts } = await getScriptsForURL(filePath, root, loader);
+
+		// Inject HMR scripts
+		if (isPage(filePath, settings) && mode === 'development') {
+			scripts.add({
+				props: { type: 'module', src: '/@vite/client' },
+				children: '',
+			});
+
+			if (
+				settings.config.devToolbar.enabled &&
+				(await settings.preferences.get('devToolbar.enabled'))
+			) {
+				const src = await resolveIdToUrl(loader, 'astro/runtime/client/dev-toolbar/entrypoint.js')
+				scripts.add({ props: { type: 'module', src }, children: '' });
+				
+				const additionalMetadata: DevToolbarMetadata['__astro_dev_toolbar__'] = {
+					root: url.fileURLToPath(settings.config.root),
+					version: ASTRO_VERSION,
+					debugInfo: await getInfoOutput({ userConfig: settings.config, print: false }),
+				};
+
+				// Additional data for the dev overlay
+				const children = `window.__astro_dev_toolbar__ = ${JSON.stringify(additionalMetadata)}`;
+				scripts.add({ props: {}, children });
+			}
+		}
+		
+		// TODO: We should allow adding generic HTML elements to the head, not just scripts
+		for (const script of settings.scripts) {
+			if (script.stage === 'head-inline') {
+				scripts.add({
+					props: {},
+					children: script.content,
+				});
+			} else if (script.stage === 'page' && isPage(filePath, settings)) {
+				scripts.add({
+					props: { type: 'module', src: `/@id/${PAGE_SCRIPT_ID}` },
+					children: '',
+				});
+			}
+		}
+
+		// Pass framework CSS in as style tags to be appended to the page.
+		const links = new Set<SSRElement>();
+		const { urls, styles: _styles } = await getStylesForURL(filePath, loader);
+		for (const href of urls) {
+			links.add({ props: { rel: 'stylesheet', href }, children: '' });
+		}
+
+		const styles = new Set<SSRElement>();
+		for (const { id, url: src, content } of _styles) {
+			// Vite handles HMR for styles injected as scripts
+			scripts.add({ props: { type: 'module', src }, children: '' });
+			// But we still want to inject the styles to avoid FOUC. The style tags
+			// should emulate what Vite injects so further HMR works as expected.
+			styles.add({ props: { 'data-vite-dev-id': id }, children: content });
+		};
+		
+		return { scripts, styles, links }
+	}
+
+	componentMetadata(routeData: RouteData) {
+		const { config: { root }, loader } = this;
+		const filePath = new URL(`./${routeData.component}`, root);
+		return getComponentMetadata(filePath, loader)
 	}
 
 	async preload(filePath: URL) {

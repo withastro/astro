@@ -2,7 +2,6 @@ import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
 import type { APIContext, Locales, MiddlewareHandler, SSRManifest } from '../@types/astro.js';
 import { getPathByLocale, normalizeTheLocale } from './index.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
-import { Pipeline } from '../core/pipeline.js';
 import type { SSRManifestI18n } from '../core/app/types.js'
 import { ROUTE_TYPE_HEADER } from '../core/constants.js';
 

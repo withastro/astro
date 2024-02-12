@@ -186,7 +186,7 @@ export const createAstroModule = (AstroComponent) => ({ default: AstroComponent 
  */
 export function createBasicEnvironment(options = {}) {
 	const mode = options.mode ?? 'development';
-	return new Environment(
+	const environment = new Environment(
 		options.logger ?? defaultLogger,
 		options.manifest ?? {},
 		options.mode ?? 'development',
@@ -194,14 +194,17 @@ export function createBasicEnvironment(options = {}) {
 		options.resolve ?? (s => Promise.resolve(s)),
 		options.serverLike ?? true,
 		options.streaming ?? true,
-		options.routeCache ?? new RouteCache(options.logging, mode),
 		options.adapterName,
 		options.clientDirectives ?? getDefaultClientDirectives(),
 		options.compressHTML,
 		options.i18n,
 		options.middleware,
+		options.routeCache ?? new RouteCache(options.logging, mode),
 		options.site
 	);
+	environment.headElements = () => ({ scripts: new Set, styles: new Set, links: new Set });
+	environment.componentMetadata = () => {};
+	return environment
 }
 
 /**

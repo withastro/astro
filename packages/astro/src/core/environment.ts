@@ -1,10 +1,7 @@
-import type { MiddlewareHandler, RuntimeMode, SSRLoadedRenderer, SSRManifest } from '../@types/astro.js';
+import type { MiddlewareHandler, RouteData, RuntimeMode, SSRLoadedRenderer, SSRManifest, SSRResult } from '../@types/astro.js';
 import type { Logger } from './logger/core.js';
 import { RouteCache } from './render/route-cache.js';
-import { Pipeline } from './pipeline.js';
-import type { RenderContext } from './render/context.js';
 import { createI18nMiddleware } from '../i18n/middleware.js';
-import { sequence } from './middleware/index.js';
 
 /**
  * The environment represents the static parts of rendering that do not change between requests.
@@ -44,4 +41,10 @@ export abstract class Environment {
 	) {
 		this.internalMiddleware = [ createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat) ];
 	}
+
+	abstract headElements(routeData: RouteData): Promise<HeadElements> | HeadElements
+	abstract componentMetadata(routeData: RouteData): Promise<SSRResult['componentMetadata']> | void
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface HeadElements extends Pick<SSRResult, 'scripts' | 'styles' | 'links'> {}

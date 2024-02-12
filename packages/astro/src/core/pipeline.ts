@@ -7,13 +7,13 @@ import { AstroCookies } from './cookies/index.js';
 import { createResult } from './render/index.js';
 import { renderPage } from '../runtime/server/index.js';
 import { ASTRO_VERSION, ROUTE_TYPE_HEADER, clientAddressSymbol, clientLocalsSymbol } from './constants.js';
-import { getParams, getProps, type Environment, type RenderContext } from './render/index.js';
+import { getParams, getProps, type Environment } from './render/index.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
-} from './render/context.js';
+} from '../i18n/utils.js';
 import { renderRedirect } from './redirects/render.js';
 
 /**
@@ -22,21 +22,20 @@ import { renderRedirect } from './redirects/render.js';
  * Check the {@link ./README.md|README} for more information about the pipeline.
  */
 export class Pipeline {
-
 	private constructor(
 		readonly environment: Environment,
 		public locals: App.Locals,
 		readonly middleware: MiddlewareHandler,
 		readonly pathname: string,
-		readonly renderContext: RenderContext,
 		readonly request: Request,
 		readonly routeData: RouteData,
+		public status: number,
 		readonly cookies = new AstroCookies(request),
 		readonly params = getParams(routeData, pathname),
 	) {}
 
-	static create({ environment, locals, middleware, pathname, renderContext, request, routeData }: Pick<Pipeline, 'environment' | 'pathname' | 'renderContext' | 'request' | 'routeData'> & Partial<Pick<Pipeline, 'locals' | 'middleware'>>) {
-		return new Pipeline(environment, locals ?? {}, sequence(...environment.internalMiddleware, middleware ?? environment.middleware), pathname, renderContext, request, routeData)
+	static create({ environment, locals = {}, middleware, pathname, request, routeData, status = 200 }: Pick<Pipeline, 'environment' | 'pathname' | 'request' | 'routeData'> & Partial<Pick<Pipeline, 'locals' | 'middleware' | 'status'>>) {
+		return new Pipeline(environment, locals, sequence(...environment.internalMiddleware, middleware ?? environment.middleware), pathname, request, routeData, status);
 	}
 
 	/**
@@ -120,12 +119,13 @@ export class Pipeline {
 	}
 
 	async createResult(mod: ComponentInstance) {
-		const { cookies, environment, locals, params, pathname, renderContext, request, routeData: { route } } = this;
-		const { componentMetadata, links, scripts, styles, status = 200 } = renderContext;
-		const { adapterName, clientDirectives, compressHTML, i18n, logger, renderers, resolve, site, serverLike } = environment;
+		const { cookies, environment, locals, params, pathname, request, routeData, status } = this;
+		const { adapterName, clientDirectives, compressHTML, i18n, manifest, logger, renderers, resolve, site, serverLike } = environment;
+		const { links, scripts, styles } = await environment.headElements(routeData);
+		const componentMetadata = await environment.componentMetadata(routeData) ?? manifest.componentMetadata;
 		const { defaultLocale, locales, routing: routingStrategy } = i18n ?? {};
 		const partial = Boolean(mod.partial);
-		return createResult({ adapterName, clientDirectives, componentMetadata, compressHTML, cookies, defaultLocale, locales, locals, logger, links, params, partial, pathname, renderers, resolve, request, route, routingStrategy, site, scripts, ssr: serverLike, status, styles });
+		return createResult({ adapterName, clientDirectives, componentMetadata, compressHTML, cookies, defaultLocale, locales, locals, logger, links, params, partial, pathname, renderers, resolve, request, route: routeData.route, routingStrategy, site, scripts, ssr: serverLike, status, styles });
 	}
 
 	/**

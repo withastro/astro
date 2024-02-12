@@ -1,7 +1,5 @@
 import type { ComponentInstance, RouteData } from '../../@types/astro.js';
 import type { Environment } from '../environment.js';
-export { computePreferredLocale, createRenderContext } from './context.js';
-export type { RenderContext } from './context.js';
 export { Environment } from '../environment.js';
 export { getParams, getProps } from './params-and-props.js';
 export { loadRenderer } from './renderer.js';

@@ -31,7 +31,6 @@ import {
 } from '../../core/path.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
-import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifestI18n } from '../app/types.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { routeIsFallback } from '../redirects/helpers.js';
@@ -40,13 +39,7 @@ import {
 	getRedirectLocationOrThrow,
 	routeIsRedirect,
 } from '../redirects/index.js';
-import { createRenderContext } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
-import {
-	createAssetLink,
-	createModuleScriptsSet,
-	createStylesheetElementSet,
-} from '../render/ssr-element.js';
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
@@ -263,9 +256,8 @@ async function generatePage(
 	environment: BuildEnvironment
 ) {
 	// prepare information we need
-	const { config, internals, logger, manifest } = environment;
+	const { config, internals, logger } = environment;
 	const pageModulePromise = ssrEntry.page;
-	const onRequest = manifest.middleware;
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
 
 	// Calculate information of the page, like scripts, links and styles
@@ -483,39 +475,9 @@ async function generatePath(
 	gopts: GeneratePathOptions,
 	route: RouteData
 ) {
-	const { mod, scripts: hoistedScripts, styles: _styles } = gopts;
-	const { config, internals, logger, manifest, options, serverLike, settings } = environment;
+	const { mod } = gopts;
+	const { config, logger, options, serverLike } = environment;
 	logger.debug('build', `Generating: ${pathname}`);
-
-	const links = new Set<never>();
-	const scripts = createModuleScriptsSet(
-		hoistedScripts ? [hoistedScripts] : [],
-		manifest.base,
-		manifest.assetsPrefix
-	);
-	const styles = createStylesheetElementSet(_styles, manifest.base, manifest.assetsPrefix);
-
-	if (settings.scripts.some((script) => script.stage === 'page')) {
-		const hashedFilePath = internals.entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
-		if (typeof hashedFilePath !== 'string') {
-			throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
-		}
-		const src = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
-		scripts.add({
-			props: { type: 'module', src },
-			children: '',
-		});
-	}
-
-	// Add all injected scripts to the page.
-	for (const script of settings.scripts) {
-		if (script.stage === 'head-inline') {
-			scripts.add({
-				props: {},
-				children: script.content,
-			});
-		}
-	}
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	if (route.type === 'page') {
@@ -537,21 +499,9 @@ async function generatePath(
 		logger,
 		ssr: serverLike,
 	});
-	const renderContext = await createRenderContext({
-		pathname,
-		request,
-		componentMetadata: manifest.componentMetadata,
-		scripts,
-		styles,
-		links,
-		route,
-		env: environment,
-		mod,
-	});
-	const pipeline = Pipeline.create({ environment, pathname, renderContext, request, routeData: route })
+	const pipeline = Pipeline.create({ environment, pathname, request, routeData: route })
 
 	let body: string | Uint8Array;
-
 	let response: Response;
 	try {
 		response = await pipeline.renderRoute(mod);
@@ -570,7 +520,7 @@ async function generatePath(
 		const locationSite = getRedirectLocationOrThrow(response.headers);
 		const siteURL = config.site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
-		const fromPath = new URL(renderContext.request.url).pathname;
+		const fromPath = new URL(request.url).pathname;
 		// A short delay causes Google to interpret the redirect as temporary.
 		// https://developers.google.com/search/docs/crawling-indexing/301-redirects#metarefresh
 		const delay = response.status === 302 ? 2 : 0;

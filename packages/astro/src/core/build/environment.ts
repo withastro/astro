@@ -1,11 +1,11 @@
-import type { SSRLoadedRenderer } from '../../@types/astro.js';
+import type { RouteData, SSRComponentMetadata, SSRLoadedRenderer, SSRResult } from '../../@types/astro.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
-import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
+import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { Environment } from '../render/index.js';
-import { createAssetLink } from '../render/ssr-element.js';
-import type { BuildInternals } from './internal.js';
+import { createAssetLink, createModuleScriptsSet, createStylesheetElementSet } from '../render/ssr-element.js';
+import { getPageDataByComponent, type BuildInternals, cssOrder, mergeInlineCss } from './internal.js';
 import {
 	ASTRO_PAGE_RESOLVED_MODULE_ID,
 	getVirtualModulePageNameFromPath,
@@ -104,6 +104,44 @@ export class BuildEnvironment extends Environment {
 			middleware,
 		};
 	}
+
+	headElements(routeData: RouteData): Pick<SSRResult, 'scripts' | 'styles' | 'links'> {
+		const { internals, manifest: { assetsPrefix, base }, settings } = this
+		const links = new Set<never>();
+		const pageBuildData = getPageDataByComponent(internals, routeData.component)
+		const scripts = createModuleScriptsSet(
+			pageBuildData?.hoistedScript ? [pageBuildData.hoistedScript] : [],
+			base,
+			assetsPrefix
+		);
+		const sortedCssAssets = pageBuildData?.styles.sort(cssOrder).map(({ sheet }) => sheet).reduce(mergeInlineCss, []);
+		const styles = createStylesheetElementSet(sortedCssAssets ?? [], base, assetsPrefix);
+	
+		if (settings.scripts.some((script) => script.stage === 'page')) {
+			const hashedFilePath = internals.entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
+			if (typeof hashedFilePath !== 'string') {
+				throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
+			}
+			const src = createAssetLink(hashedFilePath, base, assetsPrefix);
+			scripts.add({
+				props: { type: 'module', src },
+				children: '',
+			});
+		}
+	
+		// Add all injected scripts to the page.
+		for (const script of settings.scripts) {
+			if (script.stage === 'head-inline') {
+				scripts.add({
+					props: {},
+					children: script.content,
+				});
+			}
+		}
+		return { scripts, styles, links }
+	}
+
+	componentMetadata() {}
 
 	/**
 	 * It collects the routes to generate during the build.
