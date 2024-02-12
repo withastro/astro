@@ -16,7 +16,7 @@ import { isServerLikeOutput } from '../prerender/utils.js';
 import type { DevEnvironment } from './environment.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 import { REROUTE_DIRECTIVE_HEADER, clientLocalsSymbol } from '../core/constants.js';
-import { Pipeline } from '../core/pipeline.js';
+import { RenderContext } from '../core/render-context.js';
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any
@@ -153,7 +153,7 @@ export async function handleRoute({
 	const buildingToSSR = isServerLikeOutput(config);
 
 	let request: Request;
-	let pipeline: Pipeline;
+	let renderContext: RenderContext;
 	let mod: ComponentInstance | undefined = undefined;
 	let options: SSROptions | undefined = undefined;
 	let route: RouteData;
@@ -208,7 +208,7 @@ export async function handleRoute({
 				fallbackRoutes: [],
 				isIndex: false,
 			};
-			pipeline = Pipeline.create({ environment, pathname, middleware, request, routeData: route });
+			renderContext = RenderContext.create({ environment, pathname, middleware, request, routeData: route });
 		} else {
 			return handle404Response(origin, incomingRequest, incomingResponse);
 		}
@@ -243,10 +243,10 @@ export async function handleRoute({
 		};
 
 		mod = preloadedComponent;
-		pipeline = Pipeline.create({ environment, pathname, middleware, request, routeData: route });
+		renderContext = RenderContext.create({ environment, pathname, middleware, request, routeData: route });
 	}
 
-	let response = await pipeline.renderRoute(mod);
+	let response = await renderContext.render(mod);
 	if (isLoggedRequest(pathname)) {
 		const timeEnd = performance.now();
 		logger.info(

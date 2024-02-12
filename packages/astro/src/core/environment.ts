@@ -6,7 +6,7 @@ import { createI18nMiddleware } from '../i18n/middleware.js';
 /**
  * The environment represents the static parts of rendering that do not change between requests.
  * These are mostly known when the server first starts up and do not change.
- * Thus, an environment is created once at process start and then used by every pipeline.
+ * Thus, an environment is created once at process start and then used by every RenderContext.
  */
 export abstract class Environment {
 	readonly internalMiddleware: MiddlewareHandler[];

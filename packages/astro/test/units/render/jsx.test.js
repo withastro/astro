@@ -8,7 +8,7 @@ import {
 } from '../../../dist/runtime/server/index.js';
 import { jsx } from '../../../dist/jsx-runtime/index.js';
 import { loadRenderer } from '../../../dist/core/render/index.js';
-import { Pipeline } from '../../../dist/core/pipeline.js';
+import { RenderContext } from '../../../dist/core/render-context.js';
 import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
 import { createBasicEnvironment } from '../test-utils.js';
 
@@ -44,8 +44,8 @@ describe('core/render', () => {
 			const mod = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.mdx', params: {} };
-			const pipeline = Pipeline.create({ environment, request, routeData });
-			const response = await pipeline.renderRoute(mod);
+			const renderContext = RenderContext.create({ environment, request, routeData });
+			const response = await renderContext.render(mod);
 
 			assert.equal(response.status, 200);
 
@@ -86,8 +86,8 @@ describe('core/render', () => {
 			const mod = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.mdx', params: {} };
-			const pipeline = Pipeline.create({ environment, request, routeData });
-			const response = await pipeline.renderRoute(mod);
+			const renderContext = RenderContext.create({ environment, request, routeData });
+			const response = await renderContext.render(mod);
 
 			assert.equal(response.status, 200);
 
@@ -112,8 +112,8 @@ describe('core/render', () => {
 			const mod = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.mdx', params: {} };
-			const pipeline = Pipeline.create({ environment, request, routeData });
-			const response = await pipeline.renderRoute(mod);
+			const renderContext = RenderContext.create({ environment, request, routeData });
+			const response = await renderContext.render(mod);
 
 			try {
 				await response.text();

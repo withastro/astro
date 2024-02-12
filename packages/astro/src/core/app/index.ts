@@ -20,7 +20,7 @@ import { matchRoute } from '../routing/match.js';
 import { AppEnvironment } from './environment.js';
 import type { RouteInfo } from './types.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
-import { Pipeline } from '../pipeline.js';
+import { RenderContext } from '../render-context.js';
 import { clientAddressSymbol, clientLocalsSymbol, responseSentSymbol, REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 export { deserializeManifest } from './common.js';
@@ -300,8 +300,8 @@ export class App {
 
 		let response;
 		try {
-			const pipeline = Pipeline.create({ environment: this.#environment, locals, pathname, request, routeData, status: defaultStatus })
-			response = await pipeline.renderRoute(await mod.page());
+			const renderContext = RenderContext.create({ environment: this.#environment, locals, pathname, request, routeData, status: defaultStatus })
+			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
 			return this.#renderError(request, { status: 500 });
@@ -385,7 +385,7 @@ export class App {
 			}
 			const mod = await this.#getModuleForRoute(errorRouteData);
 			try {
-				const pipeline = Pipeline.create({
+				const renderContext = RenderContext.create({
 					environment: this.#environment,
 					middleware: skipMiddleware ? (_, next) => next() : undefined,
 					pathname: this.#getPathnameFromRequest(request),
@@ -393,7 +393,7 @@ export class App {
 					routeData: errorRouteData,
 					status,
 				})
-				const response = await pipeline.renderRoute(await mod.page());
+				const response = await renderContext.render(await mod.page());
 				return this.#mergeResponses(response, originalResponse);
 			} catch {
 				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.

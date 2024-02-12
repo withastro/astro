@@ -16,12 +16,7 @@ import {
 } from '../i18n/utils.js';
 import { renderRedirect } from './redirects/render.js';
 
-/**
- * This is the basic class of a pipeline.
- *
- * Check the {@link ./README.md|README} for more information about the pipeline.
- */
-export class Pipeline {
+export class RenderContext {
 	private constructor(
 		readonly environment: Environment,
 		public locals: App.Locals,
@@ -34,21 +29,22 @@ export class Pipeline {
 		readonly params = getParams(routeData, pathname),
 	) {}
 
-	static create({ environment, locals = {}, middleware, pathname, request, routeData, status = 200 }: Pick<Pipeline, 'environment' | 'pathname' | 'request' | 'routeData'> & Partial<Pick<Pipeline, 'locals' | 'middleware' | 'status'>>) {
-		return new Pipeline(environment, locals, sequence(...environment.internalMiddleware, middleware ?? environment.middleware), pathname, request, routeData, status);
+	static create({ environment, locals = {}, middleware, pathname, request, routeData, status = 200 }: Pick<RenderContext, 'environment' | 'pathname' | 'request' | 'routeData'> & Partial<Pick<RenderContext, 'locals' | 'middleware' | 'status'>>) {
+		return new RenderContext(environment, locals, sequence(...environment.internalMiddleware, middleware ?? environment.middleware), pathname, request, routeData, status);
 	}
 
 	/**
-	 * The main function of the pipeline. Use this function to render any route known to Astro;
+	 * The main function of the RenderContext.
+	 * 
+	 * Use this function to render any route known to Astro.
 	 * It attempts to render a route. A route can be a:
+	 * 
 	 * - page
 	 * - redirect
 	 * - endpoint
 	 * - fallback
 	 */
-	async renderRoute(
-		componentInstance: ComponentInstance | undefined
-	): Promise<Response> {
+	async render(componentInstance: ComponentInstance | undefined): Promise<Response> {
 		const { cookies, environment, middleware, pathname, routeData } = this;
 		const { logger, routeCache, serverLike, streaming } = environment;
 		const props = await getProps({ mod: componentInstance, routeData, routeCache, pathname, logger, serverLike });
@@ -79,7 +75,7 @@ export class Pipeline {
 	}
 
 	createAPIContext(props: APIContext['props']): APIContext {
-		const pipeline = this;
+		const renderContext = this;
 		const { cookies, environment, i18nData, params, request } = this;
 		const { currentLocale, preferredLocale, preferredLocaleList } = i18nData;
 		const generator = `Astro v${ASTRO_VERSION}`;
@@ -102,14 +98,14 @@ export class Pipeline {
 				}
 			},
 			get locals() {
-				return pipeline.locals;
+				return renderContext.locals;
 			},
 			// TODO(breaking): disallow replacing the locals object
 			set locals(val) {
 				if (typeof val !== 'object') {
 					throw new AstroError(AstroErrorData.LocalsNotAnObject);
 				} else {
-					pipeline.locals = val;
+					renderContext.locals = val;
 					// we also put it on the original Request object,
 					// where the adapter might be expecting to read it after the response.
 					Reflect.set(request, clientLocalsSymbol, val);

@@ -59,7 +59,7 @@ import type {
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
-import { Pipeline } from '../pipeline.js';
+import { RenderContext } from '../render-context.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -499,12 +499,12 @@ async function generatePath(
 		logger,
 		ssr: serverLike,
 	});
-	const pipeline = Pipeline.create({ environment, pathname, request, routeData: route })
+	const renderContext = RenderContext.create({ environment, pathname, request, routeData: route })
 
 	let body: string | Uint8Array;
 	let response: Response;
 	try {
-		response = await pipeline.renderRoute(mod);
+		response = await renderContext.render(mod);
 	} catch (err) {
 		if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
 			(err as SSRError).id = route.component;

@@ -9,7 +9,7 @@ import {
 	renderHead,
 	Fragment,
 } from '../../../dist/runtime/server/index.js';
-import { Pipeline } from '../../../dist/core/pipeline.js';
+import { RenderContext } from '../../../dist/core/render-context.js';
 import { createBasicEnvironment } from '../test-utils.js';
 import * as cheerio from 'cheerio';
 
@@ -96,8 +96,8 @@ describe('core/render', () => {
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.astro', params: {} };
-			const pipeline = Pipeline.create({ environment, request, routeData });
-			const response = await pipeline.renderRoute(PageModule);
+			const renderContext = RenderContext.create({ environment, request, routeData });
+			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
@@ -172,8 +172,8 @@ describe('core/render', () => {
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.astro', params: {} };
-			const pipeline = Pipeline.create({ environment, request, routeData });
-			const response = await pipeline.renderRoute(PageModule);
+			const renderContext = RenderContext.create({ environment, request, routeData });
+			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
@@ -215,8 +215,8 @@ describe('core/render', () => {
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
 			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.astro', params: {} };
-			const pipeline = Pipeline.create({ environment, request, routeData });
-			const response = await pipeline.renderRoute(PageModule);
+			const renderContext = RenderContext.create({ environment, request, routeData });
+			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
