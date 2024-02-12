@@ -159,7 +159,7 @@ export default function netlifyIntegration(
 			entryPoints: [fileURLToPath(new URL('./entry.mjs', middlewareOutputDir()))],
 			target: 'es2022',
 			platform: 'neutral',
-			mainFields: [ 'module', 'main' ],
+			mainFields: ['module', 'main'],
 			outfile: fileURLToPath(new URL('./middleware.mjs', middlewareOutputDir())),
 			allowOverwrite: true,
 			format: 'esm',
