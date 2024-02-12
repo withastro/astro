@@ -1,7 +1,7 @@
-import os from 'node:os';
-import path from 'node:path';
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
+import os from 'node:os';
+import path from 'node:path';
 import { AstroCheck, CheckResult } from '../../dist/check.js';
 
 describe('AstroCheck', async () => {
@@ -43,7 +43,7 @@ describe('AstroCheck', async () => {
 	});
 
 	it('Can return the total amount of files checked', async () => {
-		expect(result.fileChecked).to.equal(5);
+		expect(result.fileChecked).to.equal(6);
 	});
 
 	it('Can return the status of the check', async () => {

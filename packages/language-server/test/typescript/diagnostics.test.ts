@@ -1,13 +1,13 @@
-import * as path from 'path';
 import {
-	type Diagnostic,
 	DiagnosticSeverity,
 	FullDocumentDiagnosticReport,
 	Range,
+	type Diagnostic,
 } from '@volar/language-server';
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
-import { type LanguageServer, getLanguageServer } from '../server.js';
+import * as path from 'path';
+import { getLanguageServer, type LanguageServer } from '../server.js';
 
 describe('TypeScript - Diagnostics', async () => {
 	let languageServer: LanguageServer;
@@ -62,7 +62,7 @@ describe('TypeScript - Diagnostics', async () => {
 		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
 			document.uri
 		)) as FullDocumentDiagnosticReport;
-		expect(diagnostics.items).length(2);
+		expect(diagnostics.items).length(1);
 
 		diagnostics.items = diagnostics.items.map((diag) => ({ ...diag, data: {} }));
 		expect(diagnostics.items).to.deep.equal([
@@ -74,16 +74,7 @@ describe('TypeScript - Diagnostics', async () => {
 				range: Range.create(5, 5, 5, 16),
 				severity: DiagnosticSeverity.Error,
 				source: 'ts',
-			},
-			{
-				code: 2307,
-				data: {},
-				message:
-					"Cannot find module 'astro:content' or its corresponding type declarations.\n\nIf you're using content collections, make sure to run `astro dev`, `astro build` or `astro sync` to first generate the types so you can import from them. If you already ran one of those commands, restarting the language server might be necessary in order for the change to take effect.",
-				range: Range.create(1, 31, 1, 46),
-				severity: DiagnosticSeverity.Error,
-				source: 'ts',
-			},
+			}
 		]);
 	});
 

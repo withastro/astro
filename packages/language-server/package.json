@@ -44,13 +44,14 @@
     "vscode-uri": "^3.0.8"
   },
   "devDependencies": {
-    "@astrojs/svelte": "^4.0.3",
-    "@astrojs/vue": "^3.0.1",
+    "svelte": "^4.2.10",
+    "@astrojs/svelte": "^5.0.3",
+    "@astrojs/vue": "^4.0.8",
     "@types/chai": "^4.3.5",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.17.8",
     "@volar/test-utils": "~2.0.2",
-    "astro": "^4.1.0",
+    "astro": "^4.3.5",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
     "tsx": "^3.12.7",
