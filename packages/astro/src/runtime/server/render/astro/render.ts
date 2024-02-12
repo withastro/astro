@@ -189,8 +189,7 @@ export async function renderToAsyncIterable(
     await bufferHeadContent(result);
   }
 
-
-  let next = promiseWithResolvers();
+  let next = promiseWithResolvers<void>();
   let done = false;
   const chunks: Uint8Array[] = []; // []Uint8Array
 
@@ -220,6 +219,10 @@ export async function renderToAsyncIterable(
         value: mergedArray
       };
 
+			if(returnValue.done) {
+				next.resolve();
+			}
+
       return returnValue;
     }
   };
@@ -240,8 +243,8 @@ export async function renderToAsyncIterable(
       }
       const bytes = chunkToByteArray(result, chunk);
       chunks.push(bytes);
-      next.resolve(void 0);
-      next = promiseWithResolvers();
+      next.resolve();
+      next = promiseWithResolvers<void>();
     }
   };
 
