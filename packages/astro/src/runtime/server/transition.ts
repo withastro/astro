@@ -61,7 +61,7 @@ function reEncode(s: string) {
 		codepoint = s.codePointAt(i);
 		if (codepoint !== undefined) {
 			result += codepoint < 0x80
-				? (reEncodeValidChars[codepoint] ?? codepoint.toString(16))
+				? (codepoint === 95 ? "__" : (reEncodeValidChars[codepoint] ?? (codepoint.toString(16) + '_')))
 				: String.fromCodePoint(codepoint);
 		}
 	}
