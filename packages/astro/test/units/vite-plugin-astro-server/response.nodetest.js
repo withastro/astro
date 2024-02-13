@@ -84,7 +84,7 @@ describe('endpoints', () => {
 		});
 	});
 
-	it('Headers with multisple values (set-cookie special case)', async () => {
+	it('Headers with multiple values (set-cookie special case)', async () => {
 		const { req, res, done } = createRequestAndResponse({
 			method: 'GET',
 			url: '/streaming',
@@ -100,6 +100,6 @@ describe('endpoints', () => {
 
 		await done;
 
-		assert.deepEqual(locals, { cancelledByTheServer: true });
+		assert.equal(locals.cancelledByTheServer, true);
 	});
 });
