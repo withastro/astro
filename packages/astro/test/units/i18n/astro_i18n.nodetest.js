@@ -1165,18 +1165,6 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/es/'
 			);
 
-			console.log(
-				'ASDF;JKDFAS;JKLADF;SKLJA;FDJKLS;JKLADFSJKLFDAS;LJKFDAS;JLKAFDSJLFDKS',
-				getLocaleAbsoluteUrl({
-					locale: 'en_US',
-					base: '/blog/',
-					...config.experimental.i18n,
-					site: 'https://example.com',
-					trailingSlash: 'always',
-					format: 'directory',
-				})
-			);
-
 			// file format
 			assert.equal(
 				getLocaleAbsoluteUrl({
