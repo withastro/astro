@@ -237,9 +237,7 @@ export async function renderToAsyncIterable(
         }
       }
       if (chunk instanceof Response) {
-        throw new AstroError({
-          ...AstroErrorData.ResponseSentError
-        });
+        throw new AstroError(AstroErrorData.ResponseSentError);
       }
       const bytes = chunkToByteArray(result, chunk);
 			if(bytes.length > 0) {
