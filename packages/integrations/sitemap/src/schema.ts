@@ -37,7 +37,7 @@ export const SitemapOptionsSchema = z
 
 		prefix: z
 			.string()
-			.regex(/^[a-zA-Z\-]+$/gm, {
+			.regex(/^[a-zA-Z\-_]+$/gm, {
 				message: 'Only English alphabet symbols, hyphen and underscore allowed',
 			})
 			.optional(),
