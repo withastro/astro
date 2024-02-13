@@ -9,6 +9,7 @@ import { AstroError } from 'astro/errors';
 import glob from 'fast-glob';
 import { basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { existsSync, readFileSync } from 'node:fs';
 import {
 	getAstroImageConfig,
 	getDefaultImageConfig,
@@ -220,6 +221,26 @@ export default function vercelServerless({
 				}
 				if (command === 'build' && speedInsights?.enabled) {
 					injectScript('page', 'import "@astrojs/vercel/speed-insights"');
+				}
+
+				const vercelConfigPath = new URL('vercel.json', config.root);
+				if (existsSync(vercelConfigPath)) {
+					try {
+						const vercelConfig = JSON.parse(readFileSync(vercelConfigPath, 'utf-8'));
+						if (vercelConfig.trailingSlash === true && config.trailingSlash === 'always') {
+							logger.warn(
+								'\n' +
+									`\tYour "vercel.json" \`trailingSlash\` configuration (set to \`true\`) will conflict with your Astro \`trailinglSlash\` configuration (set to \`"always"\`).\n` +
+									`\tThis would cause infinite redirects under certain conditions and throw an \`ERR_TOO_MANY_REDIRECTS\` error.\n` +
+									`\tTo prevent this, your Astro configuration is updated to \`"ignore"\` during builds.\n`
+							);
+							updateConfig({
+								trailingSlash: 'ignore',
+							});
+						}
+					} catch (_err) {
+						logger.warn(`Your "vercel.json" config is not a valid json file.`);
+					}
 				}
 
 				updateConfig({
