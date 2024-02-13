@@ -1,5 +1,15 @@
 # @astrojs/check
 
+## 0.5.4
+
+### Patch Changes
+
+- 6924c7e: Fixes semantic highlighting not working inside .ts(x) files in certain cases
+- 310fbfe: Fix Svelte and Vue integrations not working on Windows in certain cases
+- Updated dependencies [6924c7e]
+- Updated dependencies [310fbfe]
+  - @astrojs/language-server@2.7.4
+
 ## 0.5.3
 
 ### Patch Changes

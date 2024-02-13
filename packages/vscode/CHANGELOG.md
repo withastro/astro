@@ -1,5 +1,12 @@
 # astro-vscode
 
+## 2.7.4
+
+### Patch Changes
+
+- 6924c7e: Fixes semantic highlighting not working inside .ts(x) files in certain cases
+- 310fbfe: Fix Svelte and Vue integrations not working on Windows in certain cases
+
 ## 2.7.3
 
 ### Patch Changes

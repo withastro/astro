@@ -1,5 +1,12 @@
 # @astrojs/ts-plugin
 
+## 1.5.2
+
+### Patch Changes
+
+- 6924c7e: Fixes semantic highlighting not working inside .ts(x) files in certain cases
+- 310fbfe: Fix Svelte and Vue integrations not working on Windows in certain cases
+
 ## 1.5.1
 
 ### Patch Changes
