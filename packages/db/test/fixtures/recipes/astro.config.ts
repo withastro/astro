@@ -26,13 +26,13 @@ export default defineConfig({
 	integrations: [astroDb()],
 	db: {
 		collections: { Recipe, Ingredient },
-		async data({ seed }) {
-			const pancakes = await seed(Recipe, {
+		async data({ seed, seedReturning }) {
+			const pancakes = await seedReturning(Recipe, {
 				title: 'Pancakes',
 				description: 'A delicious breakfast',
 			});
 
-			seed(Ingredient, [
+			await seed(Ingredient, [
 				{
 					name: 'Flour',
 					quantity: 1,
@@ -50,12 +50,12 @@ export default defineConfig({
 				},
 			]);
 
-			const pizza = await seed(Recipe, {
+			const pizza = await seedReturning(Recipe, {
 				title: 'Pizza',
 				description: 'A delicious dinner',
 			});
 
-			seed(Ingredient, [
+			await seed(Ingredient, [
 				{
 					name: 'Flour',
 					quantity: 1,
