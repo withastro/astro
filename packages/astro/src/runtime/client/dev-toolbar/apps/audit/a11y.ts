@@ -498,9 +498,9 @@ export const a11y: AuditRuleWithSelector[] = [
 			if (is_semantic_role_element(role, element.localName, getAttributeObject(element))) {
 				return;
 			}
-			
+
 			const elementRoles = role.split(WHITESPACE_REGEX) as ARIARoleDefinitionKey[];
-			for(const elementRole of elementRoles) {
+			for (const elementRole of elementRoles) {
 				const { requiredProps } = roles.get(elementRole)!;
 				const required_role_props = Object.keys(requiredProps);
 				const missingProps = required_role_props.filter((prop) => !element.hasAttribute(prop));
@@ -530,7 +530,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			if (!role) return false;
 
 			const elementRoles = role.split(WHITESPACE_REGEX) as ARIARoleDefinitionKey[];
-			for(const elementRole of elementRoles) {
+			for (const elementRole of elementRoles) {
 				const { props } = roles.get(elementRole)!;
 				const attributes = getAttributeObject(element);
 				const unsupportedAttributes = aria.keys().filter((attribute) => !(attribute in props));
