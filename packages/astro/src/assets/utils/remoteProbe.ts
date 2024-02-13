@@ -1,6 +1,6 @@
 
-import { lookup } from './image-size/lookup.js'
-import type { ISize } from './image-size/types/interface.ts';
+import { lookup } from './vendor/image-size/lookup.js'
+import type { ISize } from './vendor/image-size/types/interface.ts';
 
 export async function probe(url: string): Promise<ISize> {
 	// Start fetching the image
