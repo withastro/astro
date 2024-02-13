@@ -20,19 +20,12 @@ import { isSerializedSQL } from '../runtime/types.js';
 
 const sqlite = new SQLiteAsyncDialect();
 
-export async function setupDbTables({
+export async function recreateTables({
 	db,
-	data,
 	collections,
-	logger,
-	mode,
-	// TODO: Remove once Turso has foreign key PRAGMA support
 }: {
 	db: SqliteRemoteDatabase;
-	data?: DBUserConfig['data'];
 	collections: DBCollections;
-	logger?: AstroIntegrationLogger;
-	mode: 'dev' | 'build';
 }) {
 	const setupQueries: SQL[] = [];
 	for (const [name, collection] of Object.entries(collections)) {
@@ -44,30 +37,41 @@ export async function setupDbTables({
 	for (const q of setupQueries) {
 		await db.run(q);
 	}
-	if (data) {
-		try {
-			await data({
-				seed: async ({ table }, values) => {
-					const result = Array.isArray(values)
-						? db.insert(table).values(values).returning()
-						: db
-								.insert(table)
-								.values(values as any)
-								.returning()
-								.get();
-					// Drizzle types don't *quite* line up, and it's tough to debug why.
-					// we're casting and calling this close enough :)
-					return result as any;
-				},
-				db,
-				mode,
-			});
-		} catch (error) {
-			(logger ?? console).error(
-				`Failed to seed data. Did you update to match recent schema changes?`
-			);
-			(logger ?? console).error(error as string);
-		}
+}
+
+export async function seedData({
+	db,
+	data,
+	logger,
+	mode,
+}: {
+	db: SqliteRemoteDatabase;
+	data: DBUserConfig['data'];
+	logger?: AstroIntegrationLogger;
+	mode: 'dev' | 'build';
+}) {
+	try {
+		await data({
+			seed: async ({ table }, values) => {
+				const result = Array.isArray(values)
+					? db.insert(table).values(values).returning()
+					: db
+							.insert(table)
+							.values(values as any)
+							.returning()
+							.get();
+				// Drizzle types don't *quite* line up, and it's tough to debug why.
+				// we're casting and calling this close enough :)
+				return result as any;
+			},
+			db,
+			mode,
+		});
+	} catch (error) {
+		(logger ?? console).error(
+			`Failed to seed data. Did you update to match recent schema changes?`
+		);
+		(logger ?? console).error(error as string);
 	}
 }
 
@@ -192,7 +196,7 @@ export function getReferencesConfig(field: DBField) {
 // Using `DBField` will not narrow `default` based on the column `type`
 // Handle each field separately
 type WithDefaultDefined<T extends DBField> = T & {
-	schema: Required<Pick<T['schema'], 'default'>>
+	schema: Required<Pick<T['schema'], 'default'>>;
 };
 type DBFieldWithDefault =
 	| WithDefaultDefined<TextField>

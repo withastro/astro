@@ -1,10 +1,12 @@
 import { createClient, type InStatement } from '@libsql/client';
 import type { AstroConfig } from 'astro';
-import { drizzle } from 'drizzle-orm/sqlite-proxy';
+import { drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
+import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
+import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { red } from 'kleur/colors';
 import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
-import { setupDbTables } from '../../../queries.js';
+import { recreateTables, seedData } from '../../../queries.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { collectionsSchema, type AstroConfigWithDB, type DBSnapshot } from '../../../types.js';
 import { getRemoteDatabaseUrl } from '../../../utils.js';
@@ -128,6 +130,8 @@ async function pushSchema({
 	await runMigrateQuery({ queries, migrations, snapshot: currentSnapshot, appToken, isDryRun });
 }
 
+const sqlite = new SQLiteAsyncDialect();
+
 async function pushData({
 	config,
 	appToken,
@@ -140,13 +144,28 @@ async function pushData({
 	const queries: InStatement[] = [];
 	if (config.db?.data) {
 		const libsqlClient = createClient({ url: ':memory:' });
-		// Use proxy to trace all queries to queue up in a batch
-		const db = await drizzle(async (sqlQuery, params, method) => {
+		// Stand up tables locally to mirror inserts.
+		// Needed to generate return values.
+		await recreateTables({
+			db: drizzleLibsql(libsqlClient),
+			collections: collectionsSchema.parse(config.db.collections ?? {}),
+		});
+
+		for (const [collectionName, { writable }] of Object.entries(config.db.collections ?? {})) {
+			if (!writable) {
+				queries.push({
+					sql: `DELETE FROM ${sqlite.escapeName(collectionName)}`,
+					args: [],
+				});
+			}
+		}
+
+		// Use proxy to trace all queries to queue up in a batch.
+		const db = await drizzleProxy(async (sqlQuery, params, method) => {
 			const stmt: InStatement = { sql: sqlQuery, args: params };
 			queries.push(stmt);
-			// Use in-memory database to generate results for `returning()`
+			// Use in-memory database to generate results for `returning()`.
 			const { rows } = await libsqlClient.execute(stmt);
-			// Drizzle expects each row as an array of its values
 			const rowValues: unknown[][] = [];
 			for (const row of rows) {
 				if (row != null && typeof row === 'object') {
@@ -158,10 +177,9 @@ async function pushData({
 			}
 			return { rows: rowValues };
 		});
-		await setupDbTables({
+		await seedData({
 			db,
 			mode: 'build',
-			collections: collectionsSchema.parse(config.db.collections ?? {}),
 			data: config.db.data,
 		});
 	}

@@ -14,7 +14,7 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { blue, yellow } from 'kleur/colors';
 import { fileURLIntegration } from './file-url.js';
-import { setupDbTables } from '../queries.js';
+import { recreateTables, seedData } from '../queries.js';
 import { getManagedAppTokenOrExit, type ManagedAppToken } from '../tokens.js';
 
 function astroDBIntegration(): AstroIntegration {
@@ -63,13 +63,15 @@ function astroDBIntegration(): AstroIntegration {
 						dbUrl: dbUrl.toString(),
 						seeding: true,
 					});
-					await setupDbTables({
-						db,
-						collections,
-						data: configWithDb.db?.data,
-						logger,
-						mode: command === 'dev' ? 'dev' : 'build',
-					});
+					await recreateTables({ db, collections });
+					if (configWithDb.db?.data) {
+						await seedData({
+							db,
+							data: configWithDb.db.data,
+							logger,
+							mode: command === 'dev' ? 'dev' : 'build',
+						});
+					}
 					logger.debug('Database setup complete.');
 
 					dbPlugin = vitePluginDb({
