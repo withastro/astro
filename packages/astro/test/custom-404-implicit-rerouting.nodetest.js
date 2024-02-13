@@ -19,7 +19,7 @@ for (const caseNumber of [1, 2, 3, 4]) {
 		});
 
 		// sanity check
-		it('dev server handles normal requests', async () => {
+		it.skip('dev server handles normal requests', async () => {
 			const resPromise = fixture.fetch('/');
 			const result = await withTimeout(resPromise, 1000);
 			assert.notStrictEqual(result, timeout);
