@@ -21,4 +21,4 @@ export default defineConfig({
 });
 ```
 
-This option is useful when you submit a sitemap to Google Search Console and the Status becomes `Cloudn't fetch`
+This option is useful when Google Search Console is unable to fetch your default sitemap files, but can read renamed files.
