@@ -51,7 +51,7 @@ describe('Redirects', () => {
 		const config = await getConfig();
 
 		const staticRoute = config.routes.find((r) => r.src === '/Basic/http-2-0.html');
-		assert.notEqual(staticRoute, undefined)
+		assert.notEqual(staticRoute, undefined);
 		assert.equal(staticRoute.headers.Location, '/posts/http2');
 		assert.equal(staticRoute.status, 301);
 	});
@@ -75,6 +75,9 @@ describe('Redirects', () => {
 
 	it('does not define trailingSlash redirect for root page', async () => {
 		const config = await getConfig();
-		assert.equal(config.routes.find((r) => r.src === '/'), undefined);
+		assert.equal(
+			config.routes.find((r) => r.src === '/'),
+			undefined
+		);
 	});
 });

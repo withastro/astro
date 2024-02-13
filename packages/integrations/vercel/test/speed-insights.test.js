@@ -20,7 +20,7 @@ describe('Vercel Speed Insights', () => {
 
 			const bundle = await fixture.readFile(`../.vercel/output/static/_astro/${page}`);
 
-			assert.match(bundle, /https:\/\/vitals.vercel-analytics.com\/v1\/vitals/)
+			assert.match(bundle, /https:\/\/vitals.vercel-analytics.com\/v1\/vitals/);
 		});
 	});
 
