@@ -2,7 +2,10 @@
 "astro": minor
 ---
 
-Fixes an issue with view transition names containing spaces or punctuation.
+Fixes a regression where view transition names containing special characters such as spaces or punctuation stopped working.
 
-This fix could be a breaking change if you leverage details about how Astro translates `transition:name` directives into values of the underlying CSS `view-transition-name` property.
-This mainly affects spaces and punctuation marks but no unicode characters with codes >= 128.
+Regular use naming your transitions with `transition: name` is unaffected.
+
+However, this fix may result in breaking changes if your project relies on the particular character encoding strategy Astro uses to translate `transition:name` directives into values of the underlying CSS `view-transition-name` property. For example, `Welcome to Astro` is now encoded as `Welcome20_to20_Astro2e_`.
+
+This mainly affects spaces and punctuation marks but no Unicode characters with codes >= 128.
