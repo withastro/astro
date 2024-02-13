@@ -30,7 +30,7 @@ export async function cmd({ flags }: { config: AstroConfig; flags: Arguments }) 
 	if (!response.ok) {
 		// Unauthorized
 		if(response.status === 401) {
-			console.error('Unauthorized. Are you logged-in? Run `astro db login` to authenticate and then try linking again.');
+			console.error('Unauthorized. Are you logged in? Run `astro db login` to authenticate and then try linking again.');
 			process.exit(1);
 		}
 
