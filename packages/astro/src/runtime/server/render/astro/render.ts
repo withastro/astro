@@ -6,6 +6,8 @@ import { isHeadAndContent } from './head-and-content.js';
 import { isRenderTemplateResult } from './render-template.js';
 import { promiseWithResolvers } from '../util.js';
 
+const DOCTYPE_EXP = /<!doctype html/i;
+
 // Calls a component and renders it into a string of HTML
 export async function renderToString(
 	result: SSRResult,
@@ -34,7 +36,7 @@ export async function renderToString(
 			// Automatic doctype insertion for pages
 			if (isPage && !renderedFirstPageChunk) {
 				renderedFirstPageChunk = true;
-				if (!result.partial && !/<!doctype html/i.test(String(chunk))) {
+				if (!result.partial && !DOCTYPE_EXP.test(String(chunk))) {
 					const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
 					str += doctype;
 				}
@@ -85,7 +87,7 @@ export async function renderToReadableStream(
 					// Automatic doctype insertion for pages
 					if (isPage && !renderedFirstPageChunk) {
 						renderedFirstPageChunk = true;
-						if (!result.partial && !/<!doctype html/i.test(String(chunk))) {
+						if (!result.partial && !DOCTYPE_EXP.test(String(chunk))) {
 							const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
 							controller.enqueue(encoder.encode(doctype));
 						}
@@ -231,7 +233,7 @@ export async function renderToAsyncIterable(
     write(chunk) {
       if (isPage && !renderedFirstPageChunk) {
         renderedFirstPageChunk = true;
-        if (!result.partial && !/<!doctype html/i.test(String(chunk))) {
+        if (!result.partial && !DOCTYPE_EXP.test(String(chunk))) {
           const doctype = result.compressHTML ? "<!DOCTYPE html>" : "<!DOCTYPE html>\n";
           chunks.push(encoder.encode(doctype));
         }
