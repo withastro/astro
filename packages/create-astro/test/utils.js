@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import { setStdout } from '../dist/index.js';
 import stripAnsi from 'strip-ansi';
+import { before, beforeEach } from 'node:test';
 
 export function setup() {
 	const ctx = { messages: [] };
