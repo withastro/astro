@@ -7,7 +7,7 @@ import { ZodError } from 'zod';
 
 import { generateSitemap } from './generate-sitemap.js';
 import { validateOptions } from './validate-options.js';
-import { createWriteStream } from 'fs';
+import { createWriteStream } from 'node:fs';
 import { Readable } from 'node:stream';
 
 export { EnumChangefreq as ChangeFreqEnum } from 'sitemap';
