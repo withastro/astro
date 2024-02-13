@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Prevents URLs in attributes from being escaped in static builds
+Prevents fully formed URLs in attributes from being escaped
