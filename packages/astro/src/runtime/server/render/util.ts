@@ -206,6 +206,8 @@ export type PromiseWithResolvers<T> = {
 	reject: (reason?: any) => void;
 }
 
+// This is an implementation of Promise.withResolvers(), which we can't yet rely on.
+// We can remove this once the native function is available in Node.js
 export function promiseWithResolvers<T = any>(): PromiseWithResolvers<T> {
 	let resolve: any, reject: any;
 	const promise = new Promise<T>((_resolve, _reject) => {
