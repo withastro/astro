@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 import * as cheerio from 'cheerio';
 import { fileURLToPath } from 'node:url';
 import { createFs, createRequestAndResponse, runInContainer } from '../test-utils.js';
@@ -79,8 +80,8 @@ describe('head injection', () => {
 				const html = await text();
 				const $ = cheerio.load(html);
 
-				expect($('link[rel=stylesheet][href="/some/fake/styles.css"]')).to.have.a.lengthOf(1);
-				expect($('#other')).to.have.a.lengthOf(1);
+				assert.equal($('link[rel=stylesheet][href="/some/fake/styles.css"]').length, 1);
+				assert.equal($('#other').length, 1);
 			}
 		);
 	});
@@ -179,11 +180,12 @@ describe('head injection', () => {
 				const html = await text();
 				const $ = cheerio.load(html);
 
-				expect($('link[rel=stylesheet][href="/some/fake/styles.css"]')).to.have.a.lengthOf(
+				assert.equal(
+					$('link[rel=stylesheet][href="/some/fake/styles.css"]').length,
 					1,
 					'found inner link'
 				);
-				expect($('#other')).to.have.a.lengthOf(1, 'Found the #other div');
+				assert.equal($('#other').length, 1, 'Found the #other div');
 			}
 		);
 	});

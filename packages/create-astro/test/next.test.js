@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { next } from '../dist/index.js';
 import { setup } from './utils.js';
 
@@ -8,13 +8,13 @@ describe('next steps', () => {
 
 	it('no arguments', async () => {
 		await next({ skipHouston: false, cwd: './it/fixtures/not-empty', packageManager: 'npm' });
-		expect(fixture.hasMessage('Liftoff confirmed.')).to.be.true;
-		expect(fixture.hasMessage('npm run dev')).to.be.true;
-		expect(fixture.hasMessage('Good luck out there, astronaut!')).to.be.true;
+		assert.ok(fixture.hasMessage('Liftoff confirmed.'));
+		assert.ok(fixture.hasMessage('npm run dev'));
+		assert.ok(fixture.hasMessage('Good luck out there, astronaut!'));
 	});
 
 	it('--skip-houston', async () => {
 		await next({ skipHouston: true, cwd: './it/fixtures/not-empty', packageManager: 'npm' });
-		expect(fixture.hasMessage('Good luck out there, astronaut!')).to.be.false;
+		assert.ok(!fixture.hasMessage('Good luck out there, astronaut!'));
 	});
 });

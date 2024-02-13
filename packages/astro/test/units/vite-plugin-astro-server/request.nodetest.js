@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 import { createLoader } from '../../../dist/core/module-loader/index.js';
 import { createRouteManifest } from '../../../dist/core/routing/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
@@ -65,12 +66,12 @@ describe('vite-plugin-astro-server', () => {
 					incomingResponse: res,
 				});
 			} catch (err) {
-				expect(err.message).to.be.undefined();
+				assert.equal(err.message, undefined);
 			}
 
 			const html = await text();
-			expect(res.statusCode).to.equal(200);
-			expect(html).to.include('<div id="test">');
+			assert.equal(res.statusCode, 200);
+			assert.equal(html.includes('<div id="test">'), true);
 		});
 	});
 });

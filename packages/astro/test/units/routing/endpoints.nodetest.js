@@ -5,7 +5,8 @@ import {
 	defaultLogger,
 } from '../test-utils.js';
 import { fileURLToPath } from 'node:url';
-import { expect } from 'chai';
+import { describe, it, before, after } from 'node:test';
+import * as assert from 'node:assert/strict';
 import { createContainer } from '../../../dist/core/dev/container.js';
 import testAdapter from '../../test-adapter.js';
 
@@ -47,9 +48,9 @@ describe('endpoints', () => {
 		container.handle(req, res);
 		await done;
 		const headers = res.getHeaders();
-		expect(headers).to.deep.include({ location: 'https://example.com/destination' });
-		expect(headers).not.to.deep.include({ 'x-astro-reroute': 'no' });
-		expect(res.statusCode).to.equal(307);
+		assert.equal(headers['location'], 'https://example.com/destination');
+		assert.equal(headers['x-astro-reroute'], undefined);
+		assert.equal(res.statusCode, 307);
 	});
 
 	it('should return a response with location header', async () => {
@@ -60,9 +61,9 @@ describe('endpoints', () => {
 		container.handle(req, res);
 		await done;
 		const headers = res.getHeaders();
-		expect(headers).to.deep.include({ location: 'https://example.com/destination' });
-		expect(headers).not.to.deep.include({ 'x-astro-reroute': 'no' });
-		expect(res.statusCode).to.equal(307);
+		assert.equal(headers['location'], 'https://example.com/destination');
+		assert.equal(headers['x-astro-reroute'], undefined);
+		assert.equal(res.statusCode, 307);
 	});
 
 	it('should append reroute header for HTTP status 404', async () => {
@@ -73,8 +74,8 @@ describe('endpoints', () => {
 		container.handle(req, res);
 		await done;
 		const headers = res.getHeaders();
-		expect(headers).to.deep.include({ 'x-astro-reroute': 'no' });
-		expect(res.statusCode).to.equal(404);
+		assert.equal(headers['x-astro-reroute'], 'no');
+		assert.equal(res.statusCode, 404);
 	});
 
 	it('should append reroute header for HTTP status 500', async () => {
@@ -85,7 +86,7 @@ describe('endpoints', () => {
 		container.handle(req, res);
 		await done;
 		const headers = res.getHeaders();
-		expect(headers).to.deep.include({ 'x-astro-reroute': 'no' });
-		expect(res.statusCode).to.equal(500);
+		assert.equal(headers['x-astro-reroute'], 'no');
+		assert.equal(res.statusCode, 500);
 	});
 });
