@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Redirects', () => {
@@ -34,46 +35,49 @@ describe('Redirects', () => {
 		const config = await getConfig();
 
 		const oneRoute = config.routes.find((r) => r.src === '/one');
-		expect(oneRoute.headers.Location).to.equal('/');
-		expect(oneRoute.status).to.equal(301);
+		assert.equal(oneRoute.headers.Location, '/');
+		assert.equal(oneRoute.status, 301);
 
 		const twoRoute = config.routes.find((r) => r.src === '/two');
-		expect(twoRoute.headers.Location).to.equal('/');
-		expect(twoRoute.status).to.equal(301);
+		assert.equal(twoRoute.headers.Location, '/');
+		assert.equal(twoRoute.status, 301);
 
 		const threeRoute = config.routes.find((r) => r.src === '/three');
-		expect(threeRoute.headers.Location).to.equal('/');
-		expect(threeRoute.status).to.equal(302);
+		assert.equal(threeRoute.headers.Location, '/');
+		assert.equal(threeRoute.status, 302);
 	});
 
 	it('define redirects for static files', async () => {
 		const config = await getConfig();
 
 		const staticRoute = config.routes.find((r) => r.src === '/Basic/http-2-0.html');
-		expect(staticRoute).to.not.be.undefined;
-		expect(staticRoute.headers.Location).to.equal('/posts/http2');
-		expect(staticRoute.status).to.equal(301);
+		assert.notEqual(staticRoute, undefined);
+		assert.equal(staticRoute.headers.Location, '/posts/http2');
+		assert.equal(staticRoute.status, 301);
 	});
 
 	it('defines dynamic routes', async () => {
 		const config = await getConfig();
 
 		const blogRoute = config.routes.find((r) => r.src.startsWith('/blog'));
-		expect(blogRoute).to.not.be.undefined;
-		expect(blogRoute.headers.Location.startsWith('/team/articles')).to.equal(true);
-		expect(blogRoute.status).to.equal(301);
+		assert.notEqual(blogRoute, undefined);
+		assert.equal(blogRoute.headers.Location.startsWith('/team/articles'), true);
+		assert.equal(blogRoute.status, 301);
 	});
 
 	it('define trailingSlash redirect for sub pages', async () => {
 		const config = await getConfig();
 
 		const subpathRoute = config.routes.find((r) => r.src === '/subpage');
-		expect(subpathRoute).to.not.be.undefined;
-		expect(subpathRoute.headers.Location).to.equal('/subpage/');
+		assert.notEqual(subpathRoute, undefined);
+		assert.equal(subpathRoute.headers.Location, '/subpage/');
 	});
 
 	it('does not define trailingSlash redirect for root page', async () => {
 		const config = await getConfig();
-		expect(config.routes.find((r) => r.src === '/')).to.be.undefined;
+		assert.equal(
+			config.routes.find((r) => r.src === '/'),
+			undefined
+		);
 	});
 });
