@@ -29,7 +29,7 @@ export async function recreateTables({
 }) {
 	const setupQueries: SQL[] = [];
 	for (const [name, collection] of Object.entries(collections)) {
-		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${name}`);
+		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);
 		const createQuery = sql.raw(getCreateTableQuery(name, collection));
 		const indexQueries = getCreateIndexQueries(name, collection);
 		setupQueries.push(dropQuery, createQuery, ...indexQueries.map((s) => sql.raw(s)));
