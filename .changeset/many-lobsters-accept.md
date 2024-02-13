@@ -4,5 +4,5 @@
 
 Fixes an issue with view transition names containing spaces or punctuation.
 
-If you use both, the Astro directive `transition:name` and the CSS property `view-transition-name`, make sure they still match according to the new encoding scheme.
-
+This fix could be a breaking change if you leverage details about how Astro translates `transition:name` directives into values of the underlying CSS `view-transition-name` property.
+This mainly affects spaces and punctuation marks but no unicode characters with codes >= 128.
