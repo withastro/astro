@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 import * as cheerio from 'cheerio';
 import { fileURLToPath } from 'node:url';
 import { createFs, createRequestAndResponse, runInContainer } from '../test-utils.js';
@@ -47,11 +48,11 @@ describe('core/render components', () => {
 				const $ = cheerio.load(html);
 				const target = $('#target');
 
-				expect(target).not.to.be.undefined;
-				expect(target.attr('id')).to.equal('target');
-				expect(target.attr('style')).to.be.undefined;
+				assert.ok(target);
+				assert.equal(target.attr('id'), 'target');
+				assert.equal(typeof target.attr('style'), 'undefined');
 
-				expect($('#pwnd').length).to.equal(0);
+				assert.equal($('#pwnd').length, 0);
 			}
 		);
 	});
@@ -110,11 +111,11 @@ describe('core/render components', () => {
 				const BothFlipped = check('#both-flipped');
 				const BothSpread = check('#both-spread');
 
-				expect(Class).to.deep.equal({ class: 'red blue' }, '#class');
-				expect(ClassList).to.deep.equal({ class: 'red blue' }, '#class-list');
-				expect(BothLiteral).to.deep.equal({ class: 'red blue' }, '#both-literal');
-				expect(BothFlipped).to.deep.equal({ class: 'red blue' }, '#both-flipped');
-				expect(BothSpread).to.deep.equal({ class: 'red blue' }, '#both-spread');
+				assert.deepEqual(Class, { class: 'red blue' }, '#class');
+				assert.deepEqual(ClassList, { class: 'red blue' }, '#class-list');
+				assert.deepEqual(BothLiteral, { class: 'red blue' }, '#both-literal');
+				assert.deepEqual(BothFlipped, { class: 'red blue' }, '#both-flipped');
+				assert.deepEqual(BothSpread, { class: 'red blue' }, '#both-spread');
 			}
 		);
 	});

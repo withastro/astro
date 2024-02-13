@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 import * as cheerio from 'cheerio';
 import { fileURLToPath } from 'node:url';
 import { createFs, createRequestAndResponse, runInContainer } from '../test-utils.js';
@@ -41,10 +42,10 @@ describe('core/render chunk', () => {
 					const $ = cheerio.load(html);
 					const target = $('#chunk');
 
-					expect(target).not.to.be.undefined;
-					expect(target.text()).to.equal('[object Object]');
+					assert.ok(target);
+					assert.equal(target.text(), '[object Object]');
 				} catch (e) {
-					expect(false).to.be.ok;
+					assert.fail();
 				}
 			}
 		);

@@ -5,7 +5,8 @@ import {
 	defaultLogger,
 } from '../test-utils.js';
 import { fileURLToPath } from 'node:url';
-import { expect } from 'chai';
+import { describe, it, before, after } from 'node:test';
+import * as assert from 'node:assert/strict';
 import { createContainer } from '../../../dist/core/dev/container.js';
 import * as cheerio from 'cheerio';
 import testAdapter from '../../test-adapter.js';
@@ -60,7 +61,7 @@ describe('Route sanitization', () => {
 			container.handle(req, res);
 			const html = await text();
 			const $ = cheerio.load(html);
-			expect($('p').text()).to.equal('Success!');
+			assert.equal($('p').text(), 'Success!');
 		});
 	});
 });

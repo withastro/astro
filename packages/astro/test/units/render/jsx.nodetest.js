@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it, before } from 'node:test';
+import * as assert from 'node:assert/strict';
 import {
 	createComponent,
 	render,
@@ -51,10 +52,10 @@ describe('core/render', () => {
 			const pipeline = new Pipeline(env);
 			const response = await pipeline.renderRoute(ctx, mod);
 
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 
 			const html = await response.text();
-			expect(html).to.include('<div><p class="n">works</p></div>');
+			assert.equal(html.includes('<div><p class="n">works</p></div>'), true);
 		});
 
 		it('Can render slots with a dash in the name', async () => {
@@ -97,11 +98,14 @@ describe('core/render', () => {
 			const pipeline = new Pipeline(env);
 			const response = await pipeline.renderRoute(ctx, mod);
 
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 
 			const html = await response.text();
-			expect(html).to.include(
-				'<main><div><p class="n">works</p></div><div><p class="p">works</p></div></main>'
+			assert.equal(
+				html.includes(
+					'<main><div><p class="n">works</p></div><div><p class="p">works</p></div></main>'
+				),
+				true
 			);
 		});
 
@@ -127,9 +131,9 @@ describe('core/render', () => {
 
 			try {
 				await response.text();
-				expect(false).to.equal(true, 'should not have been successful');
+				assert.equal(false, true, 'should not have been successful');
 			} catch (err) {
-				expect(err.message).to.equal('uh oh');
+				assert.equal(err.message, 'uh oh');
 			}
 		});
 	});
