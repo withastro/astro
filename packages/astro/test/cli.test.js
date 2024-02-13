@@ -105,7 +105,6 @@ describe('astro cli', () => {
 		const { messages } = await parseCliDevStart(proc);
 
 		const index = messages[0].includes('[vite]') ? 1 : 0;
-
 		expect(messages[index]).to.contain('astro');
 		expect(messages[index]).to.contain(pkgVersion);
 		expect(messages[index]).to.contain('ready in');

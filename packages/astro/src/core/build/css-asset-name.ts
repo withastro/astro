@@ -103,7 +103,7 @@ function getFirstParentId(parents: [ModuleInfo, number, number][]) {
 	return parents[0]?.[0].id;
 }
 
-const charsToReplaceRe = /[.\[\]]/g;
+const charsToReplaceRe = /[.[\]]/g;
 const underscoresRe = /_+/g;
 /**
  * Prettify base names so they're easier to read:
