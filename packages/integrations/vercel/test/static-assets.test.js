@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Static Assets', () => {
@@ -32,39 +33,40 @@ describe('Static Assets', () => {
 
 	async function checkValidCacheControl(assets) {
 		const config = await getConfig();
+		const theAssets = assets ?? (await getAssets());
 
-		const route = config.routes.find((r) => r.src === `^/${assets ?? getAssets()}/(.*)$`);
-		expect(route.headers['cache-control']).to.equal(VALID_CACHE_CONTROL);
-		expect(route.continue).to.equal(true);
+		const route = config.routes.find((r) => r.src === `^/${theAssets}/(.*)$`);
+		assert.equal(route.headers['cache-control'], VALID_CACHE_CONTROL);
+		assert.equal(route.continue, true);
 	}
 
-	describe('static adapter', async () => {
-		const { default: vercel } = await import('@astrojs/vercel/static');
-
+	describe('static adapter', () => {
 		it('has cache control', async () => {
+			const { default: vercel } = await import('@astrojs/vercel/static');
 			await build({ adapter: vercel() });
-			checkValidCacheControl();
+			await checkValidCacheControl();
 		});
 
 		it('has cache control other assets', async () => {
+			const { default: vercel } = await import('@astrojs/vercel/static');
 			const assets = '_foo';
 			await build({ adapter: vercel(), assets });
-			checkValidCacheControl(assets);
+			await checkValidCacheControl(assets);
 		});
 	});
 
-	describe('serverless adapter', async () => {
-		const { default: vercel } = await import('@astrojs/vercel/serverless');
-
+	describe('serverless adapter', () => {
 		it('has cache control', async () => {
+			const { default: vercel } = await import('@astrojs/vercel/serverless');
 			await build({ output: 'server', adapter: vercel() });
-			checkValidCacheControl();
+			await checkValidCacheControl();
 		});
 
 		it('has cache control other assets', async () => {
+			const { default: vercel } = await import('@astrojs/vercel/serverless');
 			const assets = '_foo';
 			await build({ output: 'server', adapter: vercel(), assets });
-			checkValidCacheControl(assets);
+			await checkValidCacheControl(assets);
 		});
 	});
 });
