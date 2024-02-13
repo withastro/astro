@@ -71,8 +71,8 @@ export async function getImage(
 			delete resolvedOptions.inferSize; // Delete so it doesn't end up in the attributes
 		} catch {
 			throw new AstroError({
-				...AstroErrorData.FailedToProbeRemoteImage,
-				message: AstroErrorData.FailedToProbeRemoteImage.message(resolvedOptions.src),
+				...AstroErrorData.FailedToFetchRemoteImageDimensions,
+				message: AstroErrorData.FailedToFetchRemoteImageDimensions.message(resolvedOptions.src),
 			});
 		}
 	}
