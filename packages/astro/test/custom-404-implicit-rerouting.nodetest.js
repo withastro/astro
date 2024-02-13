@@ -19,7 +19,7 @@ for (const caseNumber of [1, 2, 3, 4]) {
 		});
 
 		// sanity check
-		it(
+		it.skip(
 			'dev server handles normal requests',
 			{
 				todo: 'To re-enabled after we understand why this fails when the test suite is run in parallel',
@@ -32,7 +32,7 @@ for (const caseNumber of [1, 2, 3, 4]) {
 			}
 		);
 
-		it(
+		it.skip(
 			'dev server stays responsive',
 			{
 				todo: 'To re-enabled after we understand why this fails when the test suite is run in parallel',

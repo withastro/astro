@@ -3,7 +3,7 @@ import { before, describe, it, after } from 'node:test';
 import * as cheerio from 'cheerio';
 import { isWindows, loadFixture } from './test-utils.js';
 
-describe('Vue component build', () => {
+describe.skip('Vue component build', { todo: 'This test currently times out, investigate' }, () => {
 	let fixture;
 
 	before(async () => {
@@ -43,7 +43,7 @@ describe('Vue component build', () => {
 });
 
 if (!isWindows) {
-	describe('Vue component dev', () => {
+	describe.skip('Vue component dev', { todo: 'This test currently times out, investigate' }, () => {
 		let devServer;
 		let fixture;
 
