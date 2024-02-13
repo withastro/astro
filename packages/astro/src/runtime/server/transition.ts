@@ -57,14 +57,24 @@ const reEncodeInValidStart: string[] = "-0123456789"
 function reEncode(s: string) {
 	let result = '';
 	let codepoint;
+	// we work on codepoints that might use more than 16bit, not character codes.
+	// so the index will often step by 1 as usual or by 2 if the codepoint is greater than 0xFFFF
 	for (let i = 0; i < s.length; i += (codepoint ?? 0) > 0xFFFF ? 2 : 1) {
 		codepoint = s.codePointAt(i);
-		if (codepoint !== undefined) {
+		if (codepoint !== undefined) { // this should never happen, they said!
+
+			// if we find a character in the range \x00 - \x7f that is not one of the reEncodeValidChars,
+			// we replace it with its hex value followed by an underscore for better readability,
+			// as most of those are punktations like ,'"":;_...
+			// The underscore itself (code 95) is encoded as two underscores to avoid
+			// collitions between original and encoded strings.
+			// all other values are just copied over
 			result += codepoint < 0x80
 				? (codepoint === 95 ? "__" : (reEncodeValidChars[codepoint] ?? (codepoint.toString(16) + '_')))
 				: String.fromCodePoint(codepoint);
 		}
 	}
+	// digits and minus at the beginning of the string are special nits, so we simply prepend an underscore
 	return reEncodeInValidStart[result.codePointAt(0) ?? 0] ? '_' + result : result;
 }
 
