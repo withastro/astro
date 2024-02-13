@@ -35,7 +35,12 @@ export const SitemapOptionsSchema = z
 		lastmod: z.date().optional(),
 		priority: z.number().min(0).max(1).optional(),
 
-		prefix: z.string().optional(),
+		prefix: z
+			.string()
+			.regex(/^[a-zA-Z\-]+$/gm, {
+				message: 'Only English alphabet symbols, hyphen and underscore allowed',
+			})
+			.optional(),
 	})
 	.strict()
 	.default(SITEMAP_CONFIG_DEFAULTS);
