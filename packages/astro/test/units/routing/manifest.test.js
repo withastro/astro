@@ -26,7 +26,7 @@ function getLogger() {
 	};
 }
 
-function checkRouteRelations(routes, relations) {
+function assertRouteRelations(routes, relations) {
 	const routePaths = routes.map((route) => route.route);
 
 	for (const [before, after] of relations) {
@@ -140,7 +140,7 @@ describe('routing - createRouteManifest', () => {
 			fsMod: fs,
 		});
 
-		checkRouteRelations(getManifestRoutes(manifest), [
+		assertRouteRelations(getManifestRoutes(manifest), [
 			['/', '/[...rest]'],
 			['/static', '/[dynamic]'],
 			['/static', '/[...rest]'],
@@ -178,7 +178,7 @@ describe('routing - createRouteManifest', () => {
 			fsMod: fs,
 		});
 
-		checkRouteRelations(getManifestRoutes(manifest), [
+		assertRouteRelations(getManifestRoutes(manifest), [
 			// Parent route should come before rest parameters
 			['/test', '/test/[...slug]'],
 			['/modules', '/modules/[...slug]'],
@@ -227,7 +227,7 @@ describe('routing - createRouteManifest', () => {
 			fsMod: fs,
 		});
 
-		checkRouteRelations(getManifestRoutes(manifest), [
+		assertRouteRelations(getManifestRoutes(manifest), [
 			// Parent route should come before rest parameters
 			['/', '/[...rest]'],
 			['/', '/[...other]'],
