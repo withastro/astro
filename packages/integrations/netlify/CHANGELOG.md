@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 5.1.2
+
+### Patch Changes
+
+- [#160](https://github.com/withastro/adapters/pull/160) [`994985547c2d2bc8c66b76f996257e68f8187a14`](https://github.com/withastro/adapters/commit/994985547c2d2bc8c66b76f996257e68f8187a14) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where enabling `edgeMiddleware` failed to bundle a dependency (`cssesc`) introduced in Astro 4.2.5.
+
 ## 5.1.1
 
 ### Patch Changes
