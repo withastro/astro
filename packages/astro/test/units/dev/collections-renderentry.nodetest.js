@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 import * as cheerio from 'cheerio';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -8,7 +9,7 @@ import { createFsWithFallback, createRequestAndResponse, runInContainer } from '
 
 const root = new URL('../../fixtures/content/', import.meta.url);
 
-const describe = os.platform() === 'win32' ? global.describe.skip : global.describe;
+const _describe = os.platform() === 'win32' ? describe.skip : describe;
 
 /** @type {typeof runInContainer} */
 async function runInContainerWithContentListeners(params, callback) {
@@ -18,7 +19,7 @@ async function runInContainerWithContentListeners(params, callback) {
 	});
 }
 
-describe('Content Collections - render()', () => {
+_describe('Content Collections - render()', () => {
 	it('can be called in a page component', async () => {
 		const fs = createFsWithFallback(
 			{
@@ -72,10 +73,10 @@ describe('Content Collections - render()', () => {
 
 				const $ = cheerio.load(html);
 				// Rendered the content
-				expect($('ul li')).to.have.a.lengthOf(3);
+				assert.equal($('ul li').length, 3);
 
 				// Rendered the styles
-				expect($('style')).to.have.a.lengthOf(1);
+				assert.equal($('style').length, 1);
 			}
 		);
 	});
@@ -144,10 +145,10 @@ description: Astro is launching this week!
 
 				const $ = cheerio.load(html);
 				// Rendered the content
-				expect($('ul li')).to.have.a.lengthOf(3);
+				assert.equal($('ul li').length, 3);
 
 				// Rendered the styles
-				expect($('style')).to.have.a.lengthOf(1);
+				assert.equal($('style').length, 1);
 			}
 		);
 	});
@@ -214,10 +215,10 @@ description: Astro is launching this week!
 
 				const $ = cheerio.load(html);
 				// Rendered the content
-				expect($('ul li')).to.have.a.lengthOf(3);
+				assert.equal($('ul li').length, 3);
 
 				// Rendered the styles
-				expect($('style')).to.have.a.lengthOf(1);
+				assert.equal($('style').length, 1);
 			}
 		);
 	});
@@ -283,10 +284,10 @@ description: Astro is launching this week!
 
 				const $ = cheerio.load(html);
 				// Rendered the content
-				expect($('ul li')).to.have.a.lengthOf(3);
+				assert.equal($('ul li').length, 3);
 
 				// Rendered the styles
-				expect($('style')).to.have.a.lengthOf(1);
+				assert.equal($('style').length, 1);
 			}
 		);
 	});
