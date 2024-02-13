@@ -15,5 +15,4 @@ const myPic = await getImage({src: "https://example.com/example.png", inferSize:
 <Picture src="https://example.com/example.png" inferSize={true} alt="">
 ```
 
-
-> added to trigger tests
+Read more about [using `inferSize` with remote images](https://docs.astro.build/en/guides/images/#infersize) in our documentation.
