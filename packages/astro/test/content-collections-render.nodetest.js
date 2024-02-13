@@ -4,8 +4,8 @@ import * as cheerio from 'cheerio';
 import { loadFixture, isWindows } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 
-if(!isWindows) {
-	describe()
+if (!isWindows) {
+	describe();
 }
 
 describe('Content Collections - render()', () => {
