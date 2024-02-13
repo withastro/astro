@@ -394,8 +394,10 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 	const moduleLoader = pipeline.getModuleLoader();
 	const settings = pipeline.getSettings();
 	const mode = pipeline.getEnvironment().mode;
-	// Add hoisted script tags
-	const { scripts } = await getScriptsForURL(filePath, settings.config.root, moduleLoader);
+	// Add hoisted script tags, skip if direct rendering with `directRenderScript`
+	const { scripts } = settings.config.experimental.directRenderScript
+		? { scripts: new Set<SSRElement>() }
+		: await getScriptsForURL(filePath, settings.config.root, moduleLoader);
 
 	// Inject HMR scripts
 	if (isPage(filePath, settings) && mode === 'development') {

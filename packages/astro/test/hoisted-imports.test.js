@@ -8,9 +8,6 @@ describe('Hoisted Imports', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/hoisted-imports/',
-			experimental: {
-				optimizeHoistedScript: true,
-			},
 		});
 	});
 
@@ -67,14 +64,7 @@ describe('Hoisted Imports', () => {
 			expectScript(scripts, 'D');
 			expectScript(scripts, 'E');
 		});
-		it('includes all imported scripts when dynamically imported', async () => {
-			const scripts = await getAllScriptText('/dynamic/index.html');
-			expectScript(scripts, 'A');
-			expectScript(scripts, 'B');
-			expectScript(scripts, 'C');
-			expectScript(scripts, 'D');
-			expectScript(scripts, 'E');
-		});
+
 		it('includes no scripts when none imported', async () => {
 			const scripts = await getAllScriptText('/none/index.html');
 			expectNotScript(scripts, 'A');
@@ -83,6 +73,7 @@ describe('Hoisted Imports', () => {
 			expectNotScript(scripts, 'D');
 			expectNotScript(scripts, 'E');
 		});
+
 		it('includes some scripts', async () => {
 			const scripts = await getAllScriptText('/some/index.html');
 			expectScript(scripts, 'A');

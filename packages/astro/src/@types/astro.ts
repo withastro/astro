@@ -1601,25 +1601,24 @@ export interface AstroUserConfig {
 	experimental?: {
 		/**
 		 * @docs
-		 * @name experimental.optimizeHoistedScript
+		 * @name experimental.directRenderScript
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 2.10.4
+		 * @version 4.4.0
 		 * @description
-		 * Prevents unused components' scripts from being included in a page unexpectedly.
-		 * The optimization is best-effort and may inversely miss including the used scripts. Make sure to double-check your built pages
-		 * before publishing.
-		 * Enable hoisted script analysis optimization by adding the experimental flag:
+		 * Directly render processed scripts where they are declared in Astro files. The scripts will no longer be hoisted to the head.
+		 * This may change the execution order of scripts if you added other inline scripts, but will result in more accurate script
+		 * inclusion when rendering the final HTML.
 		 *
 		 * ```js
 		 * {
 		 * 	experimental: {
-		 *		optimizeHoistedScript: true,
+		 *		directRenderScript: true,
 		 * 	},
 		 * }
 		 * ```
 		 */
-		optimizeHoistedScript?: boolean;
+		directRenderScript?: boolean;
 
 		/**
 		 * @docs
