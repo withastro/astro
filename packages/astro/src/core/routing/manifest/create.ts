@@ -33,10 +33,6 @@ interface Item {
 	routeSuffix: string;
 }
 
-interface ManifestRouteData extends RouteData {
-	isIndex: boolean;
-}
-
 function countOccurrences(needle: string, haystack: string) {
 	let count = 0;
 	for (const hay of haystack) {
@@ -47,13 +43,15 @@ function countOccurrences(needle: string, haystack: string) {
 
 function getParts(part: string, file: string) {
 	const result: RoutePart[] = [];
+	// Disable eslint as we're not sure how to improve this regex yet
+	// eslint-disable-next-line regexp/no-super-linear-backtracking
 	part.split(/\[(.+?\(.+?\)|.+?)\]/).map((str, i) => {
 		if (!str) return;
 		const dynamic = i % 2 === 1;
 
 		const [, content] = dynamic ? /([^(]+)$/.exec(str) || [null, null] : [null, str];
 
-		if (!content || (dynamic && !/^(\.\.\.)?[a-zA-Z0-9_$]+$/.test(content))) {
+		if (!content || (dynamic && !/^(?:\.\.\.)?[\w$]+$/.test(content))) {
 			throw new Error(`Invalid route ${file} — parameter name must match /^[a-zA-Z0-9_$]+$/`);
 		}
 
@@ -193,7 +191,8 @@ function isSemanticallyEqualSegment(segmentA: RoutePart[], segmentB: RoutePart[]
  *   For example, `/bar` is sorted before `/foo`.
  *   The definition of "alphabetically" is dependent on the default locale of the running system.
  */
-function routeComparator(a: ManifestRouteData, b: ManifestRouteData) {
+
+function routeComparator(a: RouteData, b: RouteData) {
 	const commonLength = Math.min(a.segments.length, b.segments.length);
 
 	for (let index = 0; index < commonLength; index++) {
@@ -301,9 +300,9 @@ export interface CreateRouteManifestParams {
 function createFileBasedRoutes(
 	{ settings, cwd, fsMod }: CreateRouteManifestParams,
 	logger: Logger
-): ManifestRouteData[] {
+): RouteData[] {
 	const components: string[] = [];
-	const routes: ManifestRouteData[] = [];
+	const routes: RouteData[] = [];
 	const validPageExtensions = new Set<string>([
 		'.astro',
 		...SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
@@ -444,7 +443,7 @@ function createFileBasedRoutes(
 	return routes;
 }
 
-type PrioritizedRoutesData = Record<RoutePriorityOverride, ManifestRouteData[]>;
+type PrioritizedRoutesData = Record<RoutePriorityOverride, RouteData[]>;
 
 function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): PrioritizedRoutesData {
 	const { config } = settings;
@@ -690,7 +689,7 @@ export function createRouteManifest(
 
 	const redirectRoutes = createRedirectRoutes(params, routeMap, logger);
 
-	const routes: ManifestRouteData[] = [
+	const routes: RouteData[] = [
 		...injectedRoutes['legacy'].sort(routeComparator),
 		...[...fileBasedRoutes, ...injectedRoutes['normal'], ...redirectRoutes['normal']].sort(
 			routeComparator
@@ -727,8 +726,8 @@ export function createRouteManifest(
 
 		// In this block of code we group routes based on their locale
 
-		// A map like: locale => ManifestRouteData[]
-		const routesByLocale = new Map<string, ManifestRouteData[]>();
+		// A map like: locale => RouteData[]
+		const routesByLocale = new Map<string, RouteData[]>();
 		// This type is here only as a helper. We copy the routes and make them unique, so we don't "process" the same route twice.
 		// The assumption is that a route in the file system belongs to only one locale.
 		const setRoutes = new Set(routes.filter((route) => route.type === 'page'));

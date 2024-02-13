@@ -1,5 +1,4 @@
 import type { Context } from './context.js';
-
 import { color } from '@astrojs/cli-kit';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';

@@ -121,6 +121,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			routing: settings.config.i18n.routing,
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
+			domainLookupTable: {},
 		};
 	}
 	return {

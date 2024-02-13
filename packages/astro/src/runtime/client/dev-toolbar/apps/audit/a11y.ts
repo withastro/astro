@@ -242,7 +242,7 @@ export const a11y: AuditRuleWithSelector[] = [
 		message:
 			'Screen readers already announce `img` elements as an image. There is no need to use words such as "image", "photo", and/or "picture".',
 		selector: 'img[alt]:not([aria-hidden])',
-		match: (img: HTMLImageElement) => /\b(image|picture|photo)\b/i.test(img.alt),
+		match: (img: HTMLImageElement) => /\b(?:image|picture|photo)\b/i.test(img.alt),
 	},
 	{
 		code: 'a11y-incorrect-aria-attribute-type',
