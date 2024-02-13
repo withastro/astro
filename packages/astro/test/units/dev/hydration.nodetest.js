@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { createFs, createRequestAndResponse, runInContainer } from '../test-utils.js';
 
@@ -41,7 +42,8 @@ describe('hydration', () => {
 				});
 				container.handle(req, res);
 				await done;
-				expect(res.statusCode).to.equal(
+				assert.equal(
+					res.statusCode,
 					200,
 					"We get a 200 because the error occurs in the template, but we didn't crash!"
 				);

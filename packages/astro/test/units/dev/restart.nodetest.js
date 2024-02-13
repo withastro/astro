@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 import * as cheerio from 'cheerio';
 import { fileURLToPath } from 'node:url';
 
@@ -46,8 +47,8 @@ describe('dev container restarts', () => {
 			restart.container.handle(r.req, r.res);
 			let html = await r.text();
 			const $ = cheerio.load(html);
-			expect(r.res.statusCode).to.equal(200);
-			expect($('h1')).to.have.a.lengthOf(1);
+			assert.equal(r.res.statusCode, 200);
+			assert.equal($('h1').length, 1);
 
 			// Create an error
 			let restartComplete = restart.restarted();
@@ -61,7 +62,7 @@ describe('dev container restarts', () => {
 
 			// Wait for the restart to finish
 			let hmrError = await restartComplete;
-			expect(hmrError).to.not.be.a('undefined');
+			assert.notEqual(typeof hmrError, 'undefined');
 
 			// Do it a second time to make sure we are still watching
 
@@ -75,7 +76,7 @@ describe('dev container restarts', () => {
 			);
 
 			hmrError = await restartComplete;
-			expect(hmrError).to.not.be.a('undefined');
+			assert.notEqual(typeof hmrError, 'undefined');
 		} finally {
 			await restart.container.close();
 		}
@@ -102,7 +103,7 @@ describe('dev container restarts', () => {
 			inlineConfig: { root: fileURLToPath(root), logLevel: 'silent' },
 		});
 		await startContainer(restart.container);
-		expect(isStarted(restart.container)).to.equal(true);
+		assert.equal(isStarted(restart.container), true);
 
 		try {
 			// Trigger a change
@@ -110,7 +111,7 @@ describe('dev container restarts', () => {
 			triggerFSEvent(restart.container, fs, '/astro.config.mjs', 'change');
 			await restartComplete;
 
-			expect(isStarted(restart.container)).to.equal(true);
+			assert.equal(isStarted(restart.container), true);
 		} finally {
 			await restart.container.close();
 		}
@@ -131,7 +132,7 @@ describe('dev container restarts', () => {
 			inlineConfig: { root: fileURLToPath(root), logLevel: 'silent' },
 		});
 		await startContainer(restart.container);
-		expect(isStarted(restart.container)).to.equal(true);
+		assert.equal(isStarted(restart.container), true);
 
 		try {
 			// Trigger a change
@@ -139,7 +140,7 @@ describe('dev container restarts', () => {
 			triggerFSEvent(restart.container, fs, '/astro.config.ts', 'change');
 			await restartComplete;
 
-			expect(isStarted(restart.container)).to.equal(true);
+			assert.equal(isStarted(restart.container), true);
 		} finally {
 			await restart.container.close();
 		}
@@ -158,7 +159,7 @@ describe('dev container restarts', () => {
 			inlineConfig: { root: fileURLToPath(root), logLevel: 'silent' },
 		});
 		await startContainer(restart.container);
-		expect(isStarted(restart.container)).to.equal(true);
+		assert.equal(isStarted(restart.container), true);
 
 		try {
 			let restartComplete = restart.restarted();
@@ -183,7 +184,7 @@ describe('dev container restarts', () => {
 			inlineConfig: { root: fileURLToPath(root), logLevel: 'silent' },
 		});
 		await startContainer(restart.container);
-		expect(isStarted(restart.container)).to.equal(true);
+		assert.equal(isStarted(restart.container), true);
 
 		try {
 			let restartComplete = restart.restarted();

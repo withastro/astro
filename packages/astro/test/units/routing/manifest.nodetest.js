@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { createRouteManifest } from '../../../dist/core/routing/manifest/create.js';
 import { createBasicSettings, createFs } from '../test-utils.js';
@@ -45,8 +45,8 @@ describe('routing - createRouteManifest', () => {
 			fsMod: fs,
 		});
 		const [{ pattern }] = manifest.routes;
-		expect(pattern.test('')).to.equal(true);
-		expect(pattern.test('/')).to.equal(false);
+		assert.equal(pattern.test(''), true);
+		assert.equal(pattern.test('/'), false);
 	});
 
 	it('endpoint routes are sorted before page routes', async () => {
@@ -83,7 +83,7 @@ describe('routing - createRouteManifest', () => {
 			fsMod: fs,
 		});
 
-		expect(getManifestRoutes(manifest)).to.deep.equal([
+		assert.deepEqual(getManifestRoutes(manifest), [
 			{
 				route: '/about',
 				type: 'page',
@@ -128,7 +128,7 @@ describe('routing - createRouteManifest', () => {
 			fsMod: fs,
 		});
 
-		expect(getManifestRoutes(manifest)).to.deep.equal([
+		assert.deepEqual(getManifestRoutes(manifest), [
 			{
 				route: '/',
 				type: 'page',
@@ -179,7 +179,7 @@ describe('routing - createRouteManifest', () => {
 			fsMod: fs,
 		});
 
-		expect(getManifestRoutes(manifest)).to.deep.equal([
+		assert.deepEqual(getManifestRoutes(manifest), [
 			{
 				route: '/',
 				type: 'page',
@@ -255,7 +255,7 @@ describe('routing - createRouteManifest', () => {
 			fsMod: fs,
 		});
 
-		expect(getManifestRoutes(manifest)).to.deep.equal([
+		assert.deepEqual(getManifestRoutes(manifest), [
 			{
 				route: '/contributing',
 				type: 'page',
@@ -311,7 +311,7 @@ describe('routing - createRouteManifest', () => {
 			fsMod: fs,
 		});
 
-		expect(getManifestRoutes(manifest)).to.deep.equal([
+		assert.deepEqual(getManifestRoutes(manifest), [
 			{
 				route: '/blog/[...slug]',
 				type: 'page',
@@ -358,7 +358,7 @@ describe('routing - createRouteManifest', () => {
 			fsMod: fs,
 		});
 
-		expect(getManifestRoutes(manifest)).to.deep.equal([
+		assert.deepEqual(getManifestRoutes(manifest), [
 			{
 				route: '/blog/contributing',
 				type: 'page',
@@ -411,7 +411,7 @@ describe('routing - createRouteManifest', () => {
 			fsMod: fs,
 		});
 
-		expect(getManifestRoutes(manifest)).to.deep.equal([
+		assert.deepEqual(getManifestRoutes(manifest), [
 			{
 				route: '/blog/about',
 				type: 'redirect',
@@ -466,7 +466,7 @@ describe('routing - createRouteManifest', () => {
 
 		createRouteManifest(manifestOptions, logger);
 
-		expect(logs).to.deep.equal([
+		assert.deepEqual(logs, [
 			{
 				label: 'router',
 				level: 'warn',
@@ -512,7 +512,7 @@ describe('routing - createRouteManifest', () => {
 
 		createRouteManifest(manifestOptions, logger);
 
-		expect(logs).to.deep.equal([
+		assert.deepEqual(logs, [
 			{
 				label: 'router',
 				level: 'warn',

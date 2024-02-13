@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-
+import { describe, it, before } from 'node:test';
+import * as assert from 'node:assert/strict';
 import {
 	createComponent,
 	render,
@@ -104,8 +104,8 @@ describe('core/render', () => {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			expect($('head link')).to.have.a.lengthOf(1);
-			expect($('body link')).to.have.a.lengthOf(0);
+			assert.equal($('head link').length, 1);
+			assert.equal($('body link').length, 0);
 		});
 
 		it('Multi-level layouts and head injection, without explicit head', async () => {
@@ -186,8 +186,8 @@ describe('core/render', () => {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			expect($('head link')).to.have.a.lengthOf(1);
-			expect($('body link')).to.have.a.lengthOf(0);
+			assert.equal($('head link').length, 1);
+			assert.equal($('body link').length, 0);
 		});
 
 		it('Multi-level layouts and head injection, without any content in layouts', async () => {
@@ -234,7 +234,7 @@ describe('core/render', () => {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			expect($('link')).to.have.a.lengthOf(1);
+			assert.equal($('link').length, 1);
 		});
 	});
 });
