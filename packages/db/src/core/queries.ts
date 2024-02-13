@@ -14,7 +14,7 @@ import { bold } from 'kleur/colors';
 import { type SQL, sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect, type SQLiteInsert } from 'drizzle-orm/sqlite-core';
 import type { AstroIntegrationLogger } from 'astro';
-import type { DBUserConfig } from '../core/types.js';
+import type { DBBuildDataContext, DBDevDataContext, DBUserConfig } from '../core/types.js';
 import { hasPrimaryKey } from '../runtime/index.js';
 import { isSerializedSQL } from '../runtime/types.js';
 
@@ -26,7 +26,6 @@ export async function setupDbTables({
 	collections,
 	logger,
 	mode,
-	// TODO: Remove once Turso has foreign key PRAGMA support
 }: {
 	db: SqliteRemoteDatabase;
 	data?: DBUserConfig['data'];
@@ -46,25 +45,48 @@ export async function setupDbTables({
 	}
 	if (data) {
 		try {
-			//@ts-ignore
-			await data({
-				seed: async ({ table }, values) => {
-					await db.insert(table).values(values as any);
-				},
-				// @ts-ignore
-				seedReturning: async ({ table }, values) => {
-					let result: SQLiteInsert<any, any, any, any> = db
-						.insert(table)
-						.values(values as any)
-						.returning();
-					if (!Array.isArray(values)) {
-						result = result.get();
-					}
-					return result;
-				},
-				db,
-				mode,
-			});
+			// Split to separate conditional blocks for `seedReturning` type
+			if (mode === 'dev') {
+				const context: DBDevDataContext = {
+					db,
+					mode,
+					seed: async ({ table }, values) => {
+						await db.insert(table).values(values as any);
+					},
+					seedReturning: async ({ table }, values) => {
+						let result: SQLiteInsert<any, any, any, any> = db
+							.insert(table)
+							.values(values as any)
+							.returning();
+						if (!Array.isArray(values)) {
+							result = result.get();
+						}
+						return result;
+					},
+				};
+				await data(context);
+			} else {
+				const context: DBBuildDataContext = {
+					db,
+					mode,
+					seed: async (collection, values) => {
+						if (collection.writable) return;
+						await db.insert(collection.table).values(values as any);
+					},
+					seedReturning: async (collection, values) => {
+						if (collection.writable) return undefined;
+						let result: SQLiteInsert<any, any, any, any> = db
+							.insert(collection.table)
+							.values(values as any)
+							.returning();
+						if (!Array.isArray(values)) {
+							return result.get();
+						}
+						return result;
+					},
+				};
+				await data(context);
+			}
 		} catch (error) {
 			(logger ?? console).error(
 				`Failed to seed data. Did you update to match recent schema changes?`

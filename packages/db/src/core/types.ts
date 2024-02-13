@@ -269,7 +269,7 @@ type BaseDataContext = {
 	) => Promise<void>;
 };
 
-type DBDevDataContext = BaseDataContext & {
+export type DBDevDataContext = BaseDataContext & {
 	seedReturning: <
 		TWritable extends boolean,
 		TFields extends FieldsConfig,
@@ -286,7 +286,7 @@ type DBDevDataContext = BaseDataContext & {
 	mode: 'dev';
 };
 
-type DBBuildDataContext = BaseDataContext & {
+export type DBBuildDataContext = BaseDataContext & {
 	seedReturning: <
 		TWritable extends boolean,
 		TFields extends FieldsConfig,
