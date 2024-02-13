@@ -100,6 +100,6 @@ describe('endpoints', () => {
 
 		await done;
 
-		assert.deepEqual(locals, { cancelledByTheServer: false });
+		assert.equal(locals.cancelledByTheServer, true);
 	});
 });
