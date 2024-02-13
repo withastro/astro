@@ -635,9 +635,6 @@ importers:
       preferred-pm:
         specifier: ^3.1.2
         version: 3.1.2
-      probe-image-size:
-        specifier: ^7.2.3
-        version: 7.2.3
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
@@ -757,9 +754,6 @@ importers:
       '@types/mocha':
         specifier: ^10.0.4
         version: 10.0.6
-      '@types/probe-image-size':
-        specifier: ^7.2.3
-        version: 7.2.4
       '@types/prompts':
         specifier: ^2.4.8
         version: 2.4.9
@@ -7476,13 +7470,6 @@ packages:
     resolution: {integrity: sha512-A0D0aTXvjlqJ5ZILMz3rNfDBOx9hHxLZYv2by47Sm/pqW35zzjusrZTryatjN/Rf8Us2gZrJD+KeHbUSTux1Cw==}
     dev: true
 
-  /@types/probe-image-size@7.2.4:
-    resolution: {integrity: sha512-HVqYj3L+D+S/6qpQRv5qMxrD/5pglzZuhP7ZIqgVSZ+Ck4z1TCFkNIRG8WesFueQTqWFTSgkkAl6f8lwxFPQSw==}
-    dependencies:
-      '@types/needle': 3.3.0
-      '@types/node': 18.19.4
-    dev: true
-
   /@types/prompts@2.4.9:
     resolution: {integrity: sha512-qTxFi6Buiu8+50/+3DGIWLHM6QuWsEKugJnnP6iv2Mc4ncxE4A/OJkjuVOA+5X0X1S/nq5VJRa8Lu+nwcvbrKA==}
     dependencies:
@@ -13591,16 +13578,6 @@ packages:
   /prismjs@1.29.0:
     resolution: {integrity: sha512-Kx/1w86q/epKcmte75LNrEoT+lX8pBpavuAbvJWRXar7Hz8jrtF+e3vY751p0R8H9HdArwaCTNDDzHg/ScJK1Q==}
     engines: {node: '>=6'}
-    dev: false
-
-  /probe-image-size@7.2.3:
-    resolution: {integrity: sha512-HubhG4Rb2UH8YtV4ba0Vp5bQ7L78RTONYu/ujmCu5nBI8wGv24s4E9xSKBi0N1MowRpxk76pFCpJtW0KPzOK0w==}
-    dependencies:
-      lodash.merge: 4.6.2
-      needle: 2.9.1
-      stream-parser: 0.3.1
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /progress@2.0.3:
