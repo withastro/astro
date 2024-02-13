@@ -15,6 +15,7 @@ export type MigrationStatus = {
 	diff: deepDiff.Diff<DBSnapshot, DBSnapshot>[],
 	newFilename: string,
 	summary: string,
+	newFileContent?: string,
 } | {
 	state: 'up-to-date',
 	currentSnapshot: DBSnapshot
