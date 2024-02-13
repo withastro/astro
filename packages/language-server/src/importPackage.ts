@@ -48,6 +48,10 @@ function importEditorIntegration<T>(packageName: string, fromPath: string): T | 
 
 			return undefined;
 		}
+	} else {
+		console.info(
+			`Couldn't find package ${packageName} (searching from ${fromPath}). Make sure it's installed. If you believe this to be an error, please open an issue.`
+		);
 	}
 
 	return undefined;

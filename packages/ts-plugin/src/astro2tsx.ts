@@ -46,21 +46,16 @@ function safeConvertToTSX(content: string, options: ConvertToTSXOptions) {
 	}
 }
 
-export function astro2tsx(input: string, fileName: string, ts: typeof import('typescript')) {
+export function astro2tsx(input: string, fileName: string) {
 	const tsx = safeConvertToTSX(input, { filename: fileName });
 
 	return {
-		virtualFile: getVirtualFileTSX(input, tsx, fileName, ts),
+		virtualFile: getVirtualFileTSX(input, tsx, fileName),
 		diagnostics: tsx.diagnostics,
 	};
 }
 
-function getVirtualFileTSX(
-	input: string,
-	tsx: TSXResult,
-	fileName: string,
-	ts: typeof import('typescript')
-): VirtualCode {
+function getVirtualFileTSX(input: string, tsx: TSXResult, fileName: string): VirtualCode {
 	tsx.code = patchTSX(tsx.code, fileName);
 	const v3Mappings = decode(tsx.map.mappings);
 	const sourcedDoc = TextDocument.create(fileName, 'astro', 0, input);

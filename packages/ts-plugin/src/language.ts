@@ -7,14 +7,13 @@ import {
 import type ts from 'typescript';
 import { astro2tsx } from './astro2tsx.js';
 
-export function getLanguageModule(
-	ts: typeof import('typescript')
-): LanguagePlugin<AstroVirtualCode> {
+export function getLanguageModule(): LanguagePlugin<AstroVirtualCode> {
 	return {
 		createVirtualCode(fileId, languageId, snapshot) {
 			if (languageId === 'astro') {
-				const fileName = fileId.includes('://') ? fileId.split('://')[1] : fileId;
-				return new AstroVirtualCode(fileName, snapshot, ts);
+				// fileId will never be a uri in ts plugin
+				const fileName = fileId;
+				return new AstroVirtualCode(fileName, snapshot);
 			}
 		},
 		updateVirtualCode(_fileId, astroFile, snapshot) {
@@ -47,8 +46,7 @@ export class AstroVirtualCode implements VirtualCode {
 
 	constructor(
 		public fileName: string,
-		public snapshot: ts.IScriptSnapshot,
-		private readonly ts: typeof import('typescript')
+		public snapshot: ts.IScriptSnapshot
 	) {
 		this.onSnapshotUpdated();
 	}
@@ -77,11 +75,7 @@ export class AstroVirtualCode implements VirtualCode {
 
 		this.embeddedCodes = [];
 
-		const tsx = astro2tsx(
-			this.snapshot.getText(0, this.snapshot.getLength()),
-			this.fileName,
-			this.ts
-		);
+		const tsx = astro2tsx(this.snapshot.getText(0, this.snapshot.getLength()), this.fileName);
 
 		this.embeddedCodes.push(tsx.virtualFile);
 	}

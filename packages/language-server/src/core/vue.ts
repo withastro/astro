@@ -6,13 +6,16 @@ import {
 	forEachEmbeddedCode,
 } from '@volar/language-core';
 import type ts from 'typescript';
+import { URI } from 'vscode-uri';
 import { framework2tsx } from './utils.js';
 
 export function getVueLanguageModule(): LanguagePlugin<VueVirtualCode> {
 	return {
 		createVirtualCode(fileId, languageId, snapshot) {
 			if (languageId === 'vue') {
-				const fileName = fileId.includes('://') ? fileId.split('://')[1] : fileId;
+				const fileName = fileId.includes('://')
+					? URI.parse(fileId).fsPath.replace(/\\/g, '/')
+					: fileId;
 				return new VueVirtualCode(fileName, snapshot);
 			}
 		},

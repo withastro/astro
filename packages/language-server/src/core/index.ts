@@ -9,6 +9,7 @@ import {
 } from '@volar/language-core';
 import type ts from 'typescript';
 import type { HTMLDocument } from 'vscode-html-languageservice';
+import { URI } from 'vscode-uri';
 import { type AstroInstall, getLanguageServerTypesDir } from '../utils.js';
 import { astro2tsx } from './astro2tsx';
 import { AstroMetadata, getAstroMetadata } from './parseAstro';
@@ -23,7 +24,9 @@ export function getLanguageModule(
 	return {
 		createVirtualCode(fileId, languageId, snapshot) {
 			if (languageId === 'astro') {
-				const fileName = fileId.includes('://') ? fileId.split('://')[1] : fileId;
+				const fileName = fileId.includes('://')
+					? URI.parse(fileId).fsPath.replace(/\\/g, '/')
+					: fileId;
 				return new AstroVirtualCode(fileName, snapshot);
 			}
 		},
