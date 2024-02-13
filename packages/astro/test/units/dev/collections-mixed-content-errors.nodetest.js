@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import _sync from '../../../dist/core/sync/index.js';
 import { createFsWithFallback } from '../test-utils.js';
@@ -35,7 +36,7 @@ name: Ben
 			root
 		);
 
-		expect(await sync({ fs })).to.equal(1);
+		assert.equal(await sync({ fs }), 1);
 	});
 
 	it('raises "mixed content" error when data in content collection', async () => {
@@ -63,7 +64,7 @@ title: Post
 			root
 		);
 
-		expect(await sync({ fs })).to.equal(1);
+		assert.equal(await sync({ fs }), 1);
 	});
 
 	it('raises error when data collection configured as content collection', async () => {
@@ -86,7 +87,7 @@ title: Post
 			root
 		);
 
-		expect(await sync({ fs })).to.equal(1);
+		assert.equal(await sync({ fs }), 1);
 	});
 
 	it('does not raise error for empty collection with config', async () => {
@@ -111,7 +112,7 @@ title: Post
 
 		try {
 			const res = await sync({ fs });
-			expect(res).to.equal(0);
+			assert.equal(res, 0);
 		} catch (e) {
 			expect.fail(0, 1, `Did not expect sync to throw: ${e.message}`);
 		}

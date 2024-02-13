@@ -5,7 +5,8 @@ import {
 	defaultLogger,
 } from '../test-utils.js';
 import { fileURLToPath } from 'node:url';
-import { expect } from 'chai';
+import { describe, it, before, after } from 'node:test';
+import * as assert from 'node:assert/strict';
 import { createContainer } from '../../../dist/core/dev/container.js';
 import testAdapter from '../../test-adapter.js';
 
@@ -75,7 +76,7 @@ describe('endpoints', () => {
 		container.handle(req, res);
 		await done;
 		const headers = res.getHeaders();
-		expect(headers).to.deep.equal({
+		assert.deepEqual(headers, {
 			'access-control-allow-origin': '*',
 			'x-single': 'single',
 			'x-triple': 'one, two, three',
@@ -99,6 +100,6 @@ describe('endpoints', () => {
 
 		await done;
 
-		expect(locals).to.deep.equal({ cancelledByTheServer: true });
+		assert.deepEqual(locals, { cancelledByTheServer: true });
 	});
 });

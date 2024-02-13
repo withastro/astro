@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it, after } from 'node:test';
+import * as assert from 'node:assert/strict';
 
 const LOCALES = ['en_US', 'sv_SE', 'es_419.UTF-8', 'es_ES@euro', 'C'];
 
@@ -13,9 +14,9 @@ describe('logger - dateTimeFormat', () => {
 		it(`works with process.env.LANG="${locale}"`, async () => {
 			process.env.LANG = locale;
 			const { dateTimeFormat } = await import('../../../dist/core/logger/core.js?cachebust=' + i);
-			expect(() => {
+			assert.doesNotThrow(() => {
 				dateTimeFormat.format(new Date());
-			}).not.to.throw();
+			});
 		});
 	});
 });
