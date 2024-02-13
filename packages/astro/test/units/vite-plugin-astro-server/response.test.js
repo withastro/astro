@@ -88,17 +88,17 @@ describe('endpoints', () => {
 			method: 'GET',
 			url: '/streaming',
 		});
-		
-		const locals = { cancelledByTheServer: false }
-		req[Symbol.for("astro.locals")] = locals
+
+		const locals = { cancelledByTheServer: false };
+		req[Symbol.for('astro.locals')] = locals;
 
 		container.handle(req, res);
 
-		await new Promise(resolve => setTimeout(resolve, 500));
+		await new Promise((resolve) => setTimeout(resolve, 500));
 		res.emit('close');
-		
+
 		await done;
-		
+
 		expect(locals).to.deep.equal({ cancelledByTheServer: true });
 	});
 });
