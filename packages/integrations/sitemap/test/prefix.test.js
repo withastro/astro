@@ -1,6 +1,7 @@
 import { loadFixture, readXML } from './test-utils.js';
-import { expect } from 'chai';
 import { sitemap } from './fixtures/static/deps.mjs';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 
 describe('Prefix support', () => {
 	/** @type {import('./test-utils.js').Fixture} */
@@ -24,17 +25,17 @@ describe('Prefix support', () => {
 		it('Content is same', async () => {
 			const data = await readXML(fixture.readFile('/sitemap-0.xml'));
 			const prefixData = await readXML(fixture.readFile(`/${prefix}0.xml`));
-			expect(prefixData).to.deep.equal(data);
+			assert.deepEqual(prefixData, data);
 		});
 
 		it('Index file load correct sitemap', async () => {
 			const data = await readXML(fixture.readFile('/sitemap-index.xml'));
 			const sitemapUrl = data.sitemapindex.sitemap[0].loc[0];
-			expect(sitemapUrl).to.equal('http://example.com/sitemap-0.xml');
+			assert.strictEqual(sitemapUrl, 'http://example.com/sitemap-0.xml');
 
 			const prefixData = await readXML(fixture.readFile(`/${prefix}index.xml`));
 			const prefixSitemapUrl = prefixData.sitemapindex.sitemap[0].loc[0];
-			expect(prefixSitemapUrl).to.equal(`http://example.com/${prefix}0.xml`);
+			assert.strictEqual(prefixSitemapUrl, `http://example.com/${prefix}0.xml`);
 		});
 	});
 
@@ -55,17 +56,17 @@ describe('Prefix support', () => {
 		it('Content is same', async () => {
 			const data = await readXML(fixture.readFile('/client/sitemap-0.xml'));
 			const prefixData = await readXML(fixture.readFile(`/client/${prefix}0.xml`));
-			expect(prefixData).to.deep.equal(data);
+			assert.deepEqual(prefixData, data);
 		});
 
 		it('Index file load correct sitemap', async () => {
 			const data = await readXML(fixture.readFile('/client/sitemap-index.xml'));
 			const sitemapUrl = data.sitemapindex.sitemap[0].loc[0];
-			expect(sitemapUrl).to.equal('http://example.com/sitemap-0.xml');
+			assert.strictEqual(sitemapUrl, 'http://example.com/sitemap-0.xml');
 
 			const prefixData = await readXML(fixture.readFile(`/client/${prefix}index.xml`));
 			const prefixSitemapUrl = prefixData.sitemapindex.sitemap[0].loc[0];
-			expect(prefixSitemapUrl).to.equal(`http://example.com/${prefix}0.xml`);
+			assert.strictEqual(prefixSitemapUrl, `http://example.com/${prefix}0.xml`);
 		});
 	});
 });
