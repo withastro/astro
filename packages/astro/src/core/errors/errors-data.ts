@@ -538,14 +538,14 @@ export const MissingImageDimension = {
  * @message
  * Failed to get the dimensions for `IMAGE_URL`.
  * @description
- * Probing the remote image's dimensions failed, this is typically caused by an incorrect URL or attempting to infer the size of an image in the public folder. Infering the size of images in public folder is not possible. Here is where the probing logic lives in Astro's [sourcecode](https://github.com/withastro/astro/blob/main/packages/astro/src/assets/utils/image-size/).
+ * Determining the remote image's dimensions failed. This is typically caused by an incorrect URL or attempting to infer the size of an image in the public folder which is not possible. Here is where the probing logic lives in Astro's [sourcecode](https://github.com/withastro/astro/blob/main/packages/astro/src/assets/utils/image-size/).
  */
-export const FailedToProbeRemoteImage = {
-	name: 'FailedToProbeRemoteImage',
-	title: 'Failed to probe remote image dimensions',
+export const FailedToFetchRemoteImageDimensions = {
+	name: 'FailedToFetchRemoteImageDimensions',
+	title: 'Failed to retrieve remote image dimensions',
 	message: (imageURL: string) =>
 		`Failed to get the dimensions for ${imageURL}.`,
-	hint: 'Verify your image URL is accurate. If you are using an image in public folder, you will not be able to infer its size.',
+	hint: 'Verify your remote image URL is accurate, and that you are not using `inferSize` with a file located in your `public/` folder.',
 } satisfies ErrorData;
 /**
  * @docs
