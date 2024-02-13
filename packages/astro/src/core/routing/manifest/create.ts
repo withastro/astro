@@ -759,10 +759,12 @@ export function createRouteManifest(
 			// we attempt to retrieve the index page of the default locale
 			const defaultLocaleRoutes = routesByLocale.get(i18n.defaultLocale);
 			if (defaultLocaleRoutes) {
-				const indexDefaultRoute = defaultLocaleRoutes.find((routeData) => {
-					// it should be safe to assume that an index page has "index" in their name
-					return routeData.component.includes('index');
-				});
+				// The index for the default locale will be either already at the root path
+				// or at the root of the locale.
+				const indexDefaultRoute = defaultLocaleRoutes
+					.find(({route}) => route === '/')
+					?? defaultLocaleRoutes.find(({route}) => route === `/${i18n.defaultLocale}`);
+				
 				if (indexDefaultRoute) {
 					// we found the index of the default locale, now we create a root index that will redirect to the index of the default locale
 					const pathname = '/';
