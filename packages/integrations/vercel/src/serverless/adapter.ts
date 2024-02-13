@@ -5,6 +5,7 @@ import type {
 	AstroIntegrationLogger,
 	RouteData,
 } from 'astro';
+import crypto from 'crypto';
 import { AstroError } from 'astro/errors';
 import glob from 'fast-glob';
 import { basename } from 'node:path';
