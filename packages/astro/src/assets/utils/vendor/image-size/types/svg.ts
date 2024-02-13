@@ -31,6 +31,7 @@ const units: { [unit: string]: number } = {
 }
 
 const unitsReg = new RegExp(
+	// eslint-disable-next-line regexp/prefer-d
   `^([0-9.]+(?:e\\d+)?)(${Object.keys(units).join('|')})?$`,
 )
 
