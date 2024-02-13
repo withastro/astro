@@ -87,7 +87,7 @@ export type Table<
 			{
 				tableName: TTableName;
 				name: K;
-				hasDefault: TFields[K] extends { default: NonNullable<unknown> }
+				hasDefault: TFields[K]['schema'] extends { default: NonNullable<unknown> }
 					? true
 					: TFields[K]['schema'] extends { primaryKey: true }
 						? true

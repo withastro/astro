@@ -11,10 +11,10 @@ const Themes = defineWritableCollection({
 	fields: {
 		name: field.text(),
 		added: field.date({
-			default: sql`CURRENT_TIMESTAMP`
+			default: sql`CURRENT_TIMESTAMP`,
 		}),
 		updated: field.date({
-			default: NOW
+			default: NOW,
 		}),
 		isDark: field.boolean({ default: sql`TRUE` }),
 		owner: field.text({ optional: true, default: sql`NULL` }),
@@ -27,7 +27,7 @@ export default defineConfig({
 	db: {
 		studio: true,
 		collections: { Author, Themes },
-		async data({ seed, mode }) {
+		async data({ seed }) {
 			await seed(Author, [
 				{ name: 'Ben' },
 				{ name: 'Nate' },
@@ -35,13 +35,7 @@ export default defineConfig({
 				{ name: 'Bjorn' },
 				{ name: 'Sarah' },
 			]);
-			// Seed writable collections in dev mode, only
-			if (mode === 'dev') {
-				await seed(Themes, [
-					{ name: 'dracula' },
-					{ name: 'monokai' },
-				]);
-			}
+			await seed(Themes, [{ name: 'dracula' }, { name: 'monokai' }]);
 		},
 	},
 });

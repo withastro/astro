@@ -46,10 +46,12 @@ export async function setupDbTables({
 	}
 	if (data) {
 		try {
+			//@ts-ignore
 			await data({
 				seed: async ({ table }, values) => {
 					await db.insert(table).values(values as any);
 				},
+				// @ts-ignore
 				seedReturning: async ({ table }, values) => {
 					let result: SQLiteInsert<any, any, any, any> = db
 						.insert(table)

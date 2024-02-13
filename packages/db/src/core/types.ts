@@ -259,27 +259,53 @@ export type DBSnapshot = {
 export type ReadableDBCollection = z.infer<typeof readableCollectionSchema>;
 export type WritableDBCollection = z.infer<typeof writableCollectionSchema>;
 
-export type DBDataContext = {
+export type DBDataContext = DBDevDataContext | DBBuildDataContext;
+
+type BaseDataContext = {
 	db: SqliteDB;
 	seed: <TFields extends FieldsConfig>(
 		collection: ResolvedCollectionConfig<TFields>,
 		data: MaybeArray<SQLiteInsertValue<Table<string, TFields>>>
 	) => Promise<void>;
-	seedReturning: <
-		TFields extends FieldsConfig,
-		TData extends MaybeArray<SQLiteInsertValue<Table<string, TFields>>>,
-	>(
-		collection: ResolvedCollectionConfig<TFields>,
-		data: TData
-	) => Promise<
-		TData extends Array<SQLiteInsertValue<Table<string, TFields>>>
-			? InferSelectModel<Table<string, TFields>>[]
-			: InferSelectModel<Table<string, TFields>>
-	>;
-	mode: 'dev' | 'build';
 };
 
-export function defineData(fn: (ctx: DBDataContext) => MaybePromise<void>) {
+type DBDevDataContext = BaseDataContext & {
+	seedReturning: <
+		TWritable extends boolean,
+		TFields extends FieldsConfig,
+		TTable extends Table<string, TFields>,
+		TData extends MaybeArray<SQLiteInsertValue<TTable>>,
+	>(
+		collection: ResolvedCollectionConfig<TFields, TWritable>,
+		data: TData
+	) => Promise<
+		TData extends Array<SQLiteInsertValue<TTable>>
+			? InferSelectModel<TTable>[]
+			: InferSelectModel<TTable>
+	>;
+	mode: 'dev';
+};
+
+type DBBuildDataContext = BaseDataContext & {
+	seedReturning: <
+		TWritable extends boolean,
+		TFields extends FieldsConfig,
+		TTable extends Table<string, TFields>,
+		TData extends MaybeArray<SQLiteInsertValue<TTable>>,
+	>(
+		collection: ResolvedCollectionConfig<TFields, TWritable>,
+		data: TData
+	) => Promise<
+		TWritable extends false
+			? TData extends Array<SQLiteInsertValue<TTable>>
+				? InferSelectModel<TTable>[]
+				: InferSelectModel<TTable>
+			: undefined
+	>;
+	mode: 'build';
+};
+
+export function defineData(fn: (ctx: DBDevDataContext | DBBuildDataContext) => MaybePromise<void>) {
 	return fn;
 }
 
@@ -293,7 +319,7 @@ export const dbConfigSchema = z.object({
 });
 
 export type DBUserConfig = Omit<z.input<typeof dbConfigSchema>, 'data'> & {
-	data(params: DBDataContext): MaybePromise<void>;
+	data(params: DBDevDataContext | DBBuildDataContext): MaybePromise<void>;
 };
 
 export const astroConfigWithDbSchema = z.object({
