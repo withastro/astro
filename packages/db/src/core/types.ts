@@ -260,7 +260,11 @@ export type WritableDBCollection = z.infer<typeof writableCollectionSchema>;
 
 export type DBDataContext = {
 	db: SqliteDB;
-	seed: <
+	seed: <TFields extends FieldsConfig>(
+		collection: ResolvedCollectionConfig<TFields>,
+		data: MaybeArray<SQLiteInsertValue<Table<string, TFields>>>
+	) => Promise<void>;
+	seedReturning: <
 		TFields extends FieldsConfig,
 		TData extends MaybeArray<SQLiteInsertValue<Table<string, TFields>>>,
 	>(

@@ -12,7 +12,7 @@ import {
 } from '../core/types.js';
 import { bold } from 'kleur/colors';
 import { type SQL, sql } from 'drizzle-orm';
-import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
+import { SQLiteAsyncDialect, type SQLiteInsert } from 'drizzle-orm/sqlite-core';
 import type { AstroIntegrationLogger } from 'astro';
 import type { DBUserConfig } from '../core/types.js';
 import { hasPrimaryKey } from '../runtime/index.js';
@@ -53,16 +53,17 @@ export async function seedData({
 	try {
 		await data({
 			seed: async ({ table }, values) => {
-				const result = Array.isArray(values)
-					? db.insert(table).values(values).returning()
-					: db
-							.insert(table)
-							.values(values as any)
-							.returning()
-							.get();
-				// Drizzle types don't *quite* line up, and it's tough to debug why.
-				// we're casting and calling this close enough :)
-				return result as any;
+				await db.insert(table).values(values as any);
+			},
+			seedReturning: async ({ table }, values) => {
+				let result: SQLiteInsert<any, any, any, any> = db
+					.insert(table)
+					.values(values as any)
+					.returning();
+				if (!Array.isArray(values)) {
+					result = result.get();
+				}
+				return result;
 			},
 			db,
 			mode,
