@@ -2,7 +2,9 @@
 "astro": minor
 ---
 
-Remote images can now have their dimensions inferred just like local images, allow width and height to be optional when inferSize is set to true.
+Adds a new optional `astro:assets` image attribute `inferSize` for use with remote images.
+
+Remote images can now have their dimensions inferred just like local images. Setting `inferSize` to `true` allows you to use `getImage()` and the `<Image />` and `<Picture />` components without setting the `width` and `height` properties.
 
 ```astro
 ---
