@@ -278,6 +278,11 @@ describe('Middleware API in PROD mode, SSR', () => {
 		expect(response.headers.get('content-type')).equal('text/html');
 	});
 
+	it('can set locals for prerendered pages to use', async () => {
+		const text = await fixture.readFile('/client/prerendered/index.html');
+		expect(text.includes('<p>yes they can!</p>')).to.be.true;
+	});
+
 	// keep this last
 	it('the integration should receive the path to the middleware', async () => {
 		fixture = await loadFixture({

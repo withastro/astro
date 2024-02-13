@@ -95,6 +95,11 @@ export function serverStart({
 	return messages.filter((msg) => typeof msg === 'string').join('\n');
 }
 
+/** Display custom dev server shortcuts */
+export function serverShortcuts({ key, label }: { key: string; label: string }): string {
+	return [dim('  Press'), key, dim('to'), label].join(' ');
+}
+
 export function telemetryNotice() {
 	const headline = blue(`▶ Astro collects anonymous usage data.`);
 	const why = '  This information helps us improve Astro.';
@@ -220,7 +225,7 @@ export function formatConfigErrorMessage(err: ZodError) {
 
 // a regex to match the first line of a stack trace
 const STACK_LINE_REGEXP = /^\s+at /g;
-const IRRELEVANT_STACK_REGEXP = /(node_modules|astro[\/\\]dist)/g;
+const IRRELEVANT_STACK_REGEXP = /node_modules|astro[/\\]dist/g;
 function formatErrorStackTrace(
 	err: Error | ErrorWithMetadata,
 	showFullStacktrace: boolean

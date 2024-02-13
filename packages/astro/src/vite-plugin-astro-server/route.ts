@@ -108,7 +108,7 @@ export async function matchRoute(
 	// Try without `.html` extensions or `index.html` in request URLs to mimic
 	// routing behavior in production builds. This supports both file and directory
 	// build formats, and is necessary based on how the manifest tracks build targets.
-	const altPathname = pathname.replace(/(index)?\.html$/, '');
+	const altPathname = pathname.replace(/(?:index)?\.html$/, '');
 	if (altPathname !== pathname) {
 		return await matchRoute(altPathname, manifestData, pipeline);
 	}
@@ -229,12 +229,15 @@ export async function handleRoute({
 					return '';
 				},
 				params: [],
+				// Disable eslint as we only want to generate an empty RegExp
+				// eslint-disable-next-line prefer-regex-literals
 				pattern: new RegExp(''),
 				prerender: false,
 				segments: [],
 				type: 'fallback',
 				route: '',
 				fallbackRoutes: [],
+				isIndex: false,
 			};
 			renderContext = await createRenderContext({
 				request,
@@ -308,7 +311,7 @@ export async function handleRoute({
 	const onRequest: MiddlewareHandler = middleware.onRequest;
 	if (config.i18n) {
 		const i18Middleware = createI18nMiddleware(
-			config.i18n,
+			manifest.i18n,
 			config.base,
 			config.trailingSlash,
 			config.build.format
@@ -392,7 +395,7 @@ async function getScriptsAndStyles({ pipeline, filePath }: GetScriptsAndStylesPa
 	const settings = pipeline.getSettings();
 	const mode = pipeline.getEnvironment().mode;
 	// Add hoisted script tags
-	const scripts = await getScriptsForURL(filePath, settings.config.root, moduleLoader);
+	const { scripts } = await getScriptsForURL(filePath, settings.config.root, moduleLoader);
 
 	// Inject HMR scripts
 	if (isPage(filePath, settings) && mode === 'development') {

@@ -23,10 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Checkout Main into tmp
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           ref: main
           path: main
@@ -35,7 +35,7 @@ jobs:
         uses: pnpm/action-setup@v2
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: "pnpm"
@@ -44,7 +44,7 @@ jobs:
         run: pnpm install
 
       - name: Check Bundle Size
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const { default: script } = await import('${{ github.workspace }}/.github/scripts/bundle-size.mjs')

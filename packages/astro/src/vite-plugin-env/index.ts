@@ -13,7 +13,7 @@ interface EnvPluginOptions {
 const importMetaEnvOnlyRe = /\bimport\.meta\.env\b(?!\.)/;
 // Match valid JS variable names (identifiers), which accepts most alphanumeric characters,
 // except that the first character cannot be a number.
-const isValidIdentifierRe = /^[_$a-zA-Z][_$a-zA-Z0-9]*$/;
+const isValidIdentifierRe = /^[_$a-zA-Z][\w$]*$/;
 // Match `export const prerender = import.meta.env.*` since `vite=plugin-scanner` requires
 // the `import.meta.env.*` to always be replaced.
 const exportConstPrerenderRe = /\bexport\s+const\s+prerender\s*=\s*import\.meta\.env\.(.+?)\b/;

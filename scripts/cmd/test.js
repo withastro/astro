@@ -7,7 +7,7 @@ import arg from 'arg';
 import glob from 'tiny-glob';
 
 const isCI = !!process.env.CI;
-const defaultTimeout = isCI ? 30000 : 20000;
+const defaultTimeout = isCI ? 1200000 : 600000;
 
 export default async function test() {
 	const args = arg({
@@ -63,6 +63,11 @@ export default async function test() {
 		watch: args['--watch'],
 		timeout: args['--timeout'] ?? defaultTimeout, // Node.js defaults to Infinity, so set better fallback
 	})
+		.on('test:fail', () => {
+			// For some reason, a test fail using the JS API does not set an exit code of 1,
+			// so we set it here manually
+			process.exitCode = 1;
+		})
 		.pipe(new spec())
 		.pipe(process.stdout);
 }

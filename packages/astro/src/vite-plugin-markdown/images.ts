@@ -4,7 +4,10 @@ export function getMarkdownCodeForImages(imagePaths: MarkdownImagePath[], html: 
 	return `
 			import { getImage } from "astro:assets";
 			${imagePaths
-				.map((entry) => `import Astro__${entry.safeName} from ${JSON.stringify(entry.raw)};`)
+				.map((entry) => {
+					const prefix = entry.raw.includes('/') ? '' : './';
+					return `import Astro__${entry.safeName} from ${JSON.stringify(prefix + entry.raw)};`;
+				})
 				.join('\n')}
 
 			const images = async function(html) {
@@ -23,7 +26,7 @@ export function getMarkdownCodeForImages(imagePaths: MarkdownImagePath[], html: 
 													const matchKey = ${rawUrl} + '_' + occurrenceCounter;
 													const imageProps = JSON.parse(match[1].replace(/&#x22;/g, '"'));
 													const { src, ...props } = imageProps;
-
+													
 													imageSources[matchKey] = await getImage({src: Astro__${entry.safeName}, ...props});
 													occurrenceCounter++;
 											}
