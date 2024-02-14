@@ -50,6 +50,7 @@ export type SSRManifest = {
 	 */
 	clientDirectives: Map<string, string>;
 	entryModules: Record<string, string>;
+	inlinedScripts: Map<string, string>;
 	assets: Set<string>;
 	componentMetadata: SSRResult['componentMetadata'];
 	pageModule?: SinglePageBuiltModule;
@@ -68,10 +69,11 @@ export type SSRManifestI18n = {
 
 export type SerializedSSRManifest = Omit<
 	SSRManifest,
-	'middleware' | 'routes' | 'assets' | 'componentMetadata' | 'clientDirectives'
+	'middleware' | 'routes' | 'assets' | 'componentMetadata' | 'inlinedScripts' | 'clientDirectives'
 > & {
 	routes: SerializedRouteInfo[];
 	assets: string[];
 	componentMetadata: [string, SSRComponentMetadata][];
+	inlinedScripts: [string, string][];
 	clientDirectives: [string, string][];
 };

@@ -47,6 +47,7 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		params: renderContext.params,
 		pathname: renderContext.pathname,
 		componentMetadata: renderContext.componentMetadata,
+		inlinedScripts: env.inlinedScripts,
 		resolve: env.resolve,
 		renderers: env.renderers,
 		clientDirectives: env.clientDirectives,

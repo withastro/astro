@@ -48,6 +48,7 @@ export interface CreateResultArgs {
 	scripts?: Set<SSRElement>;
 	styles?: Set<SSRElement>;
 	componentMetadata?: SSRResult['componentMetadata'];
+	inlinedScripts?: SSRResult['inlinedScripts'];
 	request: Request;
 	status: number;
 	locals: App.Locals;
@@ -166,6 +167,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		scripts: args.scripts ?? new Set<SSRElement>(),
 		links: args.links ?? new Set<SSRElement>(),
 		componentMetadata: args.componentMetadata ?? new Map(),
+		inlinedScripts: args.inlinedScripts ?? new Map(),
 		renderers: args.renderers,
 		clientDirectives: args.clientDirectives,
 		compressHTML: args.compressHTML,

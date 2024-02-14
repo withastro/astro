@@ -39,6 +39,7 @@ export class BuildPipeline extends Pipeline {
 				mode: staticBuildOptions.mode,
 				renderers: manifest.renderers,
 				clientDirectives: manifest.clientDirectives,
+				inlinedScripts: manifest.inlinedScripts,
 				compressHTML: manifest.compressHTML,
 				async resolve(specifier: string) {
 					if (resolveCache.has(specifier)) {

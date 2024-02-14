@@ -19,6 +19,7 @@ export interface Environment {
 	compressHTML: boolean;
 	renderers: SSRLoadedRenderer[];
 	clientDirectives: Map<string, string>;
+	inlinedScripts: Map<string, string>;
 	resolve: (s: string) => Promise<string>;
 	routeCache: RouteCache;
 	/**

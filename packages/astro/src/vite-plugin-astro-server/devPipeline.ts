@@ -78,6 +78,7 @@ export default class DevPipeline extends Pipeline {
 			// This will be overridden in the dev server
 			renderers: [],
 			clientDirectives: manifest.clientDirectives,
+			inlinedScripts: manifest.inlinedScripts,
 			compressHTML: manifest.compressHTML,
 			resolve: createResolve(loader, settings.config.root),
 			routeCache: new RouteCache(logger, mode),

@@ -133,6 +133,7 @@ export class App {
 			compressHTML: this.#manifest.compressHTML,
 			renderers: this.#manifest.renderers,
 			clientDirectives: this.#manifest.clientDirectives,
+			inlinedScripts: this.#manifest.inlinedScripts,
 			resolve: async (specifier: string) => {
 				if (!(specifier in this.#manifest.entryModules)) {
 					throw new Error(`Unable to resolve [${specifier}]`);

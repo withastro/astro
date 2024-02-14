@@ -1604,11 +1604,13 @@ export interface AstroUserConfig {
 		 * @name experimental.directRenderScript
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 4.4.0
+		 * @version 4.5.0
 		 * @description
-		 * Directly render processed scripts where they are declared in Astro files. The scripts will no longer be hoisted to the head.
-		 * This may change the execution order of scripts if you added other inline scripts, but will result in more accurate script
-		 * inclusion when rendering the final HTML.
+		 * Directly render scripts as declared in Astro files (with features like TypeScript and importing `node_modules` still working).
+		 * This should result in scripts running in the correct pages compared to the previous static analysis approach.
+		 * 
+		 * However, as scripts are now directly rendered, they are no longer hoisted to the `<head>` and multiple scripts on a page are no
+		 * longer bundled together. If you enable this option, you should check if it affects your site's behaviour.
 		 *
 		 * ```js
 		 * {
@@ -2690,6 +2692,7 @@ export interface SSRResult {
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
 	componentMetadata: Map<string, SSRComponentMetadata>;
+	inlinedScripts: Map<string, string>;
 	createAstro(
 		Astro: AstroGlobalPartial,
 		props: Record<string, any>,

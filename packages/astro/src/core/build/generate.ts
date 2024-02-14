@@ -669,6 +669,7 @@ function createBuildManifest(
 		trailingSlash: settings.config.trailingSlash,
 		assets: new Set(),
 		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
+		inlinedScripts: internals.inlinedScripts,
 		routes: [],
 		adapterName: '',
 		clientDirectives: settings.clientDirectives,
