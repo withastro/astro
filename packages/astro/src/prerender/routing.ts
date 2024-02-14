@@ -40,32 +40,32 @@ async function preloadAndSetPrerenderStatus({
 	matches,
 	settings,
 }: PreloadAndSetPrerenderStatusParams): Promise<PreloadAndSetPrerenderStatusResult[]> {
-	const preloaded = new Array<PreloadAndSetPrerenderStatusResult>
-		for (const route of matches) {
-			const filePath = new URL(`./${route.component}`, settings.config.root);
-			if (routeIsRedirect(route)) {
-				preloaded.push({
-					preloadedComponent: RedirectComponentInstance,
-					route,
-					filePath,
-				});
-				continue;
-			}
-
-			const preloadedComponent = await preload({ pipeline, filePath });
-
-			// gets the prerender metadata set by the `astro:scanner` vite plugin
-			const prerenderStatus = getPrerenderStatus({
+	const preloaded = new Array<PreloadAndSetPrerenderStatusResult>();
+	for (const route of matches) {
+		const filePath = new URL(`./${route.component}`, settings.config.root);
+		if (routeIsRedirect(route)) {
+			preloaded.push({
+				preloadedComponent: RedirectComponentInstance,
+				route,
 				filePath,
-				loader: pipeline.getModuleLoader(),
 			});
-
-			if (prerenderStatus !== undefined) {
-				route.prerender = prerenderStatus;
-			}
-
-			preloaded.push({ preloadedComponent, route, filePath });
+			continue;
 		}
+
+		const preloadedComponent = await preload({ pipeline, filePath });
+
+		// gets the prerender metadata set by the `astro:scanner` vite plugin
+		const prerenderStatus = getPrerenderStatus({
+			filePath,
+			loader: pipeline.getModuleLoader(),
+		});
+
+		if (prerenderStatus !== undefined) {
+			route.prerender = prerenderStatus;
+		}
+
+		preloaded.push({ preloadedComponent, route, filePath });
+	}
 	return preloaded;
 }
 
