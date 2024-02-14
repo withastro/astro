@@ -22,6 +22,7 @@ package-lock.json
 *.env
 
 packages/astro/src/**/*.prebuilt.ts
+packages/astro/src/**/*.prebuilt-dev.ts
 !packages/astro/vendor/vite/dist
 packages/integrations/**/.netlify/
 
