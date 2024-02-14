@@ -185,9 +185,17 @@ declare const Astro: {
 						);
 						throw e;
 					}
-					await this.hydrator(this)(this.Component, props, slots, {
+					let hydrationTimeStart;
+					const hydrator = this.hydrator(this);
+					if (process.env.NODE_ENV === 'development') hydrationTimeStart = performance.now();
+					await hydrator(this.Component, props, slots, {
 						client: this.getAttribute('client'),
 					});
+					if (process.env.NODE_ENV === 'development' && hydrationTimeStart)
+						this.setAttribute(
+							'client-render-time',
+							(performance.now() - hydrationTimeStart).toString()
+						);
 					this.removeAttribute('ssr');
 					this.dispatchEvent(new CustomEvent('astro:hydrate'));
 				};
