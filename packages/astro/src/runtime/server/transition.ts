@@ -51,7 +51,7 @@ const addPairs = (
 // which cssesc also encodes as \xx
 const reEncodeValidChars: string[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"
 	.split('').reduce((v, c) => (v[c.charCodeAt(0)] = c, v), [] as string[]);
-const reEncodeInValidStart: string[] = "-0123456789"
+const reEncodeInValidStart: string[] = "-0123456789_"
 	.split('').reduce((v, c) => (v[c.charCodeAt(0)] = c, v), [] as string[]);
 
 function reEncode(s: string) {
@@ -64,13 +64,13 @@ function reEncode(s: string) {
 		if (codepoint !== undefined) { // this should never happen, they said!
 
 			// If we find a character in the range \x00 - \x7f that is not one of the reEncodeValidChars,
-			// we replace it with its hex value followed by an underscore for better readability,
-			// (because most of them are punctuations like ,'"":;_...)
-			// The underscore itself (code 95) is encoded as two underscores to avoid
+			// we replace it with its hex value escaped by an underscore for decodability (and better readability,
+			// because most of them are punctuations like ,'"":;_..., and '_' might be a better choice than '-')
+			// The underscore itself (code 95) is also escaped and encoded as two underscores to avoid
 			// collitions between original and encoded strings.
 			// All other values are just copied over
 			result += codepoint < 0x80
-				? (codepoint === 95 ? "__" : (reEncodeValidChars[codepoint] ?? (codepoint.toString(16) + '_')))
+				? (codepoint === 95 ? "__" : (reEncodeValidChars[codepoint] ?? ('_' + (codepoint.toString(16).padStart(2, "0")))))
 				: String.fromCodePoint(codepoint);
 		}
 	}
