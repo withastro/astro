@@ -70,7 +70,7 @@ describe('astro:db', () => {
 				expect(new Date(themeAdded).getTime()).to.not.be.NaN;
 			});
 
-			it.skip('Defaults can be overridden for dates', async () => {
+			it('Defaults can be overridden for dates', async () => {
 				const request = new Request('http://example.com/');
 				const res = await app.render(request);
 				const html = await res.text();
@@ -99,6 +99,6 @@ describe('astro:db', () => {
 				const themeDark = $($('.themes-list .theme-dark')[0]).text();
 				expect(themeDark).to.equal('dark mode');
 			});
-		})
+		});
 	});
 });
