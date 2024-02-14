@@ -72,7 +72,7 @@ export type RoutingStrategies =
 	| 'pathname-prefix-always-no-redirect'
 	| 'domains-prefix-always'
 	| 'domains-prefix-other-locales'
-	| 'domains-prefix-other-no-redirect';
+	| 'domains-prefix-always-no-redirect';
 
 export const AstroConfigSchema = z.object({
 	root: z
@@ -383,7 +383,7 @@ export const AstroConfigSchema = z.object({
 							if (routing.redirectToDefaultLocale) {
 								strategy = 'domains-prefix-always';
 							} else {
-								strategy = 'domains-prefix-other-no-redirect';
+								strategy = 'domains-prefix-always-no-redirect';
 							}
 						} else {
 							strategy = 'domains-prefix-other-locales';
@@ -439,7 +439,7 @@ export const AstroConfigSchema = z.object({
 						if (entries.length > 0) {
 							if (
 								routing !== 'domains-prefix-other-locales' &&
-								routing !== 'domains-prefix-other-no-redirect' &&
+								routing !== 'domains-prefix-always-no-redirect' &&
 								routing !== 'domains-prefix-always'
 							) {
 								ctx.addIssue({
@@ -627,7 +627,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 			if (experimental.i18nDomains) {
 				if (
 					i18n?.routing === 'domains-prefix-other-locales' ||
-					i18n?.routing === 'domains-prefix-other-no-redirect' ||
+					i18n?.routing === 'domains-prefix-always-no-redirect' ||
 					i18n?.routing === 'domains-prefix-always'
 				) {
 					if (!site) {

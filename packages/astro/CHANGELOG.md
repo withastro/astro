@@ -1,5 +1,29 @@
 # astro
 
+## 4.3.7
+
+### Patch Changes
+
+- [#9857](https://github.com/withastro/astro/pull/9857) [`73bd900754365b006ee730df9f379ba924e5b3fa`](https://github.com/withastro/astro/commit/73bd900754365b006ee730df9f379ba924e5b3fa) Thanks [@iamyunsin](https://github.com/iamyunsin)! - Fixes false positives in the dev overlay audit when multiple `role` values exist.
+
+- [#10075](https://github.com/withastro/astro/pull/10075) [`71273edbb429b5afdba6f8ee14681b66e4c09ecc`](https://github.com/withastro/astro/commit/71273edbb429b5afdba6f8ee14681b66e4c09ecc) Thanks [@lilnasy](https://github.com/lilnasy)! - Improves error messages for island hydration.
+
+- [#10072](https://github.com/withastro/astro/pull/10072) [`8106178043050d142bf385bed2990730518f28e2`](https://github.com/withastro/astro/commit/8106178043050d142bf385bed2990730518f28e2) Thanks [@lilnasy](https://github.com/lilnasy)! - Clarifies error messages in endpoint routing.
+
+- [#9971](https://github.com/withastro/astro/pull/9971) [`d9266c4467ca0faa1213c1a5995164e5655ab375`](https://github.com/withastro/astro/commit/d9266c4467ca0faa1213c1a5995164e5655ab375) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Fixes an issue where ReadableStream wasn't canceled in dev mode
+
+## 4.3.6
+
+### Patch Changes
+
+- [#10063](https://github.com/withastro/astro/pull/10063) [`dac759798c111494e76affd2c2504d63944871fe`](https://github.com/withastro/astro/commit/dac759798c111494e76affd2c2504d63944871fe) Thanks [@marwan-mohamed12](https://github.com/marwan-mohamed12)! - Moves `shikiji-core` from `devDependencies` to `dependencies` to prevent type errors
+
+- [#10067](https://github.com/withastro/astro/pull/10067) [`989ea63bb2a5a670021541198aa70b8dc7c4bd2f`](https://github.com/withastro/astro/commit/989ea63bb2a5a670021541198aa70b8dc7c4bd2f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression in the `astro:i18n` module, where the functions `getAbsoluteLocaleUrl` and `getAbsoluteLocaleUrlList` returned a URL with double slash with a certain combination of options.
+
+- [#10060](https://github.com/withastro/astro/pull/10060) [`1810309e65c596266355c3b7bb36cdac70f3305e`](https://github.com/withastro/astro/commit/1810309e65c596266355c3b7bb36cdac70f3305e) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where custom client directives added by integrations broke builds with a custom root.
+
+- [#9991](https://github.com/withastro/astro/pull/9991) [`8fb67c81bb84530b39df4a1449c0862def0854af`](https://github.com/withastro/astro/commit/8fb67c81bb84530b39df4a1449c0862def0854af) Thanks [@ktym4a](https://github.com/ktym4a)! - Increases compatibility with standard browser behavior by changing where view transitions occur on browser back navigation.
+
 ## 4.3.5
 
 ### Patch Changes

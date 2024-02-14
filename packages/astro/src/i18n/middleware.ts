@@ -137,7 +137,7 @@ export function createI18nMiddleware(
 					break;
 				}
 
-				case 'domains-prefix-other-no-redirect': {
+				case 'domains-prefix-always-no-redirect': {
 					if (localeHasntDomain(i18n, currentLocale)) {
 						const result = prefixAlwaysNoRedirect(url, response);
 						if (result) {
