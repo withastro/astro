@@ -52,10 +52,10 @@ describe('Aliases with tsconfig.json - baseUrl only', () => {
 			const $ = cheerio.load(html);
 
 			// Should render aliased element
-			assert.equal($('#client').text(), 'test')
+			assert.equal($('#client').text(), 'test');
 
 			const scripts = $('script').toArray();
-			assert.ok(scripts.length > 0)
+			assert.ok(scripts.length > 0);
 		});
 
 		it('can load via baseUrl', async () => {
@@ -78,7 +78,7 @@ describe('Aliases with tsconfig.json - baseUrl only', () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerio.load(html);
 
-			assert.equal($('#alias').text(), 'foo')
+			assert.equal($('#alias').text(), 'foo');
 		});
 	});
 
@@ -92,10 +92,10 @@ describe('Aliases with tsconfig.json - baseUrl only', () => {
 			const $ = cheerio.load(html);
 
 			// Should render aliased element
-			assert.equal($('#client').text(), 'test')
+			assert.equal($('#client').text(), 'test');
 
 			const scripts = $('script').toArray();
-			assert.ok(scripts.length > 0)
+			assert.ok(scripts.length > 0);
 		});
 
 		it('can load via baseUrl', async () => {
@@ -120,7 +120,7 @@ describe('Aliases with tsconfig.json - baseUrl only', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			assert.equal($('#alias').text(), 'foo')
+			assert.equal($('#alias').text(), 'foo');
 		});
 	});
 });
