@@ -10,14 +10,20 @@ import { shell } from './shell.js';
 // checks the user's project type and will return the proper npm registry
 //
 // A copy of this function also exists in the astro package
+let _registry: string;
 export async function getRegistry(): Promise<string> {
+	if (_registry) return _registry;
+	const fallback = 'https://registry.npmjs.org';
 	const packageManager = detectPackageManager()?.name || 'npm';
 	try {
 		const { stdout } = await shell(packageManager, ['config', 'get', 'registry']);
-		return stdout?.trim()?.replace(/\/$/, '') || 'https://registry.npmjs.org';
+		_registry = stdout?.trim()?.replace(/\/$/, '') || fallback;
+		// Detect cases where the shell command returned a non-URL (e.g. a warning)
+		if (!new URL(_registry).host) _registry = fallback;
 	} catch (e) {
-		return 'https://registry.npmjs.org';
+		_registry = fallback;
 	}
+	return _registry;
 }
 
 let stdout = process.stdout;
