@@ -129,6 +129,23 @@ test.describe('Dev Toolbar', () => {
 		await expect(auditWindow.locator('astro-dev-toolbar-icon[icon=check-circle]')).toBeVisible();
 	});
 
+	test('audit shows a window with list of problems', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
+		await appButton.click();
+
+		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
+		const auditWindow = auditCanvas.locator('astro-dev-toolbar-window');
+		await expect(auditWindow).toHaveCount(1);
+		await expect(auditWindow).toBeVisible();
+
+		// Toggle app off
+		await appButton.click();
+		await expect(auditWindow).not.toBeVisible();
+	});
+
 	test('adjusts tooltip position if off-screen', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/tooltip-position'));
 
