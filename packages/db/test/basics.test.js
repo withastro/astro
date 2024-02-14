@@ -70,6 +70,16 @@ describe('astro:db', () => {
 				expect(new Date(themeAdded).getTime()).to.not.be.NaN;
 			});
 
+			it.skip('Defaults can be overridden for dates', async () => {
+				const request = new Request('http://example.com/');
+				const res = await app.render(request);
+				const html = await res.text();
+				const $ = cheerioLoad(html);
+
+				const themeAdded = $($('.themes-list .theme-added')[1]).text();
+				expect(new Date(themeAdded).getTime()).to.not.be.NaN;
+			});
+
 			it('Allows expression defaults for text fields', async () => {
 				const request = new Request('http://example.com/');
 				const res = await app.render(request);

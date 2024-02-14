@@ -39,7 +39,7 @@ export default defineConfig({
 			// but in this case we do it for both, due to tests
 			await seed(Themes, [
 				{ name: 'dracula' },
-				{ name: 'monokai' },
+				{ name: 'monokai', added: new Date() },
 			]);
 		},
 	},
