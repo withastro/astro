@@ -48,8 +48,15 @@ export async function renderPage(
 
 	let body: BodyInit | Response;
 	if (streaming) {
-		if(isNode) {
-			const nodeBody = await renderToAsyncIterable(result, componentFactory, props, children, true, route);
+		if (isNode) {
+			const nodeBody = await renderToAsyncIterable(
+				result,
+				componentFactory,
+				props,
+				children,
+				true,
+				route
+			);
 			// Node.js allows passing in an AsyncIterable to the Response constructor.
 			// This is non-standard so using `any` here to preserve types everywhere else.
 			body = nodeBody as any;

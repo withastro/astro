@@ -95,8 +95,8 @@ ${Array.from({ length: 1000 })
 };
 
 export const renderPages = [];
-for(const file of Object.keys(renderFiles)) {
-	if(file.startsWith('pages/')) {
+for (const file of Object.keys(renderFiles)) {
+	if (file.startsWith('pages/')) {
 		renderPages.push(file.replace('pages/', ''));
 	}
 }

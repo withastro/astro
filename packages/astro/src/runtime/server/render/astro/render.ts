@@ -177,19 +177,18 @@ export async function renderToAsyncIterable(
 	isPage = false,
 	route?: RouteData
 ): Promise<AsyncIterable<Uint8Array> | Response> {
-  const templateResult = await callComponentAsTemplateResultOrResponse(
-    result,
-    componentFactory,
-    props,
-    children,
-    route
-  );
-  if (templateResult instanceof Response)
-    return templateResult;
-  let renderedFirstPageChunk = false;
-  if (isPage) {
-    await bufferHeadContent(result);
-  }
+	const templateResult = await callComponentAsTemplateResultOrResponse(
+		result,
+		componentFactory,
+		props,
+		children,
+		route
+	);
+	if (templateResult instanceof Response) return templateResult;
+	let renderedFirstPageChunk = false;
+	if (isPage) {
+		await bufferHeadContent(result);
+	}
 
 	// This implements the iterator protocol:
 	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_async_iterator_and_async_iterable_protocols
@@ -197,90 +196,92 @@ export async function renderToAsyncIterable(
 	// The `buffer` array acts like a buffer. During render the `destination` pushes
 	// chunks of Uint8Arrays into the buffer. The response calls `next()` and we combine
 	// all of the chunks into one Uint8Array and then empty it.
-	
+
 	let error: Error | null = null;
 	// The `next` is an object `{ promise, resolve, reject }` that we use to wait
 	// for chunks to be pushed into the buffer.
-  let next = promiseWithResolvers<void>();
-  const buffer: Uint8Array[] = []; // []Uint8Array
+	let next = promiseWithResolvers<void>();
+	const buffer: Uint8Array[] = []; // []Uint8Array
 
-  const iterator = {
-    async next() {
-      await next.promise;
+	const iterator = {
+		async next() {
+			await next.promise;
 
 			// If an error occurs during rendering, throw the error as we cannot proceed.
-			if(error) {
+			if (error) {
 				throw error;
 			}
 
-      // Get the total length of all arrays.
-      let length = 0;
-			for(let i = 0, len = buffer.length; i < len; i++) {
+			// Get the total length of all arrays.
+			let length = 0;
+			for (let i = 0, len = buffer.length; i < len; i++) {
 				length += buffer[i].length;
 			}
 
-      // Create a new array with total length and merge all source arrays.
-      let mergedArray = new Uint8Array(length);
-      let offset = 0;
-			for(let i = 0, len = buffer.length; i < len; i++) {
+			// Create a new array with total length and merge all source arrays.
+			let mergedArray = new Uint8Array(length);
+			let offset = 0;
+			for (let i = 0, len = buffer.length; i < len; i++) {
 				const item = buffer[i];
-        mergedArray.set(item, offset);
-        offset += item.length;
+				mergedArray.set(item, offset);
+				offset += item.length;
 			}
 
-      // Empty the array. We do this so that we can reuse the same array.
-      buffer.length = 0;
+			// Empty the array. We do this so that we can reuse the same array.
+			buffer.length = 0;
 
-      const returnValue = {
+			const returnValue = {
 				// The iterator is done if there are no chunks to return.
-        done: length === 0,
-        value: mergedArray
-      };
+				done: length === 0,
+				value: mergedArray,
+			};
 
-      return returnValue;
-    }
-  };
+			return returnValue;
+		},
+	};
 
-  const destination: RenderDestination = {
-    write(chunk) {
-      if (isPage && !renderedFirstPageChunk) {
-        renderedFirstPageChunk = true;
-        if (!result.partial && !DOCTYPE_EXP.test(String(chunk))) {
-          const doctype = result.compressHTML ? "<!DOCTYPE html>" : "<!DOCTYPE html>\n";
-          buffer.push(encoder.encode(doctype));
-        }
-      }
-      if (chunk instanceof Response) {
-        throw new AstroError(AstroErrorData.ResponseSentError);
-      }
-      const bytes = chunkToByteArray(result, chunk);
+	const destination: RenderDestination = {
+		write(chunk) {
+			if (isPage && !renderedFirstPageChunk) {
+				renderedFirstPageChunk = true;
+				if (!result.partial && !DOCTYPE_EXP.test(String(chunk))) {
+					const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
+					buffer.push(encoder.encode(doctype));
+				}
+			}
+			if (chunk instanceof Response) {
+				throw new AstroError(AstroErrorData.ResponseSentError);
+			}
+			const bytes = chunkToByteArray(result, chunk);
 			// It might be possible that we rendered a chunk with no content, in which
 			// case we don't want to resolve the promise.
-			if(bytes.length > 0) {
+			if (bytes.length > 0) {
 				// Push the chunks into the buffer and resolve the promise so that next()
 				// will run.
 				buffer.push(bytes);
 				next.resolve();
 				next = promiseWithResolvers<void>();
 			}
-    }
-  };
+		},
+	};
 
 	const renderPromise = templateResult.render(destination);
-  renderPromise.then(() => {
-		// Once rendering is complete, calling resolve() allows the iterator to finish running.
-		next.resolve();
-	}).catch(err => {
-		// If an error occurs, save it in the scope so that we throw it when next() is called.
-		error = err;
-		next.resolve();
-	});
+	renderPromise
+		.then(() => {
+			// Once rendering is complete, calling resolve() allows the iterator to finish running.
+			next.resolve();
+		})
+		.catch((err) => {
+			// If an error occurs, save it in the scope so that we throw it when next() is called.
+			error = err;
+			next.resolve();
+		});
 
 	// This is the Iterator protocol, an object with a `Symbol.asyncIterator`
 	// function that returns an object like `{ next(): Promise<{ done: boolean; value: any }> }`
-  return {
-    [Symbol.asyncIterator]() {
-      return iterator;
-    }
-  };
+	return {
+		[Symbol.asyncIterator]() {
+			return iterator;
+		},
+	};
 }

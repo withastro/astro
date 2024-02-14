@@ -197,14 +197,15 @@ export function renderToBufferDestination(bufferRenderFunction: RenderFunction):
 	};
 }
 
-export const isNode = typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]';
+export const isNode =
+	typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]';
 
 // We can get rid of this when Promise.withResolvers() is ready
 export type PromiseWithResolvers<T> = {
-	promise: Promise<T>
+	promise: Promise<T>;
 	resolve: (value: T) => void;
 	reject: (reason?: any) => void;
-}
+};
 
 // This is an implementation of Promise.withResolvers(), which we can't yet rely on.
 // We can remove this once the native function is available in Node.js
@@ -217,6 +218,6 @@ export function promiseWithResolvers<T = any>(): PromiseWithResolvers<T> {
 	return {
 		promise,
 		resolve,
-		reject
+		reject,
 	};
 }
