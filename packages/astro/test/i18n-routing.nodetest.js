@@ -1607,15 +1607,6 @@ describe('[SSR] i18n routing', () => {
 					root: './fixtures/i18n-routing/',
 					output: 'server',
 					adapter: testAdapter(),
-					i18n: {
-						defaultLocale: 'en',
-						locales: [
-							{
-								path: 'english',
-								codes: ['en', 'en-AU', 'pt-BR', 'es-US'],
-							},
-						],
-					},
 				});
 				await fixture.build();
 				app = await fixture.loadTestAdapterApp();
@@ -1624,14 +1615,14 @@ describe('[SSR] i18n routing', () => {
 			it('they should be still considered when parsing the Accept-Language header', async () => {
 				let request = new Request('http://example.com/preferred-locale', {
 					headers: {
-						'Accept-Language': 'en-AU;q=0.1,pt-BR;q=0.9',
+						'Accept-Language': 'en-AU;q=0.1,es;q=0.9',
 					},
 				});
 				let response = await app.render(request);
 				const text = await response.text();
 				assert.equal(response.status, 200);
-				assert.equal(text.includes('Locale: english'), true);
-				assert.equal(text.includes('Locale list: english'), true);
+				assert.equal(text.includes('Locale: spanish'), true);
+				assert.equal(text.includes('Locale list: spanish'), true);
 			});
 		});
 	});

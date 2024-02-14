@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 7.3.1
+
+### Patch Changes
+
+- [#10082](https://github.com/withastro/astro/pull/10082) [`2ffc5721bc22631c44d90ac43ec27fdb0b5b2d1b`](https://github.com/withastro/astro/commit/2ffc5721bc22631c44d90ac43ec27fdb0b5b2d1b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Prevents infinite redirects when Astro `trailingSlash` configuration is set to `"always"` and "vercel.json" `trailingSlash` configuration is set to `true`
+
 ## 7.3.0
 
 ### Minor Changes
