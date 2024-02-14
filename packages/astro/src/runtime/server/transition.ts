@@ -49,19 +49,23 @@ const addPairs = (
 // but it just ignores them during view transitions if they contain escaped 7-bit ASCII characters
 // like \<space> or \. A special case are digits and minus at the beginning of the string,
 // which cssesc also encodes as \xx
-const reEncodeValidChars: string[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"
-	.split('').reduce((v, c) => (v[c.charCodeAt(0)] = c, v), [] as string[]);
-const reEncodeInValidStart: string[] = "-0123456789_"
-	.split('').reduce((v, c) => (v[c.charCodeAt(0)] = c, v), [] as string[]);
+const reEncodeValidChars: string[] =
+	'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_'
+		.split('')
+		.reduce((v, c) => ((v[c.charCodeAt(0)] = c), v), [] as string[]);
+const reEncodeInValidStart: string[] = '-0123456789_'
+	.split('')
+	.reduce((v, c) => ((v[c.charCodeAt(0)] = c), v), [] as string[]);
 
 function reEncode(s: string) {
 	let result = '';
 	let codepoint;
 	// we work on codepoints that might use more than 16bit, not character codes.
 	// so the index will often step by 1 as usual or by 2 if the codepoint is greater than 0xFFFF
-	for (let i = 0; i < s.length; i += (codepoint ?? 0) > 0xFFFF ? 2 : 1) {
+	for (let i = 0; i < s.length; i += (codepoint ?? 0) > 0xffff ? 2 : 1) {
 		codepoint = s.codePointAt(i);
-		if (codepoint !== undefined) { // this should never happen, they said!
+		if (codepoint !== undefined) {
+			// this should never happen, they said!
 
 			// If we find a character in the range \x00 - \x7f that is not one of the reEncodeValidChars,
 			// we replace it with its hex value escaped by an underscore for decodability (and better readability,
@@ -69,9 +73,12 @@ function reEncode(s: string) {
 			// The underscore itself (code 95) is also escaped and encoded as two underscores to avoid
 			// collitions between original and encoded strings.
 			// All other values are just copied over
-			result += codepoint < 0x80
-				? (codepoint === 95 ? "__" : (reEncodeValidChars[codepoint] ?? ('_' + (codepoint.toString(16).padStart(2, "0")))))
-				: String.fromCodePoint(codepoint);
+			result +=
+				codepoint < 0x80
+					? codepoint === 95
+						? '__'
+						: reEncodeValidChars[codepoint] ?? '_' + codepoint.toString(16).padStart(2, '0')
+					: String.fromCodePoint(codepoint);
 		}
 	}
 	// Digits and minus sign at the beginning of the string are special, so we simply prepend an underscore
@@ -123,7 +130,7 @@ class ViewTransitionStyleSheet {
 	constructor(
 		private scope: string,
 		private name: string
-	) { }
+	) {}
 
 	toString() {
 		const { scope, name } = this;

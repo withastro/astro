@@ -1364,7 +1364,7 @@ test.describe('View Transitions', () => {
 		);
 
 		await page.click('#navigate');
-		await page.waitForTimeout(400);	// yes, I dislike this, too. Might fix later.
+		await page.waitForTimeout(400); // yes, I dislike this, too. Might fix later.
 		expect(
 			expectedAnimations.size,
 			'all animations for transition:names should have been found'
