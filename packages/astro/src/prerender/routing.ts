@@ -40,16 +40,16 @@ async function preloadAndSetPrerenderStatus({
 	matches,
 	settings,
 }: PreloadAndSetPrerenderStatusParams): Promise<PreloadAndSetPrerenderStatusResult[]> {
-	const preloaded = await Promise.all(
-		matches.map(async (route) => {
+	const preloaded = new Array<PreloadAndSetPrerenderStatusResult>
+		for (const route of matches) {
 			const filePath = new URL(`./${route.component}`, settings.config.root);
-
 			if (routeIsRedirect(route)) {
-				return {
+				preloaded.push({
 					preloadedComponent: RedirectComponentInstance,
 					route,
 					filePath,
-				};
+				});
+				continue;
 			}
 
 			const preloadedComponent = await preload({ pipeline, filePath });
@@ -64,9 +64,8 @@ async function preloadAndSetPrerenderStatus({
 				route.prerender = prerenderStatus;
 			}
 
-			return { preloadedComponent, route, filePath };
-		})
-	);
+			preloaded.push({ preloadedComponent, route, filePath });
+		}
 	return preloaded;
 }
 
