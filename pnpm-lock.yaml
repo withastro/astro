@@ -495,8 +495,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^2.5.3
-        version: 2.5.3
+        specifier: 0.0.0-render-script-20240214150051
+        version: 0.0.0-render-script-20240214150051
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
@@ -5337,12 +5337,17 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
+  /@astrojs/compiler@0.0.0-render-script-20240214150051:
+    resolution: {integrity: sha512-LMMkXwFivEOmI9yyU+PZCL0zVBEqkCweqPtqFCOuN2VNSYeSRfEcyiciIEiGXBNB37It7JCJt5ZFBQRCUOHsRw==}
+    dev: false
+
   /@astrojs/compiler@1.8.2:
     resolution: {integrity: sha512-o/ObKgtMzl8SlpIdzaxFnt7SATKPxu4oIP/1NL+HDJRzxfJcAkOTAb/ZKMRyULbz4q+1t2/DAebs2Z1QairkZw==}
     dev: true
 
   /@astrojs/compiler@2.5.3:
     resolution: {integrity: sha512-jzj01BRv/fmo+9Mr2FhocywGzEYiyiP2GVHje1ziGNU6c97kwhYGsnvwMkHrncAy9T9Vi54cjaMK7UE4ClX4vA==}
+    dev: true
 
   /@astrojs/language-server@2.5.5(prettier-plugin-astro@0.12.3)(prettier@3.1.1)(typescript@5.2.2):
     resolution: {integrity: sha512-hk7a8S7bpf//BOA6mMjiYqi/eiYtGPfUfw59eVXdutdRFdwDHtu4jcsLu43ZaId56pAcE8qFjIvJxySvzcxiUA==}
