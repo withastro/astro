@@ -8,6 +8,7 @@ import {
 } from '../utils/highlight.js';
 import { createWindowElement } from '../utils/window.js';
 import { a11y } from './a11y.js';
+import { finder } from '@medv/finder';
 
 const icon =
 	'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 1 20 16"><path fill="#fff" d="M.6 2A1.1 1.1 0 0 1 1.7.9h16.6a1.1 1.1 0 1 1 0 2.2H1.6A1.1 1.1 0 0 1 .8 2Zm1.1 7.1h6a1.1 1.1 0 0 0 0-2.2h-6a1.1 1.1 0 0 0 0 2.2ZM9.3 13H1.8a1.1 1.1 0 1 0 0 2.2h7.5a1.1 1.1 0 1 0 0-2.2Zm11.3 1.9a1.1 1.1 0 0 1-1.5 0l-1.7-1.7a4.1 4.1 0 1 1 1.6-1.6l1.6 1.7a1.1 1.1 0 0 1 0 1.6Zm-5.3-3.4a1.9 1.9 0 1 0 0-3.8 1.9 1.9 0 0 0 0 3.8Z"/></svg>';
@@ -125,17 +126,26 @@ export default {
               right: 8px;
               transform: none;
               width: 320px;
+              max-height: 320px;
               padding: 0;
               overflow: hidden;
 						}
 
 						hr {
-						  margin-bottom: 0;
+						  margin: 0;
+						}
+
+						header {
+						  display: flex;
+							justify-content: space-between;
+							align-items: center;
+						  padding: 18px;
 						}
 
 						h1 {
-              padding: 18px;
-              padding-bottom: 0;
+						  font-size: 22px;
+  						font-weight: 600;
+  						color: #fff;
 						}
 
 						ul, li {
@@ -168,7 +178,12 @@ export default {
 						}
 					</style>
 
-					<h1>Audits</h1>
+					<header>
+					  <h1>Audits</h1>
+						<astro-dev-toolbar-badge size="large">${audits.length} problem${
+							audits.length > 1 ? 's' : ''
+						} found</astro-dev-toolbar-badge>
+					</header>
 					<hr />`
 				);
 
@@ -178,8 +193,6 @@ export default {
 					const resolvedRule = resolveAuditRule(audit.rule, audit.auditedElement);
 					const card = document.createElement('astro-dev-toolbar-card');
 
-					console.log(index);
-					console.log(audits.length);
 					card.shadowRoot.innerHTML = `
 					<style>
 					 :host>button {
@@ -202,17 +215,13 @@ export default {
 						audit.highlightElement.focus();
 					};
 					const h3 = document.createElement('h3');
-					h3.innerHTML = getDomPath(audit.auditedElement, true) as string;
+					h3.innerText = finder(audit.auditedElement);
 					card.appendChild(h3);
 					const div = document.createElement('div');
 					const title = document.createElement('span');
 					title.classList.add('audit-title');
 					title.innerHTML = resolvedRule.title;
 					div.appendChild(title);
-					const description = document.createElement('span');
-					description.classList.add('audit-description');
-					description.innerHTML = resolvedRule.message;
-					div.appendChild(description);
 					card.appendChild(div);
 					auditListUl.appendChild(card);
 				});
@@ -377,106 +386,3 @@ export default {
 		}
 	},
 } satisfies DevToolbarApp;
-
-function getDomPath(el, noVerify) {
-	// store the original element if verify is enabled. If it isn't, then don't even bother
-	// taking up any memory for it.
-
-	const origElem = el;
-
-	if (!el) {
-		console.error('No element provided');
-		return;
-	}
-
-	const stack = [];
-	let levelCount = 0;
-	let nearestElemWithId = null;
-
-	let sibParent;
-	let sibSiblings;
-
-	do {
-		levelCount++;
-
-		let sibCount = 0;
-		let sibIndex = 0;
-		sibParent = el?.parentNode;
-		sibSiblings = sibParent?.children;
-
-		if (sibSiblings) {
-			sibSiblings = Array.from(sibSiblings).filter((sibElem) => el.nodeName == sibElem.nodeName);
-		}
-
-		// Iterate over the childNodes of the elements parentNode to get the
-		// index to use
-		if (sibSiblings) {
-			for (let i = 0; i < sibSiblings.length; i++) {
-				let sib = sibSiblings[i];
-
-				//if ( sib.nodeName != el.nodeName )  continue;
-
-				sibCount++;
-
-				if (sib === el) {
-					// If this is the correct element, then save the sibIndex
-					// and stop looping
-					sibIndex = sibCount;
-					break;
-				}
-			}
-		}
-
-		if (el && el.hasAttribute('id') && el.id != '') {
-			nearestElemWithId = el.id;
-
-			// Turns out, if you have an id that starts with a numerical value, then you can't
-			// use it in querySelector[All] unless you either escape it or add [id=] to it.
-			if (/^[0-9]/.test(el.id)) {
-				stack.unshift(`[id="${el.id}"]`);
-			} else {
-				stack.unshift(`#${el.id}`);
-			}
-		} else if (sibCount > 1) {
-			stack.unshift(el.nodeName.toLowerCase() + ':nth-of-type(' + parseInt(sibIndex) + ')');
-		} else {
-			stack.unshift(el.nodeName.toLowerCase());
-		}
-
-		el = sibParent;
-	} while (sibParent?.nodeType === Node.ELEMENT_NODE && nearestElemWithId === null);
-
-	if (stack[0] === 'html') stack.shift();
-
-	const result = stack.join(' > ');
-
-	if (noVerify) return result;
-
-	let selectionFromResult;
-
-	try {
-		selectionFromResult = document.querySelector(result);
-	} catch (err) {
-		console.error(
-			`Encountered an exception when trying to verify querySelector(${result})\n\tError:`,
-			err
-		);
-	}
-
-	// If there's no matches when using querySelector() with the result string, then
-	// return false;
-	if (!selectionFromResult) {
-		console.error(`Failed to find any document using querySelector(${result})`);
-		return false;
-	}
-
-	// If there is a result, but its not the same element, then return false;
-	else if (!origElem.isSameNode(selectionFromResult)) {
-		console.error(
-			`Element returned from querySelector(${result}) is not the same as the element provided`
-		);
-	}
-
-	// If we got here, then the matched element is the same element, then it's been verified.
-	return result;
-}

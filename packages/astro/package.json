@@ -126,6 +126,7 @@
     "@babel/plugin-transform-react-jsx": "^7.22.5",
     "@babel/traverse": "^7.23.3",
     "@babel/types": "^7.23.3",
+    "@medv/finder": "^3.1.0",
     "@types/babel__core": "^7.20.4",
     "acorn": "^8.11.2",
     "aria-query": "^5.3.0",
