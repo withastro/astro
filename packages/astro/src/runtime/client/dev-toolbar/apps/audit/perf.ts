@@ -1,7 +1,7 @@
 import type { AuditRuleWithSelector } from './index.js';
 
 // A regular expression to match external URLs
-const externalUrlRe = /^(?:[a-z+]+:)?\/\//i;
+const EXTERNAL_URL_REGEX = /^(?:[a-z+]+:)?\/\//i;
 
 export const perf: AuditRuleWithSelector[] = [
 	{
@@ -18,9 +18,9 @@ export const perf: AuditRuleWithSelector[] = [
 
 			// Ignore images that are smaller than 20KB, most of the time the image component won't really help with these, or they're used for specific use-cases (pixel tracking, etc.)
 			// Ignore this test for remote images for now, fetching them can be very slow and possibly dangerous
-			if (!externalUrlRe.test(src)) {
+			if (!EXTERNAL_URL_REGEX.test(src)) {
 				const imageData = await fetch(src).then((response) => response.blob());
-				if (imageData.size < 20 * 1024) return false;
+				if (imageData.size < 20480) return false;
 			}
 
 			return true;
@@ -49,8 +49,7 @@ export const perf: AuditRuleWithSelector[] = [
 		selector: 'img[loading="lazy"], iframe[loading="lazy"]',
 		match(element) {
 			const htmlElement = element as HTMLImageElement | HTMLIFrameElement;
-			console.log(htmlElement);
-			console.log({ offsetTop: htmlElement.offsetTop, innerHeight: window.innerHeight });
+
 			// Ignore elements that are below the fold, they should be loaded lazily
 			if (htmlElement.offsetTop > window.innerHeight) return false;
 
@@ -68,12 +67,12 @@ export const perf: AuditRuleWithSelector[] = [
 			if (!src) return false;
 
 			// Ignore remote URLs
-			if (externalUrlRe.test(src)) return false;
+			if (EXTERNAL_URL_REGEX.test(src)) return false;
 
 			// Ignore GIFs that are smaller than 100KB, those are typically small enough to not be a problem
-			if (!externalUrlRe.test(src)) {
+			if (!EXTERNAL_URL_REGEX.test(src)) {
 				const imageData = await fetch(src).then((response) => response.blob());
-				if (imageData.size < 100 * 1024) return false;
+				if (imageData.size < 102400) return false;
 			}
 
 			return true;
@@ -85,7 +84,7 @@ export const perf: AuditRuleWithSelector[] = [
 		message: (element) =>
 			`This component took an unusually long time to render on the server (${getCleanRenderingTime(
 				element.getAttribute('server-render-time')
-			)}.). This might be a sign that it's doing too much work on the server, or something is blocking rendering.`,
+			)}). This might be a sign that it's doing too much work on the server, or something is blocking rendering.`,
 		selector: 'astro-island[server-render-time]',
 		match(element) {
 			const serverRenderTime = element.getAttribute('server-render-time');
@@ -103,7 +102,7 @@ export const perf: AuditRuleWithSelector[] = [
 		message: (element) =>
 			`This component took an unusually long time to render on the server (${getCleanRenderingTime(
 				element.getAttribute('client-render-time')
-			)}.). This could be a sign that something is blocking the main thread and preventing the component from hydrating quickly.`,
+			)}). This could be a sign that something is blocking the main thread and preventing the component from hydrating quickly.`,
 		selector: 'astro-island[client-render-time]',
 		match(element) {
 			const clientRenderTime = element.getAttribute('client-render-time');
