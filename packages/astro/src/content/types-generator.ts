@@ -312,13 +312,6 @@ export async function createContentTypesGenerator({
 				viteServer,
 			});
 			invalidateVirtualMod(viteServer);
-			if (observable.status === 'loaded') {
-				warnNonexistentCollections({
-					logger,
-					contentConfig: observable.config,
-					collectionEntryMap,
-				});
-			}
 		}
 	}
 	return { init, queueEvent };
@@ -370,6 +363,9 @@ async function writeContentFiles({
 }) {
 	let contentTypesStr = '';
 	let dataTypesStr = '';
+	for (const [collection, config] of Object.entries(contentConfig?.collections ?? {})) {
+		collectionEntryMap[JSON.stringify(collection)] ??= { type: config.type, entries: {} };
+	}
 	for (const collectionKey of Object.keys(collectionEntryMap).sort()) {
 		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
 		const collection = collectionEntryMap[collectionKey];
@@ -454,25 +450,4 @@ async function writeContentFiles({
 		new URL(CONTENT_TYPES_FILE, contentPaths.cacheDir),
 		typeTemplateContent
 	);
-}
-
-function warnNonexistentCollections({
-	contentConfig,
-	collectionEntryMap,
-	logger,
-}: {
-	contentConfig: ContentConfig;
-	collectionEntryMap: CollectionEntryMap;
-	logger: Logger;
-}) {
-	for (const configuredCollection in contentConfig.collections) {
-		if (!collectionEntryMap[JSON.stringify(configuredCollection)]) {
-			logger.warn(
-				'content',
-				`The ${bold(configuredCollection)} collection is defined but no ${bold(
-					'content/' + configuredCollection
-				)} folder exists in the content directory. Create a new folder for the collection, or check your content configuration file for typos.`
-			);
-		}
-	}
 }
