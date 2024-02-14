@@ -55,17 +55,13 @@ type D1ColumnBuilder = SQLiteColumnBuilderBase<
 	ColumnBuilderBaseConfig<ColumnDataType, string> & { data: unknown }
 >;
 
-export function collectionToTable(
-	name: string,
-	collection: DBCollection,
-	isJsonSerializable = true
-) {
+export function collectionToTable(name: string, collection: DBCollection) {
 	const columns: Record<string, D1ColumnBuilder> = {};
 	if (!Object.entries(collection.fields).some(([, field]) => hasPrimaryKey(field))) {
 		columns['_id'] = integer('_id').primaryKey();
 	}
 	for (const [fieldName, field] of Object.entries(collection.fields)) {
-		columns[fieldName] = columnMapper(fieldName, field, isJsonSerializable);
+		columns[fieldName] = columnMapper(fieldName, field);
 	}
 	const table = sqliteTable(name, columns, (ormTable) => {
 		const indexes: Record<string, IndexBuilder> = {};
@@ -85,7 +81,7 @@ function atLeastOne<T>(arr: T[]): arr is [T, ...T[]] {
 	return arr.length > 0;
 }
 
-function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boolean) {
+function columnMapper(fieldName: string, field: DBField) {
 	let c: ReturnType<
 		| typeof text
 		| typeof integer
@@ -99,19 +95,22 @@ function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boo
 			c = text(fieldName);
 			// Duplicate default logic across cases to preserve type inference.
 			// No clean generic for every column builder.
-			if (field.schema.default !== undefined) c = c.default(handleSerializedSQL(field.schema.default));
+			if (field.schema.default !== undefined)
+				c = c.default(handleSerializedSQL(field.schema.default));
 			if (field.schema.primaryKey === true) c = c.primaryKey();
 			break;
 		}
 		case 'number': {
 			c = integer(fieldName);
-			if (field.schema.default !== undefined) c = c.default(handleSerializedSQL(field.schema.default));
+			if (field.schema.default !== undefined)
+				c = c.default(handleSerializedSQL(field.schema.default));
 			if (field.schema.primaryKey === true) c = c.primaryKey();
 			break;
 		}
 		case 'boolean': {
 			c = integer(fieldName, { mode: 'boolean' });
-			if (field.schema.default !== undefined) c = c.default(handleSerializedSQL(field.schema.default));
+			if (field.schema.default !== undefined)
+				c = c.default(handleSerializedSQL(field.schema.default));
 			break;
 		}
 		case 'json':
@@ -119,24 +118,10 @@ function columnMapper(fieldName: string, field: DBField, isJsonSerializable: boo
 			if (field.schema.default !== undefined) c = c.default(field.schema.default);
 			break;
 		case 'date': {
-			// Parse dates as strings when in JSON serializable mode
-			if (isJsonSerializable) {
-				c = text(fieldName);
-				if (field.schema.default !== undefined) {
-					c = c.default(handleSerializedSQL(field.schema.default));
-				}
-			} else {
-				c = dateType(fieldName);
-				if (field.schema.default !== undefined) {
-					const def = handleSerializedSQL(field.schema.default);
-					c = c.default(
-						def instanceof SQL
-							? def
-							: // default comes pre-transformed to an ISO string for D1 storage.
-								// parse back to a Date for Drizzle.
-								z.coerce.date().parse(field.schema.default)
-					);
-				}
+			c = text(fieldName);
+			console.log(field.schema.default, 'default');
+			if (field.schema.default !== undefined) {
+				c = c.default(handleSerializedSQL(field.schema.default));
 			}
 			break;
 		}
