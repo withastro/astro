@@ -75,7 +75,7 @@ const numberFieldOptsSchema: z.ZodType<
 
 const numberFieldSchema = z.object({
 	type: z.literal('number'),
-	schema: numberFieldOptsSchema
+	schema: numberFieldOptsSchema,
 });
 
 const textFieldBaseSchema = baseFieldSchema
@@ -122,7 +122,7 @@ const textFieldOptsSchema: z.ZodType<
 
 const textFieldSchema = z.object({
 	type: z.literal('text'),
-	schema: textFieldOptsSchema
+	schema: textFieldOptsSchema,
 });
 
 const dateFieldSchema = z.object({
@@ -131,19 +131,18 @@ const dateFieldSchema = z.object({
 		default: z
 			.union([
 				sqlSchema,
-				// allow date-like defaults in user config,
-				// transform to ISO string for D1 storage
+				// transform to ISO string for serialization
 				z.coerce.date().transform((d) => d.toISOString()),
 			])
 			.optional(),
-	})
+	}),
 });
 
 const jsonFieldSchema = z.object({
 	type: z.literal('json'),
 	schema: baseFieldSchema.extend({
 		default: z.unknown().optional(),
-	})
+	}),
 });
 
 const fieldSchema = z.union([
@@ -361,7 +360,7 @@ function createField<S extends string, T extends Record<string, unknown>>(type: 
 		/**
 		 * @internal
 		 */
-		schema
+		schema,
 	};
 }
 
@@ -370,7 +369,7 @@ export const field = {
 		return createField('number', opts) satisfies { type: 'number' };
 	},
 	boolean: <T extends FieldOpts<BooleanFieldInput>>(opts: T = {} as T) => {
-		return createField('boolean', opts) satisfies { type: 'boolean' }
+		return createField('boolean', opts) satisfies { type: 'boolean' };
 	},
 	text: <T extends TextFieldOpts>(opts: T = {} as T) => {
 		return createField('text', opts) satisfies { type: 'text' };
