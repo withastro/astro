@@ -132,7 +132,7 @@ const dateFieldSchema = z.object({
 			.union([
 				sqlSchema,
 				// transform to ISO string for serialization
-				z.coerce.date().transform((d) => d.toISOString()),
+				z.date().transform((d) => d.toISOString()),
 			])
 			.optional(),
 	}),
