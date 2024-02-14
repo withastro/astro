@@ -11,6 +11,25 @@ const brandMap = {
   hevx: 'heic', // heic-sequence
 }
 
+function detectBrands(buffer: Uint8Array, start: number, end: number) {
+	let brandsDetected = {} as Record<keyof typeof brandMap, 1>; 
+	for (let i = start; i <= end; i += 4) {
+			const brand = toUTF8String(buffer, i, i + 4);
+			if (brand in brandMap) {
+					brandsDetected[brand as keyof typeof brandMap] = 1;
+			}
+	}
+
+	// Determine the most relevant type based on detected brands
+	if ('avif' in brandsDetected) {
+			return 'avif';
+	} else if ('heic' in brandsDetected || 'heix' in brandsDetected || 'hevc' in brandsDetected || 'hevx' in brandsDetected) {
+			return 'heic';
+	} else if ('mif1' in brandsDetected || 'msf1' in brandsDetected) {
+			return 'heif';
+	}
+}
+
 export const HEIF: IImage = {
   validate(buffer) {
     const ftype = toUTF8String(buffer, 4, 8)
@@ -28,7 +47,7 @@ export const HEIF: IImage = {
       return {
         height: readUInt32BE(buffer, ispeBox.offset + 16),
         width: readUInt32BE(buffer, ispeBox.offset + 12),
-        type: toUTF8String(buffer, 8, 12),
+        type: detectBrands(buffer, 8, metaBox.offset),
       }
     }
     throw new TypeError('Invalid HEIF, no size found')
