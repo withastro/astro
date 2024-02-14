@@ -84,7 +84,7 @@ describe('endpoints', () => {
 		});
 	});
 
-	it('Headers with multiple values (set-cookie special case)', async () => {
+	it('Can bail on streaming', async () => {
 		const { req, res, done } = createRequestAndResponse({
 			method: 'GET',
 			url: '/streaming',

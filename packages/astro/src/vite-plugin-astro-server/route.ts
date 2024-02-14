@@ -216,6 +216,8 @@ export async function handleRoute({
 		const filePath: URL | undefined = matchedRoute.filePath;
 		const { preloadedComponent } = matchedRoute;
 		route = matchedRoute.route;
+		// Allows adapters to pass in locals in dev mode.
+		const locals = Reflect.get(incomingRequest, clientLocalsSymbol)
 		request = createRequest({
 			url,
 			// Headers are only available when using SSR.
@@ -225,7 +227,6 @@ export async function handleRoute({
 			logger,
 			ssr: buildingToSSR,
 			clientAddress: buildingToSSR ? incomingRequest.socket.remoteAddress : undefined,
-			locals: Reflect.get(incomingRequest, clientLocalsSymbol), // Allows adapters to pass in locals in dev mode.
 		});
 
 		// Set user specified headers to response object.
@@ -234,7 +235,7 @@ export async function handleRoute({
 		}
 
 		options = {
-			pipeline: pipeline,
+			pipeline,
 			filePath,
 			preload: preloadedComponent,
 			pathname,
@@ -243,7 +244,7 @@ export async function handleRoute({
 		};
 
 		mod = preloadedComponent;
-		renderContext = RenderContext.create({ pipeline: pipeline, pathname, middleware, request, routeData: route });
+		renderContext = RenderContext.create({ locals, pipeline, pathname, middleware, request, routeData: route });
 	}
 
 	let response = await renderContext.render(mod);
