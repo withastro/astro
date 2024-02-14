@@ -178,7 +178,7 @@ export function getModifiers(fieldName: string, field: DBField) {
 		const { collection, name } = references.schema;
 		if (!collection || !name) {
 			throw new Error(
-				`Invalid reference for field ${fieldName}. This is an unexpected error that should be reported to the Astro team.`
+				`Field ${collection}.${name} references a collection that does not exist. Did you apply the referenced collection to the \`collections\` object in your Astro config?`
 			);
 		}
 
