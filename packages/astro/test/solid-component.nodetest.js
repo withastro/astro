@@ -124,45 +124,43 @@ describe.skip('Solid component build', { todo: 'Check why an error is thrown.' }
 	});
 });
 
-if (!isWindows) {
-	describe('Solid component dev', { todo: 'Check why the test hangs.', skip: isWindows }, () => {
-		let devServer;
-		let fixture;
+describe.skip('Solid component dev', { todo: 'Check why the test hangs.', skip: isWindows }, () => {
+	let devServer;
+	let fixture;
 
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/solid-component/',
-			});
-			devServer = await fixture.startDevServer();
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/solid-component/',
 		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('Can load a component', async () => {
-			const html = await fixture.fetch('/').then((res) => res.text());
-			const $ = cheerio.load(html);
-
-			// test 1: Works
-			assert.equal($('.hello').length, 1);
-
-			// test 2: Support rendering proxy components
-			assert.equal($('#proxy-component').text(), 'Hello world');
-		});
-
-		it('scripts proxy correctly', async () => {
-			const html = await fixture.fetch('/').then((res) => res.text());
-			const $ = cheerio.load(html);
-
-			for (const script of $('script').toArray()) {
-				const { src } = script.attribs;
-				if (!src) continue;
-				assert.equal((await fixture.fetch(src)).status, 200, `404: ${src}`);
-			}
-		});
+		devServer = await fixture.startDevServer();
 	});
-}
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('Can load a component', async () => {
+		const html = await fixture.fetch('/').then((res) => res.text());
+		const $ = cheerio.load(html);
+
+		// test 1: Works
+		assert.equal($('.hello').length, 1);
+
+		// test 2: Support rendering proxy components
+		assert.equal($('#proxy-component').text(), 'Hello world');
+	});
+
+	it('scripts proxy correctly', async () => {
+		const html = await fixture.fetch('/').then((res) => res.text());
+		const $ = cheerio.load(html);
+
+		for (const script of $('script').toArray()) {
+			const { src } = script.attribs;
+			if (!src) continue;
+			assert.equal((await fixture.fetch(src)).status, 200, `404: ${src}`);
+		}
+	});
+});
 
 /**
  * Get a regex that matches hydration scripts.
