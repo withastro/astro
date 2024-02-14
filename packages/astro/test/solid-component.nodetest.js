@@ -125,7 +125,7 @@ describe.skip('Solid component build', { todo: 'Check why an error is thrown.' }
 });
 
 if (!isWindows) {
-	describe('Solid component dev', { todo: 'Check why the test hangs.' }, () => {
+	describe('Solid component dev', { todo: 'Check why the test hangs.', skip: isWindows }, () => {
 		let devServer;
 		let fixture;
 
