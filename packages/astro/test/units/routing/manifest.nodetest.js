@@ -148,7 +148,7 @@ describe('routing - createRouteManifest', () => {
 			['/[dynamic]', '/[...rest]'],
 		]);
 	});
-	
+
 	it('route sorting with multi-layer index page conflict', async () => {
 		// Reproducing regression from https://github.com/withastro/astro/issues/10071
 		const fs = createFs(
@@ -190,7 +190,7 @@ describe('routing - createRouteManifest', () => {
 			['/a/3', '/'],
 			['/test', '/'],
 			['/modules', '/'],
-			
+
 			// Alphabetical order
 			['/modules', '/test'],
 		]);

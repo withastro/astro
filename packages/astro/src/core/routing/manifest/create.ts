@@ -761,10 +761,10 @@ export function createRouteManifest(
 			if (defaultLocaleRoutes) {
 				// The index for the default locale will be either already at the root path
 				// or at the root of the locale.
-				const indexDefaultRoute = defaultLocaleRoutes
-					.find(({route}) => route === '/')
-					?? defaultLocaleRoutes.find(({route}) => route === `/${i18n.defaultLocale}`);
-				
+				const indexDefaultRoute =
+					defaultLocaleRoutes.find(({ route }) => route === '/') ??
+					defaultLocaleRoutes.find(({ route }) => route === `/${i18n.defaultLocale}`);
+
 				if (indexDefaultRoute) {
 					// we found the index of the default locale, now we create a root index that will redirect to the index of the default locale
 					const pathname = '/';
