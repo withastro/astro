@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Serverless prerender', () => {
@@ -14,16 +15,16 @@ describe('Serverless prerender', () => {
 	});
 
 	it('build successful', async () => {
-		expect(await fixture.readFile('../.vercel/output/static/index.html')).to.be.ok;
+		assert.ok(await fixture.readFile('../.vercel/output/static/index.html'));
 	});
 
 	// TODO: The path here seems to be inconsistent?
 	it.skip('includeFiles work', async () => {
-		expect(
+		assert.ok(
 			await fixture.readFile(
 				'../.vercel/output/functions/render.func/packages/integrations/vercel/test/fixtures/serverless-prerender/dist/middleware.mjs'
 			)
-		).to.be.ok;
+		);
 	});
 });
 
@@ -41,6 +42,6 @@ describe('Serverless hybrid rendering', () => {
 	});
 
 	it('build successful', async () => {
-		expect(await fixture.readFile('../.vercel/output/static/index.html')).to.be.ok;
+		assert.ok(await fixture.readFile('../.vercel/output/static/index.html'));
 	});
 });

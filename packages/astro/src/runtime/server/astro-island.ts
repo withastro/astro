@@ -9,7 +9,7 @@ declare const Astro: {
 		fn: () => Promise<() => void>,
 		opts: Record<string, any>,
 		root: HTMLElement
-	) => void;
+	) => unknown;
 };
 
 {
@@ -93,35 +93,42 @@ declare const Astro: {
 					}
 					this.start();
 				}
-				start() {
+				async start() {
 					const opts = JSON.parse(this.getAttribute('opts')!) as Record<string, any>;
 					const directive = this.getAttribute('client') as directiveAstroKeys;
 					if (Astro[directive] === undefined) {
 						window.addEventListener(`astro:${directive}`, () => this.start(), { once: true });
 						return;
 					}
-					Astro[directive]!(
-						async () => {
-							const rendererUrl = this.getAttribute('renderer-url');
-							const [componentModule, { default: hydrator }] = await Promise.all([
-								import(this.getAttribute('component-url')!),
-								rendererUrl ? import(rendererUrl) : () => () => {},
-							]);
-							const componentExport = this.getAttribute('component-export') || 'default';
-							if (!componentExport.includes('.')) {
-								this.Component = componentModule[componentExport];
-							} else {
-								this.Component = componentModule;
-								for (const part of componentExport.split('.')) {
-									this.Component = this.Component[part];
+					try {
+						await Astro[directive]!(
+							async () => {
+								const rendererUrl = this.getAttribute('renderer-url');
+								const [componentModule, { default: hydrator }] = await Promise.all([
+									import(this.getAttribute('component-url')!),
+									rendererUrl ? import(rendererUrl) : () => () => {},
+								]);
+								const componentExport = this.getAttribute('component-export') || 'default';
+								if (!componentExport.includes('.')) {
+									this.Component = componentModule[componentExport];
+								} else {
+									this.Component = componentModule;
+									for (const part of componentExport.split('.')) {
+										this.Component = this.Component[part];
+									}
 								}
-							}
-							this.hydrator = hydrator;
-							return this.hydrate;
-						},
-						opts,
-						this
-					);
+								this.hydrator = hydrator;
+								return this.hydrate;
+							},
+							opts,
+							this
+						);
+					} catch (e) {
+						console.error(
+							`[astro-island] Error hydrating ${this.getAttribute('component-url')}`,
+							e
+						);
+					}
 				}
 				hydrate = async () => {
 					// The client directive needs to load the hydrator code before it can hydrate

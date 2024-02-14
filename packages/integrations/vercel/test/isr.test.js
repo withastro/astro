@@ -1,5 +1,6 @@
 import { loadFixture } from './test-utils.js';
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 
 describe('ISR', () => {
 	/** @type {import('./test-utils.js').Fixture} */
@@ -16,7 +17,7 @@ describe('ISR', () => {
 		const vcConfig = JSON.parse(
 			await fixture.readFile('../.vercel/output/functions/_isr.prerender-config.json')
 		);
-		expect(vcConfig).to.deep.include({
+		assert.deepEqual(vcConfig, {
 			expiration: 120,
 			bypassToken: '1c9e601d-9943-4e7c-9575-005556d774a8',
 			allowQuery: ['x_astro_path'],
@@ -27,7 +28,7 @@ describe('ISR', () => {
 	it('generates expected routes', async () => {
 		const deploymentConfig = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
 		// the first two are /_astro/*, and filesystem routes
-		expect(deploymentConfig.routes.slice(2)).to.deep.equal([
+		assert.deepEqual(deploymentConfig.routes.slice(2), [
 			{
 				src: '^/two$',
 				dest: '_render',
