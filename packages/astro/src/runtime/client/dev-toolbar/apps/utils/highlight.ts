@@ -1,9 +1,19 @@
 import type { DevToolbarHighlight } from '../../ui-library/highlight.js';
 import type { Icon } from '../../ui-library/icons.js';
 
-export function createHighlight(rect: DOMRect, icon?: Icon) {
+export function createHighlight(
+	rect: DOMRect,
+	icon?: Icon,
+	additionalAttributes?: Record<string, string>
+) {
 	const highlight = document.createElement('astro-dev-toolbar-highlight');
 	if (icon) highlight.icon = icon;
+
+	if (additionalAttributes) {
+		for (const [key, value] of Object.entries(additionalAttributes)) {
+			highlight.setAttribute(key, value);
+		}
+	}
 
 	highlight.tabIndex = 0;
 
