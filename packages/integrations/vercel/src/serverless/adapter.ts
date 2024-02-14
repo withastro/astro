@@ -195,8 +195,7 @@ export default function vercelServerless({
 	let _middlewareEntryPoint: URL | undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
-	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
-	const middlewareSecret = crypto.randomUUID();
+	let middlewareSecret;
 
 	return {
 		name: PACKAGE_NAME,
@@ -274,6 +273,8 @@ export default function vercelServerless({
 							`\tYou can set functionPerRoute: false to prevent surpassing the limit.\n`
 					);
 				}
+				// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
+				middlewareSecret = crypto.randomUUID();
 
 				setAdapter(getAdapter({ functionPerRoute, edgeMiddleware, middlewareSecret }));
 
@@ -386,7 +387,7 @@ export default function vercelServerless({
 					await builder.buildMiddlewareFolder(
 						_middlewareEntryPoint,
 						MIDDLEWARE_PATH,
-						middlewareSecret
+						middlewareSecret!
 					);
 				}
 				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
