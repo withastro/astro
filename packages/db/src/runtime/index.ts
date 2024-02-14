@@ -35,6 +35,7 @@ const dateType = customType<{ data: Date; driverData: string }>({
 		return value.toISOString();
 	},
 	fromDriver(value) {
+		console.log('driver', value);
 		return new Date(value);
 	},
 });
@@ -118,10 +119,10 @@ function columnMapper(fieldName: string, field: DBField) {
 			if (field.schema.default !== undefined) c = c.default(field.schema.default);
 			break;
 		case 'date': {
-			c = text(fieldName);
-			console.log(field.schema.default, 'default');
+			c = dateType(fieldName);
 			if (field.schema.default !== undefined) {
-				c = c.default(handleSerializedSQL(field.schema.default));
+				const def = handleSerializedSQL(field.schema.default);
+				c = c.default(typeof def === 'string' ? new Date(def) : def);
 			}
 			break;
 		}
