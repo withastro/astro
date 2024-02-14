@@ -1,5 +1,5 @@
 ---
-"astro": patch
+"astro": minor
 ---
 
 Improves Node.js streaming performance.
