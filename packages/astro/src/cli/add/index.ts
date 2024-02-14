@@ -93,10 +93,10 @@ async function getRegistry(): Promise<string> {
 
 export async function add(names: string[], { flags }: AddOptions) {
 	ensureProcessNodeEnv('production');
+	applyPolyfill();
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const { userConfig } = await resolveConfig(inlineConfig, 'add');
 	telemetry.record(eventCliSession('add', userConfig));
-	applyPolyfill();
 	if (flags.help || names.length === 0) {
 		printHelp({
 			commandName: 'astro add',
