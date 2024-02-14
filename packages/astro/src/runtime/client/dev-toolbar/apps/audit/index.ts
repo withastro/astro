@@ -8,6 +8,7 @@ import {
 } from '../utils/highlight.js';
 import { createWindowElement } from '../utils/window.js';
 import { a11y } from './a11y.js';
+import { finder } from '@medv/finder';
 import { perf } from './perf.js';
 
 const icon =
@@ -60,7 +61,11 @@ export default {
 	name: 'Audit',
 	icon: icon,
 	async init(canvas, eventTarget) {
-		let audits: { highlightElement: DevToolbarHighlight; auditedElement: HTMLElement }[] = [];
+		let audits: {
+			highlightElement: DevToolbarHighlight;
+			auditedElement: HTMLElement;
+			rule: AuditRule;
+		}[] = [];
 
 		await lint();
 
@@ -126,6 +131,119 @@ export default {
 						},
 					})
 				);
+
+				const auditListWindow = createWindowElement(
+					`
+					<style>
+						astro-dev-toolbar-window {
+  	          left: initial;
+              top: 8px;
+              right: 8px;
+              transform: none;
+              width: 320px;
+              max-height: 320px;
+              padding: 0;
+              overflow: hidden;
+						}
+
+						hr {
+						  margin: 0;
+						}
+
+						header {
+						  display: flex;
+							justify-content: space-between;
+							align-items: center;
+						  padding: 18px;
+						}
+
+						h1 {
+						  font-size: 22px;
+  						font-weight: 600;
+  						color: #fff;
+						}
+
+						ul, li {
+						  margin: 0;
+							padding: 0;
+							list-style: none;
+						}
+
+						h1, h2 {
+						  margin: 0;
+						}
+
+						h3 {
+      		    margin: 0;
+              margin-bottom: 8px;
+              color: white;
+              white-space: nowrap;
+						}
+
+						.audit-title {
+						  font-weight: bold;
+							color: white;
+							margin-right: 1ch;
+						}
+
+						#audit-list {
+  						display: flex;
+              flex-direction: column;
+              overflow: auto;
+						}
+					</style>
+
+					<header>
+					  <h1>Audits</h1>
+						<astro-dev-toolbar-badge size="large">${audits.length} problem${
+							audits.length > 1 ? 's' : ''
+						} found</astro-dev-toolbar-badge>
+					</header>
+					<hr />`
+				);
+
+				const auditListUl = document.createElement('ul');
+				auditListUl.id = 'audit-list';
+				audits.forEach((audit, index) => {
+					const resolvedRule = resolveAuditRule(audit.rule, audit.auditedElement);
+					const card = document.createElement('astro-dev-toolbar-card');
+
+					card.shadowRoot.innerHTML = `
+					<style>
+					 :host>button {
+						  text-align: left;
+							box-shadow: none !important;
+							${
+								index + 1 < audits.length
+									? 'border-radius: 0 !important;'
+									: 'border-radius: 0 0 8px 8px !important;'
+							}
+						}
+
+						:host>button:hover {
+						  cursor: pointer;
+						}
+					</style>`;
+
+					card.clickAction = () => {
+						audit.highlightElement.scrollIntoView();
+						audit.highlightElement.focus();
+					};
+					const h3 = document.createElement('h3');
+					h3.innerText = finder(audit.auditedElement);
+					card.appendChild(h3);
+					const div = document.createElement('div');
+					const title = document.createElement('span');
+					title.classList.add('audit-title');
+					title.innerHTML = resolvedRule.title;
+					div.appendChild(title);
+					card.appendChild(div);
+					auditListUl.appendChild(card);
+				});
+
+				auditListWindow.appendChild(auditListUl);
+
+				canvas.append(auditListWindow);
 			} else {
 				eventTarget.dispatchEvent(
 					new CustomEvent('toggle-notification', {
@@ -229,7 +347,11 @@ export default {
 			attachTooltipToHighlight(highlight, tooltip, originalElement);
 
 			canvas.append(highlight);
-			audits.push({ highlightElement: highlight, auditedElement: originalElement as HTMLElement });
+			audits.push({
+				highlightElement: highlight,
+				auditedElement: originalElement as HTMLElement,
+				rule: rule,
+			});
 		}
 
 		function buildAuditTooltip(rule: AuditRule, element: Element) {
