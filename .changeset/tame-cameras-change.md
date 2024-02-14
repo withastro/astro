@@ -9,10 +9,10 @@ Remote images can now have their dimensions inferred just like local images. Set
 ```astro
 ---
 import { Image, Picture, getImage } from 'astro:assets';
-const myPic = await getImage({src: "https://example.com/example.png", inferSize: true, alt: ""})
+const myPic = await getImage({ src: "https://example.com/example.png", inferSize: true })
 ---
-<Image src="https://example.com/example.png" inferSize={true} alt="" />
-<Picture src="https://example.com/example.png" inferSize={true} alt="" />
+<Image src="https://example.com/example.png" inferSize alt="" />
+<Picture src="https://example.com/example.png" inferSize alt="" />
 ```
 
 Read more about [using `inferSize` with remote images](https://docs.astro.build/en/guides/images/#infersize) in our documentation.
