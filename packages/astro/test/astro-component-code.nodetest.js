@@ -30,7 +30,7 @@ describe('<Code>', () => {
 		let html = await fixture.readFile('/basic/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('pre').length, 1);
-		assert.equal($('pre').attr('class'), 'astro-code nord');
+		assert.equal($('pre').attr('class'), 'astro-code github-dark');
 		assert.equal($('pre > code').length, 1);
 		// test: contains many generated spans
 		assert.equal($('pre > code span').length >= 6, true);
@@ -103,7 +103,10 @@ describe('<Code>', () => {
 		const $ = cheerio.load(html);
 
 		assert.equal($('#theme > pre').length, 1);
-		assert.equal($('#theme > pre').attr('style'), 'background-color: #FDFDFE; overflow-x: auto;');
+		assert.equal(
+			$('#theme > pre').attr('style'),
+			'background-color:#FDFDFE;color:#4E5377; overflow-x: auto;'
+		);
 
 		assert.equal($('#lang > pre').length, 1);
 		assert.equal($('#lang > pre > code span').length, 3);
