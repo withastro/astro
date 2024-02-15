@@ -53,6 +53,9 @@ function getChildren(childString, experimentalReactChildren) {
 	}
 }
 
+// Keep a map of roots so we can reuse them on re-renders
+let rootMap = new WeakMap();
+
 export default (element) =>
 	(Component, props, { default: children, ...slotted }, { client }) => {
 		if (!element.hasAttribute('ssr')) return;
@@ -75,13 +78,21 @@ export default (element) =>
 		}
 		if (client === 'only') {
 			return startTransition(() => {
-				const root = createRoot(element);
+				let root = rootMap.get(element);
+				if(!root) {
+					root = createRoot(element);
+					rootMap.set(element, root);
+				}
 				root.render(componentEl);
 				element.addEventListener('astro:unmount', () => root.unmount(), { once: true });
 			});
 		}
 		startTransition(() => {
-			const root = hydrateRoot(element, componentEl, renderOptions);
+			let root = rootMap.get(element);
+			if(!root) {
+				root = hydrateRoot(element, componentEl, renderOptions);
+				rootMap.set(element, root);
+			}
 			root.render(componentEl);
 			element.addEventListener('astro:unmount', () => root.unmount(), { once: true });
 		});

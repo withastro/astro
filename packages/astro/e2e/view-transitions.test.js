@@ -543,6 +543,10 @@ test.describe('View Transitions', () => {
 		cnt = page.locator('.counter pre');
 		// Count should remain
 		await expect(cnt).toHaveText('6');
+
+		// Props should have changed
+		const pageTitle = page.locator('.page');
+		await expect(pageTitle).toHaveText('Island 2');
 	});
 
 	test('Scripts are only executed once', async ({ page, astro }) => {
