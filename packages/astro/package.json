@@ -107,7 +107,7 @@
     "build:ci": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" && pnpm run postbuild",
     "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\" && astro-scripts copy \"src/**/*.wasm\"",
-    "test": "pnpm run test:node && mocha ./test/*.test.js --exit --timeout 30000",
+    "test": "pnpm run test:node",
     "test:match": "mocha ./test/*.test.js --timeout 30000 -g",
     "test:e2e": "playwright test",
     "test:e2e:match": "playwright test -g",
