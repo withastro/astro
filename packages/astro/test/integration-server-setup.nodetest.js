@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { describe, before, it } from 'node:test';
+import { describe, before, it, after } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Integration server setup', () => {
