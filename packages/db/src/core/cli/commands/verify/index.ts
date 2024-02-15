@@ -1,6 +1,11 @@
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
-import { getMigrationStatus, MIGRATION_NEEDED, MIGRATIONS_NOT_INITIALIZED, MIGRATIONS_UP_TO_DATE } from '../../migrations.js';
+import {
+	getMigrationStatus,
+	MIGRATION_NEEDED,
+	MIGRATIONS_NOT_INITIALIZED,
+	MIGRATIONS_UP_TO_DATE,
+} from '../../migrations.js';
 import { getMigrationQueries } from '../../migration-queries.js';
 
 export async function cmd({ config, flags }: { config: AstroConfig; flags: Arguments }) {
@@ -10,12 +15,12 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		if (state === 'ahead') {
 			const { queries: migrationQueries } = await getMigrationQueries({
 				oldSnapshot: status.oldSnapshot,
-				newSnapshot: status.newSnapshot
+				newSnapshot: status.newSnapshot,
 			});
 			const newFileContent = {
 				diff: status.diff,
 				db: migrationQueries,
-			}
+			};
 			status.newFileContent = JSON.stringify(newFileContent, null, 2);
 		}
 		console.log(JSON.stringify(status));
@@ -36,5 +41,3 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		}
 	}
 }
-
-
