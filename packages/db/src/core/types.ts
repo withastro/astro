@@ -310,7 +310,7 @@ export const dbConfigSchema = z.object({
 		.function()
 		.returns(z.union([z.void(), z.promise(z.void())]))
 		.optional(),
-	unsafeWritable: z.boolean().optional().default(false),
+	unsafeWritable: z.boolean().optional(),
 });
 
 export type DBUserConfig = Omit<z.input<typeof dbConfigSchema>, 'data'> & {
