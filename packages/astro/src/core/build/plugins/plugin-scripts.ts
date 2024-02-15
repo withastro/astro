@@ -1,4 +1,4 @@
-import type { Plugin as VitePlugin } from 'vite';
+import type { BuildOptions, Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 
@@ -6,15 +6,13 @@ import type { AstroBuildPlugin } from '../plugin.js';
  * Used by the `experimental.directRenderScript` option to inline scripts directly into the HTML.
  */
 export function vitePluginScripts(internals: BuildInternals): VitePlugin {
-	let assetInlineLimit = 4096;
+	let assetInlineLimit: NonNullable<BuildOptions['assetsInlineLimit']>;
 
 	return {
 		name: '@astro/plugin-scripts',
 
 		configResolved(config) {
-			if (config.build?.assetsInlineLimit !== undefined) {
-				assetInlineLimit = config.build.assetsInlineLimit;
-			}
+			assetInlineLimit = config.build.assetsInlineLimit;
 		},
 
 		async generateBundle(_options, bundle) {
