@@ -76,6 +76,10 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
 		'docs',
 		'db',
 		'info',
+		'login',
+		'loutout',
+		'link',
+		'init',
 	]);
 	if (supportedCommands.has(cmd)) {
 		return cmd as CLICommand;
@@ -146,7 +150,11 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			await add(packages, { flags });
 			return;
 		}
-		case 'db': {
+		case 'db':
+		case 'login':
+		case 'logout':
+		case 'link':
+		case 'init': {
 			const { db } = await import('./db/index.js');
 			await db({ flags });
 			return;
