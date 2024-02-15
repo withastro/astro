@@ -1,10 +1,11 @@
-import type { Plugin as VitePlugin } from 'vite';
+import type { BuildOptions, Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../../@types/astro.js';
 import { viteID } from '../../util.js';
 import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { OutputChunk, StaticBuildOptions } from '../types.js';
+import { shouldInlineAsset } from './util.js';
 
 function virtualHoistedEntry(id: string) {
 	return id.startsWith('/astro/hoisted.js?q=');
@@ -14,8 +15,14 @@ export function vitePluginHoistedScripts(
 	settings: AstroSettings,
 	internals: BuildInternals
 ): VitePlugin {
+	let assetsInlineLimit: NonNullable<BuildOptions['assetsInlineLimit']>;
+
 	return {
 		name: '@astro/rollup-plugin-astro-hoisted-scripts',
+
+		configResolved(config) {
+			assetsInlineLimit = config.build.assetsInlineLimit;
+		},
 
 		resolveId(id) {
 			if (virtualHoistedEntry(id)) {
@@ -42,14 +49,6 @@ export function vitePluginHoistedScripts(
 		},
 
 		async generateBundle(_options, bundle) {
-			let assetInlineLimit = 4096;
-			if (
-				settings.config.vite?.build &&
-				settings.config.vite.build.assetsInlineLimit !== undefined
-			) {
-				assetInlineLimit = settings.config.vite?.build.assetsInlineLimit;
-			}
-
 			const considerInlining = new Map<string, OutputChunk>();
 			const importedByOtherScripts = new Set<string>();
 
@@ -71,7 +70,7 @@ export function vitePluginHoistedScripts(
 					importedByOtherScripts.has(output.fileName) === false &&
 					output.imports.length === 0 &&
 					output.dynamicImports.length === 0 &&
-					Buffer.byteLength(output.code) <= assetInlineLimit;
+					shouldInlineAsset(output.code, output.fileName, assetsInlineLimit);
 				let removeFromBundle = false;
 				const facadeId = output.facadeModuleId!;
 				const pages = internals.hoistedScriptIdToPagesMap.get(facadeId)!;
