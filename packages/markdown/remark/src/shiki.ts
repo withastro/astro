@@ -25,12 +25,10 @@ const cssVariablesTheme = () =>
 export async function createShikiHighlighter({
 	langs = [],
 	theme = 'github-dark',
-	experimentalThemes = {},
+	themes = {},
 	wrap = false,
 	transformers = [],
 }: ShikiConfig = {}): Promise<ShikiHighlighter> {
-	const themes = experimentalThemes;
-
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
 
 	const highlighter = await getHighlighter({
@@ -106,11 +104,10 @@ export async function createShikiHighlighter({
 							}
 						},
 						root(node) {
-							if (Object.values(experimentalThemes).length) {
+							if (Object.values(themes).length) {
 								return;
 							}
 
-							// theme.id for shiki -> shikiji compat
 							const themeName = typeof theme === 'string' ? theme : theme.name;
 							if (themeName === 'css-variables') {
 								// Replace special color tokens to CSS variables

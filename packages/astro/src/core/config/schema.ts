@@ -259,7 +259,7 @@ export const AstroConfigSchema = z.object({
 						.array()
 						.transform((langs) => {
 							for (const lang of langs) {
-								// shiki -> shikiji compat
+								// shiki 1.0 compat
 								if (typeof lang === 'object') {
 									// `id` renamed to `name` (always override)
 									if ((lang as any).id) {
@@ -278,13 +278,13 @@ export const AstroConfigSchema = z.object({
 						.enum(Object.keys(bundledThemes) as [BuiltinTheme, ...BuiltinTheme[]])
 						.or(z.custom<ShikiTheme>())
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme!),
-					experimentalThemes: z
+					themes: z
 						.record(
 							z
 								.enum(Object.keys(bundledThemes) as [BuiltinTheme, ...BuiltinTheme[]])
 								.or(z.custom<ShikiTheme>())
 						)
-						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.experimentalThemes!),
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.themes!),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
 					transformers: z
 						.custom<ShikiTransformers[number]>()
