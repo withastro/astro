@@ -736,9 +736,6 @@ importers:
       '@types/dom-view-transitions':
         specifier: ^1.0.4
         version: 1.0.4
-      '@types/estree':
-        specifier: ^1.0.5
-        version: 1.0.5
       '@types/hast':
         specifier: ^3.0.3
         version: 3.0.3
