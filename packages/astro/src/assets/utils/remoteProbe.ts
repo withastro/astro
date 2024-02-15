@@ -1,5 +1,4 @@
-
-import { lookup } from './vendor/image-size/lookup.js'
+import { lookup } from './vendor/image-size/lookup.js';
 import type { ISize } from './vendor/image-size/types/interface.ts';
 
 export async function probe(url: string): Promise<ISize> {
@@ -31,16 +30,16 @@ export async function probe(url: string): Promise<ISize> {
 			accumulatedChunks = tmp;
 
 			try {
-        // Attempt to determine the size with each new chunk
-        const dimensions = lookup(accumulatedChunks);
-        if (dimensions) {
-          await reader.cancel(); // stop stream as we have size now
-          return dimensions;
-        }
-      } catch (error) {
-        // This catch block is specifically for `sizeOf` failures,
-        // which might occur if the accumulated data isn't yet sufficient.
-      }
+				// Attempt to determine the size with each new chunk
+				const dimensions = lookup(accumulatedChunks);
+				if (dimensions) {
+					await reader.cancel(); // stop stream as we have size now
+					return dimensions;
+				}
+			} catch (error) {
+				// This catch block is specifically for `sizeOf` failures,
+				// which might occur if the accumulated data isn't yet sufficient.
+			}
 		}
 	}
 

@@ -543,8 +543,7 @@ export const MissingImageDimension = {
 export const FailedToFetchRemoteImageDimensions = {
 	name: 'FailedToFetchRemoteImageDimensions',
 	title: 'Failed to retrieve remote image dimensions',
-	message: (imageURL: string) =>
-		`Failed to get the dimensions for ${imageURL}.`,
+	message: (imageURL: string) => `Failed to get the dimensions for ${imageURL}.`,
 	hint: 'Verify your remote image URL is accurate, and that you are not using `inferSize` with a file located in your `public/` folder.',
 } satisfies ErrorData;
 /**

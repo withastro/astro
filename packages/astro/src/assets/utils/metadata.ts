@@ -1,5 +1,4 @@
-
-import { lookup as probe } from '../utils/vendor/image-size/lookup.js'
+import { lookup as probe } from '../utils/vendor/image-size/lookup.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageInputFormat, ImageMetadata } from '../types.js';
 
@@ -9,7 +8,7 @@ export async function imageMetadata(
 ): Promise<Omit<ImageMetadata, 'src' | 'fsPath'>> {
 	const result = probe(data);
 
-	if (!result.height || !result.width || !result.type ) {
+	if (!result.height || !result.width || !result.type) {
 		throw new AstroError({
 			...AstroErrorData.NoImageMetadata,
 			message: AstroErrorData.NoImageMetadata.message(src),

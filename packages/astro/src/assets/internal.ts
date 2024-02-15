@@ -9,7 +9,7 @@ import type {
 	UnresolvedImageTransform,
 } from './types.js';
 import { isESMImportedImage, isRemoteImage } from './utils/imageKind.js';
-import { probe } from "./utils/remoteProbe.js"
+import { probe } from './utils/remoteProbe.js';
 
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
