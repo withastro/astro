@@ -351,7 +351,7 @@ export function defineWritableCollection<TFields extends FieldsConfig>(
 	return baseDefineCollection(userConfig, true);
 }
 
-export type AstroConfigWithDB = z.infer<typeof astroConfigWithDbSchema>;
+export type AstroConfigWithDB = z.input<typeof astroConfigWithDbSchema>;
 
 type FieldOpts<T extends DBFieldInput> = Omit<T, 'type'>;
 // We cannot use `Omit<NumberField | TextField, 'type'>`,
