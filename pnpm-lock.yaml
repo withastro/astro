@@ -650,9 +650,6 @@ importers:
       semver:
         specifier: ^7.5.4
         version: 7.5.4
-      server-destroy:
-        specifier: ^1.0.1
-        version: 1.0.1
       shikiji:
         specifier: ^0.9.19
         version: 0.9.19
@@ -772,9 +769,6 @@ importers:
       '@types/send':
         specifier: ^0.17.4
         version: 0.17.4
-      '@types/server-destroy':
-        specifier: ^1.0.3
-        version: 1.0.3
       '@types/unist':
         specifier: ^3.0.2
         version: 3.0.2
