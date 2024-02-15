@@ -58,7 +58,7 @@ export async function run(projectDir, outputFile) {
 /**
  * @returns {Promise<import('autocannon').Result>}
  */
-async function benchmarkCannon() {
+export async function benchmarkCannon() {
 	return new Promise((resolve, reject) => {
 		const instance = autocannon(
 			{

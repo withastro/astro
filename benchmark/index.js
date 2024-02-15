@@ -54,7 +54,7 @@ if (commandName) {
 	}
 }
 
-async function makeProject(name) {
+export async function makeProject(name) {
 	console.log('Making project:', name);
 	const projectDir = new URL(`./projects/${name}/`, import.meta.url);
 

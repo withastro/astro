@@ -58,7 +58,7 @@ export async function run(projectDir, outputFile) {
 	console.log('Done!');
 }
 
-async function benchmarkRenderTime() {
+export async function benchmarkRenderTime() {
 	/** @type {Record<string, number[]>} */
 	const result = {};
 	for (const fileName of renderPages) {
