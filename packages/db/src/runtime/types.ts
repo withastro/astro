@@ -1,6 +1,6 @@
-import type { ColumnDataType, ColumnBaseConfig, SQLChunk } from 'drizzle-orm';
+import type { ColumnDataType, ColumnBaseConfig } from 'drizzle-orm';
 import type { SQLiteColumn, SQLiteTableWithColumns } from 'drizzle-orm/sqlite-core';
-import type { DBField } from '../core/types.js';
+import type { DBField, FieldsConfig } from '../core/types.js';
 
 type GeneratedConfig<T extends ColumnDataType = ColumnDataType> = Pick<
 	ColumnBaseConfig<T, string>,
@@ -76,7 +76,7 @@ export type Column<T extends DBField['type'], S extends GeneratedConfig> = T ext
 
 export type Table<
 	TTableName extends string,
-	TFields extends Record<string, Pick<DBField, 'type' | 'schema'>>,
+	TFields extends FieldsConfig,
 > = SQLiteTableWithColumns<{
 	name: TTableName;
 	schema: undefined;
