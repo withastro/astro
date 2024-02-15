@@ -22,7 +22,7 @@ import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { loadTSConfig } from '../config/tsconfig.js';
 import { dirname, relative } from 'node:path';
-import { isRelativePath } from '../path.js';
+import { isRelativePath, removeTrailingForwardSlash } from '../path.js';
 import { injectDts } from '../../config/types.js';
 
 export type ProcessExit = 0 | 1;
@@ -184,7 +184,10 @@ async function handleTypescriptConfig({ config, injectedDts }: AstroSettings, lo
 	if (typeof tsconfig === 'string') {
 		return;
 	}
-	if (dirname(tsconfig.tsconfigFile) !== fileURLToPath(config.root)) {
+
+	const tsconfigFilePathDir = normalizePath(dirname(tsconfig.tsconfigFile));
+	const rootDir = removeTrailingForwardSlash(normalizePath(fileURLToPath(config.root)));
+	if (tsconfigFilePathDir !== rootDir) {
 		// loadTSConfig gets the closer tsconfig. If it's not in the project root, we don't continue
 		return;
 	}
@@ -264,7 +267,7 @@ export {};
 		return;
 	}
 
-	const outputTsconfig = { ...tsconfig.tsconfig };
+	const outputTsconfig = { ...tsconfig.rawConfig.tsconfig };
 	outputTsconfig.extends = [
 		...(typeof extendsField === 'string' ? [extendsField] : extendsField),
 		rawTsConfigPath,
