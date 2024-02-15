@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Astro preview headers', () => {
@@ -27,14 +28,14 @@ describe('Astro preview headers', () => {
 	describe('preview', () => {
 		it('returns custom headers for valid URLs', async () => {
 			const result = await fixture.fetch('/');
-			expect(result.status).to.equal(200);
-			expect(Object.fromEntries(result.headers)).to.include(headers);
+			assert.equal(result.status, 200);
+			assert.equal(Object.fromEntries(result.headers).astro, headers.astro);
 		});
 
 		it('does not return custom headers for invalid URLs', async () => {
 			const result = await fixture.fetch('/bad-url');
-			expect(result.status).to.equal(404);
-			expect(Object.fromEntries(result.headers)).not.to.include(headers);
+			assert.equal(result.status, 404);
+			assert.equal(Object.fromEntries(result.headers).hasOwnProperty('astro'), false);
 		});
 	});
 });
