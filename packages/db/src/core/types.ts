@@ -21,8 +21,8 @@ const sqlSchema = z.instanceof(SQL<any>).transform(
 
 const baseFieldSchema = z.object({
 	label: z.string().optional(),
-	optional: z.boolean().optional(),
-	unique: z.boolean().optional(),
+	optional: z.boolean().optional().default(false),
+	unique: z.boolean().optional().default(false),
 
 	// Defined when `defineCollection()` is called
 	name: z.string().optional(),
@@ -39,8 +39,8 @@ const booleanFieldSchema = z.object({
 const numberFieldBaseSchema = baseFieldSchema.omit({ optional: true }).and(
 	z.union([
 		z.object({
-			primaryKey: z.literal(false).optional(),
-			optional: z.boolean().optional(),
+			primaryKey: z.literal(false).optional().default(false),
+			optional: baseFieldSchema.shape.optional,
 			default: z.union([z.number(), sqlSchema]).optional(),
 		}),
 		z.object({
@@ -87,8 +87,8 @@ const textFieldBaseSchema = baseFieldSchema
 	.and(
 		z.union([
 			z.object({
-				primaryKey: z.literal(false).optional(),
-				optional: z.boolean().optional(),
+				primaryKey: z.literal(false).optional().default(false),
+				optional: baseFieldSchema.shape.optional,
 			}),
 			z.object({
 				// text primary key allows NULL values.
