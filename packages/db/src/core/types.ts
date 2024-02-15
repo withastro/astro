@@ -145,7 +145,7 @@ const jsonFieldSchema = z.object({
 	}),
 });
 
-const fieldSchema = z.union([
+export const fieldSchema = z.union([
 	booleanFieldSchema,
 	numberFieldSchema,
 	textFieldSchema,

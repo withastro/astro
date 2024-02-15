@@ -1,18 +1,19 @@
 import * as color from 'kleur/colors';
 import deepDiff from 'deep-diff';
-import type {
-	BooleanField,
-	DBCollection,
-	DBCollections,
-	DBField,
-	DBFields,
-	DBSnapshot,
-	DateField,
-	FieldType,
-	Indexes,
-	JsonField,
-	NumberField,
-	TextField,
+import {
+	fieldSchema,
+	type BooleanField,
+	type DBCollection,
+	type DBCollections,
+	type DBField,
+	type DBFields,
+	type DBSnapshot,
+	type DateField,
+	type FieldType,
+	type Indexes,
+	type JsonField,
+	type NumberField,
+	type TextField,
 } from '../types.js';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { customAlphabet } from 'nanoid';
@@ -507,18 +508,24 @@ type UpdatedFields = Record<string, { old: DBField; new: DBField }>;
 function getUpdatedFields(oldFields: DBFields, newFields: DBFields): UpdatedFields {
 	const updated: UpdatedFields = {};
 	for (const [key, newField] of Object.entries(newFields)) {
-		const oldField = oldFields[key];
+		let oldField = oldFields[key];
 		if (!oldField) continue;
 
-		const diff = deepDiff(oldField, newField, (path, objKey) => {
-			const isTypeKey = objKey === 'type' && path.length === 0;
-			return (
-				// If we can safely update the type without a SQL query, ignore the diff
-				isTypeKey &&
-				oldField.type !== newField.type &&
-				canChangeTypeWithoutQuery(oldField, newField)
-			);
-		});
+		if (oldField.type !== newField.type && canChangeTypeWithoutQuery(oldField, newField)) {
+			// If we can safely change the type without a query,
+			// try parsing the old schema as the new schema.
+			// This lets us diff the fields as if they were the same type.
+			const asNewField = fieldSchema.safeParse({
+				type: newField.type,
+				schema: oldField.schema,
+			});
+			if (asNewField.success) {
+				oldField = asNewField.data;
+			}
+			// If parsing fails, move on to the standard diff.
+		}
+
+		const diff = deepDiff(oldField, newField);
 
 		if (diff) {
 			updated[key] = { old: oldField, new: newField };
@@ -530,12 +537,6 @@ const typeChangesWithoutQuery: Array<{ from: FieldType; to: FieldType }> = [
 	{ from: 'boolean', to: 'number' },
 	{ from: 'date', to: 'text' },
 	{ from: 'json', to: 'text' },
-
-	// TODO: decide on these. They *could* work with SQLite CAST
-	// { from: 'boolean', to: 'text' },
-	// { from: 'boolean', to: 'json' },
-	// { from: 'number', to: 'text' },
-	// { from: 'number', to: 'json' },
 ];
 
 function canChangeTypeWithoutQuery(oldField: DBField, newField: DBField) {
