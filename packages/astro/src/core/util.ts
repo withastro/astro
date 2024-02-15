@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { normalizePath } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
@@ -239,4 +239,12 @@ export function ensureProcessNodeEnv(defaultNodeEnv: string) {
 	if (!process.env.NODE_ENV) {
 		process.env.NODE_ENV = defaultNodeEnv;
 	}
+}
+
+export function resolveDirAsUrl(dir: string, root: string) {
+	let resolvedDir = path.resolve(root, dir);
+	if (!resolvedDir.endsWith(path.sep)) {
+		resolvedDir += path.sep;
+	}
+	return pathToFileURL(resolvedDir);
 }
