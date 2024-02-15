@@ -218,15 +218,15 @@ export const collectionsSchema = z.preprocess((rawCollections) => {
 }, z.record(collectionSchema));
 
 export type BooleanField = z.infer<typeof booleanFieldSchema>;
-export type BooleanFieldInput = z.input<typeof booleanFieldSchema>['schema'];
+export type BooleanFieldInput = z.input<typeof booleanFieldSchema>;
 export type NumberField = z.infer<typeof numberFieldSchema>;
-export type NumberFieldInput = z.input<typeof numberFieldSchema>['schema'];
+export type NumberFieldInput = z.input<typeof numberFieldSchema>;
 export type TextField = z.infer<typeof textFieldSchema>;
-export type TextFieldInput = z.input<typeof textFieldSchema>['schema'];
+export type TextFieldInput = z.input<typeof textFieldSchema>;
 export type DateField = z.infer<typeof dateFieldSchema>;
-export type DateFieldInput = z.input<typeof dateFieldSchema>['schema'];
+export type DateFieldInput = z.input<typeof dateFieldSchema>;
 export type JsonField = z.infer<typeof jsonFieldSchema>;
-export type JsonFieldInput = z.input<typeof jsonFieldSchema>['schema'];
+export type JsonFieldInput = z.input<typeof jsonFieldSchema>;
 
 export type FieldType =
 	| BooleanField['type']
@@ -353,7 +353,6 @@ export function defineWritableCollection<TFields extends FieldsConfig>(
 
 export type AstroConfigWithDB = z.input<typeof astroConfigWithDbSchema>;
 
-type FieldOpts<T extends DBFieldInput> = Omit<T, 'type'>;
 // We cannot use `Omit<NumberField | TextField, 'type'>`,
 // since Omit collapses our union type on primary key.
 type NumberFieldOpts = z.input<typeof numberFieldOptsSchema>;
@@ -373,16 +372,16 @@ export const field = {
 	number: <T extends NumberFieldOpts>(opts: T = {} as T) => {
 		return createField('number', opts) satisfies { type: 'number' };
 	},
-	boolean: <T extends FieldOpts<BooleanFieldInput>>(opts: T = {} as T) => {
+	boolean: <T extends BooleanFieldInput['schema']>(opts: T = {} as T) => {
 		return createField('boolean', opts) satisfies { type: 'boolean' };
 	},
 	text: <T extends TextFieldOpts>(opts: T = {} as T) => {
 		return createField('text', opts) satisfies { type: 'text' };
 	},
-	date<T extends FieldOpts<DateFieldInput>>(opts: T = {} as T) {
+	date<T extends DateFieldInput['schema']>(opts: T = {} as T) {
 		return createField('date', opts) satisfies { type: 'date' };
 	},
-	json<T extends FieldOpts<JsonFieldInput>>(opts: T = {} as T) {
+	json<T extends JsonFieldInput['schema']>(opts: T = {} as T) {
 		return createField('json', opts) satisfies { type: 'json' };
 	},
 };
