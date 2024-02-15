@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -14,7 +15,7 @@ describe('Solid app with some React components', () => {
 	it('Reads jsxImportSource from tsconfig', async () => {
 		let html = await fixture.readFile('/index.html');
 		let $ = cheerio.load(html);
-		expect($('#example-solid').text()).to.equal('example solidjs component');
-		expect($('#example-react').text()).to.equal('example react component');
+		assert.equal($('#example-solid').text(), 'example solidjs component');
+		assert.equal($('#example-react').text(), 'example react component');
 	});
 });

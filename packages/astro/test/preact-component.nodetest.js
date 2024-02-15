@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -18,7 +19,7 @@ describe('Preact component', () => {
 		const $ = cheerio.load(html);
 
 		// test 1: Can use class components
-		expect($('#class-component')).to.have.lengthOf(1);
+		assert.equal($('#class-component').length, 1);
 	});
 
 	it('Can load function component', async () => {
@@ -26,9 +27,9 @@ describe('Preact component', () => {
 		const $ = cheerio.load(html);
 
 		// test 1: Can use function components
-		expect($('#fn-component')).to.have.lengthOf(1);
+		assert.equal($('#fn-component').length, 1);
 		// test 2: Can use function components
-		expect($('#arrow-fn-component')).to.have.lengthOf(1);
+		assert.equal($('#arrow-fn-component').length, 1);
 	});
 
 	it('Can load TS component', async () => {
@@ -36,13 +37,13 @@ describe('Preact component', () => {
 		const $ = cheerio.load(html);
 
 		// test 1: Can use TS components
-		expect($('.ts-component')).to.have.lengthOf(1);
+		assert.equal($('.ts-component').length, 1);
 	});
 
 	it('Can use hooks', async () => {
 		const html = await fixture.readFile('/hooks/index.html');
 		const $ = cheerio.load(html);
-		expect($('#world')).to.have.lengthOf(1);
+		assert.equal($('#world').length, 1);
 	});
 
 	it('Can export a Fragment', async () => {
@@ -50,7 +51,7 @@ describe('Preact component', () => {
 		const $ = cheerio.load(html);
 
 		// test 1: nothing rendered but it didn’t throw
-		expect($('body').children()).to.have.lengthOf(0);
+		assert.equal($('body').children().length, 0);
 	});
 
 	it('Can use a pragma comment', async () => {
@@ -58,8 +59,8 @@ describe('Preact component', () => {
 		const $ = cheerio.load(html);
 
 		// test 1: rendered the PragmaComment component
-		expect($('.pragma-comment')).to.have.lengthOf(1);
-		expect($('.pragma-comment-tsx')).to.have.lengthOf(1);
+		assert.equal($('.pragma-comment').length, 1);
+		assert.equal($('.pragma-comment-tsx').length, 1);
 	});
 
 	// In moving over to Vite, the jsx-runtime import is now obscured. TODO: update the method of finding this.
@@ -79,24 +80,24 @@ describe('Preact component', () => {
 		const jsxRuntime = component.imports.filter((i) => i.specifier.includes('jsx-runtime'));
 
 		// test 1: preact/jsx-runtime is used for the component
-		expect(jsxRuntime).to.be.ok;
+		assert.ok(jsxRuntime);
 	});
 
 	it('Can use shared signals between islands', async () => {
 		const html = await fixture.readFile('/signals/index.html');
 		const $ = cheerio.load(html);
-		expect($('.preact-signal')).to.have.a.lengthOf(2);
+		assert.equal($('.preact-signal').length, 2);
 
 		const sigs1Raw = $($('astro-island')[0]).attr('data-preact-signals');
 		const sigs2Raw = $($('astro-island')[1]).attr('data-preact-signals');
 
-		expect(sigs1Raw).to.not.be.undefined;
-		expect(sigs2Raw).to.not.be.undefined;
+		assert.notEqual(sigs1Raw, undefined);
+		assert.notEqual(sigs2Raw, undefined);
 
 		const sigs1 = JSON.parse(sigs1Raw);
 		const sigs2 = JSON.parse(sigs2Raw);
 
-		expect(sigs1.count).to.not.be.undefined;
-		expect(sigs1.count).to.equal(sigs2.count);
+		assert.notEqual(sigs1.count, undefined);
+		assert.equal(sigs1.count, sigs2.count);
 	});
 });
