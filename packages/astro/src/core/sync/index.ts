@@ -165,11 +165,11 @@ export async function syncInternal(
 	return 0;
 }
 
-async function handleTypescriptConfig({ config, injectedDts }: AstroSettings, logger: Logger) {
-	function getRelativePath(a: URL, b: URL) {
-		return normalizePath(relative(fileURLToPath(a), fileURLToPath(b)));
-	}
+function getRelativePath(a: URL, b: URL) {
+	return normalizePath(relative(fileURLToPath(a), fileURLToPath(b)));
+}
 
+async function handleTypescriptConfig({ config, injectedDts }: AstroSettings, logger: Logger) {
 	let rawTsConfigPath = getRelativePath(config.root, new URL('tsconfig.json', config.codegenDir));
 	if (!isRelativePath(rawTsConfigPath)) {
 		rawTsConfigPath = `./${rawTsConfigPath}`;
@@ -182,6 +182,10 @@ async function handleTypescriptConfig({ config, injectedDts }: AstroSettings, lo
 
 	const tsconfig = await loadTSConfig(fileURLToPath(config.root));
 	if (typeof tsconfig === 'string') {
+		return;
+	}
+	if (dirname(tsconfig.tsconfigFile) !== fileURLToPath(config.root)) {
+		// loadTSConfig gets the closer tsconfig. If it's not in the project root, we don't continue
 		return;
 	}
 
