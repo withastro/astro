@@ -3,8 +3,9 @@ import { renderComponentToString, type NonAstroPageComponent } from './component
 import type { AstroComponentFactory } from './index.js';
 
 import { isAstroComponentFactory } from './astro/index.js';
-import { renderToReadableStream, renderToString } from './astro/render.js';
+import { renderToReadableStream, renderToString, renderToAsyncIterable } from './astro/render.js';
 import { encoder } from './common.js';
+import { isNode } from './util.js';
 
 export async function renderPage(
 	result: SSRResult,
@@ -47,7 +48,21 @@ export async function renderPage(
 
 	let body: BodyInit | Response;
 	if (streaming) {
-		body = await renderToReadableStream(result, componentFactory, props, children, true, route);
+		if (isNode) {
+			const nodeBody = await renderToAsyncIterable(
+				result,
+				componentFactory,
+				props,
+				children,
+				true,
+				route
+			);
+			// Node.js allows passing in an AsyncIterable to the Response constructor.
+			// This is non-standard so using `any` here to preserve types everywhere else.
+			body = nodeBody as any;
+		} else {
+			body = await renderToReadableStream(result, componentFactory, props, children, true, route);
+		}
 	} else {
 		body = await renderToString(result, componentFactory, props, children, true, route);
 	}

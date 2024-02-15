@@ -12,11 +12,14 @@ import { shell } from './shell.js';
 let _registry: string;
 async function getRegistry(packageManager: string): Promise<string> {
 	if (_registry) return _registry;
+	const fallback = 'https://registry.npmjs.org';
 	try {
 		const { stdout } = await shell(packageManager, ['config', 'get', 'registry']);
-		_registry = stdout?.trim()?.replace(/\/$/, '') || 'https://registry.npmjs.org';
+		_registry = stdout?.trim()?.replace(/\/$/, '') || fallback;
+		// Detect cases where the shell command returned a non-URL (e.g. a warning)
+		if (!new URL(_registry).host) _registry = fallback;
 	} catch (e) {
-		_registry = 'https://registry.npmjs.org';
+		_registry = fallback;
 	}
 	return _registry;
 }

@@ -29,12 +29,12 @@ export default async function prebuild(...args) {
 		))
 	);
 
-	function getPrebuildURL(entryfilepath) {
+	function getPrebuildURL(entryfilepath, dev = false) {
 		const entryURL = pathToFileURL(entryfilepath);
 		const basename = path.basename(entryfilepath);
 		const ext = path.extname(entryfilepath);
 		const name = basename.slice(0, basename.indexOf(ext));
-		const outname = `${name}.prebuilt${ext}`;
+		const outname = dev ? `${name}.prebuilt-dev${ext}` : `${name}.prebuilt${ext}`;
 		const outURL = new URL('./' + outname, entryURL);
 		return outURL;
 	}
@@ -61,7 +61,8 @@ export default async function prebuild(...args) {
 			}
 			tscode = newTscode;
 		}
-		const esbuildresult = await esbuild.build({
+
+		const esbuildOptions = {
 			stdin: {
 				contents: tscode,
 				resolveDir: path.dirname(filepath),
@@ -73,19 +74,40 @@ export default async function prebuild(...args) {
 			minify,
 			bundle: true,
 			write: false,
-		});
-		const code = esbuildresult.outputFiles[0].text.trim();
-		const rootURL = new URL('../../', import.meta.url);
-		const rel = path.relative(fileURLToPath(rootURL), filepath);
-		const mod = `/**
+		};
+
+		const results = await Promise.all(
+			[
+				{
+					build: await esbuild.build(esbuildOptions),
+					dev: false,
+				},
+				filepath.includes('astro-island')
+					? {
+							build: await esbuild.build({
+								...esbuildOptions,
+								define: { 'process.env.NODE_ENV': '"development"' },
+							}),
+							dev: true,
+						}
+					: undefined,
+			].filter((entry) => entry)
+		);
+
+		for (const result of results) {
+			const code = result.build.outputFiles[0].text.trim();
+			const rootURL = new URL('../../', import.meta.url);
+			const rel = path.relative(fileURLToPath(rootURL), filepath);
+			const mod = `/**
  * This file is prebuilt from ${rel}
  * Do not edit this directly, but instead edit that file and rerun the prebuild
  * to generate this file.
  */
 
 export default \`${escapeTemplateLiterals(code)}\`;`;
-		const url = getPrebuildURL(filepath);
-		await fs.promises.writeFile(url, mod, 'utf-8');
+			const url = getPrebuildURL(filepath, result.dev);
+			await fs.promises.writeFile(url, mod, 'utf-8');
+		}
 	}
 
 	await Promise.all(entryPoints.map(prebuildFile));
