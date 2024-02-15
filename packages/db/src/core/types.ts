@@ -29,28 +29,41 @@ const baseFieldSchema = z.object({
 	collection: z.string().optional(),
 });
 
+const schemaDefaults = {
+	optional: false,
+	unique: false,
+	default: undefined,
+	label: undefined,
+};
+
 const booleanFieldSchema = z.object({
 	type: z.literal('boolean'),
-	schema: baseFieldSchema.extend({
-		default: z.union([z.boolean(), sqlSchema]).optional(),
-	}),
+	schema: baseFieldSchema
+		.extend({
+			default: z.union([z.boolean(), sqlSchema]).optional(),
+		})
+		.transform((s) => ({ ...schemaDefaults, ...s })),
 });
 
 const numberFieldBaseSchema = baseFieldSchema.omit({ optional: true }).and(
 	z.union([
-		z.object({
-			primaryKey: z.literal(false).optional(),
-			optional: z.boolean().optional(),
-			default: z.union([z.number(), sqlSchema]).optional(),
-		}),
-		z.object({
-			// `integer primary key` uses ROWID as the default value.
-			// `optional` and `default` do not have an effect,
-			// so disable these config options for primary keys.
-			primaryKey: z.literal(true),
-			optional: z.literal(false).optional(),
-			default: z.literal(undefined).optional(),
-		}),
+		z
+			.object({
+				primaryKey: z.literal(false).optional(),
+				optional: z.boolean().optional(),
+				default: z.union([z.number(), sqlSchema]).optional(),
+			})
+			.transform((s) => ({ ...schemaDefaults, primaryKey: false, s })),
+		z
+			.object({
+				// `integer primary key` uses ROWID as the default value.
+				// `optional` and `default` do not have an effect,
+				// so disable these config options for primary keys.
+				primaryKey: z.literal(true),
+				optional: z.literal(false).optional(),
+				default: z.literal(undefined).optional(),
+			})
+			.transform((s) => ({ ...schemaDefaults, ...s })),
 	])
 );
 
@@ -86,18 +99,22 @@ const textFieldBaseSchema = baseFieldSchema
 	})
 	.and(
 		z.union([
-			z.object({
-				primaryKey: z.literal(false).optional(),
-				optional: z.boolean().optional(),
-			}),
-			z.object({
-				// text primary key allows NULL values.
-				// NULL values bypass unique checks, which could
-				// lead to duplicate URLs per record in Astro Studio.
-				// disable `optional` for primary keys.
-				primaryKey: z.literal(true),
-				optional: z.literal(false).optional(),
-			}),
+			z
+				.object({
+					primaryKey: z.literal(false).optional(),
+					optional: z.boolean().optional(),
+				})
+				.transform((s) => ({ ...schemaDefaults, primaryKey: false, ...s })),
+			z
+				.object({
+					// text primary key allows NULL values.
+					// NULL values bypass unique checks, which could
+					// lead to duplicate URLs per record in Astro Studio.
+					// disable `optional` for primary keys.
+					primaryKey: z.literal(true),
+					optional: z.literal(false).optional(),
+				})
+				.transform((s) => ({ ...schemaDefaults, ...s })),
 		])
 	);
 
@@ -127,22 +144,26 @@ const textFieldSchema = z.object({
 
 const dateFieldSchema = z.object({
 	type: z.literal('date'),
-	schema: baseFieldSchema.extend({
-		default: z
-			.union([
-				sqlSchema,
-				// transform to ISO string for serialization
-				z.date().transform((d) => d.toISOString()),
-			])
-			.optional(),
-	}),
+	schema: baseFieldSchema
+		.extend({
+			default: z
+				.union([
+					sqlSchema,
+					// transform to ISO string for serialization
+					z.date().transform((d) => d.toISOString()),
+				])
+				.optional(),
+		})
+		.transform((s) => ({ ...schemaDefaults, ...s })),
 });
 
 const jsonFieldSchema = z.object({
 	type: z.literal('json'),
-	schema: baseFieldSchema.extend({
-		default: z.unknown().optional(),
-	}),
+	schema: baseFieldSchema
+		.extend({
+			default: z.unknown().optional(),
+		})
+		.transform((s) => ({ ...schemaDefaults, ...s })),
 });
 
 const fieldSchema = z.union([
