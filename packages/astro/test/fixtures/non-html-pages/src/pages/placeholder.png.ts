@@ -6,7 +6,7 @@ export const GET: APIRoute = async function get(ctx) {
 	try {
 		// Image is in the public domain. Sourced from
 		// https://en.wikipedia.org/wiki/File:Portrait_placeholder.png
-		const buffer = await fs.readFile('./fixtures/non-html-pages/src/images/placeholder.png');
+		const buffer = await fs.readFile('./test/fixtures/non-html-pages/src/images/placeholder.png');
 		// NOTE: SSG only so not Content-Type needed
 		return new Response(buffer.buffer);
 	} catch (error: unknown) {
