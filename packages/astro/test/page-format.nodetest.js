@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -20,7 +21,7 @@ describe('build.format', () => {
 			it('relative urls created point to sibling folders', async () => {
 				let html = await fixture.readFile('/nested/page/index.html');
 				let $ = cheerio.load(html);
-				expect($('#another').attr('href')).to.equal('/nested/page/another/');
+				assert.equal($('#another').attr('href'), '/nested/page/another/');
 			});
 		});
 	});
@@ -45,7 +46,7 @@ describe('build.format', () => {
 			it('relative urls created point to sibling folders', async () => {
 				let html = await fixture.readFile('/nested/page.html');
 				let $ = cheerio.load(html);
-				expect($('#another').attr('href')).to.equal('/nested/another/');
+				assert.equal($('#another').attr('href'), '/nested/another/');
 			});
 		});
 	});
@@ -80,13 +81,13 @@ describe('build.format', () => {
 			it('relative urls created point to sibling folders', async () => {
 				let html = await fixture.readFile('/en/nested/page.html');
 				let $ = cheerio.load(html);
-				expect($('#another').attr('href')).to.equal('/test/en/nested/another/');
+				assert.equal($('#another').attr('href'), '/test/en/nested/another/');
 			});
 
 			it('index files are written as index.html', async () => {
 				let html = await fixture.readFile('/en/nested/index.html');
 				let $ = cheerio.load(html);
-				expect($('h1').text()).to.equal('Testing');
+				assert.equal($('h1').text(), 'Testing');
 			});
 		});
 	});

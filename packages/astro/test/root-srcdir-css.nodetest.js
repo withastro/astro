@@ -1,27 +1,26 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-describe('Remote CSS', () => {
+describe('srcDir', () => {
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/remote-css/',
+			root: './fixtures/root-srcdir-css/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
 		});
 		await fixture.build();
 	});
 
-	it('Includes all styles on the page', async () => {
+	it('when the srcDir is "." which parser style in index.astro', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 
 		const relPath = $('link').attr('href');
 		const css = await fixture.readFile(relPath);
-
-		expect(css).to.match(/https:\/\/unpkg.com\/open-props/);
-		expect(css).to.match(/body/);
+		assert.match(css, /body\{color:green\}/);
 	});
 });
