@@ -19,6 +19,6 @@ describe('Astro.glob on pages/ directory', () => {
 		let html = await fixture.readFile('/index.html');
 		let $ = cheerio.load(html);
 
-		assert.strictEqual($('link[rel=stylesheet]').length, 1);
+		assert.equal($('link[rel=stylesheet]').length, 1);
 	});
 });

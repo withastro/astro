@@ -17,12 +17,12 @@ describe('getStaticPaths with trailingSlash: ignore', () => {
 	it('includes index page', async () => {
 		let html = await fixture.readFile('/index.html');
 		let $ = cheerio.load(html);
-		assert.strictEqual($('h1').text(), 'Page 1');
+		assert.equal($('h1').text(), 'Page 1');
 	});
 
 	it('includes paginated page', async () => {
 		let html = await fixture.readFile('/2/index.html');
 		let $ = cheerio.load(html);
-		assert.strictEqual($('h1').text(), 'Page 2');
+		assert.equal($('h1').text(), 'Page 2');
 	});
 });

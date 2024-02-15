@@ -25,7 +25,7 @@ describe('Head injection', () => {
 				const html = await fixture.readFile(`/index.html`);
 				const $ = cheerio.load(html);
 
-				assert.strictEqual($('head link[rel=stylesheet]').length, 1);
+				assert.equal($('head link[rel=stylesheet]').length, 1);
 			});
 		});
 
@@ -34,40 +34,40 @@ describe('Head injection', () => {
 				const html = await fixture.readFile('/with-slot-in-slot/index.html');
 				const $ = cheerio.load(html);
 
-				assert.strictEqual($('head link[rel=stylesheet]').length, 1);
-				assert.strictEqual($('body link[rel=stylesheet]').length, 0);
+				assert.equal($('head link[rel=stylesheet]').length, 1);
+				assert.equal($('body link[rel=stylesheet]').length, 0);
 			});
 
 			it('Using slots with Astro.slots.render()', async () => {
 				const html = await fixture.readFile('/with-slot-render/index.html');
 				const $ = cheerio.load(html);
 
-				assert.strictEqual($('head link[rel=stylesheet]').length, 1);
-				assert.strictEqual($('body link[rel=stylesheet]').length, 0);
+				assert.equal($('head link[rel=stylesheet]').length, 1);
+				assert.equal($('body link[rel=stylesheet]').length, 0);
 			});
 
 			it('Using slots within slots using Astro.slots.render()', async () => {
 				const html = await fixture.readFile('/with-slot-in-render-slot/index.html');
 				const $ = cheerio.load(html);
 
-				assert.strictEqual($('head link[rel=stylesheet]').length, 2);
-				assert.strictEqual($('body link[rel=stylesheet]').length, 0);
+				assert.equal($('head link[rel=stylesheet]').length, 2);
+				assert.equal($('body link[rel=stylesheet]').length, 0);
 			});
 
 			it('Using slots in Astro.slots.render() inside head buffering', async () => {
 				const html = await fixture.readFile('/with-render-slot-in-head-buffer/index.html');
 				const $ = cheerio.load(html);
 
-				assert.strictEqual($('head link[rel=stylesheet]').length, 2);
-				assert.strictEqual($('body link[rel=stylesheet]').length, 0);
+				assert.equal($('head link[rel=stylesheet]').length, 2);
+				assert.equal($('body link[rel=stylesheet]').length, 0);
 			});
 
 			it('Using slots with Astro.slots.render() (layout)', async () => {
 				const html = await fixture.readFile('/with-slot-render2/index.html');
 				const $ = cheerio.load(html);
 
-				assert.strictEqual($('head link[rel=stylesheet]').length, 1);
-				assert.strictEqual($('body link[rel=stylesheet]').length, 0);
+				assert.equal($('head link[rel=stylesheet]').length, 1);
+				assert.equal($('body link[rel=stylesheet]').length, 0);
 			});
 		});
 	});

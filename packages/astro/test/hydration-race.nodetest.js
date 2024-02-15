@@ -16,15 +16,15 @@ describe('Hydration script ordering', async () => {
 		let $ = cheerio.load(html);
 
 		// First, let's make sure all islands rendered (or test is bad)
-		assert.strictEqual($('astro-island').length, 3);
+		assert.equal($('astro-island').length, 3);
 
 		// Now let's make sure the hydration script is placed before the first component
 		let firstIsland = $($('astro-island').get(0));
 		let prevSibling = firstIsland.prev();
-		assert.strictEqual(prevSibling.prop('tagName'), 'SCRIPT');
+		assert.equal(prevSibling.prop('tagName'), 'SCRIPT');
 
 		// Sanity check that we're only rendering them once.
-		assert.strictEqual($('style').length, 1, 'hydration style added once');
-		assert.strictEqual($('script').length, 1, 'only one hydration script needed');
+		assert.equal($('style').length, 1, 'hydration style added once');
+		assert.equal($('script').length, 1, 'only one hydration script needed');
 	});
 });
