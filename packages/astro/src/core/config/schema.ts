@@ -5,7 +5,7 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
-import { bundledThemes, type BuiltinTheme } from 'shikiji';
+import { bundledThemes, type BuiltinTheme } from 'shiki';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro.js';
 
 import type { OutgoingHttpHeaders } from 'node:http';
@@ -14,10 +14,10 @@ import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
-// This import is required to appease TypeScript!
+// These imports are required to appease TypeScript!
 // See https://github.com/withastro/astro/pull/8762
 import 'mdast-util-to-hast';
-import 'shikiji-core';
+import '@shikijs/core';
 
 type ShikiLangs = NonNullable<ShikiConfig['langs']>;
 type ShikiTheme = NonNullable<ShikiConfig['theme']>;
@@ -289,6 +289,17 @@ export const AstroConfigSchema = z.object({
 					transformers: z
 						.custom<ShikiTransformers[number]>()
 						.array()
+						.transform((transformers) => {
+							for (const transformer of transformers) {
+								// When updating shikiji to shiki, the `token` property was renamed to `span`.
+								// We apply the compat here for now until the next Astro major.
+								// TODO: Remove this in Astro 5.0
+								if ((transformer as any).token && !('span' in transformer)) {
+									transformer.span = (transformer as any).token;
+								}
+							}
+							return transformers;
+						})
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.transformers!),
 				})
 				.default({}),

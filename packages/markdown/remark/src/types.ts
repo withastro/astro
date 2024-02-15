@@ -4,10 +4,10 @@ import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type {
 	BuiltinTheme,
 	LanguageRegistration,
-	ShikijiTransformer,
+	ShikiTransformer,
 	ThemeRegistration,
 	ThemeRegistrationRaw,
-} from 'shikiji';
+} from 'shiki';
 import type * as unified from 'unified';
 import type { VFile } from 'vfile';
 
@@ -40,7 +40,7 @@ export interface ShikiConfig {
 	theme?: ThemePresets | ThemeRegistration | ThemeRegistrationRaw;
 	experimentalThemes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
 	wrap?: boolean | null;
-	transformers?: ShikijiTransformer[];
+	transformers?: ShikiTransformer[];
 }
 
 export interface AstroMarkdownOptions {
