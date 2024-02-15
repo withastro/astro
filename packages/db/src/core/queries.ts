@@ -54,14 +54,14 @@ export async function seedData({
 	try {
 		await data({
 			seed: async ({ table, writable }, values) => {
-				if (writable && mode === 'build') {
+				if (writable && mode === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {
 					(logger ?? console).error(SEED_WRITABLE_IN_PROD_ERROR(getTableName(table)));
 					process.exit(1);
 				}
 				await db.insert(table).values(values as any);
 			},
 			seedReturning: async ({ table, writable }, values) => {
-				if (writable && mode === 'build') {
+				if (writable && mode === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {
 					(logger ?? console).error(SEED_WRITABLE_IN_PROD_ERROR(getTableName(table)));
 					process.exit(1);
 				}
