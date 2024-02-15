@@ -11,11 +11,15 @@ export const MISSING_PROJECT_ID_ERROR = `${red('▶ Directory not linked.')}
   ${cyan('astro db link')}\n`;
 
 export const STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR = (collectionName: string) => `${red(
-	`▶ Writable collection ${bold(collectionName)} requires Astro Studio.`
+	`▶ Writable collection ${bold(collectionName)} requires Astro Studio or the ${yellow('unsafeWritable')} option.`
 )}
 
   Visit ${cyan('https://astro.build/studio')} to create your account
   and set ${green('studio: true')} in your astro.config.mjs file to enable Studio.\n`;
+
+export const UNSAFE_WRITABLE_WARNING = `${yellow('unsafeWritable')} option is enabled and you are using writable collections.
+  Redeploying your app may result in wiping away your database.
+	I hope you know what you are doing.\n`
 
 export const STUDIO_CONFIG_MISSING_CLI_ERROR = `${red('▶ This command requires Astro Studio.')}
 

@@ -8,7 +8,7 @@ import { DB_PATH } from '../consts.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 import { astroConfigWithDbSchema } from '../types.js';
 import { type VitePlugin } from '../utils.js';
-import { STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR } from '../errors.js';
+import { STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR, UNSAFE_WRITABLE_WARNING } from '../errors.js';
 import { errorMap } from './error-map.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -32,12 +32,19 @@ function astroDBIntegration(): AstroIntegration {
 				const collections = configWithDb.db?.collections ?? {};
 
 				const studio = configWithDb.db?.studio ?? false;
+				const unsafeWritable = Boolean(configWithDb.db?.unsafeWritable);
 				const foundWritableCollection = Object.entries(collections).find(([, c]) => c.writable);
-				if (!studio && foundWritableCollection) {
+				const writableAllowed = studio || unsafeWritable;
+				if (!writableAllowed && foundWritableCollection) {
 					logger.error(
 						STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR(foundWritableCollection[0])
 					);
 					process.exit(1);
+				}
+				// Using writable collections with the opt-in flag. Warn them to let them
+				// know the risk.
+				else if(unsafeWritable && foundWritableCollection) {
+					logger.warn(UNSAFE_WRITABLE_WARNING);
 				}
 
 				let dbPlugin: VitePlugin;
