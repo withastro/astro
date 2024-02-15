@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { describe, before, after, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { Writable } from 'node:stream';
 
@@ -48,14 +49,12 @@ describe('astro:image', () => {
 
 			it('Image has eager loading meaning getImage passed props it doesnt use through it', async () => {
 				let $img = $('img');
-				expect($img.attr('loading')).to.equal('eager');
+				assert.equal($img.attr('loading'), 'eager');
 			});
 
 			it('Image src contains w=50 meaning getImage correctly used props added through the remark plugin', async () => {
 				let $img = $('img');
-				expect(new URL($img.attr('src'), 'http://example.com').searchParams.get('w')).to.equal(
-					'50'
-				);
+				assert.equal(new URL($img.attr('src'), 'http://example.com').searchParams.get('w'), '50');
 			});
 		});
 	});
