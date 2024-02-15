@@ -8,6 +8,7 @@ import type { AstroConfig, AstroUserConfig } from '../../@types/astro.js';
 import { resolveConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
 import { flagsToAstroInlineConfig } from '../flags.js';
+import { apply as applyPolyfill } from '../../core/polyfill.js';
 
 interface InfoOptions {
 	flags: yargs.Arguments;
@@ -47,6 +48,7 @@ export async function getInfoOutput({
 }
 
 export async function printInfo({ flags }: InfoOptions) {
+	applyPolyfill();
 	const { userConfig } = await resolveConfig(flagsToAstroInlineConfig(flags), 'info');
 	const output = await getInfoOutput({ userConfig, print: true });
 

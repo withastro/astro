@@ -27,7 +27,7 @@ test.describe('Dev Toolbar', () => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const toolbar = page.locator('astro-dev-toolbar');
-		const appButton = toolbar.locator('button[data-app-id="astro"]');
+		const appButton = toolbar.locator('button[data-app-id="astro:home"]');
 		const appButtonTooltip = appButton.locator('.item-tooltip');
 		await appButton.hover();
 
@@ -38,10 +38,12 @@ test.describe('Dev Toolbar', () => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const toolbar = page.locator('astro-dev-toolbar');
-		const appButton = toolbar.locator('button[data-app-id="astro"]');
+		const appButton = toolbar.locator('button[data-app-id="astro:home"]');
 		await appButton.click();
 
-		const astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro"]');
+		const astroAppCanvas = toolbar.locator(
+			'astro-dev-toolbar-app-canvas[data-app-id="astro:home"]'
+		);
 		const astroWindow = astroAppCanvas.locator('astro-dev-toolbar-window');
 		await expect(astroWindow).toHaveCount(1);
 		await expect(astroWindow).toBeVisible();
@@ -205,10 +207,12 @@ test.describe('Dev Toolbar', () => {
 		await expect(settingsWindow).toBeVisible();
 
 		// Click the astro app
-		appButton = toolbar.locator('button[data-app-id="astro"]');
+		appButton = toolbar.locator('button[data-app-id="astro:home"]');
 		await appButton.click();
 
-		const astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro"]');
+		const astroAppCanvas = toolbar.locator(
+			'astro-dev-toolbar-app-canvas[data-app-id="astro:home"]'
+		);
 		const astroWindow = astroAppCanvas.locator('astro-dev-toolbar-window');
 		await expect(astroWindow).toHaveCount(1);
 		await expect(astroWindow).toBeVisible();

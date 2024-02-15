@@ -16,7 +16,7 @@ test.afterAll(async () => {
 });
 
 test.describe('Dev Toolbar - Audits', () => {
-	test('can warn about perf issues zzz', async ({ page, astro }) => {
+	test('can warn about perf issues', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/audits-perf'));
 
 		const toolbar = page.locator('astro-dev-toolbar');
