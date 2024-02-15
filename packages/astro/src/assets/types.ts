@@ -59,6 +59,7 @@ export type SrcSetValue = UnresolvedSrcSetValue & {
  */
 export type UnresolvedImageTransform = Omit<ImageTransform, 'src'> & {
 	src: ImageMetadata | string | Promise<{ default: ImageMetadata }>;
+	inferSize?: boolean;
 };
 
 /**
@@ -176,16 +177,38 @@ export type LocalImageProps<T> = ImageSharedProps<T> & {
 	quality?: ImageQuality;
 };
 
-export type RemoteImageProps<T> = WithRequired<ImageSharedProps<T>, 'width' | 'height'> & {
-	/**
-	 * URL of a remote image. Can start with a protocol (ex: `https://`) or alternatively `/`, or `Astro.url`, for images in the `public` folder
-	 *
-	 * Remote images are not optimized, and require both `width` and `height` to be set.
-	 *
-	 * **Example**:
-	 * ```
-	 * <Image src="https://example.com/image.png" width={450} height={300} alt="..." />
-	 * ```
-	 */
-	src: string;
-};
+export type RemoteImageProps<T> =
+	| (ImageSharedProps<T> & {
+			/**
+			 * URL of a remote image. Can start with a protocol (ex: `https://`) or alternatively `/`, or `Astro.url`, for images in the `public` folder
+			 *
+			 * Remote images are not optimized, and require both `width` and `height` to be set.
+			 *
+			 * **Example**:
+			 * ```
+			 * <Image src="https://example.com/image.png" width={450} height={300} alt="..." />
+			 * ```
+			 */
+			src: string;
+			/**
+			 * When inferSize is true width and height are not required
+			 */
+			inferSize: true;
+	  })
+	| (WithRequired<ImageSharedProps<T>, 'width' | 'height'> & {
+			/**
+			 * URL of a remote image. Can start with a protocol (ex: `https://`) or alternatively `/`, or `Astro.url`, for images in the `public` folder
+			 *
+			 * Remote images are not optimized, and require both `width` and `height` to be set.
+			 *
+			 * **Example**:
+			 * ```
+			 * <Image src="https://example.com/image.png" width={450} height={300} alt="..." />
+			 * ```
+			 */
+			src: string;
+			/**
+			 * When inferSize is false or undefined width and height are required
+			 */
+			inferSize?: false | undefined;
+	  });
