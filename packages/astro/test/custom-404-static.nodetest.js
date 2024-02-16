@@ -29,18 +29,18 @@ describe('Custom 404 with Static', () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			$ = cheerio.load(html);
 
-			assert.strictEqual($('h1').text(), 'Home');
+			assert.equal($('h1').text(), 'Home');
 		});
 
 		it('renders 404 for /a', async () => {
 			const res = await fixture.fetch('/a');
-			assert.strictEqual(res.status, 404);
+			assert.equal(res.status, 404);
 
 			const html = await res.text();
 			$ = cheerio.load(html);
 
-			assert.strictEqual($('h1').text(), 'Page not found');
-			assert.strictEqual($('p').text(), '/a');
+			assert.equal($('h1').text(), 'Page not found');
+			assert.equal($('p').text(), '/a');
 		});
 	});
 

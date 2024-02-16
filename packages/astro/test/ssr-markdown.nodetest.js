@@ -28,6 +28,6 @@ describe('Markdown pages in SSR', () => {
 	it('Renders markdown pages correctly', async () => {
 		const html = await fetchHTML('/post');
 		const $ = cheerioLoad(html);
-		assert.strictEqual($('#subheading').text(), 'Subheading');
+		assert.equal($('#subheading').text(), 'Subheading');
 	});
 });
