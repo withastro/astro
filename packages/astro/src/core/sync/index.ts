@@ -55,11 +55,26 @@ export default async function sync(
 
 	const _settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
+	// TODO: refactor
+	let rawTsConfigPath = getRelativePath(
+		astroConfig.root,
+		new URL('tsconfig.json', astroConfig.codegenDir)
+	);
+	if (!isRelativePath(rawTsConfigPath)) {
+		rawTsConfigPath = `./${rawTsConfigPath}`;
+	}
+	const tsconfigPath = fileURLToPath(new URL(rawTsConfigPath, astroConfig.root));
+
+	fsMod.mkdirSync(dirname(tsconfigPath), { recursive: true });
+	fsMod.writeFileSync(tsconfigPath, '{}', 'utf-8');
+
 	const settings = await runHookConfigSetup({
 		settings: _settings,
 		logger: logger,
 		command: 'build',
 	});
+
+	fsMod.unlinkSync(tsconfigPath)
 
 	try {
 		return await syncInternal(settings, { ...options, logger });
