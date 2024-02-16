@@ -1642,6 +1642,25 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
+		 * @name experimental.contentCollectionJSONSchema
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.5.0
+		 * @description
+		 * Enables generation of JSON Schema files for content collections of type `data`.
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 * 		contentCollectionJSONSchema: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		contentCollectionJSONSchema?: boolean;
+
+		/**
+		 * @docs
 		 * @name experimental.clientPrerender
 		 * @type {boolean}
 		 * @default `false`
