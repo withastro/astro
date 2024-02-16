@@ -28,7 +28,7 @@ describe('Astro Markdown - frontmatter injection', () => {
 		);
 		assert.ok(readingTimes.length > 0);
 		for (let readingTime of readingTimes) {
-			assert.notStrictEqual(readingTime, null);
+			assert.notEqual(readingTime, null);
 			assert.match(readingTime.text, /^\d+ min read/);
 		}
 	});

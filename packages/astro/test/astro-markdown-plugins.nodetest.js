@@ -46,7 +46,7 @@ describe('Astro Markdown plugins', () => {
 			const $ = cheerio.load(html);
 
 			// test 1: Added a TOC
-			assert.strictEqual($('.toc').length, 1);
+			assert.equal($('.toc').length, 1);
 
 			// test 2: Added .title to h1
 			assert.ok($('#hello-world').hasClass('title'));
@@ -56,11 +56,11 @@ describe('Astro Markdown plugins', () => {
 		it('Still applies default plugins when user plugins are provided', async () => {
 			const gfmHtml = await fixture.readFile('/with-gfm/index.html');
 			const $1 = cheerio.load(gfmHtml);
-			assert.strictEqual($1('a[href="https://example.com"]').length, 1);
+			assert.equal($1('a[href="https://example.com"]').length, 1);
 
 			const smartypantsHtml = await fixture.readFile('/with-smartypants/index.html');
 			const $2 = cheerio.load(smartypantsHtml);
-			assert.strictEqual($2('p').html(), '“Smartypants” is — awesome');
+			assert.equal($2('p').html(), '“Smartypants” is — awesome');
 
 			testRemark(gfmHtml);
 			testRehype(gfmHtml, '#github-flavored-markdown-test');
@@ -71,7 +71,7 @@ describe('Astro Markdown plugins', () => {
 			const $ = cheerio.load(html);
 
 			// test 1: GFM autolink applied correctly
-			assert.strictEqual($('a[href="https://example.com"]').length, 1);
+			assert.equal($('a[href="https://example.com"]').length, 1);
 
 			testRemark(html);
 			testRehype(html, '#github-flavored-markdown-test');
@@ -82,7 +82,7 @@ describe('Astro Markdown plugins', () => {
 			const $ = cheerio.load(html);
 
 			// test 1: smartypants applied correctly
-			assert.strictEqual($('p').html(), '“Smartypants” is — awesome');
+			assert.equal($('p').html(), '“Smartypants” is — awesome');
 
 			testRemark(html);
 			testRehype(html, '#smartypants-test');
@@ -99,7 +99,7 @@ describe('Astro Markdown plugins', () => {
 		const html = await fixture.readFile('/with-gfm/index.html');
 		const $ = cheerio.load(html);
 
-		assert.strictEqual($('a[href="https://example.com"]').length, 0);
+		assert.equal($('a[href="https://example.com"]').length, 0);
 
 		testRemark(html);
 		testRehype(html, '#github-flavored-markdown-test');
@@ -115,7 +115,7 @@ describe('Astro Markdown plugins', () => {
 		const html = await fixture.readFile('/with-smartypants/index.html');
 		const $ = cheerio.load(html);
 
-		assert.strictEqual($('p').html(), '"Smartypants" is -- awesome');
+		assert.equal($('p').html(), '"Smartypants" is -- awesome');
 
 		testRemark(html);
 		testRehype(html, '#smartypants-test');
@@ -124,7 +124,7 @@ describe('Astro Markdown plugins', () => {
 
 function testRehype(html, headingId) {
 	const $ = cheerio.load(html);
-	assert.strictEqual($(headingId).length, 1);
+	assert.equal($(headingId).length, 1);
 	assert.ok($(headingId).hasClass('title'));
 }
 
