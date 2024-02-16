@@ -65,7 +65,7 @@ const scriptRE = /<script(?:\s.*?)?>.*?<\/script>/gs;
 // eslint-disable-next-line regexp/no-super-linear-backtracking
 const styleRE = /<style(?:\s.*?)?>.*?<\/style>/gs;
 
-function isStyleOnlyChanged(oldCode: string, newCode: string) {
+export function isStyleOnlyChanged(oldCode: string, newCode: string) {
 	if (oldCode === newCode) return false;
 
 	// Before we can regex-capture style tags, we remove the frontmatter and scripts
@@ -89,9 +89,14 @@ function isStyleOnlyChanged(oldCode: string, newCode: string) {
 	// Finally, we can compare styles
 	const oldStyles: string[] = [];
 	const newStyles: string[] = [];
-	oldCode.match(styleRE)?.forEach((m) => oldStyles.push(m));
-	newCode.match(styleRE)?.forEach((m) => newStyles.push(m));
-	// The length must also be the same for style only change.  If style tags are added/removed,
+	oldCode = oldCode.replace(styleRE, (m) => (oldStyles.push(m), ''));
+	newCode = newCode.replace(styleRE, (m) => (newStyles.push(m), ''));
+
+	// Remaining of `oldCode` and `newCode` is the markup, return false if they're different
+	if (oldCode !== newCode) return false;
+
+	// Finally, check if only the style changed.
+	// The length must also be the same for style only change. If style tags are added/removed,
 	// we need to regenerate the main Astro file so that its CSS imports are also added/removed
 	return oldStyles.length === newStyles.length && !isArrayEqual(oldStyles, newStyles);
 }
