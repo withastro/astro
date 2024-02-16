@@ -41,6 +41,7 @@ export abstract class Pipeline {
 		readonly i18n = manifest.i18n,
 		readonly middleware = manifest.middleware,
 		readonly routeCache = new RouteCache(logger, mode),
+		readonly routes = manifest.routes.map((route) => route.routeData),
 		/**
 		 * Used for `Astro.site`.
 		 */

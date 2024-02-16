@@ -169,7 +169,7 @@ function buildManifest(
 		}
 	};
 
-	for (const route of opts.manifest.routes) {
+	for (const route of opts.routes) {
 		if (!route.prerender) continue;
 		if (!route.pathname) continue;
 
@@ -186,7 +186,7 @@ function buildManifest(
 		staticFiles.push(file);
 	}
 
-	for (const route of opts.manifest.routes) {
+	for (const route of opts.routes) {
 		const pageData = internals.pagesByComponent.get(route.component);
 		if (route.prerender || !pageData) continue;
 		const scripts: SerializedRouteInfo['scripts'] = [];

@@ -4,7 +4,6 @@ import type {
 	AstroConfig,
 	AstroSettings,
 	ComponentInstance,
-	ManifestData,
 	MiddlewareHandler,
 	RouteData,
 	RuntimeMode,
@@ -38,7 +37,7 @@ export interface StaticBuildOptions {
 	allPages: AllPagesData;
 	settings: AstroSettings;
 	logger: Logger;
-	manifest: ManifestData;
+	routes: RouteData[];
 	mode: RuntimeMode;
 	origin: string;
 	pageNames: string[];

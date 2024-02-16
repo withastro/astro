@@ -2,17 +2,10 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { Logger } from '../../../dist/core/logger/core.js';
-import { createRouteManifest } from '../../../dist/core/routing/manifest/create.js';
+import { createManifestRoutes } from '../../../dist/core/routing/manifest/create.js';
 import { createBasicSettings, createFs } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
-
-function getManifestRoutes(manifest) {
-	return manifest.routes.map((route) => ({
-		type: route.type,
-		route: route.route,
-	}));
-}
 
 function getLogger() {
 	const logs = [];
@@ -39,7 +32,7 @@ function assertRouteRelations(routes, relations) {
 	}
 }
 
-describe('routing - createRouteManifest', () => {
+describe('routing - createManifestRoutes', () => {
 	it('using trailingSlash: "never" does not match the index route when it contains a trailing slash', async () => {
 		const fs = createFs(
 			{
@@ -52,12 +45,12 @@ describe('routing - createRouteManifest', () => {
 			base: '/search',
 			trailingSlash: 'never',
 		});
-		const manifest = createRouteManifest({
+		const routes = createManifestRoutes({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
 		});
-		const [{ pattern }] = manifest.routes;
+		const [{ pattern }] = routes;
 		assert.equal(pattern.test(''), true);
 		assert.equal(pattern.test('/'), false);
 	});
@@ -90,13 +83,13 @@ describe('routing - createRouteManifest', () => {
 			},
 		];
 
-		const manifest = createRouteManifest({
+		const routes = createManifestRoutes({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
 		});
 
-		assert.deepEqual(getManifestRoutes(manifest), [
+		assert.deepEqual(routes.map(typeAndRoute), [
 			{
 				route: '/about',
 				type: 'page',
@@ -135,13 +128,13 @@ describe('routing - createRouteManifest', () => {
 			},
 		});
 
-		const manifest = createRouteManifest({
+		const routes = createManifestRoutes({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
 		});
 
-		assertRouteRelations(getManifestRoutes(manifest), [
+		assertRouteRelations(routes, [
 			['/', '/[...rest]'],
 			['/static', '/[dynamic]'],
 			['/static', '/[...rest]'],
@@ -173,13 +166,13 @@ describe('routing - createRouteManifest', () => {
 			},
 		});
 
-		const manifest = createRouteManifest({
+		const routes = createManifestRoutes({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
 		});
 
-		assertRouteRelations(getManifestRoutes(manifest), [
+		assertRouteRelations(routes, [
 			// Parent route should come before rest parameters
 			['/test', '/test/[...slug]'],
 			['/modules', '/modules/[...slug]'],
@@ -222,13 +215,13 @@ describe('routing - createRouteManifest', () => {
 			},
 		});
 
-		const manifest = createRouteManifest({
+		const routes = createManifestRoutes({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
 		});
 
-		assertRouteRelations(getManifestRoutes(manifest), [
+		assertRouteRelations(routes, [
 			// Parent route should come before rest parameters
 			['/', '/[...rest]'],
 			['/', '/[...other]'],
@@ -285,13 +278,13 @@ describe('routing - createRouteManifest', () => {
 			},
 		];
 
-		const manifest = createRouteManifest({
+		const routes = createManifestRoutes({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
 		});
 
-		assert.deepEqual(getManifestRoutes(manifest), [
+		assert.deepEqual(routes.map(typeAndRoute), [
 			{
 				route: '/contributing',
 				type: 'page',
@@ -341,13 +334,13 @@ describe('routing - createRouteManifest', () => {
 			},
 		];
 
-		const manifest = createRouteManifest({
+		const routes = createManifestRoutes({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
 		});
 
-		assert.deepEqual(getManifestRoutes(manifest), [
+		assert.deepEqual(routes.map(typeAndRoute), [
 			{
 				route: '/blog/[...slug]',
 				type: 'page',
@@ -388,13 +381,13 @@ describe('routing - createRouteManifest', () => {
 				},
 			},
 		});
-		const manifest = createRouteManifest({
+		const routes = createManifestRoutes({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
 		});
 
-		assert.deepEqual(getManifestRoutes(manifest), [
+		assert.deepEqual(routes.map(typeAndRoute), [
 			{
 				route: '/blog/contributing',
 				type: 'page',
@@ -441,13 +434,13 @@ describe('routing - createRouteManifest', () => {
 				globalRoutePriority: true,
 			},
 		});
-		const manifest = createRouteManifest({
+		const routes = createManifestRoutes({
 			cwd: fileURLToPath(root),
 			settings,
 			fsMod: fs,
 		});
 
-		assert.deepEqual(getManifestRoutes(manifest), [
+		assert.deepEqual(routes.map(typeAndRoute), [
 			{
 				route: '/blog/about',
 				type: 'redirect',
@@ -500,7 +493,7 @@ describe('routing - createRouteManifest', () => {
 
 		const { logger, logs } = getLogger();
 
-		createRouteManifest(manifestOptions, logger);
+		createManifestRoutes(manifestOptions, logger);
 
 		assert.deepEqual(logs, [
 			{
@@ -546,7 +539,7 @@ describe('routing - createRouteManifest', () => {
 
 		const { logger, logs } = getLogger();
 
-		createRouteManifest(manifestOptions, logger);
+		createManifestRoutes(manifestOptions, logger);
 
 		assert.deepEqual(logs, [
 			{
@@ -565,3 +558,7 @@ describe('routing - createRouteManifest', () => {
 		]);
 	});
 });
+
+function typeAndRoute({ type, route }) {
+	return { type, route };
+}

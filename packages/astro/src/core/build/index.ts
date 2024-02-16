@@ -7,7 +7,7 @@ import type {
 	AstroConfig,
 	AstroInlineConfig,
 	AstroSettings,
-	ManifestData,
+	RouteData,
 	RuntimeMode,
 } from '../../@types/astro.js';
 import { injectImageEndpoint } from '../../assets/endpoint/config.js';
@@ -27,7 +27,7 @@ import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
-import { createRouteManifest } from '../routing/index.js';
+import { createManifestRoutes } from '../routing/index.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
@@ -97,7 +97,7 @@ class AstroBuilder {
 	private logger: Logger;
 	private mode: RuntimeMode = 'production';
 	private origin: string;
-	private manifest: ManifestData;
+	private routes: RouteData[];
 	private timer: Record<string, number>;
 	private teardownCompiler: boolean;
 
@@ -111,7 +111,7 @@ class AstroBuilder {
 		this.origin = settings.config.site
 			? new URL(settings.config.site).origin
 			: `http://localhost:${settings.config.server.port}`;
-		this.manifest = { routes: [] };
+		this.routes = [];
 		this.timer = {};
 	}
 
@@ -130,7 +130,7 @@ class AstroBuilder {
 			this.settings = injectImageEndpoint(this.settings, 'build');
 		}
 
-		this.manifest = createRouteManifest({ settings: this.settings }, this.logger);
+		this.routes = createManifestRoutes({ settings: this.settings }, this.logger);
 
 		const viteConfig = await createVite(
 			{
@@ -155,40 +155,40 @@ class AstroBuilder {
 
 	/** Run the build logic. build() is marked private because usage should go through ".run()" */
 	private async build({ viteConfig }: { viteConfig: vite.InlineConfig }) {
-		await runHookBuildStart({ config: this.settings.config, logging: this.logger });
+		const { settings, logger, routes, timer } = this;
+		const { config } = settings;
+		await runHookBuildStart({ config, logging: logger });
 		this.validateConfig();
 
-		this.logger.info('build', `output: ${blue('"' + this.settings.config.output + '"')}`);
-		this.logger.info('build', `directory: ${blue(fileURLToPath(this.settings.config.outDir))}`);
-		if (this.settings.adapter) {
-			this.logger.info('build', `adapter: ${green(this.settings.adapter.name)}`);
-		}
-		this.logger.info('build', 'Collecting build info...');
-		this.timer.loadStart = performance.now();
-		const { assets, allPages } = await collectPagesData({
-			settings: this.settings,
-			logger: this.logger,
-			manifest: this.manifest,
-		});
+		logger.info('build', `output: ${blue('"' + config.output + '"')}`);
+		logger.info('build', `directory: ${blue(fileURLToPath(config.outDir))}`);
 
-		this.logger.debug('build', timerMessage('All pages loaded', this.timer.loadStart));
+		if (settings.adapter) {
+			logger.info('build', `adapter: ${green(settings.adapter.name)}`);
+		}
+		logger.info('build', 'Collecting build info...');
+
+		timer.loadStart = performance.now();
+		const { assets, allPages } = await collectPagesData({ settings, logger, routes });
+
+		logger.debug('build', timerMessage('All pages loaded', this.timer.loadStart));
 
 		// The names of each pages
 		const pageNames: string[] = [];
 
 		// Bundle the assets in your final build: This currently takes the HTML output
 		// of every page (stored in memory) and bundles the assets pointed to on those pages.
-		this.timer.buildStart = performance.now();
-		this.logger.info(
+		timer.buildStart = performance.now();
+		logger.info(
 			'build',
 			green(`✓ Completed in ${getTimeStat(this.timer.init, performance.now())}.`)
 		);
 
 		const opts: StaticBuildOptions = {
 			allPages,
-			settings: this.settings,
-			logger: this.logger,
-			manifest: this.manifest,
+			settings,
+			logger,
+			routes,
 			mode: this.mode,
 			origin: this.origin,
 			pageNames,
@@ -208,29 +208,29 @@ class AstroBuilder {
 			fs.writeFileSync(filePath, assets[k], 'utf8');
 			delete assets[k]; // free up memory
 		});
-		this.logger.debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
+		logger.debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
 
 		// You're done! Time to clean up.
 		await runHookBuildDone({
-			config: this.settings.config,
+			config,
 			pages: pageNames,
 			routes: Object.values(allPages)
 				.flat()
 				.map((pageData) => pageData.route),
-			logging: this.logger,
+			logging: logger,
 		});
 
-		if (this.logger.level && levels[this.logger.level()] <= levels['info']) {
+		if (logger.level && levels[logger.level()] <= levels['info']) {
 			await this.printStats({
-				logger: this.logger,
-				timeStart: this.timer.init,
+				logger,
+				timeStart: timer.init,
 				pageCount: pageNames.length,
-				buildMode: this.settings.config.output,
+				buildMode: config.output,
 			});
 		}
 
 		// Benchmark results
-		this.settings.timer.writeStats();
+		settings.timer.writeStats();
 	}
 
 	/** Build the given Astro project.  */

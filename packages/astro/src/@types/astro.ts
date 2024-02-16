@@ -2108,10 +2108,6 @@ export type JSXTransformFn = (options: {
 	ssr: boolean;
 }) => Promise<JSXTransformConfig>;
 
-export interface ManifestData {
-	routes: RouteData[];
-}
-
 export interface MarkdownParserResponse extends MarkdownRenderingResult {
 	frontmatter: MD['frontmatter'];
 }

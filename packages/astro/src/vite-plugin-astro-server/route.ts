@@ -1,5 +1,5 @@
 import type http from 'node:http';
-import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro.js';
+import type { ComponentInstance, RouteData } from '../@types/astro.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { req } from '../core/messages.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
@@ -32,18 +32,17 @@ function isLoggedRequest(url: string) {
 	return url !== '/favicon.ico';
 }
 
-function getCustom404Route(manifestData: ManifestData): RouteData | undefined {
+function getCustom404Route(routes: RouteData[]): RouteData | undefined {
 	const route404 = /^\/404\/?$/;
-	return manifestData.routes.find((r) => route404.test(r.route));
+	return routes.find((r) => route404.test(r.route));
 }
 
 export async function matchRoute(
 	pathname: string,
-	manifestData: ManifestData,
 	pipeline: DevPipeline
 ): Promise<MatchedRoute | undefined> {
-	const { config, logger, routeCache, serverLike, settings } = pipeline;
-	const matches = matchAllRoutes(pathname, manifestData);
+	const { config, logger, routeCache, routes, serverLike, settings } = pipeline;
+	const matches = matchAllRoutes(pathname, routes);
 
 	const preloadedMatches = await getSortedPreloadedMatches({ pipeline, matches, settings });
 
@@ -80,7 +79,7 @@ export async function matchRoute(
 	// build formats, and is necessary based on how the manifest tracks build targets.
 	const altPathname = pathname.replace(/(?:index)?\.html$/, '');
 	if (altPathname !== pathname) {
-		return await matchRoute(altPathname, manifestData, pipeline);
+		return await matchRoute(altPathname, pipeline);
 	}
 
 	if (matches.length) {
@@ -94,7 +93,7 @@ export async function matchRoute(
 		);
 	}
 
-	const custom404 = getCustom404Route(manifestData);
+	const custom404 = getCustom404Route(routes);
 
 	if (custom404) {
 		const filePath = new URL(`./${custom404.component}`, config.root);
@@ -118,7 +117,6 @@ type HandleRoute = {
 	pathname: string;
 	body: ArrayBuffer | undefined;
 	origin: string;
-	manifestData: ManifestData;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
 	status?: 404 | 500;
@@ -133,12 +131,11 @@ export async function handleRoute({
 	body,
 	origin,
 	pipeline,
-	manifestData,
 	incomingRequest,
 	incomingResponse,
 }: HandleRoute): Promise<void> {
 	const timeStart = performance.now();
-	const { config, loader, logger } = pipeline;
+	const { config, loader, logger, routes } = pipeline;
 	if (!matchedRoute && !config.i18n) {
 		if (isLoggedRequest(pathname)) {
 			logger.info(null, req({ url: pathname, method: incomingRequest.method, statusCode: 404 }));
@@ -271,10 +268,10 @@ export async function handleRoute({
 	}
 	if (
 		response.status === 404 &&
-		has404Route(manifestData) &&
+		has404Route(routes) &&
 		response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 	) {
-		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
+		const fourOhFourRoute = await matchRoute('/404', pipeline);
 		if (options && fourOhFourRoute?.route !== options.route)
 			return handleRoute({
 				...options,
@@ -284,7 +281,6 @@ export async function handleRoute({
 				body,
 				origin,
 				pipeline,
-				manifestData,
 				incomingRequest,
 				incomingResponse,
 			});
@@ -319,6 +315,6 @@ function getStatus(matchedRoute?: MatchedRoute): 404 | 500 | undefined {
 	if (matchedRoute.route.route === '/500') return 500;
 }
 
-function has404Route(manifest: ManifestData): boolean {
-	return manifest.routes.some((route) => route.route === '/404');
+function has404Route(routes: RouteData[]): boolean {
+	return routes.some((route) => route.route === '/404');
 }

@@ -1,5 +1,4 @@
 import type http from 'node:http';
-import type { ManifestData } from '../@types/astro.js';
 import { collapseDuplicateSlashes, removeTrailingForwardSlash } from '../core/path.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import type { DevServerController } from './controller.js';
@@ -11,7 +10,6 @@ import { recordServerError } from './error.js';
 
 type HandleRequest = {
 	pipeline: DevPipeline;
-	manifestData: ManifestData;
 	controller: DevServerController;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
@@ -20,7 +18,6 @@ type HandleRequest = {
 /** The main logic to route dev server requests to pages in Astro. */
 export async function handleRequest({
 	pipeline,
-	manifestData,
 	controller,
 	incomingRequest,
 	incomingResponse,
@@ -67,7 +64,7 @@ export async function handleRequest({
 		controller,
 		pathname,
 		async run() {
-			const matchedRoute = await matchRoute(pathname, manifestData, pipeline);
+			const matchedRoute = await matchRoute(pathname, pipeline);
 			const resolvedPathname = matchedRoute?.resolvedPathname ?? pathname;
 			return await handleRoute({
 				matchedRoute,
@@ -76,9 +73,8 @@ export async function handleRequest({
 				body,
 				origin,
 				pipeline,
-				manifestData,
-				incomingRequest: incomingRequest,
-				incomingResponse: incomingResponse,
+				incomingRequest,
+				incomingResponse,
 			});
 		},
 		onError(_err) {

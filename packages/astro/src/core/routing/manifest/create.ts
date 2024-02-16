@@ -1,7 +1,6 @@
 import type {
 	AstroConfig,
 	AstroSettings,
-	ManifestData,
 	RouteData,
 	RoutePart,
 	RoutePriorityOverride,
@@ -644,13 +643,12 @@ function detectRouteCollision(a: RouteData, b: RouteData, config: AstroConfig, l
 	logger.warn('router', 'A collision will result in an hard error in following versions of Astro.');
 }
 
-/** Create manifest of all static routes */
-export function createRouteManifest(
+/** Create list of of all static routes */
+export function createManifestRoutes(
 	params: CreateRouteManifestParams,
 	logger: Logger
-): ManifestData {
-	const { settings } = params;
-	const { config } = settings;
+): RouteData[] {
+	const { config } = params.settings;
 	// Create a map of all routes so redirects can refer to any route
 	const routeMap = new Map();
 
@@ -685,7 +683,7 @@ export function createRouteManifest(
 		}
 	}
 
-	const i18n = settings.config.i18n;
+	const { i18n } = config;
 	if (i18n) {
 		const strategy = toRoutingStrategy(i18n);
 		// First we check if the user doesn't have an index page.
@@ -693,8 +691,8 @@ export function createRouteManifest(
 			let index = routes.find((route) => route.route === '/');
 			if (!index) {
 				let relativePath = path.relative(
-					fileURLToPath(settings.config.root),
-					fileURLToPath(new URL('pages', settings.config.srcDir))
+					fileURLToPath(config.root),
+					fileURLToPath(new URL('pages', config.srcDir))
 				);
 				throw new AstroError({
 					...MissingIndexForInternationalization,
@@ -876,9 +874,7 @@ export function createRouteManifest(
 		}
 	}
 
-	return {
-		routes,
-	};
+	return routes;
 }
 
 function computeRoutePriority(config: AstroConfig): RoutePriorityOverride {

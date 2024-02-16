@@ -22,6 +22,7 @@ import { getInfoOutput } from '../cli/info/index.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
 import { getComponentMetadata } from './metadata.js';
+import { createManifestRoutes } from '../core/routing/index.js';
 
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
@@ -29,11 +30,14 @@ export class DevPipeline extends Pipeline {
 	override renderers = new Array<SSRLoadedRenderer>();
 
 	private constructor(
+		readonly cwd: string | undefined,
+		readonly fsMod: typeof import('node:fs') | undefined,
 		readonly loader: ModuleLoader,
 		readonly logger: Logger,
 		readonly manifest: SSRManifest,
 		readonly settings: AstroSettings,
-		readonly config = settings.config
+		readonly config = settings.config,
+		public routes = createManifestRoutes({ cwd, fsMod, settings }, logger)
 	) {
 		const mode = 'development';
 		const serverLike = isServerLikeOutput(config);
@@ -42,12 +46,15 @@ export class DevPipeline extends Pipeline {
 	}
 
 	static create({
+		cwd,
+		fsMod,
 		loader,
 		logger,
 		manifest,
 		settings,
-	}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>) {
-		return new DevPipeline(loader, logger, manifest, settings);
+	}: Partial<Pick<DevPipeline, 'cwd' | 'fsMod'>> &
+		Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>) {
+		return new DevPipeline(cwd, fsMod, loader, logger, manifest, settings);
 	}
 
 	componentMetadata(routeData: RouteData) {
@@ -131,6 +138,12 @@ export class DevPipeline extends Pipeline {
 
 	resolve(specifier: string) {
 		return resolveIdToUrl(this.loader, specifier, this.config.root);
+	}
+
+	recreateRoutes() {
+		const { cwd, fsMod, logger, settings } = this;
+		this.routeCache.clearAll();
+		this.routes = createManifestRoutes({ cwd, fsMod, settings }, logger);
 	}
 
 	async preload(filePath: URL) {

@@ -322,7 +322,7 @@ async function getPathsForRoute(
 	pipeline: BuildPipeline,
 	builtPaths: Set<string>
 ): Promise<Array<string>> {
-	const { logger, options, routeCache, serverLike } = pipeline;
+	const { logger, routeCache, routes, serverLike } = pipeline;
 	let paths: Array<string> = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
@@ -373,7 +373,7 @@ async function getPathsForRoute(
 				// NOTE: The same URL may match multiple routes in the manifest.
 				// Routing priority needs to be verified here for any duplicate
 				// paths to ensure routing priority rules are enforced in the final build.
-				const matchedRoute = matchRoute(staticPath, options.manifest);
+				const matchedRoute = matchRoute(staticPath, routes);
 				return matchedRoute === route;
 			});
 

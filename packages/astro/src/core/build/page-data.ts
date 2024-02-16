@@ -1,4 +1,4 @@
-import type { AstroSettings, ManifestData } from '../../@types/astro.js';
+import type { AstroSettings, RouteData } from '../../@types/astro.js';
 import type { Logger } from '../logger/core.js';
 import type { AllPagesData } from './types.js';
 
@@ -8,7 +8,7 @@ import { debug } from '../logger/core.js';
 export interface CollectPagesDataOptions {
 	settings: AstroSettings;
 	logger: Logger;
-	manifest: ManifestData;
+	routes: RouteData[];
 }
 
 export interface CollectPagesDataResult {
@@ -20,7 +20,7 @@ export interface CollectPagesDataResult {
 export async function collectPagesData(
 	opts: CollectPagesDataOptions
 ): Promise<CollectPagesDataResult> {
-	const { settings, manifest } = opts;
+	const { settings, routes } = opts;
 
 	const assets: Record<string, string> = {};
 	const allPages: AllPagesData = {};
@@ -34,7 +34,7 @@ export async function collectPagesData(
 	// NOTE: This enforces that `getStaticPaths()` is only called once per route,
 	// and is then cached across all future SSR builds. In the past, we've had trouble
 	// with parallelized builds without guaranteeing that this is called first.
-	for (const route of manifest.routes) {
+	for (const route of routes) {
 		// static route:
 		if (route.pathname) {
 			const routeCollectionLogTimeout = setInterval(() => {

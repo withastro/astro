@@ -124,6 +124,7 @@ declare const Astro: {
 							this
 						);
 					} catch (e) {
+						// eslint-disable-next-line no-console
 						console.error(
 							`[astro-island] Error hydrating ${this.getAttribute('component-url')}`,
 							e

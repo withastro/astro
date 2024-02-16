@@ -188,7 +188,7 @@ export function createBasicPipeline(options = {}) {
 	const mode = options.mode ?? 'development';
 	const pipeline = new Pipeline(
 		options.logger ?? defaultLogger,
-		options.manifest ?? {},
+		options.manifest ?? { routes: [] },
 		options.mode ?? 'development',
 		options.renderers ?? [],
 		options.serverLike ?? true,

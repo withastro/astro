@@ -1,4 +1,4 @@
-import type { ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
+import type { RouteData, SSRManifest } from '../../@types/astro.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
@@ -69,7 +69,7 @@ export interface RenderErrorOptions {
 
 export class App {
 	#manifest: SSRManifest;
-	#manifestData: ManifestData;
+	#routes: RouteData[];
 	#logger = new Logger({
 		dest: consoleLogDestination,
 		level: 'info',
@@ -81,9 +81,7 @@ export class App {
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
-		this.#manifestData = {
-			routes: manifest.routes.map((route) => route.routeData),
-		};
+		this.#routes = manifest.routes.map((route) => route.routeData);
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
 		this.#pipeline = AppPipeline.create({ logger: this.#logger, manifest, streaming });
 		this.#adapterLogger = new AstroIntegrationLogger(
@@ -96,9 +94,6 @@ export class App {
 		return this.#adapterLogger;
 	}
 
-	set setManifestData(newManifestData: ManifestData) {
-		this.#manifestData = newManifestData;
-	}
 	removeBase(pathname: string) {
 		if (pathname.startsWith(this.#manifest.base)) {
 			return pathname.slice(this.#baseWithoutTrailingSlash.length + 1);
@@ -120,7 +115,7 @@ export class App {
 		if (!pathname) {
 			pathname = prependForwardSlash(this.removeBase(url.pathname));
 		}
-		let routeData = matchRoute(pathname, this.#manifestData);
+		let routeData = matchRoute(pathname, this.#routes);
 
 		// missing routes fall-through, pre rendered are handled by static layer
 		if (!routeData || routeData.prerender) return undefined;
@@ -336,7 +331,7 @@ export class App {
 		{ status, response: originalResponse, skipMiddleware = false }: RenderErrorOptions
 	): Promise<Response> {
 		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
-		const errorRouteData = matchRoute(errorRoutePath, this.#manifestData);
+		const errorRouteData = matchRoute(errorRoutePath, this.#routes);
 		const url = new URL(request.url);
 		if (errorRouteData) {
 			if (errorRouteData.prerender) {

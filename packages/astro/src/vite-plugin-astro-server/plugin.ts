@@ -1,11 +1,10 @@
 import type fs from 'node:fs';
 import type * as vite from 'vite';
-import type { AstroSettings, ManifestData, SSRManifest } from '../@types/astro.js';
+import type { AstroSettings, SSRManifest } from '../@types/astro.js';
 import type { SSRManifestI18n } from '../core/app/types.js';
 import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
-import { createRouteManifest } from '../core/routing/index.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
 import { DevPipeline } from './pipeline.js';
@@ -34,22 +33,14 @@ export default function createVitePluginAstroServer({
 		configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
 			const manifest = createDevelopmentManifest(settings);
-			const pipeline = DevPipeline.create({ loader, logger, manifest, settings });
-			let manifestData: ManifestData = createRouteManifest({ settings, fsMod }, logger);
+			const pipeline = DevPipeline.create({ fsMod, loader, logger, manifest, settings });
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();
 
-			/** rebuild the route cache + manifest, as needed. */
-			function rebuildManifest(needsManifestRebuild: boolean) {
-				pipeline.clearRouteCache();
-				if (needsManifestRebuild) {
-					manifestData = createRouteManifest({ settings }, logger);
-				}
-			}
-			// Rebuild route manifest on file change, if needed.
-			viteServer.watcher.on('add', rebuildManifest.bind(null, true));
-			viteServer.watcher.on('unlink', rebuildManifest.bind(null, true));
-			viteServer.watcher.on('change', rebuildManifest.bind(null, false));
+			/** rebuild the route cache + route data, as needed. */
+			viteServer.watcher.on('add', () => pipeline.recreateRoutes());
+			viteServer.watcher.on('unlink', () => pipeline.recreateRoutes());
+			viteServer.watcher.on('change', () => pipeline.clearRouteCache());
 
 			function handleUnhandledRejection(rejection: any) {
 				const error = new AstroError({
@@ -87,7 +78,6 @@ export default function createVitePluginAstroServer({
 					localStorage.run(request, () => {
 						handleRequest({
 							pipeline,
-							manifestData,
 							controller,
 							incomingRequest: request,
 							incomingResponse: response,
