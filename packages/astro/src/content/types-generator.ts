@@ -178,7 +178,7 @@ export async function createContentTypesGenerator({
 					}
 					const collectionInfo = collectionEntryMap[collectionKey];
 					if (collectionInfo.type === 'content') {
-						viteServer.ws.send({
+						viteServer.hot.send({
 							type: 'error',
 							err: new AstroError({
 								...AstroErrorData.MixedContentDataCollectionError,
@@ -218,7 +218,7 @@ export async function createContentTypesGenerator({
 		}
 		const collectionInfo = collectionEntryMap[collectionKey];
 		if (collectionInfo.type === 'data') {
-			viteServer.ws.send({
+			viteServer.hot.send({
 				type: 'error',
 				err: new AstroError({
 					...AstroErrorData.MixedContentDataCollectionError,
@@ -369,7 +369,7 @@ async function writeContentFiles({
 	typeTemplateContent: string;
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
-	viteServer: Pick<ViteDevServer, 'ws'>;
+	viteServer: Pick<ViteDevServer, 'hot'>;
 	codegenDir: AstroConfig['codegenDir'];
 	injectDts: (dts: InjectedDts) => void
 }) {
@@ -386,7 +386,7 @@ async function writeContentFiles({
 			collection.type !== 'unknown' &&
 			collection.type !== collectionConfig.type
 		) {
-			viteServer.ws.send({
+			viteServer.hot.send({
 				type: 'error',
 				err: new AstroError({
 					...AstroErrorData.ContentCollectionTypeMismatchError,
@@ -399,7 +399,7 @@ async function writeContentFiles({
 						collection.type === 'data'
 							? "Try adding `type: 'data'` to your collection config."
 							: undefined,
-					location: { file: '' /** required for error overlay `ws` messages */ },
+					location: { file: '' /** required for error overlay `hot` messages */ },
 				}) as any,
 			});
 			return;

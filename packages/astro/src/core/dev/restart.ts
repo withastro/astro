@@ -81,7 +81,7 @@ export async function restartContainer(container: Container): Promise<Container 
 			);
 		}
 		// Inform connected clients of the config error
-		container.viteServer.ws.send({
+		container.viteServer.hot.send({
 			type: 'error',
 			err: {
 				message: error.message,

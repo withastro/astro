@@ -1,5 +1,6 @@
+import assert from 'node:assert/strict';
 import * as fs from 'node:fs';
-import { expect } from 'chai';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('astro sync', () => {
@@ -22,10 +23,11 @@ describe('astro sync', () => {
 		await fixture.sync({}, { fs: fsMock });
 
 		const expectedTypesFile = new URL('.astro/types.d.ts', fixture.config.root).href;
-		expect(writtenFiles).to.haveOwnProperty(expectedTypesFile);
+		assert.equal(writtenFiles.hasOwnProperty(expectedTypesFile), true);
 		// smoke test `astro check` asserts whether content types pass.
-		expect(writtenFiles[expectedTypesFile]).to.include(
-			`declare module 'astro:content' {`,
+		assert.equal(
+			writtenFiles[expectedTypesFile].includes(`declare module 'astro:content' {`),
+			true,
 			'Types file does not include `astro:content` module declaration'
 		);
 	});
@@ -57,8 +59,15 @@ describe('astro sync', () => {
 		};
 		await fixture.sync({}, { fs: fsMock });
 
-		expect(writtenFiles, 'Did not try to update env.d.ts file.').to.haveOwnProperty(typesEnvPath);
-		expect(writtenFiles[typesEnvPath]).to.include(`/// <reference path="../.astro/types.d.ts" />`);
+		assert.equal(
+			writtenFiles.hasOwnProperty(typesEnvPath),
+			true,
+			'Did not try to update env.d.ts file.'
+		);
+		assert.equal(
+			writtenFiles[typesEnvPath].includes(`/// <reference path="../.astro/types.d.ts" />`),
+			true
+		);
 	});
 
 	it('Writes `src/env.d.ts` if none exists', async () => {
@@ -81,8 +90,18 @@ describe('astro sync', () => {
 		};
 		await fixture.sync({}, { fs: fsMock });
 
-		expect(writtenFiles, 'Did not try to write env.d.ts file.').to.haveOwnProperty(typesEnvPath);
-		expect(writtenFiles[typesEnvPath]).to.include(`/// <reference types="astro/client" />`);
-		expect(writtenFiles[typesEnvPath]).to.include(`/// <reference path="../.astro/types.d.ts" />`);
+		assert.equal(
+			writtenFiles.hasOwnProperty(typesEnvPath),
+			true,
+			'Did not try to write env.d.ts file.'
+		);
+		assert.equal(
+			writtenFiles[typesEnvPath].includes(`/// <reference types="astro/client" />`),
+			true
+		);
+		assert.equal(
+			writtenFiles[typesEnvPath].includes(`/// <reference path="../.astro/types.d.ts" />`),
+			true
+		);
 	});
 });

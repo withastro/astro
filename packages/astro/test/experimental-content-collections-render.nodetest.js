@@ -22,7 +22,7 @@ if (!isWindows) {
 				await fixture.build();
 			});
 
-			after(() => fixture.clean());
+			after(async () => await fixture.clean());
 
 			it('Includes CSS for rendered entry', async () => {
 				const html = await fixture.readFile('/launch-week/index.html');
@@ -123,7 +123,7 @@ if (!isWindows) {
 				await fixture.build();
 			});
 
-			after(() => fixture.clean());
+			after(async () => await fixture.clean());
 
 			it('Includes CSS for rendered entry', async () => {
 				const app = await fixture.loadTestAdapterApp();

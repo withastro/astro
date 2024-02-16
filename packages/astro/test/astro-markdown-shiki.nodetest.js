@@ -17,11 +17,11 @@ describe('Astro Markdown Shiki', () => {
 			const $ = cheerio.load(html);
 
 			// There should be no HTML from Prism
-			assert.strictEqual($('.token').length, 0);
+			assert.equal($('.token').length, 0);
 
-			assert.strictEqual($('pre').length, 2);
+			assert.equal($('pre').length, 2);
 			assert.ok($('pre').hasClass('astro-code'));
-			assert.strictEqual(
+			assert.equal(
 				$('pre').attr().style,
 				'background-color:#24292e;color:#e1e4e8; overflow-x: auto;'
 			);
@@ -49,9 +49,9 @@ describe('Astro Markdown Shiki', () => {
 				const html = await fixture.readFile('/index.html');
 				const $ = cheerio.load(html);
 
-				assert.strictEqual($('pre').length, 1);
+				assert.equal($('pre').length, 1);
 				assert.ok($('pre').hasClass('astro-code'));
-				assert.strictEqual(
+				assert.equal(
 					$('pre').attr().style,
 					'background-color:#fff;color:#24292e; overflow-x: auto;'
 				);
@@ -70,9 +70,9 @@ describe('Astro Markdown Shiki', () => {
 				const html = await fixture.readFile('/index.html');
 				const $ = cheerio.load(html);
 
-				assert.strictEqual($('pre').length, 1);
+				assert.equal($('pre').length, 1);
 				assert.ok($('pre').hasClass('astro-code'));
-				assert.strictEqual(
+				assert.equal(
 					$('pre').attr().style,
 					'background-color:#FDFDFE;color:#4E5377; overflow-x: auto;'
 				);
@@ -93,9 +93,9 @@ describe('Astro Markdown Shiki', () => {
 			const $ = cheerio.load(html);
 
 			const segments = $('.line').get(6).children;
-			assert.strictEqual(segments.length, 2);
-			assert.strictEqual(segments[0].attribs.style, 'color:#79B8FF');
-			assert.strictEqual(segments[1].attribs.style, 'color:#E1E4E8');
+			assert.equal(segments.length, 2);
+			assert.equal(segments[0].attribs.style, 'color:#79B8FF');
+			assert.equal(segments[1].attribs.style, 'color:#E1E4E8');
 
 			const unknownLang = $('.astro-code').get(1);
 			assert.ok(unknownLang.attribs.style.includes('background-color:#24292e;color:#e1e4e8;'));
@@ -130,8 +130,8 @@ describe('Astro Markdown Shiki', () => {
 			const html = await fixtures.ifTrue.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			assert.strictEqual($('pre').length, 1);
-			assert.strictEqual($('pre').attr('style'), style);
+			assert.equal($('pre').length, 1);
+			assert.equal($('pre').attr('style'), style);
 		});
 
 		it('Markdown file with wrap = false', async () => {
@@ -139,8 +139,8 @@ describe('Astro Markdown Shiki', () => {
 			const html = await fixtures.ifFalse.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			assert.strictEqual($('pre').length, 1);
-			assert.strictEqual($('pre').attr('style'), style);
+			assert.equal($('pre').length, 1);
+			assert.equal($('pre').attr('style'), style);
 		});
 
 		it('Markdown file with wrap = null', async () => {
@@ -148,8 +148,8 @@ describe('Astro Markdown Shiki', () => {
 			const html = await fixtures.ifNull.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			assert.strictEqual($('pre').length, 1);
-			assert.strictEqual($('pre').attr('style'), style);
+			assert.equal($('pre').length, 1);
+			assert.equal($('pre').attr('style'), style);
 		});
 	});
 });

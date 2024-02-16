@@ -27,8 +27,8 @@ for (const caseNumber of [1, 2, 3, 4]) {
 			async () => {
 				const resPromise = fixture.fetch('/');
 				const result = await withTimeout(resPromise, 1000);
-				assert.notStrictEqual(result, timeout);
-				assert.strictEqual(result.status, 200);
+				assert.notEqual(result, timeout);
+				assert.equal(result.status, 200);
 			}
 		);
 
@@ -40,8 +40,8 @@ for (const caseNumber of [1, 2, 3, 4]) {
 			async () => {
 				const resPromise = fixture.fetch('/alvsibdlvjks');
 				const result = await withTimeout(resPromise, 1000);
-				assert.notStrictEqual(result, timeout);
-				assert.strictEqual(result.status, 404);
+				assert.notEqual(result, timeout);
+				assert.equal(result.status, 404);
 			}
 		);
 
