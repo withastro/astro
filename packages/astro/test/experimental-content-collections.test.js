@@ -17,7 +17,7 @@ describe('Experimental Content Collections cache', () => {
 			await fixture.build();
 		});
 
-		after(() => fixture.clean());
+		after(async () => await fixture.clean());
 
 		describe('Collection', () => {
 			let json;
@@ -184,7 +184,7 @@ describe('Experimental Content Collections cache', () => {
 			await fixture.build();
 		});
 
-		after(() => fixture.clean());
+		after(async () => await fixture.clean());
 
 		it('Generates expected pages', async () => {
 			for (const slug in blogSlugToContents) {
@@ -331,7 +331,7 @@ describe('Experimental Content Collections cache', () => {
 			app = await fixture.loadTestAdapterApp();
 		});
 
-		after(() => fixture.clean());
+		after(async () => await fixture.clean());
 
 		it('Responds 200 for expected pages', async () => {
 			for (const slug in blogSlugToContents) {
@@ -375,7 +375,7 @@ describe('Experimental Content Collections cache', () => {
 			await fixture.build();
 		});
 
-		after(() => fixture.clean());
+		after(async () => await fixture.clean());
 
 		it('Includes base in links', async () => {
 			const html = await fixture.readFile('/docs/index.html');

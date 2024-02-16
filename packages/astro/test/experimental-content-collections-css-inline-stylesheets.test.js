@@ -25,7 +25,7 @@ describe('Experimental Content Collections cache inlineStylesheets', () => {
 		await fixture.build();
 	});
 
-	after(() => fixture.clean());
+	after(async () => await fixture.clean());
 
 	it('Does not render any <style> tags', async () => {
 		const html = await fixture.readFile('/index.html');
@@ -70,7 +70,7 @@ describe('Experimental Content Collections cache - inlineStylesheets to never in
 		app = await fixture.loadTestAdapterApp();
 	});
 
-	after(() => fixture.clean());
+	after(async () => await fixture.clean());
 
 	it('Does not render any <style> tags', async () => {
 		const request = new Request('http://example.com/');
@@ -118,7 +118,7 @@ describe.skip('Experimental Content Collections cache - inlineStylesheets to aut
 		await fixture.build();
 	});
 
-	after(() => fixture.clean());
+	after(async () => await fixture.clean());
 
 	it.skip(
 		'Renders some <style> and some <link> tags',
@@ -174,7 +174,7 @@ describe('Setting inlineStylesheets to auto in server output', () => {
 		app = await fixture.loadTestAdapterApp();
 	});
 
-	after(() => fixture.clean());
+	after(async () => await fixture.clean());
 
 	it(
 		'Renders some <style> and some <link> tags',
@@ -224,7 +224,7 @@ describe('Setting inlineStylesheets to always in static output', () => {
 		await fixture.build();
 	});
 
-	after(() => fixture.clean());
+	after(async () => await fixture.clean());
 
 	it('Does not render any <link> tags', async () => {
 		const html = await fixture.readFile('/index.html');
@@ -268,7 +268,7 @@ describe('Setting inlineStylesheets to always in server output', () => {
 		app = await fixture.loadTestAdapterApp();
 	});
 
-	after(() => fixture.clean());
+	after(async () => await fixture.clean());
 
 	it('Does not render any <link> tags', async () => {
 		const request = new Request('http://example.com/');

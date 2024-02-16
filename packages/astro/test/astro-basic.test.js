@@ -97,7 +97,7 @@ describe('Astro basic build', () => {
 		const $ = cheerio.load(html);
 
 		// will be 1 if element rendered correctly
-		assert.strictEqual($('#one').length, 1);
+		assert.equal($('#one').length, 1);
 	});
 
 	it('supports special chars in filename', async () => {
@@ -108,19 +108,19 @@ describe('Astro basic build', () => {
 	it('renders the components top-down', async () => {
 		const html = await fixture.readFile('/order/index.html');
 		const $ = cheerio.load(html);
-		assert.strictEqual($('#rendered-order').text(), 'Rendered order: A, B');
+		assert.equal($('#rendered-order').text(), 'Rendered order: A, B');
 	});
 
 	it('renders markdown in utf-8 by default', async () => {
 		const html = await fixture.readFile('/chinese-encoding-md/index.html');
 		const $ = cheerio.load(html);
-		assert.strictEqual($('h1').text(), '我的第一篇博客文章');
+		assert.equal($('h1').text(), '我的第一篇博客文章');
 	});
 
 	it('renders MDX in utf-8 by default', async () => {
 		const html = await fixture.readFile('/chinese-encoding-mdx/index.html');
 		const $ = cheerio.load(html);
-		assert.strictEqual($('h1').text(), '我的第一篇博客文章');
+		assert.equal($('h1').text(), '我的第一篇博客文章');
 	});
 
 	it('Supports void elements whose name is a string (#2062)', async () => {
@@ -128,25 +128,22 @@ describe('Astro basic build', () => {
 		const $ = cheerio.load(html);
 
 		// <Input />
-		assert.strictEqual($('body > :nth-child(1)').prop('outerHTML'), '<input>');
+		assert.equal($('body > :nth-child(1)').prop('outerHTML'), '<input>');
 
 		// <Input type="password" />
-		assert.strictEqual($('body > :nth-child(2)').prop('outerHTML'), '<input type="password">');
+		assert.equal($('body > :nth-child(2)').prop('outerHTML'), '<input type="password">');
 
 		// <Input type="text" />
-		assert.strictEqual($('body > :nth-child(3)').prop('outerHTML'), '<input type="text">');
+		assert.equal($('body > :nth-child(3)').prop('outerHTML'), '<input type="text">');
 
 		// <Input type="select"><option>option</option></Input>
-		assert.strictEqual(
+		assert.equal(
 			$('body > :nth-child(4)').prop('outerHTML'),
 			'<select><option>option</option></select>'
 		);
 
 		// <Input type="textarea">textarea</Input>
-		assert.strictEqual(
-			$('body > :nth-child(5)').prop('outerHTML'),
-			'<textarea>textarea</textarea>'
-		);
+		assert.equal($('body > :nth-child(5)').prop('outerHTML'), '<textarea>textarea</textarea>');
 	});
 
 	it('Generates pages that end with .mjs', async () => {
@@ -159,18 +156,18 @@ describe('Astro basic build', () => {
 	it('allows file:// urls as module specifiers', async () => {
 		const html = await fixture.readFile('/fileurl/index.html');
 		const $ = cheerio.load(html);
-		assert.strictEqual($('h1').text(), 'WORKS');
+		assert.equal($('h1').text(), 'WORKS');
 	});
 
 	describe('preview', () => {
 		it('returns 200 for valid URLs', async () => {
 			const result = await fixture.fetch('/');
-			assert.strictEqual(result.status, 200);
+			assert.equal(result.status, 200);
 		});
 
 		it('returns 404 for invalid URLs', async () => {
 			const result = await fixture.fetch('/bad-url');
-			assert.strictEqual(result.status, 404);
+			assert.equal(result.status, 404);
 		});
 	});
 });
@@ -193,7 +190,7 @@ describe('Astro basic development', () => {
 
 	it('Renders markdown in utf-8 by default', async () => {
 		const res = await fixture.fetch('/chinese-encoding-md');
-		assert.strictEqual(res.status, 200);
+		assert.equal(res.status, 200);
 		const html = await res.text();
 		const $ = cheerio.load(html);
 		assert.equal($('h1').text(), '我的第一篇博客文章');
@@ -205,7 +202,7 @@ describe('Astro basic development', () => {
 
 	it('Renders MDX in utf-8 by default', async () => {
 		const res = await fixture.fetch('/chinese-encoding-mdx');
-		assert.strictEqual(res.status, 200);
+		assert.equal(res.status, 200);
 		const html = await res.text();
 		const $ = cheerio.load(html);
 		assert.equal($('h1').text(), '我的第一篇博客文章');
