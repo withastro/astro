@@ -62,13 +62,21 @@ describe('Hoisted Imports', () => {
 			expectNotScript(scripts, 'E');
 		});
 
+		it('deduplicates already rendered scripts', async () => {
+			const scripts = await getAllScriptText('/dedupe/index.html');
+			expectScript(scripts, 'A');
+
+			const html = await fixture.readFile('/dedupe/index.html');
+			const $ = cheerio.load(html);
+			assert.equal($('script').length, 1);
+		});
+
 		it('inlines if script is larger than vite.assetInlineLimit: 100', async () => {
 			const html = await fixture.readFile('/no-inline/index.html');
 			const $ = cheerio.load(html);
 			const scripts = $('script');
-			expect(scripts.length).to.equal(1);
-			// have src attr
-			expect(scripts[0].attribs.src).to.be.ok;
+			assert.equal(scripts.length, 1);
+			assert.ok(scripts[0].attribs.src);
 		});
 	});
 });

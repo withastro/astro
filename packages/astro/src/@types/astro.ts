@@ -1606,9 +1606,10 @@ export interface AstroUserConfig {
 		 * @default `false`
 		 * @version 4.5.0
 		 * @description
-		 * Directly render scripts as declared in Astro files (with features like TypeScript and importing `node_modules` still working).
-		 * This should result in scripts running in the correct pages compared to the previous static analysis approach.
-		 *
+		 * Directly render scripts as declared in Astro files (with features like TypeScript, importing `node_modules`, and deduplicating
+		 * scripts still working). This should result in scripts running in the correct pages compared to the previous static analysis approach.
+		 * You can also now conditionally render scripts in your Astro file.
+
 		 * However, as scripts are now directly rendered, they are no longer hoisted to the `<head>` and multiple scripts on a page are no
 		 * longer bundled together. If you enable this option, you should check if it affects your site's behaviour.
 		 *
@@ -1616,9 +1617,9 @@ export interface AstroUserConfig {
 		 *
 		 * ```js
 		 * {
-		 * 	experimental: {
-		 *		directRenderScript: true,
-		 * 	},
+		 *   experimental: {
+		 *     directRenderScript: true,
+		 *   },
 		 * }
 		 * ```
 		 */
@@ -2729,6 +2730,11 @@ export interface SSRMetadata {
 	 * script in the page HTML before the first Solid component.
 	 */
 	rendererSpecificHydrationScripts: Set<string>;
+	/**
+	 * Used by `renderScript` to track script ids that have been rendered,
+	 * so we only render each once.
+	 */
+	renderedScripts: Set<string>;
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	headInTree: boolean;

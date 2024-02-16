@@ -278,6 +278,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		_metadata: {
 			hasHydrationScript: false,
 			rendererSpecificHydrationScripts: new Set(),
+			renderedScripts: new Set(),
 			hasRenderedHead: false,
 			hasDirectives: new Set(),
 			headInTree: false,
