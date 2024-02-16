@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it, before } from 'node:test';
+import * as assert from 'node:assert/strict';
 
 const NETLIFY_TEST_URL = 'https://curious-boba-495d6d.netlify.app';
 
@@ -8,7 +9,7 @@ describe('Hosted Netlify Tests', () => {
 			`${NETLIFY_TEST_URL}/_image?href=%2F_astro%2Fpenguin.e9c64733.png&w=300&f=webp`
 		);
 
-		expect(image.status).to.equal(200);
+		assert.equal(image.status,200);
 	});
 
 	it('Server returns fresh content', async () => {
@@ -16,6 +17,6 @@ describe('Hosted Netlify Tests', () => {
 
 		const responseTwo = await fetch(`${NETLIFY_TEST_URL}/time`);
 
-		expect(responseOne.body).to.not.equal(responseTwo.body);
+		assert.notEqual(responseOne.body,responseTwo.body);
 	});
 });

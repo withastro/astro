@@ -1,6 +1,7 @@
 import { createServer } from 'http';
 import { loadFixture } from '@astrojs/test-utils';
-import { expect } from 'chai';
+import { describe, it, before } from 'node:test';
+import * as assert from 'node:assert/strict';
 
 describe('SSR - Redirects', () => {
 	let fixture;
@@ -13,8 +14,9 @@ describe('SSR - Redirects', () => {
 	it('Creates a redirects file', async () => {
 		const redirects = await fixture.readFile('./_redirects');
 		const parts = redirects.split(/\s+/);
-		expect(parts).to.deep.equal(['', '/other', '/', '301', '']);
-		expect(redirects).to.matchSnapshot();
+		assert.deepEqual(parts,['', '/other', '/', '301', '']);
+		// Snapshots are not supported in Node.js test yet (https://github.com/nodejs/node/issues/48260)
+		assert.equal(redirects,'\n/other    /       301\n');
 	});
 
 	it('Does not create .html files', async () => {
@@ -24,7 +26,7 @@ describe('SSR - Redirects', () => {
 		} catch {
 			hasErrored = true;
 		}
-		expect(hasErrored).to.equal(true, 'this file should not exist');
+		assert.equal(hasErrored,true, 'this file should not exist');
 	});
 
 	it('renders static 404 page', async () => {
@@ -34,10 +36,10 @@ describe('SSR - Redirects', () => {
 		);
 		const { default: handler } = await import(entryURL);
 		const resp = await handler(new Request('http://example.com/nonexistant-page'), {});
-		expect(resp.status).to.equal(404);
-		expect(resp.headers.get('content-type')).to.equal('text/html; charset=utf-8');
+		assert.equal(resp.status,404);
+		assert.equal(resp.headers.get('content-type'),'text/html; charset=utf-8');
 		const text = await resp.text();
-		expect(text).to.contain('This is my static 404 page');
+		assert.equal(text.includes('This is my static 404 page'),true);
 	});
 
 	it('does not pass through 404 request', async () => {
@@ -54,8 +56,8 @@ describe('SSR - Redirects', () => {
 		);
 		const { default: handler } = await import(entryURL);
 		const resp = await handler(new Request('http://localhost:5678/nonexistant-page'), {});
-		expect(resp.status).to.equal(404);
-		expect(testServerCalls).to.equal(0);
+		assert.equal(resp.status,404);
+		assert.equal(testServerCalls,0);
 		testServer.close();
 	});
 });

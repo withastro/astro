@@ -1,6 +1,6 @@
-import { describe } from 'node:test';
 import { loadFixture } from '@astrojs/test-utils';
-import { expect } from 'chai';
+import { describe, it, after } from 'node:test';
+import * as assert from 'node:assert/strict';
 
 describe('Image CDN', () => {
 	const root = new URL('./fixtures/middleware/', import.meta.url);
@@ -11,20 +11,24 @@ describe('Image CDN', () => {
 			await fixture.build();
 
 			const astronautPage = await fixture.readFile('astronaut/index.html');
-			expect(astronautPage).contains(`src="/_astro/astronaut.`);
+			assert.equal(astronautPage.includes(`src="/_astro/astronaut.`),true);
 		});
+
 	});
 
 	describe('when running inside of netlify', () => {
-		it('enables Netlify Image CDN', async () => {
+		after(() => {
+			process.env.NETLIFY = undefined;
+			process.env.DISABLE_IMAGE_CDN = undefined;
+		});
+
+		it('enables Netlify Image CDN',async () => {
 			process.env.NETLIFY = 'true';
 			const fixture = await loadFixture({ root });
 			await fixture.build();
 
 			const astronautPage = await fixture.readFile('astronaut/index.html');
-			expect(astronautPage).contains(`src="/.netlify/image`);
-
-			process.env.NETLIFY = undefined;
+			assert.equal(astronautPage.includes(`src="/.netlify/image`),true);
 		});
 
 		it('respects image CDN opt-out', async () => {
@@ -34,10 +38,7 @@ describe('Image CDN', () => {
 			await fixture.build();
 
 			const astronautPage = await fixture.readFile('astronaut/index.html');
-			expect(astronautPage).contains(`src="/_astro/astronaut.`);
-
-			process.env.NETLIFY = undefined;
-			process.env.DISABLE_IMAGE_CDN = undefined;
+			assert.equal(astronautPage.includes(`src="/_astro/astronaut.`),true);
 		});
 	});
 });

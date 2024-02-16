@@ -1,5 +1,6 @@
 import { loadFixture } from '@astrojs/test-utils';
-import { expect } from 'chai';
+import { describe, it, before } from 'node:test';
+import * as assert from 'node:assert/strict';
 
 describe('Cookies', () => {
 	let fixture;
@@ -19,9 +20,9 @@ describe('Cookies', () => {
 			new Request('http://example.com/login', { method: 'POST', body: '{}' }),
 			{}
 		);
-		expect(resp.status).to.equal(301);
-		expect(resp.headers.get('location')).to.equal('/');
-		expect(resp.headers.getSetCookie()).to.eql(['foo=foo; HttpOnly', 'bar=bar; HttpOnly']);
+		assert.equal(resp.status,301);
+		assert.equal(resp.headers.get('location'),'/');
+		assert.deepEqual(resp.headers.getSetCookie(),['foo=foo; HttpOnly', 'bar=bar; HttpOnly']);
 	});
 
 	it('renders dynamic 404 page', async () => {
@@ -38,9 +39,9 @@ describe('Cookies', () => {
 			}),
 			{}
 		);
-		expect(resp.status).to.equal(404);
+		assert.equal(resp.status,404);
 		const text = await resp.text();
-		expect(text).to.contain('This is my custom 404 page');
-		expect(text).to.contain('x-test: bar');
+		assert.equal(text.includes('This is my custom 404 page'),true);
+		assert.equal(text.includes('x-test: bar'),true);
 	});
 });
