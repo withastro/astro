@@ -1,7 +1,7 @@
 import { createServer } from 'http';
-import { loadFixture } from '@astrojs/test-utils';
-import { describe, it, before } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
+import { loadFixture } from '@astrojs/test-utils';
 
 describe('SSR - Redirects', () => {
 	let fixture;
@@ -14,9 +14,9 @@ describe('SSR - Redirects', () => {
 	it('Creates a redirects file', async () => {
 		const redirects = await fixture.readFile('./_redirects');
 		const parts = redirects.split(/\s+/);
-		assert.deepEqual(parts,['', '/other', '/', '301', '']);
+		assert.deepEqual(parts, ['', '/other', '/', '301', '']);
 		// Snapshots are not supported in Node.js test yet (https://github.com/nodejs/node/issues/48260)
-		assert.equal(redirects,'\n/other    /       301\n');
+		assert.equal(redirects, '\n/other    /       301\n');
 	});
 
 	it('Does not create .html files', async () => {
@@ -26,7 +26,7 @@ describe('SSR - Redirects', () => {
 		} catch {
 			hasErrored = true;
 		}
-		assert.equal(hasErrored,true, 'this file should not exist');
+		assert.equal(hasErrored, true, 'this file should not exist');
 	});
 
 	it('renders static 404 page', async () => {
@@ -36,10 +36,10 @@ describe('SSR - Redirects', () => {
 		);
 		const { default: handler } = await import(entryURL);
 		const resp = await handler(new Request('http://example.com/nonexistant-page'), {});
-		assert.equal(resp.status,404);
-		assert.equal(resp.headers.get('content-type'),'text/html; charset=utf-8');
+		assert.equal(resp.status, 404);
+		assert.equal(resp.headers.get('content-type'), 'text/html; charset=utf-8');
 		const text = await resp.text();
-		assert.equal(text.includes('This is my static 404 page'),true);
+		assert.equal(text.includes('This is my static 404 page'), true);
 	});
 
 	it('does not pass through 404 request', async () => {
@@ -56,8 +56,8 @@ describe('SSR - Redirects', () => {
 		);
 		const { default: handler } = await import(entryURL);
 		const resp = await handler(new Request('http://localhost:5678/nonexistant-page'), {});
-		assert.equal(resp.status,404);
-		assert.equal(testServerCalls,0);
+		assert.equal(resp.status, 404);
+		assert.equal(testServerCalls, 0);
 		testServer.close();
 	});
 });

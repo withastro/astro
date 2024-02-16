@@ -1,6 +1,6 @@
-import { loadFixture } from '@astrojs/test-utils';
-import { describe, it, before, after } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
+import { loadFixture } from '@astrojs/test-utils';
 
 describe('Middleware', () => {
 	const root = new URL('./fixtures/middleware/', import.meta.url);
@@ -14,19 +14,22 @@ describe('Middleware', () => {
 		});
 
 		it('emits no edge function', async () => {
-			assert.equal(fixture.pathExists('../.netlify/edge-functions/middleware/middleware.mjs'), false)
+			assert.equal(
+				fixture.pathExists('../.netlify/edge-functions/middleware/middleware.mjs'),
+				false
+			);
 		});
 
 		it('applies middleware to static files at build-time', async () => {
 			// prerendered page has middleware applied at build time
 			const prerenderedPage = await fixture.readFile('prerender/index.html');
-			assert.equal(prerenderedPage.includes('<title>Middleware</title>'),true);
+			assert.equal(prerenderedPage.includes('<title>Middleware</title>'), true);
 		});
 
 		after(async () => {
 			process.env.EDGE_MIDDLEWARE = undefined;
 			await fixture.clean();
-		})
+		});
 	});
 
 	describe('edgeMiddleware: true', () => {
@@ -46,12 +49,12 @@ describe('Middleware', () => {
 
 		it.skip('does not apply middleware during prerendering', async () => {
 			const prerenderedPage = await fixture.readFile('prerender/index.html');
-			assert.equal(prerenderedPage.includes('<title></title>'),true);
+			assert.equal(prerenderedPage.includes('<title></title>'), true);
 		});
 
 		after(async () => {
 			process.env.EDGE_MIDDLEWARE = undefined;
 			await fixture.clean();
-		})
+		});
 	});
 });

@@ -1,6 +1,6 @@
-import { loadFixture } from '@astrojs/test-utils';
-import { describe, it, before } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
+import { loadFixture } from '@astrojs/test-utils';
 
 describe('SSG - Redirects', () => {
 	let fixture;
@@ -29,6 +29,6 @@ describe('SSG - Redirects', () => {
 			'301',
 
 			'',
-		])
+		]);
 	});
 });

@@ -1,6 +1,6 @@
-import { loadFixture } from '@astrojs/test-utils';
-import { describe, it, before } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
+import { loadFixture } from '@astrojs/test-utils';
 
 describe('Cookies', () => {
 	let fixture;
@@ -20,9 +20,9 @@ describe('Cookies', () => {
 			new Request('http://example.com/login', { method: 'POST', body: '{}' }),
 			{}
 		);
-		assert.equal(resp.status,301);
-		assert.equal(resp.headers.get('location'),'/');
-		assert.deepEqual(resp.headers.getSetCookie(),['foo=foo; HttpOnly', 'bar=bar; HttpOnly']);
+		assert.equal(resp.status, 301);
+		assert.equal(resp.headers.get('location'), '/');
+		assert.deepEqual(resp.headers.getSetCookie(), ['foo=foo; HttpOnly', 'bar=bar; HttpOnly']);
 	});
 
 	it('renders dynamic 404 page', async () => {
@@ -39,9 +39,9 @@ describe('Cookies', () => {
 			}),
 			{}
 		);
-		assert.equal(resp.status,404);
+		assert.equal(resp.status, 404);
 		const text = await resp.text();
-		assert.equal(text.includes('This is my custom 404 page'),true);
-		assert.equal(text.includes('x-test: bar'),true);
+		assert.equal(text.includes('This is my custom 404 page'), true);
+		assert.equal(text.includes('x-test: bar'), true);
 	});
 });
