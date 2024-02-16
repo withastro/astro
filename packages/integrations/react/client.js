@@ -87,18 +87,18 @@ export default (element) =>
 		if (client === 'only') {
 			return startTransition(() => {
 				const root = getOrCreateRoot(element, () => {
-					const root = createRoot(element);
-					element.addEventListener('astro:unmount', () => root.unmount(), { once: true });
-					return root;
+					const r = createRoot(element);
+					element.addEventListener('astro:unmount', () => r.unmount(), { once: true });
+					return r;
 				});
 				root.render(componentEl);
 			});
 		}
 		startTransition(() => {
 			const root = getOrCreateRoot(element, () => {
-				const root = hydrateRoot(element, componentEl, renderOptions);
-				element.addEventListener('astro:unmount', () => root.unmount(), { once: true });
-				return root;
+				const r = hydrateRoot(element, componentEl, renderOptions);
+				element.addEventListener('astro:unmount', () => r.unmount(), { once: true });
+				return r;
 			});
 			root.render(componentEl);
 		});
