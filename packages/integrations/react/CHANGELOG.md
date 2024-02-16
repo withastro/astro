@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 3.0.10
+
+### Patch Changes
+
+- [#9849](https://github.com/withastro/astro/pull/9849) [`20ca3154fb37049cbcd51b06d9fa2ef25ac25a36`](https://github.com/withastro/astro/commit/20ca3154fb37049cbcd51b06d9fa2ef25ac25a36) Thanks [@StandardGage](https://github.com/StandardGage)! - Fixes an issue where passing void elements (img, etc..) did not work with the `experimentalReactChildren` option enabled
+
 ## 3.0.9
 
 ### Patch Changes

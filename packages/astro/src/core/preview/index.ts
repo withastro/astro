@@ -12,6 +12,7 @@ import { createSettings } from '../config/settings.js';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
 import { ensureProcessNodeEnv } from '../util.js';
+import { apply as applyPolyfills } from '../polyfill.js';
 
 /**
  * Starts a local server to serve your static dist/ directory. This command is useful for previewing
@@ -20,6 +21,7 @@ import { ensureProcessNodeEnv } from '../util.js';
  * @experimental The JavaScript API is experimental
  */
 export default async function preview(inlineConfig: AstroInlineConfig): Promise<PreviewServer> {
+	applyPolyfills();
 	ensureProcessNodeEnv('production');
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'preview');

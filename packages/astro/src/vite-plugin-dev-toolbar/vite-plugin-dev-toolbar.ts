@@ -25,21 +25,21 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 			}
 		},
 		configureServer(server) {
-			server.ws.on('astro:devtoolbar:error:load', (args) => {
+			server.hot.on('astro:devtoolbar:error:load', (args) => {
 				logger.error(
 					'toolbar',
 					`Failed to load dev toolbar app from ${args.entrypoint}: ${args.error}`
 				);
 			});
 
-			server.ws.on('astro:devtoolbar:error:init', (args) => {
+			server.hot.on('astro:devtoolbar:error:init', (args) => {
 				logger.error(
 					'toolbar',
 					`Failed to initialize dev toolbar app ${args.app.name} (${args.app.id}):\n${args.error}`
 				);
 			});
 
-			server.ws.on('astro:devtoolbar:app:toggled', (args) => {
+			server.hot.on('astro:devtoolbar:app:toggled', (args) => {
 				// Debounce telemetry to avoid recording events when the user is rapidly toggling apps for debugging
 				clearTimeout(telemetryTimeout);
 				telemetryTimeout = setTimeout(() => {
@@ -65,13 +65,18 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 				return `
 					export const loadDevToolbarApps = async () => {
 						return (await Promise.all([${settings.devToolbarApps
-							.map((plugin) => `safeLoadPlugin(${JSON.stringify(plugin)})`)
+							.map(
+								(plugin) =>
+									`safeLoadPlugin(async () => (await import(${JSON.stringify(
+										plugin
+									)})).default, ${JSON.stringify(plugin)})`
+							)
 							.join(',')}])).filter(app => app);
 					};
 
-					async function safeLoadPlugin(entrypoint) {
+					async function safeLoadPlugin(importEntrypoint, entrypoint) {
 						try {
-							const app = (await import(/* @vite-ignore */ entrypoint)).default;
+							const app = await importEntrypoint();
 
 							if (typeof app !== 'object' || !app.id || !app.name) {
 								throw new Error("Apps must default export an object with an id, and a name.");

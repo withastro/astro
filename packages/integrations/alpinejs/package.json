@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/alpinejs",
   "description": "Use Alpine within Astro",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -41,7 +41,7 @@
     "@playwright/test": "1.40.0",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "vite": "^5.0.10"
+    "vite": "^5.1.2"
   },
   "publishConfig": {
     "provenance": true

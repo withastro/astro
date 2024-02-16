@@ -1,0 +1,12 @@
+---
+// https://avatars.githubusercontent.com/u/622227?s=64 is a .jpeg
+import { Image, Picture, getImage } from 'astro:assets';
+const remoteImg = await getImage({
+	src: 'https://avatars.githubusercontent.com/u/622227?s=64',
+	inferSize: true,
+	alt: '',
+});
+---
+<Image src="https://avatars.githubusercontent.com/u/622227?s=64," inferSize={true} , alt="" />
+<Picture src="https://avatars.githubusercontent.com/u/622227?s=64," inferSize={true} , alt="" />
+<img src={remoteImg.src} {...remoteImg.attributes} id="getImage" />

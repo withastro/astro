@@ -13,7 +13,7 @@ const ASTRO_COLOR_REPLACEMENTS: Record<string, string> = {
 	'--astro-code-background': '--astro-code-color-background',
 };
 const COLOR_REPLACEMENT_REGEX = new RegExp(
-	`(${Object.keys(ASTRO_COLOR_REPLACEMENTS).join('|')})`,
+	`${Object.keys(ASTRO_COLOR_REPLACEMENTS).join('|')}`,
 	'g'
 );
 

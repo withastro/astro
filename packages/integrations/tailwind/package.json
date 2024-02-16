@@ -30,20 +30,18 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "mocha --exit --timeout 20000 test/"
+    "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
     "autoprefixer": "^10.4.15",
-    "postcss": "^8.4.28",
+    "postcss": "^8.4.35",
     "postcss-load-config": "^4.0.2"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "chai": "^4.3.7",
-    "mocha": "^10.2.0",
     "tailwindcss": "^3.3.5",
-    "vite": "^5.0.12"
+    "vite": "^5.1.2"
   },
   "peerDependencies": {
     "astro": "^3.0.0 || ^4.0.0",

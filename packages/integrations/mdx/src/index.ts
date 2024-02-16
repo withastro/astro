@@ -153,7 +153,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 										.filter(({ n }) => n === 'astro/jsx-runtime')
 										.map(({ ss, se }) => code.substring(ss, se));
 									const hasFragmentImport = importsFromJSXRuntime.some((statement) =>
-										/[\s,{](Fragment,|Fragment\s*})/.test(statement)
+										/[\s,{](?:Fragment,|Fragment\s*\})/.test(statement)
 									);
 									if (!hasFragmentImport) {
 										code = 'import { Fragment } from "astro/jsx-runtime"\n' + code;

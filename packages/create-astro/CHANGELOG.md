@@ -1,5 +1,17 @@
 # create-astro
 
+## 4.7.3
+
+### Patch Changes
+
+- [#10117](https://github.com/withastro/astro/pull/10117) [`51b6ff7403c1223b1c399e88373075972c82c24c`](https://github.com/withastro/astro/commit/51b6ff7403c1223b1c399e88373075972c82c24c) Thanks [@hippotastic](https://github.com/hippotastic)! - Fixes an issue where `create astro`, `astro add` and `@astrojs/upgrade` would fail due to unexpected package manager CLI output.
+
+## 4.7.2
+
+### Patch Changes
+
+- [#9813](https://github.com/withastro/astro/pull/9813) [`fecba30a1abb7ca65dfb8f506dde77117fa447d1`](https://github.com/withastro/astro/commit/fecba30a1abb7ca65dfb8f506dde77117fa447d1) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes `@astrojs/check` and `typescript` addition to `package.json` dependencies when the user has decided not to auto-install dependencies
+
 ## 4.7.1
 
 ### Patch Changes

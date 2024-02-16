@@ -18,6 +18,8 @@ import { createVite } from '../create-vite.js';
 import { AstroError, AstroErrorData, createSafeError, isAstroError } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { ensureProcessNodeEnv } from '../util.js';
+import { formatErrorMessage } from '../messages.js';
+import { collectErrorMetadata } from '../errors/dev/utils.js';
 
 export type ProcessExit = 0 | 1;
 
@@ -55,7 +57,16 @@ export default async function sync(
 		command: 'build',
 	});
 
-	return await syncInternal(settings, { ...options, logger });
+	try {
+		return await syncInternal(settings, { ...options, logger });
+	} catch (err) {
+		const error = createSafeError(err);
+		logger.error(
+			'content',
+			formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n'
+		);
+		return 1;
+	}
 }
 
 /**
@@ -90,14 +101,14 @@ export async function syncInternal(
 		)
 	);
 
-	// Patch `ws.send` to bubble up error events
-	// `ws.on('error')` does not fire for some reason
-	const wsSend = tempViteServer.ws.send;
-	tempViteServer.ws.send = (payload: HMRPayload) => {
+	// Patch `hot.send` to bubble up error events
+	// `hot.on('error')` does not fire for some reason
+	const hotSend = tempViteServer.hot.send;
+	tempViteServer.hot.send = (payload: HMRPayload) => {
 		if (payload.type === 'error') {
 			throw payload.err;
 		}
-		return wsSend(payload);
+		return hotSend(payload);
 	};
 
 	try {

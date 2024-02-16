@@ -98,32 +98,31 @@ export class NodeApp extends App {
 	static async writeResponse(source: Response, destination: ServerResponse) {
 		const { status, headers, body } = source;
 		destination.writeHead(status, createOutgoingHttpHeaders(headers));
-		if (body) {
-			try {
-				const reader = body.getReader();
-				destination.on('close', () => {
-					// Cancelling the reader may reject not just because of
-					// an error in the ReadableStream's cancel callback, but
-					// also because of an error anywhere in the stream.
-					reader.cancel().catch((err) => {
-						// eslint-disable-next-line no-console
-						console.error(
-							`There was an uncaught error in the middle of the stream while rendering ${destination.req.url}.`,
-							err
-						);
-					});
+		if (!body) return destination.end();
+		try {
+			const reader = body.getReader();
+			destination.on('close', () => {
+				// Cancelling the reader may reject not just because of
+				// an error in the ReadableStream's cancel callback, but
+				// also because of an error anywhere in the stream.
+				reader.cancel().catch((err) => {
+					// eslint-disable-next-line no-console
+					console.error(
+						`There was an uncaught error in the middle of the stream while rendering ${destination.req.url}.`,
+						err
+					);
 				});
-				let result = await reader.read();
-				while (!result.done) {
-					destination.write(result.value);
-					result = await reader.read();
-				}
-				// the error will be logged by the "on end" callback above
-			} catch {
-				destination.write('Internal server error');
+			});
+			let result = await reader.read();
+			while (!result.done) {
+				destination.write(result.value);
+				result = await reader.read();
 			}
+			destination.end();
+			// the error will be logged by the "on end" callback above
+		} catch {
+			destination.end('Internal server error');
 		}
-		destination.end();
 	}
 }
 

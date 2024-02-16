@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { waitUntilBusy } from 'port-authority';
 import { calculateStat, astroBin } from './_util.js';
-import { renderFiles } from '../make-project/render-default.js';
+import { renderPages } from '../make-project/render-default.js';
 
 const port = 4322;
 
@@ -57,7 +57,7 @@ export async function run(projectDir, outputFile) {
 async function benchmarkRenderTime() {
 	/** @type {Record<string, number[]>} */
 	const result = {};
-	for (const fileName of Object.keys(renderFiles)) {
+	for (const fileName of renderPages) {
 		// Render each file 100 times and push to an array
 		for (let i = 0; i < 100; i++) {
 			const pathname = '/' + fileName.slice(0, -path.extname(fileName).length);

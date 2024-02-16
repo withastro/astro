@@ -29,8 +29,8 @@ async function createRestartedContainer(
 	return newContainer;
 }
 
-const configRE = new RegExp(`.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$`);
-const preferencesRE = new RegExp(`.*\.astro\/settings\.json$`);
+const configRE = /.*astro.config.(?:mjs|cjs|js|ts)$/;
+const preferencesRE = /.*\.astro\/settings.json$/;
 
 export function shouldRestartContainer(
 	{ settings, inlineConfig, restartInFlight }: Container,
@@ -80,7 +80,7 @@ export async function restartContainer(container: Container): Promise<Container 
 			);
 		}
 		// Inform connected clients of the config error
-		container.viteServer.ws.send({
+		container.viteServer.hot.send({
 			type: 'error',
 			err: {
 				message: error.message,
@@ -137,7 +137,7 @@ export async function createContainerWithAutomaticRestart({
 		} else {
 			// Restart success. Add new watches because this is a new container with a new Vite server
 			restart.container = result;
-			addWatches();
+			setupContainer();
 			resolveRestart(null);
 		}
 		restartComplete = new Promise<Error | null>((resolve) => {
@@ -153,8 +153,8 @@ export async function createContainerWithAutomaticRestart({
 		};
 	}
 
-	// Set up watches
-	function addWatches() {
+	// Set up watchers, vite restart API, and shortcuts
+	function setupContainer() {
 		const watcher = restart.container.viteServer.watcher;
 		watcher.on('change', handleChangeRestart('Configuration file updated.'));
 		watcher.on('unlink', handleChangeRestart('Configuration file removed.'));
@@ -163,7 +163,17 @@ export async function createContainerWithAutomaticRestart({
 		// Restart the Astro dev server instead of Vite's when the API is called by plugins.
 		// Ignore the `forceOptimize` parameter for now.
 		restart.container.viteServer.restart = () => handleServerRestart();
+
+		// Set up shortcuts, overriding Vite's default shortcuts so it works for Astro
+		restart.container.viteServer.bindCLIShortcuts({
+			customShortcuts: [
+				// Disable Vite's builtin "r" (restart server), "u" (print server urls) and "c" (clear console) shortcuts
+				{ key: 'r', description: '' },
+				{ key: 'u', description: '' },
+				{ key: 'c', description: '' },
+			],
+		});
 	}
-	addWatches();
+	setupContainer();
 	return restart;
 }

@@ -1,5 +1,5 @@
 import type { GetModuleInfo } from 'rollup';
-import { type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
+import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin } from 'vite';
 import { isBuildableCSSRequest } from '../../../vite-plugin-astro-server/util.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin, BuildTarget } from '../plugin.js';
@@ -15,7 +15,7 @@ import {
 	getPageDatasByHoistedScriptId,
 	isHoistedScript,
 } from '../internal.js';
-import { extendManualChunks } from './util.js';
+import { extendManualChunks, shouldInlineAsset } from './util.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
@@ -202,13 +202,15 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		},
 	};
 
+	let assetsInlineLimit: NonNullable<BuildOptions['assetsInlineLimit']>;
 	const inlineStylesheetsPlugin: VitePlugin = {
 		name: 'astro:rollup-plugin-inline-stylesheets',
 		enforce: 'post',
+		configResolved(config) {
+			assetsInlineLimit = config.build.assetsInlineLimit;
+		},
 		async generateBundle(_outputOptions, bundle) {
 			const inlineConfig = settings.config.build.inlineStylesheets;
-			const { assetsInlineLimit = 4096 } = settings.config.vite?.build ?? {};
-
 			Object.entries(bundle).forEach(([id, stylesheet]) => {
 				if (
 					stylesheet.type !== 'asset' ||
@@ -217,14 +219,12 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				)
 					return;
 
-				const assetSize = new TextEncoder().encode(stylesheet.source).byteLength;
-
 				const toBeInlined =
 					inlineConfig === 'always'
 						? true
 						: inlineConfig === 'never'
 							? false
-							: assetSize <= assetsInlineLimit;
+							: shouldInlineAsset(stylesheet.source, stylesheet.fileName, assetsInlineLimit);
 
 				// there should be a single js object for each stylesheet,
 				// allowing the single reference to be shared and checked for duplicates

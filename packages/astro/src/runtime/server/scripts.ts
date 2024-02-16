@@ -1,5 +1,6 @@
 import type { SSRResult } from '../../@types/astro.js';
 import islandScript from './astro-island.prebuilt.js';
+import islandScriptDev from './astro-island.prebuilt-dev.js';
 
 const ISLAND_STYLES = `<style>astro-island,astro-slot,astro-static-slot{display:contents}</style>`;
 
@@ -36,12 +37,13 @@ export function getPrescripts(result: SSRResult, type: PrescriptType, directive:
 	// deps to be loaded immediately.
 	switch (type) {
 		case 'both':
-			return `${ISLAND_STYLES}<script>${getDirectiveScriptText(
-				result,
-				directive
-			)};${islandScript}</script>`;
+			return `${ISLAND_STYLES}<script>${getDirectiveScriptText(result, directive)};${
+				process.env.NODE_ENV === 'development' ? islandScriptDev : islandScript
+			}</script>`;
 		case 'directive':
 			return `<script>${getDirectiveScriptText(result, directive)}</script>`;
+		case null:
+			break;
 	}
 	return '';
 }

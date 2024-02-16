@@ -49,7 +49,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "svelte": "^4.2.5",
-    "vite": "^5.0.12"
+    "vite": "^5.1.2"
   },
   "peerDependencies": {
     "astro": "^4.0.0",

@@ -1,11 +1,9 @@
 import type { Context } from './context.js';
-
 import { color } from '@astrojs/cli-kit';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import stripJsonComments from 'strip-json-comments';
 import { error, getVersion, info, title, typescriptByDefault } from '../messages.js';
-import { shell } from '../shell.js';
 
 type PickedTypeScriptContext = Pick<
 	Context,

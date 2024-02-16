@@ -81,22 +81,28 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 // checks the user's project type and will return the proper npm registry
 //
 // A copy of this function also exists in the create-astro package
+let _registry: string;
 async function getRegistry(): Promise<string> {
+	if (_registry) return _registry;
+	const fallback = 'https://registry.npmjs.org';
 	const packageManager = (await preferredPM(process.cwd()))?.name || 'npm';
 	try {
 		const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
-		return stdout?.trim()?.replace(/\/$/, '') || 'https://registry.npmjs.org';
+		_registry = stdout?.trim()?.replace(/\/$/, '') || fallback;
+		// Detect cases where the shell command returned a non-URL (e.g. a warning)
+		if (!new URL(_registry).host) _registry = fallback;
 	} catch (e) {
-		return 'https://registry.npmjs.org';
+		_registry = fallback;
 	}
+	return _registry;
 }
 
 export async function add(names: string[], { flags }: AddOptions) {
 	ensureProcessNodeEnv('production');
+	applyPolyfill();
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const { userConfig } = await resolveConfig(inlineConfig, 'add');
 	telemetry.record(eventCliSession('add', userConfig));
-	applyPolyfill();
 	if (flags.help || names.length === 0) {
 		printHelp({
 			commandName: 'astro add',
@@ -211,6 +217,8 @@ export async function add(names: string[], { flags }: AddOptions) {
 		case UpdateResult.failure: {
 			throw createPrettyError(new Error(`Unable to install dependencies`));
 		}
+		case UpdateResult.none:
+			break;
 	}
 
 	const rawConfigPath = await resolveConfigPath({
@@ -382,11 +390,11 @@ const toIdent = (name: string) => {
 	const ident = name
 		.trim()
 		// Remove astro or (astrojs) prefix and suffix
-		.replace(/[-_\.\/]?astro(?:js)?[-_\.]?/g, '')
+		.replace(/[-_./]?astro(?:js)?[-_.]?/g, '')
 		// drop .js suffix
 		.replace(/\.js/, '')
 		// convert to camel case
-		.replace(/(?:[\.\-\_\/]+)([a-zA-Z])/g, (_, w) => w.toUpperCase())
+		.replace(/[.\-_/]+([a-zA-Z])/g, (_, w) => w.toUpperCase())
 		// drop invalid first characters
 		.replace(/^[^a-zA-Z$_]+/, '');
 	return `${ident[0].toLowerCase()}${ident.slice(1)}`;

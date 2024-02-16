@@ -65,8 +65,8 @@ function isHTMLComponent(Component: unknown) {
 	return Component && (Component as any)['astro:html'] === true;
 }
 
-const ASTRO_SLOT_EXP = /\<\/?astro-slot\b[^>]*>/g;
-const ASTRO_STATIC_SLOT_EXP = /\<\/?astro-static-slot\b[^>]*>/g;
+const ASTRO_SLOT_EXP = /<\/?astro-slot\b[^>]*>/g;
+const ASTRO_STATIC_SLOT_EXP = /<\/?astro-static-slot\b[^>]*>/g;
 function removeStaticAstroSlot(html: string, supportsAstroStaticSlot: boolean) {
 	const exp = supportsAstroStaticSlot ? ASTRO_STATIC_SLOT_EXP : ASTRO_SLOT_EXP;
 	return html.replace(exp, '');
@@ -184,6 +184,7 @@ async function renderFrameworkComponent(
 		}
 	}
 
+	let componentServerRenderEndTime;
 	// If no one claimed the renderer
 	if (!renderer) {
 		if (metadata.hydrate === 'only') {
@@ -241,6 +242,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		if (metadata.hydrate === 'only') {
 			html = await renderSlotToString(result, slots?.fallback);
 		} else {
+			const componentRenderStartTime = performance.now();
 			({ html, attrs } = await renderer.ssr.renderToStaticMarkup.call(
 				{ result },
 				Component,
@@ -248,6 +250,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 				children,
 				metadata
 			));
+			if (process.env.NODE_ENV === 'development')
+				componentServerRenderEndTime = performance.now() - componentRenderStartTime;
 		}
 	}
 
@@ -327,6 +331,9 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		metadata as Required<AstroComponentMetadata>
 	);
 
+	if (componentServerRenderEndTime && process.env.NODE_ENV === 'development')
+		island.props['server-render-time'] = componentServerRenderEndTime;
+
 	// Render template if not all astro fragments are provided.
 	let unrenderedSlots: string[] = [];
 	if (html) {
@@ -390,7 +397,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 }
 
 function sanitizeElementName(tag: string) {
-	const unsafe = /[&<>'"\s]+/g;
+	const unsafe = /[&<>'"\s]+/;
 	if (!unsafe.test(tag)) return tag;
 	return tag.trim().split(unsafe)[0].trim();
 }

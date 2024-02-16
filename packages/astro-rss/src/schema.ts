@@ -16,7 +16,7 @@ export const rssSchema = z.object({
 	enclosure: z
 		.object({
 			url: z.string(),
-			length: z.number().positive().int().finite(),
+			length: z.number().nonnegative().int().finite(),
 			type: z.string(),
 		})
 		.optional(),

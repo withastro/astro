@@ -62,7 +62,9 @@ export function createGetCollection({
 		} else {
 			// eslint-disable-next-line no-console
 			console.warn(
-				`The collection **${collection}** does not exist or is empty. Ensure a collection directory with this name exists.`
+				`The collection ${JSON.stringify(
+					collection
+				)} does not exist or is empty. Ensure a collection directory with this name exists.`
 			);
 			return;
 		}
