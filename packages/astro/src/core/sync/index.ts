@@ -103,12 +103,12 @@ export async function syncInternal(
 
 	// Patch `hot.send` to bubble up error events
 	// `hot.on('error')` does not fire for some reason
-	const wsSend = tempViteServer.hot.send;
+	const hotSend = tempViteServer.hot.send;
 	tempViteServer.hot.send = (payload: HMRPayload) => {
 		if (payload.type === 'error') {
 			throw payload.err;
 		}
-		return wsSend(payload);
+		return hotSend(payload);
 	};
 
 	try {
