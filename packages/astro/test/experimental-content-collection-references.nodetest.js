@@ -13,7 +13,7 @@ describe('Experimental Content Collections cache - references', () => {
 		});
 	});
 
-	after(() => fixture.clean());
+	after(async () => await fixture.clean());
 
 	const modes = ['dev', 'prod'];
 
