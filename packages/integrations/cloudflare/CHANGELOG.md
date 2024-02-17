@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 9.0.1
+
+### Patch Changes
+
+- [#168](https://github.com/withastro/adapters/pull/168) [`25908149cd5b9e82d6746529e44473ae93be6e32`](https://github.com/withastro/adapters/commit/25908149cd5b9e82d6746529e44473ae93be6e32) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an error where the `astro dev` command would fail if the cache directory already existed
+
 ## 9.0.0
 
 ### Major Changes
