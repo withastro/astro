@@ -129,10 +129,6 @@ export interface AstroDefineVarsAttribute {
 	'define:vars'?: any;
 }
 
-export interface AstroReloadAttribute {
-	'transition:reload'?: boolean;
-}
-
 export interface AstroStyleAttributes {
 	'is:global'?: boolean;
 	'is:inline'?: boolean;
