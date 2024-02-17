@@ -9,7 +9,7 @@ import type { AstroConfig, AstroIntegrationLogger } from 'astro';
 import type { Json, ReplaceWorkersTypes, WorkerOptions } from 'miniflare';
 import type { Options } from '../index.js';
 
-import { mkdirSync, readFileSync, statSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'fs';
 import assert from 'node:assert';
 import { fileURLToPath } from 'url';
 import TOML from '@iarna/toml';
@@ -191,7 +191,9 @@ class LocalRuntime {
 		const CF_ENDPOINT = 'https://workers.cloudflare.com/cf.json';
 		if (!this.cfObject) {
 			this.cfObject = await fetch(CF_ENDPOINT).then((res) => res.json());
-			mkdirSync(this._astroConfig.cacheDir);
+			if (!existsSync(this._astroConfig.cacheDir)) {
+				mkdirSync(this._astroConfig.cacheDir);
+			}
 			writeFileSync(
 				fileURLToPath(new URL('cf.json', this._astroConfig.cacheDir)),
 				JSON.stringify(this.cfObject),
