@@ -75,8 +75,8 @@ export function shouldInlineAsset(
 	assetPath: string,
 	assetsInlineLimit: NonNullable<BuildOptions['assetsInlineLimit']>
 ) {
-	if (typeof assetsInlineLimit === 'number') {
-		return Buffer.byteLength(assetContent) < assetsInlineLimit;
+	if (typeof assetsInlineLimit === 'number' || typeof assetsInlineLimit === 'string') {
+		return Buffer.byteLength(assetContent) < Number(assetsInlineLimit);
 	}
 
 	const result = assetsInlineLimit(assetPath, Buffer.from(assetContent));
