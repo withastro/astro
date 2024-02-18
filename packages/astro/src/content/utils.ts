@@ -126,7 +126,7 @@ export async function getEntryData(
 
 		// Use `safeParseAsync` to allow async transforms
 		let formattedError;
-		const parsed = await (schema as z.ZodSchema).safeParseAsync(entry.unvalidatedData, {
+		const parsed = await (schema as z.ZodSchema).safeParseAsync(data, {
 			errorMap(error, ctx) {
 				if (error.code === 'custom' && error.params?.isHoistedAstroError) {
 					formattedError = error.params?.astroError;

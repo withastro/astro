@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -42,12 +43,15 @@ describe('react-jsx-export', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 
-		ids.forEach((id) => {
-			expect($(`#${id}`).text()).to.equal('Example');
-		});
+		for (const id of ids) {
+			assert.equal($(`#${id}`).text(), 'Example');
+		}
 	});
 
 	it('Cannot output React Invalid Hook warning', async () => {
-		expect(logs.every((log) => log.message.indexOf(reactInvalidHookWarning) === -1)).to.be.true;
+		assert.equal(
+			logs.every((log) => log.message.indexOf(reactInvalidHookWarning) === -1),
+			true
+		);
 	});
 });

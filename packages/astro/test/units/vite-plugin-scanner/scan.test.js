@@ -1,59 +1,63 @@
-import { expect } from 'chai';
+import { describe, it, before, after } from 'node:test';
+import * as assert from 'node:assert/strict';
 import { scan } from '../../../dist/vite-plugin-scanner/scan.js';
 
 describe('astro scan', () => {
 	it('should return empty object', async () => {
 		const result = await scan(`export {}`, '/src/components/index.astro');
-		expect(Object.keys(result).length).to.equal(0);
+		assert.equal(Object.keys(result).length, 0);
 	});
 
 	it('recognizes constant boolean literal (false)', async () => {
 		const result = await scan(`export const prerender = true;`, '/src/components/index.astro');
-		expect(result.prerender).to.equal(true);
+		assert.equal(result.prerender, true);
 	});
 
 	it('recognizes constant boolean literal (false)', async () => {
 		const result = await scan(`export const prerender = false;`, '/src/components/index.astro');
-		expect(result.prerender).to.equal(false);
+		assert.equal(result.prerender, false);
 	});
 
 	it("recognizes single quoted boolean ('true')", async () => {
 		const result = await scan(`export const prerender = 'true';`, '/src/components/index.astro');
-		expect(result.prerender).to.equal(true);
+		assert.equal(result.prerender, true);
 	});
 
 	it('recognizes double quoted boolean ("true")', async () => {
 		const result = await scan(`export const prerender = "true";`, '/src/components/index.astro');
-		expect(result.prerender).to.equal(true);
+		assert.equal(result.prerender, true);
 	});
 
 	it('recognizes double quoted boolean ("false")', async () => {
 		const result = await scan(`export const prerender = "false";`, '/src/components/index.astro');
-		expect(result.prerender).to.equal(false);
+		assert.equal(result.prerender, false);
 	});
 
 	it("recognizes single quoted boolean ('false')", async () => {
 		const result = await scan(`export const prerender = 'false';`, '/src/components/index.astro');
-		expect(result.prerender).to.equal(false);
+		assert.equal(result.prerender, false);
 	});
 
 	it('recognizes number (1)', async () => {
 		const result = await scan(`export const prerender = 1;`, '/src/components/index.astro');
-		expect(result.prerender).to.equal(true);
+		assert.equal(result.prerender, true);
 	});
 
 	it('recognizes number (0)', async () => {
 		const result = await scan(`export const prerender = 0;`, '/src/components/index.astro');
-		expect(result.prerender).to.equal(false);
+		assert.equal(result.prerender, false);
 	});
 
 	it('throws on let boolean literal', async () => {
 		try {
 			await scan(`export let prerender = true;`, '/src/components/index.astro');
-			expect(false).to.be.true;
+			assert.equal(false).to.be.true;
 		} catch (e) {
-			expect(e.message).to.contain(
-				`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+			assert.equal(
+				e.message.includes(
+					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+				),
+				true
 			);
 		}
 	});
@@ -61,10 +65,13 @@ describe('astro scan', () => {
 	it('throws on var boolean literal', async () => {
 		try {
 			await scan(`export var prerender = true;`, '/src/components/index.astro');
-			expect(false).to.be.true;
+			assert.equal(false).to.be.true;
 		} catch (e) {
-			expect(e.message).to.contain(
-				`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+			assert.equal(
+				e.message.includes(
+					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+				),
+				true
 			);
 		}
 	});
@@ -72,10 +79,13 @@ describe('astro scan', () => {
 	it('throws on unknown values I', async () => {
 		try {
 			await scan(`export const prerender = !!value;`, '/src/components/index.astro');
-			expect(false).to.be.true;
+			assert.equal(false).to.be.true;
 		} catch (e) {
-			expect(e.message).to.contain(
-				`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+			assert.equal(
+				e.message.includes(
+					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+				),
+				true
 			);
 		}
 	});
@@ -83,10 +93,13 @@ describe('astro scan', () => {
 	it('throws on unknown values II', async () => {
 		try {
 			await scan(`export const prerender = value;`, '/src/components/index.astro');
-			expect(false).to.be.true;
+			assert.equal(false).to.be.true;
 		} catch (e) {
-			expect(e.message).to.contain(
-				`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+			assert.equal(
+				e.message.includes(
+					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+				),
+				true
 			);
 		}
 	});
@@ -97,10 +110,13 @@ describe('astro scan', () => {
 				`export let prerender = undefined; prerender = true;`,
 				'/src/components/index.astro'
 			);
-			expect(false).to.be.true;
+			assert.equal(false).to.be.true;
 		} catch (e) {
-			expect(e.message).to.contain(
-				`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+			assert.equal(
+				e.message.includes(
+					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+				),
+				true
 			);
 		}
 	});
@@ -108,10 +124,13 @@ describe('astro scan', () => {
 	it('throws on unknown values IV', async () => {
 		try {
 			await scan(`let prerender = true; export { prerender }`, '/src/components/index.astro');
-			expect(false).to.be.true;
+			assert.equal(false).to.be.true;
 		} catch (e) {
-			expect(e.message).to.contain(
-				`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+			assert.equal(
+				e.message.includes(
+					`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+				),
+				true
 			);
 		}
 	});

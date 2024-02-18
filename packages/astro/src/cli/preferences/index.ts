@@ -16,6 +16,7 @@ import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { flattie } from 'flattie';
 import { formatWithOptions } from 'node:util';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
+import { apply as applyPolyfill } from '../../core/polyfill.js';
 
 interface PreferencesOptions {
 	flags: yargs.Arguments;
@@ -45,6 +46,7 @@ export async function preferences(
 	value: string | undefined,
 	{ flags }: PreferencesOptions
 ): Promise<number> {
+	applyPolyfill();
 	if (!isValidSubcommand(subcommand) || flags?.help || flags?.h) {
 		msg.printHelp({
 			commandName: 'astro preferences',

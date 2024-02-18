@@ -101,14 +101,14 @@ export async function syncInternal(
 		)
 	);
 
-	// Patch `ws.send` to bubble up error events
-	// `ws.on('error')` does not fire for some reason
-	const wsSend = tempViteServer.ws.send;
-	tempViteServer.ws.send = (payload: HMRPayload) => {
+	// Patch `hot.send` to bubble up error events
+	// `hot.on('error')` does not fire for some reason
+	const hotSend = tempViteServer.hot.send;
+	tempViteServer.hot.send = (payload: HMRPayload) => {
 		if (payload.type === 'error') {
 			throw payload.err;
 		}
-		return wsSend(payload);
+		return hotSend(payload);
 	};
 
 	try {

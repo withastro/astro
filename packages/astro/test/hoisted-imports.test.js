@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { describe, before, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 import * as cheerio from 'cheerio';
 
@@ -19,7 +20,7 @@ describe('Hoisted Imports', () => {
 		const $ = cheerio.load(html);
 		const scriptText = [];
 
-		const importRegex = /import\s*?['"]([^'"]+?)['"]/g;
+		const importRegex = /import\s*['"]([^'"]+)['"]/g;
 		async function resolveImports(text) {
 			const matches = text.matchAll(importRegex);
 			for (const match of matches) {
@@ -52,11 +53,11 @@ describe('Hoisted Imports', () => {
 
 		function expectScript(scripts, letter) {
 			const regex = new RegExp(`console.log\\(['"]${letter}['"]\\)`);
-			expect(scripts, 'missing component ' + letter).to.match(regex);
+			assert.match(scripts, regex, 'missing component ' + letter);
 		}
 		function expectNotScript(scripts, letter) {
 			const regex = new RegExp(`console.log\\(['"]${letter}['"]\\)`);
-			expect(scripts, "shouldn't include component " + letter).to.not.match(regex);
+			assert.doesNotMatch(scripts, regex, "shouldn't include component " + letter);
 		}
 
 		it('includes all imported scripts', async () => {

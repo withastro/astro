@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Static build: vite plugins included when required', () => {
@@ -74,15 +75,9 @@ describe('Static build: vite plugins included when required', () => {
 		await fixture.build();
 	});
 	it('Vite Plugins are included/excluded properly', async () => {
-		expect(pluginsCalled.size).to.equal(
-			expectedPluginResult.size,
-			'Not all plugins were initialized'
-		);
+		assert.equal(pluginsCalled.size, expectedPluginResult.size, 'Not all plugins were initialized');
 		Array.from(expectedPluginResult.entries()).forEach(([plugin, called]) =>
-			expect(pluginsCalled.get(plugin)).to.equal(
-				called,
-				`${plugin} was ${called ? 'not' : ''} called`
-			)
+			assert.equal(pluginsCalled.get(plugin), called, `${plugin} was ${called ? 'not' : ''} called`)
 		);
 	});
 });

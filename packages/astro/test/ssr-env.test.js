@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { describe, before, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
@@ -22,6 +23,6 @@ describe('SSR Environment Variables', () => {
 		const response = await app.render(request);
 		const html = await response.text();
 		const $ = cheerio.load(html);
-		expect($('#ssr').text()).to.equal('true');
+		assert.equal($('#ssr').text(), 'true');
 	});
 });

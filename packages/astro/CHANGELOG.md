@@ -1,5 +1,121 @@
 # astro
 
+## 4.4.0
+
+### Minor Changes
+
+- [#9614](https://github.com/withastro/astro/pull/9614) [`d469bebd7b45b060dc41d82ab1cf18ee6de7e051`](https://github.com/withastro/astro/commit/d469bebd7b45b060dc41d82ab1cf18ee6de7e051) Thanks [@matthewp](https://github.com/matthewp)! - Improves Node.js streaming performance.
+
+  This uses an `AsyncIterable` instead of a `ReadableStream` to do streaming in Node.js. This is a non-standard enhancement by Node, which is done only in that environment.
+
+- [#10001](https://github.com/withastro/astro/pull/10001) [`748b2e87cd44d8bcc1ab9d7e504703057e2000cd`](https://github.com/withastro/astro/commit/748b2e87cd44d8bcc1ab9d7e504703057e2000cd) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Removes content collection warning when a configured collection does not have a matching directory name. This should resolve `i18n` collection warnings for Starlight users.
+
+  This also ensures configured collection names are always included in `getCollection()` and `getEntry()` types even when a matching directory is absent. We hope this allows users to discover typos during development by surfacing type information.
+
+- [#10074](https://github.com/withastro/astro/pull/10074) [`7443929381b47db0639c49a4d32aec4177bd9102`](https://github.com/withastro/astro/commit/7443929381b47db0639c49a4d32aec4177bd9102) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add a UI showing the list of found problems when using the audit app in the dev toolbar
+
+- [#10099](https://github.com/withastro/astro/pull/10099) [`b340f8fe3aaa81e38c4f1aa41498b159dc733d86`](https://github.com/withastro/astro/commit/b340f8fe3aaa81e38c4f1aa41498b159dc733d86) Thanks [@martrapp](https://github.com/martrapp)! - Fixes a regression where view transition names containing special characters such as spaces or punctuation stopped working.
+
+  Regular use naming your transitions with `transition: name` is unaffected.
+
+  However, this fix may result in breaking changes if your project relies on the particular character encoding strategy Astro uses to translate `transition:name` directives into values of the underlying CSS `view-transition-name` property. For example, `Welcome to Astro` is now encoded as `Welcome_20to_20Astro_2e`.
+
+  This mainly affects spaces and punctuation marks but no Unicode characters with codes >= 128.
+
+- [#9976](https://github.com/withastro/astro/pull/9976) [`91f75afbc642b6e73dd4ec18a1fe2c3128c68132`](https://github.com/withastro/astro/commit/91f75afbc642b6e73dd4ec18a1fe2c3128c68132) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Adds a new optional `astro:assets` image attribute `inferSize` for use with remote images.
+
+  Remote images can now have their dimensions inferred just like local images. Setting `inferSize` to `true` allows you to use `getImage()` and the `<Image />` and `<Picture />` components without setting the `width` and `height` properties.
+
+  ```astro
+  ---
+  import { Image, Picture, getImage } from 'astro:assets';
+  const myPic = await getImage({ src: 'https://example.com/example.png', inferSize: true });
+  ---
+
+  <Image src="https://example.com/example.png" inferSize alt="" />
+  <Picture src="https://example.com/example.png" inferSize alt="" />
+  ```
+
+  Read more about [using `inferSize` with remote images](https://docs.astro.build/en/guides/images/#infersize) in our documentation.
+
+- [#10015](https://github.com/withastro/astro/pull/10015) [`6884b103c8314a43e926c6acdf947cbf812a21f4`](https://github.com/withastro/astro/commit/6884b103c8314a43e926c6acdf947cbf812a21f4) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds initial support for performance audits to the dev toolbar
+
+### Patch Changes
+
+- [#10116](https://github.com/withastro/astro/pull/10116) [`4bcc249a9f34aaac59658ca626c828bd6dbb8046`](https://github.com/withastro/astro/commit/4bcc249a9f34aaac59658ca626c828bd6dbb8046) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where the dev server froze when typescript aliases were used.
+
+- [#10096](https://github.com/withastro/astro/pull/10096) [`227cd83a51bbd451dc223fd16f4cf1b87b8e44f8`](https://github.com/withastro/astro/commit/227cd83a51bbd451dc223fd16f4cf1b87b8e44f8) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes regression on routing priority for multi-layer index pages
+
+  The sorting algorithm positions more specific routes before less specific routes, and considers index pages to be more specific than a dynamic route with a rest parameter inside of it.
+  This means that `/blog` is considered more specific than `/blog/[...slug]`.
+
+  But this special case was being applied incorrectly to indexes, which could cause a problem in scenarios like the following:
+
+  - `/`
+  - `/blog`
+  - `/blog/[...slug]`
+
+  The algorithm would make the following comparisons:
+
+  - `/` is more specific than `/blog` (incorrect)
+  - `/blog/[...slug]` is more specific than `/` (correct)
+  - `/blog` is more specific than `/blog/[...slug]` (correct)
+
+  Although the incorrect first comparison is not a problem by itself, it could cause the algorithm to make the wrong decision.
+  Depending on the other routes in the project, the sorting could perform just the last two comparisons and by transitivity infer the inverse of the third (`/blog/[...slug` > `/` > `/blog`), which is incorrect.
+
+  Now the algorithm doesn't have a special case for index pages and instead does the comparison soleley for rest parameter segments and their immediate parents, which is consistent with the transitivity property.
+
+- [#10120](https://github.com/withastro/astro/pull/10120) [`787e6f52470cf07fb50c865948b2bc8fe45a6d31`](https://github.com/withastro/astro/commit/787e6f52470cf07fb50c865948b2bc8fe45a6d31) Thanks [@bluwy](https://github.com/bluwy)! - Updates and supports Vite 5.1
+
+- [#10096](https://github.com/withastro/astro/pull/10096) [`227cd83a51bbd451dc223fd16f4cf1b87b8e44f8`](https://github.com/withastro/astro/commit/227cd83a51bbd451dc223fd16f4cf1b87b8e44f8) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes edge case on i18n fallback routes
+
+  Previously index routes deeply nested in the default locale, like `/some/nested/index.astro` could be mistaked as the root index for the default locale, resulting in an incorrect redirect on `/`.
+
+- [#10112](https://github.com/withastro/astro/pull/10112) [`476b79a61165d0aac5e98459a4ec90762050a14b`](https://github.com/withastro/astro/commit/476b79a61165d0aac5e98459a4ec90762050a14b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Renames the home Astro Devoolbar App to `astro:home`
+
+- [#10117](https://github.com/withastro/astro/pull/10117) [`51b6ff7403c1223b1c399e88373075972c82c24c`](https://github.com/withastro/astro/commit/51b6ff7403c1223b1c399e88373075972c82c24c) Thanks [@hippotastic](https://github.com/hippotastic)! - Fixes an issue where `create astro`, `astro add` and `@astrojs/upgrade` would fail due to unexpected package manager CLI output.
+
+## 4.3.7
+
+### Patch Changes
+
+- [#9857](https://github.com/withastro/astro/pull/9857) [`73bd900754365b006ee730df9f379ba924e5b3fa`](https://github.com/withastro/astro/commit/73bd900754365b006ee730df9f379ba924e5b3fa) Thanks [@iamyunsin](https://github.com/iamyunsin)! - Fixes false positives in the dev overlay audit when multiple `role` values exist.
+
+- [#10075](https://github.com/withastro/astro/pull/10075) [`71273edbb429b5afdba6f8ee14681b66e4c09ecc`](https://github.com/withastro/astro/commit/71273edbb429b5afdba6f8ee14681b66e4c09ecc) Thanks [@lilnasy](https://github.com/lilnasy)! - Improves error messages for island hydration.
+
+- [#10072](https://github.com/withastro/astro/pull/10072) [`8106178043050d142bf385bed2990730518f28e2`](https://github.com/withastro/astro/commit/8106178043050d142bf385bed2990730518f28e2) Thanks [@lilnasy](https://github.com/lilnasy)! - Clarifies error messages in endpoint routing.
+
+- [#9971](https://github.com/withastro/astro/pull/9971) [`d9266c4467ca0faa1213c1a5995164e5655ab375`](https://github.com/withastro/astro/commit/d9266c4467ca0faa1213c1a5995164e5655ab375) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Fixes an issue where ReadableStream wasn't canceled in dev mode
+
+## 4.3.6
+
+### Patch Changes
+
+- [#10063](https://github.com/withastro/astro/pull/10063) [`dac759798c111494e76affd2c2504d63944871fe`](https://github.com/withastro/astro/commit/dac759798c111494e76affd2c2504d63944871fe) Thanks [@marwan-mohamed12](https://github.com/marwan-mohamed12)! - Moves `shikiji-core` from `devDependencies` to `dependencies` to prevent type errors
+
+- [#10067](https://github.com/withastro/astro/pull/10067) [`989ea63bb2a5a670021541198aa70b8dc7c4bd2f`](https://github.com/withastro/astro/commit/989ea63bb2a5a670021541198aa70b8dc7c4bd2f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression in the `astro:i18n` module, where the functions `getAbsoluteLocaleUrl` and `getAbsoluteLocaleUrlList` returned a URL with double slash with a certain combination of options.
+
+- [#10060](https://github.com/withastro/astro/pull/10060) [`1810309e65c596266355c3b7bb36cdac70f3305e`](https://github.com/withastro/astro/commit/1810309e65c596266355c3b7bb36cdac70f3305e) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where custom client directives added by integrations broke builds with a custom root.
+
+- [#9991](https://github.com/withastro/astro/pull/9991) [`8fb67c81bb84530b39df4a1449c0862def0854af`](https://github.com/withastro/astro/commit/8fb67c81bb84530b39df4a1449c0862def0854af) Thanks [@ktym4a](https://github.com/ktym4a)! - Increases compatibility with standard browser behavior by changing where view transitions occur on browser back navigation.
+
+## 4.3.5
+
+### Patch Changes
+
+- [#10022](https://github.com/withastro/astro/pull/10022) [`3fc76efb2a8faa47edf67562a1f0c84a19be1b33`](https://github.com/withastro/astro/commit/3fc76efb2a8faa47edf67562a1f0c84a19be1b33) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes a regression where types for the `astro:content` module did not include required exports, leading to typescript errors.
+
+- [#10016](https://github.com/withastro/astro/pull/10016) [`037e4f12dd2f460d66f72c9f2d992b95e74d2da9`](https://github.com/withastro/astro/commit/037e4f12dd2f460d66f72c9f2d992b95e74d2da9) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where routes with a name that start with the name of the `i18n.defaultLocale` were incorrectly returning a 404 response.
+
+## 4.3.4
+
+### Patch Changes
+
+- [#10013](https://github.com/withastro/astro/pull/10013) [`e6b5306a7de779ce495d0ff076d302de0aa57eaf`](https://github.com/withastro/astro/commit/e6b5306a7de779ce495d0ff076d302de0aa57eaf) Thanks [@delucis](https://github.com/delucis)! - Fixes a regression in content collection types
+
+- [#10003](https://github.com/withastro/astro/pull/10003) [`ce4283331f18c6178654dd705e3cf02efeef004a`](https://github.com/withastro/astro/commit/ce4283331f18c6178654dd705e3cf02efeef004a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Adds support for `.strict()` on content collection schemas when a custom `slug` is present.
+
 ## 4.3.3
 
 ### Patch Changes

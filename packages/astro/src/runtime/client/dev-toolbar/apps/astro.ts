@@ -27,7 +27,7 @@ interface IntegrationData {
 let integrationData: IntegrationData;
 
 export default {
-	id: 'astro',
+	id: 'astro:home',
 	name: 'Menu',
 	icon: 'astro:logo',
 	async init(canvas, eventTarget) {

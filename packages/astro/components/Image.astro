@@ -29,6 +29,10 @@ const additionalAttributes: HTMLAttributes<'img'> = {};
 if (image.srcSet.values.length > 0) {
 	additionalAttributes.srcset = image.srcSet.attribute;
 }
+
+if (import.meta.env.DEV) {
+	additionalAttributes['data-image-component'] = 'true';
+}
 ---
 
 <img src={image.src} {...additionalAttributes} {...image.attributes} />

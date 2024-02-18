@@ -2,7 +2,7 @@ name: Hosted tests
 
 on:
   schedule:
-    - cron:  '0 0 * * 0'
+    - cron: '0 0 * * 0'
 
 env:
   ASTRO_TELEMETRY_DISABLED: true
@@ -19,33 +19,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v2
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: "pnpm"
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install
-      
+
       - name: Build Astro
-        run: pnpm turbo build --filter astro --filter @astrojs/vercel 
+        run: pnpm turbo build --filter astro --filter @astrojs/vercel
 
       - name: Build test project
         working-directory: ./packages/integrations/vercel/test/hosted/hosted-astro-project
-        run:
-          pnpm run build
-      
+        run: pnpm run build
+
       - name: Deploy to Vercel
         working-directory: ./packages/integrations/vercel/test/hosted/hosted-astro-project
-        run:
-          pnpm dlx vercel --prod --prebuilt
+        run: pnpm dlx vercel --prod --prebuilt
 
       - name: Test
-        run:
-          pnpm run test:e2e:hosts
+        run: pnpm run test:e2e:hosts

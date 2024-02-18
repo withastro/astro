@@ -7,17 +7,17 @@ import { HTMLString, markHTMLString } from '../escape.js';
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 const htmlBooleanAttributes =
-	/^(allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|itemscope)$/i;
-const htmlEnumAttributes = /^(contenteditable|draggable|spellcheck|value)$/i;
+	/^(?:allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|itemscope)$/i;
+const htmlEnumAttributes = /^(?:contenteditable|draggable|spellcheck|value)$/i;
 // Note: SVG is case-sensitive!
-const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
+const svgEnumAttributes = /^(?:autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
 
 const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 
 // converts (most) arbitrary strings to valid JS identifiers
 const toIdent = (k: string) =>
-	k.trim().replace(/(?:(?!^)\b\w|\s+|[^\w]+)/g, (match, index) => {
-		if (/[^\w]|\s/.test(match)) return '';
+	k.trim().replace(/(?!^)\b\w|\s+|\W+/g, (match, index) => {
+		if (/\W/.test(match)) return '';
 		return index === 0 ? match : match.toUpperCase();
 	});
 
@@ -194,5 +194,30 @@ export function renderToBufferDestination(bufferRenderFunction: RenderFunction):
 			// Wait for render to finish entirely
 			await renderPromise;
 		},
+	};
+}
+
+export const isNode =
+	typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]';
+
+// We can get rid of this when Promise.withResolvers() is ready
+export type PromiseWithResolvers<T> = {
+	promise: Promise<T>;
+	resolve: (value: T) => void;
+	reject: (reason?: any) => void;
+};
+
+// This is an implementation of Promise.withResolvers(), which we can't yet rely on.
+// We can remove this once the native function is available in Node.js
+export function promiseWithResolvers<T = any>(): PromiseWithResolvers<T> {
+	let resolve: any, reject: any;
+	const promise = new Promise<T>((_resolve, _reject) => {
+		resolve = _resolve;
+		reject = _reject;
+	});
+	return {
+		promise,
+		resolve,
+		reject,
 	};
 }

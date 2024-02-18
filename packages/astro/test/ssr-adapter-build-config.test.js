@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { describe, before, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 import { viteID } from '../dist/core/util.js';
 
@@ -58,11 +59,11 @@ describe('Integration buildConfig hook', () => {
 
 	it('Puts client files in the client folder', async () => {
 		let data = await fixture.readFile('/.root/client/cars.json');
-		expect(data).to.not.be.undefined;
+		assert.notEqual(data, undefined);
 	});
 
 	it('Puts the server entry into the server folder', async () => {
 		let data = await fixture.readFile('/.root/server/entry.mjs');
-		expect(data).to.not.be.undefined;
+		assert.notEqual(data, undefined);
 	});
 });

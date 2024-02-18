@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Vue with multi-renderer', () => {
@@ -14,7 +15,7 @@ describe('Vue with multi-renderer', () => {
 		try {
 			await fixture.build();
 		} catch (e) {
-			expect(e).to.equal(undefined, `Should not throw`);
+			assert.equal(e, undefined, `Should not throw`);
 		}
 	});
 });

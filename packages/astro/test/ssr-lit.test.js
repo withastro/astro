@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { describe, before, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
@@ -27,6 +28,6 @@ describe('Lit integration in SSR', () => {
 	it('Is able to load', async () => {
 		const html = await fetchHTML('/');
 		const $ = cheerioLoad(html);
-		expect($('#str').text()).to.equal('initialized');
+		assert.equal($('#str').text(), 'initialized');
 	});
 });
