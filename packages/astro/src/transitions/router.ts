@@ -345,14 +345,14 @@ async function updateDOM(
 		for (const s1 of document.scripts) {
 			for (const s2 of beforeSwapEvent.newDocument.scripts) {
 				if (
-					// Check if the script should be reloaded regardless of it being the same
-					!s2.hasAttribute('data-astro-reload') &&
+					// Check if the script should be rerun regardless of it being the same
+					!s2.hasAttribute('data-astro-rerun') &&
 					// Inline
 					((!s1.src && s1.textContent === s2.textContent) ||
 						// External
 						(s1.src && s1.type === s2.type && s1.src === s2.src))
 				) {
-					// the old script is in the new document and doesn't have the reload attribute
+					// the old script is in the new document and doesn't have the rerun attribute
 					// we mark it as executed to prevent re-execution
 					s2.dataset.astroExec = '';
 					break;
