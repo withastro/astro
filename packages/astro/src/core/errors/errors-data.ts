@@ -520,7 +520,7 @@ export const InvalidImageService = {
  * - [Images](https://docs.astro.build/en/guides/images/)
  * - [Image component#width-and-height-required](https://docs.astro.build/en/guides/images/#width-and-height-required-for-images-in-public)
  * @description
- * For remote images, `width` and `height` cannot automatically be inferred from the original file. To avoid cumulative layout shift (CLS), either specify these two properties, or set [inferSize`](https://docs.astro.build/en/guides/images/#infersize) to `true` to fetch a remote image's original dimensions.
+ * For remote images, `width` and `height` cannot automatically be inferred from the original file. To avoid cumulative layout shift (CLS), either specify these two properties, or set [`inferSize`](https://docs.astro.build/en/guides/images/#infersize) to `true` to fetch a remote image's original dimensions.
  *
  * If your image is inside your `src` folder, you probably meant to import it instead. See [the Imports guide for more information](https://docs.astro.build/en/guides/imports/#other-assets).
  */

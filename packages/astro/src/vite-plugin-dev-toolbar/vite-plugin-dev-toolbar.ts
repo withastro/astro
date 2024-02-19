@@ -25,21 +25,21 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 			}
 		},
 		configureServer(server) {
-			server.ws.on('astro:devtoolbar:error:load', (args) => {
+			server.hot.on('astro:devtoolbar:error:load', (args) => {
 				logger.error(
 					'toolbar',
 					`Failed to load dev toolbar app from ${args.entrypoint}: ${args.error}`
 				);
 			});
 
-			server.ws.on('astro:devtoolbar:error:init', (args) => {
+			server.hot.on('astro:devtoolbar:error:init', (args) => {
 				logger.error(
 					'toolbar',
 					`Failed to initialize dev toolbar app ${args.app.name} (${args.app.id}):\n${args.error}`
 				);
 			});
 
-			server.ws.on('astro:devtoolbar:app:toggled', (args) => {
+			server.hot.on('astro:devtoolbar:app:toggled', (args) => {
 				// Debounce telemetry to avoid recording events when the user is rapidly toggling apps for debugging
 				clearTimeout(telemetryTimeout);
 				telemetryTimeout = setTimeout(() => {

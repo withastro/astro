@@ -3,13 +3,12 @@ import { loadFixture } from './test-utils.js';
 import assert from 'node:assert/strict';
 import { after, describe, before, it } from 'node:test';
 
-describe('Custom 404 with injectRoute', () => {
+describe('Custom 404 Markdown', () => {
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/custom-404-injected/',
-			site: 'http://example.com',
+			root: './fixtures/custom-404-md/',
 		});
 	});
 
@@ -29,18 +28,17 @@ describe('Custom 404 with injectRoute', () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			$ = cheerio.load(html);
 
-			assert.strictEqual($('h1').text(), 'Home');
+			assert.equal($('h1').text(), 'Home');
 		});
 
-		it('renders 404 for /a', async () => {
+		it('renders 404 for /abc', async () => {
 			const res = await fixture.fetch('/a');
-			assert.strictEqual(res.status, 404);
+			assert.equal(res.status, 404);
 
 			const html = await res.text();
 			$ = cheerio.load(html);
 
-			assert.strictEqual($('h1').text(), 'Page not found');
-			assert.strictEqual($('p').text(), '/a');
+			assert.equal($('h1').text(), 'Page not found');
 		});
 	});
 });

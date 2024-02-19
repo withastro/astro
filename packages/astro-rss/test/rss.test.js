@@ -36,9 +36,9 @@ function assertXmlDeepEqual(a, b) {
 	const parsedA = parseXmlString(a);
 	const parsedB = parseXmlString(b);
 
-	assert.strictEqual(parsedA.err, null);
-	assert.strictEqual(parsedB.err, null);
-	assert.deepStrictEqual(parsedA.result, parsedB.result);
+	assert.equal(parsedA.err, null);
+	assert.equal(parsedB.err, null);
+	assert.deepEqual(parsedA.result, parsedB.result);
 }
 
 describe('rss', () => {
@@ -58,7 +58,7 @@ describe('rss', () => {
 		assertXmlDeepEqual(str, validXmlResult);
 
 		const contentType = response.headers.get('Content-Type');
-		assert.strictEqual(contentType, 'application/xml');
+		assert.equal(contentType, 'application/xml');
 	});
 
 	it('should be the same string as getRssString', async () => {
@@ -73,7 +73,7 @@ describe('rss', () => {
 		const str1 = await response.text();
 		const str2 = await getRssString(options);
 
-		assert.strictEqual(str1, str2);
+		assert.equal(str1, str2);
 	});
 });
 
@@ -223,8 +223,8 @@ describe('getRssString', () => {
 			link: phpFeedItem.link,
 		});
 
-		assert.strictEqual(res.success, false);
-		assert.strictEqual(res.error.issues[0].path[0], 'pubDate');
+		assert.equal(res.success, false);
+		assert.equal(res.error.issues[0].path[0], 'pubDate');
 	});
 
 	it('should be extendable', () => {
@@ -236,7 +236,7 @@ describe('getRssString', () => {
 		} catch (e) {
 			error = e.message;
 		}
-		assert.strictEqual(error, null);
+		assert.equal(error, null);
 	});
 
 	it('should not fail when an enclosure has a length of 0', async () => {
@@ -264,6 +264,6 @@ describe('getRssString', () => {
 			error = e.message;
 		}
 
-		assert.strictEqual(error, null);
+		assert.equal(error, null);
 	});
 });

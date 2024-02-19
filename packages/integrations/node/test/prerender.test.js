@@ -190,7 +190,7 @@ describe('Hybrid rendering', () => {
 	let fixture;
 	let server;
 
-	describe('With base', async () => {
+	describe('With base', () => {
 		before(async () => {
 			process.env.PRERENDER = false;
 			fixture = await loadFixture({
@@ -258,7 +258,7 @@ describe('Hybrid rendering', () => {
 		});
 	});
 
-	describe('Without base', async () => {
+	describe('Without base', () => {
 		before(async () => {
 			process.env.PRERENDER = false;
 			fixture = await loadFixture({
@@ -316,7 +316,7 @@ describe('Hybrid rendering', () => {
 		});
 	});
 
-	describe('Shared modules', async () => {
+	describe('Shared modules', () => {
 		before(async () => {
 			process.env.PRERENDER = false;
 

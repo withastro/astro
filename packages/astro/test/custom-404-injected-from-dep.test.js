@@ -17,7 +17,7 @@ describe('Custom 404 with injectRoute from dependency', () => {
 
 		it('Build succeeds', async () => {
 			const html = await fixture.readFile('/404.html');
-			assert.strictEqual(html.includes('<!DOCTYPE html>'), true);
+			assert.equal(html.includes('<!DOCTYPE html>'), true);
 		});
 	});
 });

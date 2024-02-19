@@ -47,7 +47,7 @@ describe('pagesGlobToRssItems', () => {
 			},
 		];
 
-		assert.deepStrictEqual(
+		assert.deepEqual(
 			items.sort((a, b) => a.pubDate - b.pubDate),
 			expected
 		);
