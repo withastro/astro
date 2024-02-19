@@ -1961,6 +1961,11 @@ export interface AstroInstance {
 	default: AstroComponentFactory;
 }
 
+export interface ContentProps<T extends Record<string, any>> {
+	components: Record<string, AstroComponentFactory>;
+	frontmatter: T;
+}
+
 export interface MarkdownInstance<T extends Record<string, any>> {
 	frontmatter: T;
 	/** Absolute file path (e.g. `/home/user/projects/.../file.md`) */
@@ -1968,7 +1973,7 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	/** Browser URL for files under `/src/pages` (e.g. `/en/guides/markdown-content`) */
 	url: string | undefined;
 	/** Component to render content in `.astro` files. Usage: `<Content />` */
-	Content: AstroComponentFactory;
+	Content: AstroComponentFactory<ContentProps<T>>;
 	/** raw Markdown file content, excluding layout HTML and YAML frontmatter */
 	rawContent(): string;
 	/** Markdown file compiled to HTML, excluding layout HTML */
