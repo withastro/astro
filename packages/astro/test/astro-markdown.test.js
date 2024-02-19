@@ -18,7 +18,7 @@ describe('Astro Markdown', () => {
 	it('Exposes raw markdown content', async () => {
 		const { raw } = JSON.parse(await fixture.readFile('/raw-content.json'));
 
-		assert.strictEqual(
+		assert.equal(
 			fixLineEndings(raw).trim(),
 			`# Basic page\n\nLets make sure raw and compiled content look right!`
 		);
@@ -27,7 +27,7 @@ describe('Astro Markdown', () => {
 	it('Exposes compiled HTML content', async () => {
 		const { compiled } = JSON.parse(await fixture.readFile('/raw-content.json'));
 
-		assert.strictEqual(
+		assert.equal(
 			fixLineEndings(compiled).trim(),
 			`<h1 id="basic-page">Basic page</h1>\n<p>Lets make sure raw and compiled content look right!</p>`
 		);
@@ -38,7 +38,7 @@ describe('Astro Markdown', () => {
 			const html = await fixture.readFile('/code-in-md/index.html');
 			const $ = cheerio.load(html);
 
-			assert.notStrictEqual($('pre.astro-code').length, 0);
+			assert.notEqual($('pre.astro-code').length, 0);
 		});
 
 		it('handles Prism', async () => {
@@ -53,7 +53,7 @@ describe('Astro Markdown', () => {
 			const html = await prismFixture.readFile('/code-in-md/index.html');
 			const $ = cheerio.load(html);
 
-			assert.notStrictEqual($('pre.language-html').length, 0);
+			assert.notEqual($('pre.language-html').length, 0);
 		});
 	});
 
@@ -64,8 +64,8 @@ describe('Astro Markdown', () => {
 		const contentTitle = $('[data-content-title]');
 		const frontmatterTitle = $('[data-frontmatter-title]');
 
-		assert.strictEqual(contentTitle.text(), 'With layout');
-		assert.strictEqual(frontmatterTitle.text(), 'With layout');
+		assert.equal(contentTitle.text(), 'With layout');
+		assert.equal(frontmatterTitle.text(), 'With layout');
 	});
 
 	it('Passes headings to layout via "headings" prop', async () => {
@@ -85,7 +85,7 @@ describe('Astro Markdown', () => {
 
 		const compiledContent = $('[data-compiled-content]');
 
-		assert.strictEqual(
+		assert.equal(
 			fixLineEndings(compiledContent.text()).trim(),
 			`<h2 id="section-1">Section 1</h2>\n<h2 id="section-2">Section 2</h2>`
 		);
@@ -97,7 +97,7 @@ describe('Astro Markdown', () => {
 
 		const rawContent = $('[data-raw-content]');
 
-		assert.strictEqual(fixLineEndings(rawContent.text()).trim(), `## Section 1\n\n## Section 2`);
+		assert.equal(fixLineEndings(rawContent.text()).trim(), `## Section 1\n\n## Section 2`);
 	});
 
 	it('Exposes getHeadings() on glob imports', async () => {
@@ -118,14 +118,14 @@ describe('Astro Markdown', () => {
 		const file = $('[data-file]')?.text();
 		const url = $('[data-url]')?.text();
 
-		assert.strictEqual(
+		assert.equal(
 			frontmatterFile?.endsWith('with-layout.md'),
 			true,
 			'"file" prop does not end with correct path or is undefined'
 		);
-		assert.strictEqual(frontmatterUrl, '/with-layout');
-		assert.strictEqual(file, frontmatterFile);
-		assert.strictEqual(url, frontmatterUrl);
+		assert.equal(frontmatterUrl, '/with-layout');
+		assert.equal(file, frontmatterFile);
+		assert.equal(url, frontmatterUrl);
 	});
 
 	describe('Vite env vars (#3412)', () => {
@@ -134,18 +134,18 @@ describe('Astro Markdown', () => {
 			const $ = cheerio.load(html);
 
 			// test 1: referencing an existing var name
-			assert.strictEqual($('code').eq(0).text(), 'import.meta.env.SITE');
-			assert.strictEqual($('li').eq(0).text(), 'import.meta.env.SITE');
+			assert.equal($('code').eq(0).text(), 'import.meta.env.SITE');
+			assert.equal($('li').eq(0).text(), 'import.meta.env.SITE');
 			assert.ok($('code').eq(3).text().includes('site: import.meta.env.SITE'));
 
 			// // test 2: referencing a non-existing var name
-			assert.strictEqual($('code').eq(1).text(), 'import.meta.env.TITLE');
-			assert.strictEqual($('li').eq(1).text(), 'import.meta.env.TITLE');
+			assert.equal($('code').eq(1).text(), 'import.meta.env.TITLE');
+			assert.equal($('li').eq(1).text(), 'import.meta.env.TITLE');
 			assert.ok($('code').eq(3).text().includes('title: import.meta.env.TITLE'));
 
 			// // test 3: referencing `import.meta.env` itself (without any var name)
-			assert.strictEqual($('code').eq(2).text(), 'import.meta.env');
-			assert.strictEqual($('li').eq(2).text(), 'import.meta.env');
+			assert.equal($('code').eq(2).text(), 'import.meta.env');
+			assert.equal($('li').eq(2).text(), 'import.meta.env');
 			assert.ok($('code').eq(3).text().includes('// Use Vite env vars with import.meta.env'));
 		});
 		it('Allows referencing import.meta.env in frontmatter', async () => {
