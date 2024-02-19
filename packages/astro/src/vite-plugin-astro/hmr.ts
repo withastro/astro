@@ -54,7 +54,7 @@ export async function handleHotUpdate(
 					ctx.server.moduleGraph.invalidateModule(mod);
 				}
 			}
-			ctx.server.ws.send({ type: 'full-reload', path: '*' });
+			ctx.server.hot.send({ type: 'full-reload', path: '*' });
 		}
 	}
 }

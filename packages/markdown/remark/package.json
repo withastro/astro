@@ -61,10 +61,8 @@
     "@types/mocha": "^10.0.4",
     "@types/unist": "^3.0.2",
     "astro-scripts": "workspace:*",
-    "chai": "^4.3.7",
     "esbuild": "^0.19.6",
-    "mdast-util-mdx-expression": "^2.0.0",
-    "mocha": "^10.2.0"
+    "mdast-util-mdx-expression": "^2.0.0"
   },
   "publishConfig": {
     "provenance": true

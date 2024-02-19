@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -14,43 +15,43 @@ describe('Slots: React', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#default-self-closing').text().trim()).to.equal('Fallback');
-		expect($('#default-empty').text().trim()).to.equal('Fallback');
-		expect($('#zero').text().trim()).to.equal('0');
-		expect($('#false').text().trim()).to.equal('');
-		expect($('#string').text().trim()).to.equal('');
-		expect($('#content').text().trim()).to.equal('Hello world!');
+		assert.equal($('#default-self-closing').text().trim(), 'Fallback');
+		assert.equal($('#default-empty').text().trim(), 'Fallback');
+		assert.equal($('#zero').text().trim(), '0');
+		assert.equal($('#false').text().trim(), '');
+		assert.equal($('#string').text().trim(), '');
+		assert.equal($('#content').text().trim(), 'Hello world!');
 	});
 
 	it('Renders named slot', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		expect($('#named').text().trim()).to.equal('Fallback / Named');
+		assert.equal($('#named').text().trim(), 'Fallback / Named');
 	});
 
 	it('Converts dash-case slot to camelCase', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		expect($('#dash-case').text().trim()).to.equal('Fallback / Dash Case');
+		assert.equal($('#dash-case').text().trim(), 'Fallback / Dash Case');
 	});
 
 	describe('For MDX Pages', () => {
 		it('Renders default slot', async () => {
 			const html = await fixture.readFile('/mdx/index.html');
 			const $ = cheerio.load(html);
-			expect($('#content').text().trim()).to.equal('Hello world!');
+			assert.equal($('#content').text().trim(), 'Hello world!');
 		});
 
 		it('Renders named slot', async () => {
 			const html = await fixture.readFile('/mdx/index.html');
 			const $ = cheerio.load(html);
-			expect($('#named').text().trim()).to.equal('Fallback / Named');
+			assert.equal($('#named').text().trim(), 'Fallback / Named');
 		});
 
 		it('Converts dash-case slot to camelCase', async () => {
 			const html = await fixture.readFile('/mdx/index.html');
 			const $ = cheerio.load(html);
-			expect($('#dash-case').text().trim()).to.equal('Fallback / Dash Case');
+			assert.equal($('#dash-case').text().trim(), 'Fallback / Dash Case');
 		});
 	});
 
@@ -59,25 +60,25 @@ describe('Slots: React', () => {
 			const html = await fixture.readFile('/slottedapi-render/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#render')).to.have.lengthOf(1);
-			expect($('#render').text()).to.equal('render');
+			assert.equal($('#render').length, 1);
+			assert.equal($('#render').text(), 'render');
 		});
 
 		it('Child function render without args', async () => {
 			const html = await fixture.readFile('/slottedapi-render/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#render-fn')).to.have.lengthOf(1);
-			expect($('#render-fn').text()).to.equal('render-fn');
+			assert.equal($('#render-fn').length, 1);
+			assert.equal($('#render-fn').text(), 'render-fn');
 		});
 
 		it('Child function render with args', async () => {
 			const html = await fixture.readFile('/slottedapi-render/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#render-args')).to.have.lengthOf(1);
-			expect($('#render-args span')).to.have.lengthOf(1);
-			expect($('#render-args').text()).to.equal('render-args');
+			assert.equal($('#render-args').length, 1);
+			assert.equal($('#render-args span').length, 1);
+			assert.equal($('#render-args').text(), 'render-args');
 		});
 	});
 });

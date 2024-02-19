@@ -1,12 +1,13 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 
 describe('Import astro/app', async () => {
 	it('Successfully imports astro/app', async () => {
 		try {
 			await import('astro/app');
-			expect(true).to.be.true;
+			assert.equal(true, true);
 		} catch (err) {
-			expect.fail(undefined, undefined, `Importing astro/app should not throw an error: ${err}`);
+			assert.fail(undefined, undefined, `Importing astro/app should not throw an error: ${err}`);
 		}
 	});
 });

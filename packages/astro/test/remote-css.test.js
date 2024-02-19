@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -21,7 +22,7 @@ describe('Remote CSS', () => {
 		const relPath = $('link').attr('href');
 		const css = await fixture.readFile(relPath);
 
-		expect(css).to.match(/https:\/\/unpkg.com\/open-props/);
-		expect(css).to.match(/body/);
+		assert.match(css, /https:\/\/unpkg.com\/open-props/);
+		assert.match(css, /body/);
 	});
 });

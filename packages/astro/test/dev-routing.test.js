@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, describe, before, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Development Routing', () => {
@@ -19,37 +20,37 @@ describe('Development Routing', () => {
 
 		it('200 when loading /', async () => {
 			const response = await fixture.fetch('/');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading non-UTF-8 file name', async () => {
 			const response = await fixture.fetch('/テスト');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading include space file name', async () => {
 			const response = await fixture.fetch('/te st');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when adding search params', async () => {
 			const response = await fixture.fetch('/?foo=bar');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading non-root page', async () => {
 			const response = await fixture.fetch('/another');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading dynamic route', async () => {
 			const response = await fixture.fetch('/1');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('404 when loading invalid dynamic route', async () => {
 			const response = await fixture.fetch('/2');
-			expect(response.status).to.equal(404);
+			assert.equal(response.status, 404);
 		});
 	});
 
@@ -74,22 +75,22 @@ describe('Development Routing', () => {
 
 		it('200 when loading /', async () => {
 			const response = await fixture.fetch('/');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading non-root page', async () => {
 			const response = await fixture.fetch('/another');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading dynamic route', async () => {
 			const response = await fixture.fetch('/1');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('404 when loading invalid dynamic route', async () => {
 			const response = await fixture.fetch('/2');
-			expect(response.status).to.equal(404);
+			assert.equal(response.status, 404);
 		});
 	});
 
@@ -115,32 +116,32 @@ describe('Development Routing', () => {
 
 		it('404 when loading /', async () => {
 			const response = await fixture.fetch('/');
-			expect(response.status).to.equal(404);
+			assert.equal(response.status, 404);
 		});
 
 		it('200 when loading subpath root', async () => {
 			const response = await fixture.fetch('/blog/');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading subpath root without trailing slash', async () => {
 			const response = await fixture.fetch('/blog');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading another page with subpath used', async () => {
 			const response = await fixture.fetch('/blog/another/');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading dynamic route', async () => {
 			const response = await fixture.fetch('/blog/1/');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('404 when loading invalid dynamic route', async () => {
 			const response = await fixture.fetch('/blog/2/');
-			expect(response.status).to.equal(404);
+			assert.equal(response.status, 404);
 		});
 	});
 
@@ -165,32 +166,32 @@ describe('Development Routing', () => {
 
 		it('404 when loading /', async () => {
 			const response = await fixture.fetch('/');
-			expect(response.status).to.equal(404);
+			assert.equal(response.status, 404);
 		});
 
 		it('200 when loading subpath root with trailing slash', async () => {
 			const response = await fixture.fetch('/blog/');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading subpath root without trailing slash', async () => {
 			const response = await fixture.fetch('/blog');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading another page with subpath used', async () => {
 			const response = await fixture.fetch('/blog/another/');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading dynamic route', async () => {
 			const response = await fixture.fetch('/blog/1/');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('404 when loading invalid dynamic route', async () => {
 			const response = await fixture.fetch('/blog/2/');
-			expect(response.status).to.equal(404);
+			assert.equal(response.status, 404);
 		});
 	});
 
@@ -214,74 +215,74 @@ describe('Development Routing', () => {
 
 		it('200 when loading /home.json', async () => {
 			const response = await fixture.fetch('/home.json');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 
 			const body = await response.text().then((text) => JSON.parse(text));
-			expect(body.title).to.equal('home');
+			assert.equal(body.title, 'home');
 		});
 
 		it('200 when loading /thing1.json', async () => {
 			const response = await fixture.fetch('/thing1.json');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 
 			const body = await response.text().then((text) => JSON.parse(text));
-			expect(body.slug).to.equal('thing1');
-			expect(body.title).to.equal('[slug]');
+			assert.equal(body.slug, 'thing1');
+			assert.equal(body.title, '[slug]');
 		});
 
 		it('200 when loading /thing2.json', async () => {
 			const response = await fixture.fetch('/thing2.json');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 
 			const body = await response.text().then((text) => JSON.parse(text));
-			expect(body.slug).to.equal('thing2');
-			expect(body.title).to.equal('[slug]');
+			assert.equal(body.slug, 'thing2');
+			assert.equal(body.title, '[slug]');
 		});
 
 		it('200 when loading /data/thing3.json', async () => {
 			const response = await fixture.fetch('/data/thing3.json');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 
 			const body = await response.text().then((text) => JSON.parse(text));
-			expect(body.slug).to.equal('thing3');
-			expect(body.title).to.equal('data [slug]');
+			assert.equal(body.slug, 'thing3');
+			assert.equal(body.title, 'data [slug]');
 		});
 
 		it('200 when loading /data/thing4.json', async () => {
 			const response = await fixture.fetch('/data/thing4.json');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 
 			const body = await response.text().then((text) => JSON.parse(text));
-			expect(body.slug).to.equal('thing4');
-			expect(body.title).to.equal('data [slug]');
+			assert.equal(body.slug, 'thing4');
+			assert.equal(body.title, 'data [slug]');
 		});
 
 		it('error responses are served untouched', async () => {
 			const response = await fixture.fetch('/not-ok');
-			expect(response.status).to.equal(404);
-			expect(response.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8');
+			assert.equal(response.status, 404);
+			assert.equal(response.headers.get('Content-Type'), 'text/plain;charset=UTF-8');
 			const body = await response.text();
-			expect(body).to.equal('Text from pages/not-ok.ts');
+			assert.equal(body, 'Text from pages/not-ok.ts');
 		});
 
 		it('correct MIME type when loading /home.json (static route)', async () => {
 			const response = await fixture.fetch('/home.json');
-			expect(response.headers.get('content-type')).to.match(/application\/json/);
+			assert.match(response.headers.get('content-type'), /application\/json/);
 		});
 
 		it('correct MIME type when loading /thing1.json (dynamic route)', async () => {
 			const response = await fixture.fetch('/thing1.json');
-			expect(response.headers.get('content-type')).to.match(/application\/json/);
+			assert.match(response.headers.get('content-type'), /application\/json/);
 		});
 
 		it('correct MIME type when loading /images/static.svg (static image)', async () => {
 			const response = await fixture.fetch('/images/static.svg');
-			expect(response.headers.get('content-type')).to.match(/image\/svg\+xml/);
+			assert.match(response.headers.get('content-type'), /image\/svg\+xml/);
 		});
 
 		it('correct MIME type when loading /images/1.svg (dynamic image)', async () => {
 			const response = await fixture.fetch('/images/1.svg');
-			expect(response.headers.get('content-type')).to.match(/image\/svg\+xml/);
+			assert.match(response.headers.get('content-type'), /image\/svg\+xml/);
 		});
 
 		it('correct encoding when loading /images/hex.ts', async () => {
@@ -290,7 +291,7 @@ describe('Development Routing', () => {
 			const hex = Buffer.from(body).toString('hex', 0, 4);
 
 			// Check if we have a PNG
-			expect(hex).to.equal('89504e47');
+			assert.equal(hex, '89504e47');
 		});
 	});
 
@@ -317,64 +318,64 @@ describe('Development Routing', () => {
 
 		it('200 when loading /index.html', async () => {
 			const response = await fixture.fetch('/index.html');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading /', async () => {
 			const response = await fixture.fetch('/');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading /テスト.html', async () => {
 			const response = await fixture.fetch('/テスト.html');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading /テスト', async () => {
 			const response = await fixture.fetch('/テスト');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading /te st.html', async () => {
 			const response = await fixture.fetch('/te st.html');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading /te st', async () => {
 			const response = await fixture.fetch('/te st');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading /another.html', async () => {
 			const response = await fixture.fetch('/another.html');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading /another', async () => {
 			const response = await fixture.fetch('/another');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading /1.html', async () => {
 			const response = await fixture.fetch('/1.html');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading /1', async () => {
 			const response = await fixture.fetch('/1');
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 		});
 
 		it('200 when loading /html-ext/1', async () => {
 			const response = await fixture.fetch('/html-ext/1');
-			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('none: 1');
+			assert.equal(response.status, 200);
+			assert.equal((await response.text()).includes('none: 1'), true);
 		});
 
 		it('200 when loading /html-ext/1.html', async () => {
 			const response = await fixture.fetch('/html-ext/1.html');
-			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('html: 1');
+			assert.equal(response.status, 200);
+			assert.equal((await response.text()).includes('html: 1'), true);
 		});
 	});
 });

@@ -1,7 +1,6 @@
 import type http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { performance } from 'perf_hooks';
-import enableDestroy from 'server-destroy';
 import { preview, type PreviewServer as VitePreviewServer } from 'vite';
 import type { AstroSettings } from '../../@types/astro.js';
 import type { Logger } from '../logger/core.js';
@@ -47,8 +46,6 @@ export default async function createStaticPreviewServer(
 		throw err;
 	}
 
-	enableDestroy(previewServer.httpServer);
-
 	// Log server start URLs
 	logger.info(
 		'SKIP_FORMAT',
@@ -73,10 +70,6 @@ export default async function createStaticPreviewServer(
 		port: settings.config.server.port,
 		closed,
 		server: previewServer.httpServer as http.Server,
-		stop: async () => {
-			await new Promise((resolve, reject) => {
-				previewServer.httpServer.destroy((err) => (err ? reject(err) : resolve(undefined)));
-			});
-		},
+		stop: previewServer.close.bind(previewServer),
 	};
 }
