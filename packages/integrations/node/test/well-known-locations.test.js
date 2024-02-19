@@ -34,7 +34,7 @@ describe('test URIs beginning with a dot', () => {
 
 			const json = await res.json();
 
-			assert.notStrictEqual(json.applinks, {});
+			assert.notEqual(json.applinks, {});
 		});
 
 		it('cannot load a dot folder that is not a well-known URI', async () => {

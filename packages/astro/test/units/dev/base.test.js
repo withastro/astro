@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { createFs, createRequestAndResponse, runInContainer } from '../test-utils.js';
 
@@ -31,7 +32,7 @@ describe('base configuration', () => {
 						});
 						container.handle(req, res);
 						await done;
-						expect(res.statusCode).to.equal(404);
+						assert.equal(res.statusCode, 404);
 					}
 				);
 			});
@@ -60,7 +61,7 @@ describe('base configuration', () => {
 						});
 						container.handle(req, res);
 						await done;
-						expect(res.statusCode).to.equal(200);
+						assert.equal(res.statusCode, 200);
 					}
 				);
 			});
@@ -91,7 +92,7 @@ describe('base configuration', () => {
 						});
 						container.handle(req, res);
 						await done;
-						expect(res.statusCode).to.equal(404);
+						assert.equal(res.statusCode, 404);
 					}
 				);
 			});
@@ -120,7 +121,7 @@ describe('base configuration', () => {
 						});
 						container.handle(req, res);
 						await done;
-						expect(res.statusCode).to.equal(200);
+						assert.equal(res.statusCode, 200);
 					}
 				);
 			});

@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Redirects Serverless', () => {
@@ -23,6 +24,6 @@ describe('Redirects Serverless', () => {
 		} catch {
 			hasErrored = true;
 		}
-		expect(hasErrored).to.equal(true, 'this file should not exist');
+		assert.equal(hasErrored, true, 'this file should not exist');
 	});
 });

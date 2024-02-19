@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { describe, before, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
@@ -22,7 +23,7 @@ describe('Assets Prefix - Static', () => {
 		const $ = cheerio.load(html);
 		const stylesheets = $('link[rel="stylesheet"]');
 		stylesheets.each((i, el) => {
-			expect(el.attribs.href).to.match(assetsPrefixRegex);
+			assert.match(el.attribs.href, assetsPrefixRegex);
 		});
 	});
 
@@ -30,22 +31,22 @@ describe('Assets Prefix - Static', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		const imgAsset = $('#image-asset');
-		expect(imgAsset.attr('src')).to.match(assetsPrefixRegex);
+		assert.match(imgAsset.attr('src'), assetsPrefixRegex);
 	});
 
 	it('react component astro-island should import from assetsPrefix', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		const island = $('astro-island');
-		expect(island.attr('component-url')).to.match(assetsPrefixRegex);
-		expect(island.attr('renderer-url')).to.match(assetsPrefixRegex);
+		assert.match(island.attr('component-url'), assetsPrefixRegex);
+		assert.match(island.attr('renderer-url'), assetsPrefixRegex);
 	});
 
 	it('import.meta.env.ASSETS_PREFIX works', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		const env = $('#assets-prefix-env');
-		expect(env.text()).to.equal(assetsPrefix);
+		assert.equal(env.text(), assetsPrefix);
 	});
 
 	it('markdown image src start with assetsPrefix', async () => {
@@ -53,7 +54,7 @@ describe('Assets Prefix - Static', () => {
 		const $ = cheerio.load(html);
 		const imgAssets = $('img');
 		imgAssets.each((i, el) => {
-			expect(el.attribs.src).to.match(assetsPrefixRegex);
+			assert.match(el.attribs.src, assetsPrefixRegex);
 		});
 	});
 
@@ -61,7 +62,7 @@ describe('Assets Prefix - Static', () => {
 		const html = await fixture.readFile('/blog/index.html');
 		const $ = cheerio.load(html);
 		const imgAsset = $('img');
-		expect(imgAsset.attr('src')).to.match(assetsPrefixRegex);
+		assert.match(imgAsset.attr('src'), assetsPrefixRegex);
 	});
 });
 
@@ -83,7 +84,7 @@ describe('Assets Prefix - with path prefix', () => {
 		const $ = cheerio.load(html);
 		const stylesheets = $('link[rel="stylesheet"]');
 		stylesheets.each((i, el) => {
-			expect(el.attribs.href).to.match(/^\/starting-slash\/.*/);
+			assert.match(el.attribs.href, /^\/starting-slash\/.*/);
 		});
 	});
 });
@@ -104,44 +105,44 @@ describe('Assets Prefix, server', () => {
 	it('all stylesheets should start with assetPrefix', async () => {
 		const request = new Request('http://example.com/custom-base/');
 		const response = await app.render(request);
-		expect(response.status).to.equal(200);
+		assert.equal(response.status, 200);
 		const html = await response.text();
 		const $ = cheerio.load(html);
 		const stylesheets = $('link[rel="stylesheet"]');
 		stylesheets.each((i, el) => {
-			expect(el.attribs.href).to.match(assetsPrefixRegex);
+			assert.match(el.attribs.href, assetsPrefixRegex);
 		});
 	});
 
 	it('image src start with assetsPrefix', async () => {
 		const request = new Request('http://example.com/custom-base/');
 		const response = await app.render(request);
-		expect(response.status).to.equal(200);
+		assert.equal(response.status, 200);
 		const html = await response.text();
 		const $ = cheerio.load(html);
 		const imgAsset = $('#image-asset');
-		expect(imgAsset.attr('src')).to.match(assetsPrefixRegex);
+		assert.match(imgAsset.attr('src'), assetsPrefixRegex);
 	});
 
 	it('react component astro-island should import from assetsPrefix', async () => {
 		const request = new Request('http://example.com/custom-base/');
 		const response = await app.render(request);
-		expect(response.status).to.equal(200);
+		assert.equal(response.status, 200);
 		const html = await response.text();
 		const $ = cheerio.load(html);
 		const island = $('astro-island');
-		expect(island.attr('component-url')).to.match(assetsPrefixRegex);
-		expect(island.attr('renderer-url')).to.match(assetsPrefixRegex);
+		assert.match(island.attr('component-url'), assetsPrefixRegex);
+		assert.match(island.attr('renderer-url'), assetsPrefixRegex);
 	});
 
 	it('markdown optimized image src does not start with assetsPrefix in SSR', async () => {
 		const request = new Request('http://example.com/custom-base/markdown/');
 		const response = await app.render(request);
-		expect(response.status).to.equal(200);
+		assert.equal(response.status, 200);
 		const html = await response.text();
 		const $ = cheerio.load(html);
 		const imgAsset = $('img');
-		expect(imgAsset.attr('src')).to.not.match(assetsPrefixRegex);
+		assert.doesNotMatch(imgAsset.attr('src'), assetsPrefixRegex);
 	});
 });
 
@@ -164,12 +165,12 @@ describe('Assets Prefix, with path prefix', () => {
 	it('all stylesheets should start with assetPrefix', async () => {
 		const request = new Request('http://example.com/custom-base/');
 		const response = await app.render(request);
-		expect(response.status).to.equal(200);
+		assert.equal(response.status, 200);
 		const html = await response.text();
 		const $ = cheerio.load(html);
 		const stylesheets = $('link[rel="stylesheet"]');
 		stylesheets.each((i, el) => {
-			expect(el.attribs.href).to.match(/^\/starting-slash\/.*/);
+			assert.match(el.attribs.href, /^\/starting-slash\/.*/);
 		});
 	});
 });

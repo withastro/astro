@@ -9,6 +9,7 @@ import type {
 	UnresolvedImageTransform,
 } from './types.js';
 import { isESMImportedImage, isRemoteImage } from './utils/imageKind.js';
+import { probe } from './utils/remoteProbe.js';
 
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
@@ -60,6 +61,21 @@ export async function getImage(
 				? (await options.src).default ?? (await options.src)
 				: options.src,
 	};
+
+	// Infer size for remote images if inferSize is true
+	if (options.inferSize && isRemoteImage(resolvedOptions.src)) {
+		try {
+			const result = await probe(resolvedOptions.src); // Directly probe the image URL
+			resolvedOptions.width ??= result.width;
+			resolvedOptions.height ??= result.height;
+			delete resolvedOptions.inferSize; // Delete so it doesn't end up in the attributes
+		} catch {
+			throw new AstroError({
+				...AstroErrorData.FailedToFetchRemoteImageDimensions,
+				message: AstroErrorData.FailedToFetchRemoteImageDimensions.message(resolvedOptions.src),
+			});
+		}
+	}
 
 	const originalPath = isESMImportedImage(resolvedOptions.src)
 		? resolvedOptions.src.fsPath

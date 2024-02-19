@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 import { createLoader } from '../../../dist/core/module-loader/index.js';
 import {
 	createController,
@@ -20,8 +21,8 @@ describe('vite-plugin-astro-server', () => {
 					error = err;
 				},
 			});
-			expect(error).to.not.be.an('undefined');
-			expect(error).to.be.an.instanceOf(Error);
+			assert.equal(typeof error !== 'undefined', true);
+			assert.equal(error instanceof Error, true);
 		});
 
 		it('sets the state to error when an error occurs in the handler', async () => {
@@ -34,7 +35,7 @@ describe('vite-plugin-astro-server', () => {
 				},
 				onError() {},
 			});
-			expect(controller.state.state).to.equal('error');
+			assert.equal(controller.state.state, 'error');
 		});
 
 		it('calls reload when a file change occurs when in an error state', async () => {
@@ -47,7 +48,7 @@ describe('vite-plugin-astro-server', () => {
 			});
 			const controller = createController({ loader });
 			loader.events.emit('file-change');
-			expect(reloads).to.equal(0);
+			assert.equal(reloads, 0);
 			await runWithErrorHandling({
 				controller,
 				pathname: '/',
@@ -56,9 +57,9 @@ describe('vite-plugin-astro-server', () => {
 				},
 				onError() {},
 			});
-			expect(reloads).to.equal(0);
+			assert.equal(reloads, 0);
 			loader.events.emit('file-change');
-			expect(reloads).to.equal(1);
+			assert.equal(reloads, 1);
 		});
 
 		it('does not call reload on file change if not in an error state', async () => {
@@ -71,7 +72,7 @@ describe('vite-plugin-astro-server', () => {
 			});
 			const controller = createController({ loader });
 			loader.events.emit('file-change');
-			expect(reloads).to.equal(0);
+			assert.equal(reloads, 0);
 			await runWithErrorHandling({
 				controller,
 				pathname: '/',
@@ -80,11 +81,11 @@ describe('vite-plugin-astro-server', () => {
 				},
 				onError() {},
 			});
-			expect(reloads).to.equal(0);
+			assert.equal(reloads, 0);
 			loader.events.emit('file-change');
-			expect(reloads).to.equal(1);
+			assert.equal(reloads, 1);
 			loader.events.emit('file-change');
-			expect(reloads).to.equal(2);
+			assert.equal(reloads, 2);
 
 			await runWithErrorHandling({
 				controller,
@@ -93,7 +94,7 @@ describe('vite-plugin-astro-server', () => {
 				run() {},
 			});
 			loader.events.emit('file-change');
-			expect(reloads).to.equal(2);
+			assert.equal(reloads, 2);
 		});
 
 		it('Invalidates broken modules when a change occurs in an error state', async () => {
@@ -124,7 +125,7 @@ describe('vite-plugin-astro-server', () => {
 
 			loader.events.emit('file-change');
 
-			expect(mods).to.deep.equal([
+			assert.deepEqual(mods, [
 				{ id: 'one', ssrError: null },
 				{ id: 'two', ssrError: null },
 				{ id: 'three', ssrError: null },

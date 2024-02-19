@@ -1,4 +1,4 @@
-import probe from 'probe-image-size';
+import { lookup as probe } from '../utils/vendor/image-size/lookup.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageInputFormat, ImageMetadata } from '../types.js';
 
@@ -6,10 +6,9 @@ export async function imageMetadata(
 	data: Uint8Array,
 	src?: string
 ): Promise<Omit<ImageMetadata, 'src' | 'fsPath'>> {
-	// @ts-expect-error probe-image-size types are wrong, it does accept Uint8Array. From the README: "Sync version can eat arrays, typed arrays and buffers."
-	const result = probe.sync(data);
+	const result = probe(data);
 
-	if (result === null) {
+	if (!result.height || !result.width || !result.type) {
 		throw new AstroError({
 			...AstroErrorData.NoImageMetadata,
 			message: AstroErrorData.NoImageMetadata.message(src),

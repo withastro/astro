@@ -8,6 +8,8 @@ import {
 } from '../utils/highlight.js';
 import { createWindowElement } from '../utils/window.js';
 import { a11y } from './a11y.js';
+import { finder } from '@medv/finder';
+import { perf } from './perf.js';
 
 const icon =
 	'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 1 20 16"><path fill="#fff" d="M.6 2A1.1 1.1 0 0 1 1.7.9h16.6a1.1 1.1 0 1 1 0 2.2H1.6A1.1 1.1 0 0 1 .8 2Zm1.1 7.1h6a1.1 1.1 0 0 0 0-2.2h-6a1.1 1.1 0 0 0 0 2.2ZM9.3 13H1.8a1.1 1.1 0 1 0 0 2.2h7.5a1.1 1.1 0 1 0 0-2.2Zm11.3 1.9a1.1 1.1 0 0 1-1.5 0l-1.7-1.7a4.1 4.1 0 1 1 1.6-1.6l1.6 1.7a1.1 1.1 0 0 1 0 1.6Zm-5.3-3.4a1.9 1.9 0 1 0 0-3.8 1.9 1.9 0 0 0 0 3.8Z"/></svg>';
@@ -28,10 +30,20 @@ export interface ResolvedAuditRule {
 
 export interface AuditRuleWithSelector extends AuditRule {
 	selector: string;
-	match?: (element: Element) => boolean | null | undefined | void;
+	match?: (
+		element: Element
+	) =>
+		| boolean
+		| null
+		| undefined
+		| void
+		| Promise<boolean>
+		| Promise<void>
+		| Promise<null>
+		| Promise<undefined>;
 }
 
-const rules = [...a11y];
+const rules = [...a11y, ...perf];
 
 const dynamicAuditRuleKeys: Array<keyof AuditRule> = ['title', 'message'];
 function resolveAuditRule(rule: AuditRule, element: Element): ResolvedAuditRule {
@@ -49,7 +61,11 @@ export default {
 	name: 'Audit',
 	icon: icon,
 	async init(canvas, eventTarget) {
-		let audits: { highlightElement: DevToolbarHighlight; auditedElement: HTMLElement }[] = [];
+		let audits: {
+			highlightElement: DevToolbarHighlight;
+			auditedElement: HTMLElement;
+			rule: AuditRule;
+		}[] = [];
 
 		await lint();
 
@@ -93,12 +109,16 @@ export default {
 					matches = Array.from(elements);
 				} else {
 					for (const element of elements) {
-						if (rule.match(element)) {
+						if (await rule.match(element)) {
 							matches.push(element);
 						}
 					}
 				}
 				for (const element of matches) {
+					// Don't audit elements that already have an audit on them
+					// TODO: This is a naive implementation, it'd be good to show all the audits for an element at the same time.
+					if (audits.some((audit) => audit.auditedElement === element)) continue;
+
 					await createAuditProblem(rule, element);
 				}
 			}
@@ -111,6 +131,119 @@ export default {
 						},
 					})
 				);
+
+				const auditListWindow = createWindowElement(
+					`
+					<style>
+						astro-dev-toolbar-window {
+  	          left: initial;
+              top: 8px;
+              right: 8px;
+              transform: none;
+              width: 320px;
+              max-height: 320px;
+              padding: 0;
+              overflow: hidden;
+						}
+
+						hr {
+						  margin: 0;
+						}
+
+						header {
+						  display: flex;
+							justify-content: space-between;
+							align-items: center;
+						  padding: 18px;
+						}
+
+						h1 {
+						  font-size: 22px;
+  						font-weight: 600;
+  						color: #fff;
+						}
+
+						ul, li {
+						  margin: 0;
+							padding: 0;
+							list-style: none;
+						}
+
+						h1, h2 {
+						  margin: 0;
+						}
+
+						h3 {
+      		    margin: 0;
+              margin-bottom: 8px;
+              color: white;
+              white-space: nowrap;
+						}
+
+						.audit-title {
+						  font-weight: bold;
+							color: white;
+							margin-right: 1ch;
+						}
+
+						#audit-list {
+  						display: flex;
+              flex-direction: column;
+              overflow: auto;
+						}
+					</style>
+
+					<header>
+					  <h1>Audits</h1>
+						<astro-dev-toolbar-badge size="large">${audits.length} problem${
+							audits.length > 1 ? 's' : ''
+						} found</astro-dev-toolbar-badge>
+					</header>
+					<hr />`
+				);
+
+				const auditListUl = document.createElement('ul');
+				auditListUl.id = 'audit-list';
+				audits.forEach((audit, index) => {
+					const resolvedRule = resolveAuditRule(audit.rule, audit.auditedElement);
+					const card = document.createElement('astro-dev-toolbar-card');
+
+					card.shadowRoot.innerHTML = `
+					<style>
+					 :host>button {
+						  text-align: left;
+							box-shadow: none !important;
+							${
+								index + 1 < audits.length
+									? 'border-radius: 0 !important;'
+									: 'border-radius: 0 0 8px 8px !important;'
+							}
+						}
+
+						:host>button:hover {
+						  cursor: pointer;
+						}
+					</style>`;
+
+					card.clickAction = () => {
+						audit.highlightElement.scrollIntoView();
+						audit.highlightElement.focus();
+					};
+					const h3 = document.createElement('h3');
+					h3.innerText = finder(audit.auditedElement);
+					card.appendChild(h3);
+					const div = document.createElement('div');
+					const title = document.createElement('span');
+					title.classList.add('audit-title');
+					title.innerHTML = resolvedRule.title;
+					div.appendChild(title);
+					card.appendChild(div);
+					auditListUl.appendChild(card);
+				});
+
+				auditListWindow.appendChild(auditListUl);
+
+				canvas.append(auditListWindow);
 			} else {
 				eventTarget.dispatchEvent(
 					new CustomEvent('toggle-notification', {
@@ -146,10 +279,10 @@ export default {
 						}
 					</style>
 					<header>
-						<h1><astro-dev-toolbar-icon icon="check-circle"></astro-dev-toolbar-icon>No accessibility issues detected.</h1>
+						<h1><astro-dev-toolbar-icon icon="check-circle"></astro-dev-toolbar-icon>No accessibility or performance issues detected.</h1>
 					</header>
 					<p>
-						Nice work! This app scans the page and highlights common accessibility issues for you, like a missing "alt" attribute on an image.
+						Nice work! This app scans the page and highlights common accessibility and performance issues for you, like a missing "alt" attribute on an image, or a image not using performant attributes.
 					</p>
 					`
 				);
@@ -197,7 +330,7 @@ export default {
 			}
 
 			const rect = originalElement.getBoundingClientRect();
-			const highlight = createHighlight(rect, 'warning');
+			const highlight = createHighlight(rect, 'warning', { 'data-audit-code': rule.code });
 			const tooltip = buildAuditTooltip(rule, originalElement);
 
 			// Set the highlight/tooltip as being fixed position the highlighted element
@@ -214,7 +347,11 @@ export default {
 			attachTooltipToHighlight(highlight, tooltip, originalElement);
 
 			canvas.append(highlight);
-			audits.push({ highlightElement: highlight, auditedElement: originalElement as HTMLElement });
+			audits.push({
+				highlightElement: highlight,
+				auditedElement: originalElement as HTMLElement,
+				rule: rule,
+			});
 		}
 
 		function buildAuditTooltip(rule: AuditRule, element: Element) {
