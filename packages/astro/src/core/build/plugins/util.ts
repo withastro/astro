@@ -75,14 +75,23 @@ export function shouldInlineAsset(
 	assetPath: string,
 	assetsInlineLimit: NonNullable<BuildOptions['assetsInlineLimit']>
 ) {
-	if (typeof assetsInlineLimit === 'number' || typeof assetsInlineLimit === 'string') {
-		return Buffer.byteLength(assetContent) < Number(assetsInlineLimit);
+	if(typeof(assetsInlineLimit) === 'function'){
+		const result = assetsInlineLimit(assetPath, Buffer.from(assetContent));
+		if (result != null) {
+			return result;
+		}
+	}
+	let limit = 4096; // Fallback to 4096kb by default (same as Vite)
+	if(typeof assetsInlineLimit === 'number'){
+		limit = assetsInlineLimit;
+	}else if (typeof assetsInlineLimit === 'string') {
+		// TODO: stop accepting strings for assetsInlineLimit, see https://github.com/withastro/astro/pull/10154
+		limit = Number(assetsInlineLimit);
 	}
 
-	const result = assetsInlineLimit(assetPath, Buffer.from(assetContent));
-	if (result != null) {
-		return result;
+	if(Number.isNaN(limit)){
+		limit = 4096;
 	}
 
-	return Buffer.byteLength(assetContent) < 4096; // Fallback to 4096kb by default (same as Vite)
+	return Buffer.byteLength(assetContent) < limit;
 }
