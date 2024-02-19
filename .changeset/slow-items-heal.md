@@ -6,12 +6,14 @@ Adds experimental JSON Schema support for content collections of with `type: 'da
 
 To enable this feature, add the experimental flag:
 
-```
-{
-  experimental: {
-    contentCollectionJSONSchemas: true,
-  },
-}
+```diff
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
+	experimental: {
++		contentCollectionJsonSchema: true
+	}
+});
 ```
 
 To be able to use the schemas, you need to adapt your zod definition and reference it inside the json manually:
@@ -26,9 +28,9 @@ const test = defineCollection({
 });
 ```
 
-```json
+```diff
 {
-  "$schema": "../../../.astro/schemas/collections/test.json",
++  "$schema": "../../../.astro/schemas/collections/test.json",
   "test": "test"
 }
 ```

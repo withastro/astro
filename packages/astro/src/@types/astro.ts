@@ -1642,7 +1642,7 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.contentCollectionJSONSchema
+		 * @name experimental.contentCollectionJsonSchema
 		 * @type {boolean}
 		 * @default `false`
 		 * @version 4.5.0
@@ -1652,12 +1652,12 @@ export interface AstroUserConfig {
 		 * ```js
 		 * {
 		 * 	experimental: {
-		 * 		contentCollectionJSONSchema: true,
+		 * 		contentCollectionJsonSchema: true,
 		 * 	},
 		 * }
 		 * ```
 		 */
-		contentCollectionJSONSchema?: boolean;
+		contentCollectionJsonSchema?: boolean;
 
 		/**
 		 * @docs

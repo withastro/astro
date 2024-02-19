@@ -311,7 +311,7 @@ export async function createContentTypesGenerator({
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
 				contentEntryTypes: settings.contentEntryTypes,
 				viteServer,
-				settings
+				settings,
 			});
 			invalidateVirtualMod(viteServer);
 		}
@@ -354,7 +354,7 @@ async function writeContentFiles({
 	contentEntryTypes,
 	contentConfig,
 	viteServer,
-	settings
+	settings,
 }: {
 	fs: typeof fsMod;
 	contentPaths: ContentPaths;
@@ -367,6 +367,14 @@ async function writeContentFiles({
 }) {
 	let contentTypesStr = '';
 	let dataTypesStr = '';
+
+	const collectionSchemasDir = new URL('./schemas/collections/', contentPaths.cacheDir);
+	if (settings.config.experimental.contentCollectionJsonSchema) {
+		if (!fs.existsSync(collectionSchemasDir)) {
+			fs.mkdirSync(collectionSchemasDir, { recursive: true });
+		}
+	}
+
 	for (const [collection, config] of Object.entries(contentConfig?.collections ?? {})) {
 		collectionEntryMap[JSON.stringify(collection)] ??= { type: config.type, entries: {} };
 	}
@@ -423,27 +431,25 @@ async function writeContentFiles({
 				for (const entryKey of Object.keys(collection.entries).sort()) {
 					const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
 					dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType}\n};\n`;
-					if(settings.config.experimental.contentCollectionJSONSchema) {
-						if (collectionConfig) {
-							// writing inside loop makes sense for the json schema, since we want to have a file per collection
-							const collectionSchemasDir = new URL('./schemas/collections/', contentPaths.cacheDir);
-							if (!fs.existsSync(collectionSchemasDir)) {
-								fs.mkdirSync(collectionSchemasDir, { recursive: true });
-							}
-	
-							if (collectionConfig?.schema)
-								await fs.promises.writeFile(
-									new URL(`./${collectionKey.replace(/"/g, '')}.json`, collectionSchemasDir),
-									JSON.stringify(
-										zodToJsonSchema(collectionConfig?.schema, {
-											name: collectionKey.replace(/"/g, ''),
-											markdownDescription: true,
-											errorMessages: true,
-										}),
-										null,
-										2
-									)
-								);
+					if (
+						settings.config.experimental.contentCollectionJsonSchema &&
+						collectionConfig?.schema
+					) {
+						try {
+							await fs.promises.writeFile(
+								new URL(`./${collectionKey.replace(/"/g, '')}.json`, collectionSchemasDir),
+								JSON.stringify(
+									zodToJsonSchema(collectionConfig.schema, {
+										name: collectionKey.replace(/"/g, ''),
+										markdownDescription: true,
+										errorMessages: true,
+									}),
+									null,
+									2
+								)
+							);
+						} catch (error) {
+							// new AstroError(error)
 						}
 					}
 				}
