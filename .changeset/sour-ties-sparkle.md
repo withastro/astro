@@ -2,4 +2,4 @@
 "@astrojs/sitemap": patch
 ---
 
-Fixes URLs generation for routes using rest parameter
+Fixes URL generation for routes that rest parameters and start with `/`
