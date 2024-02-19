@@ -576,22 +576,20 @@ describe('[SSG] i18n routing', () => {
 		it("should NOT render the default locale if there isn't a fallback and the route is missing", async () => {
 			try {
 				await fixture.readFile('/it/start/index.html');
-				// failed
-				return false;
-			} catch {
-				// success
-				return true;
+				// It should throw before reaching this point
+				assert.fail('The file should not exist');
+			} catch (e) {
+				assert.equal(e.message.includes('ENOENT'), true);
 			}
 		});
 
 		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
 			try {
 				await fixture.readFile('/fr/start/index.html');
-				// failed
-				return false;
-			} catch {
-				// success
-				return true;
+				// It should throw before reaching this point
+				assert.fail('The file should not exist');
+			} catch (e) {
+				assert.equal(e.message.includes('ENOENT'), true);
 			}
 		});
 	});
@@ -640,22 +638,20 @@ describe('[SSG] i18n routing', () => {
 		it("should NOT render the default locale if there isn't a fallback and the route is missing", async () => {
 			try {
 				await fixture.readFile('/it/start/index.html');
-				// failed
-				return false;
-			} catch {
-				// success
-				return true;
+				// It should throw before reaching this point
+				assert.fail('The file should not exist');
+			} catch (e) {
+				assert.equal(e.message.includes('ENOENT'), true);
 			}
 		});
 
 		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
 			try {
 				await fixture.readFile('/fr/start/index.html');
-				// failed
-				return false;
-			} catch {
-				// success
-				return true;
+				// It should throw before reaching this point
+				assert.fail('The file should not exist');
+			} catch (e) {
+				assert.equal(e.message.includes('ENOENT'), true);
 			}
 		});
 	});
@@ -684,11 +680,10 @@ describe('[SSG] i18n routing', () => {
 		it('should return 404 when route contains the default locale', async () => {
 			try {
 				await fixture.readFile('/start/en/index.html');
-				// failed
-				return false;
-			} catch {
-				// success
-				return true;
+				// It should throw before reaching this point
+				assert.fail('The file should not exist');
+			} catch (e) {
+				assert.equal(e.message.includes('ENOENT'), true);
 			}
 		});
 
@@ -715,22 +710,20 @@ describe('[SSG] i18n routing', () => {
 		it("should NOT render the default locale if there isn't a fallback and the route is missing", async () => {
 			try {
 				await fixture.readFile('/it/start/index.html');
-				// failed
-				return false;
-			} catch {
-				// success
-				return true;
+				// It should throw before reaching this point
+				assert.fail('The file should not exist');
+			} catch (e) {
+				assert.equal(e.message.includes('ENOENT'), true);
 			}
 		});
 
 		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
 			try {
 				await fixture.readFile('/fr/start/index.html');
-				// failed
-				return false;
-			} catch {
-				// success
-				return true;
+				// It should throw before reaching this point
+				assert.fail('The file should not exist');
+			} catch (e) {
+				assert.equal(e.message.includes('ENOENT'), true);
 			}
 		});
 	});
@@ -810,22 +803,20 @@ describe('[SSG] i18n routing', () => {
 		it("should NOT render the default locale if there isn't a fallback and the route is missing", async () => {
 			try {
 				await fixture.readFile('/it/start/index.html');
-				// failed
-				return false;
-			} catch {
-				// success
-				return true;
+				// It should throw before reaching this point
+				assert.fail('The file should not exist');
+			} catch (e) {
+				assert.equal(e.message.includes('ENOENT'), true);
 			}
 		});
 
 		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
 			try {
 				await fixture.readFile('/fr/start/index.html');
-				// failed
-				return false;
-			} catch {
-				// success
-				return true;
+				// It should throw before reaching this point
+				assert.fail('The file should not exist');
+			} catch (e) {
+				assert.equal(e.message.includes('ENOENT'), true);
 			}
 		});
 
@@ -932,11 +923,10 @@ describe('[SSG] i18n routing', () => {
 		it("should render a 404 because the route `fr` isn't included in the list of locales of the configuration", async () => {
 			try {
 				await fixture.readFile('/fr/start/index.html');
-				// failed
-				return false;
-			} catch {
-				// success
-				return true;
+				// It should throw before reaching this point
+				assert.fail('The file should not exist');
+			} catch (e) {
+				assert.equal(e.message.includes('ENOENT'), true);
 			}
 		});
 
