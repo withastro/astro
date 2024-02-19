@@ -49,14 +49,11 @@ export const create = (ts: typeof import('typescript')): ServicePlugin => {
 					return file.compilerDiagnostics.map(compilerMessageToDiagnostic);
 
 					function compilerMessageToDiagnostic(message: DiagnosticMessage): Diagnostic {
+						const start = Position.create(message.location.line - 1, message.location.column - 1);
+						const end = document.positionAt(document.offsetAt(start) + message.location.length);
 						return {
 							message: message.text + (message.hint ? '\n\n' + message.hint : ''),
-							range: Range.create(
-								message.location.line - 1,
-								message.location.column - 1,
-								message.location.line,
-								message.location.length
-							),
+							range: Range.create(start, end),
 							code: message.code,
 							severity: message.severity,
 							source: 'astro',
