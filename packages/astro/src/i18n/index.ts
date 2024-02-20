@@ -11,7 +11,7 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
-	routing?: RoutingStrategies;
+re	strategy?: RoutingStrategies;
 	defaultLocale: string;
 	domains: Record<string, string> | undefined;
 	path?: string;
@@ -45,7 +45,7 @@ export function getLocaleRelativeUrl({
 	path,
 	prependWith,
 	normalizeLocale = true,
-	routing = 'pathname-prefix-other-locales',
+	strategy = 'pathname-prefix-other-locales',
 	defaultLocale,
 }: GetLocaleRelativeUrl) {
 	const codeToUse = peekCodePathToUse(_locales, locale);
@@ -58,10 +58,10 @@ export function getLocaleRelativeUrl({
 	const pathsToJoin = [base, prependWith];
 	const normalizedLocale = normalizeLocale ? normalizeTheLocale(codeToUse) : codeToUse;
 	if (
-		routing === 'pathname-prefix-always' ||
-		routing === 'pathname-prefix-always-no-redirect' ||
-		routing === 'domains-prefix-always' ||
-		routing === 'domains-prefix-always-no-redirect'
+		strategy === 'pathname-prefix-always' ||
+		strategy === 'pathname-prefix-always-no-redirect' ||
+		strategy === 'domains-prefix-always' ||
+		strategy === 'domains-prefix-always-no-redirect'
 	) {
 		pathsToJoin.push(normalizedLocale);
 	} else if (locale !== defaultLocale) {
@@ -107,7 +107,7 @@ interface GetLocalesRelativeUrlList extends GetLocaleOptions {
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
-	routing?: RoutingStrategies;
+	strategy?: RoutingStrategies;
 	defaultLocale: string;
 	domains: Record<string, string> | undefined;
 }
