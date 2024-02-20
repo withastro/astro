@@ -429,7 +429,7 @@ export const AstroConfigSchema = z.object({
 					if (domains) {
 						const entries = Object.entries(domains);
 						const hasDomains = domains ? Object.keys(domains).length > 0 : false;
-						if (entries.length > 0 && hasDomains) {
+						if (entries.length > 0 && !hasDomains) {
 							ctx.addIssue({
 								code: z.ZodIssueCode.custom,
 								message: `When specifying some domains, the property \`i18n.routingStrategy\` must be set to \`"domains"\`.`,
