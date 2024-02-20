@@ -17,11 +17,9 @@ import {
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
-} from './context.js';
+} from '../../i18n/utils.js';
 import type { RoutingStrategies } from '../config/schema.js';
-
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
-const responseSentSymbol = Symbol.for('astro.responseSent');
+import { clientAddressSymbol, responseSentSymbol } from '../constants.js';
 
 export interface CreateResultArgs {
 	/**
@@ -44,16 +42,17 @@ export interface CreateResultArgs {
 	 * Used for `Astro.site`
 	 */
 	site: string | undefined;
-	links?: Set<SSRElement>;
-	scripts?: Set<SSRElement>;
-	styles?: Set<SSRElement>;
-	componentMetadata?: SSRResult['componentMetadata'];
+	links: Set<SSRElement>;
+	scripts: Set<SSRElement>;
+	styles: Set<SSRElement>;
+	componentMetadata: SSRResult['componentMetadata'];
 	request: Request;
 	status: number;
 	locals: App.Locals;
-	cookies?: AstroCookies;
+	cookies: AstroCookies;
 	locales: Locales | undefined;
 	defaultLocale: string | undefined;
+	route: string;
 	routingStrategy: RoutingStrategies | undefined;
 }
 
@@ -233,7 +232,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					}
 					if (args.locales) {
 						currentLocale = computeCurrentLocale(
-							request,
+							url.pathname,
 							args.locales,
 							args.routingStrategy,
 							args.defaultLocale

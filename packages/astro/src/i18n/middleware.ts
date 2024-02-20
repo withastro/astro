@@ -1,18 +1,9 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
-import type {
-	APIContext,
-	Locales,
-	MiddlewareHandler,
-	RouteData,
-	SSRManifest,
-} from '../@types/astro.js';
-import type { PipelineHookFunction } from '../core/pipeline.js';
+import type { APIContext, Locales, MiddlewareHandler, SSRManifest } from '../@types/astro.js';
 import { getPathByLocale, normalizeTheLocale } from './index.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
-import { ROUTE_DATA_SYMBOL } from '../core/constants.js';
-import type { SSRManifestI18n } from '../core/app/types.js';
-
-const routeDataSymbol = Symbol.for(ROUTE_DATA_SYMBOL);
+import type { SSRManifestI18n } from '../core/app/types.js'
+import { ROUTE_TYPE_HEADER } from '../core/constants.js';
 
 // Checks if the pathname has any locale, exception for the defaultLocale, which is ignored on purpose.
 function pathnameHasLocale(pathname: string, locales: Locales): boolean {
@@ -107,18 +98,16 @@ export function createI18nMiddleware(
 	};
 
 	return async (context, next) => {
-		const routeData: RouteData | undefined = Reflect.get(context.request, routeDataSymbol);
-		// If the route we're processing is not a page, then we ignore it
-		if (routeData?.type !== 'page' && routeData?.type !== 'fallback') {
-			return await next();
-		}
-		const currentLocale = context.currentLocale;
-
-		const url = context.url;
-		const { locales, defaultLocale, fallback, routing } = i18n;
 		const response = await next();
+		const type = response.headers.get(ROUTE_TYPE_HEADER);
+		// If the route we're processing is not a page, then we ignore it
+		if (type !== 'page' && type !== 'fallback') {
+			return response
+		}
 
-		if (response instanceof Response) {
+		const { url, currentLocale } = context;
+		const { locales, defaultLocale, fallback, routing } = i18n;
+
 			switch (i18n.routing) {
 				case 'domains-prefix-other-locales': {
 					if (localeHasntDomain(i18n, currentLocale)) {
@@ -207,18 +196,10 @@ export function createI18nMiddleware(
 					return context.redirect(newPathname);
 				}
 			}
-		}
 
 		return response;
 	};
 }
-
-/**
- * This pipeline hook attaches a `RouteData` object to the `Request`
- */
-export const i18nPipelineHook: PipelineHookFunction = (ctx) => {
-	Reflect.set(ctx.request, routeDataSymbol, ctx.route);
-};
 
 /**
  * Checks if the current locale doesn't belong to a configured domain

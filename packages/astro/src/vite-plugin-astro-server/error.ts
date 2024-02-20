@@ -1,6 +1,6 @@
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import type { AstroConfig } from '../@types/astro.js';
-import type DevPipeline from './devPipeline.js';
+import type { DevPipeline } from './pipeline.js';
 
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { createSafeError, AstroErrorData } from '../core/errors/index.js';
@@ -10,7 +10,7 @@ import { eventError, telemetry } from '../events/index.js';
 export function recordServerError(
 	loader: ModuleLoader,
 	config: AstroConfig,
-	pipeline: DevPipeline,
+	{ logger }: DevPipeline,
 	_err: unknown
 ) {
 	const err = createSafeError(_err);
@@ -29,9 +29,9 @@ export function recordServerError(
 		telemetry.record(eventError({ cmd: 'dev', err: errorWithMetadata, isFatal: false }));
 	}
 
-	pipeline.logger.error(
+	logger.error(
 		null,
-		formatErrorMessage(errorWithMetadata, pipeline.logger.level() === 'debug')
+		formatErrorMessage(errorWithMetadata, logger.level() === 'debug')
 	);
 
 	return {
