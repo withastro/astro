@@ -12,10 +12,10 @@ export async function handleHotUpdate(
 	ctx: HmrContext,
 	{ logger, astroFileToCompileMetadata }: HandleHotUpdateOptions
 ) {
-	const compileMetadata = astroFileToCompileMetadata.get(ctx.file);
-
-	// If `ctx.file` is part of a CSS dependency of any Astro file, invalidate its `astroFileToCompileMetadata`
-	// so the next transform will re-generate it.
+	// HANDLING 1: Invalidate compile metadata if CSS dependency updated
+	//
+	// If any `ctx.file` is part of a CSS dependency of any Astro file, invalidate its `astroFileToCompileMetadata`
+	// so the next transform of the Astro file or Astro script/style virtual module will re-generate it
 	for (const [astroFile, compileData] of astroFileToCompileMetadata) {
 		const isUpdatedFileCssDep = compileData.css.some((css) => css.dependencies?.includes(ctx.file));
 		if (isUpdatedFileCssDep) {
@@ -23,18 +23,19 @@ export async function handleHotUpdate(
 		}
 	}
 
-	// Bail if not Astro file, we only handle them below
-	if (compileMetadata == null || !ctx.file.endsWith('.astro')) return;
-
-	const oldCode = compileMetadata.originalCode;
-	const newCode = await ctx.read();
-
+	// HANDLING 2: Only invalidate Astro style virtual module if only style tags changed
+	//
 	// If only the style code has changed, e.g. editing the `color`, then we can directly invalidate
 	// the Astro CSS virtual modules only. The main Astro module's JS result will be the same and doesn't
 	// need to be invalidated.
+	const oldCode = astroFileToCompileMetadata.get(ctx.file)?.originalCode;
+	if (oldCode == null) return;
+	const newCode = await ctx.read();
+
 	if (isStyleOnlyChanged(oldCode, newCode)) {
 		logger.debug('watch', 'style-only change');
-		// Invalidate its `astroFileToCompileMetadata` so that its next transform will re-generate it
+		// Invalidate its `astroFileToCompileMetadata` so that the next transform of Astro style virtual module
+		// will re-generate it
 		astroFileToCompileMetadata.delete(ctx.file);
 		// Only return the Astro styles that have changed!
 		return ctx.modules.filter((mod) => mod.id?.includes('astro&type=style'));

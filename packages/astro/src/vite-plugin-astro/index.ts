@@ -89,6 +89,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			// We try to re-compile the main Astro module (`filename`) first before retrieving the metadata again.
 			if (!compileMetadata && server) {
 				const code = await loadId(server.pluginContainer, filename);
+				// `compile` should re-set `filename` in `astroFileToCompileMetadata`
 				if (code != null) await compile(code, filename);
 				compileMetadata = astroFileToCompileMetadata.get(filename);
 			}
