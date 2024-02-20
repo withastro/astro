@@ -57,10 +57,10 @@ test.describe('Dev Toolbar', () => {
 		await page.goto(astro.resolveUrl('/view-transition-a'));
 
 		let toolbar = page.locator('astro-dev-toolbar');
-		let appButton = toolbar.locator('button[data-app-id="astro"]');
+		let appButton = toolbar.locator('button[data-app-id="astro:home"]');
 		await appButton.click();
 
-		let astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro"]');
+		let astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:home"]');
 		let astroToolbarCards = await astroAppCanvas.locator('astro-dev-toolbar-card');
 		await page.waitForSelector('astro-dev-toolbar-card');
 		await expect(astroToolbarCards.first()).toBeVisible();
@@ -69,7 +69,7 @@ test.describe('Dev Toolbar', () => {
 		await page.click('#go-to-b');
 		await consolePromise;
 
-		astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro"]');
+		astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:home"]');
 		astroToolbarCards = await astroAppCanvas.locator('astro-dev-toolbar-card');
 		await page.waitForSelector('astro-dev-toolbar-card');
 		await expect(astroToolbarCards.first()).toBeVisible();
