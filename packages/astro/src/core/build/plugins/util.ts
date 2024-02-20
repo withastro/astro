@@ -81,17 +81,9 @@ export function shouldInlineAsset(
 			return result;
 		}
 	}
-	let limit = 4096; // Fallback to 4096kb by default (same as Vite)
-	if (typeof assetsInlineLimit === 'number') {
-		limit = assetsInlineLimit;
-	} else if (typeof assetsInlineLimit === 'string') {
-		// TODO: stop accepting strings for assetsInlineLimit, see https://github.com/withastro/astro/pull/10154
-		limit = Number(assetsInlineLimit);
+	if (typeof assetsInlineLimit === 'number' || typeof assetsInlineLimit === 'string') {
+		return Buffer.byteLength(assetContent) < Number(assetsInlineLimit);
 	}
 
-	if (Number.isNaN(limit)) {
-		limit = 4096;
-	}
-
-	return Buffer.byteLength(assetContent) < limit;
+	return Buffer.byteLength(assetContent) < 4096; // Fallback to 4096kb by default (same as Vite)
 }
