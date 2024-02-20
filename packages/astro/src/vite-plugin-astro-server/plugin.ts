@@ -16,6 +16,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { IncomingMessage } from 'node:http';
 import { setRouteError } from './server-state.js';
 import { recordServerError } from './error.js';
+import { toRoutingStrategy } from '../i18n/utils.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -117,7 +118,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
-			routing: settings.config.i18n.routing,
+			strategy: toRoutingStrategy(settings.config.i18n),
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},

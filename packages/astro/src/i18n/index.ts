@@ -3,7 +3,7 @@ import type { AstroConfig, Locales } from '../@types/astro.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { MissingLocale } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
-import type { RoutingStrategies } from '../core/config/schema.js';
+import type { RoutingStrategies } from './utils.js';
 
 type GetLocaleRelativeUrl = GetLocaleOptions & {
 	locale: string;

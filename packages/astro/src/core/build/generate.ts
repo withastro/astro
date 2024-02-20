@@ -60,6 +60,7 @@ import type {
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { RenderContext } from '../render-context.js';
+import { toRoutingStrategy } from '../../i18n/utils.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -582,7 +583,7 @@ function createBuildManifest(
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
-			routing: settings.config.i18n.routing,
+			strategy: toRoutingStrategy(settings.config.i18n),
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
