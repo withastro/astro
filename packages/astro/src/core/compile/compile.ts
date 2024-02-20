@@ -20,9 +20,13 @@ export interface CompileProps {
 	source: string;
 }
 
-export interface CompileResult extends TransformResult {
-	cssDeps: Set<string>;
-	source: string;
+export interface CompileCssResult {
+	code: string;
+	dependencies?: Set<string>;
+}
+
+export interface CompileResult extends Omit<TransformResult, 'css'> {
+	css: CompileCssResult[];
 }
 
 export async function compile({
@@ -32,7 +36,10 @@ export async function compile({
 	filename,
 	source,
 }: CompileProps): Promise<CompileResult> {
-	const cssDeps = new Set<string>();
+	// Because `@astrojs/compiler` can't return the dependencies for each style transformed,
+	// we need to use an external array to track the dependencies whenever preprocessing is called,
+	// and we'll rebuild the final `css` result after transformation.
+	const cssDeps: CompileCssResult['dependencies'][] = [];
 	const cssTransformErrors: AstroError[] = [];
 	let transformResult: TransformResult;
 
@@ -82,8 +89,10 @@ export async function compile({
 
 	return {
 		...transformResult,
-		cssDeps,
-		source,
+		css: transformResult.css.map((code, i) => ({
+			code,
+			dependencies: cssDeps[i],
+		})),
 	};
 }
 

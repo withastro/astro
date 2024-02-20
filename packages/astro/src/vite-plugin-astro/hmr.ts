@@ -1,61 +1,43 @@
-import path from 'node:path';
-import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import type { HmrContext } from 'vite';
 import type { Logger } from '../core/logger/core.js';
-import type { CompileAstroResult } from './compile.js';
-import type { CompileMetadata } from './types.js';
 import { frontmatterRE } from './utils.js';
+import type { CompileMetadata } from './types.js';
 
 export interface HandleHotUpdateOptions {
 	logger: Logger;
-	compile: (code: string, filename: string) => Promise<CompileAstroResult>;
-	astroFileToCssAstroDeps: Map<string, Set<string>>;
 	astroFileToCompileMetadata: Map<string, CompileMetadata>;
 }
 
 export async function handleHotUpdate(
 	ctx: HmrContext,
-	{ logger, compile, astroFileToCssAstroDeps, astroFileToCompileMetadata }: HandleHotUpdateOptions
+	{ logger, astroFileToCompileMetadata }: HandleHotUpdateOptions
 ) {
-	const oldCode = astroFileToCompileMetadata.get(ctx.file)?.originalCode;
+	const compileMetadata = astroFileToCompileMetadata.get(ctx.file);
+
+	// If `ctx.file` is part of a CSS dependency of any Astro file, invalidate its `astroFileToCompileMetadata`
+	// so the next transform will re-generate it.
+	for (const [astroFile, compileData] of astroFileToCompileMetadata) {
+		const isUpdatedFileCssDep = compileData.css.some((css) => css.dependencies?.has(ctx.file));
+		if (isUpdatedFileCssDep) {
+			astroFileToCompileMetadata.delete(astroFile);
+		}
+	}
+
+	// Bail if not Astro file, we only handle them below
+	if (compileMetadata == null || !ctx.file.endsWith('.astro')) return;
+
+	const oldCode = compileMetadata.originalCode;
 	const newCode = await ctx.read();
+
 	// If only the style code has changed, e.g. editing the `color`, then we can directly invalidate
 	// the Astro CSS virtual modules only. The main Astro module's JS result will be the same and doesn't
 	// need to be invalidated.
-	if (oldCode && isStyleOnlyChanged(oldCode, newCode)) {
+	if (isStyleOnlyChanged(oldCode, newCode)) {
 		logger.debug('watch', 'style-only change');
-		// Re-compile the main Astro component (even though we know its JS result will be the same)
-		// so that `astroFileToCompileMetadata` gets a fresh set of compile metadata to be used
-		// by the virtual modules later in the `load()` hook.
-		await compile(newCode, ctx.file);
+		// Invalidate its `astroFileToCompileMetadata` so that its next transform will re-generate it
+		astroFileToCompileMetadata.delete(ctx.file);
 		// Only return the Astro styles that have changed!
 		return ctx.modules.filter((mod) => mod.id?.includes('astro&type=style'));
-	}
-
-	// Edge case handling usually caused by Tailwind creating circular dependencies
-	//
-	// TODO: we can also workaround this with better CSS dependency management for Astro files,
-	// so that changes within style tags are scoped to itself. But it'll take a bit of work.
-	// https://github.com/withastro/astro/issues/9370#issuecomment-1850160421
-	for (const [astroFile, cssAstroDeps] of astroFileToCssAstroDeps) {
-		// If the `astroFile` has a CSS dependency on `ctx.file`, there's a good chance this causes a
-		// circular dependency, which Vite doesn't issue a full page reload. Workaround it by forcing a
-		// full page reload ourselves. (Vite bug)
-		// https://github.com/vitejs/vite/pull/15585
-		if (cssAstroDeps.has(ctx.file)) {
-			// Mimic the HMR log as if this file is updated
-			logger.info('watch', getShortName(ctx.file, ctx.server.config.root));
-			// Invalidate the modules of `astroFile` explicitly as Vite may incorrectly soft-invalidate
-			// the parent if the parent actually imported `ctx.file`, but `this.addWatchFile` was also called
-			// on `ctx.file`. Vite should do a hard-invalidation instead. (Vite bug)
-			const parentModules = ctx.server.moduleGraph.getModulesByFile(astroFile);
-			if (parentModules) {
-				for (const mod of parentModules) {
-					ctx.server.moduleGraph.invalidateModule(mod);
-				}
-			}
-			ctx.server.hot.send({ type: 'full-reload', path: '*' });
-		}
 	}
 }
 
@@ -111,8 +93,4 @@ function isArrayEqual(a: any[], b: any[]) {
 		}
 	}
 	return true;
-}
-
-function getShortName(file: string, root: string): string {
-	return file.startsWith(appendForwardSlash(root)) ? path.posix.relative(root, file) : file;
 }
