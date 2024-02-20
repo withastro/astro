@@ -1033,6 +1033,18 @@ export const MissingIndexForInternationalization = {
 /**
  * @docs
  * @description
+ *
+ */
+export const IncorrectStrategy = {
+	name: 'IncorrectStrategy',
+	title: "You can't use the current function with the current strategy",
+	message: (functionName: string) =>
+		`The function \`${functionName}\' can't be used because it can only be used when the \`i18n.routing.strategy\` is set to \`"manual"\`.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * Static pages aren't yet supported with i18n domains. If you wish to enable this feature, you have to disable prerendering.
  */
 export const NoPrerenderedRoutesWithDomains = {

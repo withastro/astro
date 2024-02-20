@@ -88,7 +88,7 @@ export class Pipeline {
 			site: env.site,
 			adapterName: env.adapterName,
 			locales: renderContext.locales,
-			routingStrategy: renderContext.routing,
+			routingStrategy: renderContext.strategy,
 			defaultLocale: renderContext.defaultLocale,
 		});
 

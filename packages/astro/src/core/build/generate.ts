@@ -573,7 +573,7 @@ async function generatePath(
 		env: pipeline.getEnvironment(),
 		mod,
 		locales: i18n?.locales,
-		routing: i18n?.routing,
+		strategy: i18n?.strategy,
 		defaultLocale: i18n?.defaultLocale,
 	});
 
@@ -659,7 +659,7 @@ function createBuildManifest(
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
-			routing: settings.config.i18n.routing,
+			strategy: settings.config.i18n.strategy,
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},

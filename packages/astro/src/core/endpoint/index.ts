@@ -151,7 +151,7 @@ export async function callEndpoint(
 		props: ctx.props,
 		site: env.site,
 		adapterName: env.adapterName,
-		routingStrategy: ctx.routing,
+		routingStrategy: ctx.strategy,
 		defaultLocale: ctx.defaultLocale,
 		locales: ctx.locales,
 	});

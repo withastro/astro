@@ -1,9 +1,27 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
-import type { AstroConfig, Locales } from '../@types/astro.js';
+import type { APIContext, AstroConfig, Locales, ValidRedirectStatus } from '../@types/astro.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { MissingLocale } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
 import type { RoutingStrategies } from '../core/config/schema.js';
+
+// Checks if the pathname has any locale
+export function pathHasLocale(pathname: string, locales: Locales): boolean {
+	const segments = pathname.split('/');
+	for (const segment of segments) {
+		for (const locale of locales) {
+			if (typeof locale === 'string') {
+				if (normalizeTheLocale(segment) === normalizeTheLocale(locale)) {
+					return true;
+				}
+			} else if (segment === locale.path) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
 
 type GetLocaleRelativeUrl = GetLocaleOptions & {
 	locale: string;
@@ -243,4 +261,95 @@ class Unreachable extends Error {
 				'https://astro.build/issues'
 		);
 	}
+}
+
+export type MiddlewarePayload = {
+	base: string;
+	locales: Locales;
+	trailingSlash: AstroConfig['trailingSlash'];
+	format: AstroConfig['build']['format'];
+	routing?: RoutingStrategies;
+	defaultLocale: string;
+	domains: Record<string, string> | undefined;
+	fallback: Record<string, string> | undefined;
+};
+
+export function redirectToDefaultLocale({
+	trailingSlash,
+	format,
+	base,
+	defaultLocale,
+}: MiddlewarePayload) {
+	return function (context: APIContext, statusCode?: ValidRedirectStatus) {
+		if (shouldAppendForwardSlash(trailingSlash, format)) {
+			return context.redirect(`${appendForwardSlash(joinPaths(base, defaultLocale))}`, statusCode);
+		} else {
+			return context.redirect(`${joinPaths(base, defaultLocale)}`, statusCode);
+		}
+	};
+}
+
+export function noFoundForNonLocaleRoute({ base, locales }: MiddlewarePayload) {
+	return function (context: APIContext, response?: Response) {
+		const url = context.url;
+		// We return a 404 if:
+		// - the current path isn't a root. e.g. / or /<base>
+		// - the URL doesn't contain a locale
+		const isRoot = url.pathname === base + '/' || url.pathname === base;
+		if (!(isRoot || pathHasLocale(url.pathname, locales))) {
+			if (response) {
+				return new Response(null, {
+					status: 404,
+					headers: response.headers,
+				});
+			} else {
+				return new Response(null, {
+					status: 404,
+				});
+			}
+		}
+
+		return undefined;
+	};
+}
+
+export type UseFallback = (context: APIContext, response: Response) => Response | undefined;
+export function useFallback({ fallback, locales, defaultLocale, routing }: MiddlewarePayload) {
+	return function (context: APIContext, response: Response): Response | undefined {
+		if (response.status >= 300 && fallback) {
+			const url = new URL(response.url);
+			const fallbackKeys = fallback ? Object.keys(fallback) : [];
+
+			// we split the URL using the `/`, and then check in the returned array we have the locale
+			const segments = url.pathname.split('/');
+			const urlLocale = segments.find((segment) => {
+				for (const locale of locales) {
+					if (typeof locale === 'string') {
+						if (locale === segment) {
+							return true;
+						}
+					} else if (locale.path === segment) {
+						return true;
+					}
+				}
+				return false;
+			});
+
+			if (urlLocale && fallbackKeys.includes(urlLocale)) {
+				const fallbackLocale = fallback[urlLocale];
+				// the user might have configured the locale using the granular locales, so we want to retrieve its corresponding path instead
+				const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
+				let newPathname: string;
+				// If a locale falls back to the default locale, we want to **remove** the locale because
+				// the default locale doesn't have a prefix
+				if (pathFallbackLocale === defaultLocale && routing === 'pathname-prefix-other-locales') {
+					newPathname = url.pathname.replace(`/${urlLocale}`, ``);
+				} else {
+					newPathname = url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
+				}
+
+				return context.redirect(newPathname);
+			}
+		}
+	};
 }

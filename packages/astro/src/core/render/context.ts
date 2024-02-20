@@ -34,7 +34,7 @@ export interface RenderContext {
 	locals?: object;
 	locales: Locales | undefined;
 	defaultLocale: string | undefined;
-	routing: RoutingStrategies | undefined;
+	strategy: RoutingStrategies | undefined;
 }
 
 export type CreateRenderContextArgs = Partial<
@@ -66,7 +66,7 @@ export async function createRenderContext(
 		params,
 		props,
 		locales: options.locales,
-		routing: options.routing,
+		strategy: options.strategy,
 		defaultLocale: options.defaultLocale,
 	};
 

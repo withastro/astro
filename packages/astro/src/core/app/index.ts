@@ -192,9 +192,9 @@ export class App {
 
 		if (
 			this.#manifest.i18n &&
-			(this.#manifest.i18n.routing === 'domains-prefix-always' ||
-				this.#manifest.i18n.routing === 'domains-prefix-other-locales' ||
-				this.#manifest.i18n.routing === 'domains-prefix-always-no-redirect')
+			(this.#manifest.i18n.strategy === 'domains-prefix-always' ||
+				this.#manifest.i18n.strategy === 'domains-prefix-other-locales' ||
+				this.#manifest.i18n.strategy === 'domains-prefix-always-no-redirect')
 		) {
 			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
 			let host = request.headers.get('X-Forwarded-Host');
@@ -419,7 +419,7 @@ export class App {
 				env: this.#pipeline.env,
 				mod: handler as any,
 				locales: this.#manifest.i18n?.locales,
-				routing: this.#manifest.i18n?.routing,
+				strategy: this.#manifest.i18n?.strategy,
 				defaultLocale: this.#manifest.i18n?.defaultLocale,
 			});
 		} else {
@@ -456,7 +456,7 @@ export class App {
 				mod,
 				env: this.#pipeline.env,
 				locales: this.#manifest.i18n?.locales,
-				routing: this.#manifest.i18n?.routing,
+				strategy: this.#manifest.i18n?.strategy,
 				defaultLocale: this.#manifest.i18n?.defaultLocale,
 			});
 		}

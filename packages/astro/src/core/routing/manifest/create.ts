@@ -687,7 +687,7 @@ export function createRouteManifest(
 	const i18n = settings.config.i18n;
 	if (i18n) {
 		// First we check if the user doesn't have an index page.
-		if (i18n.routing === 'pathname-prefix-always') {
+		if (i18n.strategy === 'pathname-prefix-always') {
 			let index = routes.find((route) => route.route === '/');
 			if (!index) {
 				let relativePath = path.relative(
@@ -755,7 +755,7 @@ export function createRouteManifest(
 
 		// Work done, now we start creating "fallback" routes based on the configuration
 
-		if (i18n.routing === 'pathname-prefix-always') {
+		if (i18n.strategy === 'pathname-prefix-always') {
 			// we attempt to retrieve the index page of the default locale
 			const defaultLocaleRoutes = routesByLocale.get(i18n.defaultLocale);
 			if (defaultLocaleRoutes) {
@@ -830,7 +830,7 @@ export function createRouteManifest(
 							let route: string;
 							if (
 								fallbackToLocale === i18n.defaultLocale &&
-								i18n.routing === 'pathname-prefix-other-locales'
+								i18n.strategy === 'pathname-prefix-other-locales'
 							) {
 								if (fallbackToRoute.pathname) {
 									pathname = `/${fallbackFromLocale}${fallbackToRoute.pathname}`;

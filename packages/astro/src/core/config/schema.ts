@@ -349,7 +349,7 @@ export const AstroConfigSchema = z.object({
 					.object({
 						prefixDefaultLocale: z.boolean().default(false),
 						redirectToDefaultLocale: z.boolean().default(true),
-						strategy: z.enum(['pathname']).default('pathname'),
+						strategy: z.enum(['automatic', 'manual']).default('automatic'),
 					})
 					.default({})
 					.refine(
@@ -390,13 +390,13 @@ export const AstroConfigSchema = z.object({
 						}
 					}
 
-					return { ...i18n, routing: strategy };
+					return { ...i18n, strategy };
 				}
 				return undefined;
 			})
 			.superRefine((i18n, ctx) => {
 				if (i18n) {
-					const { defaultLocale, locales: _locales, fallback, domains, routing } = i18n;
+					const { defaultLocale, locales: _locales, fallback, domains, strategy } = i18n;
 					const locales = _locales.map((locale) => {
 						if (typeof locale === 'string') {
 							return locale;
@@ -438,9 +438,9 @@ export const AstroConfigSchema = z.object({
 						const entries = Object.entries(domains);
 						if (entries.length > 0) {
 							if (
-								routing !== 'domains-prefix-other-locales' &&
-								routing !== 'domains-prefix-always-no-redirect' &&
-								routing !== 'domains-prefix-always'
+								strategy !== 'domains-prefix-other-locales' &&
+								strategy !== 'domains-prefix-always-no-redirect' &&
+								strategy !== 'domains-prefix-always'
 							) {
 								ctx.addIssue({
 									code: z.ZodIssueCode.custom,
@@ -626,9 +626,9 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 			const { site, experimental, i18n, output } = configuration;
 			if (experimental.i18nDomains) {
 				if (
-					i18n?.routing === 'domains-prefix-other-locales' ||
-					i18n?.routing === 'domains-prefix-always-no-redirect' ||
-					i18n?.routing === 'domains-prefix-always'
+					i18n?.strategy === 'domains-prefix-other-locales' ||
+					i18n?.strategy === 'domains-prefix-always-no-redirect' ||
+					i18n?.strategy === 'domains-prefix-always'
 				) {
 					if (!site) {
 						ctx.addIssue({

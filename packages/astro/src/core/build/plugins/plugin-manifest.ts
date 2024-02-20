@@ -239,9 +239,9 @@ function buildManifest(
 		settings.config.experimental.i18nDomains &&
 		i18n &&
 		i18n.domains &&
-		(i18n.routing === 'domains-prefix-always' ||
-			i18n.routing === 'domains-prefix-other-locales' ||
-			i18n.routing === 'domains-prefix-always-no-redirect')
+		(i18n.strategy === 'domains-prefix-always' ||
+			i18n.strategy === 'domains-prefix-other-locales' ||
+			i18n.strategy === 'domains-prefix-always-no-redirect')
 	) {
 		for (const [locale, domainValue] of Object.entries(i18n.domains)) {
 			domainLookupTable[domainValue] = normalizeTheLocale(locale);
@@ -257,7 +257,7 @@ function buildManifest(
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
-			routing: settings.config.i18n.routing,
+			strategy: settings.config.i18n.strategy,
 			locales: settings.config.i18n.locales,
 			defaultLocale: settings.config.i18n.defaultLocale,
 			domainLookupTable,
