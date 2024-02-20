@@ -1,5 +1,5 @@
 import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
-import { type DBCollection, type DBField } from '../core/types.js';
+import { type DBCollection, type DBColumn } from '../core/types.js';
 import { type ColumnBuilderBaseConfig, type ColumnDataType, sql, SQL } from 'drizzle-orm';
 import {
 	customType,
@@ -10,7 +10,6 @@ import {
 	type SQLiteColumnBuilderBase,
 	type IndexBuilder,
 } from 'drizzle-orm/sqlite-core';
-import { z } from 'zod';
 import { isSerializedSQL, type SerializedSQL } from './types.js';
 
 export { sql };
@@ -18,8 +17,8 @@ export type SqliteDB = SqliteRemoteDatabase;
 export type { Table } from './types.js';
 export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-client.js';
 
-export function hasPrimaryKey(field: DBField) {
-	return 'primaryKey' in field.schema && !!field.schema.primaryKey;
+export function hasPrimaryKey(column: DBColumn) {
+	return 'primaryKey' in column.schema && !!column.schema.primaryKey;
 }
 
 // Exports a few common expressions
@@ -58,11 +57,11 @@ type D1ColumnBuilder = SQLiteColumnBuilderBase<
 
 export function collectionToTable(name: string, collection: DBCollection) {
 	const columns: Record<string, D1ColumnBuilder> = {};
-	if (!Object.entries(collection.fields).some(([, field]) => hasPrimaryKey(field))) {
+	if (!Object.entries(collection.columns).some(([, column]) => hasPrimaryKey(column))) {
 		columns['_id'] = integer('_id').primaryKey();
 	}
-	for (const [fieldName, field] of Object.entries(collection.fields)) {
-		columns[fieldName] = columnMapper(fieldName, field);
+	for (const [columnName, column] of Object.entries(collection.columns)) {
+		columns[columnName] = columnMapper(columnName, column);
 	}
 	const table = sqliteTable(name, columns, (ormTable) => {
 		const indexes: Record<string, IndexBuilder> = {};
@@ -82,7 +81,7 @@ function atLeastOne<T>(arr: T[]): arr is [T, ...T[]] {
 	return arr.length > 0;
 }
 
-function columnMapper(fieldName: string, field: DBField) {
+function columnMapper(columnName: string, column: DBColumn) {
 	let c: ReturnType<
 		| typeof text
 		| typeof integer
@@ -91,45 +90,45 @@ function columnMapper(fieldName: string, field: DBField) {
 		| typeof integer<string, 'boolean'>
 	>;
 
-	switch (field.type) {
+	switch (column.type) {
 		case 'text': {
-			c = text(fieldName);
+			c = text(columnName);
 			// Duplicate default logic across cases to preserve type inference.
 			// No clean generic for every column builder.
-			if (field.schema.default !== undefined)
-				c = c.default(handleSerializedSQL(field.schema.default));
-			if (field.schema.primaryKey === true) c = c.primaryKey();
+			if (column.schema.default !== undefined)
+				c = c.default(handleSerializedSQL(column.schema.default));
+			if (column.schema.primaryKey === true) c = c.primaryKey();
 			break;
 		}
 		case 'number': {
-			c = integer(fieldName);
-			if (field.schema.default !== undefined)
-				c = c.default(handleSerializedSQL(field.schema.default));
-			if (field.schema.primaryKey === true) c = c.primaryKey();
+			c = integer(columnName);
+			if (column.schema.default !== undefined)
+				c = c.default(handleSerializedSQL(column.schema.default));
+			if (column.schema.primaryKey === true) c = c.primaryKey();
 			break;
 		}
 		case 'boolean': {
-			c = integer(fieldName, { mode: 'boolean' });
-			if (field.schema.default !== undefined)
-				c = c.default(handleSerializedSQL(field.schema.default));
+			c = integer(columnName, { mode: 'boolean' });
+			if (column.schema.default !== undefined)
+				c = c.default(handleSerializedSQL(column.schema.default));
 			break;
 		}
 		case 'json':
-			c = jsonType(fieldName);
-			if (field.schema.default !== undefined) c = c.default(field.schema.default);
+			c = jsonType(columnName);
+			if (column.schema.default !== undefined) c = c.default(column.schema.default);
 			break;
 		case 'date': {
-			c = dateType(fieldName);
-			if (field.schema.default !== undefined) {
-				const def = handleSerializedSQL(field.schema.default);
+			c = dateType(columnName);
+			if (column.schema.default !== undefined) {
+				const def = handleSerializedSQL(column.schema.default);
 				c = c.default(typeof def === 'string' ? new Date(def) : def);
 			}
 			break;
 		}
 	}
 
-	if (!field.schema.optional) c = c.notNull();
-	if (field.schema.unique) c = c.unique();
+	if (!column.schema.optional) c = c.notNull();
+	if (column.schema.unique) c = c.unique();
 	return c;
 }
 

@@ -1,12 +1,12 @@
 import { defineConfig } from 'astro/config';
-import db, { defineCollection, field } from '@astrojs/db';
+import db, { defineTable, column } from '@astrojs/db';
 import { asJson, createGlob } from './utils';
 
-const Quote = defineCollection({
-	fields: {
-		author: field.text(),
-		body: field.text(),
-		file: field.text({ unique: true }),
+const Quote = defineTable({
+	columns: {
+		author: column.text(),
+		body: column.text(),
+		file: column.text({ unique: true }),
 	},
 });
 

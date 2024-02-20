@@ -1,30 +1,30 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { getCollectionChangeQueries } from '../../dist/core/cli/migration-queries.js';
-import { field, defineCollection, collectionsSchema } from '../../dist/core/types.js';
+import { column, defineTable, collectionsSchema } from '../../dist/core/types.js';
 
-const BaseUser = defineCollection({
-	fields: {
-		id: field.number({ primaryKey: true }),
-		name: field.text(),
-		age: field.number(),
-		email: field.text({ unique: true }),
-		mi: field.text({ optional: true }),
+const BaseUser = defineTable({
+	columns: {
+		id: column.number({ primaryKey: true }),
+		name: column.text(),
+		age: column.number(),
+		email: column.text({ unique: true }),
+		mi: column.text({ optional: true }),
 	},
 });
 
-const BaseSentBox = defineCollection({
-	fields: {
-		to: field.number(),
-		toName: field.text(),
-		subject: field.text(),
-		body: field.text(),
+const BaseSentBox = defineTable({
+	columns: {
+		to: column.number(),
+		toName: column.text(),
+		subject: column.text(),
+		body: column.text(),
 	},
 });
 
 const defaultAmbiguityResponses = {
 	collectionRenames: {},
-	fieldRenames: {},
+	columnRenames: {},
 };
 
 /**
@@ -58,10 +58,10 @@ describe('reference queries', () => {
 	it('adds references with lossless table recreate', async () => {
 		const { SentBox: Initial } = resolveReferences();
 		const { SentBox: Final } = resolveReferences({
-			SentBox: defineCollection({
-				fields: {
-					...BaseSentBox.fields,
-					to: field.number({ references: () => BaseUser.fields.id }),
+			SentBox: defineTable({
+				columns: {
+					...BaseSentBox.columns,
+					to: column.number({ references: () => BaseUser.columns.id }),
 				},
 			}),
 		});
@@ -82,10 +82,10 @@ describe('reference queries', () => {
 
 	it('removes references with lossless table recreate', async () => {
 		const { SentBox: Initial } = resolveReferences({
-			SentBox: defineCollection({
-				fields: {
-					...BaseSentBox.fields,
-					to: field.number({ references: () => BaseUser.fields.id }),
+			SentBox: defineTable({
+				columns: {
+					...BaseSentBox.columns,
+					to: column.number({ references: () => BaseUser.columns.id }),
 				},
 			}),
 		});
@@ -108,10 +108,10 @@ describe('reference queries', () => {
 	it('does not use ADD COLUMN when adding optional column with reference', async () => {
 		const { SentBox: Initial } = resolveReferences();
 		const { SentBox: Final } = resolveReferences({
-			SentBox: defineCollection({
-				fields: {
-					...BaseSentBox.fields,
-					from: field.number({ references: () => BaseUser.fields.id, optional: true }),
+			SentBox: defineTable({
+				columns: {
+					...BaseSentBox.columns,
+					from: column.number({ references: () => BaseUser.columns.id, optional: true }),
 				},
 			}),
 		});
@@ -131,18 +131,18 @@ describe('reference queries', () => {
 	it('adds and updates foreign key with lossless table recreate', async () => {
 		const { SentBox: InitialWithoutFK } = resolveReferences();
 		const { SentBox: InitialWithDifferentFK } = resolveReferences({
-			SentBox: defineCollection({
+			SentBox: defineTable({
 				...BaseSentBox,
-				foreignKeys: [{ fields: ['to'], references: () => [BaseUser.fields.id] }],
+				foreignKeys: [{ columns: ['to'], references: () => [BaseUser.columns.id] }],
 			}),
 		});
 		const { SentBox: Final } = resolveReferences({
-			SentBox: defineCollection({
+			SentBox: defineTable({
 				...BaseSentBox,
 				foreignKeys: [
 					{
-						fields: ['to', 'toName'],
-						references: () => [BaseUser.fields.id, BaseUser.fields.name],
+						columns: ['to', 'toName'],
+						references: () => [BaseUser.columns.id, BaseUser.columns.name],
 					},
 				],
 			}),

@@ -1,14 +1,14 @@
 import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
 import {
-	type BooleanField,
+	type BooleanColumn,
 	type DBCollection,
 	type DBCollections,
-	type DBField,
-	type DateField,
-	type FieldType,
-	type JsonField,
-	type NumberField,
-	type TextField,
+	type DBColumn,
+	type DateColumn,
+	type ColumnType,
+	type JsonColumn,
+	type NumberColumn,
+	type TextColumn,
 } from '../core/types.js';
 import { bold, red } from 'kleur/colors';
 import { type SQL, sql, getTableName } from 'drizzle-orm';
@@ -89,13 +89,13 @@ export function getCreateTableQuery(collectionName: string, collection: DBCollec
 	let query = `CREATE TABLE ${sqlite.escapeName(collectionName)} (`;
 
 	const colQueries = [];
-	const colHasPrimaryKey = Object.entries(collection.fields).find(([, field]) =>
-		hasPrimaryKey(field)
+	const colHasPrimaryKey = Object.entries(collection.columns).find(([, column]) =>
+		hasPrimaryKey(column)
 	);
 	if (!colHasPrimaryKey) {
 		colQueries.push('_id INTEGER PRIMARY KEY');
 	}
-	for (const [columnName, column] of Object.entries(collection.fields)) {
+	for (const [columnName, column] of Object.entries(collection.columns)) {
 		const colQuery = `${sqlite.escapeName(columnName)} ${schemaTypeToSqlType(
 			column.type
 		)}${getModifiers(columnName, column)}`;
@@ -129,12 +129,12 @@ export function getCreateIndexQueries(
 export function getCreateForeignKeyQueries(collectionName: string, collection: DBCollection) {
 	let queries: string[] = [];
 	for (const foreignKey of collection.foreignKeys ?? []) {
-		const fields = asArray(foreignKey.fields);
+		const columns = asArray(foreignKey.columns);
 		const references = asArray(foreignKey.references);
 
-		if (fields.length !== references.length) {
+		if (columns.length !== references.length) {
 			throw new Error(
-				`Foreign key on ${collectionName} is misconfigured. \`fields\` and \`references\` must be the same length.`
+				`Foreign key on ${collectionName} is misconfigured. \`columns\` and \`references\` must be the same length.`
 			);
 		}
 		const referencedCollection = references[0]?.schema.collection;
@@ -143,7 +143,7 @@ export function getCreateForeignKeyQueries(collectionName: string, collection: D
 				`Foreign key on ${collectionName} is misconfigured. \`references\` cannot be empty.`
 			);
 		}
-		const query = `FOREIGN KEY (${fields
+		const query = `FOREIGN KEY (${columns
 			.map((f) => sqlite.escapeName(f))
 			.join(', ')}) REFERENCES ${sqlite.escapeName(referencedCollection)}(${references
 			.map((r) => sqlite.escapeName(r.schema.name!))
@@ -157,7 +157,7 @@ function asArray<T>(value: T | T[]) {
 	return Array.isArray(value) ? value : [value];
 }
 
-export function schemaTypeToSqlType(type: FieldType): 'text' | 'integer' {
+export function schemaTypeToSqlType(type: ColumnType): 'text' | 'integer' {
 	switch (type) {
 		case 'date':
 		case 'text':
@@ -169,26 +169,26 @@ export function schemaTypeToSqlType(type: FieldType): 'text' | 'integer' {
 	}
 }
 
-export function getModifiers(fieldName: string, field: DBField) {
+export function getModifiers(columnName: string, column: DBColumn) {
 	let modifiers = '';
-	if (hasPrimaryKey(field)) {
+	if (hasPrimaryKey(column)) {
 		return ' PRIMARY KEY';
 	}
-	if (!field.schema.optional) {
+	if (!column.schema.optional) {
 		modifiers += ' NOT NULL';
 	}
-	if (field.schema.unique) {
+	if (column.schema.unique) {
 		modifiers += ' UNIQUE';
 	}
-	if (hasDefault(field)) {
-		modifiers += ` DEFAULT ${getDefaultValueSql(fieldName, field)}`;
+	if (hasDefault(column)) {
+		modifiers += ` DEFAULT ${getDefaultValueSql(columnName, column)}`;
 	}
-	const references = getReferencesConfig(field);
+	const references = getReferencesConfig(column);
 	if (references) {
 		const { collection, name } = references.schema;
 		if (!collection || !name) {
 			throw new Error(
-				`Field ${collection}.${name} references a collection that does not exist. Did you apply the referenced collection to the \`collections\` object in your Astro config?`
+				`Column ${collection}.${name} references a collection that does not exist. Did you apply the referenced collection to the \`collections\` object in your Astro config?`
 			);
 		}
 
@@ -197,30 +197,30 @@ export function getModifiers(fieldName: string, field: DBField) {
 	return modifiers;
 }
 
-export function getReferencesConfig(field: DBField) {
-	const canHaveReferences = field.type === 'number' || field.type === 'text';
+export function getReferencesConfig(column: DBColumn) {
+	const canHaveReferences = column.type === 'number' || column.type === 'text';
 	if (!canHaveReferences) return undefined;
-	return field.schema.references;
+	return column.schema.references;
 }
 
-// Using `DBField` will not narrow `default` based on the column `type`
-// Handle each field separately
-type WithDefaultDefined<T extends DBField> = T & {
+// Using `DBColumn` will not narrow `default` based on the column `type`
+// Handle each column separately
+type WithDefaultDefined<T extends DBColumn> = T & {
 	schema: Required<Pick<T['schema'], 'default'>>;
 };
-type DBFieldWithDefault =
-	| WithDefaultDefined<TextField>
-	| WithDefaultDefined<DateField>
-	| WithDefaultDefined<NumberField>
-	| WithDefaultDefined<BooleanField>
-	| WithDefaultDefined<JsonField>;
+type DBColumnWithDefault =
+	| WithDefaultDefined<TextColumn>
+	| WithDefaultDefined<DateColumn>
+	| WithDefaultDefined<NumberColumn>
+	| WithDefaultDefined<BooleanColumn>
+	| WithDefaultDefined<JsonColumn>;
 
 // Type narrowing the default fails on union types, so use a type guard
-export function hasDefault(field: DBField): field is DBFieldWithDefault {
-	if (field.schema.default !== undefined) {
+export function hasDefault(column: DBColumn): column is DBColumnWithDefault {
+	if (column.schema.default !== undefined) {
 		return true;
 	}
-	if (hasPrimaryKey(field) && field.type === 'number') {
+	if (hasPrimaryKey(column) && column.type === 'number') {
 		return true;
 	}
 	return false;
@@ -237,7 +237,7 @@ function toDefault<T>(def: T | SQL<any>): string {
 	}
 }
 
-function getDefaultValueSql(columnName: string, column: DBFieldWithDefault): string {
+function getDefaultValueSql(columnName: string, column: DBColumnWithDefault): string {
 	if (isSerializedSQL(column.schema.default)) {
 		return column.schema.default.sql;
 	}

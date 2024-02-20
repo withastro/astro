@@ -1,25 +1,25 @@
 import { defineConfig } from 'astro/config';
 import preact from '@astrojs/preact';
 import simpleStackForm from 'simple-stack-form';
-import db, { defineCollection, defineWritableCollection, field } from '@astrojs/db';
+import db, { defineTable, defineWritableTable, column } from '@astrojs/db';
 import node from '@astrojs/node';
 
-const Event = defineCollection({
-	fields: {
-		id: field.number({ primaryKey: true }),
-		name: field.text(),
-		description: field.text(),
-		ticketPrice: field.number(),
-		date: field.date(),
-		location: field.text(),
+const Event = defineTable({
+	columns: {
+		id: column.number({ primaryKey: true }),
+		name: column.text(),
+		description: column.text(),
+		ticketPrice: column.number(),
+		date: column.date(),
+		location: column.text(),
 	},
 });
-const Ticket = defineWritableCollection({
-	fields: {
-		eventId: field.text(),
-		email: field.text(),
-		quantity: field.number(),
-		newsletter: field.boolean({
+const Ticket = defineWritableTable({
+	columns: {
+		eventId: column.text(),
+		email: column.text(),
+		quantity: column.number(),
+		newsletter: column.boolean({
 			default: false,
 		}),
 	},

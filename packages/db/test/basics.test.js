@@ -60,7 +60,7 @@ describe('astro:db', () => {
 				app = await fixture.loadTestAdapterApp();
 			});
 
-			it('Allows expression defaults for date fields', async () => {
+			it('Allows expression defaults for date columns', async () => {
 				const request = new Request('http://example.com/');
 				const res = await app.render(request);
 				const html = await res.text();
@@ -80,7 +80,7 @@ describe('astro:db', () => {
 				expect(new Date(themeAdded).getTime()).to.not.be.NaN;
 			});
 
-			it('Allows expression defaults for text fields', async () => {
+			it('Allows expression defaults for text columns', async () => {
 				const request = new Request('http://example.com/');
 				const res = await app.render(request);
 				const html = await res.text();
@@ -90,7 +90,7 @@ describe('astro:db', () => {
 				expect(themeOwner).to.equal('');
 			});
 
-			it('Allows expression defaults for boolean fields', async () => {
+			it('Allows expression defaults for boolean columns', async () => {
 				const request = new Request('http://example.com/');
 				const res = await app.render(request);
 				const html = await res.text();

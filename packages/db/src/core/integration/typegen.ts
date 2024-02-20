@@ -30,13 +30,13 @@ function generateTableType(name: string, collection: DBCollection): string {
 		${JSON.stringify(name)},
 		${JSON.stringify(
 			Object.fromEntries(
-				Object.entries(collection.fields).map(([fieldName, field]) => [
-					fieldName,
+				Object.entries(collection.columns).map(([columnName, column]) => [
+					columnName,
 					{
-						// Only select fields Drizzle needs for inference
-						type: field.type,
-						optional: field.schema.optional,
-						default: field.schema.default,
+						// Only select columns Drizzle needs for inference
+						type: column.type,
+						optional: column.schema.optional,
+						default: column.schema.default,
 					},
 				])
 			)

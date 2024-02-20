@@ -19,28 +19,28 @@ const sqlSchema = z.instanceof(SQL<any>).transform(
 	})
 );
 
-const baseFieldSchema = z.object({
+const baseColumnSchema = z.object({
 	label: z.string().optional(),
 	optional: z.boolean().optional().default(false),
 	unique: z.boolean().optional().default(false),
 
-	// Defined when `defineCollection()` is called
+	// Defined when `defineTable()` is called
 	name: z.string().optional(),
 	collection: z.string().optional(),
 });
 
-const booleanFieldSchema = z.object({
+const booleanColumnSchema = z.object({
 	type: z.literal('boolean'),
-	schema: baseFieldSchema.extend({
+	schema: baseColumnSchema.extend({
 		default: z.union([z.boolean(), sqlSchema]).optional(),
 	}),
 });
 
-const numberFieldBaseSchema = baseFieldSchema.omit({ optional: true }).and(
+const numberColumnBaseSchema = baseColumnSchema.omit({ optional: true }).and(
 	z.union([
 		z.object({
 			primaryKey: z.literal(false).optional().default(false),
-			optional: baseFieldSchema.shape.optional,
+			optional: baseColumnSchema.shape.optional,
 			default: z.union([z.number(), sqlSchema]).optional(),
 		}),
 		z.object({
@@ -54,31 +54,31 @@ const numberFieldBaseSchema = baseFieldSchema.omit({ optional: true }).and(
 	])
 );
 
-const numberFieldOptsSchema: z.ZodType<
-	z.infer<typeof numberFieldBaseSchema> & {
-		// ReferenceableField creates a circular type. Define ZodType to resolve.
-		references?: NumberField;
+const numberColumnOptsSchema: z.ZodType<
+	z.infer<typeof numberColumnBaseSchema> & {
+		// ReferenceableColumn creates a circular type. Define ZodType to resolve.
+		references?: NumberColumn;
 	},
 	ZodTypeDef,
-	z.input<typeof numberFieldBaseSchema> & {
-		references?: () => z.input<typeof numberFieldSchema>;
+	z.input<typeof numberColumnBaseSchema> & {
+		references?: () => z.input<typeof numberColumnSchema>;
 	}
-> = numberFieldBaseSchema.and(
+> = numberColumnBaseSchema.and(
 	z.object({
 		references: z
 			.function()
-			.returns(z.lazy(() => numberFieldSchema))
+			.returns(z.lazy(() => numberColumnSchema))
 			.optional()
 			.transform((fn) => fn?.()),
 	})
 );
 
-const numberFieldSchema = z.object({
+const numberColumnSchema = z.object({
 	type: z.literal('number'),
-	schema: numberFieldOptsSchema,
+	schema: numberColumnOptsSchema,
 });
 
-const textFieldBaseSchema = baseFieldSchema
+const textColumnBaseSchema = baseColumnSchema
 	.omit({ optional: true })
 	.extend({
 		default: z.union([z.string(), sqlSchema]).optional(),
@@ -88,7 +88,7 @@ const textFieldBaseSchema = baseFieldSchema
 		z.union([
 			z.object({
 				primaryKey: z.literal(false).optional().default(false),
-				optional: baseFieldSchema.shape.optional,
+				optional: baseColumnSchema.shape.optional,
 			}),
 			z.object({
 				// text primary key allows NULL values.
@@ -101,33 +101,33 @@ const textFieldBaseSchema = baseFieldSchema
 		])
 	);
 
-const textFieldOptsSchema: z.ZodType<
-	z.infer<typeof textFieldBaseSchema> & {
-		// ReferenceableField creates a circular type. Define ZodType to resolve.
-		references?: TextField;
+const textColumnOptsSchema: z.ZodType<
+	z.infer<typeof textColumnBaseSchema> & {
+		// ReferenceableColumn creates a circular type. Define ZodType to resolve.
+		references?: TextColumn;
 	},
 	ZodTypeDef,
-	z.input<typeof textFieldBaseSchema> & {
-		references?: () => z.input<typeof textFieldSchema>;
+	z.input<typeof textColumnBaseSchema> & {
+		references?: () => z.input<typeof textColumnSchema>;
 	}
-> = textFieldBaseSchema.and(
+> = textColumnBaseSchema.and(
 	z.object({
 		references: z
 			.function()
-			.returns(z.lazy(() => textFieldSchema))
+			.returns(z.lazy(() => textColumnSchema))
 			.optional()
 			.transform((fn) => fn?.()),
 	})
 );
 
-const textFieldSchema = z.object({
+const textColumnSchema = z.object({
 	type: z.literal('text'),
-	schema: textFieldOptsSchema,
+	schema: textColumnOptsSchema,
 });
 
-const dateFieldSchema = z.object({
+const dateColumnSchema = z.object({
 	type: z.literal('date'),
-	schema: baseFieldSchema.extend({
+	schema: baseColumnSchema.extend({
 		default: z
 			.union([
 				sqlSchema,
@@ -138,23 +138,23 @@ const dateFieldSchema = z.object({
 	}),
 });
 
-const jsonFieldSchema = z.object({
+const jsonColumnSchema = z.object({
 	type: z.literal('json'),
-	schema: baseFieldSchema.extend({
+	schema: baseColumnSchema.extend({
 		default: z.unknown().optional(),
 	}),
 });
 
-export const fieldSchema = z.union([
-	booleanFieldSchema,
-	numberFieldSchema,
-	textFieldSchema,
-	dateFieldSchema,
-	jsonFieldSchema,
+export const columnSchema = z.union([
+	booleanColumnSchema,
+	numberColumnSchema,
+	textColumnSchema,
+	dateColumnSchema,
+	jsonColumnSchema,
 ]);
-export const referenceableFieldSchema = z.union([textFieldSchema, numberFieldSchema]);
+export const referenceableColumnSchema = z.union([textColumnSchema, numberColumnSchema]);
 
-const fieldsSchema = z.record(fieldSchema);
+const columnsSchema = z.record(columnSchema);
 
 export const indexSchema = z.object({
 	on: z.string().or(z.array(z.string())),
@@ -162,27 +162,27 @@ export const indexSchema = z.object({
 });
 
 type ForeignKeysInput = {
-	fields: MaybeArray<string>;
-	references: () => MaybeArray<Omit<z.input<typeof referenceableFieldSchema>, 'references'>>;
+	columns: MaybeArray<string>;
+	references: () => MaybeArray<Omit<z.input<typeof referenceableColumnSchema>, 'references'>>;
 };
 
 type ForeignKeysOutput = Omit<ForeignKeysInput, 'references'> & {
 	// reference fn called in `transform`. Ensures output is JSON serializable.
-	references: MaybeArray<Omit<z.output<typeof referenceableFieldSchema>, 'references'>>;
+	references: MaybeArray<Omit<z.output<typeof referenceableColumnSchema>, 'references'>>;
 };
 
 const foreignKeysSchema: z.ZodType<ForeignKeysOutput, ZodTypeDef, ForeignKeysInput> = z.object({
-	fields: z.string().or(z.array(z.string())),
+	columns: z.string().or(z.array(z.string())),
 	references: z
 		.function()
-		.returns(z.lazy(() => referenceableFieldSchema.or(z.array(referenceableFieldSchema))))
+		.returns(z.lazy(() => referenceableColumnSchema.or(z.array(referenceableColumnSchema))))
 		.transform((fn) => fn()),
 });
 
 export type Indexes = Record<string, z.infer<typeof indexSchema>>;
 
 const baseCollectionSchema = z.object({
-	fields: fieldsSchema,
+	columns: columnsSchema,
 	indexes: z.record(indexSchema).optional(),
 	foreignKeys: z.array(foreignKeysSchema).optional(),
 });
@@ -206,43 +206,43 @@ export const collectionsSchema = z.preprocess((rawCollections) => {
 			collectionName,
 			collectionSchema.parse(collection, { errorMap })
 		);
-		// Append collection and field names to fields.
+		// Append collection and column names to columns.
 		// Used to track collection info for references.
-		const { fields } = z.object({ fields: z.record(z.any()) }).parse(collection, { errorMap });
-		for (const [fieldName, field] of Object.entries(fields)) {
-			field.schema.name = fieldName;
-			field.schema.collection = collectionName;
+		const { columns } = z.object({ columns: z.record(z.any()) }).parse(collection, { errorMap });
+		for (const [columnName, column] of Object.entries(columns)) {
+			column.schema.name = columnName;
+			column.schema.collection = collectionName;
 		}
 	}
 	return rawCollections;
 }, z.record(collectionSchema));
 
-export type BooleanField = z.infer<typeof booleanFieldSchema>;
-export type BooleanFieldInput = z.input<typeof booleanFieldSchema>;
-export type NumberField = z.infer<typeof numberFieldSchema>;
-export type NumberFieldInput = z.input<typeof numberFieldSchema>;
-export type TextField = z.infer<typeof textFieldSchema>;
-export type TextFieldInput = z.input<typeof textFieldSchema>;
-export type DateField = z.infer<typeof dateFieldSchema>;
-export type DateFieldInput = z.input<typeof dateFieldSchema>;
-export type JsonField = z.infer<typeof jsonFieldSchema>;
-export type JsonFieldInput = z.input<typeof jsonFieldSchema>;
+export type BooleanColumn = z.infer<typeof booleanColumnSchema>;
+export type BooleanColumnInput = z.input<typeof booleanColumnSchema>;
+export type NumberColumn = z.infer<typeof numberColumnSchema>;
+export type NumberColumnInput = z.input<typeof numberColumnSchema>;
+export type TextColumn = z.infer<typeof textColumnSchema>;
+export type TextColumnInput = z.input<typeof textColumnSchema>;
+export type DateColumn = z.infer<typeof dateColumnSchema>;
+export type DateColumnInput = z.input<typeof dateColumnSchema>;
+export type JsonColumn = z.infer<typeof jsonColumnSchema>;
+export type JsonColumnInput = z.input<typeof jsonColumnSchema>;
 
-export type FieldType =
-	| BooleanField['type']
-	| NumberField['type']
-	| TextField['type']
-	| DateField['type']
-	| JsonField['type'];
+export type ColumnType =
+	| BooleanColumn['type']
+	| NumberColumn['type']
+	| TextColumn['type']
+	| DateColumn['type']
+	| JsonColumn['type'];
 
-export type DBField = z.infer<typeof fieldSchema>;
-export type DBFieldInput =
-	| DateFieldInput
-	| BooleanFieldInput
-	| NumberFieldInput
-	| TextFieldInput
-	| JsonFieldInput;
-export type DBFields = z.infer<typeof fieldsSchema>;
+export type DBColumn = z.infer<typeof columnSchema>;
+export type DBColumnInput =
+	| DateColumnInput
+	| BooleanColumnInput
+	| NumberColumnInput
+	| TextColumnInput
+	| JsonColumnInput;
+export type DBColumns = z.infer<typeof columnsSchema>;
 export type DBCollection = z.infer<
 	typeof readableCollectionSchema | typeof writableCollectionSchema
 >;
@@ -260,20 +260,20 @@ export type WritableDBCollection = z.infer<typeof writableCollectionSchema>;
 
 export type DBDataContext = {
 	db: SqliteDB;
-	seed: <TFields extends FieldsConfig>(
-		collection: ResolvedCollectionConfig<TFields>,
-		data: MaybeArray<SQLiteInsertValue<Table<string, TFields>>>
+	seed: <TColumns extends ColumnsConfig>(
+		collection: ResolvedCollectionConfig<TColumns>,
+		data: MaybeArray<SQLiteInsertValue<Table<string, TColumns>>>
 	) => Promise<void>;
 	seedReturning: <
-		TFields extends FieldsConfig,
-		TData extends MaybeArray<SQLiteInsertValue<Table<string, TFields>>>,
+		TColumns extends ColumnsConfig,
+		TData extends MaybeArray<SQLiteInsertValue<Table<string, TColumns>>>,
 	>(
-		collection: ResolvedCollectionConfig<TFields>,
+		collection: ResolvedCollectionConfig<TColumns>,
 		data: TData
 	) => Promise<
-		TData extends Array<SQLiteInsertValue<Table<string, TFields>>>
-			? InferSelectModel<Table<string, TFields>>[]
-			: InferSelectModel<Table<string, TFields>>
+		TData extends Array<SQLiteInsertValue<Table<string, TColumns>>>
+			? InferSelectModel<Table<string, TColumns>>[]
+			: InferSelectModel<Table<string, TColumns>>
 	>;
 	mode: 'dev' | 'build';
 };
@@ -300,37 +300,37 @@ export const astroConfigWithDbSchema = z.object({
 	db: dbConfigSchema.optional(),
 });
 
-export type FieldsConfig = z.input<typeof collectionSchema>['fields'];
+export type ColumnsConfig = z.input<typeof collectionSchema>['columns'];
 
-interface CollectionConfig<TFields extends FieldsConfig = FieldsConfig>
+interface CollectionConfig<TColumns extends ColumnsConfig = ColumnsConfig>
 	// use `extends` to ensure types line up with zod,
 	// only adding generics for type completions.
-	extends Pick<z.input<typeof collectionSchema>, 'fields' | 'indexes' | 'foreignKeys'> {
-	fields: TFields;
+	extends Pick<z.input<typeof collectionSchema>, 'columns' | 'indexes' | 'foreignKeys'> {
+	columns: TColumns;
 	foreignKeys?: Array<{
-		fields: MaybeArray<Extract<keyof TFields, string>>;
-		// TODO: runtime error if parent collection doesn't match for all fields. Can't put a generic here...
-		references: () => MaybeArray<z.input<typeof referenceableFieldSchema>>;
+		columns: MaybeArray<Extract<keyof TColumns, string>>;
+		// TODO: runtime error if parent collection doesn't match for all columns. Can't put a generic here...
+		references: () => MaybeArray<z.input<typeof referenceableColumnSchema>>;
 	}>;
-	indexes?: Record<string, IndexConfig<TFields>>;
+	indexes?: Record<string, IndexConfig<TColumns>>;
 }
 
-interface IndexConfig<TFields extends FieldsConfig> extends z.input<typeof indexSchema> {
-	on: MaybeArray<Extract<keyof TFields, string>>;
+interface IndexConfig<TColumns extends ColumnsConfig> extends z.input<typeof indexSchema> {
+	on: MaybeArray<Extract<keyof TColumns, string>>;
 }
 
 export type ResolvedCollectionConfig<
-	TFields extends FieldsConfig = FieldsConfig,
+	TColumns extends ColumnsConfig = ColumnsConfig,
 	Writable extends boolean = boolean,
-> = CollectionConfig<TFields> & {
+> = CollectionConfig<TColumns> & {
 	writable: Writable;
-	table: Table<string, TFields>;
+	table: Table<string, TColumns>;
 };
 
-function baseDefineCollection<TFields extends FieldsConfig, TWritable extends boolean>(
-	userConfig: CollectionConfig<TFields>,
+function baseDefineCollection<TColumns extends ColumnsConfig, TWritable extends boolean>(
+	userConfig: CollectionConfig<TColumns>,
 	writable: TWritable
-): ResolvedCollectionConfig<TFields, TWritable> {
+): ResolvedCollectionConfig<TColumns, TWritable> {
 	return {
 		...userConfig,
 		writable,
@@ -339,26 +339,26 @@ function baseDefineCollection<TFields extends FieldsConfig, TWritable extends bo
 	};
 }
 
-export function defineCollection<TFields extends FieldsConfig>(
-	userConfig: CollectionConfig<TFields>
-): ResolvedCollectionConfig<TFields, false> {
+export function defineTable<TColumns extends ColumnsConfig>(
+	userConfig: CollectionConfig<TColumns>
+): ResolvedCollectionConfig<TColumns, false> {
 	return baseDefineCollection(userConfig, false);
 }
 
-export function defineWritableCollection<TFields extends FieldsConfig>(
-	userConfig: CollectionConfig<TFields>
-): ResolvedCollectionConfig<TFields, true> {
+export function defineWritableTable<TColumns extends ColumnsConfig>(
+	userConfig: CollectionConfig<TColumns>
+): ResolvedCollectionConfig<TColumns, true> {
 	return baseDefineCollection(userConfig, true);
 }
 
 export type AstroConfigWithDB = z.input<typeof astroConfigWithDbSchema>;
 
-// We cannot use `Omit<NumberField | TextField, 'type'>`,
+// We cannot use `Omit<NumberColumn | TextColumn, 'type'>`,
 // since Omit collapses our union type on primary key.
-type NumberFieldOpts = z.input<typeof numberFieldOptsSchema>;
-type TextFieldOpts = z.input<typeof textFieldOptsSchema>;
+type NumberColumnOpts = z.input<typeof numberColumnOptsSchema>;
+type TextColumnOpts = z.input<typeof textColumnOptsSchema>;
 
-function createField<S extends string, T extends Record<string, unknown>>(type: S, schema: T) {
+function createColumn<S extends string, T extends Record<string, unknown>>(type: S, schema: T) {
 	return {
 		type,
 		/**
@@ -368,20 +368,20 @@ function createField<S extends string, T extends Record<string, unknown>>(type: 
 	};
 }
 
-export const field = {
-	number: <T extends NumberFieldOpts>(opts: T = {} as T) => {
-		return createField('number', opts) satisfies { type: 'number' };
+export const column = {
+	number: <T extends NumberColumnOpts>(opts: T = {} as T) => {
+		return createColumn('number', opts) satisfies { type: 'number' };
 	},
-	boolean: <T extends BooleanFieldInput['schema']>(opts: T = {} as T) => {
-		return createField('boolean', opts) satisfies { type: 'boolean' };
+	boolean: <T extends BooleanColumnInput['schema']>(opts: T = {} as T) => {
+		return createColumn('boolean', opts) satisfies { type: 'boolean' };
 	},
-	text: <T extends TextFieldOpts>(opts: T = {} as T) => {
-		return createField('text', opts) satisfies { type: 'text' };
+	text: <T extends TextColumnOpts>(opts: T = {} as T) => {
+		return createColumn('text', opts) satisfies { type: 'text' };
 	},
-	date<T extends DateFieldInput['schema']>(opts: T = {} as T) {
-		return createField('date', opts) satisfies { type: 'date' };
+	date<T extends DateColumnInput['schema']>(opts: T = {} as T) {
+		return createColumn('date', opts) satisfies { type: 'date' };
 	},
-	json<T extends JsonFieldInput['schema']>(opts: T = {} as T) {
-		return createField('json', opts) satisfies { type: 'json' };
+	json<T extends JsonColumnInput['schema']>(opts: T = {} as T) {
+		return createColumn('json', opts) satisfies { type: 'json' };
 	},
 };

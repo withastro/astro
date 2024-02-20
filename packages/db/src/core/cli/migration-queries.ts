@@ -1,19 +1,19 @@
 import * as color from 'kleur/colors';
 import deepDiff from 'deep-diff';
 import {
-	fieldSchema,
-	type BooleanField,
+	columnSchema,
+	type BooleanColumn,
 	type DBCollection,
 	type DBCollections,
-	type DBField,
-	type DBFields,
+	type DBColumn,
+	type DBColumns,
 	type DBSnapshot,
-	type DateField,
-	type FieldType,
+	type DateColumn,
+	type ColumnType,
 	type Indexes,
-	type JsonField,
-	type NumberField,
-	type TextField,
+	type JsonColumn,
+	type NumberColumn,
+	type TextColumn,
 } from '../types.js';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { customAlphabet } from 'nanoid';
@@ -35,7 +35,7 @@ const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
 /** Dependency injected for unit testing */
 type AmbiguityResponses = {
 	collectionRenames: Record<string, string>;
-	fieldRenames: {
+	columnRenames: {
 		[collectionName: string]: Record<string, string>;
 	};
 };
@@ -102,9 +102,9 @@ export async function getCollectionChangeQueries({
 }): Promise<{ queries: string[]; confirmations: string[] }> {
 	const queries: string[] = [];
 	const confirmations: string[] = [];
-	const updated = getUpdatedFields(oldCollection.fields, newCollection.fields);
-	let added = getAdded(oldCollection.fields, newCollection.fields);
-	let dropped = getDropped(oldCollection.fields, newCollection.fields);
+	const updated = getUpdatedColumns(oldCollection.columns, newCollection.columns);
+	let added = getAdded(oldCollection.columns, newCollection.columns);
+	let dropped = getDropped(oldCollection.columns, newCollection.columns);
 	/** Any foreign key changes require a full table recreate */
 	const hasForeignKeyChanges = Boolean(
 		deepDiff(oldCollection.foreignKeys, newCollection.foreignKeys)
@@ -121,10 +121,10 @@ export async function getCollectionChangeQueries({
 		};
 	}
 	if (!hasForeignKeyChanges && !isEmpty(added) && !isEmpty(dropped)) {
-		const resolved = await resolveFieldRenames(collectionName, added, dropped, ambiguityResponses);
+		const resolved = await resolveColumnRenames(collectionName, added, dropped, ambiguityResponses);
 		added = resolved.added;
 		dropped = resolved.dropped;
-		queries.push(...getFieldRenameQueries(collectionName, resolved.renamed));
+		queries.push(...getColumnRenameQueries(collectionName, resolved.renamed));
 	}
 	if (
 		!hasForeignKeyChanges &&
@@ -145,31 +145,31 @@ export async function getCollectionChangeQueries({
 
 	const dataLossCheck = canRecreateTableWithoutDataLoss(added, updated);
 	if (dataLossCheck.dataLoss) {
-		const { reason, fieldName } = dataLossCheck;
+		const { reason, columnName } = dataLossCheck;
 		const reasonMsgs: Record<DataLossReason, string> = {
-			'added-required': `New field ${color.bold(
-				collectionName + '.' + fieldName
+			'added-required': `New column ${color.bold(
+				collectionName + '.' + columnName
 			)} is required with no default value.\nThis requires deleting existing data in the ${color.bold(
 				collectionName
 			)} collection.`,
-			'added-unique': `New field ${color.bold(
-				collectionName + '.' + fieldName
+			'added-unique': `New column ${color.bold(
+				collectionName + '.' + columnName
 			)} is marked as unique.\nThis requires deleting existing data in the ${color.bold(
 				collectionName
 			)} collection.`,
-			'updated-type': `Updated field ${color.bold(
-				collectionName + '.' + fieldName
-			)} cannot convert data to new field data type.\nThis requires deleting existing data in the ${color.bold(
+			'updated-type': `Updated column ${color.bold(
+				collectionName + '.' + columnName
+			)} cannot convert data to new column data type.\nThis requires deleting existing data in the ${color.bold(
 				collectionName
 			)} collection.`,
 		};
 		confirmations.push(reasonMsgs[reason]);
 	}
 
-	const primaryKeyExists = Object.entries(newCollection.fields).find(([, field]) =>
-		hasPrimaryKey(field)
+	const primaryKeyExists = Object.entries(newCollection.columns).find(([, column]) =>
+		hasPrimaryKey(column)
 	);
-	const droppedPrimaryKey = Object.entries(dropped).find(([, field]) => hasPrimaryKey(field));
+	const droppedPrimaryKey = Object.entries(dropped).find(([, column]) => hasPrimaryKey(column));
 
 	const recreateTableQueries = getRecreateTableQueries({
 		collectionName,
@@ -209,31 +209,31 @@ function getChangeIndexQueries({
 
 type Renamed = Array<{ from: string; to: string }>;
 
-async function resolveFieldRenames(
+async function resolveColumnRenames(
 	collectionName: string,
-	mightAdd: DBFields,
-	mightDrop: DBFields,
+	mightAdd: DBColumns,
+	mightDrop: DBColumns,
 	ambiguityResponses?: AmbiguityResponses
-): Promise<{ added: DBFields; dropped: DBFields; renamed: Renamed }> {
-	const added: DBFields = {};
-	const dropped: DBFields = {};
+): Promise<{ added: DBColumns; dropped: DBColumns; renamed: Renamed }> {
+	const added: DBColumns = {};
+	const dropped: DBColumns = {};
 	const renamed: Renamed = [];
 
-	for (const [fieldName, field] of Object.entries(mightAdd)) {
-		let oldFieldName = ambiguityResponses
-			? ambiguityResponses.fieldRenames[collectionName]?.[fieldName] ?? '__NEW__'
+	for (const [columnName, column] of Object.entries(mightAdd)) {
+		let oldColumnName = ambiguityResponses
+			? ambiguityResponses.columnRenames[collectionName]?.[columnName] ?? '__NEW__'
 			: undefined;
-		if (!oldFieldName) {
+		if (!oldColumnName) {
 			const res = await prompts(
 				{
 					type: 'select',
-					name: 'fieldName',
+					name: 'columnName',
 					message:
-						'New field ' +
-						color.blue(color.bold(`${collectionName}.${fieldName}`)) +
-						' detected. Was this renamed from an existing field?',
+						'New column ' +
+						color.blue(color.bold(`${collectionName}.${columnName}`)) +
+						' detected. Was this renamed from an existing column?',
 					choices: [
-						{ title: 'New field (not renamed from existing)', value: '__NEW__' },
+						{ title: 'New column (not renamed from existing)', value: '__NEW__' },
 						...Object.keys(mightDrop)
 							.filter((key) => !(key in renamed))
 							.map((key) => ({ title: key, value: key })),
@@ -245,18 +245,18 @@ async function resolveFieldRenames(
 					},
 				}
 			);
-			oldFieldName = res.fieldName as string;
+			oldColumnName = res.columnName as string;
 		}
 
-		if (oldFieldName === '__NEW__') {
-			added[fieldName] = field;
+		if (oldColumnName === '__NEW__') {
+			added[columnName] = column;
 		} else {
-			renamed.push({ from: oldFieldName, to: fieldName });
+			renamed.push({ from: oldColumnName, to: columnName });
 		}
 	}
-	for (const [droppedFieldName, droppedField] of Object.entries(mightDrop)) {
-		if (!renamed.find((r) => r.from === droppedFieldName)) {
-			dropped[droppedFieldName] = droppedField;
+	for (const [droppedColumnName, droppedColumn] of Object.entries(mightDrop)) {
+		if (!renamed.find((r) => r.from === droppedColumnName)) {
+			dropped[droppedColumnName] = droppedColumn;
 		}
 	}
 
@@ -339,7 +339,7 @@ function getDroppedCollections(
 	return dropped;
 }
 
-function getFieldRenameQueries(unescapedCollectionName: string, renamed: Renamed): string[] {
+function getColumnRenameQueries(unescapedCollectionName: string, renamed: Renamed): string[] {
 	const queries: string[] = [];
 	const collectionName = sqlite.escapeName(unescapedCollectionName);
 
@@ -359,25 +359,25 @@ function getFieldRenameQueries(unescapedCollectionName: string, renamed: Renamed
  */
 function getAlterTableQueries(
 	unescapedCollectionName: string,
-	added: DBFields,
-	dropped: DBFields
+	added: DBColumns,
+	dropped: DBColumns
 ): string[] {
 	const queries: string[] = [];
 	const collectionName = sqlite.escapeName(unescapedCollectionName);
 
-	for (const [unescFieldName, field] of Object.entries(added)) {
-		const fieldName = sqlite.escapeName(unescFieldName);
-		const type = schemaTypeToSqlType(field.type);
-		const q = `ALTER TABLE ${collectionName} ADD COLUMN ${fieldName} ${type}${getModifiers(
-			fieldName,
-			field
+	for (const [unescColumnName, column] of Object.entries(added)) {
+		const columnName = sqlite.escapeName(unescColumnName);
+		const type = schemaTypeToSqlType(column.type);
+		const q = `ALTER TABLE ${collectionName} ADD COLUMN ${columnName} ${type}${getModifiers(
+			columnName,
+			column
 		)}`;
 		queries.push(q);
 	}
 
-	for (const unescFieldName of Object.keys(dropped)) {
-		const fieldName = sqlite.escapeName(unescFieldName);
-		const q = `ALTER TABLE ${collectionName} DROP COLUMN ${fieldName}`;
+	for (const unescColumnName of Object.keys(dropped)) {
+		const columnName = sqlite.escapeName(unescColumnName);
+		const q = `ALTER TABLE ${collectionName} DROP COLUMN ${columnName}`;
 		queries.push(q);
 	}
 
@@ -393,7 +393,7 @@ function getRecreateTableQueries({
 }: {
 	collectionName: string;
 	newCollection: DBCollection;
-	added: Record<string, DBField>;
+	added: Record<string, DBColumn>;
 	hasDataLoss: boolean;
 	migrateHiddenPrimaryKey: boolean;
 }): string[] {
@@ -407,7 +407,7 @@ function getRecreateTableQueries({
 			getCreateTableQuery(unescCollectionName, newCollection),
 		];
 	}
-	const newColumns = [...Object.keys(newCollection.fields)];
+	const newColumns = [...Object.keys(newCollection.columns)];
 	if (migrateHiddenPrimaryKey) {
 		newColumns.unshift('_id');
 	}
@@ -434,44 +434,44 @@ function isEmpty(obj: Record<string, unknown>) {
  *
  * @see https://www.sqlite.org/lang_altertable.html#alter_table_add_column
  */
-function canAlterTableAddColumn(field: DBField) {
-	if (field.schema.unique) return false;
-	if (hasRuntimeDefault(field)) return false;
-	if (!field.schema.optional && !hasDefault(field)) return false;
-	if (hasPrimaryKey(field)) return false;
-	if (getReferencesConfig(field)) return false;
+function canAlterTableAddColumn(column: DBColumn) {
+	if (column.schema.unique) return false;
+	if (hasRuntimeDefault(column)) return false;
+	if (!column.schema.optional && !hasDefault(column)) return false;
+	if (hasPrimaryKey(column)) return false;
+	if (getReferencesConfig(column)) return false;
 	return true;
 }
 
-function canAlterTableDropColumn(field: DBField) {
-	if (field.schema.unique) return false;
-	if (hasPrimaryKey(field)) return false;
+function canAlterTableDropColumn(column: DBColumn) {
+	if (column.schema.unique) return false;
+	if (hasPrimaryKey(column)) return false;
 	return true;
 }
 
 type DataLossReason = 'added-required' | 'added-unique' | 'updated-type';
 type DataLossResponse =
 	| { dataLoss: false }
-	| { dataLoss: true; fieldName: string; reason: DataLossReason };
+	| { dataLoss: true; columnName: string; reason: DataLossReason };
 
 function canRecreateTableWithoutDataLoss(
-	added: DBFields,
-	updated: UpdatedFields
+	added: DBColumns,
+	updated: UpdatedColumns
 ): DataLossResponse {
-	for (const [fieldName, a] of Object.entries(added)) {
+	for (const [columnName, a] of Object.entries(added)) {
 		if (hasPrimaryKey(a) && a.type !== 'number' && !hasDefault(a)) {
-			return { dataLoss: true, fieldName, reason: 'added-required' };
+			return { dataLoss: true, columnName, reason: 'added-required' };
 		}
 		if (!a.schema.optional && !hasDefault(a)) {
-			return { dataLoss: true, fieldName, reason: 'added-required' };
+			return { dataLoss: true, columnName, reason: 'added-required' };
 		}
 		if (!a.schema.optional && a.schema.unique) {
-			return { dataLoss: true, fieldName, reason: 'added-unique' };
+			return { dataLoss: true, columnName, reason: 'added-unique' };
 		}
 	}
-	for (const [fieldName, u] of Object.entries(updated)) {
+	for (const [columnName, u] of Object.entries(updated)) {
 		if (u.old.type !== u.new.type && !canChangeTypeWithoutQuery(u.old, u.new)) {
-			return { dataLoss: true, fieldName, reason: 'updated-type' };
+			return { dataLoss: true, columnName, reason: 'updated-type' };
 		}
 	}
 	return { dataLoss: false };
@@ -503,58 +503,58 @@ function getUpdated<T>(oldObj: Record<string, T>, newObj: Record<string, T>) {
 	return updated;
 }
 
-type UpdatedFields = Record<string, { old: DBField; new: DBField }>;
+type UpdatedColumns = Record<string, { old: DBColumn; new: DBColumn }>;
 
-function getUpdatedFields(oldFields: DBFields, newFields: DBFields): UpdatedFields {
-	const updated: UpdatedFields = {};
-	for (const [key, newField] of Object.entries(newFields)) {
-		let oldField = oldFields[key];
-		if (!oldField) continue;
+function getUpdatedColumns(oldColumns: DBColumns, newColumns: DBColumns): UpdatedColumns {
+	const updated: UpdatedColumns = {};
+	for (const [key, newColumn] of Object.entries(newColumns)) {
+		let oldColumn = oldColumns[key];
+		if (!oldColumn) continue;
 
-		if (oldField.type !== newField.type && canChangeTypeWithoutQuery(oldField, newField)) {
+		if (oldColumn.type !== newColumn.type && canChangeTypeWithoutQuery(oldColumn, newColumn)) {
 			// If we can safely change the type without a query,
 			// try parsing the old schema as the new schema.
-			// This lets us diff the fields as if they were the same type.
-			const asNewField = fieldSchema.safeParse({
-				type: newField.type,
-				schema: oldField.schema,
+			// This lets us diff the columns as if they were the same type.
+			const asNewColumn = columnSchema.safeParse({
+				type: newColumn.type,
+				schema: oldColumn.schema,
 			});
-			if (asNewField.success) {
-				oldField = asNewField.data;
+			if (asNewColumn.success) {
+				oldColumn = asNewColumn.data;
 			}
 			// If parsing fails, move on to the standard diff.
 		}
 
-		const diff = deepDiff(oldField, newField);
+		const diff = deepDiff(oldColumn, newColumn);
 
 		if (diff) {
-			updated[key] = { old: oldField, new: newField };
+			updated[key] = { old: oldColumn, new: newColumn };
 		}
 	}
 	return updated;
 }
-const typeChangesWithoutQuery: Array<{ from: FieldType; to: FieldType }> = [
+const typeChangesWithoutQuery: Array<{ from: ColumnType; to: ColumnType }> = [
 	{ from: 'boolean', to: 'number' },
 	{ from: 'date', to: 'text' },
 	{ from: 'json', to: 'text' },
 ];
 
-function canChangeTypeWithoutQuery(oldField: DBField, newField: DBField) {
+function canChangeTypeWithoutQuery(oldColumn: DBColumn, newColumn: DBColumn) {
 	return typeChangesWithoutQuery.some(
-		({ from, to }) => oldField.type === from && newField.type === to
+		({ from, to }) => oldColumn.type === from && newColumn.type === to
 	);
 }
 
-// Using `DBField` will not narrow `default` based on the column `type`
-// Handle each field separately
-type WithDefaultDefined<T extends DBField> = T & Required<Pick<T['schema'], 'default'>>;
-type DBFieldWithDefault =
-	| WithDefaultDefined<TextField>
-	| WithDefaultDefined<DateField>
-	| WithDefaultDefined<NumberField>
-	| WithDefaultDefined<BooleanField>
-	| WithDefaultDefined<JsonField>;
+// Using `DBColumn` will not narrow `default` based on the column `type`
+// Handle each column separately
+type WithDefaultDefined<T extends DBColumn> = T & Required<Pick<T['schema'], 'default'>>;
+type DBColumnWithDefault =
+	| WithDefaultDefined<TextColumn>
+	| WithDefaultDefined<DateColumn>
+	| WithDefaultDefined<NumberColumn>
+	| WithDefaultDefined<BooleanColumn>
+	| WithDefaultDefined<JsonColumn>;
 
-function hasRuntimeDefault(field: DBField): field is DBFieldWithDefault {
-	return !!(field.schema.default && isSerializedSQL(field.schema.default));
+function hasRuntimeDefault(column: DBColumn): column is DBColumnWithDefault {
+	return !!(column.schema.default && isSerializedSQL(column.schema.default));
 }

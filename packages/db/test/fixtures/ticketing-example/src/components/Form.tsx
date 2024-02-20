@@ -4,25 +4,25 @@ import { type ComponentProps, createContext } from 'preact';
 import { useContext, useState } from 'preact/hooks';
 import { navigate } from 'astro:transitions/client';
 import {
-	type FieldErrors,
+	type ColumnErrors,
 	type FormState,
 	type FormValidator,
 	formNameInputProps,
 	getInitialFormState,
 	toSetValidationErrors,
 	toTrackAstroSubmitStatus,
-	toValidateField,
+	toValidateColumn,
 	validateForm,
 } from 'simple:form';
 
-export function useCreateFormContext(validator: FormValidator, fieldErrors?: FieldErrors) {
-	const initial = getInitialFormState({ validator, fieldErrors });
+export function useCreateFormContext(validator: FormValidator, columnErrors?: ColumnErrors) {
+	const initial = getInitialFormState({ validator, columnErrors });
 	const [formState, setFormState] = useState<FormState>(initial);
 	return {
 		value: formState,
 		set: setFormState,
 		setValidationErrors: toSetValidationErrors(setFormState),
-		validateField: toValidateField(setFormState),
+		validateColumn: toValidateColumn(setFormState),
 		trackAstroSubmitStatus: toTrackAstroSubmitStatus(setFormState),
 	};
 }
@@ -45,15 +45,15 @@ export function Form({
 	children,
 	validator,
 	context,
-	fieldErrors,
+	columnErrors,
 	name,
 	...formProps
 }: {
 	validator: FormValidator;
 	context?: FormContextType;
-	fieldErrors?: FieldErrors;
+	columnErrors?: ColumnErrors;
 } & Omit<ComponentProps<'form'>, 'method' | 'onSubmit'>) {
-	const formContext = context ?? useCreateFormContext(validator, fieldErrors);
+	const formContext = context ?? useCreateFormContext(validator, columnErrors);
 
 	return (
 		<FormContext.Provider value={formContext}>
@@ -80,7 +80,7 @@ export function Form({
 						return formContext.trackAstroSubmitStatus();
 					}
 
-					formContext.setValidationErrors(parsed.fieldErrors);
+					formContext.setValidationErrors(parsed.columnErrors);
 				}}
 			>
 				{name ? <input {...formNameInputProps} value={name} /> : null}
@@ -92,28 +92,28 @@ export function Form({
 
 export function Input({ onInput, ...inputProps }: ComponentProps<'input'> & { name: string }) {
 	const formContext = useFormContext();
-	const fieldState = formContext.value.fields[inputProps.name];
-	if (!fieldState) {
+	const columnState = formContext.value.columns[inputProps.name];
+	if (!columnState) {
 		throw new Error(
 			`Input "${inputProps.name}" not found in form. Did you use the <Form> component?`
 		);
 	}
 
-	const { hasErroredOnce, validationErrors, validator } = fieldState;
+	const { hasErroredOnce, validationErrors, validator } = columnState;
 	return (
 		<>
 			<input
 				onBlur={async (e) => {
 					const value = e.currentTarget.value;
 					if (value === '') return;
-					formContext.validateField(inputProps.name, value, validator);
+					formContext.validateColumn(inputProps.name, value, validator);
 				}}
 				onInput={async (e) => {
 					onInput?.(e);
 
 					if (!hasErroredOnce) return;
 					const value = e.currentTarget.value;
-					formContext.validateField(inputProps.name, value, validator);
+					formContext.validateColumn(inputProps.name, value, validator);
 				}}
 				{...inputProps}
 			/>
