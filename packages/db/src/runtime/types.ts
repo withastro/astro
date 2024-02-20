@@ -1,6 +1,6 @@
 import type { ColumnDataType, ColumnBaseConfig } from 'drizzle-orm';
 import type { SQLiteColumn, SQLiteTableWithColumns } from 'drizzle-orm/sqlite-core';
-import type { DBField, FieldsConfig } from '../core/types.js';
+import type { DBColumn, ColumnsConfig } from '../core/types.js';
 
 type GeneratedConfig<T extends ColumnDataType = ColumnDataType> = Pick<
 	ColumnBaseConfig<T, string>,
@@ -62,7 +62,7 @@ export type AstroJson<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 	}
 >;
 
-export type Column<T extends DBField['type'], S extends GeneratedConfig> = T extends 'boolean'
+export type Column<T extends DBColumn['type'], S extends GeneratedConfig> = T extends 'boolean'
 	? AstroBoolean<S>
 	: T extends 'number'
 		? AstroNumber<S>
@@ -76,23 +76,23 @@ export type Column<T extends DBField['type'], S extends GeneratedConfig> = T ext
 
 export type Table<
 	TTableName extends string,
-	TFields extends FieldsConfig,
+	TColumns extends ColumnsConfig,
 > = SQLiteTableWithColumns<{
 	name: TTableName;
 	schema: undefined;
 	dialect: 'sqlite';
 	columns: {
-		[K in Extract<keyof TFields, string>]: Column<
-			TFields[K]['type'],
+		[K in Extract<keyof TColumns, string>]: Column<
+			TColumns[K]['type'],
 			{
 				tableName: TTableName;
 				name: K;
-				hasDefault: TFields[K]['schema'] extends { default: NonNullable<unknown> }
+				hasDefault: TColumns[K]['schema'] extends { default: NonNullable<unknown> }
 					? true
-					: TFields[K]['schema'] extends { primaryKey: true }
+					: TColumns[K]['schema'] extends { primaryKey: true }
 						? true
 						: false;
-				notNull: TFields[K]['schema']['optional'] extends true ? false : true;
+				notNull: TColumns[K]['schema']['optional'] extends true ? false : true;
 			}
 		>;
 	};

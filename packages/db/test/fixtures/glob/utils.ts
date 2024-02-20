@@ -14,9 +14,9 @@ export function createGlob({ db, mode }: Pick<DBDataContext, 'db' | 'mode'>) {
 	) {
 		// TODO: expose `table`
 		const { table } = opts.into as any;
-		const fileField = table.file;
-		if (!fileField) {
-			throw new Error('`file` field is required for glob collections.');
+		const fileColumn = table.file;
+		if (!fileColumn) {
+			throw new Error('`file` column is required for glob collections.');
 		}
 		if (mode === 'dev') {
 			chokidar
@@ -33,12 +33,12 @@ export function createGlob({ db, mode }: Pick<DBDataContext, 'db' | 'mode'>) {
 						.insert(table)
 						.values({ ...parsed, file })
 						.onConflictDoUpdate({
-							target: fileField,
+							target: fileColumn,
 							set: parsed,
 						});
 				})
 				.on('unlink', async (file) => {
-					await db.delete(table).where(eq(fileField, file));
+					await db.delete(table).where(eq(fileColumn, file));
 				});
 		} else {
 			const files = await fastGlob(pattern);

@@ -1,25 +1,25 @@
 import { defineConfig } from 'astro/config';
-import astroDb, { defineCollection, field } from '@astrojs/db';
+import astroDb, { defineCollection, column } from '@astrojs/db';
 
 const Recipe = defineCollection({
-	fields: {
-		id: field.number({ primaryKey: true }),
-		title: field.text(),
-		description: field.text(),
+	columns: {
+		id: column.number({ primaryKey: true }),
+		title: column.text(),
+		description: column.text(),
 	},
 });
 
 const Ingredient = defineCollection({
-	fields: {
-		id: field.number({ primaryKey: true }),
-		name: field.text(),
-		quantity: field.number(),
-		recipeId: field.number(),
+	columns: {
+		id: column.number({ primaryKey: true }),
+		name: column.text(),
+		quantity: column.number(),
+		recipeId: column.number(),
 	},
 	indexes: {
 		recipeIdx: { on: 'recipeId' },
 	},
-	foreignKeys: [{ fields: 'recipeId', references: () => [Recipe.fields.id] }],
+	foreignKeys: [{ columns: 'recipeId', references: () => [Recipe.columns.id] }],
 });
 
 export default defineConfig({

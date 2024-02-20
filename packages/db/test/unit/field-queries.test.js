@@ -5,27 +5,27 @@ import {
 	getMigrationQueries,
 } from '../../dist/core/cli/migration-queries.js';
 import { getCreateTableQuery } from '../../dist/core/queries.js';
-import { field, defineCollection, collectionSchema } from '../../dist/core/types.js';
+import { column, defineCollection, collectionSchema } from '../../dist/core/types.js';
 import { NOW, sql } from '../../dist/runtime/index.js';
 
 const COLLECTION_NAME = 'Users';
 
 // `parse` to resolve schema transformations
-// ex. convert field.date() to ISO strings
+// ex. convert column.date() to ISO strings
 const userInitial = collectionSchema.parse(
 	defineCollection({
-		fields: {
-			name: field.text(),
-			age: field.number(),
-			email: field.text({ unique: true }),
-			mi: field.text({ optional: true }),
+		columns: {
+			name: column.text(),
+			age: column.number(),
+			email: column.text({ unique: true }),
+			mi: column.text({ optional: true }),
 		},
 	})
 );
 
 const defaultAmbiguityResponses = {
 	collectionRenames: {},
-	fieldRenames: {},
+	columnRenames: {},
 };
 
 function userChangeQueries(
@@ -53,7 +53,7 @@ function configChangeQueries(
 	});
 }
 
-describe('field queries', () => {
+describe('column queries', () => {
 	describe('getMigrationQueries', () => {
 		it('should be empty when collections are the same', async () => {
 			const oldCollections = { [COLLECTION_NAME]: userInitial };
@@ -97,16 +97,16 @@ describe('field queries', () => {
 		it('should be empty when type updated to same underlying SQL type', async () => {
 			const blogInitial = collectionSchema.parse({
 				...userInitial,
-				fields: {
-					title: field.text(),
-					draft: field.boolean(),
+				columns: {
+					title: column.text(),
+					draft: column.boolean(),
 				},
 			});
 			const blogFinal = collectionSchema.parse({
 				...userInitial,
-				fields: {
-					...blogInitial.fields,
-					draft: field.number(),
+				columns: {
+					...blogInitial.columns,
+					draft: column.number(),
 				},
 			});
 			const { queries } = await userChangeQueries(blogInitial, blogFinal);
@@ -116,17 +116,17 @@ describe('field queries', () => {
 		it('should respect user primary key without adding a hidden id', async () => {
 			const user = collectionSchema.parse({
 				...userInitial,
-				fields: {
-					...userInitial.fields,
-					id: field.number({ primaryKey: true }),
+				columns: {
+					...userInitial.columns,
+					id: column.number({ primaryKey: true }),
 				},
 			});
 
 			const userFinal = collectionSchema.parse({
 				...user,
-				fields: {
-					...user.fields,
-					name: field.text({ unique: true, optional: true }),
+				columns: {
+					...user.columns,
+					name: column.text({ unique: true, optional: true }),
 				},
 			});
 
@@ -143,19 +143,19 @@ describe('field queries', () => {
 		});
 
 		describe('ALTER RENAME COLUMN', () => {
-			it('when renaming a field', async () => {
+			it('when renaming a column', async () => {
 				const userFinal = {
 					...userInitial,
-					fields: {
-						...userInitial.fields,
+					columns: {
+						...userInitial.columns,
 					},
 				};
-				userFinal.fields.middleInitial = userFinal.fields.mi;
-				delete userFinal.fields.mi;
+				userFinal.columns.middleInitial = userFinal.columns.mi;
+				delete userFinal.columns.mi;
 
 				const { queries } = await userChangeQueries(userInitial, userFinal, {
 					collectionRenames: {},
-					fieldRenames: { [COLLECTION_NAME]: { middleInitial: 'mi' } },
+					columnRenames: { [COLLECTION_NAME]: { middleInitial: 'mi' } },
 				});
 				expect(queries).to.deep.equal([
 					`ALTER TABLE "${COLLECTION_NAME}" RENAME COLUMN "mi" TO "middleInitial"`,
@@ -164,12 +164,12 @@ describe('field queries', () => {
 		});
 
 		describe('Lossy table recreate', () => {
-			it('when changing a field type', async () => {
+			it('when changing a column type', async () => {
 				const userFinal = {
 					...userInitial,
-					fields: {
-						...userInitial.fields,
-						age: field.text(),
+					columns: {
+						...userInitial.columns,
+						age: column.text(),
 					},
 				};
 
@@ -181,12 +181,12 @@ describe('field queries', () => {
 				]);
 			});
 
-			it('when adding a required field without a default', async () => {
+			it('when adding a required column without a default', async () => {
 				const userFinal = {
 					...userInitial,
-					fields: {
-						...userInitial.fields,
-						phoneNumber: field.text(),
+					columns: {
+						...userInitial.columns,
+						phoneNumber: column.text(),
 					},
 				};
 
@@ -203,9 +203,9 @@ describe('field queries', () => {
 			it('when adding a primary key', async () => {
 				const userFinal = {
 					...userInitial,
-					fields: {
-						...userInitial.fields,
-						id: field.number({ primaryKey: true }),
+					columns: {
+						...userInitial.columns,
+						id: column.number({ primaryKey: true }),
 					},
 				};
 
@@ -224,9 +224,9 @@ describe('field queries', () => {
 			it('when dropping a primary key', async () => {
 				const user = {
 					...userInitial,
-					fields: {
-						...userInitial.fields,
-						id: field.number({ primaryKey: true }),
+					columns: {
+						...userInitial.columns,
+						id: column.number({ primaryKey: true }),
 					},
 				};
 
@@ -242,12 +242,12 @@ describe('field queries', () => {
 				]);
 			});
 
-			it('when adding an optional unique field', async () => {
+			it('when adding an optional unique column', async () => {
 				const userFinal = {
 					...userInitial,
-					fields: {
-						...userInitial.fields,
-						phoneNumber: field.text({ unique: true, optional: true }),
+					columns: {
+						...userInitial.columns,
+						phoneNumber: column.text({ unique: true, optional: true }),
 					},
 				};
 
@@ -267,11 +267,11 @@ describe('field queries', () => {
 			it('when dropping unique column', async () => {
 				const userFinal = {
 					...userInitial,
-					fields: {
-						...userInitial.fields,
+					columns: {
+						...userInitial.columns,
 					},
 				};
-				delete userFinal.fields.email;
+				delete userFinal.columns.email;
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
 				expect(queries).to.have.lengthOf(4);
@@ -289,17 +289,17 @@ describe('field queries', () => {
 			it('when updating to a runtime default', async () => {
 				const initial = collectionSchema.parse({
 					...userInitial,
-					fields: {
-						...userInitial.fields,
-						age: field.date(),
+					columns: {
+						...userInitial.columns,
+						age: column.date(),
 					},
 				});
 
 				const userFinal = collectionSchema.parse({
 					...initial,
-					fields: {
-						...initial.fields,
-						age: field.date({ default: NOW }),
+					columns: {
+						...initial.columns,
+						age: column.date({ default: NOW }),
 					},
 				});
 
@@ -316,12 +316,12 @@ describe('field queries', () => {
 				]);
 			});
 
-			it('when adding a field with a runtime default', async () => {
+			it('when adding a column with a runtime default', async () => {
 				const userFinal = collectionSchema.parse({
 					...userInitial,
-					fields: {
-						...userInitial.fields,
-						birthday: field.date({ default: NOW }),
+					columns: {
+						...userInitial.columns,
+						birthday: column.date({ default: NOW }),
 					},
 				});
 
@@ -345,12 +345,12 @@ describe('field queries', () => {
 			 *
 			 * @see https://planetscale.com/blog/safely-making-database-schema-changes#backwards-compatible-changes
 			 */
-			it('when changing a field to required', async () => {
+			it('when changing a column to required', async () => {
 				const userFinal = {
 					...userInitial,
-					fields: {
-						...userInitial.fields,
-						mi: field.text(),
+					columns: {
+						...userInitial.columns,
+						mi: column.text(),
 					},
 				};
 
@@ -368,12 +368,12 @@ describe('field queries', () => {
 				]);
 			});
 
-			it('when changing a field to unique', async () => {
+			it('when changing a column to unique', async () => {
 				const userFinal = {
 					...userInitial,
-					fields: {
-						...userInitial.fields,
-						age: field.number({ unique: true }),
+					columns: {
+						...userInitial.columns,
+						age: column.number({ unique: true }),
 					},
 				};
 
@@ -392,12 +392,12 @@ describe('field queries', () => {
 		});
 
 		describe('ALTER ADD COLUMN', () => {
-			it('when adding an optional field', async () => {
+			it('when adding an optional column', async () => {
 				const userFinal = {
 					...userInitial,
-					fields: {
-						...userInitial.fields,
-						birthday: field.date({ optional: true }),
+					columns: {
+						...userInitial.columns,
+						birthday: column.date({ optional: true }),
 					},
 				};
 
@@ -405,13 +405,13 @@ describe('field queries', () => {
 				expect(queries).to.deep.equal(['ALTER TABLE "Users" ADD COLUMN "birthday" text']);
 			});
 
-			it('when adding a required field with default', async () => {
+			it('when adding a required column with default', async () => {
 				const defaultDate = new Date('2023-01-01');
 				const userFinal = collectionSchema.parse({
 					...userInitial,
-					fields: {
-						...userInitial.fields,
-						birthday: field.date({ default: new Date('2023-01-01') }),
+					columns: {
+						...userInitial.columns,
+						birthday: column.date({ default: new Date('2023-01-01') }),
 					},
 				});
 
@@ -423,12 +423,12 @@ describe('field queries', () => {
 		});
 
 		describe('ALTER DROP COLUMN', () => {
-			it('when removing optional or required fields', async () => {
+			it('when removing optional or required columns', async () => {
 				const userFinal = {
 					...userInitial,
-					fields: {
-						name: userInitial.fields.name,
-						email: userInitial.fields.email,
+					columns: {
+						name: userInitial.columns.name,
+						email: userInitial.columns.email,
 					},
 				};
 

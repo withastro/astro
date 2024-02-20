@@ -1,14 +1,14 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { getCollectionChangeQueries } from '../../dist/core/cli/migration-queries.js';
-import { field, collectionSchema } from '../../dist/core/types.js';
+import { column, collectionSchema } from '../../dist/core/types.js';
 
 const userInitial = collectionSchema.parse({
-	fields: {
-		name: field.text(),
-		age: field.number(),
-		email: field.text({ unique: true }),
-		mi: field.text({ optional: true }),
+	columns: {
+		name: column.text(),
+		age: column.number(),
+		email: column.text({ unique: true }),
+		mi: column.text({ optional: true }),
 	},
 	indexes: {},
 	writable: false,

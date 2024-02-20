@@ -1,23 +1,23 @@
 import { defineConfig } from 'astro/config';
-import db, { defineCollection, defineWritableCollection, field, sql, NOW } from '@astrojs/db';
+import db, { defineCollection, defineWritableCollection, column, sql, NOW } from '@astrojs/db';
 
 const Author = defineCollection({
-	fields: {
-		name: field.text(),
+	columns: {
+		name: column.text(),
 	},
 });
 
 const Themes = defineWritableCollection({
-	fields: {
-		name: field.text(),
-		added: field.date({
+	columns: {
+		name: column.text(),
+		added: column.date({
 			default: sql`CURRENT_TIMESTAMP`
 		}),
-		updated: field.date({
+		updated: column.date({
 			default: NOW
 		}),
-		isDark: field.boolean({ default: sql`TRUE` }),
-		owner: field.text({ optional: true, default: sql`NULL` }),
+		isDark: column.boolean({ default: sql`TRUE` }),
+		owner: column.text({ optional: true, default: sql`NULL` }),
 	},
 });
 

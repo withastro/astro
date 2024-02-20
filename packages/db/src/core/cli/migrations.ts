@@ -91,7 +91,7 @@ export async function loadMigration(
 
 export async function loadInitialSnapshot(): Promise<DBSnapshot> {
 	const snapshot = JSON.parse(await readFile('./migrations/0000_snapshot.json', 'utf-8'));
-	// `experimentalVersion: 1` -- added the version field
+	// `experimentalVersion: 1` -- added the version column
 	if (snapshot.experimentalVersion === 1) {
 		return snapshot;
 	}
