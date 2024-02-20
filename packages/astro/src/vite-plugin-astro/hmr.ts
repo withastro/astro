@@ -17,7 +17,7 @@ export async function handleHotUpdate(
 	// If `ctx.file` is part of a CSS dependency of any Astro file, invalidate its `astroFileToCompileMetadata`
 	// so the next transform will re-generate it.
 	for (const [astroFile, compileData] of astroFileToCompileMetadata) {
-		const isUpdatedFileCssDep = compileData.css.some((css) => css.dependencies?.has(ctx.file));
+		const isUpdatedFileCssDep = compileData.css.some((css) => css.dependencies?.includes(ctx.file));
 		if (isUpdatedFileCssDep) {
 			astroFileToCompileMetadata.delete(astroFile);
 		}

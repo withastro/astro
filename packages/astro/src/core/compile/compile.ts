@@ -22,7 +22,10 @@ export interface CompileProps {
 
 export interface CompileCssResult {
 	code: string;
-	dependencies?: Set<string>;
+	/**
+	 * The dependencies of the transformed CSS (Normalized paths)
+	 */
+	dependencies?: string[];
 }
 
 export interface CompileResult extends Omit<TransformResult, 'css'> {

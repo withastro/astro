@@ -1,6 +1,6 @@
 import type { TransformOptions } from '@astrojs/compiler';
 import fs from 'node:fs';
-import { preprocessCSS, type ResolvedConfig } from 'vite';
+import { normalizePath, preprocessCSS, type ResolvedConfig } from 'vite';
 import { AstroErrorData, CSSError, positionAt } from '../errors/index.js';
 import type { CompileCssResult } from './compile.js';
 
@@ -23,7 +23,10 @@ export function createStylePreprocessor({
 		const id = `${filename}?astro&type=style&index=${index}&lang${lang}`;
 		try {
 			const result = await preprocessCSS(content, id, viteConfig);
-			cssDeps[index] = result.deps;
+
+			if (result.deps) {
+				cssDeps[index] = [...result.deps].map((dep) => normalizePath(dep));
+			}
 
 			let map: string | undefined;
 			if (result.map) {
