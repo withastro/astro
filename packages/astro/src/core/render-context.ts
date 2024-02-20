@@ -180,17 +180,14 @@ export class RenderContext {
 			clientDirectives,
 			compressHTML,
 			i18n,
-			manifest,
 			logger,
 			renderers,
-			resolve,
 			site,
 			serverLike,
 		} = pipeline;
-		const { links, scripts, styles } = await pipeline.headElements(routeData);
-		const componentMetadata =
-			(await pipeline.componentMetadata(routeData)) ?? manifest.componentMetadata;
 		const { defaultLocale, locales, strategy } = i18n ?? {};
+		const componentMetadata = await pipeline.componentMetadata(routeData);
+		const { links, scripts, styles } = await pipeline.headElements(routeData);
 		const partial = Boolean(mod.partial);
 		return createResult({
 			adapterName,
@@ -207,7 +204,7 @@ export class RenderContext {
 			partial,
 			pathname,
 			renderers,
-			resolve,
+			resolve: pipeline.resolve.bind(pipeline),
 			request,
 			route: routeData.route,
 			strategy,

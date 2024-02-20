@@ -35,35 +35,13 @@ export class BuildPipeline extends Pipeline {
 		readonly config = options.settings.config,
 		readonly settings = options.settings
 	) {
-		const resolveCache = new Map<string, string>();
-		async function resolve(specifier: string) {
-			if (resolveCache.has(specifier)) {
-				return resolveCache.get(specifier)!;
-			}
-			const hashedFilePath = manifest.entryModules[specifier];
-			if (typeof hashedFilePath !== 'string' || hashedFilePath === '') {
-				// If no "astro:scripts/before-hydration.js" script exists in the build,
-				// then we can assume that no before-hydration scripts are needed.
-				if (specifier === BEFORE_HYDRATION_SCRIPT_ID) {
-					resolveCache.set(specifier, '');
-					return '';
-				}
-				throw new Error(`Cannot find the built path for ${specifier}`);
-			}
-			const assetLink = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
-			resolveCache.set(specifier, assetLink);
-			return assetLink;
-		}
-		const serverLike = isServerLikeOutput(config);
-		const streaming = true;
 		super(
 			options.logger,
 			manifest,
 			options.mode,
 			manifest.renderers,
-			resolve,
-			serverLike,
-			streaming
+			isServerLikeOutput(config),
+			true
 		);
 	}
 
@@ -126,6 +104,10 @@ export class BuildPipeline extends Pipeline {
 		};
 	}
 
+	componentMetadata() {
+		return this.manifest.componentMetadata;
+	}
+
 	headElements(routeData: RouteData): Pick<SSRResult, 'scripts' | 'styles' | 'links'> {
 		const {
 			internals,
@@ -169,7 +151,27 @@ export class BuildPipeline extends Pipeline {
 		return { scripts, styles, links };
 	}
 
-	componentMetadata() {}
+	resolveCache = new Map<string, string>();
+
+	resolve(specifier: string) {
+		const { resolveCache, manifest } = this;
+		if (resolveCache.has(specifier)) {
+			return resolveCache.get(specifier)!;
+		}
+		const hashedFilePath = manifest.entryModules[specifier];
+		if (typeof hashedFilePath !== 'string' || hashedFilePath === '') {
+			// If no "astro:scripts/before-hydration.js" script exists in the build,
+			// then we can assume that no before-hydration scripts are needed.
+			if (specifier === BEFORE_HYDRATION_SCRIPT_ID) {
+				resolveCache.set(specifier, '');
+				return '';
+			}
+			throw new Error(`Cannot find the built path for ${specifier}`);
+		}
+		const assetLink = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
+		resolveCache.set(specifier, assetLink);
+		return assetLink;
+	}
 
 	/**
 	 * It collects the routes to generate during the build.

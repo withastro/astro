@@ -11,7 +11,6 @@ import {
 	removeTrailingForwardSlash,
 } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { createAssetLink } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 import { AppPipeline } from './pipeline.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
@@ -86,7 +85,7 @@ export class App {
 			routes: manifest.routes.map((route) => route.routeData),
 		};
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
-		this.#pipeline = this.#createPipeline(streaming);
+		this.#pipeline = AppPipeline.create({ logger: this.#logger, manifest, streaming });
 		this.#adapterLogger = new AstroIntegrationLogger(
 			this.#logger.options,
 			this.#manifest.adapterName
@@ -95,38 +94,6 @@ export class App {
 
 	getAdapterLogger(): AstroIntegrationLogger {
 		return this.#adapterLogger;
-	}
-
-	/**
-	 * Creates a pipeline by reading the stored manifest
-	 *
-	 * @param streaming
-	 * @private
-	 */
-	#createPipeline(streaming = false) {
-		return AppPipeline.create({
-			logger: this.#logger,
-			manifest: this.#manifest,
-			mode: 'production',
-			renderers: this.#manifest.renderers,
-			resolve: async (specifier: string) => {
-				if (!(specifier in this.#manifest.entryModules)) {
-					throw new Error(`Unable to resolve [${specifier}]`);
-				}
-				const bundlePath = this.#manifest.entryModules[specifier];
-				switch (true) {
-					case bundlePath.startsWith('data:'):
-					case bundlePath.length === 0: {
-						return bundlePath;
-					}
-					default: {
-						return createAssetLink(bundlePath, this.#manifest.base, this.#manifest.assetsPrefix);
-					}
-				}
-			},
-			serverLike: true,
-			streaming,
-		});
 	}
 
 	set setManifestData(newManifestData: ManifestData) {

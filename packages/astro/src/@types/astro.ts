@@ -2696,7 +2696,7 @@ export interface SSRResult {
 		props: Record<string, any>,
 		slots: Record<string, any> | null
 	): AstroGlobal;
-	resolve: (s: string) => Promise<string>;
+	resolve(s: string): Promise<string> | string;
 	response: ResponseInit;
 	renderers: SSRLoadedRenderer[];
 	/**

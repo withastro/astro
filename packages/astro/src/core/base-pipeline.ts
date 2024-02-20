@@ -27,7 +27,6 @@ export abstract class Pipeline {
 		 */
 		readonly mode: RuntimeMode,
 		readonly renderers: SSRLoadedRenderer[],
-		readonly resolve: (s: string) => Promise<string>,
 		/**
 		 * Based on Astro config's `output` option, `true` if "server" or "hybrid".
 		 */
@@ -52,8 +51,19 @@ export abstract class Pipeline {
 		];
 	}
 
+	abstract componentMetadata(
+		routeData: RouteData
+	): Promise<SSRResult['componentMetadata']> | SSRResult['componentMetadata'];
 	abstract headElements(routeData: RouteData): Promise<HeadElements> | HeadElements;
-	abstract componentMetadata(routeData: RouteData): Promise<SSRResult['componentMetadata']> | void;
+
+	/**
+	 * Resolves specifiers in the inline hydrated scripts, such as
+	 * - \@astrojs/preact/client.js
+	 * - \@/components/Foo.vue
+	 * - /Users/macos/project/src/Foo.vue
+	 * - C:/Windows/project/src/Foo.vue (normalized slash)
+	 */
+	abstract resolve(s: string): Promise<string> | string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

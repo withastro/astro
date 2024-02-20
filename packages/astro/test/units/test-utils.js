@@ -191,7 +191,6 @@ export function createBasicPipeline(options = {}) {
 		options.manifest ?? {},
 		options.mode ?? 'development',
 		options.renderers ?? [],
-		options.resolve ?? ((s) => Promise.resolve(s)),
 		options.serverLike ?? true,
 		options.streaming ?? true,
 		options.adapterName,
@@ -199,11 +198,12 @@ export function createBasicPipeline(options = {}) {
 		options.compressHTML,
 		options.i18n,
 		options.middleware,
-		options.routeCache ?? new RouteCache(options.logging, mode),
+		options.routeCache ?? new RouteCache(options.logger ?? defaultLogger, mode),
 		options.site
 	);
-	pipeline.headElements = () => ({ scripts: new Set(), styles: new Set(), links: new Set() });
 	pipeline.componentMetadata = () => {};
+	pipeline.headElements = () => ({ scripts: new Set(), styles: new Set(), links: new Set() });
+	pipeline.resolve = id => id;
 	return pipeline;
 }
 

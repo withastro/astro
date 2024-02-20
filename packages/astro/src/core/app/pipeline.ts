@@ -1,21 +1,22 @@
 import type { RouteData, SSRElement, SSRResult } from '../../@types/astro.js';
 import { Pipeline } from '../base-pipeline.js';
-import { createModuleScriptElement, createStylesheetElementSet } from '../render/ssr-element.js';
+import {
+	createAssetLink,
+	createModuleScriptElement,
+	createStylesheetElementSet,
+} from '../render/ssr-element.js';
 
 export class AppPipeline extends Pipeline {
 	static create({
 		logger,
 		manifest,
-		mode,
-		renderers,
-		resolve,
-		serverLike,
 		streaming,
-	}: Pick<
-		AppPipeline,
-		'logger' | 'manifest' | 'mode' | 'renderers' | 'resolve' | 'serverLike' | 'streaming'
-	>) {
-		return new AppPipeline(logger, manifest, mode, renderers, resolve, serverLike, streaming);
+	}: Pick<AppPipeline, 'logger' | 'manifest' | 'streaming'>) {
+		return new AppPipeline(logger, manifest, 'production', manifest.renderers, true, streaming);
+	}
+
+	componentMetadata() {
+		return this.manifest.componentMetadata;
 	}
 
 	headElements(routeData: RouteData): Pick<SSRResult, 'scripts' | 'styles' | 'links'> {
@@ -40,5 +41,15 @@ export class AppPipeline extends Pipeline {
 		return { links, styles, scripts };
 	}
 
-	componentMetadata() {}
+	resolve(specifier: string) {
+		const { assetsPrefix, base, entryModules } = this.manifest;
+		if (!(specifier in entryModules)) {
+			throw new Error(`Unable to resolve [${specifier}]`);
+		}
+		const bundlePath = entryModules[specifier];
+		if (bundlePath.startsWith('data:') || bundlePath.length === 0) {
+			return bundlePath;
+		}
+		return createAssetLink(bundlePath, base, assetsPrefix);
+	}
 }

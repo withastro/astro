@@ -13,7 +13,6 @@ import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Pipeline, loadRenderer } from '../core/render/index.js';
 import { isPage, resolveIdToUrl, viteID } from '../core/util.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
-import { createResolve } from './resolve.js';
 import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
 import type { HeadElements } from '../core/base-pipeline.js';
@@ -37,10 +36,9 @@ export class DevPipeline extends Pipeline {
 		readonly config = settings.config
 	) {
 		const mode = 'development';
-		const resolve = createResolve(loader, config.root);
 		const serverLike = isServerLikeOutput(config);
 		const streaming = true;
-		super(logger, manifest, mode, [], resolve, serverLike, streaming);
+		super(logger, manifest, mode, [], serverLike, streaming);
 	}
 
 	static create({
@@ -50,6 +48,15 @@ export class DevPipeline extends Pipeline {
 		settings,
 	}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>) {
 		return new DevPipeline(loader, logger, manifest, settings);
+	}
+
+	componentMetadata(routeData: RouteData) {
+		const {
+			config: { root },
+			loader,
+		} = this;
+		const filePath = new URL(`./${routeData.component}`, root);
+		return getComponentMetadata(filePath, loader);
 	}
 
 	async headElements(routeData: RouteData): Promise<HeadElements> {
@@ -122,13 +129,8 @@ export class DevPipeline extends Pipeline {
 		return { scripts, styles, links };
 	}
 
-	componentMetadata(routeData: RouteData) {
-		const {
-			config: { root },
-			loader,
-		} = this;
-		const filePath = new URL(`./${routeData.component}`, root);
-		return getComponentMetadata(filePath, loader);
+	resolve(specifier: string) {
+		return resolveIdToUrl(this.loader, specifier, this.config.root);
 	}
 
 	async preload(filePath: URL) {

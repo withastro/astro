@@ -37,7 +37,7 @@ export interface CreateResultArgs {
 	clientDirectives: Map<string, string>;
 	compressHTML: boolean;
 	partial: boolean;
-	resolve: (s: string) => Promise<string>;
+	resolve: (s: string) => Promise<string> | string;
 	/**
 	 * Used for `Astro.site`
 	 */
