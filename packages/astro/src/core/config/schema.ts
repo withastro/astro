@@ -351,6 +351,7 @@ export const AstroConfigSchema = z.object({
 						redirectToDefaultLocale: z.boolean().optional().default(true),
 						strategy: z.enum(['pathname']).optional().default('pathname'),
 					})
+					.optional()
 					.default({})
 					.refine(
 						({ prefixDefaultLocale, redirectToDefaultLocale }) => {
