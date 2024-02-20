@@ -3,7 +3,7 @@ import type { Pipeline } from '../base-pipeline.js';
 export { Pipeline } from '../base-pipeline.js';
 export { getParams, getProps } from './params-and-props.js';
 export { loadRenderer } from './renderer.js';
-export { createResult } from './result.js';
+export { Slots } from './slots.js';
 
 export interface SSROptions {
 	/** The pipeline instance */

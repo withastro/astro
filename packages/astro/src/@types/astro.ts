@@ -2683,29 +2683,29 @@ export type SSRComponentMetadata = {
 };
 
 export interface SSRResult {
-	styles: Set<SSRElement>;
-	scripts: Set<SSRElement>;
-	links: Set<SSRElement>;
-	componentMetadata: Map<string, SSRComponentMetadata>;
-	createAstro(
-		Astro: AstroGlobalPartial,
-		props: Record<string, any>,
-		slots: Record<string, any> | null
-	): AstroGlobal;
-	resolve(s: string): Promise<string> | string;
-	response: ResponseInit;
-	renderers: SSRLoadedRenderer[];
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
 	compressHTML: boolean;
+	componentMetadata: Map<string, SSRComponentMetadata>;
+	styles: Set<SSRElement>;
+	scripts: Set<SSRElement>;
+	links: Set<SSRElement>;
+	createAstro(
+		Astro: AstroGlobalPartial,
+		props: Record<string, any>,
+		slots: Record<string, any> | null
+	): AstroGlobal;
 	partial: boolean;
+	resolve(s: string): Promise<string> | string;
+	response: AstroGlobal['response'];
+	renderers: SSRLoadedRenderer[];
+	url: URL;
 	/**
 	 * Only used for logging
 	 */
 	pathname: string;
-	cookies: AstroCookies | undefined;
 	_metadata: SSRMetadata;
 }
 
