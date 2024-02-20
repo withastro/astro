@@ -1,4 +1,11 @@
-import type { MiddlewareHandler, RouteData, RuntimeMode, SSRLoadedRenderer, SSRManifest, SSRResult } from '../@types/astro.js';
+import type {
+	MiddlewareHandler,
+	RouteData,
+	RuntimeMode,
+	SSRLoadedRenderer,
+	SSRManifest,
+	SSRResult,
+} from '../@types/astro.js';
 import type { Logger } from './logger/core.js';
 import { RouteCache } from './render/route-cache.js';
 import { createI18nMiddleware } from '../i18n/middleware.js';
@@ -6,7 +13,7 @@ import { createI18nMiddleware } from '../i18n/middleware.js';
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
  * These are mostly known when the server first starts up and do not change.
- * 
+ *
  * Thus, a `Pipeline` is created once at process start and then used by every `RenderContext`.
  */
 export abstract class Pipeline {
@@ -38,13 +45,15 @@ export abstract class Pipeline {
 		/**
 		 * Used for `Astro.site`.
 		 */
-		readonly site = manifest.site,
+		readonly site = manifest.site
 	) {
-		this.internalMiddleware = [ createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat) ];
+		this.internalMiddleware = [
+			createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat),
+		];
 	}
 
-	abstract headElements(routeData: RouteData): Promise<HeadElements> | HeadElements
-	abstract componentMetadata(routeData: RouteData): Promise<SSRResult['componentMetadata']> | void
+	abstract headElements(routeData: RouteData): Promise<HeadElements> | HeadElements;
+	abstract componentMetadata(routeData: RouteData): Promise<SSRResult['componentMetadata']> | void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

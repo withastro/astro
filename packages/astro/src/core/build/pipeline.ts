@@ -4,8 +4,17 @@ import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-sc
 import type { SSRManifest } from '../app/types.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { Pipeline } from '../render/index.js';
-import { createAssetLink, createModuleScriptsSet, createStylesheetElementSet } from '../render/ssr-element.js';
-import { getPageDataByComponent, type BuildInternals, cssOrder, mergeInlineCss } from './internal.js';
+import {
+	createAssetLink,
+	createModuleScriptsSet,
+	createStylesheetElementSet,
+} from '../render/ssr-element.js';
+import {
+	getPageDataByComponent,
+	type BuildInternals,
+	cssOrder,
+	mergeInlineCss,
+} from './internal.js';
 import {
 	ASTRO_PAGE_RESOLVED_MODULE_ID,
 	getVirtualModulePageNameFromPath,
@@ -47,10 +56,22 @@ export class BuildPipeline extends Pipeline {
 		}
 		const serverLike = isServerLikeOutput(config);
 		const streaming = true;
-		super(options.logger, manifest, options.mode, manifest.renderers, resolve, serverLike, streaming)
+		super(
+			options.logger,
+			manifest,
+			options.mode,
+			manifest.renderers,
+			resolve,
+			serverLike,
+			streaming
+		);
 	}
 
-	static create({ internals, manifest, options }: Pick<BuildPipeline, 'internals' | 'manifest' | 'options'>) {
+	static create({
+		internals,
+		manifest,
+		options,
+	}: Pick<BuildPipeline, 'internals' | 'manifest' | 'options'>) {
 		return new BuildPipeline(internals, manifest, options);
 	}
 
@@ -106,17 +127,24 @@ export class BuildPipeline extends Pipeline {
 	}
 
 	headElements(routeData: RouteData): Pick<SSRResult, 'scripts' | 'styles' | 'links'> {
-		const { internals, manifest: { assetsPrefix, base }, settings } = this
+		const {
+			internals,
+			manifest: { assetsPrefix, base },
+			settings,
+		} = this;
 		const links = new Set<never>();
-		const pageBuildData = getPageDataByComponent(internals, routeData.component)
+		const pageBuildData = getPageDataByComponent(internals, routeData.component);
 		const scripts = createModuleScriptsSet(
 			pageBuildData?.hoistedScript ? [pageBuildData.hoistedScript] : [],
 			base,
 			assetsPrefix
 		);
-		const sortedCssAssets = pageBuildData?.styles.sort(cssOrder).map(({ sheet }) => sheet).reduce(mergeInlineCss, []);
+		const sortedCssAssets = pageBuildData?.styles
+			.sort(cssOrder)
+			.map(({ sheet }) => sheet)
+			.reduce(mergeInlineCss, []);
 		const styles = createStylesheetElementSet(sortedCssAssets ?? [], base, assetsPrefix);
-	
+
 		if (settings.scripts.some((script) => script.stage === 'page')) {
 			const hashedFilePath = internals.entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
 			if (typeof hashedFilePath !== 'string') {
@@ -128,7 +156,7 @@ export class BuildPipeline extends Pipeline {
 				children: '',
 			});
 		}
-	
+
 		// Add all injected scripts to the page.
 		for (const script of settings.scripts) {
 			if (script.stage === 'head-inline') {
@@ -138,7 +166,7 @@ export class BuildPipeline extends Pipeline {
 				});
 			}
 		}
-		return { scripts, styles, links }
+		return { scripts, styles, links };
 	}
 
 	componentMetadata() {}

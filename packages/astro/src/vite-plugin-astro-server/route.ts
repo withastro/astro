@@ -1,9 +1,5 @@
 import type http from 'node:http';
-import type {
-	ComponentInstance,
-	ManifestData,
-	RouteData,
-} from '../@types/astro.js';
+import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { req } from '../core/messages.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
@@ -158,7 +154,7 @@ export async function handleRoute({
 	let options: SSROptions | undefined = undefined;
 	let route: RouteData;
 	const middleware = (await loadMiddleware(loader)).onRequest;
-	
+
 	if (!matchedRoute) {
 		if (config.i18n) {
 			const locales = config.i18n.locales;
@@ -208,7 +204,13 @@ export async function handleRoute({
 				fallbackRoutes: [],
 				isIndex: false,
 			};
-			renderContext = RenderContext.create({ pipeline: pipeline, pathname, middleware, request, routeData: route });
+			renderContext = RenderContext.create({
+				pipeline: pipeline,
+				pathname,
+				middleware,
+				request,
+				routeData: route,
+			});
 		} else {
 			return handle404Response(origin, incomingRequest, incomingResponse);
 		}
@@ -217,7 +219,7 @@ export async function handleRoute({
 		const { preloadedComponent } = matchedRoute;
 		route = matchedRoute.route;
 		// Allows adapters to pass in locals in dev mode.
-		const locals = Reflect.get(incomingRequest, clientLocalsSymbol)
+		const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
 		request = createRequest({
 			url,
 			// Headers are only available when using SSR.
@@ -244,7 +246,14 @@ export async function handleRoute({
 		};
 
 		mod = preloadedComponent;
-		renderContext = RenderContext.create({ locals, pipeline, pathname, middleware, request, routeData: route });
+		renderContext = RenderContext.create({
+			locals,
+			pipeline,
+			pathname,
+			middleware,
+			request,
+			routeData: route,
+		});
 	}
 
 	let response = await renderContext.render(mod);

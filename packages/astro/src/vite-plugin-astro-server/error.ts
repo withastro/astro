@@ -29,10 +29,7 @@ export function recordServerError(
 		telemetry.record(eventError({ cmd: 'dev', err: errorWithMetadata, isFatal: false }));
 	}
 
-	logger.error(
-		null,
-		formatErrorMessage(errorWithMetadata, logger.level() === 'debug')
-	);
+	logger.error(null, formatErrorMessage(errorWithMetadata, logger.level() === 'debug'));
 
 	return {
 		error: err,

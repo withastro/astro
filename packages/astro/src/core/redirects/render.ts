@@ -1,18 +1,22 @@
 import type { RenderContext } from '../render-context.js';
 
 export async function renderRedirect(renderContext: RenderContext) {
-	const { request: { method }, routeData } = renderContext;
+	const {
+		request: { method },
+		routeData,
+	} = renderContext;
 	const { redirect, redirectRoute } = routeData;
 	const status =
-		redirectRoute && typeof redirect === "object" ? redirect.status
-		: method === "GET" ? 301
-		: 308
-	const headers = { location: redirectRouteGenerate(renderContext) }; 
+		redirectRoute && typeof redirect === 'object' ? redirect.status : method === 'GET' ? 301 : 308;
+	const headers = { location: redirectRouteGenerate(renderContext) };
 	return new Response(null, { status, headers });
 }
 
 function redirectRouteGenerate(renderContext: RenderContext): string {
-	const { params, routeData: { redirect, redirectRoute } } = renderContext;
+	const {
+		params,
+		routeData: { redirect, redirectRoute },
+	} = renderContext;
 
 	if (typeof redirectRoute !== 'undefined') {
 		return redirectRoute?.generate(params) || redirectRoute?.pathname || '/';

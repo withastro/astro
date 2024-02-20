@@ -43,7 +43,12 @@ describe('core/render', () => {
 
 			const mod = createAstroModule(Page);
 			const request = new Request('http://example.com/');
-			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.mdx', params: {} };
+			const routeData = {
+				type: 'page',
+				pathname: '/index',
+				component: 'src/pages/index.mdx',
+				params: {},
+			};
 			const renderContext = RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(mod);
 
@@ -85,7 +90,12 @@ describe('core/render', () => {
 
 			const mod = createAstroModule(Page);
 			const request = new Request('http://example.com/');
-			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.mdx', params: {} };
+			const routeData = {
+				type: 'page',
+				pathname: '/index',
+				component: 'src/pages/index.mdx',
+				params: {},
+			};
 			const renderContext = RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(mod);
 
@@ -111,7 +121,12 @@ describe('core/render', () => {
 
 			const mod = createAstroModule(Page);
 			const request = new Request('http://example.com/');
-			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.mdx', params: {} };
+			const routeData = {
+				type: 'page',
+				pathname: '/index',
+				component: 'src/pages/index.mdx',
+				params: {},
+			};
 			const renderContext = RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(mod);
 

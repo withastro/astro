@@ -29,7 +29,7 @@ describe('vite-plugin-astro-server', () => {
 				loader: createLoader({
 					import(id) {
 						if (id === '\0astro-internal:middleware') {
-							return { onRequest: (_, next) => next() }
+							return { onRequest: (_, next) => next() };
 						}
 						const Page = createComponent(() => {
 							return render`<div id="test">testing</div>`;
@@ -62,7 +62,7 @@ describe('vite-plugin-astro-server', () => {
 					controller,
 					incomingRequest: req,
 					incomingResponse: res,
-					manifest: {}
+					manifest: {},
 				});
 			} catch (err) {
 				assert.equal(err.message, undefined);

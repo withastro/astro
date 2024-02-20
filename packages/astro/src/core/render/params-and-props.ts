@@ -24,11 +24,10 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 		return {};
 	}
 
-	
 	if (routeIsRedirect(route) || routeIsFallback(route)) {
 		return {};
 	}
-	
+
 	// This is a dynamic route, start getting the params
 	const params = getParams(route, pathname);
 	if (mod) {

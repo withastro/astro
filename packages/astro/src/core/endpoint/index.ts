@@ -1,8 +1,4 @@
-import type {
-	APIContext,
-	Locales,
-	Params,
-} from '../../@types/astro.js';
+import type { APIContext, Locales, Params } from '../../@types/astro.js';
 import { ASTRO_VERSION, clientAddressSymbol, clientLocalsSymbol } from '../constants.js';
 import type { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -23,7 +19,7 @@ type CreateAPIContext = {
 	routingStrategy: RoutingStrategies | undefined;
 	defaultLocale: string | undefined;
 	route: string;
-	cookies: AstroCookies
+	cookies: AstroCookies;
 };
 
 /**
@@ -41,7 +37,7 @@ export function createAPIContext({
 	routingStrategy,
 	defaultLocale,
 	route,
-	cookies
+	cookies,
 }: CreateAPIContext): APIContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;

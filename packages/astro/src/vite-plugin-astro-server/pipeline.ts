@@ -1,5 +1,13 @@
-import url from 'node:url'
-import type { AstroSettings, ComponentInstance, DevToolbarMetadata, RouteData, SSRElement, SSRLoadedRenderer, SSRManifest } from '../@types/astro.js';
+import url from 'node:url';
+import type {
+	AstroSettings,
+	ComponentInstance,
+	DevToolbarMetadata,
+	RouteData,
+	SSRElement,
+	SSRLoadedRenderer,
+	SSRManifest,
+} from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Pipeline, loadRenderer } from '../core/render/index.js';
@@ -19,28 +27,38 @@ import { getComponentMetadata } from './metadata.js';
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
 	// so it needs to be mutable here unlike in other environments
-	override renderers = new Array<SSRLoadedRenderer>
+	override renderers = new Array<SSRLoadedRenderer>();
 
 	private constructor(
 		readonly loader: ModuleLoader,
 		readonly logger: Logger,
 		readonly manifest: SSRManifest,
 		readonly settings: AstroSettings,
-		readonly config = settings.config,
+		readonly config = settings.config
 	) {
-		const mode = 'development'
+		const mode = 'development';
 		const resolve = createResolve(loader, config.root);
 		const serverLike = isServerLikeOutput(config);
 		const streaming = true;
 		super(logger, manifest, mode, [], resolve, serverLike, streaming);
 	}
 
-	static create({ loader, logger, manifest, settings }: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>) {
-		return new DevPipeline(loader, logger, manifest, settings)
+	static create({
+		loader,
+		logger,
+		manifest,
+		settings,
+	}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>) {
+		return new DevPipeline(loader, logger, manifest, settings);
 	}
 
 	async headElements(routeData: RouteData): Promise<HeadElements> {
-		const { config: { root }, loader, mode, settings } = this;
+		const {
+			config: { root },
+			loader,
+			mode,
+			settings,
+		} = this;
 		const filePath = new URL(`./${routeData.component}`, root);
 		const { scripts } = await getScriptsForURL(filePath, root, loader);
 
@@ -55,9 +73,9 @@ export class DevPipeline extends Pipeline {
 				settings.config.devToolbar.enabled &&
 				(await settings.preferences.get('devToolbar.enabled'))
 			) {
-				const src = await resolveIdToUrl(loader, 'astro/runtime/client/dev-toolbar/entrypoint.js')
+				const src = await resolveIdToUrl(loader, 'astro/runtime/client/dev-toolbar/entrypoint.js');
 				scripts.add({ props: { type: 'module', src }, children: '' });
-				
+
 				const additionalMetadata: DevToolbarMetadata['__astro_dev_toolbar__'] = {
 					root: url.fileURLToPath(settings.config.root),
 					version: ASTRO_VERSION,
@@ -69,7 +87,7 @@ export class DevPipeline extends Pipeline {
 				scripts.add({ props: {}, children });
 			}
 		}
-		
+
 		// TODO: We should allow adding generic HTML elements to the head, not just scripts
 		for (const script of settings.scripts) {
 			if (script.stage === 'head-inline') {
@@ -99,15 +117,18 @@ export class DevPipeline extends Pipeline {
 			// But we still want to inject the styles to avoid FOUC. The style tags
 			// should emulate what Vite injects so further HMR works as expected.
 			styles.add({ props: { 'data-vite-dev-id': id }, children: content });
-		};
-		
-		return { scripts, styles, links }
+		}
+
+		return { scripts, styles, links };
 	}
 
 	componentMetadata(routeData: RouteData) {
-		const { config: { root }, loader } = this;
+		const {
+			config: { root },
+			loader,
+		} = this;
 		const filePath = new URL(`./${routeData.component}`, root);
-		return getComponentMetadata(filePath, loader)
+		return getComponentMetadata(filePath, loader);
 	}
 
 	async preload(filePath: URL) {
@@ -120,13 +141,13 @@ export class DevPipeline extends Pipeline {
 
 		try {
 			// Load the module from the Vite SSR Runtime.
-			return await loader.import(viteID(filePath)) as ComponentInstance;
+			return (await loader.import(viteID(filePath))) as ComponentInstance;
 		} catch (error) {
 			// If the error came from Markdown or CSS, we already handled it and there's no need to enhance it
 			if (MarkdownError.is(error) || CSSError.is(error) || AggregateError.is(error)) {
 				throw error;
 			}
-	
+
 			throw enhanceViteSSRError({ error, filePath, loader });
 		}
 	}

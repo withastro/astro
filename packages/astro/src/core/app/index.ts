@@ -1,8 +1,4 @@
-import type {
-	ManifestData,
-	RouteData,
-	SSRManifest,
-} from '../../@types/astro.js';
+import type { ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { consoleLogDestination } from '../logger/console.js';
@@ -20,7 +16,13 @@ import { matchRoute } from '../routing/match.js';
 import { AppPipeline } from './pipeline.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
 import { RenderContext } from '../render-context.js';
-import { clientAddressSymbol, clientLocalsSymbol, responseSentSymbol, REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER } from '../constants.js';
+import {
+	clientAddressSymbol,
+	clientLocalsSymbol,
+	responseSentSymbol,
+	REROUTABLE_STATUS_CODES,
+	REROUTE_DIRECTIVE_HEADER,
+} from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 export { deserializeManifest } from './common.js';
 
@@ -124,7 +126,7 @@ export class App {
 			},
 			serverLike: true,
 			streaming,
-		})
+		});
 	}
 
 	set setManifestData(newManifestData: ManifestData) {
@@ -294,7 +296,14 @@ export class App {
 
 		let response;
 		try {
-			const renderContext = RenderContext.create({ pipeline: this.#pipeline, locals, pathname, request, routeData, status: defaultStatus })
+			const renderContext = RenderContext.create({
+				pipeline: this.#pipeline,
+				locals,
+				pathname,
+				request,
+				routeData,
+				status: defaultStatus,
+			});
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
@@ -386,7 +395,7 @@ export class App {
 					request,
 					routeData: errorRouteData,
 					status,
-				})
+				});
 				const response = await renderContext.render(await mod.page());
 				return this.#mergeResponses(response, originalResponse);
 			} catch {

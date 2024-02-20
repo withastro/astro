@@ -2,7 +2,7 @@ import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
 import type { APIContext, Locales, MiddlewareHandler, SSRManifest } from '../@types/astro.js';
 import { getPathByLocale, normalizeTheLocale } from './index.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
-import type { SSRManifestI18n } from '../core/app/types.js'
+import type { SSRManifestI18n } from '../core/app/types.js';
 import { ROUTE_TYPE_HEADER } from '../core/constants.js';
 
 // Checks if the pathname has any locale, exception for the defaultLocale, which is ignored on purpose.
@@ -102,100 +102,100 @@ export function createI18nMiddleware(
 		const type = response.headers.get(ROUTE_TYPE_HEADER);
 		// If the route we're processing is not a page, then we ignore it
 		if (type !== 'page' && type !== 'fallback') {
-			return response
+			return response;
 		}
 
 		const { url, currentLocale } = context;
 		const { locales, defaultLocale, fallback, routing } = i18n;
 
-			switch (i18n.routing) {
-				case 'domains-prefix-other-locales': {
-					if (localeHasntDomain(i18n, currentLocale)) {
-						const result = prefixOtherLocales(url, response);
-						if (result) {
-							return result;
-						}
-					}
-					break;
-				}
-				case 'pathname-prefix-other-locales': {
+		switch (i18n.routing) {
+			case 'domains-prefix-other-locales': {
+				if (localeHasntDomain(i18n, currentLocale)) {
 					const result = prefixOtherLocales(url, response);
 					if (result) {
 						return result;
 					}
-					break;
 				}
-
-				case 'domains-prefix-always-no-redirect': {
-					if (localeHasntDomain(i18n, currentLocale)) {
-						const result = prefixAlwaysNoRedirect(url, response);
-						if (result) {
-							return result;
-						}
-					}
-					break;
+				break;
+			}
+			case 'pathname-prefix-other-locales': {
+				const result = prefixOtherLocales(url, response);
+				if (result) {
+					return result;
 				}
+				break;
+			}
 
-				case 'pathname-prefix-always-no-redirect': {
+			case 'domains-prefix-always-no-redirect': {
+				if (localeHasntDomain(i18n, currentLocale)) {
 					const result = prefixAlwaysNoRedirect(url, response);
 					if (result) {
 						return result;
 					}
-					break;
 				}
+				break;
+			}
 
-				case 'pathname-prefix-always': {
+			case 'pathname-prefix-always-no-redirect': {
+				const result = prefixAlwaysNoRedirect(url, response);
+				if (result) {
+					return result;
+				}
+				break;
+			}
+
+			case 'pathname-prefix-always': {
+				const result = prefixAlways(url, response, context);
+				if (result) {
+					return result;
+				}
+				break;
+			}
+			case 'domains-prefix-always': {
+				if (localeHasntDomain(i18n, currentLocale)) {
 					const result = prefixAlways(url, response, context);
 					if (result) {
 						return result;
 					}
-					break;
 				}
-				case 'domains-prefix-always': {
-					if (localeHasntDomain(i18n, currentLocale)) {
-						const result = prefixAlways(url, response, context);
-						if (result) {
-							return result;
-						}
-					}
-					break;
-				}
+				break;
 			}
+		}
 
-			if (response.status >= 300 && fallback) {
-				const fallbackKeys = i18n.fallback ? Object.keys(i18n.fallback) : [];
+		if (response.status >= 300 && fallback) {
+			const fallbackKeys = i18n.fallback ? Object.keys(i18n.fallback) : [];
 
-				// we split the URL using the `/`, and then check in the returned array we have the locale
-				const segments = url.pathname.split('/');
-				const urlLocale = segments.find((segment) => {
-					for (const locale of locales) {
-						if (typeof locale === 'string') {
-							if (locale === segment) {
-								return true;
-							}
-						} else if (locale.path === segment) {
+			// we split the URL using the `/`, and then check in the returned array we have the locale
+			const segments = url.pathname.split('/');
+			const urlLocale = segments.find((segment) => {
+				for (const locale of locales) {
+					if (typeof locale === 'string') {
+						if (locale === segment) {
 							return true;
 						}
+					} else if (locale.path === segment) {
+						return true;
 					}
-					return false;
-				});
-
-				if (urlLocale && fallbackKeys.includes(urlLocale)) {
-					const fallbackLocale = fallback[urlLocale];
-					// the user might have configured the locale using the granular locales, so we want to retrieve its corresponding path instead
-					const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
-					let newPathname: string;
-					// If a locale falls back to the default locale, we want to **remove** the locale because
-					// the default locale doesn't have a prefix
-					if (pathFallbackLocale === defaultLocale && routing === 'pathname-prefix-other-locales') {
-						newPathname = url.pathname.replace(`/${urlLocale}`, ``);
-					} else {
-						newPathname = url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
-					}
-
-					return context.redirect(newPathname);
 				}
+				return false;
+			});
+
+			if (urlLocale && fallbackKeys.includes(urlLocale)) {
+				const fallbackLocale = fallback[urlLocale];
+				// the user might have configured the locale using the granular locales, so we want to retrieve its corresponding path instead
+				const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
+				let newPathname: string;
+				// If a locale falls back to the default locale, we want to **remove** the locale because
+				// the default locale doesn't have a prefix
+				if (pathFallbackLocale === defaultLocale && routing === 'pathname-prefix-other-locales') {
+					newPathname = url.pathname.replace(`/${urlLocale}`, ``);
+				} else {
+					newPathname = url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
+				}
+
+				return context.redirect(newPathname);
 			}
+		}
 
 		return response;
 	};

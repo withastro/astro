@@ -21,9 +21,11 @@ describe('core/render', () => {
 		before(async () => {
 			pipeline = createBasicPipeline();
 			pipeline.headElements = () => ({
-				links: new Set([{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }]),
-				scripts: new Set,
-				styles: new Set
+				links: new Set([
+					{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' },
+				]),
+				scripts: new Set(),
+				styles: new Set(),
 			});
 		});
 
@@ -95,7 +97,12 @@ describe('core/render', () => {
 
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
-			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.astro', params: {} };
+			const routeData = {
+				type: 'page',
+				pathname: '/index',
+				component: 'src/pages/index.astro',
+				params: {},
+			};
 			const renderContext = RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(PageModule);
 
@@ -171,7 +178,12 @@ describe('core/render', () => {
 
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
-			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.astro', params: {} };
+			const routeData = {
+				type: 'page',
+				pathname: '/index',
+				component: 'src/pages/index.astro',
+				params: {},
+			};
 			const renderContext = RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(PageModule);
 
@@ -214,7 +226,12 @@ describe('core/render', () => {
 
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
-			const routeData = { type: 'page', pathname: '/index', component: 'src/pages/index.astro', params: {} };
+			const routeData = {
+				type: 'page',
+				pathname: '/index',
+				component: 'src/pages/index.astro',
+				params: {},
+			};
 			const renderContext = RenderContext.create({ pipeline, request, routeData });
 			const response = await renderContext.render(PageModule);
 

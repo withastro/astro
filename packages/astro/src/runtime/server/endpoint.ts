@@ -1,5 +1,5 @@
 import { bold } from 'kleur/colors';
-import { REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER } from '../../core/constants.js';;
+import { REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER } from '../../core/constants.js';
 import type { APIContext, EndpointHandler } from '../../@types/astro.js';
 import type { Logger } from '../../core/logger/core.js';
 

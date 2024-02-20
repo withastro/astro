@@ -7,4 +7,3 @@ export function routeIsRedirect(route: RouteData | undefined): route is Redirect
 export function routeIsFallback(route: RouteData | undefined): route is RedirectRouteData {
 	return route?.type === 'fallback';
 }
-

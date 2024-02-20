@@ -38,12 +38,16 @@ export type CreateContext = {
 /**
  * Creates a context to be passed to Astro middleware `onRequest` function.
  */
-function createContext({ request, params = {}, userDefinedLocales = [] }: CreateContext): APIContext {
+function createContext({
+	request,
+	params = {},
+	userDefinedLocales = [],
+}: CreateContext): APIContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
 	let currentLocale: string | undefined = undefined;
 	const url = new URL(request.url);
-	const route = url.pathname
+	const route = url.pathname;
 
 	return {
 		cookies: new AstroCookies(request),
@@ -61,13 +65,18 @@ function createContext({ request, params = {}, userDefinedLocales = [] }: Create
 			});
 		},
 		get preferredLocale(): string | undefined {
-			return preferredLocale ??= computePreferredLocale(request, userDefinedLocales);
+			return (preferredLocale ??= computePreferredLocale(request, userDefinedLocales));
 		},
 		get preferredLocaleList(): string[] | undefined {
-			return preferredLocaleList ??= computePreferredLocaleList(request, userDefinedLocales);
+			return (preferredLocaleList ??= computePreferredLocaleList(request, userDefinedLocales));
 		},
 		get currentLocale(): string | undefined {
-			return currentLocale ??= computeCurrentLocale(route, userDefinedLocales, undefined, undefined);
+			return (currentLocale ??= computeCurrentLocale(
+				route,
+				userDefinedLocales,
+				undefined,
+				undefined
+			));
 		},
 		url,
 		get clientAddress() {
