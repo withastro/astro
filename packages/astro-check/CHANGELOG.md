@@ -1,5 +1,14 @@
 # @astrojs/check
 
+## 0.5.5
+
+### Patch Changes
+
+- 1436e6e: Fixes mapping from compiler location to LSP range.
+- Updated dependencies [7c4c1f2]
+- Updated dependencies [1436e6e]
+  - @astrojs/language-server@2.7.5
+
 ## 0.5.4
 
 ### Patch Changes

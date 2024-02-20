@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.5.3
+
+### Patch Changes
+
+- 7c4c1f2: Update Volar services. This update fixes an issue where `typescript.validate` settings wouldn't work in Astro files the same way they would inside TypeScript files
+
 ## 1.5.2
 
 ### Patch Changes
