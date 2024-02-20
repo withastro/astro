@@ -308,6 +308,78 @@ importers:
         specifier: ^4.4.6
         version: link:../../packages/astro
 
+  examples/independent-lit-build:
+    dependencies:
+      '@astrojs/lit':
+        specifier: ^4.0.1
+        version: link:../../packages/integrations/lit
+      '@astrojs/node':
+        specifier: ^8.2.0
+        version: link:../../packages/integrations/node
+      astro:
+        specifier: ^4.4.3
+        version: link:../../packages/astro
+      date-fns:
+        specifier: ^3.3.1
+        version: 3.3.1
+      lit:
+        specifier: ^3.1.2
+        version: 3.1.2
+      nanoid:
+        specifier: ^5.0.6
+        version: 5.0.6
+
+  examples/independent-preact-build:
+    dependencies:
+      '@astrojs/node':
+        specifier: ^8.2.0
+        version: link:../../packages/integrations/node
+      '@astrojs/preact':
+        specifier: ^3.1.0
+        version: link:../../packages/integrations/preact
+      astro:
+        specifier: ^4.4.0
+        version: link:../../packages/astro
+      date-fns:
+        specifier: ^3.3.1
+        version: 3.3.1
+      nanoid:
+        specifier: ^5.0.6
+        version: 5.0.6
+      preact:
+        specifier: ^10.19.2
+        version: 10.19.3
+
+  examples/independent-react-build:
+    dependencies:
+      '@astrojs/node':
+        specifier: ^8.2.0
+        version: link:../../packages/integrations/node
+      '@astrojs/react':
+        specifier: ^3.0.10
+        version: link:../../packages/integrations/react
+      '@types/react':
+        specifier: ^18.2.37
+        version: 18.2.57
+      '@types/react-dom':
+        specifier: ^18.2.15
+        version: 18.2.19
+      astro:
+        specifier: ^4.4.3
+        version: link:../../packages/astro
+      date-fns:
+        specifier: ^3.3.1
+        version: 3.3.1
+      nanoid:
+        specifier: ^5.0.6
+        version: 5.0.6
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+
   examples/integration:
     devDependencies:
       astro:
@@ -1060,6 +1132,117 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../..
+
+  packages/astro/e2e/fixtures/independent-lit:
+    dependencies:
+      '@astrojs/lit':
+        specifier: workspace:*
+        version: link:../../../../integrations/lit
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      '@webcomponents/template-shadowroot':
+        specifier: ^0.2.1
+        version: 0.2.1
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      lit:
+        specifier: ^3.1.0
+        version: 3.1.2
+
+  packages/astro/e2e/fixtures/independent-preact:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      '@astrojs/preact':
+        specifier: workspace:*
+        version: link:../../../../integrations/preact
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      preact:
+        specifier: ^10.15.1
+        version: 10.19.3
+
+  packages/astro/e2e/fixtures/independent-react:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      react:
+        specifier: ^18.1.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.1.0
+        version: 18.2.0(react@18.2.0)
+
+  packages/astro/e2e/fixtures/independent-solid:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      '@astrojs/solid-js':
+        specifier: workspace:*
+        version: link:../../../../integrations/solid
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      solid-js:
+        specifier: ^1.8.5
+        version: 1.8.7
+
+  packages/astro/e2e/fixtures/independent-svelte:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../../../integrations/svelte
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      svelte:
+        specifier: ^4.2.5
+        version: 4.2.8
+
+  packages/astro/e2e/fixtures/independent-vue:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../../../integrations/vue
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      vue:
+        specifier: ^3.3.8
+        version: 3.4.3(typescript@5.2.2)
 
   packages/astro/e2e/fixtures/lit-component:
     dependencies:
@@ -3816,7 +3999,7 @@ importers:
         version: 4.1.5
       nanoid:
         specifier: ^5.0.1
-        version: 5.0.1
+        version: 5.0.6
       open:
         specifier: ^10.0.3
         version: 10.0.3
@@ -7114,7 +7297,7 @@ packages:
     resolution: {integrity: sha512-rAXd2OsuxfGA579RiDS2YQSm1HreE8knQHj+fcMhGIPYenBoW4M70Yl8K3a35MSLlpQnnF//s2TPfkHFmy2RhA==}
     dependencies:
       '@lit/reactive-element': 2.0.2
-      lit: 3.1.0
+      lit: 3.1.2
       lit-html: 3.1.0
     dev: false
 
@@ -7135,7 +7318,7 @@ packages:
       '@parse5/tools': 0.3.0
       '@types/node': 16.18.69
       enhanced-resolve: 5.15.0
-      lit: 3.1.0
+      lit: 3.1.2
       lit-element: 4.0.2
       lit-html: 3.1.0
       node-fetch: 3.3.2
@@ -9652,6 +9835,10 @@ packages:
   /dataloader@1.4.0:
     resolution: {integrity: sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==}
     dev: true
+
+  /date-fns@3.3.1:
+    resolution: {integrity: sha512-y8e109LYGgoQDveiEBD3DYXKba1jWf5BA8YU1FL5Tvm0BTdEfy54WLCwnuYWZNnzzvALy/QQ4Hov+Q9RVRv+Zw==}
+    dev: false
 
   /debug@2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
@@ -13082,8 +13269,8 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  /nanoid@5.0.1:
-    resolution: {integrity: sha512-vWeVtV5Cw68aML/QaZvqN/3QQXc6fBfIieAlu05m7FZW2Dgb+3f0xc0TTxuJW+7u30t7iSDTV/j3kVI0oJqIfQ==}
+  /nanoid@5.0.6:
+    resolution: {integrity: sha512-rRq0eMHoGZxlvaFOUdK1Ev83Bd1IgzzR+WJ3IbDJ7QOSdAxYjlurSPqFs9s4lJg29RT6nPwizFtJhQS6V5xgiA==}
     engines: {node: ^18 || >=20}
     hasBin: true
     dev: false

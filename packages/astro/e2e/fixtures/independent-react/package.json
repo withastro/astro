@@ -1,0 +1,13 @@
+{
+  "name": "@e2e/independent-react",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/node": "workspace:*",
+    "@astrojs/react": "workspace:*",
+    "astro": "workspace:*",
+    "@astrojs/mdx": "workspace:*",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
+  }
+}

@@ -5,6 +5,7 @@ import { teardown } from '@astrojs/compiler';
 import * as eslexer from 'es-module-lexer';
 import glob from 'fast-glob';
 import { bgGreen, bgMagenta, black, green } from 'kleur/colors';
+import module from 'node:module';
 import * as vite from 'vite';
 import type { RouteData } from '../../@types/astro.js';
 import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
@@ -155,6 +156,10 @@ export async function staticBuild(
 	}
 }
 
+const nodeCorePackages = module.builtinModules
+	.map((name) => `node:${name}`)
+	.concat(module.builtinModules);
+
 async function ssrBuild(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
@@ -166,13 +171,19 @@ async function ssrBuild(
 	const ssr = isServerLikeOutput(settings.config);
 	const out = getOutputDirectory(settings.config);
 	const routes = Object.values(allPages).flatMap((pageData) => pageData.route);
+
 	const isContentCache = !ssr && settings.config.experimental.contentCollectionCache;
+	const isIndependentBuild = settings.config.experimental.isIndependent;
+
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('server', input);
 
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
 		mode: viteConfig.mode || 'production',
 		logLevel: viteConfig.logLevel ?? 'error',
+
+		ssr: isIndependentBuild ? { noExternal: true, external: nodeCorePackages } : viteConfig.ssr,
+
 		build: {
 			target: 'esnext',
 			// Vite defaults cssMinify to false in SSR by default, but we want to minify it
@@ -185,6 +196,7 @@ async function ssrBuild(
 			copyPublicDir: !ssr,
 			rollupOptions: {
 				...viteConfig.build?.rollupOptions,
+				external: isIndependentBuild ? nodeCorePackages : viteConfig.build?.rollupOptions?.external,
 				input: [],
 				output: {
 					hoistTransitiveImports: isContentCache,

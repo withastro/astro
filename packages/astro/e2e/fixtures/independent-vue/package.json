@@ -1,0 +1,12 @@
+{
+  "name": "@e2e/independent-vue",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/node": "workspace:*",
+    "@astrojs/mdx": "workspace:*",
+    "@astrojs/vue": "workspace:*",
+    "astro": "workspace:*",
+    "vue": "^3.3.8"
+  }
+}

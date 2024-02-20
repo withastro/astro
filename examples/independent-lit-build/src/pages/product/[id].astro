@@ -1,0 +1,29 @@
+---
+import { formatISO } from 'date-fns';
+import { Header } from '../../components/Header';
+
+const val = Number(Astro.params.id);
+const formattedDate = formatISO(new Date());
+---
+
+<html>
+	<head>
+		<title>Test app - Product</title>
+		<style>
+			body {
+				font-size: 18px;
+			}
+		</style>
+	</head>
+	<body>
+		{
+			(
+				// @ts-expect-error
+				<Header text={`Product ${val}`} />
+			)
+		}
+
+		<a href="/">home</a>
+		<p>Today: {formattedDate}</p>
+	</body>
+</html>

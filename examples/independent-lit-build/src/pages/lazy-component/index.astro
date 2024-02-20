@@ -1,0 +1,30 @@
+---
+import { Header } from '../../components/Header';
+import { Message } from '../../components/Message';
+---
+
+<html>
+	<head>
+		<title>Test app - Lazy component</title>
+		<style>
+			body {
+				font-size: 18px;
+			}
+		</style>
+	</head>
+	<body>
+		{
+			(
+				// @ts-expect-error
+				<Header text="Lazy component" />
+			)
+		}
+		<a href="/">home</a>
+		{
+			(
+				// @ts-expect-error
+				<Message text="my-message" />
+			)
+		}
+	</body>
+</html>

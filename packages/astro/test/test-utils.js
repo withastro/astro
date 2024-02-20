@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { setTimeout } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { execa } from 'execa';
 import fastGlob from 'fast-glob';
@@ -169,16 +170,19 @@ export async function loadFixture(inlineConfig) {
 		resolveUrl,
 		fetch: async (url, init) => {
 			const resolvedUrl = resolveUrl(url);
-			try {
-				return await fetch(resolvedUrl, init);
-			} catch (err) {
-				// node fetch throws a vague error when it fails, so we log the url here to easily debug it
+
+			const rejectByTimeout = async () => {
+				await setTimeout(5_000);
+				throw new Error(`[astro test] failed to fetch ${resolvedUrl} by timeout`);
+			};
+
+			return Promise.race([fetch(resolvedUrl, init), rejectByTimeout()]).catch((err) => {
 				if (err.message?.includes('fetch failed')) {
 					console.error(`[astro test] failed to fetch ${resolvedUrl}`);
 					console.error(err);
 				}
 				throw err;
-			}
+			});
 		},
 		preview: async (extraInlineConfig = {}) => {
 			process.env.NODE_ENV = 'production';
@@ -186,6 +190,11 @@ export async function loadFixture(inlineConfig) {
 			config.server.host = parseAddressToHost(previewServer.host); // update host
 			config.server.port = previewServer.port; // update port
 			return previewServer;
+		},
+		startServerEntry: async () => {
+			const url = new URL(`./server/entry.mjs`, config.outDir);
+			const { startServer } = await import(url);
+			return startServer();
 		},
 		pathExists: (p) => fs.existsSync(new URL(p.replace(/^\//, ''), config.outDir)),
 		readFile: (filePath, encoding) =>
@@ -212,6 +221,14 @@ export async function loadFixture(inlineConfig) {
 					force: true,
 				});
 			}
+		},
+		rmDir: async (pathToRemove) => {
+			const url = new URL(pathToRemove.replace(/^\//, ''), config.root);
+			await fs.promises.rm(url, {
+				maxRetries: 10,
+				recursive: true,
+				force: true,
+			});
 		},
 		loadTestAdapterApp: async (streaming) => {
 			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);

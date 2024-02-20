@@ -1,0 +1,30 @@
+---
+import { Header } from '../../components/Header';
+
+const getRandomId = async () => {
+	const { nanoid } = await import('nanoid');
+	return nanoid();
+};
+---
+
+<html>
+	<head>
+		<title>Test app - Lazy function</title>
+		<style>
+			body {
+				font-size: 18px;
+			}
+		</style>
+	</head>
+	<body>
+		{
+			(
+				// @ts-expect-error
+				<Header text="Lazy id generation" />
+			)
+		}
+
+		<a href="/">home</a>
+		<p>random id: {await getRandomId()}</p>
+	</body>
+</html>

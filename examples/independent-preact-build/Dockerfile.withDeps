@@ -1,0 +1,30 @@
+FROM node:20-alpine3.18 AS base
+WORKDIR /app
+COPY package.json ./
+
+# Installing production dependencies
+FROM base AS prod-deps
+RUN npm install --production
+
+# Installing development dependencies
+FROM base AS build-deps
+RUN npm install --production=false
+RUN npm install sharp
+
+# Building
+FROM build-deps AS build
+COPY src ./src
+COPY public ./public
+COPY astro.config.withDeps.mjs ./astro.config.mjs
+COPY tsconfig.json .
+RUN npm run build
+
+# Running
+FROM base AS runtime
+COPY --from=prod-deps /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+
+ENV HOST=0.0.0.0
+ENV PORT=4321
+EXPOSE 4321
+CMD node ./dist/server/entry.mjs
