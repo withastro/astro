@@ -1,6 +1,6 @@
-import * as cheerio from 'cheerio';
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 // note: the hashes should be deterministic, but updating the file contents will change hashes

@@ -1,17 +1,17 @@
-import { describe, it, before } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
+import { RenderContext } from '../../../dist/core/render-context.js';
 import {
+	Fragment,
 	createComponent,
+	maybeRenderHead,
 	render,
 	renderComponent,
-	renderSlot,
-	maybeRenderHead,
 	renderHead,
-	Fragment,
+	renderSlot,
 } from '../../../dist/runtime/server/index.js';
-import { RenderContext } from '../../../dist/core/render-context.js';
 import { createBasicPipeline } from '../test-utils.js';
-import * as cheerio from 'cheerio';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
 
