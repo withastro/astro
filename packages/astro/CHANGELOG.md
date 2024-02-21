@@ -1,5 +1,11 @@
 # astro
 
+## 4.4.2
+
+### Patch Changes
+
+- [#10169](https://github.com/withastro/astro/pull/10169) [`a46249173edde66b03c19441144272baa8394fb4`](https://github.com/withastro/astro/commit/a46249173edde66b03c19441144272baa8394fb4) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue with the `i18n.routing` types, where an internal transformation was causing the generation of incorrect types for integrations.
+
 ## 4.4.1
 
 ### Patch Changes
