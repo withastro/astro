@@ -1,6 +1,6 @@
-import { loadFixture, readXML } from './test-utils.js';
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import { loadFixture, readXML } from './test-utils.js';
 
 describe('URLs with base path', () => {
 	/** @type {import('./test-utils').Fixture} */

@@ -8,7 +8,7 @@
 		"enabled": true
 	},
 	"linter": {
-		"enabled": false,
+		"enabled": false
 	},
   "formatter": {
     "enabled": false

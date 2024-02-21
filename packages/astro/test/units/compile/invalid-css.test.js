@@ -1,9 +1,9 @@
-import { resolveConfig } from 'vite';
-import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { pathToFileURL } from 'node:url';
+import { resolveConfig } from 'vite';
 import { compile } from '../../../dist/core/compile/index.js';
 import { AggregateError } from '../../../dist/core/errors/index.js';
-import { pathToFileURL } from 'node:url';
 
 describe('astro/src/core/compile', () => {
 	describe('Invalid CSS', () => {

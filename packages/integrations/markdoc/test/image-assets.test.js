@@ -1,7 +1,7 @@
-import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import { parseHTML } from 'linkedom';
+import { loadFixture } from '../../../astro/test/test-utils.js';
 
 const root = new URL('./fixtures/image-assets/', import.meta.url);
 

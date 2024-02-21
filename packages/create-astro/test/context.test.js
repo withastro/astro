@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
 import os from 'node:os';
+import { describe, it } from 'node:test';
 import { getContext } from '../dist/index.js';
 describe('context', () => {
 	it('no arguments', async () => {

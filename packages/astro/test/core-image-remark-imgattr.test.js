@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { describe, before, after, it } from 'node:test';
-import * as cheerio from 'cheerio';
 import { Writable } from 'node:stream';
+import { after, before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
 
 import { Logger } from '../dist/core/logger/core.js';
 import { loadFixture } from './test-utils.js';

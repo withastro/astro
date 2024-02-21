@@ -1,10 +1,10 @@
 import mdx from '@astrojs/mdx';
 
-import { parseHTML } from 'linkedom';
-import { describe, it, before } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
+import { parseHTML } from 'linkedom';
+import { loadFixture } from '../../../astro/test/test-utils.js';
 
 describe('Head injection w/ MDX', () => {
 	let fixture;
