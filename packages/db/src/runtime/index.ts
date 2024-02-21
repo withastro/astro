@@ -34,7 +34,6 @@ const dateType = customType<{ data: Date; driverData: string }>({
 		return value.toISOString();
 	},
 	fromDriver(value) {
-		console.log('driver', value);
 		return new Date(value);
 	},
 });
