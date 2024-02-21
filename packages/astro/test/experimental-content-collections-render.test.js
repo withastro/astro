@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import { describe, before, after, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture, isWindows } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { isWindows, loadFixture } from './test-utils.js';
 
 if (!isWindows) {
 	describe('Experimental Content Collections cache - render()', () => {

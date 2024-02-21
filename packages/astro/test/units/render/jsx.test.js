@@ -1,15 +1,15 @@
-import { describe, it, before } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
+import { RenderContext } from '../../../dist/core/render-context.js';
+import { loadRenderer } from '../../../dist/core/render/index.js';
+import { jsx } from '../../../dist/jsx-runtime/index.js';
+import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
 import {
 	createComponent,
 	render,
 	renderComponent,
 	renderSlot,
 } from '../../../dist/runtime/server/index.js';
-import { jsx } from '../../../dist/jsx-runtime/index.js';
-import { loadRenderer } from '../../../dist/core/render/index.js';
-import { RenderContext } from '../../../dist/core/render-context.js';
-import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
 import { createBasicPipeline } from '../test-utils.js';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });

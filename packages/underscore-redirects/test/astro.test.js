@@ -1,6 +1,6 @@
-import { createRedirectsFromAstroRoutes } from '../dist/index.js';
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { createRedirectsFromAstroRoutes } from '../dist/index.js';
 
 describe('Astro', () => {
 	const serverConfig = {

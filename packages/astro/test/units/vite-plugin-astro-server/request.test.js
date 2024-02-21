@@ -1,9 +1,11 @@
-import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { createLoader } from '../../../dist/core/module-loader/index.js';
 import { createRouteManifest } from '../../../dist/core/routing/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createController, handleRequest } from '../../../dist/vite-plugin-astro-server/index.js';
+import { DevPipeline } from '../../../dist/vite-plugin-astro-server/pipeline.js';
+import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
 import {
 	createAstroModule,
 	createBasicSettings,
@@ -11,8 +13,6 @@ import {
 	createRequestAndResponse,
 	defaultLogger,
 } from '../test-utils.js';
-import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
-import { DevPipeline } from '../../../dist/vite-plugin-astro-server/pipeline.js';
 
 async function createDevPipeline(overrides = {}) {
 	const settings = overrides.settings ?? (await createBasicSettings({ root: '/' }));

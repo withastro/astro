@@ -1,16 +1,16 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { MissingLocale } from '#astro/core/errors/errors-data';
+import { AstroError } from '#astro/core/errors/index';
+import { toRoutingStrategy } from '#astro/i18n/utils';
+import { validateConfig } from '../../../dist/core/config/config.js';
 import {
-	getLocaleRelativeUrl,
-	getLocaleRelativeUrlList,
 	getLocaleAbsoluteUrl,
 	getLocaleAbsoluteUrlList,
+	getLocaleRelativeUrl,
+	getLocaleRelativeUrlList,
 } from '../../../dist/i18n/index.js';
 import { parseLocale } from '../../../dist/i18n/utils.js';
-import { describe, it } from 'node:test';
-import * as assert from 'node:assert/strict';
-import { validateConfig } from '../../../dist/core/config/config.js';
-import { AstroError } from '#astro/core/errors/index';
-import { MissingLocale } from '#astro/core/errors/errors-data';
-import { toRoutingStrategy } from '#astro/i18n/utils';
 
 describe('getLocaleRelativeUrl', () => {
 	it('should correctly return the URL with the base', () => {

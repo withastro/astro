@@ -1,6 +1,6 @@
+import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { loadFixture, readXML } from './test-utils.js';
-import assert from 'node:assert/strict';
 
 describe('Dynamic with rest parameter', () => {
 	/** @type {import('./test-utils.js').Fixture} */

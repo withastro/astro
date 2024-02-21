@@ -1,11 +1,11 @@
-import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import {
-	matchProtocol,
-	matchPort,
 	matchHostname,
 	matchPathname,
 	matchPattern,
+	matchPort,
+	matchProtocol,
 } from '../../../dist/assets/utils/remotePattern.js';
 
 describe('astro/src/assets/utils/remotePattern', () => {
