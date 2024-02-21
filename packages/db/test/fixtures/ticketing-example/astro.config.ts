@@ -1,12 +1,14 @@
 import { defineConfig } from 'astro/config';
-import preact from '@astrojs/preact';
 import simpleStackForm from 'simple-stack-form';
 import db, { defineReadableTable, defineWritableTable, column } from '@astrojs/db';
 import node from '@astrojs/node';
+import react from '@astrojs/react';
 
 const Event = defineReadableTable({
 	columns: {
-		id: column.number({ primaryKey: true }),
+		id: column.number({
+			primaryKey: true,
+		}),
 		name: column.text(),
 		description: column.text(),
 		ticketPrice: column.number(),
@@ -27,7 +29,7 @@ const Ticket = defineWritableTable({
 
 // https://astro.build/config
 export default defineConfig({
-	integrations: [preact(), simpleStackForm(), db()],
+	integrations: [simpleStackForm(), db(), react()],
 	output: 'server',
 	adapter: node({
 		mode: 'standalone',

@@ -1,7 +1,7 @@
 import { createForm } from 'simple:form';
 import { Form, Input } from '../../components/Form';
 import { z } from 'zod';
-import { useState } from 'preact/hooks';
+import { useState } from 'react';
 
 export const ticketForm = createForm({
 	email: z.string().email(),
@@ -16,7 +16,7 @@ export function TicketForm({ price }: { price: number }) {
 			<Form validator={ticketForm.validator}>
 				<h3>${(quantity * price) / 100}</h3>
 
-				<label for="quantity">Quantity</label>
+				<label htmlFor="quantity">Quantity</label>
 				<Input
 					id="quantity"
 					{...ticketForm.inputProps.quantity}
@@ -26,12 +26,12 @@ export function TicketForm({ price }: { price: number }) {
 					}}
 				/>
 
-				<label for="email">Email</label>
+				<label htmlFor="email">Email</label>
 				<Input id="email" {...ticketForm.inputProps.email} />
 
-				<div class="newsletter">
+				<div className="newsletter">
 					<Input id="newsletter" {...ticketForm.inputProps.newsletter} />
-					<label for="newsletter">Hear about the next event in your area</label>
+					<label htmlFor="newsletter">Hear about the next event in your area</label>
 				</div>
 				<button>Buy tickets</button>
 			</Form>
