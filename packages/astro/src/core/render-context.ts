@@ -267,6 +267,9 @@ export class RenderContext {
 		}
 		const { defaultLocale, locales, strategy } = i18n
 		return (this.#i18nData = {
+			// TODO: we are making two calls to computeCurrentLocale(). In various cases, one works and the other doesn't.
+			// Ideally, we could use `renderContext.pathname` which is intended to be the one true "file-system-matchable" path.
+			// - Arsh
 			currentLocale: computeCurrentLocale(url.pathname, locales, strategy, defaultLocale) ?? computeCurrentLocale(routeData.route, locales, strategy, defaultLocale),
 			preferredLocale: computePreferredLocale(request, locales),
 			preferredLocaleList: computePreferredLocaleList(request, locales),
