@@ -4577,6 +4577,15 @@ importers:
         specifier: 0.6.2
         version: 0.6.2
 
+  packages/integrations/sitemap/test/fixtures/dynamic:
+    dependencies:
+      '@astrojs/sitemap':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/sitemap/test/fixtures/ssr:
     dependencies:
       '@astrojs/sitemap':
