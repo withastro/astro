@@ -24,7 +24,7 @@ const baseColumnSchema = z.object({
 	optional: z.boolean().optional().default(false),
 	unique: z.boolean().optional().default(false),
 
-	// Defined when `defineTable()` is called
+	// Defined when `defineReadableTable()` is called
 	name: z.string().optional(),
 	collection: z.string().optional(),
 });
@@ -339,7 +339,7 @@ function baseDefineCollection<TColumns extends ColumnsConfig, TWritable extends 
 	};
 }
 
-export function defineTable<TColumns extends ColumnsConfig>(
+export function defineReadableTable<TColumns extends ColumnsConfig>(
 	userConfig: CollectionConfig<TColumns>
 ): ResolvedCollectionConfig<TColumns, false> {
 	return baseDefineCollection(userConfig, false);

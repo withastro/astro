@@ -5,7 +5,7 @@ import {
 	getMigrationQueries,
 } from '../../dist/core/cli/migration-queries.js';
 import { getCreateTableQuery } from '../../dist/core/queries.js';
-import { column, defineTable, collectionSchema } from '../../dist/core/types.js';
+import { column, defineReadableTable, collectionSchema } from '../../dist/core/types.js';
 import { NOW, sql } from '../../dist/runtime/index.js';
 
 const COLLECTION_NAME = 'Users';
@@ -13,7 +13,7 @@ const COLLECTION_NAME = 'Users';
 // `parse` to resolve schema transformations
 // ex. convert column.date() to ISO strings
 const userInitial = collectionSchema.parse(
-	defineTable({
+	defineReadableTable({
 		columns: {
 			name: column.text(),
 			age: column.number(),

@@ -1,10 +1,10 @@
 import { defineConfig } from 'astro/config';
 import preact from '@astrojs/preact';
 import simpleStackForm from 'simple-stack-form';
-import db, { defineTable, defineWritableTable, column } from '@astrojs/db';
+import db, { defineReadableTable, defineWritableTable, column } from '@astrojs/db';
 import node from '@astrojs/node';
 
-const Event = defineTable({
+const Event = defineReadableTable({
 	columns: {
 		id: column.number({ primaryKey: true }),
 		name: column.text(),

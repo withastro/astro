@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
-import astroDb, { defineTable, column } from '@astrojs/db';
+import astroDb, { defineReadableTable, column } from '@astrojs/db';
 
-const Recipe = defineTable({
+const Recipe = defineReadableTable({
 	columns: {
 		id: column.number({ primaryKey: true }),
 		title: column.text(),
@@ -9,7 +9,7 @@ const Recipe = defineTable({
 	},
 });
 
-const Ingredient = defineTable({
+const Ingredient = defineReadableTable({
 	columns: {
 		id: column.number({ primaryKey: true }),
 		name: column.text(),

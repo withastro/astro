@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
-import db, { defineTable, defineWritableTable, column, sql, NOW } from '@astrojs/db';
+import db, { defineReadableTable, defineWritableTable, column, sql, NOW } from '@astrojs/db';
 
-const Author = defineTable({
+const Author = defineReadableTable({
 	columns: {
 		name: column.text(),
 	},

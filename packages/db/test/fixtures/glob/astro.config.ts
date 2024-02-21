@@ -1,8 +1,8 @@
 import { defineConfig } from 'astro/config';
-import db, { defineTable, column } from '@astrojs/db';
+import db, { defineReadableTable, column } from '@astrojs/db';
 import { asJson, createGlob } from './utils';
 
-const Quote = defineTable({
+const Quote = defineReadableTable({
 	columns: {
 		author: column.text(),
 		body: column.text(),
