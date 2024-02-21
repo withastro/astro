@@ -67,7 +67,7 @@ describe('Middleware in DEV mode', () => {
 	it("should throw an error when the middleware doesn't call next or doesn't return a response", async () => {
 		const html = await fixture.fetch('/does-nothing').then((res) => res.text());
 		const $ = cheerio.load(html);
-		assert.equal($('title').html(), 'MiddlewareNoDataOrNextCalled');
+		assert.equal($('title').html(), 'MiddlewareNotAResponse');
 	});
 
 	it('should allow setting cookies', async () => {
