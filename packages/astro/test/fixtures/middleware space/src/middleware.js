@@ -1,6 +1,11 @@
 import { defineMiddleware, sequence } from 'astro:middleware';
 
 const first = defineMiddleware(async (context, next) => {
+	if (context.request.url.includes('/virtual')) {
+		return new Response('<span>New content!!</span>', {
+			status: 200,
+		});
+	}
 	if (context.request.url.includes('/lorem')) {
 		context.locals.name = 'ipsum';
 	} else if (context.request.url.includes('/rewrite')) {
@@ -41,7 +46,7 @@ const first = defineMiddleware(async (context, next) => {
 			headers: response.headers,
 		});
 	} else if (context.url.pathname === '/prerendered/') {
-		context.locals.canBeReadDuringPrerendering = "yes they can!";
+		context.locals.canBeReadDuringPrerendering = 'yes they can!';
 	} else {
 		if (context.url.pathname === '/') {
 			context.cookies.set('foo', 'bar');

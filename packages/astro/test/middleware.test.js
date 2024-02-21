@@ -100,6 +100,11 @@ describe('Middleware in DEV mode', () => {
 			assert.equal(json.post, 'works');
 		});
 	});
+
+	it('should render a virtual route', async () => {
+		const html = await fixture.fetch('/virtual').then((res) => res.text());
+		assert.equal(html.includes('Virtual!!'), true);
+	});
 });
 
 describe('Integration hooks with no user middleware', () => {
