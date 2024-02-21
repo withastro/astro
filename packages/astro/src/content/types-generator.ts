@@ -1,10 +1,11 @@
 import glob from 'fast-glob';
 import { bold, cyan } from 'kleur/colors';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { normalizePath, type ViteDevServer } from 'vite';
+import { z } from 'zod';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
@@ -311,6 +312,7 @@ export async function createContentTypesGenerator({
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
 				contentEntryTypes: settings.contentEntryTypes,
 				viteServer,
+				logger,
 				settings,
 			});
 			invalidateVirtualMod(viteServer);
@@ -354,6 +356,7 @@ async function writeContentFiles({
 	contentEntryTypes,
 	contentConfig,
 	viteServer,
+	logger,
 	settings,
 }: {
 	fs: typeof fsMod;
@@ -363,6 +366,7 @@ async function writeContentFiles({
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
 	viteServer: Pick<ViteDevServer, 'hot'>;
+	logger: Logger;
 	settings: AstroSettings;
 }) {
 	let contentTypesStr = '';
@@ -435,11 +439,17 @@ async function writeContentFiles({
 						settings.config.experimental.contentCollectionJsonSchema &&
 						collectionConfig?.schema
 					) {
+						let zodSchemaForJson = collectionConfig.schema;
+						if (zodSchemaForJson instanceof z.ZodObject) {
+							zodSchemaForJson = zodSchemaForJson.extend({
+								$schema: z.string().optional(),
+							});
+						}
 						try {
 							await fs.promises.writeFile(
 								new URL(`./${collectionKey.replace(/"/g, '')}.json`, collectionSchemasDir),
 								JSON.stringify(
-									zodToJsonSchema(collectionConfig.schema, {
+									zodToJsonSchema(zodSchemaForJson, {
 										name: collectionKey.replace(/"/g, ''),
 										markdownDescription: true,
 										errorMessages: true,
@@ -448,8 +458,11 @@ async function writeContentFiles({
 									2
 								)
 							);
-						} catch (error) {
-							// new AstroError(error)
+						} catch (err) {
+							logger.warn(
+								'content',
+								`An error was encountered while creating the Json schema. Proceeding without it. Error: ${err}`
+							);
 						}
 					}
 				}
