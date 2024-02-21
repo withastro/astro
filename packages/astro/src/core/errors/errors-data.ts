@@ -751,27 +751,6 @@ export const ResponseSentError = {
 /**
  * @docs
  * @description
- * Thrown when the middleware does not return any data or call the `next` function.
- *
- * For example:
- * ```ts
- * import {defineMiddleware} from "astro:middleware";
- * export const onRequest = defineMiddleware((context, _) => {
- * 	// doesn't return anything or call `next`
- * 	context.locals.someData = false;
- * });
- * ```
- */
-export const MiddlewareNoDataOrNextCalled = {
-	name: 'MiddlewareNoDataOrNextCalled',
-	title: "The middleware didn't return a `Response`.",
-	message:
-		'Make sure your middleware returns a `Response` object, either directly or by returning the `Response` from calling the `next` function.',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
  * Thrown in development mode when middleware returns something that is not a `Response` object.
  *
  * For example:
