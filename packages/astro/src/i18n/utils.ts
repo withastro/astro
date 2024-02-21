@@ -1,6 +1,5 @@
-import type { Locales } from '../@types/astro.js';
+import type { AstroConfig, AstroUserConfig, Locales } from '../@types/astro.js';
 import { normalizeTheLocale, toCodes } from './index.js';
-import type { RoutingStrategies } from '../core/config/schema.js';
 
 type BrowserLocale = {
 	locale: string;
@@ -189,4 +188,40 @@ export function computeCurrentLocale(
 		return defaultLocale;
 	}
 	return undefined;
+}
+
+export type RoutingStrategies =
+	| 'pathname-prefix-always'
+	| 'pathname-prefix-other-locales'
+	| 'pathname-prefix-always-no-redirect'
+	| 'domains-prefix-always'
+	| 'domains-prefix-other-locales'
+	| 'domains-prefix-always-no-redirect';
+export function toRoutingStrategy(i18n: NonNullable<AstroConfig['i18n']>) {
+	let { routing, domains } = i18n;
+	let strategy: RoutingStrategies;
+	const hasDomains = domains ? Object.keys(domains).length > 0 : false;
+	if (!hasDomains) {
+		if (routing?.prefixDefaultLocale === true) {
+			if (routing.redirectToDefaultLocale) {
+				strategy = 'pathname-prefix-always';
+			} else {
+				strategy = 'pathname-prefix-always-no-redirect';
+			}
+		} else {
+			strategy = 'pathname-prefix-other-locales';
+		}
+	} else {
+		if (routing?.prefixDefaultLocale === true) {
+			if (routing.redirectToDefaultLocale) {
+				strategy = 'domains-prefix-always';
+			} else {
+				strategy = 'domains-prefix-always-no-redirect';
+			}
+		} else {
+			strategy = 'domains-prefix-other-locales';
+		}
+	}
+
+	return strategy;
 }

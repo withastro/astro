@@ -106,9 +106,9 @@ export function createI18nMiddleware(
 		}
 
 		const { url, currentLocale } = context;
-		const { locales, defaultLocale, fallback, routing } = i18n;
+		const { locales, defaultLocale, fallback, strategy } = i18n;
 
-		switch (i18n.routing) {
+		switch (i18n.strategy) {
 			case 'domains-prefix-other-locales': {
 				if (localeHasntDomain(i18n, currentLocale)) {
 					const result = prefixOtherLocales(url, response);
@@ -187,7 +187,7 @@ export function createI18nMiddleware(
 				let newPathname: string;
 				// If a locale falls back to the default locale, we want to **remove** the locale because
 				// the default locale doesn't have a prefix
-				if (pathFallbackLocale === defaultLocale && routing === 'pathname-prefix-other-locales') {
+				if (pathFallbackLocale === defaultLocale && strategy === 'pathname-prefix-other-locales') {
 					newPathname = url.pathname.replace(`/${urlLocale}`, ``);
 				} else {
 					newPathname = url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
