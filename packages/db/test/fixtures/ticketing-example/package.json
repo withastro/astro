@@ -10,10 +10,10 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/check": "^0.3.1",
+    "@astrojs/check": "^0.5.5",
     "@astrojs/db": "workspace:*",
-    "@astrojs/node": "^8.0.0",
-    "@astrojs/preact": "^3.0.1",
+    "@astrojs/node": "^8.2.0",
+    "@astrojs/preact": "^3.1.0",
     "astro": "workspace:*",
     "open-props": "^1.6.17",
     "preact": "^10.6.5",
