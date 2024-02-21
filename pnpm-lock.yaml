@@ -3915,10 +3915,10 @@ importers:
         specifier: workspace:*
         version: link:../../..
       '@astrojs/node':
-        specifier: ^8.2.0
+        specifier: workspace:*
         version: link:../../../../integrations/node
       '@astrojs/preact':
-        specifier: ^3.1.0
+        specifier: workspace:*
         version: link:../../../../integrations/preact
       astro:
         specifier: workspace:*
@@ -3927,8 +3927,8 @@ importers:
         specifier: ^1.6.17
         version: 1.6.17
       preact:
-        specifier: ^10.6.5
-        version: 10.19.2
+        specifier: ^10.19.5
+        version: 10.19.5
       simple-stack-form:
         specifier: ^0.1.10
         version: 0.1.10(astro@packages+astro)(zod@3.22.4)
@@ -14295,12 +14295,12 @@ packages:
       preact: 10.19.3
     dev: false
 
-  /preact@10.19.2:
-    resolution: {integrity: sha512-UA9DX/OJwv6YwP9Vn7Ti/vF80XL+YA5H2l7BpCtUr3ya8LWHFzpiO5R+N7dN16ujpIxhekRFuOOF82bXX7K/lg==}
-    dev: false
-
   /preact@10.19.3:
     resolution: {integrity: sha512-nHHTeFVBTHRGxJXKkKu5hT8C/YWBkPso4/Gad6xuj5dbptt9iF9NZr9pHbPhBrnT2klheu7mHTxTZ/LjwJiEiQ==}
+
+  /preact@10.19.5:
+    resolution: {integrity: sha512-OPELkDmSVbKjbFqF9tgvOowiiQ9TmsJljIzXRyNE8nGiis94pwv1siF78rQkAP1Q1738Ce6pellRg/Ns/CtHqQ==}
+    dev: false
 
   /prebuild-install@7.1.1:
     resolution: {integrity: sha512-jAXscXWMcCK8GgCoHOfIr0ODh5ai8mj63L2nWrjuAgXE6tDyYGnx4/8o/rCgU+B4JSyZBKbeZqzhtwtC3ovxjw==}
