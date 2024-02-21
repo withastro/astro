@@ -16,21 +16,23 @@ export default defineConfig({
 });
 ```
 
-To be able to use the schemas, you need to adapt your zod definition and reference it inside the json manually:
-
-```diff
-const test = defineCollection({
-	type: 'data',
-	schema: z.object({
-+		"$schema": z.string().optional(),
-    test: z.string()
-	}),
-});
-```
-
+To make sure VSCode picks up the schema file, you have multiple option. You can either reference the file in every file of your content collection:
 ```diff
 {
 +  "$schema": "../../../.astro/schemas/collections/test.json",
   "test": "test"
 }
+```
+
+Or you can set your VSCode settings to match them, read more in the [VSCode docs](https://code.visualstudio.com/docs/languages/json#_json-schemas-and-settings):
+
+```diff
+"json.schemas": [
+  {
+    "fileMatch": [
+      "/src/content/test/**"
+    ],
+    "url": "../../../.astro/schemas/collections/test.json"
+  }
+]
 ```
