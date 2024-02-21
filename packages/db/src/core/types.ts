@@ -196,10 +196,10 @@ export const writableCollectionSchema = baseCollectionSchema.extend({
 });
 
 export const collectionSchema = z.union([readableCollectionSchema, writableCollectionSchema]);
-export const collectionsSchema = z.preprocess((rawCollections) => {
+export const tablesSchema = z.preprocess((rawCollections) => {
 	// Use `z.any()` to avoid breaking object references
-	const collections = z.record(z.any()).parse(rawCollections, { errorMap });
-	for (const [collectionName, collection] of Object.entries(collections)) {
+	const tables = z.record(z.any()).parse(rawCollections, { errorMap });
+	for (const [collectionName, collection] of Object.entries(tables)) {
 		// Append `table` object for data seeding.
 		// Must append at runtime so table name exists.
 		collection.table = collectionToTable(
@@ -243,20 +243,20 @@ export type DBColumnInput =
 	| TextColumnInput
 	| JsonColumnInput;
 export type DBColumns = z.infer<typeof columnsSchema>;
-export type DBCollection = z.infer<
+export type DBTable = z.infer<
 	typeof readableCollectionSchema | typeof writableCollectionSchema
 >;
-export type DBCollections = Record<string, DBCollection>;
+export type DBTables = Record<string, DBTable>;
 export type DBSnapshot = {
-	schema: Record<string, DBCollection>;
+	schema: Record<string, DBTable>;
 	/**
 	 * Snapshot version. Breaking changes to the snapshot format increment this number.
 	 * @todo Rename to "version" once closer to release.
 	 */
 	experimentalVersion: number;
 };
-export type ReadableDBCollection = z.infer<typeof readableCollectionSchema>;
-export type WritableDBCollection = z.infer<typeof writableCollectionSchema>;
+export type ReadableDBTable = z.infer<typeof readableCollectionSchema>;
+export type WritableDBTable = z.infer<typeof writableCollectionSchema>;
 
 export type DBDataContext = {
 	db: SqliteDB;
@@ -284,7 +284,7 @@ export function defineData(fn: (ctx: DBDataContext) => MaybePromise<void>) {
 
 export const dbConfigSchema = z.object({
 	studio: z.boolean().optional(),
-	collections: collectionsSchema.optional(),
+	tables: tablesSchema.optional(),
 	data: z
 		.function()
 		.returns(z.union([z.void(), z.promise(z.void())]))

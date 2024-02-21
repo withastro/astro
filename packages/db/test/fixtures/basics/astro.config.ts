@@ -26,7 +26,7 @@ export default defineConfig({
 	integrations: [db()],
 	db: {
 		studio: true,
-		collections: { Author, Themes },
+		tables: { Author, Themes },
 		async data({ seed }) {
 			await seed(Author, [
 				{ name: 'Ben' },
@@ -35,7 +35,7 @@ export default defineConfig({
 				{ name: 'Bjorn' },
 				{ name: 'Sarah' },
 			]);
-			// Seed writable collections in dev mode, only
+			// Seed writable tables in dev mode, only
 			// but in this case we do it for both, due to tests
 			await seed(Themes, [
 				{ name: 'dracula' },

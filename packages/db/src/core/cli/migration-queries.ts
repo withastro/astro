@@ -3,8 +3,8 @@ import deepDiff from 'deep-diff';
 import {
 	columnSchema,
 	type BooleanColumn,
-	type DBCollection,
-	type DBCollections,
+	type DBTable,
+	type DBTables,
 	type DBColumn,
 	type DBColumns,
 	type DBSnapshot,
@@ -96,8 +96,8 @@ export async function getCollectionChangeQueries({
 	ambiguityResponses,
 }: {
 	collectionName: string;
-	oldCollection: DBCollection;
-	newCollection: DBCollection;
+	oldCollection: DBTable;
+	newCollection: DBTable;
 	ambiguityResponses?: AmbiguityResponses;
 }): Promise<{ queries: string[]; confirmations: string[] }> {
 	const queries: string[] = [];
@@ -264,12 +264,12 @@ async function resolveColumnRenames(
 }
 
 async function resolveCollectionRenames(
-	mightAdd: DBCollections,
-	mightDrop: DBCollections,
+	mightAdd: DBTables,
+	mightDrop: DBTables,
 	ambiguityResponses?: AmbiguityResponses
-): Promise<{ added: DBCollections; dropped: DBCollections; renamed: Renamed }> {
-	const added: DBCollections = {};
-	const dropped: DBCollections = {};
+): Promise<{ added: DBTables; dropped: DBTables; renamed: Renamed }> {
+	const added: DBTables = {};
+	const dropped: DBTables = {};
 	const renamed: Renamed = [];
 
 	for (const [collectionName, collection] of Object.entries(mightAdd)) {
@@ -320,8 +320,8 @@ async function resolveCollectionRenames(
 function getAddedCollections(
 	oldCollections: DBSnapshot,
 	newCollections: DBSnapshot
-): DBCollections {
-	const added: DBCollections = {};
+): DBTables {
+	const added: DBTables = {};
 	for (const [key, newCollection] of Object.entries(newCollections.schema)) {
 		if (!(key in oldCollections.schema)) added[key] = newCollection;
 	}
@@ -331,8 +331,8 @@ function getAddedCollections(
 function getDroppedCollections(
 	oldCollections: DBSnapshot,
 	newCollections: DBSnapshot
-): DBCollections {
-	const dropped: DBCollections = {};
+): DBTables {
+	const dropped: DBTables = {};
 	for (const [key, oldCollection] of Object.entries(oldCollections.schema)) {
 		if (!(key in newCollections.schema)) dropped[key] = oldCollection;
 	}
@@ -392,7 +392,7 @@ function getRecreateTableQueries({
 	migrateHiddenPrimaryKey,
 }: {
 	collectionName: string;
-	newCollection: DBCollection;
+	newCollection: DBTable;
 	added: Record<string, DBColumn>;
 	hasDataLoss: boolean;
 	migrateHiddenPrimaryKey: boolean;

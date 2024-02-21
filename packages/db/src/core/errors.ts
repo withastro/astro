@@ -17,7 +17,7 @@ export const STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR = (collectionName:
   Visit ${cyan('https://astro.build/studio')} to create your account
   and set ${green('studio: true')} in your astro.config.mjs file to enable Studio.\n`;
 
-export const UNSAFE_WRITABLE_WARNING = `${yellow('unsafeWritable')} option is enabled and you are using writable collections.
+export const UNSAFE_WRITABLE_WARNING = `${yellow('unsafeWritable')} option is enabled and you are using writable tables.
   Redeploying your app may result in wiping away your database.
 	I hope you know what you are doing.\n`
 
@@ -32,7 +32,7 @@ export const MIGRATIONS_NOT_INITIALIZED = `${yellow(
 
 export const SEED_WRITABLE_IN_PROD_ERROR = (collectionName: string) => {
 	return `${red(
-		`Writable collections should not be seeded in production with data().`
+		`Writable tables should not be seeded in production with data().`
 	)} You can seed ${bold(
 		collectionName
 	)} in development mode only using the "mode" flag. See the docs for more: https://www.notion.so/astroinc/astrojs-db-README-dcf6fa10de9a4f528be56cee96e8c054?pvs=4#278aed3fc37e4cec80240d1552ff6ac5`;

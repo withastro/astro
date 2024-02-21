@@ -25,7 +25,7 @@ const Ingredient = defineTable({
 export default defineConfig({
 	integrations: [astroDb()],
 	db: {
-		collections: { Recipe, Ingredient },
+		tables: { Recipe, Ingredient },
 		async data({ seed, seedReturning }) {
 			const pancakes = await seedReturning(Recipe, {
 				title: 'Pancakes',

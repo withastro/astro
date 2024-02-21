@@ -34,7 +34,7 @@ export default defineConfig({
 	}),
 	db: {
 		studio: true,
-		collections: {
+		tables: {
 			Event,
 			Ticket,
 		},

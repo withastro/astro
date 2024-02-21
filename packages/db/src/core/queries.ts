@@ -1,8 +1,8 @@
 import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
 import {
 	type BooleanColumn,
-	type DBCollection,
-	type DBCollections,
+	type DBTable,
+	type DBTables,
 	type DBColumn,
 	type DateColumn,
 	type ColumnType,
@@ -23,13 +23,13 @@ const sqlite = new SQLiteAsyncDialect();
 
 export async function recreateTables({
 	db,
-	collections,
+	tables,
 }: {
 	db: SqliteRemoteDatabase;
-	collections: DBCollections;
+	tables: DBTables;
 }) {
 	const setupQueries: SQL[] = [];
-	for (const [name, collection] of Object.entries(collections)) {
+	for (const [name, collection] of Object.entries(tables)) {
 		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);
 		const createQuery = sql.raw(getCreateTableQuery(name, collection));
 		const indexQueries = getCreateIndexQueries(name, collection);
@@ -85,7 +85,7 @@ export async function seedData({
 	}
 }
 
-export function getCreateTableQuery(collectionName: string, collection: DBCollection) {
+export function getCreateTableQuery(collectionName: string, collection: DBTable) {
 	let query = `CREATE TABLE ${sqlite.escapeName(collectionName)} (`;
 
 	const colQueries = [];
@@ -110,7 +110,7 @@ export function getCreateTableQuery(collectionName: string, collection: DBCollec
 
 export function getCreateIndexQueries(
 	collectionName: string,
-	collection: Pick<DBCollection, 'indexes'>
+	collection: Pick<DBTable, 'indexes'>
 ) {
 	let queries: string[] = [];
 	for (const [indexName, indexProps] of Object.entries(collection.indexes ?? {})) {
@@ -126,7 +126,7 @@ export function getCreateIndexQueries(
 	return queries;
 }
 
-export function getCreateForeignKeyQueries(collectionName: string, collection: DBCollection) {
+export function getCreateForeignKeyQueries(collectionName: string, collection: DBTable) {
 	let queries: string[] = [];
 	for (const foreignKey of collection.foreignKeys ?? []) {
 		const columns = asArray(foreignKey.columns);
@@ -188,7 +188,7 @@ export function getModifiers(columnName: string, column: DBColumn) {
 		const { collection, name } = references.schema;
 		if (!collection || !name) {
 			throw new Error(
-				`Column ${collection}.${name} references a collection that does not exist. Did you apply the referenced collection to the \`collections\` object in your Astro config?`
+				`Column ${collection}.${name} references a collection that does not exist. Did you apply the referenced collection to the \`tables\` object in your Astro config?`
 			);
 		}
 

@@ -26,14 +26,14 @@ function astroDBIntegration(): AstroIntegration {
 			'astro:config:setup': async ({ logger, updateConfig, config, command }) => {
 				if (command === 'preview') return;
 
-				// TODO: refine where we load collections
-				// @matthewp: may want to load collections by path at runtime
+				// TODO: refine where we load tables
+				// @matthewp: may want to load tables by path at runtime
 				const configWithDb = astroConfigWithDbSchema.parse(config, { errorMap });
-				const collections = configWithDb.db?.collections ?? {};
+				const tables = configWithDb.db?.tables ?? {};
 
 				const studio = configWithDb.db?.studio ?? false;
 				const unsafeWritable = Boolean(configWithDb.db?.unsafeWritable);
-				const foundWritableCollection = Object.entries(collections).find(([, c]) => c.writable);
+				const foundWritableCollection = Object.entries(tables).find(([, c]) => c.writable);
 				const writableAllowed = studio || unsafeWritable;
 				if (!writableAllowed && foundWritableCollection) {
 					logger.error(
@@ -41,7 +41,7 @@ function astroDBIntegration(): AstroIntegration {
 					);
 					process.exit(1);
 				}
-				// Using writable collections with the opt-in flag. Warn them to let them
+				// Using writable tables with the opt-in flag. Warn them to let them
 				// know the risk.
 				else if(unsafeWritable && foundWritableCollection) {
 					logger.warn(UNSAFE_WRITABLE_WARNING);
@@ -53,7 +53,7 @@ function astroDBIntegration(): AstroIntegration {
 					connectedToRemote = true;
 					dbPlugin = vitePluginDb({
 						connectToStudio: true,
-						collections,
+						tables,
 						appToken: appToken.token,
 						root: config.root,
 					});
@@ -66,11 +66,11 @@ function astroDBIntegration(): AstroIntegration {
 					await writeFile(dbUrl, '');
 
 					const db = await createLocalDatabaseClient({
-						collections,
+						tables,
 						dbUrl: dbUrl.toString(),
 						seeding: true,
 					});
-					await recreateTables({ db, collections });
+					await recreateTables({ db, tables });
 					if (configWithDb.db?.data) {
 						await seedData({
 							db,
@@ -83,7 +83,7 @@ function astroDBIntegration(): AstroIntegration {
 
 					dbPlugin = vitePluginDb({
 						connectToStudio: false,
-						collections,
+						tables,
 						root: config.root,
 					});
 				}
@@ -109,7 +109,7 @@ function astroDBIntegration(): AstroIntegration {
 						],
 					},
 				});
-				await typegen({ collections, root: config.root });
+				await typegen({ tables, root: config.root });
 			},
 			'astro:server:start': async ({ logger }) => {
 				// Wait for the server startup to log, so that this can come afterwards.

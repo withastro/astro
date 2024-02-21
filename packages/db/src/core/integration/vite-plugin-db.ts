@@ -1,5 +1,5 @@
 import { DB_PATH, RUNTIME_DRIZZLE_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
-import type { DBCollections } from '../types.js';
+import type { DBTables } from '../types.js';
 import type { VitePlugin } from '../utils.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
@@ -8,12 +8,12 @@ export function vitePluginDb(
 	params:
 		| {
 				connectToStudio: false;
-				collections: DBCollections;
+				tables: DBTables;
 				root: URL;
 		  }
 		| {
 				connectToStudio: true;
-				collections: DBCollections;
+				tables: DBTables;
 				appToken: string;
 				root: URL;
 		  }
@@ -38,10 +38,10 @@ export function vitePluginDb(
 }
 
 export function getVirtualModContents({
-	collections,
+	tables,
 	root,
 }: {
-	collections: DBCollections;
+	tables: DBTables;
 	root: URL;
 }) {
 	const dbUrl = new URL(DB_PATH, root);
@@ -50,7 +50,7 @@ import { collectionToTable, createLocalDatabaseClient } from ${RUNTIME_IMPORT};
 import dbUrl from ${JSON.stringify(`${dbUrl}?fileurl`)};
 
 const params = ${JSON.stringify({
-		collections,
+		tables,
 		seeding: false,
 	})};
 params.dbUrl = dbUrl;
@@ -59,15 +59,15 @@ export const db = await createLocalDatabaseClient(params);
 
 export * from ${RUNTIME_DRIZZLE_IMPORT};
 
-${getStringifiedCollectionExports(collections)}
+${getStringifiedCollectionExports(tables)}
 `;
 }
 
 export function getStudioVirtualModContents({
-	collections,
+	tables,
 	appToken,
 }: {
-	collections: DBCollections;
+	tables: DBTables;
 	appToken: string;
 }) {
 	return `
@@ -78,12 +78,12 @@ export const db = await createRemoteDatabaseClient(${JSON.stringify(
 	)}, import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL);
 export * from ${RUNTIME_DRIZZLE_IMPORT};
 
-${getStringifiedCollectionExports(collections)}
+${getStringifiedCollectionExports(tables)}
 	`;
 }
 
-function getStringifiedCollectionExports(collections: DBCollections) {
-	return Object.entries(collections)
+function getStringifiedCollectionExports(tables: DBTables) {
+	return Object.entries(tables)
 		.map(
 			([name, collection]) =>
 				`export const ${name} = collectionToTable(${JSON.stringify(name)}, ${JSON.stringify(

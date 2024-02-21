@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { getCollectionChangeQueries } from '../../dist/core/cli/migration-queries.js';
-import { column, defineTable, collectionsSchema } from '../../dist/core/types.js';
+import { column, defineTable, tablesSchema } from '../../dist/core/types.js';
 
 const BaseUser = defineTable({
 	columns: {
@@ -28,8 +28,8 @@ const defaultAmbiguityResponses = {
 };
 
 /**
- * @typedef {import('../../dist/core/types.js').DBCollection} DBCollection
- * @param {{ User: DBCollection, SentBox: DBCollection }} params
+ * @typedef {import('../../dist/core/types.js').DBTable} DBTable
+ * @param {{ User: DBTable, SentBox: DBTable }} params
  * @returns
  */
 function resolveReferences(
@@ -38,7 +38,7 @@ function resolveReferences(
 		SentBox: BaseSentBox,
 	}
 ) {
-	return collectionsSchema.parse({ User, SentBox });
+	return tablesSchema.parse({ User, SentBox });
 }
 
 function userChangeQueries(

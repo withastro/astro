@@ -12,7 +12,7 @@ const Quote = defineTable({
 
 export default defineConfig({
 	db: {
-		collections: { Quote },
+		tables: { Quote },
 		data({ seed, ...ctx }) {
 			const glob = createGlob(ctx);
 			glob('quotes/*.json', {

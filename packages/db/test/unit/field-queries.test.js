@@ -55,28 +55,28 @@ function configChangeQueries(
 
 describe('column queries', () => {
 	describe('getMigrationQueries', () => {
-		it('should be empty when collections are the same', async () => {
+		it('should be empty when tables are the same', async () => {
 			const oldCollections = { [COLLECTION_NAME]: userInitial };
 			const newCollections = { [COLLECTION_NAME]: userInitial };
 			const { queries } = await configChangeQueries(oldCollections, newCollections);
 			expect(queries).to.deep.equal([]);
 		});
 
-		it('should create table for new collections', async () => {
+		it('should create table for new tables', async () => {
 			const oldCollections = {};
 			const newCollections = { [COLLECTION_NAME]: userInitial };
 			const { queries } = await configChangeQueries(oldCollections, newCollections);
 			expect(queries).to.deep.equal([getCreateTableQuery(COLLECTION_NAME, userInitial)]);
 		});
 
-		it('should drop table for removed collections', async () => {
+		it('should drop table for removed tables', async () => {
 			const oldCollections = { [COLLECTION_NAME]: userInitial };
 			const newCollections = {};
 			const { queries } = await configChangeQueries(oldCollections, newCollections);
 			expect(queries).to.deep.equal([`DROP TABLE "${COLLECTION_NAME}"`]);
 		});
 
-		it('should rename table for renamed collections', async () => {
+		it('should rename table for renamed tables', async () => {
 			const rename = 'Peeps';
 			const oldCollections = { [COLLECTION_NAME]: userInitial };
 			const newCollections = { [rename]: userInitial };
@@ -89,7 +89,7 @@ describe('column queries', () => {
 	});
 
 	describe('getCollectionChangeQueries', () => {
-		it('should be empty when collections are the same', async () => {
+		it('should be empty when tables are the same', async () => {
 			const { queries } = await userChangeQueries(userInitial, userInitial);
 			expect(queries).to.deep.equal([]);
 		});

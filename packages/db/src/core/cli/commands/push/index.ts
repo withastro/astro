@@ -8,7 +8,7 @@ import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
 import { recreateTables, seedData } from '../../../queries.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
-import { collectionsSchema, type AstroConfigWithDB, type DBSnapshot } from '../../../types.js';
+import { tablesSchema, type AstroConfigWithDB, type DBSnapshot } from '../../../types.js';
 import { getRemoteDatabaseUrl } from '../../../utils.js';
 import { getMigrationQueries } from '../../migration-queries.js';
 import {
@@ -148,10 +148,10 @@ async function pushData({
 		// Needed to generate return values.
 		await recreateTables({
 			db: drizzleLibsql(libsqlClient),
-			collections: collectionsSchema.parse(config.db.collections ?? {}),
+			tables: tablesSchema.parse(config.db.tables ?? {}),
 		});
 
-		for (const [collectionName, { writable }] of Object.entries(config.db.collections ?? {})) {
+		for (const [collectionName, { writable }] of Object.entries(config.db.tables ?? {})) {
 			if (!writable) {
 				queries.push({
 					sql: `DELETE FROM ${sqlite.escapeName(collectionName)}`,

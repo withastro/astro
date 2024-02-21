@@ -16,7 +16,7 @@ export function createGlob({ db, mode }: Pick<DBDataContext, 'db' | 'mode'>) {
 		const { table } = opts.into as any;
 		const fileColumn = table.file;
 		if (!fileColumn) {
-			throw new Error('`file` column is required for glob collections.');
+			throw new Error('`file` column is required for glob tables.');
 		}
 		if (mode === 'dev') {
 			chokidar

@@ -16,7 +16,7 @@ const userInitial = collectionSchema.parse({
 
 describe('index queries', () => {
 	it('adds indexes', async () => {
-		/** @type {import('../../dist/types.js').DBCollection} */
+		/** @type {import('../../dist/types.js').DBTable} */
 		const userFinal = {
 			...userInitial,
 			indexes: {
@@ -38,7 +38,7 @@ describe('index queries', () => {
 	});
 
 	it('drops indexes', async () => {
-		/** @type {import('../../dist/types.js').DBCollection} */
+		/** @type {import('../../dist/types.js').DBTable} */
 		const initial = {
 			...userInitial,
 			indexes: {
@@ -47,7 +47,7 @@ describe('index queries', () => {
 			},
 		};
 
-		/** @type {import('../../dist/types.js').DBCollection} */
+		/** @type {import('../../dist/types.js').DBTable} */
 		const final = {
 			...userInitial,
 			indexes: {},
@@ -63,7 +63,7 @@ describe('index queries', () => {
 	});
 
 	it('drops and recreates modified indexes', async () => {
-		/** @type {import('../../dist/types.js').DBCollection} */
+		/** @type {import('../../dist/types.js').DBTable} */
 		const initial = {
 			...userInitial,
 			indexes: {
@@ -72,7 +72,7 @@ describe('index queries', () => {
 			},
 		};
 
-		/** @type {import('../../dist/types.js').DBCollection} */
+		/** @type {import('../../dist/types.js').DBTable} */
 		const final = {
 			...userInitial,
 			indexes: {

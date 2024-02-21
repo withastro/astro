@@ -1,5 +1,5 @@
 import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
-import { type DBCollection, type DBColumn } from '../core/types.js';
+import { type DBTable, type DBColumn } from '../core/types.js';
 import { type ColumnBuilderBaseConfig, type ColumnDataType, sql, SQL } from 'drizzle-orm';
 import {
 	customType,
@@ -55,7 +55,7 @@ type D1ColumnBuilder = SQLiteColumnBuilderBase<
 	ColumnBuilderBaseConfig<ColumnDataType, string> & { data: unknown }
 >;
 
-export function collectionToTable(name: string, collection: DBCollection) {
+export function collectionToTable(name: string, collection: DBTable) {
 	const columns: Record<string, D1ColumnBuilder> = {};
 	if (!Object.entries(collection.columns).some(([, column]) => hasPrimaryKey(column))) {
 		columns['_id'] = integer('_id').primaryKey();
