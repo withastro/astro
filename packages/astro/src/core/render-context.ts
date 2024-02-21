@@ -3,7 +3,6 @@ import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { attachCookiesToResponse } from './cookies/index.js';
-import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { AstroCookies } from './cookies/index.js';
 import { ASTRO_VERSION, ROUTE_TYPE_HEADER, clientAddressSymbol, clientLocalsSymbol, responseSentSymbol } from './constants.js';
@@ -95,13 +94,18 @@ export class RenderContext {
 								return response;
 							}
 						: type === 'fallback'
-							? () =>
+							? async () =>
 									new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } })
 							: () => {
 									throw new Error('Unknown type of route: ' + type);
 								};
 
-		const response = await callMiddleware(middleware, apiContext, lastNext);
+		const response = await middleware(apiContext, lastNext);
+		
+		if (!response || !(response instanceof Response)) {
+			throw new AstroError(AstroErrorData.MiddlewareNotAResponse);
+		}
+
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
 			response.headers.delete(ROUTE_TYPE_HEADER);
 		}
