@@ -5,7 +5,11 @@ import { TicketForm, ticketForm } from './_Ticket';
 
 if (!Astro.params.event) return Astro.redirect('/404');
 
-const event = await db.select().from(Event).where(eq(Event.id, Astro.params.event)).get();
+const event = await db
+	.select()
+	.from(Event)
+	.where(eq(Event.id, Number(Astro.params.event)))
+	.get();
 
 if (!event) return Astro.redirect('/404');
 
