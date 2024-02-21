@@ -1,6 +1,7 @@
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
+import { getFileExtension } from '@astrojs/internal-helpers/path';
 import type { AstroPluginOptions, ImageTransform } from '../@types/astro.js';
 import { extendManualChunks } from '../core/build/plugins/util.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -15,7 +16,8 @@ import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './co
 import { emitESMImage } from './utils/emitAsset.js';
 import { isESMImportedImage } from './utils/imageKind.js';
 import { getProxyCode } from './utils/proxy.js';
-import { hashTransform, propsToFilename } from './utils/transformToPath.js';
+import { getAssetsPrefix, hashTransform, propsToFilename } from './utils/transformToPath.js';
+import { isObject } from '../core/util.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -94,9 +96,15 @@ export default function assets({
 					}
 
 					// Rollup will copy the file to the output directory, this refer to this final path, not to the original path
-					const finalOriginalImagePath = (
-						isESMImportedImage(options.src) ? options.src.src : options.src
-					).replace(settings.config.build.assetsPrefix || '', '');
+					const ESMImportedImageSrc = isESMImportedImage(options.src) ? options.src.src : options.src;
+					let pf = ''
+					const fileExtension = getFileExtension(ESMImportedImageSrc)
+					if (settings.config.build.assetsPrefix && typeof settings.config.build.assetsPrefix === 'string')  {
+						pf = settings.config.build.assetsPrefix
+					} else if (isObject(settings.config.build.assetsPrefix)) {
+						pf = getAssetsPrefix(fileExtension, settings.config.build.assetsPrefix)
+					}
+					const finalOriginalImagePath = ESMImportedImageSrc.replace(pf, '');
 
 					const hash = hashTransform(
 						options,
@@ -130,8 +138,10 @@ export default function assets({
 
 					// The paths here are used for URLs, so we need to make sure they have the proper format for an URL
 					// (leading slash, prefixed with the base / assets prefix, encoded, etc)
-					if (settings.config.build.assetsPrefix) {
+					if (settings.config.build.assetsPrefix && typeof settings.config.build.assetsPrefix === 'string') {
 						return encodeURI(joinPaths(settings.config.build.assetsPrefix, finalFilePath));
+					} else if (isObject(settings.config.build.assetsPrefix)) {
+						return encodeURI(joinPaths(pf, finalFilePath));
 					} else {
 						return encodeURI(prependForwardSlash(joinPaths(settings.config.base, finalFilePath)));
 					}
@@ -148,8 +158,15 @@ export default function assets({
 					const [full, hash, postfix = ''] = match;
 
 					const file = this.getFileName(hash);
-					const prefix = settings.config.build.assetsPrefix
-						? appendForwardSlash(settings.config.build.assetsPrefix)
+					let pf
+					if (settings.config.build.assetsPrefix && typeof settings.config.build.assetsPrefix === 'string') {
+						pf = settings.config.build.assetsPrefix
+					} else if (isObject(settings.config.build.assetsPrefix)) {
+						const fileExtension = getFileExtension(file)
+						pf = getAssetsPrefix(fileExtension, settings.config.build.assetsPrefix)
+					}
+					const prefix = pf
+						? appendForwardSlash(pf)
 						: resolvedConfig.base;
 					const outputFilepath = prefix + normalizePath(file + postfix);
 

@@ -4,6 +4,7 @@ import { removeQueryString } from '../../core/path.js';
 import { shorthash } from '../../runtime/server/shorthash.js';
 import type { ImageTransform } from '../types.js';
 import { isESMImportedImage } from './imageKind.js';
+import type { AssetsPrefix } from '../../@types/astro.js';
 
 export function propsToFilename(transform: ImageTransform, hash: string) {
 	let filename = removeQueryString(
@@ -32,4 +33,14 @@ export function hashTransform(
 		{ imageService } as Record<string, unknown>
 	);
 	return shorthash(deterministicString(hashFields));
+}
+
+export function getAssetsPrefix(fileType: string, assetsPrefix: AssetsPrefix):string {
+	if (typeof assetsPrefix === 'string') return assetsPrefix
+	if (assetsPrefix[fileType]) {
+		return assetsPrefix[fileType]
+	} else if (assetsPrefix.defaultAssetsPrefix) {
+		return assetsPrefix.defaultAssetsPrefix
+	}
+	return ''
 }
