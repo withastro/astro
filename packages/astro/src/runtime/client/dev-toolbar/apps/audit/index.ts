@@ -1,3 +1,4 @@
+import { finder } from '@medv/finder';
 import type { DevToolbarApp, DevToolbarMetadata } from '../../../../../@types/astro.js';
 import type { DevToolbarHighlight } from '../../ui-library/highlight.js';
 import {
@@ -7,65 +8,24 @@ import {
 	positionHighlight,
 } from '../utils/highlight.js';
 import { createWindowElement } from '../utils/window.js';
-import { a11y } from './a11y.js';
-import { finder } from '@medv/finder';
-import { perf } from './perf.js';
+import { resolveAuditRule, rules, type AuditRule, type ResolvedAuditRule } from './rules/index.js';
 
 const icon =
 	'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 1 20 16"><path fill="#fff" d="M.6 2A1.1 1.1 0 0 1 1.7.9h16.6a1.1 1.1 0 1 1 0 2.2H1.6A1.1 1.1 0 0 1 .8 2Zm1.1 7.1h6a1.1 1.1 0 0 0 0-2.2h-6a1.1 1.1 0 0 0 0 2.2ZM9.3 13H1.8a1.1 1.1 0 1 0 0 2.2h7.5a1.1 1.1 0 1 0 0-2.2Zm11.3 1.9a1.1 1.1 0 0 1-1.5 0l-1.7-1.7a4.1 4.1 0 1 1 1.6-1.6l1.6 1.7a1.1 1.1 0 0 1 0 1.6Zm-5.3-3.4a1.9 1.9 0 1 0 0-3.8 1.9 1.9 0 0 0 0 3.8Z"/></svg>';
 
-type DynamicString = string | ((element: Element) => string);
-
-export interface AuditRule {
-	code: string;
-	title: DynamicString;
-	message: DynamicString;
-}
-
-export interface ResolvedAuditRule {
-	code: string;
-	title: string;
-	message: string;
-}
-
-export interface AuditRuleWithSelector extends AuditRule {
-	selector: string;
-	match?: (
-		element: Element
-	) =>
-		| boolean
-		| null
-		| undefined
-		| void
-		| Promise<boolean>
-		| Promise<void>
-		| Promise<null>
-		| Promise<undefined>;
-}
-
-const rules = [...a11y, ...perf];
-
-const dynamicAuditRuleKeys: Array<keyof AuditRule> = ['title', 'message'];
-function resolveAuditRule(rule: AuditRule, element: Element): ResolvedAuditRule {
-	let resolved: ResolvedAuditRule = { ...rule } as any;
-	for (const key of dynamicAuditRuleKeys) {
-		const value = rule[key];
-		if (typeof value === 'string') continue;
-		resolved[key] = value(element);
-	}
-	return resolved;
-}
+type Audit = {
+	highlightElement: DevToolbarHighlight;
+	auditedElement: HTMLElement;
+	rule: AuditRule;
+	card: HTMLElement;
+};
 
 export default {
 	id: 'astro:audit',
 	name: 'Audit',
 	icon: icon,
 	async init(canvas, eventTarget) {
-		let audits: {
-			highlightElement: DevToolbarHighlight;
-			auditedElement: HTMLElement;
-			rule: AuditRule;
-		}[] = [];
+		let audits: Audit[] = [];
 
 		await lint();
 
@@ -109,8 +69,12 @@ export default {
 					matches = Array.from(elements);
 				} else {
 					for (const element of elements) {
-						if (await rule.match(element)) {
-							matches.push(element);
+						try {
+							if (await rule.match(element)) {
+								matches.push(element);
+							}
+						} catch (e) {
+							console.error("Error while running audit's match function", e);
 						}
 					}
 				}
@@ -181,8 +145,7 @@ export default {
 						}
 
 						.audit-title {
-						  font-weight: bold;
-							color: white;
+							color: white
 							margin-right: 1ch;
 						}
 
@@ -190,6 +153,7 @@ export default {
   						display: flex;
               flex-direction: column;
               overflow: auto;
+							overscroll-behavior: contain;
 						}
 					</style>
 
@@ -204,41 +168,8 @@ export default {
 
 				const auditListUl = document.createElement('ul');
 				auditListUl.id = 'audit-list';
-				audits.forEach((audit, index) => {
-					const resolvedRule = resolveAuditRule(audit.rule, audit.auditedElement);
-					const card = document.createElement('astro-dev-toolbar-card');
-
-					card.shadowRoot.innerHTML = `
-					<style>
-					 :host>button {
-						  text-align: left;
-							box-shadow: none !important;
-							${
-								index + 1 < audits.length
-									? 'border-radius: 0 !important;'
-									: 'border-radius: 0 0 8px 8px !important;'
-							}
-						}
-
-						:host>button:hover {
-						  cursor: pointer;
-						}
-					</style>`;
-
-					card.clickAction = () => {
-						audit.highlightElement.scrollIntoView();
-						audit.highlightElement.focus();
-					};
-					const h3 = document.createElement('h3');
-					h3.innerText = finder(audit.auditedElement);
-					card.appendChild(h3);
-					const div = document.createElement('div');
-					const title = document.createElement('span');
-					title.classList.add('audit-title');
-					title.innerHTML = resolvedRule.title;
-					div.appendChild(title);
-					card.appendChild(div);
-					auditListUl.appendChild(card);
+				audits.forEach((audit) => {
+					auditListUl.appendChild(audit.card);
 				});
 
 				auditListWindow.appendChild(auditListUl);
@@ -331,7 +262,23 @@ export default {
 
 			const rect = originalElement.getBoundingClientRect();
 			const highlight = createHighlight(rect, 'warning', { 'data-audit-code': rule.code });
-			const tooltip = buildAuditTooltip(rule, originalElement);
+
+			const resolvedAuditRule = resolveAuditRule(rule, originalElement);
+			const tooltip = buildAuditTooltip(resolvedAuditRule, originalElement);
+			const card = buildAuditCard(resolvedAuditRule, highlight, originalElement);
+
+			(['focus', 'mouseover'] as const).forEach((event) => {
+				highlight.addEventListener(event, () => {
+					card.toggleAttribute('active', true);
+				});
+			});
+
+			(['blur', 'mouseout'] as const).forEach((event) => {
+				highlight.addEventListener(event, () => {
+					if (event === 'mouseout' && document.activeElement === highlight) return;
+					card.toggleAttribute('active', false);
+				});
+			});
 
 			// Set the highlight/tooltip as being fixed position the highlighted element
 			// is fixed. We do this so that we don't mistakenly take scroll position
@@ -351,12 +298,13 @@ export default {
 				highlightElement: highlight,
 				auditedElement: originalElement as HTMLElement,
 				rule: rule,
+				card: card,
 			});
 		}
 
-		function buildAuditTooltip(rule: AuditRule, element: Element) {
+		function buildAuditTooltip(rule: ResolvedAuditRule, element: Element) {
 			const tooltip = document.createElement('astro-dev-toolbar-tooltip');
-			const { title, message } = resolveAuditRule(rule, element);
+			const { title, message } = rule;
 
 			tooltip.sections = [
 				{
@@ -389,6 +337,48 @@ export default {
 			}
 
 			return tooltip;
+		}
+
+		function buildAuditCard(
+			rule: ResolvedAuditRule,
+			highlightElement: HTMLElement,
+			auditedElement: Element
+		) {
+			const card = document.createElement('astro-dev-toolbar-card');
+
+			card.shadowRoot.innerHTML = `
+		<style>
+		 :host>button {
+			  text-align: left;
+				box-shadow: none !important;
+			}
+
+			:host>button:hover {
+			  cursor: pointer;
+			}
+
+			:host([active])>button:not(:hover) {
+				background: rgba(136, 58, 234, 0.13);
+				border: 1px solid rgba(113, 24, 226, 1)
+			}
+		</style>`;
+
+			card.clickAction = () => {
+				highlightElement.scrollIntoView();
+				highlightElement.focus();
+			};
+
+			const h3 = document.createElement('h3');
+			h3.innerText = finder(auditedElement);
+			card.appendChild(h3);
+			const div = document.createElement('div');
+			const title = document.createElement('span');
+			title.classList.add('audit-title');
+			title.innerHTML = rule.title;
+			div.appendChild(title);
+			card.appendChild(div);
+
+			return card;
 		}
 
 		function escapeHtml(unsafe: string) {
