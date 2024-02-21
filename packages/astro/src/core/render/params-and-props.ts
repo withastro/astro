@@ -3,35 +3,33 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { routeIsFallback } from '../redirects/helpers.js';
 import { routeIsRedirect } from '../redirects/index.js';
-import { getParams } from '../routing/params.js';
 import type { RouteCache } from './route-cache.js';
 import { callGetStaticPaths, findPathItemByKey } from './route-cache.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance | undefined;
-	route?: RouteData | undefined;
+	routeData?: RouteData | undefined;
 	routeCache: RouteCache;
 	pathname: string;
 	logger: Logger;
-	ssr: boolean;
+	serverLike: boolean;
 }
 
-export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise<[Params, Props]> {
-	const { logger, mod, route, routeCache, pathname, ssr } = opts;
+export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
+	const { logger, mod, routeData: route, routeCache, pathname, serverLike } = opts;
 
 	// If there's no route, or if there's a pathname (e.g. a static `src/pages/normal.astro` file),
 	// then we know for sure they don't have params and props, return a fallback value.
 	if (!route || route.pathname) {
-		return [{}, {}];
+		return {};
+	}
+
+	if (routeIsRedirect(route) || routeIsFallback(route)) {
+		return {};
 	}
 
 	// This is a dynamic route, start getting the params
-	const params = getRouteParams(route, pathname) ?? {};
-
-	if (routeIsRedirect(route) || routeIsFallback(route)) {
-		return [params, {}];
-	}
-
+	const params = getParams(route, pathname);
 	if (mod) {
 		validatePrerenderEndpointCollision(route, mod, params);
 	}
@@ -43,11 +41,11 @@ export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise
 		route,
 		routeCache,
 		logger,
-		ssr,
+		ssr: serverLike,
 	});
 
 	const matchedStaticPath = findPathItemByKey(staticPaths, params, route, logger);
-	if (!matchedStaticPath && (ssr ? route.prerender : true)) {
+	if (!matchedStaticPath && (serverLike ? route.prerender : true)) {
 		throw new AstroError({
 			...AstroErrorData.NoMatchingStaticPathFound,
 			message: AstroErrorData.NoMatchingStaticPathFound.message(pathname),
@@ -57,18 +55,28 @@ export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise
 
 	const props: Props = matchedStaticPath?.props ? { ...matchedStaticPath.props } : {};
 
-	return [params, props];
+	return props;
 }
 
-function getRouteParams(route: RouteData, pathname: string): Params | undefined {
-	if (route.params.length) {
-		// The RegExp pattern expects a decoded string, but the pathname is encoded
-		// when the URL contains non-English characters.
-		const paramsMatch = route.pattern.exec(decodeURIComponent(pathname));
-		if (paramsMatch) {
-			return getParams(route.params)(paramsMatch);
+/**
+ * When given a route with the pattern `/[x]/[y]/[z]/svelte`, and a pathname `/a/b/c/svelte`,
+ * returns the params object: { x: "a", y: "b", z: "c" }.
+ */
+export function getParams(route: RouteData, pathname: string): Params {
+	if (!route.params.length) return {};
+	// The RegExp pattern expects a decoded string, but the pathname is encoded
+	// when the URL contains non-English characters.
+	const paramsMatch = route.pattern.exec(decodeURIComponent(pathname));
+	if (!paramsMatch) return {};
+	const params: Params = {};
+	route.params.forEach((key, i) => {
+		if (key.startsWith('...')) {
+			params[key.slice(3)] = paramsMatch[i + 1] ? paramsMatch[i + 1] : undefined;
+		} else {
+			params[key] = paramsMatch[i + 1];
 		}
-	}
+	});
+	return params;
 }
 
 /**

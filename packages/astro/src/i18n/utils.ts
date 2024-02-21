@@ -1,92 +1,6 @@
-import type {
-	ComponentInstance,
-	Locales,
-	Params,
-	Props,
-	RouteData,
-	SSRElement,
-	SSRResult,
-} from '../../@types/astro.js';
-import { normalizeTheLocale, toCodes } from '../../i18n/index.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { Environment } from './environment.js';
-import { getParamsAndProps } from './params-and-props.js';
-import type { RoutingStrategies } from '../config/schema.js';
-import { ROUTE_DATA_SYMBOL } from '../constants.js';
-
-const clientLocalsSymbol = Symbol.for('astro.locals');
-const routeDataSymbol = Symbol.for(ROUTE_DATA_SYMBOL);
-
-/**
- * The RenderContext represents the parts of rendering that are specific to one request.
- */
-export interface RenderContext {
-	request: Request;
-	pathname: string;
-	scripts?: Set<SSRElement>;
-	links?: Set<SSRElement>;
-	styles?: Set<SSRElement>;
-	componentMetadata?: SSRResult['componentMetadata'];
-	route: RouteData;
-	status?: number;
-	params: Params;
-	props: Props;
-	locals?: object;
-	locales: Locales | undefined;
-	defaultLocale: string | undefined;
-	routing: RoutingStrategies | undefined;
-}
-
-export type CreateRenderContextArgs = Partial<
-	Omit<RenderContext, 'params' | 'props' | 'locals'>
-> & {
-	route: RouteData;
-	request: RenderContext['request'];
-	mod: ComponentInstance | undefined;
-	env: Environment;
-};
-
-export async function createRenderContext(
-	options: CreateRenderContextArgs
-): Promise<RenderContext> {
-	const request = options.request;
-	const pathname = options.pathname ?? new URL(request.url).pathname;
-	const [params, props] = await getParamsAndProps({
-		mod: options.mod as any,
-		route: options.route,
-		routeCache: options.env.routeCache,
-		pathname: pathname,
-		logger: options.env.logger,
-		ssr: options.env.ssr,
-	});
-
-	const context: RenderContext = {
-		...options,
-		pathname,
-		params,
-		props,
-		locales: options.locales,
-		routing: options.routing,
-		defaultLocale: options.defaultLocale,
-	};
-
-	// We define a custom property, so we can check the value passed to locals
-	Object.defineProperty(context, 'locals', {
-		enumerable: true,
-		get() {
-			return Reflect.get(request, clientLocalsSymbol);
-		},
-		set(val) {
-			if (typeof val !== 'object') {
-				throw new AstroError(AstroErrorData.LocalsNotAnObject);
-			} else {
-				Reflect.set(request, clientLocalsSymbol, val);
-			}
-		},
-	});
-
-	return context;
-}
+import type { Locales } from '../@types/astro.js';
+import { normalizeTheLocale, toCodes } from './index.js';
+import type { RoutingStrategies } from '../core/config/schema.js';
 
 type BrowserLocale = {
 	locale: string;
@@ -240,19 +154,12 @@ export function computePreferredLocaleList(request: Request, locales: Locales): 
 }
 
 export function computeCurrentLocale(
-	request: Request,
+	pathname: string,
 	locales: Locales,
 	routingStrategy: RoutingStrategies | undefined,
 	defaultLocale: string | undefined
 ): undefined | string {
-	const routeData: RouteData | undefined = Reflect.get(request, routeDataSymbol);
-	if (!routeData) {
-		return defaultLocale;
-	}
-	// Typically, RouteData::pathname has the correct information in SSR, but it's not available in SSG, so we fall back
-	// to use the pathname from the Request
-	const pathname = routeData.pathname ?? new URL(request.url).pathname;
-	for (const segment of pathname.split('/').filter(Boolean)) {
+	for (const segment of pathname.split('/')) {
 		for (const locale of locales) {
 			if (typeof locale === 'string') {
 				// we skip ta locale that isn't present in the current segment

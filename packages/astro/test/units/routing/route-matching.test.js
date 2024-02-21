@@ -14,7 +14,7 @@ import * as cheerio from 'cheerio';
 import testAdapter from '../../test-adapter.js';
 import { getSortedPreloadedMatches } from '../../../dist/prerender/routing.js';
 import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
-import DevPipeline from '../../../dist/vite-plugin-astro-server/devPipeline.js';
+import { DevPipeline } from '../../../dist/vite-plugin-astro-server/pipeline.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 const fileSystem = {
@@ -146,7 +146,7 @@ describe('Route matching', () => {
 
 		const loader = createViteLoader(container.viteServer);
 		const manifest = createDevelopmentManifest(container.settings);
-		pipeline = new DevPipeline({ manifest, logger: defaultLogger, settings, loader });
+		pipeline = DevPipeline.create({ loader, logger: defaultLogger, manifest, settings });
 		manifestData = createRouteManifest(
 			{
 				cwd: fileURLToPath(root),
