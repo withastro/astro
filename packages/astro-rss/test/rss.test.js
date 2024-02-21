@@ -6,6 +6,7 @@ import rss, { getRssString } from '../dist/index.js';
 import { rssSchema } from '../dist/schema.js';
 import {
 	description,
+	parseXmlString,
 	phpFeedItem,
 	phpFeedItemWithContent,
 	phpFeedItemWithCustomData,
@@ -14,7 +15,6 @@ import {
 	web1FeedItem,
 	web1FeedItemWithAllData,
 	web1FeedItemWithContent,
-	parseXmlString,
 } from './test-utils.js';
 
 // note: I spent 30 minutes looking for a nice node-based snapshot tool

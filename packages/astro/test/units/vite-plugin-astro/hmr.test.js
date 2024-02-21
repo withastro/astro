@@ -1,5 +1,5 @@
-import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { isStyleOnlyChanged } from '../../../dist/vite-plugin-astro/hmr.js';
 
 describe('isStyleOnlyChanged', () => {

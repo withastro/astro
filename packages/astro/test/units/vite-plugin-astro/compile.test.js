@@ -1,9 +1,9 @@
-import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { pathToFileURL } from 'node:url';
+import { init, parse } from 'es-module-lexer';
 import { resolveConfig } from 'vite';
 import { compileAstro } from '../../../dist/vite-plugin-astro/compile.js';
-import { init, parse } from 'es-module-lexer';
-import { pathToFileURL } from 'node:url';
 
 const viteConfig = await resolveConfig({ configFile: false }, 'serve');
 

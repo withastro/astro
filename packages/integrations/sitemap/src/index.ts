@@ -1,14 +1,12 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
-import path, { resolve } from 'node:path';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { EnumChangefreq, LinkItem as LinkItemBase, SitemapItemLoose } from 'sitemap';
-import { SitemapAndIndexStream, SitemapStream, streamToPromise } from 'sitemap';
+import { simpleSitemapAndIndex } from 'sitemap';
 import { ZodError } from 'zod';
 
 import { generateSitemap } from './generate-sitemap.js';
 import { validateOptions } from './validate-options.js';
-import { createWriteStream } from 'node:fs';
-import { Readable } from 'node:stream';
 
 export { EnumChangefreq as ChangeFreqEnum } from 'sitemap';
 export type ChangeFreq = `${EnumChangefreq}`;
@@ -35,8 +33,6 @@ export type SitemapOptions =
 			lastmod?: Date;
 			priority?: number;
 
-			prefix?: string;
-
 			// called for each sitemap item just before to save them on disk, sync or async
 			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
 	  }
@@ -48,6 +44,7 @@ function formatConfigErrorMessage(err: ZodError) {
 }
 
 const PKG_NAME = '@astrojs/sitemap';
+const OUTFILE = 'sitemap-index.xml';
 const STATUS_CODE_PAGES = new Set(['404', '500']);
 
 function isStatusCodePage(pathname: string): boolean {
@@ -80,8 +77,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 					const opts = validateOptions(config.site, options);
 
-					const { filter, customPages, serialize, entryLimit, prefix = 'sitemap-' } = opts;
-					const OUTFILE = `${prefix}index.xml`;
+					const { filter, customPages, serialize, entryLimit } = opts;
 
 					let finalSiteUrl: URL;
 					if (config.site) {
@@ -171,22 +167,13 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						}
 					}
 					const destDir = fileURLToPath(dir);
-
-					const sms = new SitemapAndIndexStream({
+					await simpleSitemapAndIndex({
+						hostname: finalSiteUrl.href,
+						destinationDir: destDir,
+						sourceData: urlData,
 						limit: entryLimit,
-						getSitemapStream: (i) => {
-							const sitemapStream = new SitemapStream({ hostname: finalSiteUrl.href });
-							const fileName = `${prefix}${i}.xml`;
-
-							const ws = sitemapStream.pipe(createWriteStream(resolve(destDir + fileName)));
-
-							return [new URL(fileName, finalSiteUrl.href).toString(), sitemapStream, ws];
-						},
+						gzip: false,
 					});
-
-					sms.pipe(createWriteStream(resolve(destDir + OUTFILE)));
-					await streamToPromise(Readable.from(urlData).pipe(sms));
-					sms.end();
 					logger.info(`\`${OUTFILE}\` created at \`${path.relative(process.cwd(), destDir)}\``);
 				} catch (err) {
 					if (err instanceof ZodError) {

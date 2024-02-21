@@ -1,6 +1,6 @@
-import { loadFixture } from './test-utils.js';
 import assert from 'node:assert/strict';
-import { after, describe, before, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
+import { loadFixture } from './test-utils.js';
 
 for (const caseNumber of [1, 2, 3, 4]) {
 	describe(`Custom 404 with implicit rerouting - Case #${caseNumber}`, () => {
