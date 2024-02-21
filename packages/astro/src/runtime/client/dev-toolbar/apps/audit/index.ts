@@ -8,7 +8,13 @@ import {
 	positionHighlight,
 } from '../utils/highlight.js';
 import { createWindowElement } from '../utils/window.js';
-import { resolveAuditRule, rules, type AuditRule, type ResolvedAuditRule } from './rules/index.js';
+import {
+	getAuditCategory,
+	resolveAuditRule,
+	rules,
+	type AuditRule,
+	type ResolvedAuditRule,
+} from './rules/index.js';
 
 const icon =
 	'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 1 20 16"><path fill="#fff" d="M.6 2A1.1 1.1 0 0 1 1.7.9h16.6a1.1 1.1 0 1 1 0 2.2H1.6A1.1 1.1 0 0 1 .8 2Zm1.1 7.1h6a1.1 1.1 0 0 0 0-2.2h-6a1.1 1.1 0 0 0 0 2.2ZM9.3 13H1.8a1.1 1.1 0 1 0 0 2.2h7.5a1.1 1.1 0 1 0 0-2.2Zm11.3 1.9a1.1 1.1 0 0 1-1.5 0l-1.7-1.7a4.1 4.1 0 1 1 1.6-1.6l1.6 1.7a1.1 1.1 0 0 1 0 1.6Zm-5.3-3.4a1.9 1.9 0 1 0 0-3.8 1.9 1.9 0 0 0 0 3.8Z"/></svg>';
@@ -37,6 +43,12 @@ export default {
 			if (!target) return;
 			if (!target.closest) return;
 			if (target.closest('astro-dev-toolbar')) return;
+			if (audits.some((audit) => audit.card.hasAttribute('active'))) {
+				audits.forEach((audit) => {
+					audit.card.removeAttribute('active');
+				});
+				return;
+			}
 			eventTarget.dispatchEvent(
 				new CustomEvent('toggle-app', {
 					detail: {
@@ -104,8 +116,8 @@ export default {
               top: 8px;
               right: 8px;
               transform: none;
-              width: 320px;
-              max-height: 320px;
+              width: 375px;
+              max-height: 420px;
               padding: 0;
               overflow: hidden;
 						}
@@ -139,21 +151,50 @@ export default {
 
 						h3 {
       		    margin: 0;
-              margin-bottom: 8px;
+              margin-bottom: 6px;
               color: white;
               white-space: nowrap;
 						}
 
 						.audit-title {
-							color: white
-							margin-right: 1ch;
+							color: white;
+						}
+
+						.audit-message {
+							margin-top: 6px;
+							opacity: 0.35;
+							display: block;
+						}
+
+						[active] .audit-message {
+							opacity: 1;
+						}
+
+						.icon-section {
+							display: flex;
+							align-items: center;
+							flex-direction: column;
+							gap: 4px;
+						}
+
+						.icon-section astro-dev-toolbar-badge {
+							font-size: 10px;
+						}
+
+						astro-dev-toolbar-icon {
+							color: white;
+							fill: white;
+							display: inline-block;
+							width: 2em;
 						}
 
 						#audit-list {
   						display: flex;
               flex-direction: column;
+							gap: 0.25em;
               overflow: auto;
 							overscroll-behavior: contain;
+							height: 100%;
 						}
 					</style>
 
@@ -267,17 +308,17 @@ export default {
 			const tooltip = buildAuditTooltip(resolvedAuditRule, originalElement);
 			const card = buildAuditCard(resolvedAuditRule, highlight, originalElement);
 
+			// If a highlight is hovered or focused, highlight the corresponding card for it
 			(['focus', 'mouseover'] as const).forEach((event) => {
+				const attribute = event === 'focus' ? 'active' : 'hovered';
 				highlight.addEventListener(event, () => {
-					card.toggleAttribute('active', true);
+					if (event === 'focus') card.scrollIntoView();
+					card.toggleAttribute(attribute, true);
 				});
 			});
 
-			(['blur', 'mouseout'] as const).forEach((event) => {
-				highlight.addEventListener(event, () => {
-					if (event === 'mouseout' && document.activeElement === highlight) return;
-					card.toggleAttribute('active', false);
-				});
+			highlight.addEventListener('mouseout', () => {
+				card.toggleAttribute('hovered', false);
 			});
 
 			// Set the highlight/tooltip as being fixed position the highlighted element
@@ -348,13 +389,26 @@ export default {
 
 			card.shadowRoot.innerHTML = `
 		<style>
-		 :host>button {
+		 :host>button#astro-overlay-card {
 			  text-align: left;
-				box-shadow: none !important;
+				box-shadow: none;
+				display: flex;
+				gap: 16px;
+				max-height: 88px;
+				overflow: hidden;
+			}
+
+			:host([active])>button#astro-overlay-card {
+				max-height: none;
 			}
 
 			:host>button:hover {
 			  cursor: pointer;
+			}
+
+			:host([hovered])>button {
+					background: rgba(136, 58, 234, 0.33);
+					border: 1px solid rgba(113, 24, 226, 1)
 			}
 
 			:host([active])>button:not(:hover) {
@@ -364,19 +418,53 @@ export default {
 		</style>`;
 
 			card.clickAction = () => {
+				audits.forEach((audit) => {
+					audit.card.removeAttribute('active');
+				});
 				highlightElement.scrollIntoView();
 				highlightElement.focus();
 			};
 
+			const leftSection = document.createElement('section');
+			leftSection.classList.add('icon-section');
+			const auditCategory = getAuditCategory(rule);
+			const auditIcon = auditCategory === 'a11y' ? 'person-arms-spread' : 'gauge';
+			const iconElement = document.createElement('astro-dev-toolbar-icon');
+			iconElement.icon = auditIcon;
+
+			const categoryBadge = document.createElement('astro-dev-toolbar-badge');
+			categoryBadge.size = 'small';
+			categoryBadge.badgeStyle = auditCategory === 'a11y' ? 'purple' : 'red';
+			categoryBadge.textContent = auditCategory;
+
+			leftSection.appendChild(iconElement);
+			leftSection.appendChild(categoryBadge);
+
+			card.appendChild(leftSection);
+
+			const rightSection = document.createElement('section');
 			const h3 = document.createElement('h3');
 			h3.innerText = finder(auditedElement);
-			card.appendChild(h3);
-			const div = document.createElement('div');
+			rightSection.appendChild(h3);
 			const title = document.createElement('span');
 			title.classList.add('audit-title');
 			title.innerHTML = rule.title;
-			div.appendChild(title);
-			card.appendChild(div);
+			rightSection.appendChild(title);
+			const message = document.createElement('span');
+			message.classList.add('audit-message');
+			message.innerHTML = rule.message;
+
+			const description = rule.description;
+			if (description) {
+				const descriptionElement = document.createElement('span');
+				descriptionElement.classList.add('audit-message');
+				descriptionElement.innerHTML = description;
+				rightSection.appendChild(descriptionElement);
+			}
+
+			rightSection.appendChild(message);
+
+			card.appendChild(rightSection);
 
 			return card;
 		}

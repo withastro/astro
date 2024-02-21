@@ -7,12 +7,14 @@ export interface AuditRule {
 	code: string;
 	title: DynamicString;
 	message: DynamicString;
+	description?: DynamicString;
 }
 
 export interface ResolvedAuditRule {
 	code: string;
 	title: string;
 	message: string;
+	description?: string;
 }
 
 export interface AuditRuleWithSelector extends AuditRule {
@@ -32,7 +34,7 @@ export interface AuditRuleWithSelector extends AuditRule {
 
 export const rules = [...a11y, ...perf];
 
-const dynamicAuditRuleKeys: Array<keyof AuditRule> = ['title', 'message'];
+const dynamicAuditRuleKeys: Array<keyof AuditRule> = ['title', 'message', 'description'];
 
 export function resolveAuditRule(rule: AuditRule, element: Element): ResolvedAuditRule {
 	let resolved: ResolvedAuditRule = { ...rule } as any;
@@ -40,6 +42,11 @@ export function resolveAuditRule(rule: AuditRule, element: Element): ResolvedAud
 		const value = rule[key];
 		if (typeof value === 'string') continue;
 		try {
+			if (!value) {
+				resolved[key] = '';
+				continue;
+			}
+
 			resolved[key] = value(element);
 		} catch (err) {
 			console.error(`Error resolving dynamic audit rule ${rule.code}'s ${key}:`, err);
@@ -47,4 +54,8 @@ export function resolveAuditRule(rule: AuditRule, element: Element): ResolvedAud
 		}
 	}
 	return resolved;
+}
+
+export function getAuditCategory(rule: AuditRule): 'perf' | 'a11y' {
+	return rule.code.split('-')[0] as 'perf' | 'a11y';
 }

@@ -372,6 +372,8 @@ export class AstroDevToolbar extends HTMLElement {
 				// TODO: Remove in Astro 5.0
 				import.meta.hot.send(`${WS_EVENT_NAME_DEPRECATED}:${app.id}:initialized`);
 			}
+
+			if (app.id === 'astro:audit') this.toggleAppStatus(app);
 		} catch (e) {
 			console.error(`Failed to init app ${app.id}, error: ${e}`);
 			app.status = 'error';

@@ -15,7 +15,9 @@ export class DevToolbarBadge extends HTMLElement {
 
 		if (this.hasAttribute('badge-style'))
 			this.badgeStyle = this.getAttribute('badge-style') as BadgeStyle;
+	}
 
+	connectedCallback() {
 		const classes = [`badge--${this.size}`, `badge--${this.badgeStyle}`];
 		this.shadowRoot.innerHTML = `
 			<style>

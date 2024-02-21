@@ -305,6 +305,8 @@ export const a11y: AuditRuleWithSelector[] = [
 	{
 		code: 'a11y-missing-attribute',
 		title: 'Required attributes missing.',
+		description:
+			"This is an extended description about why this is important. As we all know, missing attributes can cause a lot of problems. It's important to have them. As such, we have this rule to enforce it. It's a good rule. You should follow it. I think it's a good rule.",
 		message: (element) => {
 			const requiredAttributes =
 				a11y_required_attributes[element.localName as keyof typeof a11y_required_attributes];
