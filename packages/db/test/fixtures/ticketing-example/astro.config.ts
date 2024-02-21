@@ -18,7 +18,7 @@ const Event = defineReadableTable({
 });
 const Ticket = defineWritableTable({
 	columns: {
-		eventId: column.text(),
+		eventId: column.number({ references: () => Event.columns.id }),
 		email: column.text(),
 		quantity: column.number(),
 		newsletter: column.boolean({
