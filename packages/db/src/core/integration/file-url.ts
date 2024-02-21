@@ -13,7 +13,7 @@ export function fileURLIntegration(): AstroIntegration {
 	const fileNames: string[] = [];
 
 	function createVitePlugin(command: 'build' | 'preview' | 'dev'): VitePlugin {
-		const referenceIds: string[] = [];
+		let referenceIds: string[] = [];
 		return {
 			name: '@astrojs/db/file-url',
 			enforce: 'pre',
@@ -38,10 +38,13 @@ export function fileURLIntegration(): AstroIntegration {
 				}
 			},
 			generateBundle() {
-				// Save file names so we can copy them back over
+				// Save file names so we can copy them back over.
 				for (const referenceId of referenceIds) {
 					fileNames.push(this.getFileName(referenceId));
 				}
+				// Reset `referenceIds` for later generateBundle() runs.
+				// Prevents lookup for ids that have already been copied.
+				referenceIds = [];
 			},
 		};
 	}
@@ -71,7 +74,7 @@ export function fileURLIntegration(): AstroIntegration {
 					await Promise.all(unlinks);
 					const assetDir = new URL(config.build.assets, config.outDir);
 					const assetFiles = await fs.promises.readdir(assetDir);
-					if(!assetFiles.length) {
+					if (!assetFiles.length) {
 						// Directory is empty, delete it.
 						await fs.promises.rmdir(assetDir);
 					}
