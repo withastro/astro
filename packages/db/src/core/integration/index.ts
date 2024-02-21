@@ -6,7 +6,7 @@ import { existsSync } from 'fs';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { DB_PATH } from '../consts.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
-import { astroConfigWithDbSchema } from '../types.js';
+import { astroConfigWithDbSchema, type DBTables } from '../types.js';
 import { type VitePlugin } from '../utils.js';
 import { STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR, UNSAFE_WRITABLE_WARNING } from '../errors.js';
 import { errorMap } from './error-map.js';
@@ -20,16 +20,56 @@ import { getManagedAppTokenOrExit, type ManagedAppToken } from '../tokens.js';
 function astroDBIntegration(): AstroIntegration {
 	let connectedToRemote = false;
 	let appToken: ManagedAppToken | undefined;
+	let schemas = {
+		tables(): DBTables {
+			throw new Error('tables not found');
+		}
+	};
+	let command: 'dev' | 'build' | 'preview';
 	return {
 		name: 'astro:db',
 		hooks: {
-			'astro:config:setup': async ({ logger, updateConfig, config, command }) => {
-				if (command === 'preview') return;
+			'astro:config:setup': async ({ updateConfig, config, command: _command }) => {
+				command = _command;
+				if (_command === 'preview') return;
 
+				let dbPlugin: VitePlugin | undefined = undefined;
+				const studio = config.db?.studio ?? false;
+
+				if (studio && command === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {
+					appToken = await getManagedAppTokenOrExit();
+					connectedToRemote = true;
+					dbPlugin = vitePluginDb({
+						connectToStudio: true,
+						appToken: appToken.token,
+						schemas,
+						root: config.root,
+					});
+				} else {
+					dbPlugin = vitePluginDb({
+						connectToStudio: false,
+						schemas,
+						root: config.root,
+					});
+				}
+
+				updateConfig({
+					vite: {
+						assetsInclude: [DB_PATH],
+						plugins: [
+							dbPlugin,
+							vitePluginInjectEnvTs(config),
+						],
+					},
+				});
+			},
+			'astro:config:done': async ({ config, logger }) => {
 				// TODO: refine where we load tables
 				// @matthewp: may want to load tables by path at runtime
 				const configWithDb = astroConfigWithDbSchema.parse(config, { errorMap });
 				const tables = configWithDb.db?.tables ?? {};
+				// Redefine getTables so our integration can grab them
+				schemas.tables = () => tables;
 
 				const studio = configWithDb.db?.studio ?? false;
 				const unsafeWritable = Boolean(configWithDb.db?.unsafeWritable);
@@ -47,17 +87,7 @@ function astroDBIntegration(): AstroIntegration {
 					logger.warn(UNSAFE_WRITABLE_WARNING);
 				}
 
-				let dbPlugin: VitePlugin;
-				if (studio && command === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {
-					appToken = await getManagedAppTokenOrExit();
-					connectedToRemote = true;
-					dbPlugin = vitePluginDb({
-						connectToStudio: true,
-						tables,
-						appToken: appToken.token,
-						root: config.root,
-					});
-				} else {
+				if(!connectedToRemote) {
 					const dbUrl = new URL(DB_PATH, config.root);
 					if (existsSync(dbUrl)) {
 						await rm(dbUrl);
@@ -80,35 +110,9 @@ function astroDBIntegration(): AstroIntegration {
 						});
 					}
 					logger.debug('Database setup complete.');
-
-					dbPlugin = vitePluginDb({
-						connectToStudio: false,
-						tables,
-						root: config.root,
-					});
 				}
 
-				updateConfig({
-					vite: {
-						assetsInclude: [DB_PATH],
-						plugins: [
-							dbPlugin,
-							vitePluginInjectEnvTs(config),
-							{
-								name: 'my-plugin',
-								resolveId(id) {
-									if (id.endsWith('?server-path')) {
-										//return id;
-									}
-								},
-								load(id) {
-									if (id.endsWith('?server-path')) {
-									}
-								},
-							},
-						],
-					},
-				});
+
 				await typegen({ tables, root: config.root });
 			},
 			'astro:server:start': async ({ logger }) => {

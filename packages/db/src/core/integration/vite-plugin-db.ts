@@ -4,19 +4,25 @@ import type { VitePlugin } from '../utils.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
+type LateSchema = {
+	tables: () => DBTables;
+}
+
+type VitePluginDBParams =
+| {
+		connectToStudio: false;
+		schemas: LateSchema;
+		root: URL;
+	}
+| {
+		connectToStudio: true;
+		schemas: LateSchema;
+		appToken: string;
+		root: URL;
+	}
+
 export function vitePluginDb(
-	params:
-		| {
-				connectToStudio: false;
-				tables: DBTables;
-				root: URL;
-		  }
-		| {
-				connectToStudio: true;
-				tables: DBTables;
-				appToken: string;
-				root: URL;
-		  }
+	params: VitePluginDBParams
 ): VitePlugin {
 	return {
 		name: 'astro:db',
@@ -30,9 +36,15 @@ export function vitePluginDb(
 			if (id !== resolvedVirtualModuleId) return;
 
 			if (params.connectToStudio) {
-				return getStudioVirtualModContents(params);
+				return getStudioVirtualModContents({
+					appToken: params.appToken,
+					tables: params.schemas.tables()
+				});
 			}
-			return getVirtualModContents(params);
+			return getVirtualModContents({
+				root: params.root,
+				tables: params.schemas.tables()
+			});
 		},
 	};
 }

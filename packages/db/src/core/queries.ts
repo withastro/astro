@@ -52,31 +52,34 @@ export async function seedData({
 	mode: 'dev' | 'build';
 }) {
 	try {
-		await data({
-			seed: async ({ table, writable }, values) => {
-				if (writable && mode === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {
-					(logger ?? console).error(SEED_WRITABLE_IN_PROD_ERROR(getTableName(table)));
-					process.exit(1);
-				}
-				await db.insert(table).values(values as any);
-			},
-			seedReturning: async ({ table, writable }, values) => {
-				if (writable && mode === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {
-					(logger ?? console).error(SEED_WRITABLE_IN_PROD_ERROR(getTableName(table)));
-					process.exit(1);
-				}
-				let result: SQLiteInsert<any, any, any, any> = db
-					.insert(table)
-					.values(values as any)
-					.returning();
-				if (!Array.isArray(values)) {
-					result = result.get();
-				}
-				return result;
-			},
-			db,
-			mode,
-		});
+		const dataFns = Array.isArray(data) ? data : [data];
+		for(const dataFn of dataFns) {
+			await dataFn({
+				seed: async ({ table, writable }, values) => {
+					if (writable && mode === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {
+						(logger ?? console).error(SEED_WRITABLE_IN_PROD_ERROR(getTableName(table)));
+						process.exit(1);
+					}
+					await db.insert(table).values(values as any);
+				},
+				seedReturning: async ({ table, writable }, values) => {
+					if (writable && mode === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {
+						(logger ?? console).error(SEED_WRITABLE_IN_PROD_ERROR(getTableName(table)));
+						process.exit(1);
+					}
+					let result: SQLiteInsert<any, any, any, any> = db
+						.insert(table)
+						.values(values as any)
+						.returning();
+					if (!Array.isArray(values)) {
+						result = result.get();
+					}
+					return result;
+				},
+				db,
+				mode,
+			});
+		}
 	} catch (error) {
 		(logger ?? console).error(
 			`Failed to seed data. Did you update to match recent schema changes?`

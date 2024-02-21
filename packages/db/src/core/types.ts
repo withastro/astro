@@ -282,18 +282,21 @@ export function defineData(fn: (ctx: DBDataContext) => MaybePromise<void>) {
 	return fn;
 }
 
+const dbDataFn = z
+	.function()
+	.returns(z.union([z.void(), z.promise(z.void())]));
+
 export const dbConfigSchema = z.object({
 	studio: z.boolean().optional(),
 	tables: tablesSchema.optional(),
-	data: z
-		.function()
-		.returns(z.union([z.void(), z.promise(z.void())]))
-		.optional(),
+	data: z.union([dbDataFn, z.array(dbDataFn)]).optional(),
 	unsafeWritable: z.boolean().optional().default(false),
 });
 
+type DataFunction = (params: DBDataContext) => MaybePromise<void>;
+
 export type DBUserConfig = Omit<z.input<typeof dbConfigSchema>, 'data'> & {
-	data(params: DBDataContext): MaybePromise<void>;
+	data: DataFunction | DataFunction[]
 };
 
 export const astroConfigWithDbSchema = z.object({
