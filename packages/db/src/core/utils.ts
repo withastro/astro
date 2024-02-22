@@ -10,7 +10,7 @@ export function getAstroStudioEnv(envMode = ''): Record<`ASTRO_STUDIO_${string}`
 
 export function getRemoteDatabaseUrl(): string {
 	const env = getAstroStudioEnv();
-	return env.ASTRO_STUDIO_REMOTE_DB_URL || 'https://studio-gateway.fly.dev';
+	return env.ASTRO_STUDIO_REMOTE_DB_URL || 'https://db.services.astro.build';
 }
 
 export function getAstroStudioUrl(): string {
