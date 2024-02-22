@@ -20,8 +20,6 @@ export function themes(): AstroIntegration {
 		name: 'themes-integration',
 		hooks: {
 			'astro:config:setup': ({ updateConfig }) => {
-				console.log("UPDATING");
-				debugger;
 				updateConfig({
 					db: {
 						tables: { Themes },

@@ -12,7 +12,6 @@
       "types": "./index.d.ts",
       "import": "./dist/index.js"
     },
-    "./components": "./components/index.ts",
     "./runtime": {
       "types": "./dist/runtime/index.d.ts",
       "import": "./dist/runtime/index.js"
@@ -39,8 +38,7 @@
   "files": [
     "index.d.ts",
     "config-augment.d.ts",
-    "dist",
-    "components"
+    "dist"
   ],
   "keywords": [
     "withastro",
