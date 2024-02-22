@@ -75,6 +75,7 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 		port: settings.config.server.port,
 		base: settings.config.base,
 		logger: new AstroIntegrationLogger(logger.options, settings.adapter.name),
+		headers: settings.config.server.headers,
 	});
 
 	return server;

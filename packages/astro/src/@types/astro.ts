@@ -2748,6 +2748,7 @@ export interface PreviewServerParams {
 	port: number;
 	base: string;
 	logger: AstroIntegrationLogger;
+	headers?: OutgoingHttpHeaders;
 }
 
 export type CreatePreviewServer = (
