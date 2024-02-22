@@ -10,8 +10,8 @@ export const MISSING_PROJECT_ID_ERROR = `${red('▶ Directory not linked.')}
   To link this directory to an Astro Studio project, run
   ${cyan('astro db link')}\n`;
 
-export const STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR = (tableName: string) => `${red(
-	`▶ Writable collection ${bold(tableName)} requires Astro Studio or the ${yellow(
+export const STUDIO_CONFIG_MISSING_WRITABLE_TABLE_ERROR = (tableName: string) => `${red(
+	`▶ Writable table ${bold(tableName)} requires Astro Studio or the ${yellow(
 		'unsafeWritable'
 	)} option.`
 )}
@@ -43,7 +43,7 @@ export const SEED_WRITABLE_IN_PROD_ERROR = (tableName: string) => {
 };
 
 export const SEED_ERROR = (tableName: string, error: string) => {
-	return `${red(`Error seeding collection ${bold(tableName)}:`)}\n\n${error}`;
+	return `${red(`Error seeding table ${bold(tableName)}:`)}\n\n${error}`;
 };
 
 export const SEED_EMPTY_ARRAY_ERROR = (tableName: string) => {
