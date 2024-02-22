@@ -191,7 +191,7 @@ importers:
   examples/framework-multiple:
     dependencies:
       '@astrojs/preact':
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: link:../../packages/integrations/preact
       '@astrojs/react':
         specifier: ^3.0.10
@@ -230,7 +230,7 @@ importers:
   examples/framework-preact:
     dependencies:
       '@astrojs/preact':
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: link:../../packages/integrations/preact
       '@preact/signals':
         specifier: ^1.2.1
@@ -432,7 +432,7 @@ importers:
         specifier: ^2.1.1
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: link:../../packages/integrations/preact
       astro:
         specifier: ^4.4.3
@@ -444,7 +444,7 @@ importers:
   examples/with-nanostores:
     dependencies:
       '@astrojs/preact':
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: link:../../packages/integrations/preact
       '@nanostores/preact':
         specifier: ^0.5.0
