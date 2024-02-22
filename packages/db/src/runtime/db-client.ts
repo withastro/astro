@@ -24,7 +24,7 @@ export async function createLocalDatabaseClient({
 	const url = isWebContainer ? 'file:content.db' : dbUrl;
 	const client = createClient({ url });
 	const db = Object.assign(drizzleLibsql(client), {
-		[Symbol.dispose]() {
+		[Symbol.dispose || Symbol.for('Symbol.dispose')]() {
 			client.close();
 		},
 	});
