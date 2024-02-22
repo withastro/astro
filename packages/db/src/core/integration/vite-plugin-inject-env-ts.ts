@@ -8,7 +8,10 @@ import { DB_TYPES_FILE } from '../consts.js';
 import type { VitePlugin } from '../utils.js';
 import type { AstroIntegrationLogger } from 'astro';
 
-export function vitePluginInjectEnvTs({ srcDir, root }: { srcDir: URL; root: URL }, logger: AstroIntegrationLogger): VitePlugin {
+export function vitePluginInjectEnvTs(
+	{ srcDir, root }: { srcDir: URL; root: URL },
+	logger: AstroIntegrationLogger
+): VitePlugin {
 	return {
 		name: 'db-inject-env-ts',
 		enforce: 'post',
@@ -18,7 +21,15 @@ export function vitePluginInjectEnvTs({ srcDir, root }: { srcDir: URL; root: URL
 	};
 }
 
-export async function setUpEnvTs({ srcDir, root, logger }: { srcDir: URL; root: URL; logger: AstroIntegrationLogger }) {
+export async function setUpEnvTs({
+	srcDir,
+	root,
+	logger,
+}: {
+	srcDir: URL;
+	root: URL;
+	logger: AstroIntegrationLogger;
+}) {
 	const envTsPath = getEnvTsPath({ srcDir });
 	const envTsPathRelativetoRoot = normalizePath(
 		path.relative(fileURLToPath(root), fileURLToPath(envTsPath))

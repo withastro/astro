@@ -1,6 +1,6 @@
-import { defineConfig } from 'astro/config';
 import db, { defineReadableTable, column } from '@astrojs/db';
-import {themes} from './themes-integration';
+import { defineConfig } from 'astro/config';
+import { themes } from './themes-integration';
 
 const Author = defineReadableTable({
 	columns: {

@@ -1,5 +1,5 @@
-import { defineConfig } from 'astro/config';
 import astroDb, { defineReadableTable, column } from '@astrojs/db';
+import { defineConfig } from 'astro/config';
 
 const Recipe = defineReadableTable({
 	columns: {

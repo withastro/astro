@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from '../../astro/test/test-utils.js';
 import testAdapter from '../../astro/test/test-adapter.js';
+import { loadFixture } from '../../astro/test/test-utils.js';
 
 // TODO(fks): Rename this to something more generic/generally useful
 // like `ASTRO_MONOREPO_TEST_ENV` if @astrojs/db is merged into astro.

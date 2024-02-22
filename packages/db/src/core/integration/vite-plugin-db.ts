@@ -6,24 +6,22 @@ const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
 type LateSchema = {
 	tables: () => DBTables;
-}
+};
 
 type VitePluginDBParams =
-| {
-		connectToStudio: false;
-		schemas: LateSchema;
-		root: URL;
-	}
-| {
-		connectToStudio: true;
-		schemas: LateSchema;
-		appToken: string;
-		root: URL;
-	}
+	| {
+			connectToStudio: false;
+			schemas: LateSchema;
+			root: URL;
+	  }
+	| {
+			connectToStudio: true;
+			schemas: LateSchema;
+			appToken: string;
+			root: URL;
+	  };
 
-export function vitePluginDb(
-	params: VitePluginDBParams
-): VitePlugin {
+export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 	return {
 		name: 'astro:db',
 		enforce: 'pre',
@@ -38,24 +36,18 @@ export function vitePluginDb(
 			if (params.connectToStudio) {
 				return getStudioVirtualModContents({
 					appToken: params.appToken,
-					tables: params.schemas.tables()
+					tables: params.schemas.tables(),
 				});
 			}
 			return getVirtualModContents({
 				root: params.root,
-				tables: params.schemas.tables()
+				tables: params.schemas.tables(),
 			});
 		},
 	};
 }
 
-export function getVirtualModContents({
-	tables,
-	root,
-}: {
-	tables: DBTables;
-	root: URL;
-}) {
+export function getVirtualModContents({ tables, root }: { tables: DBTables; root: URL }) {
 	const dbUrl = new URL(DB_PATH, root);
 	return `
 import { collectionToTable, createLocalDatabaseClient } from ${RUNTIME_IMPORT};

@@ -317,10 +317,7 @@ async function resolveCollectionRenames(
 	return { added, dropped, renamed };
 }
 
-function getAddedCollections(
-	oldCollections: DBSnapshot,
-	newCollections: DBSnapshot
-): DBTables {
+function getAddedCollections(oldCollections: DBSnapshot, newCollections: DBSnapshot): DBTables {
 	const added: DBTables = {};
 	for (const [key, newCollection] of Object.entries(newCollections.schema)) {
 		if (!(key in oldCollections.schema)) added[key] = newCollection;
@@ -328,10 +325,7 @@ function getAddedCollections(
 	return added;
 }
 
-function getDroppedCollections(
-	oldCollections: DBSnapshot,
-	newCollections: DBSnapshot
-): DBTables {
+function getDroppedCollections(oldCollections: DBSnapshot, newCollections: DBSnapshot): DBTables {
 	const dropped: DBTables = {};
 	for (const [key, oldCollection] of Object.entries(oldCollections.schema)) {
 		if (!(key in newCollections.schema)) dropped[key] = oldCollection;

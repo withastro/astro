@@ -1,7 +1,7 @@
-import { createForm } from 'simple:form';
-import { Form, Input } from '../../components/Form';
-import { z } from 'zod';
 import { useState } from 'react';
+import { z } from 'zod';
+import { Form, Input } from '../../components/Form';
+import { createForm } from 'simple:form';
 
 export const ticketForm = createForm({
 	email: z.string().email(),

@@ -14,24 +14,32 @@ export async function cmd({ flags }: { config: AstroConfig; flags: Arguments }) 
 		console.error(MISSING_SESSION_ID_ERROR);
 		process.exit(1);
 	}
-	let body = {id: flags._[4]} as {id?: string; projectIdName?: string; workspaceIdName?: string};
+	let body = { id: flags._[4] } as {
+		id?: string;
+		projectIdName?: string;
+		workspaceIdName?: string;
+	};
 	if (!body.id) {
 		const workspaceIdName = await promptWorkspaceName();
 		const projectIdName = await promptProjectName();
-		body = {projectIdName, workspaceIdName};
+		body = { projectIdName, workspaceIdName };
 	}
 	const response = await fetch(linkUrl, {
 		method: 'POST',
-		headers: { 
+		headers: {
 			Authorization: `Bearer ${await getSessionIdFromFile()}`,
 			'Content-Type': 'application/json',
 		},
-		body: JSON.stringify(body)
+		body: JSON.stringify(body),
 	});
 	if (!response.ok) {
 		// Unauthorized
-		if(response.status === 401) {
-			console.error(`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan('astro db login')} to authenticate and then try linking again.\n\n`);
+		if (response.status === 401) {
+			console.error(
+				`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
+					'astro db login'
+				)} to authenticate and then try linking again.\n\n`
+			);
 			process.exit(1);
 		}
 

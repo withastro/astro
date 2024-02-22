@@ -5,7 +5,7 @@ import {
 	getMigrationQueries,
 } from '../../dist/core/cli/migration-queries.js';
 import { getCreateTableQuery } from '../../dist/core/queries.js';
-import { column, defineReadableTable, collectionSchema } from '../../dist/core/types.js';
+import { collectionSchema, column, defineReadableTable } from '../../dist/core/types.js';
 import { NOW } from '../../dist/runtime/index.js';
 
 const COLLECTION_NAME = 'Users';

@@ -25,7 +25,7 @@ export async function cmd({ config }: { config: AstroConfig; flags: Arguments })
 	const { oldSnapshot, newSnapshot, newFilename, diff } = migration;
 	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
 		oldSnapshot,
-		newSnapshot
+		newSnapshot,
 	});
 	// Warn the user about any changes that lead to data-loss.
 	// When the user runs `db push`, they will be prompted to confirm these changes.
@@ -35,7 +35,7 @@ export async function cmd({ config }: { config: AstroConfig; flags: Arguments })
 		db: migrationQueries,
 		// TODO(fks): Encode the relevant data, instead of the raw message.
 		// This will give `db push` more control over the formatting of the message.
-		confirm: confirmations.map(c => reset(c)),
+		confirm: confirmations.map((c) => reset(c)),
 	};
 	const migrationFileName = `./migrations/${newFilename}`;
 	await writeFile(migrationFileName, JSON.stringify(migrationFileContent, undefined, 2));

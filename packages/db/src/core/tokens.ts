@@ -38,7 +38,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 			}),
 			body: JSON.stringify({ projectId }),
 		});
-		const { token: shortLivedAppToken, ttl } = (await response.json());
+		const { token: shortLivedAppToken, ttl } = await response.json();
 		return new ManagedRemoteAppToken({
 			token: shortLivedAppToken,
 			session: sessionToken,
@@ -103,7 +103,6 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 	}
 }
 
-
 export async function getProjectIdFromFile() {
 	try {
 		return await readFile(PROJECT_ID_FILE, 'utf-8');
@@ -132,13 +131,13 @@ export async function getManagedAppTokenOrExit(token?: string): Promise<ManagedA
 	if (!sessionToken) {
 		// eslint-disable-next-line no-console
 		console.error(MISSING_SESSION_ID_ERROR);
-        process.exit(1);
+		process.exit(1);
 	}
-    const projectId = await getProjectIdFromFile();
+	const projectId = await getProjectIdFromFile();
 	if (!sessionToken || !projectId) {
 		// eslint-disable-next-line no-console
 		console.error(MISSING_PROJECT_ID_ERROR);
-        process.exit(1);
+		process.exit(1);
 	}
 	return ManagedRemoteAppToken.create(sessionToken, projectId);
 }

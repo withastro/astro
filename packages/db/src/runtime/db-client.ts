@@ -1,14 +1,14 @@
 import type { InStatement } from '@libsql/client';
 import { createClient } from '@libsql/client';
 import { type DBTables } from '../core/types.js';
-import type { LibSQLDatabase} from 'drizzle-orm/libsql';
+import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
 import { drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
 import { type SQLiteTable } from 'drizzle-orm/sqlite-core';
 import { z } from 'zod';
 import { getTableName } from 'drizzle-orm';
 
-const isWebContainer = !!(process.versions?.webcontainer);
+const isWebContainer = !!process.versions?.webcontainer;
 
 interface LocalDatabaseClient extends LibSQLDatabase, Disposable {}
 
@@ -26,7 +26,7 @@ export async function createLocalDatabaseClient({
 	const db = Object.assign(drizzleLibsql(client), {
 		[Symbol.dispose]() {
 			client.close();
-		}
+		},
 	});
 
 	if (seeding) return db;

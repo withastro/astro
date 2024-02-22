@@ -53,7 +53,7 @@ export async function seedData({
 }) {
 	try {
 		const dataFns = Array.isArray(data) ? data : [data];
-		for(const dataFn of dataFns) {
+		for (const dataFn of dataFns) {
 			await dataFn({
 				seed: async ({ table, writable }, values) => {
 					if (writable && mode === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {

@@ -1,8 +1,8 @@
-import fastGlob from 'fast-glob';
-import { readFile } from 'fs/promises';
+import { type DBDataContext, type ResolvedCollectionConfig } from '@astrojs/db';
 import chokidar from 'chokidar';
 import { eq } from 'drizzle-orm';
-import { type ResolvedCollectionConfig, type DBDataContext } from '@astrojs/db';
+import fastGlob from 'fast-glob';
+import { readFile } from 'fs/promises';
 
 export function createGlob({ db, mode }: Pick<DBDataContext, 'db' | 'mode'>) {
 	return async function glob(

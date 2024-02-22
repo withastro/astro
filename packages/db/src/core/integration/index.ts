@@ -8,7 +8,10 @@ import { DB_PATH } from '../consts.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 import { astroConfigWithDbSchema, type DBTables } from '../types.js';
 import { type VitePlugin } from '../utils.js';
-import { STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR, UNSAFE_WRITABLE_WARNING } from '../errors.js';
+import {
+	STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR,
+	UNSAFE_WRITABLE_WARNING,
+} from '../errors.js';
 import { errorMap } from './error-map.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -23,7 +26,7 @@ function astroDBIntegration(): AstroIntegration {
 	let schemas = {
 		tables(): DBTables {
 			throw new Error('tables not found');
-		}
+		},
 	};
 	let command: 'dev' | 'build' | 'preview';
 	return {
@@ -56,10 +59,7 @@ function astroDBIntegration(): AstroIntegration {
 				updateConfig({
 					vite: {
 						assetsInclude: [DB_PATH],
-						plugins: [
-							dbPlugin,
-							vitePluginInjectEnvTs(config, logger),
-						],
+						plugins: [dbPlugin, vitePluginInjectEnvTs(config, logger)],
 					},
 				});
 			},
@@ -83,11 +83,11 @@ function astroDBIntegration(): AstroIntegration {
 				}
 				// Using writable tables with the opt-in flag. Warn them to let them
 				// know the risk.
-				else if(unsafeWritable && foundWritableCollection) {
+				else if (unsafeWritable && foundWritableCollection) {
 					logger.warn(UNSAFE_WRITABLE_WARNING);
 				}
 
-				if(!connectedToRemote) {
+				if (!connectedToRemote) {
 					const dbUrl = new URL(DB_PATH, config.root);
 					if (existsSync(dbUrl)) {
 						await rm(dbUrl);
@@ -111,7 +111,6 @@ function astroDBIntegration(): AstroIntegration {
 					}
 					logger.debug('Database setup complete.');
 				}
-
 
 				await typegen({ tables, root: config.root });
 			},

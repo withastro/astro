@@ -1,8 +1,8 @@
-import { defineConfig } from 'astro/config';
-import simpleStackForm from 'simple-stack-form';
 import db, { defineReadableTable, defineWritableTable, column } from '@astrojs/db';
 import node from '@astrojs/node';
 import react from '@astrojs/react';
+import { defineConfig } from 'astro/config';
+import simpleStackForm from 'simple-stack-form';
 
 const Event = defineReadableTable({
 	columns: {

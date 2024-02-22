@@ -243,9 +243,7 @@ export type DBColumnInput =
 	| TextColumnInput
 	| JsonColumnInput;
 export type DBColumns = z.infer<typeof columnsSchema>;
-export type DBTable = z.infer<
-	typeof readableCollectionSchema | typeof writableCollectionSchema
->;
+export type DBTable = z.infer<typeof readableCollectionSchema | typeof writableCollectionSchema>;
 export type DBTables = Record<string, DBTable>;
 export type DBSnapshot = {
 	schema: Record<string, DBTable>;
@@ -282,9 +280,7 @@ export function defineData(fn: (ctx: DBDataContext) => MaybePromise<void>) {
 	return fn;
 }
 
-const dbDataFn = z
-	.function()
-	.returns(z.union([z.void(), z.promise(z.void())]));
+const dbDataFn = z.function().returns(z.union([z.void(), z.promise(z.void())]));
 
 export const dbConfigSchema = z.object({
 	studio: z.boolean().optional(),
@@ -296,7 +292,7 @@ export const dbConfigSchema = z.object({
 type DataFunction = (params: DBDataContext) => MaybePromise<void>;
 
 export type DBUserConfig = Omit<z.input<typeof dbConfigSchema>, 'data'> & {
-	data: DataFunction | DataFunction[]
+	data: DataFunction | DataFunction[];
 };
 
 export const astroConfigWithDbSchema = z.object({

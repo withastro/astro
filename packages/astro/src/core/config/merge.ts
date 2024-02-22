@@ -41,7 +41,7 @@ function mergeConfigRecursively(
 		if (key === 'data' && rootPath === 'db') {
 			// db.data can be a function or an array of functions. When
 			// merging, make sure they become an array
-			if(!Array.isArray(existing) && !Array.isArray(value)) {
+			if (!Array.isArray(existing) && !Array.isArray(value)) {
 				existing = [existing];
 			}
 		}

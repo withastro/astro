@@ -1,5 +1,5 @@
-import { defineConfig } from 'astro/config';
 import db, { defineReadableTable, column } from '@astrojs/db';
+import { defineConfig } from 'astro/config';
 import { asJson, createGlob } from './utils';
 
 const Quote = defineReadableTable({
