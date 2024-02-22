@@ -1,4 +1,4 @@
-import { h, Fragment } from 'preact';
+import { Fragment, h } from 'preact';
 import { useState } from 'preact/hooks';
 import './Counter.css';
 
