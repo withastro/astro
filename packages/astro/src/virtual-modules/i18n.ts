@@ -9,10 +9,10 @@ export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
 const { trailingSlash, format, site, i18n, isBuild } =
 	// @ts-expect-error
 	__ASTRO_INTERNAL_I18N_CONFIG__ as I18nInternalConfig;
-const { defaultLocale, locales, strategy, domains, fallback } = i18n!;
+const { defaultLocale, locales, domains, fallback } = i18n!;
 const base = import.meta.env.BASE_URL;
 
-const routing = toRoutingStrategy(i18n!);
+const strategy = toRoutingStrategy(i18n!);
 
 export type GetLocaleOptions = I18nInternals.GetLocaleOptions;
 
@@ -51,7 +51,7 @@ export const getRelativeLocaleUrl = (locale: string, path?: string, options?: Ge
 		format,
 		defaultLocale,
 		locales,
-		strategy: routing: strategy,
+		strategy,
 		domains,
 		...options,
 	});
@@ -91,7 +91,7 @@ export const getAbsoluteLocaleUrl = (locale: string, path?: string, options?: Ge
 		site,
 		defaultLocale,
 		locales,
-		strategy: routing: strategy,
+		strategy,
 		domains,
 		isBuild,
 		...options,
@@ -111,7 +111,7 @@ export const getRelativeLocaleUrlList = (path?: string, options?: GetLocaleOptio
 		format,
 		defaultLocale,
 		locales,
-		strategy: routing: strategy,
+		strategy,
 		domains,
 		...options,
 	});
@@ -131,7 +131,7 @@ export const getAbsoluteLocaleUrlList = (path?: string, options?: GetLocaleOptio
 		format,
 		defaultLocale,
 		locales,
-		strategy: routing: strategy,
+		strategy,
 		domains,
 		isBuild,
 		...options,
@@ -280,6 +280,18 @@ export const noFoundForNonLocaleRoute =
 				fallback,
 			})
 		: noop('noFoundForNonLocaleRoute');
+
+/**
+ * Checks whether the current URL contains a configured locale. Internally, this function will use `APIContext#url.pathname`
+ *
+ * @param {APIContext} context The context passed to the middleware
+ *
+ *
+ */
+export const requestHasLocale =
+	i18n?.routing?.strategy === 'manual'
+		? I18nInternals.requestHasLocale(locales)
+		: noop('requestHasLocale');
 
 export const useFallback: UseFallback =
 	i18n?.routing?.strategy === 'manual'

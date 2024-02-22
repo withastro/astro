@@ -1,7 +1,12 @@
-import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
-import type { APIContext, Locales, MiddlewareHandler, SSRManifest } from '../@types/astro.js';
-import { getPathByLocale, normalizeTheLocale } from './index.js';
-import { shouldAppendForwardSlash } from '../core/build/util.js';
+import type { APIContext, MiddlewareHandler, SSRManifest } from '../@types/astro.js';
+import {
+	getPathByLocale,
+	type MiddlewarePayload,
+	noFoundForNonLocaleRoute,
+	normalizeTheLocale,
+	requestHasLocale,
+	redirectToDefaultLocale,
+} from './index.js';
 import type { SSRManifestI18n } from '../core/app/types.js';
 import { ROUTE_TYPE_HEADER } from '../core/constants.js';
 
@@ -22,18 +27,16 @@ export function createI18nMiddleware(
 
 	const _redirectToDefaultLocale = redirectToDefaultLocale(payload);
 	const _noFoundForNonLocaleRoute = noFoundForNonLocaleRoute(payload);
+	const _requestHasLocale = requestHasLocale(payload.locales);
 
-	const prefixAlways = (
-		url: URL,
-		response: Response,
-		context: APIContext
-	): Response | undefined => {
+	const prefixAlways = (response: Response, context: APIContext): Response | undefined => {
+		const url = context.url;
 		if (url.pathname === base + '/' || url.pathname === base) {
 			return _redirectToDefaultLocale(context);
 		}
 
 		// Astro can't know where the default locale is supposed to be, so it returns a 404 with no content.
-		else if (!pathHasLocale(url.pathname, i18n.locales)) {
+		else if (!_requestHasLocale(context)) {
 			return new Response(null, {
 				status: 404,
 				headers: response.headers,
@@ -111,7 +114,7 @@ export function createI18nMiddleware(
 			}
 
 			case 'pathname-prefix-always': {
-				const result = prefixAlways(url, response, context);
+				const result = prefixAlways(response, context);
 				if (result) {
 					return result;
 				}
@@ -119,7 +122,7 @@ export function createI18nMiddleware(
 			}
 			case 'domains-prefix-always': {
 				if (localeHasntDomain(i18n, currentLocale)) {
-					const result = prefixAlways(url, response, context);
+					const result = prefixAlways(response, context);
 					if (result) {
 						return result;
 					}
@@ -146,21 +149,18 @@ export function createI18nMiddleware(
 				return false;
 			});
 
-				if (urlLocale && fallbackKeys.includes(urlLocale)) {
-					const fallbackLocale = fallback[urlLocale];
-					// the user might have configured the locale using the granular locales, so we want to retrieve its corresponding path instead
-					const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
-					let newPathname: string;
-					// If a locale falls back to the default locale, we want to **remove** the locale because
-					// the default locale doesn't have a prefix
-					if (
-						pathFallbackLocale === defaultLocale &&
-						strategy === 'pathname-prefix-other-locales'
-					) {
-						newPathname = url.pathname.replace(`/${urlLocale}`, ``);
-					} else {
-						newPathname = url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
-					}
+			if (urlLocale && fallbackKeys.includes(urlLocale)) {
+				const fallbackLocale = fallback[urlLocale];
+				// the user might have configured the locale using the granular locales, so we want to retrieve its corresponding path instead
+				const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
+				let newPathname: string;
+				// If a locale falls back to the default locale, we want to **remove** the locale because
+				// the default locale doesn't have a prefix
+				if (pathFallbackLocale === defaultLocale && strategy === 'pathname-prefix-other-locales') {
+					newPathname = url.pathname.replace(`/${urlLocale}`, ``);
+				} else {
+					newPathname = url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
+				}
 
 				return context.redirect(newPathname);
 			}

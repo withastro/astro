@@ -5,9 +5,15 @@ import { MissingLocale } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
 import type { RoutingStrategies } from './utils.js';
 
+export function requestHasLocale(locales: Locales) {
+	return function (context: APIContext) {
+		return pathHasLocale(context.url.pathname, locales);
+	};
+}
+
 // Checks if the pathname has any locale
-export function pathHasLocale(pathname: string, locales: Locales): boolean {
-	const segments = pathname.split('/');
+export function pathHasLocale(path: string, locales: Locales): boolean {
+	const segments = path.split('/');
 	for (const segment of segments) {
 		for (const locale of locales) {
 			if (typeof locale === 'string') {

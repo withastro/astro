@@ -357,7 +357,7 @@ export const AstroConfigSchema = z.object({
 			.optional()
 			.superRefine((i18n, ctx) => {
 				if (i18n) {
-					const { defaultLocale, locales: _locales, fallback, domains, strategy } = i18n;
+					const { defaultLocale, locales: _locales, fallback, domains } = i18n;
 					const locales = _locales.map((locale) => {
 						if (typeof locale === 'string') {
 							return locale;
