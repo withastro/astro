@@ -65,7 +65,6 @@ function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
 		rehypeMetaString,
 		// rehypeRaw allows custom syntax highlighters to work without added config
 		[rehypeRaw, { passThrough: nodeTypes }],
-		...mdxOptions.rehypePlugins,
 	];
 
 	if (!isPerformanceBenchmark) {
@@ -82,7 +81,7 @@ function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
 	}
 
 	// computed from `astro.data.frontmatter` in VFile data
-	rehypePlugins.push(rehypeApplyFrontmatterExport);
+	rehypePlugins.push(...mdxOptions.rehypePlugins, rehypeApplyFrontmatterExport);
 
 	if (mdxOptions.optimize) {
 		// Convert user `optimize` option to compatible `rehypeOptimizeStatic` option
