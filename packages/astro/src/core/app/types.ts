@@ -8,7 +8,7 @@ import type {
 	SSRResult,
 } from '../../@types/astro.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
-import type { RoutingStrategies } from '../config/schema.js';
+import type { RoutingStrategies } from '../../i18n/utils.js';
 
 export type ComponentPath = string;
 

@@ -1,5 +1,29 @@
 # astro
 
+## 4.4.2
+
+### Patch Changes
+
+- [#10169](https://github.com/withastro/astro/pull/10169) [`a46249173edde66b03c19441144272baa8394fb4`](https://github.com/withastro/astro/commit/a46249173edde66b03c19441144272baa8394fb4) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue with the `i18n.routing` types, where an internal transformation was causing the generation of incorrect types for integrations.
+
+## 4.4.1
+
+### Patch Changes
+
+- [#9795](https://github.com/withastro/astro/pull/9795) [`5acc3135ba5309a566def466fbcbabd23f70cd68`](https://github.com/withastro/astro/commit/5acc3135ba5309a566def466fbcbabd23f70cd68) Thanks [@lilnasy](https://github.com/lilnasy)! - Refactors internals relating to middleware, endpoints, and page rendering.
+
+- [#10105](https://github.com/withastro/astro/pull/10105) [`1f598b372410066c6fcd41cba9915f6aaf7befa8`](https://github.com/withastro/astro/commit/1f598b372410066c6fcd41cba9915f6aaf7befa8) Thanks [@negativems](https://github.com/negativems)! - Fixes an issue where some astro commands failed if the astro config file or an integration used the global `crypto` object.
+
+- [#10165](https://github.com/withastro/astro/pull/10165) [`d50dddb71d87ce5b7928920f10eb4946a5339f86`](https://github.com/withastro/astro/commit/d50dddb71d87ce5b7928920f10eb4946a5339f86) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `i18n.routing` object had all its fields defined as mandatory. Now they all are optionals and shouldn't break when using `astro.config.mts`.
+
+- [#10132](https://github.com/withastro/astro/pull/10132) [`1da9c5f2f3fe70b0206d1b3e0c01744fa40d511c`](https://github.com/withastro/astro/commit/1da9c5f2f3fe70b0206d1b3e0c01744fa40d511c) Thanks [@bluwy](https://github.com/bluwy)! - Simplifies internal Vite preview server teardown
+
+- [#10163](https://github.com/withastro/astro/pull/10163) [`b92d35f1026f3e99abb888d1a845bdda4efdc327`](https://github.com/withastro/astro/commit/b92d35f1026f3e99abb888d1a845bdda4efdc327) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Fixes an issue where audit fails to initialize when encountered `<a>` inside `<svg>`
+
+- [#10079](https://github.com/withastro/astro/pull/10079) [`80f8996514e6d0546e94bd927650cd4ab2f1fa2f`](https://github.com/withastro/astro/commit/80f8996514e6d0546e94bd927650cd4ab2f1fa2f) Thanks [@ktym4a](https://github.com/ktym4a)! - Fix integrationData fetch to always be called even if View Transition is enabled.
+
+- [#10139](https://github.com/withastro/astro/pull/10139) [`3c73441eb2eaba767d6dad1b30c0353195d28791`](https://github.com/withastro/astro/commit/3c73441eb2eaba767d6dad1b30c0353195d28791) Thanks [@bluwy](https://github.com/bluwy)! - Fixes style-only change detection for Astro files if both the markup and styles are updated
+
 ## 4.4.0
 
 ### Minor Changes

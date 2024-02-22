@@ -17,6 +17,7 @@ import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
+import { toRoutingStrategy } from '../../../i18n/utils.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
@@ -235,14 +236,7 @@ function buildManifest(
 	 * logic meant for i18n domain support, where we fill the lookup table
 	 */
 	const i18n = settings.config.i18n;
-	if (
-		settings.config.experimental.i18nDomains &&
-		i18n &&
-		i18n.domains &&
-		(i18n.strategy === 'domains-prefix-always' ||
-			i18n.strategy === 'domains-prefix-other-locales' ||
-			i18n.strategy === 'domains-prefix-always-no-redirect')
-	) {
+	if (settings.config.experimental.i18nDomains && i18n && i18n.domains) {
 		for (const [locale, domainValue] of Object.entries(i18n.domains)) {
 			domainLookupTable[domainValue] = normalizeTheLocale(locale);
 		}
@@ -257,7 +251,7 @@ function buildManifest(
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
-			strategy: settings.config.i18n.strategy,
+			strategy: toRoutingStrategy(settings.config.i18n),
 			locales: settings.config.i18n.locales,
 			defaultLocale: settings.config.i18n.defaultLocale,
 			domainLookupTable,

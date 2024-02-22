@@ -3,7 +3,7 @@ import type { APIContext, AstroConfig, Locales, ValidRedirectStatus } from '../@
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { MissingLocale } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
-import type { RoutingStrategies } from '../core/config/schema.js';
+import type { RoutingStrategies } from './utils.js';
 
 // Checks if the pathname has any locale
 export function pathHasLocale(pathname: string, locales: Locales): boolean {
@@ -29,7 +29,7 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
-	routing?: RoutingStrategies;
+	strategy?: RoutingStrategies;
 	defaultLocale: string;
 	domains: Record<string, string> | undefined;
 	path?: string;
@@ -63,7 +63,7 @@ export function getLocaleRelativeUrl({
 	path,
 	prependWith,
 	normalizeLocale = true,
-	routing = 'pathname-prefix-other-locales',
+	strategy = 'pathname-prefix-other-locales',
 	defaultLocale,
 }: GetLocaleRelativeUrl) {
 	const codeToUse = peekCodePathToUse(_locales, locale);
@@ -76,10 +76,10 @@ export function getLocaleRelativeUrl({
 	const pathsToJoin = [base, prependWith];
 	const normalizedLocale = normalizeLocale ? normalizeTheLocale(codeToUse) : codeToUse;
 	if (
-		routing === 'pathname-prefix-always' ||
-		routing === 'pathname-prefix-always-no-redirect' ||
-		routing === 'domains-prefix-always' ||
-		routing === 'domains-prefix-always-no-redirect'
+		strategy === 'pathname-prefix-always' ||
+		strategy === 'pathname-prefix-always-no-redirect' ||
+		strategy === 'domains-prefix-always' ||
+		strategy === 'domains-prefix-always-no-redirect'
 	) {
 		pathsToJoin.push(normalizedLocale);
 	} else if (locale !== defaultLocale) {
@@ -125,7 +125,7 @@ interface GetLocalesRelativeUrlList extends GetLocaleOptions {
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
-	routing?: RoutingStrategies;
+	strategy?: RoutingStrategies;
 	defaultLocale: string;
 	domains: Record<string, string> | undefined;
 }

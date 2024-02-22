@@ -1,6 +1,6 @@
-import esbuild from 'esbuild';
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import esbuild from 'esbuild';
 
 describe('Bundle for browsers', async () => {
 	it('esbuild browser build should work', async () => {

@@ -66,14 +66,6 @@ const ASTRO_CONFIG_DEFAULTS = {
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
-export type RoutingStrategies =
-	| 'pathname-prefix-always'
-	| 'pathname-prefix-other-locales'
-	| 'pathname-prefix-always-no-redirect'
-	| 'domains-prefix-always'
-	| 'domains-prefix-other-locales'
-	| 'domains-prefix-always-no-redirect';
-
 export const AstroConfigSchema = z.object({
 	root: z
 		.string()
@@ -363,37 +355,6 @@ export const AstroConfigSchema = z.object({
 					),
 			})
 			.optional()
-			.transform((i18n) => {
-				if (i18n) {
-					let { routing, domains } = i18n;
-					let strategy: RoutingStrategies;
-					const hasDomains = domains ? Object.keys(domains).length > 0 : false;
-					if (!hasDomains) {
-						if (routing.prefixDefaultLocale === true) {
-							if (routing.redirectToDefaultLocale) {
-								strategy = 'pathname-prefix-always';
-							} else {
-								strategy = 'pathname-prefix-always-no-redirect';
-							}
-						} else {
-							strategy = 'pathname-prefix-other-locales';
-						}
-					} else {
-						if (routing.prefixDefaultLocale === true) {
-							if (routing.redirectToDefaultLocale) {
-								strategy = 'domains-prefix-always';
-							} else {
-								strategy = 'domains-prefix-always-no-redirect';
-							}
-						} else {
-							strategy = 'domains-prefix-other-locales';
-						}
-					}
-
-					return { ...i18n, strategy };
-				}
-				return undefined;
-			})
 			.superRefine((i18n, ctx) => {
 				if (i18n) {
 					const { defaultLocale, locales: _locales, fallback, domains, strategy } = i18n;
@@ -436,20 +397,15 @@ export const AstroConfigSchema = z.object({
 					}
 					if (domains) {
 						const entries = Object.entries(domains);
-						if (entries.length > 0) {
-							if (
-								strategy !== 'domains-prefix-other-locales' &&
-								strategy !== 'domains-prefix-always-no-redirect' &&
-								strategy !== 'domains-prefix-always'
-							) {
-								ctx.addIssue({
-									code: z.ZodIssueCode.custom,
-									message: `When specifying some domains, the property \`i18n.routingStrategy\` must be set to \`"domains"\`.`,
-								});
-							}
+						const hasDomains = domains ? Object.keys(domains).length > 0 : false;
+						if (entries.length > 0 && !hasDomains) {
+							ctx.addIssue({
+								code: z.ZodIssueCode.custom,
+								message: `When specifying some domains, the property \`i18n.routingStrategy\` must be set to \`"domains"\`.`,
+							});
 						}
 
-						for (const [domainKey, domainValue] of Object.entries(domains)) {
+						for (const [domainKey, domainValue] of entries) {
 							if (!locales.includes(domainKey)) {
 								ctx.addIssue({
 									code: z.ZodIssueCode.custom,
@@ -625,11 +581,8 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		.superRefine((configuration, ctx) => {
 			const { site, experimental, i18n, output } = configuration;
 			if (experimental.i18nDomains) {
-				if (
-					i18n?.strategy === 'domains-prefix-other-locales' ||
-					i18n?.strategy === 'domains-prefix-always-no-redirect' ||
-					i18n?.strategy === 'domains-prefix-always'
-				) {
+				const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
+				if (hasDomains) {
 					if (!site) {
 						ctx.addIssue({
 							code: z.ZodIssueCode.custom,

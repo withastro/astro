@@ -1,5 +1,6 @@
 import * as I18nInternals from '../i18n/index.js';
 import type { I18nInternalConfig } from '../i18n/vite-plugin-i18n.js';
+import { toRoutingStrategy } from '../i18n/utils.js';
 import { AstroError } from '../core/errors/index.js';
 import { IncorrectStrategy } from '../core/errors/errors-data.js';
 import type { UseFallback } from '../i18n/index.js';
@@ -10,6 +11,8 @@ const { trailingSlash, format, site, i18n, isBuild } =
 	__ASTRO_INTERNAL_I18N_CONFIG__ as I18nInternalConfig;
 const { defaultLocale, locales, strategy, domains, fallback } = i18n!;
 const base = import.meta.env.BASE_URL;
+
+const routing = toRoutingStrategy(i18n!);
 
 export type GetLocaleOptions = I18nInternals.GetLocaleOptions;
 
@@ -48,7 +51,7 @@ export const getRelativeLocaleUrl = (locale: string, path?: string, options?: Ge
 		format,
 		defaultLocale,
 		locales,
-		routing: strategy,
+		strategy: routing: strategy,
 		domains,
 		...options,
 	});
@@ -88,7 +91,7 @@ export const getAbsoluteLocaleUrl = (locale: string, path?: string, options?: Ge
 		site,
 		defaultLocale,
 		locales,
-		routing: strategy,
+		strategy: routing: strategy,
 		domains,
 		isBuild,
 		...options,
@@ -108,7 +111,7 @@ export const getRelativeLocaleUrlList = (path?: string, options?: GetLocaleOptio
 		format,
 		defaultLocale,
 		locales,
-		routing: strategy,
+		strategy: routing: strategy,
 		domains,
 		...options,
 	});
@@ -128,7 +131,7 @@ export const getAbsoluteLocaleUrlList = (path?: string, options?: GetLocaleOptio
 		format,
 		defaultLocale,
 		locales,
-		routing: strategy,
+		strategy: routing: strategy,
 		domains,
 		isBuild,
 		...options,
