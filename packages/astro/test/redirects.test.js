@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { before, describe, it, after } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { after, before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Astro.redirect', () => {
 	/** @type {import('./test-utils').Fixture} */

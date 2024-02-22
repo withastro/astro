@@ -1,5 +1,40 @@
 # @astrojs/sitemap
 
+## 3.1.1
+
+### Patch Changes
+
+- [#10179](https://github.com/withastro/astro/pull/10179) [`6343f6a438d790fa16a0dd268f4a51def4fa0f33`](https://github.com/withastro/astro/commit/6343f6a438d790fa16a0dd268f4a51def4fa0f33) Thanks [@ematipico](https://github.com/ematipico)! - Revert https://github.com/withastro/astro/pull/9846
+
+  The feature to customize the file name of the sitemap was reverted due to some internal issues with one of the dependencies. With an non-deterministic behaviour, the sitemap file was sometime emitted with incorrect syntax.
+
+- [#9975](https://github.com/withastro/astro/pull/9975) [`ec7d2ebbd96b8c2dfdadaf076bbf7953007536ed`](https://github.com/withastro/astro/commit/ec7d2ebbd96b8c2dfdadaf076bbf7953007536ed) Thanks [@moose96](https://github.com/moose96)! - Fixes URL generation for routes that rest parameters and start with `/`
+
+## 3.1.0
+
+### Minor Changes
+
+- [#9846](https://github.com/withastro/astro/pull/9846) [`9b78c992750cdb99c40a89a00ea2a0d1c00877d7`](https://github.com/withastro/astro/commit/9b78c992750cdb99c40a89a00ea2a0d1c00877d7) Thanks [@ktym4a](https://github.com/ktym4a)! - Adds a new configuration option `prefix` that allows you to change the default `sitemap-*.xml` file name.
+
+  By default, running `astro build` creates both `sitemap-index.xml` and `sitemap-0.xml` in your output directory.
+
+  To change the names of these files (e.g. to `astrosite-index.xml` and `astrosite-0.xml`), set the `prefix` option in your `sitemap` integration configuration:
+
+  ```
+  import { defineConfig } from 'astro/config';
+  import sitemap from '@astrojs/sitemap';
+  export default defineConfig({
+    site: 'https://example.com',
+    integrations: [
+      sitemap({
+        prefix: 'astrosite-',
+      }),
+    ],
+  });
+  ```
+
+  This option is useful when Google Search Console is unable to fetch your default sitemap files, but can read renamed files.
+
 ## 3.0.5
 
 ### Patch Changes

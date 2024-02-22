@@ -1,6 +1,6 @@
-import { loadFixture } from './test-utils.js';
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import { loadFixture } from './test-utils.js';
 
 describe('Missing output config', () => {
 	/** @type {import('./test-utils').Fixture} */

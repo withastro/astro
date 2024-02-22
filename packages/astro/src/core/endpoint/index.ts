@@ -1,25 +1,13 @@
-import type {
-	APIContext,
-	EndpointHandler,
-	Locales,
-	MiddlewareHandler,
-	Params,
-} from '../../@types/astro.js';
-import { renderEndpoint } from '../../runtime/server/index.js';
-import { ASTRO_VERSION } from '../constants.js';
-import { AstroCookies, attachCookiesToResponse } from '../cookies/index.js';
+import type { APIContext, Locales, Params } from '../../@types/astro.js';
+import { ASTRO_VERSION, clientAddressSymbol, clientLocalsSymbol } from '../constants.js';
+import type { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { callMiddleware } from '../middleware/callMiddleware.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
-} from '../render/context.js';
-import { type Environment, type RenderContext } from '../render/index.js';
-import type { RoutingStrategies } from '../config/schema.js';
-
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
-const clientLocalsSymbol = Symbol.for('astro.locals');
+	type RoutingStrategies,
+} from '../../i18n/utils.js';
 
 type CreateAPIContext = {
 	request: Request;
@@ -30,6 +18,8 @@ type CreateAPIContext = {
 	locales: Locales | undefined;
 	routingStrategy: RoutingStrategies | undefined;
 	defaultLocale: string | undefined;
+	route: string;
+	cookies: AstroCookies;
 };
 
 /**
@@ -46,13 +36,15 @@ export function createAPIContext({
 	locales,
 	routingStrategy,
 	defaultLocale,
+	route,
+	cookies,
 }: CreateAPIContext): APIContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
 	let currentLocale: string | undefined = undefined;
 
 	const context = {
-		cookies: new AstroCookies(request),
+		cookies,
 		request,
 		params,
 		site: site ? new URL(site) : undefined,
@@ -93,7 +85,7 @@ export function createAPIContext({
 				return currentLocale;
 			}
 			if (locales) {
-				currentLocale = computeCurrentLocale(request, locales, routingStrategy, defaultLocale);
+				currentLocale = computeCurrentLocale(route, locales, routingStrategy, defaultLocale);
 			}
 
 			return currentLocale;
@@ -137,34 +129,4 @@ export function createAPIContext({
 	} satisfies APIContext;
 
 	return context;
-}
-
-export async function callEndpoint(
-	mod: EndpointHandler,
-	env: Environment,
-	ctx: RenderContext,
-	onRequest: MiddlewareHandler | undefined
-): Promise<Response> {
-	const context = createAPIContext({
-		request: ctx.request,
-		params: ctx.params,
-		props: ctx.props,
-		site: env.site,
-		adapterName: env.adapterName,
-		routingStrategy: ctx.routing,
-		defaultLocale: ctx.defaultLocale,
-		locales: ctx.locales,
-	});
-
-	let response;
-	if (onRequest) {
-		response = await callMiddleware(onRequest, context, async () => {
-			return await renderEndpoint(mod, context, env.ssr, env.logger);
-		});
-	} else {
-		response = await renderEndpoint(mod, context, env.ssr, env.logger);
-	}
-
-	attachCookiesToResponse(response, context.cookies);
-	return response;
 }
