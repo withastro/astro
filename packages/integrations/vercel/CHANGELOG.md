@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 7.3.2
+
+### Patch Changes
+
+- [#10194](https://github.com/withastro/astro/pull/10194) [`3cc20109277813ccb9578ca87a8b0d680a73c35c`](https://github.com/withastro/astro/commit/3cc20109277813ccb9578ca87a8b0d680a73c35c) Thanks [@matthewp](https://github.com/matthewp)! - Fix loading client-scripts in dev with ISR
+
 ## 7.3.1
 
 ### Patch Changes
