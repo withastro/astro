@@ -1,5 +1,5 @@
-import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { createFs, createRequestAndResponse, runInContainer } from '../test-utils.js';
 

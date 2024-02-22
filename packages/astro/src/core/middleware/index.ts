@@ -1,6 +1,16 @@
-import type { MiddlewareHandler, Params } from '../../@types/astro.js';
-import { createAPIContext } from '../endpoint/index.js';
+import type { APIContext, MiddlewareHandler, Params } from '../../@types/astro.js';
+import { AstroCookies } from '../cookies/index.js';
 import { sequence } from './sequence.js';
+import { ASTRO_VERSION } from '../constants.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
+import {
+	computeCurrentLocale,
+	computePreferredLocale,
+	computePreferredLocaleList,
+} from '../../i18n/utils.js';
+
+const clientAddressSymbol = Symbol.for('astro.clientAddress');
+const clientLocalsSymbol = Symbol.for('astro.locals');
 
 function defineMiddleware(fn: MiddlewareHandler) {
 	return fn;
@@ -28,16 +38,73 @@ export type CreateContext = {
 /**
  * Creates a context to be passed to Astro middleware `onRequest` function.
  */
-function createContext({ request, params, userDefinedLocales = [] }: CreateContext) {
-	return createAPIContext({
+function createContext({
+	request,
+	params = {},
+	userDefinedLocales = [],
+}: CreateContext): APIContext {
+	let preferredLocale: string | undefined = undefined;
+	let preferredLocaleList: string[] | undefined = undefined;
+	let currentLocale: string | undefined = undefined;
+	const url = new URL(request.url);
+	const route = url.pathname;
+
+	return {
+		cookies: new AstroCookies(request),
 		request,
-		params: params ?? {},
-		props: {},
+		params,
 		site: undefined,
-		locales: userDefinedLocales,
-		defaultLocale: undefined,
-		routingStrategy: undefined,
-	});
+		generator: `Astro v${ASTRO_VERSION}`,
+		props: {},
+		redirect(path, status) {
+			return new Response(null, {
+				status: status || 302,
+				headers: {
+					Location: path,
+				},
+			});
+		},
+		get preferredLocale(): string | undefined {
+			return (preferredLocale ??= computePreferredLocale(request, userDefinedLocales));
+		},
+		get preferredLocaleList(): string[] | undefined {
+			return (preferredLocaleList ??= computePreferredLocaleList(request, userDefinedLocales));
+		},
+		get currentLocale(): string | undefined {
+			return (currentLocale ??= computeCurrentLocale(
+				route,
+				userDefinedLocales,
+				undefined,
+				undefined
+			));
+		},
+		url,
+		get clientAddress() {
+			if (clientAddressSymbol in request) {
+				return Reflect.get(request, clientAddressSymbol) as string;
+			}
+			throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
+		},
+		get locals() {
+			let locals = Reflect.get(request, clientLocalsSymbol);
+			if (locals === undefined) {
+				locals = {};
+				Reflect.set(request, clientLocalsSymbol, locals);
+			}
+			if (typeof locals !== 'object') {
+				throw new AstroError(AstroErrorData.LocalsNotAnObject);
+			}
+			return locals;
+		},
+		// We define a custom property, so we can check the value passed to locals
+		set locals(val) {
+			if (typeof val !== 'object') {
+				throw new AstroError(AstroErrorData.LocalsNotAnObject);
+			} else {
+				Reflect.set(request, clientLocalsSymbol, val);
+			}
+		},
+	};
 }
 
 /**

@@ -338,8 +338,8 @@ export const a11y: AuditRuleWithSelector[] = [
 		selector: a11y_required_content.join(','),
 		match(element: HTMLElement) {
 			// innerText is used to ignore hidden text
-			const innerText = element.innerText.trim();
-			if (innerText !== '') return false;
+			const innerText = element.innerText?.trim();
+			if (innerText && innerText !== '') return false;
 
 			// Check for aria-label
 			const ariaLabel = element.getAttribute('aria-label')?.trim();

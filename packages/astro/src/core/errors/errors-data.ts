@@ -872,7 +872,7 @@ export const LocalImageUsedWrongly = {
  * @see
  * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
  * @description
- * `Astro.glob()` can only be used in `.astro` files. You can use [`import.meta.glob()`](https://vitejs.dev/guide/features.html#glob-import) instead to acheive the same result.
+ * `Astro.glob()` can only be used in `.astro` files. You can use [`import.meta.glob()`](https://vitejs.dev/guide/features.html#glob-import) instead to achieve the same result.
  */
 export const AstroGlobUsedOutside = {
 	name: 'AstroGlobUsedOutside',

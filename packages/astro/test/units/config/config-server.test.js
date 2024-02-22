@@ -1,8 +1,8 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { flagsToAstroInlineConfig } from '../../../dist/cli/flags.js';
 import { resolveConfig } from '../../../dist/core/config/index.js';
-import { describe, it } from 'node:test';
-import * as assert from 'node:assert/strict';
 
 const cwd = fileURLToPath(new URL('../../fixtures/config-host/', import.meta.url));
 

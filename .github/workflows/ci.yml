@@ -98,7 +98,7 @@ jobs:
         run: pnpm run lint
 
       - name: Format Check
-        run: pnpm run format --check
+        run: pnpm run format:ci
 
   test:
     name: "Test: ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"

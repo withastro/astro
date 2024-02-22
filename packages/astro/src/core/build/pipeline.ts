@@ -1,13 +1,20 @@
-import type { AstroConfig, AstroSettings, SSRLoadedRenderer } from '../../@types/astro.js';
+import type { RouteData, SSRLoadedRenderer, SSRResult } from '../../@types/astro.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
-import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
+import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
-import type { Logger } from '../logger/core.js';
-import { Pipeline } from '../pipeline.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
-import { createEnvironment } from '../render/index.js';
-import { createAssetLink } from '../render/ssr-element.js';
-import type { BuildInternals } from './internal.js';
+import { Pipeline } from '../render/index.js';
+import {
+	createAssetLink,
+	createModuleScriptsSet,
+	createStylesheetElementSet,
+} from '../render/ssr-element.js';
+import {
+	getPageDataByComponent,
+	type BuildInternals,
+	cssOrder,
+	mergeInlineCss,
+} from './internal.js';
 import {
 	ASTRO_PAGE_RESOLVED_MODULE_ID,
 	getVirtualModulePageNameFromPath,
@@ -18,79 +25,54 @@ import type { PageBuildData, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
 
 /**
- * This pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
+ * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
  */
 export class BuildPipeline extends Pipeline {
-	#internals: BuildInternals;
-	#staticBuildOptions: StaticBuildOptions;
-	#manifest: SSRManifest;
-
-	constructor(
-		staticBuildOptions: StaticBuildOptions,
-		internals: BuildInternals,
-		manifest: SSRManifest
+	private constructor(
+		readonly internals: BuildInternals,
+		readonly manifest: SSRManifest,
+		readonly options: StaticBuildOptions,
+		readonly config = options.settings.config,
+		readonly settings = options.settings
 	) {
-		const ssr = isServerLikeOutput(staticBuildOptions.settings.config);
 		const resolveCache = new Map<string, string>();
+		async function resolve(specifier: string) {
+			if (resolveCache.has(specifier)) {
+				return resolveCache.get(specifier)!;
+			}
+			const hashedFilePath = manifest.entryModules[specifier];
+			if (typeof hashedFilePath !== 'string' || hashedFilePath === '') {
+				// If no "astro:scripts/before-hydration.js" script exists in the build,
+				// then we can assume that no before-hydration scripts are needed.
+				if (specifier === BEFORE_HYDRATION_SCRIPT_ID) {
+					resolveCache.set(specifier, '');
+					return '';
+				}
+				throw new Error(`Cannot find the built path for ${specifier}`);
+			}
+			const assetLink = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
+			resolveCache.set(specifier, assetLink);
+			return assetLink;
+		}
+		const serverLike = isServerLikeOutput(config);
+		const streaming = true;
 		super(
-			createEnvironment({
-				adapterName: manifest.adapterName,
-				logger: staticBuildOptions.logger,
-				mode: staticBuildOptions.mode,
-				renderers: manifest.renderers,
-				clientDirectives: manifest.clientDirectives,
-				compressHTML: manifest.compressHTML,
-				async resolve(specifier: string) {
-					if (resolveCache.has(specifier)) {
-						return resolveCache.get(specifier)!;
-					}
-					const hashedFilePath = manifest.entryModules[specifier];
-					if (typeof hashedFilePath !== 'string' || hashedFilePath === '') {
-						// If no "astro:scripts/before-hydration.js" script exists in the build,
-						// then we can assume that no before-hydration scripts are needed.
-						if (specifier === BEFORE_HYDRATION_SCRIPT_ID) {
-							resolveCache.set(specifier, '');
-							return '';
-						}
-						throw new Error(`Cannot find the built path for ${specifier}`);
-					}
-					const assetLink = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
-					resolveCache.set(specifier, assetLink);
-					return assetLink;
-				},
-				routeCache: staticBuildOptions.routeCache,
-				site: manifest.site,
-				ssr,
-				streaming: true,
-			})
+			options.logger,
+			manifest,
+			options.mode,
+			manifest.renderers,
+			resolve,
+			serverLike,
+			streaming
 		);
-		this.#internals = internals;
-		this.#staticBuildOptions = staticBuildOptions;
-		this.#manifest = manifest;
 	}
 
-	getInternals(): Readonly<BuildInternals> {
-		return this.#internals;
-	}
-
-	getSettings(): Readonly<AstroSettings> {
-		return this.#staticBuildOptions.settings;
-	}
-
-	getStaticBuildOptions(): Readonly<StaticBuildOptions> {
-		return this.#staticBuildOptions;
-	}
-
-	getConfig(): AstroConfig {
-		return this.#staticBuildOptions.settings.config;
-	}
-
-	getManifest(): SSRManifest {
-		return this.#manifest;
-	}
-
-	getLogger(): Logger {
-		return this.getEnvironment().logger;
+	static create({
+		internals,
+		manifest,
+		options,
+	}: Pick<BuildPipeline, 'internals' | 'manifest' | 'options'>) {
+		return new BuildPipeline(internals, manifest, options);
 	}
 
 	/**
@@ -144,6 +126,51 @@ export class BuildPipeline extends Pipeline {
 		};
 	}
 
+	headElements(routeData: RouteData): Pick<SSRResult, 'scripts' | 'styles' | 'links'> {
+		const {
+			internals,
+			manifest: { assetsPrefix, base },
+			settings,
+		} = this;
+		const links = new Set<never>();
+		const pageBuildData = getPageDataByComponent(internals, routeData.component);
+		const scripts = createModuleScriptsSet(
+			pageBuildData?.hoistedScript ? [pageBuildData.hoistedScript] : [],
+			base,
+			assetsPrefix
+		);
+		const sortedCssAssets = pageBuildData?.styles
+			.sort(cssOrder)
+			.map(({ sheet }) => sheet)
+			.reduce(mergeInlineCss, []);
+		const styles = createStylesheetElementSet(sortedCssAssets ?? [], base, assetsPrefix);
+
+		if (settings.scripts.some((script) => script.stage === 'page')) {
+			const hashedFilePath = internals.entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
+			if (typeof hashedFilePath !== 'string') {
+				throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
+			}
+			const src = createAssetLink(hashedFilePath, base, assetsPrefix);
+			scripts.add({
+				props: { type: 'module', src },
+				children: '',
+			});
+		}
+
+		// Add all injected scripts to the page.
+		for (const script of settings.scripts) {
+			if (script.stage === 'head-inline') {
+				scripts.add({
+					props: {},
+					children: script.content,
+				});
+			}
+		}
+		return { scripts, styles, links };
+	}
+
+	componentMetadata() {}
+
 	/**
 	 * It collects the routes to generate during the build.
 	 *
@@ -152,7 +179,7 @@ export class BuildPipeline extends Pipeline {
 	retrieveRoutesToGenerate(): Map<PageBuildData, string> {
 		const pages = new Map<PageBuildData, string>();
 
-		for (const [entrypoint, filePath] of this.#internals.entrySpecifierToBundleMap) {
+		for (const [entrypoint, filePath] of this.internals.entrySpecifierToBundleMap) {
 			// virtual pages can be emitted with different prefixes:
 			// - the classic way are pages emitted with prefix ASTRO_PAGE_RESOLVED_MODULE_ID -> plugin-pages
 			// - pages emitted using `build.split`, in this case pages are emitted with prefix RESOLVED_SPLIT_MODULE_ID
@@ -161,7 +188,7 @@ export class BuildPipeline extends Pipeline {
 				entrypoint.includes(RESOLVED_SPLIT_MODULE_ID)
 			) {
 				const [, pageName] = entrypoint.split(':');
-				const pageData = this.#internals.pagesByComponent.get(
+				const pageData = this.internals.pagesByComponent.get(
 					`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`
 				);
 				if (!pageData) {
@@ -174,12 +201,12 @@ export class BuildPipeline extends Pipeline {
 			}
 		}
 
-		for (const [path, pageData] of this.#internals.pagesByComponent.entries()) {
+		for (const [path, pageData] of this.internals.pagesByComponent.entries()) {
 			if (routeIsRedirect(pageData.route)) {
 				pages.set(pageData, path);
 			} else if (
 				routeIsFallback(pageData.route) &&
-				(i18nHasFallback(this.getConfig()) ||
+				(i18nHasFallback(this.config) ||
 					(routeIsFallback(pageData.route) && pageData.route.route === '/'))
 			) {
 				// The original component is transformed during the first build, so we have to retrieve
@@ -190,7 +217,7 @@ export class BuildPipeline extends Pipeline {
 				// Here, we take the component path and transform it in the virtual module name
 				const moduleSpecifier = getVirtualModulePageNameFromPath(path);
 				// We retrieve the original JS module
-				const filePath = this.#internals.entrySpecifierToBundleMap.get(moduleSpecifier);
+				const filePath = this.internals.entrySpecifierToBundleMap.get(moduleSpecifier);
 				if (filePath) {
 					// it exists, added it to pages to render, using the file path that we jus retrieved
 					pages.set(pageData, filePath);

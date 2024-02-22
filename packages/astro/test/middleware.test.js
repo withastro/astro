@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import { describe, it, before, after } from 'node:test';
-import * as cheerio from 'cheerio';
 import { existsSync, readFileSync } from 'node:fs';
+import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
