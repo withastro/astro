@@ -36,7 +36,8 @@ export class RenderContext {
 		readonly routeData: RouteData,
 		public status: number,
 		readonly cookies = new AstroCookies(request),
-		readonly params = getParams(routeData, pathname)
+		readonly params = getParams(routeData, pathname),
+		readonly url = new URL(request.url)
 	) {}
 
 	static create({
@@ -124,20 +125,18 @@ export class RenderContext {
 
 	createAPIContext(props: APIContext['props']): APIContext {
 		const renderContext = this;
-		const { cookies, i18nData, params, pipeline, request } = this;
-		const { currentLocale, preferredLocale, preferredLocaleList } = i18nData;
+		const { cookies, params, pipeline, request, url } = this;
 		const generator = `Astro v${ASTRO_VERSION}`;
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
 		const site = pipeline.site ? new URL(pipeline.site) : undefined;
-		const url = new URL(request.url);
 		return {
 			cookies,
-			currentLocale,
+			get currentLocale() { return renderContext.computeCurrentLocale() },
 			generator,
 			params,
-			preferredLocale,
-			preferredLocaleList,
+			get preferredLocale() { return renderContext.computePreferredLocale() },
+			get preferredLocaleList() { return renderContext.computePreferredLocaleList() },
 			props,
 			redirect,
 			request,
@@ -223,26 +222,28 @@ export class RenderContext {
 	 * API Context may be created multiple times per request, i18n data needs to be computed only once.
 	 * So, it is computed and saved here on creation of the first APIContext and reused for later ones.
 	 */
-	#i18nData?: Pick<APIContext, 'currentLocale' | 'preferredLocale' | 'preferredLocaleList'>;
-
-	get i18nData() {
-		if (this.#i18nData) return this.#i18nData;
-		const {
-			pipeline: { i18n },
-			request,
-			routeData,
-		} = this;
-		if (!i18n)
-			return {
-				currentLocale: undefined,
-				preferredLocale: undefined,
-				preferredLocaleList: undefined,
-			};
+	#currentLocale: APIContext['currentLocale'];
+	computeCurrentLocale() {
+		const { url, pipeline: { i18n }, routeData } = this;
+		if (!i18n) return;
 		const { defaultLocale, locales, strategy } = i18n;
-		return (this.#i18nData = {
-			currentLocale: computeCurrentLocale(routeData.route, locales, strategy, defaultLocale),
-			preferredLocale: computePreferredLocale(request, locales),
-			preferredLocaleList: computePreferredLocaleList(request, locales),
-		});
+		// TODO: we are making two calls to computeCurrentLocale(). In various cases, one works and the other doesn't.
+		// Ideally, we could use `renderContext.pathname` which is intended to be the one true "file-system-matchable" path.
+		// - Arsh
+		return this.#currentLocale ??= computeCurrentLocale(url.pathname, locales, strategy, defaultLocale) ?? computeCurrentLocale(routeData.route, locales, strategy, defaultLocale);
+	}
+
+	#preferredLocale: APIContext['preferredLocale'];
+	computePreferredLocale() {
+		const { pipeline: { i18n }, request } = this;
+		if (!i18n) return;
+		return this.#preferredLocale ??= computePreferredLocale(request, i18n.locales);
+	}
+
+	#preferredLocaleList: APIContext['preferredLocaleList'];
+	computePreferredLocaleList() {
+		const { pipeline: { i18n }, request } = this;
+		if (!i18n) return;
+		return this.#preferredLocaleList ??= computePreferredLocaleList(request, i18n.locales);
 	}
 }
