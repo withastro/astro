@@ -23,6 +23,7 @@ import { getStylesForURL } from './css.js';
 import { getComponentMetadata } from './metadata.js';
 import { createResolve } from './resolve.js';
 import { getScriptsForURL } from './scripts.js';
+import { apiRoute404 } from './response.js';
 
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
@@ -136,6 +137,9 @@ export class DevPipeline extends Pipeline {
 
 	async preload(filePath: URL) {
 		const { loader } = this;
+		if (filePath.href === new URL('astro-default-404', this.config.root).href) {
+			return { ALL: apiRoute404 } as any as ComponentInstance
+		}
 
 		// Important: This needs to happen first, in case a renderer provides polyfills.
 		const renderers__ = this.settings.renderers.map((r) => loadRenderer(r, loader));

@@ -11,7 +11,7 @@ import { matchAllRoutes } from '../core/routing/index.js';
 import { normalizeTheLocale } from '../i18n/index.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import type { DevPipeline } from './pipeline.js';
-import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
+import { apiRoute404, handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any
@@ -94,6 +94,19 @@ export async function matchRoute(
 	}
 
 	const custom404 = getCustom404Route(manifestData);
+	
+	if (custom404 && custom404.component === 'astro-default-404') {
+		const component: any = {
+			ALL: apiRoute404
+		}
+		return {
+			route: custom404,
+			filePath: new URL(`file://${custom404.component}`),
+			resolvedPathname: pathname,
+			preloadedComponent: component,
+			mod: component,
+		}
+	}
 
 	if (custom404) {
 		const filePath = new URL(`./${custom404.component}`, config.root);

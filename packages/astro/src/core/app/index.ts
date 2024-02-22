@@ -24,6 +24,7 @@ import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 import { AppPipeline } from './pipeline.js';
+import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 export { deserializeManifest } from './common.js';
 
 export interface RenderOptions {
@@ -503,22 +504,4 @@ export class App {
 			}
 		}
 	}
-}
-
-function ensure404Route(manifest: ManifestData) {
-	if (!manifest.routes.some(route => route.route === '/404')) {
-		manifest.routes.push({
-			component: 'astro-default-404',
-			generate: () => '',
-			params: [],
-			pattern: /\/404/,
-			prerender: false,
-			segments: [],
-			type: 'endpoint',
-			route: '',
-			fallbackRoutes: [],
-			isIndex: false,
-		})
-	}
-	return manifest;
 }

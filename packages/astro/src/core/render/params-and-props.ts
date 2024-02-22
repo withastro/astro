@@ -24,7 +24,7 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 		return {};
 	}
 
-	if (routeIsRedirect(route) || routeIsFallback(route)) {
+	if (routeIsRedirect(route) || routeIsFallback(route) || route.component === 'astro-default-404') {
 		return {};
 	}
 

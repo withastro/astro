@@ -13,7 +13,7 @@ describe('virtual routes - dev', () => {
         await fixture.build();
 	});
     
-    it.skip('should render a virtual route - dev', async () => {
+    it('should render a virtual route - dev', async () => {
 		const devServer = await fixture.startDevServer();
         const response = await fixture.fetch('/virtual');
         const html = await response.text();
