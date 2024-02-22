@@ -122,11 +122,7 @@ export async function createVite(
 				`${srcDirPattern}pages/**/_*.{js,mjs,ts,mts}`, // Remaining JS/TS files prefixed with `_` (not endpoints)
 				`${srcDirPattern}pages/**/_*/**/*.{js,mjs,ts,mts}`, // Remaining JS/TS files within directories prefixed with `_` (not endpoints)
 			],
-			exclude: [
-				'astro:dev-toolbar',
-				'astro/virtual-modules/prefetch.js',
-				'node-fetch'
-			],
+			exclude: ['astro', 'node-fetch'],
 		},
 		plugins: [
 			configAliasVitePlugin({ settings }),
