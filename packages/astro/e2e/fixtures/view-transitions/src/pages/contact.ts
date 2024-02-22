@@ -1,5 +1,7 @@
 import type { APIContext } from 'astro';
 
+export const prerender = false;
+
 export const POST = async ({ request, redirect }: APIContext) => {
 	const formData = await request.formData();
 	const name = formData.get('name');
