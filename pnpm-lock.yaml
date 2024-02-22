@@ -4487,7 +4487,7 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       preact-render-to-string:
-        specifier: ^6.3.1
+        specifier: ~6.3.1
         version: 6.3.1(preact@10.19.3)
       preact-ssr-prepass:
         specifier: ^1.2.1
