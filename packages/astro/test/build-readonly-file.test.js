@@ -22,7 +22,7 @@ describe('When a read-only file exists in /public (static)', () => {
 
     after(() => {
         fs.chmodSync(testFilePath, 0o666);
-        //fixture.clean()
+        fixture.clean()
     })
 });
 
