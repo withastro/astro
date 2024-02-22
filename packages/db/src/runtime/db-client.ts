@@ -1,6 +1,7 @@
 import type { InStatement } from '@libsql/client';
 import { createClient } from '@libsql/client';
 import { type DBTables } from '../core/types.js';
+import type { LibSQLDatabase} from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
 import { drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
 import { type SQLiteTable } from 'drizzle-orm/sqlite-core';
@@ -8,6 +9,8 @@ import { z } from 'zod';
 import { getTableName } from 'drizzle-orm';
 
 const isWebContainer = !!(process.versions?.webcontainer);
+
+interface LocalDatabaseClient extends LibSQLDatabase, Disposable {}
 
 export async function createLocalDatabaseClient({
 	tables,
@@ -17,10 +20,14 @@ export async function createLocalDatabaseClient({
 	dbUrl: string;
 	tables: DBTables;
 	seeding: boolean;
-}) {
+}): Promise<LocalDatabaseClient> {
 	const url = isWebContainer ? 'file:content.db' : dbUrl;
 	const client = createClient({ url });
-	const db = drizzleLibsql(client);
+	const db = Object.assign(drizzleLibsql(client), {
+		[Symbol.dispose]() {
+			client.close();
+		}
+	});
 
 	if (seeding) return db;
 

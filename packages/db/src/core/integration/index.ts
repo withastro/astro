@@ -95,7 +95,7 @@ function astroDBIntegration(): AstroIntegration {
 					await mkdir(dirname(fileURLToPath(dbUrl)), { recursive: true });
 					await writeFile(dbUrl, '');
 
-					const db = await createLocalDatabaseClient({
+					using db = await createLocalDatabaseClient({
 						tables,
 						dbUrl: dbUrl.toString(),
 						seeding: true,
