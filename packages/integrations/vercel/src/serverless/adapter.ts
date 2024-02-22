@@ -294,9 +294,9 @@ export default function vercelServerless({
 					// we create a regex to emulate vercel's production behavior
 					const exclude = exclude_.concat('/_image').map((ex) => new RegExp(escapeRegex(ex)));
 					server.middlewares.use(function removeIsrParams(req, _, next) {
-						const { pathname } = new URL(`https://example.com${req.url}`);
+						const { pathname, search } = new URL(`https://example.com${req.url}`);
 						if (exclude.some((ex) => ex.test(pathname))) return next();
-						req.url = pathname;
+						req.url = pathname  + search;
 						return next();
 					});
 				}
