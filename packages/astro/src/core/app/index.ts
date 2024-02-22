@@ -1,5 +1,5 @@
-import type { ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
+import type { ComponentInstance, ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import {
 	REROUTABLE_STATUS_CODES,
@@ -82,9 +82,9 @@ export class App {
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
-		this.#manifestData = {
+		this.#manifestData = ensure404Route({
 			routes: manifest.routes.map((route) => route.routeData),
-		};
+		});
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
 		this.#pipeline = this.#createPipeline(streaming);
 		this.#adapterLogger = new AstroIntegrationLogger(
@@ -475,6 +475,12 @@ export class App {
 	}
 
 	async #getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
+		if (route.component === 'astro-default-404') {
+			return {
+				page: async () => ({ ALL: () => new Response(null, { status: 404 }) }) as any as ComponentInstance,
+				renderers: []
+			}
+		}
 		if (route.type === 'redirect') {
 			return RedirectSinglePageBuiltModule;
 		} else {
@@ -497,4 +503,22 @@ export class App {
 			}
 		}
 	}
+}
+
+function ensure404Route(manifest: ManifestData) {
+	if (!manifest.routes.some(route => route.route === '/404')) {
+		manifest.routes.push({
+			component: 'astro-default-404',
+			generate: () => '',
+			params: [],
+			pattern: /\/404/,
+			prerender: false,
+			segments: [],
+			type: 'endpoint',
+			route: '',
+			fallbackRoutes: [],
+			isIndex: false,
+		})
+	}
+	return manifest;
 }
