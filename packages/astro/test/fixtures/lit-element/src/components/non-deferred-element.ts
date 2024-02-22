@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit';
-import { property, customElement } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 
 @customElement('non-deferred-counter')
 export class NonDeferredCounter extends LitElement {

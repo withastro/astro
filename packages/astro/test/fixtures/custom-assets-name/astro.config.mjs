@@ -1,5 +1,5 @@
-import { defineConfig } from 'astro/config';
 import path from "path";
+import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 import node from "@astrojs/node";
