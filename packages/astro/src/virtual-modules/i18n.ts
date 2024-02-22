@@ -242,7 +242,7 @@ export const pathHasLocale = (path: string) => I18nInternals.pathHasLocale(path,
  * @param {ValidRedirectStatus?} statusCode An optional status code for the redirect.
  */
 export const redirectToDefaultLocale =
-	i18n?.routing?.strategy === 'manual'
+	i18n?.routing === 'manual'
 		? I18nInternals.redirectToDefaultLocale({
 				base,
 				trailingSlash,
@@ -268,7 +268,7 @@ export const redirectToDefaultLocale =
  *
  */
 export const noFoundForNonLocaleRoute =
-	i18n?.routing?.strategy === 'manual'
+	i18n?.routing === 'manual'
 		? I18nInternals.noFoundForNonLocaleRoute({
 				base,
 				trailingSlash,
@@ -289,12 +289,10 @@ export const noFoundForNonLocaleRoute =
  *
  */
 export const requestHasLocale =
-	i18n?.routing?.strategy === 'manual'
-		? I18nInternals.requestHasLocale(locales)
-		: noop('requestHasLocale');
+	i18n?.routing === 'manual' ? I18nInternals.requestHasLocale(locales) : noop('requestHasLocale');
 
 export const useFallback: UseFallback =
-	i18n?.routing?.strategy === 'manual'
+	i18n?.routing === 'manual'
 		? I18nInternals.useFallback({
 				base,
 				trailingSlash,

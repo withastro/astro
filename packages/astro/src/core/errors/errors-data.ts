@@ -1033,7 +1033,7 @@ export const MissingIndexForInternationalization = {
 /**
  * @docs
  * @description
- *
+ * Some internationalization functions can't be exposed unless the default routing is disabled
  */
 export const IncorrectStrategy = {
 	name: 'IncorrectStrategy',

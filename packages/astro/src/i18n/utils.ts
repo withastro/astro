@@ -191,6 +191,7 @@ export function computeCurrentLocale(
 }
 
 export type RoutingStrategies =
+	| 'manual'
 	| 'pathname-prefix-always'
 	| 'pathname-prefix-other-locales'
 	| 'pathname-prefix-always-no-redirect'
@@ -201,25 +202,29 @@ export function toRoutingStrategy(i18n: NonNullable<AstroConfig['i18n']>) {
 	let { routing, domains } = i18n;
 	let strategy: RoutingStrategies;
 	const hasDomains = domains ? Object.keys(domains).length > 0 : false;
-	if (!hasDomains) {
-		if (routing?.prefixDefaultLocale === true) {
-			if (routing.redirectToDefaultLocale) {
-				strategy = 'pathname-prefix-always';
-			} else {
-				strategy = 'pathname-prefix-always-no-redirect';
-			}
-		} else {
-			strategy = 'pathname-prefix-other-locales';
-		}
+	if (routing === 'manual') {
+		strategy = 'manual';
 	} else {
-		if (routing?.prefixDefaultLocale === true) {
-			if (routing.redirectToDefaultLocale) {
-				strategy = 'domains-prefix-always';
+		if (!hasDomains) {
+			if (routing?.prefixDefaultLocale === true) {
+				if (routing.redirectToDefaultLocale) {
+					strategy = 'pathname-prefix-always';
+				} else {
+					strategy = 'pathname-prefix-always-no-redirect';
+				}
 			} else {
-				strategy = 'domains-prefix-always-no-redirect';
+				strategy = 'pathname-prefix-other-locales';
 			}
 		} else {
-			strategy = 'domains-prefix-other-locales';
+			if (routing?.prefixDefaultLocale === true) {
+				if (routing.redirectToDefaultLocale) {
+					strategy = 'domains-prefix-always';
+				} else {
+					strategy = 'domains-prefix-always-no-redirect';
+				}
+			} else {
+				strategy = 'domains-prefix-other-locales';
+			}
 		}
 	}
 

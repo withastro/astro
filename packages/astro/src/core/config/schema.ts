@@ -338,21 +338,24 @@ export const AstroConfigSchema = z.object({
 					.optional(),
 				fallback: z.record(z.string(), z.string()).optional(),
 				routing: z
-					.object({
-						prefixDefaultLocale: z.boolean().default(false),
-						redirectToDefaultLocale: z.boolean().default(true),
-						strategy: z.enum(['automatic', 'manual']).default('automatic'),
-					})
-					.default({})
-					.refine(
-						({ prefixDefaultLocale, redirectToDefaultLocale }) => {
-							return !(prefixDefaultLocale === false && redirectToDefaultLocale === false);
-						},
-						{
-							message:
-								'The option `i18n.redirectToDefaultLocale` is only useful when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change its value to `true`.',
-						}
-					),
+					.enum(['manual'])
+					.or(
+						z
+							.object({
+								prefixDefaultLocale: z.boolean().default(false),
+								redirectToDefaultLocale: z.boolean().default(true),
+							})
+							.refine(
+								({ prefixDefaultLocale, redirectToDefaultLocale }) => {
+									return !(prefixDefaultLocale === false && redirectToDefaultLocale === false);
+								},
+								{
+									message:
+										'The option `i18n.redirectToDefaultLocale` is only useful when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change its value to `true`.',
+								}
+							)
+					)
+					.default({}),
 			})
 			.optional()
 			.superRefine((i18n, ctx) => {
