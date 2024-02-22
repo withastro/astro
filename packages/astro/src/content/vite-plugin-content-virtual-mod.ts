@@ -68,7 +68,14 @@ export function astroContentVirtualModPlugin({
 					fs,
 				});
 				const isClient = !args?.ssr;
-				const code = await generateContentEntryFile({ settings, fs, lookupMap, IS_DEV, IS_SERVER, isClient });
+				const code = await generateContentEntryFile({
+					settings,
+					fs,
+					lookupMap,
+					IS_DEV,
+					IS_SERVER,
+					isClient,
+				});
 
 				return {
 					code,
@@ -103,7 +110,7 @@ export async function generateContentEntryFile({
 	lookupMap,
 	IS_DEV,
 	IS_SERVER,
-	isClient
+	isClient,
 }: {
 	settings: AstroSettings;
 	fs: typeof nodeFs;
@@ -146,15 +153,18 @@ export async function generateContentEntryFile({
 		renderEntryGlobResult = getStringifiedCollectionFromLookup('render', relContentDir, lookupMap);
 	}
 
-	let virtualModContents = nodeFs
-		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
-		.replace('@@CONTENT_DIR@@', relContentDir)
-		.replace("'@@CONTENT_ENTRY_GLOB_PATH@@'", contentEntryGlobResult)
-		.replace("'@@DATA_ENTRY_GLOB_PATH@@'", dataEntryGlobResult)
-		.replace("'@@RENDER_ENTRY_GLOB_PATH@@'", renderEntryGlobResult)
-		.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`) +
-		(isClient ? `
-console.warn('astro:content is only supported running server-side. Using it in the browser will lead to bloated bundles and slow down page load. In the future it will not be supported.');` : '');
+	let virtualModContents =
+		nodeFs
+			.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
+			.replace('@@CONTENT_DIR@@', relContentDir)
+			.replace("'@@CONTENT_ENTRY_GLOB_PATH@@'", contentEntryGlobResult)
+			.replace("'@@DATA_ENTRY_GLOB_PATH@@'", dataEntryGlobResult)
+			.replace("'@@RENDER_ENTRY_GLOB_PATH@@'", renderEntryGlobResult)
+			.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`) +
+		(isClient
+			? `
+console.warn('astro:content is only supported running server-side. Using it in the browser will lead to bloated bundles and slow down page load. In the future it will not be supported.');`
+			: '');
 
 	return virtualModContents;
 }
