@@ -6,7 +6,7 @@ import {
 } from '../../dist/core/cli/migration-queries.js';
 import { getCreateTableQuery } from '../../dist/core/queries.js';
 import { column, defineReadableTable, collectionSchema } from '../../dist/core/types.js';
-import { NOW, sql } from '../../dist/runtime/index.js';
+import { NOW } from '../../dist/runtime/index.js';
 
 const COLLECTION_NAME = 'Users';
 
@@ -444,5 +444,6 @@ describe('column queries', () => {
 
 /** @param {string} query */
 function getTempTableName(query) {
-	return query.match(/Users_([a-z0-9]+)/)?.[0];
+	// eslint-disable-next-line regexp/no-unused-capturing-group
+	return query.match(/Users_([a-z\d]+)/)?.[0];
 }

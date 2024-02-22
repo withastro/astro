@@ -10,7 +10,7 @@ import {
 	type NumberColumn,
 	type TextColumn,
 } from '../core/types.js';
-import { bold, red } from 'kleur/colors';
+import { bold } from 'kleur/colors';
 import { type SQL, sql, getTableName } from 'drizzle-orm';
 import { SQLiteAsyncDialect, type SQLiteInsert } from 'drizzle-orm/sqlite-core';
 import type { AstroIntegrationLogger } from 'astro';

@@ -6,18 +6,19 @@ import { bold, cyan } from 'kleur/colors';
 import { normalizePath } from 'vite';
 import { DB_TYPES_FILE } from '../consts.js';
 import type { VitePlugin } from '../utils.js';
+import type { AstroIntegrationLogger } from 'astro';
 
-export function vitePluginInjectEnvTs({ srcDir, root }: { srcDir: URL; root: URL }): VitePlugin {
+export function vitePluginInjectEnvTs({ srcDir, root }: { srcDir: URL; root: URL }, logger: AstroIntegrationLogger): VitePlugin {
 	return {
 		name: 'db-inject-env-ts',
 		enforce: 'post',
 		async config() {
-			await setUpEnvTs({ srcDir, root });
+			await setUpEnvTs({ srcDir, root, logger });
 		},
 	};
 }
 
-export async function setUpEnvTs({ srcDir, root }: { srcDir: URL; root: URL }) {
+export async function setUpEnvTs({ srcDir, root, logger }: { srcDir: URL; root: URL; logger: AstroIntegrationLogger }) {
 	const envTsPath = getEnvTsPath({ srcDir });
 	const envTsPathRelativetoRoot = normalizePath(
 		path.relative(fileURLToPath(root), fileURLToPath(envTsPath))
@@ -34,7 +35,7 @@ export async function setUpEnvTs({ srcDir, root }: { srcDir: URL; root: URL }) {
 		if (!typesEnvContents.includes(dbTypeReference)) {
 			typesEnvContents = `${dbTypeReference}\n${typesEnvContents}`;
 			await writeFile(envTsPath, typesEnvContents, 'utf-8');
-			console.info(`${cyan(bold('[astro:db]'))} Added ${bold(envTsPathRelativetoRoot)} types`);
+			logger.info(`${cyan(bold('[astro:db]'))} Added ${bold(envTsPathRelativetoRoot)} types`);
 		}
 	}
 }

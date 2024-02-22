@@ -1,6 +1,6 @@
 import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
 import { type DBTable, type DBColumn } from '../core/types.js';
-import { type ColumnBuilderBaseConfig, type ColumnDataType, sql, SQL } from 'drizzle-orm';
+import { type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
 import {
 	customType,
 	integer,

@@ -29,7 +29,7 @@ function astroDBIntegration(): AstroIntegration {
 	return {
 		name: 'astro:db',
 		hooks: {
-			'astro:config:setup': async ({ updateConfig, config, command: _command }) => {
+			'astro:config:setup': async ({ updateConfig, config, command: _command, logger }) => {
 				command = _command;
 				if (_command === 'preview') return;
 
@@ -58,7 +58,7 @@ function astroDBIntegration(): AstroIntegration {
 						assetsInclude: [DB_PATH],
 						plugins: [
 							dbPlugin,
-							vitePluginInjectEnvTs(config),
+							vitePluginInjectEnvTs(config, logger),
 						],
 					},
 				});

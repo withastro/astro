@@ -173,5 +173,6 @@ describe('reference queries', () => {
 
 /** @param {string | undefined} query */
 function getTempTableName(query) {
-	return query.match(/User_([a-z0-9]+)/)?.[0];
+	// eslint-disable-next-line regexp/no-unused-capturing-group
+	return query.match(/User_([a-z\d]+)/)?.[0];
 }
