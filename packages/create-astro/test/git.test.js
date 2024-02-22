@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { describe, it, before, after } from 'node:test';
-import { mkdir, writeFile } from 'node:fs/promises';
 import { rmSync } from 'node:fs';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { after, before, describe, it } from 'node:test';
 
 import { git } from '../dist/index.js';
 import { setup } from './utils.js';

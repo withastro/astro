@@ -1,10 +1,10 @@
 import type http from 'node:http';
-import type { ManifestData, SSRManifest } from '../@types/astro.js';
+import type { ManifestData } from '../@types/astro.js';
 import { collapseDuplicateSlashes, removeTrailingForwardSlash } from '../core/path.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import type { DevServerController } from './controller.js';
 import { runWithErrorHandling } from './controller.js';
-import type DevPipeline from './devPipeline.js';
+import type { DevPipeline } from './pipeline.js';
 import { handle500Response } from './response.js';
 import { handleRoute, matchRoute } from './route.js';
 import { recordServerError } from './error.js';
@@ -15,7 +15,6 @@ type HandleRequest = {
 	controller: DevServerController;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
-	manifest: SSRManifest;
 };
 
 /** The main logic to route dev server requests to pages in Astro. */
@@ -25,11 +24,9 @@ export async function handleRequest({
 	controller,
 	incomingRequest,
 	incomingResponse,
-	manifest,
 }: HandleRequest) {
-	const config = pipeline.getConfig();
-	const moduleLoader = pipeline.getModuleLoader();
-	const origin = `${moduleLoader.isHttps() ? 'https' : 'http'}://${incomingRequest.headers.host}`;
+	const { config, loader } = pipeline;
+	const origin = `${loader.isHttps() ? 'https' : 'http'}://${incomingRequest.headers.host}`;
 	const buildingToSSR = isServerLikeOutput(config);
 
 	const url = new URL(collapseDuplicateSlashes(origin + incomingRequest.url));
@@ -82,12 +79,11 @@ export async function handleRequest({
 				manifestData,
 				incomingRequest: incomingRequest,
 				incomingResponse: incomingResponse,
-				manifest,
 			});
 		},
 		onError(_err) {
-			const { error, errorWithMetadata } = recordServerError(moduleLoader, config, pipeline, _err);
-			handle500Response(moduleLoader, incomingResponse, errorWithMetadata);
+			const { error, errorWithMetadata } = recordServerError(loader, config, pipeline, _err);
+			handle500Response(loader, incomingResponse, errorWithMetadata);
 			return error;
 		},
 	});

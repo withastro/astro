@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { describe, it, before } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { createMarkdownProcessor } from '../dist/index.js';
 
 describe('entities', async () => {
