@@ -1,5 +1,5 @@
 import * as assert from 'node:assert/strict';
-import { describe, it, before } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { TLSSocket } from 'node:tls';
 import nodejs from '../dist/index.js';
 import { createRequestAndResponse, loadFixture } from './test-utils.js';

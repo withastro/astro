@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createMarkdownProcessor } from '../dist/index.js';
 import { fileURLToPath } from 'node:url';
+import { createMarkdownProcessor } from '../dist/index.js';
 
 describe('plugins', () => {
 	it('should be able to get file path when passing fileURL', async () => {

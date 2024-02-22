@@ -94,6 +94,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						.map((p) => {
 							if (p.pathname !== '' && !finalSiteUrl.pathname.endsWith('/'))
 								finalSiteUrl.pathname += '/';
+							if (p.pathname.startsWith('/')) p.pathname = p.pathname.slice(1);
 							const fullPath = finalSiteUrl.pathname + p.pathname;
 							return new URL(fullPath, finalSiteUrl).href;
 						});

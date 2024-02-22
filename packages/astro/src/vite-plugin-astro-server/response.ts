@@ -83,9 +83,8 @@ export async function writeWebResponse(res: http.ServerResponse, webResponse: Re
 		} else {
 			const reader = body.getReader();
 			res.on('close', () => {
-				reader.cancel().catch((error: unknown) => {
-					// eslint-disable-next-line no-console
-					console.error('An unexpected error occurred in the middle of the stream.', error);
+				reader.cancel().catch(() => {
+					// Don't log here, or errors will get logged twice in most cases
 				});
 			});
 			while (true) {
