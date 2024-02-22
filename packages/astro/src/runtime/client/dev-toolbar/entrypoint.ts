@@ -223,11 +223,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 						if (!(evt instanceof CustomEvent)) return;
 
 						notification.toggleAttribute('data-active', evt.detail.state ?? true);
+						notification.toggleAttribute('data-level', evt.detail.level ?? 'error');
 
 						eventTarget.dispatchEvent(
 							new CustomEvent('toggle-notification', {
 								detail: {
 									state: hiddenApps.some((p) => p.notification.state === true),
+									// Find the highest level of notification
+									level: hiddenApps.reduce((acc, p) => {
+										if (p.notification.state) {
+											if (p.notification.level === 'error') {
+												return 'error';
+											}
+											if (p.notification.level === 'warning' && acc !== 'error') {
+												return 'warning';
+											}
+											if (p.notification.level === 'info' && acc !== 'error' && acc !== 'warning') {
+												return 'info';
+											}
+										}
+										return acc;
+									}),
 								},
 							})
 						);

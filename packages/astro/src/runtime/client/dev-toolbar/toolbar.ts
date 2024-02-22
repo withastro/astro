@@ -9,6 +9,7 @@ export type DevToolbarApp = DevToolbarAppDefinition & {
 	status: 'ready' | 'loading' | 'error';
 	notification: {
 		state: boolean;
+		level: 'error' | 'warn' | 'info';
 	};
 	eventTarget: EventTarget;
 };
@@ -187,8 +188,16 @@ export class AstroDevToolbar extends HTMLElement {
 				}
 			}
 
-			#dev-bar #bar-container .item.active .notification {
+			#dev-bar #bar-container .item.active .notification-error {
 				border-color: rgba(71, 78, 94, 1);
+			}
+
+			#dev-bar #bar-container .item.active .notification-warn {
+				border-color: #FFC107;
+			}
+
+			#dev-bar #bar-container .item.active .notification-info {
+				border-color: #007BFF;
 			}
 
 			#dev-bar .item .icon {
