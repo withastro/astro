@@ -6,7 +6,7 @@ import { isObject } from '../util.js';
 import { getAssetsPrefix } from '../../assets/utils/transformToPath.js';
 
 export function createAssetLink(href: string, base?: string, assetsPrefix?: AssetsPrefix): string {
-	if (typeof assetsPrefix === "string") {
+	if (assetsPrefix && typeof assetsPrefix === "string") {
 		return joinPaths(assetsPrefix, slash(href));
 	} else if (isObject(assetsPrefix)) {
 		const fileType = getFileExtension(href)
