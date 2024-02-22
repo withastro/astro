@@ -41,14 +41,10 @@ export function astroContentVirtualModPlugin({
 	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
 	let IS_DEV = false;
-	let command: 'build' | 'serve';
 	const IS_SERVER = isServerLikeOutput(settings.config);
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
-		config(_, { command: _command }) {
-			command = _command;
-		},
 		configResolved(config) {
 			IS_DEV = config.mode === 'development';
 		},
@@ -71,7 +67,7 @@ export function astroContentVirtualModPlugin({
 					settings,
 					fs,
 				});
-				const isClient = !args?.ssr && command === 'serve';
+				const isClient = !args?.ssr;
 				const code = await generateContentEntryFile({ settings, fs, lookupMap, IS_DEV, IS_SERVER, isClient });
 
 				return {
