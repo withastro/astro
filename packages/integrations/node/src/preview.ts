@@ -36,8 +36,8 @@ const createPreviewServer: CreatePreviewServer = async function (preview) {
 	const host = preview.host ?? 'localhost';
 	const port = preview.port ?? 4321;
 	const server = createServer(ssrHandler, host, port);
-	// If user specified custom headers at config append a
-	// listener to add those headers to the response
+	// If user specified custom headers append listener
+	// to the server to add those headers to the response
 	if (preview.headers) {
 		server.server.addListener('request', (req, res) => {
 			if (res.statusCode === 200) {
