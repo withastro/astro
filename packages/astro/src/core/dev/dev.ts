@@ -11,7 +11,6 @@ import * as msg from '../messages.js';
 import { startContainer } from './container.js';
 import { createContainerWithAutomaticRestart } from './restart.js';
 import { ensureProcessNodeEnv } from '../util.js';
-import { injectDts } from '../../config/types.js';
 
 export interface DevServer {
 	address: AddressInfo;
@@ -55,7 +54,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		logger.warn('SKIP_FORMAT', msg.fsStrictWarning());
 	}
 
-	await attachContentServerListeners({ ...restart.container, injectDts });
+	await attachContentServerListeners(restart.container);
 
 	logger.info(null, green('watching for file changes...'));
 
