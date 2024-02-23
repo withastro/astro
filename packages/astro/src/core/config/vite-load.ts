@@ -1,10 +1,8 @@
 import type fsType from 'node:fs';
-import { writeFileSync, existsSync, readFileSync } from 'node:fs';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import { createServer, type ViteDevServer } from 'vite';
 import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
 import { debug } from '../logger/core.js';
-import { resolveDirAsUrl } from '../util.js';
 
 async function createViteServer(root: string, fs: typeof fsType): Promise<ViteDevServer> {
 	const viteServer = await createServer({
@@ -51,27 +49,16 @@ export async function loadConfigWithVite({
 			debug('Failed to load config with Node', e);
 		}
 	}
-	const tsconfigPath = fileURLToPath(new URL('tsconfig.json', resolveDirAsUrl('.', root)));
-	const tsconfigExists = existsSync(tsconfigPath)
-	let tsconfigContent: string | undefined = undefined;;
 
 	// Try Loading with Vite
 	let server: ViteDevServer | undefined;
 	try {
-		if (tsconfigExists) {
-			tsconfigContent = readFileSync(tsconfigPath, 'utf-8')
-			writeFileSync(tsconfigPath, '{}', 'utf-8')
-		}
-
 		server = await createViteServer(root, fs);
 		const mod = await server.ssrLoadModule(configPath, { fixStacktrace: true });
 		return mod.default ?? {};
 	} finally {
 		if (server) {
 			await server.close();
-		}
-		if (tsconfigExists && tsconfigContent) {
-			writeFileSync(tsconfigPath, tsconfigContent, 'utf-8')
 		}
 	}
 }
