@@ -40,6 +40,7 @@ export const collectionConfigParser = z.union([
 	}),
 ]);
 
+// TODO: extract reference logic
 export function getDotAstroTypeReference({ codegenDir, srcDir }: { codegenDir: URL; srcDir: URL }) {
 	const contentTypesRelativeToSrcDir = normalizePath(
 		path.relative(fileURLToPath(srcDir), fileURLToPath(new URL(CONTENT_TYPES_FILE, codegenDir)))

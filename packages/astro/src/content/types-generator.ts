@@ -4,7 +4,7 @@ import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { normalizePath, type ViteDevServer } from 'vite';
-import type { AstroConfig, AstroSettings, ContentEntryType, InjectedDts } from '../@types/astro.js';
+import type { AstroSettings, ContentEntryType, InjectedDts } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
@@ -315,7 +315,7 @@ export async function createContentTypesGenerator({
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
 				contentEntryTypes: settings.contentEntryTypes,
 				viteServer,
-				codegenDir: settings.config.codegenDir,
+				codegenDir: settings.codegenDir,
 				injectDts
 			});
 			invalidateVirtualMod(viteServer);
@@ -367,7 +367,7 @@ async function writeContentFiles({
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
 	viteServer: Pick<ViteDevServer, 'hot'>;
-	codegenDir: AstroConfig['codegenDir'];
+	codegenDir: AstroSettings['codegenDir'];
 	injectDts: (dts: InjectedDts) => void
 }) {
 	let contentTypesStr = '';

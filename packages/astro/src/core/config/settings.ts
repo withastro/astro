@@ -14,7 +14,8 @@ import { loadTSConfig } from './tsconfig.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	const { contentDir } = getContentPaths(config);
-	const preferences = createPreferences(config);
+	const codegenDir = new URL('./.astro', config.root);
+	const preferences = createPreferences(config, { codegenDir });
 	return {
 		config,
 		preferences,
@@ -104,7 +105,8 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		watchFiles: [],
 		devToolbarApps: [],
 		timer: new AstroTimer(),
-		injectedDts: []
+		injectedDts: [],
+		codegenDir,
 	};
 }
 

@@ -53,8 +53,8 @@ export default async function sync(
 	const _settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	// We create the codegenDir so that integrations do not have to
-	if (!fsMod.existsSync(astroConfig.codegenDir)) {
-		fsMod.mkdirSync(astroConfig.codegenDir, { recursive: true });
+	if (!fsMod.existsSync(_settings.codegenDir)) {
+		fsMod.mkdirSync(_settings.codegenDir, { recursive: true });
 	}
 
 	const settings = await runHookConfigSetup({
@@ -126,7 +126,7 @@ export async function syncInternal(
 			viteServer: tempViteServer,
 			prepareDts: (filename) =>
 				settings.injectedDts.push({ filename, content: '', source: 'core' }),
-			injectDts: (dts) => injectDts({ ...dts, codegenDir: settings.config.codegenDir }),
+			injectDts: (dts) => injectDts({ ...dts, codegenDir: settings.codegenDir }),
 		});
 		await handleDtsInjection(settings);
 
@@ -166,9 +166,9 @@ export async function syncInternal(
 	return 0;
 }
 
-async function handleDtsInjection({ config, injectedDts }: AstroSettings) {
+async function handleDtsInjection({ codegenDir, injectedDts }: AstroSettings) {
 	injectDts({
-		codegenDir: config.codegenDir,
+		codegenDir,
 		// TODO: change to astro.d.ts in Astro 5
 		filename: 'types.d.ts',
 		content: `/// <reference types="astro/client" />
@@ -181,6 +181,6 @@ export {};
 	});
 
 	for (const dts of injectedDts) {
-		injectDts({ codegenDir: config.codegenDir, ...dts });
+		injectDts({ codegenDir, ...dts });
 	}
 }

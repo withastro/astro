@@ -1,4 +1,4 @@
-import type { AstroConfig } from '../@types/astro.js';
+import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 
 import os from 'node:os';
 import path from 'node:path';
@@ -74,9 +74,9 @@ export function coerce(key: string, value: unknown) {
 	return value as any;
 }
 
-export default function createPreferences(config: AstroConfig): AstroPreferences {
+export default function createPreferences(config: AstroConfig, { codegenDir }: Pick<AstroSettings, "codegenDir">): AstroPreferences {
 	const global = new PreferenceStore(getGlobalPreferenceDir());
-	const project = new PreferenceStore(fileURLToPath(config.codegenDir));
+	const project = new PreferenceStore(fileURLToPath(codegenDir));
 	const stores: Record<PreferenceLocation, PreferenceStore> = { global, project };
 
 	return {

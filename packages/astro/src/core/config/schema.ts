@@ -29,7 +29,6 @@ const ASTRO_CONFIG_DEFAULTS = {
 	publicDir: './public',
 	outDir: './dist',
 	cacheDir: './node_modules/.astro',
-	codegenDir: './.astro',
 	base: '/',
 	trailingSlash: 'ignore',
 	build: {
@@ -65,7 +64,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 		globalRoutePriority: false,
 		i18nDomains: false,
 	},
-} satisfies AstroUserConfig & { server: { open: boolean }; codegenDir: string };
+} satisfies AstroUserConfig & { server: { open: boolean } };
 
 export const AstroConfigSchema = z.object({
 	root: z
@@ -92,11 +91,6 @@ export const AstroConfigSchema = z.object({
 		.string()
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.cacheDir)
-		.transform((val) => new URL(val)),
-	codegenDir: z
-		.string()
-		.optional()
-		.default(ASTRO_CONFIG_DEFAULTS.codegenDir)
 		.transform((val) => new URL(val)),
 	site: z.string().url().optional(),
 	compressHTML: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.compressHTML),
@@ -497,10 +491,6 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		cacheDir: z
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.cacheDir)
-			.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
-		codegenDir: z
-			.string()
-			.default(ASTRO_CONFIG_DEFAULTS.codegenDir)
 			.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 		build: z
 			.object({

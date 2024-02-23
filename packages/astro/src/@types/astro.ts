@@ -1944,6 +1944,7 @@ export interface AstroSettings {
 	watchFiles: string[];
 	timer: AstroTimer;
 	injectedDts: InjectedDts[];
+	codegenDir: URL;
 }
 
 export type AsyncRendererComponentFn<U> = (

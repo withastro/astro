@@ -41,7 +41,10 @@ export async function setUpEnvTs({
 	fs: typeof fsMod;
 }) {
 	const envTsPath = getEnvTsPath(settings.config);
-	const dotAstroTypeReference = getDotAstroTypeReference(settings.config);
+	const dotAstroTypeReference = getDotAstroTypeReference({
+		srcDir: settings.config.srcDir,
+		codegenDir: settings.codegenDir,
+	});
 	const envTsPathRelativetoRoot = normalizePath(
 		path.relative(fileURLToPath(settings.config.root), fileURLToPath(envTsPath))
 	);
@@ -49,13 +52,12 @@ export async function setUpEnvTs({
 	if (fs.existsSync(envTsPath)) {
 		let typesEnvContents = await fs.promises.readFile(envTsPath, 'utf-8');
 
-		if (!fs.existsSync(settings.config.codegenDir))
+		if (!fs.existsSync(settings.codegenDir))
 			// Add `.astro` types reference if none exists
 			return;
-		const expectedTypeReference = getDotAstroTypeReference(settings.config);
 
-		if (!typesEnvContents.includes(expectedTypeReference)) {
-			typesEnvContents = `${expectedTypeReference}\n${typesEnvContents}`;
+		if (!typesEnvContents.includes(dotAstroTypeReference)) {
+			typesEnvContents = `${dotAstroTypeReference}\n${typesEnvContents}`;
 			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
 			logger.info('types', `Added ${bold(envTsPathRelativetoRoot)} type declarations`);
 		}
@@ -64,7 +66,7 @@ export async function setUpEnvTs({
 		let referenceDefs: string[] = [];
 		referenceDefs.push('/// <reference types="astro/client" />');
 
-		if (fs.existsSync(settings.config.codegenDir)) {
+		if (fs.existsSync(settings.codegenDir)) {
 			referenceDefs.push(dotAstroTypeReference);
 		}
 
