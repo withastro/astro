@@ -40,17 +40,6 @@ export async function handleRequest({
 	// Add config.base back to url before passing it to SSR
 	url.pathname = removeTrailingForwardSlash(config.base) + url.pathname;
 
-	// HACK! astro:assets uses query params for the injected route in `dev`
-	if (!buildingToSSR && pathname !== '/_image') {
-		// Prevent user from depending on search params when not doing SSR.
-		// NOTE: Create an array copy here because deleting-while-iterating
-		// creates bugs where not all search params are removed.
-		const allSearchParams = Array.from(url.searchParams);
-		for (const [key] of allSearchParams) {
-			url.searchParams.delete(key);
-		}
-	}
-
 	let body: ArrayBuffer | undefined = undefined;
 	if (!(incomingRequest.method === 'GET' || incomingRequest.method === 'HEAD')) {
 		let bytes: Uint8Array[] = [];
