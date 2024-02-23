@@ -4,7 +4,7 @@ import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { createServer, type HMRPayload } from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
-import { CODEGENDIR_BASE_DTS_FILE, injectDts } from '../../config/types.js';
+import { CODEGENDIR_BASE_DTS_FILE, ensureCodegenDirExists, injectDts } from '../../config/types.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
@@ -105,9 +105,6 @@ export async function syncInternal(
 		)
 	);
 
-	// This is needed when syncInternal is called directly
-	ensureCodegenDirExists(settings.codegenDir);
-
 	// Patch `hot.send` to bubble up error events
 	// `hot.on('error')` does not fire for some reason
 	const hotSend = tempViteServer.hot.send;
@@ -182,11 +179,5 @@ export {};
 
 	for (const dts of injectedDts) {
 		injectDts({ codegenDir, ...dts });
-	}
-}
-
-function ensureCodegenDirExists(codegenDir: URL) {
-	if (!fsMod.existsSync(codegenDir)) {
-		fsMod.mkdirSync(codegenDir, { recursive: true });
 	}
 }

@@ -1,4 +1,4 @@
-import { writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import type { AstroSettings, InjectedDts } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 
@@ -19,5 +19,12 @@ export function injectDts({
 		throw new AstroError(AstroErrorData.InvalidInjectTypesFilename);
 	}
 
+	ensureCodegenDirExists(codegenDir);
 	writeFileSync(new URL(filename, codegenDir), content);
+}
+
+export function ensureCodegenDirExists(codegenDir: URL) {
+	if (!existsSync(codegenDir)) {
+		mkdirSync(codegenDir, { recursive: true });
+	}
 }
