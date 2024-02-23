@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Prevent errors in templates from crashing the dev server
+Prevents errors in templates from crashing the server
