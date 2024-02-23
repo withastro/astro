@@ -79,11 +79,9 @@ export function shouldInlineAsset(
 		const result = assetsInlineLimit(assetPath, Buffer.from(assetContent));
 		if (result != null) {
 			return result;
+		} else {
+			return Buffer.byteLength(assetContent) < 4096; // Fallback to 4096kb by default (same as Vite)
 		}
 	}
-	if (typeof assetsInlineLimit === 'number' || typeof assetsInlineLimit === 'string') {
-		return Buffer.byteLength(assetContent) < Number(assetsInlineLimit);
-	}
-
-	return Buffer.byteLength(assetContent) < 4096; // Fallback to 4096kb by default (same as Vite)
+	return Buffer.byteLength(assetContent) < Number(assetsInlineLimit);
 }
