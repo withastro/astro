@@ -32,6 +32,7 @@ async function checkExamples() {
 			limit(
 				() =>
 					new Promise(async (resolve) => {
+						console.log(`Checking ${example.name}...`)
 						// Sometimes some examples may get deleted, but after a `git pull` the directory still exists.
 						// This can stall the process time as it'll typecheck the entire monorepo, so do a quick exist
 						// check here before typechecking this directory.
@@ -117,12 +118,8 @@ async function prepareExample(examplePath) {
 	}
 
 	const rawTsConfig = (tsconfig.extended ?? [])[0]
-	/** @type {Array<string>} */
-	const extendsFields = rawTsConfig.tsconfig.extends
-	extendsFields.map(e =>
-		e.replace('astro/tsconfig/base', 'astro/tsconfigs/strictest')
+	rawTsConfig.tsconfig.extends = rawTsConfig.tsconfig.extends.replace('astro/tsconfig/base', 'astro/tsconfigs/strictest')
 		.replace('astro/tsconfigs/strict', 'astro/tsconfigs/strictest')
-	)
 
 	originalConfig = readFileSync(tsconfigPath).toString();
 	

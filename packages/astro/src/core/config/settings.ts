@@ -14,7 +14,7 @@ import { loadTSConfig } from './tsconfig.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	const { contentDir } = getContentPaths(config);
-	const codegenDir = new URL('./.astro', config.root);
+	const codegenDir = new URL('./.astro/', config.root);
 	const preferences = createPreferences(config, { codegenDir });
 	return {
 		config,
