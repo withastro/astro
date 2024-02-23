@@ -3,6 +3,7 @@ import Layout from '../components/Layout.astro';
 const method = Astro.url.searchParams.get('method') ?? 'POST';
 const enctype = Astro.url.searchParams.get('enctype');
 const postShowThrow = Astro.url.searchParams.has('throw') ?? false;
+export const prerender = false;
 ---
 
 <Layout>
