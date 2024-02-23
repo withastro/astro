@@ -7,6 +7,7 @@ on:
       - "main"
     paths:
       - "packages/astro/src/runtime/client/**/*"
+      - "!packages/astro/src/runtime/client/dev-toolbar/**/*"
 
 # Automatically cancel in-progress actions on the same branch
 concurrency:
