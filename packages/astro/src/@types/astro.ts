@@ -2537,6 +2537,7 @@ export interface AstroIntegration {
 			addMiddleware: (mid: AstroIntegrationMiddleware) => void;
 			logger: AstroIntegrationLogger;
 			injectDts: (dts: Omit<InjectedDts, 'source'>) => void;
+			codegenDir: URL;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
 			// more generalized. Consider the SSR use-case as well.

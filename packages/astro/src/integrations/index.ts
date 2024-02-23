@@ -187,6 +187,7 @@ export async function runHookConfigSetup({
 					}
 					updatedSettings.injectedDts.push({ ...dts, source: 'integration' });
 				},
+				codegenDir: updatedSettings.codegenDir,
 			};
 
 			// ---
