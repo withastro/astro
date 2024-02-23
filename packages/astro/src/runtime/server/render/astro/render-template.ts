@@ -24,6 +24,7 @@ export class RenderTemplateResult {
 				return Promise.resolve(expression).catch((err) => {
 					if (!this.error) {
 						this.error = err;
+						return err;
 					}
 				});
 			}
@@ -35,9 +36,13 @@ export class RenderTemplateResult {
 		// Render all expressions eagerly and in parallel
 		const expRenders = this.expressions.map((exp) => {
 			return renderToBufferDestination((bufferDestination) => {
-				// If there's an error, render that (will be caught upstream)
-				if(this.error) {
-					return renderChild(bufferDestination, this.error);
+				if(isPromise(exp)) {
+					return Promise.resolve(exp).then(value => {
+						if(value instanceof Error) {
+							value = Promise.reject(value);
+						}
+						return renderChild(bufferDestination, value);
+					});
 				}
 
 				// Skip render if falsy, except the number 0
