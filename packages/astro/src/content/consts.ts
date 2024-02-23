@@ -16,4 +16,4 @@ export const CONTENT_FLAGS = [
 	PROPAGATED_ASSET_FLAG,
 ] as const;
 
-export const CONTENT_TYPES_FILE = 'types.d.ts';
+export const CONTENT_TYPES_FILE = 'content.d.ts';

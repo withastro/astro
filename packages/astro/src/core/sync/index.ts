@@ -2,8 +2,9 @@ import { dim } from 'kleur/colors';
 import fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import { createServer, normalizePath, type HMRPayload } from 'vite';
+import { createServer, type HMRPayload } from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
+import { injectDts } from '../../config/types.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
@@ -20,10 +21,6 @@ import { AstroError, AstroErrorData, createSafeError, isAstroError } from '../er
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
-import { loadTSConfig } from '../config/tsconfig.js';
-import { dirname, relative } from 'node:path';
-import { isRelativePath, removeTrailingForwardSlash } from '../path.js';
-import { injectDts } from '../../config/types.js';
 
 export type ProcessExit = 0 | 1;
 
@@ -55,19 +52,7 @@ export default async function sync(
 
 	const _settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
-	// TODO: refactor
-	let rawTsConfigPath = getRelativePath(
-		astroConfig.root,
-		new URL('tsconfig.json', astroConfig.codegenDir)
-	);
-	if (!isRelativePath(rawTsConfigPath)) {
-		rawTsConfigPath = `./${rawTsConfigPath}`;
-	}
-	const tsconfigPath = fileURLToPath(new URL(rawTsConfigPath, astroConfig.root));
-
-	fsMod.mkdirSync(dirname(tsconfigPath), { recursive: true });
-	fsMod.writeFileSync(tsconfigPath, '{}', 'utf-8');
-
+	// We create the codegenDir so that integrations do not have to
 	if (!fsMod.existsSync(astroConfig.codegenDir)) {
 		fsMod.mkdirSync(astroConfig.codegenDir, { recursive: true });
 	}
@@ -77,8 +62,6 @@ export default async function sync(
 		logger: logger,
 		command: 'build',
 	});
-
-	fsMod.unlinkSync(tsconfigPath);
 
 	try {
 		return await syncInternal(settings, { ...options, logger });
@@ -111,7 +94,6 @@ export async function syncInternal(
 	{ logger, fs }: SyncInternalOptions
 ): Promise<ProcessExit> {
 	const timerStart = performance.now();
-
 	// Needed to load content config
 	const tempViteServer = await createServer(
 		await createVite(
@@ -138,7 +120,7 @@ export async function syncInternal(
 	try {
 		const contentTypesGenerator = await createContentTypesGenerator({
 			contentConfigObserver: globalContentConfigObserver,
-			logger: logger,
+			logger,
 			fs: fs ?? fsMod,
 			settings,
 			viteServer: tempViteServer,
@@ -146,7 +128,7 @@ export async function syncInternal(
 				settings.injectedDts.push({ filename, content: '', source: 'core' }),
 			injectDts: (dts) => injectDts({ ...dts, codegenDir: settings.config.codegenDir }),
 		});
-		await handleTypescriptConfig(settings, logger);
+		await handleDtsInjection(settings);
 
 		const typesResult = await contentTypesGenerator.init();
 		const contentConfig = globalContentConfigObserver.get();
@@ -184,89 +166,11 @@ export async function syncInternal(
 	return 0;
 }
 
-function getRelativePath(a: URL, b: URL) {
-	return normalizePath(relative(fileURLToPath(a), fileURLToPath(b)));
-}
-
-async function handleTypescriptConfig({ config, injectedDts }: AstroSettings, logger: Logger) {
-	let rawTsConfigPath = getRelativePath(config.root, new URL('tsconfig.json', config.codegenDir));
-	if (!isRelativePath(rawTsConfigPath)) {
-		rawTsConfigPath = `./${rawTsConfigPath}`;
-	}
-	const tsconfigPath = fileURLToPath(new URL(rawTsConfigPath, config.root));
-
-	// We need to create a stub tsconfig or loadTSConfig will fail
-	fsMod.mkdirSync(dirname(tsconfigPath), { recursive: true });
-	fsMod.writeFileSync(tsconfigPath, '{}', 'utf-8');
-
-	const tsconfig = await loadTSConfig(fileURLToPath(config.root));
-	if (typeof tsconfig === 'string') {
-		return;
-	}
-
-	const tsconfigFilePathDir = normalizePath(dirname(tsconfig.tsconfigFile));
-	const rootDir = removeTrailingForwardSlash(normalizePath(fileURLToPath(config.root)));
-	if (tsconfigFilePathDir !== rootDir) {
-		// loadTSConfig gets the closer tsconfig. If it's not in the project root, we don't continue
-		return;
-	}
-
-	const invalidFields: Array<string> = [];
-
-	if (tsconfig.tsconfig?.include?.length > 0) {
-		invalidFields.push('include');
-	}
-	if (tsconfig.tsconfig?.exclude?.length > 0) {
-		invalidFields.push('exclude');
-	}
-	if (tsconfig.tsconfig?.files?.length > 0) {
-		invalidFields.push('files');
-	}
-
-	if (invalidFields.length > 0) {
-		logger.warn(
-			'config',
-			`The following fields of your tsconfig.json must now be set inside your Astro config: ${invalidFields.join(
-				', '
-			)}. They will be merged until Astro 5, see TODO:link.`
-		);
-	}
-
-	function getField(_tsconfig: any, name: 'include' | 'exclude' | 'files') {
-		return [
-			...(config.typescript?.[name] ?? []),
-			// TODO: remove in Astro 5
-			...(invalidFields.includes(name) ? (_tsconfig[name] as Array<string>) : []),
-		];
-	}
-
-	function deduplicate<T extends Array<unknown>>(array: T) {
-		return [...new Set([...array])];
-	}
-
-	const newTsconfig: Record<string, Array<string> | undefined> = {
-		include: deduplicate(['./astro.d.ts', '..', ...getField(tsconfig.tsconfig, 'include')]),
-		exclude: deduplicate([
-			...getField(tsconfig.tsconfig, 'exclude'),
-			...(config.typescript?.excludeDefaults
-				? [
-						getRelativePath(config.codegenDir, config.outDir),
-						getRelativePath(config.codegenDir, config.publicDir),
-					]
-				: []),
-		]),
-		files: deduplicate(getField(tsconfig.tsconfig, 'files')),
-	};
-	// Prevent VSC from complaining
-	if (newTsconfig.files?.length === 0) {
-		newTsconfig.files = undefined;
-	}
-
-	fsMod.writeFileSync(tsconfigPath, JSON.stringify(newTsconfig, null, 2), 'utf-8');
-
+async function handleDtsInjection({ config, injectedDts }: AstroSettings) {
 	injectDts({
 		codegenDir: config.codegenDir,
-		filename: 'astro.d.ts',
+		// TODO: change to astro.d.ts in Astro 5
+		filename: 'types.d.ts',
 		content: `/// <reference types="astro/client" />
 ${injectedDts.map((e) => `/// <reference path="${e.filename}" />`).join('\n')}
 
@@ -279,17 +183,4 @@ export {};
 	for (const dts of injectedDts) {
 		injectDts({ codegenDir: config.codegenDir, ...dts });
 	}
-
-	// extends is a reserved keyword
-	const { extends: extendsField } = tsconfig.tsconfig;
-	if (Array.isArray(extendsField) && extendsField.includes(rawTsConfigPath)) {
-		return;
-	}
-
-	const outputTsconfig = { ...tsconfig.rawConfig.tsconfig };
-	outputTsconfig.extends = [
-		...(typeof extendsField === 'string' ? [extendsField] : extendsField),
-		rawTsConfigPath,
-	];
-	fsMod.writeFileSync(tsconfig.tsconfigFile, JSON.stringify(outputTsconfig, null, 2), 'utf-8');
 }
