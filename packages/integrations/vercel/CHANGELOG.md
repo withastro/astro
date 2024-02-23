@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 7.3.3
+
+### Patch Changes
+
+- [#10215](https://github.com/withastro/astro/pull/10215) [`a013182d322a3969e39d647aad75ec10f8bd1ed7`](https://github.com/withastro/astro/commit/a013182d322a3969e39d647aad75ec10f8bd1ed7) Thanks [@matthewp](https://github.com/matthewp)! - Fixes edge middleware calling nested routes
+
 ## 7.3.2
 
 ### Patch Changes
