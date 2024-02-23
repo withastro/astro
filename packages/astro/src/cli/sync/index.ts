@@ -15,7 +15,7 @@ export async function sync({ flags }: SyncOptions) {
 			tables: {
 				Flags: [['--help (-h)', 'See all available flags.']],
 			},
-			description: `Generates TypeScript types for all Astro modules.`,
+			description: `Generates TypeScript types for all Astro modules and integrations.`,
 		});
 		return 0;
 	}
