@@ -77,9 +77,10 @@ export function getStudioVirtualModContents({
 	return `
 import {collectionToTable, createRemoteDatabaseClient} from ${RUNTIME_IMPORT};
 
-export const db = await createRemoteDatabaseClient(${JSON.stringify(appToken)}, ${JSON.stringify(
-		getRemoteDatabaseUrl()
-	)});
+export const db = await createRemoteDatabaseClient(${JSON.stringify(
+		appToken
+		// Respect runtime env for user overrides in SSR
+	)}, import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL ?? ${JSON.stringify(getRemoteDatabaseUrl())});
 export * from ${RUNTIME_DRIZZLE_IMPORT};
 
 ${getStringifiedCollectionExports(tables)}
