@@ -9,6 +9,7 @@ import {
 } from '../utils/highlight.js';
 import { createWindowElement } from '../utils/window.js';
 import {
+	categoryLabel,
 	getAuditCategory,
 	resolveAuditRule,
 	rules,
@@ -111,12 +112,28 @@ export default {
 				const auditListWindow = createWindowElement(
 					`
 					<style>
+						.reset-button {
+							text-align: left;
+							border: none;
+							margin: 0;
+							width: auto;
+							overflow: visible;
+							background: transparent;
+							font: inherit;
+							line-height: normal;
+							-webkit-font-smoothing: inherit;
+							-moz-osx-font-smoothing: inherit;
+							-webkit-appearance: none;
+							padding: 0;
+						}
+
 						astro-dev-toolbar-window {
   	          left: initial;
               top: 8px;
               right: 8px;
               transform: none;
-              width: 375px;
+              width: 350px;
+							min-height: 350px;
               max-height: 420px;
               padding: 0;
               overflow: hidden;
@@ -128,9 +145,15 @@ export default {
 
 						header {
 						  display: flex;
-							justify-content: space-between;
 							align-items: center;
+							justify-content: space-between;
 						  padding: 18px;
+						}
+
+						header section {
+							display: flex;
+							align-items: center;
+							gap: 1em;
 						}
 
 						h1 {
@@ -151,41 +174,51 @@ export default {
 
 						h3 {
       		    margin: 0;
-              margin-bottom: 6px;
               color: white;
-              white-space: nowrap;
+							font-size: 17px;
 						}
 
-						.audit-title {
-							color: white;
-						}
-
-						.audit-message {
-							margin-top: 6px;
-							opacity: 0.35;
-							display: block;
-						}
-
-						[active] .audit-message {
-							opacity: 1;
-						}
-
-						.icon-section {
+						.audit-header {
 							display: flex;
+							gap: 8px;
 							align-items: center;
-							flex-direction: column;
-							gap: 4px;
 						}
 
-						.icon-section astro-dev-toolbar-badge {
-							font-size: 10px;
+						.audit-selector {
+							color: white;
+							font-size: 15px;
+						}
+
+						[active] .audit-selector:hover {
+							text-decoration: underline;
+							cursor: pointer;
+						}
+
+						.extended-info {
+							display: none;
+							color: white;
+							font-size: 14px;
+						}
+
+						.extended-info hr {
+							border: 1px solid rgba(27, 30, 36, 1);
+						}
+
+						.extended-info .audit-message {
+							border-left: 4px solid rgba(27, 30, 36, 1);
+							padding-left: 8px;
+							font-style: italic;
+						}
+
+						[active] .extended-info {
+							display: block;
 						}
 
 						astro-dev-toolbar-icon {
 							color: white;
 							fill: white;
 							display: inline-block;
-							width: 2em;
+							height: 24px;
 						}
 
 						#audit-list {
@@ -196,19 +229,57 @@ export default {
 							overscroll-behavior: contain;
 							height: 100%;
 						}
+
+						#back-to-list {
+							display: none;
+							align-items: center;
+							gap: 8px;
+							padding: 8px;
+							color: white;
+						}
+
+						#back-to-list:hover {
+							cursor: pointer;
+							background-color: rgba(255, 255, 255, 0.3);
+						}
+
+						#audit-list:has(astro-dev-toolbar-card[active]) #back-to-list {
+							display: flex;
+						}
 					</style>
 
 					<header>
-					  <h1>Audits</h1>
-						<astro-dev-toolbar-badge size="large">${audits.length} problem${
-							audits.length > 1 ? 's' : ''
-						} found</astro-dev-toolbar-badge>
+						<section>
+							<h1>Audits</h1>
+							<astro-dev-toolbar-badge size="large">${audits.length} problem${
+								audits.length > 1 ? 's' : ''
+							} found</astro-dev-toolbar-badge>
+						</section>
+
+						<section></section>
 					</header>
 					<hr />`
 				);
 
 				const auditListUl = document.createElement('ul');
 				auditListUl.id = 'audit-list';
+
+				const backToListButton = document.createElement('button');
+				backToListButton.id = 'back-to-list';
+				backToListButton.classList.add('reset-button');
+				backToListButton.innerHTML = `
+					<astro-dev-toolbar-icon icon="arrow-left"></astro-dev-toolbar-icon>
+					Back to list
+				`;
+
+				backToListButton.addEventListener('click', () => {
+					audits.forEach((audit) => {
+						audit.card.removeAttribute('active');
+					});
+				});
+
+				auditListUl.appendChild(backToListButton);
+
 				audits.forEach((audit) => {
 					auditListUl.appendChild(audit.card);
 				});
@@ -312,7 +383,12 @@ export default {
 			(['focus', 'mouseover'] as const).forEach((event) => {
 				const attribute = event === 'focus' ? 'active' : 'hovered';
 				highlight.addEventListener(event, () => {
-					if (event === 'focus') card.scrollIntoView();
+					if (event === 'focus') {
+						audits.forEach((audit) => {
+							audit.card.removeAttribute('active');
+						});
+						card.scrollIntoView();
+					}
 					card.toggleAttribute(attribute, true);
 				});
 			});
@@ -393,16 +469,29 @@ export default {
 			  text-align: left;
 				box-shadow: none;
 				display: flex;
-				gap: 16px;
-				max-height: 88px;
+				flex-direction: column;
 				overflow: hidden;
+				gap: 8px;
+			}
+
+			:host>button#astro-overlay-card .audit-message, :host>button#astro-overlay-card .audit-description {
+				display: none;
 			}
 
 			:host([active])>button#astro-overlay-card {
-				max-height: none;
+				position: absolute;
+				height: 100%;
+				top: 104px;
+				height: calc(100% - 104px);
+				background: #0d0e12;
+				user-select: text;
+				border-radius-top-left: 0;
+				border-radius-top-right: 0;
+				overflow: auto;
+				border: none;
 			}
 
-			:host>button:hover {
+			:host(:not([active]))>button:hover {
 			  cursor: pointer;
 			}
 
@@ -418,6 +507,8 @@ export default {
 		</style>`;
 
 			card.clickAction = () => {
+				if (card.hasAttribute('active')) return;
+
 				audits.forEach((audit) => {
 					audit.card.removeAttribute('active');
 				});
@@ -425,46 +516,57 @@ export default {
 				highlightElement.focus();
 			};
 
-			const leftSection = document.createElement('section');
-			leftSection.classList.add('icon-section');
 			const auditCategory = getAuditCategory(rule);
 			const auditIcon = auditCategory === 'a11y' ? 'person-arms-spread' : 'gauge';
 			const iconElement = document.createElement('astro-dev-toolbar-icon');
 			iconElement.icon = auditIcon;
+			const auditHeader = document.createElement('div');
+			auditHeader.classList.add('audit-header');
+			auditHeader.appendChild(iconElement);
 
 			const categoryBadge = document.createElement('astro-dev-toolbar-badge');
-			categoryBadge.size = 'small';
-			categoryBadge.badgeStyle = auditCategory === 'a11y' ? 'purple' : 'red';
-			categoryBadge.textContent = auditCategory;
+			categoryBadge.size = 'large';
+			categoryBadge.textContent = categoryLabel[auditCategory];
 
-			leftSection.appendChild(iconElement);
-			leftSection.appendChild(categoryBadge);
+			auditHeader.appendChild(categoryBadge);
 
-			card.appendChild(leftSection);
+			card.appendChild(auditHeader);
 
-			const rightSection = document.createElement('section');
-			const h3 = document.createElement('h3');
-			h3.innerText = finder(auditedElement);
-			rightSection.appendChild(h3);
-			const title = document.createElement('span');
-			title.classList.add('audit-title');
-			title.innerHTML = rule.title;
-			rightSection.appendChild(title);
-			const message = document.createElement('span');
+			const title = document.createElement('h3');
+			title.innerText = rule.title;
+			card.appendChild(title);
+
+			const selector = document.createElement('button');
+			selector.classList.add('reset-button');
+			selector.classList.add('audit-selector');
+
+			selector.innerHTML = finder(auditedElement);
+
+			selector.addEventListener('click', () => {
+				auditedElement.scrollIntoView();
+				highlightElement.focus();
+			});
+
+			card.appendChild(selector);
+
+			const extendedInfo = document.createElement('div');
+			extendedInfo.classList.add('extended-info');
+			extendedInfo.append(document.createElement('hr'));
+
+			const message = document.createElement('p');
 			message.classList.add('audit-message');
 			message.innerHTML = rule.message;
+			extendedInfo.appendChild(message);
 
 			const description = rule.description;
 			if (description) {
-				const descriptionElement = document.createElement('span');
-				descriptionElement.classList.add('audit-message');
+				const descriptionElement = document.createElement('p');
+				descriptionElement.classList.add('audit-description');
 				descriptionElement.innerHTML = description;
-				rightSection.appendChild(descriptionElement);
+				extendedInfo.appendChild(descriptionElement);
 			}
 
-			rightSection.appendChild(message);
-
-			card.appendChild(rightSection);
+			card.appendChild(extendedInfo);
 
 			return card;
 		}

@@ -59,3 +59,8 @@ export function resolveAuditRule(rule: AuditRule, element: Element): ResolvedAud
 export function getAuditCategory(rule: AuditRule): 'perf' | 'a11y' {
 	return rule.code.split('-')[0] as 'perf' | 'a11y';
 }
+
+export const categoryLabel = {
+	perf: 'performance',
+	a11y: 'accessibility',
+};
