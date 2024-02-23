@@ -9,6 +9,8 @@ import { bundledThemes, type BuiltinTheme } from 'shikiji';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro.js';
 
 import type { OutgoingHttpHeaders } from 'node:http';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
