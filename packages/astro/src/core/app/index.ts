@@ -478,7 +478,7 @@ export class App {
 	async #getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
 		if (route.component === 'astro-default-404') {
 			return {
-				page: async () => ({ ALL: () => new Response(null, { status: 404 }) }) as any as ComponentInstance,
+				page: async () => ({ default: () => new Response(null, { status: 404 }) }) as ComponentInstance,
 				renderers: []
 			}
 		}

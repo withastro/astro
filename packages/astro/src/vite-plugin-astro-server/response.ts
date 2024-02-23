@@ -23,10 +23,9 @@ export async function handle404Response(
 	writeHtmlResponse(res, 404, html);
 }
 
-export async function apiRoute404(
-	{ request }: { request: Request }
+export async function default404Page(
+	{ pathname }: { pathname: string }
 ) {
-	const pathname = decodeURI(new URL(request.url).pathname);
 	return new Response(notFoundTemplate({
 		statusCode: 404,
 		title: 'Not found',
@@ -34,6 +33,8 @@ export async function apiRoute404(
 		pathname,
 	}), { status: 404, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
 }
+// mark the function as an AstroComponentFactory for the rendering internals
+default404Page.isAstroComponentFactory = true;
 
 export async function handle500Response(
 	loader: ModuleLoader,

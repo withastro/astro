@@ -9,7 +9,7 @@ export function ensure404Route(manifest: ManifestData) {
 			pattern: /\/404/,
 			prerender: false,
 			segments: [],
-			type: 'endpoint',
+			type: 'page',
 			route: '/404',
 			fallbackRoutes: [],
 			isIndex: false,
