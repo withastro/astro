@@ -290,4 +290,18 @@ test.describe('Dev Toolbar', () => {
 		expect(serverRenderTime).not.toBe(null);
 		expect(clientRenderTime).not.toBe(null);
 	});
+
+	test('can quit apps by clicking outside the window', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		for (const appId of ['astro:home', 'astro:audit', 'astro:xray', 'astro:settings']) {
+			const appButton = toolbar.locator(`button[data-app-id="${appId}"]`);
+			await appButton.click();
+
+			await expect(appButton).toHaveClass('item active');
+			await page.click('body');
+			await expect(appButton).not.toHaveClass('active');
+		}
+	});
 });
