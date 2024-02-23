@@ -16,7 +16,6 @@ import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } f
 // See https://github.com/withastro/astro/pull/8762
 import 'mdast-util-to-hast';
 import 'shikiji-core';
-import { resolveDirAsUrl } from '../util.js';
 
 type ShikiLangs = NonNullable<ShikiConfig['langs']>;
 type ShikiTheme = NonNullable<ShikiConfig['theme']>;
@@ -610,4 +609,12 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		});
 
 	return AstroConfigRelativeSchema;
+}
+
+function resolveDirAsUrl(dir: string, root: string) {
+	let resolvedDir = path.resolve(root, dir);
+	if (!resolvedDir.endsWith(path.sep)) {
+		resolvedDir += path.sep;
+	}
+	return pathToFileURL(resolvedDir);
 }
