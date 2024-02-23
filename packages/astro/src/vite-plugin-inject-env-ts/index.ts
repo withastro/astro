@@ -4,8 +4,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizePath, type Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
-import { getDotAstroTypeReference } from '../content/index.js';
 import { type Logger } from '../core/logger/core.js';
+import { CODEGENDIR_BASE_DTS_FILE } from '../config/types.js';
 
 export function getEnvTsPath({ srcDir }: { srcDir: URL }) {
 	return new URL('env.d.ts', srcDir);
@@ -29,6 +29,18 @@ export function astroInjectEnvTsPlugin({
 			await setUpEnvTs({ settings, logger, fs });
 		},
 	};
+}
+
+function getDotAstroTypeReference({ codegenDir, srcDir }: { codegenDir: URL; srcDir: URL }) {
+	const contentTypesRelativeToSrcDir = normalizePath(
+		// TODO: set constant somewhere
+		path.relative(
+			fileURLToPath(srcDir),
+			fileURLToPath(new URL(CODEGENDIR_BASE_DTS_FILE, codegenDir))
+		)
+	);
+
+	return `/// <reference path=${JSON.stringify(contentTypesRelativeToSrcDir)} />`;
 }
 
 export async function setUpEnvTs({

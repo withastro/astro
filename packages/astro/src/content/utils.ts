@@ -16,7 +16,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 
 import { MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
-import { CONTENT_FLAGS, CONTENT_TYPES_FILE } from './consts.js';
+import { CONTENT_FLAGS } from './consts.js';
 import { errorMap } from './error-map.js';
 import { createImage } from './runtime-assets.js';
 
@@ -39,15 +39,6 @@ export const collectionConfigParser = z.union([
 		schema: z.any().optional(),
 	}),
 ]);
-
-// TODO: extract reference logic
-export function getDotAstroTypeReference({ codegenDir, srcDir }: { codegenDir: URL; srcDir: URL }) {
-	const contentTypesRelativeToSrcDir = normalizePath(
-		path.relative(fileURLToPath(srcDir), fileURLToPath(new URL(CONTENT_TYPES_FILE, codegenDir)))
-	);
-
-	return `/// <reference path=${JSON.stringify(contentTypesRelativeToSrcDir)} />`;
-}
 
 export const contentConfigParser = z.object({
 	collections: z.record(collectionConfigParser),

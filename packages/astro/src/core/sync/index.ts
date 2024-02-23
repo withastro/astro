@@ -4,7 +4,7 @@ import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { createServer, type HMRPayload } from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
-import { injectDts } from '../../config/types.js';
+import { CODEGENDIR_BASE_DTS_FILE, injectDts } from '../../config/types.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
@@ -169,8 +169,7 @@ export async function syncInternal(
 async function handleDtsInjection({ codegenDir, injectedDts }: AstroSettings) {
 	injectDts({
 		codegenDir,
-		// TODO: change to astro.d.ts in Astro 5
-		filename: 'types.d.ts',
+		filename: CODEGENDIR_BASE_DTS_FILE,
 		content: `/// <reference types="astro/client" />
 ${injectedDts.map((e) => `/// <reference path="${e.filename}" />`).join('\n')}
 

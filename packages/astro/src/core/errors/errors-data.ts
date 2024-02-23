@@ -3,6 +3,7 @@
 // your changes by our wonderful docs team before merging!
 
 import type { ZodError } from 'zod';
+import { CODEGENDIR_BASE_DTS_FILE } from '../../config/types.js';
 
 export interface ErrorData {
 	name: string;
@@ -1096,14 +1097,13 @@ export const i18nNotEnabled = {
 /**
  * @docs
  * @description
- * 
+ *
  * The `filename` argument of `injectTypes` should end with `.d.ts`.
  */
 export const InvalidInjectTypesFilename = {
 	name: 'InvalidInjectTypesFilename',
 	title: 'Invalid injectTypes filename',
-	message:
-		'The `filename` argument of `injectTypes` is invalid. It should end with `.d.ts. `astro.d.ts` and `types.d.ts` are reserved filenames.',
+	message: `The \`filename\` argument of \`injectTypes\` is invalid. It should end with \`.d.ts. \`astro.d.ts\` and \`${CODEGENDIR_BASE_DTS_FILE}\` are reserved filenames.`,
 };
 
 /**
