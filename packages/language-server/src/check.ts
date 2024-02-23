@@ -1,4 +1,6 @@
 import { existsSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as kit from '@volar/kit';
 import { Diagnostic, DiagnosticSeverity } from '@volar/language-server';
@@ -157,11 +159,11 @@ export class AstroCheck {
 
 	private getTsconfig() {
 		if (this.tsconfigPath) {
-			if (!existsSync(this.tsconfigPath)) {
-				throw new Error(`Specified tsconfig file \`${this.tsconfigPath}\` does not exist.`);
+			const tsconfig = resolve(this.workspacePath, this.tsconfigPath.replace(/^~/, homedir()));
+			if (!existsSync(tsconfig)) {
+				throw new Error(`Specified tsconfig file \`${tsconfig}\` does not exist.`);
 			}
-
-			return this.tsconfigPath;
+			return tsconfig;
 		}
 
 		const searchPath = this.workspacePath;
