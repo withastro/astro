@@ -1,8 +1,8 @@
-import { runHookBuildSetup, runHookConfigSetup } from '../../../dist/integrations/index.js';
-import { validateSupportedFeatures } from '../../../dist/integrations/astroFeaturesValidation.js';
-import { defaultLogger } from '../test-utils.js';
-import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { validateSupportedFeatures } from '../../../dist/integrations/astroFeaturesValidation.js';
+import { runHookBuildSetup, runHookConfigSetup } from '../../../dist/integrations/index.js';
+import { defaultLogger } from '../test-utils.js';
 
 describe('Integration API', () => {
 	it('runHookBuildSetup should work', async () => {

@@ -164,6 +164,7 @@ function vitePluginContent(
 				lookupMap,
 				IS_DEV: false,
 				IS_SERVER: false,
+				isClient: false,
 			});
 			this.emitFile({
 				type: 'prebuilt-chunk',

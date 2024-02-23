@@ -1,14 +1,14 @@
+import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
+import { createContainer } from '../../../dist/core/dev/container.js';
+import testAdapter from '../../test-adapter.js';
 import {
 	createBasicSettings,
 	createFs,
 	createRequestAndResponse,
 	defaultLogger,
 } from '../test-utils.js';
-import { fileURLToPath } from 'node:url';
-import { describe, it, before, after } from 'node:test';
-import * as assert from 'node:assert/strict';
-import { createContainer } from '../../../dist/core/dev/container.js';
-import testAdapter from '../../test-adapter.js';
 
 const root = new URL('../../fixtures/api-routes/', import.meta.url);
 const fileSystem = {
@@ -84,7 +84,7 @@ describe('endpoints', () => {
 		});
 	});
 
-	it('Headers with multiple values (set-cookie special case)', async () => {
+	it('Can bail on streaming', async () => {
 		const { req, res, done } = createRequestAndResponse({
 			method: 'GET',
 			url: '/streaming',

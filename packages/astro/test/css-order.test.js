@@ -1,8 +1,8 @@
 import * as assert from 'node:assert/strict';
-import { describe, before, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('CSS production ordering', () => {
 	function getLinks(html) {

@@ -287,20 +287,6 @@ export default function vercelServerless({
 					);
 				}
 			},
-			'astro:server:setup'({ server }) {
-				// isr functions do not have access to search params, this middleware removes them for the dev mode
-				if (isr) {
-					const exclude_ = typeof isr === 'object' ? isr.exclude ?? [] : [];
-					// we create a regex to emulate vercel's production behavior
-					const exclude = exclude_.concat('/_image').map((ex) => new RegExp(escapeRegex(ex)));
-					server.middlewares.use(function removeIsrParams(req, _, next) {
-						const { pathname } = new URL(`https://example.com${req.url}`);
-						if (exclude.some((ex) => ex.test(pathname))) return next();
-						req.url = pathname;
-						return next();
-					});
-				}
-			},
 			'astro:build:ssr': async ({ entryPoints, middlewareEntryPoint }) => {
 				_entryPoints = entryPoints;
 				_middlewareEntryPoint = middlewareEntryPoint;

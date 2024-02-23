@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Parent({ children }) {
   const [show, setShow] = useState(false);

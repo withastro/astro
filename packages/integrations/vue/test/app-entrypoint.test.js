@@ -1,8 +1,8 @@
-import { loadFixture } from './test-utils.js';
 import * as assert from 'node:assert/strict';
-import { describe, it, before, after } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import { parseHTML } from 'linkedom';
+import { loadFixture } from './test-utils.js';
 
 describe('App Entrypoint', () => {
 	/** @type {import('./test-utils').Fixture} */

@@ -10,8 +10,16 @@ const test = testFactory({
 
 let devServer;
 
+function throwPageShouldNotReload() {
+	throw new Error('Page should not reload in HMR');
+}
+
 test.beforeAll(async ({ astro }) => {
 	devServer = await astro.startDevServer();
+});
+
+test.afterEach(({ page }) => {
+	page.off('load', throwPageShouldNotReload);
 });
 
 test.afterAll(async () => {
@@ -33,14 +41,31 @@ test.describe('Scripts with dependencies', () => {
 	});
 });
 
-test.describe('Styles with dependencies', () => {
-	test('refresh with HMR', async ({ page, astro }) => {
+test.describe('Styles', () => {
+	test('dependencies cause refresh with HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/css-dep'));
+
+		page.once('load', throwPageShouldNotReload);
 
 		const h = page.locator('h1');
 		await expect(h).toHaveCSS('color', 'rgb(0, 0, 255)');
 
 		await astro.editFile('./src/styles/vars.scss', (original) => original.replace('blue', 'red'));
+
+		await expect(h).toHaveCSS('color', 'rgb(255, 0, 0)');
+	});
+
+	test('external CSS refresh with HMR', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/css-external'));
+
+		page.once('load', throwPageShouldNotReload);
+
+		const h = page.locator('h1');
+		await expect(h).toHaveCSS('color', 'rgb(0, 0, 255)');
+
+		await astro.editFile('./src/styles/css-external.css', (original) =>
+			original.replace('blue', 'red')
+		);
 
 		await expect(h).toHaveCSS('color', 'rgb(255, 0, 0)');
 	});

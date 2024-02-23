@@ -1,5 +1,5 @@
-import { describe, it, beforeEach } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { beforeEach, describe, it } from 'node:test';
 import { collectPackageInfo } from '../dist/index.js';
 
 describe('collectPackageInfo', () => {

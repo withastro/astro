@@ -1,9 +1,11 @@
-import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { createLoader } from '../../../dist/core/module-loader/index.js';
 import { createRouteManifest } from '../../../dist/core/routing/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createController, handleRequest } from '../../../dist/vite-plugin-astro-server/index.js';
+import { DevPipeline } from '../../../dist/vite-plugin-astro-server/pipeline.js';
+import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
 import {
 	createAstroModule,
 	createBasicSettings,
@@ -11,20 +13,13 @@ import {
 	createRequestAndResponse,
 	defaultLogger,
 } from '../test-utils.js';
-import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
-import DevPipeline from '../../../dist/vite-plugin-astro-server/devPipeline.js';
 
 async function createDevPipeline(overrides = {}) {
 	const settings = overrides.settings ?? (await createBasicSettings({ root: '/' }));
 	const loader = overrides.loader ?? createLoader();
 	const manifest = createDevelopmentManifest(settings);
 
-	return new DevPipeline({
-		manifest,
-		settings,
-		logger: defaultLogger,
-		loader,
-	});
+	return DevPipeline.create({ loader, logger: defaultLogger, manifest, settings });
 }
 
 describe('vite-plugin-astro-server', () => {
@@ -32,7 +27,10 @@ describe('vite-plugin-astro-server', () => {
 		it('renders a request', async () => {
 			const pipeline = await createDevPipeline({
 				loader: createLoader({
-					import() {
+					import(id) {
+						if (id === '\0astro-internal:middleware') {
+							return { onRequest: (_, next) => next() };
+						}
 						const Page = createComponent(() => {
 							return render`<div id="test">testing</div>`;
 						});
@@ -40,7 +38,7 @@ describe('vite-plugin-astro-server', () => {
 					},
 				}),
 			});
-			const controller = createController({ loader: pipeline.getModuleLoader() });
+			const controller = createController({ loader: pipeline.loader });
 			const { req, res, text } = createRequestAndResponse();
 			const fs = createFs(
 				{
@@ -52,7 +50,7 @@ describe('vite-plugin-astro-server', () => {
 			const manifestData = createRouteManifest(
 				{
 					fsMod: fs,
-					settings: pipeline.getSettings(),
+					settings: pipeline.settings,
 				},
 				defaultLogger
 			);
@@ -64,6 +62,7 @@ describe('vite-plugin-astro-server', () => {
 					controller,
 					incomingRequest: req,
 					incomingResponse: res,
+					manifest: {},
 				});
 			} catch (err) {
 				assert.equal(err.message, undefined);
