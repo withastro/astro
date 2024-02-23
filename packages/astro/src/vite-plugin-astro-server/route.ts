@@ -229,7 +229,7 @@ export async function handleRoute({
 			logger,
 			ssr: buildingToSSR,
 			clientAddress: buildingToSSR ? incomingRequest.socket.remoteAddress : undefined,
-			removeParams: buildingToSSR === false || route.prerender
+			removeParams: buildingToSSR === false || route.prerender,
 		});
 
 		// Set user specified headers to response object.

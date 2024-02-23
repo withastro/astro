@@ -80,7 +80,7 @@ describe('vite-plugin-astro-server', () => {
 	describe('url', () => {
 		let container;
 		let settings;
-		
+
 		before(async () => {
 			const root = new URL('../../fixtures/api-routes/', import.meta.url);
 			const fileSystem = {

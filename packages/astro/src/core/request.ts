@@ -36,7 +36,7 @@ export function createRequest({
 			: new Headers(Object.entries(headers as Record<string, any>));
 
 	if (typeof url === 'string') url = new URL(url);
-	
+
 	// HACK! astro:assets uses query params for the injected route in `dev`
 	if (removeParams && url.pathname !== '/_image') {
 		url.search = '';
