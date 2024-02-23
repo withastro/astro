@@ -309,7 +309,6 @@ export async function createContentTypesGenerator({
 		const observable = contentConfigObserver.get();
 		if (eventResponses.some((r) => r.shouldGenerateTypes)) {
 			await writeContentFiles({
-				fs,
 				collectionEntryMap,
 				contentPaths,
 				typeTemplateContent,
@@ -353,7 +352,6 @@ function normalizeConfigPath(from: string, to: string) {
 }
 
 async function writeContentFiles({
-	fs,
 	contentPaths,
 	collectionEntryMap,
 	typeTemplateContent,
@@ -363,7 +361,6 @@ async function writeContentFiles({
 	codegenDir,
 	injectDts,
 }: {
-	fs: typeof fsMod;
 	contentPaths: ContentPaths;
 	collectionEntryMap: CollectionEntryMap;
 	typeTemplateContent: string;
@@ -435,10 +432,6 @@ async function writeContentFiles({
 				dataTypesStr += `};\n`;
 				break;
 		}
-	}
-
-	if (!fs.existsSync(codegenDir)) {
-		fs.mkdirSync(codegenDir, { recursive: true });
 	}
 
 	const configPathRelativeToCacheDir = normalizeConfigPath(

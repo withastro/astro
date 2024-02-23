@@ -68,13 +68,17 @@ export default async function sync(
 	fsMod.mkdirSync(dirname(tsconfigPath), { recursive: true });
 	fsMod.writeFileSync(tsconfigPath, '{}', 'utf-8');
 
+	if (!fsMod.existsSync(astroConfig.codegenDir)) {
+		fsMod.mkdirSync(astroConfig.codegenDir, { recursive: true });
+	}
+
 	const settings = await runHookConfigSetup({
 		settings: _settings,
 		logger: logger,
 		command: 'build',
 	});
 
-	fsMod.unlinkSync(tsconfigPath)
+	fsMod.unlinkSync(tsconfigPath);
 
 	try {
 		return await syncInternal(settings, { ...options, logger });
