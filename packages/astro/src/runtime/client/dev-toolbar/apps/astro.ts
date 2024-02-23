@@ -34,7 +34,6 @@ export default {
 		createCanvas();
 
 		document.addEventListener('astro:after-swap', createCanvas);
-		document.addEventListener('astro:after-swap', fetchIntegrationData);
 
 		eventTarget.addEventListener('app-toggled', async (event) => {
 			resetDebugButton();
@@ -374,8 +373,11 @@ export default {
 					resetDebugButton();
 				}, 3500);
 			});
-
 			canvas.append(windowComponent);
+
+			// If we have integration data, rebuild that part of the UI as well
+			// as it probably mean that the user had already open the app in this session (ex: view transitions)
+			if (integrationData) refreshIntegrationList();
 		}
 
 		function resetDebugButton() {
