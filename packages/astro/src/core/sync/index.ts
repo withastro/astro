@@ -53,9 +53,7 @@ export default async function sync(
 	const _settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	// We create the codegenDir so that integrations do not have to
-	if (!fsMod.existsSync(_settings.codegenDir)) {
-		fsMod.mkdirSync(_settings.codegenDir, { recursive: true });
-	}
+	ensureCodegenDirExists(_settings.codegenDir);
 
 	const settings = await runHookConfigSetup({
 		settings: _settings,
@@ -106,6 +104,9 @@ export async function syncInternal(
 			{ settings, logger, mode: 'build', command: 'build', fs }
 		)
 	);
+
+	// This is needed when syncInternal is called directly
+	ensureCodegenDirExists(settings.codegenDir);
 
 	// Patch `hot.send` to bubble up error events
 	// `hot.on('error')` does not fire for some reason
@@ -181,5 +182,11 @@ export {};
 
 	for (const dts of injectedDts) {
 		injectDts({ codegenDir, ...dts });
+	}
+}
+
+function ensureCodegenDirExists(codegenDir: URL) {
+	if (!fsMod.existsSync(codegenDir)) {
+		fsMod.mkdirSync(codegenDir, { recursive: true });
 	}
 }
