@@ -281,7 +281,7 @@ export interface AstroGlobal<
 		 * <Fragment set:html={html} />
 		 * ```
 		 *
-		 * A second parameters can be used to pass arguments to a slotted callback
+		 * A second parameter can be used to pass arguments to a slotted callback
 		 *
 		 * Example usage:
 		 * ```astro
