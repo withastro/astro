@@ -16,11 +16,11 @@ import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
-import { collectErrorMetadata } from '../errors/dev/utils.js';
+import { ensureProcessNodeEnv } from '../util.js';
 import { AstroError, AstroErrorData, createSafeError, isAstroError } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
-import { ensureProcessNodeEnv } from '../util.js';
+import { collectErrorMetadata } from '../errors/dev/utils.js';
 
 export type ProcessExit = 0 | 1;
 
