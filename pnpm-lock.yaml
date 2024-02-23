@@ -2006,6 +2006,12 @@ importers:
         specifier: ^4.2.5
         version: 4.2.8
 
+  packages/astro/test/fixtures/astro-endpoint:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/astro-envs:
     dependencies:
       '@astrojs/vue':

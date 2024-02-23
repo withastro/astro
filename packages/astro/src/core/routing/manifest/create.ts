@@ -383,7 +383,8 @@ function createFileBasedRoutes(
 			} else {
 				components.push(item.file);
 				const component = item.file;
-				const { trailingSlash } = settings.config;
+				// Endpoints should NOT have trailing slash
+				const trailingSlash = item.isPage ? settings.config.trailingSlash : 'never';
 				const pattern = getPattern(segments, settings.config, trailingSlash);
 				const generate = getRouteGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
