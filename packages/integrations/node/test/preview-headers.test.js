@@ -17,7 +17,7 @@ describe('Astro preview headers', () => {
 			output: 'server',
 			adapter: nodejs({ mode: 'standalone' }),
 			server: {
-				headers
+				headers,
 			},
 		});
 		await fixture.build();
