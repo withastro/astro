@@ -8,10 +8,7 @@ import { DB_PATH } from '../consts.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 import { astroConfigWithDbSchema, type DBTables } from '../types.js';
 import { type VitePlugin } from '../utils.js';
-import {
-	STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR,
-	UNSAFE_WRITABLE_WARNING,
-} from '../errors.js';
+import { STUDIO_CONFIG_MISSING_WRITABLE_TABLE_ERROR, UNSAFE_WRITABLE_WARNING } from '../errors.js';
 import { errorMap } from './error-map.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -76,9 +73,7 @@ function astroDBIntegration(): AstroIntegration {
 				const foundWritableCollection = Object.entries(tables).find(([, c]) => c.writable);
 				const writableAllowed = studio || unsafeWritable;
 				if (!writableAllowed && foundWritableCollection) {
-					logger.error(
-						STUDIO_CONFIG_MISSING_WRITABLE_COLLECTIONS_ERROR(foundWritableCollection[0])
-					);
+					logger.error(STUDIO_CONFIG_MISSING_WRITABLE_TABLE_ERROR(foundWritableCollection[0]));
 					process.exit(1);
 				}
 				// Using writable tables with the opt-in flag. Warn them to let them
