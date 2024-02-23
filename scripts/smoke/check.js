@@ -17,7 +17,7 @@ async function checkExamples() {
 	const limit = pLimit(5);
 
 	for (const example of examples) {
-		// Ensure codegen has run to generate tsconfigs and prevent tsconfck from failing
+		// Ensure codegen runs, so that if tsconfig depends on a generated tsconfig, check does not fail.
 		await new Promise((resolve) => {
 			console.log(`Running \`astro sync\` for ${example.name}...`)
 			spawn('node', ['../../packages/astro/astro.js', 'sync'], {
