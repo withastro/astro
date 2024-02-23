@@ -2327,6 +2327,12 @@ importers:
         specifier: ^10.19.2
         version: 10.19.3
 
+  packages/astro/test/fixtures/build-readonly-file:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/client-address:
     dependencies:
       astro:
