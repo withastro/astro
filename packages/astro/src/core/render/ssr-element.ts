@@ -2,13 +2,10 @@ import type { SSRElement, AssetsPrefix } from '../../@types/astro.js';
 import { joinPaths, prependForwardSlash, slash } from '../../core/path.js';
 import type { StylesheetAsset } from '../app/types.js';
 import { getFileExtension } from '@astrojs/internal-helpers/path';
-import { isObject } from '../util.js';
 import { getAssetsPrefix } from '../../assets/utils/transformToPath.js';
 
 export function createAssetLink(href: string, base?: string, assetsPrefix?: AssetsPrefix): string {
-	if (assetsPrefix && typeof assetsPrefix === "string") {
-		return joinPaths(assetsPrefix, slash(href));
-	} else if (isObject(assetsPrefix)) {
+	if (assetsPrefix) {
 		const fileType = getFileExtension(href)
 		const pf = getAssetsPrefix(fileType, assetsPrefix)
 		return joinPaths(pf, slash(href));

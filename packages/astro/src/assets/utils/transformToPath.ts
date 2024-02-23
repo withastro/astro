@@ -35,7 +35,8 @@ export function hashTransform(
 	return shorthash(deterministicString(hashFields));
 }
 
-export function getAssetsPrefix(fileType: string, assetsPrefix: AssetsPrefix):string {
+export function getAssetsPrefix(fileType: string, assetsPrefix?: AssetsPrefix):string {
+	if (!assetsPrefix) return ''
 	if (typeof assetsPrefix === 'string') return assetsPrefix
 	if (assetsPrefix[fileType]) {
 		return assetsPrefix[fileType]

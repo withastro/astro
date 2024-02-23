@@ -34,7 +34,6 @@ import type { Logger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
-import { isObject } from './util.js';
 import { getAssetsPrefix } from '../assets/utils/transformToPath.js';
 
 interface CreateViteOptions {
@@ -209,11 +208,7 @@ export async function createVite(
 		commonConfig.experimental = {
 			renderBuiltUrl(filename, { type, hostType }) {
 				if (type === 'asset') {
-					if (isObject(assetsPrefix)) {
-						const pf = getAssetsPrefix(hostType, assetsPrefix)
-						return joinPaths(pf, filename);
-					}
-					return joinPaths(assetsPrefix, filename);
+					return joinPaths(getAssetsPrefix(hostType, assetsPrefix), filename);
 				}
 			},
 		};

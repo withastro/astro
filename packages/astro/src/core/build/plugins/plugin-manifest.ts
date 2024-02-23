@@ -16,7 +16,6 @@ import { getOutFile, getOutFolder } from '../common.js';
 import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
-import { isObject } from '../../util.js';
 import { getAssetsPrefix } from '../../../assets/utils/transformToPath.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
@@ -167,9 +166,7 @@ function buildManifest(
 	}
 
 	const prefixAssetPath = (pth: string) => {
-		if (typeof settings.config.build.assetsPrefix === "string") {
-			return joinPaths(settings.config.build.assetsPrefix, pth);
-		} else if (isObject(settings.config.build.assetsPrefix)) {
+		if (settings.config.build.assetsPrefix) {
 			const fileType = getFileExtension(pth)
 			const pf = getAssetsPrefix(fileType, settings.config.build.assetsPrefix)
 			return joinPaths(pf, pth);
