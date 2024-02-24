@@ -3,7 +3,6 @@
 // your changes by our wonderful docs team before merging!
 
 import type { ZodError } from 'zod';
-import { CODEGENDIR_BASE_DTS_FILE } from '../../config/types.js';
 
 export interface ErrorData {
 	name: string;
