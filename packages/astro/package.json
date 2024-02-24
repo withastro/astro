@@ -110,8 +110,7 @@
     "test": "pnpm run test:node",
     "test:e2e": "playwright test",
     "test:e2e:match": "playwright test -g",
-    "test:node": "astro-scripts test \"test/**/*.test.js\"",
-    "test:content": "astro-scripts test \"test/content*.test.js\""
+    "test:node": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
     "@astrojs/compiler": "^2.5.3",
