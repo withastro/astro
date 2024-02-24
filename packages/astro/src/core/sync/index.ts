@@ -53,7 +53,7 @@ export default async function sync(
 	const _settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	// We create the codegenDir so that integrations do not have to
-	ensureCodegenDirExists({ codegenDir: _settings.codegenDir, fs: fsMod });
+	ensureCodegenDirExists({ codegenDir: _settings.codegenDir, fs: options?.fs ?? fsMod });
 
 	const settings = await runHookConfigSetup({
 		settings: _settings,
