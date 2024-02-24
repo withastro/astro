@@ -53,7 +53,7 @@ export default async function sync(
 	const _settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
 	// We create the codegenDir so that integrations do not have to
-	ensureCodegenDirExists(_settings.codegenDir);
+	ensureCodegenDirExists({ codegenDir: _settings.codegenDir, fs: fsMod });
 
 	const settings = await runHookConfigSetup({
 		settings: _settings,
@@ -101,7 +101,7 @@ export async function syncInternal(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode: 'build', command: 'build', fs }
+			{ settings, logger, mode: 'build', command: 'build', fs: fs ?? fsMod }
 		)
 	);
 
@@ -124,9 +124,9 @@ export async function syncInternal(
 			viteServer: tempViteServer,
 			prepareDts: (filename) =>
 				settings.injectedDts.push({ filename, content: '', source: 'core' }),
-			injectDts: (dts) => injectDts({ ...dts, codegenDir: settings.codegenDir }),
+			injectDts: (dts) => injectDts({ ...dts, codegenDir: settings.codegenDir, fs: fs ?? fsMod }),
 		});
-		await handleDtsInjection(settings);
+		await handleDtsInjection({ settings, fs: fs ?? fsMod });
 
 		const typesResult = await contentTypesGenerator.init();
 		const contentConfig = globalContentConfigObserver.get();
@@ -164,7 +164,13 @@ export async function syncInternal(
 	return 0;
 }
 
-async function handleDtsInjection({ codegenDir, injectedDts }: AstroSettings) {
+async function handleDtsInjection({
+	settings: { codegenDir, injectedDts },
+	fs,
+}: {
+	settings: AstroSettings;
+	fs: typeof fsMod;
+}) {
 	injectDts({
 		codegenDir,
 		filename: CODEGENDIR_BASE_DTS_FILE,
@@ -175,9 +181,10 @@ export {};
 `,
 		source: 'core',
 		bypassValidation: true,
+		fs,
 	});
 
 	for (const dts of injectedDts) {
-		injectDts({ codegenDir, ...dts });
+		injectDts({ codegenDir, fs, ...dts });
 	}
 }

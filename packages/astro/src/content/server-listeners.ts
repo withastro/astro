@@ -56,7 +56,7 @@ export async function attachContentServerListeners({
 			logger,
 			viteServer,
 			contentConfigObserver: globalContentConfigObserver,
-			injectDts: (dts) => injectDts({ codegenDir: settings.codegenDir, ...dts }),
+			injectDts: (dts) => injectDts({ codegenDir: settings.codegenDir, fs, ...dts }),
 		});
 		await contentGenerator.init();
 		logger.debug('content', 'Types generated');
