@@ -132,11 +132,17 @@ export class RenderContext {
 		const site = pipeline.site ? new URL(pipeline.site) : undefined;
 		return {
 			cookies,
-			get currentLocale() { return renderContext.computeCurrentLocale() },
+			get currentLocale() {
+				return renderContext.computeCurrentLocale();
+			},
 			generator,
 			params,
-			get preferredLocale() { return renderContext.computePreferredLocale() },
-			get preferredLocaleList() { return renderContext.computePreferredLocaleList() },
+			get preferredLocale() {
+				return renderContext.computePreferredLocale();
+			},
+			get preferredLocaleList() {
+				return renderContext.computePreferredLocaleList();
+			},
 			props,
 			redirect,
 			request,
@@ -224,23 +230,38 @@ export class RenderContext {
 	 */
 	#currentLocale: APIContext['currentLocale'];
 	computeCurrentLocale() {
-		const { url, pipeline: { i18n }, routeData } = this;
+		const {
+			url,
+			pipeline: { i18n },
+			routeData,
+		} = this;
 		if (!i18n) return;
 		const { defaultLocale, locales, strategy } = i18n;
-		return this.#currentLocale ??= computeCurrentLocale(routeData.route, locales, strategy, defaultLocale);
+		return (this.#currentLocale ??= computeCurrentLocale(
+			routeData.route,
+			locales,
+			strategy,
+			defaultLocale
+		));
 	}
 
 	#preferredLocale: APIContext['preferredLocale'];
 	computePreferredLocale() {
-		const { pipeline: { i18n }, request } = this;
+		const {
+			pipeline: { i18n },
+			request,
+		} = this;
 		if (!i18n) return;
-		return this.#preferredLocale ??= computePreferredLocale(request, i18n.locales);
+		return (this.#preferredLocale ??= computePreferredLocale(request, i18n.locales));
 	}
 
 	#preferredLocaleList: APIContext['preferredLocaleList'];
 	computePreferredLocaleList() {
-		const { pipeline: { i18n }, request } = this;
+		const {
+			pipeline: { i18n },
+			request,
+		} = this;
 		if (!i18n) return;
-		return this.#preferredLocaleList ??= computePreferredLocaleList(request, i18n.locales);
+		return (this.#preferredLocaleList ??= computePreferredLocaleList(request, i18n.locales));
 	}
 }
