@@ -1094,17 +1094,17 @@ export const i18nNotEnabled = {
 	message: 'The `astro:i18n` module can not be used without enabling i18n in your Astro config.',
 	hint: 'See https://docs.astro.build/en/guides/internationalization for a guide on setting up i18n.',
 } satisfies ErrorData;
+
 /**
  * @docs
  * @description
- *
  * The `filename` argument of `injectTypes` should end with `.d.ts`.
  */
 export const InvalidInjectTypesFilename = {
 	name: 'InvalidInjectTypesFilename',
 	title: 'Invalid injectTypes filename',
 	message: `The \`filename\` argument of \`injectTypes\` is invalid. It should end with \`.d.ts. \`astro.d.ts\` and \`${CODEGENDIR_BASE_DTS_FILE}\` are reserved filenames.`,
-};
+} satisfies ErrorData;
 
 /**
  * @docs
