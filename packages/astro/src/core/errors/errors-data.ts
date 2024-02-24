@@ -1103,7 +1103,8 @@ export const i18nNotEnabled = {
 export const InvalidInjectTypesFilename = {
 	name: 'InvalidInjectTypesFilename',
 	title: 'Invalid injectTypes filename',
-	message: `The \`filename\` argument of \`injectTypes\` is invalid. It should end with \`.d.ts. \`astro.d.ts\` and \`${CODEGENDIR_BASE_DTS_FILE}\` are reserved filenames.`,
+	message:
+		'The `filename` argument of `injectTypes` is invalid. It should end with `.d.ts. `astro.d.ts` and `types.d.ts` are reserved filenames.',
 } satisfies ErrorData;
 
 /**
