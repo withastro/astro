@@ -79,7 +79,7 @@ import {collectionToTable, createRemoteDatabaseClient} from ${RUNTIME_IMPORT};
 
 export const db = await createRemoteDatabaseClient(${JSON.stringify(
 		appToken
-	)}, import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL);
+	)}, import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL || 'https://db.services.astro.build');
 export * from ${RUNTIME_DRIZZLE_IMPORT};
 
 ${getStringifiedCollectionExports(tables)}
