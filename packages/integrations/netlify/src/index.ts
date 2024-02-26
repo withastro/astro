@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import type { IncomingMessage } from 'http';
 import { fileURLToPath } from 'url';
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
@@ -6,7 +7,6 @@ import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
 import { AstroError } from 'astro/errors';
 import { build } from 'esbuild';
 import { appendFile, mkdir, readFile, rm, writeFile } from 'fs/promises';
-import { randomUUID } from 'crypto'
 import type { Args } from './ssr-function.js';
 
 const { version: packageVersion } = JSON.parse(
