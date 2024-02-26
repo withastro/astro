@@ -1,9 +1,12 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture, isWindows } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { isWindows, loadFixture } from './test-utils.js';
 
-const describe = isWindows ? global.describe.skip : global.describe;
+if (!isWindows) {
+	describe();
+}
 
 describe('Content Collections - render()', () => {
 	describe('Build - SSG', () => {
@@ -24,10 +27,10 @@ describe('Content Collections - render()', () => {
 			const $ = cheerio.load(html);
 
 			// Renders content
-			expect($('ul li')).to.have.a.lengthOf(3);
+			assert.equal($('ul li').length, 3);
 
 			// Includes styles
-			expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1);
+			assert.equal($('link[rel=stylesheet]').length, 1);
 		});
 
 		it('Excludes CSS for non-rendered entries', async () => {
@@ -35,7 +38,7 @@ describe('Content Collections - render()', () => {
 			const $ = cheerio.load(html);
 
 			// Excludes styles
-			expect($('link[rel=stylesheet]')).to.have.a.lengthOf(0);
+			assert.equal($('link[rel=stylesheet]').length, 0);
 		});
 
 		it('De-duplicates CSS used both in layout and directly in target page', async () => {
@@ -46,13 +49,13 @@ describe('Content Collections - render()', () => {
 
 			$('link[rel=stylesheet]').each((_, linkEl) => {
 				const href = linkEl.attribs.href;
-				expect(set).to.not.contain(href);
+				assert.equal(set.has(href), false);
 				set.add(href);
 			});
 
 			$('style').each((_, styleEl) => {
 				const textContent = styleEl.children[0].data;
-				expect(set).to.not.contain(textContent);
+				assert.equal(set.has(textContent), false);
 				set.add(textContent);
 			});
 		});
@@ -62,16 +65,20 @@ describe('Content Collections - render()', () => {
 			const $ = cheerio.load(html);
 
 			const allScripts = $('head > script[type="module"]');
-			expect(allScripts).to.have.length;
+			assert.ok(allScripts.length);
 
 			// Includes hoisted script
-			expect(
-				[...allScripts].find((script) => $(script).attr('src')?.includes('WithScripts')),
+			const scriptWithSrc = [...allScripts].find((script) =>
+				$(script).attr('src')?.includes('WithScripts')
+			);
+			assert.notEqual(
+				scriptWithSrc,
+				undefined,
 				'`WithScripts.astro` hoisted script missing from head.'
-			).to.not.be.undefined;
+			);
 
 			// Includes inline script
-			expect($('script[data-is-inline]')).to.have.a.lengthOf(1);
+			assert.equal($('script[data-is-inline]').length, 1);
 		});
 
 		it('Excludes component scripts for non-rendered entries', async () => {
@@ -81,12 +88,14 @@ describe('Content Collections - render()', () => {
 			const allScripts = $('head > script[type="module"]');
 
 			// Excludes hoisted script
-			expect(
-				[...allScripts].find((script) =>
-					$(script).text().includes('document.querySelector("#update-me")')
-				),
+			const scriptWithText = [...allScripts].find((script) =>
+				$(script).text().includes('document.querySelector("#update-me")')
+			);
+			assert.equal(
+				scriptWithText,
+				undefined,
 				'`WithScripts.astro` hoisted script included unexpectedly.'
-			).to.be.undefined;
+			);
 		});
 
 		it('Applies MDX components export', async () => {
@@ -94,8 +103,8 @@ describe('Content Collections - render()', () => {
 			const $ = cheerio.load(html);
 
 			const h2 = $('h2');
-			expect(h2).to.have.a.lengthOf(1);
-			expect(h2.attr('data-components-export-applied')).to.equal('true');
+			assert.equal(h2.length, 1);
+			assert.equal(h2.attr('data-components-export-applied'), 'true');
 		});
 	});
 
@@ -122,10 +131,10 @@ describe('Content Collections - render()', () => {
 			const $ = cheerio.load(html);
 
 			// Renders content
-			expect($('ul li')).to.have.a.lengthOf(3);
+			assert.equal($('ul li').length, 3);
 
 			// Includes styles
-			expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1);
+			assert.equal($('link[rel=stylesheet]').length, 1);
 		});
 
 		it('Exclude CSS for non-rendered entries', async () => {
@@ -136,7 +145,7 @@ describe('Content Collections - render()', () => {
 			const $ = cheerio.load(html);
 
 			// Includes styles
-			expect($('link[rel=stylesheet]')).to.have.a.lengthOf(0);
+			assert.equal($('link[rel=stylesheet]').length, 0);
 		});
 
 		it('De-duplicates CSS used both in layout and directly in target page', async () => {
@@ -150,13 +159,13 @@ describe('Content Collections - render()', () => {
 
 			$('link[rel=stylesheet]').each((_, linkEl) => {
 				const href = linkEl.attribs.href;
-				expect(set).to.not.contain(href);
+				assert.equal(set.has(href), false);
 				set.add(href);
 			});
 
 			$('style').each((_, styleEl) => {
 				const textContent = styleEl.children[0].data;
-				expect(set).to.not.contain(textContent);
+				assert.equal(set.has(textContent), false);
 				set.add(textContent);
 			});
 		});
@@ -169,8 +178,8 @@ describe('Content Collections - render()', () => {
 			const $ = cheerio.load(html);
 
 			const h2 = $('h2');
-			expect(h2).to.have.a.lengthOf(1);
-			expect(h2.attr('data-components-export-applied')).to.equal('true');
+			assert.equal(h2.length, 1);
+			assert.equal(h2.attr('data-components-export-applied'), 'true');
 		});
 
 		it('getCollection should return new instances of the array to be mutated safely', async () => {
@@ -180,13 +189,13 @@ describe('Content Collections - render()', () => {
 			let response = await app.render(request);
 			let html = await response.text();
 			let $ = cheerio.load(html);
-			expect($('li').first().text()).to.equal('With Layout Prop');
+			assert.equal($('li').first().text(), 'With Layout Prop');
 
 			request = new Request('http://example.com/');
 			response = await app.render(request);
 			html = await response.text();
 			$ = cheerio.load(html);
-			expect($('li').first().text()).to.equal('Hello world');
+			assert.equal($('li').first().text(), 'Hello world');
 		});
 	});
 
@@ -208,68 +217,71 @@ describe('Content Collections - render()', () => {
 
 		it('Includes CSS for rendered entry', async () => {
 			const response = await fixture.fetch('/launch-week', { method: 'GET' });
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
 			// Renders content
-			expect($('ul li')).to.have.a.lengthOf(3);
+			assert.equal($('ul li').length, 3);
 
 			// Includes styles
-			expect($('head > style')).to.have.a.lengthOf(1);
-			expect($('head > style').text()).to.include("font-family: 'Comic Sans MS'");
+			assert.equal($('head > style').length, 1);
+			assert.ok($('head > style').text().includes("font-family: 'Comic Sans MS'"));
 		});
 
 		it('Includes component scripts for rendered entry', async () => {
 			const response = await fixture.fetch('/launch-week-component-scripts', { method: 'GET' });
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
 			const allScripts = $('head > script[src]');
-			expect(allScripts).to.have.length;
-
+			assert.ok(allScripts.length);
 			// Includes hoisted script
-			expect(
-				[...allScripts].find((script) => script.attribs.src.includes('WithScripts.astro')),
+			const scriptWithSrc = [...allScripts].find((script) =>
+				script.attribs.src.includes('WithScripts.astro')
+			);
+			assert.notEqual(
+				scriptWithSrc,
+				undefined,
 				'`WithScripts.astro` hoisted script missing from head.'
-			).to.not.be.undefined;
+			);
 
 			// Includes inline script
-			expect($('script[data-is-inline]')).to.have.a.lengthOf(1);
+			assert.equal($('script[data-is-inline]').length, 1);
 		});
 
 		it('Applies MDX components export', async () => {
 			const response = await fixture.fetch('/launch-week-components-export', { method: 'GET' });
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
 			const h2 = $('h2');
-			expect(h2).to.have.a.lengthOf(1);
-			expect(h2.attr('data-components-export-applied')).to.equal('true');
+			assert.equal(h2.length, 1);
+			assert.equal(h2.attr('data-components-export-applied'), 'true');
 		});
 
 		it('Supports layout prop with recursive getCollection() call', async () => {
 			const response = await fixture.fetch('/with-layout-prop', { method: 'GET' });
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
 			const body = $('body');
-			expect(body.attr('data-layout-prop')).to.equal('true');
+			assert.equal(body.attr('data-layout-prop'), 'true');
 
 			const h1 = $('h1');
-			expect(h1).to.have.a.lengthOf(1);
-			expect(h1.text()).to.equal('With Layout Prop');
+			assert.equal(h1.length, 1);
+			assert.equal(h1.text(), 'With Layout Prop');
 
 			const h2 = $('h2');
-			expect(h2).to.have.a.lengthOf(1);
-			expect(h2.text()).to.equal('Content with a layout prop');
+			assert.equal(h2.length, 1);
+			assert.equal(h2.text(), 'Content with a layout prop');
 		});
 	});
 });

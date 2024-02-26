@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -15,15 +16,15 @@ describe('Hydration script ordering', async () => {
 		let $ = cheerio.load(html);
 
 		// First, let's make sure all islands rendered (or test is bad)
-		expect($('astro-island')).to.have.a.lengthOf(3);
+		assert.equal($('astro-island').length, 3);
 
 		// Now let's make sure the hydration script is placed before the first component
 		let firstIsland = $($('astro-island').get(0));
 		let prevSibling = firstIsland.prev();
-		expect(prevSibling.prop('tagName')).to.equal('SCRIPT');
+		assert.equal(prevSibling.prop('tagName'), 'SCRIPT');
 
 		// Sanity check that we're only rendering them once.
-		expect($('style')).to.have.a.lengthOf(1, 'hydration style added once');
-		expect($('script')).to.have.a.lengthOf(1, 'only one hydration script needed');
+		assert.equal($('style').length, 1, 'hydration style added once');
+		assert.equal($('script').length, 1, 'only one hydration script needed');
 	});
 });

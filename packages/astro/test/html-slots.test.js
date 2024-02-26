@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -21,19 +22,19 @@ describe('HTML Slots', () => {
 			const $ = cheerio.load(html);
 
 			const slotDefault = $('#default');
-			expect(slotDefault.text()).to.equal('Default');
+			assert.equal(slotDefault.text(), 'Default');
 
 			const a = $('#a');
-			expect(a.text().trim()).to.equal('A');
+			assert.equal(a.text().trim(), 'A');
 
 			const b = $('#b');
-			expect(b.text().trim()).to.equal('B');
+			assert.equal(b.text().trim(), 'B');
 
 			const c = $('#c');
-			expect(c.text().trim()).to.equal('C');
+			assert.equal(c.text().trim(), 'C');
 
 			const inline = $('#inline');
-			expect(inline.html()).to.equal('<slot is:inline=""></slot>');
+			assert.equal(inline.html(), '<slot is:inline=""></slot>');
 		});
 	});
 
@@ -51,25 +52,25 @@ describe('HTML Slots', () => {
 		it('works', async () => {
 			const res = await fixture.fetch('/');
 
-			expect(res.status).to.equal(200);
+			assert.equal(res.status, 200);
 
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
 			const slotDefault = $('#default');
-			expect(slotDefault.text()).to.equal('Default');
+			assert.equal(slotDefault.text(), 'Default');
 
 			const a = $('#a');
-			expect(a.text().trim()).to.equal('A');
+			assert.equal(a.text().trim(), 'A');
 
 			const b = $('#b');
-			expect(b.text().trim()).to.equal('B');
+			assert.equal(b.text().trim(), 'B');
 
 			const c = $('#c');
-			expect(c.text().trim()).to.equal('C');
+			assert.equal(c.text().trim(), 'C');
 
 			const inline = $('#inline');
-			expect(inline.html()).to.equal('<slot is:inline=""></slot>');
+			assert.equal(inline.html(), '<slot is:inline=""></slot>');
 		});
 	});
 });

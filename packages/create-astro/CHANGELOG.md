@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.7.3
+
+### Patch Changes
+
+- [#10117](https://github.com/withastro/astro/pull/10117) [`51b6ff7403c1223b1c399e88373075972c82c24c`](https://github.com/withastro/astro/commit/51b6ff7403c1223b1c399e88373075972c82c24c) Thanks [@hippotastic](https://github.com/hippotastic)! - Fixes an issue where `create astro`, `astro add` and `@astrojs/upgrade` would fail due to unexpected package manager CLI output.
+
 ## 4.7.2
 
 ### Patch Changes

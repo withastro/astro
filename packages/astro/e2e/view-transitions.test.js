@@ -413,10 +413,7 @@ test.describe('View Transitions', () => {
 		await expect(locator).toBeInViewport();
 
 		// Scroll back to top
-		// back returns immediately, but we need to wait for navigate() to complete
-		const waitForReady = page.waitForEvent('console');
 		await page.goBack();
-		await waitForReady;
 		locator = page.locator('#longpage');
 		await expect(locator).toBeInViewport();
 
@@ -424,6 +421,85 @@ test.describe('View Transitions', () => {
 		await page.goForward();
 		locator = page.locator('#click-one-again');
 		await expect(locator).toBeInViewport();
+	});
+
+	test('View Transitions Rule', async ({ page, astro }) => {
+		let consoleCount = 0;
+		page.on('console', (msg) => {
+			// This count is used for transition events
+			if (msg.text() === 'ready') consoleCount++;
+		});
+		// Don't test back and forward '' to '', because They are not stored in the history.
+		// click '' to '' (transition)
+		await page.goto(astro.resolveUrl('/long-page'));
+		let locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+		let consolePromise = page.waitForEvent('console');
+		await page.click('#click-self');
+		await consolePromise;
+		locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(1);
+
+		// click '' to 'hash' (no transition)
+		await page.click('#click-scroll-down');
+		locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(1);
+
+		// back 'hash' to '' (no transition)
+		await page.goBack();
+		locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(1);
+
+		// forward '' to 'hash' (no transition)
+		await page.goForward();
+		locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(1);
+
+		// click 'hash' to 'hash' (no transition)
+		await page.click('#click-scroll-up');
+		locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(1);
+
+		// back 'hash' to 'hash' (no transition)
+		await page.goBack();
+		locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(1);
+
+		// forward 'hash' to 'hash' (no transition)
+		await page.goForward();
+		locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(1);
+
+		// click 'hash' to '' (transition)
+		consolePromise = page.waitForEvent('console');
+		await page.click('#click-self');
+		await consolePromise;
+		locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(2);
+
+		// back '' to 'hash' (transition)
+		consolePromise = page.waitForEvent('console');
+		await page.goBack();
+		await consolePromise;
+		locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(3);
+
+		// forward 'hash' to '' (transition)
+		consolePromise = page.waitForEvent('console');
+		await page.goForward();
+		await consolePromise;
+		locator = page.locator('#longpage');
+		await expect(locator).toBeInViewport();
+		expect(consoleCount).toEqual(4);
 	});
 
 	test('<Image /> component forwards transitions to the <img>', async ({ page, astro }) => {
@@ -1229,50 +1305,69 @@ test.describe('View Transitions', () => {
 	});
 
 	test('transition:name should be escaped correctly', async ({ page, astro }) => {
+		const expectedAnimations = new Set();
+		const checkName = async (selector, name) => {
+			expectedAnimations.add(name);
+			expect(page.locator(selector), 'should be escaped correctly').toHaveCSS(
+				'view-transition-name',
+				name
+			);
+		};
+
+		page.on('console', (msg) => {
+			if (msg.text().startsWith('anim: ')) {
+				const split = msg.text().split(' ', 2);
+				expectedAnimations.delete(split[1]);
+			}
+		});
+
 		await page.goto(astro.resolveUrl('/transition-name'));
-		await expect(page.locator('#one'), 'should be escaped correctly').toHaveCSS(
-			'view-transition-name',
-			'front-end'
+
+		await checkName('#one', 'front-end');
+		await checkName('#two', '开源');
+		await checkName('#three', '开a源');
+		await checkName('#four', 'c开a源c');
+		await checkName('#five', 'オープンソース');
+		await checkName('#six', '开_24源');
+		await checkName('#seven', '开_2e源');
+		await checkName('#eight', '🐎👱❤');
+		await checkName('#nine', '_--9');
+		await checkName('#ten', '_10');
+		await checkName('#eleven', '_-11');
+		await checkName('#twelve', '__23_21_20_2f');
+		await checkName('#thirteen', '___01____02______');
+		await checkName(
+			'#batch0',
+			'__00_01_02_03_04_05_06_07_08_09_0a_0b_0c_0d_0e_0f_10_11_12_13_14_15_16_17_18_19_1a_1b_1c_1d_1e_1f'
 		);
-		await expect(page.locator('#two'), 'should be escaped correctly').toHaveCSS(
-			'view-transition-name',
-			'开源'
+		await checkName(
+			'#batch1',
+			'__20_21_22_23_24_25_26_27_28_29_2a_2b_2c-_2e_2f0123456789_3a_3b_3c_3d_3e_3f'
 		);
-		await expect(page.locator('#three'), 'should be escaped correctly').toHaveCSS(
-			'view-transition-name',
-			'开a源'
+		await checkName('#batch2', '__40ABCDEFGHIJKLMNOPQRSTUVWXYZ_5b_5c_5d_5e__');
+		await checkName('#batch3', '__60abcdefghijklmnopqrstuvwxyz_7b_7c_7d_7e_7f');
+		await checkName(
+			'#batch4',
+			'\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f'
 		);
-		await expect(page.locator('#four'), 'should be escaped correctly').toHaveCSS(
-			'view-transition-name',
-			'c开a源c'
+		await checkName(
+			'#batch5',
+			'\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf'
 		);
-		await expect(page.locator('#five'), 'should be escaped correctly').toHaveCSS(
-			'view-transition-name',
-			'オープンソース'
+		await checkName(
+			'#batch6',
+			'\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf'
 		);
-		await expect(page.locator('#six'), 'should be escaped correctly').toHaveCSS(
-			'view-transition-name',
-			'开\\$源'
+		await checkName(
+			'#batch7',
+			'\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff'
 		);
-		await expect(page.locator('#seven'), 'should be escaped correctly').toHaveCSS(
-			'view-transition-name',
-			'开\\.源'
-		);
-		await expect(page.locator('#eight'), 'should be escaped correctly').toHaveCSS(
-			'view-transition-name',
-			'🐎👱❤'
-		);
-		await expect(page.locator('#nine'), 'should be escaped correctly').toHaveCSS(
-			'view-transition-name',
-			'--9'
-		);
-		await expect(page.locator('#ten'), 'should be escaped correctly').toHaveCSS(
-			'view-transition-name',
-			'\\31 0'
-		);
-		await expect(page.locator('#eleven'), 'should be escaped correctly').toHaveCSS(
-			'view-transition-name',
-			'-\\31 1'
-		);
+
+		await page.click('#navigate');
+		await page.waitForTimeout(400); // yes, I dislike this, too. Might fix later.
+		expect(
+			expectedAnimations.size,
+			'all animations for transition:names should have been found'
+		).toEqual(0);
 	});
 });

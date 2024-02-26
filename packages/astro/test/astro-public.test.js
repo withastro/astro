@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Public', () => {
@@ -11,8 +12,8 @@ describe('Public', () => {
 
 	it('css and js files do not get bundled', async () => {
 		let indexHtml = await fixture.readFile('/index.html');
-		expect(indexHtml).to.include('<script src="/example.js"></script>');
-		expect(indexHtml).to.include('<link href="/example.css" rel="stylesheet">');
-		expect(indexHtml).to.include('<img src="/images/twitter.png">');
+		assert.equal(indexHtml.includes('<script src="/example.js"></script>'), true);
+		assert.equal(indexHtml.includes('<link href="/example.css" rel="stylesheet">'), true);
+		assert.equal(indexHtml.includes('<img src="/images/twitter.png">'), true);
 	});
 });

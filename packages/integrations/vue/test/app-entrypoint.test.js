@@ -1,8 +1,8 @@
-import { loadFixture } from './test-utils.js';
 import * as assert from 'node:assert/strict';
-import { describe, it, before, after } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import { parseHTML } from 'linkedom';
+import { loadFixture } from './test-utils.js';
 
 describe('App Entrypoint', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -41,7 +41,7 @@ describe('App Entrypoint', () => {
 		assert.notEqual(client, undefined);
 
 		const js = await fixture.readFile(client);
-		assert.match(js, /\w+\.component\(\"Bar\"/gm);
+		assert.match(js, /\w+\.component\("Bar"/g);
 	});
 
 	it('loads svg components without transforming them to assets', async () => {
@@ -112,7 +112,7 @@ describe('App Entrypoint no export default', () => {
 		const client = island.getAttribute('renderer-url');
 		assert.notEqual(client, undefined);
 		const js = await fixture.readFile(client);
-		assert.doesNotMatch(js, /\w+\.component\(\"Bar\"/gm);
+		assert.doesNotMatch(js, /\w+\.component\("Bar"/g);
 	});
 
 	it('loads svg components without transforming them to assets', async () => {
@@ -151,7 +151,7 @@ describe('App Entrypoint relative', () => {
 		assert.notEqual(client, undefined);
 
 		const js = await fixture.readFile(client);
-		assert.doesNotMatch(js, /\w+\.component\(\"Bar\"/gm);
+		assert.doesNotMatch(js, /\w+\.component\("Bar"/g);
 	});
 });
 
@@ -182,7 +182,7 @@ describe('App Entrypoint /src/absolute', () => {
 		assert.notEqual(client, undefined);
 
 		const js = await fixture.readFile(client);
-		assert.doesNotMatch(js, /\w+\.component\(\"Bar\"/gm);
+		assert.doesNotMatch(js, /\w+\.component\("Bar"/g);
 	});
 });
 

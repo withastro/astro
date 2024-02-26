@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -16,6 +17,6 @@ describe('Multiple renderers', () => {
 	it('when the first throws but the second does not, use the second renderer', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		expect($('#component')).to.have.a.lengthOf(1);
+		assert.equal($('#component').length, 1);
 	});
 });

@@ -17,7 +17,7 @@ export function parseInlineCSSToReactLikeObject(
 
 function convertCssDirectiveNameToReactCamelCase(original: string): string {
 	// capture group 1 is the character to capitalize, the hyphen is omitted by virtue of being outside the capture group
-	const replaced = original.replace(/-([a-z0-9])/gi, (_match, char) => {
+	const replaced = original.replace(/-([a-z\d])/gi, (_match, char) => {
 		return char.toUpperCase();
 	});
 	return replaced;

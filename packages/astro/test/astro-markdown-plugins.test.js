@@ -1,7 +1,9 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
+
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import addClasses from './fixtures/astro-markdown-plugins/add-classes.mjs';
+import { loadFixture } from './test-utils.js';
 
 const defaultMarkdownConfig = {
 	gfm: true,
@@ -44,21 +46,21 @@ describe('Astro Markdown plugins', () => {
 			const $ = cheerio.load(html);
 
 			// test 1: Added a TOC
-			expect($('.toc')).to.have.lengthOf(1);
+			assert.equal($('.toc').length, 1);
 
 			// test 2: Added .title to h1
-			expect($('#hello-world').hasClass('title')).to.equal(true);
+			assert.ok($('#hello-world').hasClass('title'));
 		});
 
 		// Asserts Astro 1.0 behavior is removed. Test can be removed in Astro 3.0.
 		it('Still applies default plugins when user plugins are provided', async () => {
 			const gfmHtml = await fixture.readFile('/with-gfm/index.html');
 			const $1 = cheerio.load(gfmHtml);
-			expect($1('a[href="https://example.com"]')).to.have.lengthOf(1);
+			assert.equal($1('a[href="https://example.com"]').length, 1);
 
 			const smartypantsHtml = await fixture.readFile('/with-smartypants/index.html');
 			const $2 = cheerio.load(smartypantsHtml);
-			expect($2('p').html()).to.equal('“Smartypants” is — awesome');
+			assert.equal($2('p').html(), '“Smartypants” is — awesome');
 
 			testRemark(gfmHtml);
 			testRehype(gfmHtml, '#github-flavored-markdown-test');
@@ -69,7 +71,7 @@ describe('Astro Markdown plugins', () => {
 			const $ = cheerio.load(html);
 
 			// test 1: GFM autolink applied correctly
-			expect($('a[href="https://example.com"]')).to.have.lengthOf(1);
+			assert.equal($('a[href="https://example.com"]').length, 1);
 
 			testRemark(html);
 			testRehype(html, '#github-flavored-markdown-test');
@@ -80,7 +82,7 @@ describe('Astro Markdown plugins', () => {
 			const $ = cheerio.load(html);
 
 			// test 1: smartypants applied correctly
-			expect($('p').html()).to.equal('“Smartypants” is — awesome');
+			assert.equal($('p').html(), '“Smartypants” is — awesome');
 
 			testRemark(html);
 			testRehype(html, '#smartypants-test');
@@ -97,7 +99,7 @@ describe('Astro Markdown plugins', () => {
 		const html = await fixture.readFile('/with-gfm/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('a[href="https://example.com"]')).to.have.lengthOf(0);
+		assert.equal($('a[href="https://example.com"]').length, 0);
 
 		testRemark(html);
 		testRehype(html, '#github-flavored-markdown-test');
@@ -113,7 +115,7 @@ describe('Astro Markdown plugins', () => {
 		const html = await fixture.readFile('/with-smartypants/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('p').html()).to.equal('"Smartypants" is -- awesome');
+		assert.equal($('p').html(), '"Smartypants" is -- awesome');
 
 		testRemark(html);
 		testRehype(html, '#smartypants-test');
@@ -122,10 +124,10 @@ describe('Astro Markdown plugins', () => {
 
 function testRehype(html, headingId) {
 	const $ = cheerio.load(html);
-	expect($(headingId)).to.have.lengthOf(1);
-	expect($(headingId).hasClass('title')).to.equal(true);
+	assert.equal($(headingId).length, 1);
+	assert.ok($(headingId).hasClass('title'));
 }
 
 function testRemark(html) {
-	expect(html).to.include('Remark plugin applied!');
+	assert.ok(html.includes('Remark plugin applied!'));
 }

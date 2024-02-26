@@ -309,6 +309,7 @@ async function clientBuild(
 			...viteConfig.build,
 			emptyOutDir: false,
 			outDir: fileURLToPath(out),
+			copyPublicDir: ssr,
 			rollupOptions: {
 				...viteConfig.build?.rollupOptions,
 				input: Array.from(input),
@@ -524,7 +525,7 @@ export function makeAstroPageEntryPointFileName(
 	const name = route?.route ?? pageModuleId;
 	return `pages${name
 		.replace(/\/$/, '/index')
-		.replaceAll(/[\[\]]/g, '_')
+		.replaceAll(/[[\]]/g, '_')
 		.replaceAll('...', '---')}.astro.mjs`;
 }
 

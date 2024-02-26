@@ -29,8 +29,8 @@ async function createRestartedContainer(
 	return newContainer;
 }
 
-const configRE = new RegExp(`.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$`);
-const preferencesRE = new RegExp(`.*\.astro\/settings\.json$`);
+const configRE = /.*astro.config.(?:mjs|cjs|js|ts)$/;
+const preferencesRE = /.*\.astro\/settings.json$/;
 
 export function shouldRestartContainer(
 	{ settings, inlineConfig, restartInFlight }: Container,
@@ -80,7 +80,7 @@ export async function restartContainer(container: Container): Promise<Container 
 			);
 		}
 		// Inform connected clients of the config error
-		container.viteServer.ws.send({
+		container.viteServer.hot.send({
 			type: 'error',
 			err: {
 				message: error.message,

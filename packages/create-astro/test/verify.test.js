@@ -1,9 +1,9 @@
-import { expect } from 'chai';
-
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { verify } from '../dist/index.js';
 import { setup } from './utils.js';
 
-describe('verify', () => {
+describe('verify', async () => {
 	const fixture = setup();
 	const exit = (code) => {
 		throw code;
@@ -12,7 +12,7 @@ describe('verify', () => {
 	it('basics', async () => {
 		const context = { template: 'basics', exit };
 		await verify(context);
-		expect(fixture.messages().length).to.equal(0, 'Did not expect `verify` to log any messages');
+		assert.equal(fixture.messages().length, 0, 'Did not expect `verify` to log any messages');
 	});
 
 	it('missing', async () => {
@@ -23,19 +23,19 @@ describe('verify', () => {
 		} catch (e) {
 			err = e;
 		}
-		expect(err).to.eq(1);
-		expect(fixture.hasMessage('Template missing does not exist!'));
+		assert.equal(err, 1);
+		assert.ok(!fixture.hasMessage('Template missing does not exist!'));
 	});
 
 	it('starlight', async () => {
 		const context = { template: 'starlight', exit };
 		await verify(context);
-		expect(fixture.messages().length).to.equal(0, 'Did not expect `verify` to log any messages');
+		assert.equal(fixture.messages().length, 0, 'Did not expect `verify` to log any messages');
 	});
 
 	it('starlight/tailwind', async () => {
 		const context = { template: 'starlight/tailwind', exit };
 		await verify(context);
-		expect(fixture.messages().length).to.equal(0, 'Did not expect `verify` to log any messages');
+		assert.equal(fixture.messages().length, 0, 'Did not expect `verify` to log any messages');
 	});
 });

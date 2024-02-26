@@ -1,7 +1,7 @@
-import { fileURLToPath } from 'node:url';
 import nodeFS from 'node:fs';
 import path from 'node:path';
-
+import { describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { attachContentServerListeners } from '../../../dist/content/index.js';
 import { createFs, runInContainer, triggerFSEvent } from '../test-utils.js';
 

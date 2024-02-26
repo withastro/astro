@@ -27,7 +27,7 @@ test.describe('Dev Toolbar', () => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const toolbar = page.locator('astro-dev-toolbar');
-		const appButton = toolbar.locator('button[data-app-id="astro"]');
+		const appButton = toolbar.locator('button[data-app-id="astro:home"]');
 		const appButtonTooltip = appButton.locator('.item-tooltip');
 		await appButton.hover();
 
@@ -38,10 +38,12 @@ test.describe('Dev Toolbar', () => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const toolbar = page.locator('astro-dev-toolbar');
-		const appButton = toolbar.locator('button[data-app-id="astro"]');
+		const appButton = toolbar.locator('button[data-app-id="astro:home"]');
 		await appButton.click();
 
-		const astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro"]');
+		const astroAppCanvas = toolbar.locator(
+			'astro-dev-toolbar-app-canvas[data-app-id="astro:home"]'
+		);
 		const astroWindow = astroAppCanvas.locator('astro-dev-toolbar-window');
 		await expect(astroWindow).toHaveCount(1);
 		await expect(astroWindow).toBeVisible();
@@ -49,6 +51,28 @@ test.describe('Dev Toolbar', () => {
 		// Toggle app off
 		await appButton.click();
 		await expect(astroWindow).not.toBeVisible();
+	});
+
+	test('show integration app', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/view-transition-a'));
+
+		let toolbar = page.locator('astro-dev-toolbar');
+		let appButton = toolbar.locator('button[data-app-id="astro:home"]');
+		await appButton.click();
+
+		let astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:home"]');
+		let astroToolbarCards = await astroAppCanvas.locator('astro-dev-toolbar-card');
+		await page.waitForSelector('astro-dev-toolbar-card');
+		await expect(astroToolbarCards.first()).toBeVisible();
+
+		let consolePromise = page.waitForEvent('console');
+		await page.click('#go-to-b');
+		await consolePromise;
+
+		astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:home"]');
+		astroToolbarCards = await astroAppCanvas.locator('astro-dev-toolbar-card');
+		await page.waitForSelector('astro-dev-toolbar-card');
+		await expect(astroToolbarCards.first()).toBeVisible();
 	});
 
 	test('xray shows highlights and tooltips', async ({ page, astro }) => {
@@ -98,17 +122,18 @@ test.describe('Dev Toolbar', () => {
 		await appButton.click();
 
 		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
-		const auditHighlight = auditCanvas.locator('astro-dev-toolbar-highlight');
-		await expect(auditHighlight).toBeVisible();
+		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
 
-		await auditHighlight.hover();
-		const auditHighlightTooltip = auditHighlight.locator('astro-dev-toolbar-tooltip');
-		await expect(auditHighlightTooltip).toBeVisible();
+		for (const auditHighlight of await auditHighlights.all()) {
+			await expect(auditHighlight).toBeVisible();
+
+			await auditHighlight.hover();
+			const auditHighlightTooltip = auditHighlight.locator('astro-dev-toolbar-tooltip');
+			await expect(auditHighlightTooltip).toBeVisible();
+		}
 
 		// Toggle app off
 		await appButton.click();
-		await expect(auditHighlight).not.toBeVisible();
-		await expect(auditHighlightTooltip).not.toBeVisible();
 	});
 
 	test('audit shows no issues message when there are no issues', async ({ page, astro }) => {
@@ -127,6 +152,23 @@ test.describe('Dev Toolbar', () => {
 		await expect(auditWindow).toBeVisible();
 
 		await expect(auditWindow.locator('astro-dev-toolbar-icon[icon=check-circle]')).toBeVisible();
+	});
+
+	test('audit shows a window with list of problems', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
+		await appButton.click();
+
+		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
+		const auditWindow = auditCanvas.locator('astro-dev-toolbar-window');
+		await expect(auditWindow).toHaveCount(1);
+		await expect(auditWindow).toBeVisible();
+
+		// Toggle app off
+		await appButton.click();
+		await expect(auditWindow).not.toBeVisible();
 	});
 
 	test('adjusts tooltip position if off-screen', async ({ page, astro }) => {
@@ -187,10 +229,12 @@ test.describe('Dev Toolbar', () => {
 		await expect(settingsWindow).toBeVisible();
 
 		// Click the astro app
-		appButton = toolbar.locator('button[data-app-id="astro"]');
+		appButton = toolbar.locator('button[data-app-id="astro:home"]');
 		await appButton.click();
 
-		const astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro"]');
+		const astroAppCanvas = toolbar.locator(
+			'astro-dev-toolbar-app-canvas[data-app-id="astro:home"]'
+		);
 		const astroWindow = astroAppCanvas.locator('astro-dev-toolbar-window');
 		await expect(astroWindow).toHaveCount(1);
 		await expect(astroWindow).toBeVisible();
@@ -232,5 +276,18 @@ test.describe('Dev Toolbar', () => {
 		// Toggle app off
 		await appButton.click();
 		await expect(myAppWindow).not.toBeVisible();
+	});
+
+	test('islands include their server and client render time', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const island = page.locator('astro-island');
+		await expect(island).toHaveCount(1);
+
+		const serverRenderTime = await island.getAttribute('server-render-time');
+		const clientRenderTime = await island.getAttribute('client-render-time');
+
+		expect(serverRenderTime).not.toBe(null);
+		expect(clientRenderTime).not.toBe(null);
 	});
 });

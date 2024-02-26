@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -35,15 +36,15 @@ describe('Assets in CSS', () => {
 
 	it('Bundled CSS does not have __VITE_ASSET__', async () => {
 		let css = await getCSSForPage('/one/index.html');
-		expect(css).to.not.contain('__VITE_ASSET__');
+		assert.equal(css.includes('__VITE_ASSET__'), false);
 		css = await getCSSForPage('/two/index.html');
-		expect(css).to.not.contain('__VITE_ASSET__');
+		assert.equal(css.includes('__VITE_ASSET__'), false);
 	});
 
 	it('Pages contain only their own CSS', async () => {
 		let css = await getCSSForPage('/one/index.html');
-		expect(getAllMatches(/font-face/g, css)).to.equal(1);
+		assert.equal(getAllMatches(/font-face/g, css), 1);
 		css = await getCSSForPage('/two/index.html');
-		expect(getAllMatches(/font-face/g, css)).to.equal(1);
+		assert.equal(getAllMatches(/font-face/g, css), 1);
 	});
 });

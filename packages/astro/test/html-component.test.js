@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -23,8 +24,8 @@ describe('HTML Component', () => {
 			const h1 = $('h1');
 			const foo = $('#foo');
 
-			expect(h1.text()).to.equal('Hello component!');
-			expect(foo.text()).to.equal('bar');
+			assert.equal(h1.text(), 'Hello component!');
+			assert.equal(foo.text(), 'bar');
 		});
 	});
 
@@ -42,7 +43,7 @@ describe('HTML Component', () => {
 		it('works', async () => {
 			const res = await fixture.fetch('/');
 
-			expect(res.status).to.equal(200);
+			assert.equal(res.status, 200);
 
 			const html = await res.text();
 			const $ = cheerio.load(html);
@@ -50,8 +51,8 @@ describe('HTML Component', () => {
 			const h1 = $('h1');
 			const foo = $('#foo');
 
-			expect(h1.text()).to.equal('Hello component!');
-			expect(foo.text()).to.equal('bar');
+			assert.equal(h1.text(), 'Hello component!');
+			assert.equal(foo.text(), 'bar');
 		});
 	});
 });

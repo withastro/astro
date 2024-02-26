@@ -1,6 +1,7 @@
-import { expect } from 'chai';
-import { mkdir, writeFile } from 'node:fs/promises';
+import assert from 'node:assert/strict';
 import { rmSync } from 'node:fs';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { after, before, describe, it } from 'node:test';
 
 import { git } from '../dist/index.js';
 import { setup } from './utils.js';
@@ -12,21 +13,20 @@ describe('git', () => {
 		const context = { cwd: '', dryRun: true, prompt: () => ({ git: false }) };
 		await git(context);
 
-		expect(fixture.hasMessage('Skipping Git initialization')).to.be.true;
+		assert.ok(fixture.hasMessage('Skipping Git initialization'));
 	});
 
 	it('yes (--dry-run)', async () => {
 		const context = { cwd: '', dryRun: true, prompt: () => ({ git: true }) };
 		await git(context);
-
-		expect(fixture.hasMessage('Skipping Git initialization')).to.be.true;
+		assert.ok(fixture.hasMessage('Skipping Git initialization'));
 	});
 
 	it('no (--dry-run)', async () => {
 		const context = { cwd: '', dryRun: true, prompt: () => ({ git: false }) };
 		await git(context);
 
-		expect(fixture.hasMessage('Skipping Git initialization')).to.be.true;
+		assert.ok(fixture.hasMessage('Skipping Git initialization'));
 	});
 });
 
@@ -48,7 +48,7 @@ describe('git initialized', () => {
 		};
 		await git(context);
 
-		expect(fixture.hasMessage('Git has already been initialized')).to.be.true;
+		assert.ok(fixture.hasMessage('Git has already been initialized'));
 	});
 
 	after(() => {

@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('API routes', () => {
@@ -13,8 +14,8 @@ describe('API routes', () => {
 	describe('Binary data', () => {
 		it('can be returned from a response', async () => {
 			const dat = await fixture.readFile('/binary.dat', null);
-			expect(dat.length).to.equal(1);
-			expect(dat[0]).to.equal(0xff);
+			assert.equal(dat.length, 1);
+			assert.equal(dat[0], 0xff);
 		});
 	});
 });

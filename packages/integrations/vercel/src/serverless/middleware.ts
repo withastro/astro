@@ -1,7 +1,12 @@
 import { existsSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { builtinModules } from 'node:module';
-import { ASTRO_LOCALS_HEADER, ASTRO_PATH_HEADER, NODE_PATH } from './adapter.js';
+import {
+	ASTRO_MIDDLEWARE_SECRET_HEADER,
+	ASTRO_LOCALS_HEADER,
+	ASTRO_PATH_HEADER,
+	NODE_PATH,
+} from './adapter.js';
 
 /**
  * It generates the Vercel Edge Middleware file.
@@ -17,11 +22,13 @@ import { ASTRO_LOCALS_HEADER, ASTRO_PATH_HEADER, NODE_PATH } from './adapter.js'
 export async function generateEdgeMiddleware(
 	astroMiddlewareEntryPointPath: URL,
 	vercelEdgeMiddlewareHandlerPath: URL,
-	outPath: URL
+	outPath: URL,
+	middlewareSecret: string
 ): Promise<URL> {
 	const code = edgeMiddlewareTemplate(
 		astroMiddlewareEntryPointPath,
-		vercelEdgeMiddlewareHandlerPath
+		vercelEdgeMiddlewareHandlerPath,
+		middlewareSecret
 	);
 	// https://vercel.com/docs/concepts/functions/edge-middleware#create-edge-middleware
 	const bundledFilePath = fileURLToPath(outPath);
@@ -56,7 +63,8 @@ export async function generateEdgeMiddleware(
 
 function edgeMiddlewareTemplate(
 	astroMiddlewareEntryPointPath: URL,
-	vercelEdgeMiddlewareHandlerPath: URL
+	vercelEdgeMiddlewareHandlerPath: URL,
+	middlewareSecret: string
 ) {
 	const middlewarePath = JSON.stringify(
 		fileURLToPath(astroMiddlewareEntryPointPath).replace(/\\/g, '/')
@@ -82,9 +90,10 @@ export default async function middleware(request, context) {
 	ctx.locals = ${handlerTemplateCall};
 	const { origin } = new URL(request.url);
 	const next = () =>
-		fetch(new URL('${NODE_PATH}', request.url), {
+		fetch(new URL('/${NODE_PATH}', request.url), {
 			headers: {
 				...Object.fromEntries(request.headers.entries()),
+				'${ASTRO_MIDDLEWARE_SECRET_HEADER}': '${middlewareSecret}',
 				'${ASTRO_PATH_HEADER}': request.url.replace(origin, ''),
 				'${ASTRO_LOCALS_HEADER}': trySerializeLocals(ctx.locals)
 			}

@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Can handle errors that are not instanceof Error', () => {
@@ -23,11 +24,10 @@ describe('Can handle errors that are not instanceof Error', () => {
 		let res = await fixture.fetch('/');
 		let html = await res.text();
 
-		expect(html).to.include('Error');
-
+		assert.equal(html.includes('Error'), true);
 		res = await fixture.fetch('/');
 		await res.text();
 
-		expect(html).to.include('Error');
+		assert.equal(html.includes('Error'), true);
 	});
 });

@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { isWindows, loadFixture } from './test-utils.js';
 
@@ -20,14 +21,14 @@ describe('Svelte component', () => {
 			const html = await fixture.readFile('/typescript/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#svelte-ts').text()).to.equal('Hello, TypeScript');
+			assert.equal($('#svelte-ts').text(), 'Hello, TypeScript');
 		});
 
 		it('Works with custom Svelte config', async () => {
 			const html = await fixture.readFile('/typescript/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#svelte-custom-ext').text()).to.equal('Hello, Custom Extensions');
+			assert.equal($('#svelte-custom-ext').text(), 'Hello, Custom Extensions');
 		});
 	});
 
@@ -53,7 +54,7 @@ describe('Svelte component', () => {
 
 				if (!src) continue;
 
-				expect((await fixture.fetch(src)).status, `404: ${src}`).to.equal(200);
+				assert.equal((await fixture.fetch(src)).status, `404: ${src}`, 200);
 			}
 		});
 	});

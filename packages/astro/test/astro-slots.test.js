@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -14,79 +15,59 @@ describe('Slots', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#a').text().trim()).to.equal('A');
-		expect($('#b').text().trim()).to.equal('B');
-		expect($('#c').text().trim()).to.equal('C');
-		expect($('#default').text().trim()).to.equal('Default');
+		assert.equal($('#a').text().trim(), 'A');
+		assert.equal($('#b').text().trim(), 'B');
+		assert.equal($('#c').text().trim(), 'C');
+		assert.equal($('#default').text().trim(), 'Default');
 	});
 
 	it('Dynamic named slots work', async () => {
 		const html = await fixture.readFile('/dynamic/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#a').text().trim()).to.equal('A');
-		expect($('#b').text().trim()).to.equal('B');
-		expect($('#c').text().trim()).to.equal('C');
-		expect($('#default').text().trim()).to.equal('Default');
-	});
-
-	it('Dynamic named slots work with map work', async () => {
-		const html = await fixture.readFile('/dynamic-map/index.html');
-		const $ = cheerio.load(html);
-
-		expect($('#a').text().trim()).to.equal('A');
-		expect($('#b').text().trim()).to.equal('B');
-		expect($('#c').text().trim()).to.equal('C');
-		expect($('#default').text().trim()).to.equal('Default');
-	});
-
-	it('Dynamic named slots work with for loop', async () => {
-		const html = await fixture.readFile('/dynamic-for/index.html');
-		const $ = cheerio.load(html);
-
-		expect($('#a').text().trim()).to.equal('A');
-		expect($('#b').text().trim()).to.equal('B');
-		expect($('#c').text().trim()).to.equal('C');
-		expect($('#default').text().trim()).to.equal('Default');
+		assert.equal($('#a').text().trim(), 'A');
+		assert.equal($('#b').text().trim(), 'B');
+		assert.equal($('#c').text().trim(), 'C');
+		assert.equal($('#default').text().trim(), 'Default');
 	});
 
 	it('Conditional named slots work', async () => {
 		const html = await fixture.readFile('/conditional/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#a').text().trim()).to.equal('A');
-		expect($('#b').text().trim()).to.equal('B');
-		expect($('#c').text().trim()).to.equal('C');
-		expect($('#default').text().trim()).to.equal('Default');
+		assert.equal($('#a').text().trim(), 'A');
+		assert.equal($('#b').text().trim(), 'B');
+		assert.equal($('#c').text().trim(), 'C');
+		assert.equal($('#default').text().trim(), 'Default');
 	});
 
 	it('Slots of a component render fallback content by default', async () => {
 		const html = await fixture.readFile('/fallback/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#default')).to.have.lengthOf(1);
+		assert.equal($('#default').length, 1);
 	});
 
 	it('Slots of a page render fallback content', async () => {
 		const html = await fixture.readFile('/fallback-own/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#default')).to.have.lengthOf(1);
+		assert.equal($('#default').length, 1);
 	});
 
 	it('Slots override fallback content', async () => {
 		const html = await fixture.readFile('/fallback-override/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#override')).to.have.lengthOf(1);
-		expect($('#fallback-2').text()).to.equal('Slotty slot.');
+		assert.equal($('#override').length, 1);
+		assert.equal($('#fallback-2').text(), 'Slotty slot.');
 	});
 
 	it('Slots work with multiple elements', async () => {
 		const html = await fixture.readFile('/multiple/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#a').text().trim()).to.equal('ABC');
+		assert.equal($('#a').text().trim(), 'ABC');
 	});
 
 	it('Slots work on Components', async () => {
@@ -94,13 +75,12 @@ describe('Slots', () => {
 		const $ = cheerio.load(html);
 
 		// test 1: #a renders
-		expect($('#a')).to.have.lengthOf(1);
+		assert.equal($('#a').length, 1);
 
 		// test 2: Slotted component into #a
-		expect($('#a').children('astro-component')).to.have.lengthOf(1);
-
+		assert.equal($('#a').children('astro-component').length, 1);
 		// test 3: Slotted component into default slot
-		expect($('#default').children('astro-component')).to.have.lengthOf(1);
+		assert.equal($('#default').children('astro-component').length, 1);
 	});
 
 	describe('Slots API work on Components', () => {
@@ -108,42 +88,42 @@ describe('Slots', () => {
 			const html = await fixture.readFile('/slottedapi-default/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#a')).to.have.lengthOf(1);
-			expect($('#b')).to.have.lengthOf(1);
-			expect($('#c')).to.have.lengthOf(1);
-			expect($('#default')).to.have.lengthOf(1);
+			assert.equal($('#a').length, 1);
+			assert.equal($('#b').length, 1);
+			assert.equal($('#c').length, 1);
+			assert.equal($('#default').length, 1);
 		});
 
 		it('IDs will not exist because the slots are not filled', async () => {
 			const html = await fixture.readFile('/slottedapi-empty/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#a')).to.have.lengthOf(0);
-			expect($('#b')).to.have.lengthOf(0);
-			expect($('#c')).to.have.lengthOf(0);
-			expect($('#default')).to.have.lengthOf(0);
+			assert.equal($('#a').length, 0);
+			assert.equal($('#b').length, 0);
+			assert.equal($('#c').length, 0);
+			assert.equal($('#default').length, 0);
 		});
 
 		it('IDs will exist because the slots are filled', async () => {
 			const html = await fixture.readFile('/slottedapi-filled/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#a')).to.have.lengthOf(1);
-			expect($('#b')).to.have.lengthOf(1);
-			expect($('#c')).to.have.lengthOf(1);
+			assert.equal($('#a').length, 1);
+			assert.equal($('#b').length, 1);
+			assert.equal($('#c').length, 1);
 
-			expect($('#default')).to.have.lengthOf(0); // the default slot is not filled
+			assert.equal($('#default').length, 0); // the default slot is not filled
 		});
 
 		it('Default ID will exist because the default slot is filled', async () => {
 			const html = await fixture.readFile('/slottedapi-default-filled/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#a')).to.have.lengthOf(0);
-			expect($('#b')).to.have.lengthOf(0);
-			expect($('#c')).to.have.lengthOf(0);
+			assert.equal($('#a').length, 0);
+			assert.equal($('#b').length, 0);
+			assert.equal($('#c').length, 0);
 
-			expect($('#default')).to.have.lengthOf(1); // the default slot is filled
+			assert.equal($('#default').length, 1); // the default slot is not filled
 		});
 	});
 
@@ -153,8 +133,8 @@ describe('Slots', () => {
 			const html = await fixture.readFile('/slottedapi-render/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#render')).to.have.lengthOf(1);
-			expect($('#render').text()).to.equal('render');
+			assert.equal($('#render').length, 1);
+			assert.equal($('#render').text(), 'render');
 		}
 
 		// Child function render without args
@@ -162,8 +142,8 @@ describe('Slots', () => {
 			const html = await fixture.readFile('/slottedapi-render/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#render-fn')).to.have.lengthOf(1);
-			expect($('#render-fn').text()).to.equal('render-fn');
+			assert.equal($('#render-fn').length, 1);
+			assert.equal($('#render-fn').text(), 'render-fn');
 		}
 
 		// Child function render with args
@@ -171,9 +151,9 @@ describe('Slots', () => {
 			const html = await fixture.readFile('/slottedapi-render/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#render-args')).to.have.lengthOf(1);
-			expect($('#render-args span')).to.have.lengthOf(1);
-			expect($('#render-args').text()).to.equal('render-args');
+			assert.equal($('#render-args').length, 1);
+			assert.equal($('#render-args span').length, 1);
+			assert.equal($('#render-args').text(), 'render-args');
 		}
 
 		{
@@ -181,13 +161,13 @@ describe('Slots', () => {
 			const $ = cheerio.load(html);
 
 			const elements = $('div');
-			expect(elements).to.have.lengthOf(10);
+			assert.equal(elements.length, 10);
 
 			const [first, second, third] = elements;
 
-			expect(first.children[0].data).to.not.equal(second.children[0].data);
-			expect(second.children[0].data).to.not.equal(third.children[0].data);
-			expect(third.children[0].data).to.not.equal(first.children[0].data);
+			assert.notEqual(first.children[0].data, second.children[0].data);
+			assert.notEqual(second.children[0].data, third.children[0].data);
+			assert.notEqual(third.children[0].data, first.children[0].data);
 		}
 	});
 });

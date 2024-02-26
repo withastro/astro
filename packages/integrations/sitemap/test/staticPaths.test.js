@@ -1,6 +1,6 @@
-import { loadFixture, readXML } from './test-utils.js';
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import { loadFixture, readXML } from './test-utils.js';
 
 describe('getStaticPaths support', () => {
 	/** @type {import('./test-utils.js').Fixture} */
@@ -38,6 +38,6 @@ describe('getStaticPaths support', () => {
 
 	it('should render the endpoint', async () => {
 		const page = await fixture.readFile('./it/manifest');
-		assert.match(page, /I\'m a route in the "it" language./);
+		assert.match(page, /I'm a route in the "it" language./);
 	});
 });

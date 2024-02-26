@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -16,12 +17,12 @@ describe('getStaticPaths with trailingSlash: ignore', () => {
 	it('includes index page', async () => {
 		let html = await fixture.readFile('/index.html');
 		let $ = cheerio.load(html);
-		expect($('h1').text()).to.equal('Page 1');
+		assert.equal($('h1').text(), 'Page 1');
 	});
 
 	it('includes paginated page', async () => {
 		let html = await fixture.readFile('/2/index.html');
 		let $ = cheerio.load(html);
-		expect($('h1').text()).to.equal('Page 2');
+		assert.equal($('h1').text(), 'Page 2');
 	});
 });

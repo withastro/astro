@@ -1,7 +1,7 @@
-import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import { parseHTML } from 'linkedom';
+import { loadFixture } from '../../../astro/test/test-utils.js';
 
 const root = new URL('./fixtures/image-assets/', import.meta.url);
 
@@ -51,6 +51,13 @@ describe('Markdoc - Image assets', () => {
 				/\/_image\?href=.*%2Fsrc%2Fassets%2Falias%2Fcityscape.jpg%3ForigWidth%3D420%26origHeight%3D280%26origFormat%3Djpg&f=webp/
 			);
 		});
+
+		it('passes images inside image tags to configured image component', async () => {
+			const res = await baseFixture.fetch('/');
+			const html = await res.text();
+			const { document } = parseHTML(html);
+			assert.equal(document.querySelector('#component > img')?.className, 'custom-styles');
+		});
 	});
 
 	describe('build', () => {
@@ -74,6 +81,13 @@ describe('Markdoc - Image assets', () => {
 			const html = await baseFixture.readFile('/index.html');
 			const { document } = parseHTML(html);
 			assert.match(document.querySelector('#alias > img')?.src, /^\/_astro\/cityscape.*\.webp$/);
+		});
+
+		it('passes images inside image tags to configured image component', async () => {
+			const html = await baseFixture.readFile('/index.html');
+			const { document } = parseHTML(html);
+			assert.equal(document.querySelector('#component > img')?.className, 'custom-styles');
+			assert.match(document.querySelector('#component > img')?.src, /^\/_astro\/oar.*\.webp$/);
 		});
 	});
 });

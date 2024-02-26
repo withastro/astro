@@ -1,7 +1,8 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Using Astro.request in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -36,66 +37,65 @@ describe('Using Astro.request in SSR', () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/subpath/request');
 		const response = await app.render(request);
-		expect(response.status).to.equal(200);
+		assert.equal(response.status, 200);
 		const html = await response.text();
 		const $ = cheerioLoad(html);
-		expect($('#origin').text()).to.equal('http://example.com');
+		assert.equal($('#origin').text(), 'http://example.com');
 	});
 
 	it('Duplicate slashes are collapsed', async () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/subpath////request/////');
 		const response = await app.render(request);
-		expect(response.status).to.equal(200);
+		assert.equal(response.status, 200);
 		const html = await response.text();
 		const $ = cheerioLoad(html);
-		expect($('#origin').text()).to.equal('http://example.com');
-		expect($('#pathname').text()).to.equal('/subpath/request/');
-		expect($('#request-pathname').text()).to.equal('/subpath/request/');
+		assert.equal($('#origin').text(), 'http://example.com');
+		assert.equal($('#pathname').text(), '/subpath/request/');
+		assert.equal($('#request-pathname').text(), '/subpath/request/');
 	});
 
 	it('public file is copied over', async () => {
 		const json = await fixture.readFile('/client/cars.json');
-		expect(json).to.not.be.undefined;
+		assert.notEqual(json, undefined);
 	});
 
 	it('CSS assets have their base prefix', async () => {
 		const app = await fixture.loadTestAdapterApp();
 		let request = new Request('http://example.com/subpath/request');
 		let response = await app.render(request);
-		expect(response.status).to.equal(200);
+		assert.equal(response.status, 200);
 		const html = await response.text();
 		const $ = cheerioLoad(html);
 
 		const linkHref = $('link').attr('href');
-		expect(linkHref.startsWith('/subpath/')).to.equal(true);
+		assert.equal(linkHref.startsWith('/subpath/'), true);
 
 		request = new Request('http://example.com' + linkHref);
 		response = await app.render(request);
 
-		expect(response.status).to.equal(200);
+		assert.equal(response.status, 200);
 		const css = await response.text();
-		expect(css).to.not.be.an('undefined');
+		assert.notEqual(css, undefined);
 	});
 
 	it('script assets have their base prefix', async () => {
 		const app = await fixture.loadTestAdapterApp();
 		let request = new Request('http://example.com/subpath/request');
 		let response = await app.render(request);
-		expect(response.status).to.equal(200);
+		assert.equal(response.status, 200);
 		const html = await response.text();
 		const $ = cheerioLoad(html);
 
 		for (const el of $('script')) {
 			const scriptSrc = $(el).attr('src');
-			expect(scriptSrc.startsWith('/subpath/')).to.equal(true);
-
+			assert.equal(scriptSrc.startsWith('/subpath/'), true);
 			request = new Request('http://example.com' + scriptSrc);
 			response = await app.render(request);
 
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 			const js = await response.text();
-			expect(js).to.not.be.an('undefined');
+			assert.notEqual(js, undefined);
 		}
 	});
 
@@ -103,8 +103,8 @@ describe('Using Astro.request in SSR', () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/subpath/cars.json');
 		const response = await app.render(request);
-		expect(response.status).to.equal(200);
+		assert.equal(response.status, 200);
 		const data = await response.json();
-		expect(data).to.be.an('array');
+		assert.equal(data instanceof Array, true);
 	});
 });

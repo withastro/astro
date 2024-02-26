@@ -1,7 +1,8 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('SSR with Large Array and client rendering', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -24,10 +25,10 @@ describe('SSR with Large Array and client rendering', () => {
 		const html = new TextDecoder().decode(data);
 
 		const $ = cheerio.load(html);
-		expect($('head meta[name="viewport"]')).to.have.a.lengthOf(1);
-		expect($('head link[rel="icon"]')).to.have.a.lengthOf(1);
-		expect($('main')).to.have.a.lengthOf(1);
-		expect($('astro-island')).to.have.a.lengthOf(1);
-		expect($('h1').text()).to.equal('Hello, Solid!');
+		assert.equal($('head meta[name="viewport"]').length, 1);
+		assert.equal($('head link[rel="icon"]').length, 1);
+		assert.equal($('main').length, 1);
+		assert.equal($('astro-island').length, 1);
+		assert.equal($('h1').text(), 'Hello, Solid!');
 	});
 });

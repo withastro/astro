@@ -41,6 +41,7 @@ export interface ModuleLoader {
 export interface ModuleNode {
 	id: string | null;
 	url: string;
+	file: string | null;
 	ssrModule: Record<string, any> | null;
 	ssrTransformResult: {
 		deps?: string[];

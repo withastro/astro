@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe("Static build - format: 'file'", () => {
@@ -13,11 +14,11 @@ describe("Static build - format: 'file'", () => {
 
 	it('Builds pages in root', async () => {
 		const html = await fixture.readFile('/one.html');
-		expect(html).to.be.a('string');
+		assert.equal(typeof html, 'string');
 	});
 
 	it('Builds pages in subfolders', async () => {
 		const html = await fixture.readFile('/sub/page.html');
-		expect(html).to.be.a('string');
+		assert.equal(typeof html, 'string');
 	});
 });

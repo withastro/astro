@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -17,7 +18,7 @@ describe('Expressions', () => {
 		const $ = cheerio.load(html);
 
 		for (let col of ['red', 'yellow', 'blue']) {
-			expect($('#' + col)).to.have.lengthOf(1);
+			assert.equal($('#' + col).length, 1);
 		}
 	});
 
@@ -26,7 +27,7 @@ describe('Expressions', () => {
 		const $ = cheerio.load(html);
 
 		for (let col of ['red', 'yellow', 'blue']) {
-			expect($('#' + col)).to.have.lengthOf(1);
+			assert.equal($('#' + col).length, 1);
 		}
 	});
 
@@ -35,7 +36,7 @@ describe('Expressions', () => {
 		const $ = cheerio.load(html);
 
 		for (let col of ['red', 'yellow', 'blue']) {
-			expect($('#' + col)).to.have.lengthOf(1);
+			assert.equal($('#' + col).length, 1);
 		}
 	});
 
@@ -44,25 +45,25 @@ describe('Expressions', () => {
 		const $ = cheerio.load(html);
 
 		for (let col of ['red', 'yellow', 'blue']) {
-			expect($('#' + col)).to.have.lengthOf(1);
+			assert.equal($('#' + col).length, 1);
 		}
 	});
 
 	it('Allows multiple JSX children in mustache', async () => {
 		const html = await fixture.readFile('/multiple-children/index.html');
 
-		expect(html).to.include('#f');
-		expect(html).not.to.include('#t');
+		assert.equal(html.includes('#f'), true);
+		assert.equal(html.includes('#t'), false);
 	});
 
 	it('Allows <> Fragments in expressions', async () => {
 		const html = await fixture.readFile('/multiple-children/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#fragment').children()).to.have.lengthOf(3);
-		expect($('#fragment').children('#a')).to.have.lengthOf(1);
-		expect($('#fragment').children('#b')).to.have.lengthOf(1);
-		expect($('#fragment').children('#c')).to.have.lengthOf(1);
+		assert.equal($('#fragment').children().length, 3);
+		assert.equal($('#fragment').children('#a').length, 1);
+		assert.equal($('#fragment').children('#b').length, 1);
+		assert.equal($('#fragment').children('#c').length, 1);
 	});
 
 	it('Does not render falsy values using &&', async () => {
@@ -70,57 +71,60 @@ describe('Expressions', () => {
 		const $ = cheerio.load(html);
 
 		// test 1: Expected {true && <span id="true" />} to render
-		expect($('#true')).to.have.lengthOf(1);
+		assert.equal($('#true').length, 1);
 
 		// test 2: Expected {0 && "VALUE"} to render "0"
-		expect($('#zero').text()).to.equal('0');
+		assert.equal($('#zero').text(), '0');
 
 		// test 3: Expected {false && <span id="false" />} not to render
-		expect($('#false')).to.have.lengthOf(0);
+		assert.equal($('#false').length, 0);
 
 		// test 4: Expected {null && <span id="null" />} not to render
-		expect($('#null')).to.have.lengthOf(0);
+		assert.equal($('#null').length, 0);
 
 		// test 5: Expected {undefined && <span id="undefined" />} not to render
-		expect($('#undefined')).to.have.lengthOf(0);
+		assert.equal($('#undefined').length, 0);
 
 		// Inside of a component
 
 		// test 6: Expected {true && <span id="true" />} to render
-		expect($('#frag-true')).to.have.lengthOf(1);
+		assert.equal($('#frag-true').length, 1);
 
 		// test 7: Expected {false && <span id="false" />} not to render
-		expect($('#frag-false')).to.have.lengthOf(0);
+		assert.equal($('#frag-false').length, 0);
 
 		// test 8: Expected {null && <span id="null" />} not to render
-		expect($('#frag-null')).to.have.lengthOf(0);
+		assert.equal($('#frag-null').length, 0);
 
 		// test 9: Expected {undefined && <span id="undefined" />} not to render
-		expect($('#frag-undefined')).to.have.lengthOf(0);
+		assert.equal($('#frag-undefined').length, 0);
 	});
 
 	it('Escapes HTML by default', async () => {
 		const html = await fixture.readFile('/escape/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('body').children()).to.have.lengthOf(2);
-		expect($('body').html()).to.include('&lt;script&gt;console.log("pwnd")&lt;/script&gt;');
-		expect($('#trusted')).to.have.lengthOf(1);
+		assert.equal($('body').children().length, 2);
+		assert.equal(
+			$('body').html().includes('&lt;script&gt;console.log("pwnd")&lt;/script&gt;'),
+			true
+		);
+		assert.equal($('#trusted').length, 1);
 	});
 
 	it('Does not double-escape HTML', async () => {
 		const html = await fixture.readFile('/escape/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#single-escape').html()).to.equal('Astro &amp; Vite');
+		assert.equal($('#single-escape').html(), 'Astro &amp; Vite');
 	});
 
 	it('Handles switch statements', async () => {
 		const html = await fixture.readFile('/switch/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#red').length).to.equal(0);
-		expect($('#yellow').length).to.equal(1);
-		expect($('#blue').length).to.equal(0);
+		assert.equal($('#red').length, 0);
+		assert.equal($('#yellow').length, 1);
+		assert.equal($('#blue').length, 0);
 	});
 });

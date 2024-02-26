@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -24,7 +25,7 @@ describe('Vue JSX', () => {
 				.toArray()
 				.map((el) => $(el).text());
 
-			expect(allPreValues).to.deep.equal(['2345', '0', '1', '1', '1', '10', '100', '1000']);
+			assert.deepEqual(allPreValues, ['2345', '0', '1', '1', '1', '10', '100', '1000']);
 		});
 	});
 });

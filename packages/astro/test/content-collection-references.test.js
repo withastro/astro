@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { fixLineEndings, loadFixture } from './test-utils.js';
 
@@ -39,31 +40,32 @@ describe('Content Collections - references', () => {
 				});
 
 				it('Returns expected keys', () => {
-					expect(json).to.haveOwnProperty('welcomePost');
-					expect(json).to.haveOwnProperty('banner');
-					expect(json).to.haveOwnProperty('author');
-					expect(json).to.haveOwnProperty('relatedPosts');
+					assert.ok(json.hasOwnProperty('welcomePost'));
+					assert.ok(json.hasOwnProperty('banner'));
+					assert.ok(json.hasOwnProperty('author'));
+					assert.ok(json.hasOwnProperty('relatedPosts'));
 				});
 
 				it('Returns `banner` data', () => {
 					const { banner } = json;
-					expect(banner).to.haveOwnProperty('data');
-					expect(banner.id).to.equal('welcome');
-					expect(banner.collection).to.equal('banners');
-					expect(banner.data.alt).to.equal(
+					assert.ok(banner.hasOwnProperty('data'));
+					assert.equal(banner.id, 'welcome');
+					assert.equal(banner.collection, 'banners');
+					assert.equal(
+						banner.data.alt,
 						'Futuristic landscape with chrome buildings and blue skies'
 					);
 
-					expect(banner.data.src.width).to.equal(400);
-					expect(banner.data.src.height).to.equal(225);
-					expect(banner.data.src.format).to.equal('jpg');
-					expect(banner.data.src.src.includes('the-future')).to.be.true;
+					assert.equal(banner.data.src.width, 400);
+					assert.equal(banner.data.src.height, 225);
+					assert.equal(banner.data.src.format, 'jpg');
+					assert.equal(banner.data.src.src.includes('the-future'), true);
 				});
 
 				it('Returns `author` data', () => {
 					const { author } = json;
-					expect(author).to.haveOwnProperty('data');
-					expect(author).to.deep.equal({
+					assert.ok(author.hasOwnProperty('data'));
+					assert.deepEqual(author, {
 						id: 'nate-moore',
 						collection: 'authors',
 						data: {
@@ -75,12 +77,12 @@ describe('Content Collections - references', () => {
 
 				it('Returns `relatedPosts` data', () => {
 					const { relatedPosts } = json;
-					expect(Array.isArray(relatedPosts)).to.be.true;
+					assert.equal(Array.isArray(relatedPosts), true, 'Expected relatedPosts to be an array');
 					const topLevelInfo = relatedPosts.map(({ data, body, ...meta }) => ({
 						...meta,
 						body: fixLineEndings(body).trim(),
 					}));
-					expect(topLevelInfo).to.deep.equal([
+					assert.deepEqual(topLevelInfo, [
 						{
 							id: 'related-1.md',
 							slug: 'related-1',
@@ -95,7 +97,7 @@ describe('Content Collections - references', () => {
 						},
 					]);
 					const postData = relatedPosts.map(({ data }) => data);
-					expect(postData).to.deep.equal([
+					assert.deepEqual(postData, [
 						{
 							title: 'Related post 1',
 							banner: { id: 'welcome', collection: 'banners' },
@@ -125,32 +127,33 @@ describe('Content Collections - references', () => {
 
 				it('Renders `banner` data', () => {
 					const banner = $('img[data-banner]');
-					expect(banner.length).to.equal(1);
-					expect(banner.attr('src')).to.include('the-future');
-					expect(banner.attr('alt')).to.equal(
+					assert.equal(banner.length, 1);
+					assert.ok(banner.attr('src').includes('the-future'));
+					assert.equal(
+						banner.attr('alt'),
 						'Futuristic landscape with chrome buildings and blue skies'
 					);
-					expect(banner.attr('width')).to.equal('400');
-					expect(banner.attr('height')).to.equal('225');
+					assert.equal(banner.attr('width'), '400');
+					assert.equal(banner.attr('height'), '225');
 				});
 
 				it('Renders `author` data', () => {
 					const author = $('a[data-author-name]');
-					expect(author.length).to.equal(1);
-					expect(author.attr('href')).to.equal('https://twitter.com/n_moore');
-					expect(author.text()).to.equal('Nate Something Moore');
+					assert.equal(author.length, 1);
+					assert.equal(author.attr('href'), 'https://twitter.com/n_moore');
+					assert.equal(author.text(), 'Nate Something Moore');
 				});
 
 				it('Renders `relatedPosts` data', () => {
 					const relatedPosts = $('ul[data-related-posts]');
-					expect(relatedPosts.length).to.equal(1);
+					assert.equal(relatedPosts.length, 1);
 					const relatedPost1 = relatedPosts.find('li').eq(0);
 
-					expect(relatedPost1.find('a').attr('href')).to.equal('/blog/related-1');
-					expect(relatedPost1.find('a').text()).to.equal('Related post 1');
+					assert.equal(relatedPost1.find('a').attr('href'), '/blog/related-1');
+					assert.equal(relatedPost1.find('a').text(), 'Related post 1');
 					const relatedPost2 = relatedPosts.find('li').eq(1);
-					expect(relatedPost2.find('a').attr('href')).to.equal('/blog/related-2');
-					expect(relatedPost2.find('a').text()).to.equal('Related post 2');
+					assert.equal(relatedPost2.find('a').attr('href'), '/blog/related-2');
+					assert.equal(relatedPost2.find('a').text(), 'Related post 2');
 				});
 			});
 		});

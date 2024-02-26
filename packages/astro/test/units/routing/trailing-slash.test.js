@@ -1,13 +1,14 @@
+import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
+import { createContainer } from '../../../dist/core/dev/container.js';
+import testAdapter from '../../test-adapter.js';
 import {
 	createBasicSettings,
 	createFs,
 	createRequestAndResponse,
 	defaultLogger,
 } from '../test-utils.js';
-import { fileURLToPath } from 'node:url';
-import { expect } from 'chai';
-import { createContainer } from '../../../dist/core/dev/container.js';
-import testAdapter from '../../test-adapter.js';
 
 const root = new URL('../../fixtures/api-routes/', import.meta.url);
 const fileSystem = {
@@ -44,7 +45,7 @@ describe('trailingSlash', () => {
 		});
 		container.handle(req, res);
 		const json = await text();
-		expect(json).to.equal('{"success":true}');
+		assert.equal(json, '{"success":true}');
 	});
 
 	it('should NOT match the API route when request lacks a trailing slash', async () => {
@@ -53,7 +54,7 @@ describe('trailingSlash', () => {
 			url: '/api',
 		});
 		container.handle(req, res);
-		expect(await text()).to.equal('');
-		expect(res.statusCode).to.equal(404);
+		assert.equal(await text(), '');
+		assert.equal(res.statusCode, 404);
 	});
 });

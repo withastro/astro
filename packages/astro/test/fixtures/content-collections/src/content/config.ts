@@ -1,7 +1,8 @@
-import { z, defineCollection } from 'astro:content';
+import { defineCollection, z } from 'astro:content';
 
 const withCustomSlugs = defineCollection({
-	schema: z.object({}),
+	// Ensure schema passes even when `slug` is present
+	schema: z.object({}).strict(),
 });
 
 const withSchemaConfig = defineCollection({

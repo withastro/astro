@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { isWindows, loadFixture } from './test-utils.js';
 
 let fixture;
@@ -25,7 +26,7 @@ describe('Impostor MDX File', () => {
 
 		it('does not crash when loading react component with .md or .mdx in name', async () => {
 			const result = await fixture.fetch('/').then((response) => response.text());
-			expect(result).to.contain('Baz');
+			assert.equal(result.includes('Baz'), true);
 		});
 	});
 });

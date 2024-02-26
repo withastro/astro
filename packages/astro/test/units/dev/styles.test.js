@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-
-import { getStylesForURL } from '../../../dist/vite-plugin-astro-server/css.js';
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { viteID } from '../../../dist/core/util.js';
+import { getStylesForURL } from '../../../dist/vite-plugin-astro-server/css.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -76,6 +76,6 @@ describe('Crawling graph for CSS', () => {
 		// In dev mode, HMR modules tracked are added to importedModules. We use `importers`
 		// to verify that they are true importers.
 		const res = await getStylesForURL(new URL('./src/pages/index.astro', root), loader);
-		expect(res.styles.length).to.equal(1);
+		assert.equal(res.styles.length, 1);
 	});
 });

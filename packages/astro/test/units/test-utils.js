@@ -1,18 +1,18 @@
-import { Volume } from 'memfs';
-import httpMocks from 'node-mocks-http';
 import { EventEmitter } from 'node:events';
 import realFS from 'node:fs';
 import npath from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { Volume } from 'memfs';
+import httpMocks from 'node-mocks-http';
 import { getDefaultClientDirectives } from '../../dist/core/client-directive/index.js';
-import { nodeLogDestination } from '../../dist/core/logger/node.js';
-import { createEnvironment } from '../../dist/core/render/index.js';
-import { RouteCache } from '../../dist/core/render/route-cache.js';
 import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { createContainer } from '../../dist/core/dev/container.js';
-import { unixify } from './correct-path.js';
 import { Logger } from '../../dist/core/logger/core.js';
+import { nodeLogDestination } from '../../dist/core/logger/node.js';
+import { Pipeline } from '../../dist/core/render/index.js';
+import { RouteCache } from '../../dist/core/render/route-cache.js';
+import { unixify } from './correct-path.js';
 
 /** @type {import('../../src/core/logger/core').Logger} */
 export const defaultLogger = new Logger({
@@ -181,25 +181,30 @@ export function buffersToString(buffers) {
 export const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
 
 /**
- * @param {Partial<import('../../src/core/render/environment.js').CreateEnvironmentArgs>} options
- * @returns {import('../../src/core/render/environment.js').Environment}
+ * @param {Partial<Pipeline>} options
+ * @returns {Pipeline}
  */
-export function createBasicEnvironment(options = {}) {
+export function createBasicPipeline(options = {}) {
 	const mode = options.mode ?? 'development';
-	return createEnvironment({
-		...options,
-		markdown: {
-			...(options.markdown ?? {}),
-		},
-		mode,
-		renderers: options.renderers ?? [],
-		clientDirectives: getDefaultClientDirectives(),
-		resolve: options.resolve ?? ((s) => Promise.resolve(s)),
-		routeCache: new RouteCache(options.logging, mode),
-		logger: options.logger ?? defaultLogger,
-		ssr: options.ssr ?? true,
-		streaming: options.streaming ?? true,
-	});
+	const pipeline = new Pipeline(
+		options.logger ?? defaultLogger,
+		options.manifest ?? {},
+		options.mode ?? 'development',
+		options.renderers ?? [],
+		options.resolve ?? ((s) => Promise.resolve(s)),
+		options.serverLike ?? true,
+		options.streaming ?? true,
+		options.adapterName,
+		options.clientDirectives ?? getDefaultClientDirectives(),
+		options.compressHTML,
+		options.i18n,
+		options.middleware,
+		options.routeCache ?? new RouteCache(options.logging, mode),
+		options.site
+	);
+	pipeline.headElements = () => ({ scripts: new Set(), styles: new Set(), links: new Set() });
+	pipeline.componentMetadata = () => {};
+	return pipeline;
 }
 
 /**

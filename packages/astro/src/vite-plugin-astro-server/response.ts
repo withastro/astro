@@ -82,6 +82,11 @@ export async function writeWebResponse(res: http.ServerResponse, webResponse: Re
 			res.write(body);
 		} else {
 			const reader = body.getReader();
+			res.on('close', () => {
+				reader.cancel().catch(() => {
+					// Don't log here, or errors will get logged twice in most cases
+				});
+			});
 			while (true) {
 				const { done, value } = await reader.read();
 				if (done) break;

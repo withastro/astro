@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { isWindows, loadFixture } from './test-utils.js';
 
@@ -29,10 +30,10 @@ describe('Aliases', () => {
 			const $ = cheerio.load(html);
 
 			// Should render aliased element
-			expect($('#client').text()).to.equal('test');
+			assert.equal($('#client').text(), 'test');
 
 			const scripts = $('script').toArray();
-			expect(scripts.length).to.be.greaterThan(0);
+			assert.ok(scripts.length > 0);
 		});
 	});
 
@@ -46,10 +47,10 @@ describe('Aliases', () => {
 			const $ = cheerio.load(html);
 
 			// Should render aliased element
-			expect($('#client').text()).to.equal('test');
+			assert.equal($('#client').text(), 'test');
 
 			const scripts = $('script').toArray();
-			expect(scripts.length).to.be.greaterThan(0);
+			assert.ok(scripts.length > 0);
 		});
 
 		it('can use aliases and relative in same project', async () => {
@@ -57,10 +58,10 @@ describe('Aliases', () => {
 			const $ = cheerio.load(html);
 
 			// Should render aliased element
-			expect($('#client').text()).to.equal('test');
+			assert.equal($('#client').text(), 'test');
 
 			const scripts = $('script').toArray();
-			expect(scripts.length).to.be.greaterThan(0);
+			assert.ok(scripts.length > 0);
 		});
 	});
 });

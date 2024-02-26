@@ -1,7 +1,8 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('SSR Astro.locals from server', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -24,7 +25,7 @@ describe('SSR Astro.locals from server', () => {
 		const html = await response.text();
 
 		const $ = cheerio.load(html);
-		expect($('#foo').text()).to.equal('bar');
+		assert.equal($('#foo').text(), 'bar');
 	});
 
 	it('Can access Astro.locals in api context', async () => {
@@ -32,9 +33,9 @@ describe('SSR Astro.locals from server', () => {
 		const request = new Request('http://example.com/api');
 		const locals = { foo: 'bar' };
 		const response = await app.render(request, undefined, locals);
-		expect(response.status).to.equal(200);
+		assert.equal(response.status, 200);
 		const body = await response.json();
 
-		expect(body.foo).to.equal('bar');
+		assert.equal(body.foo, 'bar');
 	});
 });

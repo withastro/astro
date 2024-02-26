@@ -31,8 +31,8 @@ export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 		}
 	});
 
-	const _wsSend = viteServer.ws.send;
-	viteServer.ws.send = function (...args: any) {
+	const _wsSend = viteServer.hot.send;
+	viteServer.hot.send = function (...args: any) {
 		// If the tsconfig changed, Vite will trigger a reload as it invalidates the module.
 		// However in Astro, the whole server is restarted when the tsconfig changes. If we
 		// do a restart and reload at the same time, the browser will refetch and the server
@@ -75,13 +75,13 @@ export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 			return viteServer.ssrFixStacktrace(err);
 		},
 		clientReload() {
-			viteServer.ws.send({
+			viteServer.hot.send({
 				type: 'full-reload',
 				path: '*',
 			});
 		},
 		webSocketSend(msg) {
-			return viteServer.ws.send(msg);
+			return viteServer.hot.send(msg);
 		},
 		isHttps() {
 			return !!viteServer.config.server.https;

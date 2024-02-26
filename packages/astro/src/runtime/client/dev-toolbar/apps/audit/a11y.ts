@@ -29,6 +29,8 @@ import { aria, roles } from 'aria-query';
 import { AXObjectRoles, elementAXObjects } from 'axobject-query';
 import type { AuditRuleWithSelector } from './index.js';
 
+const WHITESPACE_REGEX = /\s+/;
+
 const a11y_required_attributes = {
 	a: ['href'],
 	area: ['alt', 'aria-label', 'aria-labelledby'],
@@ -240,7 +242,7 @@ export const a11y: AuditRuleWithSelector[] = [
 		message:
 			'Screen readers already announce `img` elements as an image. There is no need to use words such as "image", "photo", and/or "picture".',
 		selector: 'img[alt]:not([aria-hidden])',
-		match: (img: HTMLImageElement) => /\b(image|picture|photo)\b/i.test(img.alt),
+		match: (img: HTMLImageElement) => /\b(?:image|picture|photo)\b/i.test(img.alt),
 	},
 	{
 		code: 'a11y-incorrect-aria-attribute-type',
@@ -336,8 +338,8 @@ export const a11y: AuditRuleWithSelector[] = [
 		selector: a11y_required_content.join(','),
 		match(element: HTMLElement) {
 			// innerText is used to ignore hidden text
-			const innerText = element.innerText.trim();
-			if (innerText !== '') return false;
+			const innerText = element.innerText?.trim();
+			if (innerText && innerText !== '') return false;
 
 			// Check for aria-label
 			const ariaLabel = element.getAttribute('aria-label')?.trim();
@@ -496,13 +498,17 @@ export const a11y: AuditRuleWithSelector[] = [
 			if (is_semantic_role_element(role, element.localName, getAttributeObject(element))) {
 				return;
 			}
-			const { requiredProps } = roles.get(role)!;
-			const required_role_props = Object.keys(requiredProps);
-			const missingProps = required_role_props.filter((prop) => !element.hasAttribute(prop));
-			if (missingProps.length > 0) {
-				(element as any).__astro_role = role;
-				(element as any).__astro_missing_attributes = missingProps;
-				return true;
+
+			const elementRoles = role.split(WHITESPACE_REGEX) as ARIARoleDefinitionKey[];
+			for (const elementRole of elementRoles) {
+				const { requiredProps } = roles.get(elementRole)!;
+				const required_role_props = Object.keys(requiredProps);
+				const missingProps = required_role_props.filter((prop) => !element.hasAttribute(prop));
+				if (missingProps.length > 0) {
+					(element as any).__astro_role = elementRole;
+					(element as any).__astro_missing_attributes = missingProps;
+					return true;
+				}
 			}
 		},
 	},
@@ -522,16 +528,20 @@ export const a11y: AuditRuleWithSelector[] = [
 		match(element) {
 			const role = getRole(element);
 			if (!role) return false;
-			const { props } = roles.get(role)!;
-			const attributes = getAttributeObject(element);
-			const unsupportedAttributes = aria.keys().filter((attribute) => !(attribute in props));
-			const invalidAttributes: string[] = Object.keys(attributes).filter(
-				(key) => key.startsWith('aria-') && unsupportedAttributes.includes(key as any)
-			);
-			if (invalidAttributes.length > 0) {
-				(element as any).__astro_role = role;
-				(element as any).__astro_unsupported_attributes = invalidAttributes;
-				return true;
+
+			const elementRoles = role.split(WHITESPACE_REGEX) as ARIARoleDefinitionKey[];
+			for (const elementRole of elementRoles) {
+				const { props } = roles.get(elementRole)!;
+				const attributes = getAttributeObject(element);
+				const unsupportedAttributes = aria.keys().filter((attribute) => !(attribute in props));
+				const invalidAttributes: string[] = Object.keys(attributes).filter(
+					(key) => key.startsWith('aria-') && unsupportedAttributes.includes(key as any)
+				);
+				if (invalidAttributes.length > 0) {
+					(element as any).__astro_role = elementRole;
+					(element as any).__astro_unsupported_attributes = invalidAttributes;
+					return true;
+				}
 			}
 		},
 	},

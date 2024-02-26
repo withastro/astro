@@ -1,48 +1,51 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import eol from 'eol';
 import { loadFixture } from './test-utils.js';
 
-describe('PostCSS', function () {
+describe('PostCSS', () => {
 	let fixture;
 	let bundledCSS;
-	before(async () => {
-		this.timeout(45000); // test needs a little more time in CI
-		fixture = await loadFixture({
-			root: './fixtures/postcss',
-			// test suite was authored when inlineStylesheets defaulted to never
-			build: { inlineStylesheets: 'never' },
-		});
-		await fixture.build();
+	before(
+		async () => {
+			fixture = await loadFixture({
+				root: './fixtures/postcss',
+				// test suite was authored when inlineStylesheets defaulted to never
+				build: { inlineStylesheets: 'never' },
+			});
+			await fixture.build();
 
-		// get bundled CSS (will be hashed, hence DOM query)
-		const html = await fixture.readFile('/index.html');
-		const $ = cheerio.load(html);
-		const bundledCSSHREF = $('link[rel=stylesheet][href^=/_astro/]').attr('href');
-		bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
-			.replace(/\s/g, '')
-			.replace('/n', '');
-	});
+			// get bundled CSS (will be hashed, hence DOM query)
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const bundledCSSHREF = $('link[rel=stylesheet][href^=/_astro/]').attr('href');
+			bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
+				.replace(/\s/g, '')
+				.replace('/n', '');
+		},
+		{ timeout: 45000 }
+	);
 
 	/** All test cases check whether nested styles (i.e. &.nested {}) are correctly transformed */
 	it('works in Astro page styles', () => {
-		expect(bundledCSS).to.match(new RegExp(`\.astro-page(\.(\w|-)*)*\.nested`));
+		assert.match(bundledCSS, /\.astro-page\[data-astro-cid-.*?\]\.nested/);
 	});
 
 	it('works in Astro component styles', () => {
-		expect(bundledCSS).to.match(new RegExp(`\.astro-component(\.(\w|-)*)*\.nested`));
+		assert.match(bundledCSS, /\.astro-component\[data-astro-cid-.*?\]\.nested/);
 	});
 
 	it('works in JSX', () => {
-		expect(bundledCSS).to.match(new RegExp(`\.solid(\.(\w|-)*)*\.nested`));
+		assert.match(bundledCSS, /\.solid(\.(w|-)*)*\.nested/);
 	});
 
 	it('works in Vue', () => {
-		expect(bundledCSS).to.match(new RegExp(`\.vue(\.(\w|-)*)*\.nested`));
+		assert.match(bundledCSS, /\.vue(\.(w|-)*)*\.nested/);
 	});
 
 	it('works in Svelte', () => {
-		expect(bundledCSS).to.match(new RegExp(`\.svelte(\.(\w|-)*)*\.nested`));
+		assert.match(bundledCSS, /\.svelte(\.(w|-)*)*\.nested/);
 	});
 
 	it('ignores CSS in public/', async () => {
@@ -51,6 +54,6 @@ describe('PostCSS', function () {
 			.replace(/\s/g, '')
 			.replace('/n', '');
 		// neither minified nor prefixed
-		expect(eol.lf(publicCSS)).to.equal(`.global{appearance:none;}`);
+		assert.equal(eol.lf(publicCSS), '.global{appearance:none;}');
 	});
 });

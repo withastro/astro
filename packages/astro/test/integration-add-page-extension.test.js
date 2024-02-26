@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -14,6 +15,6 @@ describe('Integration addPageExtension', () => {
 	it('supports .mjs files', async () => {
 		const html = await fixture.readFile('/test/index.html');
 		const $ = cheerio.load(html);
-		expect($('h1').text()).to.equal('Hello world!');
+		assert.equal($('h1').text(), 'Hello world!');
 	});
 });

@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -43,23 +44,24 @@ describe('Component Libraries', () => {
 
 		it('Built .astro pages', async () => {
 			let html = await fixture.readFile('/with-astro/index.html');
-			expect(html).to.be.a('string');
+			assert.equal(typeof html, 'string');
 
 			html = await fixture.readFile('/with-react/index.html');
-			expect(html).to.be.a('string');
+			assert.equal(typeof html, 'string');
 
 			html = await fixture.readFile('/internal-hydration/index.html');
-			expect(html).to.be.a('string');
+			assert.equal(typeof html, 'string');
 		});
 
 		it('Works with .astro components', async () => {
 			const html = await fixture.readFile('/with-astro/index.html');
 			const $ = cheerioLoad(html);
 
-			expect($('button').text()).to.equal('Click me', "Rendered the component's slot");
+			assert.equal($('button').text(), 'Click me', "Rendered the component's slot");
 
-			const findEvidence = createFindEvidence(/border-radius:( )*1rem/);
-			expect(await findEvidence('with-astro/index.html')).to.equal(
+			const findEvidence = createFindEvidence(/border-radius:\s*1rem/);
+			assert.equal(
+				await findEvidence('with-astro/index.html'),
 				true,
 				"Included the .astro component's <style>"
 			);
@@ -69,27 +71,29 @@ describe('Component Libraries', () => {
 			const html = await fixture.readFile('/with-react/index.html');
 			const $ = cheerioLoad(html);
 
-			expect($('#react-static').text()).to.equal('Hello static!', 'Rendered the static component');
+			assert.equal($('#react-static').text(), 'Hello static!', 'Rendered the static component');
 
-			expect($('#react-idle').text()).to.equal(
+			assert.equal(
+				$('#react-idle').text(),
 				'Hello idle!',
 				'Rendered the client hydrated component'
 			);
 
-			expect($('astro-island[uid]')).to.have.lengthOf(1, 'Included one hydration island');
+			assert.equal($('astro-island[uid]').length, 1, 'Included one hydration island');
 		});
 
 		it('Works with components hydrated internally', async () => {
 			const html = await fixture.readFile('/internal-hydration/index.html');
 			const $ = cheerioLoad(html);
 
-			expect($('.counter').length).to.equal(1, 'Rendered the svelte counter');
-			expect($('.counter-message').text().trim()).to.equal(
+			assert.equal($('.counter').length, 1, 'Rendered the svelte counter');
+			assert.equal(
+				$('.counter-message').text().trim(),
 				'Hello, Svelte!',
 				"rendered the counter's slot"
 			);
 
-			expect($('astro-island[uid]')).to.have.lengthOf(1, 'Included one hydration island');
+			assert.equal($('astro-island[uid]').length, 1, 'Included one hydration island');
 		});
 	});
 
@@ -134,10 +138,11 @@ describe('Component Libraries', () => {
 			const html = await fixture.fetch('/with-astro/').then((res) => res.text());
 			const $ = cheerioLoad(html);
 
-			expect($('button').text()).to.equal('Click me', "Rendered the component's slot");
+			assert.equal($('button').text(), 'Click me', "Rendered the component's slot");
 
-			const findEvidence = createFindEvidence(/border-radius:( )*1rem/);
-			expect(await findEvidence('/with-astro/')).to.equal(
+			const findEvidence = createFindEvidence(/border-radius:\s*1rem/);
+			assert.equal(
+				await findEvidence('/with-astro/'),
 				true,
 				"Included the .astro component's <style>"
 			);
@@ -147,27 +152,29 @@ describe('Component Libraries', () => {
 			const html = await fixture.fetch('/with-react/').then((res) => res.text());
 			const $ = cheerioLoad(html);
 
-			expect($('#react-static').text()).to.equal('Hello static!', 'Rendered the static component');
+			assert.equal($('#react-static').text(), 'Hello static!', 'Rendered the static component');
 
-			expect($('#react-idle').text()).to.equal(
+			assert.equal(
+				$('#react-idle').text(),
 				'Hello idle!',
 				'Rendered the client hydrated component'
 			);
 
-			expect($('astro-island[uid]')).to.have.lengthOf(1, 'Included one hydration island');
+			assert.equal($('astro-island[uid]').length, 1, 'Included one hydration island');
 		});
 
 		it('Works with components hydrated internally', async () => {
 			const html = await fixture.fetch('/internal-hydration/').then((res) => res.text());
 			const $ = cheerioLoad(html);
 
-			expect($('.counter').length).to.equal(1, 'Rendered the svelte counter');
-			expect($('.counter-message').text().trim()).to.equal(
+			assert.equal($('.counter').length, 1, 'Rendered the svelte counter');
+			assert.equal(
+				$('.counter-message').text().trim(),
 				'Hello, Svelte!',
 				"rendered the counter's slot"
 			);
 
-			expect($('astro-island[uid]')).to.have.lengthOf(1, 'Included one hydration island');
+			assert.equal($('astro-island[uid]').length, 1, 'Included one hydration island');
 		});
 	});
 });

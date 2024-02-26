@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Errors in JavaScript', () => {
@@ -26,11 +27,11 @@ describe('Errors in JavaScript', () => {
 		let res = await fixture.fetch('/');
 		let html = await res.text();
 
-		expect(html).to.include('ReferenceError');
+		assert.equal(html.includes('ReferenceError'), true);
 
 		res = await fixture.fetch('/');
 		await res.text();
 
-		expect(html).to.include('ReferenceError');
+		assert.equal(html.includes('ReferenceError'), true);
 	});
 });

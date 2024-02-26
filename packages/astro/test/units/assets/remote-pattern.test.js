@@ -1,10 +1,11 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import {
-	matchProtocol,
-	matchPort,
 	matchHostname,
 	matchPathname,
 	matchPattern,
+	matchPort,
+	matchProtocol,
 } from '../../../dist/assets/utils/remotePattern.js';
 
 describe('astro/src/assets/utils/remotePattern', () => {
@@ -16,96 +17,100 @@ describe('astro/src/assets/utils/remotePattern', () => {
 	describe('remote pattern matchers', () => {
 		it('matches protocol', async () => {
 			// undefined
-			expect(matchProtocol(url1)).to.be.true;
+			assert.equal(matchProtocol(url1), true);
 
 			// defined, true/false
-			expect(matchProtocol(url1, 'http')).to.be.false;
-			expect(matchProtocol(url1, 'https')).to.be.true;
+			assert.equal(matchProtocol(url1, 'http'), false);
+			assert.equal(matchProtocol(url1, 'https'), true);
 		});
 
 		it('matches port', async () => {
 			// undefined
-			expect(matchPort(url1)).to.be.true;
+			assert.equal(matchPort(url1), true);
 
 			// defined, but port is empty (default port used in URL)
-			expect(matchPort(url1, '')).to.be.true;
+			assert.equal(matchPort(url1, ''), true);
 
 			// defined and port is custom
-			expect(matchPort(url2, '8080')).to.be.true;
+			assert.equal(matchPort(url2, '8080'), true);
 		});
 
 		it('matches hostname (no wildcards)', async () => {
 			// undefined
-			expect(matchHostname(url1)).to.be.true;
+			assert.equal(matchHostname(url1), true);
 
 			// defined, true/false
-			expect(matchHostname(url1, 'astro.build')).to.be.false;
-			expect(matchHostname(url1, 'docs.astro.build')).to.be.true;
+			assert.equal(matchHostname(url1, 'astro.build'), false);
+			assert.equal(matchHostname(url1, 'docs.astro.build'), true);
 		});
 
 		it('matches hostname (with wildcards)', async () => {
 			// defined, true/false
-			expect(matchHostname(url1, 'docs.astro.build', true)).to.be.true;
-			expect(matchHostname(url1, '**.astro.build', true)).to.be.true;
-			expect(matchHostname(url1, '*.astro.build', true)).to.be.true;
+			assert.equal(matchHostname(url1, 'docs.astro.build', true), true);
+			assert.equal(matchHostname(url1, '**.astro.build', true), true);
+			assert.equal(matchHostname(url1, '*.astro.build', true), true);
 
-			expect(matchHostname(url2, '*.astro.build', true)).to.be.false;
-			expect(matchHostname(url2, '**.astro.build', true)).to.be.true;
+			assert.equal(matchHostname(url2, '*.astro.build', true), false);
+			assert.equal(matchHostname(url2, '**.astro.build', true), true);
 
-			expect(matchHostname(url3, 'astro.build', true)).to.be.true;
-			expect(matchHostname(url3, '*.astro.build', true)).to.be.false;
-			expect(matchHostname(url3, '**.astro.build', true)).to.be.false;
+			assert.equal(matchHostname(url3, 'astro.build', true), true);
+			assert.equal(matchHostname(url3, '*.astro.build', true), false);
+			assert.equal(matchHostname(url3, '**.astro.build', true), false);
 		});
 
 		it('matches pathname (no wildcards)', async () => {
 			// undefined
-			expect(matchPathname(url1)).to.be.true;
+			assert.equal(matchPathname(url1), true);
 
 			// defined, true/false
-			expect(matchPathname(url1, '/')).to.be.false;
-			expect(matchPathname(url1, '/en/getting-started')).to.be.true;
+			assert.equal(matchPathname(url1, '/'), false);
+			assert.equal(matchPathname(url1, '/en/getting-started'), true);
 		});
 
 		it('matches pathname (with wildcards)', async () => {
 			// defined, true/false
-			expect(matchPathname(url1, '/en/**', true)).to.be.true;
-			expect(matchPathname(url1, '/en/*', true)).to.be.true;
-			expect(matchPathname(url1, '/**', true)).to.be.true;
+			assert.equal(matchPathname(url1, '/en/**', true), true);
+			assert.equal(matchPathname(url1, '/en/*', true), true);
+			assert.equal(matchPathname(url1, '/**', true), true);
 
-			expect(matchPathname(url2, '/**', true)).to.be.false;
-			expect(matchPathname(url2, '/*', true)).to.be.false;
+			assert.equal(matchPathname(url2, '/**', true), false);
+			assert.equal(matchPathname(url2, '/*', true), false);
 		});
 
 		it('matches patterns', async () => {
-			expect(matchPattern(url1, {})).to.be.true;
+			assert.equal(matchPattern(url1, {}), true);
 
-			expect(
+			assert.equal(
 				matchPattern(url1, {
 					protocol: 'https',
-				})
-			).to.be.true;
+				}),
+				true
+			);
 
-			expect(
+			assert.equal(
 				matchPattern(url1, {
 					protocol: 'https',
 					hostname: '**.astro.build',
-				})
-			).to.be.true;
+				}),
+				true
+			);
 
-			expect(
+			assert.equal(
 				matchPattern(url1, {
 					protocol: 'https',
 					hostname: '**.astro.build',
 					pathname: '/en/**',
-				})
-			).to.be.true;
+				}),
+				true
+			);
 
-			expect(
+			assert.equal(
 				matchPattern(url4, {
 					protocol: 'https',
 					hostname: 'example.com',
-				})
-			).to.be.false;
+				}),
+				false
+			);
 		});
 	});
 });

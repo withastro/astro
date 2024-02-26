@@ -1,5 +1,6 @@
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
-import { expect } from 'chai';
 
 describe('build: split', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -15,12 +16,12 @@ describe('build: split', () => {
 
 	it('creates separate functions for each page', async () => {
 		const files = await fixture.readdir('../.vercel/output/functions/');
-		expect(files.length).to.equal(3);
+		assert.equal(files.length, 3);
 	});
 
 	it('creates the route definitions in the config.json', async () => {
 		const json = await fixture.readFile('../.vercel/output/config.json');
 		const config = JSON.parse(json);
-		expect(config.routes).to.have.a.lengthOf(5);
+		assert.equal(config.routes.length, 5);
 	});
 });

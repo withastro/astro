@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { AstroCookies } from '../../../dist/core/cookies/index.js';
 import { apply as applyPolyfill } from '../../../dist/core/polyfill.js';
 
@@ -13,20 +14,20 @@ describe('astro/src/core/cookies', () => {
 				},
 			});
 			let cookies = new AstroCookies(req);
-			expect(cookies.has('foo')).to.equal(true);
+			assert.equal(cookies.has('foo'), true);
 		});
 
 		it('returns false if the request does not have the cookie', () => {
 			let req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);
-			expect(cookies.has('foo')).to.equal(false);
+			assert.equal(cookies.has('foo'), false);
 		});
 
 		it('returns true if the cookie has been set', () => {
 			let req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);
 			cookies.set('foo', 'bar');
-			expect(cookies.has('foo')).to.equal(true);
+			assert.equal(cookies.has('foo'), true);
 		});
 	});
 });

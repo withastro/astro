@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -22,14 +23,16 @@ describe('Component parallelization', () => {
 		);
 
 		const renderStartWithin = Math.max(...startTimes) - Math.min(...startTimes);
-		expect(renderStartWithin).to.be.lessThan(
-			40, // in theory, this should be 0, but add 40ms tolerance for CI
+		assert.equal(
+			renderStartWithin < 40,
+			true, // in theory, this should be 0, but add 40ms tolerance for CI
 			"The components didn't start rendering in parallel"
 		);
 
 		const totalRenderTime = Math.max(...finishTimes) - Math.min(...startTimes);
-		expect(totalRenderTime).to.be.lessThan(
-			80, // max component delay is 40ms, add 40ms tolerance for CI
+		assert.equal(
+			totalRenderTime < 80,
+			true, // max component delay is 40ms, add 40ms tolerance for CI
 			'The total render time was significantly longer than the max component delay'
 		);
 	});

@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -29,7 +30,7 @@ describe('Preact compat component', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect($('#counter-text').text()).to.be.eq('0');
+			assert.equal($('#counter-text').text(), '0');
 		});
 	});
 
@@ -42,7 +43,7 @@ describe('Preact compat component', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#counter-text').text()).to.be.eq('0');
+			assert.equal($('#counter-text').text(), '0');
 		});
 	});
 });

@@ -27,33 +27,37 @@ interface IntegrationData {
 let integrationData: IntegrationData;
 
 export default {
-	id: 'astro',
+	id: 'astro:home',
 	name: 'Menu',
 	icon: 'astro:logo',
 	async init(canvas, eventTarget) {
 		createCanvas();
 
 		document.addEventListener('astro:after-swap', createCanvas);
+		document.addEventListener('astro:after-swap', fetchIntegrationData);
 
 		eventTarget.addEventListener('app-toggled', async (event) => {
 			resetDebugButton();
 			if (!(event instanceof CustomEvent)) return;
 
 			if (event.detail.state === true) {
-				if (!integrationData)
-					fetch('https://astro.build/api/v1/dev-overlay/', {
-						cache: 'no-cache',
-					})
-						.then((res) => res.json())
-						.then((data) => {
-							integrationData = data;
-							integrationData.data = integrationData.data.map((integration) => {
-								return integration;
-							});
-							refreshIntegrationList();
-						});
+				if (!integrationData) fetchIntegrationData();
 			}
 		});
+
+		function fetchIntegrationData() {
+			fetch('https://astro.build/api/v1/dev-overlay/', {
+				cache: 'no-cache',
+			})
+				.then((res) => res.json())
+				.then((data) => {
+					integrationData = data;
+					integrationData.data = integrationData.data.map((integration) => {
+						return integration;
+					});
+					refreshIntegrationList();
+				});
+		}
 
 		function createCanvas() {
 			const links: { icon: Icon; name: string; link: string }[] = [

@@ -1,68 +1,54 @@
-import path from 'node:path';
-import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import type { HmrContext } from 'vite';
 import type { Logger } from '../core/logger/core.js';
-import type { CompileAstroResult } from './compile.js';
+import { frontmatterRE } from './utils.js';
 import type { CompileMetadata } from './types.js';
 
 export interface HandleHotUpdateOptions {
 	logger: Logger;
-	compile: (code: string, filename: string) => Promise<CompileAstroResult>;
-	astroFileToCssAstroDeps: Map<string, Set<string>>;
 	astroFileToCompileMetadata: Map<string, CompileMetadata>;
 }
 
 export async function handleHotUpdate(
 	ctx: HmrContext,
-	{ logger, compile, astroFileToCssAstroDeps, astroFileToCompileMetadata }: HandleHotUpdateOptions
+	{ logger, astroFileToCompileMetadata }: HandleHotUpdateOptions
 ) {
-	const oldCode = astroFileToCompileMetadata.get(ctx.file)?.originalCode;
-	const newCode = await ctx.read();
+	// HANDLING 1: Invalidate compile metadata if CSS dependency updated
+	//
+	// If any `ctx.file` is part of a CSS dependency of any Astro file, invalidate its `astroFileToCompileMetadata`
+	// so the next transform of the Astro file or Astro script/style virtual module will re-generate it
+	for (const [astroFile, compileData] of astroFileToCompileMetadata) {
+		const isUpdatedFileCssDep = compileData.css.some((css) => css.dependencies?.includes(ctx.file));
+		if (isUpdatedFileCssDep) {
+			astroFileToCompileMetadata.delete(astroFile);
+		}
+	}
+
+	// HANDLING 2: Only invalidate Astro style virtual module if only style tags changed
+	//
 	// If only the style code has changed, e.g. editing the `color`, then we can directly invalidate
 	// the Astro CSS virtual modules only. The main Astro module's JS result will be the same and doesn't
 	// need to be invalidated.
-	if (oldCode && isStyleOnlyChanged(oldCode, newCode)) {
+	const oldCode = astroFileToCompileMetadata.get(ctx.file)?.originalCode;
+	if (oldCode == null) return;
+	const newCode = await ctx.read();
+
+	if (isStyleOnlyChanged(oldCode, newCode)) {
 		logger.debug('watch', 'style-only change');
-		// Re-compile the main Astro component (even though we know its JS result will be the same)
-		// so that `astroFileToCompileMetadata` gets a fresh set of compile metadata to be used
-		// by the virtual modules later in the `load()` hook.
-		await compile(newCode, ctx.file);
+		// Invalidate its `astroFileToCompileMetadata` so that the next transform of Astro style virtual module
+		// will re-generate it
+		astroFileToCompileMetadata.delete(ctx.file);
 		// Only return the Astro styles that have changed!
 		return ctx.modules.filter((mod) => mod.id?.includes('astro&type=style'));
 	}
-
-	// Edge case handling usually caused by Tailwind creating circular dependencies
-	//
-	// TODO: we can also workaround this with better CSS dependency management for Astro files,
-	// so that changes within style tags are scoped to itself. But it'll take a bit of work.
-	// https://github.com/withastro/astro/issues/9370#issuecomment-1850160421
-	for (const [astroFile, cssAstroDeps] of astroFileToCssAstroDeps) {
-		// If the `astroFile` has a CSS dependency on `ctx.file`, there's a good chance this causes a
-		// circular dependency, which Vite doesn't issue a full page reload. Workaround it by forcing a
-		// full page reload ourselves. (Vite bug)
-		// https://github.com/vitejs/vite/pull/15585
-		if (cssAstroDeps.has(ctx.file)) {
-			// Mimic the HMR log as if this file is updated
-			logger.info('watch', getShortName(ctx.file, ctx.server.config.root));
-			// Invalidate the modules of `astroFile` explicitly as Vite may incorrectly soft-invalidate
-			// the parent if the parent actually imported `ctx.file`, but `this.addWatchFile` was also called
-			// on `ctx.file`. Vite should do a hard-invalidation instead. (Vite bug)
-			const parentModules = ctx.server.moduleGraph.getModulesByFile(astroFile);
-			if (parentModules) {
-				for (const mod of parentModules) {
-					ctx.server.moduleGraph.invalidateModule(mod);
-				}
-			}
-			ctx.server.ws.send({ type: 'full-reload', path: '*' });
-		}
-	}
 }
 
-const frontmatterRE = /^\-\-\-.*?^\-\-\-/ms;
+// Disable eslint as we're not sure how to improve this regex yet
+// eslint-disable-next-line regexp/no-super-linear-backtracking
 const scriptRE = /<script(?:\s.*?)?>.*?<\/script>/gs;
+// eslint-disable-next-line regexp/no-super-linear-backtracking
 const styleRE = /<style(?:\s.*?)?>.*?<\/style>/gs;
 
-function isStyleOnlyChanged(oldCode: string, newCode: string) {
+export function isStyleOnlyChanged(oldCode: string, newCode: string) {
 	if (oldCode === newCode) return false;
 
 	// Before we can regex-capture style tags, we remove the frontmatter and scripts
@@ -86,9 +72,14 @@ function isStyleOnlyChanged(oldCode: string, newCode: string) {
 	// Finally, we can compare styles
 	const oldStyles: string[] = [];
 	const newStyles: string[] = [];
-	oldCode.match(styleRE)?.forEach((m) => oldStyles.push(m));
-	newCode.match(styleRE)?.forEach((m) => newStyles.push(m));
-	// The length must also be the same for style only change.  If style tags are added/removed,
+	oldCode = oldCode.replace(styleRE, (m) => (oldStyles.push(m), ''));
+	newCode = newCode.replace(styleRE, (m) => (newStyles.push(m), ''));
+
+	// Remaining of `oldCode` and `newCode` is the markup, return false if they're different
+	if (oldCode !== newCode) return false;
+
+	// Finally, check if only the style changed.
+	// The length must also be the same for style only change. If style tags are added/removed,
 	// we need to regenerate the main Astro file so that its CSS imports are also added/removed
 	return oldStyles.length === newStyles.length && !isArrayEqual(oldStyles, newStyles);
 }
@@ -103,8 +94,4 @@ function isArrayEqual(a: any[], b: any[]) {
 		}
 	}
 	return true;
-}
-
-function getShortName(file: string, root: string): string {
-	return file.startsWith(appendForwardSlash(root)) ? path.posix.relative(root, file) : file;
 }

@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -33,7 +34,7 @@ describe('Attributes', async () => {
 		for (const id of Object.keys(attrs)) {
 			const { attribute, value } = attrs[id];
 			const attr = $(`#${id}`).attr(attribute);
-			expect(attr).to.equal(value);
+			assert.equal(attr, value);
 		}
 	});
 
@@ -41,24 +42,24 @@ describe('Attributes', async () => {
 		const html = await fixture.readFile('/component/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#true').attr('attr')).to.equal('attr-true');
-		expect($('#true').attr('type')).to.equal('boolean');
-		expect($('#false').attr('attr')).to.equal('attr-false');
-		expect($('#false').attr('type')).to.equal('boolean');
+		assert.equal($('#true').attr('attr'), 'attr-true');
+		assert.equal($('#true').attr('type'), 'boolean');
+		assert.equal($('#false').attr('attr'), 'attr-false');
+		assert.equal($('#false').attr('type'), 'boolean');
 	});
 
 	it('Passes namespaced attributes as expected', async () => {
 		const html = await fixture.readFile('/namespaced/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('div').attr('xmlns:happy')).to.equal('https://example.com/schemas/happy');
-		expect($('img').attr('happy:smile')).to.equal('sweet');
+		assert.equal($('div').attr('xmlns:happy'), 'https://example.com/schemas/happy');
+		assert.equal($('img').attr('happy:smile'), 'sweet');
 	});
 
 	it('Passes namespaced attributes to components as expected', async () => {
 		const html = await fixture.readFile('/namespaced-component/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('span').attr('on:click')).to.deep.equal('(event) => console.log(event)');
+		assert.deepEqual($('span').attr('on:click'), '(event) => console.log(event)');
 	});
 });

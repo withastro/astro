@@ -10,10 +10,10 @@ export function createCanonicalURL(
 	let pathname = url.replace(/\/index.html$/, ''); // index.html is not canonical
 	if (trailingSlash === false) {
 		// remove the trailing slash
-		pathname = pathname.replace(/(\/+)?$/, '');
+		pathname = pathname.replace(/\/*$/, '');
 	} else if (!getUrlExtension(url)) {
 		// add trailing slash if there’s no extension or `trailingSlash` is true
-		pathname = pathname.replace(/(\/+)?$/, '/');
+		pathname = pathname.replace(/\/*$/, '/');
 	}
 
 	pathname = pathname.replace(/\/+/g, '/'); // remove duplicate slashes (URL() won’t)

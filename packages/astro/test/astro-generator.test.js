@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -17,7 +18,7 @@ describe('Astro generator', () => {
 			const html = await fixture.readFile(`/index.html`);
 			const $ = cheerio.load(html);
 
-			expect($('meta[name="generator"]').attr('content')).to.match(/^Astro v/);
+			assert.match($('meta[name="generator"]').attr('content'), /^Astro v/);
 		});
 	});
 });
