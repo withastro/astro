@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 5.1.3
+
+### Patch Changes
+
+- [#163](https://github.com/withastro/adapters/pull/163) [`bc9ee99c7333ae29e4d4184059c09650330fd0d9`](https://github.com/withastro/adapters/commit/bc9ee99c7333ae29e4d4184059c09650330fd0d9) Thanks [@OiYouYeahYou](https://github.com/OiYouYeahYou)! - Fixes an issue where some astro CLI commands failed with `crypto is not defined` on Astro 4.4.0 and earlier.
+
 ## 5.1.2
 
 ### Patch Changes
