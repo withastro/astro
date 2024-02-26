@@ -1,5 +1,13 @@
 # @astrojs/check
 
+## 0.5.6
+
+### Patch Changes
+
+- fe6165b: Makes astro check --tsconfig understand relative file names
+- Updated dependencies [fe6165b]
+  - @astrojs/language-server@2.7.6
+
 ## 0.5.5
 
 ### Patch Changes
