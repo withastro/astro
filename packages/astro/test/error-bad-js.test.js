@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Errors in JavaScript', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -33,12 +33,12 @@ describe('Errors in JavaScript', () => {
 		it('Does not crash the dev server', async () => {
 			let res = await fixture.fetch('/');
 			let html = await res.text();
-	
+
 			assert.equal(html.includes('ReferenceError'), true);
-	
+
 			res = await fixture.fetch('/');
 			await res.text();
-	
+
 			assert.equal(html.includes('ReferenceError'), true);
 		});
 	});
@@ -57,7 +57,7 @@ describe('Errors in JavaScript', () => {
 				await response.text();
 				assert.ok(false, 'error expected');
 			} catch {
-				assert.ok(true, "error caught during render");
+				assert.ok(true, 'error caught during render');
 			}
 		});
 	});
