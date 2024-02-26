@@ -1,5 +1,5 @@
 ---
-"@astrojs/svelte": patch
+"@astrojs/svelte": minor
 ---
 
-fix: svelte 5 mount/hydrate api change.
+Bumps Svelte 5 peer dependency to `^5.0.0-next.56` and support its latest breaking changes
