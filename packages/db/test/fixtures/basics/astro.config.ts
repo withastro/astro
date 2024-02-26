@@ -1,8 +1,8 @@
-import db, { defineReadableTable, column } from '@astrojs/db';
+import db, { defineTable, column } from '@astrojs/db';
 import { defineConfig } from 'astro/config';
 import { themes } from './themes-integration';
 
-const Author = defineReadableTable({
+const Author = defineTable({
 	columns: {
 		name: column.text(),
 	},
@@ -12,9 +12,8 @@ const Author = defineReadableTable({
 export default defineConfig({
 	integrations: [db(), themes()],
 	db: {
-		studio: false,
-		unsafeWritable: true,
 		tables: { Author },
+		unsafeDisableStudio: true,
 		async data({ seed }) {
 			await seed(Author, [
 				{ name: 'Ben' },

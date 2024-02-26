@@ -181,21 +181,12 @@ const foreignKeysSchema: z.ZodType<ForeignKeysOutput, ZodTypeDef, ForeignKeysInp
 
 export type Indexes = Record<string, z.infer<typeof indexSchema>>;
 
-const baseCollectionSchema = z.object({
+export const tableSchema = z.object({
 	columns: columnsSchema,
 	indexes: z.record(indexSchema).optional(),
 	foreignKeys: z.array(foreignKeysSchema).optional(),
 });
 
-export const readableCollectionSchema = baseCollectionSchema.extend({
-	writable: z.literal(false),
-});
-
-export const writableCollectionSchema = baseCollectionSchema.extend({
-	writable: z.literal(true),
-});
-
-export const collectionSchema = z.union([readableCollectionSchema, writableCollectionSchema]);
 export const tablesSchema = z.preprocess((rawCollections) => {
 	// Use `z.any()` to avoid breaking object references
 	const tables = z.record(z.any()).parse(rawCollections, { errorMap });
@@ -204,7 +195,7 @@ export const tablesSchema = z.preprocess((rawCollections) => {
 		// Must append at runtime so table name exists.
 		collection.table = collectionToTable(
 			collectionName,
-			collectionSchema.parse(collection, { errorMap })
+			tableSchema.parse(collection, { errorMap })
 		);
 		// Append collection and column names to columns.
 		// Used to track collection info for references.
@@ -215,7 +206,7 @@ export const tablesSchema = z.preprocess((rawCollections) => {
 		}
 	}
 	return rawCollections;
-}, z.record(collectionSchema));
+}, z.record(tableSchema));
 
 export type BooleanColumn = z.infer<typeof booleanColumnSchema>;
 export type BooleanColumnInput = z.input<typeof booleanColumnSchema>;
@@ -243,7 +234,7 @@ export type DBColumnInput =
 	| TextColumnInput
 	| JsonColumnInput;
 export type DBColumns = z.infer<typeof columnsSchema>;
-export type DBTable = z.infer<typeof readableCollectionSchema | typeof writableCollectionSchema>;
+export type DBTable = z.infer<typeof tableSchema>;
 export type DBTables = Record<string, DBTable>;
 export type DBSnapshot = {
 	schema: Record<string, DBTable>;
@@ -253,8 +244,6 @@ export type DBSnapshot = {
 	 */
 	experimentalVersion: number;
 };
-export type ReadableDBTable = z.infer<typeof readableCollectionSchema>;
-export type WritableDBTable = z.infer<typeof writableCollectionSchema>;
 
 export type DBDataContext = {
 	db: SqliteDB;
@@ -283,10 +272,9 @@ export function defineData(fn: (ctx: DBDataContext) => MaybePromise<void>) {
 const dbDataFn = z.function().returns(z.union([z.void(), z.promise(z.void())]));
 
 export const dbConfigSchema = z.object({
-	studio: z.boolean().optional(),
 	tables: tablesSchema.optional(),
 	data: z.union([dbDataFn, z.array(dbDataFn)]).optional(),
-	unsafeWritable: z.boolean().optional().default(false),
+	unsafeDisableStudio: z.boolean().optional().default(false),
 });
 
 type DataFunction = (params: DBDataContext) => MaybePromise<void>;
@@ -299,12 +287,12 @@ export const astroConfigWithDbSchema = z.object({
 	db: dbConfigSchema.optional(),
 });
 
-export type ColumnsConfig = z.input<typeof collectionSchema>['columns'];
+export type ColumnsConfig = z.input<typeof tableSchema>['columns'];
 
 interface CollectionConfig<TColumns extends ColumnsConfig = ColumnsConfig>
 	// use `extends` to ensure types line up with zod,
 	// only adding generics for type completions.
-	extends Pick<z.input<typeof collectionSchema>, 'columns' | 'indexes' | 'foreignKeys'> {
+	extends Pick<z.input<typeof tableSchema>, 'columns' | 'indexes' | 'foreignKeys'> {
 	columns: TColumns;
 	foreignKeys?: Array<{
 		columns: MaybeArray<Extract<keyof TColumns, string>>;
@@ -318,36 +306,20 @@ interface IndexConfig<TColumns extends ColumnsConfig> extends z.input<typeof ind
 	on: MaybeArray<Extract<keyof TColumns, string>>;
 }
 
-export type ResolvedCollectionConfig<
-	TColumns extends ColumnsConfig = ColumnsConfig,
-	Writable extends boolean = boolean,
-> = CollectionConfig<TColumns> & {
-	writable: Writable;
-	table: Table<string, TColumns>;
-};
+// TODO: flatten into just `CollectionConfig` when we remove table
+export type ResolvedCollectionConfig<TColumns extends ColumnsConfig = ColumnsConfig> =
+	CollectionConfig<TColumns> & {
+		table: Table<string, TColumns>;
+	};
 
-function baseDefineCollection<TColumns extends ColumnsConfig, TWritable extends boolean>(
-	userConfig: CollectionConfig<TColumns>,
-	writable: TWritable
-): ResolvedCollectionConfig<TColumns, TWritable> {
+export function defineTable<TColumns extends ColumnsConfig>(
+	userConfig: CollectionConfig<TColumns>
+): ResolvedCollectionConfig<TColumns> {
 	return {
 		...userConfig,
-		writable,
-		// set at runtime to get the table name
+		// TODO: remove table. seed file is separate (finally)
 		table: null!,
 	};
-}
-
-export function defineReadableTable<TColumns extends ColumnsConfig>(
-	userConfig: CollectionConfig<TColumns>
-): ResolvedCollectionConfig<TColumns, false> {
-	return baseDefineCollection(userConfig, false);
-}
-
-export function defineWritableTable<TColumns extends ColumnsConfig>(
-	userConfig: CollectionConfig<TColumns>
-): ResolvedCollectionConfig<TColumns, true> {
-	return baseDefineCollection(userConfig, true);
 }
 
 export type AstroConfigWithDB = z.input<typeof astroConfigWithDbSchema>;

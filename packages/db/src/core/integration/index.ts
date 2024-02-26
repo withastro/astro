@@ -8,7 +8,7 @@ import { DB_PATH } from '../consts.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 import { astroConfigWithDbSchema, type DBTables } from '../types.js';
 import { type VitePlugin } from '../utils.js';
-import { STUDIO_CONFIG_MISSING_WRITABLE_TABLE_ERROR, UNSAFE_WRITABLE_WARNING } from '../errors.js';
+import { UNSAFE_DISABLE_STUDIO_WARNING } from '../errors.js';
 import { errorMap } from './error-map.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -18,7 +18,7 @@ import { recreateTables, seedData } from '../queries.js';
 import { getManagedAppTokenOrExit, type ManagedAppToken } from '../tokens.js';
 
 function astroDBIntegration(): AstroIntegration {
-	let connectedToRemote = false;
+	let connectToStudio = false;
 	let appToken: ManagedAppToken | undefined;
 	let schemas = {
 		tables(): DBTables {
@@ -34,20 +34,27 @@ function astroDBIntegration(): AstroIntegration {
 				if (_command === 'preview') return;
 
 				let dbPlugin: VitePlugin | undefined = undefined;
-				const studio = config.db?.studio ?? false;
 
-				if (studio && command === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {
+				const unsafeDisableStudio =
+					config.db?.unsafeDisableStudio ?? process.env.ASTRO_DB_TEST_ENV === '1';
+
+				if (unsafeDisableStudio) {
+					logger.warn(UNSAFE_DISABLE_STUDIO_WARNING);
+				}
+
+				connectToStudio = command === 'build' && !unsafeDisableStudio;
+
+				if (connectToStudio) {
 					appToken = await getManagedAppTokenOrExit();
-					connectedToRemote = true;
 					dbPlugin = vitePluginDb({
-						connectToStudio: true,
+						connectToStudio,
 						appToken: appToken.token,
 						schemas,
 						root: config.root,
 					});
 				} else {
 					dbPlugin = vitePluginDb({
-						connectToStudio: false,
+						connectToStudio,
 						schemas,
 						root: config.root,
 					});
@@ -68,21 +75,7 @@ function astroDBIntegration(): AstroIntegration {
 				// Redefine getTables so our integration can grab them
 				schemas.tables = () => tables;
 
-				const studio = configWithDb.db?.studio ?? false;
-				const unsafeWritable = Boolean(configWithDb.db?.unsafeWritable);
-				const foundWritableCollection = Object.entries(tables).find(([, c]) => c.writable);
-				const writableAllowed = studio || unsafeWritable;
-				if (!writableAllowed && foundWritableCollection) {
-					logger.error(STUDIO_CONFIG_MISSING_WRITABLE_TABLE_ERROR(foundWritableCollection[0]));
-					process.exit(1);
-				}
-				// Using writable tables with the opt-in flag. Warn them to let them
-				// know the risk.
-				else if (unsafeWritable && foundWritableCollection) {
-					logger.warn(UNSAFE_WRITABLE_WARNING);
-				}
-
-				if (!connectedToRemote) {
+				if (!connectToStudio) {
 					const dbUrl = new URL(DB_PATH, config.root);
 					if (existsSync(dbUrl)) {
 						await rm(dbUrl);
@@ -91,9 +84,7 @@ function astroDBIntegration(): AstroIntegration {
 					await writeFile(dbUrl, '');
 
 					using db = await createLocalDatabaseClient({
-						tables,
 						dbUrl: dbUrl.toString(),
-						seeding: true,
 					});
 					await recreateTables({ db, tables });
 					if (configWithDb.db?.data) {
@@ -113,14 +104,12 @@ function astroDBIntegration(): AstroIntegration {
 				// Wait for the server startup to log, so that this can come afterwards.
 				setTimeout(() => {
 					logger.info(
-						connectedToRemote ? 'Connected to remote database.' : 'New local database created.'
+						connectToStudio ? 'Connected to remote database.' : 'New local database created.'
 					);
 				}, 100);
 			},
 			'astro:build:start': async ({ logger }) => {
-				logger.info(
-					'database: ' + (connectedToRemote ? yellow('remote') : blue('local database.'))
-				);
+				logger.info('database: ' + (connectToStudio ? yellow('remote') : blue('local database.')));
 			},
 			'astro:build:done': async ({}) => {
 				await appToken?.destroy();

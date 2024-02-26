@@ -1,7 +1,7 @@
-import { NOW, column, defineWritableTable, sql } from '@astrojs/db';
+import { NOW, column, defineTable, sql } from '@astrojs/db';
 import type { AstroIntegration } from 'astro';
 
-const Themes = defineWritableTable({
+const Themes = defineTable({
 	columns: {
 		name: column.text(),
 		added: column.date({

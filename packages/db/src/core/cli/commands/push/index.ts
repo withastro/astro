@@ -142,6 +142,7 @@ async function pushData({
 	isDryRun?: boolean;
 }) {
 	const queries: InStatement[] = [];
+	// TODO: replace with pure remote client?
 	if (config.db?.data) {
 		const libsqlClient = createClient({ url: ':memory:' });
 		// Stand up tables locally to mirror inserts.
@@ -150,15 +151,6 @@ async function pushData({
 			db: drizzleLibsql(libsqlClient),
 			tables: tablesSchema.parse(config.db.tables ?? {}),
 		});
-
-		for (const [collectionName, { writable }] of Object.entries(config.db.tables ?? {})) {
-			if (!writable) {
-				queries.push({
-					sql: `DELETE FROM ${sqlite.escapeName(collectionName)}`,
-					args: [],
-				});
-			}
-		}
 
 		// Use proxy to trace all queries to queue up in a batch.
 		const db = await drizzleProxy(async (sqlQuery, params, method) => {

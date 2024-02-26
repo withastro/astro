@@ -97,11 +97,11 @@ export async function seedData({
 
 function seedErrorChecks<T extends ColumnsConfig>(
 	mode: 'dev' | 'build',
-	{ table, writable }: ResolvedCollectionConfig<T, boolean>,
+	{ table }: ResolvedCollectionConfig<T>,
 	values: MaybeArray<unknown>
 ) {
 	const tableName = getTableName(table);
-	if (writable && mode === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {
+	if (mode === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {
 		throw new Error(SEED_WRITABLE_IN_PROD_ERROR(tableName));
 	}
 	if (Array.isArray(values) && values.length === 0) {

@@ -39,7 +39,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 					tables: params.schemas.tables(),
 				});
 			}
-			return getVirtualModContents({
+			return getLocalVirtualModContents({
 				root: params.root,
 				tables: params.schemas.tables(),
 			});
@@ -47,19 +47,13 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 	};
 }
 
-export function getVirtualModContents({ tables, root }: { tables: DBTables; root: URL }) {
+export function getLocalVirtualModContents({ tables, root }: { tables: DBTables; root: URL }) {
 	const dbUrl = new URL(DB_PATH, root);
 	return `
 import { collectionToTable, createLocalDatabaseClient } from ${RUNTIME_IMPORT};
 import dbUrl from ${JSON.stringify(`${dbUrl}?fileurl`)};
 
-const params = ${JSON.stringify({
-		tables,
-		seeding: false,
-	})};
-params.dbUrl = dbUrl;
-
-export const db = await createLocalDatabaseClient(params);
+export const db = await createLocalDatabaseClient({ dbUrl });
 
 export * from ${RUNTIME_DRIZZLE_IMPORT};
 

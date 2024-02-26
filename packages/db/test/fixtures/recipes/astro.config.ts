@@ -1,7 +1,7 @@
-import astroDb, { defineReadableTable, column } from '@astrojs/db';
+import astroDb, { defineTable, column } from '@astrojs/db';
 import { defineConfig } from 'astro/config';
 
-const Recipe = defineReadableTable({
+const Recipe = defineTable({
 	columns: {
 		id: column.number({ primaryKey: true }),
 		title: column.text(),
@@ -9,7 +9,7 @@ const Recipe = defineReadableTable({
 	},
 });
 
-const Ingredient = defineReadableTable({
+const Ingredient = defineTable({
 	columns: {
 		id: column.number({ primaryKey: true }),
 		name: column.text(),
@@ -26,6 +26,7 @@ export default defineConfig({
 	integrations: [astroDb()],
 	db: {
 		tables: { Recipe, Ingredient },
+		unsafeDisableStudio: true,
 		async data({ seed, seedReturning }) {
 			const pancakes = await seedReturning(Recipe, {
 				title: 'Pancakes',

@@ -10,18 +10,9 @@ export const MISSING_PROJECT_ID_ERROR = `${red('▶ Directory not linked.')}
   To link this directory to an Astro Studio project, run
   ${cyan('astro db link')}\n`;
 
-export const STUDIO_CONFIG_MISSING_WRITABLE_TABLE_ERROR = (tableName: string) => `${red(
-	`▶ Writable table ${bold(tableName)} requires Astro Studio or the ${yellow(
-		'unsafeWritable'
-	)} option.`
-)}
-
-  Visit ${cyan('https://astro.build/studio')} to create your account
-  and set ${green('studio: true')} in your astro.config.mjs file to enable Studio.\n`;
-
-export const UNSAFE_WRITABLE_WARNING = `${yellow(
-	'unsafeWritable'
-)} option is enabled and you are using writable tables.
+export const UNSAFE_DISABLE_STUDIO_WARNING = `${yellow(
+	'unsafeDisableStudio'
+)} option is enabled and you are deploying your database without Studio.
   Redeploying your app may result in wiping away your database.
 	I hope you know what you are doing.\n`;
 
