@@ -14,7 +14,7 @@
     "@astrojs/react": "^3.0.10",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
-    "astro": "^4.4.4",
+    "astro": "^4.4.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   }
