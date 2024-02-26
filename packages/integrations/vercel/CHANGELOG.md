@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 7.3.4
+
+### Patch Changes
+
+- [#10231](https://github.com/withastro/astro/pull/10231) [`ae2a10e1a768e31d243194694222932ffafb54cc`](https://github.com/withastro/astro/commit/ae2a10e1a768e31d243194694222932ffafb54cc) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Fixes an issue where functions were also created for prerendered routes with `functionPerRoute` enabled.
+
 ## 7.3.3
 
 ### Patch Changes
