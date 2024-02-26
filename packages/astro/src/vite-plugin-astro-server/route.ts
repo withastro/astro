@@ -96,7 +96,7 @@ export async function matchRoute(
 	const custom404 = getCustom404Route(manifestData);
 	
 	if (custom404 && custom404.component === 'astro-default-404') {
-		const component: any = {
+		const component: ComponentInstance = {
 			default: default404Page
 		}
 		return {
