@@ -288,6 +288,7 @@ export const astroConfigWithDbSchema = z.object({
 });
 
 export type ColumnsConfig = z.input<typeof tableSchema>['columns'];
+export type OutputColumnsConfig = z.output<typeof tableSchema>['columns'];
 
 interface CollectionConfig<TColumns extends ColumnsConfig = ColumnsConfig>
 	// use `extends` to ensure types line up with zod,
