@@ -2,4 +2,4 @@
 "@astrojs/vercel": patch
 ---
 
-Fixes an issue where Vercel adapter may create functions for prerendered routes
+Fixes an issue where functions were also created for prerendered routes with `functionPerRoute` enabled.
