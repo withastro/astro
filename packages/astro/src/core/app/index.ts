@@ -2,6 +2,7 @@ import { normalizeTheLocale } from '../../i18n/index.js';
 import type { ComponentInstance, ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import {
+	DEFAULT_404_COMPONENT,
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	clientAddressSymbol,
@@ -476,7 +477,7 @@ export class App {
 	}
 
 	async #getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
-		if (route.component === 'astro-default-404') {
+		if (route.component === DEFAULT_404_COMPONENT) {
 			return {
 				page: async () => ({ default: () => new Response(null, { status: 404 }) }) as ComponentInstance,
 				renderers: []

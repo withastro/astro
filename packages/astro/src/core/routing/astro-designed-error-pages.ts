@@ -1,9 +1,10 @@
 import type { ManifestData } from "../../@types/astro.js";
+import { DEFAULT_404_COMPONENT } from "../constants.js";
 
 export function ensure404Route(manifest: ManifestData) {
 	if (!manifest.routes.some(route => route.route === '/404')) {
 		manifest.routes.push({
-			component: 'astro-default-404',
+			component: DEFAULT_404_COMPONENT,
 			generate: () => '',
 			params: [],
 			pattern: /\/404/,
