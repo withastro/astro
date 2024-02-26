@@ -14,14 +14,5 @@ export default defineConfig({
 	db: {
 		tables: { Author },
 		unsafeDisableStudio: true,
-		async data({ seed }) {
-			await seed(Author, [
-				{ name: 'Ben' },
-				{ name: 'Nate' },
-				{ name: 'Erika' },
-				{ name: 'Bjorn' },
-				{ name: 'Sarah' },
-			]);
-		},
 	},
 });

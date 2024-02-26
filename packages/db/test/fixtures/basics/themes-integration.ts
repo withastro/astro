@@ -23,11 +23,6 @@ export function themes(): AstroIntegration {
 				updateConfig({
 					db: {
 						tables: { Themes },
-						async data({ seed }) {
-							// Seed writable tables in dev mode, only
-							// but in this case we do it for both, due to tests
-							await seed(Themes, [{ name: 'dracula' }, { name: 'monokai', added: new Date() }]);
-						},
 					},
 				});
 			},
