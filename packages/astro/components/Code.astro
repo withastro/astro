@@ -11,7 +11,7 @@ import { bundledLanguages } from 'shikiji/langs';
 import { getCachedHighlighter } from '../dist/core/shiki.js';
 import type { HTMLAttributes } from '../types';
 
-interface Props extends HTMLAttributes<'pre'> {
+interface Props extends Omit<HTMLAttributes<'pre'>, 'lang'> {
 	
 	/** The code to highlight. Required. */
 	code: string;
@@ -22,7 +22,7 @@ interface Props extends HTMLAttributes<'pre'> {
 	 *
 	 * @default "plaintext"
 	 */
-	lang?: BuiltinLanguage | SpecialLanguage // | LanguageRegistration;
+	lang?: BuiltinLanguage | SpecialLanguage | LanguageRegistration;
 	/**
 	 * The styling theme.
 	 * Supports all themes listed here: https://github.com/shikijs/shiki/blob/main/docs/themes.md#all-themes
@@ -60,7 +60,7 @@ const {
 	experimentalThemes = {},
 	wrap = false,
 	inline = false,
-	...additionalProps
+	...rest
 } = Astro.props;
 
 // shiki -> shikiji compat
@@ -90,7 +90,7 @@ const highlighter = await getCachedHighlighter({
 
 const html = highlighter.highlight(code, typeof lang === 'string' ? lang : lang.name, {
 	inline,
-}, additionalProps);
+}, rest);
 ---
 
 <Fragment set:html={html} />

@@ -2,10 +2,14 @@ import { bundledLanguages, createCssVariablesTheme, getHighlighter } from 'shiki
 import { visit } from 'unist-util-visit';
 import type { Properties } from 'hast';
 import type { ShikiConfig } from './types.js';
-import type { HTMLAttributes } from '../../../../packages/astro/types.js';
 
 export interface ShikiHighlighter {
-	highlight(code: string, lang?: string, options?: { inline?: boolean }, additionalProps?:HTMLAttributes<'pre'>): string;
+	highlight(
+		code: string,
+		lang?: string,
+		options?: { inline?: boolean },
+		attributes?: Record<string, string>
+	): string;
 }
 
 // TODO: Remove this special replacement in Astro 5
@@ -42,7 +46,7 @@ export async function createShikiHighlighter({
 	const loadedLanguages = highlighter.getLoadedLanguages();
 
 	return {
-		highlight(code, lang = 'plaintext', options, additionalProps?:HTMLAttributes<'pre'>) {
+		highlight(code, lang = 'plaintext', options, attributes) {
 			if (lang !== 'plaintext' && !loadedLanguages.includes(lang)) {
 				// eslint-disable-next-line no-console
 				console.warn(`[Shiki] The language "${lang}" doesn't exist, falling back to "plaintext".`);
@@ -58,22 +62,20 @@ export async function createShikiHighlighter({
 				transformers: [
 					{
 						pre(node) {
-							if (additionalProps) {
-								Object.entries(additionalProps).forEach(([key, value]) => {
-									if (key === 'class') {
-										node.properties[key] += ` ${value}`; // Append to class instead of replacing it
-									} else {
-										node.properties[key] = value as string;
-									}
-								});
-							}
 							// Swap to `code` tag if inline
 							if (inline) {
 								node.tagName = 'code';
 							}
 
-							const classValue = normalizePropAsString(node.properties.class) ?? '';
-							const styleValue = normalizePropAsString(node.properties.style) ?? '';
+							const { class: attributesClass, style: attributesStyle, ...rest } = attributes ?? {};
+							Object.assign(node.properties, rest);
+
+							const classValue =
+								(normalizePropAsString(node.properties.class) ?? '') +
+								(attributesClass ? ` ${attributesClass}` : '');
+							const styleValue =
+								(normalizePropAsString(node.properties.style) ?? '') +
+								(attributesStyle ? `; ${attributesStyle}` : '');
 
 							// Replace "shiki" class naming with "astro-code"
 							node.properties.class = classValue.replace(/shiki/g, 'astro-code');
