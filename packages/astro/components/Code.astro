@@ -89,7 +89,8 @@ const highlighter = await getCachedHighlighter({
 
 const html = highlighter.highlight(code, typeof lang === 'string' ? lang : lang.name, {
 	inline,
-}, rest);
+	attributes: rest,
+});
 ---
 
 <Fragment set:html={html} />

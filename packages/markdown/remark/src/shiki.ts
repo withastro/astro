@@ -7,8 +7,7 @@ export interface ShikiHighlighter {
 	highlight(
 		code: string,
 		lang?: string,
-		options?: { inline?: boolean },
-		attributes?: Record<string, string>
+		options?: { inline?: boolean; attributes?: Record<string, string> }
 	): string;
 }
 
@@ -46,7 +45,7 @@ export async function createShikiHighlighter({
 	const loadedLanguages = highlighter.getLoadedLanguages();
 
 	return {
-		highlight(code, lang = 'plaintext', options, attributes) {
+		highlight(code, lang = 'plaintext', options) {
 			if (lang !== 'plaintext' && !loadedLanguages.includes(lang)) {
 				// eslint-disable-next-line no-console
 				console.warn(`[Shiki] The language "${lang}" doesn't exist, falling back to "plaintext".`);
@@ -67,7 +66,7 @@ export async function createShikiHighlighter({
 								node.tagName = 'code';
 							}
 
-							const { class: attributesClass, style: attributesStyle, ...rest } = attributes ?? {};
+							const { class: attributesClass, style: attributesStyle, ...rest } = options?.attributes ?? {};
 							Object.assign(node.properties, rest);
 
 							const classValue =
