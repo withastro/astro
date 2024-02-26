@@ -50,6 +50,11 @@ export function highlightCodeBlocks(tree: Root, highlighter: Highlighter) {
 			}
 		}
 
+		// Don’t mighlight math code blocks.
+		if (languageMatch?.[1] === 'math') {
+			return;
+		}
+
 		const code = toText(node, { whitespace: 'pre' });
 		const html = highlighter(code, languageMatch?.[1] || 'plaintext');
 		// The replacement returns a root node with 1 child, the `<pr>` element replacement.

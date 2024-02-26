@@ -65,17 +65,7 @@ function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
 		rehypeMetaString,
 		// rehypeRaw allows custom syntax highlighters to work without added config
 		[rehypeRaw, { passThrough: nodeTypes }],
-		...mdxOptions.rehypePlugins,
 	];
-
-	if (!isPerformanceBenchmark) {
-		// getHeadings() is guaranteed by TS, so this must be included.
-		// We run `rehypeHeadingIds` _last_ to respect any custom IDs set by user plugins.
-		rehypePlugins.push(rehypeHeadingIds, rehypeInjectHeadingsExport);
-	}
-
-	// computed from `astro.data.frontmatter` in VFile data
-	rehypePlugins.push(rehypeApplyFrontmatterExport);
 
 	if (!isPerformanceBenchmark) {
 		// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
@@ -85,6 +75,17 @@ function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
 			rehypePlugins.push(rehypePrism);
 		}
 	}
+
+	rehypePlugins.push(...mdxOptions.rehypePlugins);
+
+	if (!isPerformanceBenchmark) {
+		// getHeadings() is guaranteed by TS, so this must be included.
+		// We run `rehypeHeadingIds` _last_ to respect any custom IDs set by user plugins.
+		rehypePlugins.push(rehypeHeadingIds, rehypeInjectHeadingsExport);
+	}
+
+	// computed from `astro.data.frontmatter` in VFile data
+	rehypePlugins.push(rehypeApplyFrontmatterExport);
 
 	if (mdxOptions.optimize) {
 		// Convert user `optimize` option to compatible `rehypeOptimizeStatic` option
