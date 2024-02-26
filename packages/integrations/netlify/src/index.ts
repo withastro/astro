@@ -6,6 +6,7 @@ import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
 import { AstroError } from 'astro/errors';
 import { build } from 'esbuild';
 import { appendFile, mkdir, readFile, rm, writeFile } from 'fs/promises';
+import { randomUUID } from 'crypto'
 import type { Args } from './ssr-function.js';
 
 const { version: packageVersion } = JSON.parse(
@@ -77,7 +78,7 @@ export default function netlifyIntegration(
 	let rootDir: URL;
 	let astroMiddlewareEntryPoint: URL | undefined = undefined;
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
-	const middlewareSecret = crypto.randomUUID();
+	const middlewareSecret = randomUUID();
 
 	const ssrOutputDir = () => new URL('./.netlify/functions-internal/ssr/', rootDir);
 	const middlewareOutputDir = () => new URL('.netlify/edge-functions/middleware/', rootDir);
