@@ -114,7 +114,7 @@ class Slots {
 				const slot = async () =>
 					typeof expression === 'function' ? expression(...args) : expression;
 				return await renderSlotToString(result, slot).then((res) => {
-					return res != null ? String(res) : res;
+					return res;
 				});
 			}
 			// JSX
