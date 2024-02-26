@@ -1,6 +1,6 @@
 import { DB_PATH, RUNTIME_DRIZZLE_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
-import type { VitePlugin } from '../utils.js';
+import { getRemoteDatabaseUrl, type VitePlugin } from '../utils.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -79,7 +79,8 @@ import {collectionToTable, createRemoteDatabaseClient} from ${RUNTIME_IMPORT};
 
 export const db = await createRemoteDatabaseClient(${JSON.stringify(
 		appToken
-	)}, import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL);
+		// Respect runtime env for user overrides in SSR
+	)}, import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL ?? ${JSON.stringify(getRemoteDatabaseUrl())});
 export * from ${RUNTIME_DRIZZLE_IMPORT};
 
 ${getStringifiedCollectionExports(tables)}
