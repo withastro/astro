@@ -14,7 +14,8 @@ import {
 import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
-import { injectDts } from "../../config/types.js"
+import { ensureCodegenDirExists, injectDts } from "../../config/types.js"
+import { syncInternal } from '../sync/index.js';
 
 export interface Container {
 	fs: typeof nodeFs;
@@ -45,12 +46,14 @@ export async function createContainer({
 }: CreateContainerParams): Promise<Container> {
 	// Initialize
 	applyPolyfill();
+	ensureCodegenDirExists({ codegenDir: settings.codegenDir, fs })
 	settings = await runHookConfigSetup({
 		settings,
 		command: 'dev',
 		logger: logger,
 		isRestart,
 	});
+	await syncInternal(settings, { logger, fs });
 
 	settings = injectImageEndpoint(settings, 'dev');
 

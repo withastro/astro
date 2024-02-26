@@ -13,6 +13,7 @@ import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { apply as applyPolyfills } from '../polyfill.js';
+import { ensureCodegenDirExists } from '../../config/types.js';
 
 /**
  * Starts a local server to serve your static dist/ directory. This command is useful for previewing
@@ -28,6 +29,8 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 	telemetry.record(eventCliSession('preview', userConfig));
 
 	const _settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
+
+	ensureCodegenDirExists({ codegenDir: _settings.codegenDir, fs })
 
 	const settings = await runHookConfigSetup({
 		settings: _settings,

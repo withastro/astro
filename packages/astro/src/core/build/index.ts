@@ -144,7 +144,10 @@ class AstroBuilder {
 		);
 		await runHookConfigDone({ settings: this.settings, logger: logger });
 
+		const { ensureCodegenDirExists } = await import('../../config/types.js')
 		const { syncInternal } = await import('../sync/index.js');
+
+		ensureCodegenDirExists({ codegenDir: this.settings.codegenDir, fs })
 		const syncRet = await syncInternal(this.settings, { logger: logger, fs });
 		if (syncRet !== 0) {
 			return process.exit(syncRet);
