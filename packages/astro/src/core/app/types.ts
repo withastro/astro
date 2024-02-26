@@ -64,6 +64,7 @@ export type SSRManifestI18n = {
 	locales: Locales;
 	defaultLocale: string;
 	domainLookupTable: Record<string, string>;
+	searchParamVarname?: string;
 };
 
 export type SerializedSSRManifest = Omit<

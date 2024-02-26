@@ -1574,6 +1574,20 @@ export interface AstroUserConfig {
 		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains) for more details, including the limitations of this feature.
 		 */
 		domains?: Record<string, string>;
+
+		/**
+		 * @docs
+		 * @name u18n.searchParamVarname
+		 * @type {string}
+		 * @default 'undefined'
+		 * @version 4.5.0
+		 * @description
+		 *
+		 * If set, the `searchParamVarname` option will be used to determine the
+		 * query parameter that will be used to set the locale. This can be useful
+		 * when we have limited control over the URL path.
+		 */
+		searchParamVarname?: string;
 	};
 
 	/** ⚠️ WARNING: SUBJECT TO CHANGE */

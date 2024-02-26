@@ -353,6 +353,7 @@ export const AstroConfigSchema = z.object({
 								'The option `i18n.redirectToDefaultLocale` is only useful when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change its value to `true`.',
 						}
 					),
+				searchParamVarname: z.string().optional(),
 			})
 			.optional()
 			.superRefine((i18n, ctx) => {
