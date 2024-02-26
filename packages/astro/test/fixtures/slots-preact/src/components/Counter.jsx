@@ -1,4 +1,4 @@
-import { h, Fragment } from 'preact';
+import { Fragment, h } from 'preact';
 import { useState } from 'preact/hooks'
 
 export default function Counter({ named, dashCase, children, count: initialCount, case: id }) {

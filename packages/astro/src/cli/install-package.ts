@@ -6,6 +6,9 @@ import prompts from 'prompts';
 import resolvePackage from 'resolve';
 import whichPm from 'which-pm';
 import { type Logger } from '../core/logger/core.js';
+import { createRequire } from 'node:module';
+import { sep } from 'node:path';
+const require = createRequire(import.meta.url);
 
 type GetPackageOptions = {
 	skipAsk?: boolean;
@@ -18,12 +21,20 @@ export async function getPackage<T>(
 	options: GetPackageOptions,
 	otherDeps: string[] = []
 ): Promise<T | undefined> {
-	let packageImport;
 	try {
+		// Custom resolution logic for @astrojs/db. Since it lives in our monorepo,
+		// the generic tryResolve() method doesn't work.
+		if (packageName === '@astrojs/db') {
+			const packageJsonLoc = require.resolve(packageName + '/package.json', {
+				paths: [options.cwd ?? process.cwd()],
+			});
+			const packageLoc = packageJsonLoc.replace(`package.json`, 'dist/index.js');
+			const packageImport = await import(packageLoc);
+			return packageImport as T;
+		}
 		await tryResolve(packageName, options.cwd ?? process.cwd());
-
-		// The `require.resolve` is required as to avoid Node caching the failed `import`
-		packageImport = await import(packageName);
+		const packageImport = await import(packageName);
+		return packageImport as T;
 	} catch (e) {
 		logger.info(
 			null,
@@ -32,13 +43,12 @@ export async function getPackage<T>(
 		const result = await installPackage([packageName, ...otherDeps], options, logger);
 
 		if (result) {
-			packageImport = await import(packageName);
+			const packageImport = await import(packageName);
+			return packageImport;
 		} else {
 			return undefined;
 		}
 	}
-
-	return packageImport as T;
 }
 
 function tryResolve(packageName: string, cwd: string) {

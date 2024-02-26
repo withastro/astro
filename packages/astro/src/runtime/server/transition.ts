@@ -91,6 +91,9 @@ export function renderTransition(
 	animationName: TransitionAnimationValue | undefined,
 	transitionName: string
 ) {
+	if (typeof (transitionName ?? '') !== 'string') {
+		throw new Error(`Invalid transition name {${transitionName}}`);
+	}
 	// Default to `fade` (similar to `initial`, but snappier)
 	if (!animationName) animationName = 'fade';
 	const scope = createTransitionScope(result, hash);

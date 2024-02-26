@@ -101,6 +101,8 @@ export function unescapeHTML(
 			return Promise.resolve(str).then((value) => {
 				return unescapeHTML(value);
 			});
+		} else if (str[Symbol.for('astro:slot-string')]) {
+			return str;
 		} else if (Symbol.iterator in str) {
 			return unescapeChunks(str);
 		} else if (Symbol.asyncIterator in str || hasGetReader(str)) {
