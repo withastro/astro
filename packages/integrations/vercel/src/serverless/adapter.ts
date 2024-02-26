@@ -288,7 +288,9 @@ export default function vercelServerless({
 				}
 			},
 			'astro:build:ssr': async ({ entryPoints, middlewareEntryPoint }) => {
-				_entryPoints = entryPoints;
+				_entryPoints = new Map(
+					Array.from(entryPoints).filter(([routeData]) => !routeData.prerender)
+				);
 				_middlewareEntryPoint = middlewareEntryPoint;
 			},
 			'astro:build:done': async ({ routes, logger }) => {
