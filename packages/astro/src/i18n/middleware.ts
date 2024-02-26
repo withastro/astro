@@ -8,14 +8,13 @@ import { ROUTE_TYPE_HEADER } from '../core/constants.js';
 // Checks if the pathname has any locale, exception for the defaultLocale, which is ignored on purpose.
 function pathnameHasLocale(pathname: string, locales: Locales): boolean {
 	const segments = pathname.split('/');
-	for (const segment of segments) {
-		for (const locale of locales) {
-			if (typeof locale === 'string') {
-				if (normalizeTheLocale(segment) === normalizeTheLocale(locale)) {
-					return true;
-				}
-			} else if (segment === locale.path) {
-				return true;
+	const normalizedLocales = locales.map((locale) =>
+		typeof locale === 'string' ? normalizeTheLocale(locale) : locale.path
+	);
+	for (const segment of segments.map(normalizeTheLocale)) {
+		for (const locale of normalizedLocales) {
+			if (segment === locale) {
+				return true
 			}
 		}
 	}
