@@ -627,7 +627,7 @@ function onPopState(ev: PopStateEvent) {
 
 // There's not a good way to record scroll position before a back button.
 // So the way we do it is by listening to scrollend if supported, and if not continuously record the scroll position.
-const onScroll = () => {
+const onScrollEnd = () => {
 	updateScrollPosition({ scrollX, scrollY });
 };
 
@@ -637,8 +637,28 @@ if (inBrowser) {
 		originalLocation = new URL(location.href);
 		addEventListener('popstate', onPopState);
 		addEventListener('load', onPageLoad);
-		if ('onscrollend' in window) addEventListener('scrollend', onScroll);
-		else addEventListener('scroll', throttle(onScroll, 350), { passive: true });
+		if ('onscrollend' in window) addEventListener('scrollend', onScrollEnd);
+		// HACK: emulate "onscrollend" behavior by checking scroll positions with
+		// `requestAnimationFrame` every 350ms.
+		else {
+			let timestamp: number, y = scrollY, x = scrollX;
+			const cb = (now: number) => {
+				timestamp ??= now;
+				if (
+					now - timestamp > 350
+					&& y === scrollY && x === scrollX
+					&& (y !== history.state.scrollY || x !== history.state.scrollX)
+				) {
+					timestamp = now;
+					onScrollEnd();
+				}
+				// Save the current scroll positions.
+				y = scrollY, x = scrollX;
+				requestAnimationFrame(cb);
+			}
+			// Start recursive loop
+			requestAnimationFrame(cb);
+		};
 	}
 	for (const script of document.scripts) {
 		script.dataset.astroExec = '';
