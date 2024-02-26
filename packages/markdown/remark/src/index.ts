@@ -26,6 +26,8 @@ export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export { remarkCollectImages } from './remark-collect-images.js';
 export { rehypePrism } from './rehype-prism.js';
 export { rehypeShiki } from './rehype-shiki.js';
+export { remarkPrism } from './remark-prism.js';
+export { remarkShiki } from './remark-shiki.js';
 export { createShikiHighlighter, replaceCssVariables, type ShikiHighlighter } from './shiki.js';
 export * from './types.js';
 
