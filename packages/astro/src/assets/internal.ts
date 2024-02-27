@@ -1,7 +1,7 @@
 import type { AstroConfig } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { DEFAULT_HASH_PROPS } from './consts.js';
-import { isLocalService, type ImageService } from './services/service.js';
+import { type ImageService, isLocalService } from './services/service.js';
 import type {
 	GetImageResult,
 	ImageTransform,

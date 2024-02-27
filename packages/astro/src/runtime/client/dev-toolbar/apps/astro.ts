@@ -1,5 +1,5 @@
 import type { DevToolbarApp, DevToolbarMetadata } from '../../../../@types/astro.js';
-import { isDefinedIcon, type Icon } from '../ui-library/icons.js';
+import { type Icon, isDefinedIcon } from '../ui-library/icons.js';
 import { colorForIntegration, iconForIntegration } from './utils/icons.js';
 import { closeOnOutsideClick, createWindowElement } from './utils/window.js';
 

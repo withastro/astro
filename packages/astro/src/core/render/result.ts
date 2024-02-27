@@ -7,19 +7,19 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro.js';
-import { renderSlotToString, type ComponentSlots } from '../../runtime/server/index.js';
-import { renderJSX } from '../../runtime/server/jsx.js';
-import { chunkToString } from '../../runtime/server/render/index.js';
-import { AstroCookies } from '../cookies/index.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { Logger } from '../logger/core.js';
 import {
+	type RoutingStrategies,
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
-	type RoutingStrategies,
 } from '../../i18n/utils.js';
+import { type ComponentSlots, renderSlotToString } from '../../runtime/server/index.js';
+import { renderJSX } from '../../runtime/server/jsx.js';
+import { chunkToString } from '../../runtime/server/render/index.js';
 import { clientAddressSymbol, responseSentSymbol } from '../constants.js';
+import { AstroCookies } from '../cookies/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
+import type { Logger } from '../logger/core.js';
 
 export interface CreateResultArgs {
 	/**
