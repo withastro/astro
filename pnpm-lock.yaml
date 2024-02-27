@@ -8,7 +8,7 @@ overrides:
   organize-imports-cli>ts-morph: ^19.0.0
   tsconfig-resolver>type-fest: 3.0.0
 
-packageExtensionsChecksum: 2d0a8c56e33c7d11bb9ef3c997d67c33
+packageExtensionsChecksum: 43e9b7451c9943c617aef017ec172155
 
 importers:
 
@@ -4804,7 +4804,7 @@ importers:
         specifier: ^3.0.0
         version: 3.0.1(svelte@4.2.8)(vite@5.1.2)
       svelte2tsx:
-        specifier: ^0.6.25
+        specifier: ^0.6.27
         version: 0.6.27(svelte@4.2.8)(typescript@5.2.2)
     devDependencies:
       astro:
@@ -15678,9 +15678,6 @@ packages:
     peerDependencies:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: ^4.9.4 || ^5.0.0
-    peerDependenciesMeta:
-      typescript:
-        optional: true
     dependencies:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
