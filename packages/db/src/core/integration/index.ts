@@ -1,21 +1,21 @@
-import type { AstroIntegration } from 'astro';
-import { vitePluginDb } from './vite-plugin-db.js';
-import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
-import { typegen } from './typegen.js';
 import { existsSync } from 'fs';
-import { mkdir, rm, writeFile } from 'fs/promises';
-import { DB_PATH } from '../consts.js';
-import { createLocalDatabaseClient } from '../../runtime/db-client.js';
-import { astroConfigWithDbSchema, type DBTables } from '../types.js';
-import { type VitePlugin } from '../utils.js';
-import { STUDIO_CONFIG_MISSING_WRITABLE_TABLE_ERROR, UNSAFE_WRITABLE_WARNING } from '../errors.js';
-import { errorMap } from './error-map.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import type { AstroIntegration } from 'astro';
+import { mkdir, rm, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
-import { fileURLIntegration } from './file-url.js';
+import { createLocalDatabaseClient } from '../../runtime/db-client.js';
+import { DB_PATH } from '../consts.js';
+import { STUDIO_CONFIG_MISSING_WRITABLE_TABLE_ERROR, UNSAFE_WRITABLE_WARNING } from '../errors.js';
 import { recreateTables, seedData } from '../queries.js';
-import { getManagedAppTokenOrExit, type ManagedAppToken } from '../tokens.js';
+import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
+import { type DBTables, astroConfigWithDbSchema } from '../types.js';
+import { type VitePlugin } from '../utils.js';
+import { errorMap } from './error-map.js';
+import { fileURLIntegration } from './file-url.js';
+import { typegen } from './typegen.js';
+import { vitePluginDb } from './vite-plugin-db.js';
+import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectedToRemote = false;

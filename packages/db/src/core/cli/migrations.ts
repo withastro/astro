@@ -1,8 +1,8 @@
+import type { AstroConfig } from 'astro';
 import deepDiff from 'deep-diff';
 import { mkdir, readFile, readdir, writeFile } from 'fs/promises';
-import { tablesSchema, type DBSnapshot } from '../types.js';
-import type { AstroConfig } from 'astro';
 import { cyan, green, yellow } from 'kleur/colors';
+import { type DBSnapshot, tablesSchema } from '../types.js';
 const { applyChange, diff: generateDiff } = deepDiff;
 
 export type MigrationStatus =

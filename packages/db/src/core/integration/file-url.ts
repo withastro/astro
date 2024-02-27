@@ -1,8 +1,8 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import type { VitePlugin } from '../utils.js';
-import fs from 'node:fs';
-import { pathToFileURL } from 'node:url';
-import path from 'node:path';
 
 async function copyFile(toDir: URL, fromUrl: URL, toUrl: URL) {
 	await fs.promises.mkdir(toDir, { recursive: true });

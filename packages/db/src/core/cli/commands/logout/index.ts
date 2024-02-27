@@ -1,5 +1,5 @@
-import type { AstroConfig } from 'astro';
 import { unlink } from 'node:fs/promises';
+import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
 import { SESSION_LOGIN_FILE } from '../../../tokens.js';
 

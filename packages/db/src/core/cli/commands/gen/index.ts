@@ -1,14 +1,14 @@
-import type { AstroConfig } from 'astro';
-import type { Arguments } from 'yargs-parser';
 import { writeFile } from 'node:fs/promises';
+import type { AstroConfig } from 'astro';
+import { bgRed, red, reset } from 'kleur/colors';
+import type { Arguments } from 'yargs-parser';
+import { getMigrationQueries } from '../../migration-queries.js';
 import {
 	MIGRATIONS_CREATED,
 	MIGRATIONS_UP_TO_DATE,
 	getMigrationStatus,
 	initializeMigrationsDirectory,
 } from '../../migrations.js';
-import { getMigrationQueries } from '../../migration-queries.js';
-import { bgRed, red, reset } from 'kleur/colors';
 
 export async function cmd({ config }: { config: AstroConfig; flags: Arguments }) {
 	const migration = await getMigrationStatus(config);
