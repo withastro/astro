@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fixes TypeScript type definitions for `Code` component
+Fixes TypeScript type definitions for `Code` component `theme` and `experimentalThemes` props
