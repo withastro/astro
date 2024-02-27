@@ -88,7 +88,7 @@ export default async function sync(
  */
 export async function syncInternal(
 	settings: AstroSettings,
-	{ logger, fs }: SyncInternalOptions
+	{ logger, fs = fsMod }: SyncInternalOptions
 ): Promise<ProcessExit> {
 	const timerStart = performance.now();
 	// Needed to load content config
@@ -100,7 +100,7 @@ export async function syncInternal(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode: 'build', command: 'build', fs: fs ?? fsMod }
+			{ settings, logger, mode: 'build', command: 'build', fs }
 		)
 	);
 
@@ -118,14 +118,14 @@ export async function syncInternal(
 		const contentTypesGenerator = await createContentTypesGenerator({
 			contentConfigObserver: globalContentConfigObserver,
 			logger,
-			fs: fs ?? fsMod,
+			fs,
 			settings,
 			viteServer: tempViteServer,
 			prepareDts: (filename) =>
 				settings.injectedDts.push({ filename, content: '', source: 'core' }),
-			injectDts: (dts) => injectDts({ ...dts, codegenDir: settings.codegenDir, fs: fs ?? fsMod }),
+			injectDts: (dts) => injectDts({ ...dts, codegenDir: settings.codegenDir, fs }),
 		});
-		await handleDtsInjection({ settings, fs: fs ?? fsMod });
+		await handleDtsInjection({ settings, fs });
 
 		const typesResult = await contentTypesGenerator.init();
 		const contentConfig = globalContentConfigObserver.get();

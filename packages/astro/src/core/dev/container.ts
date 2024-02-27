@@ -53,7 +53,9 @@ export async function createContainer({
 		logger: logger,
 		isRestart,
 	});
-	await syncInternal(settings, { logger, fs });
+	// TODO: check why fails
+	await syncInternal(settings, { logger });
+	// await syncInternal(settings, { logger, fs });
 
 	settings = injectImageEndpoint(settings, 'dev');
 
