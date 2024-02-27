@@ -107,6 +107,7 @@ export function renderTransition(
 		sheet.addFallback('old', 'animation: none; mix-blend-mode: normal;');
 		sheet.addModern('old', 'animation: none; opacity: 0; mix-blend-mode: normal;');
 		sheet.addAnimationRaw('new', 'animation: none; mix-blend-mode: normal;');
+		sheet.addModern('group', 'animation: none');
 	}
 
 	result._metadata.extraHead.push(markHTMLString(`<style>${sheet.toString()}</style>`));
