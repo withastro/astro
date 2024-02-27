@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { getCollectionChangeQueries } from '../../dist/core/cli/migration-queries.js';
-import { collectionSchema, column } from '../../dist/core/types.js';
+import { tableSchema, column } from '../../dist/core/types.js';
 
-const userInitial = collectionSchema.parse({
+const userInitial = tableSchema.parse({
 	columns: {
 		name: column.text(),
 		age: column.number(),

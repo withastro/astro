@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { getCollectionChangeQueries } from '../../dist/core/cli/migration-queries.js';
-import { column, defineReadableTable, tablesSchema } from '../../dist/core/types.js';
+import { column, defineTable, tablesSchema } from '../../dist/core/types.js';
 
-const BaseUser = defineReadableTable({
+const BaseUser = defineTable({
 	columns: {
 		id: column.number({ primaryKey: true }),
 		name: column.text(),
@@ -13,7 +13,7 @@ const BaseUser = defineReadableTable({
 	},
 });
 
-const BaseSentBox = defineReadableTable({
+const BaseSentBox = defineTable({
 	columns: {
 		to: column.number(),
 		toName: column.text(),
@@ -58,7 +58,7 @@ describe('reference queries', () => {
 	it('adds references with lossless table recreate', async () => {
 		const { SentBox: Initial } = resolveReferences();
 		const { SentBox: Final } = resolveReferences({
-			SentBox: defineReadableTable({
+			SentBox: defineTable({
 				columns: {
 					...BaseSentBox.columns,
 					to: column.number({ references: () => BaseUser.columns.id }),
@@ -82,7 +82,7 @@ describe('reference queries', () => {
 
 	it('removes references with lossless table recreate', async () => {
 		const { SentBox: Initial } = resolveReferences({
-			SentBox: defineReadableTable({
+			SentBox: defineTable({
 				columns: {
 					...BaseSentBox.columns,
 					to: column.number({ references: () => BaseUser.columns.id }),
@@ -108,7 +108,7 @@ describe('reference queries', () => {
 	it('does not use ADD COLUMN when adding optional column with reference', async () => {
 		const { SentBox: Initial } = resolveReferences();
 		const { SentBox: Final } = resolveReferences({
-			SentBox: defineReadableTable({
+			SentBox: defineTable({
 				columns: {
 					...BaseSentBox.columns,
 					from: column.number({ references: () => BaseUser.columns.id, optional: true }),
@@ -131,13 +131,13 @@ describe('reference queries', () => {
 	it('adds and updates foreign key with lossless table recreate', async () => {
 		const { SentBox: InitialWithoutFK } = resolveReferences();
 		const { SentBox: InitialWithDifferentFK } = resolveReferences({
-			SentBox: defineReadableTable({
+			SentBox: defineTable({
 				...BaseSentBox,
 				foreignKeys: [{ columns: ['to'], references: () => [BaseUser.columns.id] }],
 			}),
 		});
 		const { SentBox: Final } = resolveReferences({
-			SentBox: defineReadableTable({
+			SentBox: defineTable({
 				...BaseSentBox,
 				foreignKeys: [
 					{
