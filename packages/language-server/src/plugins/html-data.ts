@@ -8,7 +8,8 @@ export const classListAttribute = newHTMLDataProvider('class-list', {
 	globalAttributes: [
 		{
 			name: 'class:list',
-			description: 'Utility to provide a list of class',
+			description:
+				'Utility to provide a list of classes of the element. Takes an array of class values and converts them into a class string.',
 			references: [
 				{
 					name: 'Astro reference',
@@ -59,7 +60,7 @@ export const astroElements = newHTMLDataProvider('astro-elements', {
 				{
 					name: 'define:vars',
 					description:
-						'Passes serializable server-side variables into a client-side script element',
+						'Passes serializable server-side variables into a client-side script element.',
 					references: [
 						{
 							name: 'Astro reference',
@@ -70,7 +71,7 @@ export const astroElements = newHTMLDataProvider('astro-elements', {
 				{
 					name: 'hoist',
 					description:
-						'**Deprecated in Astro >= 0.26.0**\n\nBuilds, optimizes, and bundles your script with the other JavaScript on the page',
+						'**Deprecated in Astro >= 0.26.0**\n\nBuilds, optimizes, and bundles your script with the other JavaScript on the page.',
 					valueSet: 'v',
 					references: [
 						{
@@ -82,7 +83,7 @@ export const astroElements = newHTMLDataProvider('astro-elements', {
 				{
 					name: 'is:inline',
 					description:
-						'Leave a script tag inline in the page template. No processing will be done on its content',
+						'Leave a script tag inline in the page template. No processing will be done on its content.',
 					valueSet: 'v',
 					references: [
 						{
@@ -98,7 +99,8 @@ export const astroElements = newHTMLDataProvider('astro-elements', {
 			attributes: [
 				{
 					name: 'define:vars',
-					description: 'Passes serializable server-side variables into a client-side style element',
+					description:
+						'Passes serializable server-side variables into a client-side style element.',
 					references: [
 						{
 							name: 'Astro reference',
@@ -109,7 +111,7 @@ export const astroElements = newHTMLDataProvider('astro-elements', {
 				{
 					name: 'global',
 					description:
-						'**Deprecated in favor of `is:global` in >= Astro 0.26.0**\n\nOpts-out of automatic CSS scoping, all contents will be available globally',
+						'**Deprecated in favor of `is:global` in >= Astro 0.26.0**\n\nOpts-out of automatic CSS scoping, all contents will be available globally.',
 					valueSet: 'v',
 					references: [
 						{
@@ -120,7 +122,8 @@ export const astroElements = newHTMLDataProvider('astro-elements', {
 				},
 				{
 					name: 'is:global',
-					description: 'Opts-out of automatic CSS scoping, all contents will be available globally',
+					description:
+						'Opts-out of automatic CSS scoping, all contents will be available globally.',
 					valueSet: 'v',
 					references: [
 						{
@@ -132,7 +135,7 @@ export const astroElements = newHTMLDataProvider('astro-elements', {
 				{
 					name: 'is:inline',
 					description:
-						'Leave a style tag inline in the page template. No processing will be done on its content',
+						'Leave a style tag inline in the page template. No processing will be done on its content.',
 					valueSet: 'v',
 					references: [
 						{
@@ -151,7 +154,7 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 	globalAttributes: [
 		{
 			name: 'set:html',
-			description: 'Inject unescaped HTML into this tag',
+			description: 'Inject unescaped HTML into this tag.',
 			references: [
 				{
 					name: 'Astro reference',
@@ -161,7 +164,7 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 		},
 		{
 			name: 'set:text',
-			description: 'Inject escaped text into this tag',
+			description: 'Inject escaped text into this tag.',
 			references: [
 				{
 					name: 'Astro reference',
@@ -171,7 +174,7 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 		},
 		{
 			name: 'is:raw',
-			description: 'Instructs the Astro compiler to treat any children of this element as text',
+			description: 'Instructs the Astro compiler to treat any children of this element as text.',
 			valueSet: 'v',
 			references: [
 				{
