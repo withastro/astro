@@ -269,20 +269,14 @@ interface IndexConfig<TColumns extends ColumnsConfig> extends z.input<typeof ind
 	on: MaybeArray<Extract<keyof TColumns, string>>;
 }
 
-// TODO: flatten into just `CollectionConfig` when we remove table
+// TODO: flatten into just `CollectionConfig`
 export type ResolvedCollectionConfig<TColumns extends ColumnsConfig = ColumnsConfig> =
-	CollectionConfig<TColumns> & {
-		table: Table<string, TColumns>;
-	};
+	CollectionConfig<TColumns>;
 
 export function defineTable<TColumns extends ColumnsConfig>(
 	userConfig: CollectionConfig<TColumns>
 ): ResolvedCollectionConfig<TColumns> {
-	return {
-		...userConfig,
-		// TODO: remove table. seed file is separate (finally)
-		table: null!,
-	};
+	return userConfig;
 }
 
 export type AstroConfigWithDB = z.input<typeof astroConfigWithDbSchema>;
