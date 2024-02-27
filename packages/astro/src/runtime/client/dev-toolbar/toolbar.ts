@@ -9,7 +9,7 @@ export type DevToolbarApp = DevToolbarAppDefinition & {
 	status: 'ready' | 'loading' | 'error';
 	notification: {
 		state: boolean;
-		level: 'error' | 'warn' | 'info';
+		level?: 'error' | 'warning' | 'info';
 	};
 	eventTarget: EventTarget;
 };
@@ -27,7 +27,7 @@ export class AstroDevToolbar extends HTMLElement {
 	apps: DevToolbarApp[] = [];
 	hasBeenInitialized = false;
 	// TODO: This should be dynamic based on the screen size or at least configurable, erika - 2023-11-29
-	customAppsToShow = 3;
+	customAppsToShow = 0;
 
 	constructor() {
 		super();
@@ -188,16 +188,8 @@ export class AstroDevToolbar extends HTMLElement {
 				}
 			}
 
-			#dev-bar #bar-container .item.active .notification-error {
+			#dev-bar #bar-container .item.active .notification {
 				border-color: rgba(71, 78, 94, 1);
-			}
-
-			#dev-bar #bar-container .item.active .notification-warn {
-				border-color: #FFC107;
-			}
-
-			#dev-bar #bar-container .item.active .notification-info {
-				border-color: #007BFF;
 			}
 
 			#dev-bar .item .icon {
@@ -229,7 +221,18 @@ export class AstroDevToolbar extends HTMLElement {
 				height: 8px;
 				border-radius: 9999px;
 				border: 1px solid rgba(19, 21, 26, 1);
+			}
+
+			#dev-bar .item .notification[data-level="error"] {
 				background: #B33E66;
+			}
+
+			#dev-bar .item .notification[data-level="warning"] {
+				background: #b58a2d;
+			}
+
+			#dev-bar .item .notification[data-level="info"] {
+				background: #9198ad;
 			}
 
 			#dev-toolbar-root:not([data-no-notification]) #dev-bar .item .notification[data-active] {

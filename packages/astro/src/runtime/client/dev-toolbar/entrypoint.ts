@@ -64,28 +64,33 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	const prepareApp = (appDefinition: DevToolbarAppDefinition, builtIn: boolean): DevToolbarApp => {
 		const eventTarget = new EventTarget();
-		const app = {
+		const app: DevToolbarApp = {
 			...appDefinition,
 			builtIn: builtIn,
 			active: false,
-			status: 'loading' as const,
-			notification: { state: false },
+			status: 'loading',
+			notification: { state: false, level: undefined },
 			eventTarget: eventTarget,
 		};
 
 		// Events apps can send to the overlay to update their status
 		eventTarget.addEventListener('toggle-notification', (evt) => {
-			const target = overlay.shadowRoot?.querySelector(`[data-app-id="${app.id}"]`);
-			if (!target) return;
+			if (!(evt instanceof CustomEvent)) return;
 
-			let newState = true;
-			if (evt instanceof CustomEvent) {
-				newState = evt.detail.state ?? true;
-			}
+			const target = overlay.shadowRoot?.querySelector(`[data-app-id="${app.id}"]`);
+			const notificationElement = target?.querySelector('.notification');
+			if (!target || !notificationElement) return;
+
+			let newState = evt.detail.state ?? true;
+			let level = evt.detail.level ?? 'error';
 
 			app.notification.state = newState;
+			if (newState) app.notification.level = level;
 
-			target.querySelector('.notification')?.toggleAttribute('data-active', newState);
+			notificationElement.toggleAttribute('data-active', newState);
+			if (newState) {
+				notificationElement.setAttribute('data-level', level);
+			}
 		});
 
 		const onToggleApp = async (evt: Event) => {
@@ -142,7 +147,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 						height: 8px;
 						border-radius: 9999px;
 						border: 1px solid rgba(19, 21, 26, 1);
+					}
+
+					.notification[data-level="error"] {
 						background: #B33E66;
+					}
+
+					.notification[data-level="warning"] {
+						background: #d9a536;
+					}
+
+					.notification[data-level="info"] {
+						background: #9198ad;
 					}
 
 					#dropdown:not([data-no-notification]) .notification[data-active] {
@@ -222,28 +238,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 					app.eventTarget.addEventListener('toggle-notification', (evt) => {
 						if (!(evt instanceof CustomEvent)) return;
 
-						notification.toggleAttribute('data-active', evt.detail.state ?? true);
-						notification.toggleAttribute('data-level', evt.detail.level ?? 'error');
+						let newState = evt.detail.state ?? true;
+						let level = evt.detail.level ?? 'error';
+
+						notification.toggleAttribute('data-active', newState);
+
+						if (newState) {
+							notification.setAttribute('data-level', level);
+						}
+
+						app.notification.state = newState;
+						if (newState) app.notification.level = level;
 
 						eventTarget.dispatchEvent(
 							new CustomEvent('toggle-notification', {
 								detail: {
 									state: hiddenApps.some((p) => p.notification.state === true),
-									// Find the highest level of notification
-									level: hiddenApps.reduce((acc, p) => {
-										if (p.notification.state) {
-											if (p.notification.level === 'error') {
-												return 'error';
-											}
-											if (p.notification.level === 'warning' && acc !== 'error') {
-												return 'warning';
-											}
-											if (p.notification.level === 'info' && acc !== 'error' && acc !== 'warning') {
-												return 'info';
-											}
-										}
-										return acc;
-									}),
+									level:
+										['error', 'warning', 'info'].find((notificationLevel) =>
+											hiddenApps.some(
+												(p) =>
+													p.notification.state === true &&
+													p.notification.level === notificationLevel
+											)
+										) ?? 'error',
 								},
 							})
 						);
