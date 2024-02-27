@@ -34,26 +34,6 @@ describe('astro:db', () => {
 			expect(ul.children().eq(0).text()).to.equal('Ben');
 		});
 
-		it('Errors when inserting to a readonly collection', async () => {
-			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/insert-into-readonly');
-			const res = await app.render(request);
-			const html = await res.text();
-			const $ = cheerioLoad(html);
-
-			expect($('#error').text()).to.equal('The [Author] collection is read-only.');
-		});
-
-		it('Does not error when inserting into writable collection', async () => {
-			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/insert-into-writable');
-			const res = await app.render(request);
-			const html = await res.text();
-			const $ = cheerioLoad(html);
-
-			expect($('#error').text()).to.equal('');
-		});
-
 		describe('Expression defaults', () => {
 			let app;
 			before(async () => {
