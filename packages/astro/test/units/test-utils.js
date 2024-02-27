@@ -196,6 +196,7 @@ export function createBasicPipeline(options = {}) {
 		options.streaming ?? true,
 		options.adapterName,
 		options.clientDirectives ?? getDefaultClientDirectives(),
+		options.inlinedScripts ?? [],
 		options.compressHTML,
 		options.i18n,
 		options.middleware,
