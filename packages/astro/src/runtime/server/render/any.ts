@@ -1,6 +1,6 @@
 import { escapeHTML, isHTMLString, markHTMLString } from '../escape.js';
 import { isAstroComponentInstance, isRenderTemplateResult } from './astro/index.js';
-import { isRenderInstance, type RenderDestination } from './common.js';
+import { type RenderDestination, isRenderInstance } from './common.js';
 import { SlotString } from './slot.js';
 import { renderToBufferDestination } from './util.js';
 

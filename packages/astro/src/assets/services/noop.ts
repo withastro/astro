@@ -1,4 +1,4 @@
-import { baseService, type LocalImageService } from './service.js';
+import { type LocalImageService, baseService } from './service.js';
 
 // Empty service used for platforms that neither support Squoosh or Sharp.
 const noopService: LocalImageService = {

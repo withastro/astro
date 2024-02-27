@@ -1,3 +1,5 @@
+import { createRequire } from 'node:module';
+import { sep } from 'node:path';
 import boxen from 'boxen';
 import { execa } from 'execa';
 import { bold, cyan, dim, magenta } from 'kleur/colors';
@@ -6,8 +8,6 @@ import prompts from 'prompts';
 import resolvePackage from 'resolve';
 import whichPm from 'which-pm';
 import { type Logger } from '../core/logger/core.js';
-import { createRequire } from 'node:module';
-import { sep } from 'node:path';
 const require = createRequire(import.meta.url);
 
 type GetPackageOptions = {

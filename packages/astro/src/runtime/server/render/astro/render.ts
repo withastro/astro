@@ -1,10 +1,10 @@
 import type { RouteData, SSRResult } from '../../../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../../../core/errors/index.js';
-import { chunkToByteArray, chunkToString, encoder, type RenderDestination } from '../common.js';
+import { type RenderDestination, chunkToByteArray, chunkToString, encoder } from '../common.js';
+import { promiseWithResolvers } from '../util.js';
 import type { AstroComponentFactory } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
 import { isRenderTemplateResult } from './render-template.js';
-import { promiseWithResolvers } from '../util.js';
 
 const DOCTYPE_EXP = /<!doctype html/i;
 
