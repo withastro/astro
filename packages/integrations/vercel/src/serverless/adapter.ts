@@ -1,3 +1,6 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { basename } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type {
 	AstroAdapter,
 	AstroConfig,
@@ -7,25 +10,22 @@ import type {
 } from 'astro';
 import { AstroError } from 'astro/errors';
 import glob from 'fast-glob';
-import { basename } from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { existsSync, readFileSync } from 'node:fs';
 import {
-	getAstroImageConfig,
-	getDefaultImageConfig,
 	type DevImageService,
 	type VercelImageConfig,
+	getAstroImageConfig,
+	getDefaultImageConfig,
 } from '../image/shared.js';
 import { removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { escapeRegex, getRedirects } from '../lib/redirects.js';
 import {
-	getSpeedInsightsViteConfig,
 	type VercelSpeedInsightsConfig,
+	getSpeedInsightsViteConfig,
 } from '../lib/speed-insights.js';
 import {
-	getInjectableWebAnalyticsContent,
 	type VercelWebAnalyticsConfig,
+	getInjectableWebAnalyticsContent,
 } from '../lib/web-analytics.js';
 import { generateEdgeMiddleware } from './middleware.js';
 
@@ -287,22 +287,10 @@ export default function vercelServerless({
 					);
 				}
 			},
-			'astro:server:setup'({ server }) {
-				// isr functions do not have access to search params, this middleware removes them for the dev mode
-				if (isr) {
-					const exclude_ = typeof isr === 'object' ? isr.exclude ?? [] : [];
-					// we create a regex to emulate vercel's production behavior
-					const exclude = exclude_.concat('/_image').map((ex) => new RegExp(escapeRegex(ex)));
-					server.middlewares.use(function removeIsrParams(req, _, next) {
-						const { pathname } = new URL(`https://example.com${req.url}`);
-						if (exclude.some((ex) => ex.test(pathname))) return next();
-						req.url = pathname;
-						return next();
-					});
-				}
-			},
 			'astro:build:ssr': async ({ entryPoints, middlewareEntryPoint }) => {
-				_entryPoints = entryPoints;
+				_entryPoints = new Map(
+					Array.from(entryPoints).filter(([routeData]) => !routeData.prerender)
+				);
 				_middlewareEntryPoint = middlewareEntryPoint;
 			},
 			'astro:build:done': async ({ routes, logger }) => {

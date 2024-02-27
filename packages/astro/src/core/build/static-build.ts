@@ -1,18 +1,18 @@
+import fs from 'node:fs';
+import path, { extname } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { teardown } from '@astrojs/compiler';
 import * as eslexer from 'es-module-lexer';
 import glob from 'fast-glob';
 import { bgGreen, bgMagenta, black, green } from 'kleur/colors';
-import fs from 'node:fs';
-import path, { extname } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as vite from 'vite';
 import type { RouteData } from '../../@types/astro.js';
 import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 import { hasAnyContentFlag } from '../../content/utils.js';
 import {
+	type BuildInternals,
 	createBuildInternals,
 	eachPageData,
-	type BuildInternals,
 } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash, removeFileExtension } from '../../core/path.js';
@@ -25,7 +25,7 @@ import { routeIsRedirect } from '../redirects/index.js';
 import { getOutDirWithinCwd } from './common.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
-import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.js';
+import { type AstroBuildPluginContainer, createPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
 import { RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugins/plugin-manifest.js';
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
@@ -309,6 +309,7 @@ async function clientBuild(
 			...viteConfig.build,
 			emptyOutDir: false,
 			outDir: fileURLToPath(out),
+			copyPublicDir: ssr,
 			rollupOptions: {
 				...viteConfig.build?.rollupOptions,
 				input: Array.from(input),

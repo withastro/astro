@@ -1,5 +1,15 @@
 # @astrojs/sitemap
 
+## 3.1.1
+
+### Patch Changes
+
+- [#10179](https://github.com/withastro/astro/pull/10179) [`6343f6a438d790fa16a0dd268f4a51def4fa0f33`](https://github.com/withastro/astro/commit/6343f6a438d790fa16a0dd268f4a51def4fa0f33) Thanks [@ematipico](https://github.com/ematipico)! - Revert https://github.com/withastro/astro/pull/9846
+
+  The feature to customize the file name of the sitemap was reverted due to some internal issues with one of the dependencies. With an non-deterministic behaviour, the sitemap file was sometime emitted with incorrect syntax.
+
+- [#9975](https://github.com/withastro/astro/pull/9975) [`ec7d2ebbd96b8c2dfdadaf076bbf7953007536ed`](https://github.com/withastro/astro/commit/ec7d2ebbd96b8c2dfdadaf076bbf7953007536ed) Thanks [@moose96](https://github.com/moose96)! - Fixes URL generation for routes that rest parameters and start with `/`
+
 ## 3.1.0
 
 ### Minor Changes

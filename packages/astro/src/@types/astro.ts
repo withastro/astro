@@ -1,3 +1,5 @@
+import type { OutgoingHttpHeaders } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -8,8 +10,6 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
-import type { OutgoingHttpHeaders } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
@@ -281,7 +281,7 @@ export interface AstroGlobal<
 		 * <Fragment set:html={html} />
 		 * ```
 		 *
-		 * A second parameters can be used to pass arguments to a slotted callback
+		 * A second parameter can be used to pass arguments to a slotted callback
 		 *
 		 * Example usage:
 		 * ```astro
@@ -2748,6 +2748,7 @@ export interface PreviewServerParams {
 	port: number;
 	base: string;
 	logger: AstroIntegrationLogger;
+	headers?: OutgoingHttpHeaders;
 }
 
 export type CreatePreviewServer = (

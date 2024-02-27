@@ -1,4 +1,4 @@
-import { getIconElement, isDefinedIcon, type Icon } from './icons.js';
+import { type Icon, getIconElement, isDefinedIcon } from './icons.js';
 
 type HighlightStyle = 'purple' | 'gray' | 'red' | 'green' | 'yellow';
 

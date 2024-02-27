@@ -1,6 +1,6 @@
 import type { SSRResult } from '../../@types/astro.js';
-import islandScript from './astro-island.prebuilt.js';
 import islandScriptDev from './astro-island.prebuilt-dev.js';
+import islandScript from './astro-island.prebuilt.js';
 
 const ISLAND_STYLES = `<style>astro-island,astro-slot,astro-static-slot{display:contents}</style>`;
 

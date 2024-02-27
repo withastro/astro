@@ -69,6 +69,10 @@ test.describe('Dev Toolbar', () => {
 		await page.click('#go-to-b');
 		await consolePromise;
 
+		toolbar = page.locator('astro-dev-toolbar');
+		appButton = toolbar.locator('button[data-app-id="astro:home"]');
+		await appButton.click();
+
 		astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:home"]');
 		astroToolbarCards = await astroAppCanvas.locator('astro-dev-toolbar-card');
 		await page.waitForSelector('astro-dev-toolbar-card');
@@ -289,5 +293,19 @@ test.describe('Dev Toolbar', () => {
 
 		expect(serverRenderTime).not.toBe(null);
 		expect(clientRenderTime).not.toBe(null);
+	});
+
+	test('can quit apps by clicking outside the window', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		for (const appId of ['astro:home', 'astro:audit', 'astro:xray', 'astro:settings']) {
+			const appButton = toolbar.locator(`button[data-app-id="${appId}"]`);
+			await appButton.click();
+
+			await expect(appButton).toHaveClass('item active');
+			await page.click('body');
+			await expect(appButton).not.toHaveClass('active');
+		}
 	});
 });

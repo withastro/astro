@@ -1,9 +1,11 @@
 import type http from 'node:http';
 import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro.js';
+import { REROUTE_DIRECTIVE_HEADER, clientLocalsSymbol } from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { req } from '../core/messages.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
-import { getProps, type SSROptions } from '../core/render/index.js';
+import { RenderContext } from '../core/render-context.js';
+import { type SSROptions, getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { normalizeTheLocale } from '../i18n/index.js';
@@ -11,8 +13,6 @@ import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import type { DevPipeline } from './pipeline.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
-import { REROUTE_DIRECTIVE_HEADER, clientLocalsSymbol } from '../core/constants.js';
-import { RenderContext } from '../core/render-context.js';
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any
@@ -229,6 +229,7 @@ export async function handleRoute({
 			logger,
 			ssr: buildingToSSR,
 			clientAddress: buildingToSSR ? incomingRequest.socket.remoteAddress : undefined,
+			removeParams: buildingToSSR === false || route.prerender,
 		});
 
 		// Set user specified headers to response object.

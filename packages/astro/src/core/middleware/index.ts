@@ -1,13 +1,13 @@
 import type { APIContext, MiddlewareHandler, Params } from '../../@types/astro.js';
-import { AstroCookies } from '../cookies/index.js';
-import { sequence } from './sequence.js';
-import { ASTRO_VERSION } from '../constants.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../../i18n/utils.js';
+import { ASTRO_VERSION } from '../constants.js';
+import { AstroCookies } from '../cookies/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
+import { sequence } from './sequence.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');
