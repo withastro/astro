@@ -1,4 +1,4 @@
-import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
+import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { type DBTable, type DBColumn } from '../core/types.js';
 import { type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
 import {
@@ -13,7 +13,7 @@ import {
 import { isSerializedSQL, type SerializedSQL } from './types.js';
 
 export { sql };
-export type SqliteDB = SqliteRemoteDatabase;
+export type SqliteDB = LibSQLDatabase;
 export type { Table } from './types.js';
 export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-client.js';
 export { seedDev } from './queries.js';
