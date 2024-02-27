@@ -1,22 +1,33 @@
 import { build as esbuild } from 'esbuild';
 import { VIRTUAL_MODULE_ID } from '../../../consts.js';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { getStudioVirtualModContents } from '../../../integration/vite-plugin-db.js';
+import {
+	getLocalVirtualModContents,
+	getStudioVirtualModContents,
+} from '../../../integration/vite-plugin-db.js';
 import type { DBTables } from '../../../types.js';
 import { writeFile, unlink } from 'node:fs/promises';
 
-export async function executeFile({
-	fileUrl,
-	tables,
-	appToken,
-}: {
-	fileUrl: URL;
-	tables: DBTables;
-	appToken: string;
-}): Promise<{ default?: unknown } | undefined> {
-	const { code } = await bundleFile({ fileUrl, tables, appToken });
+type ExecuteFileParams =
+	| {
+			connectToStudio: false;
+			fileUrl: URL;
+			tables: DBTables;
+			root: URL;
+	  }
+	| {
+			connectToStudio: true;
+			fileUrl: URL;
+			tables: DBTables;
+			root: URL;
+			appToken: string;
+	  };
+export async function executeFile(
+	params: ExecuteFileParams
+): Promise<{ default?: unknown } | undefined> {
+	const { code } = await bundleFile(params);
 	// Executable files use top-level await. Importing will run the file.
-	return await importBundledFile(code);
+	return await importBundledFile({ code, root: params.root });
 }
 
 /**
@@ -25,18 +36,22 @@ export async function executeFile({
  *
  * @see https://github.com/vitejs/vite/blob/main/packages/vite/src/node/config.ts#L961
  */
-async function bundleFile({
-	fileUrl,
-	tables,
-	appToken,
-}: {
-	fileUrl: URL;
-	tables: DBTables;
-	appToken: string;
-}): Promise<{ code: string }> {
+async function bundleFile(params: ExecuteFileParams): Promise<{ code: string }> {
+	const virtualModContents = params.connectToStudio
+		? getStudioVirtualModContents({
+				tables: params.tables,
+				appToken: params.appToken,
+			})
+		: getLocalVirtualModContents({
+				tables: params.tables,
+				root: params.root,
+				isDev: false,
+				useBundledDbUrl: false,
+			});
+
 	const result = await esbuild({
 		absWorkingDir: process.cwd(),
-		entryPoints: [fileURLToPath(fileUrl)],
+		entryPoints: [fileURLToPath(params.fileUrl)],
 		outfile: 'out.js',
 		packages: 'external',
 		write: false,
@@ -58,9 +73,9 @@ async function bundleFile({
 					});
 					build.onLoad({ namespace: VIRTUAL_MODULE_ID, filter: /.*/ }, () => {
 						return {
-							contents: getStudioVirtualModContents({ tables, appToken }),
+							contents: virtualModContents,
 							// Needed to resolve runtime dependencies
-							resolveDir: process.cwd(),
+							resolveDir: fileURLToPath(params.root),
 						};
 					});
 				},
@@ -83,12 +98,15 @@ async function bundleFile({
  *
  * @see https://github.com/vitejs/vite/blob/main/packages/vite/src/node/config.ts#L1074
  */
-async function importBundledFile(code: string): Promise<{ default?: unknown }> {
+async function importBundledFile({
+	code,
+	root,
+}: {
+	code: string;
+	root: URL;
+}): Promise<{ default?: unknown }> {
 	// Write it to disk, load it with native Node ESM, then delete the file.
-	const tmpFileUrl = new URL(
-		`studio.seed.timestamp-${Date.now()}.mjs`,
-		pathToFileURL(process.cwd())
-	);
+	const tmpFileUrl = new URL(`studio.seed.timestamp-${Date.now()}.mjs`, root);
 	await writeFile(tmpFileUrl, code);
 	try {
 		return await import(tmpFileUrl.pathname);

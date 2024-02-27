@@ -1,14 +1,15 @@
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
-import path from 'node:path';
-import { MISSING_EXECUTE_PATH_ERROR, FILE_NOT_FOUND_ERROR } from '../../../errors.js';
-import { pathToFileURL } from 'node:url';
+import {
+	MISSING_EXECUTE_PATH_ERROR,
+	FILE_NOT_FOUND_ERROR,
+	UNSAFE_DISABLE_STUDIO_WARNING,
+} from '../../../errors.js';
 import { existsSync } from 'node:fs';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { tablesSchema } from '../../../types.js';
 
 export async function cmd({ config, flags }: { config: AstroConfig; flags: Arguments }) {
-	const appToken = await getManagedAppTokenOrExit(flags.token);
 	const tables = tablesSchema.parse(config.db?.tables ?? {});
 
 	const filePath = flags._[4];
@@ -17,12 +18,29 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		process.exit(1);
 	}
 
-	const fileUrl = pathToFileURL(path.join(process.cwd(), filePath));
+	const fileUrl = new URL(filePath, config.root);
 	if (!existsSync(fileUrl)) {
 		console.error(FILE_NOT_FOUND_ERROR(filePath));
 		process.exit(1);
 	}
 
-	const { executeFile } = await import('./load-file.js');
-	await executeFile({ fileUrl, tables, appToken: appToken.token });
+	const { executeFile } = await import('./execute-file.js');
+	if (config.db?.unsafeDisableStudio) {
+		console.warn(UNSAFE_DISABLE_STUDIO_WARNING);
+		await executeFile({
+			connectToStudio: false,
+			fileUrl,
+			tables,
+			root: config.root,
+		});
+		return;
+	}
+	const appToken = await getManagedAppTokenOrExit(flags.token);
+	await executeFile({
+		connectToStudio: true,
+		fileUrl,
+		tables,
+		root: config.root,
+		appToken: appToken.token,
+	});
 }

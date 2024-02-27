@@ -54,10 +54,16 @@ export function getLocalVirtualModContents({
 	tables,
 	root,
 	isDev,
+	useBundledDbUrl = true,
 }: {
 	tables: DBTables;
 	root: URL;
 	isDev: boolean;
+	/**
+	 * Allow `db execute` to use `dbUrl` directly without rollup bundling.
+	 * `db execute` loads config with minimal esbuild config instead of vite.
+	 */
+	useBundledDbUrl?: boolean;
 }) {
 	const dbUrl = new URL(DB_PATH, root);
 	const seedFilePaths = SEED_DEV_FILE_NAMES_SORTED.map(
@@ -68,7 +74,11 @@ export function getLocalVirtualModContents({
 
 	return `
 import { collectionToTable, createLocalDatabaseClient, seedDev } from ${RUNTIME_IMPORT};
-import dbUrl from ${JSON.stringify(`${dbUrl}?fileurl`)};
+${
+	useBundledDbUrl
+		? `import dbUrl from ${JSON.stringify(`${dbUrl}?fileurl`)};`
+		: `const dbUrl = ${JSON.stringify(dbUrl)};`
+}
 
 export const db = await createLocalDatabaseClient({ dbUrl });
 
