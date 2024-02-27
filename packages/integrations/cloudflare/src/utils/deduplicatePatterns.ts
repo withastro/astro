@@ -13,7 +13,7 @@ export function deduplicatePatterns(patterns: string[]) {
 	const uniquePatterns = [...new Set(patterns)];
 	for (const pattern of uniquePatterns) {
 		if (pattern.endsWith('*')) {
-			openPatterns.push(new RegExp(`^${pattern.replace(/(\*\/)*\*$/g, '[^*\n]*$')}`));
+			openPatterns.push(new RegExp(`^${pattern.replace(/(\*\/)*\*$/g, '(?=.{2,}).+[^*\n]$')}`));
 		}
 	}
 
