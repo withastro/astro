@@ -1,6 +1,5 @@
-import db, { defineTable, column } from '@astrojs/db';
+import db, { defineTable, column, sql, NOW } from '@astrojs/db';
 import { defineConfig } from 'astro/config';
-import { themes } from './themes-integration';
 
 const Author = defineTable({
 	columns: {
@@ -8,11 +7,25 @@ const Author = defineTable({
 	},
 });
 
+// TODO: add back integration test
+const Themes = defineTable({
+	columns: {
+		name: column.text(),
+		added: column.date({
+			default: sql`CURRENT_TIMESTAMP`,
+		}),
+		updated: column.date({
+			default: NOW,
+		}),
+		isDark: column.boolean({ default: sql`TRUE` }),
+		owner: column.text({ optional: true, default: sql`NULL` }),
+	},
+});
+
 // https://astro.build/config
 export default defineConfig({
-	integrations: [db(), themes()],
+	integrations: [db()],
 	db: {
-		tables: { Author },
-		unsafeDisableStudio: true,
+		tables: { Author, Themes },
 	},
 });
