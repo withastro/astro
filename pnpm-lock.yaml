@@ -3805,6 +3805,9 @@ importers:
       '@libsql/client':
         specifier: ^0.4.3
         version: 0.4.3
+      async-listen:
+        specifier: ^3.0.1
+        version: 3.0.1
       deep-diff:
         specifier: ^1.0.2
         version: 1.0.2
@@ -8804,6 +8807,11 @@ packages:
       entities: 4.5.0
       marked: 4.3.0
       ultrahtml: 0.1.3
+    dev: false
+
+  /async-listen@3.0.1:
+    resolution: {integrity: sha512-cWMaNwUJnf37C/S5TfCkk/15MwbPRwVYALA2jtjkbHjCmAPiDXyNJy2q3p1KAZzDLHAWyarUWSujUoHR4pEgrA==}
+    engines: {node: '>= 14'}
     dev: false
 
   /async-sema@3.1.1:
