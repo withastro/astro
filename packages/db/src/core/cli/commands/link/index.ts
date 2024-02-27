@@ -1,11 +1,11 @@
-import type { AstroConfig } from 'astro';
 import { mkdir, writeFile } from 'node:fs/promises';
+import type { AstroConfig } from 'astro';
 import { bgRed, cyan } from 'kleur/colors';
 import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
+import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
 import { PROJECT_ID_FILE, getSessionIdFromFile } from '../../../tokens.js';
 import { getAstroStudioUrl } from '../../../utils.js';
-import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
 
 export async function cmd({ flags }: { config: AstroConfig; flags: Arguments }) {
 	const linkUrl = new URL(getAstroStudioUrl() + '/auth/cli/link');
