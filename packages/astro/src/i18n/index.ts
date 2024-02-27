@@ -1,9 +1,17 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
-import type { APIContext, AstroConfig, Locales, ValidRedirectStatus } from '../@types/astro.js';
+import type {
+	APIContext,
+	AstroConfig,
+	Locales,
+	SSRManifest,
+	ValidRedirectStatus,
+} from '../@types/astro.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { MissingLocale } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
-import type { RoutingStrategies } from './utils.js';
+import { type RoutingStrategies, toRoutingStrategy } from './utils.js';
+import type { AstroUserConfig } from '../../config.js';
+import { createI18nMiddleware } from './middleware.js';
 
 export function requestHasLocale(locales: Locales) {
 	return function (context: APIContext) {
@@ -358,4 +366,13 @@ export function useFallback({ fallback, locales, defaultLocale, routing }: Middl
 			}
 		}
 	};
+}
+
+export function createMiddleware(
+	i18nManifest: SSRManifest['i18n'],
+	base: SSRManifest['base'],
+	trailingSlash: SSRManifest['trailingSlash'],
+	format: SSRManifest['buildFormat']
+) {
+	return createI18nMiddleware(i18nManifest, base, trailingSlash, format);
 }

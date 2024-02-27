@@ -24,7 +24,6 @@ export function createI18nMiddleware(
 		format,
 		domains: {},
 	};
-
 	const _redirectToDefaultLocale = redirectToDefaultLocale(payload);
 	const _noFoundForNonLocaleRoute = noFoundForNonLocaleRoute(payload);
 	const _requestHasLocale = requestHasLocale(payload.locales);
@@ -78,6 +77,10 @@ export function createI18nMiddleware(
 		const { locales, defaultLocale, fallback, strategy } = i18n;
 
 		switch (i18n.strategy) {
+			// NOTE: theoretically, we should never hit this code path
+			case 'manual': {
+				return response;
+			}
 			case 'domains-prefix-other-locales': {
 				if (localeHasntDomain(i18n, currentLocale)) {
 					const result = prefixOtherLocales(url, response);

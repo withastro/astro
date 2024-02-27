@@ -4,6 +4,8 @@ import { toRoutingStrategy } from '../i18n/utils.js';
 import { AstroError } from '../core/errors/index.js';
 import { IncorrectStrategy } from '../core/errors/errors-data.js';
 import type { UseFallback } from '../i18n/index.js';
+import type { SSRManifest } from '../core/app/types.js';
+import type { AstroConfig } from '../@types/astro.js';
 export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
 
 const { trailingSlash, format, site, i18n, isBuild } =
@@ -304,3 +306,46 @@ export const useFallback: UseFallback =
 				fallback,
 			})
 		: noop('useFallback');
+
+/**
+ * @param {AstroConfig['i18n']} customOptions
+ *
+ * A function that allows to programmatically create the Astro i18n middleware.
+ *
+ * This is use useful when you still want to use the default i18n logic, but add only few exceptions to your website.
+ *
+ * ## Examples
+ *
+ * ```js
+ * // middleware.js
+ * import { middleware } from "astro:i18n";
+ * import { sequence, defineMiddleware } from "astro:middleware";
+ *
+ * const customLogic = defineMiddleware(async (context, next) => {
+ *   const response = await next();
+ *
+ *   // Custom logic after resolving the response.
+ *   // It's possible to catch the response coming from Astro i18n middleware.
+ *
+ *   return response;
+ * });
+ *
+ * export const onRequest = sequence(customLogic, middleware({
+ * 	locales: ["en", "es"]
+ * }))
+ *
+ * ```
+ */
+export const middleware =
+	i18n?.routing === 'manual'
+		? (customOptions?: NonNullable<AstroConfig['i18n']>) => {
+				const manifest: SSRManifest['i18n'] = {
+					strategy: toRoutingStrategy(customOptions ?? i18n),
+					defaultLocale: customOptions?.defaultLocale ?? i18n.defaultLocale,
+					fallback: customOptions?.fallback ?? i18n.fallback,
+					locales: customOptions?.locales ?? i18n.locales,
+					domainLookupTable: {},
+				};
+				return I18nInternals.createMiddleware(manifest, base, trailingSlash, format);
+			}
+		: noop('middleware');

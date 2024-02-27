@@ -766,7 +766,6 @@ describe('[SSG] i18n routing', () => {
 		it('should redirect to the index of the default locale', async () => {
 			const html = await fixture.readFile('/index.html');
 			assert.equal(html.includes('http-equiv="refresh'), true);
-			assert.equal(html.includes('http-equiv="refresh'), true);
 			assert.equal(html.includes('url=/new-site/en'), true);
 		});
 
