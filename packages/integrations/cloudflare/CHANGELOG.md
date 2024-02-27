@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 9.0.2
+
+### Patch Changes
+
+- [#171](https://github.com/withastro/adapters/pull/171) [`0463483141c2a09ed983fd8053e6bee6d4b0567d`](https://github.com/withastro/adapters/commit/0463483141c2a09ed983fd8053e6bee6d4b0567d) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an error with automatic deduplication of `_routes.json` for more complex project structures
+
 ## 9.0.1
 
 ### Patch Changes
