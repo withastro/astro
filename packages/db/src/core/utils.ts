@@ -18,6 +18,6 @@ export function getAstroStudioUrl(): string {
 	return env.ASTRO_STUDIO_URL || 'https://stardate.astro.build';
 }
 
-export function getDbDirUrl(root: URL) {
-	return new URL('db/', root);
+export function getDbDirUrl(rootPath: string) {
+	return new URL('db/', rootPath);
 }

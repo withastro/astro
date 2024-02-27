@@ -1,14 +1,7 @@
-import { existsSync } from 'node:fs';
-import {
-	DB_PATH,
-	RUNTIME_DRIZZLE_IMPORT,
-	RUNTIME_IMPORT,
-	SEED_DEV_FILE_NAMES,
-	VIRTUAL_MODULE_ID,
-} from '../consts.js';
+import { SEED_DEV_FILE_NAMES_SORTED } from '../../runtime/queries.js';
+import { DB_PATH, RUNTIME_DRIZZLE_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
 import { getDbDirUrl, getRemoteDatabaseUrl, type VitePlugin } from '../utils.js';
-import { fileURLToPath } from 'node:url';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -67,9 +60,11 @@ export function getLocalVirtualModContents({
 	isDev: boolean;
 }) {
 	const dbUrl = new URL(DB_PATH, root);
-	const devSeedFile = SEED_DEV_FILE_NAMES.map((f) =>
-		fileURLToPath(new URL(f, getDbDirUrl(root)))
-	).find((f) => existsSync(f));
+	const seedFilePaths = SEED_DEV_FILE_NAMES_SORTED.map(
+		// Format as /db/[name].ts
+		// for Vite import.meta.glob
+		(name) => new URL(name, getDbDirUrl('file:///')).pathname
+	);
 
 	return `
 import { collectionToTable, createLocalDatabaseClient, seedDev } from ${RUNTIME_IMPORT};
@@ -83,11 +78,11 @@ ${getStringifiedCollectionExports(tables)}
 
 // TODO: test error logging to see if try / catch is needed
 ${
-	isDev && devSeedFile
+	isDev
 		? `await seedDev({
 	db,
 	tables: ${JSON.stringify(tables)},
-	runSeed: () => import(${JSON.stringify(devSeedFile)}),
+	fileGlob: import.meta.glob(${JSON.stringify(seedFilePaths)}),
 });`
 		: ''
 }

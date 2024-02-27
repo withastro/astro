@@ -22,17 +22,44 @@ import { SEED_EMPTY_ARRAY_ERROR } from '../core/errors.js';
 
 const sqlite = new SQLiteAsyncDialect();
 
+/**
+ * Sorted by precedence.
+ * Ex. If both "seed.dev.ts" and "seed.ts" are present,
+ * "seed.dev.ts" will be used.
+ */
+export const SEED_DEV_FILE_NAMES_SORTED = [
+	'seed.development.ts',
+	'seed.development.js',
+	'seed.development.mjs',
+	'seed.development.mts',
+	'seed.dev.ts',
+	'seed.dev.js',
+	'seed.dev.mjs',
+	'seed.dev.mts',
+	'seed.ts',
+	'seed.js',
+	'seed.mjs',
+	'seed.mts',
+];
+
 export async function seedDev({
 	db,
 	tables,
-	runSeed,
+	// Glob all potential seed files to catch renames and deletions.
+	fileGlob,
 }: {
 	db: SqliteRemoteDatabase;
 	tables: DBTables;
-	runSeed: () => Promise<void>;
+	fileGlob: Record<string, () => Promise<void>>;
 }) {
 	await recreateTables({ db, tables });
-	await runSeed();
+	for (const fileName of SEED_DEV_FILE_NAMES_SORTED) {
+		const key = Object.keys(fileGlob).find((f) => new RegExp(`${fileName}$`).test(f));
+		if (key) {
+			await fileGlob[key]();
+			return;
+		}
+	}
 }
 
 export async function recreateTables({
