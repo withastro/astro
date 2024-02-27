@@ -25,7 +25,7 @@ import {
 	getReferencesConfig,
 	hasDefault,
 	schemaTypeToSqlType,
-} from '../queries.js';
+} from '../../runtime/queries.js';
 import { hasPrimaryKey } from '../../runtime/index.js';
 import { isSerializedSQL } from '../../runtime/types.js';
 

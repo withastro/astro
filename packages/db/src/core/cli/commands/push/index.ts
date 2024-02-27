@@ -6,7 +6,7 @@ import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { red } from 'kleur/colors';
 import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
-import { recreateTables, seedData } from '../../../queries.js';
+import { recreateTables } from '../../../../runtime/queries.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { tablesSchema, type AstroConfigWithDB, type DBSnapshot } from '../../../types.js';
 import { getRemoteDatabaseUrl } from '../../../utils.js';
@@ -143,38 +143,38 @@ async function pushData({
 }) {
 	const queries: InStatement[] = [];
 	// TODO: replace with pure remote client?
-	if (config.db?.data) {
-		const libsqlClient = createClient({ url: ':memory:' });
-		// Stand up tables locally to mirror inserts.
-		// Needed to generate return values.
-		await recreateTables({
-			db: drizzleLibsql(libsqlClient),
-			tables: tablesSchema.parse(config.db.tables ?? {}),
-		});
+	// if (config.db?.data) {
+	// 	const libsqlclient = createclient({ url: ':memory:' });
+	// 	// stand up tables locally to mirror inserts.
+	// 	// needed to generate return values.
+	// 	await recreatetables({
+	// 		db: drizzlelibsql(libsqlclient),
+	// 		tables: tablesschema.parse(config.db.tables ?? {}),
+	// 	});
 
-		// Use proxy to trace all queries to queue up in a batch.
-		const db = await drizzleProxy(async (sqlQuery, params, method) => {
-			const stmt: InStatement = { sql: sqlQuery, args: params };
-			queries.push(stmt);
-			// Use in-memory database to generate results for `returning()`.
-			const { rows } = await libsqlClient.execute(stmt);
-			const rowValues: unknown[][] = [];
-			for (const row of rows) {
-				if (row != null && typeof row === 'object') {
-					rowValues.push(Object.values(row));
-				}
-			}
-			if (method === 'get') {
-				return { rows: rowValues[0] };
-			}
-			return { rows: rowValues };
-		});
-		await seedData({
-			db,
-			mode: 'build',
-			data: config.db.data,
-		});
-	}
+	// 	// use proxy to trace all queries to queue up in a batch.
+	// 	const db = await drizzleproxy(async (sqlquery, params, method) => {
+	// 		const stmt: instatement = { sql: sqlquery, args: params };
+	// 		queries.push(stmt);
+	// 		// use in-memory database to generate results for `returning()`.
+	// 		const { rows } = await libsqlclient.execute(stmt);
+	// 		const rowvalues: unknown[][] = [];
+	// 		for (const row of rows) {
+	// 			if (row != null && typeof row === 'object') {
+	// 				rowvalues.push(object.values(row));
+	// 			}
+	// 		}
+	// 		if (method === 'get') {
+	// 			return { rows: rowvalues[0] };
+	// 		}
+	// 		return { rows: rowvalues };
+	// 	});
+	// 	await seedData({
+	// 		db,
+	// 		mode: 'build',
+	// 		data: config.db.data,
+	// 	});
+	// }
 
 	const url = new URL('/db/query', getRemoteDatabaseUrl());
 

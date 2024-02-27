@@ -14,7 +14,7 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { blue, yellow } from 'kleur/colors';
 import { fileURLIntegration } from './file-url.js';
-import { recreateTables, seedData } from '../queries.js';
+import { recreateTables } from '../../runtime/queries.js';
 import { getManagedAppTokenOrExit, type ManagedAppToken } from '../tokens.js';
 
 function astroDBIntegration(): AstroIntegration {
@@ -57,6 +57,7 @@ function astroDBIntegration(): AstroIntegration {
 						connectToStudio,
 						schemas,
 						root: config.root,
+						isDev: command === 'dev',
 					});
 				}
 
@@ -87,14 +88,6 @@ function astroDBIntegration(): AstroIntegration {
 						dbUrl: dbUrl.toString(),
 					});
 					await recreateTables({ db, tables });
-					if (configWithDb.db?.data) {
-						await seedData({
-							db,
-							data: configWithDb.db.data,
-							logger,
-							mode: command === 'dev' ? 'dev' : 'build',
-						});
-					}
 					logger.debug('Database setup complete.');
 				}
 

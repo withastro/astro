@@ -1,6 +1,5 @@
-import { SQLiteAsyncDialect, type SQLiteInsertValue } from 'drizzle-orm/sqlite-core';
-import type { InferSelectModel } from 'drizzle-orm';
-import { collectionToTable, type SqliteDB, type Table } from '../runtime/index.js';
+import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
+import { type Table } from '../runtime/index.js';
 import { z, type ZodTypeDef } from 'zod';
 import { SQL } from 'drizzle-orm';
 import { errorMap } from './integration/error-map.js';
@@ -191,12 +190,6 @@ export const tablesSchema = z.preprocess((rawCollections) => {
 	// Use `z.any()` to avoid breaking object references
 	const tables = z.record(z.any()).parse(rawCollections, { errorMap });
 	for (const [collectionName, collection] of Object.entries(tables)) {
-		// Append `table` object for data seeding.
-		// Must append at runtime so table name exists.
-		collection.table = collectionToTable(
-			collectionName,
-			tableSchema.parse(collection, { errorMap })
-		);
 		// Append collection and column names to columns.
 		// Used to track collection info for references.
 		const { columns } = z.object({ columns: z.record(z.any()) }).parse(collection, { errorMap });
@@ -245,43 +238,12 @@ export type DBSnapshot = {
 	experimentalVersion: number;
 };
 
-export type DBDataContext = {
-	db: SqliteDB;
-	seed: <TColumns extends ColumnsConfig>(
-		collection: ResolvedCollectionConfig<TColumns>,
-		data: MaybeArray<SQLiteInsertValue<Table<string, TColumns>>>
-	) => Promise<void>;
-	seedReturning: <
-		TColumns extends ColumnsConfig,
-		TData extends MaybeArray<SQLiteInsertValue<Table<string, TColumns>>>,
-	>(
-		collection: ResolvedCollectionConfig<TColumns>,
-		data: TData
-	) => Promise<
-		TData extends Array<SQLiteInsertValue<Table<string, TColumns>>>
-			? InferSelectModel<Table<string, TColumns>>[]
-			: InferSelectModel<Table<string, TColumns>>
-	>;
-	mode: 'dev' | 'build';
-};
-
-export function defineData(fn: (ctx: DBDataContext) => MaybePromise<void>) {
-	return fn;
-}
-
-const dbDataFn = z.function().returns(z.union([z.void(), z.promise(z.void())]));
-
 export const dbConfigSchema = z.object({
 	tables: tablesSchema.optional(),
-	data: z.union([dbDataFn, z.array(dbDataFn)]).optional(),
 	unsafeDisableStudio: z.boolean().optional().default(false),
 });
 
-type DataFunction = (params: DBDataContext) => MaybePromise<void>;
-
-export type DBUserConfig = Omit<z.input<typeof dbConfigSchema>, 'data'> & {
-	data: DataFunction | DataFunction[];
-};
+export type DBUserConfig = z.input<typeof dbConfigSchema>;
 
 export const astroConfigWithDbSchema = z.object({
 	db: dbConfigSchema.optional(),

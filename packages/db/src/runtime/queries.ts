@@ -1,30 +1,39 @@
 import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
-import {
-	type BooleanColumn,
-	type DBTable,
-	type DBTables,
-	type DBColumn,
-	type DateColumn,
-	type ColumnType,
-	type JsonColumn,
-	type NumberColumn,
-	type TextColumn,
-} from '../core/types.js';
-import { bold } from 'kleur/colors';
-import { type SQL, sql, getTableName } from 'drizzle-orm';
-import { SQLiteAsyncDialect, type SQLiteInsert } from 'drizzle-orm/sqlite-core';
-import type { AstroIntegrationLogger } from 'astro';
 import type {
+	BooleanColumn,
+	DBTable,
+	DBTables,
+	DBColumn,
+	DateColumn,
+	ColumnType,
+	JsonColumn,
+	NumberColumn,
+	TextColumn,
 	ColumnsConfig,
-	DBUserConfig,
 	MaybeArray,
 	ResolvedCollectionConfig,
 } from '../core/types.js';
-import { hasPrimaryKey } from '../runtime/index.js';
-import { isSerializedSQL } from '../runtime/types.js';
-import { SEED_EMPTY_ARRAY_ERROR, SEED_ERROR, SEED_WRITABLE_IN_PROD_ERROR } from './errors.js';
+import { bold } from 'kleur/colors';
+import { type SQL, sql, getTableName } from 'drizzle-orm';
+import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
+import { hasPrimaryKey } from './index.js';
+import { isSerializedSQL } from './types.js';
+import { SEED_EMPTY_ARRAY_ERROR } from '../core/errors.js';
 
 const sqlite = new SQLiteAsyncDialect();
+
+export async function seedDev({
+	db,
+	tables,
+	runSeed,
+}: {
+	db: SqliteRemoteDatabase;
+	tables: DBTables;
+	runSeed: () => Promise<void>;
+}) {
+	await recreateTables({ db, tables });
+	await runSeed();
+}
 
 export async function recreateTables({
 	db,
@@ -45,65 +54,13 @@ export async function recreateTables({
 	}
 }
 
-export async function seedData({
-	db,
-	data,
-	logger,
-	mode,
-}: {
-	db: SqliteRemoteDatabase;
-	data: DBUserConfig['data'];
-	logger?: AstroIntegrationLogger;
-	mode: 'dev' | 'build';
-}) {
-	const dataFns = Array.isArray(data) ? data : [data];
-	try {
-		for (const dataFn of dataFns) {
-			await dataFn({
-				seed: async (config, values) => {
-					seedErrorChecks(mode, config, values);
-					try {
-						await db.insert(config.table).values(values as any);
-					} catch (e) {
-						const msg = e instanceof Error ? e.message : String(e);
-						throw new Error(SEED_ERROR(getTableName(config.table), msg));
-					}
-				},
-				seedReturning: async (config, values) => {
-					seedErrorChecks(mode, config, values);
-					try {
-						let result: SQLiteInsert<any, any, any, any> = db
-							.insert(config.table)
-							.values(values as any)
-							.returning();
-						if (!Array.isArray(values)) {
-							result = result.get();
-						}
-						return result;
-					} catch (e) {
-						const msg = e instanceof Error ? e.message : String(e);
-						throw new Error(SEED_ERROR(getTableName(config.table), msg));
-					}
-				},
-				db,
-				mode,
-			});
-		}
-	} catch (e) {
-		if (!(e instanceof Error)) throw e;
-		(logger ?? console).error(e.message);
-	}
-}
-
+// TODO: add error checks to seed file by intercepting db.insert()
 function seedErrorChecks<T extends ColumnsConfig>(
 	mode: 'dev' | 'build',
 	{ table }: ResolvedCollectionConfig<T>,
 	values: MaybeArray<unknown>
 ) {
 	const tableName = getTableName(table);
-	if (mode === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {
-		throw new Error(SEED_WRITABLE_IN_PROD_ERROR(tableName));
-	}
 	if (Array.isArray(values) && values.length === 0) {
 		throw new Error(SEED_EMPTY_ARRAY_ERROR(tableName));
 	}

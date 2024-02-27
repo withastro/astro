@@ -25,14 +25,6 @@ export const MIGRATIONS_NOT_INITIALIZED = `${yellow(
 	'▶ No migrations found!'
 )}\n\n  To scaffold your migrations folder, run\n  ${cyan('astro db sync')}\n`;
 
-export const SEED_WRITABLE_IN_PROD_ERROR = (tableName: string) => {
-	return `${red(
-		`Writable tables should not be seeded in production with data().`
-	)} You can seed ${bold(
-		tableName
-	)} in development mode only using the "mode" flag. See the docs for more: https://www.notion.so/astroinc/astrojs-db-README-dcf6fa10de9a4f528be56cee96e8c054?pvs=4#278aed3fc37e4cec80240d1552ff6ac5`;
-};
-
 export const SEED_ERROR = (tableName: string, error: string) => {
 	return `${red(`Error seeding table ${bold(tableName)}:`)}\n\n${error}`;
 };
