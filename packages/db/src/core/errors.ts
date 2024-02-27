@@ -16,14 +16,16 @@ export const UNSAFE_DISABLE_STUDIO_WARNING = `${yellow(
   Redeploying your app may result in wiping away your database.
 	I hope you know what you are doing.\n`;
 
-export const STUDIO_CONFIG_MISSING_CLI_ERROR = `${red('▶ This command requires Astro Studio.')}
-
-  Visit ${cyan('https://astro.build/studio')} to create your account
-  and set ${green('studio: true')} in your astro.config.mjs file to enable Studio.\n`;
-
 export const MIGRATIONS_NOT_INITIALIZED = `${yellow(
 	'▶ No migrations found!'
 )}\n\n  To scaffold your migrations folder, run\n  ${cyan('astro db sync')}\n`;
+
+export const MISSING_EXECUTE_PATH_ERROR = `${red(
+	'▶ No file path provided.'
+)} Provide a path by running ${cyan('astro db execute <path>')}\n`;
+
+export const FILE_NOT_FOUND_ERROR = (path: string) =>
+	`${red('▶ File not found:')} ${bold(path)}\n`;
 
 export const SEED_ERROR = (tableName: string, error: string) => {
 	return `${red(`Error seeding table ${bold(tableName)}:`)}\n\n${error}`;

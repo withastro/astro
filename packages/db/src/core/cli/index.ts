@@ -1,17 +1,11 @@
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
-import { STUDIO_CONFIG_MISSING_CLI_ERROR } from '../errors.js';
 
 export async function cli({ flags, config }: { flags: Arguments; config: AstroConfig }) {
 	const args = flags._ as string[];
 	// Most commands are `astro db foo`, but for now login/logout
 	// are also handled by this package, so first check if this is a db command.
 	const command = args[2] === 'db' ? args[3] : args[2];
-
-	if (!config.db?.studio) {
-		console.log(STUDIO_CONFIG_MISSING_CLI_ERROR);
-		process.exit(1);
-	}
 
 	switch (command) {
 		case 'shell': {
@@ -29,6 +23,10 @@ export async function cli({ flags, config }: { flags: Arguments; config: AstroCo
 		}
 		case 'verify': {
 			const { cmd } = await import('./commands/verify/index.js');
+			return await cmd({ config, flags });
+		}
+		case 'execute': {
+			const { cmd } = await import('./commands/execute/index.js');
 			return await cmd({ config, flags });
 		}
 		case 'login': {

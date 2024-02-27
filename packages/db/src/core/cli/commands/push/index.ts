@@ -1,14 +1,10 @@
-import { createClient, type InStatement } from '@libsql/client';
+import { type InStatement } from '@libsql/client';
 import type { AstroConfig } from 'astro';
-import { drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
-import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
-import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { red } from 'kleur/colors';
 import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
-import { recreateTables } from '../../../../runtime/queries.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
-import { tablesSchema, type AstroConfigWithDB, type DBSnapshot } from '../../../types.js';
+import { type DBSnapshot } from '../../../types.js';
 import { getRemoteDatabaseUrl } from '../../../utils.js';
 import { getMigrationQueries } from '../../migration-queries.js';
 import {
@@ -68,9 +64,6 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 			currentSnapshot: migration.currentSnapshot,
 		});
 	}
-	// push the database seed data
-	console.info('Pushing data...');
-	await pushData({ config, appToken: appToken.token, isDryRun });
 	// cleanup and exit
 	await appToken.destroy();
 	console.info('Push complete!');
@@ -128,68 +121,6 @@ async function pushSchema({
 	}, initialMigrationBatch);
 	// apply the batch to the DB
 	await runMigrateQuery({ queries, migrations, snapshot: currentSnapshot, appToken, isDryRun });
-}
-
-const sqlite = new SQLiteAsyncDialect();
-
-async function pushData({
-	config,
-	appToken,
-	isDryRun,
-}: {
-	config: AstroConfigWithDB;
-	appToken: string;
-	isDryRun?: boolean;
-}) {
-	const queries: InStatement[] = [];
-	// TODO: replace with pure remote client?
-	// if (config.db?.data) {
-	// 	const libsqlclient = createclient({ url: ':memory:' });
-	// 	// stand up tables locally to mirror inserts.
-	// 	// needed to generate return values.
-	// 	await recreatetables({
-	// 		db: drizzlelibsql(libsqlclient),
-	// 		tables: tablesschema.parse(config.db.tables ?? {}),
-	// 	});
-
-	// 	// use proxy to trace all queries to queue up in a batch.
-	// 	const db = await drizzleproxy(async (sqlquery, params, method) => {
-	// 		const stmt: instatement = { sql: sqlquery, args: params };
-	// 		queries.push(stmt);
-	// 		// use in-memory database to generate results for `returning()`.
-	// 		const { rows } = await libsqlclient.execute(stmt);
-	// 		const rowvalues: unknown[][] = [];
-	// 		for (const row of rows) {
-	// 			if (row != null && typeof row === 'object') {
-	// 				rowvalues.push(object.values(row));
-	// 			}
-	// 		}
-	// 		if (method === 'get') {
-	// 			return { rows: rowvalues[0] };
-	// 		}
-	// 		return { rows: rowvalues };
-	// 	});
-	// 	await seedData({
-	// 		db,
-	// 		mode: 'build',
-	// 		data: config.db.data,
-	// 	});
-	// }
-
-	const url = new URL('/db/query', getRemoteDatabaseUrl());
-
-	if (isDryRun) {
-		console.info('[DRY RUN] Batch data seed:', JSON.stringify(queries, null, 2));
-		return new Response(null, { status: 200 });
-	}
-
-	return await fetch(url, {
-		method: 'POST',
-		headers: new Headers({
-			Authorization: `Bearer ${appToken}`,
-		}),
-		body: JSON.stringify(queries),
-	});
 }
 
 async function runMigrateQuery({
