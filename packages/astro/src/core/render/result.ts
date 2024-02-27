@@ -17,11 +17,9 @@ import {
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
-} from './context.js';
-import type { RoutingStrategies } from '../config/schema.js';
-
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
-const responseSentSymbol = Symbol.for('astro.responseSent');
+	type RoutingStrategies,
+} from '../../i18n/utils.js';
+import { clientAddressSymbol, responseSentSymbol } from '../constants.js';
 
 export interface CreateResultArgs {
 	/**
@@ -44,18 +42,19 @@ export interface CreateResultArgs {
 	 * Used for `Astro.site`
 	 */
 	site: string | undefined;
-	links?: Set<SSRElement>;
-	scripts?: Set<SSRElement>;
-	styles?: Set<SSRElement>;
-	componentMetadata?: SSRResult['componentMetadata'];
+	links: Set<SSRElement>;
+	scripts: Set<SSRElement>;
+	styles: Set<SSRElement>;
+	componentMetadata: SSRResult['componentMetadata'];
 	inlinedScripts?: SSRResult['inlinedScripts'];
 	request: Request;
 	status: number;
 	locals: App.Locals;
-	cookies?: AstroCookies;
+	cookies: AstroCookies;
 	locales: Locales | undefined;
 	defaultLocale: string | undefined;
-	routingStrategy: RoutingStrategies | undefined;
+	route: string;
+	strategy: RoutingStrategies | undefined;
 }
 
 function getFunctionExpression(slot: any) {
@@ -116,7 +115,7 @@ class Slots {
 				const slot = async () =>
 					typeof expression === 'function' ? expression(...args) : expression;
 				return await renderSlotToString(result, slot).then((res) => {
-					return res != null ? String(res) : res;
+					return res;
 				});
 			}
 			// JSX
@@ -235,9 +234,9 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					}
 					if (args.locales) {
 						currentLocale = computeCurrentLocale(
-							request,
+							url.pathname,
 							args.locales,
-							args.routingStrategy,
+							args.strategy,
 							args.defaultLocale
 						);
 						if (currentLocale) {

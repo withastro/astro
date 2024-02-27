@@ -1,6 +1,6 @@
 import type { DevToolbarApp } from '../../../../@types/astro.js';
 import { settings, type Settings } from '../settings.js';
-import { createWindowElement } from './utils/window.js';
+import { closeOnOutsideClick, createWindowElement } from './utils/window.js';
 
 interface SettingRow {
 	name: string;
@@ -49,10 +49,12 @@ export default {
 	id: 'astro:settings',
 	name: 'Settings',
 	icon: 'gear',
-	init(canvas) {
+	init(canvas, eventTarget) {
 		createSettingsWindow();
 
 		document.addEventListener('astro:after-swap', createSettingsWindow);
+
+		closeOnOutsideClick(eventTarget);
 
 		function createSettingsWindow() {
 			const windowElement = createWindowElement(

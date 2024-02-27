@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import { describe, before, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Dynamic pages in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */

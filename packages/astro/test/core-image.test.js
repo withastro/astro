@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import { describe, before, after, it } from 'node:test';
-import * as cheerio from 'cheerio';
 import { basename } from 'node:path';
 import { Writable } from 'node:stream';
+import { after, before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
 import { removeDir } from '../dist/core/fs/index.js';
 import { Logger } from '../dist/core/logger/core.js';

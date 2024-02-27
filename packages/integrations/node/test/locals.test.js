@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
-import { describe, it, before } from 'node:test';
+import { before, describe, it } from 'node:test';
 import nodejs from '../dist/index.js';
-import { loadFixture, createRequestAndResponse } from './test-utils.js';
+import { createRequestAndResponse, loadFixture } from './test-utils.js';
 
 describe('API routes', () => {
 	/** @type {import('./test-utils').Fixture} */

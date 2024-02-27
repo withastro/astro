@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
-import { describe, it, beforeEach } from 'node:test';
 import fs from 'node:fs';
+import { beforeEach, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { typescript, setupTypeScript } from '../dist/index.js';
-import { setup, resetFixtures } from './utils.js';
+import { setupTypeScript, typescript } from '../dist/index.js';
+import { resetFixtures, setup } from './utils.js';
 
 describe('typescript', async () => {
 	const fixture = setup();

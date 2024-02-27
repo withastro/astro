@@ -1,0 +1,9 @@
+{
+  "name": "@test/db-aliases",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/db": "workspace:*",
+    "astro": "workspace:*"
+  }
+}
