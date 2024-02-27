@@ -1,13 +1,13 @@
-import http from 'node:http';
 import https from 'https';
 import fs from 'node:fs';
+import http from 'node:http';
+import type { PreviewServer } from 'astro';
+import type { NodeApp } from 'astro/app/node';
 import enableDestroy from 'server-destroy';
+import { logListeningOn } from './log-listening-on.js';
 import { createAppHandler } from './serve-app.js';
 import { createStaticHandler } from './serve-static.js';
-import { logListeningOn } from './log-listening-on.js';
-import type { NodeApp } from 'astro/app/node';
 import type { Options } from './types.js';
-import type { PreviewServer } from 'astro';
 
 export default function standalone(app: NodeApp, options: Options) {
 	const port = process.env.PORT ? Number(process.env.PORT) : options.port ?? 8080;

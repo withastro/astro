@@ -1,6 +1,6 @@
 import { DB_PATH, RUNTIME_DRIZZLE_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
-import { getRemoteDatabaseUrl, type VitePlugin } from '../utils.js';
+import { type VitePlugin, getRemoteDatabaseUrl } from '../utils.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
