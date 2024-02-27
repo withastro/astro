@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Removes morph animation, too, when setting `transition:animate=none` for view transitions.
+Fixes an issue where `<ViewTransitions transition:animate="none" />` still allowed the browser-native morph animation.
