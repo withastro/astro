@@ -1,6 +1,6 @@
-import { color } from '@astrojs/cli-kit';
 import fs from 'node:fs';
 import path from 'node:path';
+import { color } from '@astrojs/cli-kit';
 import { error, info, title } from '../messages.js';
 import { shell } from '../shell.js';
 import type { Context } from './context.js';

@@ -13,6 +13,7 @@ export interface CreateRequestOptions {
 	logger: Logger;
 	ssr: boolean;
 	locals?: object | undefined;
+	removeParams?: boolean;
 }
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
@@ -27,13 +28,21 @@ export function createRequest({
 	logger,
 	ssr,
 	locals,
+	removeParams = false,
 }: CreateRequestOptions): Request {
 	let headersObj =
 		headers instanceof Headers
 			? headers
 			: new Headers(Object.entries(headers as Record<string, any>));
 
-	const request = new Request(url.toString(), {
+	if (typeof url === 'string') url = new URL(url);
+
+	// HACK! astro:assets uses query params for the injected route in `dev`
+	if (removeParams && url.pathname !== '/_image') {
+		url.search = '';
+	}
+
+	const request = new Request(url, {
 		method: method,
 		headers: headersObj,
 		body,

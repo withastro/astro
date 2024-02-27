@@ -1,9 +1,9 @@
 import { fileURLToPath } from 'url';
 import stripAnsi from 'strip-ansi';
-import type { Logger as ViteLogger, Rollup, LogLevel } from 'vite';
+import type { LogLevel, Logger as ViteLogger, Rollup } from 'vite';
 import { isAstroError } from '../errors/errors.js';
-import { isLogLevelEnabled, type Logger as AstroLogger } from './core.js';
 import { serverShortcuts as formatServerShortcuts } from '../messages.js';
+import { type Logger as AstroLogger, isLogLevelEnabled } from './core.js';
 
 const PKG_PREFIX = fileURLToPath(new URL('../../../', import.meta.url));
 const E2E_PREFIX = fileURLToPath(new URL('../../../e2e', import.meta.url));

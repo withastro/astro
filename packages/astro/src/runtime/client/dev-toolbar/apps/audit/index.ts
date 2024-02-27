@@ -1,3 +1,4 @@
+import { finder } from '@medv/finder';
 import type { DevToolbarApp, DevToolbarMetadata } from '../../../../../@types/astro.js';
 import type { DevToolbarHighlight } from '../../ui-library/highlight.js';
 import {
@@ -6,9 +7,8 @@ import {
 	getElementsPositionInDocument,
 	positionHighlight,
 } from '../utils/highlight.js';
-import { createWindowElement } from '../utils/window.js';
+import { closeOnOutsideClick, createWindowElement } from '../utils/window.js';
 import { a11y } from './a11y.js';
-import { finder } from '@medv/finder';
 import { perf } from './perf.js';
 
 const icon =
@@ -72,26 +72,7 @@ export default {
 		document.addEventListener('astro:after-swap', async () => lint());
 		document.addEventListener('astro:page-load', async () => refreshLintPositions);
 
-		function onPageClick(event: MouseEvent) {
-			const target = event.target as Element | null;
-			if (!target) return;
-			if (!target.closest) return;
-			if (target.closest('astro-dev-toolbar')) return;
-			eventTarget.dispatchEvent(
-				new CustomEvent('toggle-app', {
-					detail: {
-						state: false,
-					},
-				})
-			);
-		}
-		eventTarget.addEventListener('app-toggled', (event: any) => {
-			if (event.detail.state === true) {
-				document.addEventListener('click', onPageClick, true);
-			} else {
-				document.removeEventListener('click', onPageClick, true);
-			}
-		});
+		closeOnOutsideClick(eventTarget);
 
 		async function lint() {
 			audits.forEach(({ highlightElement }) => {

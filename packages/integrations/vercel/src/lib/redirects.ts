@@ -1,6 +1,6 @@
+import nodePath from 'node:path';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import type { AstroConfig, RouteData, RoutePart } from 'astro';
-import nodePath from 'node:path';
 
 const pathJoin = nodePath.posix.join;
 
