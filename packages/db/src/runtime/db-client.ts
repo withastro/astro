@@ -30,8 +30,6 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 
 	const db = drizzleProxy(async (sql, parameters, method) => {
 		const requestBody: InStatement = { sql, args: parameters };
-		// eslint-disable-next-line no-console
-		console.info(JSON.stringify(requestBody));
 		const res = await fetch(url, {
 			method: 'POST',
 			headers: {
