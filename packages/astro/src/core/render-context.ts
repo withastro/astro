@@ -4,12 +4,12 @@ import type {
 	MiddlewareHandler,
 	RouteData,
 } from '../@types/astro.js';
+import {
+	computeCurrentLocale,
+	computePreferredLocale,
+	computePreferredLocaleList,
+} from '../i18n/utils.js';
 import { renderEndpoint } from '../runtime/server/endpoint.js';
-import { attachCookiesToResponse } from './cookies/index.js';
-import { callMiddleware } from './middleware/callMiddleware.js';
-import { sequence } from './middleware/index.js';
-import { AstroCookies } from './cookies/index.js';
-import { createResult } from './render/index.js';
 import { renderPage } from '../runtime/server/index.js';
 import {
 	ASTRO_VERSION,
@@ -17,14 +17,14 @@ import {
 	clientAddressSymbol,
 	clientLocalsSymbol,
 } from './constants.js';
-import { getParams, getProps, type Pipeline } from './render/index.js';
+import { attachCookiesToResponse } from './cookies/index.js';
+import { AstroCookies } from './cookies/index.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
-import {
-	computeCurrentLocale,
-	computePreferredLocale,
-	computePreferredLocaleList,
-} from '../i18n/utils.js';
+import { callMiddleware } from './middleware/callMiddleware.js';
+import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
+import { createResult } from './render/index.js';
+import { type Pipeline, getParams, getProps } from './render/index.js';
 
 export class RenderContext {
 	private constructor(

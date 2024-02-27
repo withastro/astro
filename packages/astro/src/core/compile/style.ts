@@ -1,6 +1,6 @@
-import type { TransformOptions } from '@astrojs/compiler';
 import fs from 'node:fs';
-import { normalizePath, preprocessCSS, type ResolvedConfig } from 'vite';
+import type { TransformOptions } from '@astrojs/compiler';
+import { type ResolvedConfig, normalizePath, preprocessCSS } from 'vite';
 import { AstroErrorData, CSSError, positionAt } from '../errors/index.js';
 import type { CompileCssResult } from './compile.js';
 
