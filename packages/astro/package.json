@@ -113,7 +113,7 @@
     "test:node": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "0.0.0-render-script-20240214150051",
+    "@astrojs/compiler": "^2.6.0",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
