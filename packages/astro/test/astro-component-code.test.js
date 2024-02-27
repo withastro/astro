@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -13,33 +14,35 @@ describe('<Code>', () => {
 	it('<Code> without lang or theme', async () => {
 		let html = await fixture.readFile('/no-lang/index.html');
 		const $ = cheerio.load(html);
-		expect($('pre')).to.have.lengthOf(1);
-		expect($('pre').attr('style')).to.equal(
+		assert.equal($('pre').length, 1);
+		assert.equal(
+			$('pre').attr('style'),
 			'background-color:#24292e;color:#e1e4e8; overflow-x: auto;',
 			'applies default and overflow'
 		);
-		expect($('pre > code')).to.have.lengthOf(1);
+		assert.equal($('pre > code').length, 1);
 
 		// test: contains some generated spans
-		expect($('pre > code span').length).to.be.greaterThan(1);
+		assert.equal($('pre > code span').length > 1, true);
 	});
 
 	it('<Code lang="...">', async () => {
 		let html = await fixture.readFile('/basic/index.html');
 		const $ = cheerio.load(html);
-		expect($('pre')).to.have.lengthOf(1);
-		expect($('pre').attr('class'), 'astro-code nord');
-		expect($('pre > code')).to.have.lengthOf(1);
+		assert.equal($('pre').length, 1);
+		assert.equal($('pre').attr('class'), 'astro-code github-dark');
+		assert.equal($('pre > code').length, 1);
 		// test: contains many generated spans
-		expect($('pre > code span').length).to.be.greaterThanOrEqual(6);
+		assert.equal($('pre > code span').length >= 6, true);
 	});
 
 	it('<Code theme="...">', async () => {
 		let html = await fixture.readFile('/custom-theme/index.html');
 		const $ = cheerio.load(html);
-		expect($('pre')).to.have.lengthOf(1);
-		expect($('pre').attr('class')).to.equal('astro-code nord');
-		expect($('pre').attr('style')).to.equal(
+		assert.equal($('pre').length, 1);
+		assert.equal($('pre').attr('class'), 'astro-code nord');
+		assert.equal(
+			$('pre').attr('style'),
 			'background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;',
 			'applies custom theme'
 		);
@@ -49,58 +52,64 @@ describe('<Code>', () => {
 		{
 			let html = await fixture.readFile('/wrap-true/index.html');
 			const $ = cheerio.load(html);
-			expect($('pre')).to.have.lengthOf(1);
+			assert.equal($('pre').length, 1);
 			// test: applies wrap overflow
-			expect($('pre').attr('style')).to.equal(
+			assert.equal(
+				$('pre').attr('style'),
 				'background-color:#24292e;color:#e1e4e8; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;'
 			);
 		}
 		{
 			let html = await fixture.readFile('/wrap-false/index.html');
 			const $ = cheerio.load(html);
-			expect($('pre')).to.have.lengthOf(1);
+			assert.equal($('pre').length, 1);
 			// test: applies wrap overflow
-			expect($('pre').attr('style')).to.equal(
+			assert.equal(
+				$('pre').attr('style'),
 				'background-color:#24292e;color:#e1e4e8; overflow-x: auto;'
 			);
 		}
 		{
 			let html = await fixture.readFile('/wrap-null/index.html');
 			const $ = cheerio.load(html);
-			expect($('pre')).to.have.lengthOf(1);
+			assert.equal($('pre').length, 1);
 			// test: applies wrap overflow
-			expect($('pre').attr('style')).to.equal('background-color:#24292e;color:#e1e4e8');
+			assert.equal($('pre').attr('style'), 'background-color:#24292e;color:#e1e4e8');
 		}
 	});
 
 	it('<Code lang="..." theme="css-variables">', async () => {
 		let html = await fixture.readFile('/css-theme/index.html');
 		const $ = cheerio.load(html);
-		expect($('pre')).to.have.lengthOf(1);
-		expect($('pre').attr('class')).to.equal('astro-code css-variables');
-		expect(
+		assert.equal($('pre').length, 1);
+		assert.equal($('pre').attr('class'), 'astro-code css-variables');
+		assert.deepEqual(
 			$('pre, pre span')
 				.map((i, f) => (f.attribs ? f.attribs.style : 'no style found'))
-				.toArray()
-		).to.deep.equal([
-			'background-color:var(--astro-code-color-background);color:var(--astro-code-color-text); overflow-x: auto;',
-			'color:var(--astro-code-token-constant)',
-			'color:var(--astro-code-token-function)',
-			'color:var(--astro-code-color-text)',
-			'color:var(--astro-code-token-string-expression)',
-			'color:var(--astro-code-color-text)',
-		]);
+				.toArray(),
+			[
+				'background-color:var(--astro-code-color-background);color:var(--astro-code-color-text); overflow-x: auto;',
+				'color:var(--astro-code-token-constant)',
+				'color:var(--astro-code-token-function)',
+				'color:var(--astro-code-color-text)',
+				'color:var(--astro-code-token-string-expression)',
+				'color:var(--astro-code-color-text)',
+			]
+		);
 	});
 
 	it('<Code> with custom theme and lang', async () => {
 		let html = await fixture.readFile('/imported/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#theme > pre')).to.have.lengthOf(1);
-		expect($('#theme > pre').attr('style'), 'background-color: #FDFDFE; overflow-x: auto;');
+		assert.equal($('#theme > pre').length, 1);
+		assert.equal(
+			$('#theme > pre').attr('style'),
+			'background-color:#FDFDFE;color:#4E5377; overflow-x: auto;'
+		);
 
-		expect($('#lang > pre')).to.have.lengthOf(1);
-		expect($('#lang > pre > code span').length).to.equal(3);
+		assert.equal($('#lang > pre').length, 1);
+		assert.equal($('#lang > pre > code span').length, 3);
 	});
 
 	it('<Code inline> has no pre tag', async () => {
@@ -108,8 +117,8 @@ describe('<Code>', () => {
 		const $ = cheerio.load(html);
 		const codeEl = $('.astro-code');
 
-		expect(codeEl.prop('tagName')).to.eq('CODE');
-		expect(codeEl.attr('style')).to.include('background-color:');
-		expect($('pre')).to.have.lengthOf(0);
+		assert.equal(codeEl.prop('tagName'), 'CODE');
+		assert.match(codeEl.attr('style'), /background-color:/);
+		assert.equal($('pre').length, 0);
 	});
 });

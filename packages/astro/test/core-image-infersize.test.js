@@ -1,6 +1,7 @@
-import { expect } from 'chai';
-import * as cheerio from 'cheerio';
+import assert from 'node:assert/strict';
 import { Writable } from 'node:stream';
+import { after, before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
 
 import { Logger } from '../dist/core/logger/core.js';
 import { loadFixture } from './test-utils.js';
@@ -48,23 +49,26 @@ describe('astro:image:infersize', () => {
 
 			it('Image component works', async () => {
 				let $img = $('img');
-				expect(
-					$img.attr('src').startsWith('/_image') && $img.attr('src').endsWith('f=webp')
-				).to.equal(true);
+				assert.equal(
+					$img.attr('src').startsWith('/_image') && $img.attr('src').endsWith('f=webp'),
+					true
+				);
 			});
 
 			it('Picture component works', async () => {
 				let $img = $('picture img');
-				expect(
-					$img.attr('src').startsWith('/_image') && $img.attr('src').endsWith('f=png')
-				).to.equal(true);
+				assert.equal(
+					$img.attr('src').startsWith('/_image') && $img.attr('src').endsWith('f=png'),
+					true
+				);
 			});
 
 			it('getImage works', async () => {
 				let $img = $('#getImage');
-				expect(
-					$img.attr('src').startsWith('/_image') && $img.attr('src').endsWith('f=webp')
-				).to.equal(true);
+				assert.equal(
+					$img.attr('src').startsWith('/_image') && $img.attr('src').endsWith('f=webp'),
+					true
+				);
 			});
 		});
 	});

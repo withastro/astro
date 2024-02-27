@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -14,15 +15,15 @@ describe('Nested Slots', () => {
 	it('Hidden nested slots see their hydration scripts hoisted', async () => {
 		const html = await fixture.readFile('/hidden-nested/index.html');
 		const $ = cheerio.load(html);
-		expect($('script')).to.have.a.lengthOf(1, 'script rendered');
+		assert.equal($('script').length, 1, 'script rendered');
 		const scriptInTemplate = $($('template')[0].children[0]).find('script');
-		expect(scriptInTemplate).to.have.a.lengthOf(0, 'script defined outside of the inner template');
+		assert.equal(scriptInTemplate.length, 0, 'script defined outside of the inner template');
 	});
 
 	it('Slots rendered via Astro.slots.render have the hydration script', async () => {
 		const html = await fixture.readFile('/component-slot/index.html');
 		const $ = cheerio.load(html);
-		expect($('script')).to.have.a.lengthOf(1, 'script rendered');
+		assert.equal($('script').length, 1, 'script rendered');
 	});
 
 	describe('Client components nested inside server-only framework components', () => {
@@ -34,28 +35,28 @@ describe('Nested Slots', () => {
 		});
 
 		it('react', () => {
-			expect($('#react astro-slot')).to.have.a.lengthOf(1);
-			expect($('#react astro-static-slot')).to.have.a.lengthOf(0);
+			assert.equal($('#react astro-slot').length, 1);
+			assert.equal($('#react astro-static-slot').length, 0);
 		});
 
 		it('vue', () => {
-			expect($('#vue astro-slot')).to.have.a.lengthOf(1);
-			expect($('#vue astro-static-slot')).to.have.a.lengthOf(0);
+			assert.equal($('#vue astro-slot').length, 1);
+			assert.equal($('#vue astro-static-slot').length, 0);
 		});
 
 		it('preact', () => {
-			expect($('#preact astro-slot')).to.have.a.lengthOf(1);
-			expect($('#preact astro-static-slot')).to.have.a.lengthOf(0);
+			assert.equal($('#preact astro-slot').length, 1);
+			assert.equal($('#preact astro-static-slot').length, 0);
 		});
 
 		it('solid', () => {
-			expect($('#solid astro-slot')).to.have.a.lengthOf(1);
-			expect($('#solid astro-static-slot')).to.have.a.lengthOf(0);
+			assert.equal($('#solid astro-slot').length, 1);
+			assert.equal($('#solid astro-static-slot').length, 0);
 		});
 
 		it('svelte', () => {
-			expect($('#svelte astro-slot')).to.have.a.lengthOf(1);
-			expect($('#svelte astro-static-slot')).to.have.a.lengthOf(0);
+			assert.equal($('#svelte astro-slot').length, 1);
+			assert.equal($('#svelte astro-static-slot').length, 0);
 		});
 	});
 });

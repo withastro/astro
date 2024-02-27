@@ -1,7 +1,8 @@
-import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
+import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Astro.clientAddress', () => {
 	describe('SSR', () => {
@@ -27,7 +28,7 @@ describe('Astro.clientAddress', () => {
 				const response = await app.render(request);
 				const html = await response.text();
 				const $ = cheerio.load(html);
-				expect($('#address').text()).to.equal('0.0.0.0');
+				assert.equal($('#address').text(), '0.0.0.0');
 			});
 
 			it('app.render can provide the address', async () => {
@@ -36,7 +37,7 @@ describe('Astro.clientAddress', () => {
 				const response = await app.render(request, { clientAddress: '1.1.1.1' });
 				const html = await response.text();
 				const $ = cheerio.load(html);
-				expect($('#address').text()).to.equal('1.1.1.1');
+				assert.equal($('#address').text(), '1.1.1.1');
 			});
 		});
 
@@ -54,14 +55,14 @@ describe('Astro.clientAddress', () => {
 
 			it('Gets the address', async () => {
 				let res = await fixture.fetch('/');
-				expect(res.status).to.equal(200);
+				assert.equal(res.status, 200);
 				let html = await res.text();
 				let $ = cheerio.load(html);
 				let address = $('#address');
 
 				// Just checking that something is here. Not specifying address as it
 				// might differ per machine.
-				expect(address.length).to.be.greaterThan(0);
+				assert.equal(address.length > 0, true);
 			});
 		});
 	});
@@ -83,7 +84,7 @@ describe('Astro.clientAddress', () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);
-			expect(response.status).to.equal(500);
+			assert.equal(response.status, 500);
 		});
 	});
 
@@ -102,9 +103,10 @@ describe('Astro.clientAddress', () => {
 			it('throws during generation', async () => {
 				try {
 					await fixture.build();
-					expect(false).to.equal(true, 'Build should not have completed');
+					assert.equal(false, true, 'Build should not have completed');
 				} catch (err) {
-					expect(err.message).to.match(
+					assert.match(
+						err.message,
 						/Astro\.clientAddress/,
 						'Error message mentions Astro.clientAddress'
 					);
@@ -126,7 +128,7 @@ describe('Astro.clientAddress', () => {
 
 			it('is not accessible', async () => {
 				let res = await fixture.fetch('/');
-				expect(res.status).to.equal(500);
+				assert.equal(res.status, 500);
 			});
 		});
 	});

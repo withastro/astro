@@ -1,0 +1,12 @@
+---
+import { Themes, db } from 'astro:db';
+
+let error: any = {};
+try {
+	db.insert(Themes).values({ name: 'Person A' });
+} catch (err) {
+	error = err;
+}
+---
+
+<div id="error">{error.message}</div>

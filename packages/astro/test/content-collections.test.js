@@ -1,9 +1,10 @@
-import * as devalue from 'devalue';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
+import * as devalue from 'devalue';
 import testAdapter from './test-adapter.js';
 import { preventNodeBuiltinDependencyPlugin } from './test-plugins.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Content Collections', () => {
 	describe('Query', () => {
@@ -21,11 +22,11 @@ describe('Content Collections', () => {
 			});
 
 			it('Returns `without config` collection', async () => {
-				expect(json).to.haveOwnProperty('withoutConfig');
-				expect(Array.isArray(json.withoutConfig)).to.equal(true);
+				assert.ok(json.hasOwnProperty('withoutConfig'));
+				assert.equal(Array.isArray(json.withoutConfig), true);
 
 				const ids = json.withoutConfig.map((item) => item.id);
-				expect(ids).to.deep.equal([
+				assert.deepEqual(ids, [
 					'columbia.md',
 					'endeavour.md',
 					'enterprise.md',
@@ -35,11 +36,11 @@ describe('Content Collections', () => {
 			});
 
 			it('Handles spaces in `without config` slugs', async () => {
-				expect(json).to.haveOwnProperty('withoutConfig');
-				expect(Array.isArray(json.withoutConfig)).to.equal(true);
+				assert.ok(json.hasOwnProperty('withoutConfig'));
+				assert.equal(Array.isArray(json.withoutConfig), true);
 
 				const slugs = json.withoutConfig.map((item) => item.slug);
-				expect(slugs).to.deep.equal([
+				assert.deepEqual(slugs, [
 					'columbia',
 					'endeavour',
 					'enterprise',
@@ -49,46 +50,50 @@ describe('Content Collections', () => {
 			});
 
 			it('Returns `with schema` collection', async () => {
-				expect(json).to.haveOwnProperty('withSchemaConfig');
-				expect(Array.isArray(json.withSchemaConfig)).to.equal(true);
+				assert.ok(json.hasOwnProperty('withSchemaConfig'));
+				assert.equal(Array.isArray(json.withSchemaConfig), true);
 
 				const ids = json.withSchemaConfig.map((item) => item.id);
 				const publishedDates = json.withSchemaConfig.map((item) => item.data.publishedAt);
-				expect(ids).to.deep.equal(['four%.md', 'one.md', 'three.md', 'two.md']);
-				expect(publishedDates.every((date) => date instanceof Date)).to.equal(
+				assert.deepEqual(ids, ['four%.md', 'one.md', 'three.md', 'two.md']);
+				assert.equal(
+					publishedDates.every((date) => date instanceof Date),
 					true,
 					'Not all publishedAt dates are Date objects'
 				);
-				expect(publishedDates.map((date) => date.toISOString())).to.deep.equal([
-					'2021-01-01T00:00:00.000Z',
-					'2021-01-01T00:00:00.000Z',
-					'2021-01-03T00:00:00.000Z',
-					'2021-01-02T00:00:00.000Z',
-				]);
+				assert.deepEqual(
+					publishedDates.map((date) => date.toISOString()),
+					[
+						'2021-01-01T00:00:00.000Z',
+						'2021-01-01T00:00:00.000Z',
+						'2021-01-03T00:00:00.000Z',
+						'2021-01-02T00:00:00.000Z',
+					]
+				);
 			});
 
 			it('Returns `with custom slugs` collection', async () => {
-				expect(json).to.haveOwnProperty('withSlugConfig');
-				expect(Array.isArray(json.withSlugConfig)).to.equal(true);
+				assert.ok(json.hasOwnProperty('withSlugConfig'));
+				assert.equal(Array.isArray(json.withSlugConfig), true);
 
 				const slugs = json.withSlugConfig.map((item) => item.slug);
-				expect(slugs).to.deep.equal(['fancy-one', 'excellent-three', 'interesting-two']);
+				assert.deepEqual(slugs, ['fancy-one', 'excellent-three', 'interesting-two']);
 			});
 
 			it('Returns `with union schema` collection', async () => {
-				expect(json).to.haveOwnProperty('withUnionSchema');
-				expect(Array.isArray(json.withUnionSchema)).to.equal(true);
+				assert.ok(json.hasOwnProperty('withUnionSchema'));
+				assert.equal(Array.isArray(json.withUnionSchema), true);
 
 				const post = json.withUnionSchema.find((item) => item.id === 'post.md');
-				expect(post).to.not.be.undefined;
-				expect(post.data).to.deep.equal({
+				assert.notEqual(post, undefined);
+				assert.deepEqual(post.data, {
 					type: 'post',
 					title: 'My Post',
 					description: 'This is my post',
 				});
 				const newsletter = json.withUnionSchema.find((item) => item.id === 'newsletter.md');
-				expect(newsletter).to.not.be.undefined;
-				expect(newsletter.data).to.deep.equal({
+				assert.notEqual(newsletter, undefined);
+				assert.deepEqual(newsletter.data, {
 					type: 'newsletter',
 					subject: 'My Newsletter',
 				});
@@ -99,7 +104,7 @@ describe('Content Collections', () => {
 			it('Applies styles', async () => {
 				const html = await fixture.readFile('/propagation/index.html');
 				const $ = cheerio.load(html);
-				expect($('style').text()).to.include('content:"works!"');
+				assert.equal($('style').text().includes('content:"works!"'), true);
 			});
 		});
 
@@ -111,28 +116,29 @@ describe('Content Collections', () => {
 			});
 
 			it('Returns `without config` collection entry', async () => {
-				expect(json).to.haveOwnProperty('columbiaWithoutConfig');
-				expect(json.columbiaWithoutConfig.id).to.equal('columbia.md');
+				assert.ok(json.hasOwnProperty('columbiaWithoutConfig'));
+				assert.equal(json.columbiaWithoutConfig.id, 'columbia.md');
 			});
 
 			it('Returns `with schema` collection entry', async () => {
-				expect(json).to.haveOwnProperty('oneWithSchemaConfig');
-				expect(json.oneWithSchemaConfig.id).to.equal('one.md');
-				expect(json.oneWithSchemaConfig.data.publishedAt instanceof Date).to.equal(true);
-				expect(json.oneWithSchemaConfig.data.publishedAt.toISOString()).to.equal(
+				assert.ok(json.hasOwnProperty('oneWithSchemaConfig'));
+				assert.equal(json.oneWithSchemaConfig.id, 'one.md');
+				assert.equal(json.oneWithSchemaConfig.data.publishedAt instanceof Date, true);
+				assert.equal(
+					json.oneWithSchemaConfig.data.publishedAt.toISOString(),
 					'2021-01-01T00:00:00.000Z'
 				);
 			});
 
 			it('Returns `with custom slugs` collection entry', async () => {
-				expect(json).to.haveOwnProperty('twoWithSlugConfig');
-				expect(json.twoWithSlugConfig.slug).to.equal('interesting-two');
+				assert.ok(json.hasOwnProperty('twoWithSlugConfig'));
+				assert.equal(json.twoWithSlugConfig.slug, 'interesting-two');
 			});
 
 			it('Returns `with union schema` collection entry', async () => {
-				expect(json).to.haveOwnProperty('postWithUnionSchema');
-				expect(json.postWithUnionSchema.id).to.equal('post.md');
-				expect(json.postWithUnionSchema.data).to.deep.equal({
+				assert.ok(json.hasOwnProperty('postWithUnionSchema'));
+				assert.equal(json.postWithUnionSchema.id, 'post.md');
+				assert.deepEqual(json.postWithUnionSchema.data, {
 					type: 'post',
 					title: 'My Post',
 					description: 'This is my post',
@@ -174,7 +180,7 @@ describe('Content Collections', () => {
 
 		it('Generates expected pages', async () => {
 			for (const slug in blogSlugToContents) {
-				expect(fixture.pathExists(`/posts/${slug}`)).to.equal(true);
+				assert.equal(fixture.pathExists(`/posts/${slug}`), true);
 			}
 		});
 
@@ -182,7 +188,7 @@ describe('Content Collections', () => {
 			for (const slug in blogSlugToContents) {
 				const post = await fixture.readFile(`/posts/${slug}/index.html`);
 				const $ = cheerio.load(post);
-				expect($('h1').text()).to.equal(blogSlugToContents[slug].title);
+				assert.equal($('h1').text(), blogSlugToContents[slug].title);
 			}
 		});
 
@@ -190,7 +196,8 @@ describe('Content Collections', () => {
 			for (const slug in blogSlugToContents) {
 				const post = await fixture.readFile(`/posts/${slug}/index.html`);
 				const $ = cheerio.load(post);
-				expect($(blogSlugToContents[slug].element).text().trim()).to.equal(
+				assert.equal(
+					$(blogSlugToContents[slug].element).text().trim(),
 					blogSlugToContents[slug].content
 				);
 			}
@@ -206,7 +213,7 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			expect(error).to.be.null;
+			assert.equal(error, null);
 		});
 	});
 	describe('With config.mjs', () => {
@@ -220,7 +227,7 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			expect(error).to.include('**title**: Expected type `"string"`, received "number"');
+			assert.equal(error.includes('**title**: Expected type `"string"`, received "number"'), true);
 		});
 	});
 	describe('With config.mts', () => {
@@ -234,7 +241,7 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			expect(error).to.include('**title**: Expected type `"string"`, received "number"');
+			assert.equal(error.includes('**title**: Expected type `"string"`, received "number"'), true);
 		});
 	});
 
@@ -249,7 +256,7 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			expect(error).to.include('**title**: Required');
+			assert.equal(error.includes('**title**: Required'), true);
 		});
 	});
 
@@ -264,7 +271,7 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			expect(error).to.be.undefined;
+			assert.equal(error, undefined);
 			// TODO: try to render a page
 		});
 	});
@@ -289,7 +296,7 @@ describe('Content Collections', () => {
 			for (const slug in blogSlugToContents) {
 				const request = new Request('http://example.com/posts/' + slug);
 				const response = await app.render(request);
-				expect(response.status).to.equal(200);
+				assert.equal(response.status, 200);
 			}
 		});
 
@@ -299,7 +306,7 @@ describe('Content Collections', () => {
 				const response = await app.render(request);
 				const body = await response.text();
 				const $ = cheerio.load(body);
-				expect($('h1').text()).to.equal(blogSlugToContents[slug].title);
+				assert.equal($('h1').text(), blogSlugToContents[slug].title);
 			}
 		});
 
@@ -309,7 +316,8 @@ describe('Content Collections', () => {
 				const response = await app.render(request);
 				const body = await response.text();
 				const $ = cheerio.load(body);
-				expect($(blogSlugToContents[slug].element).text().trim()).to.equal(
+				assert.equal(
+					$(blogSlugToContents[slug].element).text().trim(),
 					blogSlugToContents[slug].content
 				);
 			}
@@ -329,13 +337,13 @@ describe('Content Collections', () => {
 		it('Includes base in links', async () => {
 			const html = await fixture.readFile('/docs/index.html');
 			const $ = cheerio.load(html);
-			expect($('link').attr('href')).to.satisfies((a) => a.startsWith('/docs'));
+			assert.equal($('link').attr('href').startsWith('/docs'), true);
 		});
 
 		it('Includes base in hoisted scripts', async () => {
 			const html = await fixture.readFile('/docs/index.html');
 			const $ = cheerio.load(html);
-			expect($('script').attr('src')).to.satisfies((a) => a.startsWith('/docs'));
+			assert.equal($('script').attr('src').startsWith('/docs'), true);
 		});
 	});
 });

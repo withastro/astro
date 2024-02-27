@@ -1,5 +1,5 @@
-import { prepareTestFactory } from './shared-component-tests.js';
 import { expect } from '@playwright/test';
+import { prepareTestFactory } from './shared-component-tests.js';
 const { test, createTests } = prepareTestFactory({ root: './fixtures/vue-component/' });
 
 const config = {

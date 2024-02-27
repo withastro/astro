@@ -309,6 +309,7 @@ async function clientBuild(
 			...viteConfig.build,
 			emptyOutDir: false,
 			outDir: fileURLToPath(out),
+			copyPublicDir: ssr,
 			rollupOptions: {
 				...viteConfig.build?.rollupOptions,
 				input: Array.from(input),

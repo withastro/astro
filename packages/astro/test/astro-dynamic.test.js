@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -16,7 +17,7 @@ describe('Dynamic components', () => {
 		const html = await fixture.readFile('/index.html');
 
 		const $ = cheerio.load(html);
-		expect($('script').length).to.eq(1);
+		assert.equal($('script').length, 1);
 	});
 
 	it('Loads pages using client:media hydrator', async () => {
@@ -24,7 +25,7 @@ describe('Dynamic components', () => {
 		const $ = cheerio.load(html);
 
 		// test 1: static value rendered
-		expect($('script').length).to.equal(1);
+		assert.equal($('script').length, 1);
 	});
 
 	it('Loads pages using client:only hydrator', async () => {
@@ -32,10 +33,10 @@ describe('Dynamic components', () => {
 		const $ = cheerio.load(html);
 
 		// test 1: <astro-island> is empty.
-		expect($('astro-island').html()).to.equal('');
+		assert.equal($('astro-island').html(), '');
 		// test 2: component url
 		const href = $('astro-island').attr('component-url');
-		expect(href).to.include(`/PersistentCounter`);
+		assert.equal(href.includes(`/PersistentCounter`), true);
 	});
 });
 
@@ -55,7 +56,7 @@ describe('Dynamic components subpath', () => {
 		const html = await fixture.readFile('/index.html');
 
 		const $ = cheerio.load(html);
-		expect($('script').length).to.eq(1);
+		assert.equal($('script').length, 1);
 	});
 
 	it('Loads pages using client:media hydrator', async () => {
@@ -63,7 +64,7 @@ describe('Dynamic components subpath', () => {
 		const $ = cheerio.load(html);
 
 		// test 1: static value rendered
-		expect($('script').length).to.equal(1);
+		assert.equal($('script').length, 1);
 	});
 
 	it('Loads pages using client:only hydrator', async () => {
@@ -71,9 +72,9 @@ describe('Dynamic components subpath', () => {
 		const $ = cheerio.load(html);
 
 		// test 1: <astro-island> is empty.
-		expect($('astro-island').html()).to.equal('');
+		assert.equal($('astro-island').html(), '');
 		// test 2: has component url
 		const attr = $('astro-island').attr('component-url');
-		expect(attr).to.include(`blog/_astro/PersistentCounter`);
+		assert.equal(attr.includes(`blog/_astro/PersistentCounter`), true);
 	});
 });

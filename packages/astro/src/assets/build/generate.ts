@@ -3,7 +3,7 @@ import fs, { readFileSync } from 'node:fs';
 import { basename, join } from 'node:path/posix';
 import type PQueue from 'p-queue';
 import type { AstroConfig } from '../../@types/astro.js';
-import type { BuildPipeline } from '../../core/build/buildPipeline.js';
+import type { BuildPipeline } from '../../core/build/pipeline.js';
 import { getOutDirWithinCwd } from '../../core/build/common.js';
 import { getTimeStat } from '../../core/build/util.js';
 import { AstroError } from '../../core/errors/errors.js';
@@ -50,8 +50,7 @@ export async function prepareAssetsGenerationEnv(
 	pipeline: BuildPipeline,
 	totalCount: number
 ): Promise<AssetEnv> {
-	const config = pipeline.getConfig();
-	const logger = pipeline.getLogger();
+	const { config, logger } = pipeline;
 	let useCache = true;
 	const assetsCacheDir = new URL('assets/', config.cacheDir);
 	const count = { total: totalCount, current: 1 };

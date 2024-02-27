@@ -1,11 +1,11 @@
-import mdx from '@astrojs/mdx';
-import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import mdx from '@astrojs/mdx';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
-import remarkMath from 'remark-math';
 import rehypeMathjaxSvg from 'rehype-mathjax';
 import rehypeMathjaxChtml from 'rehype-mathjax/chtml';
+import remarkMath from 'remark-math';
+import { loadFixture } from '../../../astro/test/test-utils.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-math/', import.meta.url);
 

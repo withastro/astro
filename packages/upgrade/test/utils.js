@@ -1,6 +1,6 @@
 import { before, beforeEach } from 'node:test';
-import { setStdout } from '../dist/index.js';
 import stripAnsi from 'strip-ansi';
+import { setStdout } from '../dist/index.js';
 
 export function setup() {
 	const ctx = { messages: [] };
