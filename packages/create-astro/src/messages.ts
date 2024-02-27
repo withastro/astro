@@ -65,10 +65,9 @@ export const getVersion = (packageManager: string, packageName: string, fallback
 		let registry = await getRegistry(packageManager);
 		const { version } = await fetch(`${registry}/${packageName}/latest`, {
 			redirect: 'follow',
-		}).then(
-			(res) => res.json(),
-			() => ({ version: fallback })
-		);
+		})
+			.then((res) => res.json())
+			.catch(() => ({ version: fallback }))
 		return resolve(version);
 	});
 
