@@ -1,12 +1,12 @@
-import type { AstroConfig } from 'astro';
-import { cyan } from 'kleur/colors';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
+import type { AstroConfig } from 'astro';
+import { cyan } from 'kleur/colors';
+import open from 'open';
 import ora from 'ora';
 import type { Arguments } from 'yargs-parser';
-import { getAstroStudioUrl } from '../../../utils.js';
-import open from 'open';
 import { SESSION_LOGIN_FILE } from '../../../tokens.js';
+import { getAstroStudioUrl } from '../../../utils.js';
 
 function serveAndResolveSession(): Promise<string> {
 	let resolve: (value: string | PromiseLike<string>) => void,

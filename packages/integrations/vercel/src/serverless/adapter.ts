@@ -1,3 +1,6 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { basename } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type {
 	AstroAdapter,
 	AstroConfig,
@@ -7,25 +10,22 @@ import type {
 } from 'astro';
 import { AstroError } from 'astro/errors';
 import glob from 'fast-glob';
-import { basename } from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { existsSync, readFileSync } from 'node:fs';
 import {
-	getAstroImageConfig,
-	getDefaultImageConfig,
 	type DevImageService,
 	type VercelImageConfig,
+	getAstroImageConfig,
+	getDefaultImageConfig,
 } from '../image/shared.js';
 import { removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { escapeRegex, getRedirects } from '../lib/redirects.js';
 import {
-	getSpeedInsightsViteConfig,
 	type VercelSpeedInsightsConfig,
+	getSpeedInsightsViteConfig,
 } from '../lib/speed-insights.js';
 import {
-	getInjectableWebAnalyticsContent,
 	type VercelWebAnalyticsConfig,
+	getInjectableWebAnalyticsContent,
 } from '../lib/web-analytics.js';
 import { generateEdgeMiddleware } from './middleware.js';
 

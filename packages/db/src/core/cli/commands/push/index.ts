@@ -1,27 +1,27 @@
-import { createClient, type InStatement } from '@libsql/client';
+import { type InStatement, createClient } from '@libsql/client';
 import type { AstroConfig } from 'astro';
-import { drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
+import { drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
 import { red } from 'kleur/colors';
 import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
+import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
 import { recreateTables, seedData } from '../../../queries.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
-import { tablesSchema, type AstroConfigWithDB, type DBSnapshot } from '../../../types.js';
+import { type AstroConfigWithDB, type DBSnapshot, tablesSchema } from '../../../types.js';
 import { getRemoteDatabaseUrl } from '../../../utils.js';
 import { getMigrationQueries } from '../../migration-queries.js';
 import {
-	createEmptySnapshot,
-	getMigrations,
-	getMigrationStatus,
-	loadInitialSnapshot,
-	loadMigration,
-	MIGRATION_NEEDED,
 	MIGRATIONS_NOT_INITIALIZED,
 	MIGRATIONS_UP_TO_DATE,
+	MIGRATION_NEEDED,
+	createEmptySnapshot,
+	getMigrationStatus,
+	getMigrations,
+	loadInitialSnapshot,
+	loadMigration,
 } from '../../migrations.js';
-import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
 
 export async function cmd({ config, flags }: { config: AstroConfig; flags: Arguments }) {
 	const isDryRun = flags.dryRun;

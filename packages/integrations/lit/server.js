@@ -1,4 +1,6 @@
+// It must stay at the top
 import './server-shim.js';
+
 import { LitElementRenderer } from '@lit-labs/ssr/lib/lit-element-renderer.js';
 import * as parse5 from 'parse5';
 
