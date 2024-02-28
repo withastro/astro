@@ -5,7 +5,7 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
-import { type BuiltinTheme, bundledThemes } from 'shikiji';
+import { type BuiltinTheme, bundledThemes } from 'shiki';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro.js';
 
 import type { OutgoingHttpHeaders } from 'node:http';
