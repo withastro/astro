@@ -91,7 +91,6 @@ async function safeParse(tsconfigPath, options = {}) {
 
 		return parseResult;
 	} catch (e) {
-		// TODO: remove
 		console.error(e)
 		if (e instanceof TSConfckParseError) {
 			return 'invalid-config';
