@@ -176,6 +176,8 @@ async function getWorkspacePackageVersion(packageName) {
 	const { dependencies, devDependencies } = await readPackageJSON(new URL('../../package.json', import.meta.url));
 	const deps = { ...dependencies, ...devDependencies };
 	const version = deps[packageName];
-	if (!version) return;
+	if (!version) {
+		throw new Error(`Unable to resolve "${packageName}". Is it a depdendency of the workspace root?`)
+	}
 	return version.replace(/^\D+/, '');
 }
