@@ -1073,8 +1073,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       lit:
-        specifier: ^3.1.0
-        version: 3.1.0
+        specifier: ^3.1.2
+        version: 3.1.2
 
   packages/astro/e2e/fixtures/multiple-frameworks:
     dependencies:
@@ -4027,6 +4027,15 @@ importers:
       '@lit-labs/ssr-dom-shim':
         specifier: ^1.1.2
         version: 1.1.2
+      '@lit/reactive-element':
+        specifier: ^2.0.4
+        version: 2.0.4
+      lit-element:
+        specifier: ^4.0.4
+        version: 4.0.4
+      lit-html:
+        specifier: ^3.1.2
+        version: 3.1.2
       parse5:
         specifier: ^7.1.2
         version: 7.1.2
@@ -4041,8 +4050,8 @@ importers:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
       lit:
-        specifier: ^3.1.0
-        version: 3.1.0
+        specifier: ^3.1.2
+        version: 3.1.2
       sass:
         specifier: ^1.69.5
         version: 1.69.6
@@ -7116,17 +7125,17 @@ packages:
   /@lit-labs/ssr-client@1.1.5:
     resolution: {integrity: sha512-rAXd2OsuxfGA579RiDS2YQSm1HreE8knQHj+fcMhGIPYenBoW4M70Yl8K3a35MSLlpQnnF//s2TPfkHFmy2RhA==}
     dependencies:
-      '@lit/reactive-element': 2.0.2
-      lit: 3.1.0
-      lit-html: 3.1.0
+      '@lit/reactive-element': 2.0.4
+      lit: 3.1.2
+      lit-html: 3.1.2
     dev: false
 
   /@lit-labs/ssr-dom-shim@1.1.2:
     resolution: {integrity: sha512-jnOD+/+dSrfTWYfSXBXlo5l5f0q1UuJo3tkbMDCYA2lKUYq79jaxqtGEvnRoh049nt1vdo1+45RinipU6FGY2g==}
+    dev: false
 
   /@lit-labs/ssr-dom-shim@1.2.0:
     resolution: {integrity: sha512-yWJKmpGE6lUURKAaIltoPIE/wrbY3TEkqQt+X0m+7fQNnAv0keydnYvbiJFP1PnMhizmIWRWOG5KLhYyc/xl+g==}
-    dev: false
 
   /@lit-labs/ssr@3.2.0:
     resolution: {integrity: sha512-5ZwVMEpYCHI5MF7+5ER3IvOyDjJimq/nzKtV4momqSKr3a/9gEFouHzTDogwaYoOwIBBtO8jl5SX2Vsb0kfZgA==}
@@ -7134,13 +7143,13 @@ packages:
     dependencies:
       '@lit-labs/ssr-client': 1.1.5
       '@lit-labs/ssr-dom-shim': 1.1.2
-      '@lit/reactive-element': 2.0.2
+      '@lit/reactive-element': 2.0.4
       '@parse5/tools': 0.3.0
       '@types/node': 16.18.69
       enhanced-resolve: 5.15.0
-      lit: 3.1.0
-      lit-element: 4.0.2
-      lit-html: 3.1.0
+      lit: 3.1.2
+      lit-element: 4.0.4
+      lit-html: 3.1.2
       node-fetch: 3.3.2
       parse5: 7.1.2
     dev: false
@@ -7148,19 +7157,13 @@ packages:
   /@lit/reactive-element@1.6.3:
     resolution: {integrity: sha512-QuTgnG52Poic7uM1AN5yJ09QMe0O28e10XzSvWDz02TJiiKee4stsiownEIadWm8nYzyDAyT+gKzUoZmiWQtsQ==}
     dependencies:
-      '@lit-labs/ssr-dom-shim': 1.1.2
+      '@lit-labs/ssr-dom-shim': 1.2.0
     dev: false
-
-  /@lit/reactive-element@2.0.2:
-    resolution: {integrity: sha512-SVOwLAWUQg3Ji1egtOt1UiFe4zdDpnWHyc5qctSceJ5XIu0Uc76YmGpIjZgx9YJ0XtdW0Jm507sDvjOu+HnB8w==}
-    dependencies:
-      '@lit-labs/ssr-dom-shim': 1.1.2
 
   /@lit/reactive-element@2.0.4:
     resolution: {integrity: sha512-GFn91inaUa2oHLak8awSIigYz0cU0Payr1rcFsrkf5OJ5eSPxElyZfKh0f2p9FsTiZWXQdWGJeXZICEfXXYSXQ==}
     dependencies:
       '@lit-labs/ssr-dom-shim': 1.2.0
-    dev: false
 
   /@manypkg/find-root@1.1.0:
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -11988,17 +11991,10 @@ packages:
   /lit-element@3.3.3:
     resolution: {integrity: sha512-XbeRxmTHubXENkV4h8RIPyr8lXc+Ff28rkcQzw3G6up2xg5E8Zu1IgOWIwBLEQsu3cOVFqdYwiVi0hv0SlpqUA==}
     dependencies:
-      '@lit-labs/ssr-dom-shim': 1.1.2
+      '@lit-labs/ssr-dom-shim': 1.2.0
       '@lit/reactive-element': 1.6.3
       lit-html: 2.8.0
     dev: false
-
-  /lit-element@4.0.2:
-    resolution: {integrity: sha512-/W6WQZUa5VEXwC7H9tbtDMdSs9aWil3Ou8hU6z2cOKWbsm/tXPAcsoaHVEtrDo0zcOIE5GF6QgU55tlGL2Nihg==}
-    dependencies:
-      '@lit-labs/ssr-dom-shim': 1.1.2
-      '@lit/reactive-element': 2.0.2
-      lit-html: 3.1.0
 
   /lit-element@4.0.4:
     resolution: {integrity: sha512-98CvgulX6eCPs6TyAIQoJZBCQPo80rgXR+dVBs61cstJXqtI+USQZAbA4gFHh6L/mxBx9MrgPLHLsUgDUHAcCQ==}
@@ -12006,7 +12002,6 @@ packages:
       '@lit-labs/ssr-dom-shim': 1.2.0
       '@lit/reactive-element': 2.0.4
       lit-html: 3.1.2
-    dev: false
 
   /lit-html@2.8.0:
     resolution: {integrity: sha512-o9t+MQM3P4y7M7yNzqAyjp7z+mQGa4NS4CxiyLqFPyFWyc4O+nodLrkrxSaCTrla6M5YOLaT3RpbbqjszB5g3Q==}
@@ -12014,16 +12009,10 @@ packages:
       '@types/trusted-types': 2.0.7
     dev: false
 
-  /lit-html@3.1.0:
-    resolution: {integrity: sha512-FwAjq3iNsaO6SOZXEIpeROlJLUlrbyMkn4iuv4f4u1H40Jw8wkeR/OUXZUHUoiYabGk8Y4Y0F/rgq+R4MrOLmA==}
-    dependencies:
-      '@types/trusted-types': 2.0.7
-
   /lit-html@3.1.2:
     resolution: {integrity: sha512-3OBZSUrPnAHoKJ9AMjRL/m01YJxQMf+TMHanNtTHG68ubjnZxK0RFl102DPzsw4mWnHibfZIBJm3LWCZ/LmMvg==}
     dependencies:
       '@types/trusted-types': 2.0.7
-    dev: false
 
   /lit@2.8.0:
     resolution: {integrity: sha512-4Sc3OFX9QHOJaHbmTMk28SYgVxLN3ePDjg7hofEft2zWlehFL3LiAuapWc4U/kYwMYJSh2hTCPZ6/LIC7ii0MA==}
@@ -12033,20 +12022,12 @@ packages:
       lit-html: 2.8.0
     dev: false
 
-  /lit@3.1.0:
-    resolution: {integrity: sha512-rzo/hmUqX8zmOdamDAeydfjsGXbbdtAFqMhmocnh2j9aDYqbu0fjXygjCa0T99Od9VQ/2itwaGrjZz/ZELVl7w==}
-    dependencies:
-      '@lit/reactive-element': 2.0.2
-      lit-element: 4.0.2
-      lit-html: 3.1.0
-
   /lit@3.1.2:
     resolution: {integrity: sha512-VZx5iAyMtX7CV4K8iTLdCkMaYZ7ipjJZ0JcSdJ0zIdGxxyurjIn7yuuSxNBD7QmjvcNJwr0JS4cAdAtsy7gZ6w==}
     dependencies:
       '@lit/reactive-element': 2.0.4
       lit-element: 4.0.4
       lit-html: 3.1.2
-    dev: false
 
   /lite-youtube-embed@0.2.0:
     resolution: {integrity: sha512-XXXAk5sbvtjjwbie3XG+6HppgTm1HTGL/Uk9z9NkJH53o7puZLur434heHzAjkS60hZB3vT4ls25zl5rMiX4EA==}
