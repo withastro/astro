@@ -10,9 +10,9 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import {
-	getPageDataByComponent,
 	type BuildInternals,
 	cssOrder,
+	getPageDataByComponent,
 	mergeInlineCss,
 } from './internal.js';
 import {

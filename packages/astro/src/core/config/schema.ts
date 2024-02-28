@@ -5,7 +5,7 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
-import { bundledThemes, type BuiltinTheme } from 'shiki';
+import { type BuiltinTheme, bundledThemes } from 'shikiji';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro.js';
 
 import type { OutgoingHttpHeaders } from 'node:http';
@@ -16,8 +16,8 @@ import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } f
 
 // These imports are required to appease TypeScript!
 // See https://github.com/withastro/astro/pull/8762
-import 'mdast-util-to-hast';
 import '@shikijs/core';
+import 'mdast-util-to-hast';
 
 type ShikiLangs = NonNullable<ShikiConfig['langs']>;
 type ShikiTheme = NonNullable<ShikiConfig['theme']>;

@@ -1,6 +1,6 @@
-import { bundledLanguages, createCssVariablesTheme, getHighlighter } from 'shiki';
-import { visit } from 'unist-util-visit';
 import type { Properties } from 'hast';
+import { bundledLanguages, createCssVariablesTheme, getHighlighter } from 'shikiji';
+import { visit } from 'unist-util-visit';
 import type { ShikiConfig } from './types.js';
 
 export interface ShikiHighlighter {
