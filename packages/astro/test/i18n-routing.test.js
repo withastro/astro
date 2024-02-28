@@ -965,7 +965,7 @@ describe('[SSG] i18n routing', () => {
 				let $ = cheerio.load(html);
 				assert.equal($('body').text().includes('Oi essa e index'), true);
 			});
-		})
+		});
 	});
 
 	describe('i18n routing with fallback and [pathname-prefix-always]', () => {
