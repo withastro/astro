@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@astrojs/node": "^8.2.1",
-    "@astrojs/svelte": "^5.1.0",
-    "astro": "^4.4.5",
+    "@astrojs/svelte": "^5.2.0",
+    "astro": "^4.4.6",
     "svelte": "^4.2.5"
   }
 }
