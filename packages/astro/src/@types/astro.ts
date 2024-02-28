@@ -34,9 +34,12 @@ import type {
 	DevToolbarWindow,
 } from '../runtime/client/dev-toolbar/ui-library/index.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
+import type {
+	TransitionBeforePreparationEvent,
+	TransitionBeforeSwapEvent,
+} from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
-import type { TransitionBeforePreparationEvent, TransitionBeforeSwapEvent } from '../transitions/events.js';
 
 export { type AstroIntegrationLogger };
 
