@@ -15,7 +15,7 @@ import type {
 } from '../core/types.js';
 import { bold } from 'kleur/colors';
 import { type SQL, sql, getTableName } from 'drizzle-orm';
-import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
+import { SQLiteAsyncDialect, SQLiteTable } from 'drizzle-orm/sqlite-core';
 import { hasPrimaryKey } from './index.js';
 import { isSerializedSQL } from './types.js';
 import { SEED_EMPTY_ARRAY_ERROR } from '../core/errors.js';
@@ -82,12 +82,7 @@ export async function recreateTables({
 }
 
 // TODO: add error checks to seed file by intercepting db.insert()
-function seedErrorChecks<T extends ColumnsConfig>(
-	mode: 'dev' | 'build',
-	{ table }: ResolvedCollectionConfig<T>,
-	values: MaybeArray<unknown>
-) {
-	const tableName = getTableName(table);
+function seedErrorChecks(mode: 'dev' | 'build', tableName: string, values: MaybeArray<unknown>) {
 	if (Array.isArray(values) && values.length === 0) {
 		throw new Error(SEED_EMPTY_ARRAY_ERROR(tableName));
 	}

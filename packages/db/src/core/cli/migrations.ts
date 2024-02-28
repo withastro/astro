@@ -83,8 +83,11 @@ function getNewMigrationNumber(allMigrationFiles: string[]): number {
 	}, 0);
 }
 
+// TODO: base against `root` from Astro config
+const MIGRATIONS_DIR = './db/migrations';
+
 export async function getMigrations(): Promise<string[]> {
-	const migrationFiles = await readdir('./migrations').catch((err) => {
+	const migrationFiles = await readdir(MIGRATIONS_DIR).catch((err) => {
 		if (err.code === 'ENOENT') {
 			return [];
 		}
@@ -96,11 +99,11 @@ export async function getMigrations(): Promise<string[]> {
 export async function loadMigration(
 	migration: string
 ): Promise<{ diff: any[]; db: string[]; confirm?: string[] }> {
-	return JSON.parse(await readFile(`./migrations/${migration}`, 'utf-8'));
+	return JSON.parse(await readFile(`${MIGRATIONS_DIR}/${migration}`, 'utf-8'));
 }
 
 export async function loadInitialSnapshot(): Promise<DBSnapshot> {
-	const snapshot = JSON.parse(await readFile('./migrations/0000_snapshot.json', 'utf-8'));
+	const snapshot = JSON.parse(await readFile(`${MIGRATIONS_DIR}/0000_snapshot.json`, 'utf-8'));
 	// `experimentalVersion: 1` -- added the version column
 	if (snapshot.experimentalVersion === 1) {
 		return snapshot;
@@ -113,8 +116,11 @@ export async function loadInitialSnapshot(): Promise<DBSnapshot> {
 }
 
 export async function initializeMigrationsDirectory(currentSnapshot: DBSnapshot) {
-	await mkdir('./migrations', { recursive: true });
-	await writeFile('./migrations/0000_snapshot.json', JSON.stringify(currentSnapshot, undefined, 2));
+	await mkdir(MIGRATIONS_DIR, { recursive: true });
+	await writeFile(
+		`${MIGRATIONS_DIR}/0000_snapshot.json`,
+		JSON.stringify(currentSnapshot, undefined, 2)
+	);
 }
 
 export async function initializeFromMigrations(allMigrationFiles: string[]): Promise<DBSnapshot> {

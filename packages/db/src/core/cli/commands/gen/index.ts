@@ -37,7 +37,7 @@ export async function cmd({ config }: { config: AstroConfig; flags: Arguments })
 		// This will give `db push` more control over the formatting of the message.
 		confirm: confirmations.map((c) => reset(c)),
 	};
-	const migrationFileName = `./migrations/${newFilename}`;
+	const migrationFileName = `./db/migrations/${newFilename}`;
 	await writeFile(migrationFileName, JSON.stringify(migrationFileContent, undefined, 2));
 	console.log(migrationFileName + ' created!');
 }
