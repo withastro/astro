@@ -6,7 +6,6 @@ import { promises as fs } from 'node:fs';
 import glob from 'tiny-glob';
 import svelte from '../utils/svelte-plugin.js';
 import prebuild from './prebuild.js';
-import { execa } from 'execa';
 
 /** @type {import('esbuild').BuildOptions} */
 const defaultConfig = {
@@ -153,9 +152,14 @@ async function getDefinedEntries() {
 		/** The current version (at the time of building) for `astro` */
 		ASTRO_VERSION: await getInternalPackageVersion(new URL('../../packages/astro/package.json', import.meta.url)),
 		/** The current version (at the time of building) for `@astrojs/check` */
-		ASTRO_CHECK_VERSION: await getExternalPackageVersion('@astrojs/check'),
+		ASTRO_CHECK_VERSION: await getWorkspacePackageVersion('@astrojs/check'),
 		/** The current version (at the time of building) for `typescript` */
-		TYPESCRIPT_VERSION: await getExternalPackageVersion('typescript'),
+		TYPESCRIPT_VERSION: await getWorkspacePackageVersion('typescript'),
+	}
+	for (const [key, value] of Object.entries(define)) {
+		if (value === undefined) {
+			delete define[key];
+		}
 	}
 	return Object.entries(define);
 }
@@ -168,17 +172,10 @@ async function getInternalPackageVersion(path) {
 	return readPackageJSON(path).then(res => res.version);
 }
 
-const DEPENDENCY_KEY_RE = /dependencies$/i;
-async function getExternalPackageVersion(packageName) {
-	const { stdout } = await execa('pnpm', ['list', packageName, '-r', '--json', '--depth', '-1'], { encoding: 'utf8', stdio: 'overlapped' });
-	if (!stdout) return;
-	const matches = JSON.parse(stdout);
-	for (const pkg of matches) {
-		for (const [key, value] of Object.entries(pkg)) {
-			if (DEPENDENCY_KEY_RE.test(key) && value[packageName] !== undefined) {
-				const { version } = value[packageName];
-				return version;
-			}
-		}
-	}
+async function getWorkspacePackageVersion(packageName) {
+	const { dependencies, devDependencies } = await readPackageJSON(new URL('../../package.json', import.meta.url));
+	const deps = { ...dependencies, ...devDependencies };
+	const version = deps[packageName];
+	if (!version) return;
+	return version.replace(/^\D+/, '');
 }
