@@ -1,4 +1,3 @@
-import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
 import type {
 	BooleanColumn,
 	DBTable,
@@ -9,14 +8,12 @@ import type {
 	JsonColumn,
 	NumberColumn,
 	TextColumn,
-	ColumnsConfig,
 	MaybeArray,
-	ResolvedCollectionConfig,
 } from '../core/types.js';
 import { bold } from 'kleur/colors';
-import { type SQL, sql, getTableName } from 'drizzle-orm';
-import { SQLiteAsyncDialect, SQLiteTable } from 'drizzle-orm/sqlite-core';
-import { hasPrimaryKey } from './index.js';
+import { type SQL, sql } from 'drizzle-orm';
+import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
+import { hasPrimaryKey, type SqliteDB } from './index.js';
 import { isSerializedSQL } from './types.js';
 import { SEED_EMPTY_ARRAY_ERROR } from '../core/errors.js';
 
@@ -48,7 +45,7 @@ export async function seedDev({
 	// Glob all potential seed files to catch renames and deletions.
 	fileGlob,
 }: {
-	db: SqliteRemoteDatabase;
+	db: SqliteDB;
 	tables: DBTables;
 	fileGlob: Record<string, () => Promise<void>>;
 }) {
@@ -62,13 +59,7 @@ export async function seedDev({
 	}
 }
 
-export async function recreateTables({
-	db,
-	tables,
-}: {
-	db: SqliteRemoteDatabase;
-	tables: DBTables;
-}) {
+export async function recreateTables({ db, tables }: { db: SqliteDB; tables: DBTables }) {
 	const setupQueries: SQL[] = [];
 	for (const [name, collection] of Object.entries(tables)) {
 		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);
@@ -76,9 +67,10 @@ export async function recreateTables({
 		const indexQueries = getCreateIndexQueries(name, collection);
 		setupQueries.push(dropQuery, createQuery, ...indexQueries.map((s) => sql.raw(s)));
 	}
-	for (const q of setupQueries) {
-		await db.run(q);
-	}
+	await db.batch([
+		db.run(sql`pragma defer_foreign_keys=true;`),
+		...setupQueries.map((q) => db.run(q)),
+	]);
 }
 
 // TODO: add error checks to seed file by intercepting db.insert()
