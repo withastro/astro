@@ -3,6 +3,7 @@ import { mkdir, readFile, readdir, writeFile } from 'fs/promises';
 import { tablesSchema, type DBSnapshot } from '../types.js';
 import type { AstroConfig } from 'astro';
 import { cyan, green, yellow } from 'kleur/colors';
+import { getMigrationsDirUrl } from '../utils.js';
 const { applyChange, diff: generateDiff } = deepDiff;
 
 export type MigrationStatus =
@@ -24,9 +25,12 @@ export type MigrationStatus =
 			currentSnapshot: DBSnapshot;
 	  };
 
+export const INITIAL_SNAPSHOT = '0000_snapshot.json';
+
 export async function getMigrationStatus(config: AstroConfig): Promise<MigrationStatus> {
 	const currentSnapshot = createCurrentSnapshot(config);
-	const allMigrationFiles = await getMigrations();
+	const dir = getMigrationsDirUrl(config.root);
+	const allMigrationFiles = await getMigrations(dir);
 
 	if (allMigrationFiles.length === 0) {
 		return {
@@ -35,7 +39,7 @@ export async function getMigrationStatus(config: AstroConfig): Promise<Migration
 		};
 	}
 
-	const previousSnapshot = await initializeFromMigrations(allMigrationFiles);
+	const previousSnapshot = await initializeFromMigrations(allMigrationFiles, dir);
 	const diff = generateDiff(previousSnapshot, currentSnapshot);
 
 	if (diff) {
@@ -83,11 +87,8 @@ function getNewMigrationNumber(allMigrationFiles: string[]): number {
 	}, 0);
 }
 
-// TODO: base against `root` from Astro config
-const MIGRATIONS_DIR = './db/migrations';
-
-export async function getMigrations(): Promise<string[]> {
-	const migrationFiles = await readdir(MIGRATIONS_DIR).catch((err) => {
+export async function getMigrations(dir: URL): Promise<string[]> {
+	const migrationFiles = await readdir(dir).catch((err) => {
 		if (err.code === 'ENOENT') {
 			return [];
 		}
@@ -97,13 +98,14 @@ export async function getMigrations(): Promise<string[]> {
 }
 
 export async function loadMigration(
-	migration: string
+	migration: string,
+	dir: URL
 ): Promise<{ diff: any[]; db: string[]; confirm?: string[] }> {
-	return JSON.parse(await readFile(`${MIGRATIONS_DIR}/${migration}`, 'utf-8'));
+	return JSON.parse(await readFile(new URL(migration, dir), 'utf-8'));
 }
 
-export async function loadInitialSnapshot(): Promise<DBSnapshot> {
-	const snapshot = JSON.parse(await readFile(`${MIGRATIONS_DIR}/0000_snapshot.json`, 'utf-8'));
+export async function loadInitialSnapshot(dir: URL): Promise<DBSnapshot> {
+	const snapshot = JSON.parse(await readFile(new URL(INITIAL_SNAPSHOT, dir), 'utf-8'));
 	// `experimentalVersion: 1` -- added the version column
 	if (snapshot.experimentalVersion === 1) {
 		return snapshot;
@@ -115,19 +117,19 @@ export async function loadInitialSnapshot(): Promise<DBSnapshot> {
 	throw new Error('Invalid snapshot format');
 }
 
-export async function initializeMigrationsDirectory(currentSnapshot: DBSnapshot) {
-	await mkdir(MIGRATIONS_DIR, { recursive: true });
-	await writeFile(
-		`${MIGRATIONS_DIR}/0000_snapshot.json`,
-		JSON.stringify(currentSnapshot, undefined, 2)
-	);
+export async function initializeMigrationsDirectory(currentSnapshot: DBSnapshot, dir: URL) {
+	await mkdir(dir, { recursive: true });
+	await writeFile(new URL(INITIAL_SNAPSHOT, dir), JSON.stringify(currentSnapshot, undefined, 2));
 }
 
-export async function initializeFromMigrations(allMigrationFiles: string[]): Promise<DBSnapshot> {
-	const prevSnapshot = await loadInitialSnapshot();
+export async function initializeFromMigrations(
+	allMigrationFiles: string[],
+	dir: URL
+): Promise<DBSnapshot> {
+	const prevSnapshot = await loadInitialSnapshot(dir);
 	for (const migration of allMigrationFiles) {
-		if (migration === '0000_snapshot.json') continue;
-		const migrationContent = await loadMigration(migration);
+		if (migration === INITIAL_SNAPSHOT) continue;
+		const migrationContent = await loadMigration(migration, dir);
 		migrationContent.diff.forEach((change: any) => {
 			applyChange(prevSnapshot, {}, change);
 		});

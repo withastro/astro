@@ -1,16 +1,16 @@
-import { type InStatement } from '@libsql/client';
 import type { AstroConfig } from 'astro';
 import { red } from 'kleur/colors';
 import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBSnapshot } from '../../../types.js';
-import { getRemoteDatabaseUrl } from '../../../utils.js';
+import { getMigrationsDirUrl, getRemoteDatabaseUrl } from '../../../utils.js';
 import { getMigrationQueries } from '../../migration-queries.js';
 import {
 	createEmptySnapshot,
 	getMigrations,
 	getMigrationStatus,
+	INITIAL_SNAPSHOT,
 	loadInitialSnapshot,
 	loadMigration,
 	MIGRATION_NEEDED,
@@ -30,9 +30,10 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		console.log(MIGRATION_NEEDED);
 		process.exit(1);
 	}
+	const migrationsDir = getMigrationsDirUrl(config.root);
 
 	// get all migrations from the filesystem
-	const allLocalMigrations = await getMigrations();
+	const allLocalMigrations = await getMigrations(migrationsDir);
 	let missingMigrations: string[] = [];
 	try {
 		const { data } = await prepareMigrateQuery({
@@ -59,6 +60,7 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		console.log(`Pushing ${missingMigrations.length} migrations...`);
 		await pushSchema({
 			migrations: missingMigrations,
+			migrationsDir,
 			appToken: appToken.token,
 			isDryRun,
 			currentSnapshot: migration.currentSnapshot,
@@ -71,25 +73,29 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 
 async function pushSchema({
 	migrations,
+	migrationsDir,
 	appToken,
 	isDryRun,
 	currentSnapshot,
 }: {
 	migrations: string[];
+	migrationsDir: URL;
 	appToken: string;
 	isDryRun: boolean;
 	currentSnapshot: DBSnapshot;
 }) {
 	// load all missing migrations
-	const initialSnapshot = migrations.find((m) => m === '0000_snapshot.json');
-	const filteredMigrations = migrations.filter((m) => m !== '0000_snapshot.json');
-	const missingMigrationContents = await Promise.all(filteredMigrations.map(loadMigration));
+	const initialSnapshot = migrations.find((m) => m === INITIAL_SNAPSHOT);
+	const filteredMigrations = migrations.filter((m) => m !== INITIAL_SNAPSHOT);
+	const missingMigrationContents = await Promise.all(
+		filteredMigrations.map((m) => loadMigration(m, migrationsDir))
+	);
 	// create a migration for the initial snapshot, if needed
 	const initialMigrationBatch = initialSnapshot
 		? (
 				await getMigrationQueries({
 					oldSnapshot: createEmptySnapshot(),
-					newSnapshot: await loadInitialSnapshot(),
+					newSnapshot: await loadInitialSnapshot(migrationsDir),
 				})
 			).queries
 		: [];
