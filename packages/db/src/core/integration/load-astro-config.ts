@@ -69,8 +69,8 @@ async function loadConfigWithVite(configPath: string): Promise<Record<string, un
 
 async function createViteServer(): Promise<ViteDevServer> {
 	const viteServer = await createServer({
-		server: { middlewareMode: true, hmr: false, watch: { ignored: ['**'] } },
-		optimizeDeps: { disabled: true },
+		server: { middlewareMode: true, hmr: false, watch: null },
+		optimizeDeps: { noDiscovery: true },
 		clearScreen: false,
 		appType: 'custom',
 		ssr: {

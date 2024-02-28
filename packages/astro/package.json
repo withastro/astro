@@ -172,7 +172,7 @@
     "tsconfck": "^3.0.0",
     "unist-util-visit": "^5.0.0",
     "vfile": "^6.0.1",
-    "vite": "^5.1.2",
+    "vite": "^5.1.4",
     "vitefu": "^0.2.5",
     "which-pm": "^2.1.1",
     "yargs-parser": "^21.1.1",
