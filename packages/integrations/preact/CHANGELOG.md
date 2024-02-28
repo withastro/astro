@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 3.1.1
+
+### Patch Changes
+
+- [#10200](https://github.com/withastro/astro/pull/10200) [`c692d0c66a5062937e47402dc700d41c2a5dfc5c`](https://github.com/withastro/astro/commit/c692d0c66a5062937e47402dc700d41c2a5dfc5c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes passing children to server-rendered components causing an error
+
 ## 3.1.0
 
 ### Minor Changes

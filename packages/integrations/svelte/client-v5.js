@@ -1,11 +1,11 @@
-import { mount } from 'svelte';
+import { hydrate, mount, unmount } from 'svelte';
 import { add_snippet_symbol } from 'svelte/internal';
 
 // Allow a slot to be rendered as a snippet (dev validation only)
 const tagSlotAsSnippet = import.meta.env.DEV ? add_snippet_symbol : (s) => s;
 
 export default (element) => {
-	return async (Component, props, slotted) => {
+	return async (Component, props, slotted, { client }) => {
 		if (!element.hasAttribute('ssr')) return;
 
 		let children = undefined;
@@ -19,7 +19,9 @@ export default (element) => {
 			}
 		}
 
-		const [, destroy] = mount(Component, {
+		const bootstrap = client !== 'only' ? hydrate : mount;
+
+		const component = bootstrap(Component, {
 			target: element,
 			props: {
 				...props,
@@ -28,7 +30,7 @@ export default (element) => {
 			},
 		});
 
-		element.addEventListener('astro:unmount', () => destroy(), { once: true });
+		element.addEventListener('astro:unmount', () => unmount(component), { once: true });
 	};
 };
 

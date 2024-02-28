@@ -1,16 +1,13 @@
-import type { AstroMiddlewareInstance, ComponentInstance, RouteData } from '../../@types/astro.js';
-import type { Environment } from './environment.js';
-export { computePreferredLocale, createRenderContext } from './context.js';
-export type { RenderContext } from './context.js';
-export { createEnvironment } from './environment.js';
-export { getParamsAndProps } from './params-and-props.js';
+import type { ComponentInstance, RouteData } from '../../@types/astro.js';
+import type { Pipeline } from '../base-pipeline.js';
+export { Pipeline } from '../base-pipeline.js';
+export { getParams, getProps } from './params-and-props.js';
 export { loadRenderer } from './renderer.js';
-
-export type { Environment };
+export { createResult } from './result.js';
 
 export interface SSROptions {
-	/** The environment instance */
-	env: Environment;
+	/** The pipeline instance */
+	pipeline: Pipeline;
 	/** location of file on disk */
 	filePath: URL;
 	/** the web request (needed for dynamic routes) */
@@ -21,8 +18,4 @@ export interface SSROptions {
 	request: Request;
 	/** optional, in case we need to render something outside a dev server */
 	route: RouteData;
-	/**
-	 * Optional middlewares
-	 */
-	middleware?: AstroMiddlewareInstance;
 }

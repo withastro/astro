@@ -828,7 +828,7 @@ export const LocalsNotAnObject = {
 export const MiddlewareCantBeLoaded = {
 	name: 'MiddlewareCantBeLoaded',
 	title: "Can't load the middleware.",
-	message: 'The middleware threw an error while Astro was trying to loading it.',
+	message: 'An unknown error was thrown while loading your middleware.',
 } satisfies ErrorData;
 
 /**
@@ -872,7 +872,7 @@ export const LocalImageUsedWrongly = {
  * @see
  * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
  * @description
- * `Astro.glob()` can only be used in `.astro` files. You can use [`import.meta.glob()`](https://vitejs.dev/guide/features.html#glob-import) instead to acheive the same result.
+ * `Astro.glob()` can only be used in `.astro` files. You can use [`import.meta.glob()`](https://vitejs.dev/guide/features.html#glob-import) instead to achieve the same result.
  */
 export const AstroGlobUsedOutside = {
 	name: 'AstroGlobUsedOutside',

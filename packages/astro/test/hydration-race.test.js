@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { describe, before, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -26,5 +26,16 @@ describe('Hydration script ordering', async () => {
 		// Sanity check that we're only rendering them once.
 		assert.equal($('style').length, 1, 'hydration style added once');
 		assert.equal($('script').length, 1, 'only one hydration script needed');
+	});
+
+	it('Hydration script included when inside dynamic slot', async () => {
+		let html = await fixture.readFile('/slot/index.html');
+		let $ = cheerio.load(html);
+
+		// First, let's make sure all islands rendered
+		assert.equal($('astro-island').length, 1);
+
+		// There should be 1 script
+		assert.equal($('script').length, 1);
 	});
 });
