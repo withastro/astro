@@ -36,6 +36,7 @@ import type {
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type { TransitionBeforePreparationEvent, TransitionBeforeSwapEvent } from '../transitions/events.js';
 
 export { type AstroIntegrationLogger };
 
@@ -2831,11 +2832,16 @@ declare global {
 		'astro-dev-overlay-icon': DevToolbarIcon;
 		'astro-dev-overlay-card': DevToolbarCard;
 	}
-}
-
-declare global {
 	// eslint-disable-next-line @typescript-eslint/no-namespace
 	namespace Config {
 		type Database = Record<string, any>;
+	}
+
+	interface DocumentEventMap {
+		'astro:before-preparation': TransitionBeforePreparationEvent;
+		'astro:after-preparation': Event;
+		'astro:before-swap': TransitionBeforeSwapEvent;
+		'astro:after-swap': Event;
+		'astro:page-load': Event;
 	}
 }
