@@ -19,7 +19,7 @@ export class DevToolbarBadge extends HTMLElement {
 
 	connectedCallback() {
 		const classes = [`badge--${this.size}`, `badge--${this.badgeStyle}`];
-		this.shadowRoot.innerHTML = `
+		this.shadowRoot.innerHTML += `
 			<style>
 				.badge {
 					box-sizing: border-box;

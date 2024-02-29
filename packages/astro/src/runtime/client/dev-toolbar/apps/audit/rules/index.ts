@@ -1,3 +1,5 @@
+import type { satisfies } from 'semver';
+import type { DefinedIcon } from '../../../ui-library/icons.js';
 import { a11y } from './a11y.js';
 import { perf } from './perf.js';
 
@@ -32,7 +34,17 @@ export interface AuditRuleWithSelector extends AuditRule {
 		| Promise<undefined>;
 }
 
-export const rules = [...a11y, ...perf];
+interface RuleCategory {
+	code: string;
+	name: string;
+	icon: DefinedIcon;
+	rules: AuditRule[];
+}
+
+export const rulesCategories = [
+	{ code: 'a11y', name: 'Accessibility', icon: 'person-arms-spread', rules: a11y },
+	{ code: 'perf', name: 'Performance', icon: 'gauge', rules: perf },
+] satisfies RuleCategory[];
 
 const dynamicAuditRuleKeys: Array<keyof AuditRule> = ['title', 'message', 'description'];
 
