@@ -46,5 +46,5 @@ export const FOREIGN_KEY_REFERENCES_LENGTH_ERROR = (tableName: string) => {
 export const FOREIGN_KEY_REFERENCES_EMPTY_ERROR = (tableName: string) => {
 	return `Foreign key on ${bold(
 		tableName
-	)} is misconfigured. \`references\` must be a function that returns a column or array of columns.`;
+	)} is misconfigured. \`references\` array cannot be empty.`;
 };
