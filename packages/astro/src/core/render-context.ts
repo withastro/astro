@@ -13,6 +13,7 @@ import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
 import {
 	ASTRO_VERSION,
+	REROUTE_DIRECTIVE_HEADER,
 	ROUTE_TYPE_HEADER,
 	clientAddressSymbol,
 	clientLocalsSymbol,
@@ -102,7 +103,12 @@ export class RenderContext {
 									streaming,
 									routeData
 								);
+								// Signal to the i18n middleware to maybe act on this response
 								response.headers.set(ROUTE_TYPE_HEADER, 'page');
+								// Signal to the error-page-rerouting infra to let this response pass through to avoid loops
+								if (routeData.route === "/404" || routeData.route === "/500") {
+									response.headers.set(REROUTE_DIRECTIVE_HEADER, "no")
+								}
 								return response;
 							}
 						: type === 'fallback'
