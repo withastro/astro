@@ -1,8 +1,8 @@
+import { mkdir, writeFile } from 'node:fs/promises';
+import { createServer as _createServer } from 'node:http';
 import type { AstroConfig } from 'astro';
 import { listen } from 'async-listen';
 import { cyan } from 'kleur/colors';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { createServer as _createServer } from 'node:http';
 import open from 'open';
 import ora from 'ora';
 import type { Arguments } from 'yargs-parser';
@@ -16,8 +16,7 @@ import { getAstroStudioUrl } from '../../../utils.js';
 // 4. The temporary server receives and saves the session token, logging the user in
 // 5. The user is redirected one last time to a success/failure page
 async function createServer(): Promise<{ url: string; promise: Promise<string> }> {
-	let resolve: (value: string | PromiseLike<string>) => void,
-		reject: (reason?: Error) => void;
+	let resolve: (value: string | PromiseLike<string>) => void, reject: (reason?: Error) => void;
 
 	const server = _createServer((req, res) => {
 		// Handle the request
