@@ -12,8 +12,13 @@ import type { Options } from './types.js';
 export default function standalone(app: NodeApp, options: Options) {
 	const port = process.env.PORT ? Number(process.env.PORT) : options.port ?? 8080;
 	// Allow to provide host value at runtime
-	const hostOptions = typeof options.host === 'boolean' ? 'localhost' : options.host;
-	const host = process.env.HOST ?? hostOptions;
+	const hostOptions = (): string => {
+		if (typeof options.host === 'boolean'){
+			return options.host ? '127.0.0.1' : '0.0.0.0';
+		}
+		return options.host;
+	};
+	const host = process.env.HOST ?? hostOptions();
 	const handler = createStandaloneHandler(app, options);
 	const server = createServer(handler, host, port);
 	server.server.listen(port, host);
