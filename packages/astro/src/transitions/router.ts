@@ -638,26 +638,34 @@ if (inBrowser) {
 		addEventListener('popstate', onPopState);
 		addEventListener('load', onPageLoad);
 		if ('onscrollend' in window) addEventListener('scrollend', onScrollEnd);
-		// HACK: emulate "onscrollend" behavior by checking scroll positions with
-		// `requestAnimationFrame` every 350ms.
 		else {
-			let timestamp: number, y = scrollY, x = scrollX;
-			const cb = (now: number) => {
-				timestamp ??= now;
+			// Keep track of state between intervals
+			let intervalId: number | undefined, lastY = scrollY, lastX = scrollX, lastIndex = history.state?.index;
+			const scrollInterval = () => {
+				// Check the index if a popstate event fired between intervals
+				if (lastIndex !== history.state?.index) {
+					// Cancel the interval because we're probably not scrolling
+					clearInterval(intervalId);
+					intervalId = undefined;
+					// Update index and return
+					lastIndex = history.state?.index;
+					return;
+				}
+				// Check if the user stopped scrolling *and* if the positions need to be updated
 				if (
-					now - timestamp > 350
-					&& y === scrollY && x === scrollX
-					&& (y !== history.state.scrollY || x !== history.state.scrollX)
+					lastY === scrollY && lastX === scrollX
+					&& (lastY !== history.state.scrollY || lastX !== history.state.scrollX)
 				) {
-					timestamp = now;
+					// Cancel the interval and update scroll positions
+					clearInterval(intervalId);
+					intervalId = undefined;
 					onScrollEnd();
 				}
-				// Save the current scroll positions.
-				y = scrollY, x = scrollX;
-				requestAnimationFrame(cb);
+				// Update variables for the next interval
+				lastIndex = history.state?.index, lastY = scrollY, lastX = scrollX;
 			}
-			// Start recursive loop
-			requestAnimationFrame(cb);
+			// We can't know when or how often scroll events fire, so we'll just use them to start intervals
+			addEventListener("scroll", () => intervalId ??= window.setInterval(scrollInterval, 200), { passive: true });
 		};
 	}
 	for (const script of document.scripts) {
