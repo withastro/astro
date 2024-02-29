@@ -1,7 +1,7 @@
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
-import { getFileExtension } from '@astrojs/internal-helpers/path';
+import { extname } from 'node:path';
 import type { AstroPluginOptions, ImageTransform } from '../@types/astro.js';
 import { extendManualChunks } from '../core/build/plugins/util.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -96,8 +96,8 @@ export default function assets({
 
 					// Rollup will copy the file to the output directory, this refer to this final path, not to the original path
 					const ESMImportedImageSrc = isESMImportedImage(options.src) ? options.src.src : options.src;
-					const fileExtension = getFileExtension(ESMImportedImageSrc)
-					const pf = getAssetsPrefix(fileExtension, settings.config.build.assetsPrefix)
+					const fileExtension = extname(ESMImportedImageSrc);
+					const pf = getAssetsPrefix(fileExtension, settings.config.build.assetsPrefix);
 					const finalOriginalImagePath = ESMImportedImageSrc.replace(pf, '');
 
 					const hash = hashTransform(
@@ -150,7 +150,7 @@ export default function assets({
 					const [full, hash, postfix = ''] = match;
 
 					const file = this.getFileName(hash);
-					const fileExtension = getFileExtension(file)
+					const fileExtension = extname(file)
 					const pf = getAssetsPrefix(fileExtension, settings.config.build.assetsPrefix)
 					const prefix = pf
 						? appendForwardSlash(pf)

@@ -1,5 +1,6 @@
 import glob from 'fast-glob';
 import { fileURLToPath } from 'node:url';
+import { extname } from 'node:path';
 import type { OutputChunk } from 'rollup';
 import { type Plugin as VitePlugin } from 'vite';
 import { runHookBuildSsr } from '../../../integrations/index.js';
@@ -9,7 +10,7 @@ import type {
 	SerializedRouteInfo,
 	SerializedSSRManifest,
 } from '../../app/types.js';
-import { getFileExtension, joinPaths, prependForwardSlash } from '../../path.js';
+import { joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
@@ -167,7 +168,7 @@ function buildManifest(
 
 	const prefixAssetPath = (pth: string) => {
 		if (settings.config.build.assetsPrefix) {
-			const fileType = getFileExtension(pth)
+			const fileType = extname(pth)
 			const pf = getAssetsPrefix(fileType, settings.config.build.assetsPrefix)
 			return joinPaths(pf, pth);
 		} else {

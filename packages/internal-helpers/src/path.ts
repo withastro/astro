@@ -80,11 +80,6 @@ export function removeFileExtension(path: string) {
 	return idx === -1 ? path : path.slice(0, idx);
 }
 
-export function getFileExtension(path: string) {
-	let idx = path.lastIndexOf('.');
-	return idx === -1 ? '' : path.slice(idx+1);
-}
-
 export function removeQueryString(path: string) {
 	const index = path.lastIndexOf('?');
 	return index > 0 ? path.substring(0, index) : path;
