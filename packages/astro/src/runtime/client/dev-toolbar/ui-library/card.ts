@@ -1,4 +1,8 @@
-type CardStyle = 'purple' | 'gray' | 'red' | 'green' | 'yellow';
+import { settings } from '../settings.js';
+
+const styles = ['purple', 'gray', 'red', 'green', 'yellow'] as const;
+
+type CardStyle = (typeof styles)[number];
 
 export class DevToolbarCard extends HTMLElement {
 	link?: string | undefined | null;
@@ -12,6 +16,10 @@ export class DevToolbarCard extends HTMLElement {
 	}
 
 	set cardStyle(value) {
+		if (!styles.includes(value)) {
+			settings.logger.error(`Invalid style: ${value}, expected one of ${styles.join(', ')}.`);
+			return;
+		}
 		this._cardStyle = value;
 		this.updateStyle();
 	}

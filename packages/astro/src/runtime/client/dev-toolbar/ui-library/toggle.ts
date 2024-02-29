@@ -1,4 +1,8 @@
-type ToggleStyle = 'purple' | 'gray' | 'red' | 'green' | 'yellow';
+import { settings } from '../settings.js';
+
+const styles = ['purple', 'gray', 'red', 'green', 'yellow'] as const;
+
+type ToggleStyle = (typeof styles)[number];
 
 export class DevToolbarToggle extends HTMLElement {
 	shadowRoot: ShadowRoot;
@@ -10,6 +14,10 @@ export class DevToolbarToggle extends HTMLElement {
 	}
 
 	set toggleStyle(value) {
+		if (!styles.includes(value)) {
+			settings.logger.error(`Invalid style: ${value}, expected one of ${styles.join(', ')}.`);
+			return;
+		}
 		this._toggleStyle = value;
 		this.updateStyle();
 	}

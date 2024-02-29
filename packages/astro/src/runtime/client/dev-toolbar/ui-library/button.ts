@@ -1,5 +1,10 @@
-type ButtonSize = 'small' | 'medium' | 'large';
-type ButtonStyle = 'ghost' | 'outline' | 'purple' | 'gray' | 'red' | 'green' | 'yellow';
+import { settings } from '../settings.js';
+
+const sizes = ['small', 'medium', 'large'] as const;
+const styles = ['ghost', 'outline', 'purple', 'gray', 'red', 'green', 'yellow'] as const;
+
+type ButtonSize = (typeof sizes)[number];
+type ButtonStyle = (typeof styles)[number];
 
 export class DevToolbarButton extends HTMLElement {
 	_size: ButtonSize = 'small';
@@ -10,6 +15,10 @@ export class DevToolbarButton extends HTMLElement {
 	}
 
 	set size(value) {
+		if (!sizes.includes(value)) {
+			settings.logger.error(`Invalid size: ${value}, expected one of ${sizes.join(', ')}.`);
+			return;
+		}
 		this._size = value;
 		this.updateStyle();
 	}
@@ -19,6 +28,10 @@ export class DevToolbarButton extends HTMLElement {
 	}
 
 	set buttonStyle(value) {
+		if (!styles.includes(value)) {
+			settings.logger.error(`Invalid style: ${value}, expected one of ${styles.join(', ')}.`);
+			return;
+		}
 		this._buttonStyle = value;
 		this.updateStyle();
 	}

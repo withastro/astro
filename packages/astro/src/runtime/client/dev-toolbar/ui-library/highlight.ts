@@ -1,6 +1,13 @@
+<<<<<<< Updated upstream
 import { type Icon, getIconElement, isDefinedIcon } from './icons.js';
+=======
+import { getIconElement, isDefinedIcon, type Icon } from './icons.js';
+import { settings } from '../settings.js';
+>>>>>>> Stashed changes
 
-type HighlightStyle = 'purple' | 'gray' | 'red' | 'green' | 'yellow';
+const styles = ['purple', 'gray', 'red', 'green', 'yellow'] as const;
+
+type HighlightStyle = (typeof styles)[number];
 
 export class DevToolbarHighlight extends HTMLElement {
 	icon?: Icon | undefined | null;
@@ -11,6 +18,10 @@ export class DevToolbarHighlight extends HTMLElement {
 	}
 
 	set highlightStyle(value) {
+		if (!styles.includes(value)) {
+			settings.logger.error(`Invalid style: ${value}, expected one of ${styles.join(', ')}.`);
+			return;
+		}
 		this._highlightStyle = value;
 		this.updateStyle();
 	}

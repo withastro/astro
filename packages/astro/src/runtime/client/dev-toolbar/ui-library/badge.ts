@@ -1,5 +1,10 @@
-type BadgeSize = 'small' | 'large';
-type BadgeStyle = 'purple' | 'gray' | 'red' | 'green' | 'yellow';
+import { settings } from '../settings.js';
+
+const sizes = ['small', 'large'] as const;
+const styles = ['purple', 'gray', 'red', 'green', 'yellow'] as const;
+
+type BadgeSize = (typeof sizes)[number];
+type BadgeStyle = (typeof styles)[number];
 
 export class DevToolbarBadge extends HTMLElement {
 	_size: BadgeSize = 'small';
@@ -10,6 +15,10 @@ export class DevToolbarBadge extends HTMLElement {
 	}
 
 	set size(value) {
+		if (!sizes.includes(value)) {
+			settings.logger.error(`Invalid size: ${value}, expected one of ${sizes.join(', ')}.`);
+			return;
+		}
 		this._size = value;
 		this.updateStyle();
 	}
@@ -19,6 +28,10 @@ export class DevToolbarBadge extends HTMLElement {
 	}
 
 	set badgeStyle(value) {
+		if (!styles.includes(value)) {
+			settings.logger.error(`Invalid style: ${value}, expected one of ${styles.join(', ')}.`);
+			return;
+		}
 		this._badgeStyle = value;
 		this.updateStyle();
 	}
