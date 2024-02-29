@@ -25,11 +25,6 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 	const url = new URL('/db/query', remoteDbURL);
 
 	const db = drizzleProxy(async (sql, parameters, method) => {
-		const context = batchContext.getStore();
-		if (context) {
-			context.queries.push({ sql, args: parameters });
-			return { rows: [] };
-		}
 		const requestBody: InStatement = { sql, args: parameters };
 		const res = await fetch(url, {
 			method: 'POST',
