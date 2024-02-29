@@ -1,5 +1,5 @@
-import { render } from 'svelte/server';
 import { add_snippet_symbol } from 'svelte/internal';
+import { render } from 'svelte/server';
 
 // Allow a slot to be rendered as a snippet (dev validation only)
 const tagSlotAsSnippet = import.meta.env.DEV ? add_snippet_symbol : (s) => s;

@@ -1,7 +1,7 @@
-import dget from 'dlv';
-import { dset } from 'dset';
 import fs from 'node:fs';
 import path from 'node:path';
+import dget from 'dlv';
+import { dset } from 'dset';
 
 export class PreferenceStore {
 	private file: string;

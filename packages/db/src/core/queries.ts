@@ -1,23 +1,28 @@
+import type { AstroIntegrationLogger } from 'astro';
+import { type SQL, getTableName, sql } from 'drizzle-orm';
+import { SQLiteAsyncDialect, type SQLiteInsert } from 'drizzle-orm/sqlite-core';
 import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
+import { bold } from 'kleur/colors';
 import {
 	type BooleanColumn,
+	type ColumnType,
+	type DBColumn,
 	type DBTable,
 	type DBTables,
-	type DBColumn,
 	type DateColumn,
-	type ColumnType,
 	type JsonColumn,
 	type NumberColumn,
 	type TextColumn,
 } from '../core/types.js';
-import { bold } from 'kleur/colors';
-import { type SQL, sql, getTableName } from 'drizzle-orm';
-import { SQLiteAsyncDialect, type SQLiteInsert } from 'drizzle-orm/sqlite-core';
-import type { AstroIntegrationLogger } from 'astro';
-import type { DBUserConfig } from '../core/types.js';
+import type {
+	ColumnsConfig,
+	DBUserConfig,
+	MaybeArray,
+	ResolvedCollectionConfig,
+} from '../core/types.js';
 import { hasPrimaryKey } from '../runtime/index.js';
 import { isSerializedSQL } from '../runtime/types.js';
-import { SEED_WRITABLE_IN_PROD_ERROR } from './errors.js';
+import { SEED_EMPTY_ARRAY_ERROR, SEED_ERROR, SEED_WRITABLE_IN_PROD_ERROR } from './errors.js';
 
 const sqlite = new SQLiteAsyncDialect();
 
@@ -51,40 +56,56 @@ export async function seedData({
 	logger?: AstroIntegrationLogger;
 	mode: 'dev' | 'build';
 }) {
+	const dataFns = Array.isArray(data) ? data : [data];
 	try {
-		const dataFns = Array.isArray(data) ? data : [data];
 		for (const dataFn of dataFns) {
 			await dataFn({
-				seed: async ({ table, writable }, values) => {
-					if (writable && mode === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {
-						(logger ?? console).error(SEED_WRITABLE_IN_PROD_ERROR(getTableName(table)));
-						process.exit(1);
+				seed: async (config, values) => {
+					seedErrorChecks(mode, config, values);
+					try {
+						await db.insert(config.table).values(values as any);
+					} catch (e) {
+						const msg = e instanceof Error ? e.message : String(e);
+						throw new Error(SEED_ERROR(getTableName(config.table), msg));
 					}
-					await db.insert(table).values(values as any);
 				},
-				seedReturning: async ({ table, writable }, values) => {
-					if (writable && mode === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {
-						(logger ?? console).error(SEED_WRITABLE_IN_PROD_ERROR(getTableName(table)));
-						process.exit(1);
+				seedReturning: async (config, values) => {
+					seedErrorChecks(mode, config, values);
+					try {
+						let result: SQLiteInsert<any, any, any, any> = db
+							.insert(config.table)
+							.values(values as any)
+							.returning();
+						if (!Array.isArray(values)) {
+							result = result.get();
+						}
+						return result;
+					} catch (e) {
+						const msg = e instanceof Error ? e.message : String(e);
+						throw new Error(SEED_ERROR(getTableName(config.table), msg));
 					}
-					let result: SQLiteInsert<any, any, any, any> = db
-						.insert(table)
-						.values(values as any)
-						.returning();
-					if (!Array.isArray(values)) {
-						result = result.get();
-					}
-					return result;
 				},
 				db,
 				mode,
 			});
 		}
-	} catch (error) {
-		(logger ?? console).error(
-			`Failed to seed data. Did you update to match recent schema changes?`
-		);
-		(logger ?? console).error(error as string);
+	} catch (e) {
+		if (!(e instanceof Error)) throw e;
+		(logger ?? console).error(e.message);
+	}
+}
+
+function seedErrorChecks<T extends ColumnsConfig>(
+	mode: 'dev' | 'build',
+	{ table, writable }: ResolvedCollectionConfig<T, boolean>,
+	values: MaybeArray<unknown>
+) {
+	const tableName = getTableName(table);
+	if (writable && mode === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {
+		throw new Error(SEED_WRITABLE_IN_PROD_ERROR(tableName));
+	}
+	if (Array.isArray(values) && values.length === 0) {
+		throw new Error(SEED_EMPTY_ARRAY_ERROR(tableName));
 	}
 }
 

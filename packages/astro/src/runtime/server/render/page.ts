@@ -1,9 +1,9 @@
 import type { RouteData, SSRResult } from '../../../@types/astro.js';
-import { renderComponentToString, type NonAstroPageComponent } from './component.js';
+import { type NonAstroPageComponent, renderComponentToString } from './component.js';
 import type { AstroComponentFactory } from './index.js';
 
 import { isAstroComponentFactory } from './astro/index.js';
-import { renderToReadableStream, renderToString, renderToAsyncIterable } from './astro/render.js';
+import { renderToAsyncIterable, renderToReadableStream, renderToString } from './astro/render.js';
 import { encoder } from './common.js';
 import { isNode } from './util.js';
 

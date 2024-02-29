@@ -7,7 +7,7 @@ import {
 	getElementsPositionInDocument,
 	positionHighlight,
 } from '../utils/highlight.js';
-import { createWindowElement } from '../utils/window.js';
+import { createWindowElement, closeOnOutsideClick } from '../utils/window.js';
 import {
 	categoryLabel,
 	getAuditCategory,
@@ -39,32 +39,7 @@ export default {
 		document.addEventListener('astro:after-swap', async () => lint());
 		document.addEventListener('astro:page-load', async () => refreshLintPositions);
 
-		function onPageClick(event: MouseEvent) {
-			const target = event.target as Element | null;
-			if (!target) return;
-			if (!target.closest) return;
-			if (target.closest('astro-dev-toolbar')) return;
-			if (audits.some((audit) => audit.card.hasAttribute('active'))) {
-				audits.forEach((audit) => {
-					audit.card.removeAttribute('active');
-				});
-				return;
-			}
-			eventTarget.dispatchEvent(
-				new CustomEvent('toggle-app', {
-					detail: {
-						state: false,
-					},
-				})
-			);
-		}
-		eventTarget.addEventListener('app-toggled', (event: any) => {
-			if (event.detail.state === true) {
-				document.addEventListener('click', onPageClick, true);
-			} else {
-				document.removeEventListener('click', onPageClick, true);
-			}
-		});
+		closeOnOutsideClick(eventTarget);
 
 		async function lint() {
 			audits.forEach(({ highlightElement }) => {

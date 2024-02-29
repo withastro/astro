@@ -1,7 +1,7 @@
 import type { HmrContext } from 'vite';
 import type { Logger } from '../core/logger/core.js';
-import { frontmatterRE } from './utils.js';
 import type { CompileMetadata } from './types.js';
+import { frontmatterRE } from './utils.js';
 
 export interface HandleHotUpdateOptions {
 	logger: Logger;

@@ -1,3 +1,5 @@
+import type { OutgoingHttpHeaders } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -8,8 +10,6 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
-import type { OutgoingHttpHeaders } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
@@ -34,6 +34,10 @@ import type {
 	DevToolbarWindow,
 } from '../runtime/client/dev-toolbar/ui-library/index.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
+import type {
+	TransitionBeforePreparationEvent,
+	TransitionBeforeSwapEvent,
+} from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
@@ -2831,11 +2835,16 @@ declare global {
 		'astro-dev-overlay-icon': DevToolbarIcon;
 		'astro-dev-overlay-card': DevToolbarCard;
 	}
-}
-
-declare global {
 	// eslint-disable-next-line @typescript-eslint/no-namespace
 	namespace Config {
 		type Database = Record<string, any>;
+	}
+
+	interface DocumentEventMap {
+		'astro:before-preparation': TransitionBeforePreparationEvent;
+		'astro:after-preparation': Event;
+		'astro:before-swap': TransitionBeforeSwapEvent;
+		'astro:after-swap': Event;
+		'astro:page-load': Event;
 	}
 }

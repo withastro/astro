@@ -1,7 +1,7 @@
-import * as devalue from 'devalue';
 import type fsMod from 'node:fs';
 import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import * as devalue from 'devalue';
 import type { PluginContext } from 'rollup';
 import type { Plugin } from 'vite';
 import type {
@@ -18,6 +18,7 @@ import { AstroErrorData } from '../core/errors/index.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { CONTENT_FLAG, DATA_FLAG } from './consts.js';
 import {
+	type ContentConfig,
 	getContentEntryExts,
 	getContentEntryIdAndSlug,
 	getContentPaths,
@@ -31,7 +32,6 @@ import {
 	hasContentFlag,
 	parseEntrySlug,
 	reloadContentConfigObserver,
-	type ContentConfig,
 } from './utils.js';
 
 function getContentRendererByViteId(

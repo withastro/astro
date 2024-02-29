@@ -8,11 +8,12 @@ import type {
 } from '../../../@types/astro.js';
 import type { Logger } from '../../logger/core.js';
 
-import { bold } from 'kleur/colors';
 import { createRequire } from 'module';
 import nodeFs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { bold } from 'kleur/colors';
+import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { MissingIndexForInternationalization } from '../../errors/errors-data.js';
@@ -20,7 +21,6 @@ import { AstroError } from '../../errors/index.js';
 import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
-import { toRoutingStrategy } from '../../../i18n/utils.js';
 const require = createRequire(import.meta.url);
 
 interface Item {

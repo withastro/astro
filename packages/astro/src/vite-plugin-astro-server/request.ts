@@ -4,10 +4,10 @@ import { collapseDuplicateSlashes, removeTrailingForwardSlash } from '../core/pa
 import { isServerLikeOutput } from '../prerender/utils.js';
 import type { DevServerController } from './controller.js';
 import { runWithErrorHandling } from './controller.js';
+import { recordServerError } from './error.js';
 import type { DevPipeline } from './pipeline.js';
 import { handle500Response } from './response.js';
 import { handleRoute, matchRoute } from './route.js';
-import { recordServerError } from './error.js';
 
 type HandleRequest = {
 	pipeline: DevPipeline;
@@ -39,17 +39,6 @@ export async function handleRequest({
 
 	// Add config.base back to url before passing it to SSR
 	url.pathname = removeTrailingForwardSlash(config.base) + url.pathname;
-
-	// HACK! astro:assets uses query params for the injected route in `dev`
-	if (!buildingToSSR && pathname !== '/_image') {
-		// Prevent user from depending on search params when not doing SSR.
-		// NOTE: Create an array copy here because deleting-while-iterating
-		// creates bugs where not all search params are removed.
-		const allSearchParams = Array.from(url.searchParams);
-		for (const [key] of allSearchParams) {
-			url.searchParams.delete(key);
-		}
-	}
 
 	let body: ArrayBuffer | undefined = undefined;
 	if (!(incomingRequest.method === 'GET' || incomingRequest.method === 'HEAD')) {
