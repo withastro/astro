@@ -8,7 +8,6 @@ import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 import { dbConfigSchema, type DBTables } from '../types.js';
 import { getDbDirUrl, type VitePlugin } from '../utils.js';
-import { UNSAFE_DISABLE_STUDIO_WARNING } from '../errors.js';
 import { errorMap } from './error-map.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
