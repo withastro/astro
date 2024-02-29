@@ -8,6 +8,17 @@ export async function cli({ flags, config }: { flags: Arguments; config: AstroCo
 	// are also handled by this package, so first check if this is a db command.
 	const command = args[2] === 'db' ? args[3] : args[2];
 
+	switch (command) {
+		case 'login': {
+			const { cmd } = await import('./commands/login/index.js');
+			return await cmd({ config, flags });
+		}
+		case 'logout': {
+			const { cmd } = await import('./commands/logout/index.js');
+			return await cmd({ config, flags });
+		}
+	}
+
 	if (!config.db?.studio) {
 		console.log(STUDIO_CONFIG_MISSING_CLI_ERROR);
 		process.exit(1);
@@ -29,14 +40,6 @@ export async function cli({ flags, config }: { flags: Arguments; config: AstroCo
 		}
 		case 'verify': {
 			const { cmd } = await import('./commands/verify/index.js');
-			return await cmd({ config, flags });
-		}
-		case 'login': {
-			const { cmd } = await import('./commands/login/index.js');
-			return await cmd({ config, flags });
-		}
-		case 'logout': {
-			const { cmd } = await import('./commands/logout/index.js');
 			return await cmd({ config, flags });
 		}
 		case 'link': {
