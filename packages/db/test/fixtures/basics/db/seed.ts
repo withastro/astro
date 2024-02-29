@@ -1,4 +1,3 @@
-/// <reference path="../.astro/db-types.d.ts" />
 import { db, Author, Themes } from 'astro:db';
 
 await db.batch([

@@ -42,15 +42,20 @@ export async function executeFile(params: ExecuteFileParams): Promise<void> {
 	await importBundledFile({ code, root: params.root });
 }
 
-export async function loadConfigFile(root: URL): Promise<{ default?: unknown } | undefined> {
+export async function loadConfigFile(
+	root: URL
+): Promise<{ mod: { default?: unknown } | undefined; dependencies: string[] }> {
 	// TODO: support any file extension
 	const fileUrl = new URL('config.ts', getDbDirUrl(root));
-	const { code } = await bundleFile({
+	const { code, dependencies } = await bundleFile({
 		virtualModContents: getConfigVirtualModContents(),
 		root,
 		fileUrl,
 	});
-	return await importBundledFile({ code, root });
+	return {
+		mod: await importBundledFile({ code, root }),
+		dependencies,
+	};
 }
 
 /**
@@ -67,7 +72,7 @@ async function bundleFile({
 	fileUrl: URL;
 	root: URL;
 	virtualModContents: string;
-}): Promise<{ code: string }> {
+}) {
 	const result = await esbuild({
 		absWorkingDir: process.cwd(),
 		entryPoints: [fileURLToPath(fileUrl)],
@@ -109,6 +114,7 @@ async function bundleFile({
 
 	return {
 		code: file.text,
+		dependencies: Object.keys(result.metafile.inputs),
 	};
 }
 
