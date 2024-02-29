@@ -1,6 +1,6 @@
 import { settings } from '../settings.js';
 
-const styles = ['purple', 'gray', 'red', 'green', 'yellow'] as const;
+const styles = ['purple', 'gray', 'red', 'green', 'yellow', 'blue'] as const;
 
 type CardStyle = (typeof styles)[number];
 
@@ -75,6 +75,9 @@ export class DevToolbarCard extends HTMLElement {
 
 					--yellow-hover-background: rgba(255, 236, 179, 0.33);
 					--yellow-hover-border: 1px solid rgba(255, 191, 0, 1);
+
+					--blue-hover-background: rgba(189, 195, 255, 0.33);
+					--blue-hover-border: 1px solid rgba(54, 69, 217, 1);
 				}
 
 				:host>a, :host>button, :host>div {

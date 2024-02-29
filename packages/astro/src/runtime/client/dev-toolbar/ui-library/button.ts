@@ -1,7 +1,7 @@
 import { settings } from '../settings.js';
 
 const sizes = ['small', 'medium', 'large'] as const;
-const styles = ['ghost', 'outline', 'purple', 'gray', 'red', 'green', 'yellow'] as const;
+const styles = ['ghost', 'outline', 'purple', 'gray', 'red', 'green', 'yellow', 'blue'] as const;
 
 type ButtonSize = (typeof sizes)[number];
 type ButtonStyle = (typeof styles)[number];
@@ -70,6 +70,10 @@ export class DevToolbarButton extends HTMLElement {
 					--yellow-background: rgba(255, 236, 179, 1);
 					--yellow-border: rgba(255, 191, 0, 1);
 					--yellow-text: #000;
+
+					--blue-background: rgba(54, 69, 217, 1);
+					--blue-border: rgba(189, 195, 255, 1);
+					--blue-text: #fff;
 
 					--outline-background: transparent;
 					--outline-border: #fff;

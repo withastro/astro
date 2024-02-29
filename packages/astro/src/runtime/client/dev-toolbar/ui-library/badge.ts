@@ -1,7 +1,7 @@
 import { settings } from '../settings.js';
 
 const sizes = ['small', 'large'] as const;
-const styles = ['purple', 'gray', 'red', 'green', 'yellow'] as const;
+const styles = ['purple', 'gray', 'red', 'green', 'yellow', 'blue'] as const;
 
 type BadgeSize = (typeof sizes)[number];
 type BadgeStyle = (typeof styles)[number];
@@ -78,6 +78,9 @@ export class DevToolbarBadge extends HTMLElement {
 
 					--yellow-text: rgba(249, 233, 196, 1);
 					--yellow-border: rgba(181, 138, 45, 1);
+
+					--blue-text: rgba(189, 195, 255, 1);
+					--blue-border: rgba(54, 69, 217, 1);
 
 					--large: 24px;
 					--small: 20px;

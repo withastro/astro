@@ -1,7 +1,7 @@
 import { getIconElement, isDefinedIcon, type Icon } from './icons.js';
 import { settings } from '../settings.js';
 
-const styles = ['purple', 'gray', 'red', 'green', 'yellow'] as const;
+const styles = ['purple', 'gray', 'red', 'green', 'yellow', 'blue'] as const;
 
 type HighlightStyle = (typeof styles)[number];
 
@@ -50,7 +50,10 @@ export class DevToolbarHighlight extends HTMLElement {
 					--green-border: 1px solid rgba(61, 125, 31, 1);
 
 					--yellow-background: linear-gradient(180deg, rgba(255, 236, 179, 0.33) 0%, rgba(255, 236, 179, 0.0825) 100%);
-					--yellow-border: 1px solid rgba(255, 191, 0, 1);
+					--yellow-border: 1px solid rgba(181, 138, 45, 1);
+
+					--blue-background: linear-gradient(180deg, rgba(189, 195, 255, 0.33) 0%, rgba(189, 195, 255, 0.0825) 100%);
+					--blue-border: 1px solid rgba(54, 69, 217, 1);
 
 					border-radius: 4px;
 					display: block;

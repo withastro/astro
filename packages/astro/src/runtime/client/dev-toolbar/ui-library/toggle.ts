@@ -1,13 +1,13 @@
 import { settings } from '../settings.js';
 
-const styles = ['purple', 'gray', 'red', 'green', 'yellow'] as const;
+const styles = ['purple', 'gray', 'red', 'green', 'yellow', 'blue'] as const;
 
 type ToggleStyle = (typeof styles)[number];
 
 export class DevToolbarToggle extends HTMLElement {
 	shadowRoot: ShadowRoot;
 	input: HTMLInputElement;
-	_toggleStyle: ToggleStyle = 'purple';
+	_toggleStyle: ToggleStyle = 'gray';
 
 	get toggleStyle() {
 		return this._toggleStyle;
@@ -31,25 +31,29 @@ export class DevToolbarToggle extends HTMLElement {
 		this.shadowRoot.innerHTML = `
 		<style>
 			:host {
-				--purple-bg-on: rgba(224, 204, 250, 1);
+				--purple-bg-on: rgba(113, 24, 226, 1);
 				--purple-border-off: rgba(113, 24, 226, 1);
-				--purple-border-on: rgba(113, 24, 226, 1);
+				--purple-border-on: rgba(224, 204, 250, 1);
 
-				--gray-bg-on: rgba(191, 193, 201, 1);
-				--gray-border-off: rgba(191, 193, 201, 1);
-				--gray-border-on: rgba(191, 193, 201, 1);
+				--gray-bg-on: rgba(61, 125, 31, 1);
+				--gray-border-off: rgba(145, 152, 173, 1);
+				--gray-border-on: rgba(213, 249, 196, 1);
 
-				--red-bg-on: rgba(249, 196, 215, 1);
+				--red-bg-on: rgba(179, 62, 102, 1);
 				--red-border-off: rgba(179, 62, 102, 1);
-				--red-border-on: rgba(179, 62, 102, 1);
+				--red-border-on: rgba(249, 196, 215, 1);
 
-				--green-bg-on: rgba(213, 249, 196, 1);
+				--green-bg-on: rgba(61, 125, 31, 1);
 				--green-border-off: rgba(61, 125, 31, 1);
-				--green-border-on: rgba(61, 125, 31, 1);
+				--green-border-on: rgba(213, 249, 196, 1);
 
-				--yellow-bg-on: rgba(255, 236, 179, 1);
-				--yellow-border-off: rgba(255, 191, 0, 1);
-				--yellow-border-on: rgba(255, 191, 0, 1);
+				--yellow-bg-on: rgba(181, 138, 45, 1);
+				--yellow-border-off: rgba(181, 138, 45, 1);
+				--yellow-border-on: rgba(255, 236, 179, 1);
+
+				--blue-bg-on: rgba(54, 69, 217, 1);
+				--blue-border-off: rgba(54, 69, 217, 1);
+				--blue-border-on: rgba(189, 195, 255, 1);
 			}
 
 			input {
@@ -117,6 +121,7 @@ export class DevToolbarToggle extends HTMLElement {
 	connectedCallback() {
 		this.input.type = 'checkbox';
 		this.shadowRoot.append(this.input);
+		this.updateStyle();
 	}
 
 	get value() {
