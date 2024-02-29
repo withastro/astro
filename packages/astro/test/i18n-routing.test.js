@@ -935,6 +935,37 @@ describe('[SSG] i18n routing', () => {
 			let $ = cheerio.load(html);
 			assert.equal($('script').text().includes('console.log("this is a script")'), true);
 		});
+
+		describe('with localised index pages', () => {
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing-fallback-index/',
+					i18n: {
+						defaultLocale: 'en',
+						locales: [
+							'en',
+							'pt',
+							'it',
+							{
+								path: 'spanish',
+								codes: ['es', 'es-AR'],
+							},
+						],
+						fallback: {
+							it: 'en',
+							spanish: 'en',
+						},
+					},
+				});
+				await fixture.build();
+			});
+
+			it('should render correctly', async () => {
+				let html = await fixture.readFile('/pt/index.html');
+				let $ = cheerio.load(html);
+				assert.equal($('body').text().includes('Oi essa e index'), true);
+			});
+		});
 	});
 
 	describe('i18n routing with fallback and [pathname-prefix-always]', () => {
