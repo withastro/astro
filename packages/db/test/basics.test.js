@@ -3,10 +3,6 @@ import { load as cheerioLoad } from 'cheerio';
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
 
-// TODO(fks): Rename this to something more generic/generally useful
-// like `ASTRO_MONOREPO_TEST_ENV` if @astrojs/db is merged into astro.
-process.env.ASTRO_DB_TEST_ENV = '1';
-
 describe('astro:db', () => {
 	let fixture;
 	before(async () => {
@@ -17,16 +13,19 @@ describe('astro:db', () => {
 		});
 	});
 
-	describe('production', () => {
+	describe('development', () => {
+		let devServer;
+
 		before(async () => {
-			await fixture.build();
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
 		});
 
 		it('Prints the list of authors', async () => {
-			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/');
-			const res = await app.render(request);
-			const html = await res.text();
+			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerioLoad(html);
 
 			const ul = $('.authors-list');
@@ -35,15 +34,8 @@ describe('astro:db', () => {
 		});
 
 		describe('Expression defaults', () => {
-			let app;
-			before(async () => {
-				app = await fixture.loadTestAdapterApp();
-			});
-
 			it('Allows expression defaults for date columns', async () => {
-				const request = new Request('http://example.com/');
-				const res = await app.render(request);
-				const html = await res.text();
+				const html = await fixture.fetch('/').then((res) => res.text());
 				const $ = cheerioLoad(html);
 
 				const themeAdded = $($('.themes-list .theme-added')[0]).text();
@@ -51,9 +43,7 @@ describe('astro:db', () => {
 			});
 
 			it('Defaults can be overridden for dates', async () => {
-				const request = new Request('http://example.com/');
-				const res = await app.render(request);
-				const html = await res.text();
+				const html = await fixture.fetch('/').then((res) => res.text());
 				const $ = cheerioLoad(html);
 
 				const themeAdded = $($('.themes-list .theme-added')[1]).text();
@@ -61,9 +51,7 @@ describe('astro:db', () => {
 			});
 
 			it('Allows expression defaults for text columns', async () => {
-				const request = new Request('http://example.com/');
-				const res = await app.render(request);
-				const html = await res.text();
+				const html = await fixture.fetch('/').then((res) => res.text());
 				const $ = cheerioLoad(html);
 
 				const themeOwner = $($('.themes-list .theme-owner')[0]).text();
@@ -71,9 +59,7 @@ describe('astro:db', () => {
 			});
 
 			it('Allows expression defaults for boolean columns', async () => {
-				const request = new Request('http://example.com/');
-				const res = await app.render(request);
-				const html = await res.text();
+				const html = await fixture.fetch('/').then((res) => res.text());
 				const $ = cheerioLoad(html);
 
 				const themeDark = $($('.themes-list .theme-dark')[0]).text();
