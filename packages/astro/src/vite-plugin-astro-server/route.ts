@@ -227,7 +227,7 @@ export async function handleRoute({
 			body,
 			logger,
 			clientAddress: incomingRequest.socket.remoteAddress,
-			staticLike: config.output === "static" ? true : route.prerender,
+			staticLike: config.output === "static" || route.prerender,
 		});
 
 		// Set user specified headers to response object.
