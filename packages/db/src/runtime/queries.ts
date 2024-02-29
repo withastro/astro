@@ -8,7 +8,6 @@ import type {
 	JsonColumn,
 	NumberColumn,
 	TextColumn,
-	MaybeArray,
 } from '../core/types.js';
 import { bold } from 'kleur/colors';
 import { type SQL, sql } from 'drizzle-orm';
@@ -20,7 +19,9 @@ import {
 	FOREIGN_KEY_REFERENCES_EMPTY_ERROR,
 	REFERENCE_DNE_ERROR,
 	FOREIGN_KEY_DNE_ERROR,
+	SEED_ERROR,
 } from '../core/errors.js';
+import { LibsqlError } from '@libsql/client';
 
 const sqlite = new SQLiteAsyncDialect();
 
@@ -58,7 +59,12 @@ export async function seedDev({
 	for (const fileName of SEED_DEV_FILE_NAMES_SORTED) {
 		const key = Object.keys(fileGlob).find((f) => f.endsWith(fileName));
 		if (key) {
-			await fileGlob[key]();
+			await fileGlob[key]().catch((e) => {
+				if (e instanceof LibsqlError) {
+					throw new Error(SEED_ERROR(e.message));
+				}
+				throw e;
+			});
 			return;
 		}
 	}

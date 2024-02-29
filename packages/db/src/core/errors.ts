@@ -21,8 +21,8 @@ export const MISSING_EXECUTE_PATH_ERROR = `${red(
 export const FILE_NOT_FOUND_ERROR = (path: string) =>
 	`${red('▶ File not found:')} ${bold(path)}\n`;
 
-export const LIBSQL_ERROR = (action: string, tableName: string, error: string) => {
-	return `${red(`Error ${action} table ${bold(tableName)}:`)}\n\n${error}`;
+export const SEED_ERROR = (error: string) => {
+	return `${red(`Error while seeding database:`)}\n\n${error}`;
 };
 
 export const REFERENCE_DNE_ERROR = (columnName: string) => {
