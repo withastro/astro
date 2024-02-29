@@ -50,7 +50,7 @@ export async function cli({
 		}
 		case 'link': {
 			const { cmd } = await import('./commands/link/index.js');
-			return await cmd({ astroConfig, dbConfig, flags });
+			return await cmd();
 		}
 		default: {
 			if (command == null) {
