@@ -3,4 +3,4 @@
 "astro": minor
 ---
 
-Add multiple CDN option, `build.assetsPrefix` also add object type for can config multiple CDN assets prefix.
+Adds the option to pass an object to `build.assetsPrefix`. This allows for the use of multiple CDN prefixes based on the target filetype.
