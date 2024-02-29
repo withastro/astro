@@ -12,6 +12,10 @@
       "types": "./index.d.ts",
       "import": "./dist/index.js"
     },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.js"
+    },
     "./runtime": {
       "types": "./dist/runtime/index.d.ts",
       "import": "./dist/runtime/index.js"
@@ -30,6 +34,9 @@
     "*": {
       ".": [
         "./index.d.ts"
+      ],
+      "utils": [
+        "./dist/utils.d.ts"
       ],
       "runtime": [
         "./dist/runtime/index.d.ts"
