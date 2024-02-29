@@ -93,6 +93,7 @@ ${
 export const db = createLocalDatabaseClient({ dbUrl });
 
 export * from ${RUNTIME_DRIZZLE_IMPORT};
+export * from ${RUNTIME_CONFIG_IMPORT};
 
 ${getStringifiedCollectionExports(tables)}
 
@@ -123,6 +124,7 @@ export const db = await createRemoteDatabaseClient(${JSON.stringify(
 		// Respect runtime env for user overrides in SSR
 	)}, import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL ?? ${JSON.stringify(getRemoteDatabaseUrl())});
 export * from ${RUNTIME_DRIZZLE_IMPORT};
+export * from ${RUNTIME_CONFIG_IMPORT};
 
 ${getStringifiedCollectionExports(tables)}
 	`;
