@@ -1,10 +1,13 @@
 import type { InStatement } from '@libsql/client';
-import { createClient } from '@libsql/client';
+import { LibsqlError, createClient } from '@libsql/client';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
+import type { SQLiteTable } from 'drizzle-orm/sqlite-core';
 import { drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { z } from 'zod';
+import { LIBSQL_ERROR } from '../core/errors.js';
+import { getTableName } from 'drizzle-orm';
 
 const isWebContainer = !!process.versions?.webcontainer;
 
@@ -19,7 +22,26 @@ export function createLocalDatabaseClient({ dbUrl }: { dbUrl: string }): LocalDa
 		},
 	});
 
-	return db;
+	// Format Libsql errors on insert().values() for readable seed errors
+	const { insert: drizzleInsert } = db;
+	return Object.assign(db, {
+		insert(Table: SQLiteTable) {
+			const insert = drizzleInsert.call(this, Table);
+			const { values: drizzleValues } = insert;
+			return Object.assign(insert, {
+				async values(values: { [x: string]: any }[]) {
+					try {
+						return await drizzleValues.call(this, values);
+					} catch (e) {
+						if (e instanceof LibsqlError) {
+							throw new Error(LIBSQL_ERROR('inserting into', getTableName(Table), e.message));
+						}
+						throw e;
+					}
+				},
+			});
+		},
+	});
 }
 
 export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string) {

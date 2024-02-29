@@ -19,7 +19,6 @@ import {
 	FOREIGN_KEY_REFERENCES_LENGTH_ERROR,
 	FOREIGN_KEY_REFERENCES_EMPTY_ERROR,
 	REFERENCE_DNE_ERROR,
-	SEED_EMPTY_ARRAY_ERROR,
 	FOREIGN_KEY_DNE_ERROR,
 } from '../core/errors.js';
 
@@ -77,13 +76,6 @@ export async function recreateTables({ db, tables }: { db: SqliteDB; tables: DBT
 		db.run(sql`pragma defer_foreign_keys=true;`),
 		...setupQueries.map((q) => db.run(q)),
 	]);
-}
-
-// TODO: add error checks to seed file by intercepting db.insert()
-function seedErrorChecks(mode: 'dev' | 'build', tableName: string, values: MaybeArray<unknown>) {
-	if (Array.isArray(values) && values.length === 0) {
-		throw new Error(SEED_EMPTY_ARRAY_ERROR(tableName));
-	}
 }
 
 export function getCreateTableQuery(tableName: string, table: DBTable) {

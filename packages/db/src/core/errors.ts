@@ -21,14 +21,8 @@ export const MISSING_EXECUTE_PATH_ERROR = `${red(
 export const FILE_NOT_FOUND_ERROR = (path: string) =>
 	`${red('▶ File not found:')} ${bold(path)}\n`;
 
-export const SEED_ERROR = (tableName: string, error: string) => {
-	return `${red(`Error seeding table ${bold(tableName)}:`)}\n\n${error}`;
-};
-
-export const SEED_EMPTY_ARRAY_ERROR = (tableName: string) => {
-	// Drizzle error says "values() must be called with at least one value."
-	// This is specific to db.insert(). Prettify for seed().
-	return SEED_ERROR(tableName, `Empty array was passed. seed() must receive at least one value.`);
+export const LIBSQL_ERROR = (action: string, tableName: string, error: string) => {
+	return `${red(`Error ${action} table ${bold(tableName)}:`)}\n\n${error}`;
 };
 
 export const REFERENCE_DNE_ERROR = (columnName: string) => {
