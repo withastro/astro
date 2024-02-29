@@ -1061,10 +1061,10 @@ describe('astro:image', () => {
 		});
 
 		it('serves the image at /_image', async () => {
-			const params = new URLSearchParams;
-			params.set("href", "/src/assets/penguin1.jpg?origWidth=207&origHeight=243&origFormat=jpg");
-			params.set("f", "webp");
-			const response = await fixture.fetch("/some-base/_image?" + String(params));
+			const params = new URLSearchParams();
+			params.set('href', '/src/assets/penguin1.jpg?origWidth=207&origHeight=243&origFormat=jpg');
+			params.set('f', 'webp');
+			const response = await fixture.fetch('/some-base/_image?' + String(params));
 			assert.equal(response.status, 200);
 			assert.equal(response.headers.get('content-type'), 'image/webp');
 		});

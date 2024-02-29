@@ -185,7 +185,7 @@ export async function handleRoute({
 				headers: incomingRequest.headers,
 				logger,
 				// no route found, so we assume the default for rendering the 404 page
-				staticLike: config.output === "static" || config.output === "hybrid",
+				staticLike: config.output === 'static' || config.output === 'hybrid',
 			});
 			route = {
 				component: '',
@@ -227,7 +227,7 @@ export async function handleRoute({
 			body,
 			logger,
 			clientAddress: incomingRequest.socket.remoteAddress,
-			staticLike: config.output === "static" || route.prerender,
+			staticLike: config.output === 'static' || route.prerender,
 		});
 
 		// Set user specified headers to response object.

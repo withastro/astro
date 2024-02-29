@@ -16,9 +16,9 @@ export interface CreateRequestOptions {
 	locals?: object | undefined;
 	/**
 	 * Whether the request is being created for a static build or for a prerendered page within a hybrid/SSR build, or for emulating one of those in dev mode.
-	 * 
+	 *
 	 * When `true`, the request will not include search parameters or body, and warn when headers are accessed.
-	 * 
+	 *
 	 * @default false
 	 */
 	staticLike?: boolean;
@@ -36,19 +36,19 @@ export function createRequest({
 	body = undefined,
 	logger,
 	locals,
-	staticLike = false
+	staticLike = false,
 }: CreateRequestOptions): Request {
 	// headers are made available on the created request only if the request is for a page that will be on-demand rendered
-	const headersObj =
-		staticLike ? undefined :
-		headers instanceof Headers
+	const headersObj = staticLike
+		? undefined
+		: headers instanceof Headers
 			? headers
 			: new Headers(Object.entries(headers as Record<string, any>));
 
 	if (typeof url === 'string') url = new URL(url);
 
 	const imageEndpoint = prependForwardSlash(appendForwardSlash(base)) + '_image';
-	
+
 	// HACK! astro:assets uses query params for the injected route in `dev`
 	if (staticLike && url.pathname !== imageEndpoint) {
 		url.search = '';
