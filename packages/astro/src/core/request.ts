@@ -47,7 +47,6 @@ export function createRequest({
 
 	if (typeof url === 'string') url = new URL(url);
 
-	prependForwardSlash(appendForwardSlash(base));
 	// HACK! astro:assets uses query params for the injected route in `dev`
 	if (staticLike && url.pathname !== `${prependForwardSlash(appendForwardSlash(base))}_image`) {
 		url.search = '';
