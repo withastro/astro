@@ -30,3 +30,27 @@ export const SEED_EMPTY_ARRAY_ERROR = (tableName: string) => {
 	// This is specific to db.insert(). Prettify for seed().
 	return SEED_ERROR(tableName, `Empty array was passed. seed() must receive at least one value.`);
 };
+
+export const REFERENCE_DNE_ERROR = (columnName: string) => {
+	return `Column ${bold(
+		columnName
+	)} references a table that does not exist. Did you apply the referenced table to the \`tables\` object in your db config?`;
+};
+
+export const FOREIGN_KEY_DNE_ERROR = (tableName: string) => {
+	return `Table ${bold(
+		tableName
+	)} references a table that does not exist. Did you apply the referenced table to the \`tables\` object in your db config?`;
+};
+
+export const FOREIGN_KEY_REFERENCES_LENGTH_ERROR = (tableName: string) => {
+	return `Foreign key on ${bold(
+		tableName
+	)} is misconfigured. \`columns\` and \`references\` must be the same length.`;
+};
+
+export const FOREIGN_KEY_REFERENCES_EMPTY_ERROR = (tableName: string) => {
+	return `Foreign key on ${bold(
+		tableName
+	)} is misconfigured. \`references\` must be a function that returns a column or array of columns.`;
+};

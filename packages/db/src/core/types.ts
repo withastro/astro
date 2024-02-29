@@ -25,6 +25,7 @@ const baseColumnSchema = z.object({
 
 	// Defined when `defineReadableTable()` is called
 	name: z.string().optional(),
+	// TODO: rename to `tableName`. Breaking schema change
 	collection: z.string().optional(),
 });
 
@@ -186,19 +187,19 @@ export const tableSchema = z.object({
 	foreignKeys: z.array(foreignKeysSchema).optional(),
 });
 
-export const tablesSchema = z.preprocess((rawCollections) => {
+export const tablesSchema = z.preprocess((rawTables) => {
 	// Use `z.any()` to avoid breaking object references
-	const tables = z.record(z.any()).parse(rawCollections, { errorMap });
-	for (const [collectionName, collection] of Object.entries(tables)) {
-		// Append collection and column names to columns.
-		// Used to track collection info for references.
-		const { columns } = z.object({ columns: z.record(z.any()) }).parse(collection, { errorMap });
+	const tables = z.record(z.any()).parse(rawTables, { errorMap });
+	for (const [tableName, table] of Object.entries(tables)) {
+		// Append table and column names to columns.
+		// Used to track table info for references.
+		const { columns } = z.object({ columns: z.record(z.any()) }).parse(table, { errorMap });
 		for (const [columnName, column] of Object.entries(columns)) {
 			column.schema.name = columnName;
-			column.schema.collection = collectionName;
+			column.schema.collection = tableName;
 		}
 	}
-	return rawCollections;
+	return rawTables;
 }, z.record(tableSchema));
 
 export type BooleanColumn = z.infer<typeof booleanColumnSchema>;
@@ -255,7 +256,7 @@ export interface TableConfig<TColumns extends ColumnsConfig = ColumnsConfig>
 	columns: TColumns;
 	foreignKeys?: Array<{
 		columns: MaybeArray<Extract<keyof TColumns, string>>;
-		// TODO: runtime error if parent collection doesn't match for all columns. Can't put a generic here...
+		// TODO: runtime error if parent table doesn't match for all columns. Can't put a generic here...
 		references: () => MaybeArray<z.input<typeof referenceableColumnSchema>>;
 	}>;
 	indexes?: Record<string, IndexConfig<TColumns>>;
