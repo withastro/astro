@@ -1,5 +1,5 @@
 import { build as esbuild } from 'esbuild';
-import { VIRTUAL_MODULE_ID } from './consts.js';
+import { CONFIG_FILE_NAMES, VIRTUAL_MODULE_ID } from './consts.js';
 import { fileURLToPath } from 'node:url';
 import {
 	getConfigVirtualModContents,
@@ -9,6 +9,7 @@ import {
 import type { DBTables } from './types.js';
 import { writeFile, unlink } from 'node:fs/promises';
 import { getDbDirUrl } from './utils.js';
+import { existsSync } from 'node:fs';
 
 type ExecuteFileParams =
 	| {
@@ -45,12 +46,20 @@ export async function executeFile(params: ExecuteFileParams): Promise<void> {
 export async function loadConfigFile(
 	root: URL
 ): Promise<{ mod: { default?: unknown } | undefined; dependencies: string[] }> {
-	// TODO: support any file extension
-	const fileUrl = new URL('config.ts', getDbDirUrl(root));
+	let configFileUrl: URL | undefined;
+	for (const fileName of CONFIG_FILE_NAMES) {
+		const fileUrl = new URL(fileName, getDbDirUrl(root));
+		if (existsSync(fileUrl)) {
+			configFileUrl = fileUrl;
+		}
+	}
+	if (!configFileUrl) {
+		return { mod: undefined, dependencies: [] };
+	}
 	const { code, dependencies } = await bundleFile({
 		virtualModContents: getConfigVirtualModContents(),
 		root,
-		fileUrl,
+		fileUrl: configFileUrl,
 	});
 	return {
 		mod: await importBundledFile({ code, root }),
