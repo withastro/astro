@@ -8,6 +8,7 @@ import {
 import { existsSync } from 'node:fs';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { tablesSchema } from '../../../types.js';
+import { executeFile } from '../../../load-file.js';
 
 export async function cmd({ config, flags }: { config: AstroConfig; flags: Arguments }) {
 	const tables = tablesSchema.parse(config.db?.tables ?? {});
@@ -24,7 +25,6 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		process.exit(1);
 	}
 
-	const { executeFile } = await import('./execute-file.js');
 	if (config.db?.unsafeDisableStudio) {
 		console.warn(UNSAFE_DISABLE_STUDIO_WARNING);
 		await executeFile({
@@ -36,6 +36,7 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		return;
 	}
 	const appToken = await getManagedAppTokenOrExit(flags.token);
+
 	await executeFile({
 		connectToStudio: true,
 		fileUrl,

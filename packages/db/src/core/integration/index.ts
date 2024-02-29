@@ -6,7 +6,7 @@ import { existsSync } from 'fs';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { DB_PATH } from '../consts.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
-import { astroConfigWithDbSchema, type DBTables } from '../types.js';
+import { dbConfigSchema, type DBTables } from '../types.js';
 import { type VitePlugin } from '../utils.js';
 import { UNSAFE_DISABLE_STUDIO_WARNING } from '../errors.js';
 import { errorMap } from './error-map.js';
@@ -16,6 +16,7 @@ import { blue, yellow } from 'kleur/colors';
 import { fileURLIntegration } from './file-url.js';
 import { recreateTables } from '../../runtime/queries.js';
 import { getManagedAppTokenOrExit, type ManagedAppToken } from '../tokens.js';
+import { loadConfigFile } from '../load-file.js';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectToStudio = false;
@@ -57,7 +58,7 @@ function astroDBIntegration(): AstroIntegration {
 						connectToStudio,
 						schemas,
 						root: config.root,
-						isDev: command === 'dev',
+						shouldSeed: command === 'dev',
 					});
 				}
 
@@ -71,8 +72,8 @@ function astroDBIntegration(): AstroIntegration {
 			'astro:config:done': async ({ config, logger }) => {
 				// TODO: refine where we load tables
 				// @matthewp: may want to load tables by path at runtime
-				const configWithDb = astroConfigWithDbSchema.parse(config, { errorMap });
-				const tables = configWithDb.db?.tables ?? {};
+				const configFile = await loadConfigFile(config.root);
+				const { tables = {} } = dbConfigSchema.parse(configFile?.default ?? {}, { errorMap });
 				// Redefine getTables so our integration can grab them
 				schemas.tables = () => tables;
 

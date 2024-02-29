@@ -1,5 +1,11 @@
 import { SEED_DEV_FILE_NAMES_SORTED } from '../../runtime/queries.js';
-import { DB_PATH, RUNTIME_DRIZZLE_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
+import {
+	DB_PATH,
+	RUNTIME_CONFIG_IMPORT,
+	RUNTIME_DRIZZLE_IMPORT,
+	RUNTIME_IMPORT,
+	VIRTUAL_MODULE_ID,
+} from '../consts.js';
 import type { DBTables } from '../types.js';
 import { getDbDirUrl, getRemoteDatabaseUrl, type VitePlugin } from '../utils.js';
 
@@ -12,7 +18,7 @@ type LateSchema = {
 type VitePluginDBParams =
 	| {
 			connectToStudio: false;
-			isDev: boolean;
+			shouldSeed: boolean;
 			schemas: LateSchema;
 			root: URL;
 	  }
@@ -44,21 +50,25 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			return getLocalVirtualModContents({
 				root: params.root,
 				tables: params.schemas.tables(),
-				isDev: params.isDev,
+				shouldSeed: params.shouldSeed,
 			});
 		},
 	};
 }
 
+export function getConfigVirtualModContents() {
+	return `export * from ${RUNTIME_CONFIG_IMPORT}`;
+}
+
 export function getLocalVirtualModContents({
 	tables,
 	root,
-	isDev,
+	shouldSeed,
 	useBundledDbUrl = true,
 }: {
 	tables: DBTables;
 	root: URL;
-	isDev: boolean;
+	shouldSeed: boolean;
 	/**
 	 * Allow `db execute` to use `dbUrl` directly without rollup bundling.
 	 * `db execute` loads config with minimal esbuild config instead of vite.
@@ -88,7 +98,7 @@ ${getStringifiedCollectionExports(tables)}
 
 // TODO: test error logging to see if try / catch is needed
 ${
-	isDev
+	shouldSeed
 		? `await seedDev({
 	db,
 	tables: ${JSON.stringify(tables)},

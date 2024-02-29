@@ -245,14 +245,10 @@ export const dbConfigSchema = z.object({
 
 export type DBUserConfig = z.input<typeof dbConfigSchema>;
 
-export const astroConfigWithDbSchema = z.object({
-	db: dbConfigSchema.optional(),
-});
-
 export type ColumnsConfig = z.input<typeof tableSchema>['columns'];
 export type OutputColumnsConfig = z.output<typeof tableSchema>['columns'];
 
-interface CollectionConfig<TColumns extends ColumnsConfig = ColumnsConfig>
+export interface TableConfig<TColumns extends ColumnsConfig = ColumnsConfig>
 	// use `extends` to ensure types line up with zod,
 	// only adding generics for type completions.
 	extends Pick<z.input<typeof tableSchema>, 'columns' | 'indexes' | 'foreignKeys'> {
@@ -269,47 +265,11 @@ interface IndexConfig<TColumns extends ColumnsConfig> extends z.input<typeof ind
 	on: MaybeArray<Extract<keyof TColumns, string>>;
 }
 
-// TODO: flatten into just `CollectionConfig`
+/** @deprecated Use `TableConfig` instead */
 export type ResolvedCollectionConfig<TColumns extends ColumnsConfig = ColumnsConfig> =
-	CollectionConfig<TColumns>;
-
-export function defineTable<TColumns extends ColumnsConfig>(
-	userConfig: CollectionConfig<TColumns>
-): ResolvedCollectionConfig<TColumns> {
-	return userConfig;
-}
-
-export type AstroConfigWithDB = z.input<typeof astroConfigWithDbSchema>;
+	TableConfig<TColumns>;
 
 // We cannot use `Omit<NumberColumn | TextColumn, 'type'>`,
 // since Omit collapses our union type on primary key.
-type NumberColumnOpts = z.input<typeof numberColumnOptsSchema>;
-type TextColumnOpts = z.input<typeof textColumnOptsSchema>;
-
-function createColumn<S extends string, T extends Record<string, unknown>>(type: S, schema: T) {
-	return {
-		type,
-		/**
-		 * @internal
-		 */
-		schema,
-	};
-}
-
-export const column = {
-	number: <T extends NumberColumnOpts>(opts: T = {} as T) => {
-		return createColumn('number', opts) satisfies { type: 'number' };
-	},
-	boolean: <T extends BooleanColumnInput['schema']>(opts: T = {} as T) => {
-		return createColumn('boolean', opts) satisfies { type: 'boolean' };
-	},
-	text: <T extends TextColumnOpts>(opts: T = {} as T) => {
-		return createColumn('text', opts) satisfies { type: 'text' };
-	},
-	date<T extends DateColumnInput['schema']>(opts: T = {} as T) {
-		return createColumn('date', opts) satisfies { type: 'date' };
-	},
-	json<T extends JsonColumnInput['schema']>(opts: T = {} as T) {
-		return createColumn('json', opts) satisfies { type: 'json' };
-	},
-};
+export type NumberColumnOpts = z.input<typeof numberColumnOptsSchema>;
+export type TextColumnOpts = z.input<typeof textColumnOptsSchema>;

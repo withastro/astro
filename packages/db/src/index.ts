@@ -1,5 +1,4 @@
-export { defineTable, column } from './core/types.js';
-export type { ResolvedCollectionConfig } from './core/types.js';
+export type { ResolvedCollectionConfig, TableConfig } from './core/types.js';
 export { cli } from './core/cli/index.js';
 export { integration as default } from './core/integration/index.js';
-export { sql, NOW, TRUE, FALSE } from './runtime/index.js';
+export { sql, NOW, TRUE, FALSE, defineDB, defineTable, column } from './runtime/config.js';
