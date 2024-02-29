@@ -30,14 +30,12 @@ export function createLocalDatabaseClient({ dbUrl }: { dbUrl: string }): LocalDa
 			const { values: drizzleValues } = insert;
 			return Object.assign(insert, {
 				async values(values: { [x: string]: any }[]) {
-					try {
-						return await drizzleValues.call(this, values);
-					} catch (e) {
+					return drizzleValues.call(this, values).catch((e) => {
 						if (e instanceof LibsqlError) {
 							throw new Error(LIBSQL_ERROR('inserting into', getTableName(Table), e.message));
 						}
 						throw e;
-					}
+					});
 				},
 			});
 		},
