@@ -1,9 +1,9 @@
-import type { AstroConfig } from 'astro';
-import { slug } from 'github-slugger';
-import { bgRed, cyan } from 'kleur/colors';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { basename } from 'node:path';
+import type { AstroConfig } from 'astro';
+import { slug } from 'github-slugger';
+import { bgRed, cyan } from 'kleur/colors';
 import ora from 'ora';
 import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
@@ -22,7 +22,7 @@ export async function cmd({}: { config: AstroConfig; flags: Arguments }) {
 	const isLinkExisting = await promptLinkExisting();
 	if (isLinkExisting) {
 		const workspaceId = await getWorkspaceIdAsync;
-		const existingProjectData = await promptExistingProjectName({workspaceId});
+		const existingProjectData = await promptExistingProjectName({ workspaceId });
 		return await linkProject(existingProjectData.id);
 	}
 
@@ -32,7 +32,11 @@ export async function cmd({}: { config: AstroConfig; flags: Arguments }) {
 		const newProjectName = await promptNewProjectName();
 		const newProjectRegion = await promptNewProjectRegion();
 		const spinner = ora('Creating new project...').start();
-		const newProjectData = await createNewProject({workspaceId, name: newProjectName, region: newProjectRegion});
+		const newProjectData = await createNewProject({
+			workspaceId,
+			name: newProjectName,
+			region: newProjectRegion,
+		});
 		// TODO(fks): Actually listen for project creation before continuing
 		// This is just a dumb spinner that roughly matches database creation time.
 		await new Promise((r) => setTimeout(r, 4000));
@@ -69,7 +73,9 @@ async function getWorkspaceId(): Promise<string> {
 		console.error(`Failed to fetch user workspace: ${response.status} ${response.statusText}`);
 		process.exit(1);
 	}
-	const { data, success } = await response.json() as {success: false, data: unknown} | {success: true, data: {id: string}[]};
+	const { data, success } = (await response.json()) as
+		| { success: false; data: unknown }
+		| { success: true; data: { id: string }[] };
 	if (!success) {
 		console.error(`Failed to fetch user's workspace.`);
 		process.exit(1);
@@ -77,7 +83,15 @@ async function getWorkspaceId(): Promise<string> {
 	return data[0].id;
 }
 
-export async function createNewProject({workspaceId, name, region}: {workspaceId: string; name: string, region: string}) {
+export async function createNewProject({
+	workspaceId,
+	name,
+	region,
+}: {
+	workspaceId: string;
+	name: string;
+	region: string;
+}) {
 	const linkUrl = new URL(getAstroStudioUrl() + '/api/cli/projects.create');
 	const response = await fetch(linkUrl, {
 		method: 'POST',
@@ -100,15 +114,17 @@ export async function createNewProject({workspaceId, name, region}: {workspaceId
 		console.error(`Failed to create project: ${response.status} ${response.statusText}`);
 		process.exit(1);
 	}
-	const { data, success } = await response.json() as {success: false, data: unknown} | {success: true, data: {id: string; idName: string}};
+	const { data, success } = (await response.json()) as
+		| { success: false; data: unknown }
+		| { success: true; data: { id: string; idName: string } };
 	if (!success) {
 		console.error(`Failed to create project.`);
 		process.exit(1);
 	}
-	return {id: data.id, idName: data.idName};
+	return { id: data.id, idName: data.idName };
 }
 
-export async function promptExistingProjectName({workspaceId}: {workspaceId: string}) {
+export async function promptExistingProjectName({ workspaceId }: { workspaceId: string }) {
 	const linkUrl = new URL(getAstroStudioUrl() + '/api/cli/projects.list');
 	const response = await fetch(linkUrl, {
 		method: 'POST',
@@ -116,7 +132,7 @@ export async function promptExistingProjectName({workspaceId}: {workspaceId: str
 			Authorization: `Bearer ${await getSessionIdFromFile()}`,
 			'Content-Type': 'application/json',
 		},
-		body: JSON.stringify({workspaceId}),
+		body: JSON.stringify({ workspaceId }),
 	});
 	if (!response.ok) {
 		// Unauthorized
@@ -131,7 +147,9 @@ export async function promptExistingProjectName({workspaceId}: {workspaceId: str
 		console.error(`Failed to fetch projects: ${response.status} ${response.statusText}`);
 		process.exit(1);
 	}
-	const { data, success } = await response.json() as {success: false, data: unknown} | {success: true, data: {id: string; idName: string}[]};
+	const { data, success } = (await response.json()) as
+		| { success: false; data: unknown }
+		| { success: true; data: { id: string; idName: string }[] };
 	if (!success) {
 		console.error(`Failed to fetch projects.`);
 		process.exit(1);
@@ -141,10 +159,10 @@ export async function promptExistingProjectName({workspaceId}: {workspaceId: str
 		name: 'projectId',
 		message: 'What is your project name?',
 		limit: 5,
-		choices: data.map((p: any) => ({title: p.name, value: p.id})),
+		choices: data.map((p: any) => ({ title: p.name, value: p.id })),
 	});
 	if (typeof projectId !== 'string') {
-		console.log('Canceled.')
+		console.log('Canceled.');
 		process.exit(0);
 	}
 	const selectedProjectData = data.find((p: any) => p.id === projectId)!;
@@ -163,9 +181,9 @@ export async function promptBegin(): Promise<void> {
 		initial: true,
 	});
 	if (!begin) {
-		console.log('Canceled.')
+		console.log('Canceled.');
 		process.exit(0);
-	};
+	}
 }
 
 export async function promptLinkExisting(): Promise<boolean> {
@@ -188,12 +206,11 @@ export async function promptLinkNew(): Promise<boolean> {
 		initial: true,
 	});
 	if (!linkNew) {
-		console.log('Canceled.')
+		console.log('Canceled.');
 		process.exit(0);
-	};
+	}
 	return true;
 }
-
 
 export async function promptNewProjectName(): Promise<string> {
 	const { newProjectName } = await prompts({
@@ -204,9 +221,9 @@ export async function promptNewProjectName(): Promise<string> {
 		format: (val) => slug(val),
 	});
 	if (!newProjectName) {
-		console.log('Canceled.')
+		console.log('Canceled.');
 		process.exit(0);
-	};
+	}
 	return newProjectName;
 }
 
@@ -216,14 +233,14 @@ export async function promptNewProjectRegion(): Promise<string> {
 		name: 'newProjectRegion',
 		message: `Where should your new database live?`,
 		choices: [
-			{title: 'North America (East)', value: 'NorthAmericaEast'},
-			{title: 'North America (West)', value: 'NorthAmericaWest'}
+			{ title: 'North America (East)', value: 'NorthAmericaEast' },
+			{ title: 'North America (West)', value: 'NorthAmericaWest' },
 		],
 		initial: 0,
 	});
 	if (!newProjectRegion) {
-		console.log('Canceled.')
+		console.log('Canceled.');
 		process.exit(0);
-	};
+	}
 	return newProjectRegion;
 }
