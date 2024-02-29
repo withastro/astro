@@ -255,7 +255,6 @@ export interface TableConfig<TColumns extends ColumnsConfig = ColumnsConfig>
 	columns: TColumns;
 	foreignKeys?: Array<{
 		columns: MaybeArray<Extract<keyof TColumns, string>>;
-		// TODO: runtime error if parent table doesn't match for all columns. Can't put a generic here...
 		references: () => MaybeArray<z.input<typeof referenceableColumnSchema>>;
 	}>;
 	indexes?: Record<string, IndexConfig<TColumns>>;
