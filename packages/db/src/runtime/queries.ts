@@ -57,7 +57,7 @@ export async function seedDev({
 }) {
 	await recreateTables({ db, tables });
 	for (const fileName of SEED_DEV_FILE_NAMES_SORTED) {
-		const key = Object.keys(fileGlob).find((f) => new RegExp(`${fileName}$`).test(f));
+		const key = Object.keys(fileGlob).find((f) => f.endsWith(fileName));
 		if (key) {
 			await fileGlob[key]();
 			return;
