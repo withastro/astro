@@ -83,7 +83,7 @@ export function getLocalVirtualModContents({
 	);
 
 	return `
-import { collectionToTable, createLocalDatabaseClient, seedDev } from ${RUNTIME_IMPORT};
+import { asDrizzleTable, createLocalDatabaseClient, seedDev } from ${RUNTIME_IMPORT};
 ${
 	useBundledDbUrl
 		? `import dbUrl from ${JSON.stringify(`${dbUrl}?fileurl`)};`
@@ -116,7 +116,7 @@ export function getStudioVirtualModContents({
 	appToken: string;
 }) {
 	return `
-import {collectionToTable, createRemoteDatabaseClient} from ${RUNTIME_IMPORT};
+import {asDrizzleTable, createRemoteDatabaseClient} from ${RUNTIME_IMPORT};
 
 export const db = await createRemoteDatabaseClient(${JSON.stringify(
 		appToken
@@ -132,7 +132,7 @@ function getStringifiedCollectionExports(tables: DBTables) {
 	return Object.entries(tables)
 		.map(
 			([name, collection]) =>
-				`export const ${name} = collectionToTable(${JSON.stringify(name)}, ${JSON.stringify(
+				`export const ${name} = asDrizzleTable(${JSON.stringify(name)}, ${JSON.stringify(
 					collection
 				)}, false)`
 		)
