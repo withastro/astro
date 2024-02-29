@@ -5,10 +5,11 @@ import {
 	getMigrationQueries,
 } from '../../dist/core/cli/migration-queries.js';
 import { getCreateTableQuery } from '../../dist/runtime/queries.js';
-import { tableSchema, column, defineTable } from '../../dist/core/types.js';
+import { column, defineTable } from '../../dist/runtime/config.js';
+import { tableSchema } from '../../dist/core/types.js';
 import { NOW } from '../../dist/runtime/index.js';
 
-const COLLECTION_NAME = 'Users';
+const TABLE_NAME = 'Users';
 
 // `parse` to resolve schema transformations
 // ex. convert column.date() to ISO strings
@@ -28,15 +29,11 @@ const defaultAmbiguityResponses = {
 	columnRenames: {},
 };
 
-function userChangeQueries(
-	oldCollection,
-	newCollection,
-	ambiguityResponses = defaultAmbiguityResponses
-) {
+function userChangeQueries(oldTable, newTable, ambiguityResponses = defaultAmbiguityResponses) {
 	return getCollectionChangeQueries({
-		collectionName: COLLECTION_NAME,
-		oldCollection,
-		newCollection,
+		collectionName: TABLE_NAME,
+		oldCollection: oldTable,
+		newCollection: newTable,
 		ambiguityResponses,
 	});
 }
@@ -56,35 +53,35 @@ function configChangeQueries(
 describe('column queries', () => {
 	describe('getMigrationQueries', () => {
 		it('should be empty when tables are the same', async () => {
-			const oldCollections = { [COLLECTION_NAME]: userInitial };
-			const newCollections = { [COLLECTION_NAME]: userInitial };
+			const oldCollections = { [TABLE_NAME]: userInitial };
+			const newCollections = { [TABLE_NAME]: userInitial };
 			const { queries } = await configChangeQueries(oldCollections, newCollections);
 			expect(queries).to.deep.equal([]);
 		});
 
 		it('should create table for new tables', async () => {
 			const oldCollections = {};
-			const newCollections = { [COLLECTION_NAME]: userInitial };
+			const newCollections = { [TABLE_NAME]: userInitial };
 			const { queries } = await configChangeQueries(oldCollections, newCollections);
-			expect(queries).to.deep.equal([getCreateTableQuery(COLLECTION_NAME, userInitial)]);
+			expect(queries).to.deep.equal([getCreateTableQuery(TABLE_NAME, userInitial)]);
 		});
 
 		it('should drop table for removed tables', async () => {
-			const oldCollections = { [COLLECTION_NAME]: userInitial };
+			const oldCollections = { [TABLE_NAME]: userInitial };
 			const newCollections = {};
 			const { queries } = await configChangeQueries(oldCollections, newCollections);
-			expect(queries).to.deep.equal([`DROP TABLE "${COLLECTION_NAME}"`]);
+			expect(queries).to.deep.equal([`DROP TABLE "${TABLE_NAME}"`]);
 		});
 
 		it('should rename table for renamed tables', async () => {
 			const rename = 'Peeps';
-			const oldCollections = { [COLLECTION_NAME]: userInitial };
+			const oldCollections = { [TABLE_NAME]: userInitial };
 			const newCollections = { [rename]: userInitial };
 			const { queries } = await configChangeQueries(oldCollections, newCollections, {
 				...defaultAmbiguityResponses,
-				collectionRenames: { [rename]: COLLECTION_NAME },
+				collectionRenames: { [rename]: TABLE_NAME },
 			});
-			expect(queries).to.deep.equal([`ALTER TABLE "${COLLECTION_NAME}" RENAME TO "${rename}"`]);
+			expect(queries).to.deep.equal([`ALTER TABLE "${TABLE_NAME}" RENAME TO "${rename}"`]);
 		});
 	});
 
@@ -155,10 +152,10 @@ describe('column queries', () => {
 
 				const { queries } = await userChangeQueries(userInitial, userFinal, {
 					collectionRenames: {},
-					columnRenames: { [COLLECTION_NAME]: { middleInitial: 'mi' } },
+					columnRenames: { [TABLE_NAME]: { middleInitial: 'mi' } },
 				});
 				expect(queries).to.deep.equal([
-					`ALTER TABLE "${COLLECTION_NAME}" RENAME COLUMN "mi" TO "middleInitial"`,
+					`ALTER TABLE "${TABLE_NAME}" RENAME COLUMN "mi" TO "middleInitial"`,
 				]);
 			});
 		});
