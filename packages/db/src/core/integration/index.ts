@@ -39,26 +39,17 @@ function astroDBIntegration(): AstroIntegration {
 
 				let dbPlugin: VitePlugin | undefined = undefined;
 
-				const unsafeDisableStudio =
-					config.db?.unsafeDisableStudio ?? process.env.ASTRO_DB_TEST_ENV === '1';
-
-				if (unsafeDisableStudio) {
-					logger.warn(UNSAFE_DISABLE_STUDIO_WARNING);
-				}
-
-				connectToStudio = command === 'build' && !unsafeDisableStudio;
-
-				if (connectToStudio) {
+				if (command === 'build') {
 					appToken = await getManagedAppTokenOrExit();
 					dbPlugin = vitePluginDb({
-						connectToStudio,
+						connectToStudio: true,
 						appToken: appToken.token,
 						schemas,
 						root: config.root,
 					});
 				} else {
 					dbPlugin = vitePluginDb({
-						connectToStudio,
+						connectToStudio: false,
 						schemas,
 						root: config.root,
 						shouldSeed: command === 'dev',

@@ -240,7 +240,6 @@ export type DBSnapshot = {
 
 export const dbConfigSchema = z.object({
 	tables: tablesSchema.optional(),
-	unsafeDisableStudio: z.boolean().optional().default(false),
 });
 
 export type DBUserConfig = z.input<typeof dbConfigSchema>;

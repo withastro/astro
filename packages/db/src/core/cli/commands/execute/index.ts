@@ -1,10 +1,6 @@
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
-import {
-	MISSING_EXECUTE_PATH_ERROR,
-	FILE_NOT_FOUND_ERROR,
-	UNSAFE_DISABLE_STUDIO_WARNING,
-} from '../../../errors.js';
+import { MISSING_EXECUTE_PATH_ERROR, FILE_NOT_FOUND_ERROR } from '../../../errors.js';
 import { existsSync } from 'node:fs';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { tablesSchema } from '../../../types.js';
@@ -25,16 +21,6 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		process.exit(1);
 	}
 
-	if (config.db?.unsafeDisableStudio) {
-		console.warn(UNSAFE_DISABLE_STUDIO_WARNING);
-		await executeFile({
-			connectToStudio: false,
-			fileUrl,
-			tables,
-			root: config.root,
-		});
-		return;
-	}
 	const appToken = await getManagedAppTokenOrExit(flags.token);
 
 	await executeFile({

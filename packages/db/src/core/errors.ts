@@ -10,12 +10,6 @@ export const MISSING_PROJECT_ID_ERROR = `${red('▶ Directory not linked.')}
   To link this directory to an Astro Studio project, run
   ${cyan('astro db link')}\n`;
 
-export const UNSAFE_DISABLE_STUDIO_WARNING = `${yellow(
-	'unsafeDisableStudio'
-)} option is enabled and you are deploying your database without Studio.
-  Redeploying your app may result in wiping away your database.
-	I hope you know what you are doing.\n`;
-
 export const MIGRATIONS_NOT_INITIALIZED = `${yellow(
 	'▶ No migrations found!'
 )}\n\n  To scaffold your migrations folder, run\n  ${cyan('astro db sync')}\n`;
