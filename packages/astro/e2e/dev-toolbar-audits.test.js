@@ -146,6 +146,7 @@ test.describe('Dev Toolbar - Audits', () => {
 		await appButton.click();
 		await expect(auditHighlights).toHaveCount(2);
 
+		// Make sure we only reran audits once
 		expect(
 			logs.filter((log) => log.includes('Rerunning audit lints because the DOM has been updated'))
 				.length === 1
