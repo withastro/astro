@@ -90,13 +90,12 @@ ${
 		: `const dbUrl = ${JSON.stringify(dbUrl)};`
 }
 
-export const db = await createLocalDatabaseClient({ dbUrl });
+export const db = createLocalDatabaseClient({ dbUrl });
 
 export * from ${RUNTIME_DRIZZLE_IMPORT};
 
 ${getStringifiedCollectionExports(tables)}
 
-// TODO: test error logging to see if try / catch is needed
 ${
 	shouldSeed
 		? `await seedDev({

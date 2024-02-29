@@ -1,4 +1,4 @@
-import type { InStatement, ResultSet } from '@libsql/client';
+import type { InStatement } from '@libsql/client';
 import { createClient } from '@libsql/client';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
@@ -10,11 +10,7 @@ const isWebContainer = !!process.versions?.webcontainer;
 
 interface LocalDatabaseClient extends LibSQLDatabase, Disposable {}
 
-export async function createLocalDatabaseClient({
-	dbUrl,
-}: {
-	dbUrl: string;
-}): Promise<LocalDatabaseClient> {
+export function createLocalDatabaseClient({ dbUrl }: { dbUrl: string }): LocalDatabaseClient {
 	const url = isWebContainer ? 'file:content.db' : dbUrl;
 	const client = createClient({ url });
 	const db = Object.assign(drizzleLibsql(client), {
