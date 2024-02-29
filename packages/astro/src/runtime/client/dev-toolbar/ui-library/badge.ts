@@ -16,7 +16,9 @@ export class DevToolbarBadge extends HTMLElement {
 
 	set size(value) {
 		if (!sizes.includes(value)) {
-			settings.logger.error(`Invalid size: ${value}, expected one of ${sizes.join(', ')}.`);
+			settings.logger.error(
+				`Invalid size: ${value}, expected one of ${sizes.join(', ')}, got ${value}.`
+			);
 			return;
 		}
 		this._size = value;
@@ -29,7 +31,9 @@ export class DevToolbarBadge extends HTMLElement {
 
 	set badgeStyle(value) {
 		if (!styles.includes(value)) {
-			settings.logger.error(`Invalid style: ${value}, expected one of ${styles.join(', ')}.`);
+			settings.logger.error(
+				`Invalid style: ${value}, expected one of ${styles.join(', ')}, got ${value}.`
+			);
 			return;
 		}
 		this._badgeStyle = value;

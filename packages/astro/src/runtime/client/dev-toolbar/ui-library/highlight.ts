@@ -15,7 +15,9 @@ export class DevToolbarHighlight extends HTMLElement {
 
 	set highlightStyle(value) {
 		if (!styles.includes(value)) {
-			settings.logger.error(`Invalid style: ${value}, expected one of ${styles.join(', ')}.`);
+			settings.logger.error(
+				`Invalid style: ${value}, expected one of ${styles.join(', ')}, got ${value}.`
+			);
 			return;
 		}
 		this._highlightStyle = value;

@@ -17,7 +17,9 @@ export class DevToolbarCard extends HTMLElement {
 
 	set cardStyle(value) {
 		if (!styles.includes(value)) {
-			settings.logger.error(`Invalid style: ${value}, expected one of ${styles.join(', ')}.`);
+			settings.logger.error(
+				`Invalid style: ${value}, expected one of ${styles.join(', ')}, got ${value}.`
+			);
 			return;
 		}
 		this._cardStyle = value;
