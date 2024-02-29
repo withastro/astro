@@ -7,6 +7,7 @@ import type { Arguments } from 'yargs-parser';
 import { getAstroStudioUrl } from '../../../utils.js';
 import open from 'open';
 import { SESSION_LOGIN_FILE } from '../../../tokens.js';
+import type { DBConfig } from '../../../types.js';
 
 function serveAndResolveSession(): Promise<string> {
 	let resolve: (value: string | PromiseLike<string>) => void,
@@ -34,7 +35,13 @@ function serveAndResolveSession(): Promise<string> {
 	});
 }
 
-export async function cmd({ flags }: { config: AstroConfig; flags: Arguments }) {
+export async function cmd({
+	flags,
+}: {
+	astroConfig: AstroConfig;
+	dbConfig: DBConfig;
+	flags: Arguments;
+}) {
 	let session = flags.session;
 	const loginUrl = getAstroStudioUrl() + '/auth/cli';
 

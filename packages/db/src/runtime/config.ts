@@ -1,7 +1,7 @@
 import type {
 	BooleanColumnInput,
 	ColumnsConfig,
-	DBUserConfig,
+	DBConfigInput,
 	DateColumnInput,
 	JsonColumnInput,
 	NumberColumnOpts,
@@ -41,7 +41,7 @@ export function defineTable<TColumns extends ColumnsConfig>(userConfig: TableCon
 	return userConfig;
 }
 
-export function defineDB(userConfig: DBUserConfig) {
+export function defineDB(userConfig: DBConfigInput) {
 	return userConfig;
 }
 

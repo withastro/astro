@@ -1,7 +1,6 @@
 import deepDiff from 'deep-diff';
 import { mkdir, readFile, readdir, writeFile } from 'fs/promises';
-import { tablesSchema, type DBSnapshot } from '../types.js';
-import type { AstroConfig } from 'astro';
+import { type DBSnapshot, type DBConfig } from '../types.js';
 import { cyan, green, yellow } from 'kleur/colors';
 import { getMigrationsDirUrl } from '../utils.js';
 const { applyChange, diff: generateDiff } = deepDiff;
@@ -27,9 +26,15 @@ export type MigrationStatus =
 
 export const INITIAL_SNAPSHOT = '0000_snapshot.json';
 
-export async function getMigrationStatus(config: AstroConfig): Promise<MigrationStatus> {
-	const currentSnapshot = createCurrentSnapshot(config);
-	const dir = getMigrationsDirUrl(config.root);
+export async function getMigrationStatus({
+	dbConfig,
+	root,
+}: {
+	dbConfig: DBConfig;
+	root: URL;
+}): Promise<MigrationStatus> {
+	const currentSnapshot = createCurrentSnapshot(dbConfig);
+	const dir = getMigrationsDirUrl(root);
 	const allMigrationFiles = await getMigrations(dir);
 
 	if (allMigrationFiles.length === 0) {
@@ -137,10 +142,8 @@ export async function initializeFromMigrations(
 	return prevSnapshot;
 }
 
-export function createCurrentSnapshot(config: AstroConfig): DBSnapshot {
-	// Parse to resolve non-serializable types like () => references
-	const tablesConfig = tablesSchema.parse(config.db?.tables ?? {});
-	const schema = JSON.parse(JSON.stringify(tablesConfig));
+export function createCurrentSnapshot({ tables = {} }: DBConfig): DBSnapshot {
+	const schema = JSON.parse(JSON.stringify(tables));
 	return { experimentalVersion: 1, schema };
 }
 export function createEmptySnapshot(): DBSnapshot {

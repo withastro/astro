@@ -10,10 +10,18 @@ import {
 import { getMigrationQueries } from '../../migration-queries.js';
 import { bgRed, red, reset } from 'kleur/colors';
 import { getMigrationsDirUrl } from '../../../utils.js';
+import type { DBConfig } from '../../../types.js';
 
-export async function cmd({ config }: { config: AstroConfig; flags: Arguments }) {
-	const migration = await getMigrationStatus(config);
-	const migrationsDir = getMigrationsDirUrl(config.root);
+export async function cmd({
+	astroConfig,
+	dbConfig,
+}: {
+	astroConfig: AstroConfig;
+	dbConfig: DBConfig;
+	flags: Arguments;
+}) {
+	const migration = await getMigrationStatus({ dbConfig, root: astroConfig.root });
+	const migrationsDir = getMigrationsDirUrl(astroConfig.root);
 
 	if (migration.state === 'no-migrations-found') {
 		await initializeMigrationsDirectory(migration.currentSnapshot, migrationsDir);

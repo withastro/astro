@@ -242,7 +242,8 @@ export const dbConfigSchema = z.object({
 	tables: tablesSchema.optional(),
 });
 
-export type DBUserConfig = z.input<typeof dbConfigSchema>;
+export type DBConfigInput = z.input<typeof dbConfigSchema>;
+export type DBConfig = z.infer<typeof dbConfigSchema>;
 
 export type ColumnsConfig = z.input<typeof tableSchema>['columns'];
 export type OutputColumnsConfig = z.output<typeof tableSchema>['columns'];

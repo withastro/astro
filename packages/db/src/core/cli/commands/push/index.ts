@@ -3,7 +3,7 @@ import { red } from 'kleur/colors';
 import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
-import { type DBSnapshot } from '../../../types.js';
+import { type DBConfig, type DBSnapshot } from '../../../types.js';
 import { getMigrationsDirUrl, getRemoteDatabaseUrl } from '../../../utils.js';
 import { getMigrationQueries } from '../../migration-queries.js';
 import {
@@ -19,10 +19,18 @@ import {
 } from '../../migrations.js';
 import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
 
-export async function cmd({ config, flags }: { config: AstroConfig; flags: Arguments }) {
+export async function cmd({
+	astroConfig,
+	dbConfig,
+	flags,
+}: {
+	astroConfig: AstroConfig;
+	dbConfig: DBConfig;
+	flags: Arguments;
+}) {
 	const isDryRun = flags.dryRun;
 	const appToken = await getManagedAppTokenOrExit(flags.token);
-	const migration = await getMigrationStatus(config);
+	const migration = await getMigrationStatus({ dbConfig, root: astroConfig.root });
 	if (migration.state === 'no-migrations-found') {
 		console.log(MIGRATIONS_NOT_INITIALIZED);
 		process.exit(1);
@@ -30,7 +38,7 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		console.log(MIGRATION_NEEDED);
 		process.exit(1);
 	}
-	const migrationsDir = getMigrationsDirUrl(config.root);
+	const migrationsDir = getMigrationsDirUrl(astroConfig.root);
 
 	// get all migrations from the filesystem
 	const allLocalMigrations = await getMigrations(migrationsDir);
