@@ -1,9 +1,5 @@
-<<<<<<< Updated upstream
-import { type Icon, getIconElement, isDefinedIcon } from './icons.js';
-=======
 import { getIconElement, isDefinedIcon, type Icon } from './icons.js';
 import { settings } from '../settings.js';
->>>>>>> Stashed changes
 
 const styles = ['purple', 'gray', 'red', 'green', 'yellow'] as const;
 
