@@ -1,6 +1,6 @@
 import { runHighlighterWithAstro } from '@astrojs/prism/dist/highlighter';
 import { unescapeHTML } from 'astro/runtime/server/index.js';
-import { Markdoc, type AstroMarkdocConfig } from '../config.js';
+import { type AstroMarkdocConfig, Markdoc } from '../config.js';
 
 export default function prism(): AstroMarkdocConfig {
 	return {

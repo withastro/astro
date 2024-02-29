@@ -1,16 +1,16 @@
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
-import { type DBTable, type DBColumn } from '../core/types.js';
 import { type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
 import {
+	type IndexBuilder,
+	type SQLiteColumnBuilderBase,
 	customType,
+	index,
 	integer,
 	sqliteTable,
 	text,
-	index,
-	type SQLiteColumnBuilderBase,
-	type IndexBuilder,
 } from 'drizzle-orm/sqlite-core';
-import { isSerializedSQL, type SerializedSQL } from './types.js';
+import { type DBColumn, type DBTable } from '../core/types.js';
+import { type SerializedSQL, isSerializedSQL } from './types.js';
 
 export { sql };
 export type SqliteDB = LibSQLDatabase;

@@ -1,4 +1,4 @@
-import type { ColumnDataType, ColumnBaseConfig } from 'drizzle-orm';
+import type { ColumnBaseConfig, ColumnDataType } from 'drizzle-orm';
 import type { SQLiteColumn, SQLiteTableWithColumns } from 'drizzle-orm/sqlite-core';
 import type { ColumnsConfig, DBColumn, OutputColumnsConfig } from '../core/types.js';
 

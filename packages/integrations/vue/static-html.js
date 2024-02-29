@@ -1,4 +1,4 @@
-import { h, defineComponent } from 'vue';
+import { defineComponent, h } from 'vue';
 
 /**
  * Astro passes `children` as a string of HTML, so we need

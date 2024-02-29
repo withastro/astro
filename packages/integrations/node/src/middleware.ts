@@ -1,6 +1,6 @@
+import type { NodeApp } from 'astro/app/node';
 import { createAppHandler } from './serve-app.js';
 import type { RequestHandler } from './types.js';
-import type { NodeApp } from 'astro/app/node';
 
 /**
  * Creates a middleware that can be used with Express, Connect, etc.

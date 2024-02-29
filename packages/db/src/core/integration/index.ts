@@ -1,9 +1,4 @@
-import type { AstroIntegration } from 'astro';
-import { vitePluginDb } from './vite-plugin-db.js';
-import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
-import { typegen } from './typegen.js';
 import { existsSync } from 'fs';
-import { mkdir, rm, writeFile } from 'fs/promises';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 import { dbConfigSchema, type DBTables } from '../types.js';
@@ -11,11 +6,16 @@ import { getDbDirUrl, type VitePlugin } from '../utils.js';
 import { errorMap } from './error-map.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import type { AstroIntegration } from 'astro';
+import { mkdir, rm, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
 import { fileURLIntegration } from './file-url.js';
 import { recreateTables } from '../../runtime/queries.js';
 import { getManagedAppTokenOrExit, type ManagedAppToken } from '../tokens.js';
 import { loadConfigFile } from '../load-file.js';
+import { vitePluginDb } from './vite-plugin-db.js';
+import { typegen } from './typegen.js';
+import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectToStudio = false;

@@ -1,12 +1,12 @@
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
+import { getMigrationQueries } from '../../migration-queries.js';
 import {
-	getMigrationStatus,
-	MIGRATION_NEEDED,
 	MIGRATIONS_NOT_INITIALIZED,
 	MIGRATIONS_UP_TO_DATE,
+	MIGRATION_NEEDED,
+	getMigrationStatus,
 } from '../../migrations.js';
-import { getMigrationQueries } from '../../migration-queries.js';
 import type { DBConfig } from '../../../types.js';
 
 export async function cmd({

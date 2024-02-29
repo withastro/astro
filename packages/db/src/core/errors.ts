@@ -1,4 +1,4 @@
-import { cyan, bold, red, green, yellow } from 'kleur/colors';
+import { bold, cyan, green, red, yellow } from 'kleur/colors';
 
 export const MISSING_SESSION_ID_ERROR = `${red('▶ Login required!')}
 

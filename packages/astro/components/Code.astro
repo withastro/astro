@@ -1,7 +1,7 @@
 ---
+import type { ThemePresets } from '@astrojs/markdown-remark';
 import type {
 	BuiltinLanguage,
-	BuiltinTheme,
 	LanguageRegistration,
 	SpecialLanguage,
 	ThemeRegistration,
@@ -28,12 +28,12 @@ interface Props {
 	 *
 	 * @default "github-dark"
 	 */
-	theme?: BuiltinTheme | ThemeRegistration | ThemeRegistrationRaw;
+	theme?: ThemePresets | ThemeRegistration | ThemeRegistrationRaw;
 	/**
 	 * Multiple themes to style with -- alternative to "theme" option.
 	 * Supports all themes found above; see https://github.com/antfu/shikiji#lightdark-dual-themes for more information.
 	 */
-	experimentalThemes?: Record<string, BuiltinTheme | ThemeRegistration | ThemeRegistrationRaw>;
+	experimentalThemes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
 	/**
 	 * Enable word wrapping.
 	 *  - true: enabled.

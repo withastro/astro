@@ -1041,12 +1041,14 @@ describe('astro:image', () => {
 	});
 
 	describe('dev ssr', () => {
+		/** @type {import('./test-utils').DevServer} */
 		let devServer;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-ssr/',
 				output: 'server',
 				adapter: testAdapter(),
+				base: 'some-base',
 				image: {
 					service: testImageService(),
 				},
@@ -1056,6 +1058,15 @@ describe('astro:image', () => {
 
 		after(async () => {
 			await devServer.stop();
+		});
+
+		it('serves the image at /_image', async () => {
+			const params = new URLSearchParams();
+			params.set('href', '/src/assets/penguin1.jpg?origWidth=207&origHeight=243&origFormat=jpg');
+			params.set('f', 'webp');
+			const response = await fixture.fetch('/some-base/_image?' + String(params));
+			assert.equal(response.status, 200);
+			assert.equal(response.headers.get('content-type'), 'image/webp');
 		});
 
 		it('does not interfere with query params', async () => {

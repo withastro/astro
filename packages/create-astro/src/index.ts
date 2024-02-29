@@ -1,5 +1,6 @@
 import { getContext } from './actions/context.js';
 
+import { tasks } from '@astrojs/cli-kit';
 import { dependencies } from './actions/dependencies.js';
 import { git } from './actions/git.js';
 import { help } from './actions/help.js';
@@ -10,7 +11,6 @@ import { template } from './actions/template.js';
 import { setupTypeScript, typescript } from './actions/typescript.js';
 import { verify } from './actions/verify.js';
 import { setStdout } from './messages.js';
-import { tasks } from '@astrojs/cli-kit';
 
 const exit = () => process.exit(0);
 process.on('SIGINT', exit);

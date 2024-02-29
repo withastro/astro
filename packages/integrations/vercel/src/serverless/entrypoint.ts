@@ -1,11 +1,11 @@
-import type { SSRManifest } from 'astro';
-import { applyPolyfills, NodeApp } from 'astro/app/node';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { SSRManifest } from 'astro';
+import { NodeApp, applyPolyfills } from 'astro/app/node';
 import {
-	ASTRO_PATH_HEADER,
-	ASTRO_PATH_PARAM,
 	ASTRO_LOCALS_HEADER,
 	ASTRO_MIDDLEWARE_SECRET_HEADER,
+	ASTRO_PATH_HEADER,
+	ASTRO_PATH_PARAM,
 } from './adapter.js';
 
 applyPolyfills();
