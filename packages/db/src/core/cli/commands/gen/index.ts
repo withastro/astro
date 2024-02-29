@@ -1,6 +1,7 @@
+import { fileURLToPath } from 'node:url';
 import { writeFile } from 'node:fs/promises';
 import type { AstroConfig } from 'astro';
-import { bgRed, red, reset } from 'kleur/colors';
+import { bold, bgRed, red, reset } from 'kleur/colors';
 import type { Arguments } from 'yargs-parser';
 import { getMigrationQueries } from '../../migration-queries.js';
 import {
@@ -11,6 +12,7 @@ import {
 } from '../../migrations.js';
 import { getMigrationsDirUrl } from '../../../utils.js';
 import type { DBConfig } from '../../../types.js';
+import { relative } from 'node:path';
 
 export async function cmd({
 	astroConfig,
@@ -48,7 +50,7 @@ export async function cmd({
 		confirm: confirmations.map((c) => reset(c)),
 	};
 	const fileUrl = new URL(newFilename, migrationsDir);
+	const relativePath = relative(fileURLToPath(astroConfig.root), fileURLToPath(fileUrl));
 	await writeFile(fileUrl, JSON.stringify(content, undefined, 2));
-	// TODO: format with pretty path util Fred is adding
-	console.log(newFilename + ' created!');
+	console.log(bold(relativePath) + ' created!');
 }
