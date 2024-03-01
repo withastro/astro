@@ -49,7 +49,6 @@
     "@types/chai": "^4.3.10",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "chai": "^4.3.10",
     "cheerio": "1.0.0-rc.12",
     "linkedom": "^0.16.4",
     "vite": "^5.1.4",
