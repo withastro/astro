@@ -22,7 +22,7 @@ describe('astro/src/core/build', () => {
 			},
 			{
 				route: '/blog/[year]/[...slug]',
-				component: 'src/pages/blog/[year]/[...slug].astro',
+				component: 'src/pages/blog/[year]/[...page].astro',
 				pathname: undefined,
 			},
 		];
