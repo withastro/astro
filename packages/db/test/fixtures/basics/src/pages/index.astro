@@ -2,8 +2,10 @@
 /// <reference path="../../.astro/db-types.d.ts" />
 import { Author, db, Themes } from 'astro:db';
 
+console.log('app::querying');
 const authors = await db.select().from(Author);
 const themes = await db.select().from(Themes);
+console.log('app::query complete');
 ---
 
 <h2>Authors</h2>
