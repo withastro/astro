@@ -1,13 +1,9 @@
 import type { InStatement } from '@libsql/client';
-import { LibsqlError, createClient } from '@libsql/client';
+import { createClient } from '@libsql/client';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
 import { drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
 import { z } from 'zod';
-import type { SqliteDB } from './index.js';
-import { SEED_ERROR } from '../core/errors.js';
-import type { DBTables } from '../core/types.js';
-import { recreateTables } from './queries.js';
 
 const isWebContainer = !!process.versions?.webcontainer;
 
@@ -17,51 +13,6 @@ export function createLocalDatabaseClient({ dbUrl }: { dbUrl: string }): LibSQLD
 	const db = drizzleLibsql(client);
 
 	return db;
-}
-
-/**
- * Sorted by precedence.
- * Ex. If both "seed.dev.ts" and "seed.ts" are present,
- * "seed.dev.ts" will be used.
- */
-export const SEED_DEV_FILE_NAMES_SORTED = [
-	'seed.development.ts',
-	'seed.development.js',
-	'seed.development.mjs',
-	'seed.development.mts',
-	'seed.dev.ts',
-	'seed.dev.js',
-	'seed.dev.mjs',
-	'seed.dev.mts',
-	'seed.ts',
-	'seed.js',
-	'seed.mjs',
-	'seed.mts',
-];
-
-export async function seedLocal({
-	db,
-	tables,
-	// Glob all potential seed files to catch renames and deletions.
-	fileGlob,
-}: {
-	db: SqliteDB;
-	tables: DBTables;
-	fileGlob: Record<string, () => Promise<void>>;
-}) {
-	await recreateTables({ db, tables });
-	for (const fileName of SEED_DEV_FILE_NAMES_SORTED) {
-		const key = Object.keys(fileGlob).find((f) => f.endsWith(fileName));
-		if (key) {
-			await fileGlob[key]().catch((e) => {
-				if (e instanceof LibsqlError) {
-					throw new Error(SEED_ERROR(e.message));
-				}
-				throw e;
-			});
-			return;
-		}
-	}
 }
 
 export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string) {
