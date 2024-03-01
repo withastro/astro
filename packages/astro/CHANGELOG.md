@@ -1,5 +1,11 @@
 # astro
 
+## 4.4.8
+
+### Patch Changes
+
+- [#10275](https://github.com/withastro/astro/pull/10275) [`5e3e74b61daa2ba44c761c9ab5745818661a656e`](https://github.com/withastro/astro/commit/5e3e74b61daa2ba44c761c9ab5745818661a656e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes dev toolbar warning about using the proper loading attributes on images using `data:` URIs
+
 ## 4.4.7
 
 ### Patch Changes
