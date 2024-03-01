@@ -3,8 +3,8 @@ import { CONFIG_FILE_NAMES, VIRTUAL_MODULE_ID } from './consts.js';
 import { fileURLToPath } from 'node:url';
 import { getConfigVirtualModContents } from './integration/vite-plugin-db.js';
 import { writeFile, unlink } from 'node:fs/promises';
-import { getDbDirectoryUrl } from './utils.js';
 import { existsSync } from 'node:fs';
+import { getDbDirectoryUrl } from './utils.js';
 
 export async function loadDbConfigFile(
 	root: URL
@@ -103,10 +103,10 @@ export async function importBundledFile({
 	root: URL;
 }): Promise<{ default?: unknown }> {
 	// Write it to disk, load it with native Node ESM, then delete the file.
-	const tmpFileUrl = new URL(`studio.seed.timestamp-${Date.now()}.mjs`, root);
-	await writeFile(tmpFileUrl, code);
+	const tmpFileUrl = new URL(`./studio.seed.timestamp-${Date.now()}.mjs`, root);
+	await writeFile(tmpFileUrl, code, { encoding: 'utf8' });
 	try {
-		return await import(/* @vite-ignore */ tmpFileUrl.pathname);
+		return await import(/* @vite-ignore */fileURLToPath(tmpFileUrl));
 	} finally {
 		try {
 			await unlink(tmpFileUrl);
