@@ -37,7 +37,7 @@ describe('astro:db', () => {
 			it('Allows expression defaults for date columns', async () => {
 				const html = await fixture.fetch('/').then((res) => res.text());
 				const $ = cheerioLoad(html);
-				console.log('Allows expression defaults for date columns::', html);
+				console.log('date columns::', html);
 
 				const themeAdded = $($('.themes-list .theme-added')[0]).text();
 				expect(new Date(themeAdded).getTime()).to.not.be.NaN;
