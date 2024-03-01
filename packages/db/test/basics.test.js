@@ -16,12 +16,18 @@ describe('astro:db', () => {
 	describe('development', () => {
 		let devServer;
 
-		before(async () => {
+		// Note(bholmesdev): Using before() caused a race condition
+		// of parallel tests trying to seed at the same time.
+		// This does not occur locally, but appears in the test runner
+		// as the `astro:db` module is re-evaluated for each test.
+		// Still unsure why this occurs!
+		// Use beforeEach() to avoid clobbering.
+		beforeEach(async () => {
 			console.log('starting dev server');
 			devServer = await fixture.startDevServer();
 		});
 
-		after(async () => {
+		afterEach(async () => {
 			await devServer.stop();
 		});
 
