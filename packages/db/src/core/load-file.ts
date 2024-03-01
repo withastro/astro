@@ -3,7 +3,6 @@ import { CONFIG_FILE_NAMES, VIRTUAL_MODULE_ID } from './consts.js';
 import { fileURLToPath } from 'node:url';
 import {
 	getConfigVirtualModContents,
-	getLocalVirtualModContents,
 	getStudioVirtualModContents,
 } from './integration/vite-plugin-db.js';
 import type { DBTables } from './types.js';
@@ -11,36 +10,24 @@ import { writeFile, unlink } from 'node:fs/promises';
 import { getDbDirUrl } from './utils.js';
 import { existsSync } from 'node:fs';
 
-type ExecuteFileParams =
-	| {
-			connectToStudio: false;
-			fileUrl: URL;
-			tables: DBTables;
-			root: URL;
-	  }
-	| {
-			connectToStudio: true;
-			fileUrl: URL;
-			tables: DBTables;
-			root: URL;
-			appToken: string;
-	  };
-
-export async function executeFile(params: ExecuteFileParams): Promise<void> {
-	const virtualModContents = params.connectToStudio
-		? getStudioVirtualModContents({
-				tables: params.tables,
-				appToken: params.appToken,
-			})
-		: getLocalVirtualModContents({
-				tables: params.tables,
-				root: params.root,
-				shouldSeed: false,
-				useBundledDbUrl: false,
-			});
-	const { code } = await bundleFile({ virtualModContents, ...params });
+export async function executeFile({
+	tables,
+	appToken,
+	root,
+	fileUrl,
+}: {
+	tables: DBTables;
+	appToken: string;
+	root: URL;
+	fileUrl: URL;
+}): Promise<void> {
+	const virtualModContents = getStudioVirtualModContents({
+		tables,
+		appToken,
+	});
+	const { code } = await bundleFile({ virtualModContents, root, fileUrl });
 	// Executable files use top-level await. Importing will run the file.
-	await importBundledFile({ code, root: params.root });
+	await importBundledFile({ code, root });
 }
 
 export async function loadConfigFile(

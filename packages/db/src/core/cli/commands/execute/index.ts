@@ -30,7 +30,6 @@ export async function cmd({
 	const appToken = await getManagedAppTokenOrExit(flags.token);
 
 	await executeFile({
-		connectToStudio: true,
 		fileUrl,
 		tables: dbConfig.tables ?? {},
 		root: astroConfig.root,
