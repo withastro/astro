@@ -23,7 +23,8 @@ export function toTSX(code: string, className: string): string {
 		const { scriptSetup } = parsedResult.descriptor;
 
 		if (scriptSetup) {
-			const definePropsType = scriptSetup.content.match(/defineProps<([\s\S]+?)>\s?\(\)/);
+			const codeWithoutComments = scriptSetup.content.replace(/\/\/.*|\/\*[\s\S]*?\*\//g, '');
+			const definePropsType = codeWithoutComments.match(/defineProps<([\s\S]+?)>\s?\(\)/);
 			const propsGeneric = scriptSetup.attrs.generic;
 			const propsGenericType = propsGeneric ? `<${propsGeneric}>` : '';
 
@@ -40,20 +41,19 @@ export function toTSX(code: string, className: string): string {
 				// TODO. Find a way to support generics when using defineProps without passing explicit types.
 				// Right now something like this `defineProps({ prop: { type: Array as PropType<T[]> } })`
 				//  won't be correctly typed in Astro.
-				const defineProps = scriptSetup.content.match(/defineProps\([\s\S]+\)/);
-
+				const defineProps = codeWithoutComments.match(/defineProps\([\s\S]+?\)/);
 				if (defineProps) {
 					result = `
-					import { defineProps } from '@vue/runtime-core';
+						import { defineProps } from 'vue';
 
-					${regularScriptBlockContent}
+						${regularScriptBlockContent}
 
-					const Props = ${defineProps[0]}
+						const Props = ${defineProps[0]}
 
-					export default function ${className}__AstroComponent_${propsGenericType}(_props: typeof Props): any {
-						<div></div>
-					}
-				`;
+						export default function ${className}__AstroComponent_${propsGenericType}(_props: typeof Props): any {
+							<div></div>
+						}
+					`;
 				}
 			}
 		}
