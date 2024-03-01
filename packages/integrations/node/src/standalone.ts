@@ -9,11 +9,17 @@ import { createAppHandler } from './serve-app.js';
 import { createStaticHandler } from './serve-static.js';
 import type { Options } from './types.js';
 
+// Used to get Host Value at Runtime
+export const hostOptions = (host: Options["host"]): string => {
+	if (typeof host === 'boolean') {
+		return host ? '0.0.0.0' : 'localhost';
+	}
+	return host;
+};
+
 export default function standalone(app: NodeApp, options: Options) {
 	const port = process.env.PORT ? Number(process.env.PORT) : options.port ?? 8080;
-	// Allow to provide host value at runtime
-	const hostOptions = typeof options.host === 'boolean' ? 'localhost' : options.host;
-	const host = process.env.HOST ?? hostOptions;
+	const host = process.env.HOST ?? hostOptions(options.host);
 	const handler = createStandaloneHandler(app, options);
 	const server = createServer(handler, host, port);
 	server.server.listen(port, host);
