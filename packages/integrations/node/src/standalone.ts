@@ -10,7 +10,7 @@ import { createStaticHandler } from './serve-static.js';
 import type { Options } from './types.js';
 
 // Used to get Host Value at Runtime
-export const hostOptions = (host: Options["host"]): string => {
+export const hostOptions = (host: Options['host']): string => {
 	if (typeof host === 'boolean') {
 		return host ? '0.0.0.0' : 'localhost';
 	}
