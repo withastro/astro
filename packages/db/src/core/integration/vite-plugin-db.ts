@@ -31,15 +31,13 @@ type VitePluginDBParams =
 	  };
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
-	const seedFilePaths = SEED_DEV_FILE_NAMES_SORTED.map(
-		(name) => new URL(name, getDbDirUrl(params.root)).pathname
-	);
+	const dbDirUrl = getDbDirUrl(params.root);
 	return {
 		name: 'astro:db',
 		enforce: 'pre',
 		resolveId(id, importer) {
 			if (id === VIRTUAL_MODULE_ID) {
-				const resolved = seedFilePaths.some((s) => s === importer)
+				const resolved = importer?.startsWith(dbDirUrl.pathname)
 					? resolvedSeedVirtualModuleId
 					: resolvedVirtualModuleId;
 				console.log('resolved::', resolved);
