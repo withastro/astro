@@ -17,6 +17,7 @@ describe('astro:db', () => {
 		let devServer;
 
 		before(async () => {
+			console.log('starting dev server');
 			devServer = await fixture.startDevServer();
 		});
 
