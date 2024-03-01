@@ -10,7 +10,7 @@ import { mkdir, rm, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
 import { fileURLIntegration } from './file-url.js';
 import { getManagedAppTokenOrExit, type ManagedAppToken } from '../tokens.js';
-import { loadConfigFile } from '../load-file.js';
+import { loadDbConfigFile } from '../load-file.js';
 import { vitePluginDb, type LateTables } from './vite-plugin-db.js';
 import { typegen } from './typegen.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
@@ -70,7 +70,7 @@ function astroDBIntegration(): AstroIntegration {
 			'astro:config:done': async ({ config }) => {
 				// TODO: refine where we load tables
 				// @matthewp: may want to load tables by path at runtime
-				const { mod, dependencies } = await loadConfigFile(config.root);
+				const { mod, dependencies } = await loadDbConfigFile(config.root);
 				configFileDependencies = dependencies;
 				dbConfig = dbConfigSchema.parse(mod?.default ?? {}, {
 					errorMap,

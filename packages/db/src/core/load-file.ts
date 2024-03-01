@@ -1,36 +1,12 @@
 import { build as esbuild } from 'esbuild';
 import { CONFIG_FILE_NAMES, VIRTUAL_MODULE_ID } from './consts.js';
 import { fileURLToPath } from 'node:url';
-import {
-	getConfigVirtualModContents,
-	getStudioVirtualModContents,
-} from './integration/vite-plugin-db.js';
-import type { DBTables } from './types.js';
+import { getConfigVirtualModContents } from './integration/vite-plugin-db.js';
 import { writeFile, unlink } from 'node:fs/promises';
 import { getDbDirectoryUrl } from './utils.js';
 import { existsSync } from 'node:fs';
 
-export async function executeFile({
-	tables,
-	appToken,
-	root,
-	fileUrl,
-}: {
-	tables: DBTables;
-	appToken: string;
-	root: URL;
-	fileUrl: URL;
-}): Promise<void> {
-	const virtualModContents = getStudioVirtualModContents({
-		tables,
-		appToken,
-	});
-	const { code } = await bundleFile({ virtualModContents, root, fileUrl });
-	// Executable files use top-level await. Importing will run the file.
-	await importBundledFile({ code, root });
-}
-
-export async function loadConfigFile(
+export async function loadDbConfigFile(
 	root: URL
 ): Promise<{ mod: { default?: unknown } | undefined; dependencies: string[] }> {
 	let configFileUrl: URL | undefined;
@@ -55,12 +31,12 @@ export async function loadConfigFile(
 }
 
 /**
- * Bundle config file to support `.ts` files. Simplified fork from Vite's `bundleConfigFile`
- * function:
+ * Bundle arbitrary `mjs` or `ts` file.
+ * Simplified fork from Vite's `bundleConfigFile` function.
  *
  * @see https://github.com/vitejs/vite/blob/main/packages/vite/src/node/config.ts#L961
  */
-async function bundleFile({
+export async function bundleFile({
 	fileUrl,
 	root,
 	virtualModContents,
@@ -119,7 +95,7 @@ async function bundleFile({
  *
  * @see https://github.com/vitejs/vite/blob/main/packages/vite/src/node/config.ts#L1074
  */
-async function importBundledFile({
+export async function importBundledFile({
 	code,
 	root,
 }: {

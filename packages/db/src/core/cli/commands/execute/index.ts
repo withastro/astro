@@ -4,7 +4,8 @@ import { MISSING_EXECUTE_PATH_ERROR, FILE_NOT_FOUND_ERROR } from '../../../error
 import { existsSync } from 'node:fs';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBConfig } from '../../../types.js';
-import { executeFile } from '../../../load-file.js';
+import { bundleFile, importBundledFile } from '../../../load-file.js';
+import { getStudioVirtualModContents } from '../../../integration/vite-plugin-db.js';
 
 export async function cmd({
 	astroConfig,
@@ -29,10 +30,11 @@ export async function cmd({
 
 	const appToken = await getManagedAppTokenOrExit(flags.token);
 
-	await executeFile({
-		fileUrl,
+	const virtualModContents = getStudioVirtualModContents({
 		tables: dbConfig.tables ?? {},
-		root: astroConfig.root,
 		appToken: appToken.token,
 	});
+	const { code } = await bundleFile({ virtualModContents, root: astroConfig.root, fileUrl });
+	// Executable files use top-level await. Importing will run the file.
+	await importBundledFile({ code, root: astroConfig.root });
 }
