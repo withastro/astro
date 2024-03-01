@@ -1103,14 +1103,14 @@ describe('astro:image', () => {
 				let response = await app.render(request);
 				const body = await response.text();
 
-				assert.equal(response.status, 500);
-				assert.equal(body.includes('Internal Server Error'), true);
+				expect(response.status).to.equal(500);
+				expect(body).includes('Internal Server Error');
 			}
 
 			// Server should still be running
 			let request = new Request('http://example.com/');
 			let response = await app.render(request);
-			assert.equal(response.status, 200);
+			expect(response.status).to.equal(200);
 		});
 
 		it('prerendered routes images are built', async () => {
