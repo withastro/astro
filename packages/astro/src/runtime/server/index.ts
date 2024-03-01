@@ -41,15 +41,12 @@ export type {
 export { createTransitionScope, renderTransition } from './transition.js';
 
 import { markHTMLString } from './escape.js';
-import { addAttribute, Renderer } from './render/index.js';
+import { Renderer, addAttribute } from './render/index.js';
 
 export function mergeSlots(...slotted: unknown[]) {
 	const slots: Record<string, () => any> = {};
-	for (let slot of slotted) {
+	for (const slot of slotted) {
 		if (!slot) continue;
-		if (Array.isArray(slot)) {
-			slot = mergeSlots(...slot);
-		}
 		if (typeof slot === 'object') {
 			Object.assign(slots, slot);
 		} else if (typeof slot === 'function') {

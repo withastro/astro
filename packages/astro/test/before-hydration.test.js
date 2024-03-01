@@ -1,8 +1,9 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import { preact } from './fixtures/before-hydration/deps.mjs';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Astro Scripts before-hydration', () => {
 	describe('SSG', () => {
@@ -43,7 +44,7 @@ describe('Astro Scripts before-hydration', () => {
 					let res = await fixture.fetch('/');
 					let html = await res.text();
 					let $ = cheerio.load(html);
-					expect($('astro-island[before-hydration-url]')).has.a.lengthOf(1);
+					assert.equal($('astro-island[before-hydration-url]').length, 1);
 				});
 			});
 
@@ -55,7 +56,7 @@ describe('Astro Scripts before-hydration', () => {
 				it('Is included in the astro-island', async () => {
 					let html = await fixture.readFile('/index.html');
 					let $ = cheerio.load(html);
-					expect($('astro-island[before-hydration-url]')).has.a.lengthOf(1);
+					assert.equal($('astro-island[before-hydration-url]').length, 1);
 				});
 			});
 		});
@@ -86,7 +87,7 @@ describe('Astro Scripts before-hydration', () => {
 					let res = await fixture.fetch('/');
 					let html = await res.text();
 					let $ = cheerio.load(html);
-					expect($('astro-island[before-hydration-url]')).has.a.lengthOf(1);
+					assert.equal($('astro-island[before-hydration-url]').length, 1);
 				});
 			});
 
@@ -98,7 +99,7 @@ describe('Astro Scripts before-hydration', () => {
 				it('Does not include before-hydration-url on the astro-island', async () => {
 					let html = await fixture.readFile('/index.html');
 					let $ = cheerio.load(html);
-					expect($('astro-island[before-hydration-url]')).has.a.lengthOf(0);
+					assert.equal($('astro-island[before-hydration-url]').length, 0);
 				});
 			});
 		});
@@ -139,7 +140,7 @@ describe('Astro Scripts before-hydration', () => {
 					let response = await app.render(request);
 					let html = await response.text();
 					let $ = cheerio.load(html);
-					expect($('astro-island[before-hydration-url]')).has.a.lengthOf(1);
+					assert.equal($('astro-island[before-hydration-url]').length, 1);
 				});
 			});
 		});
@@ -167,7 +168,7 @@ describe('Astro Scripts before-hydration', () => {
 					let response = await app.render(request);
 					let html = await response.text();
 					let $ = cheerio.load(html);
-					expect($('astro-island[before-hydration-url]')).has.a.lengthOf(0);
+					assert.equal($('astro-island[before-hydration-url]').length, 0);
 				});
 			});
 		});

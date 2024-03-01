@@ -1,8 +1,8 @@
-import { dim } from 'kleur/colors';
 import fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import { createServer, type HMRPayload } from 'vite';
+import { dim } from 'kleur/colors';
+import { type HMRPayload, createServer } from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
@@ -15,8 +15,10 @@ import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
+import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { AstroError, AstroErrorData, createSafeError, isAstroError } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
+import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
 
 export type ProcessExit = 0 | 1;
@@ -55,7 +57,16 @@ export default async function sync(
 		command: 'build',
 	});
 
-	return await syncInternal(settings, { ...options, logger });
+	try {
+		return await syncInternal(settings, { ...options, logger });
+	} catch (err) {
+		const error = createSafeError(err);
+		logger.error(
+			'content',
+			formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n'
+		);
+		return 1;
+	}
 }
 
 /**
@@ -90,14 +101,14 @@ export async function syncInternal(
 		)
 	);
 
-	// Patch `ws.send` to bubble up error events
-	// `ws.on('error')` does not fire for some reason
-	const wsSend = tempViteServer.ws.send;
-	tempViteServer.ws.send = (payload: HMRPayload) => {
+	// Patch `hot.send` to bubble up error events
+	// `hot.on('error')` does not fire for some reason
+	const hotSend = tempViteServer.hot.send;
+	tempViteServer.hot.send = (payload: HMRPayload) => {
 		if (payload.type === 'error') {
 			throw payload.err;
 		}
-		return wsSend(payload);
+		return hotSend(payload);
 	};
 
 	try {

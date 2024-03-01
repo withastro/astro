@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -29,7 +30,7 @@ describe('HTML Escape (Complex)', () => {
 			for (const char of 'abcdef'.split('')) {
 				const attrIn = $in('#' + char).attr('data-attr');
 				const attrOut = $out('#' + char).attr('data-attr');
-				expect(attrOut).to.equal(attrIn);
+				assert.equal(attrOut, attrIn);
 			}
 		});
 
@@ -39,12 +40,12 @@ describe('HTML Escape (Complex)', () => {
 			const scriptIn = $a('script');
 			const scriptOut = $b('script');
 
-			expect(scriptOut.text()).to.equal(scriptIn.text());
+			assert.equal(scriptOut.text(), scriptIn.text());
 		});
 
 		it('matches the entire source file', async () => {
 			// Ignore doctype insertion
-			expect(output.replace('<!DOCTYPE html>', '')).to.equal(input);
+			assert.equal(output.replace('<!DOCTYPE html>', ''), input);
 		});
 	});
 });

@@ -1,6 +1,7 @@
 import mdx from '@astrojs/mdx';
 
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
 describe('MDX Infinite Loop', () => {
@@ -24,7 +25,7 @@ describe('MDX Infinite Loop', () => {
 		});
 
 		it('does not hang forever if an error is thrown', async () => {
-			expect(!!err).to.be.true;
+			assert.equal(!!err, true);
 		});
 	});
 });

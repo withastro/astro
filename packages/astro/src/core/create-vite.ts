@@ -1,5 +1,6 @@
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import glob from 'fast-glob';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
 import type { AstroSettings } from '../@types/astro.js';
@@ -92,7 +93,7 @@ export async function createVite(
 				pkgJson.keywords?.includes('astro') ||
 				pkgJson.keywords?.includes('astro-component') ||
 				// Attempt: package is named `astro-something` or `@scope/astro-something`. ✅ Likely a community package
-				/^(@[^\/]+\/)?astro\-/.test(pkgJson.name)
+				/^(?:@[^/]+\/)?astro-/.test(pkgJson.name)
 			);
 		},
 		isFrameworkPkgByName(pkgName) {
@@ -105,6 +106,8 @@ export async function createVite(
 		},
 	});
 
+	const srcDirPattern = glob.convertPathToPattern(fileURLToPath(settings.config.srcDir));
+
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: vite.InlineConfig = {
 		// Tell Vite not to combine config from vite.config.js with our provided inline config
@@ -114,7 +117,13 @@ export async function createVite(
 		customLogger: createViteLogger(logger, settings.config.vite.logLevel),
 		appType: 'custom',
 		optimizeDeps: {
-			entries: ['src/**/*'],
+			// Scan all files within `srcDir` except for known server-code (e.g endpoints)
+			entries: [
+				`${srcDirPattern}!(pages)/**/*`, // All files except for pages
+				`${srcDirPattern}pages/**/!(*.js|*.mjs|*.ts|*.mts)`, // All pages except for endpoints
+				`${srcDirPattern}pages/**/_*.{js,mjs,ts,mts}`, // Remaining JS/TS files prefixed with `_` (not endpoints)
+				`${srcDirPattern}pages/**/_*/**/*.{js,mjs,ts,mts}`, // Remaining JS/TS files within directories prefixed with `_` (not endpoints)
+			],
 			exclude: ['astro', 'node-fetch'],
 		},
 		plugins: [
@@ -145,7 +154,7 @@ export async function createVite(
 			astroTransitions({ settings }),
 			astroDevToolbar({ settings, logger }),
 			vitePluginFileURL({}),
-			!!settings.config.i18n && astroInternationalization({ settings }),
+			astroInternationalization({ settings }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

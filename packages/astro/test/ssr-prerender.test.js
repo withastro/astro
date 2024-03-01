@@ -1,7 +1,8 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('SSR: prerender', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -23,14 +24,14 @@ describe('SSR: prerender', () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/static');
 			const response = await app.render(request);
-			expect(response.status).to.equal(404);
+			assert.equal(response.status, 404);
 		});
 
 		it('includes prerendered pages in the asset manifest', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			/** @type {Set<string>} */
 			const assets = app.manifest.assets;
-			expect(assets).to.contain('/static/index.html');
+			assert.equal(assets.has('/static/index.html'), true);
 		});
 	});
 
@@ -39,10 +40,10 @@ describe('SSR: prerender', () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/users/houston');
 			const response = await app.render(request);
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 			const html = await response.text();
 			const $ = cheerio.load(html);
-			expect($('.user').text()).to.equal('houston');
+			assert.equal($('.user').text(), 'houston');
 		});
 	});
 
@@ -52,10 +53,10 @@ describe('SSR: prerender', () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/some');
 			const response = await app.render(request);
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 			const html = await response.text();
 			const $ = cheerio.load(html);
-			expect($('p').text()).to.include('not give 404');
+			assert.equal($('p').text().includes('not give 404'), true);
 		});
 	});
 });
@@ -94,13 +95,13 @@ describe('Integrations can hook into the prerendering decision', () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/static');
 		const response = await app.render(request);
-		expect(response.status).to.equal(200);
+		assert.equal(response.status, 200);
 	});
 
 	it('An integration can turn a normal page to a prerendered one', async () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/not-prerendered');
 		const response = await app.render(request);
-		expect(response.status).to.equal(404);
+		assert.equal(response.status, 404);
 	});
 });

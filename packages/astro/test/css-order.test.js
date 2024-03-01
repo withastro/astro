@@ -1,7 +1,8 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('CSS production ordering', () => {
 	function getLinks(html) {
@@ -65,7 +66,7 @@ describe('CSS production ordering', () => {
 			const staticContent = staticCSS.map((o) => o.css);
 			const serverContent = serverCSS.map((o) => o.css);
 
-			expect(staticContent).to.deep.equal(serverContent);
+			assert.deepEqual(staticContent, serverContent);
 		});
 	});
 
@@ -88,11 +89,11 @@ describe('CSS production ordering', () => {
 				getLinks(html).map((href) => getLinkContent(fixture, href))
 			);
 
-			expect(content).to.have.a.lengthOf(3, 'there are 3 stylesheets');
+			assert.ok(content.length, 3, 'there are 3 stylesheets');
 			const [, sharedStyles, pageStyles] = content;
 
-			expect(sharedStyles.css).to.match(/red/);
-			expect(pageStyles.css).to.match(/#00f/);
+			assert.ok(sharedStyles.css.match(/red/));
+			assert.ok(pageStyles.css.match(/#00f/));
 		});
 
 		it('CSS injected by injectScript comes first because of import order', async () => {
@@ -106,7 +107,7 @@ describe('CSS production ordering', () => {
 				);
 
 				const [first] = content;
-				expect(first.css).to.include('green', 'Came from the injected script');
+				assert.ok(first.css.includes('green'), 'Came from the injected script');
 			}
 		});
 	});

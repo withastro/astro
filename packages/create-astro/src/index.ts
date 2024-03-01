@@ -1,5 +1,6 @@
 import { getContext } from './actions/context.js';
 
+import { tasks } from '@astrojs/cli-kit';
 import { dependencies } from './actions/dependencies.js';
 import { git } from './actions/git.js';
 import { help } from './actions/help.js';
@@ -10,15 +11,11 @@ import { template } from './actions/template.js';
 import { setupTypeScript, typescript } from './actions/typescript.js';
 import { verify } from './actions/verify.js';
 import { setStdout } from './messages.js';
-import { tasks } from '@astrojs/cli-kit';
 
 const exit = () => process.exit(0);
 process.on('SIGINT', exit);
 process.on('SIGTERM', exit);
 
-// Please also update the installation instructions in the docs at
-// https://github.com/withastro/docs/blob/main/src/pages/en/install/auto.md
-// if you make any changes to the flow or wording here.
 export async function main() {
 	// Add some extra spacing from the noisy npm/pnpm init output
 	// eslint-disable-next-line no-console
@@ -39,8 +36,8 @@ export async function main() {
 		intro,
 		projectName,
 		template,
-		dependencies,
 		typescript,
+		dependencies,
 
 		// Steps which write to files need to go above git
 		git,

@@ -1,6 +1,6 @@
-import { loadFixture } from './test-utils.js';
+import { before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
-
+import { loadFixture } from './test-utils.js';
 describe('SSR Preview', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;

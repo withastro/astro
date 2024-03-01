@@ -1,5 +1,6 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { expect } from 'chai';
 import { createFs, runInContainer } from '../test-utils.js';
 
 const root = new URL('../../fixtures/tailwindcss-ts/', import.meta.url);
@@ -19,7 +20,8 @@ describe('Astro config formats', () => {
 		);
 
 		await runInContainer({ fs, inlineConfig: { root: fileURLToPath(root) } }, () => {
-			expect(true).to.equal(
+			assert.equal(
+				true,
 				true,
 				'We were able to get into the container which means the config loaded.'
 			);

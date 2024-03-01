@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -15,6 +16,6 @@ describe('Code component inside static build', () => {
 	it('Is able to build successfully', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		expect($('pre').length, 1, 'pre tag loaded');
+		assert.equal($('pre').length, 1, 'pre tag loaded');
 	});
 });

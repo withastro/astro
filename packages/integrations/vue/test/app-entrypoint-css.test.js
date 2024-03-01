@@ -1,6 +1,7 @@
-import { loadFixture } from './test-utils.js';
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
 describe('App Entrypoint CSS', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -22,18 +23,17 @@ describe('App Entrypoint CSS', () => {
 			const $ = cheerioLoad(html);
 
 			// test 1: basic component renders
-			expect($('#foo > #bar').text()).to.eq('works');
-
+			assert.equal($('#foo > #bar').text(), 'works');
 			// test 2: injects the global style on the page
-			expect($('style').first().text().trim()).to.eq(':root{background-color:red}');
+			assert.equal($('style').first().text().trim(), ':root{background-color:red}');
 		});
 
 		it('does not inject styles to pages without a Vue component', async () => {
 			const html = await fixture.readFile('/unrelated/index.html');
 			const $ = cheerioLoad(html);
 
-			expect($('style').length).to.eq(0);
-			expect($('link[rel="stylesheet"]').length).to.eq(0);
+			assert.equal($('style').length, 0);
+			assert.equal($('link[rel="stylesheet"]').length, 0);
 		});
 	});
 
@@ -51,17 +51,17 @@ describe('App Entrypoint CSS', () => {
 			const $ = cheerioLoad(html);
 
 			// test 1: basic component renders
-			expect($('#foo > #bar').text()).to.eq('works');
+			assert.equal($('#foo > #bar').text(), 'works');
 			// test 2: injects the global style on the page
-			expect($('style').first().text().replace(/\s+/g, '')).to.eq(':root{background-color:red;}');
+			assert.equal($('style').first().text().replace(/\s+/g, ''), ':root{background-color:red;}');
 		});
 
 		it('does not inject styles to pages without a Vue component', async () => {
 			const html = await fixture.fetch('/unrelated').then((res) => res.text());
 			const $ = cheerioLoad(html);
 
-			expect($('style').length).to.eq(0);
-			expect($('link[rel="stylesheet"]').length).to.eq(0);
+			assert.equal($('style').length, 0);
+			assert.equal($('link[rel="stylesheet"]').length, 0);
 		});
 	});
 });

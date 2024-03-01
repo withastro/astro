@@ -1,7 +1,8 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 async function fetchHTML(fixture, path) {
 	const app = await fixture.loadTestAdapterApp();
@@ -31,7 +32,7 @@ describe('Hoisted inline scripts in SSR', () => {
 		it('scripts get included', async () => {
 			const html = await fetchHTML(fixture, '/');
 			const $ = cheerioLoad(html);
-			expect($('script').length).to.equal(1);
+			assert.equal($('script').length, 1);
 		});
 	});
 
@@ -49,7 +50,7 @@ describe('Hoisted inline scripts in SSR', () => {
 		it('Inlined scripts get included without base path in the script', async () => {
 			const html = await fetchHTML(fixture, '/hello/');
 			const $ = cheerioLoad(html);
-			expect($('script').html()).to.equal('console.log("hello world");\n');
+			assert.equal($('script').html(), 'console.log("hello world");\n');
 		});
 	});
 });
@@ -74,7 +75,7 @@ describe('Hoisted external scripts in SSR', () => {
 		it('script has correct path', async () => {
 			const html = await fetchHTML(fixture, '/');
 			const $ = cheerioLoad(html);
-			expect($('script').attr('src')).to.match(/^\/_astro\/hoisted\..{8}\.js$/);
+			assert.match($('script').attr('src'), /^\/_astro\/hoisted\..{8}\.js$/);
 		});
 	});
 
@@ -95,7 +96,7 @@ describe('Hoisted external scripts in SSR', () => {
 		it('script has correct path', async () => {
 			const html = await fetchHTML(fixture, '/hello/');
 			const $ = cheerioLoad(html);
-			expect($('script').attr('src')).to.match(/^\/hello\/_astro\/hoisted\..{8}\.js$/);
+			assert.match($('script').attr('src'), /^\/hello\/_astro\/hoisted\..{8}\.js$/);
 		});
 	});
 
@@ -118,7 +119,8 @@ describe('Hoisted external scripts in SSR', () => {
 		it('script has correct path', async () => {
 			const html = await fetchHTML(fixture, '/');
 			const $ = cheerioLoad(html);
-			expect($('script').attr('src')).to.match(
+			assert.match(
+				$('script').attr('src'),
 				/^https:\/\/cdn\.example\.com\/_astro\/hoisted\..{8}\.js$/
 			);
 		});
@@ -147,7 +149,7 @@ describe('Hoisted external scripts in SSR', () => {
 		it('script has correct path', async () => {
 			const html = await fetchHTML(fixture, '/');
 			const $ = cheerioLoad(html);
-			expect($('script').attr('src')).to.match(/^\/assets\/entry\..{8}\.mjs$/);
+			assert.match($('script').attr('src'), /^\/assets\/entry\..{8}\.mjs$/);
 		});
 	});
 
@@ -175,7 +177,7 @@ describe('Hoisted external scripts in SSR', () => {
 		it('script has correct path', async () => {
 			const html = await fetchHTML(fixture, '/hello/');
 			const $ = cheerioLoad(html);
-			expect($('script').attr('src')).to.match(/^\/hello\/assets\/entry\..{8}\.mjs$/);
+			assert.match($('script').attr('src'), /^\/hello\/assets\/entry\..{8}\.mjs$/);
 		});
 	});
 
@@ -205,7 +207,8 @@ describe('Hoisted external scripts in SSR', () => {
 		it('script has correct path', async () => {
 			const html = await fetchHTML(fixture, '/');
 			const $ = cheerioLoad(html);
-			expect($('script').attr('src')).to.match(
+			assert.match(
+				$('script').attr('src'),
 				/^https:\/\/cdn\.example\.com\/assets\/entry\..{8}\.mjs$/
 			);
 		});

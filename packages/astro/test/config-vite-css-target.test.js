@@ -2,7 +2,8 @@
  * css-target
  */
 
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -35,9 +36,7 @@ describe('CSS', function () {
 		});
 
 		it('vite.build.cssTarget is respected', async () => {
-			expect(bundledCSS).to.match(
-				new RegExp('.class\\[data-astro-[^{]*{top:0;right:0;bottom:0;left:0}')
-			);
+			assert.match(bundledCSS, /\.class\[data-astro-[^{]*\{top:0;right:0;bottom:0;left:0\}/);
 		});
 	});
 });

@@ -1,6 +1,6 @@
 import type { HoistedScript, TransformResult } from '@astrojs/compiler';
 import type { PropagationHint } from '../@types/astro.js';
-import type { CompileAstroResult } from './compile.js';
+import type { CompileCssResult } from '../core/compile/compile.js';
 
 export interface PageOptions {
 	prerender?: boolean;
@@ -21,7 +21,7 @@ export interface CompileMetadata {
 	/** Used for HMR to compare code changes */
 	originalCode: string;
 	/** For Astro CSS virtual module */
-	css: string[];
+	css: CompileCssResult[];
 	/** For Astro hoisted scripts virtual module */
 	scripts: HoistedScript[];
 }

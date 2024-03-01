@@ -1,6 +1,7 @@
-import { expect } from 'chai';
-import * as cheerio from 'cheerio';
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import * as cheerio from 'cheerio';
 import { createFs, createRequestAndResponse, runInContainer } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
@@ -41,10 +42,10 @@ describe('core/render chunk', () => {
 					const $ = cheerio.load(html);
 					const target = $('#chunk');
 
-					expect(target).not.to.be.undefined;
-					expect(target.text()).to.equal('[object Object]');
+					assert.ok(target);
+					assert.equal(target.text(), '[object Object]');
 				} catch (e) {
-					expect(false).to.be.ok;
+					assert.fail();
 				}
 			}
 		);

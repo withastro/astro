@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { AstroCookies } from '../../../dist/core/cookies/index.js';
 import { apply as applyPolyfill } from '../../../dist/core/polyfill.js';
 
@@ -13,11 +14,11 @@ describe('astro/src/core/cookies', () => {
 				},
 			});
 			let cookies = new AstroCookies(req);
-			expect(cookies.get('foo').value).to.equal('bar');
+			assert.equal(cookies.get('foo').value, 'bar');
 
 			cookies.delete('foo');
 			let headers = Array.from(cookies.headers());
-			expect(headers).to.have.a.lengthOf(1);
+			assert.equal(headers.length, 1);
 		});
 
 		it('calling cookies.get() after returns undefined', () => {
@@ -27,10 +28,10 @@ describe('astro/src/core/cookies', () => {
 				},
 			});
 			let cookies = new AstroCookies(req);
-			expect(cookies.get('foo').value).to.equal('bar');
+			assert.equal(cookies.get('foo').value, 'bar');
 
 			cookies.delete('foo');
-			expect(cookies.get('foo')).to.equal(undefined);
+			assert.equal(cookies.get('foo'), undefined);
 		});
 
 		it('calling cookies.has() after returns false', () => {
@@ -40,10 +41,10 @@ describe('astro/src/core/cookies', () => {
 				},
 			});
 			let cookies = new AstroCookies(req);
-			expect(cookies.has('foo')).to.equal(true);
+			assert.equal(cookies.has('foo'), true);
 
 			cookies.delete('foo');
-			expect(cookies.has('foo')).to.equal(false);
+			assert.equal(cookies.has('foo'), false);
 		});
 
 		it('can provide a path', () => {
@@ -53,8 +54,8 @@ describe('astro/src/core/cookies', () => {
 				path: '/subpath/',
 			});
 			let headers = Array.from(cookies.headers());
-			expect(headers).to.have.a.lengthOf(1);
-			expect(headers[0]).to.match(/Path=\/subpath\//);
+			assert.equal(headers.length, 1);
+			assert.equal(/Path=\/subpath\//.test(headers[0]), true);
 		});
 
 		it('can provide a domain', () => {
@@ -64,8 +65,8 @@ describe('astro/src/core/cookies', () => {
 				domain: '.example.com',
 			});
 			let headers = Array.from(cookies.headers());
-			expect(headers).to.have.a.lengthOf(1);
-			expect(headers[0]).to.match(/Domain=\.example\.com/);
+			assert.equal(headers.length, 1);
+			assert.equal(/Domain=\.example\.com/.test(headers[0]), true);
 		});
 	});
 });

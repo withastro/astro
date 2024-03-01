@@ -2,7 +2,8 @@ import { rehypeHeadingIds } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import { visit } from 'unist-util-visit';
 
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
@@ -24,17 +25,18 @@ describe('MDX getHeadings', () => {
 
 		const h2Ids = document.querySelectorAll('h2').map((el) => el?.id);
 		const h3Ids = document.querySelectorAll('h3').map((el) => el?.id);
-		expect(document.querySelector('h1').id).to.equal('heading-test');
-		expect(h2Ids).to.contain('section-1');
-		expect(h2Ids).to.contain('section-2');
-		expect(h3Ids).to.contain('subsection-1');
-		expect(h3Ids).to.contain('subsection-2');
+		assert.equal(document.querySelector('h1').id, 'heading-test');
+		assert.equal(h2Ids.includes('section-1'), true);
+		assert.equal(h2Ids.includes('section-2'), true);
+		assert.equal(h3Ids.includes('subsection-1'), true);
+		assert.equal(h3Ids.includes('subsection-2'), true);
 	});
 
 	it('generates correct getHeadings() export', async () => {
 		const { headingsByPage } = JSON.parse(await fixture.readFile('/pages.json'));
 		// TODO: make this a snapshot test :)
-		expect(JSON.stringify(headingsByPage['./test.mdx'])).to.equal(
+		assert.equal(
+			JSON.stringify(headingsByPage['./test.mdx']),
 			JSON.stringify([
 				{ depth: 1, slug: 'heading-test', text: 'Heading test' },
 				{ depth: 2, slug: 'section-1', text: 'Section 1' },
@@ -47,7 +49,8 @@ describe('MDX getHeadings', () => {
 
 	it('generates correct getHeadings() export for JSX expressions', async () => {
 		const { headingsByPage } = JSON.parse(await fixture.readFile('/pages.json'));
-		expect(JSON.stringify(headingsByPage['./test-with-jsx-expressions.mdx'])).to.equal(
+		assert.equal(
+			JSON.stringify(headingsByPage['./test-with-jsx-expressions.mdx']),
 			JSON.stringify([
 				{
 					depth: 1,
@@ -91,18 +94,20 @@ describe('MDX heading IDs can be customized by user plugins', () => {
 		const { document } = parseHTML(html);
 
 		const h1 = document.querySelector('h1');
-		expect(h1?.textContent).to.equal('Heading test');
-		expect(h1?.getAttribute('id')).to.equal('0');
+		assert.equal(h1?.textContent, 'Heading test');
+		assert.equal(h1?.getAttribute('id'), '0');
 
 		const headingIDs = document.querySelectorAll('h1,h2,h3').map((el) => el.id);
-		expect(JSON.stringify(headingIDs)).to.equal(
+		assert.equal(
+			JSON.stringify(headingIDs),
 			JSON.stringify(Array.from({ length: headingIDs.length }, (_, idx) => String(idx)))
 		);
 	});
 
 	it('generates correct getHeadings() export', async () => {
 		const { headingsByPage } = JSON.parse(await fixture.readFile('/pages.json'));
-		expect(JSON.stringify(headingsByPage['./test.mdx'])).to.equal(
+		assert.equal(
+			JSON.stringify(headingsByPage['./test.mdx']),
 			JSON.stringify([
 				{ depth: 1, slug: '0', text: 'Heading test' },
 				{ depth: 2, slug: '1', text: 'Section 1' },
@@ -145,8 +150,8 @@ describe('MDX heading IDs can be injected before user plugins', () => {
 		const { document } = parseHTML(html);
 
 		const h1 = document.querySelector('h1');
-		expect(h1?.textContent).to.equal('Heading test heading-test');
-		expect(h1?.id).to.equal('heading-test');
+		assert.equal(h1?.textContent, 'Heading test heading-test');
+		assert.equal(h1?.id, 'heading-test');
 	});
 });
 
@@ -168,18 +173,19 @@ describe('MDX headings with frontmatter', () => {
 
 		const h3Ids = document.querySelectorAll('h3').map((el) => el?.id);
 
-		expect(document.querySelector('h1').id).to.equal('the-frontmatter-title');
-		expect(document.querySelector('h2').id).to.equal('frontmattertitle');
-		expect(h3Ids).to.contain('keyword-2');
-		expect(h3Ids).to.contain('tag-1');
-		expect(document.querySelector('h4').id).to.equal('item-2');
-		expect(document.querySelector('h5').id).to.equal('nested-item-3');
-		expect(document.querySelector('h6').id).to.equal('frontmatterunknown');
+		assert.equal(document.querySelector('h1').id, 'the-frontmatter-title');
+		assert.equal(document.querySelector('h2').id, 'frontmattertitle');
+		assert.equal(h3Ids.includes('keyword-2'), true);
+		assert.equal(h3Ids.includes('tag-1'), true);
+		assert.equal(document.querySelector('h4').id, 'item-2');
+		assert.equal(document.querySelector('h5').id, 'nested-item-3');
+		assert.equal(document.querySelector('h6').id, 'frontmatterunknown');
 	});
 
 	it('generates correct getHeadings() export', async () => {
 		const { headingsByPage } = JSON.parse(await fixture.readFile('/pages.json'));
-		expect(JSON.stringify(headingsByPage['./test-with-frontmatter.mdx'])).to.equal(
+		assert.equal(
+			JSON.stringify(headingsByPage['./test-with-frontmatter.mdx']),
 			JSON.stringify([
 				{ depth: 1, slug: 'the-frontmatter-title', text: 'The Frontmatter Title' },
 				{ depth: 2, slug: 'frontmattertitle', text: 'frontmatter.title' },

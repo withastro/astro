@@ -1,5 +1,6 @@
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { expect } from 'chai';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
 describe('Markdoc - propagated assets', () => {
@@ -44,23 +45,23 @@ describe('Markdoc - propagated assets', () => {
 				let styleContents;
 				if (mode === 'dev') {
 					const styles = stylesDocument.querySelectorAll('style');
-					expect(styles).to.have.lengthOf(1);
+					assert.equal(styles.length, 1);
 					styleContents = styles[0].textContent;
 				} else {
 					const links = stylesDocument.querySelectorAll('link[rel="stylesheet"]');
-					expect(links).to.have.lengthOf(1);
+					assert.equal(links.length, 1);
 					styleContents = await fixture.readFile(links[0].href);
 				}
-				expect(styleContents).to.include('--color-base-purple: 269, 79%;');
+				assert.equal(styleContents.includes('--color-base-purple: 269, 79%;'), true);
 			});
 
 			it('[fails] Does not bleed styles to other page', async () => {
 				if (mode === 'dev') {
 					const styles = scriptsDocument.querySelectorAll('style');
-					expect(styles).to.have.lengthOf(0);
+					assert.equal(styles.length, 0);
 				} else {
 					const links = scriptsDocument.querySelectorAll('link[rel="stylesheet"]');
-					expect(links).to.have.lengthOf(0);
+					assert.equal(links.length, 0);
 				}
 			});
 		});

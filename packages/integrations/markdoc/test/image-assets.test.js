@@ -1,5 +1,6 @@
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { expect } from 'chai';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
 const root = new URL('./fixtures/image-assets/', import.meta.url);
@@ -28,14 +29,15 @@ describe('Markdoc - Image assets', () => {
 			const res = await baseFixture.fetch('/');
 			const html = await res.text();
 			const { document } = parseHTML(html);
-			expect(document.querySelector('#public > img')?.src).to.equal('/favicon.svg');
+			assert.equal(document.querySelector('#public > img')?.src, '/favicon.svg');
 		});
 
 		it('transforms relative image paths to optimized path', async () => {
 			const res = await baseFixture.fetch('/');
 			const html = await res.text();
 			const { document } = parseHTML(html);
-			expect(document.querySelector('#relative > img')?.src).to.match(
+			assert.match(
+				document.querySelector('#relative > img')?.src,
 				/\/_image\?href=.*%2Fsrc%2Fassets%2Frelative%2Foar.jpg%3ForigWidth%3D420%26origHeight%3D630%26origFormat%3Djpg&f=webp/
 			);
 		});
@@ -44,9 +46,17 @@ describe('Markdoc - Image assets', () => {
 			const res = await baseFixture.fetch('/');
 			const html = await res.text();
 			const { document } = parseHTML(html);
-			expect(document.querySelector('#alias > img')?.src).to.match(
+			assert.match(
+				document.querySelector('#alias > img')?.src,
 				/\/_image\?href=.*%2Fsrc%2Fassets%2Falias%2Fcityscape.jpg%3ForigWidth%3D420%26origHeight%3D280%26origFormat%3Djpg&f=webp/
 			);
+		});
+
+		it('passes images inside image tags to configured image component', async () => {
+			const res = await baseFixture.fetch('/');
+			const html = await res.text();
+			const { document } = parseHTML(html);
+			assert.equal(document.querySelector('#component > img')?.className, 'custom-styles');
 		});
 	});
 
@@ -58,19 +68,26 @@ describe('Markdoc - Image assets', () => {
 		it('uses public/ image paths unchanged', async () => {
 			const html = await baseFixture.readFile('/index.html');
 			const { document } = parseHTML(html);
-			expect(document.querySelector('#public > img')?.src).to.equal('/favicon.svg');
+			assert.equal(document.querySelector('#public > img')?.src, '/favicon.svg');
 		});
 
 		it('transforms relative image paths to optimized path', async () => {
 			const html = await baseFixture.readFile('/index.html');
 			const { document } = parseHTML(html);
-			expect(document.querySelector('#relative > img')?.src).to.match(/^\/_astro\/oar.*\.webp$/);
+			assert.match(document.querySelector('#relative > img')?.src, /^\/_astro\/oar.*\.webp$/);
 		});
 
 		it('transforms aliased image paths to optimized path', async () => {
 			const html = await baseFixture.readFile('/index.html');
 			const { document } = parseHTML(html);
-			expect(document.querySelector('#alias > img')?.src).to.match(/^\/_astro\/cityscape.*\.webp$/);
+			assert.match(document.querySelector('#alias > img')?.src, /^\/_astro\/cityscape.*\.webp$/);
+		});
+
+		it('passes images inside image tags to configured image component', async () => {
+			const html = await baseFixture.readFile('/index.html');
+			const { document } = parseHTML(html);
+			assert.equal(document.querySelector('#component > img')?.className, 'custom-styles');
+			assert.match(document.querySelector('#component > img')?.src, /^\/_astro\/oar.*\.webp$/);
 		});
 	});
 });

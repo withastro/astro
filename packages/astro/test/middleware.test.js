@@ -1,7 +1,8 @@
-import { expect } from 'chai';
-import * as cheerio from 'cheerio';
+import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
+import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
@@ -24,105 +25,108 @@ describe('Middleware in DEV mode', () => {
 	it('should render locals data', async () => {
 		const html = await fixture.fetch('/').then((res) => res.text());
 		const $ = cheerio.load(html);
-		expect($('p').html()).to.equal('bar');
+		assert.equal($('p').html(), 'bar');
 	});
 
 	it('should change locals data based on URL', async () => {
 		let html = await fixture.fetch('/').then((res) => res.text());
 		let $ = cheerio.load(html);
-		expect($('p').html()).to.equal('bar');
+		assert.equal($('p').html(), 'bar');
 
 		html = await fixture.fetch('/lorem').then((res) => res.text());
 		$ = cheerio.load(html);
-		expect($('p').html()).to.equal('ipsum');
+		assert.equal($('p').html(), 'ipsum');
 	});
 
 	it('should call a second middleware', async () => {
-		let html = await fixture.fetch('/second').then((res) => res.text());
-		let $ = cheerio.load(html);
-		expect($('p').html()).to.equal('second');
+		const html = await fixture.fetch('/second').then((res) => res.text());
+		const $ = cheerio.load(html);
+		assert.equal($('p').html(), 'second');
 	});
 
 	it('should successfully create a new response', async () => {
-		let html = await fixture.fetch('/rewrite').then((res) => res.text());
-		let $ = cheerio.load(html);
-		expect($('p').html()).to.be.null;
-		expect($('span').html()).to.equal('New content!!');
+		const html = await fixture.fetch('/rewrite').then((res) => res.text());
+		const $ = cheerio.load(html);
+		assert.equal($('p').html(), null);
+		assert.equal($('span').html(), 'New content!!');
 	});
 
 	it('should return a new response that is a 500', async () => {
 		await fixture.fetch('/broken-500').then((res) => {
-			expect(res.status).to.equal(500);
+			assert.equal(res.status, 500);
 			return res.text();
 		});
 	});
 
 	it('should successfully render a page if the middleware calls only next() and returns nothing', async () => {
-		let html = await fixture.fetch('/not-interested').then((res) => res.text());
-		let $ = cheerio.load(html);
-		expect($('p').html()).to.equal('Not interested');
+		const html = await fixture.fetch('/not-interested').then((res) => res.text());
+		const $ = cheerio.load(html);
+		assert.equal($('p').html(), 'Not interested');
 	});
 
 	it("should throw an error when the middleware doesn't call next or doesn't return a response", async () => {
-		let html = await fixture.fetch('/does-nothing').then((res) => res.text());
-		let $ = cheerio.load(html);
-		expect($('title').html()).to.equal('MiddlewareNoDataOrNextCalled');
+		const html = await fixture.fetch('/does-nothing').then((res) => res.text());
+		const $ = cheerio.load(html);
+		assert.equal($('title').html(), 'MiddlewareNoDataOrNextCalled');
 	});
 
 	it('should allow setting cookies', async () => {
-		let res = await fixture.fetch('/');
-		expect(res.headers.get('set-cookie')).to.equal('foo=bar');
+		const res = await fixture.fetch('/');
+		assert.equal(res.headers.get('set-cookie'), 'foo=bar');
 	});
 
 	it('should be able to clone the response', async () => {
-		let res = await fixture.fetch('/clone');
-		let html = await res.text();
-		expect(html).to.contain('it works');
+		const res = await fixture.fetch('/clone');
+		const html = await res.text();
+		assert.equal(html.includes('it works'), true);
 	});
 
 	it('should forward cookies set in a component when the middleware returns a new response', async () => {
-		let res = await fixture.fetch('/return-response-cookies');
-		let headers = res.headers;
-		expect(headers.get('set-cookie')).to.not.equal(null);
+		const res = await fixture.fetch('/return-response-cookies');
+		const headers = res.headers;
+		assert.notEqual(headers.get('set-cookie'), null);
 	});
 
 	describe('Integration hooks', () => {
 		it('Integration middleware marked as "pre" runs', async () => {
-			let res = await fixture.fetch('/integration-pre');
-			let json = await res.json();
-			expect(json.pre).to.equal('works');
+			const res = await fixture.fetch('/integration-pre');
+			const json = await res.json();
+			assert.equal(json.pre, 'works');
 		});
 
 		it('Integration middleware marked as "post" runs', async () => {
-			let res = await fixture.fetch('/integration-post');
-			let json = await res.json();
-			expect(json.post).to.equal('works');
+			const res = await fixture.fetch('/integration-post');
+			const json = await res.json();
+			assert.equal(json.post, 'works');
 		});
 	});
+});
 
-	describe('Integration hooks with no user middleware', () => {
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/middleware-no-user-middleware/',
-			});
-			devServer = await fixture.startDevServer();
+describe('Integration hooks with no user middleware', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/middleware-no-user-middleware/',
 		});
+		devServer = await fixture.startDevServer();
+	});
 
-		after(async () => {
-			await devServer.stop();
-		});
+	after(async () => {
+		await devServer.stop();
+	});
 
-		it('Integration middleware marked as "pre" runs', async () => {
-			let res = await fixture.fetch('/pre');
-			let json = await res.json();
-			expect(json.pre).to.equal('works');
-		});
+	it('Integration middleware marked as "pre" runs', async () => {
+		const res = await fixture.fetch('/pre');
+		const json = await res.json();
+		assert.equal(json.pre, 'works');
+	});
 
-		it('Integration middleware marked as "post" runs', async () => {
-			let res = await fixture.fetch('/post');
-			let json = await res.json();
-			expect(json.post).to.equal('works');
-		});
+	it('Integration middleware marked as "post" runs', async () => {
+		const res = await fixture.fetch('/post');
+		const json = await res.json();
+		assert.equal(json.post, 'works');
 	});
 });
 
@@ -140,17 +144,17 @@ describe('Middleware in PROD mode, SSG', () => {
 	it('should render locals data', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		expect($('p').html()).to.equal('bar');
+		assert.equal($('p').html(), 'bar');
 	});
 
 	it('should change locals data based on URL', async () => {
 		let html = await fixture.readFile('/index.html');
 		let $ = cheerio.load(html);
-		expect($('p').html()).to.equal('bar');
+		assert.equal($('p').html(), 'bar');
 
 		html = await fixture.readFile('/second/index.html');
 		$ = cheerio.load(html);
-		expect($('p').html()).to.equal('second');
+		assert.equal($('p').html(), 'second');
 	});
 });
 
@@ -176,32 +180,32 @@ describe('Middleware API in PROD mode, SSR', () => {
 		const response = await app.render(request);
 		const html = await response.text();
 		const $ = cheerio.load(html);
-		expect($('p').html()).to.equal('bar');
+		assert.equal($('p').html(), 'bar');
 	});
 
 	it('should change locals data based on URL', async () => {
 		let response = await app.render(new Request('http://example.com/'));
 		let html = await response.text();
 		let $ = cheerio.load(html);
-		expect($('p').html()).to.equal('bar');
+		assert.equal($('p').html(), 'bar');
 
 		response = await app.render(new Request('http://example.com/lorem'));
 		html = await response.text();
 		$ = cheerio.load(html);
-		expect($('p').html()).to.equal('ipsum');
+		assert.equal($('p').html(), 'ipsum');
 	});
 
 	it('should successfully redirect to another page', async () => {
 		const request = new Request('http://example.com/redirect');
 		const response = await app.render(request);
-		expect(response.status).to.equal(302);
+		assert.equal(response.status, 302);
 	});
 
 	it('should call a second middleware', async () => {
 		const response = await app.render(new Request('http://example.com/second'));
 		const html = await response.text();
 		const $ = cheerio.load(html);
-		expect($('p').html()).to.equal('second');
+		assert.equal($('p').html(), 'second');
 	});
 
 	it('should successfully create a new response', async () => {
@@ -209,14 +213,14 @@ describe('Middleware API in PROD mode, SSR', () => {
 		const response = await app.render(request);
 		const html = await response.text();
 		const $ = cheerio.load(html);
-		expect($('p').html()).to.be.null;
-		expect($('span').html()).to.equal('New content!!');
+		assert.equal($('p').html(), null);
+		assert.equal($('span').html(), 'New content!!');
 	});
 
 	it('should return a new response that is a 500', async () => {
 		const request = new Request('http://example.com/broken-500');
 		const response = await app.render(request);
-		expect(response.status).to.equal(500);
+		assert.equal(response.status, 500);
 	});
 
 	it('should successfully render a page if the middleware calls only next() and returns nothing', async () => {
@@ -224,7 +228,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 		const response = await app.render(request);
 		const html = await response.text();
 		const $ = cheerio.load(html);
-		expect($('p').html()).to.equal('Not interested');
+		assert.equal($('p').html(), 'Not interested');
 	});
 
 	it("should throw an error when the middleware doesn't call next or doesn't return a response", async () => {
@@ -232,21 +236,21 @@ describe('Middleware API in PROD mode, SSR', () => {
 		const response = await app.render(request);
 		const html = await response.text();
 		const $ = cheerio.load(html);
-		expect($('title').html()).to.not.equal('MiddlewareNoDataReturned');
+		assert.notEqual($('title').html(), 'MiddlewareNoDataReturned');
 	});
 
 	it('should correctly work for API endpoints that return a Response object', async () => {
 		const request = new Request('http://example.com/api/endpoint');
 		const response = await app.render(request);
-		expect(response.status).to.equal(200);
-		expect(response.headers.get('Content-Type')).to.equal('application/json');
+		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('Content-Type'), 'application/json');
 	});
 
 	it('should correctly manipulate the response coming from API endpoints (not simple)', async () => {
 		const request = new Request('http://example.com/api/endpoint');
 		const response = await app.render(request);
 		const text = await response.text();
-		expect(text.includes('REDACTED')).to.be.true;
+		assert.equal(text.includes('REDACTED'), true);
 	});
 
 	it('should correctly call the middleware function for 404', async () => {
@@ -254,8 +258,8 @@ describe('Middleware API in PROD mode, SSR', () => {
 		const routeData = app.match(request);
 		const response = await app.render(request, { routeData });
 		const text = await response.text();
-		expect(text.includes('Error')).to.be.true;
-		expect(text.includes('bar')).to.be.true;
+		assert.equal(text.includes('Error'), true);
+		assert.equal(text.includes('bar'), true);
 	});
 
 	it('should render 500.astro when the middleware throws an error', async () => {
@@ -263,10 +267,10 @@ describe('Middleware API in PROD mode, SSR', () => {
 		const routeData = app.match(request);
 
 		const response = await app.render(request, routeData);
-		expect(response).to.deep.include({ status: 500 });
+		assert.equal(response.status, 500);
 
 		const text = await response.text();
-		expect(text).to.include('<h1>There was an error rendering the page.</h1>');
+		assert.equal(text.includes('<h1>There was an error rendering the page.</h1>'), true);
 	});
 
 	it('should correctly render the page even when custom headers are set in a middleware', async () => {
@@ -274,8 +278,13 @@ describe('Middleware API in PROD mode, SSR', () => {
 		const routeData = app.match(request);
 
 		const response = await app.render(request, { routeData });
-		expect(response).to.deep.include({ status: 404 });
-		expect(response.headers.get('content-type')).equal('text/html');
+		assert.equal(response.status, 404);
+		assert.equal(response.headers.get('content-type'), 'text/html');
+	});
+
+	it('can set locals for prerendered pages to use', async () => {
+		const text = await fixture.readFile('/client/prerendered/index.html');
+		assert.equal(text.includes('<p>yes they can!</p>'), true);
 	});
 
 	// keep this last
@@ -298,14 +307,14 @@ describe('Middleware API in PROD mode, SSR', () => {
 			}),
 		});
 		await fixture.build();
-		expect(middlewarePath).to.not.be.undefined;
+		assert.ok(middlewarePath);
 		try {
 			const path = fileURLToPath(middlewarePath);
-			expect(existsSync(path)).to.be.true;
+			assert.equal(existsSync(path), true);
 			const content = readFileSync(fileURLToPath(middlewarePath), 'utf-8');
-			expect(content.length).to.be.greaterThan(0);
+			assert.equal(content.length > 0, true);
 		} catch (e) {
-			throw e;
+			assert.fail();
 		}
 	});
 });
@@ -328,37 +337,43 @@ describe('Middleware with tailwind', () => {
 		const bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
 			.replace(/\s/g, '')
 			.replace('/n', '');
-		expect(bundledCSS.includes('--tw-content')).to.be.true;
+		assert.equal(bundledCSS.includes('--tw-content'), true);
 	});
 });
 
 // `loadTestAdapterApp()` does not understand how to load the page with `functionPerRoute`
 // since there's no `entry.mjs`. Skip for now.
-describe.skip('Middleware supports functionPerRoute feature', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+describe(
+	'Middleware supports functionPerRoute feature',
+	{
+		skip: "`loadTestAdapterApp()` does not understand how to load the page with `functionPerRoute` since there's no `entry.mjs`",
+	},
+	() => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
 
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/middleware space/',
-			output: 'server',
-			adapter: testAdapter({
-				extendAdapter: {
-					adapterFeatures: {
-						functionPerRoute: true,
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/middleware space/',
+				output: 'server',
+				adapter: testAdapter({
+					extendAdapter: {
+						adapterFeatures: {
+							functionPerRoute: true,
+						},
 					},
-				},
-			}),
+				}),
+			});
+			await fixture.build();
 		});
-		await fixture.build();
-	});
 
-	it('should not render locals data because the page does not export it', async () => {
-		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/');
-		const response = await app.render(request);
-		const html = await response.text();
-		const $ = cheerio.load(html);
-		expect($('p').html()).to.not.equal('bar');
-	});
-});
+		it('should not render locals data because the page does not export it', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+			assert.equal($('p').html(), 'bar');
+		});
+	}
+);

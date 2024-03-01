@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { flagsToAstroInlineConfig } from '../../../dist/cli/flags.js';
 import { resolveConfig } from '../../../dist/core/config/index.js';
@@ -24,7 +25,7 @@ describe('config.server', () => {
 				host: true,
 			});
 
-			expect(astroConfig.server.host).to.equal(true);
+			assert.equal(astroConfig.server.host, true);
 		});
 	});
 
@@ -37,7 +38,7 @@ describe('config.server', () => {
 					root: fileURLToPath(projectRootURL),
 					config: configFileURL,
 				});
-				expect(astroConfig.server.port).to.equal(8080);
+				assert.equal(astroConfig.server.port, 8080);
 			});
 		});
 
@@ -49,7 +50,7 @@ describe('config.server', () => {
 					root: fileURLToPath(projectRootURL),
 					config: configFileURL,
 				});
-				expect(astroConfig.server.port).to.equal(8080);
+				assert.equal(astroConfig.server.port, 8080);
 			});
 		});
 
@@ -62,9 +63,9 @@ describe('config.server', () => {
 						root: fileURLToPath(projectRootURL),
 						config: configFileURL,
 					});
-					expect(false).to.equal(true, 'this should not have resolved');
+					assert.equal(false, true, 'this should not have resolved');
 				} catch (err) {
-					expect(err.message).to.match(/Unable to resolve/);
+					assert.equal(err.message.includes('Unable to resolve'), true);
 				}
 			});
 		});

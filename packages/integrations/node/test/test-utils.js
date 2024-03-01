@@ -1,5 +1,5 @@
-import httpMocks from 'node-mocks-http';
 import { EventEmitter } from 'node:events';
+import httpMocks from 'node-mocks-http';
 import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
 
 process.env.ASTRO_NODE_AUTOSTART = 'disabled';
@@ -63,4 +63,12 @@ export function buffersToString(buffers) {
 		str += decoder.decode(buffer);
 	}
 	return str;
+}
+
+export function waitServerListen(server) {
+	return new Promise((resolve) => {
+		server.on('listening', () => {
+			resolve();
+		});
+	});
 }

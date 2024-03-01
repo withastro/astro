@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { testImageService } from './test-image-service.js';
 import { loadFixture } from './test-utils.js';
 
@@ -20,17 +21,17 @@ describe('astro:assets - delete images that are unused', () => {
 
 		it('should delete images that are only used for optimization', async () => {
 			const imagesOnlyOptimized = await fixture.glob('_astro/onlyone.*.*');
-			expect(imagesOnlyOptimized).to.have.lengthOf(1);
+			assert.equal(imagesOnlyOptimized.length, 1);
 		});
 
 		it('should not delete images that are used in other contexts', async () => {
 			const imagesUsedElsewhere = await fixture.glob('_astro/twoofus.*.*');
-			expect(imagesUsedElsewhere).to.have.lengthOf(2);
+			assert.equal(imagesUsedElsewhere.length, 2);
 		});
 
 		it('should not delete images that are also used through query params', async () => {
 			const imagesUsedElsewhere = await fixture.glob('_astro/url.*.*');
-			expect(imagesUsedElsewhere).to.have.lengthOf(2);
+			assert.equal(imagesUsedElsewhere.length, 2);
 		});
 	});
 });

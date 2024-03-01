@@ -1,5 +1,6 @@
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
-import { expect } from 'chai';
 
 describe('static routing', () => {
 	/** @type {import('./test-utils.js').Fixture} */
@@ -15,7 +16,7 @@ describe('static routing', () => {
 	it('falls back to 404.html', async () => {
 		const deploymentConfig = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
 		// change the index if necesseary
-		expect(deploymentConfig.routes[2]).to.deep.include({
+		assert.deepEqual(deploymentConfig.routes[2], {
 			src: '/.*',
 			dest: '/404.html',
 			status: 404,

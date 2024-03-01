@@ -1,6 +1,6 @@
+import nodePath from 'node:path';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import type { AstroConfig, RouteData, RoutePart } from 'astro';
-import nodePath from 'node:path';
 
 const pathJoin = nodePath.posix.join;
 
@@ -74,6 +74,10 @@ function getRedirectStatus(route: RouteData): number {
 		return route.redirect.status;
 	}
 	return 301;
+}
+
+export function escapeRegex(content: string) {
+	return `^${getMatchPattern([[{ content, dynamic: false, spread: false }]])}$`;
 }
 
 export function getRedirects(routes: RouteData[], config: AstroConfig): VercelRoute[] {

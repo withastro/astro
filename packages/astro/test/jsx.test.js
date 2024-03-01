@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -16,55 +17,55 @@ describe('jsx-runtime', () => {
 		const html = await fixture.readFile('/component/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#basic').text()).to.equal('Basic');
-		expect($('#named').text()).to.equal('Named');
+		assert.equal($('#basic').text(), 'Basic');
+		assert.equal($('#named').text(), 'Named');
 	});
 
 	it('Can load Preact component inside Astro', async () => {
 		const html = await fixture.readFile('/frameworks/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#has-preact #preact').length).to.equal(0);
-		expect($('#preact').text()).to.include('Preact');
+		assert.equal($('#has-preact #preact').length, 0);
+		assert.equal($('#preact').text().includes('Preact'), true);
 	});
 
 	it('Can load React component inside Astro', async () => {
 		const html = await fixture.readFile('/frameworks/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#has-react #react').length).to.equal(0);
-		expect($('#react').text()).to.include('React');
+		assert.equal($('#has-react #react').length, 0);
+		assert.equal($('#react').text().includes('React'), true);
 	});
 
 	it('Can load Solid component inside Astro', async () => {
 		const html = await fixture.readFile('/frameworks/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#has-solid #solid').length).to.equal(0);
-		expect($('#solid').text()).to.include('Solid');
+		assert.equal($('#has-solid #solid').length, 0);
+		assert.equal($('#solid').text().includes('Solid'), true);
 	});
 
 	it('Can load Svelte component inside Astro', async () => {
 		const html = await fixture.readFile('/frameworks/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#has-svelte #svelte').length).to.equal(0);
-		expect($('#svelte').text()).to.include('Svelte');
+		assert.equal($('#has-svelte #svelte').length, 0);
+		assert.equal($('#svelte').text().includes('Svelte'), true);
 	});
 
 	it('Can load Vue component inside Astro', async () => {
 		const html = await fixture.readFile('/frameworks/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#has-vue #vue').length).to.equal(0);
-		expect($('#vue').text()).to.include('Vue');
+		assert.equal($('#has-vue #vue').length, 0);
+		assert.equal($('#vue').text().includes('Vue'), true);
 	});
 
 	it('Can load MDX component inside Astro', async () => {
 		const html = await fixture.readFile('/frameworks/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#mdx-wrapper #hello-world')).to.have.a.lengthOf(1, 'md content rendered');
-		expect($('#mdx-wrapper #react')).to.have.a.lengthOf(1, 'React component rendered');
+		assert.equal($('#mdx-wrapper #hello-world').length, 1, 'md content rendered');
+		assert.equal($('#mdx-wrapper #react').length, 1, 'React component rendered');
 	});
 });

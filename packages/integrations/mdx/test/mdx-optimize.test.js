@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
@@ -17,31 +18,33 @@ describe('MDX optimize', () => {
 		const html = await fixture.readFile('/index.html');
 		const { document } = parseHTML(html);
 
-		expect(document.querySelector('h1').textContent).include('MDX page');
-		expect(document.querySelector('p').textContent).include(
-			'I once heard a very inspirational quote:'
+		assert.equal(document.querySelector('h1').textContent.includes('MDX page'), true);
+		assert.equal(
+			document.querySelector('p').textContent.includes('I once heard a very inspirational quote:'),
+			true
 		);
 
 		const blockquote = document.querySelector('blockquote.custom-blockquote');
-		expect(blockquote).to.not.be.null;
-		expect(blockquote.textContent).to.include('I like pancakes');
+		assert.notEqual(blockquote, null);
+		assert.equal(blockquote.textContent.includes('I like pancakes'), true);
 
 		const code = document.querySelector('pre.astro-code');
-		expect(code).to.not.be.null;
-		expect(code.textContent).to.include(`const pancakes = 'yummy'`);
+		assert.notEqual(code, null);
+		assert.equal(code.textContent.includes(`const pancakes = 'yummy'`), true);
 	});
 
 	it('renders an Astro page that imports MDX fine', async () => {
 		const html = await fixture.readFile('/import/index.html');
 		const { document } = parseHTML(html);
 
-		expect(document.querySelector('h1').textContent).include('Astro page');
-		expect(document.querySelector('p').textContent).include(
-			'I once heard a very inspirational quote:'
+		assert.equal(document.querySelector('h1').textContent.includes('Astro page'), true);
+		assert.equal(
+			document.querySelector('p').textContent.includes('I once heard a very inspirational quote:'),
+			true
 		);
 
 		const blockquote = document.querySelector('blockquote.custom-blockquote');
-		expect(blockquote).to.not.be.null;
-		expect(blockquote.textContent).to.include('I like pancakes');
+		assert.notEqual(blockquote, null);
+		assert.equal(blockquote.textContent.includes('I like pancakes'), true);
 	});
 });

@@ -1,5 +1,6 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { Redirects } from '../dist/index.js';
-import { expect } from 'chai';
 
 describe('Weight', () => {
 	it('Puts higher weighted definitions on top', () => {
@@ -26,7 +27,7 @@ describe('Weight', () => {
 			status: 200,
 		});
 		const firstDefn = _redirects.definitions[0];
-		expect(firstDefn.weight).to.equal(1);
-		expect(firstDefn.input).to.equal('/e');
+		assert.equal(firstDefn.weight, 1);
+		assert.equal(firstDefn.input, '/e');
 	});
 });

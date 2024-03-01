@@ -68,7 +68,7 @@ async function bundle(files) {
 		sourcemap: false,
 		target: ['es2018'],
 		outdir: 'out',
-		external: ['astro:*'],
+		external: ['astro:*', 'aria-query', 'axobject-query'],
 		metafile: true,
 	})
 

@@ -1,6 +1,7 @@
 import mdx from '@astrojs/mdx';
 
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
@@ -27,9 +28,9 @@ describe('MDX slots', () => {
 			const defaultSlot = document.querySelector('[data-default-slot]');
 			const namedSlot = document.querySelector('[data-named-slot]');
 
-			expect(h1.textContent).to.equal('Hello slotted component!');
-			expect(defaultSlot.textContent).to.equal('Default content.');
-			expect(namedSlot.textContent).to.equal('Content for named slot.');
+			assert.equal(h1.textContent, 'Hello slotted component!');
+			assert.equal(defaultSlot.textContent, 'Default content.');
+			assert.equal(namedSlot.textContent, 'Content for named slot.');
 		});
 
 		it('supports glob imports - <Component.default />', async () => {
@@ -40,9 +41,9 @@ describe('MDX slots', () => {
 			const defaultSlot = document.querySelector('[data-default-export] [data-default-slot]');
 			const namedSlot = document.querySelector('[data-default-export] [data-named-slot]');
 
-			expect(h1.textContent).to.equal('Hello slotted component!');
-			expect(defaultSlot.textContent).to.equal('Default content.');
-			expect(namedSlot.textContent).to.equal('Content for named slot.');
+			assert.equal(h1.textContent, 'Hello slotted component!');
+			assert.equal(defaultSlot.textContent, 'Default content.');
+			assert.equal(namedSlot.textContent, 'Content for named slot.');
 		});
 
 		it('supports glob imports - <Content />', async () => {
@@ -53,9 +54,9 @@ describe('MDX slots', () => {
 			const defaultSlot = document.querySelector('[data-content-export] [data-default-slot]');
 			const namedSlot = document.querySelector('[data-content-export] [data-named-slot]');
 
-			expect(h1.textContent).to.equal('Hello slotted component!');
-			expect(defaultSlot.textContent).to.equal('Default content.');
-			expect(namedSlot.textContent).to.equal('Content for named slot.');
+			assert.equal(h1.textContent, 'Hello slotted component!');
+			assert.equal(defaultSlot.textContent, 'Default content.');
+			assert.equal(namedSlot.textContent, 'Content for named slot.');
 		});
 	});
 
@@ -73,7 +74,7 @@ describe('MDX slots', () => {
 		it('supports top-level imports', async () => {
 			const res = await fixture.fetch('/');
 
-			expect(res.status).to.equal(200);
+			assert.equal(res.status, 200);
 
 			const html = await res.text();
 			const { document } = parseHTML(html);
@@ -82,15 +83,15 @@ describe('MDX slots', () => {
 			const defaultSlot = document.querySelector('[data-default-slot]');
 			const namedSlot = document.querySelector('[data-named-slot]');
 
-			expect(h1.textContent).to.equal('Hello slotted component!');
-			expect(defaultSlot.textContent).to.equal('Default content.');
-			expect(namedSlot.textContent).to.equal('Content for named slot.');
+			assert.equal(h1.textContent, 'Hello slotted component!');
+			assert.equal(defaultSlot.textContent, 'Default content.');
+			assert.equal(namedSlot.textContent, 'Content for named slot.');
 		});
 
 		it('supports glob imports - <Component.default />', async () => {
 			const res = await fixture.fetch('/glob');
 
-			expect(res.status).to.equal(200);
+			assert.equal(res.status, 200);
 
 			const html = await res.text();
 			const { document } = parseHTML(html);
@@ -99,15 +100,15 @@ describe('MDX slots', () => {
 			const defaultSlot = document.querySelector('[data-default-export] [data-default-slot]');
 			const namedSlot = document.querySelector('[data-default-export] [data-named-slot]');
 
-			expect(h1.textContent).to.equal('Hello slotted component!');
-			expect(defaultSlot.textContent).to.equal('Default content.');
-			expect(namedSlot.textContent).to.equal('Content for named slot.');
+			assert.equal(h1.textContent, 'Hello slotted component!');
+			assert.equal(defaultSlot.textContent, 'Default content.');
+			assert.equal(namedSlot.textContent, 'Content for named slot.');
 		});
 
 		it('supports glob imports - <Content />', async () => {
 			const res = await fixture.fetch('/glob');
 
-			expect(res.status).to.equal(200);
+			assert.equal(res.status, 200);
 
 			const html = await res.text();
 			const { document } = parseHTML(html);
@@ -116,9 +117,9 @@ describe('MDX slots', () => {
 			const defaultSlot = document.querySelector('[data-content-export] [data-default-slot]');
 			const namedSlot = document.querySelector('[data-content-export] [data-named-slot]');
 
-			expect(h1.textContent).to.equal('Hello slotted component!');
-			expect(defaultSlot.textContent).to.equal('Default content.');
-			expect(namedSlot.textContent).to.equal('Content for named slot.');
+			assert.equal(h1.textContent, 'Hello slotted component!');
+			assert.equal(defaultSlot.textContent, 'Default content.');
+			assert.equal(namedSlot.textContent, 'Content for named slot.');
 		});
 	});
 });

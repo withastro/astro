@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -20,7 +21,7 @@ describe('Pagination', () => {
 			'/posts/optional-root-page/2/index.html',
 			'/posts/optional-root-page/3/index.html',
 		]) {
-			expect(await fixture.readFile(file)).to.be.ok;
+			assert.ok(await fixture.readFile(file));
 		}
 	});
 
@@ -30,7 +31,7 @@ describe('Pagination', () => {
 			'/posts/named-root-page/2/index.html',
 			'/posts/named-root-page/3/index.html',
 		]) {
-			expect(await fixture.readFile(file)).to.be.ok;
+			assert.ok(await fixture.readFile(file));
 		}
 	});
 
@@ -44,24 +45,24 @@ describe('Pagination', () => {
 			params.map(async ({ color, p }) => {
 				const html = await fixture.readFile(`/posts/${color}/${p}/index.html`);
 				const $ = cheerio.load(html);
-				expect($('#page-param').text()).to.equal(p);
-				expect($('#currentPage').text()).to.equal(p);
-				expect($('#filter').text()).to.equal(color);
+				assert.equal($('#page-param').text(), p);
+				assert.equal($('#currentPage').text(), p);
+				assert.equal($('#filter').text(), color);
 
 				const prevHref = $('#prev').attr('href');
 				const nextHref = $('#next').attr('href');
 
 				if (color === 'red') {
-					expect(prevHref).to.be.undefined;
-					expect(nextHref).to.be.undefined;
+					assert.equal(prevHref, undefined);
+					assert.equal(nextHref, undefined);
 				}
 				if (color === 'blue' && p === '1') {
-					expect(prevHref).to.be.undefined;
-					expect(nextHref).to.equal('/posts/blue/2');
+					assert.equal(prevHref, undefined);
+					assert.equal(nextHref, '/posts/blue/2');
 				}
 				if (color === 'blue' && p === '2') {
-					expect(prevHref).to.equal('/posts/blue/1');
-					expect(nextHref).to.be.undefined;
+					assert.equal(prevHref, '/posts/blue/1');
+					assert.equal(nextHref, undefined);
 				}
 			})
 		);

@@ -1,5 +1,6 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { createRedirectsFromAstroRoutes } from '../dist/index.js';
-import { expect } from 'chai';
 
 describe('Astro', () => {
 	const serverConfig = {
@@ -26,6 +27,6 @@ describe('Astro', () => {
 			dir: new URL(import.meta.url),
 		});
 
-		expect(_redirects.definitions).to.have.a.lengthOf(2);
+		assert.equal(_redirects.definitions.length, 2);
 	});
 });

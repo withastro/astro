@@ -9,9 +9,10 @@ import { runHookConfigDone, runHookConfigSetup } from '../../integrations/index.
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
+import { apply as applyPolyfills } from '../polyfill.js';
+import { ensureProcessNodeEnv } from '../util.js';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
-import { ensureProcessNodeEnv } from '../util.js';
 
 /**
  * Starts a local server to serve your static dist/ directory. This command is useful for previewing
@@ -20,6 +21,7 @@ import { ensureProcessNodeEnv } from '../util.js';
  * @experimental The JavaScript API is experimental
  */
 export default async function preview(inlineConfig: AstroInlineConfig): Promise<PreviewServer> {
+	applyPolyfills();
 	ensureProcessNodeEnv('production');
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'preview');
@@ -73,6 +75,7 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 		port: settings.config.server.port,
 		base: settings.config.base,
 		logger: new AstroIntegrationLogger(logger.options, settings.adapter.name),
+		headers: settings.config.server.headers,
 	});
 
 	return server;

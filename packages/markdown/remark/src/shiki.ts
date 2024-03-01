@@ -1,6 +1,6 @@
+import type { Properties } from 'hast';
 import { bundledLanguages, createCssVariablesTheme, getHighlighter } from 'shikiji';
 import { visit } from 'unist-util-visit';
-import type { Properties } from 'hast';
 import type { ShikiConfig } from './types.js';
 
 export interface ShikiHighlighter {
@@ -13,7 +13,7 @@ const ASTRO_COLOR_REPLACEMENTS: Record<string, string> = {
 	'--astro-code-background': '--astro-code-color-background',
 };
 const COLOR_REPLACEMENT_REGEX = new RegExp(
-	`(${Object.keys(ASTRO_COLOR_REPLACEMENTS).join('|')})`,
+	`${Object.keys(ASTRO_COLOR_REPLACEMENTS).join('|')}`,
 	'g'
 );
 

@@ -1,10 +1,11 @@
-import { parseHTML } from 'linkedom';
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import Markdoc from '@markdoc/markdoc';
-import shiki from '../dist/extensions/shiki.js';
-import prism from '../dist/extensions/prism.js';
-import { setupConfig } from '../dist/runtime.js';
 import { isHTMLString } from 'astro/runtime/server/index.js';
+import { parseHTML } from 'linkedom';
+import prism from '../dist/extensions/prism.js';
+import shiki from '../dist/extensions/shiki.js';
+import { setupConfig } from '../dist/runtime.js';
 
 const entry = `
 \`\`\`ts
@@ -24,13 +25,13 @@ describe('Markdoc - syntax highlighting', () => {
 			const ast = Markdoc.parse(entry);
 			const content = Markdoc.transform(ast, await getConfigExtendingShiki());
 
-			expect(content.children).to.have.lengthOf(2);
+			assert.equal(content.children.length, 2);
 			for (const codeBlock of content.children) {
-				expect(isHTMLString(codeBlock)).to.be.true;
+				assert.equal(isHTMLString(codeBlock), true);
 
 				const pre = parsePreTag(codeBlock);
-				expect(pre.classList).to.include('astro-code');
-				expect(pre.classList).to.include('github-dark');
+				assert.equal(pre.classList.contains('astro-code'), true);
+				assert.equal(pre.classList.contains('github-dark'), true);
 			}
 		});
 		it('transforms with `theme` property', async () => {
@@ -41,13 +42,13 @@ describe('Markdoc - syntax highlighting', () => {
 					theme: 'dracula',
 				})
 			);
-			expect(content.children).to.have.lengthOf(2);
+			assert.equal(content.children.length, 2);
 			for (const codeBlock of content.children) {
-				expect(isHTMLString(codeBlock)).to.be.true;
+				assert.equal(isHTMLString(codeBlock), true);
 
 				const pre = parsePreTag(codeBlock);
-				expect(pre.classList).to.include('astro-code');
-				expect(pre.classList).to.include('dracula');
+				assert.equal(pre.classList.contains('astro-code'), true);
+				assert.equal(pre.classList.contains('dracula'), true);
 			}
 		});
 		it('transforms with `wrap` property', async () => {
@@ -58,13 +59,13 @@ describe('Markdoc - syntax highlighting', () => {
 					wrap: true,
 				})
 			);
-			expect(content.children).to.have.lengthOf(2);
+			assert.equal(content.children.length, 2);
 			for (const codeBlock of content.children) {
-				expect(isHTMLString(codeBlock)).to.be.true;
+				assert.equal(isHTMLString(codeBlock), true);
 
 				const pre = parsePreTag(codeBlock);
-				expect(pre.getAttribute('style')).to.include('white-space: pre-wrap');
-				expect(pre.getAttribute('style')).to.include('word-wrap: break-word');
+				assert.equal(pre.getAttribute('style').includes('white-space: pre-wrap'), true);
+				assert.equal(pre.getAttribute('style').includes('word-wrap: break-word'), true);
 			}
 		});
 	});
@@ -77,17 +78,17 @@ describe('Markdoc - syntax highlighting', () => {
 			});
 			const content = Markdoc.transform(ast, config);
 
-			expect(content.children).to.have.lengthOf(2);
+			assert.equal(content.children.length, 2);
 			const [tsBlock, cssBlock] = content.children;
 
-			expect(isHTMLString(tsBlock)).to.be.true;
-			expect(isHTMLString(cssBlock)).to.be.true;
+			assert.equal(isHTMLString(tsBlock), true);
+			assert.equal(isHTMLString(cssBlock), true);
 
 			const preTs = parsePreTag(tsBlock);
-			expect(preTs.classList).to.include('language-ts');
+			assert.equal(preTs.classList.contains('language-ts'), true);
 
 			const preCss = parsePreTag(cssBlock);
-			expect(preCss.classList).to.include('language-css');
+			assert.equal(preCss.classList.contains('language-css'), true);
 		});
 	});
 });
@@ -109,6 +110,6 @@ async function getConfigExtendingShiki(config) {
 function parsePreTag(html) {
 	const { document } = parseHTML(html);
 	const pre = document.querySelector('pre');
-	expect(pre).to.exist;
+	assert.ok(pre);
 	return pre;
 }

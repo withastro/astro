@@ -1,6 +1,7 @@
 import mdx from '@astrojs/mdx';
 
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
 describe('MDX url export', () => {
@@ -17,12 +18,12 @@ describe('MDX url export', () => {
 
 	it('generates correct urls in glob result', async () => {
 		const { urls } = JSON.parse(await fixture.readFile('/pages.json'));
-		expect(urls).to.include('/test-1');
-		expect(urls).to.include('/test-2');
+		assert.equal(urls.includes('/test-1'), true);
+		assert.equal(urls.includes('/test-2'), true);
 	});
 
 	it('respects "export url" overrides in glob result', async () => {
 		const { urls } = JSON.parse(await fixture.readFile('/pages.json'));
-		expect(urls).to.include('/AH!');
+		assert.equal(urls.includes('/AH!'), true);
 	});
 });

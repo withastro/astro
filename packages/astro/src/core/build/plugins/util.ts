@@ -1,5 +1,5 @@
 import { extname } from 'node:path';
-import type { Rollup, Plugin as VitePlugin } from 'vite';
+import type { BuildOptions, Plugin as VitePlugin, Rollup } from 'vite';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type OutputOptionsHook = Extract<VitePlugin['outputOptions'], Function>;
@@ -68,4 +68,20 @@ export function getVirtualModulePageNameFromPath(virtualModulePrefix: string, pa
 export function getPathFromVirtualModulePageName(virtualModulePrefix: string, id: string) {
 	const pageName = id.slice(virtualModulePrefix.length);
 	return pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
+}
+
+export function shouldInlineAsset(
+	assetContent: string,
+	assetPath: string,
+	assetsInlineLimit: NonNullable<BuildOptions['assetsInlineLimit']>
+) {
+	if (typeof assetsInlineLimit === 'function') {
+		const result = assetsInlineLimit(assetPath, Buffer.from(assetContent));
+		if (result != null) {
+			return result;
+		} else {
+			return Buffer.byteLength(assetContent) < 4096; // Fallback to 4096kb by default (same as Vite)
+		}
+	}
+	return Buffer.byteLength(assetContent) < Number(assetsInlineLimit);
 }

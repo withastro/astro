@@ -1,6 +1,7 @@
 import mdx from '@astrojs/mdx';
 
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
@@ -20,13 +21,13 @@ describe('MDX frontmatter', () => {
 		const html = await fixture.readFile('/index.html');
 		const { document } = parseHTML(html);
 
-		expect(document.body.textContent).to.not.include('<em');
+		assert.equal(document.body.textContent.includes('<em'), false);
 	});
 
 	it('does not have unescaped HTML inside html tags', async () => {
 		const html = await fixture.readFile('/html-tag/index.html');
 		const { document } = parseHTML(html);
 
-		expect(document.body.textContent).to.not.include('<em');
+		assert.equal(document.body.textContent.includes('<em'), false);
 	});
 });

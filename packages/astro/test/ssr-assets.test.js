@@ -1,6 +1,7 @@
-import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('SSR Assets', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -21,7 +22,7 @@ describe('SSR Assets', () => {
 		const app = await fixture.loadTestAdapterApp();
 		/** @type {Set<string>} */
 		const assets = app.manifest.assets;
-		expect(assets.size).to.equal(1);
-		expect(Array.from(assets)[0].endsWith('.css')).to.be.true;
+		assert.equal(assets.size, 1);
+		assert.equal(Array.from(assets)[0].endsWith('.css'), true);
 	});
 });

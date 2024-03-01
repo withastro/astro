@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -15,7 +16,7 @@ describe('Non-ASCII Path Test', () => {
 			const html = await fixture.readFile(`/index.html`);
 			const $ = cheerio.load(html);
 
-			expect($('h1').text()).to.equal('测试 OK');
+			assert.equal($('h1').text(), '测试 OK');
 		});
 	});
 });

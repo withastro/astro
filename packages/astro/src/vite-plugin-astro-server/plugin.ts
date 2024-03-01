@@ -1,21 +1,22 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import type fs from 'node:fs';
+import { IncomingMessage } from 'node:http';
 import type * as vite from 'vite';
 import type { AstroSettings, ManifestData, SSRManifest } from '../@types/astro.js';
 import type { SSRManifestI18n } from '../core/app/types.js';
+import { getViteErrorPayload } from '../core/errors/dev/index.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
 import { createRouteManifest } from '../core/routing/index.js';
+import { toRoutingStrategy } from '../i18n/utils.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
-import DevPipeline from './devPipeline.js';
-import { handleRequest } from './request.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { getViteErrorPayload } from '../core/errors/dev/index.js';
-import { AsyncLocalStorage } from 'node:async_hooks';
-import { IncomingMessage } from 'node:http';
-import { setRouteError } from './server-state.js';
 import { recordServerError } from './error.js';
+import { DevPipeline } from './pipeline.js';
+import { handleRequest } from './request.js';
+import { setRouteError } from './server-state.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -33,7 +34,7 @@ export default function createVitePluginAstroServer({
 		configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
 			const manifest = createDevelopmentManifest(settings);
-			const pipeline = new DevPipeline({ logger, manifest, settings, loader });
+			const pipeline = DevPipeline.create({ loader, logger, manifest, settings });
 			let manifestData: ManifestData = createRouteManifest({ settings, fsMod }, logger);
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();
@@ -90,7 +91,6 @@ export default function createVitePluginAstroServer({
 							controller,
 							incomingRequest: request,
 							incomingResponse: response,
-							manifest,
 						});
 					});
 				});
@@ -118,9 +118,10 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
-			routing: settings.config.i18n.routing,
+			strategy: toRoutingStrategy(settings.config.i18n),
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
+			domainLookupTable: {},
 		};
 	}
 	return {
@@ -140,5 +141,8 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			: settings.config.site,
 		componentMetadata: new Map(),
 		i18n: i18nManifest,
+		middleware(_, next) {
+			return next();
+		},
 	};
 }

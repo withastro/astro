@@ -1,7 +1,8 @@
-import { loadFixture } from './test-utils.js';
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import { parseHTML } from 'linkedom';
+import { loadFixture } from './test-utils.js';
 
 describe('App Entrypoint', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -19,17 +20,17 @@ describe('App Entrypoint', () => {
 		const $ = cheerioLoad(html);
 
 		// test 1: basic component renders
-		expect($('#foo > #bar').text()).to.eq('works');
+		assert.equal($('#foo > #bar').text(), 'works');
 
 		// test 2: component with multiple script blocks renders and exports
 		// values from non setup block correctly
-		expect($('#multiple-script-blocks').text()).to.equal('2 4');
+		assert.equal($('#multiple-script-blocks').text(), '2 4');
 
 		// test 3: component using generics renders
-		expect($('#generics').text()).to.equal('generic');
+		assert.equal($('#generics').text(), 'generic');
 
 		// test 4: component using generics and multiple script blocks renders
-		expect($('#generics-and-blocks').text()).to.equal('1 3!!!');
+		assert.equal($('#generics-and-blocks').text(), '1 3!!!');
 	});
 
 	it('setup included in renderer bundle', async () => {
@@ -37,10 +38,10 @@ describe('App Entrypoint', () => {
 		const { document } = parseHTML(data);
 		const island = document.querySelector('astro-island');
 		const client = island.getAttribute('renderer-url');
-		expect(client).not.to.be.undefined;
+		assert.notEqual(client, undefined);
 
 		const js = await fixture.readFile(client);
-		expect(js).to.match(/\w+\.component\(\"Bar\"/gm);
+		assert.match(js, /\w+\.component\("Bar"/g);
 	});
 
 	it('loads svg components without transforming them to assets', async () => {
@@ -48,7 +49,7 @@ describe('App Entrypoint', () => {
 		const { document } = parseHTML(data);
 		const client = document.querySelector('astro-island svg');
 
-		expect(client).not.to.be.undefined;
+		assert.notEqual(client, undefined);
 	});
 });
 
@@ -72,8 +73,8 @@ describe('App Entrypoint no export default (dev)', () => {
 		const html = await fixture.fetch('/').then((res) => res.text());
 		const { document } = parseHTML(html);
 		const bar = document.querySelector('#foo > #bar');
-		expect(bar).not.to.be.undefined;
-		expect(bar.textContent).to.eq('works');
+		assert.notEqual(bar, undefined);
+		assert.equal(bar.textContent, 'works');
 	});
 
 	it('loads svg components without transforming them to assets', async () => {
@@ -81,7 +82,7 @@ describe('App Entrypoint no export default (dev)', () => {
 		const { document } = parseHTML(html);
 		const client = document.querySelector('astro-island svg');
 
-		expect(client).not.to.be.undefined;
+		assert.notEqual(client, undefined);
 	});
 });
 
@@ -100,8 +101,8 @@ describe('App Entrypoint no export default', () => {
 		const data = await fixture.readFile('/index.html');
 		const { document } = parseHTML(data);
 		const bar = document.querySelector('#foo > #bar');
-		expect(bar).not.to.be.undefined;
-		expect(bar.textContent).to.eq('works');
+		assert.notEqual(bar, undefined);
+		assert.equal(bar.textContent, 'works');
 	});
 
 	it('component not included in renderer bundle', async () => {
@@ -109,10 +110,9 @@ describe('App Entrypoint no export default', () => {
 		const { document } = parseHTML(data);
 		const island = document.querySelector('astro-island');
 		const client = island.getAttribute('renderer-url');
-		expect(client).not.to.be.undefined;
-
+		assert.notEqual(client, undefined);
 		const js = await fixture.readFile(client);
-		expect(js).not.to.match(/\w+\.component\(\"Bar\"/gm);
+		assert.doesNotMatch(js, /\w+\.component\("Bar"/g);
 	});
 
 	it('loads svg components without transforming them to assets', async () => {
@@ -120,7 +120,7 @@ describe('App Entrypoint no export default', () => {
 		const { document } = parseHTML(data);
 		const client = document.querySelector('astro-island svg');
 
-		expect(client).not.to.be.undefined;
+		assert.notEqual(client, undefined);
 	});
 });
 
@@ -139,8 +139,8 @@ describe('App Entrypoint relative', () => {
 		const data = await fixture.readFile('/index.html');
 		const { document } = parseHTML(data);
 		const bar = document.querySelector('#foo > #bar');
-		expect(bar).not.to.be.undefined;
-		expect(bar.textContent).to.eq('works');
+		assert.notEqual(bar, undefined);
+		assert.equal(bar.textContent, 'works');
 	});
 
 	it('component not included in renderer bundle', async () => {
@@ -148,10 +148,10 @@ describe('App Entrypoint relative', () => {
 		const { document } = parseHTML(data);
 		const island = document.querySelector('astro-island');
 		const client = island.getAttribute('renderer-url');
-		expect(client).not.to.be.undefined;
+		assert.notEqual(client, undefined);
 
 		const js = await fixture.readFile(client);
-		expect(js).not.to.match(/\w+\.component\(\"Bar\"/gm);
+		assert.doesNotMatch(js, /\w+\.component\("Bar"/g);
 	});
 });
 
@@ -170,8 +170,8 @@ describe('App Entrypoint /src/absolute', () => {
 		const data = await fixture.readFile('/index.html');
 		const { document } = parseHTML(data);
 		const bar = document.querySelector('#foo > #bar');
-		expect(bar).not.to.be.undefined;
-		expect(bar.textContent).to.eq('works');
+		assert.notEqual(bar, undefined);
+		assert.equal(bar.textContent, 'works');
 	});
 
 	it('component not included in renderer bundle', async () => {
@@ -179,10 +179,10 @@ describe('App Entrypoint /src/absolute', () => {
 		const { document } = parseHTML(data);
 		const island = document.querySelector('astro-island');
 		const client = island.getAttribute('renderer-url');
-		expect(client).not.to.be.undefined;
+		assert.notEqual(client, undefined);
 
 		const js = await fixture.readFile(client);
-		expect(js).not.to.match(/\w+\.component\(\"Bar\"/gm);
+		assert.doesNotMatch(js, /\w+\.component\("Bar"/g);
 	});
 });
 
@@ -202,9 +202,9 @@ describe('App Entrypoint async', () => {
 		const $ = cheerioLoad(html);
 
 		// test 1: component before await renders
-		expect($('#foo > #bar').text()).to.eq('works');
+		assert.equal($('#foo > #bar').text(), 'works');
 
 		// test 2: component after await renders
-		expect($('#foo > #baz').text()).to.eq('works');
+		assert.equal($('#foo > #baz').text(), 'works');
 	});
 });

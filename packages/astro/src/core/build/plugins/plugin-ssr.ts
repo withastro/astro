@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroAdapter, AstroConfig } from '../../../@types/astro.js';
+import type { AstroAdapter } from '../../../@types/astro.js';
 import { isFunctionPerRouteEnabled } from '../../../integrations/index.js';
 import { isServerLikeOutput } from '../../../prerender/utils.js';
 import { routeIsRedirect } from '../../redirects/index.js';
@@ -11,6 +11,7 @@ import { eachPageFromAllPages } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugin-manifest.js';
+import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 import { getPathFromVirtualModulePageName, getVirtualModulePageNameFromPath } from './util.js';
@@ -52,7 +53,7 @@ function vitePluginSSR(
 					if (module) {
 						const variable = `_page${i}`;
 						// we need to use the non-resolved ID in order to resolve correctly the virtual module
-						imports.push(`const ${variable}  = () => import("${virtualModuleName}");`);
+						imports.push(`const ${variable} = () => import("${virtualModuleName}");`);
 
 						const pageData2 = internals.pagesByComponent.get(path);
 						if (pageData2) {
@@ -61,13 +62,13 @@ function vitePluginSSR(
 						i++;
 					}
 				}
-
-				contents.push(`const pageMap = new Map([${pageMap.join(',')}]);`);
+				contents.push(`const pageMap = new Map([\n    ${pageMap.join(',\n    ')}\n]);`);
 				exports.push(`export { pageMap }`);
-				const ssrCode = generateSSRCode(options.settings.config, adapter);
+				const middleware = await this.resolve(MIDDLEWARE_MODULE_ID);
+				const ssrCode = generateSSRCode(adapter, middleware!.id);
 				imports.push(...ssrCode.imports);
 				contents.push(...ssrCode.contents);
-				return `${imports.join('\n')}${contents.join('\n')}${exports.join('\n')}`;
+				return [...imports, ...contents, ...exports].join('\n');
 			}
 			return void 0;
 		},
@@ -174,14 +175,14 @@ function vitePluginSSRSplit(
 					// we need to use the non-resolved ID in order to resolve correctly the virtual module
 					imports.push(`import * as pageModule from "${virtualModuleName}";`);
 				}
-
-				const ssrCode = generateSSRCode(options.settings.config, adapter);
+				const middleware = await this.resolve(MIDDLEWARE_MODULE_ID);
+				const ssrCode = generateSSRCode(adapter, middleware!.id);
 				imports.push(...ssrCode.imports);
 				contents.push(...ssrCode.contents);
 
 				exports.push('export { pageModule }');
 
-				return `${imports.join('\n')}${contents.join('\n')}${exports.join('\n')}`;
+				return [...imports, ...contents, ...exports].join('\n');
 			}
 			return void 0;
 		},
@@ -233,45 +234,45 @@ export function pluginSSRSplit(
 	};
 }
 
-function generateSSRCode(config: AstroConfig, adapter: AstroAdapter) {
-	const imports: string[] = [];
-	const contents: string[] = [];
-	let pageMap;
-	if (isFunctionPerRouteEnabled(adapter)) {
-		pageMap = 'pageModule';
-	} else {
-		pageMap = 'pageMap';
-	}
+function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
+	const edgeMiddleware = adapter?.adapterFeatures?.edgeMiddleware ?? false;
+	const pageMap = isFunctionPerRouteEnabled(adapter) ? 'pageModule' : 'pageMap';
 
-	contents.push(`import * as adapter from '${adapter.serverEntrypoint}';
-import { renderers } from '${RENDERERS_MODULE_ID}';
-import { manifest as defaultManifest} from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';
-const _manifest = Object.assign(defaultManifest, {
-	${pageMap},
-	renderers,
-});
-const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
+	const imports = [
+		`import { renderers } from '${RENDERERS_MODULE_ID}';`,
+		`import { manifest as defaultManifest } from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';`,
+		`import * as serverEntrypointModule from '${adapter.serverEntrypoint}';`,
+		edgeMiddleware ? `` : `import { onRequest as middleware } from '${middlewareId}';`,
+	];
 
-${
-	adapter.exports
-		? `const _exports = adapter.createExports(_manifest, _args);
-${adapter.exports
-	.map((name) => {
-		if (name === 'default') {
-			return `const _default = _exports['default'];
-export { _default as default };`;
-		} else {
-			return `export const ${name} = _exports['${name}'];`;
-		}
-	})
-	.join('\n')}
-`
-		: ''
-}
-const _start = 'start';
-if(_start in adapter) {
-	adapter[_start](_manifest, _args);
-}`);
+	const contents = [
+		edgeMiddleware ? `const middleware = (_, next) => next()` : '',
+		`const _manifest = Object.assign(defaultManifest, {`,
+		`    ${pageMap},`,
+		`    renderers,`,
+		`    middleware`,
+		`});`,
+		`const _args = ${adapter.args ? JSON.stringify(adapter.args, null, 4) : 'undefined'};`,
+		adapter.exports
+			? `const _exports = serverEntrypointModule.createExports(_manifest, _args);`
+			: '',
+		...(adapter.exports?.map((name) => {
+			if (name === 'default') {
+				return `export default _exports.default;`;
+			} else {
+				return `export const ${name} = _exports['${name}'];`;
+			}
+		}) ?? []),
+		// NOTE: This is intentionally obfuscated!
+		// Do NOT simplify this to something like `serverEntrypointModule.start?.(_manifest, _args)`
+		// They are NOT equivalent! Some bundlers will throw if `start` is not exported, but we
+		// only want to silently ignore it... hence the dynamic, obfuscated weirdness.
+		`const _start = 'start';
+if (_start in serverEntrypointModule) {
+	serverEntrypointModule[_start](_manifest, _args);
+}`,
+	];
+
 	return {
 		imports,
 		contents,

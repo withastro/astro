@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Serverless with dynamic routes', () => {
@@ -15,11 +16,12 @@ describe('Serverless with dynamic routes', () => {
 	});
 
 	it('build successful', async () => {
-		expect(await fixture.readFile('../.vercel/output/static/index.html')).to.be.ok;
-		expect(
+		assert.ok(await fixture.readFile('../.vercel/output/static/index.html'));
+		assert.ok(
 			await fixture.readFile('../.vercel/output/functions/[id]/index.astro.func/.vc-config.json')
-		).to.be.ok;
-		expect(await fixture.readFile('../.vercel/output/functions/api/[id].js.func/.vc-config.json'))
-			.to.be.ok;
+		);
+		assert.ok(
+			await fixture.readFile('../.vercel/output/functions/api/[id].js.func/.vc-config.json')
+		);
 	});
 });

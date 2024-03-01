@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -14,6 +15,6 @@ describe('Unused slot', () => {
 		let html = await fixture.readFile('/index.html');
 		let $ = cheerio.load(html);
 		// No children, slot rendered as empty
-		expect($('body p').children().length).to.equal(0);
+		assert.equal($('body p').children().length, 0);
 	});
 });

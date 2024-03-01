@@ -13,7 +13,7 @@ function mergeConfigRecursively(
 			continue;
 		}
 
-		const existing = merged[key];
+		let existing = merged[key];
 
 		if (existing == null) {
 			merged[key] = value;
@@ -35,6 +35,14 @@ function mergeConfigRecursively(
 					return mergeConfigRecursively(existingConfig, valueConfig, key);
 				};
 				continue;
+			}
+		}
+
+		if (key === 'data' && rootPath === 'db') {
+			// db.data can be a function or an array of functions. When
+			// merging, make sure they become an array
+			if (!Array.isArray(existing) && !Array.isArray(value)) {
+				existing = [existing];
 			}
 		}
 

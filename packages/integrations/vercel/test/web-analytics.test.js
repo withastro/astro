@@ -1,5 +1,6 @@
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
-import { expect } from 'chai';
 
 describe('Vercel Web Analytics', () => {
 	describe('output: static', () => {
@@ -18,8 +19,8 @@ describe('Vercel Web Analytics', () => {
 			const pageOne = await fixture.readFile('../.vercel/output/static/one/index.html');
 			const pageTwo = await fixture.readFile('../.vercel/output/static/two/index.html');
 
-			expect(pageOne).to.contain('/_vercel/insights/script.js');
-			expect(pageTwo).to.contain('/_vercel/insights/script.js');
+			assert.match(pageOne, /\/_vercel\/insights\/script.js/);
+			assert.match(pageTwo, /\/_vercel\/insights\/script.js/);
 		});
 	});
 });

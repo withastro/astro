@@ -1,5 +1,5 @@
-import { deterministicString } from 'deterministic-object-hash';
 import { basename, extname } from 'node:path';
+import { deterministicString } from 'deterministic-object-hash';
 import { removeQueryString } from '../../core/path.js';
 import { shorthash } from '../../runtime/server/shorthash.js';
 import type { ImageTransform } from '../types.js';

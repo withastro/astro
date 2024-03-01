@@ -3,10 +3,10 @@
 import type { ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import { imageMetadata } from '../utils/metadata.js';
 import {
-	baseService,
-	parseQuality,
 	type BaseServiceTransform,
 	type LocalImageService,
+	baseService,
+	parseQuality,
 } from './service.js';
 import { processBuffer } from './vendor/squoosh/image-pool.js';
 import type { Operation } from './vendor/squoosh/image.js';
@@ -48,6 +48,8 @@ async function getRotationForEXIF(
 		case 7:
 		case 8:
 			return { type: 'rotate', numRotations: 3 };
+		default:
+			return undefined;
 	}
 }
 

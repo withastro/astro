@@ -1,6 +1,7 @@
-import { loadFixture, readXML } from './test-utils.js';
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { sitemap } from './fixtures/static/deps.mjs';
+import { loadFixture, readXML } from './test-utils.js';
 
 describe('Filter support', () => {
 	/** @type {import('./test-utils.js').Fixture} */
@@ -22,7 +23,7 @@ describe('Filter support', () => {
 		it('Just one page is added', async () => {
 			const data = await readXML(fixture.readFile('/sitemap-0.xml'));
 			const urls = data.urlset.url;
-			expect(urls.length).to.equal(1);
+			assert.equal(urls.length, 1);
 		});
 	});
 
@@ -42,7 +43,7 @@ describe('Filter support', () => {
 		it('Just one page is added', async () => {
 			const data = await readXML(fixture.readFile('/client/sitemap-0.xml'));
 			const urls = data.urlset.url;
-			expect(urls.length).to.equal(1);
+			assert.equal(urls.length, 1);
 		});
 	});
 });

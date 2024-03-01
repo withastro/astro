@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -51,33 +52,33 @@ describe('Aliases with tsconfig.json - baseUrl only', () => {
 			const $ = cheerio.load(html);
 
 			// Should render aliased element
-			expect($('#client').text()).to.equal('test');
+			assert.equal($('#client').text(), 'test');
 
 			const scripts = $('script').toArray();
-			expect(scripts.length).to.be.greaterThan(0);
+			assert.ok(scripts.length > 0);
 		});
 
 		it('can load via baseUrl', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerio.load(html);
 
-			expect($('#foo').text()).to.equal('foo');
-			expect($('#constants-foo').text()).to.equal('foo');
-			expect($('#constants-index').text()).to.equal('index');
+			assert.equal($('#foo').text(), 'foo');
+			assert.equal($('#constants-foo').text(), 'foo');
+			assert.equal($('#constants-index').text(), 'index');
 		});
 
 		it('works in css @import', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			// imported css should be bundled
-			expect(html).to.include('#style-red');
-			expect(html).to.include('#style-blue');
+			assert.ok(html.includes('#style-red'));
+			assert.ok(html.includes('#style-blue'));
 		});
 
 		it('works in components', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerio.load(html);
 
-			expect($('#alias').text()).to.equal('foo');
+			assert.equal($('#alias').text(), 'foo');
 		});
 	});
 
@@ -91,19 +92,19 @@ describe('Aliases with tsconfig.json - baseUrl only', () => {
 			const $ = cheerio.load(html);
 
 			// Should render aliased element
-			expect($('#client').text()).to.equal('test');
+			assert.equal($('#client').text(), 'test');
 
 			const scripts = $('script').toArray();
-			expect(scripts.length).to.be.greaterThan(0);
+			assert.ok(scripts.length > 0);
 		});
 
 		it('can load via baseUrl', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#foo').text()).to.equal('foo');
-			expect($('#constants-foo').text()).to.equal('foo');
-			expect($('#constants-index').text()).to.equal('index');
+			assert.equal($('#foo').text(), 'foo');
+			assert.equal($('#constants-foo').text(), 'foo');
+			assert.equal($('#constants-index').text(), 'index');
 		});
 
 		it('works in css @import', async () => {
@@ -111,15 +112,15 @@ describe('Aliases with tsconfig.json - baseUrl only', () => {
 			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
 			const [{ css }] = content;
 			// imported css should be bundled
-			expect(css).to.include('#style-red');
-			expect(css).to.include('#style-blue');
+			assert.ok(css.includes('#style-red'));
+			assert.ok(css.includes('#style-blue'));
 		});
 
 		it('works in components', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#alias').text()).to.equal('foo');
+			assert.equal($('#alias').text(), 'foo');
 		});
 	});
 });

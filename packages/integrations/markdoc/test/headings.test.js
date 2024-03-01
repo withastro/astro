@@ -1,5 +1,6 @@
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { expect } from 'chai';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
 async function getFixture(name) {
@@ -195,20 +196,20 @@ const depthToHeadingMap = {
 /** @param {Document} document */
 function idTest(document) {
 	for (const [depth, info] of Object.entries(depthToHeadingMap)) {
-		expect(document.querySelector(`h${depth}`)?.getAttribute('id')).to.equal(info.slug);
+		assert.equal(document.querySelector(`h${depth}`)?.getAttribute('id'), info.slug);
 	}
 }
 
 /** @param {Document} document */
 function tocTest(document) {
 	const toc = document.querySelector('[data-toc] > ul');
-	expect(toc.children).to.have.lengthOf(Object.keys(depthToHeadingMap).length);
+	assert.equal(toc.children.length, Object.keys(depthToHeadingMap).length);
 
 	for (const [depth, info] of Object.entries(depthToHeadingMap)) {
 		const linkEl = toc.querySelector(`a[href="#${info.slug}"]`);
-		expect(linkEl).to.exist;
-		expect(linkEl.getAttribute('data-depth')).to.equal(depth);
-		expect(linkEl.textContent.trim()).to.equal(info.text);
+		assert.ok(linkEl);
+		assert.equal(linkEl.getAttribute('data-depth'), depth);
+		assert.equal(linkEl.textContent.trim(), info.text);
 	}
 }
 
@@ -217,6 +218,6 @@ function astroComponentTest(document) {
 	const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
 
 	for (const heading of headings) {
-		expect(heading.hasAttribute('data-custom-heading')).to.be.true;
+		assert.equal(heading.hasAttribute('data-custom-heading'), true);
 	}
 }

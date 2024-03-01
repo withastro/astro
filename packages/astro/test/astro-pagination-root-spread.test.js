@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -26,7 +27,7 @@ describe('Pagination root', () => {
 			Object.entries(prevMap).map(async ([curr, prev]) => {
 				const html = await fixture.readFile(curr + 'index.html');
 				const $ = cheerio.load(html);
-				expect($('#prev').attr('href')).to.equal(prev);
+				assert.equal($('#prev').attr('href'), prev);
 			})
 		);
 	});

@@ -1,4 +1,5 @@
-import { expect, assert } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 // Asset bundling
@@ -23,8 +24,9 @@ describe('Not returning responses', () => {
 		try {
 			await fixture.build();
 		} catch (e) {
-			expect(e).to.be.instanceOf(
-				Error,
+			assert.equal(
+				e instanceof Error,
+				true,
 				'Only instance of Response can be returned from an Astro file'
 			);
 			return null;

@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { AstroCookies } from '../../../dist/core/cookies/index.js';
 import { apply as applyPolyfill } from '../../../dist/core/polyfill.js';
 
@@ -12,9 +13,9 @@ describe('astro/src/core/cookies', () => {
 			req[Symbol.for('astro.responseSent')] = true;
 			try {
 				cookies.set('foo', 'bar');
-				expect(false).to.equal(true);
+				assert.equal(false, true);
 			} catch (err) {
-				expect(err.name).to.equal('ResponseSentError');
+				assert.equal(err.name, 'ResponseSentError');
 			}
 		});
 	});

@@ -1,6 +1,7 @@
 import mdx from '@astrojs/mdx';
 
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
@@ -21,8 +22,9 @@ describe('MDX with Astro Markdown remark-rehype config', () => {
 		const html = await fixture.readFile('/index.html');
 		const { document } = parseHTML(html);
 
-		expect(document.querySelector('#footnote-label').textContent).to.equal('Catatan kaki');
-		expect(document.querySelector('.data-footnote-backref').getAttribute('aria-label')).to.equal(
+		assert.equal(document.querySelector('#footnote-label').textContent, 'Catatan kaki');
+		assert.equal(
+			document.querySelector('.data-footnote-backref').getAttribute('aria-label'),
 			'Kembali ke konten'
 		);
 	});
@@ -49,8 +51,9 @@ describe('MDX with Astro Markdown remark-rehype config', () => {
 		const html = await fixture.readFile('/index.html');
 		const { document } = parseHTML(html);
 
-		expect(document.querySelector('#footnote-label').textContent).to.equal('Catatan kaki');
-		expect(document.querySelector('.data-footnote-backref').getAttribute('aria-label')).to.equal(
+		assert.equal(document.querySelector('#footnote-label').textContent, 'Catatan kaki');
+		assert.equal(
+			document.querySelector('.data-footnote-backref').getAttribute('aria-label'),
 			'Kembali ke konten'
 		);
 	});
@@ -77,8 +80,9 @@ describe('MDX with Astro Markdown remark-rehype config', () => {
 		const html = await fixture.readFile('/index.html');
 		const { document } = parseHTML(html);
 
-		expect(document.querySelector('#footnote-label').textContent).to.equal('Catatan kaki');
-		expect(document.querySelector('.data-footnote-backref').getAttribute('aria-label')).to.equal(
+		assert.equal(document.querySelector('#footnote-label').textContent, 'Catatan kaki');
+		assert.equal(
+			document.querySelector('.data-footnote-backref').getAttribute('aria-label'),
 			'Back to reference 1'
 		);
 	});

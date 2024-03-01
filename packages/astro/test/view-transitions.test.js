@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -20,16 +21,17 @@ describe('View Transitions styles', () => {
 		let html = await res.text();
 		let $ = cheerio.load(html);
 
-		expect($('head style')).to.have.a.lengthOf(3);
+		assert.equal($('head style').length, 3);
 	});
 
 	it('should not duplicate transition attributes on island contents', async () => {
 		let res = await fixture.fetch('/hasIsland');
 		let html = await res.text();
 		let $ = cheerio.load(html);
-		expect($('astro-island[data-astro-transition-persist]')).to.have.a.lengthOf(1);
-		expect(
-			$('astro-island[data-astro-transition-persist] > [data-astro-transition-persist]')
-		).to.have.a.lengthOf(0);
+		assert.equal($('astro-island[data-astro-transition-persist]').length, 1);
+		assert.equal(
+			$('astro-island[data-astro-transition-persist] > [data-astro-transition-persist]').length,
+			0
+		);
 	});
 });

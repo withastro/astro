@@ -1,6 +1,7 @@
-import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('SSR Hydrated component scripts', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -20,6 +21,6 @@ describe('SSR Hydrated component scripts', () => {
 
 		/** @type {Set<string>} */
 		const assets = app.manifest.assets;
-		expect(assets.size).to.be.greaterThan(0);
+		assert.ok(assets.size > 0);
 	});
 });

@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import { isWindows, loadFixture } from '../../../astro/test/test-utils.js';
 
@@ -21,50 +22,51 @@ describe('React Components', () => {
 			const $ = cheerioLoad(html);
 
 			// test 1: basic component renders
-			expect($('#react-static').text()).to.equal('Hello static!');
+			assert.equal($('#react-static').text(), 'Hello static!');
 
 			// test 2: no reactroot
-			expect($('#react-static').attr('data-reactroot')).to.equal(undefined);
+			assert.equal($('#react-static').attr('data-reactroot'), undefined);
 
 			// test 3: Can use function components
-			expect($('#arrow-fn-component')).to.have.lengthOf(1);
+			assert.equal($('#arrow-fn-component').length, 1);
 
 			// test 4: Can use spread for components
-			expect($('#component-spread-props')).to.have.lengthOf(1);
+			assert.equal($('#component-spread-props').length, 1);
 
 			// test 5: spread props renders
-			expect($('#component-spread-props').text(), 'Hello world!');
+			assert.equal($('#component-spread-props').text(), 'Hello world!');
 
 			// test 6: Can use TS components
-			expect($('.ts-component')).to.have.lengthOf(1);
+			assert.equal($('.ts-component').length, 1);
 
 			// test 7: Can use Pure components
-			expect($('#pure')).to.have.lengthOf(1);
+			assert.equal($('#pure').length, 1);
 
 			// test 8: Check number of islands
-			expect($('astro-island[uid]')).to.have.lengthOf(9);
+			assert.equal($('astro-island[uid]').length, 9);
 
 			// test 9: Check island deduplication
 			const uniqueRootUIDs = new Set($('astro-island').map((i, el) => $(el).attr('uid')));
-			expect(uniqueRootUIDs.size).to.equal(8);
+			assert.equal(uniqueRootUIDs.size, 8);
 
 			// test 10: Should properly render children passed as props
 			const islandsWithChildren = $('.with-children');
-			expect(islandsWithChildren).to.have.lengthOf(2);
-			expect($(islandsWithChildren[0]).html()).to.equal(
+			assert.equal(islandsWithChildren.length, 2);
+			assert.equal(
+				$(islandsWithChildren[0]).html(),
 				$(islandsWithChildren[1]).find('astro-slot').html()
 			);
 
 			// test 11: Should generate unique React.useId per island
 			const islandsWithId = $('.react-use-id');
-			expect(islandsWithId).to.have.lengthOf(2);
-			expect($(islandsWithId[0]).attr('id')).to.not.equal($(islandsWithId[1]).attr('id'));
+			assert.equal(islandsWithId.length, 2);
+			assert.notEqual($(islandsWithId[0]).attr('id'), $(islandsWithId[1]).attr('id'));
 		});
 
 		it('Can load Vue', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerioLoad(html);
-			expect($('#vue-h2').text()).to.equal('Hasta la vista, baby');
+			assert.equal($('#vue-h2').text(), 'Hasta la vista, baby');
 		});
 
 		it('Can use a pragma comment', async () => {
@@ -72,7 +74,7 @@ describe('React Components', () => {
 			const $ = cheerioLoad(html);
 
 			// test 1: rendered the PragmaComment component
-			expect($('.pragma-comment')).to.have.lengthOf(2);
+			assert.equal($('.pragma-comment').length, 2);
 		});
 
 		// TODO: is this still a relevant test?
@@ -83,35 +85,35 @@ describe('React Components', () => {
 			const div = $('#research');
 
 			// test 1: has the hydration attr
-			expect(div.attr('data-reactroot')).to.be.ok;
+			assert.ok(div.attr('data-reactroot'));
 
 			// test 2: renders correctly
-			expect(div.html()).to.equal('foo bar <!-- -->1');
+			assert.equal(div.html(), 'foo bar <!-- -->1');
 		});
 
 		it('Can load Suspense-using components', async () => {
 			const html = await fixture.readFile('/suspense/index.html');
 			const $ = cheerioLoad(html);
-			expect($('#client #lazy')).to.have.lengthOf(1);
-			expect($('#server #lazy')).to.have.lengthOf(1);
+			assert.equal($('#client #lazy').length, 1);
+			assert.equal($('#server #lazy').length, 1);
 		});
 
 		it('Can pass through props with cloneElement', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerioLoad(html);
-			expect($('#cloned').text()).to.equal('Cloned With Props');
+			assert.equal($('#cloned').text(), 'Cloned With Props');
 		});
 
 		it('Children are parsed as React components, can be manipulated', async () => {
 			const html = await fixture.readFile('/children/index.html');
 			const $ = cheerioLoad(html);
-			expect($('#one .with-children-count').text()).to.equal('2');
+			assert.equal($('#one .with-children-count').text(), '2');
 		});
 
 		it('Client children passes option to the client', async () => {
 			const html = await fixture.readFile('/children/index.html');
 			const $ = cheerioLoad(html);
-			expect($('[data-react-children]')).to.have.lengthOf(1);
+			assert.equal($('[data-react-children]').length, 1);
 		});
 	});
 
@@ -136,18 +138,20 @@ describe('React Components', () => {
 			for (const script of $('script').toArray()) {
 				const { src } = script.attribs;
 				if (!src) continue;
-				expect((await fixture.fetch(src)).status, `404: ${src}`).to.equal(200);
+				assert.equal((await fixture.fetch(src)).status, 200, `404: ${src}`);
 			}
 		});
 
 		// TODO: move this to separate dev test?
 		it.skip('Throws helpful error message on window SSR', async () => {
 			const html = await fixture.fetch('/window/index.html');
-			expect(html).to.include(
-				`[/window]
-    The window object is not available during server-side rendering (SSR).
-    Try using \`import.meta.env.SSR\` to write SSR-friendly code.
-    https://docs.astro.build/reference/api-reference/#importmeta`
+			assert.ok(
+				(await html.text()).includes(
+					`[/window]
+			The window object is not available during server-side rendering (SSR).
+			Try using \`import.meta.env.SSR\` to write SSR-friendly code.
+			https://docs.astro.build/reference/api-reference/#importmeta`
+				)
 			);
 		});
 
@@ -168,7 +172,7 @@ describe('React Components', () => {
 			const jsxRuntime = component.imports.filter((i) => i.specifier.includes('jsx-runtime'));
 
 			// test 1: react/jsx-runtime is used for the component
-			expect(jsxRuntime).to.be.ok;
+			assert.ok(jsxRuntime);
 		});
 
 		it('When a nested component throws it does not crash the server', async () => {

@@ -1,8 +1,7 @@
-import { expect } from 'chai';
-
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { dependencies } from '../dist/index.js';
 import { setup } from './utils.js';
-
 describe('dependencies', () => {
 	const fixture = setup();
 
@@ -14,8 +13,10 @@ describe('dependencies', () => {
 			dryRun: true,
 			prompt: () => ({ deps: true }),
 		};
+
 		await dependencies(context);
-		expect(fixture.hasMessage('Skipping dependency installation')).to.be.true;
+
+		assert.ok(fixture.hasMessage('Skipping dependency installation'));
 	});
 
 	it('prompt yes', async () => {
@@ -26,22 +27,27 @@ describe('dependencies', () => {
 			prompt: () => ({ deps: true }),
 			install: undefined,
 		};
+
 		await dependencies(context);
-		expect(fixture.hasMessage('Skipping dependency installation')).to.be.true;
-		expect(context.install).to.eq(true);
+
+		assert.ok(fixture.hasMessage('Skipping dependency installation'));
+		assert.equal(context.install, true);
 	});
 
 	it('prompt no', async () => {
 		const context = {
 			cwd: '',
+			install: true,
 			packageManager: 'npm',
 			dryRun: true,
 			prompt: () => ({ deps: false }),
 			install: undefined,
 		};
+
 		await dependencies(context);
-		expect(fixture.hasMessage('Skipping dependency installation')).to.be.true;
-		expect(context.install).to.eq(false);
+
+		assert.ok(fixture.hasMessage('Skipping dependency installation'));
+		assert.equal(context.install, false);
 	});
 
 	it('--install', async () => {
@@ -53,11 +59,11 @@ describe('dependencies', () => {
 			prompt: () => ({ deps: false }),
 		};
 		await dependencies(context);
-		expect(fixture.hasMessage('Skipping dependency installation')).to.be.true;
-		expect(context.install).to.eq(true);
+		assert.ok(fixture.hasMessage('Skipping dependency installation'));
+		assert.equal(context.install, true);
 	});
 
-	it('--no-install', async () => {
+	it('--no-install ', async () => {
 		const context = {
 			cwd: '',
 			install: false,
@@ -65,8 +71,10 @@ describe('dependencies', () => {
 			dryRun: true,
 			prompt: () => ({ deps: false }),
 		};
+
 		await dependencies(context);
-		expect(fixture.hasMessage('Skipping dependency installation')).to.be.true;
-		expect(context.install).to.eq(false);
+
+		assert.ok(fixture.hasMessage('Skipping dependency installation'));
+		assert.equal(context.install, false);
 	});
 });

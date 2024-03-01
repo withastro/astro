@@ -1,6 +1,7 @@
 import mdx from '@astrojs/mdx';
 
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
@@ -16,12 +17,12 @@ describe('MDX frontmatter', () => {
 		await fixture.build();
 	});
 	it('builds when "frontmatter.property" is in JSX expression', async () => {
-		expect(true).to.equal(true);
+		assert.equal(true, true);
 	});
 
 	it('extracts frontmatter to "frontmatter" export', async () => {
 		const { titles } = JSON.parse(await fixture.readFile('/glob.json'));
-		expect(titles).to.include('Using YAML frontmatter');
+		assert.equal(titles.includes('Using YAML frontmatter'), true);
 	});
 
 	it('renders layout from "layout" frontmatter property', async () => {
@@ -30,7 +31,7 @@ describe('MDX frontmatter', () => {
 
 		const layoutParagraph = document.querySelector('[data-layout-rendered]');
 
-		expect(layoutParagraph).to.not.be.null;
+		assert.notEqual(layoutParagraph, null);
 	});
 
 	it('passes frontmatter to layout via "content" and "frontmatter" props', async () => {
@@ -40,8 +41,8 @@ describe('MDX frontmatter', () => {
 		const contentTitle = document.querySelector('[data-content-title]');
 		const frontmatterTitle = document.querySelector('[data-frontmatter-title]');
 
-		expect(contentTitle.textContent).to.equal('Using YAML frontmatter');
-		expect(frontmatterTitle.textContent).to.equal('Using YAML frontmatter');
+		assert.equal(contentTitle.textContent, 'Using YAML frontmatter');
+		assert.equal(frontmatterTitle.textContent, 'Using YAML frontmatter');
 	});
 
 	it('passes headings to layout via "headings" prop', async () => {
@@ -52,9 +53,9 @@ describe('MDX frontmatter', () => {
 			(el) => el.textContent
 		);
 
-		expect(headingSlugs.length).to.be.greaterThan(0);
-		expect(headingSlugs).to.contain('section-1');
-		expect(headingSlugs).to.contain('section-2');
+		assert.equal(headingSlugs.length > 0, true);
+		assert.equal(headingSlugs.includes('section-1'), true);
+		assert.equal(headingSlugs.includes('section-2'), true);
 	});
 
 	it('passes "file" and "url" to layout', async () => {
@@ -66,12 +67,13 @@ describe('MDX frontmatter', () => {
 		const file = document.querySelector('[data-file]')?.textContent;
 		const url = document.querySelector('[data-url]')?.textContent;
 
-		expect(frontmatterFile?.endsWith('with-headings.mdx')).to.equal(
+		assert.equal(
+			frontmatterFile?.endsWith('with-headings.mdx'),
 			true,
 			'"file" prop does not end with correct path or is undefined'
 		);
-		expect(frontmatterUrl).to.equal('/with-headings');
-		expect(file).to.equal(frontmatterFile);
-		expect(url).to.equal(frontmatterUrl);
+		assert.equal(frontmatterUrl, '/with-headings');
+		assert.equal(file, frontmatterFile);
+		assert.equal(url, frontmatterUrl);
 	});
 });

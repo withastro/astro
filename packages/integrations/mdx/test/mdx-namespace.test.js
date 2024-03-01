@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
@@ -23,8 +24,8 @@ describe('MDX Namespace', () => {
 			const island = document.querySelector('astro-island');
 			const component = document.querySelector('#component');
 
-			expect(island).not.undefined;
-			expect(component.textContent).equal('Hello world');
+			assert.notEqual(island, undefined);
+			assert.equal(component.textContent, 'Hello world');
 		});
 
 		it('works for star', async () => {
@@ -34,8 +35,8 @@ describe('MDX Namespace', () => {
 			const island = document.querySelector('astro-island');
 			const component = document.querySelector('#component');
 
-			expect(island).not.undefined;
-			expect(component.textContent).equal('Hello world');
+			assert.notEqual(island, undefined);
+			assert.equal(component.textContent, 'Hello world');
 		});
 	});
 
@@ -53,7 +54,7 @@ describe('MDX Namespace', () => {
 		it('works for object', async () => {
 			const res = await fixture.fetch('/object');
 
-			expect(res.status).to.equal(200);
+			assert.equal(res.status, 200);
 
 			const html = await res.text();
 			const { document } = parseHTML(html);
@@ -61,14 +62,14 @@ describe('MDX Namespace', () => {
 			const island = document.querySelector('astro-island');
 			const component = document.querySelector('#component');
 
-			expect(island).not.undefined;
-			expect(component.textContent).equal('Hello world');
+			assert.notEqual(island, undefined);
+			assert.equal(component.textContent, 'Hello world');
 		});
 
 		it('works for star', async () => {
 			const res = await fixture.fetch('/star');
 
-			expect(res.status).to.equal(200);
+			assert.equal(res.status, 200);
 
 			const html = await res.text();
 			const { document } = parseHTML(html);
@@ -76,8 +77,8 @@ describe('MDX Namespace', () => {
 			const island = document.querySelector('astro-island');
 			const component = document.querySelector('#component');
 
-			expect(island).not.undefined;
-			expect(component.textContent).equal('Hello world');
+			assert.notEqual(island, undefined);
+			assert.equal(component.textContent, 'Hello world');
 		});
 	});
 });

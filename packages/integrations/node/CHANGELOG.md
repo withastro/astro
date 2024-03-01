@@ -1,5 +1,23 @@
 # @astrojs/node
 
+## 8.2.1
+
+### Patch Changes
+
+- [#10208](https://github.com/withastro/astro/pull/10208) [`8cd38f02456640c063552aef00b2b8a216b3935d`](https://github.com/withastro/astro/commit/8cd38f02456640c063552aef00b2b8a216b3935d) Thanks [@log101](https://github.com/log101)! - Fixes custom headers are not added to the Node standalone server responses in preview mode
+
+## 8.2.0
+
+### Minor Changes
+
+- [#9143](https://github.com/withastro/astro/pull/9143) [`041fdd5c89920f7ccf944b095f29e451f78b0e28`](https://github.com/withastro/astro/commit/041fdd5c89920f7ccf944b095f29e451f78b0e28) Thanks [@ematipico](https://github.com/ematipico)! - Adds experimental support for internationalization domains
+
+## 8.1.0
+
+### Minor Changes
+
+- [#9080](https://github.com/withastro/astro/pull/9080) [`a12196d6b59e39f5d405734ecdbf6f6b42b39a93`](https://github.com/withastro/astro/commit/a12196d6b59e39f5d405734ecdbf6f6b42b39a93) Thanks [@msxdan](https://github.com/msxdan)! - Add trailingSlash support to NodeJS adapter
+
 ## 8.0.0
 
 ### Major Changes

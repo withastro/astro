@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
@@ -15,31 +16,38 @@ describe('MDX - Vite env vars', () => {
 		const html = await fixture.readFile('/vite-env-vars/index.html');
 		const { document } = parseHTML(html);
 
-		expect(document.querySelector('h1')?.innerHTML).to.contain('import.meta.env.SITE');
-		expect(document.querySelector('code')?.innerHTML).to.contain('import.meta.env.SITE');
-		expect(document.querySelector('pre')?.innerHTML).to.contain('import.meta.env.SITE');
+		assert.equal(document.querySelector('h1')?.innerHTML.includes('import.meta.env.SITE'), true);
+		assert.equal(document.querySelector('code')?.innerHTML.includes('import.meta.env.SITE'), true);
+		assert.equal(document.querySelector('pre')?.innerHTML.includes('import.meta.env.SITE'), true);
 	});
 	it('Allows referencing `import.meta.env` in frontmatter', async () => {
 		const { title = '' } = JSON.parse(await fixture.readFile('/frontmatter.json'));
-		expect(title).to.contain('import.meta.env.SITE');
+		assert.equal(title.includes('import.meta.env.SITE'), true);
 	});
 	it('Transforms `import.meta.env` in {JSX expressions}', async () => {
 		const html = await fixture.readFile('/vite-env-vars/index.html');
 		const { document } = parseHTML(html);
 
-		expect(document.querySelector('[data-env-site]')?.innerHTML).to.contain(
-			'https://mdx-is-neat.com/blog/cool-post'
+		assert.equal(
+			document
+				.querySelector('[data-env-site]')
+				?.innerHTML.includes('https://mdx-is-neat.com/blog/cool-post'),
+			true
 		);
 	});
 	it('Transforms `import.meta.env` in variable exports', async () => {
 		const html = await fixture.readFile('/vite-env-vars/index.html');
 		const { document } = parseHTML(html);
 
-		expect(document.querySelector('[data-env-variable-exports]')?.innerHTML).to.contain(
-			'MODE works'
+		assert.equal(
+			document.querySelector('[data-env-variable-exports]')?.innerHTML.includes('MODE works'),
+			true
 		);
-		expect(document.querySelector('[data-env-variable-exports-unknown]')?.innerHTML).to.contain(
-			'exports: ””' // NOTE: these double quotes are special unicode quotes emitted in the HTML file
+		assert.equal(
+			document
+				.querySelector('[data-env-variable-exports-unknown]')
+				?.innerHTML.includes('exports: ””'), // NOTE: these double quotes are special unicode quotes emitted in the HTML file
+			true
 		);
 	});
 	it('Transforms `import.meta.env` in HTML attributes', async () => {
@@ -47,11 +55,11 @@ describe('MDX - Vite env vars', () => {
 		const { document } = parseHTML(html);
 
 		const dataAttrDump = document.querySelector('[data-env-dump]');
-		expect(dataAttrDump).to.not.be.null;
+		assert.notEqual(dataAttrDump, null);
 
-		expect(dataAttrDump.getAttribute('data-env-prod')).to.not.be.null;
-		expect(dataAttrDump.getAttribute('data-env-dev')).to.be.null;
-		expect(dataAttrDump.getAttribute('data-env-base-url')).to.equal('/');
-		expect(dataAttrDump.getAttribute('data-env-mode')).to.equal('production');
+		assert.notEqual(dataAttrDump.getAttribute('data-env-prod'), null);
+		assert.equal(dataAttrDump.getAttribute('data-env-dev'), null);
+		assert.equal(dataAttrDump.getAttribute('data-env-base-url'), '/');
+		assert.equal(dataAttrDump.getAttribute('data-env-mode'), 'production');
 	});
 });

@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -14,20 +15,20 @@ describe('Code component', () => {
 	it('Debug component styles are not included in the page', async () => {
 		let html = await fixture.readFile('/index.html');
 		let $ = cheerio.load(html);
-		expect($('link[rel=stylesheet]')).to.have.a.lengthOf(0, 'No styles should be built');
-		expect($('style')).to.have.a.lengthOf(0);
+		assert.equal($('link[rel=stylesheet]').length, 0, 'No styles should be built');
+		assert.equal($('style').length, 0);
 	});
 
 	it('is:raw attribute not serialized', async () => {
 		let html = await fixture.readFile('/index.html');
 		let $ = cheerio.load(html);
-		expect($('pre').attr('is:raw')).to.equal(undefined);
+		assert.equal($('pre').attr('is:raw'), undefined);
 	});
 
 	// ViewTransitions bug
 	it('No script should be added to the page', async () => {
 		let html = await fixture.readFile('/index.html');
 		let $ = cheerio.load(html);
-		expect($('script')).to.have.a.lengthOf(0);
+		assert.equal($('script').length, 0);
 	});
 });

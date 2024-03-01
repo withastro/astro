@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -18,6 +19,6 @@ describe('Lazily imported layouts', () => {
 	it('Renders styles only once', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		expect($('link')).to.have.a.lengthOf(1);
+		assert.equal($('link').length, 1);
 	});
 });

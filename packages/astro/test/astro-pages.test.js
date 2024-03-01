@@ -1,6 +1,7 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture, isWindows } from './test-utils.js';
+import { isWindows, loadFixture } from './test-utils.js';
 
 describe('Pages', () => {
 	let fixture;
@@ -19,14 +20,14 @@ describe('Pages', () => {
 			const html = await fixture.readFile('/posts/name-with-index/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('h1').text()).to.equal('Name with index');
+			assert.equal($('h1').text(), 'Name with index');
 		});
 
 		it('Can find page with quotes in file name', async () => {
 			const html = await fixture.readFile("/quotes'-work-too/index.html");
 			const $ = cheerio.load(html);
 
-			expect($('h1').text()).to.equal('Quotes work too');
+			assert.equal($('h1').text(), 'Quotes work too');
 		});
 	});
 
@@ -47,12 +48,16 @@ describe('Pages', () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerio.load(html);
 
-			expect($('#testing').length).to.be.greaterThan(0);
+			assert.equal($('#testing').length > 0, true);
 		});
 
 		it('should have Vite client in dev', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
-			expect(html).to.include('/@vite/client', 'Markdown page does not have Vite client for HMR');
+			assert.equal(
+				html.includes('/@vite/client'),
+				true,
+				'Markdown page does not have Vite client for HMR'
+			);
 		});
 	});
 });

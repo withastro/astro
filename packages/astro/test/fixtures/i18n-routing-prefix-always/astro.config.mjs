@@ -1,4 +1,4 @@
-import { defineConfig} from "astro/config";
+import { defineConfig } from "astro/config";
 
 export default defineConfig({
 		i18n: {
@@ -13,5 +13,5 @@ export default defineConfig({
 				prefixDefaultLocale: true
 			}
 		},
-	base: "/new-site"
+		base: "/new-site"
 })

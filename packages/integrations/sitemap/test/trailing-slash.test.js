@@ -1,5 +1,6 @@
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture, readXML } from './test-utils.js';
-import { expect } from 'chai';
 
 describe('Trailing slash', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -21,7 +22,7 @@ describe('Trailing slash', () => {
 			it('URLs end with trailing slash', async () => {
 				const data = await readXML(fixture.readFile('/sitemap-0.xml'));
 				const urls = data.urlset.url;
-				expect(urls[0].loc[0]).to.equal('http://example.com/one/');
+				assert.equal(urls[0].loc[0], 'http://example.com/one/');
 			});
 		});
 
@@ -40,7 +41,7 @@ describe('Trailing slash', () => {
 			it('URLs do not end with trailing slash', async () => {
 				const data = await readXML(fixture.readFile('/sitemap-0.xml'));
 				const urls = data.urlset.url;
-				expect(urls[0].loc[0]).to.equal('http://example.com/one');
+				assert.equal(urls[0].loc[0], 'http://example.com/one');
 			});
 		});
 	});
@@ -57,7 +58,7 @@ describe('Trailing slash', () => {
 		it('URLs do no end with trailing slash', async () => {
 			const data = await readXML(fixture.readFile('/sitemap-0.xml'));
 			const urls = data.urlset.url;
-			expect(urls[0].loc[0]).to.equal('http://example.com/one');
+			assert.equal(urls[0].loc[0], 'http://example.com/one');
 		});
 		describe('with base path', () => {
 			before(async () => {
@@ -72,7 +73,7 @@ describe('Trailing slash', () => {
 			it('URLs do not end with trailing slash', async () => {
 				const data = await readXML(fixture.readFile('/sitemap-0.xml'));
 				const urls = data.urlset.url;
-				expect(urls[0].loc[0]).to.equal('http://example.com/base/one');
+				assert.equal(urls[0].loc[0], 'http://example.com/base/one');
 			});
 		});
 	});
@@ -89,7 +90,7 @@ describe('Trailing slash', () => {
 		it('URLs end with trailing slash', async () => {
 			const data = await readXML(fixture.readFile('/sitemap-0.xml'));
 			const urls = data.urlset.url;
-			expect(urls[0].loc[0]).to.equal('http://example.com/one/');
+			assert.equal(urls[0].loc[0], 'http://example.com/one/');
 		});
 		describe('with base path', () => {
 			before(async () => {
@@ -104,7 +105,7 @@ describe('Trailing slash', () => {
 			it('URLs end with trailing slash', async () => {
 				const data = await readXML(fixture.readFile('/sitemap-0.xml'));
 				const urls = data.urlset.url;
-				expect(urls[0].loc[0]).to.equal('http://example.com/base/one/');
+				assert.equal(urls[0].loc[0], 'http://example.com/base/one/');
 			});
 		});
 	});

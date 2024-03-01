@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'node:url';
-import type * as vite from 'vite';
-import { loadEnv } from 'vite';
 import { transform } from 'esbuild';
 import MagicString from 'magic-string';
+import type * as vite from 'vite';
+import { loadEnv } from 'vite';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 
 interface EnvPluginOptions {
@@ -13,7 +13,10 @@ interface EnvPluginOptions {
 const importMetaEnvOnlyRe = /\bimport\.meta\.env\b(?!\.)/;
 // Match valid JS variable names (identifiers), which accepts most alphanumeric characters,
 // except that the first character cannot be a number.
-const isValidIdentifierRe = /^[_$a-zA-Z][_$a-zA-Z0-9]*$/;
+const isValidIdentifierRe = /^[_$a-zA-Z][\w$]*$/;
+// Match `export const prerender = import.meta.env.*` since `vite=plugin-scanner` requires
+// the `import.meta.env.*` to always be replaced.
+const exportConstPrerenderRe = /\bexport\s+const\s+prerender\s*=\s*import\.meta\.env\.(.+?)\b/;
 
 function getPrivateEnv(
 	viteConfig: vite.ResolvedConfig,
@@ -156,6 +159,7 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 			// In dev, we can assign the private env vars to `import.meta.env` directly for performance
 			if (isDev) {
 				const s = new MagicString(source);
+
 				if (!devImportMetaEnvPrepend) {
 					devImportMetaEnvPrepend = `Object.assign(import.meta.env,{`;
 					for (const key in privateEnv) {
@@ -164,6 +168,16 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 					devImportMetaEnvPrepend += '});';
 				}
 				s.prepend(devImportMetaEnvPrepend);
+
+				// EDGE CASE: We need to do a static replacement for `export const prerender` for `vite-plugin-scanner`
+				s.replace(exportConstPrerenderRe, (m, key) => {
+					if (privateEnv[key] != null) {
+						return `export const prerender = ${privateEnv[key]}`;
+					} else {
+						return m;
+					}
+				});
+
 				return {
 					code: s.toString(),
 					map: s.generateMap({ hires: 'boundary' }),

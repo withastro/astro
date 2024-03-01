@@ -1,5 +1,6 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { Redirects } from '../dist/index.js';
-import { expect } from 'chai';
 
 describe('Printing', () => {
 	it('Formats long lines in a pretty way', () => {
@@ -22,8 +23,13 @@ describe('Printing', () => {
 
 		let [lineOne, lineTwo] = out.split('\n');
 
-		expect(lineOne.indexOf('/b')).to.equal(lineTwo.indexOf('/b'), 'destinations lined up');
-		expect(lineOne.indexOf('200')).to.equal(lineTwo.indexOf('200'), 'statuses lined up');
+		const indexLineOne = lineOne.indexOf('/b');
+		const indexLineTwo = lineTwo.indexOf('/b');
+		assert.equal(indexLineOne, indexLineTwo, 'destinations lined up');
+
+		const newIndexLineOne = lineOne.indexOf('200');
+		const newIndexLineTwo = lineTwo.indexOf('200');
+		assert.equal(newIndexLineOne, newIndexLineTwo, 'statuses lined up');
 	});
 
 	it('Properly prints dynamic routes', () => {
@@ -37,6 +43,8 @@ describe('Printing', () => {
 		});
 		let out = _redirects.print();
 		let parts = out.split(/\s+/);
-		expect(parts).to.deep.equal(['/pets/:cat', '/pets/:cat/index.html', '200']);
+
+		const expectedParts = ['/pets/:cat', '/pets/:cat/index.html', '200'];
+		assert.deepEqual(parts, expectedParts);
 	});
 });

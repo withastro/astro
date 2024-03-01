@@ -1,5 +1,5 @@
-import { AstroError } from 'astro/errors';
 import type { AstroAdapter, AstroIntegration } from 'astro';
+import { AstroError } from 'astro/errors';
 import type { Options, UserOptions } from './types.js';
 
 export function getAdapter(options: Options): AstroAdapter {
@@ -18,6 +18,7 @@ export function getAdapter(options: Options): AstroAdapter {
 				isSharpCompatible: true,
 				isSquooshCompatible: true,
 			},
+			i18nDomains: 'experimental',
 		},
 	};
 }

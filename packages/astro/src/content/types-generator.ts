@@ -1,9 +1,9 @@
-import glob from 'fast-glob';
-import { bold, cyan } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { normalizePath, type ViteDevServer } from 'vite';
+import glob from 'fast-glob';
+import { bold, cyan } from 'kleur/colors';
+import { type ViteDevServer, normalizePath } from 'vite';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
@@ -11,6 +11,9 @@ import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
+	type ContentConfig,
+	type ContentObservable,
+	type ContentPaths,
 	getContentEntryIdAndSlug,
 	getContentPaths,
 	getDataEntryExts,
@@ -20,9 +23,6 @@ import {
 	getEntrySlug,
 	getEntryType,
 	reloadContentConfigObserver,
-	type ContentConfig,
-	type ContentObservable,
-	type ContentPaths,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
@@ -172,7 +172,7 @@ export async function createContentTypesGenerator({
 					}
 					const collectionInfo = collectionEntryMap[collectionKey];
 					if (collectionInfo.type === 'content') {
-						viteServer.ws.send({
+						viteServer.hot.send({
 							type: 'error',
 							err: new AstroError({
 								...AstroErrorData.MixedContentDataCollectionError,
@@ -212,7 +212,7 @@ export async function createContentTypesGenerator({
 		}
 		const collectionInfo = collectionEntryMap[collectionKey];
 		if (collectionInfo.type === 'data') {
-			viteServer.ws.send({
+			viteServer.hot.send({
 				type: 'error',
 				err: new AstroError({
 					...AstroErrorData.MixedContentDataCollectionError,
@@ -312,13 +312,6 @@ export async function createContentTypesGenerator({
 				viteServer,
 			});
 			invalidateVirtualMod(viteServer);
-			if (observable.status === 'loaded') {
-				warnNonexistentCollections({
-					logger,
-					contentConfig: observable.config,
-					collectionEntryMap,
-				});
-			}
 		}
 	}
 	return { init, queueEvent };
@@ -331,6 +324,24 @@ function invalidateVirtualMod(viteServer: ViteDevServer) {
 	if (!virtualMod) return;
 
 	viteServer.moduleGraph.invalidateModule(virtualMod);
+}
+
+/**
+ * Takes the source (`from`) and destination (`to`) of a config path and
+ * returns a normalized relative version:
+ *  -   If is not relative, it adds `./` to the beginning.
+ *  -   If it ends with `.ts`, it replaces it with `.js`.
+ *  -   It adds `""` around the string.
+ * @param from Config path source.
+ * @param to Config path destination.
+ * @returns Normalized config path.
+ */
+function normalizeConfigPath(from: string, to: string) {
+	const configPath = path.relative(from, to).replace(/\.ts$/, '.js');
+	// on windows `path.relative` will use backslashes, these must be replaced with forward slashes
+	const normalizedPath = configPath.replaceAll('\\', '/');
+
+	return `"${isRelativePath(configPath) ? '' : './'}${normalizedPath}"` as const;
 }
 
 async function writeContentFiles({
@@ -348,10 +359,13 @@ async function writeContentFiles({
 	typeTemplateContent: string;
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
-	viteServer: Pick<ViteDevServer, 'ws'>;
+	viteServer: Pick<ViteDevServer, 'hot'>;
 }) {
 	let contentTypesStr = '';
 	let dataTypesStr = '';
+	for (const [collection, config] of Object.entries(contentConfig?.collections ?? {})) {
+		collectionEntryMap[JSON.stringify(collection)] ??= { type: config.type, entries: {} };
+	}
 	for (const collectionKey of Object.keys(collectionEntryMap).sort()) {
 		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
 		const collection = collectionEntryMap[collectionKey];
@@ -360,7 +374,7 @@ async function writeContentFiles({
 			collection.type !== 'unknown' &&
 			collection.type !== collectionConfig.type
 		) {
-			viteServer.ws.send({
+			viteServer.hot.send({
 				type: 'error',
 				err: new AstroError({
 					...AstroErrorData.ContentCollectionTypeMismatchError,
@@ -373,7 +387,7 @@ async function writeContentFiles({
 						collection.type === 'data'
 							? "Try adding `type: 'data'` to your collection config."
 							: undefined,
-					location: { file: '' /** required for error overlay `ws` messages */ },
+					location: { file: '' /** required for error overlay `hot` messages */ },
 				}) as any,
 			});
 			return;
@@ -415,17 +429,10 @@ async function writeContentFiles({
 		fs.mkdirSync(contentPaths.cacheDir, { recursive: true });
 	}
 
-	let configPathRelativeToCacheDir = normalizePath(
-		path.relative(contentPaths.cacheDir.pathname, contentPaths.config.url.pathname)
+	const configPathRelativeToCacheDir = normalizeConfigPath(
+		contentPaths.cacheDir.pathname,
+		contentPaths.config.url.pathname
 	);
-
-	if (!isRelativePath(configPathRelativeToCacheDir))
-		configPathRelativeToCacheDir = './' + configPathRelativeToCacheDir;
-
-	// Remove `.ts` from import path
-	if (configPathRelativeToCacheDir.endsWith('.ts')) {
-		configPathRelativeToCacheDir = configPathRelativeToCacheDir.replace(/\.ts$/, '');
-	}
 
 	for (const contentEntryType of contentEntryTypes) {
 		if (contentEntryType.contentModuleTypes) {
@@ -436,32 +443,11 @@ async function writeContentFiles({
 	typeTemplateContent = typeTemplateContent.replace('// @@DATA_ENTRY_MAP@@', dataTypesStr);
 	typeTemplateContent = typeTemplateContent.replace(
 		"'@@CONTENT_CONFIG_TYPE@@'",
-		contentConfig ? `typeof import(${JSON.stringify(configPathRelativeToCacheDir)})` : 'never'
+		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never'
 	);
 
 	await fs.promises.writeFile(
 		new URL(CONTENT_TYPES_FILE, contentPaths.cacheDir),
 		typeTemplateContent
 	);
-}
-
-function warnNonexistentCollections({
-	contentConfig,
-	collectionEntryMap,
-	logger,
-}: {
-	contentConfig: ContentConfig;
-	collectionEntryMap: CollectionEntryMap;
-	logger: Logger;
-}) {
-	for (const configuredCollection in contentConfig.collections) {
-		if (!collectionEntryMap[JSON.stringify(configuredCollection)]) {
-			logger.warn(
-				'content',
-				`The ${bold(configuredCollection)} collection is defined but no ${bold(
-					'content/' + configuredCollection
-				)} folder exists in the content directory. Create a new folder for the collection, or check your content configuration file for typos.`
-			);
-		}
-	}
 }

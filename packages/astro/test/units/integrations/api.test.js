@@ -1,6 +1,7 @@
-import { expect } from 'chai';
-import { runHookBuildSetup, runHookConfigSetup } from '../../../dist/integrations/index.js';
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { validateSupportedFeatures } from '../../../dist/integrations/astroFeaturesValidation.js';
+import { runHookBuildSetup, runHookConfigSetup } from '../../../dist/integrations/index.js';
 import { defaultLogger } from '../test-utils.js';
 
 describe('Integration API', () => {
@@ -27,7 +28,7 @@ describe('Integration API', () => {
 			pages: new Map(),
 			target: 'server',
 		});
-		expect(updatedViteConfig).to.haveOwnProperty('define');
+		assert.equal(updatedViteConfig.hasOwnProperty('define'), true);
 	});
 
 	it('runHookBuildSetup should return updated config', async () => {
@@ -54,7 +55,7 @@ describe('Integration API', () => {
 			pages: new Map(),
 			target: 'server',
 		});
-		expect(updatedViteConfig).to.be.deep.equal(updatedInternalConfig);
+		assert.deepEqual(updatedViteConfig, updatedInternalConfig);
 	});
 
 	it('runHookConfigSetup can update Astro config', async () => {
@@ -76,7 +77,7 @@ describe('Integration API', () => {
 				},
 			},
 		});
-		expect(updatedSettings.config.site).to.equal(site);
+		assert.equal(updatedSettings.config.site, site);
 	});
 
 	it('runHookConfigSetup runs integrations added by another integration', async () => {
@@ -110,8 +111,8 @@ describe('Integration API', () => {
 				},
 			},
 		});
-		expect(updatedSettings.config.site).to.equal(site);
-		expect(updatedSettings.config.integrations.length).to.equal(2);
+		assert.equal(updatedSettings.config.site, site);
+		assert.equal(updatedSettings.config.integrations.length, 2);
 	});
 });
 
@@ -125,9 +126,10 @@ describe('Astro feature map', function () {
 			{
 				output: 'hybrid',
 			},
+			{},
 			defaultLogger
 		);
-		expect(result['hybridOutput']).to.be.true;
+		assert.equal(result['hybridOutput'], true);
 	});
 
 	it('should not support the feature when not provided', () => {
@@ -137,9 +139,10 @@ describe('Astro feature map', function () {
 			{
 				output: 'hybrid',
 			},
+			{},
 			defaultLogger
 		);
-		expect(result['hybridOutput']).to.be.false;
+		assert.equal(result['hybridOutput'], false);
 	});
 
 	it('should not support the feature when an empty object is provided', () => {
@@ -149,9 +152,10 @@ describe('Astro feature map', function () {
 			{
 				output: 'hybrid',
 			},
+			{},
 			defaultLogger
 		);
-		expect(result['hybridOutput']).to.be.false;
+		assert.equal(result['hybridOutput'], false);
 	});
 
 	describe('static output', function () {
@@ -162,9 +166,10 @@ describe('Astro feature map', function () {
 				{
 					output: 'static',
 				},
+				{},
 				defaultLogger
 			);
-			expect(result['staticOutput']).to.be.true;
+			assert.equal(result['staticOutput'], true);
 		});
 
 		it("should not be valid if the config is correct, but the it's unsupported", () => {
@@ -174,9 +179,10 @@ describe('Astro feature map', function () {
 				{
 					output: 'static',
 				},
+				{},
 				defaultLogger
 			);
-			expect(result['staticOutput']).to.be.false;
+			assert.equal(result['staticOutput'], false);
 		});
 	});
 	describe('hybrid output', function () {
@@ -187,9 +193,10 @@ describe('Astro feature map', function () {
 				{
 					output: 'hybrid',
 				},
+				{},
 				defaultLogger
 			);
-			expect(result['hybridOutput']).to.be.true;
+			assert.equal(result['hybridOutput'], true);
 		});
 
 		it("should not be valid if the config is correct, but the it's unsupported", () => {
@@ -201,9 +208,10 @@ describe('Astro feature map', function () {
 				{
 					output: 'hybrid',
 				},
+				{},
 				defaultLogger
 			);
-			expect(result['hybridOutput']).to.be.false;
+			assert.equal(result['hybridOutput'], false);
 		});
 	});
 	describe('server output', function () {
@@ -214,9 +222,10 @@ describe('Astro feature map', function () {
 				{
 					output: 'server',
 				},
+				{},
 				defaultLogger
 			);
-			expect(result['serverOutput']).to.be.true;
+			assert.equal(result['serverOutput'], true);
 		});
 
 		it("should not be valid if the config is correct, but the it's unsupported", () => {
@@ -228,9 +237,10 @@ describe('Astro feature map', function () {
 				{
 					output: 'server',
 				},
+				{},
 				defaultLogger
 			);
-			expect(result['serverOutput']).to.be.false;
+			assert.equal(result['serverOutput'], false);
 		});
 	});
 
@@ -251,9 +261,10 @@ describe('Astro feature map', function () {
 						},
 					},
 				},
+				{},
 				defaultLogger
 			);
-			expect(result['assets']).to.be.true;
+			assert.equal(result['assets'], true);
 		});
 		it('should be supported when it is squoosh compatible', () => {
 			let result = validateSupportedFeatures(
@@ -271,9 +282,10 @@ describe('Astro feature map', function () {
 						},
 					},
 				},
+				{},
 				defaultLogger
 			);
-			expect(result['assets']).to.be.true;
+			assert.equal(result['assets'], true);
 		});
 
 		it("should not be valid if the config is correct, but the it's unsupported", () => {
@@ -292,9 +304,10 @@ describe('Astro feature map', function () {
 						},
 					},
 				},
+				{},
 				defaultLogger
 			);
-			expect(result['assets']).to.be.false;
+			assert.equal(result['assets'], false);
 		});
 	});
 });

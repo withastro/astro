@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 import mdx from '../dist/index.js';
 
@@ -28,8 +29,9 @@ describe('MDX component with runtime error', () => {
 		});
 
 		it('Throws the right error', async () => {
-			expect(error).to.exist;
-			expect(error?.hint).to.match(
+			assert.ok(error);
+			assert.match(
+				error?.hint,
 				/This issue often occurs when your MDX component encounters runtime errors/
 			);
 		});

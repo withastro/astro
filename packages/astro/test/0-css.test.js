@@ -4,7 +4,8 @@
  * rather than trying to start up when all other threads are busy and having to fight for resources
  */
 
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -22,18 +23,22 @@ describe('CSS', function () {
 		let html;
 		let bundledCSS;
 
-		before(async () => {
-			this.timeout(45000); // test needs a little more time in CI
-			await fixture.build();
+		before(
+			async () => {
+				await fixture.build();
 
-			// get bundled CSS (will be hashed, hence DOM query)
-			html = await fixture.readFile('/index.html');
-			$ = cheerio.load(html);
-			const bundledCSSHREF = $('link[rel=stylesheet][href^=/_astro/]').attr('href');
-			bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
-				.replace(/\s/g, '')
-				.replace('/n', '');
-		});
+				// get bundled CSS (will be hashed, hence DOM query)
+				html = await fixture.readFile('/index.html');
+				$ = cheerio.load(html);
+				const bundledCSSHREF = $('link[rel=stylesheet][href^=/_astro/]').attr('href');
+				bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
+					.replace(/\s/g, '')
+					.replace('/n', '');
+			},
+			{
+				timeout: 45000,
+			}
+		);
 
 		describe('Astro Styles', () => {
 			it('HTML and CSS scoped correctly', async () => {
@@ -42,7 +47,7 @@ describe('CSS', function () {
 				const classes = $('#class');
 				let scopedAttribute;
 				for (const [key] of Object.entries(classes[0].attribs)) {
-					if (/^data-astro-cid-[A-Za-z0-9-]+/.test(key)) {
+					if (/^data-astro-cid-[A-Za-z\d-]+/.test(key)) {
 						// Ema: this is ugly, but for reasons that I don't want to explore, cheerio
 						// lower case the hash of the attribute
 						scopedAttribute = key;
@@ -53,26 +58,26 @@ describe('CSS', function () {
 				}
 
 				// 1. check HTML
-				expect(el1.attr('class')).to.equal(`blue`);
-				expect(el2.attr('class')).to.equal(`visible`);
+				assert.equal(el1.attr('class'), `blue`);
+				assert.equal(el2.attr('class'), `visible`);
 
 				// 2. check CSS
 				const expected = `.blue[${scopedAttribute}],.color\\:blue[${scopedAttribute}]{color:#b0e0e6}.visible[${scopedAttribute}]{display:block}`;
-				expect(bundledCSS).to.include(expected);
+				assert.equal(bundledCSS.includes(expected), true);
 			});
 
 			it('Generated link tags are void elements', async () => {
-				expect(html).to.not.include('</link>');
+				assert.notEqual(html.includes('</link>'), true);
 			});
 
 			it('No <style> skips scoping', async () => {
 				// Astro component without <style> should not include scoped class
-				expect($('#no-scope').attr('class')).to.equal(undefined);
+				assert.equal($('#no-scope').attr('class'), undefined);
 			});
 
-			it('Child inheritance', (done) => {
+			it('Child inheritance', (t, done) => {
 				for (const [key] of Object.entries($('#passed-in')[0].attribs)) {
-					if (/^data-astro-cid-[A-Za-z0-9-]+/.test(key)) {
+					if (/^data-astro-cid-[A-Za-z\d-]+/.test(key)) {
 						done();
 					}
 				}
@@ -80,29 +85,29 @@ describe('CSS', function () {
 
 			it('Using hydrated components adds astro-island styles', async () => {
 				const inline = $('style').html();
-				expect(inline).to.include('display:contents');
+				assert.equal(inline.includes('display:contents'), true);
 			});
 
 			it('<style lang="sass">', async () => {
-				expect(bundledCSS).to.match(new RegExp('h1\\[data-astro-cid-[^{]*{color:#90ee90}'));
+				assert.match(bundledCSS, /h1\[data-astro-cid-[^{]*\{color:#90ee90\}/);
 			});
 
 			it('<style lang="scss">', async () => {
-				expect(bundledCSS).to.match(new RegExp('h1\\[data-astro-cid-[^{]*{color:#ff69b4}'));
+				assert.match(bundledCSS, /h1\[data-astro-cid-[^{]*\{color:#ff69b4\}/);
 			});
 		});
 
 		describe('Styles in src/', () => {
 			it('.css', async () => {
-				expect(bundledCSS).to.match(new RegExp('.linked-css[^{]*{color:gold'));
+				assert.match(bundledCSS, /.linked-css[^{]*\{color:gold/);
 			});
 
 			it('.sass', async () => {
-				expect(bundledCSS).to.match(new RegExp('.linked-sass[^{]*{color:#789'));
+				assert.match(bundledCSS, /.linked-sass[^{]*\{color:#789/);
 			});
 
 			it('.scss', async () => {
-				expect(bundledCSS).to.match(new RegExp('.linked-scss[^{]*{color:#6b8e23'));
+				assert.match(bundledCSS, /.linked-scss[^{]*\{color:#6b8e23/);
 			});
 		});
 
@@ -110,74 +115,74 @@ describe('CSS', function () {
 			it('.css', async () => {
 				const el = $('#react-css');
 				// 1. check HTML
-				expect(el.attr('class')).to.include('react-title');
+				assert.equal(el.attr('class'), 'react-title');
 				// 2. check CSS
-				expect(bundledCSS).to.include('.react-title');
+				assert.equal(bundledCSS.includes('.react-title'), true);
 			});
 
 			it('.module.css', async () => {
 				const el = $('#react-module-css');
 				const classes = el.attr('class').split(' ');
-				const moduleClass = classes.find((name) => /^_title_[A-Za-z0-9-_]+/.test(name));
+				const moduleClass = classes.find((name) => /^_title_[\w-]+/.test(name));
 
 				// 1. check HTML
-				expect(el.attr('class')).to.include(moduleClass);
+				assert.equal(el.attr('class').includes(moduleClass), true);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
+				assert.match(bundledCSS, new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
 			});
 
 			it('.sass', async () => {
 				const el = $('#react-sass');
 
 				// 1. check HTML
-				expect(el.attr('class')).to.include('react-sass-title');
+				assert.equal(el.attr('class').includes('react-sass-title'), true);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.react-sass-title[^{]*{font-family:fantasy`));
+				assert.match(bundledCSS, /.react-sass-title[^{]*\{font-family:fantasy/);
 			});
 
 			it('.scss', async () => {
 				const el = $('#react-scss');
 
 				// 1. check HTML
-				expect(el.attr('class')).to.include('react-scss-title');
+				assert.equal(el.attr('class').includes('react-scss-title'), true);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.react-scss-title[^{]*{font-family:fantasy`));
+				assert.match(bundledCSS, /.react-scss-title[^{]*\{font-family:fantasy/);
 			});
 
 			it('.module.sass', async () => {
 				const el = $('#react-module-sass');
 				const classes = el.attr('class').split(' ');
-				const moduleClass = classes.find((name) => /^_title_[A-Za-z0-9-_]+/.test(name));
+				const moduleClass = classes.find((name) => /^_title_[\w-]+/.test(name));
 
 				// 1. check HTML
-				expect(el.attr('class')).to.include(moduleClass);
+				assert.equal(el.attr('class').includes(moduleClass), true);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
+				assert.match(bundledCSS, new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
 			});
 
 			it('.module.scss', async () => {
 				const el = $('#react-module-scss');
 				const classes = el.attr('class').split(' ');
-				const moduleClass = classes.find((name) => /^_title_[A-Za-z0-9-_]+/.test(name));
+				const moduleClass = classes.find((name) => /^_title_[\w-]+/.test(name));
 
 				// 1. check HTML
-				expect(el.attr('class')).to.include(moduleClass);
+				assert.equal(el.attr('class').includes(moduleClass), true);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
+				assert.match(bundledCSS, new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
 			});
 
 			it('.module.css ordering', () => {
 				const globalStyleClassIndex = bundledCSS.indexOf('.module-ordering');
 				const moduleStyleClassIndex = bundledCSS.indexOf('._module_ordering');
 				// css module has higher priority than global style
-				expect(globalStyleClassIndex).to.be.greaterThan(-1);
-				expect(moduleStyleClassIndex).to.be.greaterThan(-1);
-				expect(moduleStyleClassIndex).to.be.greaterThan(globalStyleClassIndex);
+				assert.equal(globalStyleClassIndex > -1, true);
+				assert.equal(moduleStyleClassIndex > -1, true);
+				assert.equal(moduleStyleClassIndex > globalStyleClassIndex, true);
 			});
 		});
 
@@ -186,10 +191,10 @@ describe('CSS', function () {
 				const el = $('#vue-css');
 
 				// 1. check HTML
-				expect(el.attr('class')).to.include('vue-css');
+				assert.equal(el.attr('class').includes('vue-css'), true);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.vue-css[^{]*{font-family:cursive`));
+				assert.match(bundledCSS, /.vue-css[^{]*\{font-family:cursive/);
 			});
 
 			it('<style scoped>', async () => {
@@ -198,45 +203,45 @@ describe('CSS', function () {
 				// find data-v-* attribute (how Vue CSS scoping works)
 				const { attribs } = el.get(0);
 				const scopeId = Object.keys(attribs).find((k) => k.startsWith('data-v-'));
-				expect(scopeId).to.be.ok;
+				assert.ok(scopeId);
 
 				// 1. check HTML
-				expect(el.attr('class')).to.include('vue-scoped');
+				assert.equal(el.attr('class').includes('vue-scoped'), true);
 
 				// 2. check CSS
-				expect(bundledCSS).to.include(`.vue-scoped[${scopeId}]`);
+				assert.equal(bundledCSS.includes(`.vue-scoped[${scopeId}]`), true);
 			});
 
 			it('<style module>', async () => {
 				const el = $('#vue-modules');
 				const classes = el.attr('class').split(' ');
-				const moduleClass = classes.find((name) => /^_title_[A-Za-z0-9-_]+/.test(name));
+				const moduleClass = classes.find((name) => /^_title_[\w-]+/.test(name));
 
 				// 1. check HTML
-				expect(el.attr('class')).to.include(moduleClass);
+				assert.equal(el.attr('class').includes(moduleClass), true);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:cursive`));
+				assert.match(bundledCSS, new RegExp(`.${moduleClass}[^{]*{font-family:cursive`));
 			});
 
 			it('<style lang="sass">', async () => {
 				const el = $('#vue-sass');
 
 				// 1. check HTML
-				expect(el.attr('class')).to.include('vue-sass');
+				assert.equal(el.attr('class').includes('vue-sass'), true);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.vue-sass[^{]*{font-family:cursive`));
+				assert.match(bundledCSS, /.vue-sass[^{]*\{font-family:cursive/);
 			});
 
 			it('<style lang="scss">', async () => {
 				const el = $('#vue-scss');
 
 				// 1. check HTML
-				expect(el.attr('class')).to.include('vue-scss');
+				assert.equal(el.attr('class').includes('vue-scss'), true);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.vue-scss[^{]*{font-family:cursive`));
+				assert.match(bundledCSS, /.vue-scss[^{]*\{font-family:cursive/);
 			});
 		});
 
@@ -245,14 +250,15 @@ describe('CSS', function () {
 				const el = $('#svelte-css');
 				const classes = el.attr('class').split(' ');
 				const scopedClass = classes.find(
-					(name) => name !== 'svelte-css' && /^svelte-[A-Za-z0-9-]+/.test(name)
+					(name) => name !== 'svelte-css' && /^svelte-[A-Za-z\d-]+/.test(name)
 				);
 
 				// 1. check HTML
-				expect(el.attr('class')).to.include('svelte-css');
+				assert.equal(el.attr('class').includes('svelte-css'), true);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(
+				assert.match(
+					bundledCSS,
 					new RegExp(`.svelte-css.${scopedClass}[^{]*{font-family:ComicSansMS`)
 				);
 			});
@@ -261,14 +267,15 @@ describe('CSS', function () {
 				const el = $('#svelte-sass');
 				const classes = el.attr('class').split(' ');
 				const scopedClass = classes.find(
-					(name) => name !== 'svelte-sass' && /^svelte-[A-Za-z0-9-]+/.test(name)
+					(name) => name !== 'svelte-sass' && /^svelte-[A-Za-z\d-]+/.test(name)
 				);
 
 				// 1. check HTML
-				expect(el.attr('class')).to.include('svelte-sass');
+				assert.equal(el.attr('class').includes('svelte-sass'), true);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(
+				assert.match(
+					bundledCSS,
 					new RegExp(`.svelte-sass.${scopedClass}[^{]*{font-family:ComicSansMS`)
 				);
 			});
@@ -277,14 +284,15 @@ describe('CSS', function () {
 				const el = $('#svelte-scss');
 				const classes = el.attr('class').split(' ');
 				const scopedClass = classes.find(
-					(name) => name !== 'svelte-scss' && /^svelte-[A-Za-z0-9-]+/.test(name)
+					(name) => name !== 'svelte-scss' && /^svelte-[A-Za-z\d-]+/.test(name)
 				);
 
 				// 1. check HTML
-				expect(el.attr('class')).to.include('svelte-scss');
+				assert.equal(el.attr('class').includes('svelte-scss'), true);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(
+				assert.match(
+					bundledCSS,
 					new RegExp(`.svelte-scss.${scopedClass}[^{]*{font-family:ComicSansMS`)
 				);
 			});
@@ -300,15 +308,15 @@ describe('CSS', function () {
 				const ssrHtmlCssHref = $ssrHtml('link[rel=stylesheet][href^=/_astro/]').attr('href');
 				const ssrHtmlCss = await fixture.readFile(ssrHtmlCssHref.replace(/^\/?/, '/'));
 
-				expect(onlyHtmlCss).to.include('.svelte-only-and-ssr');
-				expect(ssrHtmlCss).to.include('.svelte-only-and-ssr');
+				assert.equal(onlyHtmlCss.includes('.svelte-only-and-ssr'), true);
+				assert.equal(ssrHtmlCss.includes('.svelte-only-and-ssr'), true);
 			});
 		});
 
 		describe('Vite features', () => {
 			it('.css?raw return a string', () => {
 				const el = $('#css-raw');
-				expect(el.text()).to.equal('.foo {color: red;}');
+				assert.equal(el.text(), '.foo {color: red;}');
 			});
 		});
 	});
@@ -330,7 +338,7 @@ describe('CSS', function () {
 
 		it('resolves CSS in public/', async () => {
 			const href = $('link[href="/global.css"]').attr('href');
-			expect((await fixture.fetch(href)).status).to.equal(200);
+			assert.equal((await fixture.fetch(href)).status, 200);
 		});
 
 		// Skipped until upstream fix lands
@@ -339,25 +347,25 @@ describe('CSS', function () {
 		// Next Vite PR: https://github.com/vitejs/vite/pull/5796
 		it.skip('resolved imported CSS with ?url', async () => {
 			const href = $('link[href$="imported-url.css"]').attr('href');
-			expect(href).to.be.ok;
-			expect((await fixture.fetch(href)).status).to.equal(200);
+			assert.ok(href);
+			assert.equal((await fixture.fetch(href)).status, 200);
 		});
 
 		it('resolves ESM style imports', async () => {
 			const allInjectedStyles = $('style').text().replace(/\s*/g, '');
 
-			expect(allInjectedStyles, 'styles/imported-url.css').to.contain('.imported{');
-			expect(allInjectedStyles, 'styles/imported-url.sass').to.contain('.imported-sass{');
-			expect(allInjectedStyles, 'styles/imported-url.scss').to.contain('.imported-scss{');
+			assert.equal(allInjectedStyles.includes('.imported{'), true, 'styles/imported-url.css');
+			assert.equal(allInjectedStyles.includes('.imported-sass{'), true, 'styles/imported-url.sass');
+			assert.equal(allInjectedStyles.includes('.imported-scss{'), true, 'styles/imported-url.scss');
 		});
 
 		it('resolves Astro styles', async () => {
 			const allInjectedStyles = $('style').text();
 
-			expect(allInjectedStyles).to.contain('.linked-css[data-astro-cid-');
-			expect(allInjectedStyles).to.contain('.linked-sass[data-astro-cid-');
-			expect(allInjectedStyles).to.contain('.linked-scss[data-astro-cid-');
-			expect(allInjectedStyles).to.contain('.wrapper[data-astro-cid-');
+			assert.equal(allInjectedStyles.includes('.linked-css[data-astro-cid-'), true);
+			assert.equal(allInjectedStyles.includes('.linked-sass[data-astro-cid-'), true);
+			assert.equal(allInjectedStyles.includes('.linked-scss[data-astro-cid-'), true);
+			assert.equal(allInjectedStyles.includes('.wrapper[data-astro-cid-'), true);
 		});
 
 		it('resolves Styles from React', async () => {
@@ -368,44 +376,44 @@ describe('CSS', function () {
 			];
 			for (const style of styles) {
 				const href = $(`style[data-vite-dev-id$="${style}"]`).attr('data-vite-dev-id');
-				expect((await fixture.fetch(href)).status, style).to.equal(200);
+				assert.equal((await fixture.fetch(href)).status, 200);
 			}
 
 			const allInjectedStyles = $('style').text().replace(/\s*/g, '');
 
-			expect(allInjectedStyles).to.contain('.react-title{');
-			expect(allInjectedStyles).to.contain('.react-sass-title{');
-			expect(allInjectedStyles).to.contain('.react-scss-title{');
+			assert.equal(allInjectedStyles.includes('.react-title{'), true);
+			assert.equal(allInjectedStyles.includes('.react-sass-title{'), true);
+			assert.equal(allInjectedStyles.includes('.react-scss-title{'), true);
 		});
 
 		it('resolves CSS from Svelte', async () => {
 			const allInjectedStyles = $('style').text();
 
-			expect(allInjectedStyles).to.contain('.svelte-css');
-			expect(allInjectedStyles).to.contain('.svelte-sass');
-			expect(allInjectedStyles).to.contain('.svelte-scss');
+			assert.equal(allInjectedStyles.includes('.svelte-css'), true);
+			assert.equal(allInjectedStyles.includes('.svelte-sass'), true);
+			assert.equal(allInjectedStyles.includes('.svelte-scss'), true);
 		});
 
 		it('resolves CSS from Vue', async () => {
 			const styles = ['VueModules.vue?vue&type=style&index=0&lang.module.scss'];
 			for (const style of styles) {
 				const href = $(`link[href$="${style}"]`).attr('href');
-				expect((await fixture.fetch(href)).status, style).to.equal(200);
+				assert.equal((await fixture.fetch(href)).status, 200, style);
 			}
 
 			const allInjectedStyles = $('style').text().replace(/\s*/g, '');
 
-			expect(allInjectedStyles).to.contain('.vue-css{');
-			expect(allInjectedStyles).to.contain('.vue-sass{');
-			expect(allInjectedStyles).to.contain('.vue-scss{');
-			expect(allInjectedStyles).to.contain('.vue-scoped[data-v-');
+			assert.equal(allInjectedStyles.includes('.vue-css{'), true);
+			assert.equal(allInjectedStyles.includes('.vue-sass{'), true);
+			assert.equal(allInjectedStyles.includes('.vue-scss{'), true);
+			assert.equal(allInjectedStyles.includes('.vue-scoped[data-v-'), true);
 		});
 
 		it('remove unused styles from client:load components', async () => {
 			const bundledAssets = await fixture.readdir('./_astro');
 			// SvelteDynamic styles is already included in the main page css asset
 			const unusedCssAsset = bundledAssets.find((asset) => /SvelteDynamic\..*\.css/.test(asset));
-			expect(unusedCssAsset, 'Found unused style ' + unusedCssAsset).to.be.undefined;
+			assert.equal(unusedCssAsset, undefined, 'Found unused style ' + unusedCssAsset);
 
 			let foundVitePreloadCSS = false;
 			const bundledJS = await fixture.glob('**/*.?(m)js');
@@ -415,7 +423,8 @@ describe('CSS', function () {
 					foundVitePreloadCSS = filename;
 				}
 			}
-			expect(foundVitePreloadCSS).to.equal(
+			assert.equal(
+				foundVitePreloadCSS,
 				false,
 				'Should not have found a preload for the dynamic CSS'
 			);
@@ -427,14 +436,14 @@ describe('CSS', function () {
 			const globalStyleClassIndex = globalStyleTag.index();
 			const moduleStyleClassIndex = moduleStyleTag.index();
 			// css module has higher priority than global style
-			expect(globalStyleClassIndex).to.be.greaterThan(-1);
-			expect(moduleStyleClassIndex).to.be.greaterThan(-1);
-			expect(moduleStyleClassIndex).to.be.greaterThan(globalStyleClassIndex);
+			assert.equal(globalStyleClassIndex > -1, true);
+			assert.equal(moduleStyleClassIndex > -1, true);
+			assert.equal(moduleStyleClassIndex > globalStyleClassIndex, true);
 		});
 
 		it('.css?raw return a string', () => {
 			const el = $('#css-raw');
-			expect(el.text()).to.equal('.foo {color: red;}');
+			assert.equal(el.text(), '.foo {color: red;}');
 		});
 	});
 });

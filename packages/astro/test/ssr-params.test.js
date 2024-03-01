@@ -1,10 +1,11 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Astro.params in SSR', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -21,10 +22,10 @@ describe('Astro.params in SSR', () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/users/houston/food');
 		const response = await app.render(request);
-		expect(response.status).to.equal(200);
+		assert.equal(response.status, 200);
 		const html = await response.text();
 		const $ = cheerio.load(html);
-		expect($('.category').text()).to.equal('food');
+		assert.equal($('.category').text(), 'food');
 	});
 
 	describe('Non-english characters in the URL', () => {
@@ -32,10 +33,10 @@ describe('Astro.params in SSR', () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/users/houston/東西/food');
 			const response = await app.render(request);
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 			const html = await response.text();
 			const $ = cheerio.load(html);
-			expect($('.category').text()).to.equal('food');
+			assert.equal($('.category').text(), 'food');
 		});
 	});
 
@@ -43,9 +44,9 @@ describe('Astro.params in SSR', () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/users/houston/%25');
 		const response = await app.render(request);
-		expect(response.status).to.equal(200);
+		assert.equal(response.status, 200);
 		const html = await response.text();
 		const $ = cheerio.load(html);
-		expect($('.category').text()).to.equal('%');
+		assert.equal($('.category').text(), '%');
 	});
 });

@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
 describe('Basic', () => {
@@ -25,9 +26,12 @@ describe('Basic', () => {
 				}
 			}
 
-			expect(css).to.include('box-sizing:border-box;'); // base css
-			expect(css).to.include('text-red-500'); // class css
-			expect(css).to.match(/\.a\[data-astro-cid-.*?\] \.b\[data-astro-cid-.*?\]/); // nesting
+			assert.equal(css.includes('box-sizing:border-box;'), true); // base css
+			assert.equal(css.includes('text-red-500'), true); // class css
+			assert.equal(
+				new RegExp(/\.a\[data-astro-cid-.*?\] \.b\[data-astro-cid-.*?\]/).test(css),
+				true
+			); // nesting
 		});
 	});
 });

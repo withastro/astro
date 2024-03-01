@@ -1,5 +1,6 @@
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { expect } from 'chai';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 import markdoc from '../dist/index.js';
 
@@ -30,12 +31,10 @@ describe('Markdoc - Variables', () => {
 			const res = await baseFixture.fetch('/');
 			const html = await res.text();
 			const { document } = parseHTML(html);
-			expect(document.querySelector('h1')?.textContent).to.equal('Processed by schema: Test entry');
-			expect(document.getElementById('id')?.textContent?.trim()).to.equal('id: entry.mdoc');
-			expect(document.getElementById('slug')?.textContent?.trim()).to.equal('slug: entry');
-			expect(document.getElementById('collection')?.textContent?.trim()).to.equal(
-				'collection: blog'
-			);
+			assert.equal(document.querySelector('h1')?.textContent, 'Processed by schema: Test entry');
+			assert.equal(document.getElementById('id')?.textContent?.trim(), 'id: entry.mdoc');
+			assert.equal(document.getElementById('slug')?.textContent?.trim(), 'slug: entry');
+			assert.equal(document.getElementById('collection')?.textContent?.trim(), 'collection: blog');
 		});
 	});
 
@@ -47,12 +46,10 @@ describe('Markdoc - Variables', () => {
 		it('has expected entry properties', async () => {
 			const html = await baseFixture.readFile('/index.html');
 			const { document } = parseHTML(html);
-			expect(document.querySelector('h1')?.textContent).to.equal('Processed by schema: Test entry');
-			expect(document.getElementById('id')?.textContent?.trim()).to.equal('id: entry.mdoc');
-			expect(document.getElementById('slug')?.textContent?.trim()).to.equal('slug: entry');
-			expect(document.getElementById('collection')?.textContent?.trim()).to.equal(
-				'collection: blog'
-			);
+			assert.equal(document.querySelector('h1')?.textContent, 'Processed by schema: Test entry');
+			assert.equal(document.getElementById('id')?.textContent?.trim(), 'id: entry.mdoc');
+			assert.equal(document.getElementById('slug')?.textContent?.trim(), 'slug: entry');
+			assert.equal(document.getElementById('collection')?.textContent?.trim(), 'collection: blog');
 		});
 	});
 });

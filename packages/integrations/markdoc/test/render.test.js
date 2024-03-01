@@ -1,5 +1,6 @@
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { expect } from 'chai';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
 async function getFixture(name) {
@@ -146,78 +147,76 @@ describe('Markdoc - render', () => {
 function renderNullChecks(html) {
 	const { document } = parseHTML(html);
 	const h2 = document.querySelector('h2');
-	expect(h2.textContent).to.equal('Post with render null');
-	expect(h2.parentElement?.tagName).to.equal('BODY');
+	assert.equal(h2.textContent, 'Post with render null');
+	assert.equal(h2.parentElement?.tagName, 'BODY');
 }
 
 /** @param {string} html */
 function renderComponentsChecks(html) {
 	const { document } = parseHTML(html);
 	const h2 = document.querySelector('h2');
-	expect(h2.textContent).to.equal('Post with components');
+	assert.equal(h2.textContent, 'Post with components');
 
 	// Renders custom shortcode component
 	const marquee = document.querySelector('marquee');
-	expect(marquee).to.not.be.null;
-	expect(marquee.hasAttribute('data-custom-marquee')).to.equal(true);
+	assert.notEqual(marquee, null);
+	assert.equal(marquee.hasAttribute('data-custom-marquee'), true);
 
 	// Renders Astro Code component
 	const pre = document.querySelector('pre');
-	expect(pre).to.not.be.null;
-	expect(pre.className).to.equal('astro-code github-dark');
+	assert.notEqual(pre, null);
+	assert.equal(pre.className, 'astro-code github-dark');
 }
 
 /** @param {string} html */
 function renderIndentedComponentsChecks(html) {
 	const { document } = parseHTML(html);
 	const h2 = document.querySelector('h2');
-	expect(h2.textContent).to.equal('Post with indented components');
+	assert.equal(h2.textContent, 'Post with indented components');
 
 	// Renders custom shortcode components
 	const marquees = document.querySelectorAll('marquee');
-	expect(marquees.length).to.equal(2);
+	assert.equal(marquees.length, 2);
 
 	// Renders h3
 	const h3 = document.querySelector('h3');
-	expect(h3.textContent).to.equal('I am an h3!');
+	assert.equal(h3.textContent, 'I am an h3!');
 
 	// Renders Astro Code component
 	const pre = document.querySelector('pre');
-	expect(pre).to.not.be.null;
-	expect(pre.className).to.equal('astro-code github-dark');
+	assert.notEqual(pre, null);
+	assert.equal(pre.className, 'astro-code github-dark');
 }
 
 /** @param {string} html */
 function renderConfigChecks(html) {
 	const { document } = parseHTML(html);
 	const h2 = document.querySelector('h2');
-	expect(h2.textContent).to.equal('Post with config');
+	assert.equal(h2.textContent, 'Post with config');
 	const textContent = html;
 
-	expect(textContent).to.not.include('Hello');
-	expect(textContent).to.include('Hola');
-	expect(textContent).to.include(`Konnichiwa`);
+	assert.notEqual(textContent.includes('Hello'), true);
+	assert.equal(textContent.includes('Hola'), true);
+	assert.equal(textContent.includes('Konnichiwa'), true);
 
 	const runtimeVariable = document.querySelector('#runtime-variable');
-	expect(runtimeVariable?.textContent?.trim()).to.equal('working!');
+	assert.equal(runtimeVariable?.textContent?.trim(), 'working!');
 }
 
 /** @param {string} html */
 function renderSimpleChecks(html) {
 	const { document } = parseHTML(html);
 	const h2 = document.querySelector('h2');
-	expect(h2.textContent).to.equal('Simple post');
+	assert.equal(h2.textContent, 'Simple post');
 	const p = document.querySelector('p');
-	expect(p.textContent).to.equal('This is a simple Markdoc post.');
+	assert.equal(p.textContent, 'This is a simple Markdoc post.');
 }
 
 /** @param {string} html */
 function renderWithRootFolderContainingSpace(html) {
 	const { document } = parseHTML(html);
 	const h2 = document.querySelector('h2');
-	expect(h2.textContent).to.equal('Simple post with root folder containing a space');
+	assert.equal(h2.textContent, 'Simple post with root folder containing a space');
 	const p = document.querySelector('p');
-	expect(p.textContent).to.equal(
-		'This is a simple Markdoc post with root folder containing a space.'
-	);
+	assert.equal(p.textContent, 'This is a simple Markdoc post with root folder containing a space.');
 }

@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { AstroTelemetry } from '../dist/index.js';
 
 function setup() {
@@ -29,55 +30,55 @@ describe('AstroTelemetry', () => {
 	});
 	it('initializes when expected arguments are given', () => {
 		const { telemetry } = setup();
-		expect(telemetry).to.be.instanceOf(AstroTelemetry);
+		assert(telemetry instanceof AstroTelemetry);
 	});
 	it('does not record event if disabled', async () => {
 		const { telemetry, config, logs } = setup();
 		telemetry.setEnabled(false);
 		const [key] = Array.from(config.keys());
-		expect(key).not.to.be.undefined;
-		expect(config.get(key)).to.be.false;
-		expect(telemetry.enabled).to.be.false;
-		expect(telemetry.isDisabled).to.be.true;
+		assert.notEqual(key, undefined);
+		assert.equal(config.get(key), false);
+		assert.equal(telemetry.enabled, false);
+		assert.equal(telemetry.isDisabled, true);
 		const result = await telemetry.record(['TEST']);
-		expect(result).to.be.undefined;
+		assert.equal(result, undefined);
 		const [log] = logs;
-		expect(log).not.to.be.undefined;
-		expect(logs.join('')).to.match(/disabled/);
+		assert.notEqual(log, undefined);
+		assert.match(logs.join(''), /disabled/);
 	});
 	it('records event if enabled', async () => {
 		const { telemetry, config, logs } = setup();
 		telemetry.setEnabled(true);
 		const [key] = Array.from(config.keys());
-		expect(key).not.to.be.undefined;
-		expect(config.get(key)).to.be.true;
-		expect(telemetry.enabled).to.be.true;
-		expect(telemetry.isDisabled).to.be.false;
+		assert.notEqual(key, undefined);
+		assert.equal(config.get(key), true);
+		assert.equal(telemetry.enabled, true);
+		assert.equal(telemetry.isDisabled, false);
 		await telemetry.record(['TEST']);
-		expect(logs.length).to.equal(2);
+		assert.equal(logs.length, 2);
 	});
 	it('respects disable from notify', async () => {
 		const { telemetry, config, logs } = setup();
 		await telemetry.notify(() => false);
 		const [key] = Array.from(config.keys());
-		expect(key).not.to.be.undefined;
-		expect(config.get(key)).to.be.false;
-		expect(telemetry.enabled).to.be.false;
-		expect(telemetry.isDisabled).to.be.true;
+		assert.notEqual(key, undefined);
+		assert.equal(config.get(key), false);
+		assert.equal(telemetry.enabled, false);
+		assert.equal(telemetry.isDisabled, true);
 		const [log] = logs;
-		expect(log).not.to.be.undefined;
-		expect(logs.join('')).to.match(/disabled/);
+		assert.notEqual(log, undefined);
+		assert.match(logs.join(''), /disabled/);
 	});
 	it('respects enable from notify', async () => {
 		const { telemetry, config, logs } = setup();
 		await telemetry.notify(() => true);
 		const [key] = Array.from(config.keys());
-		expect(key).not.to.be.undefined;
-		expect(config.get(key)).to.be.true;
-		expect(telemetry.enabled).to.be.true;
-		expect(telemetry.isDisabled).to.be.false;
+		assert.notEqual(key, undefined);
+		assert.equal(config.get(key), true);
+		assert.equal(telemetry.enabled, true);
+		assert.equal(telemetry.isDisabled, false);
 		const [log] = logs;
-		expect(log).not.to.be.undefined;
-		expect(logs.join('')).to.match(/enabled/);
+		assert.notEqual(log, undefined);
+		assert.match(logs.join(''), /enabled/);
 	});
 });

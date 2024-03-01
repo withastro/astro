@@ -4,6 +4,7 @@ let formData: FormData | undefined;
 if(Astro.request.method === 'POST') {
 	formData = await Astro.request.formData();
 }
+export const prerender = false
 ---
 <Layout>
 	{

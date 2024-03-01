@@ -1,10 +1,14 @@
 import type * as vite from 'vite';
 import type { AstroPluginOptions } from '../@types/astro.js';
+import { telemetry } from '../events/index.js';
+import { eventAppToggled } from '../events/toolbar.js';
 
 const VIRTUAL_MODULE_ID = 'astro:dev-toolbar';
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
 export default function astroDevToolbar({ settings, logger }: AstroPluginOptions): vite.Plugin {
+	let telemetryTimeout: ReturnType<typeof setTimeout>;
+
 	return {
 		name: 'astro:dev-toolbar',
 		config() {
@@ -21,18 +25,35 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 			}
 		},
 		configureServer(server) {
-			server.ws.on('astro:devtoolbar:error:load', (args) => {
+			server.hot.on('astro:devtoolbar:error:load', (args) => {
 				logger.error(
 					'toolbar',
 					`Failed to load dev toolbar app from ${args.entrypoint}: ${args.error}`
 				);
 			});
 
-			server.ws.on('astro:devtoolbar:error:init', (args) => {
+			server.hot.on('astro:devtoolbar:error:init', (args) => {
 				logger.error(
 					'toolbar',
 					`Failed to initialize dev toolbar app ${args.app.name} (${args.app.id}):\n${args.error}`
 				);
+			});
+
+			server.hot.on('astro:devtoolbar:app:toggled', (args) => {
+				// Debounce telemetry to avoid recording events when the user is rapidly toggling apps for debugging
+				clearTimeout(telemetryTimeout);
+				telemetryTimeout = setTimeout(() => {
+					let nameToRecord = args?.app?.id;
+					// Only record apps names for apps that are built-in
+					if (!nameToRecord || !nameToRecord.startsWith('astro:')) {
+						nameToRecord = 'other';
+					}
+					telemetry.record(
+						eventAppToggled({
+							appName: nameToRecord,
+						})
+					);
+				}, 200);
 			});
 		},
 		async load(id) {
@@ -44,13 +65,18 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 				return `
 					export const loadDevToolbarApps = async () => {
 						return (await Promise.all([${settings.devToolbarApps
-							.map((plugin) => `safeLoadPlugin(${JSON.stringify(plugin)})`)
+							.map(
+								(plugin) =>
+									`safeLoadPlugin(async () => (await import(${JSON.stringify(
+										plugin
+									)})).default, ${JSON.stringify(plugin)})`
+							)
 							.join(',')}])).filter(app => app);
 					};
 
-					async function safeLoadPlugin(entrypoint) {
+					async function safeLoadPlugin(importEntrypoint, entrypoint) {
 						try {
-							const app = (await import(/* @vite-ignore */ entrypoint)).default;
+							const app = await importEntrypoint();
 
 							if (typeof app !== 'object' || !app.id || !app.name) {
 								throw new Error("Apps must default export an object with an id, and a name.");

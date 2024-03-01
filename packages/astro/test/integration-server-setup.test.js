@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Integration server setup', () => {
@@ -19,6 +20,6 @@ describe('Integration server setup', () => {
 	it('Adds middlewares in dev', async () => {
 		const res = await fixture.fetch('/');
 
-		expect(res.headers.get('x-middleware')).to.equal('true');
+		assert.equal(res.headers.get('x-middleware'), 'true');
 	});
 });

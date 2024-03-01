@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import _sync from '../../../dist/core/sync/index.js';
 import { createFsWithFallback } from '../test-utils.js';
@@ -35,14 +36,7 @@ name: Ben
 			root
 		);
 
-		try {
-			await sync({ fs });
-			expect.fail(0, 1, 'Expected sync to throw');
-		} catch (e) {
-			expect(e).to.be.instanceOf(Error);
-			expect(e.type).to.equal('AstroError');
-			expect(e.message).to.include('authors');
-		}
+		assert.equal(await sync({ fs }), 1);
 	});
 
 	it('raises "mixed content" error when data in content collection', async () => {
@@ -70,15 +64,7 @@ title: Post
 			root
 		);
 
-		try {
-			await sync({ fs });
-			expect.fail(0, 1, 'Expected sync to throw');
-		} catch (e) {
-			expect(e).to.be.instanceOf(Error);
-			expect(e.type).to.equal('AstroError');
-
-			expect(e.message).to.include('blog');
-		}
+		assert.equal(await sync({ fs }), 1);
 	});
 
 	it('raises error when data collection configured as content collection', async () => {
@@ -101,14 +87,7 @@ title: Post
 			root
 		);
 
-		try {
-			await sync({ fs });
-			expect.fail(0, 1, 'Expected sync to throw');
-		} catch (e) {
-			expect(e).to.be.instanceOf(Error);
-			expect(e.type).to.equal('AstroError');
-			expect(e.hint).to.include("Try adding `type: 'data'`");
-		}
+		assert.equal(await sync({ fs }), 1);
 	});
 
 	it('does not raise error for empty collection with config', async () => {
@@ -133,7 +112,7 @@ title: Post
 
 		try {
 			const res = await sync({ fs });
-			expect(res).to.equal(0);
+			assert.equal(res, 0);
 		} catch (e) {
 			expect.fail(0, 1, `Did not expect sync to throw: ${e.message}`);
 		}

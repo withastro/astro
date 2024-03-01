@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -145,7 +146,7 @@ describe('Routing priority', () => {
 				const htmlFile = isEndpoint ? url : `${appendForwardSlash(url)}index.html`;
 
 				if (fourOhFour) {
-					expect(fixture.pathExists(htmlFile)).to.be.false;
+					assert.equal(fixture.pathExists(htmlFile), false);
 					return;
 				}
 
@@ -153,15 +154,15 @@ describe('Routing priority', () => {
 				const $ = cheerioLoad(html);
 
 				if (h1) {
-					expect($('h1').text()).to.equal(h1);
+					assert.equal($('h1').text(), h1);
 				}
 
 				if (p) {
-					expect($('p').text()).to.equal(p);
+					assert.equal($('p').text(), p);
 				}
 
 				if (htmlMatch) {
-					expect(html).to.equal(htmlMatch);
+					assert.equal(html, htmlMatch);
 				}
 			});
 		});
@@ -192,20 +193,20 @@ describe('Routing priority', () => {
 				const $ = cheerioLoad(html);
 
 				if (fourOhFour) {
-					expect($('title').text()).to.equal('404: Not Found');
+					assert.equal($('title').text(), '404: Not Found');
 					return;
 				}
 
 				if (h1) {
-					expect($('h1').text()).to.equal(h1);
+					assert.equal($('h1').text(), h1);
 				}
 
 				if (p) {
-					expect($('p').text()).to.equal(p);
+					assert.equal($('p').text(), p);
 				}
 
 				if (htmlMatch) {
-					expect(html).to.equal(htmlMatch);
+					assert.equal(html, htmlMatch);
 				}
 			});
 
@@ -218,20 +219,20 @@ describe('Routing priority', () => {
 				const $ = cheerioLoad(html);
 
 				if (fourOhFour) {
-					expect($('title').text()).to.equal('404: Not Found');
+					assert.equal($('title').text(), '404: Not Found');
 					return;
 				}
 
 				if (h1) {
-					expect($('h1').text()).to.equal(h1);
+					assert.equal($('h1').text(), h1);
 				}
 
 				if (p) {
-					expect($('p').text()).to.equal(p);
+					assert.equal($('p').text(), p);
 				}
 
 				if (htmlMatch) {
-					expect(html).to.equal(htmlMatch);
+					assert.equal(html, htmlMatch);
 				}
 			});
 
@@ -243,20 +244,20 @@ describe('Routing priority', () => {
 				const $ = cheerioLoad(html);
 
 				if (fourOhFour) {
-					expect($('title').text()).to.equal('404: Not Found');
+					assert.equal($('title').text(), '404: Not Found');
 					return;
 				}
 
 				if (h1) {
-					expect($('h1').text()).to.equal(h1);
+					assert.equal($('h1').text(), h1);
 				}
 
 				if (p) {
-					expect($('p').text()).to.equal(p);
+					assert.equal($('p').text(), p);
 				}
 
 				if (htmlMatch) {
-					expect(html).to.equal(htmlMatch);
+					assert.equal(html, htmlMatch);
 				}
 			});
 		});

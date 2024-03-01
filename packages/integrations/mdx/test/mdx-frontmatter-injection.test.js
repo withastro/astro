@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
@@ -17,8 +18,8 @@ describe('MDX frontmatter injection', () => {
 	it('remark supports custom vfile data - get title', async () => {
 		const frontmatterByPage = JSON.parse(await fixture.readFile('/glob.json'));
 		const titles = frontmatterByPage.map((frontmatter = {}) => frontmatter.title);
-		expect(titles).to.contain('Page 1');
-		expect(titles).to.contain('Page 2');
+		assert.equal(titles.includes('Page 1'), true);
+		assert.equal(titles.includes('Page 2'), true);
 	});
 
 	it('rehype supports custom vfile data - reading time', async () => {
@@ -26,18 +27,24 @@ describe('MDX frontmatter injection', () => {
 		const readingTimes = frontmatterByPage.map(
 			(frontmatter = {}) => frontmatter.injectedReadingTime
 		);
-		expect(readingTimes.length).to.be.greaterThan(0);
+		assert.equal(readingTimes.length > 0, true);
 		for (let readingTime of readingTimes) {
-			expect(readingTime).to.not.be.null;
-			expect(readingTime.text).match(/^\d+ min read/);
+			assert.notEqual(readingTime, null);
+			assert.match(readingTime.text, /^\d+ min read/);
 		}
 	});
 
 	it('allow user frontmatter mutation', async () => {
 		const frontmatterByPage = JSON.parse(await fixture.readFile('/glob.json'));
 		const descriptions = frontmatterByPage.map((frontmatter = {}) => frontmatter.description);
-		expect(descriptions).to.contain('Processed by remarkDescription plugin: Page 1 description');
-		expect(descriptions).to.contain('Processed by remarkDescription plugin: Page 2 description');
+		assert.equal(
+			descriptions.includes('Processed by remarkDescription plugin: Page 1 description'),
+			true
+		);
+		assert.equal(
+			descriptions.includes('Processed by remarkDescription plugin: Page 2 description'),
+			true
+		);
 	});
 
 	it('passes injected frontmatter to layouts', async () => {
@@ -47,7 +54,7 @@ describe('MDX frontmatter injection', () => {
 		const title1 = parseHTML(html1).document.querySelector('title');
 		const title2 = parseHTML(html2).document.querySelector('title');
 
-		expect(title1.innerHTML).to.equal('Page 1');
-		expect(title2.innerHTML).to.equal('Page 2');
+		assert.equal(title1.innerHTML, 'Page 1');
+		assert.equal(title2.innerHTML, 'Page 2');
 	});
 });

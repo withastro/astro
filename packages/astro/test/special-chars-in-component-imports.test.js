@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import { isWindows, loadFixture } from './test-utils.js';
 
@@ -29,7 +30,7 @@ describe('Special chars in component import paths', () => {
 
 		it('Build succeeds', async () => {
 			const html = await fixture.readFile('/index.html');
-			expect(html).to.contain('<html>');
+			assert.equal(html.includes('<html>'), true);
 		});
 
 		it('Special chars in imports work from .astro files', async () => {
@@ -37,22 +38,20 @@ describe('Special chars in component import paths', () => {
 			const $ = cheerioLoad(html);
 
 			// Test 1: Correct page
-			expect($('h1').text()).to.contain('.astro');
+			assert.equal($('h1').text().includes('.astro'), true);
 
 			// Test 2: All components exist
 			componentIds.forEach((componentId) => {
-				expect($(`#${componentId}`), `Component #${componentId} does not exist`).to.have.lengthOf(
-					1
-				);
+				assert.equal($(`#${componentId}`).length, 1, `Component #${componentId} does not exist`);
 			});
 
 			// Test 3: Component contents were rendered properly
 			componentIds.forEach((componentId) => {
-				expect($(`#${componentId} > div`).text()).to.equal(`${componentId}: 0`);
+				assert.equal($(`#${componentId} > div`).text(), `${componentId}: 0`);
 			});
 
 			// Test 4: There is an island for each component
-			expect($('astro-island[uid]')).to.have.lengthOf(componentIds.length);
+			assert.equal($('astro-island[uid]').length, componentIds.length);
 		});
 
 		it('Special chars in imports work from .mdx files', async () => {
@@ -60,22 +59,20 @@ describe('Special chars in component import paths', () => {
 			const $ = cheerioLoad(html);
 
 			// Test 1: Correct page
-			expect($('h1').text()).to.contain('.mdx');
+			assert.equal($('h1').text().includes('.mdx'), true);
 
 			// Test 2: All components exist
 			componentIds.forEach((componentId) => {
-				expect($(`#${componentId}`), `Component #${componentId} does not exist`).to.have.lengthOf(
-					1
-				);
+				assert.equal($(`#${componentId}`).length, 1, `Component #${componentId} does not exist`);
 			});
 
 			// Test 3: Component contents were rendered properly
 			componentIds.forEach((componentId) => {
-				expect($(`#${componentId} > div`).text()).to.equal(`${componentId}: 0`);
+				assert.equal($(`#${componentId} > div`).text(), `${componentId}: 0`);
 			});
 
 			// Test 4: There is an island for each component
-			expect($('astro-island[uid]')).to.have.lengthOf(componentIds.length);
+			assert.equal($('astro-island[uid]').length, componentIds.length);
 		});
 	});
 
@@ -97,22 +94,20 @@ describe('Special chars in component import paths', () => {
 			const $ = cheerioLoad(html);
 
 			// Test 1: Correct page
-			expect($('h1').text()).to.contain('.astro');
+			assert.equal($('h1').text().includes('.astro'), true);
 
 			// Test 2: All components exist
 			componentIds.forEach((componentId) => {
-				expect($(`#${componentId}`), `Component #${componentId} does not exist`).to.have.lengthOf(
-					1
-				);
+				assert.equal($(`#${componentId}`).length, 1, `Component #${componentId} does not exist`);
 			});
 
 			// Test 3: Component contents were rendered properly
 			componentIds.forEach((componentId) => {
-				expect($(`#${componentId} > div`).text()).to.equal(`${componentId}: 0`);
+				assert.equal($(`#${componentId} > div`).text(), `${componentId}: 0`);
 			});
 
 			// Test 4: There is an island for each component
-			expect($('astro-island[uid]')).to.have.lengthOf(componentIds.length);
+			assert.equal($('astro-island[uid]').length, componentIds.length);
 		});
 
 		it('Special chars in imports work from .mdx files', async () => {
@@ -120,22 +115,20 @@ describe('Special chars in component import paths', () => {
 			const $ = cheerioLoad(html);
 
 			// Test 1: Correct page
-			expect($('h1').text()).to.contain('.mdx');
+			assert.equal($('h1').text().includes('.mdx'), true);
 
 			// Test 2: All components exist
 			componentIds.forEach((componentId) => {
-				expect($(`#${componentId}`), `Component #${componentId} does not exist`).to.have.lengthOf(
-					1
-				);
+				assert.equal($(`#${componentId}`).length, 1, `Component #${componentId} does not exist`);
 			});
 
 			// Test 3: Component contents were rendered properly
 			componentIds.forEach((componentId) => {
-				expect($(`#${componentId} > div`).text()).to.equal(`${componentId}: 0`);
+				assert.equal($(`#${componentId} > div`).text(), `${componentId}: 0`);
 			});
 
 			// Test 4: There is an island for each component
-			expect($('astro-island[uid]')).to.have.lengthOf(componentIds.length);
+			assert.equal($('astro-island[uid]').length, componentIds.length);
 		});
 	});
 });

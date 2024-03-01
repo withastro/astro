@@ -1,10 +1,11 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import mdx from '@astrojs/mdx';
-import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
-import remarkMath from 'remark-math';
 import rehypeMathjaxSvg from 'rehype-mathjax';
 import rehypeMathjaxChtml from 'rehype-mathjax/chtml';
+import remarkMath from 'remark-math';
+import { loadFixture } from '../../../astro/test/test-utils.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-math/', import.meta.url);
 
@@ -25,10 +26,14 @@ describe('MDX math', () => {
 			const { document } = parseHTML(html);
 
 			const mjxContainer = document.querySelector('mjx-container[jax="SVG"]');
-			expect(mjxContainer).to.not.be.null;
+			assert.notEqual(mjxContainer, null);
 
 			const mjxStyle = document.querySelector('style').innerHTML;
-			expect(mjxStyle).to.include('mjx-container[jax="SVG"]', 'style should not be html-escaped');
+			assert.equal(
+				mjxStyle.includes('mjx-container[jax="SVG"]'),
+				true,
+				'style should not be html-escaped'
+			);
 		});
 
 		it('works with chtml', async () => {
@@ -55,10 +60,14 @@ describe('MDX math', () => {
 			const { document } = parseHTML(html);
 
 			const mjxContainer = document.querySelector('mjx-container[jax="CHTML"]');
-			expect(mjxContainer).to.not.be.null;
+			assert.notEqual(mjxContainer, null);
 
 			const mjxStyle = document.querySelector('style').innerHTML;
-			expect(mjxStyle).to.include('mjx-container[jax="CHTML"]', 'style should not be html-escaped');
+			assert.equal(
+				mjxStyle.includes('mjx-container[jax="CHTML"]'),
+				true,
+				'style should not be html-escaped'
+			);
 		});
 	});
 });

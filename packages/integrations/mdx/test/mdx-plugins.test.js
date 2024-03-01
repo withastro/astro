@@ -1,10 +1,11 @@
 import mdx from '@astrojs/mdx';
 
-import { expect } from 'chai';
-import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
-import remarkToc from 'remark-toc';
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { visit as estreeVisit } from 'estree-util-visit';
+import { parseHTML } from 'linkedom';
+import remarkToc from 'remark-toc';
+import { loadFixture } from '../../../astro/test/test-utils.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-plugins/', import.meta.url);
 const FILE = '/with-plugins/index.html';
@@ -22,7 +23,7 @@ describe('MDX plugins', () => {
 		const html = await fixture.readFile(FILE);
 		const { document } = parseHTML(html);
 
-		expect(selectTocLink(document)).to.not.be.null;
+		assert.notEqual(selectTocLink(document), null);
 	});
 
 	it('Applies GFM by default', async () => {
@@ -33,7 +34,7 @@ describe('MDX plugins', () => {
 		const html = await fixture.readFile(FILE);
 		const { document } = parseHTML(html);
 
-		expect(selectGfmLink(document)).to.not.be.null;
+		assert.notEqual(selectGfmLink(document), null);
 	});
 
 	it('Applies SmartyPants by default', async () => {
@@ -45,8 +46,8 @@ describe('MDX plugins', () => {
 		const { document } = parseHTML(html);
 
 		const quote = selectSmartypantsQuote(document);
-		expect(quote).to.not.be.null;
-		expect(quote.textContent).to.contain('“Smartypants” is — awesome');
+		assert.notEqual(quote, null);
+		assert.equal(quote.textContent.includes('“Smartypants” is — awesome'), true);
 	});
 
 	it('supports custom rehype plugins', async () => {
@@ -60,7 +61,7 @@ describe('MDX plugins', () => {
 		const html = await fixture.readFile(FILE);
 		const { document } = parseHTML(html);
 
-		expect(selectRehypeExample(document)).to.not.be.null;
+		assert.notEqual(selectRehypeExample(document), null);
 	});
 
 	it('supports custom rehype plugins with namespaced attributes', async () => {
@@ -74,7 +75,7 @@ describe('MDX plugins', () => {
 		const html = await fixture.readFile(FILE);
 		const { document } = parseHTML(html);
 
-		expect(selectRehypeSvg(document)).to.not.be.null;
+		assert.notEqual(selectRehypeSvg(document), null);
 	});
 
 	it('extends markdown config by default', async () => {
@@ -89,8 +90,8 @@ describe('MDX plugins', () => {
 		const html = await fixture.readFile(FILE);
 		const { document } = parseHTML(html);
 
-		expect(selectRemarkExample(document)).to.not.be.null;
-		expect(selectRehypeExample(document)).to.not.be.null;
+		assert.notEqual(selectRemarkExample(document), null);
+		assert.notEqual(selectRehypeExample(document), null);
 	});
 
 	it('ignores string-based plugins in markdown config', async () => {
@@ -104,7 +105,7 @@ describe('MDX plugins', () => {
 		const html = await fixture.readFile(FILE);
 		const { document } = parseHTML(html);
 
-		expect(selectTocLink(document)).to.be.null;
+		assert.equal(selectTocLink(document), null);
 	});
 
 	for (const extendMarkdownConfig of [true, false]) {
@@ -131,20 +132,21 @@ describe('MDX plugins', () => {
 				const html = await fixture.readFile(FILE);
 				const { document } = parseHTML(html);
 
-				expect(selectRemarkExample(document, 'MDX remark plugins not applied.')).to.not.be.null;
-				expect(selectRehypeExample(document, 'MDX rehype plugins not applied.')).to.not.be.null;
+				assert.notEqual(selectRemarkExample(document, 'MDX remark plugins not applied.'), null);
+				assert.notEqual(selectRehypeExample(document, 'MDX rehype plugins not applied.'), null);
 			});
 
 			it('Handles Markdown plugins', async () => {
 				const html = await fixture.readFile(FILE);
 				const { document } = parseHTML(html);
 
-				expect(
+				assert.equal(
 					selectTocLink(
 						document,
 						'`remarkToc` plugin applied unexpectedly. Should override Markdown config.'
-					)
-				).to.be.null;
+					),
+					null
+				);
 			});
 
 			it('Handles gfm', async () => {
@@ -152,9 +154,9 @@ describe('MDX plugins', () => {
 				const { document } = parseHTML(html);
 
 				if (extendMarkdownConfig === true) {
-					expect(selectGfmLink(document), 'Does not respect `markdown.gfm` option.').to.be.null;
+					assert.equal(selectGfmLink(document), null, 'Does not respect `markdown.gfm` option.');
 				} else {
-					expect(selectGfmLink(document), 'Respects `markdown.gfm` unexpectedly.').to.not.be.null;
+					assert.notEqual(selectGfmLink(document), null, 'Respects `markdown.gfm` unexpectedly.');
 				}
 			});
 
@@ -165,12 +167,16 @@ describe('MDX plugins', () => {
 				const quote = selectSmartypantsQuote(document);
 
 				if (extendMarkdownConfig === true) {
-					expect(quote.textContent, 'Does not respect `markdown.smartypants` option.').to.contain(
-						'"Smartypants" is -- awesome'
+					assert.equal(
+						quote.textContent.includes('"Smartypants" is -- awesome'),
+						true,
+						'Does not respect `markdown.smartypants` option.'
 					);
 				} else {
-					expect(quote.textContent, 'Respects `markdown.smartypants` unexpectedly.').to.contain(
-						'“Smartypants” is — awesome'
+					assert.equal(
+						quote.textContent.includes('“Smartypants” is — awesome'),
+						true,
+						'Respects `markdown.smartypants` unexpectedly.'
 					);
 				}
 			});
@@ -189,7 +195,7 @@ describe('MDX plugins', () => {
 		const html = await fixture.readFile(FILE);
 		const { document } = parseHTML(html);
 
-		expect(selectRecmaExample(document)).to.not.be.null;
+		assert.notEqual(selectRecmaExample(document), null);
 	});
 });
 

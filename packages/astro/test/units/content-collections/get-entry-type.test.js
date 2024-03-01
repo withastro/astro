@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { getEntryType } from '../../../dist/content/utils.js';
 
@@ -35,7 +36,7 @@ describe('Content Collections - getEntryType', () => {
 				for (const entryPath of ['blog/first-post.md', 'blog/first-post.mdx']) {
 					const entry = fileURLToPath(new URL(entryPath, contentPaths.contentDir));
 					const type = getEntryType(entry, contentPaths, contentFileExts, dataFileExts);
-					expect(type).to.equal('content');
+					assert.equal(type, 'content');
 				}
 			});
 
@@ -47,7 +48,7 @@ describe('Content Collections - getEntryType', () => {
 				]) {
 					const entry = fileURLToPath(new URL(entryPath, contentPaths.contentDir));
 					const type = getEntryType(entry, contentPaths, contentFileExts, dataFileExts);
-					expect(type).to.equal('data');
+					assert.equal(type, 'data');
 				}
 			});
 
@@ -55,34 +56,34 @@ describe('Content Collections - getEntryType', () => {
 				for (const entryPath of ['blog/2021/01/01/index.md', 'blog/2021/01/01/index.mdx']) {
 					const entry = fileURLToPath(new URL(entryPath, contentPaths.contentDir));
 					const type = getEntryType(entry, contentPaths, contentFileExts, dataFileExts);
-					expect(type).to.equal('content');
+					assert.equal(type, 'content');
 				}
 			});
 
 			it('Returns "config" for config files', () => {
 				const entry = fileURLToPath(contentPaths.config.url);
 				const type = getEntryType(entry, contentPaths, contentFileExts, dataFileExts);
-				expect(type).to.equal('config');
+				assert.equal(type, 'config');
 			});
 
 			it('Returns "ignored" for non-Markdown files', () => {
 				for (const entryPath of ['blog/robots.txt', 'blog/first-post.png', '.DS_Store']) {
 					const entry = fileURLToPath(new URL(entryPath, contentPaths.contentDir));
 					const type = getEntryType(entry, contentPaths, contentFileExts, dataFileExts);
-					expect(type).to.equal('ignored');
+					assert.equal(type, 'ignored');
 				}
 			});
 
 			it('Returns "ignored" when using underscore on file name', () => {
 				const entry = fileURLToPath(new URL('blog/_first-post.md', contentPaths.contentDir));
 				const type = getEntryType(entry, contentPaths, contentFileExts, dataFileExts);
-				expect(type).to.equal('ignored');
+				assert.equal(type, 'ignored');
 			});
 
 			it('Returns "ignored" when using underscore on directory name', () => {
 				const entry = fileURLToPath(new URL('blog/_draft/first-post.md', contentPaths.contentDir));
 				const type = getEntryType(entry, contentPaths, contentFileExts, dataFileExts);
-				expect(type).to.equal('ignored');
+				assert.equal(type, 'ignored');
 			});
 		});
 	});

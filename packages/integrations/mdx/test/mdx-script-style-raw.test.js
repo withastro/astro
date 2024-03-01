@@ -1,5 +1,6 @@
+import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import mdx from '@astrojs/mdx';
-import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
@@ -24,20 +25,22 @@ describe('MDX script style raw', () => {
 
 		it('works with with raw script and style strings', async () => {
 			const res = await fixture.fetch('/index.html');
-			expect(res.status).to.equal(200);
+			assert.equal(res.status, 200);
 
 			const html = await res.text();
 			const { document } = parseHTML(html);
 
 			const scriptContent = document.getElementById('test-script').innerHTML;
-			expect(scriptContent).to.include(
-				"console.log('raw script')",
+			assert.equal(
+				scriptContent.includes("console.log('raw script')"),
+				true,
 				'script should not be html-escaped'
 			);
 
 			const styleContent = document.getElementById('test-style').innerHTML;
-			expect(styleContent).to.include(
-				'h1[id="script-style-raw"]',
+			assert.equal(
+				styleContent.includes('h1[id="script-style-raw"]'),
+				true,
 				'style should not be html-escaped'
 			);
 		});
@@ -55,14 +58,16 @@ describe('MDX script style raw', () => {
 			const { document } = parseHTML(html);
 
 			const scriptContent = document.getElementById('test-script').innerHTML;
-			expect(scriptContent).to.include(
-				"console.log('raw script')",
+			assert.equal(
+				scriptContent.includes("console.log('raw script')"),
+				true,
 				'script should not be html-escaped'
 			);
 
 			const styleContent = document.getElementById('test-style').innerHTML;
-			expect(styleContent).to.include(
-				'h1[id="script-style-raw"]',
+			assert.equal(
+				styleContent.includes('h1[id="script-style-raw"]'),
+				true,
 				'style should not be html-escaped'
 			);
 		});

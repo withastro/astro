@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
@@ -34,16 +35,14 @@ describe('Testing remark plugins for image processing', () => {
 
 			it('<img> has correct attributes', async () => {
 				let $img = $('img');
-				expect($img.attr('id')).to.equal('test');
-				expect($img.attr('sizes')).to.equal('(min-width: 600px) 600w, 300w');
-				expect($img.attr('srcset')).to.not.be.empty;
+				assert.equal($img.attr('id'), 'test');
+				assert.equal($img.attr('sizes'), '(min-width: 600px) 600w, 300w');
+				assert.ok($img.attr('srcset'));
 			});
 
 			it('<img> was processed properly', async () => {
 				let $img = $('img');
-				expect(new URL($img.attr('src'), 'http://example.com').searchParams.get('w')).to.equal(
-					'300'
-				);
+				assert.equal(new URL($img.attr('src'), 'http://example.com').searchParams.get('w'), '300');
 			});
 		});
 	});

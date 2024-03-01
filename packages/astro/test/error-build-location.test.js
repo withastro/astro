@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Errors information in build', () => {
@@ -17,6 +18,6 @@ describe('Errors information in build', () => {
 			errorContent = e;
 		}
 
-		expect(errorContent.id).to.equal('src/pages/index.astro');
+		assert.equal(errorContent.id, 'src/pages/index.astro');
 	});
 });

@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -22,16 +23,16 @@ describe('Scripts (hoisted and not)', () => {
 			const html = await fixture.readFile('/external/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('head script[type="module"]:not([src="/regular_script.js"])')).to.have.lengthOf(1);
-			expect($('body script')).to.have.lengthOf(0);
+			assert.equal($('head script[type="module"]:not([src="/regular_script.js"])').length, 1);
+			assert.equal($('body script').length, 0);
 		});
 
 		it('Moves inline scripts up', async () => {
 			const html = await fixture.readFile('/inline/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('head script[type="module"]')).to.have.lengthOf(1);
-			expect($('body script')).to.have.lengthOf(0);
+			assert.equal($('head script[type="module"]').length, 1);
+			assert.equal($('body script').length, 0);
 		});
 
 		it('Inline page builds the scripts to a single bundle', async () => {
@@ -41,17 +42,18 @@ describe('Scripts (hoisted and not)', () => {
 			let $el = $('script');
 
 			// test 1: Just one entry module
-			expect($el).to.have.lengthOf(1);
+			assert.equal($el.length, 1);
 
 			const src = $el.attr('src');
 			const inlineEntryJS = await fixture.readFile(src);
 
 			// test 3: the JS exists
-			expect(inlineEntryJS).to.be.ok;
+			assert.ok(inlineEntryJS);
 
 			// test 4: Inline imported JS is included
-			expect(inlineEntryJS).to.contain(
-				'I AM IMPORTED INLINE',
+			assert.equal(
+				inlineEntryJS.includes('I AM IMPORTED INLINE'),
+				true,
 				'The inline imported JS is included in the bundle'
 			);
 		});
@@ -60,8 +62,8 @@ describe('Scripts (hoisted and not)', () => {
 			let html = await fixture.readFile('/inline-shared-one/index.html');
 			let $ = cheerio.load(html);
 
-			expect($('script')).to.have.lengthOf(1);
-			expect($('script').attr('src')).to.not.equal(undefined);
+			assert.equal($('script').length, 1);
+			assert.notEqual($('script').attr('src'), undefined);
 		});
 
 		it('External page using non-hoist scripts that are modules are built standalone', async () => {
@@ -69,11 +71,11 @@ describe('Scripts (hoisted and not)', () => {
 			let $ = cheerio.load(external);
 
 			// test 1: there is 1 scripts
-			expect($('script')).to.have.lengthOf(1);
+			assert.equal($('script').length, 1);
 
 			// test 2: inside assets
 			let entryURL = $('script').attr('src');
-			expect(entryURL.includes('_astro/')).to.equal(true);
+			assert.equal(entryURL.includes('_astro/'), true);
 		});
 
 		it('External page using non-hoist scripts that are not modules are built standalone', async () => {
@@ -81,18 +83,18 @@ describe('Scripts (hoisted and not)', () => {
 			let $ = cheerio.load(external);
 
 			// test 1: there is 1 scripts
-			expect($('script')).to.have.lengthOf(1);
+			assert.equal($('script').length, 1);
 
 			// test 2: inside assets
 			let entryURL = $('script').attr('src');
-			expect(entryURL.includes('_astro/')).to.equal(true);
+			assert.equal(entryURL.includes('_astro/'), true);
 		});
 
 		it('Scripts added via Astro.glob are hoisted', async () => {
 			let glob = await fixture.readFile('/glob/index.html');
 			let $ = cheerio.load(glob);
 
-			expect($('script[type="module"]').length).to.be.greaterThan(0);
+			assert.equal($('script[type="module"]').length > 0, true);
 		});
 
 		it('Styles imported by hoisted scripts are included on the page', async () => {
@@ -100,7 +102,7 @@ describe('Scripts (hoisted and not)', () => {
 			let $ = cheerio.load(html);
 
 			// Imported styles + tailwind
-			expect($('link[rel=stylesheet]')).to.have.a.lengthOf(2);
+			assert.equal($('link[rel=stylesheet]').length, 2);
 		});
 
 		describe('Inlining', () => {
@@ -119,14 +121,14 @@ describe('Scripts (hoisted and not)', () => {
 				let $ = cheerio.load(external);
 
 				// test 1: there are two scripts
-				expect($('script')).to.have.lengthOf(2);
+				assert.equal($('script').length, 2);
 
 				let el = $('script').get(1);
-				expect($(el).attr('src')).to.equal(undefined, 'This should have been inlined');
+				assert.equal($(el).attr('src'), undefined, 'This should have been inlined');
 				let externalEntryJS = $(el).text();
 
 				// test 2: the JS exists
-				expect(externalEntryJS).to.be.ok;
+				assert.ok(externalEntryJS);
 			});
 		});
 	});
@@ -177,7 +179,7 @@ describe('Scripts (hoisted and not)', () => {
 					found++;
 				}
 			});
-			expect(found).to.equal(1);
+			assert.equal(found, 1);
 		});
 
 		it('Using injectScript does not interfere', async () => {
@@ -191,7 +193,7 @@ describe('Scripts (hoisted and not)', () => {
 					found++;
 				}
 			});
-			expect(found).to.equal(1);
+			assert.equal(found, 1);
 		});
 
 		it('Injected scripts are injected to injected routes', async () => {
@@ -205,7 +207,7 @@ describe('Scripts (hoisted and not)', () => {
 					found++;
 				}
 			});
-			expect(found).to.equal(1);
+			assert.equal(found, 1);
 		});
 	});
 });
