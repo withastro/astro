@@ -1023,6 +1023,96 @@ describe('astro:image', () => {
 			expect(response.status).to.equal(200);
 		});
 
+		it('endpoint handle malformed requests', async () => {
+			const badPaths = [
+				'../../../../../../../../../../../../etc/hosts%00',
+				'../../../../../../../../../../../../etc/hosts',
+				'../../boot.ini',
+				'/../../../../../../../../%2A',
+				'../../../../../../../../../../../../etc/passwd%00',
+				'../../../../../../../../../../../../etc/passwd',
+				'../../../../../../../../../../../../etc/shadow%00',
+				'../../../../../../../../../../../../etc/shadow',
+				'/../../../../../../../../../../etc/passwd^^',
+				'/../../../../../../../../../../etc/shadow^^',
+				'/../../../../../../../../../../etc/passwd',
+				'/../../../../../../../../../../etc/shadow',
+				'/./././././././././././etc/passwd',
+				'/./././././././././././etc/shadow',
+				'....................etcpasswd',
+				'....................etcshadow',
+				'....................etcpasswd',
+				'....................etcshadow',
+				'/..../..../..../..../..../..../etc/passwd',
+				'/..../..../..../..../..../..../etc/shadow',
+				'.\\./.\\./.\\./.\\./.\\./.\\./etc/passwd',
+				'.\\./.\\./.\\./.\\./.\\./.\\./etc/shadow',
+				'....................etcpasswd%00',
+				'....................etcshadow%00',
+				'....................etcpasswd%00',
+				'....................etcshadow%00',
+				'%0a/bin/cat%20/etc/passwd',
+				'%0a/bin/cat%20/etc/shadow',
+				'%00/etc/passwd%00',
+				'%00/etc/shadow%00',
+				'%00../../../../../../etc/passwd',
+				'%00../../../../../../etc/shadow',
+				'/../../../../../../../../../../../etc/passwd%00.jpg',
+				'/../../../../../../../../../../../etc/passwd%00.html',
+				'/..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../etc/passwd',
+				'/..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../etc/shadow',
+				'/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/etc/passwd,',
+				'/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/etc/shadow,',
+				'%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%,25%5c..%25%5c..%25%5c..%25%5c..%00',
+				'/%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..,%25%5c..%25%5c..%25%5c..%25%5c..%00',
+				'%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%,25%5c..%25%5c..%	25%5c..%25%5c..%00',
+				'%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%,25%5c..%25%5c..%		25%5c..%25%5c..%255cboot.ini',
+				'/%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..,%25%5c..%25%5c..%25%5c..%25%5c..winnt/desktop.ini',
+				'\\&apos;/bin/cat%20/etc/passwd\\&apos;',
+				'\\&apos;/bin/cat%20/etc/shadow\\&apos;',
+				'../../../../../../../../conf/server.xml',
+				'/../../../../../../../../bin/id|',
+				'C:/inetpub/wwwroot/global.asa',
+				'C:inetpubwwwrootglobal.asa',
+				'C:/boot.ini',
+				'C:\boot.ini',
+				'../../../../../../../../../../../../localstart.asp%00',
+				'../../../../../../../../../../../../localstart.asp',
+				'../../../../../../../../../../../../boot.ini%00',
+				'../../../../../../../../../../../../boot.ini',
+				'/./././././././././././boot.ini',
+				'/../../../../../../../../../../../boot.ini%00',
+				'/../../../../../../../../../../../boot.ini',
+				'/..../..../..../..../..../..../boot.ini',
+				'/.\\./.\\./.\\./.\\./.\\./.\\./boot.ini',
+				'....................\boot.ini',
+				'....................\boot.ini%00',
+				'....................\boot.ini',
+				'/../../../../../../../../../../../boot.ini%00.html',
+				'/../../../../../../../../../../../boot.ini%00.jpg',
+				'/.../.../.../.../.../	',
+				'..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../boot.ini',
+				'/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/boot.ini',
+				'../prerender/index.html',
+			];
+
+			const app = await fixture.loadTestAdapterApp();
+
+			for (const path of badPaths) {
+				let request = new Request('http://example.com/_image?href=' + path);
+				let response = await app.render(request);
+				const body = await response.text();
+
+				expect(response.status).to.equal(500);
+				expect(body).includes('Internal Server Error');
+			}
+
+			// Server should still be running
+			let request = new Request('http://example.com/');
+			let response = await app.render(request);
+			expect(response.status).to.equal(200);
+		});
+
 		it('prerendered routes images are built', async () => {
 			const html = await fixture.readFile('/client/prerender/index.html');
 			const $ = cheerio.load(html);

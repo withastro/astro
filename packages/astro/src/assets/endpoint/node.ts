@@ -1,28 +1,52 @@
+/* eslint-disable no-console */
+import os from 'node:os';
+import { isAbsolute } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isRemotePath, removeQueryString } from '@astrojs/internal-helpers/path';
 import { readFile } from 'fs/promises';
 import mime from 'mime/lite.js';
-import os from 'os';
 import type { APIRoute } from '../../@types/astro.js';
 import { getConfiguredImageService, isRemoteAllowed } from '../internal.js';
 import { etag } from '../utils/etag.js';
 // @ts-expect-error
-import { assetsDir, imageConfig } from 'astro:assets';
+import { assetsDir, outDir, imageConfig } from 'astro:assets';
 
 function replaceFileSystemReferences(src: string) {
 	return os.platform().includes('win32') ? src.replace(/^\/@fs\//, '') : src.replace(/^\/@fs/, '');
 }
 
 async function loadLocalImage(src: string, url: URL) {
-	const filePath = import.meta.env.DEV
-		? removeQueryString(replaceFileSystemReferences(src))
-		: new URL('.' + src, assetsDir);
+	const assetsDirPath = fileURLToPath(assetsDir);
+
+	let fileUrl;
+	if (import.meta.env.DEV) {
+		fileUrl = pathToFileURL(removeQueryString(replaceFileSystemReferences(src)));
+	} else {
+		try {
+			fileUrl = new URL('.' + src, outDir);
+			const filePath = fileURLToPath(fileUrl);
+
+			if (!isAbsolute(filePath) || !filePath.startsWith(assetsDirPath)) {
+				return undefined;
+			}
+		} catch (err: unknown) {
+			return undefined;
+		}
+	}
+
 	let buffer: Buffer | undefined = undefined;
 
 	try {
-		buffer = await readFile(filePath);
+		buffer = await readFile(fileUrl);
 	} catch (e) {
-		const sourceUrl = new URL(src, url.origin);
-		buffer = await loadRemoteImage(sourceUrl);
+		// Fallback to try to load the file using `fetch`
+		try {
+			const sourceUrl = new URL(src, url.origin);
+			buffer = await loadRemoteImage(sourceUrl);
+		} catch (err: unknown) {
+			console.error('Could not process image request:', err);
+			return undefined;
+		}
 	}
 
 	return buffer;
@@ -57,7 +81,11 @@ export const GET: APIRoute = async ({ request }) => {
 		const transform = await imageService.parseURL(url, imageConfig);
 
 		if (!transform?.src) {
-			throw new Error('Incorrect transform returned by `parseURL`');
+			const err = new Error(
+				'Incorrect transform returned by `parseURL`. Expected a transform with a `src` property.'
+			);
+			console.error('Could not parse image transform from URL:', err);
+			return new Response('Internal Server Error', { status: 500 });
 		}
 
 		let inputBuffer: Buffer | undefined = undefined;
@@ -73,7 +101,7 @@ export const GET: APIRoute = async ({ request }) => {
 		}
 
 		if (!inputBuffer) {
-			return new Response('Not Found', { status: 404 });
+			return new Response('Internal Server Error', { status: 500 });
 		}
 
 		const { data, format } = await imageService.transform(inputBuffer, transform, imageConfig);
@@ -88,6 +116,12 @@ export const GET: APIRoute = async ({ request }) => {
 			},
 		});
 	} catch (err: unknown) {
-		return new Response(`Server Error: ${err}`, { status: 500 });
+		console.error('Could not process image request:', err);
+		return new Response(
+			import.meta.env.DEV ? `Could not process image request: ${err}` : `Internal Server Error`,
+			{
+				status: 500,
+			}
+		);
 	}
 };
