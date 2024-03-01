@@ -16,11 +16,11 @@ describe('astro:db', () => {
 	describe('development', () => {
 		let devServer;
 
-		beforeAll(async () => {
+		before(async () => {
 			devServer = await fixture.startDevServer();
 		});
 
-		afterAll(async () => {
+		after(async () => {
 			await devServer.stop();
 		});
 
@@ -33,39 +33,37 @@ describe('astro:db', () => {
 			expect(ul.children().eq(0).text()).to.equal('Ben');
 		});
 
-		describe('Expression defaults', () => {
-			it('Allows expression defaults for date columns', async () => {
-				const html = await fixture.fetch('/').then((res) => res.text());
-				const $ = cheerioLoad(html);
-				console.log('date columns::', html);
+		it('Allows expression defaults for date columns', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			const $ = cheerioLoad(html);
+			console.log('date columns::', html);
 
-				const themeAdded = $($('.themes-list .theme-added')[0]).text();
-				expect(new Date(themeAdded).getTime()).to.not.be.NaN;
-			});
+			const themeAdded = $($('.themes-list .theme-added')[0]).text();
+			expect(new Date(themeAdded).getTime()).to.not.be.NaN;
+		});
 
-			it('Defaults can be overridden for dates', async () => {
-				const html = await fixture.fetch('/').then((res) => res.text());
-				const $ = cheerioLoad(html);
+		it('Defaults can be overridden for dates', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			const $ = cheerioLoad(html);
 
-				const themeAdded = $($('.themes-list .theme-added')[1]).text();
-				expect(new Date(themeAdded).getTime()).to.not.be.NaN;
-			});
+			const themeAdded = $($('.themes-list .theme-added')[1]).text();
+			expect(new Date(themeAdded).getTime()).to.not.be.NaN;
+		});
 
-			it('Allows expression defaults for text columns', async () => {
-				const html = await fixture.fetch('/').then((res) => res.text());
-				const $ = cheerioLoad(html);
+		it('Allows expression defaults for text columns', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			const $ = cheerioLoad(html);
 
-				const themeOwner = $($('.themes-list .theme-owner')[0]).text();
-				expect(themeOwner).to.equal('');
-			});
+			const themeOwner = $($('.themes-list .theme-owner')[0]).text();
+			expect(themeOwner).to.equal('');
+		});
 
-			it('Allows expression defaults for boolean columns', async () => {
-				const html = await fixture.fetch('/').then((res) => res.text());
-				const $ = cheerioLoad(html);
+		it('Allows expression defaults for boolean columns', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			const $ = cheerioLoad(html);
 
-				const themeDark = $($('.themes-list .theme-dark')[0]).text();
-				expect(themeDark).to.equal('dark mode');
-			});
+			const themeDark = $($('.themes-list .theme-dark')[0]).text();
+			expect(themeDark).to.equal('dark mode');
 		});
 	});
 });
