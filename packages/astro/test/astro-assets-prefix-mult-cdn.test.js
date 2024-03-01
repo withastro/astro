@@ -65,7 +65,9 @@ describe('Assets Prefix Multiple CDN - Static', () => {
 		const html = await fixture.readFile('/markdown/index.html');
 		const $ = cheerio.load(html);
 		const imgAssets = $('img');
-		assert.match(imgAssets.attr('src'), defaultAssetsPrefixRegex);
+		imgAssets.each((i, el) => {
+			assert.match(el.attribs.src, defaultAssetsPrefixRegex);
+		});
 	});
 
 	it('content collections image src start with assetsPrefix', async () => {
