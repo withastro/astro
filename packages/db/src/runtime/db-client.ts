@@ -11,8 +11,6 @@ import { recreateTables } from './queries.js';
 
 const isWebContainer = !!process.versions?.webcontainer;
 
-interface LocalDatabaseClient extends LibSQLDatabase, Disposable {}
-
 export async function createLocalDatabaseClient({
 	dbUrl,
 	seedProps,
@@ -22,14 +20,10 @@ export async function createLocalDatabaseClient({
 		tables: DBTables;
 		fileGlob: Record<string, () => Promise<void>>;
 	};
-}): Promise<LocalDatabaseClient> {
+}): Promise<LibSQLDatabase> {
 	const url = isWebContainer ? 'file:content.db' : dbUrl;
 	const client = createClient({ url });
-	const db = Object.assign(drizzleLibsql(client), {
-		[Symbol.dispose || Symbol.for('Symbol.dispose')]() {
-			client.close();
-		},
-	});
+	const db = drizzleLibsql(client);
 
 	if (seedProps) {
 		await seedLocal({ db, ...seedProps });
