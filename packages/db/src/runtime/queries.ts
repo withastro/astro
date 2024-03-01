@@ -25,25 +25,7 @@ import { LibsqlError } from '@libsql/client';
 
 const sqlite = new SQLiteAsyncDialect();
 
-/**
- * Sorted by precedence.
- * Ex. If both "seed.dev.ts" and "seed.ts" are present,
- * "seed.dev.ts" will be used.
- */
-export const SEED_DEV_FILE_NAMES_SORTED = [
-	'seed.development.ts',
-	'seed.development.js',
-	'seed.development.mjs',
-	'seed.development.mts',
-	'seed.dev.ts',
-	'seed.dev.js',
-	'seed.dev.mjs',
-	'seed.dev.mts',
-	'seed.ts',
-	'seed.js',
-	'seed.mjs',
-	'seed.mts',
-];
+export const SEED_DEV_FILE_NAME = ['seed.ts', 'seed.js', 'seed.mjs', 'seed.mts'];
 
 export async function seedLocal({
 	db,
@@ -56,7 +38,7 @@ export async function seedLocal({
 	fileGlob: Record<string, () => Promise<void>>;
 }) {
 	await recreateTables({ db, tables });
-	for (const fileName of SEED_DEV_FILE_NAMES_SORTED) {
+	for (const fileName of SEED_DEV_FILE_NAME) {
 		const key = Object.keys(fileGlob).find((f) => f.endsWith(fileName));
 		if (key) {
 			await fileGlob[key]().catch((e) => {

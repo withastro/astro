@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { SEED_DEV_FILE_NAMES_SORTED } from '../../runtime/queries.js';
+import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
 import {
 	DB_PATH,
 	RUNTIME_CONFIG_IMPORT,
@@ -84,7 +84,7 @@ export function getLocalVirtualModContents({
 	shouldSeed: boolean;
 }) {
 	const dbUrl = new URL(DB_PATH, root);
-	const seedFilePaths = SEED_DEV_FILE_NAMES_SORTED.map(
+	const seedFilePaths = SEED_DEV_FILE_NAME.map(
 		// Format as /db/[name].ts
 		// for Vite import.meta.glob
 		(name) => new URL(name, getDbDirectoryUrl('file:///')).pathname
