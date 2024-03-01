@@ -1,22 +1,9 @@
-import { defineDB, defineTable, column, sql, NOW } from 'astro:db';
+import { defineDB, defineTable, column } from 'astro:db';
+import { Themes } from './theme';
 
 const Author = defineTable({
 	columns: {
 		name: column.text(),
-	},
-});
-
-const Themes = defineTable({
-	columns: {
-		name: column.text(),
-		added: column.date({
-			default: sql`CURRENT_TIMESTAMP`,
-		}),
-		updated: column.date({
-			default: NOW,
-		}),
-		isDark: column.boolean({ default: sql`TRUE` }),
-		owner: column.text({ optional: true, default: sql`NULL` }),
 	},
 });
 
