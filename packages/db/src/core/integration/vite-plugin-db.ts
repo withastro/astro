@@ -10,6 +10,7 @@ import type { DBTables } from '../types.js';
 import { getDbDirUrl, getRemoteDatabaseUrl, type VitePlugin } from '../utils.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
+const resolvedSeedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID + '/seed';
 
 type LateSchema = {
 	tables: () => DBTables;
@@ -30,16 +31,23 @@ type VitePluginDBParams =
 	  };
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
+	const seedFilePaths = SEED_DEV_FILE_NAMES_SORTED.map(
+		(name) => new URL(name, getDbDirUrl(params.root)).pathname
+	);
 	return {
 		name: 'astro:db',
 		enforce: 'pre',
-		resolveId(id) {
+		resolveId(id, importer) {
 			if (id === VIRTUAL_MODULE_ID) {
-				return resolvedVirtualModuleId;
+				const resolved = seedFilePaths.some((s) => s === importer)
+					? resolvedSeedVirtualModuleId
+					: resolvedVirtualModuleId;
+				console.log('resolved::', resolved);
+				return resolved;
 			}
 		},
 		load(id) {
-			if (id !== resolvedVirtualModuleId) return;
+			if (id !== resolvedVirtualModuleId && id !== resolvedSeedVirtualModuleId) return;
 
 			if (params.connectToStudio) {
 				return getStudioVirtualModContents({
@@ -50,7 +58,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			return getLocalVirtualModContents({
 				root: params.root,
 				tables: params.schemas.tables(),
-				shouldSeed: params.shouldSeed,
+				shouldSeed: id !== resolvedSeedVirtualModuleId && params.shouldSeed,
 			});
 		},
 	};
