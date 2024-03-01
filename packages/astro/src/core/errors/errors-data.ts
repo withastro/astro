@@ -828,7 +828,7 @@ export const LocalsNotAnObject = {
 export const MiddlewareCantBeLoaded = {
 	name: 'MiddlewareCantBeLoaded',
 	title: "Can't load the middleware.",
-	message: 'The middleware threw an error while Astro was trying to loading it.',
+	message: 'An unknown error was thrown while loading your middleware.',
 } satisfies ErrorData;
 
 /**

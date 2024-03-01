@@ -1,5 +1,77 @@
 # astro
 
+## 4.4.8
+
+### Patch Changes
+
+- [#10275](https://github.com/withastro/astro/pull/10275) [`5e3e74b61daa2ba44c761c9ab5745818661a656e`](https://github.com/withastro/astro/commit/5e3e74b61daa2ba44c761c9ab5745818661a656e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes dev toolbar warning about using the proper loading attributes on images using `data:` URIs
+
+## 4.4.7
+
+### Patch Changes
+
+- [#10274](https://github.com/withastro/astro/pull/10274) [`e556151603a2f0173059d0f98fdcbec0610b48ff`](https://github.com/withastro/astro/commit/e556151603a2f0173059d0f98fdcbec0610b48ff) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes a regression introduced in v4.4.5 where image optimization did not work in dev mode when a base was configured.
+
+- [#10263](https://github.com/withastro/astro/pull/10263) [`9bdbed723e0aa4243d7d6ee64d1c1df3b75b9aeb`](https://github.com/withastro/astro/commit/9bdbed723e0aa4243d7d6ee64d1c1df3b75b9aeb) Thanks [@martrapp](https://github.com/martrapp)! - Adds auto completion for `astro:` event names when adding or removing event listeners on `document`.
+
+- [#10284](https://github.com/withastro/astro/pull/10284) [`07f89429a1ef5173d3321e0b362a9dc71fc74fe5`](https://github.com/withastro/astro/commit/07f89429a1ef5173d3321e0b362a9dc71fc74fe5) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes an issue where in Node SSR, the image endpoint could be used maliciously to reveal unintended information about the underlying system.
+
+  Thanks to Google Security Team for reporting this issue.
+
+## 4.4.6
+
+### Patch Changes
+
+- [#10247](https://github.com/withastro/astro/pull/10247) [`fb773c9161bf8faa5ebd7e115f3564c3359e56ea`](https://github.com/withastro/astro/commit/fb773c9161bf8faa5ebd7e115f3564c3359e56ea) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue where `transition:animate="none"` still allowed the browser-native morph animation.
+
+- [#10248](https://github.com/withastro/astro/pull/10248) [`8ae5d99534fc09d650e10e64a09b61a2807574f2`](https://github.com/withastro/astro/commit/8ae5d99534fc09d650e10e64a09b61a2807574f2) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where multiple injected routes with the same `entrypoint` but different `pattern` were incorrectly cached, causing some of them not being rendered in the dev server.
+
+- [#10250](https://github.com/withastro/astro/pull/10250) [`57655a99db34e20e9661c039fab253b867013318`](https://github.com/withastro/astro/commit/57655a99db34e20e9661c039fab253b867013318) Thanks [@log101](https://github.com/log101)! - Fixes the overwriting of localised index pages with redirects
+
+- [#10239](https://github.com/withastro/astro/pull/10239) [`9c21a9df6b03e36bd78dc553e13c55b9ef8c44cd`](https://github.com/withastro/astro/commit/9c21a9df6b03e36bd78dc553e13c55b9ef8c44cd) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Improves the message of `MiddlewareCantBeLoaded` for clarity
+
+- [#10222](https://github.com/withastro/astro/pull/10222) [`ade9759cae74ca262b988260250bcb202235e811`](https://github.com/withastro/astro/commit/ade9759cae74ca262b988260250bcb202235e811) Thanks [@martrapp](https://github.com/martrapp)! - Adds a warning in DEV mode when using view transitions on a device with prefer-reduced-motion enabled.
+
+- [#10251](https://github.com/withastro/astro/pull/10251) [`9b00de0a76b4f4b5b808e8c78e4906a2497e8ecf`](https://github.com/withastro/astro/commit/9b00de0a76b4f4b5b808e8c78e4906a2497e8ecf) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Fixes TypeScript type definitions for `Code` component `theme` and `experimentalThemes` props
+
+## 4.4.5
+
+### Patch Changes
+
+- [#10221](https://github.com/withastro/astro/pull/10221) [`4db82d9c7dce3b73fe43b86020fcfa326c1357ec`](https://github.com/withastro/astro/commit/4db82d9c7dce3b73fe43b86020fcfa326c1357ec) Thanks [@matthewp](https://github.com/matthewp)! - Prevents errors in templates from crashing the server
+
+- [#10219](https://github.com/withastro/astro/pull/10219) [`afcb9d331179287629b5ffce4020931258bebefa`](https://github.com/withastro/astro/commit/afcb9d331179287629b5ffce4020931258bebefa) Thanks [@matthewp](https://github.com/matthewp)! - Fix dynamic slots missing hydration scripts
+
+- [#10220](https://github.com/withastro/astro/pull/10220) [`1eadb1c5290f2f4baf538c34889a09d5fcfb9bd4`](https://github.com/withastro/astro/commit/1eadb1c5290f2f4baf538c34889a09d5fcfb9bd4) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes some built-in apps of the dev toolbar not closing when clicking the page
+
+- [#10154](https://github.com/withastro/astro/pull/10154) [`e64bd0740b44aed5cfaf67e5c37a1c56ed4442f4`](https://github.com/withastro/astro/commit/e64bd0740b44aed5cfaf67e5c37a1c56ed4442f4) Thanks [@Cherry](https://github.com/Cherry)! - Fixes an issue where `config.vite.build.assetsInlineLimit` could not be set as a function.
+
+- [#10196](https://github.com/withastro/astro/pull/10196) [`8fb32f390d40cfa12a82c0645928468d27218866`](https://github.com/withastro/astro/commit/8fb32f390d40cfa12a82c0645928468d27218866) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where a warning about headers being accessed in static mode is unnecessarily shown when i18n is enabled.
+
+- [#10199](https://github.com/withastro/astro/pull/10199) [`6aa660ae7abc6841d7a3396b29f10b9fb7910ce5`](https://github.com/withastro/astro/commit/6aa660ae7abc6841d7a3396b29f10b9fb7910ce5) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where prerendered pages had access to query params in dev mode.
+
+## 4.4.4
+
+### Patch Changes
+
+- [#10195](https://github.com/withastro/astro/pull/10195) [`903eace233033998811b72e27a54c80d8e59ff37`](https://github.com/withastro/astro/commit/903eace233033998811b72e27a54c80d8e59ff37) Thanks [@1574242600](https://github.com/1574242600)! - Fix build failure caused by read-only files under /public (in the presence of client-side JS).
+
+- [#10205](https://github.com/withastro/astro/pull/10205) [`459f74bc71748279fe7dce0688f38bd74b51c5c1`](https://github.com/withastro/astro/commit/459f74bc71748279fe7dce0688f38bd74b51c5c1) Thanks [@martrapp](https://github.com/martrapp)! - Adds an error message for non-string transition:name values
+
+- [#10208](https://github.com/withastro/astro/pull/10208) [`8cd38f02456640c063552aef00b2b8a216b3935d`](https://github.com/withastro/astro/commit/8cd38f02456640c063552aef00b2b8a216b3935d) Thanks [@log101](https://github.com/log101)! - Fixes custom headers are not added to the Node standalone server responses in preview mode
+
+## 4.4.3
+
+### Patch Changes
+
+- [#10143](https://github.com/withastro/astro/pull/10143) [`7c5fcd2fa817472f480bbfbbc11b9ed71a7210ab`](https://github.com/withastro/astro/commit/7c5fcd2fa817472f480bbfbbc11b9ed71a7210ab) Thanks [@bluwy](https://github.com/bluwy)! - Improves the default `optimizeDeps.entries` Vite config to avoid globbing server endpoints, and respect the `srcDir` option
+
+- [#10197](https://github.com/withastro/astro/pull/10197) [`c856c729404196900a7386c8426b81e79684a6a9`](https://github.com/withastro/astro/commit/c856c729404196900a7386c8426b81e79684a6a9) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes errors being logged twice in some cases
+
+- [#10166](https://github.com/withastro/astro/pull/10166) [`598f30c7cd6c88558e3806d9bc5a15d426d83992`](https://github.com/withastro/astro/commit/598f30c7cd6c88558e3806d9bc5a15d426d83992) Thanks [@bluwy](https://github.com/bluwy)! - Improves Astro style tag HMR when updating imported styles
+
+- [#10194](https://github.com/withastro/astro/pull/10194) [`3cc20109277813ccb9578ca87a8b0d680a73c35c`](https://github.com/withastro/astro/commit/3cc20109277813ccb9578ca87a8b0d680a73c35c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes an issue related to content collections usage in browser context caused by `csssec`
+
 ## 4.4.2
 
 ### Patch Changes

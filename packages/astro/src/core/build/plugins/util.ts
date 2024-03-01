@@ -1,5 +1,5 @@
 import { extname } from 'node:path';
-import type { BuildOptions, Rollup, Plugin as VitePlugin } from 'vite';
+import type { BuildOptions, Plugin as VitePlugin, Rollup } from 'vite';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type OutputOptionsHook = Extract<VitePlugin['outputOptions'], Function>;
@@ -75,14 +75,13 @@ export function shouldInlineAsset(
 	assetPath: string,
 	assetsInlineLimit: NonNullable<BuildOptions['assetsInlineLimit']>
 ) {
-	if (typeof assetsInlineLimit === 'number') {
-		return Buffer.byteLength(assetContent) < assetsInlineLimit;
+	if (typeof assetsInlineLimit === 'function') {
+		const result = assetsInlineLimit(assetPath, Buffer.from(assetContent));
+		if (result != null) {
+			return result;
+		} else {
+			return Buffer.byteLength(assetContent) < 4096; // Fallback to 4096kb by default (same as Vite)
+		}
 	}
-
-	const result = assetsInlineLimit(assetPath, Buffer.from(assetContent));
-	if (result != null) {
-		return result;
-	}
-
-	return Buffer.byteLength(assetContent) < 4096; // Fallback to 4096kb by default (same as Vite)
+	return Buffer.byteLength(assetContent) < Number(assetsInlineLimit);
 }

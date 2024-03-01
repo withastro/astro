@@ -6,9 +6,9 @@ import type {
 	SSRManifest,
 	SSRResult,
 } from '../@types/astro.js';
+import { createI18nMiddleware } from '../i18n/middleware.js';
 import type { Logger } from './logger/core.js';
 import { RouteCache } from './render/route-cache.js';
-import { createI18nMiddleware } from '../i18n/middleware.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.

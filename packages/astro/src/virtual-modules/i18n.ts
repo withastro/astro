@@ -1,11 +1,11 @@
 import * as I18nInternals from '../i18n/index.js';
-import type { I18nInternalConfig } from '../i18n/vite-plugin-i18n.js';
 import { toRoutingStrategy } from '../i18n/utils.js';
 import { AstroError } from '../core/errors/index.js';
 import { IncorrectStrategy } from '../core/errors/errors-data.js';
 import type { UseFallback } from '../i18n/index.js';
 import type { SSRManifest } from '../core/app/types.js';
 import type { AstroConfig } from '../@types/astro.js';
+import type { I18nInternalConfig } from '../i18n/vite-plugin-i18n.js';
 export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
 
 const { trailingSlash, format, site, i18n, isBuild } =

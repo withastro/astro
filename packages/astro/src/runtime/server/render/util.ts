@@ -174,6 +174,9 @@ export function renderToBufferDestination(bufferRenderFunction: RenderFunction):
 
 	// Don't await for the render to finish to not block streaming
 	const renderPromise = bufferRenderFunction(bufferDestination);
+	// Catch here in case it throws before `renderToFinalDestination` is called,
+	// to prevent an unhandled rejection.
+	Promise.resolve(renderPromise).catch(() => {});
 
 	// Return a closure that writes the buffered chunk
 	return {

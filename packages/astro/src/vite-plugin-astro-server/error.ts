@@ -1,9 +1,9 @@
-import type { ModuleLoader } from '../core/module-loader/index.js';
 import type { AstroConfig } from '../@types/astro.js';
+import type { ModuleLoader } from '../core/module-loader/index.js';
 import type { DevPipeline } from './pipeline.js';
 
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
-import { createSafeError, AstroErrorData } from '../core/errors/index.js';
+import { AstroErrorData, createSafeError } from '../core/errors/index.js';
 import { formatErrorMessage } from '../core/messages.js';
 import { eventError, telemetry } from '../events/index.js';
 

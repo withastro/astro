@@ -4,12 +4,12 @@ import type {
 	MiddlewareHandler,
 	RouteData,
 } from '../@types/astro.js';
+import {
+	computeCurrentLocale,
+	computePreferredLocale,
+	computePreferredLocaleList,
+} from '../i18n/utils.js';
 import { renderEndpoint } from '../runtime/server/endpoint.js';
-import { attachCookiesToResponse } from './cookies/index.js';
-import { callMiddleware } from './middleware/callMiddleware.js';
-import { sequence } from './middleware/index.js';
-import { AstroCookies } from './cookies/index.js';
-import { createResult } from './render/index.js';
 import { renderPage } from '../runtime/server/index.js';
 import {
 	ASTRO_VERSION,
@@ -17,14 +17,14 @@ import {
 	clientAddressSymbol,
 	clientLocalsSymbol,
 } from './constants.js';
-import { getParams, getProps, type Pipeline } from './render/index.js';
+import { attachCookiesToResponse } from './cookies/index.js';
+import { AstroCookies } from './cookies/index.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
-import {
-	computeCurrentLocale,
-	computePreferredLocale,
-	computePreferredLocaleList,
-} from '../i18n/utils.js';
+import { callMiddleware } from './middleware/callMiddleware.js';
+import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
+import { createResult } from './render/index.js';
+import { type Pipeline, getParams, getProps } from './render/index.js';
 
 export class RenderContext {
 	private constructor(
@@ -36,7 +36,8 @@ export class RenderContext {
 		readonly routeData: RouteData,
 		public status: number,
 		readonly cookies = new AstroCookies(request),
-		readonly params = getParams(routeData, pathname)
+		readonly params = getParams(routeData, pathname),
+		readonly url = new URL(request.url)
 	) {}
 
 	static create({
@@ -124,20 +125,24 @@ export class RenderContext {
 
 	createAPIContext(props: APIContext['props']): APIContext {
 		const renderContext = this;
-		const { cookies, i18nData, params, pipeline, request } = this;
-		const { currentLocale, preferredLocale, preferredLocaleList } = i18nData;
+		const { cookies, params, pipeline, request, url } = this;
 		const generator = `Astro v${ASTRO_VERSION}`;
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
 		const site = pipeline.site ? new URL(pipeline.site) : undefined;
-		const url = new URL(request.url);
 		return {
 			cookies,
-			currentLocale,
+			get currentLocale() {
+				return renderContext.computeCurrentLocale();
+			},
 			generator,
 			params,
-			preferredLocale,
-			preferredLocaleList,
+			get preferredLocale() {
+				return renderContext.computePreferredLocale();
+			},
+			get preferredLocaleList() {
+				return renderContext.computePreferredLocaleList();
+			},
 			props,
 			redirect,
 			request,
@@ -223,26 +228,40 @@ export class RenderContext {
 	 * API Context may be created multiple times per request, i18n data needs to be computed only once.
 	 * So, it is computed and saved here on creation of the first APIContext and reused for later ones.
 	 */
-	#i18nData?: Pick<APIContext, 'currentLocale' | 'preferredLocale' | 'preferredLocaleList'>;
+	#currentLocale: APIContext['currentLocale'];
+	computeCurrentLocale() {
+		const {
+			url,
+			pipeline: { i18n },
+			routeData,
+		} = this;
+		if (!i18n) return;
+		const { defaultLocale, locales, strategy } = i18n;
+		return (this.#currentLocale ??= computeCurrentLocale(
+			routeData.route,
+			locales,
+			strategy,
+			defaultLocale
+		));
+	}
 
-	get i18nData() {
-		if (this.#i18nData) return this.#i18nData;
+	#preferredLocale: APIContext['preferredLocale'];
+	computePreferredLocale() {
 		const {
 			pipeline: { i18n },
 			request,
-			routeData,
 		} = this;
-		if (!i18n)
-			return {
-				currentLocale: undefined,
-				preferredLocale: undefined,
-				preferredLocaleList: undefined,
-			};
-		const { defaultLocale, locales, strategy } = i18n;
-		return (this.#i18nData = {
-			currentLocale: computeCurrentLocale(routeData.route, locales, strategy, defaultLocale),
-			preferredLocale: computePreferredLocale(request, locales),
-			preferredLocaleList: computePreferredLocaleList(request, locales),
-		});
+		if (!i18n) return;
+		return (this.#preferredLocale ??= computePreferredLocale(request, i18n.locales));
+	}
+
+	#preferredLocaleList: APIContext['preferredLocaleList'];
+	computePreferredLocaleList() {
+		const {
+			pipeline: { i18n },
+			request,
+		} = this;
+		if (!i18n) return;
+		return (this.#preferredLocaleList ??= computePreferredLocaleList(request, i18n.locales));
 	}
 }

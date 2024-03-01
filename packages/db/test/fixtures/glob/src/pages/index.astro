@@ -1,0 +1,25 @@
+---
+/// <reference types="../../.astro/db-types.d.ts" />
+import { Quote, db } from 'astro:db';
+
+const quotes = await db.select().from(Quote);
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+	</head>
+	<body>
+		{
+			quotes.map((q) => (
+				<figure>
+					<blockquote>{q.body}</blockquote>
+					<figcaption>{q.author}</figcaption>
+				</figure>
+			))
+		}
+	</body>
+</html>

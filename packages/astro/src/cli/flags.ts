@@ -1,6 +1,6 @@
 import type { Arguments as Flags } from 'yargs-parser';
 import type { AstroInlineConfig } from '../@types/astro.js';
-import { Logger, type LogOptions } from '../core/logger/core.js';
+import { type LogOptions, Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
 
 export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {

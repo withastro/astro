@@ -1,13 +1,13 @@
 import type { APIContext, Locales, Params } from '../../@types/astro.js';
-import { ASTRO_VERSION, clientAddressSymbol, clientLocalsSymbol } from '../constants.js';
-import type { AstroCookies } from '../cookies/index.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
 import {
+	type RoutingStrategies,
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
-	type RoutingStrategies,
 } from '../../i18n/utils.js';
+import { ASTRO_VERSION, clientAddressSymbol, clientLocalsSymbol } from '../constants.js';
+import type { AstroCookies } from '../cookies/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 
 type CreateAPIContext = {
 	request: Request;
