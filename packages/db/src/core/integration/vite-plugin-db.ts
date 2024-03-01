@@ -40,19 +40,18 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 		name: 'astro:db',
 		enforce: 'pre',
 		async resolveId(id, rawImporter) {
-			if (id === VIRTUAL_MODULE_ID) {
-				if (params.connectToStudio || !params.shouldSeed) return resolvedVirtualModuleId;
+			if (id !== VIRTUAL_MODULE_ID) return;
+			if (params.connectToStudio || !params.shouldSeed) return resolvedVirtualModuleId;
 
-				const importer = rawImporter ? await this.resolve(rawImporter) : null;
-				if (!importer) return resolvedVirtualModuleId;
+			const importer = rawImporter ? await this.resolve(rawImporter) : null;
+			if (!importer) return resolvedVirtualModuleId;
 
-				if (importer.id.startsWith(srcDirPath)) {
-					// Seed only if the importer is in the src directory.
-					// Otherwise, we may get recursive seed calls (ex. import from db/seed.ts).
-					return resolvedSeedVirtualModuleId;
-				}
-				return resolvedVirtualModuleId;
+			if (importer.id.startsWith(srcDirPath)) {
+				// Seed only if the importer is in the src directory.
+				// Otherwise, we may get recursive seed calls (ex. import from db/seed.ts).
+				return resolvedSeedVirtualModuleId;
 			}
+			return resolvedVirtualModuleId;
 		},
 		load(id) {
 			if (id !== resolvedVirtualModuleId && id !== resolvedSeedVirtualModuleId) return;
