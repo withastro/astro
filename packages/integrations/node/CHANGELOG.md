@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 8.2.2
+
+### Patch Changes
+
+- [#10282](https://github.com/withastro/astro/pull/10282) [`b47dcaa25968ec85ba96fce23381c94a94e389f6`](https://github.com/withastro/astro/commit/b47dcaa25968ec85ba96fce23381c94a94e389f6) Thanks [@SatanshuMishra](https://github.com/SatanshuMishra)! - Fixes the `server.host` option to properly listen on all network interfaces when set to `true`
+
 ## 8.2.1
 
 ### Patch Changes
