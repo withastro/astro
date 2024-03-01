@@ -45,7 +45,7 @@ export const SEED_DEV_FILE_NAMES_SORTED = [
 	'seed.mts',
 ];
 
-export async function seedDev({
+export async function seedLocal({
 	db,
 	tables,
 	// Glob all potential seed files to catch renames and deletions.

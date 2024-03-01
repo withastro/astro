@@ -83,7 +83,7 @@ export function getLocalVirtualModContents({
 	);
 
 	return `
-import { asDrizzleTable, createLocalDatabaseClient, seedDev } from ${RUNTIME_IMPORT};
+import { asDrizzleTable, createLocalDatabaseClient, seedLocal } from ${RUNTIME_IMPORT};
 ${
 	useBundledDbUrl
 		? `import dbUrl from ${JSON.stringify(`${dbUrl}?fileurl`)};`
@@ -99,7 +99,7 @@ ${getStringifiedCollectionExports(tables)}
 
 ${
 	shouldSeed
-		? `await seedDev({
+		? `await seedLocal({
 	db,
 	tables: ${JSON.stringify(tables)},
 	fileGlob: import.meta.glob(${JSON.stringify(seedFilePaths)}),
