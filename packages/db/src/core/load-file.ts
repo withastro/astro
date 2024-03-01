@@ -127,10 +127,10 @@ async function importBundledFile({
 	root: URL;
 }): Promise<{ default?: unknown }> {
 	// Write it to disk, load it with native Node ESM, then delete the file.
-	const tmpFileUrl = new URL(`db.timestamp-${Date.now()}.mjs`, root);
+	const tmpFileUrl = new URL(`studio.seed.timestamp-${Date.now()}.mjs`, root);
 	await writeFile(tmpFileUrl, code);
 	try {
-		return await import(/* @vite-ignore */ tmpFileUrl.href);
+		return await import(/* @vite-ignore */ tmpFileUrl.pathname);
 	} finally {
 		try {
 			await unlink(tmpFileUrl);
