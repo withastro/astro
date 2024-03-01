@@ -1,5 +1,13 @@
 # astro
 
+## 3.6.5
+
+### Patch Changes
+
+- [#10287](https://github.com/withastro/astro/pull/10287) [`a90d685d7`](https://github.com/withastro/astro/commit/a90d685d7620541b94c3b07db0fc1d31eec2b0d5) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where in Node SSR, the image endpoint could be used maliciously to reveal unintended information about the underlying system.
+
+  Thanks to Google Security Team for reporting this issue.
+
 ## 3.6.4
 
 ### Patch Changes
