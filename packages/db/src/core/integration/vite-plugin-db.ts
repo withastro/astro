@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { SEED_DEV_FILE_NAMES_SORTED } from '../../runtime/queries.js';
 import {
 	DB_PATH,
@@ -8,6 +9,7 @@ import {
 } from '../consts.js';
 import type { DBTables } from '../types.js';
 import { getDbDirUrl, getRemoteDatabaseUrl, type VitePlugin } from '../utils.js';
+import { normalizePath } from 'vite';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 const resolvedSeedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID + '?shouldSeed';
@@ -28,10 +30,12 @@ type VitePluginDBParams =
 			connectToStudio: true;
 			schemas: LateSchema;
 			appToken: string;
+			srcDir: URL;
 			root: URL;
 	  };
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
+	const srcDirPath = normalizePath(fileURLToPath(params.srcDir));
 	return {
 		name: 'astro:db',
 		enforce: 'pre',
@@ -42,8 +46,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 				const importer = rawImporter ? await this.resolve(rawImporter) : null;
 				if (!importer) return resolvedVirtualModuleId;
 
-				const importerUrl = new URL(importer.id, 'file://');
-				if (importerUrl.href.startsWith(params.srcDir.href)) {
+				if (importer.id.startsWith(srcDirPath)) {
 					// Seed only if the importer is in the src directory.
 					// Otherwise, we may get recursive seed calls (ex. import from db/seed.ts).
 					return resolvedSeedVirtualModuleId;
@@ -118,8 +121,7 @@ export const db = await createLocalDatabaseClient({
 export * from ${RUNTIME_DRIZZLE_IMPORT};
 export * from ${RUNTIME_CONFIG_IMPORT};
 
-${getStringifiedCollectionExports(tables)}
-`;
+${getStringifiedCollectionExports(tables)}`;
 }
 
 export function getStudioVirtualModContents({

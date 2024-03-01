@@ -45,6 +45,7 @@ function astroDBIntegration(): AstroIntegration {
 						appToken: appToken.token,
 						schemas,
 						root: config.root,
+						srcDir: config.srcDir,
 					});
 				} else {
 					dbPlugin = vitePluginDb({
