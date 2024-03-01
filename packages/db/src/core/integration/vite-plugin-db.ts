@@ -37,7 +37,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 		enforce: 'pre',
 		async resolveId(id, rawImporter) {
 			if (id === VIRTUAL_MODULE_ID) {
-				if (params.connectToStudio) return resolvedVirtualModuleId;
+				if (params.connectToStudio || !params.shouldSeed) return resolvedVirtualModuleId;
 
 				const importer = rawImporter ? await this.resolve(rawImporter) : null;
 				if (!importer) return resolvedVirtualModuleId;
@@ -63,7 +63,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			return getLocalVirtualModContents({
 				root: params.root,
 				tables: params.schemas.tables(),
-				shouldSeed: id === resolvedSeedVirtualModuleId && params.shouldSeed,
+				shouldSeed: id === resolvedSeedVirtualModuleId,
 			});
 		},
 	};
