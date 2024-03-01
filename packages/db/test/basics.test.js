@@ -27,6 +27,7 @@ describe('astro:db', () => {
 		it('Prints the list of authors', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerioLoad(html);
+			console.log('prints the list of authors::', html);
 
 			const ul = $('.authors-list');
 			expect(ul.children()).to.have.a.lengthOf(5);
@@ -37,6 +38,7 @@ describe('astro:db', () => {
 			it('Allows expression defaults for date columns', async () => {
 				const html = await fixture.fetch('/').then((res) => res.text());
 				const $ = cheerioLoad(html);
+				console.log('Allows expression defaults for date columns::', html);
 
 				const themeAdded = $($('.themes-list .theme-added')[0]).text();
 				expect(new Date(themeAdded).getTime()).to.not.be.NaN;
@@ -45,6 +47,7 @@ describe('astro:db', () => {
 			it('Defaults can be overridden for dates', async () => {
 				const html = await fixture.fetch('/').then((res) => res.text());
 				const $ = cheerioLoad(html);
+				console.log('defaults can be overridden for dates', html);
 
 				const themeAdded = $($('.themes-list .theme-added')[1]).text();
 				expect(new Date(themeAdded).getTime()).to.not.be.NaN;
@@ -61,6 +64,7 @@ describe('astro:db', () => {
 			it('Allows expression defaults for boolean columns', async () => {
 				const html = await fixture.fetch('/').then((res) => res.text());
 				const $ = cheerioLoad(html);
+				console.log('Allows expression defaults for boolean columns::', html);
 
 				const themeDark = $($('.themes-list .theme-dark')[0]).text();
 				expect(themeDark).to.equal('dark mode');
