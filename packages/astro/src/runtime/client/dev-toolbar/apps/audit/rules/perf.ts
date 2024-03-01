@@ -28,7 +28,7 @@ export const perf: AuditRuleWithSelector[] = [
 	},
 	{
 		code: 'perf-use-loading-lazy',
-		title: 'Use the loading="lazy" attribute',
+		title: 'Unoptimized loading attribute',
 		message: (element) =>
 			`This ${element.nodeName} tag is below the fold and could be lazy-loaded to improve performance.`,
 		selector:
@@ -43,7 +43,7 @@ export const perf: AuditRuleWithSelector[] = [
 	},
 	{
 		code: 'perf-use-loading-eager',
-		title: 'Use the loading="eager" attribute',
+		title: 'Unoptimized loading attribute',
 		message: (element) =>
 			`This ${element.nodeName} tag is above the fold and could be eagerly-loaded to improve performance.`,
 		selector: 'img[loading="lazy"], iframe[loading="lazy"]',

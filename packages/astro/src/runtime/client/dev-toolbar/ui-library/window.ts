@@ -13,7 +13,7 @@ export class DevToolbarWindow extends HTMLElement {
 					box-sizing: border-box;
 					display: flex;
 					flex-direction: column;
-					background: linear-gradient(0deg, #13151A, #13151A), linear-gradient(0deg, #343841, #343841);
+					background: #131825;
 					border: 1px solid rgba(52, 56, 65, 1);
 					width: min(640px, 100%);
 					max-height: 480px;

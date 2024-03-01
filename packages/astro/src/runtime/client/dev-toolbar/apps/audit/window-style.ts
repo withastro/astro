@@ -33,31 +33,35 @@ hr {
 header {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
-	padding: 18px;
+	gap: 4px;
 }
 
 header > section {
 	display: flex;
 	align-items: center;
 	gap: 1em;
+	padding: 18px;
 }
+
+header.category-header {
+	background: #1F2433;
+	padding: 10px 16px;
+}
+
+header.category-header astro-dev-toolbar-icon {
+	opacity: 0.6;
+}
+
 
 #audit-counts {
 	display: flex;
-	gap: 1em;
+	gap: 0.5em;
 }
 
 #audit-counts > div {
 	display: flex;
 	gap: 8px;
 	align-items: center;
-}
-
-h1 {
-	font-size: 22px;
-	font-weight: 600;
-	color: #fff;
 }
 
 ul,
@@ -67,15 +71,26 @@ li {
 	list-style: none;
 }
 
-h1,
-h2 {
+
+h1 {
+	font-size: 24px;
+	font-weight: 600;
+	color: #fff;
 	margin: 0;
 }
 
-h3 {
+h2 {
+	font-weight: 600;
 	margin: 0;
 	color: white;
-	font-size: 17px;
+	font-size: 14px;
+}
+
+h3 {
+	font-weight: normal;
+	margin: 0;
+	color: white;
+	font-size: 14px;
 }
 
 .audit-header {
@@ -84,11 +99,15 @@ h3 {
 	align-items: center;
 }
 
+
 .audit-selector {
 	color: white;
-	font-size: 15px;
+	font-size: 12px;
 	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
 		'Courier New', monospace;
+	border: 1px solid rgba(255, 255, 255, .1);
+	border-radius: 4px;
+	padding: 4px 6px;
 }
 
 [active] .audit-selector:hover {
@@ -120,13 +139,12 @@ astro-dev-toolbar-icon {
 	color: white;
 	fill: white;
 	display: inline-block;
-	height: 24px;
+	height: 16px;
 }
 
 #audit-list {
 	display: flex;
 	flex-direction: column;
-	gap: 0.25em;
 	overflow: auto;
 	overscroll-behavior: contain;
 	height: 100%;
@@ -135,14 +153,18 @@ astro-dev-toolbar-icon {
 #back-to-list {
 	display: none;
 	align-items: center;
+	justify-content: center;
+	background: #1F2433;
 	gap: 8px;
 	padding: 8px;
 	color: white;
+	font-size: 14px;
 }
 
 #back-to-list:hover {
 	cursor: pointer;
-	background-color: rgba(255, 255, 255, 0.3);
+	background:  rgba(31, 36, 51, 0.5);
+
 }
 
 #audit-list:has(astro-dev-toolbar-card[active]) #back-to-list {

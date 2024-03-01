@@ -19,6 +19,10 @@ import { createRoundedBadge } from '../utils/badge.js';
 import { escape as escapeHTML } from 'html-escaper';
 import windowStyle from './window-style.js';
 
+function truncate(val: string, maxLength: number): string {
+	return val.length > maxLength ? val.slice(0, maxLength - 1) + '&hellip;' : val;
+}
+
 const icon =
 	'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 1 20 16"><path fill="#fff" d="M.6 2A1.1 1.1 0 0 1 1.7.9h16.6a1.1 1.1 0 1 1 0 2.2H1.6A1.1 1.1 0 0 1 .8 2Zm1.1 7.1h6a1.1 1.1 0 0 0 0-2.2h-6a1.1 1.1 0 0 0 0 2.2ZM9.3 13H1.8a1.1 1.1 0 1 0 0 2.2h7.5a1.1 1.1 0 1 0 0-2.2Zm11.3 1.9a1.1 1.1 0 0 1-1.5 0l-1.7-1.7a4.1 4.1 0 1 1 1.6-1.6l1.6 1.7a1.1 1.1 0 0 1 0 1.6Zm-5.3-3.4a1.9 1.9 0 1 0 0-3.8 1.9 1.9 0 0 0 0 3.8Z"/></svg>';
 
@@ -105,7 +109,7 @@ export default {
 
 					<header>
 						<section>
-							<h1>Audits</h1>
+							<h1>Audit</h1>
 						</section>
 
 						<section></section>
@@ -148,18 +152,23 @@ export default {
 					categoryIcon.icon = category.icon;
 					const categoryBadge = createRoundedBadge();
 					categoryBadge.textContent = auditCount.toString();
+					categoryBadge.prepend(categoryIcon);
 
 					if (auditCount === 0) {
 						categoryBadge.badgeStyle = 'green';
 					}
 
-					headerEntryContainer.append(categoryIcon, categoryBadge);
+					headerEntryContainer.append(categoryBadge);
 					auditCounts.append(headerEntryContainer);
 
 					// Create group for each category in the audit list
 					const categoryGroup = document.createElement('div');
 					const categoryHeader = document.createElement('header');
+					categoryHeader.className = 'category-header';
 					categoryHeader.innerHTML = `<h2>${category.name}</h2>`;
+					const categoryHeaderIcon = document.createElement('astro-dev-toolbar-icon');
+					categoryHeaderIcon.icon = category.icon;
+					categoryHeader.prepend(categoryHeaderIcon);
 
 					categoryGroup.append(categoryHeader);
 					const categoryContentContainer = document.createElement('div');
@@ -177,7 +186,7 @@ export default {
 					auditListContainer.append(categoryGroup);
 				});
 
-				headerFirstSection.append(auditCounts);
+				headerFirstSection!.append(auditCounts);
 				auditListWindow.appendChild(auditListContainer);
 
 				canvas.append(auditListWindow);
@@ -363,7 +372,7 @@ export default {
 			  text-align: left;
 				box-shadow: none;
 				display: flex;
-				flex-direction: column;
+				align-items: center;
 				overflow: hidden;
 				gap: 8px;
 			}
@@ -410,22 +419,14 @@ export default {
 				highlightElement.focus();
 			};
 
+			const selector = document.createElement('span');
+			selector.classList.add('audit-selector');
+			selector.innerHTML = truncate(auditedElement.tagName.toLowerCase(), 8);
+			card.appendChild(selector);
+
 			const title = document.createElement('h3');
 			title.innerText = rule.title;
 			card.appendChild(title);
-
-			const selector = document.createElement('button');
-			selector.classList.add('reset-button');
-			selector.classList.add('audit-selector');
-
-			selector.innerHTML = finder(auditedElement);
-
-			selector.addEventListener('click', () => {
-				auditedElement.scrollIntoView();
-				highlightElement.focus();
-			});
-
-			card.appendChild(selector);
 
 			const extendedInfo = document.createElement('div');
 			extendedInfo.classList.add('extended-info');
