@@ -4,7 +4,7 @@ import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBConfig, type DBSnapshot } from '../../../types.js';
-import { getMigrationsDirUrl, getRemoteDatabaseUrl } from '../../../utils.js';
+import { getMigrationsDirectoryUrl, getRemoteDatabaseUrl } from '../../../utils.js';
 import { getMigrationQueries } from '../../migration-queries.js';
 import {
 	createEmptySnapshot,
@@ -38,7 +38,7 @@ export async function cmd({
 		console.log(MIGRATION_NEEDED);
 		process.exit(1);
 	}
-	const migrationsDir = getMigrationsDirUrl(astroConfig.root);
+	const migrationsDir = getMigrationsDirectoryUrl(astroConfig.root);
 
 	// get all migrations from the filesystem
 	const allLocalMigrations = await getMigrations(migrationsDir);

@@ -2,7 +2,7 @@ import deepDiff from 'deep-diff';
 import { mkdir, readFile, readdir, writeFile } from 'fs/promises';
 import { type DBSnapshot, type DBConfig } from '../types.js';
 import { cyan, green, yellow } from 'kleur/colors';
-import { getMigrationsDirUrl } from '../utils.js';
+import { getMigrationsDirectoryUrl } from '../utils.js';
 const { applyChange, diff: generateDiff } = deepDiff;
 
 export type MigrationStatus =
@@ -34,7 +34,7 @@ export async function getMigrationStatus({
 	root: URL;
 }): Promise<MigrationStatus> {
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
-	const dir = getMigrationsDirUrl(root);
+	const dir = getMigrationsDirectoryUrl(root);
 	const allMigrationFiles = await getMigrations(dir);
 
 	if (allMigrationFiles.length === 0) {

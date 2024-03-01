@@ -8,7 +8,7 @@ import {
 	VIRTUAL_MODULE_ID,
 } from '../consts.js';
 import type { DBTables } from '../types.js';
-import { getDbDirUrl, getRemoteDatabaseUrl, type VitePlugin } from '../utils.js';
+import { getDbDirectoryUrl, getRemoteDatabaseUrl, type VitePlugin } from '../utils.js';
 import { normalizePath } from 'vite';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
@@ -87,7 +87,7 @@ export function getLocalVirtualModContents({
 	const seedFilePaths = SEED_DEV_FILE_NAMES_SORTED.map(
 		// Format as /db/[name].ts
 		// for Vite import.meta.glob
-		(name) => new URL(name, getDbDirUrl('file:///')).pathname
+		(name) => new URL(name, getDbDirectoryUrl('file:///')).pathname
 	);
 
 	return `

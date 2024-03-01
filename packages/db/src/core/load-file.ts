@@ -7,7 +7,7 @@ import {
 } from './integration/vite-plugin-db.js';
 import type { DBTables } from './types.js';
 import { writeFile, unlink } from 'node:fs/promises';
-import { getDbDirUrl } from './utils.js';
+import { getDbDirectoryUrl } from './utils.js';
 import { existsSync } from 'node:fs';
 
 export async function executeFile({
@@ -35,7 +35,7 @@ export async function loadConfigFile(
 ): Promise<{ mod: { default?: unknown } | undefined; dependencies: string[] }> {
 	let configFileUrl: URL | undefined;
 	for (const fileName of CONFIG_FILE_NAMES) {
-		const fileUrl = new URL(fileName, getDbDirUrl(root));
+		const fileUrl = new URL(fileName, getDbDirectoryUrl(root));
 		if (existsSync(fileUrl)) {
 			configFileUrl = fileUrl;
 		}

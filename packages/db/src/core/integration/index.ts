@@ -1,7 +1,7 @@
 import { existsSync } from 'fs';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
 import { dbConfigSchema, type DBConfig } from '../types.js';
-import { getDbDirUrl, type VitePlugin } from '../utils.js';
+import { getDbDirectoryUrl, type VitePlugin } from '../utils.js';
 import { errorMap } from './error-map.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -99,7 +99,7 @@ function astroDBIntegration(): AstroIntegration {
 			},
 			'astro:server:setup': async ({ server }) => {
 				const filesToWatch = [
-					...CONFIG_FILE_NAMES.map((c) => new URL(c, getDbDirUrl(root))),
+					...CONFIG_FILE_NAMES.map((c) => new URL(c, getDbDirectoryUrl(root))),
 					...configFileDependencies.map((c) => new URL(c, root)),
 				];
 				server.watcher.on('all', (event, relativeEntry) => {

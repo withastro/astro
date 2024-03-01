@@ -10,7 +10,7 @@ import {
 	getMigrationStatus,
 	initializeMigrationsDirectory,
 } from '../../migrations.js';
-import { getMigrationsDirUrl } from '../../../utils.js';
+import { getMigrationsDirectoryUrl } from '../../../utils.js';
 import type { DBConfig } from '../../../types.js';
 import { relative } from 'node:path';
 
@@ -23,7 +23,7 @@ export async function cmd({
 	flags: Arguments;
 }) {
 	const migration = await getMigrationStatus({ dbConfig, root: astroConfig.root });
-	const migrationsDir = getMigrationsDirUrl(astroConfig.root);
+	const migrationsDir = getMigrationsDirectoryUrl(astroConfig.root);
 
 	if (migration.state === 'no-migrations-found') {
 		await initializeMigrationsDirectory(migration.currentSnapshot, migrationsDir);
