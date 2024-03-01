@@ -2,7 +2,7 @@ import { build as esbuild } from 'esbuild';
 import { CONFIG_FILE_NAMES, VIRTUAL_MODULE_ID } from './consts.js';
 import { fileURLToPath } from 'node:url';
 import { getConfigVirtualModContents } from './integration/vite-plugin-db.js';
-import { writeFile, readFile, unlink } from 'node:fs/promises';
+import { writeFile, unlink } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { getDbDirectoryUrl } from './utils.js';
 
@@ -105,12 +105,10 @@ export async function importBundledFile({
 	// Write it to disk, load it with native Node ESM, then delete the file.
 	const tmpFileUrl = new URL(`./db.timestamp-${Date.now()}.mjs`, root);
 	await writeFile(tmpFileUrl, code, { encoding: 'utf8' });
-	console.log('content', tmpFileUrl, await readFile(tmpFileUrl, 'utf8'));
 	try {
 		return await import(/* @vite-ignore */ tmpFileUrl.pathname);
 	} finally {
 		try {
-			console.log('unlinking');
 			await unlink(tmpFileUrl);
 		} catch {
 			// already removed if this function is called twice simultaneously
