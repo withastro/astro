@@ -10,7 +10,7 @@ import type { DBTables } from '../types.js';
 import { getDbDirUrl, getRemoteDatabaseUrl, type VitePlugin } from '../utils.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
-const resolvedSeedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID + '/seed';
+const resolvedSeedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID + '?shouldSeed';
 
 type LateSchema = {
 	tables: () => DBTables;
@@ -21,6 +21,7 @@ type VitePluginDBParams =
 			connectToStudio: false;
 			shouldSeed: boolean;
 			schemas: LateSchema;
+			srcDir: URL;
 			root: URL;
 	  }
 	| {
@@ -31,17 +32,23 @@ type VitePluginDBParams =
 	  };
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
-	const dbDirUrl = getDbDirUrl(params.root);
 	return {
 		name: 'astro:db',
 		enforce: 'pre',
-		resolveId(id, importer) {
+		async resolveId(id, rawImporter) {
 			if (id === VIRTUAL_MODULE_ID) {
-				const resolved = importer?.startsWith(dbDirUrl.pathname)
-					? resolvedSeedVirtualModuleId
-					: resolvedVirtualModuleId;
-				console.log('resolved::', resolved);
-				return resolved;
+				if (params.connectToStudio) return resolvedVirtualModuleId;
+
+				const importer = rawImporter ? await this.resolve(rawImporter) : null;
+				if (!importer) return resolvedVirtualModuleId;
+
+				const importerUrl = new URL(importer.id, 'file://');
+				if (importerUrl.href.startsWith(params.srcDir.href)) {
+					// Seed only if the importer is in the src directory.
+					// Otherwise, we may get recursive seed calls (ex. import from db/seed.ts).
+					return resolvedSeedVirtualModuleId;
+				}
+				return resolvedVirtualModuleId;
 			}
 		},
 		load(id) {
@@ -56,7 +63,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			return getLocalVirtualModContents({
 				root: params.root,
 				tables: params.schemas.tables(),
-				shouldSeed: id !== resolvedSeedVirtualModuleId && params.shouldSeed,
+				shouldSeed: id === resolvedSeedVirtualModuleId && params.shouldSeed,
 			});
 		},
 	};

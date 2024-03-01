@@ -51,6 +51,7 @@ function astroDBIntegration(): AstroIntegration {
 						connectToStudio: false,
 						schemas,
 						root: config.root,
+						srcDir: config.srcDir,
 						shouldSeed: command === 'dev',
 					});
 				}
