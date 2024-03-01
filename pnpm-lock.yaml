@@ -2714,13 +2714,13 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/dynamic-endpoint-collision:
+  packages/astro/test/fixtures/dynamic-route-build-file:
     dependencies:
       astro:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/dynamic-route-build-file:
+  packages/astro/test/fixtures/dynamic-route-collision:
     dependencies:
       astro:
         specifier: workspace:*
