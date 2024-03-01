@@ -225,7 +225,9 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 	) {
 		// this code is tree-shaken if unused
 		appendSpeculationRules(url);
-	} else if (priority === 'link') {
+	}
+
+	if (priority === 'link') {
 		const link = document.createElement('link');
 		link.rel = 'prefetch';
 		link.setAttribute('href', url);
