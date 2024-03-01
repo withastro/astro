@@ -16,11 +16,11 @@ describe('astro:db', () => {
 	describe('development', () => {
 		let devServer;
 
-		before(async () => {
+		beforeAll(async () => {
 			devServer = await fixture.startDevServer();
 		});
 
-		after(async () => {
+		afterAll(async () => {
 			await devServer.stop();
 		});
 
