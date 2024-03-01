@@ -2,4 +2,4 @@
 "@astrojs/node": patch
 ---
 
-Modified node package to properly assign server.host option set to `true` to listen on all network interfaces.
+Fixes the `server.host` option to properly listen on all network interfaces when set to `true`
