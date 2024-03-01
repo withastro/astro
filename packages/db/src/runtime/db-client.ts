@@ -25,7 +25,6 @@ export async function createLocalDatabaseClient({
 }): Promise<LocalDatabaseClient> {
 	const url = isWebContainer ? 'file:content.db' : dbUrl;
 	const client = createClient({ url });
-	console.log('getting db');
 	const db = Object.assign(drizzleLibsql(client), {
 		[Symbol.dispose || Symbol.for('Symbol.dispose')]() {
 			client.close();
@@ -33,9 +32,7 @@ export async function createLocalDatabaseClient({
 	});
 
 	if (seedProps) {
-		console.log('seeding');
 		await seedLocal({ db, ...seedProps });
-		console.log('seed finished');
 	}
 
 	return db;
@@ -72,7 +69,6 @@ async function seedLocal({
 	fileGlob: Record<string, () => Promise<void>>;
 }) {
 	await recreateTables({ db, tables });
-	console.log('globbing', fileGlob);
 	for (const fileName of SEED_DEV_FILE_NAMES_SORTED) {
 		const key = Object.keys(fileGlob).find((f) => f.endsWith(fileName));
 		if (key) {
