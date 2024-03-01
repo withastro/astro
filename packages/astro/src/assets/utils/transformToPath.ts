@@ -36,12 +36,13 @@ export function hashTransform(
 }
 
 export function getAssetsPrefix(fileType: string, assetsPrefix?: AssetsPrefix):string {
-	if (!assetsPrefix) return ''
-	if (typeof assetsPrefix === 'string') return assetsPrefix
+	if (!assetsPrefix) return '';
+	if (typeof assetsPrefix === 'string') return assetsPrefix;
+	fileType = fileType[0] === '.' ? fileType.slice(1) : fileType;
 	if (assetsPrefix[fileType]) {
-		return assetsPrefix[fileType]
+		return assetsPrefix[fileType];
 	} else if (assetsPrefix.defaultAssetsPrefix) {
-		return assetsPrefix.defaultAssetsPrefix
+		return assetsPrefix.defaultAssetsPrefix;
 	}
-	return ''
+	return '';
 }

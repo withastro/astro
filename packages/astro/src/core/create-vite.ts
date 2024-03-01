@@ -35,6 +35,7 @@ import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
 import { getAssetsPrefix } from '../assets/utils/transformToPath.js';
+import { isObject } from './util.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -311,5 +312,5 @@ function isCommonNotAstro(dep: string): boolean {
 }
 
 function stringifyForDefine(value: string | undefined | object): string {
-	return typeof value === 'string' ? JSON.stringify(value) : 'undefined';
+	return (typeof value === "string" || isObject(value)) ? JSON.stringify(value) : "undefined";
 }
