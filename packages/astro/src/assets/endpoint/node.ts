@@ -10,7 +10,7 @@ import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
 import { isRemoteAllowed } from '../utils/remotePattern.js';
 // @ts-expect-error
-import { assetsDir, outDir, imageConfig } from 'astro:assets';
+import { assetsDir, imageConfig, outDir } from 'astro:assets';
 
 function replaceFileSystemReferences(src: string) {
 	return os.platform().includes('win32') ? src.replace(/^\/@fs\//, '') : src.replace(/^\/@fs/, '');
