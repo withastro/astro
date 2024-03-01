@@ -6,9 +6,8 @@ import { isRemotePath, removeQueryString } from '@astrojs/internal-helpers/path'
 import { readFile } from 'fs/promises';
 import mime from 'mime/lite.js';
 import type { APIRoute } from '../../@types/astro.js';
-import { getConfiguredImageService } from '../internal.js';
+import { getConfiguredImageService, isRemoteAllowed } from '../internal.js';
 import { etag } from '../utils/etag.js';
-import { isRemoteAllowed } from '../utils/remotePattern.js';
 // @ts-expect-error
 import { assetsDir, outDir, imageConfig } from 'astro:assets';
 
