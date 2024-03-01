@@ -14,21 +14,20 @@ import { normalizePath } from 'vite';
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 const resolvedSeedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID + '?shouldSeed';
 
-type LateSchema = {
-	tables: () => DBTables;
+export type LateTables = {
+	get: () => DBTables;
 };
 
 type VitePluginDBParams =
 	| {
 			connectToStudio: false;
-			shouldSeed: boolean;
-			schemas: LateSchema;
+			tables: LateTables;
 			srcDir: URL;
 			root: URL;
 	  }
 	| {
 			connectToStudio: true;
-			schemas: LateSchema;
+			tables: LateTables;
 			appToken: string;
 			srcDir: URL;
 			root: URL;
@@ -41,7 +40,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 		enforce: 'pre',
 		async resolveId(id, rawImporter) {
 			if (id !== VIRTUAL_MODULE_ID) return;
-			if (params.connectToStudio || !params.shouldSeed) return resolvedVirtualModuleId;
+			if (params.connectToStudio) return resolvedVirtualModuleId;
 
 			const importer = rawImporter ? await this.resolve(rawImporter) : null;
 			if (!importer) return resolvedVirtualModuleId;
@@ -59,12 +58,12 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			if (params.connectToStudio) {
 				return getStudioVirtualModContents({
 					appToken: params.appToken,
-					tables: params.schemas.tables(),
+					tables: params.tables.get(),
 				});
 			}
 			return getLocalVirtualModContents({
 				root: params.root,
-				tables: params.schemas.tables(),
+				tables: params.tables.get(),
 				shouldSeed: id === resolvedSeedVirtualModuleId,
 			});
 		},
@@ -92,20 +91,20 @@ export function getLocalVirtualModContents({
 	);
 
 	return `
-import { asDrizzleTable, createLocalDatabaseClient } from ${RUNTIME_IMPORT};
-import dbUrl from ${JSON.stringify(`${dbUrl}?fileurl`)};
+import { asDrizzleTable, createLocalDatabaseClient, seedLocal } from ${RUNTIME_IMPORT};
+const dbUrl = ${JSON.stringify(dbUrl)};
 
-export const db = await createLocalDatabaseClient({
-	dbUrl,
-	seedProps: ${
-		shouldSeed
-			? `{
-		tables: ${JSON.stringify(tables)},
-		fileGlob: import.meta.glob(${JSON.stringify(seedFilePaths)}),
-	}`
-			: 'undefined'
-	},
-});
+export const db = createLocalDatabaseClient({ dbUrl });
+
+${
+	shouldSeed
+		? `await seedLocal({
+	db,
+	tables: ${JSON.stringify(tables)},
+	fileGlob: import.meta.glob(${JSON.stringify(seedFilePaths)}),
+})`
+		: ''
+}
 
 export * from ${RUNTIME_DRIZZLE_IMPORT};
 export * from ${RUNTIME_CONFIG_IMPORT};

@@ -11,23 +11,10 @@ import { recreateTables } from './queries.js';
 
 const isWebContainer = !!process.versions?.webcontainer;
 
-export async function createLocalDatabaseClient({
-	dbUrl,
-	seedProps,
-}: {
-	dbUrl: string;
-	seedProps?: {
-		tables: DBTables;
-		fileGlob: Record<string, () => Promise<void>>;
-	};
-}): Promise<LibSQLDatabase> {
+export function createLocalDatabaseClient({ dbUrl }: { dbUrl: string }): LibSQLDatabase {
 	const url = isWebContainer ? 'file:content.db' : dbUrl;
 	const client = createClient({ url });
 	const db = drizzleLibsql(client);
-
-	if (seedProps) {
-		await seedLocal({ db, ...seedProps });
-	}
 
 	return db;
 }
@@ -52,7 +39,7 @@ export const SEED_DEV_FILE_NAMES_SORTED = [
 	'seed.mts',
 ];
 
-async function seedLocal({
+export async function seedLocal({
 	db,
 	tables,
 	// Glob all potential seed files to catch renames and deletions.

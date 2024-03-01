@@ -1,6 +1,6 @@
 import { existsSync } from 'fs';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
-import { dbConfigSchema, type DBTables } from '../types.js';
+import { dbConfigSchema, type DBConfig } from '../types.js';
 import { getDbDirUrl, type VitePlugin } from '../utils.js';
 import { errorMap } from './error-map.js';
 import { dirname } from 'path';
@@ -11,7 +11,7 @@ import { blue, yellow } from 'kleur/colors';
 import { fileURLIntegration } from './file-url.js';
 import { getManagedAppTokenOrExit, type ManagedAppToken } from '../tokens.js';
 import { loadConfigFile } from '../load-file.js';
-import { vitePluginDb } from './vite-plugin-db.js';
+import { vitePluginDb, type LateTables } from './vite-plugin-db.js';
 import { typegen } from './typegen.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
 
@@ -20,9 +20,13 @@ function astroDBIntegration(): AstroIntegration {
 	let configFileDependencies: string[] = [];
 	let root: URL;
 	let appToken: ManagedAppToken | undefined;
-	let schemas = {
-		tables(): DBTables {
-			throw new Error('tables not found');
+	let dbConfig: DBConfig;
+
+	// Make table loading "late" to pass to plugins from `config:setup`,
+	// but load during `config:done` to wait for integrations to settle.
+	let tables: LateTables = {
+		get() {
+			throw new Error('[astro:db] INTERNAL Tables not loaded yet');
 		},
 	};
 	let command: 'dev' | 'build' | 'preview';
@@ -32,26 +36,27 @@ function astroDBIntegration(): AstroIntegration {
 			'astro:config:setup': async ({ updateConfig, config, command: _command, logger }) => {
 				command = _command;
 				root = config.root;
-				if (_command === 'preview') return;
+
+				if (command === 'preview') return;
 
 				let dbPlugin: VitePlugin | undefined = undefined;
+				connectToStudio = command === 'build';
 
-				if (command === 'build') {
+				if (connectToStudio) {
 					appToken = await getManagedAppTokenOrExit();
 					dbPlugin = vitePluginDb({
-						connectToStudio: true,
+						connectToStudio,
 						appToken: appToken.token,
-						schemas,
+						tables,
 						root: config.root,
 						srcDir: config.srcDir,
 					});
 				} else {
 					dbPlugin = vitePluginDb({
 						connectToStudio: false,
-						schemas,
+						tables,
 						root: config.root,
 						srcDir: config.srcDir,
-						shouldSeed: command === 'dev',
 					});
 				}
 
@@ -67,10 +72,11 @@ function astroDBIntegration(): AstroIntegration {
 				// @matthewp: may want to load tables by path at runtime
 				const { mod, dependencies } = await loadConfigFile(config.root);
 				configFileDependencies = dependencies;
-
-				const { tables = {} } = dbConfigSchema.parse(mod?.default ?? {}, { errorMap });
-				// Redefine getTables so our integration can grab them
-				schemas.tables = () => tables;
+				dbConfig = dbConfigSchema.parse(mod?.default ?? {}, {
+					errorMap,
+				});
+				// TODO: resolve integrations here?
+				tables.get = () => dbConfig.tables ?? {};
 
 				if (!connectToStudio) {
 					const dbUrl = new URL(DB_PATH, config.root);
@@ -81,7 +87,7 @@ function astroDBIntegration(): AstroIntegration {
 					await writeFile(dbUrl, '');
 				}
 
-				await typegen({ tables, root: config.root });
+				await typegen({ tables: tables.get() ?? {}, root: config.root });
 			},
 			'astro:server:start': async ({ logger }) => {
 				// Wait for the server startup to log, so that this can come afterwards.
