@@ -96,29 +96,29 @@ export function getLocalVirtualModContents({
 	);
 
 	return `
-import { asDrizzleTable, createLocalDatabaseClient, seedLocal } from ${RUNTIME_IMPORT};
+import { asDrizzleTable, createLocalDatabaseClient } from ${RUNTIME_IMPORT};
 ${
 	useBundledDbUrl
 		? `import dbUrl from ${JSON.stringify(`${dbUrl}?fileurl`)};`
 		: `const dbUrl = ${JSON.stringify(dbUrl)};`
 }
 
-export const db = createLocalDatabaseClient({ dbUrl });
+export const db = await createLocalDatabaseClient({
+	dbUrl,
+	seedProps: ${
+		shouldSeed
+			? `{
+		tables: ${JSON.stringify(tables)},
+		fileGlob: import.meta.glob(${JSON.stringify(seedFilePaths)}),
+	}`
+			: 'undefined'
+	},
+});
 
 export * from ${RUNTIME_DRIZZLE_IMPORT};
 export * from ${RUNTIME_CONFIG_IMPORT};
 
 ${getStringifiedCollectionExports(tables)}
-
-${
-	shouldSeed
-		? `await seedLocal({
-	db,
-	tables: ${JSON.stringify(tables)},
-	fileGlob: import.meta.glob(${JSON.stringify(seedFilePaths)}),
-});`
-		: ''
-}
 `;
 }
 
