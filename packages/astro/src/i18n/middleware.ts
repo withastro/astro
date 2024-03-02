@@ -23,6 +23,12 @@ function pathnameHasLocale(pathname: string, locales: Locales): boolean {
 	return false;
 }
 
+function urlHasLocale(url: URL, locales: Locales, qStringVarname?: string | undefined): boolean {
+	return pathnameHasLocale(url.pathname, locales) || (
+		typeof qStringVarname === 'string' && locales.includes(url.searchParams.get(qStringVarname)!)
+	);
+}
+
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
 	base: SSRManifest['base'],
@@ -45,7 +51,7 @@ export function createI18nMiddleware(
 		}
 
 		// Astro can't know where the default locale is supposed to be, so it returns a 404 with no content.
-		else if (!pathnameHasLocale(url.pathname, i18n.locales)) {
+		else if (!urlHasLocale(url, i18n.locales, i18n.searchParamVarname)) {
 			return new Response(null, {
 				status: 404,
 				headers: response.headers,
@@ -87,7 +93,7 @@ export function createI18nMiddleware(
 		// - the current path isn't a root. e.g. / or /<base>
 		// - the URL doesn't contain a locale
 		const isRoot = url.pathname === base + '/' || url.pathname === base;
-		if (!(isRoot || pathnameHasLocale(url.pathname, i18n.locales))) {
+		if (!(isRoot || urlHasLocale(url, i18n.locales, i18n.searchParamVarname))) {
 			return new Response(null, {
 				status: 404,
 				headers: response.headers,
