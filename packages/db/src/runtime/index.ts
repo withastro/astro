@@ -1,3 +1,4 @@
+import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
 import {
 	type IndexBuilder,
@@ -8,14 +9,14 @@ import {
 	sqliteTable,
 	text,
 } from 'drizzle-orm/sqlite-core';
-import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
 import { type DBColumn, type DBTable } from '../core/types.js';
 import { type SerializedSQL, isSerializedSQL } from './types.js';
 
 export { sql };
-export type SqliteDB = SqliteRemoteDatabase;
+export type SqliteDB = LibSQLDatabase;
 export type { Table } from './types.js';
 export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-client.js';
+export { seedLocal } from './queries.js';
 
 export function hasPrimaryKey(column: DBColumn) {
 	return 'primaryKey' in column.schema && !!column.schema.primaryKey;
@@ -54,17 +55,17 @@ type D1ColumnBuilder = SQLiteColumnBuilderBase<
 	ColumnBuilderBaseConfig<ColumnDataType, string> & { data: unknown }
 >;
 
-export function collectionToTable(name: string, collection: DBTable) {
+export function asDrizzleTable(name: string, table: DBTable) {
 	const columns: Record<string, D1ColumnBuilder> = {};
-	if (!Object.entries(collection.columns).some(([, column]) => hasPrimaryKey(column))) {
+	if (!Object.entries(table.columns).some(([, column]) => hasPrimaryKey(column))) {
 		columns['_id'] = integer('_id').primaryKey();
 	}
-	for (const [columnName, column] of Object.entries(collection.columns)) {
+	for (const [columnName, column] of Object.entries(table.columns)) {
 		columns[columnName] = columnMapper(columnName, column);
 	}
-	const table = sqliteTable(name, columns, (ormTable) => {
+	const drizzleTable = sqliteTable(name, columns, (ormTable) => {
 		const indexes: Record<string, IndexBuilder> = {};
-		for (const [indexName, indexProps] of Object.entries(collection.indexes ?? {})) {
+		for (const [indexName, indexProps] of Object.entries(table.indexes ?? {})) {
 			const onColNames = Array.isArray(indexProps.on) ? indexProps.on : [indexProps.on];
 			const onCols = onColNames.map((colName) => ormTable[colName]);
 			if (!atLeastOne(onCols)) continue;
@@ -73,7 +74,7 @@ export function collectionToTable(name: string, collection: DBTable) {
 		}
 		return indexes;
 	});
-	return table;
+	return drizzleTable;
 }
 
 function atLeastOne<T>(arr: T[]): arr is [T, ...T[]] {

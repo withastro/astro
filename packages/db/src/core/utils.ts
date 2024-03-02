@@ -17,3 +17,11 @@ export function getAstroStudioUrl(): string {
 	const env = getAstroStudioEnv();
 	return env.ASTRO_STUDIO_URL || 'https://stardate.astro.build';
 }
+
+export function getDbDirectoryUrl(root: URL | string) {
+	return new URL('db/', root);
+}
+
+export function getMigrationsDirectoryUrl(root: URL | string) {
+	return new URL('migrations/', getDbDirectoryUrl(root));
+}

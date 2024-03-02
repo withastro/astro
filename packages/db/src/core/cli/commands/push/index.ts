@@ -1,32 +1,36 @@
-import { type InStatement, createClient } from '@libsql/client';
 import type { AstroConfig } from 'astro';
-import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
-import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
-import { drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
 import { red } from 'kleur/colors';
 import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
-import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
-import { recreateTables, seedData } from '../../../queries.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
-import { type AstroConfigWithDB, type DBSnapshot, tablesSchema } from '../../../types.js';
-import { getRemoteDatabaseUrl } from '../../../utils.js';
+import { type DBConfig, type DBSnapshot } from '../../../types.js';
+import { getMigrationsDirectoryUrl, getRemoteDatabaseUrl } from '../../../utils.js';
 import { getMigrationQueries } from '../../migration-queries.js';
 import {
-	MIGRATIONS_NOT_INITIALIZED,
-	MIGRATIONS_UP_TO_DATE,
-	MIGRATION_NEEDED,
 	createEmptySnapshot,
-	getMigrationStatus,
 	getMigrations,
+	getMigrationStatus,
+	INITIAL_SNAPSHOT,
 	loadInitialSnapshot,
 	loadMigration,
+	MIGRATION_NEEDED,
+	MIGRATIONS_NOT_INITIALIZED,
+	MIGRATIONS_UP_TO_DATE,
 } from '../../migrations.js';
+import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
 
-export async function cmd({ config, flags }: { config: AstroConfig; flags: Arguments }) {
+export async function cmd({
+	astroConfig,
+	dbConfig,
+	flags,
+}: {
+	astroConfig: AstroConfig;
+	dbConfig: DBConfig;
+	flags: Arguments;
+}) {
 	const isDryRun = flags.dryRun;
 	const appToken = await getManagedAppTokenOrExit(flags.token);
-	const migration = await getMigrationStatus(config);
+	const migration = await getMigrationStatus({ dbConfig, root: astroConfig.root });
 	if (migration.state === 'no-migrations-found') {
 		console.log(MIGRATIONS_NOT_INITIALIZED);
 		process.exit(1);
@@ -34,9 +38,10 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		console.log(MIGRATION_NEEDED);
 		process.exit(1);
 	}
+	const migrationsDir = getMigrationsDirectoryUrl(astroConfig.root);
 
 	// get all migrations from the filesystem
-	const allLocalMigrations = await getMigrations();
+	const allLocalMigrations = await getMigrations(migrationsDir);
 	let missingMigrations: string[] = [];
 	try {
 		const { data } = await prepareMigrateQuery({
@@ -63,14 +68,12 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 		console.log(`Pushing ${missingMigrations.length} migrations...`);
 		await pushSchema({
 			migrations: missingMigrations,
+			migrationsDir,
 			appToken: appToken.token,
 			isDryRun,
 			currentSnapshot: migration.currentSnapshot,
 		});
 	}
-	// push the database seed data
-	console.info('Pushing data...');
-	await pushData({ config, appToken: appToken.token, isDryRun });
 	// cleanup and exit
 	await appToken.destroy();
 	console.info('Push complete!');
@@ -78,25 +81,29 @@ export async function cmd({ config, flags }: { config: AstroConfig; flags: Argum
 
 async function pushSchema({
 	migrations,
+	migrationsDir,
 	appToken,
 	isDryRun,
 	currentSnapshot,
 }: {
 	migrations: string[];
+	migrationsDir: URL;
 	appToken: string;
 	isDryRun: boolean;
 	currentSnapshot: DBSnapshot;
 }) {
 	// load all missing migrations
-	const initialSnapshot = migrations.find((m) => m === '0000_snapshot.json');
-	const filteredMigrations = migrations.filter((m) => m !== '0000_snapshot.json');
-	const missingMigrationContents = await Promise.all(filteredMigrations.map(loadMigration));
+	const initialSnapshot = migrations.find((m) => m === INITIAL_SNAPSHOT);
+	const filteredMigrations = migrations.filter((m) => m !== INITIAL_SNAPSHOT);
+	const missingMigrationContents = await Promise.all(
+		filteredMigrations.map((m) => loadMigration(m, migrationsDir))
+	);
 	// create a migration for the initial snapshot, if needed
 	const initialMigrationBatch = initialSnapshot
 		? (
 				await getMigrationQueries({
 					oldSnapshot: createEmptySnapshot(),
-					newSnapshot: await loadInitialSnapshot(),
+					newSnapshot: await loadInitialSnapshot(migrationsDir),
 				})
 			).queries
 		: [];
@@ -128,76 +135,6 @@ async function pushSchema({
 	}, initialMigrationBatch);
 	// apply the batch to the DB
 	await runMigrateQuery({ queries, migrations, snapshot: currentSnapshot, appToken, isDryRun });
-}
-
-const sqlite = new SQLiteAsyncDialect();
-
-async function pushData({
-	config,
-	appToken,
-	isDryRun,
-}: {
-	config: AstroConfigWithDB;
-	appToken: string;
-	isDryRun?: boolean;
-}) {
-	const queries: InStatement[] = [];
-	if (config.db?.data) {
-		const libsqlClient = createClient({ url: ':memory:' });
-		// Stand up tables locally to mirror inserts.
-		// Needed to generate return values.
-		await recreateTables({
-			db: drizzleLibsql(libsqlClient),
-			tables: tablesSchema.parse(config.db.tables ?? {}),
-		});
-
-		for (const [collectionName, { writable }] of Object.entries(config.db.tables ?? {})) {
-			if (!writable) {
-				queries.push({
-					sql: `DELETE FROM ${sqlite.escapeName(collectionName)}`,
-					args: [],
-				});
-			}
-		}
-
-		// Use proxy to trace all queries to queue up in a batch.
-		const db = await drizzleProxy(async (sqlQuery, params, method) => {
-			const stmt: InStatement = { sql: sqlQuery, args: params };
-			queries.push(stmt);
-			// Use in-memory database to generate results for `returning()`.
-			const { rows } = await libsqlClient.execute(stmt);
-			const rowValues: unknown[][] = [];
-			for (const row of rows) {
-				if (row != null && typeof row === 'object') {
-					rowValues.push(Object.values(row));
-				}
-			}
-			if (method === 'get') {
-				return { rows: rowValues[0] };
-			}
-			return { rows: rowValues };
-		});
-		await seedData({
-			db,
-			mode: 'build',
-			data: config.db.data,
-		});
-	}
-
-	const url = new URL('/db/query', getRemoteDatabaseUrl());
-
-	if (isDryRun) {
-		console.info('[DRY RUN] Batch data seed:', JSON.stringify(queries, null, 2));
-		return new Response(null, { status: 200 });
-	}
-
-	return await fetch(url, {
-		method: 'POST',
-		headers: new Headers({
-			Authorization: `Bearer ${appToken}`,
-		}),
-		body: JSON.stringify(queries),
-	});
 }
 
 async function runMigrateQuery({

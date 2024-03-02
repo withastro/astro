@@ -7,9 +7,18 @@ import {
 	MIGRATION_NEEDED,
 	getMigrationStatus,
 } from '../../migrations.js';
+import type { DBConfig } from '../../../types.js';
 
-export async function cmd({ config, flags }: { config: AstroConfig; flags: Arguments }) {
-	const status = await getMigrationStatus(config);
+export async function cmd({
+	astroConfig,
+	dbConfig,
+	flags,
+}: {
+	astroConfig: AstroConfig;
+	dbConfig: DBConfig;
+	flags: Arguments;
+}) {
+	const status = await getMigrationStatus({ dbConfig, root: astroConfig.root });
 	const { state } = status;
 	if (flags.json) {
 		if (state === 'ahead') {

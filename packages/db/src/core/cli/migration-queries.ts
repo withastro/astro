@@ -12,7 +12,7 @@ import {
 	getReferencesConfig,
 	hasDefault,
 	schemaTypeToSqlType,
-} from '../queries.js';
+} from '../../runtime/queries.js';
 import {
 	type BooleanColumn,
 	type ColumnType,

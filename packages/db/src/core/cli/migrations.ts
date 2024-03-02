@@ -1,8 +1,8 @@
-import type { AstroConfig } from 'astro';
 import deepDiff from 'deep-diff';
 import { mkdir, readFile, readdir, writeFile } from 'fs/promises';
+import { type DBSnapshot, type DBConfig } from '../types.js';
 import { cyan, green, yellow } from 'kleur/colors';
-import { type DBSnapshot, tablesSchema } from '../types.js';
+import { getMigrationsDirectoryUrl } from '../utils.js';
 const { applyChange, diff: generateDiff } = deepDiff;
 
 export type MigrationStatus =
@@ -24,9 +24,18 @@ export type MigrationStatus =
 			currentSnapshot: DBSnapshot;
 	  };
 
-export async function getMigrationStatus(config: AstroConfig): Promise<MigrationStatus> {
-	const currentSnapshot = createCurrentSnapshot(config);
-	const allMigrationFiles = await getMigrations();
+export const INITIAL_SNAPSHOT = '0000_snapshot.json';
+
+export async function getMigrationStatus({
+	dbConfig,
+	root,
+}: {
+	dbConfig: DBConfig;
+	root: URL;
+}): Promise<MigrationStatus> {
+	const currentSnapshot = createCurrentSnapshot(dbConfig);
+	const dir = getMigrationsDirectoryUrl(root);
+	const allMigrationFiles = await getMigrations(dir);
 
 	if (allMigrationFiles.length === 0) {
 		return {
@@ -35,7 +44,7 @@ export async function getMigrationStatus(config: AstroConfig): Promise<Migration
 		};
 	}
 
-	const previousSnapshot = await initializeFromMigrations(allMigrationFiles);
+	const previousSnapshot = await initializeFromMigrations(allMigrationFiles, dir);
 	const diff = generateDiff(previousSnapshot, currentSnapshot);
 
 	if (diff) {
@@ -83,8 +92,8 @@ function getNewMigrationNumber(allMigrationFiles: string[]): number {
 	}, 0);
 }
 
-export async function getMigrations(): Promise<string[]> {
-	const migrationFiles = await readdir('./migrations').catch((err) => {
+export async function getMigrations(dir: URL): Promise<string[]> {
+	const migrationFiles = await readdir(dir).catch((err) => {
 		if (err.code === 'ENOENT') {
 			return [];
 		}
@@ -94,13 +103,14 @@ export async function getMigrations(): Promise<string[]> {
 }
 
 export async function loadMigration(
-	migration: string
+	migration: string,
+	dir: URL
 ): Promise<{ diff: any[]; db: string[]; confirm?: string[] }> {
-	return JSON.parse(await readFile(`./migrations/${migration}`, 'utf-8'));
+	return JSON.parse(await readFile(new URL(migration, dir), 'utf-8'));
 }
 
-export async function loadInitialSnapshot(): Promise<DBSnapshot> {
-	const snapshot = JSON.parse(await readFile('./migrations/0000_snapshot.json', 'utf-8'));
+export async function loadInitialSnapshot(dir: URL): Promise<DBSnapshot> {
+	const snapshot = JSON.parse(await readFile(new URL(INITIAL_SNAPSHOT, dir), 'utf-8'));
 	// `experimentalVersion: 1` -- added the version column
 	if (snapshot.experimentalVersion === 1) {
 		return snapshot;
@@ -112,16 +122,19 @@ export async function loadInitialSnapshot(): Promise<DBSnapshot> {
 	throw new Error('Invalid snapshot format');
 }
 
-export async function initializeMigrationsDirectory(currentSnapshot: DBSnapshot) {
-	await mkdir('./migrations', { recursive: true });
-	await writeFile('./migrations/0000_snapshot.json', JSON.stringify(currentSnapshot, undefined, 2));
+export async function initializeMigrationsDirectory(currentSnapshot: DBSnapshot, dir: URL) {
+	await mkdir(dir, { recursive: true });
+	await writeFile(new URL(INITIAL_SNAPSHOT, dir), JSON.stringify(currentSnapshot, undefined, 2));
 }
 
-export async function initializeFromMigrations(allMigrationFiles: string[]): Promise<DBSnapshot> {
-	const prevSnapshot = await loadInitialSnapshot();
+export async function initializeFromMigrations(
+	allMigrationFiles: string[],
+	dir: URL
+): Promise<DBSnapshot> {
+	const prevSnapshot = await loadInitialSnapshot(dir);
 	for (const migration of allMigrationFiles) {
-		if (migration === '0000_snapshot.json') continue;
-		const migrationContent = await loadMigration(migration);
+		if (migration === INITIAL_SNAPSHOT) continue;
+		const migrationContent = await loadMigration(migration, dir);
 		migrationContent.diff.forEach((change: any) => {
 			applyChange(prevSnapshot, {}, change);
 		});
@@ -129,10 +142,8 @@ export async function initializeFromMigrations(allMigrationFiles: string[]): Pro
 	return prevSnapshot;
 }
 
-export function createCurrentSnapshot(config: AstroConfig): DBSnapshot {
-	// Parse to resolve non-serializable types like () => references
-	const tablesConfig = tablesSchema.parse(config.db?.tables ?? {});
-	const schema = JSON.parse(JSON.stringify(tablesConfig));
+export function createCurrentSnapshot({ tables = {} }: DBConfig): DBSnapshot {
+	const schema = JSON.parse(JSON.stringify(tables));
 	return { experimentalVersion: 1, schema };
 }
 export function createEmptySnapshot(): DBSnapshot {

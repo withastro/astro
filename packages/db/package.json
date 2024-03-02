@@ -12,6 +12,10 @@
       "types": "./index.d.ts",
       "import": "./dist/index.js"
     },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.js"
+    },
     "./runtime": {
       "types": "./dist/runtime/index.d.ts",
       "import": "./dist/runtime/index.js"
@@ -20,6 +24,10 @@
       "types": "./dist/runtime/drizzle.d.ts",
       "import": "./dist/runtime/drizzle.js"
     },
+    "./runtime/config": {
+      "types": "./dist/runtime/config.d.ts",
+      "import": "./dist/runtime/config.js"
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -27,11 +35,17 @@
       ".": [
         "./index.d.ts"
       ],
+      "utils": [
+        "./dist/utils.d.ts"
+      ],
       "runtime": [
         "./dist/runtime/index.d.ts"
       ],
       "runtime/drizzle": [
         "./dist/runtime/drizzle.d.ts"
+      ],
+      "runtime/config": [
+        "./dist/runtime/config.d.ts"
       ]
     }
   },
