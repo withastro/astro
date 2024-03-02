@@ -78,7 +78,7 @@ function astroDBIntegration(): AstroIntegration {
 				// TODO: resolve integrations here?
 				tables.get = () => dbConfig.tables ?? {};
 
-				if (!connectToStudio) {
+				if (!connectToStudio && !process.env.TEST_IN_MEMORY_DB) {
 					const dbUrl = new URL(DB_PATH, config.root);
 					if (existsSync(dbUrl)) {
 						await rm(dbUrl);
