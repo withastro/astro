@@ -52,8 +52,16 @@ export async function renderSlotToString(
 	let instructions: null | RenderInstruction[] = null;
 	const temporaryDestination: RenderDestination = {
 		write(chunk) {
-			if (chunk instanceof Response) return;
-			if (typeof chunk === 'object' && 'type' in chunk && typeof chunk.type === 'string') {
+			// if the chunk is already a SlotString, we concatenate
+			if (chunk instanceof SlotString) {
+				content += chunk
+				if (chunk.instructions) {
+					instructions ??= []
+					instructions.push(...chunk.instructions)
+				}
+			}
+			else if (chunk instanceof Response) return;
+			else if (typeof chunk === 'object' && 'type' in chunk && typeof chunk.type === 'string') {
 				if (instructions === null) {
 					instructions = [];
 				}
