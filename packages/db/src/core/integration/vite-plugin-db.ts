@@ -11,7 +11,10 @@ import type { DBTables } from '../types.js';
 import { getDbDirectoryUrl, getRemoteDatabaseUrl, type VitePlugin } from '../utils.js';
 import { normalizePath } from 'vite';
 
+const LOCAL_DB_VIRTUAL_MODULE_ID = 'astro:local';
+
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
+const resolvedLocalDbVirtualModuleId = LOCAL_DB_VIRTUAL_MODULE_ID + '/local-db';
 const resolvedSeedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID + '?shouldSeed';
 
 export type LateTables = {
@@ -39,6 +42,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 		name: 'astro:db',
 		enforce: 'pre',
 		async resolveId(id, rawImporter) {
+			if (id === LOCAL_DB_VIRTUAL_MODULE_ID) return resolvedLocalDbVirtualModuleId;
 			if (id !== VIRTUAL_MODULE_ID) return;
 			if (params.connectToStudio) return resolvedVirtualModuleId;
 
@@ -53,6 +57,14 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			return resolvedVirtualModuleId;
 		},
 		load(id) {
+			if (id === resolvedLocalDbVirtualModuleId) {
+				const dbUrl = new URL(DB_PATH, params.root);
+				return `import { createLocalDatabaseClient } from ${RUNTIME_IMPORT};
+				const dbUrl = ${JSON.stringify(dbUrl)};
+
+				export const db = createLocalDatabaseClient({ dbUrl });`;
+			}
+
 			if (id !== resolvedVirtualModuleId && id !== resolvedSeedVirtualModuleId) return;
 
 			if (params.connectToStudio) {
@@ -76,14 +88,12 @@ export function getConfigVirtualModContents() {
 
 export function getLocalVirtualModContents({
 	tables,
-	root,
 	shouldSeed,
 }: {
 	tables: DBTables;
 	root: URL;
 	shouldSeed: boolean;
 }) {
-	const dbUrl = new URL(DB_PATH, root);
 	const seedFilePaths = SEED_DEV_FILE_NAME.map(
 		// Format as /db/[name].ts
 		// for Vite import.meta.glob
@@ -91,15 +101,15 @@ export function getLocalVirtualModContents({
 	);
 
 	return `
-import { asDrizzleTable, createLocalDatabaseClient, seedLocal } from ${RUNTIME_IMPORT};
-const dbUrl = ${JSON.stringify(dbUrl)};
+import { asDrizzleTable, seedLocal } from ${RUNTIME_IMPORT};
+import { db as _db } from ${JSON.stringify(LOCAL_DB_VIRTUAL_MODULE_ID)};
 
-export const db = createLocalDatabaseClient({ dbUrl });
+export const db = _db;
 
 ${
 	shouldSeed
 		? `await seedLocal({
-	db,
+	db: _db,
 	tables: ${JSON.stringify(tables)},
 	fileGlob: import.meta.glob(${JSON.stringify(seedFilePaths)}),
 })`

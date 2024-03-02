@@ -13,6 +13,7 @@ describe('astro:db', () => {
 		});
 	});
 
+	process.env.TEST_IN_MEMORY_DB = 'true';
 	describe('development', () => {
 		let devServer;
 
@@ -22,13 +23,14 @@ describe('astro:db', () => {
 		// as the `astro:db` module is re-evaluated for each test.
 		// Still unsure why this occurs!
 		// Use beforeEach() to avoid clobbering.
-		beforeEach(async () => {
+		before(async () => {
 			console.log('starting dev server');
 			devServer = await fixture.startDevServer();
 		});
 
-		afterEach(async () => {
+		after(async () => {
 			await devServer.stop();
+			process.env.TEST_IN_MEMORY_DB = undefined;
 		});
 
 		it('Prints the list of authors', async () => {
@@ -43,7 +45,6 @@ describe('astro:db', () => {
 		it('Allows expression defaults for date columns', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerioLoad(html);
-			console.log('date columns::', html);
 
 			const themeAdded = $($('.themes-list .theme-added')[0]).text();
 			expect(new Date(themeAdded).getTime()).to.not.be.NaN;
