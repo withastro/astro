@@ -240,6 +240,7 @@ export type DBSnapshot = {
 
 export const dbConfigSchema = z.object({
 	tables: tablesSchema.optional(),
+	stage: z.union([z.literal('development'), z.literal('production')]).optional(),
 });
 
 export type DBConfigInput = z.input<typeof dbConfigSchema>;

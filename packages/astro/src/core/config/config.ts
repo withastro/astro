@@ -68,6 +68,7 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 		open:
 			typeof flags.open === 'string' || typeof flags.open === 'boolean' ? flags.open : undefined,
+		stage: typeof flags.stage === 'string' ? flags.stage : undefined,
 	};
 }
 

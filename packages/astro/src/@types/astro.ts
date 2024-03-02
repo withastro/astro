@@ -163,6 +163,7 @@ export interface CLIFlags {
 	host?: string | boolean;
 	port?: number;
 	config?: string;
+	stage?: string;
 	open?: string | boolean;
 }
 
@@ -501,6 +502,17 @@ export interface AstroUserConfig {
 	 * ```
 	 */
 	trailingSlash?: 'always' | 'never' | 'ignore';
+
+
+	/**
+	 * @docs
+	 * @name stage
+	 * @type {('development' | 'production')}
+	 * @description
+	 *
+	 * TODO
+	 */
+	stage?: 'development' | 'production';
 
 	/**
 	 * @docs

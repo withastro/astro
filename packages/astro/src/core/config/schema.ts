@@ -116,6 +116,9 @@ export const AstroConfigSchema = z.object({
 			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
 			.default(ASTRO_CONFIG_DEFAULTS.integrations)
 	),
+	stage:  z
+	.union([z.literal('development'), z.literal('production')])
+	.optional(),
 	build: z
 		.object({
 			format: z

@@ -30,17 +30,22 @@ function astroDBIntegration(): AstroIntegration {
 		},
 	};
 	let command: 'dev' | 'build' | 'preview';
+
 	return {
 		name: 'astro:db',
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, command: _command, logger }) => {
+				if (command === 'preview') return;
+
 				command = _command;
 				root = config.root;
 
-				if (command === 'preview') return;
-
 				let dbPlugin: VitePlugin | undefined = undefined;
-				connectToStudio = command === 'build';
+				if (!config.stage && command === 'build') {
+					throw new Error('stage is required in db/config.js');
+				} else {
+					connectToStudio = dbConfig.stage === 'production';
+				}
 
 				if (connectToStudio) {
 					appToken = await getManagedAppTokenOrExit();
@@ -68,6 +73,7 @@ function astroDBIntegration(): AstroIntegration {
 				});
 			},
 			'astro:config:done': async ({ config }) => {
+				if (command === 'preview') return;
 				// TODO: refine where we load tables
 				// @matthewp: may want to load tables by path at runtime
 				const { mod, dependencies } = await loadDbConfigFile(config.root);
@@ -90,6 +96,7 @@ function astroDBIntegration(): AstroIntegration {
 				await typegen({ tables: tables.get() ?? {}, root: config.root });
 			},
 			'astro:server:start': async ({ logger }) => {
+				if (command === 'preview') return;
 				// Wait for the server startup to log, so that this can come afterwards.
 				setTimeout(() => {
 					logger.info(
@@ -98,6 +105,7 @@ function astroDBIntegration(): AstroIntegration {
 				}, 100);
 			},
 			'astro:server:setup': async ({ server }) => {
+				if (command === 'preview') return;
 				const filesToWatch = [
 					...CONFIG_FILE_NAMES.map((c) => new URL(c, getDbDirectoryUrl(root))),
 					...configFileDependencies.map((c) => new URL(c, root)),
@@ -110,9 +118,11 @@ function astroDBIntegration(): AstroIntegration {
 				});
 			},
 			'astro:build:start': async ({ logger }) => {
+				if (command === 'preview') return;
 				logger.info('database: ' + (connectToStudio ? yellow('remote') : blue('local database.')));
 			},
 			'astro:build:done': async ({}) => {
+				if (command === 'preview') return;
 				await appToken?.destroy();
 			},
 		},
