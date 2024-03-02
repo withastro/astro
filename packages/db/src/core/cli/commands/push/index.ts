@@ -2,22 +2,22 @@ import type { AstroConfig } from 'astro';
 import { red } from 'kleur/colors';
 import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
+import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBConfig, type DBSnapshot } from '../../../types.js';
 import { getMigrationsDirectoryUrl, getRemoteDatabaseUrl } from '../../../utils.js';
 import { getMigrationQueries } from '../../migration-queries.js';
 import {
-	createEmptySnapshot,
-	getMigrations,
-	getMigrationStatus,
 	INITIAL_SNAPSHOT,
-	loadInitialSnapshot,
-	loadMigration,
-	MIGRATION_NEEDED,
 	MIGRATIONS_NOT_INITIALIZED,
 	MIGRATIONS_UP_TO_DATE,
+	MIGRATION_NEEDED,
+	createEmptySnapshot,
+	getMigrationStatus,
+	getMigrations,
+	loadInitialSnapshot,
+	loadMigration,
 } from '../../migrations.js';
-import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
 
 export async function cmd({
 	astroConfig,

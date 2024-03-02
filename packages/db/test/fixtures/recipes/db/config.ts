@@ -1,4 +1,4 @@
-import { defineTable, defineDB, column } from 'astro:db';
+import { column, defineDB, defineTable } from 'astro:db';
 
 const Recipe = defineTable({
 	columns: {

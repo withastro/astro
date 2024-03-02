@@ -1,18 +1,18 @@
 import { existsSync } from 'fs';
-import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
-import { dbConfigSchema, type DBConfig } from '../types.js';
-import { getDbDirectoryUrl, type VitePlugin } from '../utils.js';
-import { errorMap } from './error-map.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import type { AstroIntegration } from 'astro';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
-import { fileURLIntegration } from './file-url.js';
-import { getManagedAppTokenOrExit, type ManagedAppToken } from '../tokens.js';
+import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
 import { loadDbConfigFile } from '../load-file.js';
-import { vitePluginDb, type LateTables } from './vite-plugin-db.js';
+import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
+import { type DBConfig, dbConfigSchema } from '../types.js';
+import { type VitePlugin, getDbDirectoryUrl } from '../utils.js';
+import { errorMap } from './error-map.js';
+import { fileURLIntegration } from './file-url.js';
 import { typegen } from './typegen.js';
+import { type LateTables, vitePluginDb } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
 
 function astroDBIntegration(): AstroIntegration {

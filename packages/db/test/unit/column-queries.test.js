@@ -4,10 +4,10 @@ import {
 	getCollectionChangeQueries,
 	getMigrationQueries,
 } from '../../dist/core/cli/migration-queries.js';
-import { getCreateTableQuery } from '../../dist/runtime/queries.js';
-import { column, defineTable } from '../../dist/runtime/config.js';
 import { tableSchema } from '../../dist/core/types.js';
+import { column, defineTable } from '../../dist/runtime/config.js';
 import { NOW } from '../../dist/runtime/index.js';
+import { getCreateTableQuery } from '../../dist/runtime/queries.js';
 
 const TABLE_NAME = 'Users';
 

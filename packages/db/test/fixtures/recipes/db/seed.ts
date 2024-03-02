@@ -1,4 +1,4 @@
-import { db, Recipe, Ingredient } from 'astro:db';
+import { Ingredient, Recipe, db } from 'astro:db';
 
 const pancakes = await db
 	.insert(Recipe)

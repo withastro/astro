@@ -1,4 +1,4 @@
-import { defineTable, column, NOW, sql } from 'astro:db';
+import { NOW, column, defineTable, sql } from 'astro:db';
 
 export const Themes = defineTable({
 	columns: {

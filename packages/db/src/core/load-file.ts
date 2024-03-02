@@ -1,9 +1,9 @@
+import { existsSync } from 'node:fs';
+import { unlink, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { build as esbuild } from 'esbuild';
 import { CONFIG_FILE_NAMES, VIRTUAL_MODULE_ID } from './consts.js';
-import { fileURLToPath } from 'node:url';
 import { getConfigVirtualModContents } from './integration/vite-plugin-db.js';
-import { writeFile, unlink } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
 import { getDbDirectoryUrl } from './utils.js';
 
 export async function loadDbConfigFile(

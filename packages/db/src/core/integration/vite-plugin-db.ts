@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url';
+import { normalizePath } from 'vite';
 import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
 import {
 	DB_PATH,
@@ -8,8 +9,7 @@ import {
 	VIRTUAL_MODULE_ID,
 } from '../consts.js';
 import type { DBTables } from '../types.js';
-import { getDbDirectoryUrl, getRemoteDatabaseUrl, type VitePlugin } from '../utils.js';
-import { normalizePath } from 'vite';
+import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
 
 const LOCAL_DB_VIRTUAL_MODULE_ID = 'astro:local';
 

@@ -1,11 +1,11 @@
+import { existsSync } from 'node:fs';
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
-import { MISSING_EXECUTE_PATH_ERROR, FILE_NOT_FOUND_ERROR } from '../../../errors.js';
-import { existsSync } from 'node:fs';
+import { FILE_NOT_FOUND_ERROR, MISSING_EXECUTE_PATH_ERROR } from '../../../errors.js';
+import { getStudioVirtualModContents } from '../../../integration/vite-plugin-db.js';
+import { bundleFile, importBundledFile } from '../../../load-file.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBConfig } from '../../../types.js';
-import { bundleFile, importBundledFile } from '../../../load-file.js';
-import { getStudioVirtualModContents } from '../../../integration/vite-plugin-db.js';
 
 export async function cmd({
 	astroConfig,

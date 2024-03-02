@@ -1,7 +1,7 @@
 import deepDiff from 'deep-diff';
 import { mkdir, readFile, readdir, writeFile } from 'fs/promises';
-import { type DBSnapshot, type DBConfig } from '../types.js';
 import { cyan, green, yellow } from 'kleur/colors';
+import { type DBConfig, type DBSnapshot } from '../types.js';
 import { getMigrationsDirectoryUrl } from '../utils.js';
 const { applyChange, diff: generateDiff } = deepDiff;
 

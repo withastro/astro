@@ -1,8 +1,11 @@
-import { fileURLToPath } from 'node:url';
 import { writeFile } from 'node:fs/promises';
+import { relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { AstroConfig } from 'astro';
-import { bold, bgRed, red, reset } from 'kleur/colors';
+import { bgRed, bold, red, reset } from 'kleur/colors';
 import type { Arguments } from 'yargs-parser';
+import type { DBConfig } from '../../../types.js';
+import { getMigrationsDirectoryUrl } from '../../../utils.js';
 import { getMigrationQueries } from '../../migration-queries.js';
 import {
 	MIGRATIONS_CREATED,
@@ -10,9 +13,6 @@ import {
 	getMigrationStatus,
 	initializeMigrationsDirectory,
 } from '../../migrations.js';
-import { getMigrationsDirectoryUrl } from '../../../utils.js';
-import type { DBConfig } from '../../../types.js';
-import { relative } from 'node:path';
 
 export async function cmd({
 	astroConfig,

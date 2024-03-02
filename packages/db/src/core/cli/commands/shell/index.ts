@@ -3,8 +3,8 @@ import { sql } from 'drizzle-orm';
 import type { Arguments } from 'yargs-parser';
 import { createRemoteDatabaseClient } from '../../../../runtime/db-client.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
-import { getRemoteDatabaseUrl } from '../../../utils.js';
 import type { DBConfigInput } from '../../../types.js';
+import { getRemoteDatabaseUrl } from '../../../utils.js';
 
 export async function cmd({
 	flags,

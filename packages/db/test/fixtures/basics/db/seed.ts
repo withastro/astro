@@ -1,6 +1,6 @@
-import { db, Author } from 'astro:db';
-import { Themes as ThemesConfig } from './theme';
 import { asDrizzleTable } from '@astrojs/db/utils';
+import { Themes as ThemesConfig } from './theme';
+import { Author, db } from 'astro:db';
 
 const Themes = asDrizzleTable('Themes', ThemesConfig);
 

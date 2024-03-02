@@ -1,27 +1,27 @@
+import { LibsqlError } from '@libsql/client';
+import { type SQL, sql } from 'drizzle-orm';
+import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
+import { bold } from 'kleur/colors';
+import {
+	FOREIGN_KEY_DNE_ERROR,
+	FOREIGN_KEY_REFERENCES_EMPTY_ERROR,
+	FOREIGN_KEY_REFERENCES_LENGTH_ERROR,
+	REFERENCE_DNE_ERROR,
+	SEED_ERROR,
+} from '../core/errors.js';
 import type {
 	BooleanColumn,
+	ColumnType,
+	DBColumn,
 	DBTable,
 	DBTables,
-	DBColumn,
 	DateColumn,
-	ColumnType,
 	JsonColumn,
 	NumberColumn,
 	TextColumn,
 } from '../core/types.js';
-import { bold } from 'kleur/colors';
-import { type SQL, sql } from 'drizzle-orm';
-import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
-import { hasPrimaryKey, type SqliteDB } from './index.js';
+import { type SqliteDB, hasPrimaryKey } from './index.js';
 import { isSerializedSQL } from './types.js';
-import {
-	FOREIGN_KEY_REFERENCES_LENGTH_ERROR,
-	FOREIGN_KEY_REFERENCES_EMPTY_ERROR,
-	REFERENCE_DNE_ERROR,
-	FOREIGN_KEY_DNE_ERROR,
-	SEED_ERROR,
-} from '../core/errors.js';
-import { LibsqlError } from '@libsql/client';
 
 const sqlite = new SQLiteAsyncDialect();
 
