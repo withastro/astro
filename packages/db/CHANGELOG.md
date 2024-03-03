@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.5.0
+
+### Minor Changes
+
+- [#10280](https://github.com/withastro/astro/pull/10280) [`3488be9b59d1cb65325b0e087c33bcd74aaa4926`](https://github.com/withastro/astro/commit/3488be9b59d1cb65325b0e087c33bcd74aaa4926) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Finalize db API to a shared db/ directory.
+
 ## 0.4.1
 
 ### Patch Changes

@@ -471,7 +471,7 @@ async function generatePath(
 	route: RouteData
 ) {
 	const { mod } = gopts;
-	const { config, logger, options, serverLike } = pipeline;
+	const { config, logger, options } = pipeline;
 	logger.debug('build', `Generating: ${pathname}`);
 
 	// This adds the page name to the array so it can be shown as part of stats.
@@ -502,10 +502,11 @@ async function generatePath(
 	);
 
 	const request = createRequest({
+		base: config.base,
 		url,
 		headers: new Headers(),
 		logger,
-		ssr: serverLike,
+		staticLike: true,
 	});
 	const renderContext = RenderContext.create({ pipeline, pathname, request, routeData: route });
 

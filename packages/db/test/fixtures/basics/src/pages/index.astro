@@ -1,4 +1,5 @@
 ---
+/// <reference path="../../.astro/db-types.d.ts" />
 import { Author, db, Themes } from 'astro:db';
 
 const authors = await db.select().from(Author);
