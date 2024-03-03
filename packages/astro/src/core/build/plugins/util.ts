@@ -43,17 +43,6 @@ export function extendManualChunks(outputOptions: OutputOptions, hooks: ExtendMa
 // This is an arbitrary string that we are going to replace the dot of the extension
 export const ASTRO_PAGE_EXTENSION_POST_PATTERN = '@_@';
 
-// Source: https://github.com/Chalarangelo/30-seconds-of-code/blob/master/content/snippets/js/s/replace-last-occurrence.md
-function replaceLast(str: string, pattern: string | RegExp, replacement: string) {
-	const match =
-		typeof pattern === 'string'
-			? pattern
-			: (str.match(new RegExp(pattern.source, 'g')) || []).slice(-1)[0];
-	if (!match) return str;
-	const last = str.lastIndexOf(match);
-	return last !== -1 ? `${str.slice(0, last)}${replacement}${str.slice(last + match.length)}` : str;
-}
-
 /**
  * 1. We add a fixed prefix, which is used as virtual module naming convention;
  * 2. We replace the dot that belongs extension with an arbitrary string.
@@ -65,11 +54,12 @@ export function getVirtualModulePageNameFromPath(virtualModulePrefix: string, pa
 	// we mask the extension, so this virtual file
 	// so rollup won't trigger other plugins in the process
 	const extension = extname(path);
-	return `${virtualModulePrefix}${replaceLast(
-		path,
-		extension,
-		extension.replace('.', ASTRO_PAGE_EXTENSION_POST_PATTERN)
-	)}`;
+	return (
+		virtualModulePrefix +
+		(extension === '.astro'
+			? path.slice(0, -extension.length) + `${ASTRO_PAGE_EXTENSION_POST_PATTERN}astro`
+			: path)
+	);
 }
 
 /**
