@@ -10,6 +10,9 @@ benchmark/results/
 **/vendor
 **/.vercel
 
+# Short-term need to format
+!packages/db/test/fixtures
+
 # Directories
 .github
 .changeset

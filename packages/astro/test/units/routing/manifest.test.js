@@ -1,9 +1,9 @@
-import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { Logger } from '../../../dist/core/logger/core.js';
 import { createRouteManifest } from '../../../dist/core/routing/manifest/create.js';
 import { createBasicSettings, createFs } from '../test-utils.js';
-import { Logger } from '../../../dist/core/logger/core.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 

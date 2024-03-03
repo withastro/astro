@@ -9,6 +9,7 @@ import { normalizeFilename } from '../vite-plugin-utils/index.js';
 import { compileAstro, type CompileAstroResult } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
+import { loadId } from './utils.js';
 export { getAstroMetadata } from './metadata.js';
 export type { AstroPluginMetadata };
 
@@ -24,14 +25,10 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 	const { config } = settings;
 	let server: vite.ViteDevServer | undefined;
 	let compile: (code: string, filename: string) => Promise<CompileAstroResult>;
-	// Tailwind styles could register Astro files as dependencies of other Astro files,
-	// causing circular imports which trips Vite's HMR. This set is passed to `handleHotUpdate`
-	// to force a page reload when these dependency files are updated
-	// NOTE: We need to initialize a map here and in `buildStart` because our unit tests don't
-	// call `buildStart` (test bug)
-	let astroFileToCssAstroDeps = new Map<string, Set<string>>();
 	// Each Astro file has its own compile metadata so that its scripts and styles virtual module
 	// can retrieve their code from here.
+	// NOTE: We need to initialize a map here and in `buildStart` because our unit tests don't
+	// call `buildStart` (test bug)
 	let astroFileToCompileMetadata = new Map<string, CompileMetadata>();
 
 	// Variables for determining if an id starts with /src...
@@ -65,7 +62,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			});
 		},
 		buildStart() {
-			astroFileToCssAstroDeps = new Map();
 			astroFileToCompileMetadata = new Map();
 
 			// Share the `astroFileToCompileMetadata` across the same Astro config as Astro performs
@@ -86,10 +82,19 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 			// Astro scripts and styles virtual module code comes from the main Astro compilation
 			// through the metadata from `astroFileToCompileMetadata`. It should always exist as Astro
-			// modules are compiled first, then its virtual modules. If the virtual modules are somehow
-			// compiled first, throw an error and we should investigate it.
+			// modules are compiled first, then its virtual modules.
 			const filename = normalizePath(normalizeFilename(parsedId.filename, config.root));
-			const compileMetadata = astroFileToCompileMetadata.get(filename);
+			let compileMetadata = astroFileToCompileMetadata.get(filename);
+			// If `compileMetadata` doesn't exist in dev, that means the virtual module may have been invalidated.
+			// We try to re-compile the main Astro module (`filename`) first before retrieving the metadata again.
+			if (!compileMetadata && server) {
+				const code = await loadId(server.pluginContainer, filename);
+				// `compile` should re-set `filename` in `astroFileToCompileMetadata`
+				if (code != null) await compile(code, filename);
+				compileMetadata = astroFileToCompileMetadata.get(filename);
+			}
+			// If the metadata still doesn't exist, that means the virtual modules are somehow compiled first,
+			// throw an error and we should investigate it.
 			if (!compileMetadata) {
 				throw new Error(
 					`No cached compile metadata found for "${id}". The main Astro module "${filename}" should have ` +
@@ -103,12 +108,15 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 						throw new Error(`Requests for Astro CSS must include an index.`);
 					}
 
-					const code = compileMetadata.css[query.index];
-					if (!code) {
+					const result = compileMetadata.css[query.index];
+					if (!result) {
 						throw new Error(`No Astro CSS at index ${query.index}`);
 					}
 
-					return { code };
+					// Register dependencies from preprocessing this style
+					result.dependencies?.forEach((dep) => this.addWatchFile(dep));
+
+					return { code: result.code };
 				}
 				case 'script': {
 					if (typeof query.index === 'undefined') {
@@ -174,34 +182,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			const filename = normalizePath(parsedId.filename);
 			const transformResult = await compile(source, filename);
 
-			// Register dependencies of this module
-			const astroDeps = new Set<string>();
-			for (const dep of transformResult.cssDeps) {
-				if (dep.endsWith('.astro')) {
-					astroDeps.add(dep);
-				}
-				this.addWatchFile(dep);
-			}
-			astroFileToCssAstroDeps.set(id, astroDeps);
-
-			// When a dependency from the styles are updated, the dep and Astro module will get invalidated.
-			// However, the Astro style virtual module is not invalidated because we didn't register that the virtual
-			// module has that dependency. We currently can't do that either because of a Vite bug.
-			// https://github.com/vitejs/vite/pull/15608
-			// Here we manually invalidate the virtual modules ourselves when we're compiling the Astro module.
-			// When that bug is resolved, we can add the dependencies to the virtual module directly and remove this.
-			if (server) {
-				const mods = server.moduleGraph.getModulesByFile(filename);
-				if (mods) {
-					const seen = new Set(mods);
-					for (const mod of mods) {
-						if (mod.url.includes('?astro')) {
-							server.moduleGraph.invalidateModule(mod, seen);
-						}
-					}
-				}
-			}
-
 			const astroMetadata: AstroPluginMetadata['astro'] = {
 				clientOnlyComponents: transformResult.clientOnlyComponents,
 				hydratedComponents: transformResult.hydratedComponents,
@@ -225,14 +205,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			};
 		},
 		async handleHotUpdate(ctx) {
-			if (!ctx.file.endsWith('.astro')) return;
-
-			return handleHotUpdate(ctx, {
-				logger,
-				compile,
-				astroFileToCssAstroDeps,
-				astroFileToCompileMetadata,
-			});
+			return handleHotUpdate(ctx, { logger, astroFileToCompileMetadata });
 		},
 	};
 

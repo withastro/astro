@@ -1,5 +1,5 @@
-import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { createAstro } from '../../../dist/runtime/server/index.js';
 
 describe('astro global', () => {

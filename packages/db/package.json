@@ -1,0 +1,81 @@
+{
+  "name": "@astrojs/db",
+  "version": "0.4.0",
+  "description": "",
+  "license": "MIT",
+  "type": "module",
+  "types": "./index.d.ts",
+  "author": "withastro",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./runtime": {
+      "types": "./dist/runtime/index.d.ts",
+      "import": "./dist/runtime/index.js"
+    },
+    "./runtime/drizzle": {
+      "types": "./dist/runtime/drizzle.d.ts",
+      "import": "./dist/runtime/drizzle.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./index.d.ts"
+      ],
+      "runtime": [
+        "./dist/runtime/index.d.ts"
+      ],
+      "runtime/drizzle": [
+        "./dist/runtime/drizzle.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "index.d.ts",
+    "config-augment.d.ts",
+    "dist"
+  ],
+  "keywords": [
+    "withastro",
+    "astro-integration"
+  ],
+  "scripts": {
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "mocha --exit --timeout 20000 \"test/*.js\" \"test/unit/**/*.js\"",
+    "test:match": "mocha --timeout 20000 \"test/*.js\" \"test/unit/*.js\" -g"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.4.3",
+    "deep-diff": "^1.0.2",
+    "drizzle-orm": "^0.28.6",
+    "kleur": "^4.1.5",
+    "nanoid": "^5.0.1",
+    "open": "^10.0.3",
+    "ora": "^7.0.1",
+    "prompts": "^2.4.2",
+    "yargs-parser": "^21.1.1",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.6",
+    "@types/deep-diff": "^1.0.5",
+    "@types/diff": "^5.0.8",
+    "@types/mocha": "^10.0.2",
+    "@types/prompts": "^2.4.8",
+    "@types/yargs-parser": "^21.0.3",
+    "astro": "workspace:*",
+    "astro-scripts": "workspace:*",
+    "chai": "^4.3.10",
+    "cheerio": "1.0.0-rc.12",
+    "mocha": "^10.2.0",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.11"
+  }
+}

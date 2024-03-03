@@ -6,8 +6,8 @@ import {
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
+	type RoutingStrategies,
 } from '../../i18n/utils.js';
-import type { RoutingStrategies } from '../config/schema.js';
 
 type CreateAPIContext = {
 	request: Request;

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { after, describe, before, it } from 'node:test';
-import { loadFixture, isMacOS } from './test-utils.js';
+import { after, before, describe, it } from 'node:test';
+import { isMacOS, loadFixture } from './test-utils.js';
 
 // TODO: fix this tests in macOS
 if (!isMacOS) {

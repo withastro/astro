@@ -190,7 +190,7 @@ export class RenderContext {
 		const { links, scripts, styles } = await pipeline.headElements(routeData);
 		const componentMetadata =
 			(await pipeline.componentMetadata(routeData)) ?? manifest.componentMetadata;
-		const { defaultLocale, locales, routing: routingStrategy } = i18n ?? {};
+		const { defaultLocale, locales, strategy } = i18n ?? {};
 		const partial = Boolean(mod.partial);
 		return createResult({
 			adapterName,
@@ -210,7 +210,7 @@ export class RenderContext {
 			resolve,
 			request,
 			route: routeData.route,
-			routingStrategy,
+			strategy,
 			site,
 			scripts,
 			ssr: serverLike,
@@ -238,9 +238,9 @@ export class RenderContext {
 				preferredLocale: undefined,
 				preferredLocaleList: undefined,
 			};
-		const { defaultLocale, locales, routing } = i18n;
+		const { defaultLocale, locales, strategy } = i18n;
 		return (this.#i18nData = {
-			currentLocale: computeCurrentLocale(routeData.route, locales, routing, defaultLocale),
+			currentLocale: computeCurrentLocale(routeData.route, locales, strategy, defaultLocale),
 			preferredLocale: computePreferredLocale(request, locales),
 			preferredLocaleList: computePreferredLocaleList(request, locales),
 		});

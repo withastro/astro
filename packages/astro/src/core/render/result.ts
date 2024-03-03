@@ -17,8 +17,8 @@ import {
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
+	type RoutingStrategies,
 } from '../../i18n/utils.js';
-import type { RoutingStrategies } from '../config/schema.js';
 import { clientAddressSymbol, responseSentSymbol } from '../constants.js';
 
 export interface CreateResultArgs {
@@ -53,7 +53,7 @@ export interface CreateResultArgs {
 	locales: Locales | undefined;
 	defaultLocale: string | undefined;
 	route: string;
-	routingStrategy: RoutingStrategies | undefined;
+	strategy: RoutingStrategies | undefined;
 }
 
 function getFunctionExpression(slot: any) {
@@ -234,7 +234,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 						currentLocale = computeCurrentLocale(
 							url.pathname,
 							args.locales,
-							args.routingStrategy,
+							args.strategy,
 							args.defaultLocale
 						);
 						if (currentLocale) {
