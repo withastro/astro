@@ -625,7 +625,7 @@ if (inBrowser) {
 		if ('onscrollend' in window) addEventListener('scrollend', onScrollEnd);
 		else {
 			// Keep track of state between intervals
-			let intervalId: number | undefined, lastY: number, lastX: number, lastIndex: State["index"];
+			let intervalId: number | undefined, lastY: number, lastX: number, lastIndex: State['index'];
 			const scrollInterval = () => {
 				// Check the index to see if a popstate event was fired
 				if (lastIndex !== history.state?.index) {
@@ -642,20 +642,20 @@ if (inBrowser) {
 					return;
 				} else {
 					// Update vars with current positions
-					lastY = scrollY, lastX = scrollX;
+					(lastY = scrollY), (lastX = scrollX);
 				}
-			}
+			};
 			// We can't know when or how often scroll events fire, so we'll just use them to start intervals
 			addEventListener(
-				"scroll",
+				'scroll',
 				() => {
 					if (intervalId !== undefined) return;
-					lastIndex = history.state.index, lastY = scrollY, lastX = scrollX;
+					(lastIndex = history.state.index), (lastY = scrollY), (lastX = scrollX);
 					intervalId = window.setInterval(scrollInterval, 50);
 				},
 				{ passive: true }
 			);
-		};
+		}
 	}
 	for (const script of document.scripts) {
 		script.dataset.astroExec = '';
