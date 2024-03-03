@@ -19,7 +19,7 @@ export default defineConfig({
 To make sure VSCode picks up the schema file, you have multiple option. You can either reference the file in every file of your content collection:
 ```diff
 {
-+  "$schema": "../../../.astro/schemas/collections/test.json",
++  "$schema": "../../../.astro/collections/test.schema.json",
   "test": "test"
 }
 ```
@@ -32,7 +32,7 @@ Or you can set your VSCode settings to match them, read more in the [VSCode docs
     "fileMatch": [
       "/src/content/test/**"
     ],
-    "url": "../../../.astro/schemas/collections/test.json"
+    "url": "../../../.astro/collections/test.schema.json"
   }
 ]
 ```

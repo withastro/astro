@@ -416,10 +416,7 @@ async function writeContentFiles({
 	let contentTypesStr = "";
 	let dataTypesStr = "";
 
-	const collectionSchemasDir = new URL(
-		"./schemas/collections/",
-		contentPaths.cacheDir,
-	);
+	const collectionSchemasDir = new URL("./collections/", contentPaths.cacheDir);
 	if (settings.config.experimental.contentCollectionJsonSchema) {
 		if (!fs.existsSync(collectionSchemasDir)) {
 			fs.mkdirSync(collectionSchemasDir, { recursive: true });
@@ -507,7 +504,7 @@ async function writeContentFiles({
 						try {
 							await fs.promises.writeFile(
 								new URL(
-									`./${collectionKey.replace(/"/g, "")}.json`,
+									`./${collectionKey.replace(/"/g, "")}.schema.json`,
 									collectionSchemasDir,
 								),
 								JSON.stringify(
