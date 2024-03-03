@@ -1,6 +1,6 @@
-import type { ColumnDataType, ColumnBaseConfig } from 'drizzle-orm';
+import type { ColumnBaseConfig, ColumnDataType } from 'drizzle-orm';
 import type { SQLiteColumn, SQLiteTableWithColumns } from 'drizzle-orm/sqlite-core';
-import type { DBColumn, ColumnsConfig } from '../core/types.js';
+import type { ColumnsConfig, DBColumn, OutputColumnsConfig } from '../core/types.js';
 
 type GeneratedConfig<T extends ColumnDataType = ColumnDataType> = Pick<
 	ColumnBaseConfig<T, string>,
@@ -76,7 +76,7 @@ export type Column<T extends DBColumn['type'], S extends GeneratedConfig> = T ex
 
 export type Table<
 	TTableName extends string,
-	TColumns extends ColumnsConfig,
+	TColumns extends OutputColumnsConfig | ColumnsConfig,
 > = SQLiteTableWithColumns<{
 	name: TTableName;
 	schema: undefined;

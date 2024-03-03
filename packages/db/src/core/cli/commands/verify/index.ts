@@ -1,15 +1,24 @@
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
+import type { DBConfig } from '../../../types.js';
+import { getMigrationQueries } from '../../migration-queries.js';
 import {
-	getMigrationStatus,
-	MIGRATION_NEEDED,
 	MIGRATIONS_NOT_INITIALIZED,
 	MIGRATIONS_UP_TO_DATE,
+	MIGRATION_NEEDED,
+	getMigrationStatus,
 } from '../../migrations.js';
-import { getMigrationQueries } from '../../migration-queries.js';
 
-export async function cmd({ config, flags }: { config: AstroConfig; flags: Arguments }) {
-	const status = await getMigrationStatus(config);
+export async function cmd({
+	astroConfig,
+	dbConfig,
+	flags,
+}: {
+	astroConfig: AstroConfig;
+	dbConfig: DBConfig;
+	flags: Arguments;
+}) {
+	const status = await getMigrationStatus({ dbConfig, root: astroConfig.root });
 	const { state } = status;
 	if (flags.json) {
 		if (state === 'ahead') {

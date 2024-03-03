@@ -1,28 +1,32 @@
-import type { AstroIntegration } from 'astro';
-import { vitePluginDb } from './vite-plugin-db.js';
-import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
-import { typegen } from './typegen.js';
 import { existsSync } from 'fs';
-import { mkdir, rm, writeFile } from 'fs/promises';
-import { DB_PATH } from '../consts.js';
-import { createLocalDatabaseClient } from '../../runtime/db-client.js';
-import { astroConfigWithDbSchema, type DBTables } from '../types.js';
-import { type VitePlugin } from '../utils.js';
-import { STUDIO_CONFIG_MISSING_WRITABLE_TABLE_ERROR, UNSAFE_WRITABLE_WARNING } from '../errors.js';
-import { errorMap } from './error-map.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import type { AstroIntegration } from 'astro';
+import { mkdir, rm, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
+import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
+import { loadDbConfigFile } from '../load-file.js';
+import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
+import { type DBConfig, dbConfigSchema } from '../types.js';
+import { type VitePlugin, getDbDirectoryUrl } from '../utils.js';
+import { errorMap } from './error-map.js';
 import { fileURLIntegration } from './file-url.js';
-import { recreateTables, seedData } from '../queries.js';
-import { getManagedAppTokenOrExit, type ManagedAppToken } from '../tokens.js';
+import { typegen } from './typegen.js';
+import { type LateTables, vitePluginDb } from './vite-plugin-db.js';
+import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
 
 function astroDBIntegration(): AstroIntegration {
-	let connectedToRemote = false;
+	let connectToStudio = false;
+	let configFileDependencies: string[] = [];
+	let root: URL;
 	let appToken: ManagedAppToken | undefined;
-	let schemas = {
-		tables(): DBTables {
-			throw new Error('tables not found');
+	let dbConfig: DBConfig;
+
+	// Make table loading "late" to pass to plugins from `config:setup`,
+	// but load during `config:done` to wait for integrations to settle.
+	let tables: LateTables = {
+		get() {
+			throw new Error('[astro:db] INTERNAL Tables not loaded yet');
 		},
 	};
 	let command: 'dev' | 'build' | 'preview';
@@ -31,25 +35,28 @@ function astroDBIntegration(): AstroIntegration {
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, command: _command, logger }) => {
 				command = _command;
-				if (_command === 'preview') return;
+				root = config.root;
+
+				if (command === 'preview') return;
 
 				let dbPlugin: VitePlugin | undefined = undefined;
-				const studio = config.db?.studio ?? false;
+				connectToStudio = command === 'build';
 
-				if (studio && command === 'build' && process.env.ASTRO_DB_TEST_ENV !== '1') {
+				if (connectToStudio) {
 					appToken = await getManagedAppTokenOrExit();
-					connectedToRemote = true;
 					dbPlugin = vitePluginDb({
-						connectToStudio: true,
+						connectToStudio,
 						appToken: appToken.token,
-						schemas,
+						tables,
 						root: config.root,
+						srcDir: config.srcDir,
 					});
 				} else {
 					dbPlugin = vitePluginDb({
 						connectToStudio: false,
-						schemas,
+						tables,
 						root: config.root,
+						srcDir: config.srcDir,
 					});
 				}
 
@@ -60,67 +67,50 @@ function astroDBIntegration(): AstroIntegration {
 					},
 				});
 			},
-			'astro:config:done': async ({ config, logger }) => {
+			'astro:config:done': async ({ config }) => {
 				// TODO: refine where we load tables
 				// @matthewp: may want to load tables by path at runtime
-				const configWithDb = astroConfigWithDbSchema.parse(config, { errorMap });
-				const tables = configWithDb.db?.tables ?? {};
-				// Redefine getTables so our integration can grab them
-				schemas.tables = () => tables;
+				const { mod, dependencies } = await loadDbConfigFile(config.root);
+				configFileDependencies = dependencies;
+				dbConfig = dbConfigSchema.parse(mod?.default ?? {}, {
+					errorMap,
+				});
+				// TODO: resolve integrations here?
+				tables.get = () => dbConfig.tables ?? {};
 
-				const studio = configWithDb.db?.studio ?? false;
-				const unsafeWritable = Boolean(configWithDb.db?.unsafeWritable);
-				const foundWritableCollection = Object.entries(tables).find(([, c]) => c.writable);
-				const writableAllowed = studio || unsafeWritable;
-				if (!writableAllowed && foundWritableCollection) {
-					logger.error(STUDIO_CONFIG_MISSING_WRITABLE_TABLE_ERROR(foundWritableCollection[0]));
-					process.exit(1);
-				}
-				// Using writable tables with the opt-in flag. Warn them to let them
-				// know the risk.
-				else if (unsafeWritable && foundWritableCollection) {
-					logger.warn(UNSAFE_WRITABLE_WARNING);
-				}
-
-				if (!connectedToRemote) {
+				if (!connectToStudio && !process.env.TEST_IN_MEMORY_DB) {
 					const dbUrl = new URL(DB_PATH, config.root);
 					if (existsSync(dbUrl)) {
 						await rm(dbUrl);
 					}
 					await mkdir(dirname(fileURLToPath(dbUrl)), { recursive: true });
 					await writeFile(dbUrl, '');
-
-					using db = await createLocalDatabaseClient({
-						tables,
-						dbUrl: dbUrl.toString(),
-						seeding: true,
-					});
-					await recreateTables({ db, tables });
-					if (configWithDb.db?.data) {
-						await seedData({
-							db,
-							data: configWithDb.db.data,
-							logger,
-							mode: command === 'dev' ? 'dev' : 'build',
-						});
-					}
-					logger.debug('Database setup complete.');
 				}
 
-				await typegen({ tables, root: config.root });
+				await typegen({ tables: tables.get() ?? {}, root: config.root });
 			},
 			'astro:server:start': async ({ logger }) => {
 				// Wait for the server startup to log, so that this can come afterwards.
 				setTimeout(() => {
 					logger.info(
-						connectedToRemote ? 'Connected to remote database.' : 'New local database created.'
+						connectToStudio ? 'Connected to remote database.' : 'New local database created.'
 					);
 				}, 100);
 			},
+			'astro:server:setup': async ({ server }) => {
+				const filesToWatch = [
+					...CONFIG_FILE_NAMES.map((c) => new URL(c, getDbDirectoryUrl(root))),
+					...configFileDependencies.map((c) => new URL(c, root)),
+				];
+				server.watcher.on('all', (event, relativeEntry) => {
+					const entry = new URL(relativeEntry, root);
+					if (filesToWatch.some((f) => entry.href === f.href)) {
+						server.restart();
+					}
+				});
+			},
 			'astro:build:start': async ({ logger }) => {
-				logger.info(
-					'database: ' + (connectedToRemote ? yellow('remote') : blue('local database.'))
-				);
+				logger.info('database: ' + (connectToStudio ? yellow('remote') : blue('local database.')));
 			},
 			'astro:build:done': async ({}) => {
 				await appToken?.destroy();

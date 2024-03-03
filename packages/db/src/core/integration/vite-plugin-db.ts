@@ -1,70 +1,125 @@
-import { DB_PATH, RUNTIME_DRIZZLE_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
+import { fileURLToPath } from 'node:url';
+import { normalizePath } from 'vite';
+import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
+import {
+	DB_PATH,
+	RUNTIME_CONFIG_IMPORT,
+	RUNTIME_DRIZZLE_IMPORT,
+	RUNTIME_IMPORT,
+	VIRTUAL_MODULE_ID,
+} from '../consts.js';
 import type { DBTables } from '../types.js';
-import type { VitePlugin } from '../utils.js';
+import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
+
+const LOCAL_DB_VIRTUAL_MODULE_ID = 'astro:local';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
+const resolvedLocalDbVirtualModuleId = LOCAL_DB_VIRTUAL_MODULE_ID + '/local-db';
+const resolvedSeedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID + '?shouldSeed';
 
-type LateSchema = {
-	tables: () => DBTables;
+export type LateTables = {
+	get: () => DBTables;
 };
 
 type VitePluginDBParams =
 	| {
 			connectToStudio: false;
-			schemas: LateSchema;
+			tables: LateTables;
+			srcDir: URL;
 			root: URL;
 	  }
 	| {
 			connectToStudio: true;
-			schemas: LateSchema;
+			tables: LateTables;
 			appToken: string;
+			srcDir: URL;
 			root: URL;
 	  };
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
+	const srcDirPath = normalizePath(fileURLToPath(params.srcDir));
 	return {
 		name: 'astro:db',
 		enforce: 'pre',
-		resolveId(id) {
-			if (id === VIRTUAL_MODULE_ID) {
-				return resolvedVirtualModuleId;
+		async resolveId(id, rawImporter) {
+			if (id === LOCAL_DB_VIRTUAL_MODULE_ID) return resolvedLocalDbVirtualModuleId;
+			if (id !== VIRTUAL_MODULE_ID) return;
+			if (params.connectToStudio) return resolvedVirtualModuleId;
+
+			const importer = rawImporter ? await this.resolve(rawImporter) : null;
+			if (!importer) return resolvedVirtualModuleId;
+
+			if (importer.id.startsWith(srcDirPath)) {
+				// Seed only if the importer is in the src directory.
+				// Otherwise, we may get recursive seed calls (ex. import from db/seed.ts).
+				return resolvedSeedVirtualModuleId;
 			}
+			return resolvedVirtualModuleId;
 		},
 		load(id) {
-			if (id !== resolvedVirtualModuleId) return;
+			if (id === resolvedLocalDbVirtualModuleId) {
+				const dbUrl = new URL(DB_PATH, params.root);
+				return `import { createLocalDatabaseClient } from ${RUNTIME_IMPORT};
+				const dbUrl = ${JSON.stringify(dbUrl)};
+
+				export const db = createLocalDatabaseClient({ dbUrl });`;
+			}
+
+			if (id !== resolvedVirtualModuleId && id !== resolvedSeedVirtualModuleId) return;
 
 			if (params.connectToStudio) {
 				return getStudioVirtualModContents({
 					appToken: params.appToken,
-					tables: params.schemas.tables(),
+					tables: params.tables.get(),
 				});
 			}
-			return getVirtualModContents({
+			return getLocalVirtualModContents({
 				root: params.root,
-				tables: params.schemas.tables(),
+				tables: params.tables.get(),
+				shouldSeed: id === resolvedSeedVirtualModuleId,
 			});
 		},
 	};
 }
 
-export function getVirtualModContents({ tables, root }: { tables: DBTables; root: URL }) {
-	const dbUrl = new URL(DB_PATH, root);
+export function getConfigVirtualModContents() {
+	return `export * from ${RUNTIME_CONFIG_IMPORT}`;
+}
+
+export function getLocalVirtualModContents({
+	tables,
+	shouldSeed,
+}: {
+	tables: DBTables;
+	root: URL;
+	shouldSeed: boolean;
+}) {
+	const seedFilePaths = SEED_DEV_FILE_NAME.map(
+		// Format as /db/[name].ts
+		// for Vite import.meta.glob
+		(name) => new URL(name, getDbDirectoryUrl('file:///')).pathname
+	);
+
 	return `
-import { collectionToTable, createLocalDatabaseClient } from ${RUNTIME_IMPORT};
-import dbUrl from ${JSON.stringify(`${dbUrl}?fileurl`)};
+import { asDrizzleTable, seedLocal } from ${RUNTIME_IMPORT};
+import { db as _db } from ${JSON.stringify(LOCAL_DB_VIRTUAL_MODULE_ID)};
 
-const params = ${JSON.stringify({
-		tables,
-		seeding: false,
-	})};
-params.dbUrl = dbUrl;
+export const db = _db;
 
-export const db = await createLocalDatabaseClient(params);
+${
+	shouldSeed
+		? `await seedLocal({
+	db: _db,
+	tables: ${JSON.stringify(tables)},
+	fileGlob: import.meta.glob(${JSON.stringify(seedFilePaths)}),
+})`
+		: ''
+}
 
 export * from ${RUNTIME_DRIZZLE_IMPORT};
+export * from ${RUNTIME_CONFIG_IMPORT};
 
-${getStringifiedCollectionExports(tables)}
-`;
+${getStringifiedCollectionExports(tables)}`;
 }
 
 export function getStudioVirtualModContents({
@@ -75,12 +130,14 @@ export function getStudioVirtualModContents({
 	appToken: string;
 }) {
 	return `
-import {collectionToTable, createRemoteDatabaseClient} from ${RUNTIME_IMPORT};
+import {asDrizzleTable, createRemoteDatabaseClient} from ${RUNTIME_IMPORT};
 
 export const db = await createRemoteDatabaseClient(${JSON.stringify(
 		appToken
-	)}, import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL);
+		// Respect runtime env for user overrides in SSR
+	)}, import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL ?? ${JSON.stringify(getRemoteDatabaseUrl())});
 export * from ${RUNTIME_DRIZZLE_IMPORT};
+export * from ${RUNTIME_CONFIG_IMPORT};
 
 ${getStringifiedCollectionExports(tables)}
 	`;
@@ -90,7 +147,7 @@ function getStringifiedCollectionExports(tables: DBTables) {
 	return Object.entries(tables)
 		.map(
 			([name, collection]) =>
-				`export const ${name} = collectionToTable(${JSON.stringify(name)}, ${JSON.stringify(
+				`export const ${name} = asDrizzleTable(${JSON.stringify(name)}, ${JSON.stringify(
 					collection
 				)}, false)`
 		)

@@ -4,7 +4,7 @@ import type { RenderInstruction } from './instruction.js';
 
 import { HTMLString, markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';
-import { chunkToString, type RenderDestination, type RenderInstance } from './common.js';
+import { type RenderDestination, type RenderInstance, chunkToString } from './common.js';
 
 type RenderTemplateResult = ReturnType<typeof renderTemplate>;
 export type ComponentSlots = Record<string, ComponentSlotValue>;

@@ -1,23 +1,9 @@
-import * as color from 'kleur/colors';
 import deepDiff from 'deep-diff';
-import {
-	columnSchema,
-	type BooleanColumn,
-	type DBTable,
-	type DBTables,
-	type DBColumn,
-	type DBColumns,
-	type DBSnapshot,
-	type DateColumn,
-	type ColumnType,
-	type Indexes,
-	type JsonColumn,
-	type NumberColumn,
-	type TextColumn,
-} from '../types.js';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
+import * as color from 'kleur/colors';
 import { customAlphabet } from 'nanoid';
 import prompts from 'prompts';
+import { hasPrimaryKey } from '../../runtime/index.js';
 import {
 	getCreateIndexQueries,
 	getCreateTableQuery,
@@ -25,9 +11,23 @@ import {
 	getReferencesConfig,
 	hasDefault,
 	schemaTypeToSqlType,
-} from '../queries.js';
-import { hasPrimaryKey } from '../../runtime/index.js';
+} from '../../runtime/queries.js';
 import { isSerializedSQL } from '../../runtime/types.js';
+import {
+	type BooleanColumn,
+	type ColumnType,
+	type DBColumn,
+	type DBColumns,
+	type DBSnapshot,
+	type DBTable,
+	type DBTables,
+	type DateColumn,
+	type Indexes,
+	type JsonColumn,
+	type NumberColumn,
+	type TextColumn,
+	columnSchema,
+} from '../types.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
