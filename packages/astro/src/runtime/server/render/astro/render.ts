@@ -245,7 +245,7 @@ export async function renderToAsyncIterable(
 		async return() {
 			cancelled = true;
 			return { done: true, value: undefined };
-		}
+		},
 	};
 
 	const destination: RenderDestination = {
