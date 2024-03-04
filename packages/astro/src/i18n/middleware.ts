@@ -8,7 +8,7 @@ import {
 } from './index.js';
 import type { APIContext, MiddlewareHandler, SSRManifest } from '../@types/astro.js';
 import type { SSRManifestI18n } from '../core/app/types.js';
-import { ROUTE_TYPE_HEADER } from '../core/constants.js';
+import { REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER } from '../core/constants.js';
 
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
@@ -34,12 +34,9 @@ export function createI18nMiddleware(
 			return _redirectToDefaultLocale(context);
 		}
 
-		// Astro can't know where the default locale is supposed to be, so it returns a 404 with no content.
+		// Astro can't know where the default locale is supposed to be, so it returns a 404.
 		else if (!_requestHasLocale(context)) {
-			return new Response(null, {
-				status: 404,
-				headers: response.headers,
-			});
+			return _noFoundForNonLocaleRoute(response);
 		}
 
 		return undefined;
@@ -56,10 +53,7 @@ export function createI18nMiddleware(
 		if (pathnameContainsDefaultLocale) {
 			const newLocation = url.pathname.replace(`/${i18n.defaultLocale}`, '');
 			response.headers.set('Location', newLocation);
-			return new Response(null, {
-				status: 404,
-				headers: response.headers,
-			});
+			return _noFoundForNonLocaleRoute(response);
 		}
 
 		return undefined;
@@ -171,6 +165,19 @@ export function createI18nMiddleware(
 
 		return response;
 	};
+}
+
+/**
+ * The i18n returns empty 404 responses in certain cases.
+ * Error-page-rerouting infra will attempt to render the 404.astro page, causing the middleware to run a second time.
+ * To avoid loops and overwriting the contents of `404.astro`, we allow error pages to pass through.
+ */
+function notFound(response: Response) {
+	if (response.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no') return response;
+	return new Response(null, {
+		status: 404,
+		headers: response.headers,
+	});
 }
 
 /**
