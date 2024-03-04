@@ -107,7 +107,7 @@ export function getLocalVirtualModContents({
 		(name) => new URL(name, getDbDirectoryUrl('file:///')).pathname
 	);
 	const integrationSeedFilePaths = seedFiles.map((pathOrUrl) =>
-		typeof pathOrUrl === 'string' ? pathOrUrl : pathOrUrl.pathname
+		typeof pathOrUrl === 'string' ? pathOrUrl.replace(/^\./, '') : pathOrUrl.pathname
 	);
 
 	return `
@@ -121,8 +121,9 @@ ${
 		? `await seedLocal({
 	db: _db,
 	tables: ${JSON.stringify(tables)},
-	fileGlob: import.meta.glob(${JSON.stringify([...userSeedFilePaths, ...integrationSeedFilePaths])}),
-})`
+	userSeedGlob: import.meta.glob(${JSON.stringify(userSeedFilePaths)}),
+	integrationSeedGlob: import.meta.glob(${JSON.stringify(integrationSeedFilePaths)}),
+});`
 		: ''
 }
 

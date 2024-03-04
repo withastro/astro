@@ -31,24 +31,34 @@ export async function seedLocal({
 	db,
 	tables,
 	// Glob all potential seed files to catch renames and deletions.
-	fileGlob,
+	userSeedGlob,
+	integrationSeedGlob,
 }: {
 	db: SqliteDB;
 	tables: DBTables;
-	fileGlob: Record<string, () => Promise<void>>;
+	userSeedGlob: Record<string, () => Promise<void>>;
+	integrationSeedGlob: Record<string, () => Promise<void>>;
 }) {
 	await recreateTables({ db, tables });
 	for (const fileName of SEED_DEV_FILE_NAME) {
-		const key = Object.keys(fileGlob).find((f) => f.endsWith(fileName));
+		const key = Object.keys(userSeedGlob).find((f) => f.endsWith(fileName));
 		if (key) {
-			await fileGlob[key]().catch((e) => {
+			await userSeedGlob[key]().catch((e) => {
 				if (e instanceof LibsqlError) {
 					throw new Error(SEED_ERROR(e.message));
 				}
 				throw e;
 			});
-			return;
+			break;
 		}
+	}
+	for (const key in integrationSeedGlob) {
+		await integrationSeedGlob[key]().catch((e) => {
+			if (e instanceof LibsqlError) {
+				throw new Error(SEED_ERROR(e.message));
+			}
+			throw e;
+		});
 	}
 }
 
