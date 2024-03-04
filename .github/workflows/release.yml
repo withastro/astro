@@ -61,6 +61,7 @@ jobs:
           fi
 
       - name: Create Release Pull Request or Publish
+        if: ${{ github.repository_owner == 'withastro' }}
         id: changesets
         uses: changesets/action@v1
         with:
