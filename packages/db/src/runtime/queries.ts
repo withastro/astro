@@ -32,12 +32,12 @@ export async function seedLocal({
 	tables,
 	// Glob all potential seed files to catch renames and deletions.
 	userSeedGlob,
-	integrationSeedGlob,
+	integrationSeedImports,
 }: {
 	db: SqliteDB;
 	tables: DBTables;
 	userSeedGlob: Record<string, () => Promise<void>>;
-	integrationSeedGlob: Record<string, () => Promise<void>>;
+	integrationSeedImports: Array<() => Promise<void>>;
 }) {
 	await recreateTables({ db, tables });
 	for (const fileName of SEED_DEV_FILE_NAME) {
@@ -52,8 +52,8 @@ export async function seedLocal({
 			break;
 		}
 	}
-	for (const key in integrationSeedGlob) {
-		await integrationSeedGlob[key]().catch((e) => {
+	for (const importFn of integrationSeedImports) {
+		await importFn().catch((e) => {
 			if (e instanceof LibsqlError) {
 				throw new Error(SEED_ERROR(e.message));
 			}

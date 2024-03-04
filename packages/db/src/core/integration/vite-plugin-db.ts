@@ -1,3 +1,4 @@
+import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizePath } from 'vite';
 import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
@@ -93,6 +94,7 @@ export function getConfigVirtualModContents() {
 
 export function getLocalVirtualModContents({
 	tables,
+	root,
 	seedFiles,
 	shouldSeed,
 }: {
@@ -106,13 +108,16 @@ export function getLocalVirtualModContents({
 		// for Vite import.meta.glob
 		(name) => new URL(name, getDbDirectoryUrl('file:///')).pathname
 	);
+	const resolveId = (id: string) => (id.startsWith('.') ? resolve(fileURLToPath(root), id) : id);
 	const integrationSeedFilePaths = seedFiles.map((pathOrUrl) =>
-		typeof pathOrUrl === 'string'
-			? pathOrUrl[0] === '.'
-				? new URL(pathOrUrl, new URL('file:///')).pathname
-				: pathOrUrl
-			: pathOrUrl.pathname
+		typeof pathOrUrl === 'string' ? resolveId(pathOrUrl) : pathOrUrl.pathname
 	);
+	const integrationSeedImports =
+		'[' +
+		integrationSeedFilePaths
+			.map((filePath) => `() => import(${JSON.stringify(filePath)})`)
+			.join(',') +
+		']';
 
 	return `
 import { asDrizzleTable, seedLocal } from ${RUNTIME_IMPORT};
@@ -126,7 +131,7 @@ ${
 	db: _db,
 	tables: ${JSON.stringify(tables)},
 	userSeedGlob: import.meta.glob(${JSON.stringify(userSeedFilePaths)}),
-	integrationSeedGlob: import.meta.glob(${JSON.stringify(integrationSeedFilePaths)}),
+	integrationSeedImports: ${integrationSeedImports},
 });`
 		: ''
 }
