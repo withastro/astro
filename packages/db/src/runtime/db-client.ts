@@ -1,59 +1,19 @@
 import type { InStatement } from '@libsql/client';
 import { createClient } from '@libsql/client';
-import { getTableName } from 'drizzle-orm';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
-import { type SQLiteTable } from 'drizzle-orm/sqlite-core';
 import { drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
 import { z } from 'zod';
-import { type DBTables } from '../core/types.js';
 
 const isWebContainer = !!process.versions?.webcontainer;
 
-interface LocalDatabaseClient extends LibSQLDatabase, Disposable {}
-
-export async function createLocalDatabaseClient({
-	tables,
-	dbUrl,
-	seeding,
-}: {
-	dbUrl: string;
-	tables: DBTables;
-	seeding: boolean;
-}): Promise<LocalDatabaseClient> {
+export function createLocalDatabaseClient({ dbUrl }: { dbUrl: string }): LibSQLDatabase {
 	const url = isWebContainer ? 'file:content.db' : dbUrl;
-	const client = createClient({ url });
-	const db = Object.assign(drizzleLibsql(client), {
-		[Symbol.dispose || Symbol.for('Symbol.dispose')]() {
-			client.close();
-		},
-	});
+	console.log('memory', process.env.TEST_IN_MEMORY_DB);
+	const client = createClient({ url: process.env.TEST_IN_MEMORY_DB ? ':memory:' : url });
+	const db = drizzleLibsql(client);
 
-	if (seeding) return db;
-
-	const { insert: drizzleInsert, update: drizzleUpdate, delete: drizzleDelete } = db;
-	return Object.assign(db, {
-		insert(Table: SQLiteTable) {
-			checkIfModificationIsAllowed(tables, Table);
-			return drizzleInsert.call(this, Table);
-		},
-		update(Table: SQLiteTable) {
-			checkIfModificationIsAllowed(tables, Table);
-			return drizzleUpdate.call(this, Table);
-		},
-		delete(Table: SQLiteTable) {
-			checkIfModificationIsAllowed(tables, Table);
-			return drizzleDelete.call(this, Table);
-		},
-	});
-}
-
-function checkIfModificationIsAllowed(tables: DBTables, Table: SQLiteTable) {
-	const tableName = getTableName(Table);
-	const collection = tables[tableName];
-	if (!collection.writable) {
-		throw new Error(`The [${tableName}] collection is read-only.`);
-	}
+	return db;
 }
 
 export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string) {
@@ -61,8 +21,6 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 
 	const db = drizzleProxy(async (sql, parameters, method) => {
 		const requestBody: InStatement = { sql, args: parameters };
-		// eslint-disable-next-line no-console
-		console.info(JSON.stringify(requestBody));
 		const res = await fetch(url, {
 			method: 'POST',
 			headers: {
@@ -107,5 +65,9 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 
 		return { rows: rowValues };
 	});
+
+	(db as any).batch = (_drizzleQueries: Array<Promise<unknown>>) => {
+		throw new Error('db.batch() is not currently supported.');
+	};
 	return db;
 }

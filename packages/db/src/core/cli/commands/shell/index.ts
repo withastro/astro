@@ -3,9 +3,16 @@ import { sql } from 'drizzle-orm';
 import type { Arguments } from 'yargs-parser';
 import { createRemoteDatabaseClient } from '../../../../runtime/db-client.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
+import type { DBConfigInput } from '../../../types.js';
 import { getRemoteDatabaseUrl } from '../../../utils.js';
 
-export async function cmd({ flags }: { config: AstroConfig; flags: Arguments }) {
+export async function cmd({
+	flags,
+}: {
+	dbConfig: DBConfigInput;
+	astroConfig: AstroConfig;
+	flags: Arguments;
+}) {
 	const query = flags.query;
 	const appToken = await getManagedAppTokenOrExit(flags.token);
 	const db = createRemoteDatabaseClient(appToken.token, getRemoteDatabaseUrl());

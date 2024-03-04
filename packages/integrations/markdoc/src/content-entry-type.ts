@@ -196,7 +196,19 @@ async function emitOptimizedImages(
 						ctx.pluginContext.meta.watchMode,
 						ctx.pluginContext.emitFile
 					);
-					node.attributes[attributeName] = src;
+
+					const fsPath = resolved.id;
+
+					if (src) {
+						// We cannot track images in Markdoc, Markdoc rendering always strips out the proxy. As such, we'll always
+						// assume that the image is referenced elsewhere, to be on safer side.
+						if (ctx.astroConfig.output === 'static') {
+							if (globalThis.astroAsset.referencedImages)
+								globalThis.astroAsset.referencedImages.add(fsPath);
+						}
+
+						node.attributes[attributeName] = { ...src, fsPath };
+					}
 				} else {
 					throw new MarkdocError({
 						message: `Could not resolve image ${JSON.stringify(
