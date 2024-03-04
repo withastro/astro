@@ -74,8 +74,6 @@ function createContext({
 			return (currentLocale ??= computeCurrentLocale(
 				route,
 				userDefinedLocales,
-				undefined,
-				undefined
 			));
 		},
 		url,
