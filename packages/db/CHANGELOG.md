@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.6.1
+
+### Patch Changes
+
+- [#10315](https://github.com/withastro/astro/pull/10315) [`78ddfadbf9cc5a12a9bd25eab64ec8ec1bd8617d`](https://github.com/withastro/astro/commit/78ddfadbf9cc5a12a9bd25eab64ec8ec1bd8617d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix type definitions for `astro:db`
+
 ## 0.6.0
 
 ### Minor Changes

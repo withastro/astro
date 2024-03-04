@@ -1,5 +1,19 @@
 # astro
 
+## 4.4.11
+
+### Patch Changes
+
+- [#10281](https://github.com/withastro/astro/pull/10281) [`9deb919ff95b1d2ffe5a5f70ec683e32ebfafd05`](https://github.com/withastro/astro/commit/9deb919ff95b1d2ffe5a5f70ec683e32ebfafd05) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where `404.astro` was ignored with `i18n` routing enabled.
+
+- [#10279](https://github.com/withastro/astro/pull/10279) [`9ba3e2605daee3861e3bf6c5768f1d8bced4709d`](https://github.com/withastro/astro/commit/9ba3e2605daee3861e3bf6c5768f1d8bced4709d) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where returning redirect responses resulted in missing files with certain adapters.
+
+- [#10319](https://github.com/withastro/astro/pull/10319) [`19ecccedaab6d8fa0ff23711c88fa7d4fa34df38`](https://github.com/withastro/astro/commit/19ecccedaab6d8fa0ff23711c88fa7d4fa34df38) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where streaming SSR responses sometimes failed with "`iterator.result` is not a function" on node-based adapters.
+
+- [#10302](https://github.com/withastro/astro/pull/10302) [`992537e79f1847b590a2e226aac88a47a6304f68`](https://github.com/withastro/astro/commit/992537e79f1847b590a2e226aac88a47a6304f68) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes an issue that causes static entrypoints build to fail because of the path in certain conditions. Specifically, it failed if the path had an extension (like `.astro`, `.mdx` etc) and such extension would be also within the path (like `./.astro/index.astro`).
+
+- [#10298](https://github.com/withastro/astro/pull/10298) [`819d20a89c0d269333c2d397c1080884f516307a`](https://github.com/withastro/astro/commit/819d20a89c0d269333c2d397c1080884f516307a) Thanks [@Fryuni](https://github.com/Fryuni)! - Fix an incorrect conflict resolution between pages generated from static routes and rest parameters
+
 ## 4.4.10
 
 ### Patch Changes
