@@ -1606,12 +1606,13 @@ export interface AstroUserConfig {
 		 * @default `false`
 		 * @version 4.5.0
 		 * @description
-		 * Directly render scripts as declared in Astro files (with features like TypeScript, importing `node_modules`, and deduplicating
-		 * scripts still working). This should result in scripts running in the correct pages compared to the previous static analysis approach.
-		 * You can also now conditionally render scripts in your Astro file.
+		 * Enables a more reliable strategy to prevent scripts from being executed in pages where they are not used.
+		 * 
+		 * Scripts will directly render as declared in Astro files (including existing features like TypeScript, importing `node_modules`,
+		 * and deduplicating scripts). You can also now conditionally render scripts in your Astro file.
 
-		 * However, as scripts are now directly rendered, they are no longer hoisted to the `<head>` and multiple scripts on a page are no
-		 * longer bundled together. If you enable this option, you should check if it affects your site's behaviour.
+		 * However, this means scripts are no longer hoisted to the `<head>` and multiple scripts on a page are no longer bundled together.
+		If you enable this option, you should check that all your `<script>` tags behave as expected.
 		 *
 		 * This option will be enabled by default in Astro 5.0.
 		 *
