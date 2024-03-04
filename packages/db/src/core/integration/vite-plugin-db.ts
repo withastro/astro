@@ -20,11 +20,15 @@ const resolvedSeedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID + '?shouldSeed';
 export type LateTables = {
 	get: () => DBTables;
 };
+export type LateSeedFiles = {
+	get: () => Array<string | URL>;
+};
 
 type VitePluginDBParams =
 	| {
 			connectToStudio: false;
 			tables: LateTables;
+			seedFiles: LateSeedFiles;
 			srcDir: URL;
 			root: URL;
 	  }
@@ -76,6 +80,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			return getLocalVirtualModContents({
 				root: params.root,
 				tables: params.tables.get(),
+				seedFiles: params.seedFiles.get(),
 				shouldSeed: id === resolvedSeedVirtualModuleId,
 			});
 		},
@@ -88,16 +93,21 @@ export function getConfigVirtualModContents() {
 
 export function getLocalVirtualModContents({
 	tables,
+	seedFiles,
 	shouldSeed,
 }: {
 	tables: DBTables;
+	seedFiles: Array<string | URL>;
 	root: URL;
 	shouldSeed: boolean;
 }) {
-	const seedFilePaths = SEED_DEV_FILE_NAME.map(
+	const userSeedFilePaths = SEED_DEV_FILE_NAME.map(
 		// Format as /db/[name].ts
 		// for Vite import.meta.glob
 		(name) => new URL(name, getDbDirectoryUrl('file:///')).pathname
+	);
+	const integrationSeedFilePaths = seedFiles.map((pathOrUrl) =>
+		typeof pathOrUrl === 'string' ? pathOrUrl : pathOrUrl.pathname
 	);
 
 	return `
@@ -111,7 +121,7 @@ ${
 		? `await seedLocal({
 	db: _db,
 	tables: ${JSON.stringify(tables)},
-	fileGlob: import.meta.glob(${JSON.stringify(seedFilePaths)}),
+	fileGlob: import.meta.glob(${JSON.stringify([...userSeedFilePaths, ...integrationSeedFilePaths])}),
 })`
 		: ''
 }

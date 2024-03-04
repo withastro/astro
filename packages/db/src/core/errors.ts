@@ -60,3 +60,13 @@ export const FOREIGN_KEY_REFERENCES_EMPTY_ERROR = (tableName: string) => {
 		tableName
 	)} is misconfigured. \`references\` array cannot be empty.`;
 };
+
+export const INTEGRATION_TABLE_CONFLICT_ERROR = (
+	integrationName: string,
+	tableName: string,
+	isUserConflict: boolean
+) => {
+	return red('▶ Conflicting table name in integration ' + bold(integrationName)) + isUserConflict
+		? `\n  A user-defined table named ${bold(tableName)} already exists`
+		: `\n  Another integration already added a table named ${bold(tableName)}`;
+};
