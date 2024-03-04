@@ -9,9 +9,9 @@ import type {
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { MissingLocale } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
-import { type RoutingStrategies, toRoutingStrategy } from './utils.js';
-import type { AstroUserConfig } from '../../config.js';
+import type { RoutingStrategies } from './utils.js';
 import { createI18nMiddleware } from './middleware.js';
+import { REROUTE_DIRECTIVE_HEADER } from '../core/constants.js';
 
 export function requestHasLocale(locales: Locales) {
 	return function (context: APIContext) {
@@ -305,6 +305,8 @@ export function redirectToDefaultLocale({
 
 export function notFound({ base, locales }: MiddlewarePayload) {
 	return function (context: APIContext, response?: Response) {
+		if (response?.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no') return response;
+
 		const url = context.url;
 		// We return a 404 if:
 		// - the current path isn't a root. e.g. / or /<base>

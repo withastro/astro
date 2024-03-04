@@ -8,7 +8,7 @@ import {
 } from './index.js';
 import type { APIContext, MiddlewareHandler, SSRManifest } from '../@types/astro.js';
 import type { SSRManifestI18n } from '../core/app/types.js';
-import { REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER } from '../core/constants.js';
+import { ROUTE_TYPE_HEADER } from '../core/constants.js';
 
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
@@ -28,7 +28,7 @@ export function createI18nMiddleware(
 	const _noFoundForNonLocaleRoute = notFound(payload);
 	const _requestHasLocale = requestHasLocale(payload.locales);
 
-	const prefixAlways = (response: Response, context: APIContext): Response | undefined => {
+	const prefixAlways = (context: APIContext): Response | undefined => {
 		const url = context.url;
 		if (url.pathname === base + '/' || url.pathname === base) {
 			return _redirectToDefaultLocale(context);
@@ -36,14 +36,15 @@ export function createI18nMiddleware(
 
 		// Astro can't know where the default locale is supposed to be, so it returns a 404.
 		else if (!_requestHasLocale(context)) {
-			return _noFoundForNonLocaleRoute(response);
+			return _noFoundForNonLocaleRoute(context);
 		}
 
 		return undefined;
 	};
 
-	const prefixOtherLocales = (url: URL, response: Response): Response | undefined => {
+	const prefixOtherLocales = (context: APIContext, response: Response): Response | undefined => {
 		let pathnameContainsDefaultLocale = false;
+		const url = context.url;
 		for (const segment of url.pathname.split('/')) {
 			if (normalizeTheLocale(segment) === normalizeTheLocale(i18n.defaultLocale)) {
 				pathnameContainsDefaultLocale = true;
@@ -53,7 +54,7 @@ export function createI18nMiddleware(
 		if (pathnameContainsDefaultLocale) {
 			const newLocation = url.pathname.replace(`/${i18n.defaultLocale}`, '');
 			response.headers.set('Location', newLocation);
-			return _noFoundForNonLocaleRoute(response);
+			return _noFoundForNonLocaleRoute(context);
 		}
 
 		return undefined;
@@ -77,7 +78,7 @@ export function createI18nMiddleware(
 			}
 			case 'domains-prefix-other-locales': {
 				if (localeHasntDomain(i18n, currentLocale)) {
-					const result = prefixOtherLocales(url, response);
+					const result = prefixOtherLocales(context, response);
 					if (result) {
 						return result;
 					}
@@ -85,7 +86,7 @@ export function createI18nMiddleware(
 				break;
 			}
 			case 'pathname-prefix-other-locales': {
-				const result = prefixOtherLocales(url, response);
+				const result = prefixOtherLocales(context, response);
 				if (result) {
 					return result;
 				}
@@ -111,7 +112,7 @@ export function createI18nMiddleware(
 			}
 
 			case 'pathname-prefix-always': {
-				const result = prefixAlways(response, context);
+				const result = prefixAlways(context);
 				if (result) {
 					return result;
 				}
@@ -119,7 +120,7 @@ export function createI18nMiddleware(
 			}
 			case 'domains-prefix-always': {
 				if (localeHasntDomain(i18n, currentLocale)) {
-					const result = prefixAlways(response, context);
+					const result = prefixAlways(context);
 					if (result) {
 						return result;
 					}
@@ -165,19 +166,6 @@ export function createI18nMiddleware(
 
 		return response;
 	};
-}
-
-/**
- * The i18n returns empty 404 responses in certain cases.
- * Error-page-rerouting infra will attempt to render the 404.astro page, causing the middleware to run a second time.
- * To avoid loops and overwriting the contents of `404.astro`, we allow error pages to pass through.
- */
-function notFound(response: Response) {
-	if (response.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no') return response;
-	return new Response(null, {
-		status: 404,
-		headers: response.headers,
-	});
 }
 
 /**
