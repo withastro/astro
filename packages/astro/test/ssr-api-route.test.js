@@ -4,20 +4,21 @@ import { after, before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
-describe('API routes in SSR', async () => {
+describe('API routes in SSR', () => {
 
-	const fixture = await loadFixture({
+	const config = {
 		root: './fixtures/ssr-api-route/',
 		output: 'server',
 		site: 'https://mysite.dev/subsite/',
 		base: '/blog',
 		adapter: testAdapter(),
-	});
+	};
 
 	describe('Build', () => {
-		/** @type {Awaited<ReturnType<(typeof fixture)["loadTestAdapterApp"]>>} */
+		/** @type {import('./test-utils.js').App} */
 		let app;
 	before(async () => {
+		const fixture = await loadFixture(config);
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
 	});
@@ -55,9 +56,12 @@ describe('API routes in SSR', async () => {
 	})
 
 	describe('Dev', () => {
-		/** @type {Awaited<ReturnType<(typeof fixture)["startDevServer"]>>} */
+		/** @type {import('./test-utils.js').DevServer} */
 		let devServer;
+		/** @type {import('./test-utils.js').Fixture} */
+		let fixture;
 		before(async () => {
+			fixture = await loadFixture(config);
 			devServer = await fixture.startDevServer();
 		});
 
