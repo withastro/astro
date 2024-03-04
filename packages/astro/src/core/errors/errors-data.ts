@@ -1057,6 +1057,18 @@ export const NoPrerenderedRoutesWithDomains = {
 /**
  * @docs
  * @description
+ * Astro throws an error if the user enables manual routing, but it doesn't have a middleware file.
+ */
+export const MissingMiddlewareForInternationalization = {
+	name: 'MissingMiddlewareForInternationalization',
+	title: 'Enabled manual internationalization routing without having a middleware.',
+	message:
+		"You enabled manual routing for internationalization via `i18n.routing: 'manual'`, but you must have a `middleware` file in order to use this feature.",
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * Astro could not find an associated file with content while trying to render the route. This is an Astro error and not a user error. If restarting the dev server does not fix the problem, please file an issue.
  */
 export const CantRenderPage = {

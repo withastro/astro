@@ -6,6 +6,8 @@ import { addRollupInput } from '../build/add-rollup-input.js';
 import type { BuildInternals } from '../build/internal.js';
 import type { StaticBuildOptions } from '../build/types.js';
 import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
+import { MissingMiddlewareForInternationalization } from '../errors/errors-data.js';
+import { AstroError } from '../errors/index.js';
 
 export const MIDDLEWARE_MODULE_ID = '\0astro-internal:middleware';
 const NOOP_MIDDLEWARE = '\0noop-middleware';
@@ -43,6 +45,10 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 			}
 		},
 		async load(id) {
+			if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
+				throw new AstroError(MissingMiddlewareForInternationalization);
+			}
+
 			if (id === NOOP_MIDDLEWARE) {
 				return 'export const onRequest = (_, next) => next()';
 			} else if (id === MIDDLEWARE_MODULE_ID) {
