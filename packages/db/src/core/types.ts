@@ -22,7 +22,7 @@ const baseColumnSchema = z.object({
 	optional: z.boolean().optional().default(false),
 	unique: z.boolean().optional().default(false),
 	deprecated: z.boolean().optional().default(false),
-	
+
 	// Defined when `defineReadableTable()` is called
 	name: z.string().optional(),
 	// TODO: rename to `tableName`. Breaking schema change

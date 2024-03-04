@@ -1,11 +1,13 @@
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
+import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import type { DBConfig } from '../../../types.js';
-import { getMigrationQueries,
+import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
-	getProductionCurrentSnapshot, } from '../../migration-queries.js';
-import { getManagedAppTokenOrExit } from '../../../tokens.js';
+	getMigrationQueries,
+	getProductionCurrentSnapshot,
+} from '../../migration-queries.js';
 
 export async function cmd({
 	dbConfig,
@@ -19,7 +21,8 @@ export async function cmd({
 	const productionSnapshot = await getProductionCurrentSnapshot({ appToken: appToken.token });
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
 	const { queries: migrationQueries } = await getMigrationQueries({
-		oldSnapshot: JSON.stringify(productionSnapshot) !== '{}' ? productionSnapshot : createEmptySnapshot(),
+		oldSnapshot:
+			JSON.stringify(productionSnapshot) !== '{}' ? productionSnapshot : createEmptySnapshot(),
 		newSnapshot: currentSnapshot,
 	});
 

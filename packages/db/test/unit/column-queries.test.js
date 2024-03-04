@@ -32,10 +32,7 @@ function userChangeQueries(oldTable, newTable) {
 	});
 }
 
-function configChangeQueries(
-	oldCollections,
-	newCollections,
-) {
+function configChangeQueries(oldCollections, newCollections) {
 	return getMigrationQueries({
 		oldSnapshot: { schema: oldCollections, experimentalVersion: 1 },
 		newSnapshot: { schema: newCollections, experimentalVersion: 1 },
@@ -96,10 +93,7 @@ describe('column queries', () => {
 			});
 			let error = null;
 			try {
-				await configChangeQueries(
-					{[TABLE_NAME]: blogInitial},
-					{[TABLE_NAME]: blogFinal},
-				);
+				await configChangeQueries({ [TABLE_NAME]: blogInitial }, { [TABLE_NAME]: blogFinal });
 			} catch (e) {
 				error = e.message;
 			}

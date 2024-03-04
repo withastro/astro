@@ -4,9 +4,9 @@ import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBConfig, type DBSnapshot } from '../../../types.js';
 import { getRemoteDatabaseUrl } from '../../../utils.js';
 import {
-	getMigrationQueries,
 	createCurrentSnapshot,
 	createEmptySnapshot,
+	getMigrationQueries,
 	getProductionCurrentSnapshot,
 } from '../../migration-queries.js';
 

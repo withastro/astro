@@ -13,6 +13,7 @@ import {
 	schemaTypeToSqlType,
 } from '../../runtime/queries.js';
 import { isSerializedSQL } from '../../runtime/types.js';
+import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
 import {
 	type BooleanColumn,
 	type ColumnType,
@@ -30,7 +31,6 @@ import {
 	columnSchema,
 } from '../types.js';
 import { getRemoteDatabaseUrl } from '../utils.js';
-import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
@@ -51,7 +51,10 @@ export async function getMigrationQueries({
 	);
 	if (!isEmpty(addedCollections) && !isEmpty(notDeprecatedDroppedTables)) {
 		throw new Error(
-			RENAME_TABLE_ERROR(Object.keys(addedCollections)[0], Object.keys(notDeprecatedDroppedTables)[0])
+			RENAME_TABLE_ERROR(
+				Object.keys(addedCollections)[0],
+				Object.keys(notDeprecatedDroppedTables)[0]
+			)
 		);
 	}
 

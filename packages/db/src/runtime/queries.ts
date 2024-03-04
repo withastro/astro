@@ -68,7 +68,7 @@ export async function recreateTables({ db, tables }: { db: SqliteDB; tables: DBT
 
 export function getDropTableIfExistsQuery(tableName: string) {
 	return `DROP TABLE IF EXISTS ${sqlite.escapeName(tableName)}`;
-};
+}
 
 export function getCreateTableQuery(tableName: string, table: DBTable) {
 	let query = `CREATE TABLE ${sqlite.escapeName(tableName)} (`;
