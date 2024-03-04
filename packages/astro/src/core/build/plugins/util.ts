@@ -44,22 +44,20 @@ export function extendManualChunks(outputOptions: OutputOptions, hooks: ExtendMa
 export const ASTRO_PAGE_EXTENSION_POST_PATTERN = '@_@';
 
 /**
- * 1. We add a fixed prefix, which is used as virtual module naming convention;
- * 2. We replace the dot that belongs extension with an arbitrary string.
+ * Prevents Rollup from triggering other plugins in the process by masking the extension (hence the virtual file).
+ * 
+ * 1. We add a fixed prefix, which is used as virtual module naming convention
+ * 2. If the path contains an extension, we replace the dot that belongs to the extension with an arbitrary string.
  *
  * @param virtualModulePrefix
  * @param path
  */
 export function getVirtualModulePageNameFromPath(virtualModulePrefix: string, path: string) {
-	// we mask the extension, so this virtual file
-	// so rollup won't trigger other plugins in the process
 	const extension = extname(path);
-	return (
-		virtualModulePrefix +
-		(extension === '.astro'
-			? path.slice(0, -extension.length) + `${ASTRO_PAGE_EXTENSION_POST_PATTERN}astro`
-			: path)
-	);
+	return virtualModulePrefix +
+		(extension.startsWith('.')
+			? path.slice(0, -extension.length) + extension.replace('.', ASTRO_PAGE_EXTENSION_POST_PATTERN)
+			: path);
 }
 
 /**
