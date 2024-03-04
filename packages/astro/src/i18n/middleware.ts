@@ -1,4 +1,3 @@
-import type { APIContext, MiddlewareHandler, SSRManifest } from '../@types/astro.js';
 import {
 	getPathByLocale,
 	type MiddlewarePayload,
@@ -7,12 +6,9 @@ import {
 	requestHasLocale,
 	redirectToDefaultLocale,
 } from './index.js';
-import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
-import type { APIContext, Locales, MiddlewareHandler, SSRManifest } from '../@types/astro.js';
+import type { APIContext, MiddlewareHandler, SSRManifest } from '../@types/astro.js';
 import type { SSRManifestI18n } from '../core/app/types.js';
-import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { ROUTE_TYPE_HEADER } from '../core/constants.js';
-import { getPathByLocale, normalizeTheLocale } from './index.js';
 
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],
