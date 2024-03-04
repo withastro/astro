@@ -106,8 +106,8 @@ export class RenderContext {
 								// Signal to the i18n middleware to maybe act on this response
 								response.headers.set(ROUTE_TYPE_HEADER, 'page');
 								// Signal to the error-page-rerouting infra to let this response pass through to avoid loops
-								if (routeData.route === "/404" || routeData.route === "/500") {
-									response.headers.set(REROUTE_DIRECTIVE_HEADER, "no")
+								if (routeData.route === '/404' || routeData.route === '/500') {
+									response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 								}
 								return response;
 							}

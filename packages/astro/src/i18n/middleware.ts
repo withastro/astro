@@ -198,7 +198,7 @@ export function createI18nMiddleware(
  * To avoid loops and overwriting the contents of `404.astro`, we allow error pages to pass through.
  */
 function notFound(response: Response) {
-	if (response.headers.get(REROUTE_DIRECTIVE_HEADER) === "no") return response;
+	if (response.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no') return response;
 	return new Response(null, {
 		status: 404,
 		headers: response.headers,

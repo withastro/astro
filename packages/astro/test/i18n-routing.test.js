@@ -1346,7 +1346,6 @@ describe('[SSR] i18n routing', () => {
 			assert.equal((await response.text()).includes('I am index'), true);
 		});
 
-		
 		it('can render the 404.astro route on unmatched requests', async () => {
 			const request = new Request('http://example.com/xyz');
 			const response = await app.render(request);
