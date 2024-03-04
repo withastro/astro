@@ -4,12 +4,12 @@
   "description": "",
   "license": "MIT",
   "type": "module",
-  "types": "./dist/index.d.ts",
   "author": "withastro",
+  "types": "./index.d.ts",
   "main": "./dist/index.js",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./index.d.ts",
       "import": "./dist/index.js"
     },
     "./utils": {
@@ -51,7 +51,6 @@
   },
   "files": [
     "index.d.ts",
-    "config-augment.d.ts",
     "dist"
   ],
   "keywords": [
