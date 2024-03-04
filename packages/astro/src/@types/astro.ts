@@ -887,7 +887,7 @@ export interface AstroUserConfig {
 		 * @description
 		 * Specifies the prefix for Astro-generated asset links. This can be used if assets are served from a different domain than the current site.
 		 * 
-		 * If use `string`
+		 * If this value is a `string`
 		 *
 		 * For example, if this is set to `https://cdn.example.com`, assets will be fetched from `https://cdn.example.com/_astro/...` (regardless of the `base` option).
 		 * You would need to upload the files in `./dist/_astro/` to `https://cdn.example.com/_astro/` to serve the assets.
