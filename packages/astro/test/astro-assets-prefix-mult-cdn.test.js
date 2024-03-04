@@ -5,11 +5,8 @@ import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
 const defaultAssetsPrefixRegex = /^https:\/\/example.com\/_astro\/.*/;
-
 const jsAssetsPrefixRegex = /^https:\/\/js\.example\.com\/_astro\/.*/;
-
 const cssAssetsPrefixRegex = /^https:\/\/css\.example\.com\/_astro\/.*/;
-
 const assetsPrefix = {
 	'js': 'https://js.example.com',
 	'css': 'https://css.example.com',
