@@ -65,7 +65,7 @@ describe('Astro Global', () => {
 		it('Astro.site', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			assert.equal($('#site').attr('href'), 'https://mysite.dev/blog/');
+			assert.equal($('#site').attr('href'), 'https://mysite.dev/blog');
 		});
 
 		it('Astro.glob() correctly returns an array of all posts', async () => {

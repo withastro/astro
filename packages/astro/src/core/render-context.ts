@@ -137,7 +137,6 @@ export class RenderContext {
 		const generator = `Astro v${ASTRO_VERSION}`;
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
-		const site = pipeline.site ? new URL(pipeline.site) : undefined;
 		return {
 			cookies,
 			get currentLocale() {
@@ -154,7 +153,7 @@ export class RenderContext {
 			props,
 			redirect,
 			request,
-			site,
+			site: pipeline.site,
 			url,
 			get clientAddress() {
 				if (clientAddressSymbol in request) {
@@ -281,6 +280,7 @@ export class RenderContext {
 			request,
 			response,
 			slots,
+			site: pipeline.site,
 			url,
 			get clientAddress() {
 				if (clientAddressSymbol in request) {
