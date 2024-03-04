@@ -201,10 +201,14 @@ export async function renderToAsyncIterable(
 	// The `next` is an object `{ promise, resolve, reject }` that we use to wait
 	// for chunks to be pushed into the buffer.
 	let next = promiseWithResolvers<void>();
+	// keep track of whether the client connection is still interested in the response.
+	let cancelled = false;
 	const buffer: Uint8Array[] = []; // []Uint8Array
 
-	const iterator = {
+	const iterator: AsyncIterator<Uint8Array> = {
 		async next() {
+			if (cancelled) return { done: true, value: undefined };
+
 			await next.promise;
 
 			// If an error occurs during rendering, throw the error as we cannot proceed.
@@ -238,6 +242,10 @@ export async function renderToAsyncIterable(
 
 			return returnValue;
 		},
+		async return() {
+			cancelled = true;
+			return { done: true, value: undefined };
+		}
 	};
 
 	const destination: RenderDestination = {
