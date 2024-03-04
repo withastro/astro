@@ -18,7 +18,7 @@ export interface CompileCssResult {
 	 */
 	isGlobal: boolean;
 	/**
-	 * The dependencies of the transformed CSS (Normalized paths)
+	 * The dependencies of the transformed CSS (Normalized/forward-slash-only absolute paths)
 	 */
 	dependencies: string[];
 }

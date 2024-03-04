@@ -359,6 +359,11 @@ function appendCSSToPage(
 	}
 }
 
+/**
+ * `cssScopeTo` is a map of `importer`s to its `export`s. This function iterate each `cssScopeTo` entries
+ * and check if the `importer` and its `export`s exists in the final chunks. If at least one matches,
+ * `cssScopeTo` is considered "rendered" by Rollup and we return true.
+ */
 function isCssScopeToRendered(
 	cssScopeTo: Record<string, string[]>,
 	chunks: Rollup.RenderedChunk[]
@@ -367,7 +372,7 @@ function isCssScopeToRendered(
 		const exports = cssScopeTo[moduleId];
 		// Find the chunk that renders this `moduleId` and get the rendered module
 		const renderedModule = chunks.find((c) => c.moduleIds.includes(moduleId))?.modules[moduleId];
-
+		// Return true if `renderedModule` exists and one of its exports is rendered
 		if (renderedModule?.renderedExports.some((e) => exports.includes(e))) {
 			return true;
 		}
