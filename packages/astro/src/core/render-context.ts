@@ -139,35 +139,13 @@ export class RenderContext {
 			new Response(null, { status, headers: { Location: path } });
 		return {
 			cookies,
+			get clientAddress() {
+				return renderContext.clientAddress()
+			},
 			get currentLocale() {
 				return renderContext.computeCurrentLocale();
 			},
 			generator,
-			params,
-			get preferredLocale() {
-				return renderContext.computePreferredLocale();
-			},
-			get preferredLocaleList() {
-				return renderContext.computePreferredLocaleList();
-			},
-			props,
-			redirect,
-			request,
-			site: pipeline.site,
-			url,
-			get clientAddress() {
-				if (clientAddressSymbol in request) {
-					return Reflect.get(request, clientAddressSymbol) as string;
-				}
-				if (pipeline.adapterName) {
-					throw new AstroError({
-						...AstroErrorData.ClientAddressNotAvailable,
-						message: AstroErrorData.ClientAddressNotAvailable.message(pipeline.adapterName),
-					});
-				} else {
-					throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
-				}
-			},
 			get locals() {
 				return renderContext.locals;
 			},
@@ -182,6 +160,18 @@ export class RenderContext {
 					Reflect.set(request, clientLocalsSymbol, val);
 				}
 			},
+			params,
+			get preferredLocale() {
+				return renderContext.computePreferredLocale();
+			},
+			get preferredLocaleList() {
+				return renderContext.computePreferredLocaleList();
+			},
+			props,
+			redirect,
+			request,
+			site: pipeline.site,
+			url,
 		};
 	}
 
@@ -247,7 +237,7 @@ export class RenderContext {
 		slotValues: Record<string, any> | null
 	): AstroGlobal {
 		const renderContext = this;
-		const { cookies, locals, params, pipeline, request, url } = this
+		const { cookies, locals, params, pipeline, request, url } = this;
 		const { response } = result;
 		const redirect = (path: string, status = 302) => {
 			// If the response is already sent, error as we cannot proceed with the redirect.
@@ -264,6 +254,9 @@ export class RenderContext {
 		const astroGlobalCombined: Omit<AstroGlobal, 'self'> = {
 			...astroGlobalPartial,
 			cookies,
+			get clientAddress() {
+				return renderContext.clientAddress()
+			},
 			get currentLocale() {
 				return renderContext.computeCurrentLocale();
 			},
@@ -282,22 +275,24 @@ export class RenderContext {
 			slots,
 			site: pipeline.site,
 			url,
-			get clientAddress() {
-				if (clientAddressSymbol in request) {
-					return Reflect.get(request, clientAddressSymbol) as string;
-				}
-				if (pipeline.adapterName) {
-					throw new AstroError({
-						...AstroErrorData.ClientAddressNotAvailable,
-						message: AstroErrorData.ClientAddressNotAvailable.message(pipeline.adapterName),
-					});
-				} else {
-					throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
-				}
-			},
 		};
 		
 		return astroGlobalCombined as AstroGlobal
+	}
+
+	clientAddress() {
+		const { pipeline, request } = this;
+		if (clientAddressSymbol in request) {
+			return Reflect.get(request, clientAddressSymbol) as string;
+		}
+		if (pipeline.adapterName) {
+			throw new AstroError({
+				...AstroErrorData.ClientAddressNotAvailable,
+				message: AstroErrorData.ClientAddressNotAvailable.message(pipeline.adapterName),
+			});
+		} else {
+			throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
+		}
 	}
 
 	/**
