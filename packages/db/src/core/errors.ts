@@ -10,13 +10,25 @@ export const MISSING_PROJECT_ID_ERROR = `${red('▶ Directory not linked.')}
   To link this directory to an Astro Studio project, run
   ${cyan('astro db link')}\n`;
 
-export const MIGRATIONS_NOT_INITIALIZED = `${yellow(
-	'▶ No migrations found!'
-)}\n\n  To scaffold your migrations folder, run\n  ${cyan('astro db sync')}\n`;
-
 export const MISSING_EXECUTE_PATH_ERROR = `${red(
 	'▶ No file path provided.'
 )} Provide a path by running ${cyan('astro db execute <path>')}\n`;
+
+export const RENAME_TABLE_ERROR = (oldTable: string, newTable: string) => {
+	return (
+		red('▶ Potential table rename detected: ' + oldTable + ', ' + newTable) +
+		`\n  You cannot add and remove tables in the same schema update batch.` +
+		`\n  To resolve, add a 'deprecated: true' flag to '${oldTable}' instead.`
+	);
+};
+
+export const RENAME_COLUMN_ERROR = (oldSelector: string, newSelector: string) => {
+	return (
+		red('▶ Potential column rename detected: ' + oldSelector + ', ' + newSelector) +
+		`\n  You cannot add and remove columns in the same table.` +
+		`\n  To resolve, add a 'deprecated: true' flag to '${oldSelector}' instead.`
+	);
+};
 
 export const FILE_NOT_FOUND_ERROR = (path: string) =>
 	`${red('▶ File not found:')} ${bold(path)}\n`;
