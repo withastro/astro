@@ -9,7 +9,7 @@ export const Themes = defineTable({
 		updated: column.date({
 			default: NOW,
 		}),
-		isDark: column.boolean({ default: sql`TRUE` }),
+		isDark: column.boolean({ default: sql`TRUE`, deprecated: true }),
 		owner: column.text({ optional: true, default: sql`NULL` }),
 	},
 });

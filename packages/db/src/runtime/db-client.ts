@@ -9,7 +9,6 @@ const isWebContainer = !!process.versions?.webcontainer;
 
 export function createLocalDatabaseClient({ dbUrl }: { dbUrl: string }): LibSQLDatabase {
 	const url = isWebContainer ? 'file:content.db' : dbUrl;
-	console.log('memory', process.env.TEST_IN_MEMORY_DB);
 	const client = createClient({ url: process.env.TEST_IN_MEMORY_DB ? ':memory:' : url });
 	const db = drizzleLibsql(client);
 
