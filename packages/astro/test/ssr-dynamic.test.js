@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 import { before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { load as cheerioLoad } from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
-import { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { mkdirSync, writeFileSync } from 'node:fs';
 
 describe('Dynamic pages in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -29,7 +29,7 @@ describe('Dynamic pages in SSR', () => {
 							const entrypoint = fileURLToPath(
 								new URL(`${root}.astro/test.astro`, import.meta.url)
 							);
-							console.log(entrypoint)
+							console.log(entrypoint);
 							mkdirSync(dirname(entrypoint), { recursive: true });
 							writeFileSync(entrypoint, '<h1>Index</h1>');
 

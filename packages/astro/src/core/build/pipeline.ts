@@ -16,8 +16,8 @@ import {
 	mergeInlineCss,
 } from './internal.js';
 import { ASTRO_PAGE_MODULE_ID, ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
-import { getVirtualModulePageNameFromPath } from './plugins/util.js';
 import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
+import { getVirtualModulePageNameFromPath } from './plugins/util.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
