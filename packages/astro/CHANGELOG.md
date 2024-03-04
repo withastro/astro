@@ -1,5 +1,11 @@
 # astro
 
+## 4.4.10
+
+### Patch Changes
+
+- [#10235](https://github.com/withastro/astro/pull/10235) [`4bc360cd5f25496aca3232f6efb3710424a14a34`](https://github.com/withastro/astro/commit/4bc360cd5f25496aca3232f6efb3710424a14a34) Thanks [@sanman1k98](https://github.com/sanman1k98)! - Fixes jerky scrolling on IOS when using view transitions.
+
 ## 4.4.9
 
 ### Patch Changes
