@@ -326,7 +326,7 @@ async function getPathsForRoute(
 	let paths: Array<string> = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
-		builtPaths.add(route.pathname);
+		builtPaths.add(removeTrailingForwardSlash(route.pathname));
 	} else {
 		const staticPaths = await callGetStaticPaths({
 			mod,
