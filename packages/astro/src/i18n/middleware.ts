@@ -1,7 +1,7 @@
 import {
 	getPathByLocale,
 	type MiddlewarePayload,
-	noFoundForNonLocaleRoute,
+	notFound,
 	normalizeTheLocale,
 	requestHasLocale,
 	redirectToDefaultLocale,
@@ -25,7 +25,7 @@ export function createI18nMiddleware(
 		domains: {},
 	};
 	const _redirectToDefaultLocale = redirectToDefaultLocale(payload);
-	const _noFoundForNonLocaleRoute = noFoundForNonLocaleRoute(payload);
+	const _noFoundForNonLocaleRoute = notFound(payload);
 	const _requestHasLocale = requestHasLocale(payload.locales);
 
 	const prefixAlways = (response: Response, context: APIContext): Response | undefined => {

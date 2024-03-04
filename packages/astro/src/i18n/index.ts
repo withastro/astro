@@ -303,7 +303,7 @@ export function redirectToDefaultLocale({
 	};
 }
 
-export function noFoundForNonLocaleRoute({ base, locales }: MiddlewarePayload) {
+export function notFound({ base, locales }: MiddlewarePayload) {
 	return function (context: APIContext, response?: Response) {
 		const url = context.url;
 		// We return a 404 if:

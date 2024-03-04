@@ -269,9 +269,9 @@ export const redirectToDefaultLocale =
  * @param {Response?} response An optional `Response` in case you're handling a `Response` coming from the `next` function.
  *
  */
-export const noFoundForNonLocaleRoute =
+export const notFound =
 	i18n?.routing === 'manual'
-		? I18nInternals.noFoundForNonLocaleRoute({
+		? I18nInternals.notFound({
 				base,
 				trailingSlash,
 				format,
@@ -281,7 +281,7 @@ export const noFoundForNonLocaleRoute =
 				domains,
 				fallback,
 			})
-		: noop('noFoundForNonLocaleRoute');
+		: noop('notFound');
 
 /**
  * Checks whether the current URL contains a configured locale. Internally, this function will use `APIContext#url.pathname`
@@ -338,9 +338,9 @@ export const useFallback: UseFallback =
  */
 export const middleware =
 	i18n?.routing === 'manual'
-		? (customOptions?: NonNullable<AstroConfig['i18n']>) => {
+		? (customOptions?: Omit<NonNullable<AstroConfig['i18n']>, 'routing'>) => {
 				const manifest: SSRManifest['i18n'] = {
-					strategy: toRoutingStrategy(customOptions ?? i18n),
+					strategy: 'manual',
 					defaultLocale: customOptions?.defaultLocale ?? i18n.defaultLocale,
 					fallback: customOptions?.fallback ?? i18n.fallback,
 					locales: customOptions?.locales ?? i18n.locales,
