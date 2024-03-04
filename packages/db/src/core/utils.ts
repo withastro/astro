@@ -21,7 +21,3 @@ export function getAstroStudioUrl(): string {
 export function getDbDirectoryUrl(root: URL | string) {
 	return new URL('db/', root);
 }
-
-export function getMigrationsDirectoryUrl(root: URL | string) {
-	return new URL('migrations/', getDbDirectoryUrl(root));
-}
