@@ -881,7 +881,7 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name build.assetsPrefix
-		 * @type {AssetsPrefix}
+		 * @type {string | Record<string, string>}
 		 * @default `undefined`
 		 * @version 2.2.0
 		 * @description
