@@ -39,7 +39,7 @@ export function getRouteGenerator(
 	const toPath = compile(template + trailing);
 	return (params: object): string => {
 		const path = toPath(params);
-		
+
 		// When generating an index from a rest parameter route, `path-to-regexp` will return an
 		// empty string instead "/". This causes an inconsistency with static indexes that may result
 		// in the incorrect routes being rendered.
