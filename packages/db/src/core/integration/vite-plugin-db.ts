@@ -107,7 +107,11 @@ export function getLocalVirtualModContents({
 		(name) => new URL(name, getDbDirectoryUrl('file:///')).pathname
 	);
 	const integrationSeedFilePaths = seedFiles.map((pathOrUrl) =>
-		typeof pathOrUrl === 'string' ? pathOrUrl.replace(/^\./, '') : pathOrUrl.pathname
+		typeof pathOrUrl === 'string'
+			? pathOrUrl[0] === '.'
+				? new URL(pathOrUrl, new URL('file:///')).pathname
+				: pathOrUrl
+			: pathOrUrl.pathname
 	);
 
 	return `
