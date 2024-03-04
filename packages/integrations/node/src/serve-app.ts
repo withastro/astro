@@ -8,7 +8,15 @@ import type { RequestHandler } from './types.js';
  */
 export function createAppHandler(app: NodeApp): RequestHandler {
 	return async (req, res, next, locals) => {
-		const request = NodeApp.createRequest(req);
+		let request;
+		try {
+			request = NodeApp.createRequest(req);
+		} catch (err) {
+			res.statusCode = 500;
+			res.end('Internal Server Error');
+			return;
+		}
+
 		const routeData = app.match(request);
 		if (routeData) {
 			const response = await app.render(request, {

@@ -1,7 +1,11 @@
 import { writeFile } from 'node:fs/promises';
+import { relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { AstroConfig } from 'astro';
-import { bgRed, red, reset } from 'kleur/colors';
+import { bgRed, bold, red, reset } from 'kleur/colors';
 import type { Arguments } from 'yargs-parser';
+import type { DBConfig } from '../../../types.js';
+import { getMigrationsDirectoryUrl } from '../../../utils.js';
 import { getMigrationQueries } from '../../migration-queries.js';
 import {
 	MIGRATIONS_CREATED,
@@ -10,11 +14,19 @@ import {
 	initializeMigrationsDirectory,
 } from '../../migrations.js';
 
-export async function cmd({ config }: { config: AstroConfig; flags: Arguments }) {
-	const migration = await getMigrationStatus(config);
+export async function cmd({
+	astroConfig,
+	dbConfig,
+}: {
+	astroConfig: AstroConfig;
+	dbConfig: DBConfig;
+	flags: Arguments;
+}) {
+	const migration = await getMigrationStatus({ dbConfig, root: astroConfig.root });
+	const migrationsDir = getMigrationsDirectoryUrl(astroConfig.root);
 
 	if (migration.state === 'no-migrations-found') {
-		await initializeMigrationsDirectory(migration.currentSnapshot);
+		await initializeMigrationsDirectory(migration.currentSnapshot, migrationsDir);
 		console.log(MIGRATIONS_CREATED);
 		return;
 	} else if (migration.state === 'up-to-date') {
@@ -30,14 +42,15 @@ export async function cmd({ config }: { config: AstroConfig; flags: Arguments })
 	// Warn the user about any changes that lead to data-loss.
 	// When the user runs `db push`, they will be prompted to confirm these changes.
 	confirmations.map((message) => console.log(bgRed(' !!! ') + ' ' + red(message)));
-	const migrationFileContent = {
+	const content = {
 		diff,
 		db: migrationQueries,
 		// TODO(fks): Encode the relevant data, instead of the raw message.
 		// This will give `db push` more control over the formatting of the message.
 		confirm: confirmations.map((c) => reset(c)),
 	};
-	const migrationFileName = `./migrations/${newFilename}`;
-	await writeFile(migrationFileName, JSON.stringify(migrationFileContent, undefined, 2));
-	console.log(migrationFileName + ' created!');
+	const fileUrl = new URL(newFilename, migrationsDir);
+	const relativePath = relative(fileURLToPath(astroConfig.root), fileURLToPath(fileUrl));
+	await writeFile(fileUrl, JSON.stringify(content, undefined, 2));
+	console.log(bold(relativePath) + ' created!');
 }

@@ -67,13 +67,14 @@ export default function assets({
 					export { default as Picture } from "astro/components/Picture.astro";
 
 					export const imageConfig = ${JSON.stringify(settings.config.image)};
-					export const assetsDir = new URL(${JSON.stringify(
+					export const outDir = new URL(${JSON.stringify(
 						new URL(
 							isServerLikeOutput(settings.config)
 								? settings.config.build.client
 								: settings.config.outDir
 						)
 					)});
+					export const assetsDir = new URL(${JSON.stringify(settings.config.build.assets)}, outDir);
 					export const getImage = async (options) => await getImageInternal(options, imageConfig);
 				`;
 				}

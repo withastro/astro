@@ -28,19 +28,7 @@ ${Object.entries(tables)
 function generateTableType(name: string, collection: DBTable): string {
 	let tableType = `	export const ${name}: import(${RUNTIME_IMPORT}).Table<
 		${JSON.stringify(name)},
-		${JSON.stringify(
-			Object.fromEntries(
-				Object.entries(collection.columns).map(([columnName, column]) => [
-					columnName,
-					{
-						// Only select columns Drizzle needs for inference
-						type: column.type,
-						optional: column.schema.optional,
-						default: column.schema.default,
-					},
-				])
-			)
-		)}
+		${JSON.stringify(collection.columns)}
 	>;`;
 	return tableType;
 }

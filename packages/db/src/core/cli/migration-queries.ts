@@ -4,7 +4,6 @@ import * as color from 'kleur/colors';
 import { customAlphabet } from 'nanoid';
 import prompts from 'prompts';
 import { hasPrimaryKey } from '../../runtime/index.js';
-import { isSerializedSQL } from '../../runtime/types.js';
 import {
 	getCreateIndexQueries,
 	getCreateTableQuery,
@@ -12,7 +11,8 @@ import {
 	getReferencesConfig,
 	hasDefault,
 	schemaTypeToSqlType,
-} from '../queries.js';
+} from '../../runtime/queries.js';
+import { isSerializedSQL } from '../../runtime/types.js';
 import {
 	type BooleanColumn,
 	type ColumnType,
