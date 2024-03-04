@@ -119,7 +119,13 @@ export async function generateImagesForPath(
 		!globalThis.astroAsset.referencedImages?.has(transformsAndPath.originalSrcPath)
 	) {
 		try {
-			await fs.promises.unlink(getFullImagePath(originalFilePath, env));
+			if (transformsAndPath.originalSrcPath) {
+				env.logger.debug(
+					'assets',
+					`Deleting ${originalFilePath} as it's not referenced outside of image processing.`
+				);
+				await fs.promises.unlink(getFullImagePath(originalFilePath, env));
+			}
 		} catch (e) {
 			/* No-op, it's okay if we fail to delete one of the file, we're not too picky. */
 		}

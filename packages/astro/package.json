@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "4.4.8",
+  "version": "4.4.10",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -108,6 +108,7 @@
     "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\" && astro-scripts copy \"src/**/*.wasm\"",
     "test": "pnpm run test:node",
+    "test:match": "pnpm run test:node --match",
     "test:e2e": "playwright test",
     "test:e2e:match": "playwright test -g",
     "test:node": "astro-scripts test \"test/**/*.test.js\""

@@ -1,5 +1,21 @@
 # @astrojs/db
 
+## 0.6.0
+
+### Minor Changes
+
+- [#10312](https://github.com/withastro/astro/pull/10312) [`93ec9e264a1dbdff61233289418612f558508135`](https://github.com/withastro/astro/commit/93ec9e264a1dbdff61233289418612f558508135) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Revamp migrations system
+
+### Patch Changes
+
+- [#10313](https://github.com/withastro/astro/pull/10313) [`cb00c8b6927242369debe92ad2bc7e791616696a`](https://github.com/withastro/astro/commit/cb00c8b6927242369debe92ad2bc7e791616696a) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix bad package.json types
+
+## 0.5.0
+
+### Minor Changes
+
+- [#10280](https://github.com/withastro/astro/pull/10280) [`3488be9b59d1cb65325b0e087c33bcd74aaa4926`](https://github.com/withastro/astro/commit/3488be9b59d1cb65325b0e087c33bcd74aaa4926) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Finalize db API to a shared db/ directory.
+
 ## 0.4.1
 
 ### Patch Changes
