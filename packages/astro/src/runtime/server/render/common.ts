@@ -12,6 +12,7 @@ import {
 import { renderAllHeadContent } from './head.js';
 import { isRenderInstruction } from './instruction.js';
 import { type SlotString, isSlotString } from './slot.js';
+import { restoreHydratableAstroSlot } from './component.js';
 
 /**
  * Possible chunk types to be written to the destination, and it'll
@@ -137,7 +138,8 @@ export function chunkToByteArray(
 	} else {
 		// `stringifyChunk` might return a HTMLString, call `.toString()` to really ensure it's a string
 		const stringified = stringifyChunk(result, chunk);
-		return encoder.encode(stringified.toString());
+		const restoredMarkup = restoreHydratableAstroSlot(stringified) 
+		return encoder.encode(restoredMarkup.toString());
 	}
 }
 
