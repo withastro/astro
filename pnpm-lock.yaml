@@ -2945,12 +2945,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/integration-inject-route-entrypoint:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/integration-server-setup:
     dependencies:
       astro:
