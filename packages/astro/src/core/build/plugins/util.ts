@@ -47,7 +47,7 @@ export const ASTRO_PAGE_EXTENSION_POST_PATTERN = '@_@';
  * Prevents Rollup from triggering other plugins in the process by masking the extension (hence the virtual file).
  * 
  * 1. We add a fixed prefix, which is used as virtual module naming convention
- * 2. If the path contains an extension, we replace the dot that belongs to the extension with an arbitrary string.
+ * 2. If the path has an extension (at the end of the path), we replace the dot that belongs to the extension with an arbitrary string.
  *
  * @param virtualModulePrefix
  * @param path
