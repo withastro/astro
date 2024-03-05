@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 5.2.0
+
+### Minor Changes
+
+- [#10244](https://github.com/withastro/astro/pull/10244) [`dbb0d0bd2833bf02d0aa70f87973c62ca1d58c1b`](https://github.com/withastro/astro/commit/dbb0d0bd2833bf02d0aa70f87973c62ca1d58c1b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds TypeScript as a required peer dependency as it is required for Svelte's editor tooling to work correctly.
+
 ## 5.1.0
 
 ### Minor Changes

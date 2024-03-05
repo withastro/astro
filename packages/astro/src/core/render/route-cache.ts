@@ -99,17 +99,22 @@ export class RouteCache {
 	}
 
 	set(route: RouteData, entry: RouteCacheEntry): void {
+		const key = this.key(route);
 		// NOTE: This shouldn't be called on an already-cached component.
 		// Warn here so that an unexpected double-call of getStaticPaths()
 		// isn't invisible and developer can track down the issue.
-		if (this.mode === 'production' && this.cache[route.component]?.staticPaths) {
-			this.logger.warn(null, `Internal Warning: route cache overwritten. (${route.component})`);
+		if (this.mode === 'production' && this.cache[key]?.staticPaths) {
+			this.logger.warn(null, `Internal Warning: route cache overwritten. (${key})`);
 		}
-		this.cache[route.component] = entry;
+		this.cache[key] = entry;
 	}
 
 	get(route: RouteData): RouteCacheEntry | undefined {
-		return this.cache[route.component];
+		return this.cache[this.key(route)];
+	}
+
+	key(route: RouteData) {
+		return `${route.route}_${route.component}`;
 	}
 }
 

@@ -90,28 +90,6 @@ if (inBrowser) {
 	}
 }
 
-const throttle = (cb: (...args: any[]) => any, delay: number) => {
-	let wait = false;
-	// During the waiting time additional events are lost.
-	// So repeat the callback at the end if we have swallowed events.
-	let onceMore = false;
-	return (...args: any[]) => {
-		if (wait) {
-			onceMore = true;
-			return;
-		}
-		cb(...args);
-		wait = true;
-		setTimeout(() => {
-			if (onceMore) {
-				onceMore = false;
-				cb(...args);
-			}
-			wait = false;
-		}, delay);
-	};
-};
-
 // returns the contents of the page or null if the router can't deal with it.
 async function fetchHTML(
 	href: string,
@@ -628,10 +606,15 @@ function onPopState(ev: PopStateEvent) {
 	transition(direction, originalLocation, new URL(location.href), {}, state);
 }
 
-// There's not a good way to record scroll position before a back button.
-// So the way we do it is by listening to scrollend if supported, and if not continuously record the scroll position.
-const onScroll = () => {
-	updateScrollPosition({ scrollX, scrollY });
+const onScrollEnd = () => {
+	// NOTE: our "popstate" event handler may call `pushState()` or
+	// `replaceState()` and then `scrollTo()`, which will fire "scroll" and
+	// "scrollend" events. To avoid redundant work and expensive calls to
+	// `replaceState()`, we simply check that the values are different before
+	// updating.
+	if (scrollX !== history.state.scrollX || scrollY !== history.state.scrollY) {
+		updateScrollPosition({ scrollX, scrollY });
+	}
 };
 
 // initialization
@@ -640,8 +623,42 @@ if (inBrowser) {
 		originalLocation = new URL(location.href);
 		addEventListener('popstate', onPopState);
 		addEventListener('load', onPageLoad);
-		if ('onscrollend' in window) addEventListener('scrollend', onScroll);
-		else addEventListener('scroll', throttle(onScroll, 350), { passive: true });
+		// There's not a good way to record scroll position before a history back
+		// navigation, so we will record it when the user has stopped scrolling.
+		if ('onscrollend' in window) addEventListener('scrollend', onScrollEnd);
+		else {
+			// Keep track of state between intervals
+			let intervalId: number | undefined, lastY: number, lastX: number, lastIndex: State['index'];
+			const scrollInterval = () => {
+				// Check the index to see if a popstate event was fired
+				if (lastIndex !== history.state?.index) {
+					clearInterval(intervalId);
+					intervalId = undefined;
+					return;
+				}
+				// Check if the user stopped scrolling
+				if (lastY === scrollY && lastX === scrollX) {
+					// Cancel the interval and update scroll positions
+					clearInterval(intervalId);
+					intervalId = undefined;
+					onScrollEnd();
+					return;
+				} else {
+					// Update vars with current positions
+					(lastY = scrollY), (lastX = scrollX);
+				}
+			};
+			// We can't know when or how often scroll events fire, so we'll just use them to start intervals
+			addEventListener(
+				'scroll',
+				() => {
+					if (intervalId !== undefined) return;
+					(lastIndex = history.state.index), (lastY = scrollY), (lastX = scrollX);
+					intervalId = window.setInterval(scrollInterval, 50);
+				},
+				{ passive: true }
+			);
+		}
 	}
 	for (const script of document.scripts) {
 		script.dataset.astroExec = '';
