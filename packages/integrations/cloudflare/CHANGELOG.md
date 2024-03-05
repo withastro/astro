@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 9.1.0
+
+### Minor Changes
+
+- [#179](https://github.com/withastro/adapters/pull/179) [`6ad25929ce37344d9de7063643434ca0b01df306`](https://github.com/withastro/adapters/commit/6ad25929ce37344d9de7063643434ca0b01df306) Thanks [@F0rce](https://github.com/F0rce)! - Adds [Service bindings](https://developers.cloudflare.com/workers/configuration/bindings/about-service-bindings/) to the runtime bindings.
+
 ## 9.0.2
 
 ### Patch Changes
