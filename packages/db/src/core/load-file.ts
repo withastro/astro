@@ -1,4 +1,4 @@
-import type { AstroConfig } from 'astro';
+import type { AstroConfig, AstroIntegration } from 'astro';
 import { build as esbuild } from 'esbuild';
 import { existsSync } from 'node:fs';
 import { unlink, writeFile } from 'node:fs/promises';
@@ -8,8 +8,11 @@ import { CONFIG_FILE_NAMES, VIRTUAL_MODULE_ID } from './consts.js';
 import { INTEGRATION_TABLE_CONFLICT_ERROR } from './errors.js';
 import { errorMap } from './integration/error-map.js';
 import { getConfigVirtualModContents } from './integration/vite-plugin-db.js';
-import { dbConfigSchema } from './types.js';
+import { dbConfigSchema, type AstroDbIntegration } from './types.js';
 import { getDbDirectoryUrl } from './utils.js';
+
+const isDbIntegration = (integration: AstroIntegration): integration is AstroDbIntegration =>
+	'astro:db:setup' in integration.hooks;
 
 /**
  * Load a user’s `astro:db` configuration file and additional configuration files provided by integrations.
@@ -23,7 +26,9 @@ export async function resolveDbConfig({ root, integrations }: AstroConfig) {
 	// Collect additional config and seed files from integrations.
 	const integrationDbConfigPaths: Array<{ name: string; configEntrypoint: string | URL }> = [];
 	const integrationSeedPaths: Array<string | URL> = [];
-	for (const { name, hooks } of integrations) {
+	for (const integration of integrations) {
+		if (!isDbIntegration(integration)) continue;
+		const { name, hooks } = integration;
 		if (hooks['astro:db:setup']) {
 			hooks['astro:db:setup']({
 				extendDb({ configEntrypoint, seedEntrypoint }) {

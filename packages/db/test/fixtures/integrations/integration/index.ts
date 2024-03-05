@@ -1,7 +1,7 @@
-import type { AstroIntegration } from 'astro';
+import { defineDbIntegration } from '@astrojs/db/utils';
 
-export default function testIntegration(): AstroIntegration {
-	return {
+export default function testIntegration() {
+	return defineDbIntegration({
 		name: 'db-test-integration',
 		hooks: {
 			'astro:db:setup'({ extendDb }) {
@@ -11,5 +11,5 @@ export default function testIntegration(): AstroIntegration {
 				});
 			},
 		},
-	};
+	});
 }

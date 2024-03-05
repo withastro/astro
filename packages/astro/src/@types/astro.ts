@@ -2514,12 +2514,6 @@ export interface AstroIntegration {
 	name: string;
 	/** The different hooks available to extend. */
 	hooks: {
-		'astro:db:setup'?: (options: {
-			extendDb: (options: {
-				configEntrypoint?: URL | string;
-				seedEntrypoint?: URL | string;
-			}) => void;
-		}) => void | Promise<void>;
 		'astro:config:setup'?: (options: {
 			config: AstroConfig;
 			command: 'dev' | 'build' | 'preview';
