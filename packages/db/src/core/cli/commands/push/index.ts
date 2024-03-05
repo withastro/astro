@@ -6,9 +6,11 @@ import { getRemoteDatabaseUrl } from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
+	formatDataLossMessage,
 	getMigrationQueries,
 	getProductionCurrentSnapshot,
 } from '../../migration-queries.js';
+import { red } from 'kleur/colors';
 
 export async function cmd({
 	dbConfig,
@@ -24,7 +26,7 @@ export async function cmd({
 	const productionSnapshot = await getProductionCurrentSnapshot({ appToken: appToken.token });
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
 	const isFromScratch = isForceReset || JSON.stringify(productionSnapshot) === '{}';
-	const { queries: migrationQueries } = await getMigrationQueries({
+	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
 		oldSnapshot: isFromScratch ? createEmptySnapshot() : productionSnapshot,
 		newSnapshot: currentSnapshot,
 	});
@@ -35,6 +37,14 @@ export async function cmd({
 	} else {
 		console.log(`Database schema is out of date.`);
 	}
+
+	if (isForceReset) {
+		console.log(`Force-pushing to the database. All existing data will be erased.`);
+	} else if (confirmations.length > 0) {
+		console.log('\n' + formatDataLossMessage(confirmations) + '\n');
+		throw new Error('Exiting.');
+	}
+	          
 	if (isDryRun) {
 		console.log('Statements:', JSON.stringify(migrationQueries, undefined, 2));
 	} else {

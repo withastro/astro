@@ -5,6 +5,7 @@ import type { DBConfig } from '../../../types.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
+	formatDataLossMessage,
 	getMigrationQueries,
 	getProductionCurrentSnapshot,
 } from '../../migration-queries.js';
@@ -17,21 +18,39 @@ export async function cmd({
 	dbConfig: DBConfig;
 	flags: Arguments;
 }) {
+	const isJson = flags.json;
 	const appToken = await getManagedAppTokenOrExit(flags.token);
 	const productionSnapshot = await getProductionCurrentSnapshot({ appToken: appToken.token });
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
-	const { queries: migrationQueries } = await getMigrationQueries({
+	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
 		oldSnapshot:
 			JSON.stringify(productionSnapshot) !== '{}' ? productionSnapshot : createEmptySnapshot(),
 		newSnapshot: currentSnapshot,
 	});
 
+	const result = { exitCode: 0, message: '', code: '', data: undefined as unknown };
 	if (migrationQueries.length === 0) {
-		console.log(`Database schema is up to date.`);
+		result.code = 'MATCH';
+		result.message = `Database schema is up to date.`;
 	} else {
-		console.log(`Database schema is out of date.`);
-		console.log(`Run 'astro db push' to push up your latest changes.`);
+		result.code = 'NO_MATCH';
+		result.message = `Database schema is out of date.\nRun 'astro db push' to push up your latest changes.`;
+	}
+
+
+	if (confirmations.length > 0) { 
+		result.code = 'DATA_LOSS';
+		result.exitCode = 1;
+		result.data = confirmations;
+		result.message = formatDataLossMessage(confirmations, !isJson);
+	}
+
+	if (isJson) {
+		console.log(JSON.stringify(result));
+	} else {
+		console.log(result.message);	
 	}
 
 	await appToken.destroy();
+	process.exit(result.exitCode);
 }
