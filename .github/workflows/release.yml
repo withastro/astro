@@ -20,8 +20,8 @@ env:
 
 jobs:
   changelog:
-    name: Changelog PR or Release
     if: ${{ github.repository_owner == 'withastro' }}
+    name: Changelog PR or Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -43,14 +43,32 @@ jobs:
 
       - name: Build Packages
         run: pnpm run build
+      
+      - name: Set PUBLISH_FLAGS variable
+        id: tag
+        run: |
+          BRANCH_NAME="${GITHUB_REF##*/}"
+          if [ "$BRANCH_NAME" = "main" ]; then
+            # do not set any flags (`latest` is the default)
+            echo "PUBLISH_FLAGS=" >> $GITHUB_ENV
+          elif [ "$BRANCH_NAME" = "next" ]; then
+            # just use `--tag next`
+            echo "PUBLISH_FLAGS=--tag next" >> $GITHUB_ENV
+          else
+            # extract the integer prefix from the branch name
+            VERSION_NUMBER="${BRANCH_NAME%%-*}"
+            # pass a shorthand tag like `--tag v3`
+            echo "PUBLISH_FLAGS=--tag v$VERSION_NUMBER" >> $GITHUB_ENV
+          fi
 
       - name: Create Release Pull Request or Publish
         id: changesets
         uses: changesets/action@v1
         with:
-          # Note: pnpm install after versioning is necessary to refresh lockfile
+          # Note: Run custom version script which runs pnpm install
+          # the install step is necessary to refresh lockfile after versioning
           version: pnpm run version
-          publish: pnpm exec changeset publish
+          publish: pnpm exec changeset publish $PUBLISH_FLAGS
           commit: "[ci] release"
           title: "[ci] release"
         env:
