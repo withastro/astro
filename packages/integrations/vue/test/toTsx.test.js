@@ -1,4 +1,4 @@
-import { toTSX } from '../src/editor.cts';
+import { toTSX } from '../dist/editor.cjs';
 import {  describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
