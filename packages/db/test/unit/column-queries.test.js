@@ -24,29 +24,18 @@ const userInitial = tableSchema.parse(
 	})
 );
 
-const defaultAmbiguityResponses = {
-	collectionRenames: {},
-	columnRenames: {},
-};
-
-function userChangeQueries(oldTable, newTable, ambiguityResponses = defaultAmbiguityResponses) {
+function userChangeQueries(oldTable, newTable) {
 	return getCollectionChangeQueries({
 		collectionName: TABLE_NAME,
 		oldCollection: oldTable,
 		newCollection: newTable,
-		ambiguityResponses,
 	});
 }
 
-function configChangeQueries(
-	oldCollections,
-	newCollections,
-	ambiguityResponses = defaultAmbiguityResponses
-) {
+function configChangeQueries(oldCollections, newCollections) {
 	return getMigrationQueries({
 		oldSnapshot: { schema: oldCollections, experimentalVersion: 1 },
 		newSnapshot: { schema: newCollections, experimentalVersion: 1 },
-		ambiguityResponses,
 	});
 }
 
@@ -63,7 +52,10 @@ describe('column queries', () => {
 			const oldCollections = {};
 			const newCollections = { [TABLE_NAME]: userInitial };
 			const { queries } = await configChangeQueries(oldCollections, newCollections);
-			expect(queries).to.deep.equal([getCreateTableQuery(TABLE_NAME, userInitial)]);
+			expect(queries).to.deep.equal([
+				`DROP TABLE IF EXISTS "${TABLE_NAME}"`,
+				`CREATE TABLE "${TABLE_NAME}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "email" text NOT NULL UNIQUE, "mi" text)`,
+			]);
 		});
 
 		it('should drop table for removed tables', async () => {
@@ -73,15 +65,39 @@ describe('column queries', () => {
 			expect(queries).to.deep.equal([`DROP TABLE "${TABLE_NAME}"`]);
 		});
 
-		it('should rename table for renamed tables', async () => {
+		it('should error if possible table rename is detected', async () => {
 			const rename = 'Peeps';
 			const oldCollections = { [TABLE_NAME]: userInitial };
 			const newCollections = { [rename]: userInitial };
-			const { queries } = await configChangeQueries(oldCollections, newCollections, {
-				...defaultAmbiguityResponses,
-				collectionRenames: { [rename]: TABLE_NAME },
+			let error = null;
+			try {
+				await configChangeQueries(oldCollections, newCollections, {
+					collectionRenames: { [rename]: TABLE_NAME },
+				});
+			} catch (e) {
+				error = e.message;
+			}
+			expect(error).to.include.string('Potential table rename detected');
+		});
+
+		it('should error if possible column rename is detected', async () => {
+			const blogInitial = tableSchema.parse({
+				columns: {
+					title: column.text(),
+				},
 			});
-			expect(queries).to.deep.equal([`ALTER TABLE "${TABLE_NAME}" RENAME TO "${rename}"`]);
+			const blogFinal = tableSchema.parse({
+				columns: {
+					title2: column.text(),
+				},
+			});
+			let error = null;
+			try {
+				await configChangeQueries({ [TABLE_NAME]: blogInitial }, { [TABLE_NAME]: blogFinal });
+			} catch (e) {
+				error = e.message;
+			}
+			expect(error).to.include.string('Potential column rename detected');
 		});
 	});
 
@@ -137,27 +153,6 @@ describe('column queries', () => {
 				'DROP TABLE "Users"',
 				`ALTER TABLE "${tempTableName}" RENAME TO "Users"`,
 			]);
-		});
-
-		describe('ALTER RENAME COLUMN', () => {
-			it('when renaming a column', async () => {
-				const userFinal = {
-					...userInitial,
-					columns: {
-						...userInitial.columns,
-					},
-				};
-				userFinal.columns.middleInitial = userFinal.columns.mi;
-				delete userFinal.columns.mi;
-
-				const { queries } = await userChangeQueries(userInitial, userFinal, {
-					collectionRenames: {},
-					columnRenames: { [TABLE_NAME]: { middleInitial: 'mi' } },
-				});
-				expect(queries).to.deep.equal([
-					`ALTER TABLE "${TABLE_NAME}" RENAME COLUMN "mi" TO "middleInitial"`,
-				]);
-			});
 		});
 
 		describe('Lossy table recreate', () => {
