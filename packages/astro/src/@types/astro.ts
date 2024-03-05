@@ -886,7 +886,7 @@ export interface AstroUserConfig {
 		 * @version 2.2.0
 		 * @description
 		 * Specifies the prefix for Astro-generated asset links. This can be used if assets are served from a different domain than the current site.
-		 * 
+		 *
 		 * If this value is a `string`,
 		 *
 		 * For example, if this is set to `https://cdn.example.com`, assets will be fetched from `https://cdn.example.com/_astro/...` (regardless of the `base` option).
@@ -901,27 +901,27 @@ export interface AstroUserConfig {
 		 *   }
 		 * }
 		 * ```
-		 * 
+		 *
 		 * If this value is a `Record<string, string>`,
-		 * 
+		 *
 		 * Applicable to multiple CDN scenarios. If you static file use different CDN, you can configure it like the example below.
-		 * 
+		 *
 		 * For example, if static file is js file, assets prefix use `https://js.cdn.example.com`. If static file is css file, assets prefix use `https://css.cdn.example.com`. Other assets prefix use `https://cdn.example.com`.
-		 * 
+		 *
 		 * ```js
 		 * {
 		 *   build: {
 		 *     assetsPrefix: {
 		 *       'js': 'https://js.cdn.example.com',
 		 *       'css': 'https://js.cdn.example.com',
-		 *       'defaultAssetsPrefix': 'https://cdn.example.com'
+		 *       'fallabck': 'https://cdn.example.com'
 		 *     }
 		 *   }
 		 * }
 		 * ```
-		 * 
+		 *
 		 * Object key is file extension, value is CDN assets prefix path. `defaultAssetsPrefix` is default assets prefix cdn value set. You can set the default values of other files by setting the value of `defaultAssetsPrefix`. If `defaultAssetsPrefix` is not set, when the file extension is not found in the `assetsPrefix` object, it will be set to the empty string `''` by default.
-		 * 
+		 *
 		 */
 		assetsPrefix?: AssetsPrefix;
 		/**

@@ -8,10 +8,10 @@ const defaultAssetsPrefixRegex = /^https:\/\/example.com\/_astro\/.*/;
 const jsAssetsPrefixRegex = /^https:\/\/js\.example\.com\/_astro\/.*/;
 const cssAssetsPrefixRegex = /^https:\/\/css\.example\.com\/_astro\/.*/;
 const assetsPrefix = {
-	'js': 'https://js.example.com',
-	'css': 'https://css.example.com',
-	'defaultAssetsPrefix': 'https://example.com'
-}
+	js: 'https://js.example.com',
+	css: 'https://css.example.com',
+	fallback: 'https://example.com',
+};
 
 // Asset prefix for CDN support
 describe('Assets Prefix Multiple CDN - Static', () => {
@@ -22,7 +22,7 @@ describe('Assets Prefix Multiple CDN - Static', () => {
 			root: './fixtures/astro-assets-prefix',
 			build: {
 				assetsPrefix,
-			}
+			},
 		});
 		await fixture.build();
 	});
@@ -32,7 +32,7 @@ describe('Assets Prefix Multiple CDN - Static', () => {
 		const $ = cheerio.load(html);
 		const stylesheets = $('link[rel="stylesheet"]');
 		stylesheets.each((i, el) => {
-			assert.match(el.attribs.href, cssAssetsPrefixRegex)
+			assert.match(el.attribs.href, cssAssetsPrefixRegex);
 		});
 	});
 
@@ -85,7 +85,7 @@ describe('Assets Prefix Multiple CDN, server', () => {
 			adapter: testAdapter(),
 			build: {
 				assetsPrefix,
-			}
+			},
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();

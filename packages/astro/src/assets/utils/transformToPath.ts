@@ -35,14 +35,14 @@ export function hashTransform(
 	return shorthash(deterministicString(hashFields));
 }
 
-export function getAssetsPrefix(fileType: string, assetsPrefix?: AssetsPrefix):string {
+export function getAssetsPrefix(fileType: string, assetsPrefix?: AssetsPrefix): string {
 	if (!assetsPrefix) return '';
 	if (typeof assetsPrefix === 'string') return assetsPrefix;
 	fileType = fileType[0] === '.' ? fileType.slice(1) : fileType;
 	if (assetsPrefix[fileType]) {
 		return assetsPrefix[fileType];
-	} else if (assetsPrefix.defaultAssetsPrefix) {
-		return assetsPrefix.defaultAssetsPrefix;
+	} else if (assetsPrefix.fallback) {
+		return assetsPrefix.fallback;
 	}
 	return '';
 }

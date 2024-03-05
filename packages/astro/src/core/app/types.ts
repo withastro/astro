@@ -35,7 +35,12 @@ export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 
 export type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
 
-export type AssetsPrefix = string | Record<string, string>
+export type AssetsPrefix =
+	| string
+	| ({
+			fallback: string;
+	  } & Record<string, string>)
+	| undefined;
 
 export type SSRManifest = {
 	adapterName: string;
