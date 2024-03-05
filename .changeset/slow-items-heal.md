@@ -2,7 +2,9 @@
 "astro": minor
 ---
 
-Adds experimental JSON Schema support for content collections of with `type: 'data'`.
+Adds experimental JSON Schema support for content collections.
+
+This feature will auto-generate a JSON Schema for content collection of `type: 'data'`, which can be used as the `$schema` value for TypeScript-style autocompletion/hints in tools like VSCode.
 
 To enable this feature, add the experimental flag:
 
@@ -16,15 +18,17 @@ export default defineConfig({
 });
 ```
 
-To make sure VSCode picks up the schema file, you have multiple option. You can either reference the file in every file of your content collection:
+This experimental implementation requires you to manually reference the schema in each data entry file of the collection:
+
 ```diff
+// src/content/test/entry.json
 {
 +  "$schema": "../../../.astro/collections/test.schema.json",
   "test": "test"
 }
 ```
 
-Or you can set your VSCode settings to match them, read more in the [VSCode docs](https://code.visualstudio.com/docs/languages/json#_json-schemas-and-settings):
+Alternatively, you can set this in your [VSCode `json.schemas` settings](https://code.visualstudio.com/docs/languages/json#_json-schemas-and-settings):
 
 ```diff
 "json.schemas": [
@@ -36,3 +40,5 @@ Or you can set your VSCode settings to match them, read more in the [VSCode docs
   }
 ]
 ```
+
+Note that this initial implementation uses a library with [known issues for advanced Zod schemas](https://github.com/StefanTerdell/zod-to-json-schema#known-issues), so you may wish to consult these limitations before enabling the experimental flag.
