@@ -119,6 +119,7 @@ export class AstroDevToolbar extends HTMLElement {
 				margin: 0;
 				overflow: hidden;
 				transition: opacity 0.2s ease-out 0s;
+				position: relative;
 			}
 
 			#dev-bar #bar-container .item:hover, #dev-bar #bar-container .item:focus-visible {
@@ -188,8 +189,8 @@ export class AstroDevToolbar extends HTMLElement {
 				}
 			}
 
-			#dev-bar #bar-container .item.active .notification {
-				border-color: rgba(71, 78, 94, 1);
+			#dev-bar #bar-container .item.active .notification rect, #dev-bar #bar-container .item.active .notification path {
+				stroke: rgba(71, 78, 94, 1);
 			}
 
 			#dev-bar .item .icon {
@@ -199,7 +200,7 @@ export class AstroDevToolbar extends HTMLElement {
 				user-select: none;
 			}
 
-			#dev-bar .item svg {
+			#dev-bar .item .icon>svg {
 				width: 20px;
 				height: 20px;
 				display: block;
@@ -215,24 +216,10 @@ export class AstroDevToolbar extends HTMLElement {
 			#dev-bar .item .notification {
 				display: none;
 				position: absolute;
-				top: -4px;
-				right: -6px;
-				width: 8px;
-				height: 8px;
-				border-radius: 9999px;
-				border: 1px solid rgba(19, 21, 26, 1);
-			}
-
-			#dev-bar .item .notification[data-level="error"] {
-				background: #B33E66;
-			}
-
-			#dev-bar .item .notification[data-level="warning"] {
-				background: #b58a2d;
-			}
-
-			#dev-bar .item .notification[data-level="info"] {
-				background: #9198ad;
+				top: 0;
+				right: 7px;
+				width: 9px;
+				height: 9px;
 			}
 
 			#dev-toolbar-root:not([data-no-notification]) #dev-bar .item .notification[data-active] {
@@ -407,8 +394,9 @@ export class AstroDevToolbar extends HTMLElement {
 
 	getAppTemplate(app: DevToolbarApp) {
 		return `<button class="item" data-app-id="${app.id}">
-				<div class="icon">${app.icon ? getAppIcon(app.icon) : '?'}<div class="notification"></div></div>
+				<div class="icon">${app.icon ? getAppIcon(app.icon) : '?'}</div>
 				<span class="item-tooltip">${app.name}</span>
+				<div class="notification"></div>
 			</button>`;
 	}
 

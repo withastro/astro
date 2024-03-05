@@ -62,6 +62,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	overlay = document.createElement('astro-dev-toolbar');
 
+	const notificationLevels = ['error', 'warning', 'info'] as const;
+	const notificationSVGs: Record<(typeof notificationLevels)[number], string> = {
+		error:
+			'<svg viewBox="0 0 10 10"><rect width="9" height="9" x=".5" y=".5" fill="#B33E66" stroke="#13151A" rx="4.5"/></svg>',
+		warning:
+			'<svg viewBox="0 0 12 10"><path width="8" height="8" fill="#B58A2D" stroke="#13151A" d="m10.76 7.25-3.46-6c-.58-1-2.02-1-2.6 0l-3.46 6a1.5 1.5 0 0 0 1.3 2.25h6.92a1.5 1.5 0 0 0 1.3-2.25Z"/></svg>',
+		info: '<svg viewBox="0 0 10 10"><rect width="9" height="9" x=".5" y=".5" fill="#3645D9" stroke="#13151A" rx="1.5"/></svg>',
+	} as const;
+
 	const prepareApp = (appDefinition: DevToolbarAppDefinition, builtIn: boolean): DevToolbarApp => {
 		const eventTarget = new EventTarget();
 		const app: DevToolbarApp = {
@@ -82,7 +91,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 			if (!target || !notificationElement) return;
 
 			let newState = evt.detail.state ?? true;
-			let level = evt.detail.level ?? 'error';
+			let level = notificationLevels.includes(evt?.detail?.level)
+				? (evt.detail.level as (typeof notificationLevels)[number])
+				: 'error';
 
 			app.notification.state = newState;
 			if (newState) app.notification.level = level;
@@ -90,6 +101,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			notificationElement.toggleAttribute('data-active', newState);
 			if (newState) {
 				notificationElement.setAttribute('data-level', level);
+				notificationElement.innerHTML = notificationSVGs[level];
 			}
 		});
 
@@ -239,12 +251,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 						if (!(evt instanceof CustomEvent)) return;
 
 						let newState = evt.detail.state ?? true;
-						let level = evt.detail.level ?? 'error';
+						let level = notificationLevels.includes(evt?.detail?.level)
+							? (evt.detail.level as (typeof notificationLevels)[number])
+							: 'error';
 
 						notification.toggleAttribute('data-active', newState);
 
 						if (newState) {
 							notification.setAttribute('data-level', level);
+							notification.innerHTML = notificationSVGs[level];
 						}
 
 						app.notification.state = newState;
