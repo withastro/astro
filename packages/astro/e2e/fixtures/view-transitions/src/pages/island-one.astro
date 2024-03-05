@@ -1,6 +1,7 @@
 ---
 import Layout from '../components/Layout.astro';
 import Island from '../components/Island.jsx';
+export const prerender = false;
 
 const persistProps = Astro.url.searchParams.has('persist');
 ---
