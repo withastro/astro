@@ -21,6 +21,7 @@ const baseColumnSchema = z.object({
 	label: z.string().optional(),
 	optional: z.boolean().optional().default(false),
 	unique: z.boolean().optional().default(false),
+	deprecated: z.boolean().optional().default(false),
 
 	// Defined when `defineReadableTable()` is called
 	name: z.string().optional(),
@@ -184,6 +185,7 @@ export const tableSchema = z.object({
 	columns: columnsSchema,
 	indexes: z.record(indexSchema).optional(),
 	foreignKeys: z.array(foreignKeysSchema).optional(),
+	deprecated: z.boolean().optional().default(false),
 });
 
 export const tablesSchema = z.preprocess((rawTables) => {
@@ -258,6 +260,7 @@ export interface TableConfig<TColumns extends ColumnsConfig = ColumnsConfig>
 		references: () => MaybeArray<z.input<typeof referenceableColumnSchema>>;
 	}>;
 	indexes?: Record<string, IndexConfig<TColumns>>;
+	deprecated?: boolean;
 }
 
 interface IndexConfig<TColumns extends ColumnsConfig> extends z.input<typeof indexSchema> {

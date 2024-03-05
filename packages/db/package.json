@@ -1,11 +1,11 @@
 {
   "name": "@astrojs/db",
-  "version": "0.5.0",
+  "version": "0.6.1",
   "description": "",
   "license": "MIT",
   "type": "module",
-  "types": "./index.d.ts",
   "author": "withastro",
+  "types": "./index.d.ts",
   "main": "./dist/index.js",
   "exports": {
     ".": {
@@ -51,7 +51,6 @@
   },
   "files": [
     "index.d.ts",
-    "config-augment.d.ts",
     "dist"
   ],
   "keywords": [

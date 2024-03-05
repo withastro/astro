@@ -320,6 +320,7 @@ export class App {
 			});
 		}
 
+		// We remove internally-used header before we send the response to the user agent.
 		if (response.headers.has(REROUTE_DIRECTIVE_HEADER)) {
 			response.headers.delete(REROUTE_DIRECTIVE_HEADER);
 		}
