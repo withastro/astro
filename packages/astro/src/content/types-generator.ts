@@ -477,7 +477,7 @@ async function writeContentFiles({
 						} catch (err) {
 							logger.warn(
 								'content',
-								`An error was encountered while creating the Json schema. Proceeding without it. Error: ${err}`
+								`An error was encountered while creating the JSON schema. Proceeding without it. Error: ${err}`
 							);
 						}
 					}
