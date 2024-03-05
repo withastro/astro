@@ -27,6 +27,16 @@ const config = {
 		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
 		trace: 'on-first-retry',
 	},
+	projects: [
+		{
+			name: 'Chrome Stable',
+			use: {
+				browserName: 'chromium',
+				channel: 'chrome',
+				args: ['--use-gl=egl'],
+			},
+		},
+	],
 };
 
 export default config;
