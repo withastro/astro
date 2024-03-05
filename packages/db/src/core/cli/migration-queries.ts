@@ -1,8 +1,8 @@
-import stripAnsi from 'strip-ansi';
 import deepDiff from 'deep-diff';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import * as color from 'kleur/colors';
 import { customAlphabet } from 'nanoid';
+import stripAnsi from 'strip-ansi';
 import { hasPrimaryKey } from '../../runtime/index.js';
 import {
 	getCreateIndexQueries,
@@ -451,7 +451,9 @@ export function formatDataLossMessage(confirmations: string[], isColor = true): 
 	messages.push(...confirmations.map((m, i) => color.red(`  (${i + 1}) `) + m));
 	messages.push(``);
 	messages.push(`To resolve, revert these changes or update your schema, and re-run the command.`);
-	messages.push(`You may also run 'astro db push --force-reset' to ignore all warnings and force-push your local database schema to production instead. All data will be lost and the database will be reset.`);
+	messages.push(
+		`You may also run 'astro db push --force-reset' to ignore all warnings and force-push your local database schema to production instead. All data will be lost and the database will be reset.`
+	);
 	let finalMessage = messages.join('\n');
 	if (!isColor) {
 		finalMessage = stripAnsi(finalMessage);

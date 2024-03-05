@@ -1,4 +1,5 @@
 import type { AstroConfig } from 'astro';
+import { red } from 'kleur/colors';
 import type { Arguments } from 'yargs-parser';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBConfig, type DBSnapshot } from '../../../types.js';
@@ -10,7 +11,6 @@ import {
 	getMigrationQueries,
 	getProductionCurrentSnapshot,
 } from '../../migration-queries.js';
-import { red } from 'kleur/colors';
 
 export async function cmd({
 	dbConfig,
@@ -44,7 +44,7 @@ export async function cmd({
 		console.log('\n' + formatDataLossMessage(confirmations) + '\n');
 		throw new Error('Exiting.');
 	}
-	          
+
 	if (isDryRun) {
 		console.log('Statements:', JSON.stringify(migrationQueries, undefined, 2));
 	} else {

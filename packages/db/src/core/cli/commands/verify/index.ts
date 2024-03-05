@@ -37,8 +37,7 @@ export async function cmd({
 		result.message = `Database schema is out of date.\nRun 'astro db push' to push up your latest changes.`;
 	}
 
-
-	if (confirmations.length > 0) { 
+	if (confirmations.length > 0) {
 		result.code = 'DATA_LOSS';
 		result.exitCode = 1;
 		result.data = confirmations;
@@ -48,7 +47,7 @@ export async function cmd({
 	if (isJson) {
 		console.log(JSON.stringify(result));
 	} else {
-		console.log(result.message);	
+		console.log(result.message);
 	}
 
 	await appToken.destroy();
