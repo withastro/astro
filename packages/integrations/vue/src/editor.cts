@@ -44,16 +44,16 @@ export function toTSX(code: string, className: string): string {
 				const defineProps = codeWithoutComments.match(/defineProps\([\s\S]+?\)/);
 				if (defineProps) {
 					result = `
-						import { defineProps } from 'vue';
+					import { defineProps } from 'vue';
 
-						${regularScriptBlockContent}
+					${regularScriptBlockContent}
 
-						const Props = ${defineProps[0]}
+					const Props = ${defineProps[0]}
 
-						export default function ${className}__AstroComponent_${propsGenericType}(_props: typeof Props): any {
-							<div></div>
-						}
-					`;
+					export default function ${className}__AstroComponent_${propsGenericType}(_props: typeof Props): any {
+						<div></div>
+					}
+				`;
 				}
 			}
 		}

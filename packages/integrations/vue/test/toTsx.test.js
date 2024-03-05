@@ -1,6 +1,6 @@
 import { toTSX } from '../src/editor.cts';
 import {  describe, it } from 'node:test';
-import { strictEqual } from 'node:assert'
+import assert from 'node:assert/strict';
 
 describe('toTSX function', () => {
 	it('should correctly transform Vue code to TSX with comments', () => {
@@ -20,7 +20,7 @@ describe('toTSX function', () => {
     const result = toTSX(vueCode, className);
 
     // Replace the expectations below with the expected result based on your logic
-		strictEqual(result, `export default function ${className}__AstroComponent_(_props: Record<string, any>): any {}`)
+		assert.strictEqual(result, `export default function ${className}__AstroComponent_(_props: Record<string, any>): any {}`)
   });
 	it('should correctly transform Vue code to TSX', () => {
     const vueCode = `
@@ -40,6 +40,6 @@ describe('toTSX function', () => {
 
     const className = 'MyComponent';
     const result = toTSX(vueCode, className);
-		strictEqual(result.replace(/\s/g, ''), `import{defineProps}from'vue';constProps=defineProps({msg:String})exportdefaultfunction${className}__AstroComponent_(_props:typeofProps):any{<div></div>}`)
+		assert.strictEqual(result.replace(/\s/g, ''), `import{defineProps}from'vue';constProps=defineProps({msg:String})exportdefaultfunction${className}__AstroComponent_(_props:typeofProps):any{<div></div>}`)
   });
 });
