@@ -3841,6 +3841,9 @@ importers:
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
+      strip-ansi:
+        specifier: ^7.1.0
+        version: 7.1.0
       yargs-parser:
         specifier: ^21.1.1
         version: 21.1.1
