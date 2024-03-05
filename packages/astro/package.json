@@ -114,7 +114,7 @@
     "test:node": "astro-scripts test \"test/**/*.nodetest.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "^2.5.3",
+    "@astrojs/compiler": "^2.7.0",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",

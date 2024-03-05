@@ -549,6 +549,34 @@ test.describe('View Transitions', () => {
 		await expect(pageTitle).toHaveText('Island 2');
 	});
 
+	test('transition:persist-props prevents props from changing', async ({ page, astro }) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/island-one'));
+
+		// Navigate to page 2
+		await page.click('#click-two');
+		const p = page.locator('#island-two');
+		await expect(p).toBeVisible();
+
+		// Props should have changed
+		const pageTitle = page.locator('.page');
+		await expect(pageTitle).toHaveText('Island 1');
+	});
+
+	test('transition:persist-props=false makes props update', async ({ page, astro }) => {
+		// Go to page 2
+		await page.goto(astro.resolveUrl('/island-two'));
+
+		// Navigate to page 1
+		await page.click('#click-one');
+		const p = page.locator('#island-one');
+		await expect(p).toBeVisible();
+
+		// Props should have changed
+		const pageTitle = page.locator('.page');
+		await expect(pageTitle).toHaveText('Island 1');
+	});
+
 	test('Scripts are only executed once', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
