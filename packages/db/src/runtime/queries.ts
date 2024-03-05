@@ -37,7 +37,7 @@ export async function seedLocal({
 	db: SqliteDB;
 	tables: DBTables;
 	userSeedGlob: Record<string, () => Promise<void>>;
-	integrationSeedImports: Array<() => Promise<void>>;
+	integrationSeedImports: Array<() => Promise<{ default: () => Promise<void> }>>;
 }) {
 	await recreateTables({ db, tables });
 	for (const fileName of SEED_DEV_FILE_NAME) {
@@ -52,8 +52,9 @@ export async function seedLocal({
 			break;
 		}
 	}
-	for (const importFn of integrationSeedImports) {
-		await importFn().catch((e) => {
+	for (const importModule of integrationSeedImports) {
+		const mod = await importModule();
+		await mod.default().catch((e) => {
 			if (e instanceof LibsqlError) {
 				throw new Error(SEED_ERROR(e.message));
 			}
@@ -62,7 +63,7 @@ export async function seedLocal({
 	}
 }
 
-export async function recreateTables({ db, tables }: { db: SqliteDB; tables: DBTables }) {
+async function recreateTables({ db, tables }: { db: SqliteDB; tables: DBTables }) {
 	const setupQueries: SQL[] = [];
 	for (const [name, table] of Object.entries(tables)) {
 		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);
