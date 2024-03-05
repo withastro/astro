@@ -1,9 +1,9 @@
 import { existsSync } from 'node:fs';
-import { fileURLToPath, pathToFileURL } from 'node:url';
 import { builtinModules } from 'node:module';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
-	ASTRO_MIDDLEWARE_SECRET_HEADER,
 	ASTRO_LOCALS_HEADER,
+	ASTRO_MIDDLEWARE_SECRET_HEADER,
 	ASTRO_PATH_HEADER,
 	NODE_PATH,
 } from './adapter.js';
@@ -90,7 +90,7 @@ export default async function middleware(request, context) {
 	ctx.locals = ${handlerTemplateCall};
 	const { origin } = new URL(request.url);
 	const next = () =>
-		fetch(new URL('${NODE_PATH}', request.url), {
+		fetch(new URL('/${NODE_PATH}', request.url), {
 			headers: {
 				...Object.fromEntries(request.headers.entries()),
 				'${ASTRO_MIDDLEWARE_SECRET_HEADER}': '${middlewareSecret}',

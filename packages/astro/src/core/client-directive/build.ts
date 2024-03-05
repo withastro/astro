@@ -1,5 +1,5 @@
-import { build } from 'esbuild';
 import { fileURLToPath } from 'node:url';
+import { build } from 'esbuild';
 
 /**
  * Build a client directive entrypoint into code that can directly run in a `<script>` tag.

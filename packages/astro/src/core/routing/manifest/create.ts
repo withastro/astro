@@ -8,11 +8,12 @@ import type {
 } from '../../../@types/astro.js';
 import type { Logger } from '../../logger/core.js';
 
-import { bold } from 'kleur/colors';
 import { createRequire } from 'module';
 import nodeFs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { bold } from 'kleur/colors';
+import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { MissingIndexForInternationalization } from '../../errors/errors-data.js';
@@ -686,8 +687,9 @@ export function createRouteManifest(
 
 	const i18n = settings.config.i18n;
 	if (i18n) {
+		const strategy = toRoutingStrategy(i18n);
 		// First we check if the user doesn't have an index page.
-		if (i18n.routing === 'pathname-prefix-always') {
+		if (strategy === 'pathname-prefix-always') {
 			let index = routes.find((route) => route.route === '/');
 			if (!index) {
 				let relativePath = path.relative(
@@ -755,7 +757,7 @@ export function createRouteManifest(
 
 		// Work done, now we start creating "fallback" routes based on the configuration
 
-		if (i18n.routing === 'pathname-prefix-always') {
+		if (strategy === 'pathname-prefix-always') {
 			// we attempt to retrieve the index page of the default locale
 			const defaultLocaleRoutes = routesByLocale.get(i18n.defaultLocale);
 			if (defaultLocaleRoutes) {
@@ -830,7 +832,7 @@ export function createRouteManifest(
 							let route: string;
 							if (
 								fallbackToLocale === i18n.defaultLocale &&
-								i18n.routing === 'pathname-prefix-other-locales'
+								strategy === 'pathname-prefix-other-locales'
 							) {
 								if (fallbackToRoute.pathname) {
 									pathname = `/${fallbackFromLocale}${fallbackToRoute.pathname}`;

@@ -77,7 +77,9 @@ export default function (
 					name: 'my-ssr-adapter',
 					serverEntrypoint: '@my-ssr',
 					exports: ['manifest', 'createApp'],
-					supportedAstroFeatures: {},
+					supportedAstroFeatures: {
+						serverOutput: 'stable',
+					},
 					...extendAdapter,
 				});
 			},

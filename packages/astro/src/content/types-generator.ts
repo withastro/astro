@@ -1,9 +1,9 @@
-import glob from 'fast-glob';
-import { bold, cyan } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { normalizePath, type ViteDevServer } from 'vite';
+import glob from 'fast-glob';
+import { bold, cyan } from 'kleur/colors';
+import { type ViteDevServer, normalizePath } from 'vite';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
@@ -11,6 +11,9 @@ import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
+	type ContentConfig,
+	type ContentObservable,
+	type ContentPaths,
 	getContentEntryIdAndSlug,
 	getContentPaths,
 	getDataEntryExts,
@@ -20,9 +23,6 @@ import {
 	getEntrySlug,
 	getEntryType,
 	reloadContentConfigObserver,
-	type ContentConfig,
-	type ContentObservable,
-	type ContentPaths,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
@@ -172,7 +172,7 @@ export async function createContentTypesGenerator({
 					}
 					const collectionInfo = collectionEntryMap[collectionKey];
 					if (collectionInfo.type === 'content') {
-						viteServer.ws.send({
+						viteServer.hot.send({
 							type: 'error',
 							err: new AstroError({
 								...AstroErrorData.MixedContentDataCollectionError,
@@ -212,7 +212,7 @@ export async function createContentTypesGenerator({
 		}
 		const collectionInfo = collectionEntryMap[collectionKey];
 		if (collectionInfo.type === 'data') {
-			viteServer.ws.send({
+			viteServer.hot.send({
 				type: 'error',
 				err: new AstroError({
 					...AstroErrorData.MixedContentDataCollectionError,
@@ -359,7 +359,7 @@ async function writeContentFiles({
 	typeTemplateContent: string;
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
-	viteServer: Pick<ViteDevServer, 'ws'>;
+	viteServer: Pick<ViteDevServer, 'hot'>;
 }) {
 	let contentTypesStr = '';
 	let dataTypesStr = '';
@@ -374,7 +374,7 @@ async function writeContentFiles({
 			collection.type !== 'unknown' &&
 			collection.type !== collectionConfig.type
 		) {
-			viteServer.ws.send({
+			viteServer.hot.send({
 				type: 'error',
 				err: new AstroError({
 					...AstroErrorData.ContentCollectionTypeMismatchError,
@@ -387,7 +387,7 @@ async function writeContentFiles({
 						collection.type === 'data'
 							? "Try adding `type: 'data'` to your collection config."
 							: undefined,
-					location: { file: '' /** required for error overlay `ws` messages */ },
+					location: { file: '' /** required for error overlay `hot` messages */ },
 				}) as any,
 			});
 			return;

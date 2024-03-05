@@ -2,13 +2,13 @@ import type {
 	Locales,
 	MiddlewareHandler,
 	RouteData,
-	SerializedRouteData,
 	SSRComponentMetadata,
 	SSRLoadedRenderer,
 	SSRResult,
+	SerializedRouteData,
 } from '../../@types/astro.js';
+import type { RoutingStrategies } from '../../i18n/utils.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
-import type { RoutingStrategies } from '../config/schema.js';
 
 export type ComponentPath = string;
 
@@ -60,7 +60,7 @@ export type SSRManifest = {
 
 export type SSRManifestI18n = {
 	fallback?: Record<string, string>;
-	routing: RoutingStrategies;
+	strategy: RoutingStrategies;
 	locales: Locales;
 	defaultLocale: string;
 	domainLookupTable: Record<string, string>;

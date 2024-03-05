@@ -1,3 +1,5 @@
+import type { OutgoingHttpHeaders } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -8,8 +10,6 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
-import type { OutgoingHttpHeaders } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
@@ -34,6 +34,10 @@ import type {
 	DevToolbarWindow,
 } from '../runtime/client/dev-toolbar/ui-library/index.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
+import type {
+	TransitionBeforePreparationEvent,
+	TransitionBeforeSwapEvent,
+} from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
@@ -281,7 +285,7 @@ export interface AstroGlobal<
 		 * <Fragment set:html={html} />
 		 * ```
 		 *
-		 * A second parameters can be used to pass arguments to a slotted callback
+		 * A second parameter can be used to pass arguments to a slotted callback
 		 *
 		 * Example usage:
 		 * ```astro
@@ -1492,7 +1496,7 @@ export interface AstroUserConfig {
 			 * URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
 			 * Localized folders are used for every language, including the default.
 			 */
-			prefixDefaultLocale: boolean;
+			prefixDefaultLocale?: boolean;
 
 			/**
 			 * @docs
@@ -1521,7 +1525,7 @@ export interface AstroUserConfig {
 			 * })
 			 *```
 			 * */
-			redirectToDefaultLocale: boolean;
+			redirectToDefaultLocale?: boolean;
 
 			/**
 			 * @name i18n.routing.strategy
@@ -1532,48 +1536,48 @@ export interface AstroUserConfig {
 			 *
 			 * - `"pathname": The strategy is applied to the pathname of the URLs
 			 */
-			strategy: 'pathname';
-
-			/**
-			 * @name i18n.domains
-			 * @type {Record<string, string> }
-			 * @default '{}'
-			 * @version 4.3.0
-			 * @description
-			 *
-			 * Configures the URL pattern of one or more supported languages to use a custom domain (or sub-domain).
-			 *
-			 * When a locale is mapped to a domain, a `/[locale]/` path prefix will not be used.
-			 * However, localized folders within `src/pages/` are still required, including for your configured `defaultLocale`.
-			 *
-			 * Any other locale not configured will default to a localized path-based URL according to your `prefixDefaultLocale` strategy (e.g. `https://example.com/[locale]/blog`).
-			 *
-			 * ```js
-			 * //astro.config.mjs
-			 * export default defineConfig({
-			 * 	 site: "https://example.com",
-			 * 	 output: "server", // required, with no prerendered pages
-			 *   adapter: node({
-			 *     mode: 'standalone',
-			 *   }),
-			 * 	 i18n: {
-			 *     defaultLocale: "en",
-			 *     locales: ["en", "fr", "pt-br", "es"],
-			 *     prefixDefaultLocale: false,
-			 *     domains: {
-			 *       fr: "https://fr.example.com",
-			 *       es: "https://example.es"
-			 *     }
-			 *   },
-			 * })
-			 * ```
-			 *
-			 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
-			 *
-			 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains) for more details, including the limitations of this feature.
-			 */
-			domains?: Record<string, string>;
+			strategy?: 'pathname';
 		};
+
+		/**
+		 * @name i18n.domains
+		 * @type {Record<string, string> }
+		 * @default '{}'
+		 * @version 4.3.0
+		 * @description
+		 *
+		 * Configures the URL pattern of one or more supported languages to use a custom domain (or sub-domain).
+		 *
+		 * When a locale is mapped to a domain, a `/[locale]/` path prefix will not be used.
+		 * However, localized folders within `src/pages/` are still required, including for your configured `defaultLocale`.
+		 *
+		 * Any other locale not configured will default to a localized path-based URL according to your `prefixDefaultLocale` strategy (e.g. `https://example.com/[locale]/blog`).
+		 *
+		 * ```js
+		 * //astro.config.mjs
+		 * export default defineConfig({
+		 * 	 site: "https://example.com",
+		 * 	 output: "server", // required, with no prerendered pages
+		 *   adapter: node({
+		 *     mode: 'standalone',
+		 *   }),
+		 * 	 i18n: {
+		 *     defaultLocale: "en",
+		 *     locales: ["en", "fr", "pt-br", "es"],
+		 *     prefixDefaultLocale: false,
+		 *     domains: {
+		 *       fr: "https://fr.example.com",
+		 *       es: "https://example.es"
+		 *     }
+		 *   },
+		 * })
+		 * ```
+		 *
+		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
+		 *
+		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains) for more details, including the limitations of this feature.
+		 */
+		domains?: Record<string, string>;
 	};
 
 	/** ⚠️ WARNING: SUBJECT TO CHANGE */
@@ -2748,6 +2752,7 @@ export interface PreviewServerParams {
 	port: number;
 	base: string;
 	logger: AstroIntegrationLogger;
+	headers?: OutgoingHttpHeaders;
 }
 
 export type CreatePreviewServer = (
@@ -2830,11 +2835,16 @@ declare global {
 		'astro-dev-overlay-icon': DevToolbarIcon;
 		'astro-dev-overlay-card': DevToolbarCard;
 	}
-}
-
-declare global {
 	// eslint-disable-next-line @typescript-eslint/no-namespace
 	namespace Config {
 		type Database = Record<string, any>;
+	}
+
+	interface DocumentEventMap {
+		'astro:before-preparation': TransitionBeforePreparationEvent;
+		'astro:after-preparation': Event;
+		'astro:before-swap': TransitionBeforeSwapEvent;
+		'astro:after-swap': Event;
+		'astro:page-load': Event;
 	}
 }

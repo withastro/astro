@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "4.4.0",
+  "version": "4.4.11",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -108,10 +108,10 @@
     "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\" && astro-scripts copy \"src/**/*.wasm\"",
     "test": "pnpm run test:node",
-    "test:match": "mocha ./test/*.test.js --timeout 30000 -g",
+    "test:match": "pnpm run test:node --match",
     "test:e2e": "playwright test",
     "test:e2e:match": "playwright test -g",
-    "test:node": "astro-scripts test \"test/**/*.nodetest.js\""
+    "test:node": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
     "@astrojs/compiler": "^2.7.0",
@@ -173,7 +173,7 @@
     "tsconfck": "^3.0.0",
     "unist-util-visit": "^5.0.0",
     "vfile": "^6.0.1",
-    "vite": "^5.1.2",
+    "vite": "^5.1.4",
     "vitefu": "^0.2.5",
     "which-pm": "^2.1.1",
     "yargs-parser": "^21.1.1",
@@ -212,11 +212,9 @@
     "@types/unist": "^3.0.2",
     "@types/yargs-parser": "^21.0.3",
     "astro-scripts": "workspace:*",
-    "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
     "eol": "^0.9.1",
     "memfs": "^4.6.0",
-    "mocha": "^10.2.0",
     "node-mocks-http": "^1.13.0",
     "parse-srcset": "^1.0.2",
     "rehype-autolink-headings": "^7.1.0",

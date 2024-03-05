@@ -1,6 +1,6 @@
 import { bold } from 'kleur/colors';
-import { REROUTE_DIRECTIVE_HEADER } from './consts.js';
 import type { APIContext, EndpointHandler } from '../../@types/astro.js';
+import { REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER } from '../../core/constants.js';
 import type { Logger } from '../../core/logger/core.js';
 
 /** Renders an endpoint request to completion, returning the body. */
@@ -51,7 +51,7 @@ export async function renderEndpoint(
 	const response = await handler.call(mod, context);
 	// Endpoints explicitly returning 404 or 500 response status should
 	// NOT be subject to rerouting to 404.astro or 500.astro.
-	if (response.status === 404 || response.status === 500) {
+	if (REROUTABLE_STATUS_CODES.includes(response.status)) {
 		// Only `Response.redirect` headers are immutable, therefore a `try..catch` is not necessary.
 		// Note: `Response.redirect` can only be called with HTTP status codes: 301, 302, 303, 307, 308.
 		// Source: https://developer.mozilla.org/en-US/docs/Web/API/Response/redirect_static#parameters

@@ -7,21 +7,19 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro.js';
-import { renderSlotToString, type ComponentSlots } from '../../runtime/server/index.js';
-import { renderJSX } from '../../runtime/server/jsx.js';
-import { chunkToString } from '../../runtime/server/render/index.js';
-import { AstroCookies } from '../cookies/index.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { Logger } from '../logger/core.js';
 import {
+	type RoutingStrategies,
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
-} from './context.js';
-import type { RoutingStrategies } from '../config/schema.js';
-
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
-const responseSentSymbol = Symbol.for('astro.responseSent');
+} from '../../i18n/utils.js';
+import { type ComponentSlots, renderSlotToString } from '../../runtime/server/index.js';
+import { renderJSX } from '../../runtime/server/jsx.js';
+import { chunkToString } from '../../runtime/server/render/index.js';
+import { clientAddressSymbol, responseSentSymbol } from '../constants.js';
+import { AstroCookies } from '../cookies/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
+import type { Logger } from '../logger/core.js';
 
 export interface CreateResultArgs {
 	/**
@@ -44,17 +42,18 @@ export interface CreateResultArgs {
 	 * Used for `Astro.site`
 	 */
 	site: string | undefined;
-	links?: Set<SSRElement>;
-	scripts?: Set<SSRElement>;
-	styles?: Set<SSRElement>;
-	componentMetadata?: SSRResult['componentMetadata'];
+	links: Set<SSRElement>;
+	scripts: Set<SSRElement>;
+	styles: Set<SSRElement>;
+	componentMetadata: SSRResult['componentMetadata'];
 	request: Request;
 	status: number;
 	locals: App.Locals;
-	cookies?: AstroCookies;
+	cookies: AstroCookies;
 	locales: Locales | undefined;
 	defaultLocale: string | undefined;
-	routingStrategy: RoutingStrategies | undefined;
+	route: string;
+	strategy: RoutingStrategies | undefined;
 }
 
 function getFunctionExpression(slot: any) {
@@ -115,7 +114,7 @@ class Slots {
 				const slot = async () =>
 					typeof expression === 'function' ? expression(...args) : expression;
 				return await renderSlotToString(result, slot).then((res) => {
-					return res != null ? String(res) : res;
+					return res;
 				});
 			}
 			// JSX
@@ -233,9 +232,9 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					}
 					if (args.locales) {
 						currentLocale = computeCurrentLocale(
-							request,
+							url.pathname,
 							args.locales,
-							args.routingStrategy,
+							args.strategy,
 							args.defaultLocale
 						);
 						if (currentLocale) {

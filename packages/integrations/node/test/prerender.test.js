@@ -1,8 +1,8 @@
 import * as assert from 'node:assert/strict';
-import { describe, it, before, after } from 'node:test';
+import { after, before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
 import { loadFixture, waitServerListen } from './test-utils.js';
-import * as cheerio from 'cheerio';
 
 /**
  * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
@@ -190,7 +190,7 @@ describe('Hybrid rendering', () => {
 	let fixture;
 	let server;
 
-	describe('With base', async () => {
+	describe('With base', () => {
 		before(async () => {
 			process.env.PRERENDER = false;
 			fixture = await loadFixture({
@@ -258,7 +258,7 @@ describe('Hybrid rendering', () => {
 		});
 	});
 
-	describe('Without base', async () => {
+	describe('Without base', () => {
 		before(async () => {
 			process.env.PRERENDER = false;
 			fixture = await loadFixture({
@@ -316,7 +316,7 @@ describe('Hybrid rendering', () => {
 		});
 	});
 
-	describe('Shared modules', async () => {
+	describe('Shared modules', () => {
 		before(async () => {
 			process.env.PRERENDER = false;
 
