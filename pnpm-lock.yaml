@@ -5556,7 +5556,7 @@ packages:
       prettier-plugin-astro:
         optional: true
     dependencies:
-      '@astrojs/compiler': 2.5.3
+      '@astrojs/compiler': 2.7.0
       '@jridgewell/sourcemap-codec': 1.4.15
       '@volar/kit': 2.0.4(typescript@5.3.2)
       '@volar/language-core': 2.0.4
