@@ -4,7 +4,7 @@
 
 Adds experimental JSON Schema support for content collections.
 
-This feature will auto-generate a JSON Schema for content collection of `type: 'data'`, which can be used as the `$schema` value for TypeScript-style autocompletion/hints in tools like VSCode.
+This feature will auto-generate a JSON Schema for content collections of `type: 'data'` which can be used as the `$schema` value for TypeScript-style autocompletion/hints in tools like VSCode.
 
 To enable this feature, add the experimental flag:
 
