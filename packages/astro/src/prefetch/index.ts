@@ -225,9 +225,7 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 	) {
 		// this code is tree-shaken if unused
 		appendSpeculationRules(url);
-	}
-
-	if (priority === 'link') {
+	} else if (priority === 'link') {
 		const link = document.createElement('link');
 		link.rel = 'prefetch';
 		link.setAttribute('href', url);
@@ -327,6 +325,15 @@ function appendSpeculationRules(url: string) {
 	script.type = 'speculationrules';
 	script.textContent = JSON.stringify({
 		prerender: [
+			{
+				source: 'list',
+				urls: [url],
+			},
+		],
+		// Currently, adding `prefetch` is required to fallback if `prerender` fails.
+		// Possibly will be automatic in the future, in which case it can be removed.
+		// https://github.com/WICG/nav-speculation/issues/162#issuecomment-1977818473
+		prefetch: [
 			{
 				source: 'list',
 				urls: [url],
