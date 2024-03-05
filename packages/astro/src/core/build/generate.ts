@@ -326,7 +326,7 @@ async function getPathsForRoute(
 	let paths: Array<string> = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
-		builtPaths.add(route.pathname);
+		builtPaths.add(removeTrailingForwardSlash(route.pathname));
 	} else {
 		const staticPaths = await callGetStaticPaths({
 			mod,
@@ -522,8 +522,9 @@ async function generatePath(
 	}
 
 	if (response.status >= 300 && response.status < 400) {
-		// If redirects is set to false, don't output the HTML
-		if (!config.build.redirects) {
+		// Adapters may handle redirects themselves, turning off Astro's redirect handling using `config.build.redirects` in the process.
+		// In that case, we skip rendering static files for the redirect routes.
+		if (routeIsRedirect(route) && !config.build.redirects) {
 			return;
 		}
 		const locationSite = getRedirectLocationOrThrow(response.headers);

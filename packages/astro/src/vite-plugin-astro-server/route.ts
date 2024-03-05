@@ -274,7 +274,7 @@ export async function handleRoute({
 		response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 	) {
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
-		if (options && fourOhFourRoute?.route !== options.route)
+		if (options)
 			return handleRoute({
 				...options,
 				matchedRoute: fourOhFourRoute,
@@ -288,6 +288,12 @@ export async function handleRoute({
 				incomingResponse,
 			});
 	}
+
+	// We remove the internally-used header before we send the response to the user agent.
+	if (response.headers.has(REROUTE_DIRECTIVE_HEADER)) {
+		response.headers.delete(REROUTE_DIRECTIVE_HEADER);
+	}
+
 	if (route.type === 'endpoint') {
 		await writeWebResponse(incomingResponse, response);
 		return;

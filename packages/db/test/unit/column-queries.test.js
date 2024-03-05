@@ -4,16 +4,17 @@ import {
 	getCollectionChangeQueries,
 	getMigrationQueries,
 } from '../../dist/core/cli/migration-queries.js';
-import { getCreateTableQuery } from '../../dist/core/queries.js';
-import { collectionSchema, column, defineReadableTable } from '../../dist/core/types.js';
+import { tableSchema } from '../../dist/core/types.js';
+import { column, defineTable } from '../../dist/runtime/config.js';
 import { NOW } from '../../dist/runtime/index.js';
+import { getCreateTableQuery } from '../../dist/runtime/queries.js';
 
-const COLLECTION_NAME = 'Users';
+const TABLE_NAME = 'Users';
 
 // `parse` to resolve schema transformations
 // ex. convert column.date() to ISO strings
-const userInitial = collectionSchema.parse(
-	defineReadableTable({
+const userInitial = tableSchema.parse(
+	defineTable({
 		columns: {
 			name: column.text(),
 			age: column.number(),
@@ -23,68 +24,80 @@ const userInitial = collectionSchema.parse(
 	})
 );
 
-const defaultAmbiguityResponses = {
-	collectionRenames: {},
-	columnRenames: {},
-};
-
-function userChangeQueries(
-	oldCollection,
-	newCollection,
-	ambiguityResponses = defaultAmbiguityResponses
-) {
+function userChangeQueries(oldTable, newTable) {
 	return getCollectionChangeQueries({
-		collectionName: COLLECTION_NAME,
-		oldCollection,
-		newCollection,
-		ambiguityResponses,
+		collectionName: TABLE_NAME,
+		oldCollection: oldTable,
+		newCollection: newTable,
 	});
 }
 
-function configChangeQueries(
-	oldCollections,
-	newCollections,
-	ambiguityResponses = defaultAmbiguityResponses
-) {
+function configChangeQueries(oldCollections, newCollections) {
 	return getMigrationQueries({
 		oldSnapshot: { schema: oldCollections, experimentalVersion: 1 },
 		newSnapshot: { schema: newCollections, experimentalVersion: 1 },
-		ambiguityResponses,
 	});
 }
 
 describe('column queries', () => {
 	describe('getMigrationQueries', () => {
 		it('should be empty when tables are the same', async () => {
-			const oldCollections = { [COLLECTION_NAME]: userInitial };
-			const newCollections = { [COLLECTION_NAME]: userInitial };
+			const oldCollections = { [TABLE_NAME]: userInitial };
+			const newCollections = { [TABLE_NAME]: userInitial };
 			const { queries } = await configChangeQueries(oldCollections, newCollections);
 			expect(queries).to.deep.equal([]);
 		});
 
 		it('should create table for new tables', async () => {
 			const oldCollections = {};
-			const newCollections = { [COLLECTION_NAME]: userInitial };
+			const newCollections = { [TABLE_NAME]: userInitial };
 			const { queries } = await configChangeQueries(oldCollections, newCollections);
-			expect(queries).to.deep.equal([getCreateTableQuery(COLLECTION_NAME, userInitial)]);
+			expect(queries).to.deep.equal([
+				`DROP TABLE IF EXISTS "${TABLE_NAME}"`,
+				`CREATE TABLE "${TABLE_NAME}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "email" text NOT NULL UNIQUE, "mi" text)`,
+			]);
 		});
 
 		it('should drop table for removed tables', async () => {
-			const oldCollections = { [COLLECTION_NAME]: userInitial };
+			const oldCollections = { [TABLE_NAME]: userInitial };
 			const newCollections = {};
 			const { queries } = await configChangeQueries(oldCollections, newCollections);
-			expect(queries).to.deep.equal([`DROP TABLE "${COLLECTION_NAME}"`]);
+			expect(queries).to.deep.equal([`DROP TABLE "${TABLE_NAME}"`]);
 		});
 
-		it('should rename table for renamed tables', async () => {
+		it('should error if possible table rename is detected', async () => {
 			const rename = 'Peeps';
-			const oldCollections = { [COLLECTION_NAME]: userInitial };
+			const oldCollections = { [TABLE_NAME]: userInitial };
 			const newCollections = { [rename]: userInitial };
-			const { queries } = await configChangeQueries(oldCollections, newCollections, {
-				...defaultAmbiguityResponses,
-				collectionRenames: { [rename]: COLLECTION_NAME },
+			let error = null;
+			try {
+				await configChangeQueries(oldCollections, newCollections, {
+					collectionRenames: { [rename]: TABLE_NAME },
+				});
+			} catch (e) {
+				error = e.message;
+			}
+			expect(error).to.include.string('Potential table rename detected');
+		});
+
+		it('should error if possible column rename is detected', async () => {
+			const blogInitial = tableSchema.parse({
+				columns: {
+					title: column.text(),
+				},
 			});
-			expect(queries).to.deep.equal([`ALTER TABLE "${COLLECTION_NAME}" RENAME TO "${rename}"`]);
+			const blogFinal = tableSchema.parse({
+				columns: {
+					title2: column.text(),
+				},
+			});
+			let error = null;
+			try {
+				await configChangeQueries({ [TABLE_NAME]: blogInitial }, { [TABLE_NAME]: blogFinal });
+			} catch (e) {
+				error = e.message;
+			}
+			expect(error).to.include.string('Potential column rename detected');
 		});
 	});
 
@@ -95,14 +108,14 @@ describe('column queries', () => {
 		});
 
 		it('should be empty when type updated to same underlying SQL type', async () => {
-			const blogInitial = collectionSchema.parse({
+			const blogInitial = tableSchema.parse({
 				...userInitial,
 				columns: {
 					title: column.text(),
 					draft: column.boolean(),
 				},
 			});
-			const blogFinal = collectionSchema.parse({
+			const blogFinal = tableSchema.parse({
 				...userInitial,
 				columns: {
 					...blogInitial.columns,
@@ -114,7 +127,7 @@ describe('column queries', () => {
 		});
 
 		it('should respect user primary key without adding a hidden id', async () => {
-			const user = collectionSchema.parse({
+			const user = tableSchema.parse({
 				...userInitial,
 				columns: {
 					...userInitial.columns,
@@ -122,7 +135,7 @@ describe('column queries', () => {
 				},
 			});
 
-			const userFinal = collectionSchema.parse({
+			const userFinal = tableSchema.parse({
 				...user,
 				columns: {
 					...user.columns,
@@ -140,27 +153,6 @@ describe('column queries', () => {
 				'DROP TABLE "Users"',
 				`ALTER TABLE "${tempTableName}" RENAME TO "Users"`,
 			]);
-		});
-
-		describe('ALTER RENAME COLUMN', () => {
-			it('when renaming a column', async () => {
-				const userFinal = {
-					...userInitial,
-					columns: {
-						...userInitial.columns,
-					},
-				};
-				userFinal.columns.middleInitial = userFinal.columns.mi;
-				delete userFinal.columns.mi;
-
-				const { queries } = await userChangeQueries(userInitial, userFinal, {
-					collectionRenames: {},
-					columnRenames: { [COLLECTION_NAME]: { middleInitial: 'mi' } },
-				});
-				expect(queries).to.deep.equal([
-					`ALTER TABLE "${COLLECTION_NAME}" RENAME COLUMN "mi" TO "middleInitial"`,
-				]);
-			});
 		});
 
 		describe('Lossy table recreate', () => {
@@ -287,7 +279,7 @@ describe('column queries', () => {
 			});
 
 			it('when updating to a runtime default', async () => {
-				const initial = collectionSchema.parse({
+				const initial = tableSchema.parse({
 					...userInitial,
 					columns: {
 						...userInitial.columns,
@@ -295,7 +287,7 @@ describe('column queries', () => {
 					},
 				});
 
-				const userFinal = collectionSchema.parse({
+				const userFinal = tableSchema.parse({
 					...initial,
 					columns: {
 						...initial.columns,
@@ -317,7 +309,7 @@ describe('column queries', () => {
 			});
 
 			it('when adding a column with a runtime default', async () => {
-				const userFinal = collectionSchema.parse({
+				const userFinal = tableSchema.parse({
 					...userInitial,
 					columns: {
 						...userInitial.columns,
@@ -407,7 +399,7 @@ describe('column queries', () => {
 
 			it('when adding a required column with default', async () => {
 				const defaultDate = new Date('2023-01-01');
-				const userFinal = collectionSchema.parse({
+				const userFinal = tableSchema.parse({
 					...userInitial,
 					columns: {
 						...userInitial.columns,

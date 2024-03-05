@@ -1,17 +1,15 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { basename } from 'node:path';
-import type { AstroConfig } from 'astro';
 import { slug } from 'github-slugger';
 import { bgRed, cyan } from 'kleur/colors';
 import ora from 'ora';
 import prompts from 'prompts';
-import type { Arguments } from 'yargs-parser';
 import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
 import { PROJECT_ID_FILE, getSessionIdFromFile } from '../../../tokens.js';
 import { getAstroStudioUrl } from '../../../utils.js';
 
-export async function cmd({}: { config: AstroConfig; flags: Arguments }) {
+export async function cmd() {
 	const sessionToken = await getSessionIdFromFile();
 	if (!sessionToken) {
 		console.error(MISSING_SESSION_ID_ERROR);
