@@ -383,10 +383,11 @@ async function writeContentFiles({
 	let dataTypesStr = '';
 
 	const collectionSchemasDir = new URL('./collections/', contentPaths.cacheDir);
-	if (settings.config.experimental.contentCollectionJsonSchema) {
-		if (!fs.existsSync(collectionSchemasDir)) {
-			fs.mkdirSync(collectionSchemasDir, { recursive: true });
-		}
+	if (
+		settings.config.experimental.contentCollectionJsonSchema &&
+		!fs.existsSync(collectionSchemasDir)
+	) {
+		fs.mkdirSync(collectionSchemasDir, { recursive: true });
 	}
 
 	for (const [collection, config] of Object.entries(contentConfig?.collections ?? {})) {
