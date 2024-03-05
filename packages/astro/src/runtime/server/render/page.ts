@@ -1,5 +1,5 @@
 import type { RouteData, SSRResult } from '../../../@types/astro.js';
-import { type NonAstroPageComponent, renderComponentToString } from './component.js';
+import { type NonAstroPageComponent, renderComponentToString, restoreHydratableAstroSlot } from './component.js';
 import type { AstroComponentFactory } from './index.js';
 
 import { isAstroComponentFactory } from './astro/index.js';
@@ -31,7 +31,7 @@ export async function renderPage(
 			route
 		);
 
-		const bytes = encoder.encode(str);
+		const bytes = encoder.encode(restoreHydratableAstroSlot(str));
 
 		return new Response(bytes, {
 			headers: new Headers([
