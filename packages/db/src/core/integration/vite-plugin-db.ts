@@ -112,13 +112,9 @@ export function getLocalVirtualModContents({
 	const integrationSeedFilePaths = seedFiles.map((pathOrUrl) =>
 		typeof pathOrUrl === 'string' ? resolveId(pathOrUrl) : pathOrUrl.pathname
 	);
-	const integrationSeedImports =
-		'[' +
-		integrationSeedFilePaths
-			.map((filePath) => `() => import(${JSON.stringify(filePath)})`)
-			.join(',') +
-		']';
-
+	const integrationSeedImports = integrationSeedFilePaths.map(
+		(filePath) => `() => import(${JSON.stringify(filePath)})`
+	);
 	return `
 import { asDrizzleTable, seedLocal } from ${RUNTIME_IMPORT};
 import { db as _db } from ${JSON.stringify(LOCAL_DB_VIRTUAL_MODULE_ID)};
@@ -131,7 +127,7 @@ ${
 	db: _db,
 	tables: ${JSON.stringify(tables)},
 	userSeedGlob: import.meta.glob(${JSON.stringify(userSeedFilePaths)}),
-	integrationSeedImports: ${integrationSeedImports},
+	integrationSeedImports: [${integrationSeedImports.join(',')}],
 });`
 		: ''
 }
