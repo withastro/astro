@@ -35,3 +35,11 @@ class_name = "DurableObjectExample"
 [[durable_objects.bindings]]
 name = "DO_PROD"
 class_name = "DurableObjectProductionExample"
+
+[[services]]
+binding = "AUTH"
+service = "worker" # local-runtime.ts:154
+
+[[services]]
+binding = "LOGOUT"
+service = "worker" # local-runtime.ts:154

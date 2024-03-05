@@ -108,6 +108,22 @@ interface CF_RawConfig {
 			environment?: string;
 		}[];
 	};
+	/**
+	 * A list of service bindings that your worker should be bound to.
+	 *
+	 * For more information about Service bindings, see the documentation at
+	 * https://developers.cloudflare.com/workers/configuration/bindings/about-service-bindings/
+	 *
+	 * NOTE: This field is not automatically inherited from the top level environment,
+	 * and so must be specified in every named environment.
+	 *
+	 * @default `[]`
+	 * @nonInheritable
+	 */
+	services: {
+		binding: string;
+		service: string;
+	}[];
 }
 
 interface CF_ServiceDesignator {

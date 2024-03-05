@@ -1,0 +1,16 @@
+---
+const runtime = Astro.locals.runtime;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Service bindings</title>
+  </head>
+  <body>
+    <pre id="hasAUTH">{!!runtime.env.AUTH && typeof runtime.env.AUTH.fetch === 'function'}</pre>
+    <pre id="hasLOGOUT">{!!runtime.env.LOGOUT && typeof runtime.env.AUTH.fetch === 'function'}</pre>
+  </body>
+</html>

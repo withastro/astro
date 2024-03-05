@@ -80,4 +80,12 @@ describe('DevRuntimePages', () => {
 		const $ = cheerio.load(html);
 		assert.equal($('#hasDO').text(), 'true');
 	});
+
+	it('adds service bindings mocking', async () => {
+		const res = await fetch('http://127.0.0.1:4321/services');
+		const html = await res.text();
+		const $ = cheerio.load(html);
+		assert.equal($('#hasAUTH').text(), 'true');
+		assert.equal($('#hasLOGOUT').text(), 'true');
+	});
 });

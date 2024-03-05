@@ -6,7 +6,7 @@ import type {
 	R2Bucket,
 } from '@cloudflare/workers-types/experimental';
 import type { AstroConfig, AstroIntegrationLogger } from 'astro';
-import type { Json, ReplaceWorkersTypes, WorkerOptions } from 'miniflare';
+import type { ExternalServer, Json, ReplaceWorkersTypes, WorkerOptions } from 'miniflare';
 import type { Options } from '../index.js';
 
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'fs';
@@ -41,6 +41,17 @@ type BASE_RUNTIME = {
 					env?: string;
 				};
 		  }
+		| ({
+				type: 'service';
+		  } & (
+				| {
+						address: string;
+						protocol?: 'http' | 'https';
+				  }
+				| {
+						service: string;
+				  }
+		  ))
 	>;
 };
 
@@ -89,6 +100,7 @@ class LocalRuntime {
 		const r2Bindings: Required<Pick<WorkerOptions, 'r2Buckets'>>['r2Buckets'] = [];
 		const durableObjectBindings: Required<Pick<WorkerOptions, 'durableObjects'>>['durableObjects'] =
 			{};
+		const serviceBindings: Required<Pick<WorkerOptions, 'serviceBindings'>>['serviceBindings'] = {};
 
 		for (const bindingName in runtimeConfig.bindings) {
 			const bindingData = runtimeConfig.bindings[bindingName];
@@ -111,6 +123,23 @@ class LocalRuntime {
 						scriptName: bindingData.service?.name,
 					};
 					break;
+				case 'service':
+					if ('address' in bindingData) {
+						// Pages mode
+						const isHttps = bindingData.protocol === 'https';
+
+						const serviceBindingConfig: ExternalServer = isHttps
+							? { address: bindingData.address, https: {} }
+							: { address: bindingData.address, http: {} };
+
+						serviceBindings[bindingName] = {
+							external: serviceBindingConfig,
+						};
+					} else if ('service' in bindingData) {
+						// Worker mode
+						serviceBindings[bindingName] = bindingData.service;
+					}
+					break;
 			}
 		}
 
@@ -132,6 +161,7 @@ class LocalRuntime {
 					r2Buckets: r2Bindings,
 					kvNamespaces: kvBindings,
 					durableObjects: durableObjectBindings,
+					serviceBindings: serviceBindings,
 				},
 			],
 		});
@@ -273,6 +303,14 @@ export class LocalWorkersRuntime extends LocalRuntime {
 								name: durableObject.script_name,
 						  }
 						: undefined,
+				};
+			}
+		}
+		if (_wranglerConfig?.services) {
+			for (const service of _wranglerConfig.services) {
+				runtimeConfigWithWrangler.bindings[service.binding] = {
+					type: 'service',
+					service: service.service,
 				};
 			}
 		}
