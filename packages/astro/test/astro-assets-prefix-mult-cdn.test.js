@@ -36,7 +36,7 @@ describe('Assets Prefix Multiple CDN - Static', () => {
 		});
 	});
 
-	it('image src start with defaultAssetsPrefix', async () => {
+	it('image src start with fallback', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		const imgAsset = $('#image-asset');
@@ -55,7 +55,7 @@ describe('Assets Prefix Multiple CDN - Static', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		const env = $('#assets-prefix-env');
-		assert.equal(env.text(), JSON.stringify(assetsPrefix));
+		assert.deepEqual(JSON.parse(env.text()), assetsPrefix);
 	});
 
 	it('markdown image src start with assetsPrefix', async () => {
