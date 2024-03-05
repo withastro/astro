@@ -1651,7 +1651,7 @@ export interface AstroUserConfig {
 		 * @default `false`
 		 * @version 4.5.0
 		 * @description
-		 * This feature will auto-generate a JSON Schema for content collection of `type: 'data'`, which can be used as the `$schema` value for TypeScript-style autocompletion/hints in tools like VSCode.
+		 * This feature will auto-generate a JSON schema for content collections of `type: 'data'` which can be used as the `$schema` value for TypeScript-style autocompletion/hints in tools like VSCode.
 		 * 
 		 * To enable this feature, add the experimental flag:
 		 * 
