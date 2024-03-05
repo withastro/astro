@@ -10,6 +10,8 @@ const Event = defineTable({
 		ticketPrice: column.number(),
 		date: column.date(),
 		location: column.text(),
+		author3: column.text(),
+		author4: column.text(),
 	},
 });
 
