@@ -20,6 +20,7 @@ env:
 
 jobs:
   changelog:
+    if: ${{ github.repository_owner == 'withastro' }}
     name: Changelog PR or Release
     runs-on: ubuntu-latest
     permissions:
@@ -61,7 +62,6 @@ jobs:
           fi
 
       - name: Create Release Pull Request or Publish
-        if: ${{ github.repository_owner == 'withastro' }}
         id: changesets
         uses: changesets/action@v1
         with:
