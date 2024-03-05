@@ -920,7 +920,7 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 *
-		 * Object key is file extension, value is CDN assets prefix path. `defaultAssetsPrefix` is default assets prefix cdn value set. You can set the default values of other files by setting the value of `defaultAssetsPrefix`. If `defaultAssetsPrefix` is not set, when the file extension is not found in the `assetsPrefix` object, it will be set to the empty string `''` by default.
+		 * Object key is file extension, value is CDN assets prefix path. `fallabck` is default assets prefix cdn value set and it is a mandatory key. You can set the default values of other files by setting the value of `fallabck`.
 		 *
 		 */
 		assetsPrefix?: AssetsPrefix;
