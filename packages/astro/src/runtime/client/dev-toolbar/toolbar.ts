@@ -27,7 +27,7 @@ export class AstroDevToolbar extends HTMLElement {
 	apps: DevToolbarApp[] = [];
 	hasBeenInitialized = false;
 	// TODO: This should be dynamic based on the screen size or at least configurable, erika - 2023-11-29
-	customAppsToShow = 3;
+	customAppsToShow = 1;
 
 	constructor() {
 		super();
@@ -119,7 +119,6 @@ export class AstroDevToolbar extends HTMLElement {
 				margin: 0;
 				overflow: hidden;
 				transition: opacity 0.2s ease-out 0s;
-				position: relative;
 			}
 
 			#dev-bar #bar-container .item:hover, #dev-bar #bar-container .item:focus-visible {
@@ -216,10 +215,14 @@ export class AstroDevToolbar extends HTMLElement {
 			#dev-bar .item .notification {
 				display: none;
 				position: absolute;
-				top: 0;
-				right: 7px;
-				width: 9px;
-				height: 9px;
+				top: -4px;
+				right: -6px;
+				width: 10px;
+				height: 10px;
+			}
+
+			#dev-bar .item .notification svg {
+				display: block;
 			}
 
 			#dev-toolbar-root:not([data-no-notification]) #dev-bar .item .notification[data-active] {
@@ -394,9 +397,8 @@ export class AstroDevToolbar extends HTMLElement {
 
 	getAppTemplate(app: DevToolbarApp) {
 		return `<button class="item" data-app-id="${app.id}">
-				<div class="icon">${app.icon ? getAppIcon(app.icon) : '?'}</div>
+				<div class="icon">${app.icon ? getAppIcon(app.icon) : '?'}<div class="notification"></div></div>
 				<span class="item-tooltip">${app.name}</span>
-				<div class="notification"></div>
 			</button>`;
 	}
 

@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		error:
 			'<svg viewBox="0 0 10 10"><rect width="9" height="9" x=".5" y=".5" fill="#B33E66" stroke="#13151A" rx="4.5"/></svg>',
 		warning:
-			'<svg viewBox="0 0 12 10"><path width="8" height="8" fill="#B58A2D" stroke="#13151A" d="m10.76 7.25-3.46-6c-.58-1-2.02-1-2.6 0l-3.46 6a1.5 1.5 0 0 0 1.3 2.25h6.92a1.5 1.5 0 0 0 1.3-2.25Z"/></svg>',
+			'<svg xmlns="http://www.w3.org/2000/svg" width="12" height="10" fill="none"><path fill="#B58A2D" stroke="#13151A" d="M7.29904 1.25c-.57735-1-2.02073-1-2.59808 0l-3.4641 6C.65951 8.25 1.3812 9.5 2.5359 9.5h6.9282c1.1547 0 1.8764-1.25 1.299-2.25l-3.46406-6Z"/></svg>',
 		info: '<svg viewBox="0 0 10 10"><rect width="9" height="9" x=".5" y=".5" fill="#3645D9" stroke="#13151A" rx="1.5"/></svg>',
 	} as const;
 
@@ -154,23 +154,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 						display: none;
 						position: absolute;
 						top: -4px;
-						right: -6px;
-						width: 8px;
-						height: 8px;
-						border-radius: 9999px;
-						border: 1px solid rgba(19, 21, 26, 1);
+						right: -5px;
+						width: 12px;
+						height: 10px;
 					}
 
-					.notification[data-level="error"] {
-						background: #B33E66;
-					}
-
-					.notification[data-level="warning"] {
-						background: #d9a536;
-					}
-
-					.notification[data-level="info"] {
-						background: #9198ad;
+					.notification svg {
+						display: block;
 					}
 
 					#dropdown:not([data-no-notification]) .notification[data-active] {
