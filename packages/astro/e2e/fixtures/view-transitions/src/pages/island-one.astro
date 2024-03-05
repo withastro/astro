@@ -2,7 +2,7 @@
 import Layout from '../components/Layout.astro';
 import Island from '../components/Island.jsx';
 
-const persistProps = true;
+const persistProps = Astro.url.searchParams.has('persist');
 ---
 <Layout>
 	<p id="island-one">Page 1</p>

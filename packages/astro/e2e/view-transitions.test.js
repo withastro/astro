@@ -551,7 +551,7 @@ test.describe('View Transitions', () => {
 
 	test('transition:persist-props prevents props from changing', async ({ page, astro }) => {
 		// Go to page 1
-		await page.goto(astro.resolveUrl('/island-one'));
+		await page.goto(astro.resolveUrl('/island-one?persist'));
 
 		// Navigate to page 2
 		await page.click('#click-two');
