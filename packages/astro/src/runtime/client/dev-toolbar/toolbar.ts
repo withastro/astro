@@ -27,7 +27,7 @@ export class AstroDevToolbar extends HTMLElement {
 	apps: DevToolbarApp[] = [];
 	hasBeenInitialized = false;
 	// TODO: This should be dynamic based on the screen size or at least configurable, erika - 2023-11-29
-	customAppsToShow = 1;
+	customAppsToShow = 3;
 
 	constructor() {
 		super();
