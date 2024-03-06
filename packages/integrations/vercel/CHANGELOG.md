@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 7.3.5
+
+### Patch Changes
+
+- [#10305](https://github.com/withastro/astro/pull/10305) [`29cbb88afd79875a2ad57efe60dcbc4a14672d37`](https://github.com/withastro/astro/commit/29cbb88afd79875a2ad57efe60dcbc4a14672d37) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes an issue that was preventing the use of `sharp` in some cases and causing a runtime error
+
 ## 7.3.4
 
 ### Patch Changes
