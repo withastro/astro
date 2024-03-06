@@ -1,4 +1,4 @@
-import { defineDB } from '@astrojs/db';
+import { defineDB } from 'astro:db';
 import { menu } from './shared';
 
 export default defineDB({

@@ -1,4 +1,4 @@
-import { defineTable, column } from '@astrojs/db';
+import { defineTable, column } from 'astro:db';
 
 export const menu = defineTable({
 	columns: {
