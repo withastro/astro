@@ -1,11 +1,5 @@
 # @astrojs/db
 
-## 0.6.2
-
-### Patch Changes
-
-- [#10335](https://github.com/withastro/astro/pull/10335) [`d6a6b7dff249bdf0b427a58ff8551e70c5e14ba2`](https://github.com/withastro/astro/commit/d6a6b7dff249bdf0b427a58ff8551e70c5e14ba2) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add back confirmation handling on verify and push
-
 ## 0.6.1
 
 ### Patch Changes
