@@ -40,7 +40,7 @@ function astroDBIntegration(): AstroIntegration {
 				if (command === 'preview') return;
 
 				let dbPlugin: VitePlugin | undefined = undefined;
-				connectToStudio = command === 'build';
+				connectToStudio = command === 'build' && process.argv[3] === '--remote';
 
 				if (connectToStudio) {
 					appToken = await getManagedAppTokenOrExit();
@@ -68,6 +68,8 @@ function astroDBIntegration(): AstroIntegration {
 				});
 			},
 			'astro:config:done': async ({ config }) => {
+				if (command === 'preview') return;
+
 				// TODO: refine where we load tables
 				// @matthewp: may want to load tables by path at runtime
 				const { mod, dependencies } = await loadDbConfigFile(config.root);
