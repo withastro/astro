@@ -8,6 +8,7 @@ import prompts from 'prompts';
 import resolvePackage from 'resolve';
 import whichPm from 'which-pm';
 import { type Logger } from '../core/logger/core.js';
+import { pathToFileURL } from 'node:url';
 const require = createRequire(import.meta.url);
 
 type GetPackageOptions = {
@@ -28,7 +29,7 @@ export async function getPackage<T>(
 			const packageJsonLoc = require.resolve(packageName + '/package.json', {
 				paths: [options.cwd ?? process.cwd()],
 			});
-			const packageLoc = packageJsonLoc.replace(`package.json`, 'dist/index.js');
+			const packageLoc = pathToFileURL(packageJsonLoc.replace(`package.json`, 'dist/index.js'));
 			const packageImport = await import(packageLoc);
 			return packageImport as T;
 		}
