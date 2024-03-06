@@ -2,4 +2,4 @@
 "@astrojs/db": patch
 ---
 
-Include missing file for packaging
+Includes `./virtual.d.ts` file that was previously unpublished
