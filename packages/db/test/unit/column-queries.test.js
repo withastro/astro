@@ -7,7 +7,7 @@ import {
 import { tableSchema } from '../../dist/core/types.js';
 import { column, defineTable } from '../../dist/runtime/config.js';
 import { NOW } from '../../dist/runtime/index.js';
-import { MIGRATE_VERSION } from '../../dist/core/consts.js';
+import { MIGRATION_VERSION } from '../../dist/core/consts.js';
 
 const TABLE_NAME = 'Users';
 
@@ -34,8 +34,8 @@ function userChangeQueries(oldTable, newTable) {
 
 function configChangeQueries(oldCollections, newCollections) {
 	return getMigrationQueries({
-		oldSnapshot: { schema: oldCollections, version: MIGRATE_VERSION },
-		newSnapshot: { schema: newCollections, version: MIGRATE_VERSION },
+		oldSnapshot: { schema: oldCollections, version: MIGRATION_VERSION },
+		newSnapshot: { schema: newCollections, version: MIGRATION_VERSION },
 	});
 }
 
