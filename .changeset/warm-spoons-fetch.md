@@ -2,6 +2,4 @@
 "astro": patch
 ---
 
-Prerendering with the Speculation Rules API can fail---for example, [certain Chrome extensions can block prerendering](https://developer.chrome.com/blog/speculation-rules-improvements#chrome-limits). Currently in this case, neither prerendering or prefetching occurs. 
-
-Adding `prefetch` in addition to `prerender` within the speculation rules script does not create an extra request. This change will allow browsers to fallback to prefetching if prerendering is not supported. 
+Adds a prefetch fallback when using the `experimental.clientPrerender` option. If prerendering fails, which can happen if [Chrome extensions block prerendering](https://developer.chrome.com/blog/speculation-rules-improvements#chrome-limits), it will fallback to prefetching the URL. This works by adding a `prefetch` field to the `speculationrules` script, but does not create an extra request.
