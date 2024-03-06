@@ -62,8 +62,15 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 				const dbUrl = new URL(DB_PATH, params.root);
 				return `import { createLocalDatabaseClient } from ${RUNTIME_IMPORT};
 				const dbUrl = ${JSON.stringify(dbUrl)};
-
-				export const db = createLocalDatabaseClient({ dbUrl });`;
+				export const db = createLocalDatabaseClient({ dbUrl });
+				${
+					// Recreate tables in-memory to access correct memory db
+					process.env.TEST_IN_MEMORY_DB
+						? `import { recreateTables } from ${RUNTIME_IMPORT};
+				console.log('in memory db')
+				await recreateTables({ db, tables: ${JSON.stringify(params.tables.get() ?? {})} })`
+						: ''
+				}`;
 			}
 
 			// Recreate tables whenever a seed file is loaded.
