@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.6.3
+
+### Patch Changes
+
+- [#10340](https://github.com/withastro/astro/pull/10340) [`a60861c960bf3d24af9b2784b5b333855c968731`](https://github.com/withastro/astro/commit/a60861c960bf3d24af9b2784b5b333855c968731) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Ensure `astro:db` types exist in your `db/config.ts` before running type generation.
+
 ## 0.6.2
 
 ### Patch Changes
