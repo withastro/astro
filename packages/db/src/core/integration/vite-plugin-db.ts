@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { normalizePath } from 'vite';
-import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
+import { SEED_FILE_NAMES } from '../../runtime/queries.js';
 import { DB_PATH, RUNTIME_CONFIG_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
@@ -9,7 +9,7 @@ const LOCAL_DB_VIRTUAL_MODULE_ID = 'astro:local';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 const resolvedLocalDbVirtualModuleId = LOCAL_DB_VIRTUAL_MODULE_ID + '/local-db';
-const resolvedSeedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID + '?shouldSeed';
+const resolvedSeedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID + '?injectSeedImport';
 
 export type LateTables = {
 	get: () => DBTables;
@@ -18,6 +18,7 @@ export type LateTables = {
 type VitePluginDBParams =
 	| {
 			connectToStudio: false;
+			injectSeedImport: boolean;
 			tables: LateTables;
 			srcDir: URL;
 			root: URL;
@@ -38,7 +39,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 		async resolveId(id, rawImporter) {
 			if (id === LOCAL_DB_VIRTUAL_MODULE_ID) return resolvedLocalDbVirtualModuleId;
 			if (id !== VIRTUAL_MODULE_ID) return;
-			if (params.connectToStudio) return resolvedVirtualModuleId;
+			if (params.connectToStudio || !params.injectSeedImport) return resolvedVirtualModuleId;
 
 			const importer = rawImporter ? await this.resolve(rawImporter) : null;
 			if (!importer) return resolvedVirtualModuleId;
@@ -70,7 +71,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			return getLocalVirtualModContents({
 				root: params.root,
 				tables: params.tables.get(),
-				shouldSeed: id === resolvedSeedVirtualModuleId,
+				injectSeedImport: id === resolvedSeedVirtualModuleId,
 			});
 		},
 	};
@@ -82,26 +83,29 @@ export function getConfigVirtualModContents() {
 
 export function getLocalVirtualModContents({
 	tables,
-	shouldSeed,
+	injectSeedImport = false,
+	root,
 }: {
 	tables: DBTables;
 	root: URL;
-	shouldSeed: boolean;
+	injectSeedImport?: boolean;
 }) {
-	const seedFilePaths = SEED_DEV_FILE_NAME.map(
+	const seedFilePaths = SEED_FILE_NAMES.map(
 		// Format as /db/[name].ts
 		// for Vite import.meta.glob
 		(name) => new URL(name, getDbDirectoryUrl('file:///')).pathname
 	);
 
+	const dbUrl = new URL(DB_PATH, root);
 	return `
 import { asDrizzleTable, seedLocal } from ${RUNTIME_IMPORT};
-import { db as _db } from ${JSON.stringify(LOCAL_DB_VIRTUAL_MODULE_ID)};
+import { createLocalDatabaseClient } from ${RUNTIME_IMPORT};
+const dbUrl = ${JSON.stringify(dbUrl)};
 
-export const db = _db;
+export const db = createLocalDatabaseClient({ dbUrl });
 
 ${
-	shouldSeed
+	injectSeedImport
 		? `await seedLocal({
 	db: _db,
 	tables: ${JSON.stringify(tables)},
