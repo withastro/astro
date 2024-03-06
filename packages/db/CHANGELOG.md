@@ -1,5 +1,23 @@
 # @astrojs/db
 
+## 0.6.4
+
+### Patch Changes
+
+- [#10342](https://github.com/withastro/astro/pull/10342) [`a2e9b2b936666b2a4779feb00dcb8ff0ab82c2ec`](https://github.com/withastro/astro/commit/a2e9b2b936666b2a4779feb00dcb8ff0ab82c2ec) Thanks [@matthewp](https://github.com/matthewp)! - Fixes @astrojs/db loading TS in the fixtures
+
+## 0.6.3
+
+### Patch Changes
+
+- [#10340](https://github.com/withastro/astro/pull/10340) [`a60861c960bf3d24af9b2784b5b333855c968731`](https://github.com/withastro/astro/commit/a60861c960bf3d24af9b2784b5b333855c968731) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Ensure `astro:db` types exist in your `db/config.ts` before running type generation.
+
+## 0.6.2
+
+### Patch Changes
+
+- [#10336](https://github.com/withastro/astro/pull/10336) [`f2e60a96754ed1d86001fe4d5d3a0c0ef657408d`](https://github.com/withastro/astro/commit/f2e60a96754ed1d86001fe4d5d3a0c0ef657408d) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add back confirmation handling on verify and push
+
 ## 0.6.1
 
 ### Patch Changes

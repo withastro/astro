@@ -21,6 +21,7 @@ async function createViteServer(root: string, fs: typeof fsType): Promise<ViteDe
 				'@astrojs/preact',
 				'@astrojs/sitemap',
 				'@astrojs/markdoc',
+				'@astrojs/db',
 			],
 		},
 		plugins: [loadFallbackPlugin({ fs, root: pathToFileURL(root) })],
