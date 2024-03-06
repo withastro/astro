@@ -5,17 +5,15 @@ import type { AstroIntegration } from 'astro';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
-import { bundleFile, importBundledFile, loadDbConfigFile } from '../load-file.js';
+import { loadDbConfigFile } from '../load-file.js';
 import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
 import { type DBConfig, dbConfigSchema } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl } from '../utils.js';
 import { errorMap } from './error-map.js';
 import { fileURLIntegration } from './file-url.js';
 import { typegen } from './typegen.js';
-import { type LateTables, vitePluginDb, getLocalVirtualModContents } from './vite-plugin-db.js';
+import { type LateTables, vitePluginDb } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
-import { createLocalDatabaseClient } from '../../runtime/db-client.js';
-import { SEED_FILE_NAMES, recreateTables } from '../../runtime/queries.js';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectToStudio = false;
@@ -59,7 +57,6 @@ function astroDBIntegration(): AstroIntegration {
 						tables,
 						root: config.root,
 						srcDir: config.srcDir,
-						injectSeedImport: command === 'dev',
 					});
 				}
 
@@ -116,30 +113,6 @@ function astroDBIntegration(): AstroIntegration {
 			},
 			'astro:build:start': async ({ logger }) => {
 				logger.info('database: ' + (connectToStudio ? yellow('remote') : blue('local database.')));
-
-				// Load seed file manually for builds instead of bundling.
-				if (!connectToStudio) {
-					let seedFileUrl: URL | undefined;
-					for (const fileName of SEED_FILE_NAMES) {
-						const fileUrl = new URL(fileName, getDbDirectoryUrl(root));
-						if (existsSync(fileUrl)) {
-							seedFileUrl = fileUrl;
-							break;
-						}
-					}
-					if (!seedFileUrl) return;
-
-					await recreateTables({
-						db: createLocalDatabaseClient({ dbUrl: new URL(DB_PATH, root).href }),
-						tables: tables.get() ?? {},
-					});
-					const virtualModContents = getLocalVirtualModContents({
-						tables: tables.get() ?? {},
-						root,
-					});
-					const { code } = await bundleFile({ virtualModContents, root, fileUrl: seedFileUrl });
-					await importBundledFile({ code, root });
-				}
 			},
 			'astro:build:done': async ({}) => {
 				await appToken?.destroy();

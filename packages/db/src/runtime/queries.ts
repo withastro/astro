@@ -26,7 +26,7 @@ import { isSerializedSQL } from './types.js';
 
 const sqlite = new SQLiteAsyncDialect();
 
-export const SEED_FILE_NAMES = ['seed.ts', 'seed.js', 'seed.mjs', 'seed.mts'];
+export const SEED_DEV_FILE_NAME = ['seed.ts', 'seed.js', 'seed.mjs', 'seed.mts'];
 
 export async function seedLocal({
 	db,
@@ -39,7 +39,7 @@ export async function seedLocal({
 	fileGlob: Record<string, () => Promise<{ default?: () => Promise<void> }>>;
 }) {
 	await recreateTables({ db, tables });
-	for (const fileName of SEED_FILE_NAMES) {
+	for (const fileName of SEED_DEV_FILE_NAME) {
 		const key = Object.keys(fileGlob).find((f) => f.endsWith(fileName));
 		if (key) {
 			try {
