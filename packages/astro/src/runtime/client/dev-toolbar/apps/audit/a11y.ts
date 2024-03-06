@@ -42,7 +42,7 @@ const a11y_required_attributes = {
 	object: ['title', 'aria-label', 'aria-labelledby'],
 };
 
-const interactiveElements = ['button', 'details', 'embed', 'iframe', 'label', 'select', 'textarea'];
+const interactiveElements = ['button', 'details', 'embed', 'iframe', 'label', 'select', 'textarea', 'a'];
 
 const labellableElements = ['input', 'meter', 'output', 'progress', 'select', 'textarea'];
 
