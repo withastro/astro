@@ -2,6 +2,7 @@ import deepDiff from 'deep-diff';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import * as color from 'kleur/colors';
 import { customAlphabet } from 'nanoid';
+import stripAnsi from 'strip-ansi';
 import { hasPrimaryKey } from '../../runtime/index.js';
 import {
 	getCreateIndexQueries,
@@ -147,21 +148,12 @@ export async function getCollectionChangeQueries({
 	if (dataLossCheck.dataLoss) {
 		const { reason, columnName } = dataLossCheck;
 		const reasonMsgs: Record<DataLossReason, string> = {
-			'added-required': `New column ${color.bold(
+			'added-required': `You added new required column '${color.bold(
 				collectionName + '.' + columnName
-			)} is required with no default value.\nThis requires deleting existing data in the ${color.bold(
-				collectionName
-			)} collection.`,
-			'added-unique': `New column ${color.bold(
+			)}' with no default value.\n      This cannot be executed on an existing table.`,
+			'updated-type': `Updating existing column ${color.bold(
 				collectionName + '.' + columnName
-			)} is marked as unique.\nThis requires deleting existing data in the ${color.bold(
-				collectionName
-			)} collection.`,
-			'updated-type': `Updated column ${color.bold(
-				collectionName + '.' + columnName
-			)} cannot convert data to new column data type.\nThis requires deleting existing data in the ${color.bold(
-				collectionName
-			)} collection.`,
+			)} to a new type that cannot be handled automatically.`,
 		};
 		confirmations.push(reasonMsgs[reason]);
 	}
@@ -319,7 +311,7 @@ function canAlterTableDropColumn(column: DBColumn) {
 	return true;
 }
 
-type DataLossReason = 'added-required' | 'added-unique' | 'updated-type';
+type DataLossReason = 'added-required' | 'updated-type';
 type DataLossResponse =
 	| { dataLoss: false }
 	| { dataLoss: true; columnName: string; reason: DataLossReason };
@@ -334,9 +326,6 @@ function canRecreateTableWithoutDataLoss(
 		}
 		if (!a.schema.optional && !hasDefault(a)) {
 			return { dataLoss: true, columnName, reason: 'added-required' };
-		}
-		if (!a.schema.optional && a.schema.unique) {
-			return { dataLoss: true, columnName, reason: 'added-unique' };
 		}
 	}
 	for (const [columnName, u] of Object.entries(updated)) {
@@ -453,4 +442,21 @@ export function createCurrentSnapshot({ tables = {} }: DBConfig): DBSnapshot {
 
 export function createEmptySnapshot(): DBSnapshot {
 	return { experimentalVersion: 1, schema: {} };
+}
+
+export function formatDataLossMessage(confirmations: string[], isColor = true): string {
+	const messages = [];
+	messages.push(color.red('✖ We found some schema changes that cannot be handled automatically:'));
+	messages.push(``);
+	messages.push(...confirmations.map((m, i) => color.red(`  (${i + 1}) `) + m));
+	messages.push(``);
+	messages.push(`To resolve, revert these changes or update your schema, and re-run the command.`);
+	messages.push(
+		`You may also run 'astro db push --force-reset' to ignore all warnings and force-push your local database schema to production instead. All data will be lost and the database will be reset.`
+	);
+	let finalMessage = messages.join('\n');
+	if (!isColor) {
+		finalMessage = stripAnsi(finalMessage);
+	}
+	return finalMessage;
 }
