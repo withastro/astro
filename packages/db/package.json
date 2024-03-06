@@ -51,6 +51,7 @@
   },
   "files": [
     "index.d.ts",
+    "virtual.d.ts",
     "dist"
   ],
   "keywords": [
