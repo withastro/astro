@@ -19,7 +19,7 @@ import {
 	STYLES_PLACEHOLDER,
 } from './consts.js';
 import { hasContentFlag } from './utils.js';
-import { getAssetsPrefix } from '../assets/utils/transformToPath.js';
+import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 
 export function astroContentAssetPropagationPlugin({
 	mode,
@@ -142,10 +142,10 @@ export function astroConfigBuildPlugin(
 			'build:post': ({ ssrOutputs, clientOutputs, mutate }) => {
 				const outputs = ssrOutputs.flatMap((o) => o.output);
 				const prependBase = (src: string) => {
-					const { assetsPrefix } = options.settings.config.build
+					const { assetsPrefix } = options.settings.config.build;
 					if (assetsPrefix) {
-						const fileExtension = extname(src)
-						const pf = getAssetsPrefix(fileExtension, assetsPrefix)
+						const fileExtension = extname(src);
+						const pf = getAssetsPrefix(fileExtension, assetsPrefix);
 						return joinPaths(pf, src);
 					} else {
 						return prependForwardSlash(joinPaths(options.settings.config.base, src));

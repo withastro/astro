@@ -1,13 +1,12 @@
-import { extname } from 'node:path';
 import type { SSRElement, AssetsPrefix } from '../../@types/astro.js';
-import { joinPaths, prependForwardSlash, slash } from '../../core/path.js';
+import { fileExtension, joinPaths, prependForwardSlash, slash } from '../../core/path.js';
 import type { StylesheetAsset } from '../app/types.js';
-import { getAssetsPrefix } from '../../assets/utils/transformToPath.js';
+import { getAssetsPrefix } from '../../assets/utils/getAssetsPrefix.js';
 
 export function createAssetLink(href: string, base?: string, assetsPrefix?: AssetsPrefix): string {
 	if (assetsPrefix) {
-		const fileType = extname(href)
-		const pf = getAssetsPrefix(fileType, assetsPrefix)
+		const fileType = fileExtension(href);
+		const pf = getAssetsPrefix(fileType, assetsPrefix);
 		return joinPaths(pf, slash(href));
 	} else if (base) {
 		return prependForwardSlash(joinPaths(base, slash(href)));

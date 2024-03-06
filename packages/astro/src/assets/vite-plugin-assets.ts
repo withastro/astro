@@ -16,7 +16,8 @@ import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './co
 import { emitESMImage } from './utils/emitAsset.js';
 import { isESMImportedImage } from './utils/imageKind.js';
 import { getProxyCode } from './utils/proxy.js';
-import { getAssetsPrefix, hashTransform, propsToFilename } from './utils/transformToPath.js';
+import { hashTransform, propsToFilename } from './utils/transformToPath.js';
+import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -96,7 +97,9 @@ export default function assets({
 					}
 
 					// Rollup will copy the file to the output directory, this refer to this final path, not to the original path
-					const ESMImportedImageSrc = isESMImportedImage(options.src) ? options.src.src : options.src;
+					const ESMImportedImageSrc = isESMImportedImage(options.src)
+						? options.src.src
+						: options.src;
 					const fileExtension = extname(ESMImportedImageSrc);
 					const pf = getAssetsPrefix(fileExtension, settings.config.build.assetsPrefix);
 					const finalOriginalImagePath = ESMImportedImageSrc.replace(pf, '');
@@ -151,11 +154,9 @@ export default function assets({
 					const [full, hash, postfix = ''] = match;
 
 					const file = this.getFileName(hash);
-					const fileExtension = extname(file)
-					const pf = getAssetsPrefix(fileExtension, settings.config.build.assetsPrefix)
-					const prefix = pf
-						? appendForwardSlash(pf)
-						: resolvedConfig.base;
+					const fileExtension = extname(file);
+					const pf = getAssetsPrefix(fileExtension, settings.config.build.assetsPrefix);
+					const prefix = pf ? appendForwardSlash(pf) : resolvedConfig.base;
 					const outputFilepath = prefix + normalizePath(file + postfix);
 
 					s.overwrite(match.index, match.index + full.length, outputFilepath);
