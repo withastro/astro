@@ -16,7 +16,6 @@ export { sql };
 export type SqliteDB = LibSQLDatabase;
 export type { Table } from './types.js';
 export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-client.js';
-export { seedLocal } from './queries.js';
 
 export function hasPrimaryKey(column: DBColumn) {
 	return 'primaryKey' in column.schema && !!column.schema.primaryKey;

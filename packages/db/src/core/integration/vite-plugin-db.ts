@@ -1,15 +1,19 @@
 import { fileURLToPath } from 'node:url';
 import { normalizePath } from 'vite';
-import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
+import { SEED_DEV_FILE_NAME, recreateTables } from '../../runtime/queries.js';
 import { DB_PATH, RUNTIME_CONFIG_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
+import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 
 const LOCAL_DB_VIRTUAL_MODULE_ID = 'astro:local';
+const WITH_SEED_VIRTUAL_MODULE_ID = 'astro:db:seed';
 
-const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
-const resolvedLocalDbVirtualModuleId = LOCAL_DB_VIRTUAL_MODULE_ID + '/local-db';
-const resolvedSeedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID + '?shouldSeed';
+const resolved = {
+	localDb: '\0' + LOCAL_DB_VIRTUAL_MODULE_ID,
+	virtual: '\0' + VIRTUAL_MODULE_ID,
+	seedVirtual: '\0' + WITH_SEED_VIRTUAL_MODULE_ID,
+};
 
 export type LateTables = {
 	get: () => DBTables;
@@ -32,26 +36,29 @@ type VitePluginDBParams =
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 	const srcDirPath = normalizePath(fileURLToPath(params.srcDir));
+	const seedFilePaths = SEED_DEV_FILE_NAME.map((name) =>
+		normalizePath(fileURLToPath(new URL(name, getDbDirectoryUrl(params.root))))
+	);
 	return {
 		name: 'astro:db',
 		enforce: 'pre',
 		async resolveId(id, rawImporter) {
-			if (id === LOCAL_DB_VIRTUAL_MODULE_ID) return resolvedLocalDbVirtualModuleId;
+			if (id === LOCAL_DB_VIRTUAL_MODULE_ID) return resolved.localDb;
 			if (id !== VIRTUAL_MODULE_ID) return;
-			if (params.connectToStudio) return resolvedVirtualModuleId;
+			if (params.connectToStudio) return resolved.virtual;
 
 			const importer = rawImporter ? await this.resolve(rawImporter) : null;
-			if (!importer) return resolvedVirtualModuleId;
+			if (!importer) return resolved.virtual;
 
 			if (importer.id.startsWith(srcDirPath)) {
 				// Seed only if the importer is in the src directory.
 				// Otherwise, we may get recursive seed calls (ex. import from db/seed.ts).
-				return resolvedSeedVirtualModuleId;
+				return resolved.seedVirtual;
 			}
-			return resolvedVirtualModuleId;
+			return resolved.virtual;
 		},
-		load(id) {
-			if (id === resolvedLocalDbVirtualModuleId) {
+		async load(id) {
+			if (id === resolved.localDb) {
 				const dbUrl = new URL(DB_PATH, params.root);
 				return `import { createLocalDatabaseClient } from ${RUNTIME_IMPORT};
 				const dbUrl = ${JSON.stringify(dbUrl)};
@@ -59,7 +66,15 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 				export const db = createLocalDatabaseClient({ dbUrl });`;
 			}
 
-			if (id !== resolvedVirtualModuleId && id !== resolvedSeedVirtualModuleId) return;
+			// Recreate tables whenever a seed file is loaded.
+			if (seedFilePaths.some((f) => id === f)) {
+				await recreateTables({
+					db: createLocalDatabaseClient({ dbUrl: new URL(DB_PATH, params.root).href }),
+					tables: params.tables.get(),
+				});
+			}
+
+			if (id !== resolved.virtual && id !== resolved.seedVirtual) return;
 
 			if (params.connectToStudio) {
 				return getStudioVirtualModContents({
@@ -70,7 +85,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			return getLocalVirtualModContents({
 				root: params.root,
 				tables: params.tables.get(),
-				shouldSeed: id === resolvedSeedVirtualModuleId,
+				shouldSeed: id === resolved.seedVirtual,
 			});
 		},
 	};
@@ -95,20 +110,12 @@ export function getLocalVirtualModContents({
 	);
 
 	return `
-import { asDrizzleTable, seedLocal } from ${RUNTIME_IMPORT};
+import { asDrizzleTable } from ${RUNTIME_IMPORT};
 import { db as _db } from ${JSON.stringify(LOCAL_DB_VIRTUAL_MODULE_ID)};
 
 export const db = _db;
 
-${
-	shouldSeed
-		? `await seedLocal({
-	db: _db,
-	tables: ${JSON.stringify(tables)},
-	fileGlob: import.meta.glob(${JSON.stringify(seedFilePaths)}),
-})`
-		: ''
-}
+${shouldSeed ? `import.meta.glob(${JSON.stringify(seedFilePaths)}, { eager: true });` : ''}
 
 export * from ${RUNTIME_CONFIG_IMPORT};
 

@@ -1,4 +1,3 @@
-import { LibsqlError } from '@libsql/client';
 import { type SQL, sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { bold } from 'kleur/colors';
@@ -23,6 +22,7 @@ import type {
 } from '../core/types.js';
 import { type SqliteDB, hasPrimaryKey } from './index.js';
 import { isSerializedSQL } from './types.js';
+import { LibsqlError } from '@libsql/client';
 
 const sqlite = new SQLiteAsyncDialect();
 
