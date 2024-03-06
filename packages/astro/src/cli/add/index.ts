@@ -49,26 +49,44 @@ const ALIASES = new Map([
 	['solid', 'solid-js'],
 	['tailwindcss', 'tailwind'],
 ]);
-const ASTRO_CONFIG_STUB = `import { defineConfig } from 'astro/config';\n\nexport default defineConfig({});`;
-const TAILWIND_CONFIG_STUB = `/** @type {import('tailwindcss').Config} */
+
+const STUBS = {
+	ASTRO_CONFIG: `import { defineConfig } from 'astro/config';\n// https://astro.build/config\nexport default defineConfig({});`,
+	TAILWIND_CONFIG: `/** @type {import('tailwindcss').Config} */
 export default {
 	content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
 	theme: {
 		extend: {},
 	},
 	plugins: [],
-}\n`;
-const SVELTE_CONFIG_STUB = `\
+}\n`,
+	SVELTE_CONFIG: `\
 import { vitePreprocess } from '@astrojs/svelte';
 
 export default {
 	preprocess: vitePreprocess(),
-};
-`;
-const LIT_NPMRC_STUB = `\
+}\n`,
+	LIT_NPMRC: `\
 # Lit libraries are required to be hoisted due to dependency issues.
 public-hoist-pattern[]=*lit*
-`;
+`,
+	DB_CONFIG: `\
+import { defineDB } from 'astro:db';
+
+// https://astro.build/db/config
+export default defineDB({
+  tables: {}
+});
+`,
+	DB_SEED: `\
+import { db } from 'astro:db';
+
+// https://astro.build/db/seed
+export default async function seed() {
+	// TODO
+}
+`
+}
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 	netlify: '@astrojs/netlify',
@@ -172,7 +190,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 						'./tailwind.config.js',
 					],
 					defaultConfigFile: './tailwind.config.mjs',
-					defaultConfigContent: TAILWIND_CONFIG_STUB,
+					defaultConfigContent: STUBS.TAILWIND_CONFIG,
 				});
 			}
 			if (integrations.find((integration) => integration.id === 'svelte')) {
@@ -183,8 +201,31 @@ export async function add(names: string[], { flags }: AddOptions) {
 					integrationName: 'Svelte',
 					possibleConfigFiles: ['./svelte.config.js', './svelte.config.cjs', './svelte.config.mjs'],
 					defaultConfigFile: './svelte.config.js',
-					defaultConfigContent: SVELTE_CONFIG_STUB,
+					defaultConfigContent: STUBS.SVELTE_CONFIG,
 				});
+			}
+			if (integrations.find((integration) => integration.id === 'db')) {
+				if (!existsSync(new URL('./db/', root))) {
+					logger.info(
+						'SKIP_FORMAT',
+						`\n  ${magenta(`Astro will scaffold ${green('./db/config.ts')}${magenta(' and ')}${green('./db/seed.ts')}${magenta(' files.')}`)}\n`
+					);
+
+					if (await askToContinue({ flags })) {
+						await fs.mkdir(new URL('./db/', root), { recursive: true });
+						await Promise.all([
+							fs.writeFile(new URL('./db/config.ts', root), STUBS.DB_CONFIG, { encoding: 'utf-8' }),
+							fs.writeFile(new URL('./db/seed.ts', root), STUBS.DB_SEED, { encoding: 'utf-8' }),
+						])
+					} else {
+						logger.info(
+							'SKIP_FORMAT',
+							`\n  Astro DB requires additional configuration. Please refer to https://astro.build/db/config`
+						);
+					}
+				} else {
+					logger.debug('add', `Using existing db configuration`);
+				}
 			}
 			// Some lit dependencies needs to be hoisted, so for strict package managers like pnpm,
 			// we add an .npmrc to hoist them
@@ -199,14 +240,14 @@ export async function add(names: string[], { flags }: AddOptions) {
 					integrationName: 'Lit',
 					possibleConfigFiles: ['./.npmrc'],
 					defaultConfigFile: './.npmrc',
-					defaultConfigContent: LIT_NPMRC_STUB,
+					defaultConfigContent: STUBS.LIT_NPMRC,
 				});
 			}
 			break;
 		}
 		case UpdateResult.cancelled: {
 			logger.info(
-				null,
+				'SKIP_FORMAT',
 				msg.cancelled(
 					`Dependencies ${bold('NOT')} installed.`,
 					`Be sure to install them manually before continuing!`
@@ -233,7 +274,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 	} else {
 		logger.info('add', `Unable to locate a config file, generating one for you.`);
 		configURL = new URL('./astro.config.mjs', root);
-		await fs.writeFile(fileURLToPath(configURL), ASTRO_CONFIG_STUB, { encoding: 'utf-8' });
+		await fs.writeFile(fileURLToPath(configURL), STUBS.ASTRO_CONFIG, { encoding: 'utf-8' });
 	}
 
 	let ast: t.File | null = null;
@@ -261,7 +302,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					await setAdapter(ast, integration, officialExportName);
 				} else {
 					logger.info(
-						null,
+						'SKIP_FORMAT',
 						`\n  ${magenta(
 							`Check our deployment docs for ${bold(
 								integration.packageName
@@ -298,7 +339,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 	switch (configResult) {
 		case UpdateResult.cancelled: {
-			logger.info(null, msg.cancelled(`Your configuration has ${bold('NOT')} been updated.`));
+			logger.info('SKIP_FORMAT', msg.cancelled(`Your configuration has ${bold('NOT')} been updated.`));
 			break;
 		}
 		case UpdateResult.none: {
@@ -312,21 +353,20 @@ export async function add(names: string[], { flags }: AddOptions) {
 					(integration) => !deps.includes(integration.packageName)
 				);
 				if (missingDeps.length === 0) {
-					logger.info(null, msg.success(`Configuration up-to-date.`));
+					logger.info('SKIP_FORMAT', msg.success(`Configuration up-to-date.`));
 					break;
 				}
 			}
 
-			logger.info(null, msg.success(`Configuration up-to-date.`));
+			logger.info('SKIP_FORMAT', msg.success(`Configuration up-to-date.`));
 			break;
 		}
 		default: {
 			const list = integrations.map((integration) => `  - ${integration.packageName}`).join('\n');
 			logger.info(
-				null,
+				'SKIP_FORMAT',
 				msg.success(
-					`Added the following integration${
-						integrations.length === 1 ? '' : 's'
+					`Added the following integration${integrations.length === 1 ? '' : 's'
 					} to your project:\n${list}`
 				)
 			);
@@ -341,7 +381,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 		}
 		case UpdateResult.cancelled: {
 			logger.info(
-				null,
+				'SKIP_FORMAT',
 				msg.cancelled(`Your TypeScript configuration has ${bold('NOT')} been updated.`)
 			);
 			break;
@@ -352,7 +392,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 			);
 		}
 		default:
-			logger.info(null, msg.success(`Successfully updated TypeScript settings`));
+			logger.info('SKIP_FORMAT', msg.success(`Successfully updated TypeScript settings`));
 	}
 }
 
@@ -580,13 +620,13 @@ async function updateAstroConfig({
 	})}\n`;
 
 	logger.info(
-		null,
+		'SKIP_FORMAT',
 		`\n  ${magenta('Astro will make the following changes to your config file:')}\n${message}`
 	);
 
 	if (logAdapterInstructions) {
 		logger.info(
-			null,
+			'SKIP_FORMAT',
 			magenta(
 				`  For complete deployment options, visit\n  ${bold(
 					'https://docs.astro.build/en/guides/deploy/'
@@ -718,7 +758,7 @@ async function tryToInstallIntegrations({
 			borderStyle: 'round',
 		})}\n`;
 		logger.info(
-			null,
+			'SKIP_FORMAT',
 			`\n  ${magenta('Astro will run the following command:')}\n  ${dim(
 				'If you skip this step, you can always run it yourself later'
 			)}\n${message}`
@@ -950,7 +990,7 @@ async function updateTSConfig(
 	})}\n`;
 
 	logger.info(
-		null,
+		'SKIP_FORMAT',
 		`\n  ${magenta(`Astro will make the following changes to your ${configFileName}:`)}\n${message}`
 	);
 
@@ -964,7 +1004,7 @@ async function updateTSConfig(
 
 	if (hasConflictingIntegrations) {
 		logger.info(
-			null,
+			'SKIP_FORMAT',
 			red(
 				`  ${bold(
 					'Caution:'
@@ -1063,7 +1103,7 @@ async function setupIntegrationConfig(opts: {
 	}
 	if (!alreadyConfigured) {
 		logger.info(
-			null,
+			'SKIP_FORMAT',
 			`\n  ${magenta(`Astro will generate a minimal ${bold(opts.defaultConfigFile)} file.`)}\n`
 		);
 		if (await askToContinue({ flags: opts.flags })) {
