@@ -1,11 +1,5 @@
 # astro
 
-## 4.4.12
-
-### Patch Changes
-
-- [#10316](https://github.com/withastro/astro/pull/10316) [`507b4ac246fa95cc31e5f73e863a785cdff92e13`](https://github.com/withastro/astro/commit/507b4ac246fa95cc31e5f73e863a785cdff92e13) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where slotting interactive components within a "client:only" component prevented all component code in the page from running.
-
 ## 4.4.11
 
 ### Patch Changes
