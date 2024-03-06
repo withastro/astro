@@ -106,7 +106,7 @@ export async function importBundledFile({
 	const tmpFileUrl = new URL(`./db.timestamp-${Date.now()}.mjs`, root);
 	await writeFile(tmpFileUrl, code, { encoding: 'utf8' });
 	try {
-		return await import(/* @vite-ignore */ tmpFileUrl.pathname);
+		return await import(/* @vite-ignore */ tmpFileUrl.toString());
 	} finally {
 		try {
 			await unlink(tmpFileUrl);
