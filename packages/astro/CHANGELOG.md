@@ -1,5 +1,11 @@
 # astro
 
+## 4.4.13
+
+### Patch Changes
+
+- [#10342](https://github.com/withastro/astro/pull/10342) [`a2e9b2b936666b2a4779feb00dcb8ff0ab82c2ec`](https://github.com/withastro/astro/commit/a2e9b2b936666b2a4779feb00dcb8ff0ab82c2ec) Thanks [@matthewp](https://github.com/matthewp)! - Fixes @astrojs/db loading TS in the fixtures
+
 ## 4.4.12
 
 ### Patch Changes
