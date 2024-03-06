@@ -30,7 +30,7 @@ export async function getPackage<T>(
 				paths: [options.cwd ?? process.cwd()],
 			});
 			const packageLoc = pathToFileURL(packageJsonLoc.replace(`package.json`, 'dist/index.js'));
-			const packageImport = await import(packageLoc);
+			const packageImport = await import(packageLoc.toString());
 			return packageImport as T;
 		}
 		await tryResolve(packageName, options.cwd ?? process.cwd());
