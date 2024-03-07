@@ -42,7 +42,7 @@ function astroDBIntegration(): AstroIntegration {
 
 				let dbPlugin: VitePlugin | undefined = undefined;
 				const args = parseArgs(process.argv.slice(3));
-				connectToStudio = command === 'build' && args['remote'];
+				connectToStudio = args['remote'];
 
 				if (connectToStudio) {
 					appToken = await getManagedAppTokenOrExit();
