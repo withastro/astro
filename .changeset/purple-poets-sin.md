@@ -15,8 +15,8 @@ export default function MyDbIntegration() {
     hooks: {
       'astro:db:setup': ({ extendDb }) => {
         extendDb({
-          configEntrypoint: '@astronaut/my-package/config.ts',
-          seedEntrypoint: '@astronaut/my-package/seed.ts',
+          configEntrypoint: '@astronaut/my-package/config',
+          seedEntrypoint: '@astronaut/my-package/seed',
         });
       },
     },
@@ -48,7 +48,7 @@ import { Pets } from './config';
 
 export default async function() {
   // Convert the Pets table into a format ready for querying.
-  const typeSafePets = asDrizzleTable(Pets);
+  const typeSafePets = asDrizzleTable('Pets', Pets);
 
   await db.insert(typeSafePets).values([
     { name: 'Palomita', age: 7 },
