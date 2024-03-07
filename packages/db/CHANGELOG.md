@@ -1,5 +1,87 @@
 # @astrojs/db
 
+## 0.7.0
+
+### Minor Changes
+
+- [#10334](https://github.com/withastro/astro/pull/10334) [`bad9b583a267e239ba52237d45a89063ea277200`](https://github.com/withastro/astro/commit/bad9b583a267e239ba52237d45a89063ea277200) Thanks [@delucis](https://github.com/delucis)! - Changes the seed file format to require exporting a default function instead of running seed code at the top level.
+
+  To migrate a seed file, wrap your existing code in a default function export:
+
+  ```diff
+  // db/seed.ts
+  import { db, Table } from 'astro:db';
+
+  + export default async function() {
+    await db.insert(Table).values({ foo: 'bar' });
+  + }
+  ```
+
+- [#10352](https://github.com/withastro/astro/pull/10352) [`06fe94e29de97290cb41c4f862ab88f48cda3d4a`](https://github.com/withastro/astro/commit/06fe94e29de97290cb41c4f862ab88f48cda3d4a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Introduce `astro build --remote` to build with a remote database connection. Running `astro build` plain will use a local database file, and `--remote` will authenticate with a studio app token.
+
+- [#10321](https://github.com/withastro/astro/pull/10321) [`2e4958c8a75dc9836efcc7dd272fb8ed4187c000`](https://github.com/withastro/astro/commit/2e4958c8a75dc9836efcc7dd272fb8ed4187c000) Thanks [@delucis](https://github.com/delucis)! - Adds support for integrations providing `astro:db` configuration and seed files, using the new `astro:db:setup` hook.
+
+  To get TypeScript support for the `astro:db:setup` hook, wrap your integration object in the `defineDbIntegration()` utility:
+
+  ```js
+  import { defineDbIntegration } from '@astrojs/db/utils';
+
+  export default function MyDbIntegration() {
+    return defineDbIntegration({
+      name: 'my-astro-db-powered-integration',
+      hooks: {
+        'astro:db:setup': ({ extendDb }) => {
+          extendDb({
+            configEntrypoint: '@astronaut/my-package/config',
+            seedEntrypoint: '@astronaut/my-package/seed',
+          });
+        },
+      },
+    });
+  }
+  ```
+
+  Use the `extendDb` method to register additional `astro:db` config and seed files.
+
+  Integration config and seed files follow the same format as their user-defined equivalents. However, often while working on integrations, you may not be able to benefit from Astro’s generated table types exported from `astro:db`. For full type safety and autocompletion support, use the `asDrizzleTable()` utility to wrap your table definitions in the seed file.
+
+  ```js
+  // config.ts
+  import { defineTable, column } from 'astro:db';
+
+  export const Pets = defineTable({
+    columns: {
+      name: column.text(),
+      age: column.number(),
+    },
+  });
+  ```
+
+  ```js
+  // seed.ts
+  import { asDrizzleTable } from '@astrojs/db/utils';
+  import { db } from 'astro:db';
+  import { Pets } from './config';
+
+  export default async function () {
+    // Convert the Pets table into a format ready for querying.
+    const typeSafePets = asDrizzleTable('Pets', Pets);
+
+    await db.insert(typeSafePets).values([
+      { name: 'Palomita', age: 7 },
+      { name: 'Pan', age: 3.5 },
+    ]);
+  }
+  ```
+
+- [#10361](https://github.com/withastro/astro/pull/10361) [`988aad6705e5ee129cf3a28da80aca4229052bb3`](https://github.com/withastro/astro/commit/988aad6705e5ee129cf3a28da80aca4229052bb3) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add support for batch queries with `db.batch()`. This includes an internal bump to Drizzle v0.29.
+
+### Patch Changes
+
+- [#10357](https://github.com/withastro/astro/pull/10357) [`5a9dab286f3f436f3dce18f3b13a2cd9b774a8ef`](https://github.com/withastro/astro/commit/5a9dab286f3f436f3dce18f3b13a2cd9b774a8ef) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix runtime export error when building with the node adapter
+
+- [#10348](https://github.com/withastro/astro/pull/10348) [`9f422e9bd338c1f6deee8f727143bf801a6b1651`](https://github.com/withastro/astro/commit/9f422e9bd338c1f6deee8f727143bf801a6b1651) Thanks [@matthewp](https://github.com/matthewp)! - Rename `experimentalVersion` to `version`
+
 ## 0.6.5
 
 ### Patch Changes
