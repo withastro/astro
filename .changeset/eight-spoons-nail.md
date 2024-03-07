@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fixes a regression where full dynamic routes where prioritized over partial dynamic routes. Now a route like `food-[name].astro` is matched **before** `[name].astro`.
+Fixes a regression where full dynamic routes were prioritized over partial dynamic routes. Now a route like `food-[name].astro` is matched **before** `[name].astro`.
