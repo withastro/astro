@@ -59,18 +59,12 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 		},
 		async load(id) {
 			if (id === resolved.localDb) {
+				// Split db creation to a separate module to
+				// share a connection across modules (namely astro:db and astro:db:seed)
 				const dbUrl = new URL(DB_PATH, params.root);
 				return `import { createLocalDatabaseClient } from ${RUNTIME_IMPORT};
 				const dbUrl = ${JSON.stringify(dbUrl)};
-				export const db = createLocalDatabaseClient({ dbUrl });
-				${
-					// Recreate tables in-memory to access correct memory db
-					process.env.TEST_IN_MEMORY_DB
-						? `import { recreateTables } from ${RUNTIME_IMPORT};
-				console.log('in memory db')
-				await recreateTables({ db, tables: ${JSON.stringify(params.tables.get() ?? {})} })`
-						: ''
-				}`;
+				export const db = createLocalDatabaseClient({ dbUrl });`;
 			}
 
 			// Recreate tables whenever a seed file is loaded.
