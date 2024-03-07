@@ -16,7 +16,7 @@ describe('astro:db', () => {
 	// Note(bholmesdev): Use in-memory db to avoid
 	// Multiple dev servers trying to unlink and remount
 	// the same database file.
-	process.env.TEST_IN_MEMORY_DB = 'true';
+	process.env.TEST_RANDOM_ID = 'true';
 	describe('development', () => {
 		let devServer;
 
@@ -27,7 +27,7 @@ describe('astro:db', () => {
 
 		after(async () => {
 			await devServer.stop();
-			process.env.TEST_IN_MEMORY_DB = undefined;
+			process.env.TEST_RANDOM_ID = undefined;
 		});
 
 		it('Prints the list of authors', async () => {
