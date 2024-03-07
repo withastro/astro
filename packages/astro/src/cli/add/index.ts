@@ -85,8 +85,8 @@ import { db } from 'astro:db';
 export default async function seed() {
 	// TODO
 }
-`
-}
+`,
+};
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 	netlify: '@astrojs/netlify',
@@ -208,7 +208,11 @@ export async function add(names: string[], { flags }: AddOptions) {
 				if (!existsSync(new URL('./db/', root))) {
 					logger.info(
 						'SKIP_FORMAT',
-						`\n  ${magenta(`Astro will scaffold ${green('./db/config.ts')}${magenta(' and ')}${green('./db/seed.ts')}${magenta(' files.')}`)}\n`
+						`\n  ${magenta(
+							`Astro will scaffold ${green('./db/config.ts')}${magenta(' and ')}${green(
+								'./db/seed.ts'
+							)}${magenta(' files.')}`
+						)}\n`
 					);
 
 					if (await askToContinue({ flags })) {
@@ -216,7 +220,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 						await Promise.all([
 							fs.writeFile(new URL('./db/config.ts', root), STUBS.DB_CONFIG, { encoding: 'utf-8' }),
 							fs.writeFile(new URL('./db/seed.ts', root), STUBS.DB_SEED, { encoding: 'utf-8' }),
-						])
+						]);
 					} else {
 						logger.info(
 							'SKIP_FORMAT',
@@ -339,7 +343,10 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 	switch (configResult) {
 		case UpdateResult.cancelled: {
-			logger.info('SKIP_FORMAT', msg.cancelled(`Your configuration has ${bold('NOT')} been updated.`));
+			logger.info(
+				'SKIP_FORMAT',
+				msg.cancelled(`Your configuration has ${bold('NOT')} been updated.`)
+			);
 			break;
 		}
 		case UpdateResult.none: {
@@ -366,7 +373,8 @@ export async function add(names: string[], { flags }: AddOptions) {
 			logger.info(
 				'SKIP_FORMAT',
 				msg.success(
-					`Added the following integration${integrations.length === 1 ? '' : 's'
+					`Added the following integration${
+						integrations.length === 1 ? '' : 's'
 					} to your project:\n${list}`
 				)
 			);
