@@ -2,4 +2,4 @@
 "@astrojs/db": patch
 ---
 
-Rename experimentalVersion to version
+Rename `experimentalVersion` to `version`
