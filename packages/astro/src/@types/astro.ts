@@ -1653,7 +1653,7 @@ export interface AstroUserConfig {
 		 * @description
 		 * Enables pre-rendering your prefetched pages on the client in supported browsers.
 		 *
-		 * This feature uses the experimental [Speculation Rules Web API](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API) and overrides the default `prefetch` behavior globally to prerender links on the client.
+		 * This feature uses the experimental [Speculation Rules Web API](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API) and enhances the default `prefetch` behavior globally to prerender links on the client.
 		 * You may wish to review the [possible risks when prerendering on the client](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API#unsafe_prefetching) before enabling this feature.
 		 *
 		 * Enable client side prerendering in your `astro.config.mjs` along with any desired `prefetch` configuration options:
@@ -2701,7 +2701,7 @@ export interface SSRResult {
 		slots: Record<string, any> | null
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
-	response: ResponseInit;
+	response: AstroGlobal['response'];
 	renderers: SSRLoadedRenderer[];
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code

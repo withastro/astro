@@ -136,9 +136,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		renderers: [],
 		base: settings.config.base,
 		assetsPrefix: settings.config.build.assetsPrefix,
-		site: settings.config.site
-			? new URL(settings.config.base, settings.config.site).toString()
-			: settings.config.site,
+		site: settings.config.site,
 		componentMetadata: new Map(),
 		i18n: i18nManifest,
 		middleware(_, next) {
