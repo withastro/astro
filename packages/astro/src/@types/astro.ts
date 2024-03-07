@@ -902,25 +902,23 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 *
-		 * If this value is a `Record<string, string>`,
+		 * **Added in 4.5.0**
 		 *
-		 * Applicable to multiple CDN scenarios. If you static file use different CDN, you can configure it like the example below.
-		 *
-		 * For example, if static file is js file, assets prefix use `https://js.cdn.example.com`. If static file is css file, assets prefix use `https://css.cdn.example.com`. Other assets prefix use `https://cdn.example.com`.
+		 * You can also pass an object to `assetsPrefix` to specify a different domain for each file type.
+		 * In this case, a `fallback` property is required and will be used by default for any other files.
 		 *
 		 * ```js
 		 * {
 		 *   build: {
 		 *     assetsPrefix: {
 		 *       'js': 'https://js.cdn.example.com',
-		 *       'css': 'https://js.cdn.example.com',
-		 *       'fallabck': 'https://cdn.example.com'
+		 *       'mjs': 'https://js.cdn.example.com', 
+		 *       'css': 'https://css.cdn.example.com',
+		 *       'fallback': 'https://cdn.example.com'
 		 *     }
 		 *   }
 		 * }
 		 * ```
-		 *
-		 * Object key is file extension, value is CDN assets prefix path. `fallabck` is default assets prefix cdn value set and it is a mandatory key. You can set the default values of other files by setting the value of `fallabck`.
 		 *
 		 */
 		assetsPrefix?: AssetsPrefix;
