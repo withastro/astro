@@ -326,7 +326,7 @@ async function getPathsForRoute(
 	let paths: Array<string> = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
-		builtPaths.add(route.pathname);
+		builtPaths.add(removeTrailingForwardSlash(route.pathname));
 	} else {
 		const staticPaths = await callGetStaticPaths({
 			mod,
@@ -471,7 +471,7 @@ async function generatePath(
 	route: RouteData
 ) {
 	const { mod } = gopts;
-	const { config, logger, options, serverLike } = pipeline;
+	const { config, logger, options } = pipeline;
 	logger.debug('build', `Generating: ${pathname}`);
 
 	// This adds the page name to the array so it can be shown as part of stats.
@@ -502,10 +502,11 @@ async function generatePath(
 	);
 
 	const request = createRequest({
+		base: config.base,
 		url,
 		headers: new Headers(),
 		logger,
-		ssr: serverLike,
+		staticLike: true,
 	});
 	const renderContext = RenderContext.create({ pipeline, pathname, request, routeData: route });
 
@@ -521,8 +522,9 @@ async function generatePath(
 	}
 
 	if (response.status >= 300 && response.status < 400) {
-		// If redirects is set to false, don't output the HTML
-		if (!config.build.redirects) {
+		// Adapters may handle redirects themselves, turning off Astro's redirect handling using `config.build.redirects` in the process.
+		// In that case, we skip rendering static files for the redirect routes.
+		if (routeIsRedirect(route) && !config.build.redirects) {
 			return;
 		}
 		const locationSite = getRedirectLocationOrThrow(response.headers);
@@ -607,9 +609,7 @@ function createBuildManifest(
 		renderers,
 		base: settings.config.base,
 		assetsPrefix: settings.config.build.assetsPrefix,
-		site: settings.config.site
-			? new URL(settings.config.base, settings.config.site).toString()
-			: settings.config.site,
+		site: settings.config.site,
 		componentMetadata: internals.componentMetadata,
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,

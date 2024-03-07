@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module';
 import { sep } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import boxen from 'boxen';
 import { execa } from 'execa';
 import { bold, cyan, dim, magenta } from 'kleur/colors';
@@ -28,8 +29,8 @@ export async function getPackage<T>(
 			const packageJsonLoc = require.resolve(packageName + '/package.json', {
 				paths: [options.cwd ?? process.cwd()],
 			});
-			const packageLoc = packageJsonLoc.replace(`package.json`, 'dist/index.js');
-			const packageImport = await import(packageLoc);
+			const packageLoc = pathToFileURL(packageJsonLoc.replace(`package.json`, 'dist/index.js'));
+			const packageImport = await import(packageLoc.toString());
 			return packageImport as T;
 		}
 		await tryResolve(packageName, options.cwd ?? process.cwd());
