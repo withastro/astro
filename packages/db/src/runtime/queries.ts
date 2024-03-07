@@ -1,4 +1,4 @@
-import { type SQL, sql } from 'drizzle-orm';
+import { type SQL } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { bold } from 'kleur/colors';
 import {
@@ -14,13 +14,12 @@ import type {
 	ColumnType,
 	DBColumn,
 	DBTable,
-	DBTables,
 	DateColumn,
 	JsonColumn,
 	NumberColumn,
 	TextColumn,
 } from '../core/types.js';
-import { type SqliteDB, hasPrimaryKey } from './index.js';
+import { hasPrimaryKey } from './index.js';
 import { isSerializedSQL } from './types.js';
 import { LibsqlError } from '@libsql/client';
 
@@ -32,8 +31,6 @@ export async function seedLocal({
 	// Glob all potential seed files to catch renames and deletions.
 	fileGlob,
 }: {
-	db: SqliteDB;
-	tables: DBTables;
 	fileGlob: Record<string, () => Promise<{ default?: () => Promise<void> }>>;
 }) {
 	for (const fileName of SEED_DEV_FILE_NAME) {
@@ -54,19 +51,6 @@ export async function seedLocal({
 			break;
 		}
 	}
-export async function recreateTables({ db, tables }: { db: SqliteDB; tables: DBTables }) {
-	const setupQueries: SQL[] = [];
-	for (const [name, table] of Object.entries(tables)) {
-		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);
-		const createQuery = sql.raw(getCreateTableQuery(name, table));
-		const indexQueries = getCreateIndexQueries(name, table);
-		setupQueries.push(dropQuery, createQuery, ...indexQueries.map((s) => sql.raw(s)));
-	}
-	await db.batch([
-		db.run(sql`pragma defer_foreign_keys=true;`),
-		...setupQueries.map((q) => db.run(q)),
-	]);
-}
 
 export function getDropTableIfExistsQuery(tableName: string) {
 	return `DROP TABLE IF EXISTS ${sqlite.escapeName(tableName)}`;

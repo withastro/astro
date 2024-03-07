@@ -1,10 +1,17 @@
 import { fileURLToPath } from 'node:url';
 import { normalizePath } from 'vite';
-import { SEED_DEV_FILE_NAME, recreateTables } from '../../runtime/queries.js';
+import {
+	SEED_DEV_FILE_NAME,
+	getCreateIndexQueries,
+	getCreateTableQuery,
+} from '../../runtime/queries.js';
 import { DB_PATH, RUNTIME_CONFIG_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
+import { type SQL, sql } from 'drizzle-orm';
+import type { SqliteDB } from '../../runtime/index.js';
+import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 
 const WITH_SEED_VIRTUAL_MODULE_ID = 'astro:db:seed';
 
@@ -143,4 +150,20 @@ function getStringifiedCollectionExports(tables: DBTables) {
 				)}, false)`
 		)
 		.join('\n');
+}
+
+const sqlite = new SQLiteAsyncDialect();
+
+async function recreateTables({ db, tables }: { db: SqliteDB; tables: DBTables }) {
+	const setupQueries: SQL[] = [];
+	for (const [name, table] of Object.entries(tables)) {
+		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);
+		const createQuery = sql.raw(getCreateTableQuery(name, table));
+		const indexQueries = getCreateIndexQueries(name, table);
+		setupQueries.push(dropQuery, createQuery, ...indexQueries.map((s) => sql.raw(s)));
+	}
+	await db.batch([
+		db.run(sql`pragma defer_foreign_keys=true;`),
+		...setupQueries.map((q) => db.run(q)),
+	]);
 }
