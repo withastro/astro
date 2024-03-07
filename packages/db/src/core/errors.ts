@@ -37,6 +37,13 @@ export const SEED_ERROR = (error: string) => {
 	return `${red(`Error while seeding database:`)}\n\n${error}`;
 };
 
+export const SEED_DEFAULT_EXPORT_ERROR = (fileName: string) => {
+	return (
+		red('Error while seeding database:') +
+		`\n\nMissing default function export in ${bold(fileName)}`
+	);
+};
+
 export const REFERENCE_DNE_ERROR = (columnName: string) => {
 	return `Column ${bold(
 		columnName

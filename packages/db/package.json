@@ -20,10 +20,6 @@
       "types": "./dist/runtime/index.d.ts",
       "import": "./dist/runtime/index.js"
     },
-    "./runtime/drizzle": {
-      "types": "./dist/runtime/drizzle.d.ts",
-      "import": "./dist/runtime/drizzle.js"
-    },
     "./runtime/config": {
       "types": "./dist/runtime/config.d.ts",
       "import": "./dist/runtime/config.js"
@@ -40,9 +36,6 @@
       ],
       "runtime": [
         "./dist/runtime/index.d.ts"
-      ],
-      "runtime/drizzle": [
-        "./dist/runtime/drizzle.d.ts"
       ],
       "runtime/config": [
         "./dist/runtime/config.d.ts"
