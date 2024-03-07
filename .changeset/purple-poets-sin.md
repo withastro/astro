@@ -1,5 +1,5 @@
 ---
-"@astrojs/db": patch
+"@astrojs/db": minor
 ---
 
 Adds support for integrations providing `astro:db` configuration and seed files, using the new `astro:db:setup` hook.
