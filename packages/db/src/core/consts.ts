@@ -12,7 +12,9 @@ export const DB_TYPES_FILE = 'db-types.d.ts';
 
 export const VIRTUAL_MODULE_ID = 'astro:db';
 
-export const DB_PATH = `.astro/${process.env.TEST_RANDOM_ID ? randomUUID() : 'content.db'}`;
+export const DB_PATH = `.astro/${
+	process.env.ASTRO_TEST_RANDOM_DB_ID ? randomUUID() : 'content.db'
+}`;
 
 export const CONFIG_FILE_NAMES = ['config.ts', 'config.js', 'config.mts', 'config.mjs'];
 
