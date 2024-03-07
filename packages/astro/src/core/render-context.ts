@@ -189,14 +189,17 @@ export class RenderContext {
 			(await pipeline.componentMetadata(routeData)) ?? manifest.componentMetadata;
 		const headers = new Headers({ 'Content-Type': 'text/html' });
 		const partial = Boolean(mod.partial);
-		const response = { status, statusText: 'OK', headers } satisfies AstroGlobal["response"];
-
-		// Disallow `Astro.response.headers = new Headers`
-		Object.defineProperty(response, 'headers', {
-			value: response.headers,
-			enumerable: true,
-			writable: false,
-		});
+		const response = {
+			status,
+			statusText: 'OK',
+			get headers() {
+				return headers
+			},
+			// Disallow `Astro.response.headers = new Headers`
+			set headers(_) {
+				throw new AstroError(AstroErrorData.AstroResponseHeadersReassigned);
+			}
+		} satisfies AstroGlobal["response"];
 
 		// Create the result object that will be passed into the renderPage function.
 		// This object starts here as an empty shell (not yet the result) but then
