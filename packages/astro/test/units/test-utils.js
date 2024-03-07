@@ -203,7 +203,7 @@ export function createBasicPipeline(options = {}) {
 		options.site
 	);
 	pipeline.headElements = () => ({ scripts: new Set(), styles: new Set(), links: new Set() });
-	pipeline.componentMetadata = () => {};
+	pipeline.componentMetadata = () => new Map;
 	return pipeline;
 }
 

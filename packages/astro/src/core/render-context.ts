@@ -1,8 +1,11 @@
 import type {
 	APIContext,
+	AstroGlobal,
+	AstroGlobalPartial,
 	ComponentInstance,
 	MiddlewareHandler,
 	RouteData,
+	SSRResult,
 } from '../@types/astro.js';
 import {
 	computeCurrentLocale,
@@ -11,21 +14,20 @@ import {
 } from '../i18n/utils.js';
 import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
+import { renderRedirect } from './redirects/render.js';
 import {
 	ASTRO_VERSION,
 	REROUTE_DIRECTIVE_HEADER,
 	ROUTE_TYPE_HEADER,
 	clientAddressSymbol,
 	clientLocalsSymbol,
+	responseSentSymbol,
 } from './constants.js';
-import { attachCookiesToResponse } from './cookies/index.js';
-import { AstroCookies } from './cookies/index.js';
+import { attachCookiesToResponse, AstroCookies } from './cookies/index.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
-import { renderRedirect } from './redirects/render.js';
-import { createResult } from './render/index.js';
-import { type Pipeline, getParams, getProps } from './render/index.js';
+import { type Pipeline, getParams, getProps, Slots } from './render/index.js';
 
 export class RenderContext {
 	private constructor(
@@ -135,38 +137,15 @@ export class RenderContext {
 		const generator = `Astro v${ASTRO_VERSION}`;
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
-		const site = pipeline.site ? new URL(pipeline.site) : undefined;
 		return {
 			cookies,
+			get clientAddress() {
+				return renderContext.clientAddress()
+			},
 			get currentLocale() {
 				return renderContext.computeCurrentLocale();
 			},
 			generator,
-			params,
-			get preferredLocale() {
-				return renderContext.computePreferredLocale();
-			},
-			get preferredLocaleList() {
-				return renderContext.computePreferredLocaleList();
-			},
-			props,
-			redirect,
-			request,
-			site,
-			url,
-			get clientAddress() {
-				if (clientAddressSymbol in request) {
-					return Reflect.get(request, clientAddressSymbol) as string;
-				}
-				if (pipeline.adapterName) {
-					throw new AstroError({
-						...AstroErrorData.ClientAddressNotAvailable,
-						message: AstroErrorData.ClientAddressNotAvailable.message(pipeline.adapterName),
-					});
-				} else {
-					throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
-				}
-			},
 			get locals() {
 				return renderContext.locals;
 			},
@@ -181,53 +160,142 @@ export class RenderContext {
 					Reflect.set(request, clientLocalsSymbol, val);
 				}
 			},
+			params,
+			get preferredLocale() {
+				return renderContext.computePreferredLocale();
+			},
+			get preferredLocaleList() {
+				return renderContext.computePreferredLocaleList();
+			},
+			props,
+			redirect,
+			request,
+			site: pipeline.site,
+			url,
 		};
 	}
 
 	async createResult(mod: ComponentInstance) {
-		const { cookies, locals, params, pathname, pipeline, request, routeData, status } = this;
+		const { cookies, pathname, pipeline, routeData, status } = this;
 		const {
-			adapterName,
 			clientDirectives,
 			compressHTML,
-			i18n,
 			manifest,
-			logger,
 			renderers,
-			resolve,
-			site,
-			serverLike,
+			resolve
 		} = pipeline;
 		const { links, scripts, styles } = await pipeline.headElements(routeData);
 		const componentMetadata =
 			(await pipeline.componentMetadata(routeData)) ?? manifest.componentMetadata;
-		const { defaultLocale, locales, strategy } = i18n ?? {};
+		const headers = new Headers({ 'Content-Type': 'text/html' });
 		const partial = Boolean(mod.partial);
-		return createResult({
-			adapterName,
+		const response = {
+			status,
+			statusText: 'OK',
+			get headers() {
+				return headers
+			},
+			// Disallow `Astro.response.headers = new Headers`
+			set headers(_) {
+				throw new AstroError(AstroErrorData.AstroResponseHeadersReassigned);
+			}
+		} satisfies AstroGlobal["response"];
+
+		// Create the result object that will be passed into the renderPage function.
+		// This object starts here as an empty shell (not yet the result) but then
+		// calling the render() function will populate the object with scripts, styles, etc.
+		const result: SSRResult = {
 			clientDirectives,
 			componentMetadata,
 			compressHTML,
 			cookies,
-			defaultLocale,
-			locales,
-			locals,
-			logger,
+			/** This function returns the `Astro` faux-global */
+			createAstro: (astroGlobal, props, slots) => this.createAstro(result, astroGlobal, props, slots),
 			links,
-			params,
 			partial,
 			pathname,
 			renderers,
 			resolve,
-			request,
-			route: routeData.route,
-			strategy,
-			site,
+			response,
 			scripts,
-			ssr: serverLike,
-			status,
 			styles,
-		});
+			_metadata: {
+				hasHydrationScript: false,
+				rendererSpecificHydrationScripts: new Set(),
+				hasRenderedHead: false,
+				hasDirectives: new Set(),
+				headInTree: false,
+				extraHead: [],
+				propagators: new Set(),
+			},
+		};
+
+		return result;
+	}
+
+	createAstro(
+		result: SSRResult,
+		astroGlobalPartial: AstroGlobalPartial,
+		props: Record<string, any>,
+		slotValues: Record<string, any> | null
+	): AstroGlobal {
+		const renderContext = this;
+		const { cookies, locals, params, pipeline, request, url } = this;
+		const { response } = result;
+		const redirect = (path: string, status = 302) => {
+			// If the response is already sent, error as we cannot proceed with the redirect.
+			if ((request as any)[responseSentSymbol]) {
+				throw new AstroError({
+					...AstroErrorData.ResponseSentError,
+				});
+			}
+			return new Response(null, { status, headers: { Location: path } });
+		}
+		const slots = new Slots(result, slotValues, pipeline.logger) as unknown as AstroGlobal['slots'];
+
+		// `Astro.self` is added by the compiler
+		const astroGlobalCombined: Omit<AstroGlobal, 'self'> = {
+			...astroGlobalPartial,
+			cookies,
+			get clientAddress() {
+				return renderContext.clientAddress()
+			},
+			get currentLocale() {
+				return renderContext.computeCurrentLocale();
+			},
+			params,
+			get preferredLocale() {
+				return renderContext.computePreferredLocale();
+			},
+			get preferredLocaleList() {
+				return renderContext.computePreferredLocaleList();
+			},
+			props,
+			locals,
+			redirect,
+			request,
+			response,
+			slots,
+			site: pipeline.site,
+			url,
+		};
+		
+		return astroGlobalCombined as AstroGlobal
+	}
+
+	clientAddress() {
+		const { pipeline, request } = this;
+		if (clientAddressSymbol in request) {
+			return Reflect.get(request, clientAddressSymbol) as string;
+		}
+		if (pipeline.adapterName) {
+			throw new AstroError({
+				...AstroErrorData.ClientAddressNotAvailable,
+				message: AstroErrorData.ClientAddressNotAvailable.message(pipeline.adapterName),
+			});
+		} else {
+			throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
+		}
 	}
 
 	/**
@@ -242,13 +310,21 @@ export class RenderContext {
 			routeData,
 		} = this;
 		if (!i18n) return;
+
 		const { defaultLocale, locales, strategy } = i18n;
-		return (this.#currentLocale ??= computeCurrentLocale(
-			routeData.route,
-			locales,
-			strategy,
-			defaultLocale
-		));
+
+		const fallbackTo = (
+			strategy === 'pathname-prefix-other-locales' ||
+			strategy === 'domains-prefix-other-locales'
+		) ? defaultLocale : undefined
+		
+		// TODO: look into why computeCurrentLocale() needs routeData.route to pass ctx.currentLocale tests,
+		// and url.pathname to pass Astro.currentLocale tests.
+		// A single call with `routeData.pathname ?? routeData.route` as the pathname still fails.
+		return (this.#currentLocale ??=
+			computeCurrentLocale(routeData.route, locales) ??
+			computeCurrentLocale(url.pathname, locales) ??
+			fallbackTo);
 	}
 
 	#preferredLocale: APIContext['preferredLocale'];
