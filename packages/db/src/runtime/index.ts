@@ -1,3 +1,4 @@
+import { LibsqlError } from '@libsql/client';
 import { type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import {
@@ -9,6 +10,7 @@ import {
 	sqliteTable,
 	text,
 } from 'drizzle-orm/sqlite-core';
+import { SEED_DEFAULT_EXPORT_ERROR, SEED_ERROR } from '../core/errors.js';
 import { type DBColumn, type DBTable } from '../core/types.js';
 import { type SerializedSQL, isSerializedSQL } from './types.js';
 
@@ -16,7 +18,29 @@ export { sql };
 export type SqliteDB = LibSQLDatabase;
 export type { Table } from './types.js';
 export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-client.js';
-export { seedLocal } from './queries.js';
+
+export async function seedLocal({
+	// Glob all potential seed files to catch renames and deletions.
+	fileGlob,
+}: {
+	fileGlob: Record<string, { default?: () => Promise<void> }>;
+}) {
+	const seedFilePath = Object.keys(fileGlob)[0];
+	if (!seedFilePath) return;
+	const mod = fileGlob[seedFilePath];
+
+	if (!mod.default) {
+		throw new Error(SEED_DEFAULT_EXPORT_ERROR(seedFilePath));
+	}
+	try {
+		await mod.default();
+	} catch (e) {
+		if (e instanceof LibsqlError) {
+			throw new Error(SEED_ERROR(e.message));
+		}
+		throw e;
+	}
+}
 
 export function hasPrimaryKey(column: DBColumn) {
 	return 'primaryKey' in column.schema && !!column.schema.primaryKey;

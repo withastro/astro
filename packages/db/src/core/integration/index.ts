@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import type { AstroIntegration } from 'astro';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
+import parseArgs from 'yargs-parser';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
 import { loadDbConfigFile } from '../load-file.js';
 import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
@@ -40,7 +41,8 @@ function astroDBIntegration(): AstroIntegration {
 				if (command === 'preview') return;
 
 				let dbPlugin: VitePlugin | undefined = undefined;
-				connectToStudio = command === 'build';
+				const args = parseArgs(process.argv.slice(3));
+				connectToStudio = args['remote'];
 
 				if (connectToStudio) {
 					appToken = await getManagedAppTokenOrExit();
@@ -68,6 +70,8 @@ function astroDBIntegration(): AstroIntegration {
 				});
 			},
 			'astro:config:done': async ({ config }) => {
+				if (command === 'preview') return;
+
 				// TODO: refine where we load tables
 				// @matthewp: may want to load tables by path at runtime
 				const { mod, dependencies } = await loadDbConfigFile(config.root);
@@ -78,7 +82,7 @@ function astroDBIntegration(): AstroIntegration {
 				// TODO: resolve integrations here?
 				tables.get = () => dbConfig.tables ?? {};
 
-				if (!connectToStudio && !process.env.TEST_IN_MEMORY_DB) {
+				if (!connectToStudio) {
 					const dbUrl = new URL(DB_PATH, config.root);
 					if (existsSync(dbUrl)) {
 						await rm(dbUrl);
