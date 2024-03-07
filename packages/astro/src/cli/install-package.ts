@@ -38,7 +38,7 @@ export async function getPackage<T>(
 		return packageImport as T;
 	} catch (e) {
 		logger.info(
-			null,
+			'SKIP_FORMAT',
 			`To continue, Astro requires the following dependency to be installed: ${bold(packageName)}.`
 		);
 		const result = await installPackage([packageName, ...otherDeps], options, logger);
@@ -108,7 +108,7 @@ async function installPackage(
 		borderStyle: 'round',
 	})}\n`;
 	logger.info(
-		null,
+		'SKIP_FORMAT',
 		`\n  ${magenta('Astro will run the following command:')}\n  ${dim(
 			'If you skip this step, you can always run it yourself later'
 		)}\n${message}`
