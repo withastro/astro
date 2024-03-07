@@ -2,13 +2,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizePath } from 'vite';
 import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
-import {
-	DB_PATH,
-	RUNTIME_CONFIG_IMPORT,
-	RUNTIME_DRIZZLE_IMPORT,
-	RUNTIME_IMPORT,
-	VIRTUAL_MODULE_ID,
-} from '../consts.js';
+import { DB_PATH, RUNTIME_CONFIG_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
 
@@ -132,7 +126,6 @@ ${
 		: ''
 }
 
-export * from ${RUNTIME_DRIZZLE_IMPORT};
 export * from ${RUNTIME_CONFIG_IMPORT};
 
 ${getStringifiedCollectionExports(tables)}`;
@@ -152,7 +145,7 @@ export const db = await createRemoteDatabaseClient(${JSON.stringify(
 		appToken
 		// Respect runtime env for user overrides in SSR
 	)}, import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL ?? ${JSON.stringify(getRemoteDatabaseUrl())});
-export * from ${RUNTIME_DRIZZLE_IMPORT};
+
 export * from ${RUNTIME_CONFIG_IMPORT};
 
 ${getStringifiedCollectionExports(tables)}

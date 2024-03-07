@@ -7,6 +7,7 @@ import {
 	FOREIGN_KEY_REFERENCES_EMPTY_ERROR,
 	FOREIGN_KEY_REFERENCES_LENGTH_ERROR,
 	REFERENCE_DNE_ERROR,
+	SEED_DEFAULT_EXPORT_ERROR,
 	SEED_ERROR,
 } from '../core/errors.js';
 import type {
@@ -36,19 +37,25 @@ export async function seedLocal({
 }: {
 	db: SqliteDB;
 	tables: DBTables;
-	userSeedGlob: Record<string, () => Promise<void>>;
+	userSeedGlob: Record<string, () => Promise<{ default?: () => Promise<void> }>>;
 	integrationSeedImports: Array<() => Promise<{ default: () => Promise<void> }>>;
 }) {
 	await recreateTables({ db, tables });
 	for (const fileName of SEED_DEV_FILE_NAME) {
 		const key = Object.keys(userSeedGlob).find((f) => f.endsWith(fileName));
 		if (key) {
-			await userSeedGlob[key]().catch((e) => {
+			try {
+				const mod = await userSeedGlob[key]();
+				if (!mod.default) {
+					throw new Error(SEED_DEFAULT_EXPORT_ERROR(key));
+				}
+				await mod.default();
+			} catch (e) {
 				if (e instanceof LibsqlError) {
 					throw new Error(SEED_ERROR(e.message));
 				}
 				throw e;
-			});
+			}
 			break;
 		}
 	}

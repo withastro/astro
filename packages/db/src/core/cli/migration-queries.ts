@@ -14,6 +14,7 @@ import {
 	schemaTypeToSqlType,
 } from '../../runtime/queries.js';
 import { isSerializedSQL } from '../../runtime/types.js';
+import { MIGRATION_VERSION } from '../consts.js';
 import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
 import {
 	type BooleanColumn,
@@ -437,11 +438,11 @@ export async function getProductionCurrentSnapshot({
 
 export function createCurrentSnapshot({ tables = {} }: DBConfig): DBSnapshot {
 	const schema = JSON.parse(JSON.stringify(tables));
-	return { experimentalVersion: 1, schema };
+	return { version: MIGRATION_VERSION, schema };
 }
 
 export function createEmptySnapshot(): DBSnapshot {
-	return { experimentalVersion: 1, schema: {} };
+	return { version: MIGRATION_VERSION, schema: {} };
 }
 
 export function formatDataLossMessage(confirmations: string[], isColor = true): string {

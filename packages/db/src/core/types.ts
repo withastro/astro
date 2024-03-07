@@ -234,11 +234,7 @@ export type DBTable = z.infer<typeof tableSchema>;
 export type DBTables = Record<string, DBTable>;
 export type DBSnapshot = {
 	schema: Record<string, DBTable>;
-	/**
-	 * Snapshot version. Breaking changes to the snapshot format increment this number.
-	 * @todo Rename to "version" once closer to release.
-	 */
-	experimentalVersion: number;
+	version: string;
 };
 
 export const dbConfigSchema = z.object({
