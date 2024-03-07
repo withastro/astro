@@ -159,6 +159,7 @@ export class AstroDevToolbar extends HTMLElement {
 				opacity: 0;
 				transition: opacity 0.2s ease-in-out 0s;
 				pointer-events: none;
+				user-select: none;
 			}
 
 			#dev-bar .item-tooltip::after{

@@ -44,7 +44,7 @@ header > section {
 }
 
 header.category-header {
-	background: #1F2433;
+	background: rgba(27, 30, 36, 1);
 	padding: 10px 16px;
 }
 
@@ -99,7 +99,6 @@ h3 {
 	align-items: center;
 }
 
-
 .audit-selector {
 	color: white;
 	font-size: 12px;
@@ -115,24 +114,10 @@ h3 {
 	cursor: pointer;
 }
 
-.extended-info {
-	display: none;
-	color: white;
-	font-size: 14px;
-}
-
-.extended-info hr {
-	border: 1px solid rgba(27, 30, 36, 1);
-}
-
-.extended-info .audit-message {
-	border-left: 4px solid rgba(27, 30, 36, 1);
-	padding-left: 8px;
-	font-style: italic;
-}
-
-[active] .extended-info {
-	display: block;
+.selector-title-container {
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 astro-dev-toolbar-icon {
@@ -154,20 +139,20 @@ astro-dev-toolbar-icon {
 	display: none;
 	align-items: center;
 	justify-content: center;
-	background: #1F2433;
+	background: rgba(27, 30, 36, 1);
 	gap: 8px;
 	padding: 8px;
 	color: white;
 	font-size: 14px;
+	padding-right: 24px;
 }
 
 #back-to-list:hover {
 	cursor: pointer;
-	background:  rgba(31, 36, 51, 0.5);
-
+	background: #313236;
 }
 
-#audit-list:has(astro-dev-toolbar-card[active]) #back-to-list {
+#back-to-list:has(+ #audit-list[data-active]) {
 	display: flex;
 }
 `;

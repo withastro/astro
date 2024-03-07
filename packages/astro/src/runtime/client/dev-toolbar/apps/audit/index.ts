@@ -1,4 +1,3 @@
-import { finder } from '@medv/finder';
 import type { DevToolbarApp, DevToolbarMetadata } from '../../../../../@types/astro.js';
 import type { DevToolbarHighlight } from '../../ui-library/highlight.js';
 import {
@@ -18,6 +17,7 @@ import {
 import { createRoundedBadge } from '../utils/badge.js';
 import { escape as escapeHTML } from 'html-escaper';
 import windowStyle from './window-style.js';
+import { DevToolbarAuditListItem } from './ui/audit-list-item.js';
 
 function truncate(val: string, maxLength: number): string {
 	return val.length > maxLength ? val.slice(0, maxLength - 1) + '&hellip;' : val;
@@ -33,6 +33,10 @@ type Audit = {
 	card: HTMLElement;
 };
 
+try {
+	customElements.define('astro-dev-toolbar-audit-list-item', DevToolbarAuditListItem);
+} catch (e) {}
+
 export default {
 	id: 'astro:audit',
 	name: 'Audit',
@@ -46,9 +50,11 @@ export default {
 		document.addEventListener('astro:page-load', async () => refreshLintPositions);
 
 		closeOnOutsideClick(eventTarget, () => {
-			if (audits.some((audit) => audit.card.hasAttribute('active'))) {
-				audits.forEach((audit) => {
-					audit.card.removeAttribute('active');
+			const activeAudits = audits.filter((audit) => audit.card.hasAttribute('active'));
+
+			if (activeAudits.length > 0) {
+				activeAudits.forEach((audit) => {
+					setCardStatus(audit.card, false);
 				});
 				return true;
 			}
@@ -134,11 +140,11 @@ export default {
 
 				backToListButton.addEventListener('click', () => {
 					audits.forEach((audit) => {
-						audit.card.removeAttribute('active');
+						setCardStatus(audit.card, false);
 					});
 				});
 
-				auditListContainer.appendChild(backToListButton);
+				auditListWindow.appendChild(backToListButton);
 
 				rulesCategories.forEach((category) => {
 					// Create the header entry for the category
@@ -288,11 +294,13 @@ export default {
 				highlight.addEventListener(event, () => {
 					if (event === 'focus') {
 						audits.forEach((audit) => {
-							audit.card.removeAttribute('active');
+							setCardStatus(audit.card, false);
 						});
-						card.scrollIntoView();
+						if (!card.isManualFocus) card.scrollIntoView();
+						setCardStatus(card, true);
+					} else {
+						card.toggleAttribute(attribute, true);
 					}
-					card.toggleAttribute(attribute, true);
 				});
 			});
 
@@ -364,72 +372,50 @@ export default {
 			highlightElement: HTMLElement,
 			auditedElement: Element
 		) {
-			const card = document.createElement('astro-dev-toolbar-card');
-
-			card.shadowRoot.innerHTML = `
-		<style>
-		 :host>button#astro-overlay-card {
-			  text-align: left;
-				box-shadow: none;
-				display: flex;
-				align-items: center;
-				overflow: hidden;
-				gap: 8px;
-			}
-
-			:host>button#astro-overlay-card .audit-message, :host>button#astro-overlay-card .audit-description {
-				display: none;
-			}
-
-			:host([active])>button#astro-overlay-card {
-				position: absolute;
-				height: 100%;
-				top: 104px;
-				height: calc(100% - 104px);
-				background: #0d0e12;
-				user-select: text;
-				border-radius-top-left: 0;
-				border-radius-top-right: 0;
-				overflow: auto;
-				border: none;
-			}
-
-			:host(:not([active]))>button:hover {
-			  cursor: pointer;
-			}
-
-			:host([hovered])>button {
-					background: rgba(136, 58, 234, 0.33);
-					border: 1px solid rgba(113, 24, 226, 1)
-			}
-
-			:host([active])>button:not(:hover) {
-				background: rgba(136, 58, 234, 0.13);
-				border: 1px solid rgba(113, 24, 226, 1)
-			}
-		</style>`;
+			const card = document.createElement(
+				'astro-dev-toolbar-audit-list-item'
+			) as DevToolbarAuditListItem;
 
 			card.clickAction = () => {
 				if (card.hasAttribute('active')) return;
 
 				audits.forEach((audit) => {
-					audit.card.removeAttribute('active');
+					setCardStatus(audit.card, false);
 				});
 				highlightElement.scrollIntoView();
+				card.isManualFocus = true;
 				highlightElement.focus();
+				card.isManualFocus = false;
 			};
 
+			const selectorTitleContainer = document.createElement('section');
+			selectorTitleContainer.classList.add('selector-title-container');
 			const selector = document.createElement('span');
+			const selectorName = truncate(auditedElement.tagName.toLowerCase(), 8);
 			selector.classList.add('audit-selector');
-			selector.innerHTML = truncate(auditedElement.tagName.toLowerCase(), 8);
-			card.appendChild(selector);
+			selector.innerHTML = escapeHTML(selectorName);
 
 			const title = document.createElement('h3');
+			title.classList.add('audit-title');
 			title.innerText = rule.title;
-			card.appendChild(title);
+
+			selectorTitleContainer.append(selector, title);
+			card.append(selectorTitleContainer);
 
 			const extendedInfo = document.createElement('div');
 			extendedInfo.classList.add('extended-info');
+
+			const selectorButton = document.createElement('button');
+			selectorButton.className = 'audit-selector reset-button';
+			selectorButton.innerHTML = `${selectorName} <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M128,136v64a8,8,0,0,1-16,0V155.32L45.66,221.66a8,8,0,0,1-11.32-11.32L100.68,144H56a8,8,0,0,1,0-16h64A8,8,0,0,1,128,136ZM208,32H80A16,16,0,0,0,64,48V96a8,8,0,0,0,16,0V48H208V176H160a8,8,0,0,0,0,16h48a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Z"></path></svg>`;
+
+			selectorButton.addEventListener('click', () => {
+				highlightElement.scrollIntoView();
+				highlightElement.focus();
+			});
+
+			extendedInfo.append(title.cloneNode(true));
+			extendedInfo.append(selectorButton);
 			extendedInfo.append(document.createElement('hr'));
 
 			const message = document.createElement('p');
@@ -445,9 +431,17 @@ export default {
 				extendedInfo.appendChild(descriptionElement);
 			}
 
-			card.appendChild(extendedInfo);
+			card.shadowRoot.appendChild(extendedInfo);
 
 			return card;
+		}
+
+		function setCardStatus(card: HTMLElement, status: true | false) {
+			const auditListContainer = card.closest('#audit-list');
+			if (auditListContainer) {
+				auditListContainer.toggleAttribute('data-active', status);
+			}
+			card.toggleAttribute('active', status);
 		}
 	},
 } satisfies DevToolbarApp;
