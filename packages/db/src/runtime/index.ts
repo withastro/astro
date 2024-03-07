@@ -1,3 +1,4 @@
+import { LibsqlError } from '@libsql/client';
 import { type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import {
@@ -9,10 +10,9 @@ import {
 	sqliteTable,
 	text,
 } from 'drizzle-orm/sqlite-core';
+import { SEED_DEFAULT_EXPORT_ERROR, SEED_ERROR } from '../core/errors.js';
 import { type DBColumn, type DBTable } from '../core/types.js';
 import { type SerializedSQL, isSerializedSQL } from './types.js';
-import { SEED_DEFAULT_EXPORT_ERROR, SEED_ERROR } from '../core/errors.js';
-import { LibsqlError } from '@libsql/client';
 
 export { sql };
 export type SqliteDB = LibSQLDatabase;

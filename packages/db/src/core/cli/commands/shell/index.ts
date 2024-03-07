@@ -2,14 +2,14 @@ import type { AstroConfig } from 'astro';
 import { sql } from 'drizzle-orm';
 import type { Arguments } from 'yargs-parser';
 import {
-	createRemoteDatabaseClient,
 	createLocalDatabaseClient,
+	createRemoteDatabaseClient,
 } from '../../../../runtime/db-client.js';
+import { DB_PATH } from '../../../consts.js';
+import { SHELL_QUERY_MISSING_ERROR } from '../../../errors.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import type { DBConfigInput } from '../../../types.js';
 import { getRemoteDatabaseUrl } from '../../../utils.js';
-import { DB_PATH } from '../../../consts.js';
-import { SHELL_QUERY_MISSING_ERROR } from '../../../errors.js';
 
 export async function cmd({
 	flags,

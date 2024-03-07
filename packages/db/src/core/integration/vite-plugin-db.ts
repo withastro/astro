@@ -1,5 +1,9 @@
 import { fileURLToPath } from 'node:url';
+import { type SQL, sql } from 'drizzle-orm';
+import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { normalizePath } from 'vite';
+import { createLocalDatabaseClient } from '../../runtime/db-client.js';
+import type { SqliteDB } from '../../runtime/index.js';
 import {
 	SEED_DEV_FILE_NAME,
 	getCreateIndexQueries,
@@ -8,10 +12,6 @@ import {
 import { DB_PATH, RUNTIME_CONFIG_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
-import { createLocalDatabaseClient } from '../../runtime/db-client.js';
-import { type SQL, sql } from 'drizzle-orm';
-import type { SqliteDB } from '../../runtime/index.js';
-import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 
 const WITH_SEED_VIRTUAL_MODULE_ID = 'astro:db:seed';
 

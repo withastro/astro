@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import type { AstroIntegration } from 'astro';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
+import parseArgs from 'yargs-parser';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
 import { loadDbConfigFile } from '../load-file.js';
 import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
@@ -14,7 +15,6 @@ import { fileURLIntegration } from './file-url.js';
 import { typegen } from './typegen.js';
 import { type LateTables, vitePluginDb } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
-import parseArgs from 'yargs-parser';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectToStudio = false;
