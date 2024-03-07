@@ -393,7 +393,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 				);
 			}
 			const renderedElement = renderElement('astro-island', island, false);
-			destination.write(renderedElement);
+			destination.write(markHTMLString(renderedElement));
 		},
 	};
 }
