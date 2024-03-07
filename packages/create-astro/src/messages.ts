@@ -67,7 +67,7 @@ export const getVersion = (packageManager: string, packageName: string, fallback
 			redirect: 'follow',
 		})
 			.then((res) => res.json())
-			.catch(() => ({ version: fallback }))
+			.catch(() => ({ version: fallback }));
 		return resolve(version);
 	});
 

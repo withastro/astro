@@ -48,7 +48,7 @@ const resetNotEmptyFixture = async () => {
 			build: 'astro build',
 			preview: 'astro preview',
 		},
-		dependencies: undefined
+		dependencies: undefined,
 	});
 
 	return Promise.all([

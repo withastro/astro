@@ -13,21 +13,20 @@ describe('astro:db', () => {
 		});
 	});
 
-	// Note(bholmesdev): Use in-memory db to avoid
-	// Multiple dev servers trying to unlink and remount
-	// the same database file.
-	process.env.TEST_IN_MEMORY_DB = 'true';
+	// Note (@bholmesdev) generate a random database id on startup.
+	// Ensures database connections don't conflict
+	// when multiple dev servers are run in parallel on the same project.
+	process.env.ASTRO_TEST_RANDOM_DB_ID = 'true';
 	describe('development', () => {
 		let devServer;
 
 		before(async () => {
-			console.log('starting dev server');
 			devServer = await fixture.startDevServer();
 		});
 
 		after(async () => {
 			await devServer.stop();
-			process.env.TEST_IN_MEMORY_DB = undefined;
+			process.env.ASTRO_TEST_RANDOM_DB_ID = undefined;
 		});
 
 		it('Prints the list of authors', async () => {

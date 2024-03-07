@@ -1,7 +1,6 @@
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
-import { loadDbConfigFile } from '../load-file.js';
-import { dbConfigSchema } from '../types.js';
+import { resolveDbConfig } from '../load-file.js';
 
 export async function cli({
 	flags,
@@ -14,9 +13,7 @@ export async function cli({
 	// Most commands are `astro db foo`, but for now login/logout
 	// are also handled by this package, so first check if this is a db command.
 	const command = args[2] === 'db' ? args[3] : args[2];
-	const { mod } = await loadDbConfigFile(astroConfig.root);
-	// TODO: parseConfigOrExit()
-	const dbConfig = dbConfigSchema.parse(mod?.default ?? {});
+	const { dbConfig } = await resolveDbConfig(astroConfig);
 
 	switch (command) {
 		case 'shell': {

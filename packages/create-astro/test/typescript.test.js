@@ -124,7 +124,9 @@ describe('typescript: setup package', async () => {
 		);
 
 		await setupTypeScript('strictest', { cwd: fileURLToPath(root), install: false });
-		const { scripts, dependencies } = JSON.parse(fs.readFileSync(packageJson, { encoding: 'utf-8' }));
+		const { scripts, dependencies } = JSON.parse(
+			fs.readFileSync(packageJson, { encoding: 'utf-8' })
+		);
 
 		assert.deepEqual(
 			Object.keys(scripts),
@@ -133,7 +135,7 @@ describe('typescript: setup package', async () => {
 		);
 
 		for (const value of Object.values(dependencies)) {
-			assert.doesNotMatch(value, /undefined$/, 'does not include undefined values')
+			assert.doesNotMatch(value, /undefined$/, 'does not include undefined values');
 		}
 
 		assert.equal(scripts.build, 'astro check && astro build', 'prepends astro check command');
