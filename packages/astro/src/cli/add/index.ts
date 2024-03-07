@@ -212,7 +212,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					);
 
 					if (await askToContinue({ flags })) {
-						await fs.mkdir(new URL('./db/', root), { recursive: true });
+						await fs.mkdir(new URL('./db', root));
 						await Promise.all([
 							fs.writeFile(new URL('./db/config.ts', root), STUBS.DB_CONFIG, { encoding: 'utf-8' }),
 							fs.writeFile(new URL('./db/seed.ts', root), STUBS.DB_SEED, { encoding: 'utf-8' }),
