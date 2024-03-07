@@ -5,7 +5,6 @@ export const PACKAGE_NAME = JSON.parse(
 ).name;
 
 export const RUNTIME_IMPORT = JSON.stringify(`${PACKAGE_NAME}/runtime`);
-export const RUNTIME_DRIZZLE_IMPORT = JSON.stringify(`${PACKAGE_NAME}/runtime/drizzle`);
 export const RUNTIME_CONFIG_IMPORT = JSON.stringify(`${PACKAGE_NAME}/runtime/config`);
 
 export const DB_TYPES_FILE = 'db-types.d.ts';
