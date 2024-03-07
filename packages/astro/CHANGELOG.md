@@ -1,5 +1,11 @@
 # astro
 
+## 4.4.15
+
+### Patch Changes
+
+- [#10317](https://github.com/withastro/astro/pull/10317) [`33583e8b31ee8a33e26cf57f30bb422921f4745d`](https://github.com/withastro/astro/commit/33583e8b31ee8a33e26cf57f30bb422921f4745d) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where elements slotted within interactive framework components disappeared after hydration.
+
 ## 4.4.14
 
 ### Patch Changes
