@@ -84,6 +84,7 @@ export default {
 					audit.highlight?.remove();
 					audit.card?.remove();
 				});
+				hasCreatedUI = false;
 			}
 
 			const selectorCache = new Map<string, NodeListOf<Element>>();
