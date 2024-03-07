@@ -15,3 +15,5 @@ export const VIRTUAL_MODULE_ID = 'astro:db';
 export const DB_PATH = '.astro/content.db';
 
 export const CONFIG_FILE_NAMES = ['config.ts', 'config.js', 'config.mts', 'config.mjs'];
+
+export const MIGRATION_VERSION = "2024-03-12";

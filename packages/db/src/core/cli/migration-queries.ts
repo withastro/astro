@@ -32,6 +32,7 @@ import {
 	columnSchema,
 } from '../types.js';
 import { getRemoteDatabaseUrl } from '../utils.js';
+import { MIGRATION_VERSION } from '../consts.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
@@ -437,11 +438,11 @@ export async function getProductionCurrentSnapshot({
 
 export function createCurrentSnapshot({ tables = {} }: DBConfig): DBSnapshot {
 	const schema = JSON.parse(JSON.stringify(tables));
-	return { experimentalVersion: 1, schema };
+	return { version: MIGRATION_VERSION, schema };
 }
 
 export function createEmptySnapshot(): DBSnapshot {
-	return { experimentalVersion: 1, schema: {} };
+	return { version: MIGRATION_VERSION, schema: {} };
 }
 
 export function formatDataLossMessage(confirmations: string[], isColor = true): string {

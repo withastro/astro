@@ -1,5 +1,4 @@
 import type { AstroConfig } from 'astro';
-import { red } from 'kleur/colors';
 import type { Arguments } from 'yargs-parser';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBConfig, type DBSnapshot } from '../../../types.js';
@@ -11,6 +10,7 @@ import {
 	getMigrationQueries,
 	getProductionCurrentSnapshot,
 } from '../../migration-queries.js';
+import { MIGRATION_VERSION } from '../../../consts.js';
 
 export async function cmd({
 	dbConfig,
@@ -75,7 +75,7 @@ async function pushSchema({
 	const requestBody = {
 		snapshot: currentSnapshot,
 		sql: statements,
-		experimentalVersion: 1,
+		version: MIGRATION_VERSION,
 	};
 	if (isDryRun) {
 		console.info('[DRY RUN] Batch query:', JSON.stringify(requestBody, null, 2));
