@@ -3900,6 +3900,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../astro
 
+  packages/db/test/fixtures/integrations:
+    dependencies:
+      '@astrojs/db':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../astro
+
   packages/db/test/fixtures/recipes:
     dependencies:
       '@astrojs/db':

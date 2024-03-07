@@ -3,6 +3,7 @@ import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { type ZodTypeDef, z } from 'zod';
 import { SERIALIZED_SQL_KEY, type SerializedSQL } from '../runtime/types.js';
 import { errorMap } from './integration/error-map.js';
+import type { AstroIntegration } from 'astro';
 
 export type MaybePromise<T> = T | Promise<T>;
 export type MaybeArray<T> = T | T[];
@@ -271,3 +272,14 @@ export type ResolvedCollectionConfig<TColumns extends ColumnsConfig = ColumnsCon
 // since Omit collapses our union type on primary key.
 export type NumberColumnOpts = z.input<typeof numberColumnOptsSchema>;
 export type TextColumnOpts = z.input<typeof textColumnOptsSchema>;
+
+export type AstroDbIntegration = AstroIntegration & {
+	hooks: {
+		'astro:db:setup'?: (options: {
+			extendDb: (options: {
+				configEntrypoint?: URL | string;
+				seedEntrypoint?: URL | string;
+			}) => void;
+		}) => void | Promise<void>;
+	};
+};
