@@ -36,7 +36,7 @@ export class DevToolbarCard extends HTMLElement {
 
 				a:hover, button:hover {
 					background: rgba(136, 58, 234, 0.33);
-					border: 1px solid rgba(113, 24, 226, 1);
+					border: 1px solid rgba(113, 24, 226, 1)
 				}
 
 				svg {

@@ -14,7 +14,7 @@ export class DevToolbarHighlight extends HTMLElement {
 		this.shadowRoot.innerHTML = `
 			<style>
 				:host {
-					background: rgba(224, 204, 250, 0.0825);
+					background: linear-gradient(180deg, rgba(224, 204, 250, 0.33) 0%, rgba(224, 204, 250, 0.0825) 100%);
 					border: 1px solid rgba(113, 24, 226, 1);
 					border-radius: 4px;
 					display: block;

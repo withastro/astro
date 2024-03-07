@@ -307,7 +307,7 @@ export default {
 				#integration-list astro-dev-toolbar-card h3 {
 					margin: 0;
 					margin-bottom: 8px;
-    				color: white;
+    			color: white;
 					white-space: nowrap;
 				}
 
