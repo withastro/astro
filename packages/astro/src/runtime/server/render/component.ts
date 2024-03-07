@@ -66,32 +66,11 @@ function isHTMLComponent(Component: unknown) {
 }
 
 const ASTRO_SLOT_EXP = /<\/?astro-slot\b[^>]*>/g;
-// same as ASTRO_SLOT_EXP, but only includes the tag name in the match while requiring that it still be surrounded by "<" and ">"
-const ASTRO_SLOT_TAGNAME_EXP = /(?<=<\/?)astro-slot(?=\b[^>]*>)/g;
-// used to match temporary tags that will be replaced back with astro-slot
-const ASTRO_PRESERVED_SLOT_TAGNAME_EXP = /(?<=<\/?)astro-preserved-slot(?=\b[^>]*>)/g;
-
 const ASTRO_STATIC_SLOT_EXP = /<\/?astro-static-slot\b[^>]*>/g;
-// same as ASTRO_STATIC_SLOT_EXP, but only includes the tag name in the match while requiring that it still be surrounded by "<" and ">"
-const ASTRO_STATIC_SLOT_TAGNAME_EXP = /(?<=<\/?)astro-static-slot(?=\b[^>]*>)/g;
-// used to match temporary tags that will be replaced back with astro-static-slot
-const ASTRO_PRESERVED_STATIC_SLOT_TAGNAME_EXP = /(?<=<\/?)astro-preserved-static-slot(?=\b[^>]*>)/g;
 
-function removeStaticAstroSlot(html: string, supportsAstroStaticSlot: boolean) {
+function removeStaticAstroSlot(html: string, supportsAstroStaticSlot = true) {
 	const exp = supportsAstroStaticSlot ? ASTRO_STATIC_SLOT_EXP : ASTRO_SLOT_EXP;
 	return html.replace(exp, '');
-}
-
-// An HTML string may be processed by the parent of a parent, and if it isn't to be hydrated, astro-slot tags will be incorrectly removed.
-// We rename them here so that the regex doesn't match.
-function preserveHydratableAstroSlot(html: string) {
-	return html.replaceAll(ASTRO_STATIC_SLOT_TAGNAME_EXP, 'astro-preserved-static-slot')
-		.replaceAll(ASTRO_SLOT_TAGNAME_EXP, 'astro-preserved-slot');
-}
-
-export function restoreHydratableAstroSlot(html: string) {
-	return html.replaceAll(ASTRO_PRESERVED_STATIC_SLOT_TAGNAME_EXP, 'astro-static-slot')
-		.replaceAll(ASTRO_PRESERVED_SLOT_TAGNAME_EXP, 'astro-slot');
 }
 
 async function renderFrameworkComponent(
@@ -332,7 +311,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 				} else if (html && html.length > 0) {
 					destination.write(
 						markHTMLString(
-							removeStaticAstroSlot(html, renderer?.ssr?.supportsAstroStaticSlot ?? false)
+							removeStaticAstroSlot(html, renderer?.ssr?.supportsAstroStaticSlot)
 						)
 					);
 				}
@@ -414,8 +393,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 				);
 			}
 			const renderedElement = renderElement('astro-island', island, false);
-			const hydratableMarkup = preserveHydratableAstroSlot(renderedElement);
-			destination.write(markHTMLString(hydratableMarkup));
+			destination.write(renderedElement);
 		},
 	};
 }
