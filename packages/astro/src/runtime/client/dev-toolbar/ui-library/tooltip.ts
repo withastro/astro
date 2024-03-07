@@ -32,7 +32,7 @@ export class DevToolbarTooltip extends HTMLElement {
 				font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 				font-size: 14px;
 				margin: 0;
-				z-index: 2000000001;
+				z-index: 2000000002;
 				max-width: 45ch;
 				width: fit-content;
 				min-width: 30ch;
