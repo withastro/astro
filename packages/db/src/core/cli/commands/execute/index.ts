@@ -43,6 +43,7 @@ export async function cmd({
 			tables: dbConfig.tables ?? {},
 			root: astroConfig.root,
 			shouldSeed: false,
+			seedFiles: [],
 		});
 	}
 	const { code } = await bundleFile({ virtualModContents, root: astroConfig.root, fileUrl });
