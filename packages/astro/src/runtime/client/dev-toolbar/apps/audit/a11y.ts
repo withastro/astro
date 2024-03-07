@@ -42,7 +42,25 @@ const a11y_required_attributes = {
 	object: ['title', 'aria-label', 'aria-labelledby'],
 };
 
-const interactiveElements = ['button', 'details', 'embed', 'iframe', 'label', 'select', 'textarea'];
+const MAYBE_INTERACTIVE = new Map([
+	['a', 'href'],
+	['input', 'type'],
+	['audio', 'controls'],
+	['img', 'usemap'],
+	['object', 'usemap'],
+	['video', 'controls'],
+]);
+
+const interactiveElements = [
+	'button',
+	'details',
+	'embed',
+	'iframe',
+	'label',
+	'select',
+	'textarea',
+	...MAYBE_INTERACTIVE.keys(),
+];
 
 const labellableElements = ['input', 'meter', 'output', 'progress', 'select', 'textarea'];
 
@@ -186,6 +204,15 @@ const ariaRoles = new Set(
 		' '
 	)
 );
+
+function isInteractive(element: Element): boolean {
+	const attribute = MAYBE_INTERACTIVE.get(element.localName);
+	if (attribute) {
+		return element.hasAttribute(attribute);
+	}
+
+	return true;
+}
 
 export const a11y: AuditRuleWithSelector[] = [
 	{
@@ -434,6 +461,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			'Interactive HTML elements like `<a>` and `<button>` cannot use non-interactive roles like `heading`, `list`, `menu`, and `toolbar`.',
 		selector: `[role]:is(${interactiveElements.join(',')})`,
 		match(element) {
+			if (!isInteractive(element)) return false;
 			const role = element.getAttribute('role');
 			if (!role) return false;
 			if (!ariaRoles.has(role)) return false;
@@ -448,6 +476,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			'Interactive roles should not be used to convert a non-interactive element to an interactive element',
 		selector: `[role]:not(${interactiveElements.join(',')})`,
 		match(element) {
+			if (!isInteractive(element)) return false;
 			const role = element.getAttribute('role');
 			if (!role) return false;
 			if (!ariaRoles.has(role)) return false;
@@ -471,6 +500,8 @@ export const a11y: AuditRuleWithSelector[] = [
 			const isScrollable =
 				element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
 			if (isScrollable) return false;
+
+			if (!isInteractive(element)) return false;
 
 			if (!interactiveElements.includes(element.localName)) return true;
 		},

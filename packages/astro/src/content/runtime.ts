@@ -66,7 +66,7 @@ export function createGetCollection({
 					collection
 				)} does not exist or is empty. Ensure a collection directory with this name exists.`
 			);
-			return;
+			return [];
 		}
 		const lazyImports = Object.values(
 			type === 'content'

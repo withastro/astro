@@ -4,10 +4,10 @@ import {
 	getCollectionChangeQueries,
 	getMigrationQueries,
 } from '../../dist/core/cli/migration-queries.js';
+import { MIGRATION_VERSION } from '../../dist/core/consts.js';
 import { tableSchema } from '../../dist/core/types.js';
 import { column, defineTable } from '../../dist/runtime/config.js';
 import { NOW } from '../../dist/runtime/index.js';
-import { getCreateTableQuery } from '../../dist/runtime/queries.js';
 
 const TABLE_NAME = 'Users';
 
@@ -34,8 +34,8 @@ function userChangeQueries(oldTable, newTable) {
 
 function configChangeQueries(oldCollections, newCollections) {
 	return getMigrationQueries({
-		oldSnapshot: { schema: oldCollections, experimentalVersion: 1 },
-		newSnapshot: { schema: newCollections, experimentalVersion: 1 },
+		oldSnapshot: { schema: oldCollections, version: MIGRATION_VERSION },
+		newSnapshot: { schema: newCollections, version: MIGRATION_VERSION },
 	});
 }
 
