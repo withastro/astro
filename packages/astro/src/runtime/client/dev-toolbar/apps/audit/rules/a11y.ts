@@ -333,7 +333,7 @@ export const a11y: AuditRuleWithSelector[] = [
 		code: 'a11y-missing-attribute',
 		title: 'Required attributes missing.',
 		description:
-			"This is an extended description about why this is important. As we all know, missing attributes can cause a lot of problems. It's important to have them. As such, we have this rule to enforce it. It's a good rule. You should follow it. I think it's a good rule.",
+			'Some HTML elements require additional attributes for accessibility. For example, an `img` element requires an `alt` attribute, this attribute is used to describe the content of the image for screen readers.',
 		message: (element) => {
 			const requiredAttributes =
 				a11y_required_attributes[element.localName as keyof typeof a11y_required_attributes];
@@ -494,6 +494,8 @@ export const a11y: AuditRuleWithSelector[] = [
 	{
 		code: 'a11y-no-noninteractive-tabindex',
 		title: 'Invalid `tabindex` on non-interactive element',
+		description:
+			'The `tabindex` attribute should only be used on interactive elements, as it can be confusing for keyboard-only users to navigate through non-interactive elements. If your element is only conditionally interactive, consider using `tabindex="-1"` to make it focusable only when it is actually interactive.',
 		message: (element) => `${element.localName} elements should not have \`tabindex\` attribute`,
 		selector: '[tabindex]',
 		match(element) {
