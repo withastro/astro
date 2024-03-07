@@ -3824,8 +3824,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       drizzle-orm:
-        specifier: 0.29.5-7888ad6
-        version: 0.29.5-7888ad6(@libsql/client@0.4.3)
+        specifier: 0.29.5
+        version: 0.29.5(@libsql/client@0.4.3)
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
@@ -9943,8 +9943,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /drizzle-orm@0.29.5-7888ad6(@libsql/client@0.4.3):
-    resolution: {integrity: sha512-G2z2OyUKC1Du1ytTS1BOFmzMkLRdJHY3FvFBF2VmVbGF9b5L8F/2UMbiZRY8Hq0gvY/GD0m/F2wjj5Yezo7zdQ==}
+  /drizzle-orm@0.29.5(@libsql/client@0.4.3):
+    resolution: {integrity: sha512-jS3+uyzTz4P0Y2CICx8FmRQ1eplURPaIMWDn/yq6k4ShRFj9V7vlJk67lSf2kyYPzQ60GkkNGXcJcwrxZ6QCRw==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
       '@cloudflare/workers-types': '>=3'
