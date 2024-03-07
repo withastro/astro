@@ -71,10 +71,7 @@ function createContext({
 			return (preferredLocaleList ??= computePreferredLocaleList(request, userDefinedLocales));
 		},
 		get currentLocale(): string | undefined {
-			return (currentLocale ??= computeCurrentLocale(
-				route,
-				userDefinedLocales,
-			));
+			return (currentLocale ??= computeCurrentLocale(route, userDefinedLocales));
 		},
 		url,
 		get clientAddress() {

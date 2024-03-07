@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Astro Global', () => {
 	let fixture;
@@ -92,15 +92,15 @@ describe('Astro Global', () => {
 				root: './fixtures/astro-global/',
 				site: 'https://mysite.dev/subsite/',
 				base: '/new',
-				output: "server",
-				adapter: testAdapter()
+				output: 'server',
+				adapter: testAdapter(),
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();
 		});
 
 		it('Astro.site', async () => {
-			const response = await app.render(new Request("https://example.com/"));
+			const response = await app.render(new Request('https://example.com/'));
 			const html = await response.text();
 			const $ = cheerio.load(html);
 			assert.equal($('#site').attr('href'), 'https://mysite.dev/subsite/');

@@ -2701,7 +2701,7 @@ export interface SSRResult {
 		slots: Record<string, any> | null
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
-	response: AstroGlobal["response"];
+	response: AstroGlobal['response'];
 	renderers: SSRLoadedRenderer[];
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code

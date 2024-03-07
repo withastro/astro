@@ -152,10 +152,7 @@ export function computePreferredLocaleList(request: Request, locales: Locales): 
 	return result;
 }
 
-export function computeCurrentLocale(
-	pathname: string,
-	locales: Locales,
-): undefined | string {
+export function computeCurrentLocale(pathname: string, locales: Locales): undefined | string {
 	for (const segment of pathname.split('/')) {
 		for (const locale of locales) {
 			if (typeof locale === 'string') {
@@ -177,7 +174,7 @@ export function computeCurrentLocale(
 				}
 			}
 		}
-	};
+	}
 }
 
 export type RoutingStrategies =

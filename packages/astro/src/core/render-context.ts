@@ -14,7 +14,6 @@ import {
 } from '../i18n/utils.js';
 import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
-import { renderRedirect } from './redirects/render.js';
 import {
 	ASTRO_VERSION,
 	REROUTE_DIRECTIVE_HEADER,
@@ -23,11 +22,12 @@ import {
 	clientLocalsSymbol,
 	responseSentSymbol,
 } from './constants.js';
-import { attachCookiesToResponse, AstroCookies } from './cookies/index.js';
+import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
-import { type Pipeline, getParams, getProps, Slots } from './render/index.js';
+import { renderRedirect } from './redirects/render.js';
+import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
 
 export class RenderContext {
 	private constructor(
@@ -140,7 +140,7 @@ export class RenderContext {
 		return {
 			cookies,
 			get clientAddress() {
-				return renderContext.clientAddress()
+				return renderContext.clientAddress();
 			},
 			get currentLocale() {
 				return renderContext.computeCurrentLocale();
@@ -177,13 +177,7 @@ export class RenderContext {
 
 	async createResult(mod: ComponentInstance) {
 		const { cookies, pathname, pipeline, routeData, status } = this;
-		const {
-			clientDirectives,
-			compressHTML,
-			manifest,
-			renderers,
-			resolve
-		} = pipeline;
+		const { clientDirectives, compressHTML, manifest, renderers, resolve } = pipeline;
 		const { links, scripts, styles } = await pipeline.headElements(routeData);
 		const componentMetadata =
 			(await pipeline.componentMetadata(routeData)) ?? manifest.componentMetadata;
@@ -193,13 +187,13 @@ export class RenderContext {
 			status,
 			statusText: 'OK',
 			get headers() {
-				return headers
+				return headers;
 			},
 			// Disallow `Astro.response.headers = new Headers`
 			set headers(_) {
 				throw new AstroError(AstroErrorData.AstroResponseHeadersReassigned);
-			}
-		} satisfies AstroGlobal["response"];
+			},
+		} satisfies AstroGlobal['response'];
 
 		// Create the result object that will be passed into the renderPage function.
 		// This object starts here as an empty shell (not yet the result) but then
@@ -210,7 +204,8 @@ export class RenderContext {
 			compressHTML,
 			cookies,
 			/** This function returns the `Astro` faux-global */
-			createAstro: (astroGlobal, props, slots) => this.createAstro(result, astroGlobal, props, slots),
+			createAstro: (astroGlobal, props, slots) =>
+				this.createAstro(result, astroGlobal, props, slots),
 			links,
 			partial,
 			pathname,
@@ -250,7 +245,7 @@ export class RenderContext {
 				});
 			}
 			return new Response(null, { status, headers: { Location: path } });
-		}
+		};
 		const slots = new Slots(result, slotValues, pipeline.logger) as unknown as AstroGlobal['slots'];
 
 		// `Astro.self` is added by the compiler
@@ -258,7 +253,7 @@ export class RenderContext {
 			...astroGlobalPartial,
 			cookies,
 			get clientAddress() {
-				return renderContext.clientAddress()
+				return renderContext.clientAddress();
 			},
 			get currentLocale() {
 				return renderContext.computeCurrentLocale();
@@ -279,8 +274,8 @@ export class RenderContext {
 			site: pipeline.site,
 			url,
 		};
-		
-		return astroGlobalCombined as AstroGlobal
+
+		return astroGlobalCombined as AstroGlobal;
 	}
 
 	clientAddress() {
@@ -313,11 +308,11 @@ export class RenderContext {
 
 		const { defaultLocale, locales, strategy } = i18n;
 
-		const fallbackTo = (
-			strategy === 'pathname-prefix-other-locales' ||
-			strategy === 'domains-prefix-other-locales'
-		) ? defaultLocale : undefined
-		
+		const fallbackTo =
+			strategy === 'pathname-prefix-other-locales' || strategy === 'domains-prefix-other-locales'
+				? defaultLocale
+				: undefined;
+
 		// TODO: look into why computeCurrentLocale() needs routeData.route to pass ctx.currentLocale tests,
 		// and url.pathname to pass Astro.currentLocale tests.
 		// A single call with `routeData.pathname ?? routeData.route` as the pathname still fails.
