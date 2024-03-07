@@ -67,7 +67,8 @@ function isHTMLComponent(Component: unknown) {
 
 const ASTRO_SLOT_EXP = /<\/?astro-slot\b[^>]*>/g;
 const ASTRO_STATIC_SLOT_EXP = /<\/?astro-static-slot\b[^>]*>/g;
-function removeStaticAstroSlot(html: string, supportsAstroStaticSlot: boolean) {
+
+function removeStaticAstroSlot(html: string, supportsAstroStaticSlot = true) {
 	const exp = supportsAstroStaticSlot ? ASTRO_STATIC_SLOT_EXP : ASTRO_SLOT_EXP;
 	return html.replace(exp, '');
 }
@@ -310,7 +311,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 				} else if (html && html.length > 0) {
 					destination.write(
 						markHTMLString(
-							removeStaticAstroSlot(html, renderer?.ssr?.supportsAstroStaticSlot ?? false)
+							removeStaticAstroSlot(html, renderer?.ssr?.supportsAstroStaticSlot)
 						)
 					);
 				}
@@ -391,7 +392,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 					})
 				);
 			}
-			destination.write(markHTMLString(renderElement('astro-island', island, false)));
+			const renderedElement = renderElement('astro-island', island, false);
+			destination.write(markHTMLString(renderedElement));
 		},
 	};
 }
