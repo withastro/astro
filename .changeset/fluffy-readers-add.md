@@ -3,11 +3,11 @@
 "astro": minor
 ---
 
-Adds the option to pass an object to `build.assetsPrefix`. This allows for the use of multiple CDN prefixes based on the target filetype.
+Adds the option to pass an object to `build.assetsPrefix`. This allows for the use of multiple CDN prefixes based on the target file type.
 
-When defining `build.assetsPrefix` as a object, the object must accept a key named `fallback`, which is used when as asset doesn't match an extension.
+When passing an object to `build.assetsPrefix`, you must also specify a `fallback` domain to be used for all other file types not specified.
 
-Each key of the object must match the extension of the file. 
+Specify a file extension as the key (e.g. 'js', 'png') and the URL serving your assets of that file type as the value:
 
 ```js
 // astro.config.mjs
