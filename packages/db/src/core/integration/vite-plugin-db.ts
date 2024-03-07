@@ -108,12 +108,19 @@ export function getLocalVirtualModContents({
 
 	const dbUrl = new URL(DB_PATH, root);
 	return `
-import { asDrizzleTable } from ${RUNTIME_IMPORT};
-import { createLocalDatabaseClient } from ${RUNTIME_IMPORT};
+import { asDrizzleTable, createLocalDatabaseClient } from ${RUNTIME_IMPORT};
+${shouldSeed ? `import { seedLocal } from ${RUNTIME_IMPORT};` : ''}
+
 const dbUrl = ${JSON.stringify(dbUrl)};
 export const db = createLocalDatabaseClient({ dbUrl });
 
-${shouldSeed ? `import.meta.glob(${JSON.stringify(seedFilePaths)}, { eager: true });` : ''}
+${
+	shouldSeed
+		? `await seedLocal({
+	fileGlob: import.meta.glob(${JSON.stringify(seedFilePaths)}, { eager: true }),
+});`
+		: ''
+}
 
 export * from ${RUNTIME_CONFIG_IMPORT};
 

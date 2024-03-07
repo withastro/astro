@@ -6,8 +6,6 @@ import {
 	FOREIGN_KEY_REFERENCES_EMPTY_ERROR,
 	FOREIGN_KEY_REFERENCES_LENGTH_ERROR,
 	REFERENCE_DNE_ERROR,
-	SEED_DEFAULT_EXPORT_ERROR,
-	SEED_ERROR,
 } from '../core/errors.js';
 import type {
 	BooleanColumn,
@@ -21,36 +19,10 @@ import type {
 } from '../core/types.js';
 import { hasPrimaryKey } from './index.js';
 import { isSerializedSQL } from './types.js';
-import { LibsqlError } from '@libsql/client';
 
 const sqlite = new SQLiteAsyncDialect();
 
 export const SEED_DEV_FILE_NAME = ['seed.ts', 'seed.js', 'seed.mjs', 'seed.mts'];
-
-export async function seedLocal({
-	// Glob all potential seed files to catch renames and deletions.
-	fileGlob,
-}: {
-	fileGlob: Record<string, () => Promise<{ default?: () => Promise<void> }>>;
-}) {
-	for (const fileName of SEED_DEV_FILE_NAME) {
-		const key = Object.keys(fileGlob).find((f) => f.endsWith(fileName));
-		if (key) {
-			try {
-				const mod = await fileGlob[key]();
-				if (!mod.default) {
-					throw new Error(SEED_DEFAULT_EXPORT_ERROR(key));
-				}
-				await mod.default();
-			} catch (e) {
-				if (e instanceof LibsqlError) {
-					throw new Error(SEED_ERROR(e.message));
-				}
-				throw e;
-			}
-			break;
-		}
-	}
 
 export function getDropTableIfExistsQuery(tableName: string) {
 	return `DROP TABLE IF EXISTS ${sqlite.escapeName(tableName)}`;
