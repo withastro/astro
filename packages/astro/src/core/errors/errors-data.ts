@@ -792,7 +792,7 @@ export const MiddlewareNotAResponse = {
  * @docs
  * @description
  *
- * Thrown in development mode when `locals` is overwritten with something that is not an object
+ * Thrown when `locals` is overwritten with something that is not an object
  *
  * For example:
  * ```ts
@@ -809,6 +809,19 @@ export const LocalsNotAnObject = {
 	message:
 		'`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
 	hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Thrown when a value is being set as the `headers` field on the `ResponseInit` object available as `Astro.response`.
+ */
+export const AstroResponseHeadersReassigned = {
+	name: 'AstroResponseHeadersReassigned',
+	title: '`Astro.response.headers` must not be reassigned.',
+	message:
+		'Individual headers can be added to and removed from `Astro.response.headers`, but it must not be replaced with another instance of `Headers` altogether.',
+	hint: 'Consider using `Astro.response.headers.add()`, and `Astro.response.headers.delete()`.',
 } satisfies ErrorData;
 
 /**

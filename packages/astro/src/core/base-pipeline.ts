@@ -45,7 +45,7 @@ export abstract class Pipeline {
 		/**
 		 * Used for `Astro.site`.
 		 */
-		readonly site = manifest.site
+		readonly site = manifest.site ? new URL(manifest.site) : undefined
 	) {
 		this.internalMiddleware = [
 			createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat),

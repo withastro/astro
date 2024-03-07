@@ -18,9 +18,9 @@ describe('Slots with client: directives', () => {
 		assert.equal($('script').length, 1);
 	});
 
-	it('Astro slot tags are cleaned', async () => {
+	it('Astro slot tags are kept', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		assert.equal($('astro-slot').length, 0);
+		assert.equal($('astro-slot').length, 1);
 	});
 });

@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/db",
-  "version": "0.6.1",
+  "version": "0.6.5",
   "description": "",
   "license": "MIT",
   "type": "module",
@@ -51,6 +51,7 @@
   },
   "files": [
     "index.d.ts",
+    "virtual.d.ts",
     "dist"
   ],
   "keywords": [
@@ -74,6 +75,7 @@
     "open": "^10.0.3",
     "ora": "^7.0.1",
     "prompts": "^2.4.2",
+    "strip-ansi": "^7.1.0",
     "yargs-parser": "^21.1.1",
     "zod": "^3.22.4"
   },
