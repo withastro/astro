@@ -14,6 +14,7 @@ import { fileURLIntegration } from './file-url.js';
 import { typegen } from './typegen.js';
 import { type LateTables, vitePluginDb } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
+import parseArgs from 'yargs-parser';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectToStudio = false;
@@ -40,7 +41,8 @@ function astroDBIntegration(): AstroIntegration {
 				if (command === 'preview') return;
 
 				let dbPlugin: VitePlugin | undefined = undefined;
-				connectToStudio = command === 'build';
+				const args = parseArgs(process.argv.slice(3));
+				connectToStudio = args['remote'];
 
 				if (connectToStudio) {
 					appToken = await getManagedAppTokenOrExit();
@@ -68,6 +70,8 @@ function astroDBIntegration(): AstroIntegration {
 				});
 			},
 			'astro:config:done': async ({ config }) => {
+				if (command === 'preview') return;
+
 				// TODO: refine where we load tables
 				// @matthewp: may want to load tables by path at runtime
 				const { mod, dependencies } = await loadDbConfigFile(config.root);
@@ -78,7 +82,7 @@ function astroDBIntegration(): AstroIntegration {
 				// TODO: resolve integrations here?
 				tables.get = () => dbConfig.tables ?? {};
 
-				if (!connectToStudio && !process.env.TEST_IN_MEMORY_DB) {
+				if (!connectToStudio) {
 					const dbUrl = new URL(DB_PATH, config.root);
 					if (existsSync(dbUrl)) {
 						await rm(dbUrl);
