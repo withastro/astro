@@ -14,6 +14,7 @@ import { fileURLIntegration } from './file-url.js';
 import { typegen } from './typegen.js';
 import { type LateTables, vitePluginDb } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
+import parseArgs from 'yargs-parser';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectToStudio = false;
@@ -40,7 +41,8 @@ function astroDBIntegration(): AstroIntegration {
 				if (command === 'preview') return;
 
 				let dbPlugin: VitePlugin | undefined = undefined;
-				connectToStudio = command === 'build' && process.argv[3] === '--remote';
+				const args = parseArgs(process.argv.slice(3));
+				connectToStudio = command === 'build' && args['remote'];
 
 				if (connectToStudio) {
 					appToken = await getManagedAppTokenOrExit();
