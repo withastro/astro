@@ -1,5 +1,5 @@
 import type { DevToolbarMetadata } from '../../../../../../@types/astro.js';
-import { escapeHTML } from '../../../../../server/escape.js';
+import { escape as escapeHTML } from 'html-escaper';
 import {
 	createHighlight,
 	getElementsPositionInDocument,
