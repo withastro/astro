@@ -1,5 +1,6 @@
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
+import { MIGRATION_VERSION } from '../../../consts.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBConfig, type DBSnapshot } from '../../../types.js';
 import { getRemoteDatabaseUrl } from '../../../utils.js';
@@ -10,7 +11,6 @@ import {
 	getMigrationQueries,
 	getProductionCurrentSnapshot,
 } from '../../migration-queries.js';
-import { MIGRATION_VERSION } from '../../../consts.js';
 
 export async function cmd({
 	dbConfig,
