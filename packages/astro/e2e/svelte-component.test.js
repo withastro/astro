@@ -37,12 +37,11 @@ test.describe('Svelte components lifecycle', () => {
 	});
 });
 
-
 test.describe('Slotting content into svelte components', () => {
 	test('should stay after hydration', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/with-slots'));
 		const hydratableElement = page.locator('#hydratable');
 		await waitForHydrate(page, hydratableElement);
-		await expect(hydratableElement).toHaveText("Slot goes here:poo");
+		await expect(hydratableElement).toHaveText('Slot goes here:poo');
 	});
 });

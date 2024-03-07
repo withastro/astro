@@ -310,9 +310,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 					destination.write(html);
 				} else if (html && html.length > 0) {
 					destination.write(
-						markHTMLString(
-							removeStaticAstroSlot(html, renderer?.ssr?.supportsAstroStaticSlot)
-						)
+						markHTMLString(removeStaticAstroSlot(html, renderer?.ssr?.supportsAstroStaticSlot))
 					);
 				}
 			},
