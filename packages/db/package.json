@@ -1,16 +1,20 @@
 {
   "name": "@astrojs/db",
-  "version": "0.4.1",
+  "version": "0.6.1",
   "description": "",
   "license": "MIT",
   "type": "module",
-  "types": "./index.d.ts",
   "author": "withastro",
+  "types": "./index.d.ts",
   "main": "./dist/index.js",
   "exports": {
     ".": {
       "types": "./index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.js"
     },
     "./runtime": {
       "types": "./dist/runtime/index.d.ts",
@@ -20,6 +24,10 @@
       "types": "./dist/runtime/drizzle.d.ts",
       "import": "./dist/runtime/drizzle.js"
     },
+    "./runtime/config": {
+      "types": "./dist/runtime/config.d.ts",
+      "import": "./dist/runtime/config.js"
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -27,17 +35,22 @@
       ".": [
         "./index.d.ts"
       ],
+      "utils": [
+        "./dist/utils.d.ts"
+      ],
       "runtime": [
         "./dist/runtime/index.d.ts"
       ],
       "runtime/drizzle": [
         "./dist/runtime/drizzle.d.ts"
+      ],
+      "runtime/config": [
+        "./dist/runtime/config.d.ts"
       ]
     }
   },
   "files": [
     "index.d.ts",
-    "config-augment.d.ts",
     "dist"
   ],
   "keywords": [

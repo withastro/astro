@@ -38,6 +38,9 @@ export const perf: AuditRuleWithSelector[] = [
 			// Ignore elements that are above the fold, they should be loaded eagerly
 			if (htmlElement.offsetTop < window.innerHeight) return false;
 
+			// Ignore elements using `data:` URI, the `loading` attribute doesn't do anything for these
+			if (htmlElement.src.startsWith('data:')) return false;
+
 			return true;
 		},
 	},
@@ -52,6 +55,9 @@ export const perf: AuditRuleWithSelector[] = [
 
 			// Ignore elements that are below the fold, they should be loaded lazily
 			if (htmlElement.offsetTop > window.innerHeight) return false;
+
+			// Ignore elements using `data:` URI, the `loading` attribute doesn't do anything for these
+			if (htmlElement.src.startsWith('data:')) return false;
 
 			return true;
 		},
