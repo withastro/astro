@@ -94,5 +94,6 @@ export function slash(path: string) {
 }
 
 export function fileExtension(path: string) {
-	return path.split('.').pop() ?? '';
+	const ext = path.split('.').pop();
+	return ext ? `.${ext}` : '';
 }
