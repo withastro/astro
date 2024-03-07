@@ -69,7 +69,7 @@ export class DevToolbarAuditListWindow extends HTMLElement {
 					font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 					color: rgba(191, 193, 201, 1);
 					position: fixed;
-					z-index: 2000000001;
+					z-index: 999999999;
 					bottom: 72px;
 					left: 50%;
 					transform: translateX(-50%);
@@ -278,6 +278,21 @@ export class DevToolbarAuditListWindow extends HTMLElement {
 	#back-to-list:has(+ #audit-list astro-dev-toolbar-audit-list-item[active]) {
 		display: flex;
 	}
+
+	.no-audit-container {
+		display: flex;
+		flex-direction: column;
+		padding: 24px;
+	}
+
+	.no-audit-container h1 {
+		font-size: 20px;
+	}
+
+	.no-audit-container astro-dev-toolbar-icon {
+		height: auto;
+		margin: 0 auto;
+	}
 </style>
 
 <template id="category-template">
@@ -369,6 +384,20 @@ export class DevToolbarAuditListWindow extends HTMLElement {
 					categoryContainer.append(categoryContent);
 					auditListContainer.append(categoryContainer);
 				}
+			} else {
+				const noAuditContainer = document.createElement('div');
+				noAuditContainer.classList.add('no-audit-container');
+				noAuditContainer.innerHTML = `
+					<header>
+						<h1></astro-dev-toolbar-icon>No accessibility or performance issues detected.</h1>
+					</header>
+					<p>
+						Nice work! This app scans the page and highlights common accessibility and performance issues for you, like a missing "alt" attribute on an image, or a image not using performant attributes.
+					</p>
+					<astro-dev-toolbar-icon icon="houston-detective"></astro-dev-toolbar-icon>
+					`;
+
+				auditListContainer.append(noAuditContainer);
 			}
 		}
 	}
