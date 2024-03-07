@@ -5,8 +5,7 @@ import { getAssetsPrefix } from '../../assets/utils/getAssetsPrefix.js';
 
 export function createAssetLink(href: string, base?: string, assetsPrefix?: AssetsPrefix): string {
 	if (assetsPrefix) {
-		const fileType = fileExtension(href);
-		const pf = getAssetsPrefix(fileType, assetsPrefix);
+		const pf = getAssetsPrefix(fileExtension(href), assetsPrefix);
 		return joinPaths(pf, slash(href));
 	} else if (base) {
 		return prependForwardSlash(joinPaths(base, slash(href)));
