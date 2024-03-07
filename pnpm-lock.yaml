@@ -3824,7 +3824,7 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       drizzle-orm:
-        specifier: 0.29.5
+        specifier: ^0.29.5
         version: 0.29.5(@libsql/client@0.4.3)
       kleur:
         specifier: ^4.1.5
