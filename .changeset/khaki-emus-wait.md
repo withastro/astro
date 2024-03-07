@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Instruct vite to not look for an external vite config file when creating a server
+Fixes an issue where some CLI commands attempted to directly read vite config files.
