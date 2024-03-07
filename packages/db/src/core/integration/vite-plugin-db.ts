@@ -6,11 +6,9 @@ import type { DBTables } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 
-const LOCAL_DB_VIRTUAL_MODULE_ID = 'astro:local';
 const WITH_SEED_VIRTUAL_MODULE_ID = 'astro:db:seed';
 
 const resolved = {
-	localDb: '\0' + LOCAL_DB_VIRTUAL_MODULE_ID,
 	virtual: '\0' + VIRTUAL_MODULE_ID,
 	seedVirtual: '\0' + WITH_SEED_VIRTUAL_MODULE_ID,
 };
@@ -43,7 +41,6 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 		name: 'astro:db',
 		enforce: 'pre',
 		async resolveId(id, rawImporter) {
-			if (id === LOCAL_DB_VIRTUAL_MODULE_ID) return resolved.localDb;
 			if (id !== VIRTUAL_MODULE_ID) return;
 			if (params.connectToStudio) return resolved.virtual;
 
@@ -58,15 +55,6 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			return resolved.virtual;
 		},
 		async load(id) {
-			if (id === resolved.localDb) {
-				// Split db creation to a separate module to
-				// share a connection across modules (namely astro:db and astro:db:seed)
-				const dbUrl = new URL(DB_PATH, params.root);
-				return `import { createLocalDatabaseClient } from ${RUNTIME_IMPORT};
-				const dbUrl = ${JSON.stringify(dbUrl)};
-				export const db = createLocalDatabaseClient({ dbUrl });`;
-			}
-
 			// Recreate tables whenever a seed file is loaded.
 			if (seedFilePaths.some((f) => id === f)) {
 				await recreateTables({
@@ -98,6 +86,7 @@ export function getConfigVirtualModContents() {
 
 export function getLocalVirtualModContents({
 	tables,
+	root,
 	shouldSeed,
 }: {
 	tables: DBTables;
@@ -110,11 +99,12 @@ export function getLocalVirtualModContents({
 		(name) => new URL(name, getDbDirectoryUrl('file:///')).pathname
 	);
 
+	const dbUrl = new URL(DB_PATH, root);
 	return `
 import { asDrizzleTable } from ${RUNTIME_IMPORT};
-import { db as _db } from ${JSON.stringify(LOCAL_DB_VIRTUAL_MODULE_ID)};
-
-export const db = _db;
+import { createLocalDatabaseClient } from ${RUNTIME_IMPORT};
+const dbUrl = ${JSON.stringify(dbUrl)};
+export const db = createLocalDatabaseClient({ dbUrl });
 
 ${shouldSeed ? `import.meta.glob(${JSON.stringify(seedFilePaths)}, { eager: true });` : ''}
 
