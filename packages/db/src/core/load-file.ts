@@ -187,7 +187,7 @@ export async function importBundledFile({
 	root: URL;
 }): Promise<{ default?: unknown }> {
 	// Write it to disk, load it with native Node ESM, then delete the file.
-	const tmpFileUrl = tempUrl(root);
+	const tmpFileUrl = new URL(`./db.timestamp-${Date.now()}.mjs`, root);
 	await writeFile(tmpFileUrl, code, { encoding: 'utf8' });
 	try {
 		return await import(/* @vite-ignore */ tmpFileUrl.toString());
@@ -198,10 +198,4 @@ export async function importBundledFile({
 			// already removed if this function is called twice simultaneously
 		}
 	}
-}
-
-/** Get a unique temporary file URL. Combines timestamp and a random ID to avoid conflicts. */
-function tempUrl(root: URL) {
-	const uuid = Math.random().toFixed(10).slice(2);
-	return new URL(`./db.timestamp-${Date.now()}-${uuid}.mjs`, root);
 }
