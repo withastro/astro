@@ -18,7 +18,7 @@ export default defineConfig({
         assetsPrefix: {
             'js': "https://js.cdn.example.com",
             'mjs': "https://js.cdn.example.com", // if you have .mjs files, you must add a new entry like this
-            "png": "https://images.cdn.example.com",
+            'png': "https://images.cdn.example.com",
             'fallback': "https://generic.cdn.example.com"
         }
     }
