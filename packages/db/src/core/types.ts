@@ -1,9 +1,9 @@
+import type { AstroIntegration } from 'astro';
 import { SQL } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { type ZodTypeDef, z } from 'zod';
 import { SERIALIZED_SQL_KEY, type SerializedSQL } from '../runtime/types.js';
 import { errorMap } from './integration/error-map.js';
-import type { AstroIntegration } from 'astro';
 
 export type MaybePromise<T> = T | Promise<T>;
 export type MaybeArray<T> = T | T[];

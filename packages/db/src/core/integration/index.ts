@@ -11,7 +11,7 @@ import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
 import { type VitePlugin, getDbDirectoryUrl } from '../utils.js';
 import { fileURLIntegration } from './file-url.js';
 import { typegen } from './typegen.js';
-import { type LateTables, vitePluginDb, type LateSeedFiles } from './vite-plugin-db.js';
+import { type LateSeedFiles, type LateTables, vitePluginDb } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
 
 function astroDBIntegration(): AstroIntegration {

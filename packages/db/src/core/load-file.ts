@@ -1,14 +1,14 @@
-import type { AstroConfig, AstroIntegration } from 'astro';
-import { build as esbuild } from 'esbuild';
 import { existsSync } from 'node:fs';
 import { unlink, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import type { AstroConfig, AstroIntegration } from 'astro';
+import { build as esbuild } from 'esbuild';
 import { CONFIG_FILE_NAMES, VIRTUAL_MODULE_ID } from './consts.js';
 import { INTEGRATION_TABLE_CONFLICT_ERROR } from './errors.js';
 import { errorMap } from './integration/error-map.js';
 import { getConfigVirtualModContents } from './integration/vite-plugin-db.js';
-import { dbConfigSchema, type AstroDbIntegration } from './types.js';
+import { type AstroDbIntegration, dbConfigSchema } from './types.js';
 import { getDbDirectoryUrl } from './utils.js';
 
 const isDbIntegration = (integration: AstroIntegration): integration is AstroDbIntegration =>
