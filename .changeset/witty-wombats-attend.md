@@ -2,4 +2,4 @@
 "astro": minor
 ---
 
-Update UI for dev toolbar audits with new information
+Updates the UI for dev toolbar audits with new information
