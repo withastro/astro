@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.6.5
+
+### Patch Changes
+
+- [#10350](https://github.com/withastro/astro/pull/10350) [`393ad9b2aa9fde45eb14b8b01ff3526063772452`](https://github.com/withastro/astro/commit/393ad9b2aa9fde45eb14b8b01ff3526063772452) Thanks [@Fryuni](https://github.com/Fryuni)! - Includes `./virtual.d.ts` file that was previously unpublished
+
 ## 0.6.4
 
 ### Patch Changes
