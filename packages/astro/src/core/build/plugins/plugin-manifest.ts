@@ -164,8 +164,7 @@ function buildManifest(
 
 	const prefixAssetPath = (pth: string) => {
 		if (settings.config.build.assetsPrefix) {
-			const fileType = fileExtension(pth);
-			const pf = getAssetsPrefix(fileType, settings.config.build.assetsPrefix);
+			const pf = getAssetsPrefix(fileExtension(pth), settings.config.build.assetsPrefix);
 			return joinPaths(pf, pth);
 		} else {
 			return prependForwardSlash(joinPaths(settings.config.base, pth));
