@@ -4,13 +4,7 @@
 
 ### Patch Changes
 
-- [#10349](https://github.com/withastro/astro/pull/10349) [`7001ae48dbd8f342e62b71f1ba1ede23bfd93c35`](https://github.com/withastro/astro/commit/7001ae48dbd8f342e62b71f1ba1ede23bfd93c35) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Adds scaffolded files when running `astro add db`
-
-- [#10363](https://github.com/withastro/astro/pull/10363) [`b6ccaa6dc76027f4230d6e7dfecc75b5d8b97267`](https://github.com/withastro/astro/commit/b6ccaa6dc76027f4230d6e7dfecc75b5d8b97267) Thanks [@delucis](https://github.com/delucis)! - Fixes an issue where elements slotted within interactive framework components disappeared after hydration.
-
-- [#10364](https://github.com/withastro/astro/pull/10364) [`3f27e096283b6b477c4a66d0a7df52feaa3f4233`](https://github.com/withastro/astro/commit/3f27e096283b6b477c4a66d0a7df52feaa3f4233) Thanks [@delucis](https://github.com/delucis)! - Renames the Astro DB `defineDB()` helper to `defineDb()`
-
-  ⚠️ Breaking change: update your imports from `astro:db` to use `defineDb` with a lowercase “b”.
+- [#10317](https://github.com/withastro/astro/pull/10317) [`33583e8b31ee8a33e26cf57f30bb422921f4745d`](https://github.com/withastro/astro/commit/33583e8b31ee8a33e26cf57f30bb422921f4745d) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where elements slotted within interactive framework components disappeared after hydration.
 
 ## 4.4.14
 
