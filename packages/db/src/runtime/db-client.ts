@@ -9,65 +9,120 @@ const isWebContainer = !!process.versions?.webcontainer;
 
 export function createLocalDatabaseClient({ dbUrl }: { dbUrl: string }): LibSQLDatabase {
 	const url = isWebContainer ? 'file:content.db' : dbUrl;
-	console.log('memory', process.env.TEST_IN_MEMORY_DB);
-	const client = createClient({ url: process.env.TEST_IN_MEMORY_DB ? ':memory:' : url });
+	const client = createClient({ url });
 	const db = drizzleLibsql(client);
 
 	return db;
 }
 
+const remoteResultSchema = z.object({
+	columns: z.array(z.string()),
+	columnTypes: z.array(z.string()),
+	rows: z.array(z.array(z.unknown())),
+	rowsAffected: z.number(),
+	lastInsertRowid: z.unknown().optional(),
+});
+
 export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string) {
 	const url = new URL('/db/query', remoteDbURL);
 
-	const db = drizzleProxy(async (sql, parameters, method) => {
-		const requestBody: InStatement = { sql, args: parameters };
-		const res = await fetch(url, {
-			method: 'POST',
-			headers: {
-				Authorization: `Bearer ${appToken}`,
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(requestBody),
-		});
-		if (!res.ok) {
-			throw new Error(
-				`Failed to execute query.\nQuery: ${sql}\nFull error: ${res.status} ${await res.text()}}`
-			);
-		}
-
-		const queryResultSchema = z.object({
-			rows: z.array(z.unknown()),
-		});
-		let rows: unknown[];
-		try {
-			const json = await res.json();
-			rows = queryResultSchema.parse(json).rows;
-		} catch (e) {
-			throw new Error(
-				`Failed to execute query.\nQuery: ${sql}\nFull error: Unexpected JSON response. ${
-					e instanceof Error ? e.message : String(e)
-				}`
-			);
-		}
-
-		// Drizzle expects each row as an array of its values
-		const rowValues: unknown[][] = [];
-
-		for (const row of rows) {
-			if (row != null && typeof row === 'object') {
-				rowValues.push(Object.values(row));
+	const db = drizzleProxy(
+		async (sql, parameters, method) => {
+			const requestBody: InStatement = { sql, args: parameters };
+			const res = await fetch(url, {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${appToken}`,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestBody),
+			});
+			if (!res.ok) {
+				throw new Error(
+					`Failed to execute query.\nQuery: ${sql}\nFull error: ${res.status} ${await res.text()}}`
+				);
 			}
+
+			let remoteResult: z.infer<typeof remoteResultSchema>;
+			try {
+				const json = await res.json();
+				remoteResult = remoteResultSchema.parse(json);
+			} catch (e) {
+				throw new Error(
+					`Failed to execute query.\nQuery: ${sql}\nFull error: Unexpected JSON response. ${
+						e instanceof Error ? e.message : String(e)
+					}`
+				);
+			}
+
+			if (method === 'run') return remoteResult;
+
+			// Drizzle expects each row as an array of its values
+			const rowValues: unknown[][] = [];
+
+			for (const row of remoteResult.rows) {
+				if (row != null && typeof row === 'object') {
+					rowValues.push(Object.values(row));
+				}
+			}
+
+			if (method === 'get') {
+				return { rows: rowValues[0] };
+			}
+
+			return { rows: rowValues };
+		},
+		async (queries) => {
+			const stmts: InStatement[] = queries.map(({ sql, params }) => ({ sql, args: params }));
+			const res = await fetch(url, {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${appToken}`,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(stmts),
+			});
+			if (!res.ok) {
+				throw new Error(
+					`Failed to execute batch queries.\nFull error: ${res.status} ${await res.text()}}`
+				);
+			}
+
+			let remoteResults: z.infer<typeof remoteResultSchema>[];
+			try {
+				const json = await res.json();
+				remoteResults = z.array(remoteResultSchema).parse(json);
+			} catch (e) {
+				throw new Error(
+					`Failed to execute batch queries.\nFull error: Unexpected JSON response. ${
+						e instanceof Error ? e.message : String(e)
+					}`
+				);
+			}
+			let results: any[] = [];
+			for (const [idx, rawResult] of remoteResults.entries()) {
+				if (queries[idx]?.method === 'run') {
+					results.push(rawResult);
+					continue;
+				}
+
+				// Drizzle expects each row as an array of its values
+				const rowValues: unknown[][] = [];
+
+				for (const row of rawResult.rows) {
+					if (row != null && typeof row === 'object') {
+						rowValues.push(Object.values(row));
+					}
+				}
+
+				if (queries[idx]?.method === 'get') {
+					results.push({ rows: rowValues[0] });
+				}
+
+				results.push({ rows: rowValues });
+			}
+			return results;
 		}
-
-		if (method === 'get') {
-			return { rows: rowValues[0] };
-		}
-
-		return { rows: rowValues };
-	});
-
-	(db as any).batch = (_drizzleQueries: Array<Promise<unknown>>) => {
-		throw new Error('db.batch() is not currently supported.');
-	};
+	);
 	return db;
 }

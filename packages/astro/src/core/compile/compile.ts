@@ -49,6 +49,8 @@ export async function compile({
 			normalizedFilename: normalizeFilename(filename, astroConfig.root),
 			sourcemap: 'both',
 			internalURL: 'astro/compiler-runtime',
+			// TODO: this is no longer neccessary for `Astro.site`
+			// but it somehow allows working around caching issues in content collections for some tests
 			astroGlobalArgs: JSON.stringify(astroConfig.site),
 			scopedStyleStrategy: astroConfig.scopedStyleStrategy,
 			resultScopedSlot: true,
@@ -58,6 +60,7 @@ export async function compile({
 				astroConfig.devToolbar &&
 				astroConfig.devToolbar.enabled &&
 				(await preferences.get('devToolbar.enabled')),
+			renderScript: astroConfig.experimental.directRenderScript,
 			preprocessStyle: createStylePreprocessor({
 				filename,
 				viteConfig,

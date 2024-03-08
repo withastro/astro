@@ -13,6 +13,7 @@ import { pluginMiddleware } from './plugin-middleware.js';
 import { pluginPages } from './plugin-pages.js';
 import { pluginPrerender } from './plugin-prerender.js';
 import { pluginRenderers } from './plugin-renderers.js';
+import { pluginScripts } from './plugin-scripts.js';
 import { pluginSSR, pluginSSRSplit } from './plugin-ssr.js';
 
 export function registerAllPlugins({ internals, options, register }: AstroBuildPluginContainer) {
@@ -28,7 +29,11 @@ export function registerAllPlugins({ internals, options, register }: AstroBuildP
 	register(astroHeadBuildPlugin(internals));
 	register(pluginPrerender(options, internals));
 	register(astroConfigBuildPlugin(options, internals));
-	register(pluginHoistedScripts(options, internals));
+	if (options.settings.config.experimental.directRenderScript) {
+		register(pluginScripts(internals));
+	} else {
+		register(pluginHoistedScripts(options, internals));
+	}
 	register(pluginSSR(options, internals));
 	register(pluginSSRSplit(options, internals));
 	register(pluginChunks());

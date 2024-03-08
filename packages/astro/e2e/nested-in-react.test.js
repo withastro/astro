@@ -114,4 +114,14 @@ test.describe('Nested Frameworks in React', () => {
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
+
+	test('React counter nested in client:only component', async ({ astro, page }) => {
+		await page.goto(astro.resolveUrl('/nested-in-only'));
+
+		const counter = page.locator('#react-counter');
+		await expect(counter, 'component is visible').toBeVisible();
+
+		const count = counter.locator('#react-counter-count');
+		await expect(count).toBeVisible();
+	});
 });

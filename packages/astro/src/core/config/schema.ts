@@ -5,19 +5,19 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
-import { type BuiltinTheme, bundledThemes } from 'shikiji';
+import { type BuiltinTheme, bundledThemes } from 'shiki';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro.js';
 
 import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { z } from 'zod';
+import { type TypeOf, z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
-// This import is required to appease TypeScript!
+// These imports are required to appease TypeScript!
 // See https://github.com/withastro/astro/pull/8762
+import '@shikijs/core';
 import 'mdast-util-to-hast';
-import 'shikiji-core';
 
 type ShikiLangs = NonNullable<ShikiConfig['langs']>;
 type ShikiTheme = NonNullable<ShikiConfig['theme']>;
@@ -58,8 +58,9 @@ const ASTRO_CONFIG_DEFAULTS = {
 	legacy: {},
 	redirects: {},
 	experimental: {
-		optimizeHoistedScript: false,
+		directRenderScript: false,
 		contentCollectionCache: false,
+		contentCollectionJsonSchema: false,
 		clientPrerender: false,
 		globalRoutePriority: false,
 		i18nDomains: false,
@@ -133,7 +134,23 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.build.server)
 				.transform((val) => new URL(val)),
 			assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
-			assetsPrefix: z.string().optional(),
+			assetsPrefix: z
+				.string()
+				.optional()
+				.or(z.object({ fallback: z.string() }).and(z.record(z.string())).optional())
+				.refine(
+					(value) => {
+						if (value && typeof value !== 'string') {
+							if (!value.fallback) {
+								return false;
+							}
+						}
+						return true;
+					},
+					{
+						message: 'The `fallback` is mandatory when defining the option as an object.',
+					}
+				),
 			serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
 			inlineStylesheets: z
@@ -250,7 +267,7 @@ export const AstroConfigSchema = z.object({
 						.array()
 						.transform((langs) => {
 							for (const lang of langs) {
-								// shiki -> shikiji compat
+								// shiki 1.0 compat
 								if (typeof lang === 'object') {
 									// `id` renamed to `name` (always override)
 									if ((lang as any).id) {
@@ -269,17 +286,28 @@ export const AstroConfigSchema = z.object({
 						.enum(Object.keys(bundledThemes) as [BuiltinTheme, ...BuiltinTheme[]])
 						.or(z.custom<ShikiTheme>())
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme!),
-					experimentalThemes: z
+					themes: z
 						.record(
 							z
 								.enum(Object.keys(bundledThemes) as [BuiltinTheme, ...BuiltinTheme[]])
 								.or(z.custom<ShikiTheme>())
 						)
-						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.experimentalThemes!),
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.themes!),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
 					transformers: z
 						.custom<ShikiTransformers[number]>()
 						.array()
+						.transform((transformers) => {
+							for (const transformer of transformers) {
+								// When updating shikiji to shiki, the `token` property was renamed to `span`.
+								// We apply the compat here for now until the next Astro major.
+								// TODO: Remove this in Astro 5.0
+								if ((transformer as any).token && !('span' in transformer)) {
+									transformer.span = (transformer as any).token;
+								}
+							}
+							return transformers;
+						})
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.transformers!),
 				})
 				.default({}),
@@ -439,14 +467,18 @@ export const AstroConfigSchema = z.object({
 	),
 	experimental: z
 		.object({
-			optimizeHoistedScript: z
+			directRenderScript: z
 				.boolean()
 				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.optimizeHoistedScript),
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.directRenderScript),
 			contentCollectionCache: z
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
+			contentCollectionJsonSchema: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionJsonSchema),
 			clientPrerender: z
 				.boolean()
 				.optional()
@@ -508,7 +540,23 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.default(ASTRO_CONFIG_DEFAULTS.build.server)
 					.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 				assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
-				assetsPrefix: z.string().optional(),
+				assetsPrefix: z
+					.string()
+					.optional()
+					.or(z.object({ fallback: z.string() }).and(z.record(z.string())).optional())
+					.refine(
+						(value) => {
+							if (value && typeof value !== 'string') {
+								if (!value.fallback) {
+									return false;
+								}
+							}
+							return true;
+						},
+						{
+							message: 'The `fallback` is mandatory when defining the option as an object.',
+						}
+					),
 				serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 				redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
 				inlineStylesheets: z

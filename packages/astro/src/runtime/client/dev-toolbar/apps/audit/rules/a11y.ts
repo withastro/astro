@@ -42,7 +42,25 @@ const a11y_required_attributes = {
 	object: ['title', 'aria-label', 'aria-labelledby'],
 };
 
-const interactiveElements = ['button', 'details', 'embed', 'iframe', 'label', 'select', 'textarea'];
+const MAYBE_INTERACTIVE = new Map([
+	['a', 'href'],
+	['input', 'type'],
+	['audio', 'controls'],
+	['img', 'usemap'],
+	['object', 'usemap'],
+	['video', 'controls'],
+]);
+
+const interactiveElements = [
+	'button',
+	'details',
+	'embed',
+	'iframe',
+	'label',
+	'select',
+	'textarea',
+	...MAYBE_INTERACTIVE.keys(),
+];
 
 const labellableElements = ['input', 'meter', 'output', 'progress', 'select', 'textarea'];
 
@@ -187,6 +205,15 @@ const ariaRoles = new Set(
 	)
 );
 
+function isInteractive(element: Element): boolean {
+	const attribute = MAYBE_INTERACTIVE.get(element.localName);
+	if (attribute) {
+		return element.hasAttribute(attribute);
+	}
+
+	return true;
+}
+
 export const a11y: AuditRuleWithSelector[] = [
 	{
 		code: 'a11y-accesskey',
@@ -256,8 +283,8 @@ export const a11y: AuditRuleWithSelector[] = [
 		},
 	},
 	{
-		code: 'a11y-invalid-attribute',
-		title: 'Attributes important for accessibility should have a valid value',
+		code: 'a11y-invalid-href',
+		title: 'Invalid `href` attribute',
 		message: "`href` should not be empty, `'#'`, or `javascript:`.",
 		selector: 'a[href]:is([href=""], [href="#"], [href^="javascript:" i])',
 	},
@@ -305,6 +332,8 @@ export const a11y: AuditRuleWithSelector[] = [
 	{
 		code: 'a11y-missing-attribute',
 		title: 'Required attributes missing.',
+		description:
+			'Some HTML elements require additional attributes for accessibility. For example, an `img` element requires an `alt` attribute, this attribute is used to describe the content of the image for screen readers.',
 		message: (element) => {
 			const requiredAttributes =
 				a11y_required_attributes[element.localName as keyof typeof a11y_required_attributes];
@@ -434,6 +463,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			'Interactive HTML elements like `<a>` and `<button>` cannot use non-interactive roles like `heading`, `list`, `menu`, and `toolbar`.',
 		selector: `[role]:is(${interactiveElements.join(',')})`,
 		match(element) {
+			if (!isInteractive(element)) return false;
 			const role = element.getAttribute('role');
 			if (!role) return false;
 			if (!ariaRoles.has(role)) return false;
@@ -448,6 +478,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			'Interactive roles should not be used to convert a non-interactive element to an interactive element',
 		selector: `[role]:not(${interactiveElements.join(',')})`,
 		match(element) {
+			if (!isInteractive(element)) return false;
 			const role = element.getAttribute('role');
 			if (!role) return false;
 			if (!ariaRoles.has(role)) return false;
@@ -463,6 +494,8 @@ export const a11y: AuditRuleWithSelector[] = [
 	{
 		code: 'a11y-no-noninteractive-tabindex',
 		title: 'Invalid `tabindex` on non-interactive element',
+		description:
+			'The `tabindex` attribute should only be used on interactive elements, as it can be confusing for keyboard-only users to navigate through non-interactive elements. If your element is only conditionally interactive, consider using `tabindex="-1"` to make it focusable only when it is actually interactive.',
 		message: (element) => `${element.localName} elements should not have \`tabindex\` attribute`,
 		selector: '[tabindex]',
 		match(element) {
@@ -471,6 +504,8 @@ export const a11y: AuditRuleWithSelector[] = [
 			const isScrollable =
 				element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
 			if (isScrollable) return false;
+
+			if (!isInteractive(element)) return false;
 
 			if (!interactiveElements.includes(element.localName)) return true;
 		},

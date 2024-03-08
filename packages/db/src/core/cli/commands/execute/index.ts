@@ -1,8 +1,15 @@
 import { existsSync } from 'node:fs';
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
-import { FILE_NOT_FOUND_ERROR, MISSING_EXECUTE_PATH_ERROR } from '../../../errors.js';
-import { getStudioVirtualModContents } from '../../../integration/vite-plugin-db.js';
+import {
+	FILE_NOT_FOUND_ERROR,
+	MISSING_EXECUTE_PATH_ERROR,
+	SEED_DEFAULT_EXPORT_ERROR,
+} from '../../../errors.js';
+import {
+	getLocalVirtualModContents,
+	getStudioVirtualModContents,
+} from '../../../integration/vite-plugin-db.js';
 import { bundleFile, importBundledFile } from '../../../load-file.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBConfig } from '../../../types.js';
@@ -28,13 +35,27 @@ export async function cmd({
 		process.exit(1);
 	}
 
-	const appToken = await getManagedAppTokenOrExit(flags.token);
-
-	const virtualModContents = getStudioVirtualModContents({
-		tables: dbConfig.tables ?? {},
-		appToken: appToken.token,
-	});
+	let virtualModContents: string;
+	if (flags.remote) {
+		const appToken = await getManagedAppTokenOrExit(flags.token);
+		virtualModContents = getStudioVirtualModContents({
+			tables: dbConfig.tables ?? {},
+			appToken: appToken.token,
+		});
+	} else {
+		virtualModContents = getLocalVirtualModContents({
+			tables: dbConfig.tables ?? {},
+			root: astroConfig.root,
+			shouldSeed: false,
+			seedFiles: [],
+		});
+	}
 	const { code } = await bundleFile({ virtualModContents, root: astroConfig.root, fileUrl });
-	// Executable files use top-level await. Importing will run the file.
-	await importBundledFile({ code, root: astroConfig.root });
+
+	const mod = await importBundledFile({ code, root: astroConfig.root });
+	if (typeof mod.default !== 'function') {
+		console.error(SEED_DEFAULT_EXPORT_ERROR);
+		process.exit(1);
+	}
+	await mod.default();
 }

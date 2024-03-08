@@ -24,6 +24,7 @@ export {
 	renderHead,
 	renderHTMLElement,
 	renderPage,
+	renderScript,
 	renderScriptElement,
 	renderSlot,
 	renderSlotToString,

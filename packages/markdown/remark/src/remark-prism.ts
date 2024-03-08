@@ -2,6 +2,9 @@ import { runHighlighterWithAstro } from '@astrojs/prism/dist/highlighter';
 import { visit } from 'unist-util-visit';
 import type { RemarkPlugin } from './types.js';
 
+/**
+ * @deprecated Use `rehypePrism` instead
+ */
 export function remarkPrism(): ReturnType<RemarkPlugin> {
 	return function (tree: any) {
 		visit(tree, 'code', (node) => {

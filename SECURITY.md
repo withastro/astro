@@ -2,11 +2,11 @@
 
 ## Reporting a Vulnerability
 
-To report a security issue, please email security@astro.build with a detailed description of the issue, the steps you took to create the issue, affected versions, and, if known, mitigations for the issue.
+To report a security issue, please [open a security advisory](https://github.com/withastro/astro/security/advisories/new) on GitHub with a detailed description of the issue, the steps you took to create the issue, affected versions, and, if known, mitigations for the issue.
 
 Please remember to include everything required for us to reproduce the issue, including but not limited to a publicly accessible git repository and/or StackBlitz repository. All code samples shared with our Security team will only be used to verify and diagnose the issue and will not be publicly shared with anyone outside of Astro's teams. Astro's Security Team members may share information only within the Astro teams on a need-to-know basis to fix the related issue in Astro.
 
-Our Security team will acknowledge receiving your email within 3 working days.
+Our Security team will respond to the security advisory within 3 working days.
 
 <ins>**If you think you've found a security issue, please DO NOT report, discuss, or describe it on Discord, GitHub, or any other public forum; without prior contact and acknowledgment of Astro's Security team.**<ins>
 

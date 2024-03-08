@@ -4,10 +4,10 @@ import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type {
 	BuiltinTheme,
 	LanguageRegistration,
-	ShikijiTransformer,
+	ShikiTransformer,
 	ThemeRegistration,
 	ThemeRegistrationRaw,
-} from 'shikiji';
+} from 'shiki';
 import type * as unified from 'unified';
 import type { VFile } from 'vfile';
 
@@ -38,9 +38,9 @@ export type ThemePresets = BuiltinTheme | 'css-variables';
 export interface ShikiConfig {
 	langs?: LanguageRegistration[];
 	theme?: ThemePresets | ThemeRegistration | ThemeRegistrationRaw;
-	experimentalThemes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
+	themes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
 	wrap?: boolean | null;
-	transformers?: ShikijiTransformer[];
+	transformers?: ShikiTransformer[];
 }
 
 export interface AstroMarkdownOptions {

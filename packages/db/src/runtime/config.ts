@@ -41,8 +41,33 @@ export function defineTable<TColumns extends ColumnsConfig>(userConfig: TableCon
 	return userConfig;
 }
 
-export function defineDB(userConfig: DBConfigInput) {
+export function defineDb(userConfig: DBConfigInput) {
 	return userConfig;
 }
 
-export { sql, NOW, TRUE, FALSE } from './index.js';
+export { NOW, TRUE, FALSE } from './index.js';
+
+export {
+	sql,
+	eq,
+	gt,
+	gte,
+	lt,
+	lte,
+	ne,
+	isNull,
+	isNotNull,
+	inArray,
+	notInArray,
+	exists,
+	notExists,
+	between,
+	notBetween,
+	like,
+	notIlike,
+	not,
+	asc,
+	desc,
+	and,
+	or,
+} from 'drizzle-orm';
