@@ -60,6 +60,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		optimizeHoistedScript: false,
 		contentCollectionCache: false,
+		contentCollectionJsonSchema: false,
 		clientPrerender: false,
 		globalRoutePriority: false,
 		i18nDomains: false,
@@ -458,6 +459,10 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
+			contentCollectionJsonSchema: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionJsonSchema),
 			clientPrerender: z
 				.boolean()
 				.optional()
