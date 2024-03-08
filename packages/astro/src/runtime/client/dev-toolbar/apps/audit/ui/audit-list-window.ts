@@ -56,243 +56,236 @@ export class DevToolbarAuditListWindow extends HTMLElement {
 		this.shadowRoot = this.attachShadow({ mode: 'open' });
 
 		this.shadowRoot.innerHTML = `<style>
-						:host {
-					box-sizing: border-box;
-					display: flex;
-					flex-direction: column;
-					background: linear-gradient(0deg, #13151A, #13151A), linear-gradient(0deg, #343841, #343841);
-					border: 1px solid rgba(52, 56, 65, 1);
-					width: min(640px, 100%);
-					max-height: 480px;
-					border-radius: 12px;
-					padding: 24px;
-					font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-					color: rgba(191, 193, 201, 1);
-					position: fixed;
-					z-index: 999999999;
-					bottom: 72px;
-					left: 50%;
-					transform: translateX(-50%);
-					box-shadow: 0px 0px 0px 0px rgba(19, 21, 26, 0.30), 0px 1px 2px 0px rgba(19, 21, 26, 0.29), 0px 4px 4px 0px rgba(19, 21, 26, 0.26), 0px 10px 6px 0px rgba(19, 21, 26, 0.15), 0px 17px 7px 0px rgba(19, 21, 26, 0.04), 0px 26px 7px 0px rgba(19, 21, 26, 0.01);
+			:host {
+				box-sizing: border-box;
+				display: flex;
+				flex-direction: column;
+				background: linear-gradient(0deg, #13151a, #13151a), linear-gradient(0deg, #343841, #343841);
+				border: 1px solid rgba(52, 56, 65, 1);
+				width: min(640px, 100%);
+				max-height: 480px;
+				border-radius: 12px;
+				padding: 24px;
+				font-family:
+					ui-sans-serif,
+					system-ui,
+					-apple-system,
+					BlinkMacSystemFont,
+					"Segoe UI",
+					Roboto,
+					"Helvetica Neue",
+					Arial,
+					"Noto Sans",
+					sans-serif,
+					"Apple Color Emoji",
+					"Segoe UI Emoji",
+					"Segoe UI Symbol",
+					"Noto Color Emoji";
+				color: rgba(191, 193, 201, 1);
+				position: fixed;
+				z-index: 999999999;
+				bottom: 72px;
+				left: 50%;
+				transform: translateX(-50%);
+				box-shadow:
+					0px 0px 0px 0px rgba(19, 21, 26, 0.3),
+					0px 1px 2px 0px rgba(19, 21, 26, 0.29),
+					0px 4px 4px 0px rgba(19, 21, 26, 0.26),
+					0px 10px 6px 0px rgba(19, 21, 26, 0.15),
+					0px 17px 7px 0px rgba(19, 21, 26, 0.04),
+					0px 26px 7px 0px rgba(19, 21, 26, 0.01);
+			}
+
+			@media (forced-colors: active) {
+				:host {
+					background: white;
 				}
+			}
 
-				@media (forced-colors: active) {
-					:host {
-						background: white;
-					}
+			@media (max-width: 640px) {
+				:host {
+					border-radius: 0;
 				}
+			}
 
-				@media (max-width: 640px) {
-					:host {
-						border-radius: 0;
-					}
-				}
+			hr,
+			::slotted(hr) {
+				border: 1px solid rgba(27, 30, 36, 1);
+				margin: 1em 0;
+			}
 
-				::slotted(h1), ::slotted(h2), ::slotted(h3), ::slotted(h4), ::slotted(h5) {
-					font-weight: 600;
-					color: #fff;
-				}
+			.reset-button {
+				text-align: left;
+				border: none;
+				margin: 0;
+				width: auto;
+				overflow: visible;
+				background: transparent;
+				font: inherit;
+				line-height: normal;
+				-webkit-font-smoothing: inherit;
+				-moz-osx-font-smoothing: inherit;
+				-webkit-appearance: none;
+				padding: 0;
+			}
 
-				::slotted(h1) {
-					font-size: 22px;
-				}
+			:host {
+				left: initial;
+				top: 8px;
+				right: 8px;
+				transform: none;
+				width: 350px;
+				min-height: 350px;
+				max-height: 420px;
+				padding: 0;
+				overflow: hidden;
+			}
 
-				::slotted(h2) {
-					font-size: 20px;
-				}
+			hr {
+				margin: 0;
+			}
 
-				::slotted(h3) {
-					font-size: 18px;
-				}
+			header {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+			}
 
-				::slotted(h4) {
-					font-size: 16px;
-				}
+			header > section {
+				display: flex;
+				align-items: center;
+				gap: 1em;
+				padding: 18px;
+			}
 
-				::slotted(h5) {
-					font-size: 14px;
-				}
+			header.category-header {
+				background: rgba(27, 30, 36, 1);
+				padding: 10px 16px;
+				position: sticky;
+				top: 0;
+			}
 
-				hr, ::slotted(hr) {
-					border: 1px solid rgba(27, 30, 36, 1);
-					margin: 1em 0;
-				}
+			header.category-header astro-dev-toolbar-icon {
+				opacity: 0.6;
+			}
 
-				p, ::slotted(p) {
-					line-height: 1.5em;
-				}
+			#audit-counts {
+				display: flex;
+				gap: 0.5em;
+			}
 
-	.reset-button {
-		text-align: left;
-		border: none;
-		margin: 0;
-		width: auto;
-		overflow: visible;
-		background: transparent;
-		font: inherit;
-		line-height: normal;
-		-webkit-font-smoothing: inherit;
-		-moz-osx-font-smoothing: inherit;
-		-webkit-appearance: none;
-		padding: 0;
-	}
+			#audit-counts > div {
+				display: flex;
+				gap: 8px;
+				align-items: center;
+			}
 
-	:host {
-		left: initial;
-		top: 8px;
-		right: 8px;
-		transform: none;
-		width: 350px;
-		min-height: 350px;
-		max-height: 420px;
-		padding: 0;
-		overflow: hidden;
-	}
+			ul,
+			li {
+				margin: 0;
+				padding: 0;
+				list-style: none;
+			}
 
-	hr {
-		margin: 0;
-	}
+			h1 {
+				font-size: 24px;
+				font-weight: 600;
+				color: #fff;
+				margin: 0;
+			}
 
-	header {
-		display: flex;
-		align-items: center;
-		gap: 4px;
-	}
+			h2 {
+				font-weight: 600;
+				margin: 0;
+				color: white;
+				font-size: 14px;
+			}
 
-	header > section {
-		display: flex;
-		align-items: center;
-		gap: 1em;
-		padding: 18px;
-	}
+			h3 {
+				font-weight: normal;
+				margin: 0;
+				color: white;
+				font-size: 14px;
+			}
 
-	header.category-header {
-		background: rgba(27, 30, 36, 1);
-		padding: 10px 16px;
-		position: sticky;
-		top: 0;
-	}
+			.audit-header {
+				display: flex;
+				gap: 8px;
+				align-items: center;
+			}
 
-	header.category-header astro-dev-toolbar-icon {
-		opacity: 0.6;
-	}
+			.audit-selector {
+				color: white;
+				font-size: 12px;
+				font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+					"Liberation Mono", "Courier New", monospace;
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				border-radius: 4px;
+				padding: 4px 6px;
+			}
 
-	#audit-counts {
-		display: flex;
-		gap: 0.5em;
-	}
+			[active] .audit-selector:hover {
+				text-decoration: underline;
+				cursor: pointer;
+			}
 
-	#audit-counts > div {
-		display: flex;
-		gap: 8px;
-		align-items: center;
-	}
+			.selector-title-container {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
 
-	ul,
-	li {
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
+			astro-dev-toolbar-icon {
+				color: white;
+				fill: white;
+				display: inline-block;
+				height: 16px;
+				width: 16px;
+			}
 
-	h1 {
-		font-size: 24px;
-		font-weight: 600;
-		color: #fff;
-		margin: 0;
-	}
+			#audit-list {
+				display: flex;
+				flex-direction: column;
+				overflow: auto;
+				overscroll-behavior: contain;
+				height: 100%;
+			}
 
-	h2 {
-		font-weight: 600;
-		margin: 0;
-		color: white;
-		font-size: 14px;
-	}
+			#back-to-list {
+				display: none;
+				align-items: center;
+				justify-content: center;
+				background: rgba(27, 30, 36, 1);
+				gap: 8px;
+				padding: 8px;
+				color: white;
+				font-size: 14px;
+				padding-right: 24px;
+			}
 
-	h3 {
-		font-weight: normal;
-		margin: 0;
-		color: white;
-		font-size: 14px;
-	}
+			#back-to-list:hover {
+				cursor: pointer;
+				background: #313236;
+			}
 
-	.audit-header {
-		display: flex;
-		gap: 8px;
-		align-items: center;
-	}
+			#back-to-list:has(+ #audit-list astro-dev-toolbar-audit-list-item[active]) {
+				display: flex;
+			}
 
-	.audit-selector {
-		color: white;
-		font-size: 12px;
-		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-			"Liberation Mono", "Courier New", monospace;
-		border: 1px solid rgba(255, 255, 255, 0.1);
-		border-radius: 4px;
-		padding: 4px 6px;
-	}
+			.no-audit-container {
+				display: flex;
+				flex-direction: column;
+				padding: 24px;
+			}
 
-	[active] .audit-selector:hover {
-		text-decoration: underline;
-		cursor: pointer;
-	}
+			.no-audit-container h1 {
+				font-size: 20px;
+			}
 
-	.selector-title-container {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-	}
-
-	astro-dev-toolbar-icon {
-		color: white;
-		fill: white;
-		display: inline-block;
-		height: 16px;
-	}
-
-	#audit-list {
-		display: flex;
-		flex-direction: column;
-		overflow: auto;
-		overscroll-behavior: contain;
-		height: 100%;
-	}
-
-	#back-to-list {
-		display: none;
-		align-items: center;
-		justify-content: center;
-		background: rgba(27, 30, 36, 1);
-		gap: 8px;
-		padding: 8px;
-		color: white;
-		font-size: 14px;
-		padding-right: 24px;
-	}
-
-	#back-to-list:hover {
-		cursor: pointer;
-		background: #313236;
-	}
-
-	#back-to-list:has(+ #audit-list astro-dev-toolbar-audit-list-item[active]) {
-		display: flex;
-	}
-
-	.no-audit-container {
-		display: flex;
-		flex-direction: column;
-		padding: 24px;
-	}
-
-	.no-audit-container h1 {
-		font-size: 20px;
-	}
-
-	.no-audit-container astro-dev-toolbar-icon {
-		height: auto;
-		margin: 0 auto;
-	}
+			.no-audit-container astro-dev-toolbar-icon {
+				height: auto;
+				margin: 0 auto;
+			}
 </style>
 
 <template id="category-template">

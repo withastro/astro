@@ -1,4 +1,3 @@
-import type { satisfies } from 'semver';
 import type { DefinedIcon } from '../../../ui-library/icons.js';
 import { a11y } from './a11y.js';
 import { perf } from './perf.js';
