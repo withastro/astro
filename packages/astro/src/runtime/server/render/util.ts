@@ -105,7 +105,7 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 	}
 
 	// Prevents URLs in attributes from being escaped in static builds
-	if (typeof value === 'string' && value.includes('&') && URL.canParse(value)) {
+	if (typeof value === 'string' && value.includes('&') && urlCanParse(value)) {
 		return markHTMLString(` ${key}="${toAttributeString(value, false)}"`);
 	}
 
@@ -228,4 +228,13 @@ export function promiseWithResolvers<T = any>(): PromiseWithResolvers<T> {
 		resolve,
 		reject,
 	};
+}
+
+function urlCanParse(url: string) {
+	try {
+		new URL(url);
+		return true;
+	} catch {
+		return false;
+	}
 }
