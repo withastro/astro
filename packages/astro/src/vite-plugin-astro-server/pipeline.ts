@@ -10,7 +10,7 @@ import type {
 } from '../@types/astro.js';
 import { getInfoOutput } from '../cli/info/index.js';
 import type { HeadElements } from '../core/base-pipeline.js';
-import { ASTRO_VERSION } from '../core/constants.js';
+import { ASTRO_VERSION, DEFAULT_404_COMPONENT } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
@@ -23,6 +23,7 @@ import { getStylesForURL } from './css.js';
 import { getComponentMetadata } from './metadata.js';
 import { createResolve } from './resolve.js';
 import { getScriptsForURL } from './scripts.js';
+import { default404Page } from './response.js';
 
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
@@ -136,6 +137,9 @@ export class DevPipeline extends Pipeline {
 
 	async preload(filePath: URL) {
 		const { loader } = this;
+		if (filePath.href === new URL(DEFAULT_404_COMPONENT, this.config.root).href) {
+			return { default: default404Page } as any as ComponentInstance
+		}
 
 		// Important: This needs to happen first, in case a renderer provides polyfills.
 		const renderers__ = this.settings.renderers.map((r) => loadRenderer(r, loader));

@@ -1,7 +1,8 @@
-import type { ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
+import type { ComponentInstance, ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import {
+	DEFAULT_404_COMPONENT,
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	clientAddressSymbol,
@@ -24,6 +25,7 @@ import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 import { AppPipeline } from './pipeline.js';
+import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 export { deserializeManifest } from './common.js';
 
 export interface RenderOptions {
@@ -82,9 +84,9 @@ export class App {
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
-		this.#manifestData = {
+		this.#manifestData = ensure404Route({
 			routes: manifest.routes.map((route) => route.routeData),
-		};
+		});
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
 		this.#pipeline = this.#createPipeline(streaming);
 		this.#adapterLogger = new AstroIntegrationLogger(
@@ -475,6 +477,12 @@ export class App {
 	}
 
 	async #getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
+		if (route.component === DEFAULT_404_COMPONENT) {
+			return {
+				page: async () => ({ default: () => new Response(null, { status: 404 }) }) as ComponentInstance,
+				renderers: []
+			}
+		}
 		if (route.type === 'redirect') {
 			return RedirectSinglePageBuiltModule;
 		} else {

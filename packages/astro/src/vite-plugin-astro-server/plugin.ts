@@ -17,6 +17,7 @@ import { recordServerError } from './error.js';
 import { DevPipeline } from './pipeline.js';
 import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
+import { ensure404Route } from '../core/routing/astro-designed-error-pages.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -35,15 +36,15 @@ export default function createVitePluginAstroServer({
 			const loader = createViteLoader(viteServer);
 			const manifest = createDevelopmentManifest(settings);
 			const pipeline = DevPipeline.create({ loader, logger, manifest, settings });
-			let manifestData: ManifestData = createRouteManifest({ settings, fsMod }, logger);
+			let manifestData: ManifestData = ensure404Route(createRouteManifest({ settings, fsMod }, logger));
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();
-
+			
 			/** rebuild the route cache + manifest, as needed. */
 			function rebuildManifest(needsManifestRebuild: boolean) {
 				pipeline.clearRouteCache();
 				if (needsManifestRebuild) {
-					manifestData = createRouteManifest({ settings }, logger);
+					manifestData = ensure404Route(createRouteManifest({ settings }, logger));
 				}
 			}
 			// Rebuild route manifest on file change, if needed.
