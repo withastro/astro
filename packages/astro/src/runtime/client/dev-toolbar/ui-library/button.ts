@@ -129,17 +129,18 @@ export class DevToolbarButton extends HTMLElement {
 	}
 
 	updateStyle() {
-		const style = this.shadowRoot.getElementById('selected-style') as HTMLStyleElement;
+		const style = this.shadowRoot.querySelector<HTMLStyleElement>('#selected-style');
 
-		style.innerHTML = `
+		if (style) {
+			style.innerHTML = `
 			button {
 				--background: var(--${this.buttonStyle}-background);
 				--border: var(--${this.buttonStyle}-border);
 				--font-size: var(--${this.size}-font-size);
 				--padding: var(--${this.size}-padding);
 				--text-color: var(--${this.buttonStyle}-text);
-			}
-		`;
+			}`;
+		}
 	}
 
 	attributeChangedCallback() {

@@ -5,7 +5,7 @@ import { getAuditCategory, rulesCategories } from '../rules/index.js';
 export function createRoundedBadge(icon: Icon) {
 	const badge = document.createElement('astro-dev-toolbar-badge');
 
-	badge.shadowRoot.innerHTML = `
+	badge.shadowRoot.innerHTML += `
 		<style>
 			:host>div {
 				padding: 12px 8px;
@@ -283,6 +283,7 @@ export class DevToolbarAuditListWindow extends HTMLElement {
 			}
 
 			.no-audit-container astro-dev-toolbar-icon {
+				width: auto;
 				height: auto;
 				margin: 0 auto;
 			}
