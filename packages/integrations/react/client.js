@@ -57,7 +57,7 @@ function getChildren(childString, experimentalReactChildren) {
 let rootMap = new WeakMap();
 const getOrCreateRoot = (element, creator) => {
 	let root = rootMap.get(element);
-	if(!root) {
+	if (!root) {
 		root = creator();
 		rootMap.set(element, root);
 	}
