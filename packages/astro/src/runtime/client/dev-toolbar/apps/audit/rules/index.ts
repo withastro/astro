@@ -1,3 +1,4 @@
+import { settings } from '../../../settings.js';
 import type { DefinedIcon } from '../../../ui-library/icons.js';
 import { a11y } from './a11y.js';
 import { perf } from './perf.js';
@@ -60,7 +61,7 @@ export function resolveAuditRule(rule: AuditRule, element: Element): ResolvedAud
 
 			resolved[key] = value(element);
 		} catch (err) {
-			console.error(`Error resolving dynamic audit rule ${rule.code}'s ${key}:`, err);
+			settings.logger.error(`Error resolving dynamic audit rule ${rule.code}'s ${key}: ${err}`);
 			resolved[key] = 'Error resolving dynamic rule';
 		}
 	}

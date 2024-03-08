@@ -306,8 +306,8 @@ test.describe('Dev Toolbar', () => {
 		await expect(customAppNotification).toHaveAttribute('data-level', 'warning');
 
 		await expect(customAppNotification).toBeVisible();
-  });
-  
+	});
+
 	test('can quit apps by clicking outside the window', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 

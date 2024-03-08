@@ -146,7 +146,7 @@ export default {
 									matches.push(element);
 								}
 							} catch (e) {
-								console.error("Error while running audit's match function", e);
+								settings.logger.error(`Error while running audit's match function: ${e}`);
 							}
 						}
 					}
