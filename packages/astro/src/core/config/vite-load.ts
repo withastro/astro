@@ -6,7 +6,7 @@ import { debug } from '../logger/core.js';
 
 async function createViteServer(root: string, fs: typeof fsType): Promise<ViteDevServer> {
 	const viteServer = await createServer({
-		configFile: false /* prevent vite from trying to discover a vite conf file */,
+		configFile: false,
 		server: { middlewareMode: true, hmr: false, watch: null },
 		optimizeDeps: { noDiscovery: true },
 		clearScreen: false,
