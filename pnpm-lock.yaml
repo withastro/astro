@@ -656,9 +656,12 @@ importers:
       semver:
         specifier: ^7.5.4
         version: 7.5.4
-      shiki:
-        specifier: ^1.1.2
-        version: 1.1.2
+      shikiji:
+        specifier: ^0.9.19
+        version: 0.9.19
+      shikiji-core:
+        specifier: ^0.9.19
+        version: 0.9.19
       string-width:
         specifier: ^7.0.0
         version: 7.0.0
@@ -5251,9 +5254,9 @@ importers:
       remark-smartypants:
         specifier: ^2.0.0
         version: 2.0.0
-      shiki:
-        specifier: ^1.1.2
-        version: 1.1.2
+      shikiji:
+        specifier: ^0.9.19
+        version: 0.9.19
       unified:
         specifier: ^11.0.4
         version: 11.0.4
@@ -15049,10 +15052,14 @@ packages:
       vscode-textmate: 5.2.0
     dev: true
 
-  /shiki@1.1.2:
-    resolution: {integrity: sha512-qNzFwTv5uhEDNUIwp7wHjsrffVeLbmOgWnM5mZZhoiz7G2qAUvqVfUzuWfieD45/YAKipzCtdV9SndacKtABow==}
+  /shikiji-core@0.9.19:
+    resolution: {integrity: sha512-AFJu/vcNT21t0e6YrfadZ+9q86gvPum6iywRyt1OtIPjPFe25RQnYJyxHQPMLKCCWA992TPxmEmbNcOZCAJclw==}
+    dev: false
+
+  /shikiji@0.9.19:
+    resolution: {integrity: sha512-Kw2NHWktdcdypCj1GkKpXH4o6Vxz8B8TykPlPuLHOGSV8VkhoCLcFOH4k19K4LXAQYRQmxg+0X/eM+m2sLhAkg==}
     dependencies:
-      '@shikijs/core': 1.1.2
+      shikiji-core: 0.9.19
     dev: false
 
   /side-channel@1.0.4:
