@@ -11,13 +11,14 @@ import type {
 	SerializedRouteInfo,
 	SerializedSSRManifest,
 } from '../../app/types.js';
-import { joinPaths, prependForwardSlash } from '../../path.js';
+import { joinPaths, prependForwardSlash, fileExtension } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
+import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
@@ -163,7 +164,8 @@ function buildManifest(
 
 	const prefixAssetPath = (pth: string) => {
 		if (settings.config.build.assetsPrefix) {
-			return joinPaths(settings.config.build.assetsPrefix, pth);
+			const pf = getAssetsPrefix(fileExtension(pth), settings.config.build.assetsPrefix);
+			return joinPaths(pf, pth);
 		} else {
 			return prependForwardSlash(joinPaths(settings.config.base, pth));
 		}

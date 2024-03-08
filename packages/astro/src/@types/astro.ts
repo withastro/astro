@@ -13,7 +13,7 @@ import type * as babel from '@babel/core';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
-import type { SerializedSSRManifest } from '../core/app/types.js';
+import type { SerializedSSRManifest, AssetsPrefix } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import type { AstroConfigType } from '../core/config/index.js';
 import type { AstroTimer } from '../core/config/timer.js';
@@ -67,7 +67,7 @@ export type {
 	UnresolvedImageTransform,
 } from '../assets/types.js';
 export type { RemotePattern } from '../assets/utils/remotePattern.js';
-export type { SSRManifest } from '../core/app/types.js';
+export type { SSRManifest, AssetsPrefix } from '../core/app/types.js';
 export type {
 	AstroCookieGetOptions,
 	AstroCookieSetOptions,
@@ -881,15 +881,15 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name build.assetsPrefix
-		 * @type {string}
+		 * @type {string | Record<string, string>}
 		 * @default `undefined`
 		 * @version 2.2.0
 		 * @description
 		 * Specifies the prefix for Astro-generated asset links. This can be used if assets are served from a different domain than the current site.
 		 *
-		 * For example, if this is set to `https://cdn.example.com`, assets will be fetched from `https://cdn.example.com/_astro/...` (regardless of the `base` option).
-		 * You would need to upload the files in `./dist/_astro/` to `https://cdn.example.com/_astro/` to serve the assets.
-		 * The process varies depending on how the third-party domain is hosted.
+		 * This requires uploading the assets in your local `./dist/_astro` folder to a corresponding `/_astro/` folder on the remote domain.
+		 *
+		 * To fetch all assets uploaded to the same domain (e.g. `https://cdn.example.com/_astro/...`), set `assetsPrefix` to the root domain as a string (regardless of your `base` configuration):
 		 * To rename the `_astro` path, specify a new directory in `build.assets`.
 		 *
 		 * ```js
@@ -899,8 +899,27 @@ export interface AstroUserConfig {
 		 *   }
 		 * }
 		 * ```
+		 *
+		 * **Added in 4.5.0**
+		 *
+		 * You can also pass an object to `assetsPrefix` to specify a different domain for each file type.
+		 * In this case, a `fallback` property is required and will be used by default for any other files.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     assetsPrefix: {
+		 *       'js': 'https://js.cdn.example.com',
+		 *       'mjs': 'https://js.cdn.example.com', 
+		 *       'css': 'https://css.cdn.example.com',
+		 *       'fallback': 'https://cdn.example.com'
+		 *     }
+		 *   }
+		 * }
+		 * ```
+		 *
 		 */
-		assetsPrefix?: string;
+		assetsPrefix?: AssetsPrefix;
 		/**
 		 * @docs
 		 * @name build.serverEntry

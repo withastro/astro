@@ -11,7 +11,7 @@ import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro.js';
 import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { z } from 'zod';
+import { type TypeOf, z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
 // These imports are required to appease TypeScript!
@@ -134,7 +134,23 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.build.server)
 				.transform((val) => new URL(val)),
 			assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
-			assetsPrefix: z.string().optional(),
+			assetsPrefix: z
+				.string()
+				.optional()
+				.or(z.object({ fallback: z.string() }).and(z.record(z.string())).optional())
+				.refine(
+					(value) => {
+						if (value && typeof value !== 'string') {
+							if (!value.fallback) {
+								return false;
+							}
+						}
+						return true;
+					},
+					{
+						message: 'The `fallback` is mandatory when defining the option as an object.',
+					}
+				),
 			serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
 			inlineStylesheets: z
@@ -524,7 +540,23 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.default(ASTRO_CONFIG_DEFAULTS.build.server)
 					.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 				assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
-				assetsPrefix: z.string().optional(),
+				assetsPrefix: z
+					.string()
+					.optional()
+					.or(z.object({ fallback: z.string() }).and(z.record(z.string())).optional())
+					.refine(
+						(value) => {
+							if (value && typeof value !== 'string') {
+								if (!value.fallback) {
+									return false;
+								}
+							}
+							return true;
+						},
+						{
+							message: 'The `fallback` is mandatory when defining the option as an object.',
+						}
+					),
 				serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 				redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
 				inlineStylesheets: z

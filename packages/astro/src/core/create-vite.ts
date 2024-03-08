@@ -35,6 +35,8 @@ import type { Logger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
+import { isObject } from './util.js';
+import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -214,9 +216,9 @@ export async function createVite(
 	const assetsPrefix = settings.config.build.assetsPrefix;
 	if (assetsPrefix) {
 		commonConfig.experimental = {
-			renderBuiltUrl(filename, { type }) {
+			renderBuiltUrl(filename, { type, hostType }) {
 				if (type === 'asset') {
-					return joinPaths(assetsPrefix, filename);
+					return joinPaths(getAssetsPrefix(`.${hostType}`, assetsPrefix), filename);
 				}
 			},
 		};
@@ -318,6 +320,6 @@ function isCommonNotAstro(dep: string): boolean {
 	);
 }
 
-function stringifyForDefine(value: string | undefined): string {
-	return typeof value === 'string' ? JSON.stringify(value) : 'undefined';
+function stringifyForDefine(value: string | undefined | object): string {
+	return typeof value === 'string' || isObject(value) ? JSON.stringify(value) : 'undefined';
 }

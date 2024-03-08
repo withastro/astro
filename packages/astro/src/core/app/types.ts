@@ -35,6 +35,13 @@ export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 
 export type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
 
+export type AssetsPrefix =
+	| string
+	| ({
+			fallback: string;
+	  } & Record<string, string>)
+	| undefined;
+
 export type SSRManifest = {
 	adapterName: string;
 	routes: RouteInfo[];
@@ -43,7 +50,7 @@ export type SSRManifest = {
 	trailingSlash: 'always' | 'never' | 'ignore';
 	buildFormat: 'file' | 'directory' | 'preserve';
 	compressHTML: boolean;
-	assetsPrefix?: string;
+	assetsPrefix?: AssetsPrefix;
 	renderers: SSRLoadedRenderer[];
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
