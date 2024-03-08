@@ -272,7 +272,6 @@ test.describe('Dev Toolbar', () => {
 		await appButton.click();
 
 		const myAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="my-plugin"]');
-		console.log(await myAppCanvas.innerHTML());
 		const myAppWindow = myAppCanvas.locator('astro-dev-toolbar-window');
 		await expect(myAppWindow).toHaveCount(1);
 		await expect(myAppWindow).toBeVisible();
