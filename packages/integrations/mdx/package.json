@@ -66,7 +66,7 @@
     "mdast-util-to-string": "^4.0.0",
     "reading-time": "^1.5.0",
     "rehype-mathjax": "^5.0.0",
-    "rehype-pretty-code": "^0.10.2",
+    "rehype-pretty-code": "^0.13.0",
     "remark-math": "^6.0.0",
     "remark-rehype": "^11.0.0",
     "remark-shiki-twoslash": "^3.1.3",
