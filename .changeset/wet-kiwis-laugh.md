@@ -3,4 +3,6 @@
 "astro": patch
 ---
 
-Renames the `defineDB()` helper to `defineDb()`
+Renames the Astro DB `defineDB()` helper to `defineDb()`
+
+⚠️ Breaking change: update your imports from `astro:db` to use `defineDb` with a lowercase “b”.
