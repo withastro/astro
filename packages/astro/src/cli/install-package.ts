@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module';
 import { sep } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import boxen from 'boxen';
 import { execa } from 'execa';
 import { bold, cyan, dim, magenta } from 'kleur/colors';
@@ -28,8 +29,8 @@ export async function getPackage<T>(
 			const packageJsonLoc = require.resolve(packageName + '/package.json', {
 				paths: [options.cwd ?? process.cwd()],
 			});
-			const packageLoc = packageJsonLoc.replace(`package.json`, 'dist/index.js');
-			const packageImport = await import(packageLoc);
+			const packageLoc = pathToFileURL(packageJsonLoc.replace(`package.json`, 'dist/index.js'));
+			const packageImport = await import(packageLoc.toString());
 			return packageImport as T;
 		}
 		await tryResolve(packageName, options.cwd ?? process.cwd());
@@ -37,7 +38,7 @@ export async function getPackage<T>(
 		return packageImport as T;
 	} catch (e) {
 		logger.info(
-			null,
+			'SKIP_FORMAT',
 			`To continue, Astro requires the following dependency to be installed: ${bold(packageName)}.`
 		);
 		const result = await installPackage([packageName, ...otherDeps], options, logger);
@@ -107,7 +108,7 @@ async function installPackage(
 		borderStyle: 'round',
 	})}\n`;
 	logger.info(
-		null,
+		'SKIP_FORMAT',
 		`\n  ${magenta('Astro will run the following command:')}\n  ${dim(
 			'If you skip this step, you can always run it yourself later'
 		)}\n${message}`

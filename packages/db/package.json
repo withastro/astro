@@ -1,24 +1,28 @@
 {
   "name": "@astrojs/db",
-  "version": "0.4.1",
+  "version": "0.7.0",
   "description": "",
   "license": "MIT",
   "type": "module",
-  "types": "./index.d.ts",
   "author": "withastro",
+  "types": "./index.d.ts",
   "main": "./dist/index.js",
   "exports": {
     ".": {
       "types": "./index.d.ts",
       "import": "./dist/index.js"
     },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.js"
+    },
     "./runtime": {
       "types": "./dist/runtime/index.d.ts",
       "import": "./dist/runtime/index.js"
     },
-    "./runtime/drizzle": {
-      "types": "./dist/runtime/drizzle.d.ts",
-      "import": "./dist/runtime/drizzle.js"
+    "./runtime/config": {
+      "types": "./dist/runtime/config.d.ts",
+      "import": "./dist/runtime/config.js"
     },
     "./package.json": "./package.json"
   },
@@ -27,17 +31,20 @@
       ".": [
         "./index.d.ts"
       ],
+      "utils": [
+        "./dist/utils.d.ts"
+      ],
       "runtime": [
         "./dist/runtime/index.d.ts"
       ],
-      "runtime/drizzle": [
-        "./dist/runtime/drizzle.d.ts"
+      "runtime/config": [
+        "./dist/runtime/config.d.ts"
       ]
     }
   },
   "files": [
     "index.d.ts",
-    "config-augment.d.ts",
+    "virtual.d.ts",
     "dist"
   ],
   "keywords": [
@@ -55,12 +62,13 @@
     "@libsql/client": "^0.4.3",
     "async-listen": "^3.0.1",
     "deep-diff": "^1.0.2",
-    "drizzle-orm": "^0.28.6",
+    "drizzle-orm": "^0.29.5",
     "kleur": "^4.1.5",
     "nanoid": "^5.0.1",
     "open": "^10.0.3",
     "ora": "^7.0.1",
     "prompts": "^2.4.2",
+    "strip-ansi": "^7.1.0",
     "yargs-parser": "^21.1.1",
     "zod": "^3.22.4"
   },

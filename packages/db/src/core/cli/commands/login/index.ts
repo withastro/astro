@@ -7,6 +7,7 @@ import open from 'open';
 import ora from 'ora';
 import type { Arguments } from 'yargs-parser';
 import { SESSION_LOGIN_FILE } from '../../../tokens.js';
+import type { DBConfig } from '../../../types.js';
 import { getAstroStudioUrl } from '../../../utils.js';
 
 // NOTE(fks): How the Astro CLI login process works:
@@ -47,7 +48,13 @@ async function createServer(): Promise<{ url: string; promise: Promise<string> }
 	return { url: serverUrl, promise: sessionPromise };
 }
 
-export async function cmd({ flags }: { config: AstroConfig; flags: Arguments }) {
+export async function cmd({
+	flags,
+}: {
+	astroConfig: AstroConfig;
+	dbConfig: DBConfig;
+	flags: Arguments;
+}) {
 	let session = flags.session;
 
 	if (!session) {

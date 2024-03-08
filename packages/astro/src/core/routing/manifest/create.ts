@@ -42,11 +42,14 @@ function countOccurrences(needle: string, haystack: string) {
 	return count;
 }
 
+// Disable eslint as we're not sure how to improve this regex yet
+// eslint-disable-next-line regexp/no-super-linear-backtracking
+const ROUTE_DYNAMIC_SPLIT = /\[(.+?\(.+?\)|.+?)\]/;
+const ROUTE_SPREAD = /^\.{3}.+$/;
+
 function getParts(part: string, file: string) {
 	const result: RoutePart[] = [];
-	// Disable eslint as we're not sure how to improve this regex yet
-	// eslint-disable-next-line regexp/no-super-linear-backtracking
-	part.split(/\[(.+?\(.+?\)|.+?)\]/).map((str, i) => {
+	part.split(ROUTE_DYNAMIC_SPLIT).map((str, i) => {
 		if (!str) return;
 		const dynamic = i % 2 === 1;
 
@@ -59,7 +62,7 @@ function getParts(part: string, file: string) {
 		result.push({
 			content,
 			dynamic,
-			spread: dynamic && /^\.{3}.+$/.test(content),
+			spread: dynamic && ROUTE_SPREAD.test(content),
 		});
 	});
 
@@ -216,6 +219,15 @@ function routeComparator(a: RouteData, b: RouteData) {
 		// Sort static routes before dynamic routes
 		if (aIsStatic !== bIsStatic) {
 			return aIsStatic ? -1 : 1;
+		}
+
+		const aAllDynamic = aSegment.every((part) => part.dynamic);
+		const bAllDynamic = bSegment.every((part) => part.dynamic);
+
+		// Some route might have partial dynamic segments, e.g. game-[title].astro
+		// These routes should have higher priority against route that have **only** dynamic segments, e.g. [title].astro
+		if (aAllDynamic !== bAllDynamic) {
+			return aAllDynamic ? 1 : -1;
 		}
 
 		const aHasSpread = aSegment.some((part) => part.spread);

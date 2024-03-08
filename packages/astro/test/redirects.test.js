@@ -263,12 +263,18 @@ describe('Astro.redirect', () => {
 			await fixture.build();
 		});
 
-		it('Does not output redirect HTML', async () => {
+		it('Does not output redirect HTML for redirect routes', async () => {
 			let oneHtml = undefined;
 			try {
 				oneHtml = await fixture.readFile('/one/index.html');
 			} catch {}
 			assert.equal(oneHtml, undefined);
+		});
+
+		it('Outputs redirect HTML for user routes that return a redirect response', async () => {
+			let secretHtml = await fixture.readFile('/secret/index.html');
+			assert.equal(secretHtml.includes('Redirecting from <code>/secret/</code>'), true);
+			assert.equal(secretHtml.includes('to <code>/login</code>'), true);
 		});
 	});
 });
