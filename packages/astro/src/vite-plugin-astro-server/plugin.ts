@@ -138,6 +138,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		assetsPrefix: settings.config.build.assetsPrefix,
 		site: settings.config.site,
 		componentMetadata: new Map(),
+		inlinedScripts: new Map(),
 		i18n: i18nManifest,
 		middleware(_, next) {
 			return next();

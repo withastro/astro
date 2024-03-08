@@ -177,7 +177,8 @@ export class RenderContext {
 
 	async createResult(mod: ComponentInstance) {
 		const { cookies, pathname, pipeline, routeData, status } = this;
-		const { clientDirectives, compressHTML, manifest, renderers, resolve } = pipeline;
+		const { clientDirectives, inlinedScripts, compressHTML, manifest, renderers, resolve } =
+			pipeline;
 		const { links, scripts, styles } = await pipeline.headElements(routeData);
 		const componentMetadata =
 			(await pipeline.componentMetadata(routeData)) ?? manifest.componentMetadata;
@@ -200,6 +201,7 @@ export class RenderContext {
 		// calling the render() function will populate the object with scripts, styles, etc.
 		const result: SSRResult = {
 			clientDirectives,
+			inlinedScripts,
 			componentMetadata,
 			compressHTML,
 			cookies,
@@ -218,6 +220,7 @@ export class RenderContext {
 				hasHydrationScript: false,
 				rendererSpecificHydrationScripts: new Set(),
 				hasRenderedHead: false,
+				renderedScripts: new Set(),
 				hasDirectives: new Set(),
 				headInTree: false,
 				extraHead: [],

@@ -1605,25 +1605,30 @@ export interface AstroUserConfig {
 	experimental?: {
 		/**
 		 * @docs
-		 * @name experimental.optimizeHoistedScript
+		 * @name experimental.directRenderScript
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 2.10.4
+		 * @version 4.5.0
 		 * @description
-		 * Prevents unused components' scripts from being included in a page unexpectedly.
-		 * The optimization is best-effort and may inversely miss including the used scripts. Make sure to double-check your built pages
-		 * before publishing.
-		 * Enable hoisted script analysis optimization by adding the experimental flag:
+		 * Enables a more reliable strategy to prevent scripts from being executed in pages where they are not used.
+		 * 
+		 * Scripts will directly render as declared in Astro files (including existing features like TypeScript, importing `node_modules`,
+		 * and deduplicating scripts). You can also now conditionally render scripts in your Astro file.
+
+		 * However, this means scripts are no longer hoisted to the `<head>` and multiple scripts on a page are no longer bundled together.
+		 * If you enable this option, you should check that all your `<script>` tags behave as expected.
+		 *
+		 * This option will be enabled by default in Astro 5.0.
 		 *
 		 * ```js
 		 * {
-		 * 	experimental: {
-		 *		optimizeHoistedScript: true,
-		 * 	},
+		 *   experimental: {
+		 *     directRenderScript: true,
+		 *   },
 		 * }
 		 * ```
 		 */
-		optimizeHoistedScript?: boolean;
+		directRenderScript?: boolean;
 
 		/**
 		 * @docs
@@ -2743,6 +2748,7 @@ export interface SSRResult {
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
 	componentMetadata: Map<string, SSRComponentMetadata>;
+	inlinedScripts: Map<string, string>;
 	createAstro(
 		Astro: AstroGlobalPartial,
 		props: Record<string, any>,
@@ -2777,6 +2783,11 @@ export interface SSRMetadata {
 	 * script in the page HTML before the first Solid component.
 	 */
 	rendererSpecificHydrationScripts: Set<string>;
+	/**
+	 * Used by `renderScript` to track script ids that have been rendered,
+	 * so we only render each once.
+	 */
+	renderedScripts: Set<string>;
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	headInTree: boolean;

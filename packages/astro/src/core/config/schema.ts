@@ -58,7 +58,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	legacy: {},
 	redirects: {},
 	experimental: {
-		optimizeHoistedScript: false,
+		directRenderScript: false,
 		contentCollectionCache: false,
 		contentCollectionJsonSchema: false,
 		clientPrerender: false,
@@ -451,10 +451,10 @@ export const AstroConfigSchema = z.object({
 	),
 	experimental: z
 		.object({
-			optimizeHoistedScript: z
+			directRenderScript: z
 				.boolean()
 				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.optimizeHoistedScript),
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.directRenderScript),
 			contentCollectionCache: z
 				.boolean()
 				.optional()

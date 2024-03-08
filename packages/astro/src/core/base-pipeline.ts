@@ -38,6 +38,7 @@ export abstract class Pipeline {
 		 */
 		readonly adapterName = manifest.adapterName,
 		readonly clientDirectives = manifest.clientDirectives,
+		readonly inlinedScripts = manifest.inlinedScripts,
 		readonly compressHTML = manifest.compressHTML,
 		readonly i18n = manifest.i18n,
 		readonly middleware = manifest.middleware,

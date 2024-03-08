@@ -60,7 +60,10 @@ export class DevPipeline extends Pipeline {
 			settings,
 		} = this;
 		const filePath = new URL(`./${routeData.component}`, root);
-		const { scripts } = await getScriptsForURL(filePath, root, loader);
+		// Add hoisted script tags, skip if direct rendering with `directRenderScript`
+		const { scripts } = settings.config.experimental.directRenderScript
+			? { scripts: new Set<SSRElement>() }
+			: await getScriptsForURL(filePath, settings.config.root, loader);
 
 		// Inject HMR scripts
 		if (isPage(filePath, settings) && mode === 'development') {

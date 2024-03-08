@@ -270,6 +270,7 @@ function buildManifest(
 		renderers: [],
 		clientDirectives: Array.from(settings.clientDirectives),
 		entryModules,
+		inlinedScripts: Array.from(internals.inlinedScripts),
 		assets: staticFiles.map(prefixAssetPath),
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
