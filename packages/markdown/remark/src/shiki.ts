@@ -4,7 +4,11 @@ import { visit } from 'unist-util-visit';
 import type { ShikiConfig } from './types.js';
 
 export interface ShikiHighlighter {
-	highlight(code: string, lang?: string, options?: { inline?: boolean }): string;
+	highlight(
+		code: string,
+		lang?: string,
+		options?: { inline?: boolean; attributes?: Record<string, string> }
+	): string;
 }
 
 // TODO: Remove this special replacement in Astro 5
@@ -60,8 +64,15 @@ export async function createShikiHighlighter({
 								node.tagName = 'code';
 							}
 
-							const classValue = normalizePropAsString(node.properties.class) ?? '';
-							const styleValue = normalizePropAsString(node.properties.style) ?? '';
+							const { class: attributesClass, style: attributesStyle, ...rest } = options?.attributes ?? {};
+							Object.assign(node.properties, rest);
+
+							const classValue =
+								(normalizePropAsString(node.properties.class) ?? '') +
+								(attributesClass ? ` ${attributesClass}` : '');
+							const styleValue =
+								(normalizePropAsString(node.properties.style) ?? '') +
+								(attributesStyle ? `; ${attributesStyle}` : '');
 
 							// Replace "shiki" class naming with "astro-code"
 							node.properties.class = classValue.replace(/shiki/g, 'astro-code');

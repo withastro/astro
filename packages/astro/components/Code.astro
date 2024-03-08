@@ -9,8 +9,9 @@ import type {
 } from 'shiki';
 import { bundledLanguages } from 'shiki/langs';
 import { getCachedHighlighter } from '../dist/core/shiki.js';
+import type { HTMLAttributes } from '../types';
 
-interface Props {
+interface Props extends Omit<HTMLAttributes<'pre'>, 'lang'> {
 	/** The code to highlight. Required. */
 	code: string;
 	/**
@@ -58,6 +59,7 @@ const {
 	themes = {},
 	wrap = false,
 	inline = false,
+	...rest
 } = Astro.props;
 
 // shiki 1.0 compat
@@ -87,6 +89,7 @@ const highlighter = await getCachedHighlighter({
 
 const html = highlighter.highlight(code, typeof lang === 'string' ? lang : lang.name, {
 	inline,
+	attributes: rest,
 });
 ---
 
