@@ -34,7 +34,7 @@ export const markdownConfigDefaults: Required<AstroMarkdownOptions> = {
 	shikiConfig: {
 		langs: [],
 		theme: 'github-dark',
-		experimentalThemes: {},
+		themes: {},
 		wrap: false,
 		transformers: [],
 	},

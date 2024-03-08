@@ -13,7 +13,7 @@ describe('shiki syntax highlighting', () => {
 	it('supports light/dark themes', async () => {
 		const processor = await createMarkdownProcessor({
 			shikiConfig: {
-				experimentalThemes: {
+				themes: {
 					light: 'github-light',
 					dark: 'github-dark',
 				},
