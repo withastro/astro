@@ -1294,7 +1294,7 @@ export interface AstroUserConfig {
 		 * @default `shiki`
 		 * @description
 		 * Which syntax highlighter to use, if any.
-		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter
+		 * - `shiki` - use the [Shiki](https://github.com/shikijs/shiki) highlighter
 		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter
 		 * - `false` - do not apply syntax highlighting.
 		 *

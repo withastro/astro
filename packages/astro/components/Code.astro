@@ -6,8 +6,8 @@ import type {
 	SpecialLanguage,
 	ThemeRegistration,
 	ThemeRegistrationRaw,
-} from 'shiki';
-import { bundledLanguages } from 'shiki/langs';
+} from 'shikiji';
+import { bundledLanguages } from 'shikiji/langs';
 import { getCachedHighlighter } from '../dist/core/shiki.js';
 
 interface Props {
@@ -15,25 +15,25 @@ interface Props {
 	code: string;
 	/**
 	 * The language of your code.
-	 * Supports all languages listed here: https://shiki.style/languages
-	 * Instructions for loading a custom language: https://shiki.style/guide/load-lang
+	 * Supports all languages listed here: https://github.com/shikijs/shiki/blob/main/docs/languages.md#all-languages
+	 * Instructions for loading a custom language: https://github.com/shikijs/shiki/blob/main/docs/languages.md#supporting-your-own-languages-with-shiki
 	 *
 	 * @default "plaintext"
 	 */
 	lang?: BuiltinLanguage | SpecialLanguage | LanguageRegistration;
 	/**
 	 * The styling theme.
-	 * Supports all themes listed here: https://shiki.style/themes
-	 * Instructions for loading a custom theme: https://shiki.style/guide/load-theme
+	 * Supports all themes listed here: https://github.com/shikijs/shiki/blob/main/docs/themes.md#all-themes
+	 * Instructions for loading a custom theme: https://github.com/shikijs/shiki/blob/main/docs/themes.md#loading-theme
 	 *
 	 * @default "github-dark"
 	 */
 	theme?: ThemePresets | ThemeRegistration | ThemeRegistrationRaw;
 	/**
 	 * Multiple themes to style with -- alternative to "theme" option.
-	 * Supports all themes found above; see https://shiki.style/guide/dual-themes for more information.
+	 * Supports all themes found above; see https://github.com/antfu/shikiji#lightdark-dual-themes for more information.
 	 */
-	themes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
+	experimentalThemes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
 	/**
 	 * Enable word wrapping.
 	 *  - true: enabled.
@@ -55,12 +55,12 @@ const {
 	code,
 	lang = 'plaintext',
 	theme = 'github-dark',
-	themes = {},
+	experimentalThemes = {},
 	wrap = false,
 	inline = false,
 } = Astro.props;
 
-// shiki 1.0 compat
+// shiki -> shikiji compat
 if (typeof lang === 'object') {
 	// `id` renamed to `name` (always override)
 	if ((lang as any).id) {
@@ -81,7 +81,7 @@ const highlighter = await getCachedHighlighter({
 			: lang,
 	],
 	theme,
-	themes,
+	experimentalThemes,
 	wrap,
 });
 
