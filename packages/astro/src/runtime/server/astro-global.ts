@@ -30,6 +30,8 @@ function createAstroGlobFn() {
 // inside of getStaticPaths. See the `astroGlobalArgs` option for parameter type.
 export function createAstro(site: string | undefined): AstroGlobalPartial {
 	return {
+		// TODO: this is no longer neccessary for `Astro.site`
+		// but it somehow allows working around caching issues in content collections for some tests
 		site: site ? new URL(site) : undefined,
 		generator: `Astro v${ASTRO_VERSION}`,
 		glob: createAstroGlobFn(),

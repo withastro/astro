@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { DB_TYPES_FILE, RUNTIME_DRIZZLE_IMPORT, RUNTIME_IMPORT } from '../consts.js';
+import { DB_TYPES_FILE, RUNTIME_CONFIG_IMPORT, RUNTIME_IMPORT } from '../consts.js';
 import type { DBTable, DBTables } from '../types.js';
 
 export async function typegen({ tables, root }: { tables: DBTables; root: URL }) {
@@ -8,7 +8,7 @@ export async function typegen({ tables, root }: { tables: DBTables; root: URL })
 declare module 'astro:db' {
 	export const db: import(${RUNTIME_IMPORT}).SqliteDB;
 	export const dbUrl: string;
-	export * from ${RUNTIME_DRIZZLE_IMPORT};
+	export * from ${RUNTIME_CONFIG_IMPORT};
 
 ${Object.entries(tables)
 	.map(([name, collection]) => generateTableType(name, collection))

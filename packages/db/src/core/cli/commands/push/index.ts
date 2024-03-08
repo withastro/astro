@@ -1,11 +1,13 @@
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
+import { MIGRATION_VERSION } from '../../../consts.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBConfig, type DBSnapshot } from '../../../types.js';
 import { getRemoteDatabaseUrl } from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
+	formatDataLossMessage,
 	getMigrationQueries,
 	getProductionCurrentSnapshot,
 } from '../../migration-queries.js';
@@ -24,7 +26,7 @@ export async function cmd({
 	const productionSnapshot = await getProductionCurrentSnapshot({ appToken: appToken.token });
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
 	const isFromScratch = isForceReset || JSON.stringify(productionSnapshot) === '{}';
-	const { queries: migrationQueries } = await getMigrationQueries({
+	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
 		oldSnapshot: isFromScratch ? createEmptySnapshot() : productionSnapshot,
 		newSnapshot: currentSnapshot,
 	});
@@ -35,6 +37,14 @@ export async function cmd({
 	} else {
 		console.log(`Database schema is out of date.`);
 	}
+
+	if (isForceReset) {
+		console.log(`Force-pushing to the database. All existing data will be erased.`);
+	} else if (confirmations.length > 0) {
+		console.log('\n' + formatDataLossMessage(confirmations) + '\n');
+		throw new Error('Exiting.');
+	}
+
 	if (isDryRun) {
 		console.log('Statements:', JSON.stringify(migrationQueries, undefined, 2));
 	} else {
@@ -65,7 +75,7 @@ async function pushSchema({
 	const requestBody = {
 		snapshot: currentSnapshot,
 		sql: statements,
-		experimentalVersion: 1,
+		version: MIGRATION_VERSION,
 	};
 	if (isDryRun) {
 		console.info('[DRY RUN] Batch query:', JSON.stringify(requestBody, null, 2));

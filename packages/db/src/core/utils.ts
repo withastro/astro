@@ -1,5 +1,6 @@
-import type { AstroConfig } from 'astro';
+import type { AstroConfig, AstroIntegration } from 'astro';
 import { loadEnv } from 'vite';
+import type { AstroDbIntegration } from './types.js';
 
 export type VitePlugin = Required<AstroConfig['vite']>['plugins'][number];
 
@@ -20,4 +21,8 @@ export function getAstroStudioUrl(): string {
 
 export function getDbDirectoryUrl(root: URL | string) {
 	return new URL('db/', root);
+}
+
+export function defineDbIntegration(integration: AstroDbIntegration): AstroIntegration {
+	return integration;
 }
