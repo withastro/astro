@@ -1800,6 +1800,8 @@ export interface AstroUserConfig {
 		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains-experimental) for more details, including the limitations of this experimental feature.
 		 */
 		i18nDomains?: boolean;
+
+		isIndependent?: boolean;
 	};
 }
 

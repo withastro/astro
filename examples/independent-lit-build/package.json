@@ -1,0 +1,21 @@
+{
+  "name": "@example/independent-lit-build",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/lit": "^4.0.1",
+    "@astrojs/node": "^8.2.0",
+    "astro": "^4.4.3",
+    "date-fns": "^3.3.1",
+    "lit": "^3.1.2",
+    "nanoid": "^5.0.6"
+  }
+}

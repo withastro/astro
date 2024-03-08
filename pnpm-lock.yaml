@@ -308,6 +308,78 @@ importers:
         specifier: ^4.4.15
         version: link:../../packages/astro
 
+  examples/independent-lit-build:
+    dependencies:
+      '@astrojs/lit':
+        specifier: ^4.0.1
+        version: link:../../packages/integrations/lit
+      '@astrojs/node':
+        specifier: ^8.2.0
+        version: link:../../packages/integrations/node
+      astro:
+        specifier: ^4.4.3
+        version: link:../../packages/astro
+      date-fns:
+        specifier: ^3.3.1
+        version: 3.3.1
+      lit:
+        specifier: ^3.1.2
+        version: 3.1.2
+      nanoid:
+        specifier: ^5.0.6
+        version: 5.0.6
+
+  examples/independent-preact-build:
+    dependencies:
+      '@astrojs/node':
+        specifier: ^8.2.0
+        version: link:../../packages/integrations/node
+      '@astrojs/preact':
+        specifier: ^3.1.0
+        version: link:../../packages/integrations/preact
+      astro:
+        specifier: ^4.4.0
+        version: link:../../packages/astro
+      date-fns:
+        specifier: ^3.3.1
+        version: 3.3.1
+      nanoid:
+        specifier: ^5.0.6
+        version: 5.0.6
+      preact:
+        specifier: ^10.19.2
+        version: 10.19.3
+
+  examples/independent-react-build:
+    dependencies:
+      '@astrojs/node':
+        specifier: ^8.2.0
+        version: link:../../packages/integrations/node
+      '@astrojs/react':
+        specifier: ^3.0.10
+        version: link:../../packages/integrations/react
+      '@types/react':
+        specifier: ^18.2.37
+        version: 18.2.57
+      '@types/react-dom':
+        specifier: ^18.2.15
+        version: 18.2.19
+      astro:
+        specifier: ^4.4.3
+        version: link:../../packages/astro
+      date-fns:
+        specifier: ^3.3.1
+        version: 3.3.1
+      nanoid:
+        specifier: ^5.0.6
+        version: 5.0.6
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+
   examples/integration:
     devDependencies:
       astro:
@@ -1061,6 +1133,117 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/e2e/fixtures/independent-lit:
+    dependencies:
+      '@astrojs/lit':
+        specifier: workspace:*
+        version: link:../../../../integrations/lit
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      '@webcomponents/template-shadowroot':
+        specifier: ^0.2.1
+        version: 0.2.1
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      lit:
+        specifier: ^3.1.2
+        version: 3.1.2
+
+  packages/astro/e2e/fixtures/independent-preact:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      '@astrojs/preact':
+        specifier: workspace:*
+        version: link:../../../../integrations/preact
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      preact:
+        specifier: ^10.15.1
+        version: 10.19.3
+
+  packages/astro/e2e/fixtures/independent-react:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      react:
+        specifier: ^18.1.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.1.0
+        version: 18.2.0(react@18.2.0)
+
+  packages/astro/e2e/fixtures/independent-solid:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      '@astrojs/solid-js':
+        specifier: workspace:*
+        version: link:../../../../integrations/solid
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      solid-js:
+        specifier: ^1.8.5
+        version: 1.8.7
+
+  packages/astro/e2e/fixtures/independent-svelte:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../../../integrations/svelte
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      svelte:
+        specifier: ^4.2.5
+        version: 4.2.8
+
+  packages/astro/e2e/fixtures/independent-vue:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../../../integrations/vue
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      vue:
+        specifier: ^3.3.8
+        version: 3.4.3(typescript@5.2.2)
+
   packages/astro/e2e/fixtures/lit-component:
     dependencies:
       '@astrojs/lit':
@@ -1073,8 +1256,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       lit:
-        specifier: ^3.1.0
-        version: 3.1.0
+        specifier: ^3.1.2
+        version: 3.1.2
 
   packages/astro/e2e/fixtures/multiple-frameworks:
     dependencies:
@@ -3837,7 +4020,7 @@ importers:
         version: 4.1.5
       nanoid:
         specifier: ^5.0.1
-        version: 5.0.1
+        version: 5.0.6
       open:
         specifier: ^10.0.3
         version: 10.0.3
@@ -4039,6 +4222,15 @@ importers:
       '@lit-labs/ssr-dom-shim':
         specifier: ^1.1.2
         version: 1.1.2
+      '@lit/reactive-element':
+        specifier: ^2.0.4
+        version: 2.0.4
+      lit-element:
+        specifier: ^4.0.4
+        version: 4.0.4
+      lit-html:
+        specifier: ^3.1.2
+        version: 3.1.2
       parse5:
         specifier: ^7.1.2
         version: 7.1.2
@@ -4053,8 +4245,8 @@ importers:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
       lit:
-        specifier: ^3.1.0
-        version: 3.1.0
+        specifier: ^3.1.2
+        version: 3.1.2
       sass:
         specifier: ^1.69.5
         version: 1.69.6
@@ -7140,17 +7332,17 @@ packages:
   /@lit-labs/ssr-client@1.1.5:
     resolution: {integrity: sha512-rAXd2OsuxfGA579RiDS2YQSm1HreE8knQHj+fcMhGIPYenBoW4M70Yl8K3a35MSLlpQnnF//s2TPfkHFmy2RhA==}
     dependencies:
-      '@lit/reactive-element': 2.0.2
-      lit: 3.1.0
-      lit-html: 3.1.0
+      '@lit/reactive-element': 2.0.4
+      lit: 3.1.2
+      lit-html: 3.1.2
     dev: false
 
   /@lit-labs/ssr-dom-shim@1.1.2:
     resolution: {integrity: sha512-jnOD+/+dSrfTWYfSXBXlo5l5f0q1UuJo3tkbMDCYA2lKUYq79jaxqtGEvnRoh049nt1vdo1+45RinipU6FGY2g==}
+    dev: false
 
   /@lit-labs/ssr-dom-shim@1.2.0:
     resolution: {integrity: sha512-yWJKmpGE6lUURKAaIltoPIE/wrbY3TEkqQt+X0m+7fQNnAv0keydnYvbiJFP1PnMhizmIWRWOG5KLhYyc/xl+g==}
-    dev: false
 
   /@lit-labs/ssr@3.2.0:
     resolution: {integrity: sha512-5ZwVMEpYCHI5MF7+5ER3IvOyDjJimq/nzKtV4momqSKr3a/9gEFouHzTDogwaYoOwIBBtO8jl5SX2Vsb0kfZgA==}
@@ -7158,13 +7350,13 @@ packages:
     dependencies:
       '@lit-labs/ssr-client': 1.1.5
       '@lit-labs/ssr-dom-shim': 1.1.2
-      '@lit/reactive-element': 2.0.2
+      '@lit/reactive-element': 2.0.4
       '@parse5/tools': 0.3.0
       '@types/node': 16.18.69
       enhanced-resolve: 5.15.0
-      lit: 3.1.0
-      lit-element: 4.0.2
-      lit-html: 3.1.0
+      lit: 3.1.2
+      lit-element: 4.0.4
+      lit-html: 3.1.2
       node-fetch: 3.3.2
       parse5: 7.1.2
     dev: false
@@ -7175,16 +7367,10 @@ packages:
       '@lit-labs/ssr-dom-shim': 1.1.2
     dev: false
 
-  /@lit/reactive-element@2.0.2:
-    resolution: {integrity: sha512-SVOwLAWUQg3Ji1egtOt1UiFe4zdDpnWHyc5qctSceJ5XIu0Uc76YmGpIjZgx9YJ0XtdW0Jm507sDvjOu+HnB8w==}
-    dependencies:
-      '@lit-labs/ssr-dom-shim': 1.1.2
-
   /@lit/reactive-element@2.0.4:
     resolution: {integrity: sha512-GFn91inaUa2oHLak8awSIigYz0cU0Payr1rcFsrkf5OJ5eSPxElyZfKh0f2p9FsTiZWXQdWGJeXZICEfXXYSXQ==}
     dependencies:
       '@lit-labs/ssr-dom-shim': 1.2.0
-    dev: false
 
   /@manypkg/find-root@1.1.0:
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -9693,6 +9879,10 @@ packages:
     resolution: {integrity: sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==}
     dev: true
 
+  /date-fns@3.3.1:
+    resolution: {integrity: sha512-y8e109LYGgoQDveiEBD3DYXKba1jWf5BA8YU1FL5Tvm0BTdEfy54WLCwnuYWZNnzzvALy/QQ4Hov+Q9RVRv+Zw==}
+    dev: false
+
   /debug@2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
     peerDependencies:
@@ -11984,20 +12174,12 @@ packages:
       lit-html: 2.8.0
     dev: false
 
-  /lit-element@4.0.2:
-    resolution: {integrity: sha512-/W6WQZUa5VEXwC7H9tbtDMdSs9aWil3Ou8hU6z2cOKWbsm/tXPAcsoaHVEtrDo0zcOIE5GF6QgU55tlGL2Nihg==}
-    dependencies:
-      '@lit-labs/ssr-dom-shim': 1.1.2
-      '@lit/reactive-element': 2.0.2
-      lit-html: 3.1.0
-
   /lit-element@4.0.4:
     resolution: {integrity: sha512-98CvgulX6eCPs6TyAIQoJZBCQPo80rgXR+dVBs61cstJXqtI+USQZAbA4gFHh6L/mxBx9MrgPLHLsUgDUHAcCQ==}
     dependencies:
       '@lit-labs/ssr-dom-shim': 1.2.0
       '@lit/reactive-element': 2.0.4
       lit-html: 3.1.2
-    dev: false
 
   /lit-html@2.8.0:
     resolution: {integrity: sha512-o9t+MQM3P4y7M7yNzqAyjp7z+mQGa4NS4CxiyLqFPyFWyc4O+nodLrkrxSaCTrla6M5YOLaT3RpbbqjszB5g3Q==}
@@ -12005,16 +12187,10 @@ packages:
       '@types/trusted-types': 2.0.7
     dev: false
 
-  /lit-html@3.1.0:
-    resolution: {integrity: sha512-FwAjq3iNsaO6SOZXEIpeROlJLUlrbyMkn4iuv4f4u1H40Jw8wkeR/OUXZUHUoiYabGk8Y4Y0F/rgq+R4MrOLmA==}
-    dependencies:
-      '@types/trusted-types': 2.0.7
-
   /lit-html@3.1.2:
     resolution: {integrity: sha512-3OBZSUrPnAHoKJ9AMjRL/m01YJxQMf+TMHanNtTHG68ubjnZxK0RFl102DPzsw4mWnHibfZIBJm3LWCZ/LmMvg==}
     dependencies:
       '@types/trusted-types': 2.0.7
-    dev: false
 
   /lit@2.8.0:
     resolution: {integrity: sha512-4Sc3OFX9QHOJaHbmTMk28SYgVxLN3ePDjg7hofEft2zWlehFL3LiAuapWc4U/kYwMYJSh2hTCPZ6/LIC7ii0MA==}
@@ -12024,20 +12200,12 @@ packages:
       lit-html: 2.8.0
     dev: false
 
-  /lit@3.1.0:
-    resolution: {integrity: sha512-rzo/hmUqX8zmOdamDAeydfjsGXbbdtAFqMhmocnh2j9aDYqbu0fjXygjCa0T99Od9VQ/2itwaGrjZz/ZELVl7w==}
-    dependencies:
-      '@lit/reactive-element': 2.0.2
-      lit-element: 4.0.2
-      lit-html: 3.1.0
-
   /lit@3.1.2:
     resolution: {integrity: sha512-VZx5iAyMtX7CV4K8iTLdCkMaYZ7ipjJZ0JcSdJ0zIdGxxyurjIn7yuuSxNBD7QmjvcNJwr0JS4cAdAtsy7gZ6w==}
     dependencies:
       '@lit/reactive-element': 2.0.4
       lit-element: 4.0.4
       lit-html: 3.1.2
-    dev: false
 
   /lite-youtube-embed@0.2.0:
     resolution: {integrity: sha512-XXXAk5sbvtjjwbie3XG+6HppgTm1HTGL/Uk9z9NkJH53o7puZLur434heHzAjkS60hZB3vT4ls25zl5rMiX4EA==}
@@ -13085,8 +13253,8 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  /nanoid@5.0.1:
-    resolution: {integrity: sha512-vWeVtV5Cw68aML/QaZvqN/3QQXc6fBfIieAlu05m7FZW2Dgb+3f0xc0TTxuJW+7u30t7iSDTV/j3kVI0oJqIfQ==}
+  /nanoid@5.0.6:
+    resolution: {integrity: sha512-rRq0eMHoGZxlvaFOUdK1Ev83Bd1IgzzR+WJ3IbDJ7QOSdAxYjlurSPqFs9s4lJg29RT6nPwizFtJhQS6V5xgiA==}
     engines: {node: ^18 || >=20}
     hasBin: true
     dev: false

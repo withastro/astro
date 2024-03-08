@@ -1,0 +1,12 @@
+{
+  "name": "@e2e/independent-solid",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/node": "workspace:*",
+    "@astrojs/mdx": "workspace:*",
+    "@astrojs/solid-js": "workspace:*",
+    "astro": "workspace:*",
+    "solid-js": "^1.8.5"
+  }
+}

@@ -64,6 +64,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		globalRoutePriority: false,
 		i18nDomains: false,
+		isIndependent: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -451,6 +452,10 @@ export const AstroConfigSchema = z.object({
 	),
 	experimental: z
 		.object({
+			isIndependent: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.isIndependent),
 			optimizeHoistedScript: z
 				.boolean()
 				.optional()

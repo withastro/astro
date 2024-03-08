@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
-import type { AstroIntegration } from 'astro';
+import type { AstroIntegration, ViteUserConfig } from 'astro';
 
-function getViteConfiguration() {
-	return {
+function getViteConfiguration(independent: boolean): ViteUserConfig {
+	const config: ViteUserConfig = {
 		optimizeDeps: {
 			include: [
 				'@astrojs/lit/dist/client.js',
@@ -13,6 +13,30 @@ function getViteConfiguration() {
 			],
 			exclude: ['@astrojs/lit/server.js'],
 		},
+	};
+
+	if (independent) {
+		return {
+			...config,
+			ssr: {
+				external: ['lit-element', '@astrojs/lit', 'lit/decorators.js'],
+			},
+			build: {
+				rollupOptions: {
+					output: {
+						manualChunks: (id) => {
+							if (id.includes('@lit-labs/ssr')) {
+								return `_vendor.lit-ssr`;
+							}
+						},
+					},
+				},
+			},
+		};
+	}
+
+	return {
+		...config,
 		ssr: {
 			external: ['lit-element', '@lit-labs/ssr', '@astrojs/lit', 'lit/decorators.js'],
 		},
@@ -23,7 +47,7 @@ export default function (): AstroIntegration {
 	return {
 		name: '@astrojs/lit',
 		hooks: {
-			'astro:config:setup': ({ updateConfig, addRenderer, injectScript }) => {
+			'astro:config:setup': ({ updateConfig, addRenderer, injectScript, config }) => {
 				// Inject the necessary polyfills on every page (inlined for speed).
 				injectScript(
 					'head-inline',
@@ -39,7 +63,7 @@ export default function (): AstroIntegration {
 				});
 				// Update the vite configuration.
 				updateConfig({
-					vite: getViteConfiguration(),
+					vite: getViteConfiguration(config.experimental.isIndependent),
 				});
 			},
 			'astro:build:setup': ({ vite, target }) => {

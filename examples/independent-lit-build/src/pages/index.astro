@@ -1,0 +1,37 @@
+---
+import { format, parseISO } from 'date-fns';
+import { Header } from '../components/Header';
+
+const date = parseISO('2020-01-01T12:00:00');
+const formattedDate = format(date, 'dd.MM.yy');
+---
+
+<html>
+	<head>
+		<title>Test app - Home</title>
+		<style>
+			body {
+				font-size: 18px;
+			}
+		</style>
+	</head>
+	<body>
+		{
+			(
+				// @ts-expect-error
+				<Header text="Home page" />
+			)
+		}
+		<p>
+			<a href="/product/123">/product</a>
+		</p>
+		<p>
+			<a href="/lazy-function">/lazy-function</a>
+		</p>
+		<p>
+			<a href="/lazy-component">/lazy-component</a>
+		</p>
+
+		<p>Some date: {formattedDate}</p>
+	</body>
+</html>
