@@ -1,3 +1,5 @@
+import type { OutgoingHttpHeaders } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -8,8 +10,6 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
-import type { OutgoingHttpHeaders } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
@@ -34,6 +34,10 @@ import type {
 	DevToolbarWindow,
 } from '../runtime/client/dev-toolbar/ui-library/index.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
+import type {
+	TransitionBeforePreparationEvent,
+	TransitionBeforeSwapEvent,
+} from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
@@ -1290,7 +1294,7 @@ export interface AstroUserConfig {
 		 * @default `shiki`
 		 * @description
 		 * Which syntax highlighter to use, if any.
-		 * - `shiki` - use the [Shiki](https://github.com/shikijs/shiki) highlighter
+		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter
 		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter
 		 * - `false` - do not apply syntax highlighting.
 		 *
@@ -1642,6 +1646,54 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
+		 * @name experimental.contentCollectionJsonSchema
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.5.0
+		 * @description
+		 * This feature will auto-generate a JSON schema for content collections of `type: 'data'` which can be used as the `$schema` value for TypeScript-style autocompletion/hints in tools like VSCode.
+		 * 
+		 * To enable this feature, add the experimental flag:
+		 * 
+		 * ```diff
+		 * import { defineConfig } from 'astro/config';
+
+		 * export default defineConfig({
+		 * 	experimental: {
+		 * +		contentCollectionJsonSchema: true
+		 * 	}
+		 * });
+		 * ```
+		 * 
+		 * This experimental implementation requires you to manually reference the schema in each data entry file of the collection:
+		 * 
+		 * ```diff
+		 * // src/content/test/entry.json
+		 * {
+		 * +  "$schema": "../../../.astro/collections/test.schema.json",
+		 * 	"test": "test"
+		 * }
+		 * ```
+		 * 
+		 * Alternatively, you can set this in your [VSCode `json.schemas` settings](https://code.visualstudio.com/docs/languages/json#_json-schemas-and-settings):
+		 * 
+		 * ```diff
+		 * "json.schemas": [
+		 * 	{
+		 * 		"fileMatch": [
+		 * 			"/src/content/test/**"
+		 * 		],
+		 * 		"url": "../../../.astro/collections/test.schema.json"
+		 * 	}
+		 * ]
+		 * ```
+		 * 
+		 * Note that this initial implementation uses a library with [known issues for advanced Zod schemas](https://github.com/StefanTerdell/zod-to-json-schema#known-issues), so you may wish to consult these limitations before enabling the experimental flag.
+		 */
+		contentCollectionJsonSchema?: boolean;
+
+		/**
+		 * @docs
 		 * @name experimental.clientPrerender
 		 * @type {boolean}
 		 * @default `false`
@@ -1649,7 +1701,7 @@ export interface AstroUserConfig {
 		 * @description
 		 * Enables pre-rendering your prefetched pages on the client in supported browsers.
 		 *
-		 * This feature uses the experimental [Speculation Rules Web API](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API) and overrides the default `prefetch` behavior globally to prerender links on the client.
+		 * This feature uses the experimental [Speculation Rules Web API](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API) and enhances the default `prefetch` behavior globally to prerender links on the client.
 		 * You may wish to review the [possible risks when prerendering on the client](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API#unsafe_prefetching) before enabling this feature.
 		 *
 		 * Enable client side prerendering in your `astro.config.mjs` along with any desired `prefetch` configuration options:
@@ -2697,7 +2749,7 @@ export interface SSRResult {
 		slots: Record<string, any> | null
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
-	response: ResponseInit;
+	response: AstroGlobal['response'];
 	renderers: SSRLoadedRenderer[];
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
@@ -2831,11 +2883,16 @@ declare global {
 		'astro-dev-overlay-icon': DevToolbarIcon;
 		'astro-dev-overlay-card': DevToolbarCard;
 	}
-}
-
-declare global {
 	// eslint-disable-next-line @typescript-eslint/no-namespace
 	namespace Config {
 		type Database = Record<string, any>;
+	}
+
+	interface DocumentEventMap {
+		'astro:before-preparation': TransitionBeforePreparationEvent;
+		'astro:after-preparation': Event;
+		'astro:before-swap': TransitionBeforeSwapEvent;
+		'astro:after-swap': Event;
+		'astro:page-load': Event;
 	}
 }

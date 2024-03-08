@@ -1,5 +1,11 @@
 # @astrojs/markdoc
 
+## 0.9.1
+
+### Patch Changes
+
+- [#10278](https://github.com/withastro/astro/pull/10278) [`a548a3a99c2835c19662fc38636f92b2bda26614`](https://github.com/withastro/astro/commit/a548a3a99c2835c19662fc38636f92b2bda26614) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes original images sometimes being kept / deleted when they shouldn't in both MDX and Markdoc
+
 ## 0.9.0
 
 ### Minor Changes

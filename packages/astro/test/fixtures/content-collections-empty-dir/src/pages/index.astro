@@ -1,8 +1,7 @@
 ---
 import { getCollection } from 'astro:content'
 
-const blogs =  await getCollection("blogs")
-// console.log(blogs)
+const entries = await getCollection('blogs');
 ---
 
-<p>This should still render</p>
+<h1 data-entries={JSON.stringify(entries)}>Entries length: {entries.length}</h1>

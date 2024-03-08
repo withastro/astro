@@ -1041,12 +1041,14 @@ describe('astro:image', () => {
 	});
 
 	describe('dev ssr', () => {
+		/** @type {import('./test-utils').DevServer} */
 		let devServer;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-ssr/',
 				output: 'server',
 				adapter: testAdapter(),
+				base: 'some-base',
 				image: {
 					service: testImageService(),
 				},
@@ -1056,6 +1058,15 @@ describe('astro:image', () => {
 
 		after(async () => {
 			await devServer.stop();
+		});
+
+		it('serves the image at /_image', async () => {
+			const params = new URLSearchParams();
+			params.set('href', '/src/assets/penguin1.jpg?origWidth=207&origHeight=243&origFormat=jpg');
+			params.set('f', 'webp');
+			const response = await fixture.fetch('/some-base/_image?' + String(params));
+			assert.equal(response.status, 200);
+			assert.equal(response.headers.get('content-type'), 'image/webp');
 		});
 
 		it('does not interfere with query params', async () => {
@@ -1089,6 +1100,96 @@ describe('astro:image', () => {
 			const src = $('#local img').attr('src');
 			request = new Request('http://example.com' + src);
 			response = await app.render(request);
+			assert.equal(response.status, 200);
+		});
+
+		it('endpoint handle malformed requests', async () => {
+			const badPaths = [
+				'../../../../../../../../../../../../etc/hosts%00',
+				'../../../../../../../../../../../../etc/hosts',
+				'../../boot.ini',
+				'/../../../../../../../../%2A',
+				'../../../../../../../../../../../../etc/passwd%00',
+				'../../../../../../../../../../../../etc/passwd',
+				'../../../../../../../../../../../../etc/shadow%00',
+				'../../../../../../../../../../../../etc/shadow',
+				'/../../../../../../../../../../etc/passwd^^',
+				'/../../../../../../../../../../etc/shadow^^',
+				'/../../../../../../../../../../etc/passwd',
+				'/../../../../../../../../../../etc/shadow',
+				'/./././././././././././etc/passwd',
+				'/./././././././././././etc/shadow',
+				'....................etcpasswd',
+				'....................etcshadow',
+				'....................etcpasswd',
+				'....................etcshadow',
+				'/..../..../..../..../..../..../etc/passwd',
+				'/..../..../..../..../..../..../etc/shadow',
+				'.\\./.\\./.\\./.\\./.\\./.\\./etc/passwd',
+				'.\\./.\\./.\\./.\\./.\\./.\\./etc/shadow',
+				'....................etcpasswd%00',
+				'....................etcshadow%00',
+				'....................etcpasswd%00',
+				'....................etcshadow%00',
+				'%0a/bin/cat%20/etc/passwd',
+				'%0a/bin/cat%20/etc/shadow',
+				'%00/etc/passwd%00',
+				'%00/etc/shadow%00',
+				'%00../../../../../../etc/passwd',
+				'%00../../../../../../etc/shadow',
+				'/../../../../../../../../../../../etc/passwd%00.jpg',
+				'/../../../../../../../../../../../etc/passwd%00.html',
+				'/..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../etc/passwd',
+				'/..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../etc/shadow',
+				'/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/etc/passwd,',
+				'/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/etc/shadow,',
+				'%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%,25%5c..%25%5c..%25%5c..%25%5c..%00',
+				'/%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..,%25%5c..%25%5c..%25%5c..%25%5c..%00',
+				'%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%,25%5c..%25%5c..%	25%5c..%25%5c..%00',
+				'%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%,25%5c..%25%5c..%		25%5c..%25%5c..%255cboot.ini',
+				'/%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..,%25%5c..%25%5c..%25%5c..%25%5c..winnt/desktop.ini',
+				'\\&apos;/bin/cat%20/etc/passwd\\&apos;',
+				'\\&apos;/bin/cat%20/etc/shadow\\&apos;',
+				'../../../../../../../../conf/server.xml',
+				'/../../../../../../../../bin/id|',
+				'C:/inetpub/wwwroot/global.asa',
+				'C:inetpubwwwrootglobal.asa',
+				'C:/boot.ini',
+				'C:\boot.ini',
+				'../../../../../../../../../../../../localstart.asp%00',
+				'../../../../../../../../../../../../localstart.asp',
+				'../../../../../../../../../../../../boot.ini%00',
+				'../../../../../../../../../../../../boot.ini',
+				'/./././././././././././boot.ini',
+				'/../../../../../../../../../../../boot.ini%00',
+				'/../../../../../../../../../../../boot.ini',
+				'/..../..../..../..../..../..../boot.ini',
+				'/.\\./.\\./.\\./.\\./.\\./.\\./boot.ini',
+				'....................\boot.ini',
+				'....................\boot.ini%00',
+				'....................\boot.ini',
+				'/../../../../../../../../../../../boot.ini%00.html',
+				'/../../../../../../../../../../../boot.ini%00.jpg',
+				'/.../.../.../.../.../	',
+				'..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../boot.ini',
+				'/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/boot.ini',
+				'../prerender/index.html',
+			];
+
+			const app = await fixture.loadTestAdapterApp();
+
+			for (const path of badPaths) {
+				let request = new Request('http://example.com/_image?href=' + path);
+				let response = await app.render(request);
+				const body = await response.text();
+
+				assert.equal(response.status, 500);
+				assert.equal(body.includes('Internal Server Error'), true);
+			}
+
+			// Server should still be running
+			let request = new Request('http://example.com/');
+			let response = await app.render(request);
 			assert.equal(response.status, 200);
 		});
 

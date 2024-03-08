@@ -1,4 +1,6 @@
+// Separate import from the rest so it doesn't get re-organized after other imports
 import './server-shim.js';
+
 import { LitElementRenderer } from '@lit-labs/ssr/lib/lit-element-renderer.js';
 import * as parse5 from 'parse5';
 

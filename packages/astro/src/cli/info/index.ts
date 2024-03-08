@@ -1,14 +1,14 @@
-/* eslint-disable no-console */
-import * as colors from 'kleur/colors';
 import { execSync } from 'node:child_process';
 import { arch, platform } from 'node:os';
+/* eslint-disable no-console */
+import * as colors from 'kleur/colors';
 import prompts from 'prompts';
 import type yargs from 'yargs-parser';
 import type { AstroConfig, AstroUserConfig } from '../../@types/astro.js';
 import { resolveConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
-import { flagsToAstroInlineConfig } from '../flags.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
+import { flagsToAstroInlineConfig } from '../flags.js';
 
 interface InfoOptions {
 	flags: yargs.Arguments;
