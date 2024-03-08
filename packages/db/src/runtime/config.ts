@@ -41,7 +41,7 @@ export function defineTable<TColumns extends ColumnsConfig>(userConfig: TableCon
 	return userConfig;
 }
 
-export function defineDB(userConfig: DBConfigInput) {
+export function defineDb(userConfig: DBConfigInput) {
 	return userConfig;
 }
 

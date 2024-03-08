@@ -306,6 +306,11 @@ async function updateDOM(
 		}
 	};
 
+	const shouldCopyProps = (el: HTMLElement): boolean => {
+		const persistProps = el.dataset.astroTransitionPersistProps;
+		return persistProps == null || persistProps === 'false';
+	}
+
 	const defaultSwap = (beforeSwapEvent: TransitionBeforeSwapEvent) => {
 		// swap attributes of the html element
 		// - delete all attributes from the current document
@@ -323,12 +328,15 @@ async function updateDOM(
 		for (const s1 of document.scripts) {
 			for (const s2 of beforeSwapEvent.newDocument.scripts) {
 				if (
+					// Check if the script should be rerun regardless of it being the same
+					!s2.hasAttribute('data-astro-rerun') &&
 					// Inline
-					(!s1.src && s1.textContent === s2.textContent) ||
-					// External
-					(s1.src && s1.type === s2.type && s1.src === s2.src)
+					((!s1.src && s1.textContent === s2.textContent) ||
+						// External
+						(s1.src && s1.type === s2.type && s1.src === s2.src))
 				) {
-					// the old script is in the new document: we mark it as executed to prevent re-execution
+					// the old script is in the new document and doesn't have the rerun attribute
+					// we mark it as executed to prevent re-execution
 					s2.dataset.astroExec = '';
 					break;
 				}
@@ -366,6 +374,11 @@ async function updateDOM(
 				// The element exists in the new page, replace it with the element
 				// from the old page so that state is preserved.
 				newEl.replaceWith(el);
+				// For islands, copy over the props to allow them to re-render
+				if(newEl.localName === 'astro-island' && shouldCopyProps(el as HTMLElement)) {
+					el.setAttribute('ssr', '');
+					el.setAttribute('props', newEl.getAttribute('props')!);
+				}
 			}
 		}
 		restoreFocus(savedFocus);

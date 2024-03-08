@@ -6,14 +6,12 @@ import { mkdir, rm, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
 import parseArgs from 'yargs-parser';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
-import { loadDbConfigFile } from '../load-file.js';
+import { resolveDbConfig } from '../load-file.js';
 import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
-import { type DBConfig, dbConfigSchema } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl } from '../utils.js';
-import { errorMap } from './error-map.js';
 import { fileURLIntegration } from './file-url.js';
 import { typegen } from './typegen.js';
-import { type LateTables, vitePluginDb } from './vite-plugin-db.js';
+import { type LateSeedFiles, type LateTables, vitePluginDb } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
 
 function astroDBIntegration(): AstroIntegration {
@@ -21,13 +19,17 @@ function astroDBIntegration(): AstroIntegration {
 	let configFileDependencies: string[] = [];
 	let root: URL;
 	let appToken: ManagedAppToken | undefined;
-	let dbConfig: DBConfig;
 
 	// Make table loading "late" to pass to plugins from `config:setup`,
 	// but load during `config:done` to wait for integrations to settle.
 	let tables: LateTables = {
 		get() {
 			throw new Error('[astro:db] INTERNAL Tables not loaded yet');
+		},
+	};
+	let seedFiles: LateSeedFiles = {
+		get() {
+			throw new Error('[astro:db] INTERNAL Seed files not loaded yet');
 		},
 	};
 	let command: 'dev' | 'build' | 'preview';
@@ -57,6 +59,7 @@ function astroDBIntegration(): AstroIntegration {
 					dbPlugin = vitePluginDb({
 						connectToStudio: false,
 						tables,
+						seedFiles,
 						root: config.root,
 						srcDir: config.srcDir,
 					});
@@ -74,13 +77,10 @@ function astroDBIntegration(): AstroIntegration {
 
 				// TODO: refine where we load tables
 				// @matthewp: may want to load tables by path at runtime
-				const { mod, dependencies } = await loadDbConfigFile(config.root);
+				const { dbConfig, dependencies, integrationSeedPaths } = await resolveDbConfig(config);
+				tables.get = () => dbConfig.tables;
+				seedFiles.get = () => integrationSeedPaths;
 				configFileDependencies = dependencies;
-				dbConfig = dbConfigSchema.parse(mod?.default ?? {}, {
-					errorMap,
-				});
-				// TODO: resolve integrations here?
-				tables.get = () => dbConfig.tables ?? {};
 
 				if (!connectToStudio) {
 					const dbUrl = new URL(DB_PATH, config.root);

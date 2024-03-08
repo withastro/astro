@@ -1,4 +1,5 @@
 import type { DevToolbarApp } from '../../../../../@types/astro.js';
+import { settings } from '../../settings.js';
 import type { DevToolbarHighlight } from '../../ui-library/highlight.js';
 import { positionHighlight } from '../utils/highlight.js';
 import { closeOnOutsideClick } from '../utils/window.js';
@@ -37,8 +38,51 @@ export default {
 
 		await lint();
 
-		document.addEventListener('astro:after-swap', async () => lint());
-		document.addEventListener('astro:page-load', async () => refreshLintPositions);
+		let mutationDebounce: ReturnType<typeof setTimeout>;
+		const observer = new MutationObserver(() => {
+			// We don't want to rerun the audit lints on every single mutation, so we'll debounce it.
+			if (mutationDebounce) {
+				clearTimeout(mutationDebounce);
+			}
+
+			mutationDebounce = setTimeout(() => {
+				settings.logger.verboseLog('Rerunning audit lints because the DOM has been updated.');
+
+				// Even though we're ready to run the lints, we'll wait for the next idle period to do so, as it is less likely
+				// to interfere with any other work the browser is doing post-mutation. For instance, the page or the user might
+				// be interacting with the newly added elements, or the browser might be doing some work (layout, paint, etc.)
+				if ('requestIdleCallback' in window) {
+					window.requestIdleCallback(
+						async () => {
+							lint();
+						},
+						{ timeout: 300 }
+					);
+				} else {
+					// Fallback for old versions of Safari, we'll assume that things are less likely to be busy after 150ms.
+					setTimeout(() => {
+						lint();
+					}, 150);
+				}
+			}, 250);
+		});
+
+		setupObserver();
+
+		document.addEventListener('astro:before-preparation', () => {
+			observer.disconnect();
+		});
+		document.addEventListener('astro:after-swap', async () => {
+			lint();
+		});
+		document.addEventListener('astro:page-load', async () => {
+			refreshLintPositions();
+
+			// HACK: View transitions add a route announcer after this event, so we need to wait for it to be added
+			setTimeout(() => {
+				setupObserver();
+			}, 100);
+		});
 
 		eventTarget.addEventListener('app-toggled', (event: any) => {
 			if (event.detail.state === true) {
@@ -158,5 +202,12 @@ export default {
 		(['scroll', 'resize'] as const).forEach((event) => {
 			window.addEventListener(event, refreshLintPositions);
 		});
+
+		function setupObserver() {
+			observer.observe(document.body, {
+				childList: true,
+				subtree: true,
+			});
+		}
 	},
 } satisfies DevToolbarApp;

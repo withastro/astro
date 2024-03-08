@@ -1,3 +1,4 @@
+import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type SQL, sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
@@ -23,11 +24,15 @@ const resolved = {
 export type LateTables = {
 	get: () => DBTables;
 };
+export type LateSeedFiles = {
+	get: () => Array<string | URL>;
+};
 
 type VitePluginDBParams =
 	| {
 			connectToStudio: false;
 			tables: LateTables;
+			seedFiles: LateSeedFiles;
 			srcDir: URL;
 			root: URL;
 	  }
@@ -81,6 +86,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			return getLocalVirtualModContents({
 				root: params.root,
 				tables: params.tables.get(),
+				seedFiles: params.seedFiles.get(),
 				shouldSeed: id === resolved.seedVirtual,
 			});
 		},
@@ -94,16 +100,25 @@ export function getConfigVirtualModContents() {
 export function getLocalVirtualModContents({
 	tables,
 	root,
+	seedFiles,
 	shouldSeed,
 }: {
 	tables: DBTables;
+	seedFiles: Array<string | URL>;
 	root: URL;
 	shouldSeed: boolean;
 }) {
-	const seedFilePaths = SEED_DEV_FILE_NAME.map(
+	const userSeedFilePaths = SEED_DEV_FILE_NAME.map(
 		// Format as /db/[name].ts
 		// for Vite import.meta.glob
 		(name) => new URL(name, getDbDirectoryUrl('file:///')).pathname
+	);
+	const resolveId = (id: string) => (id.startsWith('.') ? resolve(fileURLToPath(root), id) : id);
+	const integrationSeedFilePaths = seedFiles.map((pathOrUrl) =>
+		typeof pathOrUrl === 'string' ? resolveId(pathOrUrl) : pathOrUrl.pathname
+	);
+	const integrationSeedImports = integrationSeedFilePaths.map(
+		(filePath) => `() => import(${JSON.stringify(filePath)})`
 	);
 
 	const dbUrl = new URL(DB_PATH, root);
@@ -117,7 +132,8 @@ export const db = createLocalDatabaseClient({ dbUrl });
 ${
 	shouldSeed
 		? `await seedLocal({
-	fileGlob: import.meta.glob(${JSON.stringify(seedFilePaths)}, { eager: true }),
+	userSeedGlob: import.meta.glob(${JSON.stringify(userSeedFilePaths)}, { eager: true }),
+	integrationSeedImports: [${integrationSeedImports.join(',')}],
 });`
 		: ''
 }
