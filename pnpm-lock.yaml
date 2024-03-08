@@ -527,9 +527,6 @@ importers:
       '@babel/types':
         specifier: ^7.23.3
         version: 7.23.6
-      '@medv/finder':
-        specifier: ^3.1.0
-        version: 3.1.0
       '@shikijs/core':
         specifier: ^1.1.2
         version: 1.1.2
@@ -7270,10 +7267,6 @@ packages:
       vfile: 6.0.1
     transitivePeerDependencies:
       - supports-color
-    dev: false
-
-  /@medv/finder@3.1.0:
-    resolution: {integrity: sha512-ojkXjR3K0Zz3jnCR80tqPL+0yvbZk/lEodb6RIVjLz7W8RVA2wrw8ym/CzCpXO9SYVUIKHFUpc7jvf8UKfIM3w==}
     dev: false
 
   /@nanostores/preact@0.5.0(nanostores@0.9.5)(preact@10.19.3):
