@@ -283,8 +283,8 @@ export const a11y: AuditRuleWithSelector[] = [
 		},
 	},
 	{
-		code: 'a11y-invalid-attribute',
-		title: 'Attributes important for accessibility should have a valid value',
+		code: 'a11y-invalid-href',
+		title: 'Invalid `href` attribute',
 		message: "`href` should not be empty, `'#'`, or `javascript:`.",
 		selector: 'a[href]:is([href=""], [href="#"], [href^="javascript:" i])',
 	},
@@ -332,6 +332,8 @@ export const a11y: AuditRuleWithSelector[] = [
 	{
 		code: 'a11y-missing-attribute',
 		title: 'Required attributes missing.',
+		description:
+			'Some HTML elements require additional attributes for accessibility. For example, an `img` element requires an `alt` attribute, this attribute is used to describe the content of the image for screen readers.',
 		message: (element) => {
 			const requiredAttributes =
 				a11y_required_attributes[element.localName as keyof typeof a11y_required_attributes];
@@ -492,6 +494,8 @@ export const a11y: AuditRuleWithSelector[] = [
 	{
 		code: 'a11y-no-noninteractive-tabindex',
 		title: 'Invalid `tabindex` on non-interactive element',
+		description:
+			'The `tabindex` attribute should only be used on interactive elements, as it can be confusing for keyboard-only users to navigate through non-interactive elements. If your element is only conditionally interactive, consider using `tabindex="-1"` to make it focusable only when it is actually interactive.',
 		message: (element) => `${element.localName} elements should not have \`tabindex\` attribute`,
 		selector: '[tabindex]',
 		match(element) {
