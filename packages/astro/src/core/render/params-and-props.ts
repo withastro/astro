@@ -25,7 +25,11 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 		return {};
 	}
 
-	if (routeIsRedirect(route) || routeIsFallback(route) || route.component === DEFAULT_404_COMPONENT) {
+	if (
+		routeIsRedirect(route) ||
+		routeIsFallback(route) ||
+		route.component === DEFAULT_404_COMPONENT
+	) {
 		return {};
 	}
 

@@ -22,8 +22,8 @@ import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
 import { getComponentMetadata } from './metadata.js';
 import { createResolve } from './resolve.js';
-import { getScriptsForURL } from './scripts.js';
 import { default404Page } from './response.js';
+import { getScriptsForURL } from './scripts.js';
 
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
@@ -138,7 +138,7 @@ export class DevPipeline extends Pipeline {
 	async preload(filePath: URL) {
 		const { loader } = this;
 		if (filePath.href === new URL(DEFAULT_404_COMPONENT, this.config.root).href) {
-			return { default: default404Page } as any as ComponentInstance
+			return { default: default404Page } as any as ComponentInstance;
 		}
 
 		// Important: This needs to happen first, in case a renderer provides polyfills.

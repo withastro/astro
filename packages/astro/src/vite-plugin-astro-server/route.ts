@@ -1,6 +1,10 @@
 import type http from 'node:http';
 import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro.js';
-import { DEFAULT_404_COMPONENT, REROUTE_DIRECTIVE_HEADER, clientLocalsSymbol } from '../core/constants.js';
+import {
+	DEFAULT_404_COMPONENT,
+	REROUTE_DIRECTIVE_HEADER,
+	clientLocalsSymbol,
+} from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { req } from '../core/messages.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
@@ -94,18 +98,18 @@ export async function matchRoute(
 	}
 
 	const custom404 = getCustom404Route(manifestData);
-	
+
 	if (custom404 && custom404.component === DEFAULT_404_COMPONENT) {
 		const component: ComponentInstance = {
-			default: default404Page
-		}
+			default: default404Page,
+		};
 		return {
 			route: custom404,
 			filePath: new URL(`file://${custom404.component}`),
 			resolvedPathname: pathname,
 			preloadedComponent: component,
 			mod: component,
-		}
+		};
 	}
 
 	if (custom404) {

@@ -1,5 +1,10 @@
+import type {
+	ComponentInstance,
+	ManifestData,
+	RouteData,
+	SSRManifest,
+} from '../../@types/astro.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
-import type { ComponentInstance, ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import {
 	DEFAULT_404_COMPONENT,
@@ -23,9 +28,9 @@ import {
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
+import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../routing/match.js';
 import { AppPipeline } from './pipeline.js';
-import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 export { deserializeManifest } from './common.js';
 
 export interface RenderOptions {
@@ -479,9 +484,10 @@ export class App {
 	async #getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
 		if (route.component === DEFAULT_404_COMPONENT) {
 			return {
-				page: async () => ({ default: () => new Response(null, { status: 404 }) }) as ComponentInstance,
-				renderers: []
-			}
+				page: async () =>
+					({ default: () => new Response(null, { status: 404 }) }) as ComponentInstance,
+				renderers: [],
+			};
 		}
 		if (route.type === 'redirect') {
 			return RedirectSinglePageBuiltModule;
