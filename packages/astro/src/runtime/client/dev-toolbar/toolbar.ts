@@ -9,6 +9,7 @@ export type DevToolbarApp = DevToolbarAppDefinition & {
 	status: 'ready' | 'loading' | 'error';
 	notification: {
 		state: boolean;
+		level?: 'error' | 'warning' | 'info';
 	};
 	eventTarget: EventTarget;
 };
@@ -187,8 +188,8 @@ export class AstroDevToolbar extends HTMLElement {
 				}
 			}
 
-			#dev-bar #bar-container .item.active .notification {
-				border-color: rgba(71, 78, 94, 1);
+			#dev-bar #bar-container .item.active .notification rect, #dev-bar #bar-container .item.active .notification path {
+				stroke: rgba(71, 78, 94, 1);
 			}
 
 			#dev-bar .item .icon {
@@ -198,7 +199,7 @@ export class AstroDevToolbar extends HTMLElement {
 				user-select: none;
 			}
 
-			#dev-bar .item svg {
+			#dev-bar .item .icon>svg {
 				width: 20px;
 				height: 20px;
 				display: block;
@@ -216,11 +217,12 @@ export class AstroDevToolbar extends HTMLElement {
 				position: absolute;
 				top: -4px;
 				right: -6px;
-				width: 8px;
-				height: 8px;
-				border-radius: 9999px;
-				border: 1px solid rgba(19, 21, 26, 1);
-				background: #B33E66;
+				width: 10px;
+				height: 10px;
+			}
+
+			#dev-bar .item .notification svg {
+				display: block;
 			}
 
 			#dev-toolbar-root:not([data-no-notification]) #dev-bar .item .notification[data-active] {
