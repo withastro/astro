@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import glob from 'fast-glob';
 import { bold, cyan } from 'kleur/colors';
 import { type ViteDevServer, normalizePath } from 'vite';
-import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
+import type { AstroSettings, ContentEntryType, InjectedDts } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
@@ -54,6 +54,8 @@ type CreateContentGeneratorParams = {
 	/** This is required for loading the content config */
 	viteServer: ViteDevServer;
 	fs: typeof fsMod;
+	prepareDts?: (filename: string) => void;
+	injectDts: (dts: InjectedDts) => void
 };
 
 export async function createContentTypesGenerator({
@@ -62,12 +64,16 @@ export async function createContentTypesGenerator({
 	logger,
 	settings,
 	viteServer,
+	prepareDts,
+	injectDts
 }: CreateContentGeneratorParams) {
 	const collectionEntryMap: CollectionEntryMap = {};
 	const contentPaths = getContentPaths(settings.config, fs);
 	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 	const dataEntryExts = getDataEntryExts(settings);
+
+	prepareDts?.(CONTENT_TYPES_FILE);
 
 	let events: ContentEvent[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
@@ -303,13 +309,14 @@ export async function createContentTypesGenerator({
 		const observable = contentConfigObserver.get();
 		if (eventResponses.some((r) => r.shouldGenerateTypes)) {
 			await writeContentFiles({
-				fs,
 				collectionEntryMap,
 				contentPaths,
 				typeTemplateContent,
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
 				contentEntryTypes: settings.contentEntryTypes,
 				viteServer,
+				codegenDir: settings.codegenDir,
+				injectDts
 			});
 			invalidateVirtualMod(viteServer);
 		}
@@ -345,21 +352,23 @@ function normalizeConfigPath(from: string, to: string) {
 }
 
 async function writeContentFiles({
-	fs,
 	contentPaths,
 	collectionEntryMap,
 	typeTemplateContent,
 	contentEntryTypes,
 	contentConfig,
 	viteServer,
+	codegenDir,
+	injectDts,
 }: {
-	fs: typeof fsMod;
 	contentPaths: ContentPaths;
 	collectionEntryMap: CollectionEntryMap;
 	typeTemplateContent: string;
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
 	viteServer: Pick<ViteDevServer, 'hot'>;
+	codegenDir: AstroSettings['codegenDir'];
+	injectDts: (dts: InjectedDts) => void
 }) {
 	let contentTypesStr = '';
 	let dataTypesStr = '';
@@ -425,12 +434,8 @@ async function writeContentFiles({
 		}
 	}
 
-	if (!fs.existsSync(contentPaths.cacheDir)) {
-		fs.mkdirSync(contentPaths.cacheDir, { recursive: true });
-	}
-
 	const configPathRelativeToCacheDir = normalizeConfigPath(
-		contentPaths.cacheDir.pathname,
+		codegenDir.pathname,
 		contentPaths.config.url.pathname
 	);
 
@@ -446,8 +451,5 @@ async function writeContentFiles({
 		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never'
 	);
 
-	await fs.promises.writeFile(
-		new URL(CONTENT_TYPES_FILE, contentPaths.cacheDir),
-		typeTemplateContent
-	);
+	injectDts({ filename: CONTENT_TYPES_FILE, content: typeTemplateContent, source: 'core' });
 }

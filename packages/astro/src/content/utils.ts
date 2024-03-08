@@ -16,7 +16,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 
 import { MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
-import { CONTENT_FLAGS, CONTENT_TYPES_FILE } from './consts.js';
+import { CONTENT_FLAGS } from './consts.js';
 import { errorMap } from './error-map.js';
 import { createImage } from './runtime-assets.js';
 
@@ -39,15 +39,6 @@ export const collectionConfigParser = z.union([
 		schema: z.any().optional(),
 	}),
 ]);
-
-export function getDotAstroTypeReference({ root, srcDir }: { root: URL; srcDir: URL }) {
-	const { cacheDir } = getContentPaths({ root, srcDir });
-	const contentTypesRelativeToSrcDir = normalizePath(
-		path.relative(fileURLToPath(srcDir), fileURLToPath(new URL(CONTENT_TYPES_FILE, cacheDir)))
-	);
-
-	return `/// <reference path=${JSON.stringify(contentTypesRelativeToSrcDir)} />`;
-}
 
 export const contentConfigParser = z.object({
 	collections: z.record(collectionConfigParser),
@@ -430,7 +421,6 @@ export function contentObservable(initialCtx: ContentCtx): ContentObservable {
 export type ContentPaths = {
 	contentDir: URL;
 	assetsDir: URL;
-	cacheDir: URL;
 	typesTemplate: URL;
 	virtualModTemplate: URL;
 	config: {
@@ -440,13 +430,12 @@ export type ContentPaths = {
 };
 
 export function getContentPaths(
-	{ srcDir, root }: Pick<AstroConfig, 'root' | 'srcDir'>,
+	{ srcDir }: Pick<AstroConfig, 'srcDir'>,
 	fs: typeof fsMod = fsMod
 ): ContentPaths {
 	const configStats = search(fs, srcDir);
 	const pkgBase = new URL('../../', import.meta.url);
 	return {
-		cacheDir: new URL('.astro/', root),
 		contentDir: new URL('./content/', srcDir),
 		assetsDir: new URL('./assets/', srcDir),
 		typesTemplate: new URL('content-types.template.d.ts', pkgBase),

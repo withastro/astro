@@ -30,6 +30,7 @@ async function createRestartedContainer(
 }
 
 const configRE = /.*astro.config.(?:mjs|cjs|js|ts)$/;
+// Must be kept in sync with codegenDir inside createBaseSettings
 const preferencesRE = /.*\.astro\/settings.json$/;
 
 export function shouldRestartContainer(

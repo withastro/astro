@@ -9,12 +9,14 @@ import type { Logger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { createContentTypesGenerator } from './types-generator.js';
 import { type ContentPaths, getContentPaths, globalContentConfigObserver } from './utils.js';
+import type { injectDts } from '../config/types.js';
 
 interface ContentServerListenerParams {
 	fs: typeof fsMod;
 	logger: Logger;
 	settings: AstroSettings;
 	viteServer: ViteDevServer;
+	injectDts: typeof injectDts;
 }
 
 export async function attachContentServerListeners({
@@ -22,6 +24,7 @@ export async function attachContentServerListeners({
 	fs,
 	logger,
 	settings,
+	injectDts
 }: ContentServerListenerParams) {
 	const contentPaths = getContentPaths(settings.config, fs);
 
@@ -53,6 +56,7 @@ export async function attachContentServerListeners({
 			logger,
 			viteServer,
 			contentConfigObserver: globalContentConfigObserver,
+			injectDts: (dts) => injectDts({ codegenDir: settings.codegenDir, fs, ...dts }),
 		});
 		await contentGenerator.init();
 		logger.debug('content', 'Types generated');

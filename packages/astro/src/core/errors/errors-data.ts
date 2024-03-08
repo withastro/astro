@@ -1109,6 +1109,18 @@ export const i18nNotEnabled = {
 
 /**
  * @docs
+ * @description
+ * The `filename` argument of `injectTypes` should end with `.d.ts`.
+ */
+export const InvalidInjectTypesFilename = {
+	name: 'InvalidInjectTypesFilename',
+	title: 'Invalid injectTypes filename',
+	message:
+		'The `filename` argument of `injectTypes` is invalid. It should end with `.d.ts. `astro.d.ts` and `types.d.ts` are reserved filenames.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name CSS Errors
  */

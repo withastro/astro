@@ -13,16 +13,12 @@ describe('astro sync', () => {
 		let writtenFiles = {};
 		const fsMock = {
 			...fs,
-			promises: {
-				...fs.promises,
-				async writeFile(path, contents) {
-					writtenFiles[path] = contents;
-				},
+			writeFileSync(path, contents) {
+				writtenFiles[path] = contents;
 			},
 		};
 		await fixture.sync({}, { fs: fsMock });
-
-		const expectedTypesFile = new URL('.astro/types.d.ts', fixture.config.root).href;
+		const expectedTypesFile = new URL('.astro/content.d.ts', fixture.config.root).href;
 		assert.equal(writtenFiles.hasOwnProperty(expectedTypesFile), true);
 		// smoke test `astro check` asserts whether content types pass.
 		assert.equal(

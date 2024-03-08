@@ -21,6 +21,6 @@
     "del": "^7.0.0",
     "esbuild-plugin-copy": "^2.1.1",
     "execa": "^8.0.1",
-    "tsconfig-resolver": "^3.0.1"
+    "tsconfck": "^3.0.0"
   }
 }

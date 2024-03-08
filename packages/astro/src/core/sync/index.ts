@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
 import { type HMRPayload, createServer } from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
+import { CODEGENDIR_BASE_DTS_FILE, ensureCodegenDirExists, injectDts } from '../../config/types.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
@@ -51,6 +52,8 @@ export default async function sync(
 
 	const _settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
+	ensureCodegenDirExists({ codegenDir: _settings.codegenDir, fs: options?.fs ?? fsMod });
+
 	const settings = await runHookConfigSetup({
 		settings: _settings,
 		logger: logger,
@@ -85,7 +88,7 @@ export default async function sync(
  */
 export async function syncInternal(
 	settings: AstroSettings,
-	{ logger, fs }: SyncInternalOptions
+	{ logger, fs = fsMod }: SyncInternalOptions
 ): Promise<ProcessExit> {
 	const timerStart = performance.now();
 	// Needed to load content config
@@ -114,13 +117,17 @@ export async function syncInternal(
 	try {
 		const contentTypesGenerator = await createContentTypesGenerator({
 			contentConfigObserver: globalContentConfigObserver,
-			logger: logger,
-			fs: fs ?? fsMod,
+			logger,
+			fs,
 			settings,
 			viteServer: tempViteServer,
+			prepareDts: (filename) =>
+				settings.injectedDts.push({ filename, content: '', source: 'core' }),
+			injectDts: (dts) => injectDts({ ...dts, codegenDir: settings.codegenDir, fs }),
 		});
-		const typesResult = await contentTypesGenerator.init();
+		await handleDtsInjection({ settings, fs });
 
+		const typesResult = await contentTypesGenerator.init();
 		const contentConfig = globalContentConfigObserver.get();
 		if (contentConfig.status === 'error') {
 			throw contentConfig.error;
@@ -150,8 +157,33 @@ export async function syncInternal(
 		await tempViteServer.close();
 	}
 
-	logger.info(null, `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
+	logger.info('types', `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 	await setUpEnvTs({ settings, logger, fs: fs ?? fsMod });
 
 	return 0;
+}
+
+async function handleDtsInjection({
+	settings: { codegenDir, injectedDts },
+	fs,
+}: {
+	settings: AstroSettings;
+	fs: typeof fsMod;
+}) {
+	injectDts({
+		codegenDir,
+		filename: CODEGENDIR_BASE_DTS_FILE,
+		content: `/// <reference types="astro/client" />
+${injectedDts.map((e) => `/// <reference path="${e.filename}" />`).join('\n')}
+
+export {};
+`,
+		source: 'core',
+		bypassValidation: true,
+		fs,
+	});
+
+	for (const dts of injectedDts) {
+		injectDts({ codegenDir, fs, ...dts });
+	}
 }
