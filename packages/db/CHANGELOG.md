@@ -1,5 +1,91 @@
 # @astrojs/db
 
+## 0.7.0
+
+### Minor Changes
+
+- [#10363](https://github.com/withastro/astro/pull/10363) [`b6ccaa6dc76027f4230d6e7dfecc75b5d8b97267`](https://github.com/withastro/astro/commit/b6ccaa6dc76027f4230d6e7dfecc75b5d8b97267) Thanks [@delucis](https://github.com/delucis)! - Changes the seed file format to require exporting a default function instead of running seed code at the top level.
+
+  To migrate a seed file, wrap your existing code in a default function export:
+
+  ```diff
+  // db/seed.ts
+  import { db, Table } from 'astro:db';
+
+  + export default async function() {
+    await db.insert(Table).values({ foo: 'bar' });
+  + }
+  ```
+
+- [#10363](https://github.com/withastro/astro/pull/10363) [`b6ccaa6dc76027f4230d6e7dfecc75b5d8b97267`](https://github.com/withastro/astro/commit/b6ccaa6dc76027f4230d6e7dfecc75b5d8b97267) Thanks [@delucis](https://github.com/delucis)! - Introduce `astro build --remote` to build with a remote database connection. Running `astro build` plain will use a local database file, and `--remote` will authenticate with a studio app token.
+
+- [#10363](https://github.com/withastro/astro/pull/10363) [`b6ccaa6dc76027f4230d6e7dfecc75b5d8b97267`](https://github.com/withastro/astro/commit/b6ccaa6dc76027f4230d6e7dfecc75b5d8b97267) Thanks [@delucis](https://github.com/delucis)! - Adds support for integrations providing `astro:db` configuration and seed files, using the new `astro:db:setup` hook.
+
+  To get TypeScript support for the `astro:db:setup` hook, wrap your integration object in the `defineDbIntegration()` utility:
+
+  ```js
+  import { defineDbIntegration } from '@astrojs/db/utils';
+
+  export default function MyDbIntegration() {
+    return defineDbIntegration({
+      name: 'my-astro-db-powered-integration',
+      hooks: {
+        'astro:db:setup': ({ extendDb }) => {
+          extendDb({
+            configEntrypoint: '@astronaut/my-package/config',
+            seedEntrypoint: '@astronaut/my-package/seed',
+          });
+        },
+      },
+    });
+  }
+  ```
+
+  Use the `extendDb` method to register additional `astro:db` config and seed files.
+
+  Integration config and seed files follow the same format as their user-defined equivalents. However, often while working on integrations, you may not be able to benefit from Astro’s generated table types exported from `astro:db`. For full type safety and autocompletion support, use the `asDrizzleTable()` utility to wrap your table definitions in the seed file.
+
+  ```js
+  // config.ts
+  import { defineTable, column } from 'astro:db';
+
+  export const Pets = defineTable({
+    columns: {
+      name: column.text(),
+      age: column.number(),
+    },
+  });
+  ```
+
+  ```js
+  // seed.ts
+  import { asDrizzleTable } from '@astrojs/db/utils';
+  import { db } from 'astro:db';
+  import { Pets } from './config';
+
+  export default async function () {
+    // Convert the Pets table into a format ready for querying.
+    const typeSafePets = asDrizzleTable('Pets', Pets);
+
+    await db.insert(typeSafePets).values([
+      { name: 'Palomita', age: 7 },
+      { name: 'Pan', age: 3.5 },
+    ]);
+  }
+  ```
+
+- [#10363](https://github.com/withastro/astro/pull/10363) [`b6ccaa6dc76027f4230d6e7dfecc75b5d8b97267`](https://github.com/withastro/astro/commit/b6ccaa6dc76027f4230d6e7dfecc75b5d8b97267) Thanks [@delucis](https://github.com/delucis)! - Add support for batch queries with `db.batch()`. This includes an internal bump to Drizzle v0.29.
+
+- [#10364](https://github.com/withastro/astro/pull/10364) [`3f27e096283b6b477c4a66d0a7df52feaa3f4233`](https://github.com/withastro/astro/commit/3f27e096283b6b477c4a66d0a7df52feaa3f4233) Thanks [@delucis](https://github.com/delucis)! - Renames the Astro DB `defineDB()` helper to `defineDb()`
+
+  ⚠️ Breaking change: update your imports from `astro:db` to use `defineDb` with a lowercase “b”.
+
+### Patch Changes
+
+- [#10363](https://github.com/withastro/astro/pull/10363) [`b6ccaa6dc76027f4230d6e7dfecc75b5d8b97267`](https://github.com/withastro/astro/commit/b6ccaa6dc76027f4230d6e7dfecc75b5d8b97267) Thanks [@delucis](https://github.com/delucis)! - Fix runtime export error when building with the node adapter
+
+- [#10363](https://github.com/withastro/astro/pull/10363) [`b6ccaa6dc76027f4230d6e7dfecc75b5d8b97267`](https://github.com/withastro/astro/commit/b6ccaa6dc76027f4230d6e7dfecc75b5d8b97267) Thanks [@delucis](https://github.com/delucis)! - Rename `experimentalVersion` to `version`
+
 ## 0.6.5
 
 ### Patch Changes

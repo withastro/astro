@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.7.4
+
+### Patch Changes
+
+- [#10363](https://github.com/withastro/astro/pull/10363) [`b6ccaa6dc76027f4230d6e7dfecc75b5d8b97267`](https://github.com/withastro/astro/commit/b6ccaa6dc76027f4230d6e7dfecc75b5d8b97267) Thanks [@delucis](https://github.com/delucis)! - Fixes an issue where TypeScript and `@astrojs/check` versions would occassionally print as `undefined`.
+
 ## 4.7.3
 
 ### Patch Changes
