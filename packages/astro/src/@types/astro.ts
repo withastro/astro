@@ -887,8 +887,8 @@ export interface AstroUserConfig {
 		 * @description
 		 * Specifies the prefix for Astro-generated asset links. This can be used if assets are served from a different domain than the current site.
 		 *
-		 * This requires uploading the assets in your local `./dist/_astro` folder to a corresponding `/_astro/` folder on the remote domain.		 
-	   * To rename the `_astro` path, specify a new directory in `build.assets`.
+		 * This requires uploading the assets in your local `./dist/_astro` folder to a corresponding `/_astro/` folder on the remote domain.
+		 * To rename the `_astro` path, specify a new directory in `build.assets`.
 		 *
 		 * To fetch all assets uploaded to the same domain (e.g. `https://cdn.example.com/_astro/...`), set `assetsPrefix` to the root domain as a string (regardless of your `base` configuration):
 		 *
