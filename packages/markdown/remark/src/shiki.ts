@@ -64,7 +64,11 @@ export async function createShikiHighlighter({
 								node.tagName = 'code';
 							}
 
-							const { class: attributesClass, style: attributesStyle, ...rest } = options?.attributes ?? {};
+							const {
+								class: attributesClass,
+								style: attributesStyle,
+								...rest
+							} = options?.attributes ?? {};
 							Object.assign(node.properties, rest);
 
 							const classValue =
