@@ -1,3 +1,4 @@
+import type { AstroIntegration } from 'astro';
 import { SQL } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { type ZodTypeDef, z } from 'zod';
@@ -233,11 +234,7 @@ export type DBTable = z.infer<typeof tableSchema>;
 export type DBTables = Record<string, DBTable>;
 export type DBSnapshot = {
 	schema: Record<string, DBTable>;
-	/**
-	 * Snapshot version. Breaking changes to the snapshot format increment this number.
-	 * @todo Rename to "version" once closer to release.
-	 */
-	experimentalVersion: number;
+	version: string;
 };
 
 export const dbConfigSchema = z.object({
@@ -275,3 +272,14 @@ export type ResolvedCollectionConfig<TColumns extends ColumnsConfig = ColumnsCon
 // since Omit collapses our union type on primary key.
 export type NumberColumnOpts = z.input<typeof numberColumnOptsSchema>;
 export type TextColumnOpts = z.input<typeof textColumnOptsSchema>;
+
+export type AstroDbIntegration = AstroIntegration & {
+	hooks: {
+		'astro:db:setup'?: (options: {
+			extendDb: (options: {
+				configEntrypoint?: URL | string;
+				seedEntrypoint?: URL | string;
+			}) => void;
+		}) => void | Promise<void>;
+	};
+};

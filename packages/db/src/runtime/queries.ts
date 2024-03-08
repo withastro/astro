@@ -1,5 +1,4 @@
-import { LibsqlError } from '@libsql/client';
-import { type SQL, sql } from 'drizzle-orm';
+import { type SQL } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { bold } from 'kleur/colors';
 import {
@@ -7,64 +6,23 @@ import {
 	FOREIGN_KEY_REFERENCES_EMPTY_ERROR,
 	FOREIGN_KEY_REFERENCES_LENGTH_ERROR,
 	REFERENCE_DNE_ERROR,
-	SEED_ERROR,
 } from '../core/errors.js';
 import type {
 	BooleanColumn,
 	ColumnType,
 	DBColumn,
 	DBTable,
-	DBTables,
 	DateColumn,
 	JsonColumn,
 	NumberColumn,
 	TextColumn,
 } from '../core/types.js';
-import { type SqliteDB, hasPrimaryKey } from './index.js';
+import { hasPrimaryKey } from './index.js';
 import { isSerializedSQL } from './types.js';
 
 const sqlite = new SQLiteAsyncDialect();
 
 export const SEED_DEV_FILE_NAME = ['seed.ts', 'seed.js', 'seed.mjs', 'seed.mts'];
-
-export async function seedLocal({
-	db,
-	tables,
-	// Glob all potential seed files to catch renames and deletions.
-	fileGlob,
-}: {
-	db: SqliteDB;
-	tables: DBTables;
-	fileGlob: Record<string, () => Promise<void>>;
-}) {
-	await recreateTables({ db, tables });
-	for (const fileName of SEED_DEV_FILE_NAME) {
-		const key = Object.keys(fileGlob).find((f) => f.endsWith(fileName));
-		if (key) {
-			await fileGlob[key]().catch((e) => {
-				if (e instanceof LibsqlError) {
-					throw new Error(SEED_ERROR(e.message));
-				}
-				throw e;
-			});
-			return;
-		}
-	}
-}
-
-export async function recreateTables({ db, tables }: { db: SqliteDB; tables: DBTables }) {
-	const setupQueries: SQL[] = [];
-	for (const [name, table] of Object.entries(tables)) {
-		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);
-		const createQuery = sql.raw(getCreateTableQuery(name, table));
-		const indexQueries = getCreateIndexQueries(name, table);
-		setupQueries.push(dropQuery, createQuery, ...indexQueries.map((s) => sql.raw(s)));
-	}
-	await db.batch([
-		db.run(sql`pragma defer_foreign_keys=true;`),
-		...setupQueries.map((q) => db.run(q)),
-	]);
-}
 
 export function getDropTableIfExistsQuery(tableName: string) {
 	return `DROP TABLE IF EXISTS ${sqlite.escapeName(tableName)}`;
