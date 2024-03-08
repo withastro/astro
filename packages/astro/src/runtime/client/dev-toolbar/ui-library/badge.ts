@@ -106,14 +106,15 @@ export class DevToolbarBadge extends HTMLElement {
 	}
 
 	updateStyle() {
-		const style = this.shadowRoot.getElementById('selected-style') as HTMLStyleElement;
+		const style = this.shadowRoot.querySelector<HTMLStyleElement>('#selected-style');
 
-		style.innerHTML = `
+		if (style) {
+			style.innerHTML = `
 			.badge {
 				--text-color: var(--${this.badgeStyle}-text);
 				--border-color: var(--${this.badgeStyle}-border);
 				--size: var(--${this.size});
-			}
-		`;
+			}`;
+		}
 	}
 }

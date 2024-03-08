@@ -1,5 +1,5 @@
-import { getIconElement, isDefinedIcon, type Icon } from './icons.js';
 import { settings } from '../settings.js';
+import { type Icon, getIconElement, isDefinedIcon } from './icons.js';
 
 const styles = ['purple', 'gray', 'red', 'green', 'yellow', 'blue'] as const;
 
@@ -86,13 +86,15 @@ export class DevToolbarHighlight extends HTMLElement {
 	}
 
 	updateStyle() {
-		const style = this.shadowRoot.getElementById('selected-style') as HTMLStyleElement;
-		style.innerHTML = `
+		const style = this.shadowRoot.querySelector<HTMLStyleElement>('#selected-style');
+
+		if (style) {
+			style.innerHTML = `
 			:host {
 				--background: var(--${this.highlightStyle}-background);
 				--border: var(--${this.highlightStyle}-border);
-			}
-		`;
+			}`;
+		}
 	}
 
 	attributeChangedCallback() {
