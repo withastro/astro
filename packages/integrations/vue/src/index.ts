@@ -65,7 +65,7 @@ function virtualAppEntrypoint(options?: Options): Plugin {
 				if (appEntrypoint) {
 					return `\
 import * as mod from ${JSON.stringify(appEntrypoint)};
-						
+
 export const setup = async (app) => {
 	if ('default' in mod) {
 		await mod.default(app);
@@ -101,12 +101,22 @@ export const setup = async (app) => {
 }
 
 async function getViteConfiguration(options?: Options): Promise<UserConfig> {
+	let vueOptions = options
+		? deepMergeObjects(options, {
+				// Disable transforming asset urls, as Vue doesn't transform them in a way that works in Astro
+				// TODO: Investigate if Vue's transformAssetUrls can be made to work in Astro, and if that's desirable
+				template: {
+					transformAssetUrls: false,
+				},
+			})
+		: undefined;
+
 	const config: UserConfig = {
 		optimizeDeps: {
 			include: ['@astrojs/vue/client.js', 'vue'],
 			exclude: ['@astrojs/vue/server.js', 'virtual:@astrojs/vue/app'],
 		},
-		plugins: [vue(options), virtualAppEntrypoint(options)],
+		plugins: [vue(vueOptions), virtualAppEntrypoint(vueOptions)],
 		ssr: {
 			external: ['@vue/server-renderer'],
 			noExternal: ['vuetify', 'vueperslides', 'primevue'],
@@ -135,4 +145,27 @@ export default function (options?: Options): AstroIntegration {
 			},
 		},
 	};
+}
+
+// Simple deep merge implementation that merges objects and strings
+function deepMergeObjects<T extends Record<string, any>>(a: T, b: T): T {
+	const merged: T = { ...a };
+
+	for (const key in b) {
+		const value = b[key];
+
+		if (a[key] == null) {
+			merged[key] = value;
+			continue;
+		}
+
+		if (typeof a[key] === 'object' && typeof value === 'object') {
+			merged[key] = deepMergeObjects(a[key], value);
+			continue;
+		}
+
+		merged[key] = value;
+	}
+
+	return merged;
 }
