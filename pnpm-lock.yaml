@@ -498,8 +498,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^2.7.0
-        version: 2.7.0
+        specifier: 0.0.0-literal-parsing-20240308150251
+        version: 0.0.0-literal-parsing-20240308150251
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
@@ -5533,6 +5533,10 @@ packages:
       chalk: 5.3.0
       log-update: 5.0.1
       sisteransi: 1.0.5
+    dev: false
+
+  /@astrojs/compiler@0.0.0-literal-parsing-20240308150251:
+    resolution: {integrity: sha512-hlsNjTnCFNPANYwBdqnUghDN/cr6YQeYa7GQzl+XRmiG0qlwYaOzsRT1aKbfGkFGRZmMkDVWbBROo9H2PAp3cg==}
     dev: false
 
   /@astrojs/compiler@1.8.2:
