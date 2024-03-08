@@ -86,13 +86,15 @@ export class DevToolbarHighlight extends HTMLElement {
 	}
 
 	updateStyle() {
-		const style = this.shadowRoot.getElementById('selected-style') as HTMLStyleElement;
-		style.innerHTML = `
+		const style = this.shadowRoot.querySelector<HTMLStyleElement>('#selected-style');
+
+		if (style) {
+			style.innerHTML = `
 			:host {
 				--background: var(--${this.highlightStyle}-background);
 				--border: var(--${this.highlightStyle}-border);
-			}
-		`;
+			}`;
+		}
 	}
 
 	attributeChangedCallback() {

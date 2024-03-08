@@ -123,11 +123,11 @@ export default {
 		async function lint() {
 			// Clear the previous audits
 			if (audits.length > 0) {
-				audits = [];
 				audits.forEach((audit) => {
 					audit.highlight?.remove();
 					audit.card?.remove();
 				});
+				audits = [];
 				hasCreatedUI = false;
 			}
 

@@ -108,14 +108,16 @@ export class DevToolbarToggle extends HTMLElement {
 	}
 
 	updateStyle() {
-		const style = this.shadowRoot.getElementById('selected-style') as HTMLStyleElement;
-		style.innerHTML = `
+		const style = this.shadowRoot.querySelector<HTMLStyleElement>('#selected-style');
+		if (style) {
+			style.innerHTML = `
 			:host {
 				--bg-on: var(--${this.toggleStyle}-bg-on);
 				--border-off: var(--${this.toggleStyle}-border-off);
 				--border-on: var(--${this.toggleStyle}-border-on);
 			}
 		`;
+		}
 	}
 
 	connectedCallback() {

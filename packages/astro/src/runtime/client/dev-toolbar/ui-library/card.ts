@@ -43,7 +43,7 @@ export class DevToolbarCard extends HTMLElement {
 	}
 
 	updateStyle() {
-		const style = this.shadowRoot.getElementById('selected-style');
+		const style = this.shadowRoot.querySelector<HTMLStyleElement>('#selected-style');
 
 		if (style) {
 			style.innerHTML = `
