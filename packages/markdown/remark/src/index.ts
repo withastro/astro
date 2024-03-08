@@ -7,9 +7,9 @@ import {
 } from './frontmatter-injection.js';
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
+import { rehypePrism } from './rehype-prism.js';
+import { rehypeShiki } from './rehype-shiki.js';
 import { remarkCollectImages } from './remark-collect-images.js';
-import { remarkPrism } from './remark-prism.js';
-import { remarkShiki } from './remark-shiki.js';
 
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
@@ -24,6 +24,8 @@ import { rehypeImages } from './rehype-images.js';
 export { InvalidAstroDataError, setVfileFrontmatter } from './frontmatter-injection.js';
 export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export { remarkCollectImages } from './remark-collect-images.js';
+export { rehypePrism } from './rehype-prism.js';
+export { rehypeShiki } from './rehype-shiki.js';
 export { remarkPrism } from './remark-prism.js';
 export { remarkShiki } from './remark-shiki.js';
 export { createShikiHighlighter, replaceCssVariables, type ShikiHighlighter } from './shiki.js';
@@ -85,13 +87,6 @@ export async function createMarkdownProcessor(
 	}
 
 	if (!isPerformanceBenchmark) {
-		// Syntax highlighting
-		if (syntaxHighlight === 'shiki') {
-			parser.use(remarkShiki, shikiConfig);
-		} else if (syntaxHighlight === 'prism') {
-			parser.use(remarkPrism);
-		}
-
 		// Apply later in case user plugins resolve relative image paths
 		parser.use(remarkCollectImages);
 	}
@@ -102,6 +97,15 @@ export async function createMarkdownProcessor(
 		passThrough: [],
 		...remarkRehypeOptions,
 	});
+
+	if (!isPerformanceBenchmark) {
+		// Syntax highlighting
+		if (syntaxHighlight === 'shiki') {
+			parser.use(rehypeShiki, shikiConfig);
+		} else if (syntaxHighlight === 'prism') {
+			parser.use(rehypePrism);
+		}
+	}
 
 	// User rehype plugins
 	for (const [plugin, pluginOpts] of loadedRehypePlugins) {
