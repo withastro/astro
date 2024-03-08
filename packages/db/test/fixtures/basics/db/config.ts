@@ -1,5 +1,5 @@
 import { Themes } from './theme';
-import { column, defineDB, defineTable } from 'astro:db';
+import { column, defineDb, defineTable } from 'astro:db';
 
 const Author = defineTable({
 	columns: {
@@ -8,6 +8,6 @@ const Author = defineTable({
 	},
 });
 
-export default defineDB({
+export default defineDb({
 	tables: { Author, Themes },
 });

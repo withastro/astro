@@ -71,10 +71,10 @@ export default {
 public-hoist-pattern[]=*lit*
 `,
 	DB_CONFIG: `\
-import { defineDB } from 'astro:db';
+import { defineDb } from 'astro:db';
 
 // https://astro.build/db/config
-export default defineDB({
+export default defineDb({
   tables: {}
 });
 `,
