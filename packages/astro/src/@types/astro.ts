@@ -13,7 +13,7 @@ import type * as babel from '@babel/core';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
-import type { SerializedSSRManifest, AssetsPrefix } from '../core/app/types.js';
+import type { AssetsPrefix, SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import type { AstroConfigType } from '../core/config/index.js';
 import type { AstroTimer } from '../core/config/timer.js';
@@ -910,7 +910,7 @@ export interface AstroUserConfig {
 		 *   build: {
 		 *     assetsPrefix: {
 		 *       'js': 'https://js.cdn.example.com',
-		 *       'mjs': 'https://js.cdn.example.com', 
+		 *       'mjs': 'https://js.cdn.example.com',
 		 *       'css': 'https://css.cdn.example.com',
 		 *       'fallback': 'https://cdn.example.com'
 		 *     }

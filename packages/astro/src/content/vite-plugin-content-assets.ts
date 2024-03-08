@@ -2,6 +2,7 @@ import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { Plugin, Rollup } from 'vite';
 import type { AstroSettings, SSRElement } from '../@types/astro.js';
+import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
 import { type BuildInternals, getPageDataByViteID } from '../core/build/internal.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
@@ -19,7 +20,6 @@ import {
 	STYLES_PLACEHOLDER,
 } from './consts.js';
 import { hasContentFlag } from './utils.js';
-import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 
 export function astroContentAssetPropagationPlugin({
 	mode,

@@ -1,7 +1,7 @@
+import { extname } from 'node:path';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
-import { extname } from 'node:path';
 import type { AstroPluginOptions, ImageTransform } from '../@types/astro.js';
 import { extendManualChunks } from '../core/build/plugins/util.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -14,10 +14,10 @@ import {
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { emitESMImage } from './utils/emitAsset.js';
+import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 import { isESMImportedImage } from './utils/imageKind.js';
 import { getProxyCode } from './utils/proxy.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
-import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 

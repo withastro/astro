@@ -4,6 +4,7 @@ import glob from 'fast-glob';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
 import type { AstroSettings } from '../@types/astro.js';
+import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
 import {
 	astroContentAssetPropagationPlugin,
@@ -36,7 +37,6 @@ import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
 import { isObject } from './util.js';
-import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;

@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url';
 import glob from 'fast-glob';
 import type { OutputChunk } from 'rollup';
 import { type Plugin as VitePlugin } from 'vite';
+import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookBuildSsr } from '../../../integrations/index.js';
@@ -11,14 +12,13 @@ import type {
 	SerializedRouteInfo,
 	SerializedSSRManifest,
 } from '../../app/types.js';
-import { joinPaths, prependForwardSlash, fileExtension } from '../../path.js';
+import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
-import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
