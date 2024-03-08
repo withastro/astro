@@ -10,6 +10,7 @@ import {
 import { closeOnOutsideClick, createWindowElement } from '../utils/window.js';
 import { a11y } from './a11y.js';
 import { perf } from './perf.js';
+import { settings } from '../../settings.js';
 
 const icon =
 	'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 1 20 16"><path fill="#fff" d="M.6 2A1.1 1.1 0 0 1 1.7.9h16.6a1.1 1.1 0 1 1 0 2.2H1.6A1.1 1.1 0 0 1 .8 2Zm1.1 7.1h6a1.1 1.1 0 0 0 0-2.2h-6a1.1 1.1 0 0 0 0 2.2ZM9.3 13H1.8a1.1 1.1 0 1 0 0 2.2h7.5a1.1 1.1 0 1 0 0-2.2Zm11.3 1.9a1.1 1.1 0 0 1-1.5 0l-1.7-1.7a4.1 4.1 0 1 1 1.6-1.6l1.6 1.7a1.1 1.1 0 0 1 0 1.6Zm-5.3-3.4a1.9 1.9 0 1 0 0-3.8 1.9 1.9 0 0 0 0 3.8Z"/></svg>';
@@ -69,8 +70,51 @@ export default {
 
 		await lint();
 
-		document.addEventListener('astro:after-swap', async () => lint());
-		document.addEventListener('astro:page-load', async () => refreshLintPositions);
+		let mutationDebounce: ReturnType<typeof setTimeout>;
+		const observer = new MutationObserver(() => {
+			// We don't want to rerun the audit lints on every single mutation, so we'll debounce it.
+			if (mutationDebounce) {
+				clearTimeout(mutationDebounce);
+			}
+
+			mutationDebounce = setTimeout(() => {
+				settings.logger.verboseLog('Rerunning audit lints because the DOM has been updated.');
+
+				// Even though we're ready to run the lints, we'll wait for the next idle period to do so, as it is less likely
+				// to interfere with any other work the browser is doing post-mutation. For instance, the page or the user might
+				// be interacting with the newly added elements, or the browser might be doing some work (layout, paint, etc.)
+				if ('requestIdleCallback' in window) {
+					window.requestIdleCallback(
+						async () => {
+							lint();
+						},
+						{ timeout: 300 }
+					);
+				} else {
+					// Fallback for old versions of Safari, we'll assume that things are less likely to be busy after 150ms.
+					setTimeout(() => {
+						lint();
+					}, 150);
+				}
+			}, 250);
+		});
+
+		setupObserver();
+
+		document.addEventListener('astro:before-preparation', () => {
+			observer.disconnect();
+		});
+		document.addEventListener('astro:after-swap', async () => {
+			lint();
+		});
+		document.addEventListener('astro:page-load', async () => {
+			refreshLintPositions();
+
+			// HACK: View transitions add a route announcer after this event, so we need to wait for it to be added
+			setTimeout(() => {
+				setupObserver();
+			}, 100);
+		});
 
 		closeOnOutsideClick(eventTarget);
 
@@ -379,6 +423,13 @@ export default {
 				.replace(/>/g, '&gt;')
 				.replace(/"/g, '&quot;')
 				.replace(/'/g, '&#039;');
+		}
+
+		function setupObserver() {
+			observer.observe(document.body, {
+				childList: true,
+				subtree: true,
+			});
 		}
 	},
 } satisfies DevToolbarApp;

@@ -272,7 +272,6 @@ test.describe('Dev Toolbar', () => {
 		await appButton.click();
 
 		const myAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="my-plugin"]');
-		console.log(await myAppCanvas.innerHTML());
 		const myAppWindow = myAppCanvas.locator('astro-dev-toolbar-window');
 		await expect(myAppWindow).toHaveCount(1);
 		await expect(myAppWindow).toBeVisible();
@@ -295,6 +294,20 @@ test.describe('Dev Toolbar', () => {
 		expect(clientRenderTime).not.toBe(null);
 	});
 
+	test('apps can show notifications', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="my-plugin"]');
+		await appButton.click();
+
+		const customAppNotification = appButton.locator('.icon .notification');
+		await expect(customAppNotification).toHaveAttribute('data-active');
+		await expect(customAppNotification).toHaveAttribute('data-level', 'warning');
+
+		await expect(customAppNotification).toBeVisible();
+  });
+  
 	test('can quit apps by clicking outside the window', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 

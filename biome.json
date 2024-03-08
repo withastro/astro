@@ -2,7 +2,7 @@
   "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
   "files": {
     "include": ["test/**", "e2e/**", "packages/**"],
-    "ignore": ["vendor", "dist/**", "packages/astro/**"]
+    "ignore": ["vendor", "dist/**"]
   },
   "organizeImports": {
     "enabled": true

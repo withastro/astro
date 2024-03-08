@@ -1,10 +1,10 @@
 import { join } from 'node:path';
 import {
 	TSConfckParseError,
-	find,
-	parse,
 	type TSConfckParseOptions,
 	type TSConfckParseResult,
+	find,
+	parse,
 } from 'tsconfck';
 import type { CompilerOptions, TypeAcquisition } from 'typescript';
 

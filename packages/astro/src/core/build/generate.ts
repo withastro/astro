@@ -1,7 +1,7 @@
-import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
 import fs from 'node:fs';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
+import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
 import PQueue from 'p-queue';
 import type { OutputAsset, OutputChunk } from 'rollup';
 import type {
@@ -21,7 +21,7 @@ import {
 	getStaticImageList,
 	prepareAssetsGenerationEnv,
 } from '../../assets/build/generate.js';
-import { hasPrerenderedPages, type BuildInternals } from '../../core/build/internal.js';
+import { type BuildInternals, hasPrerenderedPages } from '../../core/build/internal.js';
 import {
 	isRelativePath,
 	joinPaths,
@@ -29,9 +29,11 @@ import {
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
+import { toRoutingStrategy } from '../../i18n/utils.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import type { SSRManifestI18n } from '../app/types.js';
+import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { routeIsFallback } from '../redirects/helpers.js';
 import {
@@ -39,11 +41,11 @@ import {
 	getRedirectLocationOrThrow,
 	routeIsRedirect,
 } from '../redirects/index.js';
+import { RenderContext } from '../render-context.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
-import { BuildPipeline } from './pipeline.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
 import {
 	cssOrder,
@@ -51,6 +53,7 @@ import {
 	getPageDataByComponent,
 	mergeInlineCss,
 } from './internal.js';
+import { BuildPipeline } from './pipeline.js';
 import type {
 	PageBuildData,
 	SinglePageBuiltModule,
@@ -58,9 +61,6 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
-import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
-import { RenderContext } from '../render-context.js';
-import { toRoutingStrategy } from '../../i18n/utils.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -326,13 +326,7 @@ async function getPathsForRoute(
 	let paths: Array<string> = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
-		builtPaths.add(route.pathname);
-		for (const virtualRoute of route.fallbackRoutes) {
-			if (virtualRoute.pathname) {
-				paths.push(virtualRoute.pathname);
-				builtPaths.add(virtualRoute.pathname);
-			}
-		}
+		builtPaths.add(removeTrailingForwardSlash(route.pathname));
 	} else {
 		const staticPaths = await callGetStaticPaths({
 			mod,
@@ -477,12 +471,25 @@ async function generatePath(
 	route: RouteData
 ) {
 	const { mod } = gopts;
-	const { config, logger, options, serverLike } = pipeline;
+	const { config, logger, options } = pipeline;
 	logger.debug('build', `Generating: ${pathname}`);
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	if (route.type === 'page') {
 		addPageName(pathname, options);
+	}
+
+	// Do not render the fallback route if there is already a translated page
+	// with the same path
+	if (
+		route.type === 'fallback' &&
+		// If route is index page, continue rendering. The index page should
+		// always be rendered
+		route.pathname !== '/' &&
+		// Check if there is a translated page with the same path
+		Object.values(options.allPages).some((val) => pathname.match(val.route.pattern))
+	) {
+		return;
 	}
 
 	const url = getUrlForPath(
@@ -495,10 +502,11 @@ async function generatePath(
 	);
 
 	const request = createRequest({
+		base: config.base,
 		url,
 		headers: new Headers(),
 		logger,
-		ssr: serverLike,
+		staticLike: true,
 	});
 	const renderContext = RenderContext.create({ pipeline, pathname, request, routeData: route });
 
@@ -514,8 +522,9 @@ async function generatePath(
 	}
 
 	if (response.status >= 300 && response.status < 400) {
-		// If redirects is set to false, don't output the HTML
-		if (!config.build.redirects) {
+		// Adapters may handle redirects themselves, turning off Astro's redirect handling using `config.build.redirects` in the process.
+		// In that case, we skip rendering static files for the redirect routes.
+		if (routeIsRedirect(route) && !config.build.redirects) {
 			return;
 		}
 		const locationSite = getRedirectLocationOrThrow(response.headers);
@@ -601,9 +610,7 @@ function createBuildManifest(
 		renderers,
 		base: settings.config.base,
 		assetsPrefix: settings.config.build.assetsPrefix,
-		site: settings.config.site
-			? new URL(settings.config.base, settings.config.site).toString()
-			: settings.config.site,
+		site: settings.config.site,
 		componentMetadata: internals.componentMetadata,
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
