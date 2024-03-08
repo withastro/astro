@@ -4,6 +4,6 @@ declare module 'astro:db' {
 	export const TRUE: typeof import('./dist/runtime/config.js').TRUE;
 	export const FALSE: typeof import('./dist/runtime/config.js').FALSE;
 	export const column: typeof import('./dist/runtime/config.js').column;
-	export const defineDB: typeof import('./dist/runtime/config.js').defineDB;
+	export const defineDb: typeof import('./dist/runtime/config.js').defineDb;
 	export const defineTable: typeof import('./dist/runtime/config.js').defineTable;
 }

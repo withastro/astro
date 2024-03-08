@@ -1,4 +1,4 @@
-import { column, defineDB, defineTable } from 'astro:db';
+import { column, defineDb, defineTable } from 'astro:db';
 
 const Recipe = defineTable({
 	columns: {
@@ -21,6 +21,6 @@ const Ingredient = defineTable({
 	foreignKeys: [{ columns: 'recipeId', references: () => [Recipe.columns.id] }],
 });
 
-export default defineDB({
+export default defineDb({
 	tables: { Recipe, Ingredient },
 });
