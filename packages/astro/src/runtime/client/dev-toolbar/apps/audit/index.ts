@@ -3,7 +3,7 @@ import { settings } from '../../settings.js';
 import type { DevToolbarHighlight } from '../../ui-library/highlight.js';
 import { positionHighlight } from '../utils/highlight.js';
 import { closeOnOutsideClick } from '../utils/window.js';
-import { rulesCategories, type AuditRule } from './rules/index.js';
+import { type AuditRule, rulesCategories } from './rules/index.js';
 import { DevToolbarAuditListItem } from './ui/audit-list-item.js';
 import { DevToolbarAuditListWindow } from './ui/audit-list-window.js';
 import { createAuditUI } from './ui/audit-ui.js';

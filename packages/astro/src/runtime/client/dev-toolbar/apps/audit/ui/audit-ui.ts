@@ -1,12 +1,12 @@
-import type { DevToolbarMetadata } from '../../../../../../@types/astro.js';
 import { escape as escapeHTML } from 'html-escaper';
+import type { DevToolbarMetadata } from '../../../../../../@types/astro.js';
 import {
+	attachTooltipToHighlight,
 	createHighlight,
 	getElementsPositionInDocument,
-	attachTooltipToHighlight,
 } from '../../utils/highlight.js';
 import type { Audit } from '../index.js';
-import { resolveAuditRule, type ResolvedAuditRule } from '../rules/index.js';
+import { type ResolvedAuditRule, resolveAuditRule } from '../rules/index.js';
 import type { DevToolbarAuditListItem } from './audit-list-item.js';
 
 function truncate(val: string, maxLength: number): string {
