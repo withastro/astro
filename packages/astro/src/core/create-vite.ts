@@ -34,7 +34,7 @@ import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
 import type { Logger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
-import { joinPaths, fileExtension } from './path.js';
+import { joinPaths } from './path.js';
 import { isObject } from './util.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 
@@ -218,7 +218,7 @@ export async function createVite(
 		commonConfig.experimental = {
 			renderBuiltUrl(filename, { type, hostType }) {
 				if (type === 'asset') {
-					return joinPaths(getAssetsPrefix(fileExtension(hostType), assetsPrefix), filename);
+					return joinPaths(getAssetsPrefix(`.${hostType}`, assetsPrefix), filename);
 				}
 			},
 		};
