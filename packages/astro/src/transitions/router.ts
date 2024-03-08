@@ -306,6 +306,11 @@ async function updateDOM(
 		}
 	};
 
+	const shouldCopyProps = (el: HTMLElement): boolean => {
+		const persistProps = el.dataset.astroTransitionPersistProps;
+		return persistProps == null || persistProps === 'false';
+	}
+
 	const defaultSwap = (beforeSwapEvent: TransitionBeforeSwapEvent) => {
 		// swap attributes of the html element
 		// - delete all attributes from the current document
@@ -366,6 +371,11 @@ async function updateDOM(
 				// The element exists in the new page, replace it with the element
 				// from the old page so that state is preserved.
 				newEl.replaceWith(el);
+				// For islands, copy over the props to allow them to re-render
+				if(newEl.localName === 'astro-island' && shouldCopyProps(el as HTMLElement)) {
+					el.setAttribute('ssr', '');
+					el.setAttribute('props', newEl.getAttribute('props')!);
+				}
 			}
 		}
 		restoreFocus(savedFocus);
