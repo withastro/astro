@@ -1,4 +1,3 @@
-import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type SQL, sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
@@ -44,11 +43,24 @@ type VitePluginDBParams =
 			root: URL;
 	  };
 
+const normalizeRelativePath = (path: string, root: URL) =>
+	normalizePath(fileURLToPath(new URL(path, root)));
+
+const normalizeIntegrationSeedPaths = (seedFiles: Array<string | URL>, root: URL) =>
+	seedFiles.map((pathOrUrl) =>
+		typeof pathOrUrl === 'string'
+			? pathOrUrl.startsWith('.')
+				? normalizeRelativePath(pathOrUrl, root)
+				: pathOrUrl
+			: pathOrUrl.pathname
+	);
+
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 	const srcDirPath = normalizePath(fileURLToPath(params.srcDir));
 	const seedFilePaths = SEED_DEV_FILE_NAME.map((name) =>
-		normalizePath(fileURLToPath(new URL(name, getDbDirectoryUrl(params.root))))
+		normalizeRelativePath(name, getDbDirectoryUrl(params.root))
 	);
+	let integrationSeedFilePaths: Array<string>;
 	return {
 		name: 'astro:db',
 		enforce: 'pre',
@@ -67,8 +79,14 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			return resolved.virtual;
 		},
 		async load(id) {
+			if (!params.connectToStudio && !integrationSeedFilePaths) {
+				integrationSeedFilePaths = normalizeIntegrationSeedPaths(
+					params.seedFiles.get(),
+					params.root
+				);
+			}
 			// Recreate tables whenever a seed file is loaded.
-			if (seedFilePaths.some((f) => id === f)) {
+			if (seedFilePaths.includes(id) || integrationSeedFilePaths?.includes(id)) {
 				await recreateTables({
 					db: createLocalDatabaseClient({ dbUrl: new URL(DB_PATH, params.root).href }),
 					tables: params.tables.get(),
@@ -86,7 +104,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			return getLocalVirtualModContents({
 				root: params.root,
 				tables: params.tables.get(),
-				seedFiles: params.seedFiles.get(),
+				seedFiles: integrationSeedFilePaths,
 				shouldSeed: id === resolved.seedVirtual,
 			});
 		},
@@ -104,7 +122,7 @@ export function getLocalVirtualModContents({
 	shouldSeed,
 }: {
 	tables: DBTables;
-	seedFiles: Array<string | URL>;
+	seedFiles: string[];
 	root: URL;
 	shouldSeed: boolean;
 }) {
@@ -113,14 +131,12 @@ export function getLocalVirtualModContents({
 		// for Vite import.meta.glob
 		(name) => new URL(name, getDbDirectoryUrl('file:///')).pathname
 	);
-	const resolveId = (id: string) => (id.startsWith('.') ? resolve(fileURLToPath(root), id) : id);
 	// Use top-level imports to correctly resolve `astro:db` within seed files.
 	// Dynamic imports cause a silent build failure,
 	// potentially because of circular module references.
 	const integrationSeedImportStatements: string[] = [];
 	const integrationSeedImportNames: string[] = [];
-	seedFiles.forEach((pathOrUrl, index) => {
-		const path = typeof pathOrUrl === 'string' ? resolveId(pathOrUrl) : pathOrUrl.pathname;
+	seedFiles.forEach((path, index) => {
 		const importName = 'integration_seed_' + index;
 		integrationSeedImportStatements.push(`import ${importName} from ${JSON.stringify(path)};`);
 		integrationSeedImportNames.push(importName);
