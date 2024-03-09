@@ -1,5 +1,5 @@
 {
-  "name": "@test/db-integration",
+  "name": "@test/db-integration-only",
   "version": "0.0.0",
   "private": true,
   "scripts": {
