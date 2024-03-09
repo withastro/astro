@@ -19,7 +19,9 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/tailwind/",
   "exports": {
     ".": "./dist/index.js",
+    "./v4": "./dist/v4.js",
     "./base.css": "./base.css",
+    "./base-v4.css": "./base-v4.css",
     "./package.json": "./package.json"
   },
   "files": [
@@ -35,7 +37,8 @@
   "dependencies": {
     "autoprefixer": "^10.4.15",
     "postcss": "^8.4.35",
-    "postcss-load-config": "^4.0.2"
+    "postcss-load-config": "^4.0.2",
+    "@tailwindcss/vite": "4.0.0-alpha.7"
   },
   "devDependencies": {
     "astro": "workspace:*",
