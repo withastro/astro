@@ -137,6 +137,9 @@ export async function runHookConfigSetup({
 					}
 					updatedSettings.injectedRoutes.push(injectRoute);
 				},
+				injectAsset: (injectAsset) => {
+					updatedSettings.injectedAssets.push(injectAsset);
+				},
 				addWatchFile: (path) => {
 					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
 				},

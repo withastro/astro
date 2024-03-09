@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { performance } from 'node:perf_hooks';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { blue, bold, green } from 'kleur/colors';
 import type * as vite from 'vite';
 import type {
@@ -33,6 +33,8 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
+import { basename } from 'node:path';
+import { appendForwardSlash } from '../path.js';
 
 export interface BuildOptions {
 	/**
@@ -53,6 +55,42 @@ export interface BuildOptions {
 	force?: boolean;
 }
 
+function resolveInjectedAssets({
+	settings,
+	cwd,
+}: {
+	/** Astro Settings object */
+	settings: AstroSettings;
+	/** Current working directory */
+	cwd?: string;
+}) {
+	const { config } = settings;
+	for (const injectedAsset of settings.injectedAssets) {
+		const { entrypoint } = injectedAsset;
+		let resolved: string;
+		try {
+			resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
+		} catch (e) {
+			resolved = fileURLToPath(new URL(entrypoint, config.root));
+		}
+		settings.resolvedInjectedAssets.push({
+			...injectedAsset,
+			resolvedEntryPoint: pathToFileURL(resolved),
+		});
+	}
+}
+
+function createInjectedAssets(
+	params: {
+		/** Astro Settings object */
+		settings: AstroSettings;
+		/** Current working directory */
+		cwd?: string;
+	},
+	logger: Logger
+) {
+	resolveInjectedAssets(params);
+}
 /**
  * Builds your site for deployment. By default, this will generate static files and place them in a dist/ directory.
  * If SSR is enabled, this will generate the necessary server files to serve your site.
@@ -210,6 +248,20 @@ class AstroBuilder {
 		});
 		this.logger.debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
 
+		createInjectedAssets({ settings: this.settings }, this.logger);
+		// console.log('DEBUG', this.settings.resolvedInjectedAssets);
+		this.logger.info('assets', 'Injecting assets...');
+		const assetsPath = this.settings.config.build.assets;
+		for (const resolvedAsset of this.settings.resolvedInjectedAssets) {
+			const assetURL = new URL(
+				`./${assetsPath}/${basename(fileURLToPath(resolvedAsset.resolvedEntryPoint))}`,
+				appendForwardSlash(opts.settings.config.outDir.toString())
+			);
+			// console.log(assetURL);
+			try {
+				fs.promises.copyFile(fileURLToPath(resolvedAsset.resolvedEntryPoint), assetURL);
+			} catch (error) {}
+		}
 		// You're done! Time to clean up.
 		await runHookBuildDone({
 			config: this.settings.config,

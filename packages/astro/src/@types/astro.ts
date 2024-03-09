@@ -1864,6 +1864,14 @@ export interface ResolvedInjectedRoute extends InjectedRoute {
 	resolvedEntryPoint?: URL;
 }
 
+export interface InjectedAsset {
+	entrypoint: string;
+}
+
+export interface ResolvedInjectedAsset extends InjectedAsset {
+	resolvedEntryPoint: URL;
+}
+
 /**
  * Resolved Astro Config
  * Config with user settings along with all defaults filled in.
@@ -1995,6 +2003,8 @@ export interface AstroSettings {
 	preferences: AstroPreferences;
 	injectedRoutes: InjectedRoute[];
 	resolvedInjectedRoutes: ResolvedInjectedRoute[];
+	injectedAssets: InjectedAsset[];
+	resolvedInjectedAssets: ResolvedInjectedAsset[];
 	pageExtensions: string[];
 	contentEntryTypes: ContentEntryType[];
 	dataEntryTypes: DataEntryType[];
@@ -2595,6 +2605,7 @@ export interface AstroIntegration {
 			addWatchFile: (path: URL | string) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
+			injectAsset: (injectAsset: InjectedAsset) => void;
 			addClientDirective: (directive: ClientDirectiveConfig) => void;
 			/**
 			 * @deprecated Use `addDevToolbarApp` instead.
