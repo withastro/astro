@@ -19,7 +19,7 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
         name: '@astrojs/tailwind',
         hooks: {
             'astro:config:setup': async ({ updateConfig, injectScript }) => {
-                // Inject the Tailwind postcss plugin
+                // Inject the Tailwind vite plugin
                 updateConfig({
                     vite: {
                       plugins: [tailwindcss()],
