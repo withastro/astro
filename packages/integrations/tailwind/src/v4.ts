@@ -22,7 +22,7 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
                 // Inject the Tailwind postcss plugin
                 updateConfig({
                     vite: {
-                      plugins: [...tailwindcss()],
+                      plugins: [tailwindcss()],
                       css: { transformer: 'lightningcss' },
                     }
                 });
