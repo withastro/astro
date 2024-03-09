@@ -22,34 +22,30 @@ export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-clie
 export async function seedLocal({
 	// Glob all potential seed files to catch renames and deletions.
 	userSeedGlob,
-	integrationSeedFunctions: integrationSeedFunctions,
+	integrationSeedFunctions,
 }: {
 	userSeedGlob: Record<string, { default?: () => Promise<void> }>;
 	integrationSeedFunctions: Array<() => Promise<void>>;
 }) {
+	const seedFunctions: Array<() => Promise<void>> = [];
 	const seedFilePath = Object.keys(userSeedGlob)[0];
 	if (seedFilePath) {
 		const mod = userSeedGlob[seedFilePath];
-
-		if (!mod.default) {
-			throw new Error(SEED_DEFAULT_EXPORT_ERROR(seedFilePath));
-		}
+		if (!mod.default) throw new Error(SEED_DEFAULT_EXPORT_ERROR(seedFilePath));
+		seedFunctions.push(mod.default);
+	}
+	for (const seedFn of integrationSeedFunctions) {
+		seedFunctions.push(seedFn);
+	}
+	for (const seed of seedFunctions) {
 		try {
-			await mod.default();
+			await seed();
 		} catch (e) {
 			if (e instanceof LibsqlError) {
 				throw new Error(SEED_ERROR(e.message));
 			}
 			throw e;
 		}
-	}
-	for (const seedFn of integrationSeedFunctions) {
-		await seedFn().catch((e) => {
-			if (e instanceof LibsqlError) {
-				throw new Error(SEED_ERROR(e.message));
-			}
-			throw e;
-		});
 	}
 }
 
