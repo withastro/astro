@@ -23,7 +23,7 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
                 updateConfig({
                     vite: {
                       plugins: [...tailwindcss()],
-                      css: { transformer: 'lightingcss' },
+                      css: { transformer: 'lightningcss' },
                     }
                 });
 
