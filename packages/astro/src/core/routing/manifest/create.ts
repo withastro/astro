@@ -389,9 +389,7 @@ function createFileBasedRoutes(
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
-				const route = `/${segments
-					.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
-					.join('/')}`.toLowerCase();
+				const route = joinSegments(segments);
 				routes.push({
 					route,
 					isIndex: item.isIndex,
@@ -466,9 +464,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 			.flat()
 			.filter((p) => p.dynamic)
 			.map((p) => p.content);
-		const route = `/${segments
-			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
-			.join('/')}`.toLowerCase();
+		const route = joinSegments(segments);
 
 		routes[priority].push({
 			type,
@@ -524,9 +520,7 @@ function createRedirectRoutes(
 			.flat()
 			.filter((p) => p.dynamic)
 			.map((p) => p.content);
-		const route = `/${segments
-			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
-			.join('/')}`.toLowerCase();
+		const route = joinSegments(segments);
 
 		let destination: string;
 		if (typeof to === 'string') {
@@ -886,4 +880,18 @@ function computeRoutePriority(config: AstroConfig): RoutePriorityOverride {
 		return 'normal';
 	}
 	return 'legacy';
+}
+
+function joinSegments(segments: RoutePart[][]): string {
+	const arr = segments.map(function d(segment): string {
+		const [{ dynamic, content }] = segment;
+
+		return segment.length > 1
+			? segment.map((s) => d([s])).join('')
+			: dynamic
+				? `[${content}]`
+				: content;
+	});
+
+	return `/${arr.join('/')}`.toLowerCase();
 }
