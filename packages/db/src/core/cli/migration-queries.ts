@@ -423,7 +423,7 @@ export async function getProductionCurrentSnapshot({
 	appToken,
 }: {
 	appToken: string;
-}): Promise<DBSnapshot> {
+}): Promise<DBSnapshot | undefined> {
 	const url = new URL('/db/schema', getRemoteDatabaseUrl());
 
 	const response = await fetch(url, {
