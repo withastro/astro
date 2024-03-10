@@ -9,41 +9,16 @@ describe('Hoisted Imports', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/hoisted-imports/',
-			experimental: {
-				optimizeHoistedScript: true,
-			},
 		});
 	});
 
 	async function getAllScriptText(page) {
 		const html = await fixture.readFile(page);
 		const $ = cheerio.load(html);
-		const scriptText = [];
-
-		const importRegex = /import\s*['"]([^'"]+)['"]/g;
-		async function resolveImports(text) {
-			const matches = text.matchAll(importRegex);
-			for (const match of matches) {
-				const importPath = match[1];
-				const importText = await fixture.readFile('/_astro/' + importPath);
-				scriptText.push(await resolveImports(importText));
-			}
-			return text;
-		}
-
-		const scripts = $('script');
-		for (let i = 0; i < scripts.length; i++) {
-			const src = scripts.eq(i).attr('src');
-
-			let text;
-			if (src) {
-				text = await fixture.readFile(src);
-			} else {
-				text = scripts.eq(i).text();
-			}
-			scriptText.push(await resolveImports(text));
-		}
-		return scriptText.join('\n');
+		return $('script')
+			.map((_, el) => $(el).text())
+			.toArray()
+			.join('\n');
 	}
 
 	describe('build', () => {
@@ -68,14 +43,7 @@ describe('Hoisted Imports', () => {
 			expectScript(scripts, 'D');
 			expectScript(scripts, 'E');
 		});
-		it('includes all imported scripts when dynamically imported', async () => {
-			const scripts = await getAllScriptText('/dynamic/index.html');
-			expectScript(scripts, 'A');
-			expectScript(scripts, 'B');
-			expectScript(scripts, 'C');
-			expectScript(scripts, 'D');
-			expectScript(scripts, 'E');
-		});
+
 		it('includes no scripts when none imported', async () => {
 			const scripts = await getAllScriptText('/none/index.html');
 			expectNotScript(scripts, 'A');
@@ -84,6 +52,7 @@ describe('Hoisted Imports', () => {
 			expectNotScript(scripts, 'D');
 			expectNotScript(scripts, 'E');
 		});
+
 		it('includes some scripts', async () => {
 			const scripts = await getAllScriptText('/some/index.html');
 			expectScript(scripts, 'A');
@@ -91,6 +60,23 @@ describe('Hoisted Imports', () => {
 			expectScript(scripts, 'C');
 			expectNotScript(scripts, 'D');
 			expectNotScript(scripts, 'E');
+		});
+
+		it('deduplicates already rendered scripts', async () => {
+			const scripts = await getAllScriptText('/dedupe/index.html');
+			expectScript(scripts, 'A');
+
+			const html = await fixture.readFile('/dedupe/index.html');
+			const $ = cheerio.load(html);
+			assert.equal($('script').length, 1);
+		});
+
+		it('inlines if script is larger than vite.assetInlineLimit: 100', async () => {
+			const html = await fixture.readFile('/no-inline/index.html');
+			const $ = cheerio.load(html);
+			const scripts = $('script');
+			assert.equal(scripts.length, 1);
+			assert.ok(scripts[0].attribs.src);
 		});
 	});
 });

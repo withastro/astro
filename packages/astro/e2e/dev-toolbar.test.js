@@ -69,6 +69,10 @@ test.describe('Dev Toolbar', () => {
 		await page.click('#go-to-b');
 		await consolePromise;
 
+		toolbar = page.locator('astro-dev-toolbar');
+		appButton = toolbar.locator('button[data-app-id="astro:home"]');
+		await appButton.click();
+
 		astroAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:home"]');
 		astroToolbarCards = await astroAppCanvas.locator('astro-dev-toolbar-card');
 		await page.waitForSelector('astro-dev-toolbar-card');
@@ -147,11 +151,11 @@ test.describe('Dev Toolbar', () => {
 		const auditHighlight = auditCanvas.locator('astro-dev-toolbar-highlight');
 		await expect(auditHighlight).not.toBeVisible();
 
-		const auditWindow = auditCanvas.locator('astro-dev-toolbar-window');
+		const auditWindow = auditCanvas.locator('astro-dev-toolbar-audit-window');
 		await expect(auditWindow).toHaveCount(1);
 		await expect(auditWindow).toBeVisible();
 
-		await expect(auditWindow.locator('astro-dev-toolbar-icon[icon=check-circle]')).toBeVisible();
+		await expect(auditWindow.locator('.no-audit-container')).toBeVisible();
 	});
 
 	test('audit shows a window with list of problems', async ({ page, astro }) => {
@@ -162,7 +166,7 @@ test.describe('Dev Toolbar', () => {
 		await appButton.click();
 
 		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
-		const auditWindow = auditCanvas.locator('astro-dev-toolbar-window');
+		const auditWindow = auditCanvas.locator('astro-dev-toolbar-audit-window');
 		await expect(auditWindow).toHaveCount(1);
 		await expect(auditWindow).toBeVisible();
 
@@ -268,7 +272,6 @@ test.describe('Dev Toolbar', () => {
 		await appButton.click();
 
 		const myAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="my-plugin"]');
-		console.log(await myAppCanvas.innerHTML());
 		const myAppWindow = myAppCanvas.locator('astro-dev-toolbar-window');
 		await expect(myAppWindow).toHaveCount(1);
 		await expect(myAppWindow).toBeVisible();
@@ -289,5 +292,33 @@ test.describe('Dev Toolbar', () => {
 
 		expect(serverRenderTime).not.toBe(null);
 		expect(clientRenderTime).not.toBe(null);
+	});
+
+	test('apps can show notifications', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="my-plugin"]');
+		await appButton.click();
+
+		const customAppNotification = appButton.locator('.icon .notification');
+		await expect(customAppNotification).toHaveAttribute('data-active');
+		await expect(customAppNotification).toHaveAttribute('data-level', 'warning');
+
+		await expect(customAppNotification).toBeVisible();
+	});
+
+	test('can quit apps by clicking outside the window', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		for (const appId of ['astro:home', 'astro:audit', 'astro:xray', 'astro:settings']) {
+			const appButton = toolbar.locator(`button[data-app-id="${appId}"]`);
+			await appButton.click();
+
+			await expect(appButton).toHaveClass('item active');
+			await page.click('body');
+			await expect(appButton).not.toHaveClass('active');
+		}
 	});
 });

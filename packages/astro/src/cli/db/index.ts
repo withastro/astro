@@ -1,9 +1,9 @@
 import type { Arguments } from 'yargs-parser';
+import type { AstroConfig } from '../../@types/astro.js';
+import { resolveConfig } from '../../core/config/config.js';
+import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { getPackage } from '../install-package.js';
-import { resolveConfig } from '../../core/config/config.js';
-import type { AstroConfig } from '../../@types/astro.js';
-import { apply as applyPolyfill } from '../../core/polyfill.js';
 
 type DBPackage = {
 	cli: (args: { flags: Arguments; config: AstroConfig }) => unknown;

@@ -1,7 +1,10 @@
 import { visit } from 'unist-util-visit';
-import { createShikiHighlighter, type ShikiHighlighter } from './shiki.js';
+import { type ShikiHighlighter, createShikiHighlighter } from './shiki.js';
 import type { RemarkPlugin, ShikiConfig } from './types.js';
 
+/**
+ * @deprecated Use `rehypeShiki` instead
+ */
 export function remarkShiki(config?: ShikiConfig): ReturnType<RemarkPlugin> {
 	let highlighterAsync: Promise<ShikiHighlighter> | undefined;
 

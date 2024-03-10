@@ -1,9 +1,9 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
 import type { APIContext, Locales, MiddlewareHandler, SSRManifest } from '../@types/astro.js';
-import { getPathByLocale, normalizeTheLocale } from './index.js';
-import { shouldAppendForwardSlash } from '../core/build/util.js';
 import type { SSRManifestI18n } from '../core/app/types.js';
-import { ROUTE_TYPE_HEADER } from '../core/constants.js';
+import { shouldAppendForwardSlash } from '../core/build/util.js';
+import { REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER } from '../core/constants.js';
+import { getPathByLocale, normalizeTheLocale } from './index.js';
 
 // Checks if the pathname has any locale, exception for the defaultLocale, which is ignored on purpose.
 function pathnameHasLocale(pathname: string, locales: Locales): boolean {
@@ -44,12 +44,9 @@ export function createI18nMiddleware(
 			}
 		}
 
-		// Astro can't know where the default locale is supposed to be, so it returns a 404 with no content.
+		// Astro can't know where the default locale is supposed to be, so it returns a 404.
 		else if (!pathnameHasLocale(url.pathname, i18n.locales)) {
-			return new Response(null, {
-				status: 404,
-				headers: response.headers,
-			});
+			return notFound(response);
 		}
 
 		return undefined;
@@ -66,10 +63,7 @@ export function createI18nMiddleware(
 		if (pathnameContainsDefaultLocale) {
 			const newLocation = url.pathname.replace(`/${i18n.defaultLocale}`, '');
 			response.headers.set('Location', newLocation);
-			return new Response(null, {
-				status: 404,
-				headers: response.headers,
-			});
+			return notFound(response);
 		}
 
 		return undefined;
@@ -88,10 +82,7 @@ export function createI18nMiddleware(
 		// - the URL doesn't contain a locale
 		const isRoot = url.pathname === base + '/' || url.pathname === base;
 		if (!(isRoot || pathnameHasLocale(url.pathname, i18n.locales))) {
-			return new Response(null, {
-				status: 404,
-				headers: response.headers,
-			});
+			return notFound(response);
 		}
 
 		return undefined;
@@ -199,6 +190,19 @@ export function createI18nMiddleware(
 
 		return response;
 	};
+}
+
+/**
+ * The i18n returns empty 404 responses in certain cases.
+ * Error-page-rerouting infra will attempt to render the 404.astro page, causing the middleware to run a second time.
+ * To avoid loops and overwriting the contents of `404.astro`, we allow error pages to pass through.
+ */
+function notFound(response: Response) {
+	if (response.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no') return response;
+	return new Response(null, {
+		status: 404,
+		headers: response.headers,
+	});
 }
 
 /**

@@ -2,13 +2,13 @@ import type {
 	Locales,
 	MiddlewareHandler,
 	RouteData,
-	SerializedRouteData,
 	SSRComponentMetadata,
 	SSRLoadedRenderer,
 	SSRResult,
+	SerializedRouteData,
 } from '../../@types/astro.js';
-import type { SinglePageBuiltModule } from '../build/types.js';
 import type { RoutingStrategies } from '../../i18n/utils.js';
+import type { SinglePageBuiltModule } from '../build/types.js';
 
 export type ComponentPath = string;
 
@@ -35,6 +35,13 @@ export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 
 export type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
 
+export type AssetsPrefix =
+	| string
+	| ({
+			fallback: string;
+	  } & Record<string, string>)
+	| undefined;
+
 export type SSRManifest = {
 	adapterName: string;
 	routes: RouteInfo[];
@@ -43,13 +50,14 @@ export type SSRManifest = {
 	trailingSlash: 'always' | 'never' | 'ignore';
 	buildFormat: 'file' | 'directory' | 'preserve';
 	compressHTML: boolean;
-	assetsPrefix?: string;
+	assetsPrefix?: AssetsPrefix;
 	renderers: SSRLoadedRenderer[];
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
 	entryModules: Record<string, string>;
+	inlinedScripts: Map<string, string>;
 	assets: Set<string>;
 	componentMetadata: SSRResult['componentMetadata'];
 	pageModule?: SinglePageBuiltModule;
@@ -68,10 +76,11 @@ export type SSRManifestI18n = {
 
 export type SerializedSSRManifest = Omit<
 	SSRManifest,
-	'middleware' | 'routes' | 'assets' | 'componentMetadata' | 'clientDirectives'
+	'middleware' | 'routes' | 'assets' | 'componentMetadata' | 'inlinedScripts' | 'clientDirectives'
 > & {
 	routes: SerializedRouteInfo[];
 	assets: string[];
 	componentMetadata: [string, SSRComponentMetadata][];
+	inlinedScripts: [string, string][];
 	clientDirectives: [string, string][];
 };

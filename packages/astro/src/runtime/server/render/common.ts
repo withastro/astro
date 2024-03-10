@@ -4,14 +4,14 @@ import type { RenderInstruction } from './instruction.js';
 import type { HTMLBytes, HTMLString } from '../escape.js';
 import { markHTMLString } from '../escape.js';
 import {
+	type PrescriptType,
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
 	getPrescripts,
-	type PrescriptType,
 } from '../scripts.js';
 import { renderAllHeadContent } from './head.js';
 import { isRenderInstruction } from './instruction.js';
-import { isSlotString, type SlotString } from './slot.js';
+import { type SlotString, isSlotString } from './slot.js';
 
 /**
  * Possible chunk types to be written to the destination, and it'll

@@ -36,6 +36,7 @@
       "persistent": true
     },
     "test": {
+      "dependsOn": ["^test"],
       "env": ["RUNNER_OS", "NODE_VERSION"],
       "outputMode": "new-only"
     },

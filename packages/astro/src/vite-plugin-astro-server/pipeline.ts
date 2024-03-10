@@ -8,21 +8,22 @@ import type {
 	SSRLoadedRenderer,
 	SSRManifest,
 } from '../@types/astro.js';
+import { getInfoOutput } from '../cli/info/index.js';
+import type { HeadElements } from '../core/base-pipeline.js';
+import { ASTRO_VERSION, DEFAULT_404_COMPONENT } from '../core/constants.js';
+import { enhanceViteSSRError } from '../core/errors/dev/index.js';
+import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Pipeline, loadRenderer } from '../core/render/index.js';
 import { isPage, resolveIdToUrl, viteID } from '../core/util.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
-import { createResolve } from './resolve.js';
-import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
-import { enhanceViteSSRError } from '../core/errors/dev/index.js';
-import type { HeadElements } from '../core/base-pipeline.js';
-import { getScriptsForURL } from './scripts.js';
-import { ASTRO_VERSION } from '../core/constants.js';
-import { getInfoOutput } from '../cli/info/index.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
 import { getComponentMetadata } from './metadata.js';
+import { createResolve } from './resolve.js';
+import { default404Page } from './response.js';
+import { getScriptsForURL } from './scripts.js';
 
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
@@ -60,7 +61,10 @@ export class DevPipeline extends Pipeline {
 			settings,
 		} = this;
 		const filePath = new URL(`./${routeData.component}`, root);
-		const { scripts } = await getScriptsForURL(filePath, root, loader);
+		// Add hoisted script tags, skip if direct rendering with `directRenderScript`
+		const { scripts } = settings.config.experimental.directRenderScript
+			? { scripts: new Set<SSRElement>() }
+			: await getScriptsForURL(filePath, settings.config.root, loader);
 
 		// Inject HMR scripts
 		if (isPage(filePath, settings) && mode === 'development') {
@@ -133,6 +137,9 @@ export class DevPipeline extends Pipeline {
 
 	async preload(filePath: URL) {
 		const { loader } = this;
+		if (filePath.href === new URL(DEFAULT_404_COMPONENT, this.config.root).href) {
+			return { default: default404Page } as any as ComponentInstance;
+		}
 
 		// Important: This needs to happen first, in case a renderer provides polyfills.
 		const renderers__ = this.settings.renderers.map((r) => loadRenderer(r, loader));

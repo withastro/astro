@@ -1,7 +1,30 @@
-import { getIconElement, isDefinedIcon, type Icon } from './icons.js';
+import { settings } from '../settings.js';
+import { type Icon, getIconElement, isDefinedIcon } from './icons.js';
+
+const styles = ['purple', 'gray', 'red', 'green', 'yellow', 'blue'] as const;
+
+type HighlightStyle = (typeof styles)[number];
 
 export class DevToolbarHighlight extends HTMLElement {
 	icon?: Icon | undefined | null;
+	_highlightStyle: HighlightStyle = 'purple';
+
+	get highlightStyle() {
+		return this._highlightStyle;
+	}
+
+	set highlightStyle(value) {
+		if (!styles.includes(value)) {
+			settings.logger.error(
+				`Invalid style: ${value}, expected one of ${styles.join(', ')}, got ${value}.`
+			);
+			return;
+		}
+		this._highlightStyle = value;
+		this.updateStyle();
+	}
+
+	static observedAttributes = ['highlight-style'];
 
 	shadowRoot: ShadowRoot;
 
@@ -14,14 +37,33 @@ export class DevToolbarHighlight extends HTMLElement {
 		this.shadowRoot.innerHTML = `
 			<style>
 				:host {
-					background: linear-gradient(180deg, rgba(224, 204, 250, 0.33) 0%, rgba(224, 204, 250, 0.0825) 100%);
-					border: 1px solid rgba(113, 24, 226, 1);
+					--purple-background: linear-gradient(180deg, rgba(224, 204, 250, 0.33) 0%, rgba(224, 204, 250, 0.0825) 100%);
+					--purple-border: 1px solid rgba(113, 24, 226, 1);
+
+					--gray-background: linear-gradient(180deg, rgba(191, 193, 201, 0.33) 0%, rgba(191, 193, 201, 0.0825) 100%);
+					--gray-border: 1px solid rgba(191, 193, 201, 1);
+
+					--red-background: linear-gradient(180deg, rgba(249, 196, 215, 0.33) 0%, rgba(249, 196, 215, 0.0825) 100%);
+					--red-border: 1px solid rgba(179, 62, 102, 1);
+
+					--green-background: linear-gradient(180deg, rgba(213, 249, 196, 0.33) 0%, rgba(213, 249, 196, 0.0825) 100%);
+					--green-border: 1px solid rgba(61, 125, 31, 1);
+
+					--yellow-background: linear-gradient(180deg, rgba(255, 236, 179, 0.33) 0%, rgba(255, 236, 179, 0.0825) 100%);
+					--yellow-border: 1px solid rgba(181, 138, 45, 1);
+
+					--blue-background: linear-gradient(180deg, rgba(189, 195, 255, 0.33) 0%, rgba(189, 195, 255, 0.0825) 100%);
+					--blue-border: 1px solid rgba(54, 69, 217, 1);
+
 					border-radius: 4px;
 					display: block;
 					width: 100%;
 					height: 100%;
 					position: absolute;
 					z-index: 2000000000;
+
+					background: var(--background);
+					border: var(--border);
 				}
 
 				.icon {
@@ -39,10 +81,30 @@ export class DevToolbarHighlight extends HTMLElement {
 					right: -15px;
 				}
 			</style>
+			<style id="selected-style"></style>
 		`;
 	}
 
+	updateStyle() {
+		const style = this.shadowRoot.querySelector<HTMLStyleElement>('#selected-style');
+
+		if (style) {
+			style.innerHTML = `
+			:host {
+				--background: var(--${this.highlightStyle}-background);
+				--border: var(--${this.highlightStyle}-border);
+			}`;
+		}
+	}
+
+	attributeChangedCallback() {
+		if (this.hasAttribute('highlight-style'))
+			this.highlightStyle = this.getAttribute('highlight-style') as HighlightStyle;
+	}
+
 	connectedCallback() {
+		this.updateStyle();
+
 		if (this.icon) {
 			let iconContainer = document.createElement('div');
 			iconContainer.classList.add('icon');

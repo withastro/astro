@@ -7,6 +7,7 @@ on:
       - "main"
     paths:
       - "packages/astro/src/runtime/client/**/*"
+      - "!packages/astro/src/runtime/client/dev-toolbar/**/*"
 
 # Automatically cancel in-progress actions on the same branch
 concurrency:
@@ -32,7 +33,7 @@ jobs:
           path: main
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v3
 
       - name: Setup Node
         uses: actions/setup-node@v4

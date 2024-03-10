@@ -122,6 +122,7 @@ describe('routing - createRouteManifest', () => {
 				'/src/pages/[dynamic].astro': `<h1>test</h1>`,
 				'/src/pages/[...rest].astro': `<h1>test</h1>`,
 				'/src/pages/static.astro': `<h1>test</h1>`,
+				'/src/pages/static-[dynamic].astro': `<h1>test</h1>`,
 				'/src/pages/index.astro': `<h1>test</h1>`,
 			},
 			root
@@ -143,6 +144,8 @@ describe('routing - createRouteManifest', () => {
 
 		assertRouteRelations(getManifestRoutes(manifest), [
 			['/', '/[...rest]'],
+			['/static', '/static-'],
+			['/static-', '/[dynamic]'],
 			['/static', '/[dynamic]'],
 			['/static', '/[...rest]'],
 			['/[dynamic]', '/[...rest]'],

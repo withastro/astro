@@ -1,3 +1,4 @@
+import cssesc from 'cssesc';
 import type {
 	SSRResult,
 	TransitionAnimation,
@@ -7,7 +8,6 @@ import type {
 } from '../../@types/astro.js';
 import { fade, slide } from '../../transitions/index.js';
 import { markHTMLString } from './escape.js';
-import cssesc from 'cssesc';
 
 const transitionNameMap = new WeakMap<SSRResult, number>();
 function incrementTransitionNumber(result: SSRResult) {
@@ -107,6 +107,7 @@ export function renderTransition(
 		sheet.addFallback('old', 'animation: none; mix-blend-mode: normal;');
 		sheet.addModern('old', 'animation: none; opacity: 0; mix-blend-mode: normal;');
 		sheet.addAnimationRaw('new', 'animation: none; mix-blend-mode: normal;');
+		sheet.addModern('group', 'animation: none');
 	}
 
 	result._metadata.extraHead.push(markHTMLString(`<style>${sheet.toString()}</style>`));
