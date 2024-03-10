@@ -144,8 +144,7 @@ describe('routing - createRouteManifest', () => {
 
 		assertRouteRelations(getManifestRoutes(manifest), [
 			['/', '/[...rest]'],
-			['/static', '/static-'],
-			['/static-', '/[dynamic]'],
+			['/static', '/static-[dynamic]'],
 			['/static', '/[dynamic]'],
 			['/static', '/[...rest]'],
 			['/[dynamic]', '/[...rest]'],
