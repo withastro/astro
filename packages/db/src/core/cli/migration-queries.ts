@@ -432,7 +432,19 @@ export async function getProductionCurrentSnapshot({
 			Authorization: `Bearer ${appToken}`,
 		}),
 	});
-	const result = await response.json();
+	if (!response.ok) {
+		console.error(`${url.toString()} failed: ${response.status} ${response.statusText}`);
+		console.error(await response.text());
+		throw new Error(`/db/schema fetch failed: ${response.status} ${response.statusText}`);
+	}
+	const result = (await response.json()) as
+		| { success: false; data: undefined }
+		| { success: true; data: DBSnapshot };
+	if (!result.success) {
+		console.error(`${url.toString()} unsuccessful`);
+		console.error(await response.text());
+		throw new Error(`/db/schema fetch unsuccessful`);
+	}
 	return result.data;
 }
 
