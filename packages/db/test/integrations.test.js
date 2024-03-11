@@ -10,10 +10,10 @@ describe('astro:db with integrations', () => {
 		});
 	});
 
-	// Note(bholmesdev): Use in-memory db to avoid
-	// Multiple dev servers trying to unlink and remount
-	// the same database file.
-	process.env.TEST_IN_MEMORY_DB = 'true';
+	// Note (@bholmesdev) generate a random database id on startup.
+	// Ensures database connections don't conflict
+	// when multiple dev servers are run in parallel on the same project.
+	process.env.ASTRO_TEST_RANDOM_DB_ID = 'true';
 	describe('development', () => {
 		let devServer;
 
