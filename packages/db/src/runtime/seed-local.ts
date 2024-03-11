@@ -1,5 +1,5 @@
 import { LibsqlError } from '@libsql/client';
-import { sql, type SQL } from 'drizzle-orm';
+import { type SQL, sql } from 'drizzle-orm';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { SEED_DEFAULT_EXPORT_ERROR, SEED_ERROR } from '../core/errors.js';
