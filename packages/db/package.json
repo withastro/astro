@@ -59,7 +59,7 @@
     "test:match": "mocha --timeout 20000 \"test/*.js\" \"test/unit/*.js\" -g"
   },
   "dependencies": {
-    "@libsql/client": "^0.4.3",
+    "@libsql/client": "^0.5.5",
     "async-listen": "^3.0.1",
     "deep-diff": "^1.0.2",
     "drizzle-orm": "^0.29.5",
