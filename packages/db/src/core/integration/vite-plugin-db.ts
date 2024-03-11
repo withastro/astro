@@ -1,15 +1,6 @@
-import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { type SQL, sql } from 'drizzle-orm';
-import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { normalizePath } from 'vite';
-import { createLocalDatabaseClient } from '../../runtime/db-client.js';
-import type { SqliteDB } from '../../runtime/index.js';
-import {
-	SEED_DEV_FILE_NAME,
-	getCreateIndexQueries,
-	getCreateTableQuery,
-} from '../../runtime/queries.js';
+import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
 import { DB_PATH, RUNTIME_CONFIG_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
@@ -46,9 +37,6 @@ type VitePluginDBParams =
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 	const srcDirPath = normalizePath(fileURLToPath(params.srcDir));
-	const seedFilePaths = SEED_DEV_FILE_NAME.map((name) =>
-		normalizePath(fileURLToPath(new URL(name, getDbDirectoryUrl(params.root))))
-	);
 	return {
 		name: 'astro:db',
 		enforce: 'pre',
@@ -67,14 +55,6 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			return resolved.virtual;
 		},
 		async load(id) {
-			// Recreate tables whenever a seed file is loaded.
-			if (seedFilePaths.some((f) => id === f)) {
-				await recreateTables({
-					db: createLocalDatabaseClient({ dbUrl: new URL(DB_PATH, params.root).href }),
-					tables: params.tables.get(),
-				});
-			}
-
 			if (id !== resolved.virtual && id !== resolved.seedVirtual) return;
 
 			if (params.connectToStudio) {
@@ -113,7 +93,8 @@ export function getLocalVirtualModContents({
 		// for Vite import.meta.glob
 		(name) => new URL(name, getDbDirectoryUrl('file:///')).pathname
 	);
-	const resolveId = (id: string) => (id.startsWith('.') ? resolve(fileURLToPath(root), id) : id);
+	const resolveId = (id: string) =>
+		id.startsWith('.') ? normalizePath(fileURLToPath(new URL(id, root))) : id;
 	// Use top-level imports to correctly resolve `astro:db` within seed files.
 	// Dynamic imports cause a silent build failure,
 	// potentially because of circular module references.
@@ -138,6 +119,8 @@ export const db = createLocalDatabaseClient({ dbUrl });
 ${
 	shouldSeed
 		? `await seedLocal({
+	db,
+	tables: ${JSON.stringify(tables)},
 	userSeedGlob: import.meta.glob(${JSON.stringify(userSeedFilePaths)}, { eager: true }),
 	integrationSeedFunctions: [${integrationSeedImportNames.join(',')}],
 });`
@@ -179,20 +162,4 @@ function getStringifiedCollectionExports(tables: DBTables) {
 				)}, false)`
 		)
 		.join('\n');
-}
-
-const sqlite = new SQLiteAsyncDialect();
-
-async function recreateTables({ db, tables }: { db: SqliteDB; tables: DBTables }) {
-	const setupQueries: SQL[] = [];
-	for (const [name, table] of Object.entries(tables)) {
-		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);
-		const createQuery = sql.raw(getCreateTableQuery(name, table));
-		const indexQueries = getCreateIndexQueries(name, table);
-		setupQueries.push(dropQuery, createQuery, ...indexQueries.map((s) => sql.raw(s)));
-	}
-	await db.batch([
-		db.run(sql`pragma defer_foreign_keys=true;`),
-		...setupQueries.map((q) => db.run(q)),
-	]);
 }
