@@ -1,5 +1,13 @@
 # astro
 
+## 4.5.1
+
+### Patch Changes
+
+- [#10392](https://github.com/withastro/astro/pull/10392) [`02aeb01cb8b62b9cc4dfe6069857219404343b73`](https://github.com/withastro/astro/commit/02aeb01cb8b62b9cc4dfe6069857219404343b73) Thanks [@martrapp](https://github.com/martrapp)! - Fixes broken types for some functions of `astro:transitions/client`.
+
+- [#10390](https://github.com/withastro/astro/pull/10390) [`236cdbb611587692d3c781850cb949604677ef82`](https://github.com/withastro/astro/commit/236cdbb611587692d3c781850cb949604677ef82) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Adds `--help` reference for new db and studio CLI commands
+
 ## 4.5.0
 
 ### Minor Changes

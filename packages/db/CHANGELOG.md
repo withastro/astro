@@ -1,5 +1,21 @@
 # @astrojs/db
 
+## 0.7.2
+
+### Patch Changes
+
+- [#10391](https://github.com/withastro/astro/pull/10391) [`9667ee990ca2a02a146e442f2494981df4c88b52`](https://github.com/withastro/astro/commit/9667ee990ca2a02a146e442f2494981df4c88b52) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Remove @astrojs/runtime/config suggestion for astro:db configuration helpers.
+
+- [#10385](https://github.com/withastro/astro/pull/10385) [`38abae47b57af481a8dcdf2393317de6df46920a`](https://github.com/withastro/astro/commit/38abae47b57af481a8dcdf2393317de6df46920a) Thanks [@delucis](https://github.com/delucis)! - Fixes support for integrations configuring `astro:db` and for projects that use `astro:db` but do not include a seed file.
+
+- [#10381](https://github.com/withastro/astro/pull/10381) [`8cceab587d681d90842184904182833117687750`](https://github.com/withastro/astro/commit/8cceab587d681d90842184904182833117687750) Thanks [@delucis](https://github.com/delucis)! - Fixes builds for projects using integration seed files
+
+- [#10384](https://github.com/withastro/astro/pull/10384) [`cd5e8d4b9309e43f5bf884a0014b8a5769d816e0`](https://github.com/withastro/astro/commit/cd5e8d4b9309e43f5bf884a0014b8a5769d816e0) Thanks [@matthewp](https://github.com/matthewp)! - Upgrades the `@libsql/client` dependency to fix the use of `db.batch` in StackBlitz
+
+- [#10387](https://github.com/withastro/astro/pull/10387) [`8a23ee530cd1d7d7b4e93e9e72f4e06d1fc3d845`](https://github.com/withastro/astro/commit/8a23ee530cd1d7d7b4e93e9e72f4e06d1fc3d845) Thanks [@FredKSchott](https://github.com/FredKSchott)! - handle success=false response on api endpoints
+
+- [#10390](https://github.com/withastro/astro/pull/10390) [`236cdbb611587692d3c781850cb949604677ef82`](https://github.com/withastro/astro/commit/236cdbb611587692d3c781850cb949604677ef82) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Adds `--help` reference for new db and studio CLI commands
+
 ## 0.7.1
 
 ### Patch Changes
