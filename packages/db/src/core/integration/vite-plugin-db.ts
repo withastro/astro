@@ -1,15 +1,13 @@
 import { fileURLToPath } from 'node:url';
-import { type SQL, sql } from 'drizzle-orm';
-import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { normalizePath } from 'vite';
-import { createLocalDatabaseClient } from '../../runtime/db-client.js';
-import type { SqliteDB } from '../../runtime/index.js';
+import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
 import {
-	SEED_DEV_FILE_NAME,
-	getCreateIndexQueries,
-	getCreateTableQuery,
-} from '../../runtime/queries.js';
-import { DB_PATH, RUNTIME_CONFIG_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
+	DB_PATH,
+	RUNTIME_CONFIG_IMPORT,
+	RUNTIME_IMPORT,
+	SEED_LOCAL_IMPORT,
+	VIRTUAL_MODULE_ID,
+} from '../consts.js';
 import type { DBTables } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
 
@@ -79,20 +77,6 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			return resolved.virtual;
 		},
 		async load(id) {
-			if (!params.connectToStudio && !integrationSeedFilePaths) {
-				integrationSeedFilePaths = normalizeIntegrationSeedPaths(
-					params.seedFiles.get(),
-					params.root
-				);
-			}
-			// Recreate tables whenever a seed file is loaded.
-			if (seedFilePaths.includes(id) || integrationSeedFilePaths?.includes(id)) {
-				await recreateTables({
-					db: createLocalDatabaseClient({ dbUrl: new URL(DB_PATH, params.root).href }),
-					tables: params.tables.get(),
-				});
-			}
-
 			if (id !== resolved.virtual && id !== resolved.seedVirtual) return;
 
 			if (params.connectToStudio) {
@@ -100,6 +84,12 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 					appToken: params.appToken,
 					tables: params.tables.get(),
 				});
+			}
+			if (!integrationSeedFilePaths) {
+				integrationSeedFilePaths = normalizeIntegrationSeedPaths(
+					params.seedFiles.get(),
+					params.root
+				);
 			}
 			return getLocalVirtualModContents({
 				root: params.root,
@@ -145,7 +135,7 @@ export function getLocalVirtualModContents({
 	const dbUrl = new URL(DB_PATH, root);
 	return `
 import { asDrizzleTable, createLocalDatabaseClient } from ${RUNTIME_IMPORT};
-${shouldSeed ? `import { seedLocal } from ${RUNTIME_IMPORT};` : ''}
+${shouldSeed ? `import { seedLocal } from ${SEED_LOCAL_IMPORT};` : ''}
 ${shouldSeed ? integrationSeedImportStatements.join('\n') : ''}
 
 const dbUrl = ${JSON.stringify(dbUrl)};
@@ -154,6 +144,8 @@ export const db = createLocalDatabaseClient({ dbUrl });
 ${
 	shouldSeed
 		? `await seedLocal({
+	db,
+	tables: ${JSON.stringify(tables)},
 	userSeedGlob: import.meta.glob(${JSON.stringify(userSeedFilePaths)}, { eager: true }),
 	integrationSeedFunctions: [${integrationSeedImportNames.join(',')}],
 });`
@@ -195,20 +187,4 @@ function getStringifiedCollectionExports(tables: DBTables) {
 				)}, false)`
 		)
 		.join('\n');
-}
-
-const sqlite = new SQLiteAsyncDialect();
-
-async function recreateTables({ db, tables }: { db: SqliteDB; tables: DBTables }) {
-	const setupQueries: SQL[] = [];
-	for (const [name, table] of Object.entries(tables)) {
-		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);
-		const createQuery = sql.raw(getCreateTableQuery(name, table));
-		const indexQueries = getCreateIndexQueries(name, table);
-		setupQueries.push(dropQuery, createQuery, ...indexQueries.map((s) => sql.raw(s)));
-	}
-	await db.batch([
-		db.run(sql`pragma defer_foreign_keys=true;`),
-		...setupQueries.map((q) => db.run(q)),
-	]);
 }
