@@ -26,7 +26,6 @@ describe('astro:db', () => {
 
 		after(async () => {
 			await devServer.stop();
-			process.env.ASTRO_TEST_RANDOM_DB_ID = undefined;
 		});
 
 		it('Prints the list of authors', async () => {

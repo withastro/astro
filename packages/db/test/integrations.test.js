@@ -24,7 +24,6 @@ describe('astro:db with integrations', () => {
 
 		after(async () => {
 			await devServer.stop();
-			process.env.TEST_IN_MEMORY_DB = undefined;
 		});
 
 		it('Prints the list of authors from user-defined table', async () => {
