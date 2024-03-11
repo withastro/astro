@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.7.1
+
+### Patch Changes
+
+- [#10378](https://github.com/withastro/astro/pull/10378) [`41dca1e413c2f1e38f0326bd6241ccbf9b8ee0e4`](https://github.com/withastro/astro/commit/41dca1e413c2f1e38f0326bd6241ccbf9b8ee0e4) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Handle new schema API response format
+
 ## 0.7.0
 
 ### Minor Changes
