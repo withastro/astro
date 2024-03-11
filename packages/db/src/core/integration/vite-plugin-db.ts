@@ -114,17 +114,23 @@ export function getLocalVirtualModContents({
 		(name) => new URL(name, getDbDirectoryUrl('file:///')).pathname
 	);
 	const resolveId = (id: string) => (id.startsWith('.') ? resolve(fileURLToPath(root), id) : id);
-	const integrationSeedFilePaths = seedFiles.map((pathOrUrl) =>
-		typeof pathOrUrl === 'string' ? resolveId(pathOrUrl) : pathOrUrl.pathname
-	);
-	const integrationSeedImports = integrationSeedFilePaths.map(
-		(filePath) => `() => import(${JSON.stringify(filePath)})`
-	);
+	// Use top-level imports to correctly resolve `astro:db` within seed files.
+	// Dynamic imports cause a silent build failure,
+	// potentially because of circular module references.
+	const integrationSeedImportStatements: string[] = [];
+	const integrationSeedImportNames: string[] = [];
+	seedFiles.forEach((pathOrUrl, index) => {
+		const path = typeof pathOrUrl === 'string' ? resolveId(pathOrUrl) : pathOrUrl.pathname;
+		const importName = 'integration_seed_' + index;
+		integrationSeedImportStatements.push(`import ${importName} from ${JSON.stringify(path)};`);
+		integrationSeedImportNames.push(importName);
+	});
 
 	const dbUrl = new URL(DB_PATH, root);
 	return `
 import { asDrizzleTable, createLocalDatabaseClient } from ${RUNTIME_IMPORT};
 ${shouldSeed ? `import { seedLocal } from ${RUNTIME_IMPORT};` : ''}
+${shouldSeed ? integrationSeedImportStatements.join('\n') : ''}
 
 const dbUrl = ${JSON.stringify(dbUrl)};
 export const db = createLocalDatabaseClient({ dbUrl });
@@ -133,7 +139,7 @@ ${
 	shouldSeed
 		? `await seedLocal({
 	userSeedGlob: import.meta.glob(${JSON.stringify(userSeedFilePaths)}, { eager: true }),
-	integrationSeedImports: [${integrationSeedImports.join(',')}],
+	integrationSeedFunctions: [${integrationSeedImportNames.join(',')}],
 });`
 		: ''
 }
