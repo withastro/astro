@@ -2,6 +2,10 @@ import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from '../../astro/test/test-utils.js';
 
+// Note (@bholmesdev) generate a random database id on startup.
+// Ensures database connections don't conflict
+// when multiple dev servers are run in parallel on the same project.
+process.env.ASTRO_TEST_RANDOM_DB_ID = 'true';
 describe('astro:db with integrations', () => {
 	let fixture;
 	before(async () => {
@@ -10,10 +14,6 @@ describe('astro:db with integrations', () => {
 		});
 	});
 
-	// Note (@bholmesdev) generate a random database id on startup.
-	// Ensures database connections don't conflict
-	// when multiple dev servers are run in parallel on the same project.
-	process.env.ASTRO_TEST_RANDOM_DB_ID = 'true';
 	describe('development', () => {
 		let devServer;
 
