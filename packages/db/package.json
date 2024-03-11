@@ -23,12 +23,19 @@
     "./dist/runtime/config.js": {
       "import": "./dist/runtime/config.js"
     },
+    "./types": {
+      "types": "./dist/core/types.d.ts",
+      "import": "./dist/core/types.js"
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
     "*": {
       ".": [
         "./index.d.ts"
+      ],
+      "types": [
+        "./dist/types.d.ts"
       ],
       "utils": [
         "./dist/utils.d.ts"

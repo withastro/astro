@@ -30,9 +30,9 @@ import {
 	type JsonColumn,
 	type NumberColumn,
 	type TextColumn,
-	columnSchema,
 } from '../types.js';
 import { getRemoteDatabaseUrl } from '../utils.js';
+import { columnSchema } from '../schemas.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
