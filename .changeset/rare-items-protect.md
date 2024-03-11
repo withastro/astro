@@ -2,4 +2,4 @@
 "@astrojs/db": patch
 ---
 
-Fixes use of db.batch in Stackblitz
+Upgrades the `@libsql/client` dependency to fix the use of `db.batch` in StackBlitz
