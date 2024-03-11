@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.7.7
+
+### Patch Changes
+
+- 1b68dfb: Improves descriptions for attributes specific to Astro (`is:raw`, `set:html`, etc.)
+
 ## 2.7.5
 
 ### Patch Changes

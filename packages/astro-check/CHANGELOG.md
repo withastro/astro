@@ -1,5 +1,14 @@
 # @astrojs/check
 
+## 0.5.7
+
+### Patch Changes
+
+- 1b68dfb: Improves descriptions for attributes specific to Astro (`is:raw`, `set:html`, etc.)
+- Updated dependencies [2bad6a8]
+- Updated dependencies [1b68dfb]
+  - @astrojs/language-server@2.7.7
+
 ## 0.5.6
 
 ### Patch Changes
