@@ -1,4 +1,4 @@
-import { bgWhite, black, dim, bgGreen, green, bold } from 'kleur/colors';
+import { bgGreen, bgWhite, black, bold, dim, green } from 'kleur/colors';
 
 /**
  * Uses implementation from Astro core
