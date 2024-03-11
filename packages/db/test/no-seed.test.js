@@ -29,4 +29,19 @@ describe('astro:db with no seed file', () => {
 			expect(ul.children().eq(0).text()).to.equal('Ben');
 		});
 	});
+
+	describe('build', () => {
+		before(async () => {
+			await fixture.build();
+		});
+
+		it('Prints the list of authors', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerioLoad(html);
+
+			const ul = $('.authors-list');
+			expect(ul.children()).to.have.a.lengthOf(5);
+			expect(ul.children().eq(0).text()).to.equal('Ben');
+		});
+	});
 });
