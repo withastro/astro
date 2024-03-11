@@ -114,6 +114,9 @@ export function getLocalVirtualModContents({
 		(name) => new URL(name, getDbDirectoryUrl('file:///')).pathname
 	);
 	const resolveId = (id: string) => (id.startsWith('.') ? resolve(fileURLToPath(root), id) : id);
+	// Use top-level imports to correctly resolve `astro:db` within seed files.
+	// Dynamic imports cause a silent build failure,
+	// potentially because of circular module references.
 	const integrationSeedImportStatements: string[] = [];
 	const integrationSeedImportNames: string[] = [];
 	seedFiles.forEach((pathOrUrl, index) => {
