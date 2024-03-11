@@ -10,10 +10,6 @@ describe('astro:db with only integrations, no user db config', () => {
 		});
 	});
 
-	// Note(bholmesdev): Use in-memory db to avoid
-	// Multiple dev servers trying to unlink and remount
-	// the same database file.
-	process.env.TEST_IN_MEMORY_DB = 'true';
 	describe('development', () => {
 		let devServer;
 		before(async () => {
@@ -22,7 +18,6 @@ describe('astro:db with only integrations, no user db config', () => {
 
 		after(async () => {
 			await devServer.stop();
-			process.env.TEST_IN_MEMORY_DB = undefined;
 		});
 
 		it('Prints the list of menu items from integration-defined table', async () => {
