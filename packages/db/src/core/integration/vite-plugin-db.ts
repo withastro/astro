@@ -35,24 +35,8 @@ type VitePluginDBParams =
 			root: URL;
 	  };
 
-const normalizeRelativePath = (path: string, root: URL) =>
-	normalizePath(fileURLToPath(new URL(path, root)));
-
-const normalizeIntegrationSeedPaths = (seedFiles: Array<string | URL>, root: URL) =>
-	seedFiles.map((pathOrUrl) =>
-		typeof pathOrUrl === 'string'
-			? pathOrUrl.startsWith('.')
-				? normalizeRelativePath(pathOrUrl, root)
-				: pathOrUrl
-			: pathOrUrl.pathname
-	);
-
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 	const srcDirPath = normalizePath(fileURLToPath(params.srcDir));
-	const seedFilePaths = SEED_DEV_FILE_NAME.map((name) =>
-		normalizeRelativePath(name, getDbDirectoryUrl(params.root))
-	);
-	let integrationSeedFilePaths: Array<string>;
 	return {
 		name: 'astro:db',
 		enforce: 'pre',
@@ -79,16 +63,10 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 					tables: params.tables.get(),
 				});
 			}
-			if (!integrationSeedFilePaths) {
-				integrationSeedFilePaths = normalizeIntegrationSeedPaths(
-					params.seedFiles.get(),
-					params.root
-				);
-			}
 			return getLocalVirtualModContents({
 				root: params.root,
 				tables: params.tables.get(),
-				seedFiles: integrationSeedFilePaths,
+				seedFiles: params.seedFiles.get(),
 				shouldSeed: id === resolved.seedVirtual,
 			});
 		},
@@ -106,7 +84,7 @@ export function getLocalVirtualModContents({
 	shouldSeed,
 }: {
 	tables: DBTables;
-	seedFiles: string[];
+	seedFiles: Array<string | URL>;
 	root: URL;
 	shouldSeed: boolean;
 }) {
@@ -115,12 +93,15 @@ export function getLocalVirtualModContents({
 		// for Vite import.meta.glob
 		(name) => new URL(name, getDbDirectoryUrl('file:///')).pathname
 	);
+	const resolveId = (id: string) =>
+		id.startsWith('.') ? normalizePath(fileURLToPath(new URL(id, root))) : id;
 	// Use top-level imports to correctly resolve `astro:db` within seed files.
 	// Dynamic imports cause a silent build failure,
 	// potentially because of circular module references.
 	const integrationSeedImportStatements: string[] = [];
 	const integrationSeedImportNames: string[] = [];
-	seedFiles.forEach((path, index) => {
+	seedFiles.forEach((pathOrUrl, index) => {
+		const path = typeof pathOrUrl === 'string' ? resolveId(pathOrUrl) : pathOrUrl.pathname;
 		const importName = 'integration_seed_' + index;
 		integrationSeedImportStatements.push(`import ${importName} from ${JSON.stringify(path)};`);
 		integrationSeedImportNames.push(importName);
