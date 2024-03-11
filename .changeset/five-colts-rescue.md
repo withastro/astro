@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fix the issue of partially truncated dynamic segments.
+Fixes a routing issue with partially truncated dynamic segments.
