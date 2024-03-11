@@ -1,13 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { normalizePath } from 'vite';
 import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
-import {
-	DB_PATH,
-	RUNTIME_CONFIG_IMPORT,
-	RUNTIME_IMPORT,
-	SEED_LOCAL_IMPORT,
-	VIRTUAL_MODULE_ID,
-} from '../consts.js';
+import { DB_PATH, RUNTIME_CONFIG_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
 
@@ -135,7 +129,7 @@ export function getLocalVirtualModContents({
 	const dbUrl = new URL(DB_PATH, root);
 	return `
 import { asDrizzleTable, createLocalDatabaseClient } from ${RUNTIME_IMPORT};
-${shouldSeed ? `import { seedLocal } from ${SEED_LOCAL_IMPORT};` : ''}
+${shouldSeed ? `import { seedLocal } from ${RUNTIME_IMPORT};` : ''}
 ${shouldSeed ? integrationSeedImportStatements.join('\n') : ''}
 
 const dbUrl = ${JSON.stringify(dbUrl)};
