@@ -16,6 +16,7 @@ import {
 import { isSerializedSQL } from '../../runtime/types.js';
 import { MIGRATION_VERSION } from '../consts.js';
 import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
+import { columnSchema } from '../schemas.js';
 import {
 	type BooleanColumn,
 	type ColumnType,
@@ -32,7 +33,6 @@ import {
 	type TextColumn,
 } from '../types.js';
 import { getRemoteDatabaseUrl } from '../utils.js';
-import { columnSchema } from '../schemas.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);

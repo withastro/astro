@@ -1,20 +1,20 @@
 import type { AstroIntegration } from 'astro';
 import type { z } from 'zod';
 import type {
-	booleanColumnSchema,
-	numberColumnSchema,
-	textColumnSchema,
-	dateColumnSchema,
-	jsonColumnSchema,
-	columnSchema,
-	tableSchema,
-	referenceableColumnSchema,
-	indexSchema,
-	numberColumnOptsSchema,
-	textColumnOptsSchema,
-	columnsSchema,
 	MaybeArray,
+	booleanColumnSchema,
+	columnSchema,
+	columnsSchema,
+	dateColumnSchema,
 	dbConfigSchema,
+	indexSchema,
+	jsonColumnSchema,
+	numberColumnOptsSchema,
+	numberColumnSchema,
+	referenceableColumnSchema,
+	tableSchema,
+	textColumnOptsSchema,
+	textColumnSchema,
 } from './schemas.js';
 
 export type Indexes = Record<string, z.infer<typeof indexSchema>>;
