@@ -21,7 +21,7 @@
       "import": "./dist/runtime/index.js"
     },
     "./runtime/config": {
-      "types": "./dist/runtime/config.d.ts",
+      "types": null,
       "import": "./dist/runtime/config.js"
     },
     "./package.json": "./package.json"
