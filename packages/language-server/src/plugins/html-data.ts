@@ -92,6 +92,18 @@ export const astroElements = newHTMLDataProvider('astro-elements', {
 						},
 					],
 				},
+				{
+					name: 'data-astro-rerun',
+					description:
+						'Force a script to be reexecuted when using <ViewTransitions/>. This will make your script is:inline as well.',
+					valueSet: 'v',
+					references: [
+						{
+							name: 'Astro reference',
+							url: 'https://docs.astro.build/en/guides/view-transitions/#script-behavior',
+						},
+					],
+				},
 			],
 		},
 		{
