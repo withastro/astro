@@ -20,10 +20,6 @@
       "types": "./dist/runtime/index.d.ts",
       "import": "./dist/runtime/index.js"
     },
-    "./runtime/config": {
-      "types": "./dist/runtime/config.d.ts",
-      "import": "./dist/runtime/config.js"
-    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -36,9 +32,6 @@
       ],
       "runtime": [
         "./dist/runtime/index.d.ts"
-      ],
-      "runtime/config": [
-        "./dist/runtime/config.d.ts"
       ]
     }
   },
