@@ -41,6 +41,7 @@ export async function seedLocal({
 			throw e;
 		}
 	}
+}
 
 async function recreateTables({ db, tables }: { db: LibSQLDatabase; tables: DBTables }) {
 	const setupQueries: SQL[] = [];
