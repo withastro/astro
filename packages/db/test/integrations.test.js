@@ -45,4 +45,28 @@ describe('astro:db with integrations', () => {
 			expect(ul.children().eq(0).text()).to.equal('Pancakes');
 		});
 	});
+
+	describe('build', () => {
+		before(async () => {
+			await fixture.build();
+		});
+
+		it('Prints the list of authors from user-defined table', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerioLoad(html);
+
+			const ul = $('.authors-list');
+			expect(ul.children()).to.have.a.lengthOf(5);
+			expect(ul.children().eq(0).text()).to.equal('Ben');
+		});
+
+		it('Prints the list of menu items from integration-defined table', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerioLoad(html);
+
+			const ul = $('ul.menu');
+			expect(ul.children()).to.have.a.lengthOf(4);
+			expect(ul.children().eq(0).text()).to.equal('Pancakes');
+		});
+	});
 });
