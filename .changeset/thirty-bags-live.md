@@ -3,4 +3,4 @@
 "@astrojs/db": patch
 ---
 
-Add --help reference for new db and studio commands
+Adds `--help` reference for new db and studio CLI commands
