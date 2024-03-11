@@ -5,8 +5,11 @@ export const PACKAGE_NAME = JSON.parse(
 ).name;
 
 export const RUNTIME_IMPORT = JSON.stringify(`${PACKAGE_NAME}/runtime`);
-// Use `dist` path. Not exposed as a public API.
-export const RUNTIME_CONFIG_IMPORT = JSON.stringify(`${PACKAGE_NAME}/dist/runtime/config.js`);
+
+// Use `dist` path for config helpers. Not exposed as a public API.
+const RUNTIME_DIR = new URL('../../dist/runtime/', import.meta.url);
+
+export const RUNTIME_CONFIG_IMPORT = JSON.stringify(new URL('./config.js', RUNTIME_DIR));
 
 export const DB_TYPES_FILE = 'db-types.d.ts';
 
