@@ -14,11 +14,7 @@
   "bin": {
     "astro-check": "./dist/bin.js"
   },
-  "files": [
-    "bin",
-    "dist/**/*.js",
-    "dist/**/*.d.ts"
-  ],
+  "files": ["bin", "dist/**/*.js", "dist/**/*.d.ts"],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",

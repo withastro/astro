@@ -1,7 +1,7 @@
 module.exports = {
 	parser: '@typescript-eslint/parser',
-	extends: ['plugin:@typescript-eslint/recommended', 'prettier'],
-	plugins: ['@typescript-eslint', 'prettier'],
+	extends: ['plugin:@typescript-eslint/recommended'],
+	plugins: ['@typescript-eslint'],
 	rules: {
 		'@typescript-eslint/ban-ts-comment': 'off',
 		'@typescript-eslint/camelcase': 'off',

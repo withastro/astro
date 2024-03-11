@@ -9,16 +9,8 @@
     "url": "https://github.com/withastro/language-tools",
     "directory": "packages/ts-plugin"
   },
-  "keywords": [
-    "astro",
-    "typescript",
-    "javascript",
-    "plugin"
-  ],
-  "files": [
-    "dist/**/*.js",
-    "dist/**/*.d.ts"
-  ],
+  "keywords": ["astro", "typescript", "javascript", "plugin"],
+  "files": ["dist/**/*.js", "dist/**/*.d.ts"],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",

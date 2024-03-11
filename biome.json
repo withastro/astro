@@ -4,6 +4,7 @@
     "ignore": [
       "**/dist/**/*",
       "**/node_modules/**/*",
+      "**/fixture/**/*",
       "**/fixtures/**/*",
       "**/.vscode-test/**/*",
       ".github",
