@@ -5,7 +5,7 @@ import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
 import { drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
 import { z } from 'zod';
 
-const isWebContainer = false;
+let isWebContainer = false;
 if (process) isWebContainer = !!process.versions?.webcontainer;
 
 export function createLocalDatabaseClient({ dbUrl }: { dbUrl: string }): LibSQLDatabase {
