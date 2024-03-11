@@ -65,6 +65,5 @@ export function printHelp({
 		message.push(linebreak(), `${description}`);
 	}
 
-	// eslint-disable-next-line no-console
 	console.log(message.join('\n') + '\n');
 }
