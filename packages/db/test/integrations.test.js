@@ -48,6 +48,7 @@ describe('astro:db with integrations', () => {
 
 	describe('build', () => {
 		before(async () => {
+			process.env.ASTRO_TEST_RANDOM_DB_ID = 'true';
 			await fixture.build();
 		});
 
