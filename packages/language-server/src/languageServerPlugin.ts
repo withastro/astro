@@ -25,7 +25,7 @@ import { create as createTypeScriptService } from './plugins/typescript/index.js
 
 export function createServerOptions(
 	connection: Connection,
-	ts: typeof import("typescript")
+	ts: typeof import('typescript')
 ): ServerOptions {
 	return {
 		watchFileExtensions: [
@@ -64,11 +64,7 @@ export function createServerOptions(
 				const rootPath = projectContext.typescript.configFileName
 					? projectContext.typescript.configFileName.split('/').slice(0, -1).join('/')
 					: serviceEnv.typescript!.uriToFileName(serviceEnv.workspaceFolder);
-				const nearestPackageJson = ts.findConfigFile(
-					rootPath,
-					ts.sys.fileExists,
-					'package.json'
-				);
+				const nearestPackageJson = ts.findConfigFile(rootPath, ts.sys.fileExists, 'package.json');
 
 				const astroInstall = getAstroInstall([rootPath], {
 					nearestPackageJson: nearestPackageJson,

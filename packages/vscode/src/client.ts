@@ -9,7 +9,7 @@ import {
 	activateTsConfigStatusItem,
 	activateTsVersionStatusItem,
 	createLabsInfo,
-	getTsdk
+	getTsdk,
 } from '@volar/vscode';
 import * as vscode from 'vscode';
 import * as lsp from 'vscode-languageclient/node';
@@ -72,7 +72,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 	const clientOptions = {
 		documentSelector: [{ language: 'astro' }],
 		initializationOptions,
-	} satisfies lsp.LanguageClientOptions
+	} satisfies lsp.LanguageClientOptions;
 	client = new lsp.LanguageClient('astro', 'Astro Language Server', serverOptions, clientOptions);
 	await client.start();
 
@@ -89,10 +89,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 		(text) => text
 	);
 
-  const volarLabs = createLabsInfo(protocol)
-  volarLabs.addLanguageClient(client)
+	const volarLabs = createLabsInfo(protocol);
+	volarLabs.addLanguageClient(client);
 
-  return volarLabs.extensionExports
+	return volarLabs.extensionExports;
 }
 
 export function deactivate(): Thenable<any> | undefined {
