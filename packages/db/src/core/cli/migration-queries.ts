@@ -16,6 +16,7 @@ import {
 import { isSerializedSQL } from '../../runtime/types.js';
 import { MIGRATION_VERSION } from '../consts.js';
 import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
+import { columnSchema } from '../schemas.js';
 import {
 	type BooleanColumn,
 	type ColumnType,
@@ -30,7 +31,6 @@ import {
 	type JsonColumn,
 	type NumberColumn,
 	type TextColumn,
-	columnSchema,
 } from '../types.js';
 import { getRemoteDatabaseUrl } from '../utils.js';
 
@@ -432,7 +432,19 @@ export async function getProductionCurrentSnapshot({
 			Authorization: `Bearer ${appToken}`,
 		}),
 	});
-	const result = await response.json();
+	if (!response.ok) {
+		console.error(`${url.toString()} failed: ${response.status} ${response.statusText}`);
+		console.error(await response.text());
+		throw new Error(`/db/schema fetch failed: ${response.status} ${response.statusText}`);
+	}
+	const result = (await response.json()) as
+		| { success: false; data: undefined }
+		| { success: true; data: DBSnapshot };
+	if (!result.success) {
+		console.error(`${url.toString()} unsuccessful`);
+		console.error(await response.text());
+		throw new Error(`/db/schema fetch unsuccessful`);
+	}
 	return result.data;
 }
 

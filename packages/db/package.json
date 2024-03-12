@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/db",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "",
   "license": "MIT",
   "type": "module",
@@ -20,9 +20,12 @@
       "types": "./dist/runtime/index.d.ts",
       "import": "./dist/runtime/index.js"
     },
-    "./runtime/config": {
-      "types": "./dist/runtime/config.d.ts",
+    "./dist/runtime/config.js": {
       "import": "./dist/runtime/config.js"
+    },
+    "./types": {
+      "types": "./dist/core/types.d.ts",
+      "import": "./dist/core/types.js"
     },
     "./package.json": "./package.json"
   },
@@ -31,14 +34,14 @@
       ".": [
         "./index.d.ts"
       ],
+      "types": [
+        "./dist/types.d.ts"
+      ],
       "utils": [
         "./dist/utils.d.ts"
       ],
       "runtime": [
         "./dist/runtime/index.d.ts"
-      ],
-      "runtime/config": [
-        "./dist/runtime/config.d.ts"
       ]
     }
   },
@@ -59,7 +62,7 @@
     "test:match": "mocha --timeout 20000 \"test/*.js\" \"test/unit/*.js\" -g"
   },
   "dependencies": {
-    "@libsql/client": "^0.4.3",
+    "@libsql/client": "^0.5.5",
     "async-listen": "^3.0.1",
     "deep-diff": "^1.0.2",
     "drizzle-orm": "^0.29.5",

@@ -82,13 +82,10 @@ function astroDBIntegration(): AstroIntegration {
 				seedFiles.get = () => integrationSeedPaths;
 				configFileDependencies = dependencies;
 
-				if (!connectToStudio) {
-					const dbUrl = new URL(DB_PATH, config.root);
-					if (existsSync(dbUrl)) {
-						await rm(dbUrl);
-					}
-					await mkdir(dirname(fileURLToPath(dbUrl)), { recursive: true });
-					await writeFile(dbUrl, '');
+				const localDbUrl = new URL(DB_PATH, config.root);
+				if (!connectToStudio && !existsSync(localDbUrl)) {
+					await mkdir(dirname(fileURLToPath(localDbUrl)), { recursive: true });
+					await writeFile(localDbUrl, '');
 				}
 
 				await typegen({ tables: tables.get() ?? {}, root: config.root });
