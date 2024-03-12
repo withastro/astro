@@ -5,9 +5,12 @@ export const PACKAGE_NAME = JSON.parse(
 ).name;
 
 export const RUNTIME_IMPORT = JSON.stringify(`${PACKAGE_NAME}/runtime`);
-// Exposed without type definitions
-// to avoid duplicate suggestions in Intellisense
+
 export const RUNTIME_CONFIG_IMPORT = JSON.stringify(`${PACKAGE_NAME}/dist/runtime/config.js`);
+
+export const RUNTIME_CONFIG_TYPES_IMPORT = JSON.stringify(
+	`${PACKAGE_NAME}/dist/_internal/runtime/config.js`
+);
 
 export const DB_TYPES_FILE = 'db-types.d.ts';
 
