@@ -1,5 +1,13 @@
 # @astrojs/check
 
+## 0.5.8
+
+### Patch Changes
+
+- 85b42dc: Update to the latest version of Volar. This release fixes a few issues such as missing Prettier crashing the language server in some cases, resolutions not working correctly inside TSX files, and more.
+- Updated dependencies [85b42dc]
+  - @astrojs/language-server@2.8.0
+
 ## 0.5.7
 
 ### Patch Changes
