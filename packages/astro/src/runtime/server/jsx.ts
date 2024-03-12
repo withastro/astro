@@ -37,6 +37,7 @@ let originalConsoleError: any;
 let consoleFilterRefs = 0;
 
 export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
+	// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
 	switch (true) {
 		case vnode instanceof HTMLString:
 			if (vnode.toString().trim() === '') {
@@ -72,6 +73,7 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 
 async function renderJSXVNode(result: SSRResult, vnode: AstroVNode, skip: Skip): Promise<any> {
 	if (isVNode(vnode)) {
+		// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
 		switch (true) {
 			case !vnode.type: {
 				throw new Error(`Unable to render ${result.pathname} because it contains an undefined Component!
