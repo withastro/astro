@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.8.1
+
+### Patch Changes
+
+- [#10401](https://github.com/withastro/astro/pull/10401) [`a084d8cec66e4fb1952bd0dfe293712401f2f463`](https://github.com/withastro/astro/commit/a084d8cec66e4fb1952bd0dfe293712401f2f463) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix astro:db configuration types returning `any`
+
 ## 0.8.0
 
 ### Minor Changes
