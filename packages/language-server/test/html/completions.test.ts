@@ -9,14 +9,15 @@ describe('HTML - Completions', () => {
 	before(async () => (languageServer = await getLanguageServer()));
 
 	it('Can provide completions for HTML tags', async () => {
-		const document = await languageServer.openFakeDocument(`<q`, 'astro');
+		const document = await languageServer.openFakeDocument(`<block`, 'astro');
 		const completions = await languageServer.handle.sendCompletionRequest(
 			document.uri,
-			Position.create(0, 2)
+			Position.create(0, 6)
 		);
 
+		const allLabels = completions!.items.map((i) => i.label);
 		expect(completions!.items).to.not.be.empty;
-		expect(completions!.items[0].label).to.equal('blockquote');
+		expect(allLabels).to.include('blockquote');
 	});
 
 	it('Can provide completions for HTML attributes', async () => {

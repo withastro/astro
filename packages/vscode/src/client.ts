@@ -2,20 +2,25 @@ import * as path from 'node:path';
 import { DiagnosticModel, InitializationOptions } from '@volar/language-server';
 import * as protocol from '@volar/language-server/protocol';
 import {
-	type ExportsInfoForLabs,
+	LabsInfo,
 	activateAutoInsertion,
 	activateFindFileReferences,
 	activateReloadProjects,
 	activateTsConfigStatusItem,
 	activateTsVersionStatusItem,
 	createLabsInfo,
-	getTsdk,
-	supportLabsVersion,
+	getTsdk
 } from '@volar/vscode';
 import * as vscode from 'vscode';
 import * as lsp from 'vscode-languageclient/node';
 
 let client: lsp.BaseLanguageClient;
+
+type InitOptions = InitializationOptions & {
+	typescript: {
+		tsdk: string;
+	};
+} & Record<string, unknown>;
 
 export async function activate(context: vscode.ExtensionContext): Promise<LabsInfo> {
 	const runtimeConfig = vscode.workspace.getConfiguration('astro.language-server');
@@ -57,16 +62,17 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 		console.info(`Using ${serverRuntime} as runtime`);
 	}
 
-	const initializationOptions: InitializationOptions = {
+	const initializationOptions = {
 		typescript: {
 			tsdk: (await getTsdk(context)).tsdk,
 		},
 		diagnosticModel: DiagnosticModel.Push,
-	};
-	const clientOptions: lsp.LanguageClientOptions = {
+	} satisfies InitOptions;
+
+	const clientOptions = {
 		documentSelector: [{ language: 'astro' }],
 		initializationOptions,
-	};
+	} satisfies lsp.LanguageClientOptions
 	client = new lsp.LanguageClient('astro', 'Astro Language Server', serverOptions, clientOptions);
 	await client.start();
 
@@ -83,10 +89,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 		(text) => text
 	);
 
-	const volarLabs = createLabsInfo(protocol);
-	volarLabs.addLanguageClient(client);
+  const volarLabs = createLabsInfo(protocol)
+  volarLabs.addLanguageClient(client)
 
-	return volarLabs.extensionExports;
+  return volarLabs.extensionExports
 }
 
 export function deactivate(): Thenable<any> | undefined {

@@ -201,8 +201,8 @@
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.17.8",
     "@types/vscode": "^1.82.0",
-    "@volar/language-server": "~2.0.4",
-    "@volar/vscode": "~2.0.4",
+    "@volar/language-server": "~2.1.2",
+    "@volar/vscode": "~2.1.2",
     "@vscode/test-electron": "^2.3.2",
     "@vscode/vsce": "latest",
     "esbuild": "^0.17.19",
@@ -215,8 +215,8 @@
     "vscode-tmgrammar-test": "^0.1.2"
   },
   "dependencies": {
-    "@astrojs/compiler": "^2.4.0",
-    "prettier": "^3.0.0",
-    "prettier-plugin-astro": "^0.12.0"
+    "@astrojs/compiler": "^2.7.0",
+    "prettier": "^3.2.5",
+    "prettier-plugin-astro": "^0.13.0"
   }
 }

@@ -196,6 +196,7 @@ export class AstroVirtualCode implements VirtualCode {
 
 		this.scriptCodeIds = scriptTags.map((scriptTag) => scriptTag.id);
 
+		htmlVirtualCode.embeddedCodes = [];
 		htmlVirtualCode.embeddedCodes.push(
 			...extractStylesheets(this.snapshot, htmlDocument, astroMetadata.ast),
 			...scriptTags
