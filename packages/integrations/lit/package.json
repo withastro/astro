@@ -56,12 +56,12 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0-rc.12",
-    "lit": "^3.1.0",
+    "lit": "^3.1.2",
     "sass": "^1.69.5"
   },
   "peerDependencies": {
     "@webcomponents/template-shadowroot": "^0.2.1",
-    "lit": "^3.1.0"
+    "lit": "^3.1.2"
   },
   "publishConfig": {
     "provenance": true
