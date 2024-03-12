@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
+import * as color from 'kleur/colors';
 import {
 	getCollectionChangeQueries,
 	getMigrationQueries,
@@ -103,6 +104,76 @@ describe('column queries', () => {
 		it('should be empty when tables are the same', async () => {
 			const { queries } = await userChangeQueries(userInitial, userInitial);
 			expect(queries).to.deep.equal([]);
+		});
+
+		it('should return warning if column type change introduces data loss', async () => {
+			const blogInitial = tableSchema.parse({
+				...userInitial,
+				columns: {
+					date: column.text(),
+				},
+			});
+			const blogFinal = tableSchema.parse({
+				...userInitial,
+				columns: {
+					date: column.date(),
+				},
+			});
+			const { queries, confirmations } = await userChangeQueries(blogInitial, blogFinal);
+			expect(queries).to.deep.equal([
+				'DROP TABLE "Users"',
+				'CREATE TABLE "Users" (_id INTEGER PRIMARY KEY, "date" text NOT NULL)',
+			]);
+			expect(confirmations).to.deep.equal([
+				`Updating existing column ${color.bold(
+					`${TABLE_NAME}.date`
+				)} to a new type that cannot be handled automatically.`,
+			]);
+		});
+
+		it('should return warning if new required column added', async () => {
+			const blogInitial = tableSchema.parse({
+				...userInitial,
+				columns: {},
+			});
+			const blogFinal = tableSchema.parse({
+				...userInitial,
+				columns: {
+					date: column.date({ optional: false }),
+				},
+			});
+			const { queries, confirmations } = await userChangeQueries(blogInitial, blogFinal);
+			expect(queries).to.deep.equal([
+				'DROP TABLE "Users"',
+				'CREATE TABLE "Users" (_id INTEGER PRIMARY KEY, "date" text NOT NULL)',
+			]);
+			expect(confirmations).to.deep.equal([
+				`You added new required column '${color.bold(
+					`${TABLE_NAME}.date`
+				)}' with no default value.` + '\n      This cannot be executed on an existing table.',
+			]);
+		});
+
+		it('should return warning if non-number primary key with no default added', async () => {
+			const blogInitial = tableSchema.parse({
+				...userInitial,
+				columns: {},
+			});
+			const blogFinal = tableSchema.parse({
+				...userInitial,
+				columns: {
+					id: column.text({ primaryKey: true }),
+				},
+			});
+			const { queries, confirmations } = await userChangeQueries(blogInitial, blogFinal);
+			expect(queries).to.deep.equal([
+				'DROP TABLE "Users"',
+				'CREATE TABLE "Users" ("id" text PRIMARY KEY)',
+			]);
+			expect(confirmations).to.deep.equal([
+				`You added new required column '${color.bold(`${TABLE_NAME}.id`)}' with no default value.` +
+					'\n      This cannot be executed on an existing table.',
+			]);
 		});
 
 		it('should be empty when type updated to same underlying SQL type', async () => {

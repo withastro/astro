@@ -7,7 +7,6 @@ import { hasPrimaryKey } from '../../runtime/index.js';
 import {
 	getCreateIndexQueries,
 	getCreateTableQuery,
-	getDropTableIfExistsQuery,
 	getModifiers,
 	getReferencesConfig,
 	hasDefault,
@@ -77,7 +76,7 @@ export async function getMigrationQueries({
 		const addedColumns = getAdded(oldCollection.columns, newCollection.columns);
 		const droppedColumns = getDropped(oldCollection.columns, newCollection.columns);
 		const notDeprecatedDroppedColumns = Object.fromEntries(
-			Object.entries(droppedColumns).filter(([key, col]) => !col.schema.deprecated)
+			Object.entries(droppedColumns).filter(([, col]) => !col.schema.deprecated)
 		);
 		if (!isEmpty(addedColumns) && !isEmpty(notDeprecatedDroppedColumns)) {
 			throw new Error(
