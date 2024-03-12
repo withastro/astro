@@ -1,5 +1,17 @@
 # @astrojs/db
 
+## 0.8.0
+
+### Minor Changes
+
+- [#10395](https://github.com/withastro/astro/pull/10395) [`a49892349ecee2b5d3184e59ac0ab54368481672`](https://github.com/withastro/astro/commit/a49892349ecee2b5d3184e59ac0ab54368481672) Thanks [@matthewp](https://github.com/matthewp)! - Sets new Astro Studio production URL
+
+### Patch Changes
+
+- [#10396](https://github.com/withastro/astro/pull/10396) [`41ca94e5136a80a58d000f3eb87029442599a4a3`](https://github.com/withastro/astro/commit/41ca94e5136a80a58d000f3eb87029442599a4a3) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Remove risk of data loss when pushing an out-of-date table schema.
+
+- [#10374](https://github.com/withastro/astro/pull/10374) [`f76dcb769f6869acb96b2a77898926f109f54a33`](https://github.com/withastro/astro/commit/f76dcb769f6869acb96b2a77898926f109f54a33) Thanks [@itsMapleLeaf](https://github.com/itsMapleLeaf)! - Expose DB utility types from @astrojs/db/types
+
 ## 0.7.2
 
 ### Patch Changes

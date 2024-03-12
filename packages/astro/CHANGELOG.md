@@ -1,5 +1,11 @@
 # astro
 
+## 4.5.2
+
+### Patch Changes
+
+- [#10400](https://github.com/withastro/astro/pull/10400) [`629c9d7c4d96ae5711d95601e738b3d31d268116`](https://github.com/withastro/astro/commit/629c9d7c4d96ae5711d95601e738b3d31d268116) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Fixes an issue where dev toolbar x-ray didn't escape props content.
+
 ## 4.5.1
 
 ### Patch Changes
