@@ -527,9 +527,6 @@ importers:
       '@babel/types':
         specifier: ^7.23.3
         version: 7.24.0
-      '@shikijs/core':
-        specifier: ^1.1.2
-        version: 1.1.7
       '@types/babel__core':
         specifier: ^7.20.4
         version: 7.20.5
@@ -620,9 +617,6 @@ importers:
       magic-string:
         specifier: ^0.30.3
         version: 0.30.8
-      mdast-util-to-hast:
-        specifier: 13.0.2
-        version: 13.0.2
       mime:
         specifier: ^3.0.0
         version: 3.0.0
