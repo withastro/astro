@@ -61,7 +61,6 @@ export async function getMigrationQueries({
 	}
 
 	for (const [collectionName, collection] of Object.entries(addedCollections)) {
-		queries.push(getDropTableIfExistsQuery(collectionName));
 		queries.push(getCreateTableQuery(collectionName, collection));
 		queries.push(...getCreateIndexQueries(collectionName, collection));
 	}
