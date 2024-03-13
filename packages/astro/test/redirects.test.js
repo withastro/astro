@@ -98,6 +98,16 @@ describe('Astro.redirect', () => {
 				const response = await app.render(request);
 				assert.equal(response.headers.get('Location'), '/not-verbatim/target3/x/y/z');
 			});
+
+			it('Forwards params to the target path - special characters', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const request = new Request('http://example.com/source/Las Vegas’');
+				const response = await app.render(request);
+				assert.equal(
+					response.headers.get('Location'),
+					'/not-verbatim/target1/Las%20Vegas%E2%80%99'
+				);
+			});
 		});
 	});
 
