@@ -3,9 +3,9 @@ import type * as vite from 'vite';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
 import type {
+	CompileMetadata,
 	PluginCssMetadata as AstroPluginCssMetadata,
 	PluginMetadata as AstroPluginMetadata,
-	CompileMetadata,
 } from './types.js';
 
 import { normalizePath } from 'vite';

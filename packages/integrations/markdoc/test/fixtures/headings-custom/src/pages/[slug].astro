@@ -1,5 +1,5 @@
 ---
-import { CollectionEntry, getCollection } from "astro:content";
+import { getCollection, CollectionEntry } from "astro:content";
 
 export async function getStaticPaths() {
 	const docs = await getCollection('docs');

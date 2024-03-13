@@ -716,8 +716,8 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 
 		// return a promise that resolves when all astro-islands are hydrated
 		async function hydrationDone(loadingPage: HTMLIFrameElement) {
-			await new Promise((r) =>
-				loadingPage.contentWindow?.addEventListener('load', r, { once: true })
+			await new Promise(
+				(r) => loadingPage.contentWindow?.addEventListener('load', r, { once: true })
 			);
 
 			return new Promise<void>(async (r) => {

@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'url';
 import stripAnsi from 'strip-ansi';
-import type { LogLevel, Rollup, Logger as ViteLogger } from 'vite';
+import type { LogLevel, Logger as ViteLogger, Rollup } from 'vite';
 import { isAstroError } from '../errors/errors.js';
 import { serverShortcuts as formatServerShortcuts } from '../messages.js';
 import { type Logger as AstroLogger, isLogLevelEnabled } from './core.js';
