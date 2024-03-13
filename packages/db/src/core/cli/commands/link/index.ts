@@ -7,7 +7,7 @@ import ora from 'ora';
 import prompts from 'prompts';
 import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
 import { PROJECT_ID_FILE, getSessionIdFromFile } from '../../../tokens.js';
-import { getAstroStudioUrl } from '../../../utils.js';
+import { type Result, getAstroStudioUrl, safeFetch } from '../../../utils.js';
 
 export async function cmd() {
 	const sessionToken = await getSessionIdFromFile();
@@ -51,29 +51,31 @@ async function linkProject(id: string) {
 
 async function getWorkspaceId(): Promise<string> {
 	const linkUrl = new URL(getAstroStudioUrl() + '/api/cli/workspaces.list');
-	const response = await fetch(linkUrl, {
-		method: 'POST',
-		headers: {
-			Authorization: `Bearer ${await getSessionIdFromFile()}`,
-			'Content-Type': 'application/json',
+	const response = await safeFetch(
+		linkUrl,
+		{
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${await getSessionIdFromFile()}`,
+				'Content-Type': 'application/json',
+			},
 		},
-	});
-	if (!response.ok) {
-		// Unauthorized
-		if (response.status === 401) {
-			console.error(
-				`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-					'astro db login'
-				)} to authenticate and then try linking again.\n\n`
-			);
+		(res) => {
+			// Unauthorized
+			if (res.status === 401) {
+				console.error(
+					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
+						'astro db login'
+					)} to authenticate and then try linking again.\n\n`
+				);
+				process.exit(1);
+			}
+			console.error(`Failed to fetch user workspace: ${res.status} ${res.statusText}`);
 			process.exit(1);
 		}
-		console.error(`Failed to fetch user workspace: ${response.status} ${response.statusText}`);
-		process.exit(1);
-	}
-	const { data, success } = (await response.json()) as
-		| { success: false; data: unknown }
-		| { success: true; data: { id: string }[] };
+	);
+
+	const { data, success } = (await response.json()) as Result<{ id: string }[]>;
 	if (!success) {
 		console.error(`Failed to fetch user's workspace.`);
 		process.exit(1);
@@ -91,30 +93,32 @@ export async function createNewProject({
 	region: string;
 }) {
 	const linkUrl = new URL(getAstroStudioUrl() + '/api/cli/projects.create');
-	const response = await fetch(linkUrl, {
-		method: 'POST',
-		headers: {
-			Authorization: `Bearer ${await getSessionIdFromFile()}`,
-			'Content-Type': 'application/json',
+	const response = await safeFetch(
+		linkUrl,
+		{
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${await getSessionIdFromFile()}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ workspaceId, name, region }),
 		},
-		body: JSON.stringify({ workspaceId, name, region }),
-	});
-	if (!response.ok) {
-		// Unauthorized
-		if (response.status === 401) {
-			console.error(
-				`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-					'astro db login'
-				)} to authenticate and then try linking again.\n\n`
-			);
+		(res) => {
+			// Unauthorized
+			if (res.status === 401) {
+				console.error(
+					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
+						'astro db login'
+					)} to authenticate and then try linking again.\n\n`
+				);
+				process.exit(1);
+			}
+			console.error(`Failed to create project: ${res.status} ${res.statusText}`);
 			process.exit(1);
 		}
-		console.error(`Failed to create project: ${response.status} ${response.statusText}`);
-		process.exit(1);
-	}
-	const { data, success } = (await response.json()) as
-		| { success: false; data: unknown }
-		| { success: true; data: { id: string; idName: string } };
+	);
+
+	const { data, success } = (await response.json()) as Result<{ id: string; idName: string }>;
 	if (!success) {
 		console.error(`Failed to create project.`);
 		process.exit(1);
@@ -124,30 +128,31 @@ export async function createNewProject({
 
 export async function promptExistingProjectName({ workspaceId }: { workspaceId: string }) {
 	const linkUrl = new URL(getAstroStudioUrl() + '/api/cli/projects.list');
-	const response = await fetch(linkUrl, {
-		method: 'POST',
-		headers: {
-			Authorization: `Bearer ${await getSessionIdFromFile()}`,
-			'Content-Type': 'application/json',
+	const response = await safeFetch(
+		linkUrl,
+		{
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${await getSessionIdFromFile()}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ workspaceId }),
 		},
-		body: JSON.stringify({ workspaceId }),
-	});
-	if (!response.ok) {
-		// Unauthorized
-		if (response.status === 401) {
-			console.error(
-				`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-					'astro db login'
-				)} to authenticate and then try linking again.\n\n`
-			);
+		(res) => {
+			if (res.status === 401) {
+				console.error(
+					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
+						'astro db login'
+					)} to authenticate and then try linking again.\n\n`
+				);
+				process.exit(1);
+			}
+			console.error(`Failed to fetch projects: ${res.status} ${res.statusText}`);
 			process.exit(1);
 		}
-		console.error(`Failed to fetch projects: ${response.status} ${response.statusText}`);
-		process.exit(1);
-	}
-	const { data, success } = (await response.json()) as
-		| { success: false; data: unknown }
-		| { success: true; data: { id: string; idName: string }[] };
+	);
+
+	const { data, success } = (await response.json()) as Result<{ id: string; idName: string }[]>;
 	if (!success) {
 		console.error(`Failed to fetch projects.`);
 		process.exit(1);

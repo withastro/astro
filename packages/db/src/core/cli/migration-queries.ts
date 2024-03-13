@@ -32,7 +32,7 @@ import {
 	type NumberColumn,
 	type TextColumn,
 } from '../types.js';
-import { getRemoteDatabaseUrl } from '../utils.js';
+import { type Result, getRemoteDatabaseUrl, safeFetch } from '../utils.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
@@ -425,20 +425,22 @@ export async function getProductionCurrentSnapshot({
 }): Promise<DBSnapshot | undefined> {
 	const url = new URL('/db/schema', getRemoteDatabaseUrl());
 
-	const response = await fetch(url, {
-		method: 'POST',
-		headers: new Headers({
-			Authorization: `Bearer ${appToken}`,
-		}),
-	});
-	if (!response.ok) {
-		console.error(`${url.toString()} failed: ${response.status} ${response.statusText}`);
-		console.error(await response.text());
-		throw new Error(`/db/schema fetch failed: ${response.status} ${response.statusText}`);
-	}
-	const result = (await response.json()) as
-		| { success: false; data: undefined }
-		| { success: true; data: DBSnapshot };
+	const response = await safeFetch(
+		url,
+		{
+			method: 'POST',
+			headers: new Headers({
+				Authorization: `Bearer ${appToken}`,
+			}),
+		},
+		async (res) => {
+			console.error(`${url.toString()} failed: ${res.status} ${res.statusText}`);
+			console.error(await res.text());
+			throw new Error(`/db/schema fetch failed: ${res.status} ${res.statusText}`);
+		}
+	);
+
+	const result = (await response.json()) as Result<DBSnapshot>;
 	if (!result.success) {
 		console.error(`${url.toString()} unsuccessful`);
 		console.error(await response.text());

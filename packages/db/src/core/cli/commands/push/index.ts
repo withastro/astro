@@ -3,7 +3,7 @@ import type { Arguments } from 'yargs-parser';
 import { MIGRATION_VERSION } from '../../../consts.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBConfig, type DBSnapshot } from '../../../types.js';
-import { getRemoteDatabaseUrl } from '../../../utils.js';
+import { type Result, getRemoteDatabaseUrl, safeFetch } from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
@@ -82,19 +82,23 @@ async function pushSchema({
 		return new Response(null, { status: 200 });
 	}
 	const url = new URL('/db/push', getRemoteDatabaseUrl());
-	const response = await fetch(url, {
-		method: 'POST',
-		headers: new Headers({
-			Authorization: `Bearer ${appToken}`,
-		}),
-		body: JSON.stringify(requestBody),
-	});
-	if (!response.ok) {
-		console.error(`${url.toString()} failed: ${response.status} ${response.statusText}`);
-		console.error(await response.text());
-		throw new Error(`/db/push fetch failed: ${response.status} ${response.statusText}`);
-	}
-	const result = (await response.json()) as { success: false } | { success: true };
+	const response = await safeFetch(
+		url,
+		{
+			method: 'POST',
+			headers: new Headers({
+				Authorization: `Bearer ${appToken}`,
+			}),
+			body: JSON.stringify(requestBody),
+		},
+		async (res) => {
+			console.error(`${url.toString()} failed: ${res.status} ${res.statusText}`);
+			console.error(await res.text());
+			throw new Error(`/db/push fetch failed: ${res.status} ${res.statusText}`);
+		}
+	);
+
+	const result = (await response.json()) as Result<never>;
 	if (!result.success) {
 		console.error(`${url.toString()} unsuccessful`);
 		console.error(await response.text());
