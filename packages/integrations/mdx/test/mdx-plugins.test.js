@@ -47,7 +47,7 @@ describe('MDX plugins', () => {
 
 		const quote = selectSmartypantsQuote(document);
 		assert.notEqual(quote, null);
-		assert.equal(quote.textContent.includes('“Smartypants” is — awesome'), true);
+		assert.equal(quote.textContent.includes('”Smartypants” is — awesome'), true);
 	});
 
 	it('supports custom rehype plugins', async () => {
@@ -174,7 +174,7 @@ describe('MDX plugins', () => {
 					);
 				} else {
 					assert.equal(
-						quote.textContent.includes('“Smartypants” is — awesome'),
+						quote.textContent.includes('”Smartypants” is — awesome'),
 						true,
 						'Respects `markdown.smartypants` unexpectedly.'
 					);
