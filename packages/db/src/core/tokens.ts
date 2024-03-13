@@ -33,10 +33,9 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 
 	static async getRegionCode(): Promise<string | undefined> {
 		const pingResponse = await safeFetch(new URL(`${getRemoteDatabaseUrl()}/ping`));
-		const pingResult = await pingResponse.json() as {success: true, data: {region: string} };
+		const pingResult = (await pingResponse.json()) as { success: true; data: { region: string } };
 		return pingResult.data.region;
 	}
-
 
 	static async create(sessionToken: string, projectId: string) {
 		const region = await ManagedRemoteAppToken.getRegionCode();
@@ -64,7 +63,13 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 		});
 	}
 
-	constructor(options: { token: string; session: string; region: string | undefined; projectId: string; ttl: number }) {
+	constructor(options: {
+		token: string;
+		session: string;
+		region: string | undefined;
+		projectId: string;
+		ttl: number;
+	}) {
 		this.token = options.token;
 		this.session = options.session;
 		this.region = options.region;
@@ -82,9 +87,9 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 					Authorization: `Bearer ${this.session}`,
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({...body, region: this.region}),
+				body: JSON.stringify({ ...body, region: this.region }),
 			},
-			() => { 
+			() => {
 				throw new Error(`Failed to fetch ${url}.`);
 			}
 		);
