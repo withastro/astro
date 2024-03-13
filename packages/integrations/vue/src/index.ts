@@ -101,13 +101,13 @@ export const setup = async (app) => {
 }
 
 async function getViteConfiguration(options?: Options): Promise<UserConfig> {
-	let vueOptions = deepMergeObjects(options ?? {}, {
-				// Disable transforming asset urls, as Vue doesn't transform them in a way that works in Astro
-				// TODO: Investigate if Vue's transformAssetUrls can be made to work in Astro, and if that's desirable
-				template: {
-					transformAssetUrls: false,
-				},
-			})
+	let vueOptions = {
+		...options,
+		template: {
+			...options?.template,
+			transformAssetUrls: false,
+		},
+	} satisfies VueOptions;
 
 	const config: UserConfig = {
 		optimizeDeps: {
@@ -143,27 +143,4 @@ export default function (options?: Options): AstroIntegration {
 			},
 		},
 	};
-}
-
-// Simple deep merge implementation that merges objects and strings
-function deepMergeObjects<T extends Record<string, any>>(a: T, b: T): T {
-	const merged: T = { ...a };
-
-	for (const key in b) {
-		const value = b[key];
-
-		if (a[key] == null) {
-			merged[key] = value;
-			continue;
-		}
-
-		if (typeof a[key] === 'object' && typeof value === 'object') {
-			merged[key] = deepMergeObjects(a[key], value);
-			continue;
-		}
-
-		merged[key] = value;
-	}
-
-	return merged;
 }
