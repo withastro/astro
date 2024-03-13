@@ -1,7 +1,9 @@
 {
   "name": "Astro",
   "scopeName": "source.astro",
-  "fileTypes": ["astro"],
+  "fileTypes": [
+    "astro"
+  ],
   "injections": {
     "L:(meta.script.astro) (meta.lang.json) - (meta source)": {
       "patterns": [
@@ -213,8 +215,8 @@
           "include": "#entities"
         },
         {
-          "begin": "(?<=>|})",
-          "end": "(?=<|{)",
+          "begin": "(?<=^|>|})",
+          "end": "(?=<|{|$)",
           "name": "text.astro",
           "patterns": [
             {

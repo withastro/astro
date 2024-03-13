@@ -194,9 +194,9 @@ repository:
       - include: '#interpolation'
       - include: '#entities'
       # Content text.
-      # This matches only in-between all the nodes - nothing inside of them.
-      - begin: (?<=>|})
-        end: (?=<|{)
+      # This matches nothing inside of tags, only in-between them and at the beginning/end of the file.
+      - begin: (?<=^|>|})
+        end: (?=<|{|$)
         name: text.astro
         patterns:
           - include: '#entities'
