@@ -1,9 +1,9 @@
-import type { Context } from './context.js';
-import { color } from '@astrojs/cli-kit';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { color } from '@astrojs/cli-kit';
 import stripJsonComments from 'strip-json-comments';
 import { error, getVersion, info, title, typescriptByDefault } from '../messages.js';
+import type { Context } from './context.js';
 
 type PickedTypeScriptContext = Pick<
 	Context,
@@ -101,8 +101,8 @@ const FILES_TO_UPDATE = {
 			}
 
 			const [astroCheckVersion, typescriptVersion] = await Promise.all([
-				getVersion(options.ctx.packageManager, '@astrojs/check'),
-				getVersion(options.ctx.packageManager, 'typescript'),
+				getVersion(options.ctx.packageManager, '@astrojs/check', process.env.ASTRO_CHECK_VERSION),
+				getVersion(options.ctx.packageManager, 'typescript', process.env.TYPESCRIPT_VERSION),
 			]);
 			parsedPackageJson.dependencies ??= {};
 			parsedPackageJson.dependencies['@astrojs/check'] = `^${astroCheckVersion}`;

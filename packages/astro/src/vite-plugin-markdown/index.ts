@@ -1,22 +1,22 @@
-import {
-	createMarkdownProcessor,
-	InvalidAstroDataError,
-	type MarkdownProcessor,
-} from '@astrojs/markdown-remark';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import {
+	InvalidAstroDataError,
+	type MarkdownProcessor,
+	createMarkdownProcessor,
+} from '@astrojs/markdown-remark';
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { safeParseFrontmatter } from '../content/utils.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
 import { shorthash } from '../runtime/server/shorthash.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
-import { getMarkdownCodeForImages, type MarkdownImagePath } from './images.js';
+import { type MarkdownImagePath, getMarkdownCodeForImages } from './images.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;

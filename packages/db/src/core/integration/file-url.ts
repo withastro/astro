@@ -1,8 +1,8 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import type { VitePlugin } from '../utils.js';
-import fs from 'node:fs';
-import { pathToFileURL } from 'node:url';
-import path from 'node:path';
 
 async function copyFile(toDir: URL, fromUrl: URL, toUrl: URL) {
 	await fs.promises.mkdir(toDir, { recursive: true });
@@ -72,12 +72,12 @@ export function fileURLIntegration(): AstroIntegration {
 						unlinks.push(fs.promises.unlink(url));
 					}
 					await Promise.all(unlinks);
+					// Delete the assets directory if it is empty.
+					// NOTE(fks): Ignore errors here because this is expected to fail
+					// if the directory contains files, or if it does not exist.
+					// If it errors for some unknown reason, it's not a big deal.
 					const assetDir = new URL(config.build.assets, config.outDir);
-					const assetFiles = await fs.promises.readdir(assetDir);
-					if (!assetFiles.length) {
-						// Directory is empty, delete it.
-						await fs.promises.rmdir(assetDir);
-					}
+					await fs.promises.rmdir(assetDir).catch(() => []);
 				} else {
 					// Move files back over to the dist output path
 					const moves: Promise<unknown>[] = [];

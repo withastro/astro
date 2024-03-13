@@ -1,10 +1,10 @@
-import { prompt, type Task } from '@astrojs/cli-kit';
+import os from 'node:os';
+import { type Task, prompt } from '@astrojs/cli-kit';
 import { random } from '@astrojs/cli-kit/utils';
 import arg from 'arg';
-import os from 'node:os';
 
-import { getName, getVersion } from '../messages.js';
 import getSeasonalData from '../data/seasonal.js';
+import { getName, getVersion } from '../messages.js';
 
 export interface Context {
 	help: boolean;
@@ -93,7 +93,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		prompt,
 		packageManager,
 		username: getName(),
-		version: getVersion(packageManager, 'astro'),
+		version: getVersion(packageManager, 'astro', process.env.ASTRO_VERSION),
 		skipHouston,
 		fancy,
 		dryRun,

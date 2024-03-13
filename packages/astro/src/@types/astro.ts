@@ -1,3 +1,5 @@
+import type { OutgoingHttpHeaders } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -8,12 +10,10 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
-import type { OutgoingHttpHeaders } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
-import type { SerializedSSRManifest } from '../core/app/types.js';
+import type { AssetsPrefix, SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import type { AstroConfigType } from '../core/config/index.js';
 import type { AstroTimer } from '../core/config/timer.js';
@@ -34,6 +34,10 @@ import type {
 	DevToolbarWindow,
 } from '../runtime/client/dev-toolbar/ui-library/index.js';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server/index.js';
+import type {
+	TransitionBeforePreparationEvent,
+	TransitionBeforeSwapEvent,
+} from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
@@ -63,7 +67,7 @@ export type {
 	UnresolvedImageTransform,
 } from '../assets/types.js';
 export type { RemotePattern } from '../assets/utils/remotePattern.js';
-export type { SSRManifest } from '../core/app/types.js';
+export type { SSRManifest, AssetsPrefix } from '../core/app/types.js';
 export type {
 	AstroCookieGetOptions,
 	AstroCookieSetOptions,
@@ -877,16 +881,16 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name build.assetsPrefix
-		 * @type {string}
+		 * @type {string | Record<string, string>}
 		 * @default `undefined`
 		 * @version 2.2.0
 		 * @description
 		 * Specifies the prefix for Astro-generated asset links. This can be used if assets are served from a different domain than the current site.
 		 *
-		 * For example, if this is set to `https://cdn.example.com`, assets will be fetched from `https://cdn.example.com/_astro/...` (regardless of the `base` option).
-		 * You would need to upload the files in `./dist/_astro/` to `https://cdn.example.com/_astro/` to serve the assets.
-		 * The process varies depending on how the third-party domain is hosted.
+		 * This requires uploading the assets in your local `./dist/_astro` folder to a corresponding `/_astro/` folder on the remote domain.
 		 * To rename the `_astro` path, specify a new directory in `build.assets`.
+		 *
+		 * To fetch all assets uploaded to the same domain (e.g. `https://cdn.example.com/_astro/...`), set `assetsPrefix` to the root domain as a string (regardless of your `base` configuration):
 		 *
 		 * ```js
 		 * {
@@ -895,8 +899,27 @@ export interface AstroUserConfig {
 		 *   }
 		 * }
 		 * ```
+		 *
+		 * **Added in:** `astro@4.5.0`
+		 *
+		 * You can also pass an object to `assetsPrefix` to specify a different domain for each file type.
+		 * In this case, a `fallback` property is required and will be used by default for any other files.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     assetsPrefix: {
+		 *       'js': 'https://js.cdn.example.com',
+		 *       'mjs': 'https://js.cdn.example.com',
+		 *       'css': 'https://css.cdn.example.com',
+		 *       'fallback': 'https://cdn.example.com'
+		 *     }
+		 *   }
+		 * }
+		 * ```
+		 *
 		 */
-		assetsPrefix?: string;
+		assetsPrefix?: AssetsPrefix;
 		/**
 		 * @docs
 		 * @name build.serverEntry
@@ -1290,7 +1313,7 @@ export interface AstroUserConfig {
 		 * @default `shiki`
 		 * @description
 		 * Which syntax highlighter to use, if any.
-		 * - `shiki` - use the [Shiki](https://github.com/shikijs/shiki) highlighter
+		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter
 		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter
 		 * - `false` - do not apply syntax highlighting.
 		 *
@@ -1601,25 +1624,30 @@ export interface AstroUserConfig {
 	experimental?: {
 		/**
 		 * @docs
-		 * @name experimental.optimizeHoistedScript
+		 * @name experimental.directRenderScript
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 2.10.4
+		 * @version 4.5.0
 		 * @description
-		 * Prevents unused components' scripts from being included in a page unexpectedly.
-		 * The optimization is best-effort and may inversely miss including the used scripts. Make sure to double-check your built pages
-		 * before publishing.
-		 * Enable hoisted script analysis optimization by adding the experimental flag:
+		 * Enables a more reliable strategy to prevent scripts from being executed in pages where they are not used.
+		 * 
+		 * Scripts will directly render as declared in Astro files (including existing features like TypeScript, importing `node_modules`,
+		 * and deduplicating scripts). You can also now conditionally render scripts in your Astro file.
+
+		 * However, this means scripts are no longer hoisted to the `<head>` and multiple scripts on a page are no longer bundled together.
+		 * If you enable this option, you should check that all your `<script>` tags behave as expected.
+		 *
+		 * This option will be enabled by default in Astro 5.0.
 		 *
 		 * ```js
 		 * {
-		 * 	experimental: {
-		 *		optimizeHoistedScript: true,
-		 * 	},
+		 *   experimental: {
+		 *     directRenderScript: true,
+		 *   },
 		 * }
 		 * ```
 		 */
-		optimizeHoistedScript?: boolean;
+		directRenderScript?: boolean;
 
 		/**
 		 * @docs
@@ -1642,6 +1670,54 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
+		 * @name experimental.contentCollectionJsonSchema
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.5.0
+		 * @description
+		 * This feature will auto-generate a JSON schema for content collections of `type: 'data'` which can be used as the `$schema` value for TypeScript-style autocompletion/hints in tools like VSCode.
+		 * 
+		 * To enable this feature, add the experimental flag:
+		 * 
+		 * ```diff
+		 * import { defineConfig } from 'astro/config';
+
+		 * export default defineConfig({
+		 * 	experimental: {
+		 * +		contentCollectionJsonSchema: true
+		 * 	}
+		 * });
+		 * ```
+		 * 
+		 * This experimental implementation requires you to manually reference the schema in each data entry file of the collection:
+		 * 
+		 * ```diff
+		 * // src/content/test/entry.json
+		 * {
+		 * +  "$schema": "../../../.astro/collections/test.schema.json",
+		 * 	"test": "test"
+		 * }
+		 * ```
+		 * 
+		 * Alternatively, you can set this in your [VSCode `json.schemas` settings](https://code.visualstudio.com/docs/languages/json#_json-schemas-and-settings):
+		 * 
+		 * ```diff
+		 * "json.schemas": [
+		 * 	{
+		 * 		"fileMatch": [
+		 * 			"/src/content/test/**"
+		 * 		],
+		 * 		"url": "../../../.astro/collections/test.schema.json"
+		 * 	}
+		 * ]
+		 * ```
+		 * 
+		 * Note that this initial implementation uses a library with [known issues for advanced Zod schemas](https://github.com/StefanTerdell/zod-to-json-schema#known-issues), so you may wish to consult these limitations before enabling the experimental flag.
+		 */
+		contentCollectionJsonSchema?: boolean;
+
+		/**
+		 * @docs
 		 * @name experimental.clientPrerender
 		 * @type {boolean}
 		 * @default `false`
@@ -1649,7 +1725,7 @@ export interface AstroUserConfig {
 		 * @description
 		 * Enables pre-rendering your prefetched pages on the client in supported browsers.
 		 *
-		 * This feature uses the experimental [Speculation Rules Web API](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API) and overrides the default `prefetch` behavior globally to prerender links on the client.
+		 * This feature uses the experimental [Speculation Rules Web API](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API) and enhances the default `prefetch` behavior globally to prerender links on the client.
 		 * You may wish to review the [possible risks when prerendering on the client](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API#unsafe_prefetching) before enabling this feature.
 		 *
 		 * Enable client side prerendering in your `astro.config.mjs` along with any desired `prefetch` configuration options:
@@ -2691,13 +2767,14 @@ export interface SSRResult {
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
 	componentMetadata: Map<string, SSRComponentMetadata>;
+	inlinedScripts: Map<string, string>;
 	createAstro(
 		Astro: AstroGlobalPartial,
 		props: Record<string, any>,
 		slots: Record<string, any> | null
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
-	response: ResponseInit;
+	response: AstroGlobal['response'];
 	renderers: SSRLoadedRenderer[];
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
@@ -2725,6 +2802,11 @@ export interface SSRMetadata {
 	 * script in the page HTML before the first Solid component.
 	 */
 	rendererSpecificHydrationScripts: Set<string>;
+	/**
+	 * Used by `renderScript` to track script ids that have been rendered,
+	 * so we only render each once.
+	 */
+	renderedScripts: Set<string>;
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	headInTree: boolean;
@@ -2831,11 +2913,16 @@ declare global {
 		'astro-dev-overlay-icon': DevToolbarIcon;
 		'astro-dev-overlay-card': DevToolbarCard;
 	}
-}
-
-declare global {
 	// eslint-disable-next-line @typescript-eslint/no-namespace
 	namespace Config {
 		type Database = Record<string, any>;
+	}
+
+	interface DocumentEventMap {
+		'astro:before-preparation': TransitionBeforePreparationEvent;
+		'astro:after-preparation': Event;
+		'astro:before-swap': TransitionBeforeSwapEvent;
+		'astro:after-swap': Event;
+		'astro:page-load': Event;
 	}
 }

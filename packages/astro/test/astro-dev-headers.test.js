@@ -31,10 +31,10 @@ describe('Astro dev headers', () => {
 			assert.equal(Object.fromEntries(result.headers)['x-astro'], headers['x-astro']);
 		});
 
-		it('does not return custom headers for invalid URLs', async () => {
+		it('returns custom headers in the default 404 response', async () => {
 			const result = await fixture.fetch('/bad-url');
 			assert.equal(result.status, 404);
-			assert.equal(Object.fromEntries(result.headers).hasOwnProperty('x-astro'), false);
+			assert.equal(Object.fromEntries(result.headers).hasOwnProperty('x-astro'), true);
 		});
 	});
 });

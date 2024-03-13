@@ -19,8 +19,8 @@ jobs:
     name: Create a snapshot release of a pull request
     if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && (contains(github.event.comment.body, '!preview') || contains(github.event.comment.body, '/preview') || contains(github.event.comment.body, '!snapshot') || contains(github.event.comment.body, '/snapshot')) }}
     runs-on: ubuntu-latest
-    permissions: 
-      contents: read 
+    permissions:
+      contents: read
       id-token: write
       issues: write
       pull-requests: write
@@ -66,7 +66,7 @@ jobs:
       - run: git fetch origin main:main
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v3
 
       - name: Setup Node
         uses: actions/setup-node@v4

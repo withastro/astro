@@ -4,10 +4,10 @@ import { collapseDuplicateSlashes, removeTrailingForwardSlash } from '../core/pa
 import { isServerLikeOutput } from '../prerender/utils.js';
 import type { DevServerController } from './controller.js';
 import { runWithErrorHandling } from './controller.js';
+import { recordServerError } from './error.js';
 import type { DevPipeline } from './pipeline.js';
 import { handle500Response } from './response.js';
 import { handleRoute, matchRoute } from './route.js';
-import { recordServerError } from './error.js';
 
 type HandleRequest = {
 	pipeline: DevPipeline;

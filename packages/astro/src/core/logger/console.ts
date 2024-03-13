@@ -1,4 +1,4 @@
-import { getEventPrefix, levels, type LogMessage, type LogWritable } from './core.js';
+import { type LogMessage, type LogWritable, getEventPrefix, levels } from './core.js';
 
 export const consoleLogDestination: LogWritable<LogMessage> = {
 	write(event: LogMessage) {
