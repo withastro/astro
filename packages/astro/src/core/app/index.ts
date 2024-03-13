@@ -66,6 +66,7 @@ export interface RenderOptions {
 }
 
 export interface RenderErrorOptions {
+	locals?: App.Locals,
 	routeData?: RouteData;
 	response?: Response;
 	status: 404 | 500;
@@ -295,7 +296,7 @@ export class App {
 			routeData = this.match(request);
 		}
 		if (!routeData) {
-			return this.#renderError(request, { status: 404 });
+			return this.#renderError(request, { locals, status: 404 });
 		}
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
@@ -314,7 +315,7 @@ export class App {
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
-			return this.#renderError(request, { status: 500 });
+			return this.#renderError(request, { locals, status: 500 });
 		}
 
 		if (
@@ -322,6 +323,7 @@ export class App {
 			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 		) {
 			return this.#renderError(request, {
+				locals,
 				response,
 				status: response.status as 404 | 500,
 			});
@@ -374,7 +376,7 @@ export class App {
 	 */
 	async #renderError(
 		request: Request,
-		{ status, response: originalResponse, skipMiddleware = false }: RenderErrorOptions
+		{ locals, status, response: originalResponse, skipMiddleware = false }: RenderErrorOptions
 	): Promise<Response> {
 		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
 		const errorRouteData = matchRoute(errorRoutePath, this.#manifestData);
@@ -397,6 +399,7 @@ export class App {
 			const mod = await this.#getModuleForRoute(errorRouteData);
 			try {
 				const renderContext = RenderContext.create({
+					locals,
 					pipeline: this.#pipeline,
 					middleware: skipMiddleware ? (_, next) => next() : undefined,
 					pathname: this.#getPathnameFromRequest(request),
@@ -410,6 +413,7 @@ export class App {
 				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
 				if (skipMiddleware === false) {
 					return this.#renderError(request, {
+						locals,
 						status,
 						response: originalResponse,
 						skipMiddleware: true,
