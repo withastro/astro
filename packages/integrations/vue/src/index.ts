@@ -101,15 +101,13 @@ export const setup = async (app) => {
 }
 
 async function getViteConfiguration(options?: Options): Promise<UserConfig> {
-	let vueOptions = options
-		? deepMergeObjects(options, {
+	let vueOptions = deepMergeObjects(options ?? {}, {
 				// Disable transforming asset urls, as Vue doesn't transform them in a way that works in Astro
 				// TODO: Investigate if Vue's transformAssetUrls can be made to work in Astro, and if that's desirable
 				template: {
 					transformAssetUrls: false,
 				},
 			})
-		: undefined;
 
 	const config: UserConfig = {
 		optimizeDeps: {
