@@ -1,5 +1,12 @@
 # astro-vscode
 
+## 2.8.1
+
+### Patch Changes
+
+- 15c9455: Fixes HTML Entities (ex: `&lt;`) not being highlighted like they would inside HTML files
+- f1447ef: chore: Update `volar-service-prettier`. This is only an internal refactor and there should be no visible changes.
+
 ## 2.8.0
 
 ### Minor Changes

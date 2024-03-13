@@ -1,5 +1,13 @@
 # @astrojs/check
 
+## 0.5.9
+
+### Patch Changes
+
+- f1447ef: chore: Update `volar-service-prettier`. This is only an internal refactor and there should be no visible changes.
+- Updated dependencies [f1447ef]
+  - @astrojs/language-server@2.8.1
+
 ## 0.5.8
 
 ### Patch Changes
