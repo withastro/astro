@@ -1,4 +1,4 @@
-import esbuild from 'esbuild';
+import type esbuild from 'esbuild';
 
 export function patchSharpBundle(): esbuild.Plugin {
 	return {

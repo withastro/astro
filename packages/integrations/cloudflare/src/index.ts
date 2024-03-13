@@ -583,34 +583,35 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							);
 							break;
 
-						default: {
-							const includeStrategyLength = includeStrategy
-								? includeStrategy.include.length + includeStrategy.exclude.length
-								: Infinity;
+						default:
+							{
+								const includeStrategyLength = includeStrategy
+									? includeStrategy.include.length + includeStrategy.exclude.length
+									: Number.POSITIVE_INFINITY;
 
-							const excludeStrategyLength = excludeStrategy
-								? excludeStrategy.include.length + excludeStrategy.exclude.length
-								: Infinity;
+								const excludeStrategyLength = excludeStrategy
+									? excludeStrategy.include.length + excludeStrategy.exclude.length
+									: Number.POSITIVE_INFINITY;
 
-							const winningStrategy = notFoundIsSSR
-								? excludeStrategy
-								: includeStrategyLength <= excludeStrategyLength
-								  ? includeStrategy
-								  : excludeStrategy;
+								const winningStrategy = notFoundIsSSR
+									? excludeStrategy
+									: includeStrategyLength <= excludeStrategyLength
+									  ? includeStrategy
+									  : excludeStrategy;
 
-							await fs.promises.writeFile(
-								new URL('./_routes.json', _config.outDir),
-								JSON.stringify(
-									{
-										version: 1,
-										...winningStrategy,
-									},
-									null,
-									2
-								)
-							);
-						}
-						break;
+								await fs.promises.writeFile(
+									new URL('./_routes.json', _config.outDir),
+									JSON.stringify(
+										{
+											version: 1,
+											...winningStrategy,
+										},
+										null,
+										2
+									)
+								);
+							}
+							break;
 					}
 				}
 			},

@@ -123,6 +123,7 @@ function getVarsForDev(config: any, configPath: string | undefined): any {
 
 function parseConfig() {
 	if (_wrangler) return _wrangler;
+	// biome-ignore lint/suspicious/noImplicitAnyLet: correct usage
 	let rawConfig;
 	const configPath = findWranglerToml(process.cwd(), false); // false = args.experimentalJsonConfig
 	if (!configPath) {

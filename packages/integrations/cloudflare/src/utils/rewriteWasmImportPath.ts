@@ -1,5 +1,5 @@
 import { basename } from 'node:path';
-import esbuild from 'esbuild';
+import type esbuild from 'esbuild';
 
 /**
  *
