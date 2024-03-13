@@ -1,5 +1,15 @@
 # @astrojs/db
 
+## 0.8.2
+
+### Patch Changes
+
+- [#10409](https://github.com/withastro/astro/pull/10409) [`96c8bca19aa477318b5eb48af12b260a6f173e25`](https://github.com/withastro/astro/commit/96c8bca19aa477318b5eb48af12b260a6f173e25) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where one table schema could not reference text fields of another table schema.
+
+- [#10428](https://github.com/withastro/astro/pull/10428) [`189ec47c1e3232d8b4db42035ddd44ea862ecfca`](https://github.com/withastro/astro/commit/189ec47c1e3232d8b4db42035ddd44ea862ecfca) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix an issue where short-lived tokens were not being authorized
+
+- [#10420](https://github.com/withastro/astro/pull/10420) [`2db25c05a467f2ffd6ebff5eb82076449fa9d72f`](https://github.com/withastro/astro/commit/2db25c05a467f2ffd6ebff5eb82076449fa9d72f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes some situations where failing requests would not error properly
+
 ## 0.8.1
 
 ### Patch Changes
