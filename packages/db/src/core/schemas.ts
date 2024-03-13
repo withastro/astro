@@ -145,7 +145,7 @@ export const jsonColumnSchema = z.object({
 	}),
 });
 
-export const columnSchema = z.union([
+export const columnSchema = z.discriminatedUnion("type", [
 	booleanColumnSchema,
 	numberColumnSchema,
 	textColumnSchema,

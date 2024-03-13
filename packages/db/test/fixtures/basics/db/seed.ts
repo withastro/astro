@@ -1,6 +1,6 @@
 import { asDrizzleTable } from '@astrojs/db/utils';
 import { Themes as ThemesConfig } from './theme';
-import { Author, db } from 'astro:db';
+import { Author, User, Session, db } from 'astro:db';
 
 const Themes = asDrizzleTable('Themes', ThemesConfig);
 export default async function () {
@@ -17,6 +17,16 @@ export default async function () {
 				{ name: 'Erika' },
 				{ name: 'Bjorn' },
 				{ name: 'Sarah' },
+			]),
+		db
+			.insert(User)
+			.values([
+				{ id: 'mario', username: 'Mario', password: 'itsame' }
+			]),
+		db
+			.insert(Session)
+			.values([
+				{ id: '12345', expiresAt: new Date().valueOf(), userId: 'mario' }
 			]),
 	]);
 }

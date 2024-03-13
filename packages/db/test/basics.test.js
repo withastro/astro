@@ -64,5 +64,13 @@ describe('astro:db', () => {
 			const themeDark = $($('.themes-list .theme-dark')[0]).text();
 			expect(themeDark).to.equal('dark mode');
 		});
+
+		it('text fields an be used as references', async () => {
+			const html = await fixture.fetch('/login').then((res) => res.text());
+			const $ = cheerioLoad(html);
+
+			expect($('.session-id').text()).to.equal('12345');
+			expect($('.username').text()).to.equal('Mario');
+		});
 	});
 });
