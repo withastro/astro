@@ -66,7 +66,7 @@ export interface RenderOptions {
 }
 
 export interface RenderErrorOptions {
-	locals?: App.Locals,
+	locals?: App.Locals;
 	routeData?: RouteData;
 	response?: Response;
 	status: 404 | 500;
