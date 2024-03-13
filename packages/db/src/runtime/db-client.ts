@@ -4,6 +4,7 @@ import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
 import { drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
 import { z } from 'zod';
+import { safeFetch } from '../core/utils.js';
 
 const isWebContainer = !!process.versions?.webcontainer;
 
@@ -29,19 +30,22 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 	const db = drizzleProxy(
 		async (sql, parameters, method) => {
 			const requestBody: InStatement = { sql, args: parameters };
-			const res = await fetch(url, {
-				method: 'POST',
-				headers: {
-					Authorization: `Bearer ${appToken}`,
-					'Content-Type': 'application/json',
+			const res = await safeFetch(
+				url,
+				{
+					method: 'POST',
+					headers: {
+						Authorization: `Bearer ${appToken}`,
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(requestBody),
 				},
-				body: JSON.stringify(requestBody),
-			});
-			if (!res.ok) {
-				throw new Error(
-					`Failed to execute query.\nQuery: ${sql}\nFull error: ${res.status} ${await res.text()}}`
-				);
-			}
+				(response) => {
+					throw new Error(
+						`Failed to execute query.\nQuery: ${sql}\nFull error: ${response.status} ${response.statusText}`
+					);
+				}
+			);
 
 			let remoteResult: z.infer<typeof remoteResultSchema>;
 			try {
@@ -74,19 +78,22 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 		},
 		async (queries) => {
 			const stmts: InStatement[] = queries.map(({ sql, params }) => ({ sql, args: params }));
-			const res = await fetch(url, {
-				method: 'POST',
-				headers: {
-					Authorization: `Bearer ${appToken}`,
-					'Content-Type': 'application/json',
+			const res = await safeFetch(
+				url,
+				{
+					method: 'POST',
+					headers: {
+						Authorization: `Bearer ${appToken}`,
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(stmts),
 				},
-				body: JSON.stringify(stmts),
-			});
-			if (!res.ok) {
-				throw new Error(
-					`Failed to execute batch queries.\nFull error: ${res.status} ${await res.text()}}`
-				);
-			}
+				(response) => {
+					throw new Error(
+						`Failed to execute batch queries.\nFull error: ${response.status} ${response.statusText}}`
+					);
+				}
+			);
 
 			let remoteResults: z.infer<typeof remoteResultSchema>[];
 			try {
