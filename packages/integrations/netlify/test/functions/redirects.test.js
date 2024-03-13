@@ -1,5 +1,5 @@
-import { createServer } from 'http';
 import * as assert from 'node:assert/strict';
+import { createServer } from 'node:http';
 import { before, describe, it } from 'node:test';
 import { loadFixture } from '@astrojs/test-utils';
 

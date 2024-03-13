@@ -5,7 +5,6 @@ import { applyPolyfills } from 'astro/app/node';
 
 applyPolyfills();
 
-// biome-ignore lint/complexity/noBannedTypes: safe to use in this case
 export interface Args {
 	middlewareSecret: string;
 }
