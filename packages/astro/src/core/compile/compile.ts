@@ -10,7 +10,8 @@ import type { AstroError } from '../errors/errors.js';
 import { AggregateError, CompilerError } from '../errors/errors.js';
 import { AstroErrorData } from '../errors/index.js';
 import { resolvePath } from '../util.js';
-import { createStylePreprocessor } from './style.js';
+import { type PartialCompileCssResult, createStylePreprocessor } from './style.js';
+import type { CompileCssResult } from './types.js';
 
 export interface CompileProps {
 	astroConfig: AstroConfig;
@@ -18,14 +19,6 @@ export interface CompileProps {
 	preferences: AstroPreferences;
 	filename: string;
 	source: string;
-}
-
-export interface CompileCssResult {
-	code: string;
-	/**
-	 * The dependencies of the transformed CSS (Normalized paths)
-	 */
-	dependencies?: string[];
 }
 
 export interface CompileResult extends Omit<TransformResult, 'css'> {
@@ -42,7 +35,7 @@ export async function compile({
 	// Because `@astrojs/compiler` can't return the dependencies for each style transformed,
 	// we need to use an external array to track the dependencies whenever preprocessing is called,
 	// and we'll rebuild the final `css` result after transformation.
-	const cssDeps: CompileCssResult['dependencies'][] = [];
+	const cssPartialCompileResults: PartialCompileCssResult[] = [];
 	const cssTransformErrors: AstroError[] = [];
 	let transformResult: TransformResult;
 
@@ -71,7 +64,7 @@ export async function compile({
 			preprocessStyle: createStylePreprocessor({
 				filename,
 				viteConfig,
-				cssDeps,
+				cssPartialCompileResults,
 				cssTransformErrors,
 			}),
 			async resolvePath(specifier) {
@@ -96,8 +89,8 @@ export async function compile({
 	return {
 		...transformResult,
 		css: transformResult.css.map((code, i) => ({
+			...cssPartialCompileResults[i],
 			code,
-			dependencies: cssDeps[i],
 		})),
 	};
 }

@@ -1,6 +1,10 @@
 import type http from 'node:http';
 import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro.js';
-import { REROUTE_DIRECTIVE_HEADER, clientLocalsSymbol } from '../core/constants.js';
+import {
+	DEFAULT_404_COMPONENT,
+	REROUTE_DIRECTIVE_HEADER,
+	clientLocalsSymbol,
+} from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { req } from '../core/messages.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
@@ -11,7 +15,7 @@ import { matchAllRoutes } from '../core/routing/index.js';
 import { normalizeTheLocale } from '../i18n/index.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import type { DevPipeline } from './pipeline.js';
-import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
+import { default404Page, handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any
@@ -94,6 +98,19 @@ export async function matchRoute(
 	}
 
 	const custom404 = getCustom404Route(manifestData);
+
+	if (custom404 && custom404.component === DEFAULT_404_COMPONENT) {
+		const component: ComponentInstance = {
+			default: default404Page,
+		};
+		return {
+			route: custom404,
+			filePath: new URL(`file://${custom404.component}`),
+			resolvedPathname: pathname,
+			preloadedComponent: component,
+			mod: component,
+		};
+	}
 
 	if (custom404) {
 		const filePath = new URL(`./${custom404.component}`, config.root);

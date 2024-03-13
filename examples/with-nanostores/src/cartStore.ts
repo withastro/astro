@@ -13,7 +13,7 @@ export type CartItemDisplayInfo = Pick<CartItem, 'id' | 'name' | 'imageSrc'>;
 
 export const cartItems = map<Record<string, CartItem>>({});
 
-export function addCartItem({ id, name, imageSrc }: CartItem) {
+export function addCartItem({ id, name, imageSrc }: CartItemDisplayInfo) {
 	const existingEntry = cartItems.get()[id];
 	if (existingEntry) {
 		cartItems.setKey(id, {

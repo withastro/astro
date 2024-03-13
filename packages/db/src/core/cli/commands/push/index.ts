@@ -25,7 +25,7 @@ export async function cmd({
 	const appToken = await getManagedAppTokenOrExit(flags.token);
 	const productionSnapshot = await getProductionCurrentSnapshot({ appToken: appToken.token });
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
-	const isFromScratch = isForceReset || JSON.stringify(productionSnapshot) === '{}';
+	const isFromScratch = isForceReset || !productionSnapshot;
 	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
 		oldSnapshot: isFromScratch ? createEmptySnapshot() : productionSnapshot,
 		newSnapshot: currentSnapshot,
@@ -82,11 +82,22 @@ async function pushSchema({
 		return new Response(null, { status: 200 });
 	}
 	const url = new URL('/db/push', getRemoteDatabaseUrl());
-	return await fetch(url, {
+	const response = await fetch(url, {
 		method: 'POST',
 		headers: new Headers({
 			Authorization: `Bearer ${appToken}`,
 		}),
 		body: JSON.stringify(requestBody),
 	});
+	if (!response.ok) {
+		console.error(`${url.toString()} failed: ${response.status} ${response.statusText}`);
+		console.error(await response.text());
+		throw new Error(`/db/push fetch failed: ${response.status} ${response.statusText}`);
+	}
+	const result = (await response.json()) as { success: false } | { success: true };
+	if (!result.success) {
+		console.error(`${url.toString()} unsuccessful`);
+		console.error(await response.text());
+		throw new Error(`/db/push fetch unsuccessful`);
+	}
 }

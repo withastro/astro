@@ -9,6 +9,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
+import { ensure404Route } from '../core/routing/astro-designed-error-pages.js';
 import { createRouteManifest } from '../core/routing/index.js';
 import { toRoutingStrategy } from '../i18n/utils.js';
 import { baseMiddleware } from './base.js';
@@ -35,7 +36,9 @@ export default function createVitePluginAstroServer({
 			const loader = createViteLoader(viteServer);
 			const manifest = createDevelopmentManifest(settings);
 			const pipeline = DevPipeline.create({ loader, logger, manifest, settings });
-			let manifestData: ManifestData = createRouteManifest({ settings, fsMod }, logger);
+			let manifestData: ManifestData = ensure404Route(
+				createRouteManifest({ settings, fsMod }, logger)
+			);
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();
 
@@ -43,7 +46,7 @@ export default function createVitePluginAstroServer({
 			function rebuildManifest(needsManifestRebuild: boolean) {
 				pipeline.clearRouteCache();
 				if (needsManifestRebuild) {
-					manifestData = createRouteManifest({ settings }, logger);
+					manifestData = ensure404Route(createRouteManifest({ settings }, logger));
 				}
 			}
 			// Rebuild route manifest on file change, if needed.

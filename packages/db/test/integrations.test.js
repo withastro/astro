@@ -10,10 +10,6 @@ describe('astro:db with integrations', () => {
 		});
 	});
 
-	// Note(bholmesdev): Use in-memory db to avoid
-	// Multiple dev servers trying to unlink and remount
-	// the same database file.
-	process.env.TEST_IN_MEMORY_DB = 'true';
 	describe('development', () => {
 		let devServer;
 
@@ -24,7 +20,6 @@ describe('astro:db with integrations', () => {
 
 		after(async () => {
 			await devServer.stop();
-			process.env.TEST_IN_MEMORY_DB = undefined;
 		});
 
 		it('Prints the list of authors from user-defined table', async () => {
@@ -38,6 +33,30 @@ describe('astro:db with integrations', () => {
 
 		it('Prints the list of menu items from integration-defined table', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
+			const $ = cheerioLoad(html);
+
+			const ul = $('ul.menu');
+			expect(ul.children()).to.have.a.lengthOf(4);
+			expect(ul.children().eq(0).text()).to.equal('Pancakes');
+		});
+	});
+
+	describe('build', () => {
+		before(async () => {
+			await fixture.build();
+		});
+
+		it('Prints the list of authors from user-defined table', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerioLoad(html);
+
+			const ul = $('.authors-list');
+			expect(ul.children()).to.have.a.lengthOf(5);
+			expect(ul.children().eq(0).text()).to.equal('Ben');
+		});
+
+		it('Prints the list of menu items from integration-defined table', async () => {
+			const html = await fixture.readFile('/index.html');
 			const $ = cheerioLoad(html);
 
 			const ul = $('ul.menu');

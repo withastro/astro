@@ -152,6 +152,8 @@ export async function staticBuild(
 			settings.timer.end('Server generate');
 			return;
 		}
+		default:
+			return;
 	}
 }
 

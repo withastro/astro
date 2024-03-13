@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { getCollectionChangeQueries } from '../../dist/core/cli/migration-queries.js';
-import { tableSchema } from '../../dist/core/types.js';
+import { tableSchema } from '../../dist/core/schemas.js';
 import { column } from '../../dist/runtime/config.js';
 
 const userInitial = tableSchema.parse({
