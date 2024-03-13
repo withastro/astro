@@ -246,7 +246,7 @@ describe('Astro.redirect', () => {
 				assert.equal(response.headers.get('Location'), '/more/hello');
 			});
 
-			it.only('performs dynamic redirects with special characters', async () => {
+			it('performs dynamic redirects with special characters', async () => {
 				// encodeURI("/more/old/’")
 				const response = await fixture.fetch("/more/old/%E2%80%99", { redirect: 'manual' });
 				assert.equal(response.status, 301);
