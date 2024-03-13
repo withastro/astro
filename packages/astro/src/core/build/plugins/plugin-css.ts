@@ -1,5 +1,5 @@
 import type { GetModuleInfo } from 'rollup';
-import type { BuildOptions, Plugin as VitePlugin, ResolvedConfig, Rollup } from 'vite';
+import type { BuildOptions, ResolvedConfig, Rollup, Plugin as VitePlugin } from 'vite';
 import { isBuildableCSSRequest } from '../../../vite-plugin-astro-server/util.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin, BuildTarget } from '../plugin.js';

@@ -1,5 +1,5 @@
 import { extname } from 'node:path';
-import type { BuildOptions, Plugin as VitePlugin, Rollup } from 'vite';
+import type { BuildOptions, Rollup, Plugin as VitePlugin } from 'vite';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type OutputOptionsHook = Extract<VitePlugin['outputOptions'], Function>;

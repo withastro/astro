@@ -1,8 +1,8 @@
 import type {
+	ShikiConfig,
 	RehypePlugin as _RehypePlugin,
 	RemarkPlugin as _RemarkPlugin,
 	RemarkRehype as _RemarkRehype,
-	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';

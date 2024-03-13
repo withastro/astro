@@ -1,6 +1,6 @@
+import { db } from 'astro:db';
 import { asDrizzleTable } from '@astrojs/db/utils';
 import { menu } from './shared';
-import { db } from 'astro:db';
 
 export default async function () {
 	const table = asDrizzleTable('menu', menu);

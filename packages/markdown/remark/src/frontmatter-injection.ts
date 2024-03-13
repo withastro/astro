@@ -1,4 +1,4 @@
-import type { VFile, VFileData as Data } from 'vfile';
+import type { VFileData as Data, VFile } from 'vfile';
 import type { MarkdownAstroData } from './types.js';
 
 function isValidAstroData(obj: unknown): obj is MarkdownAstroData {
