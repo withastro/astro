@@ -238,6 +238,10 @@ export async function promptNewProjectRegion(): Promise<string> {
 		choices: [
 			{ title: 'North America (East)', value: 'NorthAmericaEast' },
 			{ title: 'North America (West)', value: 'NorthAmericaWest' },
+			{ title: 'Europe (Amsterdam)', value: 'EuropeCentral' },
+			{ title: 'South America (Brazil)', value: 'SouthAmericaEast' },
+			{ title: 'Asia (India)', value: 'AsiaSouth' },
+			{ title: 'Asia (Japan)', value: 'AsiaNorthEast' },
 		],
 		initial: 0,
 	});
