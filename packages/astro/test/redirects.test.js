@@ -232,7 +232,15 @@ describe('Astro.redirect', () => {
 
 			it('performs dynamic redirects', async () => {
 				const response = await fixture.fetch('/more/old/hello', { redirect: 'manual' });
+				assert.equal(response.status, 301);
 				assert.equal(response.headers.get('Location'), '/more/hello');
+			});
+
+			it.only('performs dynamic redirects with special characters', async () => {
+				// encodeURI("/more/old/’")
+				const response = await fixture.fetch("/more/old/%E2%80%99", { redirect: 'manual' });
+				assert.equal(response.status, 301);
+				assert.equal(response.headers.get('Location'), "/more/%E2%80%99");
 			});
 
 			it('performs dynamic redirects with multiple params', async () => {
