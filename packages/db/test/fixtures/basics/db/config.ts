@@ -8,6 +8,22 @@ const Author = defineTable({
 	},
 });
 
+const User = defineTable({
+	columns: {
+			id: column.text({ primaryKey: true, optional: false }),
+			username: column.text({ optional: false, unique: true }),
+			password: column.text({ optional: false }),
+	},
+});
+
+const Session = defineTable({
+	columns: {
+			id: column.text({ primaryKey: true, optional: false }),
+			expiresAt: column.number({ optional: false, name: "expires_at" }),
+			userId: column.text({ optional: false, references: () => User.columns.id, name: "user_id" }),
+	},
+});
+
 export default defineDb({
-	tables: { Author, Themes },
+	tables: { Author, Themes, User, Session },
 });
