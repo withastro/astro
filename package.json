@@ -47,10 +47,10 @@
   },
   "packageManager": "pnpm@8.6.12",
   "dependencies": {
-    "@biomejs/biome": "^1.5.3",
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.5.3",
     "@astrojs/check": "^0.5.8",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.26.2",

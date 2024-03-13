@@ -1,8 +1,8 @@
-// @ts-expect-error
-import { loadDevToolbarApps } from 'astro:dev-toolbar';
 import type { DevToolbarApp as DevToolbarAppDefinition } from '../../../@types/astro.js';
 import { settings } from './settings.js';
 import type { AstroDevToolbar, DevToolbarApp } from './toolbar.js';
+// @ts-expect-error
+import { loadDevToolbarApps } from 'astro:dev-toolbar';
 
 let overlay: AstroDevToolbar;
 

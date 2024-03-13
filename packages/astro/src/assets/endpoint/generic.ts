@@ -1,11 +1,11 @@
-// @ts-expect-error
-import { imageConfig } from 'astro:assets';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import mime from 'mime/lite.js';
 import type { APIRoute } from '../../@types/astro.js';
 import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
 import { isRemoteAllowed } from '../utils/remotePattern.js';
+// @ts-expect-error
+import { imageConfig } from 'astro:assets';
 
 async function loadRemoteImage(src: URL) {
 	try {

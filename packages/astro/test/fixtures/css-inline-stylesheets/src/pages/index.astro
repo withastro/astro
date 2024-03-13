@@ -1,6 +1,6 @@
 ---
-import { getEntryBySlug } from 'astro:content';
 import Button from '../components/Button.astro';
+import { getEntryBySlug } from 'astro:content';
 
 const entry = await getEntryBySlug('en', 'endeavour');
 const { Content } = await entry.render();

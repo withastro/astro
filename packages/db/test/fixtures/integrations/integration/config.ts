@@ -1,5 +1,5 @@
-import { defineDb } from 'astro:db';
 import { menu } from './shared';
+import { defineDb } from 'astro:db';
 
 export default defineDb({
 	tables: {
