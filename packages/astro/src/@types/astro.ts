@@ -1707,7 +1707,7 @@ export interface AstroUserConfig {
 		 * 		"fileMatch": [
 		 * 			"/src/content/test/**"
 		 * 		],
-		 * 		"url": "../../../.astro/collections/test.schema.json"
+		 * 		"url": "./.astro/collections/test.schema.json"
 		 * 	}
 		 * ]
 		 * ```
