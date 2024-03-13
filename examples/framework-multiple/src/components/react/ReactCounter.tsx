@@ -1,7 +1,9 @@
-import { useState } from 'react';
+/** @jsxImportSource react */
+
+import { useState, type ReactNode } from 'react';
 
 /** A counter written with React */
-export function Counter({ children }) {
+export function Counter({ children }: { children?: ReactNode }) {
 	const [count, setCount] = useState(0);
 	const add = () => setCount((i) => i + 1);
 	const subtract = () => setCount((i) => i - 1);
