@@ -11,7 +11,7 @@ import { getVueLanguageModule } from './core/vue.js';
 import { getAstroInstall } from './utils.js';
 
 import { create as createAstroService } from './plugins/astro.js';
-import { create as createTypeScriptService } from './plugins/typescript/index.js';
+import { create as createTypeScriptServices } from './plugins/typescript/index.js';
 
 // Export those for downstream consumers
 export { Diagnostic, DiagnosticSeverity };
@@ -142,7 +142,7 @@ export class AstroCheck {
 			getSvelteLanguageModule(),
 			getVueLanguageModule(),
 		];
-		const services = [createTypeScriptService(this.ts), createAstroService(this.ts)];
+		const services = [...createTypeScriptServices(this.ts), createAstroService(this.ts)];
 
 		if (tsconfigPath) {
 			this.linter = kit.createTypeScriptChecker(languages, services, tsconfigPath);
