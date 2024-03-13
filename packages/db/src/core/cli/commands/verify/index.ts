@@ -23,8 +23,7 @@ export async function cmd({
 	const productionSnapshot = await getProductionCurrentSnapshot({ appToken: appToken.token });
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
 	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
-		oldSnapshot:
-			JSON.stringify(productionSnapshot) !== '{}' ? productionSnapshot : createEmptySnapshot(),
+		oldSnapshot: productionSnapshot || createEmptySnapshot(),
 		newSnapshot: currentSnapshot,
 	});
 

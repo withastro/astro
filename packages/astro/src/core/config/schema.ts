@@ -1,7 +1,7 @@
 import type {
-	RehypePlugin,
-	RemarkPlugin,
-	RemarkRehype,
+	RehypePlugin as _RehypePlugin,
+	RemarkPlugin as _RemarkPlugin,
+	RemarkRehype as _RemarkRehype,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
@@ -11,17 +11,39 @@ import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro.js';
 import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { type TypeOf, z } from 'zod';
+import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
-// These imports are required to appease TypeScript!
-// See https://github.com/withastro/astro/pull/8762
-import '@shikijs/core';
-import 'mdast-util-to-hast';
+// The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
+// Zod's compiled TypeScript would "simplify" certain values to their base representation, causing references
+// to transitive dependencies that Astro don't depend on (e.g. `mdast-util-to-hast` or `remark-rehype`). For example:
+//
+// ```ts
+// // input
+// type Foo = { bar: string };
+// export const value: Foo;
+//
+// // output
+// export const value: { bar: string }; // <-- `Foo` is gone
+// ```
+//
+// The types below will "complexify" the types so that TypeScript would not simplify them. This way it will
+// reference the complex type directly, instead of referencing non-existent transitive dependencies.
+//
+// Also, make sure to not index the complexified type, as it would return a simplified value type, which goes
+// back to the issue again. The complexified type should be the base representation that we want to expose.
 
-type ShikiLangs = NonNullable<ShikiConfig['langs']>;
-type ShikiTheme = NonNullable<ShikiConfig['theme']>;
-type ShikiTransformers = NonNullable<ShikiConfig['transformers']>;
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface ComplexifyUnionObj {}
+type ComplexifyWithUnion<T> = T & ComplexifyUnionObj;
+type ComplexifyWithOmit<T> = Omit<T, '__nonExistent'>;
+
+type ShikiLang = ComplexifyWithUnion<NonNullable<ShikiConfig['langs']>[number]>;
+type ShikiTheme = ComplexifyWithUnion<NonNullable<ShikiConfig['theme']>>;
+type ShikiTransformer = ComplexifyWithUnion<NonNullable<ShikiConfig['transformers']>[number]>;
+type RehypePlugin = ComplexifyWithUnion<_RehypePlugin>;
+type RemarkPlugin = ComplexifyWithUnion<_RemarkPlugin>;
+type RemarkRehype = ComplexifyWithOmit<_RemarkRehype>;
 
 const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
@@ -263,7 +285,7 @@ export const AstroConfigSchema = z.object({
 			shikiConfig: z
 				.object({
 					langs: z
-						.custom<ShikiLangs[number]>()
+						.custom<ShikiLang>()
 						.array()
 						.transform((langs) => {
 							for (const lang of langs) {
@@ -295,7 +317,7 @@ export const AstroConfigSchema = z.object({
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.themes!),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
 					transformers: z
-						.custom<ShikiTransformers[number]>()
+						.custom<ShikiTransformer>()
 						.array()
 						.transform((transformers) => {
 							for (const transformer of transformers) {
@@ -331,7 +353,6 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.rehypePlugins),
 			remarkRehype: z
 				.custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
-				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
 			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
 			smartypants: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
@@ -384,7 +405,7 @@ export const AstroConfigSchema = z.object({
 			.optional()
 			.superRefine((i18n, ctx) => {
 				if (i18n) {
-					const { defaultLocale, locales: _locales, fallback, domains, routing } = i18n;
+					const { defaultLocale, locales: _locales, fallback, domains } = i18n;
 					const locales = _locales.map((locale) => {
 						if (typeof locale === 'string') {
 							return locale;

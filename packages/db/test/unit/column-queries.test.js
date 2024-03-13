@@ -5,7 +5,7 @@ import {
 	getMigrationQueries,
 } from '../../dist/core/cli/migration-queries.js';
 import { MIGRATION_VERSION } from '../../dist/core/consts.js';
-import { tableSchema } from '../../dist/core/types.js';
+import { tableSchema } from '../../dist/core/schemas.js';
 import { column, defineTable } from '../../dist/runtime/config.js';
 import { NOW } from '../../dist/runtime/index.js';
 
@@ -53,7 +53,6 @@ describe('column queries', () => {
 			const newCollections = { [TABLE_NAME]: userInitial };
 			const { queries } = await configChangeQueries(oldCollections, newCollections);
 			expect(queries).to.deep.equal([
-				`DROP TABLE IF EXISTS "${TABLE_NAME}"`,
 				`CREATE TABLE "${TABLE_NAME}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "email" text NOT NULL UNIQUE, "mi" text)`,
 			]);
 		});

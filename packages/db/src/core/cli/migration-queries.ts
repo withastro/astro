@@ -16,6 +16,7 @@ import {
 import { isSerializedSQL } from '../../runtime/types.js';
 import { MIGRATION_VERSION } from '../consts.js';
 import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
+import { columnSchema } from '../schemas.js';
 import {
 	type BooleanColumn,
 	type ColumnType,
@@ -30,9 +31,8 @@ import {
 	type JsonColumn,
 	type NumberColumn,
 	type TextColumn,
-	columnSchema,
 } from '../types.js';
-import { getRemoteDatabaseUrl } from '../utils.js';
+import { type Result, getRemoteDatabaseUrl, safeFetch } from '../utils.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
@@ -61,7 +61,6 @@ export async function getMigrationQueries({
 	}
 
 	for (const [collectionName, collection] of Object.entries(addedCollections)) {
-		queries.push(getDropTableIfExistsQuery(collectionName));
 		queries.push(getCreateTableQuery(collectionName, collection));
 		queries.push(...getCreateIndexQueries(collectionName, collection));
 	}
@@ -423,16 +422,30 @@ export async function getProductionCurrentSnapshot({
 	appToken,
 }: {
 	appToken: string;
-}): Promise<DBSnapshot> {
+}): Promise<DBSnapshot | undefined> {
 	const url = new URL('/db/schema', getRemoteDatabaseUrl());
 
-	const response = await fetch(url, {
-		method: 'POST',
-		headers: new Headers({
-			Authorization: `Bearer ${appToken}`,
-		}),
-	});
-	const result = await response.json();
+	const response = await safeFetch(
+		url,
+		{
+			method: 'POST',
+			headers: new Headers({
+				Authorization: `Bearer ${appToken}`,
+			}),
+		},
+		async (res) => {
+			console.error(`${url.toString()} failed: ${res.status} ${res.statusText}`);
+			console.error(await res.text());
+			throw new Error(`/db/schema fetch failed: ${res.status} ${res.statusText}`);
+		}
+	);
+
+	const result = (await response.json()) as Result<DBSnapshot>;
+	if (!result.success) {
+		console.error(`${url.toString()} unsuccessful`);
+		console.error(await response.text());
+		throw new Error(`/db/schema fetch unsuccessful`);
+	}
 	return result.data;
 }
 

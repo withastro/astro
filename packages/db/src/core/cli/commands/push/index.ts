@@ -3,7 +3,7 @@ import type { Arguments } from 'yargs-parser';
 import { MIGRATION_VERSION } from '../../../consts.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBConfig, type DBSnapshot } from '../../../types.js';
-import { getRemoteDatabaseUrl } from '../../../utils.js';
+import { type Result, getRemoteDatabaseUrl, safeFetch } from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
@@ -25,7 +25,7 @@ export async function cmd({
 	const appToken = await getManagedAppTokenOrExit(flags.token);
 	const productionSnapshot = await getProductionCurrentSnapshot({ appToken: appToken.token });
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
-	const isFromScratch = isForceReset || JSON.stringify(productionSnapshot) === '{}';
+	const isFromScratch = isForceReset || !productionSnapshot;
 	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
 		oldSnapshot: isFromScratch ? createEmptySnapshot() : productionSnapshot,
 		newSnapshot: currentSnapshot,
@@ -82,11 +82,26 @@ async function pushSchema({
 		return new Response(null, { status: 200 });
 	}
 	const url = new URL('/db/push', getRemoteDatabaseUrl());
-	return await fetch(url, {
-		method: 'POST',
-		headers: new Headers({
-			Authorization: `Bearer ${appToken}`,
-		}),
-		body: JSON.stringify(requestBody),
-	});
+	const response = await safeFetch(
+		url,
+		{
+			method: 'POST',
+			headers: new Headers({
+				Authorization: `Bearer ${appToken}`,
+			}),
+			body: JSON.stringify(requestBody),
+		},
+		async (res) => {
+			console.error(`${url.toString()} failed: ${res.status} ${res.statusText}`);
+			console.error(await res.text());
+			throw new Error(`/db/push fetch failed: ${res.status} ${res.statusText}`);
+		}
+	);
+
+	const result = (await response.json()) as Result<never>;
+	if (!result.success) {
+		console.error(`${url.toString()} unsuccessful`);
+		console.error(await response.text());
+		throw new Error(`/db/push fetch unsuccessful`);
+	}
 }

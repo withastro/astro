@@ -1,5 +1,45 @@
 # @astrojs/db
 
+## 0.8.1
+
+### Patch Changes
+
+- [#10401](https://github.com/withastro/astro/pull/10401) [`a084d8cec66e4fb1952bd0dfe293712401f2f463`](https://github.com/withastro/astro/commit/a084d8cec66e4fb1952bd0dfe293712401f2f463) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix astro:db configuration types returning `any`
+
+## 0.8.0
+
+### Minor Changes
+
+- [#10395](https://github.com/withastro/astro/pull/10395) [`a49892349ecee2b5d3184e59ac0ab54368481672`](https://github.com/withastro/astro/commit/a49892349ecee2b5d3184e59ac0ab54368481672) Thanks [@matthewp](https://github.com/matthewp)! - Sets new Astro Studio production URL
+
+### Patch Changes
+
+- [#10396](https://github.com/withastro/astro/pull/10396) [`41ca94e5136a80a58d000f3eb87029442599a4a3`](https://github.com/withastro/astro/commit/41ca94e5136a80a58d000f3eb87029442599a4a3) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Remove risk of data loss when pushing an out-of-date table schema.
+
+- [#10374](https://github.com/withastro/astro/pull/10374) [`f76dcb769f6869acb96b2a77898926f109f54a33`](https://github.com/withastro/astro/commit/f76dcb769f6869acb96b2a77898926f109f54a33) Thanks [@itsMapleLeaf](https://github.com/itsMapleLeaf)! - Expose DB utility types from @astrojs/db/types
+
+## 0.7.2
+
+### Patch Changes
+
+- [#10391](https://github.com/withastro/astro/pull/10391) [`9667ee990ca2a02a146e442f2494981df4c88b52`](https://github.com/withastro/astro/commit/9667ee990ca2a02a146e442f2494981df4c88b52) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Remove @astrojs/runtime/config suggestion for astro:db configuration helpers.
+
+- [#10385](https://github.com/withastro/astro/pull/10385) [`38abae47b57af481a8dcdf2393317de6df46920a`](https://github.com/withastro/astro/commit/38abae47b57af481a8dcdf2393317de6df46920a) Thanks [@delucis](https://github.com/delucis)! - Fixes support for integrations configuring `astro:db` and for projects that use `astro:db` but do not include a seed file.
+
+- [#10381](https://github.com/withastro/astro/pull/10381) [`8cceab587d681d90842184904182833117687750`](https://github.com/withastro/astro/commit/8cceab587d681d90842184904182833117687750) Thanks [@delucis](https://github.com/delucis)! - Fixes builds for projects using integration seed files
+
+- [#10384](https://github.com/withastro/astro/pull/10384) [`cd5e8d4b9309e43f5bf884a0014b8a5769d816e0`](https://github.com/withastro/astro/commit/cd5e8d4b9309e43f5bf884a0014b8a5769d816e0) Thanks [@matthewp](https://github.com/matthewp)! - Upgrades the `@libsql/client` dependency to fix the use of `db.batch` in StackBlitz
+
+- [#10387](https://github.com/withastro/astro/pull/10387) [`8a23ee530cd1d7d7b4e93e9e72f4e06d1fc3d845`](https://github.com/withastro/astro/commit/8a23ee530cd1d7d7b4e93e9e72f4e06d1fc3d845) Thanks [@FredKSchott](https://github.com/FredKSchott)! - handle success=false response on api endpoints
+
+- [#10390](https://github.com/withastro/astro/pull/10390) [`236cdbb611587692d3c781850cb949604677ef82`](https://github.com/withastro/astro/commit/236cdbb611587692d3c781850cb949604677ef82) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Adds `--help` reference for new db and studio CLI commands
+
+## 0.7.1
+
+### Patch Changes
+
+- [#10378](https://github.com/withastro/astro/pull/10378) [`41dca1e413c2f1e38f0326bd6241ccbf9b8ee0e4`](https://github.com/withastro/astro/commit/41dca1e413c2f1e38f0326bd6241ccbf9b8ee0e4) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Handle new schema API response format
+
 ## 0.7.0
 
 ### Minor Changes
