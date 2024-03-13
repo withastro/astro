@@ -7,7 +7,7 @@ import { enhancedProvideSemanticDiagnostics } from './diagnostics.js';
 
 export const create = (ts: typeof import('typescript')): ServicePlugin[] => {
 	const tsServicePlugins = createTypeScriptServices(ts as typeof import('typescript'), {});
-	return tsServicePlugins.map<ServicePlugin>(plugin => {
+	return tsServicePlugins.map<ServicePlugin>((plugin) => {
 		if (plugin.name === 'typescript-semantic') {
 			return {
 				...plugin,
@@ -27,7 +27,10 @@ export const create = (ts: typeof import('typescript')): ServicePlugin[] => {
 							return enhancedProvideCompletionItems(originalCompletions);
 						},
 						async resolveCompletionItem(item, token) {
-							const resolvedCompletionItem = await typeScriptPlugin.resolveCompletionItem!(item, token);
+							const resolvedCompletionItem = await typeScriptPlugin.resolveCompletionItem!(
+								item,
+								token
+							);
 							if (!resolvedCompletionItem) return item;
 
 							return enhancedResolveCompletionItem(resolvedCompletionItem, context);
@@ -44,7 +47,10 @@ export const create = (ts: typeof import('typescript')): ServicePlugin[] => {
 							return enhancedProvideCodeActions(originalCodeActions, context);
 						},
 						async resolveCodeAction(codeAction, token) {
-							const resolvedCodeAction = await typeScriptPlugin.resolveCodeAction!(codeAction, token);
+							const resolvedCodeAction = await typeScriptPlugin.resolveCodeAction!(
+								codeAction,
+								token
+							);
 							if (!resolvedCodeAction) return codeAction;
 
 							return enhancedResolveCodeAction(resolvedCodeAction, context);
@@ -62,7 +68,10 @@ export const create = (ts: typeof import('typescript')): ServicePlugin[] => {
 								tsxLineCount = code.astroMeta.tsxRanges.body.end.line;
 							}
 
-							const diagnostics = await typeScriptPlugin.provideSemanticDiagnostics!(document, token);
+							const diagnostics = await typeScriptPlugin.provideSemanticDiagnostics!(
+								document,
+								token
+							);
 							if (!diagnostics) return null;
 
 							return enhancedProvideSemanticDiagnostics(diagnostics, tsxLineCount);

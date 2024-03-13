@@ -92,7 +92,7 @@ export function createServerOptions(
 		let prettier: ReturnType<typeof importPrettier>;
 		let prettierPluginPath: ReturnType<typeof getPrettierPluginPath>;
 		return createPrettierService(
-			context => {
+			(context) => {
 				const workspaceUri = URI.parse(context.env.workspaceFolder);
 				if (workspaceUri.scheme === 'file') {
 					prettier = importPrettier(workspaceUri.fsPath);
@@ -131,10 +131,7 @@ export function createServerOptions(
 
 					return {
 						...resolvedConfig,
-						plugins: [
-							...await getAstroPrettierPlugin(),
-							...resolvedConfig.plugins ?? [],
-						],
+						plugins: [...(await getAstroPrettierPlugin()), ...(resolvedConfig.plugins ?? [])],
 						parser: 'astro',
 					};
 
@@ -150,6 +147,7 @@ export function createServerOptions(
 						return hasPluginLoadedAlready ? [] : [prettierPluginPath];
 					}
 				},
-			});
+			}
+		);
 	}
 }
