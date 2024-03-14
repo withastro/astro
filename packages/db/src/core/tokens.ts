@@ -99,6 +99,10 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 		return new Date() > this.expires;
 	}
 
+	createRenewalTimer() {
+		return setTimeout(() => this.renew(), (1000 * 60 * this.ttl) / 2);
+	}
+
 	async renew() {
 		clearTimeout(this.renewTimer);
 		delete this.renewTimer;
@@ -110,7 +114,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 			});
 			if (response.status === 200) {
 				this.expires = getExpiresFromTtl(this.ttl);
-				this.renewTimer = setTimeout(() => this.renew(), (1000 * 60 * this.ttl) / 2);
+				this.renewTimer = this.createRenewalTimer();
 			} else {
 				throw new Error(`Unexpected response: ${response.status} ${response.statusText}`);
 			}	
@@ -119,6 +123,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 			this.token = token;
 			this.ttl = ttl;
 			this.expires = getExpiresFromTtl(ttl);
+			this.renewTimer = this.createRenewalTimer();
 		}
 	}
 
