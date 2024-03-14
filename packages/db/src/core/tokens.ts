@@ -31,9 +31,20 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 	session: string;
 	projectId: string;
 	ttl: number;
+	expires: Date;
 	renewTimer: NodeJS.Timeout | undefined;
 
 	static async create(sessionToken: string, projectId: string) {
+		const { token: shortLivedAppToken, ttl } = await this.createToken(sessionToken, projectId);
+		return new ManagedRemoteAppToken({
+			token: shortLivedAppToken,
+			session: sessionToken,
+			projectId,
+			ttl,
+		});
+	}
+
+	static async createToken(sessionToken: string, projectId: string): Promise<{ token: string; ttl: number; }> {
 		const spinner = ora('Connecting to remote database...').start();
 		const response = await safeFetch(
 			new URL(`${getAstroStudioUrl()}/auth/cli/token-create`),
@@ -54,13 +65,8 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 		await new Promise((resolve) => setTimeout(resolve, 2000));
 		spinner.succeed(green('Connected to remote database.'));
 
-		const { token: shortLivedAppToken, ttl } = await response.json();
-		return new ManagedRemoteAppToken({
-			token: shortLivedAppToken,
-			session: sessionToken,
-			projectId,
-			ttl,
-		});
+		const { token, ttl } = await response.json();
+		return { token, ttl };
 	}
 
 	constructor(options: { token: string; session: string; projectId: string; ttl: number }) {
@@ -69,6 +75,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 		this.projectId = options.projectId;
 		this.ttl = options.ttl;
 		this.renewTimer = setTimeout(() => this.renew(), (1000 * 60 * 5) / 2);
+		this.expires = getExpiresFromTtl(this.ttl);
 	}
 
 	private async fetch(url: string, body: Record<string, unknown>) {
@@ -88,24 +95,30 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 		);
 	}
 
+	tokenIsValid() {
+		return new Date() > this.expires;
+	}
+
 	async renew() {
 		clearTimeout(this.renewTimer);
 		delete this.renewTimer;
-		try {
+
+		if(this.tokenIsValid()) {
 			const response = await this.fetch('/auth/cli/token-renew', {
 				token: this.token,
 				projectId: this.projectId,
 			});
 			if (response.status === 200) {
+				this.expires = getExpiresFromTtl(this.ttl);
 				this.renewTimer = setTimeout(() => this.renew(), (1000 * 60 * this.ttl) / 2);
 			} else {
 				throw new Error(`Unexpected response: ${response.status} ${response.statusText}`);
-			}
-		} catch (error: any) {
-			const retryIn = (60 * this.ttl) / 10;
-			// eslint-disable-next-line no-console
-			console.error(`Failed to renew token. Retrying in ${retryIn} seconds.`, error?.message);
-			this.renewTimer = setTimeout(() => this.renew(), retryIn * 1000);
+			}	
+		} else {
+			const { token, ttl } = await ManagedRemoteAppToken.createToken(this.session, this.projectId);
+			this.token = token;
+			this.ttl = ttl;
+			this.expires = getExpiresFromTtl(ttl);
 		}
 	}
 
@@ -162,4 +175,9 @@ export async function getManagedAppTokenOrExit(token?: string): Promise<ManagedA
 		process.exit(1);
 	}
 	return ManagedRemoteAppToken.create(sessionToken, projectId);
+}
+
+function getExpiresFromTtl(ttl: number): Date {
+	// ttl is in minutes
+	return new Date(Date.now() + ttl * 60 * 1000);
 }
