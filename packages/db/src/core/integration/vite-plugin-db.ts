@@ -142,7 +142,7 @@ export function getStudioVirtualModContents({
 	return `
 import {asDrizzleTable, createRemoteDatabaseClient} from ${RUNTIME_IMPORT};
 
-export const db = await createRemoteDatabaseClient(${JSON.stringify(
+export const db = await createRemoteDatabaseClient(process.env.ASTRO_STUDIO_APP_TOKEN ?? ${JSON.stringify(
 		appToken
 		// Respect runtime env for user overrides in SSR
 	)}, import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL ?? ${JSON.stringify(getRemoteDatabaseUrl())});
