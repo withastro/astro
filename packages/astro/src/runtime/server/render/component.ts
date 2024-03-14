@@ -478,7 +478,11 @@ export async function renderComponent(
 		return renderAstroComponent(result, displayName, Component, props, slots);
 	}
 
-	return await renderFrameworkComponent(result, displayName, Component, props, slots);
+	return await renderFrameworkComponent(result, displayName, Component, props, slots)
+		.catch(e => {
+			if (result.abortController.signal.aborted) return { render() {} };
+			throw e;
+		});
 }
 
 function normalizeProps(props: Record<string, any>): Record<string, any> {

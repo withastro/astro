@@ -125,6 +125,11 @@ export async function renderToReadableStream(
 				}
 			})();
 		},
+		cancel() {
+			// If the client disconnects,
+			// we signal to ignore the results of existing renders and avoid kicking off more of them.
+			result.abortController.abort();
+		}
 	});
 }
 
@@ -244,6 +249,9 @@ export async function renderToAsyncIterable(
 		},
 		async return() {
 			cancelled = true;
+			// If the client disconnects,
+			// we signal to ignore the results of existing renders and avoid kicking off more of them.
+			result.abortController.abort();
 			return { done: true, value: undefined };
 		},
 	};

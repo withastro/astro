@@ -89,15 +89,14 @@ export class RenderContext {
 		const apiContext = this.createAPIContext(props);
 		const { type } = routeData;
 
-		const lastNext =
-			type === 'endpoint'
-				? () => renderEndpoint(componentInstance as any, apiContext, serverLike, logger)
-				: type === 'redirect'
-					? () => renderRedirect(this)
-					: type === 'page'
-						? async () => {
+		const lastNext = async () => {
+			if (routeData.type === 'endpoint') return renderEndpoint(componentInstance as any, apiContext, serverLike, logger);
+			if (routeData.type === 'redirect') return renderRedirect(this);
+			if (routeData.type === 'page') {
 								const result = await this.createResult(componentInstance!);
-								const response = await renderPage(
+								let response: Response;
+								try {
+								response = await renderPage(
 									result,
 									componentInstance?.default as any,
 									props,
@@ -105,6 +104,12 @@ export class RenderContext {
 									streaming,
 									routeData
 								);
+								} catch (e) {
+									// If the instantiation of the RenderTemplate fails midway,
+									// we signal to ignore the results of existing renders and avoid kicking off more of them.
+									result.abortController.abort();
+									throw e;
+								}
 								// Signal to the i18n middleware to maybe act on this response
 								response.headers.set(ROUTE_TYPE_HEADER, 'page');
 								// Signal to the error-page-rerouting infra to let this response pass through to avoid loops
@@ -112,11 +117,10 @@ export class RenderContext {
 									response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 								}
 								return response;
-							}
-						: type === 'fallback'
-							? () =>
+				}
+				if (routeData.type === 'fallback') return (
 									new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } })
-							: () => {
+				)
 									throw new Error('Unknown type of route: ' + type);
 								};
 
@@ -196,10 +200,13 @@ export class RenderContext {
 			},
 		} satisfies AstroGlobal['response'];
 
+		const abortController = new AbortController;
+
 		// Create the result object that will be passed into the renderPage function.
 		// This object starts here as an empty shell (not yet the result) but then
 		// calling the render() function will populate the object with scripts, styles, etc.
 		const result: SSRResult = {
+			abortController,
 			clientDirectives,
 			inlinedScripts,
 			componentMetadata,
