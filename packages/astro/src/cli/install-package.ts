@@ -13,7 +13,7 @@ const require = createRequire(import.meta.url);
 
 type GetPackageOptions = {
 	skipAsk?: boolean;
-	required?: boolean;
+	optional?: boolean;
 	cwd?: string;
 };
 
@@ -38,7 +38,7 @@ export async function getPackage<T>(
 		const packageImport = await import(packageName);
 		return packageImport as T;
 	} catch (e) {
-		if (!options.required) return undefined;
+		if (options.optional) return undefined;
 		logger.info(
 			'SKIP_FORMAT',
 			`To continue, Astro requires the following dependency to be installed: ${bold(packageName)}.`

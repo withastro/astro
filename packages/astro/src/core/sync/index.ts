@@ -70,7 +70,7 @@ export default async function sync(
 		logger,
 		{
 			cwd: flags?.root,
-			required: false,
+			optional: true,
 		},
 		[]
 	);
