@@ -2,10 +2,10 @@ import { readFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { green } from 'kleur/colors';
+import ora from 'ora';
 import { MISSING_PROJECT_ID_ERROR, MISSING_SESSION_ID_ERROR } from './errors.js';
 import { getAstroStudioEnv, getAstroStudioUrl, safeFetch } from './utils.js';
-import ora from 'ora';
-import { green } from 'kleur/colors';
 
 export const SESSION_LOGIN_FILE = pathToFileURL(join(homedir(), '.astro', 'session-token'));
 export const PROJECT_ID_FILE = pathToFileURL(join(process.cwd(), '.astro', 'link'));
@@ -62,12 +62,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 		});
 	}
 
-	constructor(options: {
-		token: string;
-		session: string;
-		projectId: string;
-		ttl: number;
-	}) {
+	constructor(options: { token: string; session: string; projectId: string; ttl: number }) {
 		this.token = options.token;
 		this.session = options.session;
 		this.projectId = options.projectId;
