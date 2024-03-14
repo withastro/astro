@@ -2,11 +2,9 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { isWindows, loadFixture, streamAsyncIterator } from './test-utils.js';
+import { loadFixture, streamAsyncIterator } from './test-utils.js';
 
 describe('Streaming', () => {
-	if (isWindows) return;
-
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
@@ -79,12 +77,20 @@ describe('Streaming', () => {
 			}
 			assert.equal(chunks.length > 1, true);
 		});
+
+		// if the offshoot promise goes unhandled, this test will pass immediately but fail the test suite 
+		it('Stays alive on failed component renders initiated by failed render templates', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/multiple-errors');
+			const response = await app.render(request);
+			assert.equal(response.status, 500);
+			const text = await response.text();
+			assert.equal(text, '');
+		});
 	});
 });
 
 describe('Streaming disabled', () => {
-	if (isWindows) return;
-
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
