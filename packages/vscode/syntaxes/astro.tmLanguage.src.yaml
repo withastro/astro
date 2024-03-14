@@ -165,6 +165,7 @@ injections:
 patterns:
   - include: '#scope'
   - include: '#frontmatter'
+  - include: '#text'
 
 # Contains all of our patterns.
 repository:
@@ -193,13 +194,6 @@ repository:
       - include: '#tags'
       - include: '#interpolation'
       - include: '#entities'
-      # Content text.
-      # This matches nothing inside of tags, only in-between them and at the beginning/end of the file.
-      - begin: (?<=^|>|})
-        end: (?=<|{|$)
-        name: text.astro
-        patterns:
-          - include: '#entities'
 
   # ----------
   #  COMMENTS
@@ -516,3 +510,17 @@ repository:
     endCaptures:
       1: { name: meta.tag.end.astro punctuation.definition.tag.end.astro }
     name: meta.scope.tag.$2.astro
+
+  # ------
+  # TEXT
+  # This will match any text outside frontmatter and scopes patterns.
+
+  text:
+    patterns:
+      # Content text.
+      # This matches nothing inside of tags, only in-between them and at the beginning/end of the file.
+      - begin: (?<=^|---|>|})
+        end: (?=<|{|$)
+        name: text.astro
+        patterns:
+          - include: '#entities'

@@ -1,7 +1,9 @@
 {
   "name": "Astro",
   "scopeName": "source.astro",
-  "fileTypes": ["astro"],
+  "fileTypes": [
+    "astro"
+  ],
   "injections": {
     "L:(meta.script.astro) (meta.lang.json) - (meta source)": {
       "patterns": [
@@ -175,6 +177,9 @@
     },
     {
       "include": "#frontmatter"
+    },
+    {
+      "include": "#text"
     }
   ],
   "repository": {
@@ -211,16 +216,6 @@
         },
         {
           "include": "#entities"
-        },
-        {
-          "begin": "(?<=^|>|})",
-          "end": "(?=<|{|$)",
-          "name": "text.astro",
-          "patterns": [
-            {
-              "include": "#entities"
-            }
-          ]
         }
       ]
     },
@@ -823,6 +818,20 @@
         }
       },
       "name": "meta.scope.tag.$2.astro"
+    },
+    "text": {
+      "patterns": [
+        {
+          "begin": "(?<=^|---|>|})",
+          "end": "(?=<|{|$)",
+          "name": "text.astro",
+          "patterns": [
+            {
+              "include": "#entities"
+            }
+          ]
+        }
+      ]
     }
   }
 }
