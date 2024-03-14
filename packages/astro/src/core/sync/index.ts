@@ -48,7 +48,6 @@ type DBPackage = {
  */
 export default async function sync(
 	inlineConfig: AstroInlineConfig,
-	flags?: Arguments,
 	options?: SyncOptions
 ): Promise<ProcessExit> {
 	ensureProcessNodeEnv('production');
@@ -69,8 +68,8 @@ export default async function sync(
 		'@astrojs/db',
 		logger,
 		{
-			cwd: flags?.root,
 			optional: true,
+			cwd: inlineConfig.root,
 		},
 		[]
 	);
