@@ -147,18 +147,32 @@ function buildAuditCard(
 
 	const message = document.createElement('p');
 	message.classList.add('audit-message');
-	message.innerHTML = rule.message;
+	message.innerHTML = simpleRenderMarkdown(rule.message);
 	extendedInfo.appendChild(message);
 
 	const description = rule.description;
 	if (description) {
 		const descriptionElement = document.createElement('p');
 		descriptionElement.classList.add('audit-description');
-		descriptionElement.innerHTML = description;
+		descriptionElement.innerHTML = simpleRenderMarkdown(description);
 		extendedInfo.appendChild(descriptionElement);
 	}
 
 	card.shadowRoot.appendChild(extendedInfo);
 
 	return card;
+}
+
+/**
+ * Render a very small subset of Markdown to HTML or a CLI output
+ */
+function simpleRenderMarkdown(markdown: string) {
+	const linkRegex = /\[([^[]+)\]\((.*)\)/g;
+	const boldRegex = /\*\*(.+)\*\*/g;
+	const codeRegex = /`([^`]+)`/g;
+
+	return escapeHTML(markdown)
+		.replace(linkRegex, `<a href="$2" target="_blank">$1</a>`)
+		.replace(boldRegex, '<b>$1</b>')
+		.replace(codeRegex, '<code>$1</code>');
 }

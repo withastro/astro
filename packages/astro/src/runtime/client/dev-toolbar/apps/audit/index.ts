@@ -23,6 +23,8 @@ try {
 	customElements.define('astro-dev-toolbar-audit-list-item', DevToolbarAuditListItem);
 } catch (e) {}
 
+let state = false;
+
 export default {
 	id: 'astro:audit',
 	name: 'Audit',
@@ -54,14 +56,18 @@ export default {
 				if ('requestIdleCallback' in window) {
 					window.requestIdleCallback(
 						async () => {
-							lint();
+							lint().then(() => {
+								if (state) createAuditsUI();
+							});
 						},
 						{ timeout: 300 }
 					);
 				} else {
 					// Fallback for old versions of Safari, we'll assume that things are less likely to be busy after 150ms.
-					setTimeout(() => {
-						lint();
+					setTimeout(async () => {
+						lint().then(() => {
+							if (state) createAuditsUI();
+						});
 					}, 150);
 				}
 			}, 250);
@@ -86,7 +92,10 @@ export default {
 
 		eventTarget.addEventListener('app-toggled', (event: any) => {
 			if (event.detail.state === true) {
+				state = true;
 				createAuditsUI();
+			} else {
+				state = false;
 			}
 		});
 
