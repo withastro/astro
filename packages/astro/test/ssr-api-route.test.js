@@ -136,10 +136,9 @@ describe('API routes in SSR', () => {
 			assert.deepEqual(data.params, { param: 'any' });
 			assert.match(data.generator, /^Astro v/);
 			assert.equal(
-				[
-					'http://[::1]:4321/blog/context/any',
-					'http://127.0.0.1:4321/blog/context/any',
-				].includes(data.url),
+				['http://[::1]:4321/blog/context/any', 'http://127.0.0.1:4321/blog/context/any'].includes(
+					data.url
+				),
 				true
 			);
 			assert.equal(['::1', '127.0.0.1'].includes(data.clientAddress), true);
