@@ -33,7 +33,7 @@ describe('TypeScript - Organize & Sort Imports', () => {
 									edits: [
 										{
 											newText: '',
-											range: Range.create(4, 0, 5, 0)
+											range: Range.create(4, 0, 5, 0),
 										},
 										{
 											newText: '',
@@ -41,7 +41,7 @@ describe('TypeScript - Organize & Sort Imports', () => {
 										},
 									],
 									textDocument: {
-										uri: document.uri + "?virtualCodeId=tsx",
+										uri: document.uri + '?virtualCodeId=tsx',
 										version: null,
 									},
 								},
