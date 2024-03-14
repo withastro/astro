@@ -4,7 +4,8 @@ import type { Arguments } from 'yargs-parser';
 import {
 	FILE_NOT_FOUND_ERROR,
 	MISSING_EXECUTE_PATH_ERROR,
-	SEED_DEFAULT_EXPORT_ERROR,
+	EXEC_DEFAULT_EXPORT_ERROR,
+	EXEC_ERROR,
 } from '../../../errors.js';
 import {
 	getLocalVirtualModContents,
@@ -13,6 +14,8 @@ import {
 import { bundleFile, importBundledFile } from '../../../load-file.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBConfig } from '../../../types.js';
+import { LibsqlError } from '@libsql/client';
+import { green } from 'kleur/colors';
 
 export async function cmd({
 	astroConfig,
@@ -54,8 +57,16 @@ export async function cmd({
 
 	const mod = await importBundledFile({ code, root: astroConfig.root });
 	if (typeof mod.default !== 'function') {
-		console.error(SEED_DEFAULT_EXPORT_ERROR);
+		console.error(EXEC_DEFAULT_EXPORT_ERROR);
 		process.exit(1);
 	}
-	await mod.default();
+	try {
+		await mod.default();
+		console.info(`${green('✔')} File run successfully.`);
+	} catch (e) {
+		if (e instanceof LibsqlError) {
+			throw new Error(EXEC_ERROR(e.message));
+		}
+		throw e;
+	}
 }
