@@ -1,5 +1,13 @@
 # @astrojs/db
 
+## 0.8.3
+
+### Patch Changes
+
+- [#10431](https://github.com/withastro/astro/pull/10431) [`1076864cc4aa4b4dad570bbab9907996642cdd1f`](https://github.com/withastro/astro/commit/1076864cc4aa4b4dad570bbab9907996642cdd1f) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add wait time for the db token to propagate
+
+- [#10432](https://github.com/withastro/astro/pull/10432) [`4e24628aacc556515b27d0c04361df1526ae778f`](https://github.com/withastro/astro/commit/4e24628aacc556515b27d0c04361df1526ae778f) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add all regions to the link command
+
 ## 0.8.2
 
 ### Patch Changes
