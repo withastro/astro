@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.8.2
+
+### Patch Changes
+
+- 79b7968: Fixes Organize Imports not working correctly
+
 ## 2.8.1
 
 ### Patch Changes

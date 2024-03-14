@@ -1,5 +1,12 @@
 # astro-vscode
 
+## 2.8.2
+
+### Patch Changes
+
+- 79b7968: Fixes Organize Imports not working correctly
+- db49ff7: Fixes `text.astro` TextMate scope not being applied to top-level text nodes.
+
 ## 2.8.1
 
 ### Patch Changes
