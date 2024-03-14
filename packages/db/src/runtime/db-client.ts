@@ -4,7 +4,7 @@ import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
 import { drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
 import { z } from 'zod';
-import { safeFetch } from '../core/utils.js';
+import { safeFetch } from './utils.js';
 
 const isWebContainer = !!process.versions?.webcontainer;
 
