@@ -32,7 +32,9 @@ import {
 	type NumberColumn,
 	type TextColumn,
 } from '../types.js';
-import { type Result, getRemoteDatabaseUrl, safeFetch } from '../utils.js';
+import { type Result, getRemoteDatabaseUrl } from '../utils.js';
+import { safeFetch } from '../../runtime/utils.js';
+
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
