@@ -169,6 +169,55 @@ To run these benchmarks in a PR on GitHub instead of using the CLI, you can comm
 
 To run only a specific benchmark on CI, add its name after the command in your comment, for example, `!bench memory`.
 
+## For maintainers
+
+This paragraph provides some guidance to the maintainers of the org. 
+
+### Issue triaging workflow
+
+```mermaid
+graph TD;
+    start{Followed issue\ntemplate?}
+    start --NO--> close1[Close and ask to\nfollow template]
+    start --YES--> dupe{Is duplicate?}
+    dupe --YES--> close2[Close and point\nto duplicate]
+    dupe --NO--> repro{Has proper\nreproduction?}
+    repro --NO--> close3[Label: 'needs reproduction'\nbot will auto close if no update\nhas been made in 3 days]
+    repro --YES--> real{Is actually a bug?}
+    real --NO--> intended{Is the intended\nbehaviour?}
+    intended --YES--> explain[Explain and close\npoint to docs if needed]
+    intended --NO--> open[Add label 'needs discussion'\nRemove 'needs triage' label]
+    real --YES--> real2["1. Remove 'needs triage' label\n2. Add related feature label if\napplicable (e.g. 'feat: ssr')\n3. Add priority and meta labels (see below)"]
+    real2 --> tolabel[Use the framework below to decide gravity of the issue,\nand choose the correct label]
+
+```
+
+### Assign priority to bugs
+
+The Astro project has five levels of priority to issues, where `p5` is the highest in priority, and `p1` is the lowest in priority.
+
+- `p5`: the bug impacts the majority of Astro projects, it doesn't have a workaround and makes Astro unusable/unstable. 
+  
+  Some examples:
+  - the dev server crashes;
+  - the build breaks and doesn't complete;
+  - huge regressions in terms of performance;
+   
+  Usually we **don't** assign this priority to packages that **aren't** `astro`, but that can change.
+- `p4`: the bug impacts _many_ Astro projects, it doesn't have a workaround but Astro is still stable/usable.    
+- `p3`: any bug that doesn't fall in the `p4` or `p5` category. Usually these bugs violate the documentation/intended behaviour of the feature. If the documentation doesn't cover
+  the case reported by the user, it's useful to use initiate a discussion via label `"needs discussion"`. Seek opinions from OP and other maintainers. 
+- `p2`: all the bugs that have a workarounds.
+- `p1`: very minor bug, that impacts a small amount of users. Sometimes it's an edge case and it's easy to fix. Very useful if you want to assign the fix to a first-time contributor.
+
+> [!IMPORTANT]
+> The priority of a bug isn't set on stone. It can change based on different factors.
+
+Assigning labels isn't always easy and many times the distinction between the different levels of priority is blurry, hence try to follow these guidelines:
+- When assigning a `p2`, **always** add a comment that explains the workaround. If a workaround isn't provided, ping the person that assigned the label and ask them to provide one.
+- Astro has **many** features, but there are some that have a larger impact than others: development server, build command, HMR (TBD, we don't have a page that explains expectations of HMR in Astro), **evident** regressions in performance.
+- In case the number of reactions of an issue grows, the number of users affected grows, or a discussion uncovers some insights that weren't clear before, it's OK to change the priority of the issue. The maintainer **should** provide an explanation when assigning a different label.
+
 ## Code Structure
 
 Server-side rendering (SSR) can be complicated. The Astro package (`packages/astro`) is structured in a way to help think about the different systems.
