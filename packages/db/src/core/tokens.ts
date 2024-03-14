@@ -4,9 +4,9 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { green } from 'kleur/colors';
 import ora from 'ora';
+import { safeFetch } from '../runtime/utils.js';
 import { MISSING_PROJECT_ID_ERROR, MISSING_SESSION_ID_ERROR } from './errors.js';
 import { getAstroStudioEnv, getAstroStudioUrl } from './utils.js';
-import { safeFetch } from '../runtime/utils.js';
 
 export const SESSION_LOGIN_FILE = pathToFileURL(join(homedir(), '.astro', 'session-token'));
 export const PROJECT_ID_FILE = pathToFileURL(join(process.cwd(), '.astro', 'link'));

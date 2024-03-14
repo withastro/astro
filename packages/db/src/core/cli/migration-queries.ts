@@ -14,6 +14,7 @@ import {
 	schemaTypeToSqlType,
 } from '../../runtime/queries.js';
 import { isSerializedSQL } from '../../runtime/types.js';
+import { safeFetch } from '../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../consts.js';
 import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
 import { columnSchema } from '../schemas.js';
@@ -33,8 +34,6 @@ import {
 	type TextColumn,
 } from '../types.js';
 import { type Result, getRemoteDatabaseUrl } from '../utils.js';
-import { safeFetch } from '../../runtime/utils.js';
-
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);

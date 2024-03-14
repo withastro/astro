@@ -5,10 +5,10 @@ import { slug } from 'github-slugger';
 import { bgRed, cyan } from 'kleur/colors';
 import ora from 'ora';
 import prompts from 'prompts';
+import { safeFetch } from '../../../../runtime/utils.js';
 import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
 import { PROJECT_ID_FILE, getSessionIdFromFile } from '../../../tokens.js';
 import { type Result, getAstroStudioUrl } from '../../../utils.js';
-import { safeFetch } from '../../../../runtime/utils.js';
 
 export async function cmd() {
 	const sessionToken = await getSessionIdFromFile();
