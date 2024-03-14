@@ -106,8 +106,8 @@ export class RenderContext {
 								);
 								} catch (e) {
 									// If the instantiation of the RenderTemplate fails midway,
-									// we signal to ignore the results of existing renders and avoid kicking off more of them.
-									result.abortController.abort();
+									// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
+									result.cancelled = true;
 									throw e;
 								}
 								// Signal to the i18n middleware to maybe act on this response
@@ -200,13 +200,11 @@ export class RenderContext {
 			},
 		} satisfies AstroGlobal['response'];
 
-		const abortController = new AbortController;
-
 		// Create the result object that will be passed into the renderPage function.
 		// This object starts here as an empty shell (not yet the result) but then
 		// calling the render() function will populate the object with scripts, styles, etc.
 		const result: SSRResult = {
-			abortController,
+			cancelled: false,
 			clientDirectives,
 			inlinedScripts,
 			componentMetadata,

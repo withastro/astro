@@ -480,7 +480,7 @@ export async function renderComponent(
 
 	return await renderFrameworkComponent(result, displayName, Component, props, slots)
 		.catch(e => {
-			if (result.abortController.signal.aborted) return { render() {} };
+			if (result.cancelled) return { render() {} };
 			throw e;
 		});
 }

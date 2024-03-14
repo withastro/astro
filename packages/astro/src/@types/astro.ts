@@ -2764,9 +2764,9 @@ export type SSRComponentMetadata = {
 
 export interface SSRResult {
 	/**
-	 * A controller used to announce that the rendering the page has either failed with a non-recoverable error, or the client has disconnected.
+	 * Whether the page has either failed with a non-recoverable error, or the client has disconnected.
 	 */
-	abortController: AbortController;
+	cancelled: boolean;
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
