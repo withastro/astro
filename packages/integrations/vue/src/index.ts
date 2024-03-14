@@ -65,7 +65,7 @@ function virtualAppEntrypoint(options?: Options): Plugin {
 				if (appEntrypoint) {
 					return `\
 import * as mod from ${JSON.stringify(appEntrypoint)};
-						
+
 export const setup = async (app) => {
 	if ('default' in mod) {
 		await mod.default(app);
@@ -101,12 +101,20 @@ export const setup = async (app) => {
 }
 
 async function getViteConfiguration(options?: Options): Promise<UserConfig> {
+	let vueOptions = {
+		...options,
+		template: {
+			...options?.template,
+			transformAssetUrls: false,
+		},
+	} satisfies VueOptions;
+
 	const config: UserConfig = {
 		optimizeDeps: {
 			include: ['@astrojs/vue/client.js', 'vue'],
 			exclude: ['@astrojs/vue/server.js', 'virtual:@astrojs/vue/app'],
 		},
-		plugins: [vue(options), virtualAppEntrypoint(options)],
+		plugins: [vue(vueOptions), virtualAppEntrypoint(vueOptions)],
 		ssr: {
 			external: ['@vue/server-renderer'],
 			noExternal: ['vuetify', 'vueperslides', 'primevue'],
