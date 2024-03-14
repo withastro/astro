@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.8.4
+
+### Patch Changes
+
+- [#10443](https://github.com/withastro/astro/pull/10443) [`238f047b9d1ebc407f53d61ee61574b380a76ac9`](https://github.com/withastro/astro/commit/238f047b9d1ebc407f53d61ee61574b380a76ac9) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where `astro:db` could not be used in serverless environments.
+
 ## 0.8.3
 
 ### Patch Changes
