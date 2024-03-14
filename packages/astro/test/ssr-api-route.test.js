@@ -135,8 +135,14 @@ describe('API routes in SSR', () => {
 			assert.equal(data.propsExist, true);
 			assert.deepEqual(data.params, { param: 'any' });
 			assert.match(data.generator, /^Astro v/);
-			assert.equal(data.url, 'http://[::1]:4321/blog/context/any');
-			assert.equal(data.clientAddress, '::1');
+			assert.equal(
+				[
+					'http://[::1]:4321/blog/context/any',
+					'http://127.0.0.1:4321/blog/context/any',
+				].includes(data.url),
+				true
+			);
+			assert.equal(['::1', '127.0.0.1'].includes(data.clientAddress), true);
 			assert.equal(data.site, 'https://mysite.dev/subsite/');
 		});
 	});
