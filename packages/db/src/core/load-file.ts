@@ -18,7 +18,10 @@ const isDbIntegration = (integration: AstroIntegration): integration is AstroDbI
 /**
  * Load a user’s `astro:db` configuration file and additional configuration files provided by integrations.
  */
-export async function resolveDbConfig({ root, integrations }: AstroConfig) {
+export async function resolveDbConfig({
+	root,
+	integrations,
+}: Pick<AstroConfig, 'root' | 'integrations'>) {
 	const { mod, dependencies } = await loadUserConfigFile(root);
 	const userDbConfig = dbConfigSchema.parse(mod?.default ?? {}, { errorMap });
 	/** Resolved `astro:db` config including tables provided by integrations. */

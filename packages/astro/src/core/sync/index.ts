@@ -3,7 +3,7 @@ import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
 import { type HMRPayload, createServer } from 'vite';
-import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
+import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
@@ -20,6 +20,8 @@ import { AstroError, AstroErrorData, createSafeError, isAstroError } from '../er
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
+import { getPackage } from '../../cli/install-package.js';
+import type { Arguments } from 'yargs-parser';
 
 export type ProcessExit = 0 | 1;
 
@@ -34,6 +36,10 @@ export type SyncInternalOptions = SyncOptions & {
 	logger: Logger;
 };
 
+type DBPackage = {
+	typegen: (args: Pick<AstroConfig, 'root' | 'integrations'>) => Promise<void>;
+};
+
 /**
  * Generates TypeScript types for all Astro modules. This sets up a `src/env.d.ts` file for type inferencing,
  * and defines the `astro:content` module for the Content Collections API.
@@ -42,6 +48,7 @@ export type SyncInternalOptions = SyncOptions & {
  */
 export default async function sync(
 	inlineConfig: AstroInlineConfig,
+	flags?: Arguments,
 	options?: SyncOptions
 ): Promise<ProcessExit> {
 	ensureProcessNodeEnv('production');
@@ -57,8 +64,17 @@ export default async function sync(
 		command: 'build',
 	});
 
+	const timerStart = performance.now();
+	const getPackageOpts = { skipAsk: true, cwd: flags?.root };
+	const dbPackage = await getPackage<DBPackage>('@astrojs/db', logger, getPackageOpts, []);
+
 	try {
-		return await syncInternal(settings, { ...options, logger });
+		await dbPackage?.typegen(astroConfig);
+		const exitCode = await syncContentCollections(settings, { ...options, logger });
+		if (exitCode !== 0) return exitCode;
+
+		logger.info(null, `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
+		return 0;
 	} catch (err) {
 		const error = createSafeError(err);
 		logger.error(
@@ -83,11 +99,10 @@ export default async function sync(
  * @param {LogOptions} options.logging Logging options
  * @return {Promise<ProcessExit>}
  */
-export async function syncInternal(
+export async function syncContentCollections(
 	settings: AstroSettings,
 	{ logger, fs }: SyncInternalOptions
 ): Promise<ProcessExit> {
-	const timerStart = performance.now();
 	// Needed to load content config
 	const tempViteServer = await createServer(
 		await createVite(
@@ -150,7 +165,6 @@ export async function syncInternal(
 		await tempViteServer.close();
 	}
 
-	logger.info(null, `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 	await setUpEnvTs({ settings, logger, fs: fs ?? fsMod });
 
 	return 0;

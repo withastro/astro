@@ -22,6 +22,6 @@ export async function sync({ flags }: SyncOptions) {
 
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 
-	const exitCode = await _sync(inlineConfig);
+	const exitCode = await _sync(inlineConfig, flags);
 	return exitCode;
 }
