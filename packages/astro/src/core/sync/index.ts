@@ -37,7 +37,7 @@ export type SyncInternalOptions = SyncOptions & {
 };
 
 type DBPackage = {
-	typegen: (args: Pick<AstroConfig, 'root' | 'integrations'>) => Promise<void>;
+	typegen?: (args: Pick<AstroConfig, 'root' | 'integrations'>) => Promise<void>;
 };
 
 /**
@@ -76,7 +76,7 @@ export default async function sync(
 	);
 
 	try {
-		await dbPackage?.typegen(astroConfig);
+		await dbPackage?.typegen?.(astroConfig);
 		const exitCode = await syncContentCollections(settings, { ...options, logger });
 		if (exitCode !== 0) return exitCode;
 
