@@ -65,8 +65,15 @@ export default async function sync(
 	});
 
 	const timerStart = performance.now();
-	const getPackageOpts = { skipAsk: true, cwd: flags?.root };
-	const dbPackage = await getPackage<DBPackage>('@astrojs/db', logger, getPackageOpts, []);
+	const dbPackage = await getPackage<DBPackage>(
+		'@astrojs/db',
+		logger,
+		{
+			cwd: flags?.root,
+			required: false,
+		},
+		[]
+	);
 
 	try {
 		await dbPackage?.typegen(astroConfig);
