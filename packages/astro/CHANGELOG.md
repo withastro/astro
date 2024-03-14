@@ -1,5 +1,11 @@
 # astro
 
+## 4.5.4
+
+### Patch Changes
+
+- [#10427](https://github.com/withastro/astro/pull/10427) [`128c7a36397d99608dea918885b68bd302d00e7f`](https://github.com/withastro/astro/commit/128c7a36397d99608dea918885b68bd302d00e7f) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where error pages did not have access to the `Astro.locals` fields provided by the adapter.
+
 ## 4.5.3
 
 ### Patch Changes
