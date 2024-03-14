@@ -183,7 +183,7 @@ export class App {
 			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto
 			let protocol = request.headers.get('X-Forwarded-Proto');
 			if (protocol) {
-				// this header doesn't have the colum at the end, so we added to be in line with URL#protocol, which has it
+				// this header doesn't have the column at the end, so we added to be in line with URL#protocol, which has it
 				protocol = protocol + ':';
 			} else {
 				// we fall back to the protocol of the request
