@@ -792,7 +792,7 @@ export const MiddlewareNotAResponse = {
  * @docs
  * @description
  *
- * Thrown in development mode when `locals` is overwritten with something that is not an object
+ * Thrown when `locals` is overwritten with something that is not an object
  *
  * For example:
  * ```ts
@@ -814,6 +814,19 @@ export const LocalsNotAnObject = {
 /**
  * @docs
  * @description
+ * Thrown when a value is being set as the `headers` field on the `ResponseInit` object available as `Astro.response`.
+ */
+export const AstroResponseHeadersReassigned = {
+	name: 'AstroResponseHeadersReassigned',
+	title: '`Astro.response.headers` must not be reassigned.',
+	message:
+		'Individual headers can be added to and removed from `Astro.response.headers`, but it must not be replaced with another instance of `Headers` altogether.',
+	hint: 'Consider using `Astro.response.headers.add()`, and `Astro.response.headers.delete()`.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * Thrown in development mode when middleware throws an error while attempting to loading it.
  *
  * For example:
@@ -828,7 +841,7 @@ export const LocalsNotAnObject = {
 export const MiddlewareCantBeLoaded = {
 	name: 'MiddlewareCantBeLoaded',
 	title: "Can't load the middleware.",
-	message: 'The middleware threw an error while Astro was trying to loading it.',
+	message: 'An unknown error was thrown while loading your middleware.',
 } satisfies ErrorData;
 
 /**
@@ -872,7 +885,7 @@ export const LocalImageUsedWrongly = {
  * @see
  * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
  * @description
- * `Astro.glob()` can only be used in `.astro` files. You can use [`import.meta.glob()`](https://vitejs.dev/guide/features.html#glob-import) instead to acheive the same result.
+ * `Astro.glob()` can only be used in `.astro` files. You can use [`import.meta.glob()`](https://vitejs.dev/guide/features.html#glob-import) instead to achieve the same result.
  */
 export const AstroGlobUsedOutside = {
 	name: 'AstroGlobUsedOutside',

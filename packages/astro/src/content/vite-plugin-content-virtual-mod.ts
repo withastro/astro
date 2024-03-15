@@ -1,7 +1,7 @@
-import glob from 'fast-glob';
 import nodeFs from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import glob from 'fast-glob';
 import pLimit from 'p-limit';
 import { type Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
@@ -19,6 +19,7 @@ import {
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import {
+	type ContentLookupMap,
 	getContentEntryIdAndSlug,
 	getContentPaths,
 	getDataEntryExts,
@@ -28,7 +29,6 @@ import {
 	getEntrySlug,
 	getEntryType,
 	getExtGlob,
-	type ContentLookupMap,
 } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
@@ -61,13 +61,21 @@ export function astroContentVirtualModPlugin({
 				}
 			}
 		},
-		async load(id) {
+		async load(id, args) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
 				const lookupMap = await generateLookupMap({
 					settings,
 					fs,
 				});
-				const code = await generateContentEntryFile({ settings, fs, lookupMap, IS_DEV, IS_SERVER });
+				const isClient = !args?.ssr;
+				const code = await generateContentEntryFile({
+					settings,
+					fs,
+					lookupMap,
+					IS_DEV,
+					IS_SERVER,
+					isClient,
+				});
 
 				return {
 					code,
@@ -102,12 +110,14 @@ export async function generateContentEntryFile({
 	lookupMap,
 	IS_DEV,
 	IS_SERVER,
+	isClient,
 }: {
 	settings: AstroSettings;
 	fs: typeof nodeFs;
 	lookupMap: ContentLookupMap;
 	IS_DEV: boolean;
 	IS_SERVER: boolean;
+	isClient: boolean;
 }) {
 	const contentPaths = getContentPaths(settings.config);
 	const relContentDir = rootRelativePath(settings.config.root, contentPaths.contentDir);
@@ -143,13 +153,18 @@ export async function generateContentEntryFile({
 		renderEntryGlobResult = getStringifiedCollectionFromLookup('render', relContentDir, lookupMap);
 	}
 
-	const virtualModContents = nodeFs
-		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
-		.replace('@@CONTENT_DIR@@', relContentDir)
-		.replace("'@@CONTENT_ENTRY_GLOB_PATH@@'", contentEntryGlobResult)
-		.replace("'@@DATA_ENTRY_GLOB_PATH@@'", dataEntryGlobResult)
-		.replace("'@@RENDER_ENTRY_GLOB_PATH@@'", renderEntryGlobResult)
-		.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`);
+	let virtualModContents =
+		nodeFs
+			.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
+			.replace('@@CONTENT_DIR@@', relContentDir)
+			.replace("'@@CONTENT_ENTRY_GLOB_PATH@@'", contentEntryGlobResult)
+			.replace("'@@DATA_ENTRY_GLOB_PATH@@'", dataEntryGlobResult)
+			.replace("'@@RENDER_ENTRY_GLOB_PATH@@'", renderEntryGlobResult)
+			.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`) +
+		(isClient
+			? `
+console.warn('astro:content is only supported running server-side. Using it in the browser will lead to bloated bundles and slow down page load. In the future it will not be supported.');`
+			: '');
 
 	return virtualModContents;
 }
@@ -264,7 +279,7 @@ export async function generateLookupMap({
 							message: AstroErrorData.DuplicateContentEntrySlugError.message(
 								collection,
 								slug,
-								lookupMap[collection]!.entries[slug],
+								lookupMap[collection].entries[slug],
 								rootRelativePath(root, filePath)
 							),
 							hint:

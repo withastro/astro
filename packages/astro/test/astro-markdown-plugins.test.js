@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import { describe, before, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import addClasses from './fixtures/astro-markdown-plugins/add-classes.mjs';
+import { loadFixture } from './test-utils.js';
 
 const defaultMarkdownConfig = {
 	gfm: true,
@@ -60,7 +60,7 @@ describe('Astro Markdown plugins', () => {
 
 			const smartypantsHtml = await fixture.readFile('/with-smartypants/index.html');
 			const $2 = cheerio.load(smartypantsHtml);
-			assert.equal($2('p').html(), '“Smartypants” is — awesome');
+			assert.equal($2('p').html(), '”Smartypants” is — awesome');
 
 			testRemark(gfmHtml);
 			testRehype(gfmHtml, '#github-flavored-markdown-test');
@@ -82,7 +82,7 @@ describe('Astro Markdown plugins', () => {
 			const $ = cheerio.load(html);
 
 			// test 1: smartypants applied correctly
-			assert.equal($('p').html(), '“Smartypants” is — awesome');
+			assert.equal($('p').html(), '”Smartypants” is — awesome');
 
 			testRemark(html);
 			testRehype(html, '#smartypants-test');

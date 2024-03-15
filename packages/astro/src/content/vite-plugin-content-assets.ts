@@ -1,9 +1,10 @@
 import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { Plugin, Rollup } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings, SSRElement } from '../@types/astro.js';
+import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
-import { getPageDataByViteID, type BuildInternals } from '../core/build/internal.js';
+import { type BuildInternals, getPageDataByViteID } from '../core/build/internal.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { StaticBuildOptions } from '../core/build/types.js';
 import type { ModuleLoader } from '../core/module-loader/loader.js';
@@ -70,8 +71,15 @@ export function astroContentAssetPropagationPlugin({
 						crawledFiles: styleCrawledFiles,
 					} = await getStylesForURL(pathToFileURL(basePath), devModuleLoader);
 
-					const { scripts: hoistedScripts, crawledFiles: scriptCrawledFiles } =
-						await getScriptsForURL(pathToFileURL(basePath), settings.config.root, devModuleLoader);
+					// Add hoisted script tags, skip if direct rendering with `directRenderScript`
+					const { scripts: hoistedScripts, crawledFiles: scriptCrawledFiles } = settings.config
+						.experimental.directRenderScript
+						? { scripts: new Set<SSRElement>(), crawledFiles: new Set<string>() }
+						: await getScriptsForURL(
+								pathToFileURL(basePath),
+								settings.config.root,
+								devModuleLoader
+							);
 
 					// Register files we crawled to be able to retrieve the rendered styles and scripts,
 					// as when they get updated, we need to re-transform ourselves.
@@ -141,8 +149,11 @@ export function astroConfigBuildPlugin(
 			'build:post': ({ ssrOutputs, clientOutputs, mutate }) => {
 				const outputs = ssrOutputs.flatMap((o) => o.output);
 				const prependBase = (src: string) => {
-					if (options.settings.config.build.assetsPrefix) {
-						return joinPaths(options.settings.config.build.assetsPrefix, src);
+					const { assetsPrefix } = options.settings.config.build;
+					if (assetsPrefix) {
+						const fileExtension = extname(src);
+						const pf = getAssetsPrefix(fileExtension, assetsPrefix);
+						return joinPaths(pf, src);
 					} else {
 						return prependForwardSlash(joinPaths(options.settings.config.base, src));
 					}

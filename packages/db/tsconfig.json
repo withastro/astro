@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src"],
+  "exclude": ["src/runtime/config.ts"],
+  "compilerOptions": {
+    "outDir": "./dist"
+  }
+}

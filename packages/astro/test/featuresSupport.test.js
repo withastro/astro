@@ -1,7 +1,7 @@
-import { loadFixture } from './test-utils.js';
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Adapter', () => {
 	let fixture;

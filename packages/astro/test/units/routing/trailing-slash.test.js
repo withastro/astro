@@ -1,14 +1,14 @@
+import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
+import { createContainer } from '../../../dist/core/dev/container.js';
+import testAdapter from '../../test-adapter.js';
 import {
 	createBasicSettings,
 	createFs,
 	createRequestAndResponse,
 	defaultLogger,
 } from '../test-utils.js';
-import { fileURLToPath } from 'node:url';
-import { describe, it, before, after } from 'node:test';
-import * as assert from 'node:assert/strict';
-import { createContainer } from '../../../dist/core/dev/container.js';
-import testAdapter from '../../test-adapter.js';
 
 const root = new URL('../../fixtures/api-routes/', import.meta.url);
 const fileSystem = {
@@ -54,7 +54,8 @@ describe('trailingSlash', () => {
 			url: '/api',
 		});
 		container.handle(req, res);
-		assert.equal(await text(), '');
+		const html = await text();
+		assert.equal(html.includes(`<span class="statusMessage">Not found</span>`), true);
 		assert.equal(res.statusCode, 404);
 	});
 });

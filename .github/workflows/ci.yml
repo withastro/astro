@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v3
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
         uses: actions/setup-node@v4
@@ -80,7 +80,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v3
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -96,9 +96,6 @@ jobs:
 
       - name: Lint
         run: pnpm run lint
-
-      - name: Format Check
-        run: pnpm run format --check
 
   test:
     name: "Test: ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
@@ -125,7 +122,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v3
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
         uses: actions/setup-node@v4
@@ -162,7 +159,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v3
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
         uses: actions/setup-node@v4
@@ -198,7 +195,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v3
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
         uses: actions/setup-node@v4

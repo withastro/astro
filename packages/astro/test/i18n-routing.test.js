@@ -1,8 +1,8 @@
+import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
-import { describe, it, before, after } from 'node:test';
-import * as assert from 'node:assert/strict';
 
 describe('astro:i18n virtual module', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -352,6 +352,13 @@ describe('[DEV] i18n routing', () => {
 			const response = await fixture.fetch('/new-site');
 			assert.equal(response.status, 200);
 			assert.equal((await response.text()).includes('I am index'), true);
+		});
+
+		it('can render the 404.astro route on unmatched requests', async () => {
+			const response = await fixture.fetch('/xyz');
+			assert.equal(response.status, 404);
+			const text = await response.text();
+			assert.equal(text.includes("Can't find the page youre looking for."), true);
 		});
 	});
 
@@ -935,6 +942,37 @@ describe('[SSG] i18n routing', () => {
 			let $ = cheerio.load(html);
 			assert.equal($('script').text().includes('console.log("this is a script")'), true);
 		});
+
+		describe('with localised index pages', () => {
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-routing-fallback-index/',
+					i18n: {
+						defaultLocale: 'en',
+						locales: [
+							'en',
+							'pt',
+							'it',
+							{
+								path: 'spanish',
+								codes: ['es', 'es-AR'],
+							},
+						],
+						fallback: {
+							it: 'en',
+							spanish: 'en',
+						},
+					},
+				});
+				await fixture.build();
+			});
+
+			it('should render correctly', async () => {
+				let html = await fixture.readFile('/pt/index.html');
+				let $ = cheerio.load(html);
+				assert.equal($('body').text().includes('Oi essa e index'), true);
+			});
+		});
 	});
 
 	describe('i18n routing with fallback and [pathname-prefix-always]', () => {
@@ -1306,6 +1344,14 @@ describe('[SSR] i18n routing', () => {
 			let response = await app.render(request);
 			assert.equal(response.status, 200);
 			assert.equal((await response.text()).includes('I am index'), true);
+		});
+
+		it('can render the 404.astro route on unmatched requests', async () => {
+			const request = new Request('http://example.com/xyz');
+			const response = await app.render(request);
+			assert.equal(response.status, 404);
+			const text = await response.text();
+			assert.equal(text.includes("Can't find the page youre looking for."), true);
 		});
 	});
 

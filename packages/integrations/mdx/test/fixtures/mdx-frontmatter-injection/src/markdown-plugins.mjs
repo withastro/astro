@@ -1,5 +1,5 @@
-import getReadingTime from 'reading-time';
 import { toString } from 'mdast-util-to-string';
+import getReadingTime from 'reading-time';
 import { visit } from 'unist-util-visit';
 
 export function rehypeReadingTime() {

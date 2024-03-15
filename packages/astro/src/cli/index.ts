@@ -30,6 +30,7 @@ async function printAstroHelp() {
 				['add', 'Add an integration.'],
 				['build', 'Build your project and write it to disk.'],
 				['check', 'Check your project for errors.'],
+				['db', 'Manage your Astro database.'],
 				['dev', 'Start the development server.'],
 				['docs', 'Open documentation in your web browser.'],
 				['info', 'List info about your current Astro setup.'],
@@ -37,6 +38,11 @@ async function printAstroHelp() {
 				['sync', 'Generate content collection types.'],
 				['preferences', 'Configure user preferences.'],
 				['telemetry', 'Configure telemetry settings.'],
+			],
+			'Studio Commands': [
+				['login', 'Authenticate your machine with Astro Studio.'],
+				['logout', 'End your authenticated session with Astro Studio.'],
+				['link', 'Link this project directory to an Astro Studio project.'],
 			],
 			'Global Flags': [
 				['--config <path>', 'Specify your config file.'],
@@ -75,6 +81,10 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
 		'docs',
 		'db',
 		'info',
+		'login',
+		'loutout',
+		'link',
+		'init',
 	]);
 	if (supportedCommands.has(cmd)) {
 		return cmd as CLICommand;
@@ -145,7 +155,11 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			await add(packages, { flags });
 			return;
 		}
-		case 'db': {
+		case 'db':
+		case 'login':
+		case 'logout':
+		case 'link':
+		case 'init': {
 			const { db } = await import('./db/index.js');
 			await db({ flags });
 			return;

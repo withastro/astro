@@ -1,10 +1,10 @@
-import * as devalue from 'devalue';
-import * as cheerio from 'cheerio';
 import assert from 'node:assert/strict';
-import { describe, before, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
+import * as devalue from 'devalue';
 import testAdapter from './test-adapter.js';
 import { preventNodeBuiltinDependencyPlugin } from './test-plugins.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Content Collections', () => {
 	describe('Query', () => {
@@ -261,7 +261,7 @@ describe('Content Collections', () => {
 	});
 
 	describe('With empty collections directory', () => {
-		it('Handles the empty directory correclty', async () => {
+		it('Handles the empty directory correctly', async () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-empty-dir/',
 			});
@@ -272,7 +272,12 @@ describe('Content Collections', () => {
 				error = e.message;
 			}
 			assert.equal(error, undefined);
-			// TODO: try to render a page
+
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const h1 = $('h1');
+			assert.equal(h1.text(), 'Entries length: 0');
+			assert.equal(h1.attr('data-entries'), '[]');
 		});
 	});
 

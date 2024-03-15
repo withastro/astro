@@ -1,11 +1,11 @@
+import { randomBytes } from 'node:crypto';
 import { isCI } from 'ci-info';
 import debug from 'debug';
-import { randomBytes } from 'node:crypto';
 import * as KEY from './config-keys.js';
 import { GlobalConfig } from './config.js';
 import { post } from './post.js';
-import { getProjectInfo, type ProjectInfo } from './project-info.js';
-import { getSystemInfo, type SystemInfo } from './system-info.js';
+import { type ProjectInfo, getProjectInfo } from './project-info.js';
+import { type SystemInfo, getSystemInfo } from './system-info.js';
 
 export type AstroTelemetryOptions = { astroVersion: string; viteVersion: string };
 export type TelemetryEvent = { eventName: string; payload: Record<string, any> };

@@ -1,5 +1,4 @@
 import type { APIContext, MiddlewareHandler, MiddlewareNext } from '../../@types/astro.js';
-import { attachCookiesToResponse, responseHasCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
 /**
@@ -39,10 +38,10 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 export async function callMiddleware(
 	onRequest: MiddlewareHandler,
 	apiContext: APIContext,
-	responseFunction: () => Promise<Response>
+	responseFunction: () => Promise<Response> | Response
 ): Promise<Response> {
 	let nextCalled = false;
-	let responseFunctionPromise: Promise<Response> | undefined = undefined;
+	let responseFunctionPromise: Promise<Response> | Response | undefined = undefined;
 	const next: MiddlewareNext = async () => {
 		nextCalled = true;
 		responseFunctionPromise = responseFunction();
@@ -67,7 +66,7 @@ export async function callMiddleware(
 				if (value instanceof Response === false) {
 					throw new AstroError(AstroErrorData.MiddlewareNotAResponse);
 				}
-				return ensureCookiesAttached(apiContext, value);
+				return value;
 			} else {
 				/**
 				 * Here we handle the case where `next` was called and returned nothing.
@@ -90,14 +89,7 @@ export async function callMiddleware(
 			throw new AstroError(AstroErrorData.MiddlewareNotAResponse);
 		} else {
 			// Middleware did not call resolve and returned a value
-			return ensureCookiesAttached(apiContext, value);
+			return value;
 		}
 	});
-}
-
-function ensureCookiesAttached(apiContext: APIContext, response: Response): Response {
-	if (apiContext.cookies !== undefined && !responseHasCookies(response)) {
-		attachCookiesToResponse(response, apiContext.cookies);
-	}
-	return response;
 }

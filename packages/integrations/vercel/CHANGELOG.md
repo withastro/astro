@@ -1,5 +1,36 @@
 # @astrojs/vercel
 
+## 7.3.6
+
+### Patch Changes
+
+- Updated dependencies [[`1ea0a25b94125e4f6f2ac82b42f638e22d7bdffd`](https://github.com/withastro/astro/commit/1ea0a25b94125e4f6f2ac82b42f638e22d7bdffd)]:
+  - @astrojs/internal-helpers@0.3.0
+
+## 7.3.5
+
+### Patch Changes
+
+- [#10336](https://github.com/withastro/astro/pull/10336) [`f2e60a96754ed1d86001fe4d5d3a0c0ef657408d`](https://github.com/withastro/astro/commit/f2e60a96754ed1d86001fe4d5d3a0c0ef657408d) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fixes an issue that was preventing the use of `sharp` in some cases and causing a runtime error
+
+## 7.3.4
+
+### Patch Changes
+
+- [#10231](https://github.com/withastro/astro/pull/10231) [`ae2a10e1a768e31d243194694222932ffafb54cc`](https://github.com/withastro/astro/commit/ae2a10e1a768e31d243194694222932ffafb54cc) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Fixes an issue where functions were also created for prerendered routes with `functionPerRoute` enabled.
+
+## 7.3.3
+
+### Patch Changes
+
+- [#10215](https://github.com/withastro/astro/pull/10215) [`a013182d322a3969e39d647aad75ec10f8bd1ed7`](https://github.com/withastro/astro/commit/a013182d322a3969e39d647aad75ec10f8bd1ed7) Thanks [@matthewp](https://github.com/matthewp)! - Fixes edge middleware calling nested routes
+
+## 7.3.2
+
+### Patch Changes
+
+- [#10194](https://github.com/withastro/astro/pull/10194) [`3cc20109277813ccb9578ca87a8b0d680a73c35c`](https://github.com/withastro/astro/commit/3cc20109277813ccb9578ca87a8b0d680a73c35c) Thanks [@matthewp](https://github.com/matthewp)! - Fix loading client-scripts in dev with ISR
+
 ## 7.3.1
 
 ### Patch Changes

@@ -2,6 +2,7 @@ export { createHeadAndContent, renderTemplate, renderToString } from './astro/in
 export type { AstroComponentFactory, AstroComponentInstance } from './astro/index.js';
 export { Fragment, Renderer, chunkToByteArray, chunkToString } from './common.js';
 export { renderComponent, renderComponentToString } from './component.js';
+export { renderScript } from './script.js';
 export { renderHTMLElement } from './dom.js';
 export { maybeRenderHead, renderHead } from './head.js';
 export type { RenderInstruction } from './instruction.js';

@@ -11,5 +11,5 @@ jobs:
     if: github.repository_owner == 'withastro'
     uses: withastro/automation/.github/workflows/format.yml@main
     with:
-      command: "format:ci"
+      command: "format"
     secrets: inherit

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { after, afterEach, describe, before, it } from 'node:test';
+import { after, afterEach, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';

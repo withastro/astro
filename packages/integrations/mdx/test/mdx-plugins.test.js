@@ -1,11 +1,11 @@
 import mdx from '@astrojs/mdx';
 
-import { describe, it, before } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
-import remarkToc from 'remark-toc';
+import { before, describe, it } from 'node:test';
 import { visit as estreeVisit } from 'estree-util-visit';
+import { parseHTML } from 'linkedom';
+import remarkToc from 'remark-toc';
+import { loadFixture } from '../../../astro/test/test-utils.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-plugins/', import.meta.url);
 const FILE = '/with-plugins/index.html';
@@ -47,7 +47,7 @@ describe('MDX plugins', () => {
 
 		const quote = selectSmartypantsQuote(document);
 		assert.notEqual(quote, null);
-		assert.equal(quote.textContent.includes('“Smartypants” is — awesome'), true);
+		assert.equal(quote.textContent.includes('”Smartypants” is — awesome'), true);
 	});
 
 	it('supports custom rehype plugins', async () => {
@@ -174,7 +174,7 @@ describe('MDX plugins', () => {
 					);
 				} else {
 					assert.equal(
-						quote.textContent.includes('“Smartypants” is — awesome'),
+						quote.textContent.includes('”Smartypants” is — awesome'),
 						true,
 						'Respects `markdown.smartypants` unexpectedly.'
 					);

@@ -1,5 +1,5 @@
-import { describe, it, after } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { after, describe, it } from 'node:test';
 
 const LOCALES = ['en_US', 'sv_SE', 'es_419.UTF-8', 'es_ES@euro', 'C'];
 

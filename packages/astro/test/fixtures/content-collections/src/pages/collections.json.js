@@ -1,6 +1,6 @@
-import { getCollection } from 'astro:content';
 import * as devalue from 'devalue';
 import { stripAllRenderFn } from '../utils.js';
+import { getCollection } from 'astro:content';
 
 export async function GET() {
 	const withoutConfig = stripAllRenderFn(await getCollection('without-config'));

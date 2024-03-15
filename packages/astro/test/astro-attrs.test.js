@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { describe, before, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -30,6 +30,12 @@ describe('Attributes', async () => {
 			'html-enum-true': { attribute: 'draggable', value: 'true' },
 			'html-enum-false': { attribute: 'draggable', value: 'false' },
 		};
+
+		// cheerio will unescape the values, so checking that the url rendered unescaped to begin with has to be done manually
+		assert.equal(
+			html.includes('https://example.com/api/og?title=hello&description=somedescription'),
+			true
+		);
 
 		for (const id of Object.keys(attrs)) {
 			const { attribute, value } = attrs[id];

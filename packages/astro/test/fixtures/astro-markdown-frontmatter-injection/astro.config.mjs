@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
-import { rehypeReadingTime, remarkTitle, remarkDescription } from './src/markdown-plugins.mjs'
+import { rehypeReadingTime, remarkDescription, remarkTitle } from './src/markdown-plugins.mjs'
 
 // https://astro.build/config
 export default defineConfig({

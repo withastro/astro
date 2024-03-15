@@ -1,17 +1,23 @@
 import type {
-	EndpointHandler,
+	ComponentInstance,
 	ManifestData,
 	RouteData,
-	SSRElement,
 	SSRManifest,
 } from '../../@types/astro.js';
-import { createI18nMiddleware, i18nPipelineHook } from '../../i18n/middleware.js';
-import { REROUTE_DIRECTIVE_HEADER } from '../../runtime/server/consts.js';
+import { normalizeTheLocale } from '../../i18n/index.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
+import {
+	DEFAULT_404_COMPONENT,
+	REROUTABLE_STATUS_CODES,
+	REROUTE_DIRECTIVE_HEADER,
+	clientAddressSymbol,
+	clientLocalsSymbol,
+	responseSentSymbol,
+} from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
-import { sequence } from '../middleware/index.js';
 import {
 	appendForwardSlash,
 	collapseDuplicateSlashes,
@@ -20,28 +26,12 @@ import {
 	removeTrailingForwardSlash,
 } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { createEnvironment, createRenderContext, type RenderContext } from '../render/index.js';
-import { RouteCache } from '../render/route-cache.js';
-import {
-	createAssetLink,
-	createModuleScriptElement,
-	createStylesheetElementSet,
-} from '../render/ssr-element.js';
+import { RenderContext } from '../render-context.js';
+import { createAssetLink } from '../render/ssr-element.js';
+import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../routing/match.js';
-import { SSRRoutePipeline } from './ssrPipeline.js';
-import type { RouteInfo } from './types.js';
-import { normalizeTheLocale } from '../../i18n/index.js';
+import { AppPipeline } from './pipeline.js';
 export { deserializeManifest } from './common.js';
-
-const localsSymbol = Symbol.for('astro.locals');
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
-const responseSentSymbol = Symbol.for('astro.responseSent');
-
-/**
- * A response with one of these status codes will be rewritten
- * with the result of rendering the respective error page.
- */
-const REROUTABLE_STATUS_CODES = new Set([404, 500]);
 
 export interface RenderOptions {
 	/**
@@ -76,6 +66,7 @@ export interface RenderOptions {
 }
 
 export interface RenderErrorOptions {
+	locals?: App.Locals;
 	routeData?: RouteData;
 	response?: Response;
 	status: 404 | 500;
@@ -86,29 +77,24 @@ export interface RenderErrorOptions {
 }
 
 export class App {
-	/**
-	 * The current environment of the application
-	 */
 	#manifest: SSRManifest;
 	#manifestData: ManifestData;
-	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
 	#logger = new Logger({
 		dest: consoleLogDestination,
 		level: 'info',
 	});
 	#baseWithoutTrailingSlash: string;
-	#pipeline: SSRRoutePipeline;
+	#pipeline: AppPipeline;
 	#adapterLogger: AstroIntegrationLogger;
 	#renderOptionsDeprecationWarningShown = false;
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
-		this.#manifestData = {
+		this.#manifestData = ensure404Route({
 			routes: manifest.routes.map((route) => route.routeData),
-		};
-		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
+		});
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
-		this.#pipeline = new SSRRoutePipeline(this.#createEnvironment(streaming));
+		this.#pipeline = this.#createPipeline(streaming);
 		this.#adapterLogger = new AstroIntegrationLogger(
 			this.#logger.options,
 			this.#manifest.adapterName
@@ -120,19 +106,17 @@ export class App {
 	}
 
 	/**
-	 * Creates an environment by reading the stored manifest
+	 * Creates a pipeline by reading the stored manifest
 	 *
 	 * @param streaming
 	 * @private
 	 */
-	#createEnvironment(streaming = false) {
-		return createEnvironment({
-			adapterName: this.#manifest.adapterName,
+	#createPipeline(streaming = false) {
+		return AppPipeline.create({
 			logger: this.#logger,
+			manifest: this.#manifest,
 			mode: 'production',
-			compressHTML: this.#manifest.compressHTML,
 			renderers: this.#manifest.renderers,
-			clientDirectives: this.#manifest.clientDirectives,
 			resolve: async (specifier: string) => {
 				if (!(specifier in this.#manifest.entryModules)) {
 					throw new Error(`Unable to resolve [${specifier}]`);
@@ -148,9 +132,7 @@ export class App {
 					}
 				}
 			},
-			routeCache: new RouteCache(this.#logger),
-			site: this.#manifest.site,
-			ssr: true,
+			serverLike: true,
 			streaming,
 		});
 	}
@@ -192,9 +174,9 @@ export class App {
 
 		if (
 			this.#manifest.i18n &&
-			(this.#manifest.i18n.routing === 'domains-prefix-always' ||
-				this.#manifest.i18n.routing === 'domains-prefix-other-locales' ||
-				this.#manifest.i18n.routing === 'domains-prefix-always-no-redirect')
+			(this.#manifest.i18n.strategy === 'domains-prefix-always' ||
+				this.#manifest.i18n.strategy === 'domains-prefix-other-locales' ||
+				this.#manifest.i18n.strategy === 'domains-prefix-always-no-redirect')
 		) {
 			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
 			let host = request.headers.get('X-Forwarded-Host');
@@ -297,7 +279,11 @@ export class App {
 			}
 		}
 		if (locals) {
-			Reflect.set(request, localsSymbol, locals);
+			if (typeof locals !== 'object') {
+				this.#logger.error(null, new AstroError(AstroErrorData.LocalsNotAnObject).stack!);
+				return this.#renderError(request, { status: 500 });
+			}
+			Reflect.set(request, clientLocalsSymbol, locals);
 		}
 		if (clientAddress) {
 			Reflect.set(request, clientAddressSymbol, clientAddress);
@@ -310,52 +296,40 @@ export class App {
 			routeData = this.match(request);
 		}
 		if (!routeData) {
-			return this.#renderError(request, { status: 404 });
+			return this.#renderError(request, { locals, status: 404 });
 		}
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
 		const mod = await this.#getModuleForRoute(routeData);
 
-		const pageModule = (await mod.page()) as any;
-		const url = new URL(request.url);
-
-		const renderContext = await this.#createRenderContext(
-			url,
-			request,
-			routeData,
-			mod,
-			defaultStatus
-		);
 		let response;
 		try {
-			const i18nMiddleware = createI18nMiddleware(
-				this.#manifest.i18n,
-				this.#manifest.base,
-				this.#manifest.trailingSlash,
-				this.#manifest.buildFormat
-			);
-			if (i18nMiddleware) {
-				this.#pipeline.setMiddlewareFunction(sequence(i18nMiddleware, this.#manifest.middleware));
-				this.#pipeline.onBeforeRenderRoute(i18nPipelineHook);
-			} else {
-				this.#pipeline.setMiddlewareFunction(this.#manifest.middleware);
-			}
-			response = await this.#pipeline.renderRoute(renderContext, pageModule);
+			const renderContext = RenderContext.create({
+				pipeline: this.#pipeline,
+				locals,
+				pathname,
+				request,
+				routeData,
+				status: defaultStatus,
+			});
+			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
-			return this.#renderError(request, { status: 500 });
+			return this.#renderError(request, { locals, status: 500 });
 		}
 
 		if (
-			REROUTABLE_STATUS_CODES.has(response.status) &&
+			REROUTABLE_STATUS_CODES.includes(response.status) &&
 			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 		) {
 			return this.#renderError(request, {
+				locals,
 				response,
 				status: response.status as 404 | 500,
 			});
 		}
 
+		// We remove internally-used header before we send the response to the user agent.
 		if (response.headers.has(REROUTE_DIRECTIVE_HEADER)) {
 			response.headers.delete(REROUTE_DIRECTIVE_HEADER);
 		}
@@ -397,78 +371,12 @@ export class App {
 	static getSetCookieFromResponse = getSetCookiesFromResponse;
 
 	/**
-	 * Creates the render context of the current route
-	 */
-	async #createRenderContext(
-		url: URL,
-		request: Request,
-		routeData: RouteData,
-		page: SinglePageBuiltModule,
-		status = 200
-	): Promise<RenderContext> {
-		if (routeData.type === 'endpoint') {
-			const pathname = '/' + this.removeBase(url.pathname);
-			const mod = await page.page();
-			const handler = mod as unknown as EndpointHandler;
-
-			return await createRenderContext({
-				request,
-				pathname,
-				route: routeData,
-				status,
-				env: this.#pipeline.env,
-				mod: handler as any,
-				locales: this.#manifest.i18n?.locales,
-				routing: this.#manifest.i18n?.routing,
-				defaultLocale: this.#manifest.i18n?.defaultLocale,
-			});
-		} else {
-			const pathname = prependForwardSlash(this.removeBase(url.pathname));
-			const info = this.#routeDataToRouteInfo.get(routeData)!;
-			// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
-			const links = new Set<never>();
-			const styles = createStylesheetElementSet(info.styles);
-
-			let scripts = new Set<SSRElement>();
-			for (const script of info.scripts) {
-				if ('stage' in script) {
-					if (script.stage === 'head-inline') {
-						scripts.add({
-							props: {},
-							children: script.children,
-						});
-					}
-				} else {
-					scripts.add(createModuleScriptElement(script));
-				}
-			}
-			const mod = await page.page();
-
-			return await createRenderContext({
-				request,
-				pathname,
-				componentMetadata: this.#manifest.componentMetadata,
-				scripts,
-				styles,
-				links,
-				route: routeData,
-				status,
-				mod,
-				env: this.#pipeline.env,
-				locales: this.#manifest.i18n?.locales,
-				routing: this.#manifest.i18n?.routing,
-				defaultLocale: this.#manifest.i18n?.defaultLocale,
-			});
-		}
-	}
-
-	/**
 	 * If it is a known error code, try sending the according page (e.g. 404.astro / 500.astro).
 	 * This also handles pre-rendered /404 or /500 routes
 	 */
 	async #renderError(
 		request: Request,
-		{ status, response: originalResponse, skipMiddleware = false }: RenderErrorOptions
+		{ locals, status, response: originalResponse, skipMiddleware = false }: RenderErrorOptions
 	): Promise<Response> {
 		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
 		const errorRouteData = matchRoute(errorRoutePath, this.#manifestData);
@@ -490,27 +398,22 @@ export class App {
 			}
 			const mod = await this.#getModuleForRoute(errorRouteData);
 			try {
-				const newRenderContext = await this.#createRenderContext(
-					url,
+				const renderContext = RenderContext.create({
+					locals,
+					pipeline: this.#pipeline,
+					middleware: skipMiddleware ? (_, next) => next() : undefined,
+					pathname: this.#getPathnameFromRequest(request),
 					request,
-					errorRouteData,
-					mod,
-					status
-				);
-				const page = (await mod.page()) as any;
-				if (skipMiddleware === false) {
-					this.#pipeline.setMiddlewareFunction(this.#manifest.middleware);
-				}
-				if (skipMiddleware) {
-					// make sure middleware set by other requests is cleared out
-					this.#pipeline.unsetMiddlewareFunction();
-				}
-				const response = await this.#pipeline.renderRoute(newRenderContext, page);
+					routeData: errorRouteData,
+					status,
+				});
+				const response = await renderContext.render(await mod.page());
 				return this.#mergeResponses(response, originalResponse);
 			} catch {
 				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
 				if (skipMiddleware === false) {
 					return this.#renderError(request, {
+						locals,
 						status,
 						response: originalResponse,
 						skipMiddleware: true,
@@ -583,6 +486,13 @@ export class App {
 	}
 
 	async #getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
+		if (route.component === DEFAULT_404_COMPONENT) {
+			return {
+				page: async () =>
+					({ default: () => new Response(null, { status: 404 }) }) as ComponentInstance,
+				renderers: [],
+			};
+		}
 		if (route.type === 'redirect') {
 			return RedirectSinglePageBuiltModule;
 		} else {
