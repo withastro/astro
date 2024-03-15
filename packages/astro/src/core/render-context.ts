@@ -105,7 +105,7 @@ export class RenderContext {
 									routeData
 								);
 								} catch (e) {
-									// If the instantiation of the RenderTemplate fails midway,
+									// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
 									// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
 									result.cancelled = true;
 									throw e;
