@@ -87,12 +87,12 @@ export class RenderContext {
 			serverLike,
 		});
 		const apiContext = this.createAPIContext(props);
-		const { type } = routeData;
 
 		const lastNext = async () => {
-			if (routeData.type === 'endpoint') return renderEndpoint(componentInstance as any, apiContext, serverLike, logger);
-			if (routeData.type === 'redirect') return renderRedirect(this);
-			if (routeData.type === 'page') {
+			switch (routeData.type) {
+				case 'endpoint': return renderEndpoint(componentInstance as any, apiContext, serverLike, logger);
+				case 'redirect': return renderRedirect(this);
+				case 'page': {
 								const result = await this.createResult(componentInstance!);
 								let response: Response;
 								try {
@@ -117,12 +117,14 @@ export class RenderContext {
 									response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 								}
 								return response;
+					}
+					case 'fallback': {
+									return (
+										new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } })
+									)
+					}
 				}
-				if (routeData.type === 'fallback') return (
-									new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } })
-				)
-									throw new Error('Unknown type of route: ' + type);
-								};
+			}
 
 		const response = await callMiddleware(middleware, apiContext, lastNext);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
