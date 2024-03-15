@@ -1,9 +1,9 @@
 import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { DB_TYPES_FILE, RUNTIME_IMPORT } from '../consts.js';
-import type { DBTable, DBTables } from '../types.js';
 import type { AstroConfig } from 'astro';
+import { DB_TYPES_FILE, RUNTIME_IMPORT } from '../consts.js';
 import { resolveDbConfig } from '../load-file.js';
+import type { DBTable, DBTables } from '../types.js';
 
 // Exported for use in Astro core CLI
 export async function typegen(astroConfig: Pick<AstroConfig, 'root' | 'integrations'>) {

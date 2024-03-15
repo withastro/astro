@@ -3,7 +3,9 @@ import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
 import { type HMRPayload, createServer } from 'vite';
+import type { Arguments } from 'yargs-parser';
 import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
+import { getPackage } from '../../cli/install-package.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
@@ -20,8 +22,6 @@ import { AstroError, AstroErrorData, createSafeError, isAstroError } from '../er
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
-import { getPackage } from '../../cli/install-package.js';
-import type { Arguments } from 'yargs-parser';
 
 export type ProcessExit = 0 | 1;
 

@@ -1,11 +1,13 @@
 import { existsSync } from 'node:fs';
+import { LibsqlError } from '@libsql/client';
 import type { AstroConfig } from 'astro';
+import { green } from 'kleur/colors';
 import type { Arguments } from 'yargs-parser';
 import {
-	FILE_NOT_FOUND_ERROR,
-	MISSING_EXECUTE_PATH_ERROR,
 	EXEC_DEFAULT_EXPORT_ERROR,
 	EXEC_ERROR,
+	FILE_NOT_FOUND_ERROR,
+	MISSING_EXECUTE_PATH_ERROR,
 } from '../../../errors.js';
 import {
 	getLocalVirtualModContents,
@@ -14,8 +16,6 @@ import {
 import { bundleFile, importBundledFile } from '../../../load-file.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBConfig } from '../../../types.js';
-import { LibsqlError } from '@libsql/client';
-import { green } from 'kleur/colors';
 
 export async function cmd({
 	astroConfig,
