@@ -231,15 +231,15 @@ export function getDocsForError(err: ErrorWithMetadata): string | undefined {
 	}
 }
 
+const linkRegex = /\[([^[]+)\]\((.*)\)/g;
+const boldRegex = /\*\*(.+)\*\*/g;
+const urlRegex = / ((?:https?|ftp):\/\/[-\w+&@#\\/%?=~|!:,.;]*[-\w+&@#\\/%=~|])/gi;
+const codeRegex = /`([^`]+)`/g;
+
 /**
  * Render a subset of Markdown to HTML or a CLI output
  */
 export function renderErrorMarkdown(markdown: string, target: 'html' | 'cli') {
-	const linkRegex = /\[([^[]+)\]\((.*)\)/g;
-	const boldRegex = /\*\*(.+)\*\*/g;
-	const urlRegex = / ((?:https?|ftp):\/\/[-\w+&@#\\/%?=~|!:,.;]*[-\w+&@#\\/%=~|])/gi;
-	const codeRegex = /`([^`]+)`/g;
-
 	if (target === 'html') {
 		return escape(markdown)
 			.replace(linkRegex, `<a href="$2" target="_blank">$1</a>`)

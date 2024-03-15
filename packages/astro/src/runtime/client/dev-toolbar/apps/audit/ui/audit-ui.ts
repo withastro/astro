@@ -163,14 +163,14 @@ function buildAuditCard(
 	return card;
 }
 
+const linkRegex = /\[([^[]+)\]\((.*)\)/g;
+const boldRegex = /\*\*(.+)\*\*/g;
+const codeRegex = /`([^`]+)`/g;
+
 /**
  * Render a very small subset of Markdown to HTML or a CLI output
  */
 function simpleRenderMarkdown(markdown: string) {
-	const linkRegex = /\[([^[]+)\]\((.*)\)/g;
-	const boldRegex = /\*\*(.+)\*\*/g;
-	const codeRegex = /`([^`]+)`/g;
-
 	return escapeHTML(markdown)
 		.replace(linkRegex, `<a href="$2" target="_blank">$1</a>`)
 		.replace(boldRegex, '<b>$1</b>')
