@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.8.3
+
+### Patch Changes
+
+- c1fa115: Fixes `.prettierignore` and `.editorconfig` not working correctly. This update also improves the error logging around Prettier, the LSP will now warn when it failed to load the Prettier config.
+
 ## 2.8.2
 
 ### Patch Changes
