@@ -22,6 +22,7 @@ describe('Errors', () => {
 	let devPreview;
 
 	before(async () => {
+		// The two tests that need the server to run are skipped
 		// devPreview = await fixture.preview();
 	});
 	after(async () => {
