@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { getCollectionChangeQueries } from '../../dist/core/cli/migration-queries.js';
+import { getTableChangeQueries } from '../../dist/core/cli/migration-queries.js';
 import { tablesSchema } from '../../dist/core/schemas.js';
 import { column, defineTable } from '../../dist/runtime/config.js';
 
@@ -23,11 +23,6 @@ const BaseSentBox = defineTable({
 	},
 });
 
-const defaultAmbiguityResponses = {
-	collectionRenames: {},
-	columnRenames: {},
-};
-
 /**
  * @typedef {import('../../dist/core/types.js').DBTable} DBTable
  * @param {{ User: DBTable, SentBox: DBTable }} params
@@ -42,16 +37,11 @@ function resolveReferences(
 	return tablesSchema.parse({ User, SentBox });
 }
 
-function userChangeQueries(
-	oldCollection,
-	newCollection,
-	ambiguityResponses = defaultAmbiguityResponses
-) {
-	return getCollectionChangeQueries({
-		collectionName: 'User',
-		oldCollection,
-		newCollection,
-		ambiguityResponses,
+function userChangeQueries(oldTable, newTable) {
+	return getTableChangeQueries({
+		tableName: 'User',
+		oldTable,
+		newTable,
 	});
 }
 
