@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/db",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "description": "",
   "license": "MIT",
   "type": "module",

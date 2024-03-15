@@ -1,5 +1,13 @@
 # @astrojs/db
 
+## 0.8.6
+
+### Patch Changes
+
+- [#10439](https://github.com/withastro/astro/pull/10439) [`0989cd3284281e3e471a92ac116e14e65f59f8a5`](https://github.com/withastro/astro/commit/0989cd3284281e3e471a92ac116e14e65f59f8a5) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add success and error logs to `astro db execute` command
+
+- [#10438](https://github.com/withastro/astro/pull/10438) [`5b48cc0fc8383b0659a595afd3a6ee28b28779c3`](https://github.com/withastro/astro/commit/5b48cc0fc8383b0659a595afd3a6ee28b28779c3) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Generate Astro DB types when running `astro sync`.
+
 ## 0.8.5
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # astro
 
+## 4.5.5
+
+### Patch Changes
+
+- [#10379](https://github.com/withastro/astro/pull/10379) [`3776ecf0aa9e08a992d3ae76e90682fd04093721`](https://github.com/withastro/astro/commit/3776ecf0aa9e08a992d3ae76e90682fd04093721) Thanks [@1574242600](https://github.com/1574242600)! - Fixes a routing issue with partially truncated dynamic segments.
+
+- [#10442](https://github.com/withastro/astro/pull/10442) [`f8e0ad3c52a37b8a2175fe2f5ff2bd0cd738f499`](https://github.com/withastro/astro/commit/f8e0ad3c52a37b8a2175fe2f5ff2bd0cd738f499) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes small rendering issues with the dev toolbar in certain contexts
+
+- [#10438](https://github.com/withastro/astro/pull/10438) [`5b48cc0fc8383b0659a595afd3a6ee28b28779c3`](https://github.com/withastro/astro/commit/5b48cc0fc8383b0659a595afd3a6ee28b28779c3) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Generate Astro DB types when running `astro sync`.
+
+- [#10456](https://github.com/withastro/astro/pull/10456) [`1900a8f9bc337f3a882178d1770e10ab67fab0ce`](https://github.com/withastro/astro/commit/1900a8f9bc337f3a882178d1770e10ab67fab0ce) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an error when using `astro:transtions/client` without `<ViewTransitions/>`
+
 ## 4.5.4
 
 ### Patch Changes
