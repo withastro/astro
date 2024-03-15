@@ -25,8 +25,6 @@ const baseColumnSchema = z.object({
 
 	// Defined when `defineReadableTable()` is called
 	name: z.string().optional(),
-	/** @deprecated renamed to table */
-	collection: z.string().optional(),
 	table: z.string().optional(),
 });
 
@@ -196,7 +194,6 @@ export const tablesSchema = z.preprocess((rawTables) => {
 		const { columns } = z.object({ columns: z.record(z.any()) }).parse(table, { errorMap });
 		for (const [columnName, column] of Object.entries(columns)) {
 			column.schema.name = columnName;
-			column.schema.collection = tableName;
 			column.schema.table = tableName;
 		}
 	}

@@ -79,7 +79,7 @@ export function getCreateForeignKeyQueries(tableName: string, table: DBTable) {
 		if (!firstReference) {
 			throw new Error(FOREIGN_KEY_REFERENCES_EMPTY_ERROR(tableName));
 		}
-		const referencedTable = firstReference.schema.table ?? firstReference.schema.collection;
+		const referencedTable = firstReference.schema.table;
 		if (!referencedTable) {
 			throw new Error(FOREIGN_KEY_DNE_ERROR(tableName));
 		}
@@ -125,8 +125,7 @@ export function getModifiers(columnName: string, column: DBColumn) {
 	}
 	const references = getReferencesConfig(column);
 	if (references) {
-		const { table, collection, name } = references.schema;
-		const tableName = table ?? collection;
+		const { table: tableName, name } = references.schema;
 		if (!tableName || !name) {
 			throw new Error(REFERENCE_DNE_ERROR(columnName));
 		}
