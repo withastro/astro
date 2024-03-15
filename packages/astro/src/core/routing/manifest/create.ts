@@ -895,14 +895,8 @@ function computeRoutePriority(config: AstroConfig): RoutePriorityOverride {
 }
 
 function joinSegments(segments: RoutePart[][]): string {
-	const arr = segments.map(function d(segment): string {
-		const [{ dynamic, content }] = segment;
-
-		return segment.length > 1
-			? segment.map((s) => d([s])).join('')
-			: dynamic
-				? `[${content}]`
-				: content;
+	const arr = segments.map((segment) => {
+		return segment.map((rp) => (rp.dynamic ? `[${rp.content}]` : rp.content)).join('');
 	});
 
 	return `/${arr.join('/')}`.toLowerCase();
