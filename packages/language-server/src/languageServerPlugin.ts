@@ -124,7 +124,7 @@ export function createServerOptions(
 							message: `Failed to load Prettier config.\n\nError:\n${e}`,
 							type: MessageType.Warning,
 						});
-						console.error('Failed to load Prettier config.', e)
+						console.error('Failed to load Prettier config.', e);
 					}
 
 					const editorOptions = await context.env.getConfiguration<object>?.(

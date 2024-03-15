@@ -25,7 +25,10 @@ describe('Formatting - Prettier', () => {
 	});
 
 	it('Can ignore documents correctly', async () => {
-		const document = await languageServer.handle.openTextDocument(path.resolve(__dirname, '..', 'fixture', 'dontFormat.astro'), 'astro');
+		const document = await languageServer.handle.openTextDocument(
+			path.resolve(__dirname, '..', 'fixture', 'dontFormat.astro'),
+			'astro'
+		);
 		const formatEdits = await languageServer.handle.sendDocumentFormattingRequest(document.uri, {
 			tabSize: 2,
 			insertSpaces: true,
@@ -35,7 +38,10 @@ describe('Formatting - Prettier', () => {
 	});
 
 	it('Respect .editorconfig', async () => {
-		const document = await languageServer.handle.openTextDocument(path.resolve(__dirname, '..', 'fixture', 'editorConfig.astro'), 'astro');
+		const document = await languageServer.handle.openTextDocument(
+			path.resolve(__dirname, '..', 'fixture', 'editorConfig.astro'),
+			'astro'
+		);
 		const formatEdits = await languageServer.handle.sendDocumentFormattingRequest(document.uri, {
 			tabSize: 2,
 			insertSpaces: true,
@@ -44,8 +50,8 @@ describe('Formatting - Prettier', () => {
 		expect(formatEdits).to.deep.equal([
 			{
 				range: Range.create(0, 0, 3, 0),
-				newText: '<div>\r\n\t<div></div>\r\n</div>\r\n'
-			}
+				newText: '<div>\r\n\t<div></div>\r\n</div>\r\n',
+			},
 		]);
 	});
 });
