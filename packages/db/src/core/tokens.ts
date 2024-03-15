@@ -119,11 +119,17 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 				throw new Error(`Unexpected response: ${response.status} ${response.statusText}`);
 			}	
 		} else {
-			const { token, ttl } = await ManagedRemoteAppToken.createToken(this.session, this.projectId);
-			this.token = token;
-			this.ttl = ttl;
-			this.expires = getExpiresFromTtl(ttl);
-			this.renewTimer = this.createRenewTimer();
+			try {
+				const { token, ttl } = await ManagedRemoteAppToken.createToken(this.session, this.projectId);
+				this.token = token;
+				this.ttl = ttl;
+				this.expires = getExpiresFromTtl(ttl);
+				this.renewTimer = this.createRenewTimer();
+			} catch {
+				// If we get here we couldn't create a new token. Since the existing token
+				// is expired we really can't do anything and should exit.
+				throw new Error(`Token has expired and attempts to renew it have failed, please try again.`);
+			}
 		}
 	}
 
