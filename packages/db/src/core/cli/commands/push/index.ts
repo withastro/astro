@@ -1,9 +1,10 @@
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
+import { safeFetch } from '../../../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../../../consts.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBConfig, type DBSnapshot } from '../../../types.js';
-import { type Result, getRemoteDatabaseUrl, safeFetch } from '../../../utils.js';
+import { type Result, getRemoteDatabaseUrl } from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,

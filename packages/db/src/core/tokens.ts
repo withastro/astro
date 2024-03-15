@@ -2,8 +2,11 @@ import { readFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { green } from 'kleur/colors';
+import ora from 'ora';
+import { safeFetch } from '../runtime/utils.js';
 import { MISSING_PROJECT_ID_ERROR, MISSING_SESSION_ID_ERROR } from './errors.js';
-import { getAstroStudioEnv, getAstroStudioUrl, getRemoteDatabaseUrl, safeFetch } from './utils.js';
+import { getAstroStudioEnv, getAstroStudioUrl } from './utils.js';
 
 export const SESSION_LOGIN_FILE = pathToFileURL(join(homedir(), '.astro', 'session-token'));
 export const PROJECT_ID_FILE = pathToFileURL(join(process.cwd(), '.astro', 'link'));
@@ -26,19 +29,12 @@ class ManagedLocalAppToken implements ManagedAppToken {
 class ManagedRemoteAppToken implements ManagedAppToken {
 	token: string;
 	session: string;
-	region: string | undefined;
 	projectId: string;
 	ttl: number;
 	renewTimer: NodeJS.Timeout | undefined;
 
-	static async getRegionCode(): Promise<string | undefined> {
-		const pingResponse = await safeFetch(new URL(`${getRemoteDatabaseUrl()}/ping`));
-		const pingResult = (await pingResponse.json()) as { success: true; data: { region: string } };
-		return pingResult.data.region;
-	}
-
 	static async create(sessionToken: string, projectId: string) {
-		const region = await ManagedRemoteAppToken.getRegionCode();
+		const spinner = ora('Connecting to remote database...').start();
 		const response = await safeFetch(
 			new URL(`${getAstroStudioUrl()}/auth/cli/token-create`),
 			{
@@ -46,33 +42,30 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 				headers: new Headers({
 					Authorization: `Bearer ${sessionToken}`,
 				}),
-				body: JSON.stringify({ projectId, region }),
+				body: JSON.stringify({ projectId }),
 			},
 			(res) => {
 				throw new Error(`Failed to create token: ${res.status} ${res.statusText}`);
 			}
 		);
+		// Wait for 2 seconds! This is the maximum time we would reasonably expect a token
+		// to be created and propagate to all the necessary DB services. Without this, you
+		// risk a token being created, used immediately, and failing to authenticate.
+		await new Promise((resolve) => setTimeout(resolve, 2000));
+		spinner.succeed(green('Connected to remote database.'));
 
 		const { token: shortLivedAppToken, ttl } = await response.json();
 		return new ManagedRemoteAppToken({
 			token: shortLivedAppToken,
 			session: sessionToken,
-			region,
 			projectId,
 			ttl,
 		});
 	}
 
-	constructor(options: {
-		token: string;
-		session: string;
-		region: string | undefined;
-		projectId: string;
-		ttl: number;
-	}) {
+	constructor(options: { token: string; session: string; projectId: string; ttl: number }) {
 		this.token = options.token;
 		this.session = options.session;
-		this.region = options.region;
 		this.projectId = options.projectId;
 		this.ttl = options.ttl;
 		this.renewTimer = setTimeout(() => this.renew(), (1000 * 60 * 5) / 2);
@@ -87,7 +80,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 					Authorization: `Bearer ${this.session}`,
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ ...body, region: this.region }),
+				body: JSON.stringify(body),
 			},
 			() => {
 				throw new Error(`Failed to fetch ${url}.`);

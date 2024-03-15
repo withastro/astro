@@ -1,5 +1,27 @@
 # @astrojs/db
 
+## 0.8.5
+
+### Patch Changes
+
+- [#10445](https://github.com/withastro/astro/pull/10445) [`098623c2616124bcc689e2409564dfda187f6688`](https://github.com/withastro/astro/commit/098623c2616124bcc689e2409564dfda187f6688) Thanks [@matthewp](https://github.com/matthewp)! - Prefer getting the app token from the runtime env
+
+- [#10441](https://github.com/withastro/astro/pull/10441) [`5166e9715a1ea18eb5c737ccf834c2ff446d253c`](https://github.com/withastro/astro/commit/5166e9715a1ea18eb5c737ccf834c2ff446d253c) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Remove duplicate astro:db log during type generation
+
+## 0.8.4
+
+### Patch Changes
+
+- [#10443](https://github.com/withastro/astro/pull/10443) [`238f047b9d1ebc407f53d61ee61574b380a76ac9`](https://github.com/withastro/astro/commit/238f047b9d1ebc407f53d61ee61574b380a76ac9) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where `astro:db` could not be used in serverless environments.
+
+## 0.8.3
+
+### Patch Changes
+
+- [#10431](https://github.com/withastro/astro/pull/10431) [`1076864cc4aa4b4dad570bbab9907996642cdd1f`](https://github.com/withastro/astro/commit/1076864cc4aa4b4dad570bbab9907996642cdd1f) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add wait time for the db token to propagate
+
+- [#10432](https://github.com/withastro/astro/pull/10432) [`4e24628aacc556515b27d0c04361df1526ae778f`](https://github.com/withastro/astro/commit/4e24628aacc556515b27d0c04361df1526ae778f) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add all regions to the link command
+
 ## 0.8.2
 
 ### Patch Changes
