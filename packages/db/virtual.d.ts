@@ -24,10 +24,22 @@ declare module 'astro:db' {
 	export const between: RuntimeConfig['between'];
 	export const notBetween: RuntimeConfig['notBetween'];
 	export const like: RuntimeConfig['like'];
+	export const ilike: RuntimeConfig['ilike'];
 	export const notIlike: RuntimeConfig['notIlike'];
 	export const not: RuntimeConfig['not'];
 	export const asc: RuntimeConfig['asc'];
 	export const desc: RuntimeConfig['desc'];
 	export const and: RuntimeConfig['and'];
 	export const or: RuntimeConfig['or'];
+	export const arrayContains: RuntimeConfig['arrayContains'];
+	export const arrayContained: RuntimeConfig['arrayContained'];
+	export const arrayOverlaps: RuntimeConfig['arrayOverlaps'];
+	export const count: RuntimeConfig['count'];
+	export const countDistinct: RuntimeConfig['countDistinct'];
+	export const avg: RuntimeConfig['avg'];
+	export const avgDistinct: RuntimeConfig['avgDistinct'];
+	export const sum: RuntimeConfig['sum'];
+	export const sumDistinct: RuntimeConfig['sumDistinct'];
+	export const max: RuntimeConfig['max'];
+	export const min: RuntimeConfig['min'];
 }
