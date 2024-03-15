@@ -8,6 +8,9 @@ import type {
 	TableConfig,
 	TextColumnOpts,
 } from '../core/types.js';
+import { sql as _sql } from 'drizzle-orm';
+
+export type { LibSQLDatabase } from 'drizzle-orm/libsql';
 
 function createColumn<S extends string, T extends Record<string, unknown>>(type: S, schema: T) {
 	return {
@@ -45,7 +48,10 @@ export function defineDb(userConfig: DBConfigInput) {
 	return userConfig;
 }
 
-export { NOW, TRUE, FALSE } from './index.js';
+// Exports a few common expressions
+export const NOW = _sql`CURRENT_TIMESTAMP`;
+export const TRUE = _sql`TRUE`;
+export const FALSE = _sql`FALSE`;
 
 export {
 	sql,

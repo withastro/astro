@@ -1,5 +1,4 @@
 import { type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
-import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import {
 	type IndexBuilder,
 	type SQLiteColumnBuilderBase,
@@ -12,8 +11,6 @@ import {
 import { type DBColumn, type DBTable } from '../core/types.js';
 import { type SerializedSQL, isSerializedSQL } from './types.js';
 
-export { sql };
-export type SqliteDB = LibSQLDatabase;
 export type { Table } from './types.js';
 export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-client.js';
 export { seedLocal } from './seed-local.js';
@@ -21,11 +18,6 @@ export { seedLocal } from './seed-local.js';
 export function hasPrimaryKey(column: DBColumn) {
 	return 'primaryKey' in column.schema && !!column.schema.primaryKey;
 }
-
-// Exports a few common expressions
-export const NOW = sql`CURRENT_TIMESTAMP`;
-export const TRUE = sql`TRUE`;
-export const FALSE = sql`FALSE`;
 
 const dateType = customType<{ data: Date; driverData: string }>({
 	dataType() {
