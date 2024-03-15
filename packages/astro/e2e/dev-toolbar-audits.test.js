@@ -44,7 +44,7 @@ test.describe('Dev Toolbar - Audits', () => {
 		await appButton.click();
 	});
 
-	test('can handle mutations', async ({ page, astro }) => {
+	test('can handle mutations zzz', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/audits-mutations'));
 
 		const toolbar = page.locator('astro-dev-toolbar');
@@ -53,7 +53,10 @@ test.describe('Dev Toolbar - Audits', () => {
 
 		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
 		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
+		const auditWindow = auditCanvas.locator('astro-dev-toolbar-audit-window');
+		const auditCards = auditWindow.locator('astro-dev-toolbar-audit-list-item');
 		await expect(auditHighlights).toHaveCount(1);
+		await expect(auditCards).toHaveCount(1);
 
 		await page.click('body');
 
@@ -65,6 +68,7 @@ test.describe('Dev Toolbar - Audits', () => {
 
 		await appButton.click();
 		await expect(auditHighlights).toHaveCount(2);
+		await expect(auditCards).toHaveCount(2);
 	});
 
 	test('multiple changes only result in one audit update', async ({ page, astro }) => {
