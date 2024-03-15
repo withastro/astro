@@ -188,7 +188,7 @@ graph TD;
     intended --YES--> explain[Explain and close\npoint to docs if needed]
     intended --NO--> open[Add label 'needs discussion'\nRemove 'needs triage' label]
     real --YES--> real2["1. Remove 'needs triage' label\n2. Add related feature label if\napplicable (e.g. 'feat: ssr')\n3. Add priority and meta labels (see below)"]
-    real2 --> tolabel[Use the framework below to decide gravity of the issue,\nand choose the correct label]
+    real2 --> tolabel[Use the framework below to decide the priority of the issue,\nand choose the correct label]
 
 ```
 
