@@ -2,7 +2,7 @@ import { existsSync } from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import type { AstroIntegration } from 'astro';
-import { mkdir, rm, writeFile } from 'fs/promises';
+import { mkdir, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
 import parseArgs from 'yargs-parser';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
@@ -10,7 +10,7 @@ import { resolveDbConfig } from '../load-file.js';
 import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
 import { type VitePlugin, getDbDirectoryUrl } from '../utils.js';
 import { fileURLIntegration } from './file-url.js';
-import { typegen } from './typegen.js';
+import { typegenInternal } from './typegen.js';
 import { type LateSeedFiles, type LateTables, vitePluginDb } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
 
@@ -88,7 +88,7 @@ function astroDBIntegration(): AstroIntegration {
 					await writeFile(localDbUrl, '');
 				}
 
-				await typegen({ tables: tables.get() ?? {}, root: config.root });
+				await typegenInternal({ tables: tables.get() ?? {}, root: config.root });
 			},
 			'astro:server:start': async ({ logger }) => {
 				// Wait for the server startup to log, so that this can come afterwards.

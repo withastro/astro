@@ -144,8 +144,8 @@ class AstroBuilder {
 		);
 		await runHookConfigDone({ settings: this.settings, logger: logger });
 
-		const { syncInternal } = await import('../sync/index.js');
-		const syncRet = await syncInternal(this.settings, { logger: logger, fs });
+		const { syncContentCollections } = await import('../sync/index.js');
+		const syncRet = await syncContentCollections(this.settings, { logger: logger, fs });
 		if (syncRet !== 0) {
 			return process.exit(syncRet);
 		}
