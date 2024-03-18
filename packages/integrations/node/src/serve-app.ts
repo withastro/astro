@@ -14,7 +14,7 @@ export function createAppHandler(app: NodeApp): RequestHandler {
 	 */
 	const als = new AsyncLocalStorage<string>();
 	const logger = app.getAdapterLogger();
-	process.on('unhandledRejection', reason => {
+	process.on('unhandledRejection', (reason) => {
 		const requestUrl = als.getStore();
 		logger.error(`Unhandled rejection while rendering ${requestUrl}`);
 		console.error(reason);
@@ -32,11 +32,13 @@ export function createAppHandler(app: NodeApp): RequestHandler {
 
 		const routeData = app.match(request);
 		if (routeData) {
-			const response = await als.run(request.url, () => app.render(request, {
-				addCookieHeader: true,
-				locals,
-				routeData,
-			}));
+			const response = await als.run(request.url, () =>
+				app.render(request, {
+					addCookieHeader: true,
+					locals,
+					routeData,
+				})
+			);
 			await NodeApp.writeResponse(response, res);
 		} else if (next) {
 			return next();

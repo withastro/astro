@@ -1,11 +1,11 @@
-import { spawn } from 'node:child_process';
-import { Worker } from 'node:worker_threads';
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
 import { after, before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
+import { Worker } from 'node:worker_threads';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
-import { fileURLToPath } from 'node:url';
 
 describe('Errors', () => {
 	/** @type {import('./test-utils.js').Fixture} */
@@ -33,17 +33,17 @@ describe('Errors', () => {
 		// this test needs to happen in a worker because node test runner adds a listener for unhandled rejections in the main thread
 		const worker = new Worker('./test/fixtures/errors/dist/server/entry.mjs', {
 			type: 'module',
-			env: { ASTRO_NODE_LOGGING: 'enabled' }
+			env: { ASTRO_NODE_LOGGING: 'enabled' },
 		});
-		
+
 		await new Promise((resolve, reject) => {
-			worker.stdout.on('data', data => {
-				setTimeout(() => reject("Server took too long to start"), 1000);
+			worker.stdout.on('data', (data) => {
+				setTimeout(() => reject('Server took too long to start'), 1000);
 				if (data.toString().includes('Server listening on http://localhost:4321')) resolve();
 			});
 		});
-		
-		await fetch("http://localhost:4321/offshoot-promise-rejection");
+
+		await fetch('http://localhost:4321/offshoot-promise-rejection');
 
 		// if there was a crash, it becomes an error here
 		await worker.terminate();
