@@ -1,20 +1,18 @@
-import { createMarkdownProcessor } from '../dist/index.js';
-import chai from 'chai';
-
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { createMarkdownProcessor } from '../dist/index.js';
 
 describe('plugins', () => {
-	// https://github.com/withastro/astro/issues/3264
 	it('should be able to get file path when passing fileURL', async () => {
 		let context;
 
 		const processor = await createMarkdownProcessor({
 			remarkPlugins: [
-				function () {
+				() => {
 					const transformer = (tree, file) => {
 						context = file;
 					};
-
 					return transformer;
 				},
 			],
@@ -24,7 +22,7 @@ describe('plugins', () => {
 			fileURL: new URL('virtual.md', import.meta.url),
 		});
 
-		chai.expect(typeof context).to.equal('object');
-		chai.expect(context.path).to.equal(fileURLToPath(new URL('virtual.md', import.meta.url)));
+		assert.ok(typeof context === 'object');
+		assert.equal(context.path, fileURLToPath(new URL('virtual.md', import.meta.url)));
 	});
 });

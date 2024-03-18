@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -16,15 +17,15 @@ describe('Component children', () => {
 
 		// test 1: Can pass text to Preact components
 		const $preact = $('#preact');
-		expect($preact.text().trim()).to.equal('Hello world');
+		assert.equal($preact.text().trim(), 'Hello world');
 
 		// test 2: Can pass text to Vue components
 		const $vue = $('#vue');
-		expect($vue.text().trim()).to.equal('Hello world');
+		assert.equal($vue.text().trim(), 'Hello world');
 
 		// test 3: Can pass text to Svelte components
 		const $svelte = $('#svelte');
-		expect($svelte.text().trim()).to.equal('Hello world');
+		assert.equal($svelte.text().trim(), 'Hello world');
 	});
 
 	it('Passes markup children to framework components', async () => {
@@ -33,15 +34,15 @@ describe('Component children', () => {
 
 		// test 1: Can pass markup to Preact components
 		const $preact = $('#preact h1');
-		expect($preact.text().trim()).to.equal('Hello world');
+		assert.equal($preact.text().trim(), 'Hello world');
 
 		// test 2: Can pass markup to Vue components
 		const $vue = $('#vue h1');
-		expect($vue.text().trim()).to.equal('Hello world');
+		assert.equal($vue.text().trim(), 'Hello world');
 
 		// test 3: Can pass markup to Svelte components
 		const $svelte = $('#svelte h1');
-		expect($svelte.text().trim()).to.equal('Hello world');
+		assert.equal($svelte.text().trim(), 'Hello world');
 	});
 
 	it('Passes multiple children to framework components', async () => {
@@ -50,21 +51,21 @@ describe('Component children', () => {
 
 		// test 1: Can pass multiple children to Preact components
 		const $preact = $('#preact');
-		expect($preact.children()).to.have.lengthOf(2);
-		expect($preact.children(':first-child').text().trim()).to.equal('Hello world');
-		expect($preact.children(':last-child').text().trim()).to.equal('Goodbye world');
+		assert.equal($preact.children().length, 2);
+		assert.equal($preact.children(':first-child').text().trim(), 'Hello world');
+		assert.equal($preact.children(':last-child').text().trim(), 'Goodbye world');
 
 		// test 2: Can pass multiple children to Vue components
 		const $vue = $('#vue');
-		expect($vue.children()).to.have.lengthOf(2);
-		expect($vue.children(':first-child').text().trim()).to.equal('Hello world');
-		expect($vue.children(':last-child').text().trim()).to.equal('Goodbye world');
+		assert.equal($vue.children().length, 2);
+		assert.equal($vue.children(':first-child').text().trim(), 'Hello world');
+		assert.equal($vue.children(':last-child').text().trim(), 'Goodbye world');
 
 		// test 3: Can pass multiple children to Svelte components
 		const $svelte = $('#svelte');
-		expect($svelte.children()).to.have.lengthOf(2);
-		expect($svelte.children(':first-child').text().trim()).to.equal('Hello world');
-		expect($svelte.children(':last-child').text().trim()).to.equal('Goodbye world');
+		assert.equal($svelte.children().length, 2);
+		assert.equal($svelte.children(':first-child').text().trim(), 'Hello world');
+		assert.equal($svelte.children(':last-child').text().trim(), 'Goodbye world');
 	});
 
 	it('Renders a template when children are not rendered for client components', async () => {
@@ -72,24 +73,26 @@ describe('Component children', () => {
 		const $ = cheerio.load(html);
 
 		// test 1: If SSR only, no children are rendered.
-		expect($('#ssr-only').children()).to.have.lengthOf(0);
+		assert.equal($('#ssr-only').children().length, 0);
 
 		// test 2: If client, and no children are rendered, a template is.
-		expect($('#client').parent().children()).to.have.lengthOf(
+		assert.equal(
+			$('#client').parent().children().length,
 			2,
 			'rendered the client component and a template'
 		);
-		expect($('#client').parent().find('template[data-astro-template]')).to.have.lengthOf(
+		assert.equal(
+			$('#client').parent().find('template[data-astro-template]').length,
 			1,
 			'Found 1 template'
 		);
 
 		// test 3: If client, and children are rendered, no template is.
-		expect($('#client-render').parent().children()).to.have.lengthOf(1);
-		expect($('#client-render').parent().find('template')).to.have.lengthOf(0);
+		assert.equal($('#client-render').parent().children().length, 1);
+		assert.equal($('#client-render').parent().find('template').length, 0);
 
 		// test 4: If client and no children are provided, no template is.
-		expect($('#client-no-children').parent().children()).to.have.lengthOf(1);
-		expect($('#client-no-children').parent().find('template')).to.have.lengthOf(0);
+		assert.equal($('#client-no-children').parent().children().length, 1);
+		assert.equal($('#client-no-children').parent().find('template').length, 0);
 	});
 });

@@ -1,6 +1,7 @@
-import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('AstroConfig - config.output', () => {
 	describe(`output: 'server'`, () => {
@@ -22,10 +23,10 @@ describe('AstroConfig - config.output', () => {
 				const app = await fixture.loadTestAdapterApp();
 				const request = new Request('http://example.com/');
 				const response = await app.render(request);
-				expect(response.status).to.equal(200);
-				expect(response.headers.get('content-type')).to.equal('text/html');
+				assert.equal(response.status, 200);
+				assert.equal(response.headers.get('content-type'), 'text/html');
 				const html = await response.text();
-				expect(html.length).to.be.greaterThan(0);
+				assert.equal(html.length > 0, true);
 			});
 		});
 
@@ -47,11 +48,11 @@ describe('AstroConfig - config.output', () => {
 					await fixture.build();
 					built = true;
 				} catch (err) {
-					expect(err).to.be.an.instanceOf(Error);
-					expect(err.message).to.match(/without an adapter/);
+					assert.equal(err instanceof Error, true);
+					assert.match(err.message, /without an adapter/);
 				}
 
-				expect(built).to.equal(false, 'Should not have built');
+				assert.equal(built, false, 'Should not have built');
 			});
 		});
 	});
@@ -75,9 +76,9 @@ describe('AstroConfig - config.output', () => {
 				try {
 					html = await fixture.readFile('/index.html');
 				} catch (err) {
-					expect(false).to.equal(true, 'Couldnt find the file, which mean it did not build.');
+					assert.equal(false, true, 'Couldnt find the file, which mean it did not build.');
 				}
-				expect(html.length).to.be.greaterThan(0);
+				assert.equal(html.length > 0, true);
 			});
 		});
 

@@ -1,7 +1,8 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Astro.cookies', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -33,22 +34,22 @@ describe('Astro.cookies', () => {
 					cookie: `prefs=${encodeURIComponent(JSON.stringify({ mode: 'light' }))}`,
 				},
 			});
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 			const html = await response.text();
 
 			const $ = cheerio.load(html);
-			expect($('dd').text()).to.equal('light');
+			assert.equal($('dd').text(), 'light');
 		});
 
 		it('can set the cookie value', async () => {
 			const response = await fixture.fetch('/set-value', {
 				method: 'POST',
 			});
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 			// Bug in 18.14.1 where `set-cookie` will not be defined
 			// Should be fixed in 18.14.2
 			if (process.versions.node !== '18.14.1') {
-				expect(response.headers.has('set-cookie')).to.equal(true);
+				assert.equal(response.headers.has('set-cookie'), true);
 			}
 		});
 	});
@@ -72,21 +73,21 @@ describe('Astro.cookies', () => {
 					cookie: `prefs=${encodeURIComponent(JSON.stringify({ mode: 'light' }))}`,
 				},
 			});
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 			const html = await response.text();
 
 			const $ = cheerio.load(html);
-			expect($('dd').text()).to.equal('light');
+			assert.equal($('dd').text(), 'light');
 		});
 
 		it('can set the cookie value', async () => {
 			const response = await fetchResponse('/set-value', {
 				method: 'POST',
 			});
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 			let headers = Array.from(app.setCookieHeaders(response));
-			expect(headers).to.have.a.lengthOf(1);
-			expect(headers[0]).to.match(/Expires/);
+			assert.equal(headers.length, 1);
+			assert.match(headers[0], /Expires/);
 		});
 
 		it('app.render can include the cookie in the Set-Cookie header', async () => {
@@ -94,10 +95,10 @@ describe('Astro.cookies', () => {
 				method: 'POST',
 			});
 			const response = await app.render(request, { addCookieHeader: true });
-			expect(response.status).to.equal(200);
-			expect(response.headers.get('Set-Cookie'))
-				.to.be.a('string')
-				.and.satisfy((value) => value.startsWith('admin=true; Expires='));
+			assert.equal(response.status, 200);
+			const value = response.headers.get('Set-Cookie');
+			assert.equal(typeof value, 'string');
+			assert.equal(value.startsWith('admin=true; Expires='), true);
 		});
 
 		it('app.render can exclude the cookie from the Set-Cookie header', async () => {
@@ -105,8 +106,8 @@ describe('Astro.cookies', () => {
 				method: 'POST',
 			});
 			const response = await app.render(request, { addCookieHeader: false });
-			expect(response.status).to.equal(200);
-			expect(response.headers.get('Set-Cookie')).to.equal(null);
+			assert.equal(response.status, 200);
+			assert.equal(response.headers.get('Set-Cookie'), null);
 		});
 
 		it('Early returning a Response still includes set headers', async () => {
@@ -115,13 +116,13 @@ describe('Astro.cookies', () => {
 					cookie: `prefs=${encodeURIComponent(JSON.stringify({ mode: 'light' }))}`,
 				},
 			});
-			expect(response.status).to.equal(302);
+			assert.equal(response.status, 302);
 			let headers = Array.from(app.setCookieHeaders(response));
-			expect(headers).to.have.a.lengthOf(1);
+			assert.equal(headers.length, 1);
 			let raw = headers[0].slice(6);
 			let data = JSON.parse(decodeURIComponent(raw));
-			expect(data).to.be.an('object');
-			expect(data.mode).to.equal('dark');
+			assert.equal(typeof data, 'object');
+			assert.equal(data.mode, 'dark');
 		});
 
 		it('API route can get and set cookies', async () => {
@@ -131,13 +132,13 @@ describe('Astro.cookies', () => {
 					cookie: `prefs=${encodeURIComponent(JSON.stringify({ mode: 'light' }))}`,
 				},
 			});
-			expect(response.status).to.equal(302);
+			assert.equal(response.status, 302);
 			let headers = Array.from(app.setCookieHeaders(response));
-			expect(headers).to.have.a.lengthOf(1);
+			assert.equal(headers.length, 1);
 			let raw = headers[0].slice(6);
 			let data = JSON.parse(decodeURIComponent(raw));
-			expect(data).to.be.an('object');
-			expect(data.mode).to.equal('dark');
+			assert.equal(typeof data, 'object');
+			assert.equal(data.mode, 'dark');
 		});
 	});
 });

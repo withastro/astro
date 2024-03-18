@@ -1,5 +1,6 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
 import * as path from 'node:path';
+import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { loadTSConfig, updateTSConfigForFramework } from '../../../dist/core/config/index.js';
 
@@ -10,31 +11,31 @@ describe('TSConfig handling', () => {
 		it('can load tsconfig.json', async () => {
 			const config = await loadTSConfig(cwd);
 
-			expect(config).to.not.be.undefined;
+			assert.equal(config !== undefined, true);
 		});
 
 		it('can resolve tsconfig.json up directories', async () => {
 			const config = await loadTSConfig(cwd);
 
-			expect(config).to.not.be.undefined;
-			expect(config.tsconfigFile).to.equal(path.join(cwd, 'tsconfig.json'));
-			expect(config.tsconfig.files).to.deep.equal(['im-a-test']);
+			assert.equal(config !== undefined, true);
+			assert.equal(config.tsconfigFile, path.join(cwd, 'tsconfig.json'));
+			assert.deepEqual(config.tsconfig.files, ['im-a-test']);
 		});
 
 		it('can fallback to jsconfig.json if tsconfig.json does not exists', async () => {
 			const config = await loadTSConfig(path.join(cwd, 'jsconfig'));
 
-			expect(config).to.not.be.undefined;
-			expect(config.tsconfigFile).to.equal(path.join(cwd, 'jsconfig', 'jsconfig.json'));
-			expect(config.tsconfig.files).to.deep.equal(['im-a-test-js']);
+			assert.equal(config !== undefined, true);
+			assert.equal(config.tsconfigFile, path.join(cwd, 'jsconfig', 'jsconfig.json'));
+			assert.deepEqual(config.tsconfig.files, ['im-a-test-js']);
 		});
 
 		it('properly return errors when not resolving', async () => {
 			const invalidConfig = await loadTSConfig(path.join(cwd, 'invalid'));
 			const missingConfig = await loadTSConfig(path.join(cwd, 'missing'));
 
-			expect(invalidConfig).to.equal('invalid-config');
-			expect(missingConfig).to.equal('missing-config');
+			assert.equal(invalidConfig, 'invalid-config');
+			assert.equal(missingConfig, 'missing-config');
 		});
 	});
 
@@ -43,15 +44,15 @@ describe('TSConfig handling', () => {
 			const config = await loadTSConfig(cwd);
 			const updatedConfig = updateTSConfigForFramework(config.tsconfig, 'react');
 
-			expect(config.tsconfig).to.not.equal('react-jsx');
-			expect(updatedConfig.compilerOptions.jsx).to.equal('react-jsx');
+			assert.notEqual(config.tsconfig, 'react-jsx');
+			assert.equal(updatedConfig.compilerOptions.jsx, 'react-jsx');
 		});
 
 		it('produce no changes on invalid frameworks', async () => {
 			const config = await loadTSConfig(cwd);
 			const updatedConfig = updateTSConfigForFramework(config.tsconfig, 'doesnt-exist');
 
-			expect(config.tsconfig).to.deep.equal(updatedConfig);
+			assert.deepEqual(config.tsconfig, updatedConfig);
 		});
 	});
 });

@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/react",
   "description": "Use React components within Astro",
-  "version": "3.0.9",
+  "version": "3.1.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -57,7 +57,7 @@
     "cheerio": "1.0.0-rc.12",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
-    "vite": "^5.0.12"
+    "vite": "^5.1.4"
   },
   "peerDependencies": {
     "@types/react": "^17.0.50 || ^18.0.21",

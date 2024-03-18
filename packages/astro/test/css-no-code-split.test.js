@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -19,6 +20,6 @@ describe('vite.build.cssCodeSplit: false', () => {
 		let html = await fixture.readFile('/index.html');
 		let $ = cheerio.load(html);
 		const cssHref = $('link[rel=stylesheet][href^=/_astro/]').attr('href');
-		expect(cssHref).to.match(/\/_astro\/style\..*?\.css/);
+		assert.match(cssHref, /\/_astro\/style\..*?\.css/);
 	});
 });

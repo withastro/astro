@@ -1,8 +1,9 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import { preact } from './fixtures/before-hydration/deps.mjs';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('build assets (static)', () => {
 	describe('with default configuration', () => {
@@ -21,13 +22,13 @@ describe('build assets (static)', () => {
 
 		it('Populates /_astro directory', async () => {
 			let files = await fixture.readdir('/_astro');
-			expect(files.length).to.be.greaterThan(0);
+			assert.equal(files.length > 0, true);
 		});
 
 		it('Defaults to flat /_astro output', async () => {
 			let files = await fixture.readdir('/_astro');
 			for (const file of files) {
-				expect(file.slice(1)).to.not.contain('/');
+				assert.equal(file.slice(1).includes('/'), false);
 			}
 		});
 
@@ -35,7 +36,7 @@ describe('build assets (static)', () => {
 			let html = await fixture.readFile('/index.html');
 			let $ = cheerio.load(html);
 
-			expect($('link[href$=".css"]').attr('href')).to.match(/^\/_astro\//);
+			assert.match($('link[href$=".css"]').attr('href'), /^\/_astro\//);
 		});
 
 		it('emits JS assets to /_astro', async () => {
@@ -43,9 +44,9 @@ describe('build assets (static)', () => {
 			let $ = cheerio.load(html);
 
 			const island = $('astro-island');
-			expect(island.length).to.eq(1);
-			expect(island.attr('component-url')).to.match(/^\/_astro\//);
-			expect(island.attr('renderer-url')).to.match(/^\/_astro\//);
+			assert.equal(island.length, 1);
+			assert.match(island.attr('component-url'), /^\/_astro\//);
+			assert.match(island.attr('renderer-url'), /^\/_astro\//);
 		});
 	});
 
@@ -67,14 +68,14 @@ describe('build assets (static)', () => {
 
 		it('Populates /custom-assets directory', async () => {
 			let files = await fixture.readdir('/custom-assets');
-			expect(files.length).to.be.greaterThan(0);
+			assert.equal(files.length > 0, true);
 		});
 
 		it('emits CSS assets to /custom-assets', async () => {
 			let html = await fixture.readFile('/index.html');
 			let $ = cheerio.load(html);
 
-			expect($('link[href$=".css"]').attr('href')).to.match(/^\/custom-assets\//);
+			assert.match($('link[href$=".css"]').attr('href'), /^\/custom-assets\//);
 		});
 
 		it('emits JS assets to /custom-assets', async () => {
@@ -82,9 +83,9 @@ describe('build assets (static)', () => {
 			let $ = cheerio.load(html);
 
 			const island = $('astro-island');
-			expect(island.length).to.eq(1);
-			expect(island.attr('component-url')).to.match(/^\/custom-assets\//);
-			expect(island.attr('renderer-url')).to.match(/^\/custom-assets\//);
+			assert.equal(island.length, 1);
+			assert.match(island.attr('component-url'), /^\/custom-assets\//);
+			assert.match(island.attr('renderer-url'), /^\/custom-assets\//);
 		});
 	});
 });
@@ -107,13 +108,13 @@ describe('build assets (server)', () => {
 
 		it('Populates /_astro directory', async () => {
 			let files = await fixture.readdir('/_astro');
-			expect(files.length).to.be.greaterThan(0);
+			assert.equal(files.length > 0, true);
 		});
 
 		it('Defaults to flat /_astro output', async () => {
 			let files = await fixture.readdir('/_astro');
 			for (const file of files) {
-				expect(file.slice(1)).to.not.contain('/');
+				assert.equal(file.slice(1).includes('/'), false);
 			}
 		});
 
@@ -121,7 +122,7 @@ describe('build assets (server)', () => {
 			let html = await fixture.readFile('/index.html');
 			let $ = cheerio.load(html);
 
-			expect($('link[href$=".css"]').attr('href')).to.match(/^\/_astro\//);
+			assert.match($('link[href$=".css"]').attr('href'), /^\/_astro\//);
 		});
 
 		it('emits JS assets to /_astro', async () => {
@@ -129,9 +130,9 @@ describe('build assets (server)', () => {
 			let $ = cheerio.load(html);
 
 			const island = $('astro-island');
-			expect(island.length).to.eq(1);
-			expect(island.attr('component-url')).to.match(/^\/_astro\//);
-			expect(island.attr('renderer-url')).to.match(/^\/_astro\//);
+			assert.equal(island.length, 1);
+			assert.match(island.attr('component-url'), /^\/_astro\//);
+			assert.match(island.attr('renderer-url'), /^\/_astro\//);
 		});
 	});
 
@@ -154,14 +155,14 @@ describe('build assets (server)', () => {
 
 		it('Populates /custom-assets directory', async () => {
 			let files = await fixture.readdir('/custom-assets');
-			expect(files.length).to.be.greaterThan(0);
+			assert.equal(files.length > 0, true);
 		});
 
 		it('emits CSS assets to /custom-assets', async () => {
 			let html = await fixture.readFile('/index.html');
 			let $ = cheerio.load(html);
 
-			expect($('link[href$=".css"]').attr('href')).to.match(/^\/custom-assets\//);
+			assert.match($('link[href$=".css"]').attr('href'), /^\/custom-assets\//);
 		});
 
 		it('emits JS assets to /custom-assets', async () => {
@@ -169,9 +170,9 @@ describe('build assets (server)', () => {
 			let $ = cheerio.load(html);
 
 			const island = $('astro-island');
-			expect(island.length).to.eq(1);
-			expect(island.attr('component-url')).to.match(/^\/custom-assets\//);
-			expect(island.attr('renderer-url')).to.match(/^\/custom-assets\//);
+			assert.equal(island.length, 1);
+			assert.match(island.attr('component-url'), /^\/custom-assets\//);
+			assert.match(island.attr('renderer-url'), /^\/custom-assets\//);
 		});
 	});
 });

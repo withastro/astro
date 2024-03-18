@@ -1,6 +1,7 @@
-import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Using Astro.response in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -19,14 +20,14 @@ describe('Using Astro.response in SSR', () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/status-code');
 		const response = await app.render(request);
-		expect(response.status).to.equal(404);
+		assert.equal(response.status, 404);
 	});
 
 	it('Can set the statusText', async () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/status-code');
 		const response = await app.render(request);
-		expect(response.statusText).to.equal('Oops');
+		assert.equal(response.statusText, 'Oops');
 	});
 
 	it('Can set headers for 404 page', async () => {
@@ -34,7 +35,7 @@ describe('Using Astro.response in SSR', () => {
 		const request = new Request('http://example.com/status-code');
 		const response = await app.render(request);
 		const headers = response.headers;
-		expect(headers.get('one-two')).to.equal('three');
+		assert.equal(headers.get('one-two'), 'three');
 	});
 
 	it('Can add headers', async () => {
@@ -42,8 +43,8 @@ describe('Using Astro.response in SSR', () => {
 		const request = new Request('http://example.com/some-header');
 		const response = await app.render(request);
 		const headers = response.headers;
-		expect(headers.get('one-two')).to.equal('three');
-		expect(headers.get('four-five')).to.equal('six');
-		expect(headers.get('Cache-Control')).to.equal(`max-age=0, s-maxage=86400`);
+		assert.equal(headers.get('one-two'), 'three');
+		assert.equal(headers.get('four-five'), 'six');
+		assert.equal(headers.get('Cache-Control'), `max-age=0, s-maxage=86400`);
 	});
 });

@@ -1,6 +1,7 @@
-import { loadFixture } from './test-utils.js';
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Adapter', () => {
 	let fixture;
@@ -18,8 +19,11 @@ describe('Adapter', () => {
 			});
 			await fixture.build();
 		} catch (e) {
-			expect(e.toString()).to.contain(
-				"The adapter my-ssr-adapter doesn't support the feature build.excludeMiddleware."
+			assert.equal(
+				e
+					.toString()
+					.includes("The adapter my-ssr-adapter doesn't support the feature build.middleware."),
+				true
 			);
 		}
 	});
@@ -37,8 +41,11 @@ describe('Adapter', () => {
 			});
 			await fixture.build();
 		} catch (e) {
-			expect(e.toString()).to.contain(
-				"The adapter my-ssr-adapter doesn't support the feature build.split."
+			assert.equal(
+				e
+					.toString()
+					.includes("The adapter my-ssr-adapter doesn't support the feature build.split."),
+				true
 			);
 		}
 	});

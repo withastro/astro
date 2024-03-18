@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -19,6 +20,6 @@ describe('build.format=file with dynamic routes', () => {
 	it('Outputs a slug of undefined as the index.html', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		expect($('h1').text()).to.equal('Astro Store');
+		assert.equal($('h1').text(), 'Astro Store');
 	});
 });

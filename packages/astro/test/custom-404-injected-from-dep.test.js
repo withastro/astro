@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Custom 404 with injectRoute from dependency', () => {
@@ -16,7 +17,7 @@ describe('Custom 404 with injectRoute from dependency', () => {
 
 		it('Build succeeds', async () => {
 			const html = await fixture.readFile('/404.html');
-			expect(html).to.contain('<!DOCTYPE html>');
+			assert.equal(html.includes('<!DOCTYPE html>'), true);
 		});
 	});
 });

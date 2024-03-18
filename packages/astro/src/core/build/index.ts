@@ -1,7 +1,7 @@
-import { blue, bold, green } from 'kleur/colors';
 import fs from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
+import { blue, bold, green } from 'kleur/colors';
 import type * as vite from 'vite';
 import type {
 	AstroConfig,
@@ -27,13 +27,12 @@ import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
-import { RouteCache } from '../render/route-cache.js';
 import { createRouteManifest } from '../routing/index.js';
+import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
-import { ensureProcessNodeEnv } from '../util.js';
 
 export interface BuildOptions {
 	/**
@@ -98,7 +97,6 @@ class AstroBuilder {
 	private logger: Logger;
 	private mode: RuntimeMode = 'production';
 	private origin: string;
-	private routeCache: RouteCache;
 	private manifest: ManifestData;
 	private timer: Record<string, number>;
 	private teardownCompiler: boolean;
@@ -110,7 +108,6 @@ class AstroBuilder {
 		this.settings = settings;
 		this.logger = options.logger;
 		this.teardownCompiler = options.teardownCompiler ?? true;
-		this.routeCache = new RouteCache(this.logger);
 		this.origin = settings.config.site
 			? new URL(settings.config.site).origin
 			: `http://localhost:${settings.config.server.port}`;
@@ -147,8 +144,8 @@ class AstroBuilder {
 		);
 		await runHookConfigDone({ settings: this.settings, logger: logger });
 
-		const { syncInternal } = await import('../sync/index.js');
-		const syncRet = await syncInternal(this.settings, { logger: logger, fs });
+		const { syncContentCollections } = await import('../sync/index.js');
+		const syncRet = await syncContentCollections(this.settings, { logger: logger, fs });
 		if (syncRet !== 0) {
 			return process.exit(syncRet);
 		}
@@ -195,7 +192,6 @@ class AstroBuilder {
 			mode: this.mode,
 			origin: this.origin,
 			pageNames,
-			routeCache: this.routeCache,
 			teardownCompiler: this.teardownCompiler,
 			viteConfig,
 		};

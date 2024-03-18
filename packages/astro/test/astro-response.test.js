@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 // Asset bundling
@@ -21,6 +22,6 @@ describe('Returning responses', () => {
 
 	it('Works from a page', async () => {
 		let response = await fixture.fetch('/not-found');
-		expect(response.status).to.equal(404);
+		assert.equal(response.status, 404);
 	});
 });

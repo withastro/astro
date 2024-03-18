@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { AstroCookies } from '../../../dist/core/cookies/index.js';
 import { apply as applyPolyfill } from '../../../dist/core/polyfill.js';
 
@@ -13,7 +14,7 @@ describe('astro/src/core/cookies', () => {
 				},
 			});
 			const cookies = new AstroCookies(req);
-			expect(cookies.get('foo').value).to.equal('bar');
+			assert.equal(cookies.get('foo').value, 'bar');
 		});
 
 		it('gets the cookie value with default decode', () => {
@@ -25,7 +26,7 @@ describe('astro/src/core/cookies', () => {
 			});
 			const cookies = new AstroCookies(req);
 			// by default decodeURIComponent is used on the value
-			expect(cookies.get('url').value).to.equal(url);
+			assert.equal(cookies.get('url').value, url);
 		});
 
 		it('gets the cookie value with custom decode', () => {
@@ -37,14 +38,14 @@ describe('astro/src/core/cookies', () => {
 			});
 			const cookies = new AstroCookies(req);
 			// set decode to the identity function to prevent decodeURIComponent on the value
-			expect(cookies.get('url', { decode: (o) => o }).value).to.equal(encodeURIComponent(url));
+			assert.equal(cookies.get('url', { decode: (o) => o }).value, encodeURIComponent(url));
 		});
 
 		it("Returns undefined is the value doesn't exist", () => {
 			const req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);
 			let cookie = cookies.get('foo');
-			expect(cookie).to.equal(undefined);
+			assert.equal(cookie, undefined);
 		});
 
 		describe('.json()', () => {
@@ -57,8 +58,8 @@ describe('astro/src/core/cookies', () => {
 				let cookies = new AstroCookies(req);
 
 				const json = cookies.get('foo').json();
-				expect(json).to.be.an('object');
-				expect(json.key).to.equal('value');
+				assert.equal(typeof json, 'object');
+				assert.equal(json.key, 'value');
 			});
 		});
 
@@ -72,8 +73,8 @@ describe('astro/src/core/cookies', () => {
 				let cookies = new AstroCookies(req);
 
 				const value = cookies.get('foo').number();
-				expect(value).to.be.an('number');
-				expect(value).to.equal(22);
+				assert.equal(typeof value, 'number');
+				assert.equal(value, 22);
 			});
 
 			it('Coerces non-number into NaN', () => {
@@ -85,8 +86,8 @@ describe('astro/src/core/cookies', () => {
 				let cookies = new AstroCookies(req);
 
 				const value = cookies.get('foo').number();
-				expect(value).to.be.an('number');
-				expect(Number.isNaN(value)).to.equal(true);
+				assert.equal(typeof value, 'number');
+				assert.equal(Number.isNaN(value), true);
 			});
 		});
 
@@ -100,8 +101,8 @@ describe('astro/src/core/cookies', () => {
 				let cookies = new AstroCookies(req);
 
 				const value = cookies.get('foo').boolean();
-				expect(value).to.be.an('boolean');
-				expect(value).to.equal(true);
+				assert.equal(typeof value, 'boolean');
+				assert.equal(value, true);
 			});
 
 			it('Coerces false into `false`', () => {
@@ -113,8 +114,8 @@ describe('astro/src/core/cookies', () => {
 				let cookies = new AstroCookies(req);
 
 				const value = cookies.get('foo').boolean();
-				expect(value).to.be.an('boolean');
-				expect(value).to.equal(false);
+				assert.equal(typeof value, 'boolean');
+				assert.equal(value, false);
 			});
 
 			it('Coerces 1 into `true`', () => {
@@ -126,8 +127,8 @@ describe('astro/src/core/cookies', () => {
 				let cookies = new AstroCookies(req);
 
 				const value = cookies.get('foo').boolean();
-				expect(value).to.be.an('boolean');
-				expect(value).to.equal(true);
+				assert.equal(typeof value, 'boolean');
+				assert.equal(value, true);
 			});
 
 			it('Coerces 0 into `false`', () => {
@@ -139,8 +140,8 @@ describe('astro/src/core/cookies', () => {
 				let cookies = new AstroCookies(req);
 
 				const value = cookies.get('foo').boolean();
-				expect(value).to.be.an('boolean');
-				expect(value).to.equal(false);
+				assert.equal(typeof value, 'boolean');
+				assert.equal(value, false);
 			});
 
 			it('Coerces truthy strings into `true`', () => {
@@ -152,8 +153,8 @@ describe('astro/src/core/cookies', () => {
 				let cookies = new AstroCookies(req);
 
 				const value = cookies.get('foo').boolean();
-				expect(value).to.be.an('boolean');
-				expect(value).to.equal(true);
+				assert.equal(typeof value, 'boolean');
+				assert.equal(value, true);
 			});
 		});
 	});

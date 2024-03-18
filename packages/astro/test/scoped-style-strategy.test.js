@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -25,11 +26,11 @@ describe('scopedStyleStrategy', () => {
 		});
 
 		it('includes :where pseudo-selector', () => {
-			expect(stylesheet).to.match(/:where/);
+			assert.match(stylesheet, /:where/);
 		});
 
 		it('does not includes the class name directly in the selector', () => {
-			expect(stylesheet).to.not.match(/h1\.astro/);
+			assert.doesNotMatch(stylesheet, /h1\.astro/);
 		});
 	});
 
@@ -55,11 +56,11 @@ describe('scopedStyleStrategy', () => {
 		});
 
 		it('does not include :where pseudo-selector', () => {
-			expect(stylesheet).to.not.match(/:where/);
+			assert.doesNotMatch(stylesheet, /:where/);
 		});
 
 		it('includes the class name directly in the selector', () => {
-			expect(stylesheet).to.match(/h1\.astro/);
+			assert.match(stylesheet, /h1\.astro/);
 		});
 	});
 
@@ -84,15 +85,15 @@ describe('scopedStyleStrategy', () => {
 		});
 
 		it('does not include :where pseudo-selector', () => {
-			expect(stylesheet).to.not.match(/:where/);
+			assert.doesNotMatch(stylesheet, /:where/);
 		});
 
 		it('does not include the class name directly in the selector', () => {
-			expect(stylesheet).to.not.match(/h1\.astro/);
+			assert.doesNotMatch(stylesheet, /h1\.astro/);
 		});
 
 		it('includes the data attribute hash', () => {
-			expect(stylesheet).to.include('h1[data-astro-cid-');
+			assert.equal(stylesheet.includes('h1[data-astro-cid-'), true);
 		});
 	});
 });

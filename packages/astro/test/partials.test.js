@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Partials', () => {
@@ -25,7 +26,7 @@ describe('Partials', () => {
 
 		it('is only the written HTML', async () => {
 			const html = await fixture.fetch('/partials/item/').then((res) => res.text());
-			expect(html.startsWith('<li')).to.equal(true);
+			assert.equal(html.startsWith('<li'), true);
 		});
 	});
 
@@ -36,12 +37,12 @@ describe('Partials', () => {
 
 		it('is only the written HTML', async () => {
 			const html = await fixture.readFile('/partials/item/index.html');
-			expect(html.startsWith('<li>')).to.equal(true);
+			assert.equal(html.startsWith('<li>'), true);
 		});
 
 		it('Works with mdx', async () => {
 			const html = await fixture.readFile('/partials/docs/index.html');
-			expect(html.startsWith('<h1')).to.equal(true);
+			assert.equal(html.startsWith('<h1'), true);
 		});
 	});
 });

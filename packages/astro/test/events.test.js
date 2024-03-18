@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { ClientAddressNotAvailable } from '../dist/core/errors/errors-data.js';
 import { AstroError } from '../dist/core/errors/errors.js';
 import * as events from '../dist/events/index.js';
@@ -18,7 +19,7 @@ describe('Events', () => {
 				},
 				config
 			);
-			expect(payload.config.build.format).to.equal('file');
+			assert.equal(payload.config.build.format, 'file');
 		});
 
 		it('string literal "markdown.syntaxHighlight" is included', () => {
@@ -33,7 +34,7 @@ describe('Events', () => {
 				},
 				config
 			);
-			expect(payload.config.markdown.syntaxHighlight).to.equal('shiki');
+			assert.equal(payload.config.markdown.syntaxHighlight, 'shiki');
 		});
 
 		it('top-level vite keys are captured', async () => {
@@ -56,7 +57,7 @@ describe('Events', () => {
 				},
 				config
 			);
-			expect(Object.keys(payload.config.vite)).is.deep.equal([
+			assert.deepEqual(Object.keys(payload.config.vite), [
 				'css',
 				'base',
 				'mode',
@@ -76,7 +77,7 @@ describe('Events', () => {
 				},
 				config
 			);
-			expect(payload.config.integrations.length).to.equal(0);
+			assert.equal(payload.config.integrations.length, 0);
 		});
 
 		it('only integration names are included', () => {
@@ -84,7 +85,7 @@ describe('Events', () => {
 				integrations: [{ name: 'foo' }, [{ name: 'bar' }, { name: 'baz' }]],
 			};
 			const [{ payload }] = events.eventCliSession({ cliCommand: 'dev' }, config);
-			expect(payload.config.integrations).to.deep.equal(['foo', 'bar', 'baz']);
+			assert.deepEqual(payload.config.integrations, ['foo', 'bar', 'baz']);
 		});
 
 		it('only adapter name is included', () => {
@@ -92,7 +93,7 @@ describe('Events', () => {
 				adapter: { name: 'ADAPTER_NAME' },
 			};
 			const [{ payload }] = events.eventCliSession({ cliCommand: 'dev' }, config);
-			expect(payload.config.adapter).to.equal('ADAPTER_NAME');
+			assert.equal(payload.config.adapter, 'ADAPTER_NAME');
 		});
 
 		it('includes cli flags in payload', () => {
@@ -113,7 +114,7 @@ describe('Events', () => {
 				config,
 				flags
 			);
-			expect(payload.flags).to.deep.equal([
+			assert.deepEqual(payload.flags, [
 				'root',
 				'site',
 				'host',
@@ -132,7 +133,7 @@ describe('Events', () => {
 				cmd: 'COMMAND_NAME',
 				isFatal: true,
 			});
-			expect(event).to.deep.equal({
+			assert.deepEqual(event, {
 				eventName: 'ASTRO_CLI_ERROR',
 				payload: {
 					name: 'ZodError',
@@ -155,7 +156,7 @@ describe('Events', () => {
 				cmd: 'COMMAND_NAME',
 				isFatal: true,
 			});
-			expect(event).to.deep.equal({
+			assert.deepEqual(event, {
 				eventName: 'ASTRO_CLI_ERROR',
 				payload: {
 					plugin: 'TEST PLUGIN',
@@ -177,7 +178,7 @@ describe('Events', () => {
 				isFatal: false,
 			});
 
-			expect(event).to.deep.equal({
+			assert.deepEqual(event, {
 				eventName: 'ASTRO_CLI_ERROR',
 				payload: {
 					anonymousMessageHint:
@@ -196,7 +197,7 @@ describe('Events', () => {
 				cmd: 'COMMAND_NAME',
 				isFatal: false,
 			});
-			expect(event).to.deep.equal({
+			assert.deepEqual(event, {
 				eventName: 'ASTRO_CLI_ERROR',
 				payload: {
 					name: 'Error',
@@ -215,7 +216,7 @@ describe('Events', () => {
 				name: 'Error',
 				isFatal: true,
 			});
-			expect(event.payload.anonymousMessageHint).to.equal('TEST ERROR MESSAGE');
+			assert.equal(event.payload.anonymousMessageHint, 'TEST ERROR MESSAGE');
 		});
 
 		it('properly exclude stack traces from anonymousMessageHint', () => {
@@ -231,7 +232,7 @@ describe('Events', () => {
 				name: 'Error',
 				isFatal: true,
 			});
-			expect(event.payload.anonymousMessageHint).to.be.undefined;
+			assert.equal(event.payload.anonymousMessageHint, undefined);
 		});
 	});
 });

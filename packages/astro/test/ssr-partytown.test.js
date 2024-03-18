@@ -1,7 +1,8 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Using the Partytown integration in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -22,11 +23,20 @@ describe('Using the Partytown integration in SSR', () => {
 		const response = await app.render(request);
 		const html = await response.text();
 		const $ = cheerioLoad(html);
-		expect($('script')).to.have.a.lengthOf(1);
+		assert.equal($('script').length, 1);
 	});
 
 	it('The partytown scripts are in the manifest', async () => {
 		const app = await fixture.loadTestAdapterApp();
-		expect(app.manifest.assets).to.contain('/~partytown/partytown-sw.js');
+		const partytownScript = '/~partytown/partytown-sw.js';
+		const assets = app.manifest.assets;
+		let found = false;
+		for (const asset of assets) {
+			if (asset === partytownScript) {
+				found = true;
+				break;
+			}
+		}
+		assert.equal(found, true);
 	});
 });

@@ -1,10 +1,11 @@
-import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
-import * as cheerio from 'cheerio';
-import { fileURLToPath } from 'node:url';
+import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
+import * as cheerio from 'cheerio';
+import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('astro:ssr-manifest, split', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -45,17 +46,18 @@ describe('astro:ssr-manifest, split', () => {
 		const html = await response.text();
 
 		const $ = cheerio.load(html);
-		expect($('#assets').text()).to.match(
+		assert.match(
+			$('#assets').text(),
 			/\["\/_astro\/index\.([\w-]{8})\.css","\/prerender\/index\.html"\]/
 		);
 	});
 
 	it('should give access to entry points that exists on file system', async () => {
 		// number of the pages inside src/
-		expect(entryPoints.size).to.equal(6);
+		assert.equal(entryPoints.size, 6);
 		for (const fileUrl of entryPoints.values()) {
 			let filePath = fileURLToPath(fileUrl);
-			expect(existsSync(filePath)).to.be.true;
+			assert.equal(existsSync(filePath), true);
 		}
 	});
 
@@ -66,7 +68,7 @@ describe('astro:ssr-manifest, split', () => {
 				encoding: 'utf8',
 			}
 		);
-		expect(text.includes('<title>Pre render me</title>')).to.be.true;
+		assert.equal(text.includes('<title>Pre render me</title>'), true);
 	});
 
 	it('should emit an entry point to request the pre-rendered page', async () => {
@@ -75,7 +77,7 @@ describe('astro:ssr-manifest, split', () => {
 		const request = new Request('http://example.com/');
 		const response = await app.render(request);
 		const html = await response.text();
-		expect(html.includes('<title>Pre render me</title>')).to.be.true;
+		assert.equal(html.includes('<title>Pre render me</title>'), true);
 	});
 
 	describe('when function per route is enabled', async () => {
@@ -109,7 +111,7 @@ describe('astro:ssr-manifest, split', () => {
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);
 			const html = await response.text();
-			expect(html.includes('<title>Testing</title>')).to.be.true;
+			assert.equal(html.includes('<title>Testing</title>'), true);
 		});
 	});
 });

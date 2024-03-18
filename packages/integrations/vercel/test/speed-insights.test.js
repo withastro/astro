@@ -1,5 +1,6 @@
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
-import { expect } from 'chai';
 
 describe('Vercel Speed Insights', () => {
 	describe('output: server', () => {
@@ -19,7 +20,7 @@ describe('Vercel Speed Insights', () => {
 
 			const bundle = await fixture.readFile(`../.vercel/output/static/_astro/${page}`);
 
-			expect(bundle).to.contain('https://vitals.vercel-analytics.com/v1/vitals');
+			assert.match(bundle, /https:\/\/vitals.vercel-analytics.com\/v1\/vitals/);
 		});
 	});
 
@@ -40,7 +41,7 @@ describe('Vercel Speed Insights', () => {
 
 			const bundle = await fixture.readFile(`../.vercel/output/static/_astro/${page}`);
 
-			expect(bundle).to.contain('https://vitals.vercel-analytics.com/v1/vitals');
+			assert.match(bundle, /https:\/\/vitals.vercel-analytics.com\/v1\/vitals/);
 		});
 	});
 });

@@ -1,9 +1,9 @@
+import fs from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { markdownConfigDefaults, setVfileFrontmatter } from '@astrojs/markdown-remark';
 import type { AstroIntegration, ContentEntryType, HookParameters, SSRError } from 'astro';
 import astroJSXRenderer from 'astro/jsx/renderer.js';
 import { parse as parseESM } from 'es-module-lexer';
-import fs from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
 import { VFile } from 'vfile';
@@ -153,7 +153,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 										.filter(({ n }) => n === 'astro/jsx-runtime')
 										.map(({ ss, se }) => code.substring(ss, se));
 									const hasFragmentImport = importsFromJSXRuntime.some((statement) =>
-										/[\s,{](Fragment,|Fragment\s*})/.test(statement)
+										/[\s,{](?:Fragment,|Fragment\s*\})/.test(statement)
 									);
 									if (!hasFragmentImport) {
 										code = 'import { Fragment } from "astro/jsx-runtime"\n' + code;

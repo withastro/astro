@@ -34,14 +34,14 @@
   },
   "dependencies": {
     "autoprefixer": "^10.4.15",
-    "postcss": "^8.4.28",
+    "postcss": "^8.4.35",
     "postcss-load-config": "^4.0.2"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "tailwindcss": "^3.3.5",
-    "vite": "^5.0.12"
+    "vite": "^5.1.4"
   },
   "peerDependencies": {
     "astro": "^3.0.0 || ^4.0.0",

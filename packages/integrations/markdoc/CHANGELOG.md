@@ -1,5 +1,62 @@
 # @astrojs/markdoc
 
+## 0.9.2
+
+### Patch Changes
+
+- Updated dependencies [[`1ea0a25b94125e4f6f2ac82b42f638e22d7bdffd`](https://github.com/withastro/astro/commit/1ea0a25b94125e4f6f2ac82b42f638e22d7bdffd)]:
+  - @astrojs/internal-helpers@0.3.0
+
+## 0.9.1
+
+### Patch Changes
+
+- [#10278](https://github.com/withastro/astro/pull/10278) [`a548a3a99c2835c19662fc38636f92b2bda26614`](https://github.com/withastro/astro/commit/a548a3a99c2835c19662fc38636f92b2bda26614) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes original images sometimes being kept / deleted when they shouldn't in both MDX and Markdoc
+
+## 0.9.0
+
+### Minor Changes
+
+- [#9958](https://github.com/withastro/astro/pull/9958) [`14ce8a6ebfc9daf951d2dca54737d857c229667c`](https://github.com/withastro/astro/commit/14ce8a6ebfc9daf951d2dca54737d857c229667c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds support for using a custom tag (component) for optimized images
+
+  Starting from this version, when a tag called `image` is used, its `src` attribute will automatically be resolved if it's a local image. Astro will pass the result `ImageMetadata` object to the underlying component as the `src` prop. For non-local images (i.e. images using URLs or absolute paths), Astro will continue to pass the `src` as a string.
+
+  ```ts
+  // markdoc.config.mjs
+  import { component, defineMarkdocConfig, nodes } from '@astrojs/markdoc/config';
+
+  export default defineMarkdocConfig({
+    tags: {
+      image: {
+        attributes: nodes.image.attributes,
+        render: component('./src/components/MarkdocImage.astro'),
+      },
+    },
+  });
+  ```
+
+  ```astro
+  ---
+  // src/components/MarkdocImage.astro
+  import { Image } from 'astro:assets';
+
+  interface Props {
+    src: ImageMetadata | string;
+    alt: string;
+    width: number;
+    height: number;
+  }
+
+  const { src, alt, width, height } = Astro.props;
+  ---
+
+  <Image {src} {alt} {width} {height} />
+  ```
+
+  ```mdoc
+  {% image src="./astro-logo.png" alt="Astro Logo" width="100" height="100" %}
+  ```
+
 ## 0.8.3
 
 ### Patch Changes

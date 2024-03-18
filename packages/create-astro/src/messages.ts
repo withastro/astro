@@ -1,7 +1,7 @@
-/* eslint no-console: 'off' */
-import { color, say as houston, label, spinner as load } from '@astrojs/cli-kit';
-import { align, sleep } from '@astrojs/cli-kit/utils';
 import { exec } from 'node:child_process';
+/* eslint no-console: 'off' */
+import { color, label, say as houston, spinner as load } from '@astrojs/cli-kit';
+import { align, sleep } from '@astrojs/cli-kit/utils';
 import stripAnsi from 'strip-ansi';
 import { shell } from './shell.js';
 
@@ -12,11 +12,14 @@ import { shell } from './shell.js';
 let _registry: string;
 async function getRegistry(packageManager: string): Promise<string> {
 	if (_registry) return _registry;
+	const fallback = 'https://registry.npmjs.org';
 	try {
 		const { stdout } = await shell(packageManager, ['config', 'get', 'registry']);
-		_registry = stdout?.trim()?.replace(/\/$/, '') || 'https://registry.npmjs.org';
+		_registry = stdout?.trim()?.replace(/\/$/, '') || fallback;
+		// Detect cases where the shell command returned a non-URL (e.g. a warning)
+		if (!new URL(_registry).host) _registry = fallback;
 	} catch (e) {
-		_registry = 'https://registry.npmjs.org';
+		_registry = fallback;
 	}
 	return _registry;
 }
@@ -62,10 +65,9 @@ export const getVersion = (packageManager: string, packageName: string, fallback
 		let registry = await getRegistry(packageManager);
 		const { version } = await fetch(`${registry}/${packageName}/latest`, {
 			redirect: 'follow',
-		}).then(
-			(res) => res.json(),
-			() => ({ version: fallback })
-		);
+		})
+			.then((res) => res.json())
+			.catch(() => ({ version: fallback }));
 		return resolve(version);
 	});
 

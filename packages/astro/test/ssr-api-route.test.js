@@ -1,57 +1,66 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
 import net from 'node:net';
+import { after, before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
 describe('API routes in SSR', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	const config = {
+		root: './fixtures/ssr-api-route/',
+		output: 'server',
+		site: 'https://mysite.dev/subsite/',
+		base: '/blog',
+		adapter: testAdapter(),
+	};
 
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/ssr-api-route/',
-			output: 'server',
-			adapter: testAdapter(),
-		});
-		await fixture.build();
-	});
-
-	it('Basic pages work', async () => {
-		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/');
-		const response = await app.render(request);
-		const html = await response.text();
-		expect(html).to.not.be.empty;
-	});
-
-	it('Can load the API route too', async () => {
-		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/food.json');
-		const response = await app.render(request);
-		expect(response.status).to.equal(200);
-		const body = await response.json();
-		expect(body.length).to.equal(3);
-	});
-
-	it('Has valid api context', async () => {
-		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/context/any');
-		const response = await app.render(request);
-		expect(response.status).to.equal(200);
-		const data = await response.json();
-		expect(data.cookiesExist).to.equal(true);
-		expect(data.requestExist).to.equal(true);
-		expect(data.redirectExist).to.equal(true);
-		expect(data.propsExist).to.equal(true);
-		expect(data.params).to.deep.equal({ param: 'any' });
-		expect(data.generator).to.match(/^Astro v/);
-		expect(data.url).to.equal('http://example.com/context/any');
-		expect(data.clientAddress).to.equal('0.0.0.0');
-	});
-
-	describe('API Routes - Dev', () => {
-		let devServer;
+	describe('Build', () => {
+		/** @type {import('./test-utils.js').App} */
+		let app;
 		before(async () => {
+			const fixture = await loadFixture(config);
+			await fixture.build();
+			app = await fixture.loadTestAdapterApp();
+		});
+
+		it('Basic pages work', async () => {
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			const html = await response.text();
+			assert.notEqual(html, '');
+		});
+
+		it('Can load the API route too', async () => {
+			const request = new Request('http://example.com/food.json');
+			const response = await app.render(request);
+			assert.equal(response.status, 200);
+			const body = await response.json();
+			assert.equal(body.length, 3);
+		});
+
+		it('Has valid api context', async () => {
+			const request = new Request('http://example.com/context/any');
+			const response = await app.render(request);
+			assert.equal(response.status, 200);
+			const data = await response.json();
+			assert.equal(data.cookiesExist, true);
+			assert.equal(data.requestExist, true);
+			assert.equal(data.redirectExist, true);
+			assert.equal(data.propsExist, true);
+			assert.deepEqual(data.params, { param: 'any' });
+			assert.match(data.generator, /^Astro v/);
+			assert.equal(data.url, 'http://example.com/context/any');
+			assert.equal(data.clientAddress, '0.0.0.0');
+			assert.equal(data.site, 'https://mysite.dev/subsite/');
+		});
+	});
+
+	describe('Dev', () => {
+		/** @type {import('./test-utils.js').DevServer} */
+		let devServer;
+		/** @type {import('./test-utils.js').Fixture} */
+		let fixture;
+		before(async () => {
+			fixture = await loadFixture(config);
 			devServer = await fixture.startDevServer();
 		});
 
@@ -64,9 +73,9 @@ describe('API routes in SSR', () => {
 				method: 'POST',
 				body: `some data`,
 			});
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 			const text = await response.text();
-			expect(text).to.equal(`ok`);
+			assert.equal(text, 'ok');
 		});
 
 		it('Can be passed binary data from multipart formdata', async () => {
@@ -82,7 +91,7 @@ describe('API routes in SSR', () => {
 				body: formData,
 			});
 
-			expect(res.status).to.equal(200);
+			assert.equal(res.status, 200);
 		});
 
 		it('Can set multiple headers of the same type', async () => {
@@ -108,12 +117,32 @@ describe('API routes in SSR', () => {
 			});
 
 			let count = 0;
-			let exp = /set-cookie\:/g;
+			let exp = /set-cookie:/g;
 			while (exp.exec(response)) {
 				count++;
 			}
 
-			expect(count).to.equal(2, 'Found two seperate set-cookie response headers');
+			assert.equal(count, 2, 'Found two seperate set-cookie response headers');
+		});
+
+		it('Has valid api context', async () => {
+			const response = await fixture.fetch('/context/any');
+			assert.equal(response.status, 200);
+			const data = await response.json();
+			assert.equal(data.cookiesExist, true);
+			assert.equal(data.requestExist, true);
+			assert.equal(data.redirectExist, true);
+			assert.equal(data.propsExist, true);
+			assert.deepEqual(data.params, { param: 'any' });
+			assert.match(data.generator, /^Astro v/);
+			assert.equal(
+				['http://[::1]:4321/blog/context/any', 'http://127.0.0.1:4321/blog/context/any'].includes(
+					data.url
+				),
+				true
+			);
+			assert.equal(['::1', '127.0.0.1'].includes(data.clientAddress), true);
+			assert.equal(data.site, 'https://mysite.dev/subsite/');
 		});
 	});
 });

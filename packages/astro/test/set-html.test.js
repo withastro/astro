@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -29,17 +30,17 @@ describe('set:html', () => {
 
 		it('can take a fetch()', async () => {
 			let res = await fixture.fetch('/fetch');
-			expect(res.status).to.equal(200);
+			assert.equal(res.status, 200);
 			let html = await res.text();
 			const $ = cheerio.load(html);
-			expect($('#fetched-html')).to.have.a.lengthOf(1);
-			expect($('#fetched-html').text()).to.equal('works');
+			assert.equal($('#fetched-html').length, 1);
+			assert.equal($('#fetched-html').text(), 'works');
 		});
 		it('test Fragment when Fragment is as a slot', async () => {
 			let res = await fixture.fetch('/children');
-			expect(res.status).to.equal(200);
+			assert.equal(res.status, 200);
 			let html = await res.text();
-			expect(html).include('Test');
+			assert.equal(html.includes('Test'), true);
 		});
 	});
 
@@ -51,42 +52,42 @@ describe('set:html', () => {
 		it('can take a string of HTML', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			expect($('#html-inner')).to.have.a.lengthOf(1);
+			assert.equal($('#html-inner').length, 1);
 		});
 
 		it('can take a Promise to a string of HTML', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			expect($('#promise-html-inner')).to.have.a.lengthOf(1);
+			assert.equal($('#promise-html-inner').length, 1);
 		});
 
 		it('can take a Response to a string of HTML', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			expect($('#response-html-inner')).to.have.a.lengthOf(1);
+			assert.equal($('#response-html-inner').length, 1);
 		});
 
 		it('can take an Iterator', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			expect($('#iterator-num')).to.have.a.lengthOf(5);
+			assert.equal($('#iterator-num').length, 5);
 		});
 
 		it('Can take an AsyncIterator', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			expect($('#asynciterator-num')).to.have.a.lengthOf(5);
+			assert.equal($('#asynciterator-num').length, 5);
 		});
 
 		it('Can take a ReadableStream', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			expect($('#readable-inner')).to.have.a.lengthOf(1);
+			assert.equal($('#readable-inner').length, 1);
 		});
 
 		it('test Fragment when Fragment is as a slot', async () => {
 			let res = await fixture.readFile('/children/index.html');
-			expect(res).include('Test');
+			assert.equal(res.includes('Test'), true);
 		});
 	});
 });

@@ -1,10 +1,10 @@
-import { slug as githubSlug } from 'github-slugger';
-import matter from 'gray-matter';
 import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { slug as githubSlug } from 'github-slugger';
+import matter from 'gray-matter';
 import type { PluginContext } from 'rollup';
-import { normalizePath, type ViteDevServer } from 'vite';
+import { type ViteDevServer, normalizePath } from 'vite';
 import { z } from 'zod';
 import type {
 	AstroConfig,
@@ -126,7 +126,7 @@ export async function getEntryData(
 
 		// Use `safeParseAsync` to allow async transforms
 		let formattedError;
-		const parsed = await (schema as z.ZodSchema).safeParseAsync(entry.unvalidatedData, {
+		const parsed = await (schema as z.ZodSchema).safeParseAsync(data, {
 			errorMap(error, ctx) {
 				if (error.code === 'custom' && error.params?.isHoistedAstroError) {
 					formattedError = error.params?.astroError;

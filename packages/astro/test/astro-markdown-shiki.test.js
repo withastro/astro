@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -16,11 +17,12 @@ describe('Astro Markdown Shiki', () => {
 			const $ = cheerio.load(html);
 
 			// There should be no HTML from Prism
-			expect($('.token')).to.have.lengthOf(0);
+			assert.equal($('.token').length, 0);
 
-			expect($('pre')).to.have.lengthOf(2);
-			expect($('pre').hasClass('astro-code')).to.equal(true);
-			expect($('pre').attr().style).to.equal(
+			assert.equal($('pre').length, 2);
+			assert.ok($('pre').hasClass('astro-code'));
+			assert.equal(
+				$('pre').attr().style,
 				'background-color:#24292e;color:#e1e4e8; overflow-x: auto;'
 			);
 		});
@@ -29,8 +31,8 @@ describe('Astro Markdown Shiki', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 			const diffBlockHtml = $('pre').last().html();
-			expect(diffBlockHtml).to.contain(`<span style="user-select: none;">+</span>`);
-			expect(diffBlockHtml).to.contain(`<span style="user-select: none;">-</span>`);
+			assert.ok(diffBlockHtml.includes(`<span style="user-select: none;">+</span>`));
+			assert.ok(diffBlockHtml.includes(`<span style="user-select: none;">-</span>`));
 		});
 	});
 
@@ -47,9 +49,10 @@ describe('Astro Markdown Shiki', () => {
 				const html = await fixture.readFile('/index.html');
 				const $ = cheerio.load(html);
 
-				expect($('pre')).to.have.lengthOf(1);
-				expect($('pre').hasClass('astro-code')).to.equal(true);
-				expect($('pre').attr().style).to.equal(
+				assert.equal($('pre').length, 1);
+				assert.ok($('pre').hasClass('astro-code'));
+				assert.equal(
+					$('pre').attr().style,
 					'background-color:#fff;color:#24292e; overflow-x: auto;'
 				);
 			});
@@ -67,9 +70,10 @@ describe('Astro Markdown Shiki', () => {
 				const html = await fixture.readFile('/index.html');
 				const $ = cheerio.load(html);
 
-				expect($('pre')).to.have.lengthOf(1);
-				expect($('pre').hasClass('astro-code')).to.equal(true);
-				expect($('pre').attr().style).to.equal(
+				assert.equal($('pre').length, 1);
+				assert.ok($('pre').hasClass('astro-code'));
+				assert.equal(
+					$('pre').attr().style,
 					'background-color:#FDFDFE;color:#4E5377; overflow-x: auto;'
 				);
 			});
@@ -89,69 +93,63 @@ describe('Astro Markdown Shiki', () => {
 			const $ = cheerio.load(html);
 
 			const segments = $('.line').get(6).children;
-			expect(segments).to.have.lengthOf(2);
-			expect(segments[0].attribs.style).to.be.equal('color:#79B8FF');
-			expect(segments[1].attribs.style).to.be.equal('color:#E1E4E8');
+			assert.equal(segments.length, 2);
+			assert.equal(segments[0].attribs.style, 'color:#79B8FF');
+			assert.equal(segments[1].attribs.style, 'color:#E1E4E8');
 
 			const unknownLang = $('.astro-code').get(1);
-			expect(unknownLang.attribs.style).to.contain('background-color:#24292e;color:#e1e4e8;');
+			assert.ok(unknownLang.attribs.style.includes('background-color:#24292e;color:#e1e4e8;'));
 		});
 	});
 
-	describe('Wrap', () => {
-		describe('wrap = true', () => {
+	describe('Wrapping behaviours', () => {
+		let fixtures = {
+			ifTrue: null,
+			ifFalse: null,
+			ifNull: null,
+		};
+
+		before(async () => {
+			fixtures.ifTrue = await loadFixture({
+				root: './fixtures/astro-markdown-shiki/wrap-true/',
+			});
+			fixtures.ifFalse = await loadFixture({
+				root: './fixtures/astro-markdown-shiki/wrap-false/',
+			});
+			fixtures.ifNull = await loadFixture({
+				root: './fixtures/astro-markdown-shiki/wrap-null/',
+			});
+			await fixtures.ifTrue.build();
+			await fixtures.ifFalse.build();
+			await fixtures.ifNull.build();
+		});
+
+		it('Markdown file with wrap = true', async () => {
 			const style =
 				'background-color:#24292e;color:#e1e4e8; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
-			let fixture;
-
-			before(async () => {
-				fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/wrap-true/' });
-				await fixture.build();
-			});
-
-			it('Markdown file', async () => {
-				const html = await fixture.readFile('/index.html');
-				const $ = cheerio.load(html);
-
-				expect($('pre')).to.have.lengthOf(1);
-				expect($('pre').attr('style')).to.equal(style);
-			});
-		});
-	});
-
-	describe('wrap = false', () => {
-		const style = 'background-color:#24292e;color:#e1e4e8; overflow-x: auto;';
-		let fixture;
-
-		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/wrap-false/' });
-			await fixture.build();
-		});
-
-		it('Markdown file', async () => {
-			const html = await fixture.readFile('/index.html');
+			const html = await fixtures.ifTrue.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('pre')).to.have.lengthOf(1);
-			expect($('pre').attr('style')).to.equal(style);
-		});
-	});
-
-	describe('wrap = null', () => {
-		const style = 'background-color:#24292e;color:#e1e4e8';
-		let fixture;
-
-		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/wrap-null/' });
-			await fixture.build();
+			assert.equal($('pre').length, 1);
+			assert.equal($('pre').attr('style'), style);
 		});
 
-		it('Markdown file', async () => {
-			const html = await fixture.readFile('/index.html');
+		it('Markdown file with wrap = false', async () => {
+			const style = 'background-color:#24292e;color:#e1e4e8; overflow-x: auto;';
+			const html = await fixtures.ifFalse.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('pre')).to.have.lengthOf(1);
-			expect($('pre').attr('style')).to.equal(style);
+			assert.equal($('pre').length, 1);
+			assert.equal($('pre').attr('style'), style);
+		});
+
+		it('Markdown file with wrap = null', async () => {
+			const style = 'background-color:#24292e;color:#e1e4e8';
+			const html = await fixtures.ifNull.readFile('/index.html');
+			const $ = cheerio.load(html);
+
+			assert.equal($('pre').length, 1);
+			assert.equal($('pre').attr('style'), style);
 		});
 	});
 });

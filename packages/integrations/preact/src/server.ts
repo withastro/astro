@@ -1,7 +1,7 @@
 import type { AstroComponentMetadata } from 'astro';
-import { Component as BaseComponent, h, type VNode } from 'preact';
-import prepass from 'preact-ssr-prepass';
+import { Component as BaseComponent, type VNode, h } from 'preact';
 import { render } from 'preact-render-to-string';
+import prepass from 'preact-ssr-prepass';
 import { getContext } from './context.js';
 import { restoreSignalsOnProps, serializeSignals } from './signals.js';
 import StaticHtml from './static-html.js';
@@ -37,7 +37,7 @@ async function check(
 			// There are edge cases (SolidJS) where Preact *might* render a string,
 			// but components would be <undefined></undefined>
 			// It also might render an empty sting.
-			return html == '' ? false : !/\<undefined\>/.test(html);
+			return html == '' ? false : !/<undefined>/.test(html);
 		} catch (err) {
 			return false;
 		}

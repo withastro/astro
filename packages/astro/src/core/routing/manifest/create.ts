@@ -8,11 +8,12 @@ import type {
 } from '../../../@types/astro.js';
 import type { Logger } from '../../logger/core.js';
 
-import { bold } from 'kleur/colors';
 import { createRequire } from 'module';
 import nodeFs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { bold } from 'kleur/colors';
+import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { MissingIndexForInternationalization } from '../../errors/errors-data.js';
@@ -41,22 +42,27 @@ function countOccurrences(needle: string, haystack: string) {
 	return count;
 }
 
+// Disable eslint as we're not sure how to improve this regex yet
+// eslint-disable-next-line regexp/no-super-linear-backtracking
+const ROUTE_DYNAMIC_SPLIT = /\[(.+?\(.+?\)|.+?)\]/;
+const ROUTE_SPREAD = /^\.{3}.+$/;
+
 function getParts(part: string, file: string) {
 	const result: RoutePart[] = [];
-	part.split(/\[(.+?\(.+?\)|.+?)\]/).map((str, i) => {
+	part.split(ROUTE_DYNAMIC_SPLIT).map((str, i) => {
 		if (!str) return;
 		const dynamic = i % 2 === 1;
 
 		const [, content] = dynamic ? /([^(]+)$/.exec(str) || [null, null] : [null, str];
 
-		if (!content || (dynamic && !/^(\.\.\.)?[a-zA-Z0-9_$]+$/.test(content))) {
+		if (!content || (dynamic && !/^(?:\.\.\.)?[\w$]+$/.test(content))) {
 			throw new Error(`Invalid route ${file} — parameter name must match /^[a-zA-Z0-9_$]+$/`);
 		}
 
 		result.push({
 			content,
 			dynamic,
-			spread: dynamic && /^\.{3}.+$/.test(content),
+			spread: dynamic && ROUTE_SPREAD.test(content),
 		});
 	});
 
@@ -215,6 +221,15 @@ function routeComparator(a: RouteData, b: RouteData) {
 			return aIsStatic ? -1 : 1;
 		}
 
+		const aAllDynamic = aSegment.every((part) => part.dynamic);
+		const bAllDynamic = bSegment.every((part) => part.dynamic);
+
+		// Some route might have partial dynamic segments, e.g. game-[title].astro
+		// These routes should have higher priority against route that have **only** dynamic segments, e.g. [title].astro
+		if (aAllDynamic !== bAllDynamic) {
+			return aAllDynamic ? 1 : -1;
+		}
+
 		const aHasSpread = aSegment.some((part) => part.spread);
 		const bHasSpread = bSegment.some((part) => part.spread);
 
@@ -225,55 +240,33 @@ function routeComparator(a: RouteData, b: RouteData) {
 		}
 	}
 
-	// Special case to have `/[foo].astro` be equivalent to `/[foo]/index.astro`
-	// when compared against `/[foo]/[...rest].astro`.
-	if (Math.abs(a.segments.length - b.segments.length) === 1) {
+	const aLength = a.segments.length;
+	const bLength = b.segments.length;
+
+	if (aLength !== bLength) {
 		const aEndsInRest = a.segments.at(-1)?.some((part) => part.spread);
 		const bEndsInRest = b.segments.at(-1)?.some((part) => part.spread);
 
-		// Routes with rest parameters are less specific than their parent route.
-		// For example, `/foo/[...bar]` is sorted after `/foo`.
+		if (aEndsInRest !== bEndsInRest && Math.abs(aLength - bLength) === 1) {
+			// If only one of the routes ends in a rest parameter
+			// and the difference in length is exactly 1
+			// and the shorter route is the one that ends in a rest parameter
+			// the shorter route is considered more specific.
+			// I.e. `/foo` is considered more specific than `/foo/[...bar]`
+			if (aLength > bLength && aEndsInRest) {
+				// b: /foo
+				// a: /foo/[...bar]
+				return 1;
+			}
 
-		if (a.segments.length > b.segments.length && !bEndsInRest) {
-			return 1;
+			if (bLength > aLength && bEndsInRest) {
+				// a: /foo
+				// b: /foo/[...bar]
+				return -1;
+			}
 		}
 
-		if (b.segments.length > a.segments.length && !aEndsInRest) {
-			return -1;
-		}
-	}
-
-	if (a.isIndex !== b.isIndex) {
-		// Index pages are lower priority than other static segments in the same prefix.
-		// They match the path up to their parent, but are more specific than the parent.
-		// For example:
-		//  - `/foo/index.astro` is sorted before `/foo`
-		//  - `/foo/index.astro` is sorted before `/foo/[bar].astro`
-		//  - `/[...foo]/index.astro` is sorted after `/[...foo]/bar.astro`
-
-		if (a.isIndex) {
-			const followingBSegment = b.segments.at(a.segments.length);
-			const followingBSegmentIsStatic = followingBSegment?.every(
-				(part) => !part.dynamic && !part.spread
-			);
-
-			return followingBSegmentIsStatic ? 1 : -1;
-		}
-
-		const followingASegment = a.segments.at(b.segments.length);
-		const followingASegmentIsStatic = followingASegment?.every(
-			(part) => !part.dynamic && !part.spread
-		);
-
-		return followingASegmentIsStatic ? -1 : 1;
-	}
-
-	// For sorting purposes, an index route is considered to have one more segment than the URL it represents.
-	const aLength = a.isIndex ? a.segments.length + 1 : a.segments.length;
-	const bLength = b.isIndex ? b.segments.length + 1 : b.segments.length;
-
-	if (aLength !== bLength) {
-		// Routes are equal up to the smaller of the two lengths, so the longer route is more specific
+		// Sort routes by length
 		return aLength > bLength ? -1 : 1;
 	}
 
@@ -408,9 +401,7 @@ function createFileBasedRoutes(
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
-				const route = `/${segments
-					.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
-					.join('/')}`.toLowerCase();
+				const route = joinSegments(segments);
 				routes.push({
 					route,
 					isIndex: item.isIndex,
@@ -485,9 +476,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 			.flat()
 			.filter((p) => p.dynamic)
 			.map((p) => p.content);
-		const route = `/${segments
-			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
-			.join('/')}`.toLowerCase();
+		const route = joinSegments(segments);
 
 		routes[priority].push({
 			type,
@@ -543,9 +532,7 @@ function createRedirectRoutes(
 			.flat()
 			.filter((p) => p.dynamic)
 			.map((p) => p.content);
-		const route = `/${segments
-			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
-			.join('/')}`.toLowerCase();
+		const route = joinSegments(segments);
 
 		let destination: string;
 		if (typeof to === 'string') {
@@ -706,8 +693,9 @@ export function createRouteManifest(
 
 	const i18n = settings.config.i18n;
 	if (i18n) {
+		const strategy = toRoutingStrategy(i18n);
 		// First we check if the user doesn't have an index page.
-		if (i18n.routing === 'pathname-prefix-always') {
+		if (strategy === 'pathname-prefix-always') {
 			let index = routes.find((route) => route.route === '/');
 			if (!index) {
 				let relativePath = path.relative(
@@ -775,14 +763,16 @@ export function createRouteManifest(
 
 		// Work done, now we start creating "fallback" routes based on the configuration
 
-		if (i18n.routing === 'pathname-prefix-always') {
+		if (strategy === 'pathname-prefix-always') {
 			// we attempt to retrieve the index page of the default locale
 			const defaultLocaleRoutes = routesByLocale.get(i18n.defaultLocale);
 			if (defaultLocaleRoutes) {
-				const indexDefaultRoute = defaultLocaleRoutes.find((routeData) => {
-					// it should be safe to assume that an index page has "index" in their name
-					return routeData.component.includes('index');
-				});
+				// The index for the default locale will be either already at the root path
+				// or at the root of the locale.
+				const indexDefaultRoute =
+					defaultLocaleRoutes.find(({ route }) => route === '/') ??
+					defaultLocaleRoutes.find(({ route }) => route === `/${i18n.defaultLocale}`);
+
 				if (indexDefaultRoute) {
 					// we found the index of the default locale, now we create a root index that will redirect to the index of the default locale
 					const pathname = '/';
@@ -848,7 +838,7 @@ export function createRouteManifest(
 							let route: string;
 							if (
 								fallbackToLocale === i18n.defaultLocale &&
-								i18n.routing === 'pathname-prefix-other-locales'
+								strategy === 'pathname-prefix-other-locales'
 							) {
 								if (fallbackToRoute.pathname) {
 									pathname = `/${fallbackFromLocale}${fallbackToRoute.pathname}`;
@@ -902,4 +892,12 @@ function computeRoutePriority(config: AstroConfig): RoutePriorityOverride {
 		return 'normal';
 	}
 	return 'legacy';
+}
+
+function joinSegments(segments: RoutePart[][]): string {
+	const arr = segments.map((segment) => {
+		return segment.map((rp) => (rp.dynamic ? `[${rp.content}]` : rp.content)).join('');
+	});
+
+	return `/${arr.join('/')}`.toLowerCase();
 }

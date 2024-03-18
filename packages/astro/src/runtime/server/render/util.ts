@@ -7,17 +7,17 @@ import { HTMLString, markHTMLString } from '../escape.js';
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 const htmlBooleanAttributes =
-	/^(allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|itemscope)$/i;
-const htmlEnumAttributes = /^(contenteditable|draggable|spellcheck|value)$/i;
+	/^(?:allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|itemscope)$/i;
+const htmlEnumAttributes = /^(?:contenteditable|draggable|spellcheck|value)$/i;
 // Note: SVG is case-sensitive!
-const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
+const svgEnumAttributes = /^(?:autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
 
 const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 
 // converts (most) arbitrary strings to valid JS identifiers
 const toIdent = (k: string) =>
-	k.trim().replace(/(?:(?!^)\b\w|\s+|[^\w]+)/g, (match, index) => {
-		if (/[^\w]|\s/.test(match)) return '';
+	k.trim().replace(/(?!^)\b\w|\s+|\W+/g, (match, index) => {
+		if (/\W/.test(match)) return '';
 		return index === 0 ? match : match.toUpperCase();
 	});
 
@@ -104,6 +104,11 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 		return markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`);
 	}
 
+	// Prevents URLs in attributes from being escaped in static builds
+	if (typeof value === 'string' && value.includes('&') && urlCanParse(value)) {
+		return markHTMLString(` ${key}="${toAttributeString(value, false)}"`);
+	}
+
 	// Boolean values only need the key
 	if (value === true && (key.startsWith('data-') || htmlBooleanAttributes.test(key))) {
 		return markHTMLString(` ${key}`);
@@ -174,6 +179,9 @@ export function renderToBufferDestination(bufferRenderFunction: RenderFunction):
 
 	// Don't await for the render to finish to not block streaming
 	const renderPromise = bufferRenderFunction(bufferDestination);
+	// Catch here in case it throws before `renderToFinalDestination` is called,
+	// to prevent an unhandled rejection.
+	Promise.resolve(renderPromise).catch(() => {});
 
 	// Return a closure that writes the buffered chunk
 	return {
@@ -195,4 +203,38 @@ export function renderToBufferDestination(bufferRenderFunction: RenderFunction):
 			await renderPromise;
 		},
 	};
+}
+
+export const isNode =
+	typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]';
+
+// We can get rid of this when Promise.withResolvers() is ready
+export type PromiseWithResolvers<T> = {
+	promise: Promise<T>;
+	resolve: (value: T) => void;
+	reject: (reason?: any) => void;
+};
+
+// This is an implementation of Promise.withResolvers(), which we can't yet rely on.
+// We can remove this once the native function is available in Node.js
+export function promiseWithResolvers<T = any>(): PromiseWithResolvers<T> {
+	let resolve: any, reject: any;
+	const promise = new Promise<T>((_resolve, _reject) => {
+		resolve = _resolve;
+		reject = _reject;
+	});
+	return {
+		promise,
+		resolve,
+		reject,
+	};
+}
+
+function urlCanParse(url: string) {
+	try {
+		new URL(url);
+		return true;
+	} catch {
+		return false;
+	}
 }

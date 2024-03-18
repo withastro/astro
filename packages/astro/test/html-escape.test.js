@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -21,16 +22,16 @@ describe('HTML Escape', () => {
 			const $ = cheerio.load(html);
 
 			const div = $('div');
-			expect(div.text()).to.equal('${foo}');
+			assert.equal(div.text(), '${foo}');
 
 			const span = $('span');
-			expect(span.attr('${attr}')).to.equal('');
+			assert.equal(span.attr('${attr}'), '');
 
 			const ce = $('custom-element');
-			expect(ce.attr('x-data')).to.equal('`${test}`');
+			assert.equal(ce.attr('x-data'), '`${test}`');
 
 			const script = $('script');
-			expect(script.text()).to.equal('console.log(`hello ${"world"}!`)');
+			assert.equal(script.text(), 'console.log(`hello ${"world"}!`)');
 		});
 	});
 
@@ -48,22 +49,22 @@ describe('HTML Escape', () => {
 		it('works', async () => {
 			const res = await fixture.fetch('/');
 
-			expect(res.status).to.equal(200);
+			assert.equal(res.status, 200);
 
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
 			const div = $('div');
-			expect(div.text()).to.equal('${foo}');
+			assert.equal(div.text(), '${foo}');
 
 			const span = $('span');
-			expect(span.attr('${attr}')).to.equal('');
+			assert.equal(span.attr('${attr}'), '');
 
 			const ce = $('custom-element');
-			expect(ce.attr('x-data')).to.equal('`${test}`');
+			assert.equal(ce.attr('x-data'), '`${test}`');
 
 			const script = $('script');
-			expect(script.text()).to.equal('console.log(`hello ${"world"}!`)');
+			assert.equal(script.text(), 'console.log(`hello ${"world"}!`)');
 		});
 	});
 });

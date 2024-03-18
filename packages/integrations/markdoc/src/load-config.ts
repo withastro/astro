@@ -1,7 +1,7 @@
-import type { AstroConfig } from 'astro';
-import { build as esbuild } from 'esbuild';
 import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import type { AstroConfig } from 'astro';
+import { build as esbuild } from 'esbuild';
 import type { AstroMarkdocConfig } from './config.js';
 import { MarkdocError } from './utils.js';
 

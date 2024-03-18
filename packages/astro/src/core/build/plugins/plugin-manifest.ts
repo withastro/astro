@@ -1,7 +1,10 @@
-import glob from 'fast-glob';
 import { fileURLToPath } from 'node:url';
+import glob from 'fast-glob';
 import type { OutputChunk } from 'rollup';
 import { type Plugin as VitePlugin } from 'vite';
+import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
+import { normalizeTheLocale } from '../../../i18n/index.js';
+import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookBuildSsr } from '../../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import type {
@@ -9,17 +12,16 @@ import type {
 	SerializedRouteInfo,
 	SerializedSSRManifest,
 } from '../../app/types.js';
-import { joinPaths, prependForwardSlash } from '../../path.js';
+import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
-import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
+import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
-import { normalizeTheLocale } from '../../../i18n/index.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
-const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
+const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
 
 export const SSR_MANIFEST_VIRTUAL_MODULE_ID = '@astrojs-manifest';
 export const RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID = '\0' + SSR_MANIFEST_VIRTUAL_MODULE_ID;
@@ -162,7 +164,8 @@ function buildManifest(
 
 	const prefixAssetPath = (pth: string) => {
 		if (settings.config.build.assetsPrefix) {
-			return joinPaths(settings.config.build.assetsPrefix, pth);
+			const pf = getAssetsPrefix(fileExtension(pth), settings.config.build.assetsPrefix);
+			return joinPaths(pf, pth);
 		} else {
 			return prependForwardSlash(joinPaths(settings.config.base, pth));
 		}
@@ -235,14 +238,7 @@ function buildManifest(
 	 * logic meant for i18n domain support, where we fill the lookup table
 	 */
 	const i18n = settings.config.i18n;
-	if (
-		settings.config.experimental.i18nDomains &&
-		i18n &&
-		i18n.domains &&
-		(i18n.routing === 'domains-prefix-always' ||
-			i18n.routing === 'domains-prefix-other-locales' ||
-			i18n.routing === 'domains-prefix-other-no-redirect')
-	) {
+	if (settings.config.experimental.i18nDomains && i18n && i18n.domains) {
 		for (const [locale, domainValue] of Object.entries(i18n.domains)) {
 			domainLookupTable[domainValue] = normalizeTheLocale(locale);
 		}
@@ -257,7 +253,7 @@ function buildManifest(
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
-			routing: settings.config.i18n.routing,
+			strategy: toRoutingStrategy(settings.config.i18n),
 			locales: settings.config.i18n.locales,
 			defaultLocale: settings.config.i18n.defaultLocale,
 			domainLookupTable,
@@ -276,6 +272,7 @@ function buildManifest(
 		renderers: [],
 		clientDirectives: Array.from(settings.clientDirectives),
 		entryModules,
+		inlinedScripts: Array.from(internals.inlinedScripts),
 		assets: staticFiles.map(prefixAssetPath),
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,

@@ -1,11 +1,14 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('SSR Astro.locals from server', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
+	/** @type {import('./test-utils.js').App} */
+	let app;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -14,27 +17,48 @@ describe('SSR Astro.locals from server', () => {
 			adapter: testAdapter(),
 		});
 		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
 	});
 
 	it('Can access Astro.locals in page', async () => {
-		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/foo');
 		const locals = { foo: 'bar' };
 		const response = await app.render(request, { locals });
 		const html = await response.text();
 
 		const $ = cheerio.load(html);
-		expect($('#foo').text()).to.equal('bar');
+		assert.equal($('#foo').text(), 'bar');
 	});
 
 	it('Can access Astro.locals in api context', async () => {
-		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/api');
 		const locals = { foo: 'bar' };
 		const response = await app.render(request, undefined, locals);
-		expect(response.status).to.equal(200);
+		assert.equal(response.status, 200);
 		const body = await response.json();
 
-		expect(body.foo).to.equal('bar');
+		assert.equal(body.foo, 'bar');
+	});
+
+	it('404.astro can access locals provided to app.render()', async () => {
+		const request = new Request('http://example.com/slkfnasf');
+		const locals = { foo: 'par' };
+		const response = await app.render(request, { locals });
+		assert.equal(response.status, 404);
+
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		assert.equal($('#foo').text(), 'par');
+	});
+
+	it('500.astro can access locals provided to app.render()', async () => {
+		const request = new Request('http://example.com/go-to-error-page');
+		const locals = { foo: 'par' };
+		const response = await app.render(request, { locals });
+		assert.equal(response.status, 500);
+
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		assert.equal($('#foo').text(), 'par');
 	});
 });

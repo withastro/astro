@@ -1,5 +1,23 @@
 # @astrojs/node
 
+## 8.2.3
+
+### Patch Changes
+
+- [#10285](https://github.com/withastro/astro/pull/10285) [`d5277df5a4d1e9a8a7b6c8d7b87912e13a163f7f`](https://github.com/withastro/astro/commit/d5277df5a4d1e9a8a7b6c8d7b87912e13a163f7f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes an issue where malformed requests could cause the server to error in certain cases.
+
+## 8.2.2
+
+### Patch Changes
+
+- [#10282](https://github.com/withastro/astro/pull/10282) [`b47dcaa25968ec85ba96fce23381c94a94e389f6`](https://github.com/withastro/astro/commit/b47dcaa25968ec85ba96fce23381c94a94e389f6) Thanks [@SatanshuMishra](https://github.com/SatanshuMishra)! - Fixes the `server.host` option to properly listen on all network interfaces when set to `true`
+
+## 8.2.1
+
+### Patch Changes
+
+- [#10208](https://github.com/withastro/astro/pull/10208) [`8cd38f02456640c063552aef00b2b8a216b3935d`](https://github.com/withastro/astro/commit/8cd38f02456640c063552aef00b2b8a216b3935d) Thanks [@log101](https://github.com/log101)! - Fixes custom headers are not added to the Node standalone server responses in preview mode
+
 ## 8.2.0
 
 ### Minor Changes

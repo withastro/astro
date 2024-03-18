@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -19,7 +20,7 @@ describe('Head in its own component', () => {
 	it('Styles are appended to the head and not the body', async () => {
 		let html = await fixture.readFile('/head-own-component/index.html');
 		let $ = cheerio.load(html);
-		expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1, 'one stylesheet overall');
-		expect($('head link[rel=stylesheet]')).to.have.a.lengthOf(1, 'stylesheet is in the head');
+		assert.equal($('link[rel=stylesheet]').length, 1, 'one stylesheet overall');
+		assert.equal($('head link[rel=stylesheet]').length, 1, 'stylesheet is in the head');
 	});
 });

@@ -11,7 +11,6 @@ import type {
 	SSRLoadedRenderer,
 } from '../../@types/astro.js';
 import type { Logger } from '../logger/core.js';
-import type { RouteCache } from '../render/route-cache.js';
 
 export type ComponentPath = string;
 export type ViteID = string;
@@ -43,7 +42,6 @@ export interface StaticBuildOptions {
 	mode: RuntimeMode;
 	origin: string;
 	pageNames: string[];
-	routeCache: RouteCache;
 	viteConfig: InlineConfig;
 	teardownCompiler: boolean;
 }

@@ -1,9 +1,9 @@
 import { fileURLToPath } from 'url';
 import stripAnsi from 'strip-ansi';
-import type { Logger as ViteLogger, Rollup, LogLevel } from 'vite';
+import type { LogLevel, Logger as ViteLogger, Rollup } from 'vite';
 import { isAstroError } from '../errors/errors.js';
-import { isLogLevelEnabled, type Logger as AstroLogger } from './core.js';
 import { serverShortcuts as formatServerShortcuts } from '../messages.js';
+import { type Logger as AstroLogger, isLogLevelEnabled } from './core.js';
 
 const PKG_PREFIX = fileURLToPath(new URL('../../../', import.meta.url));
 const E2E_PREFIX = fileURLToPath(new URL('../../../e2e', import.meta.url));
@@ -12,15 +12,15 @@ function isAstroSrcFile(id: string | null) {
 }
 
 // capture "page reload some/Component.vue (additional info)" messages
-const vitePageReloadMsg = /page reload (.*)( \(.*\))?/;
+const vitePageReloadMsg = /page reload (.*)/;
 // capture "hmr update some/Component.vue" messages
 const viteHmrUpdateMsg = /hmr update (.*)/;
 // capture "vite v5.0.0 building SSR bundle for production..." and "vite v5.0.0 building for production..." messages
 const viteBuildMsg = /vite.*building.*for production/;
 // capture "\n  Shortcuts" messages
-const viteShortcutTitleMsg = /^\s*Shortcuts\s*$/s;
+const viteShortcutTitleMsg = /^\s*Shortcuts\s*$/;
 // capture "press * + enter to ..." messages
-const viteShortcutHelpMsg = /press\s+(.*?)\s+to\s+(.*)$/s;
+const viteShortcutHelpMsg = /press (.+?) to (.+)$/s;
 
 export function createViteLogger(
 	astroLogger: AstroLogger,
@@ -39,8 +39,7 @@ export function createViteLogger(
 			// Rewrite HMR page reload message
 			if ((m = vitePageReloadMsg.exec(stripped))) {
 				if (isAstroSrcFile(m[1])) return;
-				const extra = m[2] ?? '';
-				astroLogger.info('watch', m[1] + extra);
+				astroLogger.info('watch', m[1]);
 			}
 			// Rewrite HMR update message
 			else if ((m = viteHmrUpdateMsg.exec(stripped))) {

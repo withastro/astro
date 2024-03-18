@@ -1,5 +1,6 @@
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
-import { expect } from 'chai';
 
 describe('Missing output config', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -18,7 +19,7 @@ describe('Missing output config', () => {
 		} catch (err) {
 			error = err;
 		}
-		expect(error).to.not.be.equal(undefined);
-		expect(error.message).to.include('output: "server"');
+		assert.notEqual(error, undefined);
+		assert.match(error.message, /output: "server"/);
 	});
 });

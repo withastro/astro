@@ -1,13 +1,14 @@
+import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
+import { createContainer } from '../../../dist/core/dev/container.js';
+import testAdapter from '../../test-adapter.js';
 import {
 	createBasicSettings,
 	createFs,
 	createRequestAndResponse,
 	defaultLogger,
 } from '../test-utils.js';
-import { fileURLToPath } from 'node:url';
-import { expect } from 'chai';
-import { createContainer } from '../../../dist/core/dev/container.js';
-import testAdapter from '../../test-adapter.js';
 
 const root = new URL('../../fixtures/api-routes/', import.meta.url);
 const fileSystem = {
@@ -47,9 +48,9 @@ describe('endpoints', () => {
 		container.handle(req, res);
 		await done;
 		const headers = res.getHeaders();
-		expect(headers).to.deep.include({ location: 'https://example.com/destination' });
-		expect(headers).not.to.deep.include({ 'x-astro-reroute': 'no' });
-		expect(res.statusCode).to.equal(307);
+		assert.equal(headers['location'], 'https://example.com/destination');
+		assert.equal(headers['x-astro-reroute'], undefined);
+		assert.equal(res.statusCode, 307);
 	});
 
 	it('should return a response with location header', async () => {
@@ -60,12 +61,11 @@ describe('endpoints', () => {
 		container.handle(req, res);
 		await done;
 		const headers = res.getHeaders();
-		expect(headers).to.deep.include({ location: 'https://example.com/destination' });
-		expect(headers).not.to.deep.include({ 'x-astro-reroute': 'no' });
-		expect(res.statusCode).to.equal(307);
+		assert.equal(headers['location'], 'https://example.com/destination');
+		assert.equal(res.statusCode, 307);
 	});
 
-	it('should append reroute header for HTTP status 404', async () => {
+	it('should remove internally-used for HTTP status 404', async () => {
 		const { req, res, done } = createRequestAndResponse({
 			method: 'GET',
 			url: '/not-found',
@@ -73,11 +73,11 @@ describe('endpoints', () => {
 		container.handle(req, res);
 		await done;
 		const headers = res.getHeaders();
-		expect(headers).to.deep.include({ 'x-astro-reroute': 'no' });
-		expect(res.statusCode).to.equal(404);
+		assert.equal(headers['x-astro-reroute'], undefined);
+		assert.equal(res.statusCode, 404);
 	});
 
-	it('should append reroute header for HTTP status 500', async () => {
+	it('should remove internally-used header for HTTP status 500', async () => {
 		const { req, res, done } = createRequestAndResponse({
 			method: 'GET',
 			url: '/internal-error',
@@ -85,7 +85,7 @@ describe('endpoints', () => {
 		container.handle(req, res);
 		await done;
 		const headers = res.getHeaders();
-		expect(headers).to.deep.include({ 'x-astro-reroute': 'no' });
-		expect(res.statusCode).to.equal(500);
+		assert.equal(headers['x-astro-reroute'], undefined);
+		assert.equal(res.statusCode, 500);
 	});
 });

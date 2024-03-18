@@ -1,26 +1,26 @@
-import { expect } from 'chai';
-
+import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { after, beforeEach, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { typescript, setupTypeScript } from '../dist/index.js';
-import { setup, resetFixtures } from './utils.js';
+import { setupTypeScript, typescript } from '../dist/index.js';
+import { resetFixtures, setup } from './utils.js';
 
-describe('typescript', () => {
+describe('typescript', async () => {
 	const fixture = setup();
 
 	it('none', async () => {
 		const context = { cwd: '', dryRun: true, prompt: () => ({ ts: 'strict', useTs: true }) };
 		await typescript(context);
 
-		expect(fixture.hasMessage('Skipping TypeScript setup')).to.be.true;
+		assert.ok(fixture.hasMessage('Skipping TypeScript setup'));
 	});
 
 	it('use false', async () => {
 		const context = { cwd: '', dryRun: true, prompt: () => ({ ts: 'strict', useTs: false }) };
 		await typescript(context);
 
-		expect(fixture.hasMessage('No worries')).to.be.true;
+		assert.ok(fixture.hasMessage('No worries'));
 	});
 
 	it('strict', async () => {
@@ -31,9 +31,8 @@ describe('typescript', () => {
 			prompt: () => ({ ts: 'strict' }),
 		};
 		await typescript(context);
-
-		expect(fixture.hasMessage('Using strict TypeScript configuration')).to.be.true;
-		expect(fixture.hasMessage('Skipping TypeScript setup')).to.be.true;
+		assert.ok(fixture.hasMessage('Using strict TypeScript configuration'));
+		assert.ok(fixture.hasMessage('Skipping TypeScript setup'));
 	});
 
 	it('default', async () => {
@@ -44,9 +43,8 @@ describe('typescript', () => {
 			prompt: () => ({ ts: 'strict' }),
 		};
 		await typescript(context);
-
-		expect(fixture.hasMessage('Using default TypeScript configuration')).to.be.true;
-		expect(fixture.hasMessage('Skipping TypeScript setup')).to.be.true;
+		assert.ok(fixture.hasMessage('Using default TypeScript configuration'));
+		assert.ok(fixture.hasMessage('Skipping TypeScript setup'));
 	});
 
 	it('relaxed', async () => {
@@ -57,9 +55,8 @@ describe('typescript', () => {
 			prompt: () => ({ ts: 'strict' }),
 		};
 		await typescript(context);
-
-		expect(fixture.hasMessage('Using relaxed TypeScript configuration')).to.be.true;
-		expect(fixture.hasMessage('Skipping TypeScript setup')).to.be.true;
+		assert.ok(fixture.hasMessage('Using relaxed TypeScript configuration'));
+		assert.ok(fixture.hasMessage('Skipping TypeScript setup'));
 	});
 
 	it('other', async () => {
@@ -78,19 +75,20 @@ describe('typescript', () => {
 		} catch (e) {
 			err = e;
 		}
-		expect(err).to.eq(1);
+		assert.equal(err, 1);
 	});
 });
 
-describe('typescript: setup tsconfig', () => {
+describe('typescript: setup tsconfig', async () => {
 	beforeEach(() => resetFixtures());
+	after(() => resetFixtures());
 
 	it('none', async () => {
 		const root = new URL('./fixtures/empty/', import.meta.url);
 		const tsconfig = new URL('./tsconfig.json', root);
 
 		await setupTypeScript('strict', { cwd: fileURLToPath(root) });
-		expect(JSON.parse(fs.readFileSync(tsconfig, { encoding: 'utf-8' }))).to.deep.eq({
+		assert.deepEqual(JSON.parse(fs.readFileSync(tsconfig, { encoding: 'utf-8' })), {
 			extends: 'astro/tsconfigs/strict',
 		});
 	});
@@ -99,37 +97,47 @@ describe('typescript: setup tsconfig', () => {
 		const root = new URL('./fixtures/not-empty/', import.meta.url);
 		const tsconfig = new URL('./tsconfig.json', root);
 		await setupTypeScript('strict', { cwd: fileURLToPath(root) });
-		expect(JSON.parse(fs.readFileSync(tsconfig, { encoding: 'utf-8' }))).to.deep.eq({
+		assert.deepEqual(JSON.parse(fs.readFileSync(tsconfig, { encoding: 'utf-8' })), {
 			extends: 'astro/tsconfigs/strict',
 		});
 	});
 });
 
-describe('typescript: setup package', () => {
+describe('typescript: setup package', async () => {
 	beforeEach(() => resetFixtures());
+	after(() => resetFixtures());
 
 	it('none', async () => {
 		const root = new URL('./fixtures/empty/', import.meta.url);
 		const packageJson = new URL('./package.json', root);
 
 		await setupTypeScript('strictest', { cwd: fileURLToPath(root), install: false });
-		expect(fs.existsSync(packageJson)).to.be.false;
+		assert.ok(!fs.existsSync(packageJson));
 	});
 
 	it('none', async () => {
 		const root = new URL('./fixtures/not-empty/', import.meta.url);
 		const packageJson = new URL('./package.json', root);
-
-		expect(JSON.parse(fs.readFileSync(packageJson, { encoding: 'utf-8' })).scripts.build).to.be.eq(
+		assert.equal(
+			JSON.parse(fs.readFileSync(packageJson, { encoding: 'utf-8' })).scripts.build,
 			'astro build'
 		);
-		await setupTypeScript('strictest', { cwd: fileURLToPath(root), install: false });
-		const { scripts } = JSON.parse(fs.readFileSync(packageJson, { encoding: 'utf-8' }));
 
-		expect(Object.keys(scripts)).to.deep.eq(
+		await setupTypeScript('strictest', { cwd: fileURLToPath(root), install: false });
+		const { scripts, dependencies } = JSON.parse(
+			fs.readFileSync(packageJson, { encoding: 'utf-8' })
+		);
+
+		assert.deepEqual(
+			Object.keys(scripts),
 			['dev', 'build', 'preview'],
 			'does not override existing scripts'
 		);
-		expect(scripts.build).to.eq('astro check && astro build', 'prepends astro check command');
+
+		for (const value of Object.values(dependencies)) {
+			assert.doesNotMatch(value, /undefined$/, 'does not include undefined values');
+		}
+
+		assert.equal(scripts.build, 'astro check && astro build', 'prepends astro check command');
 	});
 });

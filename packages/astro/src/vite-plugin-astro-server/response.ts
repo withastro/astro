@@ -23,6 +23,20 @@ export async function handle404Response(
 	writeHtmlResponse(res, 404, html);
 }
 
+export async function default404Page({ pathname }: { pathname: string }) {
+	return new Response(
+		notFoundTemplate({
+			statusCode: 404,
+			title: 'Not found',
+			tabTitle: '404: Not Found',
+			pathname,
+		}),
+		{ status: 404, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+	);
+}
+// mark the function as an AstroComponentFactory for the rendering internals
+default404Page.isAstroComponentFactory = true;
+
 export async function handle500Response(
 	loader: ModuleLoader,
 	res: http.ServerResponse,
@@ -82,6 +96,11 @@ export async function writeWebResponse(res: http.ServerResponse, webResponse: Re
 			res.write(body);
 		} else {
 			const reader = body.getReader();
+			res.on('close', () => {
+				reader.cancel().catch(() => {
+					// Don't log here, or errors will get logged twice in most cases
+				});
+			});
 			while (true) {
 				const { done, value } = await reader.read();
 				if (done) break;

@@ -1,10 +1,14 @@
-import { bundledLanguages, createCssVariablesTheme, getHighlighter } from 'shikiji';
-import { visit } from 'unist-util-visit';
 import type { Properties } from 'hast';
+import { bundledLanguages, createCssVariablesTheme, getHighlighter } from 'shiki';
+import { visit } from 'unist-util-visit';
 import type { ShikiConfig } from './types.js';
 
 export interface ShikiHighlighter {
-	highlight(code: string, lang?: string, options?: { inline?: boolean }): string;
+	highlight(
+		code: string,
+		lang?: string,
+		options?: { inline?: boolean; attributes?: Record<string, string> }
+	): string;
 }
 
 // TODO: Remove this special replacement in Astro 5
@@ -13,7 +17,7 @@ const ASTRO_COLOR_REPLACEMENTS: Record<string, string> = {
 	'--astro-code-background': '--astro-code-color-background',
 };
 const COLOR_REPLACEMENT_REGEX = new RegExp(
-	`(${Object.keys(ASTRO_COLOR_REPLACEMENTS).join('|')})`,
+	`${Object.keys(ASTRO_COLOR_REPLACEMENTS).join('|')}`,
 	'g'
 );
 
@@ -25,12 +29,10 @@ const cssVariablesTheme = () =>
 export async function createShikiHighlighter({
 	langs = [],
 	theme = 'github-dark',
-	experimentalThemes = {},
+	themes = {},
 	wrap = false,
 	transformers = [],
 }: ShikiConfig = {}): Promise<ShikiHighlighter> {
-	const themes = experimentalThemes;
-
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
 
 	const highlighter = await getHighlighter({
@@ -62,8 +64,19 @@ export async function createShikiHighlighter({
 								node.tagName = 'code';
 							}
 
-							const classValue = normalizePropAsString(node.properties.class) ?? '';
-							const styleValue = normalizePropAsString(node.properties.style) ?? '';
+							const {
+								class: attributesClass,
+								style: attributesStyle,
+								...rest
+							} = options?.attributes ?? {};
+							Object.assign(node.properties, rest);
+
+							const classValue =
+								(normalizePropAsString(node.properties.class) ?? '') +
+								(attributesClass ? ` ${attributesClass}` : '');
+							const styleValue =
+								(normalizePropAsString(node.properties.style) ?? '') +
+								(attributesStyle ? `; ${attributesStyle}` : '');
 
 							// Replace "shiki" class naming with "astro-code"
 							node.properties.class = classValue.replace(/shiki/g, 'astro-code');
@@ -106,11 +119,10 @@ export async function createShikiHighlighter({
 							}
 						},
 						root(node) {
-							if (Object.values(experimentalThemes).length) {
+							if (Object.values(themes).length) {
 								return;
 							}
 
-							// theme.id for shiki -> shikiji compat
 							const themeName = typeof theme === 'string' ? theme : theme.name;
 							if (themeName === 'css-variables') {
 								// Replace special color tokens to CSS variables

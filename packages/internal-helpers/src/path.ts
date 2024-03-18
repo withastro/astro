@@ -16,7 +16,7 @@ export function prependForwardSlash(path: string) {
 }
 
 export function collapseDuplicateSlashes(path: string) {
-	return path.replace(/(?<!:)\/\/+/g, '/');
+	return path.replace(/(?<!:)\/{2,}/g, '/');
 }
 
 export function removeTrailingForwardSlash(path: string) {
@@ -86,9 +86,14 @@ export function removeQueryString(path: string) {
 }
 
 export function isRemotePath(src: string) {
-	return /^(http|ftp|https|ws):?\/\//.test(src) || src.startsWith('data:');
+	return /^(?:http|ftp|https|ws):?\/\//.test(src) || src.startsWith('data:');
 }
 
 export function slash(path: string) {
 	return path.replace(/\\/g, '/');
+}
+
+export function fileExtension(path: string) {
+	const ext = path.split('.').pop();
+	return ext !== path ? `.${ext}` : '';
 }

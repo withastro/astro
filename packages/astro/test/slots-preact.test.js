@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -14,43 +15,43 @@ describe('Slots: Preact', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#default-self-closing').text().trim()).to.equal('Fallback');
-		expect($('#default-empty').text().trim()).to.equal('Fallback');
-		expect($('#zero').text().trim()).to.equal('0');
-		expect($('#false').text().trim()).to.equal('');
-		expect($('#string').text().trim()).to.equal('');
-		expect($('#content').text().trim()).to.equal('Hello world!');
+		assert.equal($('#default-self-closing').text().trim(), 'Fallback');
+		assert.equal($('#default-empty').text().trim(), 'Fallback');
+		assert.equal($('#zero').text().trim(), '0');
+		assert.equal($('#false').text().trim(), '');
+		assert.equal($('#string').text().trim(), '');
+		assert.equal($('#content').text().trim(), 'Hello world!');
 	});
 
 	it('Renders named slot', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		expect($('#named').text().trim()).to.equal('Fallback / Named');
+		assert.equal($('#named').text().trim(), 'Fallback / Named');
 	});
 
 	it('Converts dash-case slot to camelCase', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		expect($('#dash-case').text().trim()).to.equal('Fallback / Dash Case');
+		assert.equal($('#dash-case').text().trim(), 'Fallback / Dash Case');
 	});
 
 	describe('For MDX Pages', () => {
 		it('Renders default slot', async () => {
 			const html = await fixture.readFile('/mdx/index.html');
 			const $ = cheerio.load(html);
-			expect($('#content').text().trim()).to.equal('Hello world!');
+			assert.equal($('#content').text().trim(), 'Hello world!');
 		});
 
 		it('Renders named slot', async () => {
 			const html = await fixture.readFile('/mdx/index.html');
 			const $ = cheerio.load(html);
-			expect($('#named').text().trim()).to.equal('Fallback / Named');
+			assert.equal($('#named').text().trim(), 'Fallback / Named');
 		});
 
 		it('Converts dash-case slot to camelCase', async () => {
 			const html = await fixture.readFile('/mdx/index.html');
 			const $ = cheerio.load(html);
-			expect($('#dash-case').text().trim()).to.equal('Fallback / Dash Case');
+			assert.equal($('#dash-case').text().trim(), 'Fallback / Dash Case');
 		});
 	});
 });

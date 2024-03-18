@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('build format', () => {
@@ -17,9 +18,9 @@ describe('build format', () => {
 		});
 
 		it('outputs', async () => {
-			expect(await fixture.readFile('/client.html')).to.be.ok;
-			expect(await fixture.readFile('/nested-md.html')).to.be.ok;
-			expect(await fixture.readFile('/nested-astro.html')).to.be.ok;
+			assert.ok(await fixture.readFile('/client.html'));
+			assert.ok(await fixture.readFile('/nested-md.html'));
+			assert.ok(await fixture.readFile('/nested-astro.html'));
 		});
 	});
 
@@ -38,9 +39,9 @@ describe('build format', () => {
 		});
 
 		it('outputs', async () => {
-			expect(await fixture.readFile('/client.html')).to.be.ok;
-			expect(await fixture.readFile('/nested-md/index.html')).to.be.ok;
-			expect(await fixture.readFile('/nested-astro/index.html')).to.be.ok;
+			assert.ok(await fixture.readFile('/client.html'));
+			assert.ok(await fixture.readFile('/nested-md/index.html'));
+			assert.ok(await fixture.readFile('/nested-astro/index.html'));
 		});
 	});
 });

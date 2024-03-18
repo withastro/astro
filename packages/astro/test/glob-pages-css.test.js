@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -18,6 +19,6 @@ describe('Astro.glob on pages/ directory', () => {
 		let html = await fixture.readFile('/index.html');
 		let $ = cheerio.load(html);
 
-		expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1);
+		assert.equal($('link[rel=stylesheet]').length, 1);
 	});
 });

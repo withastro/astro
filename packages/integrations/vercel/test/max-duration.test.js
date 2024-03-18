@@ -1,5 +1,6 @@
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
-import { expect } from 'chai';
 
 describe('maxDuration', () => {
 	/** @type {import('./test-utils.js').Fixture} */
@@ -16,6 +17,6 @@ describe('maxDuration', () => {
 		const vcConfig = JSON.parse(
 			await fixture.readFile('../.vercel/output/functions/_render.func/.vc-config.json')
 		);
-		expect(vcConfig).to.deep.include({ maxDuration: 60 });
+		assert.equal(vcConfig.maxDuration, 60);
 	});
 });

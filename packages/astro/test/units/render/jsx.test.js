@@ -1,24 +1,25 @@
-import { expect } from 'chai';
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
+import { RenderContext } from '../../../dist/core/render-context.js';
+import { loadRenderer } from '../../../dist/core/render/index.js';
+import { jsx } from '../../../dist/jsx-runtime/index.js';
+import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
 import {
 	createComponent,
 	render,
 	renderComponent,
 	renderSlot,
 } from '../../../dist/runtime/server/index.js';
-import { jsx } from '../../../dist/jsx-runtime/index.js';
-import { createRenderContext, loadRenderer } from '../../../dist/core/render/index.js';
-import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
-import { createBasicEnvironment } from '../test-utils.js';
-import { Pipeline } from '../../../dist/core/pipeline.js';
+import { createBasicPipeline } from '../test-utils.js';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
 const loadJSXRenderer = () => loadRenderer(jsxRenderer, { import: (s) => import(s) });
 
 describe('core/render', () => {
 	describe('Astro JSX components', () => {
-		let env;
+		let pipeline;
 		before(async () => {
-			env = createBasicEnvironment({
+			pipeline = createBasicPipeline({
 				renderers: [await loadJSXRenderer()],
 			});
 		});
@@ -41,20 +42,20 @@ describe('core/render', () => {
 			});
 
 			const mod = createAstroModule(Page);
-			const ctx = await createRenderContext({
-				route: { type: 'page', pathname: '/index', component: 'src/pages/index.mdx' },
-				request: new Request('http://example.com/'),
-				env,
-				mod,
-			});
+			const request = new Request('http://example.com/');
+			const routeData = {
+				type: 'page',
+				pathname: '/index',
+				component: 'src/pages/index.mdx',
+				params: {},
+			};
+			const renderContext = RenderContext.create({ pipeline, request, routeData });
+			const response = await renderContext.render(mod);
 
-			const pipeline = new Pipeline(env);
-			const response = await pipeline.renderRoute(ctx, mod);
-
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 
 			const html = await response.text();
-			expect(html).to.include('<div><p class="n">works</p></div>');
+			assert.equal(html.includes('<div><p class="n">works</p></div>'), true);
 		});
 
 		it('Can render slots with a dash in the name', async () => {
@@ -88,20 +89,24 @@ describe('core/render', () => {
 			});
 
 			const mod = createAstroModule(Page);
-			const ctx = await createRenderContext({
-				route: { type: 'page', pathname: '/index', component: 'src/pages/index.mdx' },
-				request: new Request('http://example.com/'),
-				env,
-				mod,
-			});
-			const pipeline = new Pipeline(env);
-			const response = await pipeline.renderRoute(ctx, mod);
+			const request = new Request('http://example.com/');
+			const routeData = {
+				type: 'page',
+				pathname: '/index',
+				component: 'src/pages/index.mdx',
+				params: {},
+			};
+			const renderContext = RenderContext.create({ pipeline, request, routeData });
+			const response = await renderContext.render(mod);
 
-			expect(response.status).to.equal(200);
+			assert.equal(response.status, 200);
 
 			const html = await response.text();
-			expect(html).to.include(
-				'<main><div><p class="n">works</p></div><div><p class="p">works</p></div></main>'
+			assert.equal(
+				html.includes(
+					'<main><div><p class="n">works</p></div><div><p class="p">works</p></div></main>'
+				),
+				true
 			);
 		});
 
@@ -115,21 +120,21 @@ describe('core/render', () => {
 			});
 
 			const mod = createAstroModule(Page);
-			const ctx = await createRenderContext({
-				route: { type: 'page', pathname: '/index', component: 'src/pages/index.mdx' },
-				request: new Request('http://example.com/'),
-				env,
-				mod,
-			});
-
-			const pipeline = new Pipeline(env);
-			const response = await pipeline.renderRoute(ctx, mod);
+			const request = new Request('http://example.com/');
+			const routeData = {
+				type: 'page',
+				pathname: '/index',
+				component: 'src/pages/index.mdx',
+				params: {},
+			};
+			const renderContext = RenderContext.create({ pipeline, request, routeData });
+			const response = await renderContext.render(mod);
 
 			try {
 				await response.text();
-				expect(false).to.equal(true, 'should not have been successful');
+				assert.equal(false, true, 'should not have been successful');
 			} catch (err) {
-				expect(err.message).to.equal('uh oh');
+				assert.equal(err.message, 'uh oh');
 			}
 		});
 	});

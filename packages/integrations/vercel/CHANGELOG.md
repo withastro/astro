@@ -1,5 +1,103 @@
 # @astrojs/vercel
 
+## 7.3.6
+
+### Patch Changes
+
+- Updated dependencies [[`1ea0a25b94125e4f6f2ac82b42f638e22d7bdffd`](https://github.com/withastro/astro/commit/1ea0a25b94125e4f6f2ac82b42f638e22d7bdffd)]:
+  - @astrojs/internal-helpers@0.3.0
+
+## 7.3.5
+
+### Patch Changes
+
+- [#10336](https://github.com/withastro/astro/pull/10336) [`f2e60a96754ed1d86001fe4d5d3a0c0ef657408d`](https://github.com/withastro/astro/commit/f2e60a96754ed1d86001fe4d5d3a0c0ef657408d) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fixes an issue that was preventing the use of `sharp` in some cases and causing a runtime error
+
+## 7.3.4
+
+### Patch Changes
+
+- [#10231](https://github.com/withastro/astro/pull/10231) [`ae2a10e1a768e31d243194694222932ffafb54cc`](https://github.com/withastro/astro/commit/ae2a10e1a768e31d243194694222932ffafb54cc) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Fixes an issue where functions were also created for prerendered routes with `functionPerRoute` enabled.
+
+## 7.3.3
+
+### Patch Changes
+
+- [#10215](https://github.com/withastro/astro/pull/10215) [`a013182d322a3969e39d647aad75ec10f8bd1ed7`](https://github.com/withastro/astro/commit/a013182d322a3969e39d647aad75ec10f8bd1ed7) Thanks [@matthewp](https://github.com/matthewp)! - Fixes edge middleware calling nested routes
+
+## 7.3.2
+
+### Patch Changes
+
+- [#10194](https://github.com/withastro/astro/pull/10194) [`3cc20109277813ccb9578ca87a8b0d680a73c35c`](https://github.com/withastro/astro/commit/3cc20109277813ccb9578ca87a8b0d680a73c35c) Thanks [@matthewp](https://github.com/matthewp)! - Fix loading client-scripts in dev with ISR
+
+## 7.3.1
+
+### Patch Changes
+
+- [#10082](https://github.com/withastro/astro/pull/10082) [`2ffc5721bc22631c44d90ac43ec27fdb0b5b2d1b`](https://github.com/withastro/astro/commit/2ffc5721bc22631c44d90ac43ec27fdb0b5b2d1b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Prevents infinite redirects when Astro `trailingSlash` configuration is set to `"always"` and "vercel.json" `trailingSlash` configuration is set to `true`
+
+## 7.3.0
+
+### Minor Changes
+
+- [#9987](https://github.com/withastro/astro/pull/9987) [`0699f34d5c4481c027c4d29d73944f79f97008df`](https://github.com/withastro/astro/commit/0699f34d5c4481c027c4d29d73944f79f97008df) Thanks [@lilnasy](https://github.com/lilnasy)! - Implements verification for edge middleware. This is a security measure to ensure that your serverless functions are only ever called by your edge middleware and not a third party.
+
+  When `edgeMiddleware` is enabled, the serverless function will now respond with `403 Forbidden` for requests that are not verified to have come from the generated edge middleware. No user action is necessary.
+
+## 7.2.0
+
+### Minor Changes
+
+- [#9714](https://github.com/withastro/astro/pull/9714) [`e2fe51c828dc7ea8204788e59e3953fe36c97836`](https://github.com/withastro/astro/commit/e2fe51c828dc7ea8204788e59e3953fe36c97836) Thanks [@lilnasy](https://github.com/lilnasy)! - Introduces a new config option, `isr`, that allows you to deploy your project as an ISR function. [ISR (Incremental Static Regeneration)](https://vercel.com/docs/incremental-static-regeneration) caches your on-demand rendered pages in the same way as prerendered pages after first request.
+
+  To enable this feature, set `isr` to true in your Vercel adapter configuration in `astro.config.mjs`:
+
+  ```js
+  export default defineConfig({
+    output: 'server',
+    adapter: vercel({ isr: true }),
+  });
+  ```
+
+  ## Cache invalidation options
+
+  By default, ISR responses are cached for the duration of your deployment. You can further control caching by setting an `expiration` time or prevent caching entirely for certain routes.
+
+  ### Time-based invalidation
+
+  You can change the length of time to cache routes this by configuring an `expiration` value in seconds:
+
+  ```js
+  export default defineConfig({
+    output: 'server',
+    adapter: vercel({
+      isr: {
+        // caches all pages on first request and saves for 1 day
+        expiration: 60 * 60 * 24,
+      },
+    }),
+  });
+  ```
+
+  ### Manual invalidation
+
+  To implement Vercel's [Draft mode](https://vercel.com/docs/build-output-api/v3/features#draft-mode), or [On-Demand Incremental Static Regeneration (ISR)](https://vercel.com/docs/build-output-api/v3/features#on-demand-incremental-static-regeneration-isr), you can create a bypass token and provide it to the `isr` config along with the paths to exclude from caching:
+
+  ```js
+  export default defineConfig({
+    output: 'server',
+    adapter: vercel({
+      isr: {
+        // A secret random string that you create.
+        bypassToken: '005556d774a8',
+        // Paths that will always be served fresh.
+        exclude: ['/api/invalidate'],
+      },
+    }),
+  });
+  ```
+
 ## 7.1.1
 
 ### Patch Changes

@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -18,7 +19,7 @@ describe('Astro Markdown URL', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#url').attr('href')).to.equal(baseUrl + '/');
+			assert.equal($('#url').attr('href'), baseUrl + '/');
 		});
 
 		it('trailingSlash: never', async () => {
@@ -33,7 +34,7 @@ describe('Astro Markdown URL', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#url').attr('href')).to.equal(baseUrl);
+			assert.equal($('#url').attr('href'), baseUrl);
 		});
 
 		it('trailingSlash: ignore', async () => {
@@ -48,7 +49,7 @@ describe('Astro Markdown URL', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#url').attr('href')).to.equal(baseUrl);
+			assert.equal($('#url').attr('href'), baseUrl);
 		});
 	});
 
@@ -66,7 +67,7 @@ describe('Astro Markdown URL', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#url').attr('href')).to.equal(baseUrl + '/');
+			assert.equal($('#url').attr('href'), baseUrl + '/');
 		});
 
 		it('trailingSlash: never', async () => {
@@ -80,7 +81,7 @@ describe('Astro Markdown URL', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#url').attr('href')).to.equal(baseUrl);
+			assert.equal($('#url').attr('href'), baseUrl);
 		});
 
 		it('trailingSlash: ignore', async () => {
@@ -94,7 +95,7 @@ describe('Astro Markdown URL', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#url').attr('href')).to.equal(baseUrl);
+			assert.equal($('#url').attr('href'), baseUrl);
 		});
 	});
 });

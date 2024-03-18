@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -43,7 +44,7 @@ describe('CSS Bundling', function () {
 				// test 1: assert new bundled CSS is present
 				for (const href of css) {
 					const link = $(`link[rel="stylesheet"][href^="${href}"]`);
-					expect(link.length).to.be.greaterThanOrEqual(1);
+					assert.equal(link.length >= 1, true);
 					const outHref = link.attr('href');
 					builtCSS.add(outHref.startsWith('../') ? outHref.slice(2) : outHref);
 				}
@@ -51,25 +52,25 @@ describe('CSS Bundling', function () {
 				// test 2: assert old CSS was removed
 				for (const href of UNEXPECTED_CSS) {
 					const link = $(`link[rel="stylesheet"][href="${href}"]`);
-					expect(link).to.have.lengthOf(0);
+					assert.equal(link.length, 0);
 				}
 
 				// test 3: assert all bundled CSS was built and contains CSS
 				for (const url of builtCSS.keys()) {
 					const bundledCss = await fixture.readFile(url);
-					expect(bundledCss).to.be.ok;
+					assert.ok(bundledCss);
 				}
 			}
 		});
 
 		it('there are 4 css files', async () => {
 			const dir = await fixture.readdir('/_astro');
-			expect(dir).to.have.a.lengthOf(4);
+			assert.equal(dir.length, 4);
 		});
 
 		it('CSS includes hashes', async () => {
 			const [firstFound] = await fixture.readdir('/_astro');
-			expect(firstFound).to.match(/[a-z]+\.[\w-]{8}\.css/);
+			assert.match(firstFound, /[a-z]+\.[\w-]{8}\.css/);
 		});
 	});
 
@@ -97,18 +98,18 @@ describe('CSS Bundling', function () {
 
 		it('there are 4 css files', async () => {
 			const dir = await fixture.readdir('/assets');
-			expect(dir).to.have.a.lengthOf(4);
+			assert.equal(dir.length, 4);
 		});
 
 		it('CSS does not include hashes', async () => {
 			const [firstFound] = await fixture.readdir('/assets');
-			expect(firstFound).to.not.match(/[a-z]+\.[0-9a-z]{8}\.css/);
+			assert.doesNotMatch(firstFound, /[a-z]+\.[\da-z]{8}\.css/);
 		});
 
 		it('there are 2 index named CSS files', async () => {
 			const dir = await fixture.readdir('/assets');
 			const indexNamedFiles = dir.filter((name) => name.startsWith('index'));
-			expect(indexNamedFiles).to.have.a.lengthOf(2);
+			assert.equal(indexNamedFiles.length, 2);
 		});
 	});
 });
