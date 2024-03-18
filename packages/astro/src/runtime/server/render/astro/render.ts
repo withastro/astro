@@ -125,6 +125,11 @@ export async function renderToReadableStream(
 				}
 			})();
 		},
+		cancel() {
+			// If the client disconnects,
+			// we signal to ignore the results of existing renders and avoid kicking off more of them.
+			result.cancelled = true;
+		}
 	});
 }
 
@@ -201,13 +206,11 @@ export async function renderToAsyncIterable(
 	// The `next` is an object `{ promise, resolve, reject }` that we use to wait
 	// for chunks to be pushed into the buffer.
 	let next = promiseWithResolvers<void>();
-	// keep track of whether the client connection is still interested in the response.
-	let cancelled = false;
 	const buffer: Uint8Array[] = []; // []Uint8Array
 
 	const iterator: AsyncIterator<Uint8Array> = {
 		async next() {
-			if (cancelled) return { done: true, value: undefined };
+			if (result.cancelled) return { done: true, value: undefined };
 
 			await next.promise;
 
@@ -243,7 +246,9 @@ export async function renderToAsyncIterable(
 			return returnValue;
 		},
 		async return() {
-			cancelled = true;
+			// If the client disconnects,
+			// we signal to the rest of the internals to ignore the results of existing renders and avoid kicking off more of them.
+			result.cancelled = true;
 			return { done: true, value: undefined };
 		},
 	};
