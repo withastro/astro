@@ -1,5 +1,13 @@
 # @astrojs/db
 
+## 0.8.7
+
+### Patch Changes
+
+- [#10435](https://github.com/withastro/astro/pull/10435) [`37a485b4d1d4b7e60eee2067ffd86d0eea4f03e8`](https://github.com/withastro/astro/commit/37a485b4d1d4b7e60eee2067ffd86d0eea4f03e8) Thanks [@matthewp](https://github.com/matthewp)! - Fetch new app token when previous has expired
+
+- [#10457](https://github.com/withastro/astro/pull/10457) [`219c49473fe44d8df2b69444b2dce0f5bc971655`](https://github.com/withastro/astro/commit/219c49473fe44d8df2b69444b2dce0f5bc971655) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix type error in db/seed.ts file before type generation is run.
+
 ## 0.8.6
 
 ### Patch Changes
