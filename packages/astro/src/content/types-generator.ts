@@ -1,9 +1,9 @@
+import glob from 'fast-glob';
+import { bold, cyan } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import glob from 'fast-glob';
-import { bold, cyan } from 'kleur/colors';
-import { type ViteDevServer, normalizePath } from 'vite';
+import { normalizePath, type ViteDevServer } from 'vite';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
@@ -13,9 +13,6 @@ import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
-	type ContentConfig,
-	type ContentObservable,
-	type ContentPaths,
 	getContentEntryIdAndSlug,
 	getContentPaths,
 	getDataEntryExts,
@@ -25,6 +22,9 @@ import {
 	getEntrySlug,
 	getEntryType,
 	reloadContentConfigObserver,
+	type ContentConfig,
+	type ContentObservable,
+	type ContentPaths,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
@@ -455,7 +455,10 @@ async function writeContentFiles({
 						settings.config.experimental.contentCollectionJsonSchema &&
 						collectionConfig?.schema
 					) {
-						let zodSchemaForJson = collectionConfig.schema;
+						let zodSchemaForJson =
+							typeof collectionConfig.schema === 'function'
+								? collectionConfig.schema({ image: () => z.string() })
+								: collectionConfig.schema;
 						if (zodSchemaForJson instanceof z.ZodObject) {
 							zodSchemaForJson = zodSchemaForJson.extend({
 								$schema: z.string().optional(),
@@ -477,7 +480,7 @@ async function writeContentFiles({
 						} catch (err) {
 							logger.warn(
 								'content',
-								`An error was encountered while creating the JSON schema. Proceeding without it. Error: ${err}`
+								`An error was encountered while creating the JSON schema for the ${entryKey} entry in ${collectionKey} collection. Proceeding without it. Error: ${err}`
 							);
 						}
 					}
