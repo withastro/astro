@@ -1,3 +1,4 @@
+import { sql as _sql } from 'drizzle-orm';
 import type {
 	BooleanColumnInput,
 	ColumnsConfig,
@@ -8,7 +9,6 @@ import type {
 	TableConfig,
 	TextColumnOpts,
 } from '../core/types.js';
-import { sql as _sql } from 'drizzle-orm';
 
 export type { LibSQLDatabase } from 'drizzle-orm/libsql';
 
