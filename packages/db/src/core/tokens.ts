@@ -62,10 +62,6 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 				throw new Error(`Failed to create token: ${res.status} ${res.statusText}`);
 			}
 		);
-		// Wait for 2 seconds! This is the maximum time we would reasonably expect a token
-		// to be created and propagate to all the necessary DB services. Without this, you
-		// risk a token being created, used immediately, and failing to authenticate.
-		await new Promise((resolve) => setTimeout(resolve, 2000));
 		spinner.succeed(green('Connected to remote database.'));
 
 		const { token, ttl } = await response.json();
