@@ -1,9 +1,9 @@
 import { bold } from 'kleur/colors';
 import type { APIContext, EndpointHandler } from '../../@types/astro.js';
 import { REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER } from '../../core/constants.js';
-import type { Logger } from '../../core/logger/core.js';
-import { AstroError } from '../../core/errors/errors.js';
 import { EndpointDidNotReturnAResponse } from '../../core/errors/errors-data.js';
+import { AstroError } from '../../core/errors/errors.js';
+import type { Logger } from '../../core/logger/core.js';
 
 /** Renders an endpoint request to completion, returning the body. */
 export async function renderEndpoint(
@@ -53,7 +53,7 @@ export async function renderEndpoint(
 	const response = await handler.call(mod, context);
 
 	if (!response || response instanceof Response === false) {
-		throw new AstroError(EndpointDidNotReturnAResponse)
+		throw new AstroError(EndpointDidNotReturnAResponse);
 	}
 
 	// Endpoints explicitly returning 404 or 500 response status should
