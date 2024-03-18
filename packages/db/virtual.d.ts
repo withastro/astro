@@ -33,4 +33,12 @@ declare module 'astro:db' {
 	export const desc: RuntimeConfig['desc'];
 	export const and: RuntimeConfig['and'];
 	export const or: RuntimeConfig['or'];
+	export const count: RuntimeConfig['count'];
+	export const countDistinct: RuntimeConfig['countDistinct'];
+	export const avg: RuntimeConfig['avg'];
+	export const avgDistinct: RuntimeConfig['avgDistinct'];
+	export const sum: RuntimeConfig['sum'];
+	export const sumDistinct: RuntimeConfig['sumDistinct'];
+	export const max: RuntimeConfig['max'];
+	export const min: RuntimeConfig['min'];
 }
