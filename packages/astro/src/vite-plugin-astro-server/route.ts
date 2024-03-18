@@ -1,18 +1,21 @@
 import type http from 'node:http';
 import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro.js';
+import {
+	DEFAULT_404_COMPONENT,
+	REROUTE_DIRECTIVE_HEADER,
+	clientLocalsSymbol,
+} from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { req } from '../core/messages.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
-import { getProps, type SSROptions } from '../core/render/index.js';
+import { RenderContext } from '../core/render-context.js';
+import { type SSROptions, getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { normalizeTheLocale } from '../i18n/index.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
-import { isServerLikeOutput } from '../prerender/utils.js';
 import type { DevPipeline } from './pipeline.js';
-import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
-import { REROUTE_DIRECTIVE_HEADER, clientLocalsSymbol } from '../core/constants.js';
-import { RenderContext } from '../core/render-context.js';
+import { default404Page, handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any
@@ -96,6 +99,19 @@ export async function matchRoute(
 
 	const custom404 = getCustom404Route(manifestData);
 
+	if (custom404 && custom404.component === DEFAULT_404_COMPONENT) {
+		const component: ComponentInstance = {
+			default: default404Page,
+		};
+		return {
+			route: custom404,
+			filePath: new URL(`file://${custom404.component}`),
+			resolvedPathname: pathname,
+			preloadedComponent: component,
+			mod: component,
+		};
+	}
+
 	if (custom404) {
 		const filePath = new URL(`./${custom404.component}`, config.root);
 		const preloadedComponent = await pipeline.preload(filePath);
@@ -146,8 +162,6 @@ export async function handleRoute({
 		return handle404Response(origin, incomingRequest, incomingResponse);
 	}
 
-	const buildingToSSR = isServerLikeOutput(config);
-
 	let request: Request;
 	let renderContext: RenderContext;
 	let mod: ComponentInstance | undefined = undefined;
@@ -183,10 +197,12 @@ export async function handleRoute({
 				return handle404Response(origin, incomingRequest, incomingResponse);
 			}
 			request = createRequest({
+				base: config.base,
 				url,
-				headers: buildingToSSR ? incomingRequest.headers : new Headers(),
+				headers: incomingRequest.headers,
 				logger,
-				ssr: buildingToSSR,
+				// no route found, so we assume the default for rendering the 404 page
+				staticLike: config.output === 'static' || config.output === 'hybrid',
 			});
 			route = {
 				component: '',
@@ -221,15 +237,14 @@ export async function handleRoute({
 		// Allows adapters to pass in locals in dev mode.
 		const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
 		request = createRequest({
+			base: config.base,
 			url,
-			// Headers are only available when using SSR.
-			headers: buildingToSSR ? incomingRequest.headers : new Headers(),
+			headers: incomingRequest.headers,
 			method: incomingRequest.method,
 			body,
 			logger,
-			ssr: buildingToSSR,
-			clientAddress: buildingToSSR ? incomingRequest.socket.remoteAddress : undefined,
-			removeParams: buildingToSSR === false || route.prerender,
+			clientAddress: incomingRequest.socket.remoteAddress,
+			staticLike: config.output === 'static' || route.prerender,
 		});
 
 		// Set user specified headers to response object.
@@ -276,7 +291,7 @@ export async function handleRoute({
 		response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 	) {
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
-		if (options && fourOhFourRoute?.route !== options.route)
+		if (options)
 			return handleRoute({
 				...options,
 				matchedRoute: fourOhFourRoute,
@@ -290,6 +305,12 @@ export async function handleRoute({
 				incomingResponse,
 			});
 	}
+
+	// We remove the internally-used header before we send the response to the user agent.
+	if (response.headers.has(REROUTE_DIRECTIVE_HEADER)) {
+		response.headers.delete(REROUTE_DIRECTIVE_HEADER);
+	}
+
 	if (route.type === 'endpoint') {
 		await writeWebResponse(incomingResponse, response);
 		return;

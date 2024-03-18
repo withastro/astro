@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v3
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -65,7 +65,7 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: node .github/scripts/announce.mjs '${{ steps.changesets.outputs.publishedPackages }}'
-      
+
       - name: Send message on Discord
         if: steps.changesets.outputs.published == 'true'
         env:

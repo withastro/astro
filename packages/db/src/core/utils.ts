@@ -1,5 +1,6 @@
-import type { AstroConfig } from 'astro';
+import type { AstroConfig, AstroIntegration } from 'astro';
 import { loadEnv } from 'vite';
+import type { AstroDbIntegration } from './types.js';
 
 export type VitePlugin = Required<AstroConfig['vite']>['plugins'][number];
 
@@ -15,5 +16,15 @@ export function getRemoteDatabaseUrl(): string {
 
 export function getAstroStudioUrl(): string {
 	const env = getAstroStudioEnv();
-	return env.ASTRO_STUDIO_URL || 'https://stardate.astro.build';
+	return env.ASTRO_STUDIO_URL || 'https://studio.astro.build';
 }
+
+export function getDbDirectoryUrl(root: URL | string) {
+	return new URL('db/', root);
+}
+
+export function defineDbIntegration(integration: AstroDbIntegration): AstroIntegration {
+	return integration;
+}
+
+export type Result<T> = { success: true; data: T } | { success: false; data: unknown };

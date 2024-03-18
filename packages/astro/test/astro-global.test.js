@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
+import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
 describe('Astro Global', () => {
@@ -9,7 +10,7 @@ describe('Astro Global', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-global/',
-			site: 'https://mysite.dev/blog/',
+			site: 'https://mysite.dev/subsite/',
 			base: '/blog',
 		});
 	});
@@ -65,7 +66,7 @@ describe('Astro Global', () => {
 		it('Astro.site', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			assert.equal($('#site').attr('href'), 'https://mysite.dev/blog/');
+			assert.equal($('#site').attr('href'), 'https://mysite.dev/subsite/');
 		});
 
 		it('Astro.glob() correctly returns an array of all posts', async () => {
@@ -79,6 +80,30 @@ describe('Astro Global', () => {
 			const $ = cheerio.load(html);
 			assert.equal($('[data-file]').length, 8);
 			assert.equal($('.post-url[href]').length, 8);
+		});
+	});
+
+	describe('app', () => {
+		/** @type {import('../dist/core/app/index.js').App} */
+		let app;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/astro-global/',
+				site: 'https://mysite.dev/subsite/',
+				base: '/new',
+				output: 'server',
+				adapter: testAdapter(),
+			});
+			await fixture.build();
+			app = await fixture.loadTestAdapterApp();
+		});
+
+		it('Astro.site', async () => {
+			const response = await app.render(new Request('https://example.com/'));
+			const html = await response.text();
+			const $ = cheerio.load(html);
+			assert.equal($('#site').attr('href'), 'https://mysite.dev/subsite/');
 		});
 	});
 });

@@ -8,11 +8,12 @@ import type {
 } from '../../../@types/astro.js';
 import type { Logger } from '../../logger/core.js';
 
-import { bold } from 'kleur/colors';
 import { createRequire } from 'module';
 import nodeFs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { bold } from 'kleur/colors';
+import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { MissingIndexForInternationalization } from '../../errors/errors-data.js';
@@ -20,7 +21,6 @@ import { AstroError } from '../../errors/index.js';
 import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
-import { toRoutingStrategy } from '../../../i18n/utils.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -42,11 +42,14 @@ function countOccurrences(needle: string, haystack: string) {
 	return count;
 }
 
+// Disable eslint as we're not sure how to improve this regex yet
+// eslint-disable-next-line regexp/no-super-linear-backtracking
+const ROUTE_DYNAMIC_SPLIT = /\[(.+?\(.+?\)|.+?)\]/;
+const ROUTE_SPREAD = /^\.{3}.+$/;
+
 function getParts(part: string, file: string) {
 	const result: RoutePart[] = [];
-	// Disable eslint as we're not sure how to improve this regex yet
-	// eslint-disable-next-line regexp/no-super-linear-backtracking
-	part.split(/\[(.+?\(.+?\)|.+?)\]/).map((str, i) => {
+	part.split(ROUTE_DYNAMIC_SPLIT).map((str, i) => {
 		if (!str) return;
 		const dynamic = i % 2 === 1;
 
@@ -59,7 +62,7 @@ function getParts(part: string, file: string) {
 		result.push({
 			content,
 			dynamic,
-			spread: dynamic && /^\.{3}.+$/.test(content),
+			spread: dynamic && ROUTE_SPREAD.test(content),
 		});
 	});
 
@@ -216,6 +219,15 @@ function routeComparator(a: RouteData, b: RouteData) {
 		// Sort static routes before dynamic routes
 		if (aIsStatic !== bIsStatic) {
 			return aIsStatic ? -1 : 1;
+		}
+
+		const aAllDynamic = aSegment.every((part) => part.dynamic);
+		const bAllDynamic = bSegment.every((part) => part.dynamic);
+
+		// Some route might have partial dynamic segments, e.g. game-[title].astro
+		// These routes should have higher priority against route that have **only** dynamic segments, e.g. [title].astro
+		if (aAllDynamic !== bAllDynamic) {
+			return aAllDynamic ? 1 : -1;
 		}
 
 		const aHasSpread = aSegment.some((part) => part.spread);
@@ -389,9 +401,7 @@ function createFileBasedRoutes(
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
-				const route = `/${segments
-					.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
-					.join('/')}`.toLowerCase();
+				const route = joinSegments(segments);
 				routes.push({
 					route,
 					isIndex: item.isIndex,
@@ -466,9 +476,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 			.flat()
 			.filter((p) => p.dynamic)
 			.map((p) => p.content);
-		const route = `/${segments
-			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
-			.join('/')}`.toLowerCase();
+		const route = joinSegments(segments);
 
 		routes[priority].push({
 			type,
@@ -524,9 +532,7 @@ function createRedirectRoutes(
 			.flat()
 			.filter((p) => p.dynamic)
 			.map((p) => p.content);
-		const route = `/${segments
-			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
-			.join('/')}`.toLowerCase();
+		const route = joinSegments(segments);
 
 		let destination: string;
 		if (typeof to === 'string') {
@@ -886,4 +892,12 @@ function computeRoutePriority(config: AstroConfig): RoutePriorityOverride {
 		return 'normal';
 	}
 	return 'legacy';
+}
+
+function joinSegments(segments: RoutePart[][]): string {
+	const arr = segments.map((segment) => {
+		return segment.map((rp) => (rp.dynamic ? `[${rp.content}]` : rp.content)).join('');
+	});
+
+	return `/${arr.join('/')}`.toLowerCase();
 }

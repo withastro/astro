@@ -3,10 +3,6 @@ import { load as cheerioLoad } from 'cheerio';
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
 
-// TODO(fks): Rename this to something more generic/generally useful
-// like `ASTRO_MONOREPO_TEST_ENV` if @astrojs/db is merged into astro.
-process.env.ASTRO_DB_TEST_ENV = '1';
-
 describe('astro:db', () => {
 	let fixture;
 	before(async () => {
@@ -17,16 +13,19 @@ describe('astro:db', () => {
 		});
 	});
 
-	describe('production', () => {
+	describe('development', () => {
+		let devServer;
+
 		before(async () => {
-			await fixture.build();
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
 		});
 
 		it('Prints the list of authors', async () => {
-			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/');
-			const res = await app.render(request);
-			const html = await res.text();
+			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerioLoad(html);
 
 			const ul = $('.authors-list');
@@ -34,71 +33,44 @@ describe('astro:db', () => {
 			expect(ul.children().eq(0).text()).to.equal('Ben');
 		});
 
-		it('Errors when inserting to a readonly collection', async () => {
-			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/insert-into-readonly');
-			const res = await app.render(request);
-			const html = await res.text();
+		it('Allows expression defaults for date columns', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerioLoad(html);
 
-			expect($('#error').text()).to.equal('The [Author] collection is read-only.');
+			const themeAdded = $($('.themes-list .theme-added')[0]).text();
+			expect(new Date(themeAdded).getTime()).to.not.be.NaN;
 		});
 
-		it('Does not error when inserting into writable collection', async () => {
-			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/insert-into-writable');
-			const res = await app.render(request);
-			const html = await res.text();
+		it('Defaults can be overridden for dates', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerioLoad(html);
 
-			expect($('#error').text()).to.equal('');
+			const themeAdded = $($('.themes-list .theme-added')[1]).text();
+			expect(new Date(themeAdded).getTime()).to.not.be.NaN;
 		});
 
-		describe('Expression defaults', () => {
-			let app;
-			before(async () => {
-				app = await fixture.loadTestAdapterApp();
-			});
+		it('Allows expression defaults for text columns', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			const $ = cheerioLoad(html);
 
-			it('Allows expression defaults for date columns', async () => {
-				const request = new Request('http://example.com/');
-				const res = await app.render(request);
-				const html = await res.text();
-				const $ = cheerioLoad(html);
+			const themeOwner = $($('.themes-list .theme-owner')[0]).text();
+			expect(themeOwner).to.equal('');
+		});
 
-				const themeAdded = $($('.themes-list .theme-added')[0]).text();
-				expect(new Date(themeAdded).getTime()).to.not.be.NaN;
-			});
+		it('Allows expression defaults for boolean columns', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			const $ = cheerioLoad(html);
 
-			it('Defaults can be overridden for dates', async () => {
-				const request = new Request('http://example.com/');
-				const res = await app.render(request);
-				const html = await res.text();
-				const $ = cheerioLoad(html);
+			const themeDark = $($('.themes-list .theme-dark')[0]).text();
+			expect(themeDark).to.equal('dark mode');
+		});
 
-				const themeAdded = $($('.themes-list .theme-added')[1]).text();
-				expect(new Date(themeAdded).getTime()).to.not.be.NaN;
-			});
+		it('text fields an be used as references', async () => {
+			const html = await fixture.fetch('/login').then((res) => res.text());
+			const $ = cheerioLoad(html);
 
-			it('Allows expression defaults for text columns', async () => {
-				const request = new Request('http://example.com/');
-				const res = await app.render(request);
-				const html = await res.text();
-				const $ = cheerioLoad(html);
-
-				const themeOwner = $($('.themes-list .theme-owner')[0]).text();
-				expect(themeOwner).to.equal('');
-			});
-
-			it('Allows expression defaults for boolean columns', async () => {
-				const request = new Request('http://example.com/');
-				const res = await app.render(request);
-				const html = await res.text();
-				const $ = cheerioLoad(html);
-
-				const themeDark = $($('.themes-list .theme-dark')[0]).text();
-				expect(themeDark).to.equal('dark mode');
-			});
+			expect($('.session-id').text()).to.equal('12345');
+			expect($('.username').text()).to.equal('Mario');
 		});
 	});
 });

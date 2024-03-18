@@ -11,7 +11,11 @@ export function getProxyCode(options: ImageMetadata, isSSR: boolean): string {
 							if (name === 'fsPath') {
 								return ${stringifiedFSPath};
 							}
-							${!isSSR ? `globalThis.astroAsset.referencedImages.add(${stringifiedFSPath});` : ''}
+							${
+								!isSSR
+									? `if (target[name] !== undefined) globalThis.astroAsset.referencedImages.add(${stringifiedFSPath});`
+									: ''
+							}
 							return target[name];
 						}
 					})

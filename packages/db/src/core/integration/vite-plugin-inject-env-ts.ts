@@ -2,11 +2,11 @@ import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { AstroIntegrationLogger } from 'astro';
 import { bold, cyan } from 'kleur/colors';
 import { normalizePath } from 'vite';
 import { DB_TYPES_FILE } from '../consts.js';
 import type { VitePlugin } from '../utils.js';
-import type { AstroIntegrationLogger } from 'astro';
 
 export function vitePluginInjectEnvTs(
 	{ srcDir, root }: { srcDir: URL; root: URL },
@@ -46,7 +46,7 @@ export async function setUpEnvTs({
 		if (!typesEnvContents.includes(dbTypeReference)) {
 			typesEnvContents = `${dbTypeReference}\n${typesEnvContents}`;
 			await writeFile(envTsPath, typesEnvContents, 'utf-8');
-			logger.info(`${cyan(bold('[astro:db]'))} Added ${bold(envTsPathRelativetoRoot)} types`);
+			logger.info(`Added ${bold(envTsPathRelativetoRoot)} types`);
 		}
 	}
 }

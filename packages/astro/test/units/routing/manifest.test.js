@@ -122,6 +122,7 @@ describe('routing - createRouteManifest', () => {
 				'/src/pages/[dynamic].astro': `<h1>test</h1>`,
 				'/src/pages/[...rest].astro': `<h1>test</h1>`,
 				'/src/pages/static.astro': `<h1>test</h1>`,
+				'/src/pages/static-[dynamic].astro': `<h1>test</h1>`,
 				'/src/pages/index.astro': `<h1>test</h1>`,
 			},
 			root
@@ -143,6 +144,8 @@ describe('routing - createRouteManifest', () => {
 
 		assertRouteRelations(getManifestRoutes(manifest), [
 			['/', '/[...rest]'],
+			['/static', '/static-[dynamic]'],
+			['/static-[dynamic]', '/[dynamic]'],
 			['/static', '/[dynamic]'],
 			['/static', '/[...rest]'],
 			['/[dynamic]', '/[...rest]'],
@@ -562,6 +565,50 @@ describe('routing - createRouteManifest', () => {
 				message: 'A collision will result in an hard error in following versions of Astro.',
 				newLine: true,
 			},
+		]);
+	});
+
+	it('should concatenate each part of the segment. issues#10122', async () => {
+		const fs = createFs(
+			{
+				'/src/pages/a-[b].astro': `<h1>test</h1>`,
+				'/src/pages/blog/a-[b].233.ts': ``,
+			},
+			root
+		);
+
+		const settings = await createBasicSettings({
+			root: fileURLToPath(root),
+			output: 'server',
+			base: '/search',
+			trailingSlash: 'never',
+			redirects: {
+				'/posts/a-[b].233': '/blog/a-[b].233',
+			},
+			experimental: {
+				globalRoutePriority: true,
+			},
+		});
+
+		settings.injectedRoutes = [
+			{
+				pattern: '/[c]-d',
+				entrypoint: '@lib/legacy/dynamic.astro',
+				priority: 'normal',
+			},
+		];
+
+		const manifest = createRouteManifest({
+			cwd: fileURLToPath(root),
+			settings,
+			fsMod: fs,
+		});
+
+		assert.deepEqual(getManifestRoutes(manifest), [
+			{ type: 'endpoint', route: '/blog/a-[b].233' },
+			{ type: 'redirect', route: '/posts/a-[b].233' },
+			{ type: 'page', route: '/[c]-d' },
+			{ type: 'page', route: '/a-[b]' },
 		]);
 	});
 });

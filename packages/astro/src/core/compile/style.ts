@@ -1,18 +1,20 @@
-import type { TransformOptions } from '@astrojs/compiler';
 import fs from 'node:fs';
-import { normalizePath, preprocessCSS, type ResolvedConfig } from 'vite';
+import type { TransformOptions } from '@astrojs/compiler';
+import { type ResolvedConfig, normalizePath, preprocessCSS } from 'vite';
 import { AstroErrorData, CSSError, positionAt } from '../errors/index.js';
-import type { CompileCssResult } from './compile.js';
+import type { CompileCssResult } from './types.js';
+
+export type PartialCompileCssResult = Pick<CompileCssResult, 'isGlobal' | 'dependencies'>;
 
 export function createStylePreprocessor({
 	filename,
 	viteConfig,
-	cssDeps,
+	cssPartialCompileResults,
 	cssTransformErrors,
 }: {
 	filename: string;
 	viteConfig: ResolvedConfig;
-	cssDeps: CompileCssResult['dependencies'][];
+	cssPartialCompileResults: Partial<CompileCssResult>[];
 	cssTransformErrors: Error[];
 }): TransformOptions['preprocessStyle'] {
 	let processedStylesCount = 0;
@@ -24,9 +26,10 @@ export function createStylePreprocessor({
 		try {
 			const result = await preprocessCSS(content, id, viteConfig);
 
-			if (result.deps) {
-				cssDeps[index] = [...result.deps].map((dep) => normalizePath(dep));
-			}
+			cssPartialCompileResults[index] = {
+				isGlobal: !!attrs['is:global'],
+				dependencies: result.deps ? [...result.deps].map((dep) => normalizePath(dep)) : [],
+			};
 
 			let map: string | undefined;
 			if (result.map) {

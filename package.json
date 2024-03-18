@@ -47,11 +47,11 @@
   },
   "packageManager": "pnpm@8.6.12",
   "dependencies": {
-    "@biomejs/biome": "^1.5.3",
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.3.1",
+    "@biomejs/biome": "1.5.3",
+    "@astrojs/check": "^0.5.8",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.26.2",
     "@types/node": "^18.17.8",
@@ -69,7 +69,7 @@
     "prettier": "^3.1.0",
     "prettier-plugin-astro": "^0.12.2",
     "tiny-glob": "^0.2.9",
-    "turbo": "^1.10.12",
+    "turbo": "^1.12.4",
     "typescript": "~5.2.2"
   },
   "pnpm": {
@@ -77,13 +77,6 @@
       "vite-svg-loader": {
         "peerDependenciesMeta": {
           "vue": {
-            "optional": true
-          }
-        }
-      },
-      "svelte2tsx": {
-        "peerDependenciesMeta": {
-          "typescript": {
             "optional": true
           }
         }

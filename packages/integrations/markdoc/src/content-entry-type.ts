@@ -1,12 +1,12 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
 import { emitESMImage } from 'astro/assets/utils';
 import matter from 'gray-matter';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import type { Rollup, ErrorPayload as ViteErrorPayload } from 'vite';
+import type { ErrorPayload as ViteErrorPayload, Rollup } from 'vite';
 import type { ComponentConfig } from './config.js';
 import { htmlTokenTransform } from './html/transform/html-token-transform.js';
 import type { MarkdocConfigResult } from './load-config.js';
@@ -196,7 +196,19 @@ async function emitOptimizedImages(
 						ctx.pluginContext.meta.watchMode,
 						ctx.pluginContext.emitFile
 					);
-					node.attributes[attributeName] = src;
+
+					const fsPath = resolved.id;
+
+					if (src) {
+						// We cannot track images in Markdoc, Markdoc rendering always strips out the proxy. As such, we'll always
+						// assume that the image is referenced elsewhere, to be on safer side.
+						if (ctx.astroConfig.output === 'static') {
+							if (globalThis.astroAsset.referencedImages)
+								globalThis.astroAsset.referencedImages.add(fsPath);
+						}
+
+						node.attributes[attributeName] = { ...src, fsPath };
+					}
 				} else {
 					throw new MarkdocError({
 						message: `Could not resolve image ${JSON.stringify(

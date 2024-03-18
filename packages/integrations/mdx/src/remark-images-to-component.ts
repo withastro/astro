@@ -1,6 +1,6 @@
 import type { MarkdownVFile } from '@astrojs/markdown-remark';
 import type { Image, Parent } from 'mdast';
-import type { MdxJsxFlowElement, MdxjsEsm, MdxJsxAttribute } from 'mdast-util-mdx';
+import type { MdxJsxAttribute, MdxJsxFlowElement, MdxjsEsm } from 'mdast-util-mdx';
 import { visit } from 'unist-util-visit';
 import { jsToTreeNode } from './utils.js';
 

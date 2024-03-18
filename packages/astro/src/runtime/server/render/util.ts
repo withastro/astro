@@ -104,6 +104,11 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 		return markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`);
 	}
 
+	// Prevents URLs in attributes from being escaped in static builds
+	if (typeof value === 'string' && value.includes('&') && urlCanParse(value)) {
+		return markHTMLString(` ${key}="${toAttributeString(value, false)}"`);
+	}
+
 	// Boolean values only need the key
 	if (value === true && (key.startsWith('data-') || htmlBooleanAttributes.test(key))) {
 		return markHTMLString(` ${key}`);
@@ -174,6 +179,9 @@ export function renderToBufferDestination(bufferRenderFunction: RenderFunction):
 
 	// Don't await for the render to finish to not block streaming
 	const renderPromise = bufferRenderFunction(bufferDestination);
+	// Catch here in case it throws before `renderToFinalDestination` is called,
+	// to prevent an unhandled rejection.
+	Promise.resolve(renderPromise).catch(() => {});
 
 	// Return a closure that writes the buffered chunk
 	return {
@@ -220,4 +228,13 @@ export function promiseWithResolvers<T = any>(): PromiseWithResolvers<T> {
 		resolve,
 		reject,
 	};
+}
+
+function urlCanParse(url: string) {
+	try {
+		new URL(url);
+		return true;
+	} catch {
+		return false;
+	}
 }

@@ -1,8 +1,8 @@
-import { escape } from 'html-escaper';
-import { bold, underline } from 'kleur/colors';
 import * as fs from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { escape } from 'html-escaper';
+import { bold, underline } from 'kleur/colors';
 import stripAnsi from 'strip-ansi';
 import type { ESBuildTransformResult } from 'vite';
 import { normalizePath } from 'vite';
@@ -231,15 +231,15 @@ export function getDocsForError(err: ErrorWithMetadata): string | undefined {
 	}
 }
 
+const linkRegex = /\[([^[]+)\]\((.*)\)/g;
+const boldRegex = /\*\*(.+)\*\*/g;
+const urlRegex = / ((?:https?|ftp):\/\/[-\w+&@#\\/%?=~|!:,.;]*[-\w+&@#\\/%=~|])/gi;
+const codeRegex = /`([^`]+)`/g;
+
 /**
  * Render a subset of Markdown to HTML or a CLI output
  */
 export function renderErrorMarkdown(markdown: string, target: 'html' | 'cli') {
-	const linkRegex = /\[([^[]+)\]\((.*)\)/g;
-	const boldRegex = /\*\*(.+)\*\*/g;
-	const urlRegex = / ((?:https?|ftp):\/\/[-\w+&@#\\/%?=~|!:,.;]*[-\w+&@#\\/%=~|])/gi;
-	const codeRegex = /`([^`]+)`/g;
-
 	if (target === 'html') {
 		return escape(markdown)
 			.replace(linkRegex, `<a href="$2" target="_blank">$1</a>`)

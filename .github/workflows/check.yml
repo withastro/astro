@@ -12,6 +12,7 @@ on:
       - ".github/workflows/check.yml"
       - "scripts/smoke/check.js"
       - "packages/astro/src/@types/astro.ts"
+      - "pnpm-lock.yaml"
 
 env:
   ASTRO_TELEMETRY_DISABLED: true
@@ -29,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v3
 
       - name: Setup Node
         uses: actions/setup-node@v4

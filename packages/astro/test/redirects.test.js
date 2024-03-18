@@ -98,6 +98,16 @@ describe('Astro.redirect', () => {
 				const response = await app.render(request);
 				assert.equal(response.headers.get('Location'), '/not-verbatim/target3/x/y/z');
 			});
+
+			it('Forwards params to the target path - special characters', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const request = new Request('http://example.com/source/Las Vegas’');
+				const response = await app.render(request);
+				assert.equal(
+					response.headers.get('Location'),
+					'/not-verbatim/target1/Las%20Vegas%E2%80%99'
+				);
+			});
 		});
 	});
 
@@ -232,7 +242,15 @@ describe('Astro.redirect', () => {
 
 			it('performs dynamic redirects', async () => {
 				const response = await fixture.fetch('/more/old/hello', { redirect: 'manual' });
+				assert.equal(response.status, 301);
 				assert.equal(response.headers.get('Location'), '/more/hello');
+			});
+
+			it('performs dynamic redirects with special characters', async () => {
+				// encodeURI("/more/old/’")
+				const response = await fixture.fetch('/more/old/%E2%80%99', { redirect: 'manual' });
+				assert.equal(response.status, 301);
+				assert.equal(response.headers.get('Location'), '/more/%E2%80%99');
 			});
 
 			it('performs dynamic redirects with multiple params', async () => {
@@ -263,12 +281,18 @@ describe('Astro.redirect', () => {
 			await fixture.build();
 		});
 
-		it('Does not output redirect HTML', async () => {
+		it('Does not output redirect HTML for redirect routes', async () => {
 			let oneHtml = undefined;
 			try {
 				oneHtml = await fixture.readFile('/one/index.html');
 			} catch {}
 			assert.equal(oneHtml, undefined);
+		});
+
+		it('Outputs redirect HTML for user routes that return a redirect response', async () => {
+			let secretHtml = await fixture.readFile('/secret/index.html');
+			assert.equal(secretHtml.includes('Redirecting from <code>/secret/</code>'), true);
+			assert.equal(secretHtml.includes('to <code>/login</code>'), true);
 		});
 	});
 });

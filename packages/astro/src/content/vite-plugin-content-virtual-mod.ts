@@ -1,7 +1,7 @@
-import glob from 'fast-glob';
 import nodeFs from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import glob from 'fast-glob';
 import pLimit from 'p-limit';
 import { type Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
@@ -19,6 +19,7 @@ import {
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import {
+	type ContentLookupMap,
 	getContentEntryIdAndSlug,
 	getContentPaths,
 	getDataEntryExts,
@@ -28,7 +29,6 @@ import {
 	getEntrySlug,
 	getEntryType,
 	getExtGlob,
-	type ContentLookupMap,
 } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
@@ -279,7 +279,7 @@ export async function generateLookupMap({
 							message: AstroErrorData.DuplicateContentEntrySlugError.message(
 								collection,
 								slug,
-								lookupMap[collection]!.entries[slug],
+								lookupMap[collection].entries[slug],
 								rootRelativePath(root, filePath)
 							),
 							hint:

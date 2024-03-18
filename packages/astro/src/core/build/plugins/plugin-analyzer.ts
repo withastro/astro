@@ -1,10 +1,9 @@
-import type { ModuleInfo, PluginContext } from 'rollup';
+import type { PluginContext } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
 import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin-astro/types.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 
-import type { ExportDefaultDeclaration, ExportNamedDeclaration, ImportDeclaration } from 'estree';
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { prependForwardSlash } from '../../../core/path.js';
 import { getTopLevelPages, moduleIsTopLevelPage, walkParentInfos } from '../graph.js';
@@ -17,110 +16,6 @@ function isPropagatedAsset(id: string) {
 	} catch {
 		return false;
 	}
-}
-
-/**
- * @returns undefined if the parent does not import the child, string[] of the reexports if it does
- */
-async function doesParentImportChild(
-	this: PluginContext,
-	parentInfo: ModuleInfo,
-	childInfo: ModuleInfo | undefined,
-	childExportNames: string[] | 'dynamic' | undefined
-): Promise<'no' | 'dynamic' | string[]> {
-	if (!childInfo || !parentInfo.ast || !childExportNames) return 'no';
-
-	// If we're dynamically importing the child, return `dynamic` directly to opt-out of optimization
-	if (childExportNames === 'dynamic' || parentInfo.dynamicallyImportedIds?.includes(childInfo.id)) {
-		return 'dynamic';
-	}
-
-	const imports: Array<ImportDeclaration> = [];
-	const exports: Array<ExportNamedDeclaration | ExportDefaultDeclaration> = [];
-	for (const node of (parentInfo.ast as any).body) {
-		if (node.type === 'ImportDeclaration') {
-			imports.push(node);
-		} else if (node.type === 'ExportDefaultDeclaration' || node.type === 'ExportNamedDeclaration') {
-			exports.push(node);
-		}
-	}
-
-	// All local import names that could be importing the child component
-	const importNames: string[] = [];
-	// All of the aliases the child component is exported as
-	const exportNames: string[] = [];
-
-	// Iterate each import, find it they import the child component, if so, check if they
-	// import the child component name specifically. We can verify this with `childExportNames`.
-	for (const node of imports) {
-		const resolved = await this.resolve(node.source.value as string, parentInfo.id);
-		if (!resolved || resolved.id !== childInfo.id) continue;
-		for (const specifier of node.specifiers) {
-			// TODO: handle these?
-			if (specifier.type === 'ImportNamespaceSpecifier') continue;
-			const name =
-				specifier.type === 'ImportDefaultSpecifier' ? 'default' : specifier.imported.name;
-			// If we're importing the thing that the child exported, store the local name of what we imported
-			if (childExportNames.includes(name)) {
-				importNames.push(specifier.local.name);
-			}
-		}
-	}
-
-	// Iterate each export, find it they re-export the child component, and push the exported name to `exportNames`
-	for (const node of exports) {
-		if (node.type === 'ExportDefaultDeclaration') {
-			if (node.declaration.type === 'Identifier' && importNames.includes(node.declaration.name)) {
-				exportNames.push('default');
-			}
-		} else {
-			// Handle:
-			// export { Component } from './Component.astro'
-			// export { Component as AliasedComponent } from './Component.astro'
-			if (node.source) {
-				const resolved = await this.resolve(node.source.value as string, parentInfo.id);
-				if (!resolved || resolved.id !== childInfo.id) continue;
-				for (const specifier of node.specifiers) {
-					if (childExportNames.includes(specifier.local.name)) {
-						importNames.push(specifier.local.name);
-						exportNames.push(specifier.exported.name);
-					}
-				}
-			}
-			// Handle:
-			// export const AliasedComponent = Component
-			// export const AliasedComponent = Component, let foo = 'bar'
-			if (node.declaration) {
-				if (node.declaration.type !== 'VariableDeclaration') continue;
-				for (const declarator of node.declaration.declarations) {
-					if (declarator.init?.type !== 'Identifier') continue;
-					if (declarator.id.type !== 'Identifier') continue;
-					if (importNames.includes(declarator.init.name)) {
-						exportNames.push(declarator.id.name);
-					}
-				}
-			}
-			// Handle:
-			// export { Component }
-			// export { Component as AliasedComponent }
-			for (const specifier of node.specifiers) {
-				if (importNames.includes(specifier.local.name)) {
-					exportNames.push(specifier.exported.name);
-				}
-			}
-		}
-	}
-	if (!importNames.length) return 'no';
-
-	// If the component is imported by another component, assume it's in use
-	// and start tracking this new component now
-	if (parentInfo.id.endsWith('.astro')) {
-		exportNames.push('default');
-	} else if (parentInfo.id.endsWith('.mdx')) {
-		exportNames.push('Content');
-	}
-
-	return exportNames;
 }
 
 export function vitePluginAnalyzer(
@@ -150,39 +45,9 @@ export function vitePluginAnalyzer(
 				}
 
 				if (hoistedScripts.size) {
-					// These variables are only used for hoisted script analysis optimization
-					const depthsToChildren = new Map<number, ModuleInfo>();
-					const depthsToExportNames = new Map<number, string[] | 'dynamic'>();
-					// The component export from the original component file will always be default.
-					depthsToExportNames.set(0, ['default']);
-
-					for (const [parentInfo, depth] of walkParentInfos(from, this, function until(importer) {
+					for (const [parentInfo] of walkParentInfos(from, this, function until(importer) {
 						return isPropagatedAsset(importer);
 					})) {
-						// If hoisted script analysis optimization is enabled, try to analyse and bail early if possible
-						if (options.settings.config.experimental.optimizeHoistedScript) {
-							depthsToChildren.set(depth, parentInfo);
-							// If at any point
-							if (depth > 0) {
-								// Check if the component is actually imported:
-								const childInfo = depthsToChildren.get(depth - 1);
-								const childExportNames = depthsToExportNames.get(depth - 1);
-
-								const doesImport = await doesParentImportChild.call(
-									this,
-									parentInfo,
-									childInfo,
-									childExportNames
-								);
-
-								if (doesImport === 'no') {
-									// Break the search if the parent doesn't import the child.
-									continue;
-								}
-								depthsToExportNames.set(depth, doesImport);
-							}
-						}
-
 						if (isPropagatedAsset(parentInfo.id)) {
 							for (const [nestedParentInfo] of walkParentInfos(from, this)) {
 								if (moduleIsTopLevelPage(nestedParentInfo)) {
@@ -263,7 +128,9 @@ export function vitePluginAnalyzer(
 	return {
 		name: '@astro/rollup-plugin-astro-analyzer',
 		async generateBundle() {
-			const hoistScanner = hoistedScriptScanner();
+			const hoistScanner = options.settings.config.experimental.directRenderScript
+				? { scan: async () => {}, finalize: () => {} }
+				: hoistedScriptScanner();
 
 			const ids = this.getModuleIds();
 
@@ -315,6 +182,16 @@ export function vitePluginAnalyzer(
 						if (!newPageData) continue;
 
 						trackClientOnlyPageDatas(internals, newPageData, clientOnlys);
+					}
+				}
+
+				// When directly rendering scripts, we don't need to group them together when bundling,
+				// each script module is its own entrypoint, so we directly assign each script modules to
+				// `discoveredScripts` here, which will eventually be passed as inputs of the client build.
+				if (options.settings.config.experimental.directRenderScript && astro.scripts.length) {
+					for (let i = 0; i < astro.scripts.length; i++) {
+						const hid = `${id.replace('/@fs', '')}?astro&type=script&index=${i}&lang.ts`;
+						internals.discoveredScripts.add(hid);
 					}
 				}
 			}
