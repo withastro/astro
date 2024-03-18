@@ -2,16 +2,30 @@ import type { InStatement } from '@libsql/client';
 import { createClient } from '@libsql/client';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
-import { drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
+import { drizzle as drizzleProxy, type SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
 import { z } from 'zod';
 import { safeFetch } from './utils.js';
+import { AstroDbError } from '../core/errors.js';
 
 const isWebContainer = !!process.versions?.webcontainer;
+
+function addTransactionErrorStub(db: SqliteRemoteDatabase) {
+	Object.assign(db, {
+		transaction: async () => {
+			throw new AstroDbError({
+				message:
+					'The `transaction()` function is not supported. If you need to execute multiple queries with rollbacks, try `db.batch()`.',
+				hint: 'Form more on `db.batch()`, see https://docs.astro.build/en/guides/astro-db/#batch-transactions',
+			});
+		},
+	});
+}
 
 export function createLocalDatabaseClient({ dbUrl }: { dbUrl: string }): LibSQLDatabase {
 	const url = isWebContainer ? 'file:content.db' : dbUrl;
 	const client = createClient({ url });
 	const db = drizzleLibsql(client);
+	addTransactionErrorStub(db);
 
 	return db;
 }
@@ -131,5 +145,6 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 			return results;
 		}
 	);
+	addTransactionErrorStub(db);
 	return db;
 }
