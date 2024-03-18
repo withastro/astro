@@ -11,6 +11,7 @@ import type {
 } from '../core/types.js';
 
 export type { LibSQLDatabase } from 'drizzle-orm/libsql';
+export { LibsqlError } from '@libsql/client';
 
 function createColumn<S extends string, T extends Record<string, unknown>>(type: S, schema: T) {
 	return {

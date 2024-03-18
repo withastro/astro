@@ -2,6 +2,7 @@ declare module 'astro:db' {
 	type RuntimeConfig = typeof import('./dist/_internal/runtime/config.js');
 
 	export const db: import('./dist/_internal/runtime/config.js').LibSQLDatabase;
+	export const LibsqlError: RuntimeConfig['LibsqlError'];
 	export const dbUrl: string;
 
 	export const sql: RuntimeConfig['sql'];
