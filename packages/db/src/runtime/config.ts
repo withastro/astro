@@ -10,7 +10,9 @@ import type {
 	TextColumnOpts,
 } from '../core/types.js';
 
-export type { LibSQLDatabase } from 'drizzle-orm/libsql';
+import type { LibSQLDatabase as _LibSQLDatabase } from 'drizzle-orm/libsql';
+// TODO: lift when we decide on transaction support
+export type LibsqlDatabase = Omit<_LibSQLDatabase, 'transaction'>;
 
 function createColumn<S extends string, T extends Record<string, unknown>>(type: S, schema: T) {
 	return {
