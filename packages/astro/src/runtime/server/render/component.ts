@@ -459,13 +459,11 @@ export async function renderComponent(
 	slots: any = {}
 ): Promise<RenderInstance> {
 	if (isPromise(Component)) {
-		Component = await Component
-			.catch(handleCancellation);
+		Component = await Component.catch(handleCancellation);
 	}
 
 	if (isFragmentComponent(Component)) {
-		return await renderFragmentComponent(result, slots)
-			.catch(handleCancellation);
+		return await renderFragmentComponent(result, slots).catch(handleCancellation);
 	}
 
 	// Ensure directives (`class:list`) are processed
@@ -473,16 +471,16 @@ export async function renderComponent(
 
 	// .html components
 	if (isHTMLComponent(Component)) {
-		return await renderHTMLComponent(result, Component, props, slots)
-			.catch(handleCancellation);
+		return await renderHTMLComponent(result, Component, props, slots).catch(handleCancellation);
 	}
 
 	if (isAstroComponentFactory(Component)) {
 		return renderAstroComponent(result, displayName, Component, props, slots);
 	}
 
-	return await renderFrameworkComponent(result, displayName, Component, props, slots)
-		.catch(handleCancellation);
+	return await renderFrameworkComponent(result, displayName, Component, props, slots).catch(
+		handleCancellation
+	);
 
 	function handleCancellation(e: unknown) {
 		if (result.cancelled) return { render() {} };

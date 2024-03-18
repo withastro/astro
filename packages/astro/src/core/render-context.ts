@@ -90,41 +90,41 @@ export class RenderContext {
 
 		const lastNext = async () => {
 			switch (routeData.type) {
-				case 'endpoint': return renderEndpoint(componentInstance as any, apiContext, serverLike, logger);
-				case 'redirect': return renderRedirect(this);
+				case 'endpoint':
+					return renderEndpoint(componentInstance as any, apiContext, serverLike, logger);
+				case 'redirect':
+					return renderRedirect(this);
 				case 'page': {
-								const result = await this.createResult(componentInstance!);
-								let response: Response;
-								try {
-								response = await renderPage(
-									result,
-									componentInstance?.default as any,
-									props,
-									{},
-									streaming,
-									routeData
-								);
-								} catch (e) {
-									// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
-									// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
-									result.cancelled = true;
-									throw e;
-								}
-								// Signal to the i18n middleware to maybe act on this response
-								response.headers.set(ROUTE_TYPE_HEADER, 'page');
-								// Signal to the error-page-rerouting infra to let this response pass through to avoid loops
-								if (routeData.route === '/404' || routeData.route === '/500') {
-									response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
-								}
-								return response;
+					const result = await this.createResult(componentInstance!);
+					let response: Response;
+					try {
+						response = await renderPage(
+							result,
+							componentInstance?.default as any,
+							props,
+							{},
+							streaming,
+							routeData
+						);
+					} catch (e) {
+						// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
+						// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
+						result.cancelled = true;
+						throw e;
 					}
-					case 'fallback': {
-									return (
-									new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } })
-									)
+					// Signal to the i18n middleware to maybe act on this response
+					response.headers.set(ROUTE_TYPE_HEADER, 'page');
+					// Signal to the error-page-rerouting infra to let this response pass through to avoid loops
+					if (routeData.route === '/404' || routeData.route === '/500') {
+						response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 					}
+					return response;
+				}
+				case 'fallback': {
+					return new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
 				}
 			}
+		};
 
 		const response = await callMiddleware(middleware, apiContext, lastNext);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {

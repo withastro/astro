@@ -78,7 +78,7 @@ describe('Streaming', () => {
 			assert.equal(chunks.length > 1, true);
 		});
 
-		// if the offshoot promise goes unhandled, this test will pass immediately but fail the test suite 
+		// if the offshoot promise goes unhandled, this test will pass immediately but fail the test suite
 		it('Stays alive on failed component renders initiated by failed render templates', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/multiple-errors');

@@ -129,7 +129,7 @@ export async function renderToReadableStream(
 			// If the client disconnects,
 			// we signal to ignore the results of existing renders and avoid kicking off more of them.
 			result.cancelled = true;
-		}
+		},
 	});
 }
 
