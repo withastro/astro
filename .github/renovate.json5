@@ -6,5 +6,10 @@
   "ignoreDeps": [
     // manually bumping
     "@biomejs/biome",
+    "@types/node",
+    "sharp",
+
+    // follow vite deps version
+    "postcss-load-config",
   ],
 }
