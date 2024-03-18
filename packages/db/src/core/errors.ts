@@ -86,3 +86,47 @@ export const INTEGRATION_TABLE_CONFLICT_ERROR = (
 		? `\n  A user-defined table named ${bold(tableName)} already exists`
 		: `\n  Another integration already added a table named ${bold(tableName)}`;
 };
+
+/**
+ * Matches AstroError object with types like error codes stubbed out
+ * @see 'astro/src/core/errors/errors.ts'
+ */
+export class AstroDbError extends Error {
+	public loc: ErrorLocation | undefined;
+	public title: string | undefined;
+	public hint: string | undefined;
+	public frame: string | undefined;
+
+	type = 'Astro DB Error';
+
+	constructor(props: ErrorProperties, ...params: any) {
+		super(...params);
+
+		const { title = 'Astro DB Error', message, stack, location, hint, frame } = props;
+
+		this.title = title;
+		if (message) this.message = message;
+		// Only set this if we actually have a stack passed, otherwise uses Error's
+		this.stack = stack ? stack : this.stack;
+		this.loc = location;
+		this.hint = hint;
+		this.frame = frame;
+	}
+}
+
+interface ErrorLocation {
+	file?: string;
+	line?: number;
+	column?: number;
+}
+
+interface ErrorProperties {
+	code?: number;
+	title?: string;
+	name?: string;
+	message?: string;
+	location?: ErrorLocation;
+	hint?: string;
+	stack?: string;
+	frame?: string;
+}
