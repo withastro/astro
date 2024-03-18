@@ -44,7 +44,10 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 		});
 	}
 
-	static async createToken(sessionToken: string, projectId: string): Promise<{ token: string; ttl: number; }> {
+	static async createToken(
+		sessionToken: string,
+		projectId: string
+	): Promise<{ token: string; ttl: number }> {
 		const spinner = ora('Connecting to remote database...').start();
 		const response = await safeFetch(
 			new URL(`${getAstroStudioUrl()}/auth/cli/token-create`),
@@ -107,7 +110,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 		clearTimeout(this.renewTimer);
 		delete this.renewTimer;
 
-		if(this.tokenIsValid()) {
+		if (this.tokenIsValid()) {
 			const response = await this.fetch('/auth/cli/token-renew', {
 				token: this.token,
 				projectId: this.projectId,
@@ -117,10 +120,13 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 				this.renewTimer = this.createRenewTimer();
 			} else {
 				throw new Error(`Unexpected response: ${response.status} ${response.statusText}`);
-			}	
+			}
 		} else {
 			try {
-				const { token, ttl } = await ManagedRemoteAppToken.createToken(this.session, this.projectId);
+				const { token, ttl } = await ManagedRemoteAppToken.createToken(
+					this.session,
+					this.projectId
+				);
 				this.token = token;
 				this.ttl = ttl;
 				this.expires = getExpiresFromTtl(ttl);
@@ -128,7 +134,9 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 			} catch {
 				// If we get here we couldn't create a new token. Since the existing token
 				// is expired we really can't do anything and should exit.
-				throw new Error(`Token has expired and attempts to renew it have failed, please try again.`);
+				throw new Error(
+					`Token has expired and attempts to renew it have failed, please try again.`
+				);
 			}
 		}
 	}
