@@ -84,6 +84,13 @@ const highlighter = await getCachedHighlighter({
 	],
 	theme,
 	themes,
+  transformers: [
+    {
+      code (node) {
+        this.addClassToHast(node, inline ? "inline-block" : "")
+      },
+    },
+  ]
 	wrap,
 });
 
