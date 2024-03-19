@@ -6,6 +6,7 @@ import type { NodeApp } from 'astro/app/node';
 import send from 'send';
 import type { Options } from './types.js';
 
+// check for a dot followed by a extension made up of lowercase characters
 const isSubresourceRegex = /.+\.[a-z]+$/i
 
 /**
