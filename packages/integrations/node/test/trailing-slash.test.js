@@ -1,5 +1,5 @@
-import { after, before, describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
@@ -84,7 +84,7 @@ describe('Trailing slash', () => {
 
 				assert.equal(res.status, 200);
 				assert.equal(css, 'h1 { color: red; }\n');
-			})
+			});
 		});
 		describe('Without base', async () => {
 			before(async () => {
@@ -149,7 +149,7 @@ describe('Trailing slash', () => {
 
 				assert.equal(res.status, 200);
 				assert.equal(css, 'h1 { color: red; }\n');
-			})
+			});
 		});
 	});
 	describe('Never', async () => {
