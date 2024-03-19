@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 5.2.0
+
+### Minor Changes
+
+- [#187](https://github.com/withastro/adapters/pull/187) [`79ebfa4c9e2f84309edb35481ad9cd1f3c7e5eb4`](https://github.com/withastro/adapters/commit/79ebfa4c9e2f84309edb35481ad9cd1f3c7e5eb4) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds support for `image.remotePatterns` and `images.domains` with Netlify Image CDN
+
 ## 5.1.3
 
 ### Patch Changes
