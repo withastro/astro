@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.8.8
+
+### Patch Changes
+
+- [#10477](https://github.com/withastro/astro/pull/10477) [`124cdd64f20d86f936853f3cf834fde8cd6abcb7`](https://github.com/withastro/astro/commit/124cdd64f20d86f936853f3cf834fde8cd6abcb7) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Remove redundant wait time on token creation
+
 ## 0.8.7
 
 ### Patch Changes
