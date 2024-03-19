@@ -184,7 +184,9 @@ graph TD;
     dupe --NO--> repro{Has proper\nreproduction?}
     repro --NO--> close3[Label: 'needs reproduction'\nbot will auto close if no update\nhas been made in 3 days]
     repro --YES--> real{Is actually a bug?}
-    real --NO--> intended{Is the intended\nbehaviour?}
+    real --NO--> maybefeat{Is it a feature request?}
+    maybefeat -- YES --> roadmap[Close the issue.\n Point user to the roadmap.]
+    maybefeat -- NO --> intended{Is the intended\nbehaviour?}
     intended --YES--> explain[Explain and close\npoint to docs if needed]
     intended --NO--> open[Add label 'needs discussion'\nRemove 'needs triage' label]
     real --YES--> real2["1. Remove 'needs triage' label\n2. Add related feature label if\napplicable (e.g. 'feat: ssr')\n3. Add priority and meta labels (see below)"]
