@@ -92,10 +92,10 @@ export default async function middleware(request, context) {
 		request,
 		params: {}
 	});
-	ctx.locals = { ...context, ...${handlerTemplateCall} };
+	ctx.locals = { vercel: { edge: context }, ...${handlerTemplateCall} };
 	const { origin } = new URL(request.url);
 	const next = () => {
-		const { waitUntil, ...locals } = ctx.locals;
+		const { vercel, ...locals } = ctx.locals;
 		return fetch(new URL('/${NODE_PATH}', request.url), {
 			headers: {
 				...Object.fromEntries(request.headers.entries()),
