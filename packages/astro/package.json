@@ -152,6 +152,7 @@
     "html-escaper": "^3.0.3",
     "http-cache-semantics": "^4.1.1",
     "js-yaml": "^4.1.0",
+    "js-toml": "^1.0.0",
     "kleur": "^4.1.4",
     "magic-string": "^0.30.3",
     "mime": "^3.0.0",

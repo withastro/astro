@@ -27,11 +27,11 @@ const fixtures = [
 ];
 
 const contentFileExts = ['.md', '.mdx'];
-const dataFileExts = ['.yaml', '.yml', '.json'];
+const dataFileExts = ['.yaml', '.yml', '.json', '.toml'];
 
 describe('Content Collections - getEntryType', () => {
 	fixtures.forEach(({ title, contentPaths }) => {
-		describe(title, () => {
+		describe(title, () => {		
 			it('Returns "content" for Markdown files', () => {
 				for (const entryPath of ['blog/first-post.md', 'blog/first-post.mdx']) {
 					const entry = fileURLToPath(new URL(entryPath, contentPaths.contentDir));
@@ -40,11 +40,12 @@ describe('Content Collections - getEntryType', () => {
 				}
 			});
 
-			it('Returns "data" for JSON and YAML files', () => {
+			it('Returns "data" for JSON, YAML and TOML files', () => {
 				for (const entryPath of [
 					'banners/welcome.json',
 					'banners/welcome.yaml',
 					'banners/welcome.yml',
+					'banners/welcome.toml'
 				]) {
 					const entry = fileURLToPath(new URL(entryPath, contentPaths.contentDir));
 					const type = getEntryType(entry, contentPaths, contentFileExts, dataFileExts);
