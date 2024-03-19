@@ -6,6 +6,9 @@ import type { NodeApp } from 'astro/app/node';
 import send from 'send';
 import type { Options } from './types.js';
 
+// check for a dot followed by a extension made up of lowercase characters
+const isSubresourceRegex = /.+\.[a-z]+$/i
+
 /**
  * Creates a Node.js http listener for static files and prerendered pages.
  * In standalone mode, the static handler is queried first for the static files.
@@ -48,7 +51,8 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 					}
 					break;
 				case 'always':
-					if (!hasSlash) {
+					// trailing slash is not added to "subresources"
+					if (!hasSlash && !urlPath.match(isSubresourceRegex)) {
 						pathname = urlPath + '/' + (urlQuery ? '?' + urlQuery : '');
 						res.statusCode = 301;
 						res.setHeader('Location', pathname);
