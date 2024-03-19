@@ -76,4 +76,12 @@ export {
 	desc,
 	and,
 	or,
+	count,
+	countDistinct,
+	avg,
+	avgDistinct,
+	sum,
+	sumDistinct,
+	max,
+	min,
 } from 'drizzle-orm';
