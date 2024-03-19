@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { after, before, describe, it, expect } from 'node:test';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
@@ -76,6 +76,14 @@ describe('Trailing slash', () => {
 				expect(res.status).to.equal(200);
 				expect($('h1').text()).to.equal('One');
 			});
+
+			it('Does not add trailing slash to subresource urls', async () => {
+				const res = await fetch(`http://${server.host}:${server.port}/some-base/one.css`);
+				const css = await res.text();
+
+				expect(res.status).to.equal(200);
+				expect(css).to.equal('h1 { color: red; }\n');
+			})
 		});
 		describe('Without base', async () => {
 			before(async () => {
@@ -133,6 +141,14 @@ describe('Trailing slash', () => {
 				expect(res.status).to.equal(200);
 				expect($('h1').text()).to.equal('One');
 			});
+
+			it('Does not add trailing slash to subresource urls', async () => {
+				const res = await fetch(`http://${server.host}:${server.port}/one.css`);
+				const css = await res.text();
+
+				expect(res.status).to.equal(200);
+				expect(css).to.equal('h1 { color: red; }\n');
+			})
 		});
 	});
 	describe('Never', async () => {
