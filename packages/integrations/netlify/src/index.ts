@@ -4,7 +4,7 @@ import type { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
 import type { Context } from '@netlify/functions';
-import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
+import type { AstroConfig, AstroIntegration, AstroIntegrationLogger, RouteData } from 'astro';
 import { AstroError } from 'astro/errors';
 import { build } from 'esbuild';
 import type { Args } from './ssr-function.js';
@@ -23,6 +23,106 @@ const isStaticRedirect = (route: RouteData) =>
 	route.type === 'redirect' && (route.redirect || route.redirectRoute);
 
 const clearDirectory = (dir: URL) => rm(dir, { recursive: true }).catch(() => {});
+
+type RemotePattern = AstroConfig['image']['remotePatterns'][number];
+
+/**
+ * Convert a remote pattern object to a regex string
+ */
+export function remotePatternToRegex(
+	pattern: RemotePattern,
+	logger: AstroIntegrationLogger
+): string | undefined {
+	let { protocol, hostname, port, pathname } = pattern;
+
+	let regexStr = '';
+
+	if (protocol) {
+		regexStr += `${protocol}://`;
+	} else {
+		// Default to matching any protocol
+		regexStr += '[a-z]+://';
+	}
+
+	if (hostname) {
+		if (hostname.startsWith('**.')) {
+			// match any number of subdomains
+			regexStr += '([a-z0-9]+\\.)*';
+			hostname = hostname.substring(3);
+		} else if (hostname.startsWith('*.')) {
+			// match one subdomain
+			regexStr += '([a-z0-9]+\\.)?';
+			hostname = hostname.substring(2); // Remove '*.' from the beginning
+		}
+		// Escape dots in the hostname
+		regexStr += hostname.replace(/\./g, '\\.');
+	} else {
+		regexStr += '[a-z0-9.-]+';
+	}
+
+	if (port) {
+		regexStr += `:${port}`;
+	} else {
+		// Default to matching any port
+		regexStr += '(:[0-9]+)?';
+	}
+
+	if (pathname) {
+		if (pathname.endsWith('/**')) {
+			// Match any path.
+			regexStr += `(\\${pathname.replace('/**', '')}.*)`;
+		}
+		if (pathname.endsWith('/*')) {
+			// Match one level of path
+			regexStr += `(\\${pathname.replace('/*', '')}\/[^/?#]+)\/?`;
+		} else {
+			// Exact match
+			regexStr += `(\\${pathname})`;
+		}
+	} else {
+		// Default to matching any path
+		regexStr += '(\\/[^?#]*)?';
+	}
+	if (!regexStr.endsWith('.*)')) {
+		// Match query, but only if it's not already matched by the pathname
+		regexStr += '([?][^#]*)?';
+	}
+	try {
+		new RegExp(regexStr);
+	} catch (e) {
+		logger.warn(
+			`Could not generate a valid regex from the remotePattern "${JSON.stringify(
+				pattern
+			)}". Please check the syntax.`
+		);
+		return undefined;
+	}
+	return regexStr;
+}
+
+async function writeNetlifyDeployConfig(config: AstroConfig, logger: AstroIntegrationLogger) {
+	const remoteImages: Array<string> = [];
+	// Domains get a simple regex match
+	remoteImages.push(
+		...config.image.domains.map((domain) => `https?:\/\/${domain.replaceAll('.', '\\.')}\/.*`)
+	);
+	// Remote patterns need to be converted to regexes
+	remoteImages.push(
+		...config.image.remotePatterns
+			.map((pattern) => remotePatternToRegex(pattern, logger))
+			.filter(Boolean as unknown as (pattern?: string) => pattern is string)
+	);
+
+	// See https://docs.netlify.com/image-cdn/create-integration/
+	const deployConfigDir = new URL('.netlify/deploy/v1/', config.root);
+	await mkdir(deployConfigDir, { recursive: true });
+	await writeFile(
+		new URL('./config.json', deployConfigDir),
+		JSON.stringify({
+			images: { remote_images: remoteImages },
+		})
+	);
+}
 
 export interface NetlifyIntegrationConfig {
 	/**
@@ -127,7 +227,7 @@ export default function netlifyIntegration(
 		await mkdir(middlewareOutputDir(), { recursive: true });
 		await writeFile(
 			new URL('./entry.mjs', middlewareOutputDir()),
-			`
+			/* ts */ `
 			import { onRequest } from "${fileURLToPath(entrypoint).replaceAll('\\', '/')}";
 			import { createContext, trySerializeLocals } from 'astro/middleware';
 
@@ -266,15 +366,12 @@ export default function netlifyIntegration(
 					},
 				});
 			},
-			'astro:config:done': ({ config, setAdapter }) => {
+			'astro:config:done': async ({ config, setAdapter, logger }) => {
 				rootDir = config.root;
 				_config = config;
 
-				if (config.image.domains.length || config.image.remotePatterns.length) {
-					throw new AstroError(
-						"config.image.domains and config.image.remotePatterns aren't supported by the Netlify adapter.",
-						'See https://github.com/withastro/adapters/tree/main/packages/netlify#image-cdn for more.'
-					);
+				if (config.image?.domains?.length || config.image?.remotePatterns?.length) {
+					await writeNetlifyDeployConfig(config, logger);
 				}
 
 				const edgeMiddleware = integrationConfig?.edgeMiddleware ?? false;
