@@ -7,7 +7,7 @@ import send from 'send';
 import type { Options } from './types.js';
 
 // check for a dot followed by a extension made up of lowercase characters
-const isSubresourceRegex = /.+\.[a-z]+$/i
+const isSubresourceRegex = /.+\.[a-z]+$/i;
 
 /**
  * Creates a Node.js http listener for static files and prerendered pages.
