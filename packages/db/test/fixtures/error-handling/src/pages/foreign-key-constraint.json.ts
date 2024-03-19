@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { db, Ingredient, LibsqlError } from 'astro:db';
+import { db, Ingredient, isDbError } from 'astro:db';
 
 export const GET: APIRoute = async () => {
 	try {
@@ -10,7 +10,7 @@ export const GET: APIRoute = async () => {
 			recipeId: 42,
 		});
 	} catch (e) {
-		if (e instanceof LibsqlError) {
+		if (isDbError(e)) {
 			return new Response(JSON.stringify({ error: `LibsqlError: ${e.message}` }));
 		}
 	}
