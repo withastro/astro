@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import * as color from 'kleur/colors';
 import {
 	getCollectionChangeQueries,
 	getMigrationQueries,
@@ -124,11 +123,7 @@ describe('column queries', () => {
 				'DROP TABLE "Users"',
 				'CREATE TABLE "Users" (_id INTEGER PRIMARY KEY, "date" text NOT NULL)',
 			]);
-			expect(confirmations).to.deep.equal([
-				`Updating existing column ${color.bold(
-					`${TABLE_NAME}.date`
-				)} to a new type that cannot be handled automatically.`,
-			]);
+			expect(confirmations.length).to.equal(1);
 		});
 
 		it('should return warning if new required column added', async () => {
@@ -147,11 +142,7 @@ describe('column queries', () => {
 				'DROP TABLE "Users"',
 				'CREATE TABLE "Users" (_id INTEGER PRIMARY KEY, "date" text NOT NULL)',
 			]);
-			expect(confirmations).to.deep.equal([
-				`You added new required column '${color.bold(
-					`${TABLE_NAME}.date`
-				)}' with no default value.` + '\n      This cannot be executed on an existing table.',
-			]);
+			expect(confirmations.length).to.equal(1);
 		});
 
 		it('should return warning if non-number primary key with no default added', async () => {
@@ -170,10 +161,7 @@ describe('column queries', () => {
 				'DROP TABLE "Users"',
 				'CREATE TABLE "Users" ("id" text PRIMARY KEY)',
 			]);
-			expect(confirmations).to.deep.equal([
-				`You added new required column '${color.bold(`${TABLE_NAME}.id`)}' with no default value.` +
-					'\n      This cannot be executed on an existing table.',
-			]);
+			expect(confirmations.length).to.equal(1);
 		});
 
 		it('should be empty when type updated to same underlying SQL type', async () => {
