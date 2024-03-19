@@ -2,4 +2,4 @@
 "@astrojs/node": patch
 ---
 
-fix: do not append traling slash to subresource urls
+Fixes a bug where the preview server wrongly appends trailing slashes to subresource URLs.

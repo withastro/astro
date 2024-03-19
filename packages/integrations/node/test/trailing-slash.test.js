@@ -1,4 +1,5 @@
-import { after, before, describe, it, expect } from 'node:test';
+import { after, before, describe, it } from 'node:test';
+import * as assert from 'node:assert/strict';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
@@ -48,24 +49,24 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('Index');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'Index');
 			});
 
 			it('Can render prerendered route with redirect', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/some-base/one`, {
 					redirect: 'manual',
 				});
-				expect(res.status).to.equal(301);
-				expect(res.headers.get('location')).to.equal('/some-base/one/');
+				assert.equal(res.status, 301);
+				assert.equal(res.headers.get('location'), '/some-base/one/');
 			});
 
 			it('Can render prerendered route with redirect and query params', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/some-base/one?foo=bar`, {
 					redirect: 'manual',
 				});
-				expect(res.status).to.equal(301);
-				expect(res.headers.get('location')).to.equal('/some-base/one/?foo=bar');
+				assert.equal(res.status, 301);
+				assert.equal(res.headers.get('location'), '/some-base/one/?foo=bar');
 			});
 
 			it('Can render prerendered route with query params', async () => {
@@ -73,16 +74,16 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('One');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'One');
 			});
 
 			it('Does not add trailing slash to subresource urls', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/some-base/one.css`);
 				const css = await res.text();
 
-				expect(res.status).to.equal(200);
-				expect(css).to.equal('h1 { color: red; }\n');
+				assert.equal(res.status, 200);
+				assert.equal(css, 'h1 { color: red; }\n');
 			})
 		});
 		describe('Without base', async () => {
@@ -113,24 +114,24 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('Index');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'Index');
 			});
 
 			it('Can render prerendered route with redirect', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/one`, {
 					redirect: 'manual',
 				});
-				expect(res.status).to.equal(301);
-				expect(res.headers.get('location')).to.equal('/one/');
+				assert.equal(res.status, 301);
+				assert.equal(res.headers.get('location'), '/one/');
 			});
 
 			it('Can render prerendered route with redirect and query params', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/one?foo=bar`, {
 					redirect: 'manual',
 				});
-				expect(res.status).to.equal(301);
-				expect(res.headers.get('location')).to.equal('/one/?foo=bar');
+				assert.equal(res.status, 301);
+				assert.equal(res.headers.get('location'), '/one/?foo=bar');
 			});
 
 			it('Can render prerendered route with query params', async () => {
@@ -138,16 +139,16 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('One');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'One');
 			});
 
 			it('Does not add trailing slash to subresource urls', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/one.css`);
 				const css = await res.text();
 
-				expect(res.status).to.equal(200);
-				expect(css).to.equal('h1 { color: red; }\n');
+				assert.equal(res.status, 200);
+				assert.equal(css, 'h1 { color: red; }\n');
 			})
 		});
 	});
@@ -181,16 +182,16 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('Index');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'Index');
 			});
 
 			it('Can render prerendered route with redirect', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/some-base/one/`, {
 					redirect: 'manual',
 				});
-				expect(res.status).to.equal(301);
-				expect(res.headers.get('location')).to.equal('/some-base/one');
+				assert.equal(res.status, 301);
+				assert.equal(res.headers.get('location'), '/some-base/one');
 			});
 
 			it('Can render prerendered route with redirect and query params', async () => {
@@ -198,8 +199,8 @@ describe('Trailing slash', () => {
 					redirect: 'manual',
 				});
 
-				expect(res.status).to.equal(301);
-				expect(res.headers.get('location')).to.equal('/some-base/one?foo=bar');
+				assert.equal(res.status, 301);
+				assert.equal(res.headers.get('location'), '/some-base/one?foo=bar');
 			});
 
 			it('Can render prerendered route with query params', async () => {
@@ -207,8 +208,8 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('One');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'One');
 			});
 		});
 		describe('Without base', async () => {
@@ -239,16 +240,16 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('Index');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'Index');
 			});
 
 			it('Can render prerendered route with redirect', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/one/`, {
 					redirect: 'manual',
 				});
-				expect(res.status).to.equal(301);
-				expect(res.headers.get('location')).to.equal('/one');
+				assert.equal(res.status, 301);
+				assert.equal(res.headers.get('location'), '/one');
 			});
 
 			it('Can render prerendered route with redirect and query params', async () => {
@@ -256,8 +257,8 @@ describe('Trailing slash', () => {
 					redirect: 'manual',
 				});
 
-				expect(res.status).to.equal(301);
-				expect(res.headers.get('location')).to.equal('/one?foo=bar');
+				assert.equal(res.status, 301);
+				assert.equal(res.headers.get('location'), '/one?foo=bar');
 			});
 
 			it('Can render prerendered route and query params', async () => {
@@ -265,8 +266,8 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('One');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'One');
 			});
 		});
 	});
@@ -300,8 +301,8 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('Index');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'Index');
 			});
 
 			it('Can render prerendered route with slash', async () => {
@@ -311,8 +312,8 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('One');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'One');
 			});
 
 			it('Can render prerendered route without slash', async () => {
@@ -322,8 +323,8 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('One');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'One');
 			});
 
 			it('Can render prerendered route with slash and query params', async () => {
@@ -333,8 +334,8 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('One');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'One');
 			});
 
 			it('Can render prerendered route without slash and with query params', async () => {
@@ -344,8 +345,8 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('One');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'One');
 			});
 		});
 		describe('Without base', async () => {
@@ -376,8 +377,8 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('Index');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'Index');
 			});
 
 			it('Can render prerendered route with slash', async () => {
@@ -385,8 +386,8 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('One');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'One');
 			});
 
 			it('Can render prerendered route without slash', async () => {
@@ -394,8 +395,8 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('One');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'One');
 			});
 
 			it('Can render prerendered route with slash and query params', async () => {
@@ -405,8 +406,8 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('One');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'One');
 			});
 
 			it('Can render prerendered route without slash and with query params', async () => {
@@ -414,8 +415,8 @@ describe('Trailing slash', () => {
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
-				expect(res.status).to.equal(200);
-				expect($('h1').text()).to.equal('One');
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'One');
 			});
 		});
 	});
