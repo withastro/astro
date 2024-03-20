@@ -46,15 +46,15 @@ export async function getMigrationQueries({
 	newSnapshot: DBSnapshot;
 	reset?: boolean;
 }): Promise<{ queries: string[]; confirmations: string[] }> {
-	let queries: string[] = [];
+	const queries: string[] = [];
 	const confirmations: string[] = [];
 
 	// When doing a reset, first create DROP TABLE statements, then treat everything
 	// else as creation.
 	if(reset) {
-		const curSnapshot = oldSnapshot;
+		const currentSnapshot = oldSnapshot;
 		oldSnapshot = createEmptySnapshot();
-		queries = getDropTableQueriesForSnapshot(curSnapshot);
+		queries.push(...getDropTableQueriesForSnapshot(currentSnapshot));
 	}
 
 	const addedCollections = getAddedCollections(oldSnapshot, newSnapshot);
