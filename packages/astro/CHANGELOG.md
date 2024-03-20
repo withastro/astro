@@ -1,5 +1,11 @@
 # astro
 
+## 4.5.7
+
+### Patch Changes
+
+- [#10493](https://github.com/withastro/astro/pull/10493) [`e4a6462751725878bfe47632eeafa6854cad5bf2`](https://github.com/withastro/astro/commit/e4a6462751725878bfe47632eeafa6854cad5bf2) Thanks [@firefoxic](https://github.com/firefoxic)! - `<link>` tags created by astro for optimized stylesheets now do not include the closing forward slash. This slash is optional for void elements such as link, but made some html validation fail.
+
 ## 4.5.6
 
 ### Patch Changes
