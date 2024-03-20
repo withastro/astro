@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-improves `client:only error` message
+improves `client:only` error message
