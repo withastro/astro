@@ -40,7 +40,7 @@ const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
 export async function getMigrationQueries({
 	oldSnapshot,
 	newSnapshot,
-	reset = false
+	reset = false,
 }: {
 	oldSnapshot: DBSnapshot;
 	newSnapshot: DBSnapshot;
@@ -51,7 +51,7 @@ export async function getMigrationQueries({
 
 	// When doing a reset, first create DROP TABLE statements, then treat everything
 	// else as creation.
-	if(reset) {
+	if (reset) {
 		const currentSnapshot = oldSnapshot;
 		oldSnapshot = createEmptySnapshot();
 		queries.push(...getDropTableQueriesForSnapshot(currentSnapshot));
@@ -462,7 +462,7 @@ export async function getProductionCurrentSnapshot({
 
 function getDropTableQueriesForSnapshot(snapshot: DBSnapshot) {
 	const queries = [];
-	for(const collectionName of Object.keys(snapshot.schema)) {
+	for (const collectionName of Object.keys(snapshot.schema)) {
 		const dropQuery = `DROP TABLE ${sqlite.escapeName(collectionName)}`;
 		queries.unshift(dropQuery);
 	}

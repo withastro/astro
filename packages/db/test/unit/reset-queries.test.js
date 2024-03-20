@@ -1,8 +1,6 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import {
-	getMigrationQueries,
-} from '../../dist/core/cli/migration-queries.js';
+import { getMigrationQueries } from '../../dist/core/cli/migration-queries.js';
 import { MIGRATION_VERSION } from '../../dist/core/consts.js';
 import { tableSchema } from '../../dist/core/schemas.js';
 import { column, defineTable } from '../../dist/runtime/config.js';

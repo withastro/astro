@@ -30,7 +30,7 @@ export async function cmd({
 	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
 		oldSnapshot: isFromScratch ? createEmptySnapshot() : productionSnapshot,
 		newSnapshot: currentSnapshot,
-		reset: isForceReset
+		reset: isForceReset,
 	});
 
 	// // push the database schema
