@@ -1,3 +1,4 @@
+import { LibsqlError } from '@libsql/client';
 import { sql as _sql } from 'drizzle-orm';
 import type {
 	BooleanColumnInput,
@@ -9,7 +10,6 @@ import type {
 	TableConfig,
 	TextColumnOpts,
 } from '../core/types.js';
-import { LibsqlError } from '@libsql/client';
 
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 
