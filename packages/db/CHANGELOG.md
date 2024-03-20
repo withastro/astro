@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.9.2
+
+### Patch Changes
+
+- [#10506](https://github.com/withastro/astro/pull/10506) [`980020c5e0935a2e0e177164d02f5e49f0a9ab4b`](https://github.com/withastro/astro/commit/980020c5e0935a2e0e177164d02f5e49f0a9ab4b) Thanks [@matthewp](https://github.com/matthewp)! - Ensure --force-reset drops previous tables
+
 ## 0.9.1
 
 ### Patch Changes
