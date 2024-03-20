@@ -4925,6 +4925,9 @@ importers:
       '@vercel/analytics':
         specifier: ^1.0.2
         version: 1.2.2
+      '@vercel/edge':
+        specifier: ^1.1.1
+        version: 1.1.1
       '@vercel/nft':
         specifier: ^0.26.4
         version: 0.26.4
@@ -4944,9 +4947,6 @@ importers:
       '@types/set-cookie-parser':
         specifier: ^2.4.6
         version: 2.4.7
-      '@vercel/edge':
-        specifier: ^1.1.1
-        version: 1.1.1
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -8357,7 +8357,7 @@ packages:
 
   /@vercel/edge@1.1.1:
     resolution: {integrity: sha512-NtKiIbn9Cq6HWGy+qRudz28mz5nxfOJWls5Pnckjw1yCfSX8rhXdvY/il3Sy3Zd5n/sKCM2h7VSCCpJF/oaDrQ==}
-    dev: true
+    dev: false
 
   /@vercel/nft@0.26.4:
     resolution: {integrity: sha512-j4jCOOXke2t8cHZCIxu1dzKLHLcFmYzC3yqAK6MfZznOL1QIJKd0xcFsXK3zcqzU7ScsE2zWkiMMNHGMHgp+FA==}

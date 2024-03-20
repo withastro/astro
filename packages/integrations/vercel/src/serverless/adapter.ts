@@ -498,7 +498,8 @@ class VercelBuilder {
 			entry,
 			new URL(VERCEL_EDGE_MIDDLEWARE_FILE, this.config.srcDir),
 			new URL('./middleware.mjs', functionFolder),
-			middlewareSecret
+			middlewareSecret,
+			this.logger
 		);
 
 		await writeJson(new URL(`./.vc-config.json`, functionFolder), {

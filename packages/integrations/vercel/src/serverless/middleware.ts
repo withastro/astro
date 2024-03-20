@@ -7,6 +7,7 @@ import {
 	ASTRO_PATH_HEADER,
 	NODE_PATH,
 } from './adapter.js';
+import type { AstroIntegrationLogger } from 'astro';
 
 /**
  * It generates the Vercel Edge Middleware file.
@@ -23,12 +24,14 @@ export async function generateEdgeMiddleware(
 	astroMiddlewareEntryPointPath: URL,
 	vercelEdgeMiddlewareHandlerPath: URL,
 	outPath: URL,
-	middlewareSecret: string
+	middlewareSecret: string,
+	logger: AstroIntegrationLogger
 ): Promise<URL> {
 	const code = edgeMiddlewareTemplate(
 		astroMiddlewareEntryPointPath,
 		vercelEdgeMiddlewareHandlerPath,
-		middlewareSecret
+		middlewareSecret,
+		logger
 	);
 	// https://vercel.com/docs/concepts/functions/edge-middleware#create-edge-middleware
 	const bundledFilePath = fileURLToPath(outPath);
@@ -64,7 +67,8 @@ export async function generateEdgeMiddleware(
 function edgeMiddlewareTemplate(
 	astroMiddlewareEntryPointPath: URL,
 	vercelEdgeMiddlewareHandlerPath: URL,
-	middlewareSecret: string
+	middlewareSecret: string,
+	logger: AstroIntegrationLogger
 ) {
 	const middlewarePath = JSON.stringify(
 		fileURLToPath(astroMiddlewareEntryPointPath).replace(/\\/g, '/')
@@ -73,6 +77,7 @@ function edgeMiddlewareTemplate(
 	let handlerTemplateImport = '';
 	let handlerTemplateCall = '{}';
 	if (existsSync(filePathEdgeMiddleware + '.js') || existsSync(filePathEdgeMiddleware + '.ts')) {
+		logger.warn('Usage of `vercel-edge-middleware.js` is deprecated. You can now use the `waitUntil(promise)` function directly as `ctx.locals.waitUntil(promise)`.')
 		const stringified = JSON.stringify(filePathEdgeMiddleware.replace(/\\/g, '/'));
 		handlerTemplateImport = `import handler from ${stringified}`;
 		handlerTemplateCall = `await handler({ request, context })`;
@@ -87,17 +92,19 @@ export default async function middleware(request, context) {
 		request,
 		params: {}
 	});
-	ctx.locals = ${handlerTemplateCall};
+	ctx.locals = { vercel: { edge: context }, ...${handlerTemplateCall} };
 	const { origin } = new URL(request.url);
-	const next = () =>
-		fetch(new URL('/${NODE_PATH}', request.url), {
+	const next = () => {
+		const { vercel, ...locals } = ctx.locals;
+		return fetch(new URL('/${NODE_PATH}', request.url), {
 			headers: {
 				...Object.fromEntries(request.headers.entries()),
 				'${ASTRO_MIDDLEWARE_SECRET_HEADER}': '${middlewareSecret}',
 				'${ASTRO_PATH_HEADER}': request.url.replace(origin, ''),
-				'${ASTRO_LOCALS_HEADER}': trySerializeLocals(ctx.locals)
+				'${ASTRO_LOCALS_HEADER}': trySerializeLocals(locals)
 			}
 		})
+	}
 
 	return onRequest(ctx, next);
 }`;
