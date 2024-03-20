@@ -1,5 +1,19 @@
 # @astrojs/db
 
+## 0.9.0
+
+### Minor Changes
+
+- [#10479](https://github.com/withastro/astro/pull/10479) [`ad57a02c330b544770ab853fe0521eb784421016`](https://github.com/withastro/astro/commit/ad57a02c330b544770ab853fe0521eb784421016) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Expose Drizzle aggregation helpers including `count()` from the `astro:db` module.
+
+### Patch Changes
+
+- [#10501](https://github.com/withastro/astro/pull/10501) [`48310512601e0c0b2886759e4d81b4091042eb8f`](https://github.com/withastro/astro/commit/48310512601e0c0b2886759e4d81b4091042eb8f) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Remove `db.transaction()` from type definitions until it is supported by our remote database adapter.
+
+- [#10497](https://github.com/withastro/astro/pull/10497) [`2fc7231df28e5a3425ee47b871ba3766e0856bd8`](https://github.com/withastro/astro/commit/2fc7231df28e5a3425ee47b871ba3766e0856bd8) Thanks [@matthewp](https://github.com/matthewp)! - Remove embedded app token from CI
+
+- [#10405](https://github.com/withastro/astro/pull/10405) [`2ebcf94d0af5ac789c61b4190dea0ad6a402a6ea`](https://github.com/withastro/astro/commit/2ebcf94d0af5ac789c61b4190dea0ad6a402a6ea) Thanks [@43081j](https://github.com/43081j)! - Added github-slugger as a direct dependency
+
 ## 0.8.8
 
 ### Patch Changes
