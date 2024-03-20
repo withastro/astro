@@ -9,7 +9,6 @@ import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
 	formatDataLossMessage,
-	getDropTableQueriesForSnapshot,
 	getMigrationQueries,
 	getProductionCurrentSnapshot,
 } from '../../migration-queries.js';
