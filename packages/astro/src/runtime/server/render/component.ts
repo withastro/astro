@@ -80,7 +80,7 @@ async function renderFrameworkComponent(
 	_props: Record<string | number, any>,
 	slots: any = {}
 ): Promise<RenderInstance> {
-	if (!Component && !_props['client:only'] && _props['client:only'] !== "") {
+	if (!Component && "client:only" in _props === false) {
 		throw new Error(
 			`Unable to render ${displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`
 		);
