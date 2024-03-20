@@ -1,13 +1,13 @@
 import { existsSync } from 'node:fs';
 import { builtinModules } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import type { AstroIntegrationLogger } from 'astro';
 import {
 	ASTRO_LOCALS_HEADER,
 	ASTRO_MIDDLEWARE_SECRET_HEADER,
 	ASTRO_PATH_HEADER,
 	NODE_PATH,
 } from './adapter.js';
-import type { AstroIntegrationLogger } from 'astro';
 
 /**
  * It generates the Vercel Edge Middleware file.
@@ -77,7 +77,9 @@ function edgeMiddlewareTemplate(
 	let handlerTemplateImport = '';
 	let handlerTemplateCall = '{}';
 	if (existsSync(filePathEdgeMiddleware + '.js') || existsSync(filePathEdgeMiddleware + '.ts')) {
-		logger.warn('Usage of `vercel-edge-middleware.js` is deprecated. You can now use the `waitUntil(promise)` function directly as `ctx.locals.waitUntil(promise)`.')
+		logger.warn(
+			'Usage of `vercel-edge-middleware.js` is deprecated. You can now use the `waitUntil(promise)` function directly as `ctx.locals.waitUntil(promise)`.'
+		);
 		const stringified = JSON.stringify(filePathEdgeMiddleware.replace(/\\/g, '/'));
 		handlerTemplateImport = `import handler from ${stringified}`;
 		handlerTemplateCall = `await handler({ request, context })`;
