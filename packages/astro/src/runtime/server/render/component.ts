@@ -31,7 +31,8 @@ import { type ComponentSlots, renderSlotToString, renderSlots } from './slot.js'
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
-const clientOnlyValues = new Set(['solid-js', 'solid', 'react', 'preact', 'vue', 'svelte', 'lit']);
+const rendererAliases = new Map([['solid', 'solid-js']]);
+const clientOnlyValues = new Set(['solid-js', 'react', 'preact', 'vue', 'svelte', 'lit']);
 
 function guessRenderers(componentUrl?: string): string[] {
 	const extname = componentUrl?.split('.').pop();
@@ -164,7 +165,9 @@ async function renderFrameworkComponent(
 	} else {
 		// Attempt: use explicitly passed renderer name
 		if (metadata.hydrateArgs) {
-			const rendererName = metadata.hydrateArgs;
+			const rendererName = rendererAliases.has(metadata.hydrateArgs)
+				? rendererAliases.get(metadata.hydrateArgs)
+				: metadata.hydrateArgs;
 			if (clientOnlyValues.has(rendererName)) {
 				renderer = renderers.find(
 					({ name }) => name === `@astrojs/${rendererName}` || name === rendererName
@@ -188,7 +191,9 @@ async function renderFrameworkComponent(
 	// If no one claimed the renderer
 	if (!renderer) {
 		if (metadata.hydrate === 'only') {
-			const rendererName = metadata.hydrateArgs;
+			const rendererName = rendererAliases.has(metadata.hydrateArgs)
+				? rendererAliases.get(metadata.hydrateArgs)
+				: metadata.hydrateArgs;
 			if (clientOnlyValues.has(rendererName)) {
 				// throw an error if provide correct client:only directive but not find the renderer
 				const plural = validRenderers.length > 1;
@@ -259,7 +264,9 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		}
 	} else {
 		if (metadata.hydrate === 'only') {
-			const rendererName = metadata.hydrateArgs;
+			const rendererName = rendererAliases.has(metadata.hydrateArgs)
+			? rendererAliases.get(metadata.hydrateArgs)
+			: metadata.hydrateArgs;
 			if (!clientOnlyValues.has(rendererName)) {
 				// warning if provide incorrect client:only directive but find the renderer by guess
 				console.warn(
