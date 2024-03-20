@@ -40,12 +40,23 @@ const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
 export async function getMigrationQueries({
 	oldSnapshot,
 	newSnapshot,
+	reset = false
 }: {
 	oldSnapshot: DBSnapshot;
 	newSnapshot: DBSnapshot;
+	reset?: boolean;
 }): Promise<{ queries: string[]; confirmations: string[] }> {
-	const queries: string[] = [];
+	let queries: string[] = [];
 	const confirmations: string[] = [];
+
+	// When doing a reset, first create DROP TABLE statements, then treat everything
+	// else as creation.
+	if(reset) {
+		const curSnapshot = oldSnapshot;
+		oldSnapshot = createEmptySnapshot();
+		queries = getDropTableQueriesForSnapshot(curSnapshot);
+	}
+
 	const addedCollections = getAddedCollections(oldSnapshot, newSnapshot);
 	const droppedTables = getDroppedCollections(oldSnapshot, newSnapshot);
 	const notDeprecatedDroppedTables = Object.fromEntries(
@@ -447,6 +458,15 @@ export async function getProductionCurrentSnapshot({
 		throw new Error(`/db/schema fetch unsuccessful`);
 	}
 	return result.data;
+}
+
+function getDropTableQueriesForSnapshot(snapshot: DBSnapshot) {
+	const queries = [];
+	for(const collectionName of Object.keys(snapshot.schema)) {
+		const dropQuery = `DROP TABLE ${sqlite.escapeName(collectionName)}`;
+		queries.unshift(dropQuery);
+	}
+	return queries;
 }
 
 export function createCurrentSnapshot({ tables = {} }: DBConfig): DBSnapshot {
