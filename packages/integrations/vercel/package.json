@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "7.3.6",
+  "version": "7.4.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -17,6 +17,9 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/vercel/",
   "exports": {
+    ".": {
+      "types": "./types.d.ts"
+    },
     "./serverless": "./dist/serverless/adapter.js",
     "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
     "./static": "./dist/static/adapter.js",
@@ -28,9 +31,6 @@
   },
   "typesVersions": {
     "*": {
-      "edge": [
-        "dist/edge/adapter.d.ts"
-      ],
       "serverless": [
         "dist/serverless/adapter.d.ts"
       ],
@@ -40,7 +40,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "types.d.ts"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
@@ -52,6 +53,7 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@vercel/analytics": "^1.0.2",
+    "@vercel/edge": "^1.1.1",
     "@vercel/nft": "^0.26.4",
     "esbuild": "^0.19.6",
     "fast-glob": "^3.3.2",
@@ -63,7 +65,6 @@
   },
   "devDependencies": {
     "@types/set-cookie-parser": "^2.4.6",
-    "@vercel/edge": "^1.1.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0-rc.12"

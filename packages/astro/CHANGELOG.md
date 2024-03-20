@@ -1,5 +1,30 @@
 # astro
 
+## 4.5.8
+
+### Patch Changes
+
+- [#10504](https://github.com/withastro/astro/pull/10504) [`8e4e554cc211e59c329c0a5d110c839c886ff120`](https://github.com/withastro/astro/commit/8e4e554cc211e59c329c0a5d110c839c886ff120) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Update Babel version to fix regression in Babel's `7.24.2`.
+
+- Updated dependencies [[`19e42c368184013fc30d1e46753b9e9383bb2bdf`](https://github.com/withastro/astro/commit/19e42c368184013fc30d1e46753b9e9383bb2bdf)]:
+  - @astrojs/markdown-remark@4.3.1
+
+## 4.5.7
+
+### Patch Changes
+
+- [#10493](https://github.com/withastro/astro/pull/10493) [`e4a6462751725878bfe47632eeafa6854cad5bf2`](https://github.com/withastro/astro/commit/e4a6462751725878bfe47632eeafa6854cad5bf2) Thanks [@firefoxic](https://github.com/firefoxic)! - `<link>` tags created by astro for optimized stylesheets now do not include the closing forward slash. This slash is optional for void elements such as link, but made some html validation fail.
+
+## 4.5.6
+
+### Patch Changes
+
+- [#10455](https://github.com/withastro/astro/pull/10455) [`c12666166db724915e42e37a048483c99f88e6d9`](https://github.com/withastro/astro/commit/c12666166db724915e42e37a048483c99f88e6d9) Thanks [@lilnasy](https://github.com/lilnasy)! - Adds a helpful error message that will be shown when an endpoint does not return a `Response`.
+
+- [#10426](https://github.com/withastro/astro/pull/10426) [`6a9a35ee15069541c3144012385366a3c689240a`](https://github.com/withastro/astro/commit/6a9a35ee15069541c3144012385366a3c689240a) Thanks [@markgaze](https://github.com/markgaze)! - Fixes an issue with generating JSON schemas when the schema is a function
+
+- [#10448](https://github.com/withastro/astro/pull/10448) [`fcece3658697248ab58f77b3d4a8b14d362f3c47`](https://github.com/withastro/astro/commit/fcece3658697248ab58f77b3d4a8b14d362f3c47) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where multiple rendering errors resulted in a crash of the SSR app server.
+
 ## 4.5.5
 
 ### Patch Changes

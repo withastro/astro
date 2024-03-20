@@ -1,5 +1,17 @@
 # @astrojs/node
 
+## 8.2.5
+
+### Patch Changes
+
+- [#10491](https://github.com/withastro/astro/pull/10491) [`28e33a2f9c04373eae5da2e6edb0dc2981bce790`](https://github.com/withastro/astro/commit/28e33a2f9c04373eae5da2e6edb0dc2981bce790) Thanks [@castarco](https://github.com/castarco)! - Fixes a bug where the preview server wrongly appends trailing slashes to subresource URLs.
+
+## 8.2.4
+
+### Patch Changes
+
+- [#10454](https://github.com/withastro/astro/pull/10454) [`83f9105cd50e2756d02ca2be73ab84f9d582d3f8`](https://github.com/withastro/astro/commit/83f9105cd50e2756d02ca2be73ab84f9d582d3f8) Thanks [@lilnasy](https://github.com/lilnasy)! - Prevents crashes caused by rejections of offshoot promises.
+
 ## 8.2.3
 
 ### Patch Changes

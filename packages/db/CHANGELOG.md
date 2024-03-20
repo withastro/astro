@@ -1,5 +1,39 @@
 # @astrojs/db
 
+## 0.9.1
+
+### Patch Changes
+
+- [#10498](https://github.com/withastro/astro/pull/10498) [`f0fc78c8734b2bcf39078c782998e60b49ecc146`](https://github.com/withastro/astro/commit/f0fc78c8734b2bcf39078c782998e60b49ecc146) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Expose `isDbError()` utility to handle database exceptions when querying.
+
+## 0.9.0
+
+### Minor Changes
+
+- [#10479](https://github.com/withastro/astro/pull/10479) [`ad57a02c330b544770ab853fe0521eb784421016`](https://github.com/withastro/astro/commit/ad57a02c330b544770ab853fe0521eb784421016) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Expose Drizzle aggregation helpers including `count()` from the `astro:db` module.
+
+### Patch Changes
+
+- [#10501](https://github.com/withastro/astro/pull/10501) [`48310512601e0c0b2886759e4d81b4091042eb8f`](https://github.com/withastro/astro/commit/48310512601e0c0b2886759e4d81b4091042eb8f) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Remove `db.transaction()` from type definitions until it is supported by our remote database adapter.
+
+- [#10497](https://github.com/withastro/astro/pull/10497) [`2fc7231df28e5a3425ee47b871ba3766e0856bd8`](https://github.com/withastro/astro/commit/2fc7231df28e5a3425ee47b871ba3766e0856bd8) Thanks [@matthewp](https://github.com/matthewp)! - Remove embedded app token from CI
+
+- [#10405](https://github.com/withastro/astro/pull/10405) [`2ebcf94d0af5ac789c61b4190dea0ad6a402a6ea`](https://github.com/withastro/astro/commit/2ebcf94d0af5ac789c61b4190dea0ad6a402a6ea) Thanks [@43081j](https://github.com/43081j)! - Added github-slugger as a direct dependency
+
+## 0.8.8
+
+### Patch Changes
+
+- [#10477](https://github.com/withastro/astro/pull/10477) [`124cdd64f20d86f936853f3cf834fde8cd6abcb7`](https://github.com/withastro/astro/commit/124cdd64f20d86f936853f3cf834fde8cd6abcb7) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Remove redundant wait time on token creation
+
+## 0.8.7
+
+### Patch Changes
+
+- [#10435](https://github.com/withastro/astro/pull/10435) [`37a485b4d1d4b7e60eee2067ffd86d0eea4f03e8`](https://github.com/withastro/astro/commit/37a485b4d1d4b7e60eee2067ffd86d0eea4f03e8) Thanks [@matthewp](https://github.com/matthewp)! - Fetch new app token when previous has expired
+
+- [#10457](https://github.com/withastro/astro/pull/10457) [`219c49473fe44d8df2b69444b2dce0f5bc971655`](https://github.com/withastro/astro/commit/219c49473fe44d8df2b69444b2dce0f5bc971655) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix type error in db/seed.ts file before type generation is run.
+
 ## 0.8.6
 
 ### Patch Changes

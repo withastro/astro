@@ -792,11 +792,11 @@ export const MiddlewareNotAResponse = {
  * @docs
  * @description
  * Thrown when an endpoint does not return anything or returns an object that is not a `Response` object.
- * 
+ *
  * An endpoint must return either a `Response`, or a `Promise` that resolves with a `Response`. For example:
  * ```ts
  * import type { APIContext } from 'astro';
- * 
+ *
  * export async function GET({ request, url, cookies }: APIContext): Promise<Response> {
  *     return Response.json({
  *         success: true,
@@ -808,7 +808,8 @@ export const MiddlewareNotAResponse = {
 export const EndpointDidNotReturnAResponse = {
 	name: 'EndpointDidNotReturnAResponse',
 	title: 'The endpoint did not return a `Response`.',
-	message: 'An endpoint must return either a `Response`, or a `Promise` that resolves with a `Response`.',
+	message:
+		'An endpoint must return either a `Response`, or a `Promise` that resolves with a `Response`.',
 } satisfies ErrorData;
 
 /**

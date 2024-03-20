@@ -105,6 +105,65 @@ describe('column queries', () => {
 			expect(queries).to.deep.equal([]);
 		});
 
+		it('should return warning if column type change introduces data loss', async () => {
+			const blogInitial = tableSchema.parse({
+				...userInitial,
+				columns: {
+					date: column.text(),
+				},
+			});
+			const blogFinal = tableSchema.parse({
+				...userInitial,
+				columns: {
+					date: column.date(),
+				},
+			});
+			const { queries, confirmations } = await userChangeQueries(blogInitial, blogFinal);
+			expect(queries).to.deep.equal([
+				'DROP TABLE "Users"',
+				'CREATE TABLE "Users" (_id INTEGER PRIMARY KEY, "date" text NOT NULL)',
+			]);
+			expect(confirmations.length).to.equal(1);
+		});
+
+		it('should return warning if new required column added', async () => {
+			const blogInitial = tableSchema.parse({
+				...userInitial,
+				columns: {},
+			});
+			const blogFinal = tableSchema.parse({
+				...userInitial,
+				columns: {
+					date: column.date({ optional: false }),
+				},
+			});
+			const { queries, confirmations } = await userChangeQueries(blogInitial, blogFinal);
+			expect(queries).to.deep.equal([
+				'DROP TABLE "Users"',
+				'CREATE TABLE "Users" (_id INTEGER PRIMARY KEY, "date" text NOT NULL)',
+			]);
+			expect(confirmations.length).to.equal(1);
+		});
+
+		it('should return warning if non-number primary key with no default added', async () => {
+			const blogInitial = tableSchema.parse({
+				...userInitial,
+				columns: {},
+			});
+			const blogFinal = tableSchema.parse({
+				...userInitial,
+				columns: {
+					id: column.text({ primaryKey: true }),
+				},
+			});
+			const { queries, confirmations } = await userChangeQueries(blogInitial, blogFinal);
+			expect(queries).to.deep.equal([
+				'DROP TABLE "Users"',
+				'CREATE TABLE "Users" ("id" text PRIMARY KEY)',
+			]);
+			expect(confirmations.length).to.equal(1);
+		});
+
 		it('should be empty when type updated to same underlying SQL type', async () => {
 			const blogInitial = tableSchema.parse({
 				...userInitial,
