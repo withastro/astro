@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.9.1
+
+### Patch Changes
+
+- [#10498](https://github.com/withastro/astro/pull/10498) [`f0fc78c8734b2bcf39078c782998e60b49ecc146`](https://github.com/withastro/astro/commit/f0fc78c8734b2bcf39078c782998e60b49ecc146) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Expose `isDbError()` utility to handle database exceptions when querying.
+
 ## 0.9.0
 
 ### Minor Changes
