@@ -9,6 +9,7 @@ import type {
 	TableConfig,
 	TextColumnOpts,
 } from '../core/types.js';
+import { LibsqlError } from '@libsql/client';
 
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 
@@ -22,6 +23,10 @@ function createColumn<S extends string, T extends Record<string, unknown>>(type:
 		 */
 		schema,
 	};
+}
+
+export function isDbError(err: unknown): err is LibsqlError {
+	return err instanceof LibsqlError;
 }
 
 export const column = {
