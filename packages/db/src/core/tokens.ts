@@ -173,6 +173,9 @@ export async function getManagedAppTokenOrExit(token?: string): Promise<ManagedA
 	if (token) {
 		return new ManagedLocalAppToken(token);
 	}
+	if (process.env.ASTRO_INTERNAL_TEST_REMOTE) {
+		return new ManagedLocalAppToken('fake' /* token ignored in test */);
+	}
 	const { ASTRO_STUDIO_APP_TOKEN } = getAstroStudioEnv();
 	if (ASTRO_STUDIO_APP_TOKEN) {
 		return new ManagedLocalAppToken(ASTRO_STUDIO_APP_TOKEN);
