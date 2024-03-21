@@ -62,7 +62,7 @@ describe('TypeScript - Diagnostics', async () => {
 		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
 			document.uri
 		)) as FullDocumentDiagnosticReport;
-		expect(diagnostics.items).length(1);
+		expect(diagnostics.items).length(2);
 
 		diagnostics.items = diagnostics.items.map((diag) => ({ ...diag, data: {} }));
 		expect(diagnostics.items).to.deep.equal([
@@ -73,6 +73,15 @@ describe('TypeScript - Diagnostics', async () => {
 					"Type '{ \"client:idle\": true; }' is not assignable to type 'HTMLAttributes'.\n  Property 'client:idle' does not exist on type 'HTMLAttributes'.\n\nClient directives are only available on framework components.",
 				range: Range.create(5, 5, 5, 16),
 				severity: DiagnosticSeverity.Error,
+				source: 'ts',
+			},
+			{
+				code: 2307,
+				data: {},
+				message:
+					"Cannot find module 'astro:content' or its corresponding type declarations.\n\nIf you're using content collections, make sure to run `astro dev`, `astro build` or `astro sync` to first generate the types so you can import from them. If you already ran one of those commands, restarting the language server might be necessary in order for the change to take effect.",
+				range: Range.create(1, 31, 1, 46),
+				severity: 1,
 				source: 'ts',
 			},
 		]);
