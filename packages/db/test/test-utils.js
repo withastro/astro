@@ -12,11 +12,14 @@ const singleQuerySchema = z.object({
 
 const querySchema = singleQuerySchema.or(z.array(singleQuerySchema));
 
+let portIncrementer = 8081;
+
 /**
  * @param {import('astro').AstroConfig} astroConfig
  * @param {number | undefined} port
  */
-export async function setupRemoteDbServer(astroConfig, port = 8081) {
+export async function setupRemoteDbServer(astroConfig) {
+	const port = portIncrementer++;
 	process.env.ASTRO_STUDIO_REMOTE_DB_URL = `http://localhost:${port}`;
 	process.env.ASTRO_INTERNAL_TEST_REMOTE = true;
 	const server = createRemoteDbServer().listen(port);
