@@ -221,7 +221,7 @@ Assigning labels isn't always easy and many times the distinction between the di
 - When assigning a `p2`, **always** add a comment that explains the workaround. If a workaround isn't provided, ping the person that assigned the label and ask them to provide one.
 - Astro has **many** features, but there are some that have a larger impact than others: development server, build command, HMR (TBD, we don't have a page that explains expectations of HMR in Astro), **evident** regressions in performance.
 - In case the number of reactions of an issue grows, the number of users affected grows, or a discussion uncovers some insights that weren't clear before, it's OK to change the priority of the issue. The maintainer **should** provide an explanation when assigning a different label.
-
+As with any other contribution, triaging is voluntary and best-efforts. We welcome and appreciate all the help you're happy to give (including reading this!) and nothing more. If you are not confident about an issue, you are welcome to leave an issue untriaged for someone who would have more context, or to bring it to their attention.
 ## Code Structure
 
 Server-side rendering (SSR) can be complicated. The Astro package (`packages/astro`) is structured in a way to help think about the different systems.
