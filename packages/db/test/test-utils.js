@@ -1,6 +1,9 @@
 import { createClient } from '@libsql/client';
 import { createServer } from 'node:http';
 import { z } from 'zod';
+import { cli } from '../dist/core/cli/index.js';
+import { resolveDbConfig } from '../dist/core/load-file.js';
+import { getCreateTableQuery, getCreateIndexQueries } from '../dist/runtime/queries.js';
 
 const singleQuerySchema = z.object({
 	sql: z.string(),
@@ -9,8 +12,57 @@ const singleQuerySchema = z.object({
 
 const querySchema = singleQuerySchema.or(z.array(singleQuerySchema));
 
-export function createProxyServer() {
-	const client = createClient({
+/**
+ * @param {import('astro').AstroConfig} astroConfig
+ * @param {number | undefined} port
+ */
+export async function setupRemoteDbServer(astroConfig, port = 8081) {
+	process.env.ASTRO_STUDIO_REMOTE_DB_URL = `http://localhost:${port}`;
+	process.env.ASTRO_INTERNAL_TEST_REMOTE = true;
+	const server = createRemoteDbServer().listen(port);
+
+	const { dbConfig } = await resolveDbConfig(astroConfig);
+	const setupQueries = [];
+	for (const [name, table] of Object.entries(dbConfig?.tables ?? {})) {
+		const createQuery = getCreateTableQuery(name, table);
+		const indexQueries = getCreateIndexQueries(name, table);
+		setupQueries.push(createQuery, ...indexQueries);
+	}
+	await fetch(`http://localhost:${port}/db/query`, {
+		method: 'POST',
+		body: JSON.stringify(setupQueries.map((sql) => ({ sql, args: [] }))),
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	});
+	await cli({
+		config: astroConfig,
+		flags: {
+			_: [undefined, 'astro', 'db', 'execute', 'db/seed.ts'],
+			remote: true,
+		},
+	});
+
+	return {
+		server,
+		async stop() {
+			delete process.env.ASTRO_STUDIO_REMOTE_DB_URL;
+			delete process.env.ASTRO_INTERNAL_TEST_REMOTE;
+			return new Promise((resolve, reject) => {
+				server.close((err) => {
+					if (err) {
+						reject(err);
+					} else {
+						resolve();
+					}
+				});
+			});
+		},
+	};
+}
+
+function createRemoteDbServer() {
+	const dbClient = createClient({
 		url: ':memory:',
 	});
 	const server = createServer((req, res) => {
@@ -46,7 +98,9 @@ export function createProxyServer() {
 			}
 			const body = parsed.data;
 			try {
-				const result = Array.isArray(body) ? await client.batch(body) : await client.execute(body);
+				const result = Array.isArray(body)
+					? await dbClient.batch(body)
+					: await dbClient.execute(body);
 				res.writeHead(200, { 'Content-Type': 'application/json' });
 				res.end(JSON.stringify(result));
 			} catch (e) {
@@ -60,6 +114,10 @@ export function createProxyServer() {
 				);
 			}
 		});
+	});
+
+	server.on('close', () => {
+		dbClient.close();
 	});
 
 	return server;
