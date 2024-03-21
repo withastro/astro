@@ -91,18 +91,21 @@ export function createServerOptions(
 	function getPrettierService() {
 		let prettier: ReturnType<typeof importPrettier>;
 		let prettierPluginPath: ReturnType<typeof getPrettierPluginPath>;
+		let hasShownNotification = false;
+
 		return createPrettierService(
 			(context) => {
 				const workspaceUri = URI.parse(context.env.workspaceFolder);
 				if (workspaceUri.scheme === 'file') {
 					prettier = importPrettier(workspaceUri.fsPath);
 					prettierPluginPath = getPrettierPluginPath(workspaceUri.fsPath);
-					if (!prettier || !prettierPluginPath) {
+					if ((!prettier || !prettierPluginPath) && !hasShownNotification) {
 						connection.sendNotification(ShowMessageNotification.type, {
 							message:
-								"Couldn't load `prettier` or `prettier-plugin-astro`. Formatting will not work. Please make sure those two packages are installed into your project.",
+								"Couldn't load `prettier` or `prettier-plugin-astro`. Formatting will not work. Please make sure those two packages are installed into your project and restart the language server.",
 							type: MessageType.Warning,
 						});
+						hasShownNotification = true;
 					}
 					return prettier;
 				}
