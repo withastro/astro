@@ -2,17 +2,28 @@ import type { InStatement } from '@libsql/client';
 import { createClient } from '@libsql/client';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
-import { drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
+import { type SqliteRemoteDatabase, drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
 import { z } from 'zod';
 import { safeFetch } from './utils.js';
 
 const isWebContainer = !!process.versions?.webcontainer;
+
+function applyTransactionNotSupported(db: SqliteRemoteDatabase) {
+	Object.assign(db, {
+		transaction() {
+			throw new Error(
+				'`db.transaction()` is not currently supported. We recommend `db.batch()` for automatic error rollbacks across multiple queries.'
+			);
+		},
+	});
+}
 
 export function createLocalDatabaseClient({ dbUrl }: { dbUrl: string }): LibSQLDatabase {
 	const url = isWebContainer ? 'file:content.db' : dbUrl;
 	const client = createClient({ url });
 	const db = drizzleLibsql(client);
 
+	applyTransactionNotSupported(db);
 	return db;
 }
 
@@ -131,5 +142,6 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 			return results;
 		}
 	);
+	applyTransactionNotSupported(db);
 	return db;
 }

@@ -53,4 +53,36 @@ describe('shiki syntax highlighting', () => {
 		assert.match(html, />-<\/span>/);
 		assert.match(html, />+<\/span>/);
 	});
+
+	it('renders attributes', async () => {
+		const highlighter = await createShikiHighlighter();
+
+		const html = highlighter.highlight(`foo`, 'js', {
+			attributes: { 'data-foo': 'bar', autofocus: true },
+		});
+
+		assert.match(html, /data-foo="bar"/);
+		assert.match(html, /autofocus(?!=)/);
+	});
+
+	it('supports transformers that reads meta', async () => {
+		const highlighter = await createShikiHighlighter({
+			transformers: [
+				{
+					pre(node) {
+						const meta = this.options.meta?.__raw;
+						if (meta) {
+							node.properties['data-test'] = meta;
+						}
+					},
+				},
+			],
+		});
+
+		const html = highlighter.highlight(`foo`, 'js', {
+			meta: '{1,3-4}',
+		});
+
+		assert.match(html, /data-test="\{1,3-4\}"/);
+	});
 });
