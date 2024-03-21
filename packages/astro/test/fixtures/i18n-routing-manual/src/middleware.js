@@ -4,6 +4,7 @@ import { redirectToDefaultLocale, requestHasLocale } from 'astro:i18n';
 const allowList = new Set(['/help', '/help/']);
 
 export const onRequest = defineMiddleware(async (context, next) => {
+	console.log('========== CALLED ==========');
 	if (allowList.has(context.url.pathname)) {
 		return await next();
 	}

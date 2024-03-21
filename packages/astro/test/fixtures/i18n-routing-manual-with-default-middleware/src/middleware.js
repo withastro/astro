@@ -2,9 +2,21 @@ import { defineMiddleware, sequence } from 'astro:middleware';
 import { middleware } from 'astro:i18n';
 
 const customLogic = defineMiddleware(async (context, next) => {
+	const url = new URL(context.request.url);
+	if (url.pathname === '/about') {
+		return new Response('ABOUT ME', {
+			status: 200,
+		});
+	}
+
 	const response = await next();
 
 	return response;
 });
 
-export const onRequest = sequence(customLogic, middleware());
+export const onRequest = sequence(
+	customLogic,
+	middleware({
+		prefixDefaultLocale: true,
+	})
+);

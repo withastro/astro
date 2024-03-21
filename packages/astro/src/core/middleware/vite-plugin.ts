@@ -45,13 +45,15 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 			}
 		},
 		async load(id) {
-			if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
-				throw new AstroError(MissingMiddlewareForInternationalization);
-			}
-
 			if (id === NOOP_MIDDLEWARE) {
+				if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
+					throw new AstroError(MissingMiddlewareForInternationalization);
+				}
 				return 'export const onRequest = (_, next) => next()';
 			} else if (id === MIDDLEWARE_MODULE_ID) {
+				if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
+					throw new AstroError(MissingMiddlewareForInternationalization);
+				}
 				// In the build, tell Vite to emit this file
 				if (isCommandBuild) {
 					this.emitFile({

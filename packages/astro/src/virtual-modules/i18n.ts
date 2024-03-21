@@ -307,6 +307,11 @@ export const useFallback: UseFallback =
 			})
 		: noop('useFallback');
 
+// @ematipico: This is a helper type because, because I don't know how to extract from TS
+type Options = {
+	prefixDefaultLocale?: boolean;
+	redirectToDefaultLocale?: boolean;
+};
 /**
  * @param {AstroConfig['i18n']} customOptions
  *
@@ -338,12 +343,16 @@ export const useFallback: UseFallback =
  */
 export const middleware =
 	i18n?.routing === 'manual'
-		? (customOptions?: Omit<NonNullable<AstroConfig['i18n']>, 'routing'>) => {
+		? (customOptions?: Options) => {
 				const manifest: SSRManifest['i18n'] = {
-					strategy: 'manual',
-					defaultLocale: customOptions?.defaultLocale ?? i18n.defaultLocale,
-					fallback: customOptions?.fallback ?? i18n.fallback,
-					locales: customOptions?.locales ?? i18n.locales,
+					...i18n,
+					fallback: undefined,
+					strategy: toRoutingStrategy({
+						...i18n,
+						// To review the types, I'm sure there's a way to extract the correct ones and make TS happy
+						// @ts-expect-error
+						routing: customOptions,
+					}),
 					domainLookupTable: {},
 				};
 				return I18nInternals.createMiddleware(manifest, base, trailingSlash, format);
