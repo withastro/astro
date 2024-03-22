@@ -1,6 +1,10 @@
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
-import { FileChangeType, type FullDocumentDiagnosticReport, type MarkupContent } from '@volar/language-server';
+import {
+	FileChangeType,
+	type FullDocumentDiagnosticReport,
+	type MarkupContent,
+} from '@volar/language-server';
 import { expect } from 'chai';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { URI } from 'vscode-uri';
@@ -15,21 +19,23 @@ describe.skip('TypeScript - Cache invalidation', async () => {
 	async function createFile(name: string, contents: string) {
 		const filePath = path.join(fixtureDir, 'caching', name);
 		const fileURI = URI.file(filePath).toString();
-		await writeFile(filePath, "");
+		await writeFile(filePath, '');
 		await languageServer.handle.didChangeWatchedFiles([
 			{
 				uri: fileURI,
 				type: FileChangeType.Created,
-			}
-		])
-		const openedDocument = await languageServer.handle.openTextDocument(filePath, 'astro');
-		await languageServer.handle.updateTextDocument(fileURI, [{
-			newText: contents,
-			range: {
-				start: { line: 0, character: 0 },
-				end: { line: 0, character: 0 },
 			},
-		}])
+		]);
+		const openedDocument = await languageServer.handle.openTextDocument(filePath, 'astro');
+		await languageServer.handle.updateTextDocument(fileURI, [
+			{
+				newText: contents,
+				range: {
+					start: { line: 0, character: 0 },
+					end: { line: 0, character: 0 },
+				},
+			},
+		]);
 
 		return openedDocument;
 	}
@@ -41,8 +47,8 @@ describe.skip('TypeScript - Cache invalidation', async () => {
 			{
 				uri: fileURI,
 				type: FileChangeType.Deleted,
-			}
-		])
+			},
+		]);
 	}
 
 	before(async () => {
@@ -157,7 +163,9 @@ describe.skip('TypeScript - Cache invalidation', async () => {
 			character: 25,
 		});
 
-		expect((hoverSuperModule?.contents as MarkupContent).value).to.include('module "im-a-super-module"');
+		expect((hoverSuperModule?.contents as MarkupContent).value).to.include(
+			'module "im-a-super-module"'
+		);
 	});
 
 	after(async () => {
