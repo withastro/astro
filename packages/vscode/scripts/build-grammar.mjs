@@ -1,8 +1,8 @@
 // @ts-check
-import fs from "node:fs";
-import { fileURLToPath } from "node:url";
-import yaml from "js-yaml";
-import { dim, green } from "kleur/colors";
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import yaml from 'js-yaml';
+import { dim, green } from 'kleur/colors';
 
 const dt = new Intl.DateTimeFormat('en-us', {
 	hour: '2-digit',
@@ -10,15 +10,18 @@ const dt = new Intl.DateTimeFormat('en-us', {
 });
 
 // Rebuild grammar when any yaml in the syntaxes directory changes
-const syntaxesDir = new URL("../syntaxes/", import.meta.url);
-const isWatch = process.argv.includes("--watch");
+const syntaxesDir = new URL('../syntaxes/', import.meta.url);
+const isWatch = process.argv.includes('--watch');
 
 if (isWatch) {
-	console.log("Watching for changes in the syntaxes directory...");
+	console.log('Watching for changes in the syntaxes directory...');
 }
 
 // Absolute paths to the grammars
-const grammarFiles = fs.readdirSync(syntaxesDir).filter((file) => file.endsWith(".src.yaml")).map((path) => new URL(path, syntaxesDir));
+const grammarFiles = fs
+	.readdirSync(syntaxesDir)
+	.filter((file) => file.endsWith('.src.yaml'))
+	.map((path) => new URL(path, syntaxesDir));
 for (const grammarFile of grammarFiles) {
 	if (isWatch) {
 		fs.watch(grammarFile, () => {
@@ -33,8 +36,8 @@ for (const grammarFile of grammarFiles) {
  * @param {URL} grammarFile
  */
 function buildGrammar(grammarFile) {
-	const grammar = yaml.load(fs.readFileSync(grammarFile, "utf8"));
-	const finalPath = fileURLToPath(grammarFile).replace(".src.yaml", ".json")
+	const grammar = yaml.load(fs.readFileSync(grammarFile, 'utf8'));
+	const finalPath = fileURLToPath(grammarFile).replace('.src.yaml', '.json');
 	fs.writeFileSync(finalPath, JSON.stringify(grammar, null, 2));
 
 	const date = dt.format(new Date());
