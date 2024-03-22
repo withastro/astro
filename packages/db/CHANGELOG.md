@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.9.4
+
+### Patch Changes
+
+- [#10533](https://github.com/withastro/astro/pull/10533) [`6576f5d458ee8cc872210f3a7ae629439546e361`](https://github.com/withastro/astro/commit/6576f5d458ee8cc872210f3a7ae629439546e361) Thanks [@matthewp](https://github.com/matthewp)! - Ensure ASTRO_STUDIO_APP_TOKEN is found at runtime
+
 ## 0.9.3
 
 ### Patch Changes

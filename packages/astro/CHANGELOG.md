@@ -1,5 +1,13 @@
 # astro
 
+## 4.5.9
+
+### Patch Changes
+
+- [#10532](https://github.com/withastro/astro/pull/10532) [`8306ce1ff7b71a2a0d7908336c9be462a54d395a`](https://github.com/withastro/astro/commit/8306ce1ff7b71a2a0d7908336c9be462a54d395a) Thanks [@martrapp](https://github.com/martrapp)! - Fixes a style issue of `client:only` components in DEV mode during view transitions.
+
+- [#10473](https://github.com/withastro/astro/pull/10473) [`627e47d67af4846cea2acf26a96b4124001b26fc`](https://github.com/withastro/astro/commit/627e47d67af4846cea2acf26a96b4124001b26fc) Thanks [@bluwy](https://github.com/bluwy)! - Fixes and improves performance when rendering Astro JSX
+
 ## 4.5.8
 
 ### Patch Changes
