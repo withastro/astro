@@ -138,4 +138,29 @@ describe('astro:db', () => {
 			expect($('.username').text()).to.equal('Mario');
 		});
 	});
+
+	describe('build --remote', () => {
+		let remoteDbServer;
+
+		before(async () => {
+			process.env.ASTRO_STUDIO_APP_TOKEN = 'some token';
+			remoteDbServer = await setupRemoteDbServer(fixture.config);
+			await fixture.build();
+		});
+
+		after(async () => {
+			await remoteDbServer?.stop();
+		});
+
+		it('Can render page', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerioLoad(html);
+
+			const ul = $('.authors-list');
+			expect(ul.children()).to.have.a.lengthOf(5);
+		});
+	});
 });
