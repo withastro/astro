@@ -1,5 +1,5 @@
 {
-  "name": "@test/db-aliases",
+  "name": "@test/db-no-apptoken",
   "version": "0.0.0",
   "private": true,
   "scripts": {
