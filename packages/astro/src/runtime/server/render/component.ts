@@ -516,9 +516,7 @@ export async function renderComponentToString(
 	// we can ensure getting a value for `head`.
 	let head = '';
 	if (isPage && !result.partial && nonAstroPageNeedsHeadInjection(Component)) {
-		for (const headChunk of maybeRenderHead()) {
-			head += chunkToString(result, headChunk);
-		}
+		head += chunkToString(result, maybeRenderHead());
 	}
 
 	try {
