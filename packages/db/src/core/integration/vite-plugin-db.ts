@@ -41,9 +41,9 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 	return {
 		name: 'astro:db',
 		enforce: 'pre',
-    configResolved(resolvedConfig) {
+		configResolved(resolvedConfig) {
 			command = resolvedConfig.command;
-    },
+		},
 		async resolveId(id, rawImporter) {
 			if (id !== VIRTUAL_MODULE_ID) return;
 			if (params.connectToStudio) return resolved.virtual;
@@ -147,7 +147,7 @@ export function getStudioVirtualModContents({
 	isBuild: boolean;
 }) {
 	function appTokenArg() {
-		if(isBuild) {
+		if (isBuild) {
 			// In production build, always read the runtime environment variable.
 			return 'process.env.ASTRO_STUDIO_APP_TOKEN';
 		} else {
