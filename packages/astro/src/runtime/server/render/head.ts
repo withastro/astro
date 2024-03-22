@@ -51,16 +51,16 @@ export function renderAllHeadContent(result: SSRResult) {
 	return markHTMLString(content);
 }
 
-export function* renderHead(): Generator<RenderHeadInstruction> {
-	yield createRenderInstruction({ type: 'head' });
+export function renderHead(): RenderHeadInstruction {
+	return createRenderInstruction({ type: 'head' });
 }
 
 // This function is called by Astro components that do not contain a <head> component
 // This accommodates the fact that using a <head> is optional in Astro, so this
 // is called before a component's first non-head HTML element. If the head was
 // already injected it is a noop.
-export function* maybeRenderHead(): Generator<MaybeRenderHeadInstruction> {
+export function maybeRenderHead(): MaybeRenderHeadInstruction {
 	// This is an instruction informing the page rendering that head might need rendering.
 	// This allows the page to deduplicate head injections.
-	yield createRenderInstruction({ type: 'maybe-head' });
+	return createRenderInstruction({ type: 'maybe-head' });
 }
