@@ -1,9 +1,9 @@
-import { createClient } from '@libsql/client';
 import { createServer } from 'node:http';
+import { createClient } from '@libsql/client';
 import { z } from 'zod';
 import { cli } from '../dist/core/cli/index.js';
 import { resolveDbConfig } from '../dist/core/load-file.js';
-import { getCreateTableQuery, getCreateIndexQueries } from '../dist/runtime/queries.js';
+import { getCreateIndexQueries, getCreateTableQuery } from '../dist/runtime/queries.js';
 
 const singleQuerySchema = z.object({
 	sql: z.string(),
