@@ -2,4 +2,5 @@
 "astro": patch
 ---
 
-Fix DEV-mode-only style issue of client:only components during view transitions.
+Fixes a style issue of "client:only" components in DEV mode during view transitions.
+
