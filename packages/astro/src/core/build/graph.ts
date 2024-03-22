@@ -59,7 +59,7 @@ export function getParentModuleInfos(
 	seen.add(id);
 
 	const info = ctx.getModuleInfo(id);
-	if (info && moduleIsTopLevelPage(info)) {
+	if (info) {
 		accumulated.push(info);
 	}
 
