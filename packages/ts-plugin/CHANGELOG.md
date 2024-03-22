@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.6.1
+
+### Patch Changes
+
+- 9ca368b: Update to the latest version of Volar. This release should fix some of the caching issues that has crept up recently
+
 ## 1.6.0
 
 ### Minor Changes

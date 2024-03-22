@@ -1,5 +1,16 @@
 # @astrojs/check
 
+## 0.5.10
+
+### Patch Changes
+
+- 9ca368b: Update to the latest version of Volar. This release should fix some of the caching issues that has crept up recently
+- Updated dependencies [9ca368b]
+- Updated dependencies [d57daad]
+- Updated dependencies [b166787]
+- Updated dependencies [eb49fb2]
+  - @astrojs/language-server@2.8.4
+
 ## 0.5.9
 
 ### Patch Changes

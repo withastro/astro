@@ -1,5 +1,14 @@
 # astro-vscode
 
+## 2.8.4
+
+### Patch Changes
+
+- 9ca368b: Update to the latest version of Volar. This release should fix some of the caching issues that has crept up recently
+- d57daad: Fix notification about Prettier being missing appearing on every format
+- b166787: Fixes auto imports through completions and code actions inside script tags sometimes not updating the text correctly
+- eb49fb2: Fixes completions for Astro-specific attributes not working in certain contexts
+
 ## 2.8.3
 
 ### Patch Changes
