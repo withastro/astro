@@ -2,4 +2,6 @@
 "astro": patch
 ---
 
-Use ReadableStream if asyncIterator is not supported in Response construction. This patch enables astro node integration to work in Deno.
+This patch allows astro to run in node-compat mode in Deno. Deno doesn't support
+construction of response from async iterables in node-compat mode so we need to
+use ReadableStream.
