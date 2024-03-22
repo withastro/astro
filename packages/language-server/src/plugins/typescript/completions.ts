@@ -5,7 +5,7 @@ import {
 	ServiceContext,
 } from '@volar/language-server';
 import { AstroVirtualCode } from '../../core/index.js';
-import { editShouldBeInFrontmatter, ensureProperEditForFrontmatter } from '../utils.js';
+import { mapEdit } from './utils.js';
 
 export function enhancedProvideCompletionItems(completions: CompletionList): CompletionList {
 	completions.items = completions.items.filter(isValidCompletion).map((completion) => {
@@ -50,13 +50,9 @@ export function enhancedResolveCompletionItem(
 		const code = source?.generated?.code;
 		if (!virtualFile || !(code instanceof AstroVirtualCode)) return resolvedCompletion;
 
-		resolvedCompletion.additionalTextEdits = resolvedCompletion.additionalTextEdits.map((edit) => {
-			if (editShouldBeInFrontmatter(edit.range, code.astroMeta).itShould) {
-				edit = ensureProperEditForFrontmatter(edit, code.astroMeta, '\n');
-			}
-
-			return edit;
-		});
+		resolvedCompletion.additionalTextEdits = resolvedCompletion.additionalTextEdits.map((edit) =>
+			mapEdit(edit, code, virtualFile.languageId)
+		);
 	}
 
 	return resolvedCompletion;

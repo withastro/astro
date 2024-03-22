@@ -1,7 +1,7 @@
 import { TextDocumentEdit } from '@volar/language-server';
 import type { CodeAction, ServiceContext } from '@volar/language-service';
 import { AstroVirtualCode } from '../../core/index.js';
-import { editShouldBeInFrontmatter, ensureProperEditForFrontmatter } from '../utils.js';
+import { mapEdit } from './utils.js';
 
 export function enhancedProvideCodeActions(codeActions: CodeAction[], context: ServiceContext) {
 	return codeActions.map((codeAction) => mapCodeAction(codeAction, context));
@@ -25,15 +25,7 @@ function mapCodeAction(codeAction: CodeAction, context: ServiceContext) {
 			const code = source?.generated?.code;
 			if (!virtualFile || !(code instanceof AstroVirtualCode)) return change;
 
-			change.edits = change.edits.map((edit) => {
-				const shouldModifyEdit = editShouldBeInFrontmatter(edit.range, code.astroMeta);
-
-				if (shouldModifyEdit.itShould) {
-					edit = ensureProperEditForFrontmatter(edit, code.astroMeta, '\n');
-				}
-
-				return edit;
-			});
+			change.edits = change.edits.map((edit) => mapEdit(edit, code, virtualFile.languageId));
 		}
 
 		return change;

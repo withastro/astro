@@ -1,7 +1,11 @@
+import { EOL } from 'node:os';
+import path from 'node:path';
 import { Position } from '@volar/language-server';
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
 import { type LanguageServer, getLanguageServer } from '../server.js';
+
+const fixtureDir = path.join(__dirname, '../fixture');
 
 describe('TypeScript - Completions', async () => {
 	let languageServer: LanguageServer;
@@ -60,5 +64,31 @@ describe('TypeScript - Completions', async () => {
 			expect(completions?.items).to.not.be.empty;
 			expect(allLabels).to.include('log');
 		}
+	});
+
+	it('properly maps edits for completions in script tags', async () => {
+		const document = await languageServer.handle.openTextDocument(
+			path.join(fixtureDir, 'scriptImport.astro'),
+			'astro'
+		);
+		const completions = await languageServer.handle.sendCompletionRequest(
+			document.uri,
+			Position.create(1, 0)
+		);
+
+		const imageConfigCompletion = completions?.items.find(
+			(item) => item.label === 'Image' && item.labelDetails?.description === 'astro:assets'
+		);
+		expect(imageConfigCompletion).to.not.be.undefined;
+
+		const edits = await languageServer.handle.sendCompletionResolveRequest(imageConfigCompletion!);
+		expect(edits).to.not.be.empty;
+
+		// Why `import type`? I... don't know. TypeScript return this in some contexts and somehow in the editor it's not a problem.
+		// This issue affects all imports, even outside of Astro.
+		expect(edits?.additionalTextEdits?.[0].newText).to.equal(
+			`\nimport type { Image } from "astro:assets";\n`
+		);
+		expect(edits?.additionalTextEdits?.[0].range.start.line).to.equal(0);
 	});
 });
