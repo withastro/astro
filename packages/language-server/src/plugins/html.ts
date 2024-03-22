@@ -1,21 +1,35 @@
 import { CompletionItemKind, ServicePlugin, ServicePluginInstance } from '@volar/language-server';
 import { create as createHtmlService } from 'volar-service-html';
+import * as html from 'vscode-html-languageservice';
+import { URI, Utils } from 'vscode-uri';
 import { AstroVirtualCode } from '../core/index.js';
 import { astroAttributes, astroElements, classListAttribute } from './html-data.js';
 import { isInComponentStartTag } from './utils.js';
 
 export const create = (): ServicePlugin => {
-	const htmlServicePlugin = createHtmlService();
+	const htmlServicePlugin = createHtmlService({
+		getCustomData: async (context) => {
+			const customData: string[] = (await context.env.getConfiguration?.('html.customData')) ?? [];
+			const newData: html.IHTMLDataProvider[] = [];
+			for (const customDataPath of customData) {
+				const uri = Utils.resolvePath(URI.parse(context.env.workspaceFolder), customDataPath);
+				const json = await context.env.fs?.readFile?.(uri.toString());
+				if (json) {
+					try {
+						const data = JSON.parse(json);
+						newData.push(html.newHTMLDataProvider(customDataPath, data));
+					} catch (error) {
+						console.error(error);
+					}
+				}
+			}
+			return [...newData, astroAttributes, astroElements, classListAttribute];
+		},
+	});
 	return {
 		...htmlServicePlugin,
 		create(context): ServicePluginInstance {
 			const htmlPlugin = htmlServicePlugin.create(context);
-
-			htmlPlugin.provide['html/updateCustomData']?.([
-				astroAttributes,
-				astroElements,
-				classListAttribute,
-			]);
 
 			return {
 				...htmlPlugin,
