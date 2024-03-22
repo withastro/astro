@@ -7,7 +7,14 @@ export interface ShikiHighlighter {
 	highlight(
 		code: string,
 		lang?: string,
-		options?: { inline?: boolean; attributes?: Record<string, string> }
+		options?: {
+			inline?: boolean;
+			attributes?: Record<string, string>;
+			/**
+			 * Raw `meta` information to be used by Shiki transformers
+			 */
+			meta?: string;
+		}
 	): string;
 }
 
@@ -56,6 +63,10 @@ export async function createShikiHighlighter({
 			return highlighter.codeToHtml(code, {
 				...themeOptions,
 				lang,
+				// NOTE: while we can spread `options.attributes` here so that Shiki can auto-serialize this as rendered
+				// attributes on the top-level tag, it's not clear whether it is fine to pass all attributes as meta, as
+				// they're technically not meta, nor parsed from Shiki's `parseMetaString` API.
+				meta: options?.meta ? { __raw: options?.meta } : undefined,
 				transformers: [
 					{
 						pre(node) {

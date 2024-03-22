@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 4.3.1
+
+### Patch Changes
+
+- [#10494](https://github.com/withastro/astro/pull/10494) [`19e42c368184013fc30d1e46753b9e9383bb2bdf`](https://github.com/withastro/astro/commit/19e42c368184013fc30d1e46753b9e9383bb2bdf) Thanks [@bluwy](https://github.com/bluwy)! - Fixes support for Shiki transformers that access the `meta` to conditionally perform transformations
+
 ## 4.3.0
 
 ### Minor Changes

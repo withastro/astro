@@ -4,7 +4,7 @@ import { toText } from 'hast-util-to-text';
 import { removePosition } from 'unist-util-remove-position';
 import { visitParents } from 'unist-util-visit-parents';
 
-type Highlighter = (code: string, language: string) => string;
+type Highlighter = (code: string, language: string, options?: { meta?: string }) => string;
 
 const languagePattern = /\blanguage-(\S+)\b/;
 
@@ -55,8 +55,9 @@ export function highlightCodeBlocks(tree: Root, highlighter: Highlighter) {
 			return;
 		}
 
+		const meta = (node.data as any)?.meta ?? node.properties.metastring ?? undefined;
 		const code = toText(node, { whitespace: 'pre' });
-		const html = highlighter(code, languageMatch?.[1] || 'plaintext');
+		const html = highlighter(code, languageMatch?.[1] || 'plaintext', { meta });
 		// The replacement returns a root node with 1 child, the `<pr>` element replacement.
 		const replacement = fromHtml(html, { fragment: true }).children[0] as Element;
 		// We just generated this node, so any positional information is invalid.

@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 7.4.0
+
+### Minor Changes
+
+- [#10476](https://github.com/withastro/astro/pull/10476) [`cfbaa8a767b8794c2dcd8e164672195378be396a`](https://github.com/withastro/astro/commit/cfbaa8a767b8794c2dcd8e164672195378be396a) Thanks [@lilnasy](https://github.com/lilnasy)! - The special-case handling of `src/vercel-edge-middleware.js` file is now deprecated. This file allowed you to access the edge runtime's `RequestContext` object, and create the middleware `locals` from its fields. However, this object includes only one field - the `waitUntil()` function - which is now available directly as `ctx.locals.vercel.edge.waitUntil()`.
+
 ## 7.3.6
 
 ### Patch Changes

@@ -1,3 +1,4 @@
+import { LibsqlError } from '@libsql/client';
 import { sql as _sql } from 'drizzle-orm';
 import type {
 	BooleanColumnInput,
@@ -10,7 +11,9 @@ import type {
 	TextColumnOpts,
 } from '../core/types.js';
 
-export type { LibSQLDatabase } from 'drizzle-orm/libsql';
+import type { LibSQLDatabase } from 'drizzle-orm/libsql';
+
+export type Database = Omit<LibSQLDatabase, 'transaction'>;
 
 function createColumn<S extends string, T extends Record<string, unknown>>(type: S, schema: T) {
 	return {
@@ -20,6 +23,10 @@ function createColumn<S extends string, T extends Record<string, unknown>>(type:
 		 */
 		schema,
 	};
+}
+
+export function isDbError(err: unknown): err is LibsqlError {
+	return err instanceof LibsqlError;
 }
 
 export const column = {
@@ -76,4 +83,12 @@ export {
 	desc,
 	and,
 	or,
+	count,
+	countDistinct,
+	avg,
+	avgDistinct,
+	sum,
+	sumDistinct,
+	max,
+	min,
 } from 'drizzle-orm';

@@ -26,10 +26,11 @@ export async function cmd({
 	const appToken = await getManagedAppTokenOrExit(flags.token);
 	const productionSnapshot = await getProductionCurrentSnapshot({ appToken: appToken.token });
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
-	const isFromScratch = isForceReset || !productionSnapshot;
+	const isFromScratch = !productionSnapshot;
 	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
 		oldSnapshot: isFromScratch ? createEmptySnapshot() : productionSnapshot,
 		newSnapshot: currentSnapshot,
+		reset: isForceReset,
 	});
 
 	// // push the database schema
