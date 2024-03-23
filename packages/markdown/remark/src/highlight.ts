@@ -60,6 +60,10 @@ export function highlightCodeBlocks(tree: Root, highlighter: Highlighter) {
 		const html = highlighter(code, languageMatch?.[1] || 'plaintext', { meta });
 		// The replacement returns a root node with 1 child, the `<pr>` element replacement.
 		const replacement = fromHtml(html, { fragment: true }).children[0] as Element;
+
+		// Adds dataLanguage property to replacement `<pre>`
+		replacement.properties.dataLanguage = languageMatch?.[1] || "plaintext"
+
 		// We just generated this node, so any positional information is invalid.
 		removePosition(replacement);
 
