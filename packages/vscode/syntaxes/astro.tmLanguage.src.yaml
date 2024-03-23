@@ -284,6 +284,8 @@ repository:
         beginCaptures: { 0: { name: punctuation.separator.key-value.astro } }
         end: (?<=[^\s=])(?!\s*=)|(?=/?>)
         patterns:
+          - include: '#interpolation'
+          - include: '#attribute-literal'
           - begin: (?=[^\s=<>`/]|/(?!>))
             end: (?!\G)
             name: meta.embedded.line.js
@@ -355,6 +357,14 @@ repository:
         end: (?<=[^\s=])(?!\s*=)|(?=/?>)
         patterns: [include: '#attributes-value']
 
+  attribute-literal:
+    begin: (`)
+    end: \1
+    name: string.template.astro
+    patterns:
+      - include: 'source.tsx#template-substitution-element'
+      - include: 'source.tsx#string-character-escape'
+
   # The value part of attribute key-values. e.g. `"my-class"` in `class="my-class"`
   attributes-value:
     patterns:
@@ -370,12 +380,7 @@ repository:
         endCaptures: { 0: { name: punctuation.definition.string.end.astro } }
         name: string.quoted.astro
       # Template literals
-      - begin: (`)
-        end: \1
-        name: string.template.astro
-        patterns:
-          - include: 'source.tsx#template-substitution-element'
-          - include: 'source.tsx#string-character-escape'
+      - include: '#attribute-literal'
 
   # ------
   #  TAGS

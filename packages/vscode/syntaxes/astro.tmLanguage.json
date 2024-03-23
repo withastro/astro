@@ -1,7 +1,9 @@
 {
   "name": "Astro",
   "scopeName": "source.astro",
-  "fileTypes": ["astro"],
+  "fileTypes": [
+    "astro"
+  ],
   "injections": {
     "L:(meta.script.astro) (meta.lang.json) - (meta source)": {
       "patterns": [
@@ -348,6 +350,12 @@
           "end": "(?<=[^\\s=])(?!\\s*=)|(?=/?>)",
           "patterns": [
             {
+              "include": "#interpolation"
+            },
+            {
+              "include": "#attribute-literal"
+            },
+            {
               "begin": "(?=[^\\s=<>`/]|/(?!>))",
               "end": "(?!\\G)",
               "name": "meta.embedded.line.js",
@@ -523,6 +531,19 @@
         }
       ]
     },
+    "attribute-literal": {
+      "begin": "(`)",
+      "end": "\\1",
+      "name": "string.template.astro",
+      "patterns": [
+        {
+          "include": "source.tsx#template-substitution-element"
+        },
+        {
+          "include": "source.tsx#string-character-escape"
+        }
+      ]
+    },
     "attributes-value": {
       "patterns": [
         {
@@ -548,17 +569,7 @@
           "name": "string.quoted.astro"
         },
         {
-          "begin": "(`)",
-          "end": "\\1",
-          "name": "string.template.astro",
-          "patterns": [
-            {
-              "include": "source.tsx#template-substitution-element"
-            },
-            {
-              "include": "source.tsx#string-character-escape"
-            }
-          ]
+          "include": "#attribute-literal"
         }
       ]
     },

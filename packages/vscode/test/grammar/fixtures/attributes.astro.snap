@@ -54,6 +54,34 @@
 #                               ^^^ source.astro meta.scope.tag.div.astro meta.tag.end.astro entity.name.tag.astro
 #                                  ^ source.astro meta.scope.tag.div.astro meta.tag.end.astro punctuation.definition.tag.end.astro
 >
+><div onload={"console.log('')"}></div>
+#^ source.astro meta.scope.tag.div.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^ source.astro meta.scope.tag.div.astro meta.tag.start.astro entity.name.tag.astro
+#    ^ source.astro meta.scope.tag.div.astro meta.tag.start.astro
+#     ^^^^^^ source.astro meta.scope.tag.div.astro meta.tag.start.astro meta.attribute.onload.astro entity.other.attribute-name.astro
+#           ^ source.astro meta.scope.tag.div.astro meta.tag.start.astro meta.attribute.onload.astro punctuation.separator.key-value.astro
+#            ^ source.astro meta.scope.tag.div.astro meta.tag.start.astro meta.attribute.onload.astro punctuation.section.embedded.begin.astro
+#             ^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.div.astro meta.tag.start.astro meta.attribute.onload.astro meta.embedded.expression.astro source.tsx
+#                              ^ source.astro meta.scope.tag.div.astro meta.tag.start.astro meta.attribute.onload.astro punctuation.section.embedded.end.astro
+#                               ^ source.astro meta.scope.tag.div.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+#                                ^^ source.astro meta.scope.tag.div.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#                                  ^^^ source.astro meta.scope.tag.div.astro meta.tag.end.astro entity.name.tag.astro
+#                                     ^ source.astro meta.scope.tag.div.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
+><div onload=`console.log('')`></div>
+#^ source.astro meta.scope.tag.div.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^ source.astro meta.scope.tag.div.astro meta.tag.start.astro entity.name.tag.astro
+#    ^ source.astro meta.scope.tag.div.astro meta.tag.start.astro
+#     ^^^^^^ source.astro meta.scope.tag.div.astro meta.tag.start.astro meta.attribute.onload.astro entity.other.attribute-name.astro
+#           ^ source.astro meta.scope.tag.div.astro meta.tag.start.astro meta.attribute.onload.astro punctuation.separator.key-value.astro
+#            ^ source.astro meta.scope.tag.div.astro meta.tag.start.astro meta.attribute.onload.astro
+#             ^^^^^^^^^^^ source.astro meta.scope.tag.div.astro meta.tag.start.astro meta.attribute.console.log.astro entity.other.attribute-name.astro
+#                        ^^^^^ source.astro meta.scope.tag.div.astro meta.tag.start.astro
+#                             ^ source.astro meta.scope.tag.div.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+#                              ^^ source.astro meta.scope.tag.div.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#                                ^^^ source.astro meta.scope.tag.div.astro meta.tag.end.astro entity.name.tag.astro
+#                                   ^ source.astro meta.scope.tag.div.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
 ><div class=`\${not-a-variable}`></div>
 #^ source.astro meta.scope.tag.div.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
 # ^^^ source.astro meta.scope.tag.div.astro meta.tag.start.astro entity.name.tag.astro
@@ -71,3 +99,4 @@
 #                                ^^ source.astro meta.scope.tag.div.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
 #                                  ^^^ source.astro meta.scope.tag.div.astro meta.tag.end.astro entity.name.tag.astro
 #                                     ^ source.astro meta.scope.tag.div.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
