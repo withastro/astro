@@ -348,7 +348,7 @@ async function getPathsForRoute(
 		paths = staticPaths
 			.map((staticPath) => {
 				try {
-					return route.generate(staticPath.params);
+					return route.generate(staticPath.params).replace(/^\/\//g, '/');
 				} catch (e) {
 					if (e instanceof TypeError) {
 						throw getInvalidRouteSegmentError(e, route, staticPath);
