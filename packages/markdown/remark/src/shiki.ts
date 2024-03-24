@@ -1,5 +1,5 @@
 import type { Properties } from 'hast';
-import { bundledLanguages, createCssVariablesTheme, getHighlighter } from 'shiki';
+import { bundledLanguages, createCssVariablesTheme, getHighlighter, isSpecialLang } from 'shiki';
 import { visit } from 'unist-util-visit';
 import type { ShikiConfig } from './types.js';
 
@@ -51,7 +51,7 @@ export async function createShikiHighlighter({
 
 	return {
 		highlight(code, lang = 'plaintext', options) {
-			if (lang !== 'plaintext' && !loadedLanguages.includes(lang)) {
+			if (!isSpecialLang(lang) && !loadedLanguages.includes(lang)) {
 				// eslint-disable-next-line no-console
 				console.warn(`[Shiki] The language "${lang}" doesn't exist, falling back to "plaintext".`);
 				lang = 'plaintext';
