@@ -26,6 +26,7 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	rehypePlugins: PluggableList;
 	remarkRehype: RemarkRehypeOptions;
 	optimize: boolean | OptimizeOptions;
+	allowMd: boolean;
 };
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -36,6 +37,8 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 };
 
 export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroIntegration {
+	const extensions = partialMdxOptions.allowMd ? ['.md', '.mdx'] : ['.mdx'];
+
 	return {
 		name: '@astrojs/mdx',
 		hooks: {
@@ -46,7 +49,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				addRenderer(astroJSXRenderer);
 				addPageExtension('.mdx');
 				addContentEntryType({
-					extensions: ['.mdx'],
+					extensions: extensions,
 					async getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
 						const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
 						return {
@@ -107,7 +110,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 								// Override transform to alter code before MDX compilation
 								// ex. inject layouts
 								async transform(_, id) {
-									if (!id.endsWith('.mdx')) return;
+									if (!extensions.some((ext) => id.endsWith(ext))) return;
 
 									// Read code from file manually to prevent Vite from parsing `import.meta.env` expressions
 									const { fileId } = getFileInfo(id, config);
@@ -144,7 +147,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 								name: '@astrojs/mdx-postprocess',
 								// These transforms must happen *after* JSX runtime transformations
 								transform(code, id) {
-									if (!id.endsWith('.mdx')) return;
+									if (!extensions.some((ext) => id.endsWith(ext))) return;
 
 									const [moduleImports, moduleExports] = parseESM(code);
 
@@ -227,6 +230,7 @@ function markdownConfigToMdxOptions(markdownConfig: typeof markdownConfigDefault
 		rehypePlugins: ignoreStringPlugins(markdownConfig.rehypePlugins),
 		remarkRehype: (markdownConfig.remarkRehype as any) ?? {},
 		optimize: false,
+		allowMd: false,
 	};
 }
 
@@ -248,5 +252,6 @@ function applyDefaultOptions({
 		rehypePlugins: options.rehypePlugins ?? defaults.rehypePlugins,
 		shikiConfig: options.shikiConfig ?? defaults.shikiConfig,
 		optimize: options.optimize ?? defaults.optimize,
+		allowMd: options.allowMd ?? defaults.allowMd,
 	};
 }

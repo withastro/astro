@@ -102,7 +102,8 @@ export default function mdxVitePlugin({ settings }: AstroPluginJSXOptions): Plug
 			}
 			id = removeQueryString(id);
 			// Shortcut: only use Astro renderer for MD and MDX files
-			if (!id.endsWith('.mdx')) {
+			const markdownExtensions = ['.md', '.mdx'];
+			if (markdownExtensions.every((ext) => !id.endsWith(ext))) {
 				return null;
 			}
 			const { code: jsxCode } = await transformWithEsbuild(code, id, {
