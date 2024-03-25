@@ -55,46 +55,31 @@ describe('Dev server manual routing', () => {
 });
 //
 // // SSG
-// describe('SSG manual routing', () => {
-// 	/** @type {import('./test-utils').Fixture} */
-// 	let fixture;
-// 	/** @type {import('./test-utils').DevServer} */
-// 	let devServer;
-//
-// 	before(async () => {
-// 		fixture = await loadFixture({
-// 			root: './fixtures/i18n-routing-manual/',
-// 		});
-// 		await fixture.build();
-// 	});
-//
-// 	it('should redirect to the default locale when middleware calls the function for route /', async () => {
-// 		let html = await fixture.readFile('/index.html');
-// 		assert.equal(html.includes('http-equiv="refresh'), true);
-// 		assert.equal(html.includes('url=/en'), true);
-// 	});
-//
-// 	it('should render a route that is not related to the i18n routing', async () => {
-// 		let html = await fixture.readFile('/help/index.html');
-// 		let $ = cheerio.load(html);
-// 		assert.equal($('body').text().includes('Outside route'), true);
-// 	});
-//
-// 	it('should render a i18n route', async () => {
-// 		let html = await fixture.readFile('/en/blog/index.html');
-// 		let $ = cheerio.load(html);
-// 		assert.equal($('body').text().includes('Blog start'), true);
-//
-// 		html = await fixture.readFile('/pt/start/index.html');
-// 		$ = cheerio.load(html);
-// 		assert.equal($('body').text().includes('Oi'), true);
-//
-// 		html = await fixture.readFile('/spanish/index.html');
-// 		$ = cheerio.load(html);
-// 		assert.equal($('body').text().includes('Hola.'), true);
-// 	});
-// });
-//
+describe('SSG manual routing', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing-manual-with-default-middleware/',
+		});
+		await fixture.build();
+	});
+
+	it('should return a 404', async () => {
+		try {
+			await fixture.readFile('/blog.html');
+			assert.fail();
+		} catch (e) {}
+	});
+
+	it('should return a 200 because the custom middleware allows it', async () => {
+		let html = await fixture.readFile('/about/index.html');
+		let $ = cheerio.load(html);
+		assert.equal($('body').text().includes('ABOUT ME'), true);
+	});
+});
+
 // // SSR
 // describe('SSR manual routing', () => {
 // 	/** @type {import('./test-utils').Fixture} */
