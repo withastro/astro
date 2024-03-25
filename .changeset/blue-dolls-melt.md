@@ -1,5 +1,5 @@
 ---
-"astro": major
+"astro": patch
 ---
 
-hotfix:explicit-typesafe-fix
+Fixes <Image /> type error when strict TypeScript rules are used with library type checking.
