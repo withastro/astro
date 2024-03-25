@@ -81,52 +81,33 @@ describe('SSG manual routing', () => {
 });
 
 // // SSR
-// describe('SSR manual routing', () => {
-// 	/** @type {import('./test-utils').Fixture} */
-// 	let fixture;
-// 	let app;
-//
-// 	before(async () => {
-// 		fixture = await loadFixture({
-// 			root: './fixtures/i18n-routing-manual/',
-// 			output: 'server',
-// 			adapter: testAdapter(),
-// 		});
-// 		await fixture.build();
-// 		app = await fixture.loadTestAdapterApp();
-// 	});
-//
-// 	it('should redirect to the default locale when middleware calls the function for route /', async () => {
-// 		let request = new Request('http://example.com/');
-// 		let response = await app.render(request);
-// 		assert.equal(response.status, 302);
-// 	});
-//
-// 	it('should render a route that is not related to the i18n routing', async () => {
-// 		let request = new Request('http://example.com/help');
-// 		let response = await app.render(request);
-// 		assert.equal(response.status, 200);
-// 		const text = await response.text();
-// 		assert.equal(text.includes('Outside route'), true);
-// 	});
-//
-// 	it('should render a i18n route', async () => {
-// 		let request = new Request('http://example.com/en/blog');
-// 		let response = await app.render(request);
-// 		assert.equal(response.status, 200);
-// 		let text = await response.text();
-// 		assert.equal(text.includes('Blog start'), true);
-//
-// 		request = new Request('http://example.com/pt/start');
-// 		response = await app.render(request);
-// 		assert.equal(response.status, 200);
-// 		text = await response.text();
-// 		assert.equal(text.includes('Oi'), true);
-//
-// 		request = new Request('http://example.com/spanish');
-// 		response = await app.render(request);
-// 		assert.equal(response.status, 200);
-// 		text = await response.text();
-// 		assert.equal(text.includes('Hola.'), true);
-// 	});
-// });
+describe('SSR manual routing', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing-manual-with-default-middleware/',
+			output: 'server',
+			adapter: testAdapter(),
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should return a 404', async () => {
+		let request = new Request('http://example.com/blog');
+		let response = await app.render(request);
+		assert.equal(response.status, 404);
+		assert.equal((await response.text()).includes('Blog should not render'), false);
+	});
+
+	it('should return a 200 because the custom middleware allows it', async () => {
+		let request = new Request('http://example.com/about');
+		let response = await app.render(request);
+		assert.equal(response.status, 200);
+		const text = await response.text();
+		assert.equal(text.includes('ABOUT ME'), true);
+	});
+});

@@ -3,7 +3,7 @@ import { middleware } from 'astro:i18n';
 
 const customLogic = defineMiddleware(async (context, next) => {
 	const url = new URL(context.request.url);
-	if (url.pathname === '/about') {
+	if (url.pathname.startsWith('/about')) {
 		return new Response('ABOUT ME', {
 			status: 200,
 		});
