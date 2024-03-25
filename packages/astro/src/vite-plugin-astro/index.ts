@@ -2,7 +2,11 @@ import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
-import type { CompileMetadata, PluginMetadata as AstroPluginMetadata } from './types.js';
+import type {
+	CompileMetadata,
+	PluginCssMetadata as AstroPluginCssMetadata,
+	PluginMetadata as AstroPluginMetadata,
+} from './types.js';
 
 import { normalizePath } from 'vite';
 import { normalizeFilename } from '../vite-plugin-utils/index.js';
@@ -11,7 +15,7 @@ import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
 import { loadId } from './utils.js';
 export { getAstroMetadata } from './metadata.js';
-export type { AstroPluginMetadata };
+export type { AstroPluginMetadata, AstroPluginCssMetadata };
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -116,7 +120,20 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					// Register dependencies from preprocessing this style
 					result.dependencies?.forEach((dep) => this.addWatchFile(dep));
 
-					return { code: result.code };
+					return {
+						code: result.code,
+						// This metadata is used by `cssScopeToPlugin` to remove this module from the bundle
+						// if the `filename` default export (the Astro component) is unused.
+						meta: result.isGlobal
+							? undefined
+							: ({
+									astroCss: {
+										cssScopeTo: {
+											[filename]: ['default'],
+										},
+									},
+								} satisfies AstroPluginCssMetadata),
+					};
 				}
 				case 'script': {
 					if (typeof query.index === 'undefined') {

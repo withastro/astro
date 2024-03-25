@@ -100,6 +100,34 @@ test.describe('Dev Toolbar', () => {
 		await expect(xrayHighlightTooltip).not.toBeVisible();
 	});
 
+	test('xray escapes props content', async ({ page, astro }) => {
+		let isAlertCalled = false;
+		page.on('dialog', async (dialog) => {
+			isAlertCalled = true;
+			await dialog.accept();
+		});
+
+		await page.goto(astro.resolveUrl('/xray-props-escape'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="astro:xray"]');
+		await appButton.click();
+
+		const xrayCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:xray"]');
+		const xrayHighlight = xrayCanvas.locator('astro-dev-toolbar-highlight');
+		await expect(xrayHighlight).toBeVisible();
+
+		await xrayHighlight.hover();
+		const xrayHighlightTooltip = xrayHighlight.locator('astro-dev-toolbar-tooltip');
+		await expect(xrayHighlightTooltip).toBeVisible();
+
+		const code = xrayHighlightTooltip.locator('pre > code');
+		await expect(code).toHaveText(
+			JSON.stringify({ name: `<img src='' onerror='alert(1)'>` }, undefined, 2)
+		);
+		expect(isAlertCalled).toBe(false);
+	});
+
 	test('xray shows no islands message when there are none', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/xray-no-islands'));
 
@@ -151,11 +179,11 @@ test.describe('Dev Toolbar', () => {
 		const auditHighlight = auditCanvas.locator('astro-dev-toolbar-highlight');
 		await expect(auditHighlight).not.toBeVisible();
 
-		const auditWindow = auditCanvas.locator('astro-dev-toolbar-window');
+		const auditWindow = auditCanvas.locator('astro-dev-toolbar-audit-window');
 		await expect(auditWindow).toHaveCount(1);
 		await expect(auditWindow).toBeVisible();
 
-		await expect(auditWindow.locator('astro-dev-toolbar-icon[icon=check-circle]')).toBeVisible();
+		await expect(auditWindow.locator('.no-audit-container')).toBeVisible();
 	});
 
 	test('audit shows a window with list of problems', async ({ page, astro }) => {
@@ -166,7 +194,7 @@ test.describe('Dev Toolbar', () => {
 		await appButton.click();
 
 		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
-		const auditWindow = auditCanvas.locator('astro-dev-toolbar-window');
+		const auditWindow = auditCanvas.locator('astro-dev-toolbar-audit-window');
 		await expect(auditWindow).toHaveCount(1);
 		await expect(auditWindow).toBeVisible();
 
@@ -272,7 +300,6 @@ test.describe('Dev Toolbar', () => {
 		await appButton.click();
 
 		const myAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="my-plugin"]');
-		console.log(await myAppCanvas.innerHTML());
 		const myAppWindow = myAppCanvas.locator('astro-dev-toolbar-window');
 		await expect(myAppWindow).toHaveCount(1);
 		await expect(myAppWindow).toBeVisible();
@@ -293,6 +320,20 @@ test.describe('Dev Toolbar', () => {
 
 		expect(serverRenderTime).not.toBe(null);
 		expect(clientRenderTime).not.toBe(null);
+	});
+
+	test('apps can show notifications', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="my-plugin"]');
+		await appButton.click();
+
+		const customAppNotification = appButton.locator('.icon .notification');
+		await expect(customAppNotification).toHaveAttribute('data-active');
+		await expect(customAppNotification).toHaveAttribute('data-level', 'warning');
+
+		await expect(customAppNotification).toBeVisible();
 	});
 
 	test('can quit apps by clicking outside the window', async ({ page, astro }) => {

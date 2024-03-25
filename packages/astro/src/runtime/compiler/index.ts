@@ -13,6 +13,7 @@ export {
 	render,
 	renderComponent,
 	renderHead,
+	renderScript,
 	renderSlot,
 	renderTransition,
 	spreadAttributes,

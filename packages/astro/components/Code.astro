@@ -6,34 +6,35 @@ import type {
 	SpecialLanguage,
 	ThemeRegistration,
 	ThemeRegistrationRaw,
-} from 'shikiji';
-import { bundledLanguages } from 'shikiji/langs';
+} from 'shiki';
+import { bundledLanguages } from 'shiki/langs';
 import { getCachedHighlighter } from '../dist/core/shiki.js';
+import type { HTMLAttributes } from '../types';
 
-interface Props {
+interface Props extends Omit<HTMLAttributes<'pre'>, 'lang'> {
 	/** The code to highlight. Required. */
 	code: string;
 	/**
 	 * The language of your code.
-	 * Supports all languages listed here: https://github.com/shikijs/shiki/blob/main/docs/languages.md#all-languages
-	 * Instructions for loading a custom language: https://github.com/shikijs/shiki/blob/main/docs/languages.md#supporting-your-own-languages-with-shiki
+	 * Supports all languages listed here: https://shiki.style/languages
+	 * Instructions for loading a custom language: https://shiki.style/guide/load-lang
 	 *
 	 * @default "plaintext"
 	 */
 	lang?: BuiltinLanguage | SpecialLanguage | LanguageRegistration;
 	/**
 	 * The styling theme.
-	 * Supports all themes listed here: https://github.com/shikijs/shiki/blob/main/docs/themes.md#all-themes
-	 * Instructions for loading a custom theme: https://github.com/shikijs/shiki/blob/main/docs/themes.md#loading-theme
+	 * Supports all themes listed here: https://shiki.style/themes
+	 * Instructions for loading a custom theme: https://shiki.style/guide/load-theme
 	 *
 	 * @default "github-dark"
 	 */
 	theme?: ThemePresets | ThemeRegistration | ThemeRegistrationRaw;
 	/**
 	 * Multiple themes to style with -- alternative to "theme" option.
-	 * Supports all themes found above; see https://github.com/antfu/shikiji#lightdark-dual-themes for more information.
+	 * Supports all themes found above; see https://shiki.style/guide/dual-themes for more information.
 	 */
-	experimentalThemes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
+	themes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
 	/**
 	 * Enable word wrapping.
 	 *  - true: enabled.
@@ -55,12 +56,13 @@ const {
 	code,
 	lang = 'plaintext',
 	theme = 'github-dark',
-	experimentalThemes = {},
+	themes = {},
 	wrap = false,
 	inline = false,
+	...rest
 } = Astro.props;
 
-// shiki -> shikiji compat
+// shiki 1.0 compat
 if (typeof lang === 'object') {
 	// `id` renamed to `name` (always override)
 	if ((lang as any).id) {
@@ -81,12 +83,13 @@ const highlighter = await getCachedHighlighter({
 			: lang,
 	],
 	theme,
-	experimentalThemes,
+	themes,
 	wrap,
 });
 
 const html = highlighter.highlight(code, typeof lang === 'string' ? lang : lang.name, {
 	inline,
+	attributes: rest,
 });
 ---
 

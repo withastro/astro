@@ -1,3 +1,5 @@
+import { LibsqlError } from '@libsql/client';
+import { sql as _sql } from 'drizzle-orm';
 import type {
 	BooleanColumnInput,
 	ColumnsConfig,
@@ -9,6 +11,10 @@ import type {
 	TextColumnOpts,
 } from '../core/types.js';
 
+import type { LibSQLDatabase } from 'drizzle-orm/libsql';
+
+export type Database = Omit<LibSQLDatabase, 'transaction'>;
+
 function createColumn<S extends string, T extends Record<string, unknown>>(type: S, schema: T) {
 	return {
 		type,
@@ -17,6 +23,10 @@ function createColumn<S extends string, T extends Record<string, unknown>>(type:
 		 */
 		schema,
 	};
+}
+
+export function isDbError(err: unknown): err is LibsqlError {
+	return err instanceof LibsqlError;
 }
 
 export const column = {
@@ -41,8 +51,44 @@ export function defineTable<TColumns extends ColumnsConfig>(userConfig: TableCon
 	return userConfig;
 }
 
-export function defineDB(userConfig: DBConfigInput) {
+export function defineDb(userConfig: DBConfigInput) {
 	return userConfig;
 }
 
-export { sql, NOW, TRUE, FALSE } from './index.js';
+// Exports a few common expressions
+export const NOW = _sql`CURRENT_TIMESTAMP`;
+export const TRUE = _sql`TRUE`;
+export const FALSE = _sql`FALSE`;
+
+export {
+	sql,
+	eq,
+	gt,
+	gte,
+	lt,
+	lte,
+	ne,
+	isNull,
+	isNotNull,
+	inArray,
+	notInArray,
+	exists,
+	notExists,
+	between,
+	notBetween,
+	like,
+	notIlike,
+	not,
+	asc,
+	desc,
+	and,
+	or,
+	count,
+	countDistinct,
+	avg,
+	avgDistinct,
+	sum,
+	sumDistinct,
+	max,
+	min,
+} from 'drizzle-orm';

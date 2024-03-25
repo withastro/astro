@@ -1,11 +1,14 @@
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
+import { safeFetch } from '../../../../runtime/utils.js';
+import { MIGRATION_VERSION } from '../../../consts.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBConfig, type DBSnapshot } from '../../../types.js';
-import { getRemoteDatabaseUrl } from '../../../utils.js';
+import { type Result, getRemoteDatabaseUrl } from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
+	formatDataLossMessage,
 	getMigrationQueries,
 	getProductionCurrentSnapshot,
 } from '../../migration-queries.js';
@@ -23,10 +26,11 @@ export async function cmd({
 	const appToken = await getManagedAppTokenOrExit(flags.token);
 	const productionSnapshot = await getProductionCurrentSnapshot({ appToken: appToken.token });
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
-	const isFromScratch = isForceReset || JSON.stringify(productionSnapshot) === '{}';
-	const { queries: migrationQueries } = await getMigrationQueries({
+	const isFromScratch = !productionSnapshot;
+	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
 		oldSnapshot: isFromScratch ? createEmptySnapshot() : productionSnapshot,
 		newSnapshot: currentSnapshot,
+		reset: isForceReset,
 	});
 
 	// // push the database schema
@@ -35,6 +39,14 @@ export async function cmd({
 	} else {
 		console.log(`Database schema is out of date.`);
 	}
+
+	if (isForceReset) {
+		console.log(`Force-pushing to the database. All existing data will be erased.`);
+	} else if (confirmations.length > 0) {
+		console.log('\n' + formatDataLossMessage(confirmations) + '\n');
+		throw new Error('Exiting.');
+	}
+
 	if (isDryRun) {
 		console.log('Statements:', JSON.stringify(migrationQueries, undefined, 2));
 	} else {
@@ -65,18 +77,33 @@ async function pushSchema({
 	const requestBody = {
 		snapshot: currentSnapshot,
 		sql: statements,
-		experimentalVersion: 1,
+		version: MIGRATION_VERSION,
 	};
 	if (isDryRun) {
 		console.info('[DRY RUN] Batch query:', JSON.stringify(requestBody, null, 2));
 		return new Response(null, { status: 200 });
 	}
 	const url = new URL('/db/push', getRemoteDatabaseUrl());
-	return await fetch(url, {
-		method: 'POST',
-		headers: new Headers({
-			Authorization: `Bearer ${appToken}`,
-		}),
-		body: JSON.stringify(requestBody),
-	});
+	const response = await safeFetch(
+		url,
+		{
+			method: 'POST',
+			headers: new Headers({
+				Authorization: `Bearer ${appToken}`,
+			}),
+			body: JSON.stringify(requestBody),
+		},
+		async (res) => {
+			console.error(`${url.toString()} failed: ${res.status} ${res.statusText}`);
+			console.error(await res.text());
+			throw new Error(`/db/push fetch failed: ${res.status} ${res.statusText}`);
+		}
+	);
+
+	const result = (await response.json()) as Result<never>;
+	if (!result.success) {
+		console.error(`${url.toString()} unsuccessful`);
+		console.error(await response.text());
+		throw new Error(`/db/push fetch unsuccessful`);
+	}
 }

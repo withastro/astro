@@ -12,6 +12,7 @@ on:
       - ".github/workflows/check.yml"
       - "scripts/smoke/check.js"
       - "packages/astro/src/@types/astro.ts"
+      - "pnpm-lock.yaml"
 
 env:
   ASTRO_TELEMETRY_DISABLED: true

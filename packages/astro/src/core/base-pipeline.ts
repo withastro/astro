@@ -38,6 +38,7 @@ export abstract class Pipeline {
 		 */
 		readonly adapterName = manifest.adapterName,
 		readonly clientDirectives = manifest.clientDirectives,
+		readonly inlinedScripts = manifest.inlinedScripts,
 		readonly compressHTML = manifest.compressHTML,
 		readonly i18n = manifest.i18n,
 		readonly middleware = manifest.middleware,
@@ -45,7 +46,7 @@ export abstract class Pipeline {
 		/**
 		 * Used for `Astro.site`.
 		 */
-		readonly site = manifest.site
+		readonly site = manifest.site ? new URL(manifest.site) : undefined
 	) {
 		this.internalMiddleware = [];
 		// We do use our middleware only if the user isn't using the manual setup

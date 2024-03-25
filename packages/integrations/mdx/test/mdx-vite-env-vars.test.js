@@ -46,7 +46,7 @@ describe('MDX - Vite env vars', () => {
 		assert.equal(
 			document
 				.querySelector('[data-env-variable-exports-unknown]')
-				?.innerHTML.includes('exports: ””'), // NOTE: these double quotes are special unicode quotes emitted in the HTML file
+				?.innerHTML.includes('exports: ""'),
 			true
 		);
 	});

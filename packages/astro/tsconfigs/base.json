@@ -24,6 +24,8 @@
     // Skip typechecking libraries and .d.ts files
     "skipLibCheck": true,
     // Allow JavaScript files to be imported
-    "allowJs": true
+    "allowJs": true,
+    // Allow JSX files (or files that are internally considered JSX, like Astro files) to be imported inside `.js` and `.ts` files.
+    "jsx": "preserve"
   }
 }

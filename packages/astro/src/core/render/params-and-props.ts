@@ -1,4 +1,5 @@
 import type { ComponentInstance, Params, Props, RouteData } from '../../@types/astro.js';
+import { DEFAULT_404_COMPONENT } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { routeIsFallback } from '../redirects/helpers.js';
@@ -24,7 +25,11 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 		return {};
 	}
 
-	if (routeIsRedirect(route) || routeIsFallback(route)) {
+	if (
+		routeIsRedirect(route) ||
+		routeIsFallback(route) ||
+		route.component === DEFAULT_404_COMPONENT
+	) {
 		return {};
 	}
 

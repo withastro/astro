@@ -330,6 +330,15 @@ function appendSpeculationRules(url: string) {
 				urls: [url],
 			},
 		],
+		// Currently, adding `prefetch` is required to fallback if `prerender` fails.
+		// Possibly will be automatic in the future, in which case it can be removed.
+		// https://github.com/WICG/nav-speculation/issues/162#issuecomment-1977818473
+		prefetch: [
+			{
+				source: 'list',
+				urls: [url],
+			},
+		],
 	});
 	document.head.append(script);
 }

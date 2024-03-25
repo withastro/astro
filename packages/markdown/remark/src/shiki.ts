@@ -1,10 +1,21 @@
 import type { Properties } from 'hast';
-import { bundledLanguages, createCssVariablesTheme, getHighlighter } from 'shikiji';
+import { bundledLanguages, createCssVariablesTheme, getHighlighter } from 'shiki';
 import { visit } from 'unist-util-visit';
 import type { ShikiConfig } from './types.js';
 
 export interface ShikiHighlighter {
-	highlight(code: string, lang?: string, options?: { inline?: boolean }): string;
+	highlight(
+		code: string,
+		lang?: string,
+		options?: {
+			inline?: boolean;
+			attributes?: Record<string, string>;
+			/**
+			 * Raw `meta` information to be used by Shiki transformers
+			 */
+			meta?: string;
+		}
+	): string;
 }
 
 // TODO: Remove this special replacement in Astro 5
@@ -25,12 +36,10 @@ const cssVariablesTheme = () =>
 export async function createShikiHighlighter({
 	langs = [],
 	theme = 'github-dark',
-	experimentalThemes = {},
+	themes = {},
 	wrap = false,
 	transformers = [],
 }: ShikiConfig = {}): Promise<ShikiHighlighter> {
-	const themes = experimentalThemes;
-
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
 
 	const highlighter = await getHighlighter({
@@ -54,6 +63,10 @@ export async function createShikiHighlighter({
 			return highlighter.codeToHtml(code, {
 				...themeOptions,
 				lang,
+				// NOTE: while we can spread `options.attributes` here so that Shiki can auto-serialize this as rendered
+				// attributes on the top-level tag, it's not clear whether it is fine to pass all attributes as meta, as
+				// they're technically not meta, nor parsed from Shiki's `parseMetaString` API.
+				meta: options?.meta ? { __raw: options?.meta } : undefined,
 				transformers: [
 					{
 						pre(node) {
@@ -62,8 +75,19 @@ export async function createShikiHighlighter({
 								node.tagName = 'code';
 							}
 
-							const classValue = normalizePropAsString(node.properties.class) ?? '';
-							const styleValue = normalizePropAsString(node.properties.style) ?? '';
+							const {
+								class: attributesClass,
+								style: attributesStyle,
+								...rest
+							} = options?.attributes ?? {};
+							Object.assign(node.properties, rest);
+
+							const classValue =
+								(normalizePropAsString(node.properties.class) ?? '') +
+								(attributesClass ? ` ${attributesClass}` : '');
+							const styleValue =
+								(normalizePropAsString(node.properties.style) ?? '') +
+								(attributesStyle ? `; ${attributesStyle}` : '');
 
 							// Replace "shiki" class naming with "astro-code"
 							node.properties.class = classValue.replace(/shiki/g, 'astro-code');
@@ -106,11 +130,10 @@ export async function createShikiHighlighter({
 							}
 						},
 						root(node) {
-							if (Object.values(experimentalThemes).length) {
+							if (Object.values(themes).length) {
 								return;
 							}
 
-							// theme.id for shiki -> shikiji compat
 							const themeName = typeof theme === 'string' ? theme : theme.name;
 							if (themeName === 'css-variables') {
 								// Replace special color tokens to CSS variables

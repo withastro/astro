@@ -4,10 +4,9 @@ import {
 	getCollectionChangeQueries,
 	getMigrationQueries,
 } from '../../dist/core/cli/migration-queries.js';
-import { tableSchema } from '../../dist/core/types.js';
-import { column, defineTable } from '../../dist/runtime/config.js';
-import { NOW } from '../../dist/runtime/index.js';
-import { getCreateTableQuery } from '../../dist/runtime/queries.js';
+import { MIGRATION_VERSION } from '../../dist/core/consts.js';
+import { tableSchema } from '../../dist/core/schemas.js';
+import { NOW, column, defineTable } from '../../dist/runtime/config.js';
 
 const TABLE_NAME = 'Users';
 
@@ -34,8 +33,8 @@ function userChangeQueries(oldTable, newTable) {
 
 function configChangeQueries(oldCollections, newCollections) {
 	return getMigrationQueries({
-		oldSnapshot: { schema: oldCollections, experimentalVersion: 1 },
-		newSnapshot: { schema: newCollections, experimentalVersion: 1 },
+		oldSnapshot: { schema: oldCollections, version: MIGRATION_VERSION },
+		newSnapshot: { schema: newCollections, version: MIGRATION_VERSION },
 	});
 }
 
@@ -53,7 +52,6 @@ describe('column queries', () => {
 			const newCollections = { [TABLE_NAME]: userInitial };
 			const { queries } = await configChangeQueries(oldCollections, newCollections);
 			expect(queries).to.deep.equal([
-				`DROP TABLE IF EXISTS "${TABLE_NAME}"`,
 				`CREATE TABLE "${TABLE_NAME}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "email" text NOT NULL UNIQUE, "mi" text)`,
 			]);
 		});
@@ -105,6 +103,65 @@ describe('column queries', () => {
 		it('should be empty when tables are the same', async () => {
 			const { queries } = await userChangeQueries(userInitial, userInitial);
 			expect(queries).to.deep.equal([]);
+		});
+
+		it('should return warning if column type change introduces data loss', async () => {
+			const blogInitial = tableSchema.parse({
+				...userInitial,
+				columns: {
+					date: column.text(),
+				},
+			});
+			const blogFinal = tableSchema.parse({
+				...userInitial,
+				columns: {
+					date: column.date(),
+				},
+			});
+			const { queries, confirmations } = await userChangeQueries(blogInitial, blogFinal);
+			expect(queries).to.deep.equal([
+				'DROP TABLE "Users"',
+				'CREATE TABLE "Users" (_id INTEGER PRIMARY KEY, "date" text NOT NULL)',
+			]);
+			expect(confirmations.length).to.equal(1);
+		});
+
+		it('should return warning if new required column added', async () => {
+			const blogInitial = tableSchema.parse({
+				...userInitial,
+				columns: {},
+			});
+			const blogFinal = tableSchema.parse({
+				...userInitial,
+				columns: {
+					date: column.date({ optional: false }),
+				},
+			});
+			const { queries, confirmations } = await userChangeQueries(blogInitial, blogFinal);
+			expect(queries).to.deep.equal([
+				'DROP TABLE "Users"',
+				'CREATE TABLE "Users" (_id INTEGER PRIMARY KEY, "date" text NOT NULL)',
+			]);
+			expect(confirmations.length).to.equal(1);
+		});
+
+		it('should return warning if non-number primary key with no default added', async () => {
+			const blogInitial = tableSchema.parse({
+				...userInitial,
+				columns: {},
+			});
+			const blogFinal = tableSchema.parse({
+				...userInitial,
+				columns: {
+					id: column.text({ primaryKey: true }),
+				},
+			});
+			const { queries, confirmations } = await userChangeQueries(blogInitial, blogFinal);
+			expect(queries).to.deep.equal([
+				'DROP TABLE "Users"',
+				'CREATE TABLE "Users" ("id" text PRIMARY KEY)',
+			]);
+			expect(confirmations.length).to.equal(1);
 		});
 
 		it('should be empty when type updated to same underlying SQL type', async () => {

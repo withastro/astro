@@ -8,7 +8,7 @@ export async function renderRedirect(renderContext: RenderContext) {
 	const { redirect, redirectRoute } = routeData;
 	const status =
 		redirectRoute && typeof redirect === 'object' ? redirect.status : method === 'GET' ? 301 : 308;
-	const headers = { location: redirectRouteGenerate(renderContext) };
+	const headers = { location: encodeURI(redirectRouteGenerate(renderContext)) };
 	return new Response(null, { status, headers });
 }
 

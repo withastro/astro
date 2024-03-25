@@ -196,6 +196,7 @@ export function createBasicPipeline(options = {}) {
 		options.streaming ?? true,
 		options.adapterName,
 		options.clientDirectives ?? getDefaultClientDirectives(),
+		options.inlinedScripts ?? [],
 		options.compressHTML,
 		options.i18n,
 		options.middleware,
@@ -203,7 +204,7 @@ export function createBasicPipeline(options = {}) {
 		options.site
 	);
 	pipeline.headElements = () => ({ scripts: new Set(), styles: new Set(), links: new Set() });
-	pipeline.componentMetadata = () => {};
+	pipeline.componentMetadata = () => new Map();
 	return pipeline;
 }
 

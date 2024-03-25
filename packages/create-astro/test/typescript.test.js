@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { beforeEach, describe, it } from 'node:test';
+import { after, beforeEach, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { setupTypeScript, typescript } from '../dist/index.js';
@@ -81,6 +81,7 @@ describe('typescript', async () => {
 
 describe('typescript: setup tsconfig', async () => {
 	beforeEach(() => resetFixtures());
+	after(() => resetFixtures());
 
 	it('none', async () => {
 		const root = new URL('./fixtures/empty/', import.meta.url);
@@ -104,6 +105,7 @@ describe('typescript: setup tsconfig', async () => {
 
 describe('typescript: setup package', async () => {
 	beforeEach(() => resetFixtures());
+	after(() => resetFixtures());
 
 	it('none', async () => {
 		const root = new URL('./fixtures/empty/', import.meta.url);
@@ -122,13 +124,19 @@ describe('typescript: setup package', async () => {
 		);
 
 		await setupTypeScript('strictest', { cwd: fileURLToPath(root), install: false });
-		const { scripts } = JSON.parse(fs.readFileSync(packageJson, { encoding: 'utf-8' }));
+		const { scripts, dependencies } = JSON.parse(
+			fs.readFileSync(packageJson, { encoding: 'utf-8' })
+		);
 
 		assert.deepEqual(
 			Object.keys(scripts),
 			['dev', 'build', 'preview'],
 			'does not override existing scripts'
 		);
+
+		for (const value of Object.values(dependencies)) {
+			assert.doesNotMatch(value, /undefined$/, 'does not include undefined values');
+		}
 
 		assert.equal(scripts.build, 'astro check && astro build', 'prepends astro check command');
 	});

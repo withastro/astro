@@ -53,13 +53,12 @@ export default async function build(...args) {
 	const forceCJS = args.includes('--force-cjs');
 	const copyWASM = args.includes('--copy-wasm');
 
-	const {
-		type = 'module',
-		version,
-		dependencies = {},
-	} = await fs.readFile('./package.json').then((res) => JSON.parse(res.toString()));
-	// expose PACKAGE_VERSION on process.env for CLI utils
-	config.define = { 'process.env.PACKAGE_VERSION': JSON.stringify(version) };
+	const { type = 'module', dependencies = {} } = await readPackageJSON('./package.json');
+
+	config.define = {};
+	for (const [key, value] of await getDefinedEntries()) {
+		config.define[`process.env.${key}`] = JSON.stringify(value);
+	}
 	const format = type === 'module' && !forceCJS ? 'esm' : 'cjs';
 
 	const outdir = 'dist';
@@ -137,4 +136,51 @@ async function clean(outdir) {
 	await deleteAsync([`${outdir}/**`, `!${outdir}/**/*.d.ts`], {
 		onlyFiles: true,
 	});
+}
+
+/**
+ * Contextual `define` values to statically replace in the built JS output.
+ * Available to all packages, but mostly useful for CLIs like `create-astro`.
+ */
+async function getDefinedEntries() {
+	const define = {
+		/** The current version (at the time of building) for the current package, such as `astro` or `@astrojs/sitemap` */
+		PACKAGE_VERSION: await getInternalPackageVersion('./package.json'),
+		/** The current version (at the time of building) for `astro` */
+		ASTRO_VERSION: await getInternalPackageVersion(
+			new URL('../../packages/astro/package.json', import.meta.url)
+		),
+		/** The current version (at the time of building) for `@astrojs/check` */
+		ASTRO_CHECK_VERSION: await getWorkspacePackageVersion('@astrojs/check'),
+		/** The current version (at the time of building) for `typescript` */
+		TYPESCRIPT_VERSION: await getWorkspacePackageVersion('typescript'),
+	};
+	for (const [key, value] of Object.entries(define)) {
+		if (value === undefined) {
+			delete define[key];
+		}
+	}
+	return Object.entries(define);
+}
+
+async function readPackageJSON(path) {
+	return await fs.readFile(path, { encoding: 'utf8' }).then((res) => JSON.parse(res));
+}
+
+async function getInternalPackageVersion(path) {
+	return readPackageJSON(path).then((res) => res.version);
+}
+
+async function getWorkspacePackageVersion(packageName) {
+	const { dependencies, devDependencies } = await readPackageJSON(
+		new URL('../../package.json', import.meta.url)
+	);
+	const deps = { ...dependencies, ...devDependencies };
+	const version = deps[packageName];
+	if (!version) {
+		throw new Error(
+			`Unable to resolve "${packageName}". Is it a depdendency of the workspace root?`
+		);
+	}
+	return version.replace(/^\D+/, '');
 }

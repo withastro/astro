@@ -13,7 +13,7 @@ import Counter from '../components/Counter.jsx';
     <img id="image-asset" src={p1Image.src} width={p1Image.width} height={p1Image.height} alt="penguin" />
     <Image src={p1Image} alt="penguin" />
     <Counter client:load />
-    <p id="assets-prefix-env">{import.meta.env.ASSETS_PREFIX}</p>
+    <p id="assets-prefix-env">{typeof import.meta.env.ASSETS_PREFIX === 'string' ? import.meta.env.ASSETS_PREFIX : JSON.stringify(import.meta.env.ASSETS_PREFIX)}</p>
     <style>
       h1 {
         color: red;

@@ -1,8 +1,8 @@
 import {
 	rehypeHeadingIds,
+	rehypePrism,
+	rehypeShiki,
 	remarkCollectImages,
-	remarkPrism,
-	remarkShiki,
 } from '@astrojs/markdown-remark';
 import { createProcessor, nodeTypes } from '@mdx-js/mdx';
 import rehypeRaw from 'rehype-raw';
@@ -54,22 +54,7 @@ function getRemarkPlugins(mdxOptions: MdxOptions): PluggableList {
 		}
 	}
 
-	remarkPlugins = [
-		...remarkPlugins,
-		...mdxOptions.remarkPlugins,
-		remarkCollectImages,
-		remarkImageToComponent,
-	];
-
-	if (!isPerformanceBenchmark) {
-		// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
-		if (mdxOptions.syntaxHighlight === 'shiki') {
-			remarkPlugins.push([remarkShiki, mdxOptions.shikiConfig]);
-		}
-		if (mdxOptions.syntaxHighlight === 'prism') {
-			remarkPlugins.push(remarkPrism);
-		}
-	}
+	remarkPlugins.push(...mdxOptions.remarkPlugins, remarkCollectImages, remarkImageToComponent);
 
 	return remarkPlugins;
 }
@@ -79,18 +64,28 @@ function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
 		// ensure `data.meta` is preserved in `properties.metastring` for rehype syntax highlighters
 		rehypeMetaString,
 		// rehypeRaw allows custom syntax highlighters to work without added config
-		[rehypeRaw, { passThrough: nodeTypes }] as any,
+		[rehypeRaw, { passThrough: nodeTypes }],
 	];
 
-	rehypePlugins = [
-		...rehypePlugins,
-		...mdxOptions.rehypePlugins,
+	if (!isPerformanceBenchmark) {
+		// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
+		if (mdxOptions.syntaxHighlight === 'shiki') {
+			rehypePlugins.push([rehypeShiki, mdxOptions.shikiConfig]);
+		} else if (mdxOptions.syntaxHighlight === 'prism') {
+			rehypePlugins.push(rehypePrism);
+		}
+	}
+
+	rehypePlugins.push(...mdxOptions.rehypePlugins);
+
+	if (!isPerformanceBenchmark) {
 		// getHeadings() is guaranteed by TS, so this must be included.
 		// We run `rehypeHeadingIds` _last_ to respect any custom IDs set by user plugins.
-		...(isPerformanceBenchmark ? [] : [rehypeHeadingIds, rehypeInjectHeadingsExport]),
-		// computed from `astro.data.frontmatter` in VFile data
-		rehypeApplyFrontmatterExport,
-	];
+		rehypePlugins.push(rehypeHeadingIds, rehypeInjectHeadingsExport);
+	}
+
+	// computed from `astro.data.frontmatter` in VFile data
+	rehypePlugins.push(rehypeApplyFrontmatterExport);
 
 	if (mdxOptions.optimize) {
 		// Convert user `optimize` option to compatible `rehypeOptimizeStatic` option

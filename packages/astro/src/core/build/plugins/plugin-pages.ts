@@ -1,4 +1,3 @@
-import { extname } from 'node:path';
 import type { Plugin as VitePlugin } from 'vite';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
@@ -6,29 +5,13 @@ import { type BuildInternals, eachPageFromAllPages } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
-import { ASTRO_PAGE_EXTENSION_POST_PATTERN, getPathFromVirtualModulePageName } from './util.js';
+import { getPathFromVirtualModulePageName, getVirtualModulePageNameFromPath } from './util.js';
 
 export const ASTRO_PAGE_MODULE_ID = '@astro-page:';
 export const ASTRO_PAGE_RESOLVED_MODULE_ID = '\0' + ASTRO_PAGE_MODULE_ID;
 
-/**
- * 1. We add a fixed prefix, which is used as virtual module naming convention;
- * 2. We replace the dot that belongs extension with an arbitrary string.
- *
- * @param path
- */
-export function getVirtualModulePageNameFromPath(path: string) {
-	// we mask the extension, so this virtual file
-	// so rollup won't trigger other plugins in the process
-	const extension = extname(path);
-	return `${ASTRO_PAGE_MODULE_ID}${path.replace(
-		extension,
-		extension.replace('.', ASTRO_PAGE_EXTENSION_POST_PATTERN)
-	)}`;
-}
-
 export function getVirtualModulePageIdFromPath(path: string) {
-	const name = getVirtualModulePageNameFromPath(path);
+	const name = getVirtualModulePageNameFromPath(ASTRO_PAGE_MODULE_ID, path);
 	return '\x00' + name;
 }
 
@@ -43,7 +26,7 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 					if (routeIsRedirect(pageData.route)) {
 						continue;
 					}
-					inputs.add(getVirtualModulePageNameFromPath(path));
+					inputs.add(getVirtualModulePageNameFromPath(ASTRO_PAGE_MODULE_ID, path));
 				}
 
 				return addRollupInput(options, Array.from(inputs));

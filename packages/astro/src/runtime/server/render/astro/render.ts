@@ -125,6 +125,11 @@ export async function renderToReadableStream(
 				}
 			})();
 		},
+		cancel() {
+			// If the client disconnects,
+			// we signal to ignore the results of existing renders and avoid kicking off more of them.
+			result.cancelled = true;
+		},
 	});
 }
 
@@ -203,8 +208,10 @@ export async function renderToAsyncIterable(
 	let next = promiseWithResolvers<void>();
 	const buffer: Uint8Array[] = []; // []Uint8Array
 
-	const iterator = {
+	const iterator: AsyncIterator<Uint8Array> = {
 		async next() {
+			if (result.cancelled) return { done: true, value: undefined };
+
 			await next.promise;
 
 			// If an error occurs during rendering, throw the error as we cannot proceed.
@@ -237,6 +244,12 @@ export async function renderToAsyncIterable(
 			};
 
 			return returnValue;
+		},
+		async return() {
+			// If the client disconnects,
+			// we signal to the rest of the internals to ignore the results of existing renders and avoid kicking off more of them.
+			result.cancelled = true;
+			return { done: true, value: undefined };
 		},
 	};
 

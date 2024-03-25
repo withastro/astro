@@ -54,7 +54,8 @@ describe('trailingSlash', () => {
 			url: '/api',
 		});
 		container.handle(req, res);
-		assert.equal(await text(), '');
+		const html = await text();
+		assert.equal(html.includes(`<span class="statusMessage">Not found</span>`), true);
 		assert.equal(res.statusCode, 404);
 	});
 });

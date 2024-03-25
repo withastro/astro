@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { codeToHtml, createCssVariablesTheme } from 'shikiji';
+import { codeToHtml, createCssVariablesTheme } from 'shiki';
 import type { ErrorPayload } from 'vite';
 import type { ModuleLoader } from '../../module-loader/index.js';
 import { FailedToLoadModuleSSR, InvalidGlob, MdxIntegrationMissingError } from '../errors-data.js';

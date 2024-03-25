@@ -1,4 +1,4 @@
-import { column, defineDB, defineTable } from 'astro:db';
+import { column, defineDb, defineTable } from 'astro:db';
 
 const Event = defineTable({
 	columns: {
@@ -24,4 +24,4 @@ const Ticket = defineTable({
 	},
 });
 
-export default defineDB({ tables: { Event, Ticket } });
+export default defineDb({ tables: { Event, Ticket } });

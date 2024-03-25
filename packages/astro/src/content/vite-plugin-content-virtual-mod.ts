@@ -279,7 +279,7 @@ export async function generateLookupMap({
 							message: AstroErrorData.DuplicateContentEntrySlugError.message(
 								collection,
 								slug,
-								lookupMap[collection]!.entries[slug],
+								lookupMap[collection].entries[slug],
 								rootRelativePath(root, filePath)
 							),
 							hint:

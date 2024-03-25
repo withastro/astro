@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { getCollectionChangeQueries } from '../../dist/core/cli/migration-queries.js';
-import { tablesSchema } from '../../dist/core/types.js';
+import { tablesSchema } from '../../dist/core/schemas.js';
 import { column, defineTable } from '../../dist/runtime/config.js';
 
 const BaseUser = defineTable({

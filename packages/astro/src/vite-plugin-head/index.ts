@@ -4,7 +4,7 @@ import type { SSRComponentMetadata, SSRResult } from '../@types/astro.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
-import { getTopLevelPages, walkParentInfos } from '../core/build/graph.js';
+import { getParentModuleInfos, getTopLevelPageModuleInfos } from '../core/build/graph.js';
 import type { BuildInternals } from '../core/build/internal.js';
 import { getAstroMetadata } from '../vite-plugin-astro/index.js';
 
@@ -130,13 +130,13 @@ export function astroHeadBuildPlugin(internals: BuildInternals): AstroBuildPlugi
 									if (modinfo) {
 										const meta = getAstroMetadata(modinfo);
 										if (meta?.containsHead) {
-											for (const [pageInfo] of getTopLevelPages(id, this)) {
+											for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
 												let metadata = getOrCreateMetadata(pageInfo.id);
 												metadata.containsHead = true;
 											}
 										}
 										if (meta?.propagation === 'self') {
-											for (const [info] of walkParentInfos(id, this)) {
+											for (const info of getParentModuleInfos(id, this)) {
 												let metadata = getOrCreateMetadata(info.id);
 												if (metadata.propagation !== 'self') {
 													metadata.propagation = 'in-tree';
@@ -147,7 +147,7 @@ export function astroHeadBuildPlugin(internals: BuildInternals): AstroBuildPlugi
 
 									// Head propagation (aka bubbling)
 									if (mod.code && injectExp.test(mod.code)) {
-										for (const [info] of walkParentInfos(id, this)) {
+										for (const info of getParentModuleInfos(id, this)) {
 											getOrCreateMetadata(info.id).propagation = 'in-tree';
 										}
 									}

@@ -1,5 +1,24 @@
 # @astrojs/vercel
 
+## 7.4.0
+
+### Minor Changes
+
+- [#10476](https://github.com/withastro/astro/pull/10476) [`cfbaa8a767b8794c2dcd8e164672195378be396a`](https://github.com/withastro/astro/commit/cfbaa8a767b8794c2dcd8e164672195378be396a) Thanks [@lilnasy](https://github.com/lilnasy)! - The special-case handling of `src/vercel-edge-middleware.js` file is now deprecated. This file allowed you to access the edge runtime's `RequestContext` object, and create the middleware `locals` from its fields. However, this object includes only one field - the `waitUntil()` function - which is now available directly as `ctx.locals.vercel.edge.waitUntil()`.
+
+## 7.3.6
+
+### Patch Changes
+
+- Updated dependencies [[`1ea0a25b94125e4f6f2ac82b42f638e22d7bdffd`](https://github.com/withastro/astro/commit/1ea0a25b94125e4f6f2ac82b42f638e22d7bdffd)]:
+  - @astrojs/internal-helpers@0.3.0
+
+## 7.3.5
+
+### Patch Changes
+
+- [#10336](https://github.com/withastro/astro/pull/10336) [`f2e60a96754ed1d86001fe4d5d3a0c0ef657408d`](https://github.com/withastro/astro/commit/f2e60a96754ed1d86001fe4d5d3a0c0ef657408d) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fixes an issue that was preventing the use of `sharp` in some cases and causing a runtime error
+
 ## 7.3.4
 
 ### Patch Changes

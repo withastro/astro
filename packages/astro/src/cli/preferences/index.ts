@@ -7,7 +7,6 @@ import { bgGreen, black, bold, dim, yellow } from 'kleur/colors';
 
 import { formatWithOptions } from 'node:util';
 import dlv from 'dlv';
-// @ts-expect-error flattie types are mispackaged
 import { flattie } from 'flattie';
 import { resolveConfig } from '../../core/config/config.js';
 import { createSettings } from '../../core/config/settings.js';

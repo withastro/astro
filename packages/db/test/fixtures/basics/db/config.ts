@@ -1,5 +1,5 @@
 import { Themes } from './theme';
-import { column, defineDB, defineTable } from 'astro:db';
+import { column, defineDb, defineTable } from 'astro:db';
 
 const Author = defineTable({
 	columns: {
@@ -8,6 +8,22 @@ const Author = defineTable({
 	},
 });
 
-export default defineDB({
-	tables: { Author, Themes },
+const User = defineTable({
+	columns: {
+		id: column.text({ primaryKey: true, optional: false }),
+		username: column.text({ optional: false, unique: true }),
+		password: column.text({ optional: false }),
+	},
+});
+
+const Session = defineTable({
+	columns: {
+		id: column.text({ primaryKey: true, optional: false }),
+		expiresAt: column.number({ optional: false, name: 'expires_at' }),
+		userId: column.text({ optional: false, references: () => User.columns.id, name: 'user_id' }),
+	},
+});
+
+export default defineDb({
+	tables: { Author, Themes, User, Session },
 });

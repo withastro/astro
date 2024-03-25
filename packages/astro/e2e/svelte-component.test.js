@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
 import { prepareTestFactory } from './shared-component-tests.js';
+import { waitForHydrate } from './test-utils.js';
 
 const { test, createTests } = prepareTestFactory({ root: './fixtures/svelte-component/' });
 
@@ -33,5 +34,14 @@ test.describe('Svelte components lifecycle', () => {
 		expect((await toggle.textContent()).trim()).toBe('close');
 		await toggle.click();
 		expect((await toggle.textContent()).trim()).toBe('open');
+	});
+});
+
+test.describe('Slotting content into svelte components', () => {
+	test('should stay after hydration', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/with-slots'));
+		const hydratableElement = page.locator('#hydratable');
+		await waitForHydrate(page, hydratableElement);
+		await expect(hydratableElement).toHaveText('Slot goes here:poo');
 	});
 });

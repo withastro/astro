@@ -2,18 +2,21 @@ import deepDiff from 'deep-diff';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import * as color from 'kleur/colors';
 import { customAlphabet } from 'nanoid';
+import stripAnsi from 'strip-ansi';
 import { hasPrimaryKey } from '../../runtime/index.js';
 import {
 	getCreateIndexQueries,
 	getCreateTableQuery,
-	getDropTableIfExistsQuery,
 	getModifiers,
 	getReferencesConfig,
 	hasDefault,
 	schemaTypeToSqlType,
 } from '../../runtime/queries.js';
 import { isSerializedSQL } from '../../runtime/types.js';
+import { safeFetch } from '../../runtime/utils.js';
+import { MIGRATION_VERSION } from '../consts.js';
 import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
+import { columnSchema } from '../schemas.js';
 import {
 	type BooleanColumn,
 	type ColumnType,
@@ -28,9 +31,8 @@ import {
 	type JsonColumn,
 	type NumberColumn,
 	type TextColumn,
-	columnSchema,
 } from '../types.js';
-import { getRemoteDatabaseUrl } from '../utils.js';
+import { type Result, getRemoteDatabaseUrl } from '../utils.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
@@ -38,12 +40,23 @@ const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
 export async function getMigrationQueries({
 	oldSnapshot,
 	newSnapshot,
+	reset = false,
 }: {
 	oldSnapshot: DBSnapshot;
 	newSnapshot: DBSnapshot;
+	reset?: boolean;
 }): Promise<{ queries: string[]; confirmations: string[] }> {
 	const queries: string[] = [];
 	const confirmations: string[] = [];
+
+	// When doing a reset, first create DROP TABLE statements, then treat everything
+	// else as creation.
+	if (reset) {
+		const currentSnapshot = oldSnapshot;
+		oldSnapshot = createEmptySnapshot();
+		queries.push(...getDropTableQueriesForSnapshot(currentSnapshot));
+	}
+
 	const addedCollections = getAddedCollections(oldSnapshot, newSnapshot);
 	const droppedTables = getDroppedCollections(oldSnapshot, newSnapshot);
 	const notDeprecatedDroppedTables = Object.fromEntries(
@@ -59,7 +72,6 @@ export async function getMigrationQueries({
 	}
 
 	for (const [collectionName, collection] of Object.entries(addedCollections)) {
-		queries.push(getDropTableIfExistsQuery(collectionName));
 		queries.push(getCreateTableQuery(collectionName, collection));
 		queries.push(...getCreateIndexQueries(collectionName, collection));
 	}
@@ -75,7 +87,7 @@ export async function getMigrationQueries({
 		const addedColumns = getAdded(oldCollection.columns, newCollection.columns);
 		const droppedColumns = getDropped(oldCollection.columns, newCollection.columns);
 		const notDeprecatedDroppedColumns = Object.fromEntries(
-			Object.entries(droppedColumns).filter(([key, col]) => !col.schema.deprecated)
+			Object.entries(droppedColumns).filter(([, col]) => !col.schema.deprecated)
 		);
 		if (!isEmpty(addedColumns) && !isEmpty(notDeprecatedDroppedColumns)) {
 			throw new Error(
@@ -147,21 +159,12 @@ export async function getCollectionChangeQueries({
 	if (dataLossCheck.dataLoss) {
 		const { reason, columnName } = dataLossCheck;
 		const reasonMsgs: Record<DataLossReason, string> = {
-			'added-required': `New column ${color.bold(
+			'added-required': `You added new required column '${color.bold(
 				collectionName + '.' + columnName
-			)} is required with no default value.\nThis requires deleting existing data in the ${color.bold(
-				collectionName
-			)} collection.`,
-			'added-unique': `New column ${color.bold(
+			)}' with no default value.\n      This cannot be executed on an existing table.`,
+			'updated-type': `Updating existing column ${color.bold(
 				collectionName + '.' + columnName
-			)} is marked as unique.\nThis requires deleting existing data in the ${color.bold(
-				collectionName
-			)} collection.`,
-			'updated-type': `Updated column ${color.bold(
-				collectionName + '.' + columnName
-			)} cannot convert data to new column data type.\nThis requires deleting existing data in the ${color.bold(
-				collectionName
-			)} collection.`,
+			)} to a new type that cannot be handled automatically.`,
 		};
 		confirmations.push(reasonMsgs[reason]);
 	}
@@ -319,7 +322,7 @@ function canAlterTableDropColumn(column: DBColumn) {
 	return true;
 }
 
-type DataLossReason = 'added-required' | 'added-unique' | 'updated-type';
+type DataLossReason = 'added-required' | 'updated-type';
 type DataLossResponse =
 	| { dataLoss: false }
 	| { dataLoss: true; columnName: string; reason: DataLossReason };
@@ -334,9 +337,6 @@ function canRecreateTableWithoutDataLoss(
 		}
 		if (!a.schema.optional && !hasDefault(a)) {
 			return { dataLoss: true, columnName, reason: 'added-required' };
-		}
-		if (!a.schema.optional && a.schema.unique) {
-			return { dataLoss: true, columnName, reason: 'added-unique' };
 		}
 	}
 	for (const [columnName, u] of Object.entries(updated)) {
@@ -433,24 +433,64 @@ export async function getProductionCurrentSnapshot({
 	appToken,
 }: {
 	appToken: string;
-}): Promise<DBSnapshot> {
+}): Promise<DBSnapshot | undefined> {
 	const url = new URL('/db/schema', getRemoteDatabaseUrl());
 
-	const response = await fetch(url, {
-		method: 'POST',
-		headers: new Headers({
-			Authorization: `Bearer ${appToken}`,
-		}),
-	});
-	const result = await response.json();
+	const response = await safeFetch(
+		url,
+		{
+			method: 'POST',
+			headers: new Headers({
+				Authorization: `Bearer ${appToken}`,
+			}),
+		},
+		async (res) => {
+			console.error(`${url.toString()} failed: ${res.status} ${res.statusText}`);
+			console.error(await res.text());
+			throw new Error(`/db/schema fetch failed: ${res.status} ${res.statusText}`);
+		}
+	);
+
+	const result = (await response.json()) as Result<DBSnapshot>;
+	if (!result.success) {
+		console.error(`${url.toString()} unsuccessful`);
+		console.error(await response.text());
+		throw new Error(`/db/schema fetch unsuccessful`);
+	}
 	return result.data;
+}
+
+function getDropTableQueriesForSnapshot(snapshot: DBSnapshot) {
+	const queries = [];
+	for (const collectionName of Object.keys(snapshot.schema)) {
+		const dropQuery = `DROP TABLE ${sqlite.escapeName(collectionName)}`;
+		queries.unshift(dropQuery);
+	}
+	return queries;
 }
 
 export function createCurrentSnapshot({ tables = {} }: DBConfig): DBSnapshot {
 	const schema = JSON.parse(JSON.stringify(tables));
-	return { experimentalVersion: 1, schema };
+	return { version: MIGRATION_VERSION, schema };
 }
 
 export function createEmptySnapshot(): DBSnapshot {
-	return { experimentalVersion: 1, schema: {} };
+	return { version: MIGRATION_VERSION, schema: {} };
+}
+
+export function formatDataLossMessage(confirmations: string[], isColor = true): string {
+	const messages = [];
+	messages.push(color.red('✖ We found some schema changes that cannot be handled automatically:'));
+	messages.push(``);
+	messages.push(...confirmations.map((m, i) => color.red(`  (${i + 1}) `) + m));
+	messages.push(``);
+	messages.push(`To resolve, revert these changes or update your schema, and re-run the command.`);
+	messages.push(
+		`You may also run 'astro db push --force-reset' to ignore all warnings and force-push your local database schema to production instead. All data will be lost and the database will be reset.`
+	);
+	let finalMessage = messages.join('\n');
+	if (!isColor) {
+		finalMessage = stripAnsi(finalMessage);
+	}
+	return finalMessage;
 }

@@ -26,6 +26,13 @@ export interface BuildInternals {
 	// A mapping of hoisted script ids back to the pages which reference it
 	hoistedScriptIdToPagesMap: Map<string, Set<string>>;
 
+	/**
+	 * Used by the `directRenderScript` option. If script is inlined, its id and
+	 * inlined code is mapped here. The resolved id is an URL like "/_astro/something.js"
+	 * but will no longer exist as the content is now inlined in this map.
+	 */
+	inlinedScripts: Map<string, string>;
+
 	// A mapping of specifiers like astro/client/idle.js to the hashed bundled name.
 	// Used to render pages with the correct specifiers.
 	entrySpecifierToBundleMap: Map<string, string>;
@@ -115,6 +122,7 @@ export function createBuildInternals(): BuildInternals {
 		cssModuleToChunkIdMap: new Map(),
 		hoistedScriptIdToHoistedMap,
 		hoistedScriptIdToPagesMap,
+		inlinedScripts: new Map(),
 		entrySpecifierToBundleMap: new Map<string, string>(),
 		pageToBundleMap: new Map<string, string>(),
 		pagesByComponent: new Map(),

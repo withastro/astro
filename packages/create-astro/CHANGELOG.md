@@ -1,5 +1,17 @@
 # create-astro
 
+## 4.7.5
+
+### Patch Changes
+
+- [#10487](https://github.com/withastro/astro/pull/10487) [`2330f22d6cf8cd150c19ec40359aed4d6b43ddec`](https://github.com/withastro/astro/commit/2330f22d6cf8cd150c19ec40359aed4d6b43ddec) Thanks [@satyarohith](https://github.com/satyarohith)! - Fixes a case where a promise wasn't awaited, causing an issue in Deno.
+
+## 4.7.4
+
+### Patch Changes
+
+- [#10255](https://github.com/withastro/astro/pull/10255) [`2aec2cdc21f48f9b4f1dd82e2fd16fa3d653ccc5`](https://github.com/withastro/astro/commit/2aec2cdc21f48f9b4f1dd82e2fd16fa3d653ccc5) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes an issue where TypeScript and `@astrojs/check` versions would occassionally print as `undefined`.
+
 ## 4.7.3
 
 ### Patch Changes

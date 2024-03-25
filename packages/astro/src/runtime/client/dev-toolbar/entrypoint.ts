@@ -62,30 +62,47 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	overlay = document.createElement('astro-dev-toolbar');
 
+	const notificationLevels = ['error', 'warning', 'info'] as const;
+	const notificationSVGs: Record<(typeof notificationLevels)[number], string> = {
+		error:
+			'<svg viewBox="0 0 10 10"><rect width="9" height="9" x=".5" y=".5" fill="#B33E66" stroke="#13151A" rx="4.5"/></svg>',
+		warning:
+			'<svg xmlns="http://www.w3.org/2000/svg" width="12" height="10" fill="none"><path fill="#B58A2D" stroke="#13151A" d="M7.29904 1.25c-.57735-1-2.02073-1-2.59808 0l-3.4641 6C.65951 8.25 1.3812 9.5 2.5359 9.5h6.9282c1.1547 0 1.8764-1.25 1.299-2.25l-3.46406-6Z"/></svg>',
+		info: '<svg viewBox="0 0 10 10"><rect width="9" height="9" x=".5" y=".5" fill="#3645D9" stroke="#13151A" rx="1.5"/></svg>',
+	} as const;
+
 	const prepareApp = (appDefinition: DevToolbarAppDefinition, builtIn: boolean): DevToolbarApp => {
 		const eventTarget = new EventTarget();
-		const app = {
+		const app: DevToolbarApp = {
 			...appDefinition,
 			builtIn: builtIn,
 			active: false,
-			status: 'loading' as const,
-			notification: { state: false },
+			status: 'loading',
+			notification: { state: false, level: undefined },
 			eventTarget: eventTarget,
 		};
 
 		// Events apps can send to the overlay to update their status
 		eventTarget.addEventListener('toggle-notification', (evt) => {
-			const target = overlay.shadowRoot?.querySelector(`[data-app-id="${app.id}"]`);
-			if (!target) return;
+			if (!(evt instanceof CustomEvent)) return;
 
-			let newState = true;
-			if (evt instanceof CustomEvent) {
-				newState = evt.detail.state ?? true;
-			}
+			const target = overlay.shadowRoot?.querySelector(`[data-app-id="${app.id}"]`);
+			const notificationElement = target?.querySelector('.notification');
+			if (!target || !notificationElement) return;
+
+			let newState = evt.detail.state ?? true;
+			let level = notificationLevels.includes(evt?.detail?.level)
+				? (evt.detail.level as (typeof notificationLevels)[number])
+				: 'error';
 
 			app.notification.state = newState;
+			if (newState) app.notification.level = level;
 
-			target.querySelector('.notification')?.toggleAttribute('data-active', newState);
+			notificationElement.toggleAttribute('data-active', newState);
+			if (newState) {
+				notificationElement.setAttribute('data-level', level);
+				notificationElement.innerHTML = notificationSVGs[level];
+			}
 		});
 
 		const onToggleApp = async (evt: Event) => {
@@ -137,12 +154,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 						display: none;
 						position: absolute;
 						top: -4px;
-						right: -6px;
-						width: 8px;
-						height: 8px;
-						border-radius: 9999px;
-						border: 1px solid rgba(19, 21, 26, 1);
-						background: #B33E66;
+						right: -5px;
+						width: 12px;
+						height: 10px;
+					}
+
+					.notification svg {
+						display: block;
 					}
 
 					#dropdown:not([data-no-notification]) .notification[data-active] {
@@ -222,12 +240,33 @@ document.addEventListener('DOMContentLoaded', async () => {
 					app.eventTarget.addEventListener('toggle-notification', (evt) => {
 						if (!(evt instanceof CustomEvent)) return;
 
-						notification.toggleAttribute('data-active', evt.detail.state ?? true);
+						let newState = evt.detail.state ?? true;
+						let level = notificationLevels.includes(evt?.detail?.level)
+							? (evt.detail.level as (typeof notificationLevels)[number])
+							: 'error';
+
+						notification.toggleAttribute('data-active', newState);
+
+						if (newState) {
+							notification.setAttribute('data-level', level);
+							notification.innerHTML = notificationSVGs[level];
+						}
+
+						app.notification.state = newState;
+						if (newState) app.notification.level = level;
 
 						eventTarget.dispatchEvent(
 							new CustomEvent('toggle-notification', {
 								detail: {
 									state: hiddenApps.some((p) => p.notification.state === true),
+									level:
+										['error', 'warning', 'info'].find((notificationLevel) =>
+											hiddenApps.some(
+												(p) =>
+													p.notification.state === true &&
+													p.notification.level === notificationLevel
+											)
+										) ?? 'error',
 								},
 							})
 						);

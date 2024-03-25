@@ -7,3 +7,5 @@ export { A_aliased as A, C_aliased as C_aliased };
 export { default as B2 } from './B.astro';
 export const D_aliased = D;
 export default E_aliased;
+
+export { default as LargeScript } from './LargeScript.astro';

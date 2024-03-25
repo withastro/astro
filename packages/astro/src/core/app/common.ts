@@ -15,6 +15,7 @@ export function deserializeManifest(serializedManifest: SerializedSSRManifest): 
 
 	const assets = new Set<string>(serializedManifest.assets);
 	const componentMetadata = new Map(serializedManifest.componentMetadata);
+	const inlinedScripts = new Map(serializedManifest.inlinedScripts);
 	const clientDirectives = new Map(serializedManifest.clientDirectives);
 
 	return {
@@ -25,6 +26,7 @@ export function deserializeManifest(serializedManifest: SerializedSSRManifest): 
 		...serializedManifest,
 		assets,
 		componentMetadata,
+		inlinedScripts,
 		clientDirectives,
 		routes,
 	};

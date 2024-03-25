@@ -1,5 +1,3 @@
-export { default, cli } from './dist/index.js';
+import './virtual.js';
 
-declare module 'astro:db' {
-	export { defineTable, defineDB, column, sql, NOW, TRUE, FALSE } from './dist/index.js';
-}
+export { default, cli } from './dist/index.js';

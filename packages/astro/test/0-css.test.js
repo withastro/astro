@@ -95,6 +95,16 @@ describe('CSS', function () {
 			it('<style lang="scss">', async () => {
 				assert.match(bundledCSS, /h1\[data-astro-cid-[^{]*\{color:#ff69b4\}/);
 			});
+
+			it('Styles through barrel files should only include used Astro scoped styles', async () => {
+				const barrelHtml = await fixture.readFile('/barrel-styles/index.html');
+				const barrel$ = cheerio.load(barrelHtml);
+				const barrelBundledCssHref = barrel$('link[rel=stylesheet][href^=/_astro/]').attr('href');
+				const style = await fixture.readFile(barrelBundledCssHref.replace(/^\/?/, '/'));
+				assert.match(style, /\.comp-a\[data-astro-cid/);
+				assert.match(style, /\.comp-c\{/);
+				assert.doesNotMatch(style, /\.comp-b/);
+			});
 		});
 
 		describe('Styles in src/', () => {
