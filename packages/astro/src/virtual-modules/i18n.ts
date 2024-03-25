@@ -336,7 +336,8 @@ type Options = {
  * });
  *
  * export const onRequest = sequence(customLogic, middleware({
- * 	locales: ["en", "es"]
+ * 	prefixDefaultLocale: true,
+ * 	redirectToDefaultLocale: false
  * }))
  *
  * ```
