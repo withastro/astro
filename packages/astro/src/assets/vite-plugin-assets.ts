@@ -68,14 +68,20 @@ export default function assets({
 					export { default as Picture } from "astro/components/Picture.astro";
 
 					export const imageConfig = ${JSON.stringify(settings.config.image)};
-					export const outDir = new URL(${JSON.stringify(
+					// This is used by the @astrojs/node integration to locate images.
+					// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
+					// "new URL("dist/...") is interpreted by the bundler as a signal to include that directory
+					// in the Lambda bundle, which would bloat the bundle with images.
+					// To prevent this, we mark the URL construction as pure,
+					// so that it's tree-shaken away for all platforms that don't need it.
+					export const outDir = /* #__PURE__ */ new URL(${JSON.stringify(
 						new URL(
 							isServerLikeOutput(settings.config)
 								? settings.config.build.client
 								: settings.config.outDir
 						)
 					)});
-					export const assetsDir = new URL(${JSON.stringify(settings.config.build.assets)}, outDir);
+					export const assetsDir = /* #__PURE__ */ new URL(${JSON.stringify(settings.config.build.assets)}, outDir);
 					export const getImage = async (options) => await getImageInternal(options, imageConfig);
 				`;
 				}
