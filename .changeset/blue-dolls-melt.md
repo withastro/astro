@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fixes `<Image />` type error when strict TypeScript rules are used with library type checking
+Updated the `HTMLAttributes` type exported from `astro` to allow data attributes
