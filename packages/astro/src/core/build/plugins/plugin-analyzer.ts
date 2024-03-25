@@ -6,7 +6,11 @@ import type { AstroBuildPlugin } from '../plugin.js';
 
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { prependForwardSlash } from '../../../core/path.js';
-import { getTopLevelPages, moduleIsTopLevelPage, walkParentInfos } from '../graph.js';
+import {
+	getParentModuleInfos,
+	getTopLevelPageModuleInfos,
+	moduleIsTopLevelPage,
+} from '../graph.js';
 import { getPageDataByViteID, trackClientOnlyPageDatas } from '../internal.js';
 import type { StaticBuildOptions } from '../types.js';
 
@@ -45,11 +49,9 @@ export function vitePluginAnalyzer(
 				}
 
 				if (hoistedScripts.size) {
-					for (const [parentInfo] of walkParentInfos(from, this, function until(importer) {
-						return isPropagatedAsset(importer);
-					})) {
+					for (const parentInfo of getParentModuleInfos(from, this, isPropagatedAsset)) {
 						if (isPropagatedAsset(parentInfo.id)) {
-							for (const [nestedParentInfo] of walkParentInfos(from, this)) {
+							for (const nestedParentInfo of getParentModuleInfos(from, this)) {
 								if (moduleIsTopLevelPage(nestedParentInfo)) {
 									for (const hid of hoistedScripts) {
 										if (!pageScripts.has(nestedParentInfo.id)) {
@@ -177,7 +179,7 @@ export function vitePluginAnalyzer(
 						}
 					}
 
-					for (const [pageInfo] of getTopLevelPages(id, this)) {
+					for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
 						const newPageData = getPageDataByViteID(internals, pageInfo.id);
 						if (!newPageData) continue;
 

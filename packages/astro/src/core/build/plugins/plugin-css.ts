@@ -8,7 +8,11 @@ import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../type
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import type { AstroPluginCssMetadata } from '../../../vite-plugin-astro/index.js';
 import * as assetName from '../css-asset-name.js';
-import { moduleIsTopLevelPage, walkParentInfos } from '../graph.js';
+import {
+	getParentExtendedModuleInfos,
+	getParentModuleInfos,
+	moduleIsTopLevelPage,
+} from '../graph.js';
 import {
 	eachPageData,
 	getPageDataByViteID,
@@ -90,9 +94,8 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							return internals.cssModuleToChunkIdMap.get(id)!;
 						}
 
-						for (const [pageInfo] of walkParentInfos(id, {
-							getModuleInfo: meta.getModuleInfo,
-						})) {
+						const ctx = { getModuleInfo: meta.getModuleInfo };
+						for (const pageInfo of getParentModuleInfos(id, ctx)) {
 							if (new URL(pageInfo.id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG)) {
 								// Split delayed assets to separate modules
 								// so they can be injected where needed
@@ -141,7 +144,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 				// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
 				for (const id of Object.keys(chunk.modules)) {
-					for (const [pageInfo, depth, order] of walkParentInfos(
+					for (const { info: pageInfo, depth, order } of getParentExtendedModuleInfos(
 						id,
 						this,
 						function until(importer) {
@@ -149,8 +152,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						}
 					)) {
 						if (new URL(pageInfo.id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG)) {
-							for (const parent of walkParentInfos(id, this)) {
-								const parentInfo = parent[0];
+							for (const parentInfo of getParentModuleInfos(id, this)) {
 								if (moduleIsTopLevelPage(parentInfo) === false) continue;
 
 								const pageViteID = parentInfo.id;
@@ -320,7 +322,7 @@ function* getParentClientOnlys(
 	ctx: { getModuleInfo: GetModuleInfo },
 	internals: BuildInternals
 ): Generator<PageBuildData, void, unknown> {
-	for (const [info] of walkParentInfos(id, ctx)) {
+	for (const info of getParentModuleInfos(id, ctx)) {
 		yield* getPageDatasByClientOnlyID(internals, info.id);
 	}
 }

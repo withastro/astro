@@ -2,17 +2,25 @@ import type { GetModuleInfo, ModuleInfo } from 'rollup';
 
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 
+interface ExtendedModuleInfo {
+	info: ModuleInfo;
+	depth: number;
+	order: number;
+}
+
 // This walks up the dependency graph and yields out each ModuleInfo object.
-export function* walkParentInfos(
+export function getParentExtendedModuleInfos(
 	id: string,
 	ctx: { getModuleInfo: GetModuleInfo },
 	until?: (importer: string) => boolean,
 	depth = 0,
 	order = 0,
+	childId = '',
 	seen = new Set<string>(),
-	childId = ''
-): Generator<[ModuleInfo, number, number], void, unknown> {
+	accumulated: ExtendedModuleInfo[] = []
+): ExtendedModuleInfo[] {
 	seen.add(id);
+
 	const info = ctx.getModuleInfo(id);
 	if (info) {
 		if (childId) {
@@ -26,17 +34,45 @@ export function* walkParentInfos(
 				order += idx;
 			}
 		}
+		accumulated.push({ info, depth, order });
+	}
 
-		yield [info, depth, order];
-	}
-	if (until?.(id)) return;
-	const importers = (info?.importers || []).concat(info?.dynamicImporters || []);
-	for (const imp of importers) {
-		if (seen.has(imp)) {
-			continue;
+	if (info && !until?.(id)) {
+		const importers = info.importers.concat(info.dynamicImporters);
+		for (const imp of importers) {
+			if (!seen.has(imp)) {
+				getParentExtendedModuleInfos(imp, ctx, until, depth + 1, order, id, seen, accumulated);
+			}
 		}
-		yield* walkParentInfos(imp, ctx, until, depth + 1, order, seen, id);
 	}
+
+	return accumulated;
+}
+
+export function getParentModuleInfos(
+	id: string,
+	ctx: { getModuleInfo: GetModuleInfo },
+	until?: (importer: string) => boolean,
+	seen = new Set<string>(),
+	accumulated: ModuleInfo[] = []
+): ModuleInfo[] {
+	seen.add(id);
+
+	const info = ctx.getModuleInfo(id);
+	if (info) {
+		accumulated.push(info);
+	}
+
+	if (info && !until?.(id)) {
+		const importers = info.importers.concat(info.dynamicImporters);
+		for (const imp of importers) {
+			if (!seen.has(imp)) {
+				getParentModuleInfos(imp, ctx, until, seen, accumulated);
+			}
+		}
+	}
+
+	return accumulated;
 }
 
 // Returns true if a module is a top-level page. We determine this based on whether
@@ -50,13 +86,9 @@ export function moduleIsTopLevelPage(info: ModuleInfo): boolean {
 
 // This function walks the dependency graph, going up until it finds a page component.
 // This could be a .astro page, a .markdown or a .md (or really any file extension for markdown files) page.
-export function* getTopLevelPages(
+export function getTopLevelPageModuleInfos(
 	id: string,
 	ctx: { getModuleInfo: GetModuleInfo }
-): Generator<[ModuleInfo, number, number], void, unknown> {
-	for (const res of walkParentInfos(id, ctx)) {
-		if (moduleIsTopLevelPage(res[0])) {
-			yield res;
-		}
-	}
+): ModuleInfo[] {
+	return getParentModuleInfos(id, ctx).filter(moduleIsTopLevelPage);
 }

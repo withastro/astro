@@ -36,6 +36,10 @@ const remoteResultSchema = z.object({
 });
 
 export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string) {
+	if (appToken == null) {
+		throw new Error(`Cannot create a remote client: missing app token.`);
+	}
+
 	const url = new URL('/db/query', remoteDbURL);
 
 	const db = drizzleProxy(

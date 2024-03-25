@@ -1,5 +1,17 @@
 # @astrojs/db
 
+## 0.9.4
+
+### Patch Changes
+
+- [#10533](https://github.com/withastro/astro/pull/10533) [`6576f5d458ee8cc872210f3a7ae629439546e361`](https://github.com/withastro/astro/commit/6576f5d458ee8cc872210f3a7ae629439546e361) Thanks [@matthewp](https://github.com/matthewp)! - Ensure ASTRO_STUDIO_APP_TOKEN is found at runtime
+
+## 0.9.3
+
+### Patch Changes
+
+- [#10520](https://github.com/withastro/astro/pull/10520) [`30ce9a0c47a4653a9e9619380a6514459563cf92`](https://github.com/withastro/astro/commit/30ce9a0c47a4653a9e9619380a6514459563cf92) Thanks [@matthewp](https://github.com/matthewp)! - Fix accessing remote database URL
+
 ## 0.9.2
 
 ### Patch Changes

@@ -37,9 +37,13 @@ type VitePluginDBParams =
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 	const srcDirPath = normalizePath(fileURLToPath(params.srcDir));
+	let command: 'build' | 'serve' = 'build';
 	return {
 		name: 'astro:db',
 		enforce: 'pre',
+		configResolved(resolvedConfig) {
+			command = resolvedConfig.command;
+		},
 		async resolveId(id, rawImporter) {
 			if (id !== VIRTUAL_MODULE_ID) return;
 			if (params.connectToStudio) return resolved.virtual;
@@ -61,6 +65,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 				return getStudioVirtualModContents({
 					appToken: params.appToken,
 					tables: params.tables.get(),
+					isBuild: command === 'build',
 				});
 			}
 			return getLocalVirtualModContents({
@@ -135,14 +140,31 @@ ${getStringifiedCollectionExports(tables)}`;
 export function getStudioVirtualModContents({
 	tables,
 	appToken,
+	isBuild,
 }: {
 	tables: DBTables;
 	appToken: string;
+	isBuild: boolean;
 }) {
+	function appTokenArg() {
+		if (isBuild) {
+			// In production build, always read the runtime environment variable.
+			return 'process.env.ASTRO_STUDIO_APP_TOKEN';
+		} else {
+			return JSON.stringify(appToken);
+		}
+	}
+
+	function dbUrlArg() {
+		const dbStr = JSON.stringify(getRemoteDatabaseUrl());
+		// Allow overriding, mostly for testing
+		return `import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL ?? ${dbStr}`;
+	}
+
 	return `
 import {asDrizzleTable, createRemoteDatabaseClient} from ${RUNTIME_IMPORT};
 
-export const db = await createRemoteDatabaseClient(process.env.ASTRO_STUDIO_APP_TOKEN);
+export const db = await createRemoteDatabaseClient(${appTokenArg()}, ${dbUrlArg()});
 
 export * from ${RUNTIME_CONFIG_IMPORT};
 

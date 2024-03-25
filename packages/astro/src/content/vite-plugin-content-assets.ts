@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url';
 import type { Plugin, Rollup } from 'vite';
 import type { AstroSettings, SSRElement } from '../@types/astro.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
-import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
+import { getParentModuleInfos, moduleIsTopLevelPage } from '../core/build/graph.js';
 import { type BuildInternals, getPageDataByViteID } from '../core/build/internal.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { StaticBuildOptions } from '../core/build/types.js';
@@ -186,7 +186,7 @@ export function astroConfigBuildPlugin(
 							}
 						} else {
 							for (const id of Object.keys(chunk.modules)) {
-								for (const [pageInfo] of walkParentInfos(id, ssrPluginContext!)) {
+								for (const pageInfo of getParentModuleInfos(id, ssrPluginContext!)) {
 									if (moduleIsTopLevelPage(pageInfo)) {
 										const pageViteID = pageInfo.id;
 										const pageData = getPageDataByViteID(internals, pageViteID);

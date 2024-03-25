@@ -105,12 +105,12 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest]
-        NODE_VERSION: [18, 20.5.1]
+        NODE_VERSION: [18, 20]
         include:
           - os: macos-14
             NODE_VERSION: 18
           - os: windows-latest
-            NODE_VERSION: 18.17.1
+            NODE_VERSION: 18
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
@@ -147,7 +147,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-latest]
-        NODE_VERSION: [18.17.1]
+        NODE_VERSION: [18]
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}

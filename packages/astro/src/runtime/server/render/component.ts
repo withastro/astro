@@ -515,19 +515,17 @@ export async function renderComponentToString(
 	// Handle head injection if required. Note that this needs to run early so
 	// we can ensure getting a value for `head`.
 	let head = '';
-	if (nonAstroPageNeedsHeadInjection(Component)) {
-		for (const headChunk of maybeRenderHead()) {
-			head += chunkToString(result, headChunk);
-		}
+	if (isPage && !result.partial && nonAstroPageNeedsHeadInjection(Component)) {
+		head += chunkToString(result, maybeRenderHead());
 	}
 
 	try {
 		const destination: RenderDestination = {
 			write(chunk) {
 				// Automatic doctype and head insertion for pages
-				if (isPage && !renderedFirstPageChunk) {
+				if (isPage && !result.partial && !renderedFirstPageChunk) {
 					renderedFirstPageChunk = true;
-					if (!result.partial && !/<!doctype html/i.test(String(chunk))) {
+					if (!/<!doctype html/i.test(String(chunk))) {
 						const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
 						str += doctype + head;
 					}

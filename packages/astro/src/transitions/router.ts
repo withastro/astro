@@ -696,18 +696,13 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 
 		const nextHead = nextPage.contentDocument?.head;
 		if (nextHead) {
-			// Clear former persist marks
-			document.head
-				.querySelectorAll(`style[${PERSIST_ATTR}=""]`)
-				.forEach((s) => s.removeAttribute(PERSIST_ATTR));
-
 			// Collect the vite ids of all styles present in the next head
 			const viteIds = [...nextHead.querySelectorAll(`style[${VITE_ID}]`)].map((style) =>
 				style.getAttribute(VITE_ID)
 			);
 			// Copy required styles to the new document if they are from hydration.
 			viteIds.forEach((id) => {
-				const style = document.head.querySelector(`style[${VITE_ID}="${id}"]`);
+				const style = nextHead.querySelector(`style[${VITE_ID}="${id}"]`);
 				if (style && !newDocument.head.querySelector(`style[${VITE_ID}="${id}"]`)) {
 					newDocument.head.appendChild(style.cloneNode(true));
 				}
