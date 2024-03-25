@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.8.5
+
+### Patch Changes
+
+- 8e55c37: Fixes attributes for HTML events (onload, onclick etc) using the wrong highlighting for interpolated attributes
+
 ## 2.8.4
 
 ### Patch Changes
