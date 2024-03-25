@@ -70,7 +70,7 @@ export default function assets({
 					export const imageConfig = ${JSON.stringify(settings.config.image)};
 					// This is used by the @astrojs/node integration to locate images.
 					// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
-					// "new URL("dist/...") is interpreted by the bundler as a signal to include that directory
+					// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
 					// in the Lambda bundle, which would bloat the bundle with images.
 					// To prevent this, we mark the URL construction as pure,
 					// so that it's tree-shaken away for all platforms that don't need it.
