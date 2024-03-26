@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.9.5
+
+### Patch Changes
+
+- [#10566](https://github.com/withastro/astro/pull/10566) [`b5a80405b93a166f6f019209152b860ffe2f73ef`](https://github.com/withastro/astro/commit/b5a80405b93a166f6f019209152b860ffe2f73ef) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix `db.run()` type signature in production.
+
 ## 0.9.4
 
 ### Patch Changes
