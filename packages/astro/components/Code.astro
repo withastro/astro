@@ -80,7 +80,7 @@ const highlighter = await getCachedHighlighter({
 			? Object.keys(bundledLanguages).includes(lang)
 				? lang
 				: 'plaintext'
-			: lang as any,
+			: (lang as any),
 	],
 	theme,
 	themes,
