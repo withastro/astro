@@ -23,9 +23,10 @@ const baseColumnSchema = z.object({
 	unique: z.boolean().optional().default(false),
 	deprecated: z.boolean().optional().default(false),
 
-	// Defined when `defineReadableTable()` is called
+	// Defined when `defineDb()` is called to resolve `references`
 	name: z.string().optional(),
-	table: z.string().optional(),
+	// TODO: Update to `table`. Will need migration file version change
+	collection: z.string().optional(),
 });
 
 export const booleanColumnSchema = z.object({
@@ -194,7 +195,7 @@ export const tablesSchema = z.preprocess((rawTables) => {
 		const { columns } = z.object({ columns: z.record(z.any()) }).parse(table, { errorMap });
 		for (const [columnName, column] of Object.entries(columns)) {
 			column.schema.name = columnName;
-			column.schema.table = tableName;
+			column.schema.collection = tableName;
 		}
 	}
 	return rawTables;
