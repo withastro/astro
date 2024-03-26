@@ -10,7 +10,8 @@ export type HTMLAttributes<Tag extends HTMLTag> = Omit<
 	astroHTML.JSX.IntrinsicElements[Tag],
 	keyof Omit<AstroBuiltinAttributes, 'class:list'>
 > & {
-	[key: string]: string | number | boolean | null | undefined;
+	// This is not needed in the actual JSX definitions, because TypeScript implicitly adds it in JSX, however we need it here in case someone is using HTMLAttributes directly
+	[key: `${string}-${string}`]: any;
 };
 
 /**
