@@ -526,7 +526,7 @@ declare namespace astroHTML.JSX {
 			| 'search'
 			| 'send'
 			| undefined
-		| null;
+			| null;
 		exportparts?: string | undefined | null;
 		hidden?: boolean | string | undefined | null;
 		id?: string | undefined | null;
@@ -584,6 +584,9 @@ declare namespace astroHTML.JSX {
 		results?: number | string | undefined | null;
 		security?: string | undefined | null;
 		unselectable?: 'on' | 'off' | undefined | null; // Internet Explorer
+
+		// Allow data- attribute
+		[key: `data-${string}`]: any;
 	}
 
 	type HTMLAttributeReferrerPolicy =
@@ -1344,6 +1347,9 @@ declare namespace astroHTML.JSX {
 		yChannelSelector?: string | undefined | null;
 		z?: number | string | undefined | null;
 		zoomAndPan?: string | undefined | null;
+
+		// Allow data- attribute
+		[key: `data-${string}`]: any;
 	}
 
 	interface DefinedIntrinsicElements {
