@@ -8,9 +8,9 @@ export type HTMLTag = keyof astroHTML.JSX.DefinedIntrinsicElements;
 /** The built-in attributes for any known HTML or SVG element name */
 export type HTMLAttributes<Tag extends HTMLTag> = Omit<
 	astroHTML.JSX.IntrinsicElements[Tag],
-	keyof Omit<AstroBuiltinAttributes, 'class:list'> 
+	keyof Omit<AstroBuiltinAttributes, 'class:list'>
 > & {
-	[key: string]: string | number | boolean | undefined; 
+	[key: string]: string | number | boolean | null | undefined;
 };
 
 /**
