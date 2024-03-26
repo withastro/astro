@@ -77,6 +77,10 @@ export async function getImage(
 		}
 	}
 
+	const originalFilePath = isESMImportedImage(resolvedOptions.src)
+		? resolvedOptions.src.fsPath
+		: undefined; // Only set for ESM imports, where we do have a file path
+
 	// Clone the `src` object if it's an ESM import so that we don't refer to any properties of the original object
 	// Causing our generate step to think the image is used outside of the image optimization pipeline
 	const clonedSrc = isESMImportedImage(resolvedOptions.src)
@@ -104,10 +108,6 @@ export async function getImage(
 			attributes: srcSet.attributes,
 		}))
 	);
-
-	const originalFilePath = isESMImportedImage(resolvedOptions.src)
-		? resolvedOptions.src.fsPath
-		: undefined; // Only set for ESM imports, where we do have a file path
 
 	if (
 		isLocalService(service) &&
