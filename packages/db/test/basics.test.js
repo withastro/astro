@@ -73,6 +73,23 @@ describe('astro:db', () => {
 			expect($('.session-id').text()).to.equal('12345');
 			expect($('.username').text()).to.equal('Mario');
 		});
+
+		it('Prints authors from raw sql call', async () => {
+			const json = await fixture.fetch('run.json').then((res) => res.json());
+			expect(json).to.deep.equal({
+				columns: ['_id', 'name', 'age2'],
+				columnTypes: ['INTEGER', 'TEXT', 'INTEGER'],
+				rows: [
+					[1, 'Ben', null],
+					[2, 'Nate', null],
+					[3, 'Erika', null],
+					[4, 'Bjorn', null],
+					[5, 'Sarah', null],
+				],
+				rowsAffected: 0,
+				lastInsertRowid: null,
+			});
+		});
 	});
 
 	describe('development --remote', () => {
@@ -136,6 +153,23 @@ describe('astro:db', () => {
 
 			expect($('.session-id').text()).to.equal('12345');
 			expect($('.username').text()).to.equal('Mario');
+		});
+
+		it('Prints authors from raw sql call', async () => {
+			const json = await fixture.fetch('run.json').then((res) => res.json());
+			expect(json).to.deep.equal({
+				columns: ['_id', 'name', 'age2'],
+				columnTypes: ['INTEGER', 'TEXT', 'INTEGER'],
+				rows: [
+					[1, 'Ben', null],
+					[2, 'Nate', null],
+					[3, 'Erika', null],
+					[4, 'Bjorn', null],
+					[5, 'Sarah', null],
+				],
+				rowsAffected: 0,
+				lastInsertRowid: null,
+			});
 		});
 	});
 
