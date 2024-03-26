@@ -37,10 +37,10 @@ const optimizedImages: GetImageResult[] = await Promise.all(
 let resultFallbackFormat = fallbackFormat ?? defaultFallbackFormat;
 if (
 	!fallbackFormat &&
-	isESMImportedImage(props.src) &&
-	specialFormatsFallback.includes(props.src.format)
+	isESMImportedImage(props.src as string | ImageMetadata) &&
+	specialFormatsFallback.includes((props.src as ImageMetadata).format as typeof specialFormatsFallback[number])
 ) {
-	resultFallbackFormat = props.src.format;
+	resultFallbackFormat = (props.src as ImageMetadata).format;
 }
 
 const fallbackImage = await getImage({
