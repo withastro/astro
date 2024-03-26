@@ -31,7 +31,7 @@ if (image.srcSet.values.length > 0) {
 }
 
 if (import.meta.env.DEV) {
-	additionalAttributes['data-image-component'] = 'true';
+	(additionalAttributes as Record<string, string>)['data-image-component'] = 'true';
 }
 ---
 
