@@ -314,6 +314,7 @@ export function notFound({ base, locales }: MiddlewarePayload) {
 		const isRoot = url.pathname === base + '/' || url.pathname === base;
 		if (!(isRoot || pathHasLocale(url.pathname, locales))) {
 			if (response) {
+				response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 				return new Response(null, {
 					status: 404,
 					headers: response.headers,
@@ -321,6 +322,9 @@ export function notFound({ base, locales }: MiddlewarePayload) {
 			} else {
 				return new Response(null, {
 					status: 404,
+					headers: {
+						[REROUTE_DIRECTIVE_HEADER]: 'no',
+					},
 				});
 			}
 		}
