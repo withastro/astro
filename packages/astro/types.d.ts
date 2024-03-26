@@ -9,19 +9,17 @@ export type HTMLTag = keyof astroHTML.JSX.DefinedIntrinsicElements;
 export type HTMLAttributes<Tag extends HTMLTag> = Omit<
 	astroHTML.JSX.IntrinsicElements[Tag],
 	keyof Omit<AstroBuiltinAttributes, 'class:list'>
-> & {
-	// This is not needed in the actual JSX definitions, because TypeScript implicitly adds it in JSX, however we need it here in case someone is using HTMLAttributes directly
-	[key: `${string}-${string}`]: any;
-};
+>;
 
 /**
  * All the CSS properties available, as defined by the CSS specification
  */
 export type CSSProperty = keyof astroHTML.JSX.KebabCSSDOMProperties;
 
-type PolymorphicAttributes<P extends { as: HTMLTag }> = Omit<P & HTMLAttributes<P['as']>, 'as'> & {
+type PolymorphicAttributes<P extends { as: HTMLTag }> = Omit<P, 'as'> & {
 	as?: P['as'];
-};
+} & HTMLAttributes<P['as']>;
+
 export type Polymorphic<P extends { as: HTMLTag }> = PolymorphicAttributes<
 	Omit<P, 'as'> & { as: NonNullable<P['as']> }
 >;
