@@ -454,8 +454,8 @@ export async function getProductionCurrentSnapshot({
 
 function getDropTableQueriesForSnapshot(snapshot: DBSnapshot) {
 	const queries = [];
-	for (const collectionName of Object.keys(snapshot.schema)) {
-		const dropQuery = `DROP TABLE ${sqlite.escapeName(collectionName)}`;
+	for (const tableName of Object.keys(snapshot.schema)) {
+		const dropQuery = `DROP TABLE ${sqlite.escapeName(tableName)}`;
 		queries.unshift(dropQuery);
 	}
 	return queries;
