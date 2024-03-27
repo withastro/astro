@@ -13,6 +13,7 @@ import { fileURLIntegration } from './file-url.js';
 import { typegenInternal } from './typegen.js';
 import { type LateSeedFiles, type LateTables, vitePluginDb } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
+import { loadEnv } from 'vite';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectToStudio = false;
@@ -111,6 +112,10 @@ function astroDBIntegration(): AstroIntegration {
 				});
 			},
 			'astro:build:start': async ({ logger }) => {
+				if(!connectToStudio && !databaseFileEnvDefined()) {
+					throw new Error(`Attempting to build without the --remote flag or the DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`)
+				}
+
 				logger.info('database: ' + (connectToStudio ? yellow('remote') : blue('local database.')));
 			},
 			'astro:build:done': async ({}) => {
@@ -118,6 +123,11 @@ function astroDBIntegration(): AstroIntegration {
 			},
 		},
 	};
+}
+
+function databaseFileEnvDefined() {
+	const env = loadEnv('', process.cwd());
+	return env.DATABASE_FILE != null || process.env.DATABASE_FILE != null;
 }
 
 export function integration(): AstroIntegration[] {
