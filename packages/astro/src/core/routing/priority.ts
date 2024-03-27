@@ -1,4 +1,4 @@
-import type { RouteData } from "../../@types/astro.js";
+import type { RouteData } from '../../@types/astro.js';
 
 /**
  * Comparator for sorting routes in resolution order.

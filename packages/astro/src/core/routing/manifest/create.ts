@@ -20,8 +20,8 @@ import { MissingIndexForInternationalization } from '../../errors/errors-data.js
 import { AstroError } from '../../errors/index.js';
 import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
-import { getRouteGenerator } from './generator.js';
 import { routeComparator } from '../priority.js';
+import { getRouteGenerator } from './generator.js';
 const require = createRequire(import.meta.url);
 
 interface Item {

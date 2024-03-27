@@ -21,8 +21,8 @@ export async function getSortedPreloadedMatches({
 			settings,
 		})
 	)
-	.sort((a,b) => routeComparator(a.route, b.route))
-	.sort((a, b) => prioritizePrerenderedMatchesComparator(a.route, b.route))
+		.sort((a, b) => routeComparator(a.route, b.route))
+		.sort((a, b) => prioritizePrerenderedMatchesComparator(a.route, b.route));
 }
 
 type PreloadAndSetPrerenderStatusParams = {
