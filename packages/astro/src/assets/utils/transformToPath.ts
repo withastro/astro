@@ -6,7 +6,7 @@ import type { ImageTransform } from '../types.js';
 import { isESMImportedImage } from './imageKind.js';
 
 export function propsToFilename(filePath: string, transform: ImageTransform, hash: string) {
-	let filename = decodeURI(removeQueryString(filePath));
+	let filename = decodeURIComponent(removeQueryString(filePath));
 	const ext = extname(filename);
 	filename = basename(filename, ext);
 	const prefixDirname = isESMImportedImage(transform.src) ? dirname(filePath) : '';
