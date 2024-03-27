@@ -227,11 +227,12 @@ export const dbConfigSchema = z
 				const resolvedIndexes: Record<string, z.infer<typeof resolvedIndexSchema>> = {};
 				for (const index of indexes) {
 					if (index.name) {
-						resolvedIndexes[index.name] = index;
+						const { name, ...rest } = index;
+						resolvedIndexes[index.name] = rest;
 						continue;
 					}
 					const indexOn = Array.isArray(index.on) ? index.on.join('_') : index.on;
-					const name = tableName + '_' + indexOn;
+					const name = tableName + '_' + indexOn + '_idx';
 					resolvedIndexes[name] = index;
 				}
 				return {
