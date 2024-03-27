@@ -287,7 +287,6 @@ export async function handleRoute({
 	}
 	if (
 		response.status === 404 &&
-		has404Route(manifestData) &&
 		response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 	) {
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
