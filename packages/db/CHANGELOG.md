@@ -1,5 +1,15 @@
 # @astrojs/db
 
+## 0.9.6
+
+### Patch Changes
+
+- [#10579](https://github.com/withastro/astro/pull/10579) [`f5df12cfebba1abdef50faa7a5549b545f0b3f8c`](https://github.com/withastro/astro/commit/f5df12cfebba1abdef50faa7a5549b545f0b3f8c) Thanks [@matthewp](https://github.com/matthewp)! - Provide guidance when --remote is missing
+
+  When running the build `astro build` without the `--remote`, either require a `DATABASE_FILE` variable be defined, which means you are going expert-mode and having your own database, or error suggesting to use the `--remote` flag.
+
+- [#10568](https://github.com/withastro/astro/pull/10568) [`764d67fc3f399d62b6a97a2ee698dca03b9f0557`](https://github.com/withastro/astro/commit/764d67fc3f399d62b6a97a2ee698dca03b9f0557) Thanks [@matthewp](https://github.com/matthewp)! - Prevent runtime from importing core code
+
 ## 0.9.5
 
 ### Patch Changes
