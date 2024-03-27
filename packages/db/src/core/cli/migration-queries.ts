@@ -7,6 +7,7 @@ import { hasPrimaryKey } from '../../runtime/index.js';
 import {
 	getCreateIndexQueries,
 	getCreateTableQuery,
+	getDropTableIfExistsQuery,
 	getModifiers,
 	getReferencesConfig,
 	hasDefault,
@@ -455,7 +456,7 @@ export async function getProductionCurrentSnapshot({
 function getDropTableQueriesForSnapshot(snapshot: DBSnapshot) {
 	const queries = [];
 	for (const tableName of Object.keys(snapshot.schema)) {
-		const dropQuery = `DROP TABLE ${sqlite.escapeName(tableName)}`;
+		const dropQuery = getDropTableIfExistsQuery(tableName);
 		queries.unshift(dropQuery);
 	}
 	return queries;
