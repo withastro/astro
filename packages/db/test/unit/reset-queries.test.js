@@ -32,7 +32,7 @@ describe('force reset', () => {
 			});
 
 			expect(queries).to.deep.equal([
-				`DROP TABLE "${TABLE_NAME}"`,
+				`DROP TABLE IF EXISTS "${TABLE_NAME}"`,
 				`CREATE TABLE "${TABLE_NAME}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "email" text NOT NULL UNIQUE, "mi" text)`,
 			]);
 		});
