@@ -231,7 +231,8 @@ export const dbConfigSchema = z
 						resolvedIndexes[index.name] = rest;
 						continue;
 					}
-					const indexOn = Array.isArray(index.on) ? index.on.join('_') : index.on;
+					// Sort index columns to ensure consistent index names
+					const indexOn = Array.isArray(index.on) ? index.on.sort().join('_') : index.on;
 					const name = tableName + '_' + indexOn + '_idx';
 					resolvedIndexes[name] = index;
 				}
