@@ -116,7 +116,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 			}
 			extractSlots(children);
 			for (const [key, value] of Object.entries(props)) {
-				if (value['$$slot']) {
+				if (value?.['$$slot']) {
 					_slots[key] = value;
 					delete props[key];
 				}
