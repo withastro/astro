@@ -135,7 +135,7 @@ ${
 
 export * from ${RUNTIME_CONFIG_IMPORT};
 
-${getStringifiedCollectionExports(tables)}`;
+${getStringifiedTableExports(tables)}`;
 }
 
 export function getStudioVirtualModContents({
@@ -169,16 +169,16 @@ export const db = await createRemoteDatabaseClient(${appTokenArg()}, ${dbUrlArg(
 
 export * from ${RUNTIME_CONFIG_IMPORT};
 
-${getStringifiedCollectionExports(tables)}
+${getStringifiedTableExports(tables)}
 	`;
 }
 
-function getStringifiedCollectionExports(tables: DBTables) {
+function getStringifiedTableExports(tables: DBTables) {
 	return Object.entries(tables)
 		.map(
-			([name, collection]) =>
+			([name, table]) =>
 				`export const ${name} = asDrizzleTable(${JSON.stringify(name)}, ${JSON.stringify(
-					collection
+					table
 				)}, false)`
 		)
 		.join('\n');

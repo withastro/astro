@@ -75,10 +75,6 @@ interface IndexConfig<TColumns extends ColumnsConfig> extends z.input<typeof ind
 	on: MaybeArray<Extract<keyof TColumns, string>>;
 }
 
-/** @deprecated Use `TableConfig` instead */
-export type ResolvedCollectionConfig<TColumns extends ColumnsConfig = ColumnsConfig> =
-	TableConfig<TColumns>;
-
 // We cannot use `Omit<NumberColumn | TextColumn, 'type'>`,
 // since Omit collapses our union type on primary key.
 export type NumberColumnOpts = z.input<typeof numberColumnOptsSchema>;

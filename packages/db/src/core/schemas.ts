@@ -23,9 +23,9 @@ const baseColumnSchema = z.object({
 	unique: z.boolean().optional().default(false),
 	deprecated: z.boolean().optional().default(false),
 
-	// Defined when `defineReadableTable()` is called
+	// Defined when `defineDb()` is called to resolve `references`
 	name: z.string().optional(),
-	// TODO: rename to `tableName`. Breaking schema change
+	// TODO: Update to `table`. Will need migration file version change
 	collection: z.string().optional(),
 });
 

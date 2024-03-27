@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { getCollectionChangeQueries } from '../../dist/core/cli/migration-queries.js';
+import { getTableChangeQueries } from '../../dist/core/cli/migration-queries.js';
 import { tableSchema } from '../../dist/core/schemas.js';
 import { column } from '../../dist/runtime/config.js';
 
@@ -26,10 +26,10 @@ describe('index queries', () => {
 			},
 		};
 
-		const { queries } = await getCollectionChangeQueries({
-			collectionName: 'user',
-			oldCollection: userInitial,
-			newCollection: userFinal,
+		const { queries } = await getTableChangeQueries({
+			tableName: 'user',
+			oldTable: userInitial,
+			newTable: userFinal,
 		});
 
 		expect(queries).to.deep.equal([
@@ -54,10 +54,10 @@ describe('index queries', () => {
 			indexes: {},
 		};
 
-		const { queries } = await getCollectionChangeQueries({
-			collectionName: 'user',
-			oldCollection: initial,
-			newCollection: final,
+		const { queries } = await getTableChangeQueries({
+			tableName: 'user',
+			oldTable: initial,
+			newTable: final,
 		});
 
 		expect(queries).to.deep.equal(['DROP INDEX "nameIdx"', 'DROP INDEX "emailIdx"']);
@@ -82,10 +82,10 @@ describe('index queries', () => {
 			},
 		};
 
-		const { queries } = await getCollectionChangeQueries({
-			collectionName: 'user',
-			oldCollection: initial,
-			newCollection: final,
+		const { queries } = await getTableChangeQueries({
+			tableName: 'user',
+			oldTable: initial,
+			newTable: final,
 		});
 
 		expect(queries).to.deep.equal([
