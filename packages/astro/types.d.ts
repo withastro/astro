@@ -4,6 +4,7 @@ import type { Simplify } from './dist/type-utils.js';
 
 /** Any supported HTML or SVG element name, as defined by the HTML specification */
 export type HTMLTag = keyof astroHTML.JSX.DefinedIntrinsicElements;
+
 /** The built-in attributes for any known HTML or SVG element name */
 export type HTMLAttributes<Tag extends HTMLTag> = Omit<
 	astroHTML.JSX.IntrinsicElements[Tag],
@@ -15,9 +16,10 @@ export type HTMLAttributes<Tag extends HTMLTag> = Omit<
  */
 export type CSSProperty = keyof astroHTML.JSX.KebabCSSDOMProperties;
 
-type PolymorphicAttributes<P extends { as: HTMLTag }> = Omit<P & HTMLAttributes<P['as']>, 'as'> & {
+type PolymorphicAttributes<P extends { as: HTMLTag }> = Omit<P, 'as'> & {
 	as?: P['as'];
-};
+} & HTMLAttributes<P['as']>;
+
 export type Polymorphic<P extends { as: HTMLTag }> = PolymorphicAttributes<
 	Omit<P, 'as'> & { as: NonNullable<P['as']> }
 >;

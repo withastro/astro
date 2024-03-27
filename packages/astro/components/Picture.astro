@@ -1,7 +1,7 @@
 ---
 import { getImage, type LocalImageProps, type RemoteImageProps } from 'astro:assets';
 import type { GetImageResult, ImageOutputFormat } from '../dist/@types/astro';
-import { isESMImportedImage } from '../dist/assets/utils/imageKind';
+import { isESMImportedImage, resolveSrc } from '../dist/assets/utils/imageKind';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
 import type { HTMLAttributes } from '../types';
 
@@ -27,20 +27,27 @@ if (props.alt === undefined || props.alt === null) {
 	throw new AstroError(AstroErrorData.ImageMissingAlt);
 }
 
+const originalSrc = await resolveSrc(props.src);
 const optimizedImages: GetImageResult[] = await Promise.all(
 	formats.map(
 		async (format) =>
-			await getImage({ ...props, format: format, widths: props.widths, densities: props.densities })
+			await getImage({
+				...props,
+				src: originalSrc,
+				format: format,
+				widths: props.widths,
+				densities: props.densities,
+			})
 	)
 );
 
 let resultFallbackFormat = fallbackFormat ?? defaultFallbackFormat;
 if (
 	!fallbackFormat &&
-	isESMImportedImage(props.src) &&
-	specialFormatsFallback.includes(props.src.format)
+	isESMImportedImage(originalSrc) &&
+	originalSrc.format in specialFormatsFallback
 ) {
-	resultFallbackFormat = props.src.format;
+	resultFallbackFormat = originalSrc.format;
 }
 
 const fallbackImage = await getImage({

@@ -1,5 +1,18 @@
 # astro
 
+## 4.5.10
+
+### Patch Changes
+
+- [#10549](https://github.com/withastro/astro/pull/10549) [`54c2f9707f5d038630143f769e3075c698474654`](https://github.com/withastro/astro/commit/54c2f9707f5d038630143f769e3075c698474654) Thanks [@admirsaheta](https://github.com/admirsaheta)! - Updates the `HTMLAttributes` type exported from `astro` to allow data attributes
+
+- [#10562](https://github.com/withastro/astro/pull/10562) [`348c1ca1323d0516c2dcf8e963343cd12cb5407f`](https://github.com/withastro/astro/commit/348c1ca1323d0516c2dcf8e963343cd12cb5407f) Thanks [@apetta](https://github.com/apetta)! - Fixes minor type issues inside the built-in components of Astro
+
+- [#10550](https://github.com/withastro/astro/pull/10550) [`34fa8e131b85531e6629390307108ffc4adb7ed1`](https://github.com/withastro/astro/commit/34fa8e131b85531e6629390307108ffc4adb7ed1) Thanks [@Skn0tt](https://github.com/Skn0tt)! - Fixes bug where server builds would include unneeded assets in SSR Function, potentially leading to upload errors on Vercel, Netlify because of size limits
+
+- Updated dependencies [[`c585528f446ccca3d4c643f4af5d550b93c18902`](https://github.com/withastro/astro/commit/c585528f446ccca3d4c643f4af5d550b93c18902)]:
+  - @astrojs/markdown-remark@4.3.2
+
 ## 4.5.9
 
 ### Patch Changes

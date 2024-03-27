@@ -16,9 +16,15 @@ describe('URLs with base path', () => {
 		});
 
 		it('Base path is concatenated correctly', async () => {
-			const data = await readXML(fixture.readFile('/client/sitemap-0.xml'));
-			const urls = data.urlset.url;
-			assert.equal(urls[0].loc[0], 'http://example.com/base/one/');
+			const [sitemapZero, sitemapIndex] = await Promise.all([
+				readXML(fixture.readFile('/client/sitemap-0.xml')),
+				readXML(fixture.readFile('/client/sitemap-index.xml')),
+			]);
+			assert.equal(sitemapZero.urlset.url[0].loc[0], 'http://example.com/base/one/');
+			assert.equal(
+				sitemapIndex.sitemapindex.sitemap[0].loc[0],
+				'http://example.com/base/sitemap-0.xml'
+			);
 		});
 	});
 
@@ -32,9 +38,15 @@ describe('URLs with base path', () => {
 		});
 
 		it('Base path is concatenated correctly', async () => {
-			const data = await readXML(fixture.readFile('/sitemap-0.xml'));
-			const urls = data.urlset.url;
-			assert.equal(urls[0].loc[0], 'http://example.com/base/123/');
+			const [sitemapZero, sitemapIndex] = await Promise.all([
+				readXML(fixture.readFile('/sitemap-0.xml')),
+				readXML(fixture.readFile('/sitemap-index.xml')),
+			]);
+			assert.equal(sitemapZero.urlset.url[0].loc[0], 'http://example.com/base/123/');
+			assert.equal(
+				sitemapIndex.sitemapindex.sitemap[0].loc[0],
+				'http://example.com/base/sitemap-0.xml'
+			);
 		});
 	});
 });
