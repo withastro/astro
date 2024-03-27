@@ -37,7 +37,7 @@ describe('astro:db local database', () => {
 			let buildError = null;
 			try {
 				await fixture.build();
-			} catch(err) {
+			} catch (err) {
 				buildError = err;
 			}
 
@@ -55,7 +55,7 @@ describe('astro:db local database', () => {
 			let buildError = null;
 			try {
 				await fixture2.build();
-			} catch(err) {
+			} catch (err) {
 				buildError = err;
 			}
 

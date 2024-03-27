@@ -5,6 +5,7 @@ import type { AstroConfig, AstroIntegration } from 'astro';
 import { AstroError } from 'astro/errors';
 import { mkdir, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
+import { loadEnv } from 'vite';
 import parseArgs from 'yargs-parser';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
 import { resolveDbConfig } from '../load-file.js';
@@ -14,7 +15,6 @@ import { fileURLIntegration } from './file-url.js';
 import { typegenInternal } from './typegen.js';
 import { type LateSeedFiles, type LateTables, vitePluginDb } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
-import { loadEnv } from 'vite';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectToStudio = false;
@@ -115,9 +115,14 @@ function astroDBIntegration(): AstroIntegration {
 				});
 			},
 			'astro:build:start': async ({ logger }) => {
-				if(!connectToStudio && !databaseFileEnvDefined() && (output === 'server' || output === 'hybrid')) {
+				if (
+					!connectToStudio &&
+					!databaseFileEnvDefined() &&
+					(output === 'server' || output === 'hybrid')
+				) {
 					const message = `Attempting to build without the --remote flag or the ASTRO_DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`;
-					const hint = 'Learn more connecting to Studio: https://docs.astro.build/en/guides/astro-db/#connect-to-astro-studio';
+					const hint =
+						'Learn more connecting to Studio: https://docs.astro.build/en/guides/astro-db/#connect-to-astro-studio';
 					throw new AstroError(message, hint);
 				}
 
