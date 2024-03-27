@@ -20,7 +20,7 @@ export default function ({ include, exclude, compat }: Options = {}): AstroInteg
 		hooks: {
 			'astro:config:setup': ({ addRenderer, updateConfig, command }) => {
 				const preactPlugin = preact({
-					reactAliasesEnabled: compat,
+					reactAliasesEnabled: compat ?? false,
 					include,
 					exclude,
 					babel: {
