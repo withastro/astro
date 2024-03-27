@@ -1,7 +1,7 @@
 import { existsSync } from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import type { AstroIntegration } from 'astro';
+import type { AstroConfig, AstroIntegration } from 'astro';
 import { mkdir, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
 import parseArgs from 'yargs-parser';
@@ -34,12 +34,14 @@ function astroDBIntegration(): AstroIntegration {
 		},
 	};
 	let command: 'dev' | 'build' | 'preview';
+	let output: AstroConfig['output'] = 'server';
 	return {
 		name: 'astro:db',
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, command: _command, logger }) => {
 				command = _command;
 				root = config.root;
+				output = config.output;
 
 				if (command === 'preview') return;
 
@@ -112,7 +114,7 @@ function astroDBIntegration(): AstroIntegration {
 				});
 			},
 			'astro:build:start': async ({ logger }) => {
-				if(!connectToStudio && !databaseFileEnvDefined()) {
+				if(!connectToStudio && !databaseFileEnvDefined() && output === 'server') {
 					throw new Error(`Attempting to build without the --remote flag or the DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`)
 				}
 
