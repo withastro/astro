@@ -15,12 +15,12 @@ describe('astro:db local database', () => {
 	describe('build (not remote) with DATABASE_FILE env', () => {
 		const prodDbPath = new URL('./fixtures/basics/dist/astro.db', import.meta.url).toString();
 		before(async () => {
-			process.env.DATABASE_FILE = prodDbPath;
+			process.env.ASTRO_DATABASE_FILE = prodDbPath;
 			await fixture.build();
 		});
 
 		after(async () => {
-			delete process.env.DATABASE_FILE;
+			delete process.env.ASTRO_DATABASE_FILE;
 		});
 
 		it('Can render page', async () => {
@@ -32,11 +32,29 @@ describe('astro:db local database', () => {
 	});
 
 	describe('build (not remote)', () => {
-		it('should throw during the build', async () => {
-			delete process.env.DATABASE_FILE;
+		it('should throw during the build for server output', async () => {
+			delete process.env.ASTRO_DATABASE_FILE;
 			let buildError = null;
 			try {
 				await fixture.build();
+			} catch(err) {
+				buildError = err;
+			}
+
+			expect(buildError).to.be.an('Error');
+		});
+
+		it('should throw during the build for hybrid output', async () => {
+			let fixture2 = await loadFixture({
+				root: new URL('./fixtures/local-prod/', import.meta.url),
+				output: 'hybrid',
+				adapter: testAdapter(),
+			});
+
+			delete process.env.ASTRO_DATABASE_FILE;
+			let buildError = null;
+			try {
+				await fixture2.build();
 			} catch(err) {
 				buildError = err;
 			}

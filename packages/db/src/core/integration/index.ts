@@ -2,6 +2,7 @@ import { existsSync } from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import type { AstroConfig, AstroIntegration } from 'astro';
+import { AstroError } from 'astro/errors';
 import { mkdir, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
 import parseArgs from 'yargs-parser';
@@ -114,8 +115,10 @@ function astroDBIntegration(): AstroIntegration {
 				});
 			},
 			'astro:build:start': async ({ logger }) => {
-				if(!connectToStudio && !databaseFileEnvDefined() && output === 'server') {
-					throw new Error(`Attempting to build without the --remote flag or the DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`)
+				if(!connectToStudio && !databaseFileEnvDefined() && (output === 'server' || output === 'hybrid')) {
+					const message = `Attempting to build without the --remote flag or the DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`;
+					const hint = 'Learn more connecting to Studio: https://docs.astro.build/en/guides/astro-db/#connect-to-astro-studio';
+					throw new AstroError(message, hint);
 				}
 
 				logger.info('database: ' + (connectToStudio ? yellow('remote') : blue('local database.')));
@@ -129,7 +132,7 @@ function astroDBIntegration(): AstroIntegration {
 
 function databaseFileEnvDefined() {
 	const env = loadEnv('', process.cwd());
-	return env.DATABASE_FILE != null || process.env.DATABASE_FILE != null;
+	return env.ASTRO_DATABASE_FILE != null || process.env.ASTRO_DATABASE_FILE != null;
 }
 
 export function integration(): AstroIntegration[] {
