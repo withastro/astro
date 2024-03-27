@@ -148,11 +148,11 @@ module.exports = {
               {
                 group: ['../core/*'],
                 allowTypeImports: true,
-              }
-            ]
-          }
-        ]
-      }
-    }
+              },
+            ],
+          },
+        ],
+      },
+    },
   ],
 };
