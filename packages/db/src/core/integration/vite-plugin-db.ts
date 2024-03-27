@@ -118,7 +118,8 @@ import { asDrizzleTable, createLocalDatabaseClient } from ${RUNTIME_IMPORT};
 ${shouldSeed ? `import { seedLocal } from ${RUNTIME_IMPORT};` : ''}
 ${shouldSeed ? integrationSeedImportStatements.join('\n') : ''}
 
-const dbUrl = ${JSON.stringify(dbUrl)};
+const dbUrl = import.meta.env.ASTRO_DATABASE_FILE ?? ${JSON.stringify(dbUrl)};
+
 export const db = createLocalDatabaseClient({ dbUrl });
 
 ${
