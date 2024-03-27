@@ -24,13 +24,13 @@ import {
 	type DBColumns,
 	type DBConfig,
 	type DBSnapshot,
-	type DBTable,
-	type DBTables,
+	type ResolvedDBTables,
 	type DateColumn,
-	type Indexes,
 	type JsonColumn,
 	type NumberColumn,
+	type ResolvedDBTable,
 	type TextColumn,
+	type ResolvedIndexes,
 } from '../types.js';
 import { type Result, getRemoteDatabaseUrl } from '../utils.js';
 
@@ -111,8 +111,8 @@ export async function getTableChangeQueries({
 	newTable,
 }: {
 	tableName: string;
-	oldTable: DBTable;
-	newTable: DBTable;
+	oldTable: ResolvedDBTable;
+	newTable: ResolvedDBTable;
 }): Promise<{ queries: string[]; confirmations: string[] }> {
 	const queries: string[] = [];
 	const confirmations: string[] = [];
@@ -186,8 +186,8 @@ function getChangeIndexQueries({
 	newIndexes = {},
 }: {
 	tableName: string;
-	oldIndexes?: Indexes;
-	newIndexes?: Indexes;
+	oldIndexes?: ResolvedIndexes;
+	newIndexes?: ResolvedIndexes;
 }) {
 	const added = getAdded(oldIndexes, newIndexes);
 	const dropped = getDropped(oldIndexes, newIndexes);
@@ -205,16 +205,16 @@ function getChangeIndexQueries({
 	return queries;
 }
 
-function getAddedTables(oldTables: DBSnapshot, newTables: DBSnapshot): DBTables {
-	const added: DBTables = {};
+function getAddedTables(oldTables: DBSnapshot, newTables: DBSnapshot): ResolvedDBTables {
+	const added: ResolvedDBTables = {};
 	for (const [key, newTable] of Object.entries(newTables.schema)) {
 		if (!(key in oldTables.schema)) added[key] = newTable;
 	}
 	return added;
 }
 
-function getDroppedTables(oldTables: DBSnapshot, newTables: DBSnapshot): DBTables {
-	const dropped: DBTables = {};
+function getDroppedTables(oldTables: DBSnapshot, newTables: DBSnapshot): ResolvedDBTables {
+	const dropped: ResolvedDBTables = {};
 	for (const [key, oldTable] of Object.entries(oldTables.schema)) {
 		if (!(key in newTables.schema)) dropped[key] = oldTable;
 	}
@@ -260,7 +260,7 @@ function getRecreateTableQueries({
 	migrateHiddenPrimaryKey,
 }: {
 	tableName: string;
-	newTable: DBTable;
+	newTable: ResolvedDBTable;
 	added: Record<string, DBColumn>;
 	hasDataLoss: boolean;
 	migrateHiddenPrimaryKey: boolean;
