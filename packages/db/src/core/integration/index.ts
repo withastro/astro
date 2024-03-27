@@ -116,7 +116,7 @@ function astroDBIntegration(): AstroIntegration {
 			},
 			'astro:build:start': async ({ logger }) => {
 				if(!connectToStudio && !databaseFileEnvDefined() && (output === 'server' || output === 'hybrid')) {
-					const message = `Attempting to build without the --remote flag or the DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`;
+					const message = `Attempting to build without the --remote flag or the ASTRO_DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`;
 					const hint = 'Learn more connecting to Studio: https://docs.astro.build/en/guides/astro-db/#connect-to-astro-studio';
 					throw new AstroError(message, hint);
 				}
