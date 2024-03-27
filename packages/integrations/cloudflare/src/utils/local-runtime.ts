@@ -186,7 +186,7 @@ class LocalRuntime {
 				const e = error as NodeJSError;
 				if (e.code === 'ENOENT') {
 					this._logger.info(
-						'There is no `.dev.vars` file in the root directory, if you have encrypted secrets or environmental variables you Cloudflare recommends to put them in this file'
+						'There is no `.dev.vars` file in the root directory, if you have encrypted secrets or environmental variables Cloudflare recommends you to put them in this file'
 					);
 					this.secrets = {};
 				} else {
