@@ -8,7 +8,7 @@ import type {
 	SrcSetValue,
 	UnresolvedImageTransform,
 } from './types.js';
-import { isESMImportedImage, isRemoteImage } from './utils/imageKind.js';
+import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { probe } from './utils/remoteProbe.js';
 
 export async function getConfiguredImageService(): Promise<ImageService> {
@@ -56,10 +56,7 @@ export async function getImage(
 	// If the user inlined an import, something fairly common especially in MDX, or passed a function that returns an Image, await it for them
 	const resolvedOptions: ImageTransform = {
 		...options,
-		src:
-			typeof options.src === 'object' && 'then' in options.src
-				? (await options.src).default ?? (await options.src)
-				: options.src,
+		src: await resolveSrc(options.src),
 	};
 
 	// Infer size for remote images if inferSize is true

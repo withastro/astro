@@ -1,5 +1,12 @@
 # @astrojs/markdown-remark
 
+## 4.3.2
+
+### Patch Changes
+
+- [#10540](https://github.com/withastro/astro/pull/10540) [`c585528f446ccca3d4c643f4af5d550b93c18902`](https://github.com/withastro/astro/commit/c585528f446ccca3d4c643f4af5d550b93c18902) Thanks [@imkunet](https://github.com/imkunet)! - This patch allows Shiki to use all of its reserved languages instead of the
+  previous behavior of forcing unknown languages to plaintext.
+
 ## 4.3.1
 
 ### Patch Changes
