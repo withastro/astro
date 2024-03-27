@@ -1,5 +1,13 @@
 # @astrojs/db
 
+## 0.9.7
+
+### Patch Changes
+
+- [#10587](https://github.com/withastro/astro/pull/10587) [`62a1d6df6916e08cb25d51814dfad352bc4cce75`](https://github.com/withastro/astro/commit/62a1d6df6916e08cb25d51814dfad352bc4cce75) Thanks [@matthewp](https://github.com/matthewp)! - Conditionally drop table with --force-reset
+
+- [#10460](https://github.com/withastro/astro/pull/10460) [`713abb2998bc179443a476f6274432b2fc7d8434`](https://github.com/withastro/astro/commit/713abb2998bc179443a476f6274432b2fc7d8434) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Remove legacy Astro DB internals using the "collections" naming convention instead of "tables."
+
 ## 0.9.6
 
 ### Patch Changes
