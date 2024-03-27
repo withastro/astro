@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 9.2.1
+
+### Patch Changes
+
+- [#204](https://github.com/withastro/adapters/pull/204) [`826bb4fe1fa2a95a38397f927210cdf37079c38a`](https://github.com/withastro/adapters/commit/826bb4fe1fa2a95a38397f927210cdf37079c38a) Thanks [@dario-piotrowicz](https://github.com/dario-piotrowicz)! - Fixes a typo for a Cloudflare runtime .dev.vars warning
+
 ## 9.2.0
 
 ### Minor Changes
