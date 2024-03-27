@@ -38,7 +38,7 @@ describe('index queries', () => {
 		});
 
 		expect(queries).to.deep.equal([
-			'CREATE INDEX "newTable_name_age_idx" ON "user" ("name", "age")',
+			'CREATE INDEX "newTable_age_name_idx" ON "user" ("age", "name")',
 			'CREATE UNIQUE INDEX "newTable_email_idx" ON "user" ("email")',
 		]);
 	});
@@ -93,6 +93,42 @@ describe('index queries', () => {
 		});
 
 		expect(queries).to.deep.equal(['DROP INDEX "nameIdx"', 'DROP INDEX "emailIdx"']);
+	});
+
+	it('generates index names with consistent column ordering', async () => {
+		const initial = dbConfigSchema.parse({
+			tables: {
+				user: {
+					...userInitial,
+					indexes: [
+						{ on: ['email'], unique: true },
+						{ on: ['name', 'age'], unique: false },
+					],
+				},
+			},
+		});
+
+		const final = dbConfigSchema.parse({
+			tables: {
+				user: {
+					...userInitial,
+					indexes: [
+						// flip columns
+						{ on: ['age', 'name'], unique: false },
+						// flip index order
+						{ on: ['email'], unique: true },
+					],
+				},
+			},
+		});
+
+		const { queries } = await getTableChangeQueries({
+			tableName: 'user',
+			oldTable: initial.tables.user,
+			newTable: final.tables.user,
+		});
+
+		expect(queries).to.be.empty;
 	});
 
 	it('drops and recreates modified indexes', async () => {
