@@ -34,7 +34,7 @@ describe('ISR', () => {
 				dest: '_render',
 			},
 			{
-				src: '^\\/excluded\\/([^/]+?)$',
+				src: '^/excluded/([^/]+?)$',
 				dest: '_render'
 		    },
 			{
