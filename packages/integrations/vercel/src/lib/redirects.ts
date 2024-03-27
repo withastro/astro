@@ -15,6 +15,8 @@ interface VercelRoute {
 }
 
 // Copied from astro/packages/astro/src/core/routing/manifest/create.ts
+// Disable eslint as we're not sure how to improve this regex yet
+// eslint-disable-next-line regexp/no-super-linear-backtracking
 const ROUTE_DYNAMIC_SPLIT = /\[(.+?\(.+?\)|.+?)\]/;
 const ROUTE_SPREAD = /^\.{3}.+$/;
 function getParts(part: string, file: string) {
