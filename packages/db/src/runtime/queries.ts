@@ -6,7 +6,7 @@ import {
 	FOREIGN_KEY_REFERENCES_EMPTY_ERROR,
 	FOREIGN_KEY_REFERENCES_LENGTH_ERROR,
 	REFERENCE_DNE_ERROR,
-} from '../core/errors.js';
+} from './errors.js';
 import type {
 	BooleanColumn,
 	ColumnType,
