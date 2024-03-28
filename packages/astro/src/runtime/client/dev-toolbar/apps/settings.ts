@@ -1,5 +1,11 @@
 import type { DevToolbarApp } from '../../../../@types/astro.js';
-import { type Settings, settings } from '../settings.js';
+import {
+	type Placement,
+	type Settings,
+	isValidPlacement,
+	placements,
+	settings,
+} from '../settings.js';
 import { closeOnOutsideClick, createWindowElement } from './utils/window.js';
 
 interface SettingRow {
@@ -40,6 +46,21 @@ const settingsRows = [
 				settings.updateSetting('verbose', evt.currentTarget.checked);
 				const action = evt.currentTarget.checked ? 'enabled' : 'disabled';
 				settings.logger.verboseLog(`Verbose logging ${action}`);
+			}
+		},
+	},
+	{
+		name: 'Placement',
+		description: 'Adjust the placement of the dev toolbar.',
+		input: 'select',
+		settingKey: 'placement',
+		changeEvent: (evt: Event) => {
+			if (evt.currentTarget instanceof HTMLSelectElement) {
+				const placement = evt.currentTarget.value;
+				if (isValidPlacement(placement)) {
+					settings.updateSetting('placement', placement);
+					settings.logger.verboseLog(`Placement set to ${placement}`);
+				}
 			}
 		},
 	},
@@ -128,6 +149,27 @@ export default {
 					a:hover {
 						color: #f4ecfd;
 					}
+
+					select {
+						appearance: none;
+						text-align-last: center;
+						display: inline-block;
+						font-family: inherit;
+						font-size: 14px;
+						padding: 4px 24px 4px 8px;
+						border: 1px solid rgba(145, 152, 173, 1);
+						border-radius: 4px;
+						color: rgba(191, 193, 201, 1);
+						background-color: transparent;
+						background-image:
+							linear-gradient(45deg, transparent 50%, rgba(191, 193, 201, 1) 50%),
+							linear-gradient(135deg, rgba(191, 193, 201, 1) 50%, transparent 50%);
+						background-position:
+							calc(100% - 12px) calc(1em - 2px),
+							calc(100% - 8px) calc(1em - 2px);
+						background-size: 4px 4px;
+						background-repeat: no-repeat;
+					}
 				</style>
 				<header>
 					<h1><astro-dev-toolbar-icon icon="gear"></astro-dev-toolbar-icon> Settings</h1>
@@ -163,6 +205,20 @@ export default {
 						astroToggle.input.addEventListener('change', setting.changeEvent);
 						astroToggle.input.checked = settings.config[setting.settingKey] as boolean;
 						label.append(astroToggle);
+						break;
+					}
+					case 'select': {
+						const select = document.createElement('select');
+						placements.forEach((placement) => {
+							const option = document.createElement('option');
+							option.setAttribute('value', placement);
+							option.textContent =
+								`${placement.slice(0, 1).toUpperCase()}${placement.slice(1)}`.replace('-', ' ');
+							select.append(option);
+						});
+						select.value = settings.config[setting.settingKey] as Placement;
+						select.addEventListener('change', setting.changeEvent);
+						label.append(select);
 						break;
 					}
 					default:
