@@ -508,7 +508,7 @@ export function getExtGlob(exts: string[]) {
 
 export function hasAssetPropagationFlag(id: string): boolean {
 	try {
-		return new URL(id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG)
+		return new URL(id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG);
 	} catch {
 		return false;
 	}

@@ -6,6 +6,7 @@ import type { AstroBuildPlugin, BuildTarget } from '../plugin.js';
 import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
 
 import { RESOLVED_VIRTUAL_MODULE_ID as ASTRO_CONTENT_VIRTUAL_MODULE_ID } from '../../../content/consts.js';
+import { hasAssetPropagationFlag } from '../../../content/index.js';
 import type { AstroPluginCssMetadata } from '../../../vite-plugin-astro/index.js';
 import * as assetName from '../css-asset-name.js';
 import {
@@ -21,7 +22,6 @@ import {
 	isHoistedScript,
 } from '../internal.js';
 import { extendManualChunks, shouldInlineAsset } from './util.js';
-import { hasAssetPropagationFlag } from '../../../content/index.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
