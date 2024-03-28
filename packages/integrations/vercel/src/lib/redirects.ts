@@ -1,5 +1,5 @@
 import nodePath from 'node:path';
-import { appendForwardSlash } from '@astrojs/internal-helpers/path';
+import { appendForwardSlash, removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { AstroConfig, RouteData, RoutePart } from 'astro';
 
 const pathJoin = nodePath.posix.join;
@@ -12,6 +12,33 @@ interface VercelRoute {
 	headers?: Record<string, string>;
 	status?: number;
 	continue?: boolean;
+}
+
+// Copied from astro/packages/astro/src/core/routing/manifest/create.ts
+// Disable eslint as we're not sure how to improve this regex yet
+// eslint-disable-next-line regexp/no-super-linear-backtracking
+const ROUTE_DYNAMIC_SPLIT = /\[(.+?\(.+?\)|.+?)\]/;
+const ROUTE_SPREAD = /^\.{3}.+$/;
+function getParts(part: string, file: string) {
+	const result: RoutePart[] = [];
+	part.split(ROUTE_DYNAMIC_SPLIT).map((str, i) => {
+		if (!str) return;
+		const dynamic = i % 2 === 1;
+
+		const [, content] = dynamic ? /([^(]+)$/.exec(str) || [null, null] : [null, str];
+
+		if (!content || (dynamic && !/^(?:\.\.\.)?[\w$]+$/.test(content))) {
+			throw new Error(`Invalid route ${file} — parameter name must match /^[a-zA-Z0-9_$]+$/`);
+		}
+
+		result.push({
+			content,
+			dynamic,
+			spread: dynamic && ROUTE_SPREAD.test(content),
+		});
+	});
+
+	return result;
 }
 
 // Copied from /home/juanm04/dev/misc/astro/packages/astro/src/core/routing/manifest/create.ts
@@ -77,7 +104,13 @@ function getRedirectStatus(route: RouteData): number {
 }
 
 export function escapeRegex(content: string) {
-	return `^${getMatchPattern([[{ content, dynamic: false, spread: false }]])}$`;
+	const segments = removeLeadingForwardSlash(content)
+		.split(nodePath.posix.sep)
+		.filter(Boolean)
+		.map((s: string) => {
+			return getParts(s, content);
+		});
+	return `^/${getMatchPattern(segments)}$`;
 }
 
 export function getRedirects(routes: RouteData[], config: AstroConfig): VercelRoute[] {
