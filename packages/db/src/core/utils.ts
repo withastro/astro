@@ -28,3 +28,16 @@ export function defineDbIntegration(integration: AstroDbIntegration): AstroInteg
 }
 
 export type Result<T> = { success: true; data: T } | { success: false; data: unknown };
+
+/**
+ * Map an object's values to a new set of values
+ * while preserving types.
+ */
+export function mapObject<T, U = T>(
+	item: Record<string, T>,
+	callback: (key: string, value: T) => U
+): Record<string, U> {
+	return Object.fromEntries(
+		Object.entries(item).map(([key, value]) => [key, callback(key, value)])
+	);
+}

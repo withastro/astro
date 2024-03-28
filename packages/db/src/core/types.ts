@@ -8,6 +8,7 @@ import type {
 	dateColumnSchema,
 	dbConfigSchema,
 	indexSchema,
+	resolvedIndexSchema,
 	jsonColumnSchema,
 	numberColumnOptsSchema,
 	numberColumnSchema,
@@ -17,8 +18,7 @@ import type {
 	textColumnSchema,
 } from './schemas.js';
 
-export type Indexes = Record<string, z.infer<typeof indexSchema>>;
-
+export type ResolvedIndexes = z.output<typeof dbConfigSchema>['tables'][string]['indexes'];
 export type BooleanColumn = z.infer<typeof booleanColumnSchema>;
 export type BooleanColumnInput = z.input<typeof booleanColumnSchema>;
 export type NumberColumn = z.infer<typeof numberColumnSchema>;
@@ -47,8 +47,10 @@ export type DBColumnInput =
 export type DBColumns = z.infer<typeof columnsSchema>;
 export type DBTable = z.infer<typeof tableSchema>;
 export type DBTables = Record<string, DBTable>;
+export type ResolvedDBTables = z.output<typeof dbConfigSchema>['tables'];
+export type ResolvedDBTable = z.output<typeof dbConfigSchema>['tables'][string];
 export type DBSnapshot = {
-	schema: Record<string, DBTable>;
+	schema: Record<string, ResolvedDBTable>;
 	version: string;
 };
 
@@ -67,11 +69,17 @@ export interface TableConfig<TColumns extends ColumnsConfig = ColumnsConfig>
 		columns: MaybeArray<Extract<keyof TColumns, string>>;
 		references: () => MaybeArray<z.input<typeof referenceableColumnSchema>>;
 	}>;
-	indexes?: Record<string, IndexConfig<TColumns>>;
+	indexes?: Array<IndexConfig<TColumns>> | Record<string, LegacyIndexConfig<TColumns>>;
 	deprecated?: boolean;
 }
 
 interface IndexConfig<TColumns extends ColumnsConfig> extends z.input<typeof indexSchema> {
+	on: MaybeArray<Extract<keyof TColumns, string>>;
+}
+
+/** @deprecated */
+interface LegacyIndexConfig<TColumns extends ColumnsConfig>
+	extends z.input<typeof resolvedIndexSchema> {
 	on: MaybeArray<Extract<keyof TColumns, string>>;
 }
 
