@@ -58,6 +58,9 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			}
 			return resolved.virtual;
 		},
+		configureServer(server) {
+			server.ssrLoadModule(resolved.seedVirtual);
+		},
 		async load(id) {
 			if (id !== resolved.virtual && id !== resolved.seedVirtual) return;
 
