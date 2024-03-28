@@ -1,5 +1,8 @@
+import { settings } from '../../settings.js';
+
 export function createWindowElement(content: string) {
 	const windowElement = document.createElement('astro-dev-toolbar-window');
+	windowElement.setAttribute('data-placement', settings.config.placement);
 	windowElement.innerHTML = content;
 	return windowElement;
 }

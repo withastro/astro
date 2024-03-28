@@ -58,6 +58,7 @@ const settingsRows = [
 			if (evt.currentTarget instanceof HTMLSelectElement) {
 				const placement = evt.currentTarget.value;
 				if (isValidPlacement(placement)) {
+					document.querySelector('astro-dev-toolbar')?.setToolbarPlacement(placement);
 					settings.updateSetting('placement', placement);
 					settings.logger.verboseLog(`Placement set to ${placement}`);
 				}

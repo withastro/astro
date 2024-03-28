@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import type { DevToolbarApp as DevToolbarAppDefinition } from '../../../@types/astro.js';
-import { settings } from './settings.js';
+import { type Placement, settings } from './settings.js';
 import { type Icon, getIconElement, isDefinedIcon } from './ui-library/icons.js';
 
 export type DevToolbarApp = DevToolbarAppDefinition & {
@@ -57,8 +57,6 @@ export class AstroDevToolbar extends HTMLElement {
 			#dev-toolbar-root {
 				position: fixed;
 				bottom: 0px;
-				left: 50%;
-				transform: translate(-50%, 0%);
 				z-index: 2000000010;
 				display: flex;
 				flex-direction: column;
@@ -73,6 +71,17 @@ export class AstroDevToolbar extends HTMLElement {
 
 			#dev-toolbar-root[data-hidden] #dev-bar .item {
 				opacity: 0.2;
+			}
+
+			#dev-toolbar-root[data-placement="bottom-left"] {
+				left: 16px;
+			}
+			#dev-toolbar-root[data-placement="bottom-center"] {
+				left: 50%;
+				transform: translateX(-50%);
+			}
+			#dev-toolbar-root[data-placement="bottom-right"] {
+				right: 16px;
 			}
 
 			#dev-bar-hitbox-above,
@@ -240,9 +249,7 @@ export class AstroDevToolbar extends HTMLElement {
 				width: 1px;
 			}
 		</style>
-		<div id="dev-toolbar-root" data-hidden ${
-			settings.config.disableAppNotification ? 'data-no-notification' : ''
-		}>
+		<div id="dev-toolbar-root" data-hidden ${settings.config.disableAppNotification ? 'data-no-notification' : ''} data-placement="${settings.config.placement}">
 			<div id="dev-bar-hitbox-above"></div>
 			<div id="dev-bar">
 				<div id="bar-container">
@@ -552,6 +559,15 @@ export class AstroDevToolbar extends HTMLElement {
 		moreCanvas?.shadowRoot
 			?.querySelector('#dropdown')
 			?.toggleAttribute('data-no-notification', !newStatus);
+	}
+
+	setToolbarPlacement(newPlacement: Placement) {
+		this.devToolbarContainer?.setAttribute('data-placement', newPlacement);
+		this.apps.forEach((app) => {
+			this.getAppCanvasById(app.id)
+				?.shadowRoot?.querySelector('astro-dev-toolbar-window')
+				?.setAttribute('data-placement', newPlacement);
+		});
 	}
 }
 
