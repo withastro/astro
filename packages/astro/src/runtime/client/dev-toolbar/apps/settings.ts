@@ -161,7 +161,7 @@ export default {
 					case 'checkbox': {
 						const astroToggle = document.createElement('astro-dev-toolbar-toggle');
 						astroToggle.input.addEventListener('change', setting.changeEvent);
-						astroToggle.input.checked = settings.config[setting.settingKey];
+						astroToggle.input.checked = settings.config[setting.settingKey] as boolean;
 						label.append(astroToggle);
 						break;
 					}
