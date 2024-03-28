@@ -28,6 +28,8 @@ export function wranglerCli(cwd) {
 			'pages',
 			'dev',
 			'dist',
+			'--ip',
+			'127.0.0.1',
 			'--port',
 			'8788',
 			'--compatibility-date',

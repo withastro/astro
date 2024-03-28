@@ -13,10 +13,8 @@ import type { AstroConfig } from 'astro';
  */
 export function wasmModuleLoader({
 	disabled,
-	assetsDirectory,
 }: {
 	disabled: boolean;
-	assetsDirectory: string;
 }): NonNullable<AstroConfig['vite']['plugins']>[number] {
 	const postfix = '.wasm?module';
 	let isDev = false;
@@ -31,7 +29,12 @@ export function wasmModuleLoader({
 			// let vite know that file format and the magic import string is intentional, and will be handled in this plugin
 			return {
 				assetsInclude: ['**/*.wasm?module'],
-				build: { rollupOptions: { external: /^__WASM_ASSET__.+\.wasm\.mjs$/i } },
+				build: {
+					rollupOptions: {
+						// mark the wasm files as external so that they are not bundled and instead are loaded from the files
+						external: [/^__WASM_ASSET__.+\.wasm$/i, /^__WASM_ASSET__.+\.wasm.mjs$/i],
+					},
+				},
 			};
 		},
 
@@ -50,10 +53,8 @@ export function wasmModuleLoader({
 			const data = fs.readFileSync(filePath);
 			const base64 = data.toString('base64');
 
-			const base64Module = `
-const wasmModule = new WebAssembly.Module(Uint8Array.from(atob("${base64}"), c => c.charCodeAt(0)));
-export default wasmModule
-`;
+			const base64Module = `const wasmModule = new WebAssembly.Module(Uint8Array.from(atob("${base64}"), c => c.charCodeAt(0)));export default wasmModule;`;
+
 			if (isDev) {
 				// no need to wire up the assets in dev mode, just rewrite
 				return base64Module;
@@ -68,8 +69,8 @@ export default wasmModule
 				// put it explicitly in the _astro assets directory with `fileName` rather than `name` so that
 				// vite doesn't give it a random id in its name. We need to be able to easily rewrite from
 				// the .mjs loader and the actual wasm asset later in the ESbuild for the worker
-				fileName: path.join(assetsDirectory, assetName),
-				source: fs.readFileSync(filePath),
+				fileName: assetName,
+				source: data,
 			});
 
 			// however, by default, the SSG generator cannot import the .wasm as a module, so embed as a base64 string
@@ -79,10 +80,7 @@ export default wasmModule
 				code: base64Module,
 			});
 
-			return `
-import wasmModule from "__WASM_ASSET__${chunkId}.wasm.mjs";
-export default wasmModule;
-	`;
+			return `import wasmModule from "__WASM_ASSET__${chunkId}.wasm.mjs";export default wasmModule;`;
 		},
 
 		// output original wasm file relative to the chunk
@@ -91,13 +89,33 @@ export default wasmModule;
 
 			if (!/__WASM_ASSET__/g.test(code)) return;
 
-			const final = code.replaceAll(/__WASM_ASSET__([A-Za-z\d]+).wasm.mjs/g, (s, assetId) => {
-				const fileName = this.getFileName(assetId);
-				const relativePath = path
-					.relative(path.dirname(chunk.fileName), fileName)
-					.replaceAll('\\', '/'); // fix windows paths for import
-				return `./${relativePath}`;
-			});
+			const isPrerendered = Object.keys(chunk.modules).some(
+				(moduleId) => this.getModuleInfo(moduleId)?.meta?.astro?.pageOptions?.prerender === true
+			);
+
+			let final = code;
+
+			// SSR
+			if (!isPrerendered) {
+				final = code.replaceAll(/__WASM_ASSET__([A-Za-z\d]+).wasm.mjs/g, (s, assetId) => {
+					const fileName = this.getFileName(assetId).replace(/\.mjs$/, '');
+					const relativePath = path
+						.relative(path.dirname(chunk.fileName), fileName)
+						.replaceAll('\\', '/'); // fix windows paths for import
+					return `./${relativePath}`;
+				});
+			}
+
+			// SSG
+			if (isPrerendered) {
+				final = code.replaceAll(/__WASM_ASSET__([A-Za-z\d]+).wasm.mjs/g, (s, assetId) => {
+					const fileName = this.getFileName(assetId);
+					const relativePath = path
+						.relative(path.dirname(chunk.fileName), fileName)
+						.replaceAll('\\', '/'); // fix windows paths for import
+					return `./${relativePath}`;
+				});
+			}
 
 			return { code: final };
 		},

@@ -24,10 +24,6 @@ describe('WasmImport', () => {
 
 	after((done) => {
 		wrangler.kill();
-		setTimeout(() => {
-			// console.log('CLEANED');
-			done();
-		}, 1000);
 	});
 
 	it('can render', async () => {

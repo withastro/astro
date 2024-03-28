@@ -25,10 +25,6 @@ describe('SolidJS', () => {
 
 	after((done) => {
 		wrangler.kill();
-		setTimeout(() => {
-			// console.log('CLEANED');
-			done();
-		}, 1000);
 	});
 
 	it('renders the solid component', async () => {

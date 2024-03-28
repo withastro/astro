@@ -1,7 +1,7 @@
 import type { AstroConfig, AstroIntegrationLogger } from 'astro';
 import { passthroughImageService, sharpImageService } from 'astro/config';
 
-export function prepareImageConfig(
+export function setImageConfig(
 	service: string,
 	config: AstroConfig['image'],
 	command: 'dev' | 'build' | 'preview',

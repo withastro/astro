@@ -1,10 +1,8 @@
+import { isRemotePath } from '@astrojs/internal-helpers/path';
 import type { AstroConfig, ImageMetadata, RemotePattern } from 'astro';
 
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
 	return typeof src === 'object';
-}
-export function isRemotePath(src: string) {
-	return /^(http|ftp|https|ws):?\/\//.test(src) || src.startsWith('data:');
 }
 export function matchHostname(url: URL, hostname?: string, allowWildcard?: boolean) {
 	if (!hostname) {
@@ -81,27 +79,4 @@ export function isRemoteAllowed(
 }
 export function isString(path: unknown): path is string {
 	return typeof path === 'string' || path instanceof String;
-}
-export function removeTrailingForwardSlash(path: string) {
-	return path.endsWith('/') ? path.slice(0, path.length - 1) : path;
-}
-export function removeLeadingForwardSlash(path: string) {
-	return path.startsWith('/') ? path.substring(1) : path;
-}
-export function trimSlashes(path: string) {
-	return path.replace(/^\/|\/$/g, '');
-}
-export function joinPaths(...paths: (string | undefined)[]) {
-	return paths
-		.filter(isString)
-		.map((path, i) => {
-			if (i === 0) {
-				return removeTrailingForwardSlash(path);
-			}
-			if (i === paths.length - 1) {
-				return removeLeadingForwardSlash(path);
-			}
-			return trimSlashes(path);
-		})
-		.join('/');
 }

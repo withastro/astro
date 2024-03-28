@@ -3,7 +3,9 @@ import { defineConfig } from 'astro/config';
 
 export default defineConfig({
 	adapter: cloudflare({
-		wasmModuleImports: true
+		platformProxy: {
+			enabled: true,
+		},
 	}),
-	output: 'hybrid'
+	output: 'server',
 });

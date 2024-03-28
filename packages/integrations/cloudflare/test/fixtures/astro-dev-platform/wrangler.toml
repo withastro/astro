@@ -1,0 +1,29 @@
+name = "test"
+
+kv_namespaces = [
+    { binding = "KV", id = "<YOUR_ID>", preview_id = "<YOUR_ID>" },
+    { binding = "KV_PROD", id = "<YOUR_ID>", preview_id = "<YOUR_ID>" },
+]
+
+[vars]
+COOL = "ME"
+
+[[d1_databases]]
+binding = "D1"
+database_name = "<DATABASE_NAME>"
+database_id = "<unique-ID-for-your-database>"
+preview_database_id = "D1"
+
+[[d1_databases]]
+binding = "D1_PROD"
+database_name = "<DATABASE_NAME>"
+database_id = "<unique-ID-for-your-database>"
+preview_database_id = "D1_PROD"
+
+[[r2_buckets]]
+binding = 'R2'
+bucket_name = '<YOUR_BUCKET_NAME>'
+
+[[r2_buckets]]
+binding = 'R2_PROD'
+bucket_name = '<YOUR_BUCKET_NAME>'
