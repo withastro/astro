@@ -1070,6 +1070,18 @@ export const MissingIndexForInternationalization = {
 /**
  * @docs
  * @description
+ * Some internationalization functions can't be exposed unless the default routing is disabled
+ */
+export const IncorrectStrategy = {
+	name: 'IncorrectStrategy',
+	title: "You can't use the current function with the current strategy",
+	message: (functionName: string) =>
+		`The function \`${functionName}\' can't be used because it can only be used when the \`i18n.routing.strategy\` is set to \`"manual"\`.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * Static pages aren't yet supported with i18n domains. If you wish to enable this feature, you have to disable prerendering.
  */
 export const NoPrerenderedRoutesWithDomains = {
@@ -1077,6 +1089,18 @@ export const NoPrerenderedRoutesWithDomains = {
 	title: "Prerendered routes aren't supported when internationalization domains are enabled.",
 	message: (component: string) =>
 		`Static pages aren't yet supported with multiple domains. If you wish to enable this feature, you have to disable prerendering for the page ${component}`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Astro throws an error if the user enables manual routing, but it doesn't have a middleware file.
+ */
+export const MissingMiddlewareForInternationalization = {
+	name: 'MissingMiddlewareForInternationalization',
+	title: 'Enabled manual internationalization routing without having a middleware.',
+	message:
+		"You enabled manual routing for internationalization via `i18n.routing: 'manual'`, but you must have a `middleware` file in order to use this feature.",
 } satisfies ErrorData;
 
 /**

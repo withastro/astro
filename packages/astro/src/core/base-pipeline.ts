@@ -48,9 +48,13 @@ export abstract class Pipeline {
 		 */
 		readonly site = manifest.site ? new URL(manifest.site) : undefined
 	) {
-		this.internalMiddleware = [
-			createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat),
-		];
+		this.internalMiddleware = [];
+		// We do use our middleware only if the user isn't using the manual setup
+		if (i18n?.strategy !== 'manual') {
+			this.internalMiddleware.push(
+				createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat)
+			);
+		}
 	}
 
 	abstract headElements(routeData: RouteData): Promise<HeadElements> | HeadElements;
