@@ -207,6 +207,8 @@ export function renderToBufferDestination(bufferRenderFunction: RenderFunction):
 
 export const isNode =
 	typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]';
+// @ts-expect-error: Deno is not part of the types.
+export const isDeno = typeof Deno !== 'undefined';
 
 // We can get rid of this when Promise.withResolvers() is ready
 export type PromiseWithResolvers<T> = {
