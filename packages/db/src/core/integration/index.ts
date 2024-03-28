@@ -13,8 +13,9 @@ import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
 import { type VitePlugin, getDbDirectoryUrl } from '../utils.js';
 import { fileURLIntegration } from './file-url.js';
 import { typegenInternal } from './typegen.js';
-import { type LateSeedFiles, type LateTables, vitePluginDb } from './vite-plugin-db.js';
+import { type LateSeedFiles, type LateTables, vitePluginDb, resolved } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
+import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectToStudio = false;
@@ -94,15 +95,7 @@ function astroDBIntegration(): AstroIntegration {
 
 				await typegenInternal({ tables: tables.get() ?? {}, root: config.root });
 			},
-			'astro:server:start': async ({ logger }) => {
-				// Wait for the server startup to log, so that this can come afterwards.
-				setTimeout(() => {
-					logger.info(
-						connectToStudio ? 'Connected to remote database.' : 'New local database created.'
-					);
-				}, 100);
-			},
-			'astro:server:setup': async ({ server }) => {
+			'astro:server:setup': async ({ server, logger }) => {
 				const filesToWatch = [
 					...CONFIG_FILE_NAMES.map((c) => new URL(c, getDbDirectoryUrl(root))),
 					...configFileDependencies.map((c) => new URL(c, root)),
@@ -113,6 +106,36 @@ function astroDBIntegration(): AstroIntegration {
 						server.restart();
 					}
 				});
+				// Wait for dev server log before showing "connected".
+				await new Promise((resolve) => setTimeout(resolve, 100));
+				logger.info(
+					connectToStudio ? 'Connected to remote database.' : 'New local database created.'
+				);
+				const seedFileUrls = SEED_DEV_FILE_NAME.map(
+					(name) => new URL(name, getDbDirectoryUrl(root))
+				);
+				if (!connectToStudio) {
+					// Load seed file on dev server startup.
+					let seedInFlight = false;
+					loadSeedModule();
+					server.watcher.on('all', (event, relativeEntry) => {
+						// When a seed file changes, load manually
+						// to track when seeding finishes and log a message.
+						const entry = new URL(relativeEntry, root);
+						if (seedFileUrls.find((f) => entry.href === f.href)) {
+							if (seedInFlight) return;
+							loadSeedModule();
+						}
+					});
+
+					function loadSeedModule() {
+						seedInFlight = true;
+						server.ssrLoadModule(resolved.seedVirtual).then(() => {
+							seedInFlight = false;
+							logger.info('Seeded database.');
+						});
+					}
+				}
 			},
 			'astro:build:start': async ({ logger }) => {
 				if (
