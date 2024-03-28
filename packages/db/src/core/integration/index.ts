@@ -113,28 +113,28 @@ function astroDBIntegration(): AstroIntegration {
 					);
 					if (connectToStudio) return;
 
-					// Load seed file on dev server startup.
-					const seedFilePaths = SEED_DEV_FILE_NAME.map(
+					const localSeedPaths = SEED_DEV_FILE_NAME.map(
 						(name) => new URL(name, getDbDirectoryUrl(root))
-					).concat(
-						seedFiles
-							.get()
-							// Map integration seed paths to URLs, if possible.
-							// Module paths like `@example/seed` will be ignored
-							// from eager reloading.
-							.map((s) => (typeof s === 'string' && s.startsWith('.') ? new URL(s, root) : s))
-							.filter((s): s is URL => s instanceof URL)
 					);
 					let seedInFlight = false;
-					if (seedFilePaths.find((path) => existsSync(path))) {
+					// Load seed file on dev server startup.
+					if (seedFiles.get().length || localSeedPaths.find((path) => existsSync(path))) {
 						loadSeedModule();
 					}
+					const eagerReloadIntegrationSeedPaths = seedFiles
+						.get()
+						// Map integration seed paths to URLs, if possible.
+						// Module paths like `@example/seed` will be ignored
+						// from eager reloading.
+						.map((s) => (typeof s === 'string' && s.startsWith('.') ? new URL(s, root) : s))
+						.filter((s): s is URL => s instanceof URL);
+					const eagerReloadSeedPaths = [...eagerReloadIntegrationSeedPaths, ...localSeedPaths];
 					server.watcher.on('all', (event, relativeEntry) => {
 						if (event === 'unlink' || event === 'unlinkDir') return;
 						// When a seed file changes, load manually
 						// to track when seeding finishes and log a message.
 						const entry = new URL(relativeEntry, root);
-						if (seedFilePaths.find((path) => entry.href === path.href)) {
+						if (eagerReloadSeedPaths.find((path) => entry.href === path.href)) {
 							loadSeedModule();
 						}
 					});
