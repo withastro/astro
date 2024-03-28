@@ -126,8 +126,11 @@ function astroDBIntegration(): AstroIntegration {
 							.filter((s): s is URL => s instanceof URL)
 					);
 					let seedInFlight = false;
-					loadSeedModule();
+					if (seedFilePaths.find((path) => existsSync(path))) {
+						loadSeedModule();
+					}
 					server.watcher.on('all', (event, relativeEntry) => {
+						if (event === 'unlink' || event === 'unlinkDir') return;
 						// When a seed file changes, load manually
 						// to track when seeding finishes and log a message.
 						const entry = new URL(relativeEntry, root);
