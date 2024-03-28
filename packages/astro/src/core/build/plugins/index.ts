@@ -15,6 +15,7 @@ import { pluginPrerender } from './plugin-prerender.js';
 import { pluginRenderers } from './plugin-renderers.js';
 import { pluginScripts } from './plugin-scripts.js';
 import { pluginSSR, pluginSSRSplit } from './plugin-ssr.js';
+import { pluginInjectAssets } from './plugin-inject-assets.js';
 
 export function registerAllPlugins({ internals, options, register }: AstroBuildPluginContainer) {
 	register(pluginComponentEntry(internals));
@@ -37,4 +38,5 @@ export function registerAllPlugins({ internals, options, register }: AstroBuildP
 	register(pluginSSR(options, internals));
 	register(pluginSSRSplit(options, internals));
 	register(pluginChunks());
+	register(pluginInjectAssets(options, internals));
 }

@@ -2690,6 +2690,15 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/custom-assets-injected-from-dep:
+    dependencies:
+      '@test/custom-404-pkg':
+        specifier: workspace:*
+        version: link:../custom-404-pkg
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/custom-assets-name:
     dependencies:
       '@astrojs/node':

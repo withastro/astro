@@ -21,6 +21,7 @@ import { mergeConfig } from '../core/config/index.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { validateSupportedFeatures } from './astroFeaturesValidation.js';
+import { createHash } from 'node:crypto';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -138,7 +139,11 @@ export async function runHookConfigSetup({
 					updatedSettings.injectedRoutes.push(injectRoute);
 				},
 				injectAsset: (injectAsset) => {
+					const hash = createHash('sha256').update(injectAsset.entrypoint, 'utf-8').digest('hex').slice(0, 10);
+					injectAsset.hash = hash;
 					updatedSettings.injectedAssets.push(injectAsset);
+					const fileName = injectAsset.entrypoint.substring(injectAsset.entrypoint.lastIndexOf('/') + 1)
+					return `${injectAsset.outDir ?? updatedConfig.build.assets}/${injectAsset.outName ?? fileName.split('.')[0]}.${injectAsset.hash}${fileName.split('.').length > 1 ? '.' + fileName.split('.').slice(1).join('.') : ''}`;
 				},
 				addWatchFile: (path) => {
 					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);

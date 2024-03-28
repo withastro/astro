@@ -1866,6 +1866,9 @@ export interface ResolvedInjectedRoute extends InjectedRoute {
 
 export interface InjectedAsset {
 	entrypoint: string;
+	outName?: string;
+	outDir?: string;
+	hash?: string;
 }
 
 export interface ResolvedInjectedAsset extends InjectedAsset {

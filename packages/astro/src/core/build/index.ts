@@ -33,8 +33,6 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
-import { basename } from 'node:path';
-import { appendForwardSlash } from '../path.js';
 
 export interface BuildOptions {
 	/**
@@ -169,6 +167,7 @@ class AstroBuilder {
 		}
 
 		this.manifest = createRouteManifest({ settings: this.settings }, this.logger);
+		createInjectedAssets({ settings: this.settings }, this.logger);
 
 		const viteConfig = await createVite(
 			{
@@ -248,20 +247,6 @@ class AstroBuilder {
 		});
 		this.logger.debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
 
-		createInjectedAssets({ settings: this.settings }, this.logger);
-		// console.log('DEBUG', this.settings.resolvedInjectedAssets);
-		this.logger.info('assets', 'Injecting assets...');
-		const assetsPath = this.settings.config.build.assets;
-		for (const resolvedAsset of this.settings.resolvedInjectedAssets) {
-			const assetURL = new URL(
-				`./${assetsPath}/${basename(fileURLToPath(resolvedAsset.resolvedEntryPoint))}`,
-				appendForwardSlash(opts.settings.config.outDir.toString())
-			);
-			// console.log(assetURL);
-			try {
-				fs.promises.copyFile(fileURLToPath(resolvedAsset.resolvedEntryPoint), assetURL);
-			} catch (error) {}
-		}
 		// You're done! Time to clean up.
 		await runHookBuildDone({
 			config: this.settings.config,
