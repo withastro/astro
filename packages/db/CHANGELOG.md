@@ -1,5 +1,37 @@
 # @astrojs/db
 
+## 0.9.8
+
+### Patch Changes
+
+- [#10589](https://github.com/withastro/astro/pull/10589) [`ed1031ba29af9a8a89ab386d772a228ba1414b4d`](https://github.com/withastro/astro/commit/ed1031ba29af9a8a89ab386d772a228ba1414b4d) Thanks [@column.text(),](<https://github.com/column.text(),>)! - Update the table indexes configuration to allow generated index names. The `indexes` object syntax is now deprecated in favor of an array.
+
+  ## Migration
+
+  You can update your `indexes` configuration object to an array like so:
+
+  ```diff
+  import { defineDb, defineTable, column } from 'astro:db';
+
+  const Comment = defineTable({
+    columns: {
+      postId: column.number(),
+
+      body: column.text(),
+    },
+  - indexes: {
+  -   postIdIdx: { on: 'postId' },
+  -   authorPostIdIdx: { on: ['author, postId'], unique: true },
+  - },
+  + indexes: [
+  +   { on: 'postId' /* 'name' is optional */ },
+  +   { on: ['author, postId'], unique: true },
+  + ]
+  })
+  ```
+
+  This example will generate indexes with the names `Comment_postId_idx` and `Comment_author_postId_idx`, respectively. You can specify a name manually by adding the `name` attribute to a given object. This name will be **global,** so ensure index names do not conflict between tables.
+
 ## 0.9.7
 
 ### Patch Changes
