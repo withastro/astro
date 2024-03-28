@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers/Pages",
-  "version": "9.2.1",
+  "version": "10.0.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
