@@ -116,7 +116,7 @@ async function getViteConfiguration(options?: Options): Promise<UserConfig> {
 		},
 		plugins: [vue(vueOptions), virtualAppEntrypoint(vueOptions)],
 		ssr: {
-			external: ['@vue/server-renderer'],
+			// external: ['@vue/server-renderer'],
 			noExternal: ['vuetify', 'vueperslides', 'primevue'],
 		},
 	};
