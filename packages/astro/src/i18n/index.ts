@@ -14,7 +14,7 @@ import { createI18nMiddleware } from './middleware.js';
 import { REROUTE_DIRECTIVE_HEADER } from '../core/constants.js';
 
 export function requestHasLocale(locales: Locales) {
-	return function (context: APIContext) {
+	return function (context: APIContext): boolean {
 		return pathHasLocale(context.url.pathname, locales);
 	};
 }
@@ -304,7 +304,7 @@ export function redirectToDefaultLocale({
 }
 
 export function notFound({ base, locales }: MiddlewarePayload) {
-	return function (context: APIContext, response?: Response) {
+	return function (context: APIContext, response?: Response): Response | undefined {
 		if (response?.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no') return response;
 
 		const url = context.url;

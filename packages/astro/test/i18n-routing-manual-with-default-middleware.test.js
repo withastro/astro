@@ -35,23 +35,6 @@ describe('Dev server manual routing', () => {
 		const text = await response.text();
 		assert.equal(text.includes('ABOUT ME'), true);
 	});
-	//
-	// it('should render a i18n route', async () => {
-	// 	let response = await fixture.fetch('/en/blog');
-	// 	assert.equal(response.status, 200);
-	// 	let text = await response.text();
-	// 	assert.equal(text.includes('Blog start'), true);
-	//
-	// 	response = await fixture.fetch('/pt/start');
-	// 	assert.equal(response.status, 200);
-	// 	text = await response.text();
-	// 	assert.equal(text.includes('Oi'), true);
-	//
-	// 	response = await fixture.fetch('/spanish');
-	// 	assert.equal(response.status, 200);
-	// 	text = await response.text();
-	// 	assert.equal(text.includes('Hola.'), true);
-	// });
 });
 //
 // // SSG

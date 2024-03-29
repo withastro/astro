@@ -4,7 +4,12 @@ import { AstroError } from '../core/errors/index.js';
 import { IncorrectStrategy } from '../core/errors/errors-data.js';
 import type { UseFallback } from '../i18n/index.js';
 import type { SSRManifest } from '../core/app/types.js';
-import type { AstroConfig } from '../@types/astro.js';
+import type {
+	APIContext,
+	AstroConfig,
+	MiddlewareHandler,
+	ValidRedirectStatus,
+} from '../@types/astro.js';
 import type { I18nInternalConfig } from '../i18n/vite-plugin-i18n.js';
 export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
 
@@ -243,20 +248,25 @@ export const pathHasLocale = (path: string) => I18nInternals.pathHasLocale(path,
  * @param {APIContext} context The context passed to the middleware
  * @param {ValidRedirectStatus?} statusCode An optional status code for the redirect.
  */
-export const redirectToDefaultLocale =
-	i18n?.routing === 'manual'
-		? I18nInternals.redirectToDefaultLocale({
-				base,
-				trailingSlash,
-				format,
-				defaultLocale,
-				locales,
-				routing: strategy,
-				domains,
-				fallback,
-			})
-		: noop('redirectToDefaultLocale');
+export let redirectToDefaultLocale: (
+	context: APIContext,
+	statusCode?: ValidRedirectStatus
+) => Response | undefined;
 
+if (i18n?.routing === 'manual') {
+	redirectToDefaultLocale = I18nInternals.redirectToDefaultLocale({
+		base,
+		trailingSlash,
+		format,
+		defaultLocale,
+		locales,
+		routing: strategy,
+		domains,
+		fallback,
+	});
+} else {
+	redirectToDefaultLocale = noop('redirectToDefaultLocale');
+}
 /**
  *
  * Use this function to return a 404 when:
@@ -269,43 +279,58 @@ export const redirectToDefaultLocale =
  * @param {Response?} response An optional `Response` in case you're handling a `Response` coming from the `next` function.
  *
  */
-export const notFound =
-	i18n?.routing === 'manual'
-		? I18nInternals.notFound({
-				base,
-				trailingSlash,
-				format,
-				defaultLocale,
-				locales,
-				routing: strategy,
-				domains,
-				fallback,
-			})
-		: noop('notFound');
+export let notFound: (context: APIContext, response?: Response) => Response | undefined;
+
+if (i18n?.routing === 'manual') {
+	notFound = I18nInternals.notFound({
+		base,
+		trailingSlash,
+		format,
+		defaultLocale,
+		locales,
+		routing: strategy,
+		domains,
+		fallback,
+	});
+} else {
+	notFound = noop('notFound');
+}
 
 /**
  * Checks whether the current URL contains a configured locale. Internally, this function will use `APIContext#url.pathname`
  *
  * @param {APIContext} context The context passed to the middleware
- *
- *
  */
-export const requestHasLocale =
-	i18n?.routing === 'manual' ? I18nInternals.requestHasLocale(locales) : noop('requestHasLocale');
+export let requestHasLocale: (context: APIContext) => boolean;
 
-export const useFallback: UseFallback =
-	i18n?.routing === 'manual'
-		? I18nInternals.useFallback({
-				base,
-				trailingSlash,
-				format,
-				defaultLocale,
-				locales,
-				routing: strategy,
-				domains,
-				fallback,
-			})
-		: noop('useFallback');
+if (i18n?.routing === 'manual') {
+	requestHasLocale = I18nInternals.requestHasLocale(locales);
+} else {
+	requestHasLocale = noop('requestHasLocale');
+}
+
+/**
+ * Allows to use the build-in fallback system of Astro
+ *
+ * @param {APIContext} context The context passed to the middleware
+ * @param {Response?} response An optional `Response` in case you're handling a `Response` coming from the `next` function.
+ */
+export let useFallback: UseFallback;
+
+if (i18n?.routing === 'manual') {
+	useFallback = I18nInternals.useFallback({
+		base,
+		trailingSlash,
+		format,
+		defaultLocale,
+		locales,
+		routing: strategy,
+		domains,
+		fallback,
+	});
+} else {
+	useFallback = noop('useFallback');
+}
 
 // @ematipico: This is a helper type because, because I don't know how to extract from TS
 type Options = {
@@ -342,20 +367,23 @@ type Options = {
  *
  * ```
  */
-export const middleware =
-	i18n?.routing === 'manual'
-		? (customOptions?: Options) => {
-				const manifest: SSRManifest['i18n'] = {
-					...i18n,
-					fallback: undefined,
-					strategy: toRoutingStrategy({
-						...i18n,
-						// To review the types, I'm sure there's a way to extract the correct ones and make TS happy
-						// @ts-expect-error
-						routing: customOptions,
-					}),
-					domainLookupTable: {},
-				};
-				return I18nInternals.createMiddleware(manifest, base, trailingSlash, format);
-			}
-		: noop('middleware');
+export let middleware: (customOptions?: Options) => MiddlewareHandler;
+
+if (i18n?.routing === 'manual') {
+	middleware = (customOptions?: Options) => {
+		const manifest: SSRManifest['i18n'] = {
+			...i18n,
+			fallback: undefined,
+			strategy: toRoutingStrategy({
+				...i18n,
+				// To review the types, I'm sure there's a way to extract the correct ones and make TS happy
+				// @ts-expect-error
+				routing: customOptions,
+			}),
+			domainLookupTable: {},
+		};
+		return I18nInternals.createMiddleware(manifest, base, trailingSlash, format);
+	};
+} else {
+	middleware = noop('middleware');
+}
