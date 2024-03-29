@@ -504,8 +504,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: 0.0.0-head-body-content-20240329154053
-        version: 0.0.0-head-body-content-20240329154053
+        specifier: 0.0.0-head-body-content-20240329184853
+        version: 0.0.0-head-body-content-20240329184853
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
@@ -5604,8 +5604,8 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
-  /@astrojs/compiler@0.0.0-head-body-content-20240329154053:
-    resolution: {integrity: sha512-EN5pMgKe3/b7ExMTiYx4UXGlS8UnqboDWtuTkvDSTsGzOoxIdvupIei07UgJpv7TaPQDmF86OL2uviIaxZTkjA==}
+  /@astrojs/compiler@0.0.0-head-body-content-20240329184853:
+    resolution: {integrity: sha512-WlG4KOOfjwkeBPC+cdJj/hnOZDwSsq4yaN1nneoS/cpBIyFuB5775K7r9/fork4psn8YLUjDVaKJX3hC7fQ1Ew==}
     dev: false
 
   /@astrojs/compiler@1.8.2:
