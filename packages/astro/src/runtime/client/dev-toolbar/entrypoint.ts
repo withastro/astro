@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			DevToolbarButton,
 			DevToolbarBadge,
 			DevToolbarIcon,
+			DevToolbarSelect,
 		},
 	] = await Promise.all([
 		loadDevToolbarApps() as DevToolbarAppDefinition[],
@@ -45,6 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	customElements.define('astro-dev-toolbar-button', DevToolbarButton);
 	customElements.define('astro-dev-toolbar-badge', DevToolbarBadge);
 	customElements.define('astro-dev-toolbar-icon', DevToolbarIcon);
+	customElements.define('astro-dev-toolbar-select', DevToolbarSelect);
 
 	// Add deprecated names
 	// TODO: Remove in Astro 5.0

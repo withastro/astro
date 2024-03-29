@@ -1,11 +1,5 @@
 import type { DevToolbarApp } from '../../../../@types/astro.js';
-import {
-	type Placement,
-	type Settings,
-	isValidPlacement,
-	placements,
-	settings,
-} from '../settings.js';
+import { type Settings, isValidPlacement, placements, settings } from '../settings.js';
 import { closeOnOutsideClick, createWindowElement } from './utils/window.js';
 
 interface SettingRow {
@@ -150,27 +144,6 @@ export default {
 					a:hover {
 						color: #f4ecfd;
 					}
-
-					select {
-						appearance: none;
-						text-align-last: center;
-						display: inline-block;
-						font-family: inherit;
-						font-size: 14px;
-						padding: 4px 24px 4px 8px;
-						border: 1px solid rgba(145, 152, 173, 1);
-						border-radius: 4px;
-						color: rgba(191, 193, 201, 1);
-						background-color: transparent;
-						background-image:
-							linear-gradient(45deg, transparent 50%, rgba(191, 193, 201, 1) 50%),
-							linear-gradient(135deg, rgba(191, 193, 201, 1) 50%, transparent 50%);
-						background-position:
-							calc(100% - 12px) calc(1em - 2px),
-							calc(100% - 8px) calc(1em - 2px);
-						background-size: 4px 4px;
-						background-repeat: no-repeat;
-					}
 				</style>
 				<header>
 					<h1><astro-dev-toolbar-icon icon="gear"></astro-dev-toolbar-icon> Settings</h1>
@@ -209,17 +182,19 @@ export default {
 						break;
 					}
 					case 'select': {
-						const select = document.createElement('select');
+						const astroSelect = document.createElement('astro-dev-toolbar-select');
 						placements.forEach((placement) => {
 							const option = document.createElement('option');
 							option.setAttribute('value', placement);
+							if (placement === settings.config[setting.settingKey]) {
+								option.selected = true;
+							}
 							option.textContent =
 								`${placement.slice(0, 1).toUpperCase()}${placement.slice(1)}`.replace('-', ' ');
-							select.append(option);
+							astroSelect.append(option);
 						});
-						select.value = settings.config[setting.settingKey] as Placement;
-						select.addEventListener('change', setting.changeEvent);
-						label.append(select);
+						astroSelect.element.addEventListener('change', setting.changeEvent);
+						label.append(astroSelect);
 						break;
 					}
 					default:
