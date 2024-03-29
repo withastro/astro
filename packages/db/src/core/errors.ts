@@ -19,22 +19,10 @@ export const RENAME_TABLE_ERROR = (oldTable: string, newTable: string) => {
 		red("\u25B6 Potential table rename detected: " + oldTable + " -> " + newTable) + `
   You cannot add and remove tables in the same schema update batch.
 
-  To rename a table you need to push twice. Follow these steps:
-
-  1. Keep the ${oldTable} schema in your config and add a 'deprecated: true' flag instead.
-  
-    const ${oldTable} = defineTable({
-      deprecated: true 
-      // ...
-    });
-
-    Also, do include in the ${newTable} schema as well.
-
-    Then run \`astro db push --remote\` again.
-
-  2. Remove the ${oldTable} schema from the config.
-  
-    Run \`astro db push --remote\`. You should now have only your renamed table.`
+  1. Use "deprecated: true" to deprecate a table before renaming.
+  2. Use "--force-reset" to ignore this warning and reset the database (deleting all of your data).
+	
+	Visit https://docs.astro.build/en/guides/astro-db/#renaming-tables to learn more.`
 	);
 };
 
