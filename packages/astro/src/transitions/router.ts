@@ -622,7 +622,7 @@ const onScrollEnd = () => {
 	// "scrollend" events. To avoid redundant work and expensive calls to
 	// `replaceState()`, we simply check that the values are different before
 	// updating.
-	if (scrollX !== history.state.scrollX || scrollY !== history.state.scrollY) {
+	if (history.state && (scrollX !== history.state.scrollX || scrollY !== history.state.scrollY)) {
 		updateScrollPosition({ scrollX, scrollY });
 	}
 };
@@ -696,18 +696,13 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 
 		const nextHead = nextPage.contentDocument?.head;
 		if (nextHead) {
-			// Clear former persist marks
-			document.head
-				.querySelectorAll(`style[${PERSIST_ATTR}=""]`)
-				.forEach((s) => s.removeAttribute(PERSIST_ATTR));
-
 			// Collect the vite ids of all styles present in the next head
 			const viteIds = [...nextHead.querySelectorAll(`style[${VITE_ID}]`)].map((style) =>
 				style.getAttribute(VITE_ID)
 			);
 			// Copy required styles to the new document if they are from hydration.
 			viteIds.forEach((id) => {
-				const style = document.head.querySelector(`style[${VITE_ID}="${id}"]`);
+				const style = nextHead.querySelector(`style[${VITE_ID}="${id}"]`);
 				if (style && !newDocument.head.querySelector(`style[${VITE_ID}="${id}"]`)) {
 					newDocument.head.appendChild(style.cloneNode(true));
 				}
@@ -716,8 +711,8 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 
 		// return a promise that resolves when all astro-islands are hydrated
 		async function hydrationDone(loadingPage: HTMLIFrameElement) {
-			await new Promise(
-				(r) => loadingPage.contentWindow?.addEventListener('load', r, { once: true })
+			await new Promise((r) =>
+				loadingPage.contentWindow?.addEventListener('load', r, { once: true })
 			);
 
 			return new Promise<void>(async (r) => {

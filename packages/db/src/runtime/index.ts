@@ -1,6 +1,4 @@
-import { LibsqlError } from '@libsql/client';
 import { type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
-import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import {
 	type IndexBuilder,
 	type SQLiteColumnBuilderBase,
@@ -10,58 +8,16 @@ import {
 	sqliteTable,
 	text,
 } from 'drizzle-orm/sqlite-core';
-import { SEED_DEFAULT_EXPORT_ERROR, SEED_ERROR } from '../core/errors.js';
 import { type DBColumn, type DBTable } from '../core/types.js';
 import { type SerializedSQL, isSerializedSQL } from './types.js';
 
-export { sql };
-export type SqliteDB = LibSQLDatabase;
 export type { Table } from './types.js';
 export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-client.js';
-
-export async function seedLocal({
-	// Glob all potential seed files to catch renames and deletions.
-	userSeedGlob,
-	integrationSeedImports,
-}: {
-	userSeedGlob: Record<string, { default?: () => Promise<void> }>;
-	integrationSeedImports: Array<() => Promise<{ default: () => Promise<void> }>>;
-}) {
-	const seedFilePath = Object.keys(userSeedGlob)[0];
-	if (seedFilePath) {
-		const mod = userSeedGlob[seedFilePath];
-
-		if (!mod.default) {
-			throw new Error(SEED_DEFAULT_EXPORT_ERROR(seedFilePath));
-		}
-		try {
-			await mod.default();
-		} catch (e) {
-			if (e instanceof LibsqlError) {
-				throw new Error(SEED_ERROR(e.message));
-			}
-			throw e;
-		}
-	}
-	for (const importModule of integrationSeedImports) {
-		const mod = await importModule();
-		await mod.default().catch((e) => {
-			if (e instanceof LibsqlError) {
-				throw new Error(SEED_ERROR(e.message));
-			}
-			throw e;
-		});
-	}
-}
+export { seedLocal } from './seed-local.js';
 
 export function hasPrimaryKey(column: DBColumn) {
 	return 'primaryKey' in column.schema && !!column.schema.primaryKey;
 }
-
-// Exports a few common expressions
-export const NOW = sql`CURRENT_TIMESTAMP`;
-export const TRUE = sql`TRUE`;
-export const FALSE = sql`FALSE`;
 
 const dateType = customType<{ data: Date; driverData: string }>({
 	dataType() {

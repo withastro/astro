@@ -119,11 +119,9 @@ declare module 'astro:transitions' {
 declare module 'astro:transitions/client' {
 	type TransitionRouterModule = typeof import('./dist/virtual-modules/transitions-router.js');
 	export const navigate: TransitionRouterModule['navigate'];
-
-	type TransitionUtilModule = typeof import('./dist/virtual-modules/transitions-util.js');
-	export const supportsViewTransitions: TransitionUtilModule['supportsViewTransitions'];
-	export const getFallback: TransitionUtilModule['getFallback'];
-	export const transitionEnabledOnThisPage: TransitionUtilModule['transitionEnabledOnThisPage'];
+	export const supportsViewTransitions: TransitionRouterModule['supportsViewTransitions'];
+	export const getFallback: TransitionRouterModule['getFallback'];
+	export const transitionEnabledOnThisPage: TransitionRouterModule['transitionEnabledOnThisPage'];
 
 	export type Fallback = import('./dist/virtual-modules/transitions-types.js').Fallback;
 	export type Direction = import('./dist/virtual-modules/transitions-types.ts').Direction;

@@ -455,7 +455,10 @@ async function writeContentFiles({
 						settings.config.experimental.contentCollectionJsonSchema &&
 						collectionConfig?.schema
 					) {
-						let zodSchemaForJson = collectionConfig.schema;
+						let zodSchemaForJson =
+							typeof collectionConfig.schema === 'function'
+								? collectionConfig.schema({ image: () => z.string() })
+								: collectionConfig.schema;
 						if (zodSchemaForJson instanceof z.ZodObject) {
 							zodSchemaForJson = zodSchemaForJson.extend({
 								$schema: z.string().optional(),
@@ -477,7 +480,7 @@ async function writeContentFiles({
 						} catch (err) {
 							logger.warn(
 								'content',
-								`An error was encountered while creating the JSON schema. Proceeding without it. Error: ${err}`
+								`An error was encountered while creating the JSON schema for the ${entryKey} entry in ${collectionKey} collection. Proceeding without it. Error: ${err}`
 							);
 						}
 					}

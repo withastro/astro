@@ -46,7 +46,7 @@ export async function setUpEnvTs({
 		if (!typesEnvContents.includes(dbTypeReference)) {
 			typesEnvContents = `${dbTypeReference}\n${typesEnvContents}`;
 			await writeFile(envTsPath, typesEnvContents, 'utf-8');
-			logger.info(`${cyan(bold('[astro:db]'))} Added ${bold(envTsPathRelativetoRoot)} types`);
+			logger.info(`Added ${bold(envTsPathRelativetoRoot)} types`);
 		}
 	}
 }

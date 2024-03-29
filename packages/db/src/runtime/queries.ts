@@ -1,12 +1,6 @@
 import { type SQL } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { bold } from 'kleur/colors';
-import {
-	FOREIGN_KEY_DNE_ERROR,
-	FOREIGN_KEY_REFERENCES_EMPTY_ERROR,
-	FOREIGN_KEY_REFERENCES_LENGTH_ERROR,
-	REFERENCE_DNE_ERROR,
-} from '../core/errors.js';
 import type {
 	BooleanColumn,
 	ColumnType,
@@ -17,6 +11,12 @@ import type {
 	NumberColumn,
 	TextColumn,
 } from '../core/types.js';
+import {
+	FOREIGN_KEY_DNE_ERROR,
+	FOREIGN_KEY_REFERENCES_EMPTY_ERROR,
+	FOREIGN_KEY_REFERENCES_LENGTH_ERROR,
+	REFERENCE_DNE_ERROR,
+} from './errors.js';
 import { hasPrimaryKey } from './index.js';
 import { isSerializedSQL } from './types.js';
 

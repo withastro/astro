@@ -17,4 +17,25 @@ const i18n = defineCollection({
 	}),
 });
 
-export const collections = { docs, i18n };
+const func = defineCollection({
+	type: 'data',
+	schema: () => z.object({
+		homepage: z.object({
+			greeting: z.string(),
+			preamble: z.string(),
+		})
+	}),
+});
+
+const image = defineCollection({
+	type: 'data',
+	schema: ({ image }) => z.object({
+		homepage: z.object({
+			greeting: z.string(),
+			preamble: z.string(),
+			image: image(),
+		})
+	}),
+});
+
+export const collections = { docs, func, image, i18n };

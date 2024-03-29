@@ -1,9 +1,10 @@
 /** @jsxImportSource preact */
 
 import { useState } from 'preact/hooks';
+import type { ComponentChildren } from 'preact';
 
 /** A counter written with Preact */
-export function PreactCounter({ children }) {
+export function PreactCounter({ children }: { children?: ComponentChildren }) {
 	const [count, setCount] = useState(0);
 	const add = () => setCount((i) => i + 1);
 	const subtract = () => setCount((i) => i - 1);

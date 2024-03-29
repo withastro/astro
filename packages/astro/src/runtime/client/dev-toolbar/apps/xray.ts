@@ -1,3 +1,4 @@
+import { escape as escapeHTML } from 'html-escaper';
 import type { DevToolbarApp, DevToolbarMetadata } from '../../../../@types/astro.js';
 import type { DevToolbarHighlight } from '../ui-library/highlight.js';
 import {
@@ -137,13 +138,14 @@ export default {
 				(prop: any) => !prop[0].startsWith('data-astro-cid-')
 			);
 			if (islandPropsEntries.length > 0) {
+				const stringifiedProps = JSON.stringify(
+					Object.fromEntries(islandPropsEntries.map((prop: any) => [prop[0], prop[1][1]])),
+					undefined,
+					2
+				);
 				tooltip.sections.push({
 					title: 'Props',
-					content: `<pre><code>${JSON.stringify(
-						Object.fromEntries(islandPropsEntries.map((prop: any) => [prop[0], prop[1][1]])),
-						undefined,
-						2
-					)}</code></pre>`,
+					content: `<pre><code>${escapeHTML(stringifiedProps)}</code></pre>`,
 				});
 			}
 

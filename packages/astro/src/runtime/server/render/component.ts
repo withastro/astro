@@ -459,11 +459,11 @@ export async function renderComponent(
 	slots: any = {}
 ): Promise<RenderInstance> {
 	if (isPromise(Component)) {
-		Component = await Component;
+		Component = await Component.catch(handleCancellation);
 	}
 
 	if (isFragmentComponent(Component)) {
-		return await renderFragmentComponent(result, slots);
+		return await renderFragmentComponent(result, slots).catch(handleCancellation);
 	}
 
 	// Ensure directives (`class:list`) are processed
@@ -471,14 +471,21 @@ export async function renderComponent(
 
 	// .html components
 	if (isHTMLComponent(Component)) {
-		return await renderHTMLComponent(result, Component, props, slots);
+		return await renderHTMLComponent(result, Component, props, slots).catch(handleCancellation);
 	}
 
 	if (isAstroComponentFactory(Component)) {
 		return renderAstroComponent(result, displayName, Component, props, slots);
 	}
 
-	return await renderFrameworkComponent(result, displayName, Component, props, slots);
+	return await renderFrameworkComponent(result, displayName, Component, props, slots).catch(
+		handleCancellation
+	);
+
+	function handleCancellation(e: unknown) {
+		if (result.cancelled) return { render() {} };
+		throw e;
+	}
 }
 
 function normalizeProps(props: Record<string, any>): Record<string, any> {
@@ -508,19 +515,17 @@ export async function renderComponentToString(
 	// Handle head injection if required. Note that this needs to run early so
 	// we can ensure getting a value for `head`.
 	let head = '';
-	if (nonAstroPageNeedsHeadInjection(Component)) {
-		for (const headChunk of maybeRenderHead()) {
-			head += chunkToString(result, headChunk);
-		}
+	if (isPage && !result.partial && nonAstroPageNeedsHeadInjection(Component)) {
+		head += chunkToString(result, maybeRenderHead());
 	}
 
 	try {
 		const destination: RenderDestination = {
 			write(chunk) {
 				// Automatic doctype and head insertion for pages
-				if (isPage && !renderedFirstPageChunk) {
+				if (isPage && !result.partial && !renderedFirstPageChunk) {
 					renderedFirstPageChunk = true;
-					if (!result.partial && !/<!doctype html/i.test(String(chunk))) {
+					if (!/<!doctype html/i.test(String(chunk))) {
 						const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
 						str += doctype + head;
 					}

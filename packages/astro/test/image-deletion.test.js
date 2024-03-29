@@ -3,7 +3,7 @@ import { before, describe, it } from 'node:test';
 import { testImageService } from './test-image-service.js';
 import { loadFixture } from './test-utils.js';
 
-describe('astro:assets - delete images that are unused zzz', () => {
+describe('astro:assets - delete images that are unused', () => {
 	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
 

@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 4.0.9
+
+### Patch Changes
+
+- [#10419](https://github.com/withastro/astro/pull/10419) [`ee07e62942eb07532bd70365c7dd3ca2e4a18064`](https://github.com/withastro/astro/commit/ee07e62942eb07532bd70365c7dd3ca2e4a18064) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes using images from public inside Vue components not working correctly
+
 ## 4.0.8
 
 ### Patch Changes

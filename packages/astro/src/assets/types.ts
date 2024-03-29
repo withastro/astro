@@ -11,7 +11,7 @@ export type ImageOutputFormat = (typeof VALID_OUTPUT_FORMATS)[number] | (string 
 export type AssetsGlobalStaticImagesList = Map<
 	string,
 	{
-		originalSrcPath: string;
+		originalSrcPath: string | undefined;
 		transforms: Map<string, { finalPath: string; transform: ImageTransform }>;
 	}
 >;
@@ -21,7 +21,7 @@ declare global {
 	var astroAsset: {
 		imageService?: ImageService;
 		addStaticImage?:
-			| ((options: ImageTransform, hashProperties: string[], fsPath: string) => string)
+			| ((options: ImageTransform, hashProperties: string[], fsPath: string | undefined) => string)
 			| undefined;
 		staticImages?: AssetsGlobalStaticImagesList;
 		referencedImages?: Set<string>;

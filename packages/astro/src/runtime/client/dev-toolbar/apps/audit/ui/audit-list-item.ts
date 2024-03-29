@@ -70,6 +70,7 @@ export class DevToolbarAuditListItem extends HTMLElement {
 				border: none;
 				z-index: 1000000000;
 				flex-direction: column;
+				line-height: 1.25rem;
 			}
 
 			:host([active])>button#astro-overlay-card {
@@ -104,6 +105,12 @@ export class DevToolbarAuditListItem extends HTMLElement {
 
 			.extended-info .audit-description {
 				color: rgba(191, 193, 201, 1);
+			}
+
+			.extended-info code {
+				padding: 1px 3px;
+				border-radius: 3px;
+				background: #1F2433;
 			}
 
 			.reset-button {

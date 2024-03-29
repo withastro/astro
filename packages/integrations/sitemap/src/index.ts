@@ -170,6 +170,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 					await simpleSitemapAndIndex({
 						hostname: finalSiteUrl.href,
 						destinationDir: destDir,
+						publicBasePath: config.base,
 						sourceData: urlData,
 						limit: entryLimit,
 						gzip: false,

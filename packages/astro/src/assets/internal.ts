@@ -8,7 +8,7 @@ import type {
 	SrcSetValue,
 	UnresolvedImageTransform,
 } from './types.js';
-import { isESMImportedImage, isRemoteImage } from './utils/imageKind.js';
+import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { probe } from './utils/remoteProbe.js';
 
 export async function getConfiguredImageService(): Promise<ImageService> {
@@ -56,10 +56,7 @@ export async function getImage(
 	// If the user inlined an import, something fairly common especially in MDX, or passed a function that returns an Image, await it for them
 	const resolvedOptions: ImageTransform = {
 		...options,
-		src:
-			typeof options.src === 'object' && 'then' in options.src
-				? (await options.src).default ?? (await options.src)
-				: options.src,
+		src: await resolveSrc(options.src),
 	};
 
 	// Infer size for remote images if inferSize is true
@@ -77,9 +74,9 @@ export async function getImage(
 		}
 	}
 
-	const originalPath = isESMImportedImage(resolvedOptions.src)
+	const originalFilePath = isESMImportedImage(resolvedOptions.src)
 		? resolvedOptions.src.fsPath
-		: resolvedOptions.src;
+		: undefined; // Only set for ESM imports, where we do have a file path
 
 	// Clone the `src` object if it's an ESM import so that we don't refer to any properties of the original object
 	// Causing our generate step to think the image is used outside of the image optimization pipeline
@@ -115,10 +112,14 @@ export async function getImage(
 		!(isRemoteImage(validatedOptions.src) && imageURL === validatedOptions.src)
 	) {
 		const propsToHash = service.propertiesToHash ?? DEFAULT_HASH_PROPS;
-		imageURL = globalThis.astroAsset.addStaticImage(validatedOptions, propsToHash, originalPath);
+		imageURL = globalThis.astroAsset.addStaticImage(
+			validatedOptions,
+			propsToHash,
+			originalFilePath
+		);
 		srcSets = srcSetTransforms.map((srcSet) => ({
 			transform: srcSet.transform,
-			url: globalThis.astroAsset.addStaticImage!(srcSet.transform, propsToHash, originalPath),
+			url: globalThis.astroAsset.addStaticImage!(srcSet.transform, propsToHash, originalFilePath),
 			descriptor: srcSet.descriptor,
 			attributes: srcSet.attributes,
 		}));

@@ -92,7 +92,7 @@ describe('Experimental Content Collections cache - inlineStylesheets to never in
 	});
 });
 
-describe.skip('Experimental Content Collections cache - inlineStylesheets to auto in static output', () => {
+describe('Experimental Content Collections cache - inlineStylesheets to auto in static output', () => {
 	let fixture;
 
 	before(async () => {
@@ -120,7 +120,7 @@ describe.skip('Experimental Content Collections cache - inlineStylesheets to aut
 
 	after(async () => await fixture.clean());
 
-	it.skip(
+	it(
 		'Renders some <style> and some <link> tags',
 		{ todo: 'Styles have the wrong length' },
 		async () => {

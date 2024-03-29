@@ -1,9 +1,9 @@
 /** @jsxImportSource solid-js */
 
-import { createSignal } from 'solid-js';
+import { createSignal, type JSX } from 'solid-js';
 
 /** A counter written with Solid */
-export default function SolidCounter({ children }) {
+export default function SolidCounter(props: { children?: JSX.Element }) {
 	const [count, setCount] = createSignal(0);
 	const add = () => setCount(count() + 1);
 	const subtract = () => setCount(count() - 1);
@@ -15,7 +15,7 @@ export default function SolidCounter({ children }) {
 				<pre>{count()}</pre>
 				<button onClick={add}>+</button>
 			</div>
-			<div class="counter-message">{children}</div>
+			<div class="counter-message">{props.children}</div>
 		</>
 	);
 }

@@ -1707,7 +1707,7 @@ export interface AstroUserConfig {
 		 * 		"fileMatch": [
 		 * 			"/src/content/test/**"
 		 * 		],
-		 * 		"url": "../../../.astro/collections/test.schema.json"
+		 * 		"url": "./.astro/collections/test.schema.json"
 		 * 	}
 		 * ]
 		 * ```
@@ -2763,6 +2763,10 @@ export type SSRComponentMetadata = {
 };
 
 export interface SSRResult {
+	/**
+	 * Whether the page has failed with a non-recoverable error, or the client disconnected.
+	 */
+	cancelled: boolean;
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;

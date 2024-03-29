@@ -1,5 +1,5 @@
 import fs, { readFileSync } from 'node:fs';
-import { basename, join } from 'node:path/posix';
+import { basename } from 'node:path/posix';
 import { dim, green } from 'kleur/colors';
 import type PQueue from 'p-queue';
 import type { AstroConfig } from '../../@types/astro.js';
@@ -9,7 +9,7 @@ import { getTimeStat } from '../../core/build/util.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { AstroErrorData } from '../../core/errors/index.js';
 import type { Logger } from '../../core/logger/core.js';
-import { isRemotePath, prependForwardSlash } from '../../core/path.js';
+import { isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
 import type { MapValue } from '../../type-utils.js';
 import { getConfiguredImageService } from '../internal.js';
@@ -89,10 +89,7 @@ export async function prepareAssetsGenerationEnv(
 }
 
 function getFullImagePath(originalFilePath: string, env: AssetEnv): URL {
-	return new URL(
-		'.' + prependForwardSlash(join(env.assetsFolder, basename(originalFilePath))),
-		env.serverRoot
-	);
+	return new URL(removeLeadingForwardSlash(originalFilePath), env.serverRoot);
 }
 
 export async function generateImagesForPath(
@@ -115,7 +112,7 @@ export async function generateImagesForPath(
 	// For instance, the same image could be referenced in both a server-rendered page and build-time-rendered page
 	if (
 		!env.isSSR &&
-		!isRemotePath(originalFilePath) &&
+		transformsAndPath.originalSrcPath &&
 		!globalThis.astroAsset.referencedImages?.has(transformsAndPath.originalSrcPath)
 	) {
 		try {

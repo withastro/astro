@@ -1,6 +1,7 @@
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
 import { resolveDbConfig } from '../load-file.js';
+import { printHelp } from './print-help.js';
 
 export async function cli({
 	flags,
@@ -53,30 +54,29 @@ export async function cli({
 			return await cmd();
 		}
 		default: {
-			if (command == null) {
-				console.error(`No command provided.
-
-${showHelp()}`);
-			} else {
-				console.error(`Unknown command: ${command}
-
-${showHelp()}`);
+			if (command != null) {
+				console.error(`Unknown command: ${command}`);
 			}
+			printHelp({
+				commandName: 'astro db',
+				usage: '[command] [...flags]',
+				headline: ' ',
+				tables: {
+					Commands: [
+						['push', 'Push table schema updates to Astro Studio.'],
+						['verify', 'Test schema updates /w Astro Studio (good for CI).'],
+						[
+							'astro db execute <file-path>',
+							'Execute a ts/js file using astro:db. Use --remote to connect to Studio.',
+						],
+						[
+							'astro db shell --query <sql-string>',
+							'Execute a SQL string. Use --remote to connect to Studio.',
+						],
+					],
+				},
+			});
 			return;
 		}
-	}
-
-	function showHelp() {
-		return `astro db <command>
-		
-Usage:
-
-astro login          Authenticate your machine with Astro Studio
-astro logout         End your authenticated session with Astro Studio
-astro link           Link this directory to an Astro Studio project
-
-astro db gen         Creates snapshot based on your schema
-astro db push        Pushes schema updates to Astro Studio
-astro db verify      Tests schema updates /w Astro Studio (good for CI)`;
 	}
 }
