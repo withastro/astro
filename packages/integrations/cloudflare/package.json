@@ -34,7 +34,7 @@
     "miniflare": "^3.20240320.0",
     "esbuild": "^0.19.5",
     "tiny-glob": "^0.2.9",
-    "wrangler": "^3.36.0"
+    "wrangler": "^3.39.0"
   },
   "peerDependencies": {
     "astro": "^4.2.0"

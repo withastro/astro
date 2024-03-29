@@ -173,7 +173,18 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.ssr ||= {};
 					vite.ssr.target = 'webworker';
 					vite.ssr.noExternal = true;
-					vite.ssr.external = _config.vite.ssr?.external ?? [];
+
+					if (typeof _config.vite.ssr?.external === 'undefined') vite.ssr.external = [];
+					if (typeof _config.vite.ssr?.external === 'boolean')
+						vite.ssr.external = _config.vite.ssr?.external;
+					if (Array.isArray(_config.vite.ssr?.external))
+						// `@astrojs/vue` sets `@vue/server-renderer` to external
+						// https://github.com/withastro/astro/blob/e648c5575a8774af739231cfa9fc27a32086aa5f/packages/integrations/vue/src/index.ts#L119
+						// the cloudflare adapter needs to get all dependencies inlined, we use `noExternal` for that, but any `external` config overrides that
+						// therefore we need to remove `@vue/server-renderer` from the external config again
+						vite.ssr.external = _config.vite.ssr?.external.filter(
+							(entry) => entry !== '@vue/server-renderer'
+						);
 
 					vite.build ||= {};
 					vite.build.rollupOptions ||= {};
