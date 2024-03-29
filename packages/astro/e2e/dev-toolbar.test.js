@@ -364,7 +364,7 @@ test.describe('Dev Toolbar', () => {
 		await expect(settingsWindow).toBeVisible();
 
 		for (const placement of ['bottom-left', 'bottom-center', 'bottom-right']) {
-			const select = toolbar.getByLabel('Placement');
+			const select = toolbar.getByRole('combobox');
 			await expect(select).toBeVisible();
 			await select.selectOption(placement);
 
