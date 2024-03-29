@@ -33,7 +33,7 @@ describe('Dynamic route collision', () => {
 		assert.equal($('h1').text(), 'Static Tags Index');
 	});
 
-	it('Builds a static nested index when in conflict with a spread route of a parent directory', async () => {
+	it('Builds a static nested index when in conflict with a spread route with slug with leading slash', async () => {
 		const html = await fixture.readFile('/test/ing/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('h1').text(), 'Static TestIng');
