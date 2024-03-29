@@ -1,5 +1,13 @@
 # @astrojs/cloudflare
 
+## 10.0.1
+
+### Patch Changes
+
+- [#212](https://github.com/withastro/adapters/pull/212) [`c22bb21`](https://github.com/withastro/adapters/commit/c22bb21f6bb0fece2bf29b9acaff08a78a6fce43) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - fixes an issue where projects using `@astrojs/solid-js` were unusable, due to wrong vite config
+
+- [#210](https://github.com/withastro/adapters/pull/210) [`317bd95`](https://github.com/withastro/adapters/commit/317bd9533b32558f481c50ec807d72ce1aa12cbb) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - fixes an issue where projects using `@astrojs/vue` were unusable, due to marking dependencies as external
+
 ## 10.0.0
 
 ### Major Changes
