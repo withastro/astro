@@ -32,6 +32,8 @@ async function loadSharp() {
 		throw new AstroError(AstroErrorData.MissingSharp);
 	}
 
+	sharpImport.cache(false);
+
 	return sharpImport;
 }
 
