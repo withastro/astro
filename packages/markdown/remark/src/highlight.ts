@@ -1,10 +1,10 @@
-import type { Element, Root } from 'hast';
+import type { Element, Parent, Root } from 'hast';
 import { fromHtml } from 'hast-util-from-html';
 import { toText } from 'hast-util-to-text';
 import { removePosition } from 'unist-util-remove-position';
 import { visitParents } from 'unist-util-visit-parents';
 
-type Highlighter = (code: string, language: string, options?: { meta?: string }) => string;
+type Highlighter = (code: string, language: string, options?: { meta?: string }) => Promise<string>;
 
 const languagePattern = /\blanguage-(\S+)\b/;
 
@@ -17,7 +17,14 @@ const languagePattern = /\blanguage-(\S+)\b/;
  *   A fnction which receives the code and language, and returns the HTML of a syntax
  *   highlighted `<pre>` element.
  */
-export function highlightCodeBlocks(tree: Root, highlighter: Highlighter) {
+export async function highlightCodeBlocks(tree: Root, highlighter: Highlighter) {
+	const nodes: Array<{
+		node: Element;
+		language: string;
+		parent: Element;
+		grandParent: Parent;
+	}> = [];
+
 	// We’re looking for `<code>` elements
 	visitParents(tree, { type: 'element', tagName: 'code' }, (node, ancestors) => {
 		const parent = ancestors.at(-1);
@@ -55,17 +62,25 @@ export function highlightCodeBlocks(tree: Root, highlighter: Highlighter) {
 			return;
 		}
 
+		nodes.push({
+			node,
+			language: languageMatch?.[1] || 'plaintext',
+			parent,
+			grandParent: ancestors.at(-2)!,
+		});
+	});
+
+	for (const { node, language, grandParent, parent } of nodes) {
 		const meta = (node.data as any)?.meta ?? node.properties.metastring ?? undefined;
 		const code = toText(node, { whitespace: 'pre' });
-		const html = highlighter(code, languageMatch?.[1] || 'plaintext', { meta });
+		const html = await highlighter(code, language, { meta });
 		// The replacement returns a root node with 1 child, the `<pr>` element replacement.
 		const replacement = fromHtml(html, { fragment: true }).children[0] as Element;
 		// We just generated this node, so any positional information is invalid.
 		removePosition(replacement);
 
 		// We replace the parent in its parent with the new `<pre>` element.
-		const grandParent = ancestors.at(-2)!;
 		const index = grandParent.children.indexOf(parent);
 		grandParent.children[index] = replacement;
-	});
+	}
 }

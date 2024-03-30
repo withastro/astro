@@ -7,6 +7,8 @@ export const rehypePrism: Plugin<[], Root> = () => (tree) => {
 	highlightCodeBlocks(tree, (code, language) => {
 		let { html, classLanguage } = runHighlighterWithAstro(language, code);
 
-		return `<pre class="${classLanguage}"><code is:raw class="${classLanguage}">${html}</code></pre>`;
+		return Promise.resolve(
+			`<pre class="${classLanguage}"><code is:raw class="${classLanguage}">${html}</code></pre>`
+		);
 	});
 };
