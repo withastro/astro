@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
 import type { DevToolbarApp as DevToolbarAppDefinition } from '../../../@types/astro.js';
-import { type Placement, settings } from './settings.js';
+import { settings } from './settings.js';
 import { type Icon, getIconElement, isDefinedIcon } from './ui-library/icons.js';
+import { type Placement } from './ui-library/window.js';
 
 export type DevToolbarApp = DevToolbarAppDefinition & {
 	builtIn: boolean;
@@ -566,7 +567,7 @@ export class AstroDevToolbar extends HTMLElement {
 		this.apps.forEach((app) => {
 			this.getAppCanvasById(app.id)
 				?.shadowRoot?.querySelector('astro-dev-toolbar-window')
-				?.setAttribute('data-placement', newPlacement);
+				?.setAttribute('placement', newPlacement);
 		});
 	}
 }

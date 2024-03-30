@@ -1,5 +1,32 @@
+import { defaultSettings, settings } from '../settings.js';
+
+export const placements = ['bottom-left', 'bottom-center', 'bottom-right'] as const;
+
+export type Placement = (typeof placements)[number];
+
+export function isValidPlacement(value: string): value is Placement {
+	return placements.map(String).includes(value);
+}
+
 export class DevToolbarWindow extends HTMLElement {
 	shadowRoot: ShadowRoot;
+	_placement: Placement = defaultSettings.placement;
+
+	get placement() {
+		return this._placement;
+	}
+	set placement(value) {
+		if (!isValidPlacement(value)) {
+			settings.logger.error(
+				`Invalid placement: ${value}, expected one of ${placements.join(', ')}, got ${value}.`
+			);
+			return;
+		}
+		this._placement = value;
+		this.updateStyle();
+	}
+
+	static observedAttributes = ['placement'];
 
 	constructor() {
 		super();
@@ -25,17 +52,6 @@ export class DevToolbarWindow extends HTMLElement {
 					z-index: 999999999;
 					bottom: 72px;
 					box-shadow: 0px 0px 0px 0px rgba(19, 21, 26, 0.30), 0px 1px 2px 0px rgba(19, 21, 26, 0.29), 0px 4px 4px 0px rgba(19, 21, 26, 0.26), 0px 10px 6px 0px rgba(19, 21, 26, 0.15), 0px 17px 7px 0px rgba(19, 21, 26, 0.04), 0px 26px 7px 0px rgba(19, 21, 26, 0.01);
-				}
-
-				:host([data-placement="bottom-left"]) {
-					left: 16px;
-				}
-				:host([data-placement="bottom-center"]) {
-					left: 50%;
-					transform: translateX(-50%);
-				}
-				:host([data-placement="bottom-right"]) {
-					right: 16px;
 				}
 
 				@media (forced-colors: active) {
@@ -84,8 +100,41 @@ export class DevToolbarWindow extends HTMLElement {
 					line-height: 1.5em;
 				}
 			</style>
+			<style id="selected-style"></style>
 
 			<slot />
 		`;
+
+		this.updateStyle();
+	}
+
+	attributeChangedCallback() {
+		if (this.hasAttribute('placement'))
+			this.placement = this.getAttribute('placement') as Placement;
+	}
+
+	updateStyle() {
+		const style = this.shadowRoot.querySelector<HTMLStyleElement>('#selected-style');
+		if (style) {
+			const styleMap: Record<Placement, string> = {
+				'bottom-left': `
+					:host {
+						left: 16px;
+					}
+				`,
+				'bottom-center': `
+					:host {
+						left: 50%;
+						transform: translateX(-50%);
+					}
+				`,
+				'bottom-right': `
+					:host {
+						right: 16px;
+					}
+				`,
+			};
+			style.innerHTML = styleMap[this.placement];
+		}
 	}
 }

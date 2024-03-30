@@ -1,5 +1,6 @@
 import type { DevToolbarApp } from '../../../../@types/astro.js';
-import { type Settings, isValidPlacement, placements, settings } from '../settings.js';
+import { type Settings, settings } from '../settings.js';
+import { isValidPlacement, placements } from '../ui-library/window.js';
 import { closeOnOutsideClick, createWindowElement } from './utils/window.js';
 
 interface SettingRow {

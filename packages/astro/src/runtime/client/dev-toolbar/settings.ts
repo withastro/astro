@@ -1,8 +1,4 @@
-export const placements = ['bottom-left', 'bottom-center', 'bottom-right'] as const;
-export type Placement = (typeof placements)[number];
-export function isValidPlacement(value: string): value is Placement {
-	return placements.map(String).includes(value);
-}
+import type { Placement } from './ui-library/window.js';
 
 export interface Settings {
 	disableAppNotification: boolean;
