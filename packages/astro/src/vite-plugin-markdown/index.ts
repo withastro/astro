@@ -32,13 +32,16 @@ const astroErrorModulePath = normalizePath(
 );
 
 export default function markdown({ settings, logger }: AstroPluginOptions): Plugin {
-	let processor: MarkdownProcessor;
+	let processor: MarkdownProcessor | undefined;
 
 	return {
 		enforce: 'pre',
 		name: 'astro:markdown',
 		async buildStart() {
 			processor = await createMarkdownProcessor(settings.config.markdown);
+		},
+		buildEnd() {
+			processor = undefined;
 		},
 		// Why not the "transform" hook instead of "load" + readFile?
 		// A: Vite transforms all "import.meta.env" references to their values before
@@ -52,7 +55,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 
 				const fileURL = pathToFileURL(fileId);
 
-				const renderResult = await processor
+				const renderResult = await processor!
 					.render(raw.content, {
 						// @ts-expect-error passing internal prop
 						fileURL,
