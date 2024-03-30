@@ -61,7 +61,6 @@ const SUPPORTED_NODE_VERSIONS: Record<
 	string,
 	{ status: 'default' } | { status: 'beta' } | { status: 'retiring'; removal: Date | string } | { status: 'deprecated'; removal: Date }
 > = {
-	16: { status: 'deprecated', removal: new Date('February 6 2024') },
 	18: { status: 'retiring', removal: "Early 2025" },
 	20: { status: 'default' },
 };
