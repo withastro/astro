@@ -1,9 +1,11 @@
 import { existsSync } from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import type { AstroIntegration } from 'astro';
+import type { AstroConfig, AstroIntegration } from 'astro';
+import { AstroError } from 'astro/errors';
 import { mkdir, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
+import { loadEnv } from 'vite';
 import parseArgs from 'yargs-parser';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
 import { resolveDbConfig } from '../load-file.js';
@@ -33,12 +35,14 @@ function astroDBIntegration(): AstroIntegration {
 		},
 	};
 	let command: 'dev' | 'build' | 'preview';
+	let output: AstroConfig['output'] = 'server';
 	return {
 		name: 'astro:db',
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, command: _command, logger }) => {
 				command = _command;
 				root = config.root;
+				output = config.output;
 
 				if (command === 'preview') return;
 
@@ -111,6 +115,17 @@ function astroDBIntegration(): AstroIntegration {
 				});
 			},
 			'astro:build:start': async ({ logger }) => {
+				if (
+					!connectToStudio &&
+					!databaseFileEnvDefined() &&
+					(output === 'server' || output === 'hybrid')
+				) {
+					const message = `Attempting to build without the --remote flag or the ASTRO_DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`;
+					const hint =
+						'Learn more connecting to Studio: https://docs.astro.build/en/guides/astro-db/#connect-to-astro-studio';
+					throw new AstroError(message, hint);
+				}
+
 				logger.info('database: ' + (connectToStudio ? yellow('remote') : blue('local database.')));
 			},
 			'astro:build:done': async ({}) => {
@@ -118,6 +133,11 @@ function astroDBIntegration(): AstroIntegration {
 			},
 		},
 	};
+}
+
+function databaseFileEnvDefined() {
+	const env = loadEnv('', process.cwd());
+	return env.ASTRO_DATABASE_FILE != null || process.env.ASTRO_DATABASE_FILE != null;
 }
 
 export function integration(): AstroIntegration[] {

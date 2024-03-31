@@ -23,26 +23,26 @@ const userInitial = tableSchema.parse(
 describe('force reset', () => {
 	describe('getMigrationQueries', () => {
 		it('should drop table and create new version', async () => {
-			const oldCollections = { [TABLE_NAME]: userInitial };
-			const newCollections = { [TABLE_NAME]: userInitial };
+			const oldTables = { [TABLE_NAME]: userInitial };
+			const newTables = { [TABLE_NAME]: userInitial };
 			const { queries } = await getMigrationQueries({
-				oldSnapshot: { schema: oldCollections, version: MIGRATION_VERSION },
-				newSnapshot: { schema: newCollections, version: MIGRATION_VERSION },
+				oldSnapshot: { schema: oldTables, version: MIGRATION_VERSION },
+				newSnapshot: { schema: newTables, version: MIGRATION_VERSION },
 				reset: true,
 			});
 
 			expect(queries).to.deep.equal([
-				`DROP TABLE "${TABLE_NAME}"`,
+				`DROP TABLE IF EXISTS "${TABLE_NAME}"`,
 				`CREATE TABLE "${TABLE_NAME}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "email" text NOT NULL UNIQUE, "mi" text)`,
 			]);
 		});
 
 		it('should not drop table when previous snapshot did not have it', async () => {
-			const oldCollections = {};
-			const newCollections = { [TABLE_NAME]: userInitial };
+			const oldTables = {};
+			const newTables = { [TABLE_NAME]: userInitial };
 			const { queries } = await getMigrationQueries({
-				oldSnapshot: { schema: oldCollections, version: MIGRATION_VERSION },
-				newSnapshot: { schema: newCollections, version: MIGRATION_VERSION },
+				oldSnapshot: { schema: oldTables, version: MIGRATION_VERSION },
+				newSnapshot: { schema: newTables, version: MIGRATION_VERSION },
 				reset: true,
 			});
 

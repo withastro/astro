@@ -1,5 +1,39 @@
 # astro
 
+## 4.5.12
+
+### Patch Changes
+
+- [#10596](https://github.com/withastro/astro/pull/10596) [`20463a6c1e1271d8dc3cb0ab3419ee5c72abd218`](https://github.com/withastro/astro/commit/20463a6c1e1271d8dc3cb0ab3419ee5c72abd218) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add `removeBase` function
+
+- Updated dependencies [[`20463a6c1e1271d8dc3cb0ab3419ee5c72abd218`](https://github.com/withastro/astro/commit/20463a6c1e1271d8dc3cb0ab3419ee5c72abd218)]:
+  - @astrojs/internal-helpers@0.4.0
+
+## 4.5.11
+
+### Patch Changes
+
+- [#10567](https://github.com/withastro/astro/pull/10567) [`fbdc10f90f7baa5c49f2f53e3e4ce8f453814c01`](https://github.com/withastro/astro/commit/fbdc10f90f7baa5c49f2f53e3e4ce8f453814c01) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `astro:assets` not working when using complex config with `vite.build.rollupOptions.output.assetFileNames`
+
+- [#10593](https://github.com/withastro/astro/pull/10593) [`61e283e5a0d95b6ef5d3c4c985d6ee78f74bbd8e`](https://github.com/withastro/astro/commit/61e283e5a0d95b6ef5d3c4c985d6ee78f74bbd8e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes Polymorphic type helper causing TypeScript errors in certain cases after the previous update
+
+- [#10543](https://github.com/withastro/astro/pull/10543) [`0fd36bdb383297b32cc523b57d2442132da41595`](https://github.com/withastro/astro/commit/0fd36bdb383297b32cc523b57d2442132da41595) Thanks [@matthewp](https://github.com/matthewp)! - Fixes inline stylesheets with content collections cache
+
+- [#10582](https://github.com/withastro/astro/pull/10582) [`a05953538fcf524786385830b99c0c5a015173e8`](https://github.com/withastro/astro/commit/a05953538fcf524786385830b99c0c5a015173e8) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where the dev server got stuck in a loop while routing responses with a 404 status code to the 404 route.
+
+## 4.5.10
+
+### Patch Changes
+
+- [#10549](https://github.com/withastro/astro/pull/10549) [`54c2f9707f5d038630143f769e3075c698474654`](https://github.com/withastro/astro/commit/54c2f9707f5d038630143f769e3075c698474654) Thanks [@admirsaheta](https://github.com/admirsaheta)! - Updates the `HTMLAttributes` type exported from `astro` to allow data attributes
+
+- [#10562](https://github.com/withastro/astro/pull/10562) [`348c1ca1323d0516c2dcf8e963343cd12cb5407f`](https://github.com/withastro/astro/commit/348c1ca1323d0516c2dcf8e963343cd12cb5407f) Thanks [@apetta](https://github.com/apetta)! - Fixes minor type issues inside the built-in components of Astro
+
+- [#10550](https://github.com/withastro/astro/pull/10550) [`34fa8e131b85531e6629390307108ffc4adb7ed1`](https://github.com/withastro/astro/commit/34fa8e131b85531e6629390307108ffc4adb7ed1) Thanks [@Skn0tt](https://github.com/Skn0tt)! - Fixes bug where server builds would include unneeded assets in SSR Function, potentially leading to upload errors on Vercel, Netlify because of size limits
+
+- Updated dependencies [[`c585528f446ccca3d4c643f4af5d550b93c18902`](https://github.com/withastro/astro/commit/c585528f446ccca3d4c643f4af5d550b93c18902)]:
+  - @astrojs/markdown-remark@4.3.2
+
 ## 4.5.9
 
 ### Patch Changes

@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import {
-	getCollectionChangeQueries,
 	getMigrationQueries,
+	getTableChangeQueries,
 } from '../../dist/core/cli/migration-queries.js';
 import { MIGRATION_VERSION } from '../../dist/core/consts.js';
 import { tableSchema } from '../../dist/core/schemas.js';
@@ -24,54 +24,52 @@ const userInitial = tableSchema.parse(
 );
 
 function userChangeQueries(oldTable, newTable) {
-	return getCollectionChangeQueries({
-		collectionName: TABLE_NAME,
-		oldCollection: oldTable,
-		newCollection: newTable,
+	return getTableChangeQueries({
+		tableName: TABLE_NAME,
+		oldTable,
+		newTable,
 	});
 }
 
-function configChangeQueries(oldCollections, newCollections) {
+function configChangeQueries(oldTables, newTables) {
 	return getMigrationQueries({
-		oldSnapshot: { schema: oldCollections, version: MIGRATION_VERSION },
-		newSnapshot: { schema: newCollections, version: MIGRATION_VERSION },
+		oldSnapshot: { schema: oldTables, version: MIGRATION_VERSION },
+		newSnapshot: { schema: newTables, version: MIGRATION_VERSION },
 	});
 }
 
 describe('column queries', () => {
 	describe('getMigrationQueries', () => {
 		it('should be empty when tables are the same', async () => {
-			const oldCollections = { [TABLE_NAME]: userInitial };
-			const newCollections = { [TABLE_NAME]: userInitial };
-			const { queries } = await configChangeQueries(oldCollections, newCollections);
+			const oldTables = { [TABLE_NAME]: userInitial };
+			const newTables = { [TABLE_NAME]: userInitial };
+			const { queries } = await configChangeQueries(oldTables, newTables);
 			expect(queries).to.deep.equal([]);
 		});
 
 		it('should create table for new tables', async () => {
-			const oldCollections = {};
-			const newCollections = { [TABLE_NAME]: userInitial };
-			const { queries } = await configChangeQueries(oldCollections, newCollections);
+			const oldTables = {};
+			const newTables = { [TABLE_NAME]: userInitial };
+			const { queries } = await configChangeQueries(oldTables, newTables);
 			expect(queries).to.deep.equal([
 				`CREATE TABLE "${TABLE_NAME}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "email" text NOT NULL UNIQUE, "mi" text)`,
 			]);
 		});
 
 		it('should drop table for removed tables', async () => {
-			const oldCollections = { [TABLE_NAME]: userInitial };
-			const newCollections = {};
-			const { queries } = await configChangeQueries(oldCollections, newCollections);
+			const oldTables = { [TABLE_NAME]: userInitial };
+			const newTables = {};
+			const { queries } = await configChangeQueries(oldTables, newTables);
 			expect(queries).to.deep.equal([`DROP TABLE "${TABLE_NAME}"`]);
 		});
 
 		it('should error if possible table rename is detected', async () => {
 			const rename = 'Peeps';
-			const oldCollections = { [TABLE_NAME]: userInitial };
-			const newCollections = { [rename]: userInitial };
+			const oldTables = { [TABLE_NAME]: userInitial };
+			const newTables = { [rename]: userInitial };
 			let error = null;
 			try {
-				await configChangeQueries(oldCollections, newCollections, {
-					collectionRenames: { [rename]: TABLE_NAME },
-				});
+				await configChangeQueries(oldTables, newTables);
 			} catch (e) {
 				error = e.message;
 			}
@@ -99,7 +97,7 @@ describe('column queries', () => {
 		});
 	});
 
-	describe('getCollectionChangeQueries', () => {
+	describe('getTableChangeQueries', () => {
 		it('should be empty when tables are the same', async () => {
 			const { queries } = await userChangeQueries(userInitial, userInitial);
 			expect(queries).to.deep.equal([]);

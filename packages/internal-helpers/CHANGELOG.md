@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.4.0
+
+### Minor Changes
+
+- [#10596](https://github.com/withastro/astro/pull/10596) [`20463a6c1e1271d8dc3cb0ab3419ee5c72abd218`](https://github.com/withastro/astro/commit/20463a6c1e1271d8dc3cb0ab3419ee5c72abd218) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add `removeBase` function
+
 ## 0.3.0
 
 ### Minor Changes

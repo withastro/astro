@@ -16,7 +16,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 
 import { MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
-import { CONTENT_FLAGS, CONTENT_TYPES_FILE } from './consts.js';
+import { CONTENT_FLAGS, CONTENT_TYPES_FILE, PROPAGATED_ASSET_FLAG } from './consts.js';
 import { errorMap } from './error-map.js';
 import { createImage } from './runtime-assets.js';
 
@@ -504,4 +504,12 @@ export function getExtGlob(exts: string[]) {
 		? // Wrapping {...} breaks when there is only one extension
 			exts[0]
 		: `{${exts.join(',')}}`;
+}
+
+export function hasAssetPropagationFlag(id: string): boolean {
+	try {
+		return new URL(id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG);
+	} catch {
+		return false;
+	}
 }

@@ -1,5 +1,30 @@
 # @astrojs/vercel
 
+## 7.5.0
+
+### Minor Changes
+
+- [#10513](https://github.com/withastro/astro/pull/10513) [`a573cc199a00d35410197ba4117c97764a984dc0`](https://github.com/withastro/astro/commit/a573cc199a00d35410197ba4117c97764a984dc0) Thanks [@tk04](https://github.com/tk04)! - The `isr.exclude` configuration can now include routes with dynamic and spread parameters.
+  ```ts
+  export default defineConfig({
+      adapter: vercel({
+          isr: {
+              exclude: [
+                  "/blog/[title]"
+                  "/api/[...slug]",
+              ]
+          }
+      })
+  })
+  ```
+
+## 7.4.1
+
+### Patch Changes
+
+- Updated dependencies [[`20463a6c1e1271d8dc3cb0ab3419ee5c72abd218`](https://github.com/withastro/astro/commit/20463a6c1e1271d8dc3cb0ab3419ee5c72abd218)]:
+  - @astrojs/internal-helpers@0.4.0
+
 ## 7.4.0
 
 ### Minor Changes

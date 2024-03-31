@@ -4,6 +4,7 @@ import { type ZodTypeDef, z } from 'zod';
 import { SERIALIZED_SQL_KEY, type SerializedSQL } from '../runtime/types.js';
 import { errorMap } from './integration/error-map.js';
 import type { NumberColumn, TextColumn } from './types.js';
+import { mapObject } from './utils.js';
 
 export type MaybeArray<T> = T | T[];
 
@@ -23,9 +24,9 @@ const baseColumnSchema = z.object({
 	unique: z.boolean().optional().default(false),
 	deprecated: z.boolean().optional().default(false),
 
-	// Defined when `defineReadableTable()` is called
+	// Defined when `defineDb()` is called to resolve `references`
 	name: z.string().optional(),
-	// TODO: rename to `tableName`. Breaking schema change
+	// TODO: Update to `table`. Will need migration file version change
 	collection: z.string().optional(),
 });
 
@@ -156,11 +157,6 @@ export const referenceableColumnSchema = z.union([textColumnSchema, numberColumn
 
 export const columnsSchema = z.record(columnSchema);
 
-export const indexSchema = z.object({
-	on: z.string().or(z.array(z.string())),
-	unique: z.boolean().optional(),
-});
-
 type ForeignKeysInput = {
 	columns: MaybeArray<string>;
 	references: () => MaybeArray<Omit<z.input<typeof referenceableColumnSchema>, 'references'>>;
@@ -179,9 +175,23 @@ const foreignKeysSchema: z.ZodType<ForeignKeysOutput, ZodTypeDef, ForeignKeysInp
 		.transform((fn) => fn()),
 });
 
+export const resolvedIndexSchema = z.object({
+	on: z.string().or(z.array(z.string())),
+	unique: z.boolean().optional(),
+});
+/** @deprecated */
+const legacyIndexesSchema = z.record(resolvedIndexSchema);
+
+export const indexSchema = z.object({
+	on: z.string().or(z.array(z.string())),
+	unique: z.boolean().optional(),
+	name: z.string().optional(),
+});
+const indexesSchema = z.array(indexSchema);
+
 export const tableSchema = z.object({
 	columns: columnsSchema,
-	indexes: z.record(indexSchema).optional(),
+	indexes: indexesSchema.or(legacyIndexesSchema).optional(),
 	foreignKeys: z.array(foreignKeysSchema).optional(),
 	deprecated: z.boolean().optional().default(false),
 });
@@ -192,6 +202,7 @@ export const tablesSchema = z.preprocess((rawTables) => {
 	for (const [tableName, table] of Object.entries(tables)) {
 		// Append table and column names to columns.
 		// Used to track table info for references.
+		table.getName = () => tableName;
 		const { columns } = z.object({ columns: z.record(z.any()) }).parse(table, { errorMap });
 		for (const [columnName, column] of Object.entries(columns)) {
 			column.schema.name = columnName;
@@ -201,6 +212,34 @@ export const tablesSchema = z.preprocess((rawTables) => {
 	return rawTables;
 }, z.record(tableSchema));
 
-export const dbConfigSchema = z.object({
-	tables: tablesSchema.optional(),
-});
+export const dbConfigSchema = z
+	.object({
+		tables: tablesSchema.optional(),
+	})
+	.transform(({ tables = {}, ...config }) => {
+		return {
+			...config,
+			tables: mapObject(tables, (tableName, table) => {
+				const { indexes = {} } = table;
+				if (!Array.isArray(indexes)) {
+					return { ...table, indexes };
+				}
+				const resolvedIndexes: Record<string, z.infer<typeof resolvedIndexSchema>> = {};
+				for (const index of indexes) {
+					if (index.name) {
+						const { name, ...rest } = index;
+						resolvedIndexes[index.name] = rest;
+						continue;
+					}
+					// Sort index columns to ensure consistent index names
+					const indexOn = Array.isArray(index.on) ? index.on.sort().join('_') : index.on;
+					const name = tableName + '_' + indexOn + '_idx';
+					resolvedIndexes[name] = index;
+				}
+				return {
+					...table,
+					indexes: resolvedIndexes,
+				};
+			}),
+		};
+	});

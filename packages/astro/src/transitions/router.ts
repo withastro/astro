@@ -184,6 +184,7 @@ const moveToLocation = (
 			);
 		}
 	}
+	document.title = targetPageTitle;
 	// now we are on the new page for non-history navigations!
 	// (with history navigation page change happens before popstate is fired)
 	originalLocation = to;
@@ -212,7 +213,6 @@ const moveToLocation = (
 		}
 		history.scrollRestoration = 'manual';
 	}
-	document.title = targetPageTitle;
 };
 
 function preloadStyleLinks(newDocument: Document) {
