@@ -21,6 +21,7 @@ export type StylesheetAsset =
 	| { type: 'external'; src: string };
 
 export interface PageBuildData {
+	key: string;
 	component: ComponentPath;
 	route: RouteData;
 	moduleSpecifier: string;
