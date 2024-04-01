@@ -51,12 +51,12 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	// Build internals needed by the CSS plugin
 	const internals = createBuildInternals();
 
-	for (const [component, pageData] of Object.entries(allPages)) {
-		const astroModuleURL = new URL('./' + component, settings.config.root);
-		const astroModuleId = prependForwardSlash(component);
+	for (const pageData of Object.values(allPages)) {
+		const astroModuleURL = new URL('./' + pageData.component, settings.config.root);
+		const astroModuleId = prependForwardSlash(pageData.component);
 
 		// Track the page data in internals
-		trackPageData(internals, component, pageData, astroModuleId, astroModuleURL);
+		trackPageData(internals, pageData.component, pageData, astroModuleId, astroModuleURL);
 
 		if (!routeIsRedirect(pageData.route)) {
 			pageInput.add(astroModuleId);

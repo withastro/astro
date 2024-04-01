@@ -248,8 +248,8 @@ export function* eachPageData(internals: BuildInternals) {
 }
 
 export function* eachPageFromAllPages(allPages: AllPagesData): Generator<[string, PageBuildData]> {
-	for (const [path, pageData] of Object.entries(allPages)) {
-		yield [path, pageData];
+	for (const pageData of Object.values(allPages)) {
+		yield [pageData.component, pageData];
 	}
 }
 
