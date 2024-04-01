@@ -1,6 +1,6 @@
 import type { DevToolbarApp } from '../../../../@types/astro.js';
 import { type Settings, settings } from '../settings.js';
-import { isValidPlacement, placements } from '../ui-library/window.js';
+import { type Placement, isValidPlacement, placements } from '../ui-library/window.js';
 import { closeOnOutsideClick, createWindowElement } from './utils/window.js';
 
 interface SettingRow {
@@ -71,6 +71,17 @@ export default {
 
 		document.addEventListener('astro:after-swap', createSettingsWindow);
 
+		eventTarget.addEventListener('placement-updated', (evt) => {
+			if (!(evt instanceof CustomEvent)) {
+				return;
+			}
+			const windowElement = canvas.querySelector('astro-dev-toolbar-window');
+			if (!windowElement) {
+				return;
+			}
+			const event: CustomEvent<{ placement: Placement }> = evt;
+			windowElement.placement = event.detail.placement;
+		});
 		closeOnOutsideClick(eventTarget);
 
 		function createSettingsWindow() {

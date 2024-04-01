@@ -1,6 +1,7 @@
 import { escape as escapeHTML } from 'html-escaper';
 import type { DevToolbarApp, DevToolbarMetadata } from '../../../../@types/astro.js';
 import type { DevToolbarHighlight } from '../ui-library/highlight.js';
+import type { Placement } from '../ui-library/window.js';
 import {
 	attachTooltipToHighlight,
 	createHighlight,
@@ -24,6 +25,17 @@ export default {
 		document.addEventListener('astro:after-swap', addIslandsOverlay);
 		document.addEventListener('astro:page-load', refreshIslandsOverlayPositions);
 
+		eventTarget.addEventListener('placement-updated', (evt) => {
+			if (!(evt instanceof CustomEvent)) {
+				return;
+			}
+			const windowElement = canvas.querySelector('astro-dev-toolbar-window');
+			if (!windowElement) {
+				return;
+			}
+			const event: CustomEvent<{ placement: Placement }> = evt;
+			windowElement.placement = event.detail.placement;
+		});
 		closeOnOutsideClick(eventTarget);
 
 		function addIslandsOverlay() {

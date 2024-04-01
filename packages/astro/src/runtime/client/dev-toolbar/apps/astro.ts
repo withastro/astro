@@ -1,5 +1,6 @@
 import type { DevToolbarApp, DevToolbarMetadata } from '../../../../@types/astro.js';
 import { type Icon, isDefinedIcon } from '../ui-library/icons.js';
+import type { Placement } from '../ui-library/window.js';
 import { colorForIntegration, iconForIntegration } from './utils/icons.js';
 import { closeOnOutsideClick, createWindowElement } from './utils/window.js';
 
@@ -42,6 +43,17 @@ export default {
 			if (event.detail.state === true) {
 				if (!integrationData) fetchIntegrationData();
 			}
+		});
+		eventTarget.addEventListener('placement-updated', (evt) => {
+			if (!(evt instanceof CustomEvent)) {
+				return;
+			}
+			const windowElement = canvas.querySelector('astro-dev-toolbar-window');
+			if (!windowElement) {
+				return;
+			}
+			const event: CustomEvent<{ placement: Placement }> = evt;
+			windowElement.placement = event.detail.placement;
 		});
 
 		closeOnOutsideClick(eventTarget);

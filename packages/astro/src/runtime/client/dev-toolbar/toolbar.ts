@@ -565,9 +565,13 @@ export class AstroDevToolbar extends HTMLElement {
 	setToolbarPlacement(newPlacement: Placement) {
 		this.devToolbarContainer?.setAttribute('data-placement', newPlacement);
 		this.apps.forEach((app) => {
-			this.getAppCanvasById(app.id)
-				?.shadowRoot?.querySelector('astro-dev-toolbar-window')
-				?.setAttribute('placement', newPlacement);
+			app.eventTarget.dispatchEvent(
+				new CustomEvent('placement-updated', {
+					detail: {
+						placement: newPlacement,
+					},
+				})
+			);
 		});
 	}
 }
