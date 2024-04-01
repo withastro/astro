@@ -2,7 +2,6 @@ import { existsSync } from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import type { AstroConfig, AstroIntegration } from 'astro';
-import { AstroError } from 'astro/errors';
 import { mkdir, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
 import { loadEnv } from 'vite';
@@ -16,6 +15,7 @@ import { fileURLIntegration } from './file-url.js';
 import { typegenInternal } from './typegen.js';
 import { type LateSeedFiles, type LateTables, resolved, vitePluginDb } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
+import { AstroDbError } from '../../utils.js';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectToStudio = false;
@@ -161,7 +161,7 @@ function astroDBIntegration(): AstroIntegration {
 					const message = `Attempting to build without the --remote flag or the ASTRO_DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`;
 					const hint =
 						'Learn more connecting to Studio: https://docs.astro.build/en/guides/astro-db/#connect-to-astro-studio';
-					throw new AstroError(message, hint);
+					throw new AstroDbError(message, hint);
 				}
 
 				logger.info('database: ' + (connectToStudio ? yellow('remote') : blue('local database.')));
