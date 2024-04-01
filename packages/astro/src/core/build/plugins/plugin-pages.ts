@@ -43,7 +43,8 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 				const exports: string[] = [];
 				const pageName = getPathFromVirtualModulePageName(ASTRO_PAGE_RESOLVED_MODULE_ID, id);
 				// TODO: Change that
-				const pageData = internals.pagesByKeys.get(pageName);
+				// const pageData = internals.pagesByKeys.get(pageName);
+				const pageData = tmp(internals.pagesByKeys, pageName);
 				if (pageData) {
 					const resolvedPage = await this.resolve(pageData.moduleSpecifier);
 					if (resolvedPage) {
@@ -72,4 +73,13 @@ export function pluginPages(opts: StaticBuildOptions, internals: BuildInternals)
 			},
 		},
 	};
+}
+
+/**
+ * TMP: This is a temporary function to get the page data from the pagesByKeys map.
+ */
+function tmp(pagesByKeys: Map<string, any>, pageName: string) {
+	for (const pages of pagesByKeys.values()) {
+		if (pages.component == pageName) return pages;
+	}
 }

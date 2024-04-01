@@ -55,8 +55,7 @@ function vitePluginSSR(
 						// we need to use the non-resolved ID in order to resolve correctly the virtual module
 						imports.push(`const ${variable} = () => import("${virtualModuleName}");`);
 
-						// TODO: Change that
-						const pageData2 = internals.pagesByKeys.get(path);
+						const pageData2 = internals.pagesByKeys.get(pageData.key);
 						if (pageData2) {
 							pageMap.push(`[${JSON.stringify(pageData2.component)}, ${variable}]`);
 						}
