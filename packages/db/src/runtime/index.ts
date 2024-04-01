@@ -130,3 +130,17 @@ function handleSerializedSQL<T>(def: T | SerializedSQL) {
 	}
 	return def;
 }
+
+export function normalizeDatabaseUrl(envDbUrl: string | undefined, defaultDbUrl: string): string {
+	if(envDbUrl) {
+		// This could be a file URL, or more likely a root-relative file path.
+		// Convert it to a file URL.
+		if(envDbUrl.startsWith('file://')) {
+			return envDbUrl;
+		}
+		return new URL(envDbUrl, process.cwd()).toString();
+	} else {
+		// This is going to be a file URL always,
+		return defaultDbUrl;
+	}
+}
