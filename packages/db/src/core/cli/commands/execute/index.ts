@@ -58,7 +58,7 @@ export async function cmd({
 
 	const mod = await importBundledFile({ code, root: astroConfig.root });
 	if (typeof mod.default !== 'function') {
-		console.error(EXEC_DEFAULT_EXPORT_ERROR);
+		console.error(EXEC_DEFAULT_EXPORT_ERROR(filePath));
 		process.exit(1);
 	}
 	try {
