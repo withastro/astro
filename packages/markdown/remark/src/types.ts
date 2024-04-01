@@ -49,8 +49,6 @@ export interface AstroMarkdownOptions {
 	smartypants?: boolean;
 }
 
-
-
 export interface MarkdownProcessor {
 	render: (
 		content: string,
@@ -74,15 +72,11 @@ export interface MarkdownProcessorRenderResult {
 	};
 }
 
-
-
 export interface MarkdownHeading {
 	depth: number;
 	slug: string;
 	text: string;
 }
-
-
 
 export interface MarkdownVFile extends VFile {
 	data: {
