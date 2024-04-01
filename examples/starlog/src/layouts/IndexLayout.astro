@@ -9,15 +9,14 @@ const { ...head } = Astro.props;
 ---
 
 <!doctype html>
-<meta charset="utf-8" />
 <html lang="en">
 	<head>
 		<BaseHead {...head} />
-		<body>
-			<div class="glow"></div>
-			<Header />
-			<slot />
-			<Footer />
-		</body>
 	</head>
+	<body>
+		<div class="glow"></div>
+		<Header />
+		<slot />
+		<Footer />
+	</body>
 </html>

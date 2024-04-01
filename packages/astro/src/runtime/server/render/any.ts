@@ -1,11 +1,14 @@
 import { escapeHTML, isHTMLString, markHTMLString } from '../escape.js';
+import { isPromise } from '../util.js';
 import { isAstroComponentInstance, isRenderTemplateResult } from './astro/index.js';
 import { type RenderDestination, isRenderInstance } from './common.js';
 import { SlotString } from './slot.js';
 import { renderToBufferDestination } from './util.js';
 
 export async function renderChild(destination: RenderDestination, child: any) {
-	child = await child;
+	if (isPromise(child)) {
+		child = await child;
+	}
 	if (child instanceof SlotString) {
 		destination.write(child);
 	} else if (isHTMLString(child)) {
