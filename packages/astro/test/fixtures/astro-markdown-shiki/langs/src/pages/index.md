@@ -24,3 +24,7 @@ fin
 ```unknown
 This language does not exist
 ```
+
+```ts
+const someTypeScript: number = 5;
+```

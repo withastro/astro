@@ -23,7 +23,7 @@ describe('Markdoc - syntax highlighting', () => {
 	describe('shiki', () => {
 		it('transforms with defaults', async () => {
 			const ast = Markdoc.parse(entry);
-			const content = Markdoc.transform(ast, await getConfigExtendingShiki());
+			const content = await Markdoc.transform(ast, await getConfigExtendingShiki());
 
 			assert.equal(content.children.length, 2);
 			for (const codeBlock of content.children) {
@@ -36,7 +36,7 @@ describe('Markdoc - syntax highlighting', () => {
 		});
 		it('transforms with `theme` property', async () => {
 			const ast = Markdoc.parse(entry);
-			const content = Markdoc.transform(
+			const content = await Markdoc.transform(
 				ast,
 				await getConfigExtendingShiki({
 					theme: 'dracula',
@@ -53,7 +53,7 @@ describe('Markdoc - syntax highlighting', () => {
 		});
 		it('transforms with `wrap` property', async () => {
 			const ast = Markdoc.parse(entry);
-			const content = Markdoc.transform(
+			const content = await Markdoc.transform(
 				ast,
 				await getConfigExtendingShiki({
 					wrap: true,
@@ -76,7 +76,7 @@ describe('Markdoc - syntax highlighting', () => {
 			const config = await setupConfig({
 				extends: [prism()],
 			});
-			const content = Markdoc.transform(ast, config);
+			const content = await Markdoc.transform(ast, config);
 
 			assert.equal(content.children.length, 2);
 			const [tsBlock, cssBlock] = content.children;
