@@ -185,6 +185,7 @@ export class BuildPipeline extends Pipeline {
 				entrypoint.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
 				entrypoint.includes(RESOLVED_SPLIT_MODULE_ID)
 			) {
+				console.log('entrypoint', this.internals.entrySpecifierToBundleMap);
 				const [, pageName] = entrypoint.split(':');
 				const pageData = this.internals.pagesByKeys.get(
 					`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`

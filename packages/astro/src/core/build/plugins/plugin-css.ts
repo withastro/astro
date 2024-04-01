@@ -15,7 +15,6 @@ import {
 	moduleIsTopLevelPage,
 } from '../graph.js';
 import {
-	eachPageData,
 	getPageDataByViteID,
 	getPageDatasByClientOnlyID,
 	getPageDatasByHoistedScriptId,
@@ -214,7 +213,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				(chunk) => chunk.type === 'asset' && chunk.name === 'style.css'
 			);
 			if (cssChunk === undefined) return;
-			for (const pageData of eachPageData(internals)) {
+			for (const pageData of internals.pagesByKeys.values()) {
 				const cssToInfoMap = (pagesToCss[pageData.moduleSpecifier] ??= {});
 				cssToInfoMap[cssChunk.fileName] = { depth: -1, order: -1 };
 			}
@@ -251,7 +250,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					? { type: 'inline', content: stylesheet.source }
 					: { type: 'external', src: stylesheet.fileName };
 
-				const pages = Array.from(eachPageData(internals));
+				const pages = Array.from(internals.pagesByKeys.values());
 				let sheetAddedToPage = false;
 
 				pages.forEach((pageData) => {

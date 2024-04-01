@@ -244,44 +244,14 @@ export function hasPageDataByViteID(internals: BuildInternals, viteid: ViteID): 
 	return internals.pagesByViteID.has(viteid);
 }
 
-export function* eachPageData(internals: BuildInternals) {
-	yield* internals.pagesByKeys.values();
-}
-
 export function* eachPageFromAllPages(allPages: AllPagesData): Generator<[string, PageBuildData]> {
 	for (const pageData of Object.values(allPages)) {
 		yield [pageData.component, pageData];
 	}
 }
 
-export function* eachPageDataFromEntryPoint(
-	internals: BuildInternals
-): Generator<[PageBuildData, string]> {
-	for (const [entrypoint, filePath] of internals.entrySpecifierToBundleMap) {
-		// virtual pages can be emitted with different prefixes:
-		// - the classic way are pages emitted with prefix ASTRO_PAGE_RESOLVED_MODULE_ID -> plugin-pages
-		// - pages emitted using `build.split`, in this case pages are emitted with prefix RESOLVED_SPLIT_MODULE_ID
-		if (
-			entrypoint.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
-			entrypoint.includes(RESOLVED_SPLIT_MODULE_ID)
-		) {
-			const [, pageName] = entrypoint.split(':');
-			const pageData = internals.pagesByKeys.get(
-				`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`
-			);
-			if (!pageData) {
-				throw new Error(
-					"Build failed. Astro couldn't find the emitted page from " + pageName + ' pattern'
-				);
-			}
-
-			yield [pageData, filePath];
-		}
-	}
-}
-
 export function hasPrerenderedPages(internals: BuildInternals) {
-	for (const pageData of eachPageData(internals)) {
+	for (const pageData of internals.pagesByKeys.values()) {
 		if (pageData.route.prerender) {
 			return true;
 		}
