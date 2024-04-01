@@ -2,12 +2,12 @@ import { existsSync } from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import type { AstroConfig, AstroIntegration } from 'astro';
-import { AstroError } from 'astro/errors';
 import { mkdir, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
 import { loadEnv } from 'vite';
 import parseArgs from 'yargs-parser';
 import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
+import { AstroDbError } from '../../utils.js';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
 import { resolveDbConfig } from '../load-file.js';
 import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
@@ -145,10 +145,17 @@ function astroDBIntegration(): AstroIntegration {
 						seedInFlight = true;
 						const mod = server.moduleGraph.getModuleById(resolved.seedVirtual);
 						if (mod) server.moduleGraph.invalidateModule(mod);
-						server.ssrLoadModule(resolved.seedVirtual).then(() => {
-							seedInFlight = false;
-							logger.info('Seeded database.');
-						});
+						server
+							.ssrLoadModule(resolved.seedVirtual)
+							.then(() => {
+								logger.info('Seeded database.');
+							})
+							.catch((e) => {
+								logger.error(e instanceof Error ? e.message : String(e));
+							})
+							.finally(() => {
+								seedInFlight = false;
+							});
 					}
 				}, 100);
 			},
@@ -161,7 +168,7 @@ function astroDBIntegration(): AstroIntegration {
 					const message = `Attempting to build without the --remote flag or the ASTRO_DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`;
 					const hint =
 						'Learn more connecting to Studio: https://docs.astro.build/en/guides/astro-db/#connect-to-astro-studio';
-					throw new AstroError(message, hint);
+					throw new AstroDbError(message, hint);
 				}
 
 				logger.info('database: ' + (connectToStudio ? yellow('remote') : blue('local database.')));
