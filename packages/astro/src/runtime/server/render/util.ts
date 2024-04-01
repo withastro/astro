@@ -149,6 +149,51 @@ export function renderElement(
 	return `<${name}${internalSpreadAttributes(props, shouldEscape)}>${children}</${name}>`;
 }
 
+const noop = () => {};
+
+/**
+ * Renders into a buffer until `renderToFinalDestination` is called (which
+ * flushes the buffer)
+ */
+class BufferedRenderer implements RenderDestination {
+	private chunks: RenderDestinationChunk[] = [];
+	private renderPromise: Promise<void> | void;
+	private destination?: RenderDestination;
+
+	public constructor(bufferRenderFunction: RenderFunction) {
+		this.renderPromise = bufferRenderFunction(this);
+		// Catch here in case it throws before `renderToFinalDestination` is called,
+		// to prevent an unhandled rejection.
+		Promise.resolve(this.renderPromise).catch(noop);
+	}
+
+	public write(chunk: RenderDestinationChunk): void {
+		if (this.destination) {
+			this.destination.write(chunk);
+		} else {
+			this.chunks.push(chunk);
+		}
+	}
+
+	public async renderToFinalDestination(destination: RenderDestination) {
+		// Write the buffered chunks to the real destination
+		for (const chunk of this.chunks) {
+			destination.write(chunk);
+		}
+
+		// NOTE: We don't empty `this.chunks` after it's written as benchmarks show
+		// that it causes poorer performance, likely due to forced memory re-allocation,
+		// instead of letting the garbage collector handle it automatically.
+		// (Unsure how this affects on limited memory machines)
+
+		// Re-assign the real destination so `instance.render` will continue and write to the new destination
+		this.destination = destination;
+
+		// Wait for render to finish entirely
+		await this.renderPromise;
+	}
+}
+
 /**
  * Executes the `bufferRenderFunction` to prerender it into a buffer destination, and return a promise
  * with an object containing the `renderToFinalDestination` function to flush the buffer to the final
@@ -171,42 +216,14 @@ export function renderElement(
 export function renderToBufferDestination(bufferRenderFunction: RenderFunction): {
 	renderToFinalDestination: RenderFunction;
 } {
-	// Keep chunks in memory
-	const bufferChunks: RenderDestinationChunk[] = [];
-	const bufferDestination: RenderDestination = {
-		write: (chunk) => bufferChunks.push(chunk),
-	};
-
-	// Don't await for the render to finish to not block streaming
-	const renderPromise = bufferRenderFunction(bufferDestination);
-	// Catch here in case it throws before `renderToFinalDestination` is called,
-	// to prevent an unhandled rejection.
-	Promise.resolve(renderPromise).catch(() => {});
-
-	// Return a closure that writes the buffered chunk
-	return {
-		async renderToFinalDestination(destination) {
-			// Write the buffered chunks to the real destination
-			for (const chunk of bufferChunks) {
-				destination.write(chunk);
-			}
-
-			// NOTE: We don't empty `bufferChunks` after it's written as benchmarks show
-			// that it causes poorer performance, likely due to forced memory re-allocation,
-			// instead of letting the garbage collector handle it automatically.
-			// (Unsure how this affects on limited memory machines)
-
-			// Re-assign the real destination so `instance.render` will continue and write to the new destination
-			bufferDestination.write = (chunk) => destination.write(chunk);
-
-			// Wait for render to finish entirely
-			await renderPromise;
-		},
-	};
+	const renderer = new BufferedRenderer(bufferRenderFunction);
+	return renderer;
 }
 
 export const isNode =
 	typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]';
+// @ts-expect-error: Deno is not part of the types.
+export const isDeno = typeof Deno !== 'undefined';
 
 // We can get rid of this when Promise.withResolvers() is ready
 export type PromiseWithResolvers<T> = {

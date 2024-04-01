@@ -20,6 +20,7 @@ export default function ({ include, exclude, compat }: Options = {}): AstroInteg
 		hooks: {
 			'astro:config:setup': ({ addRenderer, updateConfig, command }) => {
 				const preactPlugin = preact({
+					reactAliasesEnabled: compat ?? false,
 					include,
 					exclude,
 					babel: {
@@ -34,20 +35,13 @@ export default function ({ include, exclude, compat }: Options = {}): AstroInteg
 					},
 				};
 
-				// If not compat, delete the plugin that does it
-				if (!compat) {
-					const pIndex = preactPlugin.findIndex((p) => p.name == 'preact:config');
-					if (pIndex >= 0) {
-						preactPlugin.splice(pIndex, 1);
-					}
-				} else {
+				if (compat) {
 					viteConfig.optimizeDeps!.include!.push(
 						'preact/compat',
 						'preact/test-utils',
 						'preact/compat/jsx-runtime'
 					);
 					viteConfig.resolve = {
-						alias: [{ find: 'react/jsx-runtime', replacement: 'preact/jsx-runtime' }],
 						dedupe: ['preact/compat', 'preact'],
 					};
 					// noExternal React entrypoints to be bundled, resolved, and aliased by Vite
