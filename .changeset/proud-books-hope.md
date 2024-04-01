@@ -2,4 +2,4 @@
 "@astrojs/preact": patch
 ---
 
-Fix (theoretical) edge case in Preact integration's JSX aliases
+Fixes (theoretical) edge case in Preact integration's JSX aliases
