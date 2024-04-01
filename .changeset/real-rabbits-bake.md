@@ -2,6 +2,4 @@
 "@astrojs/markdown-remark": major
 ---
 
-This changes the `markdown-remark` package to lazily load shiki languages by
-default (only preloading `plaintext`). Additionally, highlighting is now an
-async task due to this.
+Updates Shiki syntax highlighting to lazily load shiki languages by default (only preloading `plaintext`). Additionally, the `createShikiHighlighter()` API now returns an asynchronous `highlight()` function due to this.
