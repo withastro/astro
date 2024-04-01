@@ -57,7 +57,7 @@ export async function copyDependenciesToFunction(
 					`[@astrojs/vercel] The module "${module}" couldn't be resolved. This may not be a problem, but it's worth checking.`
 				);
 			} else {
-				logger.info(
+				logger.debug(
 					`[@astrojs/vercel] The module "${module}" inside the file "${file}" couldn't be resolved. This may not be a problem, but it's worth checking.`
 				);
 			}
