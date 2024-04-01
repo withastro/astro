@@ -1,3 +1,4 @@
+import { pathToFileURL } from 'url';
 import { type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
 import {
 	type IndexBuilder,
@@ -10,7 +11,6 @@ import {
 } from 'drizzle-orm/sqlite-core';
 import { type DBColumn, type DBTable } from '../core/types.js';
 import { type SerializedSQL, isSerializedSQL } from './types.js';
-import { pathToFileURL } from 'url';
 
 export type { Table } from './types.js';
 export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-client.js';
@@ -133,10 +133,10 @@ function handleSerializedSQL<T>(def: T | SerializedSQL) {
 }
 
 export function normalizeDatabaseUrl(envDbUrl: string | undefined, defaultDbUrl: string): string {
-	if(envDbUrl) {
+	if (envDbUrl) {
 		// This could be a file URL, or more likely a root-relative file path.
 		// Convert it to a file URL.
-		if(envDbUrl.startsWith('file://')) {
+		if (envDbUrl.startsWith('file://')) {
 			return envDbUrl;
 		}
 		return new URL(envDbUrl, pathToFileURL(process.cwd())).toString();
