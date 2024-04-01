@@ -82,6 +82,7 @@ class TrieNode {
 
 class PathTrie {
 	root: TrieNode;
+	returnHasWildcard = false;
 
 	constructor() {
 		this.root = new TrieNode();
@@ -112,6 +113,7 @@ class PathTrie {
 	 */
 	private dfs(node: TrieNode, path: string[], allPaths: string[][]): void {
 		if (node.hasWildcardChild) {
+			this.returnHasWildcard = true;
 			allPaths.push([...path, '*']);
 			return;
 		}
@@ -125,10 +127,10 @@ class PathTrie {
 		}
 	}
 
-	getAllPaths(): string[][] {
+	getAllPaths(): [string[][], boolean] {
 		const allPaths: string[][] = [];
 		this.dfs(this.root, [], allPaths);
-		return allPaths;
+		return [allPaths, this.returnHasWildcard];
 	}
 }
 
@@ -153,6 +155,44 @@ export async function createRoutesFile(
 ) {
 	const includePaths: string[][] = [];
 	const excludePaths: string[][] = [];
+
+	/**
+	 * All files in the `_config.build.assets` path, e.g. `_astro`
+	 * are considered static assets and should not be handled by the function
+	 * therefore we exclude a wildcard for that, e.g. `/_astro/*`
+	 */
+	const assetsPath = segmentsToCfSyntax(
+		[
+			[{ content: _config.build.assets, dynamic: false, spread: false }],
+			[{ content: '', dynamic: true, spread: false }],
+		],
+		_config
+	);
+	excludePaths.push(assetsPath);
+
+	if (existsSync(fileURLToPath(_config.publicDir))) {
+		const staticFiles = await glob(`${fileURLToPath(_config.publicDir)}/**/*`, {
+			cwd: fileURLToPath(_config.publicDir),
+			filesOnly: true,
+			dot: true,
+		});
+		for (const staticFile of staticFiles) {
+			if (['_headers', '_redirects', '_routes.json'].includes(staticFile)) continue;
+			const staticPath = staticFile;
+
+			const segments = removeLeadingForwardSlash(staticPath)
+				.split(posix.sep)
+				.filter(Boolean)
+				.map((s: string) => {
+					return getParts(s);
+				});
+			excludePaths.push(segmentsToCfSyntax(segments, _config));
+		}
+	}
+
+	for (const redirect of redirects) {
+		excludePaths.push(segmentsToCfSyntax(redirect, _config));
+	}
 
 	let hasPrerendered404 = false;
 	for (const route of routes) {
@@ -189,6 +229,7 @@ export async function createRoutesFile(
 	}
 
 	for (const page of pages) {
+		if (page.pathname === '404') hasPrerendered404 = true;
 		const pageSegments = removeLeadingForwardSlash(page.pathname)
 			.split(posix.sep)
 			.filter(Boolean)
@@ -198,65 +239,46 @@ export async function createRoutesFile(
 		excludePaths.push(segmentsToCfSyntax(pageSegments, _config));
 	}
 
-	if (existsSync(fileURLToPath(_config.publicDir))) {
-		const staticFiles = await glob(`${fileURLToPath(_config.publicDir)}/**/*`, {
-			cwd: fileURLToPath(_config.publicDir),
-			filesOnly: true,
-			dot: true,
-		});
-		for (const staticFile of staticFiles) {
-			if (['_headers', '_redirects', '_routes.json'].includes(staticFile)) continue;
-			const staticPath = staticFile;
-
-			const segments = removeLeadingForwardSlash(staticPath)
-				.split(posix.sep)
-				.filter(Boolean)
-				.map((s: string) => {
-					return getParts(s);
-				});
-			excludePaths.push(segmentsToCfSyntax(segments, _config));
-		}
-	}
-
-	/**
-	 * All files in the `_config.build.assets` path, e.g. `_astro`
-	 * are considered static assets and should not be handled by the function
-	 * therefore we exclude a wildcard for that, e.g. `/_astro/*`
-	 */
-	const assetsPath = segmentsToCfSyntax(
-		[
-			[{ content: _config.build.assets, dynamic: false, spread: false }],
-			[{ content: '', dynamic: true, spread: false }],
-		],
-		_config
-	);
-	excludePaths.push(assetsPath);
-
-	for (const redirect of redirects) {
-		excludePaths.push(segmentsToCfSyntax(redirect, _config));
-	}
-
 	const includeTrie = new PathTrie();
 	for (const includePath of includePaths) {
 		includeTrie.insert(includePath);
 	}
-	const deduplicatedIncludePaths = includeTrie.getAllPaths();
+	const [deduplicatedIncludePaths, includedPathsHaveWildcard] = includeTrie.getAllPaths();
 
 	const excludeTrie = new PathTrie();
 	for (const excludePath of excludePaths) {
+		/**
+		 * A excludePath with starts with a wildcard (*) is a catch-all
+		 * that would mean all routes are static, that would be equal to a full SSG project
+		 * the adapter is not needed in this case, so we do not consider such paths
+		 */
+		if (excludePath[0] === '*') continue;
 		excludeTrie.insert(excludePath);
 	}
-	const deduplicatedExcludePaths = excludeTrie.getAllPaths();
+	const [deduplicatedExcludePaths, _excludedPathsHaveWildcard] = excludeTrie.getAllPaths();
 
 	/**
 	 * Cloudflare allows no more than 100 include/exclude rules combined
 	 * https://developers.cloudflare.com/pages/functions/routing/#limits
 	 */
 	const CLOUDFLARE_COMBINED_LIMIT = 100;
+	/**
+	 * Caluclate the number of automated and extended include rules
+	 */
+	const AUTOMATIC_INCLUDE_RULES_COUNT = deduplicatedIncludePaths.length;
+	const EXTENDED_INCLUDE_RULES_COUNT = includeExtends?.length ?? 0;
+	const INCLUDE_RULES_COUNT = AUTOMATIC_INCLUDE_RULES_COUNT + EXTENDED_INCLUDE_RULES_COUNT;
+	/**
+	 * Caluclate the number of automated and extended exclude rules
+	 */
+	const AUTOMATIC_EXCLUDE_RULES_COUNT = deduplicatedExcludePaths.length;
+	const EXTENDED_EXCLUDE_RULES_COUNT = excludeExtends?.length ?? 0;
+	const EXCLUDE_RULES_COUNT = AUTOMATIC_EXCLUDE_RULES_COUNT + EXTENDED_EXCLUDE_RULES_COUNT;
+
 	if (
 		!hasPrerendered404 ||
-		deduplicatedIncludePaths.length + (includeExtends?.length ?? 0) > CLOUDFLARE_COMBINED_LIMIT ||
-		deduplicatedExcludePaths.length + (excludeExtends?.length ?? 0) > CLOUDFLARE_COMBINED_LIMIT
+		INCLUDE_RULES_COUNT > CLOUDFLARE_COMBINED_LIMIT ||
+		EXCLUDE_RULES_COUNT > CLOUDFLARE_COMBINED_LIMIT
 	) {
 		await writeRoutesFileToOutDir(
 			_config,
@@ -264,8 +286,14 @@ export async function createRoutesFile(
 			['/*'].concat(includeExtends?.map((entry) => entry.pattern) ?? []),
 			deduplicatedExcludePaths
 				.map((path) => `${prependForwardSlash(path.join('/'))}`)
+				.slice(
+					0,
+					CLOUDFLARE_COMBINED_LIMIT -
+						EXTENDED_INCLUDE_RULES_COUNT -
+						EXTENDED_EXCLUDE_RULES_COUNT -
+						1
+				)
 				.concat(excludeExtends?.map((entry) => entry.pattern) ?? [])
-				.slice(0, 99)
 		);
 	} else {
 		await writeRoutesFileToOutDir(
@@ -274,9 +302,11 @@ export async function createRoutesFile(
 			deduplicatedIncludePaths
 				.map((path) => `${prependForwardSlash(path.join('/'))}`)
 				.concat(includeExtends?.map((entry) => entry.pattern) ?? []),
-			deduplicatedExcludePaths
-				.map((path) => `${prependForwardSlash(path.join('/'))}`)
-				.concat(excludeExtends?.map((entry) => entry.pattern) ?? [])
+			includedPathsHaveWildcard
+				? deduplicatedExcludePaths
+						.map((path) => `${prependForwardSlash(path.join('/'))}`)
+						.concat(excludeExtends?.map((entry) => entry.pattern) ?? [])
+				: []
 		);
 	}
 }
