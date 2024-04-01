@@ -66,7 +66,7 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 				const json = await res.json();
 				remoteResult = remoteResultSchema.parse(json);
 			} catch (e) {
-				throw new AstroDbError(await getUnexpectedErrorMessage(res));
+				throw new AstroDbError(await getUnexpectedResponseMessage(res));
 			}
 
 			if (method === 'run') return remoteResult;
@@ -108,7 +108,7 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 				const json = await res.json();
 				remoteResults = z.array(remoteResultSchema).parse(json);
 			} catch (e) {
-				throw new AstroDbError(await getUnexpectedErrorMessage(res));
+				throw new AstroDbError(await getUnexpectedResponseMessage(res));
 			}
 			let results: any[] = [];
 			for (const [idx, rawResult] of remoteResults.entries()) {
@@ -151,7 +151,7 @@ const KNOWN_ERROR_CODES = {
 	SQL_QUERY_FAILED: 'SQL_QUERY_FAILED',
 };
 
-const getUnexpectedErrorMessage = async (response: Response) =>
+const getUnexpectedResponseMessage = async (response: Response) =>
 	`Unexpected response from remote database:\n(Status ${response.status}) ${await response.text()}`;
 
 async function parseRemoteError(response: Response): Promise<AstroDbError> {
@@ -159,7 +159,7 @@ async function parseRemoteError(response: Response): Promise<AstroDbError> {
 	try {
 		error = errorSchema.parse(await response.json()).error;
 	} catch (e) {
-		return new AstroDbError(await getUnexpectedErrorMessage(response));
+		return new AstroDbError(await getUnexpectedResponseMessage(response));
 	}
 	// Strip LibSQL error prefixes
 	let details =

@@ -19,6 +19,6 @@ export default async function () {
 				{ name: 'Sarah' },
 			]),
 		db.insert(User).values([{ id: 'mario', username: 'Mario', password: 'itsame' }]),
-		db.insert(Session).values([{ id: '12345', expiresAt: new Date().valueOf(), userId: 'mario' }]),
+		db.insert(Session).values([{ id: '12345', expiresAt: new Date().valueOf(), userId: 'fake' }]),
 	]);
 }
