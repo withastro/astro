@@ -2,7 +2,7 @@ import { extname } from 'node:path';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
-import type { AstroPluginOptions, ImageTransform } from '../@types/astro.js';
+import type { AstroPluginOptions, AstroSettings, ImageTransform } from '../@types/astro.js';
 import { extendManualChunks } from '../core/build/plugins/util.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import {
@@ -24,6 +24,71 @@ const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
 const assetRegex = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})`, 'i');
 const assetRegexEnds = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})$`, 'i');
+const addStaticImageFactory = (
+	settings: AstroSettings
+): typeof globalThis.astroAsset.addStaticImage => {
+	return (options, hashProperties, originalFSPath) => {
+		if (!globalThis.astroAsset.staticImages) {
+			globalThis.astroAsset.staticImages = new Map<
+				string,
+				{
+					originalSrcPath: string;
+					transforms: Map<string, { finalPath: string; transform: ImageTransform }>;
+				}
+			>();
+		}
+
+		// Rollup will copy the file to the output directory, as such this is the path in the output directory, including the asset prefix / base
+		const ESMImportedImageSrc = isESMImportedImage(options.src) ? options.src.src : options.src;
+		const fileExtension = extname(ESMImportedImageSrc);
+		const assetPrefix = getAssetsPrefix(fileExtension, settings.config.build.assetsPrefix);
+
+		// This is the path to the original image, from the dist root, without the base or the asset prefix (e.g. /_astro/image.hash.png)
+		const finalOriginalPath = removeBase(
+			removeBase(ESMImportedImageSrc, settings.config.base),
+			assetPrefix
+		);
+
+		const hash = hashTransform(options, settings.config.image.service.entrypoint, hashProperties);
+
+		let finalFilePath: string;
+		let transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalPath);
+		let transformForHash = transformsForPath?.transforms.get(hash);
+
+		// If the same image has already been transformed with the same options, we'll reuse the final path
+		if (transformsForPath && transformForHash) {
+			finalFilePath = transformForHash.finalPath;
+		} else {
+			finalFilePath = prependForwardSlash(
+				joinPaths(
+					isESMImportedImage(options.src) ? '' : settings.config.build.assets,
+					prependForwardSlash(propsToFilename(finalOriginalPath, options, hash))
+				)
+			);
+
+			if (!transformsForPath) {
+				globalThis.astroAsset.staticImages.set(finalOriginalPath, {
+					originalSrcPath: originalFSPath,
+					transforms: new Map(),
+				});
+				transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalPath)!;
+			}
+
+			transformsForPath.transforms.set(hash, {
+				finalPath: finalFilePath,
+				transform: options,
+			});
+		}
+
+		// The paths here are used for URLs, so we need to make sure they have the proper format for an URL
+		// (leading slash, prefixed with the base / assets prefix, encoded, etc)
+		if (settings.config.build.assetsPrefix) {
+			return encodeURI(joinPaths(assetPrefix, finalFilePath));
+		} else {
+			return encodeURI(prependForwardSlash(joinPaths(settings.config.base, finalFilePath)));
+		}
+	};
+};
 
 export default function assets({
 	settings,
@@ -92,73 +157,7 @@ export default function assets({
 					return;
 				}
 
-				globalThis.astroAsset.addStaticImage = (options, hashProperties, originalFSPath) => {
-					if (!globalThis.astroAsset.staticImages) {
-						globalThis.astroAsset.staticImages = new Map<
-							string,
-							{
-								originalSrcPath: string;
-								transforms: Map<string, { finalPath: string; transform: ImageTransform }>;
-							}
-						>();
-					}
-
-					// Rollup will copy the file to the output directory, as such this is the path in the output directory, including the asset prefix / base
-					const ESMImportedImageSrc = isESMImportedImage(options.src)
-						? options.src.src
-						: options.src;
-					const fileExtension = extname(ESMImportedImageSrc);
-					const assetPrefix = getAssetsPrefix(fileExtension, settings.config.build.assetsPrefix);
-
-					// This is the path to the original image, from the dist root, without the base or the asset prefix (e.g. /_astro/image.hash.png)
-					const finalOriginalPath = removeBase(
-						removeBase(ESMImportedImageSrc, settings.config.base),
-						assetPrefix
-					);
-
-					const hash = hashTransform(
-						options,
-						settings.config.image.service.entrypoint,
-						hashProperties
-					);
-
-					let finalFilePath: string;
-					let transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalPath);
-					let transformForHash = transformsForPath?.transforms.get(hash);
-
-					// If the same image has already been transformed with the same options, we'll reuse the final path
-					if (transformsForPath && transformForHash) {
-						finalFilePath = transformForHash.finalPath;
-					} else {
-						finalFilePath = prependForwardSlash(
-							joinPaths(
-								isESMImportedImage(options.src) ? '' : settings.config.build.assets,
-								prependForwardSlash(propsToFilename(finalOriginalPath, options, hash))
-							)
-						);
-
-						if (!transformsForPath) {
-							globalThis.astroAsset.staticImages.set(finalOriginalPath, {
-								originalSrcPath: originalFSPath,
-								transforms: new Map(),
-							});
-							transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalPath)!;
-						}
-
-						transformsForPath.transforms.set(hash, {
-							finalPath: finalFilePath,
-							transform: options,
-						});
-					}
-
-					// The paths here are used for URLs, so we need to make sure they have the proper format for an URL
-					// (leading slash, prefixed with the base / assets prefix, encoded, etc)
-					if (settings.config.build.assetsPrefix) {
-						return encodeURI(joinPaths(assetPrefix, finalFilePath));
-					} else {
-						return encodeURI(prependForwardSlash(joinPaths(settings.config.base, finalFilePath)));
-					}
-				};
+				globalThis.astroAsset.addStaticImage = addStaticImageFactory(settings);
 			},
 			// In build, rewrite paths to ESM imported images in code to their final location
 			async renderChunk(code) {

@@ -53,13 +53,6 @@ export interface AstroMarkdownOptions {
 	smartypants?: boolean;
 }
 
-export interface ImageMetadata {
-	src: string;
-	width: number;
-	height: number;
-	type: string;
-}
-
 export interface MarkdownProcessor {
 	render: (
 		content: string,
@@ -83,20 +76,10 @@ export interface MarkdownProcessorRenderResult {
 	};
 }
 
-export interface MarkdownRenderingOptions
-	extends AstroMarkdownOptions,
-		MarkdownProcessorRenderOptions {}
-
 export interface MarkdownHeading {
 	depth: number;
 	slug: string;
 	text: string;
-}
-
-export interface MarkdownMetadata {
-	headings: MarkdownHeading[];
-	source: string;
-	html: string;
 }
 
 export interface MarkdownVFile extends VFile {
@@ -104,10 +87,4 @@ export interface MarkdownVFile extends VFile {
 		__astroHeadings?: MarkdownHeading[];
 		imagePaths?: Set<string>;
 	};
-}
-
-export interface MarkdownRenderingResult {
-	metadata: MarkdownMetadata;
-	vfile: MarkdownVFile;
-	code: string;
 }

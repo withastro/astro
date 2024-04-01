@@ -87,7 +87,7 @@ const highlighter = await getCachedHighlighter({
 	wrap,
 });
 
-const html = highlighter.highlight(code, typeof lang === 'string' ? lang : lang.name, {
+const html = await highlighter.highlight(code, typeof lang === 'string' ? lang : lang.name, {
 	inline,
 	attributes: rest as any,
 });

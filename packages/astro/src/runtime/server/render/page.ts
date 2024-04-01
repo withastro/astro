@@ -5,7 +5,7 @@ import type { AstroComponentFactory } from './index.js';
 import { isAstroComponentFactory } from './astro/index.js';
 import { renderToAsyncIterable, renderToReadableStream, renderToString } from './astro/render.js';
 import { encoder } from './common.js';
-import { isNode } from './util.js';
+import { isDeno, isNode } from './util.js';
 
 export async function renderPage(
 	result: SSRResult,
@@ -48,7 +48,9 @@ export async function renderPage(
 
 	let body: BodyInit | Response;
 	if (streaming) {
-		if (isNode) {
+		// isNode is true in Deno node-compat mode but response construction from
+		// async iterables is not supported, so we fallback to ReadableStream if isDeno is true.
+		if (isNode && !isDeno) {
 			const nodeBody = await renderToAsyncIterable(
 				result,
 				componentFactory,
