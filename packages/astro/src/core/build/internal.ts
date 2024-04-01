@@ -151,7 +151,6 @@ export function trackPageData(
 	componentURL: URL
 ): void {
 	pageData.moduleSpecifier = componentModuleId;
-	// SHIT IS HERE
 	internals.pagesByKeys.set(pageData.key, pageData);
 	internals.pagesByViteID.set(viteID(componentURL), pageData);
 }

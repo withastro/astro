@@ -184,7 +184,6 @@ class AstroBuilder {
 			green(`✓ Completed in ${getTimeStat(this.timer.init, performance.now())}.`)
 		);
 
-		console.log('Coucou from index.ts build', Object.keys(allPages));
 		const opts: StaticBuildOptions = {
 			allPages,
 			settings: this.settings,
@@ -198,7 +197,6 @@ class AstroBuilder {
 		};
 
 		const { internals, ssrOutputChunkNames } = await viteBuild(opts);
-		console.log('Coucou from index.ts build', internals.pageToBundleMap);
 		await staticBuild(opts, internals, ssrOutputChunkNames);
 
 		// Write any additionally generated assets to disk.

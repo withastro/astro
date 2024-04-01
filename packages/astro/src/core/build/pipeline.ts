@@ -178,7 +178,6 @@ export class BuildPipeline extends Pipeline {
 		const pages = new Map<PageBuildData, string>();
 
 		for (const [entrypoint, filePath] of this.internals.entrySpecifierToBundleMap) {
-			console.log('entrypoint', filePath);
 			// virtual pages can be emitted with different prefixes:
 			// - the classic way are pages emitted with prefix ASTRO_PAGE_RESOLVED_MODULE_ID -> plugin-pages
 			// - pages emitted using `build.split`, in this case pages are emitted with prefix RESOLVED_SPLIT_MODULE_ID

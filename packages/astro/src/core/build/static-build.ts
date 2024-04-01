@@ -37,7 +37,6 @@ import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
-	console.log('Coucou from viteBuild', Object.keys(allPages));
 	// Make sure we have an adapter before building
 	if (isModeServerWithNoAdapter(opts.settings)) {
 		throw new AstroError(AstroErrorData.NoAdapterInstalled);
@@ -126,7 +125,6 @@ export async function viteBuild(opts: StaticBuildOptions) {
 		}
 	}
 
-	console.log('Good bye from viteBuild', internals.pageToBundleMap);
 	return { internals, ssrOutputChunkNames };
 }
 
