@@ -2,8 +2,7 @@ import type { OutgoingHttpHeaders } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import type {
 	MarkdownHeading,
-	MarkdownMetadata,
-	MarkdownRenderingResult,
+	MarkdownVFile,
 	RehypePlugins,
 	RemarkPlugins,
 	RemarkRehype,
@@ -45,8 +44,6 @@ export { type AstroIntegrationLogger };
 
 export type {
 	MarkdownHeading,
-	MarkdownMetadata,
-	MarkdownRenderingResult,
 	RehypePlugins,
 	RemarkPlugins,
 	ShikiConfig,
@@ -2188,6 +2185,21 @@ export interface ManifestData {
 	routes: RouteData[];
 }
 
+/** @deprecated Type is no longer used by exported APIs */
+export interface MarkdownMetadata {
+	headings: MarkdownHeading[];
+	source: string;
+	html: string;
+}
+
+/** @deprecated Type is no longer used by exported APIs */
+export interface MarkdownRenderingResult {
+	metadata: MarkdownMetadata;
+	vfile: MarkdownVFile;
+	code: string;
+}
+
+/** @deprecated Type is no longer used by exported APIs */
 export interface MarkdownParserResponse extends MarkdownRenderingResult {
 	frontmatter: MD['frontmatter'];
 }

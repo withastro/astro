@@ -257,6 +257,8 @@ export function astroConfigBuildPlugin(
 						mutate(chunk, ['server'], newCode);
 					}
 				}
+
+				ssrPluginContext = undefined;
 			},
 		},
 	};
