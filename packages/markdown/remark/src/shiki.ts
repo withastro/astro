@@ -156,10 +156,6 @@ function normalizePropAsString(value: Properties[string]): string | null {
 	return Array.isArray(value) ? value.join(' ') : (value as string | null);
 }
 
-/**
- * shiki -> shikiji compat as we need to manually replace it
- * @internal Exported for error overlay use only
- */
-export function replaceCssVariables(str: string) {
+function replaceCssVariables(str: string) {
 	return str.replace(COLOR_REPLACEMENT_REGEX, (match) => ASTRO_COLOR_REPLACEMENTS[match] || match);
 }

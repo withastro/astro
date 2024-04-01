@@ -13,10 +13,6 @@ import type { VFile } from 'vfile';
 
 export type { Node } from 'unist';
 
-export type MarkdownAstroData = {
-	frontmatter: Record<string, any>;
-};
-
 export type RemarkPlugin<PluginParameters extends any[] = any[]> = unified.Plugin<
 	PluginParameters,
 	mdast.Root
@@ -53,12 +49,7 @@ export interface AstroMarkdownOptions {
 	smartypants?: boolean;
 }
 
-export interface ImageMetadata {
-	src: string;
-	width: number;
-	height: number;
-	type: string;
-}
+
 
 export interface MarkdownProcessor {
 	render: (
@@ -83,9 +74,7 @@ export interface MarkdownProcessorRenderResult {
 	};
 }
 
-export interface MarkdownRenderingOptions
-	extends AstroMarkdownOptions,
-		MarkdownProcessorRenderOptions {}
+
 
 export interface MarkdownHeading {
 	depth: number;
@@ -93,21 +82,11 @@ export interface MarkdownHeading {
 	text: string;
 }
 
-export interface MarkdownMetadata {
-	headings: MarkdownHeading[];
-	source: string;
-	html: string;
-}
+
 
 export interface MarkdownVFile extends VFile {
 	data: {
 		__astroHeadings?: MarkdownHeading[];
 		imagePaths?: Set<string>;
 	};
-}
-
-export interface MarkdownRenderingResult {
-	metadata: MarkdownMetadata;
-	vfile: MarkdownVFile;
-	code: string;
 }
