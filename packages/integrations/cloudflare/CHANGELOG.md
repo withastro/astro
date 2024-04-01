@@ -1,5 +1,13 @@
 # @astrojs/cloudflare
 
+## 10.0.2
+
+### Patch Changes
+
+- [#217](https://github.com/withastro/adapters/pull/217) [`0349bd4`](https://github.com/withastro/adapters/commit/0349bd41a9d10421907eb0e46bd6472c85a10ec7) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - fixes an issue where the automatic `_routes.json` generation was not working as expected for some projects, which had a dynamic route as the first segment
+
+- [#217](https://github.com/withastro/adapters/pull/217) [`0349bd4`](https://github.com/withastro/adapters/commit/0349bd41a9d10421907eb0e46bd6472c85a10ec7) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - fixes an issue where the automatic `_routes.json` generation was not limited correctly, which had manual extend patterns
+
 ## 10.0.1
 
 ### Patch Changes
