@@ -53,7 +53,7 @@ export async function copyDependenciesToFunction(
 			if (module === 'sharp') continue;
 
 			if (entryPath === file) {
-				logger.info(
+				logger.debug(
 					`[@astrojs/vercel] The module "${module}" couldn't be resolved. This may not be a problem, but it's worth checking.`
 				);
 			} else {
