@@ -7,7 +7,7 @@ import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../uti
 
 const WITH_SEED_VIRTUAL_MODULE_ID = 'astro:db:seed';
 
-const resolved = {
+export const resolved = {
 	virtual: '\0' + VIRTUAL_MODULE_ID,
 	seedVirtual: '\0' + WITH_SEED_VIRTUAL_MODULE_ID,
 };
