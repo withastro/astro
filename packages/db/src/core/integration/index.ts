@@ -145,10 +145,17 @@ function astroDBIntegration(): AstroIntegration {
 						seedInFlight = true;
 						const mod = server.moduleGraph.getModuleById(resolved.seedVirtual);
 						if (mod) server.moduleGraph.invalidateModule(mod);
-						server.ssrLoadModule(resolved.seedVirtual).then(() => {
-							seedInFlight = false;
-							logger.info('Seeded database.');
-						});
+						server
+							.ssrLoadModule(resolved.seedVirtual)
+							.then(() => {
+								logger.info('Seeded database.');
+							})
+							.catch((e) => {
+								logger.error(e instanceof Error ? e.message : String(e));
+							})
+							.finally(() => {
+								seedInFlight = false;
+							});
 					}
 				}, 100);
 			},
