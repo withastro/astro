@@ -2403,7 +2403,7 @@ export interface APIContext<
 	APIParams extends Record<string, string | undefined> = Record<string, string | undefined>,
 > extends AstroSharedContext<Props, Params> {
 	/**
-	 * The site provided in the astro config, parsed as an instance of `URL`.
+	 * The site provided in the astro config, parsed as an instance of `URL`, without base.
 	 * `undefined` if the site is not provided in the config.
 	 */
 	site: URL | undefined;

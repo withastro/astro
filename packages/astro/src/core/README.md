@@ -37,7 +37,7 @@ vite-plugin-astro-server --------- DevPipeline ------ Pipeline ------------- Ren
 
 ## `Pipeline`
 
-The pipeline is an interface representing data that stays unchanged throughout the duration of the server or build. For example: the user configuration, the list of pages in the project, and environment-specific way of gathering scripts and styles.
+The pipeline is an interface representing data that stays unchanged throughout the duration of the server or build. For example: the user configuration, the list of pages and endpoints in the project, and environment-specific way of gathering scripts and styles.
 
 There are 3 implementations of the pipeline:
 - `DevPipeline`: in-use during the `astro dev` CLI command. Created and used by `vite-plugin-astro-server`, and then forwarded to other internals.
@@ -48,4 +48,4 @@ All 3 expose a common, environment-agnostic interface which is used by the rest 
 
 ## `RenderContext`
 
-Each request is rendered using a `RenderContext`. It manages data unique to each request. For example: the parsed `URL`, internationalization data, the `locals` object, and the page that matched the request. It is responsible for executing middleware and rendering the page by gathering necessary data from a `Pipeline`.
+Each request is rendered using a `RenderContext`. It manages data unique to each request. For example: the parsed `URL`, internationalization data, the `locals` object, and the route that matched the request. It is responsible for executing middleware, calling endpoints, and rendering pages by gathering necessary data from a `Pipeline`.
