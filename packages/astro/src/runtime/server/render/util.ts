@@ -181,7 +181,7 @@ class BufferedRenderer implements RenderDestination {
 			destination.write(chunk);
 		}
 
-		// NOTE: We don't empty `bufferChunks` after it's written as benchmarks show
+		// NOTE: We don't empty `this.chunks` after it's written as benchmarks show
 		// that it causes poorer performance, likely due to forced memory re-allocation,
 		// instead of letting the garbage collector handle it automatically.
 		// (Unsure how this affects on limited memory machines)
