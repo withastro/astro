@@ -45,7 +45,7 @@ export interface BuildInternals {
 	/**
 	 * A map for page-specific information.
 	 */
-	pagesByComponent: Map<string, PageBuildData>;
+	pagesByKeys: Map<string, PageBuildData>;
 
 	/**
 	 * A map for page-specific output.
@@ -125,7 +125,7 @@ export function createBuildInternals(): BuildInternals {
 		inlinedScripts: new Map(),
 		entrySpecifierToBundleMap: new Map<string, string>(),
 		pageToBundleMap: new Map<string, string>(),
-		pagesByComponent: new Map(),
+		pagesByKeys: new Map(),
 		pageOptionsByPage: new Map(),
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
@@ -151,7 +151,8 @@ export function trackPageData(
 	componentURL: URL
 ): void {
 	pageData.moduleSpecifier = componentModuleId;
-	internals.pagesByComponent.set(component, pageData);
+	// SHIT IS HERE
+	internals.pagesByKeys.set(pageData.key, pageData);
 	internals.pagesByViteID.set(viteID(componentURL), pageData);
 }
 
@@ -223,8 +224,9 @@ export function getPageDataByComponent(
 	internals: BuildInternals,
 	component: string
 ): PageBuildData | undefined {
-	if (internals.pagesByComponent.has(component)) {
-		return internals.pagesByComponent.get(component);
+	// TODO: Refactor that
+	if (internals.pagesByKeys.has(component)) {
+		return internals.pagesByKeys.get(component);
 	}
 	return undefined;
 }
@@ -244,7 +246,7 @@ export function hasPageDataByViteID(internals: BuildInternals, viteid: ViteID): 
 }
 
 export function* eachPageData(internals: BuildInternals) {
-	yield* internals.pagesByComponent.values();
+	yield* internals.pagesByKeys.values();
 }
 
 export function* eachPageFromAllPages(allPages: AllPagesData): Generator<[string, PageBuildData]> {
@@ -265,7 +267,7 @@ export function* eachPageDataFromEntryPoint(
 			entrypoint.includes(RESOLVED_SPLIT_MODULE_ID)
 		) {
 			const [, pageName] = entrypoint.split(':');
-			const pageData = internals.pagesByComponent.get(
+			const pageData = internals.pagesByKeys.get(
 				`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`
 			);
 			if (!pageData) {

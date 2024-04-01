@@ -132,6 +132,7 @@ export function chunkIsPage(
 }
 
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
+	console.log('Coucou from generatePages', internals.pageToBundleMap);
 	const generatePagesTimer = performance.now();
 	const ssr = isServerLikeOutput(options.settings.config);
 	let manifest: SSRManifest;

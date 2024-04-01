@@ -178,6 +178,7 @@ export class BuildPipeline extends Pipeline {
 		const pages = new Map<PageBuildData, string>();
 
 		for (const [entrypoint, filePath] of this.internals.entrySpecifierToBundleMap) {
+			console.log('entrypoint', filePath);
 			// virtual pages can be emitted with different prefixes:
 			// - the classic way are pages emitted with prefix ASTRO_PAGE_RESOLVED_MODULE_ID -> plugin-pages
 			// - pages emitted using `build.split`, in this case pages are emitted with prefix RESOLVED_SPLIT_MODULE_ID
@@ -186,7 +187,7 @@ export class BuildPipeline extends Pipeline {
 				entrypoint.includes(RESOLVED_SPLIT_MODULE_ID)
 			) {
 				const [, pageName] = entrypoint.split(':');
-				const pageData = this.internals.pagesByComponent.get(
+				const pageData = this.internals.pagesByKeys.get(
 					`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`
 				);
 				if (!pageData) {
@@ -199,9 +200,9 @@ export class BuildPipeline extends Pipeline {
 			}
 		}
 
-		for (const [path, pageData] of this.internals.pagesByComponent.entries()) {
+		for (const pageData of this.internals.pagesByKeys.values()) {
 			if (routeIsRedirect(pageData.route)) {
-				pages.set(pageData, path);
+				pages.set(pageData, pageData.component);
 			} else if (
 				routeIsFallback(pageData.route) &&
 				(i18nHasFallback(this.config) ||
@@ -213,7 +214,10 @@ export class BuildPipeline extends Pipeline {
 				// The values of the map are the actual `.mjs` files that are generated during the build
 
 				// Here, we take the component path and transform it in the virtual module name
-				const moduleSpecifier = getVirtualModulePageNameFromPath(ASTRO_PAGE_MODULE_ID, path);
+				const moduleSpecifier = getVirtualModulePageNameFromPath(
+					ASTRO_PAGE_MODULE_ID,
+					pageData.component
+				);
 				// We retrieve the original JS module
 				const filePath = this.internals.entrySpecifierToBundleMap.get(moduleSpecifier);
 				if (filePath) {

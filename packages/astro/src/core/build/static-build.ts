@@ -37,7 +37,7 @@ import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
-
+	console.log('Coucou from viteBuild', Object.keys(allPages));
 	// Make sure we have an adapter before building
 	if (isModeServerWithNoAdapter(opts.settings)) {
 		throw new AstroError(AstroErrorData.NoAdapterInstalled);
@@ -46,6 +46,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	settings.timer.start('SSR build');
 
 	// The pages to be built for rendering purposes.
+	// (comment above may be outdated ?)
 	const pageInput = new Set<string>();
 
 	// Build internals needed by the CSS plugin
@@ -73,7 +74,6 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	// Register plugins
 	const container = createPluginContainer(opts, internals);
 	registerAllPlugins(container);
-
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrTime = performance.now();
 	opts.logger.info('build', `Building ${settings.config.output} entrypoints...`);
@@ -126,6 +126,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 		}
 	}
 
+	console.log('Good bye from viteBuild', internals.pageToBundleMap);
 	return { internals, ssrOutputChunkNames };
 }
 
@@ -271,7 +272,7 @@ async function ssrBuild(
 
 	const updatedViteBuildConfig = await runHookBuildSetup({
 		config: settings.config,
-		pages: internals.pagesByComponent,
+		pages: internals.pagesByKeys,
 		vite: viteBuildConfig,
 		target: 'server',
 		logger: opts.logger,
@@ -332,7 +333,7 @@ async function clientBuild(
 
 	await runHookBuildSetup({
 		config: settings.config,
-		pages: internals.pagesByComponent,
+		pages: internals.pagesByKeys,
 		vite: viteBuildConfig,
 		target: 'client',
 		logger: opts.logger,
