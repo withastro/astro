@@ -7,6 +7,7 @@ import { blue, yellow } from 'kleur/colors';
 import { loadEnv } from 'vite';
 import parseArgs from 'yargs-parser';
 import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
+import { AstroDbError } from '../../utils.js';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
 import { resolveDbConfig } from '../load-file.js';
 import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
@@ -15,7 +16,6 @@ import { fileURLIntegration } from './file-url.js';
 import { typegenInternal } from './typegen.js';
 import { type LateSeedFiles, type LateTables, resolved, vitePluginDb } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
-import { AstroDbError } from '../../utils.js';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectToStudio = false;
