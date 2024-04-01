@@ -29,9 +29,9 @@ const clientLocalsSymbol = Symbol.for('astro.locals');
 
 /**
  * Used by astro internals to create a web standard request object.
- * 
+ *
  * The user of this function may provide the data in a runtime-agnostic way.
- * 
+ *
  * This is used by the static build to create fake requests for prerendering, and by the dev server to convert node requests into the standard request object.
  */
 export function createRequest({

@@ -3,6 +3,7 @@
 Code that executes directly on Node (not processed by vite). Contains the main Astro logic for the `build`, `dev`, `preview`, and `sync` commands, and also manages the lifecycle of the Vite server.
 
 The `core/index.ts` module exports the CLI commands as functions and is the main entrypoint of the `astro` package.
+
 ```ts
 import { dev, build, preview, sync } from 'astro';
 ```
@@ -40,6 +41,7 @@ vite-plugin-astro-server --------- DevPipeline ------ Pipeline ------------- Ren
 The pipeline is an interface representing data that stays unchanged throughout the duration of the server or build. For example: the user configuration, the list of pages and endpoints in the project, and environment-specific way of gathering scripts and styles.
 
 There are 3 implementations of the pipeline:
+
 - `DevPipeline`: in-use during the `astro dev` CLI command. Created and used by `vite-plugin-astro-server`, and then forwarded to other internals.
 - `BuildPipeline`: in-use during the `astro build` command in `"static"` mode, and for prerendering in `"server"` and `"hybrid"` output modes. See `core/build/`.
 - `AppPipeline`: in-use during production server(less) deployments. Created and used by `App` (see `core/app/`), and then forwarded to other internals.

@@ -2353,7 +2353,7 @@ interface AstroSharedContext<
 > {
 	/**
 	 * The address (usually IP address) of the user.
-	 * 
+	 *
 	 * Throws an error if used within a static site, or within a prerendered page.
 	 */
 	clientAddress: string;
@@ -2407,7 +2407,7 @@ interface AstroSharedContext<
 /**
  * The `APIContext` is the object made available to endpoints and middleware.
  * It is a subset of the `Astro` global object available in pages.
- * 
+ *
  * [Reference](https://docs.astro.build/en/reference/api-reference/#endpoint-context)
  */
 export interface APIContext<
@@ -2426,7 +2426,7 @@ export interface APIContext<
 	generator: string;
 	/**
 	 * The url of the current request, parsed as an instance of `URL`.
-	 * 
+	 *
 	 * Equivalent to:
 	 * ```ts
 	 * new URL(context.request.url)
@@ -2441,7 +2441,7 @@ export interface APIContext<
 	 * Example usage:
 	 * ```ts
 	 * import type { APIContext } from "astro"
-	 * 
+	 *
 	 * export function getStaticPaths() {
 	 *   return [
 	 *     { params: { id: '0' }, props: { name: 'Sarah' } },
@@ -2463,8 +2463,8 @@ export interface APIContext<
 	 *
 	 * Example usage:
 	 * ```ts
- 	 * import type { APIContext } from "astro"
-	 * 
+	 * import type { APIContext } from "astro"
+	 *
 	 * export function getStaticPaths() {
 	 *   return [
 	 *     { params: { id: '0' }, props: { name: 'Sarah' } },
@@ -2477,13 +2477,13 @@ export interface APIContext<
 	 *   return new Response(`Hello ${props.name}!`);
 	 * }
 	 * ```
-	 * 
+	 *
 	 * [Reference](https://docs.astro.build/en/guides/api-reference/#contextprops)
 	 */
 	props: AstroSharedContext<Props, APIParams>['props'];
 	/**
 	 * Create a response that redirects to another page.
-	 * 
+	 *
 	 * Example usage:
 	 * ```ts
 	 * // src/pages/secret.ts
@@ -2498,11 +2498,11 @@ export interface APIContext<
 
 	/**
 	 * An object that middlewares can use to store extra information related to the request.
-	 * 
+	 *
 	 * It will be made available to pages as `Astro.locals`, and to endpoints as `context.locals`.
-	 * 
+	 *
 	 * Example usage:
-	 * 
+	 *
 	 * ```ts
 	 * // src/middleware.ts
 	 * import { defineMiddleware } from "astro:middleware";
@@ -2520,7 +2520,7 @@ export interface APIContext<
 	 * ---
 	 * <h1>{greeting}</h1>
 	 * ```
-	 * 
+	 *
 	 * [Reference](https://docs.astro.build/en/reference/api-reference/#contextlocals)
 	 */
 	locals: App.Locals;
