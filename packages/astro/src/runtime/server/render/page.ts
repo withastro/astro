@@ -5,7 +5,7 @@ import type { AstroComponentFactory } from './index.js';
 import { isAstroComponentFactory } from './astro/index.js';
 import { renderToAsyncIterable, renderToReadableStream, renderToString } from './astro/render.js';
 import { encoder } from './common.js';
-import { isNode, isDeno } from './util.js';
+import { isDeno, isNode } from './util.js';
 
 export async function renderPage(
 	result: SSRResult,
