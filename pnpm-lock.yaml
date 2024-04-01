@@ -4136,6 +4136,9 @@ importers:
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../../internal-helpers
+      '@astrojs/markdown-remark':
+        specifier: workspace:*
+        version: link:../../markdown/remark
       '@astrojs/prism':
         specifier: workspace:*
         version: link:../../astro-prism
@@ -4161,9 +4164,6 @@ importers:
         specifier: ^3.22.4
         version: 3.22.4
     devDependencies:
-      '@astrojs/markdown-remark':
-        specifier: workspace:*
-        version: link:../../markdown/remark
       '@types/html-escaper':
         specifier: ^3.0.2
         version: 3.0.2
