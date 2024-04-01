@@ -244,12 +244,6 @@ export function hasPageDataByViteID(internals: BuildInternals, viteid: ViteID): 
 	return internals.pagesByViteID.has(viteid);
 }
 
-export function* eachPageFromAllPages(allPages: AllPagesData): Generator<[string, PageBuildData]> {
-	for (const pageData of Object.values(allPages)) {
-		yield [pageData.component, pageData];
-	}
-}
-
 export function hasPrerenderedPages(internals: BuildInternals) {
 	for (const pageData of internals.pagesByKeys.values()) {
 		if (pageData.route.prerender) {

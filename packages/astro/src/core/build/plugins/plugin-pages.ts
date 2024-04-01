@@ -1,7 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
-import { type BuildInternals, eachPageFromAllPages } from '../internal.js';
+import { type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
@@ -22,11 +22,11 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 			if (opts.settings.config.output === 'static') {
 				const inputs = new Set<string>();
 
-				for (const [path, pageData] of eachPageFromAllPages(opts.allPages)) {
+				for (const pageData of Object.values(opts.allPages)) {
 					if (routeIsRedirect(pageData.route)) {
 						continue;
 					}
-					inputs.add(getVirtualModulePageNameFromPath(ASTRO_PAGE_MODULE_ID, path));
+					inputs.add(getVirtualModulePageNameFromPath(ASTRO_PAGE_MODULE_ID, pageData.component));
 				}
 
 				return addRollupInput(options, Array.from(inputs));

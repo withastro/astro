@@ -180,12 +180,11 @@ export class BuildPipeline extends Pipeline {
 		for (const [entrypoint, filePath] of this.internals.entrySpecifierToBundleMap) {
 			// virtual pages can be emitted with different prefixes:
 			// - the classic way are pages emitted with prefix ASTRO_PAGE_RESOLVED_MODULE_ID -> plugin-pages
-			// - pages emitted using `build.split`, in this case pages are emitted with prefix RESOLVED_SPLIT_MODULE_ID
+			// - pages emitted using `functionPerRoute`, in this case pages are emitted with prefix RESOLVED_SPLIT_MODULE_ID
 			if (
 				entrypoint.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
 				entrypoint.includes(RESOLVED_SPLIT_MODULE_ID)
 			) {
-				console.log('entrypoint', this.internals.entrySpecifierToBundleMap);
 				const [, pageName] = entrypoint.split(':');
 				const pageData = this.internals.pagesByKeys.get(
 					`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`
