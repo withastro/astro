@@ -378,7 +378,7 @@ test.describe('Dev Toolbar', () => {
 				const appCanvas = toolbar.locator(`astro-dev-toolbar-app-canvas[data-app-id="${appId}"]`);
 				const appWindow = appCanvas.locator('astro-dev-toolbar-window');
 				await expect(appWindow).toBeVisible();
-				await expect(appWindow).toHaveAttribute('data-placement', placement);
+				await expect(appWindow).toHaveJSProperty('placement', placement);
 			}
 		}
 	});
