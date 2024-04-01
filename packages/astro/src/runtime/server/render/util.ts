@@ -150,29 +150,34 @@ export function renderElement(
 }
 
 const noop = () => {};
+
+/**
+ * Renders into a buffer until `renderToFinalDestination` is called (which
+ * flushes the buffer)
+ */
 class BufferedRenderer implements RenderDestination {
-	private __chunks: RenderDestinationChunk[] = [];
-	private __renderPromise: Promise<void> | void;
-	private __destination?: RenderDestination;
+	private chunks: RenderDestinationChunk[] = [];
+	private renderPromise: Promise<void> | void;
+	private destination?: RenderDestination;
 
 	public constructor(bufferRenderFunction: RenderFunction) {
-		this.__renderPromise = bufferRenderFunction(this);
+		this.renderPromise = bufferRenderFunction(this);
 		// Catch here in case it throws before `renderToFinalDestination` is called,
 		// to prevent an unhandled rejection.
-		Promise.resolve(this.__renderPromise).catch(noop);
+		Promise.resolve(this.renderPromise).catch(noop);
 	}
 
 	public write(chunk: RenderDestinationChunk): void {
-		if (this.__destination) {
-			this.__destination.write(chunk);
+		if (this.destination) {
+			this.destination.write(chunk);
 		} else {
-			this.__chunks.push(chunk);
+			this.chunks.push(chunk);
 		}
 	}
 
 	public async renderToFinalDestination(destination: RenderDestination) {
 		// Write the buffered chunks to the real destination
-		for (const chunk of this.__chunks) {
+		for (const chunk of this.chunks) {
 			destination.write(chunk);
 		}
 
@@ -182,10 +187,10 @@ class BufferedRenderer implements RenderDestination {
 		// (Unsure how this affects on limited memory machines)
 
 		// Re-assign the real destination so `instance.render` will continue and write to the new destination
-		this.__destination = destination;
+		this.destination = destination;
 
 		// Wait for render to finish entirely
-		await this.__renderPromise;
+		await this.renderPromise;
 	}
 }
 
