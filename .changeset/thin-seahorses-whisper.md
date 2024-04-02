@@ -1,5 +1,5 @@
 ---
-"astro": minor
+"astro": patch
 ---
 
 This change disables the `sharp` `libvips` image cache as it errors when the
