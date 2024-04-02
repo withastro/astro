@@ -1072,8 +1072,8 @@ export const MissingIndexForInternationalization = {
  * @description
  * Some internationalization functions can't be exposed unless the default routing is disabled
  */
-export const IncorrectStrategy = {
-	name: 'IncorrectStrategy',
+export const IncorrectStrategyForI18n = {
+	name: 'IncorrectStrategyForI18n',
 	title: "You can't use the current function with the current strategy",
 	message: (functionName: string) =>
 		`The function \`${functionName}\' can't be used because it can only be used when the \`i18n.routing.strategy\` is set to \`"manual"\`.`,

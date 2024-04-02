@@ -1,7 +1,7 @@
 import * as I18nInternals from '../i18n/index.js';
 import { toRoutingStrategy } from '../i18n/utils.js';
 import { AstroError } from '../core/errors/index.js';
-import { IncorrectStrategy } from '../core/errors/errors-data.js';
+import { IncorrectStrategyForI18n } from '../core/errors/errors-data.js';
 import type { UseFallback } from '../i18n/index.js';
 import type { SSRManifest } from '../core/app/types.js';
 import type {
@@ -25,7 +25,10 @@ export type GetLocaleOptions = I18nInternals.GetLocaleOptions;
 
 const noop = (method: string) =>
 	function () {
-		throw new AstroError({ ...IncorrectStrategy, message: IncorrectStrategy.message(method) });
+		throw new AstroError({
+			...IncorrectStrategyForI18n,
+			message: IncorrectStrategyForI18n.message(method),
+		});
 	};
 
 /**
