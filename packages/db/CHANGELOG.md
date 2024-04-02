@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.9.11
+
+### Patch Changes
+
+- [#10655](https://github.com/withastro/astro/pull/10655) [`b1eda3dc5c33c1c6d50d5ee8a2a08d34851dc253`](https://github.com/withastro/astro/commit/b1eda3dc5c33c1c6d50d5ee8a2a08d34851dc253) Thanks [@matthewp](https://github.com/matthewp)! - Pass through appToken on static sites with Astro DB
+
 ## 0.9.10
 
 ### Patch Changes
