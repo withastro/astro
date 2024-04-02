@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Moves format option from LocalImageProps to ImageSharedProps to solve type error when using format with remote images
+Fixes typing issues when using `format` and `quality` options with remote images
