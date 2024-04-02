@@ -81,7 +81,7 @@ async function renderFrameworkComponent(
 	_props: Record<string | number, any>,
 	slots: any = {}
 ): Promise<RenderInstance> {
-	if (!Component && "client:only" in _props === false) {
+	if (!Component && 'client:only' in _props === false) {
 		throw new Error(
 			`Unable to render ${displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`
 		);
@@ -265,8 +265,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	} else {
 		if (metadata.hydrate === 'only') {
 			const rendererName = rendererAliases.has(metadata.hydrateArgs)
-			? rendererAliases.get(metadata.hydrateArgs)
-			: metadata.hydrateArgs;
+				? rendererAliases.get(metadata.hydrateArgs)
+				: metadata.hydrateArgs;
 			if (!clientOnlyValues.has(rendererName)) {
 				// warning if provide incorrect client:only directive but find the renderer by guess
 				console.warn(
