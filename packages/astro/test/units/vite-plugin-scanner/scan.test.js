@@ -1,5 +1,5 @@
 import * as assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import { scan } from '../../../dist/vite-plugin-scanner/scan.js';
 
 describe('astro scan', () => {
