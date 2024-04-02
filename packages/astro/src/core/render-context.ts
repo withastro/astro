@@ -29,6 +29,10 @@ import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
 
+/**
+ * Each request is rendered using a `RenderContext`.
+ * It contains data unique to each request. It is responsible for executing middleware, calling endpoints, and rendering the page by gathering necessary data from a `Pipeline`.
+ */
 export class RenderContext {
 	private constructor(
 		readonly pipeline: Pipeline,
