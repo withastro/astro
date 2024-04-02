@@ -18,7 +18,7 @@ import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.j
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
-import astroDevToolbar from '../vite-plugin-dev-toolbar/vite-plugin-dev-toolbar.js';
+import astroDevToolbarPlugins from '../vite-plugin-dev-toolbar/vite-plugin-dev-toolbar.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
 import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
 import astroHeadPlugin from '../vite-plugin-head/index.js';
@@ -137,6 +137,7 @@ export async function createVite(
 			envVitePlugin({ settings }),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
+			astroDevToolbarPlugins({ settings, logger }),
 			mdxVitePlugin({ settings, logger }),
 			astroPostprocessVitePlugin(),
 			astroIntegrationsContainerPlugin({ settings, logger }),
@@ -152,7 +153,6 @@ export async function createVite(
 			astroAssetsPlugin({ settings, logger, mode }),
 			astroPrefetch({ settings }),
 			astroTransitions({ settings }),
-			astroDevToolbar({ settings, logger }),
 			vitePluginFileURL({}),
 			astroInternationalization({ settings }),
 		],

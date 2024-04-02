@@ -72,7 +72,9 @@
       "types": "./dist/core/middleware/index.d.ts",
       "default": "./dist/core/middleware/index.js"
     },
-    "./virtual-modules/*": "./dist/virtual-modules/*"
+    "./virtual-modules/*": "./dist/virtual-modules/*",
+    "./preact": "./dist/vite-plugin-dev-toolbar/export-preact.js",
+    "./preact/jsx-runtime": "./dist/vite-plugin-dev-toolbar/preact-runtime.js"
   },
   "imports": {
     "#astro/*": "./dist/*.js"
@@ -159,6 +161,8 @@
     "p-limit": "^5.0.0",
     "p-queue": "^8.0.1",
     "path-to-regexp": "^6.2.1",
+    "preact-toolbar": "npm:preact@^10.20.1",
+    "preact-toolbar-signals": "npm:@preact/signals@^1.2.3",
     "preferred-pm": "^3.1.2",
     "prompts": "^2.4.2",
     "rehype": "^13.0.1",
