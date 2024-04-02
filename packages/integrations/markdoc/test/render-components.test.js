@@ -51,30 +51,31 @@ describe('Markdoc - render components', () => {
 	});
 
 	describe('build', () => {
-		let componentsServer;
+		let componentsFixture;
 
 		before(async () => {
-			componentsServer = await getFixture('render-with-components');
+			componentsFixture = await getFixture('render-with-components');
 		});
 
 		before(async () => {
-			await componentsServer.build();
+			await componentsFixture.build();
 		});
 
 		it('renders content - with components', async () => {
-			const html = await componentsServer.readFile('/index.html');
+			const html = await componentsFixture.readFile('/index.html');
 
 			renderComponentsChecks(html);
 		});
 
 		it('renders content - with components inside partials', async () => {
-			const html = await componentsServer.readFile('/index.html');
+			const html = await componentsFixture.readFile('/index.html');
 
 			renderComponentsInsidePartialsChecks(html);
 		});
 
 		it('renders content - with indented components', async () => {
 			const fixture = await getFixture('render-with-indented-components');
+			await fixture.build();
 			const html = await fixture.readFile('/index.html');
 
 			renderIndentedComponentsChecks(html);
@@ -101,7 +102,6 @@ function renderComponentsChecks(html) {
 
 /** @param {string} html */
 function renderComponentsInsidePartialsChecks(html) {
-	console.log('html', html);
 	const { document } = parseHTML(html);
 	// renders Counter.tsx
 	const button = document.querySelector('#counter');
