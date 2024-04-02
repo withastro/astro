@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { getTableChangeQueries } from '../../dist/core/cli/migration-queries.js';
 import { dbConfigSchema, tableSchema } from '../../dist/core/schemas.js';
-import { column } from '../../dist/runtime/config.js';
+import { column } from '../../dist/runtime/virtual.js';
 
 const userInitial = tableSchema.parse({
 	columns: {
