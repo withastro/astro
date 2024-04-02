@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import type { AstroConfig } from 'astro';
 import { normalizePath } from 'vite';
 import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
-import { DB_PATH, RUNTIME_CONFIG_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
+import { DB_PATH, RUNTIME_VIRTUAL_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
 
@@ -83,7 +83,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 }
 
 export function getConfigVirtualModContents() {
-	return `export * from ${RUNTIME_CONFIG_IMPORT}`;
+	return `export * from ${RUNTIME_VIRTUAL_IMPORT}`;
 }
 
 export function getLocalVirtualModContents({
@@ -136,7 +136,7 @@ ${
 		: ''
 }
 
-export * from ${RUNTIME_CONFIG_IMPORT};
+export * from ${RUNTIME_VIRTUAL_IMPORT};
 
 ${getStringifiedTableExports(tables)}`;
 }
@@ -177,7 +177,7 @@ import {asDrizzleTable, createRemoteDatabaseClient} from ${RUNTIME_IMPORT};
 
 export const db = await createRemoteDatabaseClient(${appTokenArg()}, ${dbUrlArg()});
 
-export * from ${RUNTIME_CONFIG_IMPORT};
+export * from ${RUNTIME_VIRTUAL_IMPORT};
 
 ${getStringifiedTableExports(tables)}
 	`;
