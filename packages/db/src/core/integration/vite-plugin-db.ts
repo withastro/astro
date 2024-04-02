@@ -1,10 +1,10 @@
 import { fileURLToPath } from 'node:url';
+import type { AstroConfig } from 'astro';
 import { normalizePath } from 'vite';
 import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
 import { DB_PATH, RUNTIME_CONFIG_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
-import type { AstroConfig } from 'astro';
 
 const WITH_SEED_VIRTUAL_MODULE_ID = 'astro:db:seed';
 
@@ -154,7 +154,7 @@ export function getStudioVirtualModContents({
 }) {
 	function appTokenArg() {
 		if (isBuild) {
-			if(output === 'server') {
+			if (output === 'server') {
 				// In production build, always read the runtime environment variable.
 				return 'process.env.ASTRO_STUDIO_APP_TOKEN';
 			} else {
