@@ -4258,6 +4258,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/markdoc/test/fixtures/render-partials:
+    dependencies:
+      '@astrojs/markdoc':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/markdoc/test/fixtures/render-simple:
     dependencies:
       '@astrojs/markdoc':

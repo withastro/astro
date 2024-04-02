@@ -1,5 +1,5 @@
 {
-  "name": "@test/markdoc-render-simple",
+  "name": "@test/markdoc-render-partials",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
