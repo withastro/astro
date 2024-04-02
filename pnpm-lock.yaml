@@ -4272,9 +4272,24 @@ importers:
       '@astrojs/markdoc':
         specifier: workspace:*
         version: link:../../..
+      '@astrojs/react':
+        specifier: ^3.1.0
+        version: link:../../../../react
+      '@types/react':
+        specifier: ^18.2.74
+        version: 18.2.74
+      '@types/react-dom':
+        specifier: ^18.2.23
+        version: 18.2.23
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
 
   packages/integrations/markdoc/test/fixtures/render-with-config:
     dependencies:
@@ -8108,12 +8123,25 @@ packages:
     dependencies:
       '@types/react': 18.2.66
 
+  /@types/react-dom@18.2.23:
+    resolution: {integrity: sha512-ZQ71wgGOTmDYpnav2knkjr3qXdAFu0vsk8Ci5w3pGAIdj7/kKAyn+VsQDhXsmzzzepAiI9leWMmubXz690AI/A==}
+    dependencies:
+      '@types/react': 18.2.74
+    dev: false
+
   /@types/react@18.2.66:
     resolution: {integrity: sha512-OYTmMI4UigXeFMF/j4uv0lBBEbongSgptPrHBxqME44h9+yNov+oL6Z3ocJKo0WyXR84sQUNeyIp9MRfckvZpg==}
     dependencies:
       '@types/prop-types': 15.7.11
       '@types/scheduler': 0.16.8
       csstype: 3.1.3
+
+  /@types/react@18.2.74:
+    resolution: {integrity: sha512-9AEqNZZyBx8OdZpxzQlaFEVCSFUM2YXJH46yPOiOpm078k6ZLOCcuAzGum/zK8YBwY+dbahVNbHrbgrAwIRlqw==}
+    dependencies:
+      '@types/prop-types': 15.7.11
+      csstype: 3.1.3
+    dev: false
 
   /@types/relateurl@0.2.33:
     resolution: {integrity: sha512-bTQCKsVbIdzLqZhLkF5fcJQreE4y1ro4DIyVrlDNSCJRRwHhB8Z+4zXXa8jN6eDvc2HbRsEYgbvrnGvi54EpSw==}

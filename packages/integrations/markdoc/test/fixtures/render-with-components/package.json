@@ -4,6 +4,11 @@
   "private": true,
   "dependencies": {
     "@astrojs/markdoc": "workspace:*",
-    "astro": "workspace:*"
+    "@astrojs/react": "^3.1.0",
+    "@types/react": "^18.2.74",
+    "@types/react-dom": "^18.2.23",
+    "astro": "workspace:*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }

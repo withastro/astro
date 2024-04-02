@@ -1,4 +1,4 @@
-import { component, defineMarkdocConfig } from '@astrojs/markdoc/config';
+import { Markdoc, component, defineMarkdocConfig } from '@astrojs/markdoc/config';
 
 export default defineMarkdocConfig({
 	nodes: {
@@ -22,5 +22,8 @@ export default defineMarkdocConfig({
 				},
 			},
 		},
+		'counter': {
+			render: component('./src/components/CounterWrapper.astro'),
+		}
 	},
 })
