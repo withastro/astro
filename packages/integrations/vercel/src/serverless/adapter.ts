@@ -524,10 +524,12 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 	if (support.status === 'default') {
 		return `nodejs${major}.x`;
 	}
-	if (support.status === 'retiring' && support.warnDate && new Date() >= support.warnDate) {
-	  logger.warn(
-      `Your project is being built for Node.js ${major} as the runtime, which is retiring by ${support.removal}.`
-    );
+	if (support.status === 'retiring') {
+	  if (support.warnDate && new Date() >= support.warnDate) {
+	    logger.warn(
+        `Your project is being built for Node.js ${major} as the runtime, which is retiring by ${support.removal}.`
+      );
+    }
     return `nodejs${major}.x`;
 	}
 	if (support.status === 'beta') {
