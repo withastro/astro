@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.9.10
+
+### Patch Changes
+
+- [#10646](https://github.com/withastro/astro/pull/10646) [`713f99e849b26edb831ea6527b7103ad7a6b200f`](https://github.com/withastro/astro/commit/713f99e849b26edb831ea6527b7103ad7a6b200f) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue astro:db could not be used on serverless platforms.
+
 ## 0.9.9
 
 ### Patch Changes
