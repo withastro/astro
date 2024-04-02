@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import type { AstroConfig } from 'astro';
 import { normalizePath } from 'vite';
 import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
-import { DB_PATH, RUNTIME_VIRTUAL_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
+import { DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
 
