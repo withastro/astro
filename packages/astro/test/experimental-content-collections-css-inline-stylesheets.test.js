@@ -185,6 +185,7 @@ describe('Setting inlineStylesheets to auto in server output', () => {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
+			console.log($);
 			// the count of style/link tags depends on our css chunking logic
 			// this test should be updated if it changes
 			// assert.equal($('style').length, 3);
