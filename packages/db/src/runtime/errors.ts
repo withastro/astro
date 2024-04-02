@@ -24,10 +24,6 @@ export const REFERENCE_DNE_ERROR = (columnName: string) => {
 	)} references a table that does not exist. Did you apply the referenced table to the \`tables\` object in your db config?`;
 };
 
-export const SEED_ERROR = (error: string) => {
-	return `${red(`Error while seeding database:`)}\n\n${error}`;
-};
-
 export const SEED_DEFAULT_EXPORT_ERROR = (fileName: string) => {
-	return SEED_ERROR(`Missing default function export in ${bold(fileName)}`);
+	return `Missing default function export in ${bold(fileName)}`;
 };

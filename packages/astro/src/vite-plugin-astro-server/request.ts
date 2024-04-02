@@ -1,7 +1,6 @@
 import type http from 'node:http';
 import type { ManifestData } from '../@types/astro.js';
 import { collapseDuplicateSlashes, removeTrailingForwardSlash } from '../core/path.js';
-import { isServerLikeOutput } from '../prerender/utils.js';
 import type { DevServerController } from './controller.js';
 import { runWithErrorHandling } from './controller.js';
 import { recordServerError } from './error.js';
@@ -27,7 +26,6 @@ export async function handleRequest({
 }: HandleRequest) {
 	const { config, loader } = pipeline;
 	const origin = `${loader.isHttps() ? 'https' : 'http'}://${incomingRequest.headers.host}`;
-	const buildingToSSR = isServerLikeOutput(config);
 
 	const url = new URL(collapseDuplicateSlashes(origin + incomingRequest.url));
 	let pathname: string;

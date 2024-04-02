@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 7.5.1
+
+### Patch Changes
+
+- [#10609](https://github.com/withastro/astro/pull/10609) [`31590d44ef8b7c96a757e9b835144d57d767383c`](https://github.com/withastro/astro/commit/31590d44ef8b7c96a757e9b835144d57d767383c) Thanks [@matthewp](https://github.com/matthewp)! - Move nft warnings behind verbose logging
+
 ## 7.5.0
 
 ### Minor Changes

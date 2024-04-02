@@ -2,18 +2,19 @@ import { existsSync } from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import type { AstroConfig, AstroIntegration } from 'astro';
-import { AstroError } from 'astro/errors';
 import { mkdir, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
 import { loadEnv } from 'vite';
 import parseArgs from 'yargs-parser';
+import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
+import { AstroDbError } from '../../utils.js';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
 import { resolveDbConfig } from '../load-file.js';
 import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
 import { type VitePlugin, getDbDirectoryUrl } from '../utils.js';
 import { fileURLIntegration } from './file-url.js';
 import { typegenInternal } from './typegen.js';
-import { type LateSeedFiles, type LateTables, vitePluginDb } from './vite-plugin-db.js';
+import { type LateSeedFiles, type LateTables, resolved, vitePluginDb } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
 
 function astroDBIntegration(): AstroIntegration {
@@ -94,15 +95,7 @@ function astroDBIntegration(): AstroIntegration {
 
 				await typegenInternal({ tables: tables.get() ?? {}, root: config.root });
 			},
-			'astro:server:start': async ({ logger }) => {
-				// Wait for the server startup to log, so that this can come afterwards.
-				setTimeout(() => {
-					logger.info(
-						connectToStudio ? 'Connected to remote database.' : 'New local database created.'
-					);
-				}, 100);
-			},
-			'astro:server:setup': async ({ server }) => {
+			'astro:server:setup': async ({ server, logger }) => {
 				const filesToWatch = [
 					...CONFIG_FILE_NAMES.map((c) => new URL(c, getDbDirectoryUrl(root))),
 					...configFileDependencies.map((c) => new URL(c, root)),
@@ -113,6 +106,58 @@ function astroDBIntegration(): AstroIntegration {
 						server.restart();
 					}
 				});
+				// Wait for dev server log before showing "connected".
+				setTimeout(() => {
+					logger.info(
+						connectToStudio ? 'Connected to remote database.' : 'New local database created.'
+					);
+					if (connectToStudio) return;
+
+					const localSeedPaths = SEED_DEV_FILE_NAME.map(
+						(name) => new URL(name, getDbDirectoryUrl(root))
+					);
+					let seedInFlight = false;
+					// Load seed file on dev server startup.
+					if (seedFiles.get().length || localSeedPaths.find((path) => existsSync(path))) {
+						loadSeedModule();
+					}
+					const eagerReloadIntegrationSeedPaths = seedFiles
+						.get()
+						// Map integration seed paths to URLs, if possible.
+						// Module paths like `@example/seed` will be ignored
+						// from eager reloading.
+						.map((s) => (typeof s === 'string' && s.startsWith('.') ? new URL(s, root) : s))
+						.filter((s): s is URL => s instanceof URL);
+					const eagerReloadSeedPaths = [...eagerReloadIntegrationSeedPaths, ...localSeedPaths];
+					server.watcher.on('all', (event, relativeEntry) => {
+						if (event === 'unlink' || event === 'unlinkDir') return;
+						// When a seed file changes, load manually
+						// to track when seeding finishes and log a message.
+						const entry = new URL(relativeEntry, root);
+						if (eagerReloadSeedPaths.find((path) => entry.href === path.href)) {
+							loadSeedModule();
+						}
+					});
+
+					function loadSeedModule() {
+						if (seedInFlight) return;
+
+						seedInFlight = true;
+						const mod = server.moduleGraph.getModuleById(resolved.seedVirtual);
+						if (mod) server.moduleGraph.invalidateModule(mod);
+						server
+							.ssrLoadModule(resolved.seedVirtual)
+							.then(() => {
+								logger.info('Seeded database.');
+							})
+							.catch((e) => {
+								logger.error(e instanceof Error ? e.message : String(e));
+							})
+							.finally(() => {
+								seedInFlight = false;
+							});
+					}
+				}, 100);
 			},
 			'astro:build:start': async ({ logger }) => {
 				if (
@@ -123,7 +168,7 @@ function astroDBIntegration(): AstroIntegration {
 					const message = `Attempting to build without the --remote flag or the ASTRO_DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`;
 					const hint =
 						'Learn more connecting to Studio: https://docs.astro.build/en/guides/astro-db/#connect-to-astro-studio';
-					throw new AstroError(message, hint);
+					throw new AstroDbError(message, hint);
 				}
 
 				logger.info('database: ' + (connectToStudio ? yellow('remote') : blue('local database.')));

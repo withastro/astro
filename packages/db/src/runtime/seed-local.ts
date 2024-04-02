@@ -3,7 +3,8 @@ import { type SQL, sql } from 'drizzle-orm';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { type DBTables } from '../core/types.js';
-import { SEED_DEFAULT_EXPORT_ERROR, SEED_ERROR } from './errors.js';
+import { AstroDbError } from '../utils.js';
+import { SEED_DEFAULT_EXPORT_ERROR } from './errors.js';
 import { getCreateIndexQueries, getCreateTableQuery } from './queries.js';
 
 const sqlite = new SQLiteAsyncDialect();
@@ -25,7 +26,7 @@ export async function seedLocal({
 	const seedFilePath = Object.keys(userSeedGlob)[0];
 	if (seedFilePath) {
 		const mod = userSeedGlob[seedFilePath];
-		if (!mod.default) throw new Error(SEED_DEFAULT_EXPORT_ERROR(seedFilePath));
+		if (!mod.default) throw new AstroDbError(SEED_DEFAULT_EXPORT_ERROR(seedFilePath));
 		seedFunctions.push(mod.default);
 	}
 	for (const seedFn of integrationSeedFunctions) {
@@ -36,7 +37,7 @@ export async function seedLocal({
 			await seed();
 		} catch (e) {
 			if (e instanceof LibsqlError) {
-				throw new Error(SEED_ERROR(e.message));
+				throw new AstroDbError(`Failed to seed database:\n${e.message}`);
 			}
 			throw e;
 		}

@@ -25,7 +25,11 @@ import {
 } from './errors/index.js';
 import { padMultilineString } from './util.js';
 
-/** Display  */
+/**
+ * Prestyled messages for the CLI. Used by astro CLI commands.
+ */
+
+/** Display each request being served with the path and the status code.  */
 export function req({
 	url,
 	method,

@@ -12,7 +12,7 @@ type Props = {
 const { stringifiedAst, config } = Astro.props as Props;
 
 const ast = Markdoc.Ast.fromJSON(stringifiedAst);
-const content = Markdoc.transform(ast, config);
+const content = await Markdoc.transform(ast, config);
 ---
 
 {
