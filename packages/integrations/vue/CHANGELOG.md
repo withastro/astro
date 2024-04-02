@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 4.0.10
+
+### Patch Changes
+
+- [#10601](https://github.com/withastro/astro/pull/10601) [`b3028caecf1a96310e2ee7a65075a81c231d87be`](https://github.com/withastro/astro/commit/b3028caecf1a96310e2ee7a65075a81c231d87be) Thanks [@kalepail](https://github.com/kalepail)! - Remove the unnecessary and deprecated @vue/server-renderer package from the ssr.external vite config
+
 ## 4.0.9
 
 ### Patch Changes
