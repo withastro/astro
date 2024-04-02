@@ -504,8 +504,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^2.7.1
-        version: 2.7.1
+        specifier: file:astrojs-compiler-2.7.1.tgz
+        version: file:packages/astro/astrojs-compiler-2.7.1.tgz
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
@@ -17286,6 +17286,12 @@ packages:
 
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
+
+  file:packages/astro/astrojs-compiler-2.7.1.tgz:
+    resolution: {integrity: sha512-j/Gmr9jTLKvVwyPuXV+9o/xjrsomi3P9xPfj9vHlpbCdM1z3Dx/ICyOk7JaItBtyuGy9xi4AZOaQLuiK40c3Ow==, tarball: file:packages/astro/astrojs-compiler-2.7.1.tgz}
+    name: '@astrojs/compiler'
+    version: 2.7.1
+    dev: false
 
   file:packages/astro/test/fixtures/astro-client-only/pkg:
     resolution: {directory: packages/astro/test/fixtures/astro-client-only/pkg, type: directory}
