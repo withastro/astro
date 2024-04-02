@@ -23,6 +23,18 @@ describe('Markdoc - render', () => {
 			await server.stop();
 		});
 
+		it('renders content - with partials', async () => {
+			const fixture = await getFixture('render-partials');
+			const server = await fixture.startDevServer();
+
+			const res = await fixture.fetch('/');
+			const html = await res.text();
+
+			renderPartialsChecks(html);
+
+			await server.stop();
+		});
+
 		it('renders content - with config', async () => {
 			const fixture = await getFixture('render-with-config');
 			const server = await fixture.startDevServer();
@@ -104,6 +116,15 @@ describe('Markdoc - render', () => {
 			const html = await fixture.readFile('/index.html');
 
 			renderSimpleChecks(html);
+		});
+
+		it('renders content - with partials', async () => {
+			const fixture = await getFixture('render-partials');
+			await fixture.build();
+
+			const html = await fixture.readFile('/index.html');
+
+			renderPartialsChecks(html);
 		});
 
 		it('renders content - with config', async () => {
@@ -199,6 +220,17 @@ function renderComponentsInsidePartialsChecks(html) {
 	// renders DeeplyNested.astro
 	const deeplyNested = document.querySelector('#deeply-nested');
 	assert.equal(deeplyNested.textContent, 'Deeply nested partial');
+}
+
+/** @param {string} html */
+function renderPartialsChecks(html) {
+	const { document } = parseHTML(html);
+	const top = document.querySelector('#top');
+	assert.ok(top);
+	const nested = document.querySelector('#nested');
+	assert.ok(nested);
+	const configured = document.querySelector('#configured');
+	assert.ok(configured);
 }
 
 /** @param {string} html */
