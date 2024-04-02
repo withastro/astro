@@ -1,3 +1,5 @@
+import { AstroError } from 'astro/errors';
+
 /**
  * Small wrapper around fetch that throws an error if the response is not OK. Allows for custom error handling as well through the onNotOK callback.
  */
@@ -15,4 +17,8 @@ export async function safeFetch(
 	}
 
 	return response;
+}
+
+export class AstroDbError extends AstroError {
+	name = 'Astro DB Error';
 }

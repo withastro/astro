@@ -7,7 +7,7 @@ import { blue, yellow } from 'kleur/colors';
 import { loadEnv } from 'vite';
 import parseArgs from 'yargs-parser';
 import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
-import { AstroDbError } from '../../utils.js';
+import { AstroDbError } from '../../runtime/utils.js';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
 import { resolveDbConfig } from '../load-file.js';
 import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
