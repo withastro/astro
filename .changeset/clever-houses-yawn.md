@@ -2,4 +2,4 @@
 "@astrojs/vercel": patch
 ---
 
-Update supported Node version
+Updates the supported version of Node.js
