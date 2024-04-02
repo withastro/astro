@@ -189,8 +189,14 @@ export class AstroDevToolbar extends HTMLElement {
 				}
 			}
 
+			#dev-bar #bar-container .item:hover .notification rect, #dev-bar #bar-container .item:hover .notification path {
+				stroke: #38393D;
+				--fill: var(--fill-hover);
+			}
+
 			#dev-bar #bar-container .item.active .notification rect, #dev-bar #bar-container .item.active .notification path {
-				stroke: rgba(71, 78, 94, 1);
+				stroke: #454C5C;
+				--fill: var(--fill-hover);
 			}
 
 			#dev-bar .item .icon {
