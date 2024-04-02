@@ -127,6 +127,19 @@ type ImageSharedProps<T> = T & {
 	 * ```
 	 */
 	format?: ImageOutputFormat;
+	/**
+	 * Desired quality for the image. Value can either be a preset such as `low` or `high`, or a numeric value from 0 to 100.
+	 *
+	 * The perceptual quality of the output image is service-specific.
+	 * For instance, a certain service might decide that `high` results in a very beautiful image, but another could choose for it to be at best passable.
+	 *
+	 * **Example**:
+	 * ```astro
+	 * <Image src={...} quality='high' alt="..." />
+	 * <Image src={...} quality={300} alt="..." />
+	 * ```
+	 */
+	quality?: ImageQuality;
 } & (
 		| {
 				/**
@@ -162,19 +175,6 @@ export type LocalImageProps<T> = ImageSharedProps<T> & {
 	 * ```
 	 */
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
-	/**
-	 * Desired quality for the image. Value can either be a preset such as `low` or `high`, or a numeric value from 0 to 100.
-	 *
-	 * The perceptual quality of the output image is service-specific.
-	 * For instance, a certain service might decide that `high` results in a very beautiful image, but another could choose for it to be at best passable.
-	 *
-	 * **Example**:
-	 * ```astro
-	 * <Image src={...} quality='high' alt="..." />
-	 * <Image src={...} quality={300} alt="..." />
-	 * ```
-	 */
-	quality?: ImageQuality;
 };
 
 export type RemoteImageProps<T> =
