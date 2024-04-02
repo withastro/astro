@@ -47,6 +47,18 @@ describe('Markdoc - render', () => {
 			await server.stop();
 		});
 
+		it('renders content - with components inside partials', async () => {
+			const fixture = await getFixture('render-with-components');
+			const server = await fixture.startDevServer();
+
+			const res = await fixture.fetch('/');
+			const html = await res.text();
+
+			renderComponentsInsidePartialsChecks(html);
+
+			await server.stop();
+		});
+
 		it('renders content - with indented components', async () => {
 			const fixture = await getFixture('render-with-indented-components');
 			const server = await fixture.startDevServer();
@@ -112,6 +124,15 @@ describe('Markdoc - render', () => {
 			renderComponentsChecks(html);
 		});
 
+		it('renders content - with components inside partials', async () => {
+			const fixture = await getFixture('render-with-components');
+			await fixture.build();
+
+			const html = await fixture.readFile('/index.html');
+
+			renderComponentsInsidePartialsChecks(html);
+		});
+
 		it('renders content - with indented components', async () => {
 			const fixture = await getFixture('render-with-indented-components');
 			await fixture.build();
@@ -166,6 +187,18 @@ function renderComponentsChecks(html) {
 	const pre = document.querySelector('pre');
 	assert.notEqual(pre, null);
 	assert.equal(pre.className, 'astro-code github-dark');
+}
+
+/** @param {string} html */
+function renderComponentsInsidePartialsChecks(html) {
+	const { document } = parseHTML(html);
+	// renders Counter.tsx
+	const button = document.querySelector('#counter');
+	assert.equal(button.textContent, '1');
+
+	// renders DeeplyNested.astro
+	const deeplyNested = document.querySelector('#deeply-nested');
+	assert.equal(deeplyNested.textContent, 'Deeply nested partial');
 }
 
 /** @param {string} html */

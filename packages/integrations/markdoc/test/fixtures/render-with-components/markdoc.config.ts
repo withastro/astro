@@ -22,8 +22,11 @@ export default defineMarkdocConfig({
 				},
 			},
 		},
-		'counter': {
+		counter: {
 			render: component('./src/components/CounterWrapper.astro'),
-		}
+		},
+		'deeply-nested': {
+			render: component('./src/components/DeeplyNested.astro'),
+		},
 	},
-})
+});
