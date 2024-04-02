@@ -80,6 +80,7 @@ function getViteConfiguration({
 				'@babel/runtime',
 				'redoc',
 				'use-immer',
+				'@material-tailwind/react'
 			],
 		},
 	};
