@@ -86,7 +86,6 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 								configResolved(resolved) {
 									processor = createMdxProcessor(mdxOptions, {
 										sourcemap: !!resolved.build.sourcemap,
-										importMetaEnv: { SITE: config.site, ...resolved.env },
 									});
 
 									// HACK: move ourselves before Astro's JSX plugin to transform things in the right order

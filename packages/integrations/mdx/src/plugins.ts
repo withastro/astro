@@ -11,7 +11,6 @@ import remarkSmartypants from 'remark-smartypants';
 import { SourceMapGenerator } from 'source-map';
 import type { PluggableList } from 'unified';
 import type { MdxOptions } from './index.js';
-import { recmaInjectImportMetaEnv } from './recma-inject-import-meta-env.js';
 import { rehypeApplyFrontmatterExport } from './rehype-apply-frontmatter-export.js';
 import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import rehypeMetaString from './rehype-meta-string.js';
@@ -23,14 +22,13 @@ const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
 
 interface MdxProcessorExtraOptions {
 	sourcemap: boolean;
-	importMetaEnv: Record<string, any>;
 }
 
 export function createMdxProcessor(mdxOptions: MdxOptions, extraOptions: MdxProcessorExtraOptions) {
 	return createProcessor({
 		remarkPlugins: getRemarkPlugins(mdxOptions),
 		rehypePlugins: getRehypePlugins(mdxOptions),
-		recmaPlugins: getRecmaPlugins(mdxOptions, extraOptions.importMetaEnv),
+		recmaPlugins: mdxOptions.recmaPlugins,
 		remarkRehypeOptions: mdxOptions.remarkRehype,
 		jsx: true,
 		jsxImportSource: 'astro',
@@ -94,11 +92,4 @@ function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
 	}
 
 	return rehypePlugins;
-}
-
-function getRecmaPlugins(
-	mdxOptions: MdxOptions,
-	importMetaEnv: Record<string, any>
-): PluggableList {
-	return [...(mdxOptions.recmaPlugins ?? []), [recmaInjectImportMetaEnv, { importMetaEnv }]];
 }
