@@ -20,8 +20,8 @@
       "types": "./dist/runtime/index.d.ts",
       "import": "./dist/runtime/index.js"
     },
-    "./dist/runtime/config.js": {
-      "import": "./dist/runtime/config.js"
+    "./dist/runtime/virtual.js": {
+      "import": "./dist/runtime/virtual.js"
     },
     "./types": {
       "types": "./dist/core/types.d.ts",
@@ -55,8 +55,8 @@
     "astro-integration"
   ],
   "scripts": {
-    "types:config": "tsc -p ./tsconfig.config-types.json",
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc && pnpm types:config",
+    "types:virtual": "tsc -p ./tsconfig.virtual.json",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc && pnpm types:virtual",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "mocha --exit --timeout 20000 \"test/*.js\" \"test/unit/**/*.js\"",
