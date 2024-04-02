@@ -860,7 +860,7 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 							spinner.warn(yellow(firstPartyPkgCheck.message));
 						}
 						spinner.warn(
-							yellow(`${bold(integration)} is not an official Astro package. Use at your own risk!`)
+							yellow(`${bold(integration)} is not an official Astro package.`)
 						);
 						const response = await prompts({
 							type: 'confirm',
