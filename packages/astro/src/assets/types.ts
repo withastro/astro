@@ -118,6 +118,15 @@ type ImageSharedProps<T> = T & {
 	 * ```
 	 */
 	height?: number | `${number}`;
+	/**
+	 * Desired output format for the image. Defaults to `webp`.
+	 *
+	 * **Example**:
+	 * ```astro
+	 * <Image src={...} format="avif" alt="..." />
+	 * ```
+	 */
+	format?: ImageOutputFormat;
 } & (
 		| {
 				/**
@@ -153,15 +162,6 @@ export type LocalImageProps<T> = ImageSharedProps<T> & {
 	 * ```
 	 */
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
-	/**
-	 * Desired output format for the image. Defaults to `webp`.
-	 *
-	 * **Example**:
-	 * ```astro
-	 * <Image src={...} format="avif" alt="..." />
-	 * ```
-	 */
-	format?: ImageOutputFormat;
 	/**
 	 * Desired quality for the image. Value can either be a preset such as `low` or `high`, or a numeric value from 0 to 100.
 	 *
