@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 3.1.2
+
+### Patch Changes
+
+- [#10585](https://github.com/withastro/astro/pull/10585) [`ad50784adc6f262fc563999e97df3a5dc9087c88`](https://github.com/withastro/astro/commit/ad50784adc6f262fc563999e97df3a5dc9087c88) Thanks [@rschristian](https://github.com/rschristian)! - Fixes (theoretical) edge case in Preact integration's JSX aliases
+
 ## 3.1.1
 
 ### Patch Changes

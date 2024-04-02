@@ -1,4 +1,4 @@
-import type { AstroConfig, AstroUserConfig, Locales } from '../@types/astro.js';
+import type { AstroConfig, Locales } from '../@types/astro.js';
 import { normalizeTheLocale, toCodes } from './index.js';
 
 type BrowserLocale = {
