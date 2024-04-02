@@ -1,5 +1,17 @@
 # @astrojs/db
 
+## 0.9.9
+
+### Patch Changes
+
+- [#10599](https://github.com/withastro/astro/pull/10599) [`5a7733dde52d439402404d5207a2b1d897c4e025`](https://github.com/withastro/astro/commit/5a7733dde52d439402404d5207a2b1d897c4e025) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Seed database on dev server startup, and log whenever the seed file is reloaded.
+
+- [#10636](https://github.com/withastro/astro/pull/10636) [`504d15d77291f0fe36aa9fecc22f276b734f83cb`](https://github.com/withastro/astro/commit/504d15d77291f0fe36aa9fecc22f276b734f83cb) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Detailed error messages for remote database exceptions.
+
+- [#10635](https://github.com/withastro/astro/pull/10635) [`17badaf55c79cec460c74f4da58bf188eedef7e3`](https://github.com/withastro/astro/commit/17badaf55c79cec460c74f4da58bf188eedef7e3) Thanks [@matthewp](https://github.com/matthewp)! - Give proper error when seed missing default export
+
+- [#10631](https://github.com/withastro/astro/pull/10631) [`157392ee44db08de0d3c01222644dae0a904044d`](https://github.com/withastro/astro/commit/157392ee44db08de0d3c01222644dae0a904044d) Thanks [@matthewp](https://github.com/matthewp)! - Make ASTRO_DATABASE_FILE work with file paths
+
 ## 0.9.8
 
 ### Patch Changes
