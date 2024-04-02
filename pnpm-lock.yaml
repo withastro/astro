@@ -3996,6 +3996,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../astro
 
+  packages/db/test/fixtures/static-remote:
+    dependencies:
+      '@astrojs/db':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../astro
+
   packages/db/test/fixtures/ticketing-example:
     dependencies:
       '@astrojs/check':

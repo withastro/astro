@@ -4,6 +4,7 @@ import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
 import { DB_PATH, RUNTIME_CONFIG_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
+import type { AstroConfig } from 'astro';
 
 const WITH_SEED_VIRTUAL_MODULE_ID = 'astro:db:seed';
 
@@ -26,6 +27,7 @@ type VitePluginDBParams =
 			seedFiles: LateSeedFiles;
 			srcDir: URL;
 			root: URL;
+			output: AstroConfig['output'];
 	  }
 	| {
 			connectToStudio: true;
@@ -33,6 +35,7 @@ type VitePluginDBParams =
 			appToken: string;
 			srcDir: URL;
 			root: URL;
+			output: AstroConfig['output'];
 	  };
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
@@ -66,6 +69,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 					appToken: params.appToken,
 					tables: params.tables.get(),
 					isBuild: command === 'build',
+					output: params.output,
 				});
 			}
 			return getLocalVirtualModContents({
@@ -141,15 +145,22 @@ export function getStudioVirtualModContents({
 	tables,
 	appToken,
 	isBuild,
+	output,
 }: {
 	tables: DBTables;
 	appToken: string;
 	isBuild: boolean;
+	output: AstroConfig['output'];
 }) {
 	function appTokenArg() {
 		if (isBuild) {
-			// In production build, always read the runtime environment variable.
-			return 'process.env.ASTRO_STUDIO_APP_TOKEN';
+			if(output === 'server') {
+				// In production build, always read the runtime environment variable.
+				return 'process.env.ASTRO_STUDIO_APP_TOKEN';
+			} else {
+				// Static mode or prerendering needs the local app token.
+				return `process.env.ASTRO_STUDIO_APP_TOKEN ?? ${JSON.stringify(appToken)}`;
+			}
 		} else {
 			return JSON.stringify(appToken);
 		}
