@@ -172,6 +172,8 @@ async function resolvePartials({
 				});
 			}
 
+			if (markdocConfig.partials?.[file]) continue;
+
 			const partialPath = path.resolve(path.dirname(fileURLToPath(fileUrl)), file);
 			pluginContext.addWatchFile(partialPath);
 			let partialContents: string;
