@@ -1,5 +1,5 @@
 ---
-"@astrojs/markdoc": minor
+"@astrojs/markdoc": patch
 ---
 
 Add automatic resolution for Markdoc partials. This allows you to render other Markdoc files inside of a given entry. Reference files using the `partial` tag with a `file` attribute for the relative file path:
