@@ -4267,6 +4267,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/markdoc/test/fixtures/render-partials:
+    dependencies:
+      '@astrojs/markdoc':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/markdoc/test/fixtures/render-simple:
     dependencies:
       '@astrojs/markdoc':
@@ -4281,9 +4290,15 @@ importers:
       '@astrojs/markdoc':
         specifier: workspace:*
         version: link:../../..
+      '@astrojs/preact':
+        specifier: workspace:*
+        version: link:../../../../preact
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
+      preact:
+        specifier: ^10.20.1
+        version: 10.20.1
 
   packages/integrations/markdoc/test/fixtures/render-with-config:
     dependencies:
