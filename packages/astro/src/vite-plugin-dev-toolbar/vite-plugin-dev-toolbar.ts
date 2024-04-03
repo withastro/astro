@@ -211,7 +211,7 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 					export function definePreactToolbarApp(app) {
 						return {
 							init(canvas, eventTarget) {
-								render(h(App, {eventTarget}), canvas)
+								render(h(app, {eventTarget}), canvas)
 							}
 						};
 					}
