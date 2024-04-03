@@ -4282,7 +4282,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       '@astrojs/react':
-        specifier: ^3.1.0
+        specifier: workspace:*
         version: link:../../../../react
       '@types/react':
         specifier: ^18.2.74
