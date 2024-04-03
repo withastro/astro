@@ -31,12 +31,12 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 				};
 			},
 			resolveId(id) {
-        if (id === PRIVATE_VIRTUAL_MODULE_ID) {
-          return resolvedPrivateVirtualModuleId;
-        }
-        if (id === PUBLIC_MODULE_ID) {
-          return resolvedPublicVirtualModuleId;
-        }
+				if (id === PRIVATE_VIRTUAL_MODULE_ID) {
+					return resolvedPrivateVirtualModuleId;
+				}
+				if (id === PUBLIC_MODULE_ID) {
+					return resolvedPublicVirtualModuleId;
+				}
 			},
 			configureServer(server) {
 				server.hot.on('astro:devtoolbar:error:load', (args) => {
@@ -44,20 +44,43 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 						'toolbar',
 						`Failed to load dev toolbar app from ${args.entrypoint}: ${args.error}`
 					);
-				}, 200);
-			});
-		},
-		async load(id) {
-			if (id === resolvedPublicVirtualModuleId) {
-				return `
+				});
+
+				server.hot.on('astro:devtoolbar:error:init', (args) => {
+					logger.error(
+						'toolbar',
+						`Failed to initialize dev toolbar app ${args.app.name} (${args.app.id}):\n${args.error}`
+					);
+				});
+
+				server.hot.on('astro:devtoolbar:app:toggled', (args) => {
+					// Debounce telemetry to avoid recording events when the user is rapidly toggling apps for debugging
+					clearTimeout(telemetryTimeout);
+					telemetryTimeout = setTimeout(() => {
+						let nameToRecord = args?.app?.id;
+						// Only record apps names for apps that are built-in
+						if (!nameToRecord || !nameToRecord.startsWith('astro:')) {
+							nameToRecord = 'other';
+						}
+						telemetry.record(
+							eventAppToggled({
+								appName: nameToRecord,
+							})
+						);
+					}, 200);
+				});
+			},
+			async load(id) {
+				if (id === resolvedPublicVirtualModuleId) {
+					return `
 					export function defineToolbarApp(app) {
 						return app;
 					}
 				`;
-			}
+				}
 
-			if (id === resolvedPrivateVirtualModuleId) {
-				return `
+				if (id === resolvedPrivateVirtualModuleId) {
+					return `
 					export const loadDevToolbarApps = async () => {
 						return (await Promise.all([${settings.devToolbarApps
 							.map(
