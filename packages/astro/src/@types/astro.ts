@@ -1988,7 +1988,6 @@ export interface AstroAdapterFeatures {
 
 export type AstroDevToolbarAppEntry = {
 	entrypoint: string;
-	preact: boolean;
 };
 
 export interface AstroSettings {

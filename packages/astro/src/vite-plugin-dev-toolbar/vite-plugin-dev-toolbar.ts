@@ -3,6 +3,9 @@ import type { AstroPluginOptions } from '../@types/astro.js';
 import { telemetry } from '../events/index.js';
 import { eventAppToggled } from '../events/toolbar.js';
 import esbuild from 'esbuild';
+import { transformAsync } from '@babel/core';
+import { extname } from 'path';
+import { removeQueryString } from '../core/path.js';
 
 const PUBLIC_VIRTUAL_MODULE_ID_PREACT = 'astro:toolbar:preact';
 const PUBLIC_VIRTUAL_MODULE_ID = 'astro:toolbar';
@@ -20,7 +23,6 @@ export default function astroDevToolbarPlugins({
 	return [
 		{
 			name: 'astro:dev-toolbar',
-			enforce: 'pre',
 			config() {
 				return {
 					optimizeDeps: {
@@ -90,7 +92,7 @@ export default function astroDevToolbarPlugins({
 							.map(
 								(plugin) =>
 									`safeLoadPlugin(async () => (await import(${JSON.stringify(
-										plugin.entrypoint + (plugin.preact ? '?preact' : '')
+										plugin.entrypoint + '?toolbar-app'
 									)})).default, ${JSON.stringify(plugin)})`
 							)
 							.join(',')}])).filter(app => app);
@@ -123,40 +125,54 @@ export default function astroDevToolbarPlugins({
 		},
 		{
 			name: 'astro:dev-toolbar:preact',
+			enforce: 'pre', // Need to be before Vite's plugins or they'll try to transform the JSX before us
 			resolveId(id) {
 				if (id === PUBLIC_VIRTUAL_MODULE_ID_PREACT) {
 					return preactResolvedVirtualModuleId;
 				}
 			},
-			async transform(_, id) {
-				if (id.includes('?preact')) {
-					const result = await esbuild.build({
-						entryPoints: [id],
-						bundle: true,
-						write: false,
-						format: 'esm',
-						sourcemap: 'inline',
-						target: 'es2018',
-						jsx: 'automatic',
-						jsxImportSource: 'astro/preact',
-						jsxFactory: 'h',
-						jsxFragment: 'Fragment',
-						external: ['astro:*'],
+
+			async transform(code, id, options) {
+				const shouldTryTransform =
+					['.jsx', '.tsx'].includes(extname(removeQueryString(id))) && !options?.ssr;
+
+				if (!shouldTryTransform) {
+					return;
+				}
+
+				// TODO: Seems like a fairly old school way to detect JSX, maybe there's a better way?
+				const isJSXToolbarHeuristic =
+					code.includes('astro:toolbar:preact') ||
+					id.endsWith('?toolbar-app') ||
+					code.includes('astro/toolbar-preact');
+
+				if (isJSXToolbarHeuristic) {
+					const result = await transformAsync(code, {
+						plugins: [
+							[
+								'@babel/plugin-transform-react-jsx',
+								{
+									runtime: 'automatic',
+									importSource: 'astro/toolbar-preact',
+								},
+							],
+						],
 					});
 
 					if (!result) return;
 
 					return {
-						code: result.outputFiles[0].text,
-						map: undefined,
+						code: result.code || code,
+						map: result.map,
 					};
 				}
+
 				return undefined;
 			},
 			load(id) {
 				if (id === preactResolvedVirtualModuleId) {
 					return `
-					export * from "astro/preact";
+					export * from "astro/toolbar-preact";
 				`;
 				}
 			},

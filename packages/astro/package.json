@@ -73,8 +73,8 @@
       "default": "./dist/core/middleware/index.js"
     },
     "./virtual-modules/*": "./dist/virtual-modules/*",
-    "./preact": "./dist/vite-plugin-dev-toolbar/export-preact.js",
-    "./preact/jsx-runtime": "./dist/vite-plugin-dev-toolbar/preact-runtime.js"
+    "./toolbar-preact": "./dist/vite-plugin-dev-toolbar/export-preact.js",
+    "./toolbar-preact/jsx-runtime": "./dist/vite-plugin-dev-toolbar/preact-runtime.js"
   },
   "imports": {
     "#astro/*": "./dist/*.js"

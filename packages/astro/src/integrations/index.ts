@@ -147,7 +147,7 @@ export async function runHookConfigSetup({
 				addDevToolbarApp: (entrypoint) => {
 					// TODO: Deprecate in Astro 5.0
 					if (typeof entrypoint === 'string') {
-						updatedSettings.devToolbarApps.push({ entrypoint: entrypoint, preact: false });
+						updatedSettings.devToolbarApps.push({ entrypoint: entrypoint });
 					} else {
 						updatedSettings.devToolbarApps.push(entrypoint);
 					}
