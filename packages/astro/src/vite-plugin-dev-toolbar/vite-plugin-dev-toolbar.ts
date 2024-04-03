@@ -8,9 +8,10 @@ import { removeQueryString } from '../core/path.js';
 import type { ParserPlugin } from '@babel/parser';
 
 const PUBLIC_VIRTUAL_MODULE_ID_PREACT = 'astro:toolbar:preact';
-const PRIVATE_VIRTUAL_MODULE_ID = 'astro:toolbar:internal';
-const privateResolvedVirtualModuleId = '\0' + PRIVATE_VIRTUAL_MODULE_ID;
 const preactResolvedVirtualModuleId = '\0' + PUBLIC_VIRTUAL_MODULE_ID_PREACT;
+
+const VIRTUAL_MODULE_ID = 'astro:dev-toolbar';
+const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
 export default function astroDevToolbarPlugins({
 	settings,
@@ -30,8 +31,8 @@ export default function astroDevToolbarPlugins({
 				};
 			},
 			resolveId(id) {
-				if (id === PRIVATE_VIRTUAL_MODULE_ID) {
-					return privateResolvedVirtualModuleId;
+				if (id === VIRTUAL_MODULE_ID) {
+					return resolvedVirtualModuleId;
 				}
 			},
 			configureServer(server) {
@@ -67,8 +68,7 @@ export default function astroDevToolbarPlugins({
 				});
 			},
 			async load(id) {
-				// Internal module that the dev toolbar uses to load apps, we want for this to only be available to us
-				if (id === privateResolvedVirtualModuleId) {
+				if (id === resolvedVirtualModuleId) {
 					// TODO: In Astro 5.0, we should change the addDevToolbarApp function to separate the logic from the app's metadata.
 					// That way, we can pass the app's data to the dev toolbar without having to load the app's entrypoint, which will allow
 					// for a better UI in the browser where we could still show the app's name and icon even if the app's entrypoint fails to load.
