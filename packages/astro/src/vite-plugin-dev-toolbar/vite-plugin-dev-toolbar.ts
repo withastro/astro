@@ -82,8 +82,8 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 							.map(
 								(plugin) =>
 									`safeLoadPlugin(async () => (await import(${JSON.stringify(
-										plugin
-									)})).default, ${JSON.stringify(plugin)})`
+										plugin.entrypoint
+									)})).default, ${JSON.stringify(plugin.entrypoint)})`
 							)
 							.join(',')}])).filter(app => app);
 					};
