@@ -8,9 +8,7 @@ import { removeQueryString } from '../core/path.js';
 import type { ParserPlugin } from '@babel/parser';
 
 const PUBLIC_VIRTUAL_MODULE_ID_PREACT = 'astro:toolbar:preact';
-const PUBLIC_VIRTUAL_MODULE_ID = 'astro:toolbar';
 const PRIVATE_VIRTUAL_MODULE_ID = 'astro:toolbar:internal';
-const publicResolvedVirtualModuleId = '\0' + PUBLIC_VIRTUAL_MODULE_ID;
 const privateResolvedVirtualModuleId = '\0' + PRIVATE_VIRTUAL_MODULE_ID;
 const preactResolvedVirtualModuleId = '\0' + PUBLIC_VIRTUAL_MODULE_ID_PREACT;
 
@@ -32,9 +30,6 @@ export default function astroDevToolbarPlugins({
 				};
 			},
 			resolveId(id) {
-				if (id === PUBLIC_VIRTUAL_MODULE_ID) {
-					return publicResolvedVirtualModuleId;
-				}
 				if (id === PRIVATE_VIRTUAL_MODULE_ID) {
 					return privateResolvedVirtualModuleId;
 				}
@@ -72,15 +67,7 @@ export default function astroDevToolbarPlugins({
 				});
 			},
 			async load(id) {
-				if (id === publicResolvedVirtualModuleId) {
-					return `
-					export function defineToolbarApp(app) {
-						return app;
-					}
-				`;
-				}
-
-				// Internal module that the dev toolbar uses to load apps, we want for this to only
+				// Internal module that the dev toolbar uses to load apps, we want for this to only be available to us
 				if (id === privateResolvedVirtualModuleId) {
 					// TODO: In Astro 5.0, we should change the addDevToolbarApp function to separate the logic from the app's metadata.
 					// That way, we can pass the app's data to the dev toolbar without having to load the app's entrypoint, which will allow
@@ -92,8 +79,8 @@ export default function astroDevToolbarPlugins({
 							.map(
 								(plugin) =>
 									`safeLoadPlugin(async () => (await import(${JSON.stringify(
-										plugin.entrypoint + '?toolbar-app'
-									)})).default, ${JSON.stringify(plugin.entrypoint)})`
+										plugin + '?toolbar-app'
+									)})).default, ${JSON.stringify(plugin)})`
 							)
 							.join(',')}])).filter(app => app);
 					};

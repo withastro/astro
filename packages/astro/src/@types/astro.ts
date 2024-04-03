@@ -1627,7 +1627,7 @@ export interface AstroUserConfig {
 		 * @version 4.5.0
 		 * @description
 		 * Enables a more reliable strategy to prevent scripts from being executed in pages where they are not used.
-		 *
+		 * 
 		 * Scripts will directly render as declared in Astro files (including existing features like TypeScript, importing `node_modules`,
 		 * and deduplicating scripts). You can also now conditionally render scripts in your Astro file.
 
@@ -1673,9 +1673,9 @@ export interface AstroUserConfig {
 		 * @version 4.5.0
 		 * @description
 		 * This feature will auto-generate a JSON schema for content collections of `type: 'data'` which can be used as the `$schema` value for TypeScript-style autocompletion/hints in tools like VSCode.
-		 *
+		 * 
 		 * To enable this feature, add the experimental flag:
-		 *
+		 * 
 		 * ```diff
 		 * import { defineConfig } from 'astro/config';
 
@@ -1685,9 +1685,9 @@ export interface AstroUserConfig {
 		 * 	}
 		 * });
 		 * ```
-		 *
+		 * 
 		 * This experimental implementation requires you to manually reference the schema in each data entry file of the collection:
-		 *
+		 * 
 		 * ```diff
 		 * // src/content/test/entry.json
 		 * {
@@ -1695,9 +1695,9 @@ export interface AstroUserConfig {
 		 * 	"test": "test"
 		 * }
 		 * ```
-		 *
+		 * 
 		 * Alternatively, you can set this in your [VSCode `json.schemas` settings](https://code.visualstudio.com/docs/languages/json#_json-schemas-and-settings):
-		 *
+		 * 
 		 * ```diff
 		 * "json.schemas": [
 		 * 	{
@@ -1708,7 +1708,7 @@ export interface AstroUserConfig {
 		 * 	}
 		 * ]
 		 * ```
-		 *
+		 * 
 		 * Note that this initial implementation uses a library with [known issues for advanced Zod schemas](https://github.com/StefanTerdell/zod-to-json-schema#known-issues), so you may wish to consult these limitations before enabling the experimental flag.
 		 */
 		contentCollectionJsonSchema?: boolean;
@@ -1986,10 +1986,6 @@ export interface AstroAdapterFeatures {
 	functionPerRoute: boolean;
 }
 
-export type AstroDevToolbarAppEntry = {
-	entrypoint: string;
-};
-
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
@@ -2008,7 +2004,7 @@ export interface AstroSettings {
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
-	devToolbarApps: AstroDevToolbarAppEntry[];
+	devToolbarApps: string[];
 	middlewares: { pre: string[]; post: string[] };
 	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
@@ -2635,8 +2631,7 @@ export interface AstroIntegration {
 			 * TODO: Fully remove in Astro 5.0
 			 */
 			addDevOverlayPlugin: (entrypoint: string) => void;
-			// TODO: Remove the `string` overload in Astro 5.0
-			addDevToolbarApp: (entrypoint: AstroDevToolbarAppEntry | string) => void;
+			addDevToolbarApp: (entrypoint: string) => void;
 			addMiddleware: (mid: AstroIntegrationMiddleware) => void;
 			logger: AstroIntegrationLogger;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.

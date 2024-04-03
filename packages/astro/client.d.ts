@@ -159,11 +159,6 @@ declare module 'astro:components' {
 	export * from 'astro/components';
 }
 
-declare module 'astro:toolbar' {
-	type DevToolbarApp = import('./dist/@types/astro.js').DevToolbarApp;
-	export function defineToolbarApp(app: DevToolbarApp): DevToolbarApp;
-}
-
 declare module 'astro:toolbar:preact' {
 	export * from 'preact-toolbar';
 	export * from 'preact-toolbar/hooks';
