@@ -37,7 +37,7 @@ import type {
 	TransitionBeforePreparationEvent,
 	TransitionBeforeSwapEvent,
 } from '../transitions/events.js';
-import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
+import type { DeepPartial, OmitIndexSignature, Simplify, WithRequired } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
 export { type AstroIntegrationLogger };
@@ -1986,10 +1986,6 @@ export interface AstroAdapterFeatures {
 	functionPerRoute: boolean;
 }
 
-export type AstroDevToolbarAppEntry = {
-	entrypoint: string;
-};
-
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
@@ -2008,7 +2004,7 @@ export interface AstroSettings {
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
-	devToolbarApps: AstroDevToolbarAppEntry[];
+	devToolbarApps: (AstroDevToolbarAppEntry | string)[];
 	middlewares: { pre: string[]; post: string[] };
 	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
@@ -2906,13 +2902,47 @@ export interface ClientDirectiveConfig {
 	entrypoint: string;
 }
 
-export interface DevToolbarApp {
+type DevToolbarAppMeta = {
 	id: string;
 	name: string;
 	icon?: Icon;
+};
+
+export type DevToolbarApp = {
+	/**
+	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
+	 *
+	 * Ex: `addDevToolbarApp({ id: 'my-app', name: 'My App', icon: '🚀', entrypoint: '/path/to/app' })`
+	 *
+	 * In the future, putting these properties directly on the app object will be removed.
+	 */
+	id: string;
+	/**
+	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
+	 *
+	 * Ex: `addDevToolbarApp({ id: 'my-app', name: 'My App', icon: '🚀', entrypoint: '/path/to/app' })`
+	 *
+	 * In the future, putting these properties directly on the app object will be removed.
+	 */
+	name: string;
+	/**
+	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
+	 *
+	 * Ex: `addDevToolbarApp({ id: 'my-app', name: 'My App', icon: '🚀', entrypoint: '/path/to/app' })`
+	 *
+	 * In the future, putting these properties directly on the app object will be removed.
+	 */
+	icon?: Icon;
 	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
 	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
-}
+};
+
+// An app that has been loaded and as such contain all of its properties
+export type ResolvedDevToolbarApp = DevToolbarAppMeta & Omit<DevToolbarApp, 'id' | 'name' | 'icon'>;
+
+export type AstroDevToolbarAppEntry = DevToolbarAppMeta & {
+	entrypoint: string;
+};
 
 // TODO: Remove in Astro 5.0
 export type DevOverlayPlugin = DevToolbarApp;
