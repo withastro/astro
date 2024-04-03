@@ -9,8 +9,10 @@ export function myIntegration() {
 			'astro:config:setup': ({ addDevToolbarApp }) => {
 				const importPath = dirname(fileURLToPath(import.meta.url));
 				const pluginPath = join(importPath, 'custom-plugin.js');
+				const preactAppPath = join(importPath, 'preact-app.tsx');
 
 				addDevToolbarApp(pluginPath);
+				addDevToolbarApp(preactAppPath)
 			},
 		},
 	};

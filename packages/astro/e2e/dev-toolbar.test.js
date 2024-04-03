@@ -349,4 +349,23 @@ test.describe('Dev Toolbar', () => {
 			await expect(appButton).not.toHaveClass('active');
 		}
 	});
+
+	test('can use an app written in Preact', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="preact-app"]');
+		await appButton.click();
+
+		const preactAppCanvas = toolbar.locator(
+			'astro-dev-toolbar-app-canvas[data-app-id="preact-app"]'
+		);
+		const preactTitle = preactAppCanvas.locator('#preact-title');
+		await expect(preactTitle).toHaveCount(1);
+		await expect(preactTitle).toBeVisible();
+
+		// Toggle app off
+		await appButton.click();
+		await expect(preactTitle).not.toBeVisible();
+	});
 });
