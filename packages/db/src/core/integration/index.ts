@@ -59,6 +59,7 @@ function astroDBIntegration(): AstroIntegration {
 						tables,
 						root: config.root,
 						srcDir: config.srcDir,
+						output: config.output,
 					});
 				} else {
 					dbPlugin = vitePluginDb({
@@ -67,6 +68,7 @@ function astroDBIntegration(): AstroIntegration {
 						seedFiles,
 						root: config.root,
 						srcDir: config.srcDir,
+						output: config.output,
 					});
 				}
 

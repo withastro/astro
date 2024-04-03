@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 3.1.1
+
+### Patch Changes
+
+- [#10654](https://github.com/withastro/astro/pull/10654) [`195f51f82a44df32be73865949aabee0d46ffe61`](https://github.com/withastro/astro/commit/195f51f82a44df32be73865949aabee0d46ffe61) Thanks [@matthewp](https://github.com/matthewp)! - Mark @material-tailwind/react as noExternal
+
 ## 3.1.0
 
 ### Minor Changes
