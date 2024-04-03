@@ -164,6 +164,12 @@ declare module 'astro:toolbar:preact' {
 	export * from 'preact-toolbar/hooks';
 	export * from 'preact-toolbar-signals';
 }
+  
+declare module 'astro:toolbar:preact' {
+	export * from 'preact-toolbar';
+	export * from 'preact-toolbar/hooks';
+	export * from 'preact-toolbar-signals';
+}
 
 type MD = import('./dist/@types/astro.js').MarkdownInstance<Record<string, any>>;
 interface ExportedMarkdownModuleEntities {

@@ -1,8 +1,8 @@
 import type { DevToolbarApp as DevToolbarAppDefinition } from '../../../@types/astro.js';
 import { settings } from './settings.js';
 import type { AstroDevToolbar, DevToolbarApp } from './toolbar.js';
-// @ts-expect-error
-import { loadDevToolbarApps } from 'astro:dev-toolbar';
+// @ts-expect-error - This module is private and untyped
+import { loadDevToolbarApps } from 'astro:toolbar:internal';
 
 let overlay: AstroDevToolbar;
 
