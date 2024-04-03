@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import type { ResolvedDevToolbarApp as DevToolbarAppDefinition } from '../../../@types/astro.js';
+import { serverHelpers, type ToolbarAppEventTarget } from './helpers.js';
 import { settings } from './settings.js';
 import { type Icon, getIconElement, isDefinedIcon } from './ui-library/icons.js';
 
@@ -11,7 +12,7 @@ export type DevToolbarApp = DevToolbarAppDefinition & {
 		state: boolean;
 		level?: 'error' | 'warning' | 'info';
 	};
-	eventTarget: EventTarget;
+	eventTarget: ToolbarAppEventTarget;
 };
 const WS_EVENT_NAME = 'astro-dev-toolbar';
 // TODO: Remove in Astro 5.0
@@ -367,7 +368,7 @@ export class AstroDevToolbar extends HTMLElement {
 		try {
 			settings.logger.verboseLog(`Initializing app ${app.id}`);
 
-			await app.init?.(shadowRoot, app.eventTarget);
+			await app.init?.(shadowRoot, app.eventTarget, serverHelpers);
 			app.status = 'ready';
 
 			if (import.meta.hot) {

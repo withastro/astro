@@ -39,8 +39,12 @@ import type {
 } from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify, WithRequired } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type {
+	ToolbarAppEventTarget,
+	ToolbarServerHelpers,
+} from '../runtime/client/dev-toolbar/helpers.js';
 
-export { type AstroIntegrationLogger };
+export type { AstroIntegrationLogger, ToolbarServerHelpers };
 
 export type {
 	MarkdownHeading,
@@ -2933,7 +2937,11 @@ export type DevToolbarApp = {
 	 * In the future, putting these properties directly on the app object will be removed.
 	 */
 	icon?: Icon;
-	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
+	init?(
+		canvas: ShadowRoot,
+		eventTarget: ToolbarAppEventTarget,
+		server: ToolbarServerHelpers
+	): void | Promise<void>;
 	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
 };
 
