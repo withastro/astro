@@ -1,9 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { TLSSocket } from 'node:tls';
+import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
 import { createRequestAndResponse, loadFixture } from './test-utils.js';
-import * as cheerio from 'cheerio';
 
 describe('URL', () => {
 	/** @type {import('./test-utils.js').Fixture} */
@@ -78,8 +78,8 @@ describe('URL', () => {
 		let { req, res, text } = createRequestAndResponse({
 			headers: {
 				'X-Forwarded-Proto': 'https',
-			    'X-Forwarded-Host': 'abc.xyz',
-			    'X-Forwarded-Port': '444'
+				'X-Forwarded-Host': 'abc.xyz',
+				'X-Forwarded-Port': '444',
 			},
 			url: '/',
 		});
@@ -90,6 +90,6 @@ describe('URL', () => {
 		const html = await text();
 		const $ = cheerio.load(html);
 
-		assert.equal($('body').text(), "https://abc.xyz:444/");
+		assert.equal($('body').text(), 'https://abc.xyz:444/');
 	});
 });
