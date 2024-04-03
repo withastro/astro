@@ -178,18 +178,23 @@ async function resolvePartials({
 			let partialContents: string;
 			try {
 				const resolved = await pluginContext.resolve(file, fileURLToPath(fileUrl));
-				const partialId = resolved?.id;
-				if (!partialId) throw new Error();
+				let partialId = resolved?.id;
+				if (!partialId) {
+					const attemptResolveAsRelative = await pluginContext.resolve(
+						'./' + file,
+						fileURLToPath(fileUrl)
+					);
+					if (!attemptResolveAsRelative?.id) throw new Error();
+					partialId = attemptResolveAsRelative.id;
+				}
 
 				partialPath = fileURLToPath(new URL(prependForwardSlash(partialId), 'file://'));
 				partialContents = await fs.promises.readFile(partialPath, 'utf-8');
 			} catch {
-				const isFormattedPath =
-					file.startsWith('./') || file.startsWith('../') || file.startsWith('/');
 				throw new MarkdocError({
 					message: [
 						`**${String(relativePartialPath)}** contains invalid content:`,
-						`Could not read partial file \`${file}\`. Does the file exist?${!isFormattedPath ? ' Ensure relative paths start with a `./`' : ''}`,
+						`Could not read partial file \`${file}\`. Does the file exist?`,
 					].join('\n'),
 				});
 			}
