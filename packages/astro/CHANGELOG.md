@@ -1,5 +1,17 @@
 # astro
 
+## 4.5.15
+
+### Patch Changes
+
+- [#10666](https://github.com/withastro/astro/pull/10666) [`55ddb2ba4889480f776a8d29b9dcd531b9f5ab3e`](https://github.com/withastro/astro/commit/55ddb2ba4889480f776a8d29b9dcd531b9f5ab3e) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where forwarded requests did not include hostname on node-based adapters. This also makes error pages more reliable.
+
+- [#10642](https://github.com/withastro/astro/pull/10642) [`4f5dc14f315eba7ea6ec5cc8e5dacb0cb81288dd`](https://github.com/withastro/astro/commit/4f5dc14f315eba7ea6ec5cc8e5dacb0cb81288dd) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Fixes typing issues when using `format` and `quality` options with remote images
+
+- [#10616](https://github.com/withastro/astro/pull/10616) [`317d18ef8c9cf4fd13647518e3fd352774a86481`](https://github.com/withastro/astro/commit/317d18ef8c9cf4fd13647518e3fd352774a86481) Thanks [@NikolaRHristov](https://github.com/NikolaRHristov)! - This change disables the `sharp` `libvips` image cache as it errors when the
+  file is too small and operations are happening too fast (runs into a race
+  condition)
+
 ## 4.5.14
 
 ### Patch Changes
