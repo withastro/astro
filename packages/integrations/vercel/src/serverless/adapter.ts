@@ -59,11 +59,10 @@ const ISR_PATH = `/_isr?${ASTRO_PATH_PARAM}=$0`;
 // https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/node-js#node.js-version
 const SUPPORTED_NODE_VERSIONS: Record<
 	string,
-	{ status: 'current' } | { status: 'beta' } | { status: 'deprecated'; removal: Date }
+	{ status: 'default' } | { status: 'beta' } | { status: 'retiring'; removal: Date | string; warnDate: Date } | { status: 'deprecated'; removal: Date }
 > = {
-	16: { status: 'deprecated', removal: new Date('February 6 2024') },
-	18: { status: 'current' },
-	20: { status: 'beta' },
+	18: { status: 'retiring', removal: "Early 2025", warnDate: new Date('October 1 2024') },
+	20: { status: 'default' },
 };
 
 function getAdapter({
@@ -522,8 +521,16 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 		);
 		return 'nodejs18.x';
 	}
-	if (support.status === 'current') {
+	if (support.status === 'default') {
 		return `nodejs${major}.x`;
+	}
+	if (support.status === 'retiring') {
+	  if (support.warnDate && new Date() >= support.warnDate) {
+	    logger.warn(
+        `Your project is being built for Node.js ${major} as the runtime, which is retiring by ${support.removal}.`
+      );
+    }
+    return `nodejs${major}.x`;
 	}
 	if (support.status === 'beta') {
 		logger.warn(
