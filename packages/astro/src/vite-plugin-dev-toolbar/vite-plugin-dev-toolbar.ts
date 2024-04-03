@@ -13,10 +13,7 @@ const preactResolvedVirtualModuleId = '\0' + PUBLIC_VIRTUAL_MODULE_ID_PREACT;
 const VIRTUAL_MODULE_ID = 'astro:dev-toolbar';
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
-export default function astroDevToolbarPlugins({
-	settings,
-	logger,
-}: AstroPluginOptions): vite.Plugin[] {
+export default function astroDevToolbar({ settings, logger }: AstroPluginOptions): vite.Plugin[] {
 	let telemetryTimeout: ReturnType<typeof setTimeout>;
 
 	return [
