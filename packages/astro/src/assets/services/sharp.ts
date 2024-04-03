@@ -32,7 +32,7 @@ async function loadSharp() {
 		throw new AstroError(AstroErrorData.MissingSharp);
 	}
 
-	// Disable the `sharp` `libvips` cache as it errors when the file is too small and operations are happening too fast (runs into a race condition)
+	// Disable the `sharp` `libvips` cache as it errors when the file is too small and operations are happening too fast (runs into a race condition) https://github.com/lovell/sharp/issues/3935#issuecomment-1881866341
 	sharpImport.cache(false);
 
 	return sharpImport;
