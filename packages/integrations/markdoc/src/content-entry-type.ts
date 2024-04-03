@@ -161,7 +161,7 @@ async function resolvePartials({
 	pluginContext: Rollup.PluginContext;
 	raisePartialValidationErrors: (ast: Node, filePath: string) => void;
 }) {
-	const rootRelativePath = path.relative(fileURLToPath(root), fileURLToPath(fileUrl));
+	const relativePartialPath = path.relative(fileURLToPath(root), fileURLToPath(fileUrl));
 	for (const node of ast.walk()) {
 		if (node.type === 'tag' && node.tag === 'partial') {
 			const { file } = node.attributes;
@@ -182,7 +182,7 @@ async function resolvePartials({
 			} catch {
 				throw new MarkdocError({
 					message: [
-						`**${String(rootRelativePath)}** contains invalid content:`,
+						`**${String(relativePartialPath)}** contains invalid content:`,
 						`Could not read partial file ${JSON.stringify(file)}. Does the file exist?`,
 					].join('\n'),
 				});
