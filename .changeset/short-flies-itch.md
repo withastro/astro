@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-save `localStorage.astroErrorOverlayTheme` when detected dark mode
+Fixed errorOverlay theme toggle bug.
