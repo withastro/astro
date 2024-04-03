@@ -58,6 +58,21 @@ export async function callGetStaticPaths({
 		// Q: Why the cast?
 		// A: So users downstream can have nicer typings, we have to make some sacrifice in our internal typings, which necessitate a cast here
 		paginate: generatePaginateFunction(route) as PaginateFunction,
+		pathToParam(path: string) {
+			if(!path) {
+				return '';
+			}
+			const startsWithSlash = path[0] === '/';
+			const endsWithSlash = path.at(-1) === '/';
+			if(startsWithSlash && endsWithSlash) {
+				return path.slice(1, path.length - 1);
+			} else if(startsWithSlash) {
+				return path.slice(1);
+			} else if(endsWithSlash) {
+				return path.slice(0, path.length - 1);
+			}
+			return path;
+		}
 	});
 
 	validateGetStaticPathsResult(staticPaths, logger, route);

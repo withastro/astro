@@ -2084,6 +2084,7 @@ export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
  */
 export interface GetStaticPathsOptions {
 	paginate: PaginateFunction;
+	pathToParam: (path: string) => string;
 }
 
 export type GetStaticPathsItem = {

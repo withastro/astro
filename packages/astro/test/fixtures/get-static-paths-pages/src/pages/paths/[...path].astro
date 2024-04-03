@@ -1,0 +1,47 @@
+---
+import { GetStaticPaths } from 'astro';
+
+export const getStaticPaths: GetStaticPaths = ({ paginate, pathToParam }) => {
+	return [
+		{
+			params: {
+				path: pathToParam('one')
+			},
+			props: {}
+		},
+		{
+			params: {
+				path: pathToParam('/two')
+			},
+			props: {}
+		},
+		{
+			params: {
+				path: pathToParam('three/')
+			},
+			props: {}
+		},
+		{
+			params: {
+				path: pathToParam('/four/')
+			},
+			props: {}
+		}
+	];
+}
+
+// All paginated data is passed on the "page" prop
+const { path } = Astro.params;
+---
+
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width" />
+	<meta name="generator" content={Astro.generator} />
+	<title>Astro</title>
+</head>
+<body>
+	<h1>Path: {path}</h1>
+</body>
+</html>
