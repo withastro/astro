@@ -4281,24 +4281,15 @@ importers:
       '@astrojs/markdoc':
         specifier: workspace:*
         version: link:../../..
-      '@astrojs/react':
+      '@astrojs/preact':
         specifier: workspace:*
-        version: link:../../../../react
-      '@types/react':
-        specifier: ^18.2.74
-        version: 18.2.74
-      '@types/react-dom':
-        specifier: ^18.2.23
-        version: 18.2.23
+        version: link:../../../../preact
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
-      react:
-        specifier: ^18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.2.0(react@18.2.0)
+      preact:
+        specifier: ^10.20.1
+        version: 10.20.1
 
   packages/integrations/markdoc/test/fixtures/render-with-config:
     dependencies:
@@ -8291,13 +8282,6 @@ packages:
     dependencies:
       '@types/prop-types': 15.7.12
       csstype: 3.1.3
-
-  /@types/react@18.2.74:
-    resolution: {integrity: sha512-9AEqNZZyBx8OdZpxzQlaFEVCSFUM2YXJH46yPOiOpm078k6ZLOCcuAzGum/zK8YBwY+dbahVNbHrbgrAwIRlqw==}
-    dependencies:
-      '@types/prop-types': 15.7.12
-      csstype: 3.1.3
-    dev: false
 
   /@types/relateurl@0.2.33:
     resolution: {integrity: sha512-bTQCKsVbIdzLqZhLkF5fcJQreE4y1ro4DIyVrlDNSCJRRwHhB8Z+4zXXa8jN6eDvc2HbRsEYgbvrnGvi54EpSw==}
