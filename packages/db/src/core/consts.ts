@@ -6,7 +6,7 @@ export const PACKAGE_NAME = JSON.parse(
 
 export const RUNTIME_IMPORT = JSON.stringify(`${PACKAGE_NAME}/runtime`);
 
-export const RUNTIME_CONFIG_IMPORT = JSON.stringify(`${PACKAGE_NAME}/dist/runtime/config.js`);
+export const RUNTIME_VIRTUAL_IMPORT = JSON.stringify(`${PACKAGE_NAME}/dist/runtime/virtual.js`);
 
 export const DB_TYPES_FILE = 'db-types.d.ts';
 
