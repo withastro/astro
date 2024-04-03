@@ -2,6 +2,7 @@ import type * as vite from 'vite';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
+import { ASTRO_VIRTUAL_MODULE } from '../core/constants.js';
 
 const virtualModuleId = 'astro:i18n';
 
@@ -44,10 +45,20 @@ export default function astroInternationalization({
 				},
 			};
 		},
-		resolveId(id) {
+		async resolveId(id) {
 			if (id === virtualModuleId) {
 				if (i18n === undefined) throw new AstroError(AstroErrorData.i18nNotEnabled);
-				return this.resolve('astro/virtual-modules/i18n.js');
+
+				const resolved = await this.resolve('astro/virtual-modules/i18n.js');
+				if (resolved) {
+					return {
+						id: resolved.id,
+						meta: {
+							[ASTRO_VIRTUAL_MODULE]: true,
+						},
+					};
+				}
+				return undefined;
 			}
 		},
 	};

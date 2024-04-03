@@ -12,6 +12,10 @@ export function vitePluginChunks(): VitePlugin {
 					if (id.includes('astro/dist/runtime/server/')) {
 						return 'astro/server';
 					}
+					// Split the Astro runtime into a separate chunk for readability
+					if (id.includes('astro/dist/runtime')) {
+						return 'astro';
+					}
 				},
 			});
 		},

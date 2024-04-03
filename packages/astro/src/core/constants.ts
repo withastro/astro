@@ -71,3 +71,21 @@ export const SUPPORTED_MARKDOWN_FILE_EXTENSIONS = [
 
 // The folder name where to find the middleware
 export const MIDDLEWARE_PATH_SEGMENT_NAME = 'middleware';
+
+/**
+ * This constant is used to mark internal astro virtual modules. Use this constant to attach it to the metadata of the virtual module, e.g.:
+ *
+ * ```js
+ * function resolveId(id) {
+ * 	if (id === virtualModuleId) {
+ *   	return {
+ *   		id,
+ *   		meta: {
+ *   			[ASTRO_VIRTUAL_MODULE]: true,
+ *   		},
+ *   	}
+ *   }
+ * }
+ * ```
+ */
+export const ASTRO_VIRTUAL_MODULE = 'astro-virtual-module';

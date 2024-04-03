@@ -5,6 +5,7 @@ import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { extendManualChunks } from './util.js';
+import { ASTRO_VIRTUAL_MODULE } from '../../constants.js';
 
 function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
@@ -13,12 +14,9 @@ function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals
 		outputOptions(outputOptions) {
 			extendManualChunks(outputOptions, {
 				after(id, meta) {
-					// Split the Astro runtime into a separate chunk for readability
-					if (id.includes('astro/dist/runtime')) {
-						return 'astro';
-					}
 					const pageInfo = internals.pagesByViteID.get(id);
 					let hasSharedModules = false;
+					let hasAstroVirtualModules = false;
 					if (pageInfo) {
 						// prerendered pages should be split into their own chunk
 						// Important: this can't be in the `pages/` directory!
@@ -43,12 +41,20 @@ function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals
 									// Given the previous statement, we only check if
 									// - the module is a page, and it's not pre-rendered
 									// - the module is the middleware
+									// - the module belongs to our virtual modules, which belong to `
 									// If one of these conditions is met, we need a separate chunk
 									for (const importer of moduleMeta.importedIds) {
 										// we don't want to analyze the same module again, so we skip it
 										if (importer !== id) {
 											const importerModuleMeta = meta.getModuleInfo(importer);
 											if (importerModuleMeta) {
+												if (
+													importerModuleMeta.meta &&
+													importerModuleMeta.meta[ASTRO_VIRTUAL_MODULE]
+												) {
+													hasAstroVirtualModules = true;
+													break;
+												}
 												// if the module is inside the pages
 												if (importerModuleMeta.id.includes('/pages')) {
 													// we check if it's not pre-rendered
@@ -70,6 +76,7 @@ function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals
 
 							opts.allPages;
 							pageInfo.hasSharedModules = hasSharedModules;
+							pageInfo.hasAstroVirtualModule = hasAstroVirtualModules;
 							pageInfo.route.prerender = true;
 							return 'prerender';
 						}

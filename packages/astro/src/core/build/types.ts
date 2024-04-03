@@ -29,6 +29,10 @@ export interface PageBuildData {
 	hoistedScript: { type: 'inline' | 'external'; value: string } | undefined;
 	styles: Array<{ depth: number; order: number; sheet: StylesheetAsset }>;
 	hasSharedModules: boolean;
+	/**
+	 * Whether the page is using astro virtual modules
+	 */
+	hasAstroVirtualModule: boolean;
 }
 
 export type AllPagesData = Record<ComponentPath, PageBuildData>;

@@ -374,7 +374,10 @@ async function cleanStaticOutput(
 ) {
 	const allStaticFiles = new Set();
 	for (const pageData of eachPageData(internals)) {
-		if (pageData.route.prerender && !pageData.hasSharedModules) {
+		if (
+			pageData.route.prerender &&
+			!(pageData.hasSharedModules || pageData.hasAstroVirtualModule)
+		) {
 			const { moduleSpecifier } = pageData;
 			const pageBundleId = internals.pageToBundleMap.get(moduleSpecifier);
 			const entryBundleId = internals.entrySpecifierToBundleMap.get(moduleSpecifier);
