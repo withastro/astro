@@ -600,7 +600,7 @@ class ErrorOverlay extends HTMLElement {
 			themeToggle!.checked = false;
 		}
 		themeToggle?.addEventListener('click', () => {
-			const isDark = localStorage.astroErrorOverlayTheme === 'dark';
+			const isDark = localStorage.astroErrorOverlayTheme === 'dark' || this?.classList.contains('astro-dark');
 			this?.classList.toggle('astro-dark', !isDark);
 			localStorage.astroErrorOverlayTheme = isDark ? 'light' : 'dark';
 		});
