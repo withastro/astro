@@ -3,14 +3,15 @@ import { before, describe, it } from 'node:test';
 import { TLSSocket } from 'node:tls';
 import nodejs from '../dist/index.js';
 import { createRequestAndResponse, loadFixture } from './test-utils.js';
+import * as cheerio from 'cheerio';
 
-describe('URL protocol', () => {
-	/** @type {import('./test-utils').Fixture} */
+describe('URL', () => {
+	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/url-protocol/',
+			root: './fixtures/url/',
 			output: 'server',
 			adapter: nodejs({ mode: 'standalone' }),
 		});
@@ -18,7 +19,7 @@ describe('URL protocol', () => {
 	});
 
 	it('return http when non-secure', async () => {
-		const { handler } = await import('./fixtures/url-protocol/dist/server/entry.mjs');
+		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
 		let { req, res, text } = createRequestAndResponse({
 			url: '/',
 		});
@@ -31,7 +32,7 @@ describe('URL protocol', () => {
 	});
 
 	it('return https when secure', async () => {
-		const { handler } = await import('./fixtures/url-protocol/dist/server/entry.mjs');
+		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
 		let { req, res, text } = createRequestAndResponse({
 			socket: new TLSSocket(),
 			url: '/',
@@ -45,7 +46,7 @@ describe('URL protocol', () => {
 	});
 
 	it('return http when the X-Forwarded-Proto header is set to http', async () => {
-		const { handler } = await import('./fixtures/url-protocol/dist/server/entry.mjs');
+		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
 		let { req, res, text } = createRequestAndResponse({
 			headers: { 'X-Forwarded-Proto': 'http' },
 			url: '/',
@@ -59,7 +60,7 @@ describe('URL protocol', () => {
 	});
 
 	it('return https when the X-Forwarded-Proto header is set to https', async () => {
-		const { handler } = await import('./fixtures/url-protocol/dist/server/entry.mjs');
+		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
 		let { req, res, text } = createRequestAndResponse({
 			headers: { 'X-Forwarded-Proto': 'https' },
 			url: '/',
@@ -70,5 +71,25 @@ describe('URL protocol', () => {
 
 		const html = await text();
 		assert.equal(html.includes('https:'), true);
+	});
+
+	it('includes forwarded host and port in the url', async () => {
+		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		let { req, res, text } = createRequestAndResponse({
+			headers: {
+				'X-Forwarded-Proto': 'https',
+			    'X-Forwarded-Host': 'abc.xyz',
+			    'X-Forwarded-Port': '444'
+			},
+			url: '/',
+		});
+
+		handler(req, res);
+		req.send();
+
+		const html = await text();
+		const $ = cheerio.load(html);
+
+		assert.equal($('body').text(), "https://abc.xyz:444/");
 	});
 });
