@@ -8,6 +8,7 @@ import prompts from 'prompts';
 import resolvePackage from 'resolve';
 import whichPm from 'which-pm';
 import { type Logger } from '../core/logger/core.js';
+import ci from 'ci-info';
 const require = createRequire(import.meta.url);
 
 type GetPackageOptions = {
@@ -38,10 +39,18 @@ export async function getPackage<T>(
 		return packageImport as T;
 	} catch (e) {
 		if (options.optional) return undefined;
-		logger.info(
-			'SKIP_FORMAT',
-			`To continue, Astro requires the following dependency to be installed: ${bold(packageName)}.`
-		);
+		let message = `To continue, Astro requires the following dependency to be installed: ${bold(packageName)}.`;
+
+		if (ci.isCI) {
+			message += ` Packages cannot be installed automatically in CI environments.`;
+		}
+
+		logger.info('SKIP_FORMAT', message);
+
+		if (ci.isCI) {
+			return undefined;
+		}
+
 		const result = await installPackage([packageName, ...otherDeps], options, logger);
 
 		if (result) {
