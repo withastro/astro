@@ -593,6 +593,7 @@ class ErrorOverlay extends HTMLElement {
 				window.matchMedia('(prefers-color-scheme: dark)').matches)
 		) {
 			this?.classList.add('astro-dark');
+			localStorage.astroErrorOverlayTheme = 'dark';
 			themeToggle!.checked = true;
 		} else {
 			this?.classList.remove('astro-dark');
