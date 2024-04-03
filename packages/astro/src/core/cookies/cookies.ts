@@ -17,7 +17,7 @@ export interface AstroCookieGetOptions {
 	decode?: (value: string) => string;
 }
 
-type AstroCookieDeleteOptions = Pick<AstroCookieSetOptions, 'domain' | 'path'>;
+type AstroCookieDeleteOptions = Omit<CookieSerializeOptions, 'expires' | 'maxAge'>;
 
 interface AstroCookieInterface {
 	value: string;
@@ -78,16 +78,21 @@ class AstroCookies implements AstroCookiesInterface {
 	 * @param options Options related to this deletion, such as the path of the cookie.
 	 */
 	delete(key: string, options?: AstroCookieDeleteOptions): void {
+		/**
+		 * The `@ts-expect-error` is necessary because `maxAge` and `expires` properties
+		 * must not appear in the AstroCookieDeleteOptions type.
+		 */
+		const {
+			// @ts-expect-error
+			maxAge: _ignoredMaxAge,
+			// @ts-expect-error
+			expires: _ignoredExpires,
+			...sanitizedOptions
+		} = options || {};
 		const serializeOptions: CookieSerializeOptions = {
 			expires: DELETED_EXPIRATION,
+			...sanitizedOptions,
 		};
-
-		if (options?.domain) {
-			serializeOptions.domain = options.domain;
-		}
-		if (options?.path) {
-			serializeOptions.path = options.path;
-		}
 
 		// Set-Cookie: token=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT
 		this.#ensureOutgoingMap().set(key, [
