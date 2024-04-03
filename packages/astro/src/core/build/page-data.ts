@@ -57,6 +57,7 @@ export async function collectPagesData(
 				propagatedScripts: new Map(),
 				hoistedScript: undefined,
 				hasSharedModules: false,
+				hasAstroVirtualModule: false,
 			};
 
 			clearInterval(routeCollectionLogTimeout);
@@ -82,6 +83,7 @@ export async function collectPagesData(
 			propagatedScripts: new Map(),
 			hoistedScript: undefined,
 			hasSharedModules: false,
+			hasAstroVirtualModule: false,
 		};
 	}
 
