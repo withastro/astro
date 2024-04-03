@@ -4703,7 +4703,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
-  packages/integrations/node/test/fixtures/url-protocol:
+  packages/integrations/node/test/fixtures/url:
     dependencies:
       '@astrojs/node':
         specifier: workspace:*
