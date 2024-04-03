@@ -27,6 +27,13 @@ export interface CreateRequestOptions {
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
+/**
+ * Used by astro internals to create a web standard request object.
+ *
+ * The user of this function may provide the data in a runtime-agnostic way.
+ *
+ * This is used by the static build to create fake requests for prerendering, and by the dev server to convert node requests into the standard request object.
+ */
 export function createRequest({
 	base,
 	url,
@@ -70,7 +77,7 @@ export function createRequest({
 			get() {
 				logger.warn(
 					null,
-					`\`Astro.request.headers\` is not available in "static" output mode. To enable header access: set \`output: "server"\` or \`output: "hybrid"\` in your config file.`
+					`\`Astro.request.headers\` is unavailable in "static" output mode, and in prerendered pages within "hybrid" and "server" output modes. If you need access to request headers, make sure that \`output\` is configured as either \`"server"\` or \`output: "hybrid"\` in your config file, and that the page accessing the headers is rendered on-demand.`
 				);
 				return _headers;
 			},

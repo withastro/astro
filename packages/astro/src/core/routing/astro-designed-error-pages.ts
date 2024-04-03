@@ -9,7 +9,7 @@ export function ensure404Route(manifest: ManifestData) {
 			params: [],
 			pattern: /\/404/,
 			prerender: false,
-			segments: [],
+			segments: [[{ content: '404', dynamic: false, spread: false }]],
 			type: 'page',
 			route: '/404',
 			fallbackRoutes: [],

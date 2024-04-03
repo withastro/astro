@@ -3,7 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AstroIntegrationLogger } from 'astro';
-import { bold, cyan } from 'kleur/colors';
+import { bold } from 'kleur/colors';
 import { normalizePath } from 'vite';
 import { DB_TYPES_FILE } from '../consts.js';
 import type { VitePlugin } from '../utils.js';

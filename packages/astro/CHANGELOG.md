@@ -1,5 +1,51 @@
 # astro
 
+## 4.5.14
+
+### Patch Changes
+
+- [#10470](https://github.com/withastro/astro/pull/10470) [`320c309ca9fbe51c40e6ba846d04a0cb49aced5f`](https://github.com/withastro/astro/commit/320c309ca9fbe51c40e6ba846d04a0cb49aced5f) Thanks [@liruifengv](https://github.com/liruifengv)! - improves `client:only` error message
+
+- [#10496](https://github.com/withastro/astro/pull/10496) [`ce985631129e49f7ea90e6ea690ef9f9cf0e6987`](https://github.com/withastro/astro/commit/ce985631129e49f7ea90e6ea690ef9f9cf0e6987) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Makes the warning less scary when adding 3rd-party integrations using `astro add`
+
+## 4.5.13
+
+### Patch Changes
+
+- [#10495](https://github.com/withastro/astro/pull/10495) [`046d69d517118ab5c0e71604b321729d66ddffff`](https://github.com/withastro/astro/commit/046d69d517118ab5c0e71604b321729d66ddffff) Thanks [@satyarohith](https://github.com/satyarohith)! - This patch allows astro to run in node-compat mode in Deno. Deno doesn't support
+  construction of response from async iterables in node-compat mode so we need to
+  use ReadableStream.
+
+- [#10605](https://github.com/withastro/astro/pull/10605) [`a16a829f4e25ad5c9a1b4557ec089fc8ab53320f`](https://github.com/withastro/astro/commit/a16a829f4e25ad5c9a1b4557ec089fc8ab53320f) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue with outdated page titles in browser history when using text fragments in view transition navigation.
+
+- [#10584](https://github.com/withastro/astro/pull/10584) [`e648c5575a8774af739231cfa9fc27a32086aa5f`](https://github.com/withastro/astro/commit/e648c5575a8774af739231cfa9fc27a32086aa5f) Thanks [@duanwilliam](https://github.com/duanwilliam)! - Fixes a bug where JSX runtime would error on components with nullish prop values in certain conditions.
+
+- [#10608](https://github.com/withastro/astro/pull/10608) [`e31bea0704890ff92ce4f9b0ce536c1c90715f2c`](https://github.com/withastro/astro/commit/e31bea0704890ff92ce4f9b0ce536c1c90715f2c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes bug with head content being pushed into body
+
+- Updated dependencies [[`2cf116f80cb5e421ab5cc5eb4a654e7b78c1b8de`](https://github.com/withastro/astro/commit/2cf116f80cb5e421ab5cc5eb4a654e7b78c1b8de), [`374efcdff9625ca43309d89e3b9cfc9174351512`](https://github.com/withastro/astro/commit/374efcdff9625ca43309d89e3b9cfc9174351512)]:
+  - @astrojs/markdown-remark@5.0.0
+
+## 4.5.12
+
+### Patch Changes
+
+- [#10596](https://github.com/withastro/astro/pull/10596) [`20463a6c1e1271d8dc3cb0ab3419ee5c72abd218`](https://github.com/withastro/astro/commit/20463a6c1e1271d8dc3cb0ab3419ee5c72abd218) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add `removeBase` function
+
+- Updated dependencies [[`20463a6c1e1271d8dc3cb0ab3419ee5c72abd218`](https://github.com/withastro/astro/commit/20463a6c1e1271d8dc3cb0ab3419ee5c72abd218)]:
+  - @astrojs/internal-helpers@0.4.0
+
+## 4.5.11
+
+### Patch Changes
+
+- [#10567](https://github.com/withastro/astro/pull/10567) [`fbdc10f90f7baa5c49f2f53e3e4ce8f453814c01`](https://github.com/withastro/astro/commit/fbdc10f90f7baa5c49f2f53e3e4ce8f453814c01) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `astro:assets` not working when using complex config with `vite.build.rollupOptions.output.assetFileNames`
+
+- [#10593](https://github.com/withastro/astro/pull/10593) [`61e283e5a0d95b6ef5d3c4c985d6ee78f74bbd8e`](https://github.com/withastro/astro/commit/61e283e5a0d95b6ef5d3c4c985d6ee78f74bbd8e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes Polymorphic type helper causing TypeScript errors in certain cases after the previous update
+
+- [#10543](https://github.com/withastro/astro/pull/10543) [`0fd36bdb383297b32cc523b57d2442132da41595`](https://github.com/withastro/astro/commit/0fd36bdb383297b32cc523b57d2442132da41595) Thanks [@matthewp](https://github.com/matthewp)! - Fixes inline stylesheets with content collections cache
+
+- [#10582](https://github.com/withastro/astro/pull/10582) [`a05953538fcf524786385830b99c0c5a015173e8`](https://github.com/withastro/astro/commit/a05953538fcf524786385830b99c0c5a015173e8) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where the dev server got stuck in a loop while routing responses with a 404 status code to the 404 route.
+
 ## 4.5.10
 
 ### Patch Changes

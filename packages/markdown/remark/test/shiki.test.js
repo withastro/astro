@@ -33,7 +33,7 @@ describe('shiki syntax highlighting', () => {
 	it('createShikiHighlighter works', async () => {
 		const highlighter = await createShikiHighlighter();
 
-		const html = highlighter.highlight('const foo = "bar";', 'js');
+		const html = await highlighter.highlight('const foo = "bar";', 'js');
 
 		assert.match(html, /astro-code github-dark/);
 		assert.match(html, /background-color:#24292e;color:#e1e4e8;/);
@@ -42,7 +42,7 @@ describe('shiki syntax highlighting', () => {
 	it('diff +/- text has user-select: none', async () => {
 		const highlighter = await createShikiHighlighter();
 
-		const html = highlighter.highlight(
+		const html = await highlighter.highlight(
 			`\
 - const foo = "bar";
 + const foo = "world";`,
@@ -57,7 +57,7 @@ describe('shiki syntax highlighting', () => {
 	it('renders attributes', async () => {
 		const highlighter = await createShikiHighlighter();
 
-		const html = highlighter.highlight(`foo`, 'js', {
+		const html = await highlighter.highlight(`foo`, 'js', {
 			attributes: { 'data-foo': 'bar', autofocus: true },
 		});
 
@@ -79,7 +79,7 @@ describe('shiki syntax highlighting', () => {
 			],
 		});
 
-		const html = highlighter.highlight(`foo`, 'js', {
+		const html = await highlighter.highlight(`foo`, 'js', {
 			meta: '{1,3-4}',
 		});
 

@@ -1,5 +1,21 @@
 # @astrojs/markdoc
 
+## 0.9.4
+
+### Patch Changes
+
+- [#10632](https://github.com/withastro/astro/pull/10632) [`da2fb875fc58b65a21d37a3d29f570fa20b5219c`](https://github.com/withastro/astro/commit/da2fb875fc58b65a21d37a3d29f570fa20b5219c) Thanks [@bluwy](https://github.com/bluwy)! - Moves `@astrojs/markdown-remark` as a dependency
+
+- Updated dependencies [[`2cf116f80cb5e421ab5cc5eb4a654e7b78c1b8de`](https://github.com/withastro/astro/commit/2cf116f80cb5e421ab5cc5eb4a654e7b78c1b8de), [`374efcdff9625ca43309d89e3b9cfc9174351512`](https://github.com/withastro/astro/commit/374efcdff9625ca43309d89e3b9cfc9174351512)]:
+  - @astrojs/markdown-remark@5.0.0
+
+## 0.9.3
+
+### Patch Changes
+
+- Updated dependencies [[`20463a6c1e1271d8dc3cb0ab3419ee5c72abd218`](https://github.com/withastro/astro/commit/20463a6c1e1271d8dc3cb0ab3419ee5c72abd218)]:
+  - @astrojs/internal-helpers@0.4.0
+
 ## 0.9.2
 
 ### Patch Changes

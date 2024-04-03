@@ -2,8 +2,7 @@ import type { OutgoingHttpHeaders } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import type {
 	MarkdownHeading,
-	MarkdownMetadata,
-	MarkdownRenderingResult,
+	MarkdownVFile,
 	RehypePlugins,
 	RemarkPlugins,
 	RemarkRehype,
@@ -46,8 +45,6 @@ export { type AstroIntegrationLogger };
 
 export type {
 	MarkdownHeading,
-	MarkdownMetadata,
-	MarkdownRenderingResult,
 	RehypePlugins,
 	RemarkPlugins,
 	ShikiConfig,
@@ -2189,6 +2186,21 @@ export interface ManifestData {
 	routes: RouteData[];
 }
 
+/** @deprecated Type is no longer used by exported APIs */
+export interface MarkdownMetadata {
+	headings: MarkdownHeading[];
+	source: string;
+	html: string;
+}
+
+/** @deprecated Type is no longer used by exported APIs */
+export interface MarkdownRenderingResult {
+	metadata: MarkdownMetadata;
+	vfile: MarkdownVFile;
+	code: string;
+}
+
+/** @deprecated Type is no longer used by exported APIs */
 export interface MarkdownParserResponse extends MarkdownRenderingResult {
 	frontmatter: MD['frontmatter'];
 }
@@ -2341,7 +2353,9 @@ interface AstroSharedContext<
 	RouteParams extends Record<string, string | undefined> = Record<string, string | undefined>,
 > {
 	/**
-	 * The address (usually IP address) of the user. Used with SSR only.
+	 * The address (usually IP address) of the user.
+	 *
+	 * Throws an error if used within a static site, or within a prerendered page.
 	 */
 	clientAddress: string;
 	/**
@@ -2391,15 +2405,33 @@ interface AstroSharedContext<
 	currentLocale: string | undefined;
 }
 
+/**
+ * The `APIContext` is the object made available to endpoints and middleware.
+ * It is a subset of the `Astro` global object available in pages.
+ *
+ * [Reference](https://docs.astro.build/en/reference/api-reference/#endpoint-context)
+ */
 export interface APIContext<
 	Props extends Record<string, any> = Record<string, any>,
 	APIParams extends Record<string, string | undefined> = Record<string, string | undefined>,
 > extends AstroSharedContext<Props, Params> {
+	/**
+	 * The site provided in the astro config, parsed as an instance of `URL`, without base.
+	 * `undefined` if the site is not provided in the config.
+	 */
 	site: URL | undefined;
+	/**
+	 * A human-readable string representing the Astro version used to create the project.
+	 * For example, `"Astro v1.1.1"`.
+	 */
 	generator: string;
 	/**
-	 * A full URL object of the request URL.
-	 * Equivalent to: `new URL(request.url)`
+	 * The url of the current request, parsed as an instance of `URL`.
+	 *
+	 * Equivalent to:
+	 * ```ts
+	 * new URL(context.request.url)
+	 * ```
 	 */
 	url: AstroSharedContext['url'];
 	/**
@@ -2409,6 +2441,8 @@ export interface APIContext<
 	 *
 	 * Example usage:
 	 * ```ts
+	 * import type { APIContext } from "astro"
+	 *
 	 * export function getStaticPaths() {
 	 *   return [
 	 *     { params: { id: '0' }, props: { name: 'Sarah' } },
@@ -2417,14 +2451,12 @@ export interface APIContext<
 	 *   ];
 	 * }
 	 *
-	 * export async function GET({ params }) {
-	 *  return {
-	 * 	  body: `Hello user ${params.id}!`,
-	 *  }
+	 * export async function GET({ params }: APIContext) {
+	 *   return new Response(`Hello user ${params.id}!`)
 	 * }
 	 * ```
 	 *
-	 * [context reference](https://docs.astro.build/en/reference/api-reference/#contextparams)
+	 * [Reference](https://docs.astro.build/en/reference/api-reference/#contextparams)
 	 */
 	params: AstroSharedContext<Props, APIParams>['params'];
 	/**
@@ -2432,6 +2464,8 @@ export interface APIContext<
 	 *
 	 * Example usage:
 	 * ```ts
+	 * import type { APIContext } from "astro"
+	 *
 	 * export function getStaticPaths() {
 	 *   return [
 	 *     { params: { id: '0' }, props: { name: 'Sarah' } },
@@ -2440,18 +2474,16 @@ export interface APIContext<
 	 *   ];
 	 * }
 	 *
-	 * export function GET({ props }) {
-	 *   return {
-	 *     body: `Hello ${props.name}!`,
-	 *   }
+	 * export function GET({ props }: APIContext): Response {
+	 *   return new Response(`Hello ${props.name}!`);
 	 * }
 	 * ```
 	 *
-	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextprops)
+	 * [Reference](https://docs.astro.build/en/guides/api-reference/#contextprops)
 	 */
 	props: AstroSharedContext<Props, APIParams>['props'];
 	/**
-	 * Redirect to another page. Only available in SSR builds.
+	 * Create a response that redirects to another page.
 	 *
 	 * Example usage:
 	 * ```ts
@@ -2461,18 +2493,20 @@ export interface APIContext<
 	 * }
 	 * ```
 	 *
-	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextredirect)
+	 * [Reference](https://docs.astro.build/en/guides/api-reference/#contextredirect)
 	 */
 	redirect: AstroSharedContext['redirect'];
 
 	/**
-	 * Object accessed via Astro middleware.
+	 * An object that middlewares can use to store extra information related to the request.
+	 *
+	 * It will be made available to pages as `Astro.locals`, and to endpoints as `context.locals`.
 	 *
 	 * Example usage:
 	 *
 	 * ```ts
 	 * // src/middleware.ts
-	 * import {defineMiddleware} from "astro:middleware";
+	 * import { defineMiddleware } from "astro:middleware";
 	 *
 	 * export const onRequest = defineMiddleware((context, next) => {
 	 *   context.locals.greeting = "Hello!";
@@ -2487,6 +2521,8 @@ export interface APIContext<
 	 * ---
 	 * <h1>{greeting}</h1>
 	 * ```
+	 *
+	 * [Reference](https://docs.astro.build/en/reference/api-reference/#contextlocals)
 	 */
 	locals: App.Locals;
 
@@ -2523,12 +2559,6 @@ export interface APIContext<
 	 */
 	currentLocale: string | undefined;
 }
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type Routing = {
-	prefixDefaultLocale: boolean;
-	strategy: 'pathname';
-};
 
 export type APIRoute<
 	Props extends Record<string, any> = Record<string, any>,

@@ -285,11 +285,7 @@ export async function handleRoute({
 			})
 		);
 	}
-	if (
-		response.status === 404 &&
-		has404Route(manifestData) &&
-		response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
-	) {
+	if (response.status === 404 && response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no') {
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
 		if (options)
 			return handleRoute({
@@ -339,8 +335,4 @@ function getStatus(matchedRoute?: MatchedRoute): 404 | 500 | undefined {
 	if (!matchedRoute) return 404;
 	if (matchedRoute.route.route === '/404') return 404;
 	if (matchedRoute.route.route === '/500') return 500;
-}
-
-function has404Route(manifest: ManifestData): boolean {
-	return manifest.routes.some((route) => route.route === '/404');
 }

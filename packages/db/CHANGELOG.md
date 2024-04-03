@@ -1,5 +1,79 @@
 # @astrojs/db
 
+## 0.9.11
+
+### Patch Changes
+
+- [#10655](https://github.com/withastro/astro/pull/10655) [`b1eda3dc5c33c1c6d50d5ee8a2a08d34851dc253`](https://github.com/withastro/astro/commit/b1eda3dc5c33c1c6d50d5ee8a2a08d34851dc253) Thanks [@matthewp](https://github.com/matthewp)! - Pass through appToken on static sites with Astro DB
+
+## 0.9.10
+
+### Patch Changes
+
+- [#10646](https://github.com/withastro/astro/pull/10646) [`713f99e849b26edb831ea6527b7103ad7a6b200f`](https://github.com/withastro/astro/commit/713f99e849b26edb831ea6527b7103ad7a6b200f) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue astro:db could not be used on serverless platforms.
+
+## 0.9.9
+
+### Patch Changes
+
+- [#10599](https://github.com/withastro/astro/pull/10599) [`5a7733dde52d439402404d5207a2b1d897c4e025`](https://github.com/withastro/astro/commit/5a7733dde52d439402404d5207a2b1d897c4e025) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Seed database on dev server startup, and log whenever the seed file is reloaded.
+
+- [#10636](https://github.com/withastro/astro/pull/10636) [`504d15d77291f0fe36aa9fecc22f276b734f83cb`](https://github.com/withastro/astro/commit/504d15d77291f0fe36aa9fecc22f276b734f83cb) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Detailed error messages for remote database exceptions.
+
+- [#10635](https://github.com/withastro/astro/pull/10635) [`17badaf55c79cec460c74f4da58bf188eedef7e3`](https://github.com/withastro/astro/commit/17badaf55c79cec460c74f4da58bf188eedef7e3) Thanks [@matthewp](https://github.com/matthewp)! - Give proper error when seed missing default export
+
+- [#10631](https://github.com/withastro/astro/pull/10631) [`157392ee44db08de0d3c01222644dae0a904044d`](https://github.com/withastro/astro/commit/157392ee44db08de0d3c01222644dae0a904044d) Thanks [@matthewp](https://github.com/matthewp)! - Make ASTRO_DATABASE_FILE work with file paths
+
+## 0.9.8
+
+### Patch Changes
+
+- [#10589](https://github.com/withastro/astro/pull/10589) [`ed1031ba29af9a8a89ab386d772a228ba1414b4d`](https://github.com/withastro/astro/commit/ed1031ba29af9a8a89ab386d772a228ba1414b4d) Thanks [@column.text(),](<https://github.com/column.text(),>)! - Update the table indexes configuration to allow generated index names. The `indexes` object syntax is now deprecated in favor of an array.
+
+  ## Migration
+
+  You can update your `indexes` configuration object to an array like so:
+
+  ```diff
+  import { defineDb, defineTable, column } from 'astro:db';
+
+  const Comment = defineTable({
+    columns: {
+      postId: column.number(),
+
+      body: column.text(),
+    },
+  - indexes: {
+  -   postIdIdx: { on: 'postId' },
+  -   authorPostIdIdx: { on: ['author, postId'], unique: true },
+  - },
+  + indexes: [
+  +   { on: 'postId' /* 'name' is optional */ },
+  +   { on: ['author, postId'], unique: true },
+  + ]
+  })
+  ```
+
+  This example will generate indexes with the names `Comment_postId_idx` and `Comment_author_postId_idx`, respectively. You can specify a name manually by adding the `name` attribute to a given object. This name will be **global,** so ensure index names do not conflict between tables.
+
+## 0.9.7
+
+### Patch Changes
+
+- [#10587](https://github.com/withastro/astro/pull/10587) [`62a1d6df6916e08cb25d51814dfad352bc4cce75`](https://github.com/withastro/astro/commit/62a1d6df6916e08cb25d51814dfad352bc4cce75) Thanks [@matthewp](https://github.com/matthewp)! - Conditionally drop table with --force-reset
+
+- [#10460](https://github.com/withastro/astro/pull/10460) [`713abb2998bc179443a476f6274432b2fc7d8434`](https://github.com/withastro/astro/commit/713abb2998bc179443a476f6274432b2fc7d8434) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Remove legacy Astro DB internals using the "collections" naming convention instead of "tables."
+
+## 0.9.6
+
+### Patch Changes
+
+- [#10579](https://github.com/withastro/astro/pull/10579) [`f5df12cfebba1abdef50faa7a5549b545f0b3f8c`](https://github.com/withastro/astro/commit/f5df12cfebba1abdef50faa7a5549b545f0b3f8c) Thanks [@matthewp](https://github.com/matthewp)! - Provide guidance when --remote is missing
+
+  When running the build `astro build` without the `--remote`, either require a `DATABASE_FILE` variable be defined, which means you are going expert-mode and having your own database, or error suggesting to use the `--remote` flag.
+
+- [#10568](https://github.com/withastro/astro/pull/10568) [`764d67fc3f399d62b6a97a2ee698dca03b9f0557`](https://github.com/withastro/astro/commit/764d67fc3f399d62b6a97a2ee698dca03b9f0557) Thanks [@matthewp](https://github.com/matthewp)! - Prevent runtime from importing core code
+
 ## 0.9.5
 
 ### Patch Changes

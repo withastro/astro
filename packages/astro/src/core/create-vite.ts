@@ -69,7 +69,7 @@ const ONLY_DEV_EXTERNAL = [
 	'string-width',
 ];
 
-/** Return a common starting point for all Vite actions */
+/** Return a base vite config as a common starting point for all Vite commands. */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
 	{ settings, logger, mode, command, fs = nodeFs }: CreateViteOptions

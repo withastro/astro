@@ -1,13 +1,14 @@
 import { fileURLToPath } from 'node:url';
+import type { AstroConfig } from 'astro';
 import { normalizePath } from 'vite';
 import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
-import { DB_PATH, RUNTIME_CONFIG_IMPORT, RUNTIME_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
+import { DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
 
 const WITH_SEED_VIRTUAL_MODULE_ID = 'astro:db:seed';
 
-const resolved = {
+export const resolved = {
 	virtual: '\0' + VIRTUAL_MODULE_ID,
 	seedVirtual: '\0' + WITH_SEED_VIRTUAL_MODULE_ID,
 };
@@ -26,6 +27,7 @@ type VitePluginDBParams =
 			seedFiles: LateSeedFiles;
 			srcDir: URL;
 			root: URL;
+			output: AstroConfig['output'];
 	  }
 	| {
 			connectToStudio: true;
@@ -33,6 +35,7 @@ type VitePluginDBParams =
 			appToken: string;
 			srcDir: URL;
 			root: URL;
+			output: AstroConfig['output'];
 	  };
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
@@ -66,6 +69,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 					appToken: params.appToken,
 					tables: params.tables.get(),
 					isBuild: command === 'build',
+					output: params.output,
 				});
 			}
 			return getLocalVirtualModContents({
@@ -79,7 +83,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 }
 
 export function getConfigVirtualModContents() {
-	return `export * from ${RUNTIME_CONFIG_IMPORT}`;
+	return `export * from ${RUNTIME_VIRTUAL_IMPORT}`;
 }
 
 export function getLocalVirtualModContents({
@@ -114,11 +118,11 @@ export function getLocalVirtualModContents({
 
 	const dbUrl = new URL(DB_PATH, root);
 	return `
-import { asDrizzleTable, createLocalDatabaseClient } from ${RUNTIME_IMPORT};
+import { asDrizzleTable, createLocalDatabaseClient, normalizeDatabaseUrl } from ${RUNTIME_IMPORT};
 ${shouldSeed ? `import { seedLocal } from ${RUNTIME_IMPORT};` : ''}
 ${shouldSeed ? integrationSeedImportStatements.join('\n') : ''}
 
-const dbUrl = ${JSON.stringify(dbUrl)};
+const dbUrl = normalizeDatabaseUrl(import.meta.env.ASTRO_DATABASE_FILE, ${JSON.stringify(dbUrl)});
 export const db = createLocalDatabaseClient({ dbUrl });
 
 ${
@@ -132,24 +136,31 @@ ${
 		: ''
 }
 
-export * from ${RUNTIME_CONFIG_IMPORT};
+export * from ${RUNTIME_VIRTUAL_IMPORT};
 
-${getStringifiedCollectionExports(tables)}`;
+${getStringifiedTableExports(tables)}`;
 }
 
 export function getStudioVirtualModContents({
 	tables,
 	appToken,
 	isBuild,
+	output,
 }: {
 	tables: DBTables;
 	appToken: string;
 	isBuild: boolean;
+	output: AstroConfig['output'];
 }) {
 	function appTokenArg() {
 		if (isBuild) {
-			// In production build, always read the runtime environment variable.
-			return 'process.env.ASTRO_STUDIO_APP_TOKEN';
+			if (output === 'server') {
+				// In production build, always read the runtime environment variable.
+				return 'process.env.ASTRO_STUDIO_APP_TOKEN';
+			} else {
+				// Static mode or prerendering needs the local app token.
+				return `process.env.ASTRO_STUDIO_APP_TOKEN ?? ${JSON.stringify(appToken)}`;
+			}
 		} else {
 			return JSON.stringify(appToken);
 		}
@@ -166,18 +177,18 @@ import {asDrizzleTable, createRemoteDatabaseClient} from ${RUNTIME_IMPORT};
 
 export const db = await createRemoteDatabaseClient(${appTokenArg()}, ${dbUrlArg()});
 
-export * from ${RUNTIME_CONFIG_IMPORT};
+export * from ${RUNTIME_VIRTUAL_IMPORT};
 
-${getStringifiedCollectionExports(tables)}
+${getStringifiedTableExports(tables)}
 	`;
 }
 
-function getStringifiedCollectionExports(tables: DBTables) {
+function getStringifiedTableExports(tables: DBTables) {
 	return Object.entries(tables)
 		.map(
-			([name, collection]) =>
+			([name, table]) =>
 				`export const ${name} = asDrizzleTable(${JSON.stringify(name)}, ${JSON.stringify(
-					collection
+					table
 				)}, false)`
 		)
 		.join('\n');

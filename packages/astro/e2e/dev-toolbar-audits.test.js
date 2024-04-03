@@ -44,7 +44,7 @@ test.describe('Dev Toolbar - Audits', () => {
 		await appButton.click();
 	});
 
-	test('can handle mutations zzz', async ({ page, astro }) => {
+	test('can handle mutations', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/audits-mutations'));
 
 		const toolbar = page.locator('astro-dev-toolbar');

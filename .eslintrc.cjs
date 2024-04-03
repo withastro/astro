@@ -136,5 +136,23 @@ module.exports = {
         'arrow-body-style': ['error', 'never'],
       },
     },
+
+    {
+      files: ['packages/db/src/runtime/**/*.ts'],
+      rules: {
+        'no-restricted-imports': 'off',
+        '@typescript-eslint/no-restricted-imports': [
+          'error',
+          {
+            patterns: [
+              {
+                group: ['../core/*'],
+                allowTypeImports: true,
+              },
+            ],
+          },
+        ],
+      },
+    },
   ],
 };

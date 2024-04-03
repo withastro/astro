@@ -1,3 +1,4 @@
+import { pathToFileURL } from 'url';
 import { type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
 import {
 	type IndexBuilder,
@@ -129,4 +130,18 @@ function handleSerializedSQL<T>(def: T | SerializedSQL) {
 		return sql.raw(def.sql);
 	}
 	return def;
+}
+
+export function normalizeDatabaseUrl(envDbUrl: string | undefined, defaultDbUrl: string): string {
+	if (envDbUrl) {
+		// This could be a file URL, or more likely a root-relative file path.
+		// Convert it to a file URL.
+		if (envDbUrl.startsWith('file://')) {
+			return envDbUrl;
+		}
+		return new URL(envDbUrl, pathToFileURL(process.cwd())).toString();
+	} else {
+		// This is going to be a file URL always,
+		return defaultDbUrl;
+	}
 }

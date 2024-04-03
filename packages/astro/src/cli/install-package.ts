@@ -1,5 +1,4 @@
 import { createRequire } from 'node:module';
-import { sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import boxen from 'boxen';
 import { execa } from 'execa';

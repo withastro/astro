@@ -92,7 +92,7 @@ describe('Experimental Content Collections cache - inlineStylesheets to never in
 	});
 });
 
-describe.skip('Experimental Content Collections cache - inlineStylesheets to auto in static output', () => {
+describe('Experimental Content Collections cache - inlineStylesheets to auto in static output', () => {
 	let fixture;
 
 	before(async () => {
@@ -120,7 +120,7 @@ describe.skip('Experimental Content Collections cache - inlineStylesheets to aut
 
 	after(async () => await fixture.clean());
 
-	it.skip(
+	it(
 		'Renders some <style> and some <link> tags',
 		{ todo: 'Styles have the wrong length' },
 		async () => {
@@ -185,6 +185,7 @@ describe('Setting inlineStylesheets to auto in server output', () => {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
+			console.log($);
 			// the count of style/link tags depends on our css chunking logic
 			// this test should be updated if it changes
 			// assert.equal($('style').length, 3);

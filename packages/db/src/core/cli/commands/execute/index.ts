@@ -45,6 +45,7 @@ export async function cmd({
 			tables: dbConfig.tables ?? {},
 			appToken: appToken.token,
 			isBuild: false,
+			output: 'server',
 		});
 	} else {
 		virtualModContents = getLocalVirtualModContents({
@@ -58,7 +59,7 @@ export async function cmd({
 
 	const mod = await importBundledFile({ code, root: astroConfig.root });
 	if (typeof mod.default !== 'function') {
-		console.error(EXEC_DEFAULT_EXPORT_ERROR);
+		console.error(EXEC_DEFAULT_EXPORT_ERROR(filePath));
 		process.exit(1);
 	}
 	try {

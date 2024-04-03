@@ -1,5 +1,10 @@
 import type { Properties } from 'hast';
-import { bundledLanguages, createCssVariablesTheme, getHighlighter, isSpecialLang } from 'shiki';
+import {
+	type BundledLanguage,
+	createCssVariablesTheme,
+	getHighlighter,
+	isSpecialLang,
+} from 'shiki';
 import { visit } from 'unist-util-visit';
 import type { ShikiConfig } from './types.js';
 
@@ -15,7 +20,7 @@ export interface ShikiHighlighter {
 			 */
 			meta?: string;
 		}
-	): string;
+	): Promise<string>;
 }
 
 // TODO: Remove this special replacement in Astro 5
@@ -43,18 +48,24 @@ export async function createShikiHighlighter({
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
 
 	const highlighter = await getHighlighter({
-		langs: langs.length ? langs : Object.keys(bundledLanguages),
+		langs: ['plaintext', ...langs],
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
 	});
 
-	const loadedLanguages = highlighter.getLoadedLanguages();
-
 	return {
-		highlight(code, lang = 'plaintext', options) {
+		async highlight(code, lang = 'plaintext', options) {
+			const loadedLanguages = highlighter.getLoadedLanguages();
+
 			if (!isSpecialLang(lang) && !loadedLanguages.includes(lang)) {
-				// eslint-disable-next-line no-console
-				console.warn(`[Shiki] The language "${lang}" doesn't exist, falling back to "plaintext".`);
-				lang = 'plaintext';
+				try {
+					await highlighter.loadLanguage(lang as BundledLanguage);
+				} catch (_err) {
+					// eslint-disable-next-line no-console
+					console.warn(
+						`[Shiki] The language "${lang}" doesn't exist, falling back to "plaintext".`
+					);
+					lang = 'plaintext';
+				}
 			}
 
 			const themeOptions = Object.values(themes).length ? { themes } : { theme };
@@ -156,10 +167,6 @@ function normalizePropAsString(value: Properties[string]): string | null {
 	return Array.isArray(value) ? value.join(' ') : (value as string | null);
 }
 
-/**
- * shiki -> shikiji compat as we need to manually replace it
- * @internal Exported for error overlay use only
- */
-export function replaceCssVariables(str: string) {
+function replaceCssVariables(str: string) {
 	return str.replace(COLOR_REPLACEMENT_REGEX, (match) => ASTRO_COLOR_REPLACEMENTS[match] || match);
 }

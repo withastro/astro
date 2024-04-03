@@ -7,6 +7,7 @@ import { hasPrimaryKey } from '../../runtime/index.js';
 import {
 	getCreateIndexQueries,
 	getCreateTableQuery,
+	getDropTableIfExistsQuery,
 	getModifiers,
 	getReferencesConfig,
 	hasDefault,
@@ -24,12 +25,12 @@ import {
 	type DBColumns,
 	type DBConfig,
 	type DBSnapshot,
-	type DBTable,
-	type DBTables,
 	type DateColumn,
-	type Indexes,
 	type JsonColumn,
 	type NumberColumn,
+	type ResolvedDBTable,
+	type ResolvedDBTables,
+	type ResolvedIndexes,
 	type TextColumn,
 } from '../types.js';
 import { type Result, getRemoteDatabaseUrl } from '../utils.js';
@@ -57,50 +58,47 @@ export async function getMigrationQueries({
 		queries.push(...getDropTableQueriesForSnapshot(currentSnapshot));
 	}
 
-	const addedCollections = getAddedCollections(oldSnapshot, newSnapshot);
-	const droppedTables = getDroppedCollections(oldSnapshot, newSnapshot);
+	const addedTables = getAddedTables(oldSnapshot, newSnapshot);
+	const droppedTables = getDroppedTables(oldSnapshot, newSnapshot);
 	const notDeprecatedDroppedTables = Object.fromEntries(
 		Object.entries(droppedTables).filter(([, table]) => !table.deprecated)
 	);
-	if (!isEmpty(addedCollections) && !isEmpty(notDeprecatedDroppedTables)) {
+	if (!isEmpty(addedTables) && !isEmpty(notDeprecatedDroppedTables)) {
 		throw new Error(
-			RENAME_TABLE_ERROR(
-				Object.keys(addedCollections)[0],
-				Object.keys(notDeprecatedDroppedTables)[0]
-			)
+			RENAME_TABLE_ERROR(Object.keys(addedTables)[0], Object.keys(notDeprecatedDroppedTables)[0])
 		);
 	}
 
-	for (const [collectionName, collection] of Object.entries(addedCollections)) {
-		queries.push(getCreateTableQuery(collectionName, collection));
-		queries.push(...getCreateIndexQueries(collectionName, collection));
+	for (const [tableName, table] of Object.entries(addedTables)) {
+		queries.push(getCreateTableQuery(tableName, table));
+		queries.push(...getCreateIndexQueries(tableName, table));
 	}
 
-	for (const [collectionName] of Object.entries(droppedTables)) {
-		const dropQuery = `DROP TABLE ${sqlite.escapeName(collectionName)}`;
+	for (const [tableName] of Object.entries(droppedTables)) {
+		const dropQuery = `DROP TABLE ${sqlite.escapeName(tableName)}`;
 		queries.push(dropQuery);
 	}
 
-	for (const [collectionName, newCollection] of Object.entries(newSnapshot.schema)) {
-		const oldCollection = oldSnapshot.schema[collectionName];
-		if (!oldCollection) continue;
-		const addedColumns = getAdded(oldCollection.columns, newCollection.columns);
-		const droppedColumns = getDropped(oldCollection.columns, newCollection.columns);
+	for (const [tableName, newTable] of Object.entries(newSnapshot.schema)) {
+		const oldTable = oldSnapshot.schema[tableName];
+		if (!oldTable) continue;
+		const addedColumns = getAdded(oldTable.columns, newTable.columns);
+		const droppedColumns = getDropped(oldTable.columns, newTable.columns);
 		const notDeprecatedDroppedColumns = Object.fromEntries(
 			Object.entries(droppedColumns).filter(([, col]) => !col.schema.deprecated)
 		);
 		if (!isEmpty(addedColumns) && !isEmpty(notDeprecatedDroppedColumns)) {
 			throw new Error(
 				RENAME_COLUMN_ERROR(
-					`${collectionName}.${Object.keys(addedColumns)[0]}`,
-					`${collectionName}.${Object.keys(notDeprecatedDroppedColumns)[0]}`
+					`${tableName}.${Object.keys(addedColumns)[0]}`,
+					`${tableName}.${Object.keys(notDeprecatedDroppedColumns)[0]}`
 				)
 			);
 		}
-		const result = await getCollectionChangeQueries({
-			collectionName,
-			oldCollection,
-			newCollection,
+		const result = await getTableChangeQueries({
+			tableName,
+			oldTable,
+			newTable,
 		});
 		queries.push(...result.queries);
 		confirmations.push(...result.confirmations);
@@ -108,31 +106,29 @@ export async function getMigrationQueries({
 	return { queries, confirmations };
 }
 
-export async function getCollectionChangeQueries({
-	collectionName,
-	oldCollection,
-	newCollection,
+export async function getTableChangeQueries({
+	tableName,
+	oldTable,
+	newTable,
 }: {
-	collectionName: string;
-	oldCollection: DBTable;
-	newCollection: DBTable;
+	tableName: string;
+	oldTable: ResolvedDBTable;
+	newTable: ResolvedDBTable;
 }): Promise<{ queries: string[]; confirmations: string[] }> {
 	const queries: string[] = [];
 	const confirmations: string[] = [];
-	const updated = getUpdatedColumns(oldCollection.columns, newCollection.columns);
-	const added = getAdded(oldCollection.columns, newCollection.columns);
-	const dropped = getDropped(oldCollection.columns, newCollection.columns);
+	const updated = getUpdatedColumns(oldTable.columns, newTable.columns);
+	const added = getAdded(oldTable.columns, newTable.columns);
+	const dropped = getDropped(oldTable.columns, newTable.columns);
 	/** Any foreign key changes require a full table recreate */
-	const hasForeignKeyChanges = Boolean(
-		deepDiff(oldCollection.foreignKeys, newCollection.foreignKeys)
-	);
+	const hasForeignKeyChanges = Boolean(deepDiff(oldTable.foreignKeys, newTable.foreignKeys));
 
 	if (!hasForeignKeyChanges && isEmpty(updated) && isEmpty(added) && isEmpty(dropped)) {
 		return {
 			queries: getChangeIndexQueries({
-				collectionName,
-				oldIndexes: oldCollection.indexes,
-				newIndexes: newCollection.indexes,
+				tableName,
+				oldIndexes: oldTable.indexes,
+				newIndexes: newTable.indexes,
 			}),
 			confirmations,
 		};
@@ -145,11 +141,11 @@ export async function getCollectionChangeQueries({
 		Object.values(added).every(canAlterTableAddColumn)
 	) {
 		queries.push(
-			...getAlterTableQueries(collectionName, added, dropped),
+			...getAlterTableQueries(tableName, added, dropped),
 			...getChangeIndexQueries({
-				collectionName,
-				oldIndexes: oldCollection.indexes,
-				newIndexes: newCollection.indexes,
+				tableName,
+				oldIndexes: oldTable.indexes,
+				newIndexes: newTable.indexes,
 			})
 		);
 		return { queries, confirmations };
@@ -160,39 +156,39 @@ export async function getCollectionChangeQueries({
 		const { reason, columnName } = dataLossCheck;
 		const reasonMsgs: Record<DataLossReason, string> = {
 			'added-required': `You added new required column '${color.bold(
-				collectionName + '.' + columnName
+				tableName + '.' + columnName
 			)}' with no default value.\n      This cannot be executed on an existing table.`,
 			'updated-type': `Updating existing column ${color.bold(
-				collectionName + '.' + columnName
+				tableName + '.' + columnName
 			)} to a new type that cannot be handled automatically.`,
 		};
 		confirmations.push(reasonMsgs[reason]);
 	}
 
-	const primaryKeyExists = Object.entries(newCollection.columns).find(([, column]) =>
+	const primaryKeyExists = Object.entries(newTable.columns).find(([, column]) =>
 		hasPrimaryKey(column)
 	);
 	const droppedPrimaryKey = Object.entries(dropped).find(([, column]) => hasPrimaryKey(column));
 
 	const recreateTableQueries = getRecreateTableQueries({
-		collectionName,
-		newCollection,
+		tableName,
+		newTable,
 		added,
 		hasDataLoss: dataLossCheck.dataLoss,
 		migrateHiddenPrimaryKey: !primaryKeyExists && !droppedPrimaryKey,
 	});
-	queries.push(...recreateTableQueries, ...getCreateIndexQueries(collectionName, newCollection));
+	queries.push(...recreateTableQueries, ...getCreateIndexQueries(tableName, newTable));
 	return { queries, confirmations };
 }
 
 function getChangeIndexQueries({
-	collectionName,
+	tableName,
 	oldIndexes = {},
 	newIndexes = {},
 }: {
-	collectionName: string;
-	oldIndexes?: Indexes;
-	newIndexes?: Indexes;
+	tableName: string;
+	oldIndexes?: ResolvedIndexes;
+	newIndexes?: ResolvedIndexes;
 }) {
 	const added = getAdded(oldIndexes, newIndexes);
 	const dropped = getDropped(oldIndexes, newIndexes);
@@ -206,22 +202,22 @@ function getChangeIndexQueries({
 		const dropQuery = `DROP INDEX ${sqlite.escapeName(indexName)}`;
 		queries.push(dropQuery);
 	}
-	queries.push(...getCreateIndexQueries(collectionName, { indexes: added }));
+	queries.push(...getCreateIndexQueries(tableName, { indexes: added }));
 	return queries;
 }
 
-function getAddedCollections(oldCollections: DBSnapshot, newCollections: DBSnapshot): DBTables {
-	const added: DBTables = {};
-	for (const [key, newCollection] of Object.entries(newCollections.schema)) {
-		if (!(key in oldCollections.schema)) added[key] = newCollection;
+function getAddedTables(oldTables: DBSnapshot, newTables: DBSnapshot): ResolvedDBTables {
+	const added: ResolvedDBTables = {};
+	for (const [key, newTable] of Object.entries(newTables.schema)) {
+		if (!(key in oldTables.schema)) added[key] = newTable;
 	}
 	return added;
 }
 
-function getDroppedCollections(oldCollections: DBSnapshot, newCollections: DBSnapshot): DBTables {
-	const dropped: DBTables = {};
-	for (const [key, oldCollection] of Object.entries(oldCollections.schema)) {
-		if (!(key in newCollections.schema)) dropped[key] = oldCollection;
+function getDroppedTables(oldTables: DBSnapshot, newTables: DBSnapshot): ResolvedDBTables {
+	const dropped: ResolvedDBTables = {};
+	for (const [key, oldTable] of Object.entries(oldTables.schema)) {
+		if (!(key in newTables.schema)) dropped[key] = oldTable;
 	}
 	return dropped;
 }
@@ -231,17 +227,17 @@ function getDroppedCollections(oldCollections: DBSnapshot, newCollections: DBSna
  * `canUseAlterTableAddColumn` and `canAlterTableDropColumn` checks!
  */
 function getAlterTableQueries(
-	unescapedCollectionName: string,
+	unescTableName: string,
 	added: DBColumns,
 	dropped: DBColumns
 ): string[] {
 	const queries: string[] = [];
-	const collectionName = sqlite.escapeName(unescapedCollectionName);
+	const tableName = sqlite.escapeName(unescTableName);
 
 	for (const [unescColumnName, column] of Object.entries(added)) {
 		const columnName = sqlite.escapeName(unescColumnName);
 		const type = schemaTypeToSqlType(column.type);
-		const q = `ALTER TABLE ${collectionName} ADD COLUMN ${columnName} ${type}${getModifiers(
+		const q = `ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${type}${getModifiers(
 			columnName,
 			column
 		)}`;
@@ -250,7 +246,7 @@ function getAlterTableQueries(
 
 	for (const unescColumnName of Object.keys(dropped)) {
 		const columnName = sqlite.escapeName(unescColumnName);
-		const q = `ALTER TABLE ${collectionName} DROP COLUMN ${columnName}`;
+		const q = `ALTER TABLE ${tableName} DROP COLUMN ${columnName}`;
 		queries.push(q);
 	}
 
@@ -258,29 +254,26 @@ function getAlterTableQueries(
 }
 
 function getRecreateTableQueries({
-	collectionName: unescCollectionName,
-	newCollection,
+	tableName: unescTableName,
+	newTable,
 	added,
 	hasDataLoss,
 	migrateHiddenPrimaryKey,
 }: {
-	collectionName: string;
-	newCollection: DBTable;
+	tableName: string;
+	newTable: ResolvedDBTable;
 	added: Record<string, DBColumn>;
 	hasDataLoss: boolean;
 	migrateHiddenPrimaryKey: boolean;
 }): string[] {
-	const unescTempName = `${unescCollectionName}_${genTempTableName()}`;
+	const unescTempName = `${unescTableName}_${genTempTableName()}`;
 	const tempName = sqlite.escapeName(unescTempName);
-	const collectionName = sqlite.escapeName(unescCollectionName);
+	const tableName = sqlite.escapeName(unescTableName);
 
 	if (hasDataLoss) {
-		return [
-			`DROP TABLE ${collectionName}`,
-			getCreateTableQuery(unescCollectionName, newCollection),
-		];
+		return [`DROP TABLE ${tableName}`, getCreateTableQuery(unescTableName, newTable)];
 	}
-	const newColumns = [...Object.keys(newCollection.columns)];
+	const newColumns = [...Object.keys(newTable.columns)];
 	if (migrateHiddenPrimaryKey) {
 		newColumns.unshift('_id');
 	}
@@ -290,10 +283,10 @@ function getRecreateTableQueries({
 		.join(', ');
 
 	return [
-		getCreateTableQuery(unescTempName, newCollection),
-		`INSERT INTO ${tempName} (${escapedColumns}) SELECT ${escapedColumns} FROM ${collectionName}`,
-		`DROP TABLE ${collectionName}`,
-		`ALTER TABLE ${tempName} RENAME TO ${collectionName}`,
+		getCreateTableQuery(unescTempName, newTable),
+		`INSERT INTO ${tempName} (${escapedColumns}) SELECT ${escapedColumns} FROM ${tableName}`,
+		`DROP TABLE ${tableName}`,
+		`ALTER TABLE ${tempName} RENAME TO ${tableName}`,
 	];
 }
 
@@ -462,8 +455,8 @@ export async function getProductionCurrentSnapshot({
 
 function getDropTableQueriesForSnapshot(snapshot: DBSnapshot) {
 	const queries = [];
-	for (const collectionName of Object.keys(snapshot.schema)) {
-		const dropQuery = `DROP TABLE ${sqlite.escapeName(collectionName)}`;
+	for (const tableName of Object.keys(snapshot.schema)) {
+		const dropQuery = getDropTableIfExistsQuery(tableName);
 		queries.unshift(dropQuery);
 	}
 	return queries;

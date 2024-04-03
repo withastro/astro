@@ -4,7 +4,7 @@ import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
 import { type SqliteRemoteDatabase, drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
 import { z } from 'zod';
-import { safeFetch } from './utils.js';
+import { AstroDbError, safeFetch } from './utils.js';
 
 const isWebContainer = !!process.versions?.webcontainer;
 
@@ -55,10 +55,8 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 					},
 					body: JSON.stringify(requestBody),
 				},
-				(response) => {
-					throw new Error(
-						`Failed to execute query.\nQuery: ${sql}\nFull error: ${response.status} ${response.statusText}`
-					);
+				async (response) => {
+					throw await parseRemoteError(response);
 				}
 			);
 
@@ -67,11 +65,7 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 				const json = await res.json();
 				remoteResult = remoteResultSchema.parse(json);
 			} catch (e) {
-				throw new Error(
-					`Failed to execute query.\nQuery: ${sql}\nFull error: Unexpected JSON response. ${
-						e instanceof Error ? e.message : String(e)
-					}`
-				);
+				throw new AstroDbError(await getUnexpectedResponseMessage(res));
 			}
 
 			if (method === 'run') return remoteResult;
@@ -103,10 +97,8 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 					},
 					body: JSON.stringify(stmts),
 				},
-				(response) => {
-					throw new Error(
-						`Failed to execute batch queries.\nFull error: ${response.status} ${response.statusText}}`
-					);
+				async (response) => {
+					throw await parseRemoteError(response);
 				}
 			);
 
@@ -115,11 +107,7 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 				const json = await res.json();
 				remoteResults = z.array(remoteResultSchema).parse(json);
 			} catch (e) {
-				throw new Error(
-					`Failed to execute batch queries.\nFull error: Unexpected JSON response. ${
-						e instanceof Error ? e.message : String(e)
-					}`
-				);
+				throw new AstroDbError(await getUnexpectedResponseMessage(res));
 			}
 			let results: any[] = [];
 			for (const [idx, rawResult] of remoteResults.entries()) {
@@ -148,4 +136,37 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 	);
 	applyTransactionNotSupported(db);
 	return db;
+}
+
+const errorSchema = z.object({
+	success: z.boolean(),
+	error: z.object({
+		code: z.string(),
+		details: z.string().optional(),
+	}),
+});
+
+const KNOWN_ERROR_CODES = {
+	SQL_QUERY_FAILED: 'SQL_QUERY_FAILED',
+};
+
+const getUnexpectedResponseMessage = async (response: Response) =>
+	`Unexpected response from remote database:\n(Status ${response.status}) ${await response.text()}`;
+
+async function parseRemoteError(response: Response): Promise<AstroDbError> {
+	let error;
+	try {
+		error = errorSchema.parse(await response.json()).error;
+	} catch (e) {
+		return new AstroDbError(await getUnexpectedResponseMessage(response));
+	}
+	// Strip LibSQL error prefixes
+	let details =
+		error.details?.replace(/.*SQLite error: /, '') ??
+		`(Code ${error.code}) \nError querying remote database.`;
+	let hint = `See the Astro DB guide for query and push instructions: https://docs.astro.build/en/guides/astro-db/#query-your-database`;
+	if (error.code === KNOWN_ERROR_CODES.SQL_QUERY_FAILED && details.includes('no such table')) {
+		hint = `Did you run \`astro db push\` to push your latest table schemas?`;
+	}
+	return new AstroDbError(details, hint);
 }
