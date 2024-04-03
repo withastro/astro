@@ -1,14 +1,17 @@
 import { escape as escapeHTML } from 'html-escaper';
 import type { DevToolbarApp, DevToolbarMetadata } from '../../../../@types/astro.js';
 import type { DevToolbarHighlight } from '../ui-library/highlight.js';
-import type { Placement } from '../ui-library/window.js';
 import {
 	attachTooltipToHighlight,
 	createHighlight,
 	getElementsPositionInDocument,
 	positionHighlight,
 } from './utils/highlight.js';
-import { closeOnOutsideClick, createWindowElement } from './utils/window.js';
+import {
+	closeOnOutsideClick,
+	createWindowElement,
+	synchronizePlacementOnUpdate,
+} from './utils/window.js';
 
 const icon =
 	'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path fill="#fff" d="M7.9 1.5v-.4a1.1 1.1 0 0 1 2.2 0v.4a1.1 1.1 0 1 1-2.2 0Zm-6.4 8.6a1.1 1.1 0 1 0 0-2.2h-.4a1.1 1.1 0 0 0 0 2.2h.4ZM12 3.7a1.1 1.1 0 0 0 1.4-.7l.4-1.1a1.1 1.1 0 0 0-2.1-.8l-.4 1.2a1.1 1.1 0 0 0 .7 1.4Zm-9.7 7.6-1.2.4a1.1 1.1 0 1 0 .8 2.1l1-.4a1.1 1.1 0 1 0-.6-2ZM20.8 17a1.9 1.9 0 0 1 0 2.6l-1.2 1.2a1.9 1.9 0 0 1-2.6 0l-4.3-4.2-1.6 3.6a1.9 1.9 0 0 1-1.7 1.2A1.9 1.9 0 0 1 7.5 20L2.7 5a1.9 1.9 0 0 1 2.4-2.4l15 5a1.9 1.9 0 0 1 .2 3.4l-3.7 1.6 4.2 4.3ZM19 18.3 14.6 14a1.9 1.9 0 0 1 .6-3l3.2-1.5L5.1 5.1l4.3 13.3 1.5-3.2a1.9 1.9 0 0 1 3-.6l4.4 4.4.7-.7Z"/></svg>';
@@ -25,18 +28,8 @@ export default {
 		document.addEventListener('astro:after-swap', addIslandsOverlay);
 		document.addEventListener('astro:page-load', refreshIslandsOverlayPositions);
 
-		eventTarget.addEventListener('placement-updated', (evt) => {
-			if (!(evt instanceof CustomEvent)) {
-				return;
-			}
-			const windowElement = canvas.querySelector('astro-dev-toolbar-window');
-			if (!windowElement) {
-				return;
-			}
-			const event: CustomEvent<{ placement: Placement }> = evt;
-			windowElement.placement = event.detail.placement;
-		});
 		closeOnOutsideClick(eventTarget);
+		synchronizePlacementOnUpdate(eventTarget, canvas);
 
 		function addIslandsOverlay() {
 			islandsOverlays.forEach(({ highlightElement }) => {
