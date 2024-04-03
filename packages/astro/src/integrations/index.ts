@@ -145,7 +145,12 @@ export async function runHookConfigSetup({
 					hooks.addDevToolbarApp(entrypoint);
 				},
 				addDevToolbarApp: (entrypoint) => {
-					updatedSettings.devToolbarApps.push(entrypoint);
+					// TODO: Deprecate in Astro 5.0
+					if (typeof entrypoint === 'string') {
+						updatedSettings.devToolbarApps.push({ entrypoint: entrypoint });
+					} else {
+						updatedSettings.devToolbarApps.push(entrypoint);
+					}
 				},
 				addClientDirective: ({ name, entrypoint }) => {
 					if (updatedSettings.clientDirectives.has(name) || addedClientDirectives.has(name)) {
