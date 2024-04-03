@@ -6,6 +6,7 @@ import esbuild from 'esbuild';
 import { transformAsync } from '@babel/core';
 import { extname } from 'path';
 import { removeQueryString } from '../core/path.js';
+import type { ParserPlugin } from '@babel/parser';
 
 const PUBLIC_VIRTUAL_MODULE_ID_PREACT = 'astro:toolbar:preact';
 const PUBLIC_VIRTUAL_MODULE_ID = 'astro:toolbar';
@@ -93,7 +94,7 @@ export default function astroDevToolbarPlugins({
 								(plugin) =>
 									`safeLoadPlugin(async () => (await import(${JSON.stringify(
 										plugin.entrypoint + '?toolbar-app'
-									)})).default, ${JSON.stringify(plugin)})`
+									)})).default, ${JSON.stringify(plugin.entrypoint)})`
 							)
 							.join(',')}])).filter(app => app);
 					};
@@ -133,8 +134,8 @@ export default function astroDevToolbarPlugins({
 			},
 
 			async transform(code, id, options) {
-				const shouldTryTransform =
-					['.jsx', '.tsx'].includes(extname(removeQueryString(id))) && !options?.ssr;
+				const extension = extname(removeQueryString(id));
+				const shouldTryTransform = ['.jsx', '.tsx'].includes(extension) && !options?.ssr;
 
 				if (!shouldTryTransform) {
 					return;
@@ -146,17 +147,39 @@ export default function astroDevToolbarPlugins({
 					id.endsWith('?toolbar-app') ||
 					code.includes('astro/toolbar-preact');
 
+				const parserPlugins = [
+					'classProperties',
+					'classPrivateProperties',
+					'classPrivateMethods',
+					'jsx',
+					extension === '.tsx' && 'typescript',
+				].filter(Boolean) as ParserPlugin[];
+
 				if (isJSXToolbarHeuristic) {
-					const result = await transformAsync(code, {
+					// Inject the JSX runtime pragma if it's not already there, otherwise Vite will wrongfully error on the JSX
+					// despite it already being transformed by Babel.
+					let prefixedCode = code.includes('@jsxRuntime automatic')
+						? code
+						: `/* @jsxRuntime automatic */\n${code}`;
+
+					const result = await transformAsync(prefixedCode, {
+						ast: true,
+						filename: id,
+						parserOpts: {
+							sourceType: 'module',
+							allowAwaitOutsideFunction: true,
+							plugins: parserPlugins,
+						},
 						plugins: [
 							[
-								'@babel/plugin-transform-react-jsx',
+								'@babel/plugin-transform-react-jsx-development',
 								{
 									runtime: 'automatic',
 									importSource: 'astro/toolbar-preact',
 								},
 							],
 						],
+						sourceMaps: true,
 					});
 
 					if (!result) return;

@@ -527,6 +527,9 @@ importers:
       '@babel/plugin-transform-react-jsx':
         specifier: ^7.22.5
         version: 7.23.4(@babel/core@7.24.3)
+      '@babel/plugin-transform-react-jsx-development':
+        specifier: ^7.22.5
+        version: 7.22.5(@babel/core@7.24.3)
       '@babel/traverse':
         specifier: ^7.23.3
         version: 7.24.1
@@ -4741,7 +4744,7 @@ importers:
         version: 7.23.4(@babel/core@7.24.3)
       '@babel/plugin-transform-react-jsx-development':
         specifier: ^7.22.5
-        version: 7.22.5
+        version: 7.22.5(@babel/core@7.24.3)
       '@preact/preset-vite':
         specifier: ^2.7.0
         version: 2.8.2(preact@10.20.1)
@@ -5949,7 +5952,7 @@ packages:
       '@babel/helper-plugin-utils': 7.24.0
     dev: false
 
-  /@babel/plugin-transform-react-jsx-development@7.22.5:
+  /@babel/plugin-transform-react-jsx-development@7.22.5(@babel/core@7.24.3):
     resolution: {integrity: sha512-bDhuzwWMuInwCYeDeMzyi7TaBgRQei6DqxhbyniL7/VG4RSS7HtSL2QbY4eESy1KJqlWt8g3xeEBGPuo+XqC8A==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
@@ -5958,6 +5961,7 @@ packages:
       '@babel/core':
         optional: true
     dependencies:
+      '@babel/core': 7.24.3
       '@babel/plugin-transform-react-jsx': 7.23.4(@babel/core@7.24.3)
     dev: false
 
@@ -7707,7 +7711,7 @@ packages:
         optional: true
     dependencies:
       '@babel/plugin-transform-react-jsx': 7.23.4(@babel/core@7.24.3)
-      '@babel/plugin-transform-react-jsx-development': 7.22.5
+      '@babel/plugin-transform-react-jsx-development': 7.22.5(@babel/core@7.24.3)
       '@prefresh/vite': 2.4.5(preact@10.20.1)
       '@rollup/pluginutils': 4.2.1
       babel-plugin-transform-hook-names: 1.0.2

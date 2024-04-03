@@ -74,7 +74,7 @@
     },
     "./virtual-modules/*": "./dist/virtual-modules/*",
     "./toolbar-preact": "./dist/vite-plugin-dev-toolbar/export-preact.js",
-    "./toolbar-preact/jsx-runtime": "./dist/vite-plugin-dev-toolbar/preact-runtime.js"
+    "./toolbar-preact/jsx-dev-runtime": "./dist/vite-plugin-dev-toolbar/preact-runtime.js"
   },
   "imports": {
     "#astro/*": "./dist/*.js"
@@ -124,6 +124,7 @@
     "@babel/generator": "^7.23.3",
     "@babel/parser": "^7.23.3",
     "@babel/plugin-transform-react-jsx": "^7.22.5",
+    "@babel/plugin-transform-react-jsx-development": "^7.22.5",
     "@babel/traverse": "^7.23.3",
     "@babel/types": "^7.23.3",
     "@types/babel__core": "^7.20.4",
