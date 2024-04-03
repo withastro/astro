@@ -205,7 +205,16 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 			load(id) {
 				if (id === preactResolvedVirtualModuleId) {
 					return `
+					import { render, h } from "astro/toolbar-preact";
+
 					export * from "astro/toolbar-preact";
+					export function definePreactToolbarApp(app) {
+						return {
+							init(canvas, eventTarget) {
+								render(h(App, {eventTarget}), canvas)
+							}
+						};
+					}
 				`;
 				}
 			},

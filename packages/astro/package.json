@@ -74,6 +74,7 @@
     },
     "./virtual-modules/*": "./dist/virtual-modules/*",
     "./toolbar-preact": "./dist/vite-plugin-dev-toolbar/export-preact.js",
+    "./toolbar-preact/jsx-runtime": "./dist/vite-plugin-dev-toolbar/preact-runtime.js",
     "./toolbar-preact/jsx-dev-runtime": "./dist/vite-plugin-dev-toolbar/preact-runtime.js"
   },
   "imports": {

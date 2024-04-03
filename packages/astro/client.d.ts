@@ -163,11 +163,14 @@ declare module 'astro:toolbar' {
 	type DevToolbarApp = import('./dist/@types/astro.js').DevToolbarApp;
 	export function defineToolbarApp(app: DevToolbarApp): DevToolbarApp;
 }
-  
+
 declare module 'astro:toolbar:preact' {
 	export * from 'preact-toolbar';
 	export * from 'preact-toolbar/hooks';
 	export * from 'preact-toolbar-signals';
+
+	export type App = ({ eventTarget: EventTarget }) => import('preact-toolbar').JSX.Element;
+	export function definePreactToolbarApp(app: App): import('./dist/@types/astro.js').DevToolbarApp;
 }
 
 type MD = import('./dist/@types/astro.js').MarkdownInstance<Record<string, any>>;
