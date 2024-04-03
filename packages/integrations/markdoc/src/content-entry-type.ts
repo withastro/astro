@@ -175,7 +175,7 @@ async function resolvePartials({
 			if (markdocConfig.partials?.[file]) continue;
 
 			const partialPath = path.resolve(path.dirname(fileURLToPath(fileUrl)), file);
-			pluginContext.addWatchFile(partialPath);
+			if (pluginContext.meta.watchMode) pluginContext.addWatchFile(partialPath);
 			let partialContents: string;
 			try {
 				partialContents = await fs.promises.readFile(partialPath, 'utf-8');
