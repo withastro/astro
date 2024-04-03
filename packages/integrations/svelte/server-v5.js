@@ -1,4 +1,4 @@
-import { add_snippet_symbol } from 'svelte/internal';
+import { add_snippet_symbol } from 'svelte/internal/server';
 import { render } from 'svelte/server';
 
 // Allow a slot to be rendered as a snippet (dev validation only)

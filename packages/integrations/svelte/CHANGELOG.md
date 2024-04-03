@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 5.3.0
+
+### Minor Changes
+
+- [#10645](https://github.com/withastro/astro/pull/10645) [`51112ab3f1b134740e8307743bbb15cb0d8bdbb3`](https://github.com/withastro/astro/commit/51112ab3f1b134740e8307743bbb15cb0d8bdbb3) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Bumps Svelte 5 peer dependency to `^5.0.0-next.90` and support its latest breaking changes
+
 ## 5.2.0
 
 ### Minor Changes

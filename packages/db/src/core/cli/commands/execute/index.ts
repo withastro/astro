@@ -45,6 +45,7 @@ export async function cmd({
 			tables: dbConfig.tables ?? {},
 			appToken: appToken.token,
 			isBuild: false,
+			output: 'server',
 		});
 	} else {
 		virtualModContents = getLocalVirtualModContents({

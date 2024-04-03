@@ -3,9 +3,9 @@ import { type SQL, sql } from 'drizzle-orm';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { type DBTables } from '../core/types.js';
-import { AstroDbError } from '../utils.js';
 import { SEED_DEFAULT_EXPORT_ERROR } from './errors.js';
 import { getCreateIndexQueries, getCreateTableQuery } from './queries.js';
+import { AstroDbError } from './utils.js';
 
 const sqlite = new SQLiteAsyncDialect();
 
