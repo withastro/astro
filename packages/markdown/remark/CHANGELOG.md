@@ -1,5 +1,13 @@
 # @astrojs/markdown-remark
 
+## 5.0.0
+
+### Major Changes
+
+- [#10629](https://github.com/withastro/astro/pull/10629) [`2cf116f80cb5e421ab5cc5eb4a654e7b78c1b8de`](https://github.com/withastro/astro/commit/2cf116f80cb5e421ab5cc5eb4a654e7b78c1b8de) Thanks [@bluwy](https://github.com/bluwy)! - Removes deprecated APIs including `remarkShiki`, `remarkPrism`, `replaceCssVariables` and several unused types
+
+- [#10618](https://github.com/withastro/astro/pull/10618) [`374efcdff9625ca43309d89e3b9cfc9174351512`](https://github.com/withastro/astro/commit/374efcdff9625ca43309d89e3b9cfc9174351512) Thanks [@43081j](https://github.com/43081j)! - Updates Shiki syntax highlighting to lazily load shiki languages by default (only preloading `plaintext`). Additionally, the `createShikiHighlighter()` API now returns an asynchronous `highlight()` function due to this.
+
 ## 4.3.2
 
 ### Patch Changes
