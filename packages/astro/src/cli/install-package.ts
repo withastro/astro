@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import boxen from 'boxen';
+import ci from 'ci-info';
 import { execa } from 'execa';
 import { bold, cyan, dim, magenta } from 'kleur/colors';
 import ora from 'ora';
@@ -8,7 +9,6 @@ import prompts from 'prompts';
 import resolvePackage from 'resolve';
 import whichPm from 'which-pm';
 import { type Logger } from '../core/logger/core.js';
-import ci from 'ci-info';
 const require = createRequire(import.meta.url);
 
 type GetPackageOptions = {
