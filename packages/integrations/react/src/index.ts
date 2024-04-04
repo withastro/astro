@@ -3,7 +3,10 @@ import type { AstroIntegration } from 'astro';
 import { version as ReactVersion } from 'react-dom';
 import type * as vite from 'vite';
 
-export type ReactIntegrationOptions = Pick<ViteReactPluginOptions, 'include' | 'exclude' | 'babel'> & {
+export type ReactIntegrationOptions = Pick<
+	ViteReactPluginOptions,
+	'include' | 'exclude' | 'babel'
+> & {
 	experimentalReactChildren?: boolean;
 };
 
