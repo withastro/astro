@@ -1,6 +1,6 @@
 import { AstroError } from 'astro/errors';
 
-const isWindows = process?.platform === "win32";
+const isWindows = process?.platform === 'win32';
 
 /**
  * Small wrapper around fetch that throws an error if the response is not OK. Allows for custom error handling as well through the onNotOK callback.
@@ -36,10 +36,10 @@ export default function slash(path: string) {
 }
 
 export function pathToFileURL(path: string): URL {
-	if(isWindows) {
+	if (isWindows) {
 		let slashed = slash(path);
 		// Windows like C:/foo/bar
-		if(!slashed.startsWith('/')) {
+		if (!slashed.startsWith('/')) {
 			slashed = '/' + slashed;
 		}
 		return new URL('file://' + slashed);
