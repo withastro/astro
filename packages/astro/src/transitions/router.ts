@@ -207,8 +207,8 @@ const moveToLocation = (
 			location.href = to.href; // this kills the history state on Firefox
 			if (!history.state) {
 				replaceState(savedState, ''); // this restores the history state
-				if (intraPage){
-					window.dispatchEvent(new PopStateEvent('popstate' ));
+				if (intraPage) {
+					window.dispatchEvent(new PopStateEvent('popstate'));
 				}
 			}
 		} else {
