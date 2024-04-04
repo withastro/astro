@@ -3,6 +3,10 @@ type NotificationPayload = {
 	level: 'error' | 'warn' | 'info';
 };
 
+type AppStatePayload = {
+	state: boolean;
+};
+
 type AppToggledEvent = (opts: { state: boolean }) => void;
 
 export class ToolbarAppEventTarget extends EventTarget {
@@ -21,31 +25,31 @@ export class ToolbarAppEventTarget extends EventTarget {
 		);
 	}
 
-	changeAppState(state: boolean) {
+	changeAppState(options: AppStatePayload) {
 		this.dispatchEvent(
 			new CustomEvent('app-toggled', {
 				detail: {
-					state,
+					state: options.state,
 				},
 			})
 		);
 	}
 
-	onAppToggled(cb: AppToggledEvent) {
+	onAppToggled(callback: AppToggledEvent) {
 		this.addEventListener('app-toggled', (evt) => {
 			if (!(evt instanceof CustomEvent)) return;
-			cb(evt.detail);
+			callback(evt.detail);
 		});
 	}
 }
 
 export const serverHelpers = {
-	send: (event: string, payload: Record<string, any>) => {
+	send: <T>(event: string, payload: T) => {
 		if (import.meta.hot) {
 			import.meta.hot.send(event, payload);
 		}
 	},
-	receive: <T>(event: string, cb: (data: T) => void) => {
+	on: <T>(event: string, cb: (data: T) => void) => {
 		if (import.meta.hot) {
 			import.meta.hot.on(event, cb);
 		}
