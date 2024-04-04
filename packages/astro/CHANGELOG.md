@@ -1,5 +1,13 @@
 # astro
 
+## 4.5.16
+
+### Patch Changes
+
+- [#10679](https://github.com/withastro/astro/pull/10679) [`ca6bb1f31ef041e6ccf8ef974856fa945ff5bb31`](https://github.com/withastro/astro/commit/ca6bb1f31ef041e6ccf8ef974856fa945ff5bb31) Thanks [@martrapp](https://github.com/martrapp)! - Generates missing popstate events for Firefox when navigating to hash targets on the same page.
+
+- [#10669](https://github.com/withastro/astro/pull/10669) [`0464563e527f821e53d78028d9bbf3c4e1050f5b`](https://github.com/withastro/astro/commit/0464563e527f821e53d78028d9bbf3c4e1050f5b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes Astro waiting infinitely in CI when a required package was not installed
+
 ## 4.5.15
 
 ### Patch Changes
