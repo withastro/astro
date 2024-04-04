@@ -1,4 +1,5 @@
 import type { ResolvedDevToolbarApp as DevToolbarAppDefinition } from '../../../@types/astro.js';
+import { ToolbarAppEventTarget } from './helpers.js';
 import { settings } from './settings.js';
 import type { AstroDevToolbar, DevToolbarApp } from './toolbar.js';
 // @ts-expect-error - This module is private and untyped
@@ -72,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	} as const;
 
 	const prepareApp = (appDefinition: DevToolbarAppDefinition, builtIn: boolean): DevToolbarApp => {
-		const eventTarget = new EventTarget();
+		const eventTarget = new ToolbarAppEventTarget();
 		const app: DevToolbarApp = {
 			...appDefinition,
 			builtIn: builtIn,
