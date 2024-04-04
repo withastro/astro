@@ -71,8 +71,16 @@ describe('Hoisted Imports', () => {
 			assert.equal($('script').length, 1);
 		});
 
-		it('inlines if script is larger than vite.assetInlineLimit: 100', async () => {
+		it('does not inline if script is larger than vite.assetInlineLimit: 100', async () => {
 			const html = await fixture.readFile('/no-inline/index.html');
+			const $ = cheerio.load(html);
+			const scripts = $('script');
+			assert.equal(scripts.length, 1);
+			assert.ok(scripts[0].attribs.src);
+		});
+
+		it('does not inline if script ihas exports', async () => {
+			const html = await fixture.readFile('/no-inline-if-exports/index.html');
 			const $ = cheerio.load(html);
 			const scripts = $('script');
 			assert.equal(scripts.length, 1);

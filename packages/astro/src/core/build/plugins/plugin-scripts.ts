@@ -24,6 +24,7 @@ export function vitePluginScripts(internals: BuildInternals): VitePlugin {
 					output.facadeModuleId &&
 					internals.discoveredScripts.has(output.facadeModuleId) &&
 					output.imports.length === 0 &&
+					output.exports.length === 0 &&
 					output.dynamicImports.length === 0 &&
 					shouldInlineAsset(output.code, output.fileName, assetInlineLimit)
 				) {
