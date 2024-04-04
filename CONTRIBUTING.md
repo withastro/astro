@@ -9,7 +9,7 @@ We welcome contributions of any size and skill level. As an open source project,
 ### Prerequisites
 
 ```shell
-node: "^>=18.14.1"
+node: "^>=18.17.1"
 pnpm: "^8.6.12"
 # otherwise, your build will fail
 ```
