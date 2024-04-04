@@ -2916,7 +2916,7 @@ export type DevToolbarApp = {
 	 *
 	 * In the future, putting these properties directly on the app object will be removed.
 	 */
-	id: string;
+	id?: string;
 	/**
 	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
 	 *
@@ -2924,7 +2924,7 @@ export type DevToolbarApp = {
 	 *
 	 * In the future, putting these properties directly on the app object will be removed.
 	 */
-	name: string;
+	name?: string;
 	/**
 	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
 	 *
