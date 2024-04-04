@@ -169,7 +169,11 @@ declare module 'astro:toolbar:preact' {
 	export * from 'preact-toolbar/hooks';
 	export * from 'preact-toolbar-signals';
 
-	export type App = ({ eventTarget: EventTarget }) => import('preact-toolbar').JSX.Element;
+	type AppArgs = {
+		eventTarget: import('./dist/runtime/client/dev-toolbar/helpers.js').ToolbarAppEventTarget;
+		serverHelpers: import('./dist/@types/astro.js').ToolbarServerHelpers;
+	};
+	export type App = (props: AppArgs) => import('preact-toolbar').JSX.Element;
 	export function definePreactToolbarApp(app: App): import('./dist/@types/astro.js').DevToolbarApp;
 }
 
