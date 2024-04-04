@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.10.0
+
+### Minor Changes
+
+- [#10638](https://github.com/withastro/astro/pull/10638) [`f395ebcc08279515f8d53bb82edeee288d8579db`](https://github.com/withastro/astro/commit/f395ebcc08279515f8d53bb82edeee288d8579db) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Rename internal import from `runtime/config` to `runtime/virtual`
+
 ## 0.9.11
 
 ### Patch Changes
