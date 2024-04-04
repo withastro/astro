@@ -74,7 +74,6 @@
     "ora": "^7.0.1",
     "prompts": "^2.4.2",
     "strip-ansi": "^7.1.0",
-    "url-file-url": "^1.0.2",
     "yargs-parser": "^21.1.1",
     "zod": "^3.22.4"
   },
