@@ -64,6 +64,7 @@ export type SSRManifest = {
 	pageMap?: Map<ComponentPath, ImportComponentInstance>;
 	i18n: SSRManifestI18n | undefined;
 	middleware: MiddlewareHandler;
+	csrfProtection: SSRCsrfProtection | undefined;
 };
 
 export type SSRManifestI18n = {
@@ -72,6 +73,10 @@ export type SSRManifestI18n = {
 	locales: Locales;
 	defaultLocale: string;
 	domainLookupTable: Record<string, string>;
+};
+
+export type SSRCsrfProtection = {
+	origin: boolean;
 };
 
 export type SerializedSSRManifest = Omit<

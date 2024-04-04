@@ -86,6 +86,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		globalRoutePriority: false,
 		i18nDomains: false,
+		csrfProtection: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -139,6 +140,15 @@ export const AstroConfigSchema = z.object({
 			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
 			.default(ASTRO_CONFIG_DEFAULTS.integrations)
 	),
+	security: z
+		.object({
+			csrfProtection: z
+				.object({
+					origin: z.boolean().default(false),
+				})
+				.optional(),
+		})
+		.optional(),
 	build: z
 		.object({
 			format: z
@@ -508,6 +518,10 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.globalRoutePriority),
+			csrfProtection: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.csrfProtection),
 			i18nDomains: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.i18nDomains),
 		})
 		.strict(

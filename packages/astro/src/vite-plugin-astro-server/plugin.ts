@@ -143,6 +143,9 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		componentMetadata: new Map(),
 		inlinedScripts: new Map(),
 		i18n: i18nManifest,
+		csrfProtection: settings.config.experimental.csrfProtection
+			? settings.config.security?.csrfProtection
+			: undefined,
 		middleware(_, next) {
 			return next();
 		},

@@ -1611,6 +1611,49 @@ export interface AstroUserConfig {
 	legacy?: object;
 
 	/**
+	 * @name security
+	 * @type {object}
+	 * @version 4.6.0
+	 * @type {object}
+	 * @description
+	 *
+	 * It allows to opt-in various security measures for Astro applications.
+	 */
+	security?: {
+		/**
+		 * @name security.csrfProtection
+		 * @type {object}
+		 * @default '{}'
+		 * @version 4.6.0
+		 * @description
+		 */
+
+		csrfProtection?: {
+			/**
+			 * @name security.csrfProtection.origin
+			 * @type {boolean}
+			 * @default 'false'
+			 * @version 4.6.0
+			 * @description
+			 *
+			 * Something
+			 */
+			origin?: boolean;
+
+			/**
+			 * @name security.csrfProtection.token
+			 * @type {boolean}
+			 * @default 'false'
+			 * @version 4.6.0
+			 * @description
+			 *
+			 * Something
+			 */
+			token?: boolean | string;
+		};
+	};
+
+	/**
 	 * @docs
 	 * @kind heading
 	 * @name Experimental Flags
@@ -1821,6 +1864,29 @@ export interface AstroUserConfig {
 		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains-experimental) for more details, including the limitations of this experimental feature.
 		 */
 		i18nDomains?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.csrfProtection
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.6.0
+		 * @description
+		 *
+		 * It enables the CSRF protection for Astro websites.
+		 *
+		 * The CSRF protection works only for on-demand pages (SSR) and hybrid pages where prerendering is opted out.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     csrfProtection: true,
+		 *   },
+		 * })
+		 * ```
+		 */
+		csrfProtection?: boolean;
 	};
 }
 
