@@ -16,7 +16,7 @@ export async function cmd() {
 		console.error(MISSING_SESSION_ID_ERROR);
 		process.exit(1);
 	}
-	const getWorkspaceIdAsync = getWorkspaceId().catch(err => {
+	const getWorkspaceIdAsync = getWorkspaceId().catch((err) => {
 		return err as Error;
 	});
 	await promptBegin();
@@ -84,7 +84,7 @@ async function getWorkspaceId(): Promise<string> {
 }
 
 function unwrapWorkspaceId(workspaceId: string | Error): string {
-	if(typeof workspaceId !== 'string') {
+	if (typeof workspaceId !== 'string') {
 		console.error(workspaceId.message);
 		process.exit(1);
 	}
