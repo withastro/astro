@@ -65,10 +65,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 	const notificationLevels = ['error', 'warning', 'info'] as const;
 	const notificationSVGs: Record<(typeof notificationLevels)[number], string> = {
 		error:
-			'<svg viewBox="0 0 10 10"><rect width="9" height="9" x=".5" y=".5" fill="#B33E66" stroke="#13151A" rx="4.5"/></svg>',
+			'<svg viewBox="0 0 10 10" style="--fill:var(--fill-default);--fill-default:#B33E66;--fill-hover:#E3AFC1;"><rect width="9" height="9" x=".5" y=".5" fill="var(--fill)" stroke="#13151A" stroke-width="2" rx="4.5"/></svg>',
 		warning:
-			'<svg xmlns="http://www.w3.org/2000/svg" width="12" height="10" fill="none"><path fill="#B58A2D" stroke="#13151A" d="M7.29904 1.25c-.57735-1-2.02073-1-2.59808 0l-3.4641 6C.65951 8.25 1.3812 9.5 2.5359 9.5h6.9282c1.1547 0 1.8764-1.25 1.299-2.25l-3.46406-6Z"/></svg>',
-		info: '<svg viewBox="0 0 10 10"><rect width="9" height="9" x=".5" y=".5" fill="#3645D9" stroke="#13151A" rx="1.5"/></svg>',
+			'<svg width="12" height="10" fill="none" style="--fill:var(--fill-default);--fill-default:#B58A2D;--fill-hover:#D5B776;"><path fill="var(--fill)" stroke="#13151A" stroke-width="2" d="M7.29904 1.25c-.57735-1-2.02073-1-2.59808 0l-3.4641 6C.65951 8.25 1.3812 9.5 2.5359 9.5h6.9282c1.1547 0 1.8764-1.25 1.299-2.25l-3.46406-6Z"/></svg>',
+		info: '<svg viewBox="0 0 10 10" style="--fill:var(--fill-default);--fill-default:#3645D9;--fill-hover:#BDC3FF;"><rect width="9" height="9" x=".5" y=".5" fill="var(--fill)" stroke="#13151A" stroke-width="2" rx="1.5"/></svg>',
 	} as const;
 
 	const prepareApp = (appDefinition: DevToolbarAppDefinition, builtIn: boolean): DevToolbarApp => {
