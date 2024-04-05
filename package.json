@@ -11,6 +11,7 @@
     "release": "pnpm run build && changeset publish",
     "build": "turbo run build --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
     "build:ci": "turbo run build:ci --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
+    "build:ci:no-cache": "pnpm run build:ci -- --force",
     "build:examples": "turbo run build --filter=\"@example/*\"",
     "dev": "turbo run dev --concurrency=40 --parallel --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
     "format": "pnpm run format:code && pnpm run format:imports",
