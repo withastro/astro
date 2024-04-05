@@ -873,6 +873,7 @@ declare namespace astroHTML.JSX {
 		playsinline?: boolean | string | undefined | null;
 		preload?: string | undefined | null;
 		src?: string | undefined | null;
+		disableremoteplayback?: boolean | string | undefined | null;
 	}
 
 	interface MetaHTMLAttributes extends HTMLAttributes {
@@ -1057,7 +1058,6 @@ declare namespace astroHTML.JSX {
 		poster?: string | undefined | null;
 		width?: number | string | undefined | null;
 		disablepictureinpicture?: boolean | string | undefined | null;
-		disableremoteplayback?: boolean | string | undefined | null;
 	}
 
 	// this list is "complete" in that it contains every SVG attribute
