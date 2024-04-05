@@ -1,5 +1,17 @@
 # @astrojs/db
 
+## 0.10.1
+
+### Patch Changes
+
+- [#10677](https://github.com/withastro/astro/pull/10677) [`1662aa8a850ff4f860a80c2f33a8b33bcc7aee12`](https://github.com/withastro/astro/commit/1662aa8a850ff4f860a80c2f33a8b33bcc7aee12) Thanks [@matthewp](https://github.com/matthewp)! - Fix compatibility of @astrojs/db with Cloudflare
+
+## 0.10.0
+
+### Minor Changes
+
+- [#10638](https://github.com/withastro/astro/pull/10638) [`f395ebcc08279515f8d53bb82edeee288d8579db`](https://github.com/withastro/astro/commit/f395ebcc08279515f8d53bb82edeee288d8579db) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Rename internal import from `runtime/config` to `runtime/virtual`
+
 ## 0.9.11
 
 ### Patch Changes

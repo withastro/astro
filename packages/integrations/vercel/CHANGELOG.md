@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 7.5.2
+
+### Patch Changes
+
+- [#10611](https://github.com/withastro/astro/pull/10611) [`a9a3694a98060be9a33045bb0fcf92ccf1acff6f`](https://github.com/withastro/astro/commit/a9a3694a98060be9a33045bb0fcf92ccf1acff6f) Thanks [@jacobdalamb](https://github.com/jacobdalamb)! - Updates the supported version of Node.js
+
 ## 7.5.1
 
 ### Patch Changes

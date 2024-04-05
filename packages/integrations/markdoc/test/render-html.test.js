@@ -54,6 +54,13 @@ describe('Markdoc - render html', () => {
 
 			renderRandomlyCasedHTMLAttributesChecks(html);
 		});
+
+		it('renders content - html within partials', async () => {
+			const res = await fixture.fetch('/with-partial');
+			const html = await res.text();
+
+			renderHTMLWithinPartialChecks(html);
+		});
 	});
 
 	describe('build', () => {
@@ -83,6 +90,12 @@ describe('Markdoc - render html', () => {
 			const html = await fixture.readFile('/randomly-cased-html-attributes/index.html');
 
 			renderRandomlyCasedHTMLAttributesChecks(html);
+		});
+
+		it('renders content - html within partials', async () => {
+			const html = await fixture.readFile('/with-partial/index.html');
+
+			renderHTMLWithinPartialChecks(html);
 		});
 	});
 });
@@ -184,6 +197,16 @@ function renderRandomlyCasedHTMLAttributesChecks(html) {
 
 	assert.equal(td4.getAttribute('colspan'), '3');
 	assert.equal(td4.getAttribute('rowspan'), '2');
+}
+
+/**
+ * @param {string} html
+ */
+function renderHTMLWithinPartialChecks(html) {
+	const { document } = parseHTML(html);
+
+	const li = document.querySelector('ul > li#partial');
+	assert.equal(li.textContent, 'List item');
 }
 
 /**
