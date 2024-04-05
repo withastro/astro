@@ -16,18 +16,20 @@ export async function cmd() {
 		console.error(MISSING_SESSION_ID_ERROR);
 		process.exit(1);
 	}
-	const getWorkspaceIdAsync = getWorkspaceId();
+	const getWorkspaceIdAsync = getWorkspaceId().catch((err) => {
+		return err as Error;
+	});
 	await promptBegin();
 	const isLinkExisting = await promptLinkExisting();
 	if (isLinkExisting) {
-		const workspaceId = await getWorkspaceIdAsync;
+		const workspaceId = unwrapWorkspaceId(await getWorkspaceIdAsync);
 		const existingProjectData = await promptExistingProjectName({ workspaceId });
 		return await linkProject(existingProjectData.id);
 	}
 
 	const isLinkNew = await promptLinkNew();
 	if (isLinkNew) {
-		const workspaceId = await getWorkspaceIdAsync;
+		const workspaceId = unwrapWorkspaceId(await getWorkspaceIdAsync);
 		const newProjectName = await promptNewProjectName();
 		const newProjectRegion = await promptNewProjectRegion();
 		const spinner = ora('Creating new project...').start();
@@ -64,24 +66,29 @@ async function getWorkspaceId(): Promise<string> {
 		(res) => {
 			// Unauthorized
 			if (res.status === 401) {
-				console.error(
+				throw new Error(
 					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
 						'astro db login'
 					)} to authenticate and then try linking again.\n\n`
 				);
-				process.exit(1);
 			}
-			console.error(`Failed to fetch user workspace: ${res.status} ${res.statusText}`);
-			process.exit(1);
+			throw new Error(`Failed to fetch user workspace: ${res.status} ${res.statusText}`);
 		}
 	);
 
 	const { data, success } = (await response.json()) as Result<{ id: string }[]>;
 	if (!success) {
-		console.error(`Failed to fetch user's workspace.`);
-		process.exit(1);
+		throw new Error(`Failed to fetch user's workspace.`);
 	}
 	return data[0].id;
+}
+
+function unwrapWorkspaceId(workspaceId: string | Error): string {
+	if (typeof workspaceId !== 'string') {
+		console.error(workspaceId.message);
+		process.exit(1);
+	}
+	return workspaceId;
 }
 
 export async function createNewProject({

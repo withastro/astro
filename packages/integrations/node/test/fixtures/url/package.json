@@ -1,5 +1,5 @@
 {
-  "name": "@test/url-protocol",
+  "name": "@test/url",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

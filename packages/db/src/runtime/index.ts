@@ -1,4 +1,3 @@
-import { pathToFileURL } from 'url';
 import { type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
 import {
 	type IndexBuilder,
@@ -11,6 +10,7 @@ import {
 } from 'drizzle-orm/sqlite-core';
 import { type DBColumn, type DBTable } from '../core/types.js';
 import { type SerializedSQL, isSerializedSQL } from './types.js';
+import { pathToFileURL } from './utils.js';
 
 export type { Table } from './types.js';
 export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-client.js';

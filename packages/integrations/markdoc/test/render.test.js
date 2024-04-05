@@ -23,6 +23,18 @@ describe('Markdoc - render', () => {
 			await server.stop();
 		});
 
+		it('renders content - with partials', async () => {
+			const fixture = await getFixture('render-partials');
+			const server = await fixture.startDevServer();
+
+			const res = await fixture.fetch('/');
+			const html = await res.text();
+
+			renderPartialsChecks(html);
+
+			await server.stop();
+		});
+
 		it('renders content - with config', async () => {
 			const fixture = await getFixture('render-with-config');
 			const server = await fixture.startDevServer();
@@ -31,30 +43,6 @@ describe('Markdoc - render', () => {
 			const html = await res.text();
 
 			renderConfigChecks(html);
-
-			await server.stop();
-		});
-
-		it('renders content - with components', async () => {
-			const fixture = await getFixture('render-with-components');
-			const server = await fixture.startDevServer();
-
-			const res = await fixture.fetch('/');
-			const html = await res.text();
-
-			renderComponentsChecks(html);
-
-			await server.stop();
-		});
-
-		it('renders content - with indented components', async () => {
-			const fixture = await getFixture('render-with-indented-components');
-			const server = await fixture.startDevServer();
-
-			const res = await fixture.fetch('/');
-			const html = await res.text();
-
-			renderIndentedComponentsChecks(html);
 
 			await server.stop();
 		});
@@ -94,6 +82,15 @@ describe('Markdoc - render', () => {
 			renderSimpleChecks(html);
 		});
 
+		it('renders content - with partials', async () => {
+			const fixture = await getFixture('render-partials');
+			await fixture.build();
+
+			const html = await fixture.readFile('/index.html');
+
+			renderPartialsChecks(html);
+		});
+
 		it('renders content - with config', async () => {
 			const fixture = await getFixture('render-with-config');
 			await fixture.build();
@@ -101,24 +98,6 @@ describe('Markdoc - render', () => {
 			const html = await fixture.readFile('/index.html');
 
 			renderConfigChecks(html);
-		});
-
-		it('renders content - with components', async () => {
-			const fixture = await getFixture('render-with-components');
-			await fixture.build();
-
-			const html = await fixture.readFile('/index.html');
-
-			renderComponentsChecks(html);
-		});
-
-		it('renders content - with indented components', async () => {
-			const fixture = await getFixture('render-with-indented-components');
-			await fixture.build();
-
-			const html = await fixture.readFile('/index.html');
-
-			renderIndentedComponentsChecks(html);
 		});
 
 		it('renders content - with `render: null` in document', async () => {
@@ -152,40 +131,14 @@ function renderNullChecks(html) {
 }
 
 /** @param {string} html */
-function renderComponentsChecks(html) {
+function renderPartialsChecks(html) {
 	const { document } = parseHTML(html);
-	const h2 = document.querySelector('h2');
-	assert.equal(h2.textContent, 'Post with components');
-
-	// Renders custom shortcode component
-	const marquee = document.querySelector('marquee');
-	assert.notEqual(marquee, null);
-	assert.equal(marquee.hasAttribute('data-custom-marquee'), true);
-
-	// Renders Astro Code component
-	const pre = document.querySelector('pre');
-	assert.notEqual(pre, null);
-	assert.equal(pre.className, 'astro-code github-dark');
-}
-
-/** @param {string} html */
-function renderIndentedComponentsChecks(html) {
-	const { document } = parseHTML(html);
-	const h2 = document.querySelector('h2');
-	assert.equal(h2.textContent, 'Post with indented components');
-
-	// Renders custom shortcode components
-	const marquees = document.querySelectorAll('marquee');
-	assert.equal(marquees.length, 2);
-
-	// Renders h3
-	const h3 = document.querySelector('h3');
-	assert.equal(h3.textContent, 'I am an h3!');
-
-	// Renders Astro Code component
-	const pre = document.querySelector('pre');
-	assert.notEqual(pre, null);
-	assert.equal(pre.className, 'astro-code github-dark');
+	const top = document.querySelector('#top');
+	assert.ok(top);
+	const nested = document.querySelector('#nested');
+	assert.ok(nested);
+	const configured = document.querySelector('#configured');
+	assert.ok(configured);
 }
 
 /** @param {string} html */

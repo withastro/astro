@@ -66,9 +66,16 @@ export function buffersToString(buffers) {
 }
 
 export function waitServerListen(server) {
-	return new Promise((resolve) => {
-		server.on('listening', () => {
+	return new Promise((resolve, reject) => {
+		function onListen() {
+			server.off('error', onError);
 			resolve();
-		});
+		}
+		function onError(error) {
+			server.off('listening', onListen);
+			reject(error);
+		}
+		server.once('listening', onListen);
+		server.once('error', onError);
 	});
 }
