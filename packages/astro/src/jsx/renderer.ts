@@ -1,4 +1,6 @@
-const renderer = {
+import type { AstroRenderer } from '../@types/astro.js';
+
+const renderer: AstroRenderer = {
 	name: 'astro:jsx',
 	serverEntrypoint: 'astro/jsx/server.js',
 	jsxImportSource: 'astro',
