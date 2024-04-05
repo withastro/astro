@@ -329,6 +329,7 @@ describe('Hybrid rendering', () => {
 			const { startServer } = await load();
 			let res = startServer();
 			server = res.server;
+			await waitServerListen(server.server);
 		});
 
 		after(async () => {

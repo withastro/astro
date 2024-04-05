@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, waitServerListen } from './test-utils.js';
 
 /**
  * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
@@ -36,6 +36,7 @@ describe('Trailing slash', () => {
 				const { startServer } = await load();
 				let res = startServer();
 				server = res.server;
+				await waitServerListen(server.server);
 			});
 
 			after(async () => {
@@ -101,6 +102,7 @@ describe('Trailing slash', () => {
 				const { startServer } = await load();
 				let res = startServer();
 				server = res.server;
+				await waitServerListen(server.server);
 			});
 
 			after(async () => {
@@ -169,6 +171,7 @@ describe('Trailing slash', () => {
 				const { startServer } = await load();
 				let res = startServer();
 				server = res.server;
+				await waitServerListen(server.server);
 			});
 
 			after(async () => {
@@ -227,6 +230,7 @@ describe('Trailing slash', () => {
 				const { startServer } = await load();
 				let res = startServer();
 				server = res.server;
+				await waitServerListen(server.server);
 			});
 
 			after(async () => {
@@ -288,6 +292,7 @@ describe('Trailing slash', () => {
 				const { startServer } = await load();
 				let res = startServer();
 				server = res.server;
+				await waitServerListen(server.server);
 			});
 
 			after(async () => {
@@ -364,6 +369,7 @@ describe('Trailing slash', () => {
 				const { startServer } = await load();
 				let res = startServer();
 				server = res.server;
+				await waitServerListen(server.server);
 			});
 
 			after(async () => {
