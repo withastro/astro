@@ -225,7 +225,7 @@
   },
   "engines": {
     "node": ">=18.20.1",
-    "npm": ">=10.5.0"
+    "npm": ">=6.14.0"
   },
   "publishConfig": {
     "provenance": true
