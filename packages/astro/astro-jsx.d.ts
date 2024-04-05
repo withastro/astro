@@ -873,6 +873,8 @@ declare namespace astroHTML.JSX {
 		playsinline?: boolean | string | undefined | null;
 		preload?: string | undefined | null;
 		src?: string | undefined | null;
+		// https://www.w3.org/TR/remote-playback/#the-disableremoteplayback-attribute
+		disableRemotePlayback?: boolean | string | undefined | null;
 	}
 
 	interface MetaHTMLAttributes extends HTMLAttributes {
