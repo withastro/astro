@@ -79,12 +79,13 @@ describe('Hoisted Imports', () => {
 			assert.ok(scripts[0].attribs.src);
 		});
 
-		it('does not inline if script ihas exports', async () => {
-			const html = await fixture.readFile('/no-inline-if-exports/index.html');
+		it('does not inline if script it has shared chunks', async () => {
+			const html = await fixture.readFile('/no-inline-if-shared/index.html');
 			const $ = cheerio.load(html);
 			const scripts = $('script');
-			assert.equal(scripts.length, 1);
+			assert.equal(scripts.length, 2);
 			assert.ok(scripts[0].attribs.src);
+			assert.ok(scripts[1].attribs.src);
 		});
 	});
 });
