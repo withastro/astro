@@ -205,7 +205,12 @@ const moveToLocation = (
 			history.scrollRestoration = 'auto';
 			const savedState = history.state;
 			location.href = to.href; // this kills the history state on Firefox
-			history.state || replaceState(savedState, ''); // this restores the history state
+			if (!history.state) {
+				replaceState(savedState, ''); // this restores the history state
+				if (intraPage) {
+					window.dispatchEvent(new PopStateEvent('popstate'));
+				}
+			}
 		} else {
 			if (!scrolledToTop) {
 				scrollTo({ left: 0, top: 0, behavior: 'instant' });

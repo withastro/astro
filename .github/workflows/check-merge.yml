@@ -40,7 +40,7 @@ jobs:
 
       - name: Get changed files in the .changeset folder
         id: changed-files
-        uses: tj-actions/changed-files@v42
+        uses: tj-actions/changed-files@v44
         if: steps.blocked.outputs.result != 'true'
         with:
           files: |
@@ -49,12 +49,14 @@ jobs:
       - name: Check if any changesets contain minor or major changes
         id: check
         if: steps.blocked.outputs.result != 'true'
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
           echo "Checking for changesets marked as minor or major"
           echo "found=false" >> $GITHUB_OUTPUT
 
           regex="[\"']astro[\"']: (minor|major)"
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          for file in ${ALL_CHANGED_FILES}; do
               if [[ $(cat $file) =~ $regex ]]; then
                   version="${BASH_REMATCH[1]}"
                   echo "version=$version" >> $GITHUB_OUTPUT
