@@ -5,7 +5,7 @@ import {
 	ASTRO_IMAGE_ELEMENT,
 	ASTRO_IMAGE_IMPORT,
 	USES_ASTRO_IMAGE_FLAG,
-} from './remark-images-to-component.js';
+} from './rehype-images-to-component.js';
 import { type FileInfo, getFileInfo } from './utils.js';
 
 // These transforms must happen *after* JSX runtime transformations
