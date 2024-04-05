@@ -59,7 +59,7 @@
     "vue": "^3.2.30"
   },
   "engines": {
-    "node": ">=18.14.1"
+    "node": ">=18.20.1"
   },
   "publishConfig": {
     "provenance": true

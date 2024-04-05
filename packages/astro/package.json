@@ -224,7 +224,7 @@
     "unified": "^11.0.4"
   },
   "engines": {
-    "node": ">=18.14.1",
+    "node": ">=18.20.1",
     "npm": ">=6.14.0"
   },
   "publishConfig": {
