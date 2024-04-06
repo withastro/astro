@@ -20,7 +20,8 @@ export function astroCli(cwd, /** @type {string[]} */ ...args) {
 const wranglerPath = fileURLToPath(
 	new URL('../node_modules/wrangler/bin/wrangler.js', import.meta.url)
 );
-/** Returns a process running the Astro CLI. */
+
+/** Returns a process running the Wrangler CLI. */
 export function wranglerCli(cwd) {
 	const spawned = execa(
 		wranglerPath,

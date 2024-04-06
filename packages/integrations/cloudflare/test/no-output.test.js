@@ -1,5 +1,5 @@
 import * as assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { astroCli } from './_test-utils.js';
 
@@ -14,6 +14,10 @@ describe('MissingOutputConfig', () => {
 			error = err;
 		}
 		assert.notEqual(error, undefined);
-		assert.equal(error.message.includes(`output: "server"`), true);
+		assert.ok(
+			error.message.includes(
+				'[@astrojs/cloudflare] `output: "server"` or `output: "hybrid"` is required to use this adapter.'
+			)
+		);
 	});
 });
