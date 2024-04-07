@@ -76,10 +76,7 @@ export function createGetCollection({
 		let entries: any[] = [];
 		// Cache `getCollection()` calls in production only
 		// prevents stale cache in development
-		if (!import.meta.env?.DEV && cacheEntriesByCollection.has(collection)) {
-			// Always return a new instance so consumers can safely mutate it
-			entries = [...cacheEntriesByCollection.get(collection)!];
-		} else {
+		if (import.meta.env?.DEV || !cacheEntriesByCollection.has(collection)) {
 			entries = await Promise.all(
 				lazyImports.map(async (lazyImport) => {
 					const entry = await lazyImport();
@@ -107,6 +104,8 @@ export function createGetCollection({
 			);
 			cacheEntriesByCollection.set(collection, entries);
 		}
+		// Always return a new instance so consumers can safely mutate it
+		entries = [...cacheEntriesByCollection.get(collection)!];
 		if (typeof filter === 'function') {
 			return entries.filter(filter);
 		} else {
