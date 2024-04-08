@@ -107,6 +107,9 @@ const aria_non_interactive_roles = [
 	'tooltip',
 ];
 
+// These elements aren't interactive and aren't non-interactive. Their interaction changes based on the role assigned to them
+const roleless_elements = ['div', 'span'];
+
 const a11y_required_content = [
 	// anchor-has-content
 	'a',
@@ -467,6 +470,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			const role = element.getAttribute('role');
 			if (!role) return false;
 			if (!ariaRoles.has(role)) return false;
+			if (roleless_elements.includes(role)) return false;
 
 			if (aria_non_interactive_roles.includes(role)) return true;
 		},
