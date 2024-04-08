@@ -1,7 +1,6 @@
 import type {
 	ComponentInstance,
 	ManifestData,
-	MiddlewareHandler,
 	RouteData,
 	SSRManifest,
 } from '../../@types/astro.js';
@@ -32,7 +31,8 @@ import { createAssetLink } from '../render/ssr-element.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../routing/match.js';
 import { AppPipeline } from './pipeline.js';
-import { defineMiddleware, sequence } from '../middleware/index.js';
+import { sequence } from '../middleware/index.js';
+import { createOriginCheckMiddleware } from './middlewares.js';
 export { deserializeManifest } from './common.js';
 
 export interface RenderOptions {
@@ -116,7 +116,7 @@ export class App {
 	#createPipeline(streaming = false) {
 		if (this.#manifest.csrfProtection?.origin === true) {
 			this.#manifest.middleware = sequence(
-				this.#createOriginCheckMiddleware(),
+				createOriginCheckMiddleware(),
 				this.#manifest.middleware
 			);
 		}
@@ -143,42 +143,6 @@ export class App {
 			},
 			serverLike: true,
 			streaming,
-		});
-	}
-
-	/**
-	 * Content types that can be passed when sending a request via a form
-	 *
-	 * https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/enctype
-	 * @private
-	 */
-	#formContentTypes = ['application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'];
-
-	/**
-	 * Returns a middleware function in charge to check the `origin` header.
-	 *
-	 * @private
-	 */
-	#createOriginCheckMiddleware(): MiddlewareHandler {
-		return defineMiddleware((context, next) => {
-			const { request, url } = context;
-			const contentType = request.headers.get('content-type');
-			if (contentType) {
-				if (this.#formContentTypes.includes(contentType.toLowerCase())) {
-					const forbidden =
-						(request.method === 'POST' ||
-							request.method === 'PUT' ||
-							request.method === 'PATCH' ||
-							request.method === 'DELETE') &&
-						request.headers.get('origin') !== url.origin;
-					if (forbidden) {
-						return new Response(`Cross-site ${request.method} form submissions are forbidden`, {
-							status: 403,
-						});
-					}
-				}
-			}
-			return next();
 		});
 	}
 
