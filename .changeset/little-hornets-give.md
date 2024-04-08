@@ -19,7 +19,7 @@ export default defineConfig({
 ```js
 // middleware.js
 import { redirectToDefaultLocale } from "astro:i18n";
-export const onRequest = defineMiddleawre(async (context, next) => {
+export const onRequest = defineMiddleware(async (context, next) => {
     if (context.url.startsWith("/about")) {
         return next()
     } else {
