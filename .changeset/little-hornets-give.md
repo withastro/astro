@@ -31,4 +31,4 @@ export const onRequest = defineMiddleware(async (context, next) => {
 When `routing: "manual"` is provided, the virtual module `astro:i18n` exports new functions:
 - `redirectToDefaultLocale`
 - `notFound`
-- `useFallback`
+- `redirectToFallback`
