@@ -12,6 +12,7 @@ import {
 	getMigrationQueries,
 	getProductionCurrentSnapshot,
 } from '../../migration-queries.js';
+import prompts from 'prompts';
 
 export async function cmd({
 	dbConfig,
@@ -41,6 +42,18 @@ export async function cmd({
 	}
 
 	if (isForceReset) {
+    const { begin } = await prompts({
+      type: "confirm",
+      name: "begin",
+      message: `Reset your database? All of your data will be erased and your schema created from scratch.`,
+      initial: false
+    });
+
+    if(!begin) {
+      console.log("Canceled.");
+      process.exit(0);
+    }
+
 		console.log(`Force-pushing to the database. All existing data will be erased.`);
 	} else if (confirmations.length > 0) {
 		console.log('\n' + formatDataLossMessage(confirmations) + '\n');
