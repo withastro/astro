@@ -386,7 +386,7 @@ export const AstroConfigSchema = z.object({
 					.optional(),
 				fallback: z.record(z.string(), z.string()).optional(),
 				routing: z
-					.enum(['manual'])
+					.literal('manual')
 					.or(
 						z
 							.object({

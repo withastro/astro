@@ -1070,7 +1070,10 @@ export const MissingIndexForInternationalization = {
 /**
  * @docs
  * @description
- * Some internationalization functions can't be exposed unless the default routing is disabled
+ * Some internationalization functions can't be exposed unless the i18n routing is disabled by assigning to `i18n.routing` the value "manual"`.
+ *
+ * @see
+ * - [`i18n` routing](https://docs.astro.build/en/guides/internationalization/#routing)
  */
 export const IncorrectStrategyForI18n = {
 	name: 'IncorrectStrategyForI18n',

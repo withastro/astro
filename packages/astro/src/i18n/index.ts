@@ -333,9 +333,14 @@ export function notFound({ base, locales }: MiddlewarePayload) {
 	};
 }
 
-export type UseFallback = (context: APIContext, response: Response) => Response | undefined;
-export function useFallback({ fallback, locales, defaultLocale, routing }: MiddlewarePayload) {
-	return function (context: APIContext, response: Response): Response | undefined {
+export type RedirectToFallback = (context: APIContext, response: Response) => Response;
+export function redirectToFallback({
+	fallback,
+	locales,
+	defaultLocale,
+	routing,
+}: MiddlewarePayload) {
+	return function (context: APIContext, response: Response): Response {
 		if (response.status >= 300 && fallback) {
 			const url = new URL(response.url);
 			const fallbackKeys = fallback ? Object.keys(fallback) : [];
@@ -371,6 +376,7 @@ export function useFallback({ fallback, locales, defaultLocale, routing }: Middl
 				return context.redirect(newPathname);
 			}
 		}
+		return response;
 	};
 }
 

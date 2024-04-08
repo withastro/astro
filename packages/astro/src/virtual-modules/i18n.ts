@@ -2,7 +2,7 @@ import * as I18nInternals from '../i18n/index.js';
 import { toRoutingStrategy } from '../i18n/utils.js';
 import { AstroError } from '../core/errors/index.js';
 import { IncorrectStrategyForI18n } from '../core/errors/errors-data.js';
-import type { UseFallback } from '../i18n/index.js';
+import type { RedirectToFallback } from '../i18n/index.js';
 import type { SSRManifest } from '../core/app/types.js';
 import type {
 	APIContext,
@@ -316,12 +316,12 @@ if (i18n?.routing === 'manual') {
  * Allows to use the build-in fallback system of Astro
  *
  * @param {APIContext} context The context passed to the middleware
- * @param {Response?} response An optional `Response` in case you're handling a `Response` coming from the `next` function.
+ * @param {Response} response An optional `Response` in case you're handling a `Response` coming from the `next` function.
  */
-export let useFallback: UseFallback;
+export let redirectToFallback: RedirectToFallback;
 
 if (i18n?.routing === 'manual') {
-	useFallback = I18nInternals.useFallback({
+	redirectToFallback = I18nInternals.redirectToFallback({
 		base,
 		trailingSlash,
 		format,
@@ -332,7 +332,7 @@ if (i18n?.routing === 'manual') {
 		fallback,
 	});
 } else {
-	useFallback = noop('useFallback');
+	redirectToFallback = noop('useFallback');
 }
 
 // @ematipico: This is a helper type because, because I don't know how to extract from TS

@@ -5,6 +5,7 @@ import {
 	normalizeTheLocale,
 	requestHasLocale,
 	redirectToDefaultLocale,
+	redirectToFallback,
 } from './index.js';
 import type { APIContext, MiddlewareHandler, SSRManifest } from '../@types/astro.js';
 import type { SSRManifestI18n } from '../core/app/types.js';
@@ -27,6 +28,7 @@ export function createI18nMiddleware(
 	const _redirectToDefaultLocale = redirectToDefaultLocale(payload);
 	const _noFoundForNonLocaleRoute = notFound(payload);
 	const _requestHasLocale = requestHasLocale(payload.locales);
+	const _redirectToFallback = redirectToFallback(payload);
 
 	const prefixAlways = (context: APIContext): Response | undefined => {
 		const url = context.url;
@@ -68,8 +70,7 @@ export function createI18nMiddleware(
 			return response;
 		}
 
-		const { url, currentLocale } = context;
-		const { locales, defaultLocale, fallback, strategy } = i18n;
+		const { currentLocale } = context;
 
 		switch (i18n.strategy) {
 			// NOTE: theoretically, we should never hit this code path
@@ -129,42 +130,7 @@ export function createI18nMiddleware(
 			}
 		}
 
-		if (response.status >= 300 && fallback) {
-			const fallbackKeys = i18n.fallback ? Object.keys(i18n.fallback) : [];
-
-			// we split the URL using the `/`, and then check in the returned array we have the locale
-			const segments = url.pathname.split('/');
-			const urlLocale = segments.find((segment) => {
-				for (const locale of locales) {
-					if (typeof locale === 'string') {
-						if (locale === segment) {
-							return true;
-						}
-					} else if (locale.path === segment) {
-						return true;
-					}
-				}
-				return false;
-			});
-
-			if (urlLocale && fallbackKeys.includes(urlLocale)) {
-				const fallbackLocale = fallback[urlLocale];
-				// the user might have configured the locale using the granular locales, so we want to retrieve its corresponding path instead
-				const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
-				let newPathname: string;
-				// If a locale falls back to the default locale, we want to **remove** the locale because
-				// the default locale doesn't have a prefix
-				if (pathFallbackLocale === defaultLocale && strategy === 'pathname-prefix-other-locales') {
-					newPathname = url.pathname.replace(`/${urlLocale}`, ``);
-				} else {
-					newPathname = url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
-				}
-
-				return context.redirect(newPathname);
-			}
-		}
-
-		return response;
+		return _redirectToFallback(context, response);
 	};
 }
 
