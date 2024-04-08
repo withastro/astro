@@ -282,7 +282,7 @@ export type MiddlewarePayload = {
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
 	format: AstroConfig['build']['format'];
-	routing?: RoutingStrategies;
+	strategy: RoutingStrategies;
 	defaultLocale: string;
 	domains: Record<string, string> | undefined;
 	fallback: Record<string, string> | undefined;
@@ -338,15 +338,13 @@ export function redirectToFallback({
 	fallback,
 	locales,
 	defaultLocale,
-	routing,
+	strategy,
 }: MiddlewarePayload) {
 	return function (context: APIContext, response: Response): Response {
 		if (response.status >= 300 && fallback) {
-			const url = new URL(response.url);
 			const fallbackKeys = fallback ? Object.keys(fallback) : [];
-
 			// we split the URL using the `/`, and then check in the returned array we have the locale
-			const segments = url.pathname.split('/');
+			const segments = context.url.pathname.split('/');
 			const urlLocale = segments.find((segment) => {
 				for (const locale of locales) {
 					if (typeof locale === 'string') {
@@ -367,12 +365,11 @@ export function redirectToFallback({
 				let newPathname: string;
 				// If a locale falls back to the default locale, we want to **remove** the locale because
 				// the default locale doesn't have a prefix
-				if (pathFallbackLocale === defaultLocale && routing === 'pathname-prefix-other-locales') {
-					newPathname = url.pathname.replace(`/${urlLocale}`, ``);
+				if (pathFallbackLocale === defaultLocale && strategy === 'pathname-prefix-other-locales') {
+					newPathname = context.url.pathname.replace(`/${urlLocale}`, ``);
 				} else {
-					newPathname = url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
+					newPathname = context.url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
 				}
-
 				return context.redirect(newPathname);
 			}
 		}

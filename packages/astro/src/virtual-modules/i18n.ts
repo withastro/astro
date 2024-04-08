@@ -263,7 +263,7 @@ if (i18n?.routing === 'manual') {
 		format,
 		defaultLocale,
 		locales,
-		routing: strategy,
+		strategy,
 		domains,
 		fallback,
 	});
@@ -291,7 +291,7 @@ if (i18n?.routing === 'manual') {
 		format,
 		defaultLocale,
 		locales,
-		routing: strategy,
+		strategy,
 		domains,
 		fallback,
 	});
@@ -327,7 +327,7 @@ if (i18n?.routing === 'manual') {
 		format,
 		defaultLocale,
 		locales,
-		routing: strategy,
+		strategy,
 		domains,
 		fallback,
 	});
