@@ -1617,7 +1617,7 @@ export interface AstroUserConfig {
 	 * @type {object}
 	 * @description
 	 *
-	 * It allows to opt-in various security measures for Astro applications.
+	 * It allows to opt-in various security features.
 	 */
 	security?: {
 		/**
@@ -1626,6 +1626,8 @@ export interface AstroUserConfig {
 		 * @default '{}'
 		 * @version 4.6.0
 		 * @description
+		 *
+		 * It enables some security measures to prevent CSRF attacks: https://owasp.org/www-community/attacks/csrf
 		 */
 
 		csrfProtection?: {
@@ -1636,20 +1638,14 @@ export interface AstroUserConfig {
 			 * @version 4.6.0
 			 * @description
 			 *
-			 * Something
+			 * When enabled, it enables a strict check on the "origin" header. This is header it that is passed by the browsers on each request.
+			 *
+			 * The "origin" check is executed only on-demand pages, and only for the requests `POST, `PATCH`, `DELETE` and `PUT`, only for those requests that
+			 * the followin `content-type` header: 'application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'.
+			 *
+			 * It the "origin" header doesn't match the pathname of the request, Astro will return a 403 status code and won't render the page.
 			 */
 			origin?: boolean;
-
-			/**
-			 * @name security.csrfProtection.token
-			 * @type {boolean}
-			 * @default 'false'
-			 * @version 4.6.0
-			 * @description
-			 *
-			 * Something
-			 */
-			token?: boolean | string;
 		};
 	};
 
