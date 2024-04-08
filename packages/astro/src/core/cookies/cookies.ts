@@ -11,7 +11,7 @@ export interface AstroCookieGetOptions {
 	decode?: (value: string) => string;
 }
 
-type AstroCookieDeleteOptions = Omit<CookieSerializeOptions, 'expires' | 'maxAge'>;
+type AstroCookieDeleteOptions = Omit<AstroCookieSetOptions, 'expires' | 'maxAge' | 'encode'>;
 
 interface AstroCookieInterface {
 	value: string;

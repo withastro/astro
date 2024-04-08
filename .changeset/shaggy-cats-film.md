@@ -1,5 +1,11 @@
 ---
-"astro": patch
+"astro": minor
 ---
 
-Accept standard cookie attributes when deleting a cookie
+Extends the acceptable cookie options when deleting a cookie, to the following attribute:
+
+- `domain`
+- `path`
+- `httpOnly` *(Added)*
+- `sameSite` *(Added)*
+- `secure` *(Added)*
