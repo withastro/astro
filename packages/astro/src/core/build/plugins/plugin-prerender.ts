@@ -68,7 +68,6 @@ function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals
 								}
 							}
 
-							opts.allPages;
 							pageInfo.hasSharedModules = hasSharedModules;
 							pageInfo.route.prerender = true;
 							return 'prerender';
@@ -87,6 +86,11 @@ export function pluginPrerender(
 	opts: StaticBuildOptions,
 	internals: BuildInternals
 ): AstroBuildPlugin {
+	// Static output can skip prerender completely because we're already rendering all pages
+	if (opts.settings.config.output === 'static') {
+		return { targets: ['server'] };
+	}
+
 	return {
 		targets: ['server'],
 		hooks: {
