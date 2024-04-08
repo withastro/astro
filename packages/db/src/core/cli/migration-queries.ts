@@ -64,9 +64,9 @@ export async function getMigrationQueries({
 		Object.entries(droppedTables).filter(([, table]) => !table.deprecated)
 	);
 	if (!isEmpty(addedTables) && !isEmpty(notDeprecatedDroppedTables)) {
-		throw new Error(
-			RENAME_TABLE_ERROR(Object.keys(addedTables)[0], Object.keys(notDeprecatedDroppedTables)[0])
-		);
+		const oldTable = Object.keys(notDeprecatedDroppedTables)[0];
+		const newTable = Object.keys(addedTables)[0];
+		throw new Error(RENAME_TABLE_ERROR(oldTable, newTable));
 	}
 
 	for (const [tableName, table] of Object.entries(addedTables)) {
