@@ -19,21 +19,6 @@ function getRenderer(): AstroRenderer {
 	};
 }
 
-function getJsxRenderer(): AstroRenderer {
-	return {
-		name: '@astrojs/vue (jsx)',
-		clientEntrypoint: '@astrojs/vue/client.js',
-		serverEntrypoint: '@astrojs/vue/server.js',
-		jsxImportSource: 'vue',
-		jsxTransformOptions: async () => {
-			const jsxPlugin = (await import('@vue/babel-plugin-jsx')).default;
-			return {
-				plugins: [jsxPlugin],
-			};
-		},
-	};
-}
-
 function virtualAppEntrypoint(options?: Options): Plugin {
 	const virtualModuleId = 'virtual:@astrojs/vue/app';
 	const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -135,9 +120,6 @@ export default function (options?: Options): AstroIntegration {
 		hooks: {
 			'astro:config:setup': async ({ addRenderer, updateConfig }) => {
 				addRenderer(getRenderer());
-				if (options?.jsx) {
-					addRenderer(getJsxRenderer());
-				}
 				updateConfig({ vite: await getViteConfiguration(options) });
 			},
 		},
