@@ -336,6 +336,8 @@ export function notFound({ base, locales }: MiddlewarePayload) {
 }
 
 // NOTE: public function exported to the users via `astro:i18n` module
+export type RedirectToFallback = (context: APIContext, response: Response) => Response;
+
 export function redirectToFallback({
 	fallback,
 	locales,
