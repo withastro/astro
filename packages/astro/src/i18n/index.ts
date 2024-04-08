@@ -288,6 +288,7 @@ export type MiddlewarePayload = {
 	fallback: Record<string, string> | undefined;
 };
 
+// NOTE: public function exported to the users via `astro:i18n` module
 export function redirectToDefaultLocale({
 	trailingSlash,
 	format,
@@ -303,6 +304,7 @@ export function redirectToDefaultLocale({
 	};
 }
 
+// NOTE: public function exported to the users via `astro:i18n` module
 export function notFound({ base, locales }: MiddlewarePayload) {
 	return function (context: APIContext, response?: Response): Response | undefined {
 		if (response?.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no') return response;
@@ -333,7 +335,7 @@ export function notFound({ base, locales }: MiddlewarePayload) {
 	};
 }
 
-export type RedirectToFallback = (context: APIContext, response: Response) => Response;
+// NOTE: public function exported to the users via `astro:i18n` module
 export function redirectToFallback({
 	fallback,
 	locales,
@@ -377,6 +379,7 @@ export function redirectToFallback({
 	};
 }
 
+// NOTE: public function exported to the users via `astro:i18n` module
 export function createMiddleware(
 	i18nManifest: SSRManifest['i18n'],
 	base: SSRManifest['base'],
