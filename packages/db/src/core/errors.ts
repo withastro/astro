@@ -16,7 +16,8 @@ export const MISSING_EXECUTE_PATH_ERROR = `${red(
 
 export const RENAME_TABLE_ERROR = (oldTable: string, newTable: string) => {
 	return (
-		red("\u25B6 Potential table rename detected: " + oldTable + " -> " + newTable) + `
+		red('\u25B6 Potential table rename detected: ' + oldTable + ' -> ' + newTable) +
+		`
   You cannot add and remove tables in the same schema update batch.
 
   1. Use "deprecated: true" to deprecate a table before renaming.
