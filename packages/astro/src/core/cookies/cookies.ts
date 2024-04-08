@@ -2,16 +2,10 @@ import type { CookieSerializeOptions } from 'cookie';
 import { parse, serialize } from 'cookie';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
-export interface AstroCookieSetOptions {
-	domain?: string;
-	expires?: Date;
-	httpOnly?: boolean;
-	maxAge?: number;
-	path?: string;
-	sameSite?: boolean | 'lax' | 'none' | 'strict';
-	secure?: boolean;
-	encode?: (value: string) => string;
-}
+export type AstroCookieSetOptions = Pick<
+	CookieSerializeOptions,
+	'domain' | 'path' | 'expires' | 'maxAge' | 'httpOnly' | 'sameSite' | 'secure' | 'encode'
+>;
 
 export interface AstroCookieGetOptions {
 	decode?: (value: string) => string;
