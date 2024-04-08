@@ -164,7 +164,7 @@ export class App {
 			const { request, url } = context;
 			const contentType = request.headers.get('content-type');
 			if (contentType) {
-				if (this.#formContentTypes.includes(contentType)) {
+				if (this.#formContentTypes.includes(contentType.toLowerCase())) {
 					const forbidden =
 						(request.method === 'POST' ||
 							request.method === 'PUT' ||

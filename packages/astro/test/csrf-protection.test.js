@@ -25,6 +25,14 @@ describe('CSRF origin check', () => {
 		response = await app.render(request);
 		assert.equal(response.status, 403);
 
+		// case where content-type has different casing
+		request = new Request('http://example.com/api/', {
+			headers: { origin: 'http://loreum.com', 'content-type': 'MULTIPART/FORM-DATA' },
+			method: 'POST',
+		});
+		response = await app.render(request);
+		assert.equal(response.status, 403);
+
 		request = new Request('http://example.com/api/', {
 			headers: { origin: 'http://loreum.com', 'content-type': 'application/x-www-form-urlencoded' },
 			method: 'POST',
