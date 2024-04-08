@@ -13,10 +13,10 @@ type Env = {
 
 export interface Runtime<T extends object = object> {
 	runtime: {
-		waitUntil: (promise: Promise<any>) => void;
 		env: Env & T;
 		cf: CLOUDFLARE_REQUEST['cf'];
 		caches: CLOUDFLARE_CACHESTORAGE;
+		ctx: ExecutionContext;
 	};
 }
 
@@ -60,12 +60,13 @@ export function createExports(manifest: SSRManifest) {
 
 		const locals: Runtime = {
 			runtime: {
-				waitUntil: (promise: Promise<any>) => {
-					context.waitUntil(promise);
-				},
 				env: env,
 				cf: request.cf,
 				caches: caches as unknown as CLOUDFLARE_CACHESTORAGE,
+				ctx: {
+					waitUntil: (promise: Promise<any>) => context.waitUntil(promise),
+					passThroughOnException: () => context.passThroughOnException(),
+				},
 			},
 		};
 

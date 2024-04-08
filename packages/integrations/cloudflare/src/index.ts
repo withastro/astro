@@ -15,7 +15,7 @@ import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { setImageConfig } from './utils/image-config.js';
 import { wasmModuleLoader } from './utils/wasm-module-loader.js';
 
-export type { Runtime } from './entrypoints/server.advanced.js';
+export type { Runtime } from './entrypoints/server.js';
 
 export type Options = {
 	/** Options for handling images. */
@@ -100,7 +100,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				setAdapter({
 					name: '@astrojs/cloudflare',
-					serverEntrypoint: '@astrojs/cloudflare/entrypoints/server.advanced.js',
+					serverEntrypoint: '@astrojs/cloudflare/entrypoints/server.js',
 					exports: ['default'],
 					adapterFeatures: {
 						functionPerRoute: false,
@@ -135,7 +135,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								env: platformProxy.env,
 								cf: platformProxy.cf,
 								caches: platformProxy.caches,
-								ctx: platformProxy.ctx,
+								ctx: {
+									waitUntil: (promise: Promise<any>) => platformProxy.ctx.waitUntil(promise),
+									passThroughOnException: () => platformProxy.ctx.passThroughOnException(),
+								},
 							},
 						});
 						next();
