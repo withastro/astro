@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 10.0.3
+
+### Patch Changes
+
+- [#225](https://github.com/withastro/adapters/pull/225) [`9e7d0ea`](https://github.com/withastro/adapters/commit/9e7d0eae05a2ba8d7234e909e724b220b602fc5a) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes `locals.runtime` API to match between `astro dev` and `astro build`
+
 ## 10.0.2
 
 ### Patch Changes
