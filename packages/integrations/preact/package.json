@@ -52,7 +52,7 @@
     "preact": "^10.6.5"
   },
   "engines": {
-    "node": ">=18.20.1"
+    "node": "^18.20.0 || ^20.3.0 || >=21.0.0"
   },
   "publishConfig": {
     "provenance": true
