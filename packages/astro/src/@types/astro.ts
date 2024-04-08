@@ -1638,7 +1638,7 @@ export interface AstroUserConfig {
 			 * @version 4.6.0
 			 * @description
 			 *
-			 * When enabled, it enables a strict check on the "origin" header. This is header it that is passed by the browsers on each request.
+			 * When enabled, it checks that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`.
 			 *
 			 * The "origin" check is executed only on-demand pages, and only for the requests `POST, `PATCH`, `DELETE` and `PUT`, only for those requests that
 			 * the followin `content-type` header: 'application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'.
