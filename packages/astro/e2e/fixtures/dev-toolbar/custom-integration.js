@@ -10,7 +10,12 @@ export function myIntegration() {
 				const importPath = dirname(fileURLToPath(import.meta.url));
 				const pluginPath = join(importPath, 'custom-plugin.js');
 
-				addDevToolbarApp(pluginPath);
+				addDevToolbarApp({
+					id: 'my-plugin',
+					name: 'My Plugin',
+					icon: 'astro:logo',
+					entrypoint: pluginPath
+				});
 			},
 		},
 	};

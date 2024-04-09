@@ -292,7 +292,7 @@ test.describe('Dev Toolbar', () => {
 		await expect(hideToolbar).toBeVisible();
 	});
 
-	test('supports third-party apps', async ({ page, astro }) => {
+	test('supports third-party apps zzz', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const toolbar = page.locator('astro-dev-toolbar');
