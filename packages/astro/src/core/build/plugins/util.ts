@@ -63,11 +63,20 @@ export function getVirtualModulePageName(virtualModulePrefix: string, path: stri
 }
 
 /**
- * Reverts the virtual module naming convention to the original path.
- * See `getVirtualModulePageName`(above) for more information.
+ * From the VirtualModulePageName, get the original pageData key.
  * @param virtualModulePrefix The prefix used to create the virtual module
  * @param id Virtual module name
  */
+export function getPageKeyFromVirtualModulePageName(virtualModulePrefix: string, id: string) {
+	const [route, path] = id
+		.slice(virtualModulePrefix.length)
+		.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
+
+	const componentPath = path.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
+	return `${route}\x00${componentPath}`;
+}
+
+// TODO: Should this be removed? Or refactored in generate.ts ?
 export function getPathFromVirtualModulePageName(virtualModulePrefix: string, id: string) {
 	const pageName = id.slice(virtualModulePrefix.length);
 	return pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');

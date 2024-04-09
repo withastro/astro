@@ -5,7 +5,7 @@ import { type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
-import { getPathFromVirtualModulePageName, getVirtualModulePageName } from './util.js';
+import { getPageKeyFromVirtualModulePageName, getVirtualModulePageName } from './util.js';
 
 export const ASTRO_PAGE_MODULE_ID = '@astro-page:';
 export const ASTRO_PAGE_RESOLVED_MODULE_ID = '\0' + ASTRO_PAGE_MODULE_ID;
@@ -30,8 +30,6 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 					);
 				}
 
-				console.log('inputs', inputs);
-
 				return addRollupInput(options, Array.from(inputs));
 			}
 		},
@@ -44,9 +42,9 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 			if (id.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
 				const imports: string[] = [];
 				const exports: string[] = [];
-				const pageName = getPathFromVirtualModulePageName(ASTRO_PAGE_RESOLVED_MODULE_ID, id);
-				// TODO: Change that
-				const pageData = tmp(internals.pagesByKeys, pageName);
+				const pageData = internals.pagesByKeys.get(
+					getPageKeyFromVirtualModulePageName(ASTRO_PAGE_RESOLVED_MODULE_ID, id)
+				);
 				if (pageData) {
 					const resolvedPage = await this.resolve(pageData.moduleSpecifier);
 					if (resolvedPage) {
