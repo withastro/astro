@@ -75,10 +75,6 @@ export type SSRManifestI18n = {
 	domainLookupTable: Record<string, string>;
 };
 
-export type SSRCsrfProtection = {
-	origin: boolean;
-};
-
 export type SerializedSSRManifest = Omit<
 	SSRManifest,
 	'middleware' | 'routes' | 'assets' | 'componentMetadata' | 'inlinedScripts' | 'clientDirectives'
