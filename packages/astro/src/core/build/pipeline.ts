@@ -186,9 +186,13 @@ export class BuildPipeline extends Pipeline {
 				entrypoint.includes(RESOLVED_SPLIT_MODULE_ID)
 			) {
 				const [, pageName] = entrypoint.split(':');
-				const pageData = this.internals.pagesByKeys.get(
-					`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`
+				console.log('pageName', pageName);
+				// TODO: Change that
+				const pageData = tmp(
+					this.internals.pagesByKeys,
+					pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')
 				);
+
 				if (!pageData) {
 					throw new Error(
 						"Build failed. Astro couldn't find the emitted page from " + pageName + ' pattern'
@@ -227,5 +231,14 @@ export class BuildPipeline extends Pipeline {
 		}
 
 		return pages;
+	}
+}
+
+/**
+ * TMP: This is a temporary function to get the page data from the pagesByKeys map.
+ */
+function tmp(pagesByKeys: Map<string, any>, pageName: string) {
+	for (const pages of pagesByKeys.values()) {
+		if (pages.component == pageName) return pages;
 	}
 }

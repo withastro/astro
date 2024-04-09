@@ -43,7 +43,6 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 				const exports: string[] = [];
 				const pageName = getPathFromVirtualModulePageName(ASTRO_PAGE_RESOLVED_MODULE_ID, id);
 				// TODO: Change that
-				// const pageData = internals.pagesByKeys.get(pageName);
 				const pageData = tmp(internals.pagesByKeys, pageName);
 				if (pageData) {
 					const resolvedPage = await this.resolve(pageData.moduleSpecifier);
