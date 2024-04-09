@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 3.2.0
+
+### Minor Changes
+
+- [#10675](https://github.com/withastro/astro/pull/10675) [`14f1d49a10541fecc4c10def8a094322442ccf23`](https://github.com/withastro/astro/commit/14f1d49a10541fecc4c10def8a094322442ccf23) Thanks [@fightingcat](https://github.com/fightingcat)! - Expose Babel config for @astro/react.
+
 ## 3.1.1
 
 ### Patch Changes
