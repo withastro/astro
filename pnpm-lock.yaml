@@ -3939,6 +3939,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../astro
 
+  packages/db/test/fixtures/db-in-src:
+    dependencies:
+      '@astrojs/db':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../astro
+
   packages/db/test/fixtures/error-handling:
     dependencies:
       '@astrojs/db':
