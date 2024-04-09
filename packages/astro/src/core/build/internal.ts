@@ -3,12 +3,6 @@ import type { RouteData, SSRResult } from '../../@types/astro.js';
 import type { PageOptions } from '../../vite-plugin-astro/types.js';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
-import {
-	ASTRO_PAGE_RESOLVED_MODULE_ID,
-	getVirtualModulePageIdFromPath,
-} from './plugins/plugin-pages.js';
-import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
-import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { AllPagesData, PageBuildData, StylesheetAsset, ViteID } from './types.js';
 
 export interface BuildInternals {
@@ -322,10 +316,4 @@ export function* getPageDatasByHoistedScriptId(
 			}
 		}
 	}
-}
-
-// From a component path such as pages/index.astro find the entrypoint module
-export function getEntryFilePathFromComponentPath(internals: BuildInternals, path: string) {
-	const id = getVirtualModulePageIdFromPath(path);
-	return internals.entrySpecifierToBundleMap.get(id);
 }

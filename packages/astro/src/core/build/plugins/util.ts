@@ -46,16 +46,16 @@ export const ASTRO_PAGE_EXTENSION_POST_PATTERN = '@_@';
 /**
  * Prevents Rollup from triggering other plugins in the process by masking the extension (hence the virtual file).
  *
- * 1. We add a fixed prefix, which is used as virtual module naming convention
- * 2. If the path has an extension (at the end of the path), we replace the dot that belongs to the extension with an arbitrary string.
- *
- * @param virtualModulePrefix
- * @param path
+ * @param virtualModulePrefix The prefix used to create the virtual module
+ * @param path Page component path
+ * @param route Route of the page
  */
-export function getVirtualModulePageNameFromPath(virtualModulePrefix: string, path: string) {
+export function getVirtualModulePageName(virtualModulePrefix: string, path: string, route: string) {
 	const extension = extname(path);
 	return (
 		virtualModulePrefix +
+		(route.startsWith('/') ? route.slice(1) : route) +
+		ASTRO_PAGE_EXTENSION_POST_PATTERN +
 		(extension.startsWith('.')
 			? path.slice(0, -extension.length) + extension.replace('.', ASTRO_PAGE_EXTENSION_POST_PATTERN)
 			: path)
@@ -63,9 +63,10 @@ export function getVirtualModulePageNameFromPath(virtualModulePrefix: string, pa
 }
 
 /**
- *
- * @param virtualModulePrefix
- * @param id
+ * Reverts the virtual module naming convention to the original path.
+ * See `getVirtualModulePageName`(above) for more information.
+ * @param virtualModulePrefix The prefix used to create the virtual module
+ * @param id Virtual module name
  */
 export function getPathFromVirtualModulePageName(virtualModulePrefix: string, id: string) {
 	const pageName = id.slice(virtualModulePrefix.length);

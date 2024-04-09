@@ -47,12 +47,7 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import {
-	cssOrder,
-	getEntryFilePathFromComponentPath,
-	getPageDataByComponent,
-	mergeInlineCss,
-} from './internal.js';
+import { cssOrder, getPageDataByComponent, mergeInlineCss } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
 import type {
 	PageBuildData,
@@ -61,6 +56,8 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import { getVirtualModulePageName } from './plugins/util.js';
+import { ASTRO_PAGE_MODULE_ID } from './plugins/plugin-pages.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -75,7 +72,7 @@ async function getEntryForRedirectRoute(
 		throw new Error(`Expected a redirect route.`);
 	}
 	if (route.redirectRoute) {
-		const filePath = getEntryFilePathFromComponentPath(internals, route.redirectRoute.component);
+		const filePath = getEntryFilePath(internals, route.redirectRoute);
 		if (filePath) {
 			const url = createEntryURL(filePath, outFolder);
 			const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
@@ -95,7 +92,7 @@ async function getEntryForFallbackRoute(
 		throw new Error(`Expected a redirect route.`);
 	}
 	if (route.redirectRoute) {
-		const filePath = getEntryFilePathFromComponentPath(internals, route.redirectRoute.component);
+		const filePath = getEntryFilePath(internals, route.redirectRoute);
 		if (filePath) {
 			const url = createEntryURL(filePath, outFolder);
 			const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
@@ -616,4 +613,17 @@ function createBuildManifest(
 		buildFormat: settings.config.build.format,
 		middleware,
 	};
+}
+
+/**
+ *
+ * @param internals
+ * @param path
+ * @param route
+ * @returns
+ */
+function getEntryFilePath(internals: BuildInternals, pageData: RouteData) {
+	const id =
+		'\x00' + getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component, pageData.route);
+	return internals.entrySpecifierToBundleMap.get(id);
 }

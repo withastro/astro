@@ -17,7 +17,7 @@ import {
 } from './internal.js';
 import { ASTRO_PAGE_MODULE_ID, ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
-import { getVirtualModulePageNameFromPath } from './plugins/util.js';
+import { getVirtualModulePageName } from './plugins/util.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
@@ -217,9 +217,10 @@ export class BuildPipeline extends Pipeline {
 				// The values of the map are the actual `.mjs` files that are generated during the build
 
 				// Here, we take the component path and transform it in the virtual module name
-				const moduleSpecifier = getVirtualModulePageNameFromPath(
+				const moduleSpecifier = getVirtualModulePageName(
 					ASTRO_PAGE_MODULE_ID,
-					pageData.component
+					pageData.component,
+					pageData.route.route
 				);
 				// We retrieve the original JS module
 				const filePath = this.internals.entrySpecifierToBundleMap.get(moduleSpecifier);

@@ -8,7 +8,7 @@ import stripAnsi from 'strip-ansi';
 import { check } from '../dist/cli/check/index.js';
 import build from '../dist/core/build/index.js';
 import { RESOLVED_SPLIT_MODULE_ID } from '../dist/core/build/plugins/plugin-ssr.js';
-import { getVirtualModulePageNameFromPath } from '../dist/core/build/plugins/util.js';
+import { getVirtualModulePageName } from '../dist/core/build/plugins/util.js';
 import { makeSplitEntryPointFileName } from '../dist/core/build/static-build.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import { dev, preview } from '../dist/core/index.js';
@@ -221,7 +221,7 @@ export async function loadFixture(inlineConfig) {
 			return app;
 		},
 		loadEntryPoint: async (pagePath, routes, streaming) => {
-			const virtualModule = getVirtualModulePageNameFromPath(RESOLVED_SPLIT_MODULE_ID, pagePath);
+			const virtualModule = getVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, pagePath);
 			const filePath = makeSplitEntryPointFileName(virtualModule, routes);
 			const url = new URL(`./server/${filePath}?id=${fixtureId}`, config.outDir);
 			const { createApp, manifest } = await import(url);

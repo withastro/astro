@@ -13,7 +13,7 @@ import { SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugin-manifest.js';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
-import { getPathFromVirtualModulePageName, getVirtualModulePageNameFromPath } from './util.js';
+import { getPathFromVirtualModulePageName, getVirtualModulePageName } from './util.js';
 
 export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
 export const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
@@ -47,9 +47,10 @@ function vitePluginSSR(
 					if (routeIsRedirect(pageData.route)) {
 						continue;
 					}
-					const virtualModuleName = getVirtualModulePageNameFromPath(
+					const virtualModuleName = getVirtualModulePageName(
 						ASTRO_PAGE_MODULE_ID,
-						pageData.component
+						pageData.component,
+						pageData.route.route
 					);
 					let module = await this.resolve(virtualModuleName);
 					if (module) {
@@ -153,7 +154,9 @@ function vitePluginSSRSplit(
 					if (routeIsRedirect(pageData.route)) {
 						continue;
 					}
-					inputs.add(getVirtualModulePageNameFromPath(SPLIT_MODULE_ID, pageData.component));
+					inputs.add(
+						getVirtualModulePageName(SPLIT_MODULE_ID, pageData.component, pageData.route.route)
+					);
 				}
 
 				return addRollupInput(opts, Array.from(inputs));
@@ -171,7 +174,7 @@ function vitePluginSSRSplit(
 				const exports: string[] = [];
 
 				const path = getPathFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, id);
-				const virtualModuleName = getVirtualModulePageNameFromPath(ASTRO_PAGE_MODULE_ID, path);
+				const virtualModuleName = getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, path);
 				let module = await this.resolve(virtualModuleName);
 				if (module) {
 					// we need to use the non-resolved ID in order to resolve correctly the virtual module
