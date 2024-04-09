@@ -2,7 +2,7 @@
 "astro": minor
 ---
 
-Astro now allows to create your know i18n middleware:
+Adds a new i18n routing option `manual` to allow you to write your own i18n middleware:
 
 ```js
 import { defineConfig } from "astro/config"
@@ -16,6 +16,8 @@ export default defineConfig({
 })
 ```
 
+Adding `routing: "manual"` to your i18n config disables Astro's own i18n middleware and provides you with helper functions to write your own: `redirectToDefaultLocale`, `notFound`, and `redirectToFallback`:
+
 ```js
 // middleware.js
 import { redirectToDefaultLocale } from "astro:i18n";
@@ -28,7 +30,19 @@ export const onRequest = defineMiddleware(async (context, next) => {
 })
 ```
 
-When `routing: "manual"` is provided, the virtual module `astro:i18n` exports new functions:
-- `redirectToDefaultLocale`
-- `notFound`
-- `redirectToFallback`
+Also adds a `middleware` function that manually creates Astro's i18n middleware. This allows you to extend Astro's i18n routing instead of completely replacing it. Run `middleware` in combination with your own middleware, using the `sequence` utility to determine the order:
+
+```js title="src/middleware.js"
+import {defineMiddleware, sequence} from "astro:middleware";
+import { middleware } from "astro:i18n"; // Astro's own i18n routing config
+
+export const userMiddleware = defineMiddleware();
+
+export const onRequest = sequence(
+  userMiddleware,
+  middleware({
+    redirectToDefaultLocale: false,
+    prefixDefaultLocale: true
+  })
+)
+```

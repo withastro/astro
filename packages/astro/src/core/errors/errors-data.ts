@@ -1070,7 +1070,7 @@ export const MissingIndexForInternationalization = {
 /**
  * @docs
  * @description
- * Some internationalization functions can't be exposed unless the i18n routing is disabled by assigning to `i18n.routing` the value "manual"`.
+ * Some internationalization functions are only available when Astro's own i18n routing is disabled by the configuration setting `i18n.routing: "manual"`.
  *
  * @see
  * - [`i18n` routing](https://docs.astro.build/en/guides/internationalization/#routing)
@@ -1079,7 +1079,7 @@ export const IncorrectStrategyForI18n = {
 	name: 'IncorrectStrategyForI18n',
 	title: "You can't use the current function with the current strategy",
 	message: (functionName: string) =>
-		`The function \`${functionName}\' can't be used because it can only be used when the \`i18n.routing.strategy\` is set to \`"manual"\`.`,
+		`The function \`${functionName}\' can only be used when the \`i18n.routing.strategy\` is set to \`"manual"\`.`,
 } satisfies ErrorData;
 
 /**
@@ -1091,7 +1091,7 @@ export const NoPrerenderedRoutesWithDomains = {
 	name: 'NoPrerenderedRoutesWithDomains',
 	title: "Prerendered routes aren't supported when internationalization domains are enabled.",
 	message: (component: string) =>
-		`Static pages aren't yet supported with multiple domains. If you wish to enable this feature, you have to disable prerendering for the page ${component}`,
+		`Static pages aren't yet supported with multiple domains. To enable this feature, you must disable prerendering for the page ${component}`,
 } satisfies ErrorData;
 
 /**
@@ -1103,7 +1103,7 @@ export const MissingMiddlewareForInternationalization = {
 	name: 'MissingMiddlewareForInternationalization',
 	title: 'Enabled manual internationalization routing without having a middleware.',
 	message:
-		"You enabled manual routing for internationalization via `i18n.routing: 'manual'`, but you must have a `middleware` file in order to use this feature.",
+		"Your configuration setting `i18n.routing: 'manual'` requires you to provide your own i18n `middleware` file.",
 } satisfies ErrorData;
 
 /**
