@@ -1497,8 +1497,20 @@ export interface AstroUserConfig {
 		 *
 		 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language.
 		 */
-		routing?:
-			| 'manual'
+		// prettier-ignore
+		routing?: 
+			/**
+			 *
+			 * @docs
+			 * @name i18n.routing
+			 * @type {string}
+			 * @version 4.6.0
+			 * @description
+			 * When this option is enabled, Astro will **disable** its i18n middleware so that you can implement your own custom logic. No other `routing` options (e.g. `prefixDefaultLocale`) may be configured with `routing: "manual"`.
+			 *
+			 * You will be responsible for writing your own routing logic, or executing Astro's i18n middleware manually alongside your own.
+			 */
+		 	'manual'
 			| {
 					/**
 					 * @docs
