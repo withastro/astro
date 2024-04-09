@@ -140,8 +140,6 @@ export default {
 				hasCreatedUI = false;
 			}
 
-			console.log('AUDITS', audits);
-
 			const selectorCache = new Map<string, NodeListOf<Element>>();
 			for (const ruleCategory of rulesCategories) {
 				for (const rule of ruleCategory.rules) {
