@@ -2,4 +2,4 @@
 "astro": minor
 ---
 
-Allows the user to change the placement of the dev toolbar.
+Adds a new dev toolbar settings option to change the horizontal placement of the dev toolbar on your screen: bottom left, bottom center, or bottom right.
