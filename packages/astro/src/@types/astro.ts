@@ -1856,7 +1856,7 @@ export interface AstroUserConfig {
 			 * @version 4.6.0
 			 * @description
 			 *
-			 * It enables some security measures to prevent CSRF attacks: https://owasp.org/www-community/attacks/csrf
+			 * Allows you to enable security measures to prevent CSRF attacks: https://owasp.org/www-community/attacks/csrf
 			 */
 
 			csrfProtection?: {
