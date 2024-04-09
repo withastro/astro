@@ -470,7 +470,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			const role = element.getAttribute('role');
 			if (!role) return false;
 			if (!ariaRoles.has(role)) return false;
-			if (roleless_elements.includes(role)) return false;
+			if (roleless_elements.includes(element.localName)) return false;
 
 			if (aria_non_interactive_roles.includes(role)) return true;
 		},
@@ -491,6 +491,7 @@ export const a11y: AuditRuleWithSelector[] = [
 					element.localName as keyof typeof a11y_non_interactive_element_to_interactive_role_exceptions
 				];
 			if (exceptions?.includes(role)) return false;
+			if (roleless_elements.includes(element.localName)) return false;
 
 			if (!aria_non_interactive_roles.includes(role)) return true;
 		},
