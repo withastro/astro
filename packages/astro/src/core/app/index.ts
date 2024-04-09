@@ -114,7 +114,7 @@ export class App {
 	 * @private
 	 */
 	#createPipeline(streaming = false) {
-		if (this.#manifest.csrfProtection?.origin === true) {
+		if (this.#manifest.checkOrigin) {
 			this.#manifest.middleware = sequence(
 				createOriginCheckMiddleware(),
 				this.#manifest.middleware

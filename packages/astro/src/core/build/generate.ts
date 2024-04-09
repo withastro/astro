@@ -615,8 +615,8 @@ function createBuildManifest(
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
 		middleware,
-		csrfProtection: settings.config.experimental.csrfProtection
-			? settings.config.security?.csrfProtection
-			: undefined,
+		checkOrigin: settings.config.experimental.security
+			? settings.config.security?.csrfProtection?.origin ?? false
+			: false,
 	};
 }

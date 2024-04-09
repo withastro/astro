@@ -1877,12 +1877,12 @@ export interface AstroUserConfig {
 		 * // astro.config.mjs
 		 * export default defineConfig({
 		 *   experimental: {
-		 *     csrfProtection: true,
+		 *     security: true,
 		 *   },
 		 * })
 		 * ```
 		 */
-		csrfProtection?: boolean;
+		security?: boolean;
 	};
 }
 
