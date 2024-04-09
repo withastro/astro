@@ -2578,9 +2578,9 @@ export interface AstroRenderer {
 	clientEntrypoint?: string;
 	/** Import entrypoint for the server/build/ssr renderer. */
 	serverEntrypoint: string;
-	/** JSX identifier (e.g. 'react' or 'solid-js') */
+	/** @deprecated Vite plugins should transform the JSX instead */
 	jsxImportSource?: string;
-	/** Babel transform options */
+	/** @deprecated Vite plugins should transform the JSX instead */
 	jsxTransformOptions?: JSXTransformFn;
 }
 
