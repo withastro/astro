@@ -7,13 +7,12 @@ Adds a new security - and experimental - option to prevent CSRF attacks. This fe
 ```js
 import { defineConfig } from "astro/config"
 export default defineConfig({
-  security: {
-    csrfProtection: {
-      origin: true
-    }
-  },
   experimental: {
-    csrfProtection: true
+    security: {
+      csrfProtection: {
+        origin: true
+      }
+    }
   }
 })
 ```
