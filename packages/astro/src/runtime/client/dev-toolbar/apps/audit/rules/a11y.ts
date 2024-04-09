@@ -108,6 +108,7 @@ const aria_non_interactive_roles = [
 ];
 
 // These elements aren't interactive and aren't non-interactive. Their interaction changes based on the role assigned to them
+// https://www.w3.org/TR/html-aria/#docconformance -> look at the table, specification for the `div` and `span` elements.
 const roleless_elements = ['div', 'span'];
 
 const a11y_required_content = [
