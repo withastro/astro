@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 4.0.11
+
+### Patch Changes
+
+- [#10687](https://github.com/withastro/astro/pull/10687) [`4ea042c38839783fb42e8261d89d7c7149892518`](https://github.com/withastro/astro/commit/4ea042c38839783fb42e8261d89d7c7149892518) Thanks [@bluwy](https://github.com/bluwy)! - Removes unused `jsxTransformOptions` and `jsxImportSource` options from the renderer config
+
 ## 4.0.10
 
 ### Patch Changes
