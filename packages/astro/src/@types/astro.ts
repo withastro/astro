@@ -2939,7 +2939,7 @@ export type DevToolbarApp = {
 	icon?: Icon;
 	init?(
 		canvas: ShadowRoot,
-		eventTarget: ToolbarAppEventTarget,
+		app: ToolbarAppEventTarget,
 		server: ToolbarServerHelpers
 	): void | Promise<void>;
 	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
