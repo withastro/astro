@@ -53,6 +53,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	cacheDir: './node_modules/.astro',
 	base: '/',
 	trailingSlash: 'ignore',
+	checkUpdates: 'semver',
 	build: {
 		format: 'directory',
 		client: './dist/client/',
@@ -139,6 +140,7 @@ export const AstroConfigSchema = z.object({
 			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
 			.default(ASTRO_CONFIG_DEFAULTS.integrations)
 	),
+	checkUpdates: z.union([z.literal(false), z.literal('semver'), z.literal('latest')]).default(ASTRO_CONFIG_DEFAULTS.checkUpdates),
 	build: z
 		.object({
 			format: z
