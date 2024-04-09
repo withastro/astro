@@ -15,6 +15,7 @@ import { createBasicPipeline } from '../test-utils.js';
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
 const loadJSXRenderer = () => loadRenderer(jsxRenderer, { import: (s) => import(s) });
 
+// NOTE: This test may be testing an outdated JSX setup
 describe('core/render', () => {
 	describe('Astro JSX components', () => {
 		let pipeline;

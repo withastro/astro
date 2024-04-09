@@ -1,5 +1,21 @@
 # astro
 
+## 4.5.17
+
+### Patch Changes
+
+- [#10688](https://github.com/withastro/astro/pull/10688) [`799f6f3f29a3ef4f76347870a209ffa89651adfa`](https://github.com/withastro/astro/commit/799f6f3f29a3ef4f76347870a209ffa89651adfa) Thanks [@bluwy](https://github.com/bluwy)! - Marks renderer `jsxImportSource` and `jsxTransformOptions` options as deprecated as they are no longer used since Astro 3.0
+
+- [#10657](https://github.com/withastro/astro/pull/10657) [`93d353528fa1a85b67e3f1e9514ed2a1b42dfd94`](https://github.com/withastro/astro/commit/93d353528fa1a85b67e3f1e9514ed2a1b42dfd94) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improves the color contrast for notification badges on dev toolbar apps
+
+- [#10693](https://github.com/withastro/astro/pull/10693) [`1d26e9c7f7d8f47e33bc68d3b30bbffce25c7b63`](https://github.com/withastro/astro/commit/1d26e9c7f7d8f47e33bc68d3b30bbffce25c7b63) Thanks [@apetta](https://github.com/apetta)! - Adds the `disableremoteplayback` attribute to MediaHTMLAttributes interface
+
+- [#10695](https://github.com/withastro/astro/pull/10695) [`a15975e41cb5eaf6ed8eb3ebaee676a17e433052`](https://github.com/withastro/astro/commit/a15975e41cb5eaf6ed8eb3ebaee676a17e433052) Thanks [@bluwy](https://github.com/bluwy)! - Skips prerender chunk if building with static output
+
+- [#10707](https://github.com/withastro/astro/pull/10707) [`5e044a5eafaa206d2ef8b62c37d1bcd37f0a4078`](https://github.com/withastro/astro/commit/5e044a5eafaa206d2ef8b62c37d1bcd37f0a4078) Thanks [@horo-fox](https://github.com/horo-fox)! - Logs an error when a page's `getStaticPaths` fails
+
+- [#10686](https://github.com/withastro/astro/pull/10686) [`fa0f593890502faf5709ab881fe0e45519d2f7af`](https://github.com/withastro/astro/commit/fa0f593890502faf5709ab881fe0e45519d2f7af) Thanks [@bluwy](https://github.com/bluwy)! - Prevents inlining scripts if used by other chunks when using the `experimental.directRenderScript` option
+
 ## 4.5.16
 
 ### Patch Changes

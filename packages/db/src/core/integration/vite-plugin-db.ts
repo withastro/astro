@@ -40,6 +40,7 @@ type VitePluginDBParams =
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 	const srcDirPath = normalizePath(fileURLToPath(params.srcDir));
+	const dbDirPath = normalizePath(fileURLToPath(getDbDirectoryUrl(params.root)));
 	let command: 'build' | 'serve' = 'build';
 	return {
 		name: 'astro:db',
@@ -54,7 +55,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			const importer = rawImporter ? await this.resolve(rawImporter) : null;
 			if (!importer) return resolved.virtual;
 
-			if (importer.id.startsWith(srcDirPath)) {
+			if (importer.id.startsWith(srcDirPath) && !importer.id.startsWith(dbDirPath)) {
 				// Seed only if the importer is in the src directory.
 				// Otherwise, we may get recursive seed calls (ex. import from db/seed.ts).
 				return resolved.seedVirtual;

@@ -335,7 +335,7 @@ async function getPathsForRoute(
 			logger,
 			ssr: serverLike,
 		}).catch((err) => {
-			logger.debug('build', `├── ${bold(red('✗'))} ${route.component}`);
+			logger.error('build', `Failed to call getStaticPaths for ${route.component}`);
 			throw err;
 		});
 
