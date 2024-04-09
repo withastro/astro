@@ -1502,7 +1502,7 @@ export interface AstroUserConfig {
 			/**
 			 *
 			 * @docs
-			 * @name i18n.routing
+			 * @name i18n.routing.manual
 			 * @type {string}
 			 * @version 4.6.0
 			 * @description
