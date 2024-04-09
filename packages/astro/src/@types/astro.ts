@@ -1830,9 +1830,9 @@ export interface AstroUserConfig {
 		 * @version 4.6.0
 		 * @description
 		 *
-		 * It enables the CSRF protection for Astro websites.
+		 * Enables CSRF protection for Astro websites.
 		 *
-		 * The CSRF protection works only for on-demand pages (SSR) and hybrid pages where prerendering is opted out.
+		 * The CSRF protection works only for pages rendered on demand (SSR) using `server` or `hybrid` mode. The pages must opt out of prerendering in `hybrid` mode.
 		 *
 		 * ```js
 		 * // astro.config.mjs
@@ -1867,12 +1867,12 @@ export interface AstroUserConfig {
 				 * @version 4.6.0
 				 * @description
 				 *
-				 * When enabled, it checks that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`.
+				 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`.
 				 *
-				 * The "origin" check is executed only on-demand pages, and only for the requests `POST, `PATCH`, `DELETE` and `PUT`, only for those requests that
-				 * the followin `content-type` header: 'application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'.
+				 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST, `PATCH`, `DELETE` and `PUT` with
+				 * the following `content-type` header: 'application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'.
 				 *
-				 * It the "origin" header doesn't match the pathname of the request, Astro will return a 403 status code and won't render the page.
+				 * If the "origin" header doesn't match the `pathname` of the request, Astro will return a 403 status code and will not render the page.
 				 */
 				origin?: boolean;
 			};
