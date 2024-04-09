@@ -12,7 +12,7 @@ import { ensureProcessNodeEnv } from '../util.js';
 import { startContainer } from './container.js';
 import { createContainerWithAutomaticRestart } from './restart.js';
 import { execa } from 'execa';
-import { gt, gte } from 'semver';
+import { gt } from 'semver';
 
 export interface DevServer {
 	address: AddressInfo;
@@ -61,7 +61,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 					latestVersion = latestVersion.pop();
 				}
 
-				if (gte(latestVersion, currentVersion)) {
+				if (gt(latestVersion, currentVersion)) {
 					logger.info('update', `A new version of Astro is available! Run ${green('npx @astrojs/upgrade')} to update to ${bold(latestVersion)}!`);
 
 					// Only update the latestAstroVersion if the latest version is greater than the current version, that way we don't need to check again
