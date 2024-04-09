@@ -12,7 +12,7 @@ const singleQuerySchema = z.object({
 
 const querySchema = singleQuerySchema.or(z.array(singleQuerySchema));
 
-let portIncrementer = 8081;
+let portIncrementer = 8030;
 
 /**
  * @param {import('astro').AstroConfig} astroConfig

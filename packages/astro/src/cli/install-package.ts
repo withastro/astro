@@ -1,7 +1,7 @@
 import { createRequire } from 'node:module';
-import { sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import boxen from 'boxen';
+import ci from 'ci-info';
 import { execa } from 'execa';
 import { bold, cyan, dim, magenta } from 'kleur/colors';
 import ora from 'ora';
@@ -39,10 +39,18 @@ export async function getPackage<T>(
 		return packageImport as T;
 	} catch (e) {
 		if (options.optional) return undefined;
-		logger.info(
-			'SKIP_FORMAT',
-			`To continue, Astro requires the following dependency to be installed: ${bold(packageName)}.`
-		);
+		let message = `To continue, Astro requires the following dependency to be installed: ${bold(packageName)}.`;
+
+		if (ci.isCI) {
+			message += ` Packages cannot be installed automatically in CI environments.`;
+		}
+
+		logger.info('SKIP_FORMAT', message);
+
+		if (ci.isCI) {
+			return undefined;
+		}
+
 		const result = await installPackage([packageName, ...otherDeps], options, logger);
 
 		if (result) {

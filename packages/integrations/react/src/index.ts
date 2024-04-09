@@ -3,7 +3,10 @@ import type { AstroIntegration } from 'astro';
 import { version as ReactVersion } from 'react-dom';
 import type * as vite from 'vite';
 
-export type ReactIntegrationOptions = Pick<ViteReactPluginOptions, 'include' | 'exclude'> & {
+export type ReactIntegrationOptions = Pick<
+	ViteReactPluginOptions,
+	'include' | 'exclude' | 'babel'
+> & {
 	experimentalReactChildren?: boolean;
 };
 
@@ -46,6 +49,7 @@ function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
 function getViteConfiguration({
 	include,
 	exclude,
+	babel,
 	experimentalReactChildren,
 }: ReactIntegrationOptions = {}) {
 	return {
@@ -65,7 +69,7 @@ function getViteConfiguration({
 					: '@astrojs/react/server-v17.js',
 			],
 		},
-		plugins: [react({ include, exclude }), optionsPlugin(!!experimentalReactChildren)],
+		plugins: [react({ include, exclude, babel }), optionsPlugin(!!experimentalReactChildren)],
 		resolve: {
 			dedupe: ['react', 'react-dom', 'react-dom/server'],
 		},
@@ -80,6 +84,7 @@ function getViteConfiguration({
 				'@babel/runtime',
 				'redoc',
 				'use-immer',
+				'@material-tailwind/react',
 			],
 		},
 	};
@@ -88,6 +93,7 @@ function getViteConfiguration({
 export default function ({
 	include,
 	exclude,
+	babel,
 	experimentalReactChildren,
 }: ReactIntegrationOptions = {}): AstroIntegration {
 	return {
@@ -96,7 +102,7 @@ export default function ({
 			'astro:config:setup': ({ command, addRenderer, updateConfig, injectScript }) => {
 				addRenderer(getRenderer());
 				updateConfig({
-					vite: getViteConfiguration({ include, exclude, experimentalReactChildren }),
+					vite: getViteConfiguration({ include, exclude, babel, experimentalReactChildren }),
 				});
 				if (command === 'dev') {
 					const preamble = FAST_REFRESH_PREAMBLE.replace(`__BASE__`, '/');

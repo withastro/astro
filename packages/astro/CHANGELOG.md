@@ -1,5 +1,66 @@
 # astro
 
+## 4.5.17
+
+### Patch Changes
+
+- [#10688](https://github.com/withastro/astro/pull/10688) [`799f6f3f29a3ef4f76347870a209ffa89651adfa`](https://github.com/withastro/astro/commit/799f6f3f29a3ef4f76347870a209ffa89651adfa) Thanks [@bluwy](https://github.com/bluwy)! - Marks renderer `jsxImportSource` and `jsxTransformOptions` options as deprecated as they are no longer used since Astro 3.0
+
+- [#10657](https://github.com/withastro/astro/pull/10657) [`93d353528fa1a85b67e3f1e9514ed2a1b42dfd94`](https://github.com/withastro/astro/commit/93d353528fa1a85b67e3f1e9514ed2a1b42dfd94) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improves the color contrast for notification badges on dev toolbar apps
+
+- [#10693](https://github.com/withastro/astro/pull/10693) [`1d26e9c7f7d8f47e33bc68d3b30bbffce25c7b63`](https://github.com/withastro/astro/commit/1d26e9c7f7d8f47e33bc68d3b30bbffce25c7b63) Thanks [@apetta](https://github.com/apetta)! - Adds the `disableremoteplayback` attribute to MediaHTMLAttributes interface
+
+- [#10695](https://github.com/withastro/astro/pull/10695) [`a15975e41cb5eaf6ed8eb3ebaee676a17e433052`](https://github.com/withastro/astro/commit/a15975e41cb5eaf6ed8eb3ebaee676a17e433052) Thanks [@bluwy](https://github.com/bluwy)! - Skips prerender chunk if building with static output
+
+- [#10707](https://github.com/withastro/astro/pull/10707) [`5e044a5eafaa206d2ef8b62c37d1bcd37f0a4078`](https://github.com/withastro/astro/commit/5e044a5eafaa206d2ef8b62c37d1bcd37f0a4078) Thanks [@horo-fox](https://github.com/horo-fox)! - Logs an error when a page's `getStaticPaths` fails
+
+- [#10686](https://github.com/withastro/astro/pull/10686) [`fa0f593890502faf5709ab881fe0e45519d2f7af`](https://github.com/withastro/astro/commit/fa0f593890502faf5709ab881fe0e45519d2f7af) Thanks [@bluwy](https://github.com/bluwy)! - Prevents inlining scripts if used by other chunks when using the `experimental.directRenderScript` option
+
+## 4.5.16
+
+### Patch Changes
+
+- [#10679](https://github.com/withastro/astro/pull/10679) [`ca6bb1f31ef041e6ccf8ef974856fa945ff5bb31`](https://github.com/withastro/astro/commit/ca6bb1f31ef041e6ccf8ef974856fa945ff5bb31) Thanks [@martrapp](https://github.com/martrapp)! - Generates missing popstate events for Firefox when navigating to hash targets on the same page.
+
+- [#10669](https://github.com/withastro/astro/pull/10669) [`0464563e527f821e53d78028d9bbf3c4e1050f5b`](https://github.com/withastro/astro/commit/0464563e527f821e53d78028d9bbf3c4e1050f5b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes Astro waiting infinitely in CI when a required package was not installed
+
+## 4.5.15
+
+### Patch Changes
+
+- [#10666](https://github.com/withastro/astro/pull/10666) [`55ddb2ba4889480f776a8d29b9dcd531b9f5ab3e`](https://github.com/withastro/astro/commit/55ddb2ba4889480f776a8d29b9dcd531b9f5ab3e) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue where forwarded requests did not include hostname on node-based adapters. This also makes error pages more reliable.
+
+- [#10642](https://github.com/withastro/astro/pull/10642) [`4f5dc14f315eba7ea6ec5cc8e5dacb0cb81288dd`](https://github.com/withastro/astro/commit/4f5dc14f315eba7ea6ec5cc8e5dacb0cb81288dd) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Fixes typing issues when using `format` and `quality` options with remote images
+
+- [#10616](https://github.com/withastro/astro/pull/10616) [`317d18ef8c9cf4fd13647518e3fd352774a86481`](https://github.com/withastro/astro/commit/317d18ef8c9cf4fd13647518e3fd352774a86481) Thanks [@NikolaRHristov](https://github.com/NikolaRHristov)! - This change disables the `sharp` `libvips` image cache as it errors when the
+  file is too small and operations are happening too fast (runs into a race
+  condition)
+
+## 4.5.14
+
+### Patch Changes
+
+- [#10470](https://github.com/withastro/astro/pull/10470) [`320c309ca9fbe51c40e6ba846d04a0cb49aced5f`](https://github.com/withastro/astro/commit/320c309ca9fbe51c40e6ba846d04a0cb49aced5f) Thanks [@liruifengv](https://github.com/liruifengv)! - improves `client:only` error message
+
+- [#10496](https://github.com/withastro/astro/pull/10496) [`ce985631129e49f7ea90e6ea690ef9f9cf0e6987`](https://github.com/withastro/astro/commit/ce985631129e49f7ea90e6ea690ef9f9cf0e6987) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Makes the warning less scary when adding 3rd-party integrations using `astro add`
+
+## 4.5.13
+
+### Patch Changes
+
+- [#10495](https://github.com/withastro/astro/pull/10495) [`046d69d517118ab5c0e71604b321729d66ddffff`](https://github.com/withastro/astro/commit/046d69d517118ab5c0e71604b321729d66ddffff) Thanks [@satyarohith](https://github.com/satyarohith)! - This patch allows astro to run in node-compat mode in Deno. Deno doesn't support
+  construction of response from async iterables in node-compat mode so we need to
+  use ReadableStream.
+
+- [#10605](https://github.com/withastro/astro/pull/10605) [`a16a829f4e25ad5c9a1b4557ec089fc8ab53320f`](https://github.com/withastro/astro/commit/a16a829f4e25ad5c9a1b4557ec089fc8ab53320f) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue with outdated page titles in browser history when using text fragments in view transition navigation.
+
+- [#10584](https://github.com/withastro/astro/pull/10584) [`e648c5575a8774af739231cfa9fc27a32086aa5f`](https://github.com/withastro/astro/commit/e648c5575a8774af739231cfa9fc27a32086aa5f) Thanks [@duanwilliam](https://github.com/duanwilliam)! - Fixes a bug where JSX runtime would error on components with nullish prop values in certain conditions.
+
+- [#10608](https://github.com/withastro/astro/pull/10608) [`e31bea0704890ff92ce4f9b0ce536c1c90715f2c`](https://github.com/withastro/astro/commit/e31bea0704890ff92ce4f9b0ce536c1c90715f2c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes bug with head content being pushed into body
+
+- Updated dependencies [[`2cf116f80cb5e421ab5cc5eb4a654e7b78c1b8de`](https://github.com/withastro/astro/commit/2cf116f80cb5e421ab5cc5eb4a654e7b78c1b8de), [`374efcdff9625ca43309d89e3b9cfc9174351512`](https://github.com/withastro/astro/commit/374efcdff9625ca43309d89e3b9cfc9174351512)]:
+  - @astrojs/markdown-remark@5.0.0
+
 ## 4.5.12
 
 ### Patch Changes

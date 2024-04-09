@@ -336,7 +336,3 @@ function getStatus(matchedRoute?: MatchedRoute): 404 | 500 | undefined {
 	if (matchedRoute.route.route === '/404') return 404;
 	if (matchedRoute.route.route === '/500') return 500;
 }
-
-function has404Route(manifest: ManifestData): boolean {
-	return manifest.routes.some((route) => route.route === '/404');
-}

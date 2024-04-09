@@ -4,7 +4,7 @@ export const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
 /**
  * The name for the header used to help rerouting behavior.
  * When set to "no", astro will NOT try to reroute an error response to the corresponding error page, which is the default behavior that can sometimes lead to loops.
- * 
+ *
  * ```ts
  * const response = new Response("keep this content as-is", {
  *     status: 404,
@@ -52,9 +52,9 @@ export const clientLocalsSymbol = Symbol.for('astro.locals');
 
 /**
  * The symbol used as a field on the response object to keep track of streaming.
- * 
+ *
  * It is set when the `<head>` element has been completely generated, rendered, and the response object has been passed onto the adapter.
- * 
+ *
  * Used to provide helpful errors and warnings when headers or cookies are added during streaming, after the response has already been sent.
  */
 export const responseSentSymbol = Symbol.for('astro.responseSent');

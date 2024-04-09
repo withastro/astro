@@ -1,5 +1,49 @@
 # @astrojs/db
 
+## 0.10.2
+
+### Patch Changes
+
+- [#10681](https://github.com/withastro/astro/pull/10681) [`4bf8bd3848a6f3461f0186854588a8e2f90f4dbc`](https://github.com/withastro/astro/commit/4bf8bd3848a6f3461f0186854588a8e2f90f4dbc) Thanks [@matthewp](https://github.com/matthewp)! - Prevent errors in finding workspaceId from interrupting link prompts
+
+- [#10600](https://github.com/withastro/astro/pull/10600) [`28e7535e5c7a8234049bd187cac88c7fabf15f9c`](https://github.com/withastro/astro/commit/28e7535e5c7a8234049bd187cac88c7fabf15f9c) Thanks [@matthewp](https://github.com/matthewp)! - Provide better messaging when renaming a table
+
+## 0.10.1
+
+### Patch Changes
+
+- [#10677](https://github.com/withastro/astro/pull/10677) [`1662aa8a850ff4f860a80c2f33a8b33bcc7aee12`](https://github.com/withastro/astro/commit/1662aa8a850ff4f860a80c2f33a8b33bcc7aee12) Thanks [@matthewp](https://github.com/matthewp)! - Fix compatibility of @astrojs/db with Cloudflare
+
+## 0.10.0
+
+### Minor Changes
+
+- [#10638](https://github.com/withastro/astro/pull/10638) [`f395ebcc08279515f8d53bb82edeee288d8579db`](https://github.com/withastro/astro/commit/f395ebcc08279515f8d53bb82edeee288d8579db) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Rename internal import from `runtime/config` to `runtime/virtual`
+
+## 0.9.11
+
+### Patch Changes
+
+- [#10655](https://github.com/withastro/astro/pull/10655) [`b1eda3dc5c33c1c6d50d5ee8a2a08d34851dc253`](https://github.com/withastro/astro/commit/b1eda3dc5c33c1c6d50d5ee8a2a08d34851dc253) Thanks [@matthewp](https://github.com/matthewp)! - Pass through appToken on static sites with Astro DB
+
+## 0.9.10
+
+### Patch Changes
+
+- [#10646](https://github.com/withastro/astro/pull/10646) [`713f99e849b26edb831ea6527b7103ad7a6b200f`](https://github.com/withastro/astro/commit/713f99e849b26edb831ea6527b7103ad7a6b200f) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes an issue astro:db could not be used on serverless platforms.
+
+## 0.9.9
+
+### Patch Changes
+
+- [#10599](https://github.com/withastro/astro/pull/10599) [`5a7733dde52d439402404d5207a2b1d897c4e025`](https://github.com/withastro/astro/commit/5a7733dde52d439402404d5207a2b1d897c4e025) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Seed database on dev server startup, and log whenever the seed file is reloaded.
+
+- [#10636](https://github.com/withastro/astro/pull/10636) [`504d15d77291f0fe36aa9fecc22f276b734f83cb`](https://github.com/withastro/astro/commit/504d15d77291f0fe36aa9fecc22f276b734f83cb) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Detailed error messages for remote database exceptions.
+
+- [#10635](https://github.com/withastro/astro/pull/10635) [`17badaf55c79cec460c74f4da58bf188eedef7e3`](https://github.com/withastro/astro/commit/17badaf55c79cec460c74f4da58bf188eedef7e3) Thanks [@matthewp](https://github.com/matthewp)! - Give proper error when seed missing default export
+
+- [#10631](https://github.com/withastro/astro/pull/10631) [`157392ee44db08de0d3c01222644dae0a904044d`](https://github.com/withastro/astro/commit/157392ee44db08de0d3c01222644dae0a904044d) Thanks [@matthewp](https://github.com/matthewp)! - Make ASTRO_DATABASE_FILE work with file paths
+
 ## 0.9.8
 
 ### Patch Changes

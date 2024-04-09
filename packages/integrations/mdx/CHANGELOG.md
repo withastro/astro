@@ -1,5 +1,18 @@
 # @astrojs/mdx
 
+## 2.2.4
+
+### Patch Changes
+
+- [#10673](https://github.com/withastro/astro/pull/10673) [`db7f9c87035a0de780536d95cdd9facff00c3c08`](https://github.com/withastro/astro/commit/db7f9c87035a0de780536d95cdd9facff00c3c08) Thanks [@bluwy](https://github.com/bluwy)! - Removes unnecessary internal `recmaInjectImportMetaEnv` plugin
+
+## 2.2.3
+
+### Patch Changes
+
+- Updated dependencies [[`2cf116f80cb5e421ab5cc5eb4a654e7b78c1b8de`](https://github.com/withastro/astro/commit/2cf116f80cb5e421ab5cc5eb4a654e7b78c1b8de), [`374efcdff9625ca43309d89e3b9cfc9174351512`](https://github.com/withastro/astro/commit/374efcdff9625ca43309d89e3b9cfc9174351512)]:
+  - @astrojs/markdown-remark@5.0.0
+
 ## 2.2.2
 
 ### Patch Changes

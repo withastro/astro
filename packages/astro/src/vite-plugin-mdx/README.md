@@ -1,3 +1,3 @@
-# vite-plugin-jsx
+# vite-plugin-mdx
 
-Modifies Vite’s built-in JSX behavior to allow for React, Preact, and Solid.js to coexist and all use `.jsx` and `.tsx` extensions.
+Handles transforming MDX via the `astro:jsx` renderer.

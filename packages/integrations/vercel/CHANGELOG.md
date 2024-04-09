@@ -1,5 +1,17 @@
 # @astrojs/vercel
 
+## 7.5.2
+
+### Patch Changes
+
+- [#10611](https://github.com/withastro/astro/pull/10611) [`a9a3694a98060be9a33045bb0fcf92ccf1acff6f`](https://github.com/withastro/astro/commit/a9a3694a98060be9a33045bb0fcf92ccf1acff6f) Thanks [@jacobdalamb](https://github.com/jacobdalamb)! - Updates the supported version of Node.js
+
+## 7.5.1
+
+### Patch Changes
+
+- [#10609](https://github.com/withastro/astro/pull/10609) [`31590d44ef8b7c96a757e9b835144d57d767383c`](https://github.com/withastro/astro/commit/31590d44ef8b7c96a757e9b835144d57d767383c) Thanks [@matthewp](https://github.com/matthewp)! - Move nft warnings behind verbose logging
+
 ## 7.5.0
 
 ### Minor Changes

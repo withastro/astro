@@ -71,12 +71,21 @@ describe('Hoisted Imports', () => {
 			assert.equal($('script').length, 1);
 		});
 
-		it('inlines if script is larger than vite.assetInlineLimit: 100', async () => {
+		it('does not inline if script is larger than vite.assetInlineLimit: 100', async () => {
 			const html = await fixture.readFile('/no-inline/index.html');
 			const $ = cheerio.load(html);
 			const scripts = $('script');
 			assert.equal(scripts.length, 1);
 			assert.ok(scripts[0].attribs.src);
+		});
+
+		it('does not inline if script it has shared chunks', async () => {
+			const html = await fixture.readFile('/no-inline-if-shared/index.html');
+			const $ = cheerio.load(html);
+			const scripts = $('script');
+			assert.equal(scripts.length, 2);
+			assert.ok(scripts[0].attribs.src);
+			assert.ok(scripts[1].attribs.src);
 		});
 	});
 });
