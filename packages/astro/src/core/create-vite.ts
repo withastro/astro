@@ -240,13 +240,7 @@ export async function createVite(
 	// - If the command is `build`, we filter out the plugins that are meant to be applied for `serve`.
 	// - If the command is `dev`, we filter out the plugins that are meant to be applied for `build`.
 	const assetsDir = settings.config.build.assets;
-	if (assetsDir) {
-		result = vite.mergeConfig(result, {
-			build: {
-				assetsDir,
-			},
-		});
-	}
+	if (assetsDir) result = vite.mergeConfig(result, { build: { assetsDir } });
 	if (command && settings.config.vite?.plugins) {
 		let { plugins, ...rest } = settings.config.vite;
 		const applyToFilter = command === 'build' ? 'serve' : 'build';
