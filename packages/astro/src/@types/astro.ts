@@ -43,6 +43,7 @@ import type {
 	ToolbarAppEventTarget,
 	ToolbarServerHelpers,
 } from '../runtime/client/dev-toolbar/helpers.js';
+import type { getToolbarServerCommunicationHelpers } from '../integrations/index.js';
 
 export type { AstroIntegrationLogger, ToolbarServerHelpers };
 
@@ -2652,6 +2653,7 @@ export interface AstroIntegration {
 		'astro:server:setup'?: (options: {
 			server: vite.ViteDevServer;
 			logger: AstroIntegrationLogger;
+			toolbar: ReturnType<typeof getToolbarServerCommunicationHelpers>;
 		}) => void | Promise<void>;
 		'astro:server:start'?: (options: {
 			address: AddressInfo;

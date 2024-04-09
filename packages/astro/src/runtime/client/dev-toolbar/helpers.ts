@@ -1,6 +1,8 @@
 type NotificationPayload = {
-	state: boolean;
-	level: 'error' | 'warn' | 'info';
+	state: true;
+	level?: 'error' | 'warn' | 'info';
+} | {
+	state: false
 };
 
 type AppStatePayload = {
@@ -14,18 +16,18 @@ export class ToolbarAppEventTarget extends EventTarget {
 		super();
 	}
 
-	notify(options: NotificationPayload) {
+	toggleNotification(options: NotificationPayload) {
 		this.dispatchEvent(
 			new CustomEvent('toggle-notification', {
 				detail: {
 					state: options.state,
-					level: options.level,
+					level: options.state === true ? options.level : undefined,
 				},
 			})
 		);
 	}
 
-	changeAppState(options: AppStatePayload) {
+	toggleAppState(options: AppStatePayload) {
 		this.dispatchEvent(
 			new CustomEvent('app-toggled', {
 				detail: {

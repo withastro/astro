@@ -61,6 +61,25 @@ function getLogger(integration: AstroIntegration, logger: Logger) {
 	return integrationLogger;
 }
 
+const serverEventPrefix = 'astro-dev-toolbar';
+
+export function getToolbarServerCommunicationHelpers(server: ViteDevServer) {
+	return {
+		send: <T>(event: string, payload: T) => {
+			server.hot.send(event, payload);
+		},
+		on: <T>(event: string, cb: (data: T) => void) => {
+			server.hot.on(event, cb);
+		},
+		onInitialized: <T>(appId: string, cb: (data: T) => void) => {
+			server.hot.on(`${serverEventPrefix}:${appId}:initialized`, cb);
+		},
+		onToggled: <T>(appId: string, cb: (data: T) => void) => {
+			server.hot.on(`${serverEventPrefix}:${appId}:toggled`, cb);
+		}
+	};
+}
+
 export async function runHookConfigSetup({
 	settings,
 	command,
@@ -305,6 +324,7 @@ export async function runHookServerSetup({
 				hookResult: integration.hooks['astro:server:setup']({
 					server,
 					logger: getLogger(integration, logger),
+					toolbar: getToolbarServerCommunicationHelpers(server),
 				}),
 				logger,
 			});
