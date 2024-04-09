@@ -187,7 +187,7 @@ export class BuildPipeline extends Pipeline {
 			) {
 				const [, pageName] = entrypoint.split(':');
 				console.log('pageName', pageName);
-				// TODO: Change that
+				// TODO: Change that – tmp function use only component name and not the route
 				const pageData = tmp(
 					this.internals.pagesByKeys,
 					pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')

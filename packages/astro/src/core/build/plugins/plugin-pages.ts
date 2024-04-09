@@ -74,12 +74,3 @@ export function pluginPages(opts: StaticBuildOptions, internals: BuildInternals)
 		},
 	};
 }
-
-/**
- * TMP: This is a temporary function to get the page data from the pagesByKeys map.
- */
-function tmp(pagesByKeys: Map<string, any>, pageName: string) {
-	for (const pages of pagesByKeys.values()) {
-		if (pages.component == pageName) return pages;
-	}
-}

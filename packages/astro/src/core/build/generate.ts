@@ -616,11 +616,7 @@ function createBuildManifest(
 }
 
 /**
- *
- * @param internals
- * @param path
- * @param route
- * @returns
+ * TODO: Change that – document & maybe refactor
  */
 function getEntryFilePath(internals: BuildInternals, pageData: RouteData) {
 	const id =
