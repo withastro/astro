@@ -16,10 +16,10 @@ export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
 const { trailingSlash, format, site, i18n, isBuild } =
 	// @ts-expect-error
 	__ASTRO_INTERNAL_I18N_CONFIG__ as I18nInternalConfig;
-const { defaultLocale, locales, domains, fallback } = i18n!;
+const { defaultLocale, locales, domains, fallback, routing } = i18n!;
 const base = import.meta.env.BASE_URL;
 
-const strategy = toRoutingStrategy(i18n!);
+const strategy = toRoutingStrategy(routing, domains);
 
 export type GetLocaleOptions = I18nInternals.GetLocaleOptions;
 
@@ -335,13 +335,11 @@ if (i18n?.routing === 'manual') {
 	redirectToFallback = noop('useFallback');
 }
 
-// @ematipico: This is a helper type because, because I don't know how to extract from TS
-type Options = {
-	prefixDefaultLocale?: boolean;
-	redirectToDefaultLocale?: boolean;
-};
+type OnlyObject<T> = T extends object ? T : never;
+type NewAstroRoutingConfigWithoutManual = OnlyObject<NonNullable<AstroConfig['i18n']>['routing']>;
+
 /**
- * @param {AstroConfig['i18n']} customOptions
+ * @param {AstroConfig['i18n']['routing']} customOptions
  *
  * A function that allows to programmatically create the Astro i18n middleware.
  *
@@ -370,19 +368,14 @@ type Options = {
  *
  * ```
  */
-export let middleware: (customOptions?: Options) => MiddlewareHandler;
+export let middleware: (customOptions: NewAstroRoutingConfigWithoutManual) => MiddlewareHandler;
 
 if (i18n?.routing === 'manual') {
-	middleware = (customOptions?: Options) => {
+	middleware = (customOptions: NewAstroRoutingConfigWithoutManual) => {
 		const manifest: SSRManifest['i18n'] = {
 			...i18n,
 			fallback: undefined,
-			strategy: toRoutingStrategy({
-				...i18n,
-				// To review the types, I'm sure there's a way to extract the correct ones and make TS happy
-				// @ts-expect-error
-				routing: customOptions,
-			}),
+			strategy: toRoutingStrategy(customOptions, {}),
 			domainLookupTable: {},
 		};
 		return I18nInternals.createMiddleware(manifest, base, trailingSlash, format);

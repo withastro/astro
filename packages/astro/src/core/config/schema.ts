@@ -390,8 +390,8 @@ export const AstroConfigSchema = z.object({
 					.or(
 						z
 							.object({
-								prefixDefaultLocale: z.boolean().default(false),
-								redirectToDefaultLocale: z.boolean().default(true),
+								prefixDefaultLocale: z.boolean().optional().default(false),
+								redirectToDefaultLocale: z.boolean().optional().default(true),
 							})
 							.refine(
 								({ prefixDefaultLocale, redirectToDefaultLocale }) => {
@@ -403,6 +403,7 @@ export const AstroConfigSchema = z.object({
 								}
 							)
 					)
+					.optional()
 					.default({}),
 			})
 			.optional()

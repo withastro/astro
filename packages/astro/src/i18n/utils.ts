@@ -185,8 +185,10 @@ export type RoutingStrategies =
 	| 'domains-prefix-always'
 	| 'domains-prefix-other-locales'
 	| 'domains-prefix-always-no-redirect';
-export function toRoutingStrategy(i18n: NonNullable<AstroConfig['i18n']>) {
-	let { routing, domains } = i18n;
+export function toRoutingStrategy(
+	routing: NonNullable<AstroConfig['i18n']>['routing'],
+	domains: NonNullable<AstroConfig['i18n']>['domains']
+) {
 	let strategy: RoutingStrategies;
 	const hasDomains = domains ? Object.keys(domains).length > 0 : false;
 	if (routing === 'manual') {
