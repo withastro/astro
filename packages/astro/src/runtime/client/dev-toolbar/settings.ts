@@ -1,11 +1,15 @@
+import type { Placement } from './ui-library/window.js';
+
 export interface Settings {
 	disableAppNotification: boolean;
 	verbose: boolean;
+	placement: Placement;
 }
 
 export const defaultSettings = {
 	disableAppNotification: false,
 	verbose: false,
+	placement: 'bottom-center',
 } satisfies Settings;
 
 export const settings = getSettings();
@@ -25,7 +29,7 @@ function getSettings() {
 		_settings = { ..._settings, ...JSON.parse(toolbarSettings) };
 	}
 
-	function updateSetting(key: keyof Settings, value: Settings[typeof key]) {
+	function updateSetting<Key extends keyof Settings>(key: Key, value: Settings[Key]) {
 		_settings[key] = value;
 		localStorage.setItem('astro:dev-toolbar:settings', JSON.stringify(_settings));
 	}

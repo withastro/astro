@@ -589,7 +589,7 @@ export function createRouteManifest(
 
 	const i18n = settings.config.i18n;
 	if (i18n) {
-		const strategy = toRoutingStrategy(i18n);
+		const strategy = toRoutingStrategy(i18n.routing, i18n.domains);
 		// First we check if the user doesn't have an index page.
 		if (strategy === 'pathname-prefix-always') {
 			let index = routes.find((route) => route.route === '/');

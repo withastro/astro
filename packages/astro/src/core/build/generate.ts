@@ -335,7 +335,7 @@ async function getPathsForRoute(
 			logger,
 			ssr: serverLike,
 		}).catch((err) => {
-			logger.debug('build', `├── ${bold(red('✗'))} ${route.component}`);
+			logger.error('build', `Failed to call getStaticPaths for ${route.component}`);
 			throw err;
 		});
 
@@ -592,7 +592,7 @@ function createBuildManifest(
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
-			strategy: toRoutingStrategy(settings.config.i18n),
+			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
@@ -615,5 +615,6 @@ function createBuildManifest(
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
 		middleware,
+		checkOrigin: settings.config.experimental.security?.csrfProtection?.origin ?? false,
 	};
 }
