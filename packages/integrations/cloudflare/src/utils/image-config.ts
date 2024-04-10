@@ -27,6 +27,9 @@ export function setImageConfig(
 				endpoint: command === 'dev' ? undefined : '@astrojs/cloudflare/image-endpoint',
 			};
 
+		case 'custom':
+			return { ...config };
+
 		default:
 			if (
 				config.service.entrypoint === 'astro/assets/services/sharp' ||
