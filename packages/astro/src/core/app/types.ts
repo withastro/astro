@@ -64,6 +64,7 @@ export type SSRManifest = {
 	pageMap?: Map<ComponentPath, ImportComponentInstance>;
 	i18n: SSRManifestI18n | undefined;
 	middleware: MiddlewareHandler;
+	checkOrigin: boolean;
 };
 
 export type SSRManifestI18n = {

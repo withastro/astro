@@ -31,6 +31,8 @@ import { createAssetLink } from '../render/ssr-element.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../routing/match.js';
 import { AppPipeline } from './pipeline.js';
+import { sequence } from '../middleware/index.js';
+import { createOriginCheckMiddleware } from './middlewares.js';
 export { deserializeManifest } from './common.js';
 
 export interface RenderOptions {
@@ -112,6 +114,13 @@ export class App {
 	 * @private
 	 */
 	#createPipeline(streaming = false) {
+		if (this.#manifest.checkOrigin) {
+			this.#manifest.middleware = sequence(
+				createOriginCheckMiddleware(),
+				this.#manifest.middleware
+			);
+		}
+
 		return AppPipeline.create({
 			logger: this.#logger,
 			manifest: this.#manifest,
