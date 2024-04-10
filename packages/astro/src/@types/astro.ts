@@ -28,6 +28,7 @@ import type {
 	DevToolbarCard,
 	DevToolbarHighlight,
 	DevToolbarIcon,
+	DevToolbarSelect,
 	DevToolbarToggle,
 	DevToolbarTooltip,
 	DevToolbarWindow,
@@ -3003,6 +3004,7 @@ declare global {
 		'astro-dev-toolbar-button': DevToolbarButton;
 		'astro-dev-toolbar-icon': DevToolbarIcon;
 		'astro-dev-toolbar-card': DevToolbarCard;
+		'astro-dev-toolbar-select': DevToolbarSelect;
 
 		// Deprecated names
 		// TODO: Remove in Astro 5.0
