@@ -26,7 +26,7 @@ export default function myRehypePre() {
 }
 ```
 
-Note: if using the built-in `<Code>` component, the output of the component being flattened html, the replacement `<pre>` cannot be accessed using `{ tagName: "pre" }`.
+Note: The `<pre>` element is not exposed when using Astro's `<Code />` component which outputs flattened HTML.
 
 
 It also allows to use the `data-language` attribute in css rules:
