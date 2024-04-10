@@ -174,8 +174,8 @@ describe('Slots', () => {
 	it("Arguments can be passed to named slots with Astro.slots.render()", async () => {
 		const html = await fixture.readFile('/slotted-named-functions/index.html');
 		const $ = cheerio.load(html);
-		const before = $("div#before");
-		const [ beforeDiv ] = before.children("div")
+		const befor = $("div#before");
+		const [ beforeDiv ] = befor.children("div")
 		assert.deepEqual(beforeDiv.firstChild.data, "Test Content BEFORE")
 		const after = $("div#after");
 		const [ afterDiv ] = after.children("div");
