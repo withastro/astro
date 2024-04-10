@@ -71,12 +71,12 @@ export function getToolbarServerCommunicationHelpers(server: ViteDevServer) {
 		on: <T>(event: string, cb: (data: T) => void) => {
 			server.hot.on(event, cb);
 		},
-		onInitialized: <T>(appId: string, cb: (data: T) => void) => {
+		onInitialized: (appId: string, cb: (data: Record<string, never>) => void) => {
 			server.hot.on(`${serverEventPrefix}:${appId}:initialized`, cb);
 		},
-		onToggled: <T>(appId: string, cb: (data: T) => void) => {
+		onToggled: (appId: string, cb: (data: { state: boolean }) => void) => {
 			server.hot.on(`${serverEventPrefix}:${appId}:toggled`, cb);
-		}
+		},
 	};
 }
 
