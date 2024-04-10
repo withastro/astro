@@ -1494,7 +1494,7 @@ export interface AstroUserConfig {
 		 * @description
 		 *
 		 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language.
-	   *
+		 *
 		 */
 		// prettier-ignore
 		routing?: 
