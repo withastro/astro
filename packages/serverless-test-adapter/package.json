@@ -3,11 +3,11 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./dist/index.js",
-    "./server.js": "./dist/server.js",
+    ".": "./src/index.js",
+    "./server.js": "./src/server.js",
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "src"
   ]
 }
