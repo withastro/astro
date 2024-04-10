@@ -53,6 +53,7 @@
     "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.ts",
     "./components/*": "./components/*",
+    "./integration": "./integrations/index.ts",
     "./assets": "./dist/assets/index.js",
     "./assets/utils": "./dist/assets/utils/index.js",
     "./assets/endpoint/*": "./dist/assets/endpoint/*.js",

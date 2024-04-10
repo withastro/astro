@@ -5,7 +5,7 @@ import type { AstroInlineConfig, PreviewModule, PreviewServer } from '../../@typ
 import { AstroIntegrationLogger } from '../../core/logger/core.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
-import { runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
+import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';

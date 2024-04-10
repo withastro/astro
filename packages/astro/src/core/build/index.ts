@@ -18,7 +18,7 @@ import {
 	runHookBuildStart,
 	runHookConfigDone,
 	runHookConfigSetup,
-} from '../../integrations/index.js';
+} from '../../integrations/hooks.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
