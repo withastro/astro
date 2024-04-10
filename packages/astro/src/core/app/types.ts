@@ -68,7 +68,7 @@ export type SSRManifest = {
 };
 
 export type SSRManifestI18n = {
-	fallback?: Record<string, string>;
+	fallback: Record<string, string> | undefined;
 	strategy: RoutingStrategies;
 	locales: Locales;
 	defaultLocale: string;
