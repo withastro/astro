@@ -304,6 +304,8 @@ test.describe('Dev Toolbar', () => {
 		await expect(myAppWindow).toHaveCount(1);
 		await expect(myAppWindow).toBeVisible();
 
+		await expect(myAppWindow).toContainText('Hello from the server!');
+
 		// Toggle app off
 		await appButton.click();
 		await expect(myAppWindow).not.toBeVisible();

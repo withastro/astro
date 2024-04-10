@@ -11,6 +11,8 @@ type AppStatePayload = {
 
 type AppToggledEvent = (opts: { state: boolean }) => void;
 
+type ToolbarPlacementUpdatedEvent = (opts: { placement: 'bottom-left' | 'bottom-center' | 'bottom-right' }) => void;
+
 export class ToolbarAppEventTarget extends EventTarget {
 	constructor() {
 		super();
@@ -39,6 +41,13 @@ export class ToolbarAppEventTarget extends EventTarget {
 
 	onAppToggled(callback: AppToggledEvent) {
 		this.addEventListener('app-toggled', (evt) => {
+			if (!(evt instanceof CustomEvent)) return;
+			callback(evt.detail);
+		});
+	}
+
+	onToolbarPlacement(callback: ToolbarPlacementUpdatedEvent) {
+		this.addEventListener('placement-updated', (evt) => {
 			if (!(evt instanceof CustomEvent)) return;
 			callback(evt.detail);
 		});

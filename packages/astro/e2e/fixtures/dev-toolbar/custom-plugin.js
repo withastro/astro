@@ -1,7 +1,7 @@
 import { defineToolbarApp } from "astro:toolbar";
 
 export default defineToolbarApp({
-	init(canvas, app) {
+	init(canvas, app, server) {
 		const astroWindow = document.createElement('astro-dev-toolbar-window');
 		const myButton = document.createElement('astro-dev-toolbar-button');
 		myButton.size = 'medium';
@@ -16,6 +16,10 @@ export default defineToolbarApp({
 			state: true,
 			level: 'warning'
 		})
+
+		server.on("super-server-event", () => {
+			astroWindow.appendChild(document.createTextNode('Hello from the server!'));
+		});
 
 		astroWindow.appendChild(myButton);
 
