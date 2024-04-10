@@ -12,7 +12,7 @@ def func():
 \```
 ```
 
-This allows retrieving the language in a rehype plugin:
+This allows retrieving the language in a rehype plugin from `node.properties.dataLanguage` by accessing the `<pre>` element using `{ tagName: "pre" }`:
 ```js
 // myRehypePre.js
 import { visit } from "unist-util-visit";
