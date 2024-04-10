@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 10.1.0
+
+### Minor Changes
+
+- [#229](https://github.com/withastro/adapters/pull/229) [`1f4e40b`](https://github.com/withastro/adapters/commit/1f4e40b7c1ad586b58159b12b8f5b6a2da7ce1d9) Thanks [@FlorianFlatscher](https://github.com/FlorianFlatscher)! - Adds a new option for the Image service to the Cloudflare adapter. `imageService: 'custom'` does use the user defined settings, without applying any modification to it. **You need to make sure that the configured settings are compatible with Cloudflare's `workerd` runtime yourself.**
+
 ## 10.0.3
 
 ### Patch Changes
