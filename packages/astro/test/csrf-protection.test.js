@@ -1,7 +1,7 @@
-import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
 import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
+import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('CSRF origin check', () => {
 	let app;
