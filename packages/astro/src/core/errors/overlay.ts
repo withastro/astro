@@ -593,13 +593,15 @@ class ErrorOverlay extends HTMLElement {
 				window.matchMedia('(prefers-color-scheme: dark)').matches)
 		) {
 			this?.classList.add('astro-dark');
+			localStorage.astroErrorOverlayTheme = 'dark';
 			themeToggle!.checked = true;
 		} else {
 			this?.classList.remove('astro-dark');
 			themeToggle!.checked = false;
 		}
 		themeToggle?.addEventListener('click', () => {
-			const isDark = localStorage.astroErrorOverlayTheme === 'dark';
+			const isDark =
+				localStorage.astroErrorOverlayTheme === 'dark' || this?.classList.contains('astro-dark');
 			this?.classList.toggle('astro-dark', !isDark);
 			localStorage.astroErrorOverlayTheme = isDark ? 'light' : 'dark';
 		});
