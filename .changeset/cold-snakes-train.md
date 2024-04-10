@@ -29,7 +29,7 @@ export default function myRehypePre() {
 Note: The `<pre>` element is not exposed when using Astro's `<Code />` component which outputs flattened HTML.
 
 
-It also allows to use the `data-language` attribute in css rules:
+The `data-language` attribute may also be used in css rules:
 ```css
 pre::before {
     content: attr(data-language);
