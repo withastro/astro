@@ -1,5 +1,22 @@
 # astro
 
+## 4.5.18
+
+### Patch Changes
+
+- [#10728](https://github.com/withastro/astro/pull/10728) [`f508c4b7d54316e737f454a3777204b23636d4a0`](https://github.com/withastro/astro/commit/f508c4b7d54316e737f454a3777204b23636d4a0) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression where some very **specific** code rendered using `expressive-code` was not escaped properly.
+
+- [#10737](https://github.com/withastro/astro/pull/10737) [`8a30f257b1f3618b01212a591b82ad7a63c82fbb`](https://github.com/withastro/astro/commit/8a30f257b1f3618b01212a591b82ad7a63c82fbb) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes a regression where constructing and returning 404 responses from a middleware resulted in the dev server getting stuck in a loop.
+
+- [#10719](https://github.com/withastro/astro/pull/10719) [`b21b3ba307235510707ee9f5bd49f71473a07004`](https://github.com/withastro/astro/commit/b21b3ba307235510707ee9f5bd49f71473a07004) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a false positive for `div` and `span` elements when running the Dev Toolbar accessibility audits.
+
+  Those are special elements that don't have an interaction assigned by default. Instead, it is assigned through the `role` attribute. This means that cases like the following are now deemed correct:
+
+  ```html
+  <div role="tablist"></div>
+  <span role="button" onclick="" onkeydown=""></span>
+  ```
+
 ## 4.5.17
 
 ### Patch Changes

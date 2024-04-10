@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.10.3
+
+### Patch Changes
+
+- [#10720](https://github.com/withastro/astro/pull/10720) [`2d2ff58bb90e09248afc04cc8e2016ef983a7f07`](https://github.com/withastro/astro/commit/2d2ff58bb90e09248afc04cc8e2016ef983a7f07) Thanks [@matthewp](https://github.com/matthewp)! - Fix db seeding when srcDir is root
+
 ## 0.10.2
 
 ### Patch Changes
