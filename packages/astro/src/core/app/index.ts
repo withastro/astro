@@ -18,6 +18,7 @@ import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
+import { sequence } from '../middleware/index.js';
 import {
 	appendForwardSlash,
 	collapseDuplicateSlashes,
@@ -30,9 +31,8 @@ import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../routing/match.js';
-import { AppPipeline } from './pipeline.js';
-import { sequence } from '../middleware/index.js';
 import { createOriginCheckMiddleware } from './middlewares.js';
+import { AppPipeline } from './pipeline.js';
 export { deserializeManifest } from './common.js';
 
 export interface RenderOptions {
