@@ -1,5 +1,5 @@
-import { defineMiddleware } from 'astro:middleware';
 import { redirectToDefaultLocale, requestHasLocale } from 'astro:i18n';
+import { defineMiddleware } from 'astro:middleware';
 
 const allowList = new Set(['/help', '/help/']);
 

@@ -1,15 +1,15 @@
-import {
-	getPathByLocale,
-	type MiddlewarePayload,
-	notFound,
-	normalizeTheLocale,
-	requestHasLocale,
-	redirectToDefaultLocale,
-	redirectToFallback,
-} from './index.js';
 import type { APIContext, MiddlewareHandler, SSRManifest } from '../@types/astro.js';
 import type { SSRManifestI18n } from '../core/app/types.js';
 import { ROUTE_TYPE_HEADER } from '../core/constants.js';
+import {
+	type MiddlewarePayload,
+	getPathByLocale,
+	normalizeTheLocale,
+	notFound,
+	redirectToDefaultLocale,
+	redirectToFallback,
+	requestHasLocale,
+} from './index.js';
 
 export function createI18nMiddleware(
 	i18n: SSRManifest['i18n'],

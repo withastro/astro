@@ -1,5 +1,5 @@
-import { defineMiddleware, sequence } from 'astro:middleware';
 import { middleware } from 'astro:i18n';
+import { defineMiddleware, sequence } from 'astro:middleware';
 
 const customLogic = defineMiddleware(async (context, next) => {
 	const url = new URL(context.request.url);
