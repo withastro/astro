@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 for (const caseNumber of [1, 2, 3, 4, 5]) {
 	describe(`Custom 404 with implicit rerouting - Case #${caseNumber}`, () => {
@@ -13,16 +13,16 @@ for (const caseNumber of [1, 2, 3, 4, 5]) {
 				output: 'server',
 				root: `./fixtures/custom-404-loop-case-${caseNumber}/`,
 				site: 'http://example.com',
-				adapter: testAdapter()
+				adapter: testAdapter(),
 			});
 		});
 
-		describe("dev server", () => {
+		describe('dev server', () => {
 			/** @type {import('./test-utils.js').DevServer} */
 			let devServer;
 
 			before(async () => {
-				await fixture.build()
+				await fixture.build();
 				devServer = await fixture.startDevServer();
 			});
 
@@ -31,19 +31,19 @@ for (const caseNumber of [1, 2, 3, 4, 5]) {
 				const response = await fixture.fetch('/');
 				assert.equal(response.status, 200);
 			});
-	
+
 			// IMPORTANT: never skip
 			it('dev server stays responsive', { timeout: 1000 }, async () => {
 				const response = await fixture.fetch('/alvsibdlvjks');
 				assert.equal(response.status, 404);
 			});
-	
+
 			after(async () => {
 				await devServer.stop();
 			});
 		});
-		
-		describe("prod server", () => {
+
+		describe('prod server', () => {
 			/** @type {import('./test-utils.js').App} */
 			let app;
 
@@ -56,7 +56,7 @@ for (const caseNumber of [1, 2, 3, 4, 5]) {
 				const response = await app.render(new Request('https://example.com/'));
 				assert.equal(response.status, 200);
 			});
-	
+
 			// IMPORTANT: never skip
 			it('prod server stays responsive', { timeout: 1000 }, async () => {
 				const response = await app.render(new Request('https://example.com/alvsibdlvjks'));
