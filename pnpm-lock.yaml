@@ -2559,6 +2559,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/csrf-check-origin:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/css-assets:
     dependencies:
       '@test/astro-font-awesome-package':
