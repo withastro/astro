@@ -4,7 +4,7 @@
 
 Adds a `data-language` attribute on the rendered `pre` elements to expose the highlighted syntax language.
 
-For example, the following markdown fenced-codeblock will expose `data-language="python"`:
+For example, the following Markdown code block will expose `data-language="python"`:
 ```
 \```python
 def func():
