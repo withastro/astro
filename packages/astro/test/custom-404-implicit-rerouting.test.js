@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
-for (const caseNumber of [1, 2, 3, 4]) {
+for (const caseNumber of [1, 2, 3, 4, 5]) {
 	describe(`Custom 404 with implicit rerouting - Case #${caseNumber}`, () => {
 		/** @type Awaited<ReturnType<typeof loadFixture>> */
 		let fixture;
@@ -19,51 +19,19 @@ for (const caseNumber of [1, 2, 3, 4]) {
 		});
 
 		// sanity check
-		it.skip(
-			'dev server handles normal requests',
-			{
-				todo: 'To re-enabled after we understand why this fails when the test suite is run in parallel',
-			},
-			async () => {
-				const resPromise = fixture.fetch('/');
-				const result = await withTimeout(resPromise, 1000);
-				assert.notEqual(result, timeout);
-				assert.equal(result.status, 200);
-			}
-		);
+		it('dev server handles normal requests', async () => {
+			const response = await fixture.fetch('/', { signal: AbortSignal.timeout(1000) });
+			assert.equal(response.status, 200);
+		});
 
-		it.skip(
-			'dev server stays responsive',
-			{
-				todo: 'To re-enabled after we understand why this fails when the test suite is run in parallel',
-			},
-			async () => {
-				const resPromise = fixture.fetch('/alvsibdlvjks');
-				const result = await withTimeout(resPromise, 1000);
-				assert.notEqual(result, timeout);
-				assert.equal(result.status, 404);
-			}
-		);
+		// IMPORTANT: never skip
+		it('dev server stays responsive', async () => {
+			const response = await fixture.fetch('/alvsibdlvjks', { signal: AbortSignal.timeout(1000) });
+			assert.equal(response.status, 404);
+		});
 
 		after(async () => {
 			await devServer.stop();
 		});
 	});
-}
-
-/***** UTILITY FUNCTIONS *****/
-
-const timeout = Symbol('timeout');
-
-/** @template Res */
-function withTimeout(
-	/** @type Promise<Res> */
-	responsePromise,
-	/** @type number */
-	timeLimit
-) {
-	/** @type Promise<typeof timeout> */
-	const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(timeout), timeLimit));
-
-	return Promise.race([responsePromise, timeoutPromise]);
 }
