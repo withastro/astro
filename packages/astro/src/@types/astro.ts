@@ -1498,32 +1498,7 @@ export interface AstroUserConfig {
 		 */
 		// prettier-ignore
 		routing?: 
-			/**
-			 *
-			 * @docs
-			 * @name i18n.routing.manual
-		   * @kind h4
-			 * @type {string}
-			 * @version 4.6.0
-			 * @description
-			 * When this option is enabled, Astro will **disable** its i18n middleware so that you can implement your own custom logic. No other `routing` options (e.g. `prefixDefaultLocale`) may be configured with `routing: "manual"`.
-			 *
-			 * You will be responsible for writing your own routing logic, or executing Astro's i18n middleware manually alongside your own.
-		   *
-			 * ```js
-		   * export default defineConfig({
-		   * 	i18n: {
-		   * 		defaultLocale: "en",
-		   * 		locales: ["en", "fr", "pt-br", "es"],
-		   * 		routing: {
-		   * 			prefixDefaultLocale: true,
-		   * 		}
-		   * 	}
-		   * })
-		   * ```
-			 */
-		 	'manual'
-			| {
+        {
 					/**
 					 * @docs
 					 * @name i18n.routing.prefixDefaultLocale
@@ -1594,7 +1569,32 @@ export interface AstroUserConfig {
 					 * - `"pathname": The strategy is applied to the pathname of the URLs
 					 */
 					strategy?: 'pathname';
-			  };
+			  } |
+        /**
+  			 *
+  			 * @docs
+  			 * @name i18n.routing.manual
+  		   * @kind h4
+  			 * @type {string}
+  			 * @version 4.6.0
+  			 * @description
+  			 * When this option is enabled, Astro will **disable** its i18n middleware so that you can implement your own custom logic. No other `routing` options (e.g. `prefixDefaultLocale`) may be configured with `routing: "manual"`.
+  			 *
+  			 * You will be responsible for writing your own routing logic, or executing Astro's i18n middleware manually alongside your own.
+  		   *
+  			 * ```js
+  		   * export default defineConfig({
+  		   * 	i18n: {
+  		   * 		defaultLocale: "en",
+  		   * 		locales: ["en", "fr", "pt-br", "es"],
+  		   * 		routing: {
+  		   * 			prefixDefaultLocale: true,
+  		   * 		}
+  		   * 	}
+  		   * })
+  		   * ```
+  			 */
+        'manual';
 
 		/**
 		 * @name i18n.domains
