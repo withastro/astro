@@ -1,69 +1,67 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
-for (const caseNumber of [1, 2, 3, 4]) {
+for (const caseNumber of [1, 2, 3, 4, 5]) {
 	describe(`Custom 404 with implicit rerouting - Case #${caseNumber}`, () => {
-		/** @type Awaited<ReturnType<typeof loadFixture>> */
+		/** @type {import('./test-utils.js').Fixture} */
 		let fixture;
-		/** @type Awaited<ReturnType<typeof fixture['startDevServer']>> */
-		let devServer;
 
 		before(async () => {
 			fixture = await loadFixture({
+				output: 'server',
 				root: `./fixtures/custom-404-loop-case-${caseNumber}/`,
 				site: 'http://example.com',
+				adapter: testAdapter(),
+			});
+		});
+
+		describe('dev server', () => {
+			/** @type {import('./test-utils.js').DevServer} */
+			let devServer;
+
+			before(async () => {
+				await fixture.build();
+				devServer = await fixture.startDevServer();
 			});
 
-			devServer = await fixture.startDevServer();
+			// sanity check
+			it('dev server handles normal requests', { timeout: 1000 }, async () => {
+				const response = await fixture.fetch('/');
+				assert.equal(response.status, 200);
+			});
+
+			// IMPORTANT: never skip
+			it('dev server stays responsive', { timeout: 1000 }, async () => {
+				const response = await fixture.fetch('/alvsibdlvjks');
+				assert.equal(response.status, 404);
+			});
+
+			after(async () => {
+				await devServer.stop();
+			});
 		});
 
-		// sanity check
-		it.skip(
-			'dev server handles normal requests',
-			{
-				todo: 'To re-enabled after we understand why this fails when the test suite is run in parallel',
-			},
-			async () => {
-				const resPromise = fixture.fetch('/');
-				const result = await withTimeout(resPromise, 1000);
-				assert.notEqual(result, timeout);
-				assert.equal(result.status, 200);
-			}
-		);
+		describe('prod server', () => {
+			/** @type {import('./test-utils.js').App} */
+			let app;
 
-		it.skip(
-			'dev server stays responsive',
-			{
-				todo: 'To re-enabled after we understand why this fails when the test suite is run in parallel',
-			},
-			async () => {
-				const resPromise = fixture.fetch('/alvsibdlvjks');
-				const result = await withTimeout(resPromise, 1000);
-				assert.notEqual(result, timeout);
-				assert.equal(result.status, 404);
-			}
-		);
+			before(async () => {
+				app = await fixture.loadTestAdapterApp();
+			});
 
-		after(async () => {
-			await devServer.stop();
+			// sanity check
+			it('prod server handles normal requests', { timeout: 1000 }, async () => {
+				const response = await app.render(new Request('https://example.com/'));
+				assert.equal(response.status, 200);
+			});
+
+			// IMPORTANT: never skip
+			it('prod server stays responsive', { timeout: 1000 }, async () => {
+				const response = await app.render(new Request('https://example.com/alvsibdlvjks'));
+				assert.equal(response.status, 404);
+			});
 		});
 	});
-}
-
-/***** UTILITY FUNCTIONS *****/
-
-const timeout = Symbol('timeout');
-
-/** @template Res */
-function withTimeout(
-	/** @type Promise<Res> */
-	responsePromise,
-	/** @type number */
-	timeLimit
-) {
-	/** @type Promise<typeof timeout> */
-	const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(timeout), timeLimit));
-
-	return Promise.race([responsePromise, timeoutPromise]);
 }

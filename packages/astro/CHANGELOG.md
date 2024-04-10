@@ -1,5 +1,38 @@
 # astro
 
+## 4.5.18
+
+### Patch Changes
+
+- [#10728](https://github.com/withastro/astro/pull/10728) [`f508c4b7d54316e737f454a3777204b23636d4a0`](https://github.com/withastro/astro/commit/f508c4b7d54316e737f454a3777204b23636d4a0) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression where some very **specific** code rendered using `expressive-code` was not escaped properly.
+
+- [#10737](https://github.com/withastro/astro/pull/10737) [`8a30f257b1f3618b01212a591b82ad7a63c82fbb`](https://github.com/withastro/astro/commit/8a30f257b1f3618b01212a591b82ad7a63c82fbb) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixes a regression where constructing and returning 404 responses from a middleware resulted in the dev server getting stuck in a loop.
+
+- [#10719](https://github.com/withastro/astro/pull/10719) [`b21b3ba307235510707ee9f5bd49f71473a07004`](https://github.com/withastro/astro/commit/b21b3ba307235510707ee9f5bd49f71473a07004) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a false positive for `div` and `span` elements when running the Dev Toolbar accessibility audits.
+
+  Those are special elements that don't have an interaction assigned by default. Instead, it is assigned through the `role` attribute. This means that cases like the following are now deemed correct:
+
+  ```html
+  <div role="tablist"></div>
+  <span role="button" onclick="" onkeydown=""></span>
+  ```
+
+## 4.5.17
+
+### Patch Changes
+
+- [#10688](https://github.com/withastro/astro/pull/10688) [`799f6f3f29a3ef4f76347870a209ffa89651adfa`](https://github.com/withastro/astro/commit/799f6f3f29a3ef4f76347870a209ffa89651adfa) Thanks [@bluwy](https://github.com/bluwy)! - Marks renderer `jsxImportSource` and `jsxTransformOptions` options as deprecated as they are no longer used since Astro 3.0
+
+- [#10657](https://github.com/withastro/astro/pull/10657) [`93d353528fa1a85b67e3f1e9514ed2a1b42dfd94`](https://github.com/withastro/astro/commit/93d353528fa1a85b67e3f1e9514ed2a1b42dfd94) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improves the color contrast for notification badges on dev toolbar apps
+
+- [#10693](https://github.com/withastro/astro/pull/10693) [`1d26e9c7f7d8f47e33bc68d3b30bbffce25c7b63`](https://github.com/withastro/astro/commit/1d26e9c7f7d8f47e33bc68d3b30bbffce25c7b63) Thanks [@apetta](https://github.com/apetta)! - Adds the `disableremoteplayback` attribute to MediaHTMLAttributes interface
+
+- [#10695](https://github.com/withastro/astro/pull/10695) [`a15975e41cb5eaf6ed8eb3ebaee676a17e433052`](https://github.com/withastro/astro/commit/a15975e41cb5eaf6ed8eb3ebaee676a17e433052) Thanks [@bluwy](https://github.com/bluwy)! - Skips prerender chunk if building with static output
+
+- [#10707](https://github.com/withastro/astro/pull/10707) [`5e044a5eafaa206d2ef8b62c37d1bcd37f0a4078`](https://github.com/withastro/astro/commit/5e044a5eafaa206d2ef8b62c37d1bcd37f0a4078) Thanks [@horo-fox](https://github.com/horo-fox)! - Logs an error when a page's `getStaticPaths` fails
+
+- [#10686](https://github.com/withastro/astro/pull/10686) [`fa0f593890502faf5709ab881fe0e45519d2f7af`](https://github.com/withastro/astro/commit/fa0f593890502faf5709ab881fe0e45519d2f7af) Thanks [@bluwy](https://github.com/bluwy)! - Prevents inlining scripts if used by other chunks when using the `experimental.directRenderScript` option
+
 ## 4.5.16
 
 ### Patch Changes

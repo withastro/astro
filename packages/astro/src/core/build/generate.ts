@@ -335,7 +335,7 @@ async function getPathsForRoute(
 			logger,
 			ssr: serverLike,
 		}).catch((err) => {
-			logger.debug('build', `├── ${bold(red('✗'))} ${route.component}`);
+			logger.error('build', `Failed to call getStaticPaths for ${route.component}`);
 			throw err;
 		});
 
@@ -615,5 +615,6 @@ function createBuildManifest(
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
 		middleware,
+		checkOrigin: settings.config.experimental.security?.csrfProtection?.origin ?? false,
 	};
 }

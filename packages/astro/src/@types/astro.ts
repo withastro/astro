@@ -1821,6 +1821,62 @@ export interface AstroUserConfig {
 		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains-experimental) for more details, including the limitations of this experimental feature.
 		 */
 		i18nDomains?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.security
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.6.0
+		 * @description
+		 *
+		 * Enables CSRF protection for Astro websites.
+		 *
+		 * The CSRF protection works only for pages rendered on demand (SSR) using `server` or `hybrid` mode. The pages must opt out of prerendering in `hybrid` mode.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * export default defineConfig({
+		 *   output: "server",
+		 *   experimental: {
+		 *     security: {
+		 *       csrfProtection: {
+		 *         origin: true
+		 *       }
+		 *     }
+		 *   }
+		 * })
+		 * ```
+		 */
+		security?: {
+			/**
+			 * @name security.csrfProtection
+			 * @type {object}
+			 * @default '{}'
+			 * @version 4.6.0
+			 * @description
+			 *
+			 * Allows you to enable security measures to prevent CSRF attacks: https://owasp.org/www-community/attacks/csrf
+			 */
+
+			csrfProtection?: {
+				/**
+				 * @name security.csrfProtection.origin
+				 * @type {boolean}
+				 * @default 'false'
+				 * @version 4.6.0
+				 * @description
+				 *
+				 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`.
+				 *
+				 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST, `PATCH`, `DELETE` and `PUT` with
+				 * the following `content-type` header: 'application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'.
+				 *
+				 * If the "origin" header doesn't match the `pathname` of the request, Astro will return a 403 status code and will not render the page.
+				 */
+				origin?: boolean;
+			};
+		};
 	};
 }
 
@@ -2577,9 +2633,9 @@ export interface AstroRenderer {
 	clientEntrypoint?: string;
 	/** Import entrypoint for the server/build/ssr renderer. */
 	serverEntrypoint: string;
-	/** JSX identifier (e.g. 'react' or 'solid-js') */
+	/** @deprecated Vite plugins should transform the JSX instead */
 	jsxImportSource?: string;
-	/** Babel transform options */
+	/** @deprecated Vite plugins should transform the JSX instead */
 	jsxTransformOptions?: JSXTransformFn;
 }
 
