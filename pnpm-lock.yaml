@@ -3537,6 +3537,30 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/ssr-prerender-chunks:
+    dependencies:
+      '@astrojs/react':
+        specifier: ^3.2.0
+        version: link:../../../../integrations/react
+      '@test/serverless-test-adapter':
+        specifier: workspace:*
+        version: link:../../../../serverless-test-adapter
+      '@types/react':
+        specifier: ^18.2.75
+        version: 18.2.75
+      '@types/react-dom':
+        specifier: ^18.2.24
+        version: 18.2.24
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+
   packages/astro/test/fixtures/ssr-prerender-get-static-paths:
     dependencies:
       astro:
@@ -5396,6 +5420,8 @@ importers:
       mdast-util-mdx-expression:
         specifier: ^2.0.0
         version: 2.0.0
+
+  packages/serverless-test-adapter: {}
 
   packages/telemetry:
     dependencies:
@@ -8307,6 +8333,13 @@ packages:
     dependencies:
       '@types/prop-types': 15.7.12
       csstype: 3.1.3
+
+  /@types/react@18.2.75:
+    resolution: {integrity: sha512-+DNnF7yc5y0bHkBTiLKqXFe+L4B3nvOphiMY3tuA5X10esmjqk7smyBZzbGTy2vsiy/Bnzj8yFIBL8xhRacoOg==}
+    dependencies:
+      '@types/prop-types': 15.7.12
+      csstype: 3.1.3
+    dev: false
 
   /@types/relateurl@0.2.33:
     resolution: {integrity: sha512-bTQCKsVbIdzLqZhLkF5fcJQreE4y1ro4DIyVrlDNSCJRRwHhB8Z+4zXXa8jN6eDvc2HbRsEYgbvrnGvi54EpSw==}

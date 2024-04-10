@@ -12,8 +12,8 @@ export default function (
 		setMiddlewareEntryPoint = undefined,
 		setRoutes = undefined,
 	} = {
-		provideAddress: true,
-	}
+			provideAddress: true,
+		}
 ) {
 	return {
 		name: 'my-ssr-adapter',
