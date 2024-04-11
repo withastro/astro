@@ -513,7 +513,11 @@ export const a11y: AuditRuleWithSelector[] = [
 
 			if (!isInteractive(element)) return false;
 
-			if (!interactiveElements.includes(element.localName)) return true;
+			if (
+				!interactiveElements.includes(element.localName) &&
+				!roleless_elements.includes(element.localName)
+			)
+				return true;
 		},
 	},
 	{
