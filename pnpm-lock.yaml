@@ -2574,6 +2574,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/csrf-check-origin:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/css-assets:
     dependencies:
       '@test/astro-font-awesome-package':
@@ -2925,6 +2931,18 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/i18n-routing-fallback-index:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/i18n-routing-manual:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/i18n-routing-manual-with-default-middleware:
     dependencies:
       astro:
         specifier: workspace:*

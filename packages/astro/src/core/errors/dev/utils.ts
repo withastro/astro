@@ -174,7 +174,7 @@ function collectInfoFromStacktrace(error: SSRError & { stack: string }): StackIn
 			stackText.split('\n').find((ln) => ln.includes('src') || ln.includes('node_modules'));
 		// Disable eslint as we're not sure how to improve this regex yet
 		// eslint-disable-next-line regexp/no-super-linear-backtracking
-		const source = possibleFilePath?.replace(/^[^(]+\(([^)]+).*$/, '$1').replace(/^\s+at\s+/, '');
+		const source = possibleFilePath?.replace?.(/^[^(]+\(([^)]+).*$/, '$1').replace(/^\s+at\s+/, '');
 
 		let file = source?.replace(/:\d+/g, '');
 		const location = /:(\d+):(\d+)/.exec(source!) ?? [];

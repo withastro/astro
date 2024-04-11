@@ -103,6 +103,9 @@ export async function createShikiHighlighter({
 							// Replace "shiki" class naming with "astro-code"
 							node.properties.class = classValue.replace(/shiki/g, 'astro-code');
 
+							// Add data-language attribute
+							node.properties.dataLanguage = lang;
+
 							// Handle code wrapping
 							// if wrap=null, do nothing.
 							if (wrap === false) {
