@@ -83,29 +83,31 @@ export function createGetCollection({
 		} else {
 			const limit = pLimit(10);
 			entries = await Promise.all(
-				lazyImports.map((lazyImport) => limit(async () => {
-					const entry = await lazyImport();
-					return type === 'content'
-						? {
-								id: entry.id,
-								slug: entry.slug,
-								body: entry.body,
-								collection: entry.collection,
-								data: entry.data,
-								async render() {
-									return render({
-										collection: entry.collection,
-										id: entry.id,
-										renderEntryImport: await getRenderEntryImport(collection, entry.slug),
-									});
-								},
-							}
-						: {
-								id: entry.id,
-								collection: entry.collection,
-								data: entry.data,
-							};
-				}))
+				lazyImports.map((lazyImport) =>
+					limit(async () => {
+						const entry = await lazyImport();
+						return type === 'content'
+							? {
+									id: entry.id,
+									slug: entry.slug,
+									body: entry.body,
+									collection: entry.collection,
+									data: entry.data,
+									async render() {
+										return render({
+											collection: entry.collection,
+											id: entry.id,
+											renderEntryImport: await getRenderEntryImport(collection, entry.slug),
+										});
+									},
+								}
+							: {
+									id: entry.id,
+									collection: entry.collection,
+									data: entry.data,
+								};
+					})
+				)
 			);
 			cacheEntriesByCollection.set(collection, entries);
 		}
