@@ -52,9 +52,7 @@ function getImageComponentAttributes(props: Properties): MdxJsxAttribute[] {
 	for (const [prop, value] of Object.entries(props)) {
 		if (prop === 'src') continue;
 
-		if (Array.isArray(value)) {
-			attrs.push(createArrayAttribute(prop, value));
-		} else if (prop === 'widths') {
+		if (prop === 'widths' || prop === 'densities') {
 			attrs.push(createArrayAttribute(prop, String(value).split(' ')));
 		} else {
 			attrs.push({
@@ -116,7 +114,7 @@ export function rehypeImageToComponent() {
 				importedImages.set(src, importName);
 			}
 
-			// Build a component that's equivalent to <Image src={importName} alt={node.alt} title={node.title} />
+			// Build a component that's equivalent to <Image src={importName} {...attributes} />
 			const componentElement: MdxJsxFlowElementHast = {
 				name: ASTRO_IMAGE_ELEMENT,
 				type: 'mdxJsxFlowElement',
