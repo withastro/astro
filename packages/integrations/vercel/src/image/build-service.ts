@@ -1,7 +1,9 @@
 import type { ExternalImageService } from 'astro';
 import { isESMImportedImage, sharedValidateOptions } from './shared.js';
+import { baseService } from 'astro/assets';
 
 const service: ExternalImageService = {
+	...baseService,
 	validateOptions: (options, serviceOptions) =>
 		sharedValidateOptions(options, serviceOptions.service.config, 'production'),
 	getHTMLAttributes(options) {

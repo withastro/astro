@@ -1,7 +1,9 @@
 import type { LocalImageService } from 'astro';
+import { baseService } from 'astro/assets';
 import { sharedValidateOptions } from './shared.js';
 
 export const baseDevService: Omit<LocalImageService, 'transform'> = {
+	...baseService,
 	validateOptions: (options, serviceOptions) =>
 		sharedValidateOptions(options, serviceOptions.service.config, 'development'),
 	getURL(options) {
