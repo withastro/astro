@@ -71,11 +71,7 @@ function sortAndFilterLocales(browserLocaleList: BrowserLocale[], locales: Local
 		})
 		.sort((a, b) => {
 			if (a.qualityValue && b.qualityValue) {
-				if (a.qualityValue > b.qualityValue) {
-					return -1;
-				} else if (a.qualityValue < b.qualityValue) {
-					return 1;
-				}
+				return Math.sign(b.qualityValue - a.qualityValue);
 			}
 			return 0;
 		});
