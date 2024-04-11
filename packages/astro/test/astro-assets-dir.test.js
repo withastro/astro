@@ -24,7 +24,7 @@ describe('assets dir takes the URL path inside the output directory', () => {
 		});
 		await fixture.build();
 	});
-	it('generates the assets directory per the build.assets configuration', async () => {
+	it('generates the assets directory as per build.assets configuration', async () => {
 		const removeTrailingSlash = (str) => str.replace(/\/$/, '');
 		assert.equal(
 			removeTrailingSlash(new URL('./custom_dir_1', checkDir).toString()),
