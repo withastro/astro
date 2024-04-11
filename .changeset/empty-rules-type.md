@@ -13,5 +13,6 @@
 "astro": minor
 ---
 
-Upgrades the minimum version of Node.js to `v18.20.1`. This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
+Deprecate support for versions of Node.js older than `v18.17.1` for Node.js 18, older than `v20.0.3` for Node.js 20, and the complete Node.js v19 release line.
 
+This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
