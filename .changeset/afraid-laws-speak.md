@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-set build.assets directory during vite config setup
+Correctly sets `build.assets` directory during `vite` config setup
