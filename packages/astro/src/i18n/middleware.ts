@@ -3,7 +3,6 @@ import type { SSRManifestI18n } from '../core/app/types.js';
 import { ROUTE_TYPE_HEADER } from '../core/constants.js';
 import {
 	type MiddlewarePayload,
-	getPathByLocale,
 	normalizeTheLocale,
 	notFound,
 	redirectToDefaultLocale,
