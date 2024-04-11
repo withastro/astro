@@ -52,6 +52,11 @@ function getImageComponentAttributes(props: Properties): MdxJsxAttribute[] {
 	for (const [prop, value] of Object.entries(props)) {
 		if (prop === 'src') continue;
 
+		/*
+		 * <Image /> component expects an array for those attributes but the
+		 * received properties are sanitized as strings. So we need to convert them
+		 * back to an array.
+		 */
 		if (prop === 'widths' || prop === 'densities') {
 			attrs.push(createArrayAttribute(prop, String(value).split(' ')));
 		} else {
