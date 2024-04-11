@@ -20,11 +20,10 @@ export function remarkImageToComponent() {
 			// checking if an image should be imported or not
 			if (file.data.imagePaths?.has(node.url)) {
 				let importName = importedImages.get(node.url);
-
 				// If we haven't already imported this image, add an import statement
 				if (!importName) {
 					importName = `__${importedImages.size}_${node.url.replace(/\W/g, '_')}__`;
-
+					const prefixedNodeUrl = (node.url.includes('/') ? '' : './') + node.url;
 					importsStatements.push({
 						type: 'mdxjsEsm',
 						value: '',
@@ -35,7 +34,11 @@ export function remarkImageToComponent() {
 								body: [
 									{
 										type: 'ImportDeclaration',
-										source: { type: 'Literal', value: node.url, raw: JSON.stringify(node.url) },
+										source: {
+											type: 'Literal',
+											value: prefixedNodeUrl,
+											raw: JSON.stringify(prefixedNodeUrl),
+										},
 										specifiers: [
 											{
 												type: 'ImportDefaultSpecifier',
@@ -47,7 +50,7 @@ export function remarkImageToComponent() {
 							},
 						},
 					});
-					importedImages.set(node.url, importName);
+					importedImages.set(prefixedNodeUrl, importName);
 				}
 
 				// Build a component that's equivalent to <Image src={importName} alt={node.alt} title={node.title} />

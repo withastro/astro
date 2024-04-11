@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -34,7 +34,7 @@
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/prism": "^3.0.0",
+    "@astrojs/prism": "^3.1.0",
     "github-slugger": "^2.0.0",
     "hast-util-from-html": "^2.0.0",
     "hast-util-to-text": "^4.0.0",

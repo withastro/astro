@@ -24,13 +24,6 @@ function getJsxRenderer(): AstroRenderer {
 		name: '@astrojs/vue (jsx)',
 		clientEntrypoint: '@astrojs/vue/client.js',
 		serverEntrypoint: '@astrojs/vue/server.js',
-		jsxImportSource: 'vue',
-		jsxTransformOptions: async () => {
-			const jsxPlugin = (await import('@vue/babel-plugin-jsx')).default;
-			return {
-				plugins: [jsxPlugin],
-			};
-		},
 	};
 }
 

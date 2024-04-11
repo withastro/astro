@@ -1,4 +1,14 @@
+import type {
+	APIContext,
+	AstroConfig,
+	MiddlewareHandler,
+	ValidRedirectStatus,
+} from '../@types/astro.js';
+import type { SSRManifest } from '../core/app/types.js';
+import { IncorrectStrategyForI18n } from '../core/errors/errors-data.js';
+import { AstroError } from '../core/errors/index.js';
 import * as I18nInternals from '../i18n/index.js';
+import type { RedirectToFallback } from '../i18n/index.js';
 import { toRoutingStrategy } from '../i18n/utils.js';
 import type { I18nInternalConfig } from '../i18n/vite-plugin-i18n.js';
 export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
@@ -6,12 +16,20 @@ export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
 const { trailingSlash, format, site, i18n, isBuild } =
 	// @ts-expect-error
 	__ASTRO_INTERNAL_I18N_CONFIG__ as I18nInternalConfig;
-const { defaultLocale, locales, domains } = i18n!;
+const { defaultLocale, locales, domains, fallback, routing } = i18n!;
 const base = import.meta.env.BASE_URL;
 
-const routing = toRoutingStrategy(i18n!);
+const strategy = toRoutingStrategy(routing, domains);
 
 export type GetLocaleOptions = I18nInternals.GetLocaleOptions;
+
+const noop = (method: string) =>
+	function () {
+		throw new AstroError({
+			...IncorrectStrategyForI18n,
+			message: IncorrectStrategyForI18n.message(method),
+		});
+	};
 
 /**
  * @param locale A locale
@@ -43,7 +61,7 @@ export const getRelativeLocaleUrl = (locale: string, path?: string, options?: Ge
 		format,
 		defaultLocale,
 		locales,
-		strategy: routing,
+		strategy,
 		domains,
 		...options,
 	});
@@ -83,7 +101,7 @@ export const getAbsoluteLocaleUrl = (locale: string, path?: string, options?: Ge
 		site,
 		defaultLocale,
 		locales,
-		strategy: routing,
+		strategy,
 		domains,
 		isBuild,
 		...options,
@@ -103,7 +121,7 @@ export const getRelativeLocaleUrlList = (path?: string, options?: GetLocaleOptio
 		format,
 		defaultLocale,
 		locales,
-		strategy: routing,
+		strategy,
 		domains,
 		...options,
 	});
@@ -123,7 +141,7 @@ export const getAbsoluteLocaleUrlList = (path?: string, options?: GetLocaleOptio
 		format,
 		defaultLocale,
 		locales,
-		strategy: routing,
+		strategy,
 		domains,
 		isBuild,
 		...options,
@@ -191,3 +209,177 @@ export const getPathByLocale = (locale: string) => I18nInternals.getPathByLocale
  * ```
  */
 export const getLocaleByPath = (path: string) => I18nInternals.getLocaleByPath(path, locales);
+
+/**
+ * A function that can be used to check if the current path contains a configured locale.
+ *
+ * @param path The path that maps to a locale
+ * @returns Whether the `path` has the locale
+ *
+ * ## Example
+ *
+ * Given the following configuration:
+ *
+ * ```js
+ * // astro.config.mjs
+ *
+ * export default defineConfig({
+ * 	i18n: {
+ * 		locales: [
+ * 			{ codes: ["it-VT", "it"], path: "italiano" },
+ * 			"es"
+ * 		]
+ * 	}
+ * })
+ * ```
+ *
+ * Here's some use cases:
+ *
+ * ```js
+ * import { pathHasLocale } from "astro:i18n";
+ * getLocaleByPath("italiano"); // returns `true`
+ * getLocaleByPath("es"); // returns `true`
+ * getLocaleByPath("it-VT"); // returns `false`
+ * ```
+ */
+export const pathHasLocale = (path: string) => I18nInternals.pathHasLocale(path, locales);
+
+/**
+ *
+ * This function returns a redirect to the default locale configured in the
+ *
+ * @param {APIContext} context The context passed to the middleware
+ * @param {ValidRedirectStatus?} statusCode An optional status code for the redirect.
+ */
+export let redirectToDefaultLocale: (
+	context: APIContext,
+	statusCode?: ValidRedirectStatus
+) => Response | undefined;
+
+if (i18n?.routing === 'manual') {
+	redirectToDefaultLocale = I18nInternals.redirectToDefaultLocale({
+		base,
+		trailingSlash,
+		format,
+		defaultLocale,
+		locales,
+		strategy,
+		domains,
+		fallback,
+	});
+} else {
+	redirectToDefaultLocale = noop('redirectToDefaultLocale');
+}
+/**
+ *
+ * Use this function to return a 404 when:
+ * - the current path isn't a root. e.g. / or /<base>
+ * - the URL doesn't contain a locale
+ *
+ * When a `Response` is passed, the new `Response` emitted by this function will contain the same headers of the original response.
+ *
+ * @param {APIContext} context The context passed to the middleware
+ * @param {Response?} response An optional `Response` in case you're handling a `Response` coming from the `next` function.
+ *
+ */
+export let notFound: (context: APIContext, response?: Response) => Response | undefined;
+
+if (i18n?.routing === 'manual') {
+	notFound = I18nInternals.notFound({
+		base,
+		trailingSlash,
+		format,
+		defaultLocale,
+		locales,
+		strategy,
+		domains,
+		fallback,
+	});
+} else {
+	notFound = noop('notFound');
+}
+
+/**
+ * Checks whether the current URL contains a configured locale. Internally, this function will use `APIContext#url.pathname`
+ *
+ * @param {APIContext} context The context passed to the middleware
+ */
+export let requestHasLocale: (context: APIContext) => boolean;
+
+if (i18n?.routing === 'manual') {
+	requestHasLocale = I18nInternals.requestHasLocale(locales);
+} else {
+	requestHasLocale = noop('requestHasLocale');
+}
+
+/**
+ * Allows to use the build-in fallback system of Astro
+ *
+ * @param {APIContext} context The context passed to the middleware
+ * @param {Response} response An optional `Response` in case you're handling a `Response` coming from the `next` function.
+ */
+export let redirectToFallback: RedirectToFallback;
+
+if (i18n?.routing === 'manual') {
+	redirectToFallback = I18nInternals.redirectToFallback({
+		base,
+		trailingSlash,
+		format,
+		defaultLocale,
+		locales,
+		strategy,
+		domains,
+		fallback,
+	});
+} else {
+	redirectToFallback = noop('useFallback');
+}
+
+type OnlyObject<T> = T extends object ? T : never;
+type NewAstroRoutingConfigWithoutManual = OnlyObject<NonNullable<AstroConfig['i18n']>['routing']>;
+
+/**
+ * @param {AstroConfig['i18n']['routing']} customOptions
+ *
+ * A function that allows to programmatically create the Astro i18n middleware.
+ *
+ * This is use useful when you still want to use the default i18n logic, but add only few exceptions to your website.
+ *
+ * ## Examples
+ *
+ * ```js
+ * // middleware.js
+ * import { middleware } from "astro:i18n";
+ * import { sequence, defineMiddleware } from "astro:middleware";
+ *
+ * const customLogic = defineMiddleware(async (context, next) => {
+ *   const response = await next();
+ *
+ *   // Custom logic after resolving the response.
+ *   // It's possible to catch the response coming from Astro i18n middleware.
+ *
+ *   return response;
+ * });
+ *
+ * export const onRequest = sequence(customLogic, middleware({
+ * 	prefixDefaultLocale: true,
+ * 	redirectToDefaultLocale: false
+ * }))
+ *
+ * ```
+ */
+export let middleware: (customOptions: NewAstroRoutingConfigWithoutManual) => MiddlewareHandler;
+
+if (i18n?.routing === 'manual') {
+	middleware = (customOptions: NewAstroRoutingConfigWithoutManual) => {
+		const manifest: SSRManifest['i18n'] = {
+			...i18n,
+			fallback: undefined,
+			strategy: toRoutingStrategy(customOptions, {}),
+			domainLookupTable: {},
+		};
+		return I18nInternals.createMiddleware(manifest, base, trailingSlash, format);
+	};
+} else {
+	middleware = noop('middleware');
+}
