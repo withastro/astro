@@ -343,6 +343,7 @@ export function redirectToFallback({
 	locales,
 	defaultLocale,
 	strategy,
+	base,
 }: MiddlewarePayload) {
 	return function (context: APIContext, response: Response): Response {
 		if (response.status >= 300 && fallback) {
@@ -370,7 +371,11 @@ export function redirectToFallback({
 				// If a locale falls back to the default locale, we want to **remove** the locale because
 				// the default locale doesn't have a prefix
 				if (pathFallbackLocale === defaultLocale && strategy === 'pathname-prefix-other-locales') {
-					newPathname = context.url.pathname.replace(`/${urlLocale}`, ``);
+					if (context.url.pathname.includes(`${base}`)) {
+						newPathname = context.url.pathname.replace(`/${urlLocale}`, ``);
+					} else {
+						newPathname = context.url.pathname.replace(`/${urlLocale}`, `/`);
+					}
 				} else {
 					newPathname = context.url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
 				}
