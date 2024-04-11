@@ -78,15 +78,17 @@ export function resolveRoot(cwd?: string | URL): string {
 	return cwd ? path.resolve(cwd) : process.cwd();
 }
 
+export const configPaths = Object.freeze([
+	'astro.config.mjs',
+	'astro.config.js',
+	'astro.config.ts',
+	'astro.config.mts',
+	'astro.config.cjs',
+	'astro.config.cts',
+]);
+
 async function search(fsMod: typeof fs, root: string) {
-	const paths = [
-		'astro.config.mjs',
-		'astro.config.js',
-		'astro.config.ts',
-		'astro.config.mts',
-		'astro.config.cjs',
-		'astro.config.cts',
-	].map((p) => path.join(root, p));
+	const paths = configPaths.map((p) => path.join(root, p));
 
 	for (const file of paths) {
 		if (fsMod.existsSync(file)) {

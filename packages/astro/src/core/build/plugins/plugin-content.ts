@@ -3,6 +3,7 @@ import fsMod from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import pLimit from 'p-limit';
 import { type Plugin as VitePlugin, normalizePath } from 'vite';
+import { configPaths } from '../../config/index.js';
 import { CONTENT_RENDER_FLAG, PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { type ContentLookupMap, hasContentFlag } from '../../../content/utils.js';
 import {
@@ -39,13 +40,15 @@ interface ContentManifest {
 	// Tracks components that should be passed to the client build
 	// When the cache is restored, these might no longer be referenced
 	clientEntries: string[];
+	lockfiles: string;
+	configs: string;
 }
 
 const virtualEmptyModuleId = `virtual:empty-content`;
 const resolvedVirtualEmptyModuleId = `\0${virtualEmptyModuleId}`;
 
 function createContentManifest(): ContentManifest {
-	return { version: -1, entries: [], serverEntries: [], clientEntries: [] };
+	return { version: -1, entries: [], serverEntries: [], clientEntries: [], lockfiles: "", configs: "" };
 }
 
 function vitePluginContent(
@@ -242,12 +245,12 @@ function getEntriesFromManifests(
 	oldManifest: ContentManifest,
 	newManifest: ContentManifest
 ): ContentEntries {
-	const { version: oldVersion, entries: oldEntries } = oldManifest;
-	const { version: newVersion, entries: newEntries } = newManifest;
+	const { entries: oldEntries } = oldManifest;
+	const { entries: newEntries } = newManifest;
 	let entries: ContentEntries = { restoreFromCache: [], buildFromSource: [] };
 
 	const newEntryMap = new Map<ContentManifestKey, string>(newEntries);
-	if (oldVersion !== newVersion || oldEntries.length === 0) {
+	if (manifestInvalid(oldManifest, newManifest)) {
 		entries.buildFromSource = Array.from(newEntryMap.keys());
 		return entries;
 	}
@@ -265,16 +268,31 @@ function getEntriesFromManifests(
 	return entries;
 }
 
+function manifestInvalid(oldManifest: ContentManifest, newManifest: ContentManifest) {
+	// Version mismatch, always invalid
+	if (oldManifest.version !== newManifest.version) {
+		return true;
+	}
+	if(oldManifest.entries.length === 0) {
+		return true;
+	}
+	// Lockfiles have changed or there is no lockfile at all.
+	if(oldManifest.lockfiles !== newManifest.lockfiles || newManifest.lockfiles === '') {
+		return true;
+	}
+	// Config has changed.
+	if(oldManifest.configs !== newManifest.configs) {
+		return true;
+	}
+	return false;
+}
+
 async function generateContentManifest(
 	opts: StaticBuildOptions,
 	lookupMap: ContentLookupMap
 ): Promise<ContentManifest> {
-	let manifest: ContentManifest = {
-		version: CONTENT_MANIFEST_VERSION,
-		entries: [],
-		serverEntries: [],
-		clientEntries: [],
-	};
+	let manifest = createContentManifest();
+	manifest.version = CONTENT_MANIFEST_VERSION;
 	const limit = pLimit(10);
 	const promises: Promise<void>[] = [];
 
@@ -290,13 +308,62 @@ async function generateContentManifest(
 			);
 		}
 	}
+	
+	const [lockfiles, configs] = await Promise.all([
+		lockfilesHash(opts.settings.config.root),
+		configHash(opts.settings.config.root)
+	]);
+
+	manifest.lockfiles = lockfiles;
+	manifest.configs = configs;
 
 	await Promise.all(promises);
 	return manifest;
 }
 
-function checksum(data: string): string {
-	return createHash('sha1').update(data).digest('base64');
+async function pushBufferInto(fileURL: URL, buffers: Uint8Array[]) {
+	try {
+		const handle = await fsMod.promises.open(fileURL, 'r');
+		const data = await handle.readFile();
+		buffers.push(data);
+	} catch {
+		// File doesn't exist, ignore
+	}
+}
+
+async function lockfilesHash(root: URL) {
+	// Order is important so don't change this.
+	const lockfiles = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock', 'bun.lockb'];
+	const datas: Uint8Array[] = [];
+	const promises: Promise<void>[] = [];
+	for(const lockfileName of lockfiles) {
+		const fileURL = new URL(encodeURI(joinPaths(root.toString(), lockfileName)));
+		promises.push(pushBufferInto(fileURL, datas));
+	}
+	await Promise.all(promises);
+	return checksum(...datas);
+}
+
+async function configHash(root: URL) {
+	const configFileNames = configPaths;
+	for(const configPath of configFileNames) {
+		try {
+			const fileURL = new URL(encodeURI(joinPaths(root.toString(), configPath)));
+			const handle = await fsMod.promises.open(fileURL, 'r');
+			const data = await handle.readFile();
+			return checksum(data);
+		} catch {
+			// File doesn't exist
+		}
+	}
+	// No config file, still create a hash since we can compare nothing against nothing.
+	return checksum(`export default {}`);
+}
+
+function checksum(...datas: string[] | Uint8Array[]): string {
+	const hash = createHash('sha1');
+	datas.forEach(data => hash.update(data));
+	return hash.digest('base64');
 }
 
 function collectionTypeToFlag(type: 'content' | 'data') {
