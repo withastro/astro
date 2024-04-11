@@ -26,7 +26,6 @@ describe('assets dir takes the URL path inside the output directory', () => {
 	});
 	it('generates the assets directory per the build.assets configuration', async () => {
 		const removeTrailingSlash = (str) => str.replace(/\/$/, '');
-		console.log('asdhbaskdnasdnaskbdjasdbasd');
 		assert.equal(
 			removeTrailingSlash(new URL('./custom_dir_1', checkDir).toString()),
 			removeTrailingSlash(
