@@ -9,7 +9,7 @@ import type { Logger } from '../logger/core.js';
 function getFunctionExpression(slot: any) {
 	if (!slot) return;
 	const expressions = slot?.expressions?.filter((e: unknown) => isRenderInstruction(e) === false);
-	if (expressions?.length !== 1) return
+	if (expressions?.length !== 1) return;
 	return expressions[0] as (...args: any[]) => any;
 }
 
