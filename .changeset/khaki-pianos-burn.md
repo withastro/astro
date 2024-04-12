@@ -46,8 +46,6 @@ Server helpers are also available on the server side, in your integration:
 
 ```ts
 "astro:server:setup": ({ toolbar }) => {
-  toolbar.
-
   toolbar.on<{message: string}>("my-app:my-client-event", (data) => {
     console.log(data.message);
     toolbar.send("my-server-event", { message: "hello" });
