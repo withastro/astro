@@ -1871,3 +1871,36 @@ describe('i18n routing does not break assets and endpoints', () => {
 		});
 	});
 });
+
+describe('SSR fallback from missing locale index to default locale index', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing-prefix-other-locales/',
+			output: 'server',
+			adapter: testAdapter(),
+			i18n: {
+				defaultLocale: 'en',
+				locales: ['en', 'fr'],
+				routing: {
+					prefixDefaultLocale: false,
+				},
+				fallback: {
+					fr: 'en',
+				},
+			},
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should correctly redirect', async () => {
+		let request = new Request('http://example.com/fr');
+		let response = await app.render(request);
+		assert.equal(response.status, 302);
+		assert.equal(response.headers.get('location'), '/');
+	});
+});
