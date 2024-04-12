@@ -6,6 +6,7 @@ import {
 	type TSConfckParseResult,
 	find,
 	parse,
+	toJson
 } from 'tsconfck';
 import type { CompilerOptions, TypeAcquisition } from 'typescript';
 
@@ -88,7 +89,9 @@ export async function loadTSConfig(
 
 		// tsconfck does not return the original config, so we need to parse it ourselves
 		// https://github.com/dominikg/tsconfck/issues/138
-		const rawConfig = await readFile(tsconfig, 'utf-8').then((content) => JSON.parse(content) as TSConfig);
+		const rawConfig = await readFile(tsconfig, 'utf-8')
+			.then(toJson)
+			.then((content) => JSON.parse(content) as TSConfig);
 
 		return { ...parsedConfig, rawConfig };
 	}
@@ -100,7 +103,9 @@ export async function loadTSConfig(
 			return parsedConfig;
 		}
 
-		const rawConfig = await readFile(jsconfig, 'utf-8').then((content) => JSON.parse(content) as TSConfig);
+		const rawConfig = await readFile(jsconfig, 'utf-8')
+			.then(toJson)
+			.then((content) => JSON.parse(content) as TSConfig);
 
 		return { ...parsedConfig, rawConfig: rawConfig };
 	}
