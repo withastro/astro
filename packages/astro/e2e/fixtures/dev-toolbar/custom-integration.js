@@ -18,7 +18,7 @@ export function myIntegration() {
 				});
 			},
 			'astro:server:setup': ({ toolbar }) => {
-				toolbar.onInitialized("my-plugin", () => {
+				toolbar.onAppInitialized("my-plugin", () => {
 					toolbar.send("super-server-event", { message: "Hello from the server!" })
 				});
 			}
