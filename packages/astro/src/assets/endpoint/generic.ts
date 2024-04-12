@@ -7,12 +7,12 @@ import { isRemoteAllowed } from '../utils/remotePattern.js';
 // @ts-expect-error
 import { imageConfig } from 'astro:assets';
 
-async function loadRemoteImage(src: URL, request: Request) {
+async function loadRemoteImage(src: URL, headers: Headers) {
 	try {
 		const res = await fetch(src, {
 			headers: {
 				// Forward all headers from the original request
-				...Object.fromEntries(request.headers.entries()),
+				...Object.fromEntries(headers.entries()),
 			},
 		});
 
@@ -46,15 +46,17 @@ export const GET: APIRoute = async ({ request }) => {
 
 		let inputBuffer: ArrayBuffer | undefined = undefined;
 
-		const sourceUrl = isRemotePath(transform.src)
+		const isRemoteImage = isRemotePath(transform.src);
+
+		const sourceUrl = isRemoteImage
 			? new URL(transform.src)
 			: new URL(transform.src, url.origin);
 
-		if (isRemotePath(transform.src) && isRemoteAllowed(transform.src, imageConfig) === false) {
+		if (isRemoteImage && isRemoteAllowed(transform.src, imageConfig) === false) {
 			return new Response('Forbidden', { status: 403 });
 		}
 
-		inputBuffer = await loadRemoteImage(sourceUrl, request);
+		inputBuffer = await loadRemoteImage(sourceUrl, isRemoteImage ? new Headers() : request.headers);
 
 		if (!inputBuffer) {
 			return new Response('Not Found', { status: 404 });
