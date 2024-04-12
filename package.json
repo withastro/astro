@@ -53,7 +53,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.5.8",
-    "@biomejs/biome": "1.5.3",
+    "@biomejs/biome": "1.6.4",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.26.2",
     "@eslint/eslintrc": "^3.0.2",
