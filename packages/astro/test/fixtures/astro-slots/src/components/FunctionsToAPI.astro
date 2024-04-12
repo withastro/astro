@@ -1,0 +1,12 @@
+---
+const content = 'Test Content';
+const beforeConent = await Astro.slots.render("before", [{content}])
+const afterConent = await Astro.slots.render("after", [{content}])
+---
+<div id="before">
+  {beforeConent}
+</div>
+<div id="after">
+  {afterConent}
+</div>
+

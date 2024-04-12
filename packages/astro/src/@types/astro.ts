@@ -1499,22 +1499,11 @@ export interface AstroUserConfig {
 		 * @description
 		 *
 		 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language.
+		 *
 		 */
 		// prettier-ignore
 		routing?: 
-			/**
-			 *
-			 * @docs
-			 * @name i18n.routing.manual
-			 * @type {string}
-			 * @version 4.6.0
-			 * @description
-			 * When this option is enabled, Astro will **disable** its i18n middleware so that you can implement your own custom logic. No other `routing` options (e.g. `prefixDefaultLocale`) may be configured with `routing: "manual"`.
-			 *
-			 * You will be responsible for writing your own routing logic, or executing Astro's i18n middleware manually alongside your own.
-			 */
-		 	'manual'
-			| {
+        {
 					/**
 					 * @docs
 					 * @name i18n.routing.prefixDefaultLocale
@@ -1531,6 +1520,18 @@ export interface AstroUserConfig {
 					 * When `true`, all URLs will display a language prefix.
 					 * URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
 					 * Localized folders are used for every language, including the default.
+			     *
+				   * ```js
+		       * export default defineConfig({
+		       * 	i18n: {
+		       * 		defaultLocale: "en",
+		       * 		locales: ["en", "fr", "pt-br", "es"],
+		       * 		routing: {
+		       * 			prefixDefaultLocale: true,
+		       * 		}
+		       * 	}
+		       * })
+		       * ```
 					 */
 					prefixDefaultLocale?: boolean;
 
@@ -1573,7 +1574,32 @@ export interface AstroUserConfig {
 					 * - `"pathname": The strategy is applied to the pathname of the URLs
 					 */
 					strategy?: 'pathname';
-			  };
+			  } |
+        /**
+  			 *
+  			 * @docs
+  			 * @name i18n.routing.manual
+  		   * @kind h4
+  			 * @type {string}
+  			 * @version 4.6.0
+  			 * @description
+  			 * When this option is enabled, Astro will **disable** its i18n middleware so that you can implement your own custom logic. No other `routing` options (e.g. `prefixDefaultLocale`) may be configured with `routing: "manual"`.
+  			 *
+  			 * You will be responsible for writing your own routing logic, or executing Astro's i18n middleware manually alongside your own.
+  		   *
+  			 * ```js
+  		   * export default defineConfig({
+  		   * 	i18n: {
+  		   * 		defaultLocale: "en",
+  		   * 		locales: ["en", "fr", "pt-br", "es"],
+  		   * 		routing: {
+  		   * 			prefixDefaultLocale: true,
+  		   * 		}
+  		   * 	}
+  		   * })
+  		   * ```
+  			 */
+        'manual';
 
 		/**
 		 * @name i18n.domains
@@ -1836,7 +1862,7 @@ export interface AstroUserConfig {
 		 * });
 		 * ```
 		 *
-		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
+		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/reference/api-reference/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/reference/api-reference/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
 		 *
 		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains-experimental) for more details, including the limitations of this experimental feature.
 		 */

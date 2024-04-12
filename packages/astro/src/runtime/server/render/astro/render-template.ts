@@ -11,7 +11,7 @@ const renderTemplateResultSym = Symbol.for('astro.renderTemplateResult');
 export class RenderTemplateResult {
 	public [renderTemplateResultSym] = true;
 	private htmlParts: TemplateStringsArray;
-	private expressions: any[];
+	public expressions: any[];
 	private error: Error | undefined;
 	constructor(htmlParts: TemplateStringsArray, expressions: unknown[]) {
 		this.htmlParts = htmlParts;
