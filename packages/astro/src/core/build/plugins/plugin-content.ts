@@ -24,7 +24,7 @@ const CONTENT_CACHE_DIR = './content/';
 const CONTENT_MANIFEST_FILE = './manifest.json';
 // IMPORTANT: Update this version when making significant changes to the manifest format.
 // Only manifests generated with the same version number can be compared.
-const CONTENT_MANIFEST_VERSION = 0;
+const CONTENT_MANIFEST_VERSION = 1;
 
 interface ContentManifestKey {
 	collection: string;
@@ -326,6 +326,7 @@ async function pushBufferInto(fileURL: URL, buffers: Uint8Array[]) {
 		const handle = await fsMod.promises.open(fileURL, 'r');
 		const data = await handle.readFile();
 		buffers.push(data);
+		await handle.close();
 	} catch {
 		// File doesn't exist, ignore
 	}
@@ -351,7 +352,9 @@ async function configHash(root: URL) {
 			const fileURL = new URL(encodeURI(joinPaths(root.toString(), configPath)));
 			const handle = await fsMod.promises.open(fileURL, 'r');
 			const data = await handle.readFile();
-			return checksum(data);
+			const hash = checksum(data);
+			await handle.close();
+			return hash;
 		} catch {
 			// File doesn't exist
 		}
