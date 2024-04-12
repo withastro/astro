@@ -18,8 +18,8 @@ export default defineToolbarApp({
     // });
 
     app.onAppToggled(({state}) => {
-			console.log(`App is now ${state ? "enabled" : "disabled"}`);
-		});
+        console.log(`App is now ${state ? "enabled" : "disabled"}`);
+    });
 
     // Old:
     // if (import.meta.hot) {
@@ -35,7 +35,7 @@ export default defineToolbarApp({
     //   });
     // }
 
-    server.on<{message: string}>("my-server-event", (data) => {
+    server.on<{ message: string }>("my-server-event", (data) => {
       console.log(data.message); // data is typed using the type parameter
     });
   },
@@ -46,7 +46,7 @@ Server helpers are also available on the server side, in your integration:
 
 ```ts
 "astro:server:setup": ({ toolbar }) => {
-  toolbar.on<{message: string}>("my-app:my-client-event", (data) => {
+  toolbar.on<{ message: string }>("my-app:my-client-event", (data) => {
     console.log(data.message);
     toolbar.send("my-server-event", { message: "hello" });
   });
