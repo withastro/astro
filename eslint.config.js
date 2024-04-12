@@ -34,6 +34,7 @@ export default [
 			"packages/**/dist/",
 			"packages/**/fixtures/",
 			"packages/astro/vendor/vite/",
+			"benchmark/**/dist/",
 			"examples/",
 			"scripts/",
 			".github/",
