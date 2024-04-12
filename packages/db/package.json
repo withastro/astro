@@ -1,8 +1,15 @@
 {
   "name": "@astrojs/db",
-  "version": "0.10.3",
-  "description": "",
+  "version": "0.10.4",
+  "description": "Add libSQL and Astro Studio support to your Astro site",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/db"
+  },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/db/",
   "type": "module",
   "author": "withastro",
   "types": "./index.d.ts",
