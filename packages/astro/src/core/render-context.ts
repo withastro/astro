@@ -264,7 +264,8 @@ export class RenderContext {
 
 		// `Astro.self` is added by the compiler
 		const astroGlobalCombined: Omit<AstroGlobal, 'self'> = {
-			...astroGlobalPartial,
+			generator: astroGlobalPartial.generator,
+			glob: astroGlobalPartial.glob,
 			cookies,
 			get clientAddress() {
 				return renderContext.clientAddress();
