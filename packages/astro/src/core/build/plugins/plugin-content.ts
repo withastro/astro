@@ -269,6 +269,10 @@ function getEntriesFromManifests(
 }
 
 function manifestInvalid(oldManifest: ContentManifest, newManifest: ContentManifest) {
+	console.log('manifestInvalid', 'version', [oldManifest.version, newManifest.version],
+	'lockfiles', [oldManifest.lockfiles, newManifest.lockfiles],
+	'configs', [oldManifest.configs, newManifest.configs]
+	);
 	// Version mismatch, always invalid
 	if (oldManifest.version !== newManifest.version) {
 		return true;
@@ -277,7 +281,7 @@ function manifestInvalid(oldManifest: ContentManifest, newManifest: ContentManif
 		return true;
 	}
 	// Lockfiles have changed or there is no lockfile at all.
-	if(oldManifest.lockfiles !== newManifest.lockfiles || newManifest.lockfiles === '') {
+	if((oldManifest.lockfiles !== newManifest.lockfiles) || newManifest.lockfiles === '') {
 		return true;
 	}
 	// Config has changed.
