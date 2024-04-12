@@ -31,7 +31,7 @@ const service: ExternalImageService = {
 			}
 		}
 
-		const { src, width, height, format, quality, densities, widths, ...attributes } = props;
+		const { src, width, height, format, quality, densities, widths, formats, ...attributes } = options;
 
 		return {
 			...attributes,
