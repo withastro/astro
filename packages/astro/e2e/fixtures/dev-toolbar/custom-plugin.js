@@ -17,8 +17,8 @@ export default defineToolbarApp({
 			level: 'warning'
 		})
 
-		server.on("super-server-event", () => {
-			astroWindow.appendChild(document.createTextNode('Hello from the server!'));
+		server.on("super-server-event", (data) => {
+			astroWindow.appendChild(document.createTextNode(data.message));
 		});
 
 		astroWindow.appendChild(myButton);
