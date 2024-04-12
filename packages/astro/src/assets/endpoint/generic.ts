@@ -10,10 +10,8 @@ import { imageConfig } from 'astro:assets';
 async function loadRemoteImage(src: URL, headers: Headers) {
 	try {
 		const res = await fetch(src, {
-			headers: {
-				// Forward all headers from the original request
-				...Object.fromEntries(headers.entries()),
-			},
+			// Forward all headers from the original request
+			headers,
 		});
 
 		if (!res.ok) {
@@ -47,7 +45,6 @@ export const GET: APIRoute = async ({ request }) => {
 		let inputBuffer: ArrayBuffer | undefined = undefined;
 
 		const isRemoteImage = isRemotePath(transform.src);
-
 		const sourceUrl = isRemoteImage
 			? new URL(transform.src)
 			: new URL(transform.src, url.origin);
