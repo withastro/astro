@@ -61,6 +61,45 @@ function getLogger(integration: AstroIntegration, logger: Logger) {
 	return integrationLogger;
 }
 
+const serverEventPrefix = 'astro-dev-toolbar';
+
+export function getToolbarServerCommunicationHelpers(server: ViteDevServer) {
+	return {
+		/**
+		 * Send a message to the dev toolbar that an app can listen for. The payload can be any serializable data.
+		 * @param event - The event name
+		 * @param payload - The payload to send
+		 */
+		send: <T>(event: string, payload: T) => {
+			server.hot.send(event, payload);
+		},
+		/**
+		 * Receive a message from a dev toolbar app.
+		 * @param event
+		 * @param callback
+		 */
+		on: <T>(event: string, callback: (data: T) => void) => {
+			server.hot.on(event, callback);
+		},
+		/**
+		 * Fired when an app is initialized.
+		 * @param appId - The id of the app that was initialized
+		 * @param callback - The callback to run when the app is initialized
+		 */
+		onAppInitialized: (appId: string, callback: (data: Record<string, never>) => void) => {
+			server.hot.on(`${serverEventPrefix}:${appId}:initialized`, callback);
+		},
+		/**
+		 * Fired when an app is toggled on or off.
+		 * @param appId - The id of the app that was toggled
+		 * @param callback - The callback to run when the app is toggled
+		 */
+		onAppToggled: (appId: string, callback: (data: { state: boolean }) => void) => {
+			server.hot.on(`${serverEventPrefix}:${appId}:toggled`, callback);
+		},
+	};
+}
+
 export async function runHookConfigSetup({
 	settings,
 	command,
@@ -305,6 +344,7 @@ export async function runHookServerSetup({
 				hookResult: integration.hooks['astro:server:setup']({
 					server,
 					logger: getLogger(integration, logger),
+					toolbar: getToolbarServerCommunicationHelpers(server),
 				}),
 				logger,
 			});

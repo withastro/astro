@@ -40,8 +40,13 @@ import type {
 } from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify, WithRequired } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type {
+	ToolbarAppEventTarget,
+	ToolbarServerHelpers,
+} from '../runtime/client/dev-toolbar/helpers.js';
+import type { getToolbarServerCommunicationHelpers } from '../integrations/index.js';
 
-export { type AstroIntegrationLogger };
+export type { AstroIntegrationLogger, ToolbarServerHelpers };
 
 export type {
 	MarkdownHeading,
@@ -2719,6 +2724,7 @@ export interface AstroIntegration {
 		'astro:server:setup'?: (options: {
 			server: vite.ViteDevServer;
 			logger: AstroIntegrationLogger;
+			toolbar: ReturnType<typeof getToolbarServerCommunicationHelpers>;
 		}) => void | Promise<void>;
 		'astro:server:start'?: (options: {
 			address: AddressInfo;
@@ -3004,7 +3010,11 @@ export type DevToolbarApp = {
 	 * In the future, putting these properties directly on the app object will be removed.
 	 */
 	icon?: Icon;
-	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
+	init?(
+		canvas: ShadowRoot,
+		app: ToolbarAppEventTarget,
+		server: ToolbarServerHelpers
+	): void | Promise<void>;
 	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
 };
 
