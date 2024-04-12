@@ -24,7 +24,7 @@ export class ToolbarAppEventTarget extends EventTarget {
 				detail: {
 					state: options.state,
 					level: options.state === true ? options.level : undefined,
-				},
+				} satisfies NotificationPayload,
 			})
 		);
 	}
@@ -34,7 +34,7 @@ export class ToolbarAppEventTarget extends EventTarget {
 			new CustomEvent('app-toggled', {
 				detail: {
 					state: options.state,
-				},
+				} satisfies AppStatePayload,
 			})
 		);
 	}
@@ -55,14 +55,28 @@ export class ToolbarAppEventTarget extends EventTarget {
 }
 
 export const serverHelpers = {
+	/**
+	 * Send a message to the server, the payload can be any serializable data.
+	 *
+	 * The server can listen for this message in the `astro:server:config` hook of an Astro integration, using the `toolbar.on` method.
+	 *
+	 * @param event - The event name
+	 * @param payload - The payload to send
+	 */
 	send: <T>(event: string, payload: T) => {
 		if (import.meta.hot) {
 			import.meta.hot.send(event, payload);
 		}
 	},
-	on: <T>(event: string, cb: (data: T) => void) => {
+	/**
+	 * Receive a message from the server.
+	 * @param event - The event name
+	 * @param callback - The callback to run when the event is received.
+	 * The payload's content will be passed to the callback as an argument
+	 */
+	on: <T>(event: string, callback: (data: T) => void) => {
 		if (import.meta.hot) {
-			import.meta.hot.on(event, cb);
+			import.meta.hot.on(event, callback);
 		}
 	},
 };
