@@ -1,12 +1,12 @@
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { readFile } from "node:fs/promises"
 import {
 	TSConfckParseError,
 	type TSConfckParseOptions,
 	type TSConfckParseResult,
 	find,
 	parse,
-	toJson
+	toJson,
 } from 'tsconfck';
 import type { CompilerOptions, TypeAcquisition } from 'typescript';
 
