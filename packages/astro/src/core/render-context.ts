@@ -242,12 +242,39 @@ export class RenderContext {
 		return result;
 	}
 
+	/**
+	 * The Astro global is sourced in 3 different phases:
+	 * - **Static**: `.generator` and `.glob` is printed by the compiler, instantiated once per process per astro file
+	 * - **Page-level**: `.request`, `.cookies`, `.locals` etc. These remain the same for the duration of the request.
+	 * - **Component-level**: `.props`, `.slots`, and `.self` are unique to each _use_ of each component.
+	 * 
+	 * The page level partial is used as the prototype of the user-visible `Astro` global object, which is instantiated once per use of a component.
+	 */
 	createAstro(
 		result: SSRResult,
-		astroGlobalPartial: AstroGlobalPartial,
+		astroStaticPartial: AstroGlobalPartial,
 		props: Record<string, any>,
 		slotValues: Record<string, any> | null
 	): AstroGlobal {
+		const slots = new Slots(result, slotValues, this.pipeline.logger) as unknown as AstroGlobal['slots'];
+
+		const astroPagePartial = this.#astroPagePartial ??= this.createAstroPagePartial(result, astroStaticPartial) 
+		const astroComponentPartial = { props, self: null, slots }
+		
+		// `Astro.self` is added by the compiler
+		const Astro: Omit<AstroGlobal, 'self'> = Object.assign(
+			Object.create(astroPagePartial),
+			astroComponentPartial
+		);
+
+		return Astro as AstroGlobal;
+	}
+
+	#astroPagePartial?: Omit<AstroGlobal, 'props' | 'self' | 'slots'>
+	createAstroPagePartial(
+		result: SSRResult,
+		astroStaticPartial: AstroGlobalPartial,
+	): Omit<AstroGlobal, 'props' | 'self' | 'slots'> {
 		const renderContext = this;
 		const { cookies, locals, params, pipeline, request, url } = this;
 		const { response } = result;
@@ -260,12 +287,10 @@ export class RenderContext {
 			}
 			return new Response(null, { status, headers: { Location: path } });
 		};
-		const slots = new Slots(result, slotValues, pipeline.logger) as unknown as AstroGlobal['slots'];
-
-		// `Astro.self` is added by the compiler
-		const astroGlobalCombined: Omit<AstroGlobal, 'self'> = {
-			generator: astroGlobalPartial.generator,
-			glob: astroGlobalPartial.glob,
+		
+		return {
+			generator: astroStaticPartial.generator,
+			glob: astroStaticPartial.glob,
 			cookies,
 			get clientAddress() {
 				return renderContext.clientAddress();
@@ -280,17 +305,13 @@ export class RenderContext {
 			get preferredLocaleList() {
 				return renderContext.computePreferredLocaleList();
 			},
-			props,
 			locals,
 			redirect,
 			request,
 			response,
-			slots,
 			site: pipeline.site,
 			url,
 		};
-
-		return astroGlobalCombined as AstroGlobal;
 	}
 
 	clientAddress() {
