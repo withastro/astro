@@ -75,7 +75,6 @@ function vitePluginContent(
 		try {
 			const data = fsMod.readFileSync(contentManifestFile, { encoding: 'utf8' });
 			oldManifest = JSON.parse(data);
-			internals.cachedClientEntries = oldManifest.clientEntries;
 		} catch {}
 	}
 
@@ -86,6 +85,29 @@ function vitePluginContent(
 			let newOptions = Object.assign({}, options);
 			newManifest = await generateContentManifest(opts, lookupMap);
 			entries = getEntriesFromManifests(oldManifest, newManifest);
+
+			// If the manifest is valid, use the cached client entries as nothing has changed
+			const currentState = manifestState(oldManifest, newManifest);
+			if(currentState === 'valid') {
+				internals.cachedClientEntries = oldManifest.clientEntries;
+			} else {
+				let logReason = '';
+				switch(currentState) {
+					case 'config-mismatch':
+						logReason = 'Astro config has changed';
+						break;
+					case 'lockfile-mismatch':
+						logReason = 'Lockfiles have changed';
+						break;
+					case 'no-entries':
+						logReason = 'No content collections entries cached';
+						break;
+					case 'version-mismatch':
+						logReason = 'The cache manifest version has changed'
+						break;
+				}
+				opts.logger.info('build', `Cache invalid, rebuilding from source. Reason: ${logReason}.`);
+			}
 
 			// Of the cached entries, these ones need to be rebuilt
 			for (const { type, entry } of entries.buildFromSource) {
@@ -250,7 +272,7 @@ function getEntriesFromManifests(
 	let entries: ContentEntries = { restoreFromCache: [], buildFromSource: [] };
 
 	const newEntryMap = new Map<ContentManifestKey, string>(newEntries);
-	if (manifestInvalid(oldManifest, newManifest)) {
+	if (manifestState(oldManifest, newManifest) !== 'valid') {
 		entries.buildFromSource = Array.from(newEntryMap.keys());
 		return entries;
 	}
@@ -268,27 +290,25 @@ function getEntriesFromManifests(
 	return entries;
 }
 
-function manifestInvalid(oldManifest: ContentManifest, newManifest: ContentManifest) {
-	console.log('manifestInvalid', 'version', [oldManifest.version, newManifest.version],
-	'lockfiles', [oldManifest.lockfiles, newManifest.lockfiles],
-	'configs', [oldManifest.configs, newManifest.configs]
-	);
+type ManifestState = 'valid' | 'version-mismatch' | 'no-entries' | 'lockfile-mismatch' | 'config-mismatch';
+
+function manifestState(oldManifest: ContentManifest, newManifest: ContentManifest): ManifestState {
 	// Version mismatch, always invalid
 	if (oldManifest.version !== newManifest.version) {
-		return true;
+		return 'version-mismatch';
 	}
 	if(oldManifest.entries.length === 0) {
-		return true;
+		return 'no-entries';
 	}
 	// Lockfiles have changed or there is no lockfile at all.
 	if((oldManifest.lockfiles !== newManifest.lockfiles) || newManifest.lockfiles === '') {
-		return true;
+		return 'lockfile-mismatch';
 	}
 	// Config has changed.
 	if(oldManifest.configs !== newManifest.configs) {
-		return true;
+		return 'config-mismatch';
 	}
-	return false;
+	return 'valid';
 }
 
 async function generateContentManifest(
