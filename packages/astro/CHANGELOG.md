@@ -1,5 +1,13 @@
 # astro
 
+## 4.6.1
+
+### Patch Changes
+
+- [#10708](https://github.com/withastro/astro/pull/10708) [`742866c5669a2be4f8b5a4c861cadb933c381415`](https://github.com/withastro/astro/commit/742866c5669a2be4f8b5a4c861cadb933c381415) Thanks [@horo-fox](https://github.com/horo-fox)! - Limits parallel imports within `getCollection()` to prevent EMFILE errors when accessing files
+
+- [#10755](https://github.com/withastro/astro/pull/10755) [`c6d59b6fb7db20af957a8706c8159c50619235ef`](https://github.com/withastro/astro/commit/c6d59b6fb7db20af957a8706c8159c50619235ef) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a case where the i18n fallback failed to correctly redirect to the index page with SSR enabled
+
 ## 4.6.0
 
 ### Minor Changes
