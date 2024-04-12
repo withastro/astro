@@ -968,16 +968,16 @@ async function updateTSConfig(
 		inputConfig = {
 			tsconfig: defaultTSConfig,
 			tsconfigFile: path.join(cwd, 'tsconfig.json'),
-			rawConfig: { tsconfig: defaultTSConfig, tsconfigFile: path.join(cwd, 'tsconfig.json') },
+			rawConfig: defaultTSConfig,
 		};
 	} else {
-		inputConfigText = JSON.stringify(inputConfig.rawConfig.tsconfig, null, 2);
+		inputConfigText = JSON.stringify(inputConfig.rawConfig, null, 2);
 	}
 
 	const configFileName = path.basename(inputConfig.tsconfigFile);
 
 	const outputConfig = updateTSConfigForFramework(
-		inputConfig.rawConfig.tsconfig,
+		inputConfig.rawConfig,
 		firstIntegrationWithTSSettings
 	);
 
