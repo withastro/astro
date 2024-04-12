@@ -1,10 +1,10 @@
 import * as assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import * as path from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { loadTSConfig, updateTSConfigForFramework } from '../../../dist/core/config/index.js';
-import { readFile } from 'node:fs/promises';
 import { toJson } from 'tsconfck';
+import { loadTSConfig, updateTSConfigForFramework } from '../../../dist/core/config/index.js';
 
 const cwd = fileURLToPath(new URL('../../fixtures/tsconfig-handling/', import.meta.url));
 
@@ -42,8 +42,9 @@ describe('TSConfig handling', () => {
 
 		it('does not change baseUrl in raw config', async () => {
 			const loadedConfig = await loadTSConfig(path.join(cwd, 'baseUrl'));
-			const rawConfig = await readFile(path.join(cwd, 'baseUrl', 'tsconfig.json'), 'utf-8').then(toJson)
-			.then((content) => JSON.parse(content));
+			const rawConfig = await readFile(path.join(cwd, 'baseUrl', 'tsconfig.json'), 'utf-8')
+				.then(toJson)
+				.then((content) => JSON.parse(content));
 
 			assert.deepEqual(loadedConfig.rawConfig, rawConfig);
 		});
