@@ -24,5 +24,7 @@ pnpm-lock.yaml
 **/*.json
 **/*.js
 **/*.ts
+**/*.tsx
+**/*.jsx
 **/*.mjs
 **/*.cjs
