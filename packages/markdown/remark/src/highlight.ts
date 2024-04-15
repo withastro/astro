@@ -73,6 +73,7 @@ export async function highlightCodeBlocks(tree: Root, highlighter: Highlighter) 
 	for (const { node, language, grandParent, parent } of nodes) {
 		const meta = (node.data as any)?.meta ?? node.properties.metastring ?? undefined;
 		const code = toText(node, { whitespace: 'pre' });
+		// TODO: In Astro 5, have `highlighter()` return hast directly to skip expensive HTML parsing and serialization.
 		const html = await highlighter(code, language, { meta });
 		// The replacement returns a root node with 1 child, the `<pr>` element replacement.
 		const replacement = fromHtml(html, { fragment: true }).children[0] as Element;
