@@ -1,14 +1,14 @@
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
-import {builtinModules} from "node:module";
+import { fileURLToPath } from 'node:url';
+import { builtinModules } from 'node:module';
 
-import {FlatCompat} from "@eslint/eslintrc";
+import { FlatCompat } from '@eslint/eslintrc';
 import tseslint from 'typescript-eslint';
 
 // plugins
 import prettierEslint from 'eslint-plugin-prettier';
 import noOnlyTestsEslint from 'eslint-plugin-no-only-tests';
-import regexpEslint from 'eslint-plugin-regexp'
+import regexpEslint from 'eslint-plugin-regexp';
 const typescriptEslint = tseslint.plugin;
 
 // parsers
@@ -20,7 +20,7 @@ const __dirname = path.dirname(__filename);
 // ref: https://eslint.org/docs/latest/use/configure/migration-guide#using-eslintrc-configs-in-flat-config
 // mimic CommonJS variables -- not needed if using CommonJS
 const compat = new FlatCompat({
-	baseDirectory: __dirname
+	baseDirectory: __dirname,
 });
 
 export default [
@@ -28,18 +28,18 @@ export default [
 	// ref: https://eslint.org/docs/latest/use/configure/configuration-files#globally-ignoring-files-with-ignores
 	{
 		ignores: [
-			"**/.*",
-			"**/*.d.ts",
-			"packages/**/*.min.js",
-			"packages/**/dist/",
-			"packages/**/fixtures/",
-			"packages/astro/vendor/vite/",
-			"benchmark/**/dist/",
-			"examples/",
-			"scripts/",
-			".github/",
-			".changeset/",
-		]
+			'**/.*',
+			'**/*.d.ts',
+			'packages/**/*.min.js',
+			'packages/**/dist/',
+			'packages/**/fixtures/',
+			'packages/astro/vendor/vite/',
+			'benchmark/**/dist/',
+			'examples/',
+			'scripts/',
+			'.github/',
+			'.changeset/',
+		],
 	},
 
 	...tseslint.configs.recommendedTypeChecked,
@@ -56,10 +56,10 @@ export default [
 			},
 		},
 		plugins: {
-			"@typescript-eslint": typescriptEslint,
-			"prettier": prettierEslint,
-			"no-only-tests": noOnlyTestsEslint,
-			"regexp": regexpEslint,
+			'@typescript-eslint': typescriptEslint,
+			prettier: prettierEslint,
+			'no-only-tests': noOnlyTestsEslint,
+			regexp: regexpEslint,
 		},
 		rules: {
 			// These off/configured-differently-by-default rules fit well for us
@@ -143,7 +143,7 @@ export default [
 		languageOptions: {
 			globals: {
 				browser: true,
-			}
+			},
 		},
 	},
 	{
@@ -152,7 +152,7 @@ export default [
 			globals: {
 				mocha: true,
 				globalThis: false, // false means read-only
-			}
+			},
 		},
 		rules: {
 			'no-console': 'off',
@@ -161,7 +161,7 @@ export default [
 	{
 		files: ['packages/integrations/**/*.ts'],
 		rules: {
-			'no-console': ['error', {allow: ['warn', 'error', 'info', 'debug']}],
+			'no-console': ['error', { allow: ['warn', 'error', 'info', 'debug'] }],
 		},
 	},
 	{
@@ -181,7 +181,7 @@ export default [
 		files: ['packages/astro/src/core/errors/errors-data.ts'],
 		rules: {
 			// This file is used for docs generation, as such the code need to be in a certain format, we can somewhat ensure this with these rules
-			'object-shorthand': ['error', 'methods', {avoidExplicitReturnArrows: true}],
+			'object-shorthand': ['error', 'methods', { avoidExplicitReturnArrows: true }],
 			'arrow-body-style': ['error', 'never'],
 		},
 	},
@@ -203,4 +203,4 @@ export default [
 			],
 		},
 	},
-]
+];
