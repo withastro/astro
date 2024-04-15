@@ -18,6 +18,12 @@ export class ToolbarAppEventTarget extends EventTarget {
 		super();
 	}
 
+	/**
+	 * Toggle the notification state of the toolbar
+	 * @param options - The notification options
+	 * @param options.state - The state of the notification
+	 * @param options.level - The level of the notification, optional when state is false
+	 */
 	toggleNotification(options: NotificationPayload) {
 		this.dispatchEvent(
 			new CustomEvent('toggle-notification', {
@@ -29,7 +35,12 @@ export class ToolbarAppEventTarget extends EventTarget {
 		);
 	}
 
-	toggleAppState(options: AppStatePayload) {
+	/**
+	 * Toggle the app state on or off
+	 * @param options - The app state options
+	 * @param options.state - The new state of the app
+	 */
+	toggleState(options: AppStatePayload) {
 		this.dispatchEvent(
 			new CustomEvent('app-toggled', {
 				detail: {
@@ -39,14 +50,22 @@ export class ToolbarAppEventTarget extends EventTarget {
 		);
 	}
 
-	onAppToggled(callback: AppToggledEvent) {
+	/**
+	 * Fired when the app is toggled on or off
+	 * @param callback - The callback to run when the event is fired, takes an object with the new state
+	 */
+	onToggled(callback: AppToggledEvent) {
 		this.addEventListener('app-toggled', (evt) => {
 			if (!(evt instanceof CustomEvent)) return;
 			callback(evt.detail);
 		});
 	}
 
-	onToolbarPlacement(callback: ToolbarPlacementUpdatedEvent) {
+	/**
+	 * Fired when the toolbar placement is updated by the user
+	 * @param callback - The callback to run when the event is fired, takes an object with the new placement
+	 */
+	onToolbarPlacementUpdated(callback: ToolbarPlacementUpdatedEvent) {
 		this.addEventListener('placement-updated', (evt) => {
 			if (!(evt instanceof CustomEvent)) return;
 			callback(evt.detail);
