@@ -16,7 +16,7 @@ export default defineToolbarApp({
 -      console.log(`App is now ${state ? "enabled" : "disabled"}`);.
 -    });
 
-+    app.onAppToggled(({state}) => {
++    app.onToggled(({ state }) => {
 +        console.log(`App is now ${state ? "enabled" : "disabled"}`);
 +    });
 
