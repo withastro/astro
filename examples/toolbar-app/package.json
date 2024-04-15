@@ -1,0 +1,12 @@
+{
+  "name": "@example/toolbar-app",
+  "type": "module",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "astro": "^4.6.1"
+  },
+  "exports": {
+    ".": "./integration.ts",
+    "./app.ts": "./app.ts"
+  }
+}

@@ -381,6 +381,8 @@ importers:
         specifier: ^0.32.6
         version: 0.32.6
 
+  examples/toolbar-app: {}
+
   examples/view-transitions:
     devDependencies:
       '@astrojs/node':
