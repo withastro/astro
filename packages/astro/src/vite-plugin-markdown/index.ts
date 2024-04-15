@@ -55,7 +55,15 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 
 				const fileURL = pathToFileURL(fileId);
 
-				const renderResult = await processor!
+				// `processor` is initialized in `buildStart`, and removed in `buildEnd`. `load`
+				// should be called in between those two lifecycles, so this error should never happen
+				if (!processor) {
+					return this.error(
+						'MDX processor is not initialized. This is an internal error. Please file an issue.'
+					);
+				}
+
+				const renderResult = await processor
 					.render(raw.content, {
 						// @ts-expect-error passing internal prop
 						fileURL,
