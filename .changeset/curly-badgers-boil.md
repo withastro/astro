@@ -12,3 +12,5 @@ There is no need to update your project; your existing images will still continu
 - ![A cute dog](./dog.jpg)
 + ![A cute dog](dog.jpg)
 <!-- This dog lives in the same folder as my article! -->
+```
+
