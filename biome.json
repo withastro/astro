@@ -1,34 +1,36 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.6.4/schema.json",
-	"files": {
-		"ignore": ["vendor", "dist/**"],
-		"include": ["test/**", "e2e/**", "packages/**"]
-	},
-	"formatter": {
-		"indentStyle": "tab",
-		"indentWidth": 2,
-		"lineWidth": 100,
-		"ignore": [
-			"benchmark/projects/",
-			"benchmark/results/",
-			"**/dist/**",
-			"**/smoke/**",
-			"**/fixtures/**",
-			"**/vendor/**",
-			"**/.vercel/**",
-			".changeset",
-			"pnpm-lock.yaml"
-		]
-	},
-	"organizeImports": { "enabled": true },
-	"linter": { "enabled": false },
-	"javascript": {
-		"formatter": {
-			"trailingComma": "es5",
-			"quoteStyle": "single",
+  "$schema": "https://biomejs.dev/schemas/1.6.4/schema.json",
+  "files": {
+    "ignore": ["vendor", "dist/**"],
+    "include": ["test/**", "e2e/**", "packages/**"]
+  },
+  "formatter": {
+    "indentStyle": "tab",
+    "indentWidth": 2,
+    "lineWidth": 100,
+    "ignore": [
+      "benchmark/projects/",
+      "benchmark/results/",
+      "**/dist/**",
+      "**/smoke/**",
+      "**/fixtures/**",
+      "**/vendor/**",
+      "**/.vercel/**",
+      ".changeset",
+      "pnpm-lock.yaml",
+      "package.json",
+      "*.astro"
+    ]
+  },
+  "organizeImports": { "enabled": true },
+  "linter": { "enabled": false },
+  "javascript": {
+    "formatter": {
+      "trailingComma": "es5",
+      "quoteStyle": "single",
       "semicolons": "always"
     }
-	},
+  },
   "json": {
     "parser": {
       "allowComments": true,
