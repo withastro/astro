@@ -75,7 +75,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					),
 				});
 
-				let processor: ReturnType<typeof createMdxProcessor>;
+				let processor: ReturnType<typeof createMdxProcessor> | undefined;
 
 				updateConfig({
 					vite: {
@@ -83,6 +83,9 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 							{
 								name: '@mdx-js/rollup',
 								enforce: 'pre',
+								buildEnd() {
+									processor = undefined;
+								},
 								configResolved(resolved) {
 									processor = createMdxProcessor(mdxOptions, {
 										sourcemap: !!resolved.build.sourcemap,
@@ -117,6 +120,14 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 									const vfile = new VFile({ value: pageContent, path: id });
 									// Ensure `data.astro` is available to all remark plugins
 									setVfileFrontmatter(vfile, frontmatter);
+
+									// `processor` is initialized in `configResolved`, and removed in `buildEnd`. `transform`
+									// should be called in between those two lifecycle, so this error should never happen
+									if (!processor) {
+										return this.error(
+											'MDX processor is not initialized. This is an internal error. Please file an issue.'
+										);
+									}
 
 									try {
 										const compiled = await processor.process(vfile);
