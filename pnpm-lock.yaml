@@ -536,6 +536,9 @@ importers:
       '@types/babel__core':
         specifier: ^7.20.4
         version: 7.20.5
+      '@types/cookie':
+        specifier: ^0.5.4
+        version: 0.5.4
       acorn:
         specifier: ^8.11.2
         version: 8.11.3
@@ -718,9 +721,6 @@ importers:
       '@types/connect':
         specifier: ^3.4.38
         version: 3.4.38
-      '@types/cookie':
-        specifier: ^0.5.4
-        version: 0.5.4
       '@types/cssesc':
         specifier: ^3.0.2
         version: 3.0.2
@@ -8288,7 +8288,7 @@ packages:
 
   /@types/cookie@0.5.4:
     resolution: {integrity: sha512-7z/eR6O859gyWIAjuvBWFzNURmf2oPBmJlfVWkwehU5nzIyjwBsTh7WMmEEV4JFnHuQ3ex4oyTvfKzcyJVDBNA==}
-    dev: true
+    dev: false
 
   /@types/cssesc@3.0.2:
     resolution: {integrity: sha512-Qii6nTRktvtI380EloxH/V7MwgrYxkPgBI+NklUjQuhzgAd1AqT3QDJd+eD+0doRADgfwvtagLRo7JFa7aMHXg==}
