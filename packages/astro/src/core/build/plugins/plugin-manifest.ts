@@ -277,5 +277,6 @@ function buildManifest(
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
 		checkOrigin: settings.config.experimental.security?.csrfProtection?.origin ?? false,
+		reroutingEnabled: settings.config.experimental.rerouting,
 	};
 }

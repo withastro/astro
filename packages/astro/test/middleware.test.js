@@ -377,3 +377,26 @@ describe(
 		});
 	}
 );
+
+describe.only('middleware with virtual routes', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/middleware-virtual/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it.only("should touch the middleware when a route doesn't exist", async () => {
+		const html = await fixture.fetch('/ahahah').then((res) => res.text());
+		const $ = cheerio.load(html);
+		assert.equal($('p').html(), 'bar');
+	});
+});

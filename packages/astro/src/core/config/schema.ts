@@ -87,6 +87,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 		globalRoutePriority: false,
 		i18nDomains: false,
 		security: {},
+		rerouting: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -525,6 +526,7 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.security),
 			i18nDomains: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.i18nDomains),
+			rerouting: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rerouting),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`

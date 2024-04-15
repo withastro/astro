@@ -1,4 +1,10 @@
-import type { RouteData, SSRElement, SSRResult } from '../../@types/astro.js';
+import type {
+	ComponentInstance,
+	ReroutePayload,
+	RouteData,
+	SSRElement,
+	SSRResult,
+} from '../../@types/astro.js';
 import { Pipeline } from '../base-pipeline.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../render/ssr-element.js';
 
@@ -41,4 +47,11 @@ export class AppPipeline extends Pipeline {
 	}
 
 	componentMetadata() {}
+	getComponentByRoute(_routeData: RouteData): Promise<ComponentInstance> {
+		throw new Error('unimplemented');
+	}
+
+	tryReroute(_reroutePayload: ReroutePayload): Promise<[RouteData, ComponentInstance]> {
+		throw new Error('unimplemented');
+	}
 }

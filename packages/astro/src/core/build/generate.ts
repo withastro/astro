@@ -35,7 +35,7 @@ import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js
 import type { SSRManifestI18n } from '../app/types.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { routeIsFallback } from '../redirects/helpers.js';
+import { routeIsVirtual } from '../redirects/helpers.js';
 import {
 	RedirectSinglePageBuiltModule,
 	getRedirectLocationOrThrow,
@@ -91,7 +91,7 @@ async function getEntryForFallbackRoute(
 	internals: BuildInternals,
 	outFolder: URL
 ): Promise<SinglePageBuiltModule> {
-	if (route.type !== 'fallback') {
+	if (route.type !== 'virtual') {
 		throw new Error(`Expected a redirect route.`);
 	}
 	if (route.redirectRoute) {
@@ -208,7 +208,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 			if (routeIsRedirect(pageData.route)) {
 				const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
 				await generatePage(pageData, entry, builtPaths, pipeline);
-			} else if (routeIsFallback(pageData.route)) {
+			} else if (routeIsVirtual(pageData.route)) {
 				const entry = await getEntryForFallbackRoute(pageData.route, internals, outFolder);
 				await generatePage(pageData, entry, builtPaths, pipeline);
 			} else {
@@ -285,7 +285,7 @@ async function generatePage(
 	// Now we explode the routes. A route render itself, and it can render its fallbacks (i18n routing)
 	for (const route of eachRouteInRouteData(pageData)) {
 		const icon =
-			route.type === 'page' || route.type === 'redirect' || route.type === 'fallback'
+			route.type === 'page' || route.type === 'redirect' || route.type === 'virtual'
 				? green('▶')
 				: magenta('λ');
 		logger.info(null, `${icon} ${getPrettyRouteName(route)}`);
@@ -482,7 +482,7 @@ async function generatePath(
 	// Do not render the fallback route if there is already a translated page
 	// with the same path
 	if (
-		route.type === 'fallback' &&
+		route.type === 'virtual' &&
 		// If route is index page, continue rendering. The index page should
 		// always be rendered
 		route.pathname !== '/' &&
@@ -615,6 +615,7 @@ function createBuildManifest(
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
 		middleware,
+		reroutingEnabled: settings.config.experimental.rerouting,
 		checkOrigin: settings.config.experimental.security?.csrfProtection?.origin ?? false,
 	};
 }

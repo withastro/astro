@@ -4,6 +4,8 @@ import type {
 	AstroGlobalPartial,
 	ComponentInstance,
 	MiddlewareHandler,
+	MiddlewareNext,
+	ReroutePayload,
 	RouteData,
 	SSRResult,
 } from '../@types/astro.js';
@@ -28,6 +30,8 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
+import { fileURLToPath } from 'node:url';
+import { joinPaths } from '@astrojs/internal-helpers/path';
 
 /**
  * Each request is rendered using a `RenderContext`.
@@ -39,13 +43,22 @@ export class RenderContext {
 		public locals: App.Locals,
 		readonly middleware: MiddlewareHandler,
 		readonly pathname: string,
-		readonly request: Request,
-		readonly routeData: RouteData,
+		public request: Request,
+		public routeData: RouteData,
 		public status: number,
-		readonly cookies = new AstroCookies(request),
-		readonly params = getParams(routeData, pathname),
-		readonly url = new URL(request.url)
+		protected cookies = new AstroCookies(request),
+		public params = getParams(routeData, pathname),
+		protected url = new URL(request.url)
 	) {}
+
+	/**
+	 * A flag that tells the render content if the rerouting was triggered
+	 */
+	isRerouting = false;
+	/**
+	 * A safety net in case of loops
+	 */
+	counter = 0;
 
 	static create({
 		locals = {},
@@ -56,7 +69,7 @@ export class RenderContext {
 		routeData,
 		status = 200,
 	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData'> &
-		Partial<Pick<RenderContext, 'locals' | 'middleware' | 'status'>>) {
+		Partial<Pick<RenderContext, 'locals' | 'middleware' | 'status'>>): RenderContext {
 		return new RenderContext(
 			pipeline,
 			locals,
@@ -80,11 +93,11 @@ export class RenderContext {
 	 * - fallback
 	 */
 	async render(componentInstance: ComponentInstance | undefined): Promise<Response> {
-		const { cookies, middleware, pathname, pipeline, routeData } = this;
+		const { cookies, middleware, pathname, pipeline } = this;
 		const { logger, routeCache, serverLike, streaming } = pipeline;
 		const props = await getProps({
 			mod: componentInstance,
-			routeData,
+			routeData: this.routeData,
 			routeCache,
 			pathname,
 			logger,
@@ -92,8 +105,34 @@ export class RenderContext {
 		});
 		const apiContext = this.createAPIContext(props);
 
-		const lastNext = async () => {
-			switch (routeData.type) {
+		this.counter++;
+		if (this.counter == 4) {
+			return new Response('Loop Detected', {
+				// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/508
+				status: 508,
+				statusText: 'Loop Detected',
+			});
+		}
+		const lastNext: MiddlewareNext = async (payload) => {
+			if (payload) {
+				if (this.pipeline.manifest.reroutingEnabled) {
+					try {
+						const [routeData, component] = await pipeline.tryReroute(payload);
+						this.routeData = routeData;
+						componentInstance = component;
+					} catch (e) {
+						// TODO: Handle error
+					} finally {
+						this.isRerouting = true;
+					}
+				} else {
+					this.pipeline.logger.error(
+						'router',
+						'You tried to use the routing feature without enabling it via experimental flag. This is not allowed.'
+					);
+				}
+			}
+			switch (this.routeData.type) {
 				case 'endpoint':
 					return renderEndpoint(componentInstance as any, apiContext, serverLike, logger);
 				case 'redirect':
@@ -108,7 +147,7 @@ export class RenderContext {
 							props,
 							{},
 							streaming,
-							routeData
+							this.routeData
 						);
 					} catch (e) {
 						// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
@@ -119,18 +158,24 @@ export class RenderContext {
 					// Signal to the i18n middleware to maybe act on this response
 					response.headers.set(ROUTE_TYPE_HEADER, 'page');
 					// Signal to the error-page-rerouting infra to let this response pass through to avoid loops
-					if (routeData.route === '/404' || routeData.route === '/500') {
+					if (
+						this.routeData.route === '/404' ||
+						this.routeData.route === '/500' ||
+						this.isRerouting
+					) {
 						response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 					}
 					return response;
 				}
-				case 'fallback': {
+				case 'virtual': {
 					return new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
 				}
 			}
 		};
 
-		const response = await callMiddleware(middleware, apiContext, lastNext);
+		const response = this.isRerouting
+			? await lastNext()
+			: await callMiddleware(middleware, apiContext, lastNext);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
 			response.headers.delete(ROUTE_TYPE_HEADER);
 		}
@@ -143,10 +188,32 @@ export class RenderContext {
 
 	createAPIContext(props: APIContext['props']): APIContext {
 		const renderContext = this;
-		const { cookies, params, pipeline, request, url } = this;
+		const { cookies, params, pipeline, url } = this;
 		const generator = `Astro v${ASTRO_VERSION}`;
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
+
+		const reroute = async (reroutePayload: ReroutePayload) => {
+			try {
+				const [routeData, component] = await pipeline.tryReroute(reroutePayload);
+				this.routeData = routeData;
+				this.request = new Request(
+					new URL(routeData.pathname ?? routeData.route, this.url.origin),
+					this.request
+				);
+				this.url = new URL(this.request.url);
+				this.cookies = new AstroCookies(this.request);
+				this.params = getParams(routeData, url.toString());
+				this.isRerouting = true;
+				return await this.render(component);
+			} catch (e) {
+				return new Response('Not found', {
+					status: 404,
+					statusText: 'Not found',
+				});
+			}
+		};
+
 		return {
 			cookies,
 			get clientAddress() {
@@ -167,7 +234,7 @@ export class RenderContext {
 					renderContext.locals = val;
 					// we also put it on the original Request object,
 					// where the adapter might be expecting to read it after the response.
-					Reflect.set(request, clientLocalsSymbol, val);
+					Reflect.set(this.request, clientLocalsSymbol, val);
 				}
 			},
 			params,
@@ -179,7 +246,8 @@ export class RenderContext {
 			},
 			props,
 			redirect,
-			request,
+			reroute,
+			request: this.request,
 			site: pipeline.site,
 			url,
 		};
@@ -249,17 +317,39 @@ export class RenderContext {
 		slotValues: Record<string, any> | null
 	): AstroGlobal {
 		const renderContext = this;
-		const { cookies, locals, params, pipeline, request, url } = this;
+		const { cookies, locals, params, pipeline, url } = this;
 		const { response } = result;
 		const redirect = (path: string, status = 302) => {
 			// If the response is already sent, error as we cannot proceed with the redirect.
-			if ((request as any)[responseSentSymbol]) {
+			if ((this.request as any)[responseSentSymbol]) {
 				throw new AstroError({
 					...AstroErrorData.ResponseSentError,
 				});
 			}
 			return new Response(null, { status, headers: { Location: path } });
 		};
+
+		const reroute = async (reroutePayload: ReroutePayload) => {
+			try {
+				const [routeData, component] = await pipeline.tryReroute(reroutePayload);
+				this.routeData = routeData;
+				this.request = new Request(
+					new URL(routeData.pathname ?? routeData.route, this.url.origin),
+					this.request
+				);
+				this.url = new URL(this.request.url);
+				this.cookies = new AstroCookies(this.request);
+				this.params = getParams(routeData, url.toString());
+				this.isRerouting = true;
+				return await this.render(component);
+			} catch (e) {
+				return new Response('Not found', {
+					status: 404,
+					statusText: 'Not found',
+				});
+			}
+		};
+
 		const slots = new Slots(result, slotValues, pipeline.logger) as unknown as AstroGlobal['slots'];
 
 		// `Astro.self` is added by the compiler
@@ -283,7 +373,8 @@ export class RenderContext {
 			props,
 			locals,
 			redirect,
-			request,
+			reroute,
+			request: this.request,
 			response,
 			slots,
 			site: pipeline.site,

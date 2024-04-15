@@ -1,4 +1,4 @@
-import type { APIContext, MiddlewareHandler } from '../../@types/astro.js';
+import type { APIContext, MiddlewareHandler, ReroutePayload } from '../../@types/astro.js';
 import { defineMiddleware } from './index.js';
 
 // From SvelteKit: https://github.com/sveltejs/kit/blob/master/packages/kit/src/exports/hooks/sequence.js
@@ -10,10 +10,9 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 	const filtered = handlers.filter((h) => !!h);
 	const length = filtered.length;
 	if (!length) {
-		const handler: MiddlewareHandler = defineMiddleware((context, next) => {
+		return defineMiddleware((context, next) => {
 			return next();
 		});
-		return handler;
 	}
 
 	return defineMiddleware((context, next) => {
@@ -24,11 +23,11 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 			// @ts-expect-error
 			// SAFETY: Usually `next` always returns something in user land, but in `sequence` we are actually
 			// doing a loop over all the `next` functions, and eventually we call the last `next` that returns the `Response`.
-			const result = handle(handleContext, async () => {
+			const result = handle(handleContext, async (payload: ReroutePayload) => {
 				if (i < length - 1) {
 					return applyHandle(i + 1, handleContext);
 				} else {
-					return next();
+					return next(payload);
 				}
 			});
 			return result;
