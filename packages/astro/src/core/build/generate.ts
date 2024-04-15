@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
+import { bgGreen, black, blue, bold, dim, green, magenta } from 'kleur/colors';
 import PQueue from 'p-queue';
 import type { OutputAsset, OutputChunk } from 'rollup';
 import type {
