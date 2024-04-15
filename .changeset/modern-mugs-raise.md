@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fix Picture component specialFormatsFallback fallback check
+Fixes Picture component specialFormatsFallback fallback check
