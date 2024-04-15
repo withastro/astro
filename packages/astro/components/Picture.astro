@@ -45,7 +45,7 @@ let resultFallbackFormat = fallbackFormat ?? defaultFallbackFormat;
 if (
 	!fallbackFormat &&
 	isESMImportedImage(originalSrc) &&
-	originalSrc.format in specialFormatsFallback
+	(specialFormatsFallback as ReadonlyArray<string>).includes(originalSrc.format)
 ) {
 	resultFallbackFormat = originalSrc.format;
 }
