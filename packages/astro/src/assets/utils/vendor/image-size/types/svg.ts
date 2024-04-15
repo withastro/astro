@@ -56,7 +56,6 @@ function parseAttributes(root: string): IAttributes {
   const viewbox = root.match(extractorRegExps.viewbox)
   return {
     height: height && (parseLength(height[2]) as number),
-		// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     viewbox: viewbox && (parseViewbox(viewbox[2]) as IAttributes),
     width: width && (parseLength(width[2]) as number),
   }
