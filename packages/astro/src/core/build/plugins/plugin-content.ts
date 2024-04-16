@@ -19,6 +19,7 @@ import { copyFiles } from '../static-build.js';
 import type { StaticBuildOptions } from '../types.js';
 import { encodeName } from '../util.js';
 import { extendManualChunks } from './util.js';
+import { emptyDir } from '../../fs/index.js';
 
 const CONTENT_CACHE_DIR = './content/';
 const CONTENT_MANIFEST_FILE = './manifest.json';
@@ -69,6 +70,7 @@ function vitePluginContent(
 	let newManifest = createContentManifest();
 	let entries: ContentEntries;
 	let injectedEmptyFile = false;
+	let currentManifestState: ReturnType<typeof manifestState> = 'valid';
 
 	if (fsMod.existsSync(contentManifestFile)) {
 		try {
@@ -86,12 +88,12 @@ function vitePluginContent(
 			entries = getEntriesFromManifests(oldManifest, newManifest);
 
 			// If the manifest is valid, use the cached client entries as nothing has changed
-			const currentState = manifestState(oldManifest, newManifest);
-			if(currentState === 'valid') {
+			currentManifestState = manifestState(oldManifest, newManifest);
+			if(currentManifestState === 'valid') {
 				internals.cachedClientEntries = oldManifest.clientEntries;
 			} else {
 				let logReason = '';
-				switch(currentState) {
+				switch(currentManifestState) {
 					case 'config-mismatch':
 						logReason = 'Astro config has changed';
 						break;
@@ -121,7 +123,7 @@ function vitePluginContent(
 				newOptions = addRollupInput(newOptions, inputs);
 			}
 
-			if(currentState === 'valid') {
+			if(currentManifestState === 'valid') {
 				// Restores cached chunks and assets from the previous build
 				for(const { cached, dist } of cachedBuildOutput) {
 					if (fsMod.existsSync(cached)) {
@@ -235,10 +237,14 @@ function vitePluginContent(
 			});
 
 			const cacheExists = fsMod.existsSync(cache);
+			// If the manifest is invalid, empty the cache so that we can create a new one.
+			if(currentManifestState !== 'valid') {
+				emptyDir(cache);
+			}
 			fsMod.mkdirSync(cache, { recursive: true });
 			await fsMod.promises.mkdir(cacheTmp, { recursive: true });
 			await copyFiles(distContentRoot, cacheTmp, true);
-			if (cacheExists) {
+			if (cacheExists && currentManifestState === 'valid') {
 				await copyFiles(contentCacheDir, distContentRoot, false);
 			}
 			await copyFiles(cacheTmp, contentCacheDir);
@@ -411,7 +417,7 @@ export function pluginContent(
 
 	const cachedBuildOutput = [
 		{ cached: new URL('./chunks/', cacheDir), dist: new URL('./chunks/', outDir) },
-		{ cached: new URL('./_astro', cacheDir), dist: new URL('./_astro/', outDir) },
+		{ cached: new URL('./_astro/', cacheDir), dist: new URL('./_astro/', outDir) },
 	];
 
 	return {
