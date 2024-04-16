@@ -120,10 +120,13 @@ function vitePluginContent(
 				}
 				newOptions = addRollupInput(newOptions, inputs);
 			}
-			// Restores cached chunks and assets from the previous build
-			for(const { cached, dist } of cachedBuildOutput) {
-				if (fsMod.existsSync(cached)) {
-					await copyFiles(cached, dist, true);
+
+			if(currentState === 'valid') {
+				// Restores cached chunks and assets from the previous build
+				for(const { cached, dist } of cachedBuildOutput) {
+					if (fsMod.existsSync(cached)) {
+						await copyFiles(cached, dist, true);
+					}
 				}
 			}
 
