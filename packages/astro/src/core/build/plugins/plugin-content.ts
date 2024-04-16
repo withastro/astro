@@ -47,9 +47,10 @@ interface ContentManifest {
 
 const virtualEmptyModuleId = `virtual:empty-content`;
 const resolvedVirtualEmptyModuleId = `\0${virtualEmptyModuleId}`;
+const NO_MANIFEST_VERSION = -1 as const;
 
 function createContentManifest(): ContentManifest {
-	return { version: -1, entries: [], serverEntries: [], clientEntries: [], lockfiles: "", configs: "" };
+	return { version: NO_MANIFEST_VERSION, entries: [], serverEntries: [], clientEntries: [], lockfiles: "", configs: "" };
 }
 
 function vitePluginContent(
@@ -104,7 +105,10 @@ function vitePluginContent(
 						logReason = 'No content collections entries cached';
 						break;
 					case 'version-mismatch':
-						logReason = 'The cache manifest version has changed'
+						logReason = 'The cache manifest version has changed';
+						break;
+					case 'no-manifest':
+						logReason = 'No content manifest was found in the cache';
 						break;
 				}
 				opts.logger.info('build', `Cache invalid, rebuilding from source. Reason: ${logReason}.`);
@@ -301,9 +305,13 @@ function getEntriesFromManifests(
 	return entries;
 }
 
-type ManifestState = 'valid' | 'version-mismatch' | 'no-entries' | 'lockfile-mismatch' | 'config-mismatch';
+type ManifestState = 'valid' | 'no-manifest' | 'version-mismatch' | 'no-entries' | 'lockfile-mismatch' | 'config-mismatch';
 
 function manifestState(oldManifest: ContentManifest, newManifest: ContentManifest): ManifestState {
+	// There isn't an existing manifest.
+	if(oldManifest.version === NO_MANIFEST_VERSION) {
+		return 'no-manifest';
+	}
 	// Version mismatch, always invalid
 	if (oldManifest.version !== newManifest.version) {
 		return 'version-mismatch';
