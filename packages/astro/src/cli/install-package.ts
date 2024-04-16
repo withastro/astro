@@ -101,7 +101,7 @@ async function installPackage(
 	logger: Logger
 ): Promise<boolean> {
 	const cwd = options.cwd ?? process.cwd();
-	const packageManager = (await whichPm(cwd)).name ?? 'npm';
+	const packageManager = (await whichPm(cwd))?.name ?? 'npm';
 	const installCommand = getInstallCommand(packageNames, packageManager);
 
 	if (!installCommand) {
