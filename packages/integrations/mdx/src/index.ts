@@ -108,9 +108,9 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 								},
 								async resolveId(source, importer, options) {
 									if (importer?.endsWith('.mdx') && source[0] !== '/') {
-										let resolved = await this.resolve(source, importer, options)
-										if (!resolved) resolved = await this.resolve('./' + source, importer, options)
-										return resolved
+										let resolved = await this.resolve(source, importer, options);
+										if (!resolved) resolved = await this.resolve('./' + source, importer, options);
+										return resolved;
 									}
 								},
 								// Override transform to alter code before MDX compilation
