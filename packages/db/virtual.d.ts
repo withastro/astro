@@ -42,4 +42,5 @@ declare module 'astro:db' {
 	export const sumDistinct: RuntimeConfig['sumDistinct'];
 	export const max: RuntimeConfig['max'];
 	export const min: RuntimeConfig['min'];
+	export const alias: RuntimeConfig['alias'];
 }
