@@ -1,5 +1,25 @@
 # astro
 
+## 4.6.2
+
+### Patch Changes
+
+- [#10732](https://github.com/withastro/astro/pull/10732) [`a92e263beb6e0166f1f13c97803d1861793e2a99`](https://github.com/withastro/astro/commit/a92e263beb6e0166f1f13c97803d1861793e2a99) Thanks [@rishi-raj-jain](https://github.com/rishi-raj-jain)! - Correctly sets `build.assets` directory during `vite` config setup
+
+- [#10776](https://github.com/withastro/astro/pull/10776) [`1607face67051b16d4648555f1001b2a9308e377`](https://github.com/withastro/astro/commit/1607face67051b16d4648555f1001b2a9308e377) Thanks [@fshafiee](https://github.com/fshafiee)! - Fixes cookies type inference
+
+- [#10796](https://github.com/withastro/astro/pull/10796) [`90669472df3a05b33f0de46fd2d039e3eba7f7dd`](https://github.com/withastro/astro/commit/90669472df3a05b33f0de46fd2d039e3eba7f7dd) Thanks [@bluwy](https://github.com/bluwy)! - Disables streaming when rendering site with `output: "static"`
+
+- [#10782](https://github.com/withastro/astro/pull/10782) [`b0589d05538fcc77dd3c38198bf93f3548362cd8`](https://github.com/withastro/astro/commit/b0589d05538fcc77dd3c38198bf93f3548362cd8) Thanks [@nektro](https://github.com/nektro)! - Handles possible null value when calling `which-pm` during dynamic package installation
+
+- [#10774](https://github.com/withastro/astro/pull/10774) [`308b5d8c122f44e7724bb2f3ad3aa5c43a83e584`](https://github.com/withastro/astro/commit/308b5d8c122f44e7724bb2f3ad3aa5c43a83e584) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `astro add` sometimes modifying `baseUrl` unintentionally
+
+- [#10783](https://github.com/withastro/astro/pull/10783) [`4dbd545304d1a8af903c8c97f237eb55c988c40b`](https://github.com/withastro/astro/commit/4dbd545304d1a8af903c8c97f237eb55c988c40b) Thanks [@jurajkapsz](https://github.com/jurajkapsz)! - Fixes Picture component specialFormatsFallback fallback check
+
+- [#10775](https://github.com/withastro/astro/pull/10775) [`06843121450899ecf0390ca4efaff6c9a6fe0f75`](https://github.com/withastro/astro/commit/06843121450899ecf0390ca4efaff6c9a6fe0f75) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes assets endpoint in serverless returning 404 in certain situations where the website might be under a protected route
+
+- [#10787](https://github.com/withastro/astro/pull/10787) [`699f4559a279b374bddb3e5e48c72afe2709e8e7`](https://github.com/withastro/astro/commit/699f4559a279b374bddb3e5e48c72afe2709e8e7) Thanks [@martrapp](https://github.com/martrapp)! - Fixes a timing issue in the view transition simulation.
+
 ## 4.6.1
 
 ### Patch Changes
