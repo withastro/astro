@@ -54,14 +54,13 @@ function createContentManifest(): ContentManifest {
 function vitePluginContent(
 	opts: StaticBuildOptions,
 	lookupMap: ContentLookupMap,
-	internals: BuildInternals
+	internals: BuildInternals,
+	cachedBuildOutput: Array<{ cached: URL; dist: URL; }>
 ): VitePlugin {
 	const { config } = opts.settings;
 	const { cacheDir } = config;
 	const distRoot = config.outDir;
 	const distContentRoot = new URL('./content/', distRoot);
-	const cachedChunks = new URL('./chunks/', opts.settings.config.cacheDir);
-	const distChunks = new URL('./chunks/', opts.settings.config.outDir);
 	const contentCacheDir = new URL(CONTENT_CACHE_DIR, cacheDir);
 	const contentManifestFile = new URL(CONTENT_MANIFEST_FILE, contentCacheDir);
 	const cache = contentCacheDir;
@@ -121,10 +120,13 @@ function vitePluginContent(
 				}
 				newOptions = addRollupInput(newOptions, inputs);
 			}
-			// Restores cached chunks from the previous build
-			if (fsMod.existsSync(cachedChunks)) {
-				await copyFiles(cachedChunks, distChunks, true);
+			// Restores cached chunks and assets from the previous build
+			for(const { cached, dist } of cachedBuildOutput) {
+				if (fsMod.existsSync(cached)) {
+					await copyFiles(cached, dist, true);
+				}
 			}
+
 			// If nothing needs to be rebuilt, we inject a fake entrypoint to appease Rollup
 			if (entries.buildFromSource.length === 0) {
 				newOptions = addRollupInput(newOptions, [virtualEmptyModuleId]);
@@ -402,8 +404,12 @@ export function pluginContent(
 	opts: StaticBuildOptions,
 	internals: BuildInternals
 ): AstroBuildPlugin {
-	const cachedChunks = new URL('./chunks/', opts.settings.config.cacheDir);
-	const distChunks = new URL('./chunks/', opts.settings.config.outDir);
+	const { cacheDir, outDir } = opts.settings.config;
+
+	const cachedBuildOutput = [
+		{ cached: new URL('./chunks/', cacheDir), dist: new URL('./chunks/', outDir) },
+		{ cached: new URL('./_astro', cacheDir), dist: new URL('./_astro/', outDir) },
+	];
 
 	return {
 		targets: ['server'],
@@ -418,7 +424,7 @@ export function pluginContent(
 
 				const lookupMap = await generateLookupMap({ settings: opts.settings, fs: fsMod });
 				return {
-					vitePlugin: vitePluginContent(opts, lookupMap, internals),
+					vitePlugin: vitePluginContent(opts, lookupMap, internals, cachedBuildOutput),
 				};
 			},
 
@@ -429,8 +435,11 @@ export function pluginContent(
 				if (isServerLikeOutput(opts.settings.config)) {
 					return;
 				}
-				if (fsMod.existsSync(distChunks)) {
-					await copyFiles(distChunks, cachedChunks, true);
+				// Cache build output of chunks and assets
+				for(const { cached, dist } of cachedBuildOutput) {
+					if (fsMod.existsSync(dist)) {
+						await copyFiles(dist, cached, true);
+					}
 				}
 			},
 		},
