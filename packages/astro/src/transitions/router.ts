@@ -305,8 +305,8 @@ async function updateDOM(
 				activeElement instanceof HTMLInputElement ||
 				activeElement instanceof HTMLTextAreaElement
 			) {
-				activeElement.selectionStart = start!;
-				activeElement.selectionEnd = end!;
+				start && (activeElement.selectionStart = start);
+				end && (activeElement.selectionEnd = end);
 			}
 		}
 	};
