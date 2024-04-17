@@ -482,7 +482,7 @@ async function transition(
 				preparationEvent.sourceElement instanceof HTMLFormElement
 					? preparationEvent.sourceElement
 					: preparationEvent.sourceElement instanceof HTMLElement &&
-						  'form' in preparationEvent.sourceElement
+							'form' in preparationEvent.sourceElement
 						? (preparationEvent.sourceElement.form as HTMLFormElement)
 						: preparationEvent.sourceElement?.closest('form');
 			// Form elements without enctype explicitly set default to application/x-www-form-urlencoded.
