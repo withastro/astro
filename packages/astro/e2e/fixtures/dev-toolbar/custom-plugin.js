@@ -1,4 +1,4 @@
-import { defineToolbarApp } from "astro:toolbar";
+import { defineToolbarApp } from "astro/toolbar";
 
 export default defineToolbarApp({
 	init(canvas, app, server) {

@@ -7,7 +7,7 @@ Adds new utilities to ease the creation of toolbar apps. These new utilities hop
 For example, instead of creating an event listener for the `app-toggled` event and manually typing the value in the callback, you can now use the `onAppToggled` method. Additionally, communicating with the server does not require knowing any of the Vite APIs anymore, as a new `server` object is passed to the `init` function that contains easy to use methods for communicating with the server.
 
 ```diff
-import { defineToolbarApp } from "astro:toolbar";
+import { defineToolbarApp } from "astro/toolbar";
 
 export default defineToolbarApp({
   init(canvas, app, server) {
