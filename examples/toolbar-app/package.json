@@ -13,5 +13,8 @@
   "exports": {
     ".": "./dist/integration.js",
     "./app": "./dist/app.js"
+  },
+  "devDependencies": {
+    "astro": "^4.6.1"
   }
 }
