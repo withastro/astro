@@ -1,5 +1,4 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
-import pLimit from 'p-limit';
 import { ZodIssueCode, string as zodString } from 'zod';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
@@ -81,10 +80,12 @@ export function createGetCollection({
 			// Always return a new instance so consumers can safely mutate it
 			entries = [...cacheEntriesByCollection.get(collection)!];
 		} else {
-			const limit = pLimit(10);
-			entries = await Promise.all(
-				lazyImports.map((lazyImport) =>
-					limit(async () => {
+			
+			entries = []
+
+			// process files 1k at a time to prevent EMFILE
+			for (let i = 0; i < lazyImports.length; i += 1000) {
+				entries.push(...await Promise.all(lazyImports.slice(i * 1000, (i + 1) * 1000).map(async (lazyImport) => {
 						const entry = await lazyImport();
 						return type === 'content'
 							? {
@@ -107,8 +108,9 @@ export function createGetCollection({
 									data: entry.data,
 								};
 					})
-				)
-			);
+				))
+			}
+
 			cacheEntriesByCollection.set(collection, entries);
 		}
 		if (typeof filter === 'function') {
