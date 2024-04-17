@@ -11,7 +11,7 @@ import {
 	generateLookupMap,
 } from '../../../content/vite-plugin-content-virtual-mod.js';
 import { isServerLikeOutput } from '../../../prerender/utils.js';
-import { joinPaths, removeFileExtension, removeLeadingForwardSlash } from '../../path.js';
+import { joinPaths, removeFileExtension, removeLeadingForwardSlash, appendForwardSlash } from '../../path.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
@@ -41,7 +41,10 @@ interface ContentManifest {
 	// Tracks components that should be passed to the client build
 	// When the cache is restored, these might no longer be referenced
 	clientEntries: string[];
+	// Hash of the lockfiles, pnpm-lock.yaml, package-lock.json, etc.
+	// Kept so that installing new packages results in a full rebuild.
 	lockfiles: string;
+	// Hash of the Astro config. Changing options results in invalidating the cache.
 	configs: string;
 }
 
@@ -65,8 +68,7 @@ function vitePluginContent(
 	const distContentRoot = new URL('./content/', distRoot);
 	const contentCacheDir = new URL(CONTENT_CACHE_DIR, cacheDir);
 	const contentManifestFile = new URL(CONTENT_MANIFEST_FILE, contentCacheDir);
-	const cache = contentCacheDir;
-	const cacheTmp = new URL('./.tmp/', cache);
+	const cacheTmp = new URL('./.tmp/', contentCacheDir);
 	let oldManifest = createContentManifest();
 	let newManifest = createContentManifest();
 	let entries: ContentEntries;
@@ -127,8 +129,10 @@ function vitePluginContent(
 				newOptions = addRollupInput(newOptions, inputs);
 			}
 
+			// Restores cached chunks and assets from the previous build
+			// If the manifest state is not valid then it needs to rebuild everything
+			// so don't do that in this case.
 			if(currentManifestState === 'valid') {
-				// Restores cached chunks and assets from the previous build
 				for(const { cached, dist } of cachedBuildOutput) {
 					if (fsMod.existsSync(cached)) {
 						await copyFiles(cached, dist, true);
@@ -235,17 +239,17 @@ function vitePluginContent(
 			]);
 			newManifest.serverEntries = Array.from(serverComponents);
 			newManifest.clientEntries = Array.from(clientComponents);
+
+			const cacheExists = fsMod.existsSync(contentCacheDir);
+			// If the manifest is invalid, empty the cache so that we can create a new one.
+			if(cacheExists && currentManifestState !== 'valid') {
+				emptyDir(contentCacheDir);
+			}
+
 			await fsMod.promises.mkdir(contentCacheDir, { recursive: true });
 			await fsMod.promises.writeFile(contentManifestFile, JSON.stringify(newManifest), {
 				encoding: 'utf8',
 			});
-
-			const cacheExists = fsMod.existsSync(cache);
-			// If the manifest is invalid, empty the cache so that we can create a new one.
-			if(currentManifestState !== 'valid') {
-				emptyDir(cache);
-			}
-			fsMod.mkdirSync(cache, { recursive: true });
 			await fsMod.promises.mkdir(cacheTmp, { recursive: true });
 			await copyFiles(distContentRoot, cacheTmp, true);
 			if (cacheExists && currentManifestState === 'valid') {
@@ -423,9 +427,12 @@ export function pluginContent(
 ): AstroBuildPlugin {
 	const { cacheDir, outDir } = opts.settings.config;
 
+	const chunksFolder = './chunks/';
+	const assetsFolder = './' + appendForwardSlash(opts.settings.config.build.assets);
+	// These are build output that is kept in the cache.
 	const cachedBuildOutput = [
-		{ cached: new URL('./chunks/', cacheDir), dist: new URL('./chunks/', outDir) },
-		{ cached: new URL('./_astro/', cacheDir), dist: new URL('./_astro/', outDir) },
+		{ cached: new URL(chunksFolder, cacheDir), dist: new URL(chunksFolder, outDir) },
+		{ cached: new URL(assetsFolder, cacheDir), dist: new URL(assetsFolder, outDir) },
 	];
 
 	return {
@@ -438,7 +445,7 @@ export function pluginContent(
 				if (isServerLikeOutput(opts.settings.config)) {
 					return { vitePlugin: undefined };
 				}
-
+				opts.settings.config.build.assets
 				const lookupMap = await generateLookupMap({ settings: opts.settings, fs: fsMod });
 				return {
 					vitePlugin: vitePluginContent(opts, lookupMap, internals, cachedBuildOutput),

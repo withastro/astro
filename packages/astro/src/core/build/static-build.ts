@@ -454,7 +454,7 @@ export async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles 
 		dot: includeDotfiles,
 	});
 	if (files.length === 0) return;
-	await Promise.all(
+	return await Promise.all(
 		files.map(async function copyFile(filename) {
 			const from = new URL(filename, fromFolder);
 			const to = new URL(filename, toFolder);
