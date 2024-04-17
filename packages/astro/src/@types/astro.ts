@@ -406,6 +406,45 @@ export interface ImageServiceConfig<T extends Record<string, any> = Record<strin
 	config?: T;
 }
 
+type StringField = {
+  type: "string"
+  optional?: boolean
+  default?: string
+}
+
+type NumberField = {
+  type: "number"
+  optional?: boolean
+  default?: number
+}
+
+type BooleanField = {
+  type: "boolean"
+  optional?: boolean
+  default?: boolean
+}
+
+type EnvFieldType = StringField | NumberField | BooleanField
+
+type PublicStaticEnvFieldMetadata = {
+  scope: "static"
+  access: "public"
+}
+
+type PrivateStaticEnvFieldMetadata = {
+  scope: "static"
+  access: "private"
+}
+
+type PrivateDynamicEnvFieldMetadata = {
+  scope: "dynamic"
+  access: "private"
+}
+
+export type EnvSchema =
+  | Record<`PUBLIC_${string}`, PublicStaticEnvFieldMetadata & EnvFieldType>
+  | Record<string, (PrivateStaticEnvFieldMetadata | PrivateDynamicEnvFieldMetadata) & EnvFieldType>
+
 /**
  * Astro User Config
  * Docs: https://docs.astro.build/reference/configuration-reference/
@@ -1917,6 +1956,31 @@ export interface AstroUserConfig {
 				origin?: boolean;
 			};
 		};
+
+		/**
+		 * @docs
+		 * @name experimental.env
+		 * @type {object}
+		 * @default `{}`
+		 * @version TODO:
+		 * @description
+		 *
+		 * TODO:
+		 */
+		env?: {
+
+			/**
+			 * @docs
+			 * @name experimental.env.schema
+			 * @type {EnvSchema}
+			 * @default `{}`
+			 * @version TODO:
+			 * @description
+			 *
+			 * TODO:
+			 */
+			schema?: EnvSchema
+		}
 	};
 }
 

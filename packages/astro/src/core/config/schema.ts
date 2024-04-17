@@ -90,6 +90,68 @@ const ASTRO_CONFIG_DEFAULTS = {
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
+const createEnvSchemas = () => {
+	const StringField = z.object({
+		type: z.literal('string'),
+		optional: z.boolean().optional(),
+		default: z.string().optional(),
+	});
+	const NumberField = z.object({
+		type: z.literal('number'),
+		optional: z.boolean().optional(),
+		default: z.number().optional(),
+	});
+	const BooleanField = z.object({
+		type: z.literal('boolean'),
+		optional: z.boolean().optional(),
+		default: z.boolean().optional(),
+	});
+
+	const EnvFieldType = z.discriminatedUnion('type', [StringField, NumberField, BooleanField]);
+
+	const PublicStaticEnvFieldMetadata = z.object({
+		scope: z.literal('static'),
+		access: z.literal('public'),
+	});
+	const PrivateStaticEnvFieldMetadata = z.object({
+		scope: z.literal('static'),
+		access: z.literal('private'),
+	});
+	const PrivateDynamicEnvFieldMetadata = z.object({
+		scope: z.literal('dynamic'),
+		access: z.literal('private'),
+	});
+
+	const EnvSchema = z.union([
+		z.record(
+			z.custom<`PUBLIC_${string}`>(
+				(val) => z.string().startsWith('PUBLIC_').safeParse(val).success
+			),
+			z.intersection(PublicStaticEnvFieldMetadata, EnvFieldType)
+		),
+		z.record(
+			z.string(),
+			z.intersection(
+				z.union([PrivateStaticEnvFieldMetadata, PrivateDynamicEnvFieldMetadata]),
+				EnvFieldType
+			)
+		),
+	]);
+
+	return {
+		StringField,
+		NumberField,
+		BooleanField,
+		EnvFieldType,
+		PublicStaticEnvFieldMetadata,
+		PrivateStaticEnvFieldMetadata,
+		PrivateDynamicEnvFieldMetadata,
+		EnvSchema,
+	};
+};
+
+export const envSchemas = createEnvSchemas();
+
 export const AstroConfigSchema = z.object({
 	root: z
 		.string()
@@ -525,6 +587,12 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.security),
 			i18nDomains: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.i18nDomains),
+			env: z
+				.object({
+					schema: envSchemas.EnvSchema.optional(),
+				})
+				.optional()
+				.default({}),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`
