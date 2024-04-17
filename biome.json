@@ -1,7 +1,14 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.6.4/schema.json",
   "files": {
-    "ignore": ["vendor", "dist/**"],
+    "ignore": [
+      "vendor",
+      "**/dist/**",
+      "**/smoke/**",
+      "**/fixtures/**",
+      "**/vendor/**",
+      "**/.vercel/**"
+    ],
     "include": ["test/**", "e2e/**", "packages/**"]
   },
   "formatter": {
@@ -11,18 +18,15 @@
     "ignore": [
       "benchmark/projects/",
       "benchmark/results/",
-      "**/dist/**",
-      "**/smoke/**",
-      "**/fixtures/**",
-      "**/vendor/**",
-      "**/.vercel/**",
       ".changeset",
       "pnpm-lock.yaml",
       "package.json",
       "*.astro"
     ]
   },
-  "organizeImports": { "enabled": true },
+  "organizeImports": {
+    "enabled": true
+  },
   "linter": { "enabled": false },
   "javascript": {
     "formatter": {
