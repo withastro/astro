@@ -159,11 +159,6 @@ declare module 'astro:components' {
 	export * from 'astro/components';
 }
 
-declare module 'astro:toolbar' {
-	type DevToolbarApp = import('./dist/@types/astro.js').DevToolbarApp;
-	export function defineToolbarApp(app: DevToolbarApp): DevToolbarApp;
-}
-
 type MD = import('./dist/@types/astro.js').MarkdownInstance<Record<string, any>>;
 interface ExportedMarkdownModuleEntities {
 	frontmatter: MD['frontmatter'];

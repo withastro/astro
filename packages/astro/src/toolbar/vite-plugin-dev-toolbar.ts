@@ -6,9 +6,6 @@ import { eventAppToggled } from '../events/toolbar.js';
 const PRIVATE_VIRTUAL_MODULE_ID = 'astro:toolbar:internal';
 const resolvedPrivateVirtualModuleId = '\0' + PRIVATE_VIRTUAL_MODULE_ID;
 
-const PUBLIC_MODULE_ID = 'astro:toolbar';
-const resolvedPublicVirtualModuleId = '\0' + PUBLIC_MODULE_ID;
-
 export default function astroDevToolbar({ settings, logger }: AstroPluginOptions): vite.Plugin {
 	let telemetryTimeout: ReturnType<typeof setTimeout>;
 
@@ -25,9 +22,6 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 		resolveId(id) {
 			if (id === PRIVATE_VIRTUAL_MODULE_ID) {
 				return resolvedPrivateVirtualModuleId;
-			}
-			if (id === PUBLIC_MODULE_ID) {
-				return resolvedPublicVirtualModuleId;
 			}
 		},
 		configureServer(server) {
@@ -63,14 +57,6 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 			});
 		},
 		async load(id) {
-			if (id === resolvedPublicVirtualModuleId) {
-				return `
-					export function defineToolbarApp(app) {
-						return app;
-					}
-				`;
-			}
-
 			if (id === resolvedPrivateVirtualModuleId) {
 				return `
 					export const loadDevToolbarApps = async () => {
