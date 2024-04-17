@@ -1,11 +1,11 @@
 ---
+import Alias from '@components/Alias.svelte';
 import Client from '@components/Client.svelte'
+import '@styles/main.css';
+import { namespace } from '@test/namespace-package'
 import Foo from 'src/components/Foo.astro';
 import StyleComp from 'src/components/Style.astro';
-import Alias from '@components/Alias.svelte';
-import { namespace } from '@test/namespace-package'
 import { foo, index } from 'src/utils/constants';
-import '@styles/main.css';
 
 const globResult = Object.keys(import.meta.glob('@components/glob/*.js')).join(', ')
 ---
