@@ -39,7 +39,9 @@ export async function getPackage<T>(
 		return packageImport as T;
 	} catch (e) {
 		if (options.optional) return undefined;
-		let message = `To continue, Astro requires the following dependency to be installed: ${bold(packageName)}.`;
+		let message = `To continue, Astro requires the following dependency to be installed: ${bold(
+			packageName
+		)}.`;
 
 		if (ci.isCI) {
 			message += ` Packages cannot be installed automatically in CI environments.`;

@@ -39,7 +39,11 @@ export async function getContext(argv: string[]): Promise<Context> {
 	);
 
 	const packageManager = detectPackageManager()?.name ?? 'npm';
-	const { _: [version = 'latest'] = [], '--help': help = false, '--dry-run': dryRun } = flags;
+	const {
+		_: [version = 'latest'] = [],
+		'--help': help = false,
+		'--dry-run': dryRun,
+	} = flags;
 
 	return {
 		help,
