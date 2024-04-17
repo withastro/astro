@@ -1405,9 +1405,9 @@ test.describe('View Transitions', () => {
 });
 
 test('transition:persist persists selection', async ({ page, astro }) => {
-	let text = "";
+	let text = '';
 	page.on('console', (msg) => {
-		text=msg.text();
+		text = msg.text();
 	});
 	await page.goto(astro.resolveUrl('/persist-1'));
 	await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
