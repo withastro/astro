@@ -107,7 +107,7 @@ function vitePluginContent(
 						logReason = 'No content collections entries cached';
 						break;
 					case 'version-mismatch':
-						logReason = `The cache manifest version has changed: ${oldManifest.version} - ${newManifest.version}`;
+						logReason = 'The cache manifest version has changed';
 						break;
 					case 'no-manifest':
 						logReason = 'No content manifest was found in the cache';
