@@ -2105,7 +2105,7 @@ export interface AstroSettings {
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
-	devToolbarApps: (AstroDevToolbarAppEntry | string)[];
+	devToolbarApps: (DevToolbarAppEntry | string)[];
 	middlewares: { pre: string[]; post: string[] };
 	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
@@ -2733,7 +2733,7 @@ export interface AstroIntegration {
 			 */
 			addDevOverlayPlugin: (entrypoint: string) => void;
 			// TODO: Deprecate the `string` overload once a few apps have been migrated to the new API.
-			addDevToolbarApp: (entrypoint: AstroDevToolbarAppEntry | string) => void;
+			addDevToolbarApp: (entrypoint: DevToolbarAppEntry | string) => void;
 			addMiddleware: (mid: AstroIntegrationMiddleware) => void;
 			logger: AstroIntegrationLogger;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
@@ -3010,6 +3010,12 @@ type DevToolbarAppMeta = {
 	icon?: Icon;
 };
 
+// The param passed to `addDevToolbarApp` in the integration
+export type DevToolbarAppEntry = DevToolbarAppMeta & {
+	entrypoint: string;
+};
+
+// Public API for the dev toolbar
 export type DevToolbarApp = {
 	/**
 	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
@@ -3045,10 +3051,6 @@ export type DevToolbarApp = {
 
 // An app that has been loaded and as such contain all of its properties
 export type ResolvedDevToolbarApp = DevToolbarAppMeta & Omit<DevToolbarApp, 'id' | 'name' | 'icon'>;
-
-export type AstroDevToolbarAppEntry = DevToolbarAppMeta & {
-	entrypoint: string;
-};
 
 // TODO: Remove in Astro 5.0
 export type DevOverlayPlugin = DevToolbarApp;
