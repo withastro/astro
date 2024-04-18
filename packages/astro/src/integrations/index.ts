@@ -480,7 +480,13 @@ type RunHookBuildDone = {
 	cacheManifest: boolean;
 };
 
-export async function runHookBuildDone({ config, pages, routes, logging, cacheManifest }: RunHookBuildDone) {
+export async function runHookBuildDone({
+	config,
+	pages,
+	routes,
+	logging,
+	cacheManifest,
+}: RunHookBuildDone) {
 	const dir = isServerLikeOutput(config) ? config.build.client : config.outDir;
 	await fs.promises.mkdir(dir, { recursive: true });
 

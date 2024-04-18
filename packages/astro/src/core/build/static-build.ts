@@ -23,6 +23,7 @@ import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { routeIsRedirect } from '../redirects/index.js';
 import { getOutDirWithinCwd } from './common.js';
+import { CHUNKS_PATH } from './consts.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { type AstroBuildPluginContainer, createPluginContainer } from './plugin.js';
@@ -34,7 +35,6 @@ import { RESOLVED_SPLIT_MODULE_ID, RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plug
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
-import { CHUNKS_PATH } from './consts.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;

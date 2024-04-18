@@ -92,13 +92,13 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			if (!compileMetadata) {
 				// If `compileMetadata` doesn't exist in dev, that means the virtual module may have been invalidated.
 				// We try to re-compile the main Astro module (`filename`) first before retrieving the metadata again.
-				if(server) {
+				if (server) {
 					const code = await loadId(server.pluginContainer, filename);
 					// `compile` should re-set `filename` in `astroFileToCompileMetadata`
 					if (code != null) await compile(code, filename);
 				}
 				// When cached we might load client-side scripts during the build
-				else if(config.experimental.contentCollectionCache) {
+				else if (config.experimental.contentCollectionCache) {
 					await this.load({
 						id: filename,
 						resolveDependencies: false,
