@@ -4,8 +4,8 @@ import type { AstroConfig, AstroIntegration } from 'astro';
 import type { EnumChangefreq, LinkItem as LinkItemBase, SitemapItemLoose } from 'sitemap';
 import { ZodError } from 'zod';
 
-import { validateOptions } from './validate-options.js';
 import { generateSitemap } from './generate-sitemap.js';
+import { validateOptions } from './validate-options.js';
 import { writeSitemap } from './write-sitemap.js';
 
 export { EnumChangefreq as ChangeFreqEnum } from 'sitemap';
@@ -167,13 +167,16 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						}
 					}
 					const destDir = fileURLToPath(dir);
-					await writeSitemap({
-						hostname: finalSiteUrl.href,
-						destinationDir: destDir,
-						publicBasePath: config.base,
-						sourceData: urlData,
-						limit: entryLimit
-					}, config)
+					await writeSitemap(
+						{
+							hostname: finalSiteUrl.href,
+							destinationDir: destDir,
+							publicBasePath: config.base,
+							sourceData: urlData,
+							limit: entryLimit,
+						},
+						config
+					);
 					logger.info(`\`${OUTFILE}\` created at \`${path.relative(process.cwd(), destDir)}\``);
 				} catch (err) {
 					if (err instanceof ZodError) {
