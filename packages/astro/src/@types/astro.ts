@@ -2779,6 +2779,7 @@ export interface AstroIntegration {
 			dir: URL;
 			routes: RouteData[];
 			logger: AstroIntegrationLogger;
+			cacheManifest: boolean;
 		}) => void | Promise<void>;
 	};
 }
