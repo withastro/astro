@@ -27,11 +27,11 @@
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/underscore-redirects": "^0.3.3",
     "@astrojs/internal-helpers": "0.3.0",
+    "@astrojs/underscore-redirects": "^0.3.3",
     "@cloudflare/workers-types": "^4.20240320.1",
-    "miniflare": "^3.20240320.0",
     "esbuild": "^0.19.5",
+    "miniflare": "^3.20240320.0",
     "tiny-glob": "^0.2.9",
     "wrangler": "^3.39.0"
   },
@@ -39,13 +39,15 @@
     "astro": "^4.2.0"
   },
   "devDependencies": {
+    "@astrojs/test-utils": "workspace:*",
+    "astro": "^4.5.8",
+    "astro-scripts": "workspace:*",
+    "cheerio": "1.0.0-rc.12",
     "execa": "^8.0.1",
     "fast-glob": "^3.3.2",
+    "rollup": "^4.14.0",
     "strip-ansi": "^7.1.0",
-    "astro": "^4.5.8",
-    "cheerio": "1.0.0-rc.12",
-    "@astrojs/test-utils": "workspace:*",
-    "astro-scripts": "workspace:*"
+    "vite": "^5.2.6"
   },
   "publishConfig": {
     "provenance": true
