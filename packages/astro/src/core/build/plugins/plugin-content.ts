@@ -385,7 +385,7 @@ async function lockfilesHash(root: URL) {
 	const datas: Uint8Array[] = [];
 	const promises: Promise<void>[] = [];
 	for(const lockfileName of lockfiles) {
-		const fileURL = new URL(`./${lockFileName}`, root);
+		const fileURL = new URL(`./${lockfileName}`, root);
 		promises.push(pushBufferInto(fileURL, datas));
 	}
 	await Promise.all(promises);
@@ -396,11 +396,9 @@ async function configHash(root: URL) {
 	const configFileNames = configPaths;
 	for(const configPath of configFileNames) {
 		try {
-			const fileURL = new URL(`./${configPath}`, root));
-			const handle = await fsMod.promises.open(fileURL, 'r');
-			const data = await handle.readFile();
+			const fileURL = new URL(`./${configPath}`, root);
+			const data = await fsMod.promises.readFile(fileURL);
 			const hash = checksum(data);
-			await handle.close();
 			return hash;
 		} catch {
 			// File doesn't exist
@@ -445,7 +443,6 @@ export function pluginContent(
 				if (isServerLikeOutput(opts.settings.config)) {
 					return { vitePlugin: undefined };
 				}
-				opts.settings.config.build.assets
 				const lookupMap = await generateLookupMap({ settings: opts.settings, fs: fsMod });
 				return {
 					vitePlugin: vitePluginContent(opts, lookupMap, internals, cachedBuildOutput),

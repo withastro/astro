@@ -24,7 +24,7 @@ describe('Experimental Content Collections cache - invalidation', () => {
 		}
 	}
 
-	class ManifestUsed {
+	class ManifestTestPlugin {
 		used = false;
 		plugin() {
 			return {
@@ -40,10 +40,10 @@ describe('Experimental Content Collections cache - invalidation', () => {
 
 	describe('manifest version', () => {
 		let fixture, backup,
-		/** @type {ManifestUsed} */
+		/** @type {ManifestTestPlugin} */
 		testPlugin;
 		before(async () => {
-			testPlugin = new ManifestUsed();
+			testPlugin = new ManifestTestPlugin();
 			fixture = await loadFixture({
 				root: './fixtures/content-collections-cache-invalidation/',
 				cacheDir: './cache/version-mismatch/',
@@ -69,10 +69,10 @@ describe('Experimental Content Collections cache - invalidation', () => {
 
 	describe('lockfiles', () => {
 		let fixture, backup,
-		/** @type {ManifestUsed} */
+		/** @type {ManifestTestPlugin} */
 		testPlugin;
 		before(async () => {
-			testPlugin = new ManifestUsed();
+			testPlugin = new ManifestTestPlugin();
 			fixture = await loadFixture({
 				root: './fixtures/content-collections-cache-invalidation/',
 				cacheDir: './cache/lockfile-mismatch/',

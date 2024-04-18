@@ -78,6 +78,8 @@ export function resolveRoot(cwd?: string | URL): string {
 	return cwd ? path.resolve(cwd) : process.cwd();
 }
 
+// Config paths to search for. In order of likely appearance
+// to speed up the check.
 export const configPaths = Object.freeze([
 	'astro.config.mjs',
 	'astro.config.js',
