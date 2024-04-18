@@ -396,7 +396,7 @@ async function configHash(root: URL) {
 	const configFileNames = configPaths;
 	for(const configPath of configFileNames) {
 		try {
-			const fileURL = new URL(encodeURI(joinPaths(root.toString(), configPath)));
+			const fileURL = new URL(`./${configPath}`, root));
 			const handle = await fsMod.promises.open(fileURL, 'r');
 			const data = await handle.readFile();
 			const hash = checksum(data);
