@@ -40,6 +40,7 @@ import type {
 } from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type { EnvSchema } from '../core/env/schema.js' 
 
 export { type AstroIntegrationLogger };
 
@@ -405,45 +406,6 @@ export interface ImageServiceConfig<T extends Record<string, any> = Record<strin
 	entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
 	config?: T;
 }
-
-type StringField = {
-  type: "string"
-  optional?: boolean
-  default?: string
-}
-
-type NumberField = {
-  type: "number"
-  optional?: boolean
-  default?: number
-}
-
-type BooleanField = {
-  type: "boolean"
-  optional?: boolean
-  default?: boolean
-}
-
-type EnvFieldType = StringField | NumberField | BooleanField
-
-type PublicStaticEnvFieldMetadata = {
-  scope: "static"
-  access: "public"
-}
-
-type PrivateStaticEnvFieldMetadata = {
-  scope: "static"
-  access: "private"
-}
-
-type PrivateDynamicEnvFieldMetadata = {
-  scope: "dynamic"
-  access: "private"
-}
-
-export type EnvSchema =
-  | Record<`PUBLIC_${string}`, PublicStaticEnvFieldMetadata & EnvFieldType>
-  | Record<string, (PrivateStaticEnvFieldMetadata | PrivateDynamicEnvFieldMetadata) & EnvFieldType>
 
 /**
  * Astro User Config
