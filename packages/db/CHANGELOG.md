@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.10.4
+
+### Patch Changes
+
+- [#10764](https://github.com/withastro/astro/pull/10764) [`d1080ea81de0db1d1aed97a65c490766c17ab312`](https://github.com/withastro/astro/commit/d1080ea81de0db1d1aed97a65c490766c17ab312) Thanks [@delucis](https://github.com/delucis)! - Improves `package.json` metadata fields
+
 ## 0.10.3
 
 ### Patch Changes

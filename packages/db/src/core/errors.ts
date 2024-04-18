@@ -35,8 +35,7 @@ export const RENAME_COLUMN_ERROR = (oldSelector: string, newSelector: string) =>
 	);
 };
 
-export const FILE_NOT_FOUND_ERROR = (path: string) =>
-	`${red('▶ File not found:')} ${bold(path)}\n`;
+export const FILE_NOT_FOUND_ERROR = (path: string) => `${red('▶ File not found:')} ${bold(path)}\n`;
 
 export const SHELL_QUERY_MISSING_ERROR = `${red(
 	'▶ Please provide a query to execute using the --query flag.'

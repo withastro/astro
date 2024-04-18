@@ -31,6 +31,10 @@ export async function renderToString(
 	let str = '';
 	let renderedFirstPageChunk = false;
 
+	if (isPage) {
+		await bufferHeadContent(result);
+	}
+
 	const destination: RenderDestination = {
 		write(chunk) {
 			// Automatic doctype insertion for pages

@@ -16,8 +16,8 @@
     "dev": "turbo run dev --concurrency=40 --parallel --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
     "format": "pnpm run format:code && pnpm run format:imports",
     "format:ci": "pnpm run format:code:ci && pnpm run format:imports:ci",
-    "format:code": "prettier -w \"**/*\" --ignore-unknown --cache",
-    "format:code:ci": "prettier -w \"**/*\" --ignore-unknown --cache --check",
+    "format:code": "biome format ./ --write && prettier -w \"**/*\" --ignore-unknown --cache",
+    "format:code:ci": "biome format ./ && prettier -w \"**/*\" --ignore-unknown --cache --check",
     "format:imports": "biome check --apply .",
     "format:imports:ci": "biome ci .",
     "test": "turbo run test --concurrency=1 --filter=astro --filter=create-astro --filter=\"@astrojs/*\"",
@@ -52,15 +52,14 @@
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.5.3",
     "@astrojs/check": "^0.5.8",
+    "@biomejs/biome": "1.6.4",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.26.2",
+    "@eslint/eslintrc": "^3.0.2",
     "@types/node": "^18.17.8",
-    "@typescript-eslint/eslint-plugin": "^6.11.0",
-    "@typescript-eslint/parser": "^6.11.0",
     "esbuild": "^0.19.6",
-    "eslint": "^8.54.0",
+    "eslint": "^9.0.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-no-only-tests": "^3.1.0",
     "eslint-plugin-prettier": "^5.0.0",
@@ -72,7 +71,8 @@
     "prettier-plugin-astro": "^0.12.2",
     "tiny-glob": "^0.2.9",
     "turbo": "^1.12.4",
-    "typescript": "~5.2.2"
+    "typescript": "~5.2.2",
+    "typescript-eslint": "^7.6.0"
   },
   "pnpm": {
     "packageExtensions": {
