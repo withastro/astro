@@ -11,6 +11,12 @@ import { SESSION_LOGIN_FILE } from '../../../tokens.js';
 import type { DBConfig } from '../../../types.js';
 import { getAstroStudioUrl } from '../../../utils.js';
 
+const isWebContainer =
+	// Stackblitz heuristic
+	process.versions?.webcontainer ??
+	// Github Codespaces heuristic
+	process.env.CODESPACE_NAME;
+
 export async function cmd({
 	flags,
 }: {
@@ -20,7 +26,7 @@ export async function cmd({
 }) {
 	let session = flags.session;
 
-	if (!session && process.versions?.webcontainer) {
+	if (!session && isWebContainer) {
 		console.log(`Please visit the following URL in your web browser:`);
 		console.log(cyan(`${getAstroStudioUrl()}/auth/cli/login`));
 		console.log(`After login in complete, enter the verification code displayed:`);
