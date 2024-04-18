@@ -1,4 +1,4 @@
-import { bold, red } from 'kleur/colors';
+import { bold } from 'kleur/colors';
 
 export const FOREIGN_KEY_DNE_ERROR = (tableName: string) => {
 	return `Table ${bold(

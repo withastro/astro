@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import {
 	TSConfckParseError,
@@ -5,6 +6,7 @@ import {
 	type TSConfckParseResult,
 	find,
 	parse,
+	toJson,
 } from 'tsconfck';
 import type { CompilerOptions, TypeAcquisition } from 'typescript';
 
@@ -64,7 +66,7 @@ type TSConfigResult<T = {}> = Promise<
 export async function loadTSConfig(
 	root: string | undefined,
 	findUp = false
-): Promise<TSConfigResult<{ rawConfig: TSConfckParseResult }>> {
+): Promise<TSConfigResult<{ rawConfig: TSConfig }>> {
 	const safeCwd = root ?? process.cwd();
 
 	const [jsconfig, tsconfig] = await Promise.all(
@@ -85,7 +87,13 @@ export async function loadTSConfig(
 			return parsedConfig;
 		}
 
-		return { ...parsedConfig, rawConfig: parsedConfig.extended?.[0] ?? parsedConfig.tsconfig };
+		// tsconfck does not return the original config, so we need to parse it ourselves
+		// https://github.com/dominikg/tsconfck/issues/138
+		const rawConfig = await readFile(tsconfig, 'utf-8')
+			.then(toJson)
+			.then((content) => JSON.parse(content) as TSConfig);
+
+		return { ...parsedConfig, rawConfig };
 	}
 
 	if (jsconfig) {
@@ -95,7 +103,11 @@ export async function loadTSConfig(
 			return parsedConfig;
 		}
 
-		return { ...parsedConfig, rawConfig: parsedConfig.extended?.[0] ?? parsedConfig.tsconfig };
+		const rawConfig = await readFile(jsconfig, 'utf-8')
+			.then(toJson)
+			.then((content) => JSON.parse(content) as TSConfig);
+
+		return { ...parsedConfig, rawConfig: rawConfig };
 	}
 
 	return 'missing-config';

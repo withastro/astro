@@ -1,6 +1,6 @@
 ---
 /// <reference path="../../.astro/db-types.d.ts" />
-import { Recipe, Ingredient, db, eq } from 'astro:db';
+import { Ingredient, Recipe, db, eq } from 'astro:db';
 
 const ingredientsByRecipe = await db
 	.select({

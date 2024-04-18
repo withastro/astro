@@ -305,8 +305,8 @@ async function updateDOM(
 				activeElement instanceof HTMLInputElement ||
 				activeElement instanceof HTMLTextAreaElement
 			) {
-				activeElement.selectionStart = start!;
-				activeElement.selectionEnd = end!;
+				if (typeof start === 'number') activeElement.selectionStart = start;
+				if (typeof end === 'number') activeElement.selectionEnd = end;
 			}
 		}
 	};
@@ -396,8 +396,10 @@ async function updateDOM(
 			const style = window.getComputedStyle(effect.target, effect.pseudoElement);
 			return style.animationIterationCount === 'infinite';
 		}
-		// Trigger the animations
 		const currentAnimations = document.getAnimations();
+		// allow animations triggered by viewTransition.ready to start
+		await new Promise<void>((r) => setTimeout(r));
+		// Trigger view transition animations waiting for data-astro-transition-fallback
 		document.documentElement.setAttribute(OLD_NEW_ATTR, phase);
 		const nextAnimations = document.getAnimations();
 		const newAnimations = nextAnimations.filter(
@@ -480,7 +482,7 @@ async function transition(
 				preparationEvent.sourceElement instanceof HTMLFormElement
 					? preparationEvent.sourceElement
 					: preparationEvent.sourceElement instanceof HTMLElement &&
-						  'form' in preparationEvent.sourceElement
+							'form' in preparationEvent.sourceElement
 						? (preparationEvent.sourceElement.form as HTMLFormElement)
 						: preparationEvent.sourceElement?.closest('form');
 			// Form elements without enctype explicitly set default to application/x-www-form-urlencoded.

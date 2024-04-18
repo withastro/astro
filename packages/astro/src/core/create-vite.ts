@@ -208,6 +208,7 @@ export async function createVite(
 			noExternal: [...ALWAYS_NOEXTERNAL, ...astroPkgsConfig.ssr.noExternal],
 			external: [...(mode === 'dev' ? ONLY_DEV_EXTERNAL : []), ...astroPkgsConfig.ssr.external],
 		},
+		build: { assetsDir: settings.config.build.assets },
 	};
 
 	// If the user provides a custom assets prefix, make sure assets handled by Vite

@@ -1403,3 +1403,20 @@ test.describe('View Transitions', () => {
 		).toEqual(0);
 	});
 });
+
+test('transition:persist persists selection', async ({ page, astro }) => {
+	let text = '';
+	page.on('console', (msg) => {
+		text = msg.text();
+	});
+	await page.goto(astro.resolveUrl('/persist-1'));
+	await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
+	// go to page 2
+	await page.press('input[name="name"]', 'Enter');
+	await expect(page.locator('#two'), 'should have content').toHaveText('Persist 2');
+	expect(text).toBe('true some cool text 5 9');
+
+	await page.goBack();
+	await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
+	expect(text).toBe('true true');
+});

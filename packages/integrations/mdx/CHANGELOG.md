@@ -1,5 +1,36 @@
 # @astrojs/mdx
 
+## 2.3.1
+
+### Patch Changes
+
+- [#10754](https://github.com/withastro/astro/pull/10754) [`3e7a12c8532411e580fcfdb8445cad8fc8499291`](https://github.com/withastro/astro/commit/3e7a12c8532411e580fcfdb8445cad8fc8499291) Thanks [@rishi-raj-jain](https://github.com/rishi-raj-jain)! - Fixes an issue where images in MDX required a relative specifier (e.g. `./`)
+
+  Now, you can use the standard `![](img.png)` syntax in MDX files for images colocated in the same folder: no relative specifier required!
+
+  There is no need to update your project; your existing images will still continue to work. However, you may wish to remove any relative specifiers from these MDX images as they are no longer necessary:
+
+  ```diff
+  - ![A cute dog](./dog.jpg)
+  + ![A cute dog](dog.jpg)
+  <!-- This dog lives in the same folder as my article! -->
+  ```
+
+- [#10770](https://github.com/withastro/astro/pull/10770) [`88ee63a3ba4488c60348cb821034e6d4a057efd0`](https://github.com/withastro/astro/commit/88ee63a3ba4488c60348cb821034e6d4a057efd0) Thanks [@bluwy](https://github.com/bluwy)! - Removes internal MDX processor on `buildEnd` to free up memory
+
+## 2.3.0
+
+### Minor Changes
+
+- [#10689](https://github.com/withastro/astro/pull/10689) [`683d51a5eecafbbfbfed3910a3f1fbf0b3531b99`](https://github.com/withastro/astro/commit/683d51a5eecafbbfbfed3910a3f1fbf0b3531b99) Thanks [@ematipico](https://github.com/ematipico)! - Deprecate support for versions of Node.js older than `v18.17.1` for Node.js 18, older than `v20.0.3` for Node.js 20, and the complete Node.js v19 release line.
+
+  This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
+
+### Patch Changes
+
+- Updated dependencies [[`ccafa8d230f65c9302421a0ce0a0adc5824bfd55`](https://github.com/withastro/astro/commit/ccafa8d230f65c9302421a0ce0a0adc5824bfd55)]:
+  - @astrojs/markdown-remark@5.1.0
+
 ## 2.2.4
 
 ### Patch Changes
