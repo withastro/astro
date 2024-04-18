@@ -50,22 +50,6 @@ export async function cmd({
 	await writeFile(SESSION_LOGIN_FILE, `${session}`);
 }
 
-export async function web() {
-	console.log(`Please visit the following URL in your web browser:`);
-	console.log(cyan(`${getAstroStudioUrl()}/auth/cli/login`));
-	console.log(`After login in complete, enter the verification code displayed:`);
-	const { session } = await prompt({
-		type: 'text',
-		name: 'session',
-		message: 'Verification code:',
-	});
-	if (!session) {
-		console.error('Cancelling login.');
-		process.exit(0);
-	}
-	return session;
-}
-
 // NOTE(fks): How the Astro CLI login process works:
 // 1. The Astro CLI creates a temporary server to listen for the session token
 // 2. The user is directed to studio.astro.build/ to login
