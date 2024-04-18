@@ -4888,6 +4888,9 @@ importers:
       sitemap:
         specifier: ^7.1.1
         version: 7.1.1
+      stream-replace-string:
+        specifier: ^2.0.0
+        version: 2.0.0
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -15640,6 +15643,10 @@ packages:
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
       bl: 5.1.0
+    dev: false
+
+  /stream-replace-string@2.0.0:
+    resolution: {integrity: sha512-TlnjJ1C0QrmxRNrON00JvaFFlNh5TTG00APw23j74ET7gkQpTASi6/L2fuiav8pzK715HXtUeClpBTw2NPSn6w==}
     dev: false
 
   /stream-transform@2.1.3:
