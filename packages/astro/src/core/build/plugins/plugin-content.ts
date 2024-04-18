@@ -385,7 +385,7 @@ async function lockfilesHash(root: URL) {
 	const datas: Uint8Array[] = [];
 	const promises: Promise<void>[] = [];
 	for(const lockfileName of lockfiles) {
-		const fileURL = new URL(encodeURI(joinPaths(root.toString(), lockfileName)));
+		const fileURL = new URL(`./${lockFileName}`, root);
 		promises.push(pushBufferInto(fileURL, datas));
 	}
 	await Promise.all(promises);
