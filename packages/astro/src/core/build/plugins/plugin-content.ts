@@ -3,7 +3,6 @@ import fsMod from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import pLimit from 'p-limit';
 import { type Plugin as VitePlugin, normalizePath } from 'vite';
-import { configPaths } from '../../config/index.js';
 import { CONTENT_RENDER_FLAG, PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { type ContentLookupMap, hasContentFlag } from '../../../content/utils.js';
 import {
@@ -11,16 +10,22 @@ import {
 	generateLookupMap,
 } from '../../../content/vite-plugin-content-virtual-mod.js';
 import { isServerLikeOutput } from '../../../prerender/utils.js';
-import { joinPaths, removeFileExtension, removeLeadingForwardSlash, appendForwardSlash } from '../../path.js';
+import { configPaths } from '../../config/index.js';
+import { emptyDir } from '../../fs/index.js';
+import {
+	appendForwardSlash,
+	joinPaths,
+	removeFileExtension,
+	removeLeadingForwardSlash,
+} from '../../path.js';
 import { addRollupInput } from '../add-rollup-input.js';
+import { CHUNKS_PATH } from '../consts.js';
 import { type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import { copyFiles } from '../static-build.js';
 import type { StaticBuildOptions } from '../types.js';
 import { encodeName } from '../util.js';
 import { extendManualChunks } from './util.js';
-import { emptyDir } from '../../fs/index.js';
-import { CHUNKS_PATH } from '../consts.js';
 
 const CONTENT_CACHE_DIR = './content/';
 const CONTENT_MANIFEST_FILE = './manifest.json';
@@ -54,14 +59,21 @@ const resolvedVirtualEmptyModuleId = `\0${virtualEmptyModuleId}`;
 const NO_MANIFEST_VERSION = -1 as const;
 
 function createContentManifest(): ContentManifest {
-	return { version: NO_MANIFEST_VERSION, entries: [], serverEntries: [], clientEntries: [], lockfiles: "", configs: "" };
+	return {
+		version: NO_MANIFEST_VERSION,
+		entries: [],
+		serverEntries: [],
+		clientEntries: [],
+		lockfiles: '',
+		configs: '',
+	};
 }
 
 function vitePluginContent(
 	opts: StaticBuildOptions,
 	lookupMap: ContentLookupMap,
 	internals: BuildInternals,
-	cachedBuildOutput: Array<{ cached: URL; dist: URL; }>
+	cachedBuildOutput: Array<{ cached: URL; dist: URL }>
 ): VitePlugin {
 	const { config } = opts.settings;
 	const { cacheDir } = config;
@@ -93,11 +105,11 @@ function vitePluginContent(
 
 			// If the manifest is valid, use the cached client entries as nothing has changed
 			currentManifestState = manifestState(oldManifest, newManifest);
-			if(currentManifestState === 'valid') {
+			if (currentManifestState === 'valid') {
 				internals.cachedClientEntries = oldManifest.clientEntries;
 			} else {
 				let logReason = '';
-				switch(currentManifestState) {
+				switch (currentManifestState) {
 					case 'config-mismatch':
 						logReason = 'Astro config has changed';
 						break;
@@ -133,8 +145,8 @@ function vitePluginContent(
 			// Restores cached chunks and assets from the previous build
 			// If the manifest state is not valid then it needs to rebuild everything
 			// so don't do that in this case.
-			if(currentManifestState === 'valid') {
-				for(const { cached, dist } of cachedBuildOutput) {
+			if (currentManifestState === 'valid') {
+				for (const { cached, dist } of cachedBuildOutput) {
 					if (fsMod.existsSync(cached)) {
 						await copyFiles(cached, dist, true);
 					}
@@ -243,7 +255,7 @@ function vitePluginContent(
 
 			const cacheExists = fsMod.existsSync(contentCacheDir);
 			// If the manifest is invalid, empty the cache so that we can create a new one.
-			if(cacheExists && currentManifestState !== 'valid') {
+			if (cacheExists && currentManifestState !== 'valid') {
 				emptyDir(contentCacheDir);
 			}
 
@@ -310,26 +322,32 @@ function getEntriesFromManifests(
 	return entries;
 }
 
-type ManifestState = 'valid' | 'no-manifest' | 'version-mismatch' | 'no-entries' | 'lockfile-mismatch' | 'config-mismatch';
+type ManifestState =
+	| 'valid'
+	| 'no-manifest'
+	| 'version-mismatch'
+	| 'no-entries'
+	| 'lockfile-mismatch'
+	| 'config-mismatch';
 
 function manifestState(oldManifest: ContentManifest, newManifest: ContentManifest): ManifestState {
 	// There isn't an existing manifest.
-	if(oldManifest.version === NO_MANIFEST_VERSION) {
+	if (oldManifest.version === NO_MANIFEST_VERSION) {
 		return 'no-manifest';
 	}
 	// Version mismatch, always invalid
 	if (oldManifest.version !== newManifest.version) {
 		return 'version-mismatch';
 	}
-	if(oldManifest.entries.length === 0) {
+	if (oldManifest.entries.length === 0) {
 		return 'no-entries';
 	}
 	// Lockfiles have changed or there is no lockfile at all.
-	if((oldManifest.lockfiles !== newManifest.lockfiles) || newManifest.lockfiles === '') {
+	if (oldManifest.lockfiles !== newManifest.lockfiles || newManifest.lockfiles === '') {
 		return 'lockfile-mismatch';
 	}
 	// Config has changed.
-	if(oldManifest.configs !== newManifest.configs) {
+	if (oldManifest.configs !== newManifest.configs) {
 		return 'config-mismatch';
 	}
 	return 'valid';
@@ -356,10 +374,10 @@ async function generateContentManifest(
 			);
 		}
 	}
-	
+
 	const [lockfiles, configs] = await Promise.all([
 		lockfilesHash(opts.settings.config.root),
-		configHash(opts.settings.config.root)
+		configHash(opts.settings.config.root),
 	]);
 
 	manifest.lockfiles = lockfiles;
@@ -385,7 +403,7 @@ async function lockfilesHash(root: URL) {
 	const lockfiles = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock', 'bun.lockb'];
 	const datas: Uint8Array[] = [];
 	const promises: Promise<void>[] = [];
-	for(const lockfileName of lockfiles) {
+	for (const lockfileName of lockfiles) {
 		const fileURL = new URL(`./${lockfileName}`, root);
 		promises.push(pushBufferInto(fileURL, datas));
 	}
@@ -395,7 +413,7 @@ async function lockfilesHash(root: URL) {
 
 async function configHash(root: URL) {
 	const configFileNames = configPaths;
-	for(const configPath of configFileNames) {
+	for (const configPath of configFileNames) {
 		try {
 			const fileURL = new URL(`./${configPath}`, root);
 			const data = await fsMod.promises.readFile(fileURL);
@@ -411,7 +429,7 @@ async function configHash(root: URL) {
 
 function checksum(...datas: string[] | Uint8Array[]): string {
 	const hash = createHash('sha1');
-	datas.forEach(data => hash.update(data));
+	datas.forEach((data) => hash.update(data));
 	return hash.digest('base64');
 }
 
@@ -458,7 +476,7 @@ export function pluginContent(
 					return;
 				}
 				// Cache build output of chunks and assets
-				for(const { cached, dist } of cachedBuildOutput) {
+				for (const { cached, dist } of cachedBuildOutput) {
 					if (fsMod.existsSync(dist)) {
 						await copyFiles(dist, cached, true);
 					}

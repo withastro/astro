@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
 import fs from 'node:fs';
+import { after, before, describe, it } from 'node:test';
 import { copyFiles } from '../dist/core/build/static-build.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Experimental Content Collections cache - invalidation', () => {
 	class CacheBackup {
@@ -32,27 +32,29 @@ describe('Experimental Content Collections cache - invalidation', () => {
 				hooks: {
 					'astro:build:done': ({ cacheManifest }) => {
 						this.used = cacheManifest;
-					}
-				}
-			}
+					},
+				},
+			};
 		}
 	}
 
 	describe('manifest version', () => {
-		let fixture, backup,
-		/** @type {ManifestTestPlugin} */
-		testPlugin;
+		let fixture,
+			backup,
+			/** @type {ManifestTestPlugin} */
+			testPlugin;
 		before(async () => {
 			testPlugin = new ManifestTestPlugin();
 			fixture = await loadFixture({
 				root: './fixtures/content-collections-cache-invalidation/',
 				cacheDir: './cache/version-mismatch/',
 				experimental: { contentCollectionCache: true },
-				integrations: [
-					testPlugin.plugin()
-				]
+				integrations: [testPlugin.plugin()],
 			});
-			backup = new CacheBackup('./fixtures/content-collections-cache-invalidation/', './cache/version-mismatch/');
+			backup = new CacheBackup(
+				'./fixtures/content-collections-cache-invalidation/',
+				'./cache/version-mismatch/'
+			);
 			backup.backup();
 			await fixture.build();
 		});
@@ -68,20 +70,22 @@ describe('Experimental Content Collections cache - invalidation', () => {
 	});
 
 	describe('lockfiles', () => {
-		let fixture, backup,
-		/** @type {ManifestTestPlugin} */
-		testPlugin;
+		let fixture,
+			backup,
+			/** @type {ManifestTestPlugin} */
+			testPlugin;
 		before(async () => {
 			testPlugin = new ManifestTestPlugin();
 			fixture = await loadFixture({
 				root: './fixtures/content-collections-cache-invalidation/',
 				cacheDir: './cache/lockfile-mismatch/',
 				experimental: { contentCollectionCache: true },
-				integrations: [
-					testPlugin.plugin()
-				]
+				integrations: [testPlugin.plugin()],
 			});
-			backup = new CacheBackup('./fixtures/content-collections-cache-invalidation/', './cache/lockfile-mismatch/');
+			backup = new CacheBackup(
+				'./fixtures/content-collections-cache-invalidation/',
+				'./cache/lockfile-mismatch/'
+			);
 			backup.backup();
 			await fixture.build();
 		});
