@@ -1,5 +1,5 @@
 ---
-import { db, Session, User, eq } from 'astro:db';
+import { Session, User, db, eq } from 'astro:db';
 
 const users = await db.select().from(User);
 const sessions = await db.select().from(Session).innerJoin(User, eq(Session.userId, User.id));

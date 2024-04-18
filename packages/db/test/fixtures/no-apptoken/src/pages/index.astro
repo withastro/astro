@@ -1,6 +1,6 @@
 ---
 /// <reference path="../../.astro/db-types.d.ts" />
-import { db, User } from 'astro:db';
+import { User, db } from 'astro:db';
 
 // Just for the side-effect of running all the code
 await db.select().from(User);

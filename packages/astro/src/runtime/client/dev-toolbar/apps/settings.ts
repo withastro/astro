@@ -195,8 +195,9 @@ export default {
 							if (placement === settings.config[setting.settingKey]) {
 								option.selected = true;
 							}
-							option.textContent =
-								`${placement.slice(0, 1).toUpperCase()}${placement.slice(1)}`.replace('-', ' ');
+							option.textContent = `${placement.slice(0, 1).toUpperCase()}${placement.slice(
+								1
+							)}`.replace('-', ' ');
 							astroSelect.append(option);
 						});
 						astroSelect.element.addEventListener('change', setting.changeEvent);

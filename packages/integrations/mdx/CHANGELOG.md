@@ -1,5 +1,23 @@
 # @astrojs/mdx
 
+## 2.3.1
+
+### Patch Changes
+
+- [#10754](https://github.com/withastro/astro/pull/10754) [`3e7a12c8532411e580fcfdb8445cad8fc8499291`](https://github.com/withastro/astro/commit/3e7a12c8532411e580fcfdb8445cad8fc8499291) Thanks [@rishi-raj-jain](https://github.com/rishi-raj-jain)! - Fixes an issue where images in MDX required a relative specifier (e.g. `./`)
+
+  Now, you can use the standard `![](img.png)` syntax in MDX files for images colocated in the same folder: no relative specifier required!
+
+  There is no need to update your project; your existing images will still continue to work. However, you may wish to remove any relative specifiers from these MDX images as they are no longer necessary:
+
+  ```diff
+  - ![A cute dog](./dog.jpg)
+  + ![A cute dog](dog.jpg)
+  <!-- This dog lives in the same folder as my article! -->
+  ```
+
+- [#10770](https://github.com/withastro/astro/pull/10770) [`88ee63a3ba4488c60348cb821034e6d4a057efd0`](https://github.com/withastro/astro/commit/88ee63a3ba4488c60348cb821034e6d4a057efd0) Thanks [@bluwy](https://github.com/bluwy)! - Removes internal MDX processor on `buildEnd` to free up memory
+
 ## 2.3.0
 
 ### Minor Changes

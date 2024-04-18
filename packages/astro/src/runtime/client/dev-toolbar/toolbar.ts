@@ -257,7 +257,9 @@ export class AstroDevToolbar extends HTMLElement {
 				width: 1px;
 			}
 		</style>
-		<div id="dev-toolbar-root" data-hidden ${settings.config.disableAppNotification ? 'data-no-notification' : ''} data-placement="${settings.config.placement}">
+		<div id="dev-toolbar-root" data-hidden ${
+			settings.config.disableAppNotification ? 'data-no-notification' : ''
+		} data-placement="${settings.config.placement}">
 			<div id="dev-bar-hitbox-above"></div>
 			<div id="dev-bar">
 				<div id="bar-container">
@@ -282,7 +284,9 @@ export class AstroDevToolbar extends HTMLElement {
 							: ''
 					}
 					<div class="separator"></div>
-					${this.getAppTemplate(this.apps.find((app) => app.builtIn && app.id === 'astro:settings')!)}
+					${this.getAppTemplate(
+						this.apps.find((app) => app.builtIn && app.id === 'astro:settings')!
+					)}
 				</div>
 			</div>
 			<div id="dev-bar-hitbox-below"></div>
