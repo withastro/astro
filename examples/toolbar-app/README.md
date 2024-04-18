@@ -25,6 +25,16 @@ The logic of your app is in the appropriately named `app.ts` file. This is where
 
 The `integration.ts` file is a simple Astro integration file that will be used to add your app into the toolbar.
 
+## 🧞 Commands
+
+All commands are run from the root of the project, from a terminal:
+
+| Command                   | Action                                             |
+| :------------------------ | :------------------------------------------------- |
+| `npm install`             | Installs dependencies                              |
+| `npm run dev`             | Watch for changes and build your app automatically |
+| `npm run build`           | Build your app to `./dist/`                        |
+
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
