@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 10.2.0
+
+### Minor Changes
+
+- [#222](https://github.com/withastro/adapters/pull/222) [`8f312da`](https://github.com/withastro/adapters/commit/8f312dabc31bd17a699d172d1366ef63a5e0f8f4) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes an issue, where unused code was not removed from the output, which led to issues with large projects with a lot of prerendered pages.
+
 ## 10.1.0
 
 ### Minor Changes
