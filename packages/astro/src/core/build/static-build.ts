@@ -34,6 +34,7 @@ import { RESOLVED_SPLIT_MODULE_ID, RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plug
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
+import { CHUNKS_PATH } from './consts.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -196,7 +197,7 @@ async function ssrBuild(
 					// We need to keep these separate
 					chunkFileNames(chunkInfo) {
 						const { name } = chunkInfo;
-						let prefix = 'chunks/';
+						let prefix = CHUNKS_PATH;
 						let suffix = '_[hash].mjs';
 
 						if (isContentCache) {

@@ -20,6 +20,7 @@ import type { StaticBuildOptions } from '../types.js';
 import { encodeName } from '../util.js';
 import { extendManualChunks } from './util.js';
 import { emptyDir } from '../../fs/index.js';
+import { CHUNKS_PATH } from '../consts.js';
 
 const CONTENT_CACHE_DIR = './content/';
 const CONTENT_MANIFEST_FILE = './manifest.json';
@@ -425,7 +426,7 @@ export function pluginContent(
 ): AstroBuildPlugin {
 	const { cacheDir, outDir } = opts.settings.config;
 
-	const chunksFolder = './chunks/';
+	const chunksFolder = './' + CHUNKS_PATH;
 	const assetsFolder = './' + appendForwardSlash(opts.settings.config.build.assets);
 	// These are build output that is kept in the cache.
 	const cachedBuildOutput = [
