@@ -92,23 +92,6 @@ export default {
 			const hasNewerVersion = (window as DevToolbarMetadata).__astro_dev_toolbar__
 				.latestAstroVersion;
 
-			if (hasNewerVersion) {
-				eventTarget.dispatchEvent(new CustomEvent('toggle-notification', {
-					detail: {
-						state: true,
-						level: 'info'
-					}
-				}));
-
-				eventTarget.addEventListener("app-toggled", () => {
-					eventTarget.dispatchEvent(new CustomEvent('toggle-notification', {
-						detail: {
-							state: false
-						}
-					}));
-				});
-			}
-
 			const windowComponent = createWindowElement(
 				`<style>
 				#buttons-container {

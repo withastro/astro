@@ -779,16 +779,6 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @name checkUpdates
-	 * @type {false | 'semver' | 'latest'}
-	 * @default `'semver'`
-	 * @description
-	 * Control if Astro should check for updates
-	 */
-	checkUpdates?: false | 'semver' | 'latest';
-
-	/**
-	 * @docs
 	 * @kind heading
 	 * @name Build Options
 	 */

@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import type http from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { bold, green } from 'kleur/colors';
+import { green } from 'kleur/colors';
 import { performance } from 'perf_hooks';
+import { gte } from 'semver';
 import type * as vite from 'vite';
 import type { AstroInlineConfig } from '../../@types/astro.js';
 import { attachContentServerListeners } from '../../content/index.js';
@@ -11,8 +12,7 @@ import * as msg from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { startContainer } from './container.js';
 import { createContainerWithAutomaticRestart } from './restart.js';
-import { execa } from 'execa';
-import { gt } from 'semver';
+import { fetchLatestAstroVersion, shouldCheckForUpdates } from './update-check.js';
 
 export interface DevServer {
 	address: AddressInfo;
@@ -38,37 +38,16 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	const currentVersion = process.env.PACKAGE_VERSION ?? '0.0.0';
 	const isPrerelease = currentVersion.includes('-');
-
-	if (!isPrerelease && restart.container.settings.config.checkUpdates) {
+	if (!isPrerelease && (await shouldCheckForUpdates(restart.container.settings.preferences))) {
 		try {
-			let versionToCheck = 'latest'
-
-			if (restart.container.settings.config.checkUpdates === 'semver') {
-				const packageJson = JSON.parse(fs.readFileSync(new URL('package.json', restart.container.settings.config.root), 'utf-8'));
-				const currentAstroSpecifier = packageJson.dependencies?.astro ?? packageJson.devDependencies?.astro;
-
-				if (currentAstroSpecifier) {
-					versionToCheck = currentAstroSpecifier;
+			const t0 = performance.now();
+			fetchLatestAstroVersion().then((version) => {
+				const t1 = performance.now();
+				console.log(`Fetching latest Astro version took ${t1 - t0} milliseconds.`);
+				// Only update the latestAstroVersion if the latest version is greater than the current version, that way we don't need to check it again
+				if (gte(version, currentVersion)) {
+					restart.container.settings.latestAstroVersion = version;
 				}
-			}
-
-			// Don't await this, we don't want to block the dev server from starting
-			execa('npm', ['view', `astro@${versionToCheck}`, 'version', '--json']).then((result) => {
-				let latestVersion = JSON.parse(result.stdout);
-
-				if (Array.isArray(latestVersion)) {
-					// If the version returned is an array, it means we requested a semver range and the latest version is the last element
-					latestVersion = latestVersion.pop();
-				}
-
-				if (gt(latestVersion, currentVersion)) {
-					logger.info('update', `A new version of Astro is available! Run ${green('npx @astrojs/upgrade')} to update to ${bold(latestVersion)}!`);
-
-					// Only update the latestAstroVersion if the latest version is greater than the current version, that way we don't need to check again
-					restart.container.settings.latestAstroVersion = latestVersion;
-				}
-			}).catch(() => {
-				// Just do nothing if this fails, it's okay.
 			});
 		} catch (_) {
 			// Just do nothing if this fails, once again, it's okay.
@@ -92,6 +71,13 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	}
 	if (restart.container.viteServer.config.server?.fs?.strict === false) {
 		logger.warn('SKIP_FORMAT', msg.fsStrictWarning());
+	}
+
+	if (restart.container.settings.latestAstroVersion) {
+		logger.warn(
+			'SKIP_FORMAT',
+			msg.newVersionAvailable({ latestVersion: restart.container.settings.latestAstroVersion })
+		);
 	}
 
 	await attachContentServerListeners(restart.container);

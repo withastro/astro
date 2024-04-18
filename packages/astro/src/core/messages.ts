@@ -104,6 +104,13 @@ export function serverShortcuts({ key, label }: { key: string; label: string }):
 	return [dim('  Press'), key, dim('to'), label].join(' ');
 }
 
+export function newVersionAvailable({ latestVersion }: { latestVersion: string }) {
+	const badge = bgYellow(black(` update `));
+	const headline = yellow(`▶ New version available: ${latestVersion}`);
+	const details = `  Run ${cyan('npx @astrojs/upgrade')} to update`;
+	return ['', `${badge} ${headline}`, details].join('\n');
+}
+
 export function telemetryNotice() {
 	const headline = blue(`▶ Astro collects anonymous usage data.`);
 	const why = '  This information helps us improve Astro.';
