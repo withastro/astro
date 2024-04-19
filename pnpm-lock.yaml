@@ -694,7 +694,7 @@ importers:
         version: 3.22.5(zod@3.22.4)
     optionalDependencies:
       sharp:
-        specifier: ^0.33
+        specifier: ^0.33.3
         version: 0.33.3
     devDependencies:
       '@astrojs/check':
