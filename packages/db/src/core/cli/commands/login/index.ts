@@ -43,7 +43,8 @@ export async function cmd({
 		console.log('Successfully logged in');
 	} else if (!session) {
 		const { url, promise } = await createServer();
-		const loginUrl = getAstroStudioUrl() + '/auth/cli/login?returnTo=' + encodeURIComponent(url);
+		const loginUrl = new URL('/auth/cli/login', getAstroStudioUrl());
+		loginUrl.searchParams.set('returnTo', url);
 		console.log(`Opening the following URL in your browser...`);
 		console.log(cyan(loginUrl));
 		console.log(`If something goes wrong, copy-and-paste the URL into your browser.`);
