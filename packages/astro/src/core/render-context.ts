@@ -121,7 +121,10 @@ export class RenderContext {
 						this.routeData = routeData;
 						componentInstance = component;
 					} catch (e) {
-						// TODO: Handle error
+						return new Response('Not found', {
+							status: 404,
+							statusText: 'Not found',
+						});
 					} finally {
 						this.isRerouting = true;
 					}
