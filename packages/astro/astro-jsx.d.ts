@@ -9,8 +9,6 @@
  * Adapted from React’s TypeScript definition from DefinitelyTyped.
  * @see https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/react/index.d.ts
  */
-// BUG! Prettier 3.0 removes `declare`: https://github.com/prettier/prettier/issues/15207
-// prettier-ignore
 declare namespace astroHTML.JSX {
 	export type Child = Node | Node[] | string | number | boolean | null | undefined | unknown;
 	export type Children = Child | Child[];
@@ -873,6 +871,8 @@ declare namespace astroHTML.JSX {
 		playsinline?: boolean | string | undefined | null;
 		preload?: string | undefined | null;
 		src?: string | undefined | null;
+		// https://www.w3.org/TR/remote-playback/#the-disableremoteplayback-attribute
+		disableRemotePlayback?: boolean | string | undefined | null;
 	}
 
 	interface MetaHTMLAttributes extends HTMLAttributes {

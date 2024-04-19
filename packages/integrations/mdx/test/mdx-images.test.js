@@ -29,7 +29,7 @@ describe('MDX Page', () => {
 			const { document } = parseHTML(html);
 
 			const imgs = document.getElementsByTagName('img');
-			assert.equal(imgs.length, 4);
+			assert.equal(imgs.length, 6);
 			// Image using a relative path
 			assert.equal(imgs.item(0).src.startsWith('/_image'), true);
 			// Image using an aliased path
@@ -38,6 +38,10 @@ describe('MDX Page', () => {
 			assert.equal(imgs.item(2).title, 'Houston title');
 			// Image with spaces in the path
 			assert.equal(imgs.item(3).src.startsWith('/_image'), true);
+			// Image using a relative path with no slashes
+			assert.equal(imgs.item(4).src.startsWith('/_image'), true);
+			// Image using a relative path with nested directory
+			assert.equal(imgs.item(5).src.startsWith('/_image'), true);
 		});
 
 		for (const route of imageTestRoutes) {

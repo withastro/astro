@@ -1,4 +1,4 @@
-import type { Plugin as VitePlugin, Rollup } from 'vite';
+import type { Rollup, Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions, ViteBuildReturn } from './types.js';
 

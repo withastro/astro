@@ -1,5 +1,13 @@
 # @astrojs/vercel
 
+## 7.5.3
+
+### Patch Changes
+
+- [#10756](https://github.com/withastro/astro/pull/10756) [`c75ededdb401cfa55e1ad2682d5e95494f49604e`](https://github.com/withastro/astro/commit/c75ededdb401cfa55e1ad2682d5e95494f49604e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `widths` and `densities` not working when using Vercel's Image Optimization.
+
+  Note that you still need to make sure that the widths you're outputting are enabled in [the `imageConfig` property of the Vercel adapter](https://docs.astro.build/en/guides/integrations-guide/vercel/#imagesconfig) in order for these properties to work.
+
 ## 7.5.2
 
 ### Patch Changes

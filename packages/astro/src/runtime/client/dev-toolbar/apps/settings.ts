@@ -1,6 +1,11 @@
 import type { DevToolbarApp } from '../../../../@types/astro.js';
 import { type Settings, settings } from '../settings.js';
-import { closeOnOutsideClick, createWindowElement } from './utils/window.js';
+import { isValidPlacement, placements } from '../ui-library/window.js';
+import {
+	closeOnOutsideClick,
+	createWindowElement,
+	synchronizePlacementOnUpdate,
+} from './utils/window.js';
 
 interface SettingRow {
 	name: string;
@@ -43,6 +48,22 @@ const settingsRows = [
 			}
 		},
 	},
+	{
+		name: 'Placement',
+		description: 'Adjust the placement of the dev toolbar.',
+		input: 'select',
+		settingKey: 'placement',
+		changeEvent: (evt: Event) => {
+			if (evt.currentTarget instanceof HTMLSelectElement) {
+				const placement = evt.currentTarget.value;
+				if (isValidPlacement(placement)) {
+					document.querySelector('astro-dev-toolbar')?.setToolbarPlacement(placement);
+					settings.updateSetting('placement', placement);
+					settings.logger.verboseLog(`Placement set to ${placement}`);
+				}
+			}
+		},
+	},
 ] satisfies SettingRow[];
 
 export default {
@@ -55,6 +76,7 @@ export default {
 		document.addEventListener('astro:after-swap', createSettingsWindow);
 
 		closeOnOutsideClick(eventTarget);
+		synchronizePlacementOnUpdate(eventTarget, canvas);
 
 		function createSettingsWindow() {
 			const windowElement = createWindowElement(
@@ -161,8 +183,25 @@ export default {
 					case 'checkbox': {
 						const astroToggle = document.createElement('astro-dev-toolbar-toggle');
 						astroToggle.input.addEventListener('change', setting.changeEvent);
-						astroToggle.input.checked = settings.config[setting.settingKey];
+						astroToggle.input.checked = settings.config[setting.settingKey] as boolean;
 						label.append(astroToggle);
+						break;
+					}
+					case 'select': {
+						const astroSelect = document.createElement('astro-dev-toolbar-select');
+						placements.forEach((placement) => {
+							const option = document.createElement('option');
+							option.setAttribute('value', placement);
+							if (placement === settings.config[setting.settingKey]) {
+								option.selected = true;
+							}
+							option.textContent = `${placement.slice(0, 1).toUpperCase()}${placement.slice(
+								1
+							)}`.replace('-', ' ');
+							astroSelect.append(option);
+						});
+						astroSelect.element.addEventListener('change', setting.changeEvent);
+						label.append(astroSelect);
 						break;
 					}
 					default:

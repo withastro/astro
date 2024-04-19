@@ -773,7 +773,6 @@ describe('[SSG] i18n routing', () => {
 		it('should redirect to the index of the default locale', async () => {
 			const html = await fixture.readFile('/index.html');
 			assert.equal(html.includes('http-equiv="refresh'), true);
-			assert.equal(html.includes('http-equiv="refresh'), true);
 			assert.equal(html.includes('url=/new-site/en'), true);
 		});
 
@@ -1870,5 +1869,38 @@ describe('i18n routing does not break assets and endpoints', () => {
 			assert.equal(response.status, 200);
 			assert.equal((await response.text()).includes('Oi essa e start\n'), true);
 		});
+	});
+});
+
+describe('SSR fallback from missing locale index to default locale index', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing-prefix-other-locales/',
+			output: 'server',
+			adapter: testAdapter(),
+			i18n: {
+				defaultLocale: 'en',
+				locales: ['en', 'fr'],
+				routing: {
+					prefixDefaultLocale: false,
+				},
+				fallback: {
+					fr: 'en',
+				},
+			},
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should correctly redirect', async () => {
+		let request = new Request('http://example.com/fr');
+		let response = await app.render(request);
+		assert.equal(response.status, 302);
+		assert.equal(response.headers.get('location'), '/');
 	});
 });
