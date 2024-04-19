@@ -12,6 +12,9 @@ const htmlEnumAttributes = /^(?:contenteditable|draggable|spellcheck|value)$/i;
 // Note: SVG is case-sensitive!
 const svgEnumAttributes = /^(?:autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
 
+const ampersandRegex = /&/g;
+const doubleQuoteRegex = /"/g;
+
 const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 
 // converts (most) arbitrary strings to valid JS identifiers
@@ -22,7 +25,9 @@ const toIdent = (k: string) =>
 	});
 
 export const toAttributeString = (value: any, shouldEscape = true) =>
-	shouldEscape ? String(value).replace(/&/g, '&#38;').replace(/"/g, '&#34;') : value;
+	shouldEscape
+		? String(value).replace(ampersandRegex, '&#38;').replace(doubleQuoteRegex, '&#34;')
+		: value;
 
 const kebab = (k: string) =>
 	k.toLowerCase() === k ? k : k.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
