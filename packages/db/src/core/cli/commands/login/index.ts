@@ -40,6 +40,7 @@ export async function cmd({
 			process.exit(0);
 		}
 		session = response.session;
+		console.log('Successfully logged in');
 	} else if (!session) {
 		const { url, promise } = await createServer();
 		const loginUrl = getAstroStudioUrl() + '/auth/cli/login?returnTo=' + encodeURIComponent(url);
@@ -49,7 +50,7 @@ export async function cmd({
 		open(loginUrl);
 		const spinner = ora('Waiting for confirmation...');
 		session = await promise;
-		spinner.succeed('Successfully logged in!');
+		spinner.succeed('Successfully logged in');
 	}
 
 	await mkdir(new URL('.', SESSION_LOGIN_FILE), { recursive: true });
