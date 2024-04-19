@@ -197,10 +197,14 @@ export class RenderContext {
 			try {
 				const [routeData, component] = await pipeline.tryReroute(reroutePayload);
 				this.routeData = routeData;
-				this.request = new Request(
-					new URL(routeData.pathname ?? routeData.route, this.url.origin),
-					this.request
-				);
+				if (reroutePayload instanceof Request) {
+					this.request = reroutePayload;
+				} else {
+					this.request = new Request(
+						new URL(routeData.pathname ?? routeData.route, this.url.origin),
+						this.request
+					);
+				}
 				this.url = new URL(this.request.url);
 				this.cookies = new AstroCookies(this.request);
 				this.params = getParams(routeData, url.toString());
@@ -333,10 +337,14 @@ export class RenderContext {
 			try {
 				const [routeData, component] = await pipeline.tryReroute(reroutePayload);
 				this.routeData = routeData;
-				this.request = new Request(
-					new URL(routeData.pathname ?? routeData.route, this.url.origin),
-					this.request
-				);
+				if (reroutePayload instanceof Request) {
+					this.request = reroutePayload;
+				} else {
+					this.request = new Request(
+						new URL(routeData.pathname ?? routeData.route, this.url.origin),
+						this.request
+					);
+				}
 				this.url = new URL(this.request.url);
 				this.cookies = new AstroCookies(this.request);
 				this.params = getParams(routeData, url.toString());
