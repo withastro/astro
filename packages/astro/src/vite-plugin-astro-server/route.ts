@@ -217,7 +217,7 @@ export async function handleRoute({
 			pattern: new RegExp(''),
 			prerender: false,
 			segments: [],
-			type: 'virtual',
+			type: 'fallback',
 			route: '',
 			fallbackRoutes: [],
 			isIndex: false,

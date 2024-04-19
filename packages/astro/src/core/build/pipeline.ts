@@ -9,7 +9,7 @@ import type {
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
-import { routeIsVirtual, routeIsRedirect } from '../redirects/helpers.js';
+import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { Pipeline } from '../render/index.js';
 import {
 	createAssetLink,
@@ -212,9 +212,9 @@ export class BuildPipeline extends Pipeline {
 			if (routeIsRedirect(pageData.route)) {
 				pages.set(pageData, path);
 			} else if (
-				routeIsVirtual(pageData.route) &&
+				routeIsFallback(pageData.route) &&
 				(i18nHasFallback(this.config) ||
-					(routeIsVirtual(pageData.route) && pageData.route.route === '/'))
+					(routeIsFallback(pageData.route) && pageData.route.route === '/'))
 			) {
 				// The original component is transformed during the first build, so we have to retrieve
 				// the actual `.mjs` that was created.

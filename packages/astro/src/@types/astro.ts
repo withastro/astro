@@ -2835,7 +2835,7 @@ export interface AstroPluginOptions {
  * - redirect: a route points to another route that lives in the file system
  * - fallback: a route that doesn't exist in the file system that needs to be handled with other means, usually the middleware
  */
-export type RouteType = 'page' | 'endpoint' | 'redirect' | 'virtual';
+export type RouteType = 'page' | 'endpoint' | 'redirect' | 'fallback';
 
 export interface RoutePart {
 	content: string;

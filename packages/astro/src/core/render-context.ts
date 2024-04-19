@@ -167,7 +167,7 @@ export class RenderContext {
 					}
 					return response;
 				}
-				case 'virtual': {
+				case 'fallback': {
 					return new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
 				}
 			}

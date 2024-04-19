@@ -488,7 +488,7 @@ function isStaticSegment(segment: RoutePart[]) {
  *     but not `/foo/[bar]` and `/foo/[...baz]`.
  */
 function detectRouteCollision(a: RouteData, b: RouteData, config: AstroConfig, logger: Logger) {
-	if (a.type === 'virtual' || b.type === 'virtual') {
+	if (a.type === 'fallback' || b.type === 'fallback') {
 		// If either route is a fallback route, they don't collide.
 		// Fallbacks are always added below other routes exactly to avoid collisions.
 		return;
@@ -688,7 +688,7 @@ export function createRouteManifest(
 						route,
 						segments,
 						pattern: getPattern(segments, config, config.trailingSlash),
-						type: 'virtual',
+						type: 'fallback',
 					});
 				}
 			}
@@ -765,7 +765,7 @@ export function createRouteManifest(
 									segments,
 									generate,
 									pattern: getPattern(segments, config, config.trailingSlash),
-									type: 'virtual',
+									type: 'fallback',
 									fallbackRoutes: [],
 								};
 								const routeData = routes[index];

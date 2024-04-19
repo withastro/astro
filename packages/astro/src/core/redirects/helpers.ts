@@ -4,6 +4,6 @@ export function routeIsRedirect(route: RouteData | undefined): route is Redirect
 	return route?.type === 'redirect';
 }
 
-export function routeIsVirtual(route: RouteData | undefined): route is RedirectRouteData {
-	return route?.type === 'virtual';
+export function routeIsFallback(route: RouteData | undefined): route is RedirectRouteData {
+	return route?.type === 'fallback';
 }
