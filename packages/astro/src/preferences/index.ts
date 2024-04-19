@@ -6,7 +6,7 @@ import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 import dget from 'dlv';
-import { DEFAULT_PREFERENCES, type Preferences } from './defaults.js';
+import { DEFAULT_PREFERENCES, type Preferences, type PublicPreferences } from './defaults.js';
 import { PreferenceStore } from './store.js';
 
 type DotKeys<T> = T extends object
@@ -41,9 +41,9 @@ type DeepPartial<T> = T extends object
 	: T;
 
 export type PreferenceKey = DotKeys<Preferences>;
-export interface PreferenceList extends Record<PreferenceLocation, DeepPartial<Preferences>> {
+export interface PreferenceList extends Record<PreferenceLocation, DeepPartial<PublicPreferences>> {
 	fromAstroConfig: DeepPartial<Preferences>;
-	defaults: Preferences;
+	defaults: PublicPreferences;
 }
 
 export interface AstroPreferences {
@@ -56,7 +56,7 @@ export interface AstroPreferences {
 		value: GetDotKey<Preferences, Key>,
 		opts?: PreferenceOptions
 	): Promise<void>;
-	getAll(): Promise<Preferences>;
+	getAll(): Promise<PublicPreferences>;
 	list(opts?: PreferenceOptions): Promise<PreferenceList>;
 	ignoreNextPreferenceReload: boolean;
 }
@@ -100,19 +100,24 @@ export default function createPreferences(config: AstroConfig): AstroPreferences
 			}
 		},
 		async getAll() {
-			return Object.assign(
+			const allPrefs = Object.assign(
 				{},
 				DEFAULT_PREFERENCES,
 				stores['global'].getAll(),
 				stores['project'].getAll()
 			);
+
+			const { _variables, ...prefs } = allPrefs;
+
+			return prefs;
 		},
 		async list() {
+			const { _variables, ...defaultPrefs } = DEFAULT_PREFERENCES;
 			return {
 				global: stores['global'].getAll(),
 				project: stores['project'].getAll(),
 				fromAstroConfig: mapFrom(DEFAULT_PREFERENCES, config),
-				defaults: DEFAULT_PREFERENCES,
+				defaults: defaultPrefs,
 			};
 
 			function mapFrom(defaults: Preferences, astroConfig: Record<string, any>) {
