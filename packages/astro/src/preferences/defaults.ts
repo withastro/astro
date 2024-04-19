@@ -6,6 +6,8 @@ export const DEFAULT_PREFERENCES = {
 	checkUpdates: {
 		/** Specifies whether the user has the update check enabled */
 		enabled: true,
+		/** Time since last check */
+		_lastCheck: 0,
 	},
 };
 

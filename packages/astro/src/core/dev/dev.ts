@@ -3,7 +3,7 @@ import type http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { green } from 'kleur/colors';
 import { performance } from 'perf_hooks';
-import { gte } from 'semver';
+import { diff, gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
 import type { AstroInlineConfig } from '../../@types/astro.js';
 import { attachContentServerListeners } from '../../content/index.js';
@@ -12,7 +12,11 @@ import * as msg from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { startContainer } from './container.js';
 import { createContainerWithAutomaticRestart } from './restart.js';
-import { fetchLatestAstroVersion, shouldCheckForUpdates } from './update-check.js';
+import {
+	MAX_PATCH_DISTANCE,
+	fetchLatestAstroVersion,
+	shouldCheckForUpdates,
+} from './update-check.js';
 
 export interface DevServer {
 	address: AddressInfo;
@@ -38,19 +42,40 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	const currentVersion = process.env.PACKAGE_VERSION ?? '0.0.0';
 	const isPrerelease = currentVersion.includes('-');
-	if (!isPrerelease && (await shouldCheckForUpdates(restart.container.settings.preferences))) {
+
+	if (!isPrerelease) {
 		try {
-			const t0 = performance.now();
-			fetchLatestAstroVersion().then((version) => {
-				const t1 = performance.now();
-				console.log(`Fetching latest Astro version took ${t1 - t0} milliseconds.`);
-				// Only update the latestAstroVersion if the latest version is greater than the current version, that way we don't need to check it again
-				if (gte(version, currentVersion)) {
-					restart.container.settings.latestAstroVersion = version;
+			// Don't await this, we don't want to block the dev server from starting
+			shouldCheckForUpdates(restart.container.settings.preferences).then(async (shouldCheck) => {
+				if (shouldCheck) {
+					const version = await fetchLatestAstroVersion(restart.container.settings.preferences);
+
+					if (gt(version, currentVersion)) {
+						// Only update the latestAstroVersion if the latest version is greater than the current version, that way we don't need to check that again
+						// whenever we check for the latest version elsewhere
+						restart.container.settings.latestAstroVersion = version;
+
+						const sameMajor = major(version) === major(currentVersion);
+						const sameMinor = minor(version) === minor(currentVersion);
+						const patchDistance = patch(version) - patch(currentVersion);
+
+						if (sameMajor && sameMinor && patchDistance < MAX_PATCH_DISTANCE) {
+							// Don't bother the user with a log if they're only a few patch versions behind
+							// We can still tell them in the dev toolbar, which has a more opt-in nature
+							return;
+						}
+
+						logger.warn(
+							'SKIP_FORMAT',
+							msg.newVersionAvailable({
+								latestVersion: version,
+							})
+						);
+					}
 				}
 			});
-		} catch (_) {
-			// Just do nothing if this fails, once again, it's okay.
+		} catch (e) {
+			// Just ignore the error, we don't want to block the dev server from starting and this is just a nice-to-have feature
 		}
 	}
 
@@ -71,13 +96,6 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	}
 	if (restart.container.viteServer.config.server?.fs?.strict === false) {
 		logger.warn('SKIP_FORMAT', msg.fsStrictWarning());
-	}
-
-	if (restart.container.settings.latestAstroVersion) {
-		logger.warn(
-			'SKIP_FORMAT',
-			msg.newVersionAvailable({ latestVersion: restart.container.settings.latestAstroVersion })
-		);
 	}
 
 	await attachContentServerListeners(restart.container);

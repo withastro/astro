@@ -25,6 +25,13 @@ export type GetDotKey<
 export type PreferenceLocation = 'global' | 'project';
 export interface PreferenceOptions {
 	location?: PreferenceLocation;
+	/**
+	 * If `true`, the server will be reloaded after setting the preference.
+	 * If `false`, the server will not be reloaded after setting the preference.
+	 *
+	 * Defaults to `true`.
+	 */
+	reloadServer?: boolean;
 }
 
 type DeepPartial<T> = T extends object
@@ -51,6 +58,7 @@ export interface AstroPreferences {
 	): Promise<void>;
 	getAll(): Promise<Preferences>;
 	list(opts?: PreferenceOptions): Promise<PreferenceList>;
+	ignoreNextPreferenceReload: boolean;
 }
 
 export function isValidKey(key: string): key is PreferenceKey {
@@ -84,8 +92,12 @@ export default function createPreferences(config: AstroConfig): AstroPreferences
 			if (!location) return project.get(key) ?? global.get(key) ?? dget(DEFAULT_PREFERENCES, key);
 			return stores[location].get(key);
 		},
-		async set(key, value, { location = 'project' } = {}) {
+		async set(key, value, { location = 'project', reloadServer = true } = {}) {
 			stores[location].set(key, value);
+
+			if (!reloadServer) {
+				this.ignoreNextPreferenceReload = true;
+			}
 		},
 		async getAll() {
 			return Object.assign(
@@ -109,6 +121,7 @@ export default function createPreferences(config: AstroConfig): AstroPreferences
 				);
 			}
 		},
+		ignoreNextPreferenceReload: false,
 	};
 }
 

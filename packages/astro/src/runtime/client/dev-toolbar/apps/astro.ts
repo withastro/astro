@@ -338,7 +338,9 @@ export default {
 				}</astro-dev-toolbar-badge>
 				${
 					hasNewerVersion
-						? `<astro-dev-toolbar-badge badge-style="green" size="large">${(window as DevToolbarMetadata).__astro_dev_toolbar__.latestAstroVersion} available!</astro-dev-toolbar-badge>
+						? `<astro-dev-toolbar-badge badge-style="green" size="large">${
+								(window as DevToolbarMetadata).__astro_dev_toolbar__.latestAstroVersion
+							} available!</astro-dev-toolbar-badge>
 						`
 						: ''
 				}

@@ -2106,6 +2106,13 @@ export interface AstroSettings {
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
 	timer: AstroTimer;
+	/**
+	 * Latest version of Astro, will be undefined if:
+	 * - unable to check
+	 * - the user has disabled the check
+	 * - the check has not completed yet
+	 * - the user is on the latest version already
+	 */
 	latestAstroVersion?: string | undefined;
 }
 

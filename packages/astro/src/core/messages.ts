@@ -106,9 +106,9 @@ export function serverShortcuts({ key, label }: { key: string; label: string }):
 
 export function newVersionAvailable({ latestVersion }: { latestVersion: string }) {
 	const badge = bgYellow(black(` update `));
-	const headline = yellow(`▶ New version available: ${latestVersion}`);
+	const headline = yellow(`▶ New version of Astro available: ${latestVersion}`);
 	const details = `  Run ${cyan('npx @astrojs/upgrade')} to update`;
-	return ['', `${badge} ${headline}`, details].join('\n');
+	return ['', `${badge} ${headline}`, details, ''].join('\n');
 }
 
 export function telemetryNotice() {
