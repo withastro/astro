@@ -1,7 +1,7 @@
 import { fetchPackageJson } from '../../cli/install-package.js';
 import type { AstroPreferences } from '../../preferences/index.js';
 
-export const MAX_PATCH_DISTANCE = 1; // If the patch distance is less than this, don't bother the user
+export const MAX_PATCH_DISTANCE = 5; // If the patch distance is less than this, don't bother the user
 const CHECK_MS_INTERVAL = 1_036_800_000; // 12 days, give or take
 
 let _latestVersion: string | undefined = undefined;
