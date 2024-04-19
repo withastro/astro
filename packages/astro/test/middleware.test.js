@@ -378,7 +378,7 @@ describe(
 	}
 );
 
-describe.only('middleware with virtual routes', () => {
+describe('middleware with virtual routes', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let devServer;
