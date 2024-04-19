@@ -46,9 +46,9 @@ export async function cmd({
 		const loginUrl = new URL('/auth/cli/login', getAstroStudioUrl());
 		loginUrl.searchParams.set('returnTo', url);
 		console.log(`Opening the following URL in your browser...`);
-		console.log(cyan(loginUrl));
+		console.log(cyan(loginUrl.href));
 		console.log(`If something goes wrong, copy-and-paste the URL into your browser.`);
-		open(loginUrl);
+		open(loginUrl.href);
 		const spinner = ora('Waiting for confirmation...');
 		session = await promise;
 		spinner.succeed('Successfully logged in');
