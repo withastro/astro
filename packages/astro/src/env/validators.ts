@@ -1,9 +1,11 @@
 import type { EnvFieldType } from './schema.js';
 
+export type ValidationResultValue = EnvFieldType['default']
+
 type ValidationResult =
 	| {
 			ok: true;
-			value: EnvFieldType['default'];
+			value: ValidationResultValue;
 	  }
 	| {
 			ok: false;
@@ -17,7 +19,7 @@ const errorMsg = (key: string, options: EnvFieldType) => {
 
 type ValueValidator = (input: string | undefined) => {
 	valid: boolean;
-	parsed: EnvFieldType['default'];
+	parsed: ValidationResultValue;
 };
 
 const stringValidator: ValueValidator = (input) => {
