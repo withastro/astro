@@ -88,7 +88,6 @@ const ASTRO_CONFIG_DEFAULTS = {
 		globalRoutePriority: false,
 		i18nDomains: false,
 		security: {},
-		env: {},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -531,8 +530,7 @@ export const AstroConfigSchema = z.object({
 				.object({
 					schema: EnvSchema.optional(),
 				})
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.env),
+				.optional(),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`

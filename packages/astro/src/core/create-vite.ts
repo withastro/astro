@@ -37,6 +37,7 @@ import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
 import { isObject } from './util.js';
+import { astroEnvVirtualModPlugin } from '../env/vite-plugin-env-virtual-mod.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -155,6 +156,7 @@ export async function createVite(
 			astroDevToolbar({ settings, logger }),
 			vitePluginFileURL({}),
 			astroInternationalization({ settings }),
+			astroEnvVirtualModPlugin({ settings, logger })
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
