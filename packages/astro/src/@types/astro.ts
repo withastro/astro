@@ -40,7 +40,7 @@ import type {
 } from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
-import type { EnvSchema } from '../core/env/schema.js' 
+import type { EnvSchema } from '../env/schema.js' 
 
 export { type AstroIntegrationLogger };
 
