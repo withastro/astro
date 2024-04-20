@@ -1,6 +1,6 @@
 import type { EnvFieldType } from './schema.js';
 
-export type ValidationResultValue = EnvFieldType['default']
+export type ValidationResultValue = EnvFieldType['default'];
 
 type ValidationResult =
 	| {
@@ -14,7 +14,7 @@ type ValidationResult =
 
 const errorMsg = (key: string, options: EnvFieldType) => {
 	const optional = options.optional ?? options.default;
-	return `Variable "${key}" is not type: ${options.type}${optional ? '| undefined' : ''}.`;
+	return `Variable "${key}" is not of type: ${options.type}${optional ? '| undefined' : ''}.`;
 };
 
 type ValueValidator = (input: string | undefined) => {
@@ -56,7 +56,7 @@ export function validateEnvVariable(
 		boolean: booleanValidator,
 	}[options.type];
 
-	if (options.optional || options.default) {
+	if (options.optional || options.default !== undefined) {
 		if (value === undefined) {
 			return {
 				ok: true,
