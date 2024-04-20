@@ -78,7 +78,7 @@
   },
   "devDependencies": {
     "@types/html-escaper": "^3.0.2",
-    "@types/markdown-it": "^13.0.6",
+    "@types/markdown-it": "^14.0.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "devalue": "^4.3.2",

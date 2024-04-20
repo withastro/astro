@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@builder.io/partytown": "^0.8.0",
-    "mrmime": "^1.0.1"
+    "mrmime": "^2.0.0"
   },
   "devDependencies": {
     "astro": "workspace:*",

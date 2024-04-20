@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:base", "schedule:weekly", "group:allNonMajor"],
+  "labels": ["dependencies"],
+  "rangeStrategy": "bump",
+  "ignoreDeps": [
+    // manually bumping deps
+    "@biomejs/biome",
+    "@types/node",
+    "sharp",
+
+    // manually bumping workflow actions
+    "actions/labeler",
+
+    // ignore "engines" update
+    "node",
+    "npm",
+    "pnpm",
+
+    // follow vite deps version
+    "postcss-load-config",
+  ],
+}

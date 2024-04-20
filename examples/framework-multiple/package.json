@@ -18,7 +18,7 @@
     "@astrojs/vue": "^4.1.0",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
-    "astro": "^4.6.2",
+    "astro": "^4.6.3",
     "preact": "^10.19.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

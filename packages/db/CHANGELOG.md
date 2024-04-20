@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.10.5
+
+### Patch Changes
+
+- [#10789](https://github.com/withastro/astro/pull/10789) [`d4c91cb10924a0627a9e9a80bc549b3c82d043e6`](https://github.com/withastro/astro/commit/d4c91cb10924a0627a9e9a80bc549b3c82d043e6) Thanks [@NickDubelman](https://github.com/NickDubelman)! - Expose the Drizzle `alias` utility from `astro:db` to enable self-joins on a table.
+
 ## 0.10.4
 
 ### Patch Changes

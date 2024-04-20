@@ -218,6 +218,7 @@ class AstroBuilder {
 				.flat()
 				.map((pageData) => pageData.route),
 			logging: this.logger,
+			cacheManifest: internals.cacheManifestUsed,
 		});
 
 		if (this.logger.level && levels[this.logger.level()] <= levels['info']) {

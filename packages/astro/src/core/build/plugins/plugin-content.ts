@@ -10,8 +10,16 @@ import {
 	generateLookupMap,
 } from '../../../content/vite-plugin-content-virtual-mod.js';
 import { isServerLikeOutput } from '../../../prerender/utils.js';
-import { joinPaths, removeFileExtension, removeLeadingForwardSlash } from '../../path.js';
+import { configPaths } from '../../config/index.js';
+import { emptyDir } from '../../fs/index.js';
+import {
+	appendForwardSlash,
+	joinPaths,
+	removeFileExtension,
+	removeLeadingForwardSlash,
+} from '../../path.js';
 import { addRollupInput } from '../add-rollup-input.js';
+import { CHUNKS_PATH } from '../consts.js';
 import { type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import { copyFiles } from '../static-build.js';
@@ -23,7 +31,7 @@ const CONTENT_CACHE_DIR = './content/';
 const CONTENT_MANIFEST_FILE = './manifest.json';
 // IMPORTANT: Update this version when making significant changes to the manifest format.
 // Only manifests generated with the same version number can be compared.
-const CONTENT_MANIFEST_VERSION = 0;
+const CONTENT_MANIFEST_VERSION = 1;
 
 interface ContentManifestKey {
 	collection: string;
@@ -39,40 +47,51 @@ interface ContentManifest {
 	// Tracks components that should be passed to the client build
 	// When the cache is restored, these might no longer be referenced
 	clientEntries: string[];
+	// Hash of the lockfiles, pnpm-lock.yaml, package-lock.json, etc.
+	// Kept so that installing new packages results in a full rebuild.
+	lockfiles: string;
+	// Hash of the Astro config. Changing options results in invalidating the cache.
+	configs: string;
 }
 
 const virtualEmptyModuleId = `virtual:empty-content`;
 const resolvedVirtualEmptyModuleId = `\0${virtualEmptyModuleId}`;
+const NO_MANIFEST_VERSION = -1 as const;
 
 function createContentManifest(): ContentManifest {
-	return { version: -1, entries: [], serverEntries: [], clientEntries: [] };
+	return {
+		version: NO_MANIFEST_VERSION,
+		entries: [],
+		serverEntries: [],
+		clientEntries: [],
+		lockfiles: '',
+		configs: '',
+	};
 }
 
 function vitePluginContent(
 	opts: StaticBuildOptions,
 	lookupMap: ContentLookupMap,
-	internals: BuildInternals
+	internals: BuildInternals,
+	cachedBuildOutput: Array<{ cached: URL; dist: URL }>
 ): VitePlugin {
 	const { config } = opts.settings;
 	const { cacheDir } = config;
 	const distRoot = config.outDir;
 	const distContentRoot = new URL('./content/', distRoot);
-	const cachedChunks = new URL('./chunks/', opts.settings.config.cacheDir);
-	const distChunks = new URL('./chunks/', opts.settings.config.outDir);
 	const contentCacheDir = new URL(CONTENT_CACHE_DIR, cacheDir);
 	const contentManifestFile = new URL(CONTENT_MANIFEST_FILE, contentCacheDir);
-	const cache = contentCacheDir;
-	const cacheTmp = new URL('./.tmp/', cache);
+	const cacheTmp = new URL('./.tmp/', contentCacheDir);
 	let oldManifest = createContentManifest();
 	let newManifest = createContentManifest();
 	let entries: ContentEntries;
 	let injectedEmptyFile = false;
+	let currentManifestState: ReturnType<typeof manifestState> = 'valid';
 
 	if (fsMod.existsSync(contentManifestFile)) {
 		try {
 			const data = fsMod.readFileSync(contentManifestFile, { encoding: 'utf8' });
 			oldManifest = JSON.parse(data);
-			internals.cachedClientEntries = oldManifest.clientEntries;
 		} catch {}
 	}
 
@@ -83,6 +102,32 @@ function vitePluginContent(
 			let newOptions = Object.assign({}, options);
 			newManifest = await generateContentManifest(opts, lookupMap);
 			entries = getEntriesFromManifests(oldManifest, newManifest);
+
+			// If the manifest is valid, use the cached client entries as nothing has changed
+			currentManifestState = manifestState(oldManifest, newManifest);
+			if (currentManifestState === 'valid') {
+				internals.cachedClientEntries = oldManifest.clientEntries;
+			} else {
+				let logReason = '';
+				switch (currentManifestState) {
+					case 'config-mismatch':
+						logReason = 'Astro config has changed';
+						break;
+					case 'lockfile-mismatch':
+						logReason = 'Lockfiles have changed';
+						break;
+					case 'no-entries':
+						logReason = 'No content collections entries cached';
+						break;
+					case 'version-mismatch':
+						logReason = 'The cache manifest version has changed';
+						break;
+					case 'no-manifest':
+						logReason = 'No content manifest was found in the cache';
+						break;
+				}
+				opts.logger.info('build', `Cache invalid, rebuilding from source. Reason: ${logReason}.`);
+			}
 
 			// Of the cached entries, these ones need to be rebuilt
 			for (const { type, entry } of entries.buildFromSource) {
@@ -96,10 +141,18 @@ function vitePluginContent(
 				}
 				newOptions = addRollupInput(newOptions, inputs);
 			}
-			// Restores cached chunks from the previous build
-			if (fsMod.existsSync(cachedChunks)) {
-				await copyFiles(cachedChunks, distChunks, true);
+
+			// Restores cached chunks and assets from the previous build
+			// If the manifest state is not valid then it needs to rebuild everything
+			// so don't do that in this case.
+			if (currentManifestState === 'valid') {
+				for (const { cached, dist } of cachedBuildOutput) {
+					if (fsMod.existsSync(cached)) {
+						await copyFiles(cached, dist, true);
+					}
+				}
 			}
+
 			// If nothing needs to be rebuilt, we inject a fake entrypoint to appease Rollup
 			if (entries.buildFromSource.length === 0) {
 				newOptions = addRollupInput(newOptions, [virtualEmptyModuleId]);
@@ -199,16 +252,20 @@ function vitePluginContent(
 			]);
 			newManifest.serverEntries = Array.from(serverComponents);
 			newManifest.clientEntries = Array.from(clientComponents);
+
+			const cacheExists = fsMod.existsSync(contentCacheDir);
+			// If the manifest is invalid, empty the cache so that we can create a new one.
+			if (cacheExists && currentManifestState !== 'valid') {
+				emptyDir(contentCacheDir);
+			}
+
 			await fsMod.promises.mkdir(contentCacheDir, { recursive: true });
 			await fsMod.promises.writeFile(contentManifestFile, JSON.stringify(newManifest), {
 				encoding: 'utf8',
 			});
-
-			const cacheExists = fsMod.existsSync(cache);
-			fsMod.mkdirSync(cache, { recursive: true });
 			await fsMod.promises.mkdir(cacheTmp, { recursive: true });
 			await copyFiles(distContentRoot, cacheTmp, true);
-			if (cacheExists) {
+			if (cacheExists && currentManifestState === 'valid') {
 				await copyFiles(contentCacheDir, distContentRoot, false);
 			}
 			await copyFiles(cacheTmp, contentCacheDir);
@@ -242,12 +299,12 @@ function getEntriesFromManifests(
 	oldManifest: ContentManifest,
 	newManifest: ContentManifest
 ): ContentEntries {
-	const { version: oldVersion, entries: oldEntries } = oldManifest;
-	const { version: newVersion, entries: newEntries } = newManifest;
+	const { entries: oldEntries } = oldManifest;
+	const { entries: newEntries } = newManifest;
 	let entries: ContentEntries = { restoreFromCache: [], buildFromSource: [] };
 
 	const newEntryMap = new Map<ContentManifestKey, string>(newEntries);
-	if (oldVersion !== newVersion || oldEntries.length === 0) {
+	if (manifestState(oldManifest, newManifest) !== 'valid') {
 		entries.buildFromSource = Array.from(newEntryMap.keys());
 		return entries;
 	}
@@ -265,16 +322,43 @@ function getEntriesFromManifests(
 	return entries;
 }
 
+type ManifestState =
+	| 'valid'
+	| 'no-manifest'
+	| 'version-mismatch'
+	| 'no-entries'
+	| 'lockfile-mismatch'
+	| 'config-mismatch';
+
+function manifestState(oldManifest: ContentManifest, newManifest: ContentManifest): ManifestState {
+	// There isn't an existing manifest.
+	if (oldManifest.version === NO_MANIFEST_VERSION) {
+		return 'no-manifest';
+	}
+	// Version mismatch, always invalid
+	if (oldManifest.version !== newManifest.version) {
+		return 'version-mismatch';
+	}
+	if (oldManifest.entries.length === 0) {
+		return 'no-entries';
+	}
+	// Lockfiles have changed or there is no lockfile at all.
+	if (oldManifest.lockfiles !== newManifest.lockfiles || newManifest.lockfiles === '') {
+		return 'lockfile-mismatch';
+	}
+	// Config has changed.
+	if (oldManifest.configs !== newManifest.configs) {
+		return 'config-mismatch';
+	}
+	return 'valid';
+}
+
 async function generateContentManifest(
 	opts: StaticBuildOptions,
 	lookupMap: ContentLookupMap
 ): Promise<ContentManifest> {
-	let manifest: ContentManifest = {
-		version: CONTENT_MANIFEST_VERSION,
-		entries: [],
-		serverEntries: [],
-		clientEntries: [],
-	};
+	let manifest = createContentManifest();
+	manifest.version = CONTENT_MANIFEST_VERSION;
 	const limit = pLimit(10);
 	const promises: Promise<void>[] = [];
 
@@ -291,12 +375,62 @@ async function generateContentManifest(
 		}
 	}
 
+	const [lockfiles, configs] = await Promise.all([
+		lockfilesHash(opts.settings.config.root),
+		configHash(opts.settings.config.root),
+	]);
+
+	manifest.lockfiles = lockfiles;
+	manifest.configs = configs;
+
 	await Promise.all(promises);
 	return manifest;
 }
 
-function checksum(data: string): string {
-	return createHash('sha1').update(data).digest('base64');
+async function pushBufferInto(fileURL: URL, buffers: Uint8Array[]) {
+	try {
+		const handle = await fsMod.promises.open(fileURL, 'r');
+		const data = await handle.readFile();
+		buffers.push(data);
+		await handle.close();
+	} catch {
+		// File doesn't exist, ignore
+	}
+}
+
+async function lockfilesHash(root: URL) {
+	// Order is important so don't change this.
+	const lockfiles = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock', 'bun.lockb'];
+	const datas: Uint8Array[] = [];
+	const promises: Promise<void>[] = [];
+	for (const lockfileName of lockfiles) {
+		const fileURL = new URL(`./${lockfileName}`, root);
+		promises.push(pushBufferInto(fileURL, datas));
+	}
+	await Promise.all(promises);
+	return checksum(...datas);
+}
+
+async function configHash(root: URL) {
+	const configFileNames = configPaths;
+	for (const configPath of configFileNames) {
+		try {
+			const fileURL = new URL(`./${configPath}`, root);
+			const data = await fsMod.promises.readFile(fileURL);
+			const hash = checksum(data);
+			return hash;
+		} catch {
+			// File doesn't exist
+		}
+	}
+	// No config file, still create a hash since we can compare nothing against nothing.
+	return checksum(`export default {}`);
+}
+
+function checksum(...datas: string[] | Uint8Array[]): string {
+	const hash = createHash('sha1');
+	datas.forEach((data) => hash.update(data));
+	return hash.digest('base64');
 }
 
 function collectionTypeToFlag(type: 'content' | 'data') {
@@ -308,8 +442,15 @@ export function pluginContent(
 	opts: StaticBuildOptions,
 	internals: BuildInternals
 ): AstroBuildPlugin {
-	const cachedChunks = new URL('./chunks/', opts.settings.config.cacheDir);
-	const distChunks = new URL('./chunks/', opts.settings.config.outDir);
+	const { cacheDir, outDir } = opts.settings.config;
+
+	const chunksFolder = './' + CHUNKS_PATH;
+	const assetsFolder = './' + appendForwardSlash(opts.settings.config.build.assets);
+	// These are build output that is kept in the cache.
+	const cachedBuildOutput = [
+		{ cached: new URL(chunksFolder, cacheDir), dist: new URL(chunksFolder, outDir) },
+		{ cached: new URL(assetsFolder, cacheDir), dist: new URL(assetsFolder, outDir) },
+	];
 
 	return {
 		targets: ['server'],
@@ -321,10 +462,9 @@ export function pluginContent(
 				if (isServerLikeOutput(opts.settings.config)) {
 					return { vitePlugin: undefined };
 				}
-
 				const lookupMap = await generateLookupMap({ settings: opts.settings, fs: fsMod });
 				return {
-					vitePlugin: vitePluginContent(opts, lookupMap, internals),
+					vitePlugin: vitePluginContent(opts, lookupMap, internals, cachedBuildOutput),
 				};
 			},
 
@@ -335,8 +475,11 @@ export function pluginContent(
 				if (isServerLikeOutput(opts.settings.config)) {
 					return;
 				}
-				if (fsMod.existsSync(distChunks)) {
-					await copyFiles(distChunks, cachedChunks, true);
+				// Cache build output of chunks and assets
+				for (const { cached, dist } of cachedBuildOutput) {
+					if (fsMod.existsSync(dist)) {
+						await copyFiles(dist, cached, true);
+					}
 				}
 			},
 		},
