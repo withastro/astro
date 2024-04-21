@@ -10,7 +10,7 @@ function appendForwardSlash(path: string) {
 	return path.endsWith('/') ? path : path + '/';
 }
 
-interface FileInfo {
+export interface FileInfo {
 	fileId: string;
 	fileUrl: string;
 }
