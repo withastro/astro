@@ -104,6 +104,8 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		watchFiles: [],
 		devToolbarApps: [],
 		timer: new AstroTimer(),
+		injectedTypes: [],
+		dotAstroDir: new URL('.astro/', config.root),
 	};
 }
 

@@ -5,7 +5,6 @@ export { createContentTypesGenerator } from './types-generator.js';
 export {
 	contentObservable,
 	getContentPaths,
-	getDotAstroTypeReference,
 	hasAssetPropagationFlag,
 } from './utils.js';
 export { astroContentAssetPropagationPlugin } from './vite-plugin-content-assets.js';
