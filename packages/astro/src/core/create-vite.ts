@@ -156,7 +156,7 @@ export async function createVite(
 			astroDevToolbar({ settings, logger }),
 			vitePluginFileURL({}),
 			astroInternationalization({ settings }),
-			astroEnvVirtualModPlugin({ settings, logger })
+			astroEnvVirtualModPlugin({ settings, logger, mode })
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
