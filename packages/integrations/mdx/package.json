@@ -55,7 +55,6 @@
   "devDependencies": {
     "@types/estree": "^1.0.5",
     "@types/mdast": "^4.0.3",
-    "@types/mocha": "^10.0.6",
     "@types/yargs-parser": "^21.0.3",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",

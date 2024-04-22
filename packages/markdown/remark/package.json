@@ -57,7 +57,6 @@
     "@types/estree": "^1.0.5",
     "@types/hast": "^3.0.4",
     "@types/mdast": "^4.0.3",
-    "@types/mocha": "^10.0.6",
     "@types/unist": "^3.0.2",
     "astro-scripts": "workspace:*",
     "esbuild": "^0.20.2",

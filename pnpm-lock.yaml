@@ -745,9 +745,6 @@ importers:
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
-      '@types/mocha':
-        specifier: ^10.0.6
-        version: 10.0.6
       '@types/probe-image-size':
         specifier: ^7.2.4
         version: 7.2.4
@@ -4417,9 +4414,6 @@ importers:
       '@types/mdast':
         specifier: ^4.0.3
         version: 4.0.3
-      '@types/mocha':
-        specifier: ^10.0.6
-        version: 10.0.6
       '@types/yargs-parser':
         specifier: ^21.0.3
         version: 21.0.3
@@ -4803,8 +4797,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       preact-render-to-string:
-        specifier: ~6.4.2
-        version: 6.4.2(preact@10.20.2)
+        specifier: ~6.3.1
+        version: 6.3.1(preact@10.20.2)
       preact-ssr-prepass:
         specifier: ^1.2.1
         version: 1.2.1(preact@10.20.2)
@@ -5402,9 +5396,6 @@ importers:
       '@types/mdast':
         specifier: ^4.0.3
         version: 4.0.3
-      '@types/mocha':
-        specifier: ^10.0.6
-        version: 10.0.6
       '@types/unist':
         specifier: ^3.0.2
         version: 3.0.2
@@ -14250,8 +14241,8 @@ packages:
       picocolors: 1.0.0
       source-map-js: 1.2.0
 
-  /preact-render-to-string@6.4.2(preact@10.20.2):
-    resolution: {integrity: sha512-Sio5SvlyZSAXHuvnMgYzVQd67lNIuQe4uSjJ+2gfpJNC6L8zoHQR5xV7B/EjIqrAYWVyJ2eACkTCxVrIzZi6Vw==}
+  /preact-render-to-string@6.3.1(preact@10.20.2):
+    resolution: {integrity: sha512-NQ28WrjLtWY6lKDlTxnFpKHZdpjfF+oE6V4tZ0rTrunHrtZp6Dm0oFrcJalt/5PNeqJz4j1DuZDS0Y6rCBoqDA==}
     peerDependencies:
       preact: '>=10'
     dependencies:
