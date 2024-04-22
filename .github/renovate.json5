@@ -1,6 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base", "schedule:weekly", "group:allNonMajor"],
+  "extends": [
+    "config:recommended",
+    "schedule:weekly",
+    "group:allNonMajor",
+    ":disablePeerDependencies",
+  ],
   "labels": ["dependencies"],
   "rangeStrategy": "bump",
   "ignoreDeps": [
