@@ -198,7 +198,6 @@
     "@types/html-escaper": "^3.0.2",
     "@types/http-cache-semantics": "^4.0.4",
     "@types/js-yaml": "^4.0.9",
-    "@types/mime": "^3.0.4",
     "@types/mocha": "^10.0.4",
     "@types/probe-image-size": "^7.2.3",
     "@types/prompts": "^2.4.8",
