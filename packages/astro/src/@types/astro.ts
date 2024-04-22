@@ -246,6 +246,10 @@ export interface AstroGlobal<
 	 */
 	redirect: AstroSharedContext['redirect'];
 	/**
+	 * TODO add documentation
+	 */
+	reroute: AstroSharedContext['reroute'];
+	/**
 	 * The <Astro.self /> element allows a component to reference itself recursively.
 	 *
 	 * [Astro reference](https://docs.astro.build/en/guides/api-reference/#astroself)
@@ -1917,6 +1921,18 @@ export interface AstroUserConfig {
 				origin?: boolean;
 			};
 		};
+
+		/**
+		 * @docs
+		 * @name experimental.rerouting
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.6.0
+		 * @description
+		 *
+		 * TODO
+		 */
+		rerouting: boolean;
 	};
 }
 
@@ -2479,6 +2495,11 @@ interface AstroSharedContext<
 	redirect(path: string, status?: ValidRedirectStatus): Response;
 
 	/**
+	 * TODO: add documentation
+	 */
+	reroute(reroutePayload: ReroutePayload): Promise<Response>;
+
+	/**
 	 * Object accessed via Astro middleware
 	 */
 	locals: App.Locals;
@@ -2784,7 +2805,9 @@ export interface AstroIntegration {
 	};
 }
 
-export type MiddlewareNext = () => Promise<Response>;
+export type ReroutePayload = string | URL | Request;
+
+export type MiddlewareNext = (reroutePayload?: ReroutePayload) => Promise<Response>;
 export type MiddlewareHandler = (
 	context: APIContext,
 	next: MiddlewareNext

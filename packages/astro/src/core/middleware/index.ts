@@ -1,16 +1,13 @@
-import type { APIContext, MiddlewareHandler, Params } from '../../@types/astro.js';
+import type { APIContext, MiddlewareHandler, Params, ReroutePayload } from '../../@types/astro.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../../i18n/utils.js';
-import { ASTRO_VERSION } from '../constants.js';
+import { ASTRO_VERSION, clientLocalsSymbol, clientAddressSymbol } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { sequence } from './sequence.js';
-
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
-const clientLocalsSymbol = Symbol.for('astro.locals');
 
 function defineMiddleware(fn: MiddlewareHandler) {
 	return fn;
@@ -49,6 +46,12 @@ function createContext({
 	const url = new URL(request.url);
 	const route = url.pathname;
 
+	// TODO verify that this function works in an edge middleware environment
+	const reroute = (_reroutePayload: ReroutePayload) => {
+		// return dummy response
+		return Promise.resolve(new Response(null));
+	};
+
 	return {
 		cookies: new AstroCookies(request),
 		request,
@@ -56,6 +59,7 @@ function createContext({
 		site: undefined,
 		generator: `Astro v${ASTRO_VERSION}`,
 		props: {},
+		reroute,
 		redirect(path, status) {
 			return new Response(null, {
 				status: status || 302,
