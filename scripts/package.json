@@ -14,7 +14,7 @@
     "kleur": "^4.1.4",
     "p-limit": "^5.0.0",
     "svelte": "^4.2.5",
-    "tar": "^6.1.15"
+    "tar": "^7.0.1"
   },
   "devDependencies": {
     "@octokit/action": "^6.0.5",

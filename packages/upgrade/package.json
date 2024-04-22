@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/upgrade",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -42,6 +42,6 @@
     "strip-ansi": "^7.1.0"
   },
   "engines": {
-    "node": ">=18.14.1"
+    "node": "^18.17.1 || ^20.3.0 || >=21.0.0"
   }
 }

@@ -1,5 +1,17 @@
 # @astrojs/sitemap
 
+## 3.1.4
+
+### Patch Changes
+
+- [#10772](https://github.com/withastro/astro/pull/10772) [`0e22462d1534afc8f7bb6782f86db680c7a5f245`](https://github.com/withastro/astro/commit/0e22462d1534afc8f7bb6782f86db680c7a5f245) Thanks [@gislerro](https://github.com/gislerro)! - Fixes an issue where the root url does not follow the `trailingSlash` config option
+
+## 3.1.3
+
+### Patch Changes
+
+- [#10795](https://github.com/withastro/astro/pull/10795) [`1ce22881c657becf0397b83ac393fb5d2399104c`](https://github.com/withastro/astro/commit/1ce22881c657becf0397b83ac393fb5d2399104c) Thanks [@bluwy](https://github.com/bluwy)! - Improves performance when generating the sitemap data
+
 ## 3.1.2
 
 ### Patch Changes

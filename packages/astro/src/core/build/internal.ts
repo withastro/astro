@@ -83,6 +83,7 @@ export interface BuildInternals {
 	discoveredScripts: Set<string>;
 
 	cachedClientEntries: string[];
+	cacheManifestUsed: boolean;
 
 	propagatedStylesMap: Map<string, Set<StylesheetAsset>>;
 	propagatedScriptsMap: Map<string, Set<string>>;
@@ -134,6 +135,7 @@ export function createBuildInternals(): BuildInternals {
 		componentMetadata: new Map(),
 		ssrSplitEntryChunks: new Map(),
 		entryPoints: new Map(),
+		cacheManifestUsed: false,
 	};
 }
 

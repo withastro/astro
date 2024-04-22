@@ -1,5 +1,5 @@
-import { asDrizzleTable } from '@astrojs/db/utils';
 import { User, db } from 'astro:db';
+import { asDrizzleTable } from '@astrojs/db/utils';
 
 export default async function () {
 	await db.batch([

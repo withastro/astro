@@ -19,3 +19,12 @@ benchmark/results/
 
 # Files
 pnpm-lock.yaml
+
+# Formatted by Biome
+**/*.json
+**/*.js
+**/*.ts
+**/*.tsx
+**/*.jsx
+**/*.mjs
+**/*.cjs

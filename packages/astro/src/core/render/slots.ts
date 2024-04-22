@@ -2,13 +2,15 @@ import type { SSRResult } from '../../@types/astro.js';
 import { type ComponentSlots, renderSlotToString } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { chunkToString } from '../../runtime/server/render/index.js';
+import { isRenderInstruction } from '../../runtime/server/render/instruction.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 
 function getFunctionExpression(slot: any) {
 	if (!slot) return;
-	if (slot.expressions?.length !== 1) return;
-	return slot.expressions[0] as (...args: any[]) => any;
+	const expressions = slot?.expressions?.filter((e: unknown) => isRenderInstruction(e) === false);
+	if (expressions?.length !== 1) return;
+	return expressions[0] as (...args: any[]) => any;
 }
 
 export class Slots {

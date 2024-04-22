@@ -168,6 +168,7 @@ export async function handleRoute({
 	let options: SSROptions | undefined = undefined;
 	let route: RouteData;
 	const middleware = (await loadMiddleware(loader)).onRequest;
+	const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
 
 	if (!matchedRoute) {
 		if (config.i18n) {
@@ -235,7 +236,6 @@ export async function handleRoute({
 		const { preloadedComponent } = matchedRoute;
 		route = matchedRoute.route;
 		// Allows adapters to pass in locals in dev mode.
-		const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
 		request = createRequest({
 			base: config.base,
 			url,
@@ -287,7 +287,7 @@ export async function handleRoute({
 	}
 	if (response.status === 404 && response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no') {
 		const fourOhFourRoute = await matchRoute('/404', manifestData, pipeline);
-		if (options)
+		if (options && options.route !== fourOhFourRoute?.route)
 			return handleRoute({
 				...options,
 				matchedRoute: fourOhFourRoute,

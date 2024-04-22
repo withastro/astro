@@ -53,7 +53,8 @@ export class BuildPipeline extends Pipeline {
 			return assetLink;
 		}
 		const serverLike = isServerLikeOutput(config);
-		const streaming = true;
+		// We can skip streaming in SSG for performance as writing as strings are faster
+		const streaming = serverLike;
 		super(
 			options.logger,
 			manifest,
