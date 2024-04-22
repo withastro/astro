@@ -195,6 +195,7 @@ export class RenderContext {
 			new Response(null, { status, headers: { Location: path } });
 
 		const reroute = async (reroutePayload: ReroutePayload) => {
+			pipeline.logger.debug('router', 'Called rerouting to:', reroutePayload);
 			try {
 				const [routeData, component] = await pipeline.tryReroute(reroutePayload);
 				this.routeData = routeData;
@@ -212,6 +213,7 @@ export class RenderContext {
 				this.isRerouting = true;
 				return await this.render(component);
 			} catch (e) {
+				pipeline.logger.debug('router', 'Routing failed.', e);
 				return new Response('Not found', {
 					status: 404,
 					statusText: 'Not found',
@@ -381,6 +383,7 @@ export class RenderContext {
 
 		const reroute = async (reroutePayload: ReroutePayload) => {
 			try {
+				pipeline.logger.debug('router', 'Calling rerouting: ', reroutePayload);
 				const [routeData, component] = await pipeline.tryReroute(reroutePayload);
 				this.routeData = routeData;
 				if (reroutePayload instanceof Request) {
@@ -397,6 +400,7 @@ export class RenderContext {
 				this.isRerouting = true;
 				return await this.render(component);
 			} catch (e) {
+				pipeline.logger.debug('router', 'Rerouting failed, returning a 404.', e);
 				return new Response('Not found', {
 					status: 404,
 					statusText: 'Not found',

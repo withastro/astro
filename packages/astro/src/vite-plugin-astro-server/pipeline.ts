@@ -203,7 +203,11 @@ export class DevPipeline extends Pipeline {
 					break;
 				}
 			} else if (payload instanceof Request) {
-				// TODO: handle request, if needed
+				const url = new URL(payload.url);
+				if (route.pattern.test(url.pathname)) {
+					foundRoute = route;
+					break;
+				}
 			} else {
 				if (route.pattern.test(decodeURI(payload))) {
 					foundRoute = route;
