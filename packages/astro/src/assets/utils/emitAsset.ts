@@ -8,7 +8,8 @@ import { imageMetadata } from './metadata.js';
 export async function emitESMImage(
 	id: string | undefined,
 	watchMode: boolean,
-	fileEmitter: any
+	fileEmitter: any,
+	viteMode: string = '',
 ): Promise<ImageMetadata | undefined> {
 	if (!id) {
 		return undefined;
@@ -37,7 +38,7 @@ export async function emitESMImage(
 	});
 
 	// Build
-	if (!watchMode) {
+	if (!watchMode && viteMode !== 'test') {
 		const pathname = decodeURI(url.pathname);
 		const filename = path.basename(pathname, path.extname(pathname) + `.${fileMetadata.format}`);
 
