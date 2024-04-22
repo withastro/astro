@@ -408,7 +408,6 @@ export class RenderContext {
 			}
 		};
 
-
 		return {
 			generator: astroStaticPartial.generator,
 			glob: astroStaticPartial.glob,
