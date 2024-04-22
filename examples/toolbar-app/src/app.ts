@@ -9,8 +9,8 @@ export default defineToolbarApp({
 		const text = document.createElement('p');
 		text.textContent = 'Hello, Astro!';
 
-		astroWindow.appendChild(text);
+		astroWindow.append(text);
 
-		canvas.appendChild(astroWindow);
+		canvas.append(astroWindow);
 	},
 });
