@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 10.2.1
+
+### Patch Changes
+
+- [#238](https://github.com/withastro/adapters/pull/238) [`1927f94`](https://github.com/withastro/adapters/commit/1927f941b41ac7156054c337edb031be8132e3e2) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes `astro build` which throws an error if it can't clean up dynamic imports for prerendered pages.
+
 ## 10.2.0
 
 ### Minor Changes
