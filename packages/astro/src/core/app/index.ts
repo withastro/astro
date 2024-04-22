@@ -1,13 +1,6 @@
-import type {
-	ComponentInstance,
-	ManifestData,
-	RouteData,
-	SSRManifest,
-} from '../../@types/astro.js';
+import type { ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
-import type { SinglePageBuiltModule } from '../build/types.js';
 import {
-	DEFAULT_404_COMPONENT,
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	clientAddressSymbol,
@@ -26,7 +19,6 @@ import {
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '../path.js';
-import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
