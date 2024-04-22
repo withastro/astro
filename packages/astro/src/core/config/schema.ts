@@ -13,6 +13,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import { EnvSchema } from '../../env/schema.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
 // Zod's compiled TypeScript would "simplify" certain values to their base representation, causing references
@@ -87,6 +88,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 		globalRoutePriority: false,
 		i18nDomains: false,
 		security: {},
+		env: {},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -525,6 +527,12 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.security),
 			i18nDomains: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.i18nDomains),
+			env: z
+				.object({
+					schema: EnvSchema.optional(),
+				})
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.env),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`
