@@ -34,7 +34,7 @@ const createFixture = () => {
 			input = _input;
 		},
 		whenValidating() {
-			result = validateEnvVariable('TEST', input.value, input.options);
+			result = validateEnvVariable(input.value, input.options);
 		},
 		/**
 		 * @param {import("../../../src/env/validators.js").ValidationResultValue} value
