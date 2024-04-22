@@ -35,10 +35,15 @@ describe('astro sync', () => {
 	it('Adds type reference to `src/env.d.ts`', async () => {
 		let writtenFiles = {};
 		const typesEnvPath = new URL('env.d.ts', fixture.config.srcDir).href;
+		const typesDtsPath = new URL('.astro/types.d.ts', fixture.config.root).href;
+
 		const fsMock = {
 			...fs,
 			existsSync(path, ...args) {
 				if (path.toString() === typesEnvPath) {
+					return true;
+				}
+				if (path.toString() === typesDtsPath) {
 					return true;
 				}
 				return fs.existsSync(path, ...args);
@@ -73,18 +78,23 @@ describe('astro sync', () => {
 	it('Writes `src/env.d.ts` if none exists', async () => {
 		let writtenFiles = {};
 		const typesEnvPath = new URL('env.d.ts', fixture.config.srcDir).href;
+		const typesDtsPath = new URL('.astro/types.d.ts', fixture.config.root).href;
+
 		const fsMock = {
 			...fs,
 			existsSync(path, ...args) {
 				if (path.toString() === typesEnvPath) {
 					return false;
 				}
+				if (path.toString() === typesDtsPath) {
+					return true;
+				}
 				return fs.existsSync(path, ...args);
 			},
 			promises: {
 				...fs.promises,
 				async writeFile(path, contents) {
-					writtenFiles[path] = contents;
+					writtenFiles[path.toString()] = contents;
 				},
 			},
 		};

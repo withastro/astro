@@ -82,7 +82,7 @@ export async function setUpEnvTs({
 		referenceDefs.push('/// <reference types="astro/client" />');
 
 		for (const injectedType of settings.injectedTypes) {
-			if (await injectedType.condition?.()) {
+			if (!injectedType.condition || (await injectedType.condition?.())) {
 				referenceDefs.push(getDotAstroTypeReference({ settings, filename: injectedType.filename }));
 			}
 		}
