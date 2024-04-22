@@ -95,7 +95,7 @@ export default function assets({
 	mode,
 }: AstroPluginOptions & { mode: string }): vite.Plugin[] {
 	let resolvedConfig: vite.ResolvedConfig;
-	let viteCommand: vite.ConfigEnv['command'];
+	let shouldEmitFile = false;
 
 	globalThis.astroAsset = {
 		referencedImages: new Set(),
@@ -196,7 +196,7 @@ export default function assets({
 			name: 'astro:assets:esm',
 			enforce: 'pre',
 			config(_, env) {
-				env.command;
+				shouldEmitFile = env.command === 'build';
 			},
 			configResolved(viteConfig) {
 				resolvedConfig = viteConfig;
@@ -218,7 +218,7 @@ export default function assets({
 						return;
 					}
 
-					const emitFile = viteCommand === 'build' ? this.emitFile : undefined;
+					const emitFile = shouldEmitFile ? this.emitFile : undefined;
 					const imageMetadata = await emitESMImage(id, this.meta.watchMode, emitFile);
 
 					if (!imageMetadata) {
