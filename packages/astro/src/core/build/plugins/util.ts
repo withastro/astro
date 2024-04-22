@@ -40,8 +40,20 @@ export function extendManualChunks(outputOptions: OutputOptions, hooks: ExtendMa
 	};
 }
 
-// This is an arbitrary string that we are going to replace the dot of the extension
+// This is an arbitrary string that we use to replace the dot of the extension.
 export const ASTRO_PAGE_EXTENSION_POST_PATTERN = '@_@';
+// This is an arbitrary string that we use to make a pageData key
+// Has to be a invalid character for a route, to avoid conflicts.
+export const ASTRO_PAGE_KEY_SEPARATOR = '&';
+
+/**
+ * Generate a unique key to identify each page in the build process.
+ * @param route Usually pageData.route.route
+ * @param componentPath Usually pageData.component
+ */
+export function makePageDataKey(route: string, componentPath: string) {
+	return route + ASTRO_PAGE_KEY_SEPARATOR + componentPath;
+}
 
 /**
  * Prevents Rollup from triggering other plugins in the process by masking the extension (hence the virtual file).
@@ -53,7 +65,7 @@ export const ASTRO_PAGE_EXTENSION_POST_PATTERN = '@_@';
 export function getVirtualModulePageName(virtualModulePrefix: string, path: string, route: string) {
 	const extension = extname(path);
 	return (
-		virtualModulePrefix + route + '&' +
+		virtualModulePrefix + route + ASTRO_PAGE_KEY_SEPARATOR +
 		(extension.startsWith('.')
 			? path.slice(0, -extension.length) + extension.replace('.', ASTRO_PAGE_EXTENSION_POST_PATTERN)
 			: path)
@@ -68,10 +80,10 @@ export function getVirtualModulePageName(virtualModulePrefix: string, path: stri
 export function getPageKeyFromVirtualModulePageName(virtualModulePrefix: string, id: string) {
 	const [route, path] = id
 		.slice(virtualModulePrefix.length)
-		.split("&");
+		.split(ASTRO_PAGE_KEY_SEPARATOR);
 
 	const componentPath = path.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
-	return `${route}&${componentPath}`;
+	return makePageDataKey(route, componentPath);
 }
 
 // TODO: Should this be removed? Or refactored in generate.ts ?

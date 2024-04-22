@@ -4,6 +4,7 @@ import type { AllPagesData } from './types.js';
 
 import * as colors from 'kleur/colors';
 import { debug } from '../logger/core.js';
+import { makePageDataKey } from './plugins/util.js';
 
 export interface CollectPagesDataOptions {
 	settings: AstroSettings;
@@ -36,7 +37,7 @@ export async function collectPagesData(
 	// with parallelized builds without guaranteeing that this is called first.
 	for (const route of manifest.routes) {
 		// Generate a unique key to identify each page in the build process.
-		const key = `${route.route}&${route.component}`;
+		const key = makePageDataKey(route.route, route.component);
 		// static route:
 		if (route.pathname) {
 			const routeCollectionLogTimeout = setInterval(() => {
