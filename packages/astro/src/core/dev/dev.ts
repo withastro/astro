@@ -3,7 +3,7 @@ import type http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { green } from 'kleur/colors';
 import { performance } from 'perf_hooks';
-import { diff, gt, major, minor, patch } from 'semver';
+import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
 import type { AstroInlineConfig } from '../../@types/astro.js';
 import { attachContentServerListeners } from '../../content/index.js';

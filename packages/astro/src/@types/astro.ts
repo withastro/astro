@@ -2113,7 +2113,7 @@ export interface AstroSettings {
 	 * - the check has not completed yet
 	 * - the user is on the latest version already
 	 */
-	latestAstroVersion?: string | undefined;
+	latestAstroVersion: string | undefined;
 }
 
 export type AsyncRendererComponentFn<U> = (
@@ -3021,7 +3021,7 @@ export type DevToolbarMetadata = Window &
 		__astro_dev_toolbar__: {
 			root: string;
 			version: string;
-			latestAstroVersion: string | undefined;
+			latestAstroVersion: AstroSettings['latestAstroVersion'];
 			debugInfo: string;
 		};
 	};
