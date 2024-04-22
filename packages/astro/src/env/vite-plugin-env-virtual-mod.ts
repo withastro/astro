@@ -10,6 +10,7 @@ import type { EnvSchema } from './schema.js';
 import { validateEnvVariable } from './validators.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type fsMod from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 interface AstroEnvVirtualModPluginParams {
 	settings: AstroSettings;
@@ -31,8 +32,11 @@ export function astroEnvVirtualModPlugin({
 	logger.warn('env', 'This feature is experimental. TODO:');
 
 	const schema = settings.config.experimental.env.schema ?? {};
-	// TODO: should that be config.root instead?
-	const loadedEnv = loadEnv(mode === 'dev' ? 'development' : 'production', process.cwd(), '');
+	const loadedEnv = loadEnv(
+		mode === 'dev' ? 'development' : 'production',
+		fileURLToPath(settings.config.root),
+		''
+	);
 
 	const { clientContent, clientDts } = handleClientModule({ schema, loadedEnv });
 	handleDts({ settings, fs, content: clientDts });
@@ -81,8 +85,8 @@ function handleClientModule({
 		if (options.context !== 'client') {
 			continue;
 		}
-		// TODO: check if an empty value is '' or undefined
-		const result = validateEnvVariable(loadedEnv[key], options);
+		const variable = loadedEnv[key];
+		const result = validateEnvVariable(variable === '' ? undefined : variable, options);
 		if (!result.ok) {
 			throw new AstroError({
 				...AstroErrorData.EnvInvalidVariable,
@@ -101,8 +105,6 @@ export {
 	${data.map((e) => e.key).join(',\n')}
 }
 	`;
-
-	console.log({ clientContent });
 
 	const clientDts = `declare module "astro:env/client" {
 	${data.map((e) => `export const ${e.key}: ${e.type};`).join('\n')}
