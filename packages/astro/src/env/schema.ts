@@ -17,6 +17,7 @@ const BooleanSchema = z.object({
 });
 
 const EnvFieldType = z.discriminatedUnion('type', [StringSchema, NumberSchema, BooleanSchema]);
+export type EnvFieldType = z.infer<typeof EnvFieldType>
 
 const PublicClientEnvFieldMetadata = z.object({
 	context: z.literal('client'),
