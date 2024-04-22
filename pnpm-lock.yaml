@@ -701,7 +701,7 @@ importers:
         specifier: ^0.5.10
         version: 0.5.10(prettier-plugin-astro@0.13.0)(prettier@3.2.5)(typescript@5.4.5)
       '@playwright/test':
-        specifier: 1.43.1
+        specifier: ^1.43.1
         version: 1.43.1
       '@types/aria-query':
         specifier: ^5.0.4

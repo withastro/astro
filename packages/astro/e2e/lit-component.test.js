@@ -164,18 +164,7 @@ test.describe('Lit components', () => {
 			// Playwright's Node version doesn't have these functions, so stub them.
 			process.stdout.clearLine = () => {};
 			process.stdout.cursorTo = () => {};
-			try {
-				await astro.build();
-			} catch (err) {
-				// There's this strange error on build since the dev server already defined `my-counter`,
-				// however the tests still pass with this error, so swallow it.
-				if (!err.message.includes(`Failed to execute 'define' on 'CustomElementRegistry'`)) {
-					throw err;
-				}
-			}
-		});
-
-		test.beforeAll(async ({ astro }) => {
+			await astro.build();
 			previewServer = await astro.preview();
 		});
 

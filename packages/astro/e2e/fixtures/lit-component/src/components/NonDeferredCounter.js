@@ -32,4 +32,7 @@ export default class NonDeferredCounter extends LitElement {
 	}
 }
 
-customElements.define('non-deferred-counter', NonDeferredCounter);
+// Since this fixture is ran in both dev and build, this could register twice. Wrap with a try..catch for now.
+try {
+	customElements.define('non-deferred-counter', NonDeferredCounter);
+} catch {}

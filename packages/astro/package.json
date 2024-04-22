@@ -183,7 +183,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.5.10",
-    "@playwright/test": "1.43.1",
+    "@playwright/test": "^1.43.1",
     "@types/aria-query": "^5.0.4",
     "@types/babel__generator": "^7.6.8",
     "@types/babel__traverse": "^7.20.5",
