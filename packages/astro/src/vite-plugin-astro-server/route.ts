@@ -114,7 +114,7 @@ export async function matchRoute(
 
 	if (custom404) {
 		const filePath = new URL(`./${custom404.component}`, config.root);
-		const preloadedComponent = await pipeline.preload(filePath);
+		const preloadedComponent = await pipeline.preload(custom404, filePath);
 
 		return {
 			route: custom404,
@@ -197,40 +197,38 @@ export async function handleRoute({
 			if (!pathNameHasLocale && pathname !== '/') {
 				return handle404Response(origin, incomingRequest, incomingResponse);
 			}
-			request = createRequest({
-				base: config.base,
-				url,
-				headers: incomingRequest.headers,
-				logger,
-				// no route found, so we assume the default for rendering the 404 page
-				staticLike: config.output === 'static' || config.output === 'hybrid',
-			});
-			route = {
-				component: '',
-				generate(_data: any): string {
-					return '';
-				},
-				params: [],
-				// Disable eslint as we only want to generate an empty RegExp
-				// eslint-disable-next-line prefer-regex-literals
-				pattern: new RegExp(''),
-				prerender: false,
-				segments: [],
-				type: 'fallback',
-				route: '',
-				fallbackRoutes: [],
-				isIndex: false,
-			};
-			renderContext = RenderContext.create({
-				pipeline: pipeline,
-				pathname,
-				middleware,
-				request,
-				routeData: route,
-			});
-		} else {
-			return handle404Response(origin, incomingRequest, incomingResponse);
 		}
+		request = createRequest({
+			base: config.base,
+			url,
+			headers: incomingRequest.headers,
+			logger,
+			// no route found, so we assume the default for rendering the 404 page
+			staticLike: config.output === 'static' || config.output === 'hybrid',
+		});
+		route = {
+			component: '',
+			generate(_data: any): string {
+				return '';
+			},
+			params: [],
+			// Disable eslint as we only want to generate an empty RegExp
+			// eslint-disable-next-line prefer-regex-literals
+			pattern: new RegExp(''),
+			prerender: false,
+			segments: [],
+			type: 'fallback',
+			route: '',
+			fallbackRoutes: [],
+			isIndex: false,
+		};
+		renderContext = RenderContext.create({
+			pipeline: pipeline,
+			pathname,
+			middleware,
+			request,
+			routeData: route,
+		});
 	} else {
 		const filePath: URL | undefined = matchedRoute.filePath;
 		const { preloadedComponent } = matchedRoute;
