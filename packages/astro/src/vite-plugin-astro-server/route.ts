@@ -222,6 +222,7 @@ export async function handleRoute({
 			fallbackRoutes: [],
 			isIndex: false,
 		};
+
 		renderContext = RenderContext.create({
 			pipeline: pipeline,
 			pathname,

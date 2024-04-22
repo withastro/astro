@@ -1,10 +1,9 @@
 import type {
+	ComponentInstance,
+	ReroutePayload,
 	RouteData,
 	SSRLoadedRenderer,
 	SSRResult,
-	MiddlewareHandler,
-	ReroutePayload,
-	ComponentInstance,
 } from '../../@types/astro.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
@@ -19,22 +18,42 @@ import {
 import {
 	type BuildInternals,
 	cssOrder,
+	getEntryFilePathFromComponentPath,
 	getPageDataByComponent,
 	mergeInlineCss,
 } from './internal.js';
 import { ASTRO_PAGE_MODULE_ID, ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
-import { getVirtualModulePageNameFromPath } from './plugins/util.js';
-import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
-import type { PageBuildData, StaticBuildOptions } from './types.js';
+import {
+	ASTRO_PAGE_EXTENSION_POST_PATTERN,
+	getVirtualModulePageNameFromPath,
+} from './plugins/util.js';
+import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
-import { defineMiddleware } from '../middleware/index.js';
-import { undefined } from 'zod';
+import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
+import { getOutDirWithinCwd } from './common.js';
 
 /**
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
  */
 export class BuildPipeline extends Pipeline {
+	#componentsInterner: WeakMap<RouteData, SinglePageBuiltModule> = new WeakMap<
+		RouteData,
+		SinglePageBuiltModule
+	>();
+	/**
+	 * This cache is needed to map a single `RouteData` to its file path.
+	 * @private
+	 */
+	#routesByFilePath: WeakMap<RouteData, string> = new WeakMap<RouteData, string>();
+
+	get outFolder() {
+		const ssr = isServerLikeOutput(this.settings.config);
+		return ssr
+			? this.settings.config.build.server
+			: getOutDirWithinCwd(this.settings.config.outDir);
+	}
+
 	private constructor(
 		readonly internals: BuildInternals,
 		readonly manifest: SSRManifest,
@@ -233,14 +252,115 @@ export class BuildPipeline extends Pipeline {
 			}
 		}
 
+		for (const [buildData, filePath] of pages.entries()) {
+			this.#routesByFilePath.set(buildData.route, filePath);
+		}
+
 		return pages;
 	}
 
-	getComponentByRoute(_routeData: RouteData): Promise<ComponentInstance> {
-		throw new Error('unimplemented');
+	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
+		if (this.#componentsInterner.has(routeData)) {
+			// SAFETY: checked before
+			const entry = this.#componentsInterner.get(routeData)!;
+			return await entry.page();
+		} else {
+			// SAFETY: the pipeline calls `retrieveRoutesToGenerate`, which is in charge to fill the cache.
+			const filePath = this.#routesByFilePath.get(routeData)!;
+			const module = await this.retrieveSsrEntry(routeData, filePath);
+			return module.page();
+		}
 	}
 
-	tryReroute(_reroutePayload: ReroutePayload): Promise<[RouteData, ComponentInstance]> {
-		throw new Error('unimplemented');
+	async tryReroute(payload: ReroutePayload): Promise<[RouteData, ComponentInstance]> {
+		let foundRoute: RouteData | undefined;
+		// options.manifest is the actual type that contains the information
+		for (const route of this.options.manifest.routes) {
+			if (payload instanceof URL) {
+				if (route.pattern.test(payload.pathname)) {
+					foundRoute = route;
+					break;
+				}
+			} else if (payload instanceof Request) {
+				const url = new URL(payload.url);
+				if (route.pattern.test(url.pathname)) {
+					foundRoute = route;
+					break;
+				}
+			} else {
+				if (route.pattern.test(decodeURI(payload))) {
+					foundRoute = route;
+					break;
+				}
+			}
+		}
+		if (foundRoute) {
+			const componentInstance = await this.getComponentByRoute(foundRoute);
+			return [foundRoute, componentInstance];
+		} else {
+			throw new Error('Route not found');
+		}
 	}
+
+	async retrieveSsrEntry(route: RouteData, filePath: string): Promise<SinglePageBuiltModule> {
+		if (this.#componentsInterner.has(route)) {
+			// SAFETY: it is checked inside the if
+			return this.#componentsInterner.get(route)!;
+		}
+		let entry;
+		if (routeIsRedirect(route)) {
+			entry = await this.#getEntryForRedirectRoute(route, this.internals, this.outFolder);
+		} else if (routeIsFallback(route)) {
+			entry = await this.#getEntryForFallbackRoute(route, this.internals, this.outFolder);
+		} else {
+			const ssrEntryURLPage = createEntryURL(filePath, this.outFolder);
+			entry = await import(ssrEntryURLPage.toString());
+		}
+		this.#componentsInterner.set(route, entry);
+		return entry;
+	}
+
+	async #getEntryForFallbackRoute(
+		route: RouteData,
+		internals: BuildInternals,
+		outFolder: URL
+	): Promise<SinglePageBuiltModule> {
+		if (route.type !== 'fallback') {
+			throw new Error(`Expected a redirect route.`);
+		}
+		if (route.redirectRoute) {
+			const filePath = getEntryFilePathFromComponentPath(internals, route.redirectRoute.component);
+			if (filePath) {
+				const url = createEntryURL(filePath, outFolder);
+				const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
+				return ssrEntryPage;
+			}
+		}
+
+		return RedirectSinglePageBuiltModule;
+	}
+
+	async #getEntryForRedirectRoute(
+		route: RouteData,
+		internals: BuildInternals,
+		outFolder: URL
+	): Promise<SinglePageBuiltModule> {
+		if (route.type !== 'redirect') {
+			throw new Error(`Expected a redirect route.`);
+		}
+		if (route.redirectRoute) {
+			const filePath = getEntryFilePathFromComponentPath(internals, route.redirectRoute.component);
+			if (filePath) {
+				const url = createEntryURL(filePath, outFolder);
+				const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
+				return ssrEntryPage;
+			}
+		}
+
+		return RedirectSinglePageBuiltModule;
+	}
+}
+
+function createEntryURL(filePath: string, outFolder: URL) {
+	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
 }
