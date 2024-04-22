@@ -746,8 +746,8 @@ importers:
         specifier: ^4.0.9
         version: 4.0.9
       '@types/mime':
-        specifier: ^3.0.4
-        version: 3.0.4
+        specifier: ^4.0.0
+        version: 4.0.0
       '@types/mocha':
         specifier: ^10.0.4
         version: 10.0.6
@@ -8243,8 +8243,11 @@ packages:
     resolution: {integrity: sha512-/pyBZWSLD2n0dcHE3hq8s8ZvcETHtEuF+3E7XVt0Ig2nvsVQXdghHVcEkIWjy9A0wKfTn97a/PSDYohKIlnP/w==}
     dev: true
 
-  /@types/mime@3.0.4:
-    resolution: {integrity: sha512-iJt33IQnVRkqeqC7PzBHPTC6fDlRNRW8vjrgqtScAhrmMwe8c4Eo7+fUGTa+XdWrpEgpyKWMYmi2dIwMAYRzPw==}
+  /@types/mime@4.0.0:
+    resolution: {integrity: sha512-5eEkJZ/BLvTE3vXGKkWlyTSUVZuzj23Wj8PoyOq2lt5I3CYbiLBOPb3XmCW6QcuOibIUE6emHXHt9E/F/rCa6w==}
+    deprecated: This is a stub types definition. mime provides its own type definitions, so you do not need this installed.
+    dependencies:
+      mime: 1.6.0
     dev: true
 
   /@types/minimist@1.2.5:
