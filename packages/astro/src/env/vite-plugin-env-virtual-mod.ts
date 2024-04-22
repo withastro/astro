@@ -34,7 +34,8 @@ export function astroEnvVirtualModPlugin({
 	// TODO: should that be config.root instead?
 	const loadedEnv = loadEnv(mode === 'dev' ? 'development' : 'production', process.cwd(), '');
 
-	const { clientContent } = handleClientModule({ schema, loadedEnv, settings, fs });
+	const { clientContent, clientDts } = handleClientModule({ schema, loadedEnv });
+	handleDts({ settings, fs, content: clientDts });
 
 	// TODO: server / public
 	// TODO: server / secret
@@ -46,7 +47,7 @@ export function astroEnvVirtualModPlugin({
 				return RESOLVED_VIRTUAL_CLIENT_MODULE_ID;
 			}
 		},
-		load(id, options) {
+		load(id) {
 			if (id === RESOLVED_VIRTUAL_CLIENT_MODULE_ID) {
 				return clientContent;
 			}
@@ -54,16 +55,25 @@ export function astroEnvVirtualModPlugin({
 	};
 }
 
-function handleClientModule({
-	schema,
-	loadedEnv,
+function handleDts({
+	content,
 	settings,
 	fs,
 }: {
-	schema: EnvSchema;
-	loadedEnv: Record<string, string>;
+	content: string;
 	settings: AstroSettings;
 	fs: typeof fsMod;
+}) {
+	fs.mkdirSync(settings.dotAstroDir, { recursive: true });
+	fs.writeFileSync(new URL(ENV_TYPES_FILE, settings.dotAstroDir), content, 'utf-8');
+}
+
+function handleClientModule({
+	schema,
+	loadedEnv,
+}: {
+	schema: EnvSchema;
+	loadedEnv: Record<string, string>;
 }) {
 	const data: Array<{ key: string; value: any; type: string }> = [];
 
@@ -85,20 +95,21 @@ function handleClientModule({
 	const clientContent = `
 const data = ${JSON.stringify(Object.fromEntries(data.map((e) => [e.key, e.value])))};
 
-export const {
-	${data.map((e) => e.key).join(', ')}
+${data.map((e) => `const ${e.key} = data.${e.key};`).join('\n')}
+
+export {
+	${data.map((e) => e.key).join(',\n')}
 }
 	`;
 
-	// TODO: generate types
-	// 1. create reference in src/env.d.ts
-	// 2. create content
-	// 3. create file
-	// 4. extract to a utility shared with the content part
-	fs.mkdirSync(settings.dotAstroDir, { recursive: true });
-	fs.writeFileSync(new URL(ENV_TYPES_FILE, settings.dotAstroDir), '', 'utf-8');
+	console.log({ clientContent });
+
+	const clientDts = `declare module "astro:env/client" {
+	${data.map((e) => `export const ${e.key}: ${e.type};`).join('\n')}
+}`;
 
 	return {
 		clientContent,
+		clientDts,
 	};
 }

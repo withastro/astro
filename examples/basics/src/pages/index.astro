@@ -1,6 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Card from '../components/Card.astro';
+import { PUBLIC_TEST } from 'astro:env/client';
+
+console.log({ PUBLIC_TEST })
 ---
 
 <Layout title="Welcome to Astro.">

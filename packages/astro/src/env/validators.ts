@@ -15,7 +15,7 @@ type ValidationResult =
 
 const getType = (options: EnvFieldType) => {
 	const optional = options.optional ?? options.default;
-	return `${options.type}${optional ? '| undefined' : ''}`;
+	return `${options.type}${optional ? ' | undefined' : ''}`;
 };
 
 type ValueValidator = (input: string | undefined) => {
