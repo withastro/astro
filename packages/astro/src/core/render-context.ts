@@ -30,8 +30,6 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
-import { fileURLToPath } from 'node:url';
-import { joinPaths } from '@astrojs/internal-helpers/path';
 
 /**
  * Each request is rendered using a `RenderContext`.
