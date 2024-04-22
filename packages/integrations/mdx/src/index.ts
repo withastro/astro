@@ -3,19 +3,14 @@ import { fileURLToPath } from 'node:url';
 import { markdownConfigDefaults, setVfileFrontmatter } from '@astrojs/markdown-remark';
 import type { AstroIntegration, ContentEntryType, HookParameters, SSRError } from 'astro';
 import astroJSXRenderer from 'astro/jsx/renderer.js';
-import { parse as parseESM } from 'es-module-lexer';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
 import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
 import { createMdxProcessor } from './plugins.js';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
-import {
-	ASTRO_IMAGE_ELEMENT,
-	ASTRO_IMAGE_IMPORT,
-	USES_ASTRO_IMAGE_FLAG,
-} from './remark-images-to-component.js';
 import { getFileInfo, ignoreStringPlugins, parseFrontmatter } from './utils.js';
+import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
 
 export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
 	extendMarkdownConfig: boolean;
@@ -106,6 +101,13 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 										}
 									}
 								},
+								async resolveId(source, importer, options) {
+									if (importer?.endsWith('.mdx') && source[0] !== '/') {
+										let resolved = await this.resolve(source, importer, options);
+										if (!resolved) resolved = await this.resolve('./' + source, importer, options);
+										return resolved;
+									}
+								},
 								// Override transform to alter code before MDX compilation
 								// ex. inject layouts
 								async transform(_, id) {
@@ -150,72 +152,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 									}
 								},
 							},
-							{
-								name: '@astrojs/mdx-postprocess',
-								// These transforms must happen *after* JSX runtime transformations
-								transform(code, id) {
-									if (!id.endsWith('.mdx')) return;
-
-									const [moduleImports, moduleExports] = parseESM(code);
-
-									// Fragment import should already be injected, but check just to be safe.
-									const importsFromJSXRuntime = moduleImports
-										.filter(({ n }) => n === 'astro/jsx-runtime')
-										.map(({ ss, se }) => code.substring(ss, se));
-									const hasFragmentImport = importsFromJSXRuntime.some((statement) =>
-										/[\s,{](?:Fragment,|Fragment\s*\})/.test(statement)
-									);
-									if (!hasFragmentImport) {
-										code = 'import { Fragment } from "astro/jsx-runtime"\n' + code;
-									}
-
-									const { fileUrl, fileId } = getFileInfo(id, config);
-									if (!moduleExports.find(({ n }) => n === 'url')) {
-										code += `\nexport const url = ${JSON.stringify(fileUrl)};`;
-									}
-									if (!moduleExports.find(({ n }) => n === 'file')) {
-										code += `\nexport const file = ${JSON.stringify(fileId)};`;
-									}
-									if (!moduleExports.find(({ n }) => n === 'Content')) {
-										// If have `export const components`, pass that as props to `Content` as fallback
-										const hasComponents = moduleExports.find(({ n }) => n === 'components');
-										const usesAstroImage = moduleExports.find(
-											({ n }) => n === USES_ASTRO_IMAGE_FLAG
-										);
-
-										let componentsCode = `{ Fragment${
-											hasComponents ? ', ...components' : ''
-										}, ...props.components,`;
-										if (usesAstroImage) {
-											componentsCode += ` ${JSON.stringify(ASTRO_IMAGE_ELEMENT)}: ${
-												hasComponents ? 'components.img ?? ' : ''
-											} props.components?.img ?? ${ASTRO_IMAGE_IMPORT}`;
-										}
-										componentsCode += ' }';
-
-										// Make `Content` the default export so we can wrap `MDXContent` and pass in `Fragment`
-										code = code.replace(
-											'export default function MDXContent',
-											'function MDXContent'
-										);
-										code += `\nexport const Content = (props = {}) => MDXContent({
-											...props,
-											components: ${componentsCode},
-										});
-										export default Content;`;
-									}
-
-									// mark the component as an MDX component
-									code += `\nContent[Symbol.for('mdx-component')] = true`;
-
-									// Ensures styles and scripts are injected into a `<head>`
-									// When a layout is not applied
-									code += `\nContent[Symbol.for('astro.needsHeadRendering')] = !Boolean(frontmatter.layout);`;
-									code += `\nContent.moduleId = ${JSON.stringify(id)};`;
-
-									return { code, map: null };
-								},
-							},
+							vitePluginMdxPostprocess(config),
 						] as VitePlugin[],
 					},
 				});

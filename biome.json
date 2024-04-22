@@ -1,16 +1,48 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
+  "$schema": "https://biomejs.dev/schemas/1.6.4/schema.json",
   "files": {
-    "include": ["test/**", "e2e/**", "packages/**"],
-    "ignore": ["vendor", "dist/**"]
+    "ignore": [
+      "vendor",
+      "**/dist/**",
+      "**/smoke/**",
+      "**/fixtures/**",
+      "**/vendor/**",
+      "**/.vercel/**"
+    ],
+    "include": ["test/**", "e2e/**", "packages/**"]
+  },
+  "formatter": {
+    "indentStyle": "tab",
+    "indentWidth": 2,
+    "lineWidth": 100,
+    "ignore": [
+      "benchmark/projects/",
+      "benchmark/results/",
+      ".changeset",
+      "pnpm-lock.yaml",
+      "package.json",
+      "*.astro"
+    ]
   },
   "organizeImports": {
     "enabled": true
   },
-  "linter": {
-    "enabled": false
+  "linter": { "enabled": false },
+  "javascript": {
+    "formatter": {
+      "trailingComma": "es5",
+      "quoteStyle": "single",
+      "semicolons": "always"
+    }
   },
-  "formatter": {
-    "enabled": false
+  "json": {
+    "parser": {
+      "allowComments": true,
+      "allowTrailingCommas": true
+    },
+    "formatter": {
+      "indentStyle": "space",
+      "trailingCommas": "none"
+    }
   }
 }

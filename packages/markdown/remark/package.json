@@ -45,7 +45,7 @@
     "remark-gfm": "^4.0.0",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.0.0",
-    "remark-smartypants": "^2.0.0",
+    "remark-smartypants": "^3.0.0",
     "shiki": "^1.1.2",
     "unified": "^11.0.4",
     "unist-util-remove-position": "^5.0.0",
@@ -54,7 +54,6 @@
     "vfile": "^6.0.1"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.10",
     "@types/estree": "^1.0.5",
     "@types/hast": "^3.0.3",
     "@types/mdast": "^4.0.3",

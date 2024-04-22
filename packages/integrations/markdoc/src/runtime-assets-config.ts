@@ -1,7 +1,7 @@
-import type { Config as MarkdocConfig } from '@markdoc/markdoc';
-import Markdoc from '@markdoc/markdoc';
 //@ts-expect-error Cannot find module 'astro:assets' or its corresponding type declarations.
 import { Image } from 'astro:assets';
+import type { Config as MarkdocConfig } from '@markdoc/markdoc';
+import Markdoc from '@markdoc/markdoc';
 
 export const assetsConfig: MarkdocConfig = {
 	nodes: {

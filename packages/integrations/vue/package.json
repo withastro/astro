@@ -45,7 +45,6 @@
     "@vue/compiler-sfc": "^3.3.8"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.10",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0-rc.12",
