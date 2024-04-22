@@ -6,8 +6,8 @@ export const atomSchema = z.object({
 	published: z
 		.union([z.string(), z.number(), z.date()])
 		.optional()
-		.transform((value) => (value === undefined ? value : new Date(value)))
-		.refine((value) => (value === undefined ? value : !isNaN(value.getTime()))),
+		.transform((value) => (value !== undefined ? new Date(value) : undefined))
+		.refine((value) => (value ? !isNaN(value.getTime()) : true)),
 	updated: z
 		.union([z.string(), z.number(), z.date()])
 		.optional()

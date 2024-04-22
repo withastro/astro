@@ -185,27 +185,26 @@ async function generateAtom(atomOptions: ValidatedAtomOptions): Promise<string> 
 			...(isXSL && { '@_type': 'text/xsl' }),
 		};
 	}
-	root.feed = { '@_version': '2.0' };
 
 	// xmlns
 	const XMLNamespace = 'http://www.w3.org/2005/Atom';
-	root.feed['@_xmlns'] = XMLNamespace;
+	root.feed = { '@_xmlns': XMLNamespace };
 	if (atomOptions.xmlns) {
 		for (const [k, v] of Object.entries(atomOptions.xmlns)) {
-			root.rss[`@_xmlns:${k}`] = v;
+			root.feed[`@_xmlns:${k}`] = v;
 		}
 	}
 
 	// title, description, customData
-	(root.feed.title = atomOptions.title),
-		(root.feed.subtitle = atomOptions.subtitle),
-		(root.feed.link = {
-			'@_href': createCanonicalURL(site, atomOptions.trailingSlash, undefined).href,
-		});
+	root.feed.title = atomOptions.title;
+	root.feed.subtitle = atomOptions.subtitle;
+	root.feed.link = {
+		'@_href': createCanonicalURL(site, atomOptions.trailingSlash, undefined).href,
+	};
 	if (typeof atomOptions.customData === 'string')
-		Object.assign(root.rss.feed, parser.parse(`<feed>${atomOptions.customData}</feed>`).feed);
+		Object.assign(root.feed, parser.parse(`<feed>${atomOptions.customData}</feed>`).feed);
 	// entris
-	root.rss.channel.entry = entries.map((result) => {
+	root.feed.entry = entries.map((result) => {
 		const entry: Record<string, unknown> & { link: any[] } = { link: [] };
 
 		if (result.title) {
@@ -245,7 +244,7 @@ async function generateAtom(atomOptions: ValidatedAtomOptions): Promise<string> 
 		}
 		if (result.source) {
 			// TODO: Source object
-			entry.source = { title: result.source.title, link: { href: result.source.url } };
+			entry.source = { title: result.source.title, link: { '@_href': result.source.url } };
 		}
 		if (result.enclosure) {
 			const enclosureURL = isValidURL(result.enclosure.url)
