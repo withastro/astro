@@ -18,7 +18,6 @@ export function mutatePageMapInPlace(
 		if (!arrayExpression.elements[1] || arrayExpression.elements[1].type !== 'Identifier') continue;
 
 		if (constsToRemove.includes(arrayExpression.elements[1].name)) {
-			console.log(arrayExpression);
 			// @ts-expect-error - @types/estree seem to be wrong
 			if (arrayExpression.start && arrayExpression.end) {
 				// @ts-expect-error - @types/estree seem to be wrong
