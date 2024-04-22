@@ -31,6 +31,8 @@
     "@astrojs/underscore-redirects": "^0.3.3",
     "@cloudflare/workers-types": "^4.20240320.1",
     "esbuild": "^0.19.5",
+    "estree-walker": "^3.0.3",
+    "magic-string": "^0.30.10",
     "miniflare": "^3.20240320.0",
     "tiny-glob": "^0.2.9",
     "wrangler": "^3.39.0"
