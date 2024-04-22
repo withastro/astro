@@ -35,10 +35,10 @@ export default function createVitePluginAstroServer({
 		configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
 			const manifest = createDevelopmentManifest(settings);
-			const pipeline = DevPipeline.create({ loader, logger, manifest, settings });
 			let manifestData: ManifestData = ensure404Route(
 				createRouteManifest({ settings, fsMod }, logger)
 			);
+			const pipeline = DevPipeline.create(manifestData, { loader, logger, manifest, settings });
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();
 
@@ -47,6 +47,7 @@ export default function createVitePluginAstroServer({
 				pipeline.clearRouteCache();
 				if (needsManifestRebuild) {
 					manifestData = ensure404Route(createRouteManifest({ settings }, logger));
+					pipeline.setManifestData(manifestData);
 				}
 			}
 			// Rebuild route manifest on file change, if needed.
@@ -144,6 +145,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		inlinedScripts: new Map(),
 		i18n: i18nManifest,
 		checkOrigin: settings.config.experimental.security?.csrfProtection?.origin ?? false,
+		reroutingEnabled: settings.config.experimental.rerouting,
 		middleware(_, next) {
 			return next();
 		},

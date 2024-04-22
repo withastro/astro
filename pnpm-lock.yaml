@@ -3102,6 +3102,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/middleware-virtual:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/minification-html:
     dependencies:
       astro:
@@ -3295,6 +3301,12 @@ importers:
         version: 10.20.1
 
   packages/astro/test/fixtures/remote-css:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/reroute:
     dependencies:
       astro:
         specifier: workspace:*

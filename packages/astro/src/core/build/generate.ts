@@ -615,6 +615,7 @@ function createBuildManifest(
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
 		middleware,
+		reroutingEnabled: settings.config.experimental.rerouting,
 		checkOrigin: settings.config.experimental.security?.csrfProtection?.origin ?? false,
 	};
 }
