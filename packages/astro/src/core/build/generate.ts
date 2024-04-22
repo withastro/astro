@@ -66,46 +66,6 @@ function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
 }
 
-async function getEntryForRedirectRoute(
-	route: RouteData,
-	internals: BuildInternals,
-	outFolder: URL
-): Promise<SinglePageBuiltModule> {
-	if (route.type !== 'redirect') {
-		throw new Error(`Expected a redirect route.`);
-	}
-	if (route.redirectRoute) {
-		const filePath = getEntryFilePathFromComponentPath(internals, route.redirectRoute.component);
-		if (filePath) {
-			const url = createEntryURL(filePath, outFolder);
-			const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
-			return ssrEntryPage;
-		}
-	}
-
-	return RedirectSinglePageBuiltModule;
-}
-
-async function getEntryForFallbackRoute(
-	route: RouteData,
-	internals: BuildInternals,
-	outFolder: URL
-): Promise<SinglePageBuiltModule> {
-	if (route.type !== 'fallback') {
-		throw new Error(`Expected a redirect route.`);
-	}
-	if (route.redirectRoute) {
-		const filePath = getEntryFilePathFromComponentPath(internals, route.redirectRoute.component);
-		if (filePath) {
-			const url = createEntryURL(filePath, outFolder);
-			const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
-			return ssrEntryPage;
-		}
-	}
-
-	return RedirectSinglePageBuiltModule;
-}
-
 // Gives back a facadeId that is relative to the root.
 // ie, src/pages/index.astro instead of /Users/name..../src/pages/index.astro
 export function rootRelativeFacadeId(facadeId: string, settings: AstroSettings): string {
@@ -185,14 +145,15 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 					});
 				}
 
-				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
-				const ssrEntryPage = await import(ssrEntryURLPage.toString());
+				const ssrEntryPage = await pipeline.retrieveSsrEntry(pageData.route, filePath);
 				if (options.settings.adapter?.adapterFeatures?.functionPerRoute) {
 					// forcing to use undefined, so we fail in an expected way if the module is not even there.
+					// @ts-expect-error When building for `functionPerRoute`, the module exports a `pageModule` function instead
 					const ssrEntry = ssrEntryPage?.pageModule;
 					if (ssrEntry) {
 						await generatePage(pageData, ssrEntry, builtPaths, pipeline);
 					} else {
+						const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 						throw new Error(
 							`Unable to find the manifest for the module ${ssrEntryURLPage.toString()}. This is unexpected and likely a bug in Astro, please report.`
 						);
@@ -205,18 +166,8 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 		}
 	} else {
 		for (const [pageData, filePath] of pagesToGenerate) {
-			if (routeIsRedirect(pageData.route)) {
-				const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-				await generatePage(pageData, entry, builtPaths, pipeline);
-			} else if (routeIsFallback(pageData.route)) {
-				const entry = await getEntryForFallbackRoute(pageData.route, internals, outFolder);
-				await generatePage(pageData, entry, builtPaths, pipeline);
-			} else {
-				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
-				const entry: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
-
-				await generatePage(pageData, entry, builtPaths, pipeline);
-			}
+			const entry = await pipeline.retrieveSsrEntry(pageData.route, filePath);
+			await generatePage(pageData, entry, builtPaths, pipeline);
 		}
 	}
 	logger.info(
@@ -232,12 +183,12 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 			.map((x) => x.transforms.size)
 			.reduce((a, b) => a + b, 0);
 		const cpuCount = os.cpus().length;
-		const assetsCreationpipeline = await prepareAssetsGenerationEnv(pipeline, totalCount);
+		const assetsCreationPipeline = await prepareAssetsGenerationEnv(pipeline, totalCount);
 		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
 
 		const assetsTimer = performance.now();
 		for (const [originalPath, transforms] of staticImageList) {
-			await generateImagesForPath(originalPath, transforms, assetsCreationpipeline, queue);
+			await generateImagesForPath(originalPath, transforms, assetsCreationPipeline, queue);
 		}
 
 		await queue.onIdle();
