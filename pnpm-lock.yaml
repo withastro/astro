@@ -576,8 +576,8 @@ importers:
         specifier: ^2.0.1
         version: 2.0.2
       devalue:
-        specifier: ^4.3.2
-        version: 4.3.2
+        specifier: ^5.0.0
+        version: 5.0.0
       diff:
         specifier: ^5.1.0
         version: 5.2.0
@@ -4225,8 +4225,8 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       devalue:
-        specifier: ^4.3.2
-        version: 4.3.2
+        specifier: ^5.0.0
+        version: 5.0.0
       linkedom:
         specifier: ^0.16.4
         version: 0.16.11
@@ -10264,8 +10264,8 @@ packages:
       base-64: 1.0.0
     dev: false
 
-  /devalue@4.3.2:
-    resolution: {integrity: sha512-KqFl6pOgOW+Y6wJgu80rHpo2/3H07vr8ntR9rkkFIRETewbf5GaYYcakYfiKz89K+sLsuPkQIZaXDMjUObZwWg==}
+  /devalue@5.0.0:
+    resolution: {integrity: sha512-gO+/OMXF7488D+u3ue+G7Y4AA3ZmUnB3eHJXmBTgNHvr4ZNzl36A0ZtG+XCRNYCkYx/bFmw4qtkoFLa+wSrwAA==}
 
   /devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
