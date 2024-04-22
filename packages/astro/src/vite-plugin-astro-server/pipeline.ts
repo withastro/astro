@@ -4,6 +4,7 @@ import type {
 	ComponentInstance,
 	DevToolbarMetadata,
 	ManifestData,
+	ReroutePayload,
 	RouteData,
 	SSRElement,
 	SSRLoadedRenderer,
@@ -189,20 +190,24 @@ export class DevPipeline extends Pipeline {
 		}
 	}
 
-	async tryReroute(url: string | URL): Promise<[RouteData, ComponentInstance]> {
+	async tryReroute(payload: ReroutePayload): Promise<[RouteData, ComponentInstance]> {
 		let foundRoute;
 		if (!this.manifestData) {
 			throw new Error('Missing manifest data');
 		}
 
 		for (const route of this.manifestData.routes) {
-			if (url instanceof URL) {
-				if (route.pattern.test(url.pathname)) {
+			if (payload instanceof URL) {
+				if (route.pattern.test(payload.pathname)) {
 					foundRoute = route;
+					break;
 				}
+			} else if (payload instanceof Request) {
+				// TODO: handle request, if needed
 			} else {
-				if (route.pattern.test(decodeURI(url))) {
+				if (route.pattern.test(decodeURI(payload))) {
 					foundRoute = route;
+					break;
 				}
 			}
 		}

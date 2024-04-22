@@ -129,7 +129,7 @@ export class RenderContext {
 						this.isRerouting = true;
 					}
 				} else {
-					this.pipeline.logger.error(
+					this.pipeline.logger.warn(
 						'router',
 						'You tried to use the routing feature without enabling it via experimental flag. This is not allowed.'
 					);

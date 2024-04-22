@@ -25,4 +25,18 @@ describe('Dev reroute', () => {
 
 		assert.equal($('h1').text(), 'Index');
 	});
+
+	it('the render the index page when navigating /blog/hello ', async () => {
+		const html = await fixture.fetch('/blog/hello').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Index');
+	});
+
+	it('the render the index page when navigating /blog/salut ', async () => {
+		const html = await fixture.fetch('/blog/hello').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Index');
+	});
 });
