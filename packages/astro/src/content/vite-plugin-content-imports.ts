@@ -74,13 +74,13 @@ export function astroContentImportPlugin({
 	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 	const dataEntryConfigByExt = getEntryConfigByExtMap(settings.dataEntryTypes);
 	const { contentDir } = contentPaths;
-	let viteMode: string;
+	let shouldEmitFile = false;
 
 	const plugins: Plugin[] = [
 		{
 			name: 'astro:content-imports',
-			config(config, env) {
-				viteMode = env.mode;
+			config(_config, env) {
+				shouldEmitFile = env.command === 'build';
 			},
 			async transform(_, viteId) {
 				if (hasContentFlag(viteId, DATA_FLAG)) {
@@ -94,7 +94,7 @@ export function astroContentImportPlugin({
 						config: settings.config,
 						fs,
 						pluginContext: this,
-						viteMode,
+						shouldEmitFile,
 					});
 
 					const code = `
@@ -117,7 +117,7 @@ export const _internal = {
 						config: settings.config,
 						fs,
 						pluginContext: this,
-						viteMode,
+						shouldEmitFile,
 					});
 
 					const code = `
@@ -196,7 +196,7 @@ type GetEntryModuleParams<TEntryType extends ContentEntryType | DataEntryType> =
 	pluginContext: PluginContext;
 	entryConfigByExt: Map<string, TEntryType>;
 	config: AstroConfig;
-	viteMode: string;
+	shouldEmitFile: boolean;
 };
 
 async function getContentEntryModule(
@@ -229,7 +229,7 @@ async function getContentEntryModule(
 		? await getEntryData(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
-				params.viteMode,
+				params.shouldEmitFile,
 				pluginContext
 			)
 		: unvalidatedData;
@@ -264,7 +264,7 @@ async function getDataEntryModule(
 		? await getEntryData(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
-				params.viteMode,
+				params.shouldEmitFile,
 				pluginContext,	
 			)
 		: unvalidatedData;

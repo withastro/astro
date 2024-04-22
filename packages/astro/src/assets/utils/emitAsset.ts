@@ -3,13 +3,16 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { prependForwardSlash, slash } from '../../core/path.js';
 import type { ImageMetadata } from '../types.js';
+import type * as vite from 'vite';
 import { imageMetadata } from './metadata.js';
+
+type FileEmitter = vite.Rollup.EmitFile;
 
 export async function emitESMImage(
 	id: string | undefined,
-	watchMode: boolean,
-	fileEmitter: any,
-	viteMode = '',
+	/** @deprecated */
+	_watchMode: boolean,
+	fileEmitter?: FileEmitter,
 ): Promise<ImageMetadata | undefined> {
 	if (!id) {
 		return undefined;
@@ -38,7 +41,7 @@ export async function emitESMImage(
 	});
 
 	// Build
-	if (!watchMode && viteMode !== 'test') {
+	if (typeof fileEmitter === 'function') {
 		const pathname = decodeURI(url.pathname);
 		const filename = path.basename(pathname, path.extname(pathname) + `.${fileMetadata.format}`);
 
