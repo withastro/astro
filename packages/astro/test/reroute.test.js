@@ -55,10 +55,9 @@ describe('Dev reroute', () => {
 	});
 });
 
-describe.only('Build reroute', () => {
+describe('Build reroute', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
-	let devServer;
 
 	before(async () => {
 		fixture = await loadFixture({

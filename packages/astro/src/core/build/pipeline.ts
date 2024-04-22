@@ -37,12 +37,15 @@ import { getOutDirWithinCwd } from './common.js';
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
  */
 export class BuildPipeline extends Pipeline {
-	#componentsInterner: WeakMap<RouteData, SinglePageBuiltModule> = new WeakMap();
+	#componentsInterner: WeakMap<RouteData, SinglePageBuiltModule> = new WeakMap<
+		RouteData,
+		SinglePageBuiltModule
+	>();
 	/**
 	 * This cache is needed to map a single `RouteData` to its file path.
 	 * @private
 	 */
-	#routesByFilePath: WeakMap<RouteData, string> = new WeakMap();
+	#routesByFilePath: WeakMap<RouteData, string> = new WeakMap<RouteData, string>();
 
 	get outFolder() {
 		const ssr = isServerLikeOutput(this.settings.config);
@@ -262,7 +265,7 @@ export class BuildPipeline extends Pipeline {
 			return await entry.page();
 		} else {
 			// SAFETY: the pipeline calls `retrieveRoutesToGenerate`, which is in charge to fill the cache.
-			let filePath = this.#routesByFilePath.get(routeData)!;
+			const filePath = this.#routesByFilePath.get(routeData)!;
 			const module = await this.retrieveSsrEntry(routeData, filePath);
 			return module.page();
 		}

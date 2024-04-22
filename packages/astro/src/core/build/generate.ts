@@ -35,24 +35,14 @@ import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js
 import type { SSRManifestI18n } from '../app/types.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { routeIsFallback } from '../redirects/helpers.js';
-import {
-	RedirectSinglePageBuiltModule,
-	getRedirectLocationOrThrow,
-	routeIsRedirect,
-} from '../redirects/index.js';
+import { getRedirectLocationOrThrow, routeIsRedirect } from '../redirects/index.js';
 import { RenderContext } from '../render-context.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import {
-	cssOrder,
-	getEntryFilePathFromComponentPath,
-	getPageDataByComponent,
-	mergeInlineCss,
-} from './internal.js';
+import { cssOrder, getPageDataByComponent, mergeInlineCss } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
 import type {
 	PageBuildData,
