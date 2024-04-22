@@ -195,8 +195,8 @@ export default function assets({
 		{
 			name: 'astro:assets:esm',
 			enforce: 'pre',
-			config(config, { mode }) {
-				viteMode = mode;
+			config(_, env) {
+				viteMode = env.mode;
 			},
 			configResolved(viteConfig) {
 				resolvedConfig = viteConfig;

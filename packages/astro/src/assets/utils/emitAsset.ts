@@ -9,7 +9,7 @@ export async function emitESMImage(
 	id: string | undefined,
 	watchMode: boolean,
 	fileEmitter: any,
-	viteMode: string = '',
+	viteMode = '',
 ): Promise<ImageMetadata | undefined> {
 	if (!id) {
 		return undefined;
