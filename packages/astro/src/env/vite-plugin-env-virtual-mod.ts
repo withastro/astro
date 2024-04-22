@@ -2,25 +2,27 @@ import { loadEnv, type Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
 import {
+	ENV_TYPES_FILE,
 	RESOLVED_VIRTUAL_CLIENT_MODULE_ID,
-	// RESOLVED_VIRTUAL_SERVER_MODULE_ID,
 	VIRTUAL_CLIENT_MODULE_ID,
-	// VIRTUAL_SERVER_MODULE_ID,
 } from './constants.js';
 import type { EnvSchema } from './schema.js';
 import { validateEnvVariable } from './validators.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import type fsMod from 'node:fs';
 
 interface AstroEnvVirtualModPluginParams {
 	settings: AstroSettings;
 	logger: Logger;
 	mode: 'dev' | 'build' | string;
+	fs: typeof fsMod;
 }
 
 export function astroEnvVirtualModPlugin({
 	settings,
 	logger,
 	mode,
+	fs,
 }: AstroEnvVirtualModPluginParams): Plugin | undefined {
 	if (!settings.config.experimental.env) {
 		return;
@@ -32,7 +34,7 @@ export function astroEnvVirtualModPlugin({
 	// TODO: should that be config.root instead?
 	const loadedEnv = loadEnv(mode === 'dev' ? 'development' : 'production', process.cwd(), '');
 
-	const { clientContent } = handleClientModule(schema, loadedEnv);
+	const { clientContent } = handleClientModule({ schema, loadedEnv, settings, fs });
 
 	// TODO: server / public
 	// TODO: server / secret
@@ -43,9 +45,6 @@ export function astroEnvVirtualModPlugin({
 			if (id === VIRTUAL_CLIENT_MODULE_ID) {
 				return RESOLVED_VIRTUAL_CLIENT_MODULE_ID;
 			}
-			// if (id === VIRTUAL_SERVER_MODULE_ID) {
-			// 	return RESOLVED_VIRTUAL_SERVER_MODULE_ID;
-			// }
 		},
 		load(id, options) {
 			if (id === RESOLVED_VIRTUAL_CLIENT_MODULE_ID) {
@@ -55,7 +54,17 @@ export function astroEnvVirtualModPlugin({
 	};
 }
 
-function handleClientModule(schema: EnvSchema, loadedEnv: Record<string, string>) {
+function handleClientModule({
+	schema,
+	loadedEnv,
+	settings,
+	fs,
+}: {
+	schema: EnvSchema;
+	loadedEnv: Record<string, string>;
+	settings: AstroSettings;
+	fs: typeof fsMod;
+}) {
 	const data: Array<{ key: string; value: any; type: string }> = [];
 
 	for (const [key, options] of Object.entries(schema)) {
@@ -77,7 +86,7 @@ function handleClientModule(schema: EnvSchema, loadedEnv: Record<string, string>
 const data = ${JSON.stringify(Object.fromEntries(data.map((e) => [e.key, e.value])))};
 
 export const {
-	${data.map(e => e.key).join(", ")}
+	${data.map((e) => e.key).join(', ')}
 }
 	`;
 
@@ -86,6 +95,8 @@ export const {
 	// 2. create content
 	// 3. create file
 	// 4. extract to a utility shared with the content part
+	fs.mkdirSync(settings.dotAstroDir, { recursive: true });
+	fs.writeFileSync(new URL(ENV_TYPES_FILE, settings.dotAstroDir), '', 'utf-8');
 
 	return {
 		clientContent,

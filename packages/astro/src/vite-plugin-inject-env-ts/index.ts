@@ -62,7 +62,7 @@ export async function setUpEnvTs({
 		let typesEnvContents = await fs.promises.readFile(envTsPath, 'utf-8');
 
 		for (const injectedType of settings.injectedTypes) {
-			if (await injectedType.condition?.()) {
+			if (!injectedType.condition || (await injectedType.condition?.())) {
 				const expectedTypeReference = getDotAstroTypeReference({
 					settings,
 					filename: injectedType.filename,
