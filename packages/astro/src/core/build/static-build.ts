@@ -23,6 +23,7 @@ import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { routeIsRedirect } from '../redirects/index.js';
 import { getOutDirWithinCwd } from './common.js';
+import { CHUNKS_PATH } from './consts.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { type AstroBuildPluginContainer, createPluginContainer } from './plugin.js';
@@ -196,7 +197,7 @@ async function ssrBuild(
 					// We need to keep these separate
 					chunkFileNames(chunkInfo) {
 						const { name } = chunkInfo;
-						let prefix = 'chunks/';
+						let prefix = CHUNKS_PATH;
 						let suffix = '_[hash].mjs';
 
 						if (isContentCache) {
@@ -454,7 +455,7 @@ export async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles 
 		dot: includeDotfiles,
 	});
 	if (files.length === 0) return;
-	await Promise.all(
+	return await Promise.all(
 		files.map(async function copyFile(filename) {
 			const from = new URL(filename, fromFolder);
 			const to = new URL(filename, toFolder);

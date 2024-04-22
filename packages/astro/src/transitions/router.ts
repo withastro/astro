@@ -397,8 +397,6 @@ async function updateDOM(
 			return style.animationIterationCount === 'infinite';
 		}
 		const currentAnimations = document.getAnimations();
-		// allow animations triggered by viewTransition.ready to start
-		await new Promise<void>((r) => setTimeout(r));
 		// Trigger view transition animations waiting for data-astro-transition-fallback
 		document.documentElement.setAttribute(OLD_NEW_ATTR, phase);
 		const nextAnimations = document.getAnimations();
