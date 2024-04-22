@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 10.2.2
+
+### Patch Changes
+
+- [#241](https://github.com/withastro/adapters/pull/241) [`82d81d9`](https://github.com/withastro/adapters/commit/82d81d9a55da93792d7f9244fb5aa3ec86939620) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Removes a debug log
+
 ## 10.2.1
 
 ### Patch Changes
