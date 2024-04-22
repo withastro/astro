@@ -2,6 +2,7 @@ import { describe, it, before, after } from 'node:test';
 import { loadFixture } from './test-utils.js';
 import { load as cheerioLoad } from 'cheerio';
 import assert from 'node:assert/strict';
+import testAdapter from './test-adapter.js';
 
 describe('Dev reroute', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -97,6 +98,68 @@ describe('Build reroute', () => {
 
 	it('the render the index page when navigating spread route /spread/[...spread] ', async () => {
 		const html = await fixture.readFile('/spread/hello/index.html');
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Index');
+	});
+});
+
+describe('SSR reroute', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/reroute/',
+			output: 'server',
+			adapter: testAdapter(),
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('the render the index page when navigating /reroute ', async () => {
+		const request = new Request('http://example.com/reroute');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Index');
+	});
+
+	it('the render the index page when navigating /blog/hello ', async () => {
+		const request = new Request('http://example.com/blog/hello');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Index');
+	});
+
+	it('the render the index page when navigating /blog/salut ', async () => {
+		const request = new Request('http://example.com/blog/salut');
+		const response = await app.render(request);
+		const html = await response.text();
+
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Index');
+	});
+
+	it('the render the index page when navigating dynamic route /dynamic/[id] ', async () => {
+		const request = new Request('http://example.com/dynamic/hello');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Index');
+	});
+
+	it('the render the index page when navigating spread route /spread/[...spread] ', async () => {
+		const request = new Request('http://example.com/spread/hello');
+		const response = await app.render(request);
+		const html = await response.text();
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');
