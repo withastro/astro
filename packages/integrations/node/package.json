@@ -46,8 +46,8 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0-rc.12",
-    "express": "^4.18.2",
-    "node-mocks-http": "^1.13.0"
+    "express": "^4.19.2",
+    "node-mocks-http": "^1.14.1"
   },
   "publishConfig": {
     "provenance": true
