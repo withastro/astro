@@ -1,7 +1,20 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/nested-styles/' });
+const test = testFactory({
+	root: './fixtures/nested-styles/',
+	devToolbar: {
+		enabled: false,
+	},
+	vite: {
+		optimizeDeps: {
+			// Vite has a bug where if you close the server too quickly, while the optimized
+			// dependencies are still held before serving, it will stall the server from closing.
+			// This will workaround it for now.
+			holdUntilCrawlEnd: false,
+		},
+	},
+});
 
 let devServer;
 
