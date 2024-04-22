@@ -53,9 +53,7 @@ export const ASTRO_PAGE_EXTENSION_POST_PATTERN = '@_@';
 export function getVirtualModulePageName(virtualModulePrefix: string, path: string, route: string) {
 	const extension = extname(path);
 	return (
-		virtualModulePrefix +
-		(route.startsWith('/') ? route.slice(1) : route) +
-		ASTRO_PAGE_EXTENSION_POST_PATTERN +
+		virtualModulePrefix + route + '&' +
 		(extension.startsWith('.')
 			? path.slice(0, -extension.length) + extension.replace('.', ASTRO_PAGE_EXTENSION_POST_PATTERN)
 			: path)
@@ -70,10 +68,10 @@ export function getVirtualModulePageName(virtualModulePrefix: string, path: stri
 export function getPageKeyFromVirtualModulePageName(virtualModulePrefix: string, id: string) {
 	const [route, path] = id
 		.slice(virtualModulePrefix.length)
-		.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
+		.split("&");
 
 	const componentPath = path.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
-	return `${route}\x00${componentPath}`;
+	return `${route}&${componentPath}`;
 }
 
 // TODO: Should this be removed? Or refactored in generate.ts ?

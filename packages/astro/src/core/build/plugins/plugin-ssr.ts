@@ -173,8 +173,9 @@ function vitePluginSSRSplit(
 				const contents: string[] = [];
 				const exports: string[] = [];
 				// TODO: Change that – broken usage of getVirtualModulePageName
+				// I should refactor getPathFromVirtualModulePageName
 				const path = getPathFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, id);
-				const virtualModuleName = getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, path);
+				const virtualModuleName = getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, path, "");
 				let module = await this.resolve(virtualModuleName);
 				if (module) {
 					// we need to use the non-resolved ID in order to resolve correctly the virtual module

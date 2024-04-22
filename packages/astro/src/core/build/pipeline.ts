@@ -17,8 +17,7 @@ import {
 } from './internal.js';
 import { ASTRO_PAGE_MODULE_ID, ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
-import { getVirtualModulePageName } from './plugins/util.js';
-import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
+import { getPageKeyFromVirtualModulePageName, getVirtualModulePageName } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
 
@@ -178,25 +177,20 @@ export class BuildPipeline extends Pipeline {
 	retrieveRoutesToGenerate(): Map<PageBuildData, string> {
 		const pages = new Map<PageBuildData, string>();
 
-		for (const [entrypoint, filePath] of this.internals.entrySpecifierToBundleMap) {
+		for (const [virtualModulePageName, filePath] of this.internals.entrySpecifierToBundleMap) {
 			// virtual pages can be emitted with different prefixes:
 			// - the classic way are pages emitted with prefix ASTRO_PAGE_RESOLVED_MODULE_ID -> plugin-pages
 			// - pages emitted using `functionPerRoute`, in this case pages are emitted with prefix RESOLVED_SPLIT_MODULE_ID
 			if (
-				entrypoint.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
-				entrypoint.includes(RESOLVED_SPLIT_MODULE_ID)
+				virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
+				virtualModulePageName.includes(RESOLVED_SPLIT_MODULE_ID)
 			) {
-				const [, pageName] = entrypoint.split(':');
-				console.log('pageName', pageName);
-				// TODO: Change that – tmp function use only component name and not the route
-				const pageData = tmp(
-					this.internals.pagesByKeys,
-					pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')
-				);
+				const pageKey = getPageKeyFromVirtualModulePageName(ASTRO_PAGE_RESOLVED_MODULE_ID, virtualModulePageName)
+				const pageData = this.internals.pagesByKeys.get(pageKey);
 
 				if (!pageData) {
 					throw new Error(
-						"Build failed. Astro couldn't find the emitted page from " + pageName + ' pattern'
+						"Build failed. Astro couldn't find the emitted page from " + pageKey + ' pattern'
 					);
 				}
 
@@ -233,14 +227,5 @@ export class BuildPipeline extends Pipeline {
 		}
 
 		return pages;
-	}
-}
-
-/**
- * TMP: This is a temporary function to get the page data from the pagesByKeys map.
- */
-function tmp(pagesByKeys: Map<string, any>, pageName: string) {
-	for (const pages of pagesByKeys.values()) {
-		if (pages.component == pageName) return pages;
 	}
 }

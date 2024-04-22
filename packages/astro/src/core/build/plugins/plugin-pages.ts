@@ -21,10 +21,6 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 					if (routeIsRedirect(pageData.route)) {
 						continue;
 					}
-					console.log('pageData', pageData.route.route);
-					console.log(
-						getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component, pageData.route.route)
-					);
 					inputs.add(
 						getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component, pageData.route.route)
 					);
