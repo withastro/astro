@@ -20,9 +20,9 @@ export function defineAction<TOutput, TInputSchema extends z.ZodType>({
 		if (!enhance && (ContentType !== 'application/json' || unparsedInput instanceof FormData)) {
 			// TODO: prettify dev server error
 			throw new ActionError({
-				status: 'BAD_REQUEST',
+				status: 'INTERNAL_SERVER_ERROR',
 				message:
-					'This action only accepts JSON. To enhance this action to accept form data, add `enhance: true` to your `defineAction()` config.',
+					'Called an action with a non-JSON body. To enhance an action to accept form data, add `enhance: true` to your `defineAction()` config.',
 			});
 		}
 
@@ -31,7 +31,7 @@ export function defineAction<TOutput, TInputSchema extends z.ZodType>({
 		if (enhance && unparsedInput instanceof FormData) {
 			if (!(inputSchema instanceof z.ZodObject)) {
 				throw new ActionError({
-					status: 'BAD_REQUEST',
+					status: 'INTERNAL_SERVER_ERROR',
 					message: '`input` must use a Zod object schema (z.object) when `enhance` is enabled.',
 				});
 			}
