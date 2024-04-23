@@ -375,7 +375,7 @@ describe('Config Validation', () => {
 			);
 		});
 
-		it('Should not allow public client variables without a PUBLIC_ prefix', async () => {
+		it('Should not allow client variables without a PUBLIC_ prefix', async () => {
 			const configError = await validateConfig(
 				{
 					experimental: {
@@ -391,17 +391,17 @@ describe('Config Validation', () => {
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
 				configError.errors[0].message,
-				'An environment variable that is public and available on the client must have a name prefixed by "PUBLIC_".'
+				'An environment variable that is public must have a name prefixed by "PUBLIC_".'
 			);
 		});
 
-		it('Should not allow non public client variables with a PUBLIC_ prefix', async () => {
+		it('Should not allow non client variables with a PUBLIC_ prefix', async () => {
 			const configError = await validateConfig(
 				{
 					experimental: {
 						env: {
 							schema: {
-								PUBLIC_FOO: envField.string({ context: 'server', access: 'public' }),
+								FOO: envField.string({ context: 'server', access: 'public' }),
 							},
 						},
 					},
@@ -409,10 +409,10 @@ describe('Config Validation', () => {
 				process.cwd()
 			).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
-			console.log(configError)
+			console.log(configError);
 			assert.equal(
 				configError.errors[0].message,
-				'An environment variable whose name is prefixed by "PUBLIC_" must be public and available on client.'
+				'An environment variable that is public must have a name prefixed by "PUBLIC_".'
 			);
 		});
 	});

@@ -55,21 +55,20 @@ export const EnvSchema = z
 		for (const [key, value] of Object.entries(schema)) {
 			if (
 				key.startsWith(PUBLIC_PREFIX) &&
-				!(value.context === 'client' && value.access === 'public')
+				value.access !== 'public'
 			) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: `An environment variable whose name is prefixed by "${PUBLIC_PREFIX}" must be public and available on client.`,
+					message: `An environment variable whose name is prefixed by "${PUBLIC_PREFIX}" must be public.`,
 				});
 			}
 			if (
-				value.context === 'client' &&
 				value.access === 'public' &&
 				!key.startsWith(PUBLIC_PREFIX)
 			) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: `An environment variable that is public and available on the client must have a name prefixed by "${PUBLIC_PREFIX}".`,
+					message: `An environment variable that is public must have a name prefixed by "${PUBLIC_PREFIX}".`,
 				});
 			}
 		}
