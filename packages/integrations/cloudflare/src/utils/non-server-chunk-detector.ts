@@ -15,6 +15,8 @@ export class NonServerChunkDetector {
 		return {
 			name: 'non-server-chunk-detector',
 			generateBundle: (_, bundle) => {
+				// Skip if we bundle for client
+				if (!bundle['index.js']) return;
 				this.processBundle(bundle);
 			},
 		};

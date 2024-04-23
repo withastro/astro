@@ -367,8 +367,17 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				// Those modules are build only for prerendering routes.
 				const chunksToDelete = chunkAnalyzer.getNonServerChunks();
 				for (const chunk of chunksToDelete) {
-					// Chunks are located on `./_worker.js` directory inside of the output directory
-					await unlink(new URL(`./_worker.js/${chunk}`, _config.outDir));
+					try {
+						// Chunks are located on `./_worker.js` directory inside of the output directory
+						await unlink(new URL(`./_worker.js/${chunk}`, _config.outDir));
+					} catch (error) {
+						logger.warn(
+							`Issue while trying to delete unused file from server bundle: ${new URL(
+								`./_worker.js/${chunk}`,
+								_config.outDir
+							).toString()}`
+						);
+					}
 				}
 			},
 		},
