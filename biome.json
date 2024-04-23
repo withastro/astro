@@ -7,7 +7,13 @@
       "**/smoke/**",
       "**/fixtures/**",
       "**/vendor/**",
-      "**/.vercel/**"
+      "**/.vercel/**",
+      "**/*.d.ts",
+      "packages/**/*.min.js",
+      "packages/astro/vendor/vite/",
+      "examples/",
+      "scripts/",
+      ".changeset/"
     ],
     "include": ["test/**", "e2e/**", "packages/**"]
   },
@@ -24,25 +30,147 @@
       "*.astro"
     ]
   },
-  "organizeImports": {
-    "enabled": true
+  "organizeImports": { "enabled": true },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": false,
+      "complexity": {
+        "noBannedTypes": "error",
+        "noUselessTypeConstraint": "error",
+        "useLiteralKeys": "error",
+        "useOptionalChain": "error"
+      },
+      "correctness": {
+        "noPrecisionLoss": "error",
+        "noUnusedVariables": "error"
+      },
+      "style": {
+        "noInferrableTypes": "error",
+        "noNamespace": "error",
+        "useAsConstAssertion": "error",
+        "useBlockStatements": "off",
+        "useConsistentArrayType": "error",
+        "useConst": "off",
+        "useForOf": "error",
+        "useShorthandFunctionType": "error"
+      },
+      "suspicious": {
+        "noEmptyBlockStatements": "error",
+        "noExplicitAny": "error",
+        "noExtraNonNullAssertion": "error",
+        "noMisleadingInstantiator": "error",
+        "noUnsafeDeclarationMerging": "error",
+        "useAwait": "error",
+        "useNamespaceKeyword": "error"
+      }
+    }
   },
-  "linter": { "enabled": false },
   "javascript": {
     "formatter": {
       "trailingComma": "es5",
-      "quoteStyle": "single",
-      "semicolons": "always"
-    }
+      "semicolons": "always",
+      "quoteStyle": "single"
+    },
+    "globals": []
   },
   "json": {
-    "parser": {
-      "allowComments": true,
-      "allowTrailingCommas": true
+    "parser": { "allowComments": true, "allowTrailingCommas": true },
+    "formatter": { "indentStyle": "space", "trailingCommas": "none" }
+  },
+  "overrides": [
+    {
+      "include": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noConstAssign": "off",
+            "noGlobalObjectCalls": "off",
+            "noInvalidConstructorSuper": "off",
+            "noInvalidNewBuiltin": "off",
+            "noNewSymbol": "off",
+            "noSetterReturn": "off",
+            "noUndeclaredVariables": "off",
+            "noUnreachable": "off",
+            "noUnreachableSuper": "off"
+          },
+          "style": {
+            "noArguments": "error",
+            "noVar": "error",
+            "useConst": "error"
+          },
+          "suspicious": {
+            "noDuplicateClassMembers": "off",
+            "noDuplicateObjectKeys": "off",
+            "noDuplicateParameters": "off",
+            "noFunctionAssign": "off",
+            "noImportAssign": "off",
+            "noRedeclare": "off",
+            "noUnsafeNegation": "off",
+            "useGetterReturn": "off"
+          }
+        }
+      }
     },
-    "formatter": {
-      "indentStyle": "space",
-      "trailingCommas": "none"
+    {
+      "include": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noConstAssign": "off",
+            "noGlobalObjectCalls": "off",
+            "noInvalidConstructorSuper": "off",
+            "noInvalidNewBuiltin": "off",
+            "noNewSymbol": "off",
+            "noSetterReturn": "off",
+            "noUndeclaredVariables": "off",
+            "noUnreachable": "off",
+            "noUnreachableSuper": "off"
+          },
+          "style": {
+            "noArguments": "error",
+            "noVar": "error",
+            "useConst": "error"
+          },
+          "suspicious": {
+            "noDuplicateClassMembers": "off",
+            "noDuplicateObjectKeys": "off",
+            "noDuplicateParameters": "off",
+            "noFunctionAssign": "off",
+            "noImportAssign": "off",
+            "noRedeclare": "off",
+            "noUnsafeNegation": "off",
+            "useGetterReturn": "off"
+          }
+        }
+      }
+    },
+    {
+      "include": ["packages/astro/src/runtime/**/*.ts"],
+      "linter": { "rules": {} }
+    },
+    {
+      "include": ["packages/astro/src/runtime/client/**/*.ts"],
+      "javascript": { "globals": ["browser"] }
+    },
+    {
+      "include": ["packages/**/test/*.js", "packages/**/*.js"],
+      "javascript": { "globals": ["mocha"] },
+      "linter": { "rules": {} }
+    },
+    { "include": ["packages/integrations/**/*.ts"], "linter": { "rules": {} } },
+    {
+      "include": ["benchmark/**/*.js"],
+      "linter": { "rules": { "correctness": { "noUnusedVariables": "off" } } }
+    },
+    { "include": ["packages/db/**/cli/**/*.ts"], "linter": { "rules": {} } },
+    {
+      "include": ["packages/astro/src/core/errors/errors-data.ts"],
+      "linter": { "rules": {} }
+    },
+    {
+      "include": ["packages/db/src/runtime/**/*.ts"],
+      "linter": { "rules": {} }
     }
-  }
+  ]
 }
