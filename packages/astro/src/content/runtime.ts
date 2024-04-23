@@ -77,7 +77,9 @@ export function createGetCollection({
 		let entries: any[] = [];
 		// Cache `getCollection()` calls in production only
 		// prevents stale cache in development
-		if (import.meta.env?.DEV || !cacheEntriesByCollection.has(collection)) {
+		if (!import.meta.env?.DEV && cacheEntriesByCollection.has(collection)) {
+			entries = cacheEntriesByCollection.get(collection)!.slice();
+		} else {
 			const limit = pLimit(10);
 			entries = await Promise.all(
 				lazyImports.map((lazyImport) =>
@@ -108,12 +110,7 @@ export function createGetCollection({
 			);
 			cacheEntriesByCollection.set(collection, entries);
 		}
-		const cachedCollection = cacheEntriesByCollection.get(collection);
-		if (cachedCollection) {
-			Object.freeze(cachedCollection);
-			entries = cachedCollection;
-			if (typeof filter === 'function') return entries.filter(filter);
-		}
+		if (typeof filter === 'function') return entries.filter(filter);
 		return entries;
 	};
 }
