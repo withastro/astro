@@ -4,7 +4,7 @@ import stripAnsi from 'strip-ansi';
 import { z } from 'zod';
 import { validateConfig } from '../../../dist/core/config/config.js';
 import { formatConfigErrorMessage } from '../../../dist/core/messages.js';
-import { envField } from '../../../dist/config/index.js';
+import { envField } from '../../../dist/env/config.js';
 
 describe('Config Validation', () => {
 	it('empty user config is valid', async () => {
