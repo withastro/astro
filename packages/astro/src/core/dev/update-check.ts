@@ -1,3 +1,4 @@
+import ci from 'ci-info';
 import { fetchPackageJson } from '../../cli/install-package.js';
 import type { AstroPreferences } from '../../preferences/index.js';
 
@@ -33,6 +34,10 @@ export async function fetchLatestAstroVersion(
 }
 
 export async function shouldCheckForUpdates(preferences: AstroPreferences): Promise<boolean> {
+	if (ci.isCI) {
+		return false;
+	}
+
 	const timeSinceLastCheck = Date.now() - (await preferences.get('_variables.lastUpdateCheck'));
 	const hasCheckUpdatesEnabled = await preferences.get('checkUpdates.enabled');
 
