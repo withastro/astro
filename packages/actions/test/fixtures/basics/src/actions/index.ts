@@ -23,19 +23,19 @@ export default {
     }),
 
     comment: defineAction({
-      enhance: true,
+			enhance: true,
       input: z.object({
         postId: z.string(),
         author: z.string(),
         body: z.string(),
       }),
       handler: async ({ postId, author, body }) => {
-        await db.insert(Comment).values({
+        const comment = await db.insert(Comment).values({
           postId,
           body,
           author,
-        });
-        return { success: true };
+        }).returning().get();
+        return { comment };
       },
     }),
   },

@@ -4,6 +4,7 @@ import BlogPost from "../../layouts/BlogPost.astro";
 import { db, eq, Comment, Likes } from "astro:db";
 import { Like } from "../../components/Like";
 import { actions, safe, actionNameProps } from "astro:actions";
+import {PostComment} from '../../components/PostComment';
 
 export const prerender = false;
 
@@ -40,21 +41,14 @@ const initialLikes = await db
   <Content />
 
   <h2>Comments</h2>
-  <form method="POST">
-		{!commentResult.success && <p class="error">{commentResult.error}</p>}
-    <input {...actionNameProps(actions.blog.comment)} />
-    <input type="hidden" name="postId" value={post.id} />
-    <label class="sr-only" for="author">Author</label>
-    <input id="author" type="text" name="author" placeholder="Your name" />
-    <textarea rows="10" name="body"></textarea>
-    <button type="submit">Post</button>
-  </form>
-  <div class="comments">
+	{!commentResult.success && <p class="error">{commentResult.error}</p>}
+	<PostComment postId={post.id} client:load />
+  <div>
     {
       comments.map((c) => (
         <article>
-          <p class="comment-body">{c.body}</p>
-          <p class="comment-author">{c.author}</p>
+          <p>{c.body}</p>
+          <p>{c.author}</p>
         </article>
       ))
     }
