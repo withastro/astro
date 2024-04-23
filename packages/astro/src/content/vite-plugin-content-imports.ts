@@ -265,7 +265,7 @@ async function getDataEntryModule(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
 				params.shouldEmitFile,
-				pluginContext,	
+				pluginContext
 			)
 		: unvalidatedData;
 

@@ -1,9 +1,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import type * as vite from 'vite';
 import { prependForwardSlash, slash } from '../../core/path.js';
 import type { ImageMetadata } from '../types.js';
-import type * as vite from 'vite';
 import { imageMetadata } from './metadata.js';
 
 type FileEmitter = vite.Rollup.EmitFile;
@@ -14,7 +14,7 @@ export async function emitESMImage(
 	_watchMode: boolean,
 	// FIX: in Astro 5, this function should not be passed in dev mode at all.
 	// Or rethink the API so that a function that throws isn't passed through.
-	fileEmitter?: FileEmitter,
+	fileEmitter?: FileEmitter
 ): Promise<ImageMetadata | undefined> {
 	if (!id) {
 		return undefined;
@@ -44,7 +44,7 @@ export async function emitESMImage(
 
 	// Build
 	let isBuild = typeof fileEmitter === 'function';
-	if(isBuild) {
+	if (isBuild) {
 		const pathname = decodeURI(url.pathname);
 		const filename = path.basename(pathname, path.extname(pathname) + `.${fileMetadata.format}`);
 
@@ -62,7 +62,7 @@ export async function emitESMImage(
 		}
 	}
 
-	if(!isBuild) {
+	if (!isBuild) {
 		// Pass the original file information through query params so we don't have to load the file twice
 		url.searchParams.append('origWidth', fileMetadata.width.toString());
 		url.searchParams.append('origHeight', fileMetadata.height.toString());
