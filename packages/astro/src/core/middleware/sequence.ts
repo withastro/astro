@@ -1,5 +1,6 @@
 import type { APIContext, MiddlewareHandler, ReroutePayload } from '../../@types/astro.js';
 import { defineMiddleware } from './index.js';
+import { AstroCookies } from '../cookies/cookies.js';
 
 // From SvelteKit: https://github.com/sveltejs/kit/blob/master/packages/kit/src/exports/hooks/sequence.js
 /**
@@ -10,12 +11,16 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 	const filtered = handlers.filter((h) => !!h);
 	const length = filtered.length;
 	if (!length) {
-		return defineMiddleware((context, next) => {
+		return defineMiddleware((_context, next) => {
 			return next();
 		});
 	}
 
 	return defineMiddleware((context, next) => {
+		/**
+		 * This variable is used to carry the rerouting payload across middleware functions.
+		 */
+		let carriedPayload: ReroutePayload | undefined = undefined;
 		return applyHandle(0, context);
 
 		function applyHandle(i: number, handleContext: APIContext) {
@@ -25,9 +30,26 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 			// doing a loop over all the `next` functions, and eventually we call the last `next` that returns the `Response`.
 			const result = handle(handleContext, async (payload: ReroutePayload) => {
 				if (i < length - 1) {
+					if (payload) {
+						let newRequest;
+						if (payload instanceof Request) {
+							newRequest = payload;
+						} else if (payload instanceof URL) {
+							newRequest = new Request(payload, handleContext.request);
+						} else {
+							newRequest = new Request(
+								new URL(payload, handleContext.url.origin),
+								handleContext.request
+							);
+						}
+						carriedPayload = payload;
+						handleContext.request = newRequest;
+						handleContext.url = new URL(newRequest.url);
+						handleContext.cookies = new AstroCookies(newRequest);
+					}
 					return applyHandle(i + 1, handleContext);
 				} else {
-					return next(payload);
+					return next(payload ?? carriedPayload);
 				}
 			});
 			return result;

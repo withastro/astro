@@ -111,7 +111,7 @@ export class RenderContext {
 				statusText: 'Loop Detected',
 			});
 		}
-		const lastNext: MiddlewareNext = async (payload) => {
+		const lastNext = async (ctx: APIContext, payload?: ReroutePayload) => {
 			if (payload) {
 				if (this.pipeline.manifest.reroutingEnabled) {
 					try {
@@ -135,7 +135,7 @@ export class RenderContext {
 			}
 			switch (this.routeData.type) {
 				case 'endpoint':
-					return renderEndpoint(componentInstance as any, apiContext, serverLike, logger);
+					return renderEndpoint(componentInstance as any, ctx, serverLike, logger);
 				case 'redirect':
 					return renderRedirect(this);
 				case 'page': {
@@ -174,9 +174,7 @@ export class RenderContext {
 			}
 		};
 
-		const response = this.isRerouting
-			? await lastNext()
-			: await callMiddleware(middleware, apiContext, lastNext);
+		const response = await callMiddleware(middleware, apiContext, lastNext);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
 			response.headers.delete(ROUTE_TYPE_HEADER);
 		}

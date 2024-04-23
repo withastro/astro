@@ -1,4 +1,5 @@
 ---
+const auth = Astro.locals.auth;
 ---
 <html>
 	<head>
@@ -6,5 +7,6 @@
 	</head>
 	<body>
 		<h1>Index</h1>
+		{auth ? <p>Called auth</p>: ""}
 	</body>
 </html>
