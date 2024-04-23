@@ -14,7 +14,7 @@ export const POST: APIRoute = async (context) => {
 		throw new ActionError({
 			status: 'INTERNAL_SERVER_ERROR',
 			message:
-				'Called an action with a non-JSON body. To enhance an action to accept form data, add `enhance: true` to your `defineAction()` config.',
+				'Called an action with a non-JSON body. To automatically convert form data requests to JSON, add `enhance: true` to your `defineAction()` config.',
 		});
 	}
 	const args = await request.clone().json();
