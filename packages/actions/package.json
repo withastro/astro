@@ -1,0 +1,65 @@
+{
+  "name": "@astrojs/actions",
+  "version": "0.0.1",
+  "description": "Add RPC actions to your Astro projects",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/actions"
+  },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://docs.astro.build/",
+  "type": "module",
+  "author": "withastro",
+  "types": "./index.d.ts",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./config": {
+      "types": "./dist/runtime/config.d.ts",
+      "import": "./dist/runtime/config.js"
+    },
+    "./route.js": "./dist/runtime/route.js",
+    "./middleware.js": "./dist/runtime/middleware.js",
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./index.d.ts"
+      ],
+      "config": [
+        "./dist/config.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "index.d.ts",
+    "virtual.d.ts",
+    "dist"
+  ],
+  "keywords": [
+    "withastro",
+    "astro-integration"
+  ],
+  "scripts": {
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "mocha --exit --timeout 20000 \"test/*.js\" \"test/unit/**/*.js\"",
+    "test:match": "mocha --timeout 20000 \"test/*.js\" \"test/unit/*.js\" -g"
+  },
+  "dependencies": {
+    "astro-integration-kit": "^0.11.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "astro": "workspace:*",
+    "astro-scripts": "workspace:*",
+    "typescript": "^5.4.5"
+  }
+}
