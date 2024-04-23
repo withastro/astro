@@ -1,3 +1,5 @@
+import { ValidationError } from './runtime/utils.js';
+
 function toActionProxy(
 	actionCallback = {},
 	aggregatedPath = '/_actions/'
@@ -21,7 +23,11 @@ function toActionProxy(
 					body,
 					headers,
 				});
-				return res.json();
+				const json = await res.json();
+				if (res.status === 400) {
+					throw new ValidationError(json);
+				}
+				return json;
 			}
 			action.toString = () => path;
 			// recurse to construct queries for nested object paths
