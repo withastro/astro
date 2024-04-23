@@ -108,13 +108,13 @@ export function createGetCollection({
 			);
 			cacheEntriesByCollection.set(collection, entries);
 		}
-		// Always return a new instance so consumers can safely mutate it
-		entries = [...cacheEntriesByCollection.get(collection)!];
-		if (typeof filter === 'function') {
-			return entries.filter(filter);
-		} else {
-			return entries;
+		const cachedCollection = cacheEntriesByCollection.get(collection);
+		if (cachedCollection) {
+			Object.freeze(cachedCollection);
+			entries = cachedCollection;
+			if (typeof filter === 'function') return entries.filter(filter);
 		}
+		return entries;
 	};
 }
 
