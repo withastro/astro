@@ -1,0 +1,60 @@
+---
+import { type CollectionEntry, getCollection, getEntry } from "astro:content";
+import BlogPost from "../../layouts/BlogPost.astro";
+import { db, eq, Comment, Likes } from "astro:db";
+import { Like } from "../../components/Like";
+import { actions } from "astro:actions";
+import { enhanceProps } from "@astrojs/actions/config";
+
+export const prerender = false;
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: post,
+  }));
+}
+
+type Props = CollectionEntry<"blog">;
+
+const post = (await getEntry("blog", Astro.params.slug))!;
+const { Content } = await post.render();
+
+const comments = await db
+  .select()
+  .from(Comment)
+  .where(eq(Comment.postId, post.id));
+
+const initialLikes = await db
+  .select()
+  .from(Likes)
+  .where(eq(Likes.postId, post.id))
+  .get();
+---
+
+<BlogPost {...post.data}>
+  <Like postId={post.id} initial={initialLikes?.likes ?? 0} client:load />
+
+  <Content />
+
+  <h2>Comments</h2>
+  <form method="POST">
+    <input {...enhanceProps(actions.blog.comment)} />
+    <input type="hidden" name="postId" value={post.id} />
+    <label class="sr-only" for="author">Author</label>
+    <input id="author" type="text" name="author" placeholder="Your name" />
+    <textarea rows="10" name="body"></textarea>
+    <button type="submit">Post</button>
+  </form>
+  <div class="comments">
+    {
+      comments.map((c) => (
+        <article>
+          <p class="comment-body">{c.body}</p>
+          <p class="comment-author">{c.author}</p>
+        </article>
+      ))
+    }
+  </div>
+</BlogPost>
