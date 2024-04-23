@@ -2,7 +2,7 @@
 "astro": minor
 ---
 
-Adds new utilities to ease the creation of toolbar apps. These new utilities hope to abstract away some of the boilerplate code that is common in toolbar apps, and lower the barrier of entry.
+Adds new utilities to ease the creation of toolbar apps including `defineToolbarApp` to make it easier to define your toolbar app and `app` and `server` helpers for easier communication between the toolbar and the server. These new utilities abstract away some of the boilerplate code that is common in toolbar apps, and lower the barrier of entry for app authors.
 
 For example, instead of creating an event listener for the `app-toggled` event and manually typing the value in the callback, you can now use the `onAppToggled` method. Additionally, communicating with the server does not require knowing any of the Vite APIs anymore, as a new `server` object is passed to the `init` function that contains easy to use methods for communicating with the server.
 
@@ -39,7 +39,7 @@ export default defineToolbarApp({
 })
 ```
 
-Server helpers are also available on the server side, in your integration:
+Server helpers are also available on the server side, for use in your integrations, through the new `toolbar` object:
 
 ```ts
 "astro:server:setup": ({ toolbar }) => {
@@ -49,3 +49,5 @@ Server helpers are also available on the server side, in your integration:
   });
 }
 ```
+
+This is a backwards compatible change and your your existing dev toolbar apps will continue to function. However, we encourage you to build your apps with the new helpers, following the [updated Dev Toolbar API documentation](https://docs.astro.build/en/reference/dev-toolbar-app-reference/).
