@@ -1,21 +1,23 @@
-import { ValidationError } from './runtime/utils.js';
+import { ActionError, ValidationError } from '@astrojs/actions/errors';
+
+export * from '@astrojs/actions/errors';
 
 function toActionProxy(
 	actionCallback = {},
 	aggregatedPath = '/_actions/'
-): Record<string | symbol, any> {
+) {
 	return new Proxy(actionCallback, {
-		get(target: Record<string | symbol, any>, objKey) {
+		get(target, objKey) {
 			const path = aggregatedPath + objKey.toString();
 			if (objKey in target) {
 				return target[objKey];
 			}
-			async function action(param?: BodyInit) {
+			async function action(param) {
 				const headers = new Headers();
 				headers.set('Accept', 'application/json');
 				let body = param;
 				if (!(body instanceof FormData)) {
-					body = JSON.stringify(param);
+					body = param ? JSON.stringify(param) : undefined;
 					headers.set('Content-Type', 'application/json');
 				}
 				const res = await fetch(path, {
@@ -24,8 +26,11 @@ function toActionProxy(
 					headers,
 				});
 				const json = await res.json();
-				if (res.status === 400) {
-					throw new ValidationError(json);
+				if (!res.ok) {
+					if (json.type === 'ValidationError') {
+						throw new ValidationError(json.fieldErrors);
+					}
+					throw new ActionError(json);
 				}
 				return json;
 			}
