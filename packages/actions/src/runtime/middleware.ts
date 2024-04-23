@@ -22,7 +22,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	try {
 		result = await ApiContextStorage.run(context, () => action(formData));
 	} catch (e) {
-		if (!(e instanceof ActionError)) {
+		if (!(e instanceof ActionError) || e.status === 'INTERNAL_SERVER_ERROR') {
 			throw e;
 		}
 		actionError = e;
