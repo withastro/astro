@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 10.2.3
+
+### Patch Changes
+
+- [#243](https://github.com/withastro/adapters/pull/243) [`71ba51d`](https://github.com/withastro/adapters/commit/71ba51d2983eef89b5692f351724081507c2f82f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue where the bundle was not cleaned up correctly
+
 ## 10.2.2
 
 ### Patch Changes
