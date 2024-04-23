@@ -37,7 +37,6 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 						} else if (payload instanceof URL) {
 							newRequest = new Request(payload, handleContext.request);
 						} else {
-							handleContext.request;
 							newRequest = new Request(
 								new URL(payload, handleContext.url.origin),
 								handleContext.request
