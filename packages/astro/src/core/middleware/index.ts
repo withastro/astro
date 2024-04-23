@@ -30,8 +30,6 @@ export type CreateContext = {
 	 * A list of locales that are supported by the user
 	 */
 	userDefinedLocales?: string[];
-
-	site?: URL;
 };
 
 /**
