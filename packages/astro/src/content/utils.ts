@@ -92,6 +92,7 @@ export async function getEntryData(
 		_internal: EntryInternal;
 	},
 	collectionConfig: CollectionConfig,
+	shouldEmitFile: boolean,
 	pluginContext: PluginContext
 ) {
 	let data;
@@ -105,7 +106,7 @@ export async function getEntryData(
 	let schema = collectionConfig.schema;
 	if (typeof schema === 'function') {
 		schema = schema({
-			image: createImage(pluginContext, entry._internal.filePath),
+			image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
 		});
 	}
 
