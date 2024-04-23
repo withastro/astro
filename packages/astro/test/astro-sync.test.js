@@ -60,7 +60,6 @@ const createFixture = () => {
 		 */
 		thenFileContentShouldInclude(path, content, error) {
 			const expectedPath = new URL(path, astroFixture.config.root).href;
-			console.log(writtenFiles[expectedPath]);
 			assert.equal(writtenFiles[expectedPath].includes(content), true, error);
 		},
 	};
