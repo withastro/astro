@@ -33,6 +33,7 @@ export default function astroActions(): AstroIntegration {
 					name: 'astro-actions',
 					content: `declare module "astro:actions" {
 	type Actions = typeof import(${stringifiedActionsPath})["default"];
+	export * from '@astrojs/actions/errors';
 
 	export const actions: Actions;
 }`,
@@ -49,7 +50,7 @@ export default function astroActions(): AstroIntegration {
 						},
 						async load(id) {
 							if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-								return await readFile(new URL('./virtual.js', import.meta.url), 'utf-8');
+								return await readFile(new URL('../virtual.js', import.meta.url), 'utf-8');
 							}
 						},
 					},

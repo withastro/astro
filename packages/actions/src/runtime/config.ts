@@ -1,6 +1,7 @@
 import type { APIContext } from 'astro';
 import { z } from 'zod';
 import { ApiContextStorage } from './utils.js';
+import { ActionError, ValidationError } from './errors.js';
 
 export function enhanceProps<T extends Function>(action: T) {
 	return {
@@ -26,42 +27,28 @@ export function defineAction<TOutput, TInputSchema extends z.ZodType>({
 		const ContentType = context.request.headers.get('content-type');
 		if (!enhance && (ContentType !== 'application/json' || unparsedInput instanceof FormData)) {
 			// TODO: prettify dev server error
-			throw new Response(
-				'This action only accepts JSON. To enhance this action to accept form data, add `enhance: true` to your `defineAction()` config.',
-				{
-					status: 400,
-					headers: {
-						'Content-Type': 'text/plain',
-					},
-				}
-			);
+			throw new ActionError({
+				status: 'BAD_REQUEST',
+				message:
+					'This action only accepts JSON. To enhance this action to accept form data, add `enhance: true` to your `defineAction()` config.',
+			});
 		}
 
 		if (!inputSchema) return await handler(unparsedInput, context);
 
 		if (enhance && unparsedInput instanceof FormData) {
 			if (!(inputSchema instanceof z.ZodObject)) {
-				throw new Response(
-					'`input` must use a Zod object schema (z.object) when `enhance` is enabled.',
-					{
-						status: 400,
-						headers: {
-							'Content-Type': 'text/plain',
-						},
-					}
-				);
+				throw new ActionError({
+					status: 'BAD_REQUEST',
+					message: '`input` must use a Zod object schema (z.object) when `enhance` is enabled.',
+				});
 			}
 			unparsedInput = enhanceFormData(unparsedInput, inputSchema);
 		}
 
 		const parsed = inputSchema.safeParse(unparsedInput);
 		if (!parsed.success) {
-			throw new Response(JSON.stringify(parsed.error), {
-				status: 400,
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			});
+			throw new ValidationError(parsed.error);
 		}
 		return await handler(parsed.data, context);
 	};

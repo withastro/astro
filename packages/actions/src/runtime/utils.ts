@@ -1,6 +1,5 @@
 import type { APIContext } from 'astro';
 import { AsyncLocalStorage } from 'node:async_hooks';
-import type { ZodError } from 'zod';
 
 export const ApiContextStorage = new AsyncLocalStorage<APIContext>();
 
@@ -18,19 +17,4 @@ export async function getAction(pathKeys: string[]): Promise<Function> {
 		throw new Error('Action not found');
 	}
 	return actionLookup;
-}
-
-export class ActionError extends Error {
-	constructor(message: string) {
-		super(message);
-	}
-}
-
-export class ValidationError extends ActionError {
-	error: ZodError;
-
-	constructor(error: ZodError) {
-		super('Failed to validate');
-		this.error = error;
-	}
 }

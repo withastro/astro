@@ -23,9 +23,12 @@
       "types": "./dist/runtime/config.d.ts",
       "import": "./dist/runtime/config.js"
     },
+    "./errors": {
+      "types": "./dist/runtime/errors.d.ts",
+      "import": "./dist/runtime/errors.js"
+    },
     "./route.js": "./dist/runtime/route.js",
-    "./middleware.js": "./dist/runtime/middleware.js",
-    "./package.json": "./package.json"
+    "./middleware.js": "./dist/runtime/middleware.js"
   },
   "typesVersions": {
     "*": {
@@ -40,6 +43,7 @@
   "files": [
     "index.d.ts",
     "virtual.d.ts",
+    "virtual.js",
     "dist"
   ],
   "keywords": [
