@@ -1,12 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base", "schedule:weekly", "group:allNonMajor"],
+  "extends": [
+    "config:recommended",
+    "schedule:weekly",
+    "group:allNonMajor",
+    ":disablePeerDependencies",
+  ],
   "labels": ["dependencies"],
   "rangeStrategy": "bump",
   "ignoreDeps": [
     // manually bumping deps
     "@biomejs/biome",
     "@types/node",
+    "preact-render-to-string", // https://github.com/withastro/astro/pull/10200
     "sharp",
 
     // manually bumping workflow actions

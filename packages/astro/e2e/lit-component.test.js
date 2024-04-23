@@ -10,17 +10,16 @@ const test = testFactory({
 test.describe('Lit components', () => {
 	test.describe('Development', () => {
 		let devServer;
-		const t = test.extend({});
 
-		t.beforeAll(async ({ astro }) => {
+		test.beforeAll(async ({ astro }) => {
 			devServer = await astro.startDevServer();
 		});
 
-		t.afterAll(async () => {
+		test.afterAll(async () => {
 			await devServer.stop();
 		});
 
-		t('client:idle', async ({ page, astro }) => {
+		test('client:idle', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/'));
 
 			const counter = page.locator('#client-idle');
@@ -38,7 +37,7 @@ test.describe('Lit components', () => {
 			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
 
-		t('non-deferred attribute serialization', async ({ page, astro }) => {
+		test('non-deferred attribute serialization', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/'));
 
 			const counter = page.locator('#non-deferred');
@@ -53,7 +52,7 @@ test.describe('Lit components', () => {
 			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
 
-		t('client:load', async ({ page, astro }) => {
+		test('client:load', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/'));
 
 			const counter = page.locator('#client-load');
@@ -70,7 +69,7 @@ test.describe('Lit components', () => {
 			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
 
-		t('client:visible', async ({ page, astro }) => {
+		test('client:visible', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/'));
 
 			// Make sure the component is on screen to trigger hydration
@@ -89,7 +88,7 @@ test.describe('Lit components', () => {
 			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
 
-		t('client:media', async ({ page, astro }) => {
+		test('client:media', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/media'));
 
 			const counter = page.locator('#client-media');
@@ -111,7 +110,7 @@ test.describe('Lit components', () => {
 			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
 
-		t('client:only', async ({ page, astro }) => {
+		test('client:only', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/'));
 
 			const label = page.locator('#client-only');
@@ -143,7 +142,7 @@ test.describe('Lit components', () => {
 			).toBeHidden();
 		});
 
-		t.skip('HMR', async ({ page, astro }) => {
+		test.skip('HMR', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/'));
 
 			const counter = page.locator('#client-idle');
@@ -160,32 +159,20 @@ test.describe('Lit components', () => {
 
 	test.describe('Production', () => {
 		let previewServer;
-		const t = test.extend({});
 
-		t.beforeAll(async ({ astro }) => {
+		test.beforeAll(async ({ astro }) => {
 			// Playwright's Node version doesn't have these functions, so stub them.
 			process.stdout.clearLine = () => {};
 			process.stdout.cursorTo = () => {};
-			try {
-				await astro.build();
-			} catch (err) {
-				// There's this strange error on build since the dev server already defined `my-counter`,
-				// however the tests still pass with this error, so swallow it.
-				if (!err.message.includes(`Failed to execute 'define' on 'CustomElementRegistry'`)) {
-					throw err;
-				}
-			}
-		});
-
-		t.beforeAll(async ({ astro }) => {
+			await astro.build();
 			previewServer = await astro.preview();
 		});
 
-		t.afterAll(async () => {
+		test.afterAll(async () => {
 			await previewServer.stop();
 		});
 
-		t('Only one component in prod', async ({ page, astro }) => {
+		test('Only one component in prod', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/solo'));
 
 			const counter = page.locator('my-counter');
