@@ -6,6 +6,14 @@ const test = testFactory({
 	devToolbar: {
 		enabled: false,
 	},
+	vite: {
+		optimizeDeps: {
+			// Vite has a bug where if you close the server too quickly, while the optimized
+			// dependencies are still held before serving, it will stall the server from closing.
+			// This will workaround it for now.
+			holdUntilCrawlEnd: false,
+		},
+	},
 });
 
 let devServer;

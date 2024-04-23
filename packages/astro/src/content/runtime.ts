@@ -1,4 +1,5 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import pLimit from 'p-limit';
 import { ZodIssueCode, string as zodString } from 'zod';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
@@ -77,30 +78,33 @@ export function createGetCollection({
 		// Cache `getCollection()` calls in production only
 		// prevents stale cache in development
 		if (import.meta.env?.DEV || !cacheEntriesByCollection.has(collection)) {
+			const limit = pLimit(10);
 			entries = await Promise.all(
-				lazyImports.map(async (lazyImport) => {
-					const entry = await lazyImport();
-					return type === 'content'
-						? {
-								id: entry.id,
-								slug: entry.slug,
-								body: entry.body,
-								collection: entry.collection,
-								data: entry.data,
-								async render() {
-									return render({
-										collection: entry.collection,
-										id: entry.id,
-										renderEntryImport: await getRenderEntryImport(collection, entry.slug),
-									});
-								},
-							}
-						: {
-								id: entry.id,
-								collection: entry.collection,
-								data: entry.data,
-							};
-				})
+				lazyImports.map((lazyImport) =>
+					limit(async () => {
+						const entry = await lazyImport();
+						return type === 'content'
+							? {
+									id: entry.id,
+									slug: entry.slug,
+									body: entry.body,
+									collection: entry.collection,
+									data: entry.data,
+									async render() {
+										return render({
+											collection: entry.collection,
+											id: entry.id,
+											renderEntryImport: await getRenderEntryImport(collection, entry.slug),
+										});
+									},
+								}
+							: {
+									id: entry.id,
+									collection: entry.collection,
+									data: entry.data,
+								};
+					})
+				)
 			);
 			cacheEntriesByCollection.set(collection, entries);
 		}

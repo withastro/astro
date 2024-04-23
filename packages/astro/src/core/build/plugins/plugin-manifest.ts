@@ -253,7 +253,7 @@ function buildManifest(
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
-			strategy: toRoutingStrategy(settings.config.i18n),
+			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
 			locales: settings.config.i18n.locales,
 			defaultLocale: settings.config.i18n.defaultLocale,
 			domainLookupTable,
@@ -276,5 +276,6 @@ function buildManifest(
 		assets: staticFiles.map(prefixAssetPath),
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
+		checkOrigin: settings.config.experimental.security?.csrfProtection?.origin ?? false,
 	};
 }

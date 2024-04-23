@@ -147,7 +147,9 @@ export default function assets({
 								: settings.config.outDir
 						)
 					)});
-					export const assetsDir = /* #__PURE__ */ new URL(${JSON.stringify(settings.config.build.assets)}, outDir);
+					export const assetsDir = /* #__PURE__ */ new URL(${JSON.stringify(
+						settings.config.build.assets
+					)}, outDir);
 					export const getImage = async (options) => await getImageInternal(options, imageConfig);
 				`;
 				}

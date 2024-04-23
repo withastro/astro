@@ -121,7 +121,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
-			strategy: toRoutingStrategy(settings.config.i18n),
+			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
@@ -143,6 +143,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		componentMetadata: new Map(),
 		inlinedScripts: new Map(),
 		i18n: i18nManifest,
+		checkOrigin: settings.config.experimental.security?.csrfProtection?.origin ?? false,
 		middleware(_, next) {
 			return next();
 		},

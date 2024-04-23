@@ -36,6 +36,7 @@ jobs:
         if: steps.blocked.outputs.result != 'true'
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       - name: Get changed files in the .changeset folder

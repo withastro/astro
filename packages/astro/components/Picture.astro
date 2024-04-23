@@ -1,5 +1,5 @@
 ---
-import { getImage, type LocalImageProps, type RemoteImageProps } from 'astro:assets';
+import { type LocalImageProps, type RemoteImageProps, getImage } from 'astro:assets';
 import type { GetImageResult, ImageOutputFormat } from '../dist/@types/astro';
 import { isESMImportedImage, resolveSrc } from '../dist/assets/utils/imageKind';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
@@ -45,7 +45,7 @@ let resultFallbackFormat = fallbackFormat ?? defaultFallbackFormat;
 if (
 	!fallbackFormat &&
 	isESMImportedImage(originalSrc) &&
-	originalSrc.format in specialFormatsFallback
+	(specialFormatsFallback as ReadonlyArray<string>).includes(originalSrc.format)
 ) {
 	resultFallbackFormat = originalSrc.format;
 }

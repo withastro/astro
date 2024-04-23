@@ -6,7 +6,7 @@ import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
 import { emitESMImage } from 'astro/assets/utils';
 import matter from 'gray-matter';
-import type { ErrorPayload as ViteErrorPayload, Rollup } from 'vite';
+import type { Rollup, ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';
 import { htmlTokenTransform } from './html/transform/html-token-transform.js';
 import type { MarkdocConfigResult } from './load-config.js';
