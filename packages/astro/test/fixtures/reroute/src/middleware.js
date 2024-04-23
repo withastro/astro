@@ -1,5 +1,7 @@
 import { sequence } from 'astro:middleware';
 
+let contextReroute = false;
+
 export const first = async (context, next) => {
 	if (context.url.pathname.includes('/auth')) {
 	}
@@ -10,6 +12,7 @@ export const first = async (context, next) => {
 export const second = async (context, next) => {
 	if (context.url.pathname.includes('/auth')) {
 		if (context.url.pathname.includes('/auth/dashboard')) {
+			contextReroute = true;
 			return await context.reroute('/');
 		}
 		if (context.url.pathname.includes('/auth/base')) {
@@ -20,7 +23,8 @@ export const second = async (context, next) => {
 };
 
 export const third = async (context, next) => {
-	if (context.url.pathname.startsWith('/')) {
+	// just making sure that we are testing the change in context coming from `next()`
+	if (context.url.pathname.startsWith('/') && contextReroute === false) {
 		context.locals.auth = 'Third function called';
 	}
 	return next();
