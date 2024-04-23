@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
 import { ApiContextStorage, formContentTypes, getAction } from './utils.js';
-import { ActionError } from './errors.js';
+import { ActionError } from './virtual.js';
 
 export const POST: APIRoute = async (context) => {
-	const { request, url, redirect } = context;
+	const { request, url } = context;
 	if (request.method !== 'POST') {
 		return new Response(null, { status: 405 });
 	}

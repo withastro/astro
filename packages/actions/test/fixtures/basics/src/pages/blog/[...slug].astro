@@ -3,8 +3,7 @@ import { type CollectionEntry, getCollection, getEntry } from "astro:content";
 import BlogPost from "../../layouts/BlogPost.astro";
 import { db, eq, Comment, Likes } from "astro:db";
 import { Like } from "../../components/Like";
-import { actions, safe } from "astro:actions";
-import { enhanceProps } from "@astrojs/actions/config";
+import { actions, safe, actionNameProps } from "astro:actions";
 
 export const prerender = false;
 
@@ -43,7 +42,7 @@ const initialLikes = await db
   <h2>Comments</h2>
   <form method="POST">
 		{!commentResult.success && <p class="error">{commentResult.error}</p>}
-    <input {...enhanceProps(actions.blog.comment)} />
+    <input {...actionNameProps(actions.blog.comment)} />
     <input type="hidden" name="postId" value={post.id} />
     <label class="sr-only" for="author">Author</label>
     <input id="author" type="text" name="author" placeholder="Your name" />

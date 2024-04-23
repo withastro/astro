@@ -1,15 +1,7 @@
 import type { APIContext } from 'astro';
 import { z } from 'zod';
 import { ApiContextStorage } from './utils.js';
-import { ActionError, ValidationError } from './errors.js';
-
-export function enhanceProps<T extends Function>(action: T) {
-	return {
-		type: 'hidden',
-		name: '_astroAction',
-		value: action.toString(),
-	} as const;
-}
+import { ActionError, ValidationError } from './virtual.js';
 
 type MaybePromise<T> = T | Promise<T>;
 

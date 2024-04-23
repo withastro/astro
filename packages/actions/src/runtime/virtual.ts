@@ -46,3 +46,11 @@ export async function safe<T>(
 		};
 	}
 }
+
+export function actionNameProps<T extends Function>(action: T) {
+	return {
+		type: 'hidden',
+		name: '_astroAction',
+		value: action.toString(),
+	} as const;
+}

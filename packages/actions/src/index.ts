@@ -33,7 +33,6 @@ export default function astroActions(): AstroIntegration {
 					name: 'astro-actions',
 					content: `declare module "astro:actions" {
 	type Actions = typeof import(${stringifiedActionsPath})["default"];
-	export * from '@astrojs/actions/errors';
 
 	export const actions: Actions;
 }`,
