@@ -170,7 +170,7 @@ export class App {
 		if (!pathname) {
 			pathname = prependForwardSlash(this.removeBase(url.pathname));
 		}
-		let routeData = matchRoute(pathname, this.#manifestData);
+		const routeData = matchRoute(pathname, this.#manifestData);
 
 		// missing routes fall-through, pre rendered are handled by static layer
 		if (!routeData || routeData.prerender) return undefined;

@@ -63,7 +63,7 @@ export async function writeSitemap(
 		},
 	});
 
-	let src = Readable.from(sourceData);
+	const src = Readable.from(sourceData);
 	const indexPath = resolve(destinationDir, `./sitemap-index.xml`);
 	return promisify(pipeline)(src, sitemapAndIndexStream, createWriteStream(indexPath));
 }

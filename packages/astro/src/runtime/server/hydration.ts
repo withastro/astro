@@ -36,7 +36,7 @@ export function extractDirectives(
 	inputProps: Props,
 	clientDirectives: SSRResult['clientDirectives']
 ): ExtractedProps {
-	let extracted: ExtractedProps = {
+	const extracted: ExtractedProps = {
 		isPage: false,
 		hydration: null,
 		props: {},
@@ -164,7 +164,7 @@ export async function generateHydrateScript(
 
 	island.props['ssr'] = '';
 	island.props['client'] = hydrate;
-	let beforeHydrationUrl = await result.resolve('astro:scripts/before-hydration.js');
+	const beforeHydrationUrl = await result.resolve('astro:scripts/before-hydration.js');
 	if (beforeHydrationUrl.length) {
 		island.props['before-hydration-url'] = beforeHydrationUrl;
 	}

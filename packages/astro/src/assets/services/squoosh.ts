@@ -62,7 +62,7 @@ const service: LocalImageService = {
 	async transform(inputBuffer, transformOptions) {
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
 
-		let format = transform.format;
+		const format = transform.format;
 
 		// Return SVGs as-is
 		if (format === 'svg') return { data: inputBuffer, format: 'svg' };

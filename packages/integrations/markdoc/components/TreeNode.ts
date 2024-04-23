@@ -77,7 +77,7 @@ export const ComponentNode = createComponent({
 
 			const head = unescapeHTML(styles + links + scripts);
 
-			let headAndContent = createHeadAndContent(
+			const headAndContent = createHeadAndContent(
 				head,
 				renderTemplate`${renderComponent(
 					result,

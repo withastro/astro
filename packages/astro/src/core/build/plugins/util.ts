@@ -14,7 +14,7 @@ export function extendManualChunks(outputOptions: OutputOptions, hooks: ExtendMa
 	const manualChunks = outputOptions.manualChunks;
 	outputOptions.manualChunks = function (id, meta) {
 		if (hooks.before) {
-			let value = hooks.before(id, meta);
+			const value = hooks.before(id, meta);
 			if (value) {
 				return value;
 			}
@@ -23,7 +23,7 @@ export function extendManualChunks(outputOptions: OutputOptions, hooks: ExtendMa
 		// Defer to user-provided `manualChunks`, if it was provided.
 		if (typeof manualChunks == 'object') {
 			if (id in manualChunks) {
-				let value = manualChunks[id];
+				const value = manualChunks[id];
 				return value[0];
 			}
 		} else if (typeof manualChunks === 'function') {

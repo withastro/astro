@@ -39,7 +39,7 @@ export function pluginCSS(
 		targets: ['client', 'server'],
 		hooks: {
 			'build:before': ({ target }) => {
-				let plugins = rollupPluginAstroBuildCSS({
+				const plugins = rollupPluginAstroBuildCSS({
 					buildOptions: options,
 					internals,
 					target,

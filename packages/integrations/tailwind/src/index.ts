@@ -11,7 +11,7 @@ async function getPostCssConfig(
 	let postcssConfigResult;
 	// Check if postcss config is not inlined
 	if (!(typeof postcssInlineOptions === 'object' && postcssInlineOptions !== null)) {
-		let { default: postcssrc } = await import('postcss-load-config');
+		const { default: postcssrc } = await import('postcss-load-config');
 		const searchPath = typeof postcssInlineOptions === 'string' ? postcssInlineOptions : root!;
 		try {
 			postcssConfigResult = await postcssrc({}, searchPath);

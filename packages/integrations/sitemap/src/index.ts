@@ -99,7 +99,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							return new URL(fullPath, finalSiteUrl).href;
 						});
 
-					let routeUrls = routes.reduce<string[]>((urls, r) => {
+					const routeUrls = routes.reduce<string[]>((urls, r) => {
 						// Only expose pages, not endpoints or redirects
 						if (r.type !== 'page') return urls;
 
@@ -115,7 +115,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							if (fullPath.endsWith('/')) fullPath += r.generate(r.pathname).substring(1);
 							else fullPath += r.generate(r.pathname);
 
-							let newUrl = new URL(fullPath, finalSiteUrl).href;
+							const newUrl = new URL(fullPath, finalSiteUrl).href;
 
 							if (config.trailingSlash === 'never') {
 								urls.push(newUrl);

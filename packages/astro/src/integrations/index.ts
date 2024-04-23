@@ -78,8 +78,8 @@ export async function runHookConfigSetup({
 	}
 
 	let updatedConfig: AstroConfig = { ...settings.config };
-	let updatedSettings: AstroSettings = { ...settings, config: updatedConfig };
-	let addedClientDirectives = new Map<string, Promise<string>>();
+	const updatedSettings: AstroSettings = { ...settings, config: updatedConfig };
+	const addedClientDirectives = new Map<string, Promise<string>>();
 	let astroJSXRenderer: AstroRenderer | null = null;
 
 	// eslint-disable-next-line @typescript-eslint/prefer-for-of -- We need a for loop to be able to read integrations pushed while the loop is running.

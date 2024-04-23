@@ -11,7 +11,7 @@ export function getContext(result: RendererContext['result']): Context {
 	if (contexts.has(result)) {
 		return contexts.get(result)!;
 	}
-	let ctx: Context = {
+	const ctx: Context = {
 		c: 0,
 		get id() {
 			return 's' + this.c.toString();
@@ -22,7 +22,7 @@ export function getContext(result: RendererContext['result']): Context {
 }
 
 export function incrementId(ctx: Context): string {
-	let id = ctx.id;
+	const id = ctx.id;
 	ctx.c++;
 	return id;
 }

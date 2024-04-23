@@ -109,7 +109,7 @@ function createContext({
  * are not accepted because they can't be serialized.
  */
 function isLocalsSerializable(value: unknown): boolean {
-	let type = typeof value;
+	const type = typeof value;
 	let plainObject = true;
 	if (type === 'object' && isPlainObject(value)) {
 		for (const [, nestedValue] of Object.entries(value)) {
@@ -121,7 +121,7 @@ function isLocalsSerializable(value: unknown): boolean {
 	} else {
 		plainObject = false;
 	}
-	let result =
+	const result =
 		value === null ||
 		type === 'string' ||
 		type === 'number' ||
@@ -143,7 +143,7 @@ function isLocalsSerializable(value: unknown): boolean {
 function isPlainObject(value: unknown): value is object {
 	if (typeof value !== 'object' || value === null) return false;
 
-	let proto = Object.getPrototypeOf(value);
+	const proto = Object.getPrototypeOf(value);
 	if (proto === null) return true;
 
 	let baseProto = proto;

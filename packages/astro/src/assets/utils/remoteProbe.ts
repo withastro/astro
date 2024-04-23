@@ -24,7 +24,7 @@ export async function probe(url: string): Promise<ISize> {
 			value = readResult.value;
 
 			// Accumulate chunks
-			let tmp = new Uint8Array(accumulatedChunks.length + value.length);
+			const tmp = new Uint8Array(accumulatedChunks.length + value.length);
 			tmp.set(accumulatedChunks, 0);
 			tmp.set(value, accumulatedChunks.length);
 			accumulatedChunks = tmp;

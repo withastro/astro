@@ -62,7 +62,7 @@ export const getName = () =>
 
 export const getVersion = (packageManager: string, packageName: string, fallback = '') =>
 	new Promise<string>(async (resolve) => {
-		let registry = await getRegistry(packageManager);
+		const registry = await getRegistry(packageManager);
 		const { version } = await fetch(`${registry}/${packageName}/latest`, {
 			redirect: 'follow',
 		})
@@ -169,7 +169,7 @@ export function printHelp({
 		return raw.slice(0, -1); // remove latest \n
 	};
 
-	let message = [];
+	const message = [];
 
 	if (headline) {
 		message.push(

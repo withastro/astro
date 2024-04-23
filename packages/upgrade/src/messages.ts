@@ -192,7 +192,7 @@ export function printHelp({
 		return raw.slice(0, -1); // remove latest \n
 	};
 
-	let message = [];
+	const message = [];
 
 	if (usage) {
 		message.push(linebreak(), `${color.green(commandName)} ${color.bold(usage)}`);

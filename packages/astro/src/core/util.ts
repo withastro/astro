@@ -20,7 +20,7 @@ export function isURL(value: unknown): value is URL {
 /** Check if a file is a markdown file based on its extension */
 export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
 	const _suffix = option?.suffix ?? '';
-	for (let markdownFileExtension of SUPPORTED_MARKDOWN_FILE_EXTENSIONS) {
+	for (const markdownFileExtension of SUPPORTED_MARKDOWN_FILE_EXTENSIONS) {
 		if (fileId.endsWith(`${markdownFileExtension}${_suffix}`)) return true;
 	}
 	return false;
@@ -66,14 +66,14 @@ export function parseNpmName(
 	let scope: string | undefined;
 	let name = '';
 
-	let parts = spec.split('/');
+	const parts = spec.split('/');
 	if (parts[0][0] === '@') {
 		scope = parts[0];
 		name = parts.shift() + '/';
 	}
 	name += parts.shift();
 
-	let subpath = parts.length ? `./${parts.join('/')}` : undefined;
+	const subpath = parts.length ? `./${parts.join('/')}` : undefined;
 
 	return {
 		scope,
@@ -113,7 +113,7 @@ function isInPagesDir(file: URL, config: AstroConfig): boolean {
 }
 
 function isInjectedRoute(file: URL, settings: AstroSettings) {
-	let fileURL = file.toString();
+	const fileURL = file.toString();
 	for (const route of settings.resolvedInjectedRoutes) {
 		if (route.resolvedEntryPoint && fileURL === route.resolvedEntryPoint.toString()) return true;
 	}

@@ -26,7 +26,7 @@ function addMetadata(map: SSRResult['componentMetadata'], modInfo: ModuleInfo | 
 	if (modInfo) {
 		const astro = getAstroMetadata(modInfo);
 		if (astro) {
-			let metadata: SSRComponentMetadata = {
+			const metadata: SSRComponentMetadata = {
 				containsHead: false,
 				propagation: 'none',
 			};

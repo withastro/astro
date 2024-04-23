@@ -83,7 +83,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 						throw err;
 					});
 
-				let html = renderResult.code;
+				const html = renderResult.code;
 				const { headings, imagePaths: rawImagePaths, frontmatter } = renderResult.metadata;
 
 				// Resolve all the extracted images from the content

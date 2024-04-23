@@ -85,7 +85,7 @@ export async function renderSlots(
 	slots: ComponentSlots = {}
 ): Promise<RenderSlotsResult> {
 	let slotInstructions: RenderSlotsResult['slotInstructions'] = null;
-	let children: RenderSlotsResult['children'] = {};
+	const children: RenderSlotsResult['children'] = {};
 	if (slots) {
 		await Promise.all(
 			Object.entries(slots).map(([key, value]) =>

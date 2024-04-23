@@ -49,7 +49,7 @@ export async function scan(
 
 	const [, exports] = eslexer.parse(code, id);
 
-	let pageOptions: PageOptions = {};
+	const pageOptions: PageOptions = {};
 	for (const _export of exports) {
 		const { n: name, le: endOfLocalName } = _export;
 		// mark that a `prerender` export was found

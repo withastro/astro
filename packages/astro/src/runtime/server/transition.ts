@@ -202,7 +202,7 @@ type AnimationBuilder = {
 };
 
 function addAnimationProperty(builder: AnimationBuilder, prop: string, value: string | number) {
-	let arr = builder[prop];
+	const arr = builder[prop];
 	if (Array.isArray(arr)) {
 		arr.push(value.toString());
 	} else {
@@ -214,8 +214,8 @@ function animationBuilder(): AnimationBuilder {
 	return {
 		toString() {
 			let out = '';
-			for (let k in this) {
-				let value = this[k];
+			for (const k in this) {
+				const value = this[k];
 				if (Array.isArray(value)) {
 					out += `\n\t${k}: ${value.join(', ')};`;
 				}

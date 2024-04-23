@@ -55,8 +55,8 @@ Did you forget to import the component or is it possible there is a typo?`);
 			case (vnode.type as any) === Symbol.for('astro:fragment'):
 				return renderJSX(result, vnode.props.children);
 			case (vnode.type as any).isAstroComponentFactory: {
-				let props: Record<string, any> = {};
-				let slots: Record<string, any> = {};
+				const props: Record<string, any> = {};
+				const slots: Record<string, any> = {};
 				for (const [key, value] of Object.entries(vnode.props ?? {})) {
 					if (key === 'children' || (value && typeof value === 'object' && value['$$slot'])) {
 						slots[key === 'children' ? 'default' : key] = () => renderJSX(result, value);

@@ -14,7 +14,7 @@ export const errorMap: ZodErrorMap = (baseError, ctx) => {
 		// raise a single error when `key` does not match:
 		// > Did not match union.
 		// > key: Expected `'tutorial' | 'blog'`, received 'foo'
-		let typeOrLiteralErrByPath = new Map<string, TypeOrLiteralErrByPathEntry>();
+		const typeOrLiteralErrByPath = new Map<string, TypeOrLiteralErrByPathEntry>();
 		for (const unionError of baseError.unionErrors.map((e) => e.errors).flat()) {
 			if (unionError.code === 'invalid_type' || unionError.code === 'invalid_literal') {
 				const flattenedErrorPath = flattenErrorPath(unionError.path);
@@ -29,7 +29,7 @@ export const errorMap: ZodErrorMap = (baseError, ctx) => {
 				}
 			}
 		}
-		let messages: string[] = [
+		const messages: string[] = [
 			prefix(
 				baseErrorPath,
 				typeOrLiteralErrByPath.size ? 'Did not match union:' : 'Did not match union.'

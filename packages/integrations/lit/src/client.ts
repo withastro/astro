@@ -45,7 +45,7 @@ export default (element: HTMLElement) =>
 			element.appendChild(component);
 
 			// Set props bound to non-reactive properties as attributes.
-			for (let [name, value] of Object.entries(props)) {
+			for (const [name, value] of Object.entries(props)) {
 				if (!(name in Component.prototype)) {
 					component.setAttribute(name, value);
 				}
@@ -60,7 +60,7 @@ export default (element: HTMLElement) =>
 		}
 
 		// Set properties on the LitElement instance for resuming hydration.
-		for (let [name, value] of Object.entries(props)) {
+		for (const [name, value] of Object.entries(props)) {
 			// Check if reactive property or class property.
 			if (name in Component.prototype) {
 				(component as any)[name] = value;

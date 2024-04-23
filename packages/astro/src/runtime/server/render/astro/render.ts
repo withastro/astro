@@ -230,7 +230,7 @@ export async function renderToAsyncIterable(
 			}
 
 			// Create a new array with total length and merge all source arrays.
-			let mergedArray = new Uint8Array(length);
+			const mergedArray = new Uint8Array(length);
 			let offset = 0;
 			for (let i = 0, len = buffer.length; i < len; i++) {
 				const item = buffer[i];

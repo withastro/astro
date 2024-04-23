@@ -40,7 +40,7 @@ export async function handleRequest({
 
 	let body: ArrayBuffer | undefined = undefined;
 	if (!(incomingRequest.method === 'GET' || incomingRequest.method === 'HEAD')) {
-		let bytes: Uint8Array[] = [];
+		const bytes: Uint8Array[] = [];
 		await new Promise((resolve) => {
 			incomingRequest.on('data', (part) => {
 				bytes.push(part);

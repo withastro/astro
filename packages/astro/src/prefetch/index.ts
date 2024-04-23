@@ -17,7 +17,7 @@ let prefetchAll: boolean = __PREFETCH_PREFETCH_ALL__;
 // @ts-expect-error injected global
 let defaultStrategy: string = __PREFETCH_DEFAULT_STRATEGY__;
 // @ts-expect-error injected global
-let clientPrerender: boolean = __EXPERIMENTAL_CLIENT_PRERENDER__;
+const clientPrerender: boolean = __EXPERIMENTAL_CLIENT_PRERENDER__;
 
 interface InitOptions {
 	defaultStrategy?: string;

@@ -42,9 +42,9 @@ export function createBaseController({ reload }: { reload: ReloadFn }): DevServe
 	};
 
 	const onHMRError: LoaderEvents['hmr-error'] = (payload) => {
-		let msg = payload?.err?.message ?? 'Unknown error';
-		let stack = payload?.err?.stack ?? 'Unknown stack';
-		let error = new Error(msg);
+		const msg = payload?.err?.message ?? 'Unknown error';
+		const stack = payload?.err?.stack ?? 'Unknown stack';
+		const error = new Error(msg);
 		Object.defineProperty(error, 'stack', {
 			value: stack,
 		});

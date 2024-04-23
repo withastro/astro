@@ -85,7 +85,7 @@ export async function writeWebResponse(res: http.ServerResponse, webResponse: Re
 	res.writeHead(status, _headers);
 	if (body) {
 		if (Symbol.for('astro.responseBody') in webResponse) {
-			let stream = (webResponse as any)[Symbol.for('astro.responseBody')];
+			const stream = (webResponse as any)[Symbol.for('astro.responseBody')];
 			for await (const chunk of stream) {
 				res.write(chunk.toString());
 			}

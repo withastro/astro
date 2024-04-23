@@ -171,7 +171,7 @@ if (typeof process !== 'undefined') {
 	// This could be a shimmed environment so we don't know that `process` is the full
 	// NodeJS.process. This code treats it as a plain object so TS doesn't let us
 	// get away with incorrect assumptions.
-	let proc: object = process;
+	const proc: object = process;
 	if ('argv' in proc && Array.isArray(proc.argv)) {
 		if (proc.argv.includes('--verbose')) {
 			defaultLogLevel = 'debug';
@@ -189,8 +189,8 @@ if (typeof process !== 'undefined') {
 
 /** Print out a timer message for debug() */
 export function timerMessage(message: string, startTime: number = Date.now()) {
-	let timeDiff = Date.now() - startTime;
-	let timeDisplay =
+	const timeDiff = Date.now() - startTime;
+	const timeDisplay =
 		timeDiff < 750 ? `${Math.round(timeDiff)}ms` : `${(timeDiff / 1000).toFixed(1)}s`;
 	return `${message}   ${dim(timeDisplay)}`;
 }

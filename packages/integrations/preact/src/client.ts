@@ -15,10 +15,10 @@ export default (element: HTMLElement) =>
 		for (const [key, value] of Object.entries(slotted)) {
 			props[key] = h(StaticHtml, { value, name: key });
 		}
-		let signalsRaw = element.dataset.preactSignals;
+		const signalsRaw = element.dataset.preactSignals;
 		if (signalsRaw) {
 			const { signal } = await import('@preact/signals');
-			let signals: Record<string, string> = JSON.parse(element.dataset.preactSignals!);
+			const signals: Record<string, string> = JSON.parse(element.dataset.preactSignals!);
 			for (const [propName, signalId] of Object.entries(signals)) {
 				if (!sharedSignalMap.has(signalId)) {
 					const signalValue = signal(props[propName]);

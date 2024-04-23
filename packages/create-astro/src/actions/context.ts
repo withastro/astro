@@ -57,7 +57,8 @@ export async function getContext(argv: string[]): Promise<Context> {
 	);
 
 	const packageManager = detectPackageManager() ?? 'npm';
-	let cwd = flags['_'][0];
+	// biome-ignore lint/complexity/useLiteralKeys: buggy https://github.com/biomejs/biome/issues/2574
+	const cwd = flags['_'][0];
 	let {
 		'--help': help = false,
 		'--template': template,
@@ -73,7 +74,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		'--dry-run': dryRun,
 		'--ref': ref,
 	} = flags;
-	let projectName = cwd;
+	const projectName = cwd;
 
 	if (no) {
 		yes = false;

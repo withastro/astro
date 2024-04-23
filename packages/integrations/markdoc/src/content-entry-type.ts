@@ -74,7 +74,7 @@ export async function getContentEntryType({
 
 			const usedTags = getUsedTags(ast);
 
-			let componentConfigByTagMap: Record<string, ComponentConfig> = {};
+			const componentConfigByTagMap: Record<string, ComponentConfig> = {};
 			// Only include component imports for tags used in the document.
 			// Avoids style and script bleed.
 			for (const tag of usedTags) {
@@ -83,7 +83,7 @@ export async function getContentEntryType({
 					componentConfigByTagMap[tag] = render;
 				}
 			}
-			let componentConfigByNodeMap: Record<string, ComponentConfig> = {};
+			const componentConfigByNodeMap: Record<string, ComponentConfig> = {};
 			for (const [nodeType, schema] of Object.entries(userMarkdocConfig.nodes ?? {})) {
 				const render = schema?.render;
 				if (isComponentConfig(render)) {
@@ -305,10 +305,10 @@ async function emitOptimizedImages(
 	}
 ) {
 	for (const node of nodeChildren) {
-		let isComponent = node.type === 'tag' && node.tag === 'image';
+		const isComponent = node.type === 'tag' && node.tag === 'image';
 		// Support either a ![]() or {% image %} syntax, and handle the `src` attribute accordingly.
 		if ((node.type === 'image' || isComponent) && typeof node.attributes.src === 'string') {
-			let attributeName = isComponent ? 'src' : '__optimizedSrc';
+			const attributeName = isComponent ? 'src' : '__optimizedSrc';
 
 			// If the image isn't an URL or a link to public, try to resolve it.
 			if (shouldOptimizeImage(node.attributes.src)) {

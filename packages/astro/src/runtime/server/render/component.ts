@@ -371,12 +371,12 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	if (html) {
 		if (Object.keys(children).length > 0) {
 			for (const key of Object.keys(children)) {
-				let tagName = renderer?.ssr?.supportsAstroStaticSlot
+				const tagName = renderer?.ssr?.supportsAstroStaticSlot
 					? !!metadata.hydrate
 						? 'astro-slot'
 						: 'astro-static-slot'
 					: 'astro-slot';
-				let expectedHTML = key === 'default' ? `<${tagName}>` : `<${tagName} name="${key}">`;
+				const expectedHTML = key === 'default' ? `<${tagName}>` : `<${tagName} name="${key}">`;
 				if (!html.includes(expectedHTML)) {
 					unrenderedSlots.push(key);
 				}

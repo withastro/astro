@@ -38,7 +38,7 @@ function getContentRendererByViteId(
 	viteId: string,
 	settings: Pick<AstroSettings, 'contentEntryTypes'>
 ): ContentEntryType['getRenderModule'] | undefined {
-	let ext = viteId.split('.').pop();
+	const ext = viteId.split('.').pop();
 	if (!ext) return undefined;
 	for (const contentEntryType of settings.contentEntryTypes) {
 		if (

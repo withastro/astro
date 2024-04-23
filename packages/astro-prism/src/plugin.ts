@@ -14,11 +14,11 @@ export function addAstro(Prism: typeof import('prismjs')) {
 		);
 	}
 
-	let script = Prism.util.clone(Prism.languages[scriptLang]);
+	const script = Prism.util.clone(Prism.languages[scriptLang]);
 
 	// eslint-disable-next-line regexp/no-useless-assertions
-	let space = /(?:\s|\/\/.*(?!.)|\/\*(?:[^*]|\*(?!\/))\*\/)/.source;
-	let braces = /(?:\{(?:\{(?:\{[^{}]*\}|[^{}])*\}|[^{}])*\})/.source;
+	const space = /(?:\s|\/\/.*(?!.)|\/\*(?:[^*]|\*(?!\/))\*\/)/.source;
+	const braces = /(?:\{(?:\{(?:\{[^{}]*\}|[^{}])*\}|[^{}])*\})/.source;
 	let spread = /(?:\{<S>*\.{3}(?:[^{}]|<BRACES>)*\})/.source;
 
 	function re(source: string, flags?: string) {
@@ -84,7 +84,7 @@ export function addAstro(Prism: typeof import('prismjs')) {
 	);
 
 	// The following will handle plain text inside tags
-	let stringifyToken = function (token: any) {
+	const stringifyToken = function (token: any) {
 		if (!token) {
 			return '';
 		}
@@ -97,10 +97,10 @@ export function addAstro(Prism: typeof import('prismjs')) {
 		return token.content.map(stringifyToken).join('');
 	};
 
-	let walkTokens = function (tokens: any) {
-		let openedTags: any[] = [];
+	const walkTokens = function (tokens: any) {
+		const openedTags: any[] = [];
 		for (let i = 0; i < tokens.length; i++) {
-			let token = tokens[i];
+			const token = tokens[i];
 
 			// This breaks styles, not sure why
 			if (token.type === 'style') {

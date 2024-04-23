@@ -205,7 +205,7 @@ function createFileBasedRoutes(
 		parentSegments: RoutePart[][],
 		parentParams: string[]
 	) {
-		let items: Item[] = [];
+		const items: Item[] = [];
 		const files = fs.readdirSync(dir);
 		for (const basename of files) {
 			const resolved = path.join(dir, basename);
@@ -592,9 +592,9 @@ export function createRouteManifest(
 		const strategy = toRoutingStrategy(i18n.routing, i18n.domains);
 		// First we check if the user doesn't have an index page.
 		if (strategy === 'pathname-prefix-always') {
-			let index = routes.find((route) => route.route === '/');
+			const index = routes.find((route) => route.route === '/');
 			if (!index) {
-				let relativePath = path.relative(
+				const relativePath = path.relative(
 					fileURLToPath(settings.config.root),
 					fileURLToPath(new URL('pages', settings.config.srcDir))
 				);
@@ -695,7 +695,7 @@ export function createRouteManifest(
 		}
 
 		if (i18n.fallback) {
-			let fallback = Object.entries(i18n.fallback);
+			const fallback = Object.entries(i18n.fallback);
 
 			if (fallback.length > 0) {
 				for (const [fallbackFromLocale, fallbackToLocale] of fallback) {

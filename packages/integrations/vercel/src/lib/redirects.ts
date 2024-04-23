@@ -114,7 +114,7 @@ export function escapeRegex(content: string) {
 }
 
 export function getRedirects(routes: RouteData[], config: AstroConfig): VercelRoute[] {
-	let redirects: VercelRoute[] = [];
+	const redirects: VercelRoute[] = [];
 
 	for (const route of routes) {
 		if (route.type === 'redirect') {

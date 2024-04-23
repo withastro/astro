@@ -166,7 +166,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 	const logger = createLoggerFromFlags(flags);
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 	const integrations = await validateIntegrations(integrationNames);
-	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logger });
+	const installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logger });
 	const rootPath = resolveRoot(cwd);
 	const root = pathToFileURL(rootPath);
 	// Append forward slash to compute relative paths
@@ -476,7 +476,7 @@ async function addIntegration(ast: t.File, integration: IntegrationInfo) {
 			const configObject = path.node.declaration.arguments[0];
 			if (!t.isObjectExpression(configObject)) return;
 
-			let integrationsProp = configObject.properties.find((prop) => {
+			const integrationsProp = configObject.properties.find((prop) => {
 				if (prop.type !== 'ObjectProperty') return false;
 				if (prop.key.type === 'Identifier') {
 					if (prop.key.name === 'integrations') return true;
@@ -529,7 +529,7 @@ async function setAdapter(ast: t.File, adapter: IntegrationInfo, exportName: str
 			const configObject = path.node.declaration.arguments[0];
 			if (!t.isObjectExpression(configObject)) return;
 
-			let outputProp = configObject.properties.find((prop) => {
+			const outputProp = configObject.properties.find((prop) => {
 				if (prop.type !== 'ObjectProperty') return false;
 				if (prop.key.type === 'Identifier') {
 					if (prop.key.name === 'output') return true;
@@ -546,7 +546,7 @@ async function setAdapter(ast: t.File, adapter: IntegrationInfo, exportName: str
 				);
 			}
 
-			let adapterProp = configObject.properties.find((prop) => {
+			const adapterProp = configObject.properties.find((prop) => {
 				if (prop.type !== 'ObjectProperty') return false;
 				if (prop.key.type === 'Identifier') {
 					if (prop.key.name === 'adapter') return true;
@@ -691,7 +691,7 @@ async function convertIntegrationsToInstallSpecifiers(
 	integrations: IntegrationInfo[]
 ): Promise<string[]> {
 	const ranges: Record<string, string> = {};
-	for (let { packageName, dependencies } of integrations) {
+	for (const { packageName, dependencies } of integrations) {
 		ranges[packageName] = '*';
 		for (const [name, range] of dependencies) {
 			ranges[name] = range;
@@ -847,7 +847,7 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 				if (!parsed) {
 					throw new Error(`${bold(integration)} does not appear to be a valid package name!`);
 				}
-				let { scope, name, tag } = parsed;
+				const { scope, name, tag } = parsed;
 				let pkgJson;
 				let pkgType: 'first-party' | 'third-party';
 
@@ -895,7 +895,7 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 				const resolvedScope = pkgType === 'first-party' ? '@astrojs' : scope;
 				const packageName = `${resolvedScope ? `${resolvedScope}/` : ''}${name}`;
 
-				let dependencies: IntegrationInfo['dependencies'] = [
+				const dependencies: IntegrationInfo['dependencies'] = [
 					[pkgJson['name'], `^${pkgJson['version']}`],
 				];
 
@@ -1062,9 +1062,9 @@ async function askToContinue({ flags }: { flags: yargs.Arguments }): Promise<boo
 }
 
 function getDiffContent(input: string, output: string): string | null {
-	let changes = [];
+	const changes = [];
 	for (const change of diffWords(input, output)) {
-		let lines = change.value.trim().split('\n').slice(0, change.count);
+		const lines = change.value.trim().split('\n').slice(0, change.count);
 		if (lines.length === 0) continue;
 		if (change.added) {
 			if (!change.value.trim()) continue;
@@ -1076,7 +1076,7 @@ function getDiffContent(input: string, output: string): string | null {
 	}
 
 	let diffed = output;
-	for (let newContent of changes) {
+	for (const newContent of changes) {
 		const coloredOutput = newContent
 			.split('\n')
 			.map((ln) => (ln ? green(ln) : ''))

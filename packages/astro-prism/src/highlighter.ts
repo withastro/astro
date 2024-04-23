@@ -8,7 +8,7 @@ export function runHighlighterWithAstro(lang: string | undefined, code: string) 
 	if (!lang) {
 		lang = 'plaintext';
 	}
-	let classLanguage = `language-${lang}`;
+	const classLanguage = `language-${lang}`;
 	const ensureLoaded = (language: string) => {
 		if (language && !Prism.languages[language]) {
 			loadLanguages([language]);

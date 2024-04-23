@@ -34,7 +34,7 @@ function addHoistedScripts(set: Set<SSRElement>, info: ModuleInfo | null, root: 
 		return;
 	}
 
-	let id = info.id;
+	const id = info.id;
 	const astro = info?.meta?.astro as AstroPluginMetadata['astro'];
 	for (let i = 0; i < astro.scripts.length; i++) {
 		let scriptId = `${id}?astro&type=script&index=${i}&lang.ts`;

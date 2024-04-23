@@ -62,7 +62,7 @@ export async function setUpEnvTs({
 		}
 	} else {
 		// Otherwise, inject the `env.d.ts` file
-		let referenceDefs: string[] = [];
+		const referenceDefs: string[] = [];
 		referenceDefs.push('/// <reference types="astro/client" />');
 
 		if (fs.existsSync(dotAstroDir)) {

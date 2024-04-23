@@ -25,12 +25,12 @@ function astroDBIntegration(): AstroIntegration {
 
 	// Make table loading "late" to pass to plugins from `config:setup`,
 	// but load during `config:done` to wait for integrations to settle.
-	let tables: LateTables = {
+	const tables: LateTables = {
 		get() {
 			throw new Error('[astro:db] INTERNAL Tables not loaded yet');
 		},
 	};
-	let seedFiles: LateSeedFiles = {
+	const seedFiles: LateSeedFiles = {
 		get() {
 			throw new Error('[astro:db] INTERNAL Seed files not loaded yet');
 		},

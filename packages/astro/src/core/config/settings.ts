@@ -111,7 +111,7 @@ export async function createSettings(config: AstroConfig, cwd?: string): Promise
 	const tsconfig = await loadTSConfig(cwd);
 	const settings = createBaseSettings(config);
 
-	let watchFiles = [];
+	const watchFiles = [];
 	if (cwd) {
 		watchFiles.push(fileURLToPath(new URL('./package.json', pathToFileURL(cwd))));
 	}

@@ -86,7 +86,7 @@ export function jsToTreeNode(
 }
 
 export function ignoreStringPlugins(plugins: any[]): PluggableList {
-	let validPlugins: PluggableList = [];
+	const validPlugins: PluggableList = [];
 	let hasInvalidPlugin = false;
 	for (const plugin of plugins) {
 		if (typeof plugin === 'string') {

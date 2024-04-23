@@ -291,7 +291,7 @@ async function generatePage(
 		logger.info(null, `${icon} ${getPrettyRouteName(route)}`);
 		// Get paths for the route, calling getStaticPaths if needed.
 		const paths = await getPathsForRoute(route, pageModule, pipeline, builtPaths);
-		let timeStart = performance.now();
+		const timeStart = performance.now();
 		let prevTimeEnd = timeStart;
 		for (let i = 0; i < paths.length; i++) {
 			const path = paths[i];

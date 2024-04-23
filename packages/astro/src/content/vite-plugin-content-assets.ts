@@ -163,9 +163,9 @@ export function astroConfigBuildPlugin(
 						chunk.type === 'chunk' &&
 						(chunk.code.includes(LINKS_PLACEHOLDER) || chunk.code.includes(SCRIPTS_PLACEHOLDER))
 					) {
-						let entryStyles = new Set<string>();
-						let entryLinks = new Set<string>();
-						let entryScripts = new Set<string>();
+						const entryStyles = new Set<string>();
+						const entryLinks = new Set<string>();
+						const entryScripts = new Set<string>();
 
 						if (options.settings.config.experimental.contentCollectionCache) {
 							// TODO: hoisted scripts are still handled on the pageData rather than the asset propagation point

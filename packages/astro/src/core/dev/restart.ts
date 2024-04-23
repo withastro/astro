@@ -120,7 +120,7 @@ export async function createContainerWithAutomaticRestart({
 		resolveRestart = resolve;
 	});
 
-	let restart: Restart = {
+	const restart: Restart = {
 		container: initialContainer,
 		restarted() {
 			return restartComplete;

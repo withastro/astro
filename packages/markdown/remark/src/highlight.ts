@@ -41,7 +41,7 @@ export async function highlightCodeBlocks(tree: Root, highlighter: Highlighter) 
 
 		// And the `<code>` has a class name that starts with `language-`.
 		let languageMatch: RegExpMatchArray | null | undefined;
-		let { className } = node.properties;
+		const { className } = node.properties;
 		if (typeof className === 'string') {
 			languageMatch = className.match(languagePattern);
 		} else if (Array.isArray(className)) {

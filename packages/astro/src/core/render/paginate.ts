@@ -15,7 +15,7 @@ export function generatePaginateFunction(
 		data: any[],
 		args: PaginateOptions<Props, Params> = {}
 	): ReturnType<PaginateFunction> {
-		let { pageSize: _pageSize, params: _params, props: _props } = args;
+		const { pageSize: _pageSize, params: _params, props: _props } = args;
 		const pageSize = _pageSize || 10;
 		const paramName = 'page';
 		const additionalParams = _params || {};

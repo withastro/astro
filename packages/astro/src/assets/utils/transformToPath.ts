@@ -11,7 +11,7 @@ export function propsToFilename(filePath: string, transform: ImageTransform, has
 	filename = basename(filename, ext);
 	const prefixDirname = isESMImportedImage(transform.src) ? dirname(filePath) : '';
 
-	let outputExt = transform.format ? `.${transform.format}` : ext;
+	const outputExt = transform.format ? `.${transform.format}` : ext;
 	return decodeURIComponent(`${prefixDirname}/${filename}_${hash}${outputExt}`);
 }
 

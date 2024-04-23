@@ -53,7 +53,7 @@ const addStaticImageFactory = (
 
 		let finalFilePath: string;
 		let transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalPath);
-		let transformForHash = transformsForPath?.transforms.get(hash);
+		const transformForHash = transformsForPath?.transforms.get(hash);
 
 		// If the same image has already been transformed with the same options, we'll reuse the final path
 		if (transformsForPath && transformForHash) {

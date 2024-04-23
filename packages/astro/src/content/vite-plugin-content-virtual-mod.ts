@@ -153,7 +153,7 @@ export async function generateContentEntryFile({
 		renderEntryGlobResult = getStringifiedCollectionFromLookup('render', relContentDir, lookupMap);
 	}
 
-	let virtualModContents =
+	const virtualModContents =
 		nodeFs
 			.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 			.replace('@@CONTENT_DIR@@', relContentDir)
@@ -223,7 +223,7 @@ export async function generateLookupMap({
 
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 
-	let lookupMap: ContentLookupMap = {};
+	const lookupMap: ContentLookupMap = {};
 	const contentGlob = await glob(
 		`${relContentDir}**/*${getExtGlob([...dataEntryExts, ...contentEntryExts])}`,
 		{

@@ -109,7 +109,7 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 			} catch (e) {
 				throw new AstroDbError(await getUnexpectedResponseMessage(res));
 			}
-			let results: any[] = [];
+			const results: any[] = [];
 			for (const [idx, rawResult] of remoteResults.entries()) {
 				if (queries[idx]?.method === 'run') {
 					results.push(rawResult);
@@ -161,7 +161,7 @@ async function parseRemoteError(response: Response): Promise<AstroDbError> {
 		return new AstroDbError(await getUnexpectedResponseMessage(response));
 	}
 	// Strip LibSQL error prefixes
-	let details =
+	const details =
 		error.details?.replace(/.*SQLite error: /, '') ??
 		`(Code ${error.code}) \nError querying remote database.`;
 	let hint = `See the Astro DB guide for query and push instructions: https://docs.astro.build/en/guides/astro-db/#query-your-database`;

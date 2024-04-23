@@ -53,7 +53,7 @@ function toAssume(uri, extns) {
 		uri = uri.substring(0, len);
 	}
 
-	let arr = [],
+	const arr = [],
 		tmp = `${uri}/index`;
 	for (; i < extns.length; i++) {
 		x = extns[i] ? `.${extns[i]}` : '';
@@ -99,7 +99,7 @@ function send(req, res, file, stats, headers) {
 		opts = {};
 	headers = { ...headers };
 
-	for (let key in headers) {
+	for (const key in headers) {
 		tmp = res.getHeader(key);
 		if (tmp) headers[key] = tmp;
 	}
@@ -110,9 +110,9 @@ function send(req, res, file, stats, headers) {
 
 	if (req.headers.range) {
 		code = 206;
-		let [x, y] = req.headers.range.replace('bytes=', '').split('-');
-		let end = (opts.end = parseInt(y, 10) || stats.size - 1);
-		let start = (opts.start = parseInt(x, 10) || 0);
+		const [x, y] = req.headers.range.replace('bytes=', '').split('-');
+		const end = (opts.end = parseInt(y, 10) || stats.size - 1);
+		const start = (opts.start = parseInt(x, 10) || 0);
 
 		if (start >= stats.size || end >= stats.size) {
 			res.setHeader('Content-Range', `bytes */${stats.size}`);
@@ -135,12 +135,12 @@ const ENCODING = {
 };
 
 function toHeaders(name, stats, isEtag) {
-	let enc = ENCODING[name.slice(-3)];
+	const enc = ENCODING[name.slice(-3)];
 
 	let ctype = lookup(name.slice(0, enc && -3)) || '';
 	if (ctype === 'text/html') ctype += ';charset=utf-8';
 
-	let headers = {
+	const headers = {
 		'Content-Length': stats.size,
 		'Content-Type': ctype,
 		'Last-Modified': stats.mtime.toUTCString(),
@@ -155,25 +155,25 @@ function toHeaders(name, stats, isEtag) {
 export default function (dir, opts = {}) {
 	dir = resolve(dir || '.');
 
-	let mountTo = opts.mount || '';
-	let isNotFound = opts.onNoMatch || is404;
-	let setHeaders = opts.setHeaders || noop;
+	const mountTo = opts.mount || '';
+	const isNotFound = opts.onNoMatch || is404;
+	const setHeaders = opts.setHeaders || noop;
 
-	let extensions = opts.extensions || ['html', 'htm'];
-	let gzips = opts.gzip && extensions.map((x) => `${x}.gz`).concat('gz');
-	let brots = opts.brotli && extensions.map((x) => `${x}.br`).concat('br');
+	const extensions = opts.extensions || ['html', 'htm'];
+	const gzips = opts.gzip && extensions.map((x) => `${x}.gz`).concat('gz');
+	const brots = opts.brotli && extensions.map((x) => `${x}.br`).concat('br');
 
 	const FILES = {};
 
 	let fallback = '/';
-	let isEtag = !!opts.etag;
-	let isSPA = !!opts.single;
+	const isEtag = !!opts.etag;
+	const isSPA = !!opts.single;
 	if (typeof opts.single === 'string') {
-		let idx = opts.single.lastIndexOf('.');
+		const idx = opts.single.lastIndexOf('.');
 		fallback += !!~idx ? opts.single.substring(0, idx) : opts.single;
 	}
 
-	let ignores = [];
+	const ignores = [];
 	if (opts.ignores !== false) {
 		// Disable eslint as we're not sure how to improve this regex yet
 		// eslint-disable-next-line regexp/no-super-linear-backtracking
@@ -195,24 +195,24 @@ export default function (dir, opts = {}) {
 			} // keep
 			else if (!opts.dotfiles && /^\.|[\\+|/]\./.test(name)) return;
 
-			let headers = toHeaders(name, stats, isEtag);
+			const headers = toHeaders(name, stats, isEtag);
 			if (cc) headers['Cache-Control'] = cc;
 
 			FILES['/' + name.normalize().replace(/\\+/g, '/')] = { abs, stats, headers };
 		});
 	}
 
-	let fileLookup = opts.dev ? viaLocal.bind(0, dir, isEtag) : viaCache.bind(0, FILES);
+	const fileLookup = opts.dev ? viaLocal.bind(0, dir, isEtag) : viaCache.bind(0, FILES);
 
 	return function (req, res, next) {
-		let extns = [''];
+		const extns = [''];
 		let pathname = new URL(req.url, 'https://example.dev').pathname;
 		// NEW
 		if (mountTo && pathname.startsWith(mountTo)) {
 			pathname = pathname.substring(mountTo.length);
 		}
 		// NEW END
-		let val = req.headers['accept-encoding'] || '';
+		const val = req.headers['accept-encoding'] || '';
 		if (gzips && val.includes('gzip')) extns.unshift(...gzips);
 		if (brots && /br/i.test(val)) extns.unshift(...brots);
 		extns.push(...extensions); // [...br, ...gz, orig, ...exts]
@@ -225,7 +225,7 @@ export default function (dir, opts = {}) {
 			}
 		}
 
-		let data =
+		const data =
 			fileLookup(pathname, extns) ||
 			(isSPA && !isMatch(pathname, ignores) && fileLookup(fallback, extns));
 		if (!data) return next ? next() : isNotFound(req, res);

@@ -71,7 +71,7 @@ async function renderToStaticMarkup(
 	}
 
 	// Restore signals back onto props so that they will be passed as-is to components
-	let propsMap = restoreSignalsOnProps(ctx, props);
+	const propsMap = restoreSignalsOnProps(ctx, props);
 
 	const newProps = { ...props, ...slots };
 

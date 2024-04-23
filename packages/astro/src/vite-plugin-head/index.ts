@@ -58,7 +58,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				// values. Walking up the tree in resolveId ensures that they do
 				return this.resolve(source, importer, { skipSelf: true }).then((result) => {
 					if (result) {
-						let info = this.getModuleInfo(result.id);
+						const info = this.getModuleInfo(result.id);
 						const astro = info && getAstroMetadata(info);
 						if (astro) {
 							if (astro.propagation === 'self' || astro.propagation === 'in-tree') {
@@ -79,7 +79,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 			}
 
 			// TODO This could probably be removed now that this is handled in resolveId
-			let info = this.getModuleInfo(id);
+			const info = this.getModuleInfo(id);
 			if (info && getAstroMetadata(info)?.containsHead) {
 				propagateMetadata.call(this, id, 'containsHead', true);
 			}
@@ -131,13 +131,13 @@ export function astroHeadBuildPlugin(internals: BuildInternals): AstroBuildPlugi
 										const meta = getAstroMetadata(modinfo);
 										if (meta?.containsHead) {
 											for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
-												let metadata = getOrCreateMetadata(pageInfo.id);
+												const metadata = getOrCreateMetadata(pageInfo.id);
 												metadata.containsHead = true;
 											}
 										}
 										if (meta?.propagation === 'self') {
 											for (const info of getParentModuleInfos(id, this)) {
-												let metadata = getOrCreateMetadata(info.id);
+												const metadata = getOrCreateMetadata(info.id);
 												if (metadata.propagation !== 'self') {
 													metadata.propagation = 'in-tree';
 												}

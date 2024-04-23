@@ -176,7 +176,7 @@ export function createGetHeadings(
 		const config = setupConfigSync(userConfig, options);
 		const ast = Markdoc.Ast.fromJSON(stringifiedAst);
 		const content = Markdoc.transform(ast as Node, config as ConfigType);
-		let collectedHeadings: MarkdownHeading[] = [];
+		const collectedHeadings: MarkdownHeading[] = [];
 		collectHeadings(Array.isArray(content) ? content : [content], collectedHeadings);
 		return collectedHeadings;
 	};

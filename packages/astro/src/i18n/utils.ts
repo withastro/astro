@@ -112,7 +112,7 @@ export function computePreferredLocale(request: Request, locales: Locales): stri
 
 export function computePreferredLocaleList(request: Request, locales: Locales): string[] {
 	const acceptHeader = request.headers.get('Accept-Language');
-	let result: string[] = [];
+	const result: string[] = [];
 	if (acceptHeader) {
 		const browserLocaleList = sortAndFilterLocales(parseLocale(acceptHeader), locales);
 

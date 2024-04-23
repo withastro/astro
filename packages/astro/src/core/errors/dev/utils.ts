@@ -153,7 +153,7 @@ See https://docs.astro.build/en/guides/troubleshooting/#document-or-window-is-no
 type StackInfo = Pick<SSRError, 'stack' | 'loc' | 'plugin' | 'pluginCode'>;
 
 function collectInfoFromStacktrace(error: SSRError & { stack: string }): StackInfo {
-	let stackInfo: StackInfo = {
+	const stackInfo: StackInfo = {
 		stack: error.stack,
 		plugin: error.plugin,
 		pluginCode: error.pluginCode,

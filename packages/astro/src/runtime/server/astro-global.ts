@@ -11,7 +11,7 @@ function createAstroGlobFn() {
 				message: AstroErrorData.AstroGlobUsedOutside.message(JSON.stringify(importMetaGlobResult)),
 			});
 		}
-		let allEntries = [...Object.values(importMetaGlobResult)];
+		const allEntries = [...Object.values(importMetaGlobResult)];
 		if (allEntries.length === 0) {
 			throw new AstroError({
 				...AstroErrorData.AstroGlobNoMatch,

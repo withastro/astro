@@ -17,7 +17,7 @@ export function isLocalService(service: ImageService | undefined): service is Lo
 }
 
 export function parseQuality(quality: string): string | number {
-	let result = parseInt(quality);
+	const result = parseInt(quality);
 	if (Number.isNaN(result)) {
 		return quality;
 	}

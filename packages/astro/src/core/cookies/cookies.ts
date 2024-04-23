@@ -109,7 +109,7 @@ class AstroCookies implements AstroCookiesInterface {
 	): AstroCookie | undefined {
 		// Check for outgoing Set-Cookie values first
 		if (this.#outgoing?.has(key)) {
-			let [serializedValue, , isSetValue] = this.#outgoing.get(key)!;
+			const [serializedValue, , isSetValue] = this.#outgoing.get(key)!;
 			if (isSetValue) {
 				return new AstroCookie(serializedValue);
 			} else {
@@ -132,7 +132,7 @@ class AstroCookies implements AstroCookiesInterface {
 	 */
 	has(key: string, options: AstroCookieGetOptions | undefined = undefined): boolean {
 		if (this.#outgoing?.has(key)) {
-			let [, , isSetValue] = this.#outgoing.get(key)!;
+			const [, , isSetValue] = this.#outgoing.get(key)!;
 			return isSetValue;
 		}
 		const values = this.#ensureParsed(options);
@@ -165,7 +165,7 @@ class AstroCookies implements AstroCookiesInterface {
 		} else {
 			// Support stringifying JSON objects for convenience. First check that this is
 			// a plain object and if it is, stringify. If not, allow support for toString() overrides.
-			let toStringValue = value.toString();
+			const toStringValue = value.toString();
 			if (toStringValue === Object.prototype.toString.call(value)) {
 				serializedValue = JSON.stringify(value);
 			} else {

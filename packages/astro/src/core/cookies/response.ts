@@ -11,7 +11,7 @@ export function responseHasCookies(response: Response): boolean {
 }
 
 function getFromResponse(response: Response): AstroCookies | undefined {
-	let cookies = Reflect.get(response, astroCookiesSymbol);
+	const cookies = Reflect.get(response, astroCookiesSymbol);
 	if (cookies != null) {
 		return cookies as AstroCookies;
 	} else {

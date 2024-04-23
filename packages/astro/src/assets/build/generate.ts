@@ -207,7 +207,7 @@ export async function generateImagesForPath(
 			? (options.src as ImageMetadata).src
 			: (options.src as string);
 
-		let resultData: Partial<ImageData> = {
+		const resultData: Partial<ImageData> = {
 			data: undefined,
 			expires: originalImage.expires,
 		};

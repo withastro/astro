@@ -201,7 +201,7 @@ export function* getPageDatasByClientOnlyID(
 
 		// 2. Try prepending /@fs
 		if (!pageBuildDatas) {
-			let pathname = `/@fs${prependForwardSlash(viteid)}`;
+			const pathname = `/@fs${prependForwardSlash(viteid)}`;
 			pageBuildDatas = pagesByClientOnly.get(pathname);
 		}
 
@@ -210,7 +210,7 @@ export function* getPageDatasByClientOnlyID(
 		// We should probably get rid of all `@fs` usage and always fully resolve via Vite,
 		// but this would be a bigger change.
 		if (!pageBuildDatas) {
-			let pathname = `/@fs${prependForwardSlash(removeFileExtension(viteid))}`;
+			const pathname = `/@fs${prependForwardSlash(removeFileExtension(viteid))}`;
 			pageBuildDatas = pagesByClientOnly.get(pathname);
 		}
 		if (pageBuildDatas) {
@@ -302,7 +302,7 @@ interface OrderInfo {
  * and page-specific rules come after.
  */
 export function cssOrder(a: OrderInfo, b: OrderInfo) {
-	let depthA = a.depth,
+	const depthA = a.depth,
 		depthB = b.depth,
 		orderA = a.order,
 		orderB = b.order;

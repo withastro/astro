@@ -88,7 +88,7 @@ declare const Astro: {
 		}
 
 		async childrenConnectedCallback() {
-			let beforeHydrationUrl = this.getAttribute('before-hydration-url');
+			const beforeHydrationUrl = this.getAttribute('before-hydration-url');
 			if (beforeHydrationUrl) {
 				await import(beforeHydrationUrl);
 			}

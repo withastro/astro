@@ -33,7 +33,7 @@ export function getMarkdocTokenizer(options: MarkdocIntegrationOptions | undefin
 
 // create this on-demand when needed since it relies on the runtime MarkdocIntegrationOptions and may change during
 // the life of module in certain scenarios (unit tests, etc.)
-let _cachedMarkdocTokenizers: Record<string, Tokenizer> = {};
+const _cachedMarkdocTokenizers: Record<string, Tokenizer> = {};
 
 function cacheKey(options: MarkdocIntegrationOptions | undefined): string {
 	return JSON.stringify(options);

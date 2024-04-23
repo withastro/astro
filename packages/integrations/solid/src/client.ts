@@ -9,7 +9,7 @@ export default (element: HTMLElement) =>
 		const bootstrap = isHydrate ? hydrate : render;
 
 		let slot: HTMLElement | null;
-		let _slots: Record<string, any> = {};
+		const _slots: Record<string, any> = {};
 		if (Object.keys(slotted).length > 0) {
 			// hydratable
 			if (client !== 'only') {

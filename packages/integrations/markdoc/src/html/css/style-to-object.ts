@@ -48,8 +48,8 @@ export function styleToObject(style, iterator) {
 	}
 
 	let declaration;
-	let declarations = parseInlineStyles(style);
-	let hasIterator = typeof iterator === 'function';
+	const declarations = parseInlineStyles(style);
+	const hasIterator = typeof iterator === 'function';
 	let property;
 	let value;
 

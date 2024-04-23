@@ -36,7 +36,7 @@ function generateTableType(name: string, table: DBTable): string {
 		// appear as queryable fields in the generated types / your codebase.
 		.filter(([, val]) => !val.schema.deprecated);
 	const sanitizedColumns = Object.fromEntries(sanitizedColumnsList);
-	let tableType = `	export const ${name}: import(${RUNTIME_IMPORT}).Table<
+	const tableType = `	export const ${name}: import(${RUNTIME_IMPORT}).Table<
 		${JSON.stringify(name)},
 		${JSON.stringify(sanitizedColumns)}
 	>;`;

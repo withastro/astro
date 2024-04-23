@@ -71,9 +71,9 @@ export function parseInlineStyles(style, options) {
 	 * @param {String} str
 	 */
 	function updatePosition(str) {
-		let lines = str.match(NEWLINE_REGEX);
+		const lines = str.match(NEWLINE_REGEX);
 		if (lines) lineno += lines.length;
-		let i = str.lastIndexOf(NEWLINE);
+		const i = str.lastIndexOf(NEWLINE);
 		column = ~i ? str.length - i : column + str.length;
 	}
 
@@ -83,7 +83,7 @@ export function parseInlineStyles(style, options) {
 	 * @return {Function}
 	 */
 	function position() {
-		let start = { line: lineno, column: column };
+		const start = { line: lineno, column: column };
 		return function (node) {
 			node.position = new Position(start);
 			whitespace();

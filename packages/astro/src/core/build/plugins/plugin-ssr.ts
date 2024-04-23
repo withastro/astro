@@ -49,7 +49,7 @@ function vitePluginSSR(
 						continue;
 					}
 					const virtualModuleName = getVirtualModulePageNameFromPath(ASTRO_PAGE_MODULE_ID, path);
-					let module = await this.resolve(virtualModuleName);
+					const module = await this.resolve(virtualModuleName);
 					if (module) {
 						const variable = `_page${i}`;
 						// we need to use the non-resolved ID in order to resolve correctly the virtual module
@@ -102,7 +102,7 @@ export function pluginSSR(
 		targets: ['server'],
 		hooks: {
 			'build:before': () => {
-				let vitePlugin =
+				const vitePlugin =
 					ssr && functionPerRouteEnabled === false
 						? vitePluginSSR(internals, options.settings.adapter!, options)
 						: undefined;
@@ -170,7 +170,7 @@ function vitePluginSSRSplit(
 
 				const path = getPathFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, id);
 				const virtualModuleName = getVirtualModulePageNameFromPath(ASTRO_PAGE_MODULE_ID, path);
-				let module = await this.resolve(virtualModuleName);
+				const module = await this.resolve(virtualModuleName);
 				if (module) {
 					// we need to use the non-resolved ID in order to resolve correctly the virtual module
 					imports.push(`import * as pageModule from "${virtualModuleName}";`);
@@ -220,7 +220,7 @@ export function pluginSSRSplit(
 		targets: ['server'],
 		hooks: {
 			'build:before': () => {
-				let vitePlugin =
+				const vitePlugin =
 					ssr && functionPerRouteEnabled
 						? vitePluginSSRSplit(internals, options.settings.adapter!, options)
 						: undefined;

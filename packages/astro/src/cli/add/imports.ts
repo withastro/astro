@@ -1,7 +1,7 @@
 import { t, visit } from './babel.js';
 
 export function ensureImport(root: t.File, importDeclaration: t.ImportDeclaration) {
-	let specifiersToFind = [...importDeclaration.specifiers];
+	const specifiersToFind = [...importDeclaration.specifiers];
 
 	visit(root, {
 		ImportDeclaration(path) {

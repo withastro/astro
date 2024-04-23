@@ -61,17 +61,17 @@ function stringifyChunk(
 		switch (instruction.type) {
 			case 'directive': {
 				const { hydration } = instruction;
-				let needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
-				let needsDirectiveScript =
+				const needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
+				const needsDirectiveScript =
 					hydration && determinesIfNeedsDirectiveScript(result, hydration.directive);
 
-				let prescriptType: PrescriptType = needsHydrationScript
+				const prescriptType: PrescriptType = needsHydrationScript
 					? 'both'
 					: needsDirectiveScript
 						? 'directive'
 						: null;
 				if (prescriptType) {
-					let prescripts = getPrescripts(result, prescriptType, hydration.directive);
+					const prescripts = getPrescripts(result, prescriptType, hydration.directive);
 					return markHTMLString(prescripts);
 				} else {
 					return '';

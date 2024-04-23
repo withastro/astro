@@ -56,12 +56,12 @@
         "useShorthandFunctionType": "error"
       },
       "suspicious": {
-        "noEmptyBlockStatements": "error",
-        "noExplicitAny": "error",
+        "noEmptyBlockStatements": "off",
+        "noExplicitAny": "off",
         "noExtraNonNullAssertion": "error",
         "noMisleadingInstantiator": "error",
         "noUnsafeDeclarationMerging": "error",
-        "useAwait": "error",
+        "useAwait": "off",
         "useNamespaceKeyword": "error"
       }
     }

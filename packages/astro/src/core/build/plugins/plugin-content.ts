@@ -301,7 +301,7 @@ function getEntriesFromManifests(
 ): ContentEntries {
 	const { entries: oldEntries } = oldManifest;
 	const { entries: newEntries } = newManifest;
-	let entries: ContentEntries = { restoreFromCache: [], buildFromSource: [] };
+	const entries: ContentEntries = { restoreFromCache: [], buildFromSource: [] };
 
 	const newEntryMap = new Map<ContentManifestKey, string>(newEntries);
 	if (manifestState(oldManifest, newManifest) !== 'valid') {
@@ -357,7 +357,7 @@ async function generateContentManifest(
 	opts: StaticBuildOptions,
 	lookupMap: ContentLookupMap
 ): Promise<ContentManifest> {
-	let manifest = createContentManifest();
+	const manifest = createContentManifest();
 	manifest.version = CONTENT_MANIFEST_VERSION;
 	const limit = pLimit(10);
 	const promises: Promise<void>[] = [];

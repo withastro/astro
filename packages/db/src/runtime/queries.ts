@@ -52,7 +52,7 @@ export function getCreateTableQuery(tableName: string, table: DBTable) {
 }
 
 export function getCreateIndexQueries(tableName: string, table: Pick<DBTable, 'indexes'>) {
-	let queries: string[] = [];
+	const queries: string[] = [];
 	for (const [indexName, indexProps] of Object.entries(table.indexes ?? {})) {
 		const onColNames = asArray(indexProps.on);
 		const onCols = onColNames.map((colName) => sqlite.escapeName(colName));
@@ -67,7 +67,7 @@ export function getCreateIndexQueries(tableName: string, table: Pick<DBTable, 'i
 }
 
 export function getCreateForeignKeyQueries(tableName: string, table: DBTable) {
-	let queries: string[] = [];
+	const queries: string[] = [];
 	for (const foreignKey of table.foreignKeys ?? []) {
 		const columns = asArray(foreignKey.columns);
 		const references = asArray(foreignKey.references);

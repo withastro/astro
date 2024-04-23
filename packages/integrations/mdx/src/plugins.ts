@@ -41,7 +41,7 @@ export function createMdxProcessor(mdxOptions: MdxOptions, extraOptions: MdxProc
 }
 
 function getRemarkPlugins(mdxOptions: MdxOptions): PluggableList {
-	let remarkPlugins: PluggableList = [];
+	const remarkPlugins: PluggableList = [];
 
 	if (!isPerformanceBenchmark) {
 		if (mdxOptions.gfm) {
@@ -58,7 +58,7 @@ function getRemarkPlugins(mdxOptions: MdxOptions): PluggableList {
 }
 
 function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
-	let rehypePlugins: PluggableList = [
+	const rehypePlugins: PluggableList = [
 		// ensure `data.meta` is preserved in `properties.metastring` for rehype syntax highlighters
 		rehypeMetaString,
 		// rehypeRaw allows custom syntax highlighters to work without added config

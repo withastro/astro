@@ -46,14 +46,14 @@ let viewTransitionFinished: () => void;
 const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
 const onPageLoad = () => triggerEvent('astro:page-load');
 const announce = () => {
-	let div = document.createElement('div');
+	const div = document.createElement('div');
 	div.setAttribute('aria-live', 'assertive');
 	div.setAttribute('aria-atomic', 'true');
 	div.className = 'astro-route-announcer';
 	document.body.append(div);
 	setTimeout(
 		() => {
-			let title = document.title || document.querySelector('h1')?.textContent || location.pathname;
+			const title = document.title || document.querySelector('h1')?.textContent || location.pathname;
 			div.textContent = title;
 		},
 		// Much thought went into this magic number; the gist is that screen readers

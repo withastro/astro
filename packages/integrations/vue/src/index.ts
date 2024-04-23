@@ -94,7 +94,7 @@ export const setup = async (app) => {
 }
 
 async function getViteConfiguration(options?: Options): Promise<UserConfig> {
-	let vueOptions = {
+	const vueOptions = {
 		...options,
 		template: {
 			...options?.template,
