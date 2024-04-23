@@ -45,6 +45,7 @@ async function snapShotTest() {
 
 	const code = await promisifySpawn(process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm', args, {
 		stdio: 'inherit',
+		shell: true,
 	});
 
 	if (code > 0) {
