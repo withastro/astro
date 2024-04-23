@@ -501,6 +501,70 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0(@types/node@18.19.31)
 
+  packages/actions:
+    dependencies:
+      astro-integration-kit:
+        specifier: ^0.11.0
+        version: 0.11.0(astro@packages+astro)
+      zod:
+        specifier: ^3.23.0
+        version: 3.23.0
+    devDependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../astro
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../scripts
+      typescript:
+        specifier: ^5.4.5
+        version: 5.4.5
+
+  packages/actions/test/fixtures/basics:
+    dependencies:
+      '@astrojs/actions':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/check':
+        specifier: ^0.5.10
+        version: 0.5.10(prettier-plugin-astro@0.13.0)(prettier@3.2.5)(typescript@5.4.5)
+      '@astrojs/db':
+        specifier: ^0.10.5
+        version: link:../../../../db
+      '@astrojs/mdx':
+        specifier: ^2.3.1
+        version: link:../../../../integrations/mdx
+      '@astrojs/node':
+        specifier: ^8.2.5
+        version: link:../../../../integrations/node
+      '@astrojs/react':
+        specifier: ^3.3.0
+        version: link:../../../../integrations/react
+      '@astrojs/rss':
+        specifier: ^4.0.5
+        version: link:../../../../astro-rss
+      '@astrojs/sitemap':
+        specifier: ^3.1.4
+        version: link:../../../../integrations/sitemap
+      '@types/react':
+        specifier: ^18.2.79
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: ^18.2.25
+        version: 18.2.25
+      astro:
+        specifier: ^4.6.3
+        version: link:../../../../astro
+      react:
+        specifier: 18.3.0-canary-670811593-20240322
+        version: 18.3.0-canary-670811593-20240322
+      react-dom:
+        specifier: 18.3.0-canary-670811593-20240322
+        version: 18.3.0-canary-670811593-20240322(react@18.3.0-canary-670811593-20240322)
+      typescript:
+        specifier: ^5.4.5
+        version: 5.4.5
+
   packages/astro:
     dependencies:
       '@astrojs/compiler':
@@ -8071,13 +8135,14 @@ packages:
   /@types/react-dom@18.2.25:
     resolution: {integrity: sha512-o/V48vf4MQh7juIKZU2QGDfli6p1+OOi5oXx36Hffpc9adsHeXjVp8rHuPkjd8VT8sOJ2Zp05HR7CdpGTIUFUA==}
     dependencies:
-      '@types/react': 18.2.78
+      '@types/react': 18.2.79
 
   /@types/react@18.2.78:
     resolution: {integrity: sha512-qOwdPnnitQY4xKlKayt42q5W5UQrSHjgoXNVEtxeqdITJ99k4VXJOP3vt8Rkm9HmgJpH50UNU+rlqfkfWOqp0A==}
     dependencies:
       '@types/prop-types': 15.7.12
       csstype: 3.1.3
+    dev: false
 
   /@types/react@18.2.79:
     resolution: {integrity: sha512-RwGAGXPl9kSXwdNTafkOEuFrTBD5SA2B3iEB96xi8+xu5ddUa/cpvyVCSNn+asgLCTHkb5ZxN8gbuibYJi4s1w==}
@@ -8963,6 +9028,13 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
+  /ast-types@0.16.1:
+    resolution: {integrity: sha512-6t10qk83GOG8p0vKmaCr8eiilZwO171AvbROMtvvNiwrTly62t+7XkA8RdIIVbpMhCASAsxgAzdRSwh6nw/5Dg==}
+    engines: {node: '>=4'}
+    dependencies:
+      tslib: 2.6.2
+    dev: false
+
   /astring@1.8.6:
     resolution: {integrity: sha512-ISvCdHdlTDlH5IpxQJIex7BWBywFWgjJSVdwst+/iQCoEYnyOaQ95+X1JGshuBjGp6nxKUy1jMgE3zPqN7fQdg==}
     hasBin: true
@@ -8989,6 +9061,41 @@ packages:
       '@astro-community/astro-embed-vimeo': 0.3.7(astro@packages+astro)
       '@astro-community/astro-embed-youtube': 0.5.2(astro@packages+astro)
       astro: link:packages/astro
+    dev: false
+
+  /astro-integration-kit@0.11.0(astro@packages+astro):
+    resolution: {integrity: sha512-P41igJUY63W6iWq6Rtw0FnERVUdJhkpAa9jothRQ+AXl56B/6PMes/jcYPo3Zr6KwlMPT8TOHMoasHL0CfqglQ==}
+    peerDependencies:
+      '@astrojs/db': ^0.9.0
+      '@vitejs/plugin-react': ^4.2.1
+      astro: '*'
+      preact: ^10.19.4
+      react: ^18.2.0
+      react-dom: ^18.2.0
+      solid-js: ^1.8.15
+      svelte: ^4.2.11
+      vue: ^3.4.19
+    peerDependenciesMeta:
+      '@astrojs/db':
+        optional: true
+      '@vitejs/plugin-react':
+        optional: true
+      preact:
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+      solid-js:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
+    dependencies:
+      astro: link:packages/astro
+      pathe: 1.1.2
+      recast: 0.23.6
     dev: false
 
   /astro-remote@0.2.4:
@@ -14461,6 +14568,18 @@ packages:
       react: 18.2.0
       scheduler: 0.23.0
 
+  /react-dom@18.3.0-canary-670811593-20240322(react@18.3.0-canary-670811593-20240322):
+    resolution: {integrity: sha512-AHxCnyDzZueXIHY4WA2Uba1yaL7/vbjhO3D3TWPQeruKD5MwgD0/xExZi0T104gBr6Thv6MEsLSxFjBAHhHKKg==}
+    peerDependencies:
+      react: 18.3.0-canary-670811593-20240322
+    peerDependenciesMeta:
+      react:
+        optional: true
+    dependencies:
+      react: 18.3.0-canary-670811593-20240322
+      scheduler: 0.24.0-canary-670811593-20240322
+    dev: false
+
   /react-is@18.2.0:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: false
@@ -14475,6 +14594,11 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
+
+  /react@18.3.0-canary-670811593-20240322:
+    resolution: {integrity: sha512-EI6+q3tOT+0z4OkB2sz842Ra/n/yz7b3jOJhSK1HQwi4Ng29VJzLGngWmSuxQ94YfdE3EBhpUKDfgNgzoKM9Vg==}
+    engines: {node: '>=0.10.0'}
+    dev: false
 
   /read-cache@1.0.0:
     resolution: {integrity: sha512-Owdv/Ft7IjOgm/i0xvNDZ1LrRANRfew4b2prF3OWMQLxLfu3bS8FVhCsrSCMK4lR56Y9ya+AThoTpDCTxCmpRA==}
@@ -14527,6 +14651,17 @@ packages:
 
   /reading-time@1.5.0:
     resolution: {integrity: sha512-onYyVhBNr4CmAxFsKS7bz+uTLRakypIe4R+5A824vBSkQy/hB3fZepoVEf8OVAxzLvK+H/jm9TzpI3ETSm64Kg==}
+
+  /recast@0.23.6:
+    resolution: {integrity: sha512-9FHoNjX1yjuesMwuthAmPKabxYQdOgihFYmT5ebXfYGBcnqXZf3WOVz+5foEZ8Y83P4ZY6yQD5GMmtV+pgCCAQ==}
+    engines: {node: '>= 4'}
+    dependencies:
+      ast-types: 0.16.1
+      esprima: 4.0.1
+      source-map: 0.6.1
+      tiny-invariant: 1.3.3
+      tslib: 2.6.2
+    dev: false
 
   /redent@3.0.0:
     resolution: {integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==}
@@ -14968,6 +15103,10 @@ packages:
     resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==}
     dependencies:
       loose-envify: 1.4.0
+
+  /scheduler@0.24.0-canary-670811593-20240322:
+    resolution: {integrity: sha512-IGX6Fq969h1L0X7jV0sJ/EdI4fr+mRetbBNJl55nn+/RsCuQSVwgKnZG6Q3NByixDNbkRI8nRmWuhOm8NQowGQ==}
+    dev: false
 
   /scslre@0.3.0:
     resolution: {integrity: sha512-3A6sD0WYP7+QrjbfNA2FN3FsOaGGFoekCVgTyypy53gPxhbkCIjtO6YWgdrfM+n/8sI8JeXZOIxsHjMTNxQ4nQ==}
@@ -15811,6 +15950,10 @@ packages:
       globalyzer: 0.1.0
       globrex: 0.1.2
     dev: true
+
+  /tiny-invariant@1.3.3:
+    resolution: {integrity: sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==}
+    dev: false
 
   /tinybench@2.7.0:
     resolution: {integrity: sha512-Qgayeb106x2o4hNzNjsZEfFziw8IbKqtbXBjVh7VIZfBxfD5M4gWtpyx5+YTae2gJ6Y6Dz/KLepiv16RFeQWNA==}
