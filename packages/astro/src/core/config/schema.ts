@@ -396,7 +396,7 @@ export const AstroConfigSchema = z.object({
 							})
 							.refine(
 								({ prefixDefaultLocale, redirectToDefaultLocale }) => {
-									return !(prefixDefaultLocale === false && redirectToDefaultLocale === false);
+									return !(prefixDefaultLocale === false && redirectToDefaultLocale === true);
 								},
 								{
 									message:

@@ -211,7 +211,7 @@ describe('Config Validation', () => {
 						locales: ['es', 'en'],
 						routing: {
 							prefixDefaultLocale: false,
-							redirectToDefaultLocale: false,
+							redirectToDefaultLocale: true,
 						},
 					},
 				},
