@@ -2614,6 +2614,11 @@ export interface APIContext<
 	redirect: AstroSharedContext['redirect'];
 
 	/**
+	 * TODO: docs
+	 */
+	reroute: AstroSharedContext['reroute'];
+
+	/**
 	 * An object that middlewares can use to store extra information related to the request.
 	 *
 	 * It will be made available to pages as `Astro.locals`, and to endpoints as `context.locals`.

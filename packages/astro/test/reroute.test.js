@@ -165,3 +165,36 @@ describe('SSR reroute', () => {
 		assert.equal($('h1').text(), 'Index');
 	});
 });
+
+describe('Middleware', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/reroute/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('should render a locals populated in the third middleware function, because we use next("/")', async () => {
+		const html = await fixture.fetch('/auth/base').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Index');
+		assert.equal($('p').text(), 'Called auth');
+	});
+
+	it('should NOT render locals populated in the third middleware function, because we use ctx.reroute("/")', async () => {
+		const html = await fixture.fetch('/auth/dashboard').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Index');
+		assert.equal($('p').text(), '');
+	});
+});

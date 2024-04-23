@@ -4,5 +4,6 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	experimental: {
 		rerouting: true
-	}
+	},
+	site: "https://example.com"
 });

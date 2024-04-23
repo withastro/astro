@@ -43,13 +43,17 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 export async function callMiddleware(
 	onRequest: MiddlewareHandler,
 	apiContext: APIContext,
-	responseFunction: (reroutePayload?: ReroutePayload) => Promise<Response> | Response
+	responseFunction: (
+		apiContext: APIContext,
+		reroutePayload?: ReroutePayload
+	) => Promise<Response> | Response
 ): Promise<Response> {
 	let nextCalled = false;
 	let responseFunctionPromise: Promise<Response> | Response | undefined = undefined;
 	const next: MiddlewareNext = async (payload) => {
 		nextCalled = true;
-		responseFunctionPromise = responseFunction(payload);
+		// We need to pass the APIContext pass to `callMiddleware` because it can be mutated across middleware functions
+		responseFunctionPromise = responseFunction(apiContext, payload);
 		return responseFunctionPromise;
 	};
 
