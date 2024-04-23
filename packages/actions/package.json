@@ -23,9 +23,9 @@
       "types": "./dist/runtime/config.d.ts",
       "import": "./dist/runtime/config.js"
     },
-    "./errors": {
-      "types": "./dist/runtime/errors.d.ts",
-      "import": "./dist/runtime/errors.js"
+    "./virtual": {
+      "types": "./dist/runtime/virtual.d.ts",
+      "import": "./dist/runtime/virtual.js"
     },
     "./route.js": "./dist/runtime/route.js",
     "./middleware.js": "./dist/runtime/middleware.js"

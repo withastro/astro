@@ -5,3 +5,7 @@ declare namespace App {
 		) => Promise<Awaited<ReturnType<T>> | undefined>;
 	}
 }
+
+declare module 'astro:actions' {
+	export * from '@astrojs/actions/virtual';
+}

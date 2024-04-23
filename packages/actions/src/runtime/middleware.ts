@@ -1,6 +1,6 @@
 import { defineMiddleware } from 'astro:middleware';
 import { ApiContextStorage, formContentTypes, getAction } from './utils.js';
-import { ActionError } from './errors.js';
+import { ActionError } from './virtual.js';
 
 export const onRequest = defineMiddleware(async (context, next) => {
 	context.locals.getActionResult = (action) => Promise.resolve(undefined);

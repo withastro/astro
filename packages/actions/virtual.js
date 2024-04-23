@@ -1,6 +1,6 @@
-import { ActionError, ValidationError } from '@astrojs/actions/errors';
+import { ActionError, ValidationError } from '@astrojs/actions/virtual';
 
-export * from '@astrojs/actions/errors';
+export * from '@astrojs/actions/virtual';
 
 function toActionProxy(
 	actionCallback = {},
