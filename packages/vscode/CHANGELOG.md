@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.8.6
+
+### Patch Changes
+
+- 85a47b3: Fixes commenting shortcut not using the proper comments inside expressions in certain cases
+
 ## 2.8.5
 
 ### Patch Changes
