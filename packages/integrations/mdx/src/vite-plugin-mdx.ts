@@ -3,9 +3,9 @@ import { setVfileFrontmatter } from '@astrojs/markdown-remark';
 import type { AstroConfig, SSRError } from 'astro';
 import { VFile } from 'vfile';
 import type { Plugin } from 'vite';
+import type { MdxOptions } from './index.js';
 import { createMdxProcessor } from './plugins.js';
 import { getFileInfo, parseFrontmatter } from './utils.js';
-import type { MdxOptions } from './index.js';
 
 export function vitePluginMdx(astroConfig: AstroConfig, mdxOptions: MdxOptions): Plugin {
 	let processor: ReturnType<typeof createMdxProcessor> | undefined;
