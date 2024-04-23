@@ -1,5 +1,15 @@
 # @astrojs/markdoc
 
+## 0.11.0
+
+### Minor Changes
+
+- [#10833](https://github.com/withastro/astro/pull/10833) [`8d5f3e8`](https://github.com/withastro/astro/commit/8d5f3e8656027023f9fda51c66b0213ffe16d3a5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `@markdoc/markdoc` to v0.4
+
+### Patch Changes
+
+- [#10833](https://github.com/withastro/astro/pull/10833) [`8d5f3e8`](https://github.com/withastro/astro/commit/8d5f3e8656027023f9fda51c66b0213ffe16d3a5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `esbuild` dependency to v0.20. This should not affect projects in most cases.
+
 ## 0.10.0
 
 ### Minor Changes
