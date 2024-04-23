@@ -116,7 +116,7 @@ export function error(opts: LogOptions, label: string | null, message: string, n
 type LogFn = typeof info | typeof warn | typeof error;
 
 export function table(opts: LogOptions, columns: number[]) {
-	return function logTable(logFn: LogFn, ...input: Array<any>) {
+	return function logTable(logFn: LogFn, ...input: any[]) {
 		const message = columns.map((len, i) => padStr(input[i].toString(), len)).join(' ');
 		logFn(opts, null, message);
 	};

@@ -60,5 +60,5 @@ async function init({ cwd }: { cwd: string }) {
 			],
 			{ cwd, stdio: 'ignore' }
 		);
-	} catch (e) {}
+	} catch (_e) {}
 }

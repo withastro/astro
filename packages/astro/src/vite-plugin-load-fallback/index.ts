@@ -27,14 +27,14 @@ export default function loadFallbackPlugin({
 		try {
 			// await is necessary for the catch
 			return await fs.promises.readFile(cleanUrl(id), 'utf-8');
-		} catch (e) {
+		} catch (_e) {
 			try {
 				return await fs.promises.readFile(id, 'utf-8');
-			} catch (e2) {
+			} catch (_e2) {
 				try {
 					const fullpath = new URL('.' + id, root);
 					return await fs.promises.readFile(fullpath, 'utf-8');
-				} catch (e3) {
+				} catch (_e3) {
 					// Let fall through to the next
 				}
 			}

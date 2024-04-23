@@ -35,7 +35,7 @@ export function parseLocale(header: string): BrowserLocale[] {
 		}
 
 		// we check if the quality value is present, and it is actually `q=`
-		if (qualityValue && qualityValue.startsWith('q=')) {
+		if (qualityValue?.startsWith('q=')) {
 			const qualityValueAsFloat = Number.parseFloat(qualityValue.slice('q='.length));
 			// The previous operation can return a `NaN`, so we check if it is a safe operation
 			if (Number.isNaN(qualityValueAsFloat) || qualityValueAsFloat > 1) {

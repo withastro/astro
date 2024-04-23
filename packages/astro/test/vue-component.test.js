@@ -34,7 +34,7 @@ describe.skip('Vue component build', { todo: 'This test currently times out, inv
 		assert.equal($('my-button').length, 7);
 
 		// test 5: components with identical render output and props have been deduplicated
-		const uniqueRootUIDs = $('astro-island').map((i, el) => $(el).attr('uid'));
+		const uniqueRootUIDs = $('astro-island').map((_i, el) => $(el).attr('uid'));
 		assert.equal(new Set(uniqueRootUIDs).size, 5);
 
 		// test 6: import public files work

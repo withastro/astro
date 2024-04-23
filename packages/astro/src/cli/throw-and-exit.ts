@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { isAstroConfigZodError } from '../core/errors/errors.js';
 import { createSafeError } from '../core/errors/index.js';
@@ -10,8 +9,9 @@ import { eventError, telemetry } from '../events/index.js';
 export async function throwAndExit(cmd: string, err: unknown) {
 	// Suppress ZodErrors from AstroConfig as the pre-logged error is sufficient
 	if (isAstroConfigZodError(err)) return;
-
+	// biome-ignore lint/style/useConst: false positive https://github.com/biomejs/biome/issues/2575
 	let telemetryPromise: Promise<any>;
+	// biome-ignore lint/style/useConst: false positive https://github.com/biomejs/biome/issues/2575
 	let errorMessage: string;
 	function exitWithErrorMessage() {
 		console.error(errorMessage);

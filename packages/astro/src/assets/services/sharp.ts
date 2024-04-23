@@ -28,7 +28,7 @@ async function loadSharp() {
 	let sharpImport: typeof import('sharp');
 	try {
 		sharpImport = (await import('sharp')).default;
-	} catch (e) {
+	} catch (_e) {
 		throw new AstroError(AstroErrorData.MissingSharp);
 	}
 

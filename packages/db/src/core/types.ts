@@ -69,7 +69,7 @@ export interface TableConfig<TColumns extends ColumnsConfig = ColumnsConfig>
 		columns: MaybeArray<Extract<keyof TColumns, string>>;
 		references: () => MaybeArray<z.input<typeof referenceableColumnSchema>>;
 	}>;
-	indexes?: Array<IndexConfig<TColumns>> | Record<string, LegacyIndexConfig<TColumns>>;
+	indexes?: IndexConfig<TColumns>[] | Record<string, LegacyIndexConfig<TColumns>>;
 	deprecated?: boolean;
 }
 

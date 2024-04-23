@@ -31,7 +31,7 @@ describe('Assets Prefix Multiple CDN - Static', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		const stylesheets = $('link[rel="stylesheet"]');
-		stylesheets.each((i, el) => {
+		stylesheets.each((_i, el) => {
 			assert.match(el.attribs.href, cssAssetsPrefixRegex);
 		});
 	});
@@ -62,7 +62,7 @@ describe('Assets Prefix Multiple CDN - Static', () => {
 		const html = await fixture.readFile('/markdown/index.html');
 		const $ = cheerio.load(html);
 		const imgAssets = $('img');
-		imgAssets.each((i, el) => {
+		imgAssets.each((_i, el) => {
 			assert.match(el.attribs.src, defaultAssetsPrefixRegex);
 		});
 	});
@@ -98,7 +98,7 @@ describe('Assets Prefix Multiple CDN, server', () => {
 		const html = await response.text();
 		const $ = cheerio.load(html);
 		const stylesheets = $('link[rel="stylesheet"]');
-		stylesheets.each((i, el) => {
+		stylesheets.each((_i, el) => {
 			assert.match(el.attribs.href, cssAssetsPrefixRegex);
 		});
 	});

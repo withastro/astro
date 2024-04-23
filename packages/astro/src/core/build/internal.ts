@@ -327,9 +327,9 @@ export function cssOrder(a: OrderInfo, b: OrderInfo) {
 }
 
 export function mergeInlineCss(
-	acc: Array<StylesheetAsset>,
+	acc: StylesheetAsset[],
 	current: StylesheetAsset
-): Array<StylesheetAsset> {
+): StylesheetAsset[] {
 	const lastAdded = acc.at(acc.length - 1);
 	const lastWasInline = lastAdded?.type === 'inline';
 	const currentIsInline = current?.type === 'inline';

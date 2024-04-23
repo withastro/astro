@@ -62,8 +62,7 @@ export function getNetworkAddress(
 		.flatMap((nInterface) => nInterface ?? [])
 		.filter(
 			(detail) =>
-				detail &&
-				detail.address &&
+				detail?.address &&
 				(detail.family === 'IPv4' ||
 					// @ts-expect-error Node 18.0 - 18.3 returns number
 					detail.family === 4)

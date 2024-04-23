@@ -37,7 +37,7 @@ export async function getPackage<T>(
 		await tryResolve(packageName, options.cwd ?? process.cwd());
 		const packageImport = await import(packageName);
 		return packageImport as T;
-	} catch (e) {
+	} catch (_e) {
 		if (options.optional) return undefined;
 		let message = `To continue, Astro requires the following dependency to be installed: ${bold(
 			packageName

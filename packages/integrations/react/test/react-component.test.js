@@ -46,7 +46,7 @@ describe('React Components', () => {
 			assert.equal($('astro-island[uid]').length, 9);
 
 			// test 9: Check island deduplication
-			const uniqueRootUIDs = new Set($('astro-island').map((i, el) => $(el).attr('uid')));
+			const uniqueRootUIDs = new Set($('astro-island').map((_i, el) => $(el).attr('uid')));
 			assert.equal(uniqueRootUIDs.size, 8);
 
 			// test 10: Should properly render children passed as props

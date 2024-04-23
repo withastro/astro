@@ -1636,7 +1636,7 @@ export interface AstroUserConfig {
 		domains?: Record<string, string>;
 	};
 
-	/** ⚠️ WARNING: SUBJECT TO CHANGE */
+	/** ! WARNING: SUBJECT TO CHANGE */
 	db?: Config.Database;
 
 	/**
@@ -3045,7 +3045,7 @@ declare global {
 		'astro-dev-overlay-icon': DevToolbarIcon;
 		'astro-dev-overlay-card': DevToolbarCard;
 	}
-	// eslint-disable-next-line @typescript-eslint/no-namespace
+	// biome-ignore lint/style/noNamespace: use case allowed
 	namespace Config {
 		type Database = Record<string, any>;
 	}

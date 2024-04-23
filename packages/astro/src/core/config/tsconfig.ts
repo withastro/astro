@@ -53,7 +53,7 @@ export const presets = new Map<frameworkWithTSSettings, TSConfig>([
 	],
 ]);
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// biome-ignore lint/complexity/noBannedTypes: use case allowed
 type TSConfigResult<T = {}> = Promise<
 	(TSConfckParseResult & T) | 'invalid-config' | 'missing-config' | 'unknown-error'
 >;
@@ -177,7 +177,7 @@ export type StripEnums<T extends Record<string, any>> = {
 			? T[K]
 			: T[K] extends object
 				? T[K]
-				: T[K] extends Array<any>
+				: T[K] extends any[]
 					? T[K]
 					: T[K] extends undefined
 						? undefined

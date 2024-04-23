@@ -22,7 +22,7 @@ describe('Assets Prefix - Static', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		const stylesheets = $('link[rel="stylesheet"]');
-		stylesheets.each((i, el) => {
+		stylesheets.each((_i, el) => {
 			assert.match(el.attribs.href, assetsPrefixRegex);
 		});
 	});
@@ -53,7 +53,7 @@ describe('Assets Prefix - Static', () => {
 		const html = await fixture.readFile('/markdown/index.html');
 		const $ = cheerio.load(html);
 		const imgAssets = $('img');
-		imgAssets.each((i, el) => {
+		imgAssets.each((_i, el) => {
 			assert.match(el.attribs.src, assetsPrefixRegex);
 		});
 	});
@@ -83,7 +83,7 @@ describe('Assets Prefix - with path prefix', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		const stylesheets = $('link[rel="stylesheet"]');
-		stylesheets.each((i, el) => {
+		stylesheets.each((_i, el) => {
 			assert.match(el.attribs.href, /^\/starting-slash\/.*/);
 		});
 	});
@@ -109,7 +109,7 @@ describe('Assets Prefix, server', () => {
 		const html = await response.text();
 		const $ = cheerio.load(html);
 		const stylesheets = $('link[rel="stylesheet"]');
-		stylesheets.each((i, el) => {
+		stylesheets.each((_i, el) => {
 			assert.match(el.attribs.href, assetsPrefixRegex);
 		});
 	});
@@ -169,7 +169,7 @@ describe('Assets Prefix, with path prefix', () => {
 		const html = await response.text();
 		const $ = cheerio.load(html);
 		const stylesheets = $('link[rel="stylesheet"]');
-		stylesheets.each((i, el) => {
+		stylesheets.each((_i, el) => {
 			assert.match(el.attribs.href, /^\/starting-slash\/.*/);
 		});
 	});

@@ -321,9 +321,9 @@ async function getPathsForRoute(
 	mod: ComponentInstance,
 	pipeline: BuildPipeline,
 	builtPaths: Set<string>
-): Promise<Array<string>> {
+): Promise<string[]> {
 	const { logger, options, routeCache, serverLike } = pipeline;
-	let paths: Array<string> = [];
+	let paths: string[] = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
 		builtPaths.add(removeTrailingForwardSlash(route.pathname));
@@ -342,7 +342,7 @@ async function getPathsForRoute(
 		const label = staticPaths.length === 1 ? 'page' : 'pages';
 		logger.debug(
 			'build',
-			`├── ${bold(green('✔'))} ${route.component} → ${magenta(`[${staticPaths.length} ${label}]`)}`
+			`├── ${bold(green('√'))} ${route.component} → ${magenta(`[${staticPaths.length} ${label}]`)}`
 		);
 
 		paths = staticPaths
@@ -409,14 +409,6 @@ function getInvalidRouteSegmentError(
 			: `Generated path for ${route.route} is invalid.`,
 		hint,
 	});
-}
-
-interface GeneratePathOptions {
-	pageData: PageBuildData;
-	linkIds: string[];
-	scripts: { type: 'inline' | 'external'; value: string } | null;
-	styles: StylesheetAsset[];
-	mod: ComponentInstance;
 }
 
 function addPageName(pathname: string, opts: StaticBuildOptions): void {

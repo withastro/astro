@@ -30,7 +30,7 @@ export default function astroScannerPlugin({
 			let fileURL: URL;
 			try {
 				fileURL = new URL(`file://${filename}`);
-			} catch (e) {
+			} catch (_e) {
 				// If we can't construct a valid URL, exit early
 				return;
 			}

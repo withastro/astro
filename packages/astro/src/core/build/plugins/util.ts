@@ -1,7 +1,7 @@
 import { extname } from 'node:path';
 import type { BuildOptions, Rollup, Plugin as VitePlugin } from 'vite';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// biome-ignore lint/complexity/noBannedTypes: use case allowed
 type OutputOptionsHook = Extract<VitePlugin['outputOptions'], Function>;
 type OutputOptions = Parameters<OutputOptionsHook>[0];
 

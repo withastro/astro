@@ -28,7 +28,7 @@ if (props.alt === undefined || props.alt === null) {
 }
 
 const originalSrc = await resolveSrc(props.src);
-const optimizedImages: GetImageResult[] = await Promise.all(
+const _optimizedImages: GetImageResult[] = await Promise.all(
 	formats.map(
 		async (format) =>
 			await getImage({
@@ -45,7 +45,7 @@ let resultFallbackFormat = fallbackFormat ?? defaultFallbackFormat;
 if (
 	!fallbackFormat &&
 	isESMImportedImage(originalSrc) &&
-	(specialFormatsFallback as ReadonlyArray<string>).includes(originalSrc.format)
+	(specialFormatsFallback as readonly string[]).includes(originalSrc.format)
 ) {
 	resultFallbackFormat = originalSrc.format;
 }

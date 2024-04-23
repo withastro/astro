@@ -346,7 +346,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 		let resolved: string;
 		try {
 			resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
-		} catch (e) {
+		} catch (_e) {
 			resolved = fileURLToPath(new URL(entrypoint, config.root));
 		}
 		const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
@@ -487,7 +487,7 @@ function isStaticSegment(segment: RoutePart[]) {
  *   For example, `/foo/[bar]` and `/foo/[baz]` or `/foo/[...bar]` and `/foo/[...baz]`
  *     but not `/foo/[bar]` and `/foo/[...baz]`.
  */
-function detectRouteCollision(a: RouteData, b: RouteData, config: AstroConfig, logger: Logger) {
+function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, logger: Logger) {
 	if (a.type === 'fallback' || b.type === 'fallback') {
 		// If either route is a fallback route, they don't collide.
 		// Fallbacks are always added below other routes exactly to avoid collisions.
@@ -713,21 +713,16 @@ export function createRouteManifest(
 					}
 
 					for (const fallbackToRoute of fallbackToRoutes) {
-						const hasRoute =
-							fallbackFromRoutes &&
-							// we check if the fallback from locale (the origin) has already this route
-							fallbackFromRoutes.some((route) => {
-								if (fallbackToLocale === i18n.defaultLocale) {
-									return (
-										route.route.replace(`/${fallbackFromLocale}`, '') === fallbackToRoute.route
-									);
-								} else {
-									return (
-										route.route.replace(`/${fallbackToLocale}`, `/${fallbackFromLocale}`) ===
-										fallbackToRoute.route
-									);
-								}
-							});
+						const hasRoute = fallbackFromRoutes?.some((route) => {
+							if (fallbackToLocale === i18n.defaultLocale) {
+								return route.route.replace(`/${fallbackFromLocale}`, '') === fallbackToRoute.route;
+							} else {
+								return (
+									route.route.replace(`/${fallbackToLocale}`, `/${fallbackFromLocale}`) ===
+									fallbackToRoute.route
+								);
+							}
+						});
 
 						if (!hasRoute) {
 							let pathname: string | undefined;

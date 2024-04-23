@@ -19,7 +19,7 @@ async function loadRemoteImage(src: URL, headers: Headers) {
 		}
 
 		return await res.arrayBuffer();
-	} catch (err: unknown) {
+	} catch (_err: unknown) {
 		return undefined;
 	}
 }

@@ -17,7 +17,7 @@ export function closeOnOutsideClick(
 		if (!target) return;
 		if (!target.closest) return;
 		if (target.closest('astro-dev-toolbar')) return;
-		if (additionalCheck && additionalCheck(target)) return;
+		if (additionalCheck?.(target)) return;
 		eventTarget.dispatchEvent(
 			new CustomEvent('toggle-app', {
 				detail: {

@@ -26,7 +26,7 @@ const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
 export const SSR_MANIFEST_VIRTUAL_MODULE_ID = '@astrojs-manifest';
 export const RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID = '\0' + SSR_MANIFEST_VIRTUAL_MODULE_ID;
 
-function vitePluginManifest(options: StaticBuildOptions, internals: BuildInternals): VitePlugin {
+function vitePluginManifest(_options: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/plugin-build-manifest',
 		enforce: 'post',

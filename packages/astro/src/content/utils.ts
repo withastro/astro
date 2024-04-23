@@ -349,6 +349,7 @@ export async function loadContentConfig({
 	viteServer: ViteDevServer;
 }): Promise<ContentConfig | undefined> {
 	const contentPaths = getContentPaths(settings.config, fs);
+	// biome-ignore lint/style/useConst: false positive https://github.com/biomejs/biome/issues/2575
 	let unparsedConfig;
 	if (!contentPaths.config.exists) {
 		return undefined;

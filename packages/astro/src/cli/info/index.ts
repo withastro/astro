@@ -21,7 +21,7 @@ export async function getInfoOutput({
 	userConfig: AstroUserConfig | AstroConfig;
 	print: boolean;
 }): Promise<string> {
-	const rows: Array<[string, string | string[]]> = [
+	const rows: [string, string | string[]][] = [
 		['Astro', `v${ASTRO_VERSION}`],
 		['Node', process.version],
 		['System', getSystem()],
@@ -71,7 +71,7 @@ async function copyToClipboard(text: string) {
 				return;
 			}
 			command = 'xclip -sel clipboard -l 1';
-		} catch (e) {
+		} catch (_e) {
 			// Did not find xclip, bail out!
 			return;
 		}
@@ -91,7 +91,7 @@ async function copyToClipboard(text: string) {
 			input: text.trim(),
 			encoding: 'utf8',
 		});
-	} catch (e) {
+	} catch (_e) {
 		console.error(
 			colors.red(`\nSorry, something went wrong!`) + ` Please copy the text above manually.`
 		);

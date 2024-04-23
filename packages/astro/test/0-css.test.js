@@ -75,7 +75,7 @@ describe('CSS', function () {
 				assert.equal($('#no-scope').attr('class'), undefined);
 			});
 
-			it('Child inheritance', (t, done) => {
+			it('Child inheritance', (_t, done) => {
 				for (const [key] of Object.entries($('#passed-in')[0].attribs)) {
 					if (/^data-astro-cid-[A-Za-z\d-]+/.test(key)) {
 						done();

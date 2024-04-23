@@ -89,7 +89,7 @@ function viaLocal(dir, isEtag, uri, extns) {
 	}
 }
 
-function is404(req, res) {
+function is404(_req, res) {
 	return (res.statusCode = 404), res.end();
 }
 
@@ -220,7 +220,7 @@ export default function (dir, opts = {}) {
 		if (pathname.indexOf('%') !== -1) {
 			try {
 				pathname = decodeURIComponent(pathname);
-			} catch (err) {
+			} catch (_err) {
 				/* malform uri */
 			}
 		}

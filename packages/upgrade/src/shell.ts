@@ -46,7 +46,7 @@ export async function shell(
 		const done = new Promise((resolve) => child.on('close', resolve));
 		[stdout, stderr] = await Promise.all([text(child.stdout), text(child.stderr)]);
 		await done;
-	} catch (e) {
+	} catch (_e) {
 		throw { stdout, stderr, exitCode: 1 };
 	}
 	const { exitCode } = child;

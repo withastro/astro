@@ -21,7 +21,7 @@ export type Audit = {
 try {
 	customElements.define('astro-dev-toolbar-audit-window', DevToolbarAuditListWindow);
 	customElements.define('astro-dev-toolbar-audit-list-item', DevToolbarAuditListItem);
-} catch (e) {}
+} catch (_e) {}
 
 let showState = false;
 

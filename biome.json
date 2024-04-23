@@ -38,7 +38,7 @@
       "complexity": {
         "noBannedTypes": "error",
         "noUselessTypeConstraint": "error",
-        "useLiteralKeys": "error",
+        "useLiteralKeys": "off",
         "useOptionalChain": "error"
       },
       "correctness": {
@@ -90,7 +90,6 @@
             "noInvalidNewBuiltin": "off",
             "noNewSymbol": "off",
             "noSetterReturn": "off",
-            "noUndeclaredVariables": "off",
             "noUnreachable": "off",
             "noUnreachableSuper": "off"
           },
@@ -108,6 +107,16 @@
             "noRedeclare": "off",
             "noUnsafeNegation": "off",
             "useGetterReturn": "off"
+          }
+        }
+      }
+    },
+    {
+      "include": ["*.astro"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUnusedVariables": "off"
           }
         }
       }

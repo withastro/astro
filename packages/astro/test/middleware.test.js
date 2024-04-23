@@ -313,7 +313,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 			assert.equal(existsSync(path), true);
 			const content = readFileSync(fileURLToPath(middlewarePath), 'utf-8');
 			assert.equal(content.length > 0, true);
-		} catch (e) {
+		} catch (_e) {
 			assert.fail();
 		}
 	});

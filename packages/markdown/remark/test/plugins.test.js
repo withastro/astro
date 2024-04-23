@@ -10,7 +10,7 @@ describe('plugins', () => {
 		const processor = await createMarkdownProcessor({
 			remarkPlugins: [
 				() => {
-					const transformer = (tree, file) => {
+					const transformer = (_tree, file) => {
 						context = file;
 					};
 					return transformer;

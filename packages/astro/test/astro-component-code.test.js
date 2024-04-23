@@ -85,7 +85,7 @@ describe('<Code>', () => {
 		assert.equal($('pre').attr('class'), 'astro-code css-variables');
 		assert.deepEqual(
 			$('pre, pre span')
-				.map((i, f) => (f.attribs ? f.attribs.style : 'no style found'))
+				.map((_i, f) => (f.attribs ? f.attribs.style : 'no style found'))
 				.toArray(),
 			[
 				'background-color:var(--astro-code-color-background);color:var(--astro-code-color-text); overflow-x: auto;',

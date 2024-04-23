@@ -156,7 +156,7 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 export async function getProjectIdFromFile() {
 	try {
 		return await readFile(PROJECT_ID_FILE, 'utf-8');
-	} catch (error) {
+	} catch (_error) {
 		return undefined;
 	}
 }
@@ -164,7 +164,7 @@ export async function getProjectIdFromFile() {
 export async function getSessionIdFromFile() {
 	try {
 		return await readFile(SESSION_LOGIN_FILE, 'utf-8');
-	} catch (error) {
+	} catch (_error) {
 		return undefined;
 	}
 }

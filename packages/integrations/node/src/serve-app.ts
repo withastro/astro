@@ -24,7 +24,7 @@ export function createAppHandler(app: NodeApp): RequestHandler {
 		let request: Request;
 		try {
 			request = NodeApp.createRequest(req);
-		} catch (err) {
+		} catch (_err) {
 			res.statusCode = 500;
 			res.end('Internal Server Error');
 			return;

@@ -37,7 +37,7 @@ declare const Astro: {
 		return type in propTypes ? propTypes[type](value) : undefined;
 	};
 
-	const reviveArray = (raw: any): any => (raw as Array<any>).map(reviveTuple);
+	const reviveArray = (raw: any): any => (raw as any[]).map(reviveTuple);
 
 	const reviveObject = (raw: any): any => {
 		if (typeof raw !== 'object' || raw === null) return raw;

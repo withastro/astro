@@ -92,7 +92,7 @@ export function remarkImageToComponent() {
 					});
 				}
 
-				if (node.data && node.data.hProperties) {
+				if (node.data?.hProperties) {
 					const createArrayAttribute = (name: string, values: string[]): MdxJsxAttribute => {
 						return {
 							type: 'mdxJsxAttribute',

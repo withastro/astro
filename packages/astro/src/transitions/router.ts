@@ -53,7 +53,8 @@ const announce = () => {
 	document.body.append(div);
 	setTimeout(
 		() => {
-			const title = document.title || document.querySelector('h1')?.textContent || location.pathname;
+			const title =
+				document.title || document.querySelector('h1')?.textContent || location.pathname;
 			div.textContent = title;
 		},
 		// Much thought went into this magic number; the gist is that screen readers
@@ -111,7 +112,7 @@ async function fetchHTML(
 			redirected: res.redirected ? res.url : undefined,
 			mediaType,
 		};
-	} catch (err) {
+	} catch (_err) {
 		// can't fetch, let someone else deal with it.
 		return null;
 	}

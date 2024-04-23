@@ -10,7 +10,7 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 	const filtered = handlers.filter((h) => !!h);
 	const length = filtered.length;
 	if (!length) {
-		const handler: MiddlewareHandler = defineMiddleware((context, next) => {
+		const handler: MiddlewareHandler = defineMiddleware((_context, next) => {
 			return next();
 		});
 		return handler;

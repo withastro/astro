@@ -2,7 +2,7 @@ import type { Rollup, Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions, ViteBuildReturn } from './types.js';
 
-type RollupOutputArray = Extract<ViteBuildReturn, Array<any>>;
+type RollupOutputArray = Extract<ViteBuildReturn, any[]>;
 type OutputChunkorAsset = RollupOutputArray[number]['output'][number];
 type OutputChunk = Extract<OutputChunkorAsset, { type: 'chunk' }>;
 export type BuildTarget = 'server' | 'client';

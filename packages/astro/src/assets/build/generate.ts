@@ -123,7 +123,7 @@ export async function generateImagesForPath(
 				);
 				await fs.promises.unlink(getFullImagePath(originalFilePath, env));
 			}
-		} catch (e) {
+		} catch (_e) {
 			/* No-op, it's okay if we fail to delete one of the file, we're not too picky. */
 		}
 	}

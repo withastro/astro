@@ -127,7 +127,7 @@ const a11y_distracting_elements = ['blink', 'marquee'];
 
 // Unused for now
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const a11y_nested_implicit_semantics = new Map([
+const _a11y_nested_implicit_semantics = new Map([
 	['header', 'banner'],
 	['footer', 'contentinfo'],
 ]);
@@ -399,7 +399,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			const svgElements = element.querySelectorAll('svg');
 			for (const svg of svgElements) {
 				const titleText = svg.querySelector('title');
-				if (titleText && titleText.textContent && titleText.textContent.trim() !== '') return false;
+				if (titleText?.textContent && titleText.textContent.trim() !== '') return false;
 			}
 
 			const inputElements = element.querySelectorAll('input');
@@ -625,7 +625,7 @@ export const a11y: AuditRuleWithSelector[] = [
 
 // Unused for now
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const a11y_labelable = [
+const _a11y_labelable = [
 	'button',
 	'input',
 	'keygen',

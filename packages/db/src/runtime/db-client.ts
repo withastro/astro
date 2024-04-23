@@ -64,7 +64,7 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 			try {
 				const json = await res.json();
 				remoteResult = remoteResultSchema.parse(json);
-			} catch (e) {
+			} catch (_e) {
 				throw new AstroDbError(await getUnexpectedResponseMessage(res));
 			}
 
@@ -106,7 +106,7 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 			try {
 				const json = await res.json();
 				remoteResults = z.array(remoteResultSchema).parse(json);
-			} catch (e) {
+			} catch (_e) {
 				throw new AstroDbError(await getUnexpectedResponseMessage(res));
 			}
 			const results: any[] = [];
@@ -157,7 +157,7 @@ async function parseRemoteError(response: Response): Promise<AstroDbError> {
 	let error;
 	try {
 		error = errorSchema.parse(await response.json()).error;
-	} catch (e) {
+	} catch (_e) {
 		return new AstroDbError(await getUnexpectedResponseMessage(response));
 	}
 	// Strip LibSQL error prefixes

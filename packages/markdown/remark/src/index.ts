@@ -158,7 +158,7 @@ function prefixError(err: any, prefix: string) {
 		try {
 			err.message = `${prefix}:\n${err.message}`;
 			return err;
-		} catch (error) {
+		} catch (_error) {
 			// Any errors here are ok, there's fallback code below
 		}
 	}

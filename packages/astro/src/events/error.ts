@@ -71,10 +71,9 @@ export function eventError({
 		plugin: err.plugin,
 		cliCommand: cmd,
 		isFatal: isFatal,
-		anonymousMessageHint:
-			errorData && errorData.message
-				? getSafeErrorMessage(errorData.message)
-				: anonymizeErrorMessage(err.message),
+		anonymousMessageHint: errorData?.message
+			? getSafeErrorMessage(errorData.message)
+			: anonymizeErrorMessage(err.message),
 	};
 	return [{ eventName: EVENT_ERROR, payload }];
 }
@@ -82,7 +81,7 @@ export function eventError({
 /**
  * Safely get the error message from an error, even if it's a function.
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
+// biome-ignore lint/complexity/noBannedTypes: use case allowed
 function getSafeErrorMessage(message: string | Function): string {
 	if (typeof message === 'string') {
 		return message;
@@ -101,7 +100,7 @@ function getSafeErrorMessage(message: string | Function): string {
 			.slice(1, -1)
 			.replace(
 				/\$\{([^}]+)\}/g,
-				(str, match1) =>
+				(_str, match1) =>
 					`${match1
 						.split(/\.?(?=[A-Z])/)
 						.join('_')
