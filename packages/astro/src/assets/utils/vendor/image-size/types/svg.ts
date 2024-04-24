@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
 import type { IImage, ISize } from './interface.ts'
 import { toUTF8String } from './utils.js'
 

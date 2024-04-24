@@ -2,7 +2,6 @@
   NOTE: Do not add any dependencies or imports in this file so that it can load quickly in dev.
 */
 
-// eslint-disable-next-line no-console
 const debug = import.meta.env.DEV ? console.debug : undefined;
 const inBrowser = import.meta.env.SSR === false;
 // Track prefetched URLs so we don't prefetch twice
@@ -232,9 +231,8 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 		document.head.append(link);
 	} else {
 		fetch(url).catch((e) => {
-			// eslint-disable-next-line no-console
 			console.log(`[astro] Failed to prefetch ${url}`);
-			// eslint-disable-next-line no-console
+
 			console.error(e);
 		});
 	}

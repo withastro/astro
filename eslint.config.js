@@ -59,15 +59,6 @@ export default [
 		rules: {
 			// These off/configured-differently-by-default rules fit well for us
 			'@typescript-eslint/switch-exhaustiveness-check': 'error',
-			'@typescript-eslint/no-unused-vars': [
-				'warn',
-				{
-					argsIgnorePattern: '^_',
-					varsIgnorePattern: '^_',
-					caughtErrorsIgnorePattern: '^_',
-					ignoreRestSiblings: true,
-				},
-			],
 			'@typescript-eslint/no-shadow': 'error',
 
 			// Todo: do we want these?
@@ -98,6 +89,10 @@ export default [
 			'@typescript-eslint/sort-type-constituents': 'off',
 			'@typescript-eslint/unbound-method': 'off',
 			'@typescript-eslint/no-explicit-any': 'off',
+			'@typescript-eslint/ban-types': 'off',
+			'no-console': 'off',
+			'@typescript-eslint/no-unused-vars': "off",
+			'@typescript-eslint/no-namespace': "off",
 
 			// Enforce separate type imports for type-only imports to avoid bundling unneeded code
 			'@typescript-eslint/consistent-type-imports': [
@@ -137,37 +132,6 @@ export default [
 			globals: {
 				browser: true,
 			},
-		},
-	},
-	{
-		files: ['packages/**/test/*.js', 'packages/**/*.js'],
-		languageOptions: {
-			globals: {
-				mocha: true,
-				globalThis: false, // false means read-only
-			},
-		},
-		rules: {
-			'no-console': 'off',
-		},
-	},
-	{
-		files: ['packages/integrations/**/*.ts'],
-		rules: {
-			'no-console': ['error', { allow: ['warn', 'error', 'info', 'debug'] }],
-		},
-	},
-	{
-		files: ['benchmark/**/*.js'],
-		rules: {
-			'@typescript-eslint/no-unused-vars': 'off',
-			'no-console': 'off',
-		},
-	},
-	{
-		files: ['packages/db/**/cli/**/*.ts'],
-		rules: {
-			'no-console': 'off',
 		},
 	},
 	{

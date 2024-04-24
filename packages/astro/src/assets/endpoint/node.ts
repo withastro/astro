@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import os from 'node:os';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';

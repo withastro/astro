@@ -33,7 +33,6 @@ import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } f
 // Also, make sure to not index the complexified type, as it would return a simplified value type, which goes
 // back to the issue again. The complexified type should be the base representation that we want to expose.
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ComplexifyUnionObj {}
 type ComplexifyWithUnion<T> = T & ComplexifyUnionObj;
 type ComplexifyWithOmit<T> = Omit<T, '__nonExistent'>;

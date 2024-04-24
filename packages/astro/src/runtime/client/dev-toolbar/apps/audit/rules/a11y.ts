@@ -126,7 +126,7 @@ const a11y_required_content = [
 const a11y_distracting_elements = ['blink', 'marquee'];
 
 // Unused for now
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 const _a11y_nested_implicit_semantics = new Map([
 	['header', 'banner'],
 	['footer', 'contentinfo'],
@@ -624,7 +624,7 @@ export const a11y: AuditRuleWithSelector[] = [
 ];
 
 // Unused for now
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 const _a11y_labelable = [
 	'button',
 	'input',

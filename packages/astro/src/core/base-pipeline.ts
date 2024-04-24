@@ -61,5 +61,4 @@ export abstract class Pipeline {
 	abstract componentMetadata(routeData: RouteData): Promise<SSRResult['componentMetadata']> | void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface HeadElements extends Pick<SSRResult, 'scripts' | 'styles' | 'links'> {}

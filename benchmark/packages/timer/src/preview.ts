@@ -9,7 +9,6 @@ const preview: CreatePreviewServer = async function ({ serverEntrypoint, host, p
 	server.listen(port, host);
 	enableDestroy(server);
 
-	// eslint-disable-next-line no-console
 	console.log(`Preview server listening on http://${host}:${port}`);
 
 	// Resolves once the server is closed

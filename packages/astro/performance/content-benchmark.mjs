@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 import { fileURLToPath } from 'node:url';
 import { bold, cyan, dim } from 'kleur/colors';
 import yargs from 'yargs-parser';

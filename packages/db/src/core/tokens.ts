@@ -147,7 +147,6 @@ class ManagedRemoteAppToken implements ManagedAppToken {
 				throw new Error(`Unexpected response: ${response.status} ${response.statusText}`);
 			}
 		} catch (error: any) {
-			// eslint-disable-next-line no-console
 			console.error('Failed to delete token.', error?.message);
 		}
 	}
@@ -182,13 +181,11 @@ export async function getManagedAppTokenOrExit(token?: string): Promise<ManagedA
 	}
 	const sessionToken = await getSessionIdFromFile();
 	if (!sessionToken) {
-		// eslint-disable-next-line no-console
 		console.error(MISSING_SESSION_ID_ERROR);
 		process.exit(1);
 	}
 	const projectId = await getProjectIdFromFile();
 	if (!sessionToken || !projectId) {
-		// eslint-disable-next-line no-console
 		console.error(MISSING_PROJECT_ID_ERROR);
 		process.exit(1);
 	}

@@ -1,6 +1,6 @@
 import { execSync } from 'node:child_process';
 import { arch, platform } from 'node:os';
-/* eslint-disable no-console */
+
 import * as colors from 'kleur/colors';
 import prompts from 'prompts';
 import type yargs from 'yargs-parser';

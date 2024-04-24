@@ -61,7 +61,6 @@ export function createGetCollection({
 		} else if (collection in dataCollectionToEntryMap) {
 			type = 'data';
 		} else {
-			// eslint-disable-next-line no-console
 			console.warn(
 				`The collection ${JSON.stringify(
 					collection

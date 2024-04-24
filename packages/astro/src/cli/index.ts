@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { ASTRO_VERSION } from '../core/constants.js';

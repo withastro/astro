@@ -109,7 +109,7 @@ export type TransitionAnimationValue =
 	| TransitionDirectionalAnimations;
 
 // Allow users to extend this for astro-jsx.d.ts
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+
 export interface AstroClientDirectives {}
 
 export interface AstroBuiltinAttributes {
@@ -401,7 +401,6 @@ export interface ViteUserConfig extends vite.UserConfig {
 }
 
 export interface ImageServiceConfig<T extends Record<string, any> = Record<string, any>> {
-	// eslint-disable-next-line @typescript-eslint/ban-types
 	entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
 	config?: T;
 }

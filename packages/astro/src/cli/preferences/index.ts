@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type yargs from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro.js';
 

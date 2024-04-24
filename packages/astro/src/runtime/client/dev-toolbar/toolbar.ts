@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type { DevToolbarApp as DevToolbarAppDefinition } from '../../../@types/astro.js';
 import { settings } from './settings.js';
 import { type Icon, getIconElement, isDefinedIcon } from './ui-library/icons.js';

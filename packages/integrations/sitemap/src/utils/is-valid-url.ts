@@ -4,7 +4,6 @@ export const isValidUrl = (s: any) => {
 		return false;
 	}
 	try {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const _dummy = new URL(s);
 		return true;
 	} catch {
