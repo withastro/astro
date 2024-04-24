@@ -26,7 +26,7 @@ jobs:
       pull-requests: write
     steps:
       - name: "Check if user has admin access (only admins can publish snapshot releases)."
-        uses: "lannonbr/repo-permission-check-action@2.0.0"
+        uses: "lannonbr/repo-permission-check-action@2.0.2"
         with:
           permission: "admin"
         env:
