@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.6.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/1.7.0/schema.json",
   "files": {
     "ignore": [
       "vendor",
@@ -96,7 +96,8 @@
           "style": {
             "noArguments": "error",
             "noVar": "error",
-            "useConst": "error"
+            "useConst": "error",
+            "useNodejsImportProtocol": "error"
           },
           "suspicious": {
             "noDuplicateClassMembers": "off",
@@ -117,6 +118,19 @@
         "rules": {
           "correctness": {
             "noUnusedVariables": "off"
+          }
+        }
+      }
+    },
+    {
+      "include": ["*.test.js"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noFocusedTests": "error"
+          },
+          "style": {
+            "useNodeAssertStrict": "warn"
           }
         }
       }
@@ -156,16 +170,77 @@
     },
     {
       "include": ["packages/astro/src/runtime/**/*.ts"],
-      "linter": { "rules": {} }
+      "linter": {
+        "rules": {
+          "nursery": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "node:assert": "The use of node modules is forbidden here.",
+                  "node:assert/strict": "The use of node modules is forbidden here.",
+                  "node:async_hooks": "The use of node modules is forbidden here.",
+                  "node:buffer": "The use of node modules is forbidden here.",
+                  "node:child_process": "The use of node modules is forbidden here.",
+                  "node:cluster": "The use of node modules is forbidden here.",
+                  "node:console": "The use of node modules is forbidden here.",
+                  "node:constants": "The use of node modules is forbidden here.",
+                  "node:crypto": "The use of node modules is forbidden here.",
+                  "node:dgram": "The use of node modules is forbidden here.",
+                  "node:diagnostics_channel": "The use of node modules is forbidden here.",
+                  "node:dns": "The use of node modules is forbidden here.",
+                  "node:dns/promises": "The use of node modules is forbidden here.",
+                  "node:domain": "The use of node modules is forbidden here.",
+                  "node:events": "The use of node modules is forbidden here.",
+                  "node:fs": "The use of node modules is forbidden here.",
+                  "node:fs/promises": "The use of node modules is forbidden here.",
+                  "node:http": "The use of node modules is forbidden here.",
+                  "node:http2": "The use of node modules is forbidden here.",
+                  "node:https": "The use of node modules is forbidden here.",
+                  "node:inspector": "The use of node modules is forbidden here.",
+                  "node:inspector/promises": "The use of node modules is forbidden here.",
+                  "node:module": "The use of node modules is forbidden here.",
+                  "node:net": "The use of node modules is forbidden here.",
+                  "node:os": "The use of node modules is forbidden here.",
+                  "node:path": "The use of node modules is forbidden here.",
+                  "node:path/posix": "The use of node modules is forbidden here.",
+                  "node:path/win32": "The use of node modules is forbidden here.",
+                  "node:perf_hooks": "The use of node modules is forbidden here.",
+                  "node:process": "The use of node modules is forbidden here.",
+                  "node:punycode": "The use of node modules is forbidden here.",
+                  "node:querystring": "The use of node modules is forbidden here.",
+                  "node:readline": "The use of node modules is forbidden here.",
+                  "node:readline/promises": "The use of node modules is forbidden here.",
+                  "node:repl": "The use of node modules is forbidden here.",
+                  "node:stream": "The use of node modules is forbidden here.",
+                  "node:stream/consumers": "The use of node modules is forbidden here.",
+                  "node:stream/promises": "The use of node modules is forbidden here.",
+                  "node:stream/web": "The use of node modules is forbidden here.",
+                  "node:string_decoder": "The use of node modules is forbidden here.",
+                  "node:sys": "The use of node modules is forbidden here.",
+                  "node:timers": "The use of node modules is forbidden here.",
+                  "node:timers/promises": "The use of node modules is forbidden here.",
+                  "node:tls": "The use of node modules is forbidden here.",
+                  "node:trace_events": "The use of node modules is forbidden here.",
+                  "node:tty": "The use of node modules is forbidden here.",
+                  "node:url": "The use of node modules is forbidden here.",
+                  "node:util": "The use of node modules is forbidden here.",
+                  "node:util/types": "The use of node modules is forbidden here.",
+                  "node:v8": "The use of node modules is forbidden here.",
+                  "node:vm": "The use of node modules is forbidden here.",
+                  "node:wasi": "The use of node modules is forbidden here.",
+                  "node:worker_threads": "The use of node modules is forbidden here.",
+                  "node:zlib": "The use of node modules is forbidden here."
+                }
+              }
+            }
+          }
+        }
+      }
     },
     {
       "include": ["packages/astro/src/runtime/client/**/*.ts"],
       "javascript": { "globals": ["browser"] }
-    },
-    {
-      "include": ["packages/**/test/*.js", "packages/**/*.js"],
-      "javascript": { "globals": ["mocha"] },
-      "linter": { "rules": {} }
     },
     { "include": ["packages/integrations/**/*.ts"], "linter": { "rules": {} } },
     {

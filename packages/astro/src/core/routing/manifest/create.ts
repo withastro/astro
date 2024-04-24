@@ -8,7 +8,7 @@ import type {
 } from '../../../@types/astro.js';
 import type { Logger } from '../../logger/core.js';
 
-import { createRequire } from 'module';
+import { createRequire } from 'node:module';
 import nodeFs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

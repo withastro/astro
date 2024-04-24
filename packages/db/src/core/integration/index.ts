@@ -1,8 +1,8 @@
-import { existsSync } from 'fs';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { existsSync } from 'node:fs';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { AstroConfig, AstroIntegration } from 'astro';
-import { mkdir, writeFile } from 'fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { blue, yellow } from 'kleur/colors';
 import { loadEnv } from 'vite';
 import parseArgs from 'yargs-parser';

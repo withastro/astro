@@ -1,4 +1,4 @@
-import https from 'https';
+import https from 'node:https';
 import fs from 'node:fs';
 import http from 'node:http';
 import type { PreviewServer } from 'astro';

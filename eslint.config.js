@@ -112,20 +112,6 @@ export default [
 			'regexp/use-ignore-case': 'off',
 		},
 	},
-
-	{
-		// Ensure Node builtins aren't included in Astro's server runtime
-		files: ['packages/astro/src/runtime/**/*.ts'],
-		rules: {
-			'no-restricted-imports': [
-				'error',
-				{
-					paths: [...builtinModules],
-					patterns: ['node:*'],
-				},
-			],
-		},
-	},
 	{
 		files: ['packages/astro/src/runtime/client/**/*.ts'],
 		languageOptions: {

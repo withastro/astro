@@ -2,7 +2,7 @@ import type http from 'node:http';
 import type { ErrorWithMetadata } from '../core/errors/index.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
 import { getSetCookiesFromResponse } from '../core/cookies/index.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import notFoundTemplate from '../template/4xx.js';
