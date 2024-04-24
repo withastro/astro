@@ -185,7 +185,18 @@ export class BuildPipeline extends Pipeline {
 				virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
 				virtualModulePageName.includes(RESOLVED_SPLIT_MODULE_ID)
 			) {
-				const pageKey = getPageKeyFromVirtualModulePageName(ASTRO_PAGE_RESOLVED_MODULE_ID, virtualModulePageName)
+				let pageKey;
+				if (virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
+					pageKey = getPageKeyFromVirtualModulePageName(
+						ASTRO_PAGE_RESOLVED_MODULE_ID,
+						virtualModulePageName
+					);
+				} else {
+					pageKey = getPageKeyFromVirtualModulePageName(
+						RESOLVED_SPLIT_MODULE_ID,
+						virtualModulePageName
+					);
+				}
 				const pageData = this.internals.pagesByKeys.get(pageKey);
 
 				if (!pageData) {

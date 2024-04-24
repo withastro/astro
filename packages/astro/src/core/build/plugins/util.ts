@@ -73,6 +73,25 @@ export function getVirtualModulePageName(virtualModulePrefix: string, path: stri
 }
 
 /**
+ * In SSR plugins, we need to use the non-resolved virtualModuleName in order to resolve correctly the virtual module.
+ * @param virtualModulePrefix The prefix used to create the virtual module
+ * @param resolvedModulePrefix The prefix of the resolved virtual module
+ * @param resolvedId The resolved virtual module id
+ * @returns 
+ */
+export function virtualModuleNameFromResolvedId(virtualModulePrefix: string, resolvedModulePrefix: string, resolvedId: string) {
+	const extension = extname(resolvedId);
+	const clean_path = resolvedId.slice(resolvedModulePrefix.length);
+	return (
+		virtualModulePrefix +
+		(extension.startsWith('.')
+			? clean_path.slice(0, -extension.length) + extension.replace('.', ASTRO_PAGE_EXTENSION_POST_PATTERN)
+			: clean_path
+		)
+	);
+}
+
+/**
  * From the VirtualModulePageName, get the original pageData key.
  * @param virtualModulePrefix The prefix used to create the virtual module
  * @param id Virtual module name

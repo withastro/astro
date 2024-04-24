@@ -13,7 +13,7 @@ import { SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugin-manifest.js';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
-import { getPathFromVirtualModulePageName, getVirtualModulePageName } from './util.js';
+import { getPathFromVirtualModulePageName, getVirtualModulePageName, virtualModuleNameFromResolvedId } from './util.js';
 
 export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
 export const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
@@ -172,13 +172,9 @@ function vitePluginSSRSplit(
 				const imports: string[] = [];
 				const contents: string[] = [];
 				const exports: string[] = [];
-				// TODO: Change that – broken usage of getVirtualModulePageName
-				// I should refactor getPathFromVirtualModulePageName
-				const path = getPathFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, id);
-				const virtualModuleName = getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, path, "");
+				const virtualModuleName = virtualModuleNameFromResolvedId(ASTRO_PAGE_MODULE_ID, RESOLVED_SPLIT_MODULE_ID, id);
 				let module = await this.resolve(virtualModuleName);
 				if (module) {
-					// we need to use the non-resolved ID in order to resolve correctly the virtual module
 					imports.push(`import * as pageModule from "${virtualModuleName}";`);
 				}
 				const middleware = await this.resolve(MIDDLEWARE_MODULE_ID);
