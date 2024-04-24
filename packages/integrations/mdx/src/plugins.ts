@@ -15,7 +15,7 @@ import { rehypeApplyFrontmatterExport } from './rehype-apply-frontmatter-export.
 import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import rehypeMetaString from './rehype-meta-string.js';
 import { rehypeOptimizeStatic } from './rehype-optimize-static.js';
-import { remarkImageToComponent } from './remark-images-to-component.js';
+import { rehypeImageToComponent } from './rehype-images-to-component.js';
 
 // Skip nonessential plugins during performance benchmark runs
 const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
@@ -52,7 +52,7 @@ function getRemarkPlugins(mdxOptions: MdxOptions): PluggableList {
 		}
 	}
 
-	remarkPlugins.push(...mdxOptions.remarkPlugins, remarkCollectImages, remarkImageToComponent);
+	remarkPlugins.push(...mdxOptions.remarkPlugins, remarkCollectImages);
 
 	return remarkPlugins;
 }
@@ -74,7 +74,7 @@ function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
 		}
 	}
 
-	rehypePlugins.push(...mdxOptions.rehypePlugins);
+	rehypePlugins.push(...mdxOptions.rehypePlugins, rehypeImageToComponent);
 
 	if (!isPerformanceBenchmark) {
 		// getHeadings() is guaranteed by TS, so this must be included.
