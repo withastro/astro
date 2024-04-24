@@ -5,7 +5,8 @@ export default defineConfig({
 	experimental: {
 		env: {
 			schema: {
-				PUBLIC_FOO: envField.string({ context: "client", access: "public", optional: true, default: "BAR" })
+				PUBLIC_FOO: envField.string({ context: "client", access: "public", optional: true, default: "ABC" }),
+				PUBLIC_BAR: envField.string({ context: "client", access: "public", optional: true, default: "DEF" }),
 			}
 		}
 	}

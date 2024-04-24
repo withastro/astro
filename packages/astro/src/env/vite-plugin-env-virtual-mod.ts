@@ -107,7 +107,7 @@ export {
 	`;
 
 	const clientDts = `declare module "astro:env/client" {
-	${data.map((e) => `export const ${e.key}: ${e.type};`).join('\n')}
+    ${data.map((e) => `export const ${e.key}: ${e.type};`).join('\n    ')}
 }`;
 
 	return {
