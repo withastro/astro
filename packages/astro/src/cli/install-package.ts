@@ -5,6 +5,7 @@ import ci from 'ci-info';
 import { execa } from 'execa';
 import { bold, cyan, dim, magenta } from 'kleur/colors';
 import ora from 'ora';
+import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import resolvePackage from 'resolve';
 import whichPm from 'which-pm';
@@ -97,6 +98,30 @@ function getInstallCommand(packages: string[], packageManager: string) {
 	}
 }
 
+/**
+ * Get the command to execute and download a package (e.g. `npx`, `yarn dlx`, `pnpx`, etc.)
+ * @param packageManager - Optional package manager to use. If not provided, Astro will attempt to detect the preferred package manager.
+ * @returns The command to execute and download a package
+ */
+export async function getExecCommand(packageManager?: string): Promise<string> {
+	if (!packageManager) {
+		packageManager = (await preferredPM(process.cwd()))?.name ?? 'npm';
+	}
+
+	switch (packageManager) {
+		case 'npm':
+			return 'npx';
+		case 'yarn':
+			return 'yarn dlx';
+		case 'pnpm':
+			return 'pnpx';
+		case 'bun':
+			return 'bunx';
+		default:
+			return 'npx';
+	}
+}
+
 async function installPackage(
 	packageNames: string[],
 	options: GetPackageOptions,
@@ -160,4 +185,57 @@ async function installPackage(
 	} else {
 		return false;
 	}
+}
+
+export async function fetchPackageJson(
+	scope: string | undefined,
+	name: string,
+	tag: string
+): Promise<Record<string, any> | Error> {
+	const packageName = `${scope ? `${scope}/` : ''}${name}`;
+	const registry = await getRegistry();
+	const res = await fetch(`${registry}/${packageName}/${tag}`);
+	if (res.status >= 200 && res.status < 300) {
+		return await res.json();
+	} else if (res.status === 404) {
+		// 404 means the package doesn't exist, so we don't need an error message here
+		return new Error();
+	} else {
+		return new Error(`Failed to fetch ${registry}/${packageName}/${tag} - GET ${res.status}`);
+	}
+}
+
+export async function fetchPackageVersions(packageName: string): Promise<string[] | Error> {
+	const registry = await getRegistry();
+	const res = await fetch(`${registry}/${packageName}`, {
+		headers: { accept: 'application/vnd.npm.install-v1+json' },
+	});
+	if (res.status >= 200 && res.status < 300) {
+		return await res.json().then((data) => Object.keys(data.versions));
+	} else if (res.status === 404) {
+		// 404 means the package doesn't exist, so we don't need an error message here
+		return new Error();
+	} else {
+		return new Error(`Failed to fetch ${registry}/${packageName} - GET ${res.status}`);
+	}
+}
+
+// Users might lack access to the global npm registry, this function
+// checks the user's project type and will return the proper npm registry
+//
+// A copy of this function also exists in the create-astro package
+let _registry: string;
+export async function getRegistry(): Promise<string> {
+	if (_registry) return _registry;
+	const fallback = 'https://registry.npmjs.org';
+	const packageManager = (await preferredPM(process.cwd()))?.name || 'npm';
+	try {
+		const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
+		_registry = stdout?.trim()?.replace(/\/$/, '') || fallback;
+		// Detect cases where the shell command returned a non-URL (e.g. a warning)
+		if (!new URL(_registry).host) _registry = fallback;
+	} catch (e) {
+		_registry = fallback;
+	}
+	return _registry;
 }
