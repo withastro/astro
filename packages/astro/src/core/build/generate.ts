@@ -256,6 +256,7 @@ async function generatePage(
 	// prepare information we need
 	const { config, internals, logger } = pipeline;
 	const pageModulePromise = ssrEntry.page;
+	// TODO: Why do we need to get PageData from PageData?
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
 
 	// Calculate information of the page, like scripts, links and styles
@@ -617,7 +618,7 @@ function createBuildManifest(
 }
 
 /**
- * TODO: Change that – document & maybe refactor
+ * For a given pageData, returns the entry file path—aka a resolved virtual module in our internals' specifiers.
  */
 function getEntryFilePath(internals: BuildInternals, pageData: RouteData) {
 	const id =

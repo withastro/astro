@@ -203,7 +203,6 @@ function vitePluginSSRSplit(
 				for (const moduleKey of Object.keys(chunk.modules)) {
 					if (moduleKey.startsWith(RESOLVED_SPLIT_MODULE_ID)) {
 						internals.ssrSplitEntryChunks.set(moduleKey, chunk);
-						// TODO: Change that
 						storeEntryPoint(moduleKey, options, internals, chunk.fileName);
 					}
 				}

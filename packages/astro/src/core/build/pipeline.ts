@@ -12,7 +12,7 @@ import {
 import {
 	type BuildInternals,
 	cssOrder,
-	getPageDataByComponent,
+	getPageData,
 	mergeInlineCss,
 } from './internal.js';
 import { ASTRO_PAGE_MODULE_ID, ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
@@ -131,7 +131,7 @@ export class BuildPipeline extends Pipeline {
 			settings,
 		} = this;
 		const links = new Set<never>();
-		const pageBuildData = getPageDataByComponent(internals, routeData.component);
+		const pageBuildData = getPageData(internals, routeData.route, routeData.component);
 		const scripts = createModuleScriptsSet(
 			pageBuildData?.hoistedScript ? [pageBuildData.hoistedScript] : [],
 			base,

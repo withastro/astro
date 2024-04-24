@@ -3,7 +3,8 @@ import type { RouteData, SSRResult } from '../../@types/astro.js';
 import type { PageOptions } from '../../vite-plugin-astro/types.js';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
-import type { AllPagesData, PageBuildData, StylesheetAsset, ViteID } from './types.js';
+import type { PageBuildData, StylesheetAsset, ViteID } from './types.js';
+import { makePageDataKey } from './plugins/util.js';
 
 export interface BuildInternals {
 	/**
@@ -215,11 +216,30 @@ export function* getPageDatasByClientOnlyID(
 	}
 }
 
+/**
+ * From its route and component, get the page data from the build internals.
+ * @param internals Build Internals with all the pages
+ * @param route The route of the page, used to identify the page
+ * @param component The component of the page, used to identify the page
+ */
+export function getPageData(
+	internals: BuildInternals,
+	route: string, 
+	component: string
+): PageBuildData | undefined {
+	let pageData = internals.pagesByKeys.get(makePageDataKey(route, component));
+	if (pageData) { return pageData;}
+	return undefined;
+}
+
+/**
+ * TODO: remove this function, obsolete.
+ * last usage in astro/packages/astro/src/core/build/generate.ts
+ */
 export function getPageDataByComponent(
 	internals: BuildInternals,
 	component: string
 ): PageBuildData | undefined {
-	// TODO: Refactor that
 	if (internals.pagesByKeys.has(component)) {
 		return internals.pagesByKeys.get(component);
 	}
