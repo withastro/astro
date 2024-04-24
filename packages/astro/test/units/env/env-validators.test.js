@@ -1,6 +1,6 @@
-import assert from 'node:assert';
+import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { validateEnvVariable } from '../../../dist/env/validators.js';
+import { validateEnvVariable, getType } from '../../../dist/env/validators.js';
 
 /**
  * @typedef {Parameters<typeof validateEnvVariable>} Params
@@ -42,6 +42,80 @@ describe('astro:env validators', () => {
 
 	before(() => {
 		fixture = createFixture();
+	});
+
+	it('types codegen should return the right string based on the field options', () => {
+		assert.equal(
+			getType({
+				type: 'string',
+			}),
+			'string'
+		);
+
+		assert.equal(
+			getType({
+				type: 'string',
+				optional: true,
+			}),
+			'string | undefined'
+		);
+
+		assert.equal(
+			getType({
+				type: 'string',
+				optional: true,
+				default: 'abc',
+			}),
+			'string'
+		);
+
+		assert.equal(
+			getType({
+				type: 'number',
+			}),
+			'number'
+		);
+
+		assert.equal(
+			getType({
+				type: 'number',
+				optional: true,
+			}),
+			'number | undefined'
+		);
+
+		assert.equal(
+			getType({
+				type: 'number',
+				optional: true,
+				default: 456,
+			}),
+			'number'
+		);
+
+		assert.equal(
+			getType({
+				type: 'boolean',
+			}),
+			'boolean'
+		);
+
+		assert.equal(
+			getType({
+				type: 'boolean',
+				optional: true,
+			}),
+			'boolean | undefined'
+		);
+
+		assert.equal(
+			getType({
+				type: 'boolean',
+				optional: true,
+				default: true,
+			}),
+			'boolean'
+		);
 	});
 
 	describe('string field', () => {

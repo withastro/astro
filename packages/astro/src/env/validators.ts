@@ -13,10 +13,10 @@ type ValidationResult =
 			type: string;
 	  };
 
-const getType = (options: EnvFieldType) => {
-	const optional = options.optional ?? options.default;
+export function getType(options: EnvFieldType) {
+	const optional = options.optional ? (options.default !== undefined ? false : true) : false;
 	return `${options.type}${optional ? ' | undefined' : ''}`;
-};
+}
 
 type ValueValidator = (input: string | undefined) => {
 	valid: boolean;
