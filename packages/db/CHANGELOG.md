@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.10.6
+
+### Patch Changes
+
+- [#10816](https://github.com/withastro/astro/pull/10816) [`8e6eb62`](https://github.com/withastro/astro/commit/8e6eb624aee40bac66a58169a30107f624a8c539) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add `astro login` support from online editors like Stackblitz and GitHub Codespaces
+
 ## 0.10.5
 
 ### Patch Changes
