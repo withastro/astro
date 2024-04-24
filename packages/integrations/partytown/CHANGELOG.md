@@ -1,5 +1,11 @@
 # @astrojs/partytown
 
+## 2.1.0
+
+### Minor Changes
+
+- [#10833](https://github.com/withastro/astro/pull/10833) [`8d5f3e8`](https://github.com/withastro/astro/commit/8d5f3e8656027023f9fda51c66b0213ffe16d3a5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates the `@builder.io/partytown` dependency to v0.10. This should not affect projects in most cases.
+
 ## 2.0.4
 
 ### Patch Changes

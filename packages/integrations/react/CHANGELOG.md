@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 3.3.1
+
+### Patch Changes
+
+- [#10855](https://github.com/withastro/astro/pull/10855) [`f6bddd3`](https://github.com/withastro/astro/commit/f6bddd3a155cd10a9f85c92d43b1af8b74786a42) Thanks [@lamATnginx](https://github.com/lamATnginx)! - Fix Redoc usage in React integration
+
 ## 3.3.0
 
 ### Minor Changes

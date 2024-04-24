@@ -65,13 +65,19 @@ describe('Markdown tests', () => {
 		it('Can load a realworld markdown page with Astro', async () => {
 			const html = await fixture.readFile('/realworld/index.html');
 			const $ = cheerio.load(html);
-
 			assert.equal($('pre').length, 7);
 		});
 
 		it('Does not unescape entities', async () => {
 			const html = await fixture.readFile('/entities/index.html');
 			assert.match(html, /&#x3C;i>This should NOT be italic&#x3C;\/i>/);
+		});
+
+		it('Resolves the image paths correctly', async () => {
+			const html = await fixture.readFile('/images/index.html');
+			const $ = cheerio.load(html);
+			assert.equal($('img').first().attr('src').includes('.webp'), true);
+			assert.equal($('img').first().next().attr('src').includes('.webp'), true);
 		});
 	});
 });

@@ -1,5 +1,29 @@
 # astro
 
+## 4.6.4
+
+### Patch Changes
+
+- [#10846](https://github.com/withastro/astro/pull/10846) [`3294f7a`](https://github.com/withastro/astro/commit/3294f7a343e036d2ad9ac8d5f792ad0d4f43a399) Thanks [@matthewp](https://github.com/matthewp)! - Prevent getCollection breaking in vitest
+
+- [#10856](https://github.com/withastro/astro/pull/10856) [`30cf82a`](https://github.com/withastro/astro/commit/30cf82ac3e970a6a3c0f07db1340dd7152d1c35d) Thanks [@robertvanhoesel](https://github.com/robertvanhoesel)! - Prevents inputs with a name attribute of action or method to break ViewTransitions' form submission
+
+- [#10833](https://github.com/withastro/astro/pull/10833) [`8d5f3e8`](https://github.com/withastro/astro/commit/8d5f3e8656027023f9fda51c66b0213ffe16d3a5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `esbuild` dependency to v0.20. This should not affect projects in most cases.
+
+- [#10801](https://github.com/withastro/astro/pull/10801) [`204b782`](https://github.com/withastro/astro/commit/204b7820e6de22d97fa2a7b988180c42155c8387) Thanks [@rishi-raj-jain](https://github.com/rishi-raj-jain)! - Fixes an issue where images in MD required a relative specifier (e.g. `./`)
+
+  Now, you can use the standard `![](relative/img.png)` syntax in MD files for images colocated in the same folder: no relative specifier required!
+
+  There is no need to update your project; your existing images will still continue to work. However, you may wish to remove any relative specifiers from these MD images as they are no longer necessary:
+
+  ```diff
+  - ![A cute dog](./dog.jpg)
+  + ![A cute dog](dog.jpg)
+  <!-- This dog lives in the same folder as my article! -->
+  ```
+
+- [#10841](https://github.com/withastro/astro/pull/10841) [`a2df344`](https://github.com/withastro/astro/commit/a2df344bff15647c2bfb3f49e3f7b66aa069d6f4) Thanks [@martrapp](https://github.com/martrapp)! - Due to regression on mobile WebKit browsers, reverts a change made for JavaScript animations during view transitions.
+
 ## 4.6.3
 
 ### Patch Changes
