@@ -89,6 +89,9 @@ export default {
 				},
 			];
 
+			const hasNewerVersion = (window as DevToolbarMetadata).__astro_dev_toolbar__
+				.latestAstroVersion;
+
 			const windowComponent = createWindowElement(
 				`<style>
 				#buttons-container {
@@ -333,6 +336,14 @@ export default {
 				<astro-dev-toolbar-badge badge-style="gray" size="large">${
 					(window as DevToolbarMetadata).__astro_dev_toolbar__.version
 				}</astro-dev-toolbar-badge>
+				${
+					hasNewerVersion
+						? `<astro-dev-toolbar-badge badge-style="green" size="large">${
+								(window as DevToolbarMetadata).__astro_dev_toolbar__.latestAstroVersion
+							} available!</astro-dev-toolbar-badge>
+						`
+						: ''
+				}
 				</section>
 				<astro-dev-toolbar-button id="copy-debug-button">Copy debug info <astro-dev-toolbar-icon icon="copy" /></astro-dev-toolbar-button>
 			</header>

@@ -124,7 +124,7 @@ interface SubcommandOptions {
 	json?: boolean;
 }
 
-// Default `location` to "project" to avoid reading default preferencesa
+// Default `location` to "project" to avoid reading default preferences
 async function getPreference(
 	settings: AstroSettings,
 	key: PreferenceKey,

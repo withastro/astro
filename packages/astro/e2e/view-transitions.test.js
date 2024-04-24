@@ -1168,6 +1168,30 @@ test.describe('View Transitions', () => {
 		).toEqual(['application/x-www-form-urlencoded']);
 	});
 
+	test('form POST that includes an input with name action should not override action', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/form-six'));
+		page.on('request', (request) => {
+			expect(request.url()).toContain('/bar');
+		});
+		// Submit the form
+		await page.click('#submit');
+	});
+
+	test('form without method that includes an input with name method should not override default method', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/form-seven'));
+		page.on('request', (request) => {
+			expect(request.method()).toBe('GET');
+		});
+		// Submit the form
+		await page.click('#submit');
+	});
+
 	test('Route announcer is invisible on page transition', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/no-directive-one'));
 

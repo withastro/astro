@@ -31,4 +31,8 @@ export default class Counter extends LitElement {
 	}
 }
 
-customElements.define('my-counter', Counter);
+// Since this fixture is ran in both dev and build, this could register twice. Wrap with a try..catch for now.
+try {
+	customElements.define('my-counter', Counter);
+} catch {}
+
