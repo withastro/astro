@@ -501,25 +501,6 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0(@types/node@18.19.31)
 
-  packages/actions:
-    dependencies:
-      astro-integration-kit:
-        specifier: ^0.11.0
-        version: 0.11.0(astro@packages+astro)
-      zod:
-        specifier: ^3.23.0
-        version: 3.23.5
-    devDependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../astro
-      astro-scripts:
-        specifier: workspace:*
-        version: link:../../scripts
-      typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
-
   packages/astro:
     dependencies:
       '@astrojs/compiler':
@@ -564,6 +545,9 @@ importers:
       aria-query:
         specifier: ^5.3.0
         version: 5.3.0
+      astro-integration-kit:
+        specifier: ^0.11.0
+        version: 0.11.0
       axobject-query:
         specifier: ^4.0.0
         version: 4.0.0
@@ -1744,6 +1728,48 @@ importers:
       vue:
         specifier: ^3.3.8
         version: 3.4.21(typescript@5.4.5)
+
+  packages/astro/test/fixtures/actions-blog:
+    dependencies:
+      '@astrojs/check':
+        specifier: ^0.5.10
+        version: 0.5.10(prettier-plugin-astro@0.13.0)(prettier@3.2.5)(typescript@5.4.5)
+      '@astrojs/db':
+        specifier: ^0.10.5
+        version: 0.10.7(@types/react@18.3.1)(react@18.3.0-canary-670811593-20240322)
+      '@astrojs/mdx':
+        specifier: ^2.3.1
+        version: link:../../../../integrations/mdx
+      '@astrojs/node':
+        specifier: ^8.2.5
+        version: link:../../../../integrations/node
+      '@astrojs/react':
+        specifier: ^3.3.0
+        version: link:../../../../integrations/react
+      '@astrojs/rss':
+        specifier: ^4.0.5
+        version: link:../../../../astro-rss
+      '@astrojs/sitemap':
+        specifier: ^3.1.4
+        version: link:../../../../integrations/sitemap
+      '@types/react':
+        specifier: ^18.2.79
+        version: 18.3.1
+      '@types/react-dom':
+        specifier: ^18.2.25
+        version: 18.2.25
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      react:
+        specifier: 18.3.0-canary-670811593-20240322
+        version: 18.3.0-canary-670811593-20240322
+      react-dom:
+        specifier: 18.3.0-canary-670811593-20240322
+        version: 18.3.0-canary-670811593-20240322(react@18.3.0-canary-670811593-20240322)
+      typescript:
+        specifier: ^5.4.5
+        version: 5.4.5
 
   packages/astro/test/fixtures/alias:
     dependencies:
@@ -3937,7 +3963,7 @@ importers:
         version: 1.0.2
       drizzle-orm:
         specifier: ^0.30.9
-        version: 0.30.9(@libsql/client@0.6.0)
+        version: 0.30.9(@libsql/client@0.6.0)(@types/react@18.3.1)(react@18.3.0-canary-670811593-20240322)
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -5741,6 +5767,52 @@ packages:
 
   /@astrojs/compiler@2.7.1:
     resolution: {integrity: sha512-/POejAYuj8WEw7ZI0J8JBvevjfp9jQ9Wmu/Bg52RiNwGXkMV7JnYpsenVfHvvf1G7R5sXHGKlTcxlQWhoUTiGQ==}
+
+  /@astrojs/db@0.10.7(@types/react@18.3.1)(react@18.3.0-canary-670811593-20240322):
+    resolution: {integrity: sha512-P2jP1M0KLSe9qNlKX7Y+KMVQnVKAFj6l64JB6xomLXS3y4PsY0gxGOll+aRMFb9GShpzGYarbR5Qo/B6k+ulIA==}
+    dependencies:
+      '@libsql/client': 0.6.0
+      async-listen: 3.0.1
+      ci-info: 4.0.0
+      deep-diff: 1.0.2
+      drizzle-orm: 0.30.9(@libsql/client@0.6.0)(@types/react@18.3.1)(react@18.3.0-canary-670811593-20240322)
+      github-slugger: 2.0.0
+      kleur: 4.1.5
+      nanoid: 5.0.7
+      open: 10.1.0
+      ora: 8.0.1
+      prompts: 2.4.2
+      strip-ansi: 7.1.0
+      yargs-parser: 21.1.1
+      zod: 3.23.5
+    transitivePeerDependencies:
+      - '@aws-sdk/client-rds-data'
+      - '@cloudflare/workers-types'
+      - '@electric-sql/pglite'
+      - '@neondatabase/serverless'
+      - '@op-engineering/op-sqlite'
+      - '@opentelemetry/api'
+      - '@planetscale/database'
+      - '@types/better-sqlite3'
+      - '@types/pg'
+      - '@types/react'
+      - '@types/sql.js'
+      - '@vercel/postgres'
+      - '@xata.io/client'
+      - better-sqlite3
+      - bufferutil
+      - bun-types
+      - expo-sqlite
+      - knex
+      - kysely
+      - mysql2
+      - pg
+      - postgres
+      - react
+      - sql.js
+      - sqlite3
+      - utf-8-validate
+    dev: false
 
   /@astrojs/language-server@2.8.4(prettier-plugin-astro@0.13.0)(prettier@3.2.5)(typescript@5.4.5):
     resolution: {integrity: sha512-sJH5vGTBkhgA8+hdhzX78UUp4cFz4Mt7xkEkevD188OS5bDMkaue6hK+dtXWM47mnrXFveXA2u38K7S+5+IRjA==}
@@ -9519,7 +9591,7 @@ packages:
       astro: link:packages/astro
     dev: false
 
-  /astro-integration-kit@0.11.0(astro@packages+astro):
+  /astro-integration-kit@0.11.0:
     resolution: {integrity: sha512-P41igJUY63W6iWq6Rtw0FnERVUdJhkpAa9jothRQ+AXl56B/6PMes/jcYPo3Zr6KwlMPT8TOHMoasHL0CfqglQ==}
     peerDependencies:
       '@astrojs/db': ^0.9.0
@@ -9549,7 +9621,6 @@ packages:
       vue:
         optional: true
     dependencies:
-      astro: link:packages/astro
       pathe: 1.1.2
       recast: 0.23.6
     dev: false
@@ -10671,7 +10742,7 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /drizzle-orm@0.30.9(@libsql/client@0.6.0):
+  /drizzle-orm@0.30.9(@libsql/client@0.6.0)(@types/react@18.3.1)(react@18.3.0-canary-670811593-20240322):
     resolution: {integrity: sha512-VOiCFsexErmgqvNCOmbzmqDCZzZsHoz6SkWAjTFxsTr1AllKDbDJ2+GgedLXsXMDgpg/ljDG1zItIFeZtiO2LA==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
@@ -10752,6 +10823,8 @@ packages:
         optional: true
     dependencies:
       '@libsql/client': 0.6.0
+      '@types/react': 18.3.1
+      react: 18.3.0-canary-670811593-20240322
     dev: false
 
   /dset@3.1.3:
@@ -14829,6 +14902,18 @@ packages:
       scheduler: 0.23.0
     dev: false
 
+  /react-dom@18.3.0-canary-670811593-20240322(react@18.3.0-canary-670811593-20240322):
+    resolution: {integrity: sha512-AHxCnyDzZueXIHY4WA2Uba1yaL7/vbjhO3D3TWPQeruKD5MwgD0/xExZi0T104gBr6Thv6MEsLSxFjBAHhHKKg==}
+    peerDependencies:
+      react: 18.3.0-canary-670811593-20240322
+    peerDependenciesMeta:
+      react:
+        optional: true
+    dependencies:
+      react: 18.3.0-canary-670811593-20240322
+      scheduler: 0.24.0-canary-670811593-20240322
+    dev: false
+
   /react-dom@18.3.1(react@18.3.1):
     resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
     peerDependencies:
@@ -14855,6 +14940,11 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
+    dev: false
+
+  /react@18.3.0-canary-670811593-20240322:
+    resolution: {integrity: sha512-EI6+q3tOT+0z4OkB2sz842Ra/n/yz7b3jOJhSK1HQwi4Ng29VJzLGngWmSuxQ94YfdE3EBhpUKDfgNgzoKM9Vg==}
+    engines: {node: '>=0.10.0'}
     dev: false
 
   /react@18.3.1:
@@ -15376,6 +15466,10 @@ packages:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
     dependencies:
       loose-envify: 1.4.0
+
+  /scheduler@0.24.0-canary-670811593-20240322:
+    resolution: {integrity: sha512-IGX6Fq969h1L0X7jV0sJ/EdI4fr+mRetbBNJl55nn+/RsCuQSVwgKnZG6Q3NByixDNbkRI8nRmWuhOm8NQowGQ==}
+    dev: false
 
   /scslre@0.3.0:
     resolution: {integrity: sha512-3A6sD0WYP7+QrjbfNA2FN3FsOaGGFoekCVgTyypy53gPxhbkCIjtO6YWgdrfM+n/8sI8JeXZOIxsHjMTNxQ4nQ==}

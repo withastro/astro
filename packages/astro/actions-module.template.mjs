@@ -1,6 +1,6 @@
-import { ActionError, ValidationError } from '@astrojs/actions/virtual';
+import { ActionError, ValidationError } from 'astro:actions';
 
-export * from '@astrojs/actions/virtual';
+export * from 'astro/virtual-modules/actions.js';
 
 function toActionProxy(
 	actionCallback = {},

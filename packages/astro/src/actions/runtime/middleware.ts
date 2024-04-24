@@ -1,4 +1,4 @@
-import { defineMiddleware } from 'astro:middleware';
+import { defineMiddleware } from '../../core/middleware/index.js';
 import { ApiContextStorage, formContentTypes, getAction } from './utils.js';
 import { ActionError } from './virtual.js';
 

@@ -10,7 +10,6 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/actions": "workspace:*",
     "@astrojs/check": "^0.5.10",
     "@astrojs/db": "^0.10.5",
     "@astrojs/mdx": "^2.3.1",
@@ -20,7 +19,7 @@
     "@astrojs/sitemap": "^3.1.4",
     "@types/react": "^18.2.79",
     "@types/react-dom": "^18.2.25",
-    "astro": "^4.6.3",
+    "astro": "workspace:*",
     "react": "18.3.0-canary-670811593-20240322",
     "react-dom": "18.3.0-canary-670811593-20240322",
     "typescript": "^5.4.5"

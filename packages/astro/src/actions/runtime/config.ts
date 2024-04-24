@@ -1,7 +1,7 @@
-import type { APIContext } from 'astro';
 import { z } from 'zod';
 import { ApiContextStorage } from './utils.js';
 import { ActionError, ValidationError } from './virtual.js';
+import type { APIContext } from '../../@types/astro.js';
 
 type MaybePromise<T> = T | Promise<T>;
 

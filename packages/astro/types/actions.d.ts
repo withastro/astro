@@ -7,5 +7,5 @@ declare namespace App {
 }
 
 declare module 'astro:actions' {
-	export * from '@astrojs/actions/virtual';
+	export * from 'astro/virtual-modules/actions';
 }

@@ -1707,6 +1707,27 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
+		 * @name experimental.actions
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.7.0
+		 * @description
+		 * Enables the new Astro Actions API, which lets you declare type-safe endpoints to call from your components.
+		 *
+		 * This option will be enabled by default in Astro 5.0.
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     actions: true,
+		 *   },
+		 * }
+		 * ```
+		 */
+		actions?: boolean;
+
+		/**
+		 * @docs
 		 * @name experimental.contentCollectionCache
 		 * @type {boolean}
 		 * @default `false`
