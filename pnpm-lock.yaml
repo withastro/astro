@@ -556,11 +556,11 @@ importers:
         specifier: ^4.6.3
         version: link:../../../../astro
       react:
-        specifier: 18.3.0-canary-670811593-20240322
-        version: 18.3.0-canary-670811593-20240322
+        specifier: 19.0.0-canary-cb151849e1-20240424
+        version: 19.0.0-canary-cb151849e1-20240424
       react-dom:
-        specifier: 18.3.0-canary-670811593-20240322
-        version: 18.3.0-canary-670811593-20240322(react@18.3.0-canary-670811593-20240322)
+        specifier: 19.0.0-canary-cb151849e1-20240424
+        version: 19.0.0-canary-cb151849e1-20240424(react@19.0.0-canary-cb151849e1-20240424)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -14568,16 +14568,16 @@ packages:
       react: 18.2.0
       scheduler: 0.23.0
 
-  /react-dom@18.3.0-canary-670811593-20240322(react@18.3.0-canary-670811593-20240322):
-    resolution: {integrity: sha512-AHxCnyDzZueXIHY4WA2Uba1yaL7/vbjhO3D3TWPQeruKD5MwgD0/xExZi0T104gBr6Thv6MEsLSxFjBAHhHKKg==}
+  /react-dom@19.0.0-canary-cb151849e1-20240424(react@19.0.0-canary-cb151849e1-20240424):
+    resolution: {integrity: sha512-J20FmrVUSpjzVXKPuK4q6Gj/aUufdJ3VlHH53zMmWLLH0uXG39ISl2p3iyXQeeGJHz/nW5YQ10s9UEoIp2eDwQ==}
     peerDependencies:
-      react: 18.3.0-canary-670811593-20240322
+      react: 19.0.0-canary-cb151849e1-20240424
     peerDependenciesMeta:
       react:
         optional: true
     dependencies:
-      react: 18.3.0-canary-670811593-20240322
-      scheduler: 0.24.0-canary-670811593-20240322
+      react: 19.0.0-canary-cb151849e1-20240424
+      scheduler: 0.25.0-canary-cb151849e1-20240424
     dev: false
 
   /react-is@18.2.0:
@@ -14595,8 +14595,8 @@ packages:
     dependencies:
       loose-envify: 1.4.0
 
-  /react@18.3.0-canary-670811593-20240322:
-    resolution: {integrity: sha512-EI6+q3tOT+0z4OkB2sz842Ra/n/yz7b3jOJhSK1HQwi4Ng29VJzLGngWmSuxQ94YfdE3EBhpUKDfgNgzoKM9Vg==}
+  /react@19.0.0-canary-cb151849e1-20240424:
+    resolution: {integrity: sha512-sX0ec4kqR1z2PAMdCo0cztaYaoGbpy2EoS5hAzUsBekB9FFnGWP4jbYK7GFURTIh5EK9ny1Mmgkb1hiyVYkj4Q==}
     engines: {node: '>=0.10.0'}
     dev: false
 
@@ -15104,8 +15104,8 @@ packages:
     dependencies:
       loose-envify: 1.4.0
 
-  /scheduler@0.24.0-canary-670811593-20240322:
-    resolution: {integrity: sha512-IGX6Fq969h1L0X7jV0sJ/EdI4fr+mRetbBNJl55nn+/RsCuQSVwgKnZG6Q3NByixDNbkRI8nRmWuhOm8NQowGQ==}
+  /scheduler@0.25.0-canary-cb151849e1-20240424:
+    resolution: {integrity: sha512-Cn5wjkCw+Md7mnE1xWmvmVRsvMvnxRhCQGOvoOUR0u78d2aZfyXxXK05BsKztsHiYg4w0nSOFX7822/XcxnRxg==}
     dev: false
 
   /scslre@0.3.0:

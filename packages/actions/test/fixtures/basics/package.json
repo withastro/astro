@@ -21,8 +21,8 @@
     "@types/react": "^18.2.79",
     "@types/react-dom": "^18.2.25",
     "astro": "^4.6.3",
-    "react": "18.3.0-canary-670811593-20240322",
-    "react-dom": "18.3.0-canary-670811593-20240322",
+    "react": "19.0.0-canary-cb151849e1-20240424",
+    "react-dom": "19.0.0-canary-cb151849e1-20240424",
     "typescript": "^5.4.5"
   }
 }
