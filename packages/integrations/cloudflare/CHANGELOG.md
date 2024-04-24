@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 10.2.4
+
+### Patch Changes
+
+- [#247](https://github.com/withastro/adapters/pull/247) [`e08cd4c`](https://github.com/withastro/adapters/commit/e08cd4ca6cf9a517941576f54a4b60ed17b6f077) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue where redirect rules where not excluded from routing due to ordering issues
+
 ## 10.2.3
 
 ### Patch Changes
