@@ -1,9 +1,11 @@
-type NotificationPayload = {
-	state: true;
-	level?: 'error' | 'warn' | 'info';
-} | {
-	state: false
-};
+type NotificationPayload =
+	| {
+			state: true;
+			level?: 'error' | 'warn' | 'info';
+	  }
+	| {
+			state: false;
+	  };
 
 type AppStatePayload = {
 	state: boolean;
@@ -11,7 +13,9 @@ type AppStatePayload = {
 
 type AppToggledEvent = (opts: { state: boolean }) => void;
 
-type ToolbarPlacementUpdatedEvent = (opts: { placement: 'bottom-left' | 'bottom-center' | 'bottom-right' }) => void;
+type ToolbarPlacementUpdatedEvent = (opts: {
+	placement: 'bottom-left' | 'bottom-center' | 'bottom-right';
+}) => void;
 
 export class ToolbarAppEventTarget extends EventTarget {
 	constructor() {

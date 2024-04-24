@@ -30,10 +30,10 @@ import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { ensureProcessNodeEnv, parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
+import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
 import { generate, parse, t, visit } from './babel.js';
 import { ensureImport } from './imports.js';
 import { wrapDefaultExport } from './wrapper.js';
-import { fetchPackageVersions, fetchPackageJson } from '../install-package.js';
 
 interface AddOptions {
 	flags: yargs.Arguments;

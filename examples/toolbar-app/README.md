@@ -29,11 +29,11 @@ The `integration.ts` file is a simple Astro integration file that will be used t
 
 All commands are run from the root of the project, from a terminal:
 
-| Command                   | Action                                             |
-| :------------------------ | :------------------------------------------------- |
-| `npm install`             | Installs dependencies                              |
-| `npm run dev`             | Watch for changes and build your app automatically |
-| `npm run build`           | Build your app to `./dist/`                        |
+| Command         | Action                                             |
+| :-------------- | :------------------------------------------------- |
+| `npm install`   | Installs dependencies                              |
+| `npm run dev`   | Watch for changes and build your app automatically |
+| `npm run build` | Build your app to `./dist/`                        |
 
 ## 👀 Want to learn more?
 

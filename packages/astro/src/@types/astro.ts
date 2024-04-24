@@ -19,7 +19,12 @@ import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
+import type { getToolbarServerCommunicationHelpers } from '../integrations/index.js';
 import type { AstroPreferences } from '../preferences/index.js';
+import type {
+	ToolbarAppEventTarget,
+	ToolbarServerHelpers,
+} from '../runtime/client/dev-toolbar/helpers.js';
 import type { AstroDevToolbar, DevToolbarCanvas } from '../runtime/client/dev-toolbar/toolbar.js';
 import type { Icon } from '../runtime/client/dev-toolbar/ui-library/icons.js';
 import type {
@@ -40,11 +45,6 @@ import type {
 } from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify, WithRequired } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
-import type {
-	ToolbarAppEventTarget,
-	ToolbarServerHelpers,
-} from '../runtime/client/dev-toolbar/helpers.js';
-import type { getToolbarServerCommunicationHelpers } from '../integrations/index.js';
 
 export type { AstroIntegrationLogger, ToolbarServerHelpers };
 

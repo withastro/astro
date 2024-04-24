@@ -63,9 +63,13 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 						return (await Promise.all([${settings.devToolbarApps
 							.map(
 								(plugin) =>
-									`safeLoadPlugin(${JSON.stringify(plugin)}, async () => (await import(${JSON.stringify(
+									`safeLoadPlugin(${JSON.stringify(
+										plugin
+									)}, async () => (await import(${JSON.stringify(
 										typeof plugin === 'string' ? plugin : plugin.entrypoint
-									)})).default, ${JSON.stringify(typeof plugin === 'string' ? plugin : plugin.entrypoint)})`
+									)})).default, ${JSON.stringify(
+										typeof plugin === 'string' ? plugin : plugin.entrypoint
+									)})`
 							)
 							.join(',')}]));
 					};
