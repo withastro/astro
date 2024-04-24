@@ -1,6 +1,6 @@
 import opts from 'astro:react:opts';
 import React from 'react';
-import ReactDOM from 'react-dom/server';
+import ReactDOM from 'react-dom/server.browser';
 import { incrementId } from './context.js';
 import StaticHtml from './static-html.js';
 

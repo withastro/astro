@@ -10,17 +10,14 @@ export type ReactIntegrationOptions = Pick<
 	experimentalReactChildren?: boolean;
 };
 
+const isLegacy = ReactVersion.startsWith('17.');
 const FAST_REFRESH_PREAMBLE = react.preambleCode;
 
 function getRenderer() {
 	return {
 		name: '@astrojs/react',
-		clientEntrypoint: ReactVersion.startsWith('18.')
-			? '@astrojs/react/client.js'
-			: '@astrojs/react/client-v17.js',
-		serverEntrypoint: ReactVersion.startsWith('18.')
-			? '@astrojs/react/server.js'
-			: '@astrojs/react/server-v17.js',
+		clientEntrypoint: isLegacy ? '@astrojs/react/client-v17.js' : '@astrojs/react/client.js',
+		serverEntrypoint: isLegacy ? '@astrojs/react/server-v17.js' : '@astrojs/react/server.js',
 	};
 }
 
@@ -55,28 +52,22 @@ function getViteConfiguration({
 	return {
 		optimizeDeps: {
 			include: [
-				ReactVersion.startsWith('18.')
-					? '@astrojs/react/client.js'
-					: '@astrojs/react/client-v17.js',
+				isLegacy ? '@astrojs/react/client-v17.js' : '@astrojs/react/client.js',
 				'react',
 				'react/jsx-runtime',
 				'react/jsx-dev-runtime',
 				'react-dom',
 			],
-			exclude: [
-				ReactVersion.startsWith('18.')
-					? '@astrojs/react/server.js'
-					: '@astrojs/react/server-v17.js',
-			],
+			exclude: [isLegacy ? '@astrojs/react/server-v17.js' : '@astrojs/react/server.js'],
 		},
 		plugins: [react({ include, exclude, babel }), optionsPlugin(!!experimentalReactChildren)],
 		resolve: {
 			dedupe: ['react', 'react-dom', 'react-dom/server'],
 		},
 		ssr: {
-			external: ReactVersion.startsWith('18.')
-				? ['react-dom/server', 'react-dom/client']
-				: ['react-dom/server.js', 'react-dom/client.js'],
+			external: isLegacy
+				? ['react-dom/server.js', 'react-dom/client.js']
+				: ['react-dom/server', 'react-dom/client'],
 			noExternal: [
 				// These are all needed to get mui to work.
 				'@mui/material',
