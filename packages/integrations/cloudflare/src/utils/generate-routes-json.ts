@@ -170,6 +170,10 @@ export async function createRoutesFile(
 	);
 	excludePaths.push(assetsPath);
 
+	for (const redirect of redirects) {
+		excludePaths.push(segmentsToCfSyntax(redirect, _config));
+	}
+
 	if (existsSync(fileURLToPath(_config.publicDir))) {
 		const staticFiles = await glob(`${fileURLToPath(_config.publicDir)}/**/*`, {
 			cwd: fileURLToPath(_config.publicDir),
@@ -188,10 +192,6 @@ export async function createRoutesFile(
 				});
 			excludePaths.push(segmentsToCfSyntax(segments, _config));
 		}
-	}
-
-	for (const redirect of redirects) {
-		excludePaths.push(segmentsToCfSyntax(redirect, _config));
 	}
 
 	let hasPrerendered404 = false;

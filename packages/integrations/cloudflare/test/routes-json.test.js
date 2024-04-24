@@ -24,7 +24,7 @@ describe('_routes.json generation', () => {
 			assert.deepEqual(routes, {
 				version: 1,
 				include: ['/_image', '/a/*'],
-				exclude: ['/_astro/*', '/public.txt', '/redirectme', '/a', '/a/redirect', '/404', '/b'],
+				exclude: ['/_astro/*', '/redirectme', '/public.txt', '/a', '/a/redirect', '/404', '/b'],
 			});
 		});
 	});
@@ -48,7 +48,7 @@ describe('_routes.json generation', () => {
 			assert.deepEqual(routes, {
 				version: 1,
 				include: ['/*'],
-				exclude: ['/_astro/*', '/public.txt', '/redirectme', '/a/redirect'],
+				exclude: ['/_astro/*', '/redirectme', '/public.txt', '/a/redirect'],
 			});
 		});
 	});
@@ -102,7 +102,7 @@ describe('_routes.json generation', () => {
 			assert.deepEqual(routes, {
 				version: 1,
 				include: ['/_image', '/a/*', '/another'],
-				exclude: ['/_astro/*', '/public.txt', '/redirectme', '/a', '/a/redirect', '/404', '/b'],
+				exclude: ['/_astro/*', '/redirectme', '/public.txt', '/a', '/a/redirect', '/404', '/b'],
 			});
 		});
 	});
@@ -134,8 +134,8 @@ describe('_routes.json generation', () => {
 				include: ['/_image', '/a/*'],
 				exclude: [
 					'/_astro/*',
-					'/public.txt',
 					'/redirectme',
+					'/public.txt',
 					'/a',
 					'/a/redirect',
 					'/404',
