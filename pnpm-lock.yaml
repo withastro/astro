@@ -775,6 +775,12 @@ importers:
       eol:
         specifier: ^0.9.1
         version: 0.9.1
+      mdast-util-mdx:
+        specifier: ^3.0.0
+        version: 3.0.0
+      mdast-util-mdx-jsx:
+        specifier: ^3.1.2
+        version: 3.1.2
       memfs:
         specifier: ^4.8.2
         version: 4.8.2
