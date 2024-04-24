@@ -8,34 +8,33 @@ type MaybePromise<T> = T | Promise<T>;
 export function defineAction<TOutput, TInputSchema extends z.ZodType>({
 	input: inputSchema,
 	handler,
-	enhance,
+	acceptFormData,
 }: {
 	input?: TInputSchema;
 	handler: (input: z.infer<TInputSchema>, context: APIContext) => MaybePromise<TOutput>;
-	enhance?: boolean;
+	acceptFormData?: boolean;
 }): (input: z.input<TInputSchema>) => Promise<Awaited<TOutput>> {
 	return async (unparsedInput): Promise<Awaited<TOutput>> => {
 		const context = ApiContextStorage.getStore()!;
-		const ContentType = context.request.headers.get('content-type');
-		if (!enhance && (ContentType !== 'application/json' || unparsedInput instanceof FormData)) {
-			// TODO: prettify dev server error
+		if (!acceptFormData && unparsedInput instanceof FormData) {
 			throw new ActionError({
 				status: 'INTERNAL_SERVER_ERROR',
 				message:
-					'Called an action with a non-JSON body. To enhance an action to accept form data, add `enhance: true` to your `defineAction()` config.',
+					'Called an action with a non-JSON body. To acceptFormData an action to accept form data, add `acceptFormData: true` to your `defineAction()` config.',
 			});
 		}
 
 		if (!inputSchema) return await handler(unparsedInput, context);
 
-		if (enhance && unparsedInput instanceof FormData) {
+		if (acceptFormData && unparsedInput instanceof FormData) {
 			if (!(inputSchema instanceof z.ZodObject)) {
 				throw new ActionError({
 					status: 'INTERNAL_SERVER_ERROR',
-					message: '`input` must use a Zod object schema (z.object) when `enhance` is enabled.',
+					message:
+						'`input` must use a Zod object schema (z.object) when `acceptFormData` is enabled.',
 				});
 			}
-			unparsedInput = enhanceFormData(unparsedInput, inputSchema);
+			unparsedInput = upgradeFormData(unparsedInput, inputSchema);
 		}
 
 		const parsed = inputSchema.safeParse(unparsedInput);
@@ -46,7 +45,7 @@ export function defineAction<TOutput, TInputSchema extends z.ZodType>({
 	};
 }
 
-function enhanceFormData<T extends z.AnyZodObject>(
+function upgradeFormData<T extends z.AnyZodObject>(
 	formData: FormData,
 	schema: T
 ): Record<string, unknown> {
