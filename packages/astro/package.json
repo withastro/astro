@@ -179,7 +179,7 @@
     "zod-to-json-schema": "^3.22.5"
   },
   "optionalDependencies": {
-    "sharp": "^0.32.6"
+    "sharp": "^0.33.3"
   },
   "devDependencies": {
     "@astrojs/check": "^0.5.10",
