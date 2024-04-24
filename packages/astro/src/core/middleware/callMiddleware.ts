@@ -5,6 +5,7 @@ import type {
 	ReroutePayload,
 } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import type { Logger } from '../logger/core.js';
 
 /**
  * Utility function that is in charge of calling the middleware.
@@ -46,14 +47,25 @@ export async function callMiddleware(
 	responseFunction: (
 		apiContext: APIContext,
 		reroutePayload?: ReroutePayload
-	) => Promise<Response> | Response
+	) => Promise<Response> | Response,
+	// TODO: remove these two arguments once rerouting goes out of experimental
+	enableRerouting: boolean,
+	logger: Logger
 ): Promise<Response> {
 	let nextCalled = false;
 	let responseFunctionPromise: Promise<Response> | Response | undefined = undefined;
 	const next: MiddlewareNext = async (payload) => {
 		nextCalled = true;
+		if (enableRerouting) {
+			responseFunctionPromise = responseFunction(apiContext, payload);
+		} else {
+			logger.warn(
+				'router',
+				'You tried to use the routing feature without enabling it via experimental flag. This is not allowed.'
+			);
+			responseFunctionPromise = responseFunction(apiContext);
+		}
 		// We need to pass the APIContext pass to `callMiddleware` because it can be mutated across middleware functions
-		responseFunctionPromise = responseFunction(apiContext, payload);
 		return responseFunctionPromise;
 	};
 

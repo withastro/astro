@@ -174,7 +174,13 @@ export class RenderContext {
 			}
 		};
 
-		const response = await callMiddleware(middleware, apiContext, lastNext);
+		const response = await callMiddleware(
+			middleware,
+			apiContext,
+			lastNext,
+			this.pipeline.manifest.reroutingEnabled,
+			this.pipeline.logger
+		);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
 			response.headers.delete(ROUTE_TYPE_HEADER);
 		}

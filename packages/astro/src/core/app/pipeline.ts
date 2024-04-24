@@ -98,7 +98,6 @@ export class AppPipeline extends Pipeline {
 			const componentInstance = await this.getComponentByRoute(foundRoute);
 			return [foundRoute, componentInstance];
 		} else {
-			// TODO: handle error properly
 			throw new Error('Route not found');
 		}
 	}

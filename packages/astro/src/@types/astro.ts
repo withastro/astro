@@ -251,7 +251,16 @@ export interface AstroGlobal<
 	 */
 	redirect: AstroSharedContext['redirect'];
 	/**
-	 * TODO add documentation
+	 * It reroutes to another page. As opposed to redirects, the URL won't change, and Astro will render the HTML emitted
+	 * by the rerouted URL passed as argument.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * if (pageIsNotEnabled) {
+	 * 	return Astro.reroute('/fallback-page')
+	 * }
+	 * ```
 	 */
 	reroute: AstroSharedContext['reroute'];
 	/**
@@ -1645,7 +1654,7 @@ export interface AstroUserConfig {
 		domains?: Record<string, string>;
 	};
 
-	/** ⚠️ WARNING: SUBJECT TO CHANGE */
+	/** ! WARNING: SUBJECT TO CHANGE */
 	db?: Config.Database;
 
 	/**
@@ -1932,10 +1941,38 @@ export interface AstroUserConfig {
 		 * @name experimental.rerouting
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 4.6.0
+		 * @version 4.8.0
 		 * @description
 		 *
-		 * TODO
+		 * Enables the use of rerouting features in Astro pages, Endpoints and Astro middleware:
+		 *
+		 * ```astro
+		 * ---
+		 * // src/pages/dashboard.astro
+		 * if (!Astro.props.allowed) {
+		 * 	return Astro.reroute("/")
+		 * }
+		 * ---
+		 * ```
+		 *
+		 * ```js
+		 * // src/pages/api.js
+		 * export function GET(ctx) {
+		 * 	if (!ctx.locals.allowed) {
+		 * 		return ctx.reroute("/")
+		 * 	}
+		 * }
+		 * ```
+		 *
+		 * ```js
+		 * // src/middleware.js
+		 * export function onRequest(ctx, next) {
+		 * 	if (!ctx.cookies.get("allowed")) {
+		 * 		return next("/") // new signature
+		 * 	}
+		 * 	return next();
+		 * }
+		 * ```
 		 */
 		rerouting: boolean;
 	};
@@ -2508,7 +2545,16 @@ interface AstroSharedContext<
 	redirect(path: string, status?: ValidRedirectStatus): Response;
 
 	/**
-	 * TODO: add documentation
+	 * It reroutes to another page. As opposed to redirects, the URL won't change, and Astro will render the HTML emitted
+	 * by the rerouted URL passed as argument.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * if (pageIsNotEnabled) {
+	 * 	return Astro.reroute('/fallback-page')
+	 * }
+	 * ```
 	 */
 	reroute(reroutePayload: ReroutePayload): Promise<Response>;
 
@@ -2627,7 +2673,17 @@ export interface APIContext<
 	redirect: AstroSharedContext['redirect'];
 
 	/**
-	 * TODO: docs
+	 * It reroutes to another page. As opposed to redirects, the URL won't change, and Astro will render the HTML emitted
+	 * by the rerouted URL passed as argument.
+	 *
+	 * ## Example
+	 *
+	 * ```ts
+	 * // src/pages/secret.ts
+	 * export function GET(ctx) {
+	 *   return ctx.reroute(new URL("../"), ctx.url);
+	 * }
+	 * ```
 	 */
 	reroute: AstroSharedContext['reroute'];
 
