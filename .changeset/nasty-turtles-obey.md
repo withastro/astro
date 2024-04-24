@@ -2,4 +2,4 @@
 "@astrojs/sitemap": patch
 ---
 
-Site map status code exclusion now only excludes pages like /[error-code] or /[locale]/[error-code]
+Fixed false positives for status code routes like `404` and `500` when generating sitemaps.
