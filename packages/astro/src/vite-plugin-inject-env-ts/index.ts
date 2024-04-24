@@ -5,8 +5,8 @@ import { bold } from 'kleur/colors';
 import { type Plugin, normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { type Logger } from '../core/logger/core.js';
-import { CONTENT_TYPES_FILE } from '#astro/content/consts';
-import { ENV_TYPES_FILE } from '#astro/env/constants';
+import { CONTENT_TYPES_FILE } from '../content/consts.js';
+import { ENV_TYPES_FILE } from '../env/constants.js';
 
 export function getEnvTsPath({ srcDir }: { srcDir: URL }) {
 	return new URL('env.d.ts', srcDir);
