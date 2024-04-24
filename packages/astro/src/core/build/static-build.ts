@@ -442,6 +442,13 @@ async function cleanServerOutput(
 
 	// Clean out directly if the outDir is outside of root
 	if (out.toString() !== opts.settings.config.outDir.toString()) {
+		// Remove .d.ts files
+		const fileNames = await fs.promises.readdir(out);
+		await Promise.all(
+			fileNames
+				.filter((fileName) => fileName.endsWith('.d.ts'))
+				.map((fileName) => fs.promises.rm(new URL(fileName, out)))
+		);
 		// Copy assets before cleaning directory if outside root
 		await copyFiles(out, opts.settings.config.outDir, true);
 		await fs.promises.rm(out, { recursive: true });
