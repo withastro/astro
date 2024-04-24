@@ -5,6 +5,8 @@ import { bold } from 'kleur/colors';
 import { type Plugin, normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { type Logger } from '../core/logger/core.js';
+import { CONTENT_TYPES_FILE } from '#astro/content/consts';
+import { ENV_TYPES_FILE } from '#astro/env/constants';
 
 export function getEnvTsPath({ srcDir }: { srcDir: URL }) {
 	return new URL('env.d.ts', srcDir);
@@ -44,6 +46,8 @@ function getDotAstroTypeReference({
 	return `/// <reference path=${JSON.stringify(contentTypesRelativeToSrcDir)} />`;
 }
 
+type InjectedType = { filename: string; condition?: () => boolean | Promise<boolean> };
+
 export async function setUpEnvTs({
 	settings,
 	logger,
@@ -58,10 +62,22 @@ export async function setUpEnvTs({
 		path.relative(fileURLToPath(settings.config.root), fileURLToPath(envTsPath))
 	);
 
+	const injectedTypes: Array<InjectedType> = [
+		{
+			filename: CONTENT_TYPES_FILE,
+			condition: () => fs.existsSync(new URL(CONTENT_TYPES_FILE, settings.dotAstroDir)),
+		},
+	];
+	if (settings.config.experimental.env) {
+		injectedTypes.push({
+			filename: ENV_TYPES_FILE,
+		});
+	}
+
 	if (fs.existsSync(envTsPath)) {
 		let typesEnvContents = await fs.promises.readFile(envTsPath, 'utf-8');
 
-		for (const injectedType of settings.injectedTypes) {
+		for (const injectedType of injectedTypes) {
 			if (!injectedType.condition || (await injectedType.condition?.())) {
 				const expectedTypeReference = getDotAstroTypeReference({
 					settings,
@@ -81,7 +97,7 @@ export async function setUpEnvTs({
 		let referenceDefs: string[] = [];
 		referenceDefs.push('/// <reference types="astro/client" />');
 
-		for (const injectedType of settings.injectedTypes) {
+		for (const injectedType of injectedTypes) {
 			if (!injectedType.condition || (await injectedType.condition?.())) {
 				referenceDefs.push(getDotAstroTypeReference({ settings, filename: injectedType.filename }));
 			}

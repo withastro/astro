@@ -2131,7 +2131,6 @@ export interface AstroSettings {
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
 	timer: AstroTimer;
-	injectedTypes: Array<{ filename: string; condition?: () => boolean | Promise<boolean> }>;
 	dotAstroDir: URL;
 }
 

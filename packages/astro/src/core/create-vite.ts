@@ -38,8 +38,6 @@ import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
 import { isObject } from './util.js';
 import { astroEnvVirtualModPlugin } from '../env/vite-plugin-env-virtual-mod.js';
-import { injectContentTypes } from '../content/inject-types.js';
-import { injectEnvTypes } from '../env/inject-types.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -110,9 +108,6 @@ export async function createVite(
 	});
 
 	const srcDirPattern = glob.convertPathToPattern(fileURLToPath(settings.config.srcDir));
-
-	settings = injectContentTypes({ settings, fs })
-	settings = injectEnvTypes({ settings })
 
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: vite.InlineConfig = {
