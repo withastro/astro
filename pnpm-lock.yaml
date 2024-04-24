@@ -381,6 +381,12 @@ importers:
         specifier: ^0.33.3
         version: 0.33.3
 
+  examples/toolbar-app:
+    devDependencies:
+      astro:
+        specifier: ^4.6.1
+        version: link:../../packages/astro
+
   examples/view-transitions:
     devDependencies:
       '@astrojs/node':

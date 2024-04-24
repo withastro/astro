@@ -38,10 +38,15 @@ import type {
 	TransitionBeforePreparationEvent,
 	TransitionBeforeSwapEvent,
 } from '../transitions/events.js';
-import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
+import type { DeepPartial, OmitIndexSignature, Simplify, WithRequired } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type {
+	ToolbarAppEventTarget,
+	ToolbarServerHelpers,
+} from '../runtime/client/dev-toolbar/helpers.js';
+import type { getToolbarServerCommunicationHelpers } from '../integrations/index.js';
 
-export { type AstroIntegrationLogger };
+export type { AstroIntegrationLogger, ToolbarServerHelpers };
 
 export type {
 	MarkdownHeading,
@@ -2100,7 +2105,7 @@ export interface AstroSettings {
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
-	devToolbarApps: string[];
+	devToolbarApps: (DevToolbarAppEntry | string)[];
 	middlewares: { pre: string[]; post: string[] };
 	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
@@ -2735,7 +2740,8 @@ export interface AstroIntegration {
 			 * TODO: Fully remove in Astro 5.0
 			 */
 			addDevOverlayPlugin: (entrypoint: string) => void;
-			addDevToolbarApp: (entrypoint: string) => void;
+			// TODO: Deprecate the `string` overload once a few apps have been migrated to the new API.
+			addDevToolbarApp: (entrypoint: DevToolbarAppEntry | string) => void;
 			addMiddleware: (mid: AstroIntegrationMiddleware) => void;
 			logger: AstroIntegrationLogger;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
@@ -2751,6 +2757,7 @@ export interface AstroIntegration {
 		'astro:server:setup'?: (options: {
 			server: vite.ViteDevServer;
 			logger: AstroIntegrationLogger;
+			toolbar: ReturnType<typeof getToolbarServerCommunicationHelpers>;
 		}) => void | Promise<void>;
 		'astro:server:start'?: (options: {
 			address: AddressInfo;
@@ -3006,13 +3013,53 @@ export interface ClientDirectiveConfig {
 	entrypoint: string;
 }
 
-export interface DevToolbarApp {
+type DevToolbarAppMeta = {
 	id: string;
 	name: string;
 	icon?: Icon;
-	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
+};
+
+// The param passed to `addDevToolbarApp` in the integration
+export type DevToolbarAppEntry = DevToolbarAppMeta & {
+	entrypoint: string;
+};
+
+// Public API for the dev toolbar
+export type DevToolbarApp = {
+	/**
+	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
+	 *
+	 * Ex: `addDevToolbarApp({ id: 'my-app', name: 'My App', icon: '🚀', entrypoint: '/path/to/app' })`
+	 *
+	 * In the future, putting these properties directly on the app object will be removed.
+	 */
+	id?: string;
+	/**
+	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
+	 *
+	 * Ex: `addDevToolbarApp({ id: 'my-app', name: 'My App', icon: '🚀', entrypoint: '/path/to/app' })`
+	 *
+	 * In the future, putting these properties directly on the app object will be removed.
+	 */
+	name?: string;
+	/**
+	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
+	 *
+	 * Ex: `addDevToolbarApp({ id: 'my-app', name: 'My App', icon: '🚀', entrypoint: '/path/to/app' })`
+	 *
+	 * In the future, putting these properties directly on the app object will be removed.
+	 */
+	icon?: Icon;
+	init?(
+		canvas: ShadowRoot,
+		app: ToolbarAppEventTarget,
+		server: ToolbarServerHelpers
+	): void | Promise<void>;
 	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
-}
+};
+
+// An app that has been loaded and as such contain all of its properties
+export type ResolvedDevToolbarApp = DevToolbarAppMeta & Omit<DevToolbarApp, 'id' | 'name' | 'icon'>;
 
 // TODO: Remove in Astro 5.0
 export type DevOverlayPlugin = DevToolbarApp;
