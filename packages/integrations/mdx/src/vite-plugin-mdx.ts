@@ -1,13 +1,12 @@
-import fs from 'node:fs/promises';
 import { setVfileFrontmatter } from '@astrojs/markdown-remark';
-import type { AstroConfig, SSRError } from 'astro';
+import type { SSRError } from 'astro';
 import { VFile } from 'vfile';
 import type { Plugin } from 'vite';
 import type { MdxOptions } from './index.js';
 import { createMdxProcessor } from './plugins.js';
-import { getFileInfo, parseFrontmatter } from './utils.js';
+import { parseFrontmatter } from './utils.js';
 
-export function vitePluginMdx(astroConfig: AstroConfig, mdxOptions: MdxOptions): Plugin {
+export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
 	let processor: ReturnType<typeof createMdxProcessor> | undefined;
 
 	return {
@@ -43,12 +42,8 @@ export function vitePluginMdx(astroConfig: AstroConfig, mdxOptions: MdxOptions):
 		},
 		// Override transform to alter code before MDX compilation
 		// ex. inject layouts
-		async transform(_, id) {
+		async transform(code, id) {
 			if (!id.endsWith('.mdx')) return;
-
-			// Read code from file manually to prevent Vite from parsing `import.meta.env` expressions
-			const { fileId } = getFileInfo(id, astroConfig);
-			const code = await fs.readFile(fileId, 'utf-8');
 
 			const { data: frontmatter, content: pageContent } = parseFrontmatter(code, id);
 
@@ -76,7 +71,7 @@ export function vitePluginMdx(astroConfig: AstroConfig, mdxOptions: MdxOptions):
 
 				// For some reason MDX puts the error location in the error's name, not very useful for us.
 				err.name = 'MDXError';
-				err.loc = { file: fileId, line: e.line, column: e.column };
+				err.loc = { file: id, line: e.line, column: e.column };
 
 				// For another some reason, MDX doesn't include a stack trace. Weird
 				Error.captureStackTrace(err);

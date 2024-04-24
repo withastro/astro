@@ -70,7 +70,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 
 				updateConfig({
 					vite: {
-						plugins: [vitePluginMdx(config, mdxOptions), vitePluginMdxPostprocess(config)],
+						plugins: [vitePluginMdx(mdxOptions), vitePluginMdxPostprocess(config)],
 					},
 				});
 			},
