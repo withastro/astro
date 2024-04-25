@@ -46,7 +46,7 @@ function getDotAstroTypeReference({
 	return `/// <reference path=${JSON.stringify(relativePath)} />`;
 }
 
-type InjectedType = { filename: string; condition?: () => boolean | Promise<boolean> };
+type InjectedType = { filename: string; meetsCondition?: () => boolean | Promise<boolean> };
 
 export async function setUpEnvTs({
 	settings,
@@ -65,7 +65,7 @@ export async function setUpEnvTs({
 	const injectedTypes: Array<InjectedType> = [
 		{
 			filename: CONTENT_TYPES_FILE,
-			condition: () => fs.existsSync(new URL(CONTENT_TYPES_FILE, settings.dotAstroDir)),
+			meetsCondition: () => fs.existsSync(new URL(CONTENT_TYPES_FILE, settings.dotAstroDir)),
 		},
 	];
 	if (settings.config.experimental.env) {
@@ -78,7 +78,7 @@ export async function setUpEnvTs({
 		let typesEnvContents = await fs.promises.readFile(envTsPath, 'utf-8');
 
 		for (const injectedType of injectedTypes) {
-			if (!injectedType.condition || (await injectedType.condition?.())) {
+			if (!injectedType.meetsCondition || (await injectedType.meetsCondition?.())) {
 				const expectedTypeReference = getDotAstroTypeReference({
 					settings,
 					filename: injectedType.filename,
@@ -98,7 +98,7 @@ export async function setUpEnvTs({
 		referenceDefs.push('/// <reference types="astro/client" />');
 
 		for (const injectedType of injectedTypes) {
-			if (!injectedType.condition || (await injectedType.condition?.())) {
+			if (!injectedType.meetsCondition || (await injectedType.meetsCondition?.())) {
 				referenceDefs.push(getDotAstroTypeReference({ settings, filename: injectedType.filename }));
 			}
 		}
