@@ -1,7 +1,7 @@
 import { defineMiddleware } from '../../core/middleware/index.js';
 import { ApiContextStorage } from './store.js';
 import { formContentTypes, getAction } from './utils.js';
-import { ActionError } from './virtual.js';
+import { ActionError } from './virtual/shared.js';
 
 type Locals = {
 	getActionResult: <T extends (...args: any) => any>(

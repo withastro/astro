@@ -1,7 +1,7 @@
 import type { APIRoute } from '../../@types/astro.js';
 import { ApiContextStorage } from './store.js';
 import { getAction } from './utils.js';
-import { ActionError } from './virtual.js';
+import { ActionError } from './virtual/shared.js';
 
 export const POST: APIRoute = async (context) => {
 	const { request, url } = context;

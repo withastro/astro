@@ -54,10 +54,11 @@
     "./components": "./components/index.ts",
     "./components/*": "./components/*",
     "./toolbar": "./dist/toolbar/index.js",
-    "./actions/config": {
-      "types": "./dist/actions/runtime/config.d.ts",
-      "default": "./dist/actions/runtime/config.js"
+    "./actions/runtime/virtual/server.js": {
+      "types": "./dist/actions/runtime/virtual/server.d.ts",
+      "default": "./dist/actions/runtime/virtual/server.js"
     },
+    "./actions/runtime/virtual/client.js": "./dist/actions/runtime/virtual/client.js",
     "./actions/runtime/route.js": "./dist/actions/runtime/route.js",
     "./actions/runtime/middleware.js": "./dist/actions/runtime/middleware.js",
     "./assets": "./dist/assets/index.js",

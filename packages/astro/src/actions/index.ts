@@ -51,13 +51,18 @@ const vitePluginActions: VitePlugin = {
 			return RESOLVED_VIRTUAL_MODULE_ID;
 		}
 	},
-	async load(id) {
+	async load(id, opts) {
 		if (id !== RESOLVED_VIRTUAL_MODULE_ID) return;
 
-		const code = await readFile(
+		let code = await readFile(
 			new URL('../../actions-module.template.mjs', import.meta.url),
 			'utf-8'
 		);
+		if (opts?.ssr) {
+			code += `\nexport * from 'astro/actions/runtime/virtual/server.js';`;
+		} else {
+			code += `\nexport * from 'astro/actions/runtime/virtual/client.js';`;
+		}
 		return code;
 	},
 };

@@ -1,7 +1,5 @@
 import { ActionError, ValidationError } from 'astro:actions';
 
-export * from 'astro/virtual-modules/actions.js';
-
 function toActionProxy(
 	actionCallback = {},
 	aggregatedPath = '/_actions/'

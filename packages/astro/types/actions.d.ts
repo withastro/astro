@@ -7,5 +7,5 @@ declare namespace App {
 }
 
 declare module 'astro:actions' {
-	export * from 'astro/virtual-modules/actions';
+	export * from 'astro/actions/runtime/virtual/server.js';
 }
