@@ -1,9 +1,8 @@
 import { z } from 'zod';
-import { ApiContextStorage } from './utils.js';
 import { ActionError, ValidationError } from './virtual.js';
 import type { APIContext } from '../../@types/astro.js';
-
-type MaybePromise<T> = T | Promise<T>;
+import { ApiContextStorage } from './store.js';
+import type { MaybePromise } from './utils.js';
 
 export function defineAction<TOutput, TInputSchema extends z.ZodType>({
 	input: inputSchema,

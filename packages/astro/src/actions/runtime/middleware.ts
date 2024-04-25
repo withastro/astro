@@ -1,5 +1,6 @@
 import { defineMiddleware } from '../../core/middleware/index.js';
-import { ApiContextStorage, formContentTypes, getAction } from './utils.js';
+import { ApiContextStorage } from './store.js';
+import { formContentTypes, getAction } from './utils.js';
 import { ActionError } from './virtual.js';
 
 type Locals = {
