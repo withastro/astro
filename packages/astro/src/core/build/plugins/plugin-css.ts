@@ -18,7 +18,6 @@ import {
 	getPageDataByViteID,
 	getPageDatasByClientOnlyID,
 	getPageDatasByHoistedScriptId,
-	isHoistedScript,
 } from '../internal.js';
 import { extendManualChunks, shouldInlineAsset } from './util.js';
 
@@ -161,7 +160,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							if (pageData) {
 								appendCSSToPage(pageData, meta, pagesToCss, depth, order);
 							}
-						} else if (options.target === 'client' && isHoistedScript(internals, pageInfo.id)) {
+						} else if (options.target === 'client' && internals.hoistedScriptIdToPagesMap.has(pageInfo.id)) {
 							for (const pageData of getPageDatasByHoistedScriptId(internals, pageInfo.id)) {
 								appendCSSToPage(pageData, meta, pagesToCss, -1, order);
 							}

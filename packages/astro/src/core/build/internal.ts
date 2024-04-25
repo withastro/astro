@@ -233,17 +233,19 @@ export function getPageData(
 }
 
 /**
- * TODO: remove this function, obsolete.
- * last usage in astro/packages/astro/src/core/build/generate.ts
+ * Get all pages datas from the build internals, using a specific component.
+ * @param internals Build Internals with all the pages
+ * @param component path to the component, used to identify related pages
  */
-export function getPageDataByComponent(
+export function getPagesDatasByComponent(
 	internals: BuildInternals,
 	component: string
-): PageBuildData | undefined {
-	if (internals.pagesByKeys.has(component)) {
-		return internals.pagesByKeys.get(component);
-	}
-	return undefined;
+): PageBuildData[] {
+	const pageDatas: PageBuildData[] = [];
+		Array.from(internals.pagesByKeys.values()).forEach((pageData) => {
+			if (component === pageData.component) pageDatas.push(pageData);
+	})
+	return pageDatas;
 }
 
 /**
@@ -360,21 +362,23 @@ export function mergeInlineCss(
 	return acc;
 }
 
-export function isHoistedScript(internals: BuildInternals, id: string): boolean {
-	return internals.hoistedScriptIdToPagesMap.has(id);
-}
-
-export function* getPageDatasByHoistedScriptId(
+/**
+ * Get all pages data from the build internals, using a specific hoisted script id.
+ * @param internals Build Internals with all the pages
+ * @param id Hoisted script id, used to identify the pages using it
+ */
+export function getPageDatasByHoistedScriptId(
 	internals: BuildInternals,
 	id: string
-): Generator<PageBuildData, void, unknown> {
+): PageBuildData[]{
 	const set = internals.hoistedScriptIdToPagesMap.get(id);
+	const pageDatas: PageBuildData[] = [];
 	if (set) {
 		for (const pageId of set) {
-			const pageData = getPageDataByComponent(internals, pageId.slice(1));
-			if (pageData) {
-				yield pageData;
-			}
+			getPagesDatasByComponent(internals, pageId.slice(1)).forEach((pageData) => {
+				pageDatas.push(pageData);
+			});
 		}
 	}
+	return pageDatas;
 }
