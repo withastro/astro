@@ -96,18 +96,18 @@ function handleClientModule({
 		data.push({ key, value: result.value, type: result.type });
 	}
 
-	const clientContent = `
-const data = ${JSON.stringify(Object.fromEntries(data.map((e) => [e.key, e.value])))};
+	const contentParts: Array<string> = [];
+	const dtsParts: Array<string> = [];
 
-${data.map((e) => `const ${e.key} = data.${e.key};`).join('\n')}
+	for (const { key, type, value } of data) {
+		contentParts.push(`export const ${key} = ${JSON.stringify(value)};`);
+		dtsParts.push(`export const ${key}: ${type};`);
+	}
 
-export {
-	${data.map((e) => e.key).join(',\n')}
-}
-	`;
+	const clientContent = contentParts.join('\n');
 
 	const clientDts = `declare module "astro:env/client" {
-    ${data.map((e) => `export const ${e.key}: ${e.type};`).join('\n    ')}
+    ${dtsParts.join('\n    ')}
 }`;
 
 	return {
