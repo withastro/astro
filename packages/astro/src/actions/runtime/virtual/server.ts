@@ -6,7 +6,7 @@ import { ActionError, ValidationError } from './shared.js';
 
 export * from './shared.js';
 
-export { z } from 'astro/zod';
+export { z } from '../../../../zod.mjs';
 
 export function defineAction<TOutput, TInputSchema extends z.ZodType>({
 	input: inputSchema,
