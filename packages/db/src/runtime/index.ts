@@ -8,10 +8,15 @@ import {
 	sqliteTable,
 	text,
 } from 'drizzle-orm/sqlite-core';
-import { type ColumnsConfig, type DBColumn, type DBTable, type TableConfig } from '../core/types.js';
-import { type SerializedSQL, isSerializedSQL, type Table } from './types.js';
-import { pathToFileURL } from './utils.js';
 import { tableSchema } from '../core/schemas.js';
+import {
+	type ColumnsConfig,
+	type DBColumn,
+	type DBTable,
+	type TableConfig,
+} from '../core/types.js';
+import { type SerializedSQL, type Table, isSerializedSQL } from './types.js';
+import { pathToFileURL } from './utils.js';
 
 export type { Table } from './types.js';
 export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-client.js';
@@ -49,7 +54,10 @@ type D1ColumnBuilder = SQLiteColumnBuilderBase<
 	ColumnBuilderBaseConfig<ColumnDataType, string> & { data: unknown }
 >;
 
-export function asDrizzleTable<TableName extends string = string, TColumns extends ColumnsConfig = ColumnsConfig>(name: TableName, tbl: TableConfig<TColumns>): Table<TableName, TColumns> {
+export function asDrizzleTable<
+	TableName extends string = string,
+	TColumns extends ColumnsConfig = ColumnsConfig,
+>(name: TableName, tbl: TableConfig<TColumns>): Table<TableName, TColumns> {
 	const table = tableSchema.parse(tbl);
 	const columns: Record<string, D1ColumnBuilder> = {};
 	if (!Object.entries(table.columns).some(([, column]) => hasPrimaryKey(column))) {
