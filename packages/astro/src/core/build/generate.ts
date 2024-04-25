@@ -47,7 +47,7 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import { cssOrder, getPageDataByComponent, mergeInlineCss } from './internal.js';
+import { cssOrder, getPageData, mergeInlineCss } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
 import type {
 	PageBuildData,
@@ -257,7 +257,7 @@ async function generatePage(
 	const { config, internals, logger } = pipeline;
 	const pageModulePromise = ssrEntry.page;
 	// TODO: Why do we need to get PageData from PageData?
-	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
+	const pageInfo = getPageData(internals, pageData.route.component, pageData.route.route);
 
 	// Calculate information of the page, like scripts, links and styles
 	const styles = pageData.styles

@@ -370,11 +370,17 @@ async function cleanStaticOutput(
 ) {
 	const allStaticFiles = new Set();
 	for (const pageData of internals.pagesByKeys.values()) {
-		if (pageData.route.prerender && !pageData.hasSharedModules) {
-			const { moduleSpecifier } = pageData;
-			const pageBundleId = internals.pageToBundleMap.get(moduleSpecifier);
-			const entryBundleId = internals.entrySpecifierToBundleMap.get(moduleSpecifier);
+		console.log("[cleanStaticOutput] pageData: ", pageData.key, "— is prerender ? ", pageData.route.prerender);
+		const { moduleSpecifier } = pageData;
+		const pageBundleId = internals.pageToBundleMap.get(moduleSpecifier);
+		const entryBundleId = internals.entrySpecifierToBundleMap.get(moduleSpecifier);
+		if (pageData.route.prerender && !pageData.hasSharedModules && allStaticFiles.has(pageBundleId ?? entryBundleId)) {
 			allStaticFiles.add(pageBundleId ?? entryBundleId);
+		} else {
+			// Check if the page pageBundleId or entryBundleId is already in the set, if so, remove it
+			if (allStaticFiles.has(pageBundleId ?? entryBundleId)) {
+				allStaticFiles.delete(pageBundleId ?? entryBundleId);
+			}
 		}
 	}
 	const ssr = isServerLikeOutput(opts.settings.config);
