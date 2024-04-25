@@ -2,8 +2,15 @@ import { defineMiddleware } from '../../core/middleware/index.js';
 import { ApiContextStorage, formContentTypes, getAction } from './utils.js';
 import { ActionError } from './virtual.js';
 
+type Locals = {
+	getActionResult: <T extends (...args: any) => any>(
+		action: T
+	) => Promise<Awaited<ReturnType<T>> | undefined>;
+};
+
 export const onRequest = defineMiddleware(async (context, next) => {
-	context.locals.getActionResult = (action) => Promise.resolve(undefined);
+	const locals = context.locals as Locals;
+	locals.getActionResult = () => Promise.resolve(undefined);
 
 	const { request } = context;
 	const contentType = request.headers.get('Content-Type');
@@ -27,8 +34,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		}
 		actionError = e;
 	}
-	context.locals.getActionResult = (action) => {
-		if (action.toString() !== actionPath) return Promise.resolve(undefined);
+	locals.getActionResult = (actionFn) => {
+		if (actionFn.toString() !== actionPath) return Promise.resolve(undefined);
 		if (actionError) return Promise.reject(actionError);
 		return Promise.resolve(result);
 	};

@@ -54,6 +54,12 @@
     "./components": "./components/index.ts",
     "./components/*": "./components/*",
     "./toolbar": "./dist/toolbar/index.js",
+    "./actions/config": {
+      "types": "./dist/actions/runtime/config.d.ts",
+      "default": "./dist/actions/runtime/config.js"
+    },
+    "./actions/runtime/route.js": "./dist/actions/runtime/route.js",
+    "./actions/runtime/middleware.js": "./dist/actions/runtime/middleware.js",
     "./assets": "./dist/assets/index.js",
     "./assets/utils": "./dist/assets/utils/index.js",
     "./assets/endpoint/*": "./dist/assets/endpoint/*.js",
@@ -129,7 +135,6 @@
     "@types/cookie": "^0.6.0",
     "acorn": "^8.11.3",
     "aria-query": "^5.3.0",
-    "astro-integration-kit": "^0.11.0",
     "axobject-query": "^4.0.0",
     "boxen": "^7.1.1",
     "chokidar": "^3.6.0",

@@ -1,5 +1,5 @@
 import { db, Comment, Likes, eq, sql } from "astro:db";
-import { defineAction } from "@astrojs/actions/config";
+import { defineAction } from "astro/actions/config";
 import { z } from "zod";
 
 export default {
