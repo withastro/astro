@@ -58,8 +58,8 @@ function collectWebVitals() {
 	}
 }
 
-const mode = (import.meta as any).env.MODE as 'development' | 'production';
+const isProduction = (import.meta as any).env.PROD;
 
-if (mode === 'production') {
+if (isProduction) {
 	collectWebVitals();
 }

@@ -1993,6 +1993,13 @@ export interface AstroInlineOnlyConfig {
 	 */
 	mode?: RuntimeMode;
 	/**
+	 * The mode used by Vite. It also defines `import.meta.env.MODE` value.
+	 * If it is unset the default value will be `'development'` for dev command and `'production'` for build command.
+	 *
+	 * @see [Vite mode documentation](https://vitejs.dev/guide/env-and-mode#modes)
+	 */
+	viteMode?: string;
+	/**
 	 * The logging level to filter messages logged by Astro.
 	 * - "debug": Log everything, including noisy debugging diagnostics.
 	 * - "info": Log informational messages, warnings, and errors.

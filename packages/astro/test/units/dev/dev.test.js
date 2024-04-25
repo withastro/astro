@@ -273,4 +273,22 @@ describe('dev container', () => {
 			assert.equal(r.res.statusCode, 200);
 		});
 	});
+
+	it('overrides Vite mode when --viteMode flag is specified', async () => {
+		await runInContainer({ inlineConfig: { viteMode: 'production' } }, (container) => {
+			assert.equal(container.viteServer.config.mode, 'production');
+		});
+		await runInContainer({ inlineConfig: { viteMode: 'development' } }, (container) => {
+			assert.equal(container.viteServer.config.mode, 'development');
+		});
+		await runInContainer({ inlineConfig: { viteMode: 'staging' } }, (container) => {
+			assert.equal(container.viteServer.config.mode, 'staging');
+		});
+	});
+
+	it('uses "development" as Vite mode when --viteMode flag is not specified', async () => {
+		await runInContainer({}, (container) => {
+			assert.equal(container.viteServer.config.mode, 'development');
+		});
+	});
 });

@@ -83,6 +83,7 @@ export default async function build(
 		...options,
 		logger,
 		mode: inlineConfig.mode,
+		viteMode: inlineConfig.viteMode,
 	});
 	await builder.run();
 }
@@ -90,12 +91,14 @@ export default async function build(
 interface AstroBuilderOptions extends BuildOptions {
 	logger: Logger;
 	mode?: RuntimeMode;
+	viteMode?: string
 }
 
 class AstroBuilder {
 	private settings: AstroSettings;
 	private logger: Logger;
 	private mode: RuntimeMode = 'production';
+	private viteMode = 'production'
 	private origin: string;
 	private manifest: ManifestData;
 	private timer: Record<string, number>;
@@ -104,6 +107,9 @@ class AstroBuilder {
 	constructor(settings: AstroSettings, options: AstroBuilderOptions) {
 		if (options.mode) {
 			this.mode = options.mode;
+		}
+		if (options.viteMode) {
+			this.viteMode = options.viteMode;
 		}
 		this.settings = settings;
 		this.logger = options.logger;
@@ -134,7 +140,7 @@ class AstroBuilder {
 
 		const viteConfig = await createVite(
 			{
-				mode: this.mode,
+				mode: this.viteMode,
 				server: {
 					hmr: false,
 					middlewareMode: true,

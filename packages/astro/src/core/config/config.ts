@@ -165,12 +165,13 @@ function splitInlineConfig(inlineConfig: AstroInlineConfig): {
 	inlineUserConfig: AstroUserConfig;
 	inlineOnlyConfig: AstroInlineOnlyConfig;
 } {
-	const { configFile, mode, logLevel, ...inlineUserConfig } = inlineConfig;
+	const { configFile, mode, viteMode, logLevel, ...inlineUserConfig } = inlineConfig;
 	return {
 		inlineUserConfig,
 		inlineOnlyConfig: {
 			configFile,
 			mode,
+			viteMode,
 			logLevel,
 		},
 	};

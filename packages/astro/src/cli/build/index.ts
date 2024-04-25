@@ -15,6 +15,7 @@ export async function build({ flags }: BuildOptions) {
 			tables: {
 				Flags: [
 					['--outDir <directory>', `Specify the output directory for the build.`],
+					['--viteMode <mode>', `Specify mode for Vite config.`],
 					['--help (-h)', 'See all available flags.'],
 				],
 			},

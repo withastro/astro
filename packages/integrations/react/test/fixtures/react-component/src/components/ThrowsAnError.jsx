@@ -4,7 +4,7 @@ export default function() {
 	let player = undefined;
 	// This is tested in dev mode, so make it work during the build to prevent
 	// breaking other tests.
-	if(import.meta.env.MODE === 'production') {
+	if(import.meta.env.PROD) {
 		player = {};
 	}
 	const [] = useState(player.currentTime || null);

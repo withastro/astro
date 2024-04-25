@@ -1,6 +1,6 @@
 ---
 // This is a dev only test
-const mode = import.meta.env.MODE;
+const isDev = import.meta.env.DEV;
 ---
 <html>
 	<head>
@@ -9,7 +9,7 @@ const mode = import.meta.env.MODE;
 	<body>
 		<h1>Testing</h1>
 		<div id="fetch" set:html={
-			mode === 'development' ?
+			isDev ?
 				// @ts-ignore
 				TEST_FETCH(fetch, '/test.html') :
 				'build mode'

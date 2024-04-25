@@ -68,7 +68,7 @@ export async function createContainer({
 
 	const viteConfig = await createVite(
 		{
-			mode: 'development',
+			mode: inlineConfig?.viteMode || 'development',
 			server: { host, headers, open },
 			optimizeDeps: {
 				include: rendererClientEntries,

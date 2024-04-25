@@ -8,6 +8,7 @@ export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
 		// Inline-only configs
 		configFile: typeof flags.config === 'string' ? flags.config : undefined,
 		mode: typeof flags.mode === 'string' ? (flags.mode as AstroInlineConfig['mode']) : undefined,
+		viteMode: typeof flags.viteMode === 'string' ? flags.viteMode : undefined,
 		logLevel: flags.verbose ? 'debug' : flags.silent ? 'silent' : undefined,
 
 		// Astro user configs
