@@ -6,7 +6,7 @@ import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 import dget from 'dlv';
-import { DEFAULT_PREFERENCES, type Preferences } from './defaults.js';
+import { DEFAULT_PREFERENCES, type Preferences, type PublicPreferences } from './defaults.js';
 import { PreferenceStore } from './store.js';
 
 type DotKeys<T> = T extends object
@@ -25,6 +25,13 @@ export type GetDotKey<
 export type PreferenceLocation = 'global' | 'project';
 export interface PreferenceOptions {
 	location?: PreferenceLocation;
+	/**
+	 * If `true`, the server will be reloaded after setting the preference.
+	 * If `false`, the server will not be reloaded after setting the preference.
+	 *
+	 * Defaults to `true`.
+	 */
+	reloadServer?: boolean;
 }
 
 type DeepPartial<T> = T extends object
@@ -34,9 +41,9 @@ type DeepPartial<T> = T extends object
 	: T;
 
 export type PreferenceKey = DotKeys<Preferences>;
-export interface PreferenceList extends Record<PreferenceLocation, DeepPartial<Preferences>> {
+export interface PreferenceList extends Record<PreferenceLocation, DeepPartial<PublicPreferences>> {
 	fromAstroConfig: DeepPartial<Preferences>;
-	defaults: Preferences;
+	defaults: PublicPreferences;
 }
 
 export interface AstroPreferences {
@@ -49,8 +56,9 @@ export interface AstroPreferences {
 		value: GetDotKey<Preferences, Key>,
 		opts?: PreferenceOptions
 	): Promise<void>;
-	getAll(): Promise<Preferences>;
+	getAll(): Promise<PublicPreferences>;
 	list(opts?: PreferenceOptions): Promise<PreferenceList>;
+	ignoreNextPreferenceReload: boolean;
 }
 
 export function isValidKey(key: string): key is PreferenceKey {
@@ -84,23 +92,32 @@ export default function createPreferences(config: AstroConfig): AstroPreferences
 			if (!location) return project.get(key) ?? global.get(key) ?? dget(DEFAULT_PREFERENCES, key);
 			return stores[location].get(key);
 		},
-		async set(key, value, { location = 'project' } = {}) {
+		async set(key, value, { location = 'project', reloadServer = true } = {}) {
 			stores[location].set(key, value);
+
+			if (!reloadServer) {
+				this.ignoreNextPreferenceReload = true;
+			}
 		},
 		async getAll() {
-			return Object.assign(
+			const allPrefs = Object.assign(
 				{},
 				DEFAULT_PREFERENCES,
 				stores['global'].getAll(),
 				stores['project'].getAll()
 			);
+
+			const { _variables, ...prefs } = allPrefs;
+
+			return prefs;
 		},
 		async list() {
+			const { _variables, ...defaultPrefs } = DEFAULT_PREFERENCES;
 			return {
 				global: stores['global'].getAll(),
 				project: stores['project'].getAll(),
 				fromAstroConfig: mapFrom(DEFAULT_PREFERENCES, config),
-				defaults: DEFAULT_PREFERENCES,
+				defaults: defaultPrefs,
 			};
 
 			function mapFrom(defaults: Preferences, astroConfig: Record<string, any>) {
@@ -109,6 +126,7 @@ export default function createPreferences(config: AstroConfig): AstroPreferences
 				);
 			}
 		},
+		ignoreNextPreferenceReload: false,
 	};
 }
 
