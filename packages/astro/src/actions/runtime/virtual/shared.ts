@@ -48,7 +48,7 @@ export async function safe<T>(
 	}
 }
 
-export function actionNameProps<T extends (...args: unknown[]) => MaybePromise<unknown>>(
+export function getNameProps<T extends (...args: unknown[]) => MaybePromise<unknown>>(
 	action: T
 ) {
 	return {

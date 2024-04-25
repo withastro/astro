@@ -3,7 +3,7 @@ import { type CollectionEntry, getCollection, getEntry } from "astro:content";
 import BlogPost from "../../layouts/BlogPost.astro";
 import { db, eq, Comment, Likes } from "astro:db";
 import { Like } from "../../components/Like";
-import { actions, safe, actionNameProps } from "astro:actions";
+import { actions, safe } from "astro:actions";
 import {PostComment} from '../../components/PostComment';
 
 export const prerender = false;
