@@ -1,6 +1,6 @@
 import type { APIRoute } from '../../@types/astro.js';
 import { ApiContextStorage } from './store.js';
-import { getAction } from './utils.js';
+import { formContentTypes, getAction } from './utils.js';
 import { ActionError } from './virtual/shared.js';
 
 export const POST: APIRoute = async (context) => {
@@ -11,14 +11,14 @@ export const POST: APIRoute = async (context) => {
 	const actionPathKeys = url.pathname.replace('/_actions/', '').split('.');
 	const action = await getAction(actionPathKeys);
 	const contentType = request.headers.get('Content-Type');
-	if (contentType !== 'application/json') {
-		throw new ActionError({
-			status: 'INTERNAL_SERVER_ERROR',
-			message:
-				'Called an action with a non-JSON body. To automatically convert form data requests to JSON, add `enhance: true` to your `defineAction()` config.',
-		});
+	let args: unknown;
+	if (formContentTypes.some(f => contentType?.startsWith(f))) {
+		args = await request.clone().formData();
+	} else if (contentType === 'application/json') {
+		args = await request.clone().json();
+	} else {
+		return new Response(null, { status: 415 });
 	}
-	const args = await request.clone().json();
 	let result: unknown;
 	try {
 		result = await ApiContextStorage.run(context, () => action(args));

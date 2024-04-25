@@ -10,11 +10,7 @@ export function PostComment({postId}: {postId: string}) {
 			e.preventDefault();
 			const form = e.target as HTMLFormElement;
 			const formData = new FormData(form);
-			const {comment} = await actions.blog.comment({
-				postId,
-				author: formData.get('author') as string,
-				body: formData.get('body') as string,
-			});
+			const {comment} = await actions.blog.comment(formData);
 			setComments(c => [comment, ...c]);
 			form.reset();
 		}}>
