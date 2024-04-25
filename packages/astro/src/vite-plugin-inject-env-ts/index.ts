@@ -90,7 +90,7 @@ export async function setUpEnvTs({
 			}
 		}
 
-		logger.info('types', `Added ${bold(envTsPathRelativetoRoot)} type declarations`);
+		logger.info('types', `Added ${bold(envTsPathRelativetoRoot)} type declarations.`);
 		await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
 	} else {
 		// Otherwise, inject the `env.d.ts` file
