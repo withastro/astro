@@ -23,7 +23,6 @@ export default {
     }),
 
     comment: defineAction({
-			acceptFormData: true,
       input: z.object({
         postId: z.string(),
         author: z.string(),
