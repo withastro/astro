@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "4.6.4",
+  "version": "4.7.0",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -53,6 +53,7 @@
     "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.ts",
     "./components/*": "./components/*",
+    "./toolbar": "./dist/toolbar/index.js",
     "./assets": "./dist/assets/index.js",
     "./assets/utils": "./dist/assets/utils/index.js",
     "./assets/endpoint/*": "./dist/assets/endpoint/*.js",
@@ -179,7 +180,7 @@
     "zod-to-json-schema": "^3.22.5"
   },
   "optionalDependencies": {
-    "sharp": "^0.32.6"
+    "sharp": "^0.33.3"
   },
   "devDependencies": {
     "@astrojs/check": "^0.5.10",
