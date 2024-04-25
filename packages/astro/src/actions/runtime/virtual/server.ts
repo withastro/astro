@@ -51,12 +51,26 @@ function upgradeFormData<T extends z.AnyZodObject>(
 	schema: T
 ): Record<string, unknown> {
 	const obj: Record<string, unknown> = {};
-	for (const [key, validator] of Object.entries(schema.shape)) {
-		// TODO: refine, unit test
+	for (const [key, baseValidator] of Object.entries(schema.shape)) {
+		let validator = baseValidator;
+		if (
+			baseValidator instanceof z.ZodOptional ||
+			baseValidator instanceof z.ZodNullable
+		) {
+			validator = baseValidator._def.innerType;
+		}
 		if (validator instanceof z.ZodBoolean) {
 			obj[key] = formData.has(key);
 		} else if (validator instanceof z.ZodArray) {
-			obj[key] = Array.from(formData.getAll(key));
+			const entries = Array.from(formData.getAll(key));
+			const elementValidator = validator._def.type;
+			if (elementValidator instanceof z.ZodNumber) {
+				obj[key] = entries.map(Number);
+			} else if (elementValidator instanceof z.ZodBoolean) {
+				obj[key] = entries.map(Boolean);
+			} else {
+				obj[key] = entries;
+			}
 		} else if (validator instanceof z.ZodNumber) {
 			obj[key] = Number(formData.get(key));
 		} else {
