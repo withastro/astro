@@ -31,7 +31,7 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroIntegration {
 	// @ts-expect-error Temporarily assign an empty object here, which will be re-assigned by the
 	// `astro:config:done` hook later. This is so that `vitePluginMdx` can get hold of a reference earlier.
-	const mdxOptions: MdxOptions = {};
+	let mdxOptions: MdxOptions = {};
 
 	return {
 		name: '@astrojs/mdx',
@@ -83,6 +83,9 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 
 				// Mutate `mdxOptions` so that `vitePluginMdx` can reference the actual options
 				Object.assign(mdxOptions, resolvedMdxOptions);
+				// @ts-expect-error After we assign, we don't need to reference `mdxOptions` in this context anymore.
+				// Re-assign it so that the garbage can be collected later.
+				mdxOptions = {};
 			},
 		},
 	};
