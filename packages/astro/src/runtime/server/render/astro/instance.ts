@@ -51,9 +51,13 @@ export class AstroComponentInstance {
 		this.returnValue = this.factory(result, this.props, this.slotValues);
 		// Save the resolved value after promise is resolved for optimization
 		if (isPromise(this.returnValue)) {
-			this.returnValue.then((resolved) => {
-				this.returnValue = resolved;
-			})
+			this.returnValue
+				.then((resolved) => {
+					this.returnValue = resolved;
+				})
+				.catch(() => {
+					// Ignore errors and appease unhandledrejection error
+				});
 		}
 		return this.returnValue;
 	}
