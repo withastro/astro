@@ -36,14 +36,14 @@ function getDotAstroTypeReference({
 	settings,
 	filename,
 }: { settings: AstroSettings; filename: string }) {
-	const contentTypesRelativeToSrcDir = normalizePath(
+	const path = normalizePath(
 		path.relative(
 			fileURLToPath(settings.config.srcDir),
 			fileURLToPath(new URL(filename, settings.dotAstroDir))
 		)
 	);
 
-	return `/// <reference path=${JSON.stringify(contentTypesRelativeToSrcDir)} />`;
+	return `/// <reference path=${JSON.stringify(path)} />`;
 }
 
 type InjectedType = { filename: string; condition?: () => boolean | Promise<boolean> };
