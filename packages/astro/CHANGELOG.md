@@ -1,5 +1,73 @@
 # astro
 
+## 4.7.0
+
+### Minor Changes
+
+- [#10665](https://github.com/withastro/astro/pull/10665) [`7b4f284`](https://github.com/withastro/astro/commit/7b4f2840203fe220758934f1366485f788727f0d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds new utilities to ease the creation of toolbar apps including `defineToolbarApp` to make it easier to define your toolbar app and `app` and `server` helpers for easier communication between the toolbar and the server. These new utilities abstract away some of the boilerplate code that is common in toolbar apps, and lower the barrier of entry for app authors.
+
+  For example, instead of creating an event listener for the `app-toggled` event and manually typing the value in the callback, you can now use the `onAppToggled` method. Additionally, communicating with the server does not require knowing any of the Vite APIs anymore, as a new `server` object is passed to the `init` function that contains easy to use methods for communicating with the server.
+
+  ```diff
+  import { defineToolbarApp } from "astro/toolbar";
+
+  export default defineToolbarApp({
+    init(canvas, app, server) {
+
+  -    app.addEventListener("app-toggled", (e) => {
+  -      console.log(`App is now ${state ? "enabled" : "disabled"}`);.
+  -    });
+
+  +    app.onToggled(({ state }) => {
+  +        console.log(`App is now ${state ? "enabled" : "disabled"}`);
+  +    });
+
+  -    if (import.meta.hot) {
+  -      import.meta.hot.send("my-app:my-client-event", { message: "world" });
+  -    }
+
+  +    server.send("my-app:my-client-event", { message: "world" })
+
+  -    if (import.meta.hot) {
+  -      import.meta.hot.on("my-server-event", (data: {message: string}) => {
+  -        console.log(data.message);
+  -      });
+  -    }
+
+  +    server.on<{ message: string }>("my-server-event", (data) => {
+  +      console.log(data.message); // data is typed using the type parameter
+  +    });
+    },
+  })
+  ```
+
+  Server helpers are also available on the server side, for use in your integrations, through the new `toolbar` object:
+
+  ```ts
+  "astro:server:setup": ({ toolbar }) => {
+    toolbar.on<{ message: string }>("my-app:my-client-event", (data) => {
+      console.log(data.message);
+      toolbar.send("my-server-event", { message: "hello" });
+    });
+  }
+  ```
+
+  This is a backwards compatible change and your your existing dev toolbar apps will continue to function. However, we encourage you to build your apps with the new helpers, following the [updated Dev Toolbar API documentation](https://docs.astro.build/en/reference/dev-toolbar-app-reference/).
+
+- [#10734](https://github.com/withastro/astro/pull/10734) [`6fc4c0e`](https://github.com/withastro/astro/commit/6fc4c0e420da7629b4cfc28ee7efce1d614447be) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Astro will now automatically check for updates when you run the dev server. If a new version is available, a message will appear in the terminal with instructions on how to update. Updates will be checked once per 10 days, and the message will only appear if the project is multiple versions behind the latest release.
+
+  This behavior can be disabled by running `astro preferences disable checkUpdates` or setting the `ASTRO_DISABLE_UPDATE_CHECK` environment variable to `false`.
+
+- [#10762](https://github.com/withastro/astro/pull/10762) [`43ead8f`](https://github.com/withastro/astro/commit/43ead8fbd5112823118060175c7a4a22522cc325) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Enables type checking for JavaScript files when using the `strictest` TS config. This ensures consistency with Astro's other TS configs, and fixes type checking for integrations like Astro DB when using an `astro.config.mjs`.
+
+  If you are currently using the `strictest` preset and would like to still disable `.js` files, set `allowJS: false` in your `tsconfig.json`.
+
+### Patch Changes
+
+- [#10861](https://github.com/withastro/astro/pull/10861) [`b673bc8`](https://github.com/withastro/astro/commit/b673bc850593d5af25793d0358c00797477fa373) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Fixes an issue where `astro build` writes type declaration files to `outDir` when it's outside of root directory.
+
+- [#10684](https://github.com/withastro/astro/pull/10684) [`8b59d5d`](https://github.com/withastro/astro/commit/8b59d5d078ff40576b8cbee432279c6ad044a1a9) Thanks [@PeterDraex](https://github.com/PeterDraex)! - Update sharp to 0.33 to fix issue with Alpine Linux
+
 ## 4.6.4
 
 ### Patch Changes
