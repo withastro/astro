@@ -92,6 +92,7 @@
     "components",
     "tsconfigs",
     "dist",
+    "types",
     "astro.js",
     "index.d.ts",
     "config.d.ts",
@@ -104,7 +105,6 @@
     "content-types.template.d.ts",
     "content-module.template.mjs",
     "astro-jsx.d.ts",
-    "types/content.d.ts",
     "types.d.ts",
     "README.md",
     "vendor"
