@@ -22,7 +22,9 @@ if (!isWindows) {
 				await fixture.build();
 			});
 
-			after(async () => await fixture.clean());
+			after(async () => {
+				await fixture.clean();
+			});
 
 			it('Includes CSS for rendered entry', async () => {
 				const html = await fixture.readFile('/launch-week/index.html');
@@ -62,18 +64,19 @@ if (!isWindows) {
 				});
 			});
 
-			it.skip('Includes component scripts for rendered entry', async () => {
+			it('Includes component scripts for rendered entry', async () => {
 				const html = await fixture.readFile('/launch-week-component-scripts/index.html');
 				const $ = cheerio.load(html);
 
 				const allScripts = $('head > script[type="module"]');
-				assert.equal(allScripts).to.have.length;
+				assert.ok(allScripts.length > 0);
 
 				// Includes hoisted script
-				assert.equal(
+				assert.notEqual(
 					[...allScripts].find((script) => $(script).attr('src')?.includes('WithScripts')),
+					undefined,
 					'`WithScripts.astro` hoisted script missing from head.'
-				).to.not.be.undefined;
+				);
 
 				// Includes inline script
 				assert.equal($('script[data-is-inline]').length, 1);
@@ -102,6 +105,25 @@ if (!isWindows) {
 				const h2 = $('h2');
 				assert.equal(h2.length, 1);
 				assert.equal(h2.attr('data-components-export-applied'), 'true');
+			});
+
+			describe('Rebuild from cache', () => {
+				before(async () => {
+					console.log("SECOND BUILD");
+					await fixture.build();
+				});
+
+				it('Includes CSS for rendered entry', async () => {
+					const html = await fixture.readFile('/launch-week/index.html');
+					console.log("HTML", html);
+					const $ = cheerio.load(html);
+	
+					// Renders content
+					assert.equal($('ul li').length, 3);
+	
+					// Includes styles
+					assert.equal($('link[rel=stylesheet]').length, 1);
+				});
 			});
 		});
 

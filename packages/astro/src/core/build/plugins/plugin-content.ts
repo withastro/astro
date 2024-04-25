@@ -26,6 +26,7 @@ import { copyFiles } from '../static-build.js';
 import type { StaticBuildOptions } from '../types.js';
 import { encodeName } from '../util.js';
 import { extendManualChunks } from './util.js';
+import type { AstroConfig } from '../../../@types/astro.js';
 
 const CONTENT_CACHE_DIR = './content/';
 const CONTENT_MANIFEST_FILE = './manifest.json';
@@ -69,6 +70,10 @@ function createContentManifest(): ContentManifest {
 	};
 }
 
+const getContentRoot = (config: AstroConfig) => new URL('./content/', config.outDir);
+const getContentCacheDir = (config: AstroConfig) => new URL(CONTENT_CACHE_DIR, config.cacheDir);
+const getCacheTmp = (contentCacheDir: URL) => new URL('./.tmp/', contentCacheDir);
+
 function vitePluginContent(
 	opts: StaticBuildOptions,
 	lookupMap: ContentLookupMap,
@@ -76,12 +81,9 @@ function vitePluginContent(
 	cachedBuildOutput: Array<{ cached: URL; dist: URL }>
 ): VitePlugin {
 	const { config } = opts.settings;
-	const { cacheDir } = config;
-	const distRoot = config.outDir;
-	const distContentRoot = new URL('./content/', distRoot);
-	const contentCacheDir = new URL(CONTENT_CACHE_DIR, cacheDir);
+	const distContentRoot = getContentRoot(config);
+	const contentCacheDir = getContentCacheDir(config);
 	const contentManifestFile = new URL(CONTENT_MANIFEST_FILE, contentCacheDir);
-	const cacheTmp = new URL('./.tmp/', contentCacheDir);
 	let oldManifest = createContentManifest();
 	let newManifest = createContentManifest();
 	let entries: ContentEntries;
@@ -263,13 +265,9 @@ function vitePluginContent(
 			await fsMod.promises.writeFile(contentManifestFile, JSON.stringify(newManifest), {
 				encoding: 'utf8',
 			});
-			await fsMod.promises.mkdir(cacheTmp, { recursive: true });
-			await copyFiles(distContentRoot, cacheTmp, true);
 			if (cacheExists && currentManifestState === 'valid') {
 				await copyFiles(contentCacheDir, distContentRoot, false);
 			}
-			await copyFiles(cacheTmp, contentCacheDir);
-			await fsMod.promises.rm(cacheTmp, { recursive: true, force: true });
 		},
 	};
 }
@@ -319,6 +317,7 @@ function getEntriesFromManifests(
 			entries.buildFromSource.push(entry);
 		}
 	}
+
 	return entries;
 }
 
@@ -436,6 +435,19 @@ function checksum(...datas: string[] | Uint8Array[]): string {
 function collectionTypeToFlag(type: 'content' | 'data') {
 	const name = type[0].toUpperCase() + type.slice(1);
 	return `astro${name}CollectionEntry`;
+}
+
+export async function copyContentToCache(opts: StaticBuildOptions) {
+	const { config } = opts.settings;
+	const distContentRoot = getContentRoot(config);
+	const contentCacheDir = getContentCacheDir(config);
+	const cacheTmp = getCacheTmp(contentCacheDir);
+
+	await fsMod.promises.mkdir(cacheTmp, { recursive: true });
+	await copyFiles(distContentRoot, cacheTmp, true);
+
+	await copyFiles(cacheTmp, contentCacheDir);
+	await fsMod.promises.rm(cacheTmp, { recursive: true, force: true });
 }
 
 export function pluginContent(
