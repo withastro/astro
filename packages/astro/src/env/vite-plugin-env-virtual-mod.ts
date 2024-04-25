@@ -39,7 +39,7 @@ export function astroEnvVirtualModPlugin({
 	);
 
 	const { clientContent, clientDts } = handleClientModule({ schema, loadedEnv });
-	handleDts({ settings, fs, content: clientDts });
+	generateDts({ settings, fs, content: clientDts });
 
 	// TODO: server / public
 	// TODO: server / secret
@@ -59,7 +59,7 @@ export function astroEnvVirtualModPlugin({
 	};
 }
 
-function handleDts({
+function generateDts({
 	content,
 	settings,
 	fs,
