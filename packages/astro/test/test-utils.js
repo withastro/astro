@@ -220,9 +220,8 @@ export async function loadFixture(inlineConfig) {
 			app.manifest = manifest;
 			return app;
 		},
-		loadEntryPoint: async (pagePath, routes, streaming) => {
-			// TODO: Change that – broken usage of getVirtualModulePageName
-			const virtualModule = getVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, pagePath);
+		loadEntryPoint: async (routes, pagePath, routePath, streaming) => {
+			const virtualModule = getVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, pagePath, routePath);
 			const filePath = makeSplitEntryPointFileName(virtualModule, routes);
 			const url = new URL(`./server/${filePath}?id=${fixtureId}`, config.outDir);
 			const { createApp, manifest } = await import(url);
