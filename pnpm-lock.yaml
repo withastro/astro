@@ -5324,6 +5324,22 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/web-vitals:
+    dependencies:
+      web-vitals:
+        specifier: ^3.5.2
+        version: 3.5.2
+    devDependencies:
+      '@astrojs/db':
+        specifier: workspace:*
+        version: link:../../db
+      astro:
+        specifier: workspace:*
+        version: link:../../astro
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../../scripts
+
   packages/internal-helpers:
     devDependencies:
       astro-scripts:
