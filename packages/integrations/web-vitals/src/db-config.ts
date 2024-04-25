@@ -1,6 +1,6 @@
 import { column, defineDb, defineTable } from 'astro:db';
 
-export const AstrojsWebVitals_Metric = defineTable({
+export const AstrojsWebVitals_Metric: any = defineTable({
 	columns: {
 		pathname: column.text(),
 		route: column.text(),
