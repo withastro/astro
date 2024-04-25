@@ -16,6 +16,7 @@ import { AstroError, AstroErrorData, MarkdownError, errorMap } from '../core/err
 import { isYAMLException } from '../core/errors/utils.js';
 import { CONTENT_FLAGS, CONTENT_TYPES_FILE, PROPAGATED_ASSET_FLAG } from './consts.js';
 import { createImage } from './runtime-assets.js';
+import { ACTIONS_TYPES_FILE } from '#astro/actions/consts';
 
 /**
  * Amap from a collection + slug to the local file path.
@@ -37,13 +38,20 @@ export const collectionConfigParser = z.union([
 	}),
 ]);
 
-export function getDotAstroTypeReference({ root, srcDir }: { root: URL; srcDir: URL }) {
+export function getDotAstroTypeReferences({ fs, root, srcDir }: { fs: typeof fsMod, root: URL; srcDir: URL }) {
 	const { cacheDir } = getContentPaths({ root, srcDir });
-	const contentTypesRelativeToSrcDir = normalizePath(
-		path.relative(fileURLToPath(srcDir), fileURLToPath(new URL(CONTENT_TYPES_FILE, cacheDir)))
-	);
+	let referenceDefs: string[] = [];
+	const typesFiles = [CONTENT_TYPES_FILE, ACTIONS_TYPES_FILE];
+	for (const typesFile of typesFiles) {
+		const url = new URL(typesFile, cacheDir); 
+		if (!fs.existsSync(url)) continue;
+		const typesRelativeToSrcDir = normalizePath(
+			path.relative(fileURLToPath(srcDir), fileURLToPath(url))
+		);
+		referenceDefs.push(`/// <reference path=${JSON.stringify(typesRelativeToSrcDir)} />`);
+	}
 
-	return `/// <reference path=${JSON.stringify(contentTypesRelativeToSrcDir)} />`;
+	return referenceDefs;
 }
 
 export const contentConfigParser = z.object({
