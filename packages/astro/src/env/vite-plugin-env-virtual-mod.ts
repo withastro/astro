@@ -38,8 +38,10 @@ export function astroEnvVirtualModPlugin({
 		''
 	);
 
-	const { clientContent, clientDts } = handleClientModule({ schema, loadedEnv });
-	generateDts({ settings, fs, content: clientDts });
+	const validatedVariables = validatePublicVariables({ schema, loadedEnv });
+
+	const clientTemplates = getClientTemplates({ validatedVariables });
+	generateDts({ settings, fs, content: clientTemplates.dts });
 
 	// TODO: server / public
 	// TODO: server / secret
@@ -53,7 +55,7 @@ export function astroEnvVirtualModPlugin({
 		},
 		load(id) {
 			if (id === RESOLVED_VIRTUAL_CLIENT_MODULE_ID) {
-				return clientContent;
+				return clientTemplates.content;
 			}
 		},
 	};
@@ -72,25 +74,21 @@ function generateDts({
 	fs.writeFileSync(new URL(ENV_TYPES_FILE, settings.dotAstroDir), content, 'utf-8');
 }
 
-function handleClientModule({
+function validatePublicVariables({
 	schema,
 	loadedEnv,
 }: {
 	schema: EnvSchema;
 	loadedEnv: Record<string, string>;
 }) {
-	const data: Array<{ key: string; value: any; type: string }> = [];
+	const valid: Array<{ key: string; value: any; type: string; context: 'server' | 'client' }> = [];
 	const invalid: Array<{ key: string; type: string }> = [];
 
 	for (const [key, options] of Object.entries(schema)) {
-		if (options.context !== 'client') {
-			continue;
-		}
 		const variable = loadedEnv[key];
 		const result = validateEnvVariable(variable === '' ? undefined : variable, options);
 		if (result.ok) {
-			data.push({ key, value: result.value, type: result.type });
-			data.push({ key, value: result.value, type: result.type });
+			valid.push({ key, value: result.value, type: result.type, context: options.context });
 		} else {
 			invalid.push({ key, type: result.type });
 		}
@@ -105,22 +103,30 @@ function handleClientModule({
 		});
 	}
 
+	return valid;
+}
+
+function getClientTemplates({
+	validatedVariables,
+}: {
+	validatedVariables: ReturnType<typeof validatePublicVariables>;
+}) {
 	const contentParts: Array<string> = [];
 	const dtsParts: Array<string> = [];
 
-	for (const { key, type, value } of data) {
+	for (const { key, type, value } of validatedVariables.filter((e) => e.context === 'client')) {
 		contentParts.push(`export const ${key} = ${JSON.stringify(value)};`);
 		dtsParts.push(`export const ${key}: ${type};`);
 	}
 
-	const clientContent = contentParts.join('\n');
+	const content = contentParts.join('\n');
 
-	const clientDts = `declare module "astro:env/client" {
+	const dts = `declare module "astro:env/client" {
     ${dtsParts.join('\n    ')}
 }`;
 
 	return {
-		clientContent,
-		clientDts,
+		content,
+		dts,
 	};
 }
