@@ -115,7 +115,7 @@ export async function runHookConfigSetup({
 	if (settings.config.adapter) {
 		settings.config.integrations.push(settings.config.adapter);
 	}
-	if (settings.config.experimental.actions) {
+	if (settings.config.experimental?.actions) {
 		const { default: actionsIntegration } = await import('../actions/index.js');
 		settings.config.integrations.push(actionsIntegration());
 	}
