@@ -29,25 +29,30 @@ export function astroEnvVirtualModPlugin({
 		return;
 	}
 
+	let clientTemplates: ReturnType<typeof getClientTemplates> | null = null;
+
 	logger.warn('env', 'This feature is experimental. TODO:');
 
 	const schema = settings.config.experimental.env.schema ?? {};
-	const loadedEnv = loadEnv(
-		mode === 'dev' ? 'development' : 'production',
-		fileURLToPath(settings.config.root),
-		''
-	);
-
-	const validatedVariables = validatePublicVariables({ schema, loadedEnv });
-
-	const clientTemplates = getClientTemplates({ validatedVariables });
-	generateDts({ settings, fs, content: clientTemplates.dts });
 
 	// TODO: server / public
 	// TODO: server / secret
 	return {
 		name: 'astro-env-virtual-mod-plugin',
 		enforce: 'pre',
+		buildStart() {
+			const loadedEnv = loadEnv(
+				mode === 'dev' ? 'development' : 'production',
+				fileURLToPath(settings.config.root),
+				''
+			);
+			const validatedVariables = validatePublicVariables({ schema, loadedEnv });
+			clientTemplates = getClientTemplates({ validatedVariables });
+			generateDts({ settings, fs, content: clientTemplates.dts });
+		},
+		buildEnd() {
+			clientTemplates = null;
+		},
 		resolveId(id) {
 			if (id === VIRTUAL_CLIENT_MODULE_ID) {
 				return RESOLVED_VIRTUAL_CLIENT_MODULE_ID;
@@ -55,7 +60,7 @@ export function astroEnvVirtualModPlugin({
 		},
 		load(id) {
 			if (id === RESOLVED_VIRTUAL_CLIENT_MODULE_ID) {
-				return clientTemplates.content;
+				return clientTemplates!.content;
 			}
 		},
 	};
