@@ -3,8 +3,8 @@ import type { AstroPluginOptions } from '../@types/astro.js';
 import { telemetry } from '../events/index.js';
 import { eventAppToggled } from '../events/toolbar.js';
 
-const VIRTUAL_MODULE_ID = 'astro:dev-toolbar';
-const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
+const PRIVATE_VIRTUAL_MODULE_ID = 'astro:toolbar:internal';
+const resolvedPrivateVirtualModuleId = '\0' + PRIVATE_VIRTUAL_MODULE_ID;
 
 export default function astroDevToolbar({ settings, logger }: AstroPluginOptions): vite.Plugin {
 	let telemetryTimeout: ReturnType<typeof setTimeout>;
@@ -20,8 +20,8 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 			};
 		},
 		resolveId(id) {
-			if (id === VIRTUAL_MODULE_ID) {
-				return resolvedVirtualModuleId;
+			if (id === PRIVATE_VIRTUAL_MODULE_ID) {
+				return resolvedPrivateVirtualModuleId;
 			}
 		},
 		configureServer(server) {
@@ -57,29 +57,46 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 			});
 		},
 		async load(id) {
-			if (id === resolvedVirtualModuleId) {
-				// TODO: In Astro 5.0, we should change the addDevToolbarApp function to separate the logic from the app's metadata.
-				// That way, we can pass the app's data to the dev toolbar without having to load the app's entrypoint, which will allow
-				// for a better UI in the browser where we could still show the app's name and icon even if the app's entrypoint fails to load.
-				// ex: `addDevToolbarApp({ id: 'astro:dev-toolbar:app', name: 'App', icon: '🚀', entrypoint: "./src/something.ts" })`
+			if (id === resolvedPrivateVirtualModuleId) {
 				return `
 					export const loadDevToolbarApps = async () => {
 						return (await Promise.all([${settings.devToolbarApps
 							.map(
 								(plugin) =>
-									`safeLoadPlugin(async () => (await import(${JSON.stringify(
+									`safeLoadPlugin(${JSON.stringify(
 										plugin
-									)})).default, ${JSON.stringify(plugin)})`
+									)}, async () => (await import(${JSON.stringify(
+										typeof plugin === 'string' ? plugin : plugin.entrypoint
+									)})).default, ${JSON.stringify(
+										typeof plugin === 'string' ? plugin : plugin.entrypoint
+									)})`
 							)
-							.join(',')}])).filter(app => app);
+							.join(',')}]));
 					};
 
-					async function safeLoadPlugin(importEntrypoint, entrypoint) {
+					async function safeLoadPlugin(appDefinition, importEntrypoint, entrypoint) {
 						try {
-							const app = await importEntrypoint();
+							let app;
+							if (typeof appDefinition === 'string') {
+								app = await importEntrypoint();
 
-							if (typeof app !== 'object' || !app.id || !app.name) {
-								throw new Error("Apps must default export an object with an id, and a name.");
+								if (typeof app !== 'object' || !app.id || !app.name) {
+									throw new Error("Apps must default export an object with an id, and a name.");
+								}
+							} else {
+								app = appDefinition;
+
+								if (typeof app !== 'object' || !app.id || !app.name || !app.entrypoint) {
+									throw new Error("Apps must be an object with an id, a name and an entrypoint.");
+								}
+
+								const loadedApp = await importEntrypoint();
+
+								if (typeof loadedApp !== 'object') {
+									throw new Error("App entrypoint must default export an object.");
+								}
+
+								app = { ...app, ...loadedApp };
 							}
 
 							return app;

@@ -30,6 +30,7 @@ import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { ensureProcessNodeEnv, parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
+import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
 import { generate, parse, t, visit } from './babel.js';
 import { ensureImport } from './imports.js';
 import { wrapDefaultExport } from './wrapper.js';
@@ -94,26 +95,6 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 	cloudflare: '@astrojs/cloudflare',
 	node: '@astrojs/node',
 };
-
-// Users might lack access to the global npm registry, this function
-// checks the user's project type and will return the proper npm registry
-//
-// A copy of this function also exists in the create-astro package
-let _registry: string;
-async function getRegistry(): Promise<string> {
-	if (_registry) return _registry;
-	const fallback = 'https://registry.npmjs.org';
-	const packageManager = (await preferredPM(process.cwd()))?.name || 'npm';
-	try {
-		const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
-		_registry = stdout?.trim()?.replace(/\/$/, '') || fallback;
-		// Detect cases where the shell command returned a non-URL (e.g. a warning)
-		if (!new URL(_registry).host) _registry = fallback;
-	} catch (e) {
-		_registry = fallback;
-	}
-	return _registry;
-}
 
 export async function add(names: string[], { flags }: AddOptions) {
 	ensureProcessNodeEnv('production');
@@ -802,39 +783,6 @@ async function tryToInstallIntegrations({
 		} else {
 			return UpdateResult.cancelled;
 		}
-	}
-}
-
-async function fetchPackageJson(
-	scope: string | undefined,
-	name: string,
-	tag: string
-): Promise<Record<string, any> | Error> {
-	const packageName = `${scope ? `${scope}/` : ''}${name}`;
-	const registry = await getRegistry();
-	const res = await fetch(`${registry}/${packageName}/${tag}`);
-	if (res.status >= 200 && res.status < 300) {
-		return await res.json();
-	} else if (res.status === 404) {
-		// 404 means the package doesn't exist, so we don't need an error message here
-		return new Error();
-	} else {
-		return new Error(`Failed to fetch ${registry}/${packageName}/${tag} - GET ${res.status}`);
-	}
-}
-
-async function fetchPackageVersions(packageName: string): Promise<string[] | Error> {
-	const registry = await getRegistry();
-	const res = await fetch(`${registry}/${packageName}`, {
-		headers: { accept: 'application/vnd.npm.install-v1+json' },
-	});
-	if (res.status >= 200 && res.status < 300) {
-		return await res.json().then((data) => Object.keys(data.versions));
-	} else if (res.status === 404) {
-		// 404 means the package doesn't exist, so we don't need an error message here
-		return new Error();
-	} else {
-		return new Error(`Failed to fetch ${registry}/${packageName} - GET ${res.status}`);
 	}
 }
 

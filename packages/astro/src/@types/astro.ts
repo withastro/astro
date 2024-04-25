@@ -19,7 +19,12 @@ import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
+import type { getToolbarServerCommunicationHelpers } from '../integrations/index.js';
 import type { AstroPreferences } from '../preferences/index.js';
+import type {
+	ToolbarAppEventTarget,
+	ToolbarServerHelpers,
+} from '../runtime/client/dev-toolbar/helpers.js';
 import type { AstroDevToolbar, DevToolbarCanvas } from '../runtime/client/dev-toolbar/toolbar.js';
 import type { Icon } from '../runtime/client/dev-toolbar/ui-library/icons.js';
 import type {
@@ -38,10 +43,10 @@ import type {
 	TransitionBeforePreparationEvent,
 	TransitionBeforeSwapEvent,
 } from '../transitions/events.js';
-import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
+import type { DeepPartial, OmitIndexSignature, Simplify, WithRequired } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
-export { type AstroIntegrationLogger };
+export type { AstroIntegrationLogger, ToolbarServerHelpers };
 
 export type {
 	MarkdownHeading,
@@ -1667,7 +1672,7 @@ export interface AstroUserConfig {
 		 * @version 4.5.0
 		 * @description
 		 * Enables a more reliable strategy to prevent scripts from being executed in pages where they are not used.
-		 * 
+		 *
 		 * Scripts will directly render as declared in Astro files (including existing features like TypeScript, importing `node_modules`,
 		 * and deduplicating scripts). You can also now conditionally render scripts in your Astro file.
 
@@ -1713,9 +1718,9 @@ export interface AstroUserConfig {
 		 * @version 4.5.0
 		 * @description
 		 * This feature will auto-generate a JSON schema for content collections of `type: 'data'` which can be used as the `$schema` value for TypeScript-style autocompletion/hints in tools like VSCode.
-		 * 
+		 *
 		 * To enable this feature, add the experimental flag:
-		 * 
+		 *
 		 * ```diff
 		 * import { defineConfig } from 'astro/config';
 
@@ -1725,9 +1730,9 @@ export interface AstroUserConfig {
 		 * 	}
 		 * });
 		 * ```
-		 * 
+		 *
 		 * This experimental implementation requires you to manually reference the schema in each data entry file of the collection:
-		 * 
+		 *
 		 * ```diff
 		 * // src/content/test/entry.json
 		 * {
@@ -1735,9 +1740,9 @@ export interface AstroUserConfig {
 		 * 	"test": "test"
 		 * }
 		 * ```
-		 * 
+		 *
 		 * Alternatively, you can set this in your [VSCode `json.schemas` settings](https://code.visualstudio.com/docs/languages/json#_json-schemas-and-settings):
-		 * 
+		 *
 		 * ```diff
 		 * "json.schemas": [
 		 * 	{
@@ -1748,7 +1753,7 @@ export interface AstroUserConfig {
 		 * 	}
 		 * ]
 		 * ```
-		 * 
+		 *
 		 * Note that this initial implementation uses a library with [known issues for advanced Zod schemas](https://github.com/StefanTerdell/zod-to-json-schema#known-issues), so you may wish to consult these limitations before enabling the experimental flag.
 		 */
 		contentCollectionJsonSchema?: boolean;
@@ -2100,12 +2105,20 @@ export interface AstroSettings {
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
-	devToolbarApps: string[];
+	devToolbarApps: (DevToolbarAppEntry | string)[];
 	middlewares: { pre: string[]; post: string[] };
 	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
 	timer: AstroTimer;
+	/**
+	 * Latest version of Astro, will be undefined if:
+	 * - unable to check
+	 * - the user has disabled the check
+	 * - the check has not completed yet
+	 * - the user is on the latest version already
+	 */
+	latestAstroVersion: string | undefined;
 }
 
 export type AsyncRendererComponentFn<U> = (
@@ -2727,7 +2740,8 @@ export interface AstroIntegration {
 			 * TODO: Fully remove in Astro 5.0
 			 */
 			addDevOverlayPlugin: (entrypoint: string) => void;
-			addDevToolbarApp: (entrypoint: string) => void;
+			// TODO: Deprecate the `string` overload once a few apps have been migrated to the new API.
+			addDevToolbarApp: (entrypoint: DevToolbarAppEntry | string) => void;
 			addMiddleware: (mid: AstroIntegrationMiddleware) => void;
 			logger: AstroIntegrationLogger;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
@@ -2743,6 +2757,7 @@ export interface AstroIntegration {
 		'astro:server:setup'?: (options: {
 			server: vite.ViteDevServer;
 			logger: AstroIntegrationLogger;
+			toolbar: ReturnType<typeof getToolbarServerCommunicationHelpers>;
 		}) => void | Promise<void>;
 		'astro:server:start'?: (options: {
 			address: AddressInfo;
@@ -2998,13 +3013,53 @@ export interface ClientDirectiveConfig {
 	entrypoint: string;
 }
 
-export interface DevToolbarApp {
+type DevToolbarAppMeta = {
 	id: string;
 	name: string;
 	icon?: Icon;
-	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
+};
+
+// The param passed to `addDevToolbarApp` in the integration
+export type DevToolbarAppEntry = DevToolbarAppMeta & {
+	entrypoint: string;
+};
+
+// Public API for the dev toolbar
+export type DevToolbarApp = {
+	/**
+	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
+	 *
+	 * Ex: `addDevToolbarApp({ id: 'my-app', name: 'My App', icon: '🚀', entrypoint: '/path/to/app' })`
+	 *
+	 * In the future, putting these properties directly on the app object will be removed.
+	 */
+	id?: string;
+	/**
+	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
+	 *
+	 * Ex: `addDevToolbarApp({ id: 'my-app', name: 'My App', icon: '🚀', entrypoint: '/path/to/app' })`
+	 *
+	 * In the future, putting these properties directly on the app object will be removed.
+	 */
+	name?: string;
+	/**
+	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
+	 *
+	 * Ex: `addDevToolbarApp({ id: 'my-app', name: 'My App', icon: '🚀', entrypoint: '/path/to/app' })`
+	 *
+	 * In the future, putting these properties directly on the app object will be removed.
+	 */
+	icon?: Icon;
+	init?(
+		canvas: ShadowRoot,
+		app: ToolbarAppEventTarget,
+		server: ToolbarServerHelpers
+	): void | Promise<void>;
 	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
-}
+};
+
+// An app that has been loaded and as such contain all of its properties
+export type ResolvedDevToolbarApp = DevToolbarAppMeta & Omit<DevToolbarApp, 'id' | 'name' | 'icon'>;
 
 // TODO: Remove in Astro 5.0
 export type DevOverlayPlugin = DevToolbarApp;
@@ -3014,6 +3069,7 @@ export type DevToolbarMetadata = Window &
 		__astro_dev_toolbar__: {
 			root: string;
 			version: string;
+			latestAstroVersion: AstroSettings['latestAstroVersion'];
 			debugInfo: string;
 		};
 	};

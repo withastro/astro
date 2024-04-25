@@ -83,6 +83,7 @@ export class DevPipeline extends Pipeline {
 				const additionalMetadata: DevToolbarMetadata['__astro_dev_toolbar__'] = {
 					root: url.fileURLToPath(settings.config.root),
 					version: ASTRO_VERSION,
+					latestAstroVersion: settings.latestAstroVersion,
 					debugInfo: await getInfoOutput({ userConfig: settings.config, print: false }),
 				};
 
