@@ -1,4 +1,4 @@
-import { asDrizzleTable } from '@astrojs/db/runtime';
+import { asDrizzleTable } from '@astrojs/db/utils';
 import type { APIRoute } from 'astro';
 import { AstrojsWebVitals_Metric } from './db-config.js';
 import { ServerMetricSchema } from './schemas.js';
