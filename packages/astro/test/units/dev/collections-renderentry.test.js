@@ -84,18 +84,6 @@ _describe('Content Collections - render()', () => {
 	it('can be used in a layout component', async () => {
 		const fs = createFsWithFallback(
 			{
-				// Loading the content config with `astro:content` oddly
-				// causes this test to fail. Spoof a different src/content entry
-				// to ensure `existsSync` checks pass.
-				// TODO: revisit after addressing this issue
-				// https://github.com/withastro/astro/issues/6121
-				'/src/content/blog/promo/launch-week.mdx': `---
-title: Launch Week
-description: Astro is launching this week!
----
-# Launch Week
-- [x] Launch Astro
-- [ ] Celebrate`,
 				'/src/components/Layout.astro': `
 					---
 					import { getCollection } from 'astro:content';

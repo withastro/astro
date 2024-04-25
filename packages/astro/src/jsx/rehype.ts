@@ -1,6 +1,10 @@
 import type { RehypePlugin } from '@astrojs/markdown-remark';
 import type { RootContent } from 'hast';
-import type { MdxJsxFlowElementHast, MdxJsxTextElementHast } from 'mdast-util-mdx-jsx';
+import type {
+	MdxJsxAttribute,
+	MdxJsxFlowElementHast,
+	MdxJsxTextElementHast,
+} from 'mdast-util-mdx-jsx';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
 import { AstroError } from '../core/errors/errors.js';
@@ -45,6 +49,22 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 				});
 			}
 
+			// If this is an Astro component, that means the `client:` directive is misused as it doesn't
+			// work on Astro components as it's server-side only. Warn the user about this.
+			if (matchedImport.path.endsWith('.astro')) {
+				const clientAttribute = node.attributes.find(
+					(attr) => attr.type === 'mdxJsxAttribute' && attr.name.startsWith('client:')
+				) as MdxJsxAttribute | undefined;
+				if (clientAttribute) {
+					// eslint-disable-next-line
+					console.warn(
+						`You are attempting to render <${node.name!} ${
+							clientAttribute.name
+						} />, but ${node.name!} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`
+					);
+				}
+			}
+
 			const resolvedPath = resolvePath(matchedImport.path, file.path);
 
 			if (hasClientOnlyDirective(node)) {
@@ -68,6 +88,7 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 			}
 		});
 
+		// Attach final metadata here, which can later be retrieved by `getAstroMetadata`
 		file.data.__astroMetadata = metadata;
 	};
 };
@@ -78,6 +99,23 @@ export function getAstroMetadata(file: VFile) {
 
 type ImportSpecifier = { local: string; imported: string };
 
+/**
+ * ```
+ * import Foo from './Foo.jsx'
+ * import { Bar } from './Bar.jsx'
+ * import { Baz as Wiz } from './Bar.jsx'
+ * import * as Waz from './BaWazz.jsx'
+ * 
+ * // => Map {
+ * //   "./Foo.jsx" => Set { { local: "Foo", imported: "default" } },
+ * //   "./Bar.jsx" => Set {
+ * //     { local: "Bar", imported: "Bar" }
+ * //     { local: "Wiz", imported: "Baz" },
+ * //   },
+ * //   "./Waz.jsx" => Set { { local: "Waz", imported: "*" } },
+ * // }
+ * ```
+ */
 function parseImports(children: RootContent[]) {
 	// Map of import source to its imported specifiers
 	const imports = new Map<string, Set<ImportSpecifier>>();
@@ -143,6 +181,29 @@ function hasClientOnlyDirective(node: MdxJsxFlowElementHast | MdxJsxTextElementH
 
 type MatchedImport = { name: string; path: string };
 
+/**
+ * ```
+ * import Button from './Button.jsx'
+ * <Button />
+ * // => { name: "default", path: "./Button.jsx" }
+ *
+ * import { Button } from './Button.jsx'
+ * <Button />
+ * // => { name: "Button", path: "./Button.jsx" }
+ *
+ * import * as buttons from './Button.jsx'
+ * <buttons.Foo.Bar />
+ * // => { name: "Foo.Bar", path: "./Button.jsx" }
+ *
+ * import { buttons } from './Button.jsx'
+ * <buttons.Foo.Bar />
+ * // => { name: "buttons.Foo.Bar", path: "./Button.jsx" }
+ *
+ * import buttons from './Button.jsx'
+ * <buttons.Foo.Bar />
+ * // => { name: "default.Foo.Bar", path: "./Button.jsx" }
+ * ```
+ */
 function findMatchingImport(
 	tagName: string,
 	imports: Map<string, Set<ImportSpecifier>>
@@ -151,7 +212,29 @@ function findMatchingImport(
 	for (const [source, specs] of imports) {
 		for (const { imported, local } of specs) {
 			if (local === tagSpecifier) {
-				return { name: imported === '*' ? imported : tagName, path: source };
+				// If tagName access properties, we need to make sure the returned `name`
+				// properly access the properties from `path`
+				if (tagSpecifier !== tagName) {
+					switch (imported) {
+						// Namespace import: "<buttons.Foo.Bar />" => name: "Foo.Bar"
+						case '*': {
+							const accessPath = tagName.slice(tagSpecifier.length + 1);
+							return { name: accessPath, path: source };
+						}
+						// Default import: "<buttons.Foo.Bar />" => name: "default.Foo.Bar"
+						case 'default': {
+							// "buttons.Foo.Bar" => "Foo.Bar"
+							const accessPath = tagName.slice(tagSpecifier.length + 1);
+							return { name: `default.${accessPath}`, path: source };
+						}
+						// Named import: "<buttons.Foo.Bar />" => name: "buttons.Foo.Bar"
+						default: {
+							return { name: tagName, path: source };
+						}
+					}
+				}
+
+				return { name: imported, path: source };
 			}
 		}
 	}
