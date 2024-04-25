@@ -9,7 +9,7 @@ import * as vite from 'vite';
 import type { RouteData } from '../../@types/astro.js';
 import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 import { hasAnyContentFlag } from '../../content/utils.js';
-import { type BuildInternals, createBuildInternals } from '../../core/build/internal.js';
+import { type BuildInternals, createBuildInternals, getPageDatasWithPublicKey } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash, removeFileExtension } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
@@ -267,7 +267,7 @@ async function ssrBuild(
 
 	const updatedViteBuildConfig = await runHookBuildSetup({
 		config: settings.config,
-		pages: internals.pagesByKeys,
+		pages: getPageDatasWithPublicKey(internals.pagesByKeys),
 		vite: viteBuildConfig,
 		target: 'server',
 		logger: opts.logger,
@@ -328,7 +328,7 @@ async function clientBuild(
 
 	await runHookBuildSetup({
 		config: settings.config,
-		pages: internals.pagesByKeys,
+		pages: getPageDatasWithPublicKey(internals.pagesByKeys),
 		vite: viteBuildConfig,
 		target: 'client',
 		logger: opts.logger,
@@ -370,7 +370,6 @@ async function cleanStaticOutput(
 ) {
 	const allStaticFiles = new Set();
 	for (const pageData of internals.pagesByKeys.values()) {
-		console.log("[cleanStaticOutput] pageData: ", pageData.key, "— is prerender ? ", pageData.route.prerender);
 		const { moduleSpecifier } = pageData;
 		const pageBundleId = internals.pageToBundleMap.get(moduleSpecifier);
 		const entryBundleId = internals.entrySpecifierToBundleMap.get(moduleSpecifier);

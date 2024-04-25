@@ -246,6 +246,45 @@ export function getPageDataByComponent(
 	return undefined;
 }
 
+/**
+ * TODO: This function is used to avoid breaking changes in the Integrations API.
+ * Should be removed in the future (in Astro 5 ?).
+ * Parse internals.pagesByKeys to get the page data with the public key.
+ * If the page component is unique -> the public key is the component.
+ * If the page component is shared -> the public key is the internal key.
+ * @param pagesByKeys A map of all page data by their internal key
+ */
+export function getPageDatasWithPublicKey(pagesByKeys: Map<string, PageBuildData>): Map<string, PageBuildData> {
+	// Create a map to store the pages with the public key, mimicking internal.pagesByKeys
+	const pagesWithPublicKey = new Map<string, PageBuildData>();
+
+	const pagesByComponentsArray = Array.from(pagesByKeys.values()).map((pageData) => {
+		return { component: pageData.component, pageData: pageData };
+	});
+
+	// Get pages with unique component, and set the public key to the component, to maintain the
+	// old behavior of the Integrations API. Then add them to the pagesWithPublicKey map.
+	const pagesWithUniqueComponent = pagesByComponentsArray.filter((page) => {
+		return pagesByComponentsArray.filter((p) => p.component === page.component).length === 1;
+	});
+
+	pagesWithUniqueComponent.forEach((page) => {
+		pagesWithPublicKey.set(page.component, page.pageData);
+	});
+
+	// Get pages with shared component, and set the public key to the internal key. It's not a breaking change
+	// since having a shared component was not supported before. Then add them to the pagesWithPublicKey map.
+	const pagesWithSharedComponent = pagesByComponentsArray.filter((page) => {
+		return pagesByComponentsArray.filter((p) => p.component === page.component).length > 1;
+	});
+
+	pagesWithSharedComponent.forEach((page) => {
+		pagesWithPublicKey.set(page.pageData.key, page.pageData);
+	});
+
+	return pagesWithPublicKey;
+}
+
 export function getPageDataByViteID(
 	internals: BuildInternals,
 	viteid: ViteID
