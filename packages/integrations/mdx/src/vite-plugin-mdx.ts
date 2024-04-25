@@ -16,6 +16,13 @@ export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
 			processor = undefined;
 		},
 		configResolved(resolved) {
+			// The first time we access `mdxOptions`, make sure it's populated (just in case)
+			if (Object.keys(mdxOptions).length === 0) {
+				throw new Error(
+					'`mdxOptions` is not populated. This is an internal error. Please file an issue.'
+				);
+			}
+
 			processor = createMdxProcessor(mdxOptions, {
 				sourcemap: !!resolved.build.sourcemap,
 			});
