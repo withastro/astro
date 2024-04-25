@@ -1161,11 +1161,10 @@ export const i18nNotEnabled = {
  * @description
  * The failing environment variable does not match the type and constraints defined in `experimental.env.schema`.
  */
-export const EnvInvalidVariable = {
+export const EnvInvalidVariables = {
 	name: 'EnvInvalidVariable',
 	title: 'Invalid Environment variable',
-	message: (key: string, type: string) => `Variable "${key}" is not of type: ${type}.`,
-	hint: 'The failing environment variable does not match the type and constraints defined in `experimental.env.schema`.',
+	message: (variables: string) => `The following environment variable does not match the type and constraints defined in \`experimental.env.schema\`:\n\n${variables}\n`,
 } satisfies ErrorData;
 
 /**

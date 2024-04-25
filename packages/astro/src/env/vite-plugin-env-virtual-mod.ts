@@ -80,6 +80,7 @@ function handleClientModule({
 	loadedEnv: Record<string, string>;
 }) {
 	const data: Array<{ key: string; value: any; type: string }> = [];
+	const invalid: Array<{ key: string; type: string }> = [];
 
 	for (const [key, options] of Object.entries(schema)) {
 		if (options.context !== 'client') {
@@ -87,13 +88,21 @@ function handleClientModule({
 		}
 		const variable = loadedEnv[key];
 		const result = validateEnvVariable(variable === '' ? undefined : variable, options);
-		if (!result.ok) {
-			throw new AstroError({
-				...AstroErrorData.EnvInvalidVariable,
-				message: AstroErrorData.EnvInvalidVariable.message(key, result.type),
-			});
+		if (result.ok) {
+			data.push({ key, value: result.value, type: result.type });
+			data.push({ key, value: result.value, type: result.type });
+		} else {
+			invalid.push({ key, type: result.type });
 		}
-		data.push({ key, value: result.value, type: result.type });
+	}
+
+	if (invalid.length > 0) {
+		throw new AstroError({
+			...AstroErrorData.EnvInvalidVariables,
+			message: AstroErrorData.EnvInvalidVariables.message(
+				invalid.map(({ key, type }) => `Variable "${key}" is not of type: ${type}.`).join('\n')
+			),
+		});
 	}
 
 	const contentParts: Array<string> = [];
