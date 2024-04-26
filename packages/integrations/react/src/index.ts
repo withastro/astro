@@ -1,6 +1,5 @@
 import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-react';
 import type { AstroIntegration } from 'astro';
-import { version as ReactVersion } from 'react-dom';
 import type * as vite from 'vite';
 
 export type ReactIntegrationOptions = Pick<
@@ -15,12 +14,8 @@ const FAST_REFRESH_PREAMBLE = react.preambleCode;
 function getRenderer() {
 	return {
 		name: '@astrojs/react',
-		clientEntrypoint: ReactVersion.startsWith('18.')
-			? '@astrojs/react/client.js'
-			: '@astrojs/react/client-v17.js',
-		serverEntrypoint: ReactVersion.startsWith('18.')
-			? '@astrojs/react/server.js'
-			: '@astrojs/react/server-v17.js',
+		clientEntrypoint: '@astrojs/react/client.js',
+		serverEntrypoint: '@astrojs/react/server.js'
 	};
 }
 
@@ -54,19 +49,14 @@ function getViteConfiguration({
 }: ReactIntegrationOptions = {}) {
 	return {
 		optimizeDeps: {
-			include: [
-				ReactVersion.startsWith('18.')
-					? '@astrojs/react/client.js'
-					: '@astrojs/react/client-v17.js',
+			include: ['@astrojs/react/client.js',
 				'react',
 				'react/jsx-runtime',
 				'react/jsx-dev-runtime',
 				'react-dom',
 			],
 			exclude: [
-				ReactVersion.startsWith('18.')
-					? '@astrojs/react/server.js'
-					: '@astrojs/react/server-v17.js',
+					'@astrojs/react/server.js'
 			],
 		},
 		plugins: [react({ include, exclude, babel }), optionsPlugin(!!experimentalReactChildren)],
@@ -74,9 +64,7 @@ function getViteConfiguration({
 			dedupe: ['react', 'react-dom', 'react-dom/server'],
 		},
 		ssr: {
-			external: ReactVersion.startsWith('18.')
-				? ['react-dom/server', 'react-dom/client']
-				: ['react-dom/server.js', 'react-dom/client.js'],
+			external: ['react-dom/server', 'react-dom/client'],
 			noExternal: [
 				// These are all needed to get mui to work.
 				'@mui/material',
