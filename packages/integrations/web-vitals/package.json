@@ -16,26 +16,11 @@
   ],
   "bugs": "https://github.com/withastro/astro/issues",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./middleware": {
-      "types": "./dist/middleware.d.ts",
-      "import": "./dist/middleware.js"
-    },
-    "./endpoint": {
-      "types": "./dist/endpoint.d.ts",
-      "import": "./dist/endpoint.js"
-    },
-    "./client-script": {
-      "types": "./dist/client-script.d.ts",
-      "import": "./dist/client-script.js"
-    },
-    "./db-config": {
-      "types": "./dist/db-config.d.ts",
-      "import": "./dist/db-config.js"
-    }
+    ".": "./dist/index.js",
+    "./middleware": "./dist/middleware.js",
+    "./endpoint": "./dist/endpoint.js",
+    "./client-script": "./dist/client-script.js",
+    "./db-config": "./dist/db-config.js"
   },
   "files": [
     "dist"
