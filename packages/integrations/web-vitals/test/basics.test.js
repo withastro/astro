@@ -27,7 +27,7 @@ describe('Web Vitals integration basics', () => {
 		assert.ok(meta);
 		assert.equal(meta.getAttribute('content'), '/');
 	});
-	
+
 	it('adds a meta tag using the route pattern to the page', async () => {
 		const html = await fixture.fetch('/test', {}).then((res) => res.text());
 		const { document } = parseHTML(html);
@@ -39,5 +39,5 @@ describe('Web Vitals integration basics', () => {
 	it.todo('accepts data to the injected endpoint', async () => {
 		const res = await fixture.fetch('/_/astro-vitals', { method: 'POST', body: '[]' });
 		assert.equal(res.status, 200);
-	})
+	});
 });

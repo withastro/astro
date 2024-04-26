@@ -1,4 +1,4 @@
-import { onCLS, onINP, onLCP, onFID, onFCP, onTTFB, type Metric } from 'web-vitals';
+import { type Metric, onCLS, onFCP, onFID, onINP, onLCP, onTTFB } from 'web-vitals';
 import type { ClientMetric } from './schemas.js';
 
 const pathname = location.pathname.replace(/(?<=.)\/$/, '');

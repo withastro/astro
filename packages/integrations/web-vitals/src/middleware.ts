@@ -1,4 +1,4 @@
-import type { MiddlewareHandler } from "astro";
+import type { MiddlewareHandler } from 'astro';
 
 /**
  * Middleware which adds the web vitals `<meta>` tag to each page’s `<head>`.

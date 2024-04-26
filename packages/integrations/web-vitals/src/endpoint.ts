@@ -1,7 +1,7 @@
+import { db, sql } from 'astro:db';
 import type { APIRoute } from 'astro';
 import { AstrojsWebVitals_Metric } from './db-config.js';
 import { ServerMetricSchema } from './schemas.js';
-import { db, sql } from 'astro:db';
 
 export const prerender = false;
 
@@ -12,7 +12,10 @@ export const ALL: APIRoute = async ({ request }) => {
 		await db
 			.insert(AstrojsWebVitals_Metric)
 			.values(body)
-			.onConflictDoUpdate({ target: AstrojsWebVitals_Metric.id, set: { value: sql`excluded.value` } });
+			.onConflictDoUpdate({
+				target: AstrojsWebVitals_Metric.id,
+				set: { value: sql`excluded.value` },
+			});
 	} catch (error) {
 		console.error(error);
 	}
