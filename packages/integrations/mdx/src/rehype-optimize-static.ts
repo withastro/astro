@@ -198,7 +198,7 @@ function findElementGroups(
 			if (isNodeNonStatic(node)) break;
 
 			if (node.type === 'element') {
-				// This node is now (persumably) part of a group, remove it from `allPossibleElements`
+				// This node is now (presumably) part of a group, remove it from `allPossibleElements`
 				const existed = allPossibleElements.delete(node);
 				// If this node didn't exist in `allPossibleElements`, it's likely that one of its children
 				// are non-static, hence this node can also not be grouped. So we break out here.
