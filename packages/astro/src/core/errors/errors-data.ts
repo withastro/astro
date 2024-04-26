@@ -2,6 +2,7 @@
 // Additionally, this code, much like `@types/astro.ts`, is used to generate documentation, so make sure to pass
 // your changes by our wonderful docs team before merging!
 
+import type { satisfies } from 'semver';
 import type { ZodError } from 'zod';
 
 export interface ErrorData {
@@ -1154,6 +1155,17 @@ export const i18nNotEnabled = {
 	title: 'i18n Not Enabled',
 	message: 'The `astro:i18n` module can not be used without enabling i18n in your Astro config.',
 	hint: 'See https://docs.astro.build/en/guides/internationalization for a guide on setting up i18n.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ */
+export const AstroIntegrationInvalidOptions = {
+	name: 'AstroIntegrationInvalidOptions',
+	title: 'Astro Integration Invalid Options',
+	message: (name: string, error: string) =>
+		`Invalid options passed to "${name}" integration\n${error}`,
 } satisfies ErrorData;
 
 /**
