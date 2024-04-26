@@ -55,7 +55,8 @@
 	"devDependencies": {
 		"@astrojs/db": "workspace:*",
 		"astro": "workspace:*",
-    "astro-scripts": "workspace:*"
+    "astro-scripts": "workspace:*",
+    "linkedom": "^0.16.11"
 	},
   "publishConfig": {
     "provenance": true
