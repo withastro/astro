@@ -2,7 +2,6 @@
 // Additionally, this code, much like `@types/astro.ts`, is used to generate documentation, so make sure to pass
 // your changes by our wonderful docs team before merging!
 
-import type { satisfies } from 'semver';
 import type { ZodError } from 'zod';
 
 export interface ErrorData {
