@@ -1,4 +1,4 @@
-import { visit } from 'estree-util-visit';
+import { visit, SKIP } from 'estree-util-visit';
 import { toHtml } from 'hast-util-to-html';
 
 // accessing untyped hast and mdx types
@@ -47,7 +47,11 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 		const elementStack: Node[] = [];
 
 		visit(tree, {
-			enter(node) {
+			enter(node, key) {
+				// `estree-util-visit` may traverse in MDX `attributes`, we don't want that. Only continue
+				// if it's traversing the root, or the `children` key.
+				if (key != null && key !== 'children') return SKIP;
+
 				// @ts-expect-error read tagName naively
 				const isCustomComponent = node.tagName && customComponentNames.has(node.tagName);
 				// For nodes that can't be optimized, eliminate all elements in the
@@ -65,16 +69,20 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 				// For possible subtree root nodes, record them in `elementStack` and
 				// `allPossibleElements` to be used in the "leave" hook below.
 				// @ts-expect-error MDX types for `.type` is not enhanced because MDX isn't used directly
-				if (node.type === 'element' || node.type === 'mdxJsxFlowElement') {
+				if (node.type === 'element' || isMdxComponentNode(node)) {
 					elementStack.push(node);
 					allPossibleElements.add(node);
 				}
 			},
-			leave(node, _, __, parents) {
+			leave(node, key, _, parents) {
+				// `estree-util-visit` may traverse in MDX `attributes`, we don't want that. Only continue
+				// if it's traversing the root, or the `children` key.
+				if (key != null && key !== 'children') return SKIP;
+
 				// Do the reverse of the if condition above, popping the `elementStack`,
 				// and consolidating `allPossibleElements` as a subtree root.
 				// @ts-expect-error MDX types for `.type` is not enhanced because MDX isn't used directly
-				if (node.type === 'element' || node.type === 'mdxJsxFlowElement') {
+				if (node.type === 'element' || isMdxComponentNode(node)) {
 					elementStack.pop();
 					// Many possible elements could be part of a subtree, in order to find
 					// the root, we check the parent of the element we're popping. If the
@@ -92,7 +100,10 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 		// For all possible subtree roots, collapse them into `set:html` and
 		// strip of their children
 		for (const el of allPossibleElements) {
-			if (el.type === 'mdxJsxFlowElement') {
+			// Avoid adding empty `set:html` attributes if there's no children
+			if (el.children.length === 0) continue;
+
+			if (isMdxComponentNode(el)) {
 				el.attributes.push({
 					type: 'mdxJsxAttribute',
 					name: 'set:html',
@@ -104,4 +115,8 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 			el.children = [];
 		}
 	};
+}
+
+function isMdxComponentNode(node: any) {
+	return node.type === 'mdxJsxFlowElement' || node.type === 'mdxJsxTextElement';
 }
