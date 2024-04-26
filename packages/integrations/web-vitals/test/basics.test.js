@@ -86,6 +86,14 @@ describe('Web Vitals integration basics', () => {
 		assert.equal(consoleErrorMock.calls.length, 2);
 	});
 
+	it('validates data sent to the injected endpoint with Zod', async () => {
+		const res = await fixture.fetch('/_/astro-vitals', { method: 'POST', body: '[{}]' });
+		assert.equal(res.status, 200);
+		const call = consoleErrorMock.calls[0][0];
+		assert.ok(call instanceof Error);
+		assert.equal(call.name, 'ZodError');
+	});
+
 	it('inserts data via the injected endpoint', async () => {
 		const res = await fixture.fetch('/_/astro-vitals', {
 			method: 'POST',
@@ -104,7 +112,7 @@ describe('Web Vitals integration basics', () => {
 		assert.equal(
 			consoleErrorMock.calls.length,
 			0,
-			'Endpoint logged errors:\n' + consoleErrorMock.calls[0].join(' ')
+			'Endpoint logged errors:\n' + consoleErrorMock.calls[0]?.join(' ')
 		);
 	});
 });
