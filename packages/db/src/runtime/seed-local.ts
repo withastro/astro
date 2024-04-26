@@ -44,7 +44,7 @@ export async function seedLocal({
 	}
 }
 
-async function recreateTables({ db, tables }: { db: LibSQLDatabase; tables: DBTables }) {
+export async function recreateTables({ db, tables }: { db: LibSQLDatabase; tables: DBTables }) {
 	const setupQueries: SQL[] = [];
 	for (const [name, table] of Object.entries(tables)) {
 		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);

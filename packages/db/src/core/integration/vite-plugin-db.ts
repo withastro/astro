@@ -119,18 +119,21 @@ export function getLocalVirtualModContents({
 
 	const dbUrl = new URL(DB_PATH, root);
 	return `
-import { asDrizzleTable, createLocalDatabaseClient, normalizeDatabaseUrl } from ${RUNTIME_IMPORT};
+import { asDrizzleTable, createLocalDatabaseClient, normalizeDatabaseUrl, recreateTables } from ${RUNTIME_IMPORT};
 ${shouldSeed ? `import { seedLocal } from ${RUNTIME_IMPORT};` : ''}
 ${shouldSeed ? integrationSeedImportStatements.join('\n') : ''}
 
+const tables = ${JSON.stringify(tables)};
+
 const dbUrl = normalizeDatabaseUrl(import.meta.env.ASTRO_DATABASE_FILE, ${JSON.stringify(dbUrl)});
 export const db = createLocalDatabaseClient({ dbUrl });
+await recreateTables({ db, tables });
 
 ${
 	shouldSeed
 		? `await seedLocal({
 	db,
-	tables: ${JSON.stringify(tables)},
+	tables,
 	userSeedGlob: import.meta.glob(${JSON.stringify(userSeedFilePaths)}, { eager: true }),
 	integrationSeedFunctions: [${integrationSeedImportNames.join(',')}],
 });`
