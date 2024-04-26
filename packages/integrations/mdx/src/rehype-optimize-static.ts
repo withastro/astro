@@ -5,7 +5,7 @@ import { toHtml } from 'hast-util-to-html';
 type Node = any;
 
 export interface OptimizeOptions {
-	customComponentNames?: string[];
+	ignoreComponentNames?: string[];
 }
 
 const exportConstComponentsRe = /export\s+const\s+components\s*=/;
@@ -21,10 +21,10 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 	return (tree: any) => {
 		// A set of non-static components to avoid collapsing when walking the tree
 		// as they need to be preserved as JSX to be rendered dynamically.
-		const customComponentNames = new Set<string>(options?.customComponentNames);
+		const ignoreComponentNames = new Set<string>(options?.ignoreComponentNames);
 
 		// Find `export const components = { ... }` and get it's object's keys to be
-		// populated into `customComponentNames`. This configuration is used to render
+		// populated into `ignoreComponentNames`. This configuration is used to render
 		// some HTML elements as custom components, and we also want to avoid collapsing them.
 		for (const child of tree.children) {
 			if (child.type === 'mdxjsEsm' && exportConstComponentsRe.test(child.value)) {
@@ -34,7 +34,7 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 					for (const objectPropertyNode of objectPropertyNodes) {
 						const componentName = objectPropertyNode.key?.name ?? objectPropertyNode.key?.value;
 						if (componentName) {
-							customComponentNames.add(componentName);
+							ignoreComponentNames.add(componentName);
 						}
 					}
 				}
@@ -49,10 +49,10 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 		visit(tree, {
 			enter(node) {
 				// @ts-expect-error read tagName naively
-				const isCustomComponent = node.tagName && customComponentNames.has(node.tagName);
+				const isNodeIgnored = node.tagName && ignoreComponentNames.has(node.tagName);
 				// For nodes that can't be optimized, eliminate all elements in the
 				// `elementStack` from the `allPossibleElements` set.
-				if (node.type.startsWith('mdx') || isCustomComponent) {
+				if (node.type.startsWith('mdx') || isNodeIgnored) {
 					for (const el of elementStack) {
 						allPossibleElements.delete(el);
 					}
