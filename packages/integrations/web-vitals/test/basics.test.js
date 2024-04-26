@@ -101,6 +101,10 @@ describe('Web Vitals integration basics', () => {
 			]),
 		});
 		assert.equal(res.status, 200);
-		assert.equal(consoleErrorMock.calls.length, 0);
+		assert.equal(
+			consoleErrorMock.calls.length,
+			0,
+			'Endpoint logged errors:\n' + consoleErrorMock.calls[0].join(' ')
+		);
 	});
 });
