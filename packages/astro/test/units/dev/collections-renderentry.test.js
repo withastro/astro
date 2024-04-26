@@ -84,6 +84,24 @@ _describe('Content Collections - render()', () => {
 	it('can be used in a layout component', async () => {
 		const fs = createFsWithFallback(
 			{
+				'/src/components/Layout.astro': `
+					---
+					import { getCollection } from 'astro:content';
+					const blog = await getCollection('blog');
+					const launchWeekEntry = blog.find(post => post.id === 'promo/launch-week.mdx');
+					const { Content } = await launchWeekEntry.render();
+					---
+					<html>
+						<head></head>
+						<body>
+							<slot name="title"></slot>
+							<article>
+								<Content />
+							</article>
+						</body>
+					</html>
+
+				`,
 				'/src/pages/index.astro': `
 					---
 					import Layout from '../components/Layout.astro';
