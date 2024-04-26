@@ -9,10 +9,12 @@ export * from './shared.js';
 export { z } from '../../../../zod.mjs';
 
 export function defineAction<TOutput, TInputSchema extends z.ZodType>({
+	accept,
 	input: inputSchema,
 	handler,
 }: {
 	input?: TInputSchema;
+	accept: 'json' | 'form' | 'all';
 	handler: (input: z.infer<TInputSchema>, context: APIContext) => MaybePromise<TOutput>;
 }): (input: z.input<TInputSchema> | FormData) => Promise<Awaited<TOutput>> {
 	return async (unparsedInput): Promise<Awaited<TOutput>> => {
@@ -21,14 +23,14 @@ export function defineAction<TOutput, TInputSchema extends z.ZodType>({
 		if (!inputSchema) return await handler(unparsedInput, context);
 
 		if (unparsedInput instanceof FormData) {
-			if (!(inputSchema instanceof z.ZodObject)) {
+			if (accept === 'json') {
 				throw new ActionError({
-					status: 'INTERNAL_SERVER_ERROR',
-					message:
-						'`input` must use a Zod object schema with z.object() when accepting form data.',
+					status: 'UNSUPPORTED_MEDIA_TYPE',
+					message: 'This action only accepts JSON input. To accept form data, set the `accept` option to either `form` or `all`.'
 				});
 			}
-			unparsedInput = upgradeFormData(unparsedInput, inputSchema);
+			// TODO: form input schema narrowing
+			unparsedInput = upgradeFormData(unparsedInput, inputSchema as any);
 		}
 
 		const parsed = inputSchema.safeParse(unparsedInput);

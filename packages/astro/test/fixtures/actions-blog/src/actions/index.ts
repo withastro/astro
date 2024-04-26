@@ -6,6 +6,7 @@ export default {
   blog: {
     like: defineAction({
       input: z.object({ postId: z.string() }),
+			accept: 'json',
       handler: async ({ postId }, context) => {
         await new Promise((r) => setTimeout(r, 200));
 
@@ -23,6 +24,7 @@ export default {
     }),
 
     comment: defineAction({
+			accept: 'all',
       input: z.object({
         postId: z.string(),
         author: z.string(),

@@ -6,6 +6,7 @@ type ActionErrorStatus =
 	| 'UNAUTHORIZED'
 	| 'FORBIDDEN'
 	| 'NOT_FOUND'
+	| 'UNSUPPORTED_MEDIA_TYPE'
 	| 'INTERNAL_SERVER_ERROR';
 
 export class ActionError extends Error {
