@@ -1,5 +1,5 @@
 import type { RouteData, SSRLoadedRenderer, SSRResult } from '../../@types/astro.js';
-import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
+import { getOutputDirectory } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
@@ -21,6 +21,7 @@ import { getVirtualModulePageNameFromPath } from './plugins/util.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
+import { isServerLikeOutput } from '../util.js';
 
 /**
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.

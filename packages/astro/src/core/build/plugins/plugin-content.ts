@@ -9,7 +9,6 @@ import {
 	generateContentEntryFile,
 	generateLookupMap,
 } from '../../../content/vite-plugin-content-virtual-mod.js';
-import { isServerLikeOutput } from '../../../prerender/utils.js';
 import { configPaths } from '../../config/index.js';
 import { emptyDir } from '../../fs/index.js';
 import {
@@ -26,6 +25,7 @@ import { copyFiles } from '../static-build.js';
 import type { StaticBuildOptions } from '../types.js';
 import { encodeName } from '../util.js';
 import { extendManualChunks } from './util.js';
+import { isContentCollectionsCacheEnabled } from '../../util.js';
 import type { AstroConfig } from '../../../@types/astro.js';
 
 const CONTENT_CACHE_DIR = './content/';
@@ -244,7 +244,6 @@ function vitePluginContent(
 				...oldManifest.clientEntries,
 				...internals.discoveredHydratedComponents.keys(),
 				...internals.discoveredClientOnlyComponents.keys(),
-				...internals.discoveredScripts,
 			]);
 			// Likewise, these are server modules that might not be referenced
 			// once the cached items are excluded from the build process
@@ -468,10 +467,7 @@ export function pluginContent(
 		targets: ['server'],
 		hooks: {
 			async 'build:before'() {
-				if (!opts.settings.config.experimental.contentCollectionCache) {
-					return { vitePlugin: undefined };
-				}
-				if (isServerLikeOutput(opts.settings.config)) {
+				if (!isContentCollectionsCacheEnabled(opts.settings.config)) {
 					return { vitePlugin: undefined };
 				}
 				const lookupMap = await generateLookupMap({ settings: opts.settings, fs: fsMod });
@@ -481,10 +477,7 @@ export function pluginContent(
 			},
 
 			async 'build:post'() {
-				if (!opts.settings.config.experimental.contentCollectionCache) {
-					return;
-				}
-				if (isServerLikeOutput(opts.settings.config)) {
+				if(!isContentCollectionsCacheEnabled(opts.settings.config)) {
 					return;
 				}
 				// Cache build output of chunks and assets
