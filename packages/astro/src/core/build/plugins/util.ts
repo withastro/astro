@@ -57,7 +57,7 @@ export function makePageDataKey(route: string, componentPath: string) {
 
 /**
  * Prevents Rollup from triggering other plugins in the process by masking the extension (hence the virtual file).
- *
+ * Inverse function of getRouteAndComponentFromVirtualModulePageName() below.
  * @param virtualModulePrefix The prefix used to create the virtual module
  * @param path Page component path
  * @param route Route of the page
@@ -73,42 +73,29 @@ export function getVirtualModulePageName(virtualModulePrefix: string, path: stri
 }
 
 /**
- * In SSR plugins, we need to use the non-resolved virtualModuleName in order to resolve correctly the virtual module.
- * @param virtualModulePrefix The prefix used to create the virtual module
- * @param resolvedModulePrefix The prefix of the resolved virtual module
- * @param resolvedId The resolved virtual module id
- * @returns 
- */
-export function virtualModuleNameFromResolvedId(virtualModulePrefix: string, resolvedModulePrefix: string, resolvedId: string) {
-	const extension = extname(resolvedId);
-	const clean_path = resolvedId.slice(resolvedModulePrefix.length);
-	return (
-		virtualModulePrefix +
-		(extension.startsWith('.')
-			? clean_path.slice(0, -extension.length) + extension.replace('.', ASTRO_PAGE_EXTENSION_POST_PATTERN)
-			: clean_path
-		)
-	);
-}
-
-/**
  * From the VirtualModulePageName, get the original pageData key.
+ * Useful to retrieve the pageData from internals.pagesByKeys.get()
  * @param virtualModulePrefix The prefix used to create the virtual module
  * @param id Virtual module name
  */
 export function getPageKeyFromVirtualModulePageName(virtualModulePrefix: string, id: string) {
+	const [route, path] = getRouteAndComponentFromVirtualModulePageName(virtualModulePrefix, id);
+	return makePageDataKey(route, path);
+}
+
+/**
+ * From the VirtualModulePageName, get the route and the component path.
+ * Inverse function of getVirtualModulePageName() above.
+ * @param virtualModulePrefix The prefix at the beginning of the virtual module
+ * @param id Virtual module name
+ * @returns [route, componentPath] as [string, string]
+ */
+export function getRouteAndComponentFromVirtualModulePageName(virtualModulePrefix: string, id: string) {
 	const [route, path] = id
 		.slice(virtualModulePrefix.length)
 		.split(ASTRO_PAGE_KEY_SEPARATOR);
 
-	const componentPath = path.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
-	return makePageDataKey(route, componentPath);
-}
-
-// TODO: Should this be removed? Or refactored in generate.ts ?
-export function getPathFromVirtualModulePageName(virtualModulePrefix: string, id: string) {
-	const pageName = id.slice(virtualModulePrefix.length);
-	return pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
+	return [route, path.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')];
 }
 
 export function shouldInlineAsset(

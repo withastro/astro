@@ -13,7 +13,7 @@ import { SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugin-manifest.js';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
-import { getPathFromVirtualModulePageName, getVirtualModulePageName, virtualModuleNameFromResolvedId } from './util.js';
+import { getRouteAndComponentFromVirtualModulePageName, getVirtualModulePageName, getPageKeyFromVirtualModulePageName } from './util.js';
 
 export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
 export const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
@@ -172,7 +172,9 @@ function vitePluginSSRSplit(
 				const imports: string[] = [];
 				const contents: string[] = [];
 				const exports: string[] = [];
-				const virtualModuleName = virtualModuleNameFromResolvedId(ASTRO_PAGE_MODULE_ID, RESOLVED_SPLIT_MODULE_ID, id);
+				const pageKey = getPageKeyFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, id);
+				const pageData = internals.pagesByKeys.get(pageKey);
+				const virtualModuleName = getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData!.component, pageData!.route.route);
 				let module = await this.resolve(virtualModuleName);
 				if (module) {
 					imports.push(`import * as pageModule from "${virtualModuleName}";`);
@@ -294,7 +296,7 @@ function storeEntryPoint(
 	internals: BuildInternals,
 	fileName: string
 ) {
-	const componentPath = getPathFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, moduleKey);
+	const [_route, componentPath] = getRouteAndComponentFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, moduleKey);
 	for (const pageData of Object.values(options.allPages)) {
 		if (componentPath == pageData.component) {
 			const publicPath = fileURLToPath(options.settings.config.build.server);
