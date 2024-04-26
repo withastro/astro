@@ -1,6 +1,7 @@
+import { asDrizzleTable } from '@astrojs/db/utils';
 import { column, defineDb, defineTable } from 'astro:db';
 
-export const AstrojsWebVitals_Metric: any = defineTable({
+const Metric = defineTable({
 	columns: {
 		pathname: column.text(),
 		route: column.text(),
@@ -12,8 +13,10 @@ export const AstrojsWebVitals_Metric: any = defineTable({
 	},
 });
 
+export const AstrojsWebVitals_Metric = asDrizzleTable('AstrojsWebVitals_Metric', Metric);
+
 export default defineDb({
 	tables: {
-		AstrojsWebVitals_Metric,
+		AstrojsWebVitals_Metric: Metric,
 	},
 });
