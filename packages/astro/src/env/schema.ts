@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PUBLIC_PREFIX } from './constants.js';
 
 const StringSchema = z.object({
 	type: z.literal('string'),
@@ -33,7 +34,6 @@ const SecretServerEnvFieldMetadata = z.object({
 });
 
 const KEY_REGEX = /^[A-Z_]+$/;
-const PUBLIC_PREFIX = 'PUBLIC_';
 
 export const EnvSchema = z
 	.record(

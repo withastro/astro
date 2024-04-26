@@ -5,17 +5,18 @@ export type ValidationResultValue = EnvFieldType['default'];
 type ValidationResult =
 	| {
 			ok: true;
+			type: string;
 			value: ValidationResultValue;
 	  }
 	| {
 			ok: false;
-			error: string;
+			type: string;
 	  };
 
-const errorMsg = (key: string, options: EnvFieldType) => {
-	const optional = options.optional ?? options.default;
-	return `Variable "${key}" is not of type: ${options.type}${optional ? '| undefined' : ''}.`;
-};
+export function getType(options: EnvFieldType) {
+	const optional = options.optional ? (options.default !== undefined ? false : true) : false;
+	return `${options.type}${optional ? ' | undefined' : ''}`;
+}
 
 type ValueValidator = (input: string | undefined) => {
 	valid: boolean;
@@ -46,7 +47,6 @@ const booleanValidator: ValueValidator = (input) => {
 };
 
 export function validateEnvVariable(
-	key: string,
 	value: string | undefined,
 	options: EnvFieldType
 ): ValidationResult {
@@ -56,11 +56,14 @@ export function validateEnvVariable(
 		boolean: booleanValidator,
 	}[options.type];
 
+	const type = getType(options);
+
 	if (options.optional || options.default !== undefined) {
 		if (value === undefined) {
 			return {
 				ok: true,
 				value: options.default,
+				type,
 			};
 		}
 	}
@@ -69,10 +72,11 @@ export function validateEnvVariable(
 		return {
 			ok: true,
 			value: parsed,
+			type,
 		};
 	}
 	return {
 		ok: false,
-		error: errorMsg(key, options),
+		type,
 	};
 }

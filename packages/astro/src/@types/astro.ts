@@ -40,7 +40,7 @@ import type {
 } from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
-import type { EnvSchema } from '../env/schema.js' 
+import type { EnvSchema } from '../env/schema.js';
 
 export { type AstroIntegrationLogger };
 
@@ -1930,7 +1930,6 @@ export interface AstroUserConfig {
 		 * TODO:
 		 */
 		env?: {
-
 			/**
 			 * @docs
 			 * @name experimental.env.schema
@@ -1941,8 +1940,8 @@ export interface AstroUserConfig {
 			 *
 			 * TODO:
 			 */
-			schema?: EnvSchema
-		}
+			schema?: EnvSchema;
+		};
 	};
 }
 
@@ -2132,6 +2131,7 @@ export interface AstroSettings {
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
 	timer: AstroTimer;
+	dotAstroDir: URL;
 }
 
 export type AsyncRendererComponentFn<U> = (

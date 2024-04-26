@@ -3,6 +3,7 @@ type ViteUserConfigFn = import('vite').UserConfigFn;
 type AstroUserConfig = import('./dist/@types/astro.js').AstroUserConfig;
 type ImageServiceConfig = import('./dist/@types/astro.js').ImageServiceConfig;
 type SharpImageServiceConfig = import('./dist/assets/services/sharp.js').SharpImageServiceConfig;
+type EnvField = typeof import('./dist/env/config.js').envField;
 
 /**
  * See the full Astro Configuration API Documentation
@@ -33,3 +34,8 @@ export function squooshImageService(): ImageServiceConfig;
  * See: https://docs.astro.build/en/guides/images/#configure-no-op-passthrough-service
  */
 export function passthroughImageService(): ImageServiceConfig;
+
+/**
+ * TODO:
+ */
+export const envField: EnvField;
