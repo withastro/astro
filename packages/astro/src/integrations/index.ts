@@ -8,3 +8,5 @@ type IntegrationDefinition = {
 export function defineIntegration(integration: IntegrationDefinition) {
 	return integration;
 }
+
+// TODO: mirror aik behavior

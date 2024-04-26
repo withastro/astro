@@ -17,7 +17,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import { CONTENT_FLAGS, CONTENT_TYPES_FILE, PROPAGATED_ASSET_FLAG } from './consts.js';
-import { errorMap } from './error-map.js';
+import { errorMap } from '../core/errors/error-map.js';
 import { createImage } from './runtime-assets.js';
 
 /**
