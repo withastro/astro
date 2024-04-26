@@ -1,5 +1,6 @@
 import { setVfileFrontmatter } from '@astrojs/markdown-remark';
 import type { SSRError } from 'astro';
+import { getAstroMetadata } from 'astro/jsx/rehype.js';
 import { VFile } from 'vfile';
 import type { Plugin } from 'vite';
 import type { MdxOptions } from './index.js';
@@ -20,17 +21,11 @@ export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
 				sourcemap: !!resolved.build.sourcemap,
 			});
 
-			// HACK: move ourselves before Astro's JSX plugin to transform things in the right order
+			// HACK: Remove the `astro:jsx` plugin if defined as we handle the JSX transformation ourselves
 			const jsxPluginIndex = resolved.plugins.findIndex((p) => p.name === 'astro:jsx');
 			if (jsxPluginIndex !== -1) {
-				const myPluginIndex = resolved.plugins.findIndex((p) => p.name === '@mdx-js/rollup');
-				if (myPluginIndex !== -1) {
-					const myPlugin = resolved.plugins[myPluginIndex];
-					// @ts-ignore-error ignore readonly annotation
-					resolved.plugins.splice(myPluginIndex, 1);
-					// @ts-ignore-error ignore readonly annotation
-					resolved.plugins.splice(jsxPluginIndex, 0, myPlugin);
-				}
+				// @ts-ignore-error ignore readonly annotation
+				resolved.plugins.splice(jsxPluginIndex, 1);
 			}
 		},
 		async resolveId(source, importer, options) {
@@ -65,6 +60,7 @@ export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
 				return {
 					code: String(compiled.value),
 					map: compiled.map,
+					meta: getMdxMeta(vfile),
 				};
 			} catch (e: any) {
 				const err: SSRError = e;
@@ -78,6 +74,23 @@ export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
 
 				throw err;
 			}
+		},
+	};
+}
+
+function getMdxMeta(vfile: VFile): Record<string, any> {
+	const astroMetadata = getAstroMetadata(vfile);
+	if (!astroMetadata) {
+		throw new Error(
+			'Internal MDX error: Astro metadata is not set by rehype-analyze-astro-metadata'
+		);
+	}
+	return {
+		astro: astroMetadata,
+		vite: {
+			// Setting this vite metadata to `ts` causes Vite to resolve .js
+			// extensions to .ts files.
+			lang: 'ts',
 		},
 	};
 }

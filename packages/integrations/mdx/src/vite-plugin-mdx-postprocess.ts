@@ -8,7 +8,7 @@ import {
 } from './rehype-images-to-component.js';
 import { type FileInfo, getFileInfo } from './utils.js';
 
-const fragmentImportRegex = /[\s,{]Fragment[\s,}]/;
+const underscoreFragmentImportRegex = /[\s,{]_Fragment[\s,}]/;
 const astroTagComponentImportRegex = /[\s,{]__astro_tag_component__[\s,}]/;
 
 // These transforms must happen *after* JSX runtime transformations
@@ -22,7 +22,7 @@ export function vitePluginMdxPostprocess(astroConfig: AstroConfig): Plugin {
 			const [imports, exports] = parse(code);
 
 			// Call a series of functions that transform the code
-			code = injectFragmentImport(code, imports);
+			code = injectUnderscoreFragmentImport(code, imports);
 			code = injectMetadataExports(code, exports, fileInfo);
 			code = transformContentExport(code, exports);
 			code = annotateContentExport(code, id, !!opts?.ssr, imports);
@@ -37,9 +37,9 @@ export function vitePluginMdxPostprocess(astroConfig: AstroConfig): Plugin {
 /**
  * Inject `Fragment` identifier import if not already present.
  */
-function injectFragmentImport(code: string, imports: readonly ImportSpecifier[]) {
-	if (!isSpecifierImported(code, imports, fragmentImportRegex, 'astro/jsx-runtime')) {
-		code += `\nimport { Fragment } from 'astro/jsx-runtime';`;
+function injectUnderscoreFragmentImport(code: string, imports: readonly ImportSpecifier[]) {
+	if (!isSpecifierImported(code, imports, underscoreFragmentImportRegex, 'astro/jsx-runtime')) {
+		code += `\nimport { Fragment as _Fragment } from 'astro/jsx-runtime';`;
 	}
 	return code;
 }
@@ -73,7 +73,7 @@ function transformContentExport(code: string, exports: readonly ExportSpecifier[
 	const usesAstroImage = exports.find(({ n }) => n === USES_ASTRO_IMAGE_FLAG);
 
 	// Generate code for the `components` prop passed to `MDXContent`
-	let componentsCode = `{ Fragment${hasComponents ? ', ...components' : ''}, ...props.components,`;
+	let componentsCode = `{ Fragment: _Fragment${hasComponents ? ', ...components' : ''}, ...props.components,`;
 	if (usesAstroImage) {
 		componentsCode += ` ${JSON.stringify(ASTRO_IMAGE_ELEMENT)}: ${
 			hasComponents ? 'components.img ?? ' : ''
