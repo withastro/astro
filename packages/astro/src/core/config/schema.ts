@@ -45,7 +45,7 @@ type RehypePlugin = ComplexifyWithUnion<_RehypePlugin>;
 type RemarkPlugin = ComplexifyWithUnion<_RemarkPlugin>;
 type RemarkRehype = ComplexifyWithOmit<_RemarkRehype>;
 
-const ASTRO_CONFIG_DEFAULTS = {
+export const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
 	srcDir: './src',
 	publicDir: './public',

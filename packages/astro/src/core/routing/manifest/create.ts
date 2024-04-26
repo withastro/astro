@@ -48,7 +48,7 @@ function countOccurrences(needle: string, haystack: string) {
 const ROUTE_DYNAMIC_SPLIT = /\[(.+?\(.+?\)|.+?)\]/;
 const ROUTE_SPREAD = /^\.{3}.+$/;
 
-function getParts(part: string, file: string) {
+export function getParts(part: string, file: string) {
 	const result: RoutePart[] = [];
 	part.split(ROUTE_DYNAMIC_SPLIT).map((str, i) => {
 		if (!str) return;
@@ -70,7 +70,7 @@ function getParts(part: string, file: string) {
 	return result;
 }
 
-function getPattern(
+export function getPattern(
 	segments: RoutePart[][],
 	config: AstroConfig,
 	addTrailingSlash: AstroConfig['trailingSlash']
@@ -124,7 +124,7 @@ function getTrailingSlashPattern(addTrailingSlash: AstroConfig['trailingSlash'])
 	return '\\/?$';
 }
 
-function validateSegment(segment: string, file = '') {
+export function validateSegment(segment: string, file = '') {
 	if (!file) file = segment;
 
 	if (/\]\[/.test(segment)) {
