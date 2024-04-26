@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-import type { DevToolbarApp as DevToolbarAppDefinition } from '../../../@types/astro.js';
+import type { ResolvedDevToolbarApp as DevToolbarAppDefinition } from '../../../@types/astro.js';
+import { type ToolbarAppEventTarget, serverHelpers } from './helpers.js';
 import { settings } from './settings.js';
 import { type Icon, getIconElement, isDefinedIcon } from './ui-library/icons.js';
 import { type Placement } from './ui-library/window.js';
@@ -12,7 +13,7 @@ export type DevToolbarApp = DevToolbarAppDefinition & {
 		state: boolean;
 		level?: 'error' | 'warning' | 'info';
 	};
-	eventTarget: EventTarget;
+	eventTarget: ToolbarAppEventTarget;
 };
 const WS_EVENT_NAME = 'astro-dev-toolbar';
 // TODO: Remove in Astro 5.0
@@ -256,7 +257,9 @@ export class AstroDevToolbar extends HTMLElement {
 				width: 1px;
 			}
 		</style>
-		<div id="dev-toolbar-root" data-hidden ${settings.config.disableAppNotification ? 'data-no-notification' : ''} data-placement="${settings.config.placement}">
+		<div id="dev-toolbar-root" data-hidden ${
+			settings.config.disableAppNotification ? 'data-no-notification' : ''
+		} data-placement="${settings.config.placement}">
 			<div id="dev-bar-hitbox-above"></div>
 			<div id="dev-bar">
 				<div id="bar-container">
@@ -281,7 +284,9 @@ export class AstroDevToolbar extends HTMLElement {
 							: ''
 					}
 					<div class="separator"></div>
-					${this.getAppTemplate(this.apps.find((app) => app.builtIn && app.id === 'astro:settings')!)}
+					${this.getAppTemplate(
+						this.apps.find((app) => app.builtIn && app.id === 'astro:settings')!
+					)}
 				</div>
 			</div>
 			<div id="dev-bar-hitbox-below"></div>
@@ -381,7 +386,7 @@ export class AstroDevToolbar extends HTMLElement {
 		try {
 			settings.logger.verboseLog(`Initializing app ${app.id}`);
 
-			await app.init?.(shadowRoot, app.eventTarget);
+			await app.init?.(shadowRoot, app.eventTarget, serverHelpers);
 			app.status = 'ready';
 
 			if (import.meta.hot) {

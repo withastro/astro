@@ -1,5 +1,23 @@
 # @astrojs/db
 
+## 0.10.6
+
+### Patch Changes
+
+- [#10816](https://github.com/withastro/astro/pull/10816) [`8e6eb62`](https://github.com/withastro/astro/commit/8e6eb624aee40bac66a58169a30107f624a8c539) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add `astro login` support from online editors like Stackblitz and GitHub Codespaces
+
+## 0.10.5
+
+### Patch Changes
+
+- [#10789](https://github.com/withastro/astro/pull/10789) [`d4c91cb10924a0627a9e9a80bc549b3c82d043e6`](https://github.com/withastro/astro/commit/d4c91cb10924a0627a9e9a80bc549b3c82d043e6) Thanks [@NickDubelman](https://github.com/NickDubelman)! - Expose the Drizzle `alias` utility from `astro:db` to enable self-joins on a table.
+
+## 0.10.4
+
+### Patch Changes
+
+- [#10764](https://github.com/withastro/astro/pull/10764) [`d1080ea81de0db1d1aed97a65c490766c17ab312`](https://github.com/withastro/astro/commit/d1080ea81de0db1d1aed97a65c490766c17ab312) Thanks [@delucis](https://github.com/delucis)! - Improves `package.json` metadata fields
+
 ## 0.10.3
 
 ### Patch Changes

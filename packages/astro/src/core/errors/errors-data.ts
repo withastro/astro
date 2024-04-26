@@ -168,9 +168,7 @@ export const NoMatchingRenderer = {
 
 ${
 	validRenderersCount > 0
-		? `There ${plural ? 'are' : 'is'} ${validRenderersCount} renderer${
-				plural ? 's' : ''
-			} configured in your \`astro.config.mjs\` file,
+		? `There ${plural ? 'are' : 'is'} ${validRenderersCount} renderer${plural ? 's' : ''} configured in your \`astro.config.mjs\` file,
 but ${plural ? 'none were' : 'it was not'} able to server-side render \`${componentName}\`.`
 		: `No valid renderer was found ${
 				componentExtension
@@ -1079,7 +1077,7 @@ export const IncorrectStrategyForI18n = {
 	name: 'IncorrectStrategyForI18n',
 	title: "You can't use the current function with the current strategy",
 	message: (functionName: string) =>
-		`The function \`${functionName}\' can only be used when the \`i18n.routing.strategy\` is set to \`"manual"\`.`,
+		`The function \`${functionName}\` can only be used when the \`i18n.routing.strategy\` is set to \`"manual"\`.`,
 } satisfies ErrorData;
 
 /**

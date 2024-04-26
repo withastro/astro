@@ -1,14 +1,20 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import type * as vite from 'vite';
 import { prependForwardSlash, slash } from '../../core/path.js';
 import type { ImageMetadata } from '../types.js';
 import { imageMetadata } from './metadata.js';
 
+type FileEmitter = vite.Rollup.EmitFile;
+
 export async function emitESMImage(
 	id: string | undefined,
-	watchMode: boolean,
-	fileEmitter: any
+	/** @deprecated */
+	_watchMode: boolean,
+	// FIX: in Astro 5, this function should not be passed in dev mode at all.
+	// Or rethink the API so that a function that throws isn't passed through.
+	fileEmitter?: FileEmitter
 ): Promise<ImageMetadata | undefined> {
 	if (!id) {
 		return undefined;
@@ -37,18 +43,26 @@ export async function emitESMImage(
 	});
 
 	// Build
-	if (!watchMode) {
+	let isBuild = typeof fileEmitter === 'function';
+	if (isBuild) {
 		const pathname = decodeURI(url.pathname);
 		const filename = path.basename(pathname, path.extname(pathname) + `.${fileMetadata.format}`);
 
-		const handle = fileEmitter({
-			name: filename,
-			source: await fs.readFile(url),
-			type: 'asset',
-		});
+		try {
+			// fileEmitter throws in dev
+			const handle = fileEmitter!({
+				name: filename,
+				source: await fs.readFile(url),
+				type: 'asset',
+			});
 
-		emittedImage.src = `__ASTRO_ASSET_IMAGE__${handle}__`;
-	} else {
+			emittedImage.src = `__ASTRO_ASSET_IMAGE__${handle}__`;
+		} catch {
+			isBuild = false;
+		}
+	}
+
+	if (!isBuild) {
 		// Pass the original file information through query params so we don't have to load the file twice
 		url.searchParams.append('origWidth', fileMetadata.width.toString());
 		url.searchParams.append('origHeight', fileMetadata.height.toString());

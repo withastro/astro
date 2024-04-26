@@ -1,5 +1,54 @@
 # @astrojs/markdown-remark
 
+## 5.1.0
+
+### Minor Changes
+
+- [#10538](https://github.com/withastro/astro/pull/10538) [`ccafa8d230f65c9302421a0ce0a0adc5824bfd55`](https://github.com/withastro/astro/commit/ccafa8d230f65c9302421a0ce0a0adc5824bfd55) Thanks [@604qgc](https://github.com/604qgc)! - Adds a `data-language` attribute on the rendered `pre` elements to expose the highlighted syntax language.
+
+  For example, the following Markdown code block will expose `data-language="python"`:
+
+  ````
+  \```python
+  def func():
+      print('Hello Astro!')
+  \```
+  ````
+
+  This allows retrieving the language in a rehype plugin from `node.properties.dataLanguage` by accessing the `<pre>` element using `{ tagName: "pre" }`:
+
+  ```js
+  // myRehypePre.js
+  import { visit } from "unist-util-visit";
+  export default function myRehypePre() {
+    return (tree) => {
+      visit(tree, { tagName: "pre" }, (node) => {
+        const lang = node.properties.dataLanguage;
+        [...]
+      });
+    };
+  }
+  ```
+
+  Note: The `<pre>` element is not exposed when using Astro's `<Code />` component which outputs flattened HTML.
+
+  The `data-language` attribute may also be used in css rules:
+
+  ```css
+  pre::before {
+    content: attr(data-language);
+  }
+
+  pre[data-language='javascript'] {
+    font-size: 2rem;
+  }
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`683d51a5eecafbbfbfed3910a3f1fbf0b3531b99`](https://github.com/withastro/astro/commit/683d51a5eecafbbfbfed3910a3f1fbf0b3531b99)]:
+  - @astrojs/prism@3.1.0
+
 ## 5.0.0
 
 ### Major Changes

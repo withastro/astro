@@ -92,3 +92,5 @@ export {
 	max,
 	min,
 } from 'drizzle-orm';
+
+export { alias } from 'drizzle-orm/sqlite-core';

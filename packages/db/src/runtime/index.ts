@@ -8,7 +8,7 @@ import {
 	sqliteTable,
 	text,
 } from 'drizzle-orm/sqlite-core';
-import { type DBColumn, type DBTable } from '../core/types.js';
+import type { DBColumn, DBTable } from '../core/types.js';
 import { type SerializedSQL, isSerializedSQL } from './types.js';
 import { pathToFileURL } from './utils.js';
 

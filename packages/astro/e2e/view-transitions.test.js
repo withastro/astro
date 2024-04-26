@@ -1168,6 +1168,30 @@ test.describe('View Transitions', () => {
 		).toEqual(['application/x-www-form-urlencoded']);
 	});
 
+	test('form POST that includes an input with name action should not override action', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/form-six'));
+		page.on('request', (request) => {
+			expect(request.url()).toContain('/bar');
+		});
+		// Submit the form
+		await page.click('#submit');
+	});
+
+	test('form without method that includes an input with name method should not override default method', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/form-seven'));
+		page.on('request', (request) => {
+			expect(request.method()).toBe('GET');
+		});
+		// Submit the form
+		await page.click('#submit');
+	});
+
 	test('Route announcer is invisible on page transition', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/no-directive-one'));
 
@@ -1402,4 +1426,21 @@ test.describe('View Transitions', () => {
 			'all animations for transition:names should have been found'
 		).toEqual(0);
 	});
+});
+
+test('transition:persist persists selection', async ({ page, astro }) => {
+	let text = '';
+	page.on('console', (msg) => {
+		text = msg.text();
+	});
+	await page.goto(astro.resolveUrl('/persist-1'));
+	await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
+	// go to page 2
+	await page.press('input[name="name"]', 'Enter');
+	await expect(page.locator('#two'), 'should have content').toHaveText('Persist 2');
+	expect(text).toBe('true some cool text 5 9');
+
+	await page.goBack();
+	await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
+	expect(text).toBe('true true');
 });

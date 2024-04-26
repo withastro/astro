@@ -1,5 +1,19 @@
 # @astrojs/react
 
+## 3.3.1
+
+### Patch Changes
+
+- [#10855](https://github.com/withastro/astro/pull/10855) [`f6bddd3`](https://github.com/withastro/astro/commit/f6bddd3a155cd10a9f85c92d43b1af8b74786a42) Thanks [@lamATnginx](https://github.com/lamATnginx)! - Fix Redoc usage in React integration
+
+## 3.3.0
+
+### Minor Changes
+
+- [#10689](https://github.com/withastro/astro/pull/10689) [`683d51a5eecafbbfbfed3910a3f1fbf0b3531b99`](https://github.com/withastro/astro/commit/683d51a5eecafbbfbfed3910a3f1fbf0b3531b99) Thanks [@ematipico](https://github.com/ematipico)! - Deprecate support for versions of Node.js older than `v18.17.1` for Node.js 18, older than `v20.0.3` for Node.js 20, and the complete Node.js v19 release line.
+
+  This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
+
 ## 3.2.0
 
 ### Minor Changes
