@@ -1,6 +1,7 @@
 import exp from 'constants';
 import { expect } from '@playwright/test';
 import { testFactory, waitForHydrate } from './test-utils.js';
+import { maxSatisfying } from 'semver';
 
 const test = testFactory({ root: './fixtures/view-transitions/' });
 
@@ -1450,9 +1451,27 @@ test.describe('View Transitions', () => {
 		// implemented in /abort:
 		// clicks on slow loading page two
 		// after short delay clicks on fast loading page one
-		// even after some wait /two should not show up
+		// even after some delay /two should not show up
 		await new Promise((resolve) => setTimeout(resolve, 2000)); // wait is part of the test
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
+	});
+
+	test('animation get canceled when view transition is interrupted', async ({ page, astro }) => {
+		let txt = '';
+		page.on('console', (msg) => {
+			if (msg.text().startsWith('canceled')) {
+				txt += msg.text()+'\n';
+			}
+		});
+		await page.goto(astro.resolveUrl('/abort2'));
+		// implemented in /abort2:
+		// Navigate to self with a 10 second animation
+		// shortly after starting that, change your mind an navigate to /one
+		// check that animations got canceled
+		await new Promise((resolve) => setTimeout(resolve, 1000)); // wait is part of the test
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+		expect(txt).toBe('canceled astroFadeOut\ncanceled astroFadeIn\n');
 	});
 });
