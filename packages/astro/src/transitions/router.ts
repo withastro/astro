@@ -580,11 +580,11 @@ async function transition(
 			if (mostRecentTransition.viewTransition) {
 				mostRecentTransition.viewTransition.skipTransition();
 				try {
-					// this might already been settled. If no the previous transition still updates the DOM.
+					// This might already been settled, i.e. if the previous transition finished updating the DOM.
 					// Could not take long, we wait for it.
 					await mostRecentTransition.viewTransition.updateCallbackDone;
 				} catch (err) {
-					// There was an error in the update callback of the transition we cancel.
+					// There was an error in the update callback of the transition which we cancel.
 					// Ignored on purpose
 				}
 			}
@@ -601,13 +601,16 @@ async function transition(
 
 	document.documentElement.setAttribute(DIRECTION_ATTR, prepEvent.direction);
 	if (supportsViewTransitions) {
+		// This automatically cancels any previous transition
+		// We also already take care that the earlier update callback got through
 		currentTransition.viewTransition = document.startViewTransition(
 			async () => await updateDOM(prepEvent, options, currentTransition, historyState)
 		);
 	} else {
+		// Simulation mode requires a bit more manual work
 		const updateDone = (async () => {
-			// immediately paused to setup the ViewTransition object for Fallback mode
-			await Promise.resolve();
+			// Immediately paused to setup the ViewTransition object for Fallback mode
+			await Promise.resolve(); // hop through the micro task queue
 			await updateDOM(prepEvent, options, currentTransition, historyState, getFallback());
 		})();
 
@@ -626,8 +629,8 @@ async function transition(
 		currentTransition.viewTransition = {
 			updateCallbackDone: updateDone, // this is about correct
 			ready: updateDone, // good enough
-			// Could do better: finished rejects iff updateDone does.
-			// The simulation always resolves, never rejects.
+			// Finished promise could have been done better: finished rejects iff updateDone does.
+			// Our simulation always resolves, never rejects.
 			finished: new Promise((r) => (currentTransition.viewTransitionFinished = r)), // see end of updateDOM
 			skipTransition: () => {
 				currentTransition.transitionSkipped = true;
@@ -635,8 +638,7 @@ async function transition(
 			},
 		};
 	}
-
-	currentTransition.viewTransition.updateCallbackDone.then(async () => {
+	currentTransition.viewTransition.ready.then(async () => {
 		await runScripts();
 		onPageLoad();
 		announce();
