@@ -92,7 +92,7 @@ if (inBrowser) {
 		currentHistoryIndex = history.state.index;
 		scrollTo({ left: history.state.scrollX, top: history.state.scrollY });
 	} else if (transitionEnabledOnThisPage()) {
-		// This page is loaded from the browser addressbar or via a link from extern,
+		// This page is loaded from the browser address bar or via a link from extern,
 		// it needs a state in the history
 		replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
 		history.scrollRestoration = 'manual';
@@ -157,7 +157,7 @@ function runScripts() {
 	return wait;
 }
 
-// Add a new entry to the browser history. This also sets the new page in the browser addressbar.
+// Add a new entry to the browser history. This also sets the new page in the browser address bar.
 // Sets the scroll position according to the hash fragment of the new location.
 const moveToLocation = (
 	to: URL,
@@ -194,7 +194,7 @@ const moveToLocation = (
 		}
 	}
 	document.title = targetPageTitle;
-	// now we are on the new page for non-history navigations!
+	// now we are on the new page for non-history navigation!
 	// (with history navigation page change happens before popstate is fired)
 	originalLocation = to;
 
