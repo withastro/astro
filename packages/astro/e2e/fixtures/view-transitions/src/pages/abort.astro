@@ -1,0 +1,25 @@
+---
+import { ViewTransitions } from 'astro:transitions';
+---
+<html>
+	<head>
+		<ViewTransitions />
+	</head>
+	<body>
+		<h1>Abort</h1>
+	</body>
+</html>
+<script>
+	import {navigate } from 'astro:transitions/client';
+	document.addEventListener('astro:before-preparation', (e) => {
+		const originalLoader = e.loader;
+		e.loader = async () => {
+			const result = await originalLoader();
+			if (e.to.href.endsWith("/two")) {
+				await new Promise((resolve) => setTimeout(resolve, 1100));
+			}
+		}
+	});
+	setTimeout(()=>navigate("/one"), 400);
+	navigate("/two");
+</script>

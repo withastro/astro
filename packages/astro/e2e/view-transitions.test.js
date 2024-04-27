@@ -1,3 +1,4 @@
+import exp from 'constants';
 import { expect } from '@playwright/test';
 import { testFactory, waitForHydrate } from './test-utils.js';
 
@@ -1426,21 +1427,32 @@ test.describe('View Transitions', () => {
 			'all animations for transition:names should have been found'
 		).toEqual(0);
 	});
-});
 
-test('transition:persist persists selection', async ({ page, astro }) => {
-	let text = '';
-	page.on('console', (msg) => {
-		text = msg.text();
+	test('transition:persist persists selection', async ({ page, astro }) => {
+		let text = '';
+		page.on('console', (msg) => {
+			text = msg.text();
+		});
+		await page.goto(astro.resolveUrl('/persist-1'));
+		await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
+		// go to page 2
+		await page.press('input[name="name"]', 'Enter');
+		await expect(page.locator('#two'), 'should have content').toHaveText('Persist 2');
+		expect(text).toBe('true some cool text 5 9');
+
+		await page.goBack();
+		await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
+		expect(text).toBe('true true');
 	});
-	await page.goto(astro.resolveUrl('/persist-1'));
-	await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
-	// go to page 2
-	await page.press('input[name="name"]', 'Enter');
-	await expect(page.locator('#two'), 'should have content').toHaveText('Persist 2');
-	expect(text).toBe('true some cool text 5 9');
 
-	await page.goBack();
-	await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
-	expect(text).toBe('true true');
+	test('Navigation should be interruptible', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/abort'));
+		// implemented in /abort:
+		// clicks on slow loading page two
+		// after short delay clicks on fast loading page one
+		// even after some wait /two should not show up
+		await new Promise((resolve) => setTimeout(resolve, 2000)); // wait is part of the test
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+	});
 });

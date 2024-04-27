@@ -8,6 +8,17 @@ type State = {
 	scrollY: number;
 };
 type Events = 'astro:page-load' | 'astro:after-swap';
+type Navigation = { controller: AbortController };
+type Transition = {
+	// The view transitions object (API and simulation)
+	viewTransition?: ViewTransition;
+	// Simulation: Whether transition was skipped
+	transitionSkipped: boolean;
+	// The resolve function of the finished promise for fallback simulation
+	viewTransitionFinished?: () => void;
+	// for the simulation, the animations that are awaited
+	awaitedAnimations: Animation[];
+};
 
 // Create bound versions of pushState/replaceState so that Partytown doesn't hijack them,
 // which breaks Firefox.
@@ -33,15 +44,13 @@ export const transitionEnabledOnThisPage = () =>
 const samePage = (thisLocation: URL, otherLocation: URL) =>
 	thisLocation.pathname === otherLocation.pathname && thisLocation.search === otherLocation.search;
 
+// The previous navigation that might still be in processing
+let mostRecentNavigation: Navigation | undefined;
+// The previous transition that might still be in processing
+let mostRecentTransition: Transition | undefined;
 // When we traverse the history, the window.location is already set to the new location.
 // This variable tells us where we came from
 let originalLocation: URL;
-// The result of startViewTransition (browser or simulation)
-let viewTransition: ViewTransition | undefined;
-// skip transition flag for fallback simulation
-let skipTransition = false;
-// The resolve function of the finished promise for fallback simulation
-let viewTransitionFinished: () => void;
 
 const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
 const onPageLoad = () => triggerEvent('astro:page-load');
@@ -253,6 +262,7 @@ function preloadStyleLinks(newDocument: Document) {
 async function updateDOM(
 	preparationEvent: TransitionBeforePreparationEvent,
 	options: Options,
+	currentTransition: Transition,
 	historyState?: State,
 	fallback?: Fallback
 ) {
@@ -400,31 +410,44 @@ async function updateDOM(
 		// Trigger view transition animations waiting for data-astro-transition-fallback
 		document.documentElement.setAttribute(OLD_NEW_ATTR, phase);
 		const nextAnimations = document.getAnimations();
-		const newAnimations = nextAnimations.filter(
+		currentTransition.awaitedAnimations = nextAnimations.filter(
 			(a) => !currentAnimations.includes(a) && !isInfinite(a)
 		);
-		return Promise.all(newAnimations.map((a) => a.finished));
+		return Promise.all(currentTransition.awaitedAnimations.map((a) => a.finished));
 	}
 
-	if (!skipTransition) {
-		document.documentElement.setAttribute(DIRECTION_ATTR, preparationEvent.direction);
-
-		if (fallback === 'animate') {
+	if (
+		fallback === 'animate' &&
+		!currentTransition.transitionSkipped &&
+		!preparationEvent.signal.aborted
+	) {
+		try {
 			await animate('old');
+		} catch (err) {
+			// animate might reject as a consequence of a call to skipTransition()
+			// ignored on purpose
 		}
-	} else {
-		// that's what Chrome does
-		throw new DOMException('Transition was skipped');
 	}
 
 	const pageTitleForBrowserHistory = document.title; // document.title will be overridden by swap()
-	const swapEvent = await doSwap(preparationEvent, viewTransition!, defaultSwap);
+	const swapEvent = doSwap(preparationEvent, currentTransition.viewTransition!, defaultSwap);
 	moveToLocation(swapEvent.to, swapEvent.from, options, pageTitleForBrowserHistory, historyState);
 	triggerEvent(TRANSITION_AFTER_SWAP);
 
-	if (fallback === 'animate' && !skipTransition) {
-		animate('new').then(() => viewTransitionFinished());
+	if (fallback === 'animate') {
+		if (!currentTransition.transitionSkipped) {
+			animate('new').finally(() => currentTransition.viewTransitionFinished!());
+		} else {
+			currentTransition.viewTransitionFinished!();
+		}
 	}
+}
+
+function abortAndRecreateMostRecentNavigation(): Navigation {
+	mostRecentNavigation?.controller.abort();
+	return (mostRecentNavigation = {
+		controller: new AbortController(),
+	});
 }
 
 async function transition(
@@ -434,8 +457,17 @@ async function transition(
 	options: Options,
 	historyState?: State
 ) {
+	// The most recent navigation always has precendence
+	// Yes, there can be several navigation instances as the user can click links
+	// while we fetch content or simulate view transitions. Even synchronous creations are possible
+	// e.g. by calling navigate() from an transition event.
+	// Invariant: all but the most recent navigation are already aborted.
+
+	const currentNavigation = abortAndRecreateMostRecentNavigation();
+
 	// not ours
 	if (!transitionEnabledOnThisPage() || location.origin !== to.origin) {
+		if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
 		location.href = to.href;
 		return;
 	}
@@ -452,6 +484,7 @@ async function transition(
 	if (samePage(from, to)) {
 		if ((direction !== 'back' && to.hash) || (direction === 'back' && from.hash)) {
 			moveToLocation(to, from, options, document.title, historyState);
+			if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
 			return;
 		}
 	}
@@ -463,17 +496,23 @@ async function transition(
 		navigationType,
 		options.sourceElement,
 		options.info,
+		currentNavigation!.controller.signal,
 		options.formData,
 		defaultLoader
 	);
-	if (prepEvent.defaultPrevented) {
-		location.href = to.href;
+	if (prepEvent.defaultPrevented || prepEvent.signal.aborted) {
+		if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
+		if (!prepEvent.signal.aborted) {
+			// not aborted -> delegate to browser
+			location.href = to.href;
+		}
+		// and / or exit
 		return;
 	}
 
 	async function defaultLoader(preparationEvent: TransitionBeforePreparationEvent) {
 		const href = preparationEvent.to.href;
-		const init: RequestInit = {};
+		const init: RequestInit = { signal: preparationEvent.signal };
 		if (preparationEvent.formData) {
 			init.method = 'POST';
 			const form =
@@ -527,22 +566,49 @@ async function transition(
 		}
 
 		const links = preloadStyleLinks(preparationEvent.newDocument);
-		links.length && (await Promise.all(links));
+		links.length && !preparationEvent.signal.aborted && (await Promise.all(links));
 
-		if (import.meta.env.DEV)
-			await prepareForClientOnlyComponents(preparationEvent.newDocument, preparationEvent.to);
+		if (import.meta.env.DEV && !preparationEvent.signal.aborted)
+			await prepareForClientOnlyComponents(
+				preparationEvent.newDocument,
+				preparationEvent.to,
+				preparationEvent.signal
+			);
+	}
+	async function abortAndRecreateMostRecentTransition(): Promise<Transition> {
+		if (mostRecentTransition) {
+			if (mostRecentTransition.viewTransition) {
+				mostRecentTransition.viewTransition.skipTransition();
+				try {
+					// this might already been settled. If no the previous transition still updates the DOM.
+					// Could not take long, we wait for it.
+					await mostRecentTransition.viewTransition.updateCallbackDone;
+				} catch (err) {
+					// There was an error in the update callback of the transition we cancel.
+					// Ignored on purpose
+				}
+			}
+		}
+		return (mostRecentTransition = { transitionSkipped: false, awaitedAnimations: [] });
 	}
 
-	skipTransition = false;
+	const currentTransition = await abortAndRecreateMostRecentTransition();
+
+	if (prepEvent.signal.aborted) {
+		if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
+		return;
+	}
+
+	document.documentElement.setAttribute(DIRECTION_ATTR, prepEvent.direction);
 	if (supportsViewTransitions) {
-		viewTransition = document.startViewTransition(
-			async () => await updateDOM(prepEvent, options, historyState)
+		currentTransition.viewTransition = document.startViewTransition(
+			async () => await updateDOM(prepEvent, options, currentTransition, historyState)
 		);
 	} else {
 		const updateDone = (async () => {
-			// immediatelly paused to setup the ViewTransition object for Fallback mode
-			await new Promise((r) => setTimeout(r));
-			await updateDOM(prepEvent, options, historyState, getFallback());
+			// immediately paused to setup the ViewTransition object for Fallback mode
+			await Promise.resolve();
+			await updateDOM(prepEvent, options, currentTransition, historyState, getFallback());
 		})();
 
 		// When the updateDone promise is settled,
@@ -557,26 +623,40 @@ async function transition(
 		//
 		// "finished" resolves after all animations are done.
 
-		viewTransition = {
+		currentTransition.viewTransition = {
 			updateCallbackDone: updateDone, // this is about correct
 			ready: updateDone, // good enough
-			finished: new Promise((r) => (viewTransitionFinished = r)), // see end of updateDOM
+			// Could do better: finished rejects iff updateDone does.
+			// The simulation always resolves, never rejects.
+			finished: new Promise((r) => (currentTransition.viewTransitionFinished = r)), // see end of updateDOM
 			skipTransition: () => {
-				skipTransition = true;
+				currentTransition.transitionSkipped = true;
+				currentTransition.awaitedAnimations.forEach((a) => a.cancel());
 			},
 		};
 	}
 
-	viewTransition.ready.then(async () => {
+	currentTransition.viewTransition.updateCallbackDone.then(async () => {
 		await runScripts();
 		onPageLoad();
 		announce();
 	});
-	viewTransition.finished.then(() => {
+	currentTransition.viewTransition.finished.finally(() => {
+		currentTransition.awaitedAnimations.length = 0;
+		currentTransition.viewTransition = undefined;
+		if (currentTransition === mostRecentTransition) mostRecentTransition = undefined;
 		document.documentElement.removeAttribute(DIRECTION_ATTR);
 		document.documentElement.removeAttribute(OLD_NEW_ATTR);
 	});
-	await viewTransition.ready;
+	try {
+		// In an earlier version wie awaited viewTransition.ready, which includes animation setup.
+		// Now we will only wait for swap, moveto and after-swap events
+		await currentTransition.viewTransition.updateCallbackDone;
+	} catch (err) {
+		// Prevent error message for uncaught DOMExceptions.
+		// But needs more investigation on root causes.
+		console.log("[astro]", err)
+	}
 }
 
 let navigateOnServerWarned = false;
@@ -682,7 +762,11 @@ if (inBrowser) {
 
 // Keep all styles that are potentially created by client:only components
 // and required on the next page
-async function prepareForClientOnlyComponents(newDocument: Document, toLocation: URL) {
+async function prepareForClientOnlyComponents(
+	newDocument: Document,
+	toLocation: URL,
+	signal: AbortSignal
+) {
 	// Any client:only component on the next page?
 	if (newDocument.body.querySelector(`astro-island[client='only']`)) {
 		// Load the next page with an empty module loader cache
@@ -697,7 +781,7 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 			acc[key] = () => {};
 			return acc;
 		}, {});
-		await hydrationDone(nextPage);
+		await hydrationDone(nextPage, signal);
 
 		const nextHead = nextPage.contentDocument?.head;
 		if (nextHead) {
@@ -715,13 +799,15 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 		}
 
 		// return a promise that resolves when all astro-islands are hydrated
-		async function hydrationDone(loadingPage: HTMLIFrameElement) {
-			await new Promise((r) =>
-				loadingPage.contentWindow?.addEventListener('load', r, { once: true })
-			);
-
+		async function hydrationDone(loadingPage: HTMLIFrameElement, signal: AbortSignal) {
+			if (!signal.aborted) {
+				await new Promise((r) =>
+					loadingPage.contentWindow?.addEventListener('load', r, { once: true })
+				);
+			}
 			return new Promise<void>(async (r) => {
 				for (let count = 0; count <= 20; ++count) {
+					if (signal.aborted) break;
 					if (!loadingPage.contentDocument!.body.querySelector('astro-island[ssr]')) break;
 					await new Promise((r2) => setTimeout(r2, 50));
 				}
