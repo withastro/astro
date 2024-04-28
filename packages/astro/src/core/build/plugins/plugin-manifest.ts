@@ -19,6 +19,7 @@ import { getOutFile, getOutFolder } from '../common.js';
 import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
+import {mergeSpaStylesheets} from "../mergeSpaStylesheets.js";
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
@@ -96,6 +97,9 @@ export function pluginManifest(
 				const manifest = await createManifest(options, internals);
 				const shouldPassMiddlewareEntryPoint =
 					options.settings.adapter?.adapterFeatures?.edgeMiddleware;
+				if (options.settings.config.build.mergeSpaStylesheets) {
+					mergeSpaStylesheets(manifest);
+				}
 				await runHookBuildSsr({
 					config: options.settings.config,
 					manifest,
