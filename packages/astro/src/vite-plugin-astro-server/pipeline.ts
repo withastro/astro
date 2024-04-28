@@ -110,7 +110,7 @@ export class DevPipeline extends Pipeline {
 
 		// Pass framework CSS in as style tags to be appended to the page.
 		const links = new Set<SSRElement>();
-		const { urls, styles: _styles } = await getStylesForURL(filePath, loader);
+		const { urls, styles: _styles } = await getStylesForURL(filePath, loader, settings.config);
 		for (const href of urls) {
 			links.add({ props: { rel: 'stylesheet', href }, children: '' });
 		}
