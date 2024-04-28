@@ -602,6 +602,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.enum(['always', 'auto', 'never'])
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
+				mergeSpaStylesheets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.mergeSpaStylesheets),
 			})
 			.optional()
 			.default({}),
