@@ -6,7 +6,6 @@ import { FlatCompat } from '@eslint/eslintrc';
 import tseslint from 'typescript-eslint';
 
 // plugins
-import prettierEslint from 'eslint-plugin-prettier';
 import noOnlyTestsEslint from 'eslint-plugin-no-only-tests';
 import regexpEslint from 'eslint-plugin-regexp';
 const typescriptEslint = tseslint.plugin;
@@ -45,7 +44,6 @@ export default [
 	...tseslint.configs.recommendedTypeChecked,
 	...tseslint.configs.stylisticTypeChecked,
 	// mimic ESLintRC-style extends
-	...compat.extends('prettier'),
 	...compat.extends('plugin:regexp/recommended'),
 	{
 		languageOptions: {
@@ -57,7 +55,6 @@ export default [
 		},
 		plugins: {
 			'@typescript-eslint': typescriptEslint,
-			prettier: prettierEslint,
 			'no-only-tests': noOnlyTestsEslint,
 			regexp: regexpEslint,
 		},

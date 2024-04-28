@@ -994,7 +994,7 @@ export interface AstroUserConfig {
 		 * @name build.redirects
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 4.6.5
+		 * @version 4.7.0
 		 * @description
 		 * Specifies whether to serve all stylesheets in all applicable
 		 * pages.
