@@ -1,6 +1,4 @@
-import exp from 'constants';
 import { expect } from '@playwright/test';
-import { maxSatisfying } from 'semver';
 import { testFactory, waitForHydrate } from './test-utils.js';
 
 const test = testFactory({ root: './fixtures/view-transitions/' });
@@ -1460,7 +1458,7 @@ test.describe('View Transitions', () => {
 	test('animation get canceled when view transition is interrupted', async ({ page, astro }) => {
 		let lines = [];
 		page.on('console', (msg) => {
-			msg.text().startsWith("[test]") && lines.push(msg.text());
+			msg.text().startsWith('[test]') && lines.push(msg.text());
 		});
 		await page.goto(astro.resolveUrl('/abort2'));
 		// implemented in /abort2:
@@ -1475,6 +1473,8 @@ test.describe('View Transitions', () => {
 		// as those do not have automatic cancelation of transitions.
 		// For simulated view transitions, the last line would be missing as enter and exit animations
 		// don't run in parallel.
-		expect(lines.join("\n")).toBe('[test] navigate to "."\n[test] navigate to /one\n[test] cancel astroFadeOut\n[test] cancel astroFadeIn');
+		expect(lines.join('\n')).toBe(
+			'[test] navigate to "."\n[test] navigate to /one\n[test] cancel astroFadeOut\n[test] cancel astroFadeIn'
+		);
 	});
 });

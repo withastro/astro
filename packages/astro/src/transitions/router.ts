@@ -14,7 +14,7 @@ type Transition = {
 	viewTransition?: ViewTransition;
 	// Simulation: Whether transition was skipped
 	transitionSkipped: boolean;
-	// The resolve function of the finished promise for fallback simulation
+	// Simulation: The resolve function of the finished promise
 	viewTransitionFinished?: () => void;
 };
 
@@ -411,6 +411,8 @@ async function updateDOM(
 		const newAnimations = nextAnimations.filter(
 			(a) => !currentAnimations.includes(a) && !isInfinite(a)
 		);
+		// Wait for all new animations to finish (resolved or rejected).
+		// Do not reject on canceled ones.
 		return Promise.allSettled(newAnimations.map((a) => a.finished));
 	}
 
@@ -576,13 +578,17 @@ async function transition(
 	async function abortAndRecreateMostRecentTransition(): Promise<Transition> {
 		if (mostRecentTransition) {
 			if (mostRecentTransition.viewTransition) {
-				mostRecentTransition.viewTransition.skipTransition();
 				try {
-					// This might already been settled, i.e. if the previous transition finished updating the DOM.
+					mostRecentTransition.viewTransition.skipTransition();
+				} catch {
+					// might throw AbortError DOMException. Ignored on purpose.
+				}
+				try {
+					// UpdateCallbackDone might already been settled, i.e. if the previous transition finished updating the DOM.
 					// Could not take long, we wait for it to avoid parallel updates
 					// (which are very unlikely as long as swap() is not async).
 					await mostRecentTransition.viewTransition.updateCallbackDone;
-				} catch (err) {
+				} catch {
 					// There was an error in the update callback of the transition which we cancel.
 					// Ignored on purpose
 				}
@@ -601,7 +607,7 @@ async function transition(
 	document.documentElement.setAttribute(DIRECTION_ATTR, prepEvent.direction);
 	if (supportsViewTransitions) {
 		// This automatically cancels any previous transition
-		// We also already take care that the earlier update callback got through
+		// We also already took care that the earlier update callback got through
 		currentTransition.viewTransition = document.startViewTransition(
 			async () => await updateDOM(prepEvent, options, currentTransition, historyState)
 		);
@@ -633,12 +639,13 @@ async function transition(
 			finished: new Promise((r) => (currentTransition.viewTransitionFinished = r)), // see end of updateDOM
 			skipTransition: () => {
 				currentTransition.transitionSkipped = true;
+				// This cancels all animations of the simulation
 				document.documentElement.removeAttribute(OLD_NEW_ATTR);
 			},
 		};
 	}
-	// in earlier versions was then'ed on viewTransition.ready which would not execute
-	// if the visual prt of the transition has errors or was skipped
+	// In earlier versions was then'ed on viewTransition.ready which would not execute
+	// if the visual part of the transition has errors or was skipped
 	currentTransition.viewTransition.updateCallbackDone.finally(async () => {
 		await runScripts();
 		onPageLoad();
@@ -658,8 +665,8 @@ async function transition(
 		// Scripts that depend on the view transition pseudo elements should hook on viewTransition.ready.
 		await currentTransition.viewTransition.updateCallbackDone;
 	} catch (e) {
-		// This log doesn't make it worse than before, where we got error messages about uncaught exception
-		// Needs more investigation on root causes.
+		// This log doesn't make it worse than before, where we got error messages about uncaught exceptions, which can't be catched when the trigger was a click or history traversal.
+		// Needs more investigation on root causes if errors still occur sporadically
 		const err = e as Error;
 		console.log('[astro]', err.name, err.message, err.stack);
 	}
