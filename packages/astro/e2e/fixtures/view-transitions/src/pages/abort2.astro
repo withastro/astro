@@ -15,9 +15,11 @@ import { ViewTransitions, fade } from 'astro:transitions';
 	import {navigate } from 'astro:transitions/client';
 
 	setTimeout(()=>{
-		[...document.getAnimations()].forEach((a) => a.addEventListener('cancel', (e) => console.log('canceled', a.animationName)));
+		[...document.getAnimations()].forEach((a) => a.addEventListener('cancel',
+		(e) => console.log("[test]",e.type, a.animationName)));
+	console.log("[test] navigate to /one")
 		navigate("/one");
 	}, 1000);
-
+	console.log('[test] navigate to "."')
 	navigate("/abort2");
 </script>

@@ -1,7 +1,7 @@
 import exp from 'constants';
 import { expect } from '@playwright/test';
-import { testFactory, waitForHydrate } from './test-utils.js';
 import { maxSatisfying } from 'semver';
+import { testFactory, waitForHydrate } from './test-utils.js';
 
 const test = testFactory({ root: './fixtures/view-transitions/' });
 
@@ -1458,11 +1458,9 @@ test.describe('View Transitions', () => {
 	});
 
 	test('animation get canceled when view transition is interrupted', async ({ page, astro }) => {
-		let txt = '';
+		let lines = [];
 		page.on('console', (msg) => {
-			if (msg.text().startsWith('canceled')) {
-				txt += msg.text()+'\n';
-			}
+			msg.text().startsWith("[test]") && lines.push(msg.text());
 		});
 		await page.goto(astro.resolveUrl('/abort2'));
 		// implemented in /abort2:
@@ -1472,6 +1470,11 @@ test.describe('View Transitions', () => {
 		await new Promise((resolve) => setTimeout(resolve, 1000)); // wait is part of the test
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
-		expect(txt).toBe('canceled astroFadeOut\ncanceled astroFadeIn\n');
+
+		// This test would be more important for a browser without native view transitions
+		// as those do not have automatic cancelation of transitions.
+		// For simulated view transitions, the last line would be missing as enter and exit animations
+		// don't run in parallel.
+		expect(lines.join("\n")).toBe('[test] navigate to "."\n[test] navigate to /one\n[test] cancel astroFadeOut\n[test] cancel astroFadeIn');
 	});
 });

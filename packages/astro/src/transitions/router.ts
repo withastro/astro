@@ -16,8 +16,6 @@ type Transition = {
 	transitionSkipped: boolean;
 	// The resolve function of the finished promise for fallback simulation
 	viewTransitionFinished?: () => void;
-	// for the simulation, the animations that are awaited
-	awaitedAnimations: Animation[];
 };
 
 // Create bound versions of pushState/replaceState so that Partytown doesn't hijack them,
@@ -410,10 +408,10 @@ async function updateDOM(
 		// Trigger view transition animations waiting for data-astro-transition-fallback
 		document.documentElement.setAttribute(OLD_NEW_ATTR, phase);
 		const nextAnimations = document.getAnimations();
-		currentTransition.awaitedAnimations = nextAnimations.filter(
+		const newAnimations = nextAnimations.filter(
 			(a) => !currentAnimations.includes(a) && !isInfinite(a)
 		);
-		return Promise.all(currentTransition.awaitedAnimations.map((a) => a.finished));
+		return Promise.allSettled(newAnimations.map((a) => a.finished));
 	}
 
 	if (
@@ -435,7 +433,7 @@ async function updateDOM(
 	triggerEvent(TRANSITION_AFTER_SWAP);
 
 	if (fallback === 'animate') {
-		if (!currentTransition.transitionSkipped) {
+		if (!currentTransition.transitionSkipped && !swapEvent.signal.aborted) {
 			animate('new').finally(() => currentTransition.viewTransitionFinished!());
 		} else {
 			currentTransition.viewTransitionFinished!();
@@ -581,7 +579,8 @@ async function transition(
 				mostRecentTransition.viewTransition.skipTransition();
 				try {
 					// This might already been settled, i.e. if the previous transition finished updating the DOM.
-					// Could not take long, we wait for it.
+					// Could not take long, we wait for it to avoid parallel updates
+					// (which are very unlikely as long as swap() is not async).
 					await mostRecentTransition.viewTransition.updateCallbackDone;
 				} catch (err) {
 					// There was an error in the update callback of the transition which we cancel.
@@ -589,7 +588,7 @@ async function transition(
 				}
 			}
 		}
-		return (mostRecentTransition = { transitionSkipped: false, awaitedAnimations: [] });
+		return (mostRecentTransition = { transitionSkipped: false });
 	}
 
 	const currentTransition = await abortAndRecreateMostRecentTransition();
@@ -634,30 +633,35 @@ async function transition(
 			finished: new Promise((r) => (currentTransition.viewTransitionFinished = r)), // see end of updateDOM
 			skipTransition: () => {
 				currentTransition.transitionSkipped = true;
-				currentTransition.awaitedAnimations.forEach((a) => a.cancel());
+				document.documentElement.removeAttribute(OLD_NEW_ATTR);
 			},
 		};
 	}
-	currentTransition.viewTransition.ready.then(async () => {
+	// in earlier versions was then'ed on viewTransition.ready which would not execute
+	// if the visual prt of the transition has errors or was skipped
+	currentTransition.viewTransition.updateCallbackDone.finally(async () => {
 		await runScripts();
 		onPageLoad();
 		announce();
 	});
+	// finished.ready and finished.finally are the same for the simulation but not
+	// necessarily for native view transition, where finished rejects when updateCallbackDone does.
 	currentTransition.viewTransition.finished.finally(() => {
-		currentTransition.awaitedAnimations.length = 0;
 		currentTransition.viewTransition = undefined;
 		if (currentTransition === mostRecentTransition) mostRecentTransition = undefined;
 		document.documentElement.removeAttribute(DIRECTION_ATTR);
 		document.documentElement.removeAttribute(OLD_NEW_ATTR);
 	});
 	try {
-		// In an earlier version wie awaited viewTransition.ready, which includes animation setup.
-		// Now we will only wait for swap, moveto and after-swap events
+		// Compatibility:
+		// In an earlier version we awaited viewTransition.ready, which includes animation setup.
+		// Scripts that depend on the view transition pseudo elements should hook on viewTransition.ready.
 		await currentTransition.viewTransition.updateCallbackDone;
-	} catch (err) {
-		// Prevent error message for uncaught DOMExceptions.
-		// But needs more investigation on root causes.
-		console.log("[astro]", err)
+	} catch (e) {
+		// This log doesn't make it worse than before, where we got error messages about uncaught exception
+		// Needs more investigation on root causes.
+		const err = e as Error;
+		console.log('[astro]', err.name, err.message, err.stack);
 	}
 }
 
