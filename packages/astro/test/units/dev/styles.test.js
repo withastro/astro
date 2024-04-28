@@ -2,6 +2,7 @@ import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { viteID } from '../../../dist/core/util.js';
 import { getStylesForURL } from '../../../dist/vite-plugin-astro-server/css.js';
+import testAdapter from "../../test-adapter.js";
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -73,9 +74,14 @@ describe('Crawling graph for CSS', () => {
 	});
 
 	it("importedModules is checked against the child's importers", async () => {
+		const config = {
+			build: {
+				mergeSpaStylesheets: false,
+			}
+		};
 		// In dev mode, HMR modules tracked are added to importedModules. We use `importers`
 		// to verify that they are true importers.
-		const res = await getStylesForURL(new URL('./src/pages/index.astro', root), loader);
+		const res = await getStylesForURL(new URL('./src/pages/index.astro', root), loader, config);
 		assert.equal(res.styles.length, 1);
 	});
 });
