@@ -18,6 +18,7 @@ import { recordServerError } from './error.js';
 import { DevPipeline } from './pipeline.js';
 import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
+import {getSortedPreloadedMatches} from "../prerender/routing.js";
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -42,13 +43,30 @@ export default function createVitePluginAstroServer({
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();
 
+			function preloadAllRoutes() {
+				getSortedPreloadedMatches({
+					pipeline,
+					matches: manifestData.routes,
+					settings: pipeline.settings,
+				}).catch(handleUnhandledRejection);
+			}
+
 			/** rebuild the route cache + manifest, as needed. */
 			function rebuildManifest(needsManifestRebuild: boolean) {
 				pipeline.clearRouteCache();
-				if (needsManifestRebuild) {
-					manifestData = ensure404Route(createRouteManifest({ settings }, logger));
+				if (!needsManifestRebuild) {
+					return;
+				}
+				manifestData = ensure404Route(createRouteManifest({ settings }, logger));
+				if (pipeline.settings.config.build.mergeSpaStylesheets) {
+					preloadAllRoutes();
 				}
 			}
+
+			if (pipeline.settings.config.build.mergeSpaStylesheets) {
+				preloadAllRoutes();
+			}
+
 			// Rebuild route manifest on file change, if needed.
 			viteServer.watcher.on('add', rebuildManifest.bind(null, true));
 			viteServer.watcher.on('unlink', rebuildManifest.bind(null, true));
