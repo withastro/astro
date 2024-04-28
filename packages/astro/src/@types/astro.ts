@@ -991,7 +991,7 @@ export interface AstroUserConfig {
 		inlineStylesheets?: 'always' | 'auto' | 'never';
 		/**
 		 * @docs
-		 * @name build.redirects
+		 * @name build.mergeSpaStylesheets
 		 * @type {boolean}
 		 * @default `false`
 		 * @version 4.7.0
