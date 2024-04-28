@@ -61,6 +61,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 		serverEntry: 'entry.mjs',
 		redirects: true,
 		inlineStylesheets: 'auto',
+		mergeSpaStylesheets: false,
 	},
 	image: {
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
@@ -180,6 +181,7 @@ export const AstroConfigSchema = z.object({
 				.enum(['always', 'auto', 'never'])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
+			mergeSpaStylesheets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.mergeSpaStylesheets),
 		})
 		.default({}),
 	server: z.preprocess(

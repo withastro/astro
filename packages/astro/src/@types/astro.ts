@@ -989,6 +989,29 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
+		/**
+		 * @docs
+		 * @name build.redirects
+		 * @type {boolean}
+		 * @default `false`
+		 * @version TBD
+		 * @description
+		 * Specifies whether to serve all stylesheets in all applicable
+		 * pages.
+		 *
+		 * This is useful for SPA-like applications using CSS modules,
+		 * such as those using HTMX to swap page elements without fully
+		 * loading a new page.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     mergeSpaStylesheets: true
+		 *   }
+		 * }
+		 * ```
+		 */
+		mergeSpaStylesheets?: boolean,
 	};
 
 	/**
