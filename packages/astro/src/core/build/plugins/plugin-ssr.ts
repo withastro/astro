@@ -2,7 +2,7 @@ import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroAdapter } from '../../../@types/astro.js';
-import { isFunctionPerRouteEnabled } from '../../../integrations/index.js';
+import { isFunctionPerRouteEnabled } from '../../../integrations/hooks.js';
 import { isServerLikeOutput } from '../../../prerender/utils.js';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
