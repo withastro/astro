@@ -794,7 +794,7 @@ async function prepareForClientOnlyComponents(
 			acc[key] = () => {};
 			return acc;
 		}, {});
-		await hydrationDone(nextPage, signal);
+		await hydrationDone(nextPage);
 
 		const nextHead = nextPage.contentDocument?.head;
 		if (nextHead) {
@@ -812,7 +812,7 @@ async function prepareForClientOnlyComponents(
 		}
 
 		// return a promise that resolves when all astro-islands are hydrated
-		async function hydrationDone(loadingPage: HTMLIFrameElement, signal: AbortSignal) {
+		async function hydrationDone(loadingPage: HTMLIFrameElement) {
 			if (!signal.aborted) {
 				await new Promise((r) =>
 					loadingPage.contentWindow?.addEventListener('load', r, { once: true })
