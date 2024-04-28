@@ -994,7 +994,7 @@ export interface AstroUserConfig {
 		 * @name build.mergeSpaStylesheets
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 4.7.0
+		 * @version 4.7.1
 		 * @description
 		 * Specifies whether to serve all stylesheets in all applicable
 		 * pages.
