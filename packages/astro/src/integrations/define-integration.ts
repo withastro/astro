@@ -1,6 +1,6 @@
 import type { AstroIntegration, AstroIntegrationHooks } from '../@types/astro.js';
 import { AstroError, AstroErrorData, errorMap } from '../core/errors/index.js';
-import { z } from '../../zod.mjs';
+import { z } from 'zod';
 
 type AstroIntegrationSetupFn<Options extends z.ZodTypeAny> = (params: {
 	name: string;
@@ -53,3 +53,5 @@ export const defineIntegration = <
 		};
 	};
 };
+
+// export const defineIntegration = () => {};
