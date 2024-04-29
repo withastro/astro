@@ -10,7 +10,7 @@ import {
 	runHookConfigSetup,
 	runHookServerDone,
 	runHookServerStart,
-} from '../../integrations/index.js';
+} from '../../integrations/hooks.js';
 import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
