@@ -9,7 +9,11 @@ import * as vite from 'vite';
 import type { RouteData } from '../../@types/astro.js';
 import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 import { hasAnyContentFlag } from '../../content/utils.js';
-import { type BuildInternals, createBuildInternals, getPageDatasWithPublicKey } from '../../core/build/internal.js';
+import {
+	type BuildInternals,
+	createBuildInternals,
+	getPageDatasWithPublicKey,
+} from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash, removeFileExtension } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
@@ -373,7 +377,11 @@ async function cleanStaticOutput(
 		const { moduleSpecifier } = pageData;
 		const pageBundleId = internals.pageToBundleMap.get(moduleSpecifier);
 		const entryBundleId = internals.entrySpecifierToBundleMap.get(moduleSpecifier);
-		if (pageData.route.prerender && !pageData.hasSharedModules && allStaticFiles.has(pageBundleId ?? entryBundleId)) {
+		if (
+			pageData.route.prerender &&
+			!pageData.hasSharedModules &&
+			allStaticFiles.has(pageBundleId ?? entryBundleId)
+		) {
 			allStaticFiles.add(pageBundleId ?? entryBundleId);
 		} else {
 			// Check if the page pageBundleId or entryBundleId is already in the set, if so, remove it
@@ -536,6 +544,7 @@ export function makeAstroPageEntryPointFileName(
 	return `pages${name
 		.replace(/\/$/, '/index')
 		.replaceAll(/[[\]]/g, '_')
+		.replaceAll('/', '-')
 		.replaceAll('...', '---')}.astro.mjs`;
 }
 
