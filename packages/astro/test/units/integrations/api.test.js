@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { validateSupportedFeatures } from '../../../dist/integrations/astroFeaturesValidation.js';
+import { validateSupportedFeatures } from '../../../dist/integrations/features-validation.js';
 import { runHookBuildSetup, runHookConfigSetup } from '../../../dist/integrations/hooks.js';
 import { defaultLogger } from '../test-utils.js';
 
