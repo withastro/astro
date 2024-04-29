@@ -3,8 +3,8 @@ import { type CollectionEntry, getCollection, getEntry } from "astro:content";
 import BlogPost from "../../layouts/BlogPost.astro";
 import { db, eq, Comment, Likes } from "astro:db";
 import { Like } from "../../components/Like";
-import { actions, safe } from "astro:actions";
 import {PostComment} from '../../components/PostComment';
+import { actions } from "astro:actions";
 
 export const prerender = false;
 
@@ -18,10 +18,12 @@ export async function getStaticPaths() {
 
 type Props = CollectionEntry<"blog">;
 
-const post = await getEntry("blog", Astro.params.slug);
+const post = await getEntry("blog", Astro.params.slug)!;
 const { Content } = await post.render();
 
-const commentResult = await safe(Astro.locals.getActionResult(actions.blog.comment));
+const commentResult = Astro.locals.getActionResult(
+	actions.blog.comment.safe
+);
 
 const comments = await db
   .select()
@@ -41,7 +43,7 @@ const initialLikes = await db
   <Content />
 
   <h2>Comments</h2>
-	{!commentResult.success && <p class="error">{commentResult.error}</p>}
+	{commentResult?.inputError && <p class="error">{commentResult.inputError.flatten()}</p>}
 	<PostComment postId={post.id} client:load />
   <div>
     {
@@ -54,3 +56,9 @@ const initialLikes = await db
     }
   </div>
 </BlogPost>
+
+<style>
+	.error {
+		color: red;
+	}
+</style>

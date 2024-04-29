@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { APIContext } from '../../../@types/astro.js';
 import { ApiContextStorage } from '../store.js';
 import type { MaybePromise } from '../utils.js';
-import { ActionError, ValidationError } from './shared.js';
+import { ActionError, ActionInputError, type SafeResult } from './shared.js';
 
 export * from './shared.js';
 
@@ -16,8 +16,10 @@ export function defineAction<TOutput, TInputSchema extends z.ZodType>({
 	input?: TInputSchema;
 	accept: 'json' | 'form' | 'all';
 	handler: (input: z.infer<TInputSchema>, context: APIContext) => MaybePromise<TOutput>;
-}): (input: z.input<TInputSchema> | FormData) => Promise<Awaited<TOutput>> {
-	return async (unparsedInput): Promise<Awaited<TOutput>> => {
+}): ((input: z.input<TInputSchema> | FormData) => Promise<Awaited<TOutput>>) & {
+	safe: (input: z.input<TInputSchema> | FormData) => Promise<SafeResult<TInputSchema, Awaited<TOutput>>>;
+} {
+	const serverHandler = async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
 		const context = ApiContextStorage.getStore()!;
 
 		if (!inputSchema) return await handler(unparsedInput, context);
@@ -25,7 +27,7 @@ export function defineAction<TOutput, TInputSchema extends z.ZodType>({
 		if (unparsedInput instanceof FormData) {
 			if (accept === 'json') {
 				throw new ActionError({
-					status: 'UNSUPPORTED_MEDIA_TYPE',
+					code: 'UNSUPPORTED_MEDIA_TYPE',
 					message: 'This action only accepts JSON input. To accept form data, set the `accept` option to either `form` or `all`.'
 				});
 			}
@@ -35,10 +37,18 @@ export function defineAction<TOutput, TInputSchema extends z.ZodType>({
 
 		const parsed = inputSchema.safeParse(unparsedInput);
 		if (!parsed.success) {
-			throw new ValidationError(parsed.error);
+			throw new ActionInputError(parsed.error);
 		}
 		return await handler(parsed.data, context);
 	};
+
+	serverHandler.safe = async (): Promise<SafeResult<TInputSchema, Awaited<TOutput>>> => {
+		throw new ActionError({
+			code: 'INTERNAL_SERVER_ERROR',
+			message: 'safe() unexpectedly called on the server. To retrieve action data from Astro frontmatter, use the `Astro.getActionResult()` function.'
+		});
+	}
+	return serverHandler;
 }
 
 function upgradeFormData<T extends z.AnyZodObject>(

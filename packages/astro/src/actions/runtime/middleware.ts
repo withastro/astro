@@ -1,17 +1,17 @@
 import { defineMiddleware } from '../../core/middleware/index.js';
 import { ApiContextStorage } from './store.js';
 import { formContentTypes, getAction } from './utils.js';
-import { ActionError } from './virtual/shared.js';
+import { ActionError, ActionInputError, callSafely } from './virtual/shared.js';
 
 type Locals = {
 	getActionResult: <T extends (...args: any) => any>(
 		action: T
-	) => Promise<Awaited<ReturnType<T>> | undefined>;
+	) => Awaited<ReturnType<T>> | undefined;
 };
 
 export const onRequest = defineMiddleware(async (context, next) => {
 	const locals = context.locals as Locals;
-	locals.getActionResult = () => Promise.resolve(undefined);
+	locals.getActionResult = () => undefined;
 
 	const { request } = context;
 	const contentType = request.headers.get('Content-Type');
@@ -30,15 +30,23 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	try {
 		result = await ApiContextStorage.run(context, () => action(formData));
 	} catch (e) {
-		if (!(e instanceof ActionError) || e.status === 'INTERNAL_SERVER_ERROR') {
+		if (!(e instanceof ActionError) || e.code === 'INTERNAL_SERVER_ERROR') {
 			throw e;
 		}
 		actionError = e;
 	}
 	locals.getActionResult = (actionFn) => {
 		if (actionFn.toString() !== actionPath) return Promise.resolve(undefined);
-		if (actionError) return Promise.reject(actionError);
-		return Promise.resolve(result);
+		if (Symbol.for('astro:action:safe') in actionFn) {
+			if (actionError instanceof ActionInputError) {
+				return { data: undefined, actionError: undefined, inputError: actionError.inputError };
+			} else if (actionError) {
+				return { data: undefined, actionError, inputError: undefined };
+			}
+			return { data: result, actionError: undefined, inputError: undefined };
+		}
+		if (actionError) throw actionError;
+		return result;
 	};
 	return next();
 });
