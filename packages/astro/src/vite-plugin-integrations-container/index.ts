@@ -4,7 +4,7 @@ import type { AstroSettings, InjectedRoute, ResolvedInjectedRoute } from '../@ty
 import type { Logger } from '../core/logger/core.js';
 
 import { normalizePath } from 'vite';
-import { runHookServerSetup } from '../integrations/index.js';
+import { runHookServerSetup } from '../integrations/hooks.js';
 
 /** Connect Astro integrations into Vite, as needed. */
 export default function astroIntegrationsContainerPlugin({
