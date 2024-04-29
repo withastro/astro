@@ -1,14 +1,16 @@
-import type { AstroIntegration } from "astro"
+import {} from "astro"
+import { defineIntegration } from "astro/integration"
 import type { AstroDbHooks } from "@astrojs/db/types"
 
 declare module "astro" {
 	interface AstroIntegrationHooks extends AstroDbHooks {}
 }
 
-export default function testIntegration(): AstroIntegration {
-	return {
-		name: 'db-test-integration',
-		hooks: {
+export default defineIntegration({
+	name: "db-test-integration",
+	setup() {
+		return {
+					hooks: {
 			'astro:db:setup': ({ extendDb }) => {
 				extendDb({
 					configEntrypoint: './integration/config.ts',
@@ -16,5 +18,6 @@ export default function testIntegration(): AstroIntegration {
 				});
 			},
 		},
-	};
-}
+		}
+	}
+})
