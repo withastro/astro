@@ -88,13 +88,11 @@ interface LegacyIndexConfig<TColumns extends ColumnsConfig>
 export type NumberColumnOpts = z.input<typeof numberColumnOptsSchema>;
 export type TextColumnOpts = z.input<typeof textColumnOptsSchema>;
 
-export type AstroDbIntegration = AstroIntegration & {
-	hooks: {
-		'astro:db:setup'?: (options: {
-			extendDb: (options: {
-				configEntrypoint?: URL | string;
-				seedEntrypoint?: URL | string;
-			}) => void;
-		}) => void | Promise<void>;
-	};
-};
+export interface AstroDbHooks {
+	'astro:db:setup'?: (options: {
+		extendDb: (options: {
+			configEntrypoint?: URL | string;
+			seedEntrypoint?: URL | string;
+		}) => void;
+	}) => void | Promise<void>;
+}

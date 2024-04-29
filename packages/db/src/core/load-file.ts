@@ -9,10 +9,10 @@ import { INTEGRATION_TABLE_CONFLICT_ERROR } from './errors.js';
 import { errorMap } from './integration/error-map.js';
 import { getConfigVirtualModContents } from './integration/vite-plugin-db.js';
 import { dbConfigSchema } from './schemas.js';
-import { type AstroDbIntegration } from './types.js';
+import { type AstroDbHooks } from './types.js';
 import { getDbDirectoryUrl } from './utils.js';
 
-const isDbIntegration = (integration: AstroIntegration): integration is AstroDbIntegration =>
+const isDbIntegration = (integration: AstroIntegration): integration is AstroIntegration & { hooks: AstroDbHooks } =>
 	'astro:db:setup' in integration.hooks;
 
 /**
