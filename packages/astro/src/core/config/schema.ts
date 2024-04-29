@@ -61,7 +61,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 		serverEntry: 'entry.mjs',
 		redirects: true,
 		inlineStylesheets: 'auto',
-		notMergeSpaStylesheets: true,
+		cssCodeSplit: true,
 	},
 	image: {
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
@@ -181,7 +181,7 @@ export const AstroConfigSchema = z.object({
 				.enum(['always', 'auto', 'never'])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
-			notMergeSpaStylesheets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.notMergeSpaStylesheets),
+			cssCodeSplit: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.cssCodeSplit),
 		})
 		.default({}),
 	server: z.preprocess(
@@ -602,7 +602,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.enum(['always', 'auto', 'never'])
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
-				notMergeSpaStylesheets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.notMergeSpaStylesheets),
+				cssCodeSplit: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.cssCodeSplit),
 			})
 			.optional()
 			.default({}),

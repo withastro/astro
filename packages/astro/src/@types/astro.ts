@@ -991,13 +991,16 @@ export interface AstroUserConfig {
 		inlineStylesheets?: 'always' | 'auto' | 'never';
 		/**
 		 * @docs
-		 * @name build.notMergeSpaStylesheets
+		 * @name build.cssCodeSplit
 		 * @type {boolean}
-		 * @default `false`
+		 * @default `true`
 		 * @version 4.7.1
 		 * @description
 		 * Specifies whether to serve all stylesheets in all applicable
 		 * pages.
+		 *
+		 * This overrides `vite.build.cssCodeSplit` and also applies the same
+		 * build behaviour to the astro dev server.
 		 *
 		 * This is useful for SPA-like applications using CSS modules,
 		 * such as those using HTMX to swap page elements without fully
@@ -1006,12 +1009,12 @@ export interface AstroUserConfig {
 		 * ```js
 		 * {
 		 *   build: {
-		 *     notMergeSpaStylesheets: false
+		 *     cssCodeSplit: false
 		 *   }
 		 * }
 		 * ```
 		 */
-		notMergeSpaStylesheets?: boolean,
+		cssCodeSplit?: boolean,
 	};
 
 	/**

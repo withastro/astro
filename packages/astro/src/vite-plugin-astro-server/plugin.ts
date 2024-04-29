@@ -58,12 +58,12 @@ export default function createVitePluginAstroServer({
 					return;
 				}
 				manifestData = ensure404Route(createRouteManifest({ settings }, logger));
-				if (!pipeline.settings.config.build.notMergeSpaStylesheets) {
+				if (!pipeline.settings.config.build.cssCodeSplit) {
 					preloadAllRoutes();
 				}
 			}
 
-			if (!pipeline.settings.config.build.notMergeSpaStylesheets) {
+			if (!pipeline.settings.config.build.cssCodeSplit) {
 				preloadAllRoutes();
 			}
 
