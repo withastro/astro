@@ -9,7 +9,10 @@ type AstroIntegrationSetupFn<Options extends z.ZodTypeAny> = (params: {
 	hooks: AstroIntegrationHooks;
 };
 
-/** TODO: */
+/**
+ * Allows defining an integration in a type-safe way and optionally validate options.
+ * See [documentation](TODO:).
+*/
 export const defineIntegration = <
 	TOptionsSchema extends z.ZodTypeAny = z.ZodNever,
 	TSetup extends AstroIntegrationSetupFn<TOptionsSchema> = AstroIntegrationSetupFn<TOptionsSchema>,
