@@ -1159,6 +1159,8 @@ export const i18nNotEnabled = {
 /**
  * @docs
  * @description
+ * 
+ * Invalid options have been passed to the integration.
  */
 export const AstroIntegrationInvalidOptions = {
 	name: 'AstroIntegrationInvalidOptions',
