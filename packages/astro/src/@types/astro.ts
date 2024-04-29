@@ -996,11 +996,16 @@ export interface AstroUserConfig {
 		 * @default `true`
 		 * @version 4.7.1
 		 * @description
-		 * Specifies whether to serve all stylesheets in all applicable
-		 * pages.
+		 *
+		 * Enable/disable CSS code splitting.
+		 * When enabled, CSS imported in async JS chunks will be preserved as
+		 * chunks and fetched together when the chunk is fetched.
+		 *
+		 * If disabled, all CSS in the entire project will be extracted into a
+		 * single CSS file.
 		 *
 		 * This overrides `vite.build.cssCodeSplit` and also applies the same
-		 * build behaviour to the astro dev server.
+		 * build behaviour to the `astro dev` server.
 		 *
 		 * This is useful for SPA-like applications using CSS modules,
 		 * such as those using HTMX to swap page elements without fully
