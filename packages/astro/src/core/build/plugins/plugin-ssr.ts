@@ -13,7 +13,7 @@ import { SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugin-manifest.js';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
-import { getRouteAndComponentFromVirtualModulePageName, getVirtualModulePageName, getPageKeyFromVirtualModulePageName } from './util.js';
+import { getComponentFromVirtualModulePageName, getVirtualModulePageName } from './util.js';
 
 export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
 export const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
@@ -49,8 +49,7 @@ function vitePluginSSR(
 					}
 					const virtualModuleName = getVirtualModulePageName(
 						ASTRO_PAGE_MODULE_ID,
-						pageData.component,
-						pageData.route.route
+						pageData.component
 					);
 					let module = await this.resolve(virtualModuleName);
 					if (module) {
@@ -155,7 +154,7 @@ function vitePluginSSRSplit(
 						continue;
 					}
 					inputs.add(
-						getVirtualModulePageName(SPLIT_MODULE_ID, pageData.component, pageData.route.route)
+						getVirtualModulePageName(SPLIT_MODULE_ID, pageData.component)
 					);
 				}
 
@@ -172,9 +171,8 @@ function vitePluginSSRSplit(
 				const imports: string[] = [];
 				const contents: string[] = [];
 				const exports: string[] = [];
-				const pageKey = getPageKeyFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, id);
-				const pageData = internals.pagesByKeys.get(pageKey);
-				const virtualModuleName = getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData!.component, pageData!.route.route);
+				const componentPath = getComponentFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, id);
+				const virtualModuleName = getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, componentPath);
 				let module = await this.resolve(virtualModuleName);
 				if (module) {
 					imports.push(`import * as pageModule from "${virtualModuleName}";`);
@@ -288,7 +286,7 @@ if (_start in serverEntrypointModule) {
  *  we can't use `writeBundle` hook to get the final file name of the entry point written on disk.
  *  We use this hook instead.
  *
- *  We retrieve the {@link RouteData} that belongs the current moduleKey
+ *  We retrieve all the {@link RouteData} that have the same component as the one we are processing.
  */
 function storeEntryPoint(
 	moduleKey: string,
@@ -296,7 +294,7 @@ function storeEntryPoint(
 	internals: BuildInternals,
 	fileName: string
 ) {
-	const [_route, componentPath] = getRouteAndComponentFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, moduleKey);
+	const componentPath = getComponentFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, moduleKey);
 	for (const pageData of Object.values(options.allPages)) {
 		if (componentPath == pageData.component) {
 			const publicPath = fileURLToPath(options.settings.config.build.server);

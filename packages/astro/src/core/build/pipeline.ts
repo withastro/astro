@@ -17,7 +17,7 @@ import {
 } from './internal.js';
 import { ASTRO_PAGE_MODULE_ID, ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
-import { getPageKeyFromVirtualModulePageName, getVirtualModulePageName } from './plugins/util.js';
+import { getPagesFromVirtualModulePageName, getVirtualModulePageName } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
 
@@ -185,27 +185,24 @@ export class BuildPipeline extends Pipeline {
 				virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
 				virtualModulePageName.includes(RESOLVED_SPLIT_MODULE_ID)
 			) {
-				let pageKey;
+				let pageDatas: PageBuildData[] = [];
 				if (virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
-					pageKey = getPageKeyFromVirtualModulePageName(
+					pageDatas.concat(getPagesFromVirtualModulePageName(
+						this.internals,
 						ASTRO_PAGE_RESOLVED_MODULE_ID,
 						virtualModulePageName
-					);
-				} else {
-					pageKey = getPageKeyFromVirtualModulePageName(
+					));
+				}
+				if (virtualModulePageName.includes(RESOLVED_SPLIT_MODULE_ID)) {
+					pageDatas.concat(getPagesFromVirtualModulePageName(
+						this.internals,
 						RESOLVED_SPLIT_MODULE_ID,
 						virtualModulePageName
-					);
+					));
 				}
-				const pageData = this.internals.pagesByKeys.get(pageKey);
-
-				if (!pageData) {
-					throw new Error(
-						"Build failed. Astro couldn't find the emitted page from " + pageKey + ' pattern'
-					);
+				for (const pageData of pageDatas) {
+					pages.set(pageData, filePath);
 				}
-
-				pages.set(pageData, filePath);
 			}
 		}
 
@@ -225,8 +222,7 @@ export class BuildPipeline extends Pipeline {
 				// Here, we take the component path and transform it in the virtual module name
 				const moduleSpecifier = getVirtualModulePageName(
 					ASTRO_PAGE_MODULE_ID,
-					pageData.component,
-					pageData.route.route
+					pageData.component
 				);
 				// We retrieve the original JS module
 				const filePath = this.internals.entrySpecifierToBundleMap.get(moduleSpecifier);

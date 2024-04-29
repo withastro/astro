@@ -622,6 +622,6 @@ function createBuildManifest(
  */
 function getEntryFilePath(internals: BuildInternals, pageData: RouteData) {
 	const id =
-		'\x00' + getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component, pageData.route);
+		'\x00' + getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component);
 	return internals.entrySpecifierToBundleMap.get(id);
 }

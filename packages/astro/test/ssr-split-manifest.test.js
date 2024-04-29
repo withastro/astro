@@ -40,8 +40,7 @@ describe('astro:ssr-manifest, split', () => {
 
 	it('should be able to render a specific entry point', async () => {
 		const pagePath = 'src/pages/index.astro';
-		const routePath = '/';
-		const app = await fixture.loadEntryPoint(currentRoutes, pagePath, routePath);
+		const app = await fixture.loadEntryPoint(currentRoutes, pagePath);
 		const request = new Request('http://example.com/');
 		const response = await app.render(request);
 		const html = await response.text();
@@ -74,8 +73,7 @@ describe('astro:ssr-manifest, split', () => {
 
 	it('should emit an entry point to request the pre-rendered page', async () => {
 		const pagePath = 'src/pages/prerender.astro';
-		const routePath = '/prerender';
-		const app = await fixture.loadEntryPoint(currentRoutes, pagePath, routePath);
+		const app = await fixture.loadEntryPoint(currentRoutes, pagePath);
 		const request = new Request('http://example.com/');
 		const response = await app.render(request);
 		const html = await response.text();
@@ -109,8 +107,7 @@ describe('astro:ssr-manifest, split', () => {
 		});
 		it('should correctly build, and not create a "uses" entry point', async () => {
 			const pagePath = 'src/pages/index.astro';
-			const routePath = '/';
-			const app = await fixture.loadEntryPoint(currentRoutes, pagePath, routePath);
+			const app = await fixture.loadEntryPoint(currentRoutes, pagePath);
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);
 			const html = await response.text();
