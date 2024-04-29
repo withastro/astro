@@ -1,10 +1,23 @@
-# @astrojs/web-vitals ⏱️
+# @astrojs/web-vitals (experimental) ⏱️
 
 This **[Astro integration][astro-integration]** enables tracking real-world website performance and storing the data in [Astro DB][db].
 
-<!-- ## Documentation
+## Pre-requisites
 
-Read the [`@astrojs/web-vitals` docs][docs] -->
+- [Astro DB](https://astro.build/db) — `@astrojs/web-vitals` will store performance data in Astro DB in production
+- [An SSR adapter](https://docs.astro.build/en/guides/server-side-rendering/) — `@astrojs/web-vitals` injects a server endpoint to manage saving data to Astro DB
+
+## Installation
+
+1. Install and configure the Web Vitals integration using `astro add`:
+
+   ```sh
+   npx astro add web-vitals
+   ```
+
+2. Redeploy your site.
+
+3. Visit your project dashboard at https://studio.astro.build to see the data collected.
 
 ## Support
 
@@ -30,7 +43,6 @@ Copyright (c) 2023–present [Astro][astro]
 
 [astro]: https://astro.build/
 [db]: https://astro.build/db/
-[docs]: https://docs.astro.build/en/guides/integrations-guide/web-vitals/
 [contributing]: https://github.com/withastro/astro/blob/main/CONTRIBUTING.md
 [coc]: https://github.com/withastro/.github/blob/main/CODE_OF_CONDUCT.md
 [community]: https://github.com/withastro/.github/blob/main/COMMUNITY_GUIDE.md
