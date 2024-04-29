@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { errorMap } from '../dist/core/errors/error-map.js';
+import { errorMap } from '../dist/core/errors/zod-error-map.js';
 import { z } from '../zod.mjs';
 import { fixLineEndings } from './test-utils.js';
 
