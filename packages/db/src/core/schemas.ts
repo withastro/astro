@@ -2,7 +2,7 @@ import { SQL } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { type ZodTypeDef, z } from 'zod';
 import { SERIALIZED_SQL_KEY, type SerializedSQL } from '../runtime/types.js';
-import { errorMap } from './integration/error-map.js';
+import { errorMap } from 'astro/errors/zod-error-map';
 import type { NumberColumn, TextColumn } from './types.js';
 import { mapObject } from './utils.js';
 

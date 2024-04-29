@@ -6,7 +6,7 @@ import type { AstroConfig, AstroIntegration } from 'astro';
 import { build as esbuild } from 'esbuild';
 import { CONFIG_FILE_NAMES, VIRTUAL_MODULE_ID } from './consts.js';
 import { INTEGRATION_TABLE_CONFLICT_ERROR } from './errors.js';
-import { errorMap } from './integration/error-map.js';
+import { errorMap } from 'astro/errors/zod-error-map';
 import { getConfigVirtualModContents } from './integration/vite-plugin-db.js';
 import { dbConfigSchema } from './schemas.js';
 import { type AstroDbHooks } from './types.js';

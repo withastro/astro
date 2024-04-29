@@ -70,6 +70,7 @@
       "default": "./zod.mjs"
     },
     "./errors": "./dist/core/errors/userError.js",
+    "./errors/zod-error-map": "./dist/core/errors/zod-error-map.js",
     "./middleware": {
       "types": "./dist/core/middleware/index.d.ts",
       "default": "./dist/core/middleware/index.js"
