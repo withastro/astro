@@ -53,7 +53,7 @@ export const ASTRO_PAGE_KEY_SEPARATOR = '&';
  * @param route Usually pageData.route.route
  * @param componentPath Usually pageData.component
  */
-export function makePageDataKey(route: string, componentPath: string) {
+export function makePageDataKey(route: string, componentPath: string): string {
 	return route + ASTRO_PAGE_KEY_SEPARATOR + componentPath;
 }
 
@@ -63,7 +63,7 @@ export function makePageDataKey(route: string, componentPath: string) {
  * @param virtualModulePrefix The prefix used to create the virtual module
  * @param path Page component path
  */
-export function getVirtualModulePageName(virtualModulePrefix: string, path: string) {
+export function getVirtualModulePageName(virtualModulePrefix: string, path: string): string {
 	const extension = extname(path);
 	return (
 		virtualModulePrefix +
@@ -79,7 +79,8 @@ export function getVirtualModulePageName(virtualModulePrefix: string, path: stri
  * @param virtualModulePrefix The prefix used to create the virtual module
  * @param id Virtual module name
  */
-export function getPagesFromVirtualModulePageName(internals: BuildInternals, virtualModulePrefix: string,  id: string) {
+export function getPagesFromVirtualModulePageName(internals: BuildInternals, virtualModulePrefix: string,  id: string): PageBuildData[]
+{
 	const path = getComponentFromVirtualModulePageName(virtualModulePrefix, id);
 
 	const pages: PageBuildData[] = [];
@@ -99,7 +100,7 @@ export function getPagesFromVirtualModulePageName(internals: BuildInternals, vir
  * @param virtualModulePrefix The prefix at the beginning of the virtual module
  * @param id Virtual module name
  */
-export function getComponentFromVirtualModulePageName(virtualModulePrefix: string, id: string) {
+export function getComponentFromVirtualModulePageName(virtualModulePrefix: string, id: string): string {
 	return id.slice(virtualModulePrefix.length).replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
 }
 
