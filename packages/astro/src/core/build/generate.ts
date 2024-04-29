@@ -256,9 +256,7 @@ async function generatePage(
 	// prepare information we need
 	const { config, internals, logger } = pipeline;
 	const pageModulePromise = ssrEntry.page;
-	// TODO: Why do we need to get PageData from PageData?
-	const pageInfo = getPageData(internals, pageData.route.component, pageData.route.route);
-
+	
 	// Calculate information of the page, like scripts, links and styles
 	const styles = pageData.styles
 		.sort(cssOrder)
@@ -266,7 +264,7 @@ async function generatePage(
 		.reduce(mergeInlineCss, []);
 	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 	const linkIds: [] = [];
-	const scripts = pageInfo?.hoistedScript ?? null;
+	const scripts = pageData.hoistedScript ?? null;
 	if (!pageModulePromise) {
 		throw new Error(
 			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`
