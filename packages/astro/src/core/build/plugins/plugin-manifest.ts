@@ -44,7 +44,7 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 			}
 		},
 		configResolved(config) {
-			if (options.settings.config.build.mergeSpaStylesheets) {
+			if (!options.settings.config.build.notMergeSpaStylesheets) {
 				config.build.cssCodeSplit = false;
 			}
 		},
@@ -88,7 +88,7 @@ export function pluginManifest(
 		targets: ['server'],
 		hooks: {
 			'build:before': () => {
-				if (options.settings.config.build.mergeSpaStylesheets) {
+				if (options.settings.config.build.notMergeSpaStylesheets) {
 					if (!options.viteConfig.build) {
 						options.viteConfig.build = {};
 					}

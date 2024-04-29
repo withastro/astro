@@ -21,7 +21,7 @@ export async function getStylesForURL(
 	const importedStylesMap = new Map<string, ImportedStyle>();
 	const crawledFiles = new Set<string>();
 
-	if (!config.build.mergeSpaStylesheets) {
+	if (config.build.notMergeSpaStylesheets) {
 		// Only serve the styles directly used in the requested endpoint.
 		for await (const importedModule of crawlGraph(loader, viteID(filePath), true)) {
 			await writeStylesForImportedModule(

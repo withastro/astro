@@ -991,7 +991,7 @@ export interface AstroUserConfig {
 		inlineStylesheets?: 'always' | 'auto' | 'never';
 		/**
 		 * @docs
-		 * @name build.mergeSpaStylesheets
+		 * @name build.notMergeSpaStylesheets
 		 * @type {boolean}
 		 * @default `false`
 		 * @version 4.7.1
@@ -1006,12 +1006,12 @@ export interface AstroUserConfig {
 		 * ```js
 		 * {
 		 *   build: {
-		 *     mergeSpaStylesheets: true
+		 *     notMergeSpaStylesheets: false
 		 *   }
 		 * }
 		 * ```
 		 */
-		mergeSpaStylesheets?: boolean,
+		notMergeSpaStylesheets?: boolean,
 	};
 
 	/**
