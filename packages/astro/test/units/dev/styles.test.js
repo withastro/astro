@@ -76,7 +76,7 @@ describe('Crawling graph for CSS', () => {
 	it("importedModules is checked against the child's importers", async () => {
 		const config = {
 			build: {
-				mergeSpaStylesheets: false,
+				cssCodeSplit: true,
 			}
 		};
 		// In dev mode, HMR modules tracked are added to importedModules. We use `importers`
