@@ -44,9 +44,12 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 			}
 		},
 		configResolved(config) {
-			if (!options.settings.config.build.cssCodeSplit) {
-				config.build.cssCodeSplit = false;
+			if (options.viteConfig.build?.cssCodeSplit !== undefined) {
+				// Use the user-specified vite config instead of
+				// overriding with the astro config.
+				return;
 			}
+			config.build.cssCodeSplit = options.settings.config.build.cssCodeSplit;
 		},
 		async load(id) {
 			if (id === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
@@ -88,12 +91,6 @@ export function pluginManifest(
 		targets: ['server'],
 		hooks: {
 			'build:before': () => {
-				if (options.settings.config.build.cssCodeSplit) {
-					if (!options.viteConfig.build) {
-						options.viteConfig.build = {};
-					}
-					options.viteConfig.build.cssCodeSplit = true;
-				}
 				return {
 					vitePlugin: vitePluginManifest(options, internals),
 				};
