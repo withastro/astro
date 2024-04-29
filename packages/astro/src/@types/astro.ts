@@ -19,7 +19,7 @@ import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
-import type { getToolbarServerCommunicationHelpers } from '../integrations/index.js';
+import type { getToolbarServerCommunicationHelpers } from '../integrations/hooks.js';
 import type { AstroPreferences } from '../preferences/index.js';
 import type {
 	ToolbarAppEventTarget,

@@ -30,7 +30,7 @@ import {
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
 import { toRoutingStrategy } from '../../i18n/utils.js';
-import { runHookBuildGenerated } from '../../integrations/index.js';
+import { runHookBuildGenerated } from '../../integrations/hooks.js';
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import type { SSRManifestI18n } from '../app/types.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
