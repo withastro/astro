@@ -19,7 +19,6 @@ import { getOutFile, getOutFolder } from '../common.js';
 import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
-import {mergeSpaStylesheets} from "../mergeSpaStylesheets.js";
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
@@ -42,6 +41,11 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 		augmentChunkHash(chunkInfo) {
 			if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
 				return Date.now().toString();
+			}
+		},
+		configResolved(config) {
+			if (options.settings.config.build.mergeSpaStylesheets) {
+				config.build.cssCodeSplit = false;
 			}
 		},
 		async load(id) {
@@ -84,6 +88,12 @@ export function pluginManifest(
 		targets: ['server'],
 		hooks: {
 			'build:before': () => {
+				if (options.settings.config.build.mergeSpaStylesheets) {
+					if (!options.viteConfig.build) {
+						options.viteConfig.build = {};
+					}
+					options.viteConfig.build.cssCodeSplit = true;
+				}
 				return {
 					vitePlugin: vitePluginManifest(options, internals),
 				};
@@ -97,9 +107,6 @@ export function pluginManifest(
 				const manifest = await createManifest(options, internals);
 				const shouldPassMiddlewareEntryPoint =
 					options.settings.adapter?.adapterFeatures?.edgeMiddleware;
-				if (options.settings.config.build.mergeSpaStylesheets) {
-					mergeSpaStylesheets(manifest);
-				}
 				await runHookBuildSsr({
 					config: options.settings.config,
 					manifest,
