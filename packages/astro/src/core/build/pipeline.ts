@@ -171,7 +171,6 @@ export class BuildPipeline extends Pipeline {
 
 	/**
 	 * It collects the routes to generate during the build.
-	 *
 	 * It returns a map of page information and their relative entry point as a string.
 	 */
 	retrieveRoutesToGenerate(): Map<PageBuildData, string> {
@@ -187,14 +186,14 @@ export class BuildPipeline extends Pipeline {
 			) {
 				let pageDatas: PageBuildData[] = [];
 				if (virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
-					pageDatas.concat(getPagesFromVirtualModulePageName(
+					pageDatas.push(...getPagesFromVirtualModulePageName(
 						this.internals,
 						ASTRO_PAGE_RESOLVED_MODULE_ID,
 						virtualModulePageName
 					));
 				}
 				if (virtualModulePageName.includes(RESOLVED_SPLIT_MODULE_ID)) {
-					pageDatas.concat(getPagesFromVirtualModulePageName(
+					pageDatas.push(...getPagesFromVirtualModulePageName(
 						this.internals,
 						RESOLVED_SPLIT_MODULE_ID,
 						virtualModulePageName

@@ -242,7 +242,7 @@ export function getPagesDatasByComponent(
 	component: string
 ): PageBuildData[] {
 	const pageDatas: PageBuildData[] = [];
-		Array.from(internals.pagesByKeys.values()).forEach((pageData) => {
+		internals.pagesByKeys.forEach((pageData) => {
 			if (component === pageData.component) pageDatas.push(pageData);
 	})
 	return pageDatas;

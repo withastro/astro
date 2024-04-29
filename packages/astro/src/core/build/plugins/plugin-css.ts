@@ -249,10 +249,9 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					? { type: 'inline', content: stylesheet.source }
 					: { type: 'external', src: stylesheet.fileName };
 
-				const pages = Array.from(internals.pagesByKeys.values());
 				let sheetAddedToPage = false;
 
-				pages.forEach((pageData) => {
+				internals.pagesByKeys.forEach((pageData) => {
 					const orderingInfo = pagesToCss[pageData.moduleSpecifier]?.[stylesheet.fileName];
 					if (orderingInfo !== undefined) {
 						pageData.styles.push({ ...orderingInfo, sheet });
