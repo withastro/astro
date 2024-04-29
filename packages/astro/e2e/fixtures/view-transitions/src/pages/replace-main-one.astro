@@ -1,0 +1,30 @@
+---
+import Layout from '../components/Layout.astro';
+---
+<Layout>
+	<section>
+		<p id="name">Replace Main Section</p>
+		<p>This is the main section</p>
+	</section>
+	<a id="click" href="/keep-two">go to next page</a>
+</Layout>
+<script>
+	import { CustomSwapper } from '../../node_modules/astro/dist/transitions/custom-swapper';
+	import { swapBodyElement } from '../../node_modules/astro/dist/transitions/swap-functions';
+
+	document.addEventListener('astro:before-swap', (e) => {
+
+		// generate a complete swap function by just overriding the swapHeadElements function
+		e.swap = ()=>new CustomSwapper({
+			swapBodyElement(newElement: Element, oldElement: Element) {
+				const newMain = newElement.querySelector('main section');
+				const oldMain = oldElement.querySelector('main section');
+				if (newMain && oldMain) {
+					swapBodyElement(newMain, oldMain); // supports persisted elements inside main ;-)
+				} else {
+					swapBodyElement(newElement, oldElement); // fallback to built-in body swap semantics
+				}
+			}
+		}).swap(e.newDocument);
+		});
+</script>

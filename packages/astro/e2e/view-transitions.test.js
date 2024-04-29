@@ -1426,21 +1426,76 @@ test.describe('View Transitions', () => {
 			'all animations for transition:names should have been found'
 		).toEqual(0);
 	});
-});
 
-test('transition:persist persists selection', async ({ page, astro }) => {
-	let text = '';
-	page.on('console', (msg) => {
-		text = msg.text();
+	test('transition:persist persists selection', async ({ page, astro }) => {
+		let text = '';
+		page.on('console', (msg) => {
+			text = msg.text();
+		});
+		await page.goto(astro.resolveUrl('/persist-1'));
+		await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
+		// go to page 2
+		await page.press('input[name="name"]', 'Enter');
+		await expect(page.locator('#two'), 'should have content').toHaveText('Persist 2');
+		expect(text).toBe('true some cool text 5 9');
+
+		await page.goBack();
+		await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
+		expect(text).toBe('true true');
 	});
-	await page.goto(astro.resolveUrl('/persist-1'));
-	await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
-	// go to page 2
-	await page.press('input[name="name"]', 'Enter');
-	await expect(page.locator('#two'), 'should have content').toHaveText('Persist 2');
-	expect(text).toBe('true some cool text 5 9');
 
-	await page.goBack();
-	await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
-	expect(text).toBe('true true');
+	test('it should be easy to define a data-theme preserving swap function', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/keep-theme-one'));
+		await expect(page.locator('#name'), 'should have content').toHaveText('Keep Theme');
+		await page.$eval(':root', (element) => element.setAttribute('data-theme', 'purple'));
+
+		await page.click('#click');
+		await expect(page.locator('#name'), 'should have content').toHaveText('Keep 2');
+
+		const attributeValue = await page.$eval(
+			':root',
+			(element, attributeName) => element.getAttribute(attributeName),
+			'data-theme'
+		);
+		expect(attributeValue).toBe('purple');
+	});
+
+	test('it should be easy to define a swap function that preserves a dynamically generated style sheet', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/keep-style-one'));
+		await expect(page.locator('#name'), 'should have content').toHaveText('Keep Style');
+		await page.evaluate(() => {
+			const style = document.createElement('style');
+			style.textContent = 'body { background-color: purple; }';
+			document.head.insertAdjacentElement('afterbegin', style);
+		});
+
+		await page.click('#click');
+		await expect(page.locator('#name'), 'should have content').toHaveText('Keep 2');
+
+		const styleElement = await page.$('head > style');
+		const styleContent = await page.evaluate((style) => style.innerHTML, styleElement);
+		expect(styleContent).toBe('body { background-color: purple; }');
+	});
+
+	test('it should be easy to define a swap function that only swaps the main area', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/replace-main-one'));
+		await expect(page.locator('#name'), 'should have content').toHaveText('Replace Main Section');
+
+		await page.click('#click');
+		// name inside <main> should have changed
+		await expect(page.locator('#name'), 'should have content').toHaveText('Keep 2');
+
+		// link outside <main> should still be there
+		const link = await page.$('#click');
+		expect(link).toBeTruthy();
+	});
 });

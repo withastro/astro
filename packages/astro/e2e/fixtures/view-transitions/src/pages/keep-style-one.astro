@@ -1,0 +1,23 @@
+---
+import Layout from '../components/Layout.astro';
+---
+<Layout>
+	<p id="name">Keep Style</p>
+	<a id="click" href="/keep-two">go to next page</a>
+</Layout>
+<script>
+	import { CustomSwapper } from '../../node_modules/astro/dist/transitions/custom-swapper';
+	import { swapHeadElements } from '../../node_modules/astro/dist/transitions/swap-functions';
+
+	document.addEventListener('astro:before-swap', (e) => {
+
+		// generate a complete swap function by just overriding the swapHeadElements function
+		e.swap = ()=>new CustomSwapper({
+			swapHeadElements(doc) {
+				const dynamicStyle = document.head.querySelector('style:not(:empty)');
+				swapHeadElements(doc); // reuse the built-in implementation
+				dynamicStyle && document.head.insertAdjacentElement('afterbegin', dynamicStyle);
+			},
+		}).swap(e.newDocument);
+	});
+</script>
