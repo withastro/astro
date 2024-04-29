@@ -36,7 +36,7 @@
     "@astrojs/markdown-remark": "workspace:*",
     "@mdx-js/mdx": "^3.0.1",
     "acorn": "^8.11.3",
-    "es-module-lexer": "^1.5.0",
+    "es-module-lexer": "^1.5.2",
     "estree-util-visit": "^2.0.0",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
@@ -44,7 +44,7 @@
     "kleur": "^4.1.5",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.0",
-    "remark-smartypants": "^3.0.0",
+    "remark-smartypants": "^3.0.1",
     "source-map": "^0.7.4",
     "unist-util-visit": "^5.0.0",
     "vfile": "^6.0.1"
