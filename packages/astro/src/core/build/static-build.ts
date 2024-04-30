@@ -362,6 +362,7 @@ async function runPostBuildHooks(
 /**
  * For each statically prerendered page, replace their SSR file with a noop.
  * This allows us to run the SSR build only once, but still remove dependencies for statically rendered routes.
+ * If a component is shared between a statically rendered route and a SSR route, it will still be included in the SSR build.
  */
 async function cleanStaticOutput(
 	opts: StaticBuildOptions,
@@ -369,14 +370,16 @@ async function cleanStaticOutput(
 	ssrOutputChunkNames: string[]
 ) {
 	const allStaticFiles = new Set();
+	const allSSRFiles = new Set();
 	for (const pageData of internals.pagesByKeys.values()) {
 		const { moduleSpecifier } = pageData;
 		const pageBundleId = internals.pageToBundleMap.get(moduleSpecifier);
 		const entryBundleId = internals.entrySpecifierToBundleMap.get(moduleSpecifier);
-		if (pageData.route.prerender && !pageData.hasSharedModules && allStaticFiles.has(pageBundleId ?? entryBundleId)) {
+		if (pageData.route.prerender && !pageData.hasSharedModules && !allSSRFiles.has(pageBundleId ?? entryBundleId)) {
 			allStaticFiles.add(pageBundleId ?? entryBundleId);
 		} else {
-			// Check if the page pageBundleId or entryBundleId is already in the set, if so, remove it
+			allSSRFiles.add(pageBundleId ?? entryBundleId);
+			// Check if the component was not previously added to the static build by a statically rendered route
 			if (allStaticFiles.has(pageBundleId ?? entryBundleId)) {
 				allStaticFiles.delete(pageBundleId ?? entryBundleId);
 			}
