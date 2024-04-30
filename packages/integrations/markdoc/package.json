@@ -71,7 +71,7 @@
     "gray-matter": "^4.0.3",
     "htmlparser2": "^9.1.0",
     "kleur": "^4.1.5",
-    "zod": "^3.23.0"
+    "zod": "^3.23.5"
   },
   "peerDependencies": {
     "astro": "^3.0.0 || ^4.0.0"
