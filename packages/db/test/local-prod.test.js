@@ -2,7 +2,7 @@ import { fileURLToPath } from 'url';
 import { expect } from 'chai';
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
-import { normalizePath } from 'vite';
+import { relative } from 'path';
 
 describe('astro:db local database', () => {
 	let fixture;
@@ -33,9 +33,10 @@ describe('astro:db local database', () => {
 		});
 	});
 
-	describe('build (not remote) with DATABASE_FILE env (file path)', () => {
-		// env flag should be set with forward slashes. Normalize for windows.
-		const prodDbPath = normalizePath(fileURLToPath(new URL('./fixtures/basics/dist/astro.db', import.meta.url)));
+	describe('build (not remote) with DATABASE_FILE env (relative file path)', () => {
+		const absoluteFileUrl = new URL('./fixtures/basics/dist/astro.db', import.meta.url);
+		const prodDbPath = relative(process.cwd(), fileURLToPath(absoluteFileUrl));
+
 		before(async () => {
 			process.env.ASTRO_DATABASE_FILE = prodDbPath;
 			await fixture.build();
