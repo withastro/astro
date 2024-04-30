@@ -1426,21 +1426,55 @@ test.describe('View Transitions', () => {
 			'all animations for transition:names should have been found'
 		).toEqual(0);
 	});
-});
 
-test('transition:persist persists selection', async ({ page, astro }) => {
-	let text = '';
-	page.on('console', (msg) => {
-		text = msg.text();
+	test('transition:persist persists selection', async ({ page, astro }) => {
+		let text = '';
+		page.on('console', (msg) => {
+			text = msg.text();
+		});
+		await page.goto(astro.resolveUrl('/persist-1'));
+		await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
+		// go to page 2
+		await page.press('input[name="name"]', 'Enter');
+		await expect(page.locator('#two'), 'should have content').toHaveText('Persist 2');
+		expect(text).toBe('true some cool text 5 9');
+
+		await page.goBack();
+		await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
+		expect(text).toBe('true true');
 	});
-	await page.goto(astro.resolveUrl('/persist-1'));
-	await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
-	// go to page 2
-	await page.press('input[name="name"]', 'Enter');
-	await expect(page.locator('#two'), 'should have content').toHaveText('Persist 2');
-	expect(text).toBe('true some cool text 5 9');
 
-	await page.goBack();
-	await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
-	expect(text).toBe('true true');
+	test('Navigation should be interruptible', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/abort'));
+		// implemented in /abort:
+		// clicks on slow loading page two
+		// after short delay clicks on fast loading page one
+		// even after some delay /two should not show up
+		await new Promise((resolve) => setTimeout(resolve, 2000)); // wait is part of the test
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+	});
+
+	test('animation get canceled when view transition is interrupted', async ({ page, astro }) => {
+		let lines = [];
+		page.on('console', (msg) => {
+			msg.text().startsWith('[test]') && lines.push(msg.text());
+		});
+		await page.goto(astro.resolveUrl('/abort2'));
+		// implemented in /abort2:
+		// Navigate to self with a 10 second animation
+		// shortly after starting that, change your mind an navigate to /one
+		// check that animations got canceled
+		await new Promise((resolve) => setTimeout(resolve, 1000)); // wait is part of the test
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// This test would be more important for a browser without native view transitions
+		// as those do not have automatic cancelation of transitions.
+		// For simulated view transitions, the last line would be missing as enter and exit animations
+		// don't run in parallel.
+		expect(lines.join('\n')).toBe(
+			'[test] navigate to "."\n[test] navigate to /one\n[test] cancel astroFadeOut\n[test] cancel astroFadeIn'
+		);
+	});
 });
