@@ -15,9 +15,7 @@ import {
 } from '../../../integration/vite-plugin-db.js';
 import { bundleFile, importBundledFile } from '../../../load-file.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
-import { type DBConfig, type DBTables } from '../../../types.js';
-import { AstroDbError } from '../../../../runtime/utils.js';
-import { fileURLToPath } from 'node:url';
+import type { DBConfig } from '../../../types.js';
 
 export async function cmd({
 	astroConfig,
@@ -68,35 +66,6 @@ export async function cmd({
 	} catch (e) {
 		if (e instanceof LibsqlError) {
 			throw new Error(EXEC_ERROR(e.message));
-		}
-		throw e;
-	}
-}
-
-export async function executeSeedFile({
-	tables,
-	root,
-	fileUrl,
-}: {
-	tables: DBTables;
-	root: URL;
-	fileUrl: URL;
-}) {
-	const virtualModContents = getLocalVirtualModContents({
-		tables: tables ?? {},
-		root,
-	});
-	const { code } = await bundleFile({ virtualModContents, root, fileUrl });
-	const mod = await importBundledFile({ code, root });
-	if (typeof mod.default !== 'function') {
-		// TODO: format error
-		throw new AstroDbError(EXEC_DEFAULT_EXPORT_ERROR(fileURLToPath(fileUrl)));
-	}
-	try {
-		await mod.default();
-	} catch (e) {
-		if (e instanceof LibsqlError) {
-			throw new AstroDbError(EXEC_ERROR(e.message));
 		}
 		throw e;
 	}

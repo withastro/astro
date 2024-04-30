@@ -8,11 +8,13 @@ import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl, getAstroEnv }
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 import { type SQL, sql } from 'drizzle-orm';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
-import { executeSeedFile } from '../cli/commands/execute/index.js';
 import { existsSync } from 'node:fs';
 import { normalizeDatabaseUrl } from '../../runtime/index.js';
-import { getResolvedFileUrl } from '../load-file.js';
+import { bundleFile, getResolvedFileUrl, importBundledFile } from '../load-file.js';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
+import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
+import { LibsqlError } from '@libsql/client';
+import { AstroDbError } from '../../runtime/utils.js';
 
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 
@@ -189,4 +191,32 @@ async function recreateTables({ db, tables }: { db: LibSQLDatabase; tables: DBTa
 		db.run(sql`pragma defer_foreign_keys=true;`),
 		...setupQueries.map((q) => db.run(q)),
 	]);
+}
+
+async function executeSeedFile({
+	tables,
+	root,
+	fileUrl,
+}: {
+	tables: DBTables;
+	root: URL;
+	fileUrl: URL;
+}) {
+	const virtualModContents = getLocalVirtualModContents({
+		tables: tables ?? {},
+		root,
+	});
+	const { code } = await bundleFile({ virtualModContents, root, fileUrl });
+	const mod = await importBundledFile({ code, root });
+	if (typeof mod.default !== 'function') {
+		throw new AstroDbError(EXEC_DEFAULT_EXPORT_ERROR(fileURLToPath(fileUrl)));
+	}
+	try {
+		await mod.default();
+	} catch (e) {
+		if (e instanceof LibsqlError) {
+			throw new AstroDbError(EXEC_ERROR(e.message));
+		}
+		throw e;
+	}
 }
