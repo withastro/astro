@@ -119,7 +119,7 @@ function astroDBIntegration(): AstroIntegration {
 					logger.info(
 						connectToStudio ? 'Connected to remote database.' : 'New local database created.'
 					);
-					if (connectToStudio) return;
+					if (true) return;
 
 					const localSeedPaths = SEED_DEV_FILE_NAME.map(
 						(name) => new URL(name, getDbDirectoryUrl(root))

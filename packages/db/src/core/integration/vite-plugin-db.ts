@@ -5,6 +5,10 @@ import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
 import { DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
+import { createLocalDatabaseClient } from '../../runtime/db-client.js';
+import { recreateTables } from '../../runtime/seed-local.js';
+import { executeSeedFile } from '../cli/commands/execute/index.js';
+import { existsSync } from 'node:fs';
 
 const WITH_SEED_VIRTUAL_MODULE_ID = 'astro:db:seed';
 
@@ -48,18 +52,8 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 		configResolved(resolvedConfig) {
 			command = resolvedConfig.command;
 		},
-		async resolveId(id, rawImporter) {
+		async resolveId(id) {
 			if (id !== VIRTUAL_MODULE_ID) return;
-			if (params.connectToStudio) return resolved.virtual;
-
-			const importer = rawImporter ? await this.resolve(rawImporter) : null;
-			if (!importer) return resolved.virtual;
-
-			if (importer.id.startsWith(srcDirPath) && !importer.id.startsWith(dbDirPath)) {
-				// Seed only if the importer is in the src directory.
-				// Otherwise, we may get recursive seed calls (ex. import from db/seed.ts).
-				return resolved.seedVirtual;
-			}
 			return resolved.virtual;
 		},
 		async load(id) {
@@ -73,11 +67,36 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 					output: params.output,
 				});
 			}
+			const tables = params.tables.get() ?? {};
+			const localDbUrl = new URL(DB_PATH, params.root);
+			const db = createLocalDatabaseClient({ dbUrl: localDbUrl.href });
+			await recreateTables({ db, tables: params.tables.get() ?? {} });
+
+			const localSeedPaths = SEED_DEV_FILE_NAME.map(
+				(name) => new URL(name, getDbDirectoryUrl(params.root))
+			);
+			const integrationSeedPaths = params.seedFiles
+				.get()
+				// TODO: add resolver for package paths
+				.map((s) => (typeof s === 'string' && s.startsWith('.') ? new URL(s, params.root) : s))
+				.filter((s): s is URL => s instanceof URL);
+			const seedFiles = [...integrationSeedPaths, ...localSeedPaths];
+			let hasSeeded = false;
+			for await (const seedFile of seedFiles) {
+				// Invalidate the `astro:db` module when a seed file changes.
+				this.addWatchFile(fileURLToPath(seedFile));
+				if (existsSync(seedFile)) {
+					hasSeeded = true;
+					await executeSeedFile({ tables, fileUrl: seedFile, root: params.root });
+				}
+			}
+			if (seedFiles.length) {
+				// TODO: format log
+				console.log('Seeded database.');
+			}
 			return getLocalVirtualModContents({
 				root: params.root,
 				tables: params.tables.get(),
-				seedFiles: params.seedFiles.get(),
-				shouldSeed: id === resolved.seedVirtual,
 			});
 		},
 	};
@@ -90,52 +109,16 @@ export function getConfigVirtualModContents() {
 export function getLocalVirtualModContents({
 	tables,
 	root,
-	seedFiles,
-	shouldSeed,
 }: {
 	tables: DBTables;
-	seedFiles: Array<string | URL>;
 	root: URL;
-	shouldSeed: boolean;
 }) {
-	const userSeedFilePaths = SEED_DEV_FILE_NAME.map(
-		// Format as /db/[name].ts
-		// for Vite import.meta.glob
-		(name) => new URL(name, getDbDirectoryUrl('file:///')).pathname
-	);
-	const resolveId = (id: string) =>
-		id.startsWith('.') ? normalizePath(fileURLToPath(new URL(id, root))) : id;
-	// Use top-level imports to correctly resolve `astro:db` within seed files.
-	// Dynamic imports cause a silent build failure,
-	// potentially because of circular module references.
-	const integrationSeedImportStatements: string[] = [];
-	const integrationSeedImportNames: string[] = [];
-	seedFiles.forEach((pathOrUrl, index) => {
-		const path = typeof pathOrUrl === 'string' ? resolveId(pathOrUrl) : pathOrUrl.pathname;
-		const importName = 'integration_seed_' + index;
-		integrationSeedImportStatements.push(`import ${importName} from ${JSON.stringify(path)};`);
-		integrationSeedImportNames.push(importName);
-	});
-
 	const dbUrl = new URL(DB_PATH, root);
 	return `
 import { asDrizzleTable, createLocalDatabaseClient, normalizeDatabaseUrl } from ${RUNTIME_IMPORT};
-${shouldSeed ? `import { seedLocal } from ${RUNTIME_IMPORT};` : ''}
-${shouldSeed ? integrationSeedImportStatements.join('\n') : ''}
 
 const dbUrl = normalizeDatabaseUrl(import.meta.env.ASTRO_DATABASE_FILE, ${JSON.stringify(dbUrl)});
 export const db = createLocalDatabaseClient({ dbUrl });
-
-${
-	shouldSeed
-		? `await seedLocal({
-	db,
-	tables: ${JSON.stringify(tables)},
-	userSeedGlob: import.meta.glob(${JSON.stringify(userSeedFilePaths)}, { eager: true }),
-	integrationSeedFunctions: [${integrationSeedImportNames.join(',')}],
-});`
-		: ''
-}
 
 export * from ${RUNTIME_VIRTUAL_IMPORT};
 
