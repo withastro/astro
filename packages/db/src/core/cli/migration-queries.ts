@@ -12,7 +12,7 @@ import {
 	getReferencesConfig,
 	hasDefault,
 	schemaTypeToSqlType,
-} from '../../runtime/queries.js';
+} from '../queries.js';
 import { isSerializedSQL } from '../../runtime/types.js';
 import { safeFetch } from '../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../consts.js';

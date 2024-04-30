@@ -10,15 +10,15 @@ import type {
 	JsonColumn,
 	NumberColumn,
 	TextColumn,
-} from '../core/types.js';
+} from './types.js';
 import {
 	FOREIGN_KEY_DNE_ERROR,
 	FOREIGN_KEY_REFERENCES_EMPTY_ERROR,
 	FOREIGN_KEY_REFERENCES_LENGTH_ERROR,
 	REFERENCE_DNE_ERROR,
-} from './errors.js';
-import { hasPrimaryKey } from './index.js';
-import { isSerializedSQL } from './types.js';
+} from '../runtime/errors.js';
+import { hasPrimaryKey } from '../runtime/index.js';
+import { isSerializedSQL } from '../runtime/types.js';
 
 const sqlite = new SQLiteAsyncDialect();
 
