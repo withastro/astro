@@ -72,6 +72,7 @@
   "dependencies": {
     "@libsql/client": "^0.6.0",
     "async-listen": "^3.0.1",
+    "ci-info": "^4.0.0",
     "deep-diff": "^1.0.2",
     "drizzle-orm": "^0.30.9",
     "github-slugger": "^2.0.0",
