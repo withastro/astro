@@ -1,16 +1,22 @@
 import { fileURLToPath } from 'node:url';
 import type { AstroConfig, AstroIntegrationLogger } from 'astro';
 import { normalizePath } from 'vite';
-import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
+import {
+	SEED_DEV_FILE_NAME,
+	getCreateIndexQueries,
+	getCreateTableQuery,
+} from '../../runtime/queries.js';
 import { DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl, getAstroEnv } from '../utils.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
-import { recreateTables } from '../../runtime/seed-local.js';
+import { type SQL, sql } from 'drizzle-orm';
+import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { executeSeedFile } from '../cli/commands/execute/index.js';
 import { existsSync } from 'node:fs';
 import { normalizeDatabaseUrl } from '../../runtime/index.js';
 import { getResolvedFileUrl } from '../load-file.js';
+import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 
@@ -171,4 +177,20 @@ function getStringifiedTableExports(tables: DBTables) {
 				)}, false)`
 		)
 		.join('\n');
+}
+
+const sqlite = new SQLiteAsyncDialect();
+
+async function recreateTables({ db, tables }: { db: LibSQLDatabase; tables: DBTables }) {
+	const setupQueries: SQL[] = [];
+	for (const [name, table] of Object.entries(tables)) {
+		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);
+		const createQuery = sql.raw(getCreateTableQuery(name, table));
+		const indexQueries = getCreateIndexQueries(name, table);
+		setupQueries.push(dropQuery, createQuery, ...indexQueries.map((s) => sql.raw(s)));
+	}
+	await db.batch([
+		db.run(sql`pragma defer_foreign_keys=true;`),
+		...setupQueries.map((q) => db.run(q)),
+	]);
 }
