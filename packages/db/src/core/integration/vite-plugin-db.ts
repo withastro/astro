@@ -175,7 +175,6 @@ const sqlite = new SQLiteAsyncDialect();
 async function recreateTables({ tables, root }: { tables: LateTables; root: URL }) {
 	const { ASTRO_DATABASE_FILE } = getAstroEnv();
 	const dbUrl = normalizeDatabaseUrl(ASTRO_DATABASE_FILE, new URL(DB_PATH, root).href);
-	console.log('recreating:::', dbUrl, ASTRO_DATABASE_FILE, new URL(DB_PATH, root).href);
 	const db = createLocalDatabaseClient({ dbUrl });
 	const setupQueries: SQL[] = [];
 	for (const [name, table] of Object.entries(tables.get() ?? {})) {
