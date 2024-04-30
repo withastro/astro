@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import type { AstroConfig } from 'astro';
+import type { AstroConfig, AstroIntegrationLogger } from 'astro';
 import { normalizePath } from 'vite';
 import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
 import { DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
@@ -31,6 +31,7 @@ type VitePluginDBParams =
 			seedFiles: LateSeedFiles;
 			srcDir: URL;
 			root: URL;
+			logger?: AstroIntegrationLogger;
 			output: AstroConfig['output'];
 	  }
 	| {
@@ -43,7 +44,6 @@ type VitePluginDBParams =
 	  };
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
-	const srcDirPath = normalizePath(fileURLToPath(params.srcDir));
 	const dbDirPath = normalizePath(fileURLToPath(getDbDirectoryUrl(params.root)));
 	let command: 'build' | 'serve' = 'build';
 	return {
@@ -90,9 +90,9 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 					await executeSeedFile({ tables, fileUrl: seedFile, root: params.root });
 				}
 			}
-			if (seedFiles.length) {
+			if (hasSeeded) {
 				// TODO: format log
-				console.log('Seeded database.');
+				(params.logger ?? console).info('Seeded database.');
 			}
 			return getLocalVirtualModContents({
 				root: params.root,

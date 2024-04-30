@@ -71,6 +71,7 @@ function astroDBIntegration(): AstroIntegration {
 						root: config.root,
 						srcDir: config.srcDir,
 						output: config.output,
+						logger,
 					});
 				}
 
@@ -119,7 +120,7 @@ function astroDBIntegration(): AstroIntegration {
 					logger.info(
 						connectToStudio ? 'Connected to remote database.' : 'New local database created.'
 					);
-					if (true) return;
+					if (connectToStudio) return;
 
 					const localSeedPaths = SEED_DEV_FILE_NAME.map(
 						(name) => new URL(name, getDbDirectoryUrl(root))
@@ -127,40 +128,29 @@ function astroDBIntegration(): AstroIntegration {
 					let seedInFlight = false;
 					// Load seed file on dev server startup.
 					if (seedFiles.get().length || localSeedPaths.find((path) => existsSync(path))) {
-						loadSeedModule();
+						eagerLoadAstroDbModule();
 					}
-					const eagerReloadIntegrationSeedPaths = seedFiles
-						.get()
-						// Map integration seed paths to URLs, if possible.
-						// Module paths like `@example/seed` will be ignored
-						// from eager reloading.
-						.map((s) => (typeof s === 'string' && s.startsWith('.') ? new URL(s, root) : s))
-						.filter((s): s is URL => s instanceof URL);
-					const eagerReloadSeedPaths = [...eagerReloadIntegrationSeedPaths, ...localSeedPaths];
 					server.watcher.on('all', async (event, relativeEntry) => {
 						if (event === 'unlink' || event === 'unlinkDir') return;
 						// When a seed file changes, load manually
 						// to track when seeding finishes and log a message.
 						const entry = new URL(relativeEntry, root);
-						if (eagerReloadSeedPaths.find((path) => entry.href === path.href)) {
+						if (localSeedPaths.find((path) => entry.href === path.href)) {
 							const localDbUrl = new URL(DB_PATH, root);
 							const db = createLocalDatabaseClient({ dbUrl: localDbUrl.href });
 							await recreateTables({ db, tables: tables.get() ?? {} });
-							loadSeedModule();
+							eagerLoadAstroDbModule();
 						}
 					});
 
-					function loadSeedModule() {
+					function eagerLoadAstroDbModule() {
 						if (seedInFlight) return;
 
 						seedInFlight = true;
-						const mod = server.moduleGraph.getModuleById(resolved.seedVirtual);
+						const mod = server.moduleGraph.getModuleById(resolved.virtual);
 						if (mod) server.moduleGraph.invalidateModule(mod);
 						server
-							.ssrLoadModule(resolved.seedVirtual)
-							.then(() => {
-								logger.info('Seeded database.');
-							})
+							.ssrLoadModule(resolved.virtual)
 							.catch((e) => {
 								logger.error(e instanceof Error ? e.message : String(e));
 							})
