@@ -67,19 +67,8 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 					output: params.output,
 				});
 			}
-			const tables = params.tables.get() ?? {};
-			const { ASTRO_DATABASE_FILE } = getAstroEnv();
-			const dbUrl = normalizeDatabaseUrl(ASTRO_DATABASE_FILE, new URL(DB_PATH, params.root).href);
-			const db = createLocalDatabaseClient({ dbUrl });
-			await recreateTables({ db, tables: params.tables.get() ?? {} });
-
-			const localSeedFiles = SEED_DEV_FILE_NAME.map(
-				(name) => new URL(name, getDbDirectoryUrl(params.root))
-			);
-			const integrationSeedFiles = params.seedFiles
-				.get()
-				.map((s) => getResolvedFileUrl(params.root, s));
-			const seedFiles = [...integrationSeedFiles, ...localSeedFiles];
+			await recreateTables(params);
+			const seedFiles = getResolvedSeedFiles(params);
 			let hasSeeded = false;
 			for await (const seedFile of seedFiles) {
 				// Use `addWatchFile()` to invalidate the `astro:db` module
@@ -87,7 +76,11 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 				this.addWatchFile(fileURLToPath(seedFile));
 				if (existsSync(seedFile)) {
 					hasSeeded = true;
-					await executeSeedFile({ tables, fileUrl: seedFile, root: params.root });
+					await executeSeedFile({
+						tables: params.tables.get() ?? {},
+						fileUrl: seedFile,
+						root: params.root,
+					});
 				}
 			}
 			if (hasSeeded) {
@@ -179,9 +172,12 @@ function getStringifiedTableExports(tables: DBTables) {
 
 const sqlite = new SQLiteAsyncDialect();
 
-async function recreateTables({ db, tables }: { db: LibSQLDatabase; tables: DBTables }) {
+async function recreateTables({ tables, root }: { tables: LateTables; root: URL }) {
+	const { ASTRO_DATABASE_FILE } = getAstroEnv();
+	const dbUrl = normalizeDatabaseUrl(ASTRO_DATABASE_FILE, new URL(DB_PATH, root).href);
+	const db = createLocalDatabaseClient({ dbUrl });
 	const setupQueries: SQL[] = [];
-	for (const [name, table] of Object.entries(tables)) {
+	for (const [name, table] of Object.entries(tables.get() ?? {})) {
 		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);
 		const createQuery = sql.raw(getCreateTableQuery(name, table));
 		const indexQueries = getCreateIndexQueries(name, table);
@@ -191,6 +187,18 @@ async function recreateTables({ db, tables }: { db: LibSQLDatabase; tables: DBTa
 		db.run(sql`pragma defer_foreign_keys=true;`),
 		...setupQueries.map((q) => db.run(q)),
 	]);
+}
+
+function getResolvedSeedFiles({
+	root,
+	seedFiles,
+}: {
+	root: URL;
+	seedFiles: LateSeedFiles;
+}) {
+	const localSeedFiles = SEED_DEV_FILE_NAME.map((name) => new URL(name, getDbDirectoryUrl(root)));
+	const integrationSeedFiles = seedFiles.get().map((s) => getResolvedFileUrl(root, s));
+	return [...integrationSeedFiles, ...localSeedFiles];
 }
 
 async function executeSeedFile({
