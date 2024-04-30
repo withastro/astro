@@ -17,6 +17,10 @@ export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
 			processor = undefined;
 		},
 		configResolved(resolved) {
+			// `mdxOptions` should be populated at this point, but `astro sync` doesn't call `astro:config:done` :(
+			// Workaround this for now by skipping here. `astro sync` shouldn't call the `transform()` hook here anyways.
+			if (Object.keys(mdxOptions).length === 0) return;
+
 			processor = createMdxProcessor(mdxOptions, {
 				sourcemap: !!resolved.build.sourcemap,
 			});
