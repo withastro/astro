@@ -16,6 +16,8 @@ import { fileURLIntegration } from './file-url.js';
 import { typegenInternal } from './typegen.js';
 import { type LateSeedFiles, type LateTables, resolved, vitePluginDb } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
+import { createLocalDatabaseClient } from '../../runtime/db-client.js';
+import { recreateTables } from '../../runtime/seed-local.js';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectToStudio = false;
@@ -89,10 +91,14 @@ function astroDBIntegration(): AstroIntegration {
 				seedFiles.get = () => integrationSeedPaths;
 				configFileDependencies = dependencies;
 
-				const localDbUrl = new URL(DB_PATH, config.root);
-				if (!connectToStudio && !existsSync(localDbUrl)) {
-					await mkdir(dirname(fileURLToPath(localDbUrl)), { recursive: true });
-					await writeFile(localDbUrl, '');
+				if (!connectToStudio) {
+					const localDbUrl = new URL(DB_PATH, config.root);
+					if (!existsSync(localDbUrl)) {
+						await mkdir(dirname(fileURLToPath(localDbUrl)), { recursive: true });
+						await writeFile(localDbUrl, '');
+					}
+					const db = createLocalDatabaseClient({ dbUrl: localDbUrl.href });
+					await recreateTables({ db, tables: tables.get() ?? {} });
 				}
 
 				await typegenInternal({ tables: tables.get() ?? {}, root: config.root });
@@ -131,12 +137,15 @@ function astroDBIntegration(): AstroIntegration {
 						.map((s) => (typeof s === 'string' && s.startsWith('.') ? new URL(s, root) : s))
 						.filter((s): s is URL => s instanceof URL);
 					const eagerReloadSeedPaths = [...eagerReloadIntegrationSeedPaths, ...localSeedPaths];
-					server.watcher.on('all', (event, relativeEntry) => {
+					server.watcher.on('all', async (event, relativeEntry) => {
 						if (event === 'unlink' || event === 'unlinkDir') return;
 						// When a seed file changes, load manually
 						// to track when seeding finishes and log a message.
 						const entry = new URL(relativeEntry, root);
 						if (eagerReloadSeedPaths.find((path) => entry.href === path.href)) {
+							const localDbUrl = new URL(DB_PATH, root);
+							const db = createLocalDatabaseClient({ dbUrl: localDbUrl.href });
+							await recreateTables({ db, tables: tables.get() ?? {} });
 							loadSeedModule();
 						}
 					});

@@ -21,7 +21,6 @@ export async function seedLocal({
 	userSeedGlob: Record<string, { default?: () => Promise<void> }>;
 	integrationSeedFunctions: Array<() => Promise<void>>;
 }) {
-	await recreateTables({ db, tables });
 	const seedFunctions: Array<() => Promise<void>> = [];
 	const seedFilePath = Object.keys(userSeedGlob)[0];
 	if (seedFilePath) {
