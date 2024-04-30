@@ -656,6 +656,7 @@ async function transition(
 	currentTransition.viewTransition.finished.finally(() => {
 		currentTransition.viewTransition = undefined;
 		if (currentTransition === mostRecentTransition) mostRecentTransition = undefined;
+		if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
 		document.documentElement.removeAttribute(DIRECTION_ATTR);
 		document.documentElement.removeAttribute(OLD_NEW_ATTR);
 	});
