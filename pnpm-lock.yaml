@@ -3874,6 +3874,9 @@ importers:
       async-listen:
         specifier: ^3.0.1
         version: 3.0.1
+      ci-info:
+        specifier: ^4.0.0
+        version: 4.0.0
       deep-diff:
         specifier: ^1.0.2
         version: 1.0.2
