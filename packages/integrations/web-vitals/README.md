@@ -15,9 +15,17 @@ This **[Astro integration][astro-integration]** enables tracking real-world webs
    npx astro add web-vitals
    ```
 
-2. Redeploy your site.
+2. Push the tables added by the Web Vitals integration to Astro Studio:
 
-3. Visit your project dashboard at https://studio.astro.build to see the data collected.
+   ```sh
+   npx astro db push
+   ```
+
+3. Redeploy your site.
+
+4. Visit your project dashboard at https://studio.astro.build to see the data collected.
+
+Learn more about [Astro DB](https://docs.astro.build/en/guides/astro-db/) and [deploying with Astro Studio](https://docs.astro.build/en/guides/astro-db/#astro-studio) in the Astro docs.
 
 ## Support
 
