@@ -67,8 +67,9 @@ export class NodeApp extends App {
 			req.headers['x-forwarded-host'] ?? req.headers.host ?? req.headers[':authority'];
 		const port = req.headers['x-forwarded-port'];
 
-		const portInHostname = typeof hostname === "string" && typeof port === "string" && hostname.endsWith(port);
-		const hostnamePort = portInHostname ? hostname : `${hostname}:${port}`;
+		const portInHostname =
+			typeof hostname === 'string' && typeof port === 'string' && hostname.endsWith(port);
+		const hostnamePort = portInHostname ? hostname : hostname + (port ? `:${port}` : '');
 
 		const url = `${protocol}://${hostnamePort}${req.url}`;
 		const options: RequestInit = {

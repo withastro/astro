@@ -93,7 +93,6 @@ describe('URL', () => {
 		assert.equal($('body').text(), 'https://abc.xyz:444/');
 	});
 
-
 	it('accepts port in forwarded host and forwarded port', async () => {
 		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
 		let { req, res, text } = createRequestAndResponse({
