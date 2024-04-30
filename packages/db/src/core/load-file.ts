@@ -85,15 +85,17 @@ async function loadUserConfigFile(
 	return await loadAndBundleDbConfigFile({ root, fileUrl: configFileUrl });
 }
 
-async function loadIntegrationConfigFile(root: URL, filePathOrUrl: string | URL) {
-	let fileUrl: URL;
+export function getResolvedFileUrl(root: URL, filePathOrUrl: string | URL): URL {
 	if (typeof filePathOrUrl === 'string') {
 		const { resolve } = createRequire(root);
 		const resolvedFilePath = resolve(filePathOrUrl);
-		fileUrl = pathToFileURL(resolvedFilePath);
-	} else {
-		fileUrl = filePathOrUrl;
+		return pathToFileURL(resolvedFilePath);
 	}
+	return filePathOrUrl;
+}
+
+async function loadIntegrationConfigFile(root: URL, filePathOrUrl: string | URL) {
+	const fileUrl = getResolvedFileUrl(root, filePathOrUrl);
 	return await loadAndBundleDbConfigFile({ root, fileUrl });
 }
 

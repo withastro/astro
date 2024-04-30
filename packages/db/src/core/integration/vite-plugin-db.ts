@@ -10,6 +10,7 @@ import { recreateTables } from '../../runtime/seed-local.js';
 import { executeSeedFile } from '../cli/commands/execute/index.js';
 import { existsSync } from 'node:fs';
 import { normalizeDatabaseUrl } from '../../runtime/index.js';
+import { getResolvedFileUrl } from '../load-file.js';
 
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 
@@ -68,18 +69,17 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			const db = createLocalDatabaseClient({ dbUrl });
 			await recreateTables({ db, tables: params.tables.get() ?? {} });
 
-			const localSeedPaths = SEED_DEV_FILE_NAME.map(
+			const localSeedFiles = SEED_DEV_FILE_NAME.map(
 				(name) => new URL(name, getDbDirectoryUrl(params.root))
 			);
-			const integrationSeedPaths = params.seedFiles
+			const integrationSeedFiles = params.seedFiles
 				.get()
-				// TODO: add resolver for package paths
-				.map((s) => (typeof s === 'string' && s.startsWith('.') ? new URL(s, params.root) : s))
-				.filter((s): s is URL => s instanceof URL);
-			const seedFiles = [...integrationSeedPaths, ...localSeedPaths];
+				.map((s) => getResolvedFileUrl(params.root, s));
+			const seedFiles = [...integrationSeedFiles, ...localSeedFiles];
 			let hasSeeded = false;
 			for await (const seedFile of seedFiles) {
-				// Invalidate the `astro:db` module when a seed file changes.
+				// Use `addWatchFile()` to invalidate the `astro:db` module
+				// when a seed file changes.
 				this.addWatchFile(fileURLToPath(seedFile));
 				if (existsSync(seedFile)) {
 					hasSeeded = true;
@@ -87,7 +87,6 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 				}
 			}
 			if (hasSeeded) {
-				// TODO: format log
 				(params.logger ?? console).info('Seeded database.');
 			}
 			return getLocalVirtualModContents({
