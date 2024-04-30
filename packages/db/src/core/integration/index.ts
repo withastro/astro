@@ -136,9 +136,6 @@ function astroDBIntegration(): AstroIntegration {
 						// to track when seeding finishes and log a message.
 						const entry = new URL(relativeEntry, root);
 						if (localSeedPaths.find((path) => entry.href === path.href)) {
-							const localDbUrl = new URL(DB_PATH, root);
-							const db = createLocalDatabaseClient({ dbUrl: localDbUrl.href });
-							await recreateTables({ db, tables: tables.get() ?? {} });
 							eagerLoadAstroDbModule();
 						}
 					});
