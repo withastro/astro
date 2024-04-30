@@ -14,7 +14,12 @@ import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
 import { type VitePlugin, getDbDirectoryUrl } from '../utils.js';
 import { fileURLIntegration } from './file-url.js';
 import { typegenInternal } from './typegen.js';
-import { type LateSeedFiles, type LateTables, resolved, vitePluginDb } from './vite-plugin-db.js';
+import {
+	type LateSeedFiles,
+	type LateTables,
+	vitePluginDb,
+	RESOLVED_VIRTUAL_MODULE_ID,
+} from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 import { recreateTables } from '../../runtime/seed-local.js';
@@ -125,32 +130,11 @@ function astroDBIntegration(): AstroIntegration {
 					const localSeedPaths = SEED_DEV_FILE_NAME.map(
 						(name) => new URL(name, getDbDirectoryUrl(root))
 					);
-					let seedInFlight = false;
+					// Eager load astro:db module on startup
 					if (seedFiles.get().length || localSeedPaths.find((path) => existsSync(path))) {
-						eagerLoadAstroDbModule();
-					}
-					server.watcher.on('all', async (event, relativeEntry) => {
-						if (event === 'unlink' || event === 'unlinkDir') return;
-						const entry = new URL(relativeEntry, root);
-						if (localSeedPaths.find((path) => entry.href === path.href)) {
-							eagerLoadAstroDbModule();
-						}
-					});
-
-					function eagerLoadAstroDbModule() {
-						if (seedInFlight) return;
-
-						seedInFlight = true;
-						const mod = server.moduleGraph.getModuleById(resolved.virtual);
-						if (mod) server.moduleGraph.invalidateModule(mod);
-						server
-							.ssrLoadModule(resolved.virtual)
-							.catch((e) => {
-								logger.error(e instanceof Error ? e.message : String(e));
-							})
-							.finally(() => {
-								seedInFlight = false;
-							});
+						server.ssrLoadModule(RESOLVED_VIRTUAL_MODULE_ID).catch((e) => {
+							logger.error(e instanceof Error ? e.message : String(e));
+						});
 					}
 				}, 100);
 			},

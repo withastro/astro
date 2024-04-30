@@ -11,12 +11,7 @@ import { executeSeedFile } from '../cli/commands/execute/index.js';
 import { existsSync } from 'node:fs';
 import { normalizeDatabaseUrl } from '../../runtime/index.js';
 
-const WITH_SEED_VIRTUAL_MODULE_ID = 'astro:db:seed';
-
-export const resolved = {
-	virtual: '\0' + VIRTUAL_MODULE_ID,
-	seedVirtual: '\0' + WITH_SEED_VIRTUAL_MODULE_ID,
-};
+export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 
 export type LateTables = {
 	get: () => DBTables;
@@ -54,11 +49,10 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			command = resolvedConfig.command;
 		},
 		async resolveId(id) {
-			if (id !== VIRTUAL_MODULE_ID) return;
-			return resolved.virtual;
+			if (id === VIRTUAL_MODULE_ID) return RESOLVED_VIRTUAL_MODULE_ID;
 		},
 		async load(id) {
-			if (id !== resolved.virtual && id !== resolved.seedVirtual) return;
+			if (id !== RESOLVED_VIRTUAL_MODULE_ID) return;
 
 			if (params.connectToStudio) {
 				return getStudioVirtualModContents({
