@@ -21,8 +21,6 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
-import { createLocalDatabaseClient } from '../../runtime/db-client.js';
-import { recreateTables } from '../../runtime/seed-local.js';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectToStudio = false;
@@ -103,8 +101,6 @@ function astroDBIntegration(): AstroIntegration {
 						await mkdir(dirname(fileURLToPath(localDbUrl)), { recursive: true });
 						await writeFile(localDbUrl, '');
 					}
-					const db = createLocalDatabaseClient({ dbUrl: localDbUrl.href });
-					await recreateTables({ db, tables: tables.get() ?? {} });
 				}
 
 				await typegenInternal({ tables: tables.get() ?? {}, root: config.root });
