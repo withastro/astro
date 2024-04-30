@@ -4,11 +4,12 @@ import { normalizePath } from 'vite';
 import { SEED_DEV_FILE_NAME } from '../../runtime/queries.js';
 import { DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
-import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
+import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl, getAstroEnv } from '../utils.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 import { recreateTables } from '../../runtime/seed-local.js';
 import { executeSeedFile } from '../cli/commands/execute/index.js';
 import { existsSync } from 'node:fs';
+import { normalizeDatabaseUrl } from '../../runtime/index.js';
 
 const WITH_SEED_VIRTUAL_MODULE_ID = 'astro:db:seed';
 
@@ -68,8 +69,9 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 				});
 			}
 			const tables = params.tables.get() ?? {};
-			const localDbUrl = new URL(DB_PATH, params.root);
-			const db = createLocalDatabaseClient({ dbUrl: localDbUrl.href });
+			const { ASTRO_DATABASE_FILE } = getAstroEnv();
+			const dbUrl = normalizeDatabaseUrl(ASTRO_DATABASE_FILE, new URL(DB_PATH, params.root).href);
+			const db = createLocalDatabaseClient({ dbUrl });
 			await recreateTables({ db, tables: params.tables.get() ?? {} });
 
 			const localSeedPaths = SEED_DEV_FILE_NAME.map(
