@@ -126,14 +126,11 @@ function astroDBIntegration(): AstroIntegration {
 						(name) => new URL(name, getDbDirectoryUrl(root))
 					);
 					let seedInFlight = false;
-					// Load seed file on dev server startup.
 					if (seedFiles.get().length || localSeedPaths.find((path) => existsSync(path))) {
 						eagerLoadAstroDbModule();
 					}
 					server.watcher.on('all', async (event, relativeEntry) => {
 						if (event === 'unlink' || event === 'unlinkDir') return;
-						// When a seed file changes, load manually
-						// to track when seeding finishes and log a message.
 						const entry = new URL(relativeEntry, root);
 						if (localSeedPaths.find((path) => entry.href === path.href)) {
 							eagerLoadAstroDbModule();
