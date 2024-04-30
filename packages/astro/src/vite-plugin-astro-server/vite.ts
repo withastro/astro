@@ -48,7 +48,7 @@ export async function* crawlGraph(
 			// dependencies as `importedModules`, we should also skip them as they aren't really
 			// imported. Without this, every hoisted script in the project is added to every page!
 			if (isCSSRequest(id)) {
-				continue
+				continue;
 			}
 
 			for (const importedModule of entry.importedModules) {
