@@ -175,6 +175,7 @@ function vitePluginSSRSplit(
 				const virtualModuleName = getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, componentPath);
 				let module = await this.resolve(virtualModuleName);
 				if (module) {
+					// we need to use the non-resolved ID in order to resolve correctly the virtual module
 					imports.push(`import * as pageModule from "${virtualModuleName}";`);
 				}
 				const middleware = await this.resolve(MIDDLEWARE_MODULE_ID);
