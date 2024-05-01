@@ -35,7 +35,7 @@ export function lookup(input: Uint8Array): ISizeCalculationResult {
   }
 
   // throw up, if we don't understand the file
-  throw new TypeError('Failed to detect file type: ' + type)
+  throw new TypeError('unsupported file type: ' + type)
 }
 
 export const disableTypes = (types: imageType[]): void => {
