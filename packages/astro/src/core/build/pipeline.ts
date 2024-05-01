@@ -218,7 +218,7 @@ export class BuildPipeline extends Pipeline {
 				// We retrieve the original JS module
 				const filePath = this.internals.entrySpecifierToBundleMap.get(moduleSpecifier);
 				if (filePath) {
-					// it exists, added it to pages to render, using the file path that we jus retrieved
+					// it exists, added it to pages to render, using the file path that we just retrieved
 					pages.set(pageData, filePath);
 				}
 			}

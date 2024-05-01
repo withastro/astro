@@ -457,7 +457,7 @@ async function transition(
 	options: Options,
 	historyState?: State
 ) {
-	// The most recent navigation always has precendence
+	// The most recent navigation always has precedence
 	// Yes, there can be several navigation instances as the user can click links
 	// while we fetch content or simulate view transitions. Even synchronous creations are possible
 	// e.g. by calling navigate() from an transition event.
@@ -666,7 +666,7 @@ async function transition(
 		// Scripts that depend on the view transition pseudo elements should hook on viewTransition.ready.
 		await currentTransition.viewTransition.updateCallbackDone;
 	} catch (e) {
-		// This log doesn't make it worse than before, where we got error messages about uncaught exceptions, which can't be catched when the trigger was a click or history traversal.
+		// This log doesn't make it worse than before, where we got error messages about uncaught exceptions, which can't be caught when the trigger was a click or history traversal.
 		// Needs more investigation on root causes if errors still occur sporadically
 		const err = e as Error;
 		console.log('[astro]', err.name, err.message, err.stack);

@@ -29,7 +29,7 @@ export async function* crawlGraph(
 			// Needed for slower CSS preprocessing like Tailwind
 			loader.getModulesByFile(id) ?? new Set()
 		: // For non-root files, we're safe to pull from "getModuleById" based on testing.
-			// TODO: Find better invalidation strat to use "getModuleById" in all cases!
+			// TODO: Find better invalidation strategy to use "getModuleById" in all cases!
 			new Set([loader.getModuleById(id)]);
 
 	// Collect all imported modules for the module(s).
