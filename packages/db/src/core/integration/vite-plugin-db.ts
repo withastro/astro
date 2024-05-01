@@ -1,6 +1,5 @@
 import { fileURLToPath } from 'node:url';
 import type { AstroConfig, AstroIntegrationLogger } from 'astro';
-import { normalizePath } from 'vite';
 import { SEED_DEV_FILE_NAME, getCreateIndexQueries, getCreateTableQuery } from '../queries.js';
 import { DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
 import type { DBTables } from '../types.js';
