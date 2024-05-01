@@ -8,6 +8,11 @@ export interface OptimizeOptions {
 	ignoreComponentNames?: string[];
 }
 
+interface ElementMetadata {
+	parent: Node;
+	index: number;
+}
+
 const exportConstComponentsRe = /export\s+const\s+components\s*=/;
 
 /**
@@ -29,10 +34,11 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 		for (const child of tree.children) {
 			if (child.type === 'mdxjsEsm' && exportConstComponentsRe.test(child.value)) {
 				// Try to loosely get the object property nodes
-				const objectPropertyNodes = child.data.estree.body[0]?.declarations?.[0]?.init?.properties;
+				const objectPropertyNodes =
+					child.data.estree?.body[0]?.declaration?.declarations?.[0]?.init?.properties;
 				if (objectPropertyNodes) {
 					for (const objectPropertyNode of objectPropertyNodes) {
-						const componentName = objectPropertyNode.key?.name ?? objectPropertyNode.key?.value;
+						const componentName = objectPropertyNode.key?.name;
 						if (componentName) {
 							ignoreComponentNames.add(componentName);
 						}
@@ -45,18 +51,22 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 		const allPossibleElements = new Set<Node>();
 		// The current collapsible element stack while traversing the tree
 		const elementStack: Node[] = [];
+		// Metadata used by `findElementGroups` later
+		const elementMetadatas = new WeakMap<Node, ElementMetadata>();
+
+		const isNodeNonStatic = (node: Node) => {
+			return node.type.startsWith('mdx') || ignoreComponentNames.has(node.tagName);
+		};
 
 		visit(tree, {
-			enter(node, key) {
+			enter(node, key, index, parents) {
 				// `estree-util-visit` may traverse in MDX `attributes`, we don't want that. Only continue
 				// if it's traversing the root, or the `children` key.
 				if (key != null && key !== 'children') return SKIP;
 
-				// @ts-expect-error read tagName naively
-				const isNodeIgnored = node.tagName && ignoreComponentNames.has(node.tagName);
-				// For nodes that can't be optimized, eliminate all elements in the
-				// `elementStack` from the `allPossibleElements` set.
-				if (node.type.startsWith('mdx') || isNodeIgnored) {
+				// For nodes that are not static, eliminate all elements in the `elementStack` from the
+				// `allPossibleElements` set.
+				if (isNodeNonStatic(node)) {
 					for (const el of elementStack) {
 						allPossibleElements.delete(el);
 					}
@@ -72,6 +82,12 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 				if (node.type === 'element' || isMdxComponentNode(node)) {
 					elementStack.push(node);
 					allPossibleElements.add(node);
+
+					// @ts-expect-error MDX types for `.type` is not enhanced because MDX isn't used directly
+					if (index != null && node.type === 'element') {
+						// Record metadata for element node to be used for grouping analysis later
+						elementMetadatas.set(node, { parent: parents[parents.length - 1], index });
+					}
 				}
 			},
 			leave(node, key, _, parents) {
@@ -97,6 +113,11 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 			},
 		});
 
+		// Within `allPossibleElements`, element nodes are often siblings and instead of setting `set:html`
+		// on each of the element node, we can create a `<Fragment set:html="...">` element that includes
+		// all element nodes instead, simplifying the output.
+		const elementGroups = findElementGroups(allPossibleElements, elementMetadatas, isNodeNonStatic);
+
 		// For all possible subtree roots, collapse them into `set:html` and
 		// strip of their children
 		for (const el of allPossibleElements) {
@@ -114,7 +135,93 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 			}
 			el.children = [];
 		}
+
+		// For each element group, we create a new `<Fragment />` MDX node with `set:html` of the children
+		// serialized as HTML. We insert this new fragment, replacing all the group children nodes.
+		// We iterate in reverse to avoid changing the index of groups of the same parent.
+		for (let i = elementGroups.length - 1; i >= 0; i--) {
+			const group = elementGroups[i];
+			const fragmentNode = {
+				type: 'mdxJsxFlowElement',
+				name: 'Fragment',
+				attributes: [
+					{
+						type: 'mdxJsxAttribute',
+						name: 'set:html',
+						value: toHtml(group.children),
+					},
+				],
+				children: [],
+			};
+			group.parent.children.splice(group.startIndex, group.children.length, fragmentNode);
+		}
 	};
+}
+
+interface ElementGroup {
+	parent: Node;
+	startIndex: number;
+	children: Node[];
+}
+
+/**
+ * Iterate through `allPossibleElements` and find elements that are siblings, and return them. `allPossibleElements`
+ * will be mutated to exclude these grouped elements.
+ */
+function findElementGroups(
+	allPossibleElements: Set<Node>,
+	elementMetadatas: WeakMap<Node, ElementMetadata>,
+	isNodeNonStatic: (node: Node) => boolean
+): ElementGroup[] {
+	const elementGroups: ElementGroup[] = [];
+
+	for (const el of allPossibleElements) {
+		// Non-static nodes can't be grouped. It can only optimize its static children.
+		if (isNodeNonStatic(el)) continue;
+
+		// Get the metadata for the element node, this should always exist
+		const metadata = elementMetadatas.get(el);
+		if (!metadata) {
+			throw new Error(
+				'Internal MDX error: rehype-optimize-static should have metadata for element node'
+			);
+		}
+
+		// For this element, iterate through the next siblings and add them to this array
+		// if they are text nodes or elements that are in `allPossibleElements` (optimizable).
+		// If one of the next siblings don't match the criteria, break the loop as others are no longer siblings.
+		const groupableElements = [el];
+		for (let i = metadata.index + 1; i < metadata.parent.children.length; i++) {
+			const node = metadata.parent.children[i];
+
+			// If the node is non-static, we can't group it with the current element
+			if (isNodeNonStatic(node)) break;
+
+			if (node.type === 'element') {
+				// This node is now (presumably) part of a group, remove it from `allPossibleElements`
+				const existed = allPossibleElements.delete(node);
+				// If this node didn't exist in `allPossibleElements`, it's likely that one of its children
+				// are non-static, hence this node can also not be grouped. So we break out here.
+				if (!existed) break;
+			}
+
+			groupableElements.push(node);
+		}
+
+		// If group elements are more than one, add them to the `elementGroups`.
+		// Grouping is most effective if there's multiple elements in it.
+		if (groupableElements.length > 1) {
+			elementGroups.push({
+				parent: metadata.parent,
+				startIndex: metadata.index,
+				children: groupableElements,
+			});
+			// The `el` is also now part of a group, remove it from `allPossibleElements`
+			allPossibleElements.delete(el);
+		}
+	}
+
+	return elementGroups;
 }
 
 function isMdxComponentNode(node: any) {
