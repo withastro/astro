@@ -25,8 +25,9 @@ export async function imageMetadata(
 			orientation,
 		};
 	} catch (e) {
-		throw new Error(
-			`Failed to detect file type: ${e}. Is your image (${src}) valid? (svg needs dimensions)`
-		);
+		throw new AstroError({
+			...AstroErrorData.NoImageMetadata,
+			message: AstroErrorData.NoImageMetadata.message(src),
+		});
 	}
 }
