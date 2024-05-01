@@ -45,7 +45,6 @@ type VitePluginDBParams =
 	  };
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
-	const dbDirPath = normalizePath(fileURLToPath(getDbDirectoryUrl(params.root)));
 	let command: 'build' | 'serve' = 'build';
 	return {
 		name: 'astro:db',
