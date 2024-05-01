@@ -17,7 +17,7 @@ import {
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash, removeFileExtension } from '../../core/path.js';
 import { isModeServerWithNoAdapter, isServerLikeOutput } from '../../core/util.js';
-import { runHookBuildSetup } from '../../integrations/index.js';
+import { runHookBuildSetup } from '../../integrations/hooks.js';
 import { getOutputDirectory } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';

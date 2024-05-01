@@ -71,7 +71,7 @@ function reEncode(s: string) {
 			// we replace it with its hex value escaped by an underscore for decodability (and better readability,
 			// because most of them are punctuations like ,'"":;_..., and '_' might be a better choice than '-')
 			// The underscore itself (code 95) is also escaped and encoded as two underscores to avoid
-			// collitions between original and encoded strings.
+			// collisions between original and encoded strings.
 			// All other values are just copied over
 			result +=
 				codepoint < 0x80

@@ -40,7 +40,7 @@ export const REROUTABLE_STATUS_CODES = [404, 500];
 
 /**
  * The symbol which is used as a field on the request object to store the client address.
- * The clientAddresss provided by the adapter (or the dev server) is stored on this field.
+ * The clientAddress provided by the adapter (or the dev server) is stored on this field.
  */
 export const clientAddressSymbol = Symbol.for('astro.clientAddress');
 

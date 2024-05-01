@@ -176,7 +176,7 @@ describe.skip('Solid component dev', { todo: 'Check why the test hangs.', skip: 
  * I chose to make this a function to avoid accidentally sharing regex state
  * between tests.
  *
- * NOTE: These scripts have ocassionally changed in the past. If the tests
+ * NOTE: These scripts have occasionally changed in the past. If the tests
  * start failing after a Solid version change, we may need to find a different
  * way to count the hydration scripts.
  */

@@ -26,7 +26,7 @@ import Img from '../components/Img.vue'
       <!-- Test island deduplication account for non-render affecting props. -->
       <Counter start="1" step-size="2" client:load>SSR Rendered, client:load</Counter>
       <Counter start="10" client:idle>SSR Rendered, client:idle</Counter>
-      <!-- Test that two client:visibles have unique uids -->
+      <!-- Test that two client:visible have unique uids -->
       <Counter start="100" client:visible>SSR Rendered, client:visible</Counter>
       <Counter start="1000" client:visible>SSR Rendered, client:visible</Counter>
       <Img />

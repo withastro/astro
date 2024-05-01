@@ -82,7 +82,7 @@ By looping through the same repeater, we can get all the tabs out of the databas
 
 There are a number of ways to do this. I could ask the user to input a number to uniquely identify the tab pane. But that would add extra work to the users flow, and they might easily find themselves out of their depth. I want to make this as easy as possible for the user.
 
-On the other hand, Wordpress has a very useful function called Sanitize HTML, which we input the value of the title, take out spaces and capitals, and use this as the link:
+On the other hand, WordPress has a very useful function called Sanitize HTML, which we input the value of the title, take out spaces and capitals, and use this as the link:
 
 ```php
 <a href="#<?php echo sanitize_html_class( the_sub_field( 'tab_title' ) ); ?>"
@@ -112,6 +112,6 @@ The final thing to do, is to keep the counter running, but adding this just befo
 
 Once you've added these to the tab panes in a similar way, you'll be up and running with Bootstrap Tabs.
 
-Below is a Github Gist, with the complete code for reference. [Link to this (if you can't see the iFrame)](https://gist.github.com/endymion1818/478d86025f41c8060888 "Github GIST for Advanced Custom Fields bootstrap tabs").
+Below is a GitHub Gist, with the complete code for reference. [Link to this (if you can't see the iFrame)](https://gist.github.com/endymion1818/478d86025f41c8060888 "GitHub GIST for Advanced Custom Fields bootstrap tabs").
 
 <script src="https://gist.github.com/endymion1818/478d86025f41c8060888.js"></script>

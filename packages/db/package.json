@@ -72,6 +72,7 @@
   "dependencies": {
     "@libsql/client": "^0.6.0",
     "async-listen": "^3.0.1",
+    "ci-info": "^4.0.0",
     "deep-diff": "^1.0.2",
     "drizzle-orm": "^0.30.9",
     "github-slugger": "^2.0.0",
@@ -82,7 +83,7 @@
     "prompts": "^2.4.2",
     "strip-ansi": "^7.1.0",
     "yargs-parser": "^21.1.1",
-    "zod": "^3.23.0"
+    "zod": "^3.23.5"
   },
   "devDependencies": {
     "@types/chai": "^4.3.14",

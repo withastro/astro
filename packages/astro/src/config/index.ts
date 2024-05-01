@@ -27,7 +27,7 @@ export function getViteConfig(inlineConfig: UserConfig) {
 			import('../core/logger/node.js'),
 			import('../core/config/index.js'),
 			import('../core/create-vite.js'),
-			import('../integrations/index.js'),
+			import('../integrations/hooks.js'),
 			import('./vite-plugin-content-listen.js'),
 		]);
 		const logger = new Logger({
