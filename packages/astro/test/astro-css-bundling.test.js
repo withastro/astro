@@ -4,7 +4,7 @@ import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 // note: the hashes should be deterministic, but updating the file contents will change hashes
-// be careful not to test that the HTML simply contains CSS, because it always will! filename and quanity matter here (bundling).
+// be careful not to test that the HTML simply contains CSS, because it always will! filename and quantity matter here (bundling).
 const EXPECTED_CSS = {
 	'/index.html': ['/_astro/'], // don’t match hashes, which change based on content
 	'/one/index.html': ['/_astro/'],

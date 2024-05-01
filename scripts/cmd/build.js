@@ -179,7 +179,7 @@ async function getWorkspacePackageVersion(packageName) {
 	const version = deps[packageName];
 	if (!version) {
 		throw new Error(
-			`Unable to resolve "${packageName}". Is it a depdendency of the workspace root?`
+			`Unable to resolve "${packageName}". Is it a dependency of the workspace root?`
 		);
 	}
 	return version.replace(/^\D+/, '');

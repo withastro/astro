@@ -439,8 +439,8 @@ export const NoMatchingImport = {
 export const InvalidPrerenderExport = {
 	name: 'InvalidPrerenderExport',
 	title: 'Invalid prerender export.',
-	message(prefix: string, suffix: string, isHydridOuput: boolean) {
-		const defaultExpectedValue = isHydridOuput ? 'false' : 'true';
+	message(prefix: string, suffix: string, isHydridOutput: boolean) {
+		const defaultExpectedValue = isHydridOutput ? 'false' : 'true';
 		let msg = `A \`prerender\` export has been detected, but its value cannot be statically analyzed.`;
 		if (prefix !== 'const') msg += `\nExpected \`const\` declaration but got \`${prefix}\`.`;
 		if (suffix !== 'true')

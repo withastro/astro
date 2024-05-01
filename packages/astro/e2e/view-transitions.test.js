@@ -665,7 +665,7 @@ test.describe('View Transitions', () => {
 		await expect(h, 'should be absent').not.toHaveAttribute('class', /.*/);
 	});
 
-	test('Link with data-astro-reload attribute should trigger page load, no tranistion', async ({
+	test('Link with data-astro-reload attribute should trigger page load, no transition', async ({
 		page,
 		astro,
 	}) => {
@@ -728,7 +728,7 @@ test.describe('View Transitions', () => {
 		let locator = page.locator('#click-external');
 		await expect(locator).toBeInViewport();
 
-		// Go to a page that has not enabled ViewTransistions
+		// Go to a page that has not enabled ViewTransitions
 		await page.click('#click-external');
 		locator = page.locator('#three');
 		await expect(locator).toHaveText('Page 3');
@@ -920,7 +920,7 @@ test.describe('View Transitions', () => {
 	test('Use the client side router in framework components', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/client-load'));
 
-		// the button is set to naviagte() to /two
+		// the button is set to navigate() to /two
 		const button = page.locator('#react-client-load-navigate-button');
 
 		await expect(button, 'should have content').toHaveText('Navigate to `/two`');

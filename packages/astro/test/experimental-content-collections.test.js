@@ -291,7 +291,7 @@ describe('Experimental Content Collections cache', () => {
 	});
 
 	describe('With empty collections directory', () => {
-		it('Handles the empty directory correclty', async () => {
+		it('Handles the empty directory correctly', async () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-empty-dir/',
 				experimental: {

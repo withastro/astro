@@ -8,7 +8,7 @@ import {
 } from './utils';
 
 // View Transitions support cross-document navigations.
-// Should compare performace.
+// Should compare performance.
 // https://github.com/WICG/view-transitions/blob/main/explainer.md#cross-document-same-origin-transitions
 // https://github.com/WICG/view-transitions/blob/main/explainer.md#script-events
 function shouldDisableSpa() {

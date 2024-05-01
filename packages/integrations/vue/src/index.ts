@@ -77,7 +77,7 @@ export const setup = async (app) => {
 			}
 		},
 		// Ensure that Vue components reference appEntrypoint directly
-		// This allows Astro to assosciate global styles imported in this file
+		// This allows Astro to associate global styles imported in this file
 		// with the pages they should be injected to
 		transform(code, id) {
 			if (!appEntrypoint) return;

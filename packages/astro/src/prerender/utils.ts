@@ -10,7 +10,7 @@ export function getPrerenderDefault(config: AstroConfig) {
 }
 
 /**
- * Returns the correct output directory of hte SSR build based on the configuration
+ * Returns the correct output directory of the SSR build based on the configuration
  */
 export function getOutputDirectory(config: AstroConfig): URL {
 	const ssr = isServerLikeOutput(config);
