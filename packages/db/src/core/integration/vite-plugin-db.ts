@@ -6,7 +6,6 @@ import type { DBTables } from '../types.js';
 import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl, getAstroEnv } from '../utils.js';
 import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 import { type SQL, sql } from 'drizzle-orm';
-import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { existsSync } from 'node:fs';
 import { normalizeDatabaseUrl } from '../../runtime/index.js';
 import { bundleFile, getResolvedFileUrl, importBundledFile } from '../load-file.js';
