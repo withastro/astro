@@ -1,15 +1,25 @@
-import { visit, SKIP } from 'estree-util-visit';
+import type { RehypePlugin } from '@astrojs/markdown-remark';
+import { SKIP, visit } from 'estree-util-visit';
+import type { Element, RootContent, RootContentMap } from 'hast';
 import { toHtml } from 'hast-util-to-html';
+import type { MdxJsxFlowElementHast, MdxJsxTextElementHast } from 'mdast-util-mdx-jsx';
 
-// accessing untyped hast and mdx types
-type Node = any;
+// This import includes ambient types for hast to include mdx nodes
+import type {} from 'mdast-util-mdx';
+
+// Alias as the main hast node
+type Node = RootContent;
+// Nodes that have the `children` property
+type ParentNode = Element | MdxJsxFlowElementHast | MdxJsxTextElementHast;
+// Nodes that can have its children optimized as a single HTML string
+type OptimizableNode = Element | MdxJsxFlowElementHast | MdxJsxTextElementHast;
 
 export interface OptimizeOptions {
 	ignoreComponentNames?: string[];
 }
 
 interface ElementMetadata {
-	parent: Node;
+	parent: ParentNode;
 	index: number;
 }
 
@@ -22,8 +32,8 @@ const exportConstComponentsRe = /export\s+const\s+components\s*=/;
  * This optimization reduces the JS output as more content are represented as a
  * string instead, which also reduces the AST size that Rollup holds in memory.
  */
-export function rehypeOptimizeStatic(options?: OptimizeOptions) {
-	return (tree: any) => {
+export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) => {
+	return (tree) => {
 		// A set of non-static components to avoid collapsing when walking the tree
 		// as they need to be preserved as JSX to be rendered dynamically.
 		const ignoreComponentNames = new Set<string>(options?.ignoreComponentNames);
@@ -33,33 +43,31 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 		// some HTML elements as custom components, and we also want to avoid collapsing them.
 		for (const child of tree.children) {
 			if (child.type === 'mdxjsEsm' && exportConstComponentsRe.test(child.value)) {
-				// Try to loosely get the object property nodes
-				const objectPropertyNodes =
-					child.data.estree?.body[0]?.declaration?.declarations?.[0]?.init?.properties;
-				if (objectPropertyNodes) {
-					for (const objectPropertyNode of objectPropertyNodes) {
-						const componentName = objectPropertyNode.key?.name;
-						if (componentName) {
-							ignoreComponentNames.add(componentName);
-						}
+				const keys = getExportConstComponentObjectKeys(child);
+				if (keys) {
+					for (const key of keys) {
+						ignoreComponentNames.add(key);
 					}
 				}
+				break;
 			}
 		}
 
 		// All possible elements that could be the root of a subtree
-		const allPossibleElements = new Set<Node>();
+		const allPossibleElements = new Set<OptimizableNode>();
 		// The current collapsible element stack while traversing the tree
 		const elementStack: Node[] = [];
 		// Metadata used by `findElementGroups` later
-		const elementMetadatas = new WeakMap<Node, ElementMetadata>();
+		const elementMetadatas = new WeakMap<OptimizableNode, ElementMetadata>();
 
 		const isNodeNonStatic = (node: Node) => {
+			// @ts-expect-error Access `.tagName` naively for perf
 			return node.type.startsWith('mdx') || ignoreComponentNames.has(node.tagName);
 		};
 
-		visit(tree, {
-			enter(node, key, index, parents) {
+		visit(tree as any, {
+			// @ts-expect-error Force coerce node as hast node
+			enter(node: Node, key, index, parents: ParentNode[]) {
 				// `estree-util-visit` may traverse in MDX `attributes`, we don't want that. Only continue
 				// if it's traversing the root, or the `children` key.
 				if (key != null && key !== 'children') return SKIP;
@@ -68,7 +76,7 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 				// `allPossibleElements` set.
 				if (isNodeNonStatic(node)) {
 					for (const el of elementStack) {
-						allPossibleElements.delete(el);
+						allPossibleElements.delete(el as OptimizableNode);
 					}
 					// Micro-optimization: While this destroys the meaning of an element
 					// stack for this node, things will still work but we won't repeatedly
@@ -78,26 +86,24 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 				}
 				// For possible subtree root nodes, record them in `elementStack` and
 				// `allPossibleElements` to be used in the "leave" hook below.
-				// @ts-expect-error MDX types for `.type` is not enhanced because MDX isn't used directly
 				if (node.type === 'element' || isMdxComponentNode(node)) {
 					elementStack.push(node);
 					allPossibleElements.add(node);
 
-					// @ts-expect-error MDX types for `.type` is not enhanced because MDX isn't used directly
 					if (index != null && node.type === 'element') {
 						// Record metadata for element node to be used for grouping analysis later
 						elementMetadatas.set(node, { parent: parents[parents.length - 1], index });
 					}
 				}
 			},
-			leave(node, key, _, parents) {
+			// @ts-expect-error Force coerce node as hast node
+			leave(node: Node, key, _, parents: ParentNode[]) {
 				// `estree-util-visit` may traverse in MDX `attributes`, we don't want that. Only continue
 				// if it's traversing the root, or the `children` key.
 				if (key != null && key !== 'children') return SKIP;
 
 				// Do the reverse of the if condition above, popping the `elementStack`,
 				// and consolidating `allPossibleElements` as a subtree root.
-				// @ts-expect-error MDX types for `.type` is not enhanced because MDX isn't used directly
 				if (node.type === 'element' || isMdxComponentNode(node)) {
 					elementStack.pop();
 					// Many possible elements could be part of a subtree, in order to find
@@ -141,7 +147,7 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 		// We iterate in reverse to avoid changing the index of groups of the same parent.
 		for (let i = elementGroups.length - 1; i >= 0; i--) {
 			const group = elementGroups[i];
-			const fragmentNode = {
+			const fragmentNode: MdxJsxFlowElementHast = {
 				type: 'mdxJsxFlowElement',
 				name: 'Fragment',
 				attributes: [
@@ -156,10 +162,10 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 			group.parent.children.splice(group.startIndex, group.children.length, fragmentNode);
 		}
 	};
-}
+};
 
 interface ElementGroup {
-	parent: Node;
+	parent: ParentNode;
 	startIndex: number;
 	children: Node[];
 }
@@ -169,8 +175,8 @@ interface ElementGroup {
  * will be mutated to exclude these grouped elements.
  */
 function findElementGroups(
-	allPossibleElements: Set<Node>,
-	elementMetadatas: WeakMap<Node, ElementMetadata>,
+	allPossibleElements: Set<OptimizableNode>,
+	elementMetadatas: WeakMap<OptimizableNode, ElementMetadata>,
 	isNodeNonStatic: (node: Node) => boolean
 ): ElementGroup[] {
 	const elementGroups: ElementGroup[] = [];
@@ -190,7 +196,7 @@ function findElementGroups(
 		// For this element, iterate through the next siblings and add them to this array
 		// if they are text nodes or elements that are in `allPossibleElements` (optimizable).
 		// If one of the next siblings don't match the criteria, break the loop as others are no longer siblings.
-		const groupableElements = [el];
+		const groupableElements: Node[] = [el];
 		for (let i = metadata.index + 1; i < metadata.parent.children.length; i++) {
 			const node = metadata.parent.children[i];
 
@@ -224,6 +230,31 @@ function findElementGroups(
 	return elementGroups;
 }
 
-function isMdxComponentNode(node: any) {
+function isMdxComponentNode(node: Node): node is MdxJsxFlowElementHast | MdxJsxTextElementHast {
 	return node.type === 'mdxJsxFlowElement' || node.type === 'mdxJsxTextElement';
+}
+
+/**
+ * Get the object keys from `export const components`
+ *
+ * @example
+ * `export const components = { foo, bar: Baz }`, returns `['foo', 'bar']`
+ */
+function getExportConstComponentObjectKeys(node: RootContentMap['mdxjsEsm']) {
+	const exportNamedDeclaration = node.data?.estree?.body[0];
+	if (exportNamedDeclaration?.type !== 'ExportNamedDeclaration') return;
+
+	const variableDeclaration = exportNamedDeclaration.declaration;
+	if (variableDeclaration?.type !== 'VariableDeclaration') return;
+
+	const variableInit = variableDeclaration.declarations[0]?.init;
+	if (variableInit?.type !== 'ObjectExpression') return;
+
+	const keys: string[] = [];
+	for (const propertyNode of variableInit.properties) {
+		if (propertyNode.type === 'Property' && propertyNode.key.type === 'Identifier') {
+			keys.push(propertyNode.key.name);
+		}
+	}
+	return keys;
 }
