@@ -1,11 +1,12 @@
-import type { AstroConfig, AstroIntegration, AstroRenderer } from 'astro';
+import type { AstroIntegration, AstroRenderer } from 'astro';
 import solid, { type Options as ViteSolidPluginOptions } from 'vite-plugin-solid';
+import type { UserConfig } from 'vite';
 
-async function getViteConfiguration(isDev: boolean, { include, exclude }: Options = {}) {
+async function getViteConfiguration(isDev: boolean, { include, exclude, devtools }: Options) {
 	// https://github.com/solidjs/vite-plugin-solid
 	// We inject the dev mode only if the user explicitly wants it or if we are in dev (serve) mode
 	const nestedDeps = ['solid-js', 'solid-js/web', 'solid-js/store', 'solid-js/html', 'solid-js/h'];
-	return {
+	const config: UserConfig = {
 		resolve: {
 			conditions: ['solid', ...(isDev ? ['development'] : [])],
 			dedupe: nestedDeps,
@@ -34,7 +35,14 @@ async function getViteConfiguration(isDev: boolean, { include, exclude }: Option
 		ssr: {
 			external: ['babel-preset-solid'],
 		},
-	} satisfies AstroConfig['vite'];
+	};
+
+	if (devtools && isDev) {
+		const solidDevtools = (await import('solid-devtools/vite')).default;
+		config.plugins?.push(solidDevtools({ autoname: true }));
+	}
+
+	return config
 }
 
 function getRenderer(): AstroRenderer {
@@ -45,17 +53,23 @@ function getRenderer(): AstroRenderer {
 	};
 }
 
-export type Options = Pick<ViteSolidPluginOptions, 'include' | 'exclude'>;
+export interface Options extends Pick<ViteSolidPluginOptions, 'include' | 'exclude'> {
+	devtools?: boolean;
+}
 
-export default function (opts: Options = {}): AstroIntegration {
+export default function (options: Options = {}): AstroIntegration {
 	return {
 		name: '@astrojs/solid-js',
 		hooks: {
-			'astro:config:setup': async ({ command, addRenderer, updateConfig }) => {
+			'astro:config:setup': async ({ command, addRenderer, updateConfig, injectScript }) => {
 				addRenderer(getRenderer());
 				updateConfig({
-					vite: await getViteConfiguration(command === 'dev', opts),
+					vite: await getViteConfiguration(command === 'dev', options),
 				});
+
+				if (options.devtools && command === 'dev') {
+					injectScript('page', 'import "solid-devtools";');
+				}
 			},
 		},
 	};
