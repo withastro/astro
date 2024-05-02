@@ -73,7 +73,9 @@ function transformContentExport(code: string, exports: readonly ExportSpecifier[
 	const usesAstroImage = exports.find(({ n }) => n === USES_ASTRO_IMAGE_FLAG);
 
 	// Generate code for the `components` prop passed to `MDXContent`
-	let componentsCode = `{ Fragment: _Fragment${hasComponents ? ', ...components' : ''}, ...props.components,`;
+	let componentsCode = `{ Fragment: _Fragment${
+		hasComponents ? ', ...components' : ''
+	}, ...props.components,`;
 	if (usesAstroImage) {
 		componentsCode += ` ${JSON.stringify(ASTRO_IMAGE_ELEMENT)}: ${
 			hasComponents ? 'components.img ?? ' : ''

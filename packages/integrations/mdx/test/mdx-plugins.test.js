@@ -75,11 +75,11 @@ describe('MDX plugins', () => {
 							updateConfig({
 								markdown: {
 									rehypePlugins: [rehypeExamplePlugin],
-								}
+								},
 							});
-						}
-					}
-				}
+						},
+					},
+				},
 			],
 		});
 		const html = await fixture.readFile(FILE);

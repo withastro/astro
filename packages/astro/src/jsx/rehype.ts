@@ -105,7 +105,7 @@ type ImportSpecifier = { local: string; imported: string };
  * import { Bar } from './Bar.jsx'
  * import { Baz as Wiz } from './Bar.jsx'
  * import * as Waz from './BaWazz.jsx'
- * 
+ *
  * // => Map {
  * //   "./Foo.jsx" => Set { { local: "Foo", imported: "default" } },
  * //   "./Bar.jsx" => Set {
