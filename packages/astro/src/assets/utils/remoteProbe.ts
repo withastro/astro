@@ -37,7 +37,8 @@ export async function probe(url: string): Promise<ISize> {
 					return dimensions;
 				}
 			} catch (error) {
-				throw new Error(`Failed to determine the type or the size of the picture (${url}): ${error}`);
+				// This catch block is specifically for `sizeOf` failures,
+				// which might occur if the accumulated data isn't yet sufficient.
 			}
 		}
 	}
