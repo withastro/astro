@@ -50,7 +50,7 @@
     "vfile": "^6.0.1"
   },
   "peerDependencies": {
-    "astro": "^4.0.0"
+    "astro": "^4.8.0"
   },
   "devDependencies": {
     "@types/estree": "^1.0.5",

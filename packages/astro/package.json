@@ -211,7 +211,7 @@
     "eol": "^0.9.1",
     "mdast-util-mdx": "^3.0.0",
     "mdast-util-mdx-jsx": "^3.1.2",
-    "memfs": "^4.8.2",
+    "memfs": "^4.9.1",
     "node-mocks-http": "^1.14.1",
     "parse-srcset": "^1.0.2",
     "rehype-autolink-headings": "^7.1.0",

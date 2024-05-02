@@ -782,7 +782,7 @@ importers:
         specifier: ^3.1.2
         version: 3.1.2
       memfs:
-        specifier: ^4.8.2
+        specifier: ^4.9.1
         version: 4.9.1
       node-mocks-http:
         specifier: ^1.14.1
