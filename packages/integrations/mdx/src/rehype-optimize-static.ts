@@ -76,7 +76,7 @@ export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) 
 				if (key != null && key !== 'children') return SKIP;
 
 				// Mutate `node` as a normal hast element node if it's a plain MDX node, e.g. `<kbd>something</kbd>`
-				simplifyPlainMdxComponentNode(node);
+				simplifyPlainMdxComponentNode(node, ignoreElementNames);
 
 				// For nodes that are not static, eliminate all elements in the `elementStack` from the
 				// `allPossibleElements` set.
@@ -269,13 +269,15 @@ function getExportConstComponentObjectKeys(node: RootContentMap['mdxjsEsm']) {
  * Some MDX nodes are simply `<kbd>something</kbd>` which isn't needed to be completely treated
  * as an MDX node. This function tries to mutate this node as a simple hast element node if so.
  */
-function simplifyPlainMdxComponentNode(node: Node) {
+function simplifyPlainMdxComponentNode(node: Node, ignoreElementNames: Set<string>) {
 	if (
 		!isMdxComponentNode(node) ||
 		// Attributes could be dynamic, so bail if so.
 		node.attributes.length > 0 ||
 		// Fragments are also dynamic
 		!node.name ||
+		// Ignore if the node name is in the ignore list
+		ignoreElementNames.has(node.name) ||
 		// If the node name has uppercase characters, it's likely an actual MDX component
 		node.name.toLowerCase() !== node.name
 	) {
