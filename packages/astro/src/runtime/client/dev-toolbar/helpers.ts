@@ -1,7 +1,7 @@
 type NotificationPayload =
 	| {
 			state: true;
-			level?: 'error' | 'warn' | 'info';
+			level?: 'error' | 'warning' | 'info';
 	  }
 	| {
 			state: false;
