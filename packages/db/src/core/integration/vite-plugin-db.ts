@@ -27,7 +27,7 @@ export type SeedHandler = {
 	execute: (fileUrl: URL) => Promise<void>;
 };
 
-export type VitePluginDBParams =
+type VitePluginDBParams =
 	| {
 			connectToStudio: false;
 			tables: LateTables;
