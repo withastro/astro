@@ -253,7 +253,10 @@ export function getPagesDatasByComponent(
  * Should be removed in the future (in Astro 5 ?).
  * Parse internals.pagesByKeys to get the page data with the public key.
  * If the page component is unique -> the public key is the component.
+ * This match the old behavior of the Integrations API, where pages were identified by the component.
  * If the page component is shared -> the public key is the internal key.
+ * This should be the new behavior, since we identify pages by their internal key now.
+ * Until then, this is not a breaking change, because a shared entrypoint was not supported before.
  * @param pagesByKeys A map of all page data by their internal key
  */
 export function getPageDatasWithPublicKey(pagesByKeys: Map<string, PageBuildData>): Map<string, PageBuildData> {

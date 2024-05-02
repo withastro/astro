@@ -369,19 +369,18 @@ async function cleanStaticOutput(
 	internals: BuildInternals,
 	ssrOutputChunkNames: string[]
 ) {
-	const allStaticFiles = new Set();
-	const allSSRFiles = new Set();
+	const prerenderedFiles = new Set();
+	const onDemandsFiles = new Set();
 	for (const pageData of internals.pagesByKeys.values()) {
 		const { moduleSpecifier } = pageData;
-		const pageBundleId = internals.pageToBundleMap.get(moduleSpecifier);
-		const entryBundleId = internals.entrySpecifierToBundleMap.get(moduleSpecifier);
-		if (pageData.route.prerender && !pageData.hasSharedModules && !allSSRFiles.has(pageBundleId ?? entryBundleId)) {
-			allStaticFiles.add(pageBundleId ?? entryBundleId);
+		const bundleId = internals.pageToBundleMap.get(moduleSpecifier) ?? internals.entrySpecifierToBundleMap.get(moduleSpecifier);
+		if (pageData.route.prerender && !pageData.hasSharedModules && !onDemandsFiles.has(bundleId)) {
+			prerenderedFiles.add(bundleId);
 		} else {
-			allSSRFiles.add(pageBundleId ?? entryBundleId);
+			onDemandsFiles.add(bundleId);
 			// Check if the component was not previously added to the static build by a statically rendered route
-			if (allStaticFiles.has(pageBundleId ?? entryBundleId)) {
-				allStaticFiles.delete(pageBundleId ?? entryBundleId);
+			if (prerenderedFiles.has(bundleId)) {
+				prerenderedFiles.delete(bundleId);
 			}
 		}
 	}
@@ -400,7 +399,7 @@ async function cleanStaticOutput(
 		// These chunks should only contain prerendering logic, so they are safe to modify.
 		await Promise.all(
 			files.map(async (filename) => {
-				if (!allStaticFiles.has(filename)) {
+				if (!prerenderedFiles.has(filename)) {
 					return;
 				}
 				const url = new URL(filename, out);
