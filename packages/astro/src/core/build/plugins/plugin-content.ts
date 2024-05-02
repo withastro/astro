@@ -153,6 +153,11 @@ function vitePluginContent(
 						await copyFiles(cached, dist, true);
 					}
 				}
+				// Copy over the content cache now so that new files override it
+				const cacheExists = fsMod.existsSync(contentCacheDir);
+				if (cacheExists) {
+					await copyFiles(contentCacheDir, distContentRoot, false);
+				}
 			}
 
 			// If nothing needs to be rebuilt, we inject a fake entrypoint to appease Rollup
@@ -264,9 +269,6 @@ function vitePluginContent(
 			await fsMod.promises.writeFile(contentManifestFile, JSON.stringify(newManifest), {
 				encoding: 'utf8',
 			});
-			if (cacheExists && currentManifestState === 'valid') {
-				await copyFiles(contentCacheDir, distContentRoot, false);
-			}
 		},
 	};
 }
