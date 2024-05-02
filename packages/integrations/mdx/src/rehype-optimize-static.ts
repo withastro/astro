@@ -60,6 +60,9 @@ export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) 
 		// Metadata used by `findElementGroups` later
 		const elementMetadatas = new WeakMap<OptimizableNode, ElementMetadata>();
 
+		/**
+		 * A non-static node causes all its parents to be non-optimizable
+		 */
 		const isNodeNonStatic = (node: Node) => {
 			// @ts-expect-error Access `.tagName` naively for perf
 			return node.type.startsWith('mdx') || ignoreComponentNames.has(node.tagName);
@@ -71,6 +74,9 @@ export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) 
 				// `estree-util-visit` may traverse in MDX `attributes`, we don't want that. Only continue
 				// if it's traversing the root, or the `children` key.
 				if (key != null && key !== 'children') return SKIP;
+
+				// Mutate `node` as a normal hast element node if it's a plain MDX node, e.g. `<kbd>something</kbd>`
+				simplifyPlainMdxComponentNode(node);
 
 				// For nodes that are not static, eliminate all elements in the `elementStack` from the
 				// `allPossibleElements` set.
@@ -257,4 +263,32 @@ function getExportConstComponentObjectKeys(node: RootContentMap['mdxjsEsm']) {
 		}
 	}
 	return keys;
+}
+
+/**
+ * Some MDX nodes are simply `<kbd>something</kbd>` which isn't needed to be completely treated
+ * as an MDX node. This function tries to mutate this node as a simple hast element node if so.
+ */
+function simplifyPlainMdxComponentNode(node: Node) {
+	if (
+		!isMdxComponentNode(node) ||
+		// Attributes could be dynamic, so bail if so.
+		node.attributes.length > 0 ||
+		// Fragments are also dynamic
+		!node.name ||
+		// If the node name has uppercase characters, it's likely an actual MDX component
+		node.name.toLowerCase() !== node.name
+	) {
+		return;
+	}
+
+	// Mutate as hast element node
+	const newNode = node as unknown as Element;
+	newNode.type = 'element';
+	newNode.tagName = node.name;
+	newNode.properties = {};
+
+	// @ts-expect-error Delete mdx-specific properties
+	node.attributes = undefined;
+	node.data = undefined;
 }

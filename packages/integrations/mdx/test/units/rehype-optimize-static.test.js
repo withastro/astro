@@ -69,4 +69,21 @@ This is a <Comp />
 " /><_components.p>{"This is a "}<Comp /></_components.p></>`
 		);
 	});
+
+	it('optimizes explicit html elements', async () => {
+		const jsx = await compile(`\
+# hello
+
+foo <strong>bar</strong> baz
+
+<strong>qux</strong>
+`);
+		assert.equal(
+			jsx,
+			`\
+<Fragment set:html="<h1>hello</h1>
+<p>foo <strong>bar</strong> baz</p>
+<strong>qux</strong>" />`
+		);
+	});
 });
