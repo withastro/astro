@@ -25,6 +25,7 @@ class BeforeEvent extends Event {
 	readonly sourceElement: Element | undefined;
 	readonly info: any;
 	newDocument: Document;
+	signal: AbortSignal;
 
 	constructor(
 		type: string,
@@ -35,7 +36,8 @@ class BeforeEvent extends Event {
 		navigationType: NavigationTypeString,
 		sourceElement: Element | undefined,
 		info: any,
-		newDocument: Document
+		newDocument: Document,
+		signal: AbortSignal
 	) {
 		super(type, eventInitDict);
 		this.from = from;
@@ -45,6 +47,7 @@ class BeforeEvent extends Event {
 		this.sourceElement = sourceElement;
 		this.info = info;
 		this.newDocument = newDocument;
+		this.signal = signal;
 
 		Object.defineProperties(this, {
 			from: { enumerable: true },
@@ -54,6 +57,7 @@ class BeforeEvent extends Event {
 			sourceElement: { enumerable: true },
 			info: { enumerable: true },
 			newDocument: { enumerable: true, writable: true },
+			signal: { enumerable: true },
 		});
 	}
 }
@@ -76,6 +80,7 @@ export class TransitionBeforePreparationEvent extends BeforeEvent {
 		sourceElement: Element | undefined,
 		info: any,
 		newDocument: Document,
+		signal: AbortSignal,
 		formData: FormData | undefined,
 		loader: (event: TransitionBeforePreparationEvent) => Promise<void>
 	) {
@@ -88,7 +93,8 @@ export class TransitionBeforePreparationEvent extends BeforeEvent {
 			navigationType,
 			sourceElement,
 			info,
-			newDocument
+			newDocument,
+			signal
 		);
 		this.formData = formData;
 		this.loader = loader.bind(this, this);
@@ -124,7 +130,8 @@ export class TransitionBeforeSwapEvent extends BeforeEvent {
 			afterPreparation.navigationType,
 			afterPreparation.sourceElement,
 			afterPreparation.info,
-			afterPreparation.newDocument
+			afterPreparation.newDocument,
+			afterPreparation.signal
 		);
 		this.direction = afterPreparation.direction;
 		this.viewTransition = viewTransition;
@@ -145,6 +152,7 @@ export async function doPreparation(
 	navigationType: NavigationTypeString,
 	sourceElement: Element | undefined,
 	info: any,
+	signal: AbortSignal,
 	formData: FormData | undefined,
 	defaultLoader: (event: TransitionBeforePreparationEvent) => Promise<void>
 ) {
@@ -156,6 +164,7 @@ export async function doPreparation(
 		sourceElement,
 		info,
 		window.document,
+		signal,
 		formData,
 		defaultLoader
 	);
@@ -172,7 +181,7 @@ export async function doPreparation(
 	return event;
 }
 
-export async function doSwap(
+export function doSwap(
 	afterPreparation: BeforeEvent,
 	viewTransition: ViewTransition,
 	defaultSwap: (event: TransitionBeforeSwapEvent) => void

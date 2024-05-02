@@ -14,7 +14,7 @@ import { getAstroStudioUrl } from '../../../utils.js';
 const isWebContainer =
 	// Stackblitz heuristic
 	process.versions?.webcontainer ??
-	// Github Codespaces heuristic
+	// GitHub Codespaces heuristic
 	process.env.CODESPACE_NAME;
 
 export async function cmd({

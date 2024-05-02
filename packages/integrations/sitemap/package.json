@@ -35,7 +35,7 @@
   "dependencies": {
     "sitemap": "^7.1.1",
     "stream-replace-string": "^2.0.0",
-    "zod": "^3.23.0"
+    "zod": "^3.23.5"
   },
   "devDependencies": {
     "@astrojs/node": "workspace:*",

@@ -139,7 +139,8 @@ export function normalizeDatabaseUrl(envDbUrl: string | undefined, defaultDbUrl:
 		if (envDbUrl.startsWith('file://')) {
 			return envDbUrl;
 		}
-		return new URL(envDbUrl, pathToFileURL(process.cwd())).toString();
+
+		return new URL(envDbUrl, pathToFileURL(process.cwd()) + '/').toString();
 	} else {
 		// This is going to be a file URL always,
 		return defaultDbUrl;
