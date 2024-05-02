@@ -15,7 +15,7 @@ type ParentNode = Element | MdxJsxFlowElementHast | MdxJsxTextElementHast;
 type OptimizableNode = Element | MdxJsxFlowElementHast | MdxJsxTextElementHast;
 
 export interface OptimizeOptions {
-	ignoreComponentNames?: string[];
+	ignoreElementNames?: string[];
 }
 
 interface ElementMetadata {
@@ -36,17 +36,17 @@ export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) 
 	return (tree) => {
 		// A set of non-static components to avoid collapsing when walking the tree
 		// as they need to be preserved as JSX to be rendered dynamically.
-		const ignoreComponentNames = new Set<string>(options?.ignoreComponentNames);
+		const ignoreElementNames = new Set<string>(options?.ignoreElementNames);
 
 		// Find `export const components = { ... }` and get it's object's keys to be
-		// populated into `ignoreComponentNames`. This configuration is used to render
+		// populated into `ignoreElementNames`. This configuration is used to render
 		// some HTML elements as custom components, and we also want to avoid collapsing them.
 		for (const child of tree.children) {
 			if (child.type === 'mdxjsEsm' && exportConstComponentsRe.test(child.value)) {
 				const keys = getExportConstComponentObjectKeys(child);
 				if (keys) {
 					for (const key of keys) {
-						ignoreComponentNames.add(key);
+						ignoreElementNames.add(key);
 					}
 				}
 				break;
@@ -65,7 +65,7 @@ export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) 
 		 */
 		const isNodeNonStatic = (node: Node) => {
 			// @ts-expect-error Access `.tagName` naively for perf
-			return node.type.startsWith('mdx') || ignoreComponentNames.has(node.tagName);
+			return node.type.startsWith('mdx') || ignoreElementNames.has(node.tagName);
 		};
 
 		visit(tree as any, {
