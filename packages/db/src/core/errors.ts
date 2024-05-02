@@ -1,5 +1,9 @@
 import { bold, cyan, red } from 'kleur/colors';
 
+export const MISSING_SESSION_ID_CI_ERROR = `${red('▶ ASTRO_STUDIO_APP_TOKEN required')}
+
+	To authenticate with Astro Studio add the token to your CI's environment variables.\n`;
+
 export const MISSING_SESSION_ID_ERROR = `${red('▶ Login required!')}
 
   To authenticate with Astro Studio, run

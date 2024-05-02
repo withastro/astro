@@ -320,7 +320,7 @@ const chars = {
 	bottomRight: '╯',
 };
 
-// this is only used to deternine the column width
+// this is only used to determine the column width
 function annotatedFormat(mv: AnnotatedValue) {
 	return mv.annotation ? `${mv.value} ${mv.annotation}` : mv.value.toString();
 }

@@ -9,7 +9,7 @@ import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
-import { runHookConfigSetup } from '../../integrations/index.js';
+import { runHookConfigSetup } from '../../integrations/hooks.js';
 import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';

@@ -53,13 +53,13 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.5.10",
-    "@biomejs/biome": "1.6.4",
+    "@biomejs/biome": "1.7.1",
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.1",
     "@eslint/eslintrc": "^3.0.2",
     "@types/node": "^18.17.8",
     "esbuild": "^0.20.2",
-    "eslint": "^9.1.0",
+    "eslint": "^9.1.1",
     "eslint-plugin-no-only-tests": "^3.1.0",
     "eslint-plugin-regexp": "^2.5.0",
     "globby": "^14.0.1",
@@ -68,9 +68,9 @@
     "prettier": "^3.2.5",
     "prettier-plugin-astro": "^0.13.0",
     "tiny-glob": "^0.2.9",
-    "turbo": "^1.13.2",
+    "turbo": "^1.13.3",
     "typescript": "~5.4.5",
-    "typescript-eslint": "^7.7.0"
+    "typescript-eslint": "^7.8.0"
   },
   "pnpm": {
     "packageExtensions": {

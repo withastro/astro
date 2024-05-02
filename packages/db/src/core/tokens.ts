@@ -2,10 +2,15 @@ import { readFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import ci from 'ci-info';
 import { green } from 'kleur/colors';
 import ora from 'ora';
 import { safeFetch } from '../runtime/utils.js';
-import { MISSING_PROJECT_ID_ERROR, MISSING_SESSION_ID_ERROR } from './errors.js';
+import {
+	MISSING_PROJECT_ID_ERROR,
+	MISSING_SESSION_ID_CI_ERROR,
+	MISSING_SESSION_ID_ERROR,
+} from './errors.js';
 import { getAstroStudioEnv, getAstroStudioUrl } from './utils.js';
 
 export const SESSION_LOGIN_FILE = pathToFileURL(join(homedir(), '.astro', 'session-token'));
@@ -182,12 +187,17 @@ export async function getManagedAppTokenOrExit(token?: string): Promise<ManagedA
 	}
 	const sessionToken = await getSessionIdFromFile();
 	if (!sessionToken) {
-		// eslint-disable-next-line no-console
-		console.error(MISSING_SESSION_ID_ERROR);
+		if (ci.isCI) {
+			// eslint-disable-next-line no-console
+			console.error(MISSING_SESSION_ID_CI_ERROR);
+		} else {
+			// eslint-disable-next-line no-console
+			console.error(MISSING_SESSION_ID_ERROR);
+		}
 		process.exit(1);
 	}
 	const projectId = await getProjectIdFromFile();
-	if (!sessionToken || !projectId) {
+	if (!projectId) {
 		// eslint-disable-next-line no-console
 		console.error(MISSING_PROJECT_ID_ERROR);
 		process.exit(1);

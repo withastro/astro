@@ -4,7 +4,8 @@
     "config:recommended",
     "schedule:weekly",
     "group:allNonMajor",
-    ":disablePeerDependencies",
+    ":disablePeerDependencies", 
+    "regexManagers:biomeVersions"
   ],
   "labels": ["dependencies"],
   "rangeStrategy": "bump",

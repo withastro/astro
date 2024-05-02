@@ -177,7 +177,7 @@ async function resolveTargetVersion(packageInfo: PackageInfo, registry: string):
 		packageInfo.changelogTitle = 'CHANGELOG';
 	} else {
 		// Dependency updates should not include the specific dist-tag
-		// since they are just for compatability
+		// since they are just for compatibility
 		packageInfo.tag = undefined;
 	}
 }
