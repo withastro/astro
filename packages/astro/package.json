@@ -53,6 +53,7 @@
     "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.ts",
     "./components/*": "./components/*",
+    "./integration": "./dist/integrations/index.js",
     "./toolbar": "./dist/toolbar/index.js",
     "./assets": "./dist/assets/index.js",
     "./assets/utils": "./dist/assets/utils/index.js",
@@ -69,6 +70,7 @@
       "default": "./zod.mjs"
     },
     "./errors": "./dist/core/errors/userError.js",
+    "./errors/zod-error-map": "./dist/core/errors/zod-error-map.js",
     "./middleware": {
       "types": "./dist/core/middleware/index.d.ts",
       "default": "./dist/core/middleware/index.js"

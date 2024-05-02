@@ -1158,6 +1158,18 @@ export const i18nNotEnabled = {
 
 /**
  * @docs
+ * @description
+ * Invalid options have been passed to the integration.
+ */
+export const AstroIntegrationInvalidOptions = {
+	name: 'AstroIntegrationInvalidOptions',
+	title: 'Astro Integration Invalid Options',
+	message: (name: string, error: string) =>
+		`Invalid options passed to "${name}" integration\n${error}`,
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name CSS Errors
  */

@@ -1,6 +1,6 @@
 import type { ZodErrorMap } from 'zod';
 
-type TypeOrLiteralErrByPathEntry = {
+interface TypeOrLiteralErrByPathEntry {
 	code: 'invalid_type' | 'invalid_literal';
 	received: unknown;
 	expected: unknown[];
@@ -14,12 +14,13 @@ export const errorMap: ZodErrorMap = (baseError, ctx) => {
 		// raise a single error when `key` does not match:
 		// > Did not match union.
 		// > key: Expected `'tutorial' | 'blog'`, received 'foo'
-		let typeOrLiteralErrByPath = new Map<string, TypeOrLiteralErrByPathEntry>();
-		for (const unionError of baseError.unionErrors.map((e) => e.errors).flat()) {
+		const typeOrLiteralErrByPath = new Map<string, TypeOrLiteralErrByPathEntry>();
+		for (const unionError of baseError.unionErrors.flatMap((e) => e.errors)) {
 			if (unionError.code === 'invalid_type' || unionError.code === 'invalid_literal') {
 				const flattenedErrorPath = flattenErrorPath(unionError.path);
-				if (typeOrLiteralErrByPath.has(flattenedErrorPath)) {
-					typeOrLiteralErrByPath.get(flattenedErrorPath)!.expected.push(unionError.expected);
+				const typeOrLiteralErr = typeOrLiteralErrByPath.get(flattenedErrorPath);
+				if (typeOrLiteralErr) {
+					typeOrLiteralErr.expected.push(unionError.expected);
 				} else {
 					typeOrLiteralErrByPath.set(flattenedErrorPath, {
 						code: unionError.code,
@@ -29,7 +30,7 @@ export const errorMap: ZodErrorMap = (baseError, ctx) => {
 				}
 			}
 		}
-		let messages: string[] = [
+		const messages: string[] = [
 			prefix(
 				baseErrorPath,
 				typeOrLiteralErrByPath.size ? 'Did not match union:' : 'Did not match union.'
@@ -43,9 +44,9 @@ export const errorMap: ZodErrorMap = (baseError, ctx) => {
 						// filter it out. Can lead to confusing noise.
 						.filter(([, error]) => error.expected.length === baseError.unionErrors.length)
 						.map(([key, error]) =>
+							// Avoid printing the key again if it's a base error
 							key === baseErrorPath
-								? // Avoid printing the key again if it's a base error
-									`> ${getTypeOrLiteralMsg(error)}`
+								? `> ${getTypeOrLiteralMsg(error)}`
 								: `> ${prefix(key, getTypeOrLiteralMsg(error))}`
 						)
 				)
@@ -96,4 +97,4 @@ const unionExpectedVals = (expectedVals: Set<unknown>) =>
 		})
 		.join('');
 
-const flattenErrorPath = (errorPath: (string | number)[]) => errorPath.join('.');
+const flattenErrorPath = (errorPath: Array<string | number>) => errorPath.join('.');
