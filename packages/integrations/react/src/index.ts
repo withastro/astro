@@ -1,14 +1,16 @@
 import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-react';
-import type { AstroIntegration } from 'astro';
+import type { AstroConfig, AstroIntegration } from 'astro';
 import { version as ReactVersion } from 'react-dom';
-import type * as vite from 'vite';
+import { type Plugin } from 'vite';
+import { type ChildProcess, spawn } from 'node:child_process';
+import { dirname } from "node:path"
+import { fileURLToPath } from "node:url"
 
-export type ReactIntegrationOptions = Pick<
-	ViteReactPluginOptions,
-	'include' | 'exclude' | 'babel'
-> & {
+export interface ReactIntegrationOptions
+	extends Pick<ViteReactPluginOptions, 'include' | 'exclude' | 'babel'> {
 	experimentalReactChildren?: boolean;
-};
+	devtools?: boolean;
+}
 
 const FAST_REFRESH_PREAMBLE = react.preambleCode;
 
@@ -24,7 +26,7 @@ function getRenderer() {
 	};
 }
 
-function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
+function optionsPlugin(experimentalReactChildren: boolean): Plugin {
 	const virtualModule = 'astro:react:opts';
 	const virtualModuleId = '\0' + virtualModule;
 	return {
@@ -94,18 +96,51 @@ export default function ({
 	exclude,
 	babel,
 	experimentalReactChildren,
+	devtools,
 }: ReactIntegrationOptions = {}): AstroIntegration {
+	let config: AstroConfig;
+	let isDev: boolean;
+	let devtoolsProcess: ChildProcess;
+
 	return {
 		name: '@astrojs/react',
 		hooks: {
 			'astro:config:setup': ({ command, addRenderer, updateConfig, injectScript }) => {
+				isDev = command === 'dev';
 				addRenderer(getRenderer());
 				updateConfig({
 					vite: getViteConfiguration({ include, exclude, babel, experimentalReactChildren }),
 				});
-				if (command === 'dev') {
+				if (isDev) {
 					const preamble = FAST_REFRESH_PREAMBLE.replace(`__BASE__`, '/');
 					injectScript('before-hydration', preamble);
+					if (devtools) {
+						injectScript(
+							'head-inline',
+							`
+						const script = document.createElement("script");
+						script.src = "http://localhost:8097";
+						document.head.appendChild(script);
+						`
+						);
+					}
+				}
+			},
+			'astro:config:done': (params) => {
+				config = params.config;
+			},
+			'astro:server:start': () => {
+				if (isDev && devtools) {
+					devtoolsProcess = spawn(`node -e "import('react-devtools/bin.js')"`, {
+						stdio: 'inherit',
+						shell: true,
+						cwd: fileURLToPath(dirname(import.meta.url)),
+					});
+				}
+			},
+			'astro:server:done': () => {
+				if (isDev && devtools && devtoolsProcess) {
+					devtoolsProcess.kill();
 				}
 			},
 		},

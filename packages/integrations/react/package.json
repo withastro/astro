@@ -47,6 +47,7 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.2.1",
+    "react-devtools": "^5.1.0",
     "ultrahtml": "^1.5.3"
   },
   "devDependencies": {
