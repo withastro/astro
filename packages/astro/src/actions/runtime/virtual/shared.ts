@@ -1,6 +1,5 @@
 import type { z } from 'zod';
 import type { MaybePromise } from '../utils.js';
-import { ZodError } from 'zod';
 
 type ActionErrorCode =
 	| 'BAD_REQUEST'
@@ -101,7 +100,7 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 	// and we don't want to import the full ZodError object into the client.
 
 	issues: z.ZodIssue[];
-	fields: ZodError<T>['formErrors']['fieldErrors'];
+	fields: z.ZodError<T>['formErrors']['fieldErrors'];
 
 	constructor(issues: z.ZodIssue[]) {
 		super({ message: 'Failed to validate', code: 'BAD_REQUEST' });
