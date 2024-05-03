@@ -358,7 +358,7 @@ describe('[DEV] i18n routing', () => {
 			const response = await fixture.fetch('/xyz');
 			assert.equal(response.status, 404);
 			const text = await response.text();
-			assert.equal(text.includes("Can't find the page youre looking for."), true);
+			assert.equal(text.includes("Can't find the page you're looking for."), true);
 		});
 	});
 
@@ -1350,7 +1350,7 @@ describe('[SSR] i18n routing', () => {
 			const response = await app.render(request);
 			assert.equal(response.status, 404);
 			const text = await response.text();
-			assert.equal(text.includes("Can't find the page youre looking for."), true);
+			assert.equal(text.includes("Can't find the page you're looking for."), true);
 		});
 	});
 

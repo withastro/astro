@@ -45,7 +45,7 @@ export default function astroPrefetch({ settings }: { settings: AstroSettings })
 		},
 		transform(code, id) {
 			// NOTE: Handle replacing the specifiers even if prefetch is disabled so View Transitions
-			// can import the interal module as not hit runtime issues.
+			// can import the internal module as not hit runtime issues.
 			if (id.includes(prefetchInternalModuleFsSubpath)) {
 				return code
 					.replace('__PREFETCH_PREFETCH_ALL__', JSON.stringify(prefetch?.prefetchAll))

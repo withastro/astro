@@ -1,5 +1,17 @@
 # @astrojs/db
 
+## 0.10.7
+
+### Patch Changes
+
+- [#10882](https://github.com/withastro/astro/pull/10882) [`cf58d1e`](https://github.com/withastro/astro/commit/cf58d1ed56c671d0ee077dfecc286002b4bae5ed) Thanks [@delucis](https://github.com/delucis)! - Improves the typing of the `asDrizzleTable()` utility
+
+  Fixes a type error when passing the output of `defineTable()` to the utility and returns a more detailed type inferred from the columns of the passed table config.
+
+- [#10918](https://github.com/withastro/astro/pull/10918) [`ca605f4`](https://github.com/withastro/astro/commit/ca605f4dd8fcd070d3d5a5ca2f7080d921801e17) Thanks [@matthewp](https://github.com/matthewp)! - Provide a better error message when app token is missing in CI
+
+- [#10925](https://github.com/withastro/astro/pull/10925) [`a0c77fc`](https://github.com/withastro/astro/commit/a0c77fc7164662ea62b65c51fd1bd4c2f6028bc1) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `ASTRO_DATABASE_FILE` not correctly resolving relative paths (e.g. `ASTRO_DATABASE_FILE=./api/database.db`
+
 ## 0.10.6
 
 ### Patch Changes
