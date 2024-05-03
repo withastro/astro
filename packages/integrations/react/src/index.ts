@@ -34,7 +34,7 @@ type SupportedReactVersion = keyof (typeof versionsConfig);
 type ReactVersionConfig = (typeof versionsConfig)[SupportedReactVersion];
 
 function getReactMajorVersion(): number {
-	const matches = /[0-9]+\./.exec(ReactVersion);
+	const matches = /\d+\./.exec(ReactVersion);
 	if(!matches) {
 		return NaN;
 	}
@@ -120,7 +120,7 @@ export default function ({
 }: ReactIntegrationOptions = {}): AstroIntegration {
 	const majorVersion = getReactMajorVersion();
 	if(isUnsupportedVersion(majorVersion)) {
-		throw new Error(`Unsupported version`);
+		throw new Error(`Unsupported React version: ${majorVersion}.`);
 	}
 	const versionConfig = versionsConfig[majorVersion as SupportedReactVersion];
 
