@@ -1,8 +1,7 @@
 import { db, Comment, Likes, eq, sql } from "astro:db";
-import { defineAction } from "astro:actions";
-import { z } from "zod";
+import { defineAction, z } from "astro:actions";
 
-export default {
+export const server = {
   blog: {
     like: defineAction({
       input: z.object({ postId: z.string() }),

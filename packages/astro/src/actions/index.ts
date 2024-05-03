@@ -72,7 +72,7 @@ async function typegen({
 	root,
 }: { stringifiedActionsPath: string; root: URL }) {
 	const content = `declare module "astro:actions" {
-	type Actions = typeof import(${stringifiedActionsPath})["default"];
+	type Actions = typeof import(${stringifiedActionsPath})["server"];
 
 	export const actions: Actions;
 }`;
