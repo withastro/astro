@@ -248,15 +248,14 @@ export function getPagesDatasByComponent(
 	return pageDatas;
 }
 
+// TODO: Should be removed in the future. (Astro 5?)
 /**
- * TODO: This function is used to avoid breaking changes in the Integrations API.
- * Should be removed in the future (in Astro 5 ?).
- * Parse internals.pagesByKeys to get the page data with the public key.
- * If the page component is unique -> the public key is the component.
- * This match the old behavior of the Integrations API, where pages were identified by the component.
- * If the page component is shared -> the public key is the internal key.
- * This should be the new behavior, since we identify pages by their internal key now.
- * Until then, this is not a breaking change, because a shared entrypoint was not supported before.
+ * Map internals.pagesByKeys to a new map with the public key instead of the internal key.
+ * This function is only used to avoid breaking changes in the Integrations API, after we changed the way 
+ * we identify pages, from the entrypoint component to an internal key.
+ * If the page component is unique -> the public key is the component path. (old behavior)
+ * If the page component is shared -> the public key is the internal key. (new behavior)
+ * The new behavior on shared entrypoint it's not a breaking change, because it was not supported before.
  * @param pagesByKeys A map of all page data by their internal key
  */
 export function getPageDatasWithPublicKey(pagesByKeys: Map<string, PageBuildData>): Map<string, PageBuildData> {
@@ -267,8 +266,7 @@ export function getPageDatasWithPublicKey(pagesByKeys: Map<string, PageBuildData
 		return { component: pageData.component, pageData: pageData };
 	});
 
-	// Get pages with unique component, and set the public key to the component, to maintain the
-	// old behavior of the Integrations API. Then add them to the pagesWithPublicKey map.
+	// Get pages with unique component, and set the public key to the component.
 	const pagesWithUniqueComponent = pagesByComponentsArray.filter((page) => {
 		return pagesByComponentsArray.filter((p) => p.component === page.component).length === 1;
 	});
@@ -277,8 +275,7 @@ export function getPageDatasWithPublicKey(pagesByKeys: Map<string, PageBuildData
 		pagesWithPublicKey.set(page.component, page.pageData);
 	});
 
-	// Get pages with shared component, and set the public key to the internal key. It's not a breaking change
-	// since having a shared component was not supported before. Then add them to the pagesWithPublicKey map.
+	// Get pages with shared component, and set the public key to the internal key.
 	const pagesWithSharedComponent = pagesByComponentsArray.filter((page) => {
 		return pagesByComponentsArray.filter((p) => p.component === page.component).length > 1;
 	});
