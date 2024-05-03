@@ -1,22 +1,24 @@
 import { existsSync } from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { LibsqlError } from '@libsql/client';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import { mkdir, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
 import {
-	createServer,
-	loadEnv,
-	mergeConfig,
 	type HMRPayload,
 	type UserConfig,
 	type ViteDevServer,
+	createServer,
+	loadEnv,
+	mergeConfig,
 } from 'vite';
 import parseArgs from 'yargs-parser';
-import { SEED_DEV_FILE_NAME } from '../queries.js';
 import { AstroDbError } from '../../runtime/utils.js';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
+import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
 import { resolveDbConfig } from '../load-file.js';
+import { SEED_DEV_FILE_NAME } from '../queries.js';
 import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
 import { type VitePlugin, getDbDirectoryUrl } from '../utils.js';
 import { fileURLIntegration } from './file-url.js';
@@ -24,13 +26,11 @@ import { typegenInternal } from './typegen.js';
 import {
 	type LateSeedFiles,
 	type LateTables,
-	vitePluginDb,
 	type SeedHandler,
 	resolved,
+	vitePluginDb,
 } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
-import { LibsqlError } from '@libsql/client';
-import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectToStudio = false;

@@ -1,15 +1,15 @@
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { AstroConfig, AstroIntegrationLogger } from 'astro';
-import { SEED_DEV_FILE_NAME, getCreateIndexQueries, getCreateTableQuery } from '../queries.js';
-import { DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
-import type { DBTables } from '../types.js';
-import { type VitePlugin, getDbDirectoryUrl, getRemoteDatabaseUrl, getAstroEnv } from '../utils.js';
-import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 import { type SQL, sql } from 'drizzle-orm';
-import { existsSync } from 'node:fs';
-import { normalizeDatabaseUrl } from '../../runtime/index.js';
-import { getResolvedFileUrl } from '../load-file.js';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
+import { createLocalDatabaseClient } from '../../runtime/db-client.js';
+import { normalizeDatabaseUrl } from '../../runtime/index.js';
+import { DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
+import { getResolvedFileUrl } from '../load-file.js';
+import { SEED_DEV_FILE_NAME, getCreateIndexQueries, getCreateTableQuery } from '../queries.js';
+import type { DBTables } from '../types.js';
+import { type VitePlugin, getAstroEnv, getDbDirectoryUrl, getRemoteDatabaseUrl } from '../utils.js';
 
 export const resolved = {
 	module: '\0' + VIRTUAL_MODULE_ID,

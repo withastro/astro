@@ -5,12 +5,12 @@ import {
 	createLocalDatabaseClient,
 	createRemoteDatabaseClient,
 } from '../../../../runtime/db-client.js';
+import { normalizeDatabaseUrl } from '../../../../runtime/index.js';
 import { DB_PATH } from '../../../consts.js';
 import { SHELL_QUERY_MISSING_ERROR } from '../../../errors.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import type { DBConfigInput } from '../../../types.js';
 import { getAstroEnv, getRemoteDatabaseUrl } from '../../../utils.js';
-import { normalizeDatabaseUrl } from '../../../../runtime/index.js';
 
 export async function cmd({
 	flags,

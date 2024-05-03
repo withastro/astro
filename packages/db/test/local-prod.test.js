@@ -1,8 +1,8 @@
+import { relative } from 'path';
 import { fileURLToPath } from 'url';
 import { expect } from 'chai';
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
-import { relative } from 'path';
 
 describe('astro:db local database', () => {
 	let fixture;
