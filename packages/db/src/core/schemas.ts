@@ -4,7 +4,6 @@ import { type ZodTypeDef, z } from 'zod';
 import { SERIALIZED_SQL_KEY, type SerializedSQL } from '../runtime/types.js';
 import { errorMap } from './integration/error-map.js';
 import type { NumberColumn, TextColumn } from './types.js';
-import { mapObject } from './utils.js';
 
 export type MaybeArray<T> = T | T[];
 
@@ -245,3 +244,17 @@ export const dbConfigSchema = z
 			}),
 		};
 	});
+
+
+/**
+ * Map an object's values to a new set of values
+ * while preserving types.
+ */
+function mapObject<T, U = T>(
+	item: Record<string, T>,
+	callback: (key: string, value: T) => U
+): Record<string, U> {
+	return Object.fromEntries(
+		Object.entries(item).map(([key, value]) => [key, callback(key, value)])
+	);
+}
