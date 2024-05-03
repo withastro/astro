@@ -15,10 +15,10 @@ export { z } from 'zod';
 
 export function defineAction<
 	TOutput,
-	TAccept extends 'json' | 'form' | undefined,
 	TInputSchema extends z.ZodType,
+	TAccept extends 'json' | 'form' = 'json',
 >({
-	accept = 'json',
+	accept,
 	input: inputSchema,
 	handler,
 }: {
