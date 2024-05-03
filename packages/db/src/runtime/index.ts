@@ -14,7 +14,7 @@ import { pathToFileURL } from './utils.js';
 
 export type { Table } from './types.js';
 export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-client.js';
-export { seedLocal, recreateTables } from './seed-local.js';
+export { seedLocal } from './seed-local.js';
 
 export function hasPrimaryKey(column: DBColumn) {
 	return 'primaryKey' in column.schema && !!column.schema.primaryKey;
