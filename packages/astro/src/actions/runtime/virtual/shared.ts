@@ -22,24 +22,37 @@ export class ActionError extends Error {
 
 	static codeToStatus(code: ActionErrorCode): number {
 		switch (code) {
-			case 'BAD_REQUEST': return 400;
-			case 'UNAUTHORIZED': return 401;
-			case 'FORBIDDEN': return 403;
-			case 'NOT_FOUND': return 404;
-			case 'UNSUPPORTED_MEDIA_TYPE': return 415;
-			case 'INTERNAL_SERVER_ERROR': return 500;
+			case 'BAD_REQUEST':
+				return 400;
+			case 'UNAUTHORIZED':
+				return 401;
+			case 'FORBIDDEN':
+				return 403;
+			case 'NOT_FOUND':
+				return 404;
+			case 'UNSUPPORTED_MEDIA_TYPE':
+				return 415;
+			case 'INTERNAL_SERVER_ERROR':
+				return 500;
 		}
 	}
 
 	static statusToCode(status: number): ActionErrorCode {
 		switch (status) {
-			case 400: return 'BAD_REQUEST';
-			case 401: return 'UNAUTHORIZED';
-			case 403: return 'FORBIDDEN';
-			case 404: return 'NOT_FOUND';
-			case 415: return 'UNSUPPORTED_MEDIA_TYPE';
-			case 500: return 'INTERNAL_SERVER_ERROR';
-			default: return 'INTERNAL_SERVER_ERROR';
+			case 400:
+				return 'BAD_REQUEST';
+			case 401:
+				return 'UNAUTHORIZED';
+			case 403:
+				return 'FORBIDDEN';
+			case 404:
+				return 'NOT_FOUND';
+			case 415:
+				return 'UNSUPPORTED_MEDIA_TYPE';
+			case 500:
+				return 'INTERNAL_SERVER_ERROR';
+			default:
+				return 'INTERNAL_SERVER_ERROR';
 		}
 	}
 
@@ -57,19 +70,22 @@ export class ActionError extends Error {
 	}
 }
 
-export type SafeResult<TInput, TOutput> = {
-	data: TOutput;
-	actionError: undefined;
-	inputError: undefined;
-} | {
-	data: undefined;
-	actionError: ActionError;
-	inputError: undefined;
-} | {
-	data: undefined;
-	actionError: undefined;
-	inputError: z.ZodError<TInput>;
-};
+export type SafeResult<TInput, TOutput> =
+	| {
+			data: TOutput;
+			actionError: undefined;
+			inputError: undefined;
+	  }
+	| {
+			data: undefined;
+			actionError: ActionError;
+			inputError: undefined;
+	  }
+	| {
+			data: undefined;
+			actionError: undefined;
+			inputError: z.ZodError<TInput>;
+	  };
 
 export class ActionInputError<T extends Record<string, any>> extends ActionError {
 	type = 'AstroActionInputError';
@@ -83,7 +99,7 @@ export class ActionInputError<T extends Record<string, any>> extends ActionError
 
 export async function callSafely<TInput, TOutput>(
 	action: (input: TInput) => MaybePromise<TOutput>,
-	input: TInput,
+	input: TInput
 ): Promise<SafeResult<TInput, TOutput>> {
 	try {
 		const data = await action(input);
@@ -106,9 +122,7 @@ export async function callSafely<TInput, TOutput>(
 	}
 }
 
-export function getNameProps<T extends (...args: unknown[]) => MaybePromise<unknown>>(
-	action: T
-) {
+export function getNameProps<T extends (args: any) => MaybePromise<unknown>>(action: T) {
 	return {
 		type: 'hidden',
 		name: '_astroAction',
