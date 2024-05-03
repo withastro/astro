@@ -2,7 +2,12 @@ import { z } from 'zod';
 import type { APIContext } from '../../../@types/astro.js';
 import { ApiContextStorage } from '../store.js';
 import type { MaybePromise } from '../utils.js';
-import { ActionError, ActionInputError, type SafeResult } from './shared.js';
+import {
+	ActionError,
+	ActionInputError,
+	type ErrorInferenceObject,
+	type SafeResult,
+} from './shared.js';
 
 export * from './shared.js';
 
@@ -25,7 +30,14 @@ export function defineAction<
 ) => Promise<Awaited<TOutput>>) & {
 	safe: (
 		input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
-	) => Promise<SafeResult<TInputSchema, Awaited<TOutput>>>;
+	) => Promise<
+		SafeResult<
+			z.infer<TInputSchema> extends ErrorInferenceObject
+				? z.infer<TInputSchema>
+				: ErrorInferenceObject,
+			Awaited<TOutput>
+		>
+	>;
 } {
 	const serverHandler = async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
 		const context = ApiContextStorage.getStore()!;

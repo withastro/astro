@@ -9,7 +9,9 @@ type ActionErrorCode =
 	| 'UNSUPPORTED_MEDIA_TYPE'
 	| 'INTERNAL_SERVER_ERROR';
 
-export class ActionError extends Error {
+export type ErrorInferenceObject = Record<string, any>;
+
+export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> extends Error {
 	type = 'AstroActionError';
 	code: ActionErrorCode = 'INTERNAL_SERVER_ERROR';
 	status = 500;
@@ -70,21 +72,20 @@ export class ActionError extends Error {
 	}
 }
 
-export type SafeResult<TInput, TOutput> =
+export function isInputError<T extends ErrorInferenceObject>(
+	error: ActionError<T>
+): error is ActionInputError<T> {
+	return error instanceof ActionInputError;
+}
+
+export type SafeResult<TInput extends ErrorInferenceObject, TOutput> =
 	| {
 			data: TOutput;
-			actionError: undefined;
-			inputError: undefined;
+			error: undefined;
 	  }
 	| {
 			data: undefined;
-			actionError: ActionError;
-			inputError: undefined;
-	  }
-	| {
-			data: undefined;
-			actionError: undefined;
-			inputError: z.ZodError<TInput>;
+			error: ActionError<TInput>;
 	  };
 
 export class ActionInputError<T extends Record<string, any>> extends ActionError {
@@ -97,24 +98,20 @@ export class ActionInputError<T extends Record<string, any>> extends ActionError
 	}
 }
 
-export async function callSafely<TInput, TOutput>(
-	action: (input: TInput) => MaybePromise<TOutput>,
-	input: TInput
-): Promise<SafeResult<TInput, TOutput>> {
+export async function callSafely<TOutput>(
+	action: (input: any) => MaybePromise<TOutput>,
+	input: any
+): Promise<SafeResult<z.ZodType, TOutput>> {
 	try {
 		const data = await action(input);
-		return { data, actionError: undefined, inputError: undefined };
+		return { data, error: undefined };
 	} catch (e) {
-		if (e instanceof ActionInputError) {
-			return { data: undefined, actionError: undefined, inputError: e.inputError };
-		}
 		if (e instanceof ActionError) {
-			return { data: undefined, actionError: e, inputError: undefined };
+			return { data: undefined, error: e };
 		}
 		return {
 			data: undefined,
-			inputError: undefined,
-			actionError: new ActionError({
+			error: new ActionError({
 				message: e instanceof Error ? e.message : 'Unknown error',
 				code: 'INTERNAL_SERVER_ERROR',
 			}),

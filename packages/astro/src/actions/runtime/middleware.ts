@@ -1,7 +1,7 @@
 import { defineMiddleware } from '../../core/middleware/index.js';
 import { ApiContextStorage } from './store.js';
 import { formContentTypes, getAction } from './utils.js';
-import { ActionError, ActionInputError, callSafely } from './virtual/shared.js';
+import { ActionError } from './virtual/shared.js';
 
 type Locals = {
 	getActionResult: <T extends (...args: any) => any>(
@@ -38,12 +38,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	locals.getActionResult = (actionFn) => {
 		if (actionFn.toString() !== actionPath) return Promise.resolve(undefined);
 		if (Symbol.for('astro:action:safe') in actionFn) {
-			if (actionError instanceof ActionInputError) {
-				return { data: undefined, actionError: undefined, inputError: actionError.inputError };
-			} else if (actionError) {
-				return { data: undefined, actionError, inputError: undefined };
+			if (actionError) {
+				return { data: undefined, error: actionError };
 			}
-			return { data: result, actionError: undefined, inputError: undefined };
+			return { data: result, error: undefined };
 		}
 		if (actionError) throw actionError;
 		return result;
