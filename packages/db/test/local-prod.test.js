@@ -1,3 +1,4 @@
+import { relative } from 'path';
 import { fileURLToPath } from 'url';
 import { expect } from 'chai';
 import testAdapter from '../../astro/test/test-adapter.js';
@@ -32,8 +33,10 @@ describe('astro:db local database', () => {
 		});
 	});
 
-	describe('build (not remote) with DATABASE_FILE env (file path)', () => {
-		const prodDbPath = fileURLToPath(new URL('./fixtures/basics/dist/astro.db', import.meta.url));
+	describe('build (not remote) with DATABASE_FILE env (relative file path)', () => {
+		const absoluteFileUrl = new URL('./fixtures/basics/dist/astro.db', import.meta.url);
+		const prodDbPath = relative(process.cwd(), fileURLToPath(absoluteFileUrl));
+
 		before(async () => {
 			process.env.ASTRO_DATABASE_FILE = prodDbPath;
 			await fixture.build();
