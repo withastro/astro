@@ -8,16 +8,24 @@ export * from './shared.js';
 
 export { z } from 'zod';
 
-export function defineAction<TOutput, TInputSchema extends z.ZodType>({
+export function defineAction<
+	TOutput,
+	TAccept extends 'json' | 'form' | undefined,
+	TInputSchema extends z.ZodType,
+>({
 	accept = 'json',
 	input: inputSchema,
 	handler,
 }: {
 	input?: TInputSchema;
-	accept?: 'json' | 'form' | 'all';
+	accept?: TAccept;
 	handler: (input: z.infer<TInputSchema>, context: APIContext) => MaybePromise<TOutput>;
-}): ((input: z.input<TInputSchema> | FormData) => Promise<Awaited<TOutput>>) & {
-	safe: (input: z.input<TInputSchema> | FormData) => Promise<SafeResult<TInputSchema, Awaited<TOutput>>>;
+}): ((
+	input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
+) => Promise<Awaited<TOutput>>) & {
+	safe: (
+		input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
+	) => Promise<SafeResult<TInputSchema, Awaited<TOutput>>>;
 } {
 	const serverHandler = async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
 		const context = ApiContextStorage.getStore()!;
@@ -28,7 +36,8 @@ export function defineAction<TOutput, TInputSchema extends z.ZodType>({
 			if (accept === 'json') {
 				throw new ActionError({
 					code: 'UNSUPPORTED_MEDIA_TYPE',
-					message: 'This action only accepts JSON input. To accept form data, set the `accept` option to either `form` or `all`.'
+					message:
+						"This action only accepts JSON input. To accept form data, add `accept: 'form'` to your action configuration.",
 				});
 			}
 			// TODO: form input schema narrowing
@@ -45,9 +54,10 @@ export function defineAction<TOutput, TInputSchema extends z.ZodType>({
 	serverHandler.safe = async (): Promise<SafeResult<TInputSchema, Awaited<TOutput>>> => {
 		throw new ActionError({
 			code: 'INTERNAL_SERVER_ERROR',
-			message: 'safe() unexpectedly called on the server. To retrieve action data from Astro frontmatter, use the `Astro.getActionResult()` function.'
+			message:
+				'safe() unexpectedly called on the server. To retrieve action data from Astro frontmatter, use the `Astro.getActionResult()` function.',
 		});
-	}
+	};
 	return serverHandler;
 }
 
@@ -58,10 +68,7 @@ function upgradeFormData<T extends z.AnyZodObject>(
 	const obj: Record<string, unknown> = {};
 	for (const [key, baseValidator] of Object.entries(schema.shape)) {
 		let validator = baseValidator;
-		if (
-			baseValidator instanceof z.ZodOptional ||
-			baseValidator instanceof z.ZodNullable
-		) {
+		if (baseValidator instanceof z.ZodOptional || baseValidator instanceof z.ZodNullable) {
 			validator = baseValidator._def.innerType;
 		}
 		if (validator instanceof z.ZodBoolean) {
