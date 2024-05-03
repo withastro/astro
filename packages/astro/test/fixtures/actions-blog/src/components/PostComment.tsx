@@ -1,8 +1,9 @@
-import { getNameProps, actions } from "astro:actions";
+import { getNameProps, actions, isInputError } from "astro:actions";
 import { useState } from "react";
 
 export function PostComment({postId}: {postId: string}) {
 	const [comments, setComments] = useState<{ author: string, body: string }[]>([]);
+	const [bodyError, setBodyError] = useState<string | undefined>(undefined);
 
 	return (
 		<>
@@ -10,8 +11,14 @@ export function PostComment({postId}: {postId: string}) {
 			e.preventDefault();
 			const form = e.target as HTMLFormElement;
 			const formData = new FormData(form);
-			const {comment} = await actions.blog.comment(formData);
-			setComments(c => [comment, ...c]);
+			const {	data, error } = await actions.blog.comment.safe(formData);
+			if (isInputError(error)) {
+				return setBodyError(error.fields.body?.join(' '));
+			}
+			if (data) {
+				setBodyError(undefined);
+				setComments(c => [data.comment, ...c]);
+			}
 			form.reset();
 		}}>
 			<input {...getNameProps(actions.blog.comment)} />
@@ -19,6 +26,7 @@ export function PostComment({postId}: {postId: string}) {
 			<label className="sr-only" htmlFor="author">Author</label>
 			<input id="author" type="text" name="author" placeholder="Your name" />
 			<textarea rows={10} name="body"></textarea>
+			{bodyError && <p style={{ color: 'red' }}>{bodyError}</p>}
 			<button type="submit">Post</button>
 		</form>
 		{comments.map(c => (

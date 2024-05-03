@@ -27,7 +27,7 @@ export default {
       input: z.object({
         postId: z.string(),
         author: z.string(),
-        body: z.string(),
+        body: z.string().min(50),
       }),
       handler: async ({ postId, author, body }) => {
         const comment = await db.insert(Comment).values({
