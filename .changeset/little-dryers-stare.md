@@ -4,7 +4,7 @@
 
 Adds a `devtools` option
 
-Enabling `devtools` will enable the [official Preact Devtools](https://preactjs.github.io/preact-devtools/) in development:
+You can enable [Preact devtools](https://preactjs.github.io/preact-devtools/) in development by setting `devtools: true` in your `preact()` integration config:
 
 ```js
 import { defineConfig } from "astro/config"
