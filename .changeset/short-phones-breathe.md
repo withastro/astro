@@ -2,4 +2,4 @@
 "@astrojs/react": patch
 ---
 
-Support React 19
+Updates package to support React 19 beta
