@@ -75,19 +75,19 @@ describe('Web Vitals integration basics', () => {
 	it('returns a 200 response even when bad data is sent to the injected endpoint', async () => {
 		{
 			// bad data
-			const res = await fixture.fetch('/_/astro-vitals', { method: 'POST', body: 'garbage' });
+			const res = await fixture.fetch('/_web-vitals', { method: 'POST', body: 'garbage' });
 			assert.equal(res.status, 200);
 		}
 		{
 			// no data
-			const res = await fixture.fetch('/_/astro-vitals', { method: 'POST', body: '[]' });
+			const res = await fixture.fetch('/_web-vitals', { method: 'POST', body: '[]' });
 			assert.equal(res.status, 200);
 		}
 		assert.equal(consoleErrorMock.calls.length, 2);
 	});
 
 	it('validates data sent to the injected endpoint with Zod', async () => {
-		const res = await fixture.fetch('/_/astro-vitals', { method: 'POST', body: '[{}]' });
+		const res = await fixture.fetch('/_web-vitals', { method: 'POST', body: '[{}]' });
 		assert.equal(res.status, 200);
 		const call = consoleErrorMock.calls[0][0];
 		assert.ok(call instanceof Error);
@@ -95,7 +95,7 @@ describe('Web Vitals integration basics', () => {
 	});
 
 	it('inserts data via the injected endpoint', async () => {
-		const res = await fixture.fetch('/_/astro-vitals', {
+		const res = await fixture.fetch('/_web-vitals', {
 			method: 'POST',
 			body: JSON.stringify([
 				{

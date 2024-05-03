@@ -1,4 +1,5 @@
 import { type Metric, onCLS, onFCP, onFID, onINP, onLCP, onTTFB } from 'web-vitals';
+import { WEB_VITALS_ENDPOINT_PATH } from './constants.js';
 import type { ClientMetric } from './schemas.js';
 
 const pathname = location.pathname.replace(/(?<=.)\/$/, '');
@@ -20,9 +21,8 @@ function flushQueue() {
 		rating,
 	}));
 	const body = JSON.stringify(rawBody);
-	const endpoint = '/_/astro-vitals';
-	if (navigator.sendBeacon) navigator.sendBeacon(endpoint, body);
-	else fetch(endpoint, { body, method: 'POST', keepalive: true });
+	if (navigator.sendBeacon) navigator.sendBeacon(WEB_VITALS_ENDPOINT_PATH, body);
+	else fetch(WEB_VITALS_ENDPOINT_PATH, { body, method: 'POST', keepalive: true });
 	queue.clear();
 }
 

@@ -1,5 +1,6 @@
 import { defineDbIntegration } from '@astrojs/db/utils';
 import { AstroError } from 'astro/errors';
+import { WEB_VITALS_ENDPOINT_PATH } from './constants.js';
 
 export default function webVitals() {
 	return defineDbIntegration({
@@ -30,7 +31,7 @@ export default function webVitals() {
 				// Endpoint that collects metrics and inserts them in Astro DB.
 				injectRoute({
 					entrypoint: '@astrojs/web-vitals/endpoint',
-					pattern: '/_/astro-vitals',
+					pattern: WEB_VITALS_ENDPOINT_PATH,
 					prerender: false,
 				});
 				// Client-side performance measurement script.
