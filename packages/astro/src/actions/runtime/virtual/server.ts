@@ -9,12 +9,12 @@ export * from './shared.js';
 export { z } from 'zod';
 
 export function defineAction<TOutput, TInputSchema extends z.ZodType>({
-	accept,
+	accept = 'json',
 	input: inputSchema,
 	handler,
 }: {
 	input?: TInputSchema;
-	accept: 'json' | 'form' | 'all';
+	accept?: 'json' | 'form' | 'all';
 	handler: (input: z.infer<TInputSchema>, context: APIContext) => MaybePromise<TOutput>;
 }): ((input: z.input<TInputSchema> | FormData) => Promise<Awaited<TOutput>>) & {
 	safe: (input: z.input<TInputSchema> | FormData) => Promise<SafeResult<TInputSchema, Awaited<TOutput>>>;
