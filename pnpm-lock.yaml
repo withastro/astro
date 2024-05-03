@@ -5327,6 +5327,40 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/web-vitals:
+    dependencies:
+      web-vitals:
+        specifier: ^3.5.2
+        version: 3.5.2
+    devDependencies:
+      '@astrojs/db':
+        specifier: workspace:*
+        version: link:../../db
+      astro:
+        specifier: workspace:*
+        version: link:../../astro
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../../scripts
+      linkedom:
+        specifier: ^0.16.11
+        version: 0.16.11
+
+  packages/integrations/web-vitals/test/fixtures/basics:
+    dependencies:
+      '@astrojs/db':
+        specifier: workspace:*
+        version: link:../../../../../db
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../node
+      '@astrojs/web-vitals':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/internal-helpers:
     devDependencies:
       astro-scripts:
