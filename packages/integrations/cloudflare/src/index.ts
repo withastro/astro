@@ -1,5 +1,7 @@
 import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
 import type { OutputChunk, ProgramNode } from 'rollup';
+import type { PluginOption } from 'vite';
+import type { CloudflareModulePluginExtra } from './utils/wasm-module-loader.js';
 
 import { createReadStream } from 'node:fs';
 import { appendFile, rename, stat, unlink } from 'node:fs/promises';
@@ -18,7 +20,7 @@ import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { setImageConfig } from './utils/image-config.js';
 import { mutateDynamicPageImportsInPlace, mutatePageMapInPlace } from './utils/index.js';
 import { NonServerChunkDetector } from './utils/non-server-chunk-detector.js';
-import { wasmModuleLoader } from './utils/wasm-module-loader.js';
+import { cloudflareModuleLoader } from './utils/wasm-module-loader.js';
 
 export type { Runtime } from './entrypoints/server.js';
 
@@ -62,12 +64,19 @@ export type Options = {
 		/** Configuration persistence settings. Default '.wrangler/state/v3' */
 		persist?: boolean | { path: string };
 	};
-	/** Enable WebAssembly support */
+	/**
+	 * Allow bundling cloudflare worker specific file types
+	 * https://developers.cloudflare.com/workers/wrangler/bundling/
+	 */
 	wasmModuleImports?: boolean;
 };
 
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
+
+	const cloudflareModulePlugin: PluginOption & CloudflareModulePluginExtra = cloudflareModuleLoader(
+		args?.wasmModuleImports ?? false
+	);
 
 	// Initialize the unused chunk analyzer as a shared state between hooks.
 	// The analyzer is used on earlier hooks to collect information about used hooks on a Vite plugin
@@ -91,9 +100,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite: {
 						// load .wasm files as WebAssembly modules
 						plugins: [
-							wasmModuleLoader({
-								disabled: !args?.wasmModuleImports,
-							}),
+							cloudflareModulePlugin,
 							chunkAnalyzer.getPlugin(),
 							{
 								name: 'dynamic-imports-analyzer',
@@ -274,6 +281,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 			},
 			'astro:build:done': async ({ pages, routes, dir, logger }) => {
+				await cloudflareModulePlugin.afterBuildCompleted(_config);
 				const PLATFORM_FILES = ['_headers', '_redirects', '_routes.json'];
 				if (_config.base !== '/') {
 					for (const file of PLATFORM_FILES) {
