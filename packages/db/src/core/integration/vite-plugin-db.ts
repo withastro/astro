@@ -8,19 +8,23 @@ import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 import { type SQL, sql } from 'drizzle-orm';
 import { existsSync } from 'node:fs';
 import { normalizeDatabaseUrl } from '../../runtime/index.js';
-import { bundleFile, getResolvedFileUrl, importBundledFile } from '../load-file.js';
+import { getResolvedFileUrl } from '../load-file.js';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
-import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
-import { LibsqlError } from '@libsql/client';
-import { AstroDbError } from '../../runtime/utils.js';
 
-export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
+export const resolved = {
+	module: '\0' + VIRTUAL_MODULE_ID,
+	importedFromSeedFile: '\0' + VIRTUAL_MODULE_ID + ':seed',
+};
 
 export type LateTables = {
 	get: () => DBTables;
 };
 export type LateSeedFiles = {
 	get: () => Array<string | URL>;
+};
+export type SeedHandler = {
+	inProgress: boolean;
+	execute: (fileUrl: URL) => Promise<void>;
 };
 
 type VitePluginDBParams =
@@ -32,6 +36,7 @@ type VitePluginDBParams =
 			root: URL;
 			logger?: AstroIntegrationLogger;
 			output: AstroConfig['output'];
+			seedHandler: SeedHandler;
 	  }
 	| {
 			connectToStudio: true;
@@ -40,6 +45,7 @@ type VitePluginDBParams =
 			srcDir: URL;
 			root: URL;
 			output: AstroConfig['output'];
+			seedHandler: SeedHandler;
 	  };
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
@@ -51,10 +57,14 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			command = resolvedConfig.command;
 		},
 		async resolveId(id) {
-			if (id === VIRTUAL_MODULE_ID) return RESOLVED_VIRTUAL_MODULE_ID;
+			if (id !== VIRTUAL_MODULE_ID) return;
+			if (params.seedHandler.inProgress) {
+				return resolved.importedFromSeedFile;
+			}
+			return resolved.module;
 		},
 		async load(id) {
-			if (id !== RESOLVED_VIRTUAL_MODULE_ID) return;
+			if (id !== resolved.module && id !== resolved.importedFromSeedFile) return;
 
 			if (params.connectToStudio) {
 				return getStudioVirtualModContents({
@@ -64,24 +74,31 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 					output: params.output,
 				});
 			}
+
+			// When seeding, we resolved to a different virtual module.
+			// this prevents an infinite loop attempting to rerun seed files.
+			// Short circuit with the module contents in this case.
+			if (id === resolved.importedFromSeedFile) {
+				return getLocalVirtualModContents({
+					root: params.root,
+					tables: params.tables.get(),
+				});
+			}
+
 			await recreateTables(params);
 			const seedFiles = getResolvedSeedFiles(params);
-			let hasSeeded = false;
 			for await (const seedFile of seedFiles) {
 				// Use `addWatchFile()` to invalidate the `astro:db` module
 				// when a seed file changes.
 				this.addWatchFile(fileURLToPath(seedFile));
 				if (existsSync(seedFile)) {
-					hasSeeded = true;
-					await executeSeedFile({
-						tables: params.tables.get() ?? {},
-						fileUrl: seedFile,
-						root: params.root,
-					});
+					params.seedHandler.inProgress = true;
+					await params.seedHandler.execute(seedFile);
 				}
 			}
-			if (hasSeeded) {
+			if (params.seedHandler.inProgress) {
 				(params.logger ?? console).info('Seeded database.');
+				params.seedHandler.inProgress = false;
 			}
 			return getLocalVirtualModContents({
 				root: params.root,
@@ -196,32 +213,4 @@ function getResolvedSeedFiles({
 	const localSeedFiles = SEED_DEV_FILE_NAME.map((name) => new URL(name, getDbDirectoryUrl(root)));
 	const integrationSeedFiles = seedFiles.get().map((s) => getResolvedFileUrl(root, s));
 	return [...integrationSeedFiles, ...localSeedFiles];
-}
-
-async function executeSeedFile({
-	tables,
-	root,
-	fileUrl,
-}: {
-	tables: DBTables;
-	root: URL;
-	fileUrl: URL;
-}) {
-	const virtualModContents = getLocalVirtualModContents({
-		tables: tables ?? {},
-		root,
-	});
-	const { code } = await bundleFile({ virtualModContents, root, fileUrl });
-	const mod = await importBundledFile({ code, root });
-	if (typeof mod.default !== 'function') {
-		throw new AstroDbError(EXEC_DEFAULT_EXPORT_ERROR(fileURLToPath(fileUrl)));
-	}
-	try {
-		await mod.default();
-	} catch (e) {
-		if (e instanceof LibsqlError) {
-			throw new AstroDbError(EXEC_ERROR(e.message));
-		}
-		throw e;
-	}
 }

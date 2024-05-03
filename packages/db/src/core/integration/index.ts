@@ -4,7 +4,14 @@ import { fileURLToPath } from 'url';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import { mkdir, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
-import { loadEnv } from 'vite';
+import {
+	createServer,
+	loadEnv,
+	mergeConfig,
+	type HMRPayload,
+	type UserConfig,
+	type ViteDevServer,
+} from 'vite';
 import parseArgs from 'yargs-parser';
 import { SEED_DEV_FILE_NAME } from '../queries.js';
 import { AstroDbError } from '../../runtime/utils.js';
@@ -18,15 +25,20 @@ import {
 	type LateSeedFiles,
 	type LateTables,
 	vitePluginDb,
-	RESOLVED_VIRTUAL_MODULE_ID,
+	type SeedHandler,
+	resolved,
 } from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
+import { LibsqlError } from '@libsql/client';
+import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectToStudio = false;
 	let configFileDependencies: string[] = [];
 	let root: URL;
 	let appToken: ManagedAppToken | undefined;
+	// Used during production builds to load seed files.
+	let tempViteServer: ViteDevServer | undefined;
 
 	// Make table loading "late" to pass to plugins from `config:setup`,
 	// but load during `config:done` to wait for integrations to settle.
@@ -40,6 +52,13 @@ function astroDBIntegration(): AstroIntegration {
 			throw new Error('[astro:db] INTERNAL Seed files not loaded yet');
 		},
 	};
+	let seedHandler: SeedHandler = {
+		execute: () => {
+			throw new Error('[astro:db] INTERNAL Seed handler not loaded yet');
+		},
+		inProgress: false,
+	};
+
 	let command: 'dev' | 'build' | 'preview';
 	let output: AstroConfig['output'] = 'server';
 	return {
@@ -65,6 +84,7 @@ function astroDBIntegration(): AstroIntegration {
 						root: config.root,
 						srcDir: config.srcDir,
 						output: config.output,
+						seedHandler,
 					});
 				} else {
 					dbPlugin = vitePluginDb({
@@ -75,6 +95,7 @@ function astroDBIntegration(): AstroIntegration {
 						srcDir: config.srcDir,
 						output: config.output,
 						logger,
+						seedHandler,
 					});
 				}
 
@@ -104,6 +125,9 @@ function astroDBIntegration(): AstroIntegration {
 				await typegenInternal({ tables: tables.get() ?? {}, root: config.root });
 			},
 			'astro:server:setup': async ({ server, logger }) => {
+				seedHandler.execute = async (fileUrl) => {
+					await executeSeedFile({ fileUrl, viteServer: server });
+				};
 				const filesToWatch = [
 					...CONFIG_FILE_NAMES.map((c) => new URL(c, getDbDirectoryUrl(root))),
 					...configFileDependencies.map((c) => new URL(c, root)),
@@ -126,7 +150,7 @@ function astroDBIntegration(): AstroIntegration {
 					);
 					// Eager load astro:db module on startup
 					if (seedFiles.get().length || localSeedPaths.find((path) => existsSync(path))) {
-						server.ssrLoadModule(RESOLVED_VIRTUAL_MODULE_ID).catch((e) => {
+						server.ssrLoadModule(resolved.module).catch((e) => {
 							logger.error(e instanceof Error ? e.message : String(e));
 						});
 					}
@@ -146,8 +170,15 @@ function astroDBIntegration(): AstroIntegration {
 
 				logger.info('database: ' + (connectToStudio ? yellow('remote') : blue('local database.')));
 			},
+			'astro:build:setup': async ({ vite }) => {
+				tempViteServer = await getTempViteServer({ viteConfig: vite });
+				seedHandler.execute = async (fileUrl) => {
+					await executeSeedFile({ fileUrl, viteServer: tempViteServer! });
+				};
+			},
 			'astro:build:done': async ({}) => {
 				await appToken?.destroy();
+				await tempViteServer?.close();
 			},
 		},
 	};
@@ -160,4 +191,49 @@ function databaseFileEnvDefined() {
 
 export function integration(): AstroIntegration[] {
 	return [astroDBIntegration(), fileURLIntegration()];
+}
+
+async function executeSeedFile({
+	fileUrl,
+	viteServer,
+}: {
+	fileUrl: URL;
+	viteServer: ViteDevServer;
+}) {
+	const mod = await viteServer.ssrLoadModule(fileUrl.pathname);
+	if (typeof mod.default !== 'function') {
+		throw new AstroDbError(EXEC_DEFAULT_EXPORT_ERROR(fileURLToPath(fileUrl)));
+	}
+	try {
+		await mod.default();
+	} catch (e) {
+		if (e instanceof LibsqlError) {
+			throw new AstroDbError(EXEC_ERROR(e.message));
+		}
+		throw e;
+	}
+}
+
+/**
+ * Inspired by Astro content collection config loader.
+ */
+async function getTempViteServer({ viteConfig }: { viteConfig: UserConfig }) {
+	const tempViteServer = await createServer(
+		mergeConfig(viteConfig, {
+			server: { middlewareMode: true, hmr: false, watch: null },
+			optimizeDeps: { noDiscovery: true },
+			ssr: { external: [] },
+			logLevel: 'silent',
+		})
+	);
+
+	const hotSend = tempViteServer.hot.send;
+	tempViteServer.hot.send = (payload: HMRPayload) => {
+		if (payload.type === 'error') {
+			throw payload.err;
+		}
+		return hotSend(payload);
+	};
+
+	return tempViteServer;
 }
