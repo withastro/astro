@@ -23,10 +23,10 @@ function toActionProxy(
 					body,
 					headers,
 				});
-				const json = await res.json();
 				if (!res.ok) {
 					throw await ActionError.fromResponse(res);
 				}
+				const json = await res.json();
 				return json;
 			}
 			action.toString = () => path;
