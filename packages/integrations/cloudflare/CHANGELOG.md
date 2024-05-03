@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 10.2.5
+
+### Patch Changes
+
+- [#249](https://github.com/withastro/adapters/pull/249) [`72fc8ac`](https://github.com/withastro/adapters/commit/72fc8ac6faee9eae2463bab23407c2b619abb39f) Thanks [@adrianlyjak](https://github.com/adrianlyjak)! - Fixes build errors when wasm modules are imported from a file that is shared in both prerendered static pages and server side rendered pages
+
 ## 10.2.4
 
 ### Patch Changes
