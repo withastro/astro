@@ -104,6 +104,7 @@
     "jsx-runtime.d.ts",
     "content-types.template.d.ts",
     "content-module.template.mjs",
+    "actions-module.template.mjs",
     "astro-jsx.d.ts",
     "types.d.ts",
     "README.md",
