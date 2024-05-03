@@ -56,7 +56,7 @@ export function defineAction<
 			unparsedInput = upgradeFormData(unparsedInput, inputSchema as any);
 		}
 
-		const parsed = inputSchema.safeParse(unparsedInput);
+		const parsed = await inputSchema.safeParseAsync(unparsedInput);
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error);
 		}
