@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/web-vitals",
   "description": "Track your website’s performance with Astro DB",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -31,18 +31,18 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "astro-scripts test --timeout 50000 \"test/**/*.test.js\""
   },
-	"dependencies": {
-		"web-vitals": "^3.5.2"
-	},
+  "dependencies": {
+    "web-vitals": "^3.5.2"
+  },
   "peerDependencies": {
     "@astrojs/db": "^0.11.0"
   },
-	"devDependencies": {
-		"@astrojs/db": "workspace:*",
-		"astro": "workspace:*",
+  "devDependencies": {
+    "@astrojs/db": "workspace:*",
+    "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "linkedom": "^0.16.11"
-	},
+  },
   "publishConfig": {
     "provenance": true
   }

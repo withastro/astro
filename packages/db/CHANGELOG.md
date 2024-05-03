@@ -1,5 +1,12 @@
 # @astrojs/db
 
+## 0.11.0
+
+### Minor Changes
+
+- [#10919](https://github.com/withastro/astro/pull/10919) [`44bafa9`](https://github.com/withastro/astro/commit/44bafa989af0cc380696bb6381048fc1ee55dd5b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - - Fix duplicate table recreations when you start your dev server.
+  - Remove eager re-seeding when updating your seed file in development. Seeding still runs on dev server startup for SQLite inspector tools.
+
 ## 0.10.7
 
 ### Patch Changes
