@@ -1,5 +1,6 @@
 import type { z } from 'zod';
 import type { MaybePromise } from '../utils.js';
+import { ZodError } from 'zod';
 
 type ActionErrorCode =
 	| 'BAD_REQUEST'
@@ -61,8 +62,12 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 	static async fromResponse(res: Response) {
 		if (res.status === 400 && res.headers.get('Content-Type')?.startsWith('application/json')) {
 			const body = await res.json();
-			if (typeof body === 'object' && body?.inputError) {
-				return new ActionInputError(body.inputError);
+			if (
+				typeof body === 'object' &&
+				body?.type === 'AstroActionInputError' &&
+				Array.isArray(body.issues)
+			) {
+				return new ActionInputError(body.issues);
 			}
 		}
 		return new ActionError({
@@ -73,7 +78,7 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 }
 
 export function isInputError<T extends ErrorInferenceObject>(
-	error: ActionError<T>
+	error?: ActionError<T>
 ): error is ActionInputError<T> {
 	return error instanceof ActionInputError;
 }
@@ -88,13 +93,27 @@ export type SafeResult<TInput extends ErrorInferenceObject, TOutput> =
 			error: ActionError<TInput>;
 	  };
 
-export class ActionInputError<T extends Record<string, any>> extends ActionError {
+export class ActionInputError<T extends ErrorInferenceObject> extends ActionError {
 	type = 'AstroActionInputError';
-	inputError: z.ZodError<T>;
 
-	constructor(inputError: z.ZodError<T>) {
+	// We don't expose all ZodError properties.
+	// Not all properties will serialize from server to client,
+	// and we don't want to import the full ZodError object into the client.
+
+	issues: z.ZodIssue[];
+	fields: ZodError<T>['formErrors']['fieldErrors'];
+
+	constructor(issues: z.ZodIssue[]) {
 		super({ message: 'Failed to validate', code: 'BAD_REQUEST' });
-		this.inputError = inputError;
+		this.issues = issues;
+		this.fields = {};
+		for (const issue of issues) {
+			if (issue.path.length > 0) {
+				const key = issue.path[0].toString() as keyof typeof this.fields;
+				this.fields[key] ??= [];
+				this.fields[key]?.push(issue.message);
+			}
+		}
 	}
 }
 

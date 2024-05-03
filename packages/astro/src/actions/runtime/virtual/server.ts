@@ -58,7 +58,7 @@ export function defineAction<
 
 		const parsed = await inputSchema.safeParseAsync(unparsedInput);
 		if (!parsed.success) {
-			throw new ActionInputError(parsed.error);
+			throw new ActionInputError(parsed.error.issues);
 		}
 		return await handler(parsed.data, context);
 	};
