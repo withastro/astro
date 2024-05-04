@@ -1,3 +1,4 @@
+import { CustomSwapper } from './custom-swapper.js';
 import { updateScrollPosition } from './router.js';
 import type { Direction, NavigationTypeString } from './types.js';
 
@@ -114,6 +115,7 @@ export const isTransitionBeforeSwapEvent = (value: any): value is TransitionBefo
 export class TransitionBeforeSwapEvent extends BeforeEvent {
 	readonly direction: Direction | string;
 	readonly viewTransition: ViewTransition;
+	readonly swapper = new CustomSwapper();
 	swap: () => void;
 
 	constructor(

@@ -273,13 +273,7 @@ async function updateDOM(
 	fallback?: Fallback
 ) {
 	const defaultSwap = (beforeSwapEvent: TransitionBeforeSwapEvent) => {
-		const doc = beforeSwapEvent.newDocument;
-		deselectScripts(doc);
-		swapRootAttributes(doc);
-		swapHeadElements(doc);
-		const savedFocus = saveFocus();
-		swapBodyElement(doc.body, document.body);
-		restoreFocus(savedFocus);
+		beforeSwapEvent.swapper.swap(beforeSwapEvent.newDocument);
 	};
 
 	async function animate(phase: string) {

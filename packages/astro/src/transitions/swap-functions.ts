@@ -85,7 +85,7 @@ export function swapBodyElement(newElement: Element, oldElement: Element) {
 	}
 }
 
-export const saveFocus = (): SavedFocus => {
+export const saveFocus = (): (() => void) => {
 	const activeElement = document.activeElement as HTMLElement;
 	// The element that currently has the focus is part of a DOM tree
 	// that will survive the transition to the new document.
@@ -94,11 +94,11 @@ export const saveFocus = (): SavedFocus => {
 		if (activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement) {
 			const start = activeElement.selectionStart;
 			const end = activeElement.selectionEnd;
-			return { activeElement, start, end };
+			return () => restoreFocus({ activeElement, start, end });
 		}
-		return { activeElement };
+		return () => restoreFocus({ activeElement });
 	} else {
-		return { activeElement: null };
+		return () => restoreFocus({ activeElement: null });
 	}
 };
 
