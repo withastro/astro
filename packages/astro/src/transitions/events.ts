@@ -1,4 +1,4 @@
-import { CustomSwapper } from './custom-swapper.js';
+import { SwapSteps } from './swap-steps.js';
 import { updateScrollPosition } from './router.js';
 import type { Direction, NavigationTypeString } from './types.js';
 
@@ -115,7 +115,7 @@ export const isTransitionBeforeSwapEvent = (value: any): value is TransitionBefo
 export class TransitionBeforeSwapEvent extends BeforeEvent {
 	readonly direction: Direction | string;
 	readonly viewTransition: ViewTransition;
-	readonly swapper: CustomSwapper;
+	readonly swapSteps: SwapSteps;
 	swap: () => void;
 
 	constructor(
@@ -136,14 +136,14 @@ export class TransitionBeforeSwapEvent extends BeforeEvent {
 		);
 		this.direction = afterPreparation.direction;
 		this.viewTransition = viewTransition;
-		this.swapper = new CustomSwapper();
-		this.swap = () => this.swapper.swap(this.newDocument);
+		this.swapSteps = new SwapSteps();
+		this.swap = () => this.swapSteps.swap(this.newDocument);
 
 		Object.defineProperties(this, {
 			direction: { enumerable: true },
 			viewTransition: { enumerable: true },
 			swap: { enumerable: true, writable: true },
-			swapper: { enumerable: true },
+			swapSteps: { enumerable: true },
 		});
 	}
 }

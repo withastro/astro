@@ -8,7 +8,7 @@ import Layout from '../components/Layout.astro';
 <script>
 
 	document.addEventListener('astro:before-swap', (e) => {
-		e.swapper.extend({
+		e.swapSteps.extend({
 			swapRootAttributes(doc, previousSwapRootAttributes) {
 				const theme = document.documentElement.getAttribute('data-theme')!;
 				previousSwapRootAttributes(doc); // reuse the built-in implementation

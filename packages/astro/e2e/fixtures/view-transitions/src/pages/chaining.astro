@@ -18,7 +18,7 @@ import Layout from "../components/Layout.astro"
 	})
 
 	document.addEventListener('astro:before-swap', (e) => {
-		e.swapper.extend({
+		e.swapSteps.extend({
 			swapRootAttributes(doc, originalSwapRootAttributes) {
 				console.log(t, "4");
 				originalSwapRootAttributes(doc);
@@ -37,7 +37,7 @@ import Layout from "../components/Layout.astro"
 	})
 
 	document.addEventListener('astro:before-swap', (e) => {
-		e.swapper.extend({
+		e.swapSteps.extend({
 			swapRootAttributes(doc, originalSwapRootAttributes) {
 				console.log(t, "5");
 				originalSwapRootAttributes(doc);

@@ -6,7 +6,7 @@ import {
 	swapRootAttributes,
 } from './swap-functions.js';
 
-export interface SwapperOptions {
+export interface SwapStepsOptions {
 	deselectScripts: (doc: Document) => void;
 	swapRootAttributes: (doc: Document) => void;
 	swapHeadElements: (doc: Document) => void;
@@ -16,11 +16,11 @@ export interface SwapperOptions {
 
 type Extension<Args extends any[], Return> = ((...args: [...Args, next: (...args: Args) => Return]) => Return);
 
-type SwapperExtensions = {
-	[K in keyof SwapperOptions]?: Extension<Parameters<SwapperOptions[K]>, ReturnType<SwapperOptions[K]>>
+type SwapStepsExtensions = {
+	[K in keyof SwapStepsOptions]?: Extension<Parameters<SwapStepsOptions[K]>, ReturnType<SwapStepsOptions[K]>>
 }
 
-export class CustomSwapper {
+export class SwapSteps {
 	swap(doc: Document) {
 		this.#deselectScripts(doc);
 		this.#swapRootAttributes(doc);
@@ -36,12 +36,12 @@ export class CustomSwapper {
 	#swapBodyElement: (newElement: Element, oldElement: Element) => void = swapBodyElement;
 	#saveFocus: () => () => void = saveFocus;
 
-	public extend(extensions: SwapperExtensions): void {
-		this.#deselectScripts = CustomSwapper.makeExtension(this.#deselectScripts, extensions.deselectScripts);
-		this.#swapRootAttributes = CustomSwapper.makeExtension(this.#swapRootAttributes, extensions.swapRootAttributes);
-		this.#swapHeadElements = CustomSwapper.makeExtension(this.#swapHeadElements, extensions.swapHeadElements);
-		this.#swapBodyElement = CustomSwapper.makeExtension(this.#swapBodyElement, extensions.swapBodyElement);
-		this.#saveFocus = CustomSwapper.makeExtension(this.#saveFocus, extensions.saveFocus);
+	public extend(extensions: SwapStepsExtensions): void {
+		this.#deselectScripts = SwapSteps.makeExtension(this.#deselectScripts, extensions.deselectScripts);
+		this.#swapRootAttributes = SwapSteps.makeExtension(this.#swapRootAttributes, extensions.swapRootAttributes);
+		this.#swapHeadElements = SwapSteps.makeExtension(this.#swapHeadElements, extensions.swapHeadElements);
+		this.#swapBodyElement = SwapSteps.makeExtension(this.#swapBodyElement, extensions.swapBodyElement);
+		this.#saveFocus = SwapSteps.makeExtension(this.#saveFocus, extensions.saveFocus);
 	}
 
 	private static makeExtension<Args extends any[], Return>(

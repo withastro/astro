@@ -9,7 +9,7 @@ import Layout from '../components/Layout.astro';
 
 	document.addEventListener('astro:before-swap', (e) => {
 
-		e.swapper.extend({
+		e.swapSteps.extend({
 			swapHeadElements(doc, previousSwapHeadElements) {
 				const dynamicStyle = document.head.querySelector('style:not(:empty)');
 				previousSwapHeadElements(doc); // reuse the built-in implementation

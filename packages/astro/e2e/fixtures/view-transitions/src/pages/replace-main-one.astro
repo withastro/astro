@@ -11,7 +11,7 @@ import Layout from '../components/Layout.astro';
 <script>
 	document.addEventListener('astro:before-swap', (e) => {
 		// generate a complete swap function by just overriding the swapHeadElements function
-		e.swapper.extend({
+		e.swapSteps.extend({
 			swapBodyElement(newElement: Element, oldElement: Element, previousSwapBodyElement) {
 				const newMain = newElement.querySelector('main section');
 				const oldMain = oldElement.querySelector('main section');
