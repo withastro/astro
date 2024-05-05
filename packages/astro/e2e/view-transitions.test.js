@@ -1499,7 +1499,20 @@ test.describe('View Transitions', () => {
 		const link = await page.$('#click');
 		expect(link).toBeTruthy();
   });
- 
+
+	test('chaining should execute in the expected order', async ({ page, astro }) => {
+		let lines = [];
+		page.on('console', (msg) => {
+			msg.text().startsWith('[test]') && lines.push(msg.text().slice('[test]'.length + 1));
+		});
+
+		await page.goto(astro.resolveUrl('/chaining'));
+		await expect(page.locator('#name'), 'should have content').toHaveText('Chaining');
+		await page.click('#click');
+		await expect(page.locator('#one'), 'should have content').toHaveText('Page 1');
+		expect(lines.join('..')).toBe('7..6..5..4..3..2..1..0');
+	});
+
 	test('Navigation should be interruptible', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/abort'));
 		// implemented in /abort:
