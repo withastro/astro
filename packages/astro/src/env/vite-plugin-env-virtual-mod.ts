@@ -4,8 +4,10 @@ import type { Logger } from '../core/logger/core.js';
 import {
 	ENV_TYPES_FILE,
 	RESOLVED_VIRTUAL_CLIENT_MODULE_ID,
+	RESOLVED_VIRTUAL_INTERNAL_MODULE_ID,
 	RESOLVED_VIRTUAL_SERVER_MODULE_ID,
 	VIRTUAL_CLIENT_MODULE_ID,
+	VIRTUAL_INTERNAL_MODULE_ID,
 	VIRTUAL_SERVER_MODULE_ID,
 } from './constants.js';
 import type { EnvSchema } from './schema.js';
@@ -38,8 +40,8 @@ export function astroEnvVirtualModPlugin({
 
 	const schema = settings.config.experimental.env.schema ?? {};
 
-	// TODO: server / public
 	// TODO: server / secret
+	// TODO: module and types templates
 	return {
 		name: 'astro-env-virtual-mod-plugin',
 		enforce: 'pre',
@@ -62,7 +64,10 @@ export function astroEnvVirtualModPlugin({
 				return RESOLVED_VIRTUAL_CLIENT_MODULE_ID;
 			}
 			if (id === VIRTUAL_SERVER_MODULE_ID) {
-				return RESOLVED_VIRTUAL_SERVER_MODULE_ID
+				return RESOLVED_VIRTUAL_SERVER_MODULE_ID;
+			}
+			if (id === VIRTUAL_INTERNAL_MODULE_ID) {
+				return RESOLVED_VIRTUAL_INTERNAL_MODULE_ID;
 			}
 		},
 		load(id, options) {
@@ -77,6 +82,9 @@ export function astroEnvVirtualModPlugin({
 					...AstroErrorData.EnvServerOnlyModule,
 					message: AstroErrorData.EnvServerOnlyModule.message(VIRTUAL_SERVER_MODULE_ID),
 				});
+			}
+			if (id === RESOLVED_VIRTUAL_INTERNAL_MODULE_ID) {
+				return `export const schema = ${JSON.stringify(schema)};`;
 			}
 		},
 	};
