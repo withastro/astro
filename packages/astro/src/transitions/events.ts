@@ -115,13 +115,12 @@ export const isTransitionBeforeSwapEvent = (value: any): value is TransitionBefo
 export class TransitionBeforeSwapEvent extends BeforeEvent {
 	readonly direction: Direction | string;
 	readonly viewTransition: ViewTransition;
-	readonly swapper = new CustomSwapper();
+	readonly swapper: CustomSwapper;
 	swap: () => void;
 
 	constructor(
 		afterPreparation: BeforeEvent,
-		viewTransition: ViewTransition,
-		swap: (event: TransitionBeforeSwapEvent) => void
+		viewTransition: ViewTransition
 	) {
 		super(
 			TRANSITION_BEFORE_SWAP,
@@ -137,12 +136,14 @@ export class TransitionBeforeSwapEvent extends BeforeEvent {
 		);
 		this.direction = afterPreparation.direction;
 		this.viewTransition = viewTransition;
-		this.swap = swap.bind(this, this);
+		this.swapper = new CustomSwapper();
+		this.swap = () => this.swapper.swap(this.newDocument);
 
 		Object.defineProperties(this, {
 			direction: { enumerable: true },
 			viewTransition: { enumerable: true },
 			swap: { enumerable: true, writable: true },
+			swapper: { enumerable: true },
 		});
 	}
 }
@@ -186,9 +187,8 @@ export async function doPreparation(
 export function doSwap(
 	afterPreparation: BeforeEvent,
 	viewTransition: ViewTransition,
-	defaultSwap: (event: TransitionBeforeSwapEvent) => void
 ) {
-	const event = new TransitionBeforeSwapEvent(afterPreparation, viewTransition, defaultSwap);
+	const event = new TransitionBeforeSwapEvent(afterPreparation, viewTransition);
 	document.dispatchEvent(event);
 	event.swap();
 	return event;

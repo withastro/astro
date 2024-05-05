@@ -272,9 +272,6 @@ async function updateDOM(
 	historyState?: State,
 	fallback?: Fallback
 ) {
-	const defaultSwap = (beforeSwapEvent: TransitionBeforeSwapEvent) => {
-		beforeSwapEvent.swapper.swap(beforeSwapEvent.newDocument);
-	};
 
 	async function animate(phase: string) {
 		function isInfinite(animation: Animation) {
@@ -309,7 +306,7 @@ async function updateDOM(
 	}
 
 	const pageTitleForBrowserHistory = document.title; // document.title will be overridden by swap()
-	const swapEvent = doSwap(preparationEvent, currentTransition.viewTransition!, defaultSwap);
+	const swapEvent = doSwap(preparationEvent, currentTransition.viewTransition!);
 	moveToLocation(swapEvent.to, swapEvent.from, options, pageTitleForBrowserHistory, historyState);
 	triggerEvent(TRANSITION_AFTER_SWAP);
 
