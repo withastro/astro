@@ -3,15 +3,17 @@ import type { AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
 import {
 	ENV_TYPES_FILE,
+	MODULE_TEMPLATE_URL,
 	RESOLVED_VIRTUAL_CLIENT_MODULE_ID,
 	RESOLVED_VIRTUAL_INTERNAL_MODULE_ID,
 	RESOLVED_VIRTUAL_SERVER_MODULE_ID,
+	TYPES_TEMPLATE_URL,
 	VIRTUAL_CLIENT_MODULE_ID,
 	VIRTUAL_INTERNAL_MODULE_ID,
 	VIRTUAL_SERVER_MODULE_ID,
 } from './constants.js';
 import type { EnvSchema } from './schema.js';
-import { validateEnvVariable } from './validators.js';
+import { getType, validateEnvVariable } from './validators.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type fsMod from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -32,16 +34,11 @@ export function astroEnvVirtualModPlugin({
 	if (!settings.config.experimental.env) {
 		return;
 	}
-
-	let clientTemplates: ReturnType<typeof getTemplates> | null = null;
-	let serverTemplates: ReturnType<typeof getTemplates> | null = null;
-
 	logger.warn('env', 'This feature is experimental. TODO:');
-
 	const schema = settings.config.experimental.env.schema ?? {};
 
-	// TODO: server / secret
-	// TODO: module and types templates
+	let templates: { client: string; server: string; internal: string } | null = null;
+
 	return {
 		name: 'astro-env-virtual-mod-plugin',
 		enforce: 'pre',
@@ -52,12 +49,23 @@ export function astroEnvVirtualModPlugin({
 				''
 			);
 			const validatedVariables = validatePublicVariables({ schema, loadedEnv });
-			clientTemplates = getTemplates({ validatedVariables, context: 'client' });
-			serverTemplates = getTemplates({ validatedVariables, context: 'server' });
+
+			const clientTemplates = getTemplates({ validatedVariables, context: 'client' });
+			const serverTemplates = getTemplates({
+				validatedVariables,
+				context: 'server',
+				...getSecretServerTemplates({ schema, fs }),
+			});
+
+			templates = {
+				client: clientTemplates.content,
+				server: serverTemplates.content,
+				internal: `export const schema = ${JSON.stringify(schema)};`,
+			};
 			generateDts({ settings, fs, content: `${clientTemplates.dts}\n\n${serverTemplates.dts}` });
 		},
 		buildEnd() {
-			clientTemplates = null;
+			templates = null;
 		},
 		resolveId(id) {
 			if (id === VIRTUAL_CLIENT_MODULE_ID) {
@@ -72,11 +80,11 @@ export function astroEnvVirtualModPlugin({
 		},
 		load(id, options) {
 			if (id === RESOLVED_VIRTUAL_CLIENT_MODULE_ID) {
-				return clientTemplates!.content;
+				return templates!.client;
 			}
 			if (id === RESOLVED_VIRTUAL_SERVER_MODULE_ID) {
 				if (options?.ssr) {
-					return serverTemplates!.content;
+					return templates!.server;
 				}
 				throw new AstroError({
 					...AstroErrorData.EnvServerOnlyModule,
@@ -84,7 +92,7 @@ export function astroEnvVirtualModPlugin({
 				});
 			}
 			if (id === RESOLVED_VIRTUAL_INTERNAL_MODULE_ID) {
-				return `export const schema = ${JSON.stringify(schema)};`;
+				return templates!.internal;
 			}
 		},
 	};
@@ -114,6 +122,9 @@ function validatePublicVariables({
 	const invalid: Array<{ key: string; type: string }> = [];
 
 	for (const [key, options] of Object.entries(schema)) {
+		if (options.access !== 'public') {
+			continue;
+		}
 		const variable = loadedEnv[key];
 		const result = validateEnvVariable(variable === '' ? undefined : variable, options);
 		if (result.ok) {
@@ -138,12 +149,16 @@ function validatePublicVariables({
 function getTemplates({
 	validatedVariables,
 	context,
+	additionalContent = [],
+	additionalDts = [],
 }: {
 	validatedVariables: ReturnType<typeof validatePublicVariables>;
 	context: 'server' | 'client';
+	additionalContent?: Array<string>;
+	additionalDts?: Array<string>;
 }) {
-	const contentParts: Array<string> = [];
-	const dtsParts: Array<string> = [];
+	const contentParts = additionalContent;
+	const dtsParts = additionalDts;
 
 	for (const { key, type, value } of validatedVariables.filter((e) => e.context === context)) {
 		contentParts.push(`export const ${key} = ${JSON.stringify(value)};`);
@@ -159,5 +174,26 @@ function getTemplates({
 	return {
 		content,
 		dts,
+	};
+}
+
+function getSecretServerTemplates({ schema, fs }: { schema: EnvSchema; fs: typeof fsMod }) {
+	const parts: Array<string> = [];
+
+	for (const [key, options] of Object.entries(schema)) {
+		if (!(options.context === 'server' && options.access === 'secret')) {
+			continue;
+		}
+
+		parts.push(`"${key}": ${getType(options)};`);
+	}
+
+	return {
+		additionalContent: [fs.readFileSync(MODULE_TEMPLATE_URL, 'utf-8')],
+		additionalDts: [
+			fs
+				.readFileSync(TYPES_TEMPLATE_URL, 'utf-8')
+				.replace("'@@SECRET_VALUES@@'", `{\n		${parts.join('\n		')}\n	}`) + "\n",
+		],
 	};
 }
