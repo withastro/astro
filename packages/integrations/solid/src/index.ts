@@ -1,6 +1,28 @@
 import type { AstroIntegration, AstroIntegrationLogger, AstroRenderer } from 'astro';
 import solid, { type Options as ViteSolidPluginOptions } from 'vite-plugin-solid';
-import type { UserConfig } from 'vite';
+import type { UserConfig, PluginOption } from 'vite';
+
+// TODO: keep in sync with https://github.com/thetarnav/solid-devtools/blob/main/packages/main/src/vite/index.ts#L7
+type DevtoolsPluginOptions = {
+	/** Add automatic name when creating signals, memos, stores, or mutables */
+	autoname?: boolean;
+	locator?:
+		| boolean
+		| {
+				/** Choose in which IDE the component source code should be revealed. */
+				targetIDE?: string;
+				/**
+				 * Holding which key should enable the locator overlay?
+				 * @default 'Alt'
+				 */
+				key?: string;
+				/** Inject location attributes to jsx templates */
+				jsxLocation?: boolean;
+				/** Inject location information to component declarations */
+				componentLocation?: boolean;
+		  };
+};
+type DevtoolsPlugin = (_options?: DevtoolsPluginOptions) => PluginOption;
 
 async function getDevtoolsPlugin(logger: AstroIntegrationLogger, retrieve: boolean) {
 	if (!retrieve) {
@@ -8,8 +30,8 @@ async function getDevtoolsPlugin(logger: AstroIntegrationLogger, retrieve: boole
 	}
 
 	try {
-		// TODO: find a way. it's returned because it's a dev dependency but i just want the types
-		return (await import('solid-devtools/vite')).default;
+		// @ts-ignore
+		return (await import('solid-devtools/vite')).default as DevtoolsPlugin;
 	} catch (_) {
 		logger.warn(
 			'Solid Devtools requires `solid-devtools` as a peer dependency, add it to your project.'
@@ -21,7 +43,7 @@ async function getDevtoolsPlugin(logger: AstroIntegrationLogger, retrieve: boole
 async function getViteConfiguration(
 	isDev: boolean,
 	{ include, exclude }: Options,
-	devtoolsPlugin: Awaited<ReturnType<typeof getDevtoolsPlugin>>
+	devtoolsPlugin: DevtoolsPlugin | null
 ) {
 	// https://github.com/solidjs/vite-plugin-solid
 	// We inject the dev mode only if the user explicitly wants it or if we are in dev (serve) mode
