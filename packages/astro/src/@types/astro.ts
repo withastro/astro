@@ -1342,7 +1342,7 @@ export interface AstroUserConfig {
 		 * import remarkToc from 'remark-toc';
 		 * {
 		 *   markdown: {
-		 *     remarkPlugins: [remarkToc]
+		 *     remarkPlugins: [ [remarkToc, { heading: "contents"} ] ]
 		 *   }
 		 * }
 		 * ```
