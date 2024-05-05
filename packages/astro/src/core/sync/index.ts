@@ -159,7 +159,7 @@ export async function syncContentCollections(
 		if (isAstroError(e)) {
 			throw e;
 		}
-		const hint = AstroUserError.is(e) ? e.hint : undefined
+		const hint = AstroUserError.is(e) ? e.hint : AstroErrorData.GenerateContentTypesError.hint;
 		throw new AstroError(
 			{
 				...AstroErrorData.GenerateContentTypesError,
