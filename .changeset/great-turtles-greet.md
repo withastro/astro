@@ -2,4 +2,4 @@
 "astro": minor
 ---
 
-Multiples pages can now have the same component as entrypoint. This is purely internal, this aligns the build process with the behaviour in development server, no public API changes.
+Multiple pages can now use the same component as an `entrypoint`. This change is purely internal, and aligns the build process with the behaviour in the development server.
