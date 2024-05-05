@@ -1,8 +1,28 @@
-import type { AstroIntegration, AstroRenderer } from 'astro';
+import type { AstroIntegration, AstroIntegrationLogger, AstroRenderer } from 'astro';
 import solid, { type Options as ViteSolidPluginOptions } from 'vite-plugin-solid';
 import type { UserConfig } from 'vite';
 
-async function getViteConfiguration(isDev: boolean, { include, exclude, devtools }: Options) {
+async function getDevtoolsPlugin(logger: AstroIntegrationLogger, retrieve: boolean) {
+	if (!retrieve) {
+		return null;
+	}
+
+	try {
+		// TODO: find a way. it's returned because it's a dev dependency but i just want the types
+		return (await import('solid-devtools/vite')).default;
+	} catch (_) {
+		logger.warn(
+			'Solid Devtools requires `solid-devtools` as a peer dependency, add it to your project.'
+		);
+		return null;
+	}
+}
+
+async function getViteConfiguration(
+	isDev: boolean,
+	{ include, exclude }: Options,
+	devtoolsPlugin: Awaited<ReturnType<typeof getDevtoolsPlugin>>
+) {
 	// https://github.com/solidjs/vite-plugin-solid
 	// We inject the dev mode only if the user explicitly wants it or if we are in dev (serve) mode
 	const nestedDeps = ['solid-js', 'solid-js/web', 'solid-js/store', 'solid-js/html', 'solid-js/h'];
@@ -37,12 +57,11 @@ async function getViteConfiguration(isDev: boolean, { include, exclude, devtools
 		},
 	};
 
-	if (devtools && isDev) {
-		const solidDevtools = (await import('solid-devtools/vite')).default;
-		config.plugins?.push(solidDevtools({ autoname: true }));
+	if (devtoolsPlugin) {
+		config.plugins?.push(devtoolsPlugin({ autoname: true }));
 	}
 
-	return config
+	return config;
 }
 
 function getRenderer(): AstroRenderer {
@@ -61,13 +80,24 @@ export default function (options: Options = {}): AstroIntegration {
 	return {
 		name: '@astrojs/solid-js',
 		hooks: {
-			'astro:config:setup': async ({ command, addRenderer, updateConfig, injectScript }) => {
+			'astro:config:setup': async ({
+				command,
+				addRenderer,
+				updateConfig,
+				injectScript,
+				logger,
+			}) => {
+				const devtoolsPlugin = await getDevtoolsPlugin(
+					logger,
+					!!options.devtools && command === 'dev'
+				);
+
 				addRenderer(getRenderer());
 				updateConfig({
-					vite: await getViteConfiguration(command === 'dev', options),
+					vite: await getViteConfiguration(command === 'dev', options, devtoolsPlugin),
 				});
 
-				if (options.devtools && command === 'dev') {
+				if (devtoolsPlugin) {
 					injectScript('page', 'import "solid-devtools";');
 				}
 			},
