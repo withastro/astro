@@ -6,17 +6,14 @@ import Layout from '../components/Layout.astro';
 	<a id="click" href="/keep-two">go to next page</a>
 </Layout>
 <script>
-	import { CustomSwapper } from '../../node_modules/astro/dist/transitions/custom-swapper';
-	import { swapRootAttributes } from '../../node_modules/astro/dist/transitions/swap-functions';
 
 	document.addEventListener('astro:before-swap', (e) => {
-		// generate a complete swap function by just overriding the swapRootAttributes function
-		e.swap = ()=>new CustomSwapper({
-			swapRootAttributes(doc) {
+		e.swapper.extend({
+			swapRootAttributes(doc, previousSwapRootAttributes) {
 				const theme = document.documentElement.getAttribute('data-theme')!;
-				swapRootAttributes(doc); // reuse the built-in implementation
+				previousSwapRootAttributes(doc); // reuse the built-in implementation
 				document.documentElement.setAttribute('data-theme', theme);
 			},
-		}).swap(e.newDocument);
+		});
 	});
 </script>
