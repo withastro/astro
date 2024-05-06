@@ -1,10 +1,13 @@
 import type {
 	AstroConfig,
 	ComponentInstance,
+	MiddlewareHandler,
 	RouteData,
+	RouteType,
 	RuntimeMode,
 	SSRLoadedRenderer,
 	SSRManifest,
+	SSRResult,
 } from '../@types/astro.js';
 import { TestPipeline } from './pipeline.js';
 import { Logger } from '../core/logger/core.js';
@@ -15,22 +18,30 @@ import type { AstroUserConfig } from '../../config.js';
 import { validateConfig } from '../core/config/config.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
 import { RenderContext } from '../core/render-context.js';
-import path from 'node:path';
+import { posix } from 'node:path';
 import { getParts, getPattern, validateSegment } from '../core/routing/manifest/create.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
-import { isServerLikeOutput } from '../prerender/utils.js';
+import { isServerLikeOutput } from '../core/util.js';
 
 type ContainerOptions = {
 	slots?: string[];
 	request?: Request;
 	params?: string[];
+	locals?: App.Locals;
+	status?: number;
+	routeType?: RouteType;
 };
 
 /**
  * @param renderers
  * @param config
+ * @param middleware
  */
-function createContainerManifest(renderers: SSRLoadedRenderer[], config: AstroConfig): SSRManifest {
+function createContainerManifest(
+	renderers: SSRLoadedRenderer[],
+	config: AstroConfig,
+	middleware?: MiddlewareHandler
+): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
 	if (config?.i18n) {
 		i18nManifest = {
@@ -41,7 +52,11 @@ function createContainerManifest(renderers: SSRLoadedRenderer[], config: AstroCo
 			domainLookupTable: {},
 		};
 	}
+	const defaultMiddleware: MiddlewareHandler = (_, next) => {
+		return next();
+	};
 	return {
+		rewritingEnabled: false,
 		trailingSlash: config?.trailingSlash,
 		buildFormat: config?.build.format,
 		compressHTML: config?.compressHTML,
@@ -58,28 +73,28 @@ function createContainerManifest(renderers: SSRLoadedRenderer[], config: AstroCo
 		inlinedScripts: new Map(),
 		i18n: i18nManifest,
 		checkOrigin: config?.experimental.security?.csrfProtection?.origin ?? false,
-		middleware(_, next) {
-			return next();
-		},
+		middleware: middleware ?? defaultMiddleware,
 	};
 }
 
 type AstroContainerOptions = {
-	mode: RuntimeMode;
-	streaming: boolean;
-	renderers: SSRLoadedRenderer[];
-	astroConfig: AstroUserConfig;
+	mode?: RuntimeMode;
+	streaming?: boolean;
+	renderers?: SSRLoadedRenderer[];
+	astroConfig?: AstroUserConfig;
+	middleware?: MiddlewareHandler;
+	resolve?: SSRResult['resolve'];
 };
 
 export class unstable_AstroContainer {
 	#pipeline: TestPipeline;
 	#config: AstroConfig;
 
-	constructor(
-		mode: RuntimeMode,
+	private constructor(
 		streaming: boolean,
 		renderers: SSRLoadedRenderer[],
-		config: AstroConfig
+		config: AstroConfig,
+		resolve?: SSRResult['resolve']
 	) {
 		this.#config = config;
 		this.#pipeline = TestPipeline.create({
@@ -87,47 +102,80 @@ export class unstable_AstroContainer {
 				level: 'info',
 				dest: nodeLogDestination,
 			}),
-			mode: 'development',
 			manifest: createContainerManifest(renderers, config),
 			streaming,
-			serverLike: isServerLikeOutput(config),
+			serverLike: true,
 			renderers,
-			resolve: async (_specifier: string) => {
-				// TODO: to implement somehow
-				return '';
+			resolve: async (specifier: string) => {
+				if (resolve) {
+					return resolve(specifier);
+				} else {
+					return this.containerResolve(specifier);
+				}
 			},
 		});
 	}
 
-	static async create(containerOptions: AstroContainerOptions): Promise<unstable_AstroContainer> {
-		const { astroConfig = ASTRO_CONFIG_DEFAULTS, mode, streaming, renderers } = containerOptions;
+	async containerResolve(_specifier: string): Promise<string> {
+		return '';
+	}
+
+	static async create(containerOptions: AstroContainerOptions = {}): Promise<unstable_AstroContainer> {
+		const {
+			astroConfig = ASTRO_CONFIG_DEFAULTS,
+			streaming = false,
+			renderers = [],
+			resolve,
+		} = containerOptions;
 		const config = await validateConfig(astroConfig, process.cwd(), 'container');
-		return new unstable_AstroContainer(mode, streaming, renderers, config);
+		return new unstable_AstroContainer(streaming, renderers, config, resolve);
+	}
+
+	insertRoute({
+		path,
+		params = [],
+		type = 'page',
+	}: {
+		path: string;
+		params?: string[];
+		type?: RouteType;
+	}) {
+		const pathUrl = new URL(path, 'https://example.com');
+		const routeData: RouteData = this.createRoute(pathUrl, params, type);
+		this.#pipeline.manifest.routes.push({
+			routeData,
+			file: '',
+			links: [],
+			styles: [],
+			scripts: [],
+		});
 	}
 
 	async renderToString(
 		component: ComponentInstance,
 		options: ContainerOptions = {}
 	): Promise<string> {
+		const { routeType = 'page' } = options;
 		const request = options?.request ?? new Request('https://example.com/');
 		const params = options?.params ?? [];
 		const url = new URL(request.url);
 		const renderContext = RenderContext.create({
 			pipeline: this.#pipeline,
-			routeData: this.createRoute(url, params),
-			status: 200,
+			routeData: this.createRoute(url, params, routeType),
+			status: options?.status ?? 200,
 			middleware: this.#pipeline.middleware,
 			request,
 			pathname: url.pathname,
+			locals: options?.locals ?? {},
 		});
 
 		const response = await renderContext.render(component);
 		return await response.text();
 	}
 
-	createRoute(url: URL, params: string[]): RouteData {
+	createRoute(url: URL, params: string[], type: RouteType): RouteData {
 		const segments = removeLeadingForwardSlash(url.pathname)
-			.split(path.posix.sep)
+			.split(posix.sep)
 			.filter(Boolean)
 			.map((s: string) => {
 				validateSegment(s);
@@ -142,7 +190,7 @@ export class unstable_AstroContainer {
 			pattern: getPattern(segments, this.#config, this.#config.trailingSlash),
 			prerender: false,
 			segments,
-			type: 'page',
+			type,
 			route: url.pathname,
 			fallbackRoutes: [],
 			isIndex: false,
