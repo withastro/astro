@@ -119,23 +119,29 @@ export function upgradeFormData<T extends z.AnyZodObject>(
 		if (validator instanceof z.ZodBoolean) {
 			obj[key] = formData.has(key);
 		} else if (validator instanceof z.ZodArray) {
-			const entries = Array.from(formData.getAll(key));
-			const elementValidator = validator._def.type;
-			if (elementValidator instanceof z.ZodNumber) {
-				obj[key] = entries.map(Number);
-			} else if (elementValidator instanceof z.ZodBoolean) {
-				obj[key] = entries.map(Boolean);
-			} else {
-				obj[key] = entries;
-			}
+			obj[key] = upgradeArray(key, formData, validator);
 		} else {
-			const value = formData.get(key);
-			if (!value) {
-				obj[key] = baseValidator instanceof z.ZodOptional ? undefined : null;
-			} else {
-				obj[key] = validator instanceof z.ZodNumber ? Number(value) : value;
-			}
+			obj[key] = upgradeBase(key, formData, validator, baseValidator);
 		}
 	}
 	return obj;
+}
+
+function upgradeArray(key: string, formData: FormData, validator: z.ZodArray<z.ZodUnknown>) {
+	const entries = Array.from(formData.getAll(key));
+	const elementValidator = validator._def.type;
+	if (elementValidator instanceof z.ZodNumber) {
+		return entries.map(Number);
+	} else if (elementValidator instanceof z.ZodBoolean) {
+		return entries.map(Boolean);
+	}
+	return entries;
+}
+
+function upgradeBase(key: string, formData: FormData, validator: unknown, baseValidator: unknown) {
+	const value = formData.get(key);
+	if (!value) {
+		return baseValidator instanceof z.ZodOptional ? undefined : null;
+	}
+	return validator instanceof z.ZodNumber ? Number(value) : value;
 }
