@@ -1741,9 +1741,9 @@ export interface AstroUserConfig {
 		 *
 		 * Declare all your actions in `src/actions/index.ts`. This file is the global actions handler.
 		 *
-		 * Define an action using the `defineAction()` utility from the `astro:actions` module. This accepts the `handler` property to define your server-side request handler. If your action accepts arguments, apply the `input` property to validate parameters with Zod.
+		 * Define an action using the `defineAction()` and `defineFormAction()` utilities from the `astro:actions` module. These accept the `handler` property to define your server-side request handler. If your action accepts arguments, apply the `input` property to validate parameters with Zod.
 		 *
-		 * This example defines two actions: `like` and `comment`. The `like` action accepts a JSON object with a `postId` string, while the `comment` action accepts [form data](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) with `postId`, `author`, and `body` strings. Each `handler` may update your database and return a type-safe response.
+		 * This example defines two actions: `like` and `comment`. The `like` action accepts a JSON object with a `postId` string, while the `comment` action accepts [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) with `postId`, `author`, and `body` strings. Each `handler` may update your database and return a type-safe response.
 		 *
 		 * ```ts
 		 * // src/actions/index.ts
@@ -1751,7 +1751,6 @@ export interface AstroUserConfig {
 		 *
 		 * export const server = {
 		 *   like: defineAction({
-		 *     // accept json
 		 *     input: z.object({ postId: z.string() }),
 		 *     handler: async ({ postId }, context) => {
 		 *       // update likes in db
@@ -1759,9 +1758,7 @@ export interface AstroUserConfig {
 		 *       return likes;
 		 *     },
 		 *   }),
-		 *   comment: defineAction({
-		 *     // accept form requests
-		 *     accept: "form",
+		 *   comment: defineFormAction({
 		 *     input: z.object({
 		 *       postId: z.string(),
 		 *       author: z.string(),
