@@ -2428,6 +2428,11 @@ export type AstroFeatureMap = {
 	 * List of features that orbit around the i18n routing
 	 */
 	i18nDomains?: SupportsKind;
+
+	/**
+	 * The adapter is able to support `astro:env`
+	 */
+	env?: SupportsKind;
 };
 
 export interface AstroAssetsFeature {
