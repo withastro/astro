@@ -119,7 +119,6 @@ export function upgradeFormData<T extends z.AnyZodObject>(
 		if (validator instanceof z.ZodBoolean) {
 			obj[key] = formData.has(key);
 		} else if (validator instanceof z.ZodArray) {
-			console.log('array-ing');
 			const entries = Array.from(formData.getAll(key));
 			const elementValidator = validator._def.type;
 			if (elementValidator instanceof z.ZodNumber) {
