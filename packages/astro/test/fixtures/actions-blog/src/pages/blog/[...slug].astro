@@ -37,7 +37,9 @@ const initialLikes = await db.select().from(Likes).where(eq(Likes.postId, post.i
 	<h2>Comments</h2>
 	<PostComment
 		postId={post.id}
-		serverBodyError={isInputError(comment?.error) ? comment.error.fields.body?.[0] : undefined}
+		serverBodyError={isInputError(comment?.error)
+			? comment.error.fields.body?.toString()
+			: undefined}
 		client:load
 	/>
 	<div>
