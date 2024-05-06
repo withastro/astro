@@ -1,4 +1,4 @@
-import { defineAction, defineFormAction, z } from 'astro:actions';
+import { defineAction, z } from 'astro:actions';
 
 export const server = {
 	subscribe: defineAction({
@@ -10,7 +10,8 @@ export const server = {
 			};
 		},
 	}),
-	comment: defineFormAction({
+	comment: defineAction({
+		accept: 'form',
 		input: z.object({ channel: z.string(), comment: z.string() }),
 		handler: async ({ channel, comment }) => {
 			return {
@@ -19,7 +20,8 @@ export const server = {
 			};
 		},
 	}),
-	commentPlainFormData: defineFormAction({
+	commentPlainFormData: defineAction({
+		accept: 'form',
 		handler: async (formData) => {
 			return {
 				success: true,

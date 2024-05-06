@@ -1,5 +1,5 @@
 import { db, Comment, Likes, eq, sql } from 'astro:db';
-import { defineAction, defineFormAction, z } from 'astro:actions';
+import { defineAction, z } from 'astro:actions';
 
 export const server = {
 	blog: {
@@ -21,7 +21,8 @@ export const server = {
 			},
 		}),
 
-		comment: defineFormAction({
+		comment: defineAction({
+			accept: 'form',
 			input: z.object({
 				postId: z.string(),
 				author: z.string(),

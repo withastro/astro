@@ -15,18 +15,25 @@ export { z } from 'zod';
 
 export { getApiContext } from '../store.js';
 
-export function defineFormAction<
+export function defineAction<
 	TOutput,
-	TInputSchema extends z.AnyZodObject | z.ZodType<FormData> = z.ZodType<FormData>,
+	TAccept extends 'form' | 'json' = 'json',
+	TInputSchema extends TAccept extends 'form'
+		? z.AnyZodObject | z.ZodType<FormData>
+		: z.ZodType = TAccept extends 'form' ? z.ZodType<FormData> : never,
 >({
+	accept,
 	input: inputSchema,
 	handler,
 }: {
 	input?: TInputSchema;
+	accept?: TAccept;
 	handler: (input: z.infer<TInputSchema>) => MaybePromise<TOutput>;
-}): ((input: FormData) => Promise<Awaited<TOutput>>) & {
+}): ((
+	input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
+) => Promise<Awaited<TOutput>>) & {
 	safe: (
-		input: FormData
+		input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
 	) => Promise<
 		SafeResult<
 			z.infer<TInputSchema> extends ErrorInferenceObject
@@ -36,8 +43,24 @@ export function defineFormAction<
 		>
 	>;
 } {
-	const serverHandler = async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
-		getApiContext();
+	const serverHandler =
+		accept === 'form'
+			? getFormServerHandler(handler, inputSchema)
+			: getJsonServerHandler(handler, inputSchema);
+
+	(serverHandler as any).safe = async (
+		unparsedInput: unknown
+	): Promise<SafeResult<TInputSchema, Awaited<TOutput>>> => {
+		return callSafely(() => serverHandler(unparsedInput));
+	};
+	return serverHandler as any;
+}
+
+function getFormServerHandler<TOutput, TInputSchema extends z.AnyZodObject | z.ZodType<FormData>>(
+	handler: (input: z.infer<TInputSchema>) => MaybePromise<TOutput>,
+	inputSchema?: TInputSchema
+) {
+	return async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
 		if (!(unparsedInput instanceof FormData)) {
 			throw new ActionError({
 				code: 'UNSUPPORTED_MEDIA_TYPE',
@@ -45,7 +68,7 @@ export function defineFormAction<
 			});
 		}
 
-		if (!inputSchema || !(inputSchema instanceof z.ZodObject)) return await handler(unparsedInput);
+		if (!(inputSchema instanceof z.ZodObject)) return await handler(unparsedInput);
 
 		const parsed = await inputSchema.safeParseAsync(upgradeFormData(unparsedInput, inputSchema));
 		if (!parsed.success) {
@@ -53,34 +76,13 @@ export function defineFormAction<
 		}
 		return await handler(parsed.data);
 	};
-
-	serverHandler.safe = async (
-		unparsedInput: unknown
-	): Promise<SafeResult<TInputSchema, Awaited<TOutput>>> => {
-		return callSafely(() => serverHandler(unparsedInput));
-	};
-	return serverHandler;
 }
 
-export function defineAction<TOutput, TInputSchema extends z.ZodType>({
-	input: inputSchema,
-	handler,
-}: {
-	input?: TInputSchema;
-	handler: (input: z.infer<TInputSchema>) => MaybePromise<TOutput>;
-}): ((input: z.input<TInputSchema>) => Promise<Awaited<TOutput>>) & {
-	safe: (
-		input: z.input<TInputSchema>
-	) => Promise<
-		SafeResult<
-			z.infer<TInputSchema> extends ErrorInferenceObject
-				? z.infer<TInputSchema>
-				: ErrorInferenceObject,
-			Awaited<TOutput>
-		>
-	>;
-} {
-	const serverHandler = async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
+function getJsonServerHandler<TOutput, TInputSchema extends z.ZodType<unknown>>(
+	handler: (input: z.infer<TInputSchema>) => MaybePromise<TOutput>,
+	inputSchema?: TInputSchema
+) {
+	return async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
 		const context = getApiContext();
 		if (context.request.headers.get('content-type') !== 'application/json') {
 			throw new ActionError({
@@ -90,20 +92,12 @@ export function defineAction<TOutput, TInputSchema extends z.ZodType>({
 		}
 
 		if (!inputSchema) return await handler(unparsedInput);
-
 		const parsed = await inputSchema.safeParseAsync(unparsedInput);
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error.issues);
 		}
 		return await handler(parsed.data);
 	};
-
-	serverHandler.safe = async (
-		unparsedInput: unknown
-	): Promise<SafeResult<TInputSchema, Awaited<TOutput>>> => {
-		return callSafely(() => serverHandler(unparsedInput));
-	};
-	return serverHandler;
 }
 
 export function upgradeFormData<T extends z.AnyZodObject>(
