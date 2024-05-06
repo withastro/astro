@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import type { APIContext } from '../../../@types/astro.js';
-import { ApiContextStorage } from '../store.js';
+import { getApiContext } from '../store.js';
 import type { MaybePromise } from '../utils.js';
 import {
 	ActionError,
@@ -13,23 +12,20 @@ export * from './shared.js';
 
 export { z } from 'zod';
 
-export function defineAction<
+export { getApiContext } from '../store.js';
+
+export function defineFormAction<
 	TOutput,
-	TInputSchema extends z.ZodType,
-	TAccept extends 'json' | 'form' = 'json',
+	TInputSchema extends z.AnyZodObject | z.ZodType<FormData> = z.ZodType<FormData>,
 >({
-	accept,
 	input: inputSchema,
 	handler,
 }: {
 	input?: TInputSchema;
-	accept?: TAccept;
-	handler: (input: z.infer<TInputSchema>, context: APIContext) => MaybePromise<TOutput>;
-}): ((
-	input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
-) => Promise<Awaited<TOutput>>) & {
+	handler: (input: z.infer<TInputSchema>) => MaybePromise<TOutput>;
+}): ((input: FormData) => Promise<Awaited<TOutput>>) & {
 	safe: (
-		input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
+		input: FormData
 	) => Promise<
 		SafeResult<
 			z.infer<TInputSchema> extends ErrorInferenceObject
@@ -40,27 +36,67 @@ export function defineAction<
 	>;
 } {
 	const serverHandler = async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
-		const context = ApiContextStorage.getStore()!;
-
-		if (!inputSchema) return await handler(unparsedInput, context);
-
-		if (unparsedInput instanceof FormData) {
-			if (accept === 'json') {
-				throw new ActionError({
-					code: 'UNSUPPORTED_MEDIA_TYPE',
-					message:
-						"This action only accepts JSON input. To accept form data, add `accept: 'form'` to your action configuration.",
-				});
-			}
-			// TODO: form input schema narrowing
-			unparsedInput = upgradeFormData(unparsedInput, inputSchema as any);
+		getApiContext();
+		if (!(unparsedInput instanceof FormData)) {
+			throw new ActionError({
+				code: 'UNSUPPORTED_MEDIA_TYPE',
+				message: 'This action only accepts FormData.',
+			});
 		}
+
+		if (!inputSchema || !(inputSchema instanceof z.ZodObject)) return await handler(unparsedInput);
+
+		const parsed = await inputSchema.safeParseAsync(upgradeFormData(unparsedInput, inputSchema));
+		if (!parsed.success) {
+			throw new ActionInputError(parsed.error.issues);
+		}
+		return await handler(parsed.data);
+	};
+
+	serverHandler.safe = async (): Promise<SafeResult<TInputSchema, Awaited<TOutput>>> => {
+		throw new ActionError({
+			code: 'INTERNAL_SERVER_ERROR',
+			message:
+				'safe() unexpectedly called on the server. To retrieve action data from Astro frontmatter, use the `Astro.getActionResult()` function.',
+		});
+	};
+	return serverHandler;
+}
+
+export function defineAction<TOutput, TInputSchema extends z.ZodType>({
+	input: inputSchema,
+	handler,
+}: {
+	input?: TInputSchema;
+	handler: (input: z.infer<TInputSchema>) => MaybePromise<TOutput>;
+}): ((input: z.input<TInputSchema>) => Promise<Awaited<TOutput>>) & {
+	safe: (
+		input: z.input<TInputSchema>
+	) => Promise<
+		SafeResult<
+			z.infer<TInputSchema> extends ErrorInferenceObject
+				? z.infer<TInputSchema>
+				: ErrorInferenceObject,
+			Awaited<TOutput>
+		>
+	>;
+} {
+	const serverHandler = async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
+		const context = getApiContext();
+		if (context.request.headers.get('ContentType') !== 'application/json') {
+			throw new ActionError({
+				code: 'UNSUPPORTED_MEDIA_TYPE',
+				message: 'This action only accepts JSON.',
+			});
+		}
+
+		if (!inputSchema) return await handler(unparsedInput);
 
 		const parsed = await inputSchema.safeParseAsync(unparsedInput);
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error.issues);
 		}
-		return await handler(parsed.data, context);
+		return await handler(parsed.data);
 	};
 
 	serverHandler.safe = async (): Promise<SafeResult<TInputSchema, Awaited<TOutput>>> => {
