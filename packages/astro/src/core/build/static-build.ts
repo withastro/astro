@@ -16,9 +16,9 @@ import {
 } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash, removeFileExtension } from '../../core/path.js';
-import { isModeServerWithNoAdapter } from '../../core/util.js';
+import { isModeServerWithNoAdapter, isServerLikeOutput } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/hooks.js';
-import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
+import { getOutputDirectory } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { routeIsRedirect } from '../redirects/index.js';
@@ -28,6 +28,7 @@ import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { type AstroBuildPluginContainer, createPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
+import { copyContentToCache } from './plugins/plugin-content.js';
 import { RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugins/plugin-manifest.js';
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
@@ -107,7 +108,9 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	const ssrOutputs = viteBuildReturnToRollupOutputs(ssrOutput);
 	const clientOutputs = viteBuildReturnToRollupOutputs(clientOutput ?? []);
 	await runPostBuildHooks(container, ssrOutputs, clientOutputs);
-
+	if (opts.settings.config.experimental.contentCollectionCache) {
+		await copyContentToCache(opts);
+	}
 	settings.timer.end('Client build');
 
 	// Free up memory

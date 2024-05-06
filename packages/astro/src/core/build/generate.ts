@@ -31,7 +31,7 @@ import {
 } from '../../core/path.js';
 import { toRoutingStrategy } from '../../i18n/utils.js';
 import { runHookBuildGenerated } from '../../integrations/hooks.js';
-import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
+import { getOutputDirectory } from '../../prerender/utils.js';
 import type { SSRManifestI18n } from '../app/types.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -45,7 +45,7 @@ import { RenderContext } from '../render-context.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
-import { getOutputFilename } from '../util.js';
+import { getOutputFilename, isServerLikeOutput } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
 import {
 	cssOrder,

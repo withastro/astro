@@ -25,7 +25,7 @@ class BeforeEvent extends Event {
 	readonly sourceElement: Element | undefined;
 	readonly info: any;
 	newDocument: Document;
-	signal: AbortSignal;
+	readonly signal: AbortSignal;
 
 	constructor(
 		type: string,
