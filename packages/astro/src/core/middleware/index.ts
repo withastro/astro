@@ -1,4 +1,4 @@
-import type { APIContext, MiddlewareHandler, Params, ReroutePayload } from '../../@types/astro.js';
+import type { APIContext, MiddlewareHandler, Params, RewritePayload } from '../../@types/astro.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
@@ -47,7 +47,7 @@ function createContext({
 	const route = url.pathname;
 
 	// TODO verify that this function works in an edge middleware environment
-	const reroute = (_reroutePayload: ReroutePayload) => {
+	const reroute = (_reroutePayload: RewritePayload) => {
 		// return dummy response
 		return Promise.resolve(new Response(null));
 	};
@@ -59,7 +59,7 @@ function createContext({
 		site: undefined,
 		generator: `Astro v${ASTRO_VERSION}`,
 		props: {},
-		reroute,
+		rewrite: reroute,
 		redirect(path, status) {
 			return new Response(null, {
 				status: status || 302,

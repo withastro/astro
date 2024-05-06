@@ -262,7 +262,7 @@ export interface AstroGlobal<
 	 * }
 	 * ```
 	 */
-	reroute: AstroSharedContext['reroute'];
+	rewrite: AstroSharedContext['rewrite'];
 	/**
 	 * The <Astro.self /> element allows a component to reference itself recursively.
 	 *
@@ -1938,19 +1938,19 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.rerouting
+		 * @name experimental.rewriting
 		 * @type {boolean}
 		 * @default `false`
 		 * @version 4.8.0
 		 * @description
 		 *
-		 * Enables the use of rerouting features in Astro pages, Endpoints and Astro middleware:
+		 * Enables the use of rewriting features in Astro pages, Endpoints and Astro middleware:
 		 *
 		 * ```astro
 		 * ---
 		 * // src/pages/dashboard.astro
 		 * if (!Astro.props.allowed) {
-		 * 	return Astro.reroute("/")
+		 * 	return Astro.rewrite("/")
 		 * }
 		 * ---
 		 * ```
@@ -1959,7 +1959,7 @@ export interface AstroUserConfig {
 		 * // src/pages/api.js
 		 * export function GET(ctx) {
 		 * 	if (!ctx.locals.allowed) {
-		 * 		return ctx.reroute("/")
+		 * 		return ctx.rewrite("/")
 		 * 	}
 		 * }
 		 * ```
@@ -1974,7 +1974,7 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 */
-		rerouting: boolean;
+		rewriting: boolean;
 	};
 }
 
@@ -2556,7 +2556,7 @@ interface AstroSharedContext<
 	 * }
 	 * ```
 	 */
-	reroute(reroutePayload: ReroutePayload): Promise<Response>;
+	rewrite(rewritePayload: RewritePayload): Promise<Response>;
 
 	/**
 	 * Object accessed via Astro middleware
@@ -2685,7 +2685,7 @@ export interface APIContext<
 	 * }
 	 * ```
 	 */
-	reroute: AstroSharedContext['reroute'];
+	rewrite: AstroSharedContext['rewrite'];
 
 	/**
 	 * An object that middlewares can use to store extra information related to the request.
@@ -2881,9 +2881,9 @@ export interface AstroIntegration {
 	};
 }
 
-export type ReroutePayload = string | URL | Request;
+export type RewritePayload = string | URL | Request;
 
-export type MiddlewareNext = (reroutePayload?: ReroutePayload) => Promise<Response>;
+export type MiddlewareNext = (reroutePayload?: RewritePayload) => Promise<Response>;
 export type MiddlewareHandler = (
 	context: APIContext,
 	next: MiddlewareNext

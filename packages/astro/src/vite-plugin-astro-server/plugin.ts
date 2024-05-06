@@ -145,7 +145,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		inlinedScripts: new Map(),
 		i18n: i18nManifest,
 		checkOrigin: settings.config.experimental.security?.csrfProtection?.origin ?? false,
-		reroutingEnabled: settings.config.experimental.rerouting,
+		rewritingEnabled: settings.config.experimental.rewriting,
 		middleware(_, next) {
 			return next();
 		},

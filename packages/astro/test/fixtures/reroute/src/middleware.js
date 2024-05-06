@@ -13,7 +13,7 @@ export const second = async (context, next) => {
 	if (context.url.pathname.includes('/auth')) {
 		if (context.url.pathname.includes('/auth/dashboard')) {
 			contextReroute = true;
-			return await context.reroute('/');
+			return await context.rewrite('/');
 		}
 		if (context.url.pathname.includes('/auth/base')) {
 			return await next('/');

@@ -1,7 +1,7 @@
 import type {
 	ComponentInstance,
 	MiddlewareHandler,
-	ReroutePayload,
+	RewritePayload,
 	RouteData,
 	RuntimeMode,
 	SSRLoadedRenderer,
@@ -69,9 +69,9 @@ export abstract class Pipeline {
 	 *
 	 * - if not `RouteData` is found
 	 *
-	 * @param {ReroutePayload} reroutePayload
+	 * @param {RewritePayload} rewritePayload
 	 */
-	abstract tryReroute(reroutePayload: ReroutePayload): Promise<[RouteData, ComponentInstance]>;
+	abstract tryRewrite(rewritePayload: RewritePayload): Promise<[RouteData, ComponentInstance]>;
 
 	/**
 	 * Tells the pipeline how to retrieve a component give a `RouteData`

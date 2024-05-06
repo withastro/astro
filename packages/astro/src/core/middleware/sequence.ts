@@ -1,4 +1,4 @@
-import type { APIContext, MiddlewareHandler, ReroutePayload } from '../../@types/astro.js';
+import type { APIContext, MiddlewareHandler, RewritePayload } from '../../@types/astro.js';
 import { defineMiddleware } from './index.js';
 import { AstroCookies } from '../cookies/cookies.js';
 
@@ -20,7 +20,7 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 		/**
 		 * This variable is used to carry the rerouting payload across middleware functions.
 		 */
-		let carriedPayload: ReroutePayload | undefined = undefined;
+		let carriedPayload: RewritePayload | undefined = undefined;
 		return applyHandle(0, context);
 
 		function applyHandle(i: number, handleContext: APIContext) {
@@ -28,7 +28,7 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 			// @ts-expect-error
 			// SAFETY: Usually `next` always returns something in user land, but in `sequence` we are actually
 			// doing a loop over all the `next` functions, and eventually we call the last `next` that returns the `Response`.
-			const result = handle(handleContext, async (payload: ReroutePayload) => {
+			const result = handle(handleContext, async (payload: RewritePayload) => {
 				if (i < length - 1) {
 					if (payload) {
 						let newRequest;

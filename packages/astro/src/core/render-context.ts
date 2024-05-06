@@ -5,7 +5,7 @@ import type {
 	ComponentInstance,
 	MiddlewareHandler,
 	MiddlewareNext,
-	ReroutePayload,
+	RewritePayload,
 	RouteData,
 	SSRResult,
 } from '../@types/astro.js';
@@ -111,11 +111,11 @@ export class RenderContext {
 				statusText: 'Loop Detected',
 			});
 		}
-		const lastNext = async (ctx: APIContext, payload?: ReroutePayload) => {
+		const lastNext = async (ctx: APIContext, payload?: RewritePayload) => {
 			if (payload) {
-				if (this.pipeline.manifest.reroutingEnabled) {
+				if (this.pipeline.manifest.rewritingEnabled) {
 					try {
-						const [routeData, component] = await pipeline.tryReroute(payload);
+						const [routeData, component] = await pipeline.tryRewrite(payload);
 						this.routeData = routeData;
 						componentInstance = component;
 					} catch (e) {
@@ -178,7 +178,7 @@ export class RenderContext {
 			middleware,
 			apiContext,
 			lastNext,
-			this.pipeline.manifest.reroutingEnabled,
+			this.pipeline.manifest.rewritingEnabled,
 			this.pipeline.logger
 		);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
@@ -198,10 +198,10 @@ export class RenderContext {
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
 
-		const reroute = async (reroutePayload: ReroutePayload) => {
+		const rewrite = async (reroutePayload: RewritePayload) => {
 			pipeline.logger.debug('router', 'Called rerouting to:', reroutePayload);
 			try {
-				const [routeData, component] = await pipeline.tryReroute(reroutePayload);
+				const [routeData, component] = await pipeline.tryRewrite(reroutePayload);
 				this.routeData = routeData;
 				if (reroutePayload instanceof Request) {
 					this.request = reroutePayload;
@@ -257,7 +257,7 @@ export class RenderContext {
 			},
 			props,
 			redirect,
-			reroute,
+			rewrite,
 			request: this.request,
 			site: pipeline.site,
 			url,
@@ -385,10 +385,10 @@ export class RenderContext {
 			return new Response(null, { status, headers: { Location: path } });
 		};
 
-		const reroute = async (reroutePayload: ReroutePayload) => {
+		const rewrite = async (reroutePayload: RewritePayload) => {
 			try {
 				pipeline.logger.debug('router', 'Calling rerouting: ', reroutePayload);
-				const [routeData, component] = await pipeline.tryReroute(reroutePayload);
+				const [routeData, component] = await pipeline.tryRewrite(reroutePayload);
 				this.routeData = routeData;
 				if (reroutePayload instanceof Request) {
 					this.request = reroutePayload;
@@ -431,7 +431,7 @@ export class RenderContext {
 			},
 			locals,
 			redirect,
-			reroute,
+			rewrite,
 			request: this.request,
 			response,
 			site: pipeline.site,

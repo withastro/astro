@@ -2,7 +2,7 @@ import type {
 	APIContext,
 	MiddlewareHandler,
 	MiddlewareNext,
-	ReroutePayload,
+	RewritePayload,
 } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
@@ -46,7 +46,7 @@ export async function callMiddleware(
 	apiContext: APIContext,
 	responseFunction: (
 		apiContext: APIContext,
-		reroutePayload?: ReroutePayload
+		reroutePayload?: RewritePayload
 	) => Promise<Response> | Response,
 	// TODO: remove these two arguments once rerouting goes out of experimental
 	enableRerouting: boolean,

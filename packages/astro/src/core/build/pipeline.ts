@@ -1,6 +1,6 @@
 import type {
 	ComponentInstance,
-	ReroutePayload,
+	RewritePayload,
 	RouteData,
 	SSRLoadedRenderer,
 	SSRResult,
@@ -273,7 +273,7 @@ export class BuildPipeline extends Pipeline {
 		}
 	}
 
-	async tryReroute(payload: ReroutePayload): Promise<[RouteData, ComponentInstance]> {
+	async tryRewrite(payload: RewritePayload): Promise<[RouteData, ComponentInstance]> {
 		let foundRoute: RouteData | undefined;
 		// options.manifest is the actual type that contains the information
 		for (const route of this.options.manifest.routes) {

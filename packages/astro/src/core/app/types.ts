@@ -66,7 +66,7 @@ export type SSRManifest = {
 	middleware: MiddlewareHandler;
 	checkOrigin: boolean;
 	// TODO: remove once the experimental flag is removed
-	reroutingEnabled: boolean;
+	rewritingEnabled: boolean;
 };
 
 export type SSRManifestI18n = {

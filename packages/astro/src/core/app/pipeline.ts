@@ -4,7 +4,7 @@ import type {
 	SSRElement,
 	SSRResult,
 	ComponentInstance,
-	ReroutePayload,
+	RewritePayload,
 } from '../../@types/astro.js';
 import { Pipeline } from '../base-pipeline.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
@@ -71,7 +71,7 @@ export class AppPipeline extends Pipeline {
 		return module.page();
 	}
 
-	async tryReroute(payload: ReroutePayload): Promise<[RouteData, ComponentInstance]> {
+	async tryRewrite(payload: RewritePayload): Promise<[RouteData, ComponentInstance]> {
 		let foundRoute;
 
 		for (const route of this.#manifestData!.routes) {

@@ -283,7 +283,7 @@ async function getPathsForRoute(
 		const label = staticPaths.length === 1 ? 'page' : 'pages';
 		logger.debug(
 			'build',
-			`├── ${bold(green('✔'))} ${route.component} → ${magenta(`[${staticPaths.length} ${label}]`)}`
+			`├── ${bold(green('√'))} ${route.component} → ${magenta(`[${staticPaths.length} ${label}]`)}`
 		);
 
 		paths = staticPaths
@@ -556,7 +556,7 @@ function createBuildManifest(
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
 		middleware,
-		reroutingEnabled: settings.config.experimental.rerouting,
+		rewritingEnabled: settings.config.experimental.rewriting,
 		checkOrigin: settings.config.experimental.security?.csrfProtection?.origin ?? false,
 	};
 }

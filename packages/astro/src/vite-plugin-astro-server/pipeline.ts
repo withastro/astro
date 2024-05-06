@@ -4,7 +4,7 @@ import type {
 	ComponentInstance,
 	DevToolbarMetadata,
 	ManifestData,
-	ReroutePayload,
+	RewritePayload,
 	RouteData,
 	SSRElement,
 	SSRLoadedRenderer,
@@ -190,7 +190,7 @@ export class DevPipeline extends Pipeline {
 		}
 	}
 
-	async tryReroute(payload: ReroutePayload): Promise<[RouteData, ComponentInstance]> {
+	async tryRewrite(payload: RewritePayload): Promise<[RouteData, ComponentInstance]> {
 		let foundRoute;
 		if (!this.manifestData) {
 			throw new Error('Missing manifest data');
