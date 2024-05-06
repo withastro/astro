@@ -1,5 +1,5 @@
 // @ts-expect-error — AstrojsWebVitals requires type-gen which we can’t use.
-import { db, sql, AstrojsWebVitals_Metric } from 'astro:db';
+import { AstrojsWebVitals_Metric, db, sql } from 'astro:db';
 import type { APIRoute } from 'astro';
 import { ServerMetricSchema } from './schemas.js';
 
