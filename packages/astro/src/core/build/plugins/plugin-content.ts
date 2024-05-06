@@ -3,6 +3,7 @@ import fsMod from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import pLimit from 'p-limit';
 import { type Plugin as VitePlugin, normalizePath } from 'vite';
+import type { AstroConfig } from '../../../@types/astro.js';
 import { CONTENT_RENDER_FLAG, PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { type ContentLookupMap, hasContentFlag } from '../../../content/utils.js';
 import {
@@ -17,6 +18,7 @@ import {
 	removeFileExtension,
 	removeLeadingForwardSlash,
 } from '../../path.js';
+import { isContentCollectionsCacheEnabled } from '../../util.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { CHUNKS_PATH } from '../consts.js';
 import { type BuildInternals } from '../internal.js';
@@ -25,8 +27,6 @@ import { copyFiles } from '../static-build.js';
 import type { StaticBuildOptions } from '../types.js';
 import { encodeName } from '../util.js';
 import { extendManualChunks } from './util.js';
-import { isContentCollectionsCacheEnabled } from '../../util.js';
-import type { AstroConfig } from '../../../@types/astro.js';
 
 const CONTENT_CACHE_DIR = './content/';
 const CONTENT_MANIFEST_FILE = './manifest.json';
@@ -479,7 +479,7 @@ export function pluginContent(
 			},
 
 			async 'build:post'() {
-				if(!isContentCollectionsCacheEnabled(opts.settings.config)) {
+				if (!isContentCollectionsCacheEnabled(opts.settings.config)) {
 					return;
 				}
 				// Cache build output of chunks and assets

@@ -114,10 +114,10 @@ if (!isWindows) {
 				it('Includes CSS for rendered entry', async () => {
 					const html = await fixture.readFile('/launch-week/index.html');
 					const $ = cheerio.load(html);
-	
+
 					// Renders content
 					assert.equal($('ul li').length, 3);
-	
+
 					// Includes styles
 					assert.equal($('link[rel=stylesheet]').length, 1);
 				});

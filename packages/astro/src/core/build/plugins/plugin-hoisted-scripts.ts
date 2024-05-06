@@ -11,7 +11,6 @@ function virtualHoistedEntry(id: string) {
 	return id.startsWith('/astro/hoisted.js?q=');
 }
 
-
 export function vitePluginHoistedScripts(
 	settings: AstroSettings,
 	internals: BuildInternals
@@ -77,7 +76,7 @@ export function vitePluginHoistedScripts(
 				const facadeId = output.facadeModuleId!;
 
 				// Pages
-				if(internals.hoistedScriptIdToPagesMap.has(facadeId)) {
+				if (internals.hoistedScriptIdToPagesMap.has(facadeId)) {
 					const pages = internals.hoistedScriptIdToPagesMap.get(facadeId)!;
 					for (const pathname of pages) {
 						const vid = viteID(new URL('.' + pathname, settings.config.root));
@@ -102,11 +101,12 @@ export function vitePluginHoistedScripts(
 				// Content collection entries
 				else {
 					const contentModules = internals.hoistedScriptIdToContentMap.get(facadeId)!;
-					for(const contentId of contentModules) {
-						if(isContentCollectionsCacheEnabled(settings.config)) {
-							const scripts = internals.propagatedScriptsMap.get(contentId) ??
+					for (const contentId of contentModules) {
+						if (isContentCollectionsCacheEnabled(settings.config)) {
+							const scripts =
+								internals.propagatedScriptsMap.get(contentId) ??
 								internals.propagatedScriptsMap.set(contentId, new Set()).get(contentId)!;
-	
+
 							scripts.add(facadeId);
 						}
 					}

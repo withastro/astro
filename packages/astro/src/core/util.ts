@@ -155,11 +155,12 @@ export function isModeServerWithNoAdapter(settings: AstroSettings): boolean {
 	return isServerLikeOutput(settings.config) && !settings.adapter;
 }
 
-
 export function isContentCollectionsCacheEnabled(config: AstroConfig): boolean {
-	return config.experimental.contentCollectionCache &&
+	return (
+		config.experimental.contentCollectionCache &&
 		// contentCollectionsCache is an SSG only feature
-		!isServerLikeOutput(config);
+		!isServerLikeOutput(config)
+	);
 }
 
 export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
