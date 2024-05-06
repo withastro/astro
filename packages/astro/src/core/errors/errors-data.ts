@@ -1164,7 +1164,19 @@ export const i18nNotEnabled = {
 export const EnvInvalidVariables = {
 	name: 'EnvInvalidVariable',
 	title: 'Invalid Environment variable',
-	message: (variables: string) => `The following environment variable does not match the type and constraints defined in \`experimental.env.schema\`:\n\n${variables}\n`,
+	message: (variables: string) =>
+		`The following environment variable does not match the type and constraints defined in \`experimental.env.schema\`:\n\n${variables}\n`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Module is only available server-side
+ */
+export const EnvServerOnlyModule = {
+	name: 'EnvServerOnlyModule',
+	title: 'Module is only available server-side',
+	message: (name: string) => `The "${name}" module is only available server-side.`,
 } satisfies ErrorData;
 
 /**

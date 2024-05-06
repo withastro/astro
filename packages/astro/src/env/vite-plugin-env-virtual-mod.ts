@@ -4,7 +4,9 @@ import type { Logger } from '../core/logger/core.js';
 import {
 	ENV_TYPES_FILE,
 	RESOLVED_VIRTUAL_CLIENT_MODULE_ID,
+	RESOLVED_VIRTUAL_SERVER_MODULE_ID,
 	VIRTUAL_CLIENT_MODULE_ID,
+	VIRTUAL_SERVER_MODULE_ID,
 } from './constants.js';
 import type { EnvSchema } from './schema.js';
 import { validateEnvVariable } from './validators.js';
@@ -29,7 +31,8 @@ export function astroEnvVirtualModPlugin({
 		return;
 	}
 
-	let clientTemplates: ReturnType<typeof getClientTemplates> | null = null;
+	let clientTemplates: ReturnType<typeof getTemplates> | null = null;
+	let serverTemplates: ReturnType<typeof getTemplates> | null = null;
 
 	logger.warn('env', 'This feature is experimental. TODO:');
 
@@ -47,8 +50,9 @@ export function astroEnvVirtualModPlugin({
 				''
 			);
 			const validatedVariables = validatePublicVariables({ schema, loadedEnv });
-			clientTemplates = getClientTemplates({ validatedVariables });
-			generateDts({ settings, fs, content: clientTemplates.dts });
+			clientTemplates = getTemplates({ validatedVariables, context: 'client' });
+			serverTemplates = getTemplates({ validatedVariables, context: 'server' });
+			generateDts({ settings, fs, content: `${clientTemplates.dts}\n\n${serverTemplates.dts}` });
 		},
 		buildEnd() {
 			clientTemplates = null;
@@ -57,10 +61,22 @@ export function astroEnvVirtualModPlugin({
 			if (id === VIRTUAL_CLIENT_MODULE_ID) {
 				return RESOLVED_VIRTUAL_CLIENT_MODULE_ID;
 			}
+			if (id === VIRTUAL_SERVER_MODULE_ID) {
+				return RESOLVED_VIRTUAL_SERVER_MODULE_ID
+			}
 		},
-		load(id) {
+		load(id, options) {
 			if (id === RESOLVED_VIRTUAL_CLIENT_MODULE_ID) {
 				return clientTemplates!.content;
+			}
+			if (id === RESOLVED_VIRTUAL_SERVER_MODULE_ID) {
+				if (options?.ssr) {
+					return serverTemplates!.content;
+				}
+				throw new AstroError({
+					...AstroErrorData.EnvServerOnlyModule,
+					message: AstroErrorData.EnvServerOnlyModule.message(VIRTUAL_SERVER_MODULE_ID),
+				});
 			}
 		},
 	};
@@ -111,22 +127,24 @@ function validatePublicVariables({
 	return valid;
 }
 
-function getClientTemplates({
+function getTemplates({
 	validatedVariables,
+	context,
 }: {
 	validatedVariables: ReturnType<typeof validatePublicVariables>;
+	context: 'server' | 'client';
 }) {
 	const contentParts: Array<string> = [];
 	const dtsParts: Array<string> = [];
 
-	for (const { key, type, value } of validatedVariables.filter((e) => e.context === 'client')) {
+	for (const { key, type, value } of validatedVariables.filter((e) => e.context === context)) {
 		contentParts.push(`export const ${key} = ${JSON.stringify(value)};`);
 		dtsParts.push(`export const ${key}: ${type};`);
 	}
 
 	const content = contentParts.join('\n');
 
-	const dts = `declare module "astro:env/client" {
+	const dts = `declare module "astro:env/${context}" {
     ${dtsParts.join('\n    ')}
 }`;
 
