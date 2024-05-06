@@ -16493,7 +16493,6 @@ packages:
       - terser
     dev: false
 
-  /vite-plugin-solid@2.10.2(solid-js@1.8.17)(vite@5.2.10):
   /vite-plugin-inspect@0.8.4(vite@5.2.10):
     resolution: {integrity: sha512-G0N3rjfw+AiiwnGw50KlObIHYWfulVwaCBUBLh2xTW9G1eM9ocE5olXkEYUbwyTmX+azM8duubi+9w5awdCz+g==}
     engines: {node: '>=14'}
@@ -16521,7 +16520,7 @@ packages:
       - supports-color
     dev: false
 
-  /vite-plugin-solid@2.10.2(solid-js@1.8.17):
+  /vite-plugin-solid@2.10.2(solid-js@1.8.17)(vite@5.2.10):
     resolution: {integrity: sha512-AOEtwMe2baBSXMXdo+BUwECC8IFHcKS6WQV/1NEd+Q7vHPap5fmIhLcAzr+DUJ04/KHx/1UBU0l1/GWP+rMAPQ==}
     peerDependencies:
       '@testing-library/jest-dom': ^5.16.6 || ^5.17.0 || ^6.*
