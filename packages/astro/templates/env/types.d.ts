@@ -1,12 +1,20 @@
-type SecretValues = '@@SECRET_VALUES@@';
+declare module 'astro:env/client' {
+	// @@CLIENT@@
+}
 
-    type SecretValue = keyof SecretValues;
+declare module 'astro:env/server' {
+	// @@SERVER@@
 
-    type Loose<T> = T | (string & {});
-    type Strictify<T extends string> = T extends `${infer _}` ? T : never;
+	type SecretValues = {
+		// @@SECRET_VALUES@@
+	};
 
-    // TODO: check why optional types don't return undefined with base tsconfig extend
-    export const getSecret: <TKey extends Loose<SecretValue>>(key: TKey) =>
-        TKey extends Strictify<SecretValue>
-            ? SecretValues[TKey]
-            : (string | undefined);
+	type SecretValue = keyof SecretValues;
+
+	type Loose<T> = T | (string & {});
+	type Strictify<T extends string> = T extends `${infer _}` ? T : never;
+
+	export const getSecret: <TKey extends Loose<SecretValue>>(
+		key: TKey
+	) => TKey extends Strictify<SecretValue> ? SecretValues[TKey] : string | undefined;
+}

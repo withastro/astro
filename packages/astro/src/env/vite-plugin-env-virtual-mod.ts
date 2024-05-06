@@ -50,19 +50,24 @@ export function astroEnvVirtualModPlugin({
 			);
 			const validatedVariables = validatePublicVariables({ schema, loadedEnv });
 
-			const clientTemplates = getTemplates({ validatedVariables, context: 'client' });
-			const serverTemplates = getTemplates({
-				validatedVariables,
-				context: 'server',
-				...getSecretServerTemplates({ schema, fs }),
-			});
+			const clientTemplates = getClientTemplates({ validatedVariables });
+			const serverTemplates = getServerTemplates({ validatedVariables, schema, fs });
 
 			templates = {
-				client: clientTemplates.content,
-				server: serverTemplates.content,
+				client: clientTemplates.module,
+				server: serverTemplates.module,
 				internal: `export const schema = ${JSON.stringify(schema)};`,
 			};
-			generateDts({ settings, fs, content: `${clientTemplates.dts}\n\n${serverTemplates.dts}` });
+			generateDts({
+				settings,
+				fs,
+				content: getDts({
+					fs,
+					clientPublic: clientTemplates.types,
+					serverPublic: serverTemplates.types.public,
+					serverSecret: serverTemplates.types.secret,
+				}),
+			});
 		},
 		buildEnd() {
 			templates = null;
@@ -146,54 +151,75 @@ function validatePublicVariables({
 	return valid;
 }
 
-function getTemplates({
+function getDts({
+	clientPublic,
+	serverPublic,
+	serverSecret,
+	fs,
+}: {
+	clientPublic: string;
+	serverPublic: string;
+	serverSecret: string;
+	fs: typeof fsMod;
+}) {
+	const template = fs.readFileSync(TYPES_TEMPLATE_URL, 'utf-8');
+
+	return template
+		.replace('// @@CLIENT@@', clientPublic)
+		.replace('// @@SERVER@@', serverPublic)
+		.replace('// @@SECRET_VALUES@@', serverSecret);
+}
+
+function getClientTemplates({
 	validatedVariables,
-	context,
-	additionalContent = [],
-	additionalDts = [],
 }: {
 	validatedVariables: ReturnType<typeof validatePublicVariables>;
-	context: 'server' | 'client';
-	additionalContent?: Array<string>;
-	additionalDts?: Array<string>;
 }) {
-	const contentParts = additionalContent;
-	const dtsParts = additionalDts;
+	let module = '';
+	let types = '';
 
-	for (const { key, type, value } of validatedVariables.filter((e) => e.context === context)) {
-		contentParts.push(`export const ${key} = ${JSON.stringify(value)};`);
-		dtsParts.push(`export const ${key}: ${type};`);
+	for (const { key, type, value } of validatedVariables.filter((e) => e.context === 'client')) {
+		module += `export const ${key} = ${JSON.stringify(value)};	\n`;
+		types += `export const ${key}: ${type};	\n`;
 	}
 
-	const content = contentParts.join('\n');
-
-	const dts = `declare module "astro:env/${context}" {
-    ${dtsParts.join('\n    ')}
-}`;
-
 	return {
-		content,
-		dts,
+		module,
+		types,
 	};
 }
 
-function getSecretServerTemplates({ schema, fs }: { schema: EnvSchema; fs: typeof fsMod }) {
-	const parts: Array<string> = [];
+function getServerTemplates({
+	validatedVariables,
+	schema,
+	fs,
+}: {
+	validatedVariables: ReturnType<typeof validatePublicVariables>;
+	schema: EnvSchema;
+	fs: typeof fsMod;
+}) {
+	let module = fs.readFileSync(MODULE_TEMPLATE_URL, 'utf-8');
+	let publicTypes = '';
+	let secretTypes = '';
+
+	for (const { key, type, value } of validatedVariables.filter((e) => e.context === 'server')) {
+		module += `export const ${key} = ${JSON.stringify(value)};	\n`;
+		publicTypes += `export const ${key}: ${type};	\n`;
+	}
 
 	for (const [key, options] of Object.entries(schema)) {
 		if (!(options.context === 'server' && options.access === 'secret')) {
 			continue;
 		}
 
-		parts.push(`"${key}": ${getType(options)};`);
+		secretTypes += `${key}: ${getType(options)};		\n`;
 	}
 
 	return {
-		additionalContent: [fs.readFileSync(MODULE_TEMPLATE_URL, 'utf-8')],
-		additionalDts: [
-			fs
-				.readFileSync(TYPES_TEMPLATE_URL, 'utf-8')
-				.replace("'@@SECRET_VALUES@@'", `{\n		${parts.join('\n		')}\n	}`) + "\n",
-		],
+		module,
+		types: {
+			public: publicTypes,
+			secret: secretTypes,
+		},
 	};
 }
