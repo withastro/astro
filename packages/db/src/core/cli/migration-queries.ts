@@ -4,6 +4,10 @@ import * as color from 'kleur/colors';
 import { customAlphabet } from 'nanoid';
 import stripAnsi from 'strip-ansi';
 import { hasPrimaryKey } from '../../runtime/index.js';
+import { isSerializedSQL } from '../../runtime/types.js';
+import { safeFetch } from '../../runtime/utils.js';
+import { MIGRATION_VERSION } from '../consts.js';
+import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
 import {
 	getCreateIndexQueries,
 	getCreateTableQuery,
@@ -12,11 +16,7 @@ import {
 	getReferencesConfig,
 	hasDefault,
 	schemaTypeToSqlType,
-} from '../../runtime/queries.js';
-import { isSerializedSQL } from '../../runtime/types.js';
-import { safeFetch } from '../../runtime/utils.js';
-import { MIGRATION_VERSION } from '../consts.js';
-import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
+} from '../queries.js';
 import { columnSchema } from '../schemas.js';
 import {
 	type BooleanColumn,

@@ -25,7 +25,7 @@ export class AstroDbError extends AstroError {
 	name = 'Astro DB Error';
 }
 
-export default function slash(path: string) {
+function slash(path: string) {
 	const isExtendedLengthPath = path.startsWith('\\\\?\\');
 
 	if (isExtendedLengthPath) {

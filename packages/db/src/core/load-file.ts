@@ -10,7 +10,7 @@ import { errorMap } from './integration/error-map.js';
 import { getConfigVirtualModContents } from './integration/vite-plugin-db.js';
 import { dbConfigSchema } from './schemas.js';
 import { type AstroDbIntegration } from './types.js';
-import { getDbDirectoryUrl } from './utils.js';
+import { getAstroEnv, getDbDirectoryUrl } from './utils.js';
 
 const isDbIntegration = (integration: AstroIntegration): integration is AstroDbIntegration =>
 	'astro:db:setup' in integration.hooks;
@@ -85,15 +85,17 @@ async function loadUserConfigFile(
 	return await loadAndBundleDbConfigFile({ root, fileUrl: configFileUrl });
 }
 
-async function loadIntegrationConfigFile(root: URL, filePathOrUrl: string | URL) {
-	let fileUrl: URL;
+export function getResolvedFileUrl(root: URL, filePathOrUrl: string | URL): URL {
 	if (typeof filePathOrUrl === 'string') {
 		const { resolve } = createRequire(root);
 		const resolvedFilePath = resolve(filePathOrUrl);
-		fileUrl = pathToFileURL(resolvedFilePath);
-	} else {
-		fileUrl = filePathOrUrl;
+		return pathToFileURL(resolvedFilePath);
 	}
+	return filePathOrUrl;
+}
+
+async function loadIntegrationConfigFile(root: URL, filePathOrUrl: string | URL) {
+	const fileUrl = getResolvedFileUrl(root, filePathOrUrl);
 	return await loadAndBundleDbConfigFile({ root, fileUrl });
 }
 
@@ -133,6 +135,7 @@ export async function bundleFile({
 	root: URL;
 	virtualModContents: string;
 }) {
+	const { ASTRO_DATABASE_FILE } = getAstroEnv();
 	const result = await esbuild({
 		absWorkingDir: process.cwd(),
 		entryPoints: [fileURLToPath(fileUrl)],
@@ -147,6 +150,7 @@ export async function bundleFile({
 		metafile: true,
 		define: {
 			'import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL': 'undefined',
+			'import.meta.env.ASTRO_DATABASE_FILE': JSON.stringify(ASTRO_DATABASE_FILE ?? ''),
 		},
 		plugins: [
 			{
