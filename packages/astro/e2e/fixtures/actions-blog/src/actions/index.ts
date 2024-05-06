@@ -25,7 +25,7 @@ export const server = {
 			input: z.object({
 				postId: z.string(),
 				author: z.string(),
-				body: z.string().min(50),
+				body: z.string().min(10),
 			}),
 			handler: async ({ postId, author, body }) => {
 				const comment = await db

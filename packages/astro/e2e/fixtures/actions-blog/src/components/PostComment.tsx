@@ -37,11 +37,19 @@ export function PostComment({
 				</label>
 				<input id="author" type="text" name="author" placeholder="Your name" />
 				<textarea rows={10} name="body"></textarea>
-				{bodyError && <p style={{ color: 'red' }}>{bodyError}</p>}
-				<button type="submit">Post</button>
+				{bodyError && (
+					<p data-error="body" style={{ color: 'red' }}>
+						{bodyError}
+					</p>
+				)}
+				<button aria-label="Post comment" type="submit">
+					Post
+				</button>
 			</form>
 			{comments.map((c) => (
 				<article
+					data-testid="comment"
+					key={c.body}
 					style={{
 						border: '2px solid color-mix(in srgb, var(--accent), transparent 80%)',
 						padding: '0.3rem 1rem',
