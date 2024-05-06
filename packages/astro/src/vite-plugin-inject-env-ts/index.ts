@@ -4,8 +4,10 @@ import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
 import { type Plugin, normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
-import { getContentPaths, getDotAstroTypeReferences } from '../content/index.js';
+import { getContentPaths } from '../content/index.js';
 import { type Logger } from '../core/logger/core.js';
+import { CONTENT_TYPES_FILE } from '../content/consts.js';
+import { ACTIONS_TYPES_FILE } from '../actions/consts.js';
 
 export function getEnvTsPath({ srcDir }: { srcDir: URL }) {
 	return new URL('env.d.ts', srcDir);
@@ -77,4 +79,28 @@ export async function setUpEnvTs({
 		await fs.promises.writeFile(envTsPath, referenceDefs.join('\n'), 'utf-8');
 		logger.info('types', `Added ${bold(envTsPathRelativeToRoot)} type declarations`);
 	}
+}
+
+function getDotAstroTypeReferences({
+	fs,
+	root,
+	srcDir,
+}: {
+	fs: typeof fsMod;
+	root: URL;
+	srcDir: URL;
+}) {
+	const { cacheDir } = getContentPaths({ root, srcDir });
+	let referenceDefs: string[] = [];
+	const typesFiles = [CONTENT_TYPES_FILE, ACTIONS_TYPES_FILE];
+	for (const typesFile of typesFiles) {
+		const url = new URL(typesFile, cacheDir);
+		if (!fs.existsSync(url)) continue;
+		const typesRelativeToSrcDir = normalizePath(
+			path.relative(fileURLToPath(srcDir), fileURLToPath(url))
+		);
+		referenceDefs.push(`/// <reference path=${JSON.stringify(typesRelativeToSrcDir)} />`);
+	}
+
+	return referenceDefs;
 }
