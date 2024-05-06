@@ -4,6 +4,7 @@ import type { MaybePromise } from '../utils.js';
 import {
 	ActionError,
 	ActionInputError,
+	callSafely,
 	type ErrorInferenceObject,
 	type SafeResult,
 } from './shared.js';
@@ -53,12 +54,10 @@ export function defineFormAction<
 		return await handler(parsed.data);
 	};
 
-	serverHandler.safe = async (): Promise<SafeResult<TInputSchema, Awaited<TOutput>>> => {
-		throw new ActionError({
-			code: 'INTERNAL_SERVER_ERROR',
-			message:
-				'safe() unexpectedly called on the server. To retrieve action data from Astro frontmatter, use the `Astro.getActionResult()` function.',
-		});
+	serverHandler.safe = async (
+		unparsedInput: unknown
+	): Promise<SafeResult<TInputSchema, Awaited<TOutput>>> => {
+		return callSafely(() => serverHandler(unparsedInput));
 	};
 	return serverHandler;
 }
@@ -99,12 +98,10 @@ export function defineAction<TOutput, TInputSchema extends z.ZodType>({
 		return await handler(parsed.data);
 	};
 
-	serverHandler.safe = async (): Promise<SafeResult<TInputSchema, Awaited<TOutput>>> => {
-		throw new ActionError({
-			code: 'INTERNAL_SERVER_ERROR',
-			message:
-				'safe() unexpectedly called on the server. To retrieve action data from Astro frontmatter, use the `Astro.getActionResult()` function.',
-		});
+	serverHandler.safe = async (
+		unparsedInput: unknown
+	): Promise<SafeResult<TInputSchema, Awaited<TOutput>>> => {
+		return callSafely(() => serverHandler(unparsedInput));
 	};
 	return serverHandler;
 }

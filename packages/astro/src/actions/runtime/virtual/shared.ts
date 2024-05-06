@@ -117,11 +117,10 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 }
 
 export async function callSafely<TOutput>(
-	action: (input: any) => MaybePromise<TOutput>,
-	input: any
+	handler: () => MaybePromise<TOutput>
 ): Promise<SafeResult<z.ZodType, TOutput>> {
 	try {
-		const data = await action(input);
+		const data = await handler();
 		return { data, error: undefined };
 	} catch (e) {
 		if (e instanceof ActionError) {

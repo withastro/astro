@@ -31,7 +31,7 @@ function toActionProxy(
 			}
 			action.toString = () => path;
 			action.safe = (input) => {
-				return callSafely(action, input);
+				return callSafely(() => action(input));
 			}
 			action.safe[Symbol.for('astro:action:safe')] = true;
 			action.safe.toString = () => path;
