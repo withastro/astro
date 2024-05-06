@@ -1,6 +1,6 @@
 import type { BuildOptions, Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../../@types/astro.js';
-import { viteID } from '../../util.js';
+import { isContentCollectionsCacheEnabled, viteID } from '../../util.js';
 import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
@@ -10,6 +10,7 @@ import { shouldInlineAsset } from './util.js';
 function virtualHoistedEntry(id: string) {
 	return id.startsWith('/astro/hoisted.js?q=');
 }
+
 
 export function vitePluginHoistedScripts(
 	settings: AstroSettings,
@@ -72,23 +73,41 @@ export function vitePluginHoistedScripts(
 					output.dynamicImports.length === 0 &&
 					shouldInlineAsset(output.code, output.fileName, assetsInlineLimit);
 				let removeFromBundle = false;
+
 				const facadeId = output.facadeModuleId!;
-				const pages = internals.hoistedScriptIdToPagesMap.get(facadeId)!;
-				for (const pathname of pages) {
-					const vid = viteID(new URL('.' + pathname, settings.config.root));
-					const pageInfo = getPageDataByViteID(internals, vid);
-					if (pageInfo) {
-						if (canBeInlined) {
-							pageInfo.hoistedScript = {
-								type: 'inline',
-								value: output.code,
-							};
-							removeFromBundle = true;
-						} else {
-							pageInfo.hoistedScript = {
-								type: 'external',
-								value: id,
-							};
+
+				// Pages
+				if(internals.hoistedScriptIdToPagesMap.has(facadeId)) {
+					const pages = internals.hoistedScriptIdToPagesMap.get(facadeId)!;
+					for (const pathname of pages) {
+						const vid = viteID(new URL('.' + pathname, settings.config.root));
+
+						const pageInfo = getPageDataByViteID(internals, vid);
+						if (pageInfo) {
+							if (canBeInlined) {
+								pageInfo.hoistedScript = {
+									type: 'inline',
+									value: output.code,
+								};
+								removeFromBundle = true;
+							} else {
+								pageInfo.hoistedScript = {
+									type: 'external',
+									value: id,
+								};
+							}
+						}
+					}
+				}
+				// Content collection entries
+				else {
+					const contentModules = internals.hoistedScriptIdToContentMap.get(facadeId)!;
+					for(const contentId of contentModules) {
+						if(isContentCollectionsCacheEnabled(settings.config)) {
+							const scripts = internals.propagatedScriptsMap.get(contentId) ??
+								internals.propagatedScriptsMap.set(contentId, new Set()).get(contentId)!;
+	
+							scripts.add(facadeId);
 						}
 					}
 				}

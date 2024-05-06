@@ -15,7 +15,7 @@ import type {
 import { getProxyCode } from '../assets/utils/proxy.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
-import { isServerLikeOutput } from '../prerender/utils.js';
+import { isServerLikeOutput } from '../core/util.js';
 import { CONTENT_FLAG, DATA_FLAG } from './consts.js';
 import {
 	type ContentConfig,
