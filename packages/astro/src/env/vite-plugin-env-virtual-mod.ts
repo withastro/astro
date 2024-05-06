@@ -18,8 +18,6 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type fsMod from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-// TODO:
-
 interface AstroEnvVirtualModPluginParams {
 	settings: AstroSettings;
 	logger: Logger;
