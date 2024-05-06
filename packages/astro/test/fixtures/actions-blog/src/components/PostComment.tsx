@@ -1,4 +1,4 @@
-import { getNameProps, actions, isInputError } from 'astro:actions';
+import { getActionProps, actions, isInputError } from 'astro:actions';
 import { useState } from 'react';
 
 export function PostComment({
@@ -30,7 +30,7 @@ export function PostComment({
 					form.reset();
 				}}
 			>
-				<input {...getNameProps(actions.blog.comment)} />
+				<input {...getActionProps(actions.blog.comment)} />
 				<input type="hidden" name="postId" value={postId} />
 				<label className="sr-only" htmlFor="author">
 					Author
