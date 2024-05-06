@@ -25,7 +25,7 @@ export function PostComment({
 					}
 					if (data) {
 						setBodyError(undefined);
-						setComments((c) => [data.comment, ...c]);
+						setComments((c) => [data, ...c]);
 					}
 					form.reset();
 				}}

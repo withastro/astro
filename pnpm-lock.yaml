@@ -856,6 +856,48 @@ importers:
         specifier: workspace:*
         version: link:../../../..
 
+  packages/astro/e2e/fixtures/actions-blog:
+    dependencies:
+      '@astrojs/check':
+        specifier: ^0.5.10
+        version: 0.5.10(prettier-plugin-astro@0.13.0)(prettier@3.2.5)(typescript@5.4.5)
+      '@astrojs/db':
+        specifier: workspace:*
+        version: link:../../../../db
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
+      '@astrojs/rss':
+        specifier: workspace:*
+        version: link:../../../../astro-rss
+      '@astrojs/sitemap':
+        specifier: workspace:*
+        version: link:../../../../integrations/sitemap
+      '@types/react':
+        specifier: ^18.2.79
+        version: 18.3.1
+      '@types/react-dom':
+        specifier: ^18.2.25
+        version: 18.3.0
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      react:
+        specifier: ^18.3.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.0
+        version: 18.3.1(react@18.3.1)
+      typescript:
+        specifier: ^5.4.5
+        version: 5.4.5
+
   packages/astro/e2e/fixtures/astro-component:
     dependencies:
       '@astrojs/preact':
@@ -1725,48 +1767,6 @@ importers:
       vue:
         specifier: ^3.3.8
         version: 3.4.21(typescript@5.4.5)
-
-  packages/astro/test/fixtures/actions-blog:
-    dependencies:
-      '@astrojs/check':
-        specifier: ^0.5.10
-        version: 0.5.10(prettier-plugin-astro@0.13.0)(prettier@3.2.5)(typescript@5.4.5)
-      '@astrojs/db':
-        specifier: workspace:*
-        version: link:../../../../db
-      '@astrojs/mdx':
-        specifier: workspace:*
-        version: link:../../../../integrations/mdx
-      '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../integrations/node
-      '@astrojs/react':
-        specifier: workspace:*
-        version: link:../../../../integrations/react
-      '@astrojs/rss':
-        specifier: workspace:*
-        version: link:../../../../astro-rss
-      '@astrojs/sitemap':
-        specifier: workspace:*
-        version: link:../../../../integrations/sitemap
-      '@types/react':
-        specifier: ^18.2.79
-        version: 18.3.1
-      '@types/react-dom':
-        specifier: ^18.2.25
-        version: 18.2.25
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      react:
-        specifier: 18.3.0-canary-670811593-20240322
-        version: 18.3.0-canary-670811593-20240322
-      react-dom:
-        specifier: 18.3.0-canary-670811593-20240322
-        version: 18.3.0-canary-670811593-20240322(react@18.3.0-canary-670811593-20240322)
-      typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
 
   packages/astro/test/fixtures/alias:
     dependencies:
@@ -14817,18 +14817,6 @@ packages:
       scheduler: 0.23.0
     dev: false
 
-  /react-dom@18.3.0-canary-670811593-20240322(react@18.3.0-canary-670811593-20240322):
-    resolution: {integrity: sha512-AHxCnyDzZueXIHY4WA2Uba1yaL7/vbjhO3D3TWPQeruKD5MwgD0/xExZi0T104gBr6Thv6MEsLSxFjBAHhHKKg==}
-    peerDependencies:
-      react: 18.3.0-canary-670811593-20240322
-    peerDependenciesMeta:
-      react:
-        optional: true
-    dependencies:
-      react: 18.3.0-canary-670811593-20240322
-      scheduler: 0.24.0-canary-670811593-20240322
-    dev: false
-
   /react-dom@18.3.1(react@18.3.1):
     resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
     peerDependencies:
@@ -14855,11 +14843,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
-    dev: false
-
-  /react@18.3.0-canary-670811593-20240322:
-    resolution: {integrity: sha512-EI6+q3tOT+0z4OkB2sz842Ra/n/yz7b3jOJhSK1HQwi4Ng29VJzLGngWmSuxQ94YfdE3EBhpUKDfgNgzoKM9Vg==}
-    engines: {node: '>=0.10.0'}
     dev: false
 
   /react@18.3.1:
@@ -15371,10 +15354,6 @@ packages:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
     dependencies:
       loose-envify: 1.4.0
-
-  /scheduler@0.24.0-canary-670811593-20240322:
-    resolution: {integrity: sha512-IGX6Fq969h1L0X7jV0sJ/EdI4fr+mRetbBNJl55nn+/RsCuQSVwgKnZG6Q3NByixDNbkRI8nRmWuhOm8NQowGQ==}
-    dev: false
 
   /scslre@0.3.0:
     resolution: {integrity: sha512-3A6sD0WYP7+QrjbfNA2FN3FsOaGGFoekCVgTyypy53gPxhbkCIjtO6YWgdrfM+n/8sI8JeXZOIxsHjMTNxQ4nQ==}
