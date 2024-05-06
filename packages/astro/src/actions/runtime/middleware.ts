@@ -14,6 +14,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	const locals = context.locals as Locals;
 	const { request } = context;
 	const contentType = request.headers.get('Content-Type');
+	locals._actionsInternal = {
+		getActionResult: () => undefined,
+	};
+
 	if (!formContentTypes.some((f) => contentType?.startsWith(f))) return next();
 
 	const formData = await request.clone().formData();
