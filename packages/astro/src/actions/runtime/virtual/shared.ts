@@ -136,7 +136,7 @@ export async function callSafely<TOutput>(
 	}
 }
 
-export function getActionProps<T extends (args: any) => MaybePromise<unknown>>(action: T) {
+export function getActionProps<T extends (args: FormData) => MaybePromise<unknown>>(action: T) {
 	return {
 		type: 'hidden',
 		name: '_astroAction',
