@@ -1,9 +1,10 @@
 import type { APIContext } from '../../@types/astro.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
 
-export const ApiContextStorage = new AsyncLocalStorage<APIContext>();
+export type ActionAPIContext = Omit<APIContext, 'getActionResult' | 'props'>;
+export const ApiContextStorage = new AsyncLocalStorage<ActionAPIContext>();
 
-export function getApiContext(): APIContext {
+export function getApiContext(): ActionAPIContext {
 	const context = ApiContextStorage.getStore();
 	if (!context) {
 		throw new Error(

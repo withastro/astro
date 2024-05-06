@@ -239,6 +239,22 @@ export interface AstroGlobal<
 	response: ResponseInit & {
 		readonly headers: Headers;
 	};
+	/**
+	 * get an action result on the server when using a form POST.
+	 * Expects the action function as a parameter.
+	 * Returns a type-safe result with the action data when
+	 * a matching POST request is received
+	 * and `undefined` otherwise.
+	 *
+	 * Example usage:
+	 *
+	 * ```typescript
+	 * import { actions } from 'astro:actions';
+	 *
+	 * const result = await Astro.getActionResult(actions.myAction);
+	 * ```
+	 */
+	getActionResult: AstroSharedContext['getActionResult'];
 	/** Redirect to another page (**SSR Only**)
 	 *
 	 * Example usage:
@@ -2647,6 +2663,12 @@ interface AstroSharedContext<
 	 * A full URL object of the request URL.
 	 */
 	url: URL;
+	/**
+	 * Get action result on the server when using a form POST.
+	 */
+	getActionResult: <T extends (...args: any) => any>(
+		action: T
+	) => Awaited<ReturnType<T>> | undefined;
 	/**
 	 * Route parameters for this request if this is a dynamic route.
 	 */
