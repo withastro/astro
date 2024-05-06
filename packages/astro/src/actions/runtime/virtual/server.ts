@@ -82,7 +82,7 @@ export function defineAction<TOutput, TInputSchema extends z.ZodType>({
 } {
 	const serverHandler = async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
 		const context = getApiContext();
-		if (context.request.headers.get('ContentType') !== 'application/json') {
+		if (context.request.headers.get('content-type') !== 'application/json') {
 			throw new ActionError({
 				code: 'UNSUPPORTED_MEDIA_TYPE',
 				message: 'This action only accepts JSON.',
