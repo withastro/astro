@@ -109,6 +109,7 @@ function createExistsSync(fixture) {
 		getTypesEnvPath(fixture),
 		new URL(CONTENT_TYPES_FILE, cacheDir).href,
 		new URL(ACTIONS_TYPES_FILE, cacheDir).href,
+		cacheDir.href,
 	];
 
 	return (path) => paths.includes(path.toString());
