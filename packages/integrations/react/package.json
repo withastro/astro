@@ -60,8 +60,8 @@
     "vite": "^5.2.10"
   },
   "peerDependencies": {
-    "@types/react": "^17.0.50 || ^18.0.21",
-    "@types/react-dom": "^17.0.17 || ^18.0.6",
+    "@types/react": "^17.0.50 || ^18.0.21 || npm:types-react@beta",
+    "@types/react-dom": "^17.0.17 || ^18.0.6 || npm:types-react-dom@beta",
     "react": "^17.0.2 || ^18.0.0 || ^19.0.0-beta",
     "react-dom": "^17.0.2 || ^18.0.0 || ^19.0.0-beta"
   },
