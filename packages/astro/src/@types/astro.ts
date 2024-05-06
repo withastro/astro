@@ -1777,7 +1777,7 @@ export interface AstroUserConfig {
 		 *
 		 * Then, call an action from your client components using the `actions` object from `astro:actions`. You can pass a type-safe object when using JSON, or a `FormData` object when using `accept: 'form'` in your action definition:
 		 *
-		 * ```tsx
+		 * ```tsx "actions"
 		 * // src/components/blog.tsx
 		 * import { actions } from "astro:actions";
 		 * import { useState } from "preact/hooks";
