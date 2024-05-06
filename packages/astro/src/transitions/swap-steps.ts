@@ -18,10 +18,10 @@ type Extension<Args extends any[], Return> = ((...args: [...Args, next: (...args
 
 type SwapStepsExtensions = {
 	[K in keyof SwapStepsOptions]?: Extension<Parameters<SwapStepsOptions[K]>, ReturnType<SwapStepsOptions[K]>>
-}
+};
 
-export class SwapSteps {
-	swap(doc: Document) {
+class SwapSteps {
+	extended(doc: Document) {
 		this.#deselectScripts(doc);
 		this.#swapRootAttributes(doc);
 		this.#swapHeadElements(doc);
@@ -50,6 +50,8 @@ export class SwapSteps {
 	): ((...args: Args) => Return) {
 		return extension === undefined ? current : (...args) => {
 			return extension(...args, current);
-		}
+		};
 	}
 }
+export let builtInSwap = new SwapSteps();
+document.addEventListener('astro:after-swap', () => builtInSwap = new SwapSteps());

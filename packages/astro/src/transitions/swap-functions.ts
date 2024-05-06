@@ -132,3 +132,12 @@ const shouldCopyProps = (el: HTMLElement): boolean => {
 	const persistProps = el.dataset.astroTransitionPersistProps;
 	return persistProps == null || persistProps === 'false';
 };
+
+export const swap = (doc:Document) => {
+	deselectScripts(doc);
+	swapRootAttributes(doc);
+	swapHeadElements(doc);
+	const restoreFocus = saveFocus();
+	swapBodyElement(doc.body, document.body)
+	restoreFocus();
+}
