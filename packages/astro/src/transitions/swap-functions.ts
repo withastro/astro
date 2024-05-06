@@ -137,7 +137,7 @@ export const swap = (doc:Document) => {
 	deselectScripts(doc);
 	swapRootAttributes(doc);
 	swapHeadElements(doc);
-	const restoreFocus = saveFocus();
+	const restoreFocusFunction = saveFocus();
 	swapBodyElement(doc.body, document.body)
-	restoreFocus();
+	restoreFocusFunction();
 }
