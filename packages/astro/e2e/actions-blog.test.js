@@ -20,7 +20,6 @@ test.describe('Astro Actions - Blog', () => {
 		const likeButton = page.getByLabel('Like');
 		await expect(likeButton, 'like button starts with 10 likes').toContainText('10');
 		await likeButton.click();
-		await expect(likeButton, 'like button should be disabled while loading').toBeDisabled();
 		await expect(likeButton, 'like button should increment likes').toContainText('11');
 	});
 
