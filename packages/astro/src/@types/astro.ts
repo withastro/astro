@@ -1776,7 +1776,7 @@ export interface AstroUserConfig {
 		 * };
 		 * ```
 		 *
-		 * Then, call an action from your client components using the `actions` object from `astro:actions`. You can pass a type-safe object when using JSON, or a `FormData` object when using `accept: 'form'` in your action definition:
+		 * Then, call an action from your client components using the `actions` object from `astro:actions`. You can pass a type-safe object when using JSON, or a [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) object when using `accept: 'form'` in your action definition:
 		 *
 		 * ```tsx "actions"
 		 * // src/components/blog.tsx
