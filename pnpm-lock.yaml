@@ -864,21 +864,12 @@ importers:
       '@astrojs/db':
         specifier: workspace:*
         version: link:../../../../db
-      '@astrojs/mdx':
-        specifier: workspace:*
-        version: link:../../../../integrations/mdx
       '@astrojs/node':
         specifier: workspace:*
         version: link:../../../../integrations/node
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
-      '@astrojs/rss':
-        specifier: workspace:*
-        version: link:../../../../astro-rss
-      '@astrojs/sitemap':
-        specifier: workspace:*
-        version: link:../../../../integrations/sitemap
       '@types/react':
         specifier: ^18.2.79
         version: 18.3.1

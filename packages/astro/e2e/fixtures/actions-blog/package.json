@@ -12,11 +12,8 @@
 	"dependencies": {
 		"@astrojs/check": "^0.5.10",
 		"@astrojs/db": "workspace:*",
-		"@astrojs/mdx": "workspace:*",
 		"@astrojs/node": "workspace:*",
 		"@astrojs/react": "workspace:*",
-		"@astrojs/rss": "workspace:*",
-		"@astrojs/sitemap": "workspace:*",
 		"@types/react": "^18.2.79",
 		"@types/react-dom": "^18.2.25",
 		"astro": "workspace:*",
