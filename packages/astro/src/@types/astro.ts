@@ -240,7 +240,7 @@ export interface AstroGlobal<
 		readonly headers: Headers;
 	};
 	/**
-	 * get an action result on the server when using a form POST.
+	 * Get an action result on the server when using a form POST.
 	 * Expects the action function as a parameter.
 	 * Returns a type-safe result with the action data when
 	 * a matching POST request is received
