@@ -1746,6 +1746,7 @@ export interface AstroUserConfig {
 		 * This example defines two actions: `like` and `comment`. The `like` action accepts a JSON object with a `postId` string, while the `comment` action accepts [form data](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) with `postId`, `author`, and `body` strings.
 		 *
 		 * ```ts
+		 * // src/actions/index.ts
 		 * import { defineAction, z } from "astro:actions";
 		 *
 		 * export const server = {
