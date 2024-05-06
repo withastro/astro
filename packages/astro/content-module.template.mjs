@@ -48,10 +48,12 @@ const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 	contentDir,
 });
 
+const cacheEntriesByCollection = new Map();
 export const getCollection = createGetCollection({
 	contentCollectionToEntryMap,
 	dataCollectionToEntryMap,
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
+	cacheEntriesByCollection,
 });
 
 export const getEntryBySlug = createGetEntryBySlug({
