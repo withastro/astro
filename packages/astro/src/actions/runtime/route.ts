@@ -12,7 +12,7 @@ export const POST: APIRoute = async (context) => {
 	const action = await getAction(actionPathKeys);
 	const contentType = request.headers.get('Content-Type');
 	let args: unknown;
-	if (formContentTypes.some(f => contentType?.startsWith(f))) {
+	if (formContentTypes.some((f) => contentType?.startsWith(f))) {
 		args = await request.clone().formData();
 	} else if (contentType === 'application/json') {
 		args = await request.clone().json();
@@ -25,7 +25,7 @@ export const POST: APIRoute = async (context) => {
 	} catch (e) {
 		if (e instanceof ActionError) {
 			return new Response(JSON.stringify(e), {
-				status: 400,
+				status: e.status,
 				headers: {
 					'Content-Type': 'application/json',
 				},
