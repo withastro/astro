@@ -32,7 +32,6 @@ export function vitePluginAnalyzer(
 			string,
 			{
 				hoistedSet: Set<string>;
-				propagatedMapByImporter: Map<string, Set<string>>;
 			}
 		>();
 
@@ -51,29 +50,12 @@ export function vitePluginAnalyzer(
 				if (hoistedScripts.size) {
 					for (const parentInfo of getParentModuleInfos(from, this, isPropagatedAsset)) {
 						if (isPropagatedAsset(parentInfo.id)) {
-							for (const nestedParentInfo of getParentModuleInfos(from, this)) {
-								if (moduleIsTopLevelPage(nestedParentInfo)) {
-									for (const hid of hoistedScripts) {
-										if (!pageScripts.has(nestedParentInfo.id)) {
-											pageScripts.set(nestedParentInfo.id, {
-												hoistedSet: new Set(),
-												propagatedMapByImporter: new Map(),
-											});
-										}
-										const entry = pageScripts.get(nestedParentInfo.id)!;
-										if (!entry.propagatedMapByImporter.has(parentInfo.id)) {
-											entry.propagatedMapByImporter.set(parentInfo.id, new Set());
-										}
-										entry.propagatedMapByImporter.get(parentInfo.id)!.add(hid);
-									}
-								}
-							}
+							internals.propagatedScriptsMap.set(parentInfo.id, hoistedScripts);
 						} else if (moduleIsTopLevelPage(parentInfo)) {
 							for (const hid of hoistedScripts) {
 								if (!pageScripts.has(parentInfo.id)) {
 									pageScripts.set(parentInfo.id, {
 										hoistedSet: new Set(),
-										propagatedMapByImporter: new Map(),
 									});
 								}
 								pageScripts.get(parentInfo.id)?.hoistedSet.add(hid);
@@ -84,7 +66,15 @@ export function vitePluginAnalyzer(
 			},
 
 			finalize() {
-				for (const [pageId, { hoistedSet, propagatedMapByImporter }] of pageScripts) {
+				// Add propagated scripts to client build,
+				// but DON'T add to pages -> hoisted script map.
+				for (const propagatedScripts of internals.propagatedScriptsMap.values()) {
+					for (const propagatedScript of propagatedScripts) {
+						internals.discoveredScripts.add(propagatedScript);
+					}
+				}
+
+				for (const [pageId, { hoistedSet }] of pageScripts) {
 					const pageData = getPageDataByViteID(internals, pageId);
 					if (!pageData) continue;
 
@@ -103,16 +93,6 @@ export function vitePluginAnalyzer(
 						uniqueHoistedIds.set(uniqueHoistedId, moduleId);
 					}
 					internals.discoveredScripts.add(moduleId);
-
-					pageData.propagatedScripts = propagatedMapByImporter;
-
-					// Add propagated scripts to client build,
-					// but DON'T add to pages -> hoisted script map.
-					for (const propagatedScripts of propagatedMapByImporter.values()) {
-						for (const propagatedScript of propagatedScripts) {
-							internals.discoveredScripts.add(propagatedScript);
-						}
-					}
 
 					// Make sure to track that this page uses this set of hoisted scripts
 					if (internals.hoistedScriptIdToPagesMap.has(moduleId)) {

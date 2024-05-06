@@ -91,7 +91,15 @@ export interface BuildInternals {
 	cachedClientEntries: string[];
 	cacheManifestUsed: boolean;
 
+	/**
+	 * Map of propagated module ids (usually something like `/Users/...blog.mdx?astroPropagatedAssets`)
+	 * to a set of stylesheets that it uses.
+	 */
 	propagatedStylesMap: Map<string, Set<StylesheetAsset>>;
+	/**
+	 * Map of propagated module ids (usually something like `/Users/...blog.mdx?astroPropagatedAssets`)
+	 * to a set of hoisted scripts that it uses.
+	 */
 	propagatedScriptsMap: Map<string, Set<string>>;
 
 	// A list of all static files created during the build. Used for SSR.
