@@ -106,7 +106,7 @@ export function defineAction<TOutput, TInputSchema extends z.ZodType>({
 	return serverHandler;
 }
 
-function upgradeFormData<T extends z.AnyZodObject>(
+export function upgradeFormData<T extends z.AnyZodObject>(
 	formData: FormData,
 	schema: T
 ): Record<string, unknown> {
@@ -119,6 +119,7 @@ function upgradeFormData<T extends z.AnyZodObject>(
 		if (validator instanceof z.ZodBoolean) {
 			obj[key] = formData.has(key);
 		} else if (validator instanceof z.ZodArray) {
+			console.log('array-ing');
 			const entries = Array.from(formData.getAll(key));
 			const elementValidator = validator._def.type;
 			if (elementValidator instanceof z.ZodNumber) {
@@ -128,10 +129,13 @@ function upgradeFormData<T extends z.AnyZodObject>(
 			} else {
 				obj[key] = entries;
 			}
-		} else if (validator instanceof z.ZodNumber) {
-			obj[key] = Number(formData.get(key));
 		} else {
-			obj[key] = formData.get(key);
+			const value = formData.get(key);
+			if (!value) {
+				obj[key] = baseValidator instanceof z.ZodOptional ? undefined : null;
+			} else {
+				obj[key] = validator instanceof z.ZodNumber ? Number(value) : value;
+			}
 		}
 	}
 	return obj;
