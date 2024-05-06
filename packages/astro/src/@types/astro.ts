@@ -1741,7 +1741,7 @@ export interface AstroUserConfig {
 		 *
 		 * All actions are declared in a global actions handler: the `src/actions/index.ts` file.
 		 *
-		 * You can define an action using the `defineAction()` utility from the `astro:actions` module. This accepts the `handler` property to define your server-side request handler. If your action accepts arguments, apply the `schema` property to validate parameters with Zod.
+		 * Define an action using the `defineAction()` utility from the `astro:actions` module. This accepts the `handler` property to define your server-side request handler. If your action accepts arguments, apply the `schema` property to validate parameters with Zod.
 		 *
 		 * This example defines two actions: `like` and `comment`. The `like` action accepts a JSON object with a `postId` string, while the `comment` action accepts [form data](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) with `postId`, `author`, and `body` strings.
 		 *
