@@ -1768,6 +1768,12 @@ importers:
         specifier: ^3.3.8
         version: 3.4.21(typescript@5.4.5)
 
+  packages/astro/test/fixtures/actions:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/alias:
     dependencies:
       '@astrojs/svelte':
