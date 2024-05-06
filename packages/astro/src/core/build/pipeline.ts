@@ -1,5 +1,5 @@
 import type { RouteData, SSRLoadedRenderer, SSRResult } from '../../@types/astro.js';
-import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
+import { getOutputDirectory } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
@@ -9,6 +9,7 @@ import {
 	createModuleScriptsSet,
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
+import { isServerLikeOutput } from '../util.js';
 import {
 	type BuildInternals,
 	cssOrder,

@@ -6,6 +6,7 @@ import type { AstroBuildPlugin } from '../plugin.js';
 
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { prependForwardSlash } from '../../../core/path.js';
+import { isContentCollectionsCacheEnabled } from '../../../core/util.js';
 import {
 	getParentModuleInfos,
 	getTopLevelPageModuleInfos,
@@ -31,6 +32,7 @@ export function vitePluginAnalyzer(
 		const pageScripts = new Map<
 			string,
 			{
+				type: 'page' | 'content';
 				hoistedSet: Set<string>;
 				propagatedMapByImporter: Map<string, Set<string>>;
 			}
@@ -51,20 +53,38 @@ export function vitePluginAnalyzer(
 				if (hoistedScripts.size) {
 					for (const parentInfo of getParentModuleInfos(from, this, isPropagatedAsset)) {
 						if (isPropagatedAsset(parentInfo.id)) {
-							for (const nestedParentInfo of getParentModuleInfos(from, this)) {
-								if (moduleIsTopLevelPage(nestedParentInfo)) {
-									for (const hid of hoistedScripts) {
-										if (!pageScripts.has(nestedParentInfo.id)) {
-											pageScripts.set(nestedParentInfo.id, {
-												hoistedSet: new Set(),
-												propagatedMapByImporter: new Map(),
-											});
+							if (isContentCollectionsCacheEnabled(options.settings.config)) {
+								if (!pageScripts.has(parentInfo.id)) {
+									pageScripts.set(parentInfo.id, {
+										type: 'content',
+										hoistedSet: new Set(),
+										propagatedMapByImporter: new Map(),
+									});
+								}
+								const propagaters = pageScripts.get(parentInfo.id)!.propagatedMapByImporter;
+								for (const hid of hoistedScripts) {
+									if (!propagaters.has(parentInfo.id)) {
+										propagaters.set(parentInfo.id, new Set());
+									}
+									propagaters.get(parentInfo.id)!.add(hid);
+								}
+							} else {
+								for (const nestedParentInfo of getParentModuleInfos(from, this)) {
+									if (moduleIsTopLevelPage(nestedParentInfo)) {
+										for (const hid of hoistedScripts) {
+											if (!pageScripts.has(nestedParentInfo.id)) {
+												pageScripts.set(nestedParentInfo.id, {
+													type: 'page',
+													hoistedSet: new Set(),
+													propagatedMapByImporter: new Map(),
+												});
+											}
+											const entry = pageScripts.get(nestedParentInfo.id)!;
+											if (!entry.propagatedMapByImporter.has(parentInfo.id)) {
+												entry.propagatedMapByImporter.set(parentInfo.id, new Set());
+											}
+											entry.propagatedMapByImporter.get(parentInfo.id)!.add(hid);
 										}
-										const entry = pageScripts.get(nestedParentInfo.id)!;
-										if (!entry.propagatedMapByImporter.has(parentInfo.id)) {
-											entry.propagatedMapByImporter.set(parentInfo.id, new Set());
-										}
-										entry.propagatedMapByImporter.get(parentInfo.id)!.add(hid);
 									}
 								}
 							}
@@ -72,6 +92,7 @@ export function vitePluginAnalyzer(
 							for (const hid of hoistedScripts) {
 								if (!pageScripts.has(parentInfo.id)) {
 									pageScripts.set(parentInfo.id, {
+										type: 'page',
 										hoistedSet: new Set(),
 										propagatedMapByImporter: new Map(),
 									});
@@ -84,12 +105,21 @@ export function vitePluginAnalyzer(
 			},
 
 			finalize() {
-				for (const [pageId, { hoistedSet, propagatedMapByImporter }] of pageScripts) {
-					const pageData = getPageDataByViteID(internals, pageId);
-					if (!pageData) continue;
+				for (const [pageId, { hoistedSet, propagatedMapByImporter, type }] of pageScripts) {
+					let astroModuleId: string;
+					if (type === 'page') {
+						const pageData = getPageDataByViteID(internals, pageId);
+						if (!pageData) {
+							continue;
+						}
+						const { component } = pageData;
+						astroModuleId = prependForwardSlash(component);
 
-					const { component } = pageData;
-					const astroModuleId = prependForwardSlash(component);
+						// Keep track of the importers
+						pageData.propagatedScripts = propagatedMapByImporter;
+					} else {
+						astroModuleId = pageId;
+					}
 
 					const uniqueHoistedId = JSON.stringify(Array.from(hoistedSet).sort());
 					let moduleId: string;
@@ -104,8 +134,6 @@ export function vitePluginAnalyzer(
 					}
 					internals.discoveredScripts.add(moduleId);
 
-					pageData.propagatedScripts = propagatedMapByImporter;
-
 					// Add propagated scripts to client build,
 					// but DON'T add to pages -> hoisted script map.
 					for (const propagatedScripts of propagatedMapByImporter.values()) {
@@ -114,13 +142,24 @@ export function vitePluginAnalyzer(
 						}
 					}
 
-					// Make sure to track that this page uses this set of hoisted scripts
-					if (internals.hoistedScriptIdToPagesMap.has(moduleId)) {
-						const pages = internals.hoistedScriptIdToPagesMap.get(moduleId);
-						pages!.add(astroModuleId);
+					if (type === 'page') {
+						// Make sure to track that this page uses this set of hoisted scripts
+						if (internals.hoistedScriptIdToPagesMap.has(moduleId)) {
+							const pages = internals.hoistedScriptIdToPagesMap.get(moduleId);
+							pages!.add(astroModuleId);
+						} else {
+							internals.hoistedScriptIdToPagesMap.set(moduleId, new Set([astroModuleId]));
+							internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedSet);
+						}
 					} else {
-						internals.hoistedScriptIdToPagesMap.set(moduleId, new Set([astroModuleId]));
-						internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedSet);
+						// For content collections save to hoistedScriptIdToContentMap instead
+						if (internals.hoistedScriptIdToContentMap.has(moduleId)) {
+							const contentModules = internals.hoistedScriptIdToContentMap.get(moduleId);
+							contentModules!.add(astroModuleId);
+						} else {
+							internals.hoistedScriptIdToContentMap.set(moduleId, new Set([astroModuleId]));
+							internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedSet);
+						}
 					}
 				}
 			},

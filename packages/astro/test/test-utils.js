@@ -204,9 +204,9 @@ export async function loadFixture(inlineConfig) {
 				recursive: true,
 				force: true,
 			});
-			const contentCache = new URL('./node_modules/.astro/content', config.root);
-			if (fs.existsSync(contentCache)) {
-				await fs.promises.rm(contentCache, {
+			const astroCache = new URL('./node_modules/.astro', config.root);
+			if (fs.existsSync(astroCache)) {
+				await fs.promises.rm(astroCache, {
 					maxRetries: 10,
 					recursive: true,
 					force: true,
