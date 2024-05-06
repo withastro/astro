@@ -37,18 +37,10 @@ describe('astro sync', () => {
 
 	it('Adds type reference to `src/env.d.ts`', async () => {
 		let writtenFiles = {};
-		const typesEnvPath = new URL('env.d.ts', fixture.config.srcDir).href;
-		const { cacheDir } = getContentPaths(fixture.config);
-		const existPaths = [
-			typesEnvPath,
-			new URL(CONTENT_TYPES_FILE, cacheDir).href,
-			new URL(ACTIONS_TYPES_FILE, cacheDir).href,
-		];
+		const typesEnvPath = getTypesEnvPath(fixture);
 		const fsMock = {
 			...fs,
-			existsSync(path) {
-				return existPaths.includes(path.toString());
-			},
+			existsSync: createExistsSync(fixture),
 			promises: {
 				...fs.promises,
 				async readFile(path) {
@@ -78,15 +70,10 @@ describe('astro sync', () => {
 
 	it('Writes `src/env.d.ts` if none exists', async () => {
 		let writtenFiles = {};
-		const typesEnvPath = new URL('env.d.ts', fixture.config.srcDir).href;
+		const typesEnvPath = getTypesEnvPath(fixture);
 		const fsMock = {
 			...fs,
-			existsSync(path, ...args) {
-				if (path.toString() === typesEnvPath) {
-					return false;
-				}
-				return fs.existsSync(path, ...args);
-			},
+			existsSync: createExistsSync(fixture),
 			promises: {
 				...fs.promises,
 				async writeFile(path, contents) {
@@ -111,3 +98,18 @@ describe('astro sync', () => {
 		);
 	});
 });
+
+function getTypesEnvPath(fixture) {
+	return new URL('env.d.ts', fixture.config.srcDir).href;
+}
+
+function createExistsSync(fixture) {
+	const { cacheDir } = getContentPaths(fixture.config);
+	const paths = [
+		getTypesEnvPath(fixture),
+		new URL(CONTENT_TYPES_FILE, cacheDir).href,
+		new URL(ACTIONS_TYPES_FILE, cacheDir).href,
+	];
+
+	return (path) => paths.includes(path.toString());
+}
