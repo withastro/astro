@@ -1739,7 +1739,7 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 *
-		 * All actions are declared in a global actions handler: the `src/actions/index.ts` file.
+		 * Declare all your actions in `src/actions/index.ts`. This file is the global actions handler.
 		 *
 		 * Define an action using the `defineAction()` utility from the `astro:actions` module. This accepts the `handler` property to define your server-side request handler. If your action accepts arguments, apply the `schema` property to validate parameters with Zod.
 		 *
