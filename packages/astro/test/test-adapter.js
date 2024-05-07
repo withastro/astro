@@ -52,7 +52,6 @@ export default function (
 												}
 
 												async render(request, {routeData, locals} = {}) {
-												console.log("test adapter");
 													const url = new URL(request.url);
 													if(this.#manifest.assets.has(url.pathname)) {
 														const filePath = new URL('../client/' + this.removeBase(url.pathname), import.meta.url);
