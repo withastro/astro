@@ -2,7 +2,7 @@
 "astro": minor
 ---
 
-Adds experimental rewriting in Astro, via `rewrite()` function and `next()` function.
+Adds experimental rewriting in Astro with a new `rewrite()` function and the middleware `next()` function.
 
 The feature is available via an experimental flag in `astro.config.mjs`:
 
