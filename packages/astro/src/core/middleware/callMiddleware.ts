@@ -46,7 +46,7 @@ export async function callMiddleware(
 	apiContext: APIContext,
 	responseFunction: (
 		apiContext: APIContext,
-		reroutePayload?: RewritePayload
+		rewritePayload?: RewritePayload
 	) => Promise<Response> | Response,
 	// TODO: remove these two arguments once rerouting goes out of experimental
 	enableRerouting: boolean,
@@ -61,7 +61,7 @@ export async function callMiddleware(
 		} else {
 			logger.warn(
 				'router',
-				'You tried to use the routing feature without enabling it via experimental flag. This is not allowed.'
+				'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
 			);
 			responseFunctionPromise = responseFunction(apiContext);
 		}

@@ -2,9 +2,9 @@
 "astro": minor
 ---
 
-Add experimental rewriting in Astro, via `rewrite()` function and `next()` function.
+Adds experimental rewriting in Astro, via `rewrite()` function and `next()` function.
 
-The feature is available via experimental flag:
+The feature is available via an experimental flag in `astro.config.mjs`:
 
 ```js
 export default defineConfig({
@@ -35,7 +35,7 @@ export function GET(ctx) {
 }
 ```
 
-The middleware `next()` function now accepts the same payload of the `rewrite()` function. For example, with `next("/")`, you can call the next middleware function with a new `Request`.
+The middleware `next()` function now accepts a parameter with the same type as the `rewrite()` function. For example, with `next("/")`, you can call the next middleware function with a new `Request`.
 
 ```js
 // src/middleware.js

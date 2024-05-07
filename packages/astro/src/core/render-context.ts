@@ -129,7 +129,7 @@ export class RenderContext {
 				} else {
 					this.pipeline.logger.warn(
 						'router',
-						'You tried to use the routing feature without enabling it via experimental flag. This is not allowed.'
+						'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
 					);
 				}
 			}
@@ -199,7 +199,7 @@ export class RenderContext {
 			new Response(null, { status, headers: { Location: path } });
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
-			pipeline.logger.debug('router', 'Called rerouting to:', reroutePayload);
+			pipeline.logger.debug('router', 'Called rewriting to:', reroutePayload);
 			try {
 				const [routeData, component] = await pipeline.tryRewrite(reroutePayload);
 				this.routeData = routeData;
@@ -217,7 +217,7 @@ export class RenderContext {
 				this.isRerouting = true;
 				return await this.render(component);
 			} catch (e) {
-				pipeline.logger.debug('router', 'Routing failed.', e);
+				pipeline.logger.debug('router', 'Rewrite failed.', e);
 				return new Response('Not found', {
 					status: 404,
 					statusText: 'Not found',
@@ -387,7 +387,7 @@ export class RenderContext {
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			try {
-				pipeline.logger.debug('router', 'Calling rerouting: ', reroutePayload);
+				pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
 				const [routeData, component] = await pipeline.tryRewrite(reroutePayload);
 				this.routeData = routeData;
 				if (reroutePayload instanceof Request) {

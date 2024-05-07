@@ -97,9 +97,8 @@ export class AppPipeline extends Pipeline {
 		if (foundRoute) {
 			const componentInstance = await this.getComponentByRoute(foundRoute);
 			return [foundRoute, componentInstance];
-		} else {
-			throw new Error('Route not found');
 		}
+		throw new Error('Route not found');
 	}
 
 	async getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
@@ -123,10 +122,9 @@ export class AppPipeline extends Pipeline {
 				return await importComponentInstance();
 			} else if (this.manifest.pageModule) {
 				return this.manifest.pageModule;
-			} else {
-				throw new Error(
-					"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue."
-				);
+			throw new Error(
+				"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue."
+			);
 			}
 		}
 	}

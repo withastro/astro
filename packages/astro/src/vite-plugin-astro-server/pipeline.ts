@@ -193,7 +193,7 @@ export class DevPipeline extends Pipeline {
 	async tryRewrite(payload: RewritePayload): Promise<[RouteData, ComponentInstance]> {
 		let foundRoute;
 		if (!this.manifestData) {
-			throw new Error('Missing manifest data');
+			throw new Error('Missing manifest data. This is an internal error, please file an issue.');
 		}
 
 		for (const route of this.manifestData.routes) {

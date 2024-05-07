@@ -251,14 +251,14 @@ export interface AstroGlobal<
 	 */
 	redirect: AstroSharedContext['redirect'];
 	/**
-	 * It reroutes to another page. As opposed to redirects, the URL won't change, and Astro will render the HTML emitted
-	 * by the rerouted URL passed as argument.
+	 * It rewrites to another page. As opposed to redirects, the URL won't change, and Astro will render the HTML emitted
+	 * by the rewritten URL passed as argument.
 	 *
 	 * ## Example
 	 *
 	 * ```js
 	 * if (pageIsNotEnabled) {
-	 * 	return Astro.reroute('/fallback-page')
+	 * 	return Astro.rewrite('/fallback-page')
 	 * }
 	 * ```
 	 */
@@ -1944,7 +1944,7 @@ export interface AstroUserConfig {
 		 * @version 4.8.0
 		 * @description
 		 *
-		 * Enables a routing feature for rewriting requests in Astro pages, Endpoints and Astro middleware, giving you programmatic control over your routes. 
+		 * Enables a routing feature for rewriting requests in Astro pages, endpoints and Astro middleware, giving you programmatic control over your routes. 
 		 *
 		 * ```js
 		 * {
@@ -1976,7 +1976,7 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 *
-		 * Use `next("/")` in your middleware file to reroute to a different page, and still call the next middleware function:
+		 * Use `next("/")` in your middleware file to reroute to a different page, and then call the next middleware function:
 		 * 
 		 * ```js
 		 * // src/middleware.js
@@ -2561,14 +2561,14 @@ interface AstroSharedContext<
 	redirect(path: string, status?: ValidRedirectStatus): Response;
 
 	/**
-	 * It reroutes to another page. As opposed to redirects, the URL won't change, and Astro will render the HTML emitted
+	 * It rewrites to another page. As opposed to redirects, the URL won't change, and Astro will render the HTML emitted
 	 * by the rerouted URL passed as argument.
 	 *
 	 * ## Example
 	 *
 	 * ```js
 	 * if (pageIsNotEnabled) {
-	 * 	return Astro.reroute('/fallback-page')
+	 * 	return Astro.rewrite('/fallback-page')
 	 * }
 	 * ```
 	 */
@@ -2697,7 +2697,7 @@ export interface APIContext<
 	 * ```ts
 	 * // src/pages/secret.ts
 	 * export function GET(ctx) {
-	 *   return ctx.reroute(new URL("../"), ctx.url);
+	 *   return ctx.rewrite(new URL("../"), ctx.url);
 	 * }
 	 * ```
 	 */
@@ -2899,7 +2899,7 @@ export interface AstroIntegration {
 
 export type RewritePayload = string | URL | Request;
 
-export type MiddlewareNext = (reroutePayload?: RewritePayload) => Promise<Response>;
+export type MiddlewareNext = (rewritePayload?: RewritePayload) => Promise<Response>;
 export type MiddlewareHandler = (
 	context: APIContext,
 	next: MiddlewareNext
