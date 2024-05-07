@@ -1965,6 +1965,8 @@ export interface AstroUserConfig {
 		 * ---
 		 * ```
 		 *
+		 * Use `context.rewrite` in your endpoint files to reroute to a different page:
+		 * 
 		 * ```js
 		 * // src/pages/api.js
 		 * export function GET(ctx) {
@@ -1974,6 +1976,8 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 *
+		 * Use `next("/")` in your middleware file to reroute to a different page, and still call the next middleware function:
+		 * 
 		 * ```js
 		 * // src/middleware.js
 		 * export function onRequest(ctx, next) {
