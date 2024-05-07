@@ -41,7 +41,7 @@ describe('TypeScript - Organize & Sort Imports', () => {
 										},
 									],
 									textDocument: {
-										uri: document.uri + '?virtualCodeId=tsx',
+										uri: `volar-embedded-content://tsx/${encodeURIComponent(document.uri)}`,
 										version: null,
 									},
 								},

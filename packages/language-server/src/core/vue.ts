@@ -11,21 +11,26 @@ import { framework2tsx } from './utils.js';
 
 export function getVueLanguageModule(): LanguagePlugin<VueVirtualCode> {
 	return {
-		createVirtualCode(fileId, languageId, snapshot) {
+		getLanguageId(scriptId) {
+			if (scriptId.endsWith('.vue')) {
+				return 'vue';
+			}
+		},
+		createVirtualCode(scriptId, languageId, snapshot) {
 			if (languageId === 'vue') {
-				const fileName = fileId.includes('://')
-					? URI.parse(fileId).fsPath.replace(/\\/g, '/')
-					: fileId;
+				const fileName = scriptId.includes('://')
+					? URI.parse(scriptId).fsPath.replace(/\\/g, '/')
+					: scriptId;
 				return new VueVirtualCode(fileName, snapshot);
 			}
 		},
-		updateVirtualCode(_fileId, vueCode, snapshot) {
+		updateVirtualCode(_scriptId, vueCode, snapshot) {
 			vueCode.update(snapshot);
 			return vueCode;
 		},
 		typescript: {
 			extraFileExtensions: [{ extension: 'vue', isMixedContent: true, scriptKind: 7 }],
-			getScript(vueCode) {
+			getServiceScript(vueCode) {
 				for (const code of forEachEmbeddedCode(vueCode)) {
 					if (code.id === 'tsx') {
 						return {

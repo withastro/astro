@@ -1,10 +1,10 @@
 import {
 	createConnection,
 	createServer,
-	createTypeScriptProjectProviderFactory,
+	createTypeScriptProjectProvider,
 	loadTsdkByPath,
 } from '@volar/language-server/node';
-import { createServerOptions } from './languageServerPlugin.js';
+import { getLanguagePlugins, getLanguageServicePlugins } from './languageServerPlugin.js';
 
 const connection = createConnection();
 const server = createServer(connection);
@@ -24,11 +24,29 @@ connection.onInitialize((params) => {
 
 	return server.initialize(
 		params,
-		createTypeScriptProjectProviderFactory(typescript, diagnosticMessages),
-		createServerOptions(connection, typescript)
+		getLanguageServicePlugins(connection, typescript),
+		createTypeScriptProjectProvider(typescript, diagnosticMessages, (env, project) =>
+			getLanguagePlugins(connection, typescript, env, project.configFileName)
+		)
 	);
 });
 
 connection.onInitialized(() => {
 	server.initialized();
+	server.watchFiles([
+		`**/*.{${[
+			'js',
+			'cjs',
+			'mjs',
+			'ts',
+			'cts',
+			'mts',
+			'jsx',
+			'tsx',
+			'json',
+			'astro',
+			'vue',
+			'svelte',
+		].join(',')}}`,
+	]);
 });

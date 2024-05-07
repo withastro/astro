@@ -44,14 +44,14 @@ export function enhancedResolveCompletionItem(
 	}
 
 	if (resolvedCompletion.additionalTextEdits) {
-		const [virtualFile, source] = context.documents.getVirtualCodeByUri(
-			resolvedCompletion.data.uri
-		);
-		const code = source?.generated?.code;
-		if (!virtualFile || !(code instanceof AstroVirtualCode)) return resolvedCompletion;
+		const decoded = context.decodeEmbeddedDocumentUri(resolvedCompletion.data.uri);
+		const sourceScript = decoded && context.language.scripts.get(decoded[0]);
+		const virtualCode = decoded && sourceScript?.generated?.embeddedCodes.get(decoded[1]);
+		const root = sourceScript?.generated?.root;
+		if (!virtualCode || !(root instanceof AstroVirtualCode)) return resolvedCompletion;
 
 		resolvedCompletion.additionalTextEdits = resolvedCompletion.additionalTextEdits.map((edit) =>
-			mapEdit(edit, code, virtualFile.languageId)
+			mapEdit(edit, root, virtualCode.languageId)
 		);
 	}
 

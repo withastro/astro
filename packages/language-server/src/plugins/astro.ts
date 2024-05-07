@@ -6,10 +6,10 @@ import {
 	CompletionItemKind,
 	Diagnostic,
 	InsertTextFormat,
+	LanguageServicePlugin,
+	LanguageServicePluginInstance,
 	Position,
 	Range,
-	ServicePlugin,
-	ServicePluginInstance,
 	TextEdit,
 } from '@volar/language-server';
 import fg from 'fast-glob';
@@ -18,20 +18,22 @@ import type { TextDocument } from 'vscode-html-languageservice';
 import { AstroVirtualCode } from '../core/index.js';
 import { isJSDocument } from './utils.js';
 
-export const create = (ts: typeof import('typescript')): ServicePlugin => {
+export const create = (ts: typeof import('typescript')): LanguageServicePlugin => {
 	return {
 		triggerCharacters: ['-'],
-		create(context): ServicePluginInstance {
+		create(context): LanguageServicePluginInstance {
 			return {
 				provideCompletionItems(document, position, completionContext, token) {
 					if (token.isCancellationRequested) return null;
 					let items: CompletionItem[] = [];
 
-					const [file] = context.documents.getVirtualCodeByUri(document.uri);
-					if (!(file instanceof AstroVirtualCode)) return;
+					const decoded = context.decodeEmbeddedDocumentUri(document.uri);
+					const sourceScript = decoded && context.language.scripts.get(decoded[0]);
+					const virtualCode = decoded && sourceScript?.generated?.embeddedCodes.get(decoded[1]);
+					if (!(virtualCode instanceof AstroVirtualCode)) return;
 
 					if (completionContext.triggerCharacter === '-') {
-						const frontmatterCompletion = getFrontmatterCompletion(file, document, position);
+						const frontmatterCompletion = getFrontmatterCompletion(virtualCode, document, position);
 						if (frontmatterCompletion) items.push(frontmatterCompletion);
 					}
 
@@ -43,10 +45,12 @@ export const create = (ts: typeof import('typescript')): ServicePlugin => {
 				provideSemanticDiagnostics(document, token) {
 					if (token.isCancellationRequested) return [];
 
-					const [file] = context.documents.getVirtualCodeByUri(document.uri);
-					if (!(file instanceof AstroVirtualCode)) return;
+					const decoded = context.decodeEmbeddedDocumentUri(document.uri);
+					const sourceScript = decoded && context.language.scripts.get(decoded[0]);
+					const virtualCode = decoded && sourceScript?.generated?.embeddedCodes.get(decoded[1]);
+					if (!(virtualCode instanceof AstroVirtualCode)) return;
 
-					return file.compilerDiagnostics.map(compilerMessageToDiagnostic);
+					return virtualCode.compilerDiagnostics.map(compilerMessageToDiagnostic);
 
 					function compilerMessageToDiagnostic(message: DiagnosticMessage): Diagnostic {
 						const start = Position.create(message.location.line - 1, message.location.column - 1);

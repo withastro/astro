@@ -11,21 +11,26 @@ import { framework2tsx } from './utils.js';
 
 export function getSvelteLanguageModule(): LanguagePlugin<SvelteVirtualCode> {
 	return {
-		createVirtualCode(fileId, languageId, snapshot) {
+		getLanguageId(scriptId) {
+			if (scriptId.endsWith('.svelte')) {
+				return 'svelte';
+			}
+		},
+		createVirtualCode(scriptId, languageId, snapshot) {
 			if (languageId === 'svelte') {
-				const fileName = fileId.includes('://')
-					? URI.parse(fileId).fsPath.replace(/\\/g, '/')
-					: fileId;
+				const fileName = scriptId.includes('://')
+					? URI.parse(scriptId).fsPath.replace(/\\/g, '/')
+					: scriptId;
 				return new SvelteVirtualCode(fileName, snapshot);
 			}
 		},
-		updateVirtualCode(_fileId, svelteCode, snapshot) {
+		updateVirtualCode(_scriptId, svelteCode, snapshot) {
 			svelteCode.update(snapshot);
 			return svelteCode;
 		},
 		typescript: {
 			extraFileExtensions: [{ extension: 'svelte', isMixedContent: true, scriptKind: 7 }],
-			getScript(svelteCode) {
+			getServiceScript(svelteCode) {
 				for (const code of forEachEmbeddedCode(svelteCode)) {
 					if (code.id === 'tsx') {
 						return {

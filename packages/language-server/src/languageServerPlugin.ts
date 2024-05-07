@@ -2,6 +2,7 @@ import {
 	Connection,
 	LanguagePlugin,
 	MessageType,
+	ServiceEnvironment,
 	ShowMessageNotification,
 	VirtualCode,
 } from '@volar/language-server/node';
@@ -18,76 +19,57 @@ import { create as createEmmetService } from 'volar-service-emmet';
 import { create as createPrettierService } from 'volar-service-prettier';
 import { create as createTypeScriptTwoSlashService } from 'volar-service-typescript-twoslash-queries';
 
-import type { ServerOptions } from '@volar/language-server/lib/server.js';
 import { create as createAstroService } from './plugins/astro.js';
 import { create as createHtmlService } from './plugins/html.js';
 import { create as createTypescriptAddonsService } from './plugins/typescript-addons/index.js';
 import { create as createTypeScriptServices } from './plugins/typescript/index.js';
 
-export function createServerOptions(
+export function getLanguagePlugins(
 	connection: Connection,
-	ts: typeof import('typescript')
-): ServerOptions {
-	return {
-		watchFileExtensions: [
-			'js',
-			'cjs',
-			'mjs',
-			'ts',
-			'cts',
-			'mts',
-			'jsx',
-			'tsx',
-			'json',
-			'astro',
-			'vue',
-			'svelte',
-		],
-		getServicePlugins() {
-			return [
-				createHtmlService(),
-				createCssService(),
-				createEmmetService(),
-				...createTypeScriptServices(ts),
-				createTypeScriptTwoSlashService(ts),
-				createTypescriptAddonsService(),
-				createAstroService(ts),
-				getPrettierService(),
-			];
-		},
-		getLanguagePlugins(serviceEnv, projectContext) {
-			const languagePlugins: LanguagePlugin<VirtualCode>[] = [
-				getVueLanguageModule(),
-				getSvelteLanguageModule(),
-			];
+	ts: typeof import('typescript'),
+	serviceEnv: ServiceEnvironment,
+	tsconfig: string | undefined
+) {
+	const languagePlugins: LanguagePlugin<VirtualCode>[] = [
+		getVueLanguageModule(),
+		getSvelteLanguageModule(),
+	];
 
-			if (projectContext.typescript) {
-				const rootPath = projectContext.typescript.configFileName
-					? projectContext.typescript.configFileName.split('/').slice(0, -1).join('/')
-					: serviceEnv.typescript!.uriToFileName(serviceEnv.workspaceFolder);
-				const nearestPackageJson = ts.findConfigFile(rootPath, ts.sys.fileExists, 'package.json');
+	const rootPath = tsconfig
+		? tsconfig.split('/').slice(0, -1).join('/')
+		: serviceEnv.typescript!.uriToFileName(serviceEnv.workspaceFolder);
+	const nearestPackageJson = ts.findConfigFile(rootPath, ts.sys.fileExists, 'package.json');
 
-				const astroInstall = getAstroInstall([rootPath], {
-					nearestPackageJson: nearestPackageJson,
-					readDirectory: ts.sys.readDirectory,
-				});
+	const astroInstall = getAstroInstall([rootPath], {
+		nearestPackageJson: nearestPackageJson,
+		readDirectory: ts.sys.readDirectory,
+	});
 
-				if (astroInstall === 'not-found') {
-					connection.sendNotification(ShowMessageNotification.type, {
-						message: `Couldn't find Astro in workspace "${rootPath}". Experience might be degraded. For the best experience, please make sure Astro is installed into your project and restart the language server.`,
-						type: MessageType.Warning,
-					});
-				}
+	if (astroInstall === 'not-found') {
+		connection.sendNotification(ShowMessageNotification.type, {
+			message: `Couldn't find Astro in workspace "${rootPath}". Experience might be degraded. For the best experience, please make sure Astro is installed into your project and restart the language server.`,
+			type: MessageType.Warning,
+		});
+	}
 
-				languagePlugins.unshift(
-					getLanguageModule(typeof astroInstall === 'string' ? undefined : astroInstall, ts)
-				);
-			}
+	languagePlugins.unshift(
+		getLanguageModule(typeof astroInstall === 'string' ? undefined : astroInstall, ts)
+	);
 
-			return languagePlugins;
-		},
-	};
+	return languagePlugins;
+}
 
+export function getLanguageServicePlugins(connection: Connection, ts: typeof import('typescript')) {
+	return [
+		createHtmlService(),
+		createCssService(),
+		createEmmetService(),
+		...createTypeScriptServices(ts),
+		createTypeScriptTwoSlashService(ts),
+		createTypescriptAddonsService(),
+		createAstroService(ts),
+		getPrettierService(),
+	];
 	function getPrettierService() {
 		let prettier: ReturnType<typeof importPrettier>;
 		let prettierPluginPath: ReturnType<typeof getPrettierPluginPath>;
@@ -113,7 +95,12 @@ export function createServerOptions(
 			{
 				documentSelector: ['astro'],
 				getFormattingOptions: async (prettierInstance, document, formatOptions, context) => {
-					const filePath = URI.parse(document.uri).fsPath;
+					const documentUri = context.decodeEmbeddedDocumentUri(document.uri)?.[0] ?? document.uri;
+					const filePath = URI.parse(documentUri).fsPath;
+
+					if (!filePath) {
+						return {};
+					}
 
 					let configOptions = null;
 					try {

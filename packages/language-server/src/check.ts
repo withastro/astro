@@ -62,7 +62,9 @@ export class AstroCheck {
 			| undefined;
 	}): Promise<CheckResult> {
 		let files = (
-			fileNames !== undefined ? fileNames : this.linter.languageHost.getScriptFileNames()
+			fileNames !== undefined
+				? fileNames
+				: this.linter.language.typescript!.projectHost.getScriptFileNames()
 		).filter((file) => {
 			// We don't have the same understanding of Svelte and Vue files as their own respective tools (vue-tsc, svelte-check)
 			// So we don't want to check them here
@@ -104,7 +106,7 @@ export class AstroCheck {
 					console.info(errorText);
 				}
 
-				const fileSnapshot = this.linter.languageHost.getScriptSnapshot(file);
+				const fileSnapshot = this.linter.language.typescript!.projectHost.getScriptSnapshot(file);
 				const fileContent = fileSnapshot?.getText(0, fileSnapshot.getLength());
 
 				result.fileResult.push({

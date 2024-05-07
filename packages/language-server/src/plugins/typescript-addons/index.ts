@@ -1,11 +1,15 @@
-import type { CompletionList, ServicePlugin, ServicePluginInstance } from '@volar/language-server';
+import type {
+	CompletionList,
+	LanguageServicePlugin,
+	LanguageServicePluginInstance,
+} from '@volar/language-server';
 import { AstroVirtualCode } from '../../core/index.js';
 import { isInsideFrontmatter, isJSDocument } from '../utils.js';
 import { getSnippetCompletions } from './snippets.js';
 
-export const create = (): ServicePlugin => {
+export const create = (): LanguageServicePlugin => {
 	return {
-		create(context): ServicePluginInstance {
+		create(context): LanguageServicePluginInstance {
 			return {
 				isAdditionalCompletion: true,
 				// Q: Why the empty transform and resolve functions?
@@ -23,11 +27,12 @@ export const create = (): ServicePlugin => {
 					)
 						return null;
 
-					const [_, source] = context.documents.getVirtualCodeByUri(document.uri);
-					const code = source?.generated?.code;
-					if (!(code instanceof AstroVirtualCode)) return undefined;
+					const decoded = context.decodeEmbeddedDocumentUri(document.uri);
+					const sourceScript = decoded && context.language.scripts.get(decoded[0]);
+					const root = sourceScript?.generated?.root;
+					if (!(root instanceof AstroVirtualCode)) return undefined;
 
-					if (!isInsideFrontmatter(document.offsetAt(position), code.astroMeta.frontmatter))
+					if (!isInsideFrontmatter(document.offsetAt(position), root.astroMeta.frontmatter))
 						return null;
 
 					const completionList: CompletionList = {
@@ -35,7 +40,7 @@ export const create = (): ServicePlugin => {
 						isIncomplete: false,
 					};
 
-					completionList.items.push(...getSnippetCompletions(code.astroMeta.frontmatter));
+					completionList.items.push(...getSnippetCompletions(root.astroMeta.frontmatter));
 
 					return completionList;
 				},

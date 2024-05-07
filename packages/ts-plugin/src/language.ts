@@ -9,20 +9,25 @@ import { astro2tsx } from './astro2tsx.js';
 
 export function getLanguageModule(): LanguagePlugin<AstroVirtualCode> {
 	return {
-		createVirtualCode(fileId, languageId, snapshot) {
+		getLanguageId(scriptId) {
+			if (scriptId.endsWith('.astro')) {
+				return 'astro';
+			}
+		},
+		createVirtualCode(scriptId, languageId, snapshot) {
 			if (languageId === 'astro') {
-				// fileId will never be a uri in ts plugin
-				const fileName = fileId;
+				// scriptId will never be a uri in ts plugin
+				const fileName = scriptId;
 				return new AstroVirtualCode(fileName, snapshot);
 			}
 		},
-		updateVirtualCode(_fileId, astroFile, snapshot) {
+		updateVirtualCode(_scriptId, astroFile, snapshot) {
 			astroFile.update(snapshot);
 			return astroFile;
 		},
 		typescript: {
 			extraFileExtensions: [{ extension: 'astro', isMixedContent: true, scriptKind: 7 }],
-			getScript(astroCode) {
+			getServiceScript(astroCode) {
 				for (const code of forEachEmbeddedCode(astroCode)) {
 					if (code.id === 'tsx') {
 						return {

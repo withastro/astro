@@ -21,11 +21,13 @@ function mapCodeAction(codeAction: CodeAction, context: ServiceContext) {
 
 	codeAction.edit.documentChanges = codeAction.edit.documentChanges.map((change) => {
 		if (TextDocumentEdit.is(change)) {
-			const [virtualFile, source] = context.documents.getVirtualCodeByUri(change.textDocument.uri);
-			const code = source?.generated?.code;
-			if (!virtualFile || !(code instanceof AstroVirtualCode)) return change;
+			const decoded = context.decodeEmbeddedDocumentUri(change.textDocument.uri);
+			const sourceScript = decoded && context.language.scripts.get(decoded[0]);
+			const virtualCode = decoded && sourceScript?.generated?.embeddedCodes.get(decoded[1]);
+			const root = sourceScript?.generated?.root;
+			if (!virtualCode || !(root instanceof AstroVirtualCode)) return change;
 
-			change.edits = change.edits.map((edit) => mapEdit(edit, code, virtualFile.languageId));
+			change.edits = change.edits.map((edit) => mapEdit(edit, root, virtualCode.languageId));
 		}
 
 		return change;

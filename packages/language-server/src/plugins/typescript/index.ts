@@ -1,17 +1,17 @@
-import type { ServicePlugin, ServicePluginInstance } from '@volar/language-server';
+import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-server';
 import { create as createTypeScriptServices } from 'volar-service-typescript';
 import { AstroVirtualCode } from '../../core/index.js';
 import { enhancedProvideCodeActions, enhancedResolveCodeAction } from './codeActions.js';
 import { enhancedProvideCompletionItems, enhancedResolveCompletionItem } from './completions.js';
 import { enhancedProvideSemanticDiagnostics } from './diagnostics.js';
 
-export const create = (ts: typeof import('typescript')): ServicePlugin[] => {
+export const create = (ts: typeof import('typescript')): LanguageServicePlugin[] => {
 	const tsServicePlugins = createTypeScriptServices(ts as typeof import('typescript'), {});
-	return tsServicePlugins.map<ServicePlugin>((plugin) => {
+	return tsServicePlugins.map<LanguageServicePlugin>((plugin) => {
 		if (plugin.name === 'typescript-semantic') {
 			return {
 				...plugin,
-				create(context): ServicePluginInstance {
+				create(context): LanguageServicePluginInstance {
 					const typeScriptPlugin = plugin.create(context);
 					return {
 						...typeScriptPlugin,
@@ -56,16 +56,17 @@ export const create = (ts: typeof import('typescript')): ServicePlugin[] => {
 							return enhancedResolveCodeAction(resolvedCodeAction, context);
 						},
 						async provideSemanticDiagnostics(document, token) {
-							const [_, source] = context.documents.getVirtualCodeByUri(document.uri);
-							const code = source?.generated?.code;
-							let tsxLineCount = undefined;
+							const decoded = context.decodeEmbeddedDocumentUri(document.uri);
+							const sourceScript = decoded && context.language.scripts.get(decoded[0]);
+							const root = sourceScript?.generated?.root;
 
-							if (code instanceof AstroVirtualCode) {
+							let tsxLineCount = undefined;
+							if (root instanceof AstroVirtualCode) {
 								// If we have compiler errors, our TSX isn't valid so don't bother showing TS errors
-								if (code.hasCompilationErrors) return null;
+								if (root.hasCompilationErrors) return null;
 
 								// We'll use this to filter out diagnostics that are outside the mapped range of the TSX
-								tsxLineCount = code.astroMeta.tsxRanges.body.end.line;
+								tsxLineCount = root.astroMeta.tsxRanges.body.end.line;
 							}
 
 							const diagnostics = await typeScriptPlugin.provideSemanticDiagnostics!(

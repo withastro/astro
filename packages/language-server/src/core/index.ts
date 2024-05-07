@@ -22,21 +22,26 @@ export function getLanguageModule(
 	ts: typeof import('typescript')
 ): LanguagePlugin<AstroVirtualCode> {
 	return {
-		createVirtualCode(fileId, languageId, snapshot) {
+		getLanguageId(scriptId) {
+			if (scriptId.endsWith('.astro')) {
+				return 'astro';
+			}
+		},
+		createVirtualCode(scriptId, languageId, snapshot) {
 			if (languageId === 'astro') {
-				const fileName = fileId.includes('://')
-					? URI.parse(fileId).fsPath.replace(/\\/g, '/')
-					: fileId;
+				const fileName = scriptId.includes('://')
+					? URI.parse(scriptId).fsPath.replace(/\\/g, '/')
+					: scriptId;
 				return new AstroVirtualCode(fileName, snapshot);
 			}
 		},
-		updateVirtualCode(_fileId, astroCode, snapshot) {
+		updateVirtualCode(_scriptId, astroCode, snapshot) {
 			astroCode.update(snapshot);
 			return astroCode;
 		},
 		typescript: {
 			extraFileExtensions: [{ extension: 'astro', isMixedContent: true, scriptKind: 7 }],
-			getScript(astroCode) {
+			getServiceScript(astroCode) {
 				for (const code of forEachEmbeddedCode(astroCode)) {
 					if (code.id === 'tsx') {
 						return {
@@ -48,7 +53,7 @@ export function getLanguageModule(
 				}
 				return undefined;
 			},
-			getExtraScripts(fileName, astroCode) {
+			getExtraServiceScripts(fileName, astroCode) {
 				const result: ExtraServiceScript[] = [];
 				for (const code of forEachEmbeddedCode(astroCode)) {
 					if (code.id.endsWith('.mjs') || code.id.endsWith('.mts')) {

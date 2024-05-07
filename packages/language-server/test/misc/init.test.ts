@@ -20,16 +20,9 @@ describe('Initialize', async () => {
 		const capabilities: ServerCapabilities = {
 			textDocumentSync: 2,
 			workspace: {
-				fileOperations: {
-					willRename: {
-						filters: [
-							{
-								pattern: {
-									glob: '**/*.{js,cjs,mjs,ts,cts,mts,jsx,tsx,json,astro,vue,svelte}',
-								},
-							},
-						],
-					},
+				workspaceFolders: {
+					changeNotifications: true,
+					supported: true,
 				},
 			},
 			selectionRangeProvider: true,

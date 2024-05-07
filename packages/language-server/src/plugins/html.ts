@@ -1,4 +1,8 @@
-import { CompletionItemKind, ServicePlugin, ServicePluginInstance } from '@volar/language-server';
+import {
+	CompletionItemKind,
+	LanguageServicePlugin,
+	LanguageServicePluginInstance,
+} from '@volar/language-server';
 import { create as createHtmlService } from 'volar-service-html';
 import * as html from 'vscode-html-languageservice';
 import { URI, Utils } from 'vscode-uri';
@@ -6,7 +10,7 @@ import { AstroVirtualCode } from '../core/index.js';
 import { astroAttributes, astroElements, classListAttribute } from './html-data.js';
 import { isInComponentStartTag } from './utils.js';
 
-export const create = (): ServicePlugin => {
+export const create = (): LanguageServicePlugin => {
 	const htmlServicePlugin = createHtmlService({
 		getCustomData: async (context) => {
 			const customData: string[] = (await context.env.getConfiguration?.('html.customData')) ?? [];
@@ -28,7 +32,7 @@ export const create = (): ServicePlugin => {
 	});
 	return {
 		...htmlServicePlugin,
-		create(context): ServicePluginInstance {
+		create(context): LanguageServicePluginInstance {
 			const htmlPlugin = htmlServicePlugin.create(context);
 
 			return {
@@ -36,12 +40,13 @@ export const create = (): ServicePlugin => {
 				async provideCompletionItems(document, position, completionContext, token) {
 					if (document.languageId !== 'html') return;
 
-					const [_, source] = context.documents.getVirtualCodeByUri(document.uri);
-					const code = source?.generated?.code;
-					if (!(code instanceof AstroVirtualCode)) return;
+					const decoded = context.decodeEmbeddedDocumentUri(document.uri);
+					const sourceScript = decoded && context.language.scripts.get(decoded[0]);
+					const root = sourceScript?.generated?.root;
+					if (!(root instanceof AstroVirtualCode)) return;
 
 					// Don't return completions if the current node is a component
-					if (isInComponentStartTag(code.htmlDocument, document.offsetAt(position))) {
+					if (isInComponentStartTag(root.htmlDocument, document.offsetAt(position))) {
 						return null;
 					}
 
