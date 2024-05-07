@@ -6,8 +6,37 @@ type ActionErrorCode =
 	| 'UNAUTHORIZED'
 	| 'FORBIDDEN'
 	| 'NOT_FOUND'
+	| 'TIMEOUT'
+	| 'CONFLICT'
+	| 'PRECONDITION_FAILED'
+	| 'PAYLOAD_TOO_LARGE'
 	| 'UNSUPPORTED_MEDIA_TYPE'
+	| 'UNPROCESSABLE_CONTENT'
+	| 'TOO_MANY_REQUESTS'
+	| 'CLIENT_CLOSED_REQUEST'
 	| 'INTERNAL_SERVER_ERROR';
+
+const codeToStatusMap: Record<ActionErrorCode, number> = {
+	BAD_REQUEST: 400,
+	UNAUTHORIZED: 401,
+	FORBIDDEN: 403,
+	NOT_FOUND: 404,
+	TIMEOUT: 405,
+	CONFLICT: 409,
+	PRECONDITION_FAILED: 412,
+	PAYLOAD_TOO_LARGE: 413,
+	UNSUPPORTED_MEDIA_TYPE: 415,
+	UNPROCESSABLE_CONTENT: 422,
+	TOO_MANY_REQUESTS: 429,
+	CLIENT_CLOSED_REQUEST: 499,
+	INTERNAL_SERVER_ERROR: 500,
+};
+
+const statusToCodeMap: Record<number, ActionErrorCode> = Object.entries(codeToStatusMap).reduce(
+	// reverse the key-value pairs
+	(acc, [key, value]) => ({ ...acc, [value]: key }),
+	{}
+);
 
 export type ErrorInferenceObject = Record<string, any>;
 
@@ -23,42 +52,18 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 	}
 
 	static codeToStatus(code: ActionErrorCode): number {
-		switch (code) {
-			case 'BAD_REQUEST':
-				return 400;
-			case 'UNAUTHORIZED':
-				return 401;
-			case 'FORBIDDEN':
-				return 403;
-			case 'NOT_FOUND':
-				return 404;
-			case 'UNSUPPORTED_MEDIA_TYPE':
-				return 415;
-			case 'INTERNAL_SERVER_ERROR':
-				return 500;
-		}
+		return codeToStatusMap[code];
 	}
 
 	static statusToCode(status: number): ActionErrorCode {
-		switch (status) {
-			case 400:
-				return 'BAD_REQUEST';
-			case 401:
-				return 'UNAUTHORIZED';
-			case 403:
-				return 'FORBIDDEN';
-			case 404:
-				return 'NOT_FOUND';
-			case 415:
-				return 'UNSUPPORTED_MEDIA_TYPE';
-			case 500:
-			default:
-				return 'INTERNAL_SERVER_ERROR';
-		}
+		return statusToCodeMap[status] ?? 'INTERNAL_SERVER_ERROR';
 	}
 
 	static async fromResponse(res: Response) {
-		if (res.status === 400 && res.headers.get('Content-Type')?.toLowerCase().startsWith('application/json')) {
+		if (
+			res.status === 400 &&
+			res.headers.get('Content-Type')?.toLowerCase().startsWith('application/json')
+		) {
 			const body = await res.json();
 			if (
 				typeof body === 'object' &&
