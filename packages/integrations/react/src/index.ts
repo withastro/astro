@@ -21,21 +21,21 @@ const versionsConfig = {
 	18: {
 		server: '@astrojs/react/server.js',
 		client: '@astrojs/react/client.js',
-		externals: ['react-dom/server', 'react-dom/client']
+		externals: ['react-dom/server', 'react-dom/client'],
 	},
 	19: {
 		server: '@astrojs/react/server.js',
 		client: '@astrojs/react/client.js',
-		externals: ['react-dom/server', 'react-dom/client']
-	}
+		externals: ['react-dom/server', 'react-dom/client'],
+	},
 };
 
-type SupportedReactVersion = keyof (typeof versionsConfig);
+type SupportedReactVersion = keyof typeof versionsConfig;
 type ReactVersionConfig = (typeof versionsConfig)[SupportedReactVersion];
 
 function getReactMajorVersion(): number {
 	const matches = /\d+\./.exec(ReactVersion);
-	if(!matches) {
+	if (!matches) {
 		return NaN;
 	}
 	return Number(matches[0]);
@@ -75,12 +75,10 @@ function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
 	};
 }
 
-function getViteConfiguration({
-	include,
-	exclude,
-	babel,
-	experimentalReactChildren,
-}: ReactIntegrationOptions = {}, reactConfig: ReactVersionConfig) {
+function getViteConfiguration(
+	{ include, exclude, babel, experimentalReactChildren }: ReactIntegrationOptions = {},
+	reactConfig: ReactVersionConfig
+) {
 	return {
 		optimizeDeps: {
 			include: [
@@ -90,9 +88,7 @@ function getViteConfiguration({
 				'react/jsx-dev-runtime',
 				'react-dom',
 			],
-			exclude: [
-				reactConfig.server,
-			],
+			exclude: [reactConfig.server],
 		},
 		plugins: [react({ include, exclude, babel }), optionsPlugin(!!experimentalReactChildren)],
 		resolve: {
@@ -119,7 +115,7 @@ export default function ({
 	experimentalReactChildren,
 }: ReactIntegrationOptions = {}): AstroIntegration {
 	const majorVersion = getReactMajorVersion();
-	if(isUnsupportedVersion(majorVersion)) {
+	if (isUnsupportedVersion(majorVersion)) {
 		throw new Error(`Unsupported React version: ${majorVersion}.`);
 	}
 	const versionConfig = versionsConfig[majorVersion as SupportedReactVersion];
@@ -130,7 +126,10 @@ export default function ({
 			'astro:config:setup': ({ command, addRenderer, updateConfig, injectScript }) => {
 				addRenderer(getRenderer(versionConfig));
 				updateConfig({
-					vite: getViteConfiguration({ include, exclude, babel, experimentalReactChildren }, versionConfig),
+					vite: getViteConfiguration(
+						{ include, exclude, babel, experimentalReactChildren },
+						versionConfig
+					),
 				});
 				if (command === 'dev') {
 					const preamble = FAST_REFRESH_PREAMBLE.replace(`__BASE__`, '/');
