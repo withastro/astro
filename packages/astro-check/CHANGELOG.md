@@ -1,5 +1,16 @@
 # @astrojs/check
 
+## 0.6.0
+
+### Minor Changes
+
+- 65d3425: Upgrades the language server to use Volar 2.2. This changes should have no negative impacts on the experience.
+
+### Patch Changes
+
+- Updated dependencies [65d3425]
+  - @astrojs/language-server@2.9.0
+
 ## 0.5.10
 
 ### Patch Changes

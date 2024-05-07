@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.7.0
+
+### Minor Changes
+
+- 65d3425: Upgrades the language server to use Volar 2.2. This changes should have no negative impacts on the experience.
+
 ## 1.6.1
 
 ### Patch Changes
