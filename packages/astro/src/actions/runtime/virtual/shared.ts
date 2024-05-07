@@ -17,6 +17,8 @@ type ActionErrorCode =
 	| 'INTERNAL_SERVER_ERROR';
 
 const codeToStatusMap: Record<ActionErrorCode, number> = {
+	// Implemented from tRPC error code table
+	// https://trpc.io/docs/server/error-handling#error-codes
 	BAD_REQUEST: 400,
 	UNAUTHORIZED: 401,
 	FORBIDDEN: 403,
