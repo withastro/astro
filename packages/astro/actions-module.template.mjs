@@ -7,7 +7,9 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '/_actions/') {
 			if (objKey in target) {
 				return target[objKey];
 			}
-			async function action(param) {
+			// `callerParam` is the argument passed to the action when used on the client.
+			// Usage: `actions.[name](callerParam)`.
+			async function action(callerParam) {
 				if (import.meta.env.SSR) {
 					throw new ActionError({
 						code: 'BAD_REQUEST',
@@ -17,10 +19,10 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '/_actions/') {
 				}
 				const headers = new Headers();
 				headers.set('Accept', 'application/json');
-				let body = param;
+				let body = callerParam;
 				if (!(body instanceof FormData)) {
 					try {
-						body = param ? JSON.stringify(param) : undefined;
+						body = callerParam ? JSON.stringify(callerParam) : undefined;
 					} catch (e) {
 						throw new ActionError({
 							code: 'BAD_REQUEST',
