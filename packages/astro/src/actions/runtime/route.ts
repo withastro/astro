@@ -20,6 +20,10 @@ export const POST: APIRoute = async (context) => {
 	}
 	const result = await ApiContextStorage.run(context, () => callSafely(() => action(args)));
 	if (result.error) {
+		if (import.meta.env.PROD) {
+			// Avoid leaking stack trace in production
+			result.error.stack = undefined;
+		}
 		return new Response(JSON.stringify(result.error), {
 			status: result.error.status,
 			headers: {
