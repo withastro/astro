@@ -74,7 +74,7 @@ export class DevPipeline extends Pipeline {
 			mode,
 			settings,
 		} = this;
-		const filePath = new URL(`./${routeData.component}`, root);
+		const filePath = new URL(`${routeData.component}`, root);
 		// Add hoisted script tags, skip if direct rendering with `directRenderScript`
 		const { scripts } = settings.config.experimental.directRenderScript
 			? { scripts: new Set<SSRElement>() }
@@ -146,7 +146,7 @@ export class DevPipeline extends Pipeline {
 			config: { root },
 			loader,
 		} = this;
-		const filePath = new URL(`./${routeData.component}`, root);
+		const filePath = new URL(`${routeData.component}`, root);
 		return getComponentMetadata(filePath, loader);
 	}
 
@@ -186,7 +186,7 @@ export class DevPipeline extends Pipeline {
 		if (component) {
 			return component;
 		} else {
-			const filePath = new URL(`./${routeData.component}`, this.config.root);
+			const filePath = new URL(`${routeData.component}`, this.config.root);
 			return await this.preload(routeData, filePath);
 		}
 	}

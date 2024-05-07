@@ -50,9 +50,9 @@ export class RenderContext {
 	) {}
 
 	/**
-	 * A flag that tells the render content if the rerouting was triggered
+	 * A flag that tells the render content if the rewriting was triggered
 	 */
-	isRerouting = false;
+	isRewriting = false;
 	/**
 	 * A safety net in case of loops
 	 */
@@ -125,7 +125,7 @@ export class RenderContext {
 							statusText: 'Not found',
 						});
 					} finally {
-						this.isRerouting = true;
+						this.isRewriting = true;
 					}
 				} else {
 					this.pipeline.logger.warn(
@@ -163,7 +163,7 @@ export class RenderContext {
 					if (
 						this.routeData.route === '/404' ||
 						this.routeData.route === '/500' ||
-						this.isRerouting
+						this.isRewriting
 					) {
 						response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 					}
@@ -215,7 +215,7 @@ export class RenderContext {
 				this.url = new URL(this.request.url);
 				this.cookies = new AstroCookies(this.request);
 				this.params = getParams(routeData, url.toString());
-				this.isRerouting = true;
+				this.isRewriting = true;
 				return await this.render(component);
 			} catch (e) {
 				pipeline.logger.debug('router', 'Rewrite failed.', e);
@@ -402,7 +402,7 @@ export class RenderContext {
 				this.url = new URL(this.request.url);
 				this.cookies = new AstroCookies(this.request);
 				this.params = getParams(routeData, url.toString());
-				this.isRerouting = true;
+				this.isRewriting = true;
 				return await this.render(component);
 			} catch (e) {
 				pipeline.logger.debug('router', 'Rerouting failed, returning a 404.', e);
