@@ -1,9 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { z } from 'zod';
-import { upgradeFormData } from '../../../dist/actions/runtime/virtual/server.js';
+import { formDataToObject } from '../../../dist/actions/runtime/virtual/server.js';
 
-describe('upgradeFormData', () => {
+describe('formDataToObject', () => {
 	it('should handle strings', () => {
 		const formData = new FormData();
 		formData.set('name', 'Ben');
@@ -14,7 +14,7 @@ describe('upgradeFormData', () => {
 			email: z.string(),
 		});
 
-		const res = upgradeFormData(formData, input);
+		const res = formDataToObject(formData, input);
 		assert.equal(res.name, 'Ben');
 		assert.equal(res.email, 'test@test.test');
 	});
@@ -27,7 +27,7 @@ describe('upgradeFormData', () => {
 			age: z.number(),
 		});
 
-		const res = upgradeFormData(formData, input);
+		const res = formDataToObject(formData, input);
 		assert.equal(res.age, 25);
 	});
 
@@ -39,7 +39,7 @@ describe('upgradeFormData', () => {
 			age: z.number(),
 		});
 
-		const res = upgradeFormData(formData, input);
+		const res = formDataToObject(formData, input);
 		assert.ok(isNaN(res.age));
 	});
 
@@ -52,7 +52,7 @@ describe('upgradeFormData', () => {
 			isNotCool: z.boolean(),
 		});
 
-		const res = upgradeFormData(formData, input);
+		const res = formDataToObject(formData, input);
 		assert.equal(res.isCool, true);
 		assert.equal(res.isNotCool, false);
 	});
@@ -67,7 +67,7 @@ describe('upgradeFormData', () => {
 			age: z.number().optional(),
 		});
 
-		const res = upgradeFormData(formData, input);
+		const res = formDataToObject(formData, input);
 
 		assert.equal(res.name, 'Ben');
 		assert.equal(res.email, undefined);
@@ -84,7 +84,7 @@ describe('upgradeFormData', () => {
 			age: z.number().nullable(),
 		});
 
-		const res = upgradeFormData(formData, input);
+		const res = formDataToObject(formData, input);
 
 		assert.equal(res.name, 'Ben');
 		assert.equal(res.email, null);
@@ -99,7 +99,7 @@ describe('upgradeFormData', () => {
 			file: z.instanceof(File),
 		});
 
-		const res = upgradeFormData(formData, input);
+		const res = formDataToObject(formData, input);
 
 		assert.equal(res.file instanceof File, true);
 	});
@@ -114,7 +114,7 @@ describe('upgradeFormData', () => {
 			contact: z.array(z.string()),
 		});
 
-		const res = upgradeFormData(formData, input);
+		const res = formDataToObject(formData, input);
 
 		assert.ok(Array.isArray(res.contact), 'contact is not an array');
 		assert.deepEqual(res.contact.sort(), ['Ben', 'Jane', 'John']);
@@ -130,7 +130,7 @@ describe('upgradeFormData', () => {
 			age: z.array(z.number()),
 		});
 
-		const res = upgradeFormData(formData, input);
+		const res = formDataToObject(formData, input);
 
 		assert.ok(Array.isArray(res.age), 'age is not an array');
 		assert.deepEqual(res.age.sort(), [25, 30, 35]);

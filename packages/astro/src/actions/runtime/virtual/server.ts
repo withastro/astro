@@ -79,7 +79,7 @@ function getFormServerHandler<TOutput, TInputSchema extends z.AnyZodObject | z.Z
 
 		if (!(inputSchema instanceof z.ZodObject)) return await handler(unparsedInput);
 
-		const parsed = await inputSchema.safeParseAsync(upgradeFormData(unparsedInput, inputSchema));
+		const parsed = await inputSchema.safeParseAsync(formDataToObject(unparsedInput, inputSchema));
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error.issues);
 		}
@@ -110,7 +110,8 @@ function getJsonServerHandler<TOutput, TInputSchema extends z.ZodType<unknown>>(
 	};
 }
 
-export function upgradeFormData<T extends z.AnyZodObject>(
+/** Transform form data to an object based on a Zod schema. */
+export function formDataToObject<T extends z.AnyZodObject>(
 	formData: FormData,
 	schema: T
 ): Record<string, unknown> {
@@ -123,15 +124,19 @@ export function upgradeFormData<T extends z.AnyZodObject>(
 		if (validator instanceof z.ZodBoolean) {
 			obj[key] = formData.has(key);
 		} else if (validator instanceof z.ZodArray) {
-			obj[key] = upgradeArray(key, formData, validator);
+			obj[key] = handleFormDataGetAll(key, formData, validator);
 		} else {
-			obj[key] = upgradeBase(key, formData, validator, baseValidator);
+			obj[key] = handleFormDataGet(key, formData, validator, baseValidator);
 		}
 	}
 	return obj;
 }
 
-function upgradeArray(key: string, formData: FormData, validator: z.ZodArray<z.ZodUnknown>) {
+function handleFormDataGetAll(
+	key: string,
+	formData: FormData,
+	validator: z.ZodArray<z.ZodUnknown>
+) {
 	const entries = Array.from(formData.getAll(key));
 	const elementValidator = validator._def.type;
 	if (elementValidator instanceof z.ZodNumber) {
@@ -142,7 +147,12 @@ function upgradeArray(key: string, formData: FormData, validator: z.ZodArray<z.Z
 	return entries;
 }
 
-function upgradeBase(key: string, formData: FormData, validator: unknown, baseValidator: unknown) {
+function handleFormDataGet(
+	key: string,
+	formData: FormData,
+	validator: unknown,
+	baseValidator: unknown
+) {
 	const value = formData.get(key);
 	if (!value) {
 		return baseValidator instanceof z.ZodOptional ? undefined : null;
