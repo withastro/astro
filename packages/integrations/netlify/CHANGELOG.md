@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 5.2.1
+
+### Patch Changes
+
+- [#255](https://github.com/withastro/adapters/pull/255) [`3fa962d`](https://github.com/withastro/adapters/commit/3fa962db8f4437df9f1bba5b5ff8ea7b280a6924) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes an issue with edge middleware where `process.env` was not defined, by using a polyfill to shim it
+
 ## 5.2.0
 
 ### Minor Changes
