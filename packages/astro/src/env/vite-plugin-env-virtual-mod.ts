@@ -18,6 +18,12 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type fsMod from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
+// TODO: reminders for when astro:env comes out of experimental
+// Types should always be generated (like in types/content.d.ts). That means the client module will be empty
+// and server will only contain getSecret for unknown variables. Then, specifying a schema should only add
+// variables as needed. For secret variables, it will only require specifying SecretValues and it should get
+// merged with the static types/content.d.ts
+
 interface AstroEnvVirtualModPluginParams {
 	settings: AstroSettings;
 	logger: Logger;
