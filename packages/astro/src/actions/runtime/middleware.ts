@@ -12,8 +12,11 @@ export type Locals = {
 
 export const onRequest = defineMiddleware(async (context, next) => {
 	const locals = context.locals as Locals;
-	const { request } = context;
+	const { request, url } = context;
 	const contentType = request.headers.get('Content-Type');
+
+	// Avoid double-handling with middleware when calling actions directly.
+	if (url.pathname.startsWith('/_actions')) return nextWithLocalsStub(next, locals);
 
 	if (!contentType || !hasContentType(contentType, formContentTypes))
 		return nextWithLocalsStub(next, locals);
