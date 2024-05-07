@@ -52,7 +52,6 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 			case 415:
 				return 'UNSUPPORTED_MEDIA_TYPE';
 			case 500:
-				return 'INTERNAL_SERVER_ERROR';
 			default:
 				return 'INTERNAL_SERVER_ERROR';
 		}
