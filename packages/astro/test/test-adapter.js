@@ -11,8 +11,10 @@ export default function (
 		setEntryPoints = undefined,
 		setMiddlewareEntryPoint = undefined,
 		setRoutes = undefined,
+		env,
 	} = {
 		provideAddress: true,
+		env: {}
 	}
 ) {
 	return {
@@ -37,6 +39,11 @@ export default function (
 											import { App } from 'astro/app';
 											import fs from 'fs';
 
+											function getEnv(key) {
+												const data = ${JSON.stringify(env)};
+												return data[key];
+											}
+
 											class MyApp extends App {
 												#manifest = null;
 												constructor(manifest, streaming) {
@@ -57,7 +64,7 @@ export default function (
 															? `request[Symbol.for('astro.clientAddress')] = '0.0.0.0';`
 															: ''
 													}
-													return super.render(request, routeData, locals);
+													return super.render(request, { routeData, locals, getEnv });
 												}
 											}
 
@@ -65,7 +72,6 @@ export default function (
 												return {
 													manifest,
 													createApp: (streaming) => new MyApp(manifest, streaming)
-
 												};
 											}
 										`;

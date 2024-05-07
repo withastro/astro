@@ -21,14 +21,14 @@ describe('astro:env public variables', () => {
 		});
 
 		it('includes client/public env in build', async () => {
-			let indexHtml = await fixture.readFile('/index.html');
+			const indexHtml = await fixture.readFile('/index.html');
 
 			assert.equal(indexHtml.includes('ABC'), true);
 			assert.equal(indexHtml.includes('DEF'), true);
 		});
 
 		it('does not include server/public env in build', async () => {
-			let indexHtml = await fixture.readFile('/index.html');
+			const indexHtml = await fixture.readFile('/index.html');
 
 			assert.equal(indexHtml.includes('GHI'), false);
 		});
