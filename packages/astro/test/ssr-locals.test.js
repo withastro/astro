@@ -33,7 +33,7 @@ describe('SSR Astro.locals from server', () => {
 	it('Can access Astro.locals in api context', async () => {
 		const request = new Request('http://example.com/api');
 		const locals = { foo: 'bar' };
-		const response = await app.render(request, undefined, locals);
+		const response = await app.render(request, { routeData: undefined, locals });
 		assert.equal(response.status, 200);
 		const body = await response.json();
 
