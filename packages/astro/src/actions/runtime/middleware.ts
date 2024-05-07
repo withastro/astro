@@ -32,7 +32,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		getActionResult: (actionFn) => {
 			if (actionFn.toString() !== actionPath) return Promise.resolve(undefined);
 			if (Symbol.for('astro:action:safe') in actionFn) {
-				// @ts-ignore It's expected that `action` may not match the generic passed in
+				// It's expected that `action` may not match the generic passed in
 				return result as any;
 			}
 			if (result.error) throw result.error;
