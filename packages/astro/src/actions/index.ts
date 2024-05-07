@@ -1,4 +1,3 @@
-import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import type { AstroIntegration } from '../@types/astro.js';
 import { ACTIONS_TYPES_FILE, RESOLVED_VIRTUAL_MODULE_ID, VIRTUAL_MODULE_ID } from './consts.js';
@@ -77,9 +76,6 @@ async function typegen({
 
 	const dotAstroDir = new URL('.astro/', root);
 
-	if (!existsSync(dotAstroDir)) {
-		await mkdir(dotAstroDir);
-	}
-
+	await mkdir(dotAstroDir, { recursive: true });
 	await writeFile(new URL(ACTIONS_TYPES_FILE, dotAstroDir), content);
 }
