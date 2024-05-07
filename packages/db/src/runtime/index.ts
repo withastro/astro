@@ -36,7 +36,7 @@ const dateType = customType<{ data: Date; driverData: string }>({
 		if(!isISODateString(value)) {
 			// values saved using CURRENT_TIMESTAMP are not valid ISO strings
 			// but *are* in UTC, so append the UTC zone.
-			value += '.000Z';
+			value += 'Z';
 		}
 		return new Date(value);
 	},
