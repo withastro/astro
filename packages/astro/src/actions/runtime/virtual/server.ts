@@ -20,29 +20,40 @@ export type InputSchema<T extends Accept> = T extends 'form'
 	? z.AnyZodObject | z.ZodType<FormData>
 	: z.ZodType;
 
+type Handler<TInputSchema, TOutput> = TInputSchema extends z.ZodType
+	? (input: z.infer<TInputSchema>) => MaybePromise<TOutput>
+	: (input?: any) => MaybePromise<TOutput>;
+
 export type ActionClient<
 	TOutput,
 	TAccept extends Accept,
-	TInputSchema extends InputSchema<TAccept>,
-> = ((
-	input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
-) => Promise<Awaited<TOutput>>) & {
-	safe: (
-		input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
-	) => Promise<
-		SafeResult<
-			z.infer<TInputSchema> extends ErrorInferenceObject
-				? z.infer<TInputSchema>
-				: ErrorInferenceObject,
-			Awaited<TOutput>
-		>
-	>;
-};
+	TInputSchema extends InputSchema<TAccept> | undefined,
+> = TInputSchema extends z.ZodType
+	? ((
+			input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
+		) => Promise<Awaited<TOutput>>) & {
+			safe: (
+				input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
+			) => Promise<
+				SafeResult<
+					z.input<TInputSchema> extends ErrorInferenceObject
+						? z.input<TInputSchema>
+						: ErrorInferenceObject,
+					Awaited<TOutput>
+				>
+			>;
+		}
+	: ((input?: any) => Promise<Awaited<TOutput>>) & {
+			safe: (input?: any) => Promise<SafeResult<never, Awaited<TOutput>>>;
+		};
 
 export function defineAction<
 	TOutput,
 	TAccept extends Accept = 'json',
-	TInputSchema extends InputSchema<Accept> = TAccept extends 'form' ? z.ZodType<FormData> : never,
+	TInputSchema extends InputSchema<Accept> | undefined = TAccept extends 'form'
+		? // If `input` is omitted, default to `FormData` for forms and `any` for JSON.
+			z.ZodType<FormData>
+		: undefined,
 >({
 	accept,
 	input: inputSchema,
@@ -50,7 +61,7 @@ export function defineAction<
 }: {
 	input?: TInputSchema;
 	accept?: TAccept;
-	handler: (input: z.infer<TInputSchema>) => MaybePromise<TOutput>;
+	handler: Handler<TInputSchema, TOutput>;
 }): ActionClient<TOutput, TAccept, TInputSchema> {
 	const serverHandler =
 		accept === 'form'
@@ -65,8 +76,8 @@ export function defineAction<
 	return serverHandler as ActionClient<TOutput, TAccept, TInputSchema>;
 }
 
-function getFormServerHandler<TOutput, TInputSchema extends z.AnyZodObject | z.ZodType<FormData>>(
-	handler: (input: z.infer<TInputSchema>) => MaybePromise<TOutput>,
+function getFormServerHandler<TOutput, TInputSchema extends InputSchema<'form'>>(
+	handler: Handler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema
 ) {
 	return async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
@@ -87,8 +98,8 @@ function getFormServerHandler<TOutput, TInputSchema extends z.AnyZodObject | z.Z
 	};
 }
 
-function getJsonServerHandler<TOutput, TInputSchema extends z.ZodType<unknown>>(
-	handler: (input: z.infer<TInputSchema>) => MaybePromise<TOutput>,
+function getJsonServerHandler<TOutput, TInputSchema extends InputSchema<'json'>>(
+	handler: Handler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema
 ) {
 	return async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
