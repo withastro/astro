@@ -58,7 +58,7 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 	}
 
 	static async fromResponse(res: Response) {
-		if (res.status === 400 && res.headers.get('Content-Type')?.startsWith('application/json')) {
+		if (res.status === 400 && res.headers.get('Content-Type')?.toLowerCase().startsWith('application/json')) {
 			const body = await res.json();
 			if (
 				typeof body === 'object' &&
