@@ -120,10 +120,10 @@ export class AppPipeline extends Pipeline {
 				return await importComponentInstance();
 			} else if (this.manifest.pageModule) {
 				return this.manifest.pageModule;
-				throw new Error(
-					"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue."
-				);
 			}
+			throw new Error(
+				"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue."
+			);
 		}
 	}
 }
