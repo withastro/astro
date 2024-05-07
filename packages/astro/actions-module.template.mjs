@@ -46,8 +46,6 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '/_actions/') {
 			action.safe = (input) => {
 				return callSafely(() => action(input));
 			};
-			action.safe[Symbol.for('astro:action:safe')] = true;
-			action.safe.toString = () => path;
 			// recurse to construct queries for nested object paths
 			// ex. actions.user.admins.auth()
 			return toActionProxy(action, path + '.');

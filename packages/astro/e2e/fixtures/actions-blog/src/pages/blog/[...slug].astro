@@ -22,7 +22,7 @@ type Props = CollectionEntry<'blog'>;
 const post = await getEntry('blog', Astro.params.slug)!;
 const { Content } = await post.render();
 
-const comment = Astro.getActionResult(actions.blog.comment.safe);
+const comment = Astro.getActionResult(actions.blog.comment);
 
 const comments = await db.select().from(Comment).where(eq(Comment.postId, post.id));
 

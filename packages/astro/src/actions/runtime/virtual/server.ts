@@ -15,21 +15,16 @@ export { z } from 'zod';
 
 export { getApiContext } from '../store.js';
 
-export function defineAction<
+export type Accept = 'form' | 'json';
+export type InputSchema<T extends Accept> = T extends 'form'
+	? z.AnyZodObject | z.ZodType<FormData>
+	: z.ZodType;
+
+export type ActionClient<
 	TOutput,
-	TAccept extends 'form' | 'json' = 'json',
-	TInputSchema extends TAccept extends 'form'
-		? z.AnyZodObject | z.ZodType<FormData>
-		: z.ZodType = TAccept extends 'form' ? z.ZodType<FormData> : never,
->({
-	accept,
-	input: inputSchema,
-	handler,
-}: {
-	input?: TInputSchema;
-	accept?: TAccept;
-	handler: (input: z.infer<TInputSchema>) => MaybePromise<TOutput>;
-}): ((
+	TAccept extends Accept,
+	TInputSchema extends InputSchema<TAccept>,
+> = ((
 	input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
 ) => Promise<Awaited<TOutput>>) & {
 	safe: (
@@ -42,18 +37,32 @@ export function defineAction<
 			Awaited<TOutput>
 		>
 	>;
-} {
+};
+
+export function defineAction<
+	TOutput,
+	TAccept extends Accept = 'json',
+	TInputSchema extends InputSchema<Accept> = TAccept extends 'form' ? z.ZodType<FormData> : never,
+>({
+	accept,
+	input: inputSchema,
+	handler,
+}: {
+	input?: TInputSchema;
+	accept?: TAccept;
+	handler: (input: z.infer<TInputSchema>) => MaybePromise<TOutput>;
+}): ActionClient<TOutput, TAccept, TInputSchema> {
 	const serverHandler =
 		accept === 'form'
 			? getFormServerHandler(handler, inputSchema)
 			: getJsonServerHandler(handler, inputSchema);
 
-	(serverHandler as any).safe = async (
-		unparsedInput: unknown
-	): Promise<SafeResult<TInputSchema, Awaited<TOutput>>> => {
-		return callSafely(() => serverHandler(unparsedInput));
-	};
-	return serverHandler as any;
+	Object.assign(serverHandler, {
+		safe: async (unparsedInput: unknown) => {
+			return callSafely(() => serverHandler(unparsedInput));
+		},
+	});
+	return serverHandler as ActionClient<TOutput, TAccept, TInputSchema>;
 }
 
 function getFormServerHandler<TOutput, TInputSchema extends z.AnyZodObject | z.ZodType<FormData>>(

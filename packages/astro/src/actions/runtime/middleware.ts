@@ -31,12 +31,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	locals._actionsInternal = {
 		getActionResult: (actionFn) => {
 			if (actionFn.toString() !== actionPath) return Promise.resolve(undefined);
-			if (Symbol.for('astro:action:safe') in actionFn) {
-				// It's expected that `action` may not match the generic passed in
-				return result as any;
-			}
-			if (result.error) throw result.error;
-			return result.data;
+			// The `action` uses type `unknown` since we can't infer the user's action type.
+			// Cast to `any` to satisfy `getActionResult()` type.
+			return result as any;
 		},
 	};
 	return next();

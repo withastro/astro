@@ -4,7 +4,7 @@ export type MaybePromise<T> = T | Promise<T>;
 
 export async function getAction(
 	pathKeys: string[]
-): Promise<(...args: unknown[]) => MaybePromise<unknown>> {
+): Promise<(param: unknown) => MaybePromise<unknown>> {
 	let { server: actionLookup } = await import(import.meta.env.ACTIONS_PATH);
 	for (const key of pathKeys) {
 		if (!(key in actionLookup)) {

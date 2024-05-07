@@ -46,6 +46,7 @@ import type {
 } from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify, WithRequired } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type { Accept, ActionClient, InputSchema } from '../actions/runtime/virtual/server.js';
 
 export type { AstroIntegrationLogger, ToolbarServerHelpers };
 
@@ -2665,9 +2666,13 @@ interface AstroSharedContext<
 	/**
 	 * Get action result on the server when using a form POST.
 	 */
-	getActionResult: <T extends (...args: any) => any>(
-		action: T
-	) => Awaited<ReturnType<T>> | undefined;
+	getActionResult: <
+		TAccept extends Accept,
+		TInputSchema extends InputSchema<TAccept>,
+		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
+	>(
+		action: TAction
+	) => Awaited<ReturnType<TAction['safe']>> | undefined;
 	/**
 	 * Route parameters for this request if this is a dynamic route.
 	 */
