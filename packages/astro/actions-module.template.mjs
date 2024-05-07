@@ -19,7 +19,14 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '/_actions/') {
 				headers.set('Accept', 'application/json');
 				let body = param;
 				if (!(body instanceof FormData)) {
-					body = param ? JSON.stringify(param) : undefined;
+					try {
+						body = param ? JSON.stringify(param) : undefined;
+					} catch (e) {
+						throw new ActionError({
+							code: 'BAD_REQUEST',
+							message: `Failed to serialize request body to JSON. Full error: ${e.message}`,
+						});
+					}
 					headers.set('Content-Type', 'application/json');
 				}
 				const res = await fetch(path, {
