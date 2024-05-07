@@ -5,9 +5,6 @@ import { ActionError } from './virtual/shared.js';
 
 export const POST: APIRoute = async (context) => {
 	const { request, url } = context;
-	if (request.method !== 'POST') {
-		return new Response(null, { status: 405 });
-	}
 	const actionPathKeys = url.pathname.replace('/_actions/', '').split('.');
 	const action = await getAction(actionPathKeys);
 	const contentType = request.headers.get('Content-Type');
