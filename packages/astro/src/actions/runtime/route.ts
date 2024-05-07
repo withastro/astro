@@ -1,7 +1,7 @@
 import type { APIRoute } from '../../@types/astro.js';
 import { ApiContextStorage } from './store.js';
 import { formContentTypes, getAction } from './utils.js';
-import { ActionError } from './virtual/shared.js';
+import { callSafely } from './virtual/shared.js';
 
 export const POST: APIRoute = async (context) => {
 	const { request, url } = context;
@@ -16,21 +16,16 @@ export const POST: APIRoute = async (context) => {
 	} else {
 		return new Response(null, { status: 415 });
 	}
-	let result: unknown;
-	try {
-		result = await ApiContextStorage.run(context, () => action(args));
-	} catch (e) {
-		if (e instanceof ActionError) {
-			return new Response(JSON.stringify(e), {
-				status: e.status,
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			});
-		}
-		throw e;
+	const result = await ApiContextStorage.run(context, () => callSafely(() => action(args)));
+	if (result.error) {
+		return new Response(JSON.stringify(result.error), {
+			status: result.error.status,
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
 	}
-	return new Response(JSON.stringify(result), {
+	return new Response(JSON.stringify(result.data), {
 		headers: {
 			'Content-Type': 'application/json',
 		},
