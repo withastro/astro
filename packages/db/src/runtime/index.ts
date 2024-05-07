@@ -19,6 +19,12 @@ export function hasPrimaryKey(column: DBColumn) {
 	return 'primaryKey' in column.schema && !!column.schema.primaryKey;
 }
 
+function isISODateString(str: string) {
+  if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(str)) return false;
+  const d = new Date(str);
+  return d instanceof Date && !isNaN(d.getTime()) && d.toISOString() === str; // valid date 
+}
+
 const dateType = customType<{ data: Date; driverData: string }>({
 	dataType() {
 		return 'text';
@@ -27,6 +33,11 @@ const dateType = customType<{ data: Date; driverData: string }>({
 		return value.toISOString();
 	},
 	fromDriver(value) {
+		if(!isISODateString(value)) {
+			// values saved using CURRENT_TIMESTAMP are not valid ISO strings
+			// but *are* in UTC, so append the UTC zone.
+			value += '.000Z';
+		}
 		return new Date(value);
 	},
 });
