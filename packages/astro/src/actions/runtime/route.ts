@@ -14,6 +14,8 @@ export const POST: APIRoute = async (context) => {
 	} else if (contentType && hasContentType(contentType, ['application/json'])) {
 		args = await request.clone().json();
 	} else {
+		// 415: Unsupported media type
+		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/415
 		return new Response(null, { status: 415 });
 	}
 	const result = await ApiContextStorage.run(context, () => callSafely(() => action(args)));
