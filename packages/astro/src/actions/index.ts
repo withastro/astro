@@ -52,10 +52,7 @@ const vitePluginActions: VitePlugin = {
 	async load(id, opts) {
 		if (id !== RESOLVED_VIRTUAL_MODULE_ID) return;
 
-		let code = await readFile(
-			new URL('../../actions-module.template.mjs', import.meta.url),
-			'utf-8'
-		);
+		let code = await readFile(new URL('../../templates/actions.mjs', import.meta.url), 'utf-8');
 		if (opts?.ssr) {
 			code += `\nexport * from 'astro/actions/runtime/virtual/server.js';`;
 		} else {
