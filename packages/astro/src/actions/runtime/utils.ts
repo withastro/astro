@@ -1,5 +1,13 @@
 export const formContentTypes = ['application/x-www-form-urlencoded', 'multipart/form-data'];
 
+export function hasContentType(contentType: string, expected: string[]) {
+	// Split off parameters like charset or boundary
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type#content-type_in_html_forms
+	const type = contentType.split(';')[0].toLowerCase();
+
+	return expected.some((t) => type === t);
+}
+
 export type MaybePromise<T> = T | Promise<T>;
 
 export async function getAction(

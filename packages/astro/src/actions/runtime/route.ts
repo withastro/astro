@@ -1,6 +1,6 @@
 import type { APIRoute } from '../../@types/astro.js';
 import { ApiContextStorage } from './store.js';
-import { formContentTypes, getAction } from './utils.js';
+import { formContentTypes, getAction, hasContentType } from './utils.js';
 import { callSafely } from './virtual/shared.js';
 
 export const POST: APIRoute = async (context) => {
@@ -9,9 +9,9 @@ export const POST: APIRoute = async (context) => {
 	const action = await getAction(actionPathKeys);
 	const contentType = request.headers.get('Content-Type');
 	let args: unknown;
-	if (formContentTypes.some((f) => contentType?.startsWith(f))) {
+	if (contentType && hasContentType(contentType, formContentTypes)) {
 		args = await request.clone().formData();
-	} else if (contentType === 'application/json') {
+	} else if (contentType && hasContentType(contentType, ['application/json'])) {
 		args = await request.clone().json();
 	} else {
 		return new Response(null, { status: 415 });
