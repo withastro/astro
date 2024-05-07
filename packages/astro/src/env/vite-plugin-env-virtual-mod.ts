@@ -4,13 +4,8 @@ import type { Logger } from '../core/logger/core.js';
 import {
 	ENV_TYPES_FILE,
 	MODULE_TEMPLATE_URL,
-	RESOLVED_VIRTUAL_CLIENT_MODULE_ID,
-	RESOLVED_VIRTUAL_INTERNAL_MODULE_ID,
-	RESOLVED_VIRTUAL_SERVER_MODULE_ID,
 	TYPES_TEMPLATE_URL,
-	VIRTUAL_CLIENT_MODULE_ID,
-	VIRTUAL_INTERNAL_MODULE_ID,
-	VIRTUAL_SERVER_MODULE_ID,
+	VIRTUAL_MODULES_IDS,
 } from './constants.js';
 import type { EnvSchema } from './schema.js';
 import { getType, validateEnvVariable } from './validators.js';
@@ -79,34 +74,34 @@ export function astroEnvVirtualModPlugin({
 			templates = null;
 		},
 		resolveId(id) {
-			if (id === VIRTUAL_CLIENT_MODULE_ID) {
-				return RESOLVED_VIRTUAL_CLIENT_MODULE_ID;
-			}
-			if (id === VIRTUAL_SERVER_MODULE_ID) {
-				return RESOLVED_VIRTUAL_SERVER_MODULE_ID;
-			}
-			if (id === VIRTUAL_INTERNAL_MODULE_ID) {
-				return RESOLVED_VIRTUAL_INTERNAL_MODULE_ID;
+			for (const moduleId of Object.values(VIRTUAL_MODULES_IDS)) {
+				if (id === moduleId) {
+					return resolveVirtualModuleId(moduleId);
+				}
 			}
 		},
 		load(id, options) {
-			if (id === RESOLVED_VIRTUAL_CLIENT_MODULE_ID) {
+			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.client)) {
 				return templates!.client;
 			}
-			if (id === RESOLVED_VIRTUAL_SERVER_MODULE_ID) {
+			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.server)) {
 				if (options?.ssr) {
 					return templates!.server;
 				}
 				throw new AstroError({
 					...AstroErrorData.EnvServerOnlyModule,
-					message: AstroErrorData.EnvServerOnlyModule.message(VIRTUAL_SERVER_MODULE_ID),
+					message: AstroErrorData.EnvServerOnlyModule.message(VIRTUAL_MODULES_IDS.server),
 				});
 			}
-			if (id === RESOLVED_VIRTUAL_INTERNAL_MODULE_ID) {
+			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.internal)) {
 				return templates!.internal;
 			}
 		},
 	};
+}
+
+function resolveVirtualModuleId<T extends string>(id: T): `\0${T}` {
+	return `\0${id}`;
 }
 
 function generateDts({
