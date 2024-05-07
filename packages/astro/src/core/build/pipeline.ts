@@ -33,6 +33,8 @@ import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from '.
 import { i18nHasFallback } from './util.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { getOutDirWithinCwd } from './common.js';
+import { RouteNotFound } from '../errors/errors-data.js';
+import { AstroError } from '../errors/index.js';
 
 /**
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
@@ -288,18 +290,16 @@ export class BuildPipeline extends Pipeline {
 					foundRoute = route;
 					break;
 				}
-			} else {
-				if (route.pattern.test(decodeURI(payload))) {
-					foundRoute = route;
-					break;
-				}
+			} else if (route.pattern.test(decodeURI(payload))) {
+				foundRoute = route;
+				break;
 			}
 		}
 		if (foundRoute) {
 			const componentInstance = await this.getComponentByRoute(foundRoute);
 			return [foundRoute, componentInstance];
 		} else {
-			throw new Error('Route not found');
+			throw new AstroError(RouteNotFound);
 		}
 	}
 

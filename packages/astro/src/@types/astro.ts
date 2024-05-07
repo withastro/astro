@@ -1944,7 +1944,7 @@ export interface AstroUserConfig {
 		 * @version 4.8.0
 		 * @description
 		 *
-		 * Enables a routing feature for rewriting requests in Astro pages, endpoints and Astro middleware, giving you programmatic control over your routes. 
+		 * Enables a routing feature for rewriting requests in Astro pages, endpoints and Astro middleware, giving you programmatic control over your routes.
 		 *
 		 * ```js
 		 * {
@@ -1966,7 +1966,7 @@ export interface AstroUserConfig {
 		 * ```
 		 *
 		 * Use `context.rewrite` in your endpoint files to reroute to a different page:
-		 * 
+		 *
 		 * ```js
 		 * // src/pages/api.js
 		 * export function GET(ctx) {
@@ -1977,7 +1977,7 @@ export interface AstroUserConfig {
 		 * ```
 		 *
 		 * Use `next("/")` in your middleware file to reroute to a different page, and then call the next middleware function:
-		 * 
+		 *
 		 * ```js
 		 * // src/middleware.js
 		 * export function onRequest(ctx, next) {
@@ -1987,7 +1987,7 @@ export interface AstroUserConfig {
 		 * 	return next();
 		 * }
 		 * ```
-		 * 
+		 *
 		 * For a complete overview, and to give feedback on this experimental API, see the [Rerouting RFC](https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md).
 		 */
 		rewriting: boolean;

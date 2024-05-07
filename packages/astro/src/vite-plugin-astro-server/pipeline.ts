@@ -14,7 +14,7 @@ import { getInfoOutput } from '../cli/info/index.js';
 import type { HeadElements } from '../core/base-pipeline.js';
 import { ASTRO_VERSION, DEFAULT_404_COMPONENT } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
-import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
+import { AggregateError, AstroError, CSSError, MarkdownError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { loadRenderer, Pipeline } from '../core/render/index.js';
@@ -25,6 +25,7 @@ import { getComponentMetadata } from './metadata.js';
 import { createResolve } from './resolve.js';
 import { default404Page } from './response.js';
 import { getScriptsForURL } from './scripts.js';
+import { RouteNotFound } from '../core/errors/errors-data.js';
 
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
@@ -208,11 +209,9 @@ export class DevPipeline extends Pipeline {
 					foundRoute = route;
 					break;
 				}
-			} else {
-				if (route.pattern.test(decodeURI(payload))) {
-					foundRoute = route;
-					break;
-				}
+			} else if (route.pattern.test(decodeURI(payload))) {
+				foundRoute = route;
+				break;
 			}
 		}
 
@@ -220,7 +219,7 @@ export class DevPipeline extends Pipeline {
 			const componentInstance = await this.getComponentByRoute(foundRoute);
 			return [foundRoute, componentInstance];
 		} else {
-			throw new Error('Route not found');
+			throw new AstroError(RouteNotFound);
 		}
 	}
 

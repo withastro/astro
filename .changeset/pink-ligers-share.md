@@ -14,8 +14,7 @@ export default defineConfig({
 })
 ```
 
-When enabled, you can use `rewrite()` to **render
-** another page without changing the URL of the browser in Astro pages and endpoints.
+When enabled, you can use `rewrite()` to **render** another page without changing the URL of the browser in Astro pages and endpoints.
 
 ```astro
 ---
@@ -47,5 +46,4 @@ export function onRequest(ctx, next) {
 }
 ```
 
-> **NOTE
-**: please [read the RFC](https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md) to understand the current expectations of the new APIs.
+> **NOTE**: please [read the RFC](https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md) to understand the current expectations of the new APIs.

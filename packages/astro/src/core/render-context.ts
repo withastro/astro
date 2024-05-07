@@ -108,7 +108,8 @@ export class RenderContext {
 			return new Response('Loop Detected', {
 				// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/508
 				status: 508,
-				statusText: 'Astro detected a loop where you tried to call the rewriting logic more than four times.',
+				statusText:
+					'Astro detected a loop where you tried to call the rewriting logic more than four times.',
 			});
 		}
 		const lastNext = async (ctx: APIContext, payload?: RewritePayload) => {
