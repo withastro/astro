@@ -43,6 +43,14 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 				return Date.now().toString();
 			}
 		},
+		configResolved(config) {
+			if (options.viteConfig.build?.cssCodeSplit !== undefined) {
+				// Use the user-specified vite config instead of
+				// overriding with the astro config.
+				return;
+			}
+			config.build.cssCodeSplit = options.settings.config.build.cssCodeSplit;
+		},
 		async load(id) {
 			if (id === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
 				const imports = [
