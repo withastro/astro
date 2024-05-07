@@ -4,11 +4,9 @@ import type { AstroIntegration } from '../@types/astro.js';
 import { ACTIONS_TYPES_FILE, RESOLVED_VIRTUAL_MODULE_ID, VIRTUAL_MODULE_ID } from './consts.js';
 import type { Plugin as VitePlugin } from 'vite';
 
-const name = 'astro:actions';
-
 export default function astroActions(): AstroIntegration {
 	return {
-		name,
+		name: VIRTUAL_MODULE_ID,
 		hooks: {
 			async 'astro:config:setup'(params) {
 				const stringifiedActionsPath = JSON.stringify(
@@ -44,7 +42,7 @@ export default function astroActions(): AstroIntegration {
 }
 
 const vitePluginActions: VitePlugin = {
-	name: 'astro:actions',
+	name: VIRTUAL_MODULE_ID,
 	enforce: 'pre',
 	resolveId(id) {
 		if (id === VIRTUAL_MODULE_ID) {
@@ -70,7 +68,10 @@ const vitePluginActions: VitePlugin = {
 async function typegen({
 	stringifiedActionsPath,
 	root,
-}: { stringifiedActionsPath: string; root: URL }) {
+}: {
+	stringifiedActionsPath: string;
+	root: URL;
+}) {
 	const content = `declare module "astro:actions" {
 	type Actions = typeof import(${stringifiedActionsPath})["server"];
 
