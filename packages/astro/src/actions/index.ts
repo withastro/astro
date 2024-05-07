@@ -8,13 +8,13 @@ export default function astroActions(): AstroIntegration {
 		name: VIRTUAL_MODULE_ID,
 		hooks: {
 			async 'astro:config:setup'(params) {
-				const stringifiedActionsPath = JSON.stringify(
+				const stringifiedActionsImport = JSON.stringify(
 					new URL('actions', params.config.srcDir).pathname
 				);
 				params.updateConfig({
 					vite: {
 						define: {
-							'import.meta.env.ACTIONS_PATH': stringifiedActionsPath,
+							'import.meta.env.ACTIONS_PATH': stringifiedActionsImport,
 						},
 						plugins: [vitePluginActions],
 					},
@@ -32,7 +32,7 @@ export default function astroActions(): AstroIntegration {
 				});
 
 				await typegen({
-					stringifiedActionsPath,
+					stringifiedActionsImport,
 					root: params.config.root,
 				});
 			},
@@ -62,14 +62,14 @@ const vitePluginActions: VitePlugin = {
 };
 
 async function typegen({
-	stringifiedActionsPath,
+	stringifiedActionsImport,
 	root,
 }: {
-	stringifiedActionsPath: string;
+	stringifiedActionsImport: string;
 	root: URL;
 }) {
 	const content = `declare module "astro:actions" {
-	type Actions = typeof import(${stringifiedActionsPath})["server"];
+	type Actions = typeof import(${stringifiedActionsImport})["server"];
 
 	export const actions: Actions;
 }`;
