@@ -50,10 +50,11 @@
     "vfile": "^6.0.1"
   },
   "peerDependencies": {
-    "astro": "^4.0.0"
+    "astro": "^4.8.0"
   },
   "devDependencies": {
     "@types/estree": "^1.0.5",
+    "@types/hast": "^3.0.3",
     "@types/mdast": "^4.0.3",
     "@types/yargs-parser": "^21.0.3",
     "astro": "workspace:*",
@@ -61,6 +62,7 @@
     "cheerio": "1.0.0-rc.12",
     "linkedom": "^0.16.11",
     "mdast-util-mdx": "^3.0.0",
+    "mdast-util-mdx-jsx": "^3.1.2",
     "mdast-util-to-string": "^4.0.0",
     "reading-time": "^1.5.0",
     "rehype-mathjax": "^6.0.0",
