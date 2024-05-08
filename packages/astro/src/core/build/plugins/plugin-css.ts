@@ -145,7 +145,10 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							if (pageData) {
 								appendCSSToPage(pageData, meta, pagesToCss, depth, order);
 							}
-						} else if (options.target === 'client' && internals.hoistedScriptIdToPagesMap.has(pageInfo.id)) {
+						} else if (
+							options.target === 'client' &&
+							internals.hoistedScriptIdToPagesMap.has(pageInfo.id)
+						) {
 							for (const pageData of getPageDatasByHoistedScriptId(internals, pageInfo.id)) {
 								appendCSSToPage(pageData, meta, pagesToCss, -1, order);
 							}
@@ -242,7 +245,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						pageData.styles.push({ ...orderingInfo, sheet });
 						sheetAddedToPage = true;
 					}
-				})
+				});
 
 				// Apply `moduleIdToPropagatedCss` information to `internals.propagatedStylesMap`.
 				// NOTE: It's pretty much a copy over to `internals.propagatedStylesMap` as it should be

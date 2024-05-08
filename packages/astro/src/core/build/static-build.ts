@@ -9,7 +9,11 @@ import * as vite from 'vite';
 import type { RouteData } from '../../@types/astro.js';
 import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 import { hasAnyContentFlag } from '../../content/utils.js';
-import { type BuildInternals, createBuildInternals, getPageDatasWithPublicKey } from '../../core/build/internal.js';
+import {
+	type BuildInternals,
+	createBuildInternals,
+	getPageDatasWithPublicKey,
+} from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash, removeFileExtension } from '../../core/path.js';
 import { isModeServerWithNoAdapter, isServerLikeOutput } from '../../core/util.js';
@@ -376,7 +380,9 @@ async function cleanStaticOutput(
 	const onDemandsFiles = new Set();
 	for (const pageData of internals.pagesByKeys.values()) {
 		const { moduleSpecifier } = pageData;
-		const bundleId = internals.pageToBundleMap.get(moduleSpecifier) ?? internals.entrySpecifierToBundleMap.get(moduleSpecifier);
+		const bundleId =
+			internals.pageToBundleMap.get(moduleSpecifier) ??
+			internals.entrySpecifierToBundleMap.get(moduleSpecifier);
 		if (pageData.route.prerender && !pageData.hasSharedModules && !onDemandsFiles.has(bundleId)) {
 			prerenderedFiles.add(bundleId);
 		} else {

@@ -74,17 +74,20 @@ export function getVirtualModulePageName(virtualModulePrefix: string, path: stri
 }
 
 /**
- * From the VirtualModulePageName, and the internals, get all pageDatas that use this 
+ * From the VirtualModulePageName, and the internals, get all pageDatas that use this
  * component as their entry point.
  * @param virtualModulePrefix The prefix used to create the virtual module
  * @param id Virtual module name
  */
-export function getPagesFromVirtualModulePageName(internals: BuildInternals, virtualModulePrefix: string,  id: string): PageBuildData[]
-{
+export function getPagesFromVirtualModulePageName(
+	internals: BuildInternals,
+	virtualModulePrefix: string,
+	id: string
+): PageBuildData[] {
 	const path = getComponentFromVirtualModulePageName(virtualModulePrefix, id);
 
 	const pages: PageBuildData[] = [];
-	internals.pagesByKeys.forEach(pageData => {
+	internals.pagesByKeys.forEach((pageData) => {
 		if (pageData.component === path) {
 			pages.push(pageData);
 		}
@@ -100,7 +103,10 @@ export function getPagesFromVirtualModulePageName(internals: BuildInternals, vir
  * @param virtualModulePrefix The prefix at the beginning of the virtual module
  * @param id Virtual module name
  */
-export function getComponentFromVirtualModulePageName(virtualModulePrefix: string, id: string): string {
+export function getComponentFromVirtualModulePageName(
+	virtualModulePrefix: string,
+	id: string
+): string {
 	return id.slice(virtualModulePrefix.length).replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
 }
 

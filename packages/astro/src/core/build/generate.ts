@@ -44,6 +44,8 @@ import { getOutputFilename, isServerLikeOutput } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
 import { cssOrder, mergeInlineCss } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
+import { ASTRO_PAGE_MODULE_ID } from './plugins/plugin-pages.js';
+import { getVirtualModulePageName } from './plugins/util.js';
 import type {
 	PageBuildData,
 	SinglePageBuiltModule,
@@ -51,8 +53,6 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
-import { getVirtualModulePageName } from './plugins/util.js';
-import { ASTRO_PAGE_MODULE_ID } from './plugins/plugin-pages.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);

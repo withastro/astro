@@ -153,9 +153,7 @@ function vitePluginSSRSplit(
 					if (routeIsRedirect(pageData.route)) {
 						continue;
 					}
-					inputs.add(
-						getVirtualModulePageName(SPLIT_MODULE_ID, pageData.component)
-					);
+					inputs.add(getVirtualModulePageName(SPLIT_MODULE_ID, pageData.component));
 				}
 
 				return addRollupInput(opts, Array.from(inputs));

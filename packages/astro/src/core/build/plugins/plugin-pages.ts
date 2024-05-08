@@ -21,9 +21,7 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 					if (routeIsRedirect(pageData.route)) {
 						continue;
 					}
-					inputs.add(
-						getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component)
-					);
+					inputs.add(getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component));
 				}
 
 				return addRollupInput(options, Array.from(inputs));
@@ -38,8 +36,12 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 			if (id.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
 				const imports: string[] = [];
 				const exports: string[] = [];
-				const pageDatas = getPagesFromVirtualModulePageName(internals, ASTRO_PAGE_RESOLVED_MODULE_ID, id);
-				for (const pageData of pageDatas) {	
+				const pageDatas = getPagesFromVirtualModulePageName(
+					internals,
+					ASTRO_PAGE_RESOLVED_MODULE_ID,
+					id
+				);
+				for (const pageData of pageDatas) {
 					const resolvedPage = await this.resolve(pageData.moduleSpecifier);
 					if (resolvedPage) {
 						imports.push(`const page = () => import(${JSON.stringify(pageData.moduleSpecifier)});`);

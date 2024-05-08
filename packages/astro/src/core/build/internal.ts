@@ -3,8 +3,8 @@ import type { RouteData, SSRResult } from '../../@types/astro.js';
 import type { PageOptions } from '../../vite-plugin-astro/types.js';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
-import type { PageBuildData, StylesheetAsset, ViteID } from './types.js';
 import { makePageDataKey } from './plugins/util.js';
+import type { PageBuildData, StylesheetAsset, ViteID } from './types.js';
 
 export interface BuildInternals {
 	/**
@@ -232,11 +232,13 @@ export function* getPageDatasByClientOnlyID(
  */
 export function getPageData(
 	internals: BuildInternals,
-	route: string, 
+	route: string,
 	component: string
 ): PageBuildData | undefined {
 	let pageData = internals.pagesByKeys.get(makePageDataKey(route, component));
-	if (pageData) { return pageData;}
+	if (pageData) {
+		return pageData;
+	}
 	return undefined;
 }
 
@@ -250,23 +252,25 @@ export function getPagesDatasByComponent(
 	component: string
 ): PageBuildData[] {
 	const pageDatas: PageBuildData[] = [];
-		internals.pagesByKeys.forEach((pageData) => {
-			if (component === pageData.component) pageDatas.push(pageData);
-	})
+	internals.pagesByKeys.forEach((pageData) => {
+		if (component === pageData.component) pageDatas.push(pageData);
+	});
 	return pageDatas;
 }
 
 // TODO: Should be removed in the future. (Astro 5?)
 /**
  * Map internals.pagesByKeys to a new map with the public key instead of the internal key.
- * This function is only used to avoid breaking changes in the Integrations API, after we changed the way 
+ * This function is only used to avoid breaking changes in the Integrations API, after we changed the way
  * we identify pages, from the entrypoint component to an internal key.
  * If the page component is unique -> the public key is the component path. (old behavior)
  * If the page component is shared -> the public key is the internal key. (new behavior)
  * The new behavior on shared entrypoint it's not a breaking change, because it was not supported before.
  * @param pagesByKeys A map of all page data by their internal key
  */
-export function getPageDatasWithPublicKey(pagesByKeys: Map<string, PageBuildData>): Map<string, PageBuildData> {
+export function getPageDatasWithPublicKey(
+	pagesByKeys: Map<string, PageBuildData>
+): Map<string, PageBuildData> {
 	// Create a map to store the pages with the public key, mimicking internal.pagesByKeys
 	const pagesWithPublicKey = new Map<string, PageBuildData>();
 
@@ -378,7 +382,7 @@ export function mergeInlineCss(
 export function getPageDatasByHoistedScriptId(
 	internals: BuildInternals,
 	id: string
-): PageBuildData[]{
+): PageBuildData[] {
 	const set = internals.hoistedScriptIdToPagesMap.get(id);
 	const pageDatas: PageBuildData[] = [];
 	if (set) {
