@@ -18,8 +18,7 @@ import {
 	runHookBuildStart,
 	runHookConfigDone,
 	runHookConfigSetup,
-} from '../../integrations/index.js';
-import { isServerLikeOutput } from '../../prerender/utils.js';
+} from '../../integrations/hooks.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
@@ -28,7 +27,7 @@ import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { createRouteManifest } from '../routing/index.js';
-import { ensureProcessNodeEnv } from '../util.js';
+import { ensureProcessNodeEnv, isServerLikeOutput } from '../util.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';

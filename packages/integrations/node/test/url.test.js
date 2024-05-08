@@ -92,4 +92,24 @@ describe('URL', () => {
 
 		assert.equal($('body').text(), 'https://abc.xyz:444/');
 	});
+
+	it('accepts port in forwarded host and forwarded port', async () => {
+		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		let { req, res, text } = createRequestAndResponse({
+			headers: {
+				'X-Forwarded-Proto': 'https',
+				'X-Forwarded-Host': 'abc.xyz:444',
+				'X-Forwarded-Port': '444',
+			},
+			url: '/',
+		});
+
+		handler(req, res);
+		req.send();
+
+		const html = await text();
+		const $ = cheerio.load(html);
+
+		assert.equal($('body').text(), 'https://abc.xyz:444/');
+	});
 });

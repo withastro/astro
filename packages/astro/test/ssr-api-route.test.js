@@ -122,7 +122,7 @@ describe('API routes in SSR', () => {
 				count++;
 			}
 
-			assert.equal(count, 2, 'Found two seperate set-cookie response headers');
+			assert.equal(count, 2, 'Found two separate set-cookie response headers');
 		});
 
 		it('Has valid api context', async () => {

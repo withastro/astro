@@ -1,5 +1,17 @@
 # astro
 
+## 4.7.1
+
+### Patch Changes
+
+- [#10911](https://github.com/withastro/astro/pull/10911) [`a86dc9d`](https://github.com/withastro/astro/commit/a86dc9d269fc4409c458cfa05dcfaeee12bade2f) Thanks [@bluwy](https://github.com/bluwy)! - Skips adding CSS dependencies of CSS Vite modules as style tags in the HTML
+
+- [#10900](https://github.com/withastro/astro/pull/10900) [`36bb3b6`](https://github.com/withastro/astro/commit/36bb3b6025eb51f6e027a76a514cc7ebb29deb10) Thanks [@martrapp](https://github.com/martrapp)! - Detects overlapping navigation and view transitions and automatically aborts all but the most recent one.
+
+- [#10933](https://github.com/withastro/astro/pull/10933) [`007d17f`](https://github.com/withastro/astro/commit/007d17fee072955d4acb846a06d9eb666e908ef6) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `app.toggleState` not working correctly
+
+- [#10931](https://github.com/withastro/astro/pull/10931) [`4ce5ced`](https://github.com/withastro/astro/commit/4ce5ced44d490f4c6df771995aef14e11910ec57) Thanks [@ktym4a](https://github.com/ktym4a)! - Fixes `toggleNotification()`'s parameter type for the notification level not using the proper levels
+
 ## 4.7.0
 
 ### Minor Changes

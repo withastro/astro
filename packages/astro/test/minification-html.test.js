@@ -23,7 +23,7 @@ function removeDoctypeLineInDev(html) {
 }
 
 describe('HTML minification', () => {
-	describe('in DEV enviroment', () => {
+	describe('in DEV environment', () => {
 		let fixture;
 		let devServer;
 		before(async () => {

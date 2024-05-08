@@ -8,9 +8,9 @@
     "@astrojs/svelte": "workspace:*",
     "@astrojs/vue": "workspace:*",
     "astro": "workspace:*",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "svelte": "^4.2.15",
-    "vue": "^3.4.23"
+    "vue": "^3.4.26"
   }
 }

@@ -16,8 +16,7 @@ import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Pipeline, loadRenderer } from '../core/render/index.js';
-import { isPage, resolveIdToUrl, viteID } from '../core/util.js';
-import { isServerLikeOutput } from '../prerender/utils.js';
+import { isPage, isServerLikeOutput, resolveIdToUrl, viteID } from '../core/util.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
 import { getComponentMetadata } from './metadata.js';

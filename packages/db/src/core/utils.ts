@@ -9,6 +9,11 @@ export function getAstroStudioEnv(envMode = ''): Record<`ASTRO_STUDIO_${string}`
 	return env;
 }
 
+export function getAstroEnv(envMode = ''): Record<`ASTRO_${string}`, string> {
+	const env = loadEnv(envMode, process.cwd(), 'ASTRO_');
+	return env;
+}
+
 export function getRemoteDatabaseUrl(): string {
 	const env = getAstroStudioEnv();
 	return env.ASTRO_STUDIO_REMOTE_DB_URL || 'https://db.services.astro.build';

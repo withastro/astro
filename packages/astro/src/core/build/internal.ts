@@ -20,6 +20,8 @@ export interface BuildInternals {
 	hoistedScriptIdToHoistedMap: Map<string, Set<string>>;
 	// A mapping of hoisted script ids back to the pages which reference it
 	hoistedScriptIdToPagesMap: Map<string, Set<string>>;
+	// A mapping of hoisted script ids back to the content which reference it
+	hoistedScriptIdToContentMap: Map<string, Set<string>>;
 
 	/**
 	 * Used by the `directRenderScript` option. If script is inlined, its id and
@@ -118,6 +120,7 @@ export function createBuildInternals(): BuildInternals {
 		cssModuleToChunkIdMap: new Map(),
 		hoistedScriptIdToHoistedMap,
 		hoistedScriptIdToPagesMap,
+		hoistedScriptIdToContentMap: new Map(),
 		inlinedScripts: new Map(),
 		entrySpecifierToBundleMap: new Map<string, string>(),
 		pageToBundleMap: new Map<string, string>(),
