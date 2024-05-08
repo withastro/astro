@@ -36,6 +36,6 @@ export function squooshImageService(): ImageServiceConfig;
 export function passthroughImageService(): ImageServiceConfig;
 
 /**
- * TODO:
+ * Return a valid env field to use in this Astro config for `experimental.env.schema`.
  */
 export const envField: EnvField;

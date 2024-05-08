@@ -8,7 +8,7 @@ import type {
 } from './schema.js';
 
 /**
- * TODO:
+ * Return a valid env field to use in this Astro config for `experimental.env.schema`.
  */
 export const envField = {
 	string: (options: StringFieldInput): StringField => ({
