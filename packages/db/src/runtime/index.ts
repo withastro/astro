@@ -19,11 +19,10 @@ export function hasPrimaryKey(column: DBColumn) {
 	return 'primaryKey' in column.schema && !!column.schema.primaryKey;
 }
 
-function isISODateString(str: string) {
-  if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(str)) return false;
-  const d = new Date(str);
-  return d instanceof Date && !isNaN(d.getTime()) && d.toISOString() === str; // valid date 
-}
+// Taken from:
+// https://stackoverflow.com/questions/52869695/check-if-a-date-string-is-in-iso-and-utc-format
+const isISODateString = (str: string) =>
+  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(str);
 
 const dateType = customType<{ data: Date; driverData: string }>({
 	dataType() {
