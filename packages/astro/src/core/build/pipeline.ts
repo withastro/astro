@@ -20,19 +20,9 @@ import {
 } from '../render/ssr-element.js';
 import { isServerLikeOutput } from '../util.js';
 import { getOutDirWithinCwd } from './common.js';
-import {
-	type BuildInternals,
-	cssOrder,
-	getEntryFilePathFromComponentPath,
-	getPageDataByComponent,
-	mergeInlineCss,
-} from './internal.js';
+import { type BuildInternals, cssOrder, getPageData, mergeInlineCss } from './internal.js';
 import { ASTRO_PAGE_MODULE_ID, ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
-import {
-	ASTRO_PAGE_EXTENSION_POST_PATTERN,
-	getVirtualModulePageNameFromPath,
-} from './plugins/util.js';
 import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { getPagesFromVirtualModulePageName, getVirtualModulePageName } from './plugins/util.js';
 import { i18nHasFallback } from './util.js';
@@ -219,18 +209,22 @@ export class BuildPipeline extends Pipeline {
 			) {
 				let pageDatas: PageBuildData[] = [];
 				if (virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
-					pageDatas.push(...getPagesFromVirtualModulePageName(
-						this.internals,
-						ASTRO_PAGE_RESOLVED_MODULE_ID,
-						virtualModulePageName
-					));
+					pageDatas.push(
+						...getPagesFromVirtualModulePageName(
+							this.internals,
+							ASTRO_PAGE_RESOLVED_MODULE_ID,
+							virtualModulePageName
+						)
+					);
 				}
 				if (virtualModulePageName.includes(RESOLVED_SPLIT_MODULE_ID)) {
-					pageDatas.push(...getPagesFromVirtualModulePageName(
-						this.internals,
-						RESOLVED_SPLIT_MODULE_ID,
-						virtualModulePageName
-					));
+					pageDatas.push(
+						...getPagesFromVirtualModulePageName(
+							this.internals,
+							RESOLVED_SPLIT_MODULE_ID,
+							virtualModulePageName
+						)
+					);
 				}
 				for (const pageData of pageDatas) {
 					pages.set(pageData, filePath);
@@ -252,10 +246,7 @@ export class BuildPipeline extends Pipeline {
 				// The values of the map are the actual `.mjs` files that are generated during the build
 
 				// Here, we take the component path and transform it in the virtual module name
-				const moduleSpecifier = getVirtualModulePageName(
-					ASTRO_PAGE_MODULE_ID,
-					pageData.component
-				);
+				const moduleSpecifier = getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component);
 				// We retrieve the original JS module
 				const filePath = this.internals.entrySpecifierToBundleMap.get(moduleSpecifier);
 				if (filePath) {
@@ -340,7 +331,10 @@ export class BuildPipeline extends Pipeline {
 			throw new Error(`Expected a redirect route.`);
 		}
 		if (route.redirectRoute) {
-			const filePath = getEntryFilePathFromComponentPath(internals, route.redirectRoute.component);
+			const filePath = getVirtualModulePageName(
+				ASTRO_PAGE_MODULE_ID,
+				route.redirectRoute.component
+			);
 			if (filePath) {
 				const url = createEntryURL(filePath, outFolder);
 				const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
@@ -360,7 +354,10 @@ export class BuildPipeline extends Pipeline {
 			throw new Error(`Expected a redirect route.`);
 		}
 		if (route.redirectRoute) {
-			const filePath = getEntryFilePathFromComponentPath(internals, route.redirectRoute.component);
+			const filePath = getVirtualModulePageName(
+				ASTRO_PAGE_MODULE_ID,
+				route.redirectRoute.component
+			);
 			if (filePath) {
 				const url = createEntryURL(filePath, outFolder);
 				const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());

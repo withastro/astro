@@ -242,7 +242,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						pageData.styles.push({ ...orderingInfo, sheet });
 						sheetAddedToPage = true;
 					}
-				}
+				})
 
 				// Apply `moduleIdToPropagatedCss` information to `internals.propagatedStylesMap`.
 				// NOTE: It's pretty much a copy over to `internals.propagatedStylesMap` as it should be
