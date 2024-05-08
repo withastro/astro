@@ -33,6 +33,7 @@ import type {
 	DevToolbarCard,
 	DevToolbarHighlight,
 	DevToolbarIcon,
+	DevToolbarRadioCheckbox,
 	DevToolbarSelect,
 	DevToolbarToggle,
 	DevToolbarTooltip,
@@ -3087,6 +3088,7 @@ declare global {
 		'astro-dev-toolbar-icon': DevToolbarIcon;
 		'astro-dev-toolbar-card': DevToolbarCard;
 		'astro-dev-toolbar-select': DevToolbarSelect;
+		'astro-dev-toolbar-radio-checkbox': DevToolbarRadioCheckbox;
 
 		// Deprecated names
 		// TODO: Remove in Astro 5.0
