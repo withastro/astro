@@ -14,10 +14,11 @@ import { getInfoOutput } from '../cli/info/index.js';
 import type { HeadElements } from '../core/base-pipeline.js';
 import { ASTRO_VERSION, DEFAULT_404_COMPONENT } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
+import { RouteNotFound } from '../core/errors/errors-data.js';
 import { AggregateError, AstroError, CSSError, MarkdownError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
-import { loadRenderer, Pipeline } from '../core/render/index.js';
+import { Pipeline, loadRenderer } from '../core/render/index.js';
 import { isPage, isServerLikeOutput, resolveIdToUrl, viteID } from '../core/util.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
@@ -25,7 +26,6 @@ import { getComponentMetadata } from './metadata.js';
 import { createResolve } from './resolve.js';
 import { default404Page } from './response.js';
 import { getScriptsForURL } from './scripts.js';
-import { RouteNotFound } from '../core/errors/errors-data.js';
 
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,

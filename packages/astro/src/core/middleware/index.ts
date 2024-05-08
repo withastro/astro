@@ -4,7 +4,7 @@ import {
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../../i18n/utils.js';
-import { ASTRO_VERSION, clientLocalsSymbol, clientAddressSymbol } from '../constants.js';
+import { ASTRO_VERSION, clientAddressSymbol, clientLocalsSymbol } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { sequence } from './sequence.js';

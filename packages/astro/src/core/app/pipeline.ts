@@ -1,16 +1,16 @@
 import type {
+	ComponentInstance,
 	ManifestData,
+	RewritePayload,
 	RouteData,
 	SSRElement,
 	SSRResult,
-	ComponentInstance,
-	RewritePayload,
 } from '../../@types/astro.js';
 import { Pipeline } from '../base-pipeline.js';
+import type { SinglePageBuiltModule } from '../build/types.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/component.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../render/ssr-element.js';
-import type { SinglePageBuiltModule } from '../build/types.js';
 
 export class AppPipeline extends Pipeline {
 	#manifestData: ManifestData | undefined;

@@ -8,7 +8,10 @@ import type {
 import { getOutputDirectory } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
+import { RouteNotFound } from '../errors/errors-data.js';
+import { AstroError } from '../errors/index.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
+import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { Pipeline } from '../render/index.js';
 import {
 	createAssetLink,
@@ -16,6 +19,7 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { isServerLikeOutput } from '../util.js';
+import { getOutDirWithinCwd } from './common.js';
 import {
 	type BuildInternals,
 	cssOrder,
@@ -31,10 +35,6 @@ import {
 } from './plugins/util.js';
 import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
-import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { getOutDirWithinCwd } from './common.js';
-import { RouteNotFound } from '../errors/errors-data.js';
-import { AstroError } from '../errors/index.js';
 
 /**
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.

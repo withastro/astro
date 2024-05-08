@@ -1,6 +1,6 @@
 import type { APIContext, MiddlewareHandler, RewritePayload } from '../../@types/astro.js';
-import { defineMiddleware } from './index.js';
 import { AstroCookies } from '../cookies/cookies.js';
+import { defineMiddleware } from './index.js';
 
 // From SvelteKit: https://github.com/sveltejs/kit/blob/master/packages/kit/src/exports/hooks/sequence.js
 /**
