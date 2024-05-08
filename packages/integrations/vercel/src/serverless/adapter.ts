@@ -72,16 +72,18 @@ function getAdapter({
 	edgeMiddleware,
 	functionPerRoute,
 	middlewareSecret,
+	skewProtection,
 }: {
 	edgeMiddleware: boolean;
 	functionPerRoute: boolean;
 	middlewareSecret: string;
+	skewProtection: boolean;
 }): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
 		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
 		exports: ['default'],
-		args: { middlewareSecret },
+		args: { middlewareSecret, skewProtection },
 		adapterFeatures: {
 			edgeMiddleware,
 			functionPerRoute,
@@ -139,6 +141,10 @@ export interface VercelServerlessConfig {
 
 	/** Whether to cache on-demand rendered pages in the same way as static files. */
 	isr?: boolean | VercelISRConfig;
+	/**
+	 * It enables Vercel skew protection: https://vercel.com/docs/deployments/skew-protection
+	 */
+	skewProtection?: boolean;
 }
 
 interface VercelISRConfig {
@@ -180,6 +186,7 @@ export default function vercelServerless({
 	edgeMiddleware = false,
 	maxDuration,
 	isr = false,
+	skewProtection = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	if (maxDuration) {
 		if (typeof maxDuration !== 'number') {
@@ -277,7 +284,9 @@ export default function vercelServerless({
 					);
 				}
 
-				setAdapter(getAdapter({ functionPerRoute, edgeMiddleware, middlewareSecret }));
+				setAdapter(
+					getAdapter({ functionPerRoute, edgeMiddleware, middlewareSecret, skewProtection })
+				);
 
 				_config = config;
 				_buildTempFolder = config.build.server;
