@@ -1,8 +1,8 @@
+import type { APIContext, MiddlewareNext } from '../../@types/astro.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
 import { ApiContextStorage } from './store.js';
 import { formContentTypes, getAction, hasContentType } from './utils.js';
 import { callSafely } from './virtual/shared.js';
-import type { APIContext, MiddlewareNext } from '../../@types/astro.js';
 
 export type Locals = {
 	_actionsInternal: {

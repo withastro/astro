@@ -1,4 +1,3 @@
-import { createGetActionResult } from '../actions/utils.js';
 import type {
 	APIContext,
 	AstroGlobal,
@@ -11,6 +10,7 @@ import type {
 	SSRResult,
 } from '../@types/astro.js';
 import type { ActionAPIContext } from '../actions/runtime/store.js';
+import { createGetActionResult } from '../actions/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,

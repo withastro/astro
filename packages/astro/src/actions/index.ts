@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import type { Plugin as VitePlugin } from 'vite';
 import type { AstroIntegration } from '../@types/astro.js';
 import { ACTIONS_TYPES_FILE, RESOLVED_VIRTUAL_MODULE_ID, VIRTUAL_MODULE_ID } from './consts.js';
-import type { Plugin as VitePlugin } from 'vite';
 
 export default function astroActions(): AstroIntegration {
 	return {

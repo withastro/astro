@@ -11,6 +11,7 @@ import type {
 import type * as babel from '@babel/core';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
+import type { Accept, ActionClient, InputSchema } from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
 import type { AssetsPrefix, SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
@@ -46,7 +47,6 @@ import type {
 } from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify, WithRequired } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
-import type { Accept, ActionClient, InputSchema } from '../actions/runtime/virtual/server.js';
 
 export type { AstroIntegrationLogger, ToolbarServerHelpers };
 

@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import * as fs from 'node:fs';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
-import { CONTENT_TYPES_FILE } from '../dist/content/consts.js';
 import { ACTIONS_TYPES_FILE } from '../dist/actions/consts.js';
+import { CONTENT_TYPES_FILE } from '../dist/content/consts.js';
 import { getContentPaths } from '../dist/content/utils.js';
+import { loadFixture } from './test-utils.js';
 
 describe('astro sync', () => {
 	let fixture;
