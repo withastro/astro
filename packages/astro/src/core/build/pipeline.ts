@@ -331,7 +331,6 @@ export class BuildPipeline extends Pipeline {
 			throw new Error(`Expected a redirect route.`);
 		}
 		if (route.redirectRoute) {
-			console.log('[PIPELINE]', ASTRO_PAGE_MODULE_ID, route.redirectRoute);
 			const filePath = getEntryFilePath(this.internals, route.redirectRoute);
 			if (filePath) {
 				const url = createEntryURL(filePath, outFolder);
@@ -352,7 +351,6 @@ export class BuildPipeline extends Pipeline {
 			throw new Error(`Expected a redirect route.`);
 		}
 		if (route.redirectRoute) {
-			console.log('[PIPELINE]', ASTRO_PAGE_MODULE_ID, route.redirectRoute);
 			const filePath = getEntryFilePath(this.internals, route.redirectRoute);
 			if (filePath) {
 				const url = createEntryURL(filePath, outFolder);
