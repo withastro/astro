@@ -56,8 +56,8 @@ describe('project name', async () => {
 		assert.equal(context.projectName, 'foobar');
 	});
 
-	it('blank space', async () => {
-		const context = { projectName: '', cwd: '', prompt: () => ({ name: 'foobar' }) };
+	it('head and tail blank spaces should be trimmed', async () => {
+		const context = { projectName: '', cwd: '', prompt: () => ({ name: '  foobar  ' }) };
 		await projectName(context);
 		assert.equal(context.cwd, 'foobar');
 		assert.equal(context.projectName, 'foobar');

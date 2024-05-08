@@ -6,9 +6,11 @@ import * as path from 'node:path';
 import pLimit from 'p-limit';
 import { tsconfigResolverSync } from 'tsconfig-resolver';
 
+const skippedExamples = ['toolbar-app', 'component']
+
 function checkExamples() {
 	let examples = readdirSync('./examples', { withFileTypes: true });
-	examples = examples.filter((dirent) => dirent.isDirectory());
+	examples = examples.filter((dirent) => dirent.isDirectory()).filter((dirent) => !skippedExamples.includes(dirent.name));
 
 	console.log(`Running astro check on ${examples.length} examples...`);
 

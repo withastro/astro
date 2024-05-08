@@ -6,7 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { assetsDir, imageConfig, outDir } from 'astro:assets';
 import { isRemotePath, removeQueryString } from '@astrojs/internal-helpers/path';
 import { readFile } from 'fs/promises';
-import mime from 'mime/lite.js';
+import * as mime from 'mrmime';
 import type { APIRoute } from '../../@types/astro.js';
 import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
@@ -110,7 +110,7 @@ export const GET: APIRoute = async ({ request }) => {
 		return new Response(data, {
 			status: 200,
 			headers: {
-				'Content-Type': mime.getType(format) ?? `image/${format}`,
+				'Content-Type': mime.lookup(format) ?? `image/${format}`,
 				'Cache-Control': 'public, max-age=31536000',
 				ETag: etag(data.toString()),
 				Date: new Date().toUTCString(),

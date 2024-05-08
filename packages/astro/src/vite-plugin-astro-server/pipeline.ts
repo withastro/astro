@@ -1,8 +1,10 @@
-import url from 'node:url';
+import { fileURLToPath } from 'node:url';
 import type {
 	AstroSettings,
 	ComponentInstance,
 	DevToolbarMetadata,
+	ManifestData,
+	RewritePayload,
 	RouteData,
 	SSRElement,
 	SSRLoadedRenderer,
@@ -12,12 +14,12 @@ import { getInfoOutput } from '../cli/info/index.js';
 import type { HeadElements } from '../core/base-pipeline.js';
 import { ASTRO_VERSION, DEFAULT_404_COMPONENT } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
-import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
+import { RouteNotFound } from '../core/errors/errors-data.js';
+import { AggregateError, AstroError, CSSError, MarkdownError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Pipeline, loadRenderer } from '../core/render/index.js';
-import { isPage, resolveIdToUrl, viteID } from '../core/util.js';
-import { isServerLikeOutput } from '../prerender/utils.js';
+import { isPage, isServerLikeOutput, resolveIdToUrl, viteID } from '../core/util.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
 import { getComponentMetadata } from './metadata.js';
@@ -29,6 +31,13 @@ export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
 	// so it needs to be mutable here unlike in other environments
 	override renderers = new Array<SSRLoadedRenderer>();
+
+	manifestData: ManifestData | undefined;
+
+	componentInterner: WeakMap<RouteData, ComponentInstance> = new WeakMap<
+		RouteData,
+		ComponentInstance
+	>();
 
 	private constructor(
 		readonly loader: ModuleLoader,
@@ -44,13 +53,18 @@ export class DevPipeline extends Pipeline {
 		super(logger, manifest, mode, [], resolve, serverLike, streaming);
 	}
 
-	static create({
-		loader,
-		logger,
-		manifest,
-		settings,
-	}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>) {
-		return new DevPipeline(loader, logger, manifest, settings);
+	static create(
+		manifestData: ManifestData,
+		{
+			loader,
+			logger,
+			manifest,
+			settings,
+		}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>
+	) {
+		const pipeline = new DevPipeline(loader, logger, manifest, settings);
+		pipeline.manifestData = manifestData;
+		return pipeline;
 	}
 
 	async headElements(routeData: RouteData): Promise<HeadElements> {
@@ -60,7 +74,7 @@ export class DevPipeline extends Pipeline {
 			mode,
 			settings,
 		} = this;
-		const filePath = new URL(`./${routeData.component}`, root);
+		const filePath = new URL(`${routeData.component}`, root);
 		// Add hoisted script tags, skip if direct rendering with `directRenderScript`
 		const { scripts } = settings.config.experimental.directRenderScript
 			? { scripts: new Set<SSRElement>() }
@@ -81,8 +95,9 @@ export class DevPipeline extends Pipeline {
 				scripts.add({ props: { type: 'module', src }, children: '' });
 
 				const additionalMetadata: DevToolbarMetadata['__astro_dev_toolbar__'] = {
-					root: url.fileURLToPath(settings.config.root),
+					root: fileURLToPath(settings.config.root),
 					version: ASTRO_VERSION,
+					latestAstroVersion: settings.latestAstroVersion,
 					debugInfo: await getInfoOutput({ userConfig: settings.config, print: false }),
 				};
 
@@ -131,11 +146,11 @@ export class DevPipeline extends Pipeline {
 			config: { root },
 			loader,
 		} = this;
-		const filePath = new URL(`./${routeData.component}`, root);
+		const filePath = new URL(`${routeData.component}`, root);
 		return getComponentMetadata(filePath, loader);
 	}
 
-	async preload(filePath: URL) {
+	async preload(routeData: RouteData, filePath: URL) {
 		const { loader } = this;
 		if (filePath.href === new URL(DEFAULT_404_COMPONENT, this.config.root).href) {
 			return { default: default404Page } as any as ComponentInstance;
@@ -148,7 +163,9 @@ export class DevPipeline extends Pipeline {
 
 		try {
 			// Load the module from the Vite SSR Runtime.
-			return (await loader.import(viteID(filePath))) as ComponentInstance;
+			const componentInstance = (await loader.import(viteID(filePath))) as ComponentInstance;
+			this.componentInterner.set(routeData, componentInstance);
+			return componentInstance;
 		} catch (error) {
 			// If the error came from Markdown or CSS, we already handled it and there's no need to enhance it
 			if (MarkdownError.is(error) || CSSError.is(error) || AggregateError.is(error)) {
@@ -161,5 +178,52 @@ export class DevPipeline extends Pipeline {
 
 	clearRouteCache() {
 		this.routeCache.clearAll();
+		this.componentInterner = new WeakMap<RouteData, ComponentInstance>();
+	}
+
+	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
+		const component = this.componentInterner.get(routeData);
+		if (component) {
+			return component;
+		} else {
+			const filePath = new URL(`${routeData.component}`, this.config.root);
+			return await this.preload(routeData, filePath);
+		}
+	}
+
+	async tryRewrite(payload: RewritePayload): Promise<[RouteData, ComponentInstance]> {
+		let foundRoute;
+		if (!this.manifestData) {
+			throw new Error('Missing manifest data. This is an internal error, please file an issue.');
+		}
+
+		for (const route of this.manifestData.routes) {
+			if (payload instanceof URL) {
+				if (route.pattern.test(payload.pathname)) {
+					foundRoute = route;
+					break;
+				}
+			} else if (payload instanceof Request) {
+				const url = new URL(payload.url);
+				if (route.pattern.test(url.pathname)) {
+					foundRoute = route;
+					break;
+				}
+			} else if (route.pattern.test(decodeURI(payload))) {
+				foundRoute = route;
+				break;
+			}
+		}
+
+		if (foundRoute) {
+			const componentInstance = await this.getComponentByRoute(foundRoute);
+			return [foundRoute, componentInstance];
+		} else {
+			throw new AstroError(RouteNotFound);
+		}
+	}
+
+	setManifestData(manifestData: ManifestData) {
+		this.manifestData = manifestData;
 	}
 }

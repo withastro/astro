@@ -5,7 +5,6 @@ import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin, BuildTarget } from '../plugin.js';
 import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
 
-import { RESOLVED_VIRTUAL_MODULE_ID as ASTRO_CONTENT_VIRTUAL_MODULE_ID } from '../../../content/consts.js';
 import { hasAssetPropagationFlag } from '../../../content/index.js';
 import type { AstroPluginCssMetadata } from '../../../vite-plugin-astro/index.js';
 import * as assetName from '../css-asset-name.js';
@@ -15,11 +14,9 @@ import {
 	moduleIsTopLevelPage,
 } from '../graph.js';
 import {
-	eachPageData,
 	getPageDataByViteID,
 	getPageDatasByClientOnlyID,
 	getPageDatasByHoistedScriptId,
-	isHoistedScript,
 } from '../internal.js';
 import { extendManualChunks, shouldInlineAsset } from './util.js';
 
@@ -63,11 +60,8 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 	// stylesheet filenames are kept in here until "post", when they are rendered and ready to be inlined
 	const pagesToCss: Record<string, Record<string, { order: number; depth: number }>> = {};
-	const pagesToPropagatedCss: Record<string, Record<string, Set<string>>> = {};
-
-	const isContentCollectionCache =
-		options.buildOptions.settings.config.output === 'static' &&
-		options.buildOptions.settings.config.experimental.contentCollectionCache;
+	// Map of module Ids (usually something like `/Users/...blog.mdx?astroPropagatedAssets`) to its imported CSS
+	const moduleIdToPropagatedCss: Record<string, Set<string>> = {};
 
 	const cssBuildPlugin: VitePlugin = {
 		name: 'astro:rollup-plugin-build-css',
@@ -141,20 +135,9 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					const parentModuleInfos = getParentExtendedModuleInfos(id, this, hasAssetPropagationFlag);
 					for (const { info: pageInfo, depth, order } of parentModuleInfos) {
 						if (hasAssetPropagationFlag(pageInfo.id)) {
-							const walkId = isContentCollectionCache ? ASTRO_CONTENT_VIRTUAL_MODULE_ID : id;
-							for (const parentInfo of getParentModuleInfos(walkId, this)) {
-								if (moduleIsTopLevelPage(parentInfo) === false) continue;
-
-								const pageViteID = parentInfo.id;
-								const pageData = getPageDataByViteID(internals, pageViteID);
-								if (pageData === undefined) continue;
-
-								for (const css of meta.importedCss) {
-									const propagatedStyles = (pagesToPropagatedCss[pageData.moduleSpecifier] ??= {});
-									const existingCss = (propagatedStyles[pageInfo.id] ??= new Set());
-
-									existingCss.add(css);
-								}
+							const propagatedCss = (moduleIdToPropagatedCss[pageInfo.id] ??= new Set());
+							for (const css of meta.importedCss) {
+								propagatedCss.add(css);
 							}
 						} else if (moduleIsTopLevelPage(pageInfo)) {
 							const pageViteID = pageInfo.id;
@@ -162,7 +145,10 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							if (pageData) {
 								appendCSSToPage(pageData, meta, pagesToCss, depth, order);
 							}
-						} else if (options.target === 'client' && isHoistedScript(internals, pageInfo.id)) {
+						} else if (
+							options.target === 'client' &&
+							internals.hoistedScriptIdToPagesMap.has(pageInfo.id)
+						) {
 							for (const pageData of getPageDatasByHoistedScriptId(internals, pageInfo.id)) {
 								appendCSSToPage(pageData, meta, pagesToCss, -1, order);
 							}
@@ -214,7 +200,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				(chunk) => chunk.type === 'asset' && chunk.name === 'style.css'
 			);
 			if (cssChunk === undefined) return;
-			for (const pageData of eachPageData(internals)) {
+			for (const pageData of internals.pagesByKeys.values()) {
 				const cssToInfoMap = (pagesToCss[pageData.moduleSpecifier] ??= {});
 				cssToInfoMap[cssChunk.fileName] = { depth: -1, order: -1 };
 			}
@@ -251,41 +237,29 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					? { type: 'inline', content: stylesheet.source }
 					: { type: 'external', src: stylesheet.fileName };
 
-				const pages = Array.from(eachPageData(internals));
 				let sheetAddedToPage = false;
 
-				pages.forEach((pageData) => {
+				internals.pagesByKeys.forEach((pageData) => {
 					const orderingInfo = pagesToCss[pageData.moduleSpecifier]?.[stylesheet.fileName];
 					if (orderingInfo !== undefined) {
 						pageData.styles.push({ ...orderingInfo, sheet });
 						sheetAddedToPage = true;
-						return;
 					}
-
-					const propagatedPaths = pagesToPropagatedCss[pageData.moduleSpecifier];
-					if (propagatedPaths === undefined) return;
-					Object.entries(propagatedPaths).forEach(([pageInfoId, css]) => {
-						// return early if sheet does not need to be propagated
-						if (css.has(stylesheet.fileName) !== true) return;
-
-						// return early if the stylesheet needing propagation has already been included
-						if (pageData.styles.some((s) => s.sheet === sheet)) return;
-
-						let propagatedStyles: Set<StylesheetAsset>;
-						if (isContentCollectionCache) {
-							propagatedStyles =
-								internals.propagatedStylesMap.get(pageInfoId) ??
-								internals.propagatedStylesMap.set(pageInfoId, new Set()).get(pageInfoId)!;
-						} else {
-							propagatedStyles =
-								pageData.propagatedStyles.get(pageInfoId) ??
-								pageData.propagatedStyles.set(pageInfoId, new Set()).get(pageInfoId)!;
-						}
-
-						propagatedStyles.add(sheet);
-						sheetAddedToPage = true;
-					});
 				});
+
+				// Apply `moduleIdToPropagatedCss` information to `internals.propagatedStylesMap`.
+				// NOTE: It's pretty much a copy over to `internals.propagatedStylesMap` as it should be
+				// completely empty. The whole propagation handling could be better refactored in the future.
+				for (const moduleId in moduleIdToPropagatedCss) {
+					if (!moduleIdToPropagatedCss[moduleId].has(stylesheet.fileName)) continue;
+					let propagatedStyles = internals.propagatedStylesMap.get(moduleId);
+					if (!propagatedStyles) {
+						propagatedStyles = new Set();
+						internals.propagatedStylesMap.set(moduleId, propagatedStyles);
+					}
+					propagatedStyles.add(sheet);
+					sheetAddedToPage = true;
+				}
 
 				if (toBeInlined && sheetAddedToPage) {
 					// CSS is already added to all used pages, we can delete it from the bundle

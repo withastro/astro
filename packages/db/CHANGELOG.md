@@ -1,5 +1,36 @@
 # @astrojs/db
 
+## 0.11.0
+
+### Minor Changes
+
+- [#10919](https://github.com/withastro/astro/pull/10919) [`44bafa9`](https://github.com/withastro/astro/commit/44bafa989af0cc380696bb6381048fc1ee55dd5b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - - Fix duplicate table recreations when you start your dev server.
+  - Remove eager re-seeding when updating your seed file in development. Seeding still runs on dev server startup for SQLite inspector tools.
+
+## 0.10.7
+
+### Patch Changes
+
+- [#10882](https://github.com/withastro/astro/pull/10882) [`cf58d1e`](https://github.com/withastro/astro/commit/cf58d1ed56c671d0ee077dfecc286002b4bae5ed) Thanks [@delucis](https://github.com/delucis)! - Improves the typing of the `asDrizzleTable()` utility
+
+  Fixes a type error when passing the output of `defineTable()` to the utility and returns a more detailed type inferred from the columns of the passed table config.
+
+- [#10918](https://github.com/withastro/astro/pull/10918) [`ca605f4`](https://github.com/withastro/astro/commit/ca605f4dd8fcd070d3d5a5ca2f7080d921801e17) Thanks [@matthewp](https://github.com/matthewp)! - Provide a better error message when app token is missing in CI
+
+- [#10925](https://github.com/withastro/astro/pull/10925) [`a0c77fc`](https://github.com/withastro/astro/commit/a0c77fc7164662ea62b65c51fd1bd4c2f6028bc1) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `ASTRO_DATABASE_FILE` not correctly resolving relative paths (e.g. `ASTRO_DATABASE_FILE=./api/database.db`
+
+## 0.10.6
+
+### Patch Changes
+
+- [#10816](https://github.com/withastro/astro/pull/10816) [`8e6eb62`](https://github.com/withastro/astro/commit/8e6eb624aee40bac66a58169a30107f624a8c539) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add `astro login` support from online editors like Stackblitz and GitHub Codespaces
+
+## 0.10.5
+
+### Patch Changes
+
+- [#10789](https://github.com/withastro/astro/pull/10789) [`d4c91cb10924a0627a9e9a80bc549b3c82d043e6`](https://github.com/withastro/astro/commit/d4c91cb10924a0627a9e9a80bc549b3c82d043e6) Thanks [@NickDubelman](https://github.com/NickDubelman)! - Expose the Drizzle `alias` utility from `astro:db` to enable self-joins on a table.
+
 ## 0.10.4
 
 ### Patch Changes

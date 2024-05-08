@@ -1,5 +1,13 @@
 import type { TransitionBeforePreparationEvent, TransitionBeforeSwapEvent } from './events.js';
 import { TRANSITION_AFTER_SWAP, doPreparation, doSwap } from './events.js';
+import {
+	deselectScripts,
+	restoreFocus,
+	saveFocus,
+	swapBodyElement,
+	swapHeadElements,
+	swapRootAttributes,
+} from './swap-functions.js';
 import type { Direction, Fallback, Options } from './types.js';
 
 type State = {
@@ -8,6 +16,15 @@ type State = {
 	scrollY: number;
 };
 type Events = 'astro:page-load' | 'astro:after-swap';
+type Navigation = { controller: AbortController };
+type Transition = {
+	// The view transitions object (API and simulation)
+	viewTransition?: ViewTransition;
+	// Simulation: Whether transition was skipped
+	transitionSkipped: boolean;
+	// Simulation: The resolve function of the finished promise
+	viewTransitionFinished?: () => void;
+};
 
 // Create bound versions of pushState/replaceState so that Partytown doesn't hijack them,
 // which breaks Firefox.
@@ -33,15 +50,13 @@ export const transitionEnabledOnThisPage = () =>
 const samePage = (thisLocation: URL, otherLocation: URL) =>
 	thisLocation.pathname === otherLocation.pathname && thisLocation.search === otherLocation.search;
 
+// The previous navigation that might still be in processing
+let mostRecentNavigation: Navigation | undefined;
+// The previous transition that might still be in processing
+let mostRecentTransition: Transition | undefined;
 // When we traverse the history, the window.location is already set to the new location.
 // This variable tells us where we came from
 let originalLocation: URL;
-// The result of startViewTransition (browser or simulation)
-let viewTransition: ViewTransition | undefined;
-// skip transition flag for fallback simulation
-let skipTransition = false;
-// The resolve function of the finished promise for fallback simulation
-let viewTransitionFinished: () => void;
 
 const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
 const onPageLoad = () => triggerEvent('astro:page-load');
@@ -83,7 +98,7 @@ if (inBrowser) {
 		currentHistoryIndex = history.state.index;
 		scrollTo({ left: history.state.scrollX, top: history.state.scrollY });
 	} else if (transitionEnabledOnThisPage()) {
-		// This page is loaded from the browser addressbar or via a link from extern,
+		// This page is loaded from the browser address bar or via a link from extern,
 		// it needs a state in the history
 		replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
 		history.scrollRestoration = 'manual';
@@ -148,7 +163,7 @@ function runScripts() {
 	return wait;
 }
 
-// Add a new entry to the browser history. This also sets the new page in the browser addressbar.
+// Add a new entry to the browser history. This also sets the new page in the browser address bar.
 // Sets the scroll position according to the hash fragment of the new location.
 const moveToLocation = (
 	to: URL,
@@ -185,7 +200,7 @@ const moveToLocation = (
 		}
 	}
 	document.title = targetPageTitle;
-	// now we are on the new page for non-history navigations!
+	// now we are on the new page for non-history navigation!
 	// (with history navigation page change happens before popstate is fired)
 	originalLocation = to;
 
@@ -253,142 +268,10 @@ function preloadStyleLinks(newDocument: Document) {
 async function updateDOM(
 	preparationEvent: TransitionBeforePreparationEvent,
 	options: Options,
+	currentTransition: Transition,
 	historyState?: State,
 	fallback?: Fallback
 ) {
-	// Check for a head element that should persist and returns it,
-	// either because it has the data attribute or is a link el.
-	// Returns null if the element is not part of the new head, undefined if it should be left alone.
-	const persistedHeadElement = (el: HTMLElement, newDoc: Document): Element | null => {
-		const id = el.getAttribute(PERSIST_ATTR);
-		const newEl = id && newDoc.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
-		if (newEl) {
-			return newEl;
-		}
-		if (el.matches('link[rel=stylesheet]')) {
-			const href = el.getAttribute('href');
-			return newDoc.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
-		}
-		return null;
-	};
-
-	type SavedFocus = {
-		activeElement: HTMLElement | null;
-		start?: number | null;
-		end?: number | null;
-	};
-
-	const saveFocus = (): SavedFocus => {
-		const activeElement = document.activeElement as HTMLElement;
-		// The element that currently has the focus is part of a DOM tree
-		// that will survive the transition to the new document.
-		// Save the element and the cursor position
-		if (activeElement?.closest(`[${PERSIST_ATTR}]`)) {
-			if (
-				activeElement instanceof HTMLInputElement ||
-				activeElement instanceof HTMLTextAreaElement
-			) {
-				const start = activeElement.selectionStart;
-				const end = activeElement.selectionEnd;
-				return { activeElement, start, end };
-			}
-			return { activeElement };
-		} else {
-			return { activeElement: null };
-		}
-	};
-
-	const restoreFocus = ({ activeElement, start, end }: SavedFocus) => {
-		if (activeElement) {
-			activeElement.focus();
-			if (
-				activeElement instanceof HTMLInputElement ||
-				activeElement instanceof HTMLTextAreaElement
-			) {
-				if (typeof start === 'number') activeElement.selectionStart = start;
-				if (typeof end === 'number') activeElement.selectionEnd = end;
-			}
-		}
-	};
-
-	const shouldCopyProps = (el: HTMLElement): boolean => {
-		const persistProps = el.dataset.astroTransitionPersistProps;
-		return persistProps == null || persistProps === 'false';
-	};
-
-	const defaultSwap = (beforeSwapEvent: TransitionBeforeSwapEvent) => {
-		// swap attributes of the html element
-		// - delete all attributes from the current document
-		// - insert all attributes from doc
-		// - reinsert all original attributes that are named 'data-astro-*'
-		const html = document.documentElement;
-		const astroAttributes = [...html.attributes].filter(
-			({ name }) => (html.removeAttribute(name), name.startsWith('data-astro-'))
-		);
-		[...beforeSwapEvent.newDocument.documentElement.attributes, ...astroAttributes].forEach(
-			({ name, value }) => html.setAttribute(name, value)
-		);
-
-		// Replace scripts in both the head and body.
-		for (const s1 of document.scripts) {
-			for (const s2 of beforeSwapEvent.newDocument.scripts) {
-				if (
-					// Check if the script should be rerun regardless of it being the same
-					!s2.hasAttribute('data-astro-rerun') &&
-					// Inline
-					((!s1.src && s1.textContent === s2.textContent) ||
-						// External
-						(s1.src && s1.type === s2.type && s1.src === s2.src))
-				) {
-					// the old script is in the new document and doesn't have the rerun attribute
-					// we mark it as executed to prevent re-execution
-					s2.dataset.astroExec = '';
-					break;
-				}
-			}
-		}
-
-		// Swap head
-		for (const el of Array.from(document.head.children)) {
-			const newEl = persistedHeadElement(el as HTMLElement, beforeSwapEvent.newDocument);
-			// If the element exists in the document already, remove it
-			// from the new document and leave the current node alone
-			if (newEl) {
-				newEl.remove();
-			} else {
-				// Otherwise remove the element in the head. It doesn't exist in the new page.
-				el.remove();
-			}
-		}
-
-		// Everything left in the new head is new, append it all.
-		document.head.append(...beforeSwapEvent.newDocument.head.children);
-
-		// Persist elements in the existing body
-		const oldBody = document.body;
-
-		const savedFocus = saveFocus();
-
-		// this will reset scroll Position
-		document.body.replaceWith(beforeSwapEvent.newDocument.body);
-
-		for (const el of oldBody.querySelectorAll(`[${PERSIST_ATTR}]`)) {
-			const id = el.getAttribute(PERSIST_ATTR);
-			const newEl = document.querySelector(`[${PERSIST_ATTR}="${id}"]`);
-			if (newEl) {
-				// The element exists in the new page, replace it with the element
-				// from the old page so that state is preserved.
-				newEl.replaceWith(el);
-				// For islands, copy over the props to allow them to re-render
-				if (newEl.localName === 'astro-island' && shouldCopyProps(el as HTMLElement)) {
-					el.setAttribute('ssr', '');
-					el.setAttribute('props', newEl.getAttribute('props')!);
-				}
-			}
-		}
-		restoreFocus(savedFocus);
-	};
-
 	async function animate(phase: string) {
 		function isInfinite(animation: Animation) {
 			const effect = animation.effect;
@@ -397,36 +280,49 @@ async function updateDOM(
 			return style.animationIterationCount === 'infinite';
 		}
 		const currentAnimations = document.getAnimations();
-		// allow animations triggered by viewTransition.ready to start
-		await new Promise<void>((r) => setTimeout(r));
 		// Trigger view transition animations waiting for data-astro-transition-fallback
 		document.documentElement.setAttribute(OLD_NEW_ATTR, phase);
 		const nextAnimations = document.getAnimations();
 		const newAnimations = nextAnimations.filter(
 			(a) => !currentAnimations.includes(a) && !isInfinite(a)
 		);
-		return Promise.all(newAnimations.map((a) => a.finished));
+		// Wait for all new animations to finish (resolved or rejected).
+		// Do not reject on canceled ones.
+		return Promise.allSettled(newAnimations.map((a) => a.finished));
 	}
 
-	if (!skipTransition) {
-		document.documentElement.setAttribute(DIRECTION_ATTR, preparationEvent.direction);
-
-		if (fallback === 'animate') {
+	if (
+		fallback === 'animate' &&
+		!currentTransition.transitionSkipped &&
+		!preparationEvent.signal.aborted
+	) {
+		try {
 			await animate('old');
+		} catch (err) {
+			// animate might reject as a consequence of a call to skipTransition()
+			// ignored on purpose
 		}
-	} else {
-		// that's what Chrome does
-		throw new DOMException('Transition was skipped');
 	}
 
 	const pageTitleForBrowserHistory = document.title; // document.title will be overridden by swap()
-	const swapEvent = await doSwap(preparationEvent, viewTransition!, defaultSwap);
+	const swapEvent = doSwap(preparationEvent, currentTransition.viewTransition!);
 	moveToLocation(swapEvent.to, swapEvent.from, options, pageTitleForBrowserHistory, historyState);
 	triggerEvent(TRANSITION_AFTER_SWAP);
 
-	if (fallback === 'animate' && !skipTransition) {
-		animate('new').then(() => viewTransitionFinished());
+	if (fallback === 'animate') {
+		if (!currentTransition.transitionSkipped && !swapEvent.signal.aborted) {
+			animate('new').finally(() => currentTransition.viewTransitionFinished!());
+		} else {
+			currentTransition.viewTransitionFinished!();
+		}
 	}
+}
+
+function abortAndRecreateMostRecentNavigation(): Navigation {
+	mostRecentNavigation?.controller.abort();
+	return (mostRecentNavigation = {
+		controller: new AbortController(),
+	});
 }
 
 async function transition(
@@ -436,8 +332,17 @@ async function transition(
 	options: Options,
 	historyState?: State
 ) {
+	// The most recent navigation always has precedence
+	// Yes, there can be several navigation instances as the user can click links
+	// while we fetch content or simulate view transitions. Even synchronous creations are possible
+	// e.g. by calling navigate() from an transition event.
+	// Invariant: all but the most recent navigation are already aborted.
+
+	const currentNavigation = abortAndRecreateMostRecentNavigation();
+
 	// not ours
 	if (!transitionEnabledOnThisPage() || location.origin !== to.origin) {
+		if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
 		location.href = to.href;
 		return;
 	}
@@ -454,6 +359,7 @@ async function transition(
 	if (samePage(from, to)) {
 		if ((direction !== 'back' && to.hash) || (direction === 'back' && from.hash)) {
 			moveToLocation(to, from, options, document.title, historyState);
+			if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
 			return;
 		}
 	}
@@ -465,17 +371,23 @@ async function transition(
 		navigationType,
 		options.sourceElement,
 		options.info,
+		currentNavigation!.controller.signal,
 		options.formData,
 		defaultLoader
 	);
-	if (prepEvent.defaultPrevented) {
-		location.href = to.href;
+	if (prepEvent.defaultPrevented || prepEvent.signal.aborted) {
+		if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
+		if (!prepEvent.signal.aborted) {
+			// not aborted -> delegate to browser
+			location.href = to.href;
+		}
+		// and / or exit
 		return;
 	}
 
 	async function defaultLoader(preparationEvent: TransitionBeforePreparationEvent) {
 		const href = preparationEvent.to.href;
-		const init: RequestInit = {};
+		const init: RequestInit = { signal: preparationEvent.signal };
 		if (preparationEvent.formData) {
 			init.method = 'POST';
 			const form =
@@ -529,22 +441,57 @@ async function transition(
 		}
 
 		const links = preloadStyleLinks(preparationEvent.newDocument);
-		links.length && (await Promise.all(links));
+		links.length && !preparationEvent.signal.aborted && (await Promise.all(links));
 
-		if (import.meta.env.DEV)
-			await prepareForClientOnlyComponents(preparationEvent.newDocument, preparationEvent.to);
+		if (import.meta.env.DEV && !preparationEvent.signal.aborted)
+			await prepareForClientOnlyComponents(
+				preparationEvent.newDocument,
+				preparationEvent.to,
+				preparationEvent.signal
+			);
+	}
+	async function abortAndRecreateMostRecentTransition(): Promise<Transition> {
+		if (mostRecentTransition) {
+			if (mostRecentTransition.viewTransition) {
+				try {
+					mostRecentTransition.viewTransition.skipTransition();
+				} catch {
+					// might throw AbortError DOMException. Ignored on purpose.
+				}
+				try {
+					// UpdateCallbackDone might already been settled, i.e. if the previous transition finished updating the DOM.
+					// Could not take long, we wait for it to avoid parallel updates
+					// (which are very unlikely as long as swap() is not async).
+					await mostRecentTransition.viewTransition.updateCallbackDone;
+				} catch {
+					// There was an error in the update callback of the transition which we cancel.
+					// Ignored on purpose
+				}
+			}
+		}
+		return (mostRecentTransition = { transitionSkipped: false });
 	}
 
-	skipTransition = false;
+	const currentTransition = await abortAndRecreateMostRecentTransition();
+
+	if (prepEvent.signal.aborted) {
+		if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
+		return;
+	}
+
+	document.documentElement.setAttribute(DIRECTION_ATTR, prepEvent.direction);
 	if (supportsViewTransitions) {
-		viewTransition = document.startViewTransition(
-			async () => await updateDOM(prepEvent, options, historyState)
+		// This automatically cancels any previous transition
+		// We also already took care that the earlier update callback got through
+		currentTransition.viewTransition = document.startViewTransition(
+			async () => await updateDOM(prepEvent, options, currentTransition, historyState)
 		);
 	} else {
+		// Simulation mode requires a bit more manual work
 		const updateDone = (async () => {
-			// immediatelly paused to setup the ViewTransition object for Fallback mode
-			await new Promise((r) => setTimeout(r));
-			await updateDOM(prepEvent, options, historyState, getFallback());
+			// Immediately paused to setup the ViewTransition object for Fallback mode
+			await Promise.resolve(); // hop through the micro task queue
+			await updateDOM(prepEvent, options, currentTransition, historyState, getFallback());
 		})();
 
 		// When the updateDone promise is settled,
@@ -559,26 +506,46 @@ async function transition(
 		//
 		// "finished" resolves after all animations are done.
 
-		viewTransition = {
+		currentTransition.viewTransition = {
 			updateCallbackDone: updateDone, // this is about correct
 			ready: updateDone, // good enough
-			finished: new Promise((r) => (viewTransitionFinished = r)), // see end of updateDOM
+			// Finished promise could have been done better: finished rejects iff updateDone does.
+			// Our simulation always resolves, never rejects.
+			finished: new Promise((r) => (currentTransition.viewTransitionFinished = r)), // see end of updateDOM
 			skipTransition: () => {
-				skipTransition = true;
+				currentTransition.transitionSkipped = true;
+				// This cancels all animations of the simulation
+				document.documentElement.removeAttribute(OLD_NEW_ATTR);
 			},
 		};
 	}
-
-	viewTransition.ready.then(async () => {
+	// In earlier versions was then'ed on viewTransition.ready which would not execute
+	// if the visual part of the transition has errors or was skipped
+	currentTransition.viewTransition.updateCallbackDone.finally(async () => {
 		await runScripts();
 		onPageLoad();
 		announce();
 	});
-	viewTransition.finished.then(() => {
+	// finished.ready and finished.finally are the same for the simulation but not
+	// necessarily for native view transition, where finished rejects when updateCallbackDone does.
+	currentTransition.viewTransition.finished.finally(() => {
+		currentTransition.viewTransition = undefined;
+		if (currentTransition === mostRecentTransition) mostRecentTransition = undefined;
+		if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
 		document.documentElement.removeAttribute(DIRECTION_ATTR);
 		document.documentElement.removeAttribute(OLD_NEW_ATTR);
 	});
-	await viewTransition.ready;
+	try {
+		// Compatibility:
+		// In an earlier version we awaited viewTransition.ready, which includes animation setup.
+		// Scripts that depend on the view transition pseudo elements should hook on viewTransition.ready.
+		await currentTransition.viewTransition.updateCallbackDone;
+	} catch (e) {
+		// This log doesn't make it worse than before, where we got error messages about uncaught exceptions, which can't be caught when the trigger was a click or history traversal.
+		// Needs more investigation on root causes if errors still occur sporadically
+		const err = e as Error;
+		console.log('[astro]', err.name, err.message, err.stack);
+	}
 }
 
 let navigateOnServerWarned = false;
@@ -684,7 +651,11 @@ if (inBrowser) {
 
 // Keep all styles that are potentially created by client:only components
 // and required on the next page
-async function prepareForClientOnlyComponents(newDocument: Document, toLocation: URL) {
+async function prepareForClientOnlyComponents(
+	newDocument: Document,
+	toLocation: URL,
+	signal: AbortSignal
+) {
 	// Any client:only component on the next page?
 	if (newDocument.body.querySelector(`astro-island[client='only']`)) {
 		// Load the next page with an empty module loader cache
@@ -718,12 +689,14 @@ async function prepareForClientOnlyComponents(newDocument: Document, toLocation:
 
 		// return a promise that resolves when all astro-islands are hydrated
 		async function hydrationDone(loadingPage: HTMLIFrameElement) {
-			await new Promise((r) =>
-				loadingPage.contentWindow?.addEventListener('load', r, { once: true })
-			);
-
+			if (!signal.aborted) {
+				await new Promise((r) =>
+					loadingPage.contentWindow?.addEventListener('load', r, { once: true })
+				);
+			}
 			return new Promise<void>(async (r) => {
 				for (let count = 0; count <= 20; ++count) {
+					if (signal.aborted) break;
 					if (!loadingPage.contentDocument!.body.querySelector('astro-island[ssr]')) break;
 					await new Promise((r2) => setTimeout(r2, 50));
 				}

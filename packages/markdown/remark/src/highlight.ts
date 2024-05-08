@@ -14,7 +14,7 @@ const languagePattern = /\blanguage-(\S+)\b/;
  * @param tree
  *   The hast tree in which to syntax highlight code blocks.
  * @param highlighter
- *   A fnction which receives the code and language, and returns the HTML of a syntax
+ *   A function which receives the code and language, and returns the HTML of a syntax
  *   highlighted `<pre>` element.
  */
 export async function highlightCodeBlocks(tree: Root, highlighter: Highlighter) {

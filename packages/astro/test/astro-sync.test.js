@@ -119,4 +119,25 @@ describe('astro sync', () => {
 			);
 		});
 	});
+
+	describe('Astro Actions', () => {
+		it('Writes types to `.astro`', async () => {
+			await fixture.whenSyncing('./fixtures/actions/');
+			fixture.thenFileShouldExist('.astro/actions.d.ts');
+			fixture.thenFileContentShouldInclude(
+				'.astro/actions.d.ts',
+				`declare module 'astro:actions' {`,
+				'Types file does not include `astro:actions` module declaration'
+			);
+		});
+
+		it('Adds type reference to `src/env.d.ts`', async () => {
+			await fixture.whenSyncing('./fixtures/actions/');
+			fixture.thenFileShouldExist('src/env.d.ts');
+			fixture.thenFileContentShouldInclude(
+				'src/env.d.ts',
+				`/// <reference path="../.astro/actions.d.ts" />`
+			);
+		});
+	});
 });

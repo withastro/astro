@@ -62,7 +62,7 @@ const style = /* css */ `
 
     /* Theme toggle */
     --toggle-ball-color: var(--accent);
-    --toggle-tabel-background: var(--background);
+    --toggle-table-background: var(--background);
     --sun-icon-color: #ffffff;
     --moon-icon-color: #a3acc8;
     --toggle-border-color: #C3CADB;
@@ -150,7 +150,7 @@ const style = /* css */ `
 }
 
 #theme-toggle-label {
-	background-color: var(--toggle-tabel-background);
+	background-color: var(--toggle-table-background);
 	border-radius: 50px;
 	cursor: pointer;
 	display: flex;

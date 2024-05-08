@@ -146,7 +146,7 @@ test.describe('Dev Toolbar', () => {
 		await expect(xrayWindow.locator('astro-dev-toolbar-icon[icon=lightbulb]')).toBeVisible();
 	});
 
-	test('audit shows higlights and tooltips', async ({ page, astro }) => {
+	test('audit shows highlights and tooltips', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const toolbar = page.locator('astro-dev-toolbar');
@@ -303,6 +303,8 @@ test.describe('Dev Toolbar', () => {
 		const myAppWindow = myAppCanvas.locator('astro-dev-toolbar-window');
 		await expect(myAppWindow).toHaveCount(1);
 		await expect(myAppWindow).toBeVisible();
+
+		await expect(myAppWindow).toContainText('Hello from the server!');
 
 		// Toggle app off
 		await appButton.click();

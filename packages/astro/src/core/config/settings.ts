@@ -105,6 +105,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		devToolbarApps: [],
 		timer: new AstroTimer(),
 		dotAstroDir: new URL('.astro/', config.root),
+		latestAstroVersion: undefined, // Will be set later if applicable when the dev server starts
 	};
 }
 

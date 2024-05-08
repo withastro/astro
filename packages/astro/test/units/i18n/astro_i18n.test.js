@@ -581,7 +581,7 @@ describe('getLocaleRelativeUrlList', () => {
 		);
 	});
 
-	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: never, routingStategy: pathname-prefix-always]', () => {
+	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: never, routingStrategy: pathname-prefix-always]', () => {
 		/**
 		 *
 		 * @type {import("../../../dist/@types").AstroUserConfig}
@@ -609,7 +609,7 @@ describe('getLocaleRelativeUrlList', () => {
 		);
 	});
 
-	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: never, routingStategy: pathname-prefix-always-no-redirect]', () => {
+	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: never, routingStrategy: pathname-prefix-always-no-redirect]', () => {
 		/**
 		 *
 		 * @type {import("../../../dist/@types").AstroUserConfig}
@@ -1706,7 +1706,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 		);
 	});
 
-	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: ignore,  routingStategy: pathname-prefix-always]', () => {
+	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: ignore,  routingStrategy: pathname-prefix-always]', () => {
 		/**
 		 *
 		 * @type {import("../../../dist/@types").AstroUserConfig}
@@ -1739,7 +1739,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 		);
 	});
 
-	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: ignore,  routingStategy: pathname-prefix-always-no-redirect]', () => {
+	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: ignore,  routingStrategy: pathname-prefix-always-no-redirect]', () => {
 		/**
 		 *
 		 * @type {import("../../../dist/@types").AstroUserConfig}

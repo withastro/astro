@@ -1,8 +1,7 @@
-export default {
-	id: 'my-plugin',
-	name: 'My Plugin',
-	icon: 'astro:logo',
-	init(canvas, eventTarget) {
+import { defineToolbarApp } from "astro/toolbar";
+
+export default defineToolbarApp({
+	init(canvas, app, server) {
 		const astroWindow = document.createElement('astro-dev-toolbar-window');
 		const myButton = document.createElement('astro-dev-toolbar-button');
 		myButton.size = 'medium';
@@ -13,16 +12,17 @@ export default {
 			console.log('Clicked!');
 		});
 
-		eventTarget.dispatchEvent(
-			new CustomEvent("toggle-notification", {
-				detail: {
-					level: "warning",
-				},
-			})
-		);
+		app.toggleNotification({
+			state: true,
+			level: 'warning'
+		})
+
+		server.on("super-server-event", (data) => {
+			astroWindow.appendChild(document.createTextNode(data.message));
+		});
 
 		astroWindow.appendChild(myButton);
 
 		canvas.appendChild(astroWindow);
 	},
-};
+});

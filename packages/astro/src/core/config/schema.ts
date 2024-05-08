@@ -81,6 +81,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	legacy: {},
 	redirects: {},
 	experimental: {
+		actions: false,
 		directRenderScript: false,
 		contentCollectionCache: false,
 		contentCollectionJsonSchema: false,
@@ -88,6 +89,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 		globalRoutePriority: false,
 		i18nDomains: false,
 		security: {},
+		rewriting: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -494,6 +496,7 @@ export const AstroConfigSchema = z.object({
 	),
 	experimental: z
 		.object({
+			actions: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.actions),
 			directRenderScript: z
 				.boolean()
 				.optional()
@@ -526,10 +529,12 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.security),
 			i18nDomains: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.i18nDomains),
+			rewriting: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rewriting),
 			env: z
 				.object({
 					schema: EnvSchema.optional(),
 				})
+				.strict()
 				.optional(),
 		})
 		.strict(

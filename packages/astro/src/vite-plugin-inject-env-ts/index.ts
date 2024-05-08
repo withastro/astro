@@ -5,6 +5,7 @@ import { bold } from 'kleur/colors';
 import { type Plugin, normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { type Logger } from '../core/logger/core.js';
+import { ACTIONS_TYPES_FILE } from '../actions/consts.js';
 import { CONTENT_TYPES_FILE } from '../content/consts.js';
 import { ENV_TYPES_FILE } from '../env/constants.js';
 
@@ -66,6 +67,10 @@ export async function setUpEnvTs({
 		{
 			filename: CONTENT_TYPES_FILE,
 			meetsCondition: () => fs.existsSync(new URL(CONTENT_TYPES_FILE, settings.dotAstroDir)),
+		},
+		{
+			filename: ACTIONS_TYPES_FILE,
+			meetsCondition: () => fs.existsSync(new URL(ACTIONS_TYPES_FILE, settings.dotAstroDir)),
 		},
 	];
 	if (settings.config.experimental.env) {

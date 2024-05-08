@@ -9,7 +9,7 @@ export default defineConfig({
 			"fr",
 			"es",
 			{
-				path: "portugues",
+				path: "portuguese",
 				codes: [
 					"pt-AO",
 					"pt",

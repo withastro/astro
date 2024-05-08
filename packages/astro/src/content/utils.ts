@@ -12,9 +12,7 @@ import type {
 	ContentEntryType,
 	DataEntryType,
 } from '../@types/astro.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
-
-import { MarkdownError } from '../core/errors/index.js';
+import { AstroError, AstroErrorData, MarkdownError, errorMap } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import { CONTENT_FLAGS, PROPAGATED_ASSET_FLAG } from './consts.js';
 import { errorMap } from './error-map.js';
@@ -83,6 +81,7 @@ export async function getEntryData(
 		_internal: EntryInternal;
 	},
 	collectionConfig: CollectionConfig,
+	shouldEmitFile: boolean,
 	pluginContext: PluginContext
 ) {
 	let data;
@@ -96,7 +95,7 @@ export async function getEntryData(
 	let schema = collectionConfig.schema;
 	if (typeof schema === 'function') {
 		schema = schema({
-			image: createImage(pluginContext, entry._internal.filePath),
+			image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
 		});
 	}
 
@@ -126,7 +125,7 @@ export async function getEntryData(
 			},
 		});
 		if (parsed.success) {
-			data = parsed.data;
+			data = parsed.data as Record<string, unknown>;
 		} else {
 			if (!formattedError) {
 				formattedError = new AstroError({

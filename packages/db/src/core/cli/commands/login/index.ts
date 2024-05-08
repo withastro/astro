@@ -5,10 +5,58 @@ import { listen } from 'async-listen';
 import { cyan } from 'kleur/colors';
 import open from 'open';
 import ora from 'ora';
+import prompt from 'prompts';
 import type { Arguments } from 'yargs-parser';
 import { SESSION_LOGIN_FILE } from '../../../tokens.js';
 import type { DBConfig } from '../../../types.js';
 import { getAstroStudioUrl } from '../../../utils.js';
+
+const isWebContainer =
+	// Stackblitz heuristic
+	process.versions?.webcontainer ??
+	// GitHub Codespaces heuristic
+	process.env.CODESPACE_NAME;
+
+export async function cmd({
+	flags,
+}: {
+	astroConfig: AstroConfig;
+	dbConfig: DBConfig;
+	flags: Arguments;
+}) {
+	let session = flags.session;
+
+	if (!session && isWebContainer) {
+		console.log(`Please visit the following URL in your web browser:`);
+		console.log(cyan(`${getAstroStudioUrl()}/auth/cli/login`));
+		console.log(`After login in complete, enter the verification code displayed:`);
+		const response = await prompt({
+			type: 'text',
+			name: 'session',
+			message: 'Verification code:',
+		});
+		if (!response.session) {
+			console.error('Cancelling login.');
+			process.exit(0);
+		}
+		session = response.session;
+		console.log('Successfully logged in');
+	} else if (!session) {
+		const { url, promise } = await createServer();
+		const loginUrl = new URL('/auth/cli/login', getAstroStudioUrl());
+		loginUrl.searchParams.set('returnTo', url);
+		console.log(`Opening the following URL in your browser...`);
+		console.log(cyan(loginUrl.href));
+		console.log(`If something goes wrong, copy-and-paste the URL into your browser.`);
+		open(loginUrl.href);
+		const spinner = ora('Waiting for confirmation...');
+		session = await promise;
+		spinner.succeed('Successfully logged in');
+	}
+
+	await mkdir(new URL('.', SESSION_LOGIN_FILE), { recursive: true });
+	await writeFile(SESSION_LOGIN_FILE, `${session}`);
+}
 
 // NOTE(fks): How the Astro CLI login process works:
 // 1. The Astro CLI creates a temporary server to listen for the session token
@@ -46,29 +94,4 @@ async function createServer(): Promise<{ url: string; promise: Promise<string> }
 	});
 
 	return { url: serverUrl, promise: sessionPromise };
-}
-
-export async function cmd({
-	flags,
-}: {
-	astroConfig: AstroConfig;
-	dbConfig: DBConfig;
-	flags: Arguments;
-}) {
-	let session = flags.session;
-
-	if (!session) {
-		const { url, promise } = await createServer();
-		const loginUrl = getAstroStudioUrl() + '/auth/cli/login?returnTo=' + encodeURIComponent(url);
-		console.log(`Opening the following URL in your browser...`);
-		console.log(cyan(loginUrl));
-		console.log(`If something goes wrong, copy-and-paste the URL into your browser.`);
-		open(loginUrl);
-		const spinner = ora('Waiting for confirmation...');
-		session = await promise;
-		spinner.succeed('Successfully logged in!');
-	}
-
-	await mkdir(new URL('.', SESSION_LOGIN_FILE), { recursive: true });
-	await writeFile(SESSION_LOGIN_FILE, `${session}`);
 }

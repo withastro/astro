@@ -665,7 +665,7 @@ test.describe('View Transitions', () => {
 		await expect(h, 'should be absent').not.toHaveAttribute('class', /.*/);
 	});
 
-	test('Link with data-astro-reload attribute should trigger page load, no tranistion', async ({
+	test('Link with data-astro-reload attribute should trigger page load, no transition', async ({
 		page,
 		astro,
 	}) => {
@@ -728,7 +728,7 @@ test.describe('View Transitions', () => {
 		let locator = page.locator('#click-external');
 		await expect(locator).toBeInViewport();
 
-		// Go to a page that has not enabled ViewTransistions
+		// Go to a page that has not enabled ViewTransitions
 		await page.click('#click-external');
 		locator = page.locator('#three');
 		await expect(locator).toHaveText('Page 3');
@@ -920,7 +920,7 @@ test.describe('View Transitions', () => {
 	test('Use the client side router in framework components', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/client-load'));
 
-		// the button is set to naviagte() to /two
+		// the button is set to navigate() to /two
 		const button = page.locator('#react-client-load-navigate-button');
 
 		await expect(button, 'should have content').toHaveText('Navigate to `/two`');
@@ -1168,6 +1168,30 @@ test.describe('View Transitions', () => {
 		).toEqual(['application/x-www-form-urlencoded']);
 	});
 
+	test('form POST that includes an input with name action should not override action', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/form-six'));
+		page.on('request', (request) => {
+			expect(request.url()).toContain('/bar');
+		});
+		// Submit the form
+		await page.click('#submit');
+	});
+
+	test('form without method that includes an input with name method should not override default method', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/form-seven'));
+		page.on('request', (request) => {
+			expect(request.method()).toBe('GET');
+		});
+		// Submit the form
+		await page.click('#submit');
+	});
+
 	test('Route announcer is invisible on page transition', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/no-directive-one'));
 
@@ -1402,21 +1426,123 @@ test.describe('View Transitions', () => {
 			'all animations for transition:names should have been found'
 		).toEqual(0);
 	});
-});
 
-test('transition:persist persists selection', async ({ page, astro }) => {
-	let text = '';
-	page.on('console', (msg) => {
-		text = msg.text();
+	test('transition:persist persists selection', async ({ page, astro }) => {
+		let text = '';
+		page.on('console', (msg) => {
+			text = msg.text();
+		});
+		await page.goto(astro.resolveUrl('/persist-1'));
+		await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
+		// go to page 2
+		await page.press('input[name="name"]', 'Enter');
+		await expect(page.locator('#two'), 'should have content').toHaveText('Persist 2');
+		expect(text).toBe('true some cool text 5 9');
+
+		await page.goBack();
+		await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
+		expect(text).toBe('true true');
 	});
-	await page.goto(astro.resolveUrl('/persist-1'));
-	await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
-	// go to page 2
-	await page.press('input[name="name"]', 'Enter');
-	await expect(page.locator('#two'), 'should have content').toHaveText('Persist 2');
-	expect(text).toBe('true some cool text 5 9');
 
-	await page.goBack();
-	await expect(page.locator('#one'), 'should have content').toHaveText('Persist 1');
-	expect(text).toBe('true true');
+	test('it should be easy to define a data-theme preserving swap function', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/keep-theme-one'));
+		await expect(page.locator('#name'), 'should have content').toHaveText('Keep Theme');
+		await page.$eval(':root', (element) => element.setAttribute('data-theme', 'purple'));
+
+		await page.click('#click');
+		await expect(page.locator('#name'), 'should have content').toHaveText('Keep 2');
+
+		const attributeValue = await page.$eval(
+			':root',
+			(element, attributeName) => element.getAttribute(attributeName),
+			'data-theme'
+		);
+		expect(attributeValue).toBe('purple');
+	});
+
+	test('it should be easy to define a swap function that preserves a dynamically generated style sheet', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/keep-style-one'));
+		await expect(page.locator('#name'), 'should have content').toHaveText('Keep Style');
+		await page.evaluate(() => {
+			const style = document.createElement('style');
+			style.textContent = 'body { background-color: purple; }';
+			document.head.insertAdjacentElement('afterbegin', style);
+		});
+
+		await page.click('#click');
+		await expect(page.locator('#name'), 'should have content').toHaveText('Keep 2');
+
+		const styleElement = await page.$('head > style');
+		const styleContent = await page.evaluate((style) => style.innerHTML, styleElement);
+		expect(styleContent).toBe('body { background-color: purple; }');
+	});
+
+	test('it should be easy to define a swap function that only swaps the main area', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/replace-main-one'));
+		await expect(page.locator('#name'), 'should have content').toHaveText('Replace Main Section');
+
+		await page.click('#click');
+		// name inside <main> should have changed
+		await expect(page.locator('#name'), 'should have content').toHaveText('Keep 2');
+
+		// link outside <main> should still be there
+		const link = await page.$('#click');
+		expect(link).toBeTruthy();
+	});
+
+	test('chaining should execute in the expected order', async ({ page, astro }) => {
+		let lines = [];
+		page.on('console', (msg) => {
+			msg.text().startsWith('[test]') && lines.push(msg.text().slice('[test]'.length + 1));
+		});
+
+		await page.goto(astro.resolveUrl('/chaining'));
+		await expect(page.locator('#name'), 'should have content').toHaveText('Chaining');
+		await page.click('#click');
+		await expect(page.locator('#one'), 'should have content').toHaveText('Page 1');
+		expect(lines.join('..')).toBe('5..4..3..2..1..0');
+	});
+
+	test('Navigation should be interruptible', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/abort'));
+		// implemented in /abort:
+		// clicks on slow loading page two
+		// after short delay clicks on fast loading page one
+		// even after some delay /two should not show up
+		await new Promise((resolve) => setTimeout(resolve, 2000)); // wait is part of the test
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+	});
+
+	test('animation get canceled when view transition is interrupted', async ({ page, astro }) => {
+		let lines = [];
+		page.on('console', (msg) => {
+			msg.text().startsWith('[test]') && lines.push(msg.text());
+		});
+		await page.goto(astro.resolveUrl('/abort2'));
+		// implemented in /abort2:
+		// Navigate to self with a 10 second animation
+		// shortly after starting that, change your mind an navigate to /one
+		// check that animations got canceled
+		await new Promise((resolve) => setTimeout(resolve, 1000)); // wait is part of the test
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// This test would be more important for a browser without native view transitions
+		// as those do not have automatic cancelation of transitions.
+		// For simulated view transitions, the last line would be missing as enter and exit animations
+		// don't run in parallel.
+		expect(lines.join('\n')).toBe(
+			'[test] navigate to "."\n[test] navigate to /one\n[test] cancel astroFadeOut\n[test] cancel astroFadeIn'
+		);
+	});
 });

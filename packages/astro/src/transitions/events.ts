@@ -1,4 +1,5 @@
 import { updateScrollPosition } from './router.js';
+import { swap } from './swap-functions.js';
 import type { Direction, NavigationTypeString } from './types.js';
 
 export const TRANSITION_BEFORE_PREPARATION = 'astro:before-preparation';
@@ -25,6 +26,7 @@ class BeforeEvent extends Event {
 	readonly sourceElement: Element | undefined;
 	readonly info: any;
 	newDocument: Document;
+	readonly signal: AbortSignal;
 
 	constructor(
 		type: string,
@@ -35,7 +37,8 @@ class BeforeEvent extends Event {
 		navigationType: NavigationTypeString,
 		sourceElement: Element | undefined,
 		info: any,
-		newDocument: Document
+		newDocument: Document,
+		signal: AbortSignal
 	) {
 		super(type, eventInitDict);
 		this.from = from;
@@ -45,6 +48,7 @@ class BeforeEvent extends Event {
 		this.sourceElement = sourceElement;
 		this.info = info;
 		this.newDocument = newDocument;
+		this.signal = signal;
 
 		Object.defineProperties(this, {
 			from: { enumerable: true },
@@ -54,6 +58,7 @@ class BeforeEvent extends Event {
 			sourceElement: { enumerable: true },
 			info: { enumerable: true },
 			newDocument: { enumerable: true, writable: true },
+			signal: { enumerable: true },
 		});
 	}
 }
@@ -76,6 +81,7 @@ export class TransitionBeforePreparationEvent extends BeforeEvent {
 		sourceElement: Element | undefined,
 		info: any,
 		newDocument: Document,
+		signal: AbortSignal,
 		formData: FormData | undefined,
 		loader: (event: TransitionBeforePreparationEvent) => Promise<void>
 	) {
@@ -88,7 +94,8 @@ export class TransitionBeforePreparationEvent extends BeforeEvent {
 			navigationType,
 			sourceElement,
 			info,
-			newDocument
+			newDocument,
+			signal
 		);
 		this.formData = formData;
 		this.loader = loader.bind(this, this);
@@ -110,11 +117,7 @@ export class TransitionBeforeSwapEvent extends BeforeEvent {
 	readonly viewTransition: ViewTransition;
 	swap: () => void;
 
-	constructor(
-		afterPreparation: BeforeEvent,
-		viewTransition: ViewTransition,
-		swap: (event: TransitionBeforeSwapEvent) => void
-	) {
+	constructor(afterPreparation: BeforeEvent, viewTransition: ViewTransition) {
 		super(
 			TRANSITION_BEFORE_SWAP,
 			undefined,
@@ -124,11 +127,12 @@ export class TransitionBeforeSwapEvent extends BeforeEvent {
 			afterPreparation.navigationType,
 			afterPreparation.sourceElement,
 			afterPreparation.info,
-			afterPreparation.newDocument
+			afterPreparation.newDocument,
+			afterPreparation.signal
 		);
 		this.direction = afterPreparation.direction;
 		this.viewTransition = viewTransition;
-		this.swap = swap.bind(this, this);
+		this.swap = () => swap(this.newDocument);
 
 		Object.defineProperties(this, {
 			direction: { enumerable: true },
@@ -145,6 +149,7 @@ export async function doPreparation(
 	navigationType: NavigationTypeString,
 	sourceElement: Element | undefined,
 	info: any,
+	signal: AbortSignal,
 	formData: FormData | undefined,
 	defaultLoader: (event: TransitionBeforePreparationEvent) => Promise<void>
 ) {
@@ -156,6 +161,7 @@ export async function doPreparation(
 		sourceElement,
 		info,
 		window.document,
+		signal,
 		formData,
 		defaultLoader
 	);
@@ -172,12 +178,8 @@ export async function doPreparation(
 	return event;
 }
 
-export async function doSwap(
-	afterPreparation: BeforeEvent,
-	viewTransition: ViewTransition,
-	defaultSwap: (event: TransitionBeforeSwapEvent) => void
-) {
-	const event = new TransitionBeforeSwapEvent(afterPreparation, viewTransition, defaultSwap);
+export function doSwap(afterPreparation: BeforeEvent, viewTransition: ViewTransition) {
+	const event = new TransitionBeforeSwapEvent(afterPreparation, viewTransition);
 	document.dispatchEvent(event);
 	event.swap();
 	return event;

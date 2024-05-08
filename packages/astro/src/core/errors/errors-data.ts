@@ -439,8 +439,8 @@ export const NoMatchingImport = {
 export const InvalidPrerenderExport = {
 	name: 'InvalidPrerenderExport',
 	title: 'Invalid prerender export.',
-	message(prefix: string, suffix: string, isHydridOuput: boolean) {
-		const defaultExpectedValue = isHydridOuput ? 'false' : 'true';
+	message(prefix: string, suffix: string, isHydridOutput: boolean) {
+		const defaultExpectedValue = isHydridOutput ? 'false' : 'true';
 		let msg = `A \`prerender\` export has been detected, but its value cannot be statically analyzed.`;
 		if (prefix !== 'const') msg += `\nExpected \`const\` declaration but got \`${prefix}\`.`;
 		if (suffix !== 'true')
@@ -1516,6 +1516,18 @@ export const UnsupportedConfigTransformError = {
 	message: (parseError: string) =>
 		`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
 	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ *
+ * Astro couldn't find a route matching the one provided by the user
+ */
+export const RouteNotFound = {
+	name: 'RouteNotFound',
+	title: 'Route not found.',
+	message: `Astro could not find a route that matches the one you requested.`,
 } satisfies ErrorData;
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.

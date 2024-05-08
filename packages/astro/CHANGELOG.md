@@ -1,5 +1,121 @@
 # astro
 
+## 4.7.1
+
+### Patch Changes
+
+- [#10911](https://github.com/withastro/astro/pull/10911) [`a86dc9d`](https://github.com/withastro/astro/commit/a86dc9d269fc4409c458cfa05dcfaeee12bade2f) Thanks [@bluwy](https://github.com/bluwy)! - Skips adding CSS dependencies of CSS Vite modules as style tags in the HTML
+
+- [#10900](https://github.com/withastro/astro/pull/10900) [`36bb3b6`](https://github.com/withastro/astro/commit/36bb3b6025eb51f6e027a76a514cc7ebb29deb10) Thanks [@martrapp](https://github.com/martrapp)! - Detects overlapping navigation and view transitions and automatically aborts all but the most recent one.
+
+- [#10933](https://github.com/withastro/astro/pull/10933) [`007d17f`](https://github.com/withastro/astro/commit/007d17fee072955d4acb846a06d9eb666e908ef6) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `app.toggleState` not working correctly
+
+- [#10931](https://github.com/withastro/astro/pull/10931) [`4ce5ced`](https://github.com/withastro/astro/commit/4ce5ced44d490f4c6df771995aef14e11910ec57) Thanks [@ktym4a](https://github.com/ktym4a)! - Fixes `toggleNotification()`'s parameter type for the notification level not using the proper levels
+
+## 4.7.0
+
+### Minor Changes
+
+- [#10665](https://github.com/withastro/astro/pull/10665) [`7b4f284`](https://github.com/withastro/astro/commit/7b4f2840203fe220758934f1366485f788727f0d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds new utilities to ease the creation of toolbar apps including `defineToolbarApp` to make it easier to define your toolbar app and `app` and `server` helpers for easier communication between the toolbar and the server. These new utilities abstract away some of the boilerplate code that is common in toolbar apps, and lower the barrier of entry for app authors.
+
+  For example, instead of creating an event listener for the `app-toggled` event and manually typing the value in the callback, you can now use the `onAppToggled` method. Additionally, communicating with the server does not require knowing any of the Vite APIs anymore, as a new `server` object is passed to the `init` function that contains easy to use methods for communicating with the server.
+
+  ```diff
+  import { defineToolbarApp } from "astro/toolbar";
+
+  export default defineToolbarApp({
+    init(canvas, app, server) {
+
+  -    app.addEventListener("app-toggled", (e) => {
+  -      console.log(`App is now ${state ? "enabled" : "disabled"}`);.
+  -    });
+
+  +    app.onToggled(({ state }) => {
+  +        console.log(`App is now ${state ? "enabled" : "disabled"}`);
+  +    });
+
+  -    if (import.meta.hot) {
+  -      import.meta.hot.send("my-app:my-client-event", { message: "world" });
+  -    }
+
+  +    server.send("my-app:my-client-event", { message: "world" })
+
+  -    if (import.meta.hot) {
+  -      import.meta.hot.on("my-server-event", (data: {message: string}) => {
+  -        console.log(data.message);
+  -      });
+  -    }
+
+  +    server.on<{ message: string }>("my-server-event", (data) => {
+  +      console.log(data.message); // data is typed using the type parameter
+  +    });
+    },
+  })
+  ```
+
+  Server helpers are also available on the server side, for use in your integrations, through the new `toolbar` object:
+
+  ```ts
+  "astro:server:setup": ({ toolbar }) => {
+    toolbar.on<{ message: string }>("my-app:my-client-event", (data) => {
+      console.log(data.message);
+      toolbar.send("my-server-event", { message: "hello" });
+    });
+  }
+  ```
+
+  This is a backwards compatible change and your your existing dev toolbar apps will continue to function. However, we encourage you to build your apps with the new helpers, following the [updated Dev Toolbar API documentation](https://docs.astro.build/en/reference/dev-toolbar-app-reference/).
+
+- [#10734](https://github.com/withastro/astro/pull/10734) [`6fc4c0e`](https://github.com/withastro/astro/commit/6fc4c0e420da7629b4cfc28ee7efce1d614447be) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Astro will now automatically check for updates when you run the dev server. If a new version is available, a message will appear in the terminal with instructions on how to update. Updates will be checked once per 10 days, and the message will only appear if the project is multiple versions behind the latest release.
+
+  This behavior can be disabled by running `astro preferences disable checkUpdates` or setting the `ASTRO_DISABLE_UPDATE_CHECK` environment variable to `false`.
+
+- [#10762](https://github.com/withastro/astro/pull/10762) [`43ead8f`](https://github.com/withastro/astro/commit/43ead8fbd5112823118060175c7a4a22522cc325) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Enables type checking for JavaScript files when using the `strictest` TS config. This ensures consistency with Astro's other TS configs, and fixes type checking for integrations like Astro DB when using an `astro.config.mjs`.
+
+  If you are currently using the `strictest` preset and would like to still disable `.js` files, set `allowJS: false` in your `tsconfig.json`.
+
+### Patch Changes
+
+- [#10861](https://github.com/withastro/astro/pull/10861) [`b673bc8`](https://github.com/withastro/astro/commit/b673bc850593d5af25793d0358c00797477fa373) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Fixes an issue where `astro build` writes type declaration files to `outDir` when it's outside of root directory.
+
+- [#10684](https://github.com/withastro/astro/pull/10684) [`8b59d5d`](https://github.com/withastro/astro/commit/8b59d5d078ff40576b8cbee432279c6ad044a1a9) Thanks [@PeterDraex](https://github.com/PeterDraex)! - Update sharp to 0.33 to fix issue with Alpine Linux
+
+## 4.6.4
+
+### Patch Changes
+
+- [#10846](https://github.com/withastro/astro/pull/10846) [`3294f7a`](https://github.com/withastro/astro/commit/3294f7a343e036d2ad9ac8d5f792ad0d4f43a399) Thanks [@matthewp](https://github.com/matthewp)! - Prevent getCollection breaking in vitest
+
+- [#10856](https://github.com/withastro/astro/pull/10856) [`30cf82a`](https://github.com/withastro/astro/commit/30cf82ac3e970a6a3c0f07db1340dd7152d1c35d) Thanks [@robertvanhoesel](https://github.com/robertvanhoesel)! - Prevents inputs with a name attribute of action or method to break ViewTransitions' form submission
+
+- [#10833](https://github.com/withastro/astro/pull/10833) [`8d5f3e8`](https://github.com/withastro/astro/commit/8d5f3e8656027023f9fda51c66b0213ffe16d3a5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `esbuild` dependency to v0.20. This should not affect projects in most cases.
+
+- [#10801](https://github.com/withastro/astro/pull/10801) [`204b782`](https://github.com/withastro/astro/commit/204b7820e6de22d97fa2a7b988180c42155c8387) Thanks [@rishi-raj-jain](https://github.com/rishi-raj-jain)! - Fixes an issue where images in MD required a relative specifier (e.g. `./`)
+
+  Now, you can use the standard `![](relative/img.png)` syntax in MD files for images colocated in the same folder: no relative specifier required!
+
+  There is no need to update your project; your existing images will still continue to work. However, you may wish to remove any relative specifiers from these MD images as they are no longer necessary:
+
+  ```diff
+  - ![A cute dog](./dog.jpg)
+  + ![A cute dog](dog.jpg)
+  <!-- This dog lives in the same folder as my article! -->
+  ```
+
+- [#10841](https://github.com/withastro/astro/pull/10841) [`a2df344`](https://github.com/withastro/astro/commit/a2df344bff15647c2bfb3f49e3f7b66aa069d6f4) Thanks [@martrapp](https://github.com/martrapp)! - Due to regression on mobile WebKit browsers, reverts a change made for JavaScript animations during view transitions.
+
+## 4.6.3
+
+### Patch Changes
+
+- [#10799](https://github.com/withastro/astro/pull/10799) [`dc74afca9f5eebc2d61331298d6ef187d92051e0`](https://github.com/withastro/astro/commit/dc74afca9f5eebc2d61331298d6ef187d92051e0) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue with persisted non-text input fields that have the focus during view transition navigation.
+
+- [#10773](https://github.com/withastro/astro/pull/10773) [`35e43ecdaae7adc4b9a0b974192a033568cfb3f0`](https://github.com/withastro/astro/commit/35e43ecdaae7adc4b9a0b974192a033568cfb3f0) Thanks [@lilnasy](https://github.com/lilnasy)! - Improves performance for frequent use of small components.
+
+- [#10763](https://github.com/withastro/astro/pull/10763) [`63132771373ce1510be3e8814897accc0bf62ef8`](https://github.com/withastro/astro/commit/63132771373ce1510be3e8814897accc0bf62ef8) Thanks [@matthewp](https://github.com/matthewp)! - Invalidate CC cache manifest when lockfile or config changes
+
+- [#10811](https://github.com/withastro/astro/pull/10811) [`77822a822b04b5113726f713df104e8667333c59`](https://github.com/withastro/astro/commit/77822a822b04b5113726f713df104e8667333c59) Thanks [@AvinashReddy3108](https://github.com/AvinashReddy3108)! - Update list of available integrations in the `astro add` CLI help.
+
 ## 4.6.2
 
 ### Patch Changes
