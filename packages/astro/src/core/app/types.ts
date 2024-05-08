@@ -65,6 +65,7 @@ export type SSRManifest = {
 	i18n: SSRManifestI18n | undefined;
 	middleware: MiddlewareHandler;
 	checkOrigin: boolean;
+	experimentalEnv: boolean;
 };
 
 export type SSRManifestI18n = {

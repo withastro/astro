@@ -144,6 +144,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		inlinedScripts: new Map(),
 		i18n: i18nManifest,
 		checkOrigin: settings.config.experimental.security?.csrfProtection?.origin ?? false,
+		experimentalEnv: !!settings.config.experimental.env,
 		middleware(_, next) {
 			return next();
 		},

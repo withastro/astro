@@ -317,7 +317,7 @@ export class App {
 		if (!routeData) {
 			return this.#renderError(request, { locals, status: 404 });
 		}
-		if (getEnv) {
+		if (this.#manifest.experimentalEnv && getEnv) {
 			setGetEnv(getEnv);
 		}
 		const pathname = this.#getPathnameFromRequest(request);
