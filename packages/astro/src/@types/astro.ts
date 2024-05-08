@@ -2118,7 +2118,23 @@ export interface AstroUserConfig {
 		 * @version 4.9.0
 		 * @description
 		 *
-		 * TODO:
+		 * Enables `astro:env` features.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * export default defineConfig({
+		 *   output: "server",
+		 *   experimental: {
+		 *     env: {
+		 *       schema: {
+		 *         // your schema
+		 *       }
+		 *     }
+		 *   }
+		 * })
+		 * ```
+		 *
+		 * For a complete overview, and to give feedback on this experimental API, see the [Astro Env RFC](https://github.com/withastro/roadmap/blob/feat/astro-env-rfc/proposals/0046-astro-env.md).
 		 */
 		env?: {
 			/**
@@ -2129,7 +2145,24 @@ export interface AstroUserConfig {
 			 * @version 4.9.0
 			 * @description
 			 *
-			 * TODO:
+			 * Allows defining a schema used by `astro:env`. Use it in conjunction with `envField`
+			 * ```js
+			 * import { defineConfig, envField } from "astro/config"
+			 *
+			 * // astro.config.mjs
+			 * export default defineConfig({
+			 *   output: "server",
+			 *   experimental: {
+			 *     env: {
+			 *       schema: {
+			 *         PUBLIC_API_URL: envField.string({ context: "client", access: "public", optional: true }),
+			 *         PUBLIC_PORT: envField.number({ context: "server", access: "public", default: 4321 }),
+			 *         API_SECRET: envField.string({ context: "server", access: "secret" }),
+			 *       }
+			 *     }
+			 *   }
+			 * })
+			 * ```
 			 */
 			schema?: EnvSchema;
 		};
@@ -2629,7 +2662,7 @@ export type AstroFeatureMap = {
 	i18nDomains?: SupportsKind;
 
 	/**
-	 * The adapter is able to support `astro:env`
+	 * The adapter is able to support `getSecret` exported from `astro:env/server`
 	 */
 	env?: SupportsKind;
 };

@@ -89,8 +89,8 @@ export function astroEnvVirtualModPlugin({
 					return templates!.server;
 				}
 				throw new AstroError({
-					...AstroErrorData.EnvServerOnlyModule,
-					message: AstroErrorData.EnvServerOnlyModule.message(VIRTUAL_MODULES_IDS.server),
+					...AstroErrorData.ServerOnlyModule,
+					message: AstroErrorData.ServerOnlyModule.message(VIRTUAL_MODULES_IDS.server),
 				});
 			}
 			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.internal)) {

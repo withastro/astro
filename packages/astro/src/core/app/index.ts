@@ -60,7 +60,9 @@ export interface RenderOptions {
 	 */
 	routeData?: RouteData;
 
-	/** TODO: add docs in a later PR */
+	/**
+	 * A function that retrieves environment variables. Defaults to a node-based implementation.
+	 */
 	getEnv?: GetEnv;
 }
 
