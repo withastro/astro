@@ -1492,7 +1492,7 @@ export const UnsupportedConfigTransformError = {
 export const RouteNotFound = {
 	name: 'RouteNotFound',
 	title: 'Route not found.',
-	message: `Astro could find a route that matches the one you requested.`,
+	message: `Astro could not find a route that matches the one you requested.`,
 } satisfies ErrorData;
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.
