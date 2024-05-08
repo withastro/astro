@@ -2,7 +2,7 @@
 "astro": minor
 ---
 
-Adds experimental support for the `astro:env` API. It let you define a type-safe schema for your environments variables, and where they should be available (on the server or the client).
+Adds experimental support for the `astro:env` API. It lets you define a type-safe schema for your environments variables, and where they should be available (on the server or the client).
 
 Start by declaring a schema in your Astro config in `experimental.env.schema`. Use the `envField` help to make your life easier:
 
@@ -47,3 +47,5 @@ There are also 3 kinds of variables:
     const API_SECRET = getSecret("API_SECRET") // typed
     const SECRET_THAT_MAY_EXIST = getSecret("SECRET_THAT_MAY_EXIST") // string | undefined
     ```
+
+For a complete overview, and to give feedback on this experimental API, see the [Astro Env RFC](https://github.com/withastro/roadmap/blob/feat/astro-env-rfc/proposals/0046-astro-env.md).
