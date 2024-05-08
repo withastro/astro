@@ -30,12 +30,7 @@ After:
 
 ```jsx
 function _createMdxContent() {
-  return (
-    <>
-      <h1>My MDX Content</h1>
-      <pre set:html="<code class=...</code>"></pre>
-    </>
-  );
+  return <Fragment set:html="<h1>My MDX Content</h1>\n<code class=...</code>" />;
 }
 ```
 
@@ -49,15 +44,20 @@ The next section explains the algorithm, which you can follow along by pairing w
 
 ### How it works
 
-Two variables:
+The flow can be divided into a "scan phase" and a "mutation phase". The scan phase searches for nodes that can be optimized, and the mutation phase applies the optimization on the `hast` nodes.
+
+#### Scan phase
+
+Variables:
 
 - `allPossibleElements`: A set of subtree roots where we can add a new `set:html` property with its children as value.
 - `elementStack`: The stack of elements (that could be subtree roots) while traversing the `hast` (node ancestors).
+- `elementMetadatas`: A weak map to store the metadata used only by the mutation phase later.
 
 Flow:
 
 1. Walk the `hast` tree.
-2. For each `node` we enter, if the `node` is static (`type` is `element` or `mdxJsxFlowElement`), record in `allPossibleElements` and push to `elementStack`.
+2. For each `node` we enter, if the `node` is static (`type` is `element` or starts with `mdx`), record in `allPossibleElements` and push to `elementStack`. We also record additional metadata in `elementMetadatas` for the mutation phase later.
    - Q: Why do we record `mdxJsxFlowElement`, it's MDX? <br>
      A: Because we're looking for nodes whose children are static. The node itself doesn't need to be static.
    - Q: Are we sure this is the subtree root node in `allPossibleElements`? <br>
@@ -71,8 +71,25 @@ Flow:
    - Q: Why before step 2's `node` enter handling? <br>
      A: If we find a non-static `node`, the `node` should still be considered in `allPossibleElements` as its children could be static.
 5. Walk done. This leaves us with `allPossibleElements` containing only subtree roots that can be optimized.
-6. Add the `set:html` property to the `hast` node, and remove its children.
-7. 🎉 The rest of the MDX pipeline will do its thing and generate the desired JSX like above.
+6. Proceed to the mutation phase.
+
+#### Mutation phase
+
+Inputs:
+
+- `allPossibleElements` from the scan phase.
+- `elementMetadatas` from the scan phase.
+
+Flow:
+
+1. Before we mutate the `hast` tree, each element in `allPossibleElements` may have siblings that can be optimized together. Sibling elements are grouped with the `findElementGroups()` function, which returns an array of element groups (new variable `elementGroups`) and mutates `allPossibleElements` to remove elements that are already part of a group.
+
+   - Q: How does `findElementGroups()` work? <br>
+     A: For each elements in `allPossibleElements` that are non-static, we're able to take the element metadata from `elementMetadatas` and guess the next sibling node. If the next sibling node is static and is an element in `allPossibleElements`, we group them together for optimization. It continues to guess until it hits a non-static node or an element not in `allPossibleElements`, which it'll finalize the group as part of the returned result.
+
+2. For each elements in `allPossibleElements`, we serailize them as HTML and add it to the `set:html` property of the `hast` node, and remove its children.
+3. For each element group in `elementGroups`, we serialize the group children as HTML and add it to a new `<Fragment set:html="..." />` node, and replace the group children with the new `<Fragment />` node.
+4. 🎉 The rest of the MDX pipeline will do its thing and generate the desired JSX like above.
 
 ### Extra
 
@@ -82,7 +99,7 @@ Astro's MDX implementation supports specifying `export const components` in the 
 
 #### Further optimizations
 
-In [How it works](#how-it-works) step 4,
+In [Scan phase](#scan-phase) step 4,
 
 > we remove all the elements in `elementStack` from `allPossibleElements`
 

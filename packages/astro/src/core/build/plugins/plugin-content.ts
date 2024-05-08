@@ -171,6 +171,7 @@ function vitePluginContent(
 		outputOptions(outputOptions) {
 			const rootPath = normalizePath(fileURLToPath(opts.settings.config.root));
 			const srcPath = normalizePath(fileURLToPath(opts.settings.config.srcDir));
+			const entryCache = new Map<string, string>();
 			extendManualChunks(outputOptions, {
 				before(id, meta) {
 					if (id.startsWith(srcPath) && id.slice(srcPath.length).startsWith('content')) {
@@ -186,7 +187,11 @@ function vitePluginContent(
 							return resultId;
 						}
 						const [srcRelativePath, flag] = id.replace(rootPath, '/').split('?');
-						const collectionEntry = findEntryFromSrcRelativePath(lookupMap, srcRelativePath);
+						const collectionEntry = findEntryFromSrcRelativePath(
+							lookupMap,
+							srcRelativePath,
+							entryCache
+						);
 						if (collectionEntry) {
 							let suffix = '.mjs';
 							if (flag === PROPAGATED_ASSET_FLAG) {
@@ -273,8 +278,11 @@ function vitePluginContent(
 	};
 }
 
-const entryCache = new Map<string, string>();
-function findEntryFromSrcRelativePath(lookupMap: ContentLookupMap, srcRelativePath: string) {
+function findEntryFromSrcRelativePath(
+	lookupMap: ContentLookupMap,
+	srcRelativePath: string,
+	entryCache: Map<string, string>
+) {
 	let value = entryCache.get(srcRelativePath);
 	if (value) return value;
 	for (const collection of Object.values(lookupMap)) {

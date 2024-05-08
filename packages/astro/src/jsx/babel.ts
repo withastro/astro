@@ -134,6 +134,9 @@ function addClientOnlyMetadata(
 	}
 }
 
+/**
+ * @deprecated This plugin is no longer used. Remove in Astro 5.0
+ */
 export default function astroJSX(): PluginObj {
 	return {
 		visitor: {

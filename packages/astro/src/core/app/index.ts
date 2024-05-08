@@ -1,13 +1,6 @@
-import type {
-	ComponentInstance,
-	ManifestData,
-	RouteData,
-	SSRManifest,
-} from '../../@types/astro.js';
+import type { ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
-import type { SinglePageBuiltModule } from '../build/types.js';
 import {
-	DEFAULT_404_COMPONENT,
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	clientAddressSymbol,
@@ -26,7 +19,6 @@ import {
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '../path.js';
-import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
@@ -96,7 +88,7 @@ export class App {
 			routes: manifest.routes.map((route) => route.routeData),
 		});
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
-		this.#pipeline = this.#createPipeline(streaming);
+		this.#pipeline = this.#createPipeline(this.#manifestData, streaming);
 		this.#adapterLogger = new AstroIntegrationLogger(
 			this.#logger.options,
 			this.#manifest.adapterName
@@ -110,10 +102,11 @@ export class App {
 	/**
 	 * Creates a pipeline by reading the stored manifest
 	 *
+	 * @param manifestData
 	 * @param streaming
 	 * @private
 	 */
-	#createPipeline(streaming = false) {
+	#createPipeline(manifestData: ManifestData, streaming = false) {
 		if (this.#manifest.checkOrigin) {
 			this.#manifest.middleware = sequence(
 				createOriginCheckMiddleware(),
@@ -121,7 +114,7 @@ export class App {
 			);
 		}
 
-		return AppPipeline.create({
+		return AppPipeline.create(manifestData, {
 			logger: this.#logger,
 			manifest: this.#manifest,
 			mode: 'production',
@@ -309,7 +302,7 @@ export class App {
 		}
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
-		const mod = await this.#getModuleForRoute(routeData);
+		const mod = await this.#pipeline.getModuleForRoute(routeData);
 
 		let response;
 		try {
@@ -405,7 +398,7 @@ export class App {
 
 				return this.#mergeResponses(response, originalResponse, override);
 			}
-			const mod = await this.#getModuleForRoute(errorRouteData);
+			const mod = await this.#pipeline.getModuleForRoute(errorRouteData);
 			try {
 				const renderContext = RenderContext.create({
 					locals,
@@ -492,36 +485,5 @@ export class App {
 		if (route.endsWith('/404')) return 404;
 		if (route.endsWith('/500')) return 500;
 		return 200;
-	}
-
-	async #getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
-		if (route.component === DEFAULT_404_COMPONENT) {
-			return {
-				page: async () =>
-					({ default: () => new Response(null, { status: 404 }) }) as ComponentInstance,
-				renderers: [],
-			};
-		}
-		if (route.type === 'redirect') {
-			return RedirectSinglePageBuiltModule;
-		} else {
-			if (this.#manifest.pageMap) {
-				const importComponentInstance = this.#manifest.pageMap.get(route.component);
-				if (!importComponentInstance) {
-					throw new Error(
-						`Unexpectedly unable to find a component instance for route ${route.route}`
-					);
-				}
-				const pageModule = await importComponentInstance();
-				return pageModule;
-			} else if (this.#manifest.pageModule) {
-				const importComponentInstance = this.#manifest.pageModule;
-				return importComponentInstance;
-			} else {
-				throw new Error(
-					"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue."
-				);
-			}
-		}
 	}
 }

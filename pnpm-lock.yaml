@@ -775,6 +775,12 @@ importers:
       eol:
         specifier: ^0.9.1
         version: 0.9.1
+      mdast-util-mdx:
+        specifier: ^3.0.0
+        version: 3.0.0
+      mdast-util-mdx-jsx:
+        specifier: ^3.1.2
+        version: 3.1.2
       memfs:
         specifier: ^4.9.1
         version: 4.9.1
@@ -2612,6 +2618,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/css-inline-stylesheets-3:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/css-no-code-split:
     dependencies:
       astro:
@@ -3114,6 +3126,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/middleware-virtual:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/minification-html:
     dependencies:
       astro:
@@ -3307,6 +3325,12 @@ importers:
         version: 10.20.2
 
   packages/astro/test/fixtures/remote-css:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/reroute:
     dependencies:
       astro:
         specifier: workspace:*
@@ -4420,6 +4444,9 @@ importers:
       '@types/estree':
         specifier: ^1.0.5
         version: 1.0.5
+      '@types/hast':
+        specifier: ^3.0.3
+        version: 3.0.4
       '@types/mdast':
         specifier: ^4.0.3
         version: 4.0.3
@@ -4441,6 +4468,9 @@ importers:
       mdast-util-mdx:
         specifier: ^3.0.0
         version: 3.0.0
+      mdast-util-mdx-jsx:
+        specifier: ^3.1.2
+        version: 3.1.2
       mdast-util-to-string:
         specifier: ^4.0.0
         version: 4.0.0
