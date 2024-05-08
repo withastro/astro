@@ -37,7 +37,7 @@ if (scopedStyleClass) {
 	}
 }
 for (const key in props) {
-	if (key.startsWith('data-astro-')) {
+	if (key.startsWith('data-astro-cid')) {
 		pictureAttributes[key] = props[key];
 	}
 }
