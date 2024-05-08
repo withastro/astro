@@ -42,6 +42,8 @@ export function validateSupportedFeatures(
 		staticOutput = UNSUPPORTED,
 		hybridOutput = UNSUPPORTED,
 		i18nDomains = UNSUPPORTED,
+		// Defaults to a node based implementation, so this is supported by default
+		env = EXPERIMENTAL,
 	} = featureMap;
 	const validationResult: ValidationResult = {};
 
@@ -87,6 +89,14 @@ export function validateSupportedFeatures(
 			);
 		}
 	}
+
+	validationResult.env = validateSupportKind(
+		env,
+		adapterName,
+		logger,
+		'astro:env',
+		() => config?.experimental?.env !== undefined
+	);
 
 	return validationResult;
 }

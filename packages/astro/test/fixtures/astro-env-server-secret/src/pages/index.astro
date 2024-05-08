@@ -1,0 +1,8 @@
+---
+import { getSecret } from "astro:env/server"
+
+const KNOWN_SECRET = getSecret("KNOWN_SECRET")
+const UNKNOWN_SECRET = getSecret("UNKNOWN_SECRET")
+---
+
+<pre id="data">{JSON.stringify({ KNOWN_SECRET, UNKNOWN_SECRET })}</pre>

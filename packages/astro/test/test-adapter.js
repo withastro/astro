@@ -44,7 +44,7 @@ export default function (
 													this.#manifest = manifest;
 												}
 
-												async render(request, routeData, locals) {
+												async render(request, { routeData, clientAddress, locals, addCookieHeader, getEnv } = {}) {
 													const url = new URL(request.url);
 													if(this.#manifest.assets.has(url.pathname)) {
 														const filePath = new URL('../client/' + this.removeBase(url.pathname), import.meta.url);
@@ -54,10 +54,10 @@ export default function (
 
 													${
 														provideAddress
-															? `request[Symbol.for('astro.clientAddress')] = '0.0.0.0';`
+															? `request[Symbol.for('astro.clientAddress')] = clientAddress ?? '0.0.0.0';`
 															: ''
 													}
-													return super.render(request, routeData, locals);
+													return super.render(request, { routeData, locals, addCookieHeader, getEnv });
 												}
 											}
 
@@ -65,7 +65,6 @@ export default function (
 												return {
 													manifest,
 													createApp: (streaming) => new MyApp(manifest, streaming)
-
 												};
 											}
 										`;

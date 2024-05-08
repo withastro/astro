@@ -8,7 +8,7 @@ import { createFs, runInContainer, triggerFSEvent } from '../test-utils.js';
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
 function getTypesDts() {
-	const typesdtsURL = new URL('../../../content-types.template.d.ts', import.meta.url);
+	const typesdtsURL = new URL('../../../templates/content/types.d.ts', import.meta.url);
 	const relpath = path
 		.relative(fileURLToPath(root), fileURLToPath(typesdtsURL))
 		.replace(/\\/g, '/');

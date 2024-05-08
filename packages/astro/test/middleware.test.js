@@ -266,7 +266,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 		const request = new Request('http://example.com/throw');
 		const routeData = app.match(request);
 
-		const response = await app.render(request, routeData);
+		const response = await app.render(request, { routeData });
 		assert.equal(response.status, 500);
 
 		const text = await response.text();

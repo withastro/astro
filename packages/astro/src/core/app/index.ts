@@ -34,6 +34,8 @@ import { matchRoute } from '../routing/match.js';
 import { createOriginCheckMiddleware } from './middlewares.js';
 import { AppPipeline } from './pipeline.js';
 export { deserializeManifest } from './common.js';
+import type { GetEnv } from '../../env/types.js';
+import { setGetEnv } from '../../runtime/server/astro-env.js';
 
 export interface RenderOptions {
 	/**
@@ -65,6 +67,9 @@ export interface RenderOptions {
 	 * Default: `app.match(request)`
 	 */
 	routeData?: RouteData;
+
+	/** TODO: add docs in a later PR */
+	getEnv?: GetEnv;
 }
 
 export interface RenderErrorOptions {
@@ -260,13 +265,15 @@ export class App {
 		let locals: object | undefined;
 		let clientAddress: string | undefined;
 		let addCookieHeader: boolean | undefined;
+		let getEnv: GetEnv | undefined;
 
 		if (
 			routeDataOrOptions &&
 			('addCookieHeader' in routeDataOrOptions ||
 				'clientAddress' in routeDataOrOptions ||
 				'locals' in routeDataOrOptions ||
-				'routeData' in routeDataOrOptions)
+				'routeData' in routeDataOrOptions ||
+				'getEnv' in routeDataOrOptions)
 		) {
 			if ('addCookieHeader' in routeDataOrOptions) {
 				addCookieHeader = routeDataOrOptions.addCookieHeader;
@@ -279,6 +286,9 @@ export class App {
 			}
 			if ('locals' in routeDataOrOptions) {
 				locals = routeDataOrOptions.locals;
+			}
+			if ('getEnv' in routeDataOrOptions) {
+				getEnv = routeDataOrOptions.getEnv;
 			}
 		} else {
 			routeData = routeDataOrOptions as RouteData | undefined;
@@ -306,6 +316,9 @@ export class App {
 		}
 		if (!routeData) {
 			return this.#renderError(request, { locals, status: 404 });
+		}
+		if (this.#manifest.experimentalEnv && getEnv) {
+			setGetEnv(getEnv);
 		}
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);

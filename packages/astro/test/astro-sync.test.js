@@ -102,12 +102,11 @@ describe('astro sync', () => {
 	describe('Astro Env', () => {
 		it('Writes types to `.astro`', async () => {
 			await fixture.whenSyncing('./fixtures/astro-env/');
-			// TODO: check why the schema is not properly passed
-			fixture.thenFileShouldExist('.astro/astro-env.d.ts');
+			fixture.thenFileShouldExist('.astro/env.d.ts');
 			fixture.thenFileContentShouldInclude(
-				'.astro/astro-env.d.ts',
-				`declare module "astro:env/client" {`,
-				'Types file does not include `astro:content` module declaration'
+				'.astro/env.d.ts',
+				`declare module 'astro:env/client' {`,
+				'Types file does not include `astro:env` module declaration'
 			);
 		});
 
@@ -116,7 +115,7 @@ describe('astro sync', () => {
 			fixture.thenFileShouldExist('src/env.d.ts');
 			fixture.thenFileContentShouldInclude(
 				'src/env.d.ts',
-				`/// <reference path="../.astro/astro-env.d.ts" />`
+				`/// <reference path="../.astro/env.d.ts" />`
 			);
 		});
 	});

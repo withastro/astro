@@ -3,16 +3,21 @@ import type { AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
 import {
 	ENV_TYPES_FILE,
-	RESOLVED_VIRTUAL_CLIENT_MODULE_ID,
-	RESOLVED_VIRTUAL_SERVER_MODULE_ID,
-	VIRTUAL_CLIENT_MODULE_ID,
-	VIRTUAL_SERVER_MODULE_ID,
+	MODULE_TEMPLATE_URL,
+	TYPES_TEMPLATE_URL,
+	VIRTUAL_MODULES_IDS,
 } from './constants.js';
 import type { EnvSchema } from './schema.js';
-import { validateEnvVariable } from './validators.js';
+import { getType, validateEnvVariable } from './validators.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type fsMod from 'node:fs';
 import { fileURLToPath } from 'node:url';
+
+// TODO: reminders for when astro:env comes out of experimental
+// Types should always be generated (like in types/content.d.ts). That means the client module will be empty
+// and server will only contain getSecret for unknown variables. Then, specifying a schema should only add
+// variables as needed. For secret variables, it will only require specifying SecretValues and it should get
+// merged with the static types/content.d.ts
 
 interface AstroEnvVirtualModPluginParams {
 	settings: AstroSettings;
@@ -30,16 +35,11 @@ export function astroEnvVirtualModPlugin({
 	if (!settings.config.experimental.env) {
 		return;
 	}
-
-	let clientTemplates: ReturnType<typeof getTemplates> | null = null;
-	let serverTemplates: ReturnType<typeof getTemplates> | null = null;
-
 	logger.warn('env', 'This feature is experimental. TODO:');
-
 	const schema = settings.config.experimental.env.schema ?? {};
 
-	// TODO: server / public
-	// TODO: server / secret
+	let templates: { client: string; server: string; internal: string } | null = null;
+
 	return {
 		name: 'astro-env-virtual-mod-plugin',
 		enforce: 'pre',
@@ -50,36 +50,58 @@ export function astroEnvVirtualModPlugin({
 				''
 			);
 			const validatedVariables = validatePublicVariables({ schema, loadedEnv });
-			clientTemplates = getTemplates({ validatedVariables, context: 'client' });
-			serverTemplates = getTemplates({ validatedVariables, context: 'server' });
-			generateDts({ settings, fs, content: `${clientTemplates.dts}\n\n${serverTemplates.dts}` });
+
+			const clientTemplates = getClientTemplates({ validatedVariables });
+			const serverTemplates = getServerTemplates({ validatedVariables, schema, fs });
+
+			templates = {
+				client: clientTemplates.module,
+				server: serverTemplates.module,
+				internal: `export const schema = ${JSON.stringify(schema)};`,
+			};
+			generateDts({
+				settings,
+				fs,
+				content: getDts({
+					fs,
+					clientPublic: clientTemplates.types,
+					serverPublic: serverTemplates.types.public,
+					serverSecret: serverTemplates.types.secret,
+				}),
+			});
 		},
 		buildEnd() {
-			clientTemplates = null;
+			templates = null;
 		},
 		resolveId(id) {
-			if (id === VIRTUAL_CLIENT_MODULE_ID) {
-				return RESOLVED_VIRTUAL_CLIENT_MODULE_ID;
-			}
-			if (id === VIRTUAL_SERVER_MODULE_ID) {
-				return RESOLVED_VIRTUAL_SERVER_MODULE_ID
+			for (const moduleId of Object.values(VIRTUAL_MODULES_IDS)) {
+				if (id === moduleId) {
+					return resolveVirtualModuleId(moduleId);
+				}
 			}
 		},
 		load(id, options) {
-			if (id === RESOLVED_VIRTUAL_CLIENT_MODULE_ID) {
-				return clientTemplates!.content;
+			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.client)) {
+				return templates!.client;
 			}
-			if (id === RESOLVED_VIRTUAL_SERVER_MODULE_ID) {
+			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.server)) {
 				if (options?.ssr) {
-					return serverTemplates!.content;
+					return templates!.server;
 				}
 				throw new AstroError({
 					...AstroErrorData.EnvServerOnlyModule,
-					message: AstroErrorData.EnvServerOnlyModule.message(VIRTUAL_SERVER_MODULE_ID),
+					message: AstroErrorData.EnvServerOnlyModule.message(VIRTUAL_MODULES_IDS.server),
 				});
+			}
+			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.internal)) {
+				return templates!.internal;
 			}
 		},
 	};
+}
+
+function resolveVirtualModuleId<T extends string>(id: T): `\0${T}` {
+	return `\0${id}`;
 }
 
 function generateDts({
@@ -106,6 +128,9 @@ function validatePublicVariables({
 	const invalid: Array<{ key: string; type: string }> = [];
 
 	for (const [key, options] of Object.entries(schema)) {
+		if (options.access !== 'public') {
+			continue;
+		}
 		const variable = loadedEnv[key];
 		const result = validateEnvVariable(variable === '' ? undefined : variable, options);
 		if (result.ok) {
@@ -127,29 +152,75 @@ function validatePublicVariables({
 	return valid;
 }
 
-function getTemplates({
+function getDts({
+	clientPublic,
+	serverPublic,
+	serverSecret,
+	fs,
+}: {
+	clientPublic: string;
+	serverPublic: string;
+	serverSecret: string;
+	fs: typeof fsMod;
+}) {
+	const template = fs.readFileSync(TYPES_TEMPLATE_URL, 'utf-8');
+
+	return template
+		.replace('// @@CLIENT@@', clientPublic)
+		.replace('// @@SERVER@@', serverPublic)
+		.replace('// @@SECRET_VALUES@@', serverSecret);
+}
+
+function getClientTemplates({
 	validatedVariables,
-	context,
 }: {
 	validatedVariables: ReturnType<typeof validatePublicVariables>;
-	context: 'server' | 'client';
 }) {
-	const contentParts: Array<string> = [];
-	const dtsParts: Array<string> = [];
+	let module = '';
+	let types = '';
 
-	for (const { key, type, value } of validatedVariables.filter((e) => e.context === context)) {
-		contentParts.push(`export const ${key} = ${JSON.stringify(value)};`);
-		dtsParts.push(`export const ${key}: ${type};`);
+	for (const { key, type, value } of validatedVariables.filter((e) => e.context === 'client')) {
+		module += `export const ${key} = ${JSON.stringify(value)};`;
+		types += `export const ${key}: ${type};	\n`;
 	}
 
-	const content = contentParts.join('\n');
+	return {
+		module,
+		types,
+	};
+}
 
-	const dts = `declare module "astro:env/${context}" {
-    ${dtsParts.join('\n    ')}
-}`;
+function getServerTemplates({
+	validatedVariables,
+	schema,
+	fs,
+}: {
+	validatedVariables: ReturnType<typeof validatePublicVariables>;
+	schema: EnvSchema;
+	fs: typeof fsMod;
+}) {
+	let module = fs.readFileSync(MODULE_TEMPLATE_URL, 'utf-8');
+	let publicTypes = '';
+	let secretTypes = '';
+
+	for (const { key, type, value } of validatedVariables.filter((e) => e.context === 'server')) {
+		module += `export const ${key} = ${JSON.stringify(value)};`;
+		publicTypes += `export const ${key}: ${type};	\n`;
+	}
+
+	for (const [key, options] of Object.entries(schema)) {
+		if (!(options.context === 'server' && options.access === 'secret')) {
+			continue;
+		}
+
+		secretTypes += `${key}: ${getType(options)};		\n`;
+	}
 
 	return {
-		content,
-		dts,
+		module,
+		types: {
+			public: publicTypes,
+			secret: secretTypes,
+		},
 	};
 }

@@ -616,5 +616,6 @@ function createBuildManifest(
 		buildFormat: settings.config.build.format,
 		middleware,
 		checkOrigin: settings.config.experimental.security?.csrfProtection?.origin ?? false,
+		experimentalEnv: !!settings.config.experimental.env,
 	};
 }
