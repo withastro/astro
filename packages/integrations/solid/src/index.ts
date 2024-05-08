@@ -1,6 +1,6 @@
 import type { AstroIntegration, AstroIntegrationLogger, AstroRenderer } from 'astro';
+import type { PluginOption, UserConfig } from 'vite';
 import solid, { type Options as ViteSolidPluginOptions } from 'vite-plugin-solid';
-import type { UserConfig, PluginOption } from 'vite';
 
 // TODO: keep in sync with https://github.com/thetarnav/solid-devtools/blob/main/packages/main/src/vite/index.ts#L7
 type DevtoolsPluginOptions = {
