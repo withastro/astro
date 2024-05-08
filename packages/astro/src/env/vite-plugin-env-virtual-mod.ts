@@ -35,7 +35,7 @@ export function astroEnvVirtualModPlugin({
 	if (!settings.config.experimental.env) {
 		return;
 	}
-	logger.warn('env', 'This feature is experimental. TODO:');
+	logger.warn('env', 'This feature is experimental.');
 	const schema = settings.config.experimental.env.schema ?? {};
 
 	let templates: { client: string; server: string; internal: string } | null = null;
