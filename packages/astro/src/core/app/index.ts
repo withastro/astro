@@ -68,7 +68,7 @@ export interface RenderOptions {
 	 */
 	routeData?: RouteData;
 
-	/** TODO: */
+	/** TODO: add docs in a later PR */
 	getEnv?: GetEnv;
 }
 
