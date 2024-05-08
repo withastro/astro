@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Refactors internal styles and scripts handling for content collection to improve build performance
+Refactors internal handling of styles and scripts for content collections to improve build performance
