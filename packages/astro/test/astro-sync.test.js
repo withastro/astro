@@ -121,15 +121,8 @@ describe('astro sync', () => {
 	});
 
 	describe('Astro Actions', () => {
-		it('Writes types to `.astro`', async () => {
-			await fixture.whenSyncing('./fixtures/actions/');
-			fixture.thenFileShouldExist('.astro/actions.d.ts');
-			fixture.thenFileContentShouldInclude(
-				'.astro/actions.d.ts',
-				`declare module 'astro:actions' {`,
-				'Types file does not include `astro:actions` module declaration'
-			);
-		});
+		// We can't check for the file existence or content yet because
+		// it's an integration and does not use the fs mock
 
 		it('Adds type reference to `src/env.d.ts`', async () => {
 			await fixture.whenSyncing('./fixtures/actions/');
