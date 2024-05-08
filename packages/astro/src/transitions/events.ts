@@ -141,7 +141,6 @@ export class TransitionBeforeSwapEvent extends BeforeEvent {
 			direction: { enumerable: true },
 			viewTransition: { enumerable: true },
 			swap: { enumerable: true, writable: true },
-			swapSteps: { enumerable: true },
 		});
 	}
 }
