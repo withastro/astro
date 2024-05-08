@@ -202,7 +202,7 @@ async function generatePage(
 	// prepare information we need
 	const { config, internals, logger } = pipeline;
 	const pageModulePromise = ssrEntry.page;
-	
+
 	// Calculate information of the page, like scripts, links and styles
 	const styles = pageData.styles
 		.sort(cssOrder)
@@ -284,7 +284,7 @@ async function getPathsForRoute(
 		const label = staticPaths.length === 1 ? 'page' : 'pages';
 		logger.debug(
 			'build',
-			`├── ${bold(green('✔'))} ${route.component} → ${magenta(`[${staticPaths.length} ${label}]`)}`
+			`├── ${bold(green('√'))} ${route.component} → ${magenta(`[${staticPaths.length} ${label}]`)}`
 		);
 
 		paths = staticPaths
@@ -560,13 +560,4 @@ function createBuildManifest(
 		rewritingEnabled: settings.config.experimental.rewriting,
 		checkOrigin: settings.config.experimental.security?.csrfProtection?.origin ?? false,
 	};
-}
-
-/**
- * For a given pageData, returns the entry file path—aka a resolved virtual module in our internals' specifiers.
- */
-function getEntryFilePath(internals: BuildInternals, pageData: RouteData) {
-	const id =
-		'\x00' + getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component);
-	return internals.entrySpecifierToBundleMap.get(id);
 }

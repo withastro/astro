@@ -331,10 +331,8 @@ export class BuildPipeline extends Pipeline {
 			throw new Error(`Expected a redirect route.`);
 		}
 		if (route.redirectRoute) {
-			const filePath = getVirtualModulePageName(
-				ASTRO_PAGE_MODULE_ID,
-				route.redirectRoute.component
-			);
+			console.log('[PIPELINE]', ASTRO_PAGE_MODULE_ID, route.redirectRoute);
+			const filePath = getEntryFilePath(this.internals, route.redirectRoute);
 			if (filePath) {
 				const url = createEntryURL(filePath, outFolder);
 				const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
@@ -354,10 +352,8 @@ export class BuildPipeline extends Pipeline {
 			throw new Error(`Expected a redirect route.`);
 		}
 		if (route.redirectRoute) {
-			const filePath = getVirtualModulePageName(
-				ASTRO_PAGE_MODULE_ID,
-				route.redirectRoute.component
-			);
+			console.log('[PIPELINE]', ASTRO_PAGE_MODULE_ID, route.redirectRoute);
+			const filePath = getEntryFilePath(this.internals, route.redirectRoute);
 			if (filePath) {
 				const url = createEntryURL(filePath, outFolder);
 				const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
@@ -371,4 +367,12 @@ export class BuildPipeline extends Pipeline {
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
+}
+
+/**
+ * For a given pageData, returns the entry file path—aka a resolved virtual module in our internals' specifiers.
+ */
+function getEntryFilePath(internals: BuildInternals, pageData: RouteData) {
+	const id = '\x00' + getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component);
+	return internals.entrySpecifierToBundleMap.get(id);
 }
