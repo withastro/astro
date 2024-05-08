@@ -1,3 +1,4 @@
+import { swap } from './swap-functions.js';
 import { updateScrollPosition } from './router.js';
 import type { Direction, NavigationTypeString } from './types.js';
 
@@ -118,8 +119,7 @@ export class TransitionBeforeSwapEvent extends BeforeEvent {
 
 	constructor(
 		afterPreparation: BeforeEvent,
-		viewTransition: ViewTransition,
-		swap: (event: TransitionBeforeSwapEvent) => void
+		viewTransition: ViewTransition
 	) {
 		super(
 			TRANSITION_BEFORE_SWAP,
@@ -135,7 +135,7 @@ export class TransitionBeforeSwapEvent extends BeforeEvent {
 		);
 		this.direction = afterPreparation.direction;
 		this.viewTransition = viewTransition;
-		this.swap = swap.bind(this, this);
+		this.swap = () => swap(this.newDocument);
 
 		Object.defineProperties(this, {
 			direction: { enumerable: true },
@@ -184,9 +184,8 @@ export async function doPreparation(
 export function doSwap(
 	afterPreparation: BeforeEvent,
 	viewTransition: ViewTransition,
-	defaultSwap: (event: TransitionBeforeSwapEvent) => void
 ) {
-	const event = new TransitionBeforeSwapEvent(afterPreparation, viewTransition, defaultSwap);
+	const event = new TransitionBeforeSwapEvent(afterPreparation, viewTransition);
 	document.dispatchEvent(event);
 	event.swap();
 	return event;
