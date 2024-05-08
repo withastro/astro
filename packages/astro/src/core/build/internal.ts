@@ -20,8 +20,6 @@ export interface BuildInternals {
 	hoistedScriptIdToHoistedMap: Map<string, Set<string>>;
 	// A mapping of hoisted script ids back to the pages which reference it
 	hoistedScriptIdToPagesMap: Map<string, Set<string>>;
-	// A mapping of hoisted script ids back to the content which reference it
-	hoistedScriptIdToContentMap: Map<string, Set<string>>;
 
 	/**
 	 * Used by the `directRenderScript` option. If script is inlined, its id and
@@ -88,7 +86,15 @@ export interface BuildInternals {
 	cachedClientEntries: string[];
 	cacheManifestUsed: boolean;
 
+	/**
+	 * Map of propagated module ids (usually something like `/Users/...blog.mdx?astroPropagatedAssets`)
+	 * to a set of stylesheets that it uses.
+	 */
 	propagatedStylesMap: Map<string, Set<StylesheetAsset>>;
+	/**
+	 * Map of propagated module ids (usually something like `/Users/...blog.mdx?astroPropagatedAssets`)
+	 * to a set of hoisted scripts that it uses.
+	 */
 	propagatedScriptsMap: Map<string, Set<string>>;
 
 	// A list of all static files created during the build. Used for SSR.
@@ -120,7 +126,6 @@ export function createBuildInternals(): BuildInternals {
 		cssModuleToChunkIdMap: new Map(),
 		hoistedScriptIdToHoistedMap,
 		hoistedScriptIdToPagesMap,
-		hoistedScriptIdToContentMap: new Map(),
 		inlinedScripts: new Map(),
 		entrySpecifierToBundleMap: new Map<string, string>(),
 		pageToBundleMap: new Map<string, string>(),

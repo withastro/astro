@@ -154,7 +154,10 @@ describe('Setting inlineStylesheets to always in static output', () => {
 			// to bust cache and prevent modules and their state
 			// from being reused
 			site: 'https://test.net/',
-			root: './fixtures/css-inline-stylesheets/',
+			// TODO: Uses -3 variant to bust ESM module cache when rendering the pages. Particularly in
+			// `node_modules/.astro/content/entry.mjs` and `import('./en/endeavour.mjs')`. Ideally this
+			// should be solved in core, but using this workaround for now.
+			root: './fixtures/css-inline-stylesheets-3/',
 			output: 'static',
 			build: {
 				inlineStylesheets: 'always',

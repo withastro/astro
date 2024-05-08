@@ -58,8 +58,6 @@ describe('Dev server manual routing', () => {
 describe('SSG manual routing', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
-	/** @type {import('./test-utils').DevServer} */
-	let devServer;
 
 	before(async () => {
 		fixture = await loadFixture({

@@ -27,8 +27,6 @@ export interface PageBuildData {
 	component: ComponentPath;
 	route: RouteData;
 	moduleSpecifier: string;
-	propagatedStyles: Map<string, Set<StylesheetAsset>>;
-	propagatedScripts: Map<string, Set<string>>;
 	hoistedScript: HoistedScriptAsset | undefined;
 	styles: Array<{ depth: number; order: number; sheet: StylesheetAsset }>;
 	hasSharedModules: boolean;
