@@ -2147,11 +2147,10 @@ export interface AstroUserConfig {
 			 *
 			 * Allows defining a schema used by `astro:env`. Use it in conjunction with `envField`
 			 * ```js
+			 * // astro.config.mjs
 			 * import { defineConfig, envField } from "astro/config"
 			 *
-			 * // astro.config.mjs
 			 * export default defineConfig({
-			 *   output: "server",
 			 *   experimental: {
 			 *     env: {
 			 *       schema: {

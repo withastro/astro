@@ -1186,7 +1186,7 @@ export const EnvInvalidVariable = {
  * Module is only available server-side
  */
 export const ServerOnlyModule = {
-	name: 'EnvServerOnlyModule',
+	name: 'ServerOnlyModule',
 	title: 'Module is only available server-side',
 	message: (name: string) => `The "${name}" module is only available server-side.`,
 } satisfies ErrorData;
