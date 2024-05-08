@@ -1,3 +1,4 @@
+import { createGetActionResult } from '../actions/utils.js';
 import type {
 	APIContext,
 	AstroGlobal,
@@ -9,6 +10,7 @@ import type {
 	RouteData,
 	SSRResult,
 } from '../@types/astro.js';
+import type { ActionAPIContext } from '../actions/runtime/store.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
@@ -193,6 +195,14 @@ export class RenderContext {
 	}
 
 	createAPIContext(props: APIContext['props']): APIContext {
+		const context = this.createActionAPIContext();
+		return Object.assign(context, {
+			props,
+			getActionResult: createGetActionResult(context.locals),
+		});
+	}
+
+	createActionAPIContext(): ActionAPIContext {
 		const renderContext = this;
 		const { cookies, params, pipeline, url } = this;
 		const generator = `Astro v${ASTRO_VERSION}`;
@@ -256,7 +266,6 @@ export class RenderContext {
 			get preferredLocaleList() {
 				return renderContext.computePreferredLocaleList();
 			},
-			props,
 			redirect,
 			rewrite,
 			request: this.request,
@@ -434,6 +443,7 @@ export class RenderContext {
 			redirect,
 			rewrite,
 			request: this.request,
+			getActionResult: createGetActionResult(locals),
 			response,
 			site: pipeline.site,
 			url,

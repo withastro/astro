@@ -80,6 +80,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	legacy: {},
 	redirects: {},
 	experimental: {
+		actions: false,
 		directRenderScript: false,
 		contentCollectionCache: false,
 		contentCollectionJsonSchema: false,
@@ -494,6 +495,7 @@ export const AstroConfigSchema = z.object({
 	),
 	experimental: z
 		.object({
+			actions: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.actions),
 			directRenderScript: z
 				.boolean()
 				.optional()
