@@ -180,7 +180,7 @@ function getClientTemplates({
 	let types = '';
 
 	for (const { key, type, value } of validatedVariables.filter((e) => e.context === 'client')) {
-		module += `export const ${key} = ${JSON.stringify(value)};	\n`;
+		module += `export const ${key} = ${JSON.stringify(value)};`;
 		types += `export const ${key}: ${type};	\n`;
 	}
 
@@ -204,7 +204,7 @@ function getServerTemplates({
 	let secretTypes = '';
 
 	for (const { key, type, value } of validatedVariables.filter((e) => e.context === 'server')) {
-		module += `export const ${key} = ${JSON.stringify(value)};	\n`;
+		module += `export const ${key} = ${JSON.stringify(value)};`;
 		publicTypes += `export const ${key}: ${type};	\n`;
 	}
 
