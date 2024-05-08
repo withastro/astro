@@ -2,13 +2,16 @@ import { settings } from '../settings.js';
 
 const sizes = ['small', 'medium', 'large'] as const;
 const styles = ['ghost', 'outline', 'purple', 'gray', 'red', 'green', 'yellow', 'blue'] as const;
+const borderRadii = ['normal', 'rounded'] as const;
 
 type ButtonSize = (typeof sizes)[number];
 type ButtonStyle = (typeof styles)[number];
+type ButtonBorderRadius = (typeof borderRadii)[number];
 
 export class DevToolbarButton extends HTMLElement {
 	_size: ButtonSize = 'small';
 	_buttonStyle: ButtonStyle = 'purple';
+	_buttonBorderRadius: ButtonBorderRadius = 'normal';
 
 	get size() {
 		return this._size;
@@ -40,7 +43,22 @@ export class DevToolbarButton extends HTMLElement {
 		this.updateStyle();
 	}
 
-	static observedAttributes = ['button-style', 'size'];
+	get buttonBorderRadius() {
+		return this._buttonBorderRadius;
+	}
+
+	set buttonBorderRadius(value) {
+		if (!borderRadii.includes(value)) {
+			settings.logger.error(
+				`Invalid border-radius: ${value}, expected one of ${borderRadii.join(', ')}, got ${value}.`
+			);
+			return;
+		}
+		this._buttonBorderRadius = value;
+		this.updateStyle();
+	}
+
+	static observedAttributes = ['button-style', 'size', 'button-border-radius'];
 
 	shadowRoot: ShadowRoot;
 
@@ -88,8 +106,14 @@ export class DevToolbarButton extends HTMLElement {
 					--small-font-size: 12px;
 
 					--large-padding: 12px 16px;
+					--large-rounded-padding: 12px 12px;
 					--medium-padding: 8px 12px;
+					--medium-rounded-padding: 8px 8px;
 					--small-padding: 4px 8px;
+					--small-rounded-padding: 4px 4px;
+
+					--normal-border-radius: 4px;
+					--rounded-border-radius: 9999px;
 
 					border: 1px solid var(--border);
 					padding: var(--padding);
@@ -97,7 +121,7 @@ export class DevToolbarButton extends HTMLElement {
 					background: var(--background);
 
 					color: var(--text-color);
-					border-radius: 4px;
+					border-radius: var(--border-radius);
 					display: flex;
 					align-items: center;
 					justify-content: center;
@@ -137,8 +161,13 @@ export class DevToolbarButton extends HTMLElement {
 				--background: var(--${this.buttonStyle}-background);
 				--border: var(--${this.buttonStyle}-border);
 				--font-size: var(--${this.size}-font-size);
-				--padding: var(--${this.size}-padding);
 				--text-color: var(--${this.buttonStyle}-text);
+				${
+					this.buttonBorderRadius === 'normal'
+						? '--padding: var(--' + this.size + '-padding);'
+						: '--padding: var(--' + this.size + '-rounded-padding);'
+				}
+				--border-radius: var(--${this.buttonBorderRadius}-border-radius);
 			}`;
 		}
 	}

@@ -1,4 +1,5 @@
 import { updateScrollPosition } from './router.js';
+import { swap } from './swap-functions.js';
 import type { Direction, NavigationTypeString } from './types.js';
 
 export const TRANSITION_BEFORE_PREPARATION = 'astro:before-preparation';
@@ -116,11 +117,7 @@ export class TransitionBeforeSwapEvent extends BeforeEvent {
 	readonly viewTransition: ViewTransition;
 	swap: () => void;
 
-	constructor(
-		afterPreparation: BeforeEvent,
-		viewTransition: ViewTransition,
-		swap: (event: TransitionBeforeSwapEvent) => void
-	) {
+	constructor(afterPreparation: BeforeEvent, viewTransition: ViewTransition) {
 		super(
 			TRANSITION_BEFORE_SWAP,
 			undefined,
@@ -135,7 +132,7 @@ export class TransitionBeforeSwapEvent extends BeforeEvent {
 		);
 		this.direction = afterPreparation.direction;
 		this.viewTransition = viewTransition;
-		this.swap = swap.bind(this, this);
+		this.swap = () => swap(this.newDocument);
 
 		Object.defineProperties(this, {
 			direction: { enumerable: true },
@@ -181,12 +178,8 @@ export async function doPreparation(
 	return event;
 }
 
-export function doSwap(
-	afterPreparation: BeforeEvent,
-	viewTransition: ViewTransition,
-	defaultSwap: (event: TransitionBeforeSwapEvent) => void
-) {
-	const event = new TransitionBeforeSwapEvent(afterPreparation, viewTransition, defaultSwap);
+export function doSwap(afterPreparation: BeforeEvent, viewTransition: ViewTransition) {
+	const event = new TransitionBeforeSwapEvent(afterPreparation, viewTransition);
 	document.dispatchEvent(event);
 	event.swap();
 	return event;

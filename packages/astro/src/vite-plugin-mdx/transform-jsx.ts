@@ -5,6 +5,9 @@ import { jsxTransformOptions } from '../jsx/transform-options.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { tagExportsPlugin } from './tag.js';
 
+/**
+ * @deprecated This function is no longer used. Remove in Astro 5.0
+ */
 export async function transformJSX(
 	code: string,
 	id: string,

@@ -1483,6 +1483,18 @@ export const UnsupportedConfigTransformError = {
 	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
 } satisfies ErrorData;
 
+/**
+ * @docs
+ * @description
+ *
+ * Astro couldn't find a route matching the one provided by the user
+ */
+export const RouteNotFound = {
+	name: 'RouteNotFound',
+	title: 'Route not found.',
+	message: `Astro could not find a route that matches the one you requested.`,
+} satisfies ErrorData;
+
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
 

@@ -23,11 +23,10 @@ export type StylesheetAsset =
 export type HoistedScriptAsset = { type: 'inline' | 'external'; value: string };
 
 export interface PageBuildData {
+	key: string;
 	component: ComponentPath;
 	route: RouteData;
 	moduleSpecifier: string;
-	propagatedStyles: Map<string, Set<StylesheetAsset>>;
-	propagatedScripts: Map<string, Set<string>>;
 	hoistedScript: HoistedScriptAsset | undefined;
 	styles: Array<{ depth: number; order: number; sheet: StylesheetAsset }>;
 	hasSharedModules: boolean;

@@ -1,19 +1,14 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
-import { type BuildInternals, eachPageFromAllPages } from '../internal.js';
+import { type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
-import { getPathFromVirtualModulePageName, getVirtualModulePageNameFromPath } from './util.js';
+import { getPagesFromVirtualModulePageName, getVirtualModulePageName } from './util.js';
 
 export const ASTRO_PAGE_MODULE_ID = '@astro-page:';
 export const ASTRO_PAGE_RESOLVED_MODULE_ID = '\0' + ASTRO_PAGE_MODULE_ID;
-
-export function getVirtualModulePageIdFromPath(path: string) {
-	const name = getVirtualModulePageNameFromPath(ASTRO_PAGE_MODULE_ID, path);
-	return '\x00' + name;
-}
 
 function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
@@ -22,11 +17,11 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 			if (opts.settings.config.output === 'static') {
 				const inputs = new Set<string>();
 
-				for (const [path, pageData] of eachPageFromAllPages(opts.allPages)) {
+				for (const pageData of Object.values(opts.allPages)) {
 					if (routeIsRedirect(pageData.route)) {
 						continue;
 					}
-					inputs.add(getVirtualModulePageNameFromPath(ASTRO_PAGE_MODULE_ID, path));
+					inputs.add(getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component));
 				}
 
 				return addRollupInput(options, Array.from(inputs));
@@ -41,9 +36,12 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 			if (id.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
 				const imports: string[] = [];
 				const exports: string[] = [];
-				const pageName = getPathFromVirtualModulePageName(ASTRO_PAGE_RESOLVED_MODULE_ID, id);
-				const pageData = internals.pagesByComponent.get(pageName);
-				if (pageData) {
+				const pageDatas = getPagesFromVirtualModulePageName(
+					internals,
+					ASTRO_PAGE_RESOLVED_MODULE_ID,
+					id
+				);
+				for (const pageData of pageDatas) {
 					const resolvedPage = await this.resolve(pageData.moduleSpecifier);
 					if (resolvedPage) {
 						imports.push(`const page = () => import(${JSON.stringify(pageData.moduleSpecifier)});`);

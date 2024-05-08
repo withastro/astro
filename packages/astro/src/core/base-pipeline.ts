@@ -1,5 +1,7 @@
 import type {
+	ComponentInstance,
 	MiddlewareHandler,
+	RewritePayload,
 	RouteData,
 	RuntimeMode,
 	SSRLoadedRenderer,
@@ -59,6 +61,23 @@ export abstract class Pipeline {
 
 	abstract headElements(routeData: RouteData): Promise<HeadElements> | HeadElements;
 	abstract componentMetadata(routeData: RouteData): Promise<SSRResult['componentMetadata']> | void;
+
+	/**
+	 * It attempts to retrieve the `RouteData` that matches the input `url`, and the component that belongs to the `RouteData`.
+	 *
+	 * ## Errors
+	 *
+	 * - if not `RouteData` is found
+	 *
+	 * @param {RewritePayload} rewritePayload
+	 */
+	abstract tryRewrite(rewritePayload: RewritePayload): Promise<[RouteData, ComponentInstance]>;
+
+	/**
+	 * Tells the pipeline how to retrieve a component give a `RouteData`
+	 * @param routeData
+	 */
+	abstract getComponentByRoute(routeData: RouteData): Promise<ComponentInstance>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
