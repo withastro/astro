@@ -133,11 +133,11 @@ const shouldCopyProps = (el: HTMLElement): boolean => {
 	return persistProps == null || persistProps === 'false';
 };
 
-export const swap = (doc:Document) => {
+export const swap = (doc: Document) => {
 	deselectScripts(doc);
 	swapRootAttributes(doc);
 	swapHeadElements(doc);
 	const restoreFocusFunction = saveFocus();
-	swapBodyElement(doc.body, document.body)
+	swapBodyElement(doc.body, document.body);
 	restoreFocusFunction();
-}
+};

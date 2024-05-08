@@ -272,7 +272,6 @@ async function updateDOM(
 	historyState?: State,
 	fallback?: Fallback
 ) {
-
 	async function animate(phase: string) {
 		function isInfinite(animation: Animation) {
 			const effect = animation.effect;

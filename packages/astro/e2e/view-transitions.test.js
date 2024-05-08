@@ -1444,7 +1444,6 @@ test.describe('View Transitions', () => {
 		expect(text).toBe('true true');
 	});
 
-
 	test('it should be easy to define a data-theme preserving swap function', async ({
 		page,
 		astro,
@@ -1498,7 +1497,7 @@ test.describe('View Transitions', () => {
 		// link outside <main> should still be there
 		const link = await page.$('#click');
 		expect(link).toBeTruthy();
-  });
+	});
 
 	test('chaining should execute in the expected order', async ({ page, astro }) => {
 		let lines = [];
