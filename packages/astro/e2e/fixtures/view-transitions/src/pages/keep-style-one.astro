@@ -7,17 +7,22 @@ import Layout from '../components/Layout.astro';
 </Layout>
 <script>
 
-	import { builtInSwap } from '../../node_modules/astro/dist/transitions/swap-steps'
+	import { deselectScripts, saveFocus, swapBodyElement, swapHeadElements, swapRootAttributes } from '../../node_modules/astro/dist/transitions/swap-functions'
 
 	document.addEventListener('astro:before-swap', (e) => {
-		e.swap = () => builtInSwap.extended(e.newDocument)
+		e.swap = () => keepStyle(e.newDocument)
 	});
 
-	builtInSwap.extend({
-		swapHeadElements(doc, previousSwapHeadElements) {
+	function keepStyle(doc: Document) {
+		deselectScripts(doc);
+		swapRootAttributes(doc);
+		{
 			const dynamicStyle = document.head.querySelector('style:not(:empty)');
-			previousSwapHeadElements(doc); // reuse the built-in implementation
+			swapHeadElements(doc);
 			dynamicStyle && document.head.insertAdjacentElement('afterbegin', dynamicStyle);
 		}
-	})
+		const restoreFocusFunction = saveFocus();
+		swapBodyElement(doc.body, document.body)
+		restoreFocusFunction();
+	}
 </script>

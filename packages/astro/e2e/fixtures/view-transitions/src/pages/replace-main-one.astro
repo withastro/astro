@@ -9,20 +9,26 @@ import Layout from '../components/Layout.astro';
 	<a id="click" href="/keep-two">go to next page</a>
 </Layout>
 <script>
-	import { builtInSwap } from "../../node_modules/astro/dist/transitions/swap-steps"
-	builtInSwap.extend({
-			swapBodyElement(newElement: Element, oldElement: Element, previousSwapBodyElement) {
-				const newMain = newElement.querySelector('main section');
-				const oldMain = oldElement.querySelector('main section');
-				if (newMain && oldMain) {
-					previousSwapBodyElement(newMain, oldMain);
-				} else {
-					previousSwapBodyElement(newElement, oldElement);
-				}
-			}
-		})
+	import { deselectScripts, saveFocus, swapBodyElement, swapHeadElements, swapRootAttributes } from "../../node_modules/astro/dist/transitions/swap-functions"
 
 	document.addEventListener('astro:before-swap', (e) => {
-		e.swap = () => builtInSwap.extended(e.newDocument)
+		e.swap = () => replaceMain(e.newDocument)
 	});
+
+	function replaceMain(doc:Document){
+		deselectScripts(doc);
+		swapRootAttributes(doc);
+		swapHeadElements(doc);
+		const restoreFocusFunction = saveFocus();
+		{
+			const newMain = doc.body.querySelector('main section');
+				const oldMain = document.body.querySelector('main section');
+				if (newMain && oldMain) {
+					swapBodyElement(newMain, oldMain);
+				} else {
+					swapBodyElement(doc.body, document.body);
+				}
+		}
+		restoreFocusFunction();
+	}
 </script>

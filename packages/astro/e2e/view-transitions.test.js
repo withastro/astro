@@ -1509,12 +1509,8 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/chaining'));
 		await expect(page.locator('#name'), 'should have content').toHaveText('Chaining');
 		await page.click('#click');
-		await expect(page.locator('#name'), 'should have content').toHaveText('Chaining2');
-		expect(lines.join('..')).toBe('5..4..3..2..1..0');
-		lines = [];
-		await page.click('#click');
 		await expect(page.locator('#one'), 'should have content').toHaveText('Page 1');
-		expect(lines.join('..')).toBe('a..b..c..d..e..f');
+		expect(lines.join('..')).toBe('5..4..3..2..1..0');
 	});
 
 	test('Navigation should be interruptible', async ({ page, astro }) => {
