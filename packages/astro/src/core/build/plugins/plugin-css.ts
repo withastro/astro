@@ -14,11 +14,9 @@ import {
 	moduleIsTopLevelPage,
 } from '../graph.js';
 import {
-	eachPageData,
 	getPageDataByViteID,
 	getPageDatasByClientOnlyID,
 	getPageDatasByHoistedScriptId,
-	isHoistedScript,
 } from '../internal.js';
 import { extendManualChunks, shouldInlineAsset } from './util.js';
 
@@ -147,7 +145,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							if (pageData) {
 								appendCSSToPage(pageData, meta, pagesToCss, depth, order);
 							}
-						} else if (options.target === 'client' && isHoistedScript(internals, pageInfo.id)) {
+						} else if (options.target === 'client' && internals.hoistedScriptIdToPagesMap.has(pageInfo.id)) {
 							for (const pageData of getPageDatasByHoistedScriptId(internals, pageInfo.id)) {
 								appendCSSToPage(pageData, meta, pagesToCss, -1, order);
 							}
@@ -199,7 +197,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				(chunk) => chunk.type === 'asset' && chunk.name === 'style.css'
 			);
 			if (cssChunk === undefined) return;
-			for (const pageData of eachPageData(internals)) {
+			for (const pageData of internals.pagesByKeys.values()) {
 				const cssToInfoMap = (pagesToCss[pageData.moduleSpecifier] ??= {});
 				cssToInfoMap[cssChunk.fileName] = { depth: -1, order: -1 };
 			}
@@ -238,14 +236,13 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 				let sheetAddedToPage = false;
 
-				// Apply `pagesToCss` information to the respective `pageData.styles`
-				for (const pageData of eachPageData(internals)) {
+				internals.pagesByKeys.forEach((pageData) => {
 					const orderingInfo = pagesToCss[pageData.moduleSpecifier]?.[stylesheet.fileName];
 					if (orderingInfo !== undefined) {
 						pageData.styles.push({ ...orderingInfo, sheet });
 						sheetAddedToPage = true;
 					}
-				}
+				})
 
 				// Apply `moduleIdToPropagatedCss` information to `internals.propagatedStylesMap`.
 				// NOTE: It's pretty much a copy over to `internals.propagatedStylesMap` as it should be

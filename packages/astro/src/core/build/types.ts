@@ -23,6 +23,7 @@ export type StylesheetAsset =
 export type HoistedScriptAsset = { type: 'inline' | 'external'; value: string };
 
 export interface PageBuildData {
+	key: string;
 	component: ComponentPath;
 	route: RouteData;
 	moduleSpecifier: string;

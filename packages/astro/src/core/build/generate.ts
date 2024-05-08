@@ -42,7 +42,7 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename, isServerLikeOutput } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import { cssOrder, getPageDataByComponent, mergeInlineCss } from './internal.js';
+import { cssOrder, mergeInlineCss } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
 import type {
 	PageBuildData,
@@ -51,6 +51,8 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import { getVirtualModulePageName } from './plugins/util.js';
+import { ASTRO_PAGE_MODULE_ID } from './plugins/plugin-pages.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -200,7 +202,6 @@ async function generatePage(
 	// prepare information we need
 	const { config, internals, logger } = pipeline;
 	const pageModulePromise = ssrEntry.page;
-	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
 
 	// Calculate information of the page, like scripts, links and styles
 	const styles = pageData.styles
@@ -209,7 +210,7 @@ async function generatePage(
 		.reduce(mergeInlineCss, []);
 	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 	const linkIds: [] = [];
-	const scripts = pageInfo?.hoistedScript ?? null;
+	const scripts = pageData.hoistedScript ?? null;
 	if (!pageModulePromise) {
 		throw new Error(
 			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`
