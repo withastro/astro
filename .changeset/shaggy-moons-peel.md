@@ -5,10 +5,11 @@
 Adds experimental support for the Actions API. Actions let you define type-safe endpoints you can query from client components with progressive enhancement built in.
 
 
-Actions help you write type-safe backend functions you can call from anywhere.
+Actions help you write type-safe backend functions you can call from anywhere. Enable server rendering [using the `output` property](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered) and add the `actions` flag to the `experimental` object:
 	 
 ```js
 {
+  output: 'hybrid', // or 'server'
   experimental: {
     actions: true,
   },
