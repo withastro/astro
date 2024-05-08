@@ -69,6 +69,19 @@ export const ClientAddressNotAvailable = {
 /**
  * @docs
  * @see
+ * - [Official integrations](https://docs.astro.build/en/guides/integrations-guide/#official-integrations)
+ * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
+ * @description
+ * The `Astro.clientAddress` property cannot be used on prerendered pages.
+ */
+export const PrerenderClientAddressNotAvailable = {
+	name: 'PrerenderClientAddressNotAvailable',
+	title: '`Astro.clientAddress` cannot be used on prerendered pages.',
+	message: `\`Astro.clientAddress\` cannot be used on prerendered pages`,
+} satisfies ErrorData;
+/**
+ * @docs
+ * @see
  * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/)
  * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
  * @description
