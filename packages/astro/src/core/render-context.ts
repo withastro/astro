@@ -455,7 +455,7 @@ export class RenderContext {
 		if (clientAddressSymbol in request) {
 			return Reflect.get(request, clientAddressSymbol) as string;
 		}
-		
+
 		if (pipeline.serverLike) {
 			if (request.body === null) {
 				throw new AstroError(AstroErrorData.PrerenderClientAddressNotAvailable);
