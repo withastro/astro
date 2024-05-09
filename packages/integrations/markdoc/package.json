@@ -66,24 +66,24 @@
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/prism": "workspace:*",
     "@markdoc/markdoc": "^0.4.0",
-    "esbuild": "^0.20.2",
+    "esbuild": "^0.21.1",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
     "htmlparser2": "^9.1.0",
     "kleur": "^4.1.5",
-    "zod": "^3.23.5"
+    "zod": "^3.23.8"
   },
   "peerDependencies": {
     "astro": "^3.0.0 || ^4.0.0"
   },
   "devDependencies": {
     "@types/html-escaper": "^3.0.2",
-    "@types/markdown-it": "^14.0.1",
+    "@types/markdown-it": "^14.1.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "devalue": "^5.0.0",
     "linkedom": "^0.16.11",
-    "vite": "^5.2.10"
+    "vite": "^5.2.11"
   },
   "engines": {
     "node": "^18.17.1 || ^20.3.0 || >=21.0.0"
