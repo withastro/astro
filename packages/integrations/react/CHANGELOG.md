@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 3.3.3
+
+### Patch Changes
+
+- [#10942](https://github.com/withastro/astro/pull/10942) [`d47baa4`](https://github.com/withastro/astro/commit/d47baa466aaeedde9c79ed5375d0be34762ac8b6) Thanks [@matthewp](https://github.com/matthewp)! - Updates package to support React 19 beta
+
 ## 3.3.2
 
 ### Patch Changes
