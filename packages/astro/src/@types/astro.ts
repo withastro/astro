@@ -2107,7 +2107,7 @@ export interface AstroUserConfig {
 		 *
 		 * For a complete overview, and to give feedback on this experimental API, see the [Rerouting RFC](https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md).
 		 */
-		rewriting: boolean;
+		rewriting?: boolean;
 	};
 }
 
