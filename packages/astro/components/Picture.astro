@@ -28,7 +28,7 @@ if (props.alt === undefined || props.alt === null) {
 }
 
 // Picture attribute inherit scoped styles from class and attributes
-const scopedStyleClass = props.class?.match(/\bastro-\w{8}\b/)?.[0]
+const scopedStyleClass = props.class?.match(/\bastro-\w{8}\b/)?.[0];
 if (scopedStyleClass) {
 	if (pictureAttributes.class) {
 		pictureAttributes.class = `${pictureAttributes.class} ${scopedStyleClass}`;
