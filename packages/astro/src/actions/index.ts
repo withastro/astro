@@ -2,13 +2,15 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroIntegration } from '../@types/astro.js';
 import { ACTIONS_TYPES_FILE, RESOLVED_VIRTUAL_MODULE_ID, VIRTUAL_MODULE_ID } from './consts.js';
+import { viteID } from '../core/util.js';
+
 
 export default function astroActions(): AstroIntegration {
 	return {
 		name: VIRTUAL_MODULE_ID,
 		hooks: {
 			async 'astro:config:setup'(params) {
-				const stringifiedActionsImport = getActionsImportPath(params.config.srcDir)
+				const stringifiedActionsImport = JSON.stringify(viteID(new URL('./actions', params.config.srcDir)));
 				params.updateConfig({
 					vite: {
 						define: {
@@ -76,14 +78,4 @@ async function typegen({
 
 	await mkdir(dotAstroDir, { recursive: true });
 	await writeFile(new URL(ACTIONS_TYPES_FILE, dotAstroDir), content);
-}
-
-const isWindows = process.platform === 'win32';
-
-function getActionsImportPath(srcDir: URL) {
-	const urlPath = JSON.stringify(
-		new URL('actions', srcDir).pathname
-	);
-	// remove leading slash on windows
-	return isWindows ? urlPath.replace(/^\//, '') : urlPath;
 }
