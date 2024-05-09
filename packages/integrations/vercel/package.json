@@ -54,8 +54,8 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@vercel/analytics": "^1.2.2",
     "@vercel/edge": "^1.1.1",
-    "@vercel/nft": "^0.26.4",
-    "esbuild": "^0.20.2",
+    "@vercel/nft": "^0.26.5",
+    "esbuild": "^0.21.1",
     "fast-glob": "^3.3.2",
     "set-cookie-parser": "^2.6.0",
     "web-vitals": "^3.5.2"
