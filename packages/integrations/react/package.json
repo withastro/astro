@@ -16,7 +16,7 @@
     "astro-component",
     "renderer",
     "react"
-  ],  
+  ],
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/react/",
   "exports": {
