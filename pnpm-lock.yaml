@@ -212,20 +212,20 @@ importers:
         specifier: ^10.21.0
         version: 10.21.0
       react:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       solid-js:
-        specifier: ^1.8.5
+        specifier: ^1.8.17
         version: 1.8.17
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
       vue:
-        specifier: ^3.3.8
-        version: 3.4.26(typescript@5.4.5)
+        specifier: ^3.4.27
+        version: 3.4.27(typescript@5.4.5)
 
   examples/framework-preact:
     dependencies:
@@ -257,10 +257,10 @@ importers:
         specifier: ^4.7.1
         version: link:../../packages/astro
       react:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   examples/framework-solid:
@@ -272,7 +272,7 @@ importers:
         specifier: ^4.7.1
         version: link:../../packages/astro
       solid-js:
-        specifier: ^1.8.5
+        specifier: ^1.8.17
         version: 1.8.17
 
   examples/framework-svelte:
@@ -284,8 +284,8 @@ importers:
         specifier: ^4.7.1
         version: link:../../packages/astro
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
 
   examples/framework-vue:
     dependencies:
@@ -296,8 +296,8 @@ importers:
         specifier: ^4.7.1
         version: link:../../packages/astro
       vue:
-        specifier: ^3.3.8
-        version: 3.4.26(typescript@5.4.5)
+        specifier: ^3.4.27
+        version: 3.4.27(typescript@5.4.5)
 
   examples/hackernews:
     dependencies:
@@ -360,8 +360,8 @@ importers:
         specifier: ^4.7.1
         version: link:../../packages/astro
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
 
   examples/starlog:
     dependencies:
@@ -369,8 +369,8 @@ importers:
         specifier: ^4.7.1
         version: link:../../packages/astro
       sass:
-        specifier: ^1.69.5
-        version: 1.75.0
+        specifier: ^1.77.0
+        version: 1.77.0
       sharp:
         specifier: ^0.33.3
         version: 0.33.3
@@ -1747,17 +1747,17 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
       vue:
-        specifier: ^3.3.8
-        version: 3.4.26(typescript@5.4.5)
+        specifier: ^3.4.27
+        version: 3.4.27(typescript@5.4.5)
 
   packages/astro/test/fixtures/actions:
     dependencies:
@@ -1774,8 +1774,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
 
   packages/astro/test/fixtures/alias-tsconfig:
     dependencies:
@@ -1789,8 +1789,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
 
   packages/astro/test/fixtures/alias-tsconfig-baseurl-only:
     dependencies:
@@ -1801,8 +1801,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
 
   packages/astro/test/fixtures/alias-tsconfig/deps/namespace-package: {}
 
@@ -1839,10 +1839,10 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/astro-assets-prefix:
@@ -1854,10 +1854,10 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/astro-attrs:
@@ -1869,10 +1869,10 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/astro-basic:
@@ -1926,11 +1926,11 @@ importers:
         specifier: ^10.21.0
         version: 10.21.0
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
       vue:
-        specifier: ^3.3.8
-        version: 3.4.26(typescript@5.4.5)
+        specifier: ^3.4.27
+        version: 3.4.27(typescript@5.4.5)
 
   packages/astro/test/fixtures/astro-class-list:
     dependencies:
@@ -1953,14 +1953,14 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
 
   packages/astro/test/fixtures/astro-client-only/pkg: {}
 
@@ -1973,10 +1973,10 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/astro-component-code:
@@ -2039,14 +2039,14 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
 
   packages/astro/test/fixtures/astro-envs:
     dependencies:
@@ -2057,8 +2057,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       vue:
-        specifier: ^3.3.8
-        version: 3.4.26(typescript@5.4.5)
+        specifier: ^3.4.27
+        version: 3.4.27(typescript@5.4.5)
 
   packages/astro/test/fixtures/astro-expr:
     dependencies:
@@ -2249,10 +2249,10 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/astro-preview-headers:
@@ -2330,20 +2330,20 @@ importers:
         specifier: ^10.21.0
         version: 10.21.0
       react:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       solid-js:
-        specifier: ^1.8.5
+        specifier: ^1.8.17
         version: 1.8.17
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
       vue:
-        specifier: ^3.3.8
-        version: 3.4.26(typescript@5.4.5)
+        specifier: ^3.4.27
+        version: 3.4.27(typescript@5.4.5)
 
   packages/astro/test/fixtures/before-hydration:
     dependencies:
@@ -2408,14 +2408,14 @@ importers:
         specifier: ^10.21.0
         version: 10.21.0
       react:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
 
   packages/astro/test/fixtures/component-library-shared:
     dependencies:
@@ -2423,7 +2423,7 @@ importers:
         specifier: ^10.21.0
         version: 10.21.0
       react:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1
     devDependencies:
       astro:
@@ -2636,8 +2636,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
 
   packages/astro/test/fixtures/css-import-as-inline:
     dependencies:
@@ -2690,10 +2690,10 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/css-order-layout:
@@ -2870,11 +2870,11 @@ importers:
         specifier: ^10.21.0
         version: 10.21.0
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
       vue:
-        specifier: ^3.3.8
-        version: 3.4.26(typescript@5.4.5)
+        specifier: ^3.4.27
+        version: 3.4.27(typescript@5.4.5)
 
   packages/astro/test/fixtures/fontsource-package:
     dependencies:
@@ -3035,10 +3035,10 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/integration-add-page-extension:
@@ -3059,20 +3059,20 @@ importers:
         specifier: ^10.21.0
         version: 10.21.0
       react:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       solid-js:
-        specifier: ^1.8.5
+        specifier: ^1.8.17
         version: 1.8.17
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
       vue:
-        specifier: ^3.3.8
-        version: 3.4.26(typescript@5.4.5)
+        specifier: ^3.4.27
+        version: 3.4.27(typescript@5.4.5)
     devDependencies:
       '@astrojs/mdx':
         specifier: workspace:*
@@ -3105,7 +3105,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       solid-js:
-        specifier: ^1.8.5
+        specifier: ^1.8.17
         version: 1.8.17
 
   packages/astro/test/fixtures/lazy-layout:
@@ -3253,14 +3253,14 @@ importers:
         specifier: ^8.4.28
         version: 8.4.38
       solid-js:
-        specifier: ^1.8.5
+        specifier: ^1.8.17
         version: 1.8.17
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
       vue:
-        specifier: ^3.3.8
-        version: 3.4.26(typescript@5.4.5)
+        specifier: ^3.4.27
+        version: 3.4.27(typescript@5.4.5)
     devDependencies:
       postcss-preset-env:
         specifier: ^9.3.0
@@ -3284,7 +3284,7 @@ importers:
   packages/astro/test/fixtures/preact-compat-component/packages/react-lib:
     dependencies:
       react:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1
 
   packages/astro/test/fixtures/preact-component:
@@ -3320,22 +3320,22 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       solid-js:
-        specifier: ^1.8.5
+        specifier: ^1.8.17
         version: 1.8.17
 
   packages/astro/test/fixtures/react-jsx-export:
     dependencies:
       react:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
     devDependencies:
       '@astrojs/react':
@@ -3438,10 +3438,10 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/slots-solid:
@@ -3456,7 +3456,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       solid-js:
-        specifier: ^1.8.5
+        specifier: ^1.8.17
         version: 1.8.17
 
   packages/astro/test/fixtures/slots-svelte:
@@ -3471,8 +3471,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
 
   packages/astro/test/fixtures/slots-vue:
     dependencies:
@@ -3486,8 +3486,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       vue:
-        specifier: ^3.3.8
-        version: 3.4.26(typescript@5.4.5)
+        specifier: ^3.4.27
+        version: 3.4.27(typescript@5.4.5)
 
   packages/astro/test/fixtures/solid-component:
     dependencies:
@@ -3504,13 +3504,13 @@ importers:
         specifier: workspace:*
         version: link:../../..
       solid-js:
-        specifier: ^1.8.5
+        specifier: ^1.8.17
         version: 1.8.17
 
   packages/astro/test/fixtures/solid-component/deps/solid-jsx-component:
     dependencies:
       solid-js:
-        specifier: ^1.8.5
+        specifier: ^1.8.17
         version: 1.8.17
 
   packages/astro/test/fixtures/sourcemap:
@@ -3522,10 +3522,10 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/space in folder name/app:
@@ -3546,10 +3546,10 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/ssr-api-route:
@@ -3720,10 +3720,10 @@ importers:
         specifier: ^10.21.0
         version: 10.21.0
       react:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/static-build-page-url-format:
@@ -3755,10 +3755,10 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/svelte-component:
@@ -3770,8 +3770,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
 
   packages/astro/test/fixtures/tailwindcss:
     dependencies:
@@ -3839,10 +3839,10 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/virtual-astro-file:
@@ -3866,8 +3866,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       vue:
-        specifier: ^3.3.8
-        version: 3.4.26(typescript@5.4.5)
+        specifier: ^3.4.27
+        version: 3.4.27(typescript@5.4.5)
 
   packages/astro/test/fixtures/vue-jsx:
     dependencies:
@@ -3878,8 +3878,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       vue:
-        specifier: ^3.3.8
-        version: 3.4.26(typescript@5.4.5)
+        specifier: ^3.4.27
+        version: 3.4.27(typescript@5.4.5)
 
   packages/astro/test/fixtures/vue-with-multi-renderer:
     dependencies:
@@ -3893,11 +3893,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.5
-        version: 4.2.15
+        specifier: ^4.2.16
+        version: 4.2.16
       vue:
-        specifier: ^3.3.8
-        version: 3.4.26(typescript@5.4.5)
+        specifier: ^3.4.27
+        version: 3.4.27(typescript@5.4.5)
 
   packages/astro/test/fixtures/with-endpoint-routes:
     dependencies:
@@ -4143,10 +4143,10 @@ importers:
         specifier: ^1.6.17
         version: 1.7.2
       react:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       simple-stack-form:
         specifier: ^0.1.10
@@ -4595,10 +4595,10 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       react:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   packages/integrations/mdx/test/fixtures/mdx-infinite-loop:
@@ -4628,10 +4628,10 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       react:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   packages/integrations/mdx/test/fixtures/mdx-optimize:
@@ -4652,10 +4652,10 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       react:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   packages/integrations/mdx/test/fixtures/mdx-plus-react:
@@ -4670,10 +4670,10 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       react:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.2.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
   packages/integrations/mdx/test/fixtures/mdx-vite-env-vars:
@@ -4943,14 +4943,14 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       react:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.1.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       vue:
-        specifier: ^3.3.8
-        version: 3.4.26(typescript@5.4.5)
+        specifier: ^3.4.27
+        version: 3.4.27(typescript@5.4.5)
 
   packages/integrations/sitemap:
     dependencies:
@@ -9337,16 +9337,6 @@ packages:
       '@vue/compiler-sfc': 3.4.27
     dev: false
 
-  /@vue/compiler-core@3.4.26:
-    resolution: {integrity: sha512-N9Vil6Hvw7NaiyFUFBPXrAyETIGlQ8KcFMkyk6hW1Cl6NvoqvP+Y8p1Eqvx+UdqsnrnI9+HMUEJegzia3mhXmQ==}
-    dependencies:
-      '@babel/parser': 7.24.5
-      '@vue/shared': 3.4.26
-      entities: 4.5.0
-      estree-walker: 2.0.2
-      source-map-js: 1.2.0
-    dev: false
-
   /@vue/compiler-core@3.4.27:
     resolution: {integrity: sha512-E+RyqY24KnyDXsCuQrI+mlcdW3ALND6U7Gqa/+bVwbcpcR3BRRIckFoz7Qyd4TTlnugtwuI7YgjbvsLmxb+yvg==}
     dependencies:
@@ -9356,32 +9346,11 @@ packages:
       estree-walker: 2.0.2
       source-map-js: 1.2.0
 
-  /@vue/compiler-dom@3.4.26:
-    resolution: {integrity: sha512-4CWbR5vR9fMg23YqFOhr6t6WB1Fjt62d6xdFPyj8pxrYub7d+OgZaObMsoxaF9yBUHPMiPFK303v61PwAuGvZA==}
-    dependencies:
-      '@vue/compiler-core': 3.4.26
-      '@vue/shared': 3.4.26
-    dev: false
-
   /@vue/compiler-dom@3.4.27:
     resolution: {integrity: sha512-kUTvochG/oVgE1w5ViSr3KUBh9X7CWirebA3bezTbB5ZKBQZwR2Mwj9uoSKRMFcz4gSMzzLXBPD6KpCLb9nvWw==}
     dependencies:
       '@vue/compiler-core': 3.4.27
       '@vue/shared': 3.4.27
-
-  /@vue/compiler-sfc@3.4.26:
-    resolution: {integrity: sha512-It1dp+FAOCgluYSVYlDn5DtZBxk1NCiJJfu2mlQqa/b+k8GL6NG/3/zRbJnHdhV2VhxFghaDq5L4K+1dakW6cw==}
-    dependencies:
-      '@babel/parser': 7.24.5
-      '@vue/compiler-core': 3.4.26
-      '@vue/compiler-dom': 3.4.26
-      '@vue/compiler-ssr': 3.4.26
-      '@vue/shared': 3.4.26
-      estree-walker: 2.0.2
-      magic-string: 0.30.10
-      postcss: 8.4.38
-      source-map-js: 1.2.0
-    dev: false
 
   /@vue/compiler-sfc@3.4.27:
     resolution: {integrity: sha512-nDwntUEADssW8e0rrmE0+OrONwmRlegDA1pD6QhVeXxjIytV03yDqTey9SBDiALsvAd5U4ZrEKbMyVXhX6mCGA==}
@@ -9395,13 +9364,6 @@ packages:
       magic-string: 0.30.10
       postcss: 8.4.38
       source-map-js: 1.2.0
-
-  /@vue/compiler-ssr@3.4.26:
-    resolution: {integrity: sha512-FNwLfk7LlEPRY/g+nw2VqiDKcnDTVdCfBREekF8X74cPLiWHUX6oldktf/Vx28yh4STNy7t+/yuLoMBBF7YDiQ==}
-    dependencies:
-      '@vue/compiler-dom': 3.4.26
-      '@vue/shared': 3.4.26
-    dev: false
 
   /@vue/compiler-ssr@3.4.27:
     resolution: {integrity: sha512-CVRzSJIltzMG5FcidsW0jKNQnNRYC8bT21VegyMMtHmhW3UOI7knmUehzswXLrExDLE6lQCZdrhD4ogI7c+vuw==}
@@ -9448,23 +9410,10 @@ packages:
       '@vue/shared': 3.1.5
     dev: false
 
-  /@vue/reactivity@3.4.26:
-    resolution: {integrity: sha512-E/ynEAu/pw0yotJeLdvZEsp5Olmxt+9/WqzvKff0gE67tw73gmbx6tRkiagE/eH0UCubzSlGRebCbidB1CpqZQ==}
-    dependencies:
-      '@vue/shared': 3.4.26
-    dev: false
-
   /@vue/reactivity@3.4.27:
     resolution: {integrity: sha512-kK0g4NknW6JX2yySLpsm2jlunZJl2/RJGZ0H9ddHdfBVHcNzxmQ0sS0b09ipmBoQpY8JM2KmUw+a6sO8Zo+zIA==}
     dependencies:
       '@vue/shared': 3.4.27
-
-  /@vue/runtime-core@3.4.26:
-    resolution: {integrity: sha512-AFJDLpZvhT4ujUgZSIL9pdNcO23qVFh7zWCsNdGQBw8ecLNxOOnPcK9wTTIYCmBJnuPHpukOwo62a2PPivihqw==}
-    dependencies:
-      '@vue/reactivity': 3.4.26
-      '@vue/shared': 3.4.26
-    dev: false
 
   /@vue/runtime-core@3.4.27:
     resolution: {integrity: sha512-7aYA9GEbOOdviqVvcuweTLe5Za4qBZkUY7SvET6vE8kyypxVgaT1ixHLg4urtOlrApdgcdgHoTZCUuTGap/5WA==}
@@ -9472,30 +9421,12 @@ packages:
       '@vue/reactivity': 3.4.27
       '@vue/shared': 3.4.27
 
-  /@vue/runtime-dom@3.4.26:
-    resolution: {integrity: sha512-UftYA2hUXR2UOZD/Fc3IndZuCOOJgFxJsWOxDkhfVcwLbsfh2CdXE2tG4jWxBZuDAs9J9PzRTUFt1PgydEtItw==}
-    dependencies:
-      '@vue/runtime-core': 3.4.26
-      '@vue/shared': 3.4.26
-      csstype: 3.1.3
-    dev: false
-
   /@vue/runtime-dom@3.4.27:
     resolution: {integrity: sha512-ScOmP70/3NPM+TW9hvVAz6VWWtZJqkbdf7w6ySsws+EsqtHvkhxaWLecrTorFxsawelM5Ys9FnDEMt6BPBDS0Q==}
     dependencies:
       '@vue/runtime-core': 3.4.27
       '@vue/shared': 3.4.27
       csstype: 3.1.3
-
-  /@vue/server-renderer@3.4.26(vue@3.4.26):
-    resolution: {integrity: sha512-xoGAqSjYDPGAeRWxeoYwqJFD/gw7mpgzOvSxEmjWaFO2rE6qpbD1PC172YRpvKhrihkyHJkNDADFXTfCyVGhKw==}
-    peerDependencies:
-      vue: 3.4.26
-    dependencies:
-      '@vue/compiler-ssr': 3.4.26
-      '@vue/shared': 3.4.26
-      vue: 3.4.26(typescript@5.4.5)
-    dev: false
 
   /@vue/server-renderer@3.4.27(vue@3.4.27):
     resolution: {integrity: sha512-dlAMEuvmeA3rJsOMJ2J1kXU7o7pOxgsNHVr9K8hB3ImIkSuBrIdy0vF66h8gf8Tuinf1TK3mPAz2+2sqyf3KzA==}
@@ -9508,10 +9439,6 @@ packages:
 
   /@vue/shared@3.1.5:
     resolution: {integrity: sha512-oJ4F3TnvpXaQwZJNF3ZK+kLPHKarDmJjJ6jyzVNDKH9md1dptjC7lWR//jrGuLdek/U6iltWxqAnYOu8gCiOvA==}
-    dev: false
-
-  /@vue/shared@3.4.26:
-    resolution: {integrity: sha512-Fg4zwR0GNnjzodMt3KRy2AWGMKQXByl56+4HjN87soxLNU9P5xcJkstAlIeEF3cU6UYOzmJl1tV0dVPGIljCnQ==}
     dev: false
 
   /@vue/shared@3.4.27:
@@ -15561,16 +15488,6 @@ packages:
     dependencies:
       suf-log: 2.5.3
 
-  /sass@1.75.0:
-    resolution: {integrity: sha512-ShMYi3WkrDWxExyxSZPst4/okE9ts46xZmJDSawJQrnte7M1V9fScVB+uNXOVKRBt0PggHOwoZcn8mYX4trnBw==}
-    engines: {node: '>=14.0.0'}
-    hasBin: true
-    dependencies:
-      chokidar: 3.6.0
-      immutable: 4.3.5
-      source-map-js: 1.2.0
-    dev: false
-
   /sass@1.77.0:
     resolution: {integrity: sha512-eGj4HNfXqBWtSnvItNkn7B6icqH14i3CiCGbzMKs3BAPTq62pp9NBYsBgyN4cA+qssqo9r26lW4JSvlaUUWbgw==}
     engines: {node: '>=14.0.0'}
@@ -16252,26 +16169,6 @@ packages:
       pascal-case: 3.1.2
       svelte: 4.2.16
       typescript: 5.4.5
-    dev: false
-
-  /svelte@4.2.15:
-    resolution: {integrity: sha512-j9KJSccHgLeRERPlhMKrCXpk2TqL2m5Z+k+OBTQhZOhIdCCd3WfqV+ylPWeipEwq17P/ekiSFWwrVQv93i3bsg==}
-    engines: {node: '>=16'}
-    dependencies:
-      '@ampproject/remapping': 2.3.0
-      '@jridgewell/sourcemap-codec': 1.4.15
-      '@jridgewell/trace-mapping': 0.3.25
-      '@types/estree': 1.0.5
-      acorn: 8.11.3
-      aria-query: 5.3.0
-      axobject-query: 4.0.0
-      code-red: 1.0.4
-      css-tree: 2.3.1
-      estree-walker: 3.0.3
-      is-reference: 3.0.2
-      locate-character: 3.0.0
-      magic-string: 0.30.10
-      periscopic: 3.1.0
     dev: false
 
   /svelte@4.2.16:
@@ -17495,22 +17392,6 @@ packages:
 
   /vscode-uri@3.0.8:
     resolution: {integrity: sha512-AyFQ0EVmsOZOlAnxoFOGOq1SQDWAB7C6aqMGS23svWAllfOaxbuFvcT8D1i8z3Gyn8fraVeZNNmN6e9bxxXkKw==}
-
-  /vue@3.4.26(typescript@5.4.5):
-    resolution: {integrity: sha512-bUIq/p+VB+0xrJubaemrfhk1/FiW9iX+pDV+62I/XJ6EkspAO9/DXEjbDFoe8pIfOZBqfk45i9BMc41ptP/uRg==}
-    peerDependencies:
-      typescript: '*'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      '@vue/compiler-dom': 3.4.26
-      '@vue/compiler-sfc': 3.4.26
-      '@vue/runtime-dom': 3.4.26
-      '@vue/server-renderer': 3.4.26(vue@3.4.26)
-      '@vue/shared': 3.4.26
-      typescript: 5.4.5
-    dev: false
 
   /vue@3.4.27(typescript@5.4.5):
     resolution: {integrity: sha512-8s/56uK6r01r1icG/aEOHqyMVxd1bkYcSe9j8HcKtr/xTOFWvnzIVTehNW+5Yt89f+DLBe4A569pnZLS5HzAMA==}
