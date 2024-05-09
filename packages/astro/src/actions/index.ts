@@ -8,9 +8,7 @@ export default function astroActions(): AstroIntegration {
 		name: VIRTUAL_MODULE_ID,
 		hooks: {
 			async 'astro:config:setup'(params) {
-				const stringifiedActionsImport = JSON.stringify(
-					new URL('actions', params.config.srcDir).pathname
-				);
+				const stringifiedActionsImport = getActionsImportPath(params.config.srcDir)
 				params.updateConfig({
 					vite: {
 						define: {
@@ -78,4 +76,14 @@ async function typegen({
 
 	await mkdir(dotAstroDir, { recursive: true });
 	await writeFile(new URL(ACTIONS_TYPES_FILE, dotAstroDir), content);
+}
+
+const isWindows = process.platform === 'win32';
+
+function getActionsImportPath(srcDir: URL) {
+	const urlPath = JSON.stringify(
+		new URL('actions', srcDir).pathname
+	);
+	// remove leading slash on windows
+	return isWindows ? urlPath.replace(/^\//, '') : urlPath;
 }
