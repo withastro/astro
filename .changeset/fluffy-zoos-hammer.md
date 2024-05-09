@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-fix: remove actions path leading slash on windows
+fix incorrect actions path on windows
