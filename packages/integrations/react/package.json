@@ -11,12 +11,7 @@
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/integrations/react"
   },
-  "keywords": [
-    "astro-integration",
-    "astro-component",
-    "renderer",
-    "react"
-  ],
+  "keywords": ["astro-integration", "astro-component", "renderer", "react"],
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/react/",
   "exports": {
@@ -60,8 +55,8 @@
     "vite": "^5.2.11"
   },
   "peerDependencies": {
-    "@types/react": "^17.0.50 || ^18.0.21 || npm:types-react@beta",
-    "@types/react-dom": "^17.0.17 || ^18.0.6 || npm:types-react-dom@beta",
+    "@types/react": "^17.0.50 || ^18.0.21",
+    "@types/react-dom": "^17.0.17 || ^18.0.6",
     "react": "^17.0.2 || ^18.0.0 || ^19.0.0-beta",
     "react-dom": "^17.0.2 || ^18.0.0 || ^19.0.0-beta"
   },
