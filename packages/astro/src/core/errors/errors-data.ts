@@ -1169,7 +1169,6 @@ export const i18nNotEnabled = {
 	hint: 'See https://docs.astro.build/en/guides/internationalization for a guide on setting up i18n.',
 } satisfies ErrorData;
 
-
 /**
  * @docs
  * @description
@@ -1181,7 +1180,6 @@ export const RouteNotFound = {
 	title: 'Route not found.',
 	message: `Astro could not find a route that matches the one you requested.`,
 } satisfies ErrorData;
-
 
 /**
  * @docs
