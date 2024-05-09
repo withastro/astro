@@ -105,10 +105,10 @@ export function serverShortcuts({ key, label }: { key: string; label: string }):
 	return [dim('  Press'), key, dim('to'), label].join(' ');
 }
 
-export function newVersionAvailable({ latestVersion }: { latestVersion: string }) {
+export async function newVersionAvailable({ latestVersion }: { latestVersion: string }) {
 	const badge = bgYellow(black(` update `));
 	const headline = yellow(`▶ New version of Astro available: ${latestVersion}`);
-	const execCommand = getExecCommand();
+	const execCommand = await getExecCommand();
 
 	const details = `  Run ${cyan(`${execCommand} @astrojs/upgrade`)} to update`;
 	return ['', `${badge} ${headline}`, details, ''].join('\n');
