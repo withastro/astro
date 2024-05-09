@@ -5,6 +5,7 @@ import type {
 	RouteData,
 	RouteType,
 	RuntimeMode,
+	SSRElement,
 	SSRLoadedRenderer,
 	SSRManifest,
 	SSRResult,
@@ -12,7 +13,7 @@ import type {
 import { TestPipeline } from './pipeline.js';
 import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
-import type { SSRManifestI18n } from '../core/app/types.js';
+import type { RouteInfo, SSRManifestI18n } from '../core/app/types.js';
 import { toRoutingStrategy } from '../i18n/utils.js';
 import type { AstroUserConfig } from '../../config.js';
 import { validateConfig } from '../core/config/config.js';
@@ -35,6 +36,7 @@ export type ContainerRenderOptions = {
 	locals?: App.Locals;
 	status?: number;
 	routeType?: RouteType;
+	scripts?: RouteInfo['scripts'];
 };
 
 /**
@@ -143,12 +145,14 @@ export class unstable_AstroContainer {
 		componentInstance,
 		params = [],
 		type = 'page',
+		scripts = [],
 	}: {
 		path: string;
 		componentInstance: ComponentInstance;
 		params?: string[];
 		type?: RouteType;
-	}) {
+		scripts?: RouteInfo['scripts'];
+	}): RouteData {
 		const pathUrl = new URL(path, 'https://example.com');
 		const routeData: RouteData = this.createRoute(pathUrl, params, type);
 		this.#pipeline.manifest.routes.push({
@@ -156,8 +160,10 @@ export class unstable_AstroContainer {
 			file: '',
 			links: [],
 			styles: [],
-			scripts: [],
+			scripts,
 		});
+		this.#pipeline.insertRoute(routeData, componentInstance);
+		return routeData;
 	}
 
 	async renderToString(
@@ -176,9 +182,16 @@ export class unstable_AstroContainer {
 		const request = options?.request ?? new Request('https://example.com/');
 		const params = options?.params ?? [];
 		const url = new URL(request.url);
+		const routeData = this.insertRoute({
+			path: request.url,
+			componentInstance: component,
+			scripts: options.scripts,
+			params,
+			type: routeType
+		});
 		const renderContext = RenderContext.create({
 			pipeline: this.#pipeline,
-			routeData: this.createRoute(url, params, routeType),
+			routeData,
 			status: options?.status ?? 200,
 			middleware: this.#pipeline.middleware,
 			request,
