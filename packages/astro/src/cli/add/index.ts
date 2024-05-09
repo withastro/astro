@@ -693,7 +693,16 @@ async function resolveRangeToInstallSpecifier(name: string, range: string): Prom
 	if (versions instanceof Error) return name;
 	// Filter out any prerelease versions
 	const stableVersions = versions.filter((v) => !v.includes('-'));
+	// Peer dependencies may sometimes use the `npm:` specifier, but `semver` package panics with it.
+	// Filter it out if so.
+	if (range.includes('npm:')) {
+		range = range
+			.split('||')
+			.filter((r) => !r.includes('npm:'))
+			.join('||');
+	}
 	const maxStable = maxSatisfying(stableVersions, range);
+	if (maxStable === null) return name;
 	return `${name}@^${maxStable}`;
 }
 
