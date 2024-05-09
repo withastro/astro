@@ -19,7 +19,7 @@
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
     "astro": "^4.7.1",
-    "preact": "^10.19.2",
+    "preact": "^10.21.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "solid-js": "^1.8.5",
