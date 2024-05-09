@@ -67,7 +67,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 						logger.warn(
 							'SKIP_FORMAT',
-							msg.newVersionAvailable({
+							await msg.newVersionAvailable({
 								latestVersion: version,
 							})
 						);
