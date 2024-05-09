@@ -21,10 +21,15 @@ import { RenderContext } from '../core/render-context.js';
 import { posix } from 'node:path';
 import { getParts, getPattern, validateSegment } from '../core/routing/manifest/create.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
-import { isServerLikeOutput } from '../core/util.js';
 
-type ContainerOptions = {
-	slots?: string[];
+/**
+ * Options to be passed when rendering a route
+ */
+export type ContainerRenderOptions = {
+	/**
+	 * If your component renders slots, that's where you want to fill the slots
+	 */
+	slots?: Record<string, any>;
 	request?: Request;
 	params?: string[];
 	locals?: App.Locals;
@@ -120,7 +125,9 @@ export class unstable_AstroContainer {
 		return '';
 	}
 
-	static async create(containerOptions: AstroContainerOptions = {}): Promise<unstable_AstroContainer> {
+	static async create(
+		containerOptions: AstroContainerOptions = {}
+	): Promise<unstable_AstroContainer> {
 		const {
 			astroConfig = ASTRO_CONFIG_DEFAULTS,
 			streaming = false,
@@ -133,10 +140,12 @@ export class unstable_AstroContainer {
 
 	insertRoute({
 		path,
+		componentInstance,
 		params = [],
 		type = 'page',
 	}: {
 		path: string;
+		componentInstance: ComponentInstance;
 		params?: string[];
 		type?: RouteType;
 	}) {
@@ -153,9 +162,17 @@ export class unstable_AstroContainer {
 
 	async renderToString(
 		component: ComponentInstance,
-		options: ContainerOptions = {}
+		options: ContainerRenderOptions = {}
 	): Promise<string> {
-		const { routeType = 'page' } = options;
+		const response = await this.renderToResponse(component, options);
+		return await response.text();
+	}
+
+	async renderToResponse(
+		component: ComponentInstance,
+		options: ContainerRenderOptions = {}
+	): Promise<Response> {
+		const { routeType = 'page', slots } = options;
 		const request = options?.request ?? new Request('https://example.com/');
 		const params = options?.params ?? [];
 		const url = new URL(request.url);
@@ -169,8 +186,7 @@ export class unstable_AstroContainer {
 			locals: options?.locals ?? {},
 		});
 
-		const response = await renderContext.render(component);
-		return await response.text();
+		return renderContext.render(component, slots);
 	}
 
 	createRoute(url: URL, params: string[], type: RouteType): RouteData {

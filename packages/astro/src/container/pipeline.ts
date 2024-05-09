@@ -102,6 +102,14 @@ export class TestPipeline extends Pipeline {
 			throw new AstroError(RouteNotFound);
 		}
 	}
+	
+	async insertRoute(route: RouteData, componentInstance: ComponentInstance): Promise<void> {
+		this.#componentsInterner.set(route, {
+			page() {return  Promise.resolve(componentInstance)},
+			renderers: this.manifest.renderers,
+			onRequest: this.manifest.middleware
+		})
+	}
 
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
 		if (this.#componentsInterner.has(routeData)) {

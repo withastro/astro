@@ -92,7 +92,7 @@ export class RenderContext {
 	 * - endpoint
 	 * - fallback
 	 */
-	async render(componentInstance: ComponentInstance | undefined): Promise<Response> {
+	async render(componentInstance: ComponentInstance | undefined, slots: Record<string, any> = {}): Promise<Response> {
 		const { cookies, middleware, pathname, pipeline } = this;
 		const { logger, routeCache, serverLike, streaming } = pipeline;
 		const props = await getProps({
@@ -149,7 +149,7 @@ export class RenderContext {
 							result,
 							componentInstance?.default as any,
 							props,
-							{},
+							slots,
 							streaming,
 							this.routeData
 						);
