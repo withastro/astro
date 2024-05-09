@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 3.3.4
+
+### Patch Changes
+
+- [#10986](https://github.com/withastro/astro/pull/10986) [`4d16381`](https://github.com/withastro/astro/commit/4d163811e1a25affb2c3d9adb3af650b7f1c91b6) Thanks [@emish89](https://github.com/emish89)! - Fixes incorrect `peerDependencies` for `@types/react` and `@types/react-dom`
+
 ## 3.3.3
 
 ### Patch Changes

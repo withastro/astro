@@ -1,5 +1,13 @@
 # astro
 
+## 4.8.1
+
+### Patch Changes
+
+- [#10987](https://github.com/withastro/astro/pull/10987) [`05db5f7`](https://github.com/withastro/astro/commit/05db5f78187efb53c5732b28e499c7977ceee496) Thanks [@ematipico](https://github.com/ematipico)! - Fix a regression where the flag `experimental.rewriting` was marked mandatory. Is is now optional.
+
+- [#10975](https://github.com/withastro/astro/pull/10975) [`6b640b3`](https://github.com/withastro/astro/commit/6b640b3bcb74d21903d303e268ff8ecef90097e7) Thanks [@bluwy](https://github.com/bluwy)! - Passes the scoped style attribute or class to the `<picture>` element in the `<Picture />` component so scoped styling can be applied to the `<picture>` element
+
 ## 4.8.0
 
 ### Minor Changes
