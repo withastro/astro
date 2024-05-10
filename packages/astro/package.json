@@ -49,8 +49,8 @@
       "default": "./config.mjs"
     },
     "./container": {
-      "default": "./container/index.mjs",
-      "types": "./container/index.d.ts"
+      "types": "./dist/container/index.d.ts",
+      "default": "./dist/container/index.js"
     },
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",

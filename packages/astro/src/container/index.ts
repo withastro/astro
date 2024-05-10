@@ -5,17 +5,16 @@ import type {
 	RouteData,
 	RouteType,
 	RuntimeMode,
-	SSRElement,
 	SSRLoadedRenderer,
 	SSRManifest,
 	SSRResult,
+	AstroUserConfig,
 } from '../@types/astro.js';
 import { TestPipeline } from './pipeline.js';
 import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
-import type { RouteInfo, SSRManifestI18n } from '../core/app/types.js';
+import type { SSRManifestI18n } from '../core/app/types.js';
 import { toRoutingStrategy } from '../i18n/utils.js';
-import type { AstroUserConfig } from '../../config.js';
 import { validateConfig } from '../core/config/config.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
 import { RenderContext } from '../core/render-context.js';
@@ -36,7 +35,6 @@ export type ContainerRenderOptions = {
 	locals?: App.Locals;
 	status?: number;
 	routeType?: RouteType;
-	scripts?: RouteInfo['scripts'];
 };
 
 /**
@@ -64,22 +62,20 @@ function createContainerManifest(
 	};
 	return {
 		rewritingEnabled: false,
-		trailingSlash: config?.trailingSlash,
-		buildFormat: config?.build.format,
-		compressHTML: config?.compressHTML,
+		trailingSlash: ASTRO_CONFIG_DEFAULTS.trailingSlash,
+		buildFormat: ASTRO_CONFIG_DEFAULTS.build.format,
+		compressHTML: ASTRO_CONFIG_DEFAULTS.compressHTML,
 		assets: new Set(),
 		entryModules: {},
 		routes: [],
 		adapterName: '',
 		clientDirectives: new Map(),
 		renderers,
-		base: config?.base,
-		assetsPrefix: config?.build.assetsPrefix,
-		site: config?.site,
+		base: ASTRO_CONFIG_DEFAULTS.base,
 		componentMetadata: new Map(),
 		inlinedScripts: new Map(),
 		i18n: i18nManifest,
-		checkOrigin: config?.experimental.security?.csrfProtection?.origin ?? false,
+		checkOrigin: false,
 		middleware: middleware ?? defaultMiddleware,
 	};
 }
@@ -145,13 +141,11 @@ export class unstable_AstroContainer {
 		componentInstance,
 		params = [],
 		type = 'page',
-		scripts = [],
 	}: {
 		path: string;
 		componentInstance: ComponentInstance;
 		params?: string[];
 		type?: RouteType;
-		scripts?: RouteInfo['scripts'];
 	}): RouteData {
 		const pathUrl = new URL(path, 'https://example.com');
 		const routeData: RouteData = this.createRoute(pathUrl, params, type);
@@ -160,7 +154,7 @@ export class unstable_AstroContainer {
 			file: '',
 			links: [],
 			styles: [],
-			scripts,
+			scripts: [],
 		});
 		this.#pipeline.insertRoute(routeData, componentInstance);
 		return routeData;
@@ -185,9 +179,8 @@ export class unstable_AstroContainer {
 		const routeData = this.insertRoute({
 			path: request.url,
 			componentInstance: component,
-			scripts: options.scripts,
 			params,
-			type: routeType
+			type: routeType,
 		});
 		const renderContext = RenderContext.create({
 			pipeline: this.#pipeline,
