@@ -393,6 +393,12 @@ importers:
         specifier: ^4.8.2
         version: link:../../packages/astro
 
+  examples/with-data:
+    dependencies:
+      astro:
+        specifier: ^4.8.2
+        version: link:../../packages/astro
+
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
