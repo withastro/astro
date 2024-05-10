@@ -1,4 +1,4 @@
-import { defineAction, z } from 'astro:actions';
+import { defineAction, getApiContext, z } from 'astro:actions';
 
 export const server = {
 	subscribe: defineAction({
@@ -29,4 +29,11 @@ export const server = {
 			};
 		},
 	}),
+	getUser: defineAction({
+		accept: 'form',
+		handler: async () => {
+			const { locals } = getApiContext();
+			return locals.user;
+		}
+	})
 };
