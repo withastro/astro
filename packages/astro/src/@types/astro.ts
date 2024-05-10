@@ -1727,7 +1727,7 @@ export interface AstroUserConfig {
 		 * @name experimental.actions
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 4.7.0
+		 * @version 4.8.0
 		 * @description
 		 *
 		 * Actions help you write type-safe backend functions you can call from anywhere. Enable server rendering [using the `output` property](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered) and add the `actions` flag to the `experimental` object:
