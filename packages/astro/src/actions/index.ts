@@ -29,7 +29,7 @@ export default function astroActions(): AstroIntegration {
 
 				params.addMiddleware({
 					entrypoint: 'astro/actions/runtime/middleware.js',
-					order: 'pre',
+					order: 'post',
 				});
 
 				await typegen({
