@@ -45,6 +45,7 @@ export type ContainerRenderOptions = {
 function createContainerManifest(
 	renderers: SSRLoadedRenderer[],
 	config: AstroConfig,
+	manifest?: AstroContainerManifest,
 	middleware?: MiddlewareHandler
 ): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
@@ -60,23 +61,25 @@ function createContainerManifest(
 	const defaultMiddleware: MiddlewareHandler = (_, next) => {
 		return next();
 	};
+	
 	return {
 		rewritingEnabled: false,
 		trailingSlash: config?.trailingSlash,
 		buildFormat: config?.build.format,
 		compressHTML: config?.compressHTML,
-		assets: new Set(),
+		assets: manifest?.assets ??  new Set(),
+		assetsPrefix: manifest?.assetsPrefix ?? undefined,
 		entryModules: {},
-		routes: [],
+		routes: manifest?.routes ?? [],
 		adapterName: '',
-		clientDirectives: new Map(),
-		renderers,
-		base: config?.base,
-		componentMetadata: new Map(),
-		inlinedScripts: new Map(),
+		clientDirectives: manifest?.clientDirectives ?? new Map(),
+		renderers: manifest?.renderers ?? renderers,
+		base: manifest?.base ?? config?.base,
+		componentMetadata: manifest?.componentMetadata ?? new Map(),
+		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
 		i18n: i18nManifest,
 		checkOrigin: false,
-		middleware: middleware ?? defaultMiddleware,
+		middleware: manifest?.middleware ?? middleware ?? defaultMiddleware,
 	};
 }
 
@@ -87,8 +90,21 @@ type AstroContainerOptions = {
 	astroConfig?: AstroUserConfig;
 	middleware?: MiddlewareHandler;
 	resolve?: SSRResult['resolve'];
-	manifest?: SSRManifest
+	manifest?: SSRManifest;
 };
+
+export type AstroContainerManifest = Pick<
+	SSRManifest,
+	| 'middleware'
+	| 'clientDirectives'
+	| 'inlinedScripts'
+	| 'componentMetadata'
+	| 'renderers'
+	| 'assetsPrefix'
+	| 'base'
+	| 'routes'
+	| 'assets'
+>;
 
 export class unstable_AstroContainer {
 	#pipeline: TestPipeline;
@@ -98,8 +114,8 @@ export class unstable_AstroContainer {
 		streaming: boolean,
 		renderers: SSRLoadedRenderer[],
 		config: AstroConfig,
+		manifest?: AstroContainerManifest,
 		resolve?: SSRResult['resolve'],
-		manifest?: SSRManifest,
 	) {
 		this.#config = config;
 		this.#pipeline = TestPipeline.create({
@@ -107,7 +123,7 @@ export class unstable_AstroContainer {
 				level: 'info',
 				dest: nodeLogDestination,
 			}),
-			manifest: manifest ?? createContainerManifest(renderers, config),
+			manifest: createContainerManifest(renderers, config, manifest),
 			streaming,
 			serverLike: true,
 			renderers,
@@ -133,10 +149,10 @@ export class unstable_AstroContainer {
 			streaming = false,
 			renderers = [],
 			resolve,
-			manifest
+			manifest,
 		} = containerOptions;
 		const config = await validateConfig(astroConfig, process.cwd(), 'container');
-		return new unstable_AstroContainer(streaming, renderers, config, resolve, manifest);
+		return new unstable_AstroContainer(streaming, renderers, config, manifest, resolve);
 	}
 
 	insertRoute({
