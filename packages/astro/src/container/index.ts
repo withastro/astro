@@ -62,16 +62,16 @@ function createContainerManifest(
 	};
 	return {
 		rewritingEnabled: false,
-		trailingSlash: ASTRO_CONFIG_DEFAULTS.trailingSlash,
-		buildFormat: ASTRO_CONFIG_DEFAULTS.build.format,
-		compressHTML: ASTRO_CONFIG_DEFAULTS.compressHTML,
+		trailingSlash: config?.trailingSlash,
+		buildFormat: config?.build.format,
+		compressHTML: config?.compressHTML,
 		assets: new Set(),
 		entryModules: {},
 		routes: [],
 		adapterName: '',
 		clientDirectives: new Map(),
 		renderers,
-		base: ASTRO_CONFIG_DEFAULTS.base,
+		base: config?.base,
 		componentMetadata: new Map(),
 		inlinedScripts: new Map(),
 		i18n: i18nManifest,
@@ -87,6 +87,7 @@ type AstroContainerOptions = {
 	astroConfig?: AstroUserConfig;
 	middleware?: MiddlewareHandler;
 	resolve?: SSRResult['resolve'];
+	manifest?: SSRManifest
 };
 
 export class unstable_AstroContainer {
@@ -97,7 +98,8 @@ export class unstable_AstroContainer {
 		streaming: boolean,
 		renderers: SSRLoadedRenderer[],
 		config: AstroConfig,
-		resolve?: SSRResult['resolve']
+		resolve?: SSRResult['resolve'],
+		manifest?: SSRManifest,
 	) {
 		this.#config = config;
 		this.#pipeline = TestPipeline.create({
@@ -105,7 +107,7 @@ export class unstable_AstroContainer {
 				level: 'info',
 				dest: nodeLogDestination,
 			}),
-			manifest: createContainerManifest(renderers, config),
+			manifest: manifest ?? createContainerManifest(renderers, config),
 			streaming,
 			serverLike: true,
 			renderers,
@@ -131,9 +133,10 @@ export class unstable_AstroContainer {
 			streaming = false,
 			renderers = [],
 			resolve,
+			manifest
 		} = containerOptions;
 		const config = await validateConfig(astroConfig, process.cwd(), 'container');
-		return new unstable_AstroContainer(streaming, renderers, config, resolve);
+		return new unstable_AstroContainer(streaming, renderers, config, resolve, manifest);
 	}
 
 	insertRoute({
