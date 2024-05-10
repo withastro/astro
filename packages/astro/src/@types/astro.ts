@@ -1734,7 +1734,7 @@ export interface AstroUserConfig {
 		 *
 		 * ```js
 		 * {
-		 * 	 output: 'hybrid', // or 'server'
+		 *   output: 'hybrid', // or 'server'
 		 *   experimental: {
 		 *     actions: true,
 		 *   },
@@ -1761,7 +1761,7 @@ export interface AstroUserConfig {
 		 *     },
 		 *   }),
 		 *   comment: defineAction({
-		 * 		 accept: 'form',
+		 *     accept: 'form',
 		 *     input: z.object({
 		 *       postId: z.string(),
 		 *       author: z.string(),
