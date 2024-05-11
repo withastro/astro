@@ -37,7 +37,7 @@ import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
 import { isObject } from './util.js';
-import { astroEnvVirtualModPlugin } from '../env/vite-plugin-env-virtual-mod.js';
+import { astroEnv } from '../env/vite-plugin-env.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -136,7 +136,7 @@ export async function createVite(
 			// the build to run very slow as the filewatcher is triggered often.
 			mode !== 'build' && vitePluginAstroServer({ settings, logger, fs }),
 			envVitePlugin({ settings }),
-			astroEnvVirtualModPlugin({ settings, logger, mode, fs }),
+			astroEnv({ settings, mode, fs }),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
 			mdxVitePlugin(),

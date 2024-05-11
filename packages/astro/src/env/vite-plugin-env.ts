@@ -1,6 +1,5 @@
 import { loadEnv, type Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
-import type { Logger } from '../core/logger/core.js';
 import {
 	ENV_TYPES_FILE,
 	MODULE_TEMPLATE_URL,
@@ -21,21 +20,18 @@ import { fileURLToPath } from 'node:url';
 
 interface AstroEnvVirtualModPluginParams {
 	settings: AstroSettings;
-	logger: Logger;
 	mode: 'dev' | 'build' | string;
 	fs: typeof fsMod;
 }
 
-export function astroEnvVirtualModPlugin({
+export function astroEnv({
 	settings,
-	logger,
 	mode,
 	fs,
 }: AstroEnvVirtualModPluginParams): Plugin | undefined {
 	if (!settings.config.experimental.env) {
 		return;
 	}
-	logger.warn('env', 'This feature is experimental.');
 	const schema = settings.config.experimental.env.schema ?? {};
 
 	let templates: { client: string; server: string; internal: string } | null = null;
