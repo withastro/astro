@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 10.2.6
+
+### Patch Changes
+
+- [#226](https://github.com/withastro/adapters/pull/226) [`de6f3eb`](https://github.com/withastro/adapters/commit/de6f3eba4ad4135fd762320b1219850ba9b3d7e9) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes chunk issues when bundling node_modules dependencies
+
 ## 10.2.5
 
 ### Patch Changes
