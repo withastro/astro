@@ -117,7 +117,7 @@
   export const server = {
     like: defineAction({
       input: z.object({ postId: z.string() }),
-      handler: async ({ postId }, context) => {
+      handler: async ({ postId }) => {
         // update likes in db
 
         return likes;
@@ -130,7 +130,7 @@
 
         body: z.string(),
       }),
-      handler: async ({ postId }, context) => {
+      handler: async ({ postId }) => {
         // insert comments in db
 
         return comment;
