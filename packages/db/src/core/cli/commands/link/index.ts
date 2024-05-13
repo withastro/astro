@@ -16,20 +16,16 @@ export async function cmd() {
 		console.error(MISSING_SESSION_ID_ERROR);
 		process.exit(1);
 	}
-	const getWorkspaceIdAsync = getWorkspaceId().catch((err) => {
-		return err as Error;
-	});
+	const workspaceId = await promptWorkspace(sessionToken);
 	await promptBegin();
 	const isLinkExisting = await promptLinkExisting();
 	if (isLinkExisting) {
-		const workspaceId = unwrapWorkspaceId(await getWorkspaceIdAsync);
 		const existingProjectData = await promptExistingProjectName({ workspaceId });
 		return await linkProject(existingProjectData.id);
 	}
 
 	const isLinkNew = await promptLinkNew();
 	if (isLinkNew) {
-		const workspaceId = unwrapWorkspaceId(await getWorkspaceIdAsync);
 		const newProjectName = await promptNewProjectName();
 		const newProjectRegion = await promptNewProjectRegion();
 		const spinner = ora('Creating new project...').start();
@@ -52,14 +48,15 @@ async function linkProject(id: string) {
 	console.info('Project linked.');
 }
 
-async function getWorkspaceId(): Promise<string> {
+async function getWorkspaces(sessionToken:string) {
+
 	const linkUrl = new URL(getAstroStudioUrl() + '/api/cli/workspaces.list');
 	const response = await safeFetch(
 		linkUrl,
 		{
 			method: 'POST',
 			headers: {
-				Authorization: `Bearer ${await getSessionIdFromFile()}`,
+				Authorization: `Bearer ${sessionToken}`,
 				'Content-Type': 'application/json',
 			},
 		},
@@ -76,17 +73,34 @@ async function getWorkspaceId(): Promise<string> {
 		}
 	);
 
-	const { data, success } = (await response.json()) as Result<{ id: string }[]>;
+	const { data, success } = (await response.json()) as Result<{ id: string; name: string }[]>;
 	if (!success) {
 		throw new Error(`Failed to fetch user's workspace.`);
 	}
-	return data[0].id;
+	return data
 }
 
-function unwrapWorkspaceId(workspaceId: string | Error): string {
-	if (typeof workspaceId !== 'string') {
-		console.error(workspaceId.message);
+async function promptWorkspace(sessionToken: string) {
+	const workspaces = await getWorkspaces(sessionToken);
+	if (workspaces.length === 0) {
+		console.error('No workspaces found.');
 		process.exit(1);
+	}
+
+	if (workspaces.length === 1) {
+		return workspaces[0].id;
+	}
+
+	const { workspaceId } = await prompts({
+		type: 'autocomplete',
+		name: 'workspaceId',
+		message: 'Select your workspace:',
+		limit: 5,
+		choices: workspaces.map((w) => ({ title: w.name, value: w.id })),
+	});
+	if (typeof workspaceId !== 'string') {
+		console.log('Canceled.');
+		process.exit(0);
 	}
 	return workspaceId;
 }
@@ -160,7 +174,7 @@ export async function promptExistingProjectName({ workspaceId }: { workspaceId: 
 		}
 	);
 
-	const { data, success } = (await response.json()) as Result<{ id: string; idName: string }[]>;
+	const { data, success } = (await response.json()) as Result<{ id: string; name:string; idName: string }[]>;
 	if (!success) {
 		console.error(`Failed to fetch projects.`);
 		process.exit(1);
@@ -170,7 +184,7 @@ export async function promptExistingProjectName({ workspaceId }: { workspaceId: 
 		name: 'projectId',
 		message: 'What is your project name?',
 		limit: 5,
-		choices: data.map((p: any) => ({ title: p.name, value: p.id })),
+		choices: data.map((p) => ({ title: p.name, value: p.id })),
 	});
 	if (typeof projectId !== 'string') {
 		console.log('Canceled.');
