@@ -11,12 +11,16 @@ function sanitizePath(path: string) {
 		.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function sanitizeParams(params: Record<string, string>): Record<string, string> {
-	return Object.keys(params).reduce((acc: Record<string, string>, key: string) => {
-		acc[key] = sanitizePath(params[key]);
-		return acc;
-	}, {});
-};
+function sanitizeParams(params: Record<string, string | number | undefined>): Record<string, string | number | undefined> {
+	return Object.entries(params).reduce((acc, [key, value]) => {
+	  if (typeof value === "string") {
+		acc[key] = sanitizePath(value);
+	  } else {
+		acc[key] = value;
+	  }
+	  return acc;
+	}, {} as Record<string, string | number | undefined>);
+  }
 
 export function getRouteGenerator(
 	segments: RoutePart[][],
@@ -47,7 +51,7 @@ export function getRouteGenerator(
 		trailing = '/';
 	}
 	const toPath = compile(template + trailing, { delimiter: "/?" });
-	return (params: Record<string, string>): string => {
+	return (params: Record<string, string | number | undefined>): string => {
 		const sanitizedParams = sanitizeParams(params);
 		const path = toPath(sanitizedParams);
 
