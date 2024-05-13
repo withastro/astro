@@ -13,14 +13,14 @@ function sanitizePath(path: string) {
 
 function sanitizeParams(params: Record<string, string | number | undefined>): Record<string, string | number | undefined> {
 	return Object.entries(params).reduce((acc, [key, value]) => {
-	  if (typeof value === "string") {
-		acc[key] = sanitizePath(value);
-	  } else {
-		acc[key] = value;
-	  }
-	  return acc;
+		if (typeof value === "string") {
+			acc[key] = sanitizePath(value);
+		} else {
+			acc[key] = value;
+		}
+		return acc;
 	}, {} as Record<string, string | number | undefined>);
-  }
+}
 
 export function getRouteGenerator(
 	segments: RoutePart[][],
