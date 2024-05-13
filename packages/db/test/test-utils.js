@@ -115,7 +115,7 @@ function createRemoteDbServer() {
 						error: {
 							code: e instanceof LibsqlError ? e.code : 'SQLITE_QUERY_FAILED',
 							details: e.message,
-						}
+						},
 					})
 				);
 			}

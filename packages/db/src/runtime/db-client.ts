@@ -157,7 +157,9 @@ const KNOWN_ERROR_CODES = {
 };
 
 const getUnexpectedResponseMessage = async (response: Response) =>
-	`Unexpected response from remote database:\n(Status ${response.status}) ${await response.clone().text()}`;
+	`Unexpected response from remote database:\n(Status ${response.status}) ${await response
+		.clone()
+		.text()}`;
 
 async function parseRemoteError(response: Response): Promise<DetailedLibsqlError> {
 	let error;
@@ -170,7 +172,8 @@ async function parseRemoteError(response: Response): Promise<DetailedLibsqlError
 		});
 	}
 	// Strip LibSQL error prefixes
-	let baseDetails = error.details?.replace(/.*SQLite error: /, '') ?? 'Error querying remote database.';
+	let baseDetails =
+		error.details?.replace(/.*SQLite error: /, '') ?? 'Error querying remote database.';
 	// Remove duplicated "code" in details
 	const details = baseDetails.slice(baseDetails.indexOf(':') + 1).trim();
 	let hint = `See the Astro DB guide for query and push instructions: https://docs.astro.build/en/guides/astro-db/#query-your-database`;
