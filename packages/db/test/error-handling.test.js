@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { loadFixture } from '../../astro/test/test-utils.js';
+import { setupRemoteDbServer } from './test-utils.js';
 
 const foreignKeyConstraintError =
 	'LibsqlError: SQLITE_CONSTRAINT_FOREIGNKEY: FOREIGN KEY constraint failed';
@@ -29,9 +30,16 @@ describe('astro:db - error handling', () => {
 		});
 	});
 
-	describe('build', () => {
+	describe('build --remote', () => {
+		let remoteDbServer;
+
 		before(async () => {
+			remoteDbServer = await setupRemoteDbServer(fixture.config);
 			await fixture.build();
+		});
+
+		after(async () => {
+			await remoteDbServer?.stop();
 		});
 
 		it('Raises foreign key constraint LibsqlError', async () => {
