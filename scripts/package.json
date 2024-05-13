@@ -17,7 +17,7 @@
     "tar": "^7.1.0"
   },
   "devDependencies": {
-    "@octokit/action": "^6.1.0",
+    "@octokit/action": "^7.0.0",
     "del": "^7.1.0",
     "esbuild-plugin-copy": "^2.1.1",
     "execa": "^8.0.1",
