@@ -157,12 +157,12 @@ const KNOWN_ERROR_CODES = {
 };
 
 const getUnexpectedResponseMessage = async (response: Response) =>
-	`Unexpected response from remote database:\n(Status ${response.status}) ${await response.text()}`;
+	`Unexpected response from remote database:\n(Status ${response.status}) ${await response.clone().text()}`;
 
 async function parseRemoteError(response: Response): Promise<DetailedLibsqlError> {
 	let error;
 	try {
-		error = errorSchema.parse(await response.json()).error;
+		error = errorSchema.parse(await response.clone().json()).error;
 	} catch (e) {
 		return new DetailedLibsqlError({
 			message: await getUnexpectedResponseMessage(response),
@@ -170,7 +170,9 @@ async function parseRemoteError(response: Response): Promise<DetailedLibsqlError
 		});
 	}
 	// Strip LibSQL error prefixes
-	let details = error.details?.replace(/.*SQLite error: /, '') ?? 'Error querying remote database.';
+	let baseDetails = error.details?.replace(/.*SQLite error: /, '') ?? 'Error querying remote database.';
+	// Remove duplicated "code" in details
+	const details = baseDetails.slice(baseDetails.indexOf(':') + 1).trim();
 	let hint = `See the Astro DB guide for query and push instructions: https://docs.astro.build/en/guides/astro-db/#query-your-database`;
 	if (error.code === KNOWN_ERROR_CODES.SQL_QUERY_FAILED && details.includes('no such table')) {
 		hint = `Did you run \`astro db push\` to push your latest table schemas?`;
