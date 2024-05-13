@@ -66,6 +66,14 @@ export type ContainerRenderOptions = {
 	 * ```
 	 */
 	routeType?: RouteType;
+
+	/**
+	 * Useful for dynamic routes. If your component is something like `src/pages/blog/[id]/[...slug]`, you'll want to provide:
+	 * ```js
+	 * container.renderToString(Component, { route: "/blog/[id]/[...slug]" });
+	 * ```
+	 */
+	route?: string
 };
 
 /**
@@ -233,17 +241,19 @@ export class unstable_AstroContainer {
 	 */
 	public insertRoute({
 		path,
+		route,
 		componentInstance,
 		params = [],
 		type = 'page',
 	}: {
 		path: string;
+		route: string,
 		componentInstance: ComponentInstance;
 		params?: string[];
 		type?: RouteType;
 	}): RouteData {
 		const pathUrl = new URL(path, 'https://example.com');
-		const routeData: RouteData = this.createRoute(pathUrl, params, type);
+		const routeData: RouteData = this.createRoute(pathUrl, route, params, type);
 		this.#pipeline.manifest.routes.push({
 			routeData,
 			file: '',
@@ -272,11 +282,12 @@ export class unstable_AstroContainer {
 		component: ComponentInstance,
 		options: ContainerRenderOptions = {}
 	): Promise<Response> {
-		const { routeType = 'page', slots } = options;
+		const { routeType = 'page', slots, route = ""  } = options;
 		const request = options?.request ?? new Request('https://example.com/');
 		const params = options?.params ?? [];
 		const url = new URL(request.url);
 		const routeData = this.insertRoute({
+			route,
 			path: request.url,
 			componentInstance: component,
 			params,
@@ -295,13 +306,13 @@ export class unstable_AstroContainer {
 		return renderContext.render(component, slots);
 	}
 
-	createRoute(url: URL, params: string[], type: RouteType): RouteData {
-		const segments = removeLeadingForwardSlash(url.pathname)
+	createRoute(url: URL, route: string | undefined = url.pathname, params: string[], type: RouteType): RouteData {
+		const segments = removeLeadingForwardSlash(route)
 			.split(posix.sep)
 			.filter(Boolean)
 			.map((s: string) => {
 				validateSegment(s);
-				return getParts(s, url.pathname);
+				return getParts(s, route);
 			});
 		return {
 			component: '',
@@ -313,7 +324,7 @@ export class unstable_AstroContainer {
 			prerender: false,
 			segments,
 			type,
-			route: url.pathname,
+			route,
 			fallbackRoutes: [],
 			isIndex: false,
 		};
