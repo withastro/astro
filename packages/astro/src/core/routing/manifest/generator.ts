@@ -50,7 +50,7 @@ export function getRouteGenerator(
 	if (addTrailingSlash === 'always' && segments.length) {
 		trailing = '/';
 	}
-	const toPath = compile(template + trailing, { delimiter: "/?" });
+	const toPath = compile(template + trailing);
 	return (params: Record<string, string | number | undefined>): string => {
 		const sanitizedParams = sanitizeParams(params);
 		const path = toPath(sanitizedParams);
