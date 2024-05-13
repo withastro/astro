@@ -27,13 +27,44 @@ import { removeLeadingForwardSlash } from '../core/path.js';
  */
 export type ContainerRenderOptions = {
 	/**
-	 * If your component renders slots, that's where you want to fill the slots
+	 * If your component renders slots, that's where you want to fill the slots.
+	 * A single slot should have the `default` field:
+	 * ```js
+	 * container.renderToString(Component, { slots: { default: "Some value"}});
+	 * ```
+	 *
 	 */
 	slots?: Record<string, any>;
+	/**
+	 * The request is used to understand which path/URL the component is about to render.
+	 *
+	 * Use this option in case your component or middleware needs to read information like `Astro.url` or `Astro.request`.
+	 */
 	request?: Request;
+	/**
+	 * Useful for dynamic routes. If your component is something like `src/pages/blog/[id]/[...slug]`, you'll want to provide:
+	 * ```js
+	 * container.renderToString(Component, { params: ["id", "...slug"] });
+	 * ```
+	 */
 	params?: string[];
+	/**
+	 * Useful if your component needs to access some locals without the use a middleware.
+	 * ```js
+	 * container.renderToString(Component, { locals: { getSomeValue() {} } });
+	 * ```
+	 */
 	locals?: App.Locals;
+	/**
+	 * Useful in case you're attempting to render an errored route.
+	 */
 	status?: number;
+	/**
+	 * Useful in case you're attempting to render an endpoint:
+	 * ```js
+	 * container.renderToString(Endpoint, { routeType: "endpoint" });
+	 * ```
+	 */
 	routeType?: RouteType;
 };
 
@@ -61,15 +92,15 @@ function createContainerManifest(
 	const defaultMiddleware: MiddlewareHandler = (_, next) => {
 		return next();
 	};
-	
+
 	return {
 		rewritingEnabled: false,
-		trailingSlash: config?.trailingSlash,
-		buildFormat: config?.build.format,
-		compressHTML: config?.compressHTML,
-		assets: manifest?.assets ??  new Set(),
+		trailingSlash: manifest?.trailingSlash ?? config?.trailingSlash,
+		buildFormat: manifest?.buildFormat ?? config?.build.format,
+		compressHTML: manifest?.compressHTML ?? config?.compressHTML,
+		assets: manifest?.assets ?? new Set(),
 		assetsPrefix: manifest?.assetsPrefix ?? undefined,
-		entryModules: {},
+		entryModules: manifest?.entryModules ?? {},
 		routes: manifest?.routes ?? [],
 		adapterName: '',
 		clientDirectives: manifest?.clientDirectives ?? new Map(),
@@ -77,7 +108,7 @@ function createContainerManifest(
 		base: manifest?.base ?? config?.base,
 		componentMetadata: manifest?.componentMetadata ?? new Map(),
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
-		i18n: i18nManifest,
+		i18n: manifest?.i18n ?? i18nManifest,
 		checkOrigin: false,
 		middleware: manifest?.middleware ?? middleware ?? defaultMiddleware,
 	};
@@ -104,19 +135,38 @@ export type AstroContainerManifest = Pick<
 	| 'base'
 	| 'routes'
 	| 'assets'
+	| 'entryModules'
+	| 'compressHTML'
+	| 'trailingSlash'
+	| 'buildFormat'
+	| 'i18n'
 >;
+
+type AstroContainerConstructor = {
+	streaming?: boolean;
+	renderers?: SSRLoadedRenderer[];
+	config: AstroConfig;
+	manifest?: AstroContainerManifest;
+	resolve?: SSRResult['resolve'];
+};
 
 export class unstable_AstroContainer {
 	#pipeline: TestPipeline;
 	#config: AstroConfig;
 
-	private constructor(
-		streaming: boolean,
-		renderers: SSRLoadedRenderer[],
-		config: AstroConfig,
-		manifest?: AstroContainerManifest,
-		resolve?: SSRResult['resolve'],
-	) {
+	/**
+	 * Internally used to check if the container was created with a manifest.
+	 * @private
+	 */
+	#withManifest = false;
+
+	private constructor({
+		streaming = false,
+		renderers = [],
+		config,
+		manifest,
+		resolve,
+	}: AstroContainerConstructor) {
 		this.#config = config;
 		this.#pipeline = TestPipeline.create({
 			logger: new Logger({
@@ -128,17 +178,22 @@ export class unstable_AstroContainer {
 			serverLike: true,
 			renderers,
 			resolve: async (specifier: string) => {
-				if (resolve) {
-					return resolve(specifier);
-				} else {
+				if (this.#withManifest) {
 					return this.containerResolve(specifier);
+				} else if (resolve) {
+					return resolve(specifier);
 				}
+				return specifier;
 			},
 		});
 	}
 
-	async containerResolve(_specifier: string): Promise<string> {
-		return '';
+	async containerResolve(specifier: string): Promise<string> {
+		const found = this.#pipeline.manifest.entryModules[specifier];
+		if (found) {
+			return new URL(found, this.#config.build.client).toString();
+		}
+		return found;
 	}
 
 	static async create(
@@ -152,10 +207,31 @@ export class unstable_AstroContainer {
 			manifest,
 		} = containerOptions;
 		const config = await validateConfig(astroConfig, process.cwd(), 'container');
-		return new unstable_AstroContainer(streaming, renderers, config, manifest, resolve);
+		return new unstable_AstroContainer({ streaming, renderers, config, manifest, resolve });
 	}
 
-	insertRoute({
+	static async createFromManifest(manifest: SSRManifest): Promise<unstable_AstroContainer> {
+		const config = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
+		const container = new unstable_AstroContainer({
+			manifest,
+			config,
+		});
+		container.#withManifest = true;
+		return container;
+	}
+
+	/**
+	 * Use this method to manually insert a route inside the container.
+	 *
+	 * This method is useful if you're rending a component that attempt to render redirect or a rewrite.
+	 *
+	 * @param {object} options
+	 * @param {string} options.path The path of the route. It has to match what you see in a URL browser, e.g. `/blog/12334/first-post`
+	 * @param {ComponentInstance} options.componentInstance The a compile instance of the Astro component.
+	 * @param {string[]} options.params The params of the route. Use these when your route is dynamic. For a route `/blog/[id]/[...dynamic]`, the params are `["id", "...dynamic"]`
+	 * @param {RouteType} options.type The type of route.
+	 */
+	public insertRoute({
 		path,
 		componentInstance,
 		params = [],
@@ -179,7 +255,12 @@ export class unstable_AstroContainer {
 		return routeData;
 	}
 
-	async renderToString(
+	/**
+	 *
+	 * @param component The instance of the component.
+	 * @param options Some options.
+	 */
+	public async renderToString(
 		component: ComponentInstance,
 		options: ContainerRenderOptions = {}
 	): Promise<string> {

@@ -8,7 +8,7 @@ import {
 	renderHead,
 	renderSlot,
 	createAstro,
-	renderScript
+	renderScript,
 } from '../dist/runtime/server/index.js';
 import { unstable_AstroContainer } from '../dist/container/index.js';
 import assert from 'node:assert/strict';
@@ -195,7 +195,7 @@ describe.only('Container', () => {
 		assert.match(result, /Custom name/);
 		assert.match(result, /Bar name/);
 	});
-	
+
 	it.only('Renders a script', async () => {
 		const Page = createComponent(
 			(result, _props, _slots) => {
@@ -207,7 +207,7 @@ describe.only('Container', () => {
 					{
 						default: () => render`
 							${maybeRenderHead(result)}
-							${renderScript(result,"Page.astro?astro&type=script&index=0&lang.ts")}
+							${renderScript(result, 'Page.astro?astro&type=script&index=0&lang.ts')}
 							`,
 						head: () => render`
 						${renderComponent(
@@ -232,13 +232,13 @@ describe.only('Container', () => {
 		const result = await container.renderToString(PageModule, {
 			scripts: [
 				{
-					type: 'inline' ,
-					value: "console.log()"
-				}
-			]
+					type: 'inline',
+					value: 'console.log()',
+				},
+			],
 		});
 
-		console.log(result)
+		console.log(result);
 
 		// assert.match(result, /Custom name/);
 		// assert.match(result, /Bar name/);
