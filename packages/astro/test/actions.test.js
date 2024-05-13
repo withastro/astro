@@ -201,6 +201,6 @@ describe('Astro Actions', () => {
 			let $ = cheerio.load(html);
 			assert.equal($('#error-message').text(), 'Not logged in');
 			assert.equal($('#error-code').text(), 'UNAUTHORIZED');
-		})
+		});
 	});
 });
