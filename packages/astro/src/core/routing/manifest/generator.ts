@@ -2,19 +2,13 @@ import type { AstroConfig, RoutePart } from '../../../@types/astro.js';
 
 import { compile } from 'path-to-regexp';
 
-function sanitizePath(path: string) {
-	return path.normalize()
-		.replace(/\?/g, "%3F")
-		.replace(/#/g, "%23")
-		.replace(/%5B/g, "[")
-		.replace(/%5D/g, "]")
-		.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 function sanitizeParams(params: Record<string, string | number | undefined>): Record<string, string | number | undefined> {
 	return Object.entries(params).reduce((acc, [key, value]) => {
-		if (typeof value === "string") {
-			acc[key] = sanitizePath(value);
+		if (typeof value === 'string') {
+			acc[key] = value
+				.normalize()
+				.replace(/#/g, '%23')
+				.replace(/\?/g, '%3F')
 		} else {
 			acc[key] = value;
 		}
@@ -37,7 +31,13 @@ export function getRouteGenerator(
 						} else if (part.dynamic) {
 							return `:${part.content}`;
 						} else {
-							return sanitizePath(part.content)
+							return part.content
+								.normalize()
+								.replace(/\?/g, '%3F')
+								.replace(/#/g, '%23')
+								.replace(/%5B/g, '[')
+								.replace(/%5D/g, ']')
+								.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 						}
 					})
 					.join('')
