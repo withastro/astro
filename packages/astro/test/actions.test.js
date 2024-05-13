@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
+import * as cheerio from 'cheerio';
 
 describe('Astro Actions', () => {
 	let fixture;
@@ -169,5 +170,20 @@ describe('Astro Actions', () => {
 			assert.equal(json.success, true);
 			assert.equal(json.isFormData, true, 'Should receive plain FormData');
 		});
+
+		it('Respects user middleware', async () => {
+			const formData = new FormData();
+			formData.append('_astroAction', '/_actions/getUser');
+			const req = new Request('http://example.com/middleware', {
+				method: 'POST',
+				body: formData,
+			});
+			const res = await app.render(req);
+			assert.equal(res.ok, true);
+
+			const html = await res.text();
+			let $ = cheerio.load(html);
+			assert.equal($('#user').text(), 'Houston');
+		})
 	});
 });
