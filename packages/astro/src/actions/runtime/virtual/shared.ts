@@ -109,7 +109,7 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 	fields: z.ZodError<T>['formErrors']['fieldErrors'];
 
 	constructor(issues: z.ZodIssue[]) {
-		super({ message: 'Failed to validate', code: 'BAD_REQUEST' });
+		super({ message: `Failed to validate: ${JSON.stringify(issues, null, 2)}`, code: 'BAD_REQUEST' });
 		this.issues = issues;
 		this.fields = {};
 		for (const issue of issues) {
