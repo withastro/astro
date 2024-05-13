@@ -26,7 +26,10 @@ describe('astro:db - error handling', () => {
 
 		it('Raises foreign key constraint LibsqlError', async () => {
 			const json = await fixture.fetch('/foreign-key-constraint.json').then((res) => res.json());
-			expect(json.error).to.equal(foreignKeyConstraintError);
+			expect(json).to.deep.equal({
+				message: foreignKeyConstraintError,
+				code: 'SQLITE_CONSTRAINT_FOREIGNKEY',
+			});
 		});
 	});
 
@@ -44,7 +47,10 @@ describe('astro:db - error handling', () => {
 
 		it('Raises foreign key constraint LibsqlError', async () => {
 			const json = await fixture.readFile('/foreign-key-constraint.json');
-			expect(JSON.parse(json).error).to.equal(foreignKeyConstraintError);
+			expect(JSON.parse(json)).to.deep.equal({
+				message: foreignKeyConstraintError,
+				code: 'SQLITE_CONSTRAINT_FOREIGNKEY',
+			});
 		});
 	});
 });
