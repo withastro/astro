@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
-import * as cheerio from 'cheerio';
 
 describe('Astro Actions', () => {
 	let fixture;
@@ -184,6 +184,6 @@ describe('Astro Actions', () => {
 			const html = await res.text();
 			let $ = cheerio.load(html);
 			assert.equal($('#user').text(), 'Houston');
-		})
+		});
 	});
 });
