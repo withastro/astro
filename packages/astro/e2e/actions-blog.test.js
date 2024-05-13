@@ -38,6 +38,22 @@ test.describe('Astro Actions - Blog', () => {
 		await expect(page.locator('p[data-error="body"]')).toBeVisible();
 	});
 
+	test('Comment action - custom error', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/blog/first-post/?commentPostIdOverride=bogus'));
+
+		const authorInput = page.locator('input[name="author"]');
+		const bodyInput = page.locator('textarea[name="body"]');
+		await authorInput.fill('Ben');
+		await bodyInput.fill('This should be long enough.');
+
+		const submitButton = page.getByLabel('Post comment');
+		await submitButton.click();
+
+		const unexpectedError = page.locator('p[data-error="unexpected"]');
+		await expect(unexpectedError).toBeVisible();
+		await expect(unexpectedError).toContainText('NOT_FOUND: Post not found');
+	});
+
 	test('Comment action - success', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/blog/first-post/'));
 
