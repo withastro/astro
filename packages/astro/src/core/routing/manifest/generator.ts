@@ -2,6 +2,22 @@ import type { AstroConfig, RoutePart } from '../../../@types/astro.js';
 
 import { compile } from 'path-to-regexp';
 
+function sanitizePath(path: string) {
+	return path.normalize()
+		.replace(/\?/g, "%3F")
+		.replace(/#/g, "%23")
+		.replace(/%5B/g, "[")
+		.replace(/%5D/g, "]")
+		.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function sanitizeParams(params: Record<string, string>): Record<string, string> {
+	return Object.keys(params).reduce((acc: Record<string, string>, key: string) => {
+		acc[key] = sanitizePath(params[key]);
+		return acc;
+	}, {});
+};
+
 export function getRouteGenerator(
 	segments: RoutePart[][],
 	addTrailingSlash: AstroConfig['trailingSlash']
@@ -17,13 +33,7 @@ export function getRouteGenerator(
 						} else if (part.dynamic) {
 							return `:${part.content}`;
 						} else {
-							return part.content
-								.normalize()
-								.replace(/\?/g, '%3F')
-								.replace(/#/g, '%23')
-								.replace(/%5B/g, '[')
-								.replace(/%5D/g, ']')
-								.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+							return sanitizePath(part.content)
 						}
 					})
 					.join('')
@@ -37,8 +47,9 @@ export function getRouteGenerator(
 		trailing = '/';
 	}
 	const toPath = compile(template + trailing, { delimiter: "/?" });
-	return (params: object): string => {
-		const path = toPath(params);
+	return (params: Record<string, string>): string => {
+		const sanitizedParams = sanitizeParams(params);
+		const path = toPath(sanitizedParams);
 
 		// When generating an index from a rest parameter route, `path-to-regexp` will return an
 		// empty string instead "/". This causes an inconsistency with static indexes that may result
