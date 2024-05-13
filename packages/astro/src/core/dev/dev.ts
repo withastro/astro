@@ -73,7 +73,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 						);
 					}
 				}
-			});
+			}).catch(() => { });
 		} catch (e) {
 			// Just ignore the error, we don't want to block the dev server from starting and this is just a nice-to-have feature
 		}
