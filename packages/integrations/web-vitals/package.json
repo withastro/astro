@@ -41,7 +41,7 @@
     "@astrojs/db": "workspace:*",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "linkedom": "^0.16.11"
+    "linkedom": "^0.18.0"
   },
   "publishConfig": {
     "provenance": true

@@ -94,7 +94,7 @@
     "@types/yargs-parser": "^21.0.3",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "chai": "^5.1.0",
+    "chai": "^5.1.1",
     "cheerio": "1.0.0-rc.12",
     "mocha": "^10.4.0",
     "typescript": "^5.4.5",
