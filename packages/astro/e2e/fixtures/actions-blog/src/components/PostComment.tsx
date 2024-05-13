@@ -10,6 +10,7 @@ export function PostComment({
 }) {
 	const [comments, setComments] = useState<{ author: string; body: string }[]>([]);
 	const [bodyError, setBodyError] = useState<string | undefined>(serverBodyError);
+	const [unexpectedError, setUnexpectedError] = useState<string | undefined>(undefined);
 
 	return (
 		<>
@@ -22,14 +23,15 @@ export function PostComment({
 					const { data, error } = await actions.blog.comment.safe(formData);
 					if (isInputError(error)) {
 						return setBodyError(error.fields.body?.join(' '));
+					} else if (error) {
+						return setUnexpectedError(`${error.code}: ${error.message}`);
 					}
-					if (data) {
-						setBodyError(undefined);
-						setComments((c) => [data, ...c]);
-					}
+					setBodyError(undefined);
+					setComments((c) => [data, ...c]);
 					form.reset();
 				}}
 			>
+				{unexpectedError && <p data-error="unexpected" style={{ color: 'red' }}>{unexpectedError}</p>}
 				<input {...getActionProps(actions.blog.comment)} />
 				<input type="hidden" name="postId" value={postId} />
 				<label className="sr-only" htmlFor="author">
