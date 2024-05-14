@@ -80,6 +80,7 @@ export type ContainerRenderOptions = {
 /**
  * @param renderers
  * @param config
+ * @param manifest
  * @param middleware
  */
 function createContainerManifest(
@@ -123,17 +124,63 @@ function createContainerManifest(
 	};
 }
 
-type AstroContainerOptions = {
-	mode?: RuntimeMode;
+export type AstroContainerUserConfig = Omit<AstroUserConfig, 'integrations' | 'adapter' >
+
+/**
+ * Options that are used for the entire lifecycle of the current instance of the container.
+ */
+export type AstroContainerOptions = {
+	/**
+	 * @default false
+	 * 
+	 * @description
+	 * 
+	 * Enables streaming during rendering
+	 * 
+	 * ## Example
+	 * 
+	 * ```js
+	 * const container = await AstroContainer.create({
+	 * 	streaming: true
+	 * });
+	 * ```
+	 */
 	streaming?: boolean;
+	/**
+	 * @default []
+	 * @description
+	 * 
+	 * List or renderers to use when rendering components. Usually they are entry points
+	 * 
+	 * ## Example
+	 * 
+	 * ```js
+	 * const container = await AstroContainer.create({
+	 * 	renderers: ["@astrojs/react/server.js"]
+	 * });
+	 * ```
+	 */
 	renderers?: SSRLoadedRenderer[];
-	astroConfig?: AstroUserConfig;
-	middleware?: MiddlewareHandler;
-	resolve?: SSRResult['resolve'];
-	manifest?: SSRManifest;
+	/**
+	 * @default {}
+	 * @description
+	 *
+	 * A subset of the astro configuration object.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * const container = await AstroContainer.create({
+	 * 	astroConfig: {
+	 * 		trailingSlash: "never"
+	 * 	}
+	 * });
+	 * ```
+	 */
+	astroConfig?: AstroContainerUserConfig;
 };
 
-export type AstroContainerManifest = Pick<
+type AstroContainerManifest = Pick<
 	SSRManifest,
 	| 'middleware'
 	| 'clientDirectives'
@@ -205,6 +252,11 @@ export class unstable_AstroContainer {
 		return found;
 	}
 
+	/**
+	 * Creates a new instance of a container.
+	 * 
+	 * @param {AstroContainerOptions} containerOptions
+	 */
 	static async create(
 		containerOptions: AstroContainerOptions = {}
 	): Promise<unstable_AstroContainer> {
@@ -212,14 +264,18 @@ export class unstable_AstroContainer {
 			astroConfig = ASTRO_CONFIG_DEFAULTS,
 			streaming = false,
 			renderers = [],
-			resolve,
-			manifest,
 		} = containerOptions;
 		const config = await validateConfig(astroConfig, process.cwd(), 'container');
-		return new unstable_AstroContainer({ streaming, renderers, config, manifest, resolve });
+		return new unstable_AstroContainer({ streaming, renderers, config });
 	}
 
-	static async createFromManifest(manifest: SSRManifest): Promise<unstable_AstroContainer> {
+	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.
+	/**
+	 * 
+	 * @param manifest
+	 * @private
+	 */
+	private static async createFromManifest(manifest: SSRManifest): Promise<unstable_AstroContainer> {
 		const config = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
 		const container = new unstable_AstroContainer({
 			manifest,
