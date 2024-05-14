@@ -1493,6 +1493,13 @@ export const DuplicateContentEntrySlugError = {
 	},
 } satisfies ErrorData;
 
+export const ActionsWithoutServerOutputError = {
+	name: 'ActionsWithoutServerOutputError',
+	title: 'Actions must be used with server output.',
+	message: 'Actions enabled without setting a server build output. A server is required to create callable backend functions. To deploy routes to a server, add a server adapter to your astro config.',
+	hint: 'Learn about on-demand rendering: https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered',
+} satisfies ErrorData;
+
 /**
  * @docs
  * @see

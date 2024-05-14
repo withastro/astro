@@ -3,7 +3,8 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { AstroIntegration } from '../@types/astro.js';
 import { viteID, isServerLikeOutput } from '../core/util.js';
 import { ACTIONS_TYPES_FILE, RESOLVED_VIRTUAL_MODULE_ID, VIRTUAL_MODULE_ID } from './consts.js';
-import { AstroUserError } from '../core/errors/errors.js';
+import { AstroError } from '../core/errors/errors.js';
+import { ActionsWithoutServerOutputError } from '../core/errors/errors-data.js';
 
 export default function astroActions(): AstroIntegration {
 	return {
@@ -11,10 +12,7 @@ export default function astroActions(): AstroIntegration {
 		hooks: {
 			async 'astro:config:setup'(params) {
 				if (!isServerLikeOutput(params.config)) {
-					const error = new AstroUserError(
-						'Actions require a server output. Set the \`output\` property in your Astro config.',
-						'Learn about on-demand rendering: https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered'
-					);
+					const error = new AstroError(ActionsWithoutServerOutputError);
 					error.stack = undefined;
 					throw error;
 				}
