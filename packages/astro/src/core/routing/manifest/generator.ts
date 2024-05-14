@@ -3,17 +3,17 @@ import type { AstroConfig, RoutePart } from '../../../@types/astro.js';
 import { compile } from 'path-to-regexp';
 
 function sanitizeParams(params: Record<string, string | number | undefined>): Record<string, string | number | undefined> {
-	return Object.entries(params).reduce((acc, [key, value]) => {
-		if (typeof value === 'string') {
-			acc[key] = value
-				.normalize()
-				.replace(/#/g, '%23')
-				.replace(/\?/g, '%3F')
-		} else {
-			acc[key] = value;
-		}
-		return acc;
-	}, {} as Record<string, string | number | undefined>);
+	return Object.fromEntries(
+		Object.entries(params).map(([key, value]) => {
+			if (typeof value === 'string') {
+				return [key, value
+					.normalize()
+					.replace(/#/g, '%23')
+					.replace(/\?/g, '%3F')]
+			}
+			return [key, value];
+		})
+	)
 }
 
 export function getRouteGenerator(
