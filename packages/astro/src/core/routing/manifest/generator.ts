@@ -2,6 +2,11 @@ import type { AstroConfig, RoutePart } from '../../../@types/astro.js';
 
 import { compile } from 'path-to-regexp';
 
+/**
+ * Sanitizes the parameters object by normalizing string values and replacing certain characters with their URL-encoded equivalents.
+ * @param {Record<string, string | number | undefined>} params - The parameters object to be sanitized.
+ * @returns {Record<string, string | number | undefined>} The sanitized parameters object.
+ */
 function sanitizeParams(params: Record<string, string | number | undefined>): Record<string, string | number | undefined> {
 	return Object.fromEntries(
 		Object.entries(params).map(([key, value]) => {
