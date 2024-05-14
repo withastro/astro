@@ -1,18 +1,16 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroIntegration } from '../@types/astro.js';
-import { viteID } from '../core/util.js';
+import { viteID, isServerLikeOutput } from '../core/util.js';
 import { ACTIONS_TYPES_FILE, RESOLVED_VIRTUAL_MODULE_ID, VIRTUAL_MODULE_ID } from './consts.js';
 import { AstroUserError } from '../core/errors/errors.js';
-
-const serverOutputs = ['server', 'hybrid'];
 
 export default function astroActions(): AstroIntegration {
 	return {
 		name: VIRTUAL_MODULE_ID,
 		hooks: {
 			async 'astro:config:setup'(params) {
-				if (!serverOutputs.includes(params.config.output)) {
+				if (!isServerLikeOutput(params.config)) {
 					const error = new AstroUserError(
 						'Actions require a server output. Set the \`output\` property in your Astro config.',
 						'Learn about on-demand rendering: https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered'
