@@ -42,7 +42,7 @@ export function validateSupportedFeatures(
 		staticOutput = UNSUPPORTED,
 		hybridOutput = UNSUPPORTED,
 		i18nDomains = UNSUPPORTED,
-		envGetSecret: env = UNSUPPORTED,
+		envGetSecret = UNSUPPORTED,
 	} = featureMap;
 	const validationResult: ValidationResult = {};
 
@@ -90,7 +90,7 @@ export function validateSupportedFeatures(
 	}
 
 	validationResult.envGetSecret = validateSupportKind(
-		env,
+		envGetSecret,
 		adapterName,
 		logger,
 		'astro:env getSecret',
