@@ -147,6 +147,7 @@ export class RenderContext {
 				case 'page': {
 					const result = await this.createResult(componentInstance!);
 					let response: Response;
+					console.log(componentInstance);
 					try {
 						response = await renderPage(
 							result,

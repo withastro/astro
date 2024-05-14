@@ -8,7 +8,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRManifest,
 	SSRResult,
-	AstroUserConfig,
+	AstroUserConfig, Params, GetStaticPathsItem,
 } from '../@types/astro.js';
 import { TestPipeline } from './pipeline.js';
 import { Logger } from '../core/logger/core.js';
@@ -21,6 +21,7 @@ import { RenderContext } from '../core/render-context.js';
 import { posix } from 'node:path';
 import { getParts, getPattern, validateSegment } from '../core/routing/manifest/create.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
+import type {AstroComponentFactory} from "../runtime/server/index.js";
 
 /**
  * Options to be passed when rendering a route
@@ -47,7 +48,7 @@ export type ContainerRenderOptions = {
 	 * container.renderToString(Component, { params: ["id", "...slug"] });
 	 * ```
 	 */
-	params?: string[];
+	params?: Record<string, string | undefined>;
 	/**
 	 * Useful if your component needs to access some locals without the use a middleware.
 	 * ```js
@@ -243,17 +244,17 @@ export class unstable_AstroContainer {
 		path,
 		route,
 		componentInstance,
-		params = [],
+		params = {},
 		type = 'page',
 	}: {
 		path: string;
 		route: string,
 		componentInstance: ComponentInstance;
-		params?: string[];
+		params?: Record<string, string | undefined>;
 		type?: RouteType;
 	}): RouteData {
 		const pathUrl = new URL(path, 'https://example.com');
-		const routeData: RouteData = this.createRoute(pathUrl, route, params, type);
+		const routeData: RouteData = this.#createRoute(pathUrl, route, params, type);
 		this.#pipeline.manifest.routes.push({
 			routeData,
 			file: '',
@@ -271,25 +272,26 @@ export class unstable_AstroContainer {
 	 * @param options Some options.
 	 */
 	public async renderToString(
-		component: ComponentInstance,
+		component: AstroComponentFactory,
 		options: ContainerRenderOptions = {}
 	): Promise<string> {
 		const response = await this.renderToResponse(component, options);
 		return await response.text();
 	}
 
-	async renderToResponse(
-		component: ComponentInstance,
+	public async renderToResponse(
+		component: AstroComponentFactory,
 		options: ContainerRenderOptions = {}
 	): Promise<Response> {
 		const { routeType = 'page', slots, route = ""  } = options;
 		const request = options?.request ?? new Request('https://example.com/');
-		const params = options?.params ?? [];
+		const params = options?.params ?? {};
 		const url = new URL(request.url);
+		const componentInstance =  this.#wrapComponent(component, params);
 		const routeData = this.insertRoute({
 			route,
 			path: request.url,
-			componentInstance: component,
+			componentInstance,
 			params,
 			type: routeType,
 		});
@@ -303,10 +305,10 @@ export class unstable_AstroContainer {
 			locals: options?.locals ?? {},
 		});
 
-		return renderContext.render(component, slots);
+		return renderContext.render(componentInstance, slots);
 	}
 
-	createRoute(url: URL, route: string | undefined = url.pathname, params: string[], type: RouteType): RouteData {
+	#createRoute(url: URL, route: string | undefined = url.pathname, params: Record<string, string | undefined>, type: RouteType): RouteData {
 		const segments = removeLeadingForwardSlash(route)
 			.split(posix.sep)
 			.filter(Boolean)
@@ -319,7 +321,7 @@ export class unstable_AstroContainer {
 			generate(_data: any): string {
 				return '';
 			},
-			params,
+			params: Object.keys(params),
 			pattern: getPattern(segments, this.#config, this.#config.trailingSlash),
 			prerender: false,
 			segments,
@@ -328,5 +330,22 @@ export class unstable_AstroContainer {
 			fallbackRoutes: [],
 			isIndex: false,
 		};
+	}
+
+	/**
+	 * If the provided component isn't a default export, the function wraps it in an object `{default: Component }` to mimic the default export.
+	 * @param componentFactory
+	 * @private
+	 */
+	#wrapComponent(componentFactory: AstroComponentFactory, params?: any): ComponentInstance {
+		if (params){
+			return {
+				default: componentFactory,
+				getStaticPaths() {
+					return [{ params }];
+				}
+			}	
+		}
+		return ({ default: componentFactory  })
 	}
 }

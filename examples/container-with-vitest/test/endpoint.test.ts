@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { unstable_AstroContainer as AstroContainer } from 'astro/container';
-import * as API from '../src/pages/api.ts';
+import API from '../src/pages/api.ts';
 
 test('API endpoint ', async () => {
 	const container = await AstroContainer.create();
