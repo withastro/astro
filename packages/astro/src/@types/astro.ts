@@ -1776,7 +1776,9 @@ export interface AstroUserConfig {
 		 * };
 		 * ```
 		 *
-		 * Then, call an action from your client components using the `actions` object from `astro:actions`. You can pass a type-safe object when using JSON, or a [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) object when using `accept: 'form'` in your action definition:
+		 * Then, call an action from your client components using the `actions` object from `astro:actions`. You can pass a type-safe object when using JSON, or a [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) object when using `accept: 'form'` in your action definition.
+		 *
+		 * This example calls the `like` and `comment` actions from a Preact component:
 		 *
 		 * ```tsx "actions"
 		 * // src/components/blog.tsx
@@ -1802,7 +1804,7 @@ export interface AstroUserConfig {
 		 *     <form
 		 *       onSubmit={async (e) => {
 		 *         e.preventDefault();
-		 *         const formData = new FormData(e.target);
+		 *         const formData = new FormData(e.target as HTMLFormElement);
 		 *         const result = await actions.blog.comment(formData);
 		 *         // handle result
 		 *       }}
