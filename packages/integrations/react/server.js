@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { incrementId } from './context.js';
 import StaticHtml from './static-html.js';
+import { GetActionResultContext } from './dist/actions.js';
 
 const slotName = (str) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 const reactTypeof = Symbol.for('react.element');
@@ -101,7 +102,13 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 			value: newChildren,
 		});
 	}
-	const vnode = React.createElement(Component, newProps);
+	const vnode = metadata.getActionResult
+		? React.createElement(GetActionResultContext.Provider, {
+				value: metadata.getActionResult,
+				children: React.createElement(Component, newProps),
+			})
+		: React.createElement(Component, newProps);
+
 	const renderOptions = {
 		identifierPrefix: prefix,
 	};

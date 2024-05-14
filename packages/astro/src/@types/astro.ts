@@ -157,6 +157,7 @@ export interface AstroComponentMetadata {
 	hydrateArgs?: any;
 	componentUrl?: string;
 	componentExport?: { value: string; namespace?: boolean };
+	getActionResult: AstroGlobal['getActionResult'];
 	astroStaticSlot: true;
 }
 
@@ -3150,6 +3151,7 @@ export interface SSRResult {
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
 	response: AstroGlobal['response'];
+	getActionResult: AstroGlobal['getActionResult'];
 	renderers: SSRLoadedRenderer[];
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code

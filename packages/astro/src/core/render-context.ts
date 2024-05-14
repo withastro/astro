@@ -314,6 +314,7 @@ export class RenderContext {
 			renderers,
 			resolve,
 			response,
+			getActionResult: createGetActionResult(this.locals),
 			scripts,
 			styles,
 			_metadata: {
