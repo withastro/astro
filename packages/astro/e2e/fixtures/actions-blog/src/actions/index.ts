@@ -5,8 +5,10 @@ import { getCollection } from 'astro:content';
 export const server = {
 	blog: {
 		like: defineAction({
-			input: z.object({ postId: z.string() }),
-			handler: async ({ postId }) => {
+			accept: 'form',
+			input: z.object({ postId: z.string(), state: z.string().transform(t => JSON.parse(t)) }),
+			handler: async ({ postId, state }) => {
+				console.log('state', state);
 				await new Promise((r) => setTimeout(r, 200));
 
 				const { likes } = await db

@@ -1,22 +1,23 @@
 import { actions } from 'astro:actions';
-import { useState } from 'react';
+import { useActionState } from 'react';
+import { withState } from '@astrojs/react/actions';
 
 export function Like({ postId, initial }: { postId: string; initial: number }) {
-	const [likes, setLikes] = useState(initial);
-	const [pending, setPending] = useState(false);
+	const [state, action, pending] = useActionState(
+		withState(actions.blog.like),
+		initial,
+	);
 
 	return (
+		<form action={action}>
+			<input type="hidden" name="postId" value={postId} />
 		<button
 			aria-label="Like"
 			disabled={pending}
-			onClick={async () => {
-				setPending(true);
-				setLikes(await actions.blog.like({ postId }));
-				setPending(false);
-			}}
 			type="submit"
 		>
-			{likes} ❤️
+			{state} ❤️
 		</button>
+		</form>
 	);
 }
