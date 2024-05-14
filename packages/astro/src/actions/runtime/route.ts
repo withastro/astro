@@ -7,9 +7,15 @@ export const POST: APIRoute = async (context) => {
 	const { request, url } = context;
 	const actionPathKeys = url.pathname.replace('/_actions/', '').split('.');
 	const action = await getAction(actionPathKeys);
+	if (!action) {
+		return new Response(null, { status: 404 });
+	}
 	const contentType = request.headers.get('Content-Type');
+	const contentLength = request.headers.get('Content-Length');
 	let args: unknown;
-	if (contentType && hasContentType(contentType, formContentTypes)) {
+	if (contentLength === '0') {
+		args = undefined;
+	} else if (contentType && hasContentType(contentType, formContentTypes)) {
 		args = await request.clone().formData();
 	} else if (contentType && hasContentType(contentType, ['application/json'])) {
 		args = await request.clone().json();
@@ -35,6 +41,7 @@ export const POST: APIRoute = async (context) => {
 		);
 	}
 	return new Response(JSON.stringify(result.data), {
+		status: result.data ? 200 : 204,
 		headers: {
 			'Content-Type': 'application/json',
 		},
