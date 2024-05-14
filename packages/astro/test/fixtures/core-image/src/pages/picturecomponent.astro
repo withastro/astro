@@ -14,3 +14,18 @@ import myImage from "../assets/penguin1.jpg";
 <div id="picture-fallback">
 <Picture src={myImage} fallbackFormat="jpeg" alt="A penguin" />
 </div>
+
+<div id="picture-attributes">
+  <Picture src={myImage} fallbackFormat="jpeg" alt="A penguin" class="img-comp" pictureAttributes={{ class: 'picture-comp' }} />
+</div>
+
+<style>
+  .img-comp {
+    border: 5px solid blue;
+  }
+
+  .picture-comp {
+    border: 5px solid red;
+    display: inline-block;
+  }
+</style>

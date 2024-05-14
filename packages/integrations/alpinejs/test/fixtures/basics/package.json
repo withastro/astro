@@ -4,8 +4,8 @@
   "private": true,
   "dependencies": {
     "@astrojs/alpinejs": "workspace:*",
-    "@types/alpinejs": "^3.13.5",
-    "alpinejs": "^3.13.3",
+    "@types/alpinejs": "^3.13.10",
+    "alpinejs": "^3.13.10",
     "astro": "workspace:*"
   }
 }

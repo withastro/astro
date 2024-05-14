@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.11.1
+
+### Patch Changes
+
+- [#10967](https://github.com/withastro/astro/pull/10967) [`a134318`](https://github.com/withastro/astro/commit/a1343184da2a67439de4792e9e404d17ec3943df) Thanks [@matthewp](https://github.com/matthewp)! - Convert non-ISO date to UTC time
+
 ## 0.11.0
 
 ### Minor Changes

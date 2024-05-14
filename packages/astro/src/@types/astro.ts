@@ -1727,14 +1727,14 @@ export interface AstroUserConfig {
 		 * @name experimental.actions
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 4.7.0
+		 * @version 4.8.0
 		 * @description
 		 *
 		 * Actions help you write type-safe backend functions you can call from anywhere. Enable server rendering [using the `output` property](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered) and add the `actions` flag to the `experimental` object:
 		 *
 		 * ```js
 		 * {
-		 * 	 output: 'hybrid', // or 'server'
+		 *   output: 'hybrid', // or 'server'
 		 *   experimental: {
 		 *     actions: true,
 		 *   },
@@ -1754,20 +1754,20 @@ export interface AstroUserConfig {
 		 * export const server = {
 		 *   like: defineAction({
 		 *     input: z.object({ postId: z.string() }),
-		 *     handler: async ({ postId }, context) => {
+		 *     handler: async ({ postId }) => {
 		 *       // update likes in db
 		 *
 		 *       return likes;
 		 *     },
 		 *   }),
 		 *   comment: defineAction({
-		 * 		 accept: 'form',
+		 *     accept: 'form',
 		 *     input: z.object({
 		 *       postId: z.string(),
 		 *       author: z.string(),
 		 *       body: z.string(),
 		 *     }),
-		 *     handler: async ({ postId }, context) => {
+		 *     handler: async ({ postId }) => {
 		 *       // insert comments in db
 		 *
 		 *       return comment;
@@ -2107,7 +2107,7 @@ export interface AstroUserConfig {
 		 *
 		 * For a complete overview, and to give feedback on this experimental API, see the [Rerouting RFC](https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md).
 		 */
-		rewriting: boolean;
+		rewriting?: boolean;
 	};
 }
 

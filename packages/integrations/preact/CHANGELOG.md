@@ -1,5 +1,22 @@
 # @astrojs/preact
 
+## 3.3.0
+
+### Minor Changes
+
+- [#10938](https://github.com/withastro/astro/pull/10938) [`fd508a0`](https://github.com/withastro/astro/commit/fd508a0fbb5148aafc180f1b14d3e47974777248) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a `devtools` option
+
+  You can enable [Preact devtools](https://preactjs.github.io/preact-devtools/) in development by setting `devtools: true` in your `preact()` integration config:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import preact from '@astrojs/preact';
+
+  export default defineConfig({
+    integrations: [preact({ devtools: true })],
+  });
+  ```
+
 ## 3.2.0
 
 ### Minor Changes

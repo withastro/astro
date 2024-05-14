@@ -58,6 +58,11 @@ export interface BuildInternals {
 	pagesByClientOnly: Map<string, Set<PageBuildData>>;
 
 	/**
+	 * A map for page-specific information by a script in an Astro file
+	 */
+	pagesByScriptId: Map<string, Set<PageBuildData>>;
+
+	/**
 	 * A map of hydrated components to export names that are discovered during the SSR build.
 	 * These will be used as the top-level entrypoints for the client build.
 	 *
@@ -133,6 +138,7 @@ export function createBuildInternals(): BuildInternals {
 		pageOptionsByPage: new Map(),
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
+		pagesByScriptId: new Map(),
 
 		propagatedStylesMap: new Map(),
 		propagatedScriptsMap: new Map(),
@@ -176,6 +182,26 @@ export function trackClientOnlyPageDatas(
 		} else {
 			pageDataSet = new Set<PageBuildData>();
 			internals.pagesByClientOnly.set(clientOnlyComponent, pageDataSet);
+		}
+		pageDataSet.add(pageData);
+	}
+}
+
+/**
+ * Tracks scripts to the pages they are associated with. (experimental.directRenderScript)
+ */
+export function trackScriptPageDatas(
+	internals: BuildInternals,
+	pageData: PageBuildData,
+	scriptIds: string[]
+) {
+	for (const scriptId of scriptIds) {
+		let pageDataSet: Set<PageBuildData>;
+		if (internals.pagesByScriptId.has(scriptId)) {
+			pageDataSet = internals.pagesByScriptId.get(scriptId)!;
+		} else {
+			pageDataSet = new Set<PageBuildData>();
+			internals.pagesByScriptId.set(scriptId, pageDataSet);
 		}
 		pageDataSet.add(pageData);
 	}

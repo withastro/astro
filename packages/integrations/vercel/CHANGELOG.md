@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 7.6.0
+
+### Minor Changes
+
+- [#10761](https://github.com/withastro/astro/pull/10761) [`f0acd30`](https://github.com/withastro/astro/commit/f0acd30a12c380830884108f7cad67a31d879339) Thanks [@ematipico](https://github.com/ematipico)! - Implements the vercel skew protection
+
 ## 7.5.4
 
 ### Patch Changes
