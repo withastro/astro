@@ -1688,7 +1688,7 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @name experimental.security
+	 * @name security
 	 * @type {boolean}
 	 * @default `{}`
 	 * @version 4.6.0
