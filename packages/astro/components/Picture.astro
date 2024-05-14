@@ -27,6 +27,21 @@ if (props.alt === undefined || props.alt === null) {
 	throw new AstroError(AstroErrorData.ImageMissingAlt);
 }
 
+// Picture attribute inherit scoped styles from class and attributes
+const scopedStyleClass = props.class?.match(/\bastro-\w{8}\b/)?.[0];
+if (scopedStyleClass) {
+	if (pictureAttributes.class) {
+		pictureAttributes.class = `${pictureAttributes.class} ${scopedStyleClass}`;
+	} else {
+		pictureAttributes.class = scopedStyleClass;
+	}
+}
+for (const key in props) {
+	if (key.startsWith('data-astro-cid')) {
+		pictureAttributes[key] = props[key];
+	}
+}
+
 const originalSrc = await resolveSrc(props.src);
 const optimizedImages: GetImageResult[] = await Promise.all(
 	formats.map(

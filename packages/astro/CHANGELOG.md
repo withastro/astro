@@ -1,5 +1,27 @@
 # astro
 
+## 4.8.3
+
+### Patch Changes
+
+- [#11006](https://github.com/withastro/astro/pull/11006) [`7418bb0`](https://github.com/withastro/astro/commit/7418bb054cf74a131877497b4b70cf0980de4c6b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix `locals` access from action handlers
+
+## 4.8.2
+
+### Patch Changes
+
+- [#10990](https://github.com/withastro/astro/pull/10990) [`4161a2a`](https://github.com/withastro/astro/commit/4161a2a3d095eaf4d109b4ac49f11f6762bed017) Thanks [@liruifengv](https://github.com/liruifengv)! - fix incorrect actions path on windows
+
+- [#10979](https://github.com/withastro/astro/pull/10979) [`6fa89e8`](https://github.com/withastro/astro/commit/6fa89e84c917f487be9f62875d85c61974e71590) Thanks [@BryceRussell](https://github.com/BryceRussell)! - Fix loading of non-index routes that end with `index.html`
+
+## 4.8.1
+
+### Patch Changes
+
+- [#10987](https://github.com/withastro/astro/pull/10987) [`05db5f7`](https://github.com/withastro/astro/commit/05db5f78187efb53c5732b28e499c7977ceee496) Thanks [@ematipico](https://github.com/ematipico)! - Fix a regression where the flag `experimental.rewriting` was marked mandatory. Is is now optional.
+
+- [#10975](https://github.com/withastro/astro/pull/10975) [`6b640b3`](https://github.com/withastro/astro/commit/6b640b3bcb74d21903d303e268ff8ecef90097e7) Thanks [@bluwy](https://github.com/bluwy)! - Passes the scoped style attribute or class to the `<picture>` element in the `<Picture />` component so scoped styling can be applied to the `<picture>` element
+
 ## 4.8.0
 
 ### Minor Changes
@@ -75,7 +97,7 @@
 
   > **NOTE**: please [read the RFC](https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md) to understand the current expectations of the new APIs.
 
-- [#10858](https://github.com/withastro/astro/pull/10858) [`c0c509b`](https://github.com/withastro/astro/commit/c0c509b6bf3f55562d22297fdcc2b3e57969734d) Thanks [@z.string(),](<https://github.com/z.string(),>)! - Adds experimental support for the Actions API. Actions let you define type-safe endpoints you can query from client components with progressive enhancement built in.
+- [#10858](https://github.com/withastro/astro/pull/10858) [`c0c509b`](https://github.com/withastro/astro/commit/c0c509b6bf3f55562d22297fdcc2b3e57969734d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Adds experimental support for the Actions API. Actions let you define type-safe endpoints you can query from client components with progressive enhancement built in.
 
   Actions help you write type-safe backend functions you can call from anywhere. Enable server rendering [using the `output` property](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered) and add the `actions` flag to the `experimental` object:
 
@@ -101,7 +123,7 @@
   export const server = {
     like: defineAction({
       input: z.object({ postId: z.string() }),
-      handler: async ({ postId }, context) => {
+      handler: async ({ postId }) => {
         // update likes in db
 
         return likes;
@@ -114,7 +136,7 @@
 
         body: z.string(),
       }),
-      handler: async ({ postId }, context) => {
+      handler: async ({ postId }) => {
         // insert comments in db
 
         return comment;

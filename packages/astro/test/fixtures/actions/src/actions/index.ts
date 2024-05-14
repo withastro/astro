@@ -1,4 +1,4 @@
-import { defineAction, z } from 'astro:actions';
+import { defineAction, getApiContext, ActionError, z } from 'astro:actions';
 
 export const server = {
 	subscribe: defineAction({
@@ -28,5 +28,26 @@ export const server = {
 				isFormData: formData instanceof FormData,
 			};
 		},
+	}),
+	getUser: defineAction({
+		accept: 'form',
+		handler: async () => {
+			const { locals } = getApiContext();
+			return locals.user;
+		}
+	}),
+	getUserOrThrow: defineAction({
+		accept: 'form',
+		handler: async () => {
+			const { locals } = getApiContext();
+			if (locals.user?.name !== 'admin') {
+				// Expected to throw
+				throw new ActionError({
+					code: 'UNAUTHORIZED',
+					message: 'Not logged in',
+				});
+			}
+			return locals.user;
+		}
 	}),
 };
