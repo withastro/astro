@@ -11,7 +11,11 @@ import {
 	getTopLevelPageModuleInfos,
 	moduleIsTopLevelPage,
 } from '../graph.js';
-import { getPageDataByViteID, trackClientOnlyPageDatas } from '../internal.js';
+import {
+	getPageDataByViteID,
+	trackClientOnlyPageDatas,
+	trackScriptPageDatas,
+} from '../internal.js';
 import type { StaticBuildOptions } from '../types.js';
 
 function isPropagatedAsset(id: string) {
@@ -171,9 +175,21 @@ export function vitePluginAnalyzer(
 				// each script module is its own entrypoint, so we directly assign each script modules to
 				// `discoveredScripts` here, which will eventually be passed as inputs of the client build.
 				if (options.settings.config.experimental.directRenderScript && astro.scripts.length) {
-					for (let i = 0; i < astro.scripts.length; i++) {
-						const hid = `${id.replace('/@fs', '')}?astro&type=script&index=${i}&lang.ts`;
-						internals.discoveredScripts.add(hid);
+					const scriptIds = astro.scripts.map(
+						(_, i) => `${id.replace('/@fs', '')}?astro&type=script&index=${i}&lang.ts`
+					);
+
+					// Assign as entrypoints for the client bundle
+					for (const scriptId of scriptIds) {
+						internals.discoveredScripts.add(scriptId);
+					}
+
+					// The script may import CSS, so we also have to track the pages that use this script
+					for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
+						const newPageData = getPageDataByViteID(internals, pageInfo.id);
+						if (!newPageData) continue;
+
+						trackScriptPageDatas(internals, newPageData, scriptIds);
 					}
 				}
 			}

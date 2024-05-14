@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroIntegration } from '../@types/astro.js';
+import { viteID } from '../core/util.js';
 import { ACTIONS_TYPES_FILE, RESOLVED_VIRTUAL_MODULE_ID, VIRTUAL_MODULE_ID } from './consts.js';
 
 export default function astroActions(): AstroIntegration {
@@ -9,7 +10,7 @@ export default function astroActions(): AstroIntegration {
 		hooks: {
 			async 'astro:config:setup'(params) {
 				const stringifiedActionsImport = JSON.stringify(
-					new URL('actions', params.config.srcDir).pathname
+					viteID(new URL('./actions', params.config.srcDir))
 				);
 				params.updateConfig({
 					vite: {
@@ -28,7 +29,7 @@ export default function astroActions(): AstroIntegration {
 
 				params.addMiddleware({
 					entrypoint: 'astro/actions/runtime/middleware.js',
-					order: 'pre',
+					order: 'post',
 				});
 
 				await typegen({

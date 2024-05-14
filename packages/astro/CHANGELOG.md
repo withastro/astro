@@ -1,5 +1,209 @@
 # astro
 
+## 4.8.3
+
+### Patch Changes
+
+- [#11006](https://github.com/withastro/astro/pull/11006) [`7418bb0`](https://github.com/withastro/astro/commit/7418bb054cf74a131877497b4b70cf0980de4c6b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix `locals` access from action handlers
+
+## 4.8.2
+
+### Patch Changes
+
+- [#10990](https://github.com/withastro/astro/pull/10990) [`4161a2a`](https://github.com/withastro/astro/commit/4161a2a3d095eaf4d109b4ac49f11f6762bed017) Thanks [@liruifengv](https://github.com/liruifengv)! - fix incorrect actions path on windows
+
+- [#10979](https://github.com/withastro/astro/pull/10979) [`6fa89e8`](https://github.com/withastro/astro/commit/6fa89e84c917f487be9f62875d85c61974e71590) Thanks [@BryceRussell](https://github.com/BryceRussell)! - Fix loading of non-index routes that end with `index.html`
+
+## 4.8.1
+
+### Patch Changes
+
+- [#10987](https://github.com/withastro/astro/pull/10987) [`05db5f7`](https://github.com/withastro/astro/commit/05db5f78187efb53c5732b28e499c7977ceee496) Thanks [@ematipico](https://github.com/ematipico)! - Fix a regression where the flag `experimental.rewriting` was marked mandatory. Is is now optional.
+
+- [#10975](https://github.com/withastro/astro/pull/10975) [`6b640b3`](https://github.com/withastro/astro/commit/6b640b3bcb74d21903d303e268ff8ecef90097e7) Thanks [@bluwy](https://github.com/bluwy)! - Passes the scoped style attribute or class to the `<picture>` element in the `<Picture />` component so scoped styling can be applied to the `<picture>` element
+
+## 4.8.0
+
+### Minor Changes
+
+- [#10935](https://github.com/withastro/astro/pull/10935) [`ddd8e49`](https://github.com/withastro/astro/commit/ddd8e49d1a179bec82310fb471f822a1567a6610) Thanks [@bluwy](https://github.com/bluwy)! - Exports `astro/jsx/rehype.js` with utilities to generate an Astro metadata object
+
+- [#10625](https://github.com/withastro/astro/pull/10625) [`698c2d9`](https://github.com/withastro/astro/commit/698c2d9bb51e20b38de405b6076fd6488ddb5c2b) Thanks [@goulvenclech](https://github.com/goulvenclech)! - Adds the ability for multiple pages to use the same component as an `entrypoint` when building an Astro integration. This change is purely internal, and aligns the build process with the behaviour in the development server.
+
+- [#10906](https://github.com/withastro/astro/pull/10906) [`7bbd664`](https://github.com/withastro/astro/commit/7bbd66459dd29a338ac1dfae0e4c984cb08f73b3) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a new radio checkbox component to the dev toolbar UI library (`astro-dev-toolbar-radio-checkbox`)
+
+- [#10963](https://github.com/withastro/astro/pull/10963) [`61f47a6`](https://github.com/withastro/astro/commit/61f47a684235a049cbfc4f2cbb5edff3befeced7) Thanks [@delucis](https://github.com/delucis)! - Adds support for passing an inline Astro configuration object to `getViteConfig()`
+
+  If you are using `getViteConfig()` to configure the Vitest test runner, you can now pass a second argument to control how Astro is configured. This makes it possible to configure unit tests with different Astro options when using [Vitest’s workspaces](https://vitest.dev/guide/workspace.html) feature.
+
+  ```js
+  // vitest.config.ts
+  import { getViteConfig } from 'astro/config';
+
+  export default getViteConfig(
+    /* Vite configuration */
+    { test: {} },
+    /* Astro configuration */
+    {
+      site: 'https://example.com',
+      trailingSlash: 'never',
+    }
+  );
+  ```
+
+- [#10867](https://github.com/withastro/astro/pull/10867) [`47877a7`](https://github.com/withastro/astro/commit/47877a75404ccc8786bbea2171015fb088dc01a1) Thanks [@ematipico](https://github.com/ematipico)! - Adds experimental rewriting in Astro with a new `rewrite()` function and the middleware `next()` function.
+
+  The feature is available via an experimental flag in `astro.config.mjs`:
+
+  ```js
+  export default defineConfig({
+    experimental: {
+      rewriting: true,
+    },
+  });
+  ```
+
+  When enabled, you can use `rewrite()` to **render** another page without changing the URL of the browser in Astro pages and endpoints.
+
+  ```astro
+  ---
+  // src/pages/dashboard.astro
+  if (!Astro.props.allowed) {
+    return Astro.rewrite('/');
+  }
+  ---
+  ```
+
+  ```js
+  // src/pages/api.js
+  export function GET(ctx) {
+    if (!ctx.locals.allowed) {
+      return ctx.rewrite('/');
+    }
+  }
+  ```
+
+  The middleware `next()` function now accepts a parameter with the same type as the `rewrite()` function. For example, with `next("/")`, you can call the next middleware function with a new `Request`.
+
+  ```js
+  // src/middleware.js
+  export function onRequest(ctx, next) {
+    if (!ctx.cookies.get('allowed')) {
+      return next('/'); // new signature
+    }
+    return next();
+  }
+  ```
+
+  > **NOTE**: please [read the RFC](https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md) to understand the current expectations of the new APIs.
+
+- [#10858](https://github.com/withastro/astro/pull/10858) [`c0c509b`](https://github.com/withastro/astro/commit/c0c509b6bf3f55562d22297fdcc2b3e57969734d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Adds experimental support for the Actions API. Actions let you define type-safe endpoints you can query from client components with progressive enhancement built in.
+
+  Actions help you write type-safe backend functions you can call from anywhere. Enable server rendering [using the `output` property](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered) and add the `actions` flag to the `experimental` object:
+
+  ```js
+  {
+    output: 'hybrid', // or 'server'
+    experimental: {
+      actions: true,
+    },
+  }
+  ```
+
+  Declare all your actions in `src/actions/index.ts`. This file is the global actions handler.
+
+  Define an action using the `defineAction()` utility from the `astro:actions` module. These accept the `handler` property to define your server-side request handler. If your action accepts arguments, apply the `input` property to validate parameters with Zod.
+
+  This example defines two actions: `like` and `comment`. The `like` action accepts a JSON object with a `postId` string, while the `comment` action accepts [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) with `postId`, `author`, and `body` strings. Each `handler` updates your database and return a type-safe response.
+
+  ```ts
+  // src/actions/index.ts
+  import { defineAction, z } from 'astro:actions';
+
+  export const server = {
+    like: defineAction({
+      input: z.object({ postId: z.string() }),
+      handler: async ({ postId }) => {
+        // update likes in db
+
+        return likes;
+      },
+    }),
+    comment: defineAction({
+      accept: 'form',
+      input: z.object({
+        postId: z.string(),
+
+        body: z.string(),
+      }),
+      handler: async ({ postId }) => {
+        // insert comments in db
+
+        return comment;
+      },
+    }),
+  };
+  ```
+
+  Then, call an action from your client components using the `actions` object from `astro:actions`. You can pass a type-safe object when using JSON, or a [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) object when using `accept: 'form'` in your action definition:
+
+  ```tsx "actions"
+  // src/components/blog.tsx
+  import { actions } from 'astro:actions';
+  import { useState } from 'preact/hooks';
+
+  export function Like({ postId }: { postId: string }) {
+    const [likes, setLikes] = useState(0);
+    return (
+      <button
+        onClick={async () => {
+          const newLikes = await actions.like({ postId });
+          setLikes(newLikes);
+        }}
+      >
+        {likes} likes
+      </button>
+    );
+  }
+
+  export function Comment({ postId }: { postId: string }) {
+    return (
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const result = await actions.blog.comment(formData);
+          // handle result
+        }}
+      >
+        <input type="hidden" name="postId" value={postId} />
+        <label for="author">Author</label>
+        <input id="author" type="text" name="author" />
+        <textarea rows={10} name="body"></textarea>
+        <button type="submit">Post</button>
+      </form>
+    );
+  }
+  ```
+
+  For a complete overview, and to give feedback on this experimental API, see the [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md).
+
+- [#10906](https://github.com/withastro/astro/pull/10906) [`7bbd664`](https://github.com/withastro/astro/commit/7bbd66459dd29a338ac1dfae0e4c984cb08f73b3) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a new `buttonBorderRadius` property to the `astro-dev-toolbar-button` component for the dev toolbar component library. This property can be useful to make a fully rounded button with an icon in the center.
+
+### Patch Changes
+
+- [#10977](https://github.com/withastro/astro/pull/10977) [`59571e8`](https://github.com/withastro/astro/commit/59571e8812ec637f5ea61be6c6adc0f45212d176) Thanks [@BryceRussell](https://github.com/BryceRussell)! - Improve error message when accessing `clientAddress` on prerendered routes
+
+- [#10935](https://github.com/withastro/astro/pull/10935) [`ddd8e49`](https://github.com/withastro/astro/commit/ddd8e49d1a179bec82310fb471f822a1567a6610) Thanks [@bluwy](https://github.com/bluwy)! - Improves the error message when failed to render MDX components
+
+- [#10917](https://github.com/withastro/astro/pull/10917) [`3412535`](https://github.com/withastro/astro/commit/3412535be4a0ec94cea18c5d186b7ffbd6f8209c) Thanks [@jakobhellermann](https://github.com/jakobhellermann)! - Fixes a case where the local server would crash when the host also contained the port, eg. with `X-Forwarded-Host: hostname:8080` and `X-Forwarded-Port: 8080` headers
+
+- [#10959](https://github.com/withastro/astro/pull/10959) [`685fc22`](https://github.com/withastro/astro/commit/685fc22bc6247be69a34c3f6945dec058c19fd71) Thanks [@bluwy](https://github.com/bluwy)! - Refactors internal handling of styles and scripts for content collections to improve build performance
+
+- [#10889](https://github.com/withastro/astro/pull/10889) [`4d905cc`](https://github.com/withastro/astro/commit/4d905ccef663f728fc981181f5bb9f1d157184ff) Thanks [@matthewp](https://github.com/matthewp)! - Preserve content modules properly in cache
+
+- [#10955](https://github.com/withastro/astro/pull/10955) [`2978287`](https://github.com/withastro/astro/commit/2978287f92dbd135f5c3efc6a037ea1756064d35) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Handles `AstroUserError`s thrown while syncing content collections and exports `BaseSchema` and `CollectionConfig` types
+
 ## 4.7.1
 
 ### Patch Changes

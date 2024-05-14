@@ -27,6 +27,9 @@ const comment = Astro.getActionResult(actions.blog.comment);
 const comments = await db.select().from(Comment).where(eq(Comment.postId, post.id));
 
 const initialLikes = await db.select().from(Likes).where(eq(Likes.postId, post.id)).get();
+
+// Used to force validation errors for testing
+const commentPostIdOverride = Astro.url.searchParams.get('commentPostIdOverride');
 ---
 
 <BlogPost {...post.data}>
@@ -36,7 +39,7 @@ const initialLikes = await db.select().from(Likes).where(eq(Likes.postId, post.i
 
 	<h2>Comments</h2>
 	<PostComment
-		postId={post.id}
+		postId={commentPostIdOverride ?? post.id}
 		serverBodyError={isInputError(comment?.error)
 			? comment.error.fields.body?.toString()
 			: undefined}

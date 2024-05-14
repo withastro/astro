@@ -47,10 +47,13 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 	code: ActionErrorCode = 'INTERNAL_SERVER_ERROR';
 	status = 500;
 
-	constructor(params: { message?: string; code: ActionErrorCode }) {
+	constructor(params: { message?: string; code: ActionErrorCode; stack?: string }) {
 		super(params.message);
 		this.code = params.code;
 		this.status = ActionError.codeToStatus(params.code);
+		if (params.stack) {
+			this.stack = params.stack;
+		}
 	}
 
 	static codeToStatus(code: ActionErrorCode): number {
@@ -62,22 +65,20 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 	}
 
 	static async fromResponse(res: Response) {
+		const body = await res.clone().json();
 		if (
-			res.status === 400 &&
-			res.headers.get('Content-Type')?.toLowerCase().startsWith('application/json')
+			typeof body === 'object' &&
+			body?.type === 'AstroActionInputError' &&
+			Array.isArray(body.issues)
 		) {
-			const body = await res.json();
-			if (
-				typeof body === 'object' &&
-				body?.type === 'AstroActionInputError' &&
-				Array.isArray(body.issues)
-			) {
-				return new ActionInputError(body.issues);
-			}
+			return new ActionInputError(body.issues);
+		}
+		if (typeof body === 'object' && body?.type === 'AstroActionError') {
+			return new ActionError(body);
 		}
 		return new ActionError({
 			message: res.statusText,
-			code: this.statusToCode(res.status),
+			code: ActionError.statusToCode(res.status),
 		});
 	}
 }
@@ -109,7 +110,10 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 	fields: z.ZodError<T>['formErrors']['fieldErrors'];
 
 	constructor(issues: z.ZodIssue[]) {
-		super({ message: 'Failed to validate', code: 'BAD_REQUEST' });
+		super({
+			message: `Failed to validate: ${JSON.stringify(issues, null, 2)}`,
+			code: 'BAD_REQUEST',
+		});
 		this.issues = issues;
 		this.fields = {};
 		for (const issue of issues) {

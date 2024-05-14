@@ -69,6 +69,19 @@ export const ClientAddressNotAvailable = {
 /**
  * @docs
  * @see
+ * - [Opting-in to pre-rendering](https://docs.astro.build/en/guides/server-side-rendering/#opting-in-to-pre-rendering-in-server-mode)
+ * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
+ * @description
+ * The `Astro.clientAddress` property cannot be used inside prerendered routes.
+ */
+export const PrerenderClientAddressNotAvailable = {
+	name: 'PrerenderClientAddressNotAvailable',
+	title: '`Astro.clientAddress` cannot be used inside prerendered routes.',
+	message: `\`Astro.clientAddress\` cannot be used inside prerendered routes`,
+} satisfies ErrorData;
+/**
+ * @docs
+ * @see
  * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/)
  * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
  * @description
@@ -1159,6 +1172,17 @@ export const i18nNotEnabled = {
 /**
  * @docs
  * @description
+ * Astro couldn't find a route matching the one provided by the user
+ */
+export const RouteNotFound = {
+	name: 'RouteNotFound',
+	title: 'Route not found.',
+	message: `Astro could not find a route that matches the one you requested.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * The failing environment variable does not match the type and constraints defined in `experimental.env.schema`.
  */
 export const EnvInvalidVariables = {
@@ -1527,18 +1551,6 @@ export const UnsupportedConfigTransformError = {
 	message: (parseError: string) =>
 		`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
 	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
- *
- * Astro couldn't find a route matching the one provided by the user
- */
-export const RouteNotFound = {
-	name: 'RouteNotFound',
-	title: 'Route not found.',
-	message: `Astro could not find a route that matches the one you requested.`,
 } satisfies ErrorData;
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.
