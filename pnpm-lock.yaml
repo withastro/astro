@@ -152,8 +152,6 @@ importers:
         specifier: ^4.8.3
         version: link:../../packages/astro
 
-  examples/container-vanilla: {}
-
   examples/container-with-vitest:
     dependencies:
       astro:

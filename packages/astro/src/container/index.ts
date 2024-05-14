@@ -285,14 +285,13 @@ export class unstable_AstroContainer {
 	): Promise<Response> {
 		const { routeType = 'page', slots, route = ""  } = options;
 		const request = options?.request ?? new Request('https://example.com/');
-		const params = options?.params ?? {};
 		const url = new URL(request.url);
-		const componentInstance =  this.#wrapComponent(component, params);
+		const componentInstance = routeType === "endpoint" ? component as unknown as ComponentInstance : this.#wrapComponent(component, options.params);
 		const routeData = this.insertRoute({
 			route,
 			path: request.url,
 			componentInstance,
-			params,
+			params: options.params,
 			type: routeType,
 		});
 		const renderContext = RenderContext.create({
@@ -335,9 +334,10 @@ export class unstable_AstroContainer {
 	/**
 	 * If the provided component isn't a default export, the function wraps it in an object `{default: Component }` to mimic the default export.
 	 * @param componentFactory
+	 * @param params
 	 * @private
 	 */
-	#wrapComponent(componentFactory: AstroComponentFactory, params?: any): ComponentInstance {
+	#wrapComponent(componentFactory: AstroComponentFactory, params?: Record<string, string | undefined>): ComponentInstance {
 		if (params){
 			return {
 				default: componentFactory,
