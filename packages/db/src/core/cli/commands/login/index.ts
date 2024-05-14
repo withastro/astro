@@ -7,7 +7,7 @@ import open from 'open';
 import ora from 'ora';
 import prompt from 'prompts';
 import type { Arguments } from 'yargs-parser';
-import { SESSION_LOGIN_FILE } from '../../../tokens.js';
+import { SESSION_LOGIN_FILE } from '@astrojs/studio';
 import type { DBConfig } from '../../../types.js';
 import { getAstroStudioUrl } from '../../../utils.js';
 

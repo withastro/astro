@@ -14,7 +14,7 @@ import {
 	getStudioVirtualModContents,
 } from '../../../integration/vite-plugin-db.js';
 import { bundleFile, importBundledFile } from '../../../load-file.js';
-import { getManagedAppTokenOrExit } from '../../../tokens.js';
+import { getManagedAppTokenOrExit } from '@astrojs/studio';
 import type { DBConfig } from '../../../types.js';
 
 export async function cmd({
