@@ -131,15 +131,8 @@ export class TestPipeline extends Pipeline {
 			// SAFETY: it is checked inside the if
 			return this.#componentsInterner.get(route)!;
 		}
-		let entry;
-		// if (routeIsRedirect(route)) {
-		// entry = await this.#createEntryURL(route, this.internals, this.outFolder);
-		// } else if (routeIsFallback(route)) {
-		// entry = await this.#getEntryForFallbackRoute(route, this.internals, this.outFolder);
-		// } else {
 		const ssrEntryURLPage = this.#createEntryURL(filePath, new URL(process.cwd()));
-		entry = await import(ssrEntryURLPage.toString());
-		// }
+		const entry = await import(ssrEntryURLPage.toString());
 		this.#componentsInterner.set(route, entry);
 		return entry;
 	}
