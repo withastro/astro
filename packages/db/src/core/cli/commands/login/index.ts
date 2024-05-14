@@ -7,9 +7,8 @@ import open from 'open';
 import ora from 'ora';
 import prompt from 'prompts';
 import type { Arguments } from 'yargs-parser';
-import { SESSION_LOGIN_FILE } from '@astrojs/studio';
+import { SESSION_LOGIN_FILE, getAstroStudioUrl } from '@astrojs/studio';
 import type { DBConfig } from '../../../types.js';
-import { getAstroStudioUrl } from '../../../utils.js';
 
 const isWebContainer =
 	// Stackblitz heuristic
