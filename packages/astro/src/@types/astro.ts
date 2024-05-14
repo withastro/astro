@@ -2692,7 +2692,7 @@ export type AstroFeatureMap = {
 	/**
 	 * The adapter is able to support `getSecret` exported from `astro:env/server`
 	 */
-	env?: SupportsKind;
+	envGetSecret?: SupportsKind;
 };
 
 export interface AstroAssetsFeature {

@@ -3,6 +3,7 @@ import { before, describe, it } from 'node:test';
 import { loadFixture } from '../../test-utils.js';
 import testAdapter from '../../test-adapter.js';
 import * as cheerio from 'cheerio';
+import { setGetEnv } from '../../../dist/runtime/server/astro-env.js';
 
 describe('astro:env public variables', () => {
 	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
@@ -27,14 +28,13 @@ describe('astro:env public variables', () => {
 
 		it('adapter can set how env is retrieved', async () => {
 			const request = new Request('http://example.com/');
-			const response = await app.render(request, {
-				getEnv(key) {
-					return {
-						KNOWN_SECRET: '123456',
-						UNKNOWN_SECRET: 'abc',
-					}[key];
-				},
+			app.setGetEnv((key) => {
+				return {
+					KNOWN_SECRET: '123456',
+					UNKNOWN_SECRET: 'abc',
+				}[key];
 			});
+			const response = await app.render(request);
 			assert.equal(response.status, 200);
 
 			const html = await response.text();

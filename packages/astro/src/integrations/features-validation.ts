@@ -42,8 +42,7 @@ export function validateSupportedFeatures(
 		staticOutput = UNSUPPORTED,
 		hybridOutput = UNSUPPORTED,
 		i18nDomains = UNSUPPORTED,
-		// Defaults to a node based implementation, so this is supported by default
-		env = EXPERIMENTAL,
+		envGetSecret: env = UNSUPPORTED,
 	} = featureMap;
 	const validationResult: ValidationResult = {};
 
@@ -90,11 +89,11 @@ export function validateSupportedFeatures(
 		}
 	}
 
-	validationResult.env = validateSupportKind(
+	validationResult.envGetSecret = validateSupportKind(
 		env,
 		adapterName,
 		logger,
-		'astro:env',
+		'astro:env getSecret',
 		() => config?.experimental?.env !== undefined
 	);
 

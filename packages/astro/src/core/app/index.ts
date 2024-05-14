@@ -59,11 +59,6 @@ export interface RenderOptions {
 	 * Default: `app.match(request)`
 	 */
 	routeData?: RouteData;
-
-	/**
-	 * A function that retrieves environment variables. Defaults to a node-based implementation.
-	 */
-	getEnv?: GetEnv;
 }
 
 export interface RenderErrorOptions {
@@ -100,6 +95,10 @@ export class App {
 			this.#logger.options,
 			this.#manifest.adapterName
 		);
+	}
+
+	setGetEnv(fn: GetEnv) {
+		setGetEnv(fn)
 	}
 
 	getAdapterLogger(): AstroIntegrationLogger {
@@ -260,15 +259,13 @@ export class App {
 		let locals: object | undefined;
 		let clientAddress: string | undefined;
 		let addCookieHeader: boolean | undefined;
-		let getEnv: GetEnv | undefined;
 
 		if (
 			routeDataOrOptions &&
 			('addCookieHeader' in routeDataOrOptions ||
 				'clientAddress' in routeDataOrOptions ||
 				'locals' in routeDataOrOptions ||
-				'routeData' in routeDataOrOptions ||
-				'getEnv' in routeDataOrOptions)
+				'routeData' in routeDataOrOptions)
 		) {
 			if ('addCookieHeader' in routeDataOrOptions) {
 				addCookieHeader = routeDataOrOptions.addCookieHeader;
@@ -281,9 +278,6 @@ export class App {
 			}
 			if ('locals' in routeDataOrOptions) {
 				locals = routeDataOrOptions.locals;
-			}
-			if ('getEnv' in routeDataOrOptions) {
-				getEnv = routeDataOrOptions.getEnv;
 			}
 		} else {
 			routeData = routeDataOrOptions as RouteData | undefined;
@@ -311,9 +305,6 @@ export class App {
 		}
 		if (!routeData) {
 			return this.#renderError(request, { locals, status: 404 });
-		}
-		if (this.#manifest.experimentalEnv && getEnv) {
-			setGetEnv(getEnv);
 		}
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);

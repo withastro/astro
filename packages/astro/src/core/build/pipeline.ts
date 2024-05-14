@@ -26,6 +26,7 @@ import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { getPagesFromVirtualModulePageName, getVirtualModulePageName } from './plugins/util.js';
 import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
+import { defaultGetEnv, setGetEnv } from '../../runtime/server/astro-env.js';
 
 /**
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
@@ -74,6 +75,7 @@ export class BuildPipeline extends Pipeline {
 			resolveCache.set(specifier, assetLink);
 			return assetLink;
 		}
+		setGetEnv(defaultGetEnv);
 		const serverLike = isServerLikeOutput(config);
 		// We can skip streaming in SSG for performance as writing as strings are faster
 		const streaming = serverLike;

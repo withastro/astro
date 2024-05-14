@@ -26,6 +26,7 @@ import { getComponentMetadata } from './metadata.js';
 import { createResolve } from './resolve.js';
 import { default404Page } from './response.js';
 import { getScriptsForURL } from './scripts.js';
+import { defaultGetEnv, setGetEnv } from '../runtime/server/astro-env.js';
 
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
@@ -51,6 +52,7 @@ export class DevPipeline extends Pipeline {
 		const serverLike = isServerLikeOutput(config);
 		const streaming = true;
 		super(logger, manifest, mode, [], resolve, serverLike, streaming);
+		setGetEnv(defaultGetEnv)
 	}
 
 	static create(
