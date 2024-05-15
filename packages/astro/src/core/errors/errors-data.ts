@@ -1201,7 +1201,7 @@ export const EnvInvalidVariable = {
 	name: 'EnvInvalidVariable',
 	title: 'Invalid Environment Variable',
 	message: (key: string, type: string) =>
-		`The following environment variable does not match the type and constraints defined in \`experimental.env.schema\`: "${key}" is not of type ${type}`,
+		`The following environment variable does not match the type and constraints defined in \`experimental.env.schema\`: ${key} is not of type ${type}`,
 } satisfies ErrorData;
 
 /**

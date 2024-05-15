@@ -2,11 +2,13 @@ import type { GetEnv } from '../../env/types.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 export { validateEnvVariable } from '../../env/validators.js';
 
-let _getEnv: GetEnv = () => {
+export type { GetEnv };
+
+let _getEnv: GetEnv = (key) => process.env[key];
+
+export const unimplementedAdapterGetEnv: GetEnv = () => {
 	throw new AstroError(AstroErrorData.EnvUnsupportedGetSecret);
 };
-
-export const defaultGetEnv: GetEnv = (key) => process.env[key];
 
 export function setGetEnv(fn: GetEnv) {
 	_getEnv = fn;

@@ -27,7 +27,7 @@ import { createOriginCheckMiddleware } from './middlewares.js';
 import { AppPipeline } from './pipeline.js';
 export { deserializeManifest } from './common.js';
 import type { GetEnv } from '../../env/types.js';
-import { setGetEnv } from '../../runtime/server/astro-env.js';
+import { setGetEnv, unimplementedAdapterGetEnv } from '../../runtime/server/astro-env.js';
 
 export interface RenderOptions {
 	/**
@@ -95,10 +95,11 @@ export class App {
 			this.#logger.options,
 			this.#manifest.adapterName
 		);
+		setGetEnv(unimplementedAdapterGetEnv);
 	}
 
 	setGetEnv(fn: GetEnv) {
-		setGetEnv(fn)
+		setGetEnv(fn);
 	}
 
 	getAdapterLogger(): AstroIntegrationLogger {
