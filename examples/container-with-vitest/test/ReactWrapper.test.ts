@@ -1,5 +1,6 @@
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { expect, test } from 'vitest';
+// @ts-ignore
 import ReactWrapper from '../src/components/ReactWrapper.astro';
 
 test('ReactWrapper with react renderer', async () => {

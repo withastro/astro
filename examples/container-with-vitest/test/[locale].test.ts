@@ -1,5 +1,6 @@
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { expect, test } from 'vitest';
+// @ts-ignore
 import Locale from '../src/pages/[locale].astro';
 
 test('Dynamic route', async () => {
