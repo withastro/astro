@@ -5,6 +5,7 @@ import type { Options as VueJsxOptions } from '@vitejs/plugin-vue-jsx';
 import { MagicString } from '@vue/compiler-sfc';
 import type { AstroIntegration, AstroRenderer, HookParameters } from 'astro';
 import type { Plugin, UserConfig } from 'vite';
+import type {VitePluginVueDevToolsOptions} from "vite-plugin-vue-devtools";
 
 const VIRTUAL_MODULE_ID = 'virtual:@astrojs/vue/app';
 const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
@@ -12,7 +13,7 @@ const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
 interface Options extends VueOptions {
 	jsx?: boolean | VueJsxOptions;
 	appEntrypoint?: string;
-	devtools?: boolean;
+	devtools?: boolean  | {launchEditor: VitePluginVueDevToolsOptions['launchEditor'];};
 }
 
 function getRenderer(): AstroRenderer {
@@ -125,9 +126,11 @@ async function getViteConfiguration(
 
 	if (command === 'dev' && options?.devtools) {
 		const vueDevTools = (await import('vite-plugin-vue-devtools')).default;
+		const launchEditor =  typeof options.devtools === 'object' ? options.devtools.launchEditor : "code"
 		config.plugins?.push(
 			vueDevTools({
 				appendTo: VIRTUAL_MODULE_ID,
+				launchEditor
 			})
 		);
 	}
