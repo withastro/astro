@@ -176,7 +176,7 @@ test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'tap')", () => {
 			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-search-param').hover(),
 		]);
-await expectUrlPrefetched('/?search-param=true', page);
+		await expectUrlPrefetched('/?search-param=true', page);
 	});
 
 	test('data-astro-prefetch="tap" should prefetch on tap', async ({ page, astro }) => {
@@ -186,7 +186,7 @@ await expectUrlPrefetched('/?search-param=true', page);
 			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-tap').click(),
 		]);
-await expectUrlPrefetched('/prefetch-tap', page);
+		await expectUrlPrefetched('/prefetch-tap', page);
 	});
 
 	test('data-astro-prefetch="hover" should prefetch on hover', async ({ page, astro }) => {
@@ -316,8 +316,8 @@ test.describe('Prefetch (default), Experimental ({ clientPrerender: true })', ()
 	let devServer;
 
 	test.beforeAll(async ({ astro, browserName }) => {
-		test.skip(browserName !== 'chromium', 'Only Chromium supports clientPrerender')
-		
+		test.skip(browserName !== 'chromium', 'Only Chromium supports clientPrerender');
+
 		devServer = await astro.startDevServer({
 			experimental: {
 				clientPrerender: true,
