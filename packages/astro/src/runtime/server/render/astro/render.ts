@@ -209,14 +209,17 @@ export async function renderToAsyncIterable(
 	let error: Error | null = null;
 	// The `next` is an object `{ promise, resolve, reject }` that we use to wait
 	// for chunks to be pushed into the buffer.
-	let next = promiseWithResolvers<void>();
+	let next: ReturnType<typeof promiseWithResolvers<void>> | null = null;
 	const buffer: Uint8Array[] = []; // []Uint8Array
 
 	const iterator: AsyncIterator<Uint8Array> = {
 		async next() {
 			if (result.cancelled) return { done: true, value: undefined };
 
-			await next.promise;
+			if(next !== null) {
+				await next.promise;
+			}
+			next = promiseWithResolvers();
 
 			// If an error occurs during rendering, throw the error as we cannot proceed.
 			if (error) {
@@ -276,8 +279,7 @@ export async function renderToAsyncIterable(
 				// Push the chunks into the buffer and resolve the promise so that next()
 				// will run.
 				buffer.push(bytes);
-				next.resolve();
-				next = promiseWithResolvers<void>();
+				next?.resolve();
 			}
 		},
 	};
@@ -286,12 +288,12 @@ export async function renderToAsyncIterable(
 	renderPromise
 		.then(() => {
 			// Once rendering is complete, calling resolve() allows the iterator to finish running.
-			next.resolve();
+			next?.resolve();
 		})
 		.catch((err) => {
 			// If an error occurs, save it in the scope so that we throw it when next() is called.
 			error = err;
-			next.resolve();
+			next?.resolve();
 		});
 
 	// This is the Iterator protocol, an object with a `Symbol.asyncIterator`
