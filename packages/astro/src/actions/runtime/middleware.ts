@@ -37,7 +37,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			return result as any;
 		},
 	};
-	Object.defineProperty(locals, '_actionsInternal', { writable: false, value: actionsInternal });
+	if (!locals._actionsInternal) {
+		Object.defineProperty(locals, '_actionsInternal', { writable: false, value: actionsInternal });
+	}
 	return next();
 });
 
