@@ -8,16 +8,19 @@ export function createCanonicalURL(
 	base?: string
 ): string {
 	let pathname = url.replace(/\/index.html$/, ''); // index.html is not canonical
-	if (trailingSlash === false) {
-		// remove the trailing slash
-		pathname = pathname.replace(/\/*$/, '');
-	} else if (!getUrlExtension(url)) {
+	if (!getUrlExtension(url)) {
 		// add trailing slash if there’s no extension or `trailingSlash` is true
 		pathname = pathname.replace(/\/*$/, '/');
 	}
 
 	pathname = pathname.replace(/\/+/g, '/'); // remove duplicate slashes (URL() won’t)
-	return new URL(pathname, base).href;
+
+	const canonicalUrl = new URL(pathname, base).href;
+	if (trailingSlash === false) {
+		// remove the trailing slash
+		return canonicalUrl.replace(/\/*$/, '');
+	}
+	return canonicalUrl;
 }
 
 /** Check if a URL is already valid */
