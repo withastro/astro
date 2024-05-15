@@ -220,7 +220,7 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 			// If the item's link is already a valid URL, don't mess with it.
 			const itemLink = isValidURL(result.link)
 				? result.link
-					: createCanonicalURL(result.link, rssOptions.trailingSlash, site);
+				: createCanonicalURL(result.link, rssOptions.trailingSlash, site);
 			item.link = itemLink;
 			item.guid = { '#text': itemLink, '@_isPermaLink': 'true' };
 		}
