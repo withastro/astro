@@ -4,11 +4,11 @@ import type {
 	MiddlewareHandler,
 	RouteData,
 	RouteType,
-	RuntimeMode,
 	SSRLoadedRenderer,
 	SSRManifest,
 	SSRResult,
-	AstroUserConfig, Params, GetStaticPathsItem, AstroRenderer,
+	AstroUserConfig, 
+	AstroRenderer,
 } from '../@types/astro.js';
 import { TestPipeline } from './pipeline.js';
 import { Logger } from '../core/logger/core.js';
@@ -22,7 +22,6 @@ import { posix } from 'node:path';
 import { getParts, getPattern, validateSegment } from '../core/routing/manifest/create.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
 import type {AstroComponentFactory} from "../runtime/server/index.js";
-import {loadRenderer} from "../core/render/index.js";
 
 /**
  * Options to be passed when rendering a route

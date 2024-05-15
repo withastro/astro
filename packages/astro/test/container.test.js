@@ -8,7 +8,6 @@ import {
 	renderHead,
 	renderSlot,
 	createAstro,
-	renderScript,
 } from '../dist/runtime/server/index.js';
 import { unstable_AstroContainer } from '../dist/container/index.js';
 import assert from 'node:assert/strict';
@@ -28,7 +27,7 @@ const BaseLayout = createComponent((result, _props, slots) => {
 </html>`;
 });
 
-describe.only('Container', () => {
+describe('Container', () => {
 	it('Renders a div with hello world text', async () => {
 		const Page = createComponent((result) => {
 			return render`${renderComponent(
@@ -54,8 +53,7 @@ describe.only('Container', () => {
 		});
 
 		const container = await unstable_AstroContainer.create();
-		const PageModule = createAstroModule(Page);
-		const response = await container.renderToString(PageModule);
+		const response = await container.renderToString(Page);
 
 		assert.match(response, /hello world/);
 	});
@@ -103,8 +101,7 @@ describe.only('Container', () => {
 			path: '/something',
 			component: createAstroModule(Page2),
 		});
-		const PageModule = createAstroModule(Page);
-		const response = await container.renderToResponse(PageModule);
+		const response = await container.renderToResponse(Page);
 
 		assert.equal(response.status, 302);
 	});
@@ -141,8 +138,7 @@ describe.only('Container', () => {
 		);
 
 		const container = await unstable_AstroContainer.create();
-		const PageModule = createAstroModule(Page);
-		const result = await container.renderToString(PageModule, {
+		const result = await container.renderToString(Page, {
 			slots: {
 				default: 'some slot',
 			},
@@ -184,8 +180,7 @@ describe.only('Container', () => {
 		);
 
 		const container = await unstable_AstroContainer.create();
-		const PageModule = createAstroModule(Page);
-		const result = await container.renderToString(PageModule, {
+		const result = await container.renderToString(Page, {
 			slots: {
 				'custom-name': 'Custom name',
 				'foo-name': 'Bar name',
@@ -194,53 +189,5 @@ describe.only('Container', () => {
 
 		assert.match(result, /Custom name/);
 		assert.match(result, /Bar name/);
-	});
-
-	it.only('Renders a script', async () => {
-		const Page = createComponent(
-			(result, _props, _slots) => {
-				return render`${renderComponent(
-					result,
-					'BaseLayout',
-					BaseLayout,
-					{},
-					{
-						default: () => render`
-							${maybeRenderHead(result)}
-							${renderScript(result, 'Page.astro?astro&type=script&index=0&lang.ts')}
-							`,
-						head: () => render`
-						${renderComponent(
-							result,
-							'Fragment',
-							Fragment,
-							{ slot: 'head' },
-							{
-								default: () => render`<meta charset="utf-8">`,
-							}
-						)}
-					`,
-					}
-				)}`;
-			},
-			'Component2.astro',
-			undefined
-		);
-
-		const container = await unstable_AstroContainer.create();
-		const PageModule = createAstroModule(Page);
-		const result = await container.renderToString(PageModule, {
-			scripts: [
-				{
-					type: 'inline',
-					value: 'console.log()',
-				},
-			],
-		});
-
-		console.log(result);
-
-		// assert.match(result, /Custom name/);
-		// assert.match(result, /Bar name/);
 	});
 });
