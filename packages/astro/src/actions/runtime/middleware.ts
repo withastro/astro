@@ -42,11 +42,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
 });
 
 function nextWithLocalsStub(next: MiddlewareNext, locals: Locals) {
-	Object.defineProperty(locals, '_actionsInternal', {
-		writable: false,
-		value: {
-			getActionResult: () => undefined,
-		},
-	});
+	if (!locals._actionsInternal) {
+		Object.defineProperty(locals, '_actionsInternal', {
+			writable: false,
+			value: {
+				getActionResult: () => undefined,
+			},
+		});
+	}
 	return next();
 }
