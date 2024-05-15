@@ -24,8 +24,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	// Avoid double-handling with middleware when calling actions directly.
 	if (url.pathname.startsWith('/_actions')) return nextWithLocalsStub(next, locals);
 
-	if (!contentType || !hasContentType(contentType, formContentTypes))
+	if (!contentType || !hasContentType(contentType, formContentTypes)) {
 		return nextWithLocalsStub(next, locals);
+	}
 
 	const formData = await request.clone().formData();
 	const actionPath = formData.get('_astroAction');
@@ -43,9 +44,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			return result as any;
 		},
 	};
-	if (!locals._actionsInternal) {
-		Object.defineProperty(locals, '_actionsInternal', { writable: false, value: actionsInternal });
-	}
+	Object.defineProperty(locals, '_actionsInternal', { writable: false, value: actionsInternal });
 	return next();
 });
 
