@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.9.1
+
+### Patch Changes
+
+- a401068: Fixes certain code actions corrupting Vue and Svelte files in specific situations
+
 ## 2.9.0
 
 ### Minor Changes
