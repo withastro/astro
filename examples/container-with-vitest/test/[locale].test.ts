@@ -5,6 +5,7 @@ import Locale from '../src/pages/[locale].astro';
 
 test('Dynamic route', async () => {
 	const container = await AstroContainer.create();
+	// @ts-ignore
 	const result = await container.renderToString(Locale, {
 		params: {
 			"locale": 'en'
