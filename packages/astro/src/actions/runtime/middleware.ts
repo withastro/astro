@@ -27,6 +27,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	const actionPathKeys = actionPath.replace('/_actions/', '').split('.');
 	const action = await getAction(actionPathKeys);
+	if (!action) return nextWithLocalsStub(next, locals);
+
 	const result = await ApiContextStorage.run(context, () => callSafely(() => action(formData)));
 
 	const actionsInternal: Locals['_actionsInternal'] = {
