@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.10.1
+
+### Patch Changes
+
+- 5f4541d: Fixes broken release on OpenVSX
+
 ## 2.10.0
 
 ### Minor Changes
