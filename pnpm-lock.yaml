@@ -36,7 +36,7 @@ importers:
   packages/astro-check:
     dependencies:
       '@astrojs/language-server':
-        specifier: ^2.9.0
+        specifier: ^2.10.0
         version: link:../language-server
       chokidar:
         specifier: ^3.5.3
@@ -229,10 +229,10 @@ importers:
         version: 0.13.0
     devDependencies:
       '@astrojs/language-server':
-        specifier: ^2.9.1
+        specifier: ^2.10.0
         version: link:../language-server
       '@astrojs/ts-plugin':
-        specifier: ^1.7.0
+        specifier: ^1.8.0
         version: link:../ts-plugin
       '@types/glob':
         specifier: ^8.1.0
@@ -257,7 +257,7 @@ importers:
         version: 2.3.2
       '@vscode/vsce':
         specifier: latest
-        version: 2.26.0
+        version: 2.26.1
       esbuild:
         specifier: ^0.17.19
         version: 0.17.19
@@ -2369,8 +2369,8 @@ packages:
       - supports-color
     dev: true
 
-  /@vscode/vsce@2.26.0:
-    resolution: {integrity: sha512-v54ltgMzUG8lGY0kAgaOlry57xse1RlWzes9FotfGEx+Fr05KeR8rZicQzEMDmi9QnOgVWHuiEq+xA2HWkAz+Q==}
+  /@vscode/vsce@2.26.1:
+    resolution: {integrity: sha512-QOG6Ht7V93nhwcBxPWcG33UK0qDGEoJdg0xtVeaTN27W6PGdMJUJGTPhB/sNHUIFKwvwzv/zMAHvDgMNXbcwlA==}
     engines: {node: '>= 16'}
     hasBin: true
     dependencies:

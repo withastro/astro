@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.10.0
+
+### Minor Changes
+
+- c8af6db: Upgrades the language server to use the latest version of Volar. This changes should have no negative impacts on the experience.
+
 ## 2.9.1
 
 ### Patch Changes

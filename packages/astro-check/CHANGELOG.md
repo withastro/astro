@@ -1,5 +1,16 @@
 # @astrojs/check
 
+## 0.7.0
+
+### Minor Changes
+
+- c8af6db: Upgrades the language server to use the latest version of Volar. This changes should have no negative impacts on the experience.
+
+### Patch Changes
+
+- Updated dependencies [c8af6db]
+  - @astrojs/language-server@2.10.0
+
 ## 0.6.0
 
 ### Minor Changes

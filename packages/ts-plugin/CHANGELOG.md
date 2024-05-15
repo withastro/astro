@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.8.0
+
+### Minor Changes
+
+- c8af6db: Upgrades the language server to use the latest version of Volar. This changes should have no negative impacts on the experience.
+
 ## 1.7.0
 
 ### Minor Changes
