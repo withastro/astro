@@ -8,7 +8,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRManifest,
 	SSRResult,
-	AstroUserConfig, Params, GetStaticPathsItem,
+	AstroUserConfig, Params, GetStaticPathsItem, AstroRenderer,
 } from '../@types/astro.js';
 import { TestPipeline } from './pipeline.js';
 import { Logger } from '../core/logger/core.js';
@@ -22,6 +22,7 @@ import { posix } from 'node:path';
 import { getParts, getPattern, validateSegment } from '../core/routing/manifest/create.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
 import type {AstroComponentFactory} from "../runtime/server/index.js";
+import {loadRenderer} from "../core/render/index.js";
 
 /**
  * Options to be passed when rendering a route
@@ -30,10 +31,20 @@ export type ContainerRenderOptions = {
 	/**
 	 * If your component renders slots, that's where you want to fill the slots.
 	 * A single slot should have the `default` field:
+	 * 
+	 * ## Examples
+	 * 
+	 * **Default slot**
+	 * 
 	 * ```js
 	 * container.renderToString(Component, { slots: { default: "Some value"}});
 	 * ```
+	 * 
+	 * **Named slots**
 	 *
+	 * ```js
+	 * container.renderToString(Component, { slots: { "foo": "Some value", "bar": "Lorem Ipsum" }});
+	 * ```
 	 */
 	slots?: Record<string, any>;
 	/**
@@ -156,11 +167,15 @@ export type AstroContainerOptions = {
 	 * 
 	 * ```js
 	 * const container = await AstroContainer.create({
-	 * 	renderers: ["@astrojs/react/server.js"]
+	 * 	renderers: [{
+	 * 	  name: "@astrojs/react"
+	 * 	  client: "@astrojs/react/client.js"
+	 * 	  server: "@astrojs/react/server.js"
+	 * 	}]
 	 * });
 	 * ```
 	 */
-	renderers?: SSRLoadedRenderer[];
+	renderers?: AstroRenderer[];
 	/**
 	 * @default {}
 	 * @description
@@ -255,9 +270,9 @@ export class unstable_AstroContainer {
 	/**
 	 * Creates a new instance of a container.
 	 * 
-	 * @param {AstroContainerOptions} containerOptions
+	 * @param {AstroContainerOptions=} containerOptions
 	 */
-	static async create(
+	public static async create(
 		containerOptions: AstroContainerOptions = {}
 	): Promise<unstable_AstroContainer> {
 		const {
@@ -266,7 +281,21 @@ export class unstable_AstroContainer {
 			renderers = [],
 		} = containerOptions;
 		const config = await validateConfig(astroConfig, process.cwd(), 'container');
-		return new unstable_AstroContainer({ streaming, renderers, config });
+		const loadedRenderers =  await Promise.all(
+			renderers.map(async (renderer) => {
+				const mod = await import(renderer.serverEntrypoint);
+				if (typeof mod.default !== 'undefined') {
+					return {
+						...renderer,
+						ssr: mod.default,
+					} as SSRLoadedRenderer;
+				}
+				return undefined;
+			})
+		);
+		const finalRenderers = loadedRenderers.filter((r): r is SSRLoadedRenderer => Boolean(r));
+		
+		return new unstable_AstroContainer({ streaming, renderers: finalRenderers, config });
 	}
 
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.
@@ -296,7 +325,7 @@ export class unstable_AstroContainer {
 	 * @param {string[]} options.params The params of the route. Use these when your route is dynamic. For a route `/blog/[id]/[...dynamic]`, the params are `["id", "...dynamic"]`
 	 * @param {RouteType} options.type The type of route.
 	 */
-	public insertRoute({
+	private insertRoute({
 		path,
 		route,
 		componentInstance,
@@ -323,9 +352,23 @@ export class unstable_AstroContainer {
 	}
 
 	/**
-	 *
-	 * @param component The instance of the component.
-	 * @param options Some options.
+	 * @description
+	 * It renders a component and returns the result as a string.
+	 * 
+	 * ## Example
+	 * 
+	 * ```js
+	 * import Card from "../src/components/Card.astro";
+	 * 
+	 * const container = await AstroContainer.create();
+	 * const result = await container.renderToString(Card);
+	 * 
+	 * console.log(result); // it's a string
+	 * ```
+	 * 
+	 * 
+	 * @param {AstroComponentFactory} component The instance of the component.
+	 * @param {ContainerRenderOptions=} options Possible options to pass when rendering the component.
 	 */
 	public async renderToString(
 		component: AstroComponentFactory,
@@ -335,6 +378,25 @@ export class unstable_AstroContainer {
 		return await response.text();
 	}
 
+	/**
+	 * @description
+	 * It renders a component and returns the `Response` as result of the rendering phase.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * import Card from "../src/components/Card.astro";
+	 *
+	 * const container = await AstroContainer.create();
+	 * const response = await container.renderToResponse(Card);
+	 *
+	 * console.log(response.status); // it's a number
+	 * ```
+	 *
+	 *
+	 * @param {AstroComponentFactory} component The instance of the component.
+	 * @param {ContainerRenderOptions=} options Possible options to pass when rendering the component.
+	 */
 	public async renderToResponse(
 		component: AstroComponentFactory,
 		options: ContainerRenderOptions = {}
