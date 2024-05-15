@@ -140,7 +140,7 @@ function validatePublicVariables({
 		throw new AstroError({
 			...AstroErrorData.EnvInvalidVariables,
 			message: AstroErrorData.EnvInvalidVariables.message(
-				invalid.map(({ key, type }) => `Variable "${key}" is not of type: ${type}.`).join('\n')
+				invalid.map(({ key, type }) => `Variable ${key} is not of type: ${type}.`).join('\n')
 			),
 		});
 	}
