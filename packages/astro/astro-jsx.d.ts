@@ -605,6 +605,7 @@ declare namespace astroHTML.JSX {
 		href?: string | URL | undefined | null;
 		hreflang?: string | undefined | null;
 		media?: string | undefined | null;
+		name?: string | undefined | null;
 		ping?: string | undefined | null;
 		rel?: string | undefined | null;
 		target?: HTMLAttributeAnchorTarget | undefined | null;
