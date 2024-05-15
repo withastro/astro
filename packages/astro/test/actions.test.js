@@ -202,5 +202,17 @@ describe('Astro Actions', () => {
 			assert.equal($('#error-message').text(), 'Not logged in');
 			assert.equal($('#error-code').text(), 'UNAUTHORIZED');
 		});
+
+		it('Sets status to 204 when no content', async () => {
+			const req = new Request('http://example.com/_actions/fireAndForget', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Content-Length': '0',
+				},
+			});
+			const res = await app.render(req);
+			assert.equal(res.status, 204);
+		});
 	});
 });

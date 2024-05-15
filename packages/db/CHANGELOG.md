@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.11.2
+
+### Patch Changes
+
+- [#11027](https://github.com/withastro/astro/pull/11027) [`eb1d9a4`](https://github.com/withastro/astro/commit/eb1d9a447bc73534b8dd8fa6d3dcdb265950753a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix `isDbError()` returning `false` for remote database errors. Astro will now return a `LibsqlError` in development and production.
+
 ## 0.11.1
 
 ### Patch Changes

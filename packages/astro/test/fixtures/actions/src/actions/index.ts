@@ -50,4 +50,9 @@ export const server = {
 			return locals.user;
 		}
 	}),
+	fireAndForget: defineAction({
+		handler: async () => {
+			return;
+		}
+	}),
 };
