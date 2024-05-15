@@ -1,5 +1,5 @@
 {
-  "name": "@example/with-vitest",
+  "name": "@example/container-with-vitest",
   "type": "module",
   "version": "0.0.1",
   "private": true,

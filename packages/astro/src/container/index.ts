@@ -250,7 +250,7 @@ export class unstable_AstroContainer {
 			renderers,
 			resolve: async (specifier: string) => {
 				if (this.#withManifest) {
-					return this.containerResolve(specifier);
+					return this.#containerResolve(specifier);
 				} else if (resolve) {
 					return resolve(specifier);
 				}
@@ -259,7 +259,7 @@ export class unstable_AstroContainer {
 		});
 	}
 
-	async containerResolve(specifier: string): Promise<string> {
+	async #containerResolve(specifier: string): Promise<string> {
 		const found = this.#pipeline.manifest.entryModules[specifier];
 		if (found) {
 			return new URL(found, this.#config.build.client).toString();
