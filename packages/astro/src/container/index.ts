@@ -75,12 +75,6 @@ export type ContainerRenderOptions = {
 	routeType?: RouteType;
 };
 
-/**
- * @param renderers
- * @param config
- * @param manifest
- * @param middleware
- */
 function createContainerManifest(
 	renderers: SSRLoadedRenderer[],
 	config: AstroConfig,
@@ -286,11 +280,7 @@ export class experimental_AstroContainer {
 	}
 
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.
-	/**
-	 * 
-	 * @param manifest
-	 * @private
-	 */
+	// @ematipico: I plan to use it for a possible integration that could help people 
 	private static async createFromManifest(manifest: SSRManifest): Promise<experimental_AstroContainer> {
 		const config = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
 		const container = new experimental_AstroContainer({
