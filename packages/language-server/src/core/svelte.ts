@@ -65,21 +65,7 @@ class SvelteVirtualCode implements VirtualCode {
 	}
 
 	private onSnapshotUpdated() {
-		this.mappings = [
-			{
-				sourceOffsets: [0],
-				generatedOffsets: [0],
-				lengths: [this.snapshot.getLength()],
-				data: {
-					verification: true,
-					completion: true,
-					semantic: true,
-					navigation: true,
-					structure: true,
-					format: true,
-				},
-			},
-		];
+		this.mappings = [];
 
 		this.embeddedCodes = [];
 		this.embeddedCodes.push(

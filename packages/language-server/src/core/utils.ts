@@ -29,21 +29,7 @@ export function framework2tsx(
 				getLength: () => content.length,
 				getChangeRange: () => undefined,
 			},
-			mappings: [
-				{
-					sourceOffsets: [0],
-					generatedOffsets: [0],
-					lengths: [content.length],
-					data: {
-						verification: true,
-						completion: true,
-						semantic: true,
-						navigation: true,
-						structure: true,
-						format: true,
-					},
-				},
-			],
+			mappings: [],
 			embeddedCodes: [],
 		};
 	}
