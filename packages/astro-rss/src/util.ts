@@ -6,7 +6,7 @@ export function createCanonicalURL(
 	url: string,
 	trailingSlash?: RSSOptions['trailingSlash'],
 	base?: string
-): URL {
+): string {
 	let pathname = url.replace(/\/index.html$/, ''); // index.html is not canonical
 	if (trailingSlash === false) {
 		// remove the trailing slash
@@ -17,7 +17,7 @@ export function createCanonicalURL(
 	}
 
 	pathname = pathname.replace(/\/+/g, '/'); // remove duplicate slashes (URL() won’t)
-	return new URL(pathname, base);
+	return new URL(pathname, base).href;
 }
 
 /** Check if a URL is already valid */
