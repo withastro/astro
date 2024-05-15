@@ -219,7 +219,6 @@ export async function renderToAsyncIterable(
 			if(next !== null) {
 				await next.promise;
 			}
-			next = promiseWithResolvers();
 
 			// If an error occurs during rendering, throw the error as we cannot proceed.
 			if (error) {
@@ -244,9 +243,14 @@ export async function renderToAsyncIterable(
 			// Empty the array. We do this so that we can reuse the same array.
 			buffer.length = 0;
 
+			// The iterator is done if there are no chunks to return.
+			let done = length === 0;
+			if(!done) {
+				next = promiseWithResolvers();
+			}
+
 			const returnValue = {
-				// The iterator is done if there are no chunks to return.
-				done: length === 0,
+				done,
 				value: mergedArray,
 			};
 
