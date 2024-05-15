@@ -39,7 +39,6 @@ test.describe('Astro Actions - Blog', () => {
 		await expect(form.locator('p[data-error="body"]')).toBeVisible();
 	});
 
-
 	test('Comment action - progressive fallback validation error', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/blog/first-post/'));
 
@@ -56,7 +55,7 @@ test.describe('Astro Actions - Blog', () => {
 		await expect(form.locator('p[data-error="body"]')).toBeVisible();
 	});
 
-test('Comment action - progressive fallback success', async ({ page, astro }) => {
+	test('Comment action - progressive fallback success', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/blog/first-post/'));
 
 		const form = page.getByTestId('progressive-fallback');
