@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.10.2
+
+### Patch Changes
+
+- a8d8804: Second attempt at fixing publishing for OpenVSX
+
 ## 2.10.1
 
 ### Patch Changes
