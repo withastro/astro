@@ -158,6 +158,11 @@ export interface AstroComponentMetadata {
 	componentUrl?: string;
 	componentExport?: { value: string; namespace?: boolean };
 	astroStaticSlot: true;
+	reactServerActions: {
+		actionName?: string;
+		actionKey?: string;
+		actionResult?: any;
+	};
 }
 
 /** The flags supported by the Astro CLI */
@@ -2674,7 +2679,7 @@ interface AstroSharedContext<
 		TInputSchema extends InputSchema<TAccept>,
 		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
 	>(
-		action: TAction
+		action?: TAction
 	) => Awaited<ReturnType<TAction['safe']>> | undefined;
 	/**
 	 * Route parameters for this request if this is a dynamic route.
@@ -3187,6 +3192,11 @@ export interface SSRMetadata {
 	headInTree: boolean;
 	extraHead: string[];
 	propagators: Set<AstroComponentInstance>;
+	reactServerActions: {
+		actionKey?: string;
+		actionName?: string;
+		actionResult?: any;
+	};
 }
 
 /* Preview server stuff */

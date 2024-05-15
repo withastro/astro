@@ -40,6 +40,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	const actionsInternal: Locals['_actionsInternal'] = {
 		getActionResult: (actionFn) => {
+			if (!actionFn) return result;
 			if (actionFn.toString() !== actionPath) return Promise.resolve(undefined);
 			// The `action` uses type `unknown` since we can't infer the user's action type.
 			// Cast to `any` to satisfy `getActionResult()` type.
