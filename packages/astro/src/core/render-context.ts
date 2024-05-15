@@ -4,13 +4,13 @@ import type {
 	AstroGlobalPartial,
 	ComponentInstance,
 	MiddlewareHandler,
-	MiddlewareNext,
 	RewritePayload,
 	RouteData,
 	SSRResult,
 } from '../@types/astro.js';
 import type { ActionAPIContext } from '../actions/runtime/store.js';
 import { createGetActionResult } from '../actions/utils.js';
+import { hasContentType, formContentTypes } from '../actions/runtime/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
@@ -295,6 +295,18 @@ export class RenderContext {
 			},
 		} satisfies AstroGlobal['response'];
 
+		const reactServerActions: SSRResult['_metadata']['reactServerActions'] = {};
+		if (hasContentType(this.request.headers.get('Content-Type') ?? '', formContentTypes)) {
+			const formData = await this.request.clone().formData();
+
+			reactServerActions.actionKey = formData.get('$ACTION_KEY')?.toString();
+			reactServerActions.actionName = formData.get('_astroAction')?.toString();
+			const isUsingSafe = formData.has('_astroActionSafe');
+			const actionResult = createGetActionResult(this.locals)();
+
+			reactServerActions.actionResult = isUsingSafe ? actionResult : actionResult?.data;
+		}
+
 		// Create the result object that will be passed into the renderPage function.
 		// This object starts here as an empty shell (not yet the result) but then
 		// calling the render() function will populate the object with scripts, styles, etc.
@@ -314,10 +326,10 @@ export class RenderContext {
 			renderers,
 			resolve,
 			response,
-			getActionResult: createGetActionResult(this.locals),
 			scripts,
 			styles,
 			_metadata: {
+				reactServerActions,
 				hasHydrationScript: false,
 				rendererSpecificHydrationScripts: new Set(),
 				hasRenderedHead: false,

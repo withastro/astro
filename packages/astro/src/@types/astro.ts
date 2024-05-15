@@ -157,8 +157,12 @@ export interface AstroComponentMetadata {
 	hydrateArgs?: any;
 	componentUrl?: string;
 	componentExport?: { value: string; namespace?: boolean };
-	getActionResult: AstroGlobal['getActionResult'];
 	astroStaticSlot: true;
+	reactServerActions: {
+		actionName?: string;
+		actionKey?: string;
+		actionResult?: any;
+	};
 }
 
 /** The flags supported by the Astro CLI */
@@ -2675,7 +2679,7 @@ interface AstroSharedContext<
 		TInputSchema extends InputSchema<TAccept>,
 		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
 	>(
-		action: TAction
+		action?: TAction
 	) => Awaited<ReturnType<TAction['safe']>> | undefined;
 	/**
 	 * Route parameters for this request if this is a dynamic route.
@@ -3151,7 +3155,6 @@ export interface SSRResult {
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
 	response: AstroGlobal['response'];
-	getActionResult: AstroGlobal['getActionResult'];
 	renderers: SSRLoadedRenderer[];
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
@@ -3189,6 +3192,11 @@ export interface SSRMetadata {
 	headInTree: boolean;
 	extraHead: string[];
 	propagators: Set<AstroComponentInstance>;
+	reactServerActions: {
+		actionKey?: string;
+		actionName?: string;
+		actionResult?: any;
+	};
 }
 
 /* Preview server stuff */

@@ -1,45 +1,40 @@
-import { createContext, useContext } from 'react';
-
 type FormFn<T> = (formData: FormData) => Promise<T>;
 
-export const GetActionResultContext = createContext<
-	undefined | ((action: FormFn<unknown>) => unknown)
->(undefined);
-
 export function withState<T>(action: FormFn<T>) {
-	const { $$FORM_ACTION } = action as any;
-	const getActionResult = useContext(GetActionResultContext);
-	console.log('getActionResult', getActionResult);
-
 	const callback = async function (state: T, formData: FormData) {
-		formData.set('state', JSON.stringify(state));
 		return action(formData);
 	};
-	Object.assign(callback, {
-		$$FORM_ACTION: () => {
-			const formActionMetadata = $$FORM_ACTION();
-			if (!getActionResult) return formActionMetadata;
-			const result = getActionResult(action);
-			if (!result) return formActionMetadata;
+	if (!('$$FORM_ACTION' in action)) return callback;
 
-			const data = formActionMetadata.data ?? new FormData();
-			data.set('state', JSON.stringify(result));
-			Object.assign(formActionMetadata, { data });
+	callback.$$FORM_ACTION = action.$$FORM_ACTION;
+	callback.$$IS_SIGNATURE_EQUAL = (actionName: string) => {
+		return action.toString() === actionName;
+	};
 
-			return formActionMetadata;
-		},
-	});
 	Object.defineProperty(callback, 'bind', {
-		value: (...args: Parameters<typeof callback>) => preserveFormActions(callback, ...args),
+		value: (...args: Parameters<typeof callback>) =>
+			injectStateIntoFormActionData(callback, ...args),
 	});
 	return callback;
 }
 
-function preserveFormActions<R extends [this: unknown, ...unknown[]]>(
+function injectStateIntoFormActionData<R extends [this: unknown, state: unknown, ...unknown[]]>(
 	fn: (...args: R) => unknown,
 	...args: R
 ) {
 	const boundFn = Function.prototype.bind.call(fn, ...args);
 	Object.assign(boundFn, fn);
+	const [, state] = args;
+
+	if ('$$FORM_ACTION' in fn && typeof fn.$$FORM_ACTION === 'function') {
+		const metadata = fn.$$FORM_ACTION();
+		boundFn.$$FORM_ACTION = () => {
+			const data = (metadata.data as FormData) ?? new FormData();
+			data.set('_astroActionState', JSON.stringify(state));
+			metadata.data = data;
+
+			return metadata;
+		};
+	}
 	return boundFn;
 }

@@ -6,9 +6,8 @@ export const server = {
 	blog: {
 		like: defineAction({
 			accept: 'form',
-			input: z.object({ postId: z.string(), state: z.string().transform(t => JSON.parse(t)) }),
-			handler: async ({ postId, state }) => {
-				console.log('state', state);
+			input: z.object({ postId: z.string() }),
+			handler: async ({ postId }) => {
 				await new Promise((r) => setTimeout(r, 200));
 
 				const { likes } = await db
