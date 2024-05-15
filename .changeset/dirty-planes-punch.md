@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fix minor type issues in actions component example.
+Fixes minor type issues in actions component example
