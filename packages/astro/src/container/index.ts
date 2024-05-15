@@ -67,24 +67,12 @@ export type ContainerRenderOptions = {
 	 */
 	locals?: App.Locals;
 	/**
-	 * Useful in case you're attempting to render an errored route.
-	 */
-	status?: number;
-	/**
 	 * Useful in case you're attempting to render an endpoint:
 	 * ```js
 	 * container.renderToString(Endpoint, { routeType: "endpoint" });
 	 * ```
 	 */
 	routeType?: RouteType;
-
-	/**
-	 * Useful for dynamic routes. If your component is something like `src/pages/blog/[id]/[...slug]`, you'll want to provide:
-	 * ```js
-	 * container.renderToString(Component, { route: "/blog/[id]/[...slug]" });
-	 * ```
-	 */
-	route?: string
 };
 
 /**
@@ -326,19 +314,17 @@ export class experimental_AstroContainer {
 	 */
 	private insertRoute({
 		path,
-		route,
 		componentInstance,
 		params = {},
 		type = 'page',
 	}: {
 		path: string;
-		route: string,
 		componentInstance: ComponentInstance;
 		params?: Record<string, string | undefined>;
 		type?: RouteType;
 	}): RouteData {
 		const pathUrl = new URL(path, 'https://example.com');
-		const routeData: RouteData = this.#createRoute(pathUrl, route, params, type);
+		const routeData: RouteData = this.#createRoute(pathUrl, params, type);
 		this.#pipeline.manifest.routes.push({
 			routeData,
 			file: '',
@@ -400,12 +386,11 @@ export class experimental_AstroContainer {
 		component: AstroComponentFactory,
 		options: ContainerRenderOptions = {}
 	): Promise<Response> {
-		const { routeType = 'page', slots, route = ""  } = options;
+		const { routeType = 'page', slots } = options;
 		const request = options?.request ?? new Request('https://example.com/');
 		const url = new URL(request.url);
 		const componentInstance = routeType === "endpoint" ? component as unknown as ComponentInstance : this.#wrapComponent(component, options.params);
 		const routeData = this.insertRoute({
-			route,
 			path: request.url,
 			componentInstance,
 			params: options.params,
@@ -414,7 +399,7 @@ export class experimental_AstroContainer {
 		const renderContext = RenderContext.create({
 			pipeline: this.#pipeline,
 			routeData,
-			status: options?.status ?? 200,
+			status: 200,
 			middleware: this.#pipeline.middleware,
 			request,
 			pathname: url.pathname,
@@ -424,13 +409,13 @@ export class experimental_AstroContainer {
 		return renderContext.render(componentInstance, slots);
 	}
 
-	#createRoute(url: URL, route: string | undefined = url.pathname, params: Record<string, string | undefined>, type: RouteType): RouteData {
-		const segments = removeLeadingForwardSlash(route)
+	#createRoute(url: URL, params: Record<string, string | undefined>, type: RouteType): RouteData {
+		const segments = removeLeadingForwardSlash(url.pathname)
 			.split(posix.sep)
 			.filter(Boolean)
 			.map((s: string) => {
 				validateSegment(s);
-				return getParts(s, route);
+				return getParts(s, url.pathname);
 			});
 		return {
 			component: '',
@@ -442,7 +427,7 @@ export class experimental_AstroContainer {
 			prerender: false,
 			segments,
 			type,
-			route,
+			route: url.pathname,
 			fallbackRoutes: [],
 			isIndex: false,
 		};
