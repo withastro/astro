@@ -220,7 +220,7 @@ type AstroContainerConstructor = {
 	resolve?: SSRResult['resolve'];
 };
 
-export class unstable_AstroContainer {
+export class experimental_AstroContainer {
 	#pipeline: TestPipeline;
 	#config: AstroConfig;
 
@@ -273,7 +273,7 @@ export class unstable_AstroContainer {
 	 */
 	public static async create(
 		containerOptions: AstroContainerOptions = {}
-	): Promise<unstable_AstroContainer> {
+	): Promise<experimental_AstroContainer> {
 		const {
 			astroConfig = ASTRO_CONFIG_DEFAULTS,
 			streaming = false,
@@ -294,7 +294,7 @@ export class unstable_AstroContainer {
 		);
 		const finalRenderers = loadedRenderers.filter((r): r is SSRLoadedRenderer => Boolean(r));
 		
-		return new unstable_AstroContainer({ streaming, renderers: finalRenderers, config });
+		return new experimental_AstroContainer({ streaming, renderers: finalRenderers, config });
 	}
 
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.
@@ -303,9 +303,9 @@ export class unstable_AstroContainer {
 	 * @param manifest
 	 * @private
 	 */
-	private static async createFromManifest(manifest: SSRManifest): Promise<unstable_AstroContainer> {
+	private static async createFromManifest(manifest: SSRManifest): Promise<experimental_AstroContainer> {
 		const config = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
-		const container = new unstable_AstroContainer({
+		const container = new experimental_AstroContainer({
 			manifest,
 			config,
 		});

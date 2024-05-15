@@ -9,7 +9,7 @@ import {
 	renderSlot,
 	createAstro,
 } from '../dist/runtime/server/index.js';
-import { unstable_AstroContainer } from '../dist/container/index.js';
+import { experimental_AstroContainer } from '../dist/container/index.js';
 import assert from 'node:assert/strict';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
@@ -52,7 +52,7 @@ describe('Container', () => {
 			)}`;
 		});
 
-		const container = await unstable_AstroContainer.create();
+		const container = await experimental_AstroContainer.create();
 		const response = await container.renderToString(Page);
 
 		assert.match(response, /hello world/);
@@ -96,7 +96,7 @@ describe('Container', () => {
 			undefined
 		);
 
-		const container = await unstable_AstroContainer.create();
+		const container = await experimental_AstroContainer.create();
 		container.insertRoute({
 			path: '/something',
 			component: createAstroModule(Page2),
@@ -137,7 +137,7 @@ describe('Container', () => {
 			undefined
 		);
 
-		const container = await unstable_AstroContainer.create();
+		const container = await experimental_AstroContainer.create();
 		const result = await container.renderToString(Page, {
 			slots: {
 				default: 'some slot',
@@ -179,7 +179,7 @@ describe('Container', () => {
 			undefined
 		);
 
-		const container = await unstable_AstroContainer.create();
+		const container = await experimental_AstroContainer.create();
 		const result = await container.renderToString(Page, {
 			slots: {
 				'custom-name': 'Custom name',

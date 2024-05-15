@@ -1,4 +1,4 @@
-import { unstable_AstroContainer as AstroContainer } from 'astro/container';
+import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { expect, test } from 'vitest';
 import Locale from '../src/pages/[locale].astro';
 
