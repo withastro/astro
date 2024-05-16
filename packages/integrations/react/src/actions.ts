@@ -4,6 +4,7 @@ type FormFn<T> = (formData: FormData) => Promise<T>;
 
 export function withState<T>(action: FormFn<T>) {
 	const callback = async function (state: T, formData: FormData) {
+		formData.set('_astroActionState', JSON.stringify(state));
 		return action(formData);
 	};
 	if (!('$$FORM_ACTION' in action)) return callback;
