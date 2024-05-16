@@ -2,7 +2,7 @@
 "astro": minor
 ---
 
-Adds experimental support for the `astro:env` API. It lets you define a type-safe schema for your environments variables, and where they should be available (on the server or the client).
+Adds experimental support for the `astro:env` API. It lets you define a type-safe schema for your environment variables and specify their availability on the server or client.
 
 Start by declaring a schema in your Astro config in `experimental.env.schema`. Use the `envField` help to make your life easier:
 
