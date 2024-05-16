@@ -101,6 +101,7 @@ export function schemaTypeToSqlType(type: ColumnType): 'text' | 'integer' {
 	switch (type) {
 		case 'date':
 		case 'text':
+		case 'file':
 		case 'json':
 			return 'text';
 		case 'number':

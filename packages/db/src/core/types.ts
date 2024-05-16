@@ -30,6 +30,7 @@ export type DateColumn = z.infer<typeof dateColumnSchema>;
 export type DateColumnInput = z.input<typeof dateColumnSchema>;
 export type JsonColumn = z.infer<typeof jsonColumnSchema>;
 export type JsonColumnInput = z.input<typeof jsonColumnSchema>;
+export type FileColumn = z.infer<typeof fileColumnSchema>;
 export type FileColumnInput = z.input<typeof fileColumnSchema>;
 
 export type ColumnType =
@@ -37,7 +38,8 @@ export type ColumnType =
 	| NumberColumn['type']
 	| TextColumn['type']
 	| DateColumn['type']
-	| JsonColumn['type'];
+	| JsonColumn['type']
+	| FileColumn['type'];
 
 export type DBColumn = z.infer<typeof columnSchema>;
 export type DBColumnInput =
