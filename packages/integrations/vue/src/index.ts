@@ -129,7 +129,7 @@ async function getViteConfiguration(
 		const devToolsOptions =  typeof options.devtools === 'object' ? options.devtools : {}
 		config.plugins?.push(
 			vueDevTools({
-				...pluginOptions,
+				...devToolsOptions,
 				appendTo: VIRTUAL_MODULE_ID
 			})
 		);
