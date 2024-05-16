@@ -281,8 +281,12 @@ export class App {
 			}
 		}
 		if (routeData) {
-			this.#logger.debug("router", "The adapter " + this.#manifest.adapterName + " provided a custom RouteData for ", request.url);
-			this.#logger.debug("router", "RouteData:\n" + routeData);
+			this.#logger.debug(
+				'router',
+				'The adapter ' + this.#manifest.adapterName + ' provided a custom RouteData for ',
+				request.url
+			);
+			this.#logger.debug('router', 'RouteData:\n' + routeData);
 		}
 		if (locals) {
 			if (typeof locals !== 'object') {
@@ -300,12 +304,12 @@ export class App {
 		}
 		if (!routeData) {
 			routeData = this.match(request);
-			this.#logger.debug("router", "Astro matched the following route for "+ request.url);
-			this.#logger.debug("router", "RouteData:\n" + routeData);
+			this.#logger.debug('router', 'Astro matched the following route for ' + request.url);
+			this.#logger.debug('router', 'RouteData:\n' + routeData);
 		}
 		if (!routeData) {
-			this.#logger.debug("router", "Astro hasn't found routes that match " + request.url);
-			this.#logger.debug("router", "Here's the available routes:\n", this.#manifestData);
+			this.#logger.debug('router', "Astro hasn't found routes that match " + request.url);
+			this.#logger.debug('router', "Here's the available routes:\n", this.#manifestData);
 			return this.#renderError(request, { locals, status: 404 });
 		}
 		const pathname = this.#getPathnameFromRequest(request);
