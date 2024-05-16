@@ -1,13 +1,13 @@
-import { db, Likes, eq, sql } from 'astro:db';
-import { defineAction, z } from 'astro:actions';
+import { db, Comment, Likes, eq, sql } from 'astro:db';
+import { ActionError, defineAction, z } from 'astro:actions';
+import { getCollection } from 'astro:content';
 
 export const server = {
 	blog: {
 		like: defineAction({
-			accept: 'form',
 			input: z.object({ postId: z.string() }),
 			handler: async ({ postId }) => {
-				await new Promise((r) => setTimeout(r, 1000));
+				await new Promise((r) => setTimeout(r, 200));
 
 				const { likes } = await db
 					.update(Likes)
@@ -19,6 +19,34 @@ export const server = {
 					.get();
 
 				return likes;
+			},
+		}),
+
+		comment: defineAction({
+			accept: 'form',
+			input: z.object({
+				postId: z.string(),
+				author: z.string(),
+				body: z.string().min(10),
+			}),
+			handler: async ({ postId, author, body }) => {
+				if (!(await getCollection('blog')).find(b => b.id === postId)) {
+					throw new ActionError({
+						code: 'NOT_FOUND',
+						message: 'Post not found',
+					});
+				}
+
+				const comment = await db
+					.insert(Comment)
+					.values({
+						postId,
+						body,
+						author,
+					})
+					.returning()
+					.get();
+				return comment;
 			},
 		}),
 	},
