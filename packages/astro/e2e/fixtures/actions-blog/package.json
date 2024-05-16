@@ -14,11 +14,11 @@
 		"@astrojs/db": "workspace:*",
 		"@astrojs/node": "workspace:*",
 		"@astrojs/react": "workspace:*",
-		"@types/react": "npm:types-react",
-		"@types/react-dom": "npm:types-react-dom",
+    "@types/react": "^18.3.2",
+		"@types/react-dom": "^18.3.0",
 		"astro": "workspace:*",
-		"react": "19.0.0-beta-26f2496093-20240514",
-		"react-dom": "19.0.0-beta-26f2496093-20240514",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
 		"typescript": "^5.4.5"
 	},
   "overrides": {
