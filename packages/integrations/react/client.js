@@ -69,6 +69,7 @@ export default (element) =>
 		if (!element.hasAttribute('ssr')) return;
 		const renderOptions = {
 			identifierPrefix: element.getAttribute('prefix'),
+			formState: [],
 		};
 		for (const [key, value] of Object.entries(slotted)) {
 			props[key] = createElement(StaticHtml, { value, name: key });
