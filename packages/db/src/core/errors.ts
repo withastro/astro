@@ -1,10 +1,5 @@
 import { bold, cyan, red } from 'kleur/colors';
 
-export const MISSING_SESSION_ID_ERROR = `${red('▶ Login required!')}
-
-  To authenticate with Astro Studio, run
-  ${cyan('astro db login')}\n`;
-
 export const MISSING_EXECUTE_PATH_ERROR = `${red(
 	'▶ No file path provided.'
 )} Provide a path by running ${cyan('astro db execute <path>')}\n`;

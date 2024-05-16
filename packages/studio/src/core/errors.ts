@@ -7,9 +7,9 @@ export const MISSING_SESSION_ID_CI_ERROR = `${red('▶ ASTRO_STUDIO_APP_TOKEN re
 export const MISSING_SESSION_ID_ERROR = `${red('▶ Login required!')}
 
   To authenticate with Astro Studio, run
-  ${cyan('astro db login')}\n`;
+  ${cyan('astro login')}\n`;
 
 export const MISSING_PROJECT_ID_ERROR = `${red('▶ Directory not linked.')}
 
   To link this directory to an Astro Studio project, run
-  ${cyan('astro db link')}\n`;
+  ${cyan('astro link')}\n`;

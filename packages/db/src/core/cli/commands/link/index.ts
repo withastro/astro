@@ -6,8 +6,7 @@ import { bgRed, cyan } from 'kleur/colors';
 import ora from 'ora';
 import prompts from 'prompts';
 import { safeFetch } from '../../../../runtime/utils.js';
-import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
-import { PROJECT_ID_FILE, getAstroStudioUrl, getSessionIdFromFile } from '@astrojs/studio';
+import { PROJECT_ID_FILE, MISSING_SESSION_ID_ERROR, getAstroStudioUrl, getSessionIdFromFile } from '@astrojs/studio';
 import { type Result } from '../../../utils.js';
 
 export async function cmd() {
