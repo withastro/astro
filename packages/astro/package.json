@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "4.8.3",
+  "version": "4.8.4",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -112,8 +112,10 @@
     "postbuild": "astro-scripts copy \"src/**/*.astro\" && astro-scripts copy \"src/**/*.wasm\"",
     "test": "pnpm run test:node",
     "test:match": "pnpm run test:node --match",
-    "test:e2e": "playwright test",
+    "test:e2e": "pnpm test:e2e:chrome && pnpm test:e2e:firefox",
     "test:e2e:match": "playwright test -g",
+    "test:e2e:chrome": "playwright test",
+    "test:e2e:firefox": "playwright test --config playwright.firefox.config.js",
     "test:node": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {

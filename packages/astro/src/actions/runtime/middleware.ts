@@ -12,14 +12,21 @@ export type Locals = {
 
 export const onRequest = defineMiddleware(async (context, next) => {
 	const locals = context.locals as Locals;
+	// Actions middleware may have run already after a path rewrite.
+	// See https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md#ctxrewrite
+	// `_actionsInternal` is the same for every page,
+	// so short circuit if already defined.
+	if (locals._actionsInternal) return next();
+
 	const { request, url } = context;
 	const contentType = request.headers.get('Content-Type');
 
 	// Avoid double-handling with middleware when calling actions directly.
 	if (url.pathname.startsWith('/_actions')) return nextWithLocalsStub(next, locals);
 
-	if (!contentType || !hasContentType(contentType, formContentTypes))
+	if (!contentType || !hasContentType(contentType, formContentTypes)) {
 		return nextWithLocalsStub(next, locals);
+	}
 
 	const formData = await request.clone().formData();
 	const actionPath = formData.get('_astroAction');
@@ -27,6 +34,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	const actionPathKeys = actionPath.replace('/_actions/', '').split('.');
 	const action = await getAction(actionPathKeys);
+	if (!action) return nextWithLocalsStub(next, locals);
+
 	const result = await ApiContextStorage.run(context, () => callSafely(() => action(formData)));
 
 	const actionsInternal: Locals['_actionsInternal'] = {

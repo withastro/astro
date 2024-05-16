@@ -220,4 +220,11 @@ describe('Middleware', () => {
 		assert.equal($('h1').text(), 'Index');
 		assert.equal($('p').text(), '');
 	});
+
+	it('should render the index when rewriting with params', async () => {
+		const html = await fixture.fetch('/auth/params').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.match($('h1').text(), /Index/);
+	});
 });

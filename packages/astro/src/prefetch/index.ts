@@ -59,7 +59,7 @@ function initTapStrategy() {
 			event,
 			(e) => {
 				if (elMatchesStrategy(e.target, 'tap')) {
-					prefetch(e.target.href, { with: 'fetch', ignoreSlowConnection: true });
+					prefetch(e.target.href, { ignoreSlowConnection: true });
 				}
 			},
 			{ passive: true }
@@ -107,7 +107,7 @@ function initHoverStrategy() {
 			clearTimeout(timeout);
 		}
 		timeout = setTimeout(() => {
-			prefetch(href, { with: 'fetch' });
+			prefetch(href);
 		}, 80) as unknown as number;
 	}
 
@@ -158,7 +158,7 @@ function createViewportIntersectionObserver() {
 					setTimeout(() => {
 						observer.unobserve(anchor);
 						timeouts.delete(anchor);
-						prefetch(anchor.href, { with: 'link' });
+						prefetch(anchor.href);
 					}, 300) as unknown as number
 				);
 			} else {
@@ -180,7 +180,7 @@ function initLoadStrategy() {
 		for (const anchor of document.getElementsByTagName('a')) {
 			if (elMatchesStrategy(anchor, 'load')) {
 				// Prefetch every link in this page
-				prefetch(anchor.href, { with: 'link' });
+				prefetch(anchor.href);
 			}
 		}
 	});
@@ -189,8 +189,12 @@ function initLoadStrategy() {
 export interface PrefetchOptions {
 	/**
 	 * How the prefetch should prioritize the URL. (default `'link'`)
-	 * - `'link'`: use `<link rel="prefetch">`, has lower loading priority.
-	 * - `'fetch'`: use `fetch()`, has higher loading priority.
+	 * - `'link'`: use `<link rel="prefetch">`.
+	 * - `'fetch'`: use `fetch()`.
+	 *
+	 * @deprecated It is recommended to not use this option, and let prefetch use `'link'` whenever it's supported,
+	 * or otherwise fall back to `'fetch'`. `'link'` works better if the URL doesn't set an appropriate cache header,
+	 * as the browser will continue to cache it as long as it's used subsequently.
 	 */
 	with?: 'link' | 'fetch';
 	/**
@@ -215,28 +219,27 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 	if (!canPrefetchUrl(url, ignoreSlowConnection)) return;
 	prefetchedUrls.add(url);
 
-	const priority = opts?.with ?? 'link';
-	debug?.(`[astro] Prefetching ${url} with ${priority}`);
-
-	if (
-		clientPrerender &&
-		HTMLScriptElement.supports &&
-		HTMLScriptElement.supports('speculationrules')
-	) {
-		// this code is tree-shaken if unused
+	// Prefetch with speculationrules if `clientPrerender` is enabled and supported
+	// NOTE: This condition is tree-shaken if `clientPrerender` is false as its a static value
+	if (clientPrerender && HTMLScriptElement.supports?.('speculationrules')) {
+		debug?.(`[astro] Prefetching ${url} with <script type="speculationrules">`);
 		appendSpeculationRules(url);
-	} else if (priority === 'link') {
+	}
+	// Prefetch with link if supported
+	else if (
+		document.createElement('link').relList?.supports?.('prefetch') &&
+		opts?.with !== 'fetch'
+	) {
+		debug?.(`[astro] Prefetching ${url} with <link rel="prefetch">`);
 		const link = document.createElement('link');
 		link.rel = 'prefetch';
 		link.setAttribute('href', url);
 		document.head.append(link);
-	} else {
-		fetch(url).catch((e) => {
-			// eslint-disable-next-line no-console
-			console.log(`[astro] Failed to prefetch ${url}`);
-			// eslint-disable-next-line no-console
-			console.error(e);
-		});
+	}
+	// Otherwise, fallback prefetch with fetch
+	else {
+		debug?.(`[astro] Prefetching ${url} with fetch`);
+		fetch(url, { priority: 'low' });
 	}
 }
 
