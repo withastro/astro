@@ -1548,6 +1548,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 		const config = await validateConfig(
 			{
 				format: 'directory',
+				output: "server",
 				site: 'https://example.com/',
 				trailingSlash: 'always',
 				i18n: {
@@ -1587,7 +1588,6 @@ describe('getLocaleAbsoluteUrlList', () => {
 		 * @type {import("../../../dist/@types").AstroUserConfig}
 		 */
 		const config = {
-			experimental: {
 				i18n: {
 					defaultLocale: 'en',
 					locales: [
@@ -1599,7 +1599,6 @@ describe('getLocaleAbsoluteUrlList', () => {
 							codes: ['it', 'it-VA'],
 						},
 					],
-				},
 			},
 		};
 		// directory format
@@ -1607,7 +1606,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 			getLocaleAbsoluteUrlList({
 				locale: 'en',
 				base: '/blog/',
-				...config.experimental.i18n,
+				...config.i18n,
 				trailingSlash: 'always',
 				format: 'file',
 				site: 'https://example.com',
