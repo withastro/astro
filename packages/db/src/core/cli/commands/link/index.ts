@@ -67,7 +67,7 @@ async function getWorkspaceId(): Promise<string> {
 			if (res.status === 401) {
 				throw new Error(
 					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-						'astro db login'
+						'astro login'
 					)} to authenticate and then try linking again.\n\n`
 				);
 			}
@@ -115,7 +115,7 @@ export async function createNewProject({
 			if (res.status === 401) {
 				console.error(
 					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-						'astro db login'
+						'astro login'
 					)} to authenticate and then try linking again.\n\n`
 				);
 				process.exit(1);
@@ -149,7 +149,7 @@ export async function promptExistingProjectName({ workspaceId }: { workspaceId: 
 			if (res.status === 401) {
 				console.error(
 					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-						'astro db login'
+						'astro login'
 					)} to authenticate and then try linking again.\n\n`
 				);
 				process.exit(1);
