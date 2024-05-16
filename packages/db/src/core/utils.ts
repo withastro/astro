@@ -1,7 +1,7 @@
+import { getAstroStudioEnv } from '@astrojs/studio';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import { loadEnv } from 'vite';
 import type { AstroDbIntegration } from './types.js';
-import { getAstroStudioEnv } from '@astrojs/studio';
 
 export type VitePlugin = Required<AstroConfig['vite']>['plugins'][number];
 

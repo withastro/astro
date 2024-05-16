@@ -1,12 +1,17 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { basename } from 'node:path';
+import {
+	MISSING_SESSION_ID_ERROR,
+	PROJECT_ID_FILE,
+	getAstroStudioUrl,
+	getSessionIdFromFile,
+} from '@astrojs/studio';
 import { slug } from 'github-slugger';
 import { bgRed, cyan } from 'kleur/colors';
 import ora from 'ora';
 import prompts from 'prompts';
 import { safeFetch } from '../../../../runtime/utils.js';
-import { PROJECT_ID_FILE, MISSING_SESSION_ID_ERROR, getAstroStudioUrl, getSessionIdFromFile } from '@astrojs/studio';
 import { type Result } from '../../../utils.js';
 
 export async function cmd() {

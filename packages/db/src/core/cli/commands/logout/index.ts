@@ -1,5 +1,5 @@
 import { unlink } from 'node:fs/promises';
-import { SESSION_LOGIN_FILE } from '@astrojs/studio'
+import { SESSION_LOGIN_FILE } from '@astrojs/studio';
 
 export async function cmd() {
 	await unlink(SESSION_LOGIN_FILE);
