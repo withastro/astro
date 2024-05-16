@@ -164,6 +164,10 @@ export async function generateHydrateScript(
 
 	island.props['ssr'] = '';
 	island.props['client'] = hydrate;
+	island.props['action-result'] = JSON.stringify(metadata.reactServerActions.actionResult);
+	island.props['action-key'] = metadata.reactServerActions.actionKey;
+	island.props['action-name'] = metadata.reactServerActions.actionName;
+
 	let beforeHydrationUrl = await result.resolve('astro:scripts/before-hydration.js');
 	if (beforeHydrationUrl.length) {
 		island.props['before-hydration-url'] = beforeHydrationUrl;

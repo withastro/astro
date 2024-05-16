@@ -65,14 +65,11 @@ const getOrCreateRoot = (element, creator) => {
 };
 
 export default (element) =>
-	(Component, props, { default: children, ...slotted }, { client }) => {
+	(Component, props, { default: children, ...slotted }, { client, formState = [] }) => {
 		if (!element.hasAttribute('ssr')) return;
 		const renderOptions = {
 			identifierPrefix: element.getAttribute('prefix'),
-			// `formState` is used during server rendering to resume
-			// state when using `useActionState()`.
-			// Stub client-side to avoid hydration errors.
-			formState: [],
+			formState,
 		};
 		for (const [key, value] of Object.entries(slotted)) {
 			props[key] = createElement(StaticHtml, { value, name: key });
