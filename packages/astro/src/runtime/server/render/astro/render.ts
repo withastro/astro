@@ -219,10 +219,10 @@ export async function renderToAsyncIterable(
 
 			if(next !== null) {
 				await next.promise;
+			}
 
-				if(!renderingComplete) {
-					next = promiseWithResolvers();
-				}
+			if(!renderingComplete) {
+				next = promiseWithResolvers();
 			}
 
 			// If an error occurs during rendering, throw the error as we cannot proceed.
