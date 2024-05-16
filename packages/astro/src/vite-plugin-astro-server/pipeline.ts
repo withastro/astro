@@ -26,7 +26,6 @@ import { getComponentMetadata } from './metadata.js';
 import { createResolve } from './resolve.js';
 import { default404Page } from './response.js';
 import { getScriptsForURL } from './scripts.js';
-import { matchRoute } from './route.js';
 
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
