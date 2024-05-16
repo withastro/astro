@@ -71,7 +71,10 @@ export abstract class Pipeline {
 	 *
 	 * @param {RewritePayload} rewritePayload
 	 */
-	abstract tryRewrite(rewritePayload: RewritePayload): Promise<[RouteData, ComponentInstance]>;
+	abstract tryRewrite(
+		rewritePayload: RewritePayload,
+		request: Request
+	): Promise<[RouteData, ComponentInstance]>;
 
 	/**
 	 * Tells the pipeline how to retrieve a component give a `RouteData`
