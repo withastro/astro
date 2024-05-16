@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/studio",
   "version": "0.1.0",
-  "description": "Add libSQL and Astro Studio support to your Astro site",
+  "description": "Internal package powering integrations between Astro projects and Astro Studio",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -12,13 +12,14 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/studio/",
   "type": "module",
   "author": "withastro",
-  "types": "./index.d.ts",
+  "types": "./dist/index.js",
   "main": "./dist/index.js",
   "exports": {
     ".": {
-      "types": "./index.d.ts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist"
