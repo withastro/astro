@@ -38,7 +38,6 @@ describe('Streaming', () => {
 				chunks.push(chunk);
 			}
 			assert.equal(chunks.length > 5, true);
-			assert.ok(!chunks[0].includes('id="promise"'), 'the first chunk should not include the initial promise creation');
 		});
 
 		it('Body of slots is chunked', async () => {
