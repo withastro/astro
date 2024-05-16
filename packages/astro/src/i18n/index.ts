@@ -19,17 +19,14 @@ export function requestHasLocale(locales: Locales) {
 	};
 }
 
-export function requestIs404Or500(request: Request, base?: string) {
+export function requestIs404Or500(request: Request, base: string = '') {
 	const url = new URL(request.url);
 
 	return (
-		url.pathname.startsWith('/404') ||
-		url.pathname.startsWith(base + '/404') ||
-		url.pathname.startsWith('/500') ||
-		url.pathname.startsWith(base + '/500')
+		url.pathname.startsWith(`${base}/404`) ||
+		url.pathname.startsWith(`${base}/500`)
 	);
 }
-
 // Checks if the pathname has any locale
 export function pathHasLocale(path: string, locales: Locales): boolean {
 	const segments = path.split('/');
