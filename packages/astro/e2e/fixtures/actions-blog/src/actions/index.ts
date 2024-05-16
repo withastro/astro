@@ -1,6 +1,7 @@
 import { db, Comment, Likes, eq, sql } from 'astro:db';
-import { ActionError, defineAction, z } from 'astro:actions';
+import { ActionError, defineAction, getApiContext, z } from 'astro:actions';
 import { getCollection } from 'astro:content';
+import { getActionState } from '@astrojs/react/actions';
 
 export const server = {
 	blog: {
@@ -10,10 +11,13 @@ export const server = {
 			handler: async ({ postId }) => {
 				await new Promise((r) => setTimeout(r, 200));
 
+				const context = getApiContext();
+				const state = await getActionState<number>(context);
+
 				const { likes } = await db
 					.update(Likes)
 					.set({
-						likes: sql`likes + 1`,
+						likes: state + 1,
 					})
 					.where(eq(Likes.postId, postId))
 					.returning()
