@@ -1,6 +1,6 @@
 import { db, Likes, eq, sql } from 'astro:db';
 import { defineAction, getApiContext, z } from 'astro:actions';
-import { getActionState } from '@astrojs/react/actions';
+import { experimental_getActionState } from '@astrojs/react/actions';
 
 export const server = {
 	blog: {
@@ -29,7 +29,7 @@ export const server = {
 				await new Promise((r) => setTimeout(r, 200));
 
 				const context = getApiContext();
-				const state = await getActionState<number>(context);
+				const state = await experimental_getActionState<number>(context);
 
 				const { likes } = await db
 					.update(Likes)
