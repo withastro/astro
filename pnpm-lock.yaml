@@ -5536,6 +5536,34 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
 
+  packages/storage:
+    dependencies:
+      '@astrojs/studio':
+        specifier: ^0.1.0
+        version: link:../studio
+      ci-info:
+        specifier: ^4.0.0
+        version: 4.0.0
+      kleur:
+        specifier: ^4.1.5
+        version: 4.1.5
+      ora:
+        specifier: ^8.0.1
+        version: 8.0.1
+    devDependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../astro
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../scripts
+      typescript:
+        specifier: ^5.4.5
+        version: 5.4.5
+      vite:
+        specifier: ^5.2.11
+        version: 5.2.11(@types/node@18.19.31)(sass@1.77.1)
+
   packages/studio:
     dependencies:
       ci-info:
