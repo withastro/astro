@@ -39,7 +39,7 @@ There are also 3 kinds of variables:
     import { PUBLIC_PORT } from "astro:env/server"
     ```
 
-- **Secret server variables**: Those variables are not part of your final bundle and can be accessed on the server through the `astro:env/server` module:
+- **Secret server variables**: These variables are not included in the final bundle and can only be accessed on the server via the astro:env/server module:
 
     ```js
     import { getSecret } from "astro:env/server"
