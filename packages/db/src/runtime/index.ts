@@ -52,6 +52,20 @@ const jsonType = customType<{ data: unknown; driverData: string }>({
 	},
 });
 
+const fileType = customType<{ data: string; driverData: string }>({
+	dataType() {
+		return 'text';
+	},
+	toDriver(value) {
+		// TODO: Should save as some sort of file reference
+		return value;
+	},
+	fromDriver(value) {
+		// TODO: Should return a file object
+		return value;
+	},
+});
+
 type D1ColumnBuilder = SQLiteColumnBuilderBase<
 	ColumnBuilderBaseConfig<ColumnDataType, string> & { data: unknown }
 >;
@@ -88,6 +102,7 @@ function columnMapper(columnName: string, column: DBColumn) {
 		| typeof integer
 		| typeof jsonType
 		| typeof dateType
+		| typeof fileType
 		| typeof integer<string, 'boolean'>
 	>;
 
@@ -116,6 +131,10 @@ function columnMapper(columnName: string, column: DBColumn) {
 		}
 		case 'json':
 			c = jsonType(columnName);
+			if (column.schema.default !== undefined) c = c.default(column.schema.default);
+			break;
+		case 'file':
+			c = fileType(columnName);
 			if (column.schema.default !== undefined) c = c.default(column.schema.default);
 			break;
 		case 'date': {

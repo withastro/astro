@@ -5539,7 +5539,7 @@ importers:
   packages/storage:
     dependencies:
       '@astrojs/studio':
-        specifier: ^0.1.0
+        specifier: workspace:*
         version: link:../studio
       ci-info:
         specifier: ^4.0.0

@@ -62,6 +62,17 @@ export type AstroJson<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 	}
 >;
 
+export type AstroFile<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
+	T & {
+		data: string;
+		dataType: 'custom';
+		columnType: 'SQLiteCustomColumn';
+		driverParam: string;
+		enumValues: never;
+		baseColumn: never;
+	}
+>;
+
 export type Column<T extends DBColumn['type'], S extends GeneratedConfig> = T extends 'boolean'
 	? AstroBoolean<S>
 	: T extends 'number'
@@ -72,7 +83,9 @@ export type Column<T extends DBColumn['type'], S extends GeneratedConfig> = T ex
 				? AstroDate<S>
 				: T extends 'json'
 					? AstroJson<S>
-					: never;
+					: T extends 'file'
+						? AstroFile<S>
+						: never;
 
 export type Table<
 	TTableName extends string,

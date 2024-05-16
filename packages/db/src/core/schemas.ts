@@ -148,12 +148,20 @@ export const jsonColumnSchema = z.object({
 	}),
 });
 
+export const fileColumnSchema = z.object({
+	type: z.literal('file'),
+	schema: baseColumnSchema.extend({
+		default: z.string().optional(),
+	}),
+});
+
 export const columnSchema = z.discriminatedUnion('type', [
 	booleanColumnSchema,
 	numberColumnSchema,
 	textColumnSchema,
 	dateColumnSchema,
 	jsonColumnSchema,
+	fileColumnSchema,
 ]);
 export const referenceableColumnSchema = z.union([textColumnSchema, numberColumnSchema]);
 

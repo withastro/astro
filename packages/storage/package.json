@@ -34,10 +34,10 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
+    "@astrojs/studio": "workspace:*",
     "ci-info": "^4.0.0",
     "kleur": "^4.1.5",
-    "ora": "^8.0.1",
-    "@astrojs/studio": "^0.1.0"
+    "ora": "^8.0.1"
   },
   "devDependencies": {
     "astro": "workspace:*",

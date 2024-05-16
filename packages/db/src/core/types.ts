@@ -7,6 +7,7 @@ import type {
 	columnsSchema,
 	dateColumnSchema,
 	dbConfigSchema,
+	fileColumnSchema,
 	indexSchema,
 	jsonColumnSchema,
 	numberColumnOptsSchema,
@@ -29,6 +30,7 @@ export type DateColumn = z.infer<typeof dateColumnSchema>;
 export type DateColumnInput = z.input<typeof dateColumnSchema>;
 export type JsonColumn = z.infer<typeof jsonColumnSchema>;
 export type JsonColumnInput = z.input<typeof jsonColumnSchema>;
+export type FileColumnInput = z.input<typeof fileColumnSchema>;
 
 export type ColumnType =
 	| BooleanColumn['type']

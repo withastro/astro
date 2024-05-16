@@ -5,6 +5,7 @@ import type {
 	ColumnsConfig,
 	DBConfigInput,
 	DateColumnInput,
+	FileColumnInput,
 	JsonColumnInput,
 	NumberColumnOpts,
 	TableConfig,
@@ -44,6 +45,9 @@ export const column = {
 	},
 	json<T extends JsonColumnInput['schema']>(opts: T = {} as T) {
 		return createColumn('json', opts) satisfies { type: 'json' };
+	},
+	file<T extends FileColumnInput['schema']>(opts: T = {} as T) {
+		return createColumn('file', opts) satisfies { type: 'file' };
 	},
 };
 
