@@ -19,7 +19,7 @@ export function requestHasLocale(locales: Locales) {
 	};
 }
 
-export function requestIs404Or500(request: Request, base: string = '') {
+export function requestIs404Or500(request: Request, base = '') {
 	const url = new URL(request.url);
 
 	return (
