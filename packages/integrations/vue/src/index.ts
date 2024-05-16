@@ -13,7 +13,7 @@ const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
 interface Options extends VueOptions {
 	jsx?: boolean | VueJsxOptions;
 	appEntrypoint?: string;
-	devtools?: boolean  | {launchEditor: VitePluginVueDevToolsOptions['launchEditor'];};
+	devtools?: boolean | Omit<VitePluginVueDevToolsOptions, "appendTo">;
 }
 
 function getRenderer(): AstroRenderer {
@@ -126,11 +126,11 @@ async function getViteConfiguration(
 
 	if (command === 'dev' && options?.devtools) {
 		const vueDevTools = (await import('vite-plugin-vue-devtools')).default;
-		const launchEditor =  typeof options.devtools === 'object' ? options.devtools.launchEditor : "code"
+		const pluginOptions =  typeof options.devtools === 'object' ? options.devtools : {}
 		config.plugins?.push(
 			vueDevTools({
-				appendTo: VIRTUAL_MODULE_ID,
-				launchEditor
+				...pluginOptions,
+				appendTo: VIRTUAL_MODULE_ID
 			})
 		);
 	}
