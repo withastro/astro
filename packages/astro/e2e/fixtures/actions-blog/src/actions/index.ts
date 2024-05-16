@@ -1,23 +1,18 @@
 import { db, Comment, Likes, eq, sql } from 'astro:db';
-import { ActionError, defineAction, getApiContext, z } from 'astro:actions';
+import { ActionError, defineAction, z } from 'astro:actions';
 import { getCollection } from 'astro:content';
-import { getActionState } from '@astrojs/react/actions';
 
 export const server = {
 	blog: {
 		like: defineAction({
-			accept: 'form',
 			input: z.object({ postId: z.string() }),
 			handler: async ({ postId }) => {
-				await new Promise((r) => setTimeout(r, 200));
-
-				const context = getApiContext();
-				const state = await getActionState<number>(context);
+				await new Promise((r) => setTimeout(r, 1000));
 
 				const { likes } = await db
 					.update(Likes)
 					.set({
-						likes: state + 1,
+						likes: sql`likes + 1`,
 					})
 					.where(eq(Likes.postId, postId))
 					.returning()
