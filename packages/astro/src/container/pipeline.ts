@@ -14,20 +14,15 @@ import { AstroError } from '../core/errors/index.js';
 import { RouteNotFound } from '../core/errors/errors-data.js';
 import type { SinglePageBuiltModule } from '../core/build/types.js';
 
-export class TestPipeline extends Pipeline {
+export class ContainerPipeline extends Pipeline {
 	/**
-	 *
+	 * Internal cache to store components instances by `RouteData`.
 	 * @private
 	 */
 	#componentsInterner: WeakMap<RouteData, SinglePageBuiltModule> = new WeakMap<
 		RouteData,
 		SinglePageBuiltModule
 	>();
-	/**
-	 * This cache is needed to map a single `RouteData` to its file path.
-	 * @private
-	 */
-	#routesByFilePath: WeakMap<RouteData, string> = new WeakMap<RouteData, string>();
 
 	static create({
 		logger,
@@ -37,10 +32,10 @@ export class TestPipeline extends Pipeline {
 		serverLike,
 		streaming,
 	}: Pick<
-		TestPipeline,
+		ContainerPipeline,
 		'logger' | 'manifest' | 'renderers' | 'resolve' | 'serverLike' | 'streaming'
 	>) {
-		return new TestPipeline(
+		return new ContainerPipeline(
 			logger,
 			manifest,
 			'development',
@@ -113,31 +108,8 @@ export class TestPipeline extends Pipeline {
 		});
 	}
 
-	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
-		if (this.#componentsInterner.has(routeData)) {
-			// SAFETY: checked before
-			const entry = this.#componentsInterner.get(routeData)!;
-			return await entry.page();
-		} else {
-			// SAFETY: the pipeline calls `retrieveRoutesToGenerate`, which is in charge to fill the cache.
-			const filePath = this.#routesByFilePath.get(routeData)!;
-			const module = await this.#retrieveSsrEntry(routeData, filePath);
-			return module.page();
-		}
-	}
-
-	async #retrieveSsrEntry(route: RouteData, filePath: string): Promise<SinglePageBuiltModule> {
-		if (this.#componentsInterner.has(route)) {
-			// SAFETY: it is checked inside the if
-			return this.#componentsInterner.get(route)!;
-		}
-		const ssrEntryURLPage = this.#createEntryURL(filePath, new URL(process.cwd()));
-		const entry = await import(ssrEntryURLPage.toString());
-		this.#componentsInterner.set(route, entry);
-		return entry;
-	}
-
-	#createEntryURL(filePath: string, outFolder: URL) {
-		return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
+	// At the moment it's not used by the container via any public API
+	// @ts-expect-error It needs to be implemented.
+	async getComponentByRoute(_routeData: RouteData): Promise<ComponentInstance> {
 	}
 }

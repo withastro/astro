@@ -10,7 +10,7 @@ import type {
 	AstroUserConfig, 
 	AstroRenderer,
 } from '../@types/astro.js';
-import { TestPipeline } from './pipeline.js';
+import { ContainerPipeline } from './pipeline.js';
 import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
 import type { SSRManifestI18n } from '../core/app/types.js';
@@ -75,7 +75,7 @@ export type ContainerRenderOptions = {
 	routeType?: RouteType;
 };
 
-function createContainerManifest(
+function createManifest(
 	renderers: SSRLoadedRenderer[],
 	config: AstroConfig,
 	manifest?: AstroContainerManifest,
@@ -203,7 +203,7 @@ type AstroContainerConstructor = {
 };
 
 export class experimental_AstroContainer {
-	#pipeline: TestPipeline;
+	#pipeline: ContainerPipeline;
 	#config: AstroConfig;
 
 	/**
@@ -220,12 +220,12 @@ export class experimental_AstroContainer {
 		resolve,
 	}: AstroContainerConstructor) {
 		this.#config = config;
-		this.#pipeline = TestPipeline.create({
+		this.#pipeline = ContainerPipeline.create({
 			logger: new Logger({
 				level: 'info',
 				dest: nodeLogDestination,
 			}),
-			manifest: createContainerManifest(renderers, config, manifest),
+			manifest: createManifest(renderers, config, manifest),
 			streaming,
 			serverLike: true,
 			renderers,
@@ -290,19 +290,8 @@ export class experimental_AstroContainer {
 		container.#withManifest = true;
 		return container;
 	}
-
-	/**
-	 * Use this method to manually insert a route inside the container.
-	 *
-	 * This method is useful if you're rending a component that attempt to render redirect or a rewrite.
-	 *
-	 * @param {object} options
-	 * @param {string} options.path The path of the route. It has to match what you see in a URL browser, e.g. `/blog/12334/first-post`
-	 * @param {ComponentInstance} options.componentInstance The a compile instance of the Astro component.
-	 * @param {string[]} options.params The params of the route. Use these when your route is dynamic. For a route `/blog/[id]/[...dynamic]`, the params are `["id", "...dynamic"]`
-	 * @param {RouteType} options.type The type of route.
-	 */
-	private insertRoute({
+	
+	#insertRoute({
 		path,
 		componentInstance,
 		params = {},
@@ -380,7 +369,7 @@ export class experimental_AstroContainer {
 		const request = options?.request ?? new Request('https://example.com/');
 		const url = new URL(request.url);
 		const componentInstance = routeType === "endpoint" ? component as unknown as ComponentInstance : this.#wrapComponent(component, options.params);
-		const routeData = this.insertRoute({
+		const routeData = this.#insertRoute({
 			path: request.url,
 			componentInstance,
 			params: options.params,
