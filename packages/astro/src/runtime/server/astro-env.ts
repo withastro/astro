@@ -28,14 +28,15 @@ export function createInvalidVariableError(
 }
 
 export function overrideProcessEnv({
-	getEnv,
+	// Otherwise eslint isn't happy
+	getEnv: __getEnv,
 	variables,
 }: {
 	getEnv: GetEnv;
 	variables: Array<{ destKey: string; srcKey?: string; default?: string }>;
 }) {
 	for (const { destKey, srcKey, default: defaultValue } of variables) {
-		const value = getEnv(srcKey ?? destKey);
+		const value = __getEnv(srcKey ?? destKey);
 		if (value !== undefined) {
 			process.env[destKey] = value ?? defaultValue;
 		}
