@@ -217,13 +217,13 @@ export async function renderToAsyncIterable(
 		async next() {
 			if (result.cancelled) return { done: true, value: undefined };
 
-			if(next !== null) {
+			if (next !== null) {
 				await next.promise;
 			}
 
 			// Only create a new promise if rendering is still ongoing. Otherwise
 			// there will be a dangling promises that breaks tests (probably not an actual app)
-			if(!renderingComplete) {
+			if (!renderingComplete) {
 				next = promiseWithResolvers();
 			}
 
