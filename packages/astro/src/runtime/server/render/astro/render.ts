@@ -211,6 +211,7 @@ export async function renderToAsyncIterable(
 	// for chunks to be pushed into the buffer.
 	let next: ReturnType<typeof promiseWithResolvers<void>> | null = null;
 	const buffer: Uint8Array[] = []; // []Uint8Array
+	let renderingComplete = false;
 
 	const iterator: AsyncIterator<Uint8Array> = {
 		async next() {
@@ -218,6 +219,10 @@ export async function renderToAsyncIterable(
 
 			if(next !== null) {
 				await next.promise;
+
+				if(!renderingComplete) {
+					next = promiseWithResolvers();
+				}
 			}
 
 			// If an error occurs during rendering, throw the error as we cannot proceed.
@@ -243,14 +248,9 @@ export async function renderToAsyncIterable(
 			// Empty the array. We do this so that we can reuse the same array.
 			buffer.length = 0;
 
-			// The iterator is done if there are no chunks to return.
-			let done = length === 0;
-			if(!done) {
-				next = promiseWithResolvers();
-			}
-
 			const returnValue = {
-				done,
+				// The iterator is done if there are no chunks to return.
+				done: length === 0,
 				value: mergedArray,
 			};
 
@@ -292,11 +292,13 @@ export async function renderToAsyncIterable(
 	renderPromise
 		.then(() => {
 			// Once rendering is complete, calling resolve() allows the iterator to finish running.
+			renderingComplete = true;
 			next?.resolve();
 		})
 		.catch((err) => {
 			// If an error occurs, save it in the scope so that we throw it when next() is called.
 			error = err;
+			renderingComplete = true;
 			next?.resolve();
 		});
 
