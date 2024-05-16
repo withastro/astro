@@ -27,7 +27,7 @@ There are currently 3 data types supported: strings, numbers and booleans.
 
 There are also 3 kinds of variables:
 
-- **Public client variables**: Those variables end up in your final client and server bundle and can be accessed both client and server through the `astro:env/client` module:
+- **Public client variables**: These variables are included in both the client and server bundles and can be accessed from either via the astro:env/client module:
 
     ```js
     import { PUBLIC_API_URL } from "astro:env/client"
