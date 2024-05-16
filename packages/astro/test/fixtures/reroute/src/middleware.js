@@ -18,6 +18,10 @@ export const second = async (context, next) => {
 		if (context.url.pathname.includes('/auth/base')) {
 			return await next('/');
 		}
+
+		if (context.url.pathname.includes('/auth/params')) {
+			return  next('/?foo=bar');
+		}
 	}
 	return next();
 };
