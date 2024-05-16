@@ -5,10 +5,11 @@
     "schedule:weekly",
     "group:allNonMajor",
     ":disablePeerDependencies", 
-    "regexManagers:biomeVersions"
+    "regexManagers:biomeVersions",
   ],
   "labels": ["dependencies"],
   "rangeStrategy": "bump",
+  "ignorePaths": ["**/node_modules/**"],
   "ignoreDeps": [
     // manually bumping deps
     "@biomejs/biome",

@@ -42,11 +42,11 @@ describe('Astro.params in SSR', () => {
 
 	it('No double URL decoding', async () => {
 		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/users/houston/%25');
+		const request = new Request('http://example.com/users/houston/%25%23%3F');
 		const response = await app.render(request);
 		assert.equal(response.status, 200);
 		const html = await response.text();
 		const $ = cheerio.load(html);
-		assert.equal($('.category').text(), '%');
+		assert.equal($('.category').text(), '%#?');
 	});
 });

@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 4.0.6
+
+### Patch Changes
+
+- [#11050](https://github.com/withastro/astro/pull/11050) [`841df1f`](https://github.com/withastro/astro/commit/841df1f1b192f39849509cda49b7243940cc30f9) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Fixes an issue where trailing slash is not removed even if the `trailingSlash` option is set to `false`.
+
 ## 4.0.5
 
 ### Patch Changes

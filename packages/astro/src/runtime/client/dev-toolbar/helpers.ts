@@ -1,7 +1,7 @@
 type NotificationPayload =
 	| {
 			state: true;
-			level?: 'error' | 'warn' | 'info';
+			level?: 'error' | 'warning' | 'info';
 	  }
 	| {
 			state: false;
@@ -46,7 +46,7 @@ export class ToolbarAppEventTarget extends EventTarget {
 	 */
 	toggleState(options: AppStatePayload) {
 		this.dispatchEvent(
-			new CustomEvent('app-toggled', {
+			new CustomEvent('toggle-app', {
 				detail: {
 					state: options.state,
 				} satisfies AppStatePayload,

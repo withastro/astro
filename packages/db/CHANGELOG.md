@@ -1,5 +1,36 @@
 # @astrojs/db
 
+## 0.11.2
+
+### Patch Changes
+
+- [#11027](https://github.com/withastro/astro/pull/11027) [`eb1d9a4`](https://github.com/withastro/astro/commit/eb1d9a447bc73534b8dd8fa6d3dcdb265950753a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix `isDbError()` returning `false` for remote database errors. Astro will now return a `LibsqlError` in development and production.
+
+## 0.11.1
+
+### Patch Changes
+
+- [#10967](https://github.com/withastro/astro/pull/10967) [`a134318`](https://github.com/withastro/astro/commit/a1343184da2a67439de4792e9e404d17ec3943df) Thanks [@matthewp](https://github.com/matthewp)! - Convert non-ISO date to UTC time
+
+## 0.11.0
+
+### Minor Changes
+
+- [#10919](https://github.com/withastro/astro/pull/10919) [`44bafa9`](https://github.com/withastro/astro/commit/44bafa989af0cc380696bb6381048fc1ee55dd5b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - - Fix duplicate table recreations when you start your dev server.
+  - Remove eager re-seeding when updating your seed file in development. Seeding still runs on dev server startup for SQLite inspector tools.
+
+## 0.10.7
+
+### Patch Changes
+
+- [#10882](https://github.com/withastro/astro/pull/10882) [`cf58d1e`](https://github.com/withastro/astro/commit/cf58d1ed56c671d0ee077dfecc286002b4bae5ed) Thanks [@delucis](https://github.com/delucis)! - Improves the typing of the `asDrizzleTable()` utility
+
+  Fixes a type error when passing the output of `defineTable()` to the utility and returns a more detailed type inferred from the columns of the passed table config.
+
+- [#10918](https://github.com/withastro/astro/pull/10918) [`ca605f4`](https://github.com/withastro/astro/commit/ca605f4dd8fcd070d3d5a5ca2f7080d921801e17) Thanks [@matthewp](https://github.com/matthewp)! - Provide a better error message when app token is missing in CI
+
+- [#10925](https://github.com/withastro/astro/pull/10925) [`a0c77fc`](https://github.com/withastro/astro/commit/a0c77fc7164662ea62b65c51fd1bd4c2f6028bc1) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `ASTRO_DATABASE_FILE` not correctly resolving relative paths (e.g. `ASTRO_DATABASE_FILE=./api/database.db`
+
 ## 0.10.6
 
 ### Patch Changes

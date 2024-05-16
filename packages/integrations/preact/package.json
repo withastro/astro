@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/preact",
   "description": "Use Preact components within Astro",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -46,7 +46,7 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "preact": "^10.20.2"
+    "preact": "^10.21.0"
   },
   "peerDependencies": {
     "preact": "^10.6.5"

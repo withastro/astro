@@ -1,0 +1,24 @@
+{
+	"name": "@e2e/astro-actions-basics",
+	"type": "module",
+	"version": "0.0.1",
+	"scripts": {
+		"dev": "astro dev",
+		"start": "astro dev",
+		"build": "astro check && astro build",
+		"preview": "astro preview",
+		"astro": "astro"
+	},
+	"dependencies": {
+		"@astrojs/check": "^0.6.0",
+		"@astrojs/db": "workspace:*",
+		"@astrojs/node": "workspace:*",
+		"@astrojs/react": "workspace:*",
+		"@types/react": "^18.3.2",
+		"@types/react-dom": "^18.3.0",
+		"astro": "workspace:*",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"typescript": "^5.4.5"
+	}
+}

@@ -69,6 +69,19 @@ export const ClientAddressNotAvailable = {
 /**
  * @docs
  * @see
+ * - [Opting-in to pre-rendering](https://docs.astro.build/en/guides/server-side-rendering/#opting-in-to-pre-rendering-in-server-mode)
+ * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
+ * @description
+ * The `Astro.clientAddress` property cannot be used inside prerendered routes.
+ */
+export const PrerenderClientAddressNotAvailable = {
+	name: 'PrerenderClientAddressNotAvailable',
+	title: '`Astro.clientAddress` cannot be used inside prerendered routes.',
+	message: `\`Astro.clientAddress\` cannot be used inside prerendered routes`,
+} satisfies ErrorData;
+/**
+ * @docs
+ * @see
  * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/)
  * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
  * @description
@@ -1158,6 +1171,18 @@ export const i18nNotEnabled = {
 
 /**
  * @docs
+ * @description
+ *
+ * Astro couldn't find a route matching the one provided by the user
+ */
+export const RouteNotFound = {
+	name: 'RouteNotFound',
+	title: 'Route not found.',
+	message: `Astro could not find a route that matches the one you requested.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name CSS Errors
  */
@@ -1466,6 +1491,21 @@ export const DuplicateContentEntrySlugError = {
 			`- ${alsoFound}`
 		);
 	},
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [On-demand rendering](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered)
+ * @description
+ * Your project must have a server output to create backend functions with Actions.
+ */
+export const ActionsWithoutServerOutputError = {
+	name: 'ActionsWithoutServerOutputError',
+	title: 'Actions must be used with server output.',
+	message:
+		'Actions enabled without setting a server build output. A server is required to create callable backend functions. To deploy routes to a server, add a server adapter to your astro config.',
+	hint: 'Learn about on-demand rendering: https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered',
 } satisfies ErrorData;
 
 /**

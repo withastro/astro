@@ -246,6 +246,19 @@ describe('astro:image', () => {
 				);
 			});
 
+			it('Picture component scope styles work', async () => {
+				let res = await fixture.fetch('/picturecomponent');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				// Should have scoped attribute
+				let $picture = $('#picture-attributes picture');
+				assert.ok(Object.keys($picture.attr()).find((a) => a.startsWith('data-astro-cid-')));
+
+				let $img = $('#picture-attributes img');
+				assert.ok(Object.keys($img.attr()).find((a) => a.startsWith('data-astro-cid-')));
+			});
+
 			it('properly deduplicate srcset images', async () => {
 				let res = await fixture.fetch('/srcset');
 				let html = await res.text();

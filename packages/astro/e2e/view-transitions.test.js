@@ -1444,6 +1444,74 @@ test.describe('View Transitions', () => {
 		expect(text).toBe('true true');
 	});
 
+	test('it should be easy to define a data-theme preserving swap function', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/keep-theme-one'));
+		await expect(page.locator('#name'), 'should have content').toHaveText('Keep Theme');
+		await page.$eval(':root', (element) => element.setAttribute('data-theme', 'purple'));
+
+		await page.click('#click');
+		await expect(page.locator('#name'), 'should have content').toHaveText('Keep 2');
+
+		const attributeValue = await page.$eval(
+			':root',
+			(element, attributeName) => element.getAttribute(attributeName),
+			'data-theme'
+		);
+		expect(attributeValue).toBe('purple');
+	});
+
+	test('it should be easy to define a swap function that preserves a dynamically generated style sheet', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/keep-style-one'));
+		await expect(page.locator('#name'), 'should have content').toHaveText('Keep Style');
+		await page.evaluate(() => {
+			const style = document.createElement('style');
+			style.textContent = 'body { background-color: purple; }';
+			document.head.insertAdjacentElement('afterbegin', style);
+		});
+
+		await page.click('#click');
+		await expect(page.locator('#name'), 'should have content').toHaveText('Keep 2');
+
+		const styleElement = await page.$('head > style');
+		const styleContent = await page.evaluate((style) => style.innerHTML, styleElement);
+		expect(styleContent).toBe('body { background-color: purple; }');
+	});
+
+	test('it should be easy to define a swap function that only swaps the main area', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/replace-main-one'));
+		await expect(page.locator('#name'), 'should have content').toHaveText('Replace Main Section');
+
+		await page.click('#click');
+		// name inside <main> should have changed
+		await expect(page.locator('#name'), 'should have content').toHaveText('Keep 2');
+
+		// link outside <main> should still be there
+		const link = await page.$('#click');
+		expect(link).toBeTruthy();
+	});
+
+	test('chaining should execute in the expected order', async ({ page, astro }) => {
+		let lines = [];
+		page.on('console', (msg) => {
+			msg.text().startsWith('[test]') && lines.push(msg.text().slice('[test]'.length + 1));
+		});
+
+		await page.goto(astro.resolveUrl('/chaining'));
+		await expect(page.locator('#name'), 'should have content').toHaveText('Chaining');
+		await page.click('#click');
+		await expect(page.locator('#one'), 'should have content').toHaveText('Page 1');
+		expect(lines.join('..')).toBe('5..4..3..2..1..0');
+	});
+
 	test('Navigation should be interruptible', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/abort'));
 		// implemented in /abort:

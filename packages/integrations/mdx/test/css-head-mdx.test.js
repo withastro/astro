@@ -50,7 +50,7 @@ describe('Head injection w/ MDX', () => {
 			assert.equal(links.length, 1);
 
 			const scripts = document.querySelectorAll('head script[type=module]');
-			assert.equal(scripts.length, 2);
+			assert.equal(scripts.length, 1);
 		});
 
 		it('Using component using slots.render() API', async () => {

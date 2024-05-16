@@ -15,7 +15,7 @@ import {
 } from '../../../integration/vite-plugin-db.js';
 import { bundleFile, importBundledFile } from '../../../load-file.js';
 import { getManagedAppTokenOrExit } from '../../../tokens.js';
-import { type DBConfig } from '../../../types.js';
+import type { DBConfig } from '../../../types.js';
 
 export async function cmd({
 	astroConfig,
@@ -51,8 +51,6 @@ export async function cmd({
 		virtualModContents = getLocalVirtualModContents({
 			tables: dbConfig.tables ?? {},
 			root: astroConfig.root,
-			shouldSeed: false,
-			seedFiles: [],
 		});
 	}
 	const { code } = await bundleFile({ virtualModContents, root: astroConfig.root, fileUrl });

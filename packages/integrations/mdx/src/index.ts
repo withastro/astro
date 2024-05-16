@@ -29,6 +29,10 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 };
 
 export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroIntegration {
+	// @ts-expect-error Temporarily assign an empty object here, which will be re-assigned by the
+	// `astro:config:done` hook later. This is so that `vitePluginMdx` can get hold of a reference earlier.
+	let mdxOptions: MdxOptions = {};
+
 	return {
 		name: '@astrojs/mdx',
 		hooks: {
@@ -58,21 +62,30 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					handlePropagation: true,
 				});
 
+				updateConfig({
+					vite: {
+						plugins: [vitePluginMdx(mdxOptions), vitePluginMdxPostprocess(config)],
+					},
+				});
+			},
+			'astro:config:done': ({ config }) => {
+				// We resolve the final MDX options here so that other integrations have a chance to modify
+				// `config.markdown` before we access it
 				const extendMarkdownConfig =
 					partialMdxOptions.extendMarkdownConfig ?? defaultMdxOptions.extendMarkdownConfig;
 
-				const mdxOptions = applyDefaultOptions({
+				const resolvedMdxOptions = applyDefaultOptions({
 					options: partialMdxOptions,
 					defaults: markdownConfigToMdxOptions(
 						extendMarkdownConfig ? config.markdown : markdownConfigDefaults
 					),
 				});
 
-				updateConfig({
-					vite: {
-						plugins: [vitePluginMdx(config, mdxOptions), vitePluginMdxPostprocess(config)],
-					},
-				});
+				// Mutate `mdxOptions` so that `vitePluginMdx` can reference the actual options
+				Object.assign(mdxOptions, resolvedMdxOptions);
+				// @ts-expect-error After we assign, we don't need to reference `mdxOptions` in this context anymore.
+				// Re-assign it so that the garbage can be collected later.
+				mdxOptions = {};
 			},
 		},
 	};
@@ -81,7 +94,8 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 const defaultMdxOptions = {
 	extendMarkdownConfig: true,
 	recmaPlugins: [],
-};
+	optimize: false,
+} satisfies Partial<MdxOptions>;
 
 function markdownConfigToMdxOptions(markdownConfig: typeof markdownConfigDefaults): MdxOptions {
 	return {
@@ -90,7 +104,6 @@ function markdownConfigToMdxOptions(markdownConfig: typeof markdownConfigDefault
 		remarkPlugins: ignoreStringPlugins(markdownConfig.remarkPlugins),
 		rehypePlugins: ignoreStringPlugins(markdownConfig.rehypePlugins),
 		remarkRehype: (markdownConfig.remarkRehype as any) ?? {},
-		optimize: false,
 	};
 }
 

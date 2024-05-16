@@ -1,5 +1,22 @@
 # @astrojs/vue
 
+## 4.2.0
+
+### Minor Changes
+
+- [#10929](https://github.com/withastro/astro/pull/10929) [`082abb8`](https://github.com/withastro/astro/commit/082abb82d574a200f9168ee5ae92c65c71e29eda) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a `devtools` option
+
+  You can enable the [official Vue DevTools](https://devtools-next.vuejs.org/) while working in development mode by setting `devtools:true` in your `vue()` integration config:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import vue from '@astrojs/vue';
+
+  export default defineConfig({
+    integrations: [vue({ devtools: true })],
+  });
+  ```
+
 ## 4.1.0
 
 ### Minor Changes

@@ -3,13 +3,13 @@ import fsMod from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import pLimit from 'p-limit';
 import { type Plugin as VitePlugin, normalizePath } from 'vite';
+import type { AstroConfig } from '../../../@types/astro.js';
 import { CONTENT_RENDER_FLAG, PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { type ContentLookupMap, hasContentFlag } from '../../../content/utils.js';
 import {
 	generateContentEntryFile,
 	generateLookupMap,
 } from '../../../content/vite-plugin-content-virtual-mod.js';
-import { isServerLikeOutput } from '../../../prerender/utils.js';
 import { configPaths } from '../../config/index.js';
 import { emptyDir } from '../../fs/index.js';
 import {
@@ -18,6 +18,7 @@ import {
 	removeFileExtension,
 	removeLeadingForwardSlash,
 } from '../../path.js';
+import { isContentCollectionsCacheEnabled } from '../../util.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { CHUNKS_PATH } from '../consts.js';
 import { type BuildInternals } from '../internal.js';
@@ -69,6 +70,10 @@ function createContentManifest(): ContentManifest {
 	};
 }
 
+const getContentRoot = (config: AstroConfig) => new URL('./content/', config.outDir);
+const getContentCacheDir = (config: AstroConfig) => new URL(CONTENT_CACHE_DIR, config.cacheDir);
+const getCacheTmp = (contentCacheDir: URL) => new URL('./.tmp/', contentCacheDir);
+
 function vitePluginContent(
 	opts: StaticBuildOptions,
 	lookupMap: ContentLookupMap,
@@ -76,12 +81,9 @@ function vitePluginContent(
 	cachedBuildOutput: Array<{ cached: URL; dist: URL }>
 ): VitePlugin {
 	const { config } = opts.settings;
-	const { cacheDir } = config;
-	const distRoot = config.outDir;
-	const distContentRoot = new URL('./content/', distRoot);
-	const contentCacheDir = new URL(CONTENT_CACHE_DIR, cacheDir);
+	const distContentRoot = getContentRoot(config);
+	const contentCacheDir = getContentCacheDir(config);
 	const contentManifestFile = new URL(CONTENT_MANIFEST_FILE, contentCacheDir);
-	const cacheTmp = new URL('./.tmp/', contentCacheDir);
 	let oldManifest = createContentManifest();
 	let newManifest = createContentManifest();
 	let entries: ContentEntries;
@@ -151,6 +153,11 @@ function vitePluginContent(
 						await copyFiles(cached, dist, true);
 					}
 				}
+				// Copy over the content cache now so that new files override it
+				const cacheExists = fsMod.existsSync(contentCacheDir);
+				if (cacheExists) {
+					await copyFiles(contentCacheDir, distContentRoot, false);
+				}
 			}
 
 			// If nothing needs to be rebuilt, we inject a fake entrypoint to appease Rollup
@@ -164,6 +171,7 @@ function vitePluginContent(
 		outputOptions(outputOptions) {
 			const rootPath = normalizePath(fileURLToPath(opts.settings.config.root));
 			const srcPath = normalizePath(fileURLToPath(opts.settings.config.srcDir));
+			const entryCache = new Map<string, string>();
 			extendManualChunks(outputOptions, {
 				before(id, meta) {
 					if (id.startsWith(srcPath) && id.slice(srcPath.length).startsWith('content')) {
@@ -179,7 +187,11 @@ function vitePluginContent(
 							return resultId;
 						}
 						const [srcRelativePath, flag] = id.replace(rootPath, '/').split('?');
-						const collectionEntry = findEntryFromSrcRelativePath(lookupMap, srcRelativePath);
+						const collectionEntry = findEntryFromSrcRelativePath(
+							lookupMap,
+							srcRelativePath,
+							entryCache
+						);
 						if (collectionEntry) {
 							let suffix = '.mjs';
 							if (flag === PROPAGATED_ASSET_FLAG) {
@@ -242,7 +254,6 @@ function vitePluginContent(
 				...oldManifest.clientEntries,
 				...internals.discoveredHydratedComponents.keys(),
 				...internals.discoveredClientOnlyComponents.keys(),
-				...internals.discoveredScripts,
 			]);
 			// Likewise, these are server modules that might not be referenced
 			// once the cached items are excluded from the build process
@@ -263,19 +274,15 @@ function vitePluginContent(
 			await fsMod.promises.writeFile(contentManifestFile, JSON.stringify(newManifest), {
 				encoding: 'utf8',
 			});
-			await fsMod.promises.mkdir(cacheTmp, { recursive: true });
-			await copyFiles(distContentRoot, cacheTmp, true);
-			if (cacheExists && currentManifestState === 'valid') {
-				await copyFiles(contentCacheDir, distContentRoot, false);
-			}
-			await copyFiles(cacheTmp, contentCacheDir);
-			await fsMod.promises.rm(cacheTmp, { recursive: true, force: true });
 		},
 	};
 }
 
-const entryCache = new Map<string, string>();
-function findEntryFromSrcRelativePath(lookupMap: ContentLookupMap, srcRelativePath: string) {
+function findEntryFromSrcRelativePath(
+	lookupMap: ContentLookupMap,
+	srcRelativePath: string,
+	entryCache: Map<string, string>
+) {
 	let value = entryCache.get(srcRelativePath);
 	if (value) return value;
 	for (const collection of Object.values(lookupMap)) {
@@ -319,6 +326,7 @@ function getEntriesFromManifests(
 			entries.buildFromSource.push(entry);
 		}
 	}
+
 	return entries;
 }
 
@@ -438,6 +446,19 @@ function collectionTypeToFlag(type: 'content' | 'data') {
 	return `astro${name}CollectionEntry`;
 }
 
+export async function copyContentToCache(opts: StaticBuildOptions) {
+	const { config } = opts.settings;
+	const distContentRoot = getContentRoot(config);
+	const contentCacheDir = getContentCacheDir(config);
+	const cacheTmp = getCacheTmp(contentCacheDir);
+
+	await fsMod.promises.mkdir(cacheTmp, { recursive: true });
+	await copyFiles(distContentRoot, cacheTmp, true);
+
+	await copyFiles(cacheTmp, contentCacheDir);
+	await fsMod.promises.rm(cacheTmp, { recursive: true, force: true });
+}
+
 export function pluginContent(
 	opts: StaticBuildOptions,
 	internals: BuildInternals
@@ -456,10 +477,7 @@ export function pluginContent(
 		targets: ['server'],
 		hooks: {
 			async 'build:before'() {
-				if (!opts.settings.config.experimental.contentCollectionCache) {
-					return { vitePlugin: undefined };
-				}
-				if (isServerLikeOutput(opts.settings.config)) {
+				if (!isContentCollectionsCacheEnabled(opts.settings.config)) {
 					return { vitePlugin: undefined };
 				}
 				const lookupMap = await generateLookupMap({ settings: opts.settings, fs: fsMod });
@@ -469,10 +487,7 @@ export function pluginContent(
 			},
 
 			async 'build:post'() {
-				if (!opts.settings.config.experimental.contentCollectionCache) {
-					return;
-				}
-				if (isServerLikeOutput(opts.settings.config)) {
+				if (!isContentCollectionsCacheEnabled(opts.settings.config)) {
 					return;
 				}
 				// Cache build output of chunks and assets
