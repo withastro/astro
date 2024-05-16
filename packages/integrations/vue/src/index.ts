@@ -126,7 +126,7 @@ async function getViteConfiguration(
 
 	if (command === 'dev' && options?.devtools) {
 		const vueDevTools = (await import('vite-plugin-vue-devtools')).default;
-		const pluginOptions =  typeof options.devtools === 'object' ? options.devtools : {}
+		const devToolsOptions =  typeof options.devtools === 'object' ? options.devtools : {}
 		config.plugins?.push(
 			vueDevTools({
 				...pluginOptions,
