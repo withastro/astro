@@ -15,7 +15,7 @@ export function Like({ postId, label, likes }: { postId: string; label: string; 
 
 export function LikeWithActionState({ postId, label, likes: initial }: { postId: string; label: string; likes: number }) {
 	const [likes, action] = useActionState(
-		withState(actions.blog.likeWithActionState.safe),
+		withState(actions.blog.likeWithActionState),
 		10,
 	);
 
