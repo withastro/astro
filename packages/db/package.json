@@ -70,6 +70,7 @@
     "test:match": "mocha --timeout 20000 \"test/*.js\" \"test/unit/*.js\" -g"
   },
   "dependencies": {
+    "@astrojs/studio": "workspace:*",
     "@libsql/client": "^0.6.0",
     "async-listen": "^3.0.1",
     "ci-info": "^4.0.0",
