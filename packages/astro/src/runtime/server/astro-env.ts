@@ -26,3 +26,18 @@ export function createInvalidVariableError(
 		message: AstroErrorData.EnvInvalidVariable.message(...args),
 	});
 }
+
+export function overrideProcessEnv({
+	getEnv,
+	variables,
+}: {
+	getEnv: GetEnv;
+	variables: Array<{ destKey: string; srcKey?: string; default?: string }>;
+}) {
+	for (const { destKey, srcKey, default: defaultValue } of variables) {
+		const value = getEnv(srcKey ?? destKey);
+		if (value !== undefined) {
+			process.env[destKey] = value ?? defaultValue;
+		}
+	}
+}
