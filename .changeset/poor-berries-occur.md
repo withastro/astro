@@ -33,7 +33,7 @@ There are also 3 kinds of variables:
     import { PUBLIC_API_URL } from "astro:env/client"
     ```
 
-- **Public server variables**: Those variables end up in your final server bundle and can be accessed on the server through the `astro:env/server` module:
+- **Public server variables**: These variables are included only in the server bundle and can be accessed on the server via the astro:env/server module:
 
     ```js
     import { PUBLIC_PORT } from "astro:env/server"
