@@ -8,6 +8,7 @@ import {
 	redirectToDefaultLocale,
 	redirectToFallback,
 	requestHasLocale,
+	requestIs404Or500,
 } from './index.js';
 
 export function createI18nMiddleware(
@@ -66,6 +67,11 @@ export function createI18nMiddleware(
 		const type = response.headers.get(ROUTE_TYPE_HEADER);
 		// If the route we're processing is not a page, then we ignore it
 		if (type !== 'page' && type !== 'fallback') {
+			return response;
+		}
+
+		// 404 and 500 are **known** routes (users can have their custom pages), so we need to let them be
+		if (requestIs404Or500(context.request, base)) {
 			return response;
 		}
 
