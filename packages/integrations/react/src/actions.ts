@@ -2,18 +2,36 @@ import { AstroError } from 'astro/errors';
 
 type FormFn<T> = (formData: FormData) => Promise<T>;
 
+/**
+ * Use an Astro Action with React `useActionState()`.
+ * This function matches your action to the expected types,
+ * and preserves metadata for progressive enhancement.
+ * To read state from your action handler, use {@linkcode getActionState}.
+ */
 export function withState<T>(action: FormFn<T>) {
+	// React expects two positional arguments when using `useActionState()`:
+	// 1. The initial state value.
+	// 2. The form data object.
+
+	// Map this first argument to a hidden input
+	// for retrieval from `getActionState()`.
 	const callback = async function (state: T, formData: FormData) {
 		formData.set('_astroActionState', JSON.stringify(state));
 		return action(formData);
 	};
 	if (!('$$FORM_ACTION' in action)) return callback;
 
+	// Re-bind progressive enhancement info for React.
 	callback.$$FORM_ACTION = action.$$FORM_ACTION;
+	// Called by React when form state is passed from the server.
+	// If the action names match, React returns this state from `useActionState()`.
 	callback.$$IS_SIGNATURE_EQUAL = (actionName: string) => {
 		return action.toString() === actionName;
 	};
 
+	// React calls `.bind()` internally to pass the initial state value.
+	// Calling `.bind()` seems to remove our `$$FORM_ACTION` metadata,
+	// so we need to define our *own* `.bind()` method to preserve that metadata.
 	Object.defineProperty(callback, 'bind', {
 		value: (...args: Parameters<typeof callback>) =>
 			injectStateIntoFormActionData(callback, ...args),
@@ -21,6 +39,10 @@ export function withState<T>(action: FormFn<T>) {
 	return callback;
 }
 
+/**
+ * Retrieve the state object from your action handler when using `useActionState()`.
+ * To ensure this state is retrievable, use the {@linkcode withState} helper.
+ */
 export async function getActionState<T>({ request }: { request: Request }): Promise<T> {
 	const contentType = request.headers.get('Content-Type');
 	if (!contentType || !isFormRequest(contentType)) {
@@ -50,6 +72,11 @@ function isFormRequest(contentType: string) {
 	return formContentTypes.some((t) => type === t);
 }
 
+/**
+ * Override the default `.bind()` method to:
+ * 1. Inject the form state into the form data for progressive enhancement.
+ * 2. Preserve the `$$FORM_ACTION` metadata.
+ */
 function injectStateIntoFormActionData<R extends [this: unknown, state: unknown, ...unknown[]]>(
 	fn: (...args: R) => unknown,
 	...args: R
