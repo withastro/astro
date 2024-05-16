@@ -26,7 +26,7 @@ describe('Dev server manual routing', () => {
 		const response = await fixture.fetch('/blog');
 		const text = await response.text();
 		assert.equal(response.status, 404);
-		assert.equal(text.includes('Blog should not render'), false);
+		assert.match(text, /Blog should not render/);
 	});
 
 	it('should return a 200 because the custom middleware allows it', async () => {
@@ -83,7 +83,8 @@ describe('SSR manual routing', () => {
 		let request = new Request('http://example.com/blog');
 		let response = await app.render(request);
 		assert.equal(response.status, 404);
-		assert.equal((await response.text()).includes('Blog should not render'), false);
+		const text = await response.text();
+		assert.match(text, /Blog should not render/);
 	});
 
 	it('should return a 200 because the custom middleware allows it', async () => {
