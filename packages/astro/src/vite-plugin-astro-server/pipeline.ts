@@ -26,6 +26,7 @@ import { getComponentMetadata } from './metadata.js';
 import { createResolve } from './resolve.js';
 import { default404Page } from './response.js';
 import { getScriptsForURL } from './scripts.js';
+import { matchRoute } from './route.js';
 
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
@@ -191,7 +192,10 @@ export class DevPipeline extends Pipeline {
 		}
 	}
 
-	async tryRewrite(payload: RewritePayload): Promise<[RouteData, ComponentInstance]> {
+	async tryRewrite(
+		payload: RewritePayload,
+		request: Request
+	): Promise<[RouteData, ComponentInstance]> {
 		let foundRoute;
 		if (!this.manifestData) {
 			throw new Error('Missing manifest data. This is an internal error, please file an issue.');
@@ -209,9 +213,12 @@ export class DevPipeline extends Pipeline {
 					foundRoute = route;
 					break;
 				}
-			} else if (route.pattern.test(decodeURI(payload))) {
-				foundRoute = route;
-				break;
+			} else {
+				const newUrl = new URL(payload, new URL(request.url).origin);
+				if (route.pattern.test(decodeURI(newUrl.pathname))) {
+					foundRoute = route;
+					break;
+				}
 			}
 		}
 
