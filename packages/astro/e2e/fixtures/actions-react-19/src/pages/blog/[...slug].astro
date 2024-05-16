@@ -2,7 +2,7 @@
 import { type CollectionEntry, getCollection, getEntry } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
 import { db, eq, Likes } from 'astro:db';
-import { Like } from '../../components/Like';
+import { Like, LikeWithActionState } from '../../components/Like';
 
 export const prerender = false;
 
@@ -23,12 +23,17 @@ const likesRes = await db.select().from(Likes).where(eq(Likes.postId, post.id)).
 ---
 
 <BlogPost {...post.data}>
+	<h2>Like</h2>
 	{
 		likesRes && (
 			<Like postId={post.id} likes={likesRes.likes} label="likes-client" client:load />
 			<Like postId={post.id} likes={likesRes.likes} label="likes-server" />
 		)
 	}
+
+	<h2>Like with action state</h2>
+	<LikeWithActionState postId={post.id} likes={10} label="likes-action-client" client:load />
+	<LikeWithActionState postId={post.id} likes={10} label="likes-action-server" />
 
 	<Content />
 
