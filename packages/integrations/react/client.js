@@ -65,11 +65,13 @@ const getOrCreateRoot = (element, creator) => {
 };
 
 export default (element) =>
-	(Component, props, { default: children, ...slotted }, { client, formState = [] }) => {
+	(Component, props, { default: children, ...slotted }, { client, reactServerActionResult }) => {
 		if (!element.hasAttribute('ssr')) return;
 		const renderOptions = {
 			identifierPrefix: element.getAttribute('prefix'),
-			formState,
+			formState: reactServerActionResult
+				? [reactServerActionResult.value, reactServerActionResult.key, reactServerActionResult.name]
+				: undefined,
 		};
 		for (const [key, value] of Object.entries(slotted)) {
 			props[key] = createElement(StaticHtml, { value, name: key });

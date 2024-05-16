@@ -104,11 +104,11 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 	const vnode = React.createElement(Component, newProps);
 	const renderOptions = {
 		identifierPrefix: prefix,
-		formState: metadata.reactServerActions
+		formState: metadata.reactServerActionResult
 			? [
-					metadata.reactServerActions.actionResult,
-					metadata.reactServerActions.actionKey,
-					metadata.reactServerActions.actionName,
+					metadata.reactServerActionResult.value,
+					metadata.reactServerActionResult.key,
+					metadata.reactServerActionResult.name,
 				]
 			: undefined,
 	};

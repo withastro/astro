@@ -2,6 +2,8 @@
 // Do not import this file directly, instead import the prebuilt one instead.
 // pnpm --filter astro run prebuild
 
+import type { AstroComponentMetadata } from '../../@types/astro.js';
+
 type directiveAstroKeys = 'load' | 'idle' | 'visible' | 'media' | 'only';
 
 declare const Astro: {
@@ -189,14 +191,10 @@ declare const Astro: {
 			let hydrationTimeStart;
 			const hydrator = this.hydrator(this);
 			if (process.env.NODE_ENV === 'development') hydrationTimeStart = performance.now();
-			const actionResult = this.getAttribute('action-result');
+
 			await hydrator(this.Component, props, slots, {
 				client: this.getAttribute('client'),
-				formState: [
-					actionResult ? JSON.parse(actionResult) : undefined,
-					this.getAttribute('action-key'),
-					this.getAttribute('action-name'),
-				]
+				reactServerActionResult: parseReactServerActionResult(this),
 			});
 			if (process.env.NODE_ENV === 'development' && hydrationTimeStart)
 				this.setAttribute(
@@ -220,4 +218,16 @@ declare const Astro: {
 	if (!customElements.get('astro-island')) {
 		customElements.define('astro-island', AstroIsland);
 	}
+}
+
+function parseReactServerActionResult(
+	element: HTMLElement
+): AstroComponentMetadata['reactServerActionResult'] {
+	const result = element.getAttribute('action-result');
+	const key = element.getAttribute('action-key');
+	const name = element.getAttribute('action-name');
+	if (!result || !key || !name) return undefined;
+
+	const value = JSON.parse(result);
+	return { key, name, value };
 }
