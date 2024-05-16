@@ -3944,7 +3944,7 @@ importers:
   packages/db:
     dependencies:
       '@astrojs/studio':
-        specifier: ^0.1.0
+        specifier: workspace:*
         version: link:../studio
       '@libsql/client':
         specifier: ^0.6.0

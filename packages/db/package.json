@@ -70,6 +70,7 @@
     "test:match": "mocha --timeout 20000 \"test/*.js\" \"test/unit/*.js\" -g"
   },
   "dependencies": {
+    "@astrojs/studio": "workspace:*",
     "@libsql/client": "^0.6.0",
     "async-listen": "^3.0.1",
     "ci-info": "^4.0.0",
@@ -83,8 +84,7 @@
     "prompts": "^2.4.2",
     "strip-ansi": "^7.1.0",
     "yargs-parser": "^21.1.1",
-    "zod": "^3.23.8",
-    "@astrojs/studio": "^0.1.0"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/chai": "^4.3.16",
