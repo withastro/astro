@@ -20,15 +20,16 @@ import {
 } from '../../path.js';
 import { isContentCollectionsCacheEnabled } from '../../util.js';
 import { addRollupInput } from '../add-rollup-input.js';
-import { CHUNKS_PATH } from '../consts.js';
+import { CHUNKS_PATH, CONTENT_PATH } from '../consts.js';
 import { type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import { copyFiles } from '../static-build.js';
 import type { StaticBuildOptions } from '../types.js';
 import { encodeName } from '../util.js';
 import { extendManualChunks } from './util.js';
+import glob from 'fast-glob';
 
-const CONTENT_CACHE_DIR = './content/';
+const CONTENT_CACHE_DIR = './' + CONTENT_PATH;
 const CONTENT_MANIFEST_FILE = './manifest.json';
 // IMPORTANT: Update this version when making significant changes to the manifest format.
 // Only manifests generated with the same version number can be compared.
@@ -454,9 +455,24 @@ export async function copyContentToCache(opts: StaticBuildOptions) {
 
 	await fsMod.promises.mkdir(cacheTmp, { recursive: true });
 	await copyFiles(distContentRoot, cacheTmp, true);
-
 	await copyFiles(cacheTmp, contentCacheDir);
+
+	// Read the files from `dist/content/*` and `dist/chunks/*` so that
+	// we can clean them out of the dist folder
+	let files: string[] = [];
+	await Promise.all([
+		glob(`**/*.{mjs,json}`,{
+			cwd: fileURLToPath(cacheTmp)
+		}).then(f => files.push(...f.map(file => CONTENT_PATH + file))),
+		glob(`**/*.{mjs,json}`,{
+			cwd: fileURLToPath(new URL('./' + CHUNKS_PATH, config.outDir)),
+		}).then(f => files.push(...f.map(file => CHUNKS_PATH + file))),
+	]);
+
+	// Remove the tmp folder that's no longer needed.
 	await fsMod.promises.rm(cacheTmp, { recursive: true, force: true });
+
+	return files;
 }
 
 export function pluginContent(
