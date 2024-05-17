@@ -7,12 +7,9 @@ import {
 	renderComponent,
 	renderHead,
 	renderSlot,
-	createAstro,
 } from '../dist/runtime/server/index.js';
 import { experimental_AstroContainer } from '../dist/container/index.js';
 import assert from 'node:assert/strict';
-
-const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
 
 const BaseLayout = createComponent((result, _props, slots) => {
 	return render`<html>
@@ -27,7 +24,7 @@ const BaseLayout = createComponent((result, _props, slots) => {
 </html>`;
 });
 
-describe('Container', () => {
+describe.only('Container', () => {
 	it('Renders a div with hello world text', async () => {
 		const Page = createComponent((result) => {
 			return render`${renderComponent(
@@ -99,7 +96,7 @@ describe('Container', () => {
 		assert.match(result, /some slot/);
 	});
 
-	it('Renders multiple named slots', async () => {
+	it.only('Renders multiple named slots', async () => {
 		const Page = createComponent(
 			(result, _props, slots) => {
 				return render`${renderComponent(

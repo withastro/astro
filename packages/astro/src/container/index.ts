@@ -1,5 +1,4 @@
 import type {
-	AstroConfig,
 	ComponentInstance,
 	MiddlewareHandler,
 	RouteData,
@@ -13,8 +12,6 @@ import type {
 import { ContainerPipeline } from './pipeline.js';
 import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
-import type { SSRManifestI18n } from '../core/app/types.js';
-import { toRoutingStrategy } from '../i18n/utils.js';
 import { validateConfig } from '../core/config/config.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
 import { RenderContext } from '../core/render-context.js';
@@ -242,11 +239,9 @@ export class experimental_AstroContainer {
 		containerOptions: AstroContainerOptions = {}
 	): Promise<experimental_AstroContainer> {
 		const {
-			astroConfig = ASTRO_CONFIG_DEFAULTS,
 			streaming = false,
 			renderers = [],
 		} = containerOptions;
-		const config = await validateConfig(astroConfig, process.cwd(), 'container');
 		const loadedRenderers =  await Promise.all(
 			renderers.map(async (renderer) => {
 				const mod = await import(renderer.serverEntrypoint);
@@ -393,7 +388,7 @@ export class experimental_AstroContainer {
 			},
 			params: Object.keys(params),
 			pattern: getPattern(segments, ASTRO_CONFIG_DEFAULTS.base, ASTRO_CONFIG_DEFAULTS.trailingSlash),
-			prerender: true,
+			prerender: false,
 			segments,
 			type,
 			fallbackRoutes: [],
