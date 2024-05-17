@@ -27,6 +27,55 @@ This **[Astro integration][astro-integration]** enables tracking real-world webs
 
 Learn more about [Astro DB](https://docs.astro.build/en/guides/astro-db/) and [deploying with Astro Studio](https://docs.astro.build/en/guides/astro-db/#astro-studio) in the Astro docs.
 
+## Uninstalling
+
+To remove the Web Vitals integration, follow the Astro DB deprecation process:
+
+1. Mark the integration as deprecated in `astro.config.mjs`, by setting the `deprecated` option to `true`:
+
+   ```js
+   import db from '@astrojs/db';
+   import webVitals from '@astrojs/web-vitals';
+   import { defineConfig } from 'astro/config';
+
+   export default defineConfig({
+     integrations: [
+       db(),
+       // Mark the web vitals integration as deprecated:
+       webVitals({ deprecated: true }),
+     ],
+     // ...
+   });
+   ```
+
+2. Push the deprecation to Astro Studio:
+
+   ```sh
+   npx astro db push
+   ```
+
+3. Remove the web vitals integration in `astro.config.mjs`:
+
+   ```diff
+   import db from '@astrojs/db';
+   - import webVitals from '@astrojs/web-vitals';
+   import { defineConfig } from 'astro/config';
+
+   export default defineConfig({
+     integrations: [
+       db(),
+   -   webVitals({ deprecated: true }),
+     ],
+     // ...
+   });
+   ```
+
+4. Push the table deletion to Astro Studio:
+
+   ```sh
+   npx astro db push
+   ```
+
 ## Support
 
 - Get help in the [Astro Discord][discord]. Post questions in our `#support` forum, or visit our dedicated `#dev` channel to discuss current development and more!
