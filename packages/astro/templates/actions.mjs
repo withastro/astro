@@ -50,8 +50,8 @@ async function actionHandler(param, path) {
 	// When running server-side, import the action and call it.
 	if (import.meta.env.SSR) {
 		const { getAction } = await import('astro/actions/runtime/utils.js');
-		const actionPathKeys = path.replace('/_actions/', '').split('.');
-		const action = await getAction(actionPathKeys);
+		const action = await getAction(path);
+		if (!action) throw new Error(`Action not found: ${path}`);
 
 		return action(param);
 	}
