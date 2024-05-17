@@ -31,7 +31,7 @@ describe('astro:db', () => {
 			expect($('li').length).to.equal(1);
 		});
 
-		it.only('Returns correct shape from db.run()', async () => {
+		it('Returns correct shape from db.run()', async () => {
 			const html = await fixture.readFile('/run/index.html');
 			const $ = cheerioLoad(html);
 
