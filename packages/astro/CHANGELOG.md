@@ -1,5 +1,11 @@
 # astro
 
+## 4.8.6
+
+### Patch Changes
+
+- [#11084](https://github.com/withastro/astro/pull/11084) [`9637014`](https://github.com/withastro/astro/commit/9637014b1495a5a41cb384c7de4de410348f4cc0) Thanks [@bluwy](https://github.com/bluwy)! - Fixes regression when handling hoisted scripts from content collections
+
 ## 4.8.5
 
 ### Patch Changes
