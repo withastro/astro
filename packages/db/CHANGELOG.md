@@ -1,5 +1,28 @@
 # @astrojs/db
 
+## 0.11.3
+
+### Patch Changes
+
+- [#11070](https://github.com/withastro/astro/pull/11070) [`1fec4a6`](https://github.com/withastro/astro/commit/1fec4a6eb986011d4d6d998410ff9b6144c28c34) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes some error messages not using the proper command to login or sync the project
+
+- [#11037](https://github.com/withastro/astro/pull/11037) [`9332bb1`](https://github.com/withastro/astro/commit/9332bb1c1f237f5666ded09532ccd651837b94e5) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Internal refactor, this change should have no visible effect
+
+- Updated dependencies [[`9332bb1`](https://github.com/withastro/astro/commit/9332bb1c1f237f5666ded09532ccd651837b94e5)]:
+  - @astrojs/studio@0.1.0
+
+## 0.11.2
+
+### Patch Changes
+
+- [#11027](https://github.com/withastro/astro/pull/11027) [`eb1d9a4`](https://github.com/withastro/astro/commit/eb1d9a447bc73534b8dd8fa6d3dcdb265950753a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix `isDbError()` returning `false` for remote database errors. Astro will now return a `LibsqlError` in development and production.
+
+## 0.11.1
+
+### Patch Changes
+
+- [#10967](https://github.com/withastro/astro/pull/10967) [`a134318`](https://github.com/withastro/astro/commit/a1343184da2a67439de4792e9e404d17ec3943df) Thanks [@matthewp](https://github.com/matthewp)! - Convert non-ISO date to UTC time
+
 ## 0.11.0
 
 ### Minor Changes

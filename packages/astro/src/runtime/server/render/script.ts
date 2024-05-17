@@ -10,8 +10,13 @@ export async function renderScript(result: SSRResult, id: string) {
 	result._metadata.renderedScripts.add(id);
 
 	const inlined = result.inlinedScripts.get(id);
-	if (inlined) {
-		return markHTMLString(`<script type="module">${inlined}</script>`);
+	if (inlined != null) {
+		// The inlined script may actually be empty, so skip rendering it altogether if so
+		if (inlined) {
+			return markHTMLString(`<script type="module">${inlined}</script>`);
+		} else {
+			return '';
+		}
 	}
 
 	const resolved = await result.resolve(id);

@@ -605,6 +605,7 @@ declare namespace astroHTML.JSX {
 		href?: string | URL | undefined | null;
 		hreflang?: string | undefined | null;
 		media?: string | undefined | null;
+		name?: string | undefined | null;
 		ping?: string | undefined | null;
 		rel?: string | undefined | null;
 		target?: HTMLAttributeAnchorTarget | undefined | null;
@@ -649,6 +650,7 @@ declare namespace astroHTML.JSX {
 		type?: 'submit' | 'reset' | 'button' | undefined | null;
 		value?: string | string[] | number | undefined | null;
 		popovertarget?: string | undefined | null;
+		popovertargetaction?: 'hide' | 'show' | 'toggle' | undefined | null;
 	}
 
 	interface CanvasHTMLAttributes extends HTMLAttributes {
@@ -815,6 +817,7 @@ declare namespace astroHTML.JSX {
 		value?: string | string[] | number | undefined | null;
 		width?: number | string | undefined | null;
 		popovertarget?: string | undefined | null;
+		popovertargetaction?: 'hide' | 'show' | 'toggle' | undefined | null;
 	}
 
 	interface KeygenHTMLAttributes extends HTMLAttributes {

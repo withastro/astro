@@ -4,6 +4,7 @@ import type { AllPagesData } from './types.js';
 
 import * as colors from 'kleur/colors';
 import { debug } from '../logger/core.js';
+import { makePageDataKey } from './plugins/util.js';
 
 export interface CollectPagesDataOptions {
 	settings: AstroSettings;
@@ -35,6 +36,8 @@ export async function collectPagesData(
 	// and is then cached across all future SSR builds. In the past, we've had trouble
 	// with parallelized builds without guaranteeing that this is called first.
 	for (const route of manifest.routes) {
+		// Generate a unique key to identify each page in the build process.
+		const key = makePageDataKey(route.route, route.component);
 		// static route:
 		if (route.pathname) {
 			const routeCollectionLogTimeout = setInterval(() => {
@@ -47,14 +50,12 @@ export async function collectPagesData(
 				clearInterval(routeCollectionLogTimeout);
 			}, 10000);
 			builtPaths.add(route.pathname);
-
-			allPages[route.component] = {
+			allPages[key] = {
+				key: key,
 				component: route.component,
 				route,
 				moduleSpecifier: '',
 				styles: [],
-				propagatedStyles: new Map(),
-				propagatedScripts: new Map(),
 				hoistedScript: undefined,
 				hasSharedModules: false,
 			};
@@ -72,14 +73,12 @@ export async function collectPagesData(
 			continue;
 		}
 		// dynamic route:
-
-		allPages[route.component] = {
+		allPages[key] = {
+			key: key,
 			component: route.component,
 			route,
 			moduleSpecifier: '',
 			styles: [],
-			propagatedStyles: new Map(),
-			propagatedScripts: new Map(),
 			hoistedScript: undefined,
 			hasSharedModules: false,
 		};

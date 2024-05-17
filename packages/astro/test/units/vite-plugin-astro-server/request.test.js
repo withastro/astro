@@ -22,7 +22,7 @@ async function createDevPipeline(overrides = {}) {
 	const loader = overrides.loader ?? createLoader();
 	const manifest = createDevelopmentManifest(settings);
 
-	return DevPipeline.create({ loader, logger: defaultLogger, manifest, settings });
+	return DevPipeline.create(undefined, { loader, logger: defaultLogger, manifest, settings });
 }
 
 describe('vite-plugin-astro-server', () => {

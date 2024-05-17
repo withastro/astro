@@ -5,24 +5,62 @@ const test = testFactory({
 	root: './fixtures/prefetch/',
 });
 
+// Used to track fetch request urls
+/** @type {string[]} */
+const reqUrls = [];
+test.beforeEach(async ({ page }) => {
+	page.on('request', (req) => {
+		const urlObj = new URL(req.url());
+		reqUrls.push(urlObj.pathname + urlObj.search);
+	});
+});
+test.afterEach(() => {
+	reqUrls.length = 0;
+});
+
+/**
+ * Check if url is prefetched via `link[rel="prefetch"]` or `fetch()` (from `reqUrls`)
+ * @param {string} url
+ * @param {import('@playwright/test').Page} page
+ * @param {number} [count] Also expect that it's prefetched this amount of times
+ */
+async function expectUrlPrefetched(url, page, count) {
+	try {
+		await expect(page.locator(`link[rel="prefetch"][href$="${url}"]`)).toBeAttached();
+	} catch {
+		// If link is not found, check if it was fetched via `fetch()`
+		expect(reqUrls, `${url} is not prefetched via link or fetch`).toContainEqual(url);
+	}
+
+	if (count != null) {
+		const linkCount = await page.locator(`link[rel="prefetch"][href$="${url}"]`).count();
+		try {
+			expect(linkCount).toBe(count);
+		} catch {
+			const fetchCount = reqUrls.filter((u) => u.includes(url)).length;
+			expect(
+				fetchCount,
+				`${url} should be prefetched ${count} time(s), but is prefetch with link ${linkCount} time(s) and with fetch ${fetchCount} time(s)`
+			).toEqual(count);
+		}
+	}
+}
+
+/**
+ * Check if url is not prefetched via `link[rel="prefetch"]` and `fetch()` (from `reqUrls`)
+ * @param {string} url
+ * @param {import('@playwright/test').Page} page
+ */
+async function expectUrlNotPrefetched(url, page) {
+	await expect(page.locator(`link[rel="prefetch"][href$="${url}"]`)).not.toBeAttached();
+	expect(reqUrls).not.toContainEqual(url);
+}
+
 test.describe('Prefetch (default)', () => {
 	let devServer;
-	/** @type {string[]} */
-	const reqUrls = [];
 
 	test.beforeAll(async ({ astro }) => {
 		devServer = await astro.startDevServer();
-	});
-
-	test.beforeEach(async ({ page }) => {
-		page.on('request', (req) => {
-			const urlObj = new URL(req.url());
-			reqUrls.push(urlObj.pathname + urlObj.search);
-		});
-	});
-
-	test.afterEach(() => {
-		reqUrls.length = 0;
 	});
 
 	test.afterAll(async () => {
@@ -31,22 +69,22 @@ test.describe('Prefetch (default)', () => {
 
 	test('Link without data-astro-prefetch should not prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).not.toContainEqual('/prefetch-default');
+		await expectUrlNotPrefetched('/prefetch-default', page);
 	});
 
 	test('data-astro-prefetch="false" should not prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).not.toContainEqual('/prefetch-false');
+		await expectUrlNotPrefetched('/prefetch-false', page);
 	});
 
 	test('Link with search param should prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).not.toContainEqual('/?search-param=true');
+		await expectUrlNotPrefetched('/?search-param=true', page);
 		await Promise.all([
 			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-search-param').hover(),
 		]);
-		expect(reqUrls).toContainEqual('/?search-param=true');
+		await expectUrlPrefetched('/?search-param=true', page);
 	});
 
 	test('data-astro-prefetch="tap" should prefetch on tap', async ({ page, astro }) => {
@@ -61,52 +99,47 @@ test.describe('Prefetch (default)', () => {
 
 	test('data-astro-prefetch="hover" should prefetch on hover', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).not.toContainEqual('/prefetch-hover');
+		await expectUrlNotPrefetched('/prefetch-hover', page);
 		await Promise.all([
 			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-hover').hover(),
 		]);
-		expect(reqUrls).toContainEqual('/prefetch-hover');
+		await expectUrlPrefetched('/prefetch-hover', page);
 	});
 
 	test('data-astro-prefetch="viewport" should prefetch on viewport', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).not.toContainEqual('/prefetch-viewport');
+		await expectUrlNotPrefetched('/prefetch-viewport', page);
 		// Scroll down to show the element
 		await Promise.all([
 			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-viewport').scrollIntoViewIfNeeded(),
 		]);
-		expect(reqUrls).toContainEqual('/prefetch-viewport');
-		expect(page.locator('link[rel="prefetch"][href$="/prefetch-viewport"]')).toBeDefined();
+		await expectUrlPrefetched('/prefetch-viewport', page);
 	});
 
 	test('manual prefetch() works once', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).not.toContainEqual('/prefetch-manual');
+		await expectUrlNotPrefetched('/prefetch-manual', page);
 		await Promise.all([
 			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-manual').click(),
 		]);
-		expect(reqUrls).toContainEqual('/prefetch-manual');
-		expect(page.locator('link[rel="prefetch"][href$="/prefetch-manual"]')).toBeDefined();
+		await expectUrlPrefetched('/prefetch-manual', page);
 
 		// prefetch again should have no effect
 		await page.locator('#prefetch-manual').click();
-		expect(reqUrls.filter((u) => u.includes('/prefetch-manual')).length).toEqual(1);
+		await expectUrlPrefetched('/prefetch-manual', page, 1);
 	});
 
 	test('data-astro-prefetch="load" should prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).toContainEqual('/prefetch-load');
-		expect(page.locator('link[rel="prefetch"][href$="/prefetch-load"]')).toBeDefined();
+		await expectUrlPrefetched('/prefetch-load', page);
 	});
 });
 
 test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'tap')", () => {
 	let devServer;
-	/** @type {string[]} */
-	const reqUrls = [];
 
 	test.beforeAll(async ({ astro }) => {
 		devServer = await astro.startDevServer({
@@ -117,89 +150,74 @@ test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'tap')", () => {
 		});
 	});
 
-	test.beforeEach(async ({ page }) => {
-		page.on('request', (req) => {
-			const urlObj = new URL(req.url());
-			reqUrls.push(urlObj.pathname + urlObj.search);
-		});
-	});
-
-	test.afterEach(() => {
-		reqUrls.length = 0;
-	});
-
 	test.afterAll(async () => {
 		await devServer.stop();
 	});
 
 	test('Link without data-astro-prefetch should prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).not.toContainEqual('/prefetch-default');
+		await expectUrlNotPrefetched('/prefetch-default', page);
 		await Promise.all([
 			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-default').click(),
 		]);
-		expect(reqUrls).toContainEqual('/prefetch-default');
+		await expectUrlPrefetched('/prefetch-default', page);
 	});
 
 	test('data-astro-prefetch="false" should not prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).not.toContainEqual('/prefetch-false');
+		await expectUrlNotPrefetched('/prefetch-false', page);
 	});
 
 	test('Link with search param should prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).not.toContainEqual('/?search-param=true');
+		await expectUrlNotPrefetched('/?search-param=true', page);
 		await Promise.all([
 			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-search-param').hover(),
 		]);
-		expect(reqUrls).toContainEqual('/?search-param=true');
+		await expectUrlPrefetched('/?search-param=true', page);
 	});
 
 	test('data-astro-prefetch="tap" should prefetch on tap', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).not.toContainEqual('/prefetch-tap');
+		await expectUrlNotPrefetched('/prefetch-tap', page);
 		await Promise.all([
 			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-tap').click(),
 		]);
-		expect(reqUrls).toContainEqual('/prefetch-tap');
+		await expectUrlPrefetched('/prefetch-tap', page);
 	});
 
 	test('data-astro-prefetch="hover" should prefetch on hover', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).not.toContainEqual('/prefetch-hover');
+		await expectUrlNotPrefetched('/prefetch-hover', page);
 		await Promise.all([
 			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-hover').hover(),
 		]);
-		expect(reqUrls).toContainEqual('/prefetch-hover');
+		await expectUrlPrefetched('/prefetch-hover', page);
 	});
 
 	test('data-astro-prefetch="viewport" should prefetch on viewport', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).not.toContainEqual('/prefetch-viewport');
+		await expectUrlNotPrefetched('/prefetch-viewport', page);
 		// Scroll down to show the element
 		await Promise.all([
 			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-viewport').scrollIntoViewIfNeeded(),
 		]);
-		expect(reqUrls).toContainEqual('/prefetch-viewport');
-		expect(page.locator('link[rel="prefetch"][href$="/prefetch-viewport"]')).toBeDefined();
+		await expectUrlPrefetched('/prefetch-viewport', page);
 	});
 
 	test('data-astro-prefetch="load" should prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).toContainEqual('/prefetch-load');
-		expect(page.locator('link[rel="prefetch"][href$="/prefetch-load"]')).toBeDefined();
+		await expectUrlPrefetched('/prefetch-load', page);
 	});
 });
 
 test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'load')", () => {
 	let devServer;
-	/** @type {string[]} */
-	const reqUrls = [];
 
 	test.beforeAll(async ({ astro }) => {
 		devServer = await astro.startDevServer({
@@ -210,78 +228,64 @@ test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'load')", () => {
 		});
 	});
 
-	test.beforeEach(async ({ page }) => {
-		page.on('request', (req) => {
-			const urlObj = new URL(req.url());
-			reqUrls.push(urlObj.pathname + urlObj.search);
-		});
-	});
-
-	test.afterEach(() => {
-		reqUrls.length = 0;
-	});
-
 	test.afterAll(async () => {
 		await devServer.stop();
 	});
 
 	test('Link without data-astro-prefetch should prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).toContainEqual('/prefetch-default');
-		expect(page.locator('link[rel="prefetch"][href$="/prefetch-default"]')).toBeDefined();
+		await expectUrlPrefetched('/prefetch-default', page);
 	});
 
 	test('data-astro-prefetch="false" should not prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).not.toContainEqual('/prefetch-false');
+		await expectUrlNotPrefetched('/prefetch-false', page);
 	});
 
 	test('Link with search param should prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).not.toContainEqual('/?search-param=true');
+		await expectUrlNotPrefetched('/?search-param=true', page);
 		await Promise.all([
 			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-search-param').hover(),
 		]);
-		expect(reqUrls).toContainEqual('/?search-param=true');
+		await expectUrlPrefetched('/?search-param=true', page);
 	});
 
 	test('data-astro-prefetch="tap" should prefetch on tap', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).not.toContainEqual('/prefetch-tap');
+		await expectUrlNotPrefetched('/prefetch-tap', page);
 		await Promise.all([
 			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-tap').click(),
 		]);
-		expect(reqUrls).toContainEqual('/prefetch-tap');
+		await expectUrlPrefetched('/prefetch-tap', page);
 	});
 
 	test('data-astro-prefetch="hover" should prefetch on hover', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).not.toContainEqual('/prefetch-hover');
+		await expectUrlNotPrefetched('/prefetch-hover', page);
 		await Promise.all([
 			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-hover').hover(),
 		]);
-		expect(reqUrls).toContainEqual('/prefetch-hover');
+		await expectUrlPrefetched('/prefetch-hover', page);
 	});
 
 	test('data-astro-prefetch="viewport" should prefetch on viewport', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).not.toContainEqual('/prefetch-viewport');
+		await expectUrlNotPrefetched('/prefetch-viewport', page);
 		// Scroll down to show the element
 		await Promise.all([
 			page.waitForEvent('request'), // wait prefetch request
 			page.locator('#prefetch-viewport').scrollIntoViewIfNeeded(),
 		]);
-		expect(reqUrls).toContainEqual('/prefetch-viewport');
-		expect(page.locator('link[rel="prefetch"][href$="/prefetch-viewport"]')).toBeDefined();
+		await expectUrlPrefetched('/prefetch-viewport', page);
 	});
 
 	test('data-astro-prefetch="load" should prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		expect(reqUrls).toContainEqual('/prefetch-load');
-		expect(page.locator('link[rel="prefetch"][href$="/prefetch-load"]')).toBeDefined();
+		await expectUrlPrefetched('/prefetch-load', page);
 	});
 });
 
@@ -311,7 +315,9 @@ test.describe('Prefetch (default), Experimental ({ clientPrerender: true })', ()
 
 	let devServer;
 
-	test.beforeAll(async ({ astro }) => {
+	test.beforeAll(async ({ astro, browserName }) => {
+		test.skip(browserName !== 'chromium', 'Only Chromium supports clientPrerender');
+
 		devServer = await astro.startDevServer({
 			experimental: {
 				clientPrerender: true,
@@ -320,7 +326,7 @@ test.describe('Prefetch (default), Experimental ({ clientPrerender: true })', ()
 	});
 
 	test.afterAll(async () => {
-		await devServer.stop();
+		await devServer?.stop();
 	});
 
 	test('Link without data-astro-prefetch should not prefetch', async ({ page, astro }) => {

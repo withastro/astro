@@ -19,6 +19,10 @@ export function hasPrimaryKey(column: DBColumn) {
 	return 'primaryKey' in column.schema && !!column.schema.primaryKey;
 }
 
+// Taken from:
+// https://stackoverflow.com/questions/52869695/check-if-a-date-string-is-in-iso-and-utc-format
+const isISODateString = (str: string) => /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(str);
+
 const dateType = customType<{ data: Date; driverData: string }>({
 	dataType() {
 		return 'text';
@@ -27,6 +31,11 @@ const dateType = customType<{ data: Date; driverData: string }>({
 		return value.toISOString();
 	},
 	fromDriver(value) {
+		if (!isISODateString(value)) {
+			// values saved using CURRENT_TIMESTAMP are not valid ISO strings
+			// but *are* in UTC, so append the UTC zone.
+			value += 'Z';
+		}
 		return new Date(value);
 	},
 });

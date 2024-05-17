@@ -64,6 +64,30 @@ describe('MDX plugins', () => {
 		assert.notEqual(selectRehypeExample(document), null);
 	});
 
+	it('supports custom rehype plugins from integrations', async () => {
+		const fixture = await buildFixture({
+			integrations: [
+				mdx(),
+				{
+					name: 'test',
+					hooks: {
+						'astro:config:setup': ({ updateConfig }) => {
+							updateConfig({
+								markdown: {
+									rehypePlugins: [rehypeExamplePlugin],
+								},
+							});
+						},
+					},
+				},
+			],
+		});
+		const html = await fixture.readFile(FILE);
+		const { document } = parseHTML(html);
+
+		assert.notEqual(selectRehypeExample(document), null);
+	});
+
 	it('supports custom rehype plugins with namespaced attributes', async () => {
 		const fixture = await buildFixture({
 			integrations: [

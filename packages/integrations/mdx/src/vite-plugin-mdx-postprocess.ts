@@ -5,24 +5,27 @@ import {
 	ASTRO_IMAGE_ELEMENT,
 	ASTRO_IMAGE_IMPORT,
 	USES_ASTRO_IMAGE_FLAG,
-} from './remark-images-to-component.js';
+} from './rehype-images-to-component.js';
 import { type FileInfo, getFileInfo } from './utils.js';
+
+const underscoreFragmentImportRegex = /[\s,{]_Fragment[\s,}]/;
+const astroTagComponentImportRegex = /[\s,{]__astro_tag_component__[\s,}]/;
 
 // These transforms must happen *after* JSX runtime transformations
 export function vitePluginMdxPostprocess(astroConfig: AstroConfig): Plugin {
 	return {
 		name: '@astrojs/mdx-postprocess',
-		transform(code, id) {
+		transform(code, id, opts) {
 			if (!id.endsWith('.mdx')) return;
 
 			const fileInfo = getFileInfo(id, astroConfig);
 			const [imports, exports] = parse(code);
 
 			// Call a series of functions that transform the code
-			code = injectFragmentImport(code, imports);
+			code = injectUnderscoreFragmentImport(code, imports);
 			code = injectMetadataExports(code, exports, fileInfo);
 			code = transformContentExport(code, exports);
-			code = annotateContentExport(code, id);
+			code = annotateContentExport(code, id, !!opts?.ssr, imports);
 
 			// The code transformations above are append-only, so the line/column mappings are the same
 			// and we can omit the sourcemap for performance.
@@ -31,23 +34,12 @@ export function vitePluginMdxPostprocess(astroConfig: AstroConfig): Plugin {
 	};
 }
 
-const fragmentImportRegex = /[\s,{](?:Fragment,|Fragment\s*\})/;
-
 /**
- * Inject `Fragment` identifier import if not already present. It should already be injected,
- * but check just to be safe.
- *
- * TODO: Double-check if we no longer need this function.
+ * Inject `Fragment` identifier import if not already present.
  */
-function injectFragmentImport(code: string, imports: readonly ImportSpecifier[]) {
-	const importsFromJSXRuntime = imports
-		.filter(({ n }) => n === 'astro/jsx-runtime')
-		.map(({ ss, se }) => code.substring(ss, se));
-	const hasFragmentImport = importsFromJSXRuntime.some((statement) =>
-		fragmentImportRegex.test(statement)
-	);
-	if (!hasFragmentImport) {
-		code = `import { Fragment } from "astro/jsx-runtime"\n` + code;
+function injectUnderscoreFragmentImport(code: string, imports: readonly ImportSpecifier[]) {
+	if (!isSpecifierImported(code, imports, underscoreFragmentImportRegex, 'astro/jsx-runtime')) {
+		code += `\nimport { Fragment as _Fragment } from 'astro/jsx-runtime';`;
 	}
 	return code;
 }
@@ -81,7 +73,9 @@ function transformContentExport(code: string, exports: readonly ExportSpecifier[
 	const usesAstroImage = exports.find(({ n }) => n === USES_ASTRO_IMAGE_FLAG);
 
 	// Generate code for the `components` prop passed to `MDXContent`
-	let componentsCode = `{ Fragment${hasComponents ? ', ...components' : ''}, ...props.components,`;
+	let componentsCode = `{ Fragment: _Fragment${
+		hasComponents ? ', ...components' : ''
+	}, ...props.components,`;
 	if (usesAstroImage) {
 		componentsCode += ` ${JSON.stringify(ASTRO_IMAGE_ELEMENT)}: ${
 			hasComponents ? 'components.img ?? ' : ''
@@ -103,7 +97,12 @@ export default Content;`;
 /**
  * Add properties to the `Content` export.
  */
-function annotateContentExport(code: string, id: string) {
+function annotateContentExport(
+	code: string,
+	id: string,
+	ssr: boolean,
+	imports: readonly ImportSpecifier[]
+) {
 	// Mark `Content` as MDX component
 	code += `\nContent[Symbol.for('mdx-component')] = true`;
 	// Ensure styles and scripts are injected into a `<head>` when a layout is not applied
@@ -111,5 +110,39 @@ function annotateContentExport(code: string, id: string) {
 	// Assign the `moduleId` metadata to `Content`
 	code += `\nContent.moduleId = ${JSON.stringify(id)};`;
 
+	// Tag the `Content` export as "astro:jsx" so it's quicker to identify how to render this component
+	if (ssr) {
+		if (
+			!isSpecifierImported(
+				code,
+				imports,
+				astroTagComponentImportRegex,
+				'astro/runtime/server/index.js'
+			)
+		) {
+			code += `\nimport { __astro_tag_component__ } from 'astro/runtime/server/index.js';`;
+		}
+		code += `\n__astro_tag_component__(Content, 'astro:jsx');`;
+	}
+
 	return code;
+}
+
+/**
+ * Check whether the `specifierRegex` matches for an import of `source` in the `code`.
+ */
+function isSpecifierImported(
+	code: string,
+	imports: readonly ImportSpecifier[],
+	specifierRegex: RegExp,
+	source: string
+) {
+	for (const imp of imports) {
+		if (imp.n !== source) continue;
+
+		const importStatement = code.slice(imp.ss, imp.se);
+		if (specifierRegex.test(importStatement)) return true;
+	}
+
+	return false;
 }
