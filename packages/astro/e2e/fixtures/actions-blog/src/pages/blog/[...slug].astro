@@ -6,7 +6,6 @@ import { Like } from '../../components/Like';
 import { PostComment } from '../../components/PostComment';
 import { actions, getActionProps } from 'astro:actions';
 import { isInputError } from 'astro:actions';
-import { server } from '../../actions';
 
 export const prerender = false;
 
@@ -23,9 +22,6 @@ type Props = CollectionEntry<'blog'>;
 
 const post = await getEntry('blog', Astro.params.slug)!;
 const { Content } = await post.render();
-
-// Test calling action server-side.
-await server.blog.like({postId: post.id});
 
 const comment = Astro.getActionResult(actions.blog.comment);
 
