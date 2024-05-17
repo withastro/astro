@@ -77,29 +77,18 @@ export type ContainerRenderOptions = {
 
 function createManifest(
 	renderers: SSRLoadedRenderer[],
-	config: AstroConfig,
 	manifest?: AstroContainerManifest,
 	middleware?: MiddlewareHandler
 ): SSRManifest {
-	let i18nManifest: SSRManifestI18n | undefined = undefined;
-	if (config?.i18n) {
-		i18nManifest = {
-			fallback: config?.i18n.fallback,
-			strategy: toRoutingStrategy(config?.i18n.routing, config?.i18n.domains),
-			defaultLocale: config?.i18n.defaultLocale,
-			locales: config?.i18n.locales,
-			domainLookupTable: {},
-		};
-	}
 	const defaultMiddleware: MiddlewareHandler = (_, next) => {
 		return next();
 	};
 
 	return {
 		rewritingEnabled: false,
-		trailingSlash: manifest?.trailingSlash ?? config?.trailingSlash,
-		buildFormat: manifest?.buildFormat ?? config?.build.format,
-		compressHTML: manifest?.compressHTML ?? config?.compressHTML,
+		trailingSlash: manifest?.trailingSlash ?? ASTRO_CONFIG_DEFAULTS.trailingSlash ,
+		buildFormat: manifest?.buildFormat ?? ASTRO_CONFIG_DEFAULTS.build.format,
+		compressHTML: manifest?.compressHTML ?? ASTRO_CONFIG_DEFAULTS.compressHTML,
 		assets: manifest?.assets ?? new Set(),
 		assetsPrefix: manifest?.assetsPrefix ?? undefined,
 		entryModules: manifest?.entryModules ?? {},
@@ -107,10 +96,10 @@ function createManifest(
 		adapterName: '',
 		clientDirectives: manifest?.clientDirectives ?? new Map(),
 		renderers: manifest?.renderers ?? renderers,
-		base: manifest?.base ?? config?.base,
+		base: manifest?.base ??  ASTRO_CONFIG_DEFAULTS.base,
 		componentMetadata: manifest?.componentMetadata ?? new Map(),
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
-		i18n: manifest?.i18n ?? i18nManifest,
+		i18n: manifest?.i18n,
 		checkOrigin: false,
 		middleware: manifest?.middleware ?? middleware ?? defaultMiddleware,
 	};
@@ -197,14 +186,12 @@ type AstroContainerManifest = Pick<
 type AstroContainerConstructor = {
 	streaming?: boolean;
 	renderers?: SSRLoadedRenderer[];
-	config: AstroConfig;
 	manifest?: AstroContainerManifest;
 	resolve?: SSRResult['resolve'];
 };
 
 export class experimental_AstroContainer {
 	#pipeline: ContainerPipeline;
-	#config: AstroConfig;
 
 	/**
 	 * Internally used to check if the container was created with a manifest.
@@ -215,17 +202,15 @@ export class experimental_AstroContainer {
 	private constructor({
 		streaming = false,
 		renderers = [],
-		config,
 		manifest,
 		resolve,
 	}: AstroContainerConstructor) {
-		this.#config = config;
 		this.#pipeline = ContainerPipeline.create({
 			logger: new Logger({
 				level: 'info',
 				dest: nodeLogDestination,
 			}),
-			manifest: createManifest(renderers, config, manifest),
+			manifest: createManifest(renderers, manifest),
 			streaming,
 			serverLike: true,
 			renderers,
@@ -243,7 +228,7 @@ export class experimental_AstroContainer {
 	async #containerResolve(specifier: string): Promise<string> {
 		const found = this.#pipeline.manifest.entryModules[specifier];
 		if (found) {
-			return new URL(found, this.#config.build.client).toString();
+			return new URL(found, ASTRO_CONFIG_DEFAULTS.build.client).toString();
 		}
 		return found;
 	}
@@ -276,7 +261,7 @@ export class experimental_AstroContainer {
 		);
 		const finalRenderers = loadedRenderers.filter((r): r is SSRLoadedRenderer => Boolean(r));
 		
-		return new experimental_AstroContainer({ streaming, renderers: finalRenderers, config });
+		return new experimental_AstroContainer({ streaming, renderers: finalRenderers });
 	}
 
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.
@@ -285,7 +270,6 @@ export class experimental_AstroContainer {
 		const config = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
 		const container = new experimental_AstroContainer({
 			manifest,
-			config,
 		});
 		container.#withManifest = true;
 		return container;
@@ -299,11 +283,13 @@ export class experimental_AstroContainer {
 	}: {
 		path: string;
 		componentInstance: ComponentInstance;
+		route?: string,
 		params?: Record<string, string | undefined>;
 		type?: RouteType;
 	}): RouteData {
 		const pathUrl = new URL(path, 'https://example.com');
-		const routeData: RouteData = this.#createRoute(pathUrl, params, type);
+		const routeData: RouteData = this.#createRoute(pathUrl, 
+			 params, type);
 		this.#pipeline.manifest.routes.push({
 			routeData,
 			file: '',
@@ -384,6 +370,9 @@ export class experimental_AstroContainer {
 			pathname: url.pathname,
 			locals: options?.locals ?? {},
 		});
+		if (options.params) {
+			renderContext.params = options.params;
+		}
 
 		return renderContext.render(componentInstance, slots);
 	}
@@ -397,16 +386,16 @@ export class experimental_AstroContainer {
 				return getParts(s, url.pathname);
 			});
 		return {
+			route: url.pathname,
 			component: '',
 			generate(_data: any): string {
 				return '';
 			},
 			params: Object.keys(params),
-			pattern: getPattern(segments, this.#config, this.#config.trailingSlash),
-			prerender: false,
+			pattern: getPattern(segments, ASTRO_CONFIG_DEFAULTS.base, ASTRO_CONFIG_DEFAULTS.trailingSlash),
+			prerender: true,
 			segments,
 			type,
-			route: url.pathname,
 			fallbackRoutes: [],
 			isIndex: false,
 		};
@@ -419,7 +408,7 @@ export class experimental_AstroContainer {
 	 * @private
 	 */
 	#wrapComponent(componentFactory: AstroComponentFactory, params?: Record<string, string | undefined>): ComponentInstance {
-		if (params){
+		if (params) {
 			return {
 				default: componentFactory,
 				getStaticPaths() {

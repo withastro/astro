@@ -10,7 +10,6 @@ test('Dynamic route', async () => {
 			"locale": 'en'
 		},
 		request: new Request('http://example.com/en'),
-		route: '/[locale]',
 	});
 
 	expect(result).toContain('Locale: en');
