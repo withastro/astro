@@ -154,12 +154,16 @@ describe('Content Collections', () => {
 				// `experimental.directRenderScript` so this optimization isn't a priority at the moment.
 				assert.equal($('script').length, 2);
 				// Read the scripts' content
-				const scripts = $('script').map((_, el) => $(el).attr('src')).toArray()
-				const scriptsCode = (await Promise.all(scripts.map(async (src) => await fixture.readFile(src)))).join('\n')
-				assert.match(scriptsCode,/ScriptCompA/)
-				assert.match(scriptsCode,/ScriptCompB/)
-			})
-		})
+				const scripts = $('script')
+					.map((_, el) => $(el).attr('src'))
+					.toArray();
+				const scriptsCode = (
+					await Promise.all(scripts.map(async (src) => await fixture.readFile(src)))
+				).join('\n');
+				assert.match(scriptsCode, /ScriptCompA/);
+				assert.match(scriptsCode, /ScriptCompB/);
+			});
+		});
 	});
 
 	const blogSlugToContents = {

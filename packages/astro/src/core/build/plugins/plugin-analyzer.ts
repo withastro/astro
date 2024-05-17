@@ -56,7 +56,7 @@ export function vitePluginAnalyzer(
 						if (isPropagatedAsset(parentInfo.id)) {
 							for (const hid of hoistedScripts) {
 								if (!internals.propagatedScriptsMap.has(parentInfo.id)) {
-									internals.propagatedScriptsMap.set(parentInfo.id, new Set())
+									internals.propagatedScriptsMap.set(parentInfo.id, new Set());
 								}
 								internals.propagatedScriptsMap.get(parentInfo.id)?.add(hid);
 							}
