@@ -24,7 +24,7 @@ const BaseLayout = createComponent((result, _props, slots) => {
 </html>`;
 });
 
-describe.only('Container', () => {
+describe('Container', () => {
 	it('Renders a div with hello world text', async () => {
 		const Page = createComponent((result) => {
 			return render`${renderComponent(
@@ -96,7 +96,7 @@ describe.only('Container', () => {
 		assert.match(result, /some slot/);
 	});
 
-	it.only('Renders multiple named slots', async () => {
+	it('Renders multiple named slots', async () => {
 		const Page = createComponent(
 			(result, _props, slots) => {
 				return render`${renderComponent(
