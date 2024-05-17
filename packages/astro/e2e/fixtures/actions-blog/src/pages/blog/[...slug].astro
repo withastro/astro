@@ -23,6 +23,10 @@ type Props = CollectionEntry<'blog'>;
 const post = await getEntry('blog', Astro.params.slug)!;
 const { Content } = await post.render();
 
+if (Astro.url.searchParams.has('like')) {
+	await actions.blog.like({postId: post.id });
+}
+
 const comment = Astro.getActionResult(actions.blog.comment);
 
 const comments = await db.select().from(Comment).where(eq(Comment.postId, post.id));
@@ -35,6 +39,11 @@ const commentPostIdOverride = Astro.url.searchParams.get('commentPostIdOverride'
 
 <BlogPost {...post.data}>
 	<Like postId={post.id} initial={initialLikes?.likes ?? 0} client:load />
+
+	<form>
+		<input type="hidden" name="like" />
+		<button type="submit" aria-label="get-request">Like GET request</button>
+	</form>
 
 	<Content />
 
