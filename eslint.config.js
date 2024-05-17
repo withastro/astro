@@ -70,6 +70,12 @@ export default [
 					ignoreRestSiblings: true,
 				},
 			],
+			'@typescript-eslint/no-floating-promises': [
+				'error',
+				{
+					ignoreIIFE: true
+				}
+			],
 			'no-only-tests/no-only-tests': 'error',
 			'@typescript-eslint/no-shadow': 'error',
 			'no-console': 'warn',
@@ -83,7 +89,6 @@ export default [
 			'@typescript-eslint/dot-notation': 'off',
 			'@typescript-eslint/no-base-to-string': 'off',
 			'@typescript-eslint/no-empty-function': 'off',
-			'@typescript-eslint/no-floating-promises': 'off',
 			'@typescript-eslint/no-misused-promises': 'off',
 			'@typescript-eslint/no-redundant-type-constituents': 'off',
 			'@typescript-eslint/no-this-alias': 'off',
@@ -200,4 +205,13 @@ export default [
 			],
 		},
 	},
+
+	// Disable no-floating-promises for tests using the node:test api
+	// See https://github.com/nodejs/node/issues/51292 for a discussion on why this is necessary right now
+	{
+		files: ['packages/**/*.test.ts', 'packages/**/*.test.js'],
+		rules: {
+			'@typescript-eslint/no-floating-promises': 'off',
+		}
+	}
 ];
