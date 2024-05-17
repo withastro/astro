@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { createServer as _createServer } from 'node:http';
+import { SESSION_LOGIN_FILE, getAstroStudioUrl } from '@astrojs/studio';
 import type { AstroConfig } from 'astro';
 import { listen } from 'async-listen';
 import { cyan } from 'kleur/colors';
@@ -7,9 +8,7 @@ import open from 'open';
 import ora from 'ora';
 import prompt from 'prompts';
 import type { Arguments } from 'yargs-parser';
-import { SESSION_LOGIN_FILE } from '../../../tokens.js';
 import type { DBConfig } from '../../../types.js';
-import { getAstroStudioUrl } from '../../../utils.js';
 
 const isWebContainer =
 	// Stackblitz heuristic

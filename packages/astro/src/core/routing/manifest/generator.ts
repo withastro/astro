@@ -2,6 +2,24 @@ import type { AstroConfig, RoutePart } from '../../../@types/astro.js';
 
 import { compile } from 'path-to-regexp';
 
+/**
+ * Sanitizes the parameters object by normalizing string values and replacing certain characters with their URL-encoded equivalents.
+ * @param {Record<string, string | number | undefined>} params - The parameters object to be sanitized.
+ * @returns {Record<string, string | number | undefined>} The sanitized parameters object.
+ */
+function sanitizeParams(
+	params: Record<string, string | number | undefined>
+): Record<string, string | number | undefined> {
+	return Object.fromEntries(
+		Object.entries(params).map(([key, value]) => {
+			if (typeof value === 'string') {
+				return [key, value.normalize().replace(/#/g, '%23').replace(/\?/g, '%3F')];
+			}
+			return [key, value];
+		})
+	);
+}
+
 export function getRouteGenerator(
 	segments: RoutePart[][],
 	addTrailingSlash: AstroConfig['trailingSlash']
@@ -37,8 +55,9 @@ export function getRouteGenerator(
 		trailing = '/';
 	}
 	const toPath = compile(template + trailing);
-	return (params: object): string => {
-		const path = toPath(params);
+	return (params: Record<string, string | number | undefined>): string => {
+		const sanitizedParams = sanitizeParams(params);
+		const path = toPath(sanitizedParams);
 
 		// When generating an index from a rest parameter route, `path-to-regexp` will return an
 		// empty string instead "/". This causes an inconsistency with static indexes that may result

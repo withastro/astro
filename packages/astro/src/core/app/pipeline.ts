@@ -71,7 +71,10 @@ export class AppPipeline extends Pipeline {
 		return module.page();
 	}
 
-	async tryRewrite(payload: RewritePayload): Promise<[RouteData, ComponentInstance]> {
+	async tryRewrite(
+		payload: RewritePayload,
+		request: Request
+	): Promise<[RouteData, ComponentInstance]> {
 		let foundRoute;
 
 		for (const route of this.#manifestData!.routes) {
@@ -86,9 +89,12 @@ export class AppPipeline extends Pipeline {
 					foundRoute = route;
 					break;
 				}
-			} else if (route.pattern.test(decodeURI(payload))) {
-				foundRoute = route;
-				break;
+			} else {
+				const newUrl = new URL(payload, new URL(request.url).origin);
+				if (route.pattern.test(decodeURI(newUrl.pathname))) {
+					foundRoute = route;
+					break;
+				}
 			}
 		}
 
