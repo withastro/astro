@@ -438,7 +438,8 @@ async function cleanServerOutput(
 ) {
 	const out = getOutDirWithinCwd(opts.settings.config.outDir);
 	// The SSR output chunks for Astro are all .mjs files
-	const files = ssrOutputChunkNames.filter((f) => f.endsWith('.mjs'))
+	const files = ssrOutputChunkNames
+		.filter((f) => f.endsWith('.mjs'))
 		.concat(contentFileNames ?? []);
 	if (internals.manifestFileName) {
 		files.push(internals.manifestFileName);
