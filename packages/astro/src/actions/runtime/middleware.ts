@@ -51,7 +51,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	if (result.error) {
 		return new Response(response.body, {
 			status: result.error.status,
-			statusText: import.meta.env.DEV ? result.error.message : 'Action error',
+			statusText: result.error.name,
 			headers: response.headers,
 		})
 	}
