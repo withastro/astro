@@ -102,7 +102,7 @@ describe('Web Vitals integration basics', () => {
 					pathname: '/',
 					route: '/',
 					name: 'CLS',
-					id: 'v3-1711484350895-3748043125387',
+					id: 'v4-1711484350895-3748043125387',
 					value: 0,
 					rating: 'good',
 				},
