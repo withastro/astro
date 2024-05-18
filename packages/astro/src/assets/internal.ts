@@ -9,7 +9,7 @@ import type {
 	UnresolvedImageTransform,
 } from './types.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
-import { probe } from './utils/remoteProbe.js';
+import { inferRemoteSize } from './utils/remoteProbe.js';
 
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
@@ -62,7 +62,7 @@ export async function getImage(
 	// Infer size for remote images if inferSize is true
 	if (options.inferSize && isRemoteImage(resolvedOptions.src)) {
 		try {
-			const result = await probe(resolvedOptions.src); // Directly probe the image URL
+			const result = await inferRemoteSize(resolvedOptions.src); // Directly probe the image URL
 			resolvedOptions.width ??= result.width;
 			resolvedOptions.height ??= result.height;
 			delete resolvedOptions.inferSize; // Delete so it doesn't end up in the attributes
@@ -82,7 +82,7 @@ export async function getImage(
 	// Causing our generate step to think the image is used outside of the image optimization pipeline
 	const clonedSrc = isESMImportedImage(resolvedOptions.src)
 		? // @ts-expect-error - clone is a private, hidden prop
-			resolvedOptions.src.clone ?? resolvedOptions.src
+		resolvedOptions.src.clone ?? resolvedOptions.src
 		: resolvedOptions.src;
 
 	resolvedOptions.src = clonedSrc;
