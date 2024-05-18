@@ -126,7 +126,7 @@ describe('Web Vitals integration basics', () => {
 				0,
 				'Endpoint logged errors:\n' + consoleErrorMock.calls[0]?.join(' ')
 			);
-		})
+		});
 
 		it('inserted data can be retrieved from the database', async () => {
 			const dbRows = await fixture.fetch('/rows.json', {}).then((r) => r.json());
