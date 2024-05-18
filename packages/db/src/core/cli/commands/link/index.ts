@@ -1,14 +1,18 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { basename } from 'node:path';
+import {
+	MISSING_SESSION_ID_ERROR,
+	PROJECT_ID_FILE,
+	getAstroStudioUrl,
+	getSessionIdFromFile,
+} from '@astrojs/studio';
 import { slug } from 'github-slugger';
 import { bgRed, cyan } from 'kleur/colors';
 import ora from 'ora';
 import prompts from 'prompts';
 import { safeFetch } from '../../../../runtime/utils.js';
-import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
-import { PROJECT_ID_FILE, getSessionIdFromFile } from '../../../tokens.js';
-import { type Result, getAstroStudioUrl } from '../../../utils.js';
+import { type Result } from '../../../utils.js';
 
 export async function cmd() {
 	const sessionToken = await getSessionIdFromFile();
@@ -68,7 +72,7 @@ async function getWorkspaceId(): Promise<string> {
 			if (res.status === 401) {
 				throw new Error(
 					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-						'astro db login'
+						'astro login'
 					)} to authenticate and then try linking again.\n\n`
 				);
 			}
@@ -116,7 +120,7 @@ export async function createNewProject({
 			if (res.status === 401) {
 				console.error(
 					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-						'astro db login'
+						'astro login'
 					)} to authenticate and then try linking again.\n\n`
 				);
 				process.exit(1);
@@ -150,7 +154,7 @@ export async function promptExistingProjectName({ workspaceId }: { workspaceId: 
 			if (res.status === 401) {
 				console.error(
 					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-						'astro db login'
+						'astro login'
 					)} to authenticate and then try linking again.\n\n`
 				);
 				process.exit(1);

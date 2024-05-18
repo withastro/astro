@@ -1,9 +1,9 @@
+import { getManagedAppTokenOrExit } from '@astrojs/studio';
 import type { AstroConfig } from 'astro';
 import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
 import { safeFetch } from '../../../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../../../consts.js';
-import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import { type DBConfig, type DBSnapshot } from '../../../types.js';
 import { type Result, getRemoteDatabaseUrl } from '../../../utils.js';
 import {

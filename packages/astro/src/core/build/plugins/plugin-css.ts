@@ -145,12 +145,21 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							if (pageData) {
 								appendCSSToPage(pageData, meta, pagesToCss, depth, order);
 							}
-						} else if (
-							options.target === 'client' &&
-							internals.hoistedScriptIdToPagesMap.has(pageInfo.id)
-						) {
-							for (const pageData of getPageDatasByHoistedScriptId(internals, pageInfo.id)) {
-								appendCSSToPage(pageData, meta, pagesToCss, -1, order);
+						} else if (options.target === 'client') {
+							// For scripts or hoisted scripts, walk parents until you find a page, and add the CSS to that page.
+							if (buildOptions.settings.config.experimental.directRenderScript) {
+								const pageDatas = internals.pagesByScriptId.get(pageInfo.id)!;
+								if (pageDatas) {
+									for (const pageData of pageDatas) {
+										appendCSSToPage(pageData, meta, pagesToCss, -1, order);
+									}
+								}
+							} else {
+								if (internals.hoistedScriptIdToPagesMap.has(pageInfo.id)) {
+									for (const pageData of getPageDatasByHoistedScriptId(internals, pageInfo.id)) {
+										appendCSSToPage(pageData, meta, pagesToCss, -1, order);
+									}
+								}
 							}
 						}
 					}

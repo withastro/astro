@@ -12,16 +12,16 @@ export type MaybePromise<T> = T | Promise<T>;
 
 export async function getAction(
 	pathKeys: string[]
-): Promise<(param: unknown) => MaybePromise<unknown>> {
+): Promise<((param: unknown) => MaybePromise<unknown>) | undefined> {
 	let { server: actionLookup } = await import(import.meta.env.ACTIONS_PATH);
 	for (const key of pathKeys) {
 		if (!(key in actionLookup)) {
-			throw new Error('Action not found');
+			return undefined;
 		}
 		actionLookup = actionLookup[key];
 	}
 	if (typeof actionLookup !== 'function') {
-		throw new Error('Action not found');
+		return undefined;
 	}
 	return actionLookup;
 }

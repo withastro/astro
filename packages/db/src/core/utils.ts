@@ -1,13 +1,9 @@
+import { getAstroStudioEnv } from '@astrojs/studio';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import { loadEnv } from 'vite';
 import type { AstroDbIntegration } from './types.js';
 
 export type VitePlugin = Required<AstroConfig['vite']>['plugins'][number];
-
-export function getAstroStudioEnv(envMode = ''): Record<`ASTRO_STUDIO_${string}`, string> {
-	const env = loadEnv(envMode, process.cwd(), 'ASTRO_STUDIO_');
-	return env;
-}
 
 export function getAstroEnv(envMode = ''): Record<`ASTRO_${string}`, string> {
 	const env = loadEnv(envMode, process.cwd(), 'ASTRO_');
@@ -17,11 +13,6 @@ export function getAstroEnv(envMode = ''): Record<`ASTRO_${string}`, string> {
 export function getRemoteDatabaseUrl(): string {
 	const env = getAstroStudioEnv();
 	return env.ASTRO_STUDIO_REMOTE_DB_URL || 'https://db.services.astro.build';
-}
-
-export function getAstroStudioUrl(): string {
-	const env = getAstroStudioEnv();
-	return env.ASTRO_STUDIO_URL || 'https://studio.astro.build';
 }
 
 export function getDbDirectoryUrl(root: URL | string) {

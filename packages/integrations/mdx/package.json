@@ -60,7 +60,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0-rc.12",
-    "linkedom": "^0.16.11",
+    "linkedom": "^0.18.0",
     "mdast-util-mdx": "^3.0.0",
     "mdast-util-mdx-jsx": "^3.1.2",
     "mdast-util-to-string": "^4.0.0",
