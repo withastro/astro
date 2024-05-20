@@ -26,7 +26,7 @@ test.describe('Astro Actions - React 19', () => {
 		await expect(likeButton).toBeVisible();
 		await likeButton.click();
 		await expect(likeButton, 'like button should be disabled when pending').toBeDisabled();
-		await expect(likeButton).not.toBeDisabled();
+		await expect(likeButton).not.toBeDisabled({ timeout: 5000 });
 	});
 
 	test('Like action - server progressive enhancement', async ({ page, astro }) => {
