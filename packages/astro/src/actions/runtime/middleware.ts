@@ -47,7 +47,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		},
 	};
 	Object.defineProperty(locals, '_actionsInternal', { writable: false, value: actionsInternal });
-	return next();
+	const response = await next();
+	if (result.error) {
+		return new Response(response.body, {
+			status: result.error.status,
+			statusText: result.error.name,
+			headers: response.headers,
+		})
+	}
+	return response;
 });
 
 function nextWithLocalsStub(next: MiddlewareNext, locals: Locals) {
