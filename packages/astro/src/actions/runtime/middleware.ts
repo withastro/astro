@@ -53,7 +53,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			status: result.error.status,
 			statusText: result.error.name,
 			headers: response.headers,
-		})
+		});
 	}
 	return response;
 });
