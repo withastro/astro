@@ -2,8 +2,6 @@
 // Do not import this file directly, instead import the prebuilt one instead.
 // pnpm --filter astro run prebuild
 
-import type { AstroComponentMetadata } from '../../@types/astro.js';
-
 type directiveAstroKeys = 'load' | 'idle' | 'visible' | 'media' | 'only';
 
 declare const Astro: {
@@ -191,7 +189,6 @@ declare const Astro: {
 			let hydrationTimeStart;
 			const hydrator = this.hydrator(this);
 			if (process.env.NODE_ENV === 'development') hydrationTimeStart = performance.now();
-
 			await hydrator(this.Component, props, slots, {
 				client: this.getAttribute('client'),
 			});
