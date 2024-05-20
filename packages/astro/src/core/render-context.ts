@@ -276,7 +276,6 @@ export class RenderContext {
 
 	async createResult(mod: ComponentInstance) {
 		const { cookies, pathname, pipeline, routeData, status } = this;
-		const reactServerActionResult = await getReactServerActionResult(this);
 		const { clientDirectives, inlinedScripts, compressHTML, manifest, renderers, resolve } =
 			pipeline;
 		const { links, scripts, styles } = await pipeline.headElements(routeData);
@@ -315,10 +314,11 @@ export class RenderContext {
 			renderers,
 			resolve,
 			response,
+			request: this.request.clone(),
 			scripts,
 			styles,
+			actionResult: createGetActionResult(this.locals)(),
 			_metadata: {
-				reactServerActionResult,
 				hasHydrationScript: false,
 				rendererSpecificHydrationScripts: new Set(),
 				hasRenderedHead: false,
@@ -522,39 +522,4 @@ export class RenderContext {
 		if (!i18n) return;
 		return (this.#preferredLocaleList ??= computePreferredLocaleList(request, i18n.locales));
 	}
-}
-
-async function getReactServerActionResult({
-	request,
-	locals,
-}: { request: Request; locals: APIContext['locals'] }): Promise<
-	SSRResult['_metadata']['reactServerActionResult']
-> {
-	if (!hasContentType(request.headers.get('Content-Type') ?? '', formContentTypes)) {
-		return;
-	}
-
-	const formData = await request.clone().formData();
-	const actionKey = formData.get('$ACTION_KEY')?.toString();
-	const actionName = formData.get('_astroAction')?.toString();
-	const actionResult = createGetActionResult(locals)();
-	if (!actionKey || !actionName || !actionResult) return;
-
-	const isUsingSafe = formData.has('_astroActionSafe');
-	if (!isUsingSafe && actionResult.error) {
-		throw new AstroError({
-			name: actionResult.error.name,
-			message: `Unhandled error calling action ${actionName.replace(/^\/_actions\//, '')}:\n${
-				actionResult.error.message
-			}`,
-			stack: actionResult.error.stack,
-			hint: 'use `.safe()` to handle from your React component.',
-		});
-	}
-
-	return {
-		value: isUsingSafe ? actionResult : actionResult.data,
-		key: actionKey,
-		name: actionName,
-	};
 }

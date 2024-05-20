@@ -194,7 +194,6 @@ declare const Astro: {
 
 			await hydrator(this.Component, props, slots, {
 				client: this.getAttribute('client'),
-				reactServerActionResult: parseReactServerActionResult(this),
 			});
 			if (process.env.NODE_ENV === 'development' && hydrationTimeStart)
 				this.setAttribute(
@@ -218,16 +217,4 @@ declare const Astro: {
 	if (!customElements.get('astro-island')) {
 		customElements.define('astro-island', AstroIsland);
 	}
-}
-
-function parseReactServerActionResult(
-	element: HTMLElement
-): AstroComponentMetadata['reactServerActionResult'] {
-	const result = element.getAttribute('action-result');
-	const key = element.getAttribute('action-key');
-	const name = element.getAttribute('action-name');
-	if (!result || !key || !name) return undefined;
-
-	const value = JSON.parse(result);
-	return { key, name, value };
 }

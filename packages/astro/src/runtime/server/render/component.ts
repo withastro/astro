@@ -90,7 +90,6 @@ async function renderFrameworkComponent(
 	const { renderers, clientDirectives } = result;
 	const metadata: AstroComponentMetadata = {
 		astroStaticSlot: true,
-		reactServerActionResult: result._metadata.reactServerActionResult,
 		displayName,
 	};
 
