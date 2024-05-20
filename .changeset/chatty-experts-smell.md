@@ -2,7 +2,9 @@
 "astro": minor
 ---
 
-The CSRF protection feature that was introduced behind a flag in [v4.6.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#460) is no longer experimental and is available for general use. If you were using the experimental feature, you'll have to update your `astro.config.mjs` as follows:
+The CSRF protection feature that was introduced behind a flag in [v4.6.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#460) is no longer experimental and is available for general use. 
+
+To enable the stable version, add the new top-level `security` option in `astro.config.mjs`. If you were previously using the experimental version of this feature, also delete the experimental flag:
 
 ```diff
 export default defineConfig({
