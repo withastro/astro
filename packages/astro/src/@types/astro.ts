@@ -781,6 +781,47 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @name security
+	 * @type {boolean}
+	 * @default `{}`
+	 * @version 4.6.0
+	 * @description
+	 *
+	 * Enables security measures for an Astro website.
+	 *
+	 * These features only exist for pages rendered on demand (SSR) using `server` mode or pages that opt out of prerendering in `hybrid` mode.
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * export default defineConfig({
+	 *   output: "server",
+	 *   security: {
+	 *     checkOrigin: true
+	 *   }
+	 * })
+	 * ```
+	 */
+	security?: {
+		/**
+		 * @name security.checkOrigin
+		 * @type {boolean}
+		 * @default 'false'
+		 * @version 4.6.0
+		 * @description
+		 *
+		 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`. This is used to provide Cross-Site Request Forgery (CSRF) protection.
+		 *
+		 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST, `PATCH`, `DELETE` and `PUT` with
+		 * the following `content-type` header: 'application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'.
+		 *
+		 * If the "origin" header doesn't match the `pathname` of the request, Astro will return a 403 status code and will not render the page.
+		 */
+
+		checkOrigin?: boolean;
+	};
+	
+	/**
+	 * @docs
 	 * @name vite
 	 * @typeraw {ViteUserConfig}
 	 * @description
@@ -1685,47 +1726,6 @@ export interface AstroUserConfig {
 	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
 	 */
 	legacy?: object;
-
-	/**
-	 * @docs
-	 * @name security
-	 * @type {boolean}
-	 * @default `{}`
-	 * @version 4.6.0
-	 * @description
-	 *
-	 * Enables security measures for an Astro website.
-	 *
-	 * These features only exist for pages rendered on demand (SSR) using `server` mode or pages that opt out of prerendering in `hybrid` mode.
-	 *
-	 * ```js
-	 * // astro.config.mjs
-	 * export default defineConfig({
-	 *   output: "server",
-	 *   security: {
-	 *     checkOrigin: true
-	 *   }
-	 * })
-	 * ```
-	 */
-	security?: {
-		/**
-		 * @name security.checkOrigin
-		 * @type {boolean}
-		 * @default 'false'
-		 * @version 4.6.0
-		 * @description
-		 * 
-		 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`. This is used to provide Cross-Site Request Forgery (CSRF) protection.
-		 *
-		 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST, `PATCH`, `DELETE` and `PUT` with
-		 * the following `content-type` header: 'application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'.
-		 *
-		 * If the "origin" header doesn't match the `pathname` of the request, Astro will return a 403 status code and will not render the page.
-		 */
-
-		checkOrigin?: boolean;
-	};
 
 	/**
 	 * @docs
