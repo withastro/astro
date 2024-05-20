@@ -123,11 +123,6 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 }
 
 /**
- *
- * @param {{
- * request: Request;
- * actionResult: { data?: any; error?: any; };
- * }} params
  * @returns {Promise<[actionResult: any, actionKey: string, actionName: string] | undefined>}
  */
 async function getFormState({ result }) {
