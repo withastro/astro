@@ -2926,7 +2926,6 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 			html: string;
 			attrs?: Record<string, string>;
 		}>;
-		getIslandProps?: (this: { result: SSRResult }) => Promise<Record<string, string>>;
 		supportsAstroStaticSlot?: boolean;
 		/**
 		 * If provided, Astro will call this function and inject the returned
