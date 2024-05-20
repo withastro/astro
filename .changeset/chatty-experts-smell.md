@@ -27,4 +27,4 @@ This check is executed only for pages rendered on demand, and only for the reque
 
 If the `"origin"` header doesn't match the pathname of the request, Astro will return a 403 status code and won't render the page.
 
-For more information, see the [`security` configuration docs](https://docs.astro.build/en/reference/configuration-reference/#security)
+For more information, see the [`security` configuration docs](https://docs.astro.build/en/reference/configuration-reference/#security).
