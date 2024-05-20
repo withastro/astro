@@ -26,4 +26,5 @@ Enabling this setting performs a check that the `"origin"` header, automatically
 This check is executed only for pages rendered on demand, and only for the requests `POST`, `PATCH`, `DELETE` and `PUT` with one of the following `"content-type"` headers: `'application/x-www-form-urlencoded'`, `'multipart/form-data'`, `'text/plain'`.
 
 If the `"origin"` header doesn't match the pathname of the request, Astro will return a 403 status code and won't render the page.
-*
+
+For more information, see the [`security` configuration docs](https://docs.astro.build/en/reference/configuration-reference/#security)
