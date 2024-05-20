@@ -1716,7 +1716,7 @@ export interface AstroUserConfig {
 		 * @version 4.6.0
 		 * @description
 		 * 
-		 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`.
+		 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`. This is used to provide Cross-Site Request Forgery (CSRF) protection.
 		 *
 		 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST, `PATCH`, `DELETE` and `PUT` with
 		 * the following `content-type` header: 'application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'.
