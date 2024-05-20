@@ -2674,7 +2674,7 @@ interface AstroSharedContext<
 		TInputSchema extends InputSchema<TAccept>,
 		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
 	>(
-		action?: TAction
+		action: TAction
 	) => Awaited<ReturnType<TAction['safe']>> | undefined;
 	/**
 	 * Route parameters for this request if this is a dynamic route.
