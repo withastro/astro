@@ -10,7 +10,6 @@ import type {
 } from '../@types/astro.js';
 import type { ActionAPIContext } from '../actions/runtime/store.js';
 import { createGetActionResult } from '../actions/utils.js';
-import { hasContentType, formContentTypes } from '../actions/runtime/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
