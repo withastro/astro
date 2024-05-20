@@ -1694,7 +1694,9 @@ export interface AstroUserConfig {
 	 * @version 4.6.0
 	 * @description
 	 *
-	 * Enables different security measures inside an Astro website.
+	 * Enables security measures for an Astro website.
+	 *
+	 * These features only exist for pages rendered on demand (SSR) using `server` mode or pages that opt out of prerendering in `hybrid` mode.
 	 *
 	 * ```js
 	 * // astro.config.mjs
@@ -1713,8 +1715,6 @@ export interface AstroUserConfig {
 		 * @default 'false'
 		 * @version 4.6.0
 		 * @description
-		 *
-		 * The CSRF protection works only for pages rendered on demand (SSR) using `server` or `hybrid` mode. The pages must opt out of prerendering in `hybrid` mode.
 		 * 
 		 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`.
 		 *
