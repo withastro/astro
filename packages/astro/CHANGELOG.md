@@ -1,5 +1,26 @@
 # astro
 
+## 4.8.7
+
+### Patch Changes
+
+- [#11073](https://github.com/withastro/astro/pull/11073) [`f5c8fee`](https://github.com/withastro/astro/commit/f5c8fee76c5e688ef23c18be79705b18f1750415) Thanks [@matthewp](https://github.com/matthewp)! - Prevent cache content from being left in dist folder
+
+  When `contentCollectionsCache` is enabled temporary cached content is copied into the `outDir` for processing. This fixes it so that this content is cleaned out, along with the rest of the temporary build JS.
+
+- [#11054](https://github.com/withastro/astro/pull/11054) [`f6b171e`](https://github.com/withastro/astro/commit/f6b171ed50eed253b8ac005bd5e9d1841a8003dd) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Respect error status when handling Actions with a progressive fallback.
+
+- [#11092](https://github.com/withastro/astro/pull/11092) [`bfe9c73`](https://github.com/withastro/astro/commit/bfe9c73536f0794e4f5ede5040adabbe0e705984) Thanks [@duckycoding-dev](https://github.com/duckycoding-dev)! - Change `slot` attribute of `IntrinsicAttributes` to match the definition of `HTMLAttributes`'s own `slot` attribute of type `string | undefined | null`
+
+- [#10875](https://github.com/withastro/astro/pull/10875) [`b5f95b2`](https://github.com/withastro/astro/commit/b5f95b2fb156152fabf2a22e150037a8255006f9) Thanks [@W1M0R](https://github.com/W1M0R)! - Fixes a typo in a JSDoc annotation
+
+- [#11111](https://github.com/withastro/astro/pull/11111) [`a5d79dd`](https://github.com/withastro/astro/commit/a5d79ddeb2d592de9eb2468471fdcf3eea5ef730) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix unexpected `headers` warning on prerendered routes when using Astro Actions.
+
+- [#11081](https://github.com/withastro/astro/pull/11081) [`af42e05`](https://github.com/withastro/astro/commit/af42e0552054b3b4ac784ed78c60f80bfc38d8ca) Thanks [@V3RON](https://github.com/V3RON)! - Correctly position inspection tooltip in RTL mode
+
+  When RTL mode is turned on, the inspection tooltip tend to overflow the window on the left side.
+  Additional check has been added to prevent that.
+
 ## 4.8.6
 
 ### Patch Changes
