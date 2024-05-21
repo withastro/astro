@@ -1,5 +1,5 @@
 ---
-"astro": minor
+"astro": patch
 ---
 
 Allow actions to be called on the server. This allows you to call actions as utility functions in your Astro frontmatter, endpoints, and server-side UI components.
