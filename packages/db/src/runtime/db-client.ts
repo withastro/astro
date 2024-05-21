@@ -73,7 +73,7 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 
 			if (method === 'run') {
 				const rawRows = Array.from(remoteResult.rows);
-				// in order to serialize properly much implement toJSON
+				// Implement basic `toJSON()` for Drizzle to serialize properly
 				(remoteResult as any).rows.toJSON = () => rawRows;
 				// Using `db.run()` drizzle massages the rows into an object.
 				// So in order to make dev/prod consistent, we need to do the same here.
