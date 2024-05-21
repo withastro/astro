@@ -10,6 +10,18 @@ export const server = {
 			};
 		},
 	}),
+	subscribeFromServer: defineAction({
+		input: z.object({ channel: z.string() }),
+		handler: async ({ channel }) => {
+			const { url } = getApiContext();
+			return {
+				// Returned to ensure path rewrites are respected
+				url: url.pathname,
+				channel,
+				subscribeButtonState: 'smashed',
+			};
+		},
+	}),
 	comment: defineAction({
 		accept: 'form',
 		input: z.object({ channel: z.string(), comment: z.string() }),
