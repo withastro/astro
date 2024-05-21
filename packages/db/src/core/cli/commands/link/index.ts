@@ -20,16 +20,17 @@ export async function cmd() {
 		console.error(MISSING_SESSION_ID_ERROR);
 		process.exit(1);
 	}
-	const workspaceId = await promptWorkspace(sessionToken);
 	await promptBegin();
 	const isLinkExisting = await promptLinkExisting();
 	if (isLinkExisting) {
+		const workspaceId = await promptWorkspace(sessionToken);
 		const existingProjectData = await promptExistingProjectName({ workspaceId });
 		return await linkProject(existingProjectData.id);
 	}
 
 	const isLinkNew = await promptLinkNew();
 	if (isLinkNew) {
+		const workspaceId = await promptWorkspace(sessionToken);
 		const newProjectName = await promptNewProjectName();
 		const newProjectRegion = await promptNewProjectRegion();
 		const spinner = ora('Creating new project...').start();
