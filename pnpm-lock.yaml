@@ -4679,6 +4679,24 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
+  packages/integrations/mdx/test/fixtures/mdx-plus-react-errors:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../react
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+
   packages/integrations/mdx/test/fixtures/mdx-vite-env-vars:
     dependencies:
       '@astrojs/mdx':
