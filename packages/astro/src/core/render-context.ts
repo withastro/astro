@@ -317,7 +317,7 @@ export class RenderContext {
 			renderers,
 			resolve,
 			response,
-			request: this.request.clone(),
+			request: this.request,
 			scripts,
 			styles,
 			actionResult,
