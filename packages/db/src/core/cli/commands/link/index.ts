@@ -84,6 +84,11 @@ async function getWorkspaces(sessionToken:string) {
 	return data
 }
 
+/**
+ * Get the workspace ID to link to.
+ * Prompts the user to choose if they have more than one workspace in Astro Studio.
+ * @returns A `Promise` for the workspace ID to use.
+ */
 async function promptWorkspace(sessionToken: string) {
 	const workspaces = await getWorkspaces(sessionToken);
 	if (workspaces.length === 0) {
@@ -215,6 +220,10 @@ export async function promptBegin(): Promise<void> {
 	}
 }
 
+/**
+ * Ask the user if they want to link to an existing Astro Studio project.
+ * @returns A `Promise` for the user’s answer: `true` if they answer yes, otherwise `false`.
+ */
 export async function promptLinkExisting(): Promise<boolean> {
 	// prompt
 	const { linkExisting } = await prompts({
@@ -226,6 +235,11 @@ export async function promptLinkExisting(): Promise<boolean> {
 	return !!linkExisting;
 }
 
+/**
+ * Ask the user if they want to link to a new Astro Studio Project.
+ * **Exits the process if they answer no.**
+ * @returns A `Promise` for the user’s answer: `true` if they answer yes.
+ */
 export async function promptLinkNew(): Promise<boolean> {
 	// prompt
 	const { linkNew } = await prompts({
