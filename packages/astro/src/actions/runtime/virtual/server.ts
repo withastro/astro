@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getApiContext } from '../store.js';
+import { getApiContext as _getApiContext, type ActionAPIContext } from '../store.js';
 import { type MaybePromise, hasContentType } from '../utils.js';
 import {
 	ActionError,
@@ -13,7 +13,8 @@ export * from './shared.js';
 
 export { z } from 'zod';
 
-export { getApiContext } from '../store.js';
+/** @deprecated Access context from the second `handler()` parameter. */
+export const getApiContext = _getApiContext;
 
 export type Accept = 'form' | 'json';
 export type InputSchema<T extends Accept> = T extends 'form'
@@ -21,8 +22,8 @@ export type InputSchema<T extends Accept> = T extends 'form'
 	: z.ZodType;
 
 type Handler<TInputSchema, TOutput> = TInputSchema extends z.ZodType
-	? (input: z.infer<TInputSchema>) => MaybePromise<TOutput>
-	: (input?: any) => MaybePromise<TOutput>;
+	? (input: z.infer<TInputSchema>, apiContext: ActionAPIContext) => MaybePromise<TOutput>
+	: (input: any, apiContext: ActionAPIContext) => MaybePromise<TOutput>;
 
 export type ActionClient<
 	TOutput,
@@ -88,13 +89,13 @@ function getFormServerHandler<TOutput, TInputSchema extends InputSchema<'form'>>
 			});
 		}
 
-		if (!(inputSchema instanceof z.ZodObject)) return await handler(unparsedInput);
+		if (!(inputSchema instanceof z.ZodObject)) return await handler(unparsedInput, getApiContext());
 
 		const parsed = await inputSchema.safeParseAsync(formDataToObject(unparsedInput, inputSchema));
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error.issues);
 		}
-		return await handler(parsed.data);
+		return await handler(parsed.data, getApiContext());
 	};
 }
 
@@ -112,12 +113,12 @@ function getJsonServerHandler<TOutput, TInputSchema extends InputSchema<'json'>>
 			});
 		}
 
-		if (!inputSchema) return await handler(unparsedInput);
+		if (!inputSchema) return await handler(unparsedInput, getApiContext());
 		const parsed = await inputSchema.safeParseAsync(unparsedInput);
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error.issues);
 		}
-		return await handler(parsed.data);
+		return await handler(parsed.data, getApiContext());
 	};
 }
 
