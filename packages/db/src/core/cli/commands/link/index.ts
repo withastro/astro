@@ -53,8 +53,7 @@ async function linkProject(id: string) {
 	console.info('Project linked.');
 }
 
-async function getWorkspaces(sessionToken:string) {
-
+async function getWorkspaces(sessionToken: string) {
 	const linkUrl = new URL(getAstroStudioUrl() + '/api/cli/workspaces.list');
 	const response = await safeFetch(
 		linkUrl,
@@ -82,7 +81,7 @@ async function getWorkspaces(sessionToken:string) {
 	if (!success) {
 		throw new Error(`Failed to fetch user's workspace.`);
 	}
-	return data
+	return data;
 }
 
 /**
@@ -184,7 +183,9 @@ export async function promptExistingProjectName({ workspaceId }: { workspaceId: 
 		}
 	);
 
-	const { data, success } = (await response.json()) as Result<{ id: string; name:string; idName: string }[]>;
+	const { data, success } = (await response.json()) as Result<
+		{ id: string; name: string; idName: string }[]
+	>;
 	if (!success) {
 		console.error(`Failed to fetch projects.`);
 		process.exit(1);
