@@ -5,7 +5,6 @@ import { pathToFileURL } from 'node:url';
 import ci from 'ci-info';
 import { green } from 'kleur/colors';
 import ora from 'ora';
-import { safeFetch } from '../runtime/utils.js';
 import {
 	MISSING_PROJECT_ID_ERROR,
 	MISSING_SESSION_ID_CI_ERROR,
@@ -208,4 +207,23 @@ export async function getManagedAppTokenOrExit(token?: string): Promise<ManagedA
 function getExpiresFromTtl(ttl: number): Date {
 	// ttl is in minutes
 	return new Date(Date.now() + ttl * 60 * 1000);
+}
+
+/**
+ * Small wrapper around fetch that throws an error if the response is not OK. Allows for custom error handling as well through the onNotOK callback.
+ */
+async function safeFetch(
+	url: Parameters<typeof fetch>[0],
+	options: Parameters<typeof fetch>[1] = {},
+	onNotOK: (response: Response) => void | Promise<void> = () => {
+		throw new Error(`Request to ${url} returned a non-OK status code.`);
+	}
+): Promise<Response> {
+	const response = await fetch(url, options);
+
+	if (!response.ok) {
+		await onNotOK(response);
+	}
+
+	return response;
 }

@@ -84,6 +84,8 @@ Did you forget to import the component or is it possible there is a typo?`);
 			}
 			if (typeof vnode.type === 'function') {
 				if (vnode.props[hasTriedRenderComponentSymbol]) {
+					// omitting compiler-internals from user components
+					delete vnode.props[hasTriedRenderComponentSymbol];
 					const output = await vnode.type(vnode.props ?? {});
 					if (output?.[AstroJSX] || !output) {
 						return await renderJSXVNode(result, output);

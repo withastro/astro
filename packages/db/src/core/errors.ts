@@ -1,19 +1,5 @@
 import { bold, cyan, red } from 'kleur/colors';
 
-export const MISSING_SESSION_ID_CI_ERROR = `${red('▶ ASTRO_STUDIO_APP_TOKEN required')}
-
-	To authenticate with Astro Studio add the token to your CI's environment variables.\n`;
-
-export const MISSING_SESSION_ID_ERROR = `${red('▶ Login required!')}
-
-  To authenticate with Astro Studio, run
-  ${cyan('astro db login')}\n`;
-
-export const MISSING_PROJECT_ID_ERROR = `${red('▶ Directory not linked.')}
-
-  To link this directory to an Astro Studio project, run
-  ${cyan('astro db link')}\n`;
-
 export const MISSING_EXECUTE_PATH_ERROR = `${red(
 	'▶ No file path provided.'
 )} Provide a path by running ${cyan('astro db execute <path>')}\n`;
@@ -26,7 +12,7 @@ export const RENAME_TABLE_ERROR = (oldTable: string, newTable: string) => {
 
   1. Use "deprecated: true" to deprecate a table before renaming.
   2. Use "--force-reset" to ignore this warning and reset the database (deleting all of your data).
-	
+
 	Visit https://docs.astro.build/en/guides/astro-db/#renaming-tables to learn more.`
 	);
 };

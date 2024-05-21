@@ -1,6 +1,7 @@
 import { existsSync } from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { type ManagedAppToken, getManagedAppTokenOrExit } from '@astrojs/studio';
 import { LibsqlError } from '@libsql/client';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import { mkdir, writeFile } from 'fs/promises';
@@ -19,7 +20,6 @@ import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
 import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
 import { resolveDbConfig } from '../load-file.js';
 import { SEED_DEV_FILE_NAME } from '../queries.js';
-import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
 import { type VitePlugin, getDbDirectoryUrl } from '../utils.js';
 import { fileURLIntegration } from './file-url.js';
 import { typegenInternal } from './typegen.js';

@@ -36,6 +36,11 @@ describe('getStaticPaths support', () => {
 		assert.equal(urls.includes('http://example.com/123/'), true);
 	});
 
+	it('includes numerical 404 pages if not for i18n', () => {
+		assert.equal(urls.includes('http://example.com/products-by-id/405/'), true);
+		assert.equal(urls.includes('http://example.com/products-by-id/404/'), true);
+	});
+
 	it('should render the endpoint', async () => {
 		const page = await fixture.readFile('./it/manifest');
 		assert.match(page, /I'm a route in the "it" language./);

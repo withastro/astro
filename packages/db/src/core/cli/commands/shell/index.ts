@@ -1,3 +1,4 @@
+import { getManagedAppTokenOrExit } from '@astrojs/studio';
 import type { AstroConfig } from 'astro';
 import { sql } from 'drizzle-orm';
 import type { Arguments } from 'yargs-parser';
@@ -8,7 +9,6 @@ import {
 import { normalizeDatabaseUrl } from '../../../../runtime/index.js';
 import { DB_PATH } from '../../../consts.js';
 import { SHELL_QUERY_MISSING_ERROR } from '../../../errors.js';
-import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import type { DBConfigInput } from '../../../types.js';
 import { getAstroEnv, getRemoteDatabaseUrl } from '../../../utils.js';
 

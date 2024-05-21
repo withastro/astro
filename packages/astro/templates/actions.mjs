@@ -45,6 +45,7 @@ async function actionHandler(clientParam, path) {
 			});
 		}
 		headers.set('Content-Type', 'application/json');
+		headers.set('Content-Length', body?.length.toString() ?? '0');
 	}
 	const res = await fetch(path, {
 		method: 'POST',
@@ -54,6 +55,9 @@ async function actionHandler(clientParam, path) {
 	if (!res.ok) {
 		throw await ActionError.fromResponse(res);
 	}
+	// Check if response body is empty before parsing.
+	if (res.status === 204) return;
+
 	const json = await res.json();
 	return json;
 }
