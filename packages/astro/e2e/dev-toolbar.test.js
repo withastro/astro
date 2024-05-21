@@ -100,7 +100,7 @@ test.describe('Dev Toolbar', () => {
 		await expect(xrayHighlightTooltip).not.toBeVisible();
 	});
 
-	test('xray tooltips don\'t overflow', async ({ page, astro }) => {
+	test("xray tooltips don't overflow", async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/xray-overlay-positioning'));
 
 		const toolbar = page.locator('astro-dev-toolbar');
@@ -115,15 +115,17 @@ test.describe('Dev Toolbar', () => {
 			for (let i = 0; i < xrayHighlightsCount; i++) {
 				const currentHighlight = xrayHighlights.nth(i);
 				await currentHighlight.hover();
-				await expect(currentHighlight.locator('astro-dev-toolbar-tooltip')).toBeInViewport({ ratio: 0.9 });
+				await expect(currentHighlight.locator('astro-dev-toolbar-tooltip')).toBeInViewport({
+					ratio: 0.9,
+				});
 			}
-		}
-		
+		};
+
 		// LTR
 		await executeTest();
-		
+
 		// RTL
-		await page.locator('body').evaluate(element => element.dir = 'rtl');
+		await page.locator('body').evaluate((element) => (element.dir = 'rtl'));
 		await executeTest();
 	});
 
