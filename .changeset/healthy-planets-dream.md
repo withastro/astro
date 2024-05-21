@@ -2,4 +2,4 @@
 "astro": minor
 ---
 
-prefer using x-forwarded-for as clientAddress
+The adapter now uses **first** the header `x-forwarded-for` for computing `clientAddress`.
