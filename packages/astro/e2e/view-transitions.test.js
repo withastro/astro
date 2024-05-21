@@ -43,7 +43,7 @@ function collectPreloads(page) {
 }
 
 async function nativeViewTransition(page) {
-	return page.evaluate(() => document.startViewTransition !== undefined)
+	return page.evaluate(() => document.startViewTransition !== undefined);
 }
 
 test.describe('View Transitions', () => {
@@ -248,8 +248,7 @@ test.describe('View Transitions', () => {
 		// view transition is triggered during swap()
 
 		// Only works for browsers with native view transitions
-		if (!await nativeViewTransition(page)) return;
-
+		if (!(await nativeViewTransition(page))) return;
 
 		await page.goto(astro.resolveUrl('/listener-one'));
 		let p = page.locator('#totwo');
@@ -589,7 +588,6 @@ test.describe('View Transitions', () => {
 	}) => {
 		const loads = collectLoads(page);
 
-
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/query'));
 		let p = page.locator('#query-page');
@@ -657,7 +655,6 @@ test.describe('View Transitions', () => {
 		astro,
 	}) => {
 		const loads = collectLoads(page);
-
 
 		// Go to page 4
 		await page.goto(astro.resolveUrl('/four'));
@@ -753,7 +750,6 @@ test.describe('View Transitions', () => {
 	test('Moving to a page which redirects to another', async ({ page, astro }) => {
 		const loads = collectLoads(page);
 
-
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
@@ -778,7 +774,6 @@ test.describe('View Transitions', () => {
 	test('Redirect to external site causes page load', async ({ page, astro }) => {
 		const loads = collectLoads(page);
 
-
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
@@ -789,7 +784,7 @@ test.describe('View Transitions', () => {
 		// doesn't work for playwright when we are too fast
 
 		await page.waitForURL('http://example.com');
-		await expect(page.locator("h1"), 'should have content').toHaveText('Example Domain');
+		await expect(page.locator('h1'), 'should have content').toHaveText('Example Domain');
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
 
@@ -1001,7 +996,6 @@ test.describe('View Transitions', () => {
 	test('form POST that redirects to another page is handled', async ({ page, astro }) => {
 		const loads = collectLoads(page);
 
-
 		await page.goto(astro.resolveUrl('/form-one'));
 
 		let locator = page.locator('h2');
@@ -1028,7 +1022,6 @@ test.describe('View Transitions', () => {
 	test('form GET that redirects to another page is handled', async ({ page, astro }) => {
 		const loads = collectLoads(page);
 
-
 		await page.goto(astro.resolveUrl('/form-one?method=get'));
 
 		let locator = page.locator('h2');
@@ -1047,7 +1040,6 @@ test.describe('View Transitions', () => {
 
 	test('form POST when there is an error shows the error', async ({ page, astro }) => {
 		const loads = collectLoads(page);
-
 
 		await page.goto(astro.resolveUrl('/form-one?throw'));
 
@@ -1070,7 +1062,6 @@ test.describe('View Transitions', () => {
 		astro,
 	}) => {
 		const loads = collectLoads(page);
-
 
 		const postedEncodings = [];
 
@@ -1102,7 +1093,6 @@ test.describe('View Transitions', () => {
 
 	test('form POST respects enctype attribute', async ({ page, astro }) => {
 		const loads = collectLoads(page);
-
 
 		const postedEncodings = [];
 
@@ -1192,7 +1182,6 @@ test.describe('View Transitions', () => {
 	test('form POST with no action handler', async ({ page, astro }) => {
 		const loads = collectLoads(page);
 
-
 		await page.goto(astro.resolveUrl('/form-two'));
 
 		let locator = page.locator('h2');
@@ -1223,7 +1212,6 @@ test.describe('View Transitions', () => {
 
 	test('click on an svg anchor should trigger navigation', async ({ page, astro }) => {
 		const loads = collectLoads(page);
-
 
 		await page.goto(astro.resolveUrl('/non-html-anchor'));
 		let locator = page.locator('#insidesvga');
@@ -1290,7 +1278,6 @@ test.describe('View Transitions', () => {
 	test('view transition should also work with 404 page', async ({ page, astro }) => {
 		const loads = collectLoads(page);
 
-
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
@@ -1317,9 +1304,8 @@ test.describe('View Transitions', () => {
 	});
 
 	test('transition:name should be escaped correctly', async ({ page, astro }) => {
-
 		// view-transition-name errors on browser w/o native support
-		if (!await nativeViewTransition(page)) return;
+		if (!(await nativeViewTransition(page))) return;
 		const expectedAnimations = new Set();
 		const checkName = async (selector, name) => {
 			expectedAnimations.add(name);
