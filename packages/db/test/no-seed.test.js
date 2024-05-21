@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it, before, after } from "node:test";
+import assert from  "node:assert/strict";
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from '../../astro/test/test-utils.js';
 
@@ -25,8 +26,14 @@ describe('astro:db with no seed file', () => {
 			const $ = cheerioLoad(html);
 
 			const ul = $('.authors-list');
-			expect(ul.children()).to.have.a.lengthOf(5);
-			expect(ul.children().eq(0).text()).to.equal('Ben');
+			assert.equal(
+				ul.children().length,
+				5
+			);
+			assert.match(
+				ul.children().eq(0).text(),
+				/Ben/
+			)
 		});
 	});
 
@@ -40,8 +47,14 @@ describe('astro:db with no seed file', () => {
 			const $ = cheerioLoad(html);
 
 			const ul = $('.authors-list');
-			expect(ul.children()).to.have.a.lengthOf(5);
-			expect(ul.children().eq(0).text()).to.equal('Ben');
+			assert.equal(
+				ul.children().length,
+				5
+			);
+			assert.match(
+				ul.children().eq(0).text(),
+				/Ben/
+			)
 		});
 	});
 });

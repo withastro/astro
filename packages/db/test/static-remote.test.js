@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it, before, after } from "node:test";
+import assert from  "node:assert/strict";
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from '../../astro/test/test-utils.js';
 import { setupRemoteDbServer } from './test-utils.js';
@@ -28,7 +29,7 @@ describe('astro:db', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerioLoad(html);
 
-			expect($('li').length).to.equal(1);
+			assert.equal($('li').length, 1)
 		});
 	});
 });
