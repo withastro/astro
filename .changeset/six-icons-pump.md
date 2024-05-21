@@ -15,7 +15,7 @@ import {
 export const server = {
   login: defineAction({
     input: z.object({ id: z.string }),
-+    handler(input, apiContext) {
++    handler(input, context) {
       const user = apiContext.locals.auth(input.id);
       return user;
     }
