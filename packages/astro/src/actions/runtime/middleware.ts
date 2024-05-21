@@ -28,7 +28,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	// See https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md#ctxrewrite
 	// `_actionsInternal` is the same for every page,
 	// so short circuit if already defined.
-	if (locals._actionsInternal) return next();
+	if (locals._actionsInternal) return ApiContextStorage.run(context, () => next());
 
 	const { request, url } = context;
 	const contentType = request.headers.get('Content-Type');
