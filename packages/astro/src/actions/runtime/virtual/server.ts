@@ -22,8 +22,8 @@ export type InputSchema<T extends Accept> = T extends 'form'
 	: z.ZodType;
 
 type Handler<TInputSchema, TOutput> = TInputSchema extends z.ZodType
-	? (input: z.infer<TInputSchema>, apiContext: ActionAPIContext) => MaybePromise<TOutput>
-	: (input: any, apiContext: ActionAPIContext) => MaybePromise<TOutput>;
+	? (input: z.infer<TInputSchema>, context: ActionAPIContext) => MaybePromise<TOutput>
+	: (input: any, context: ActionAPIContext) => MaybePromise<TOutput>;
 
 export type ActionClient<
 	TOutput,
