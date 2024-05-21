@@ -1,5 +1,17 @@
 # @astrojs/vercel
 
+## 7.6.0
+
+### Minor Changes
+
+- [#10761](https://github.com/withastro/astro/pull/10761) [`f0acd30`](https://github.com/withastro/astro/commit/f0acd30a12c380830884108f7cad67a31d879339) Thanks [@ematipico](https://github.com/ematipico)! - Implements the vercel skew protection
+
+## 7.5.4
+
+### Patch Changes
+
+- [#10833](https://github.com/withastro/astro/pull/10833) [`8d5f3e8`](https://github.com/withastro/astro/commit/8d5f3e8656027023f9fda51c66b0213ffe16d3a5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `esbuild` dependency to v0.20. This should not affect projects in most cases.
+
 ## 7.5.3
 
 ### Patch Changes

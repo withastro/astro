@@ -12,12 +12,9 @@ import type {
 	ContentEntryType,
 	DataEntryType,
 } from '../@types/astro.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
-
-import { MarkdownError } from '../core/errors/index.js';
+import { AstroError, AstroErrorData, MarkdownError, errorMap } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
-import { CONTENT_FLAGS, CONTENT_TYPES_FILE, PROPAGATED_ASSET_FLAG } from './consts.js';
-import { errorMap } from './error-map.js';
+import { CONTENT_FLAGS, PROPAGATED_ASSET_FLAG } from './consts.js';
 import { createImage } from './runtime-assets.js';
 
 /**
@@ -39,15 +36,6 @@ export const collectionConfigParser = z.union([
 		schema: z.any().optional(),
 	}),
 ]);
-
-export function getDotAstroTypeReference({ root, srcDir }: { root: URL; srcDir: URL }) {
-	const { cacheDir } = getContentPaths({ root, srcDir });
-	const contentTypesRelativeToSrcDir = normalizePath(
-		path.relative(fileURLToPath(srcDir), fileURLToPath(new URL(CONTENT_TYPES_FILE, cacheDir)))
-	);
-
-	return `/// <reference path=${JSON.stringify(contentTypesRelativeToSrcDir)} />`;
-}
 
 export const contentConfigParser = z.object({
 	collections: z.record(collectionConfigParser),

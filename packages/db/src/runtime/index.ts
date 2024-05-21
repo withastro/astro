@@ -8,17 +8,20 @@ import {
 	sqliteTable,
 	text,
 } from 'drizzle-orm/sqlite-core';
-import { type DBColumn, type DBTable } from '../core/types.js';
+import type { DBColumn, DBTable } from '../core/types.js';
 import { type SerializedSQL, isSerializedSQL } from './types.js';
 import { pathToFileURL } from './utils.js';
 
 export type { Table } from './types.js';
 export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-client.js';
-export { seedLocal } from './seed-local.js';
 
 export function hasPrimaryKey(column: DBColumn) {
 	return 'primaryKey' in column.schema && !!column.schema.primaryKey;
 }
+
+// Taken from:
+// https://stackoverflow.com/questions/52869695/check-if-a-date-string-is-in-iso-and-utc-format
+const isISODateString = (str: string) => /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(str);
 
 const dateType = customType<{ data: Date; driverData: string }>({
 	dataType() {
@@ -28,6 +31,11 @@ const dateType = customType<{ data: Date; driverData: string }>({
 		return value.toISOString();
 	},
 	fromDriver(value) {
+		if (!isISODateString(value)) {
+			// values saved using CURRENT_TIMESTAMP are not valid ISO strings
+			// but *are* in UTC, so append the UTC zone.
+			value += 'Z';
+		}
 		return new Date(value);
 	},
 });
@@ -139,7 +147,8 @@ export function normalizeDatabaseUrl(envDbUrl: string | undefined, defaultDbUrl:
 		if (envDbUrl.startsWith('file://')) {
 			return envDbUrl;
 		}
-		return new URL(envDbUrl, pathToFileURL(process.cwd())).toString();
+
+		return new URL(envDbUrl, pathToFileURL(process.cwd()) + '/').toString();
 	} else {
 		// This is going to be a file URL always,
 		return defaultDbUrl;

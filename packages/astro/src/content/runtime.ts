@@ -44,15 +44,16 @@ export function createCollectionToGlobResultMap({
 	return collectionToGlobResultMap;
 }
 
-const cacheEntriesByCollection = new Map<string, any[]>();
 export function createGetCollection({
 	contentCollectionToEntryMap,
 	dataCollectionToEntryMap,
 	getRenderEntryImport,
+	cacheEntriesByCollection,
 }: {
 	contentCollectionToEntryMap: CollectionToEntryMap;
 	dataCollectionToEntryMap: CollectionToEntryMap;
 	getRenderEntryImport: GetEntryImport;
+	cacheEntriesByCollection: Map<string, any[]>;
 }) {
 	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
 		let type: 'content' | 'data';

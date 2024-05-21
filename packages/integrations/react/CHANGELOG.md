@@ -1,5 +1,29 @@
 # @astrojs/react
 
+## 3.3.4
+
+### Patch Changes
+
+- [#10986](https://github.com/withastro/astro/pull/10986) [`4d16381`](https://github.com/withastro/astro/commit/4d163811e1a25affb2c3d9adb3af650b7f1c91b6) Thanks [@emish89](https://github.com/emish89)! - Fixes incorrect `peerDependencies` for `@types/react` and `@types/react-dom`
+
+## 3.3.3
+
+### Patch Changes
+
+- [#10942](https://github.com/withastro/astro/pull/10942) [`d47baa4`](https://github.com/withastro/astro/commit/d47baa466aaeedde9c79ed5375d0be34762ac8b6) Thanks [@matthewp](https://github.com/matthewp)! - Updates package to support React 19 beta
+
+## 3.3.2
+
+### Patch Changes
+
+- [#10893](https://github.com/withastro/astro/pull/10893) [`fd7a9ed`](https://github.com/withastro/astro/commit/fd7a9ed3379a123f02f297b69fa5da0053e84a89) Thanks [@Angrigo](https://github.com/Angrigo)! - Removes using deprecated `ReactDOMServer.renderToStaticNodeStream` API
+
+## 3.3.1
+
+### Patch Changes
+
+- [#10855](https://github.com/withastro/astro/pull/10855) [`f6bddd3`](https://github.com/withastro/astro/commit/f6bddd3a155cd10a9f85c92d43b1af8b74786a42) Thanks [@lamATnginx](https://github.com/lamATnginx)! - Fix Redoc usage in React integration
+
 ## 3.3.0
 
 ### Minor Changes

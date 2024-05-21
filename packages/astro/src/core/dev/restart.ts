@@ -47,8 +47,13 @@ export function shouldRestartContainer(
 	// Otherwise, watch for any astro.config.* file changes in project root
 	else {
 		const normalizedChangedFile = vite.normalizePath(changedFile);
-		shouldRestart =
-			configRE.test(normalizedChangedFile) || preferencesRE.test(normalizedChangedFile);
+		shouldRestart = configRE.test(normalizedChangedFile);
+
+		if (preferencesRE.test(normalizedChangedFile)) {
+			shouldRestart = settings.preferences.ignoreNextPreferenceReload ? false : true;
+
+			settings.preferences.ignoreNextPreferenceReload = false;
+		}
 	}
 
 	if (!shouldRestart && settings.watchFiles.length > 0) {

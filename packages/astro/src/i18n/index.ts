@@ -19,6 +19,11 @@ export function requestHasLocale(locales: Locales) {
 	};
 }
 
+export function requestIs404Or500(request: Request, base = '') {
+	const url = new URL(request.url);
+
+	return url.pathname.startsWith(`${base}/404`) || url.pathname.startsWith(`${base}/500`);
+}
 // Checks if the pathname has any locale
 export function pathHasLocale(path: string, locales: Locales): boolean {
 	const segments = path.split('/');
@@ -317,7 +322,7 @@ export function notFound({ base, locales }: MiddlewarePayload) {
 		if (!(isRoot || pathHasLocale(url.pathname, locales))) {
 			if (response) {
 				response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
-				return new Response(null, {
+				return new Response(response.body, {
 					status: 404,
 					headers: response.headers,
 				});

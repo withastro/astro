@@ -9,7 +9,9 @@ const SPECIAL_QUERY_REGEX = new RegExp(
 	`[?&](?:worker|sharedworker|raw|url|${CONTENT_FLAG}|${PROPAGATED_ASSET_FLAG})\\b`
 );
 
-// TODO: Move this Vite plugin into `@astrojs/mdx` in Astro 5
+/**
+ * @deprecated This plugin is no longer used. Remove in Astro 5.0
+ */
 export default function mdxVitePlugin(): Plugin {
 	return {
 		name: 'astro:jsx',

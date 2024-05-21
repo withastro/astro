@@ -12,7 +12,7 @@ import {
 	removeBase,
 	removeQueryString,
 } from '../core/path.js';
-import { isServerLikeOutput } from '../prerender/utils.js';
+import { isServerLikeOutput } from '../core/util.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { emitESMImage } from './utils/emitAsset.js';
 import { getAssetsPrefix } from './utils/getAssetsPrefix.js';

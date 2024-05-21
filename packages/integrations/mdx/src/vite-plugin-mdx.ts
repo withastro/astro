@@ -1,13 +1,13 @@
-import fs from 'node:fs/promises';
 import { setVfileFrontmatter } from '@astrojs/markdown-remark';
-import type { AstroConfig, SSRError } from 'astro';
+import type { SSRError } from 'astro';
+import { getAstroMetadata } from 'astro/jsx/rehype.js';
 import { VFile } from 'vfile';
 import type { Plugin } from 'vite';
 import type { MdxOptions } from './index.js';
 import { createMdxProcessor } from './plugins.js';
-import { getFileInfo, parseFrontmatter } from './utils.js';
+import { parseFrontmatter } from './utils.js';
 
-export function vitePluginMdx(astroConfig: AstroConfig, mdxOptions: MdxOptions): Plugin {
+export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
 	let processor: ReturnType<typeof createMdxProcessor> | undefined;
 
 	return {
@@ -17,21 +17,19 @@ export function vitePluginMdx(astroConfig: AstroConfig, mdxOptions: MdxOptions):
 			processor = undefined;
 		},
 		configResolved(resolved) {
+			// `mdxOptions` should be populated at this point, but `astro sync` doesn't call `astro:config:done` :(
+			// Workaround this for now by skipping here. `astro sync` shouldn't call the `transform()` hook here anyways.
+			if (Object.keys(mdxOptions).length === 0) return;
+
 			processor = createMdxProcessor(mdxOptions, {
 				sourcemap: !!resolved.build.sourcemap,
 			});
 
-			// HACK: move ourselves before Astro's JSX plugin to transform things in the right order
+			// HACK: Remove the `astro:jsx` plugin if defined as we handle the JSX transformation ourselves
 			const jsxPluginIndex = resolved.plugins.findIndex((p) => p.name === 'astro:jsx');
 			if (jsxPluginIndex !== -1) {
-				const myPluginIndex = resolved.plugins.findIndex((p) => p.name === '@mdx-js/rollup');
-				if (myPluginIndex !== -1) {
-					const myPlugin = resolved.plugins[myPluginIndex];
-					// @ts-ignore-error ignore readonly annotation
-					resolved.plugins.splice(myPluginIndex, 1);
-					// @ts-ignore-error ignore readonly annotation
-					resolved.plugins.splice(jsxPluginIndex, 0, myPlugin);
-				}
+				// @ts-ignore-error ignore readonly annotation
+				resolved.plugins.splice(jsxPluginIndex, 1);
 			}
 		},
 		async resolveId(source, importer, options) {
@@ -43,12 +41,8 @@ export function vitePluginMdx(astroConfig: AstroConfig, mdxOptions: MdxOptions):
 		},
 		// Override transform to alter code before MDX compilation
 		// ex. inject layouts
-		async transform(_, id) {
+		async transform(code, id) {
 			if (!id.endsWith('.mdx')) return;
-
-			// Read code from file manually to prevent Vite from parsing `import.meta.env` expressions
-			const { fileId } = getFileInfo(id, astroConfig);
-			const code = await fs.readFile(fileId, 'utf-8');
 
 			const { data: frontmatter, content: pageContent } = parseFrontmatter(code, id);
 
@@ -70,19 +64,37 @@ export function vitePluginMdx(astroConfig: AstroConfig, mdxOptions: MdxOptions):
 				return {
 					code: String(compiled.value),
 					map: compiled.map,
+					meta: getMdxMeta(vfile),
 				};
 			} catch (e: any) {
 				const err: SSRError = e;
 
 				// For some reason MDX puts the error location in the error's name, not very useful for us.
 				err.name = 'MDXError';
-				err.loc = { file: fileId, line: e.line, column: e.column };
+				err.loc = { file: id, line: e.line, column: e.column };
 
 				// For another some reason, MDX doesn't include a stack trace. Weird
 				Error.captureStackTrace(err);
 
 				throw err;
 			}
+		},
+	};
+}
+
+function getMdxMeta(vfile: VFile): Record<string, any> {
+	const astroMetadata = getAstroMetadata(vfile);
+	if (!astroMetadata) {
+		throw new Error(
+			'Internal MDX error: Astro metadata is not set by rehype-analyze-astro-metadata'
+		);
+	}
+	return {
+		astro: astroMetadata,
+		vite: {
+			// Setting this vite metadata to `ts` causes Vite to resolve .js
+			// extensions to .ts files.
+			lang: 'ts',
 		},
 	};
 }

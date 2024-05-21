@@ -210,7 +210,7 @@ function renderHTMLWithinPartialChecks(html) {
 }
 
 /**
- * Asserts that the rendered HTML tags with interleaved Markdoc tags (both block and inline) rendered in the expected nested graph of elemements
+ * Asserts that the rendered HTML tags with interleaved Markdoc tags (both block and inline) rendered in the expected nested graph of elements
  *
  * @param {string} html */
 function renderComponentsHTMLChecks(html) {

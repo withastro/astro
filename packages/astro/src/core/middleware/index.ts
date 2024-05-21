@@ -1,16 +1,14 @@
-import type { APIContext, MiddlewareHandler, Params } from '../../@types/astro.js';
+import type { APIContext, MiddlewareHandler, Params, RewritePayload } from '../../@types/astro.js';
+import { createGetActionResult } from '../../actions/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../../i18n/utils.js';
-import { ASTRO_VERSION } from '../constants.js';
+import { ASTRO_VERSION, clientAddressSymbol, clientLocalsSymbol } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { sequence } from './sequence.js';
-
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
-const clientLocalsSymbol = Symbol.for('astro.locals');
 
 function defineMiddleware(fn: MiddlewareHandler) {
 	return fn;
@@ -49,13 +47,19 @@ function createContext({
 	const url = new URL(request.url);
 	const route = url.pathname;
 
-	return {
+	// TODO verify that this function works in an edge middleware environment
+	const rewrite = (_reroutePayload: RewritePayload) => {
+		// return dummy response
+		return Promise.resolve(new Response(null));
+	};
+	const context: Omit<APIContext, 'getActionResult'> = {
 		cookies: new AstroCookies(request),
 		request,
 		params,
 		site: undefined,
 		generator: `Astro v${ASTRO_VERSION}`,
 		props: {},
+		rewrite,
 		redirect(path, status) {
 			return new Response(null, {
 				status: status || 302,
@@ -100,6 +104,9 @@ function createContext({
 			}
 		},
 	};
+	return Object.assign(context, {
+		getActionResult: createGetActionResult(context.locals),
+	});
 }
 
 /**

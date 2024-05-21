@@ -321,6 +321,11 @@ describe('Development Routing', () => {
 			assert.equal(response.status, 200);
 		});
 
+		it('200 when loading /base-index.html', async () => {
+			const response = await fixture.fetch('/base-index.html');
+			assert.equal(response.status, 200);
+		});
+
 		it('200 when loading /', async () => {
 			const response = await fixture.fetch('/');
 			assert.equal(response.status, 200);

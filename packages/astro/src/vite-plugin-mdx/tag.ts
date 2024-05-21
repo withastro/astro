@@ -11,6 +11,8 @@ const rendererName = astroJsxRenderer.name;
  *
  * This plugin crawls each export in the file and "tags" each export with a given `rendererName`.
  * This allows us to automatically match a component to a renderer and skip the usual `check()` calls.
+ *
+ * @deprecated This plugin is no longer used. Remove in Astro 5.0
  */
 export const tagExportsPlugin: PluginObj = {
 	visitor: {

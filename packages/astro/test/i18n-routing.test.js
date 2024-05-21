@@ -358,7 +358,7 @@ describe('[DEV] i18n routing', () => {
 			const response = await fixture.fetch('/xyz');
 			assert.equal(response.status, 404);
 			const text = await response.text();
-			assert.equal(text.includes("Can't find the page youre looking for."), true);
+			assert.equal(text.includes("Can't find the page you're looking for."), true);
 		});
 	});
 
@@ -578,6 +578,16 @@ describe('[SSG] i18n routing', () => {
 			html = await fixture.readFile('/spanish/blog/1/index.html');
 			$ = cheerio.load(html);
 			assert.equal($('body').text().includes('Lo siento'), true);
+		});
+
+		it('should create a custom 404.html and 505.html', async () => {
+			let html = await fixture.readFile('/404.html');
+			let $ = cheerio.load(html);
+			assert.equal($('body').text().includes("Can't find the page you're looking for."), true);
+
+			html = await fixture.readFile('/500.html');
+			$ = cheerio.load(html);
+			assert.equal($('body').text().includes('Unexpected error.'), true);
 		});
 
 		it("should NOT render the default locale if there isn't a fallback and the route is missing", async () => {
@@ -1350,7 +1360,7 @@ describe('[SSR] i18n routing', () => {
 			const response = await app.render(request);
 			assert.equal(response.status, 404);
 			const text = await response.text();
-			assert.equal(text.includes("Can't find the page youre looking for."), true);
+			assert.equal(text.includes("Can't find the page you're looking for."), true);
 		});
 	});
 
