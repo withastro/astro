@@ -1,5 +1,5 @@
 ---
-"@fake-scope/fake-pkg": patch
+"astro": patch
 ---
 
 Fixes a typo in a JSDoc annotation
