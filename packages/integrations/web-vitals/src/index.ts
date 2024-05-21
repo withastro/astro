@@ -2,7 +2,8 @@ import { defineDbIntegration } from '@astrojs/db/utils';
 import { AstroError } from 'astro/errors';
 import { WEB_VITALS_ENDPOINT_PATH } from './constants.js';
 
-export default function webVitals() {
+export default function webVitals({ deprecated }: { deprecated?: boolean } = {}) {
+	process.env.DEPRECATE_WEB_VITALS = deprecated ? 'true' : undefined;
 	return defineDbIntegration({
 		name: '@astrojs/web-vitals',
 		hooks: {

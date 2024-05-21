@@ -13,6 +13,14 @@ test.afterAll(async () => {
 	await devServer.stop();
 });
 
+function collectLoads(page) {
+	const loads = [];
+	page.on('load', async () => {
+		const url = page.url();
+		if (url !== 'about:blank') loads.push(await page.title());
+	});
+	return loads;
+}
 function scrollToBottom(page) {
 	return page.evaluate(() => {
 		window.scrollY = document.documentElement.scrollHeight;
@@ -34,12 +42,13 @@ function collectPreloads(page) {
 	});
 }
 
+async function nativeViewTransition(page) {
+	return page.evaluate(() => document.startViewTransition !== undefined);
+}
+
 test.describe('View Transitions', () => {
 	test('Moving from page 1 to page 2', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
+		const loads = collectLoads(page);
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
@@ -55,10 +64,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('Back button is captured', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
+		const loads = collectLoads(page);
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
@@ -79,11 +85,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('Clicking on a link with nested content', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
-
+		const loads = collectLoads(page);
 		// Go to page 4
 		await page.goto(astro.resolveUrl('/four'));
 		let p = page.locator('#four');
@@ -98,11 +100,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('Clicking on a link to a page with non-recommended headers', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
-
+		const loads = collectLoads(page);
 		// Go to page 4
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
@@ -120,10 +118,7 @@ test.describe('View Transitions', () => {
 		page,
 		astro,
 	}) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
+		const loads = collectLoads(page);
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
@@ -145,10 +140,7 @@ test.describe('View Transitions', () => {
 		page,
 		astro,
 	}) => {
-		const loads = [];
-		page.addListener('load', async (p) => {
-			loads.push(p.title());
-		});
+		const loads = collectLoads(page);
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
@@ -176,10 +168,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('Moving from a page without ViewTransitions w/ back button', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
+		const loads = collectLoads(page);
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
@@ -250,13 +239,16 @@ test.describe('View Transitions', () => {
 	});
 
 	test('No page rendering during swap()', async ({ page, astro }) => {
-		// This has been a problem with theme switchers (e.g. for drakmode)
+		// This has been a problem with theme switchers (e.g. for darkmode)
 		// Swap() should not trigger any page renders and give users the chance to
 		// correct attributes in the astro:after-swap handler before they become visible
 
 		// This test uses a CSS animation to detect page rendering
 		// The test succeeds if no additional animation beside those of the
 		// view transition is triggered during swap()
+
+		// Only works for browsers with native view transitions
+		if (!(await nativeViewTransition(page))) return;
 
 		await page.goto(astro.resolveUrl('/listener-one'));
 		let p = page.locator('#totwo');
@@ -295,10 +287,8 @@ test.describe('View Transitions', () => {
 	});
 
 	test('click self link (w/o hash) does not do navigation', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
+		const loads = collectLoads(page);
+
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		const p = page.locator('#one');
@@ -596,10 +586,7 @@ test.describe('View Transitions', () => {
 		page,
 		astro,
 	}) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
+		const loads = collectLoads(page);
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/query'));
@@ -618,10 +605,8 @@ test.describe('View Transitions', () => {
 		page,
 		astro,
 	}) => {
-		const loads = [];
-		page.addListener('load', async (p) => {
-			loads.push(p);
-		});
+		const loads = collectLoads(page);
+
 		// Go to the half bakeed page
 		await page.goto(astro.resolveUrl('/half-baked'));
 		let p = page.locator('#half-baked');
@@ -669,10 +654,7 @@ test.describe('View Transitions', () => {
 		page,
 		astro,
 	}) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
+		const loads = collectLoads(page);
 
 		// Go to page 4
 		await page.goto(astro.resolveUrl('/four'));
@@ -683,6 +665,9 @@ test.describe('View Transitions', () => {
 		await page.click('#click-two');
 		p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
+
+		// go to next page
+		await page.click('#click-longpage');
 
 		expect(loads.length, 'There should be 2 page load').toEqual(2);
 	});
@@ -703,10 +688,8 @@ test.describe('View Transitions', () => {
 	});
 
 	test('data-astro-reload not required for non-html content', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
+		const loads = collectLoads(page);
+
 		// Go to page 4
 		await page.goto(astro.resolveUrl('/four'));
 		let p = page.locator('#four');
@@ -765,10 +748,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('Moving to a page which redirects to another', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
+		const loads = collectLoads(page);
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
@@ -792,10 +772,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('Redirect to external site causes page load', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
+		const loads = collectLoads(page);
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
@@ -805,11 +782,9 @@ test.describe('View Transitions', () => {
 		// go to external page
 		await page.click('#click-redirect-external');
 		// doesn't work for playwright when we are too fast
-		p = page.locator('h1');
 
-		await expect(p, 'should have content').toBeVisible();
 		await page.waitForURL('http://example.com');
-		await page.waitForFunction((arr) => arr.length === 2, loads);
+		await expect(page.locator('h1'), 'should have content').toHaveText('Example Domain');
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
 
@@ -1019,10 +994,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('form POST that redirects to another page is handled', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', async (p) => {
-			loads.push(p);
-		});
+		const loads = collectLoads(page);
 
 		await page.goto(astro.resolveUrl('/form-one'));
 
@@ -1048,10 +1020,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('form GET that redirects to another page is handled', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', async (p) => {
-			loads.push(p);
-		});
+		const loads = collectLoads(page);
 
 		await page.goto(astro.resolveUrl('/form-one?method=get'));
 
@@ -1070,10 +1039,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('form POST when there is an error shows the error', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', async (p) => {
-			loads.push(p);
-		});
+		const loads = collectLoads(page);
 
 		await page.goto(astro.resolveUrl('/form-one?throw'));
 
@@ -1095,11 +1061,7 @@ test.describe('View Transitions', () => {
 		page,
 		astro,
 	}) => {
-		const loads = [];
-
-		page.addListener('load', async (p) => {
-			loads.push(p);
-		});
+		const loads = collectLoads(page);
 
 		const postedEncodings = [];
 
@@ -1130,11 +1092,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('form POST respects enctype attribute', async ({ page, astro }) => {
-		const loads = [];
-
-		page.addListener('load', async (p) => {
-			loads.push(p);
-		});
+		const loads = collectLoads(page);
 
 		const postedEncodings = [];
 
@@ -1222,10 +1180,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('form POST with no action handler', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', async (p) => {
-			loads.push(p);
-		});
+		const loads = collectLoads(page);
 
 		await page.goto(astro.resolveUrl('/form-two'));
 
@@ -1256,10 +1211,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('click on an svg anchor should trigger navigation', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
+		const loads = collectLoads(page);
 
 		await page.goto(astro.resolveUrl('/non-html-anchor'));
 		let locator = page.locator('#insidesvga');
@@ -1271,10 +1223,8 @@ test.describe('View Transitions', () => {
 	});
 
 	test('click inside an svg anchor should trigger navigation', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
+		const loads = collectLoads(page);
+
 		await page.goto(astro.resolveUrl('/non-html-anchor'));
 		let locator = page.locator('#insidesvga');
 		await expect(locator, 'should have content').toHaveText('text within a svga');
@@ -1285,10 +1235,8 @@ test.describe('View Transitions', () => {
 	});
 
 	test('click on an area in an image map should trigger navigation', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
+		const loads = collectLoads(page);
+
 		await page.goto(astro.resolveUrl('/non-html-anchor'));
 		let locator = page.locator('#area');
 		await expect(locator, 'should have attribute').toHaveAttribute('shape', 'default');
@@ -1328,10 +1276,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('view transition should also work with 404 page', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
+		const loads = collectLoads(page);
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
@@ -1347,10 +1292,8 @@ test.describe('View Transitions', () => {
 	});
 
 	test('custom elements can trigger a view transition', async ({ page, astro }) => {
-		const loads = [];
-		page.addListener('load', (p) => {
-			loads.push(p.title());
-		});
+		const loads = collectLoads(page);
+
 		await page.goto(astro.resolveUrl('/one'));
 		await expect(page.locator('#one'), 'should have content').toHaveText('Page 1');
 		// go to page 2
@@ -1361,6 +1304,8 @@ test.describe('View Transitions', () => {
 	});
 
 	test('transition:name should be escaped correctly', async ({ page, astro }) => {
+		// view-transition-name errors on browser w/o native support
+		if (!(await nativeViewTransition(page))) return;
 		const expectedAnimations = new Set();
 		const checkName = async (selector, name) => {
 			expectedAnimations.add(name);
@@ -1518,7 +1463,6 @@ test.describe('View Transitions', () => {
 		// clicks on slow loading page two
 		// after short delay clicks on fast loading page one
 		// even after some delay /two should not show up
-		await new Promise((resolve) => setTimeout(resolve, 2000)); // wait is part of the test
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 	});
@@ -1533,16 +1477,19 @@ test.describe('View Transitions', () => {
 		// Navigate to self with a 10 second animation
 		// shortly after starting that, change your mind an navigate to /one
 		// check that animations got canceled
-		await new Promise((resolve) => setTimeout(resolve, 1000)); // wait is part of the test
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
-
 		// This test would be more important for a browser without native view transitions
 		// as those do not have automatic cancelation of transitions.
-		// For simulated view transitions, the last line would be missing as enter and exit animations
-		// don't run in parallel.
-		expect(lines.join('\n')).toBe(
-			'[test] navigate to "."\n[test] navigate to /one\n[test] cancel astroFadeOut\n[test] cancel astroFadeIn'
-		);
+		// For simulated view transitions, the last line would be missing
+		// as enter and exit animations don't run in parallel.
+
+		let expected = '[test] navigate to "."\n[test] navigate to /one\n[test] cancel astroFadeOut';
+		const native = await nativeViewTransition(page);
+		if (native) {
+			expected += '\n[test] cancel astroFadeIn';
+		}
+		await page.click('#click-two');
+		expect(lines.join('\n')).toBe(expected);
 	});
 });

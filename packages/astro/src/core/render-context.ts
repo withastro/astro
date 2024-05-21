@@ -4,7 +4,6 @@ import type {
 	AstroGlobalPartial,
 	ComponentInstance,
 	MiddlewareHandler,
-	MiddlewareNext,
 	RewritePayload,
 	RouteData,
 	SSRResult,
@@ -118,7 +117,7 @@ export class RenderContext {
 			if (payload) {
 				if (this.pipeline.manifest.rewritingEnabled) {
 					try {
-						const [routeData, component] = await pipeline.tryRewrite(payload);
+						const [routeData, component] = await pipeline.tryRewrite(payload, this.request);
 						this.routeData = routeData;
 						componentInstance = component;
 					} catch (e) {
@@ -212,7 +211,7 @@ export class RenderContext {
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			pipeline.logger.debug('router', 'Called rewriting to:', reroutePayload);
 			try {
-				const [routeData, component] = await pipeline.tryRewrite(reroutePayload);
+				const [routeData, component] = await pipeline.tryRewrite(reroutePayload, this.request);
 				this.routeData = routeData;
 				if (reroutePayload instanceof Request) {
 					this.request = reroutePayload;
@@ -398,7 +397,7 @@ export class RenderContext {
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			try {
 				pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
-				const [routeData, component] = await pipeline.tryRewrite(reroutePayload);
+				const [routeData, component] = await pipeline.tryRewrite(reroutePayload, this.request);
 				this.routeData = routeData;
 				if (reroutePayload instanceof Request) {
 					this.request = reroutePayload;

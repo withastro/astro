@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/db",
-  "version": "0.11.2",
+  "version": "0.11.3",
   "description": "Add libSQL and Astro Studio support to your Astro site",
   "license": "MIT",
   "repository": {
@@ -70,6 +70,7 @@
     "test:match": "mocha --timeout 20000 \"test/*.js\" \"test/unit/*.js\" -g"
   },
   "dependencies": {
+    "@astrojs/studio": "workspace:*",
     "@libsql/client": "^0.6.0",
     "async-listen": "^3.0.1",
     "ci-info": "^4.0.0",
