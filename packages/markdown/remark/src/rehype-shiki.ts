@@ -11,6 +11,6 @@ export const rehypeShiki: Plugin<[ShikiConfig?], Root> = (config) => {
 		highlighterAsync ??= createShikiHighlighter(config);
 		const highlighter = await highlighterAsync;
 
-		highlightCodeBlocks(tree, highlighter.highlight);
+		await highlightCodeBlocks(tree, highlighter.highlight);
 	};
 };

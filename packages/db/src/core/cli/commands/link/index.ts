@@ -1,14 +1,18 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { basename } from 'node:path';
+import {
+	MISSING_SESSION_ID_ERROR,
+	PROJECT_ID_FILE,
+	getAstroStudioUrl,
+	getSessionIdFromFile,
+} from '@astrojs/studio';
 import { slug } from 'github-slugger';
 import { bgRed, cyan } from 'kleur/colors';
 import ora from 'ora';
 import prompts from 'prompts';
 import { safeFetch } from '../../../../runtime/utils.js';
-import { MISSING_SESSION_ID_ERROR } from '../../../errors.js';
-import { PROJECT_ID_FILE, getSessionIdFromFile } from '../../../tokens.js';
-import { type Result, getAstroStudioUrl } from '../../../utils.js';
+import { type Result } from '../../../utils.js';
 
 export async function cmd() {
 	const sessionToken = await getSessionIdFromFile();
@@ -16,18 +20,20 @@ export async function cmd() {
 		console.error(MISSING_SESSION_ID_ERROR);
 		process.exit(1);
 	}
-	const getWorkspaceIdAsync = getWorkspaceId();
+	const getWorkspaceIdAsync = getWorkspaceId().catch((err) => {
+		return err as Error;
+	});
 	await promptBegin();
 	const isLinkExisting = await promptLinkExisting();
 	if (isLinkExisting) {
-		const workspaceId = await getWorkspaceIdAsync;
+		const workspaceId = unwrapWorkspaceId(await getWorkspaceIdAsync);
 		const existingProjectData = await promptExistingProjectName({ workspaceId });
 		return await linkProject(existingProjectData.id);
 	}
 
 	const isLinkNew = await promptLinkNew();
 	if (isLinkNew) {
-		const workspaceId = await getWorkspaceIdAsync;
+		const workspaceId = unwrapWorkspaceId(await getWorkspaceIdAsync);
 		const newProjectName = await promptNewProjectName();
 		const newProjectRegion = await promptNewProjectRegion();
 		const spinner = ora('Creating new project...').start();
@@ -64,24 +70,29 @@ async function getWorkspaceId(): Promise<string> {
 		(res) => {
 			// Unauthorized
 			if (res.status === 401) {
-				console.error(
+				throw new Error(
 					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-						'astro db login'
+						'astro login'
 					)} to authenticate and then try linking again.\n\n`
 				);
-				process.exit(1);
 			}
-			console.error(`Failed to fetch user workspace: ${res.status} ${res.statusText}`);
-			process.exit(1);
+			throw new Error(`Failed to fetch user workspace: ${res.status} ${res.statusText}`);
 		}
 	);
 
 	const { data, success } = (await response.json()) as Result<{ id: string }[]>;
 	if (!success) {
-		console.error(`Failed to fetch user's workspace.`);
-		process.exit(1);
+		throw new Error(`Failed to fetch user's workspace.`);
 	}
 	return data[0].id;
+}
+
+function unwrapWorkspaceId(workspaceId: string | Error): string {
+	if (typeof workspaceId !== 'string') {
+		console.error(workspaceId.message);
+		process.exit(1);
+	}
+	return workspaceId;
 }
 
 export async function createNewProject({
@@ -109,7 +120,7 @@ export async function createNewProject({
 			if (res.status === 401) {
 				console.error(
 					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-						'astro db login'
+						'astro login'
 					)} to authenticate and then try linking again.\n\n`
 				);
 				process.exit(1);
@@ -143,7 +154,7 @@ export async function promptExistingProjectName({ workspaceId }: { workspaceId: 
 			if (res.status === 401) {
 				console.error(
 					`${bgRed('Unauthorized')}\n\n  Are you logged in?\n  Run ${cyan(
-						'astro db login'
+						'astro login'
 					)} to authenticate and then try linking again.\n\n`
 				);
 				process.exit(1);

@@ -6,7 +6,7 @@ import type * as unified from 'unified';
 
 let cwdUrlStr: string | undefined;
 
-// In non-browser enviroments, we can try to resolve from the filesystem too
+// In non-browser environments, we can try to resolve from the filesystem too
 export async function importPlugin(p: string): Promise<unified.Plugin> {
 	// Try import from this package first
 	try {

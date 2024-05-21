@@ -59,27 +59,31 @@ const ISR_PATH = `/_isr?${ASTRO_PATH_PARAM}=$0`;
 // https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/node-js#node.js-version
 const SUPPORTED_NODE_VERSIONS: Record<
 	string,
-	{ status: 'current' } | { status: 'beta' } | { status: 'deprecated'; removal: Date }
+	| { status: 'default' }
+	| { status: 'beta' }
+	| { status: 'retiring'; removal: Date | string; warnDate: Date }
+	| { status: 'deprecated'; removal: Date }
 > = {
-	16: { status: 'deprecated', removal: new Date('February 6 2024') },
-	18: { status: 'current' },
-	20: { status: 'beta' },
+	18: { status: 'retiring', removal: 'Early 2025', warnDate: new Date('October 1 2024') },
+	20: { status: 'default' },
 };
 
 function getAdapter({
 	edgeMiddleware,
 	functionPerRoute,
 	middlewareSecret,
+	skewProtection,
 }: {
 	edgeMiddleware: boolean;
 	functionPerRoute: boolean;
 	middlewareSecret: string;
+	skewProtection: boolean;
 }): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
 		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
 		exports: ['default'],
-		args: { middlewareSecret },
+		args: { middlewareSecret, skewProtection },
 		adapterFeatures: {
 			edgeMiddleware,
 			functionPerRoute,
@@ -137,6 +141,10 @@ export interface VercelServerlessConfig {
 
 	/** Whether to cache on-demand rendered pages in the same way as static files. */
 	isr?: boolean | VercelISRConfig;
+	/**
+	 * It enables Vercel skew protection: https://vercel.com/docs/deployments/skew-protection
+	 */
+	skewProtection?: boolean;
 }
 
 interface VercelISRConfig {
@@ -178,6 +186,7 @@ export default function vercelServerless({
 	edgeMiddleware = false,
 	maxDuration,
 	isr = false,
+	skewProtection = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	if (maxDuration) {
 		if (typeof maxDuration !== 'number') {
@@ -275,7 +284,9 @@ export default function vercelServerless({
 					);
 				}
 
-				setAdapter(getAdapter({ functionPerRoute, edgeMiddleware, middlewareSecret }));
+				setAdapter(
+					getAdapter({ functionPerRoute, edgeMiddleware, middlewareSecret, skewProtection })
+				);
 
 				_config = config;
 				_buildTempFolder = config.build.server;
@@ -522,7 +533,15 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 		);
 		return 'nodejs18.x';
 	}
-	if (support.status === 'current') {
+	if (support.status === 'default') {
+		return `nodejs${major}.x`;
+	}
+	if (support.status === 'retiring') {
+		if (support.warnDate && new Date() >= support.warnDate) {
+			logger.warn(
+				`Your project is being built for Node.js ${major} as the runtime, which is retiring by ${support.removal}.`
+			);
+		}
 		return `nodejs${major}.x`;
 	}
 	if (support.status === 'beta') {

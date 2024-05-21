@@ -2,8 +2,7 @@ import type { OutgoingHttpHeaders } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import type {
 	MarkdownHeading,
-	MarkdownMetadata,
-	MarkdownRenderingResult,
+	MarkdownVFile,
 	RehypePlugins,
 	RemarkPlugins,
 	RemarkRehype,
@@ -12,6 +11,7 @@ import type {
 import type * as babel from '@babel/core';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
+import type { Accept, ActionClient, InputSchema } from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
 import type { AssetsPrefix, SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
@@ -20,7 +20,12 @@ import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
+import type { getToolbarServerCommunicationHelpers } from '../integrations/hooks.js';
 import type { AstroPreferences } from '../preferences/index.js';
+import type {
+	ToolbarAppEventTarget,
+	ToolbarServerHelpers,
+} from '../runtime/client/dev-toolbar/helpers.js';
 import type { AstroDevToolbar, DevToolbarCanvas } from '../runtime/client/dev-toolbar/toolbar.js';
 import type { Icon } from '../runtime/client/dev-toolbar/ui-library/icons.js';
 import type {
@@ -29,6 +34,8 @@ import type {
 	DevToolbarCard,
 	DevToolbarHighlight,
 	DevToolbarIcon,
+	DevToolbarRadioCheckbox,
+	DevToolbarSelect,
 	DevToolbarToggle,
 	DevToolbarTooltip,
 	DevToolbarWindow,
@@ -38,15 +45,13 @@ import type {
 	TransitionBeforePreparationEvent,
 	TransitionBeforeSwapEvent,
 } from '../transitions/events.js';
-import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
+import type { DeepPartial, OmitIndexSignature, Simplify, WithRequired } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
-export { type AstroIntegrationLogger };
+export type { AstroIntegrationLogger, ToolbarServerHelpers };
 
 export type {
 	MarkdownHeading,
-	MarkdownMetadata,
-	MarkdownRenderingResult,
 	RehypePlugins,
 	RemarkPlugins,
 	ShikiConfig,
@@ -235,6 +240,22 @@ export interface AstroGlobal<
 	response: ResponseInit & {
 		readonly headers: Headers;
 	};
+	/**
+	 * Get an action result on the server when using a form POST.
+	 * Expects the action function as a parameter.
+	 * Returns a type-safe result with the action data when
+	 * a matching POST request is received
+	 * and `undefined` otherwise.
+	 *
+	 * Example usage:
+	 *
+	 * ```typescript
+	 * import { actions } from 'astro:actions';
+	 *
+	 * const result = await Astro.getActionResult(actions.myAction);
+	 * ```
+	 */
+	getActionResult: AstroSharedContext['getActionResult'];
 	/** Redirect to another page (**SSR Only**)
 	 *
 	 * Example usage:
@@ -247,6 +268,19 @@ export interface AstroGlobal<
 	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/)
 	 */
 	redirect: AstroSharedContext['redirect'];
+	/**
+	 * It rewrites to another page. As opposed to redirects, the URL won't change, and Astro will render the HTML emitted
+	 * by the rewritten URL passed as argument.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * if (pageIsNotEnabled) {
+	 * 	return Astro.rewrite('/fallback-page')
+	 * }
+	 * ```
+	 */
+	rewrite: AstroSharedContext['rewrite'];
 	/**
 	 * The <Astro.self /> element allows a component to reference itself recursively.
 	 *
@@ -1496,67 +1530,106 @@ export interface AstroUserConfig {
 		 * @description
 		 *
 		 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language.
+		 *
 		 */
-		routing?: {
-			/**
-			 * @docs
-			 * @name i18n.routing.prefixDefaultLocale
-			 * @kind h4
-			 * @type {boolean}
-			 * @default `false`
-			 * @version 3.7.0
-			 * @description
-			 *
-			 * When `false`, only non-default languages will display a language prefix.
-			 * The `defaultLocale` will not show a language prefix and content files do not exist in a localized folder.
-			 *  URLs will be of the form `example.com/[locale]/content/` for all non-default languages, but `example.com/content/` for the default locale.
-			 *
-			 * When `true`, all URLs will display a language prefix.
-			 * URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
-			 * Localized folders are used for every language, including the default.
-			 */
-			prefixDefaultLocale?: boolean;
+		routing?:
+			| {
+					/**
+					 * @docs
+					 * @name i18n.routing.prefixDefaultLocale
+					 * @kind h4
+					 * @type {boolean}
+					 * @default `false`
+					 * @version 3.7.0
+					 * @description
+					 *
+					 * When `false`, only non-default languages will display a language prefix.
+					 * The `defaultLocale` will not show a language prefix and content files do not exist in a localized folder.
+					 *  URLs will be of the form `example.com/[locale]/content/` for all non-default languages, but `example.com/content/` for the default locale.
+					 *
+					 * When `true`, all URLs will display a language prefix.
+					 * URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
+					 * Localized folders are used for every language, including the default.
+					 *
+					 * ```js
+					 * export default defineConfig({
+					 * 	i18n: {
+					 * 		defaultLocale: "en",
+					 * 		locales: ["en", "fr", "pt-br", "es"],
+					 * 		routing: {
+					 * 			prefixDefaultLocale: true,
+					 * 		}
+					 * 	}
+					 * })
+					 * ```
+					 */
+					prefixDefaultLocale?: boolean;
 
+					/**
+					 * @docs
+					 * @name i18n.routing.redirectToDefaultLocale
+					 * @kind h4
+					 * @type {boolean}
+					 * @default `true`
+					 * @version 4.2.0
+					 * @description
+					 *
+					 * Configures whether or not the home URL (`/`) generated by `src/pages/index.astro`
+					 * will redirect to `/[defaultLocale]` when `prefixDefaultLocale: true` is set.
+					 *
+					 * Set `redirectToDefaultLocale: false` to disable this automatic redirection at the root of your site:
+					 * ```js
+					 * // astro.config.mjs
+					 * export default defineConfig({
+					 *   i18n:{
+					 *     defaultLocale: "en",
+					 * 		locales: ["en", "fr"],
+					 *     routing: {
+					 *       prefixDefaultLocale: true,
+					 *       redirectToDefaultLocale: false
+					 *     }
+					 *   }
+					 * })
+					 *```
+					 * */
+					redirectToDefaultLocale?: boolean;
+
+					/**
+					 * @name i18n.routing.strategy
+					 * @type {"pathname"}
+					 * @default `"pathname"`
+					 * @version 3.7.0
+					 * @description
+					 *
+					 * - `"pathname": The strategy is applied to the pathname of the URLs
+					 */
+					strategy?: 'pathname';
+			  }
 			/**
+			 *
 			 * @docs
-			 * @name i18n.routing.redirectToDefaultLocale
+			 * @name i18n.routing.manual
 			 * @kind h4
-			 * @type {boolean}
-			 * @default `true`
-			 * @version 4.2.0
+			 * @type {string}
+			 * @version 4.6.0
 			 * @description
+			 * When this option is enabled, Astro will **disable** its i18n middleware so that you can implement your own custom logic. No other `routing` options (e.g. `prefixDefaultLocale`) may be configured with `routing: "manual"`.
 			 *
-			 * Configures whether or not the home URL (`/`) generated by `src/pages/index.astro`
-			 * will redirect to `/[defaultLocale]` when `prefixDefaultLocale: true` is set.
+			 * You will be responsible for writing your own routing logic, or executing Astro's i18n middleware manually alongside your own.
 			 *
-			 * Set `redirectToDefaultLocale: false` to disable this automatic redirection at the root of your site:
 			 * ```js
-			 * // astro.config.mjs
 			 * export default defineConfig({
-			 *   i18n:{
-			 *     defaultLocale: "en",
-			 * 		locales: ["en", "fr"],
-			 *     routing: {
-			 *       prefixDefaultLocale: true,
-			 *       redirectToDefaultLocale: false
-			 *     }
-			 *   }
+			 * 	i18n: {
+			 * 		defaultLocale: "en",
+			 * 		locales: ["en", "fr", "pt-br", "es"],
+			 * 		routing: {
+			 * 			prefixDefaultLocale: true,
+			 * 		}
+			 * 	}
 			 * })
-			 *```
-			 * */
-			redirectToDefaultLocale?: boolean;
-
-			/**
-			 * @name i18n.routing.strategy
-			 * @type {"pathname"}
-			 * @default `"pathname"`
-			 * @version 3.7.0
-			 * @description
-			 *
-			 * - `"pathname": The strategy is applied to the pathname of the URLs
+			 * ```
 			 */
-			strategy?: 'pathname';
-		};
+			| 'manual';
 
 		/**
 		 * @name i18n.domains
@@ -1592,14 +1665,14 @@ export interface AstroUserConfig {
 		 * })
 		 * ```
 		 *
-		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
+		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/reference/api-reference/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/reference/api-reference/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
 		 *
 		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains) for more details, including the limitations of this feature.
 		 */
 		domains?: Record<string, string>;
 	};
 
-	/** ⚠️ WARNING: SUBJECT TO CHANGE */
+	/** ! WARNING: SUBJECT TO CHANGE */
 	db?: Config.Database;
 
 	/**
@@ -1630,7 +1703,7 @@ export interface AstroUserConfig {
 		 * @version 4.5.0
 		 * @description
 		 * Enables a more reliable strategy to prevent scripts from being executed in pages where they are not used.
-		 * 
+		 *
 		 * Scripts will directly render as declared in Astro files (including existing features like TypeScript, importing `node_modules`,
 		 * and deduplicating scripts). You can also now conditionally render scripts in your Astro file.
 
@@ -1648,6 +1721,107 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		directRenderScript?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.actions
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.8.0
+		 * @description
+		 *
+		 * Actions help you write type-safe backend functions you can call from anywhere. Enable server rendering [using the `output` property](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered) and add the `actions` flag to the `experimental` object:
+		 *
+		 * ```js
+		 * {
+		 *   output: 'hybrid', // or 'server'
+		 *   experimental: {
+		 *     actions: true,
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * Declare all your actions in `src/actions/index.ts`. This file is the global actions handler.
+		 *
+		 * Define an action using the `defineAction()` utility from the `astro:actions` module. An action accepts the `handler` property to define your server-side request handler. If your action accepts arguments, apply the `input` property to validate parameters with Zod.
+		 *
+		 * This example defines two actions: `like` and `comment`. The `like` action accepts a JSON object with a `postId` string, while the `comment` action accepts [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) with `postId`, `author`, and `body` strings. Each `handler` updates your database and return a type-safe response.
+		 *
+		 * ```ts
+		 * // src/actions/index.ts
+		 * import { defineAction, z } from "astro:actions";
+		 *
+		 * export const server = {
+		 *   like: defineAction({
+		 *     input: z.object({ postId: z.string() }),
+		 *     handler: async ({ postId }) => {
+		 *       // update likes in db
+		 *
+		 *       return likes;
+		 *     },
+		 *   }),
+		 *   comment: defineAction({
+		 *     accept: 'form',
+		 *     input: z.object({
+		 *       postId: z.string(),
+		 *       author: z.string(),
+		 *       body: z.string(),
+		 *     }),
+		 *     handler: async ({ postId }) => {
+		 *       // insert comments in db
+		 *
+		 *       return comment;
+		 *     },
+		 *   }),
+		 * };
+		 * ```
+		 *
+		 * Then, call an action from your client components using the `actions` object from `astro:actions`. You can pass a type-safe object when using JSON, or a [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) object when using `accept: 'form'` in your action definition.
+		 *
+		 * This example calls the `like` and `comment` actions from a React component:
+		 *
+		 * ```tsx "actions"
+		 * // src/components/blog.tsx
+		 * import { actions } from "astro:actions";
+		 * import { useState } from "react";
+		 *
+		 * export function Like({ postId }: { postId: string }) {
+		 *   const [likes, setLikes] = useState(0);
+		 *   return (
+		 *     <button
+		 *       onClick={async () => {
+		 *         const newLikes = await actions.like({ postId });
+		 *         setLikes(newLikes);
+		 *       }}
+		 *     >
+		 *       {likes} likes
+		 *     </button>
+		 *   );
+		 * }
+		 *
+		 * export function Comment({ postId }: { postId: string }) {
+		 *   return (
+		 *     <form
+		 *       onSubmit={async (e) => {
+		 *         e.preventDefault();
+		 *         const formData = new FormData(e.target as HTMLFormElement);
+		 *         const result = await actions.blog.comment(formData);
+		 *         // handle result
+		 *       }}
+		 *     >
+		 *       <input type="hidden" name="postId" value={postId} />
+		 *       <label htmlFor="author">Author</label>
+		 *       <input id="author" type="text" name="author" />
+		 *       <textarea rows={10} name="body"></textarea>
+		 *       <button type="submit">Post</button>
+		 *     </form>
+		 *   );
+		 * }
+		 * ```
+		 *
+		 * For a complete overview, and to give feedback on this experimental API, see the [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md).
+		 */
+		actions?: boolean;
 
 		/**
 		 * @docs
@@ -1676,9 +1850,9 @@ export interface AstroUserConfig {
 		 * @version 4.5.0
 		 * @description
 		 * This feature will auto-generate a JSON schema for content collections of `type: 'data'` which can be used as the `$schema` value for TypeScript-style autocompletion/hints in tools like VSCode.
-		 * 
+		 *
 		 * To enable this feature, add the experimental flag:
-		 * 
+		 *
 		 * ```diff
 		 * import { defineConfig } from 'astro/config';
 
@@ -1688,9 +1862,9 @@ export interface AstroUserConfig {
 		 * 	}
 		 * });
 		 * ```
-		 * 
+		 *
 		 * This experimental implementation requires you to manually reference the schema in each data entry file of the collection:
-		 * 
+		 *
 		 * ```diff
 		 * // src/content/test/entry.json
 		 * {
@@ -1698,9 +1872,9 @@ export interface AstroUserConfig {
 		 * 	"test": "test"
 		 * }
 		 * ```
-		 * 
+		 *
 		 * Alternatively, you can set this in your [VSCode `json.schemas` settings](https://code.visualstudio.com/docs/languages/json#_json-schemas-and-settings):
-		 * 
+		 *
 		 * ```diff
 		 * "json.schemas": [
 		 * 	{
@@ -1711,7 +1885,7 @@ export interface AstroUserConfig {
 		 * 	}
 		 * ]
 		 * ```
-		 * 
+		 *
 		 * Note that this initial implementation uses a library with [known issues for advanced Zod schemas](https://github.com/StefanTerdell/zod-to-json-schema#known-issues), so you may wish to consult these limitations before enabling the experimental flag.
 		 */
 		contentCollectionJsonSchema?: boolean;
@@ -1819,11 +1993,123 @@ export interface AstroUserConfig {
 		 * });
 		 * ```
 		 *
-		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/guides/internationalization/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
+		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/reference/api-reference/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/reference/api-reference/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
 		 *
 		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains-experimental) for more details, including the limitations of this experimental feature.
 		 */
 		i18nDomains?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.security
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.6.0
+		 * @description
+		 *
+		 * Enables CSRF protection for Astro websites.
+		 *
+		 * The CSRF protection works only for pages rendered on demand (SSR) using `server` or `hybrid` mode. The pages must opt out of prerendering in `hybrid` mode.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * export default defineConfig({
+		 *   output: "server",
+		 *   experimental: {
+		 *     security: {
+		 *       csrfProtection: {
+		 *         origin: true
+		 *       }
+		 *     }
+		 *   }
+		 * })
+		 * ```
+		 */
+		security?: {
+			/**
+			 * @name security.csrfProtection
+			 * @type {object}
+			 * @default '{}'
+			 * @version 4.6.0
+			 * @description
+			 *
+			 * Allows you to enable security measures to prevent CSRF attacks: https://owasp.org/www-community/attacks/csrf
+			 */
+
+			csrfProtection?: {
+				/**
+				 * @name security.csrfProtection.origin
+				 * @type {boolean}
+				 * @default 'false'
+				 * @version 4.6.0
+				 * @description
+				 *
+				 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`.
+				 *
+				 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST, `PATCH`, `DELETE` and `PUT` with
+				 * the following `content-type` header: 'application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'.
+				 *
+				 * If the "origin" header doesn't match the `pathname` of the request, Astro will return a 403 status code and will not render the page.
+				 */
+				origin?: boolean;
+			};
+		};
+
+		/**
+		 * @docs
+		 * @name experimental.rewriting
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.8.0
+		 * @description
+		 *
+		 * Enables a routing feature for rewriting requests in Astro pages, endpoints and Astro middleware, giving you programmatic control over your routes.
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     rewriting: true,
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * Use `Astro.rewrite` in your `.astro` files to reroute to a different page:
+		 *
+		 * ```astro "rewrite"
+		 * ---
+		 * // src/pages/dashboard.astro
+		 * if (!Astro.props.allowed) {
+		 * 	return Astro.rewrite("/")
+		 * }
+		 * ---
+		 * ```
+		 *
+		 * Use `context.rewrite` in your endpoint files to reroute to a different page:
+		 *
+		 * ```js
+		 * // src/pages/api.js
+		 * export function GET(ctx) {
+		 * 	if (!ctx.locals.allowed) {
+		 * 		return ctx.rewrite("/")
+		 * 	}
+		 * }
+		 * ```
+		 *
+		 * Use `next("/")` in your middleware file to reroute to a different page, and then call the next middleware function:
+		 *
+		 * ```js
+		 * // src/middleware.js
+		 * export function onRequest(ctx, next) {
+		 * 	if (!ctx.cookies.get("allowed")) {
+		 * 		return next("/") // new signature
+		 * 	}
+		 * 	return next();
+		 * }
+		 * ```
+		 *
+		 * For a complete overview, and to give feedback on this experimental API, see the [Rerouting RFC](https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md).
+		 */
+		rewriting?: boolean;
 	};
 }
 
@@ -2007,12 +2293,20 @@ export interface AstroSettings {
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
-	devToolbarApps: string[];
+	devToolbarApps: (DevToolbarAppEntry | string)[];
 	middlewares: { pre: string[]; post: string[] };
 	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
 	timer: AstroTimer;
+	/**
+	 * Latest version of Astro, will be undefined if:
+	 * - unable to check
+	 * - the user has disabled the check
+	 * - the check has not completed yet
+	 * - the user is on the latest version already
+	 */
+	latestAstroVersion: string | undefined;
 }
 
 export type AsyncRendererComponentFn<U> = (
@@ -2188,6 +2482,21 @@ export interface ManifestData {
 	routes: RouteData[];
 }
 
+/** @deprecated Type is no longer used by exported APIs */
+export interface MarkdownMetadata {
+	headings: MarkdownHeading[];
+	source: string;
+	html: string;
+}
+
+/** @deprecated Type is no longer used by exported APIs */
+export interface MarkdownRenderingResult {
+	metadata: MarkdownMetadata;
+	vfile: MarkdownVFile;
+	code: string;
+}
+
+/** @deprecated Type is no longer used by exported APIs */
 export interface MarkdownParserResponse extends MarkdownRenderingResult {
 	frontmatter: MD['frontmatter'];
 }
@@ -2340,7 +2649,9 @@ interface AstroSharedContext<
 	RouteParams extends Record<string, string | undefined> = Record<string, string | undefined>,
 > {
 	/**
-	 * The address (usually IP address) of the user. Used with SSR only.
+	 * The address (usually IP address) of the user.
+	 *
+	 * Throws an error if used within a static site, or within a prerendered page.
 	 */
 	clientAddress: string;
 	/**
@@ -2356,6 +2667,16 @@ interface AstroSharedContext<
 	 */
 	url: URL;
 	/**
+	 * Get action result on the server when using a form POST.
+	 */
+	getActionResult: <
+		TAccept extends Accept,
+		TInputSchema extends InputSchema<TAccept>,
+		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
+	>(
+		action: TAction
+	) => Awaited<ReturnType<TAction['safe']>> | undefined;
+	/**
 	 * Route parameters for this request if this is a dynamic route.
 	 */
 	params: RouteParams;
@@ -2367,6 +2688,20 @@ interface AstroSharedContext<
 	 * Redirect to another page (**SSR Only**).
 	 */
 	redirect(path: string, status?: ValidRedirectStatus): Response;
+
+	/**
+	 * It rewrites to another page. As opposed to redirects, the URL won't change, and Astro will render the HTML emitted
+	 * by the rerouted URL passed as argument.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * if (pageIsNotEnabled) {
+	 * 	return Astro.rewrite('/fallback-page')
+	 * }
+	 * ```
+	 */
+	rewrite(rewritePayload: RewritePayload): Promise<Response>;
 
 	/**
 	 * Object accessed via Astro middleware
@@ -2390,15 +2725,33 @@ interface AstroSharedContext<
 	currentLocale: string | undefined;
 }
 
+/**
+ * The `APIContext` is the object made available to endpoints and middleware.
+ * It is a subset of the `Astro` global object available in pages.
+ *
+ * [Reference](https://docs.astro.build/en/reference/api-reference/#endpoint-context)
+ */
 export interface APIContext<
 	Props extends Record<string, any> = Record<string, any>,
 	APIParams extends Record<string, string | undefined> = Record<string, string | undefined>,
 > extends AstroSharedContext<Props, Params> {
+	/**
+	 * The site provided in the astro config, parsed as an instance of `URL`, without base.
+	 * `undefined` if the site is not provided in the config.
+	 */
 	site: URL | undefined;
+	/**
+	 * A human-readable string representing the Astro version used to create the project.
+	 * For example, `"Astro v1.1.1"`.
+	 */
 	generator: string;
 	/**
-	 * A full URL object of the request URL.
-	 * Equivalent to: `new URL(request.url)`
+	 * The url of the current request, parsed as an instance of `URL`.
+	 *
+	 * Equivalent to:
+	 * ```ts
+	 * new URL(context.request.url)
+	 * ```
 	 */
 	url: AstroSharedContext['url'];
 	/**
@@ -2408,6 +2761,8 @@ export interface APIContext<
 	 *
 	 * Example usage:
 	 * ```ts
+	 * import type { APIContext } from "astro"
+	 *
 	 * export function getStaticPaths() {
 	 *   return [
 	 *     { params: { id: '0' }, props: { name: 'Sarah' } },
@@ -2416,14 +2771,12 @@ export interface APIContext<
 	 *   ];
 	 * }
 	 *
-	 * export async function GET({ params }) {
-	 *  return {
-	 * 	  body: `Hello user ${params.id}!`,
-	 *  }
+	 * export async function GET({ params }: APIContext) {
+	 *   return new Response(`Hello user ${params.id}!`)
 	 * }
 	 * ```
 	 *
-	 * [context reference](https://docs.astro.build/en/reference/api-reference/#contextparams)
+	 * [Reference](https://docs.astro.build/en/reference/api-reference/#contextparams)
 	 */
 	params: AstroSharedContext<Props, APIParams>['params'];
 	/**
@@ -2431,6 +2784,8 @@ export interface APIContext<
 	 *
 	 * Example usage:
 	 * ```ts
+	 * import type { APIContext } from "astro"
+	 *
 	 * export function getStaticPaths() {
 	 *   return [
 	 *     { params: { id: '0' }, props: { name: 'Sarah' } },
@@ -2439,18 +2794,16 @@ export interface APIContext<
 	 *   ];
 	 * }
 	 *
-	 * export function GET({ props }) {
-	 *   return {
-	 *     body: `Hello ${props.name}!`,
-	 *   }
+	 * export function GET({ props }: APIContext): Response {
+	 *   return new Response(`Hello ${props.name}!`);
 	 * }
 	 * ```
 	 *
-	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextprops)
+	 * [Reference](https://docs.astro.build/en/guides/api-reference/#contextprops)
 	 */
 	props: AstroSharedContext<Props, APIParams>['props'];
 	/**
-	 * Redirect to another page. Only available in SSR builds.
+	 * Create a response that redirects to another page.
 	 *
 	 * Example usage:
 	 * ```ts
@@ -2460,18 +2813,35 @@ export interface APIContext<
 	 * }
 	 * ```
 	 *
-	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextredirect)
+	 * [Reference](https://docs.astro.build/en/guides/api-reference/#contextredirect)
 	 */
 	redirect: AstroSharedContext['redirect'];
 
 	/**
-	 * Object accessed via Astro middleware.
+	 * It reroutes to another page. As opposed to redirects, the URL won't change, and Astro will render the HTML emitted
+	 * by the rerouted URL passed as argument.
+	 *
+	 * ## Example
+	 *
+	 * ```ts
+	 * // src/pages/secret.ts
+	 * export function GET(ctx) {
+	 *   return ctx.rewrite(new URL("../"), ctx.url);
+	 * }
+	 * ```
+	 */
+	rewrite: AstroSharedContext['rewrite'];
+
+	/**
+	 * An object that middlewares can use to store extra information related to the request.
+	 *
+	 * It will be made available to pages as `Astro.locals`, and to endpoints as `context.locals`.
 	 *
 	 * Example usage:
 	 *
 	 * ```ts
 	 * // src/middleware.ts
-	 * import {defineMiddleware} from "astro:middleware";
+	 * import { defineMiddleware } from "astro:middleware";
 	 *
 	 * export const onRequest = defineMiddleware((context, next) => {
 	 *   context.locals.greeting = "Hello!";
@@ -2486,6 +2856,8 @@ export interface APIContext<
 	 * ---
 	 * <h1>{greeting}</h1>
 	 * ```
+	 *
+	 * [Reference](https://docs.astro.build/en/reference/api-reference/#contextlocals)
 	 */
 	locals: App.Locals;
 
@@ -2523,12 +2895,6 @@ export interface APIContext<
 	currentLocale: string | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type Routing = {
-	prefixDefaultLocale: boolean;
-	strategy: 'pathname';
-};
-
 export type APIRoute<
 	Props extends Record<string, any> = Record<string, any>,
 	APIParams extends Record<string, string | undefined> = Record<string, string | undefined>,
@@ -2547,9 +2913,9 @@ export interface AstroRenderer {
 	clientEntrypoint?: string;
 	/** Import entrypoint for the server/build/ssr renderer. */
 	serverEntrypoint: string;
-	/** JSX identifier (e.g. 'react' or 'solid-js') */
+	/** @deprecated Vite plugins should transform the JSX instead */
 	jsxImportSource?: string;
-	/** Babel transform options */
+	/** @deprecated Vite plugins should transform the JSX instead */
 	jsxTransformOptions?: JSXTransformFn;
 }
 
@@ -2601,7 +2967,8 @@ export interface AstroIntegration {
 			 * TODO: Fully remove in Astro 5.0
 			 */
 			addDevOverlayPlugin: (entrypoint: string) => void;
-			addDevToolbarApp: (entrypoint: string) => void;
+			// TODO: Deprecate the `string` overload once a few apps have been migrated to the new API.
+			addDevToolbarApp: (entrypoint: DevToolbarAppEntry | string) => void;
 			addMiddleware: (mid: AstroIntegrationMiddleware) => void;
 			logger: AstroIntegrationLogger;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
@@ -2617,6 +2984,7 @@ export interface AstroIntegration {
 		'astro:server:setup'?: (options: {
 			server: vite.ViteDevServer;
 			logger: AstroIntegrationLogger;
+			toolbar: ReturnType<typeof getToolbarServerCommunicationHelpers>;
 		}) => void | Promise<void>;
 		'astro:server:start'?: (options: {
 			address: AddressInfo;
@@ -2653,11 +3021,14 @@ export interface AstroIntegration {
 			dir: URL;
 			routes: RouteData[];
 			logger: AstroIntegrationLogger;
+			cacheManifest: boolean;
 		}) => void | Promise<void>;
 	};
 }
 
-export type MiddlewareNext = () => Promise<Response>;
+export type RewritePayload = string | URL | Request;
+
+export type MiddlewareNext = (rewritePayload?: RewritePayload) => Promise<Response>;
 export type MiddlewareHandler = (
 	context: APIContext,
 	next: MiddlewareNext
@@ -2871,13 +3242,53 @@ export interface ClientDirectiveConfig {
 	entrypoint: string;
 }
 
-export interface DevToolbarApp {
+type DevToolbarAppMeta = {
 	id: string;
 	name: string;
 	icon?: Icon;
-	init?(canvas: ShadowRoot, eventTarget: EventTarget): void | Promise<void>;
+};
+
+// The param passed to `addDevToolbarApp` in the integration
+export type DevToolbarAppEntry = DevToolbarAppMeta & {
+	entrypoint: string;
+};
+
+// Public API for the dev toolbar
+export type DevToolbarApp = {
+	/**
+	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
+	 *
+	 * Ex: `addDevToolbarApp({ id: 'my-app', name: 'My App', icon: '🚀', entrypoint: '/path/to/app' })`
+	 *
+	 * In the future, putting these properties directly on the app object will be removed.
+	 */
+	id?: string;
+	/**
+	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
+	 *
+	 * Ex: `addDevToolbarApp({ id: 'my-app', name: 'My App', icon: '🚀', entrypoint: '/path/to/app' })`
+	 *
+	 * In the future, putting these properties directly on the app object will be removed.
+	 */
+	name?: string;
+	/**
+	 * @deprecated The `id`, `name`, and `icon` properties should now be defined when using `addDevToolbarApp`.
+	 *
+	 * Ex: `addDevToolbarApp({ id: 'my-app', name: 'My App', icon: '🚀', entrypoint: '/path/to/app' })`
+	 *
+	 * In the future, putting these properties directly on the app object will be removed.
+	 */
+	icon?: Icon;
+	init?(
+		canvas: ShadowRoot,
+		app: ToolbarAppEventTarget,
+		server: ToolbarServerHelpers
+	): void | Promise<void>;
 	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
-}
+};
+
+// An app that has been loaded and as such contain all of its properties
+export type ResolvedDevToolbarApp = DevToolbarAppMeta & Omit<DevToolbarApp, 'id' | 'name' | 'icon'>;
 
 // TODO: Remove in Astro 5.0
 export type DevOverlayPlugin = DevToolbarApp;
@@ -2887,6 +3298,7 @@ export type DevToolbarMetadata = Window &
 		__astro_dev_toolbar__: {
 			root: string;
 			version: string;
+			latestAstroVersion: AstroSettings['latestAstroVersion'];
 			debugInfo: string;
 		};
 	};
@@ -2903,6 +3315,8 @@ declare global {
 		'astro-dev-toolbar-button': DevToolbarButton;
 		'astro-dev-toolbar-icon': DevToolbarIcon;
 		'astro-dev-toolbar-card': DevToolbarCard;
+		'astro-dev-toolbar-select': DevToolbarSelect;
+		'astro-dev-toolbar-radio-checkbox': DevToolbarRadioCheckbox;
 
 		// Deprecated names
 		// TODO: Remove in Astro 5.0

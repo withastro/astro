@@ -146,7 +146,7 @@ test.describe('Dev Toolbar', () => {
 		await expect(xrayWindow.locator('astro-dev-toolbar-icon[icon=lightbulb]')).toBeVisible();
 	});
 
-	test('audit shows higlights and tooltips', async ({ page, astro }) => {
+	test('audit shows highlights and tooltips', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const toolbar = page.locator('astro-dev-toolbar');
@@ -304,6 +304,8 @@ test.describe('Dev Toolbar', () => {
 		await expect(myAppWindow).toHaveCount(1);
 		await expect(myAppWindow).toBeVisible();
 
+		await expect(myAppWindow).toContainText('Hello from the server!');
+
 		// Toggle app off
 		await appButton.click();
 		await expect(myAppWindow).not.toBeVisible();
@@ -347,6 +349,39 @@ test.describe('Dev Toolbar', () => {
 			await expect(appButton).toHaveClass('item active');
 			await page.click('body');
 			await expect(appButton).not.toHaveClass('active');
+		}
+	});
+
+	test('can adjust the placement', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/audit-no-warning'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const settingsAppButton = toolbar.locator('button[data-app-id="astro:settings"]');
+		await settingsAppButton.click();
+
+		const settingsAppCanvas = toolbar.locator(
+			'astro-dev-toolbar-app-canvas[data-app-id="astro:settings"]'
+		);
+		const settingsWindow = settingsAppCanvas.locator('astro-dev-toolbar-window');
+		await expect(settingsWindow).toBeVisible();
+
+		for (const placement of ['bottom-left', 'bottom-center', 'bottom-right']) {
+			const select = toolbar.getByRole('combobox');
+			await expect(select).toBeVisible();
+			await select.selectOption(placement);
+
+			const toolbarRoot = toolbar.locator('#dev-toolbar-root');
+			await expect(toolbarRoot).toHaveAttribute('data-placement', placement);
+
+			for (const appId of ['astro:home', 'astro:xray', 'astro:settings']) {
+				const appButton = toolbar.locator(`button[data-app-id="${appId}"]`);
+				await appButton.click();
+
+				const appCanvas = toolbar.locator(`astro-dev-toolbar-app-canvas[data-app-id="${appId}"]`);
+				const appWindow = appCanvas.locator('astro-dev-toolbar-window');
+				await expect(appWindow).toBeVisible();
+				await expect(appWindow).toHaveJSProperty('placement', placement);
+			}
 		}
 	});
 });

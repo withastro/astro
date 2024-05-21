@@ -69,6 +69,19 @@ export const ClientAddressNotAvailable = {
 /**
  * @docs
  * @see
+ * - [Opting-in to pre-rendering](https://docs.astro.build/en/guides/server-side-rendering/#opting-in-to-pre-rendering-in-server-mode)
+ * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
+ * @description
+ * The `Astro.clientAddress` property cannot be used inside prerendered routes.
+ */
+export const PrerenderClientAddressNotAvailable = {
+	name: 'PrerenderClientAddressNotAvailable',
+	title: '`Astro.clientAddress` cannot be used inside prerendered routes.',
+	message: `\`Astro.clientAddress\` cannot be used inside prerendered routes`,
+} satisfies ErrorData;
+/**
+ * @docs
+ * @see
  * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/)
  * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
  * @description
@@ -168,9 +181,7 @@ export const NoMatchingRenderer = {
 
 ${
 	validRenderersCount > 0
-		? `There ${plural ? 'are' : 'is'} ${validRenderersCount} renderer${
-				plural ? 's' : ''
-			} configured in your \`astro.config.mjs\` file,
+		? `There ${plural ? 'are' : 'is'} ${validRenderersCount} renderer${plural ? 's' : ''} configured in your \`astro.config.mjs\` file,
 but ${plural ? 'none were' : 'it was not'} able to server-side render \`${componentName}\`.`
 		: `No valid renderer was found ${
 				componentExtension
@@ -441,8 +452,8 @@ export const NoMatchingImport = {
 export const InvalidPrerenderExport = {
 	name: 'InvalidPrerenderExport',
 	title: 'Invalid prerender export.',
-	message(prefix: string, suffix: string, isHydridOuput: boolean) {
-		const defaultExpectedValue = isHydridOuput ? 'false' : 'true';
+	message(prefix: string, suffix: string, isHydridOutput: boolean) {
+		const defaultExpectedValue = isHydridOutput ? 'false' : 'true';
 		let msg = `A \`prerender\` export has been detected, but its value cannot be statically analyzed.`;
 		if (prefix !== 'const') msg += `\nExpected \`const\` declaration but got \`${prefix}\`.`;
 		if (suffix !== 'true')
@@ -1070,13 +1081,40 @@ export const MissingIndexForInternationalization = {
 /**
  * @docs
  * @description
+ * Some internationalization functions are only available when Astro's own i18n routing is disabled by the configuration setting `i18n.routing: "manual"`.
+ *
+ * @see
+ * - [`i18n` routing](https://docs.astro.build/en/guides/internationalization/#routing)
+ */
+export const IncorrectStrategyForI18n = {
+	name: 'IncorrectStrategyForI18n',
+	title: "You can't use the current function with the current strategy",
+	message: (functionName: string) =>
+		`The function \`${functionName}\` can only be used when the \`i18n.routing.strategy\` is set to \`"manual"\`.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * Static pages aren't yet supported with i18n domains. If you wish to enable this feature, you have to disable prerendering.
  */
 export const NoPrerenderedRoutesWithDomains = {
 	name: 'NoPrerenderedRoutesWithDomains',
 	title: "Prerendered routes aren't supported when internationalization domains are enabled.",
 	message: (component: string) =>
-		`Static pages aren't yet supported with multiple domains. If you wish to enable this feature, you have to disable prerendering for the page ${component}`,
+		`Static pages aren't yet supported with multiple domains. To enable this feature, you must disable prerendering for the page ${component}`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Astro throws an error if the user enables manual routing, but it doesn't have a middleware file.
+ */
+export const MissingMiddlewareForInternationalization = {
+	name: 'MissingMiddlewareForInternationalization',
+	title: 'Enabled manual internationalization routing without having a middleware.',
+	message:
+		"Your configuration setting `i18n.routing: 'manual'` requires you to provide your own i18n `middleware` file.",
 } satisfies ErrorData;
 
 /**
@@ -1129,6 +1167,18 @@ export const i18nNotEnabled = {
 	title: 'i18n Not Enabled',
 	message: 'The `astro:i18n` module can not be used without enabling i18n in your Astro config.',
 	hint: 'See https://docs.astro.build/en/guides/internationalization for a guide on setting up i18n.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ *
+ * Astro couldn't find a route matching the one provided by the user
+ */
+export const RouteNotFound = {
+	name: 'RouteNotFound',
+	title: 'Route not found.',
+	message: `Astro could not find a route that matches the one you requested.`,
 } satisfies ErrorData;
 
 /**
@@ -1441,6 +1491,21 @@ export const DuplicateContentEntrySlugError = {
 			`- ${alsoFound}`
 		);
 	},
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [On-demand rendering](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered)
+ * @description
+ * Your project must have a server output to create backend functions with Actions.
+ */
+export const ActionsWithoutServerOutputError = {
+	name: 'ActionsWithoutServerOutputError',
+	title: 'Actions must be used with server output.',
+	message:
+		'Actions enabled without setting a server build output. A server is required to create callable backend functions. To deploy routes to a server, add a server adapter to your astro config.',
+	hint: 'Learn about on-demand rendering: https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered',
 } satisfies ErrorData;
 
 /**

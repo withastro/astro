@@ -1,12 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
 import { emitESMImage } from 'astro/assets/utils';
 import matter from 'gray-matter';
-import type { ErrorPayload as ViteErrorPayload, Rollup } from 'vite';
+import type { Rollup, ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';
 import { htmlTokenTransform } from './html/transform/html-token-transform.js';
 import type { MarkdocConfigResult } from './load-config.js';
@@ -38,9 +38,41 @@ export async function getContentEntryType({
 			}
 
 			const ast = Markdoc.parse(tokens);
-			const usedTags = getUsedTags(ast);
 			const userMarkdocConfig = markdocConfigResult?.config ?? {};
 			const markdocConfigUrl = markdocConfigResult?.fileUrl;
+			const pluginContext = this;
+			const markdocConfig = await setupConfig(userMarkdocConfig, options);
+			const filePath = fileURLToPath(fileUrl);
+			raiseValidationErrors({
+				ast,
+				/* Raised generics issue with Markdoc core https://github.com/markdoc/markdoc/discussions/400 */
+				markdocConfig: markdocConfig as MarkdocConfig,
+				entry,
+				viteId,
+				astroConfig,
+				filePath,
+			});
+			await resolvePartials({
+				ast,
+				markdocConfig: markdocConfig as MarkdocConfig,
+				fileUrl,
+				allowHTML: options?.allowHTML,
+				tokenizer,
+				pluginContext,
+				root: astroConfig.root,
+				raisePartialValidationErrors: (partialAst, partialPath) => {
+					raiseValidationErrors({
+						ast: partialAst,
+						markdocConfig: markdocConfig as MarkdocConfig,
+						entry,
+						viteId,
+						astroConfig,
+						filePath: partialPath,
+					});
+				},
+			});
+
+			const usedTags = getUsedTags(ast);
 
 			let componentConfigByTagMap: Record<string, ComponentConfig> = {};
 			// Only include component imports for tags used in the document.
@@ -57,42 +89,6 @@ export async function getContentEntryType({
 				if (isComponentConfig(render)) {
 					componentConfigByNodeMap[nodeType] = render;
 				}
-			}
-
-			const pluginContext = this;
-			const markdocConfig = await setupConfig(userMarkdocConfig, options);
-
-			const filePath = fileURLToPath(fileUrl);
-
-			const validationErrors = Markdoc.validate(
-				ast,
-				/* Raised generics issue with Markdoc core https://github.com/markdoc/markdoc/discussions/400 */
-				markdocConfig as MarkdocConfig
-			).filter((e) => {
-				return (
-					// Ignore `variable-undefined` errors.
-					// Variables can be configured at runtime,
-					// so we cannot validate them at build time.
-					e.error.id !== 'variable-undefined' &&
-					(e.error.level === 'error' || e.error.level === 'critical')
-				);
-			});
-			if (validationErrors.length) {
-				// Heuristic: take number of newlines for `rawData` and add 2 for the `---` fences
-				const frontmatterBlockOffset = entry.rawData.split('\n').length + 2;
-				const rootRelativePath = path.relative(fileURLToPath(astroConfig.root), filePath);
-				throw new MarkdocError({
-					message: [
-						`**${String(rootRelativePath)}** contains invalid content:`,
-						...validationErrors.map((e) => `- ${e.error.message}`),
-					].join('\n'),
-					location: {
-						// Error overlay does not support multi-line or ranges.
-						// Just point to the first line.
-						line: frontmatterBlockOffset + validationErrors[0].lines[0],
-						file: viteId,
-					},
-				});
 			}
 
 			await emitOptimizedImages(ast.children, {
@@ -140,6 +136,136 @@ export const Content = createContentComponent(
 			'utf-8'
 		),
 	};
+}
+
+/**
+ * Recursively resolve partial tags to their content.
+ * Note: Mutates the `ast` object directly.
+ */
+async function resolvePartials({
+	ast,
+	fileUrl,
+	root,
+	tokenizer,
+	allowHTML,
+	markdocConfig,
+	pluginContext,
+	raisePartialValidationErrors,
+}: {
+	ast: Node;
+	fileUrl: URL;
+	root: URL;
+	tokenizer: any;
+	allowHTML?: boolean;
+	markdocConfig: MarkdocConfig;
+	pluginContext: Rollup.PluginContext;
+	raisePartialValidationErrors: (ast: Node, filePath: string) => void;
+}) {
+	const relativePartialPath = path.relative(fileURLToPath(root), fileURLToPath(fileUrl));
+	for (const node of ast.walk()) {
+		if (node.type === 'tag' && node.tag === 'partial') {
+			const { file } = node.attributes;
+			if (!file) {
+				throw new MarkdocError({
+					// Should be caught by Markdoc validation step.
+					message: `(Uncaught error) Partial tag requires a 'file' attribute`,
+				});
+			}
+
+			if (markdocConfig.partials?.[file]) continue;
+
+			let partialPath: string;
+			let partialContents: string;
+			try {
+				const resolved = await pluginContext.resolve(file, fileURLToPath(fileUrl));
+				let partialId = resolved?.id;
+				if (!partialId) {
+					const attemptResolveAsRelative = await pluginContext.resolve(
+						'./' + file,
+						fileURLToPath(fileUrl)
+					);
+					if (!attemptResolveAsRelative?.id) throw new Error();
+					partialId = attemptResolveAsRelative.id;
+				}
+
+				partialPath = fileURLToPath(new URL(prependForwardSlash(partialId), 'file://'));
+				partialContents = await fs.promises.readFile(partialPath, 'utf-8');
+			} catch {
+				throw new MarkdocError({
+					message: [
+						`**${String(relativePartialPath)}** contains invalid content:`,
+						`Could not read partial file \`${file}\`. Does the file exist?`,
+					].join('\n'),
+				});
+			}
+			if (pluginContext.meta.watchMode) pluginContext.addWatchFile(partialPath);
+			let partialTokens = tokenizer.tokenize(partialContents);
+			if (allowHTML) {
+				partialTokens = htmlTokenTransform(tokenizer, partialTokens);
+			}
+			const partialAst = Markdoc.parse(partialTokens);
+			raisePartialValidationErrors(partialAst, partialPath);
+			await resolvePartials({
+				ast: partialAst,
+				root,
+				fileUrl: pathToFileURL(partialPath),
+				tokenizer,
+				allowHTML,
+				markdocConfig,
+				pluginContext,
+				raisePartialValidationErrors,
+			});
+
+			Object.assign(node, partialAst);
+		}
+	}
+}
+
+function raiseValidationErrors({
+	ast,
+	markdocConfig,
+	entry,
+	viteId,
+	astroConfig,
+	filePath,
+}: {
+	ast: Node;
+	markdocConfig: MarkdocConfig;
+	entry: ReturnType<typeof getEntryInfo>;
+	viteId: string;
+	astroConfig: AstroConfig;
+	filePath: string;
+}) {
+	const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
+		return (
+			(e.error.level === 'error' || e.error.level === 'critical') &&
+			// Ignore `variable-undefined` errors.
+			// Variables can be configured at runtime,
+			// so we cannot validate them at build time.
+			e.error.id !== 'variable-undefined' &&
+			// Ignore missing partial errors.
+			// We will resolve these in `resolvePartials`.
+			!(e.error.id === 'attribute-value-invalid' && e.error.message.match(/^Partial .+ not found/))
+		);
+	});
+
+	if (validationErrors.length) {
+		// Heuristic: take number of newlines for `rawData` and add 2 for the `---` fences
+		const frontmatterBlockOffset = entry.rawData.split('\n').length + 2;
+		const rootRelativePath = path.relative(fileURLToPath(astroConfig.root), filePath);
+		throw new MarkdocError({
+			message: [
+				`**${String(rootRelativePath)}** contains invalid content:`,
+				...validationErrors.map((e) => `- ${e.error.message}`),
+			].join('\n'),
+			location: {
+				// Error overlay does not support multi-line or ranges.
+				// Just point to the first line.
+				line: frontmatterBlockOffset + validationErrors[0].lines[0],
+				file: viteId,
+			},
+		});
+	}
 }
 
 function getUsedTags(markdocAst: Node) {

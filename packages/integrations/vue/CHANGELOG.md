@@ -1,5 +1,42 @@
 # @astrojs/vue
 
+## 4.2.0
+
+### Minor Changes
+
+- [#10929](https://github.com/withastro/astro/pull/10929) [`082abb8`](https://github.com/withastro/astro/commit/082abb82d574a200f9168ee5ae92c65c71e29eda) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a `devtools` option
+
+  You can enable the [official Vue DevTools](https://devtools-next.vuejs.org/) while working in development mode by setting `devtools:true` in your `vue()` integration config:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import vue from '@astrojs/vue';
+
+  export default defineConfig({
+    integrations: [vue({ devtools: true })],
+  });
+  ```
+
+## 4.1.0
+
+### Minor Changes
+
+- [#10689](https://github.com/withastro/astro/pull/10689) [`683d51a5eecafbbfbfed3910a3f1fbf0b3531b99`](https://github.com/withastro/astro/commit/683d51a5eecafbbfbfed3910a3f1fbf0b3531b99) Thanks [@ematipico](https://github.com/ematipico)! - Deprecate support for versions of Node.js older than `v18.17.1` for Node.js 18, older than `v20.0.3` for Node.js 20, and the complete Node.js v19 release line.
+
+  This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
+
+## 4.0.11
+
+### Patch Changes
+
+- [#10687](https://github.com/withastro/astro/pull/10687) [`4ea042c38839783fb42e8261d89d7c7149892518`](https://github.com/withastro/astro/commit/4ea042c38839783fb42e8261d89d7c7149892518) Thanks [@bluwy](https://github.com/bluwy)! - Removes unused `jsxTransformOptions` and `jsxImportSource` options from the renderer config
+
+## 4.0.10
+
+### Patch Changes
+
+- [#10601](https://github.com/withastro/astro/pull/10601) [`b3028caecf1a96310e2ee7a65075a81c231d87be`](https://github.com/withastro/astro/commit/b3028caecf1a96310e2ee7a65075a81c231d87be) Thanks [@kalepail](https://github.com/kalepail)! - Remove the unnecessary and deprecated @vue/server-renderer package from the ssr.external vite config
+
 ## 4.0.9
 
 ### Patch Changes

@@ -64,10 +64,13 @@ export type SSRManifest = {
 	pageMap?: Map<ComponentPath, ImportComponentInstance>;
 	i18n: SSRManifestI18n | undefined;
 	middleware: MiddlewareHandler;
+	checkOrigin: boolean;
+	// TODO: remove once the experimental flag is removed
+	rewritingEnabled: boolean;
 };
 
 export type SSRManifestI18n = {
-	fallback?: Record<string, string>;
+	fallback: Record<string, string> | undefined;
 	strategy: RoutingStrategies;
 	locales: Locales;
 	defaultLocale: string;

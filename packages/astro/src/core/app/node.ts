@@ -63,8 +63,15 @@ export class NodeApp extends App {
 		const protocol =
 			req.headers['x-forwarded-proto'] ??
 			('encrypted' in req.socket && req.socket.encrypted ? 'https' : 'http');
-		const hostname = req.headers.host || req.headers[':authority'];
-		const url = `${protocol}://${hostname}${req.url}`;
+		const hostname =
+			req.headers['x-forwarded-host'] ?? req.headers.host ?? req.headers[':authority'];
+		const port = req.headers['x-forwarded-port'];
+
+		const portInHostname =
+			typeof hostname === 'string' && typeof port === 'string' && hostname.endsWith(port);
+		const hostnamePort = portInHostname ? hostname : hostname + (port ? `:${port}` : '');
+
+		const url = `${protocol}://${hostnamePort}${req.url}`;
 		const options: RequestInit = {
 			method: req.method || 'GET',
 			headers: makeRequestHeaders(req),

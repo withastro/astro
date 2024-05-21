@@ -1,24 +1,19 @@
 import { bold, cyan, red } from 'kleur/colors';
 
-export const MISSING_SESSION_ID_ERROR = `${red('▶ Login required!')}
-
-  To authenticate with Astro Studio, run
-  ${cyan('astro db login')}\n`;
-
-export const MISSING_PROJECT_ID_ERROR = `${red('▶ Directory not linked.')}
-
-  To link this directory to an Astro Studio project, run
-  ${cyan('astro db link')}\n`;
-
 export const MISSING_EXECUTE_PATH_ERROR = `${red(
 	'▶ No file path provided.'
 )} Provide a path by running ${cyan('astro db execute <path>')}\n`;
 
 export const RENAME_TABLE_ERROR = (oldTable: string, newTable: string) => {
 	return (
-		red('▶ Potential table rename detected: ' + oldTable + ', ' + newTable) +
-		`\n  You cannot add and remove tables in the same schema update batch.` +
-		`\n  To resolve, add a 'deprecated: true' flag to '${oldTable}' instead.`
+		red('\u25B6 Potential table rename detected: ' + oldTable + ' -> ' + newTable) +
+		`
+  You cannot add and remove tables in the same schema update batch.
+
+  1. Use "deprecated: true" to deprecate a table before renaming.
+  2. Use "--force-reset" to ignore this warning and reset the database (deleting all of your data).
+
+	Visit https://docs.astro.build/en/guides/astro-db/#renaming-tables to learn more.`
 	);
 };
 
@@ -30,8 +25,7 @@ export const RENAME_COLUMN_ERROR = (oldSelector: string, newSelector: string) =>
 	);
 };
 
-export const FILE_NOT_FOUND_ERROR = (path: string) =>
-	`${red('▶ File not found:')} ${bold(path)}\n`;
+export const FILE_NOT_FOUND_ERROR = (path: string) => `${red('▶ File not found:')} ${bold(path)}\n`;
 
 export const SHELL_QUERY_MISSING_ERROR = `${red(
 	'▶ Please provide a query to execute using the --query flag.'

@@ -170,4 +170,15 @@ describe('Slots', () => {
 			assert.notEqual(third.children[0].data, first.children[0].data);
 		}
 	});
+
+	it('Arguments can be passed to named slots with Astro.slots.render()', async () => {
+		const html = await fixture.readFile('/slotted-named-functions/index.html');
+		const $ = cheerio.load(html);
+		const beforeDiv = $('div#before');
+		const [beforeChildren] = beforeDiv.children('div');
+		assert.deepEqual(beforeChildren.firstChild.data, 'Test Content BEFORE');
+		const afterDiv = $('div#after');
+		const [afterChildren] = afterDiv.children('div');
+		assert.deepEqual(afterChildren.firstChild.data, 'Test Content AFTER');
+	});
 });

@@ -1,0 +1,27 @@
+---
+import Layout from '../components/Layout.astro';
+---
+<Layout>
+	<p id="name">Keep Theme</p>
+	<a id="click" href="/keep-two">go to next page</a>
+</Layout>
+<script>
+	import { deselectScripts, saveFocus, swapBodyElement, swapHeadElements, swapRootAttributes } from '../../node_modules/astro/dist/transitions/swap-functions'
+
+	function keepTheme(doc:Document) {
+		deselectScripts(doc);
+		{
+			const theme = document.documentElement.getAttribute('data-theme')!;
+			swapRootAttributes(doc);
+			document.documentElement.setAttribute('data-theme', theme);
+		}
+		swapHeadElements(doc);
+		const restoreFocusFunction = saveFocus();
+		swapBodyElement(doc.body, document.body)
+		restoreFocusFunction();
+	}
+
+	document.addEventListener('astro:before-swap', (e) => {
+		e.swap = () => keepTheme(e.newDocument);
+	});
+</script>

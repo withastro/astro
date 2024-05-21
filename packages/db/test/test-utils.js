@@ -1,9 +1,9 @@
 import { createServer } from 'node:http';
-import { createClient } from '@libsql/client';
+import { LibsqlError, createClient } from '@libsql/client';
 import { z } from 'zod';
 import { cli } from '../dist/core/cli/index.js';
 import { resolveDbConfig } from '../dist/core/load-file.js';
-import { getCreateIndexQueries, getCreateTableQuery } from '../dist/runtime/queries.js';
+import { getCreateIndexQueries, getCreateTableQuery } from '../dist/core/queries.js';
 
 const singleQuerySchema = z.object({
 	sql: z.string(),
@@ -12,7 +12,7 @@ const singleQuerySchema = z.object({
 
 const querySchema = singleQuerySchema.or(z.array(singleQuerySchema));
 
-let portIncrementer = 8081;
+let portIncrementer = 8030;
 
 /**
  * @param {import('astro').AstroConfig} astroConfig
@@ -112,7 +112,10 @@ function createRemoteDbServer() {
 				res.end(
 					JSON.stringify({
 						success: false,
-						message: e.message,
+						error: {
+							code: e instanceof LibsqlError ? e.code : 'SQLITE_QUERY_FAILED',
+							details: e.message,
+						},
 					})
 				);
 			}

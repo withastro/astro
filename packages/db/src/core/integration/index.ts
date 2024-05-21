@@ -1,19 +1,35 @@
 import { existsSync } from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { type ManagedAppToken, getManagedAppTokenOrExit } from '@astrojs/studio';
+import { LibsqlError } from '@libsql/client';
 import type { AstroConfig, AstroIntegration } from 'astro';
-import { AstroError } from 'astro/errors';
 import { mkdir, writeFile } from 'fs/promises';
 import { blue, yellow } from 'kleur/colors';
-import { loadEnv } from 'vite';
+import {
+	type HMRPayload,
+	type UserConfig,
+	type ViteDevServer,
+	createServer,
+	loadEnv,
+	mergeConfig,
+} from 'vite';
 import parseArgs from 'yargs-parser';
+import { AstroDbError } from '../../runtime/utils.js';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
+import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
 import { resolveDbConfig } from '../load-file.js';
-import { type ManagedAppToken, getManagedAppTokenOrExit } from '../tokens.js';
+import { SEED_DEV_FILE_NAME } from '../queries.js';
 import { type VitePlugin, getDbDirectoryUrl } from '../utils.js';
 import { fileURLIntegration } from './file-url.js';
 import { typegenInternal } from './typegen.js';
-import { type LateSeedFiles, type LateTables, vitePluginDb } from './vite-plugin-db.js';
+import {
+	type LateSeedFiles,
+	type LateTables,
+	type SeedHandler,
+	resolved,
+	vitePluginDb,
+} from './vite-plugin-db.js';
 import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
 
 function astroDBIntegration(): AstroIntegration {
@@ -21,6 +37,8 @@ function astroDBIntegration(): AstroIntegration {
 	let configFileDependencies: string[] = [];
 	let root: URL;
 	let appToken: ManagedAppToken | undefined;
+	// Used during production builds to load seed files.
+	let tempViteServer: ViteDevServer | undefined;
 
 	// Make table loading "late" to pass to plugins from `config:setup`,
 	// but load during `config:done` to wait for integrations to settle.
@@ -34,6 +52,13 @@ function astroDBIntegration(): AstroIntegration {
 			throw new Error('[astro:db] INTERNAL Seed files not loaded yet');
 		},
 	};
+	let seedHandler: SeedHandler = {
+		execute: () => {
+			throw new Error('[astro:db] INTERNAL Seed handler not loaded yet');
+		},
+		inProgress: false,
+	};
+
 	let command: 'dev' | 'build' | 'preview';
 	let output: AstroConfig['output'] = 'server';
 	return {
@@ -58,6 +83,8 @@ function astroDBIntegration(): AstroIntegration {
 						tables,
 						root: config.root,
 						srcDir: config.srcDir,
+						output: config.output,
+						seedHandler,
 					});
 				} else {
 					dbPlugin = vitePluginDb({
@@ -66,6 +93,9 @@ function astroDBIntegration(): AstroIntegration {
 						seedFiles,
 						root: config.root,
 						srcDir: config.srcDir,
+						output: config.output,
+						logger,
+						seedHandler,
 					});
 				}
 
@@ -94,15 +124,10 @@ function astroDBIntegration(): AstroIntegration {
 
 				await typegenInternal({ tables: tables.get() ?? {}, root: config.root });
 			},
-			'astro:server:start': async ({ logger }) => {
-				// Wait for the server startup to log, so that this can come afterwards.
-				setTimeout(() => {
-					logger.info(
-						connectToStudio ? 'Connected to remote database.' : 'New local database created.'
-					);
-				}, 100);
-			},
-			'astro:server:setup': async ({ server }) => {
+			'astro:server:setup': async ({ server, logger }) => {
+				seedHandler.execute = async (fileUrl) => {
+					await executeSeedFile({ fileUrl, viteServer: server });
+				};
 				const filesToWatch = [
 					...CONFIG_FILE_NAMES.map((c) => new URL(c, getDbDirectoryUrl(root))),
 					...configFileDependencies.map((c) => new URL(c, root)),
@@ -113,6 +138,23 @@ function astroDBIntegration(): AstroIntegration {
 						server.restart();
 					}
 				});
+				// Wait for dev server log before showing "connected".
+				setTimeout(() => {
+					logger.info(
+						connectToStudio ? 'Connected to remote database.' : 'New local database created.'
+					);
+					if (connectToStudio) return;
+
+					const localSeedPaths = SEED_DEV_FILE_NAME.map(
+						(name) => new URL(name, getDbDirectoryUrl(root))
+					);
+					// Eager load astro:db module on startup
+					if (seedFiles.get().length || localSeedPaths.find((path) => existsSync(path))) {
+						server.ssrLoadModule(resolved.module).catch((e) => {
+							logger.error(e instanceof Error ? e.message : String(e));
+						});
+					}
+				}, 100);
 			},
 			'astro:build:start': async ({ logger }) => {
 				if (
@@ -123,13 +165,20 @@ function astroDBIntegration(): AstroIntegration {
 					const message = `Attempting to build without the --remote flag or the ASTRO_DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`;
 					const hint =
 						'Learn more connecting to Studio: https://docs.astro.build/en/guides/astro-db/#connect-to-astro-studio';
-					throw new AstroError(message, hint);
+					throw new AstroDbError(message, hint);
 				}
 
 				logger.info('database: ' + (connectToStudio ? yellow('remote') : blue('local database.')));
 			},
+			'astro:build:setup': async ({ vite }) => {
+				tempViteServer = await getTempViteServer({ viteConfig: vite });
+				seedHandler.execute = async (fileUrl) => {
+					await executeSeedFile({ fileUrl, viteServer: tempViteServer! });
+				};
+			},
 			'astro:build:done': async ({}) => {
 				await appToken?.destroy();
+				await tempViteServer?.close();
 			},
 		},
 	};
@@ -142,4 +191,49 @@ function databaseFileEnvDefined() {
 
 export function integration(): AstroIntegration[] {
 	return [astroDBIntegration(), fileURLIntegration()];
+}
+
+async function executeSeedFile({
+	fileUrl,
+	viteServer,
+}: {
+	fileUrl: URL;
+	viteServer: ViteDevServer;
+}) {
+	const mod = await viteServer.ssrLoadModule(fileUrl.pathname);
+	if (typeof mod.default !== 'function') {
+		throw new AstroDbError(EXEC_DEFAULT_EXPORT_ERROR(fileURLToPath(fileUrl)));
+	}
+	try {
+		await mod.default();
+	} catch (e) {
+		if (e instanceof LibsqlError) {
+			throw new AstroDbError(EXEC_ERROR(e.message));
+		}
+		throw e;
+	}
+}
+
+/**
+ * Inspired by Astro content collection config loader.
+ */
+async function getTempViteServer({ viteConfig }: { viteConfig: UserConfig }) {
+	const tempViteServer = await createServer(
+		mergeConfig(viteConfig, {
+			server: { middlewareMode: true, hmr: false, watch: null },
+			optimizeDeps: { noDiscovery: true },
+			ssr: { external: [] },
+			logLevel: 'silent',
+		})
+	);
+
+	const hotSend = tempViteServer.hot.send;
+	tempViteServer.hot.send = (payload: HMRPayload) => {
+		if (payload.type === 'error') {
+			throw payload.err;
+		}
+		return hotSend(payload);
+	};
+
+	return tempViteServer;
 }

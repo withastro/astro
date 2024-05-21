@@ -7,7 +7,7 @@ import arg from 'arg';
 import glob from 'tiny-glob';
 
 const isCI = !!process.env.CI;
-const defaultTimeout = isCI ? 1200000 : 600000;
+const defaultTimeout = isCI ? 1400000 : 600000;
 
 export default async function test() {
 	const args = arg({

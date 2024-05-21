@@ -16,6 +16,7 @@ import {
 } from 'kleur/colors';
 import type { ResolvedServerUrls } from 'vite';
 import type { ZodError } from 'zod';
+import { getExecCommand } from '../cli/install-package.js';
 import { getDocsForError, renderErrorMarkdown } from './errors/dev/utils.js';
 import {
 	AstroError,
@@ -25,7 +26,11 @@ import {
 } from './errors/index.js';
 import { padMultilineString } from './util.js';
 
-/** Display  */
+/**
+ * Prestyled messages for the CLI. Used by astro CLI commands.
+ */
+
+/** Display each request being served with the path and the status code.  */
 export function req({
 	url,
 	method,
@@ -98,6 +103,15 @@ export function serverStart({
 /** Display custom dev server shortcuts */
 export function serverShortcuts({ key, label }: { key: string; label: string }): string {
 	return [dim('  Press'), key, dim('to'), label].join(' ');
+}
+
+export async function newVersionAvailable({ latestVersion }: { latestVersion: string }) {
+	const badge = bgYellow(black(` update `));
+	const headline = yellow(`▶ New version of Astro available: ${latestVersion}`);
+	const execCommand = await getExecCommand();
+
+	const details = `  Run ${cyan(`${execCommand} @astrojs/upgrade`)} to update`;
+	return ['', `${badge} ${headline}`, details, ''].join('\n');
 }
 
 export function telemetryNotice() {

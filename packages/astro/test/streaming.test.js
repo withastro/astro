@@ -37,7 +37,7 @@ describe('Streaming', () => {
 				let chunk = decoder.decode(bytes);
 				chunks.push(chunk);
 			}
-			assert.equal(chunks.length > 1, true);
+			assert.equal(chunks.length > 5, true);
 		});
 
 		it('Body of slots is chunked', async () => {

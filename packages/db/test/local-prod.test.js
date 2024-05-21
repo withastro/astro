@@ -1,3 +1,5 @@
+import { relative } from 'path';
+import { fileURLToPath } from 'url';
 import { expect } from 'chai';
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
@@ -12,8 +14,29 @@ describe('astro:db local database', () => {
 		});
 	});
 
-	describe('build (not remote) with DATABASE_FILE env', () => {
+	describe('build (not remote) with DATABASE_FILE env (file URL)', () => {
 		const prodDbPath = new URL('./fixtures/basics/dist/astro.db', import.meta.url).toString();
+		before(async () => {
+			process.env.ASTRO_DATABASE_FILE = prodDbPath;
+			await fixture.build();
+		});
+
+		after(async () => {
+			delete process.env.ASTRO_DATABASE_FILE;
+		});
+
+		it('Can render page', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			expect(response.status).to.equal(200);
+		});
+	});
+
+	describe('build (not remote) with DATABASE_FILE env (relative file path)', () => {
+		const absoluteFileUrl = new URL('./fixtures/basics/dist/astro.db', import.meta.url);
+		const prodDbPath = relative(process.cwd(), fileURLToPath(absoluteFileUrl));
+
 		before(async () => {
 			process.env.ASTRO_DATABASE_FILE = prodDbPath;
 			await fixture.build();

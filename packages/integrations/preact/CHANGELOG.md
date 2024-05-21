@@ -1,5 +1,36 @@
 # @astrojs/preact
 
+## 3.3.0
+
+### Minor Changes
+
+- [#10938](https://github.com/withastro/astro/pull/10938) [`fd508a0`](https://github.com/withastro/astro/commit/fd508a0fbb5148aafc180f1b14d3e47974777248) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a `devtools` option
+
+  You can enable [Preact devtools](https://preactjs.github.io/preact-devtools/) in development by setting `devtools: true` in your `preact()` integration config:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import preact from '@astrojs/preact';
+
+  export default defineConfig({
+    integrations: [preact({ devtools: true })],
+  });
+  ```
+
+## 3.2.0
+
+### Minor Changes
+
+- [#10689](https://github.com/withastro/astro/pull/10689) [`683d51a5eecafbbfbfed3910a3f1fbf0b3531b99`](https://github.com/withastro/astro/commit/683d51a5eecafbbfbfed3910a3f1fbf0b3531b99) Thanks [@ematipico](https://github.com/ematipico)! - Deprecate support for versions of Node.js older than `v18.17.1` for Node.js 18, older than `v20.0.3` for Node.js 20, and the complete Node.js v19 release line.
+
+  This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
+
+## 3.1.2
+
+### Patch Changes
+
+- [#10585](https://github.com/withastro/astro/pull/10585) [`ad50784adc6f262fc563999e97df3a5dc9087c88`](https://github.com/withastro/astro/commit/ad50784adc6f262fc563999e97df3a5dc9087c88) Thanks [@rschristian](https://github.com/rschristian)! - Fixes (theoretical) edge case in Preact integration's JSX aliases
+
 ## 3.1.1
 
 ### Patch Changes

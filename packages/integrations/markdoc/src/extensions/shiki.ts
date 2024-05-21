@@ -11,12 +11,12 @@ export default async function shiki(config?: ShikiConfig): Promise<AstroMarkdocC
 		nodes: {
 			fence: {
 				attributes: Markdoc.nodes.fence.attributes!,
-				transform({ attributes }) {
+				async transform({ attributes }) {
 					// NOTE: The `meta` from fence code, e.g. ```js {1,3-4}, isn't quite supported by Markdoc.
 					// Only the `js` part is parsed as `attributes.language` and the rest is ignored. This means
 					// some Shiki transformers may not work correctly as it relies on the `meta`.
 					const lang = typeof attributes.language === 'string' ? attributes.language : 'plaintext';
-					const html = highlighter.highlight(attributes.content, lang);
+					const html = await highlighter.highlight(attributes.content, lang);
 
 					// Use `unescapeHTML` to return `HTMLString` for Astro renderer to inline as HTML
 					return unescapeHTML(html) as any;

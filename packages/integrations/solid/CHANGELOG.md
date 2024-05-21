@@ -1,5 +1,36 @@
 # @astrojs/solid-js
 
+## 4.2.0
+
+### Minor Changes
+
+- [#10937](https://github.com/withastro/astro/pull/10937) [`7179930`](https://github.com/withastro/astro/commit/7179930ac85828b1a32c0c07c7d4759ce60044f5) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a `devtools` option
+
+  You can enable the [official Solid Devtools](https://github.com/thetarnav/solid-devtools) while working in development mode by setting `devtools: true` in your `solid()` integration config and adding `solid-devtools` to your project dependencies:
+
+  ```bash
+  npm install solid-devtools
+  # yarn add solid-devtools
+  # pnpm add solid-devtools
+  ```
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import solid from '@astrojs/solid-js';
+
+  export default defineConfig({
+    integrations: [solid({ devtools: true })],
+  });
+  ```
+
+## 4.1.0
+
+### Minor Changes
+
+- [#10689](https://github.com/withastro/astro/pull/10689) [`683d51a5eecafbbfbfed3910a3f1fbf0b3531b99`](https://github.com/withastro/astro/commit/683d51a5eecafbbfbfed3910a3f1fbf0b3531b99) Thanks [@ematipico](https://github.com/ematipico)! - Deprecate support for versions of Node.js older than `v18.17.1` for Node.js 18, older than `v20.0.3` for Node.js 20, and the complete Node.js v19 release line.
+
+  This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
+
 ## 4.0.1
 
 ### Patch Changes

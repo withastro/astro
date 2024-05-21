@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
 	InvalidAstroDataError,
@@ -32,13 +31,23 @@ const astroErrorModulePath = normalizePath(
 );
 
 export default function markdown({ settings, logger }: AstroPluginOptions): Plugin {
-	let processor: MarkdownProcessor;
+	let processor: MarkdownProcessor | undefined;
 
 	return {
 		enforce: 'pre',
 		name: 'astro:markdown',
 		async buildStart() {
 			processor = await createMarkdownProcessor(settings.config.markdown);
+		},
+		buildEnd() {
+			processor = undefined;
+		},
+		async resolveId(source, importer, options) {
+			if (importer?.endsWith('.md') && source[0] !== '/') {
+				let resolved = await this.resolve(source, importer, options);
+				if (!resolved) resolved = await this.resolve('./' + source, importer, options);
+				return resolved;
+			}
 		},
 		// Why not the "transform" hook instead of "load" + readFile?
 		// A: Vite transforms all "import.meta.env" references to their values before
@@ -51,6 +60,14 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				const raw = safeParseFrontmatter(rawFile, id);
 
 				const fileURL = pathToFileURL(fileId);
+
+				// `processor` is initialized in `buildStart`, and removed in `buildEnd`. `load`
+				// should be called in between those two lifecycles, so this error should never happen
+				if (!processor) {
+					return this.error(
+						'MDX processor is not initialized. This is an internal error. Please file an issue.'
+					);
+				}
 
 				const renderResult = await processor
 					.render(raw.content, {
@@ -74,8 +91,6 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				for (const imagePath of rawImagePaths.values()) {
 					imagePaths.push({
 						raw: imagePath,
-						resolved:
-							(await this.resolve(imagePath, id))?.id ?? path.join(path.dirname(id), imagePath),
 						safeName: shorthash(imagePath),
 					});
 				}

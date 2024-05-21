@@ -80,25 +80,41 @@ describe('Astro Markdown Shiki', () => {
 		});
 	});
 
-	describe('Custom langs', () => {
+	describe('Languages', () => {
 		let fixture;
+		let $;
 
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/langs/' });
 			await fixture.build();
+			const html = await fixture.readFile('/index.html');
+			$ = cheerio.load(html);
 		});
 
-		it('Markdown file', async () => {
-			const html = await fixture.readFile('/index.html');
-			const $ = cheerio.load(html);
-
-			const segments = $('.line').get(6).children;
+		it('custom language', async () => {
+			const lang = $('.astro-code').get(0);
+			const segments = $('.line', lang).get(6).children;
 			assert.equal(segments.length, 2);
 			assert.equal(segments[0].attribs.style, 'color:#79B8FF');
 			assert.equal(segments[1].attribs.style, 'color:#E1E4E8');
+		});
 
+		it('handles unknown languages', () => {
 			const unknownLang = $('.astro-code').get(1);
 			assert.ok(unknownLang.attribs.style.includes('background-color:#24292e;color:#e1e4e8;'));
+		});
+
+		it('handles lazy loaded languages', () => {
+			const lang = $('.astro-code').get(2);
+			const segments = $('.line', lang).get(0).children;
+			assert.equal(segments.length, 7);
+			assert.equal(segments[0].attribs.style, 'color:#F97583');
+			assert.equal(segments[1].attribs.style, 'color:#79B8FF');
+			assert.equal(segments[2].attribs.style, 'color:#F97583');
+			assert.equal(segments[3].attribs.style, 'color:#79B8FF');
+			assert.equal(segments[4].attribs.style, 'color:#F97583');
+			assert.equal(segments[5].attribs.style, 'color:#79B8FF');
+			assert.equal(segments[6].attribs.style, 'color:#E1E4E8');
 		});
 	});
 

@@ -5,7 +5,7 @@ import { type Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
-import { runHookBuildSsr } from '../../../integrations/index.js';
+import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import type {
 	SSRManifestI18n,
@@ -19,6 +19,7 @@ import { getOutFile, getOutFolder } from '../common.js';
 import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
+import { makePageDataKey } from './util.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
@@ -189,7 +190,7 @@ function buildManifest(
 	}
 
 	for (const route of opts.manifest.routes) {
-		const pageData = internals.pagesByComponent.get(route.component);
+		const pageData = internals.pagesByKeys.get(makePageDataKey(route.route, route.component));
 		if (route.prerender || !pageData) continue;
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
@@ -253,7 +254,7 @@ function buildManifest(
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
-			strategy: toRoutingStrategy(settings.config.i18n),
+			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
 			locales: settings.config.i18n.locales,
 			defaultLocale: settings.config.i18n.defaultLocale,
 			domainLookupTable,
@@ -276,5 +277,7 @@ function buildManifest(
 		assets: staticFiles.map(prefixAssetPath),
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
+		checkOrigin: settings.config.experimental.security?.csrfProtection?.origin ?? false,
+		rewritingEnabled: settings.config.experimental.rewriting,
 	};
 }

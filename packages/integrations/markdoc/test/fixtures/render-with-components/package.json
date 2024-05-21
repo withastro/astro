@@ -4,6 +4,8 @@
   "private": true,
   "dependencies": {
     "@astrojs/markdoc": "workspace:*",
-    "astro": "workspace:*"
+    "@astrojs/preact": "workspace:*",
+    "astro": "workspace:*",
+    "preact": "^10.21.0"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/upgrade",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -29,19 +29,19 @@
   "//a": "MOST PACKAGES SHOULD GO IN DEV_DEPENDENCIES! THEY WILL BE BUNDLED.",
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
   "dependencies": {
-    "@astrojs/cli-kit": "^0.2.3",
-    "semver": "^7.5.4",
+    "@astrojs/cli-kit": "^0.4.1",
+    "semver": "^7.6.2",
     "which-pm-runs": "^1.1.0",
     "terminal-link": "^3.0.0"
   },
   "devDependencies": {
-    "@types/semver": "^7.5.2",
-    "@types/which-pm-runs": "^1.0.0",
+    "@types/semver": "^7.5.8",
+    "@types/which-pm-runs": "^1.0.2",
     "arg": "^5.0.2",
     "astro-scripts": "workspace:*",
     "strip-ansi": "^7.1.0"
   },
   "engines": {
-    "node": ">=18.14.1"
+    "node": "^18.17.1 || ^20.3.0 || >=21.0.0"
   }
 }

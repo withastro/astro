@@ -1,5 +1,19 @@
 # @astrojs/svelte
 
+## 5.4.0
+
+### Minor Changes
+
+- [#10689](https://github.com/withastro/astro/pull/10689) [`683d51a5eecafbbfbfed3910a3f1fbf0b3531b99`](https://github.com/withastro/astro/commit/683d51a5eecafbbfbfed3910a3f1fbf0b3531b99) Thanks [@ematipico](https://github.com/ematipico)! - Deprecate support for versions of Node.js older than `v18.17.1` for Node.js 18, older than `v20.0.3` for Node.js 20, and the complete Node.js v19 release line.
+
+  This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
+
+## 5.3.0
+
+### Minor Changes
+
+- [#10645](https://github.com/withastro/astro/pull/10645) [`51112ab3f1b134740e8307743bbb15cb0d8bdbb3`](https://github.com/withastro/astro/commit/51112ab3f1b134740e8307743bbb15cb0d8bdbb3) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Bumps Svelte 5 peer dependency to `^5.0.0-next.90` and support its latest breaking changes
+
 ## 5.2.0
 
 ### Minor Changes

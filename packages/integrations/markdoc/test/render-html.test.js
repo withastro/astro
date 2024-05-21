@@ -54,6 +54,13 @@ describe('Markdoc - render html', () => {
 
 			renderRandomlyCasedHTMLAttributesChecks(html);
 		});
+
+		it('renders content - html within partials', async () => {
+			const res = await fixture.fetch('/with-partial');
+			const html = await res.text();
+
+			renderHTMLWithinPartialChecks(html);
+		});
 	});
 
 	describe('build', () => {
@@ -83,6 +90,12 @@ describe('Markdoc - render html', () => {
 			const html = await fixture.readFile('/randomly-cased-html-attributes/index.html');
 
 			renderRandomlyCasedHTMLAttributesChecks(html);
+		});
+
+		it('renders content - html within partials', async () => {
+			const html = await fixture.readFile('/with-partial/index.html');
+
+			renderHTMLWithinPartialChecks(html);
 		});
 	});
 });
@@ -187,7 +200,17 @@ function renderRandomlyCasedHTMLAttributesChecks(html) {
 }
 
 /**
- * Asserts that the rendered HTML tags with interleaved Markdoc tags (both block and inline) rendered in the expected nested graph of elemements
+ * @param {string} html
+ */
+function renderHTMLWithinPartialChecks(html) {
+	const { document } = parseHTML(html);
+
+	const li = document.querySelector('ul > li#partial');
+	assert.equal(li.textContent, 'List item');
+}
+
+/**
+ * Asserts that the rendered HTML tags with interleaved Markdoc tags (both block and inline) rendered in the expected nested graph of elements
  *
  * @param {string} html */
 function renderComponentsHTMLChecks(html) {

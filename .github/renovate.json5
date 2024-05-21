@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "schedule:weekly",
+    "group:allNonMajor",
+    ":disablePeerDependencies", 
+    "regexManagers:biomeVersions",
+  ],
+  "labels": ["dependencies"],
+  "rangeStrategy": "bump",
+  "ignorePaths": ["**/node_modules/**"],
+  "ignoreDeps": [
+    // manually bumping deps
+    "@biomejs/biome",
+    "@types/node",
+    "preact-render-to-string", // https://github.com/withastro/astro/pull/10200
+    "sharp",
+
+    // manually bumping workflow actions
+    "actions/labeler",
+
+    // ignore "engines" update
+    "node",
+    "npm",
+    "pnpm",
+
+    // follow vite deps version
+    "postcss-load-config",
+  ],
+}

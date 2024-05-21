@@ -1,6 +1,6 @@
+import { setup } from 'virtual:@astrojs/vue/app';
 import { Suspense, createApp, createSSRApp, h } from 'vue';
 import StaticHtml from './static-html.js';
-import { setup } from 'virtual:@astrojs/vue/app';
 
 export default (element) =>
 	async (Component, props, slotted, { client }) => {

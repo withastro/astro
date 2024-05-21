@@ -3,14 +3,13 @@ import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
 import { type HMRPayload, createServer } from 'vite';
-import type { Arguments } from 'yargs-parser';
 import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { getPackage } from '../../cli/install-package.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
-import { runHookConfigSetup } from '../../integrations/index.js';
+import { runHookConfigSetup } from '../../integrations/hooks.js';
 import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
@@ -18,7 +17,13 @@ import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
-import { AstroError, AstroErrorData, createSafeError, isAstroError } from '../errors/index.js';
+import {
+	AstroError,
+	AstroErrorData,
+	AstroUserError,
+	createSafeError,
+	isAstroError,
+} from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
@@ -160,9 +165,11 @@ export async function syncContentCollections(
 		if (isAstroError(e)) {
 			throw e;
 		}
+		const hint = AstroUserError.is(e) ? e.hint : AstroErrorData.GenerateContentTypesError.hint;
 		throw new AstroError(
 			{
 				...AstroErrorData.GenerateContentTypesError,
+				hint,
 				message: AstroErrorData.GenerateContentTypesError.message(safeError.message),
 			},
 			{ cause: e }

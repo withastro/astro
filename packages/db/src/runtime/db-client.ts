@@ -4,7 +4,7 @@ import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
 import { type SqliteRemoteDatabase, drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
 import { z } from 'zod';
-import { safeFetch } from './utils.js';
+import { DetailedLibsqlError, safeFetch } from './utils.js';
 
 const isWebContainer = !!process.versions?.webcontainer;
 
@@ -55,10 +55,8 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 					},
 					body: JSON.stringify(requestBody),
 				},
-				(response) => {
-					throw new Error(
-						`Failed to execute query.\nQuery: ${sql}\nFull error: ${response.status} ${response.statusText}`
-					);
+				async (response) => {
+					throw await parseRemoteError(response);
 				}
 			);
 
@@ -67,11 +65,10 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 				const json = await res.json();
 				remoteResult = remoteResultSchema.parse(json);
 			} catch (e) {
-				throw new Error(
-					`Failed to execute query.\nQuery: ${sql}\nFull error: Unexpected JSON response. ${
-						e instanceof Error ? e.message : String(e)
-					}`
-				);
+				throw new DetailedLibsqlError({
+					message: await getUnexpectedResponseMessage(res),
+					code: KNOWN_ERROR_CODES.SQL_QUERY_FAILED,
+				});
 			}
 
 			if (method === 'run') return remoteResult;
@@ -103,10 +100,8 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 					},
 					body: JSON.stringify(stmts),
 				},
-				(response) => {
-					throw new Error(
-						`Failed to execute batch queries.\nFull error: ${response.status} ${response.statusText}}`
-					);
+				async (response) => {
+					throw await parseRemoteError(response);
 				}
 			);
 
@@ -115,11 +110,10 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 				const json = await res.json();
 				remoteResults = z.array(remoteResultSchema).parse(json);
 			} catch (e) {
-				throw new Error(
-					`Failed to execute batch queries.\nFull error: Unexpected JSON response. ${
-						e instanceof Error ? e.message : String(e)
-					}`
-				);
+				throw new DetailedLibsqlError({
+					message: await getUnexpectedResponseMessage(res),
+					code: KNOWN_ERROR_CODES.SQL_QUERY_FAILED,
+				});
 			}
 			let results: any[] = [];
 			for (const [idx, rawResult] of remoteResults.entries()) {
@@ -148,4 +142,43 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 	);
 	applyTransactionNotSupported(db);
 	return db;
+}
+
+const errorSchema = z.object({
+	success: z.boolean(),
+	error: z.object({
+		code: z.string(),
+		details: z.string().optional(),
+	}),
+});
+
+const KNOWN_ERROR_CODES = {
+	SQL_QUERY_FAILED: 'SQL_QUERY_FAILED',
+};
+
+const getUnexpectedResponseMessage = async (response: Response) =>
+	`Unexpected response from remote database:\n(Status ${response.status}) ${await response
+		.clone()
+		.text()}`;
+
+async function parseRemoteError(response: Response): Promise<DetailedLibsqlError> {
+	let error;
+	try {
+		error = errorSchema.parse(await response.clone().json()).error;
+	} catch (e) {
+		return new DetailedLibsqlError({
+			message: await getUnexpectedResponseMessage(response),
+			code: KNOWN_ERROR_CODES.SQL_QUERY_FAILED,
+		});
+	}
+	// Strip LibSQL error prefixes
+	let baseDetails =
+		error.details?.replace(/.*SQLite error: /, '') ?? 'Error querying remote database.';
+	// Remove duplicated "code" in details
+	const details = baseDetails.slice(baseDetails.indexOf(':') + 1).trim();
+	let hint = `See the Astro DB guide for query and push instructions: https://docs.astro.build/en/guides/astro-db/#query-your-database`;
+	if (error.code === KNOWN_ERROR_CODES.SQL_QUERY_FAILED && details.includes('no such table')) {
+		hint = `Did you run \`astro db push\` to push your latest table schemas?`;
+	}
+	return new DetailedLibsqlError({ message: details, code: error.code, hint });
 }

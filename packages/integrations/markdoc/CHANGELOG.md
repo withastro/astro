@@ -1,5 +1,58 @@
 # @astrojs/markdoc
 
+## 0.11.0
+
+### Minor Changes
+
+- [#10833](https://github.com/withastro/astro/pull/10833) [`8d5f3e8`](https://github.com/withastro/astro/commit/8d5f3e8656027023f9fda51c66b0213ffe16d3a5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `@markdoc/markdoc` to v0.4
+
+### Patch Changes
+
+- [#10833](https://github.com/withastro/astro/pull/10833) [`8d5f3e8`](https://github.com/withastro/astro/commit/8d5f3e8656027023f9fda51c66b0213ffe16d3a5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `esbuild` dependency to v0.20. This should not affect projects in most cases.
+
+## 0.10.0
+
+### Minor Changes
+
+- [#10689](https://github.com/withastro/astro/pull/10689) [`683d51a5eecafbbfbfed3910a3f1fbf0b3531b99`](https://github.com/withastro/astro/commit/683d51a5eecafbbfbfed3910a3f1fbf0b3531b99) Thanks [@ematipico](https://github.com/ematipico)! - Deprecate support for versions of Node.js older than `v18.17.1` for Node.js 18, older than `v20.0.3` for Node.js 20, and the complete Node.js v19 release line.
+
+  This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
+
+### Patch Changes
+
+- Updated dependencies [[`ccafa8d230f65c9302421a0ce0a0adc5824bfd55`](https://github.com/withastro/astro/commit/ccafa8d230f65c9302421a0ce0a0adc5824bfd55), [`683d51a5eecafbbfbfed3910a3f1fbf0b3531b99`](https://github.com/withastro/astro/commit/683d51a5eecafbbfbfed3910a3f1fbf0b3531b99)]:
+  - @astrojs/markdown-remark@5.1.0
+  - @astrojs/prism@3.1.0
+
+## 0.9.5
+
+### Patch Changes
+
+- [#10649](https://github.com/withastro/astro/pull/10649) [`90cfade88c2b9a34d8a5fe711ce329732d690409`](https://github.com/withastro/astro/commit/90cfade88c2b9a34d8a5fe711ce329732d690409) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add automatic resolution for Markdoc partials. This allows you to render other Markdoc files inside of a given entry. Reference files using the `partial` tag with a `file` attribute for the relative file path:
+
+  ```md
+  <!--src/content/blog/post.mdoc-->
+
+  {% partial file="my-partials/_diagram.mdoc" /%}
+
+  <!--src/content/blog/my-partials/_diagram.mdoc-->
+
+  ## Diagram
+
+  This partial will render inside of `post.mdoc.`
+
+  ![Diagram](./diagram.png)
+  ```
+
+## 0.9.4
+
+### Patch Changes
+
+- [#10632](https://github.com/withastro/astro/pull/10632) [`da2fb875fc58b65a21d37a3d29f570fa20b5219c`](https://github.com/withastro/astro/commit/da2fb875fc58b65a21d37a3d29f570fa20b5219c) Thanks [@bluwy](https://github.com/bluwy)! - Moves `@astrojs/markdown-remark` as a dependency
+
+- Updated dependencies [[`2cf116f80cb5e421ab5cc5eb4a654e7b78c1b8de`](https://github.com/withastro/astro/commit/2cf116f80cb5e421ab5cc5eb4a654e7b78c1b8de), [`374efcdff9625ca43309d89e3b9cfc9174351512`](https://github.com/withastro/astro/commit/374efcdff9625ca43309d89e3b9cfc9174351512)]:
+  - @astrojs/markdown-remark@5.0.0
+
 ## 0.9.3
 
 ### Patch Changes

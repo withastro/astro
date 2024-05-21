@@ -1,8 +1,8 @@
 import type {
+	ShikiConfig,
 	RehypePlugin as _RehypePlugin,
 	RemarkPlugin as _RemarkPlugin,
 	RemarkRehype as _RemarkRehype,
-	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
@@ -80,12 +80,15 @@ const ASTRO_CONFIG_DEFAULTS = {
 	legacy: {},
 	redirects: {},
 	experimental: {
+		actions: false,
 		directRenderScript: false,
 		contentCollectionCache: false,
 		contentCollectionJsonSchema: false,
 		clientPrerender: false,
 		globalRoutePriority: false,
 		i18nDomains: false,
+		security: {},
+		rewriting: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -386,21 +389,25 @@ export const AstroConfigSchema = z.object({
 					.optional(),
 				fallback: z.record(z.string(), z.string()).optional(),
 				routing: z
-					.object({
-						prefixDefaultLocale: z.boolean().default(false),
-						redirectToDefaultLocale: z.boolean().default(true),
-						strategy: z.enum(['pathname']).default('pathname'),
-					})
-					.default({})
-					.refine(
-						({ prefixDefaultLocale, redirectToDefaultLocale }) => {
-							return !(prefixDefaultLocale === false && redirectToDefaultLocale === false);
-						},
-						{
-							message:
-								'The option `i18n.redirectToDefaultLocale` is only useful when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change its value to `true`.',
-						}
-					),
+					.literal('manual')
+					.or(
+						z
+							.object({
+								prefixDefaultLocale: z.boolean().optional().default(false),
+								redirectToDefaultLocale: z.boolean().optional().default(true),
+							})
+							.refine(
+								({ prefixDefaultLocale, redirectToDefaultLocale }) => {
+									return !(prefixDefaultLocale === false && redirectToDefaultLocale === false);
+								},
+								{
+									message:
+										'The option `i18n.redirectToDefaultLocale` is only useful when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change its value to `true`.',
+								}
+							)
+					)
+					.optional()
+					.default({}),
 			})
 			.optional()
 			.superRefine((i18n, ctx) => {
@@ -488,6 +495,7 @@ export const AstroConfigSchema = z.object({
 	),
 	experimental: z
 		.object({
+			actions: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.actions),
 			directRenderScript: z
 				.boolean()
 				.optional()
@@ -508,7 +516,19 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.globalRoutePriority),
+			security: z
+				.object({
+					csrfProtection: z
+						.object({
+							origin: z.boolean().default(false),
+						})
+						.optional()
+						.default({}),
+				})
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.security),
 			i18nDomains: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.i18nDomains),
+			rewriting: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rewriting),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`

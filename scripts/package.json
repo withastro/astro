@@ -9,16 +9,16 @@
   },
   "dependencies": {
     "arg": "^5.0.2",
-    "esbuild": "^0.19.6",
-    "globby": "^14.0.0",
-    "kleur": "^4.1.4",
+    "esbuild": "^0.21.2",
+    "globby": "^14.0.1",
+    "kleur": "^4.1.5",
     "p-limit": "^5.0.0",
-    "svelte": "^4.2.5",
-    "tar": "^6.1.15"
+    "svelte": "^4.2.16",
+    "tar": "^7.1.0"
   },
   "devDependencies": {
-    "@octokit/action": "^6.0.5",
-    "del": "^7.0.0",
+    "@octokit/action": "^7.0.0",
+    "del": "^7.1.0",
     "esbuild-plugin-copy": "^2.1.1",
     "execa": "^8.0.1",
     "tsconfig-resolver": "^3.0.1"

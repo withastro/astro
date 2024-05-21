@@ -1,6 +1,6 @@
+import { getEntryBySlug } from 'astro:content';
 import * as devalue from 'devalue';
 import { stripRenderFn } from '../utils.js';
-import { getEntryBySlug } from 'astro:content';
 
 export async function GET() {
 	const columbiaWithoutConfig = stripRenderFn(await getEntryBySlug('without-config', 'columbia'));

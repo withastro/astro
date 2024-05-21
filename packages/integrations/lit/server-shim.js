@@ -1,4 +1,4 @@
-import { HTMLElement as litShimHTMLElement, customElements as litCE } from '@lit-labs/ssr-dom-shim';
+import { customElements as litCE, HTMLElement as litShimHTMLElement } from '@lit-labs/ssr-dom-shim';
 
 // Something at build time injects document.currentScript = undefined instead of
 // document.currentScript = null. This causes Sass build to fail because it
@@ -25,7 +25,7 @@ globalThis.customElements = litCE;
 const litCeDefine = customElements.define;
 
 // We need to patch customElements.define to keep track of the tagName on the
-// class itself so that we can transform JSX custom element class definintion to
+// class itself so that we can transform JSX custom element class definition to
 // a DSD string on the server, because there is no way to get the tagName from a
 // CE class otherwise. Not an issue on client:only because the browser supports
 // appending a class instance directly to the DOM.

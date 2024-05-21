@@ -1,13 +1,10 @@
-export type MarkdownImagePath = { raw: string; resolved: string; safeName: string };
+export type MarkdownImagePath = { raw: string; safeName: string };
 
 export function getMarkdownCodeForImages(imagePaths: MarkdownImagePath[], html: string) {
 	return `
 			import { getImage } from "astro:assets";
 			${imagePaths
-				.map((entry) => {
-					const prefix = entry.raw.includes('/') ? '' : './';
-					return `import Astro__${entry.safeName} from ${JSON.stringify(prefix + entry.raw)};`;
-				})
+				.map((entry) => `import Astro__${entry.safeName} from ${JSON.stringify(entry.raw)};`)
 				.join('\n')}
 
 			const images = async function(html) {
