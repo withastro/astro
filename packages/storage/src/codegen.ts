@@ -73,7 +73,7 @@ async function storageRequest(fileKind: 'all' | 'image' = 'all', serveUrl: strin
 function rearrangeData(data: any, serveUrl: string) {
 	const grouped: Record<string, any> = {};
 	for (const item of data) {
-		grouped[item.name] = { ...item, serve_url: `${serveUrl}?id=${item.id}` };
+		grouped[item.name] = { ...item, serve_url: `${serveUrl}?id=${item.customId}` };
 	}
 
 	return grouped;

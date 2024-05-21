@@ -63,7 +63,8 @@ const fileType = customType<{ data: string; driverData: string }>({
 	fromDriver(value) {
 		// TODO: Get this from somewhere else
 		const studioUrl =
-			process.env.ASTRO_STUDIO_FILE_SERVER || 'https://studio.astro.build/api/serve_file';
+			(import.meta as any).env.PUBLIC_ASTRO_STUDIO_FILE_SERVER ||
+			'https://studio.astro.build/api/serve_file';
 
 		return `${studioUrl}?id=${value}`;
 	},
