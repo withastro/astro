@@ -11,6 +11,7 @@ import type {
 import type * as babel from '@babel/core';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
+import type { Accept, ActionClient, InputSchema } from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
 import type { AssetsPrefix, SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
@@ -19,7 +20,7 @@ import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
-import type { getToolbarServerCommunicationHelpers } from '../integrations/index.js';
+import type { getToolbarServerCommunicationHelpers } from '../integrations/hooks.js';
 import type { AstroPreferences } from '../preferences/index.js';
 import type {
 	ToolbarAppEventTarget,
@@ -33,6 +34,7 @@ import type {
 	DevToolbarCard,
 	DevToolbarHighlight,
 	DevToolbarIcon,
+	DevToolbarRadioCheckbox,
 	DevToolbarSelect,
 	DevToolbarToggle,
 	DevToolbarTooltip,
@@ -238,6 +240,22 @@ export interface AstroGlobal<
 	response: ResponseInit & {
 		readonly headers: Headers;
 	};
+	/**
+	 * Get an action result on the server when using a form POST.
+	 * Expects the action function as a parameter.
+	 * Returns a type-safe result with the action data when
+	 * a matching POST request is received
+	 * and `undefined` otherwise.
+	 *
+	 * Example usage:
+	 *
+	 * ```typescript
+	 * import { actions } from 'astro:actions';
+	 *
+	 * const result = await Astro.getActionResult(actions.myAction);
+	 * ```
+	 */
+	getActionResult: AstroSharedContext['getActionResult'];
 	/** Redirect to another page (**SSR Only**)
 	 *
 	 * Example usage:
@@ -250,6 +268,19 @@ export interface AstroGlobal<
 	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/)
 	 */
 	redirect: AstroSharedContext['redirect'];
+	/**
+	 * It rewrites to another page. As opposed to redirects, the URL won't change, and Astro will render the HTML emitted
+	 * by the rewritten URL passed as argument.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * if (pageIsNotEnabled) {
+	 * 	return Astro.rewrite('/fallback-page')
+	 * }
+	 * ```
+	 */
+	rewrite: AstroSharedContext['rewrite'];
 	/**
 	 * The <Astro.self /> element allows a component to reference itself recursively.
 	 *
@@ -1641,7 +1672,7 @@ export interface AstroUserConfig {
 		domains?: Record<string, string>;
 	};
 
-	/** ⚠️ WARNING: SUBJECT TO CHANGE */
+	/** ! WARNING: SUBJECT TO CHANGE */
 	db?: Config.Database;
 
 	/**
@@ -1690,6 +1721,107 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		directRenderScript?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.actions
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.8.0
+		 * @description
+		 *
+		 * Actions help you write type-safe backend functions you can call from anywhere. Enable server rendering [using the `output` property](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered) and add the `actions` flag to the `experimental` object:
+		 *
+		 * ```js
+		 * {
+		 *   output: 'hybrid', // or 'server'
+		 *   experimental: {
+		 *     actions: true,
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * Declare all your actions in `src/actions/index.ts`. This file is the global actions handler.
+		 *
+		 * Define an action using the `defineAction()` utility from the `astro:actions` module. An action accepts the `handler` property to define your server-side request handler. If your action accepts arguments, apply the `input` property to validate parameters with Zod.
+		 *
+		 * This example defines two actions: `like` and `comment`. The `like` action accepts a JSON object with a `postId` string, while the `comment` action accepts [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) with `postId`, `author`, and `body` strings. Each `handler` updates your database and return a type-safe response.
+		 *
+		 * ```ts
+		 * // src/actions/index.ts
+		 * import { defineAction, z } from "astro:actions";
+		 *
+		 * export const server = {
+		 *   like: defineAction({
+		 *     input: z.object({ postId: z.string() }),
+		 *     handler: async ({ postId }) => {
+		 *       // update likes in db
+		 *
+		 *       return likes;
+		 *     },
+		 *   }),
+		 *   comment: defineAction({
+		 *     accept: 'form',
+		 *     input: z.object({
+		 *       postId: z.string(),
+		 *       author: z.string(),
+		 *       body: z.string(),
+		 *     }),
+		 *     handler: async ({ postId }) => {
+		 *       // insert comments in db
+		 *
+		 *       return comment;
+		 *     },
+		 *   }),
+		 * };
+		 * ```
+		 *
+		 * Then, call an action from your client components using the `actions` object from `astro:actions`. You can pass a type-safe object when using JSON, or a [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) object when using `accept: 'form'` in your action definition.
+		 *
+		 * This example calls the `like` and `comment` actions from a React component:
+		 *
+		 * ```tsx "actions"
+		 * // src/components/blog.tsx
+		 * import { actions } from "astro:actions";
+		 * import { useState } from "react";
+		 *
+		 * export function Like({ postId }: { postId: string }) {
+		 *   const [likes, setLikes] = useState(0);
+		 *   return (
+		 *     <button
+		 *       onClick={async () => {
+		 *         const newLikes = await actions.like({ postId });
+		 *         setLikes(newLikes);
+		 *       }}
+		 *     >
+		 *       {likes} likes
+		 *     </button>
+		 *   );
+		 * }
+		 *
+		 * export function Comment({ postId }: { postId: string }) {
+		 *   return (
+		 *     <form
+		 *       onSubmit={async (e) => {
+		 *         e.preventDefault();
+		 *         const formData = new FormData(e.target as HTMLFormElement);
+		 *         const result = await actions.blog.comment(formData);
+		 *         // handle result
+		 *       }}
+		 *     >
+		 *       <input type="hidden" name="postId" value={postId} />
+		 *       <label htmlFor="author">Author</label>
+		 *       <input id="author" type="text" name="author" />
+		 *       <textarea rows={10} name="body"></textarea>
+		 *       <button type="submit">Post</button>
+		 *     </form>
+		 *   );
+		 * }
+		 * ```
+		 *
+		 * For a complete overview, and to give feedback on this experimental API, see the [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md).
+		 */
+		actions?: boolean;
 
 		/**
 		 * @docs
@@ -1922,6 +2054,62 @@ export interface AstroUserConfig {
 				origin?: boolean;
 			};
 		};
+
+		/**
+		 * @docs
+		 * @name experimental.rewriting
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.8.0
+		 * @description
+		 *
+		 * Enables a routing feature for rewriting requests in Astro pages, endpoints and Astro middleware, giving you programmatic control over your routes.
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     rewriting: true,
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * Use `Astro.rewrite` in your `.astro` files to reroute to a different page:
+		 *
+		 * ```astro "rewrite"
+		 * ---
+		 * // src/pages/dashboard.astro
+		 * if (!Astro.props.allowed) {
+		 * 	return Astro.rewrite("/")
+		 * }
+		 * ---
+		 * ```
+		 *
+		 * Use `context.rewrite` in your endpoint files to reroute to a different page:
+		 *
+		 * ```js
+		 * // src/pages/api.js
+		 * export function GET(ctx) {
+		 * 	if (!ctx.locals.allowed) {
+		 * 		return ctx.rewrite("/")
+		 * 	}
+		 * }
+		 * ```
+		 *
+		 * Use `next("/")` in your middleware file to reroute to a different page, and then call the next middleware function:
+		 *
+		 * ```js
+		 * // src/middleware.js
+		 * export function onRequest(ctx, next) {
+		 * 	if (!ctx.cookies.get("allowed")) {
+		 * 		return next("/") // new signature
+		 * 	}
+		 * 	return next();
+		 * }
+		 * ```
+		 *
+		 * For a complete overview, and to give feedback on this experimental API, see the [Rerouting RFC](https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md).
+		 */
+		rewriting?: boolean;
 	};
 }
 
@@ -2479,6 +2667,16 @@ interface AstroSharedContext<
 	 */
 	url: URL;
 	/**
+	 * Get action result on the server when using a form POST.
+	 */
+	getActionResult: <
+		TAccept extends Accept,
+		TInputSchema extends InputSchema<TAccept>,
+		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
+	>(
+		action: TAction
+	) => Awaited<ReturnType<TAction['safe']>> | undefined;
+	/**
 	 * Route parameters for this request if this is a dynamic route.
 	 */
 	params: RouteParams;
@@ -2490,6 +2688,20 @@ interface AstroSharedContext<
 	 * Redirect to another page (**SSR Only**).
 	 */
 	redirect(path: string, status?: ValidRedirectStatus): Response;
+
+	/**
+	 * It rewrites to another page. As opposed to redirects, the URL won't change, and Astro will render the HTML emitted
+	 * by the rerouted URL passed as argument.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * if (pageIsNotEnabled) {
+	 * 	return Astro.rewrite('/fallback-page')
+	 * }
+	 * ```
+	 */
+	rewrite(rewritePayload: RewritePayload): Promise<Response>;
 
 	/**
 	 * Object accessed via Astro middleware
@@ -2604,6 +2816,21 @@ export interface APIContext<
 	 * [Reference](https://docs.astro.build/en/guides/api-reference/#contextredirect)
 	 */
 	redirect: AstroSharedContext['redirect'];
+
+	/**
+	 * It reroutes to another page. As opposed to redirects, the URL won't change, and Astro will render the HTML emitted
+	 * by the rerouted URL passed as argument.
+	 *
+	 * ## Example
+	 *
+	 * ```ts
+	 * // src/pages/secret.ts
+	 * export function GET(ctx) {
+	 *   return ctx.rewrite(new URL("../"), ctx.url);
+	 * }
+	 * ```
+	 */
+	rewrite: AstroSharedContext['rewrite'];
 
 	/**
 	 * An object that middlewares can use to store extra information related to the request.
@@ -2799,7 +3026,9 @@ export interface AstroIntegration {
 	};
 }
 
-export type MiddlewareNext = () => Promise<Response>;
+export type RewritePayload = string | URL | Request;
+
+export type MiddlewareNext = (rewritePayload?: RewritePayload) => Promise<Response>;
 export type MiddlewareHandler = (
 	context: APIContext,
 	next: MiddlewareNext
@@ -3087,6 +3316,7 @@ declare global {
 		'astro-dev-toolbar-icon': DevToolbarIcon;
 		'astro-dev-toolbar-card': DevToolbarCard;
 		'astro-dev-toolbar-select': DevToolbarSelect;
+		'astro-dev-toolbar-radio-checkbox': DevToolbarRadioCheckbox;
 
 		// Deprecated names
 		// TODO: Remove in Astro 5.0

@@ -17,7 +17,7 @@ import type { RouteData } from '../../@types/astro.js';
  * - Prerendered routes are sorted before non-prerendered routes.
  * - Endpoints are sorted before pages.
  *   For example, a file `/foo.ts` is sorted before `/bar.astro`.
- * - If both routes are equal regarding all previosu conditions, they are sorted alphabetically.
+ * - If both routes are equal regarding all previous conditions, they are sorted alphabetically.
  *   For example, `/bar` is sorted before `/foo`.
  *   The definition of "alphabetically" is dependent on the default locale of the running system.
  */

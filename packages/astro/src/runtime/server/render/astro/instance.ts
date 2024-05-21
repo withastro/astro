@@ -49,23 +49,25 @@ export class AstroComponentInstance {
 	async init(result: SSRResult) {
 		if (this.returnValue !== undefined) return this.returnValue;
 		this.returnValue = this.factory(result, this.props, this.slotValues);
+		// Save the resolved value after promise is resolved for optimization
+		if (isPromise(this.returnValue)) {
+			this.returnValue
+				.then((resolved) => {
+					this.returnValue = resolved;
+				})
+				.catch(() => {
+					// Ignore errors and appease unhandledrejection error
+				});
+		}
 		return this.returnValue;
 	}
 
 	async render(destination: RenderDestination) {
-		if (this.returnValue === undefined) {
-			await this.init(this.result);
-		}
-
-		let value: Promise<AstroFactoryReturnValue> | AstroFactoryReturnValue | undefined =
-			this.returnValue;
-		if (isPromise(value)) {
-			value = await value;
-		}
-		if (isHeadAndContent(value)) {
-			await value.content.render(destination);
+		const returnValue = await this.init(this.result);
+		if (isHeadAndContent(returnValue)) {
+			await returnValue.content.render(destination);
 		} else {
-			await renderChild(destination, value);
+			await renderChild(destination, returnValue);
 		}
 	}
 }

@@ -14,7 +14,7 @@ export default async function fetchAPI(path: string) {
 			}
 			return JSON.parse(text);
 		} catch (e) {
-			console.error(`Recevied from API: ${text}`);
+			console.error(`Received from API: ${text}`);
 			console.error(e);
 			return { error: e };
 		}

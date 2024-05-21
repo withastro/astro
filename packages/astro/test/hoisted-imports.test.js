@@ -87,5 +87,15 @@ describe('Hoisted Imports', () => {
 			assert.ok(scripts[0].attribs.src);
 			assert.ok(scripts[1].attribs.src);
 		});
+
+		it('renders styles if imported from the script', async () => {
+			const html = await fixture.readFile('/script-import-style/index.html');
+			const $ = cheerio.load(html);
+			const styles = $('style');
+			assert.equal(styles.length, 1);
+			// There should be no script because it's empty (contains only CSS import)
+			const scripts = $('scripts');
+			assert.equal(scripts.length, 0);
+		});
 	});
 });

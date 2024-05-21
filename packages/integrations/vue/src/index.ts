@@ -3,12 +3,16 @@ import type { Options as VueOptions } from '@vitejs/plugin-vue';
 import vue from '@vitejs/plugin-vue';
 import type { Options as VueJsxOptions } from '@vitejs/plugin-vue-jsx';
 import { MagicString } from '@vue/compiler-sfc';
-import type { AstroIntegration, AstroRenderer } from 'astro';
+import type { AstroIntegration, AstroRenderer, HookParameters } from 'astro';
 import type { Plugin, UserConfig } from 'vite';
+
+const VIRTUAL_MODULE_ID = 'virtual:@astrojs/vue/app';
+const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
 
 interface Options extends VueOptions {
 	jsx?: boolean | VueJsxOptions;
 	appEntrypoint?: string;
+	devtools?: boolean;
 }
 
 function getRenderer(): AstroRenderer {
@@ -28,9 +32,6 @@ function getJsxRenderer(): AstroRenderer {
 }
 
 function virtualAppEntrypoint(options?: Options): Plugin {
-	const virtualModuleId = 'virtual:@astrojs/vue/app';
-	const resolvedVirtualModuleId = '\0' + virtualModuleId;
-
 	let isBuild: boolean;
 	let root: string;
 	let appEntrypoint: string | undefined;
@@ -49,12 +50,12 @@ function virtualAppEntrypoint(options?: Options): Plugin {
 			}
 		},
 		resolveId(id: string) {
-			if (id == virtualModuleId) {
-				return resolvedVirtualModuleId;
+			if (id == VIRTUAL_MODULE_ID) {
+				return RESOLVED_VIRTUAL_MODULE_ID;
 			}
 		},
 		load(id: string) {
-			if (id === resolvedVirtualModuleId) {
+			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
 				if (appEntrypoint) {
 					return `\
 import * as mod from ${JSON.stringify(appEntrypoint)};
@@ -77,7 +78,7 @@ export const setup = async (app) => {
 			}
 		},
 		// Ensure that Vue components reference appEntrypoint directly
-		// This allows Astro to assosciate global styles imported in this file
+		// This allows Astro to associate global styles imported in this file
 		// with the pages they should be injected to
 		transform(code, id) {
 			if (!appEntrypoint) return;
@@ -93,7 +94,10 @@ export const setup = async (app) => {
 	};
 }
 
-async function getViteConfiguration(options?: Options): Promise<UserConfig> {
+async function getViteConfiguration(
+	command: HookParameters<'astro:config:setup'>['command'],
+	options?: Options
+): Promise<UserConfig> {
 	let vueOptions = {
 		...options,
 		template: {
@@ -105,7 +109,7 @@ async function getViteConfiguration(options?: Options): Promise<UserConfig> {
 	const config: UserConfig = {
 		optimizeDeps: {
 			include: ['@astrojs/vue/client.js', 'vue'],
-			exclude: ['@astrojs/vue/server.js', 'virtual:@astrojs/vue/app'],
+			exclude: ['@astrojs/vue/server.js', VIRTUAL_MODULE_ID],
 		},
 		plugins: [vue(vueOptions), virtualAppEntrypoint(vueOptions)],
 		ssr: {
@@ -119,6 +123,15 @@ async function getViteConfiguration(options?: Options): Promise<UserConfig> {
 		config.plugins?.push(vueJsx(jsxOptions));
 	}
 
+	if (command === 'dev' && options?.devtools) {
+		const vueDevTools = (await import('vite-plugin-vue-devtools')).default;
+		config.plugins?.push(
+			vueDevTools({
+				appendTo: VIRTUAL_MODULE_ID,
+			})
+		);
+	}
+
 	return config;
 }
 
@@ -126,12 +139,12 @@ export default function (options?: Options): AstroIntegration {
 	return {
 		name: '@astrojs/vue',
 		hooks: {
-			'astro:config:setup': async ({ addRenderer, updateConfig }) => {
+			'astro:config:setup': async ({ addRenderer, updateConfig, command }) => {
 				addRenderer(getRenderer());
 				if (options?.jsx) {
 					addRenderer(getJsxRenderer());
 				}
-				updateConfig({ vite: await getViteConfiguration(options) });
+				updateConfig({ vite: await getViteConfiguration(command, options) });
 			},
 		},
 	};

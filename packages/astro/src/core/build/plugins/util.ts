@@ -1,5 +1,7 @@
 import { extname } from 'node:path';
 import type { BuildOptions, Rollup, Plugin as VitePlugin } from 'vite';
+import type { BuildInternals } from '../internal.js';
+import type { PageBuildData } from '../types.js';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type OutputOptionsHook = Extract<VitePlugin['outputOptions'], Function>;
@@ -40,19 +42,28 @@ export function extendManualChunks(outputOptions: OutputOptions, hooks: ExtendMa
 	};
 }
 
-// This is an arbitrary string that we are going to replace the dot of the extension
+// This is an arbitrary string that we use to replace the dot of the extension.
 export const ASTRO_PAGE_EXTENSION_POST_PATTERN = '@_@';
+// This is an arbitrary string that we use to make a pageData key
+// Has to be a invalid character for a route, to avoid conflicts.
+export const ASTRO_PAGE_KEY_SEPARATOR = '&';
+
+/**
+ * Generate a unique key to identify each page in the build process.
+ * @param route Usually pageData.route.route
+ * @param componentPath Usually pageData.component
+ */
+export function makePageDataKey(route: string, componentPath: string): string {
+	return route + ASTRO_PAGE_KEY_SEPARATOR + componentPath;
+}
 
 /**
  * Prevents Rollup from triggering other plugins in the process by masking the extension (hence the virtual file).
- *
- * 1. We add a fixed prefix, which is used as virtual module naming convention
- * 2. If the path has an extension (at the end of the path), we replace the dot that belongs to the extension with an arbitrary string.
- *
- * @param virtualModulePrefix
- * @param path
+ * Inverse function of getComponentFromVirtualModulePageName() below.
+ * @param virtualModulePrefix The prefix used to create the virtual module
+ * @param path Page component path
  */
-export function getVirtualModulePageNameFromPath(virtualModulePrefix: string, path: string) {
+export function getVirtualModulePageName(virtualModulePrefix: string, path: string): string {
 	const extension = extname(path);
 	return (
 		virtualModulePrefix +
@@ -63,13 +74,40 @@ export function getVirtualModulePageNameFromPath(virtualModulePrefix: string, pa
 }
 
 /**
- *
- * @param virtualModulePrefix
- * @param id
+ * From the VirtualModulePageName, and the internals, get all pageDatas that use this
+ * component as their entry point.
+ * @param virtualModulePrefix The prefix used to create the virtual module
+ * @param id Virtual module name
  */
-export function getPathFromVirtualModulePageName(virtualModulePrefix: string, id: string) {
-	const pageName = id.slice(virtualModulePrefix.length);
-	return pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
+export function getPagesFromVirtualModulePageName(
+	internals: BuildInternals,
+	virtualModulePrefix: string,
+	id: string
+): PageBuildData[] {
+	const path = getComponentFromVirtualModulePageName(virtualModulePrefix, id);
+
+	const pages: PageBuildData[] = [];
+	internals.pagesByKeys.forEach((pageData) => {
+		if (pageData.component === path) {
+			pages.push(pageData);
+		}
+	});
+
+	return pages;
+}
+
+/**
+ * From the VirtualModulePageName, get the component path.
+ * Remember that the component can be use by multiple routes.
+ * Inverse function of getVirtualModulePageName() above.
+ * @param virtualModulePrefix The prefix at the beginning of the virtual module
+ * @param id Virtual module name
+ */
+export function getComponentFromVirtualModulePageName(
+	virtualModulePrefix: string,
+	id: string
+): string {
+	return id.slice(virtualModulePrefix.length).replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
 }
 
 export function shouldInlineAsset(

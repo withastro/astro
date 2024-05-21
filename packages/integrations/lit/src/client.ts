@@ -53,7 +53,7 @@ export default (element: HTMLElement) =>
 		}
 
 		// If there is no deferral of hydration, then all reactive properties are
-		// already serialzied as reflected attributes, or no reactive props were set
+		// already serialized as reflected attributes, or no reactive props were set
 		// Alternatively, if hydration is client:only proceed to set props.
 		if (!component || !(component.hasAttribute('defer-hydration') || isClientOnly)) {
 			return;
