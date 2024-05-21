@@ -1,12 +1,12 @@
-import type { AstroConfig, AstroIntegration, AstroIntegrationLogger } from "astro";
-import { STORAGE_CODE_FILE, STORAGE_TYPES_FILE } from "./consts.js";
-import { codegen } from "./codegen.js";
-import { readFile, writeFile } from "node:fs/promises";
-import { bold } from "kleur/colors";
-import path from "node:path";
-import { fileURLToPath } from "url";
-import { normalizePath } from "vite";
-import { existsSync } from "node:fs";
+import { existsSync } from 'node:fs';
+import { readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'url';
+import type { AstroConfig, AstroIntegration, AstroIntegrationLogger } from 'astro';
+import { bold } from 'kleur/colors';
+import { normalizePath } from 'vite';
+import { codegen } from './codegen.js';
+import { STORAGE_CODE_FILE, STORAGE_TYPES_FILE } from './consts.js';
 
 const VIRTUAL_MODULE_ID = 'astro:storage';
 const RESOLVED_MODULE_ID = '\0' + 'astro:storage';
@@ -29,33 +29,36 @@ function vitePluginStorage({ root }: { root: URL }): VitePlugin {
 				import { images, all } from '${new URL(STORAGE_CODE_FILE, dotAstroDir)}';
 
 				export function getFile(name) {
-					return all[name];
+					return all[name].serve_url;
 				}
 
 				export function getStudioImage(name) {
-					return images[name].id;
+					return images[name].serve_url;
 				}
-			`
-		}
-	}
+			`;
+		},
+	};
 }
 
 export function storageIntegration(): AstroIntegration {
-return {
-	name: "astro:studio",
-	hooks: {
-		'astro:config:setup': async ({ config, updateConfig, logger }) => {
-			updateConfig({
-				vite: {
-					plugins: [vitePluginStorage({ root: config.root }), vitePluginInjectEnvTs({ srcDir: config.srcDir, root: config.root }, logger)]
-				}
-			})
+	return {
+		name: 'astro:studio',
+		hooks: {
+			'astro:config:setup': async ({ config, updateConfig, logger }) => {
+				updateConfig({
+					vite: {
+						plugins: [
+							vitePluginStorage({ root: config.root }),
+							vitePluginInjectEnvTs({ srcDir: config.srcDir, root: config.root }, logger),
+						],
+					},
+				});
+			},
+			'astro:config:done': async ({ config }) => {
+				await codegen({ root: config.root });
+			},
 		},
-		'astro:config:done': async ({ config }) => {
-			await codegen({ root: config.root });
-		}
-	}
-}
+	};
 }
 
 export function vitePluginInjectEnvTs(
