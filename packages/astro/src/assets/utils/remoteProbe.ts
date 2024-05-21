@@ -1,7 +1,7 @@
 import { lookup } from './vendor/image-size/lookup.js';
 import type { ISize } from './vendor/image-size/types/interface.ts';
 
-export async function inferRemoteSize(url: string): Promise<ISize> {
+export async function inferRemoteSize(url: string): Promise<Omit<ISize, "orientation">> {
 	// Start fetching the image
 	const response = await fetch(url);
 	if (!response.body || !response.ok) {
