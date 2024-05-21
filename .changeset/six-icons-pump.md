@@ -1,5 +1,5 @@
 ---
-"astro": minor
+"astro": patch
 ---
 
 Deprecate the `getApiContext()` function. API Context can now be accessed from the second parameter to your Action `handler()`:
