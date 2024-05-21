@@ -1,7 +1,8 @@
+import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import type { ImageInputFormat, ImageMetadata } from '../types.js';
 import { lookup } from './vendor/image-size/lookup.js';
-import type { ISize } from './vendor/image-size/types/interface.ts';
 
-export async function inferRemoteSize(url: string): Promise<Omit<ISize, "orientation">> {
+export async function inferRemoteSize(url: string): Promise<Omit<ImageMetadata, 'src' | 'fsPath'>> {
 	// Start fetching the image
 	const response = await fetch(url);
 	if (!response.body || !response.ok) {
@@ -34,7 +35,21 @@ export async function inferRemoteSize(url: string): Promise<Omit<ISize, "orienta
 				const dimensions = lookup(accumulatedChunks);
 				if (dimensions) {
 					await reader.cancel(); // stop stream as we have size now
-					return dimensions;
+
+					const { width, height, type, orientation } = dimensions;
+					if (!width || !height || !type) {
+						throw new AstroError({
+							...AstroErrorData.NoImageMetadata,
+							message: AstroErrorData.NoImageMetadata.message(url),
+						});
+					}
+
+					return {
+						width,
+						height,
+						format: type as ImageInputFormat,
+						orientation,
+					};
 				}
 			} catch (error) {
 				// This catch block is specifically for `sizeOf` failures,
