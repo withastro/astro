@@ -2,7 +2,7 @@
 "astro": minor
 ---
 
-Allow actions to be called on the server. This allows you to call actions as utility functions in your Astro frontmatter or server-side components.
+Allow actions to be called on the server. This allows you to call actions as utility functions in your Astro frontmatter, endpoints, and server-side UI components.
 
 Import and call directly from `astro:actions` as you would for client actions:
 
