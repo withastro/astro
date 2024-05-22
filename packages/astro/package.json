@@ -48,6 +48,10 @@
       "types": "./config.d.ts",
       "default": "./config.mjs"
     },
+    "./container": {
+      "types": "./dist/container/index.d.ts",
+      "default": "./dist/container/index.js"
+    },
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
     "./client/*": "./dist/runtime/client/*",

@@ -115,7 +115,6 @@ export default function createVitePluginAstroServer({
  *
  * Renderers needs to be pulled out from the page module emitted during the build.
  * @param settings
- * @param renderers
  */
 export function createDevelopmentManifest(settings: AstroSettings): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
