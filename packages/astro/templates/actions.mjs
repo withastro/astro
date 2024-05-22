@@ -22,7 +22,7 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '/_actions/') {
 					method: 'POST',
 					name: action.toString(),
 					data,
-				}
+				};
 			};
 			action.safe.$$FORM_ACTION = function () {
 				const data = new FormData();
@@ -32,8 +32,8 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '/_actions/') {
 					method: 'POST',
 					name: action.toString(),
 					data,
-				}
-			}
+				};
+			};
 			// recurse to construct queries for nested object paths
 			// ex. actions.user.admins.auth()
 			return toActionProxy(action, path + '.');

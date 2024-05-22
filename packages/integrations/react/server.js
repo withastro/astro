@@ -1,7 +1,7 @@
 import opts from 'astro:react:opts';
+import { AstroError } from 'astro/errors';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import { AstroError } from 'astro/errors';
 import { incrementId } from './context.js';
 import StaticHtml from './static-html.js';
 
