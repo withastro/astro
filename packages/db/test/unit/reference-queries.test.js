@@ -1,5 +1,5 @@
-import { describe, it } from "node:test";
-import assert from  "node:assert/strict";
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { getTableChangeQueries } from '../../dist/core/cli/migration-queries.js';
 import { tablesSchema } from '../../dist/core/schemas.js';
 import { column, defineTable } from '../../dist/runtime/virtual.js';
@@ -61,7 +61,7 @@ describe('reference queries', () => {
 
 		assert.equal(queries[0] !== undefined, true);
 		const tempTableName = getTempTableName(queries[0]);
-		assert.notEqual(typeof tempTableName, "undefined");
+		assert.notEqual(typeof tempTableName, 'undefined');
 
 		assert.deepEqual(queries, [
 			`CREATE TABLE \"${tempTableName}\" (_id INTEGER PRIMARY KEY, \"to\" integer NOT NULL REFERENCES \"User\" (\"id\"), \"toName\" text NOT NULL, \"subject\" text NOT NULL, \"body\" text NOT NULL)`,
@@ -86,7 +86,7 @@ describe('reference queries', () => {
 
 		assert.equal(queries[0] !== undefined, true);
 		const tempTableName = getTempTableName(queries[0]);
-		assert.notEqual(typeof tempTableName, "undefined");
+		assert.notEqual(typeof tempTableName, 'undefined');
 
 		assert.deepEqual(queries, [
 			`CREATE TABLE \"${tempTableName}\" (_id INTEGER PRIMARY KEY, \"to\" integer NOT NULL, \"toName\" text NOT NULL, \"subject\" text NOT NULL, \"body\" text NOT NULL)`,
@@ -149,13 +149,15 @@ describe('reference queries', () => {
 		const addedForeignKey = await userChangeQueries(InitialWithoutFK, Final);
 		const updatedForeignKey = await userChangeQueries(InitialWithDifferentFK, Final);
 
-		assert.notEqual(typeof addedForeignKey.queries[0], "undefined");
-		assert.notEqual(typeof updatedForeignKey.queries[0], "undefined");
-		assert.deepEqual(addedForeignKey.queries,
+		assert.notEqual(typeof addedForeignKey.queries[0], 'undefined');
+		assert.notEqual(typeof updatedForeignKey.queries[0], 'undefined');
+		assert.deepEqual(
+			addedForeignKey.queries,
 			expected(getTempTableName(addedForeignKey.queries[0]))
 		);
 
-		assert.deepEqual(updatedForeignKey.queries,
+		assert.deepEqual(
+			updatedForeignKey.queries,
 			expected(getTempTableName(updatedForeignKey.queries[0]))
 		);
 	});

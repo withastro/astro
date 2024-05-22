@@ -1,5 +1,5 @@
-import { describe, it, before, after } from "node:test";
-import assert from  "node:assert/strict";
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
 import { setupRemoteDbServer } from './test-utils.js';
@@ -31,7 +31,7 @@ describe('missing app token', () => {
 		try {
 			await response.text();
 		} catch {
-			assert.equal(response.status, 501)
+			assert.equal(response.status, 501);
 		}
 	});
 });

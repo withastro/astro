@@ -1,5 +1,5 @@
-import { describe, it, before, after } from "node:test";
-import assert from  "node:assert/strict";
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
@@ -31,14 +31,8 @@ describe('astro:db', () => {
 			const $ = cheerioLoad(html);
 
 			const ul = $('.users-list');
-			assert.equal(
-				ul.children().length,
-				1
-			);
-			assert.match(
-				$('.users-list li').text(),
-				/Mario/
-			)
+			assert.equal(ul.children().length, 1);
+			assert.match($('.users-list li').text(), /Mario/);
 		});
 	});
 });

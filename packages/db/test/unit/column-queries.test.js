@@ -1,5 +1,5 @@
-import { describe, it } from "node:test";
-import assert from  "node:assert/strict";
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import {
 	getMigrationQueries,
 	getTableChangeQueries,
@@ -121,7 +121,7 @@ describe('column queries', () => {
 				'DROP TABLE "Users"',
 				'CREATE TABLE "Users" (_id INTEGER PRIMARY KEY, "date" text NOT NULL)',
 			]);
-			assert.equal(confirmations.length, 1)
+			assert.equal(confirmations.length, 1);
 		});
 
 		it('should return warning if new required column added', async () => {
@@ -140,7 +140,7 @@ describe('column queries', () => {
 				'DROP TABLE "Users"',
 				'CREATE TABLE "Users" (_id INTEGER PRIMARY KEY, "date" text NOT NULL)',
 			]);
-			assert.equal(confirmations.length, 1)
+			assert.equal(confirmations.length, 1);
 		});
 
 		it('should return warning if non-number primary key with no default added', async () => {
@@ -159,7 +159,7 @@ describe('column queries', () => {
 				'DROP TABLE "Users"',
 				'CREATE TABLE "Users" ("id" text PRIMARY KEY)',
 			]);
-			assert.equal(confirmations.length, 1)
+			assert.equal(confirmations.length, 1);
 		});
 
 		it('should be empty when type updated to same underlying SQL type', async () => {
@@ -299,10 +299,10 @@ describe('column queries', () => {
 				};
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
-				assert.equal(queries.length, 4)
+				assert.equal(queries.length, 4);
 
 				const tempTableName = getTempTableName(queries[0]);
-				assert.equal(typeof tempTableName, "string");
+				assert.equal(typeof tempTableName, 'string');
 				assert.deepEqual(queries, [
 					`CREATE TABLE "${tempTableName}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "email" text NOT NULL UNIQUE, "mi" text, "phoneNumber" text UNIQUE)`,
 					`INSERT INTO "${tempTableName}" ("_id", "name", "age", "email", "mi") SELECT "_id", "name", "age", "email", "mi" FROM "Users"`,
@@ -321,11 +321,11 @@ describe('column queries', () => {
 				delete userFinal.columns.email;
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
-				assert.equal(queries.length, 4)
-				assert.equal(queries.length, 4)
+				assert.equal(queries.length, 4);
+				assert.equal(queries.length, 4);
 
 				const tempTableName = getTempTableName(queries[0]);
-				assert.equal(typeof tempTableName, "string");
+				assert.equal(typeof tempTableName, 'string');
 				assert.deepEqual(queries, [
 					`CREATE TABLE "${tempTableName}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "mi" text)`,
 					`INSERT INTO "${tempTableName}" ("_id", "name", "age", "mi") SELECT "_id", "name", "age", "mi" FROM "Users"`,
@@ -352,10 +352,10 @@ describe('column queries', () => {
 				});
 
 				const { queries } = await userChangeQueries(initial, userFinal);
-				assert.equal(queries.length, 4)
+				assert.equal(queries.length, 4);
 
 				const tempTableName = getTempTableName(queries[0]);
-				assert.equal(typeof tempTableName, "string");
+				assert.equal(typeof tempTableName, 'string');
 				assert.deepEqual(queries, [
 					`CREATE TABLE "${tempTableName}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" text NOT NULL DEFAULT CURRENT_TIMESTAMP, "email" text NOT NULL UNIQUE, "mi" text)`,
 					`INSERT INTO "${tempTableName}" ("_id", "name", "age", "email", "mi") SELECT "_id", "name", "age", "email", "mi" FROM "Users"`,
@@ -374,10 +374,10 @@ describe('column queries', () => {
 				});
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
-				assert.equal(queries.length, 4)
+				assert.equal(queries.length, 4);
 
 				const tempTableName = getTempTableName(queries[0]);
-				assert.equal(typeof tempTableName, "string");
+				assert.equal(typeof tempTableName, 'string');
 				assert.deepEqual(queries, [
 					`CREATE TABLE "${tempTableName}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "email" text NOT NULL UNIQUE, "mi" text, "birthday" text NOT NULL DEFAULT CURRENT_TIMESTAMP)`,
 					`INSERT INTO "${tempTableName}" ("_id", "name", "age", "email", "mi") SELECT "_id", "name", "age", "email", "mi" FROM "Users"`,
@@ -404,10 +404,10 @@ describe('column queries', () => {
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
 
-				assert.equal(queries.length, 4)
+				assert.equal(queries.length, 4);
 
 				const tempTableName = getTempTableName(queries[0]);
-				assert.equal(typeof tempTableName, "string");
+				assert.equal(typeof tempTableName, 'string');
 				assert.deepEqual(queries, [
 					`CREATE TABLE "${tempTableName}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "email" text NOT NULL UNIQUE, "mi" text NOT NULL)`,
 					`INSERT INTO "${tempTableName}" ("_id", "name", "age", "email", "mi") SELECT "_id", "name", "age", "email", "mi" FROM "Users"`,
@@ -426,10 +426,10 @@ describe('column queries', () => {
 				};
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
-				assert.equal(queries.length, 4)
+				assert.equal(queries.length, 4);
 
 				const tempTableName = getTempTableName(queries[0]);
-				assert.equal(typeof tempTableName, "string");
+				assert.equal(typeof tempTableName, 'string');
 				assert.deepEqual(queries, [
 					`CREATE TABLE "${tempTableName}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL UNIQUE, "email" text NOT NULL UNIQUE, "mi" text)`,
 					`INSERT INTO "${tempTableName}" ("_id", "name", "age", "email", "mi") SELECT "_id", "name", "age", "email", "mi" FROM "Users"`,

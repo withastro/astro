@@ -1,5 +1,5 @@
-import { describe, it } from "node:test";
-import assert from  "node:assert/strict";
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { getTableChangeQueries } from '../../dist/core/cli/migration-queries.js';
 import { dbConfigSchema, tableSchema } from '../../dist/core/schemas.js';
 import { column } from '../../dist/runtime/virtual.js';
@@ -76,7 +76,7 @@ describe('index queries', () => {
 			newTable: final.tables.user,
 		});
 
-		assert.equal(queries.length, 0)
+		assert.equal(queries.length, 0);
 	});
 
 	it('does not trigger queries when changing from legacy to new format', async () => {
@@ -110,7 +110,7 @@ describe('index queries', () => {
 			newTable: final.tables.user,
 		});
 
-		assert.equal(queries.length, 0)
+		assert.equal(queries.length, 0);
 	});
 
 	it('adds indexes', async () => {

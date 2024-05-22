@@ -1,7 +1,7 @@
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { relative } from 'path';
 import { fileURLToPath } from 'url';
-import { describe, it, before, after } from "node:test";
-import assert from  "node:assert/strict";
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
 
@@ -64,8 +64,8 @@ describe('astro:db local database', () => {
 			} catch (err) {
 				buildError = err;
 			}
-			
-			assert.equal(buildError instanceof  Error, true)
+
+			assert.equal(buildError instanceof Error, true);
 		});
 
 		it('should throw during the build for hybrid output', async () => {
@@ -82,8 +82,8 @@ describe('astro:db local database', () => {
 			} catch (err) {
 				buildError = err;
 			}
-			
-			assert.equal(buildError instanceof  Error, true)
+
+			assert.equal(buildError instanceof Error, true);
 		});
 	});
 });

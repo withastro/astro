@@ -1,5 +1,5 @@
-import { describe, it, before, after } from "node:test";
-import assert from  "node:assert/strict";
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from '../../astro/test/test-utils.js';
 
@@ -28,14 +28,8 @@ describe('astro:db with integrations', () => {
 			const $ = cheerioLoad(html);
 
 			const ul = $('.authors-list');
-			assert.equal(
-				ul.children().length,
-				5
-			);
-			assert.match(
-				ul.children().eq(0).text(),
-				/Ben/
-			)
+			assert.equal(ul.children().length, 5);
+			assert.match(ul.children().eq(0).text(), /Ben/);
 		});
 
 		it('Prints the list of menu items from integration-defined table', async () => {
@@ -43,14 +37,8 @@ describe('astro:db with integrations', () => {
 			const $ = cheerioLoad(html);
 
 			const ul = $('ul.menu');
-			assert.equal(
-				ul.children().length,
-				4
-			);
-			assert.match(
-				ul.children().eq(0).text(),
-				/Pancakes/
-			)
+			assert.equal(ul.children().length, 4);
+			assert.match(ul.children().eq(0).text(), /Pancakes/);
 		});
 	});
 
@@ -64,14 +52,8 @@ describe('astro:db with integrations', () => {
 			const $ = cheerioLoad(html);
 
 			const ul = $('.authors-list');
-			assert.equal(
-				ul.children().length,
-				5
-			);
-			assert.match(
-				ul.children().eq(0).text(),
-				/Ben/
-			)
+			assert.equal(ul.children().length, 5);
+			assert.match(ul.children().eq(0).text(), /Ben/);
 		});
 
 		it('Prints the list of menu items from integration-defined table', async () => {
@@ -79,14 +61,8 @@ describe('astro:db with integrations', () => {
 			const $ = cheerioLoad(html);
 
 			const ul = $('ul.menu');
-			assert.equal(
-				ul.children().length,
-				4
-			);
-			assert.match(
-				ul.children().eq(0).text(),
-				/Pancakes/
-			)
+			assert.equal(ul.children().length, 4);
+			assert.match(ul.children().eq(0).text(), /Pancakes/);
 		});
 	});
 });

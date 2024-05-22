@@ -1,7 +1,7 @@
-import { describe, it, before, after } from "node:test";
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { loadFixture } from '../../astro/test/test-utils.js';
 import { setupRemoteDbServer } from './test-utils.js';
-import assert from "node:assert/strict"
 
 const foreignKeyConstraintError =
 	'LibsqlError: SQLITE_CONSTRAINT_FOREIGNKEY: FOREIGN KEY constraint failed';
@@ -30,7 +30,7 @@ describe('astro:db - error handling', () => {
 			assert.deepEqual(json, {
 				message: foreignKeyConstraintError,
 				code: 'SQLITE_CONSTRAINT_FOREIGNKEY',
-			})
+			});
 		});
 	});
 
@@ -51,7 +51,7 @@ describe('astro:db - error handling', () => {
 			assert.deepEqual(JSON.parse(json), {
 				message: foreignKeyConstraintError,
 				code: 'SQLITE_CONSTRAINT_FOREIGNKEY',
-			})
+			});
 		});
 	});
 });

@@ -1,5 +1,5 @@
-import { describe, it } from "node:test";
-import assert from  "node:assert/strict";
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { getMigrationQueries } from '../../dist/core/cli/migration-queries.js';
 import { MIGRATION_VERSION } from '../../dist/core/consts.js';
 import { tableSchema } from '../../dist/core/schemas.js';

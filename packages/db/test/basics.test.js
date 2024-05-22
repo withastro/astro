@@ -1,5 +1,5 @@
-import { describe, it, before, after } from "node:test";
-import assert from  "node:assert/strict";
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
@@ -31,14 +31,8 @@ describe('astro:db', () => {
 			const $ = cheerioLoad(html);
 
 			const ul = $('.authors-list');
-			assert.equal(
-				ul.children().length,
-				5
-			);
-			assert.match(
-				ul.children().eq(0).text(),
-				/Ben/
-			)
+			assert.equal(ul.children().length, 5);
+			assert.match(ul.children().eq(0).text(), /Ben/);
 		});
 
 		it('Allows expression defaults for date columns', async () => {
@@ -46,7 +40,7 @@ describe('astro:db', () => {
 			const $ = cheerioLoad(html);
 
 			const themeAdded = $($('.themes-list .theme-added')[0]).text();
-		assert.equal(Number.isNaN(new Date(themeAdded).getTime()), false);
+			assert.equal(Number.isNaN(new Date(themeAdded).getTime()), false);
 		});
 
 		it('Defaults can be overridden for dates', async () => {
@@ -118,14 +112,8 @@ describe('astro:db', () => {
 			const $ = cheerioLoad(html);
 
 			const ul = $('.authors-list');
-			assert.equal(
-				ul.children().length,
-				5
-			);
-			assert.match(
-				ul.children().eq(0).text(),
-				/Ben/
-			)
+			assert.equal(ul.children().length, 5);
+			assert.match(ul.children().eq(0).text(), /Ben/);
 		});
 
 		it('Allows expression defaults for date columns', async () => {
@@ -150,7 +138,6 @@ describe('astro:db', () => {
 
 			const themeOwner = $($('.themes-list .theme-owner')[0]).text();
 			assert.equal(themeOwner, '');
-
 		});
 
 		it('Allows expression defaults for boolean columns', async () => {
@@ -159,7 +146,6 @@ describe('astro:db', () => {
 
 			const themeDark = $($('.themes-list .theme-dark')[0]).text();
 			assert.match(themeDark, /dark mode/);
-
 		});
 
 		it('text fields an be used as references', async () => {
@@ -210,9 +196,7 @@ describe('astro:db', () => {
 			const $ = cheerioLoad(html);
 
 			const ul = $('.authors-list');
-			assert.equal(
-				ul.children().length,5
-			)
+			assert.equal(ul.children().length, 5);
 		});
 	});
 });
