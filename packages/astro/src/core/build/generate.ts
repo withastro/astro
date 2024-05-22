@@ -559,6 +559,6 @@ function createBuildManifest(
 		middleware,
 		rewritingEnabled: settings.config.experimental.rewriting,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
-		experimentalEnv: !!settings.config.experimental.env,
+		experimentalEnvGetSecretEnabled: false,
 	};
 }

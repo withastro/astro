@@ -2,6 +2,7 @@ export const VIRTUAL_MODULES_IDS = {
 	client: 'astro:env/client',
 	server: 'astro:env/server',
 	internal: 'virtual:astro:env/internal',
+	setup: 'astro:env/setup',
 };
 
 export const PUBLIC_PREFIX = 'PUBLIC_';

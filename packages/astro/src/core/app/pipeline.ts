@@ -11,6 +11,7 @@ import type { SinglePageBuiltModule } from '../build/types.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/component.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../render/ssr-element.js';
+import { setGetEnv, unimplementedAdapterGetEnv } from '../../runtime/server/astro-env.js';
 
 export class AppPipeline extends Pipeline {
 	#manifestData: ManifestData | undefined;
@@ -30,6 +31,9 @@ export class AppPipeline extends Pipeline {
 			'logger' | 'manifest' | 'mode' | 'renderers' | 'resolve' | 'serverLike' | 'streaming'
 		>
 	) {
+		if (manifest.experimentalEnvGetSecretEnabled) {
+			setGetEnv(unimplementedAdapterGetEnv);
+		}
 		const pipeline = new AppPipeline(
 			logger,
 			manifest,

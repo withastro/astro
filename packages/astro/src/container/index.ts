@@ -99,6 +99,7 @@ function createManifest(
 		i18n: manifest?.i18n,
 		checkOrigin: false,
 		middleware: manifest?.middleware ?? middleware ?? defaultMiddleware,
+		experimentalEnvGetSecretEnabled: manifest?.experimentalEnvGetSecretEnabled ?? false,
 	};
 }
 
@@ -178,6 +179,7 @@ type AstroContainerManifest = Pick<
 	| 'trailingSlash'
 	| 'buildFormat'
 	| 'i18n'
+	| 'experimentalEnvGetSecret'
 >;
 
 type AstroContainerConstructor = {
