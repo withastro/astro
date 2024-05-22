@@ -36,7 +36,7 @@ describe('astro:db', () => {
 			const html = await fixture.readFile('/run/index.html');
 			const $ = cheerioLoad(html);
 
-			assert.match($('#row').text(), /1/)
+			assert.match($('#row').text(), /1/);
 		});
 	});
 });
