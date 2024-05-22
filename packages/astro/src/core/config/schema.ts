@@ -79,6 +79,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	vite: {},
 	legacy: {},
 	redirects: {},
+	security: {},
 	experimental: {
 		actions: false,
 		directRenderScript: false,
@@ -86,7 +87,6 @@ const ASTRO_CONFIG_DEFAULTS = {
 		contentCollectionJsonSchema: false,
 		clientPrerender: false,
 		globalRoutePriority: false,
-		security: {},
 		rewriting: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
@@ -492,6 +492,12 @@ export const AstroConfigSchema = z.object({
 				}
 			})
 	),
+	security: z
+		.object({
+			checkOrigin: z.boolean().default(false),
+		})
+		.optional()
+		.default(ASTRO_CONFIG_DEFAULTS.security),
 	experimental: z
 		.object({
 			actions: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.actions),
@@ -515,17 +521,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.globalRoutePriority),
-			security: z
-				.object({
-					csrfProtection: z
-						.object({
-							origin: z.boolean().default(false),
-						})
-						.optional()
-						.default({}),
-				})
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.security),
 			rewriting: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rewriting),
 		})
 		.strict(

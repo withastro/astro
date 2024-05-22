@@ -781,6 +781,47 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @name security
+	 * @type {boolean}
+	 * @default `{}`
+	 * @version 4.9.0
+	 * @description
+	 *
+	 * Enables security measures for an Astro website.
+	 *
+	 * These features only exist for pages rendered on demand (SSR) using `server` mode or pages that opt out of prerendering in `hybrid` mode.
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * export default defineConfig({
+	 *   output: "server",
+	 *   security: {
+	 *     checkOrigin: true
+	 *   }
+	 * })
+	 * ```
+	 */
+	security?: {
+		/**
+		 * @name security.checkOrigin
+		 * @type {boolean}
+		 * @default 'false'
+		 * @version 4.6.0
+		 * @description
+		 *
+		 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`. This is used to provide Cross-Site Request Forgery (CSRF) protection.
+		 *
+		 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST, `PATCH`, `DELETE` and `PUT` with
+		 * the following `content-type` header: 'application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'.
+		 *
+		 * If the "origin" header doesn't match the `pathname` of the request, Astro will return a 403 status code and will not render the page.
+		 */
+
+		checkOrigin?: boolean;
+	};
+	
+	/**
+	 * @docs
 	 * @name vite
 	 * @typeraw {ViteUserConfig}
 	 * @description
@@ -1955,63 +1996,7 @@ export interface AstroUserConfig {
 		 * In the event of route collisions, where two routes of equal route priority attempt to build the same URL, Astro will log a warning identifying the conflicting routes.
 		 */
 		globalRoutePriority?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.security
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.6.0
-		 * @description
-		 *
-		 * Enables CSRF protection for Astro websites.
-		 *
-		 * The CSRF protection works only for pages rendered on demand (SSR) using `server` or `hybrid` mode. The pages must opt out of prerendering in `hybrid` mode.
-		 *
-		 * ```js
-		 * // astro.config.mjs
-		 * export default defineConfig({
-		 *   output: "server",
-		 *   experimental: {
-		 *     security: {
-		 *       csrfProtection: {
-		 *         origin: true
-		 *       }
-		 *     }
-		 *   }
-		 * })
-		 * ```
-		 */
-		security?: {
-			/**
-			 * @name security.csrfProtection
-			 * @type {object}
-			 * @default '{}'
-			 * @version 4.6.0
-			 * @description
-			 *
-			 * Allows you to enable security measures to prevent CSRF attacks: https://owasp.org/www-community/attacks/csrf
-			 */
-
-			csrfProtection?: {
-				/**
-				 * @name security.csrfProtection.origin
-				 * @type {boolean}
-				 * @default 'false'
-				 * @version 4.6.0
-				 * @description
-				 *
-				 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`.
-				 *
-				 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST, `PATCH`, `DELETE` and `PUT` with
-				 * the following `content-type` header: 'application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'.
-				 *
-				 * If the "origin" header doesn't match the `pathname` of the request, Astro will return a 403 status code and will not render the page.
-				 */
-				origin?: boolean;
-			};
-		};
-
+		
 		/**
 		 * @docs
 		 * @name experimental.rewriting
