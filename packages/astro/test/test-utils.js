@@ -25,6 +25,8 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @typedef {import('../src/core/app/index').App} App
  * @typedef {import('../src/cli/check/index').AstroChecker} AstroChecker
  * @typedef {import('../src/cli/check/index').CheckPayload} CheckPayload
+ * @typedef {import('http').IncomingMessage} NodeRequest
+ * @typedef {import('http').ServerResponse} NodeResponse
  *
  *
  * @typedef {Object} Fixture
@@ -40,6 +42,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @property {typeof preview} preview
  * @property {() => Promise<void>} clean
  * @property {() => Promise<App>} loadTestAdapterApp
+ * @property {() => Promise<(req: NodeRequest, res: NodeResponse) => void>} loadNodeAdapterHandler
  * @property {() => Promise<void>} onNextChange
  * @property {typeof check} check
  * @property {typeof sync} sync
@@ -212,6 +215,11 @@ export async function loadFixture(inlineConfig) {
 					force: true,
 				});
 			}
+		},
+		loadNodeAdapterHandler: async () => {
+			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);
+			const { handler } = await import(url);
+			return handler;
 		},
 		loadTestAdapterApp: async (streaming) => {
 			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);
