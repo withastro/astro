@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
@@ -30,8 +31,8 @@ describe('astro:db', () => {
 			const $ = cheerioLoad(html);
 
 			const ul = $('.users-list');
-			expect(ul.children()).to.have.a.lengthOf(1);
-			expect($('.users-list li').text()).to.equal('Mario');
+			assert.equal(ul.children().length, 1);
+			assert.match($('.users-list li').text(), /Mario/);
 		});
 	});
 });

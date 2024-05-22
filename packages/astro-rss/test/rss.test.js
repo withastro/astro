@@ -176,7 +176,7 @@ describe('getRssString', () => {
 			trailingSlash: false,
 		});
 
-		assert.ok(str.includes('https://example.com/<'));
+		assert.ok(str.includes('https://example.com<'));
 		assert.ok(str.includes('https://example.com/php<'));
 	});
 

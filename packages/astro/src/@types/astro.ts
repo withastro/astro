@@ -1784,7 +1784,7 @@ export interface AstroUserConfig {
 		 *
 		 * Declare all your actions in `src/actions/index.ts`. This file is the global actions handler.
 		 *
-		 * Define an action using the `defineAction()` utility from the `astro:actions` module. These accept the `handler` property to define your server-side request handler. If your action accepts arguments, apply the `input` property to validate parameters with Zod.
+		 * Define an action using the `defineAction()` utility from the `astro:actions` module. An action accepts the `handler` property to define your server-side request handler. If your action accepts arguments, apply the `input` property to validate parameters with Zod.
 		 *
 		 * This example defines two actions: `like` and `comment`. The `like` action accepts a JSON object with a `postId` string, while the `comment` action accepts [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) with `postId`, `author`, and `body` strings. Each `handler` updates your database and return a type-safe response.
 		 *
@@ -1817,12 +1817,14 @@ export interface AstroUserConfig {
 		 * };
 		 * ```
 		 *
-		 * Then, call an action from your client components using the `actions` object from `astro:actions`. You can pass a type-safe object when using JSON, or a [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) object when using `accept: 'form'` in your action definition:
+		 * Then, call an action from your client components using the `actions` object from `astro:actions`. You can pass a type-safe object when using JSON, or a [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) object when using `accept: 'form'` in your action definition.
+		 *
+		 * This example calls the `like` and `comment` actions from a React component:
 		 *
 		 * ```tsx "actions"
 		 * // src/components/blog.tsx
 		 * import { actions } from "astro:actions";
-		 * import { useState } from "preact/hooks";
+		 * import { useState } from "react";
 		 *
 		 * export function Like({ postId }: { postId: string }) {
 		 *   const [likes, setLikes] = useState(0);
@@ -1843,13 +1845,13 @@ export interface AstroUserConfig {
 		 *     <form
 		 *       onSubmit={async (e) => {
 		 *         e.preventDefault();
-		 *         const formData = new FormData(e.target);
+		 *         const formData = new FormData(e.target as HTMLFormElement);
 		 *         const result = await actions.blog.comment(formData);
 		 *         // handle result
 		 *       }}
 		 *     >
 		 *       <input type="hidden" name="postId" value={postId} />
-		 *       <label for="author">Author</label>
+		 *       <label htmlFor="author">Author</label>
 		 *       <input id="author" type="text" name="author" />
 		 *       <textarea rows={10} name="body"></textarea>
 		 *       <button type="submit">Post</button>
@@ -1994,50 +1996,7 @@ export interface AstroUserConfig {
 		 * In the event of route collisions, where two routes of equal route priority attempt to build the same URL, Astro will log a warning identifying the conflicting routes.
 		 */
 		globalRoutePriority?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.i18nDomains
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.3.0
-		 * @description
-		 *
-		 * Enables domain support for the [experimental `domains` routing strategy](https://docs.astro.build/en/guides/internationalization/#domains-experimental) which allows you to configure the URL pattern of one or more supported languages to use a custom domain (or sub-domain).
-		 *
-		 * When a locale is mapped to a domain, a `/[locale]/` path prefix will not be used. However, localized folders within `src/pages/` are still required, including for your configured `defaultLocale`.
-		 *
-		 * Any other locale not configured will default to a localized path-based URL according to your `prefixDefaultLocale` strategy (e.g. `https://example.com/[locale]/blog`).
-		 *
-		 * ```js
-		 * //astro.config.mjs
-		 * export default defineConfig({
-		 * 	site: "https://example.com",
-		 * 	output: "server", // required, with no prerendered pages
-		 * 	adapter: node({
-		 * 		mode: 'standalone',
-		 * 	}),
-		 * 	i18n: {
-		 * 		defaultLocale: "en",
-		 * 		locales: ["en", "fr", "pt-br", "es"],
-		 * 		prefixDefaultLocale: false,
-		 * 		domains: {
-		 * 			fr: "https://fr.example.com",
-		 * 			es: "https://example.es",
-		 * 		},
-		 * 	},
-		 * 	experimental: {
-		 * 		i18nDomains: true,
-		 * 	},
-		 * });
-		 * ```
-		 *
-		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/reference/api-reference/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/reference/api-reference/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
-		 *
-		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains-experimental) for more details, including the limitations of this experimental feature.
-		 */
-		i18nDomains?: boolean;
-
+		
 		/**
 		 * @docs
 		 * @name experimental.rewriting

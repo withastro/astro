@@ -239,7 +239,7 @@ function buildManifest(
 	 * logic meant for i18n domain support, where we fill the lookup table
 	 */
 	const i18n = settings.config.i18n;
-	if (settings.config.experimental.i18nDomains && i18n && i18n.domains) {
+	if (i18n && i18n.domains) {
 		for (const [locale, domainValue] of Object.entries(i18n.domains)) {
 			domainLookupTable[domainValue] = normalizeTheLocale(locale);
 		}

@@ -174,7 +174,7 @@ describe('Astro Actions', () => {
 		it('Respects user middleware', async () => {
 			const formData = new FormData();
 			formData.append('_astroAction', '/_actions/getUser');
-			const req = new Request('http://example.com/middleware', {
+			const req = new Request('http://example.com/user', {
 				method: 'POST',
 				body: formData,
 			});
@@ -184,6 +184,35 @@ describe('Astro Actions', () => {
 			const html = await res.text();
 			let $ = cheerio.load(html);
 			assert.equal($('#user').text(), 'Houston');
+		});
+
+		it('Respects custom errors', async () => {
+			const formData = new FormData();
+			formData.append('_astroAction', '/_actions/getUserOrThrow');
+			const req = new Request('http://example.com/user-or-throw', {
+				method: 'POST',
+				body: formData,
+			});
+			const res = await app.render(req);
+			assert.equal(res.ok, false);
+			assert.equal(res.status, 401);
+
+			const html = await res.text();
+			let $ = cheerio.load(html);
+			assert.equal($('#error-message').text(), 'Not logged in');
+			assert.equal($('#error-code').text(), 'UNAUTHORIZED');
+		});
+
+		it('Sets status to 204 when no content', async () => {
+			const req = new Request('http://example.com/_actions/fireAndForget', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Content-Length': '0',
+				},
+			});
+			const res = await app.render(req);
+			assert.equal(res.status, 204);
 		});
 	});
 });

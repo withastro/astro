@@ -4,7 +4,7 @@ import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
 import { type SqliteRemoteDatabase, drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
 import { z } from 'zod';
-import { AstroDbError, safeFetch } from './utils.js';
+import { DetailedLibsqlError, safeFetch } from './utils.js';
 
 const isWebContainer = !!process.versions?.webcontainer;
 
@@ -65,10 +65,29 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 				const json = await res.json();
 				remoteResult = remoteResultSchema.parse(json);
 			} catch (e) {
-				throw new AstroDbError(await getUnexpectedResponseMessage(res));
+				throw new DetailedLibsqlError({
+					message: await getUnexpectedResponseMessage(res),
+					code: KNOWN_ERROR_CODES.SQL_QUERY_FAILED,
+				});
 			}
 
-			if (method === 'run') return remoteResult;
+			if (method === 'run') {
+				const rawRows = Array.from(remoteResult.rows);
+				// Implement basic `toJSON()` for Drizzle to serialize properly
+				(remoteResult as any).rows.toJSON = () => rawRows;
+				// Using `db.run()` drizzle massages the rows into an object.
+				// So in order to make dev/prod consistent, we need to do the same here.
+				// This creates an object and loops over each row replacing it with the object.
+				for (let i = 0; i < remoteResult.rows.length; i++) {
+					let row = remoteResult.rows[i];
+					let item: Record<string, any> = {};
+					remoteResult.columns.forEach((col, index) => {
+						item[col] = row[index];
+					});
+					(remoteResult as any).rows[i] = item;
+				}
+				return remoteResult;
+			}
 
 			// Drizzle expects each row as an array of its values
 			const rowValues: unknown[][] = [];
@@ -107,7 +126,10 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 				const json = await res.json();
 				remoteResults = z.array(remoteResultSchema).parse(json);
 			} catch (e) {
-				throw new AstroDbError(await getUnexpectedResponseMessage(res));
+				throw new DetailedLibsqlError({
+					message: await getUnexpectedResponseMessage(res),
+					code: KNOWN_ERROR_CODES.SQL_QUERY_FAILED,
+				});
 			}
 			let results: any[] = [];
 			for (const [idx, rawResult] of remoteResults.entries()) {
@@ -151,22 +173,28 @@ const KNOWN_ERROR_CODES = {
 };
 
 const getUnexpectedResponseMessage = async (response: Response) =>
-	`Unexpected response from remote database:\n(Status ${response.status}) ${await response.text()}`;
+	`Unexpected response from remote database:\n(Status ${response.status}) ${await response
+		.clone()
+		.text()}`;
 
-async function parseRemoteError(response: Response): Promise<AstroDbError> {
+async function parseRemoteError(response: Response): Promise<DetailedLibsqlError> {
 	let error;
 	try {
-		error = errorSchema.parse(await response.json()).error;
+		error = errorSchema.parse(await response.clone().json()).error;
 	} catch (e) {
-		return new AstroDbError(await getUnexpectedResponseMessage(response));
+		return new DetailedLibsqlError({
+			message: await getUnexpectedResponseMessage(response),
+			code: KNOWN_ERROR_CODES.SQL_QUERY_FAILED,
+		});
 	}
 	// Strip LibSQL error prefixes
-	let details =
-		error.details?.replace(/.*SQLite error: /, '') ??
-		`(Code ${error.code}) \nError querying remote database.`;
+	let baseDetails =
+		error.details?.replace(/.*SQLite error: /, '') ?? 'Error querying remote database.';
+	// Remove duplicated "code" in details
+	const details = baseDetails.slice(baseDetails.indexOf(':') + 1).trim();
 	let hint = `See the Astro DB guide for query and push instructions: https://docs.astro.build/en/guides/astro-db/#query-your-database`;
 	if (error.code === KNOWN_ERROR_CODES.SQL_QUERY_FAILED && details.includes('no such table')) {
 		hint = `Did you run \`astro db push\` to push your latest table schemas?`;
 	}
-	return new AstroDbError(details, hint);
+	return new DetailedLibsqlError({ message: details, code: error.code, hint });
 }

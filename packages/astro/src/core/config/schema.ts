@@ -87,7 +87,6 @@ const ASTRO_CONFIG_DEFAULTS = {
 		contentCollectionJsonSchema: false,
 		clientPrerender: false,
 		globalRoutePriority: false,
-		i18nDomains: false,
 		rewriting: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
@@ -522,7 +521,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.globalRoutePriority),
-			i18nDomains: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.i18nDomains),
 			rewriting: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rewriting),
 		})
 		.strict(
@@ -663,22 +661,20 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		})
 		.superRefine((configuration, ctx) => {
 			const { site, experimental, i18n, output } = configuration;
-			if (experimental.i18nDomains) {
-				const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
-				if (hasDomains) {
-					if (!site) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message:
-								"The option `site` isn't set. When using the 'domains' strategy for `i18n`, `site` is required to create absolute URLs for locales that aren't mapped to a domain.",
-						});
-					}
-					if (output !== 'server') {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: 'Domain support is only available when `output` is `"server"`.',
-						});
-					}
+			const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
+			if (hasDomains) {
+				if (!site) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message:
+							"The option `site` isn't set. When using the 'domains' strategy for `i18n`, `site` is required to create absolute URLs for locales that aren't mapped to a domain.",
+					});
+				}
+				if (output !== 'server') {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Domain support is only available when `output` is `"server"`.',
+					});
 				}
 			}
 		});

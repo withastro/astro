@@ -1,5 +1,85 @@
 # astro
 
+## 4.8.7
+
+### Patch Changes
+
+- [#11073](https://github.com/withastro/astro/pull/11073) [`f5c8fee`](https://github.com/withastro/astro/commit/f5c8fee76c5e688ef23c18be79705b18f1750415) Thanks [@matthewp](https://github.com/matthewp)! - Prevent cache content from being left in dist folder
+
+  When `contentCollectionsCache` is enabled temporary cached content is copied into the `outDir` for processing. This fixes it so that this content is cleaned out, along with the rest of the temporary build JS.
+
+- [#11054](https://github.com/withastro/astro/pull/11054) [`f6b171e`](https://github.com/withastro/astro/commit/f6b171ed50eed253b8ac005bd5e9d1841a8003dd) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Respect error status when handling Actions with a progressive fallback.
+
+- [#11092](https://github.com/withastro/astro/pull/11092) [`bfe9c73`](https://github.com/withastro/astro/commit/bfe9c73536f0794e4f5ede5040adabbe0e705984) Thanks [@duckycoding-dev](https://github.com/duckycoding-dev)! - Change `slot` attribute of `IntrinsicAttributes` to match the definition of `HTMLAttributes`'s own `slot` attribute of type `string | undefined | null`
+
+- [#10875](https://github.com/withastro/astro/pull/10875) [`b5f95b2`](https://github.com/withastro/astro/commit/b5f95b2fb156152fabf2a22e150037a8255006f9) Thanks [@W1M0R](https://github.com/W1M0R)! - Fixes a typo in a JSDoc annotation
+
+- [#11111](https://github.com/withastro/astro/pull/11111) [`a5d79dd`](https://github.com/withastro/astro/commit/a5d79ddeb2d592de9eb2468471fdcf3eea5ef730) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix unexpected `headers` warning on prerendered routes when using Astro Actions.
+
+- [#11081](https://github.com/withastro/astro/pull/11081) [`af42e05`](https://github.com/withastro/astro/commit/af42e0552054b3b4ac784ed78c60f80bfc38d8ca) Thanks [@V3RON](https://github.com/V3RON)! - Correctly position inspection tooltip in RTL mode
+
+  When RTL mode is turned on, the inspection tooltip tend to overflow the window on the left side.
+  Additional check has been added to prevent that.
+
+## 4.8.6
+
+### Patch Changes
+
+- [#11084](https://github.com/withastro/astro/pull/11084) [`9637014`](https://github.com/withastro/astro/commit/9637014b1495a5a41cb384c7de4de410348f4cc0) Thanks [@bluwy](https://github.com/bluwy)! - Fixes regression when handling hoisted scripts from content collections
+
+## 4.8.5
+
+### Patch Changes
+
+- [#11065](https://github.com/withastro/astro/pull/11065) [`1f988ed`](https://github.com/withastro/astro/commit/1f988ed10f4737b5333c9978115ee531786eb539) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug in the Astro rewrite logic, where rewriting the index with parameters - `next("/?foo=bar")` - didn't work as expected.
+
+- [#10924](https://github.com/withastro/astro/pull/10924) [`3a0c02a`](https://github.com/withastro/astro/commit/3a0c02ae0357c267881b30454b5320075378894b) Thanks [@Its-Just-Nans](https://github.com/Its-Just-Nans)! - Handle image-size errors by displaying a clearer message
+
+- [#11058](https://github.com/withastro/astro/pull/11058) [`749a7ac`](https://github.com/withastro/astro/commit/749a7ac967146952450a4173dcb6a5494755460c) Thanks [@matthewp](https://github.com/matthewp)! - Fix streaming in Node.js fast path
+
+- [#11052](https://github.com/withastro/astro/pull/11052) [`a05ca38`](https://github.com/withastro/astro/commit/a05ca38c2cf327ae9130ee1c139a0e510b9da50a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where rewriting would conflict with the actions internal middleware
+
+- [#11062](https://github.com/withastro/astro/pull/11062) [`16f12e4`](https://github.com/withastro/astro/commit/16f12e426e5869721313bb771e2ec5b821c5452e) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where `astro build` didn't create custom `404.html` and `500.html` when a certain combination of i18n options was applied
+
+- [#10965](https://github.com/withastro/astro/pull/10965) [`a8f0372`](https://github.com/withastro/astro/commit/a8f0372ea71479ef80c58e74201dea6a5a2b2ae4) Thanks [@Elias-Chairi](https://github.com/Elias-Chairi)! - Update generator.ts to allow %23 (#) in dynamic urls
+
+- [#11069](https://github.com/withastro/astro/pull/11069) [`240a70a`](https://github.com/withastro/astro/commit/240a70a29f8e11d161da021845c208f982d64e5c) Thanks [@ematipico](https://github.com/ematipico)! - Improves debug logging for on-demand pages
+
+## 4.8.4
+
+### Patch Changes
+
+- [#11026](https://github.com/withastro/astro/pull/11026) [`8dfb1a2`](https://github.com/withastro/astro/commit/8dfb1a23cc5996c410f7e33211d132dac36c9f77) Thanks [@bluwy](https://github.com/bluwy)! - Skips rendering script tags if it's inlined and empty when `experimental.directRenderScript` is enabled
+
+- [#11043](https://github.com/withastro/astro/pull/11043) [`d0d1710`](https://github.com/withastro/astro/commit/d0d1710439ec281518b17d03126b5d9cd008a102) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fixes minor type issues in actions component example
+
+- [#10999](https://github.com/withastro/astro/pull/10999) [`5f353e3`](https://github.com/withastro/astro/commit/5f353e39b2b9fb15e6c9d193b5b5101457fef002) Thanks [@bluwy](https://github.com/bluwy)! - The prefetch feature is updated to better support different browsers and different cache headers setup, including:
+
+  1. All prefetch strategies will now always try to use `<link rel="prefetch">` if supported, or will fall back to `fetch()`.
+  2. The `prefetch()` programmatic API's `with` option is deprecated in favour of an automatic approach that will also try to use `<link rel="prefetch>` if supported, or will fall back to `fetch()`.
+
+  This change shouldn't affect most sites and should instead make prefetching more effective.
+
+- [#11041](https://github.com/withastro/astro/pull/11041) [`6cc3fb9`](https://github.com/withastro/astro/commit/6cc3fb97ec01af5a7c2153f5b3c22e92675f1e56) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fixes 500 errors when sending empty params or returning an empty response from an action.
+
+- [#11028](https://github.com/withastro/astro/pull/11028) [`771d1f7`](https://github.com/withastro/astro/commit/771d1f7654e18b657c3eacfabae52ed88c76fa99) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Throw on missing server output when using Astro Actions.
+
+- [#11029](https://github.com/withastro/astro/pull/11029) [`bd34452`](https://github.com/withastro/astro/commit/bd34452a34e9d90c948b1e454d184085cd591871) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Actions: include validation error in thrown error message for debugging.
+
+- [#11046](https://github.com/withastro/astro/pull/11046) [`086694a`](https://github.com/withastro/astro/commit/086694ac31a5f3412a3dcdbbd95f0187316699c5) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes `getViteConfig()` type definition to allow passing an inline Astro configuration as second argument
+
+- [#11026](https://github.com/withastro/astro/pull/11026) [`8dfb1a2`](https://github.com/withastro/astro/commit/8dfb1a23cc5996c410f7e33211d132dac36c9f77) Thanks [@bluwy](https://github.com/bluwy)! - Fixes CSS handling if imported in a script tag in an Astro file when `experimental.directRenderScript` is enabled
+
+- [#11020](https://github.com/withastro/astro/pull/11020) [`2e2d6b7`](https://github.com/withastro/astro/commit/2e2d6b7442063c8eb32533d45eaf021c3fa0f615) Thanks [@xsynaptic](https://github.com/xsynaptic)! - Add type declarations for `import.meta.env.ASSETS_PREFIX` when defined as an object for handling different file types.
+
+- [#11030](https://github.com/withastro/astro/pull/11030) [`18e7f33`](https://github.com/withastro/astro/commit/18e7f33ccd145292224cbeffde9fc30d143d97fb) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Actions: Fix missing message for custom Action errors.
+
+- [#10981](https://github.com/withastro/astro/pull/10981) [`ad9227c`](https://github.com/withastro/astro/commit/ad9227c7d1474881fac9b1db15aa7b5a888b42b8) Thanks [@mo](https://github.com/mo)! - Adds deprecated HTML attribute "name" to the list of valid attributes. This attribute has been replaced by the global `id` attribute in recent versions of HTML.
+
+- [#11013](https://github.com/withastro/astro/pull/11013) [`4ea38e7`](https://github.com/withastro/astro/commit/4ea38e733344304f7e18c226d1db3e8ac236055f) Thanks [@QingXia-Ela](https://github.com/QingXia-Ela)! - Prevents unhandledrejection error when checking for latest Astro version
+
+- [#11034](https://github.com/withastro/astro/pull/11034) [`5f2dd45`](https://github.com/withastro/astro/commit/5f2dd4518e707d37f6f886764ca9b31c0d451fd4) Thanks [@arganaphang](https://github.com/arganaphang)! - Add `popovertargetaction` to the attribute that can be passed to the `button` and `input` element
+
 ## 4.8.3
 
 ### Patch Changes

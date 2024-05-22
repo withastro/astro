@@ -9,6 +9,7 @@ scripts/smoke/*-main/
 scripts/memory/project/src/pages/
 benchmark/projects/
 benchmark/results/
+test-results/
 *.log
 package-lock.json
 .turbo/

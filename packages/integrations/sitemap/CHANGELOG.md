@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 3.1.5
+
+### Patch Changes
+
+- [#10779](https://github.com/withastro/astro/pull/10779) [`cefeadf`](https://github.com/withastro/astro/commit/cefeadf0a4a51420130445b6dc5ab1e5b331732b) Thanks [@adrianlyjak](https://github.com/adrianlyjak)! - Fixes false positives for status code routes like `404` and `500` when generating sitemaps.
+
 ## 3.1.4
 
 ### Patch Changes
