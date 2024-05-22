@@ -803,10 +803,11 @@ export interface AstroUserConfig {
 	 */
 	security?: {
 		/**
+	   * @docs
 		 * @name security.checkOrigin
 		 * @type {boolean}
 		 * @default 'false'
-		 * @version 4.6.0
+		 * @version 4.9.0
 		 * @description
 		 *
 		 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`. This is used to provide Cross-Site Request Forgery (CSRF) protection.
