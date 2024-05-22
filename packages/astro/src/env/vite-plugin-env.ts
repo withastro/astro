@@ -5,6 +5,7 @@ import {
 	MODULE_TEMPLATE_URL,
 	TYPES_TEMPLATE_URL,
 	VIRTUAL_MODULES_IDS,
+	VIRTUAL_MODULE_SETUP_ID,
 } from './constants.js';
 import type { EnvSchema } from './schema.js';
 import { getType, validateEnvVariable } from './validators.js';
@@ -34,7 +35,7 @@ export function astroEnv({
 	}
 	const schema = settings.config.experimental.env.schema ?? {};
 
-	let templates: { client: string; server: string; internal: string; setup: string } | null = null;
+	let templates: { client: string; server: string; internal: string } | null = null;
 
 	return {
 		name: 'astro-env-virtual-mod-plugin',
@@ -54,7 +55,6 @@ export function astroEnv({
 				client: clientTemplates.module,
 				server: serverTemplates.module,
 				internal: `export const schema = ${JSON.stringify(schema)};`,
-				setup: `export { setGetEnv, type GetEnv } from './astro-env.js'`,
 			};
 			generateDts({
 				settings,
@@ -76,6 +76,9 @@ export function astroEnv({
 					return resolveVirtualModuleId(moduleId);
 				}
 			}
+			if (id === VIRTUAL_MODULE_SETUP_ID) {
+				return this.resolve('astro/virtual-modules/env-setup.js');
+			}
 		},
 		load(id, options) {
 			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.client)) {
@@ -92,9 +95,6 @@ export function astroEnv({
 			}
 			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.internal)) {
 				return templates!.internal;
-			}
-			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.setup)) {
-				return templates!.setup;
 			}
 		},
 	};

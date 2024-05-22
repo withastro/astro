@@ -15,7 +15,12 @@ describe('astro:env public variables', () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-env-server-secret/',
 				output: 'server',
-				adapter: testAdapter(),
+				adapter: testAdapter({
+					env: {
+						KNOWN_SECRET: '123456',
+						UNKNOWN_SECRET: 'abc',
+					},
+				}),
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();
@@ -27,12 +32,6 @@ describe('astro:env public variables', () => {
 
 		it('adapter can set how env is retrieved', async () => {
 			const request = new Request('http://example.com/');
-			app.setGetEnv((key) => {
-				return {
-					KNOWN_SECRET: '123456',
-					UNKNOWN_SECRET: 'abc',
-				}[key];
-			});
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
 

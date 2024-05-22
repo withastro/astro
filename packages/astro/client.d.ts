@@ -161,7 +161,7 @@ declare module 'astro:components' {
 }
 
 declare module 'astro:env/setup' {
-	export { setGetEnv, GetEnv } from 'astro/runtime/server/astro-env.js'
+	export * from 'astro/virtual-modules/env-setup.js'
 }
 
 type MD = import('./dist/@types/astro.js').MarkdownInstance<Record<string, any>>;
