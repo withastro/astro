@@ -805,7 +805,7 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name security.checkOrigin
-	   * @kind h4
+		 * @kind h4
 		 * @type {boolean}
 		 * @default 'false'
 		 * @version 4.9.0
