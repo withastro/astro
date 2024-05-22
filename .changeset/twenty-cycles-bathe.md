@@ -2,7 +2,7 @@
 "astro": minor
 ---
 
-Add compatibility for Astro Actions in the React 19 beta. Actions can be passed to a `form action` prop directly, and Astro will automatically add metadata for progressive enhancement.
+Adds compatibility for Astro Actions in the React 19 beta. Actions can be passed to a `form action` prop directly, and Astro will automatically add metadata for progressive enhancement.
 
 ```tsx
 import { actions } from 'astro:actions';
