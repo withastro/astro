@@ -14,6 +14,11 @@ export type Locals = {
 
 export const onRequest = defineMiddleware(async (context, next) => {
 	const locals = context.locals as Locals;
+	// Actions middleware may have run already after a path rewrite.
+	// See https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md#ctxrewrite
+	// `_actionsInternal` is the same for every page,
+	// so short circuit if already defined.
+	if (locals._actionsInternal) return ApiContextStorage.run(context, () => next());
 	if (context.request.method === 'GET') {
 		return nextWithLocalsStub(next, context);
 	}
@@ -23,12 +28,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	if (context.request.method === 'POST' && context.request.body === null) {
 		return nextWithStaticStub(next, context);
 	}
-
-	// Actions middleware may have run already after a path rewrite.
-	// See https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md#ctxrewrite
-	// `_actionsInternal` is the same for every page,
-	// so short circuit if already defined.
-	if (locals._actionsInternal) return ApiContextStorage.run(context, () => next());
 
 	const { request, url } = context;
 	const contentType = request.headers.get('Content-Type');
