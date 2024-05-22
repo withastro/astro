@@ -319,9 +319,6 @@ describe('Config Validation', () => {
 							en: 'https://www.example.com/',
 						},
 					},
-					experimental: {
-						i18nDomains: true,
-					},
 				},
 				process.cwd()
 			).catch((err) => err);
@@ -342,9 +339,6 @@ describe('Config Validation', () => {
 						domains: {
 							en: 'https://www.example.com/',
 						},
-					},
-					experimental: {
-						i18nDomains: true,
 					},
 					site: 'https://foo.org',
 				},
