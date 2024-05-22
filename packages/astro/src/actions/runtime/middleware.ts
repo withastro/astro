@@ -1,3 +1,4 @@
+import { yellow } from 'kleur/colors';
 import type { APIContext, MiddlewareNext } from '../../@types/astro.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
 import { ApiContextStorage } from './store.js';
@@ -12,6 +13,16 @@ export type Locals = {
 
 export const onRequest = defineMiddleware(async (context, next) => {
 	const locals = context.locals as Locals;
+	if (context.request.method === 'GET') {
+		return nextWithLocalsStub(next, locals);
+	}
+
+	// Heuristic: If body is null, Astro might've reset this for prerendering.
+	// Stub with warning when `getActionResult()` is used.
+	if (context.request.method === 'POST' && context.request.body === null) {
+		return nextWithStaticStub(next, locals);
+	}
+
 	// Actions middleware may have run already after a path rewrite.
 	// See https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md#ctxrewrite
 	// `_actionsInternal` is the same for every page,
@@ -57,6 +68,22 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	}
 	return response;
 });
+
+function nextWithStaticStub(next: MiddlewareNext, locals: Locals) {
+	Object.defineProperty(locals, '_actionsInternal', {
+		writable: false,
+		value: {
+			getActionResult: () => {
+				console.warn(
+					yellow('[astro:actions]'),
+					'`getActionResult()` should not be called on prerendered pages. Astro can only handle actions for pages rendered on-demand.'
+				);
+				return undefined;
+			},
+		},
+	});
+	return next();
+}
 
 function nextWithLocalsStub(next: MiddlewareNext, locals: Locals) {
 	Object.defineProperty(locals, '_actionsInternal', {

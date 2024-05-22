@@ -71,7 +71,23 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 				});
 			}
 
-			if (method === 'run') return remoteResult;
+			if (method === 'run') {
+				const rawRows = Array.from(remoteResult.rows);
+				// Implement basic `toJSON()` for Drizzle to serialize properly
+				(remoteResult as any).rows.toJSON = () => rawRows;
+				// Using `db.run()` drizzle massages the rows into an object.
+				// So in order to make dev/prod consistent, we need to do the same here.
+				// This creates an object and loops over each row replacing it with the object.
+				for (let i = 0; i < remoteResult.rows.length; i++) {
+					let row = remoteResult.rows[i];
+					let item: Record<string, any> = {};
+					remoteResult.columns.forEach((col, index) => {
+						item[col] = row[index];
+					});
+					(remoteResult as any).rows[i] = item;
+				}
+				return remoteResult;
+			}
 
 			// Drizzle expects each row as an array of its values
 			const rowValues: unknown[][] = [];

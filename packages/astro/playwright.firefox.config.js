@@ -5,7 +5,7 @@ process.stdout.isTTY = false;
 
 const config = {
 	// TODO: add more tests like view transitions and audits, and fix them. Some of them are failing.
-	testMatch: ['e2e/css.test.js', 'e2e/prefetch.test.js'],
+	testMatch: ['e2e/css.test.js', 'e2e/prefetch.test.js', 'e2e/view-transitions.test.js'],
 	/* Maximum time one test can run for. */
 	timeout: 40 * 1000,
 	expect: {
