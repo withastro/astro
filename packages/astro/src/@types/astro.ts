@@ -819,7 +819,7 @@ export interface AstroUserConfig {
 
 		checkOrigin?: boolean;
 	};
-	
+
 	/**
 	 * @docs
 	 * @name vite
@@ -1996,7 +1996,7 @@ export interface AstroUserConfig {
 		 * In the event of route collisions, where two routes of equal route priority attempt to build the same URL, Astro will log a warning identifying the conflicting routes.
 		 */
 		globalRoutePriority?: boolean;
-		
+
 		/**
 		 * @docs
 		 * @name experimental.rewriting

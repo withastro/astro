@@ -1,4 +1,7 @@
+import { posix } from 'node:path';
 import type {
+	AstroRenderer,
+	AstroUserConfig,
 	ComponentInstance,
 	MiddlewareHandler,
 	RouteData,
@@ -6,19 +9,16 @@ import type {
 	SSRLoadedRenderer,
 	SSRManifest,
 	SSRResult,
-	AstroUserConfig, 
-	AstroRenderer,
 } from '../@types/astro.js';
-import { ContainerPipeline } from './pipeline.js';
-import { Logger } from '../core/logger/core.js';
-import { nodeLogDestination } from '../core/logger/node.js';
 import { validateConfig } from '../core/config/config.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
-import { RenderContext } from '../core/render-context.js';
-import { posix } from 'node:path';
-import { getParts, getPattern, validateSegment } from '../core/routing/manifest/create.js';
+import { Logger } from '../core/logger/core.js';
+import { nodeLogDestination } from '../core/logger/node.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
-import type {AstroComponentFactory} from "../runtime/server/index.js";
+import { RenderContext } from '../core/render-context.js';
+import { getParts, getPattern, validateSegment } from '../core/routing/manifest/create.js';
+import type { AstroComponentFactory } from '../runtime/server/index.js';
+import { ContainerPipeline } from './pipeline.js';
 
 /**
  * Options to be passed when rendering a route
@@ -27,15 +27,15 @@ export type ContainerRenderOptions = {
 	/**
 	 * If your component renders slots, that's where you want to fill the slots.
 	 * A single slot should have the `default` field:
-	 * 
+	 *
 	 * ## Examples
-	 * 
+	 *
 	 * **Default slot**
-	 * 
+	 *
 	 * ```js
 	 * container.renderToString(Component, { slots: { default: "Some value"}});
 	 * ```
-	 * 
+	 *
 	 * **Named slots**
 	 *
 	 * ```js
@@ -83,7 +83,7 @@ function createManifest(
 
 	return {
 		rewritingEnabled: false,
-		trailingSlash: manifest?.trailingSlash ?? ASTRO_CONFIG_DEFAULTS.trailingSlash ,
+		trailingSlash: manifest?.trailingSlash ?? ASTRO_CONFIG_DEFAULTS.trailingSlash,
 		buildFormat: manifest?.buildFormat ?? ASTRO_CONFIG_DEFAULTS.build.format,
 		compressHTML: manifest?.compressHTML ?? ASTRO_CONFIG_DEFAULTS.compressHTML,
 		assets: manifest?.assets ?? new Set(),
@@ -93,7 +93,7 @@ function createManifest(
 		adapterName: '',
 		clientDirectives: manifest?.clientDirectives ?? new Map(),
 		renderers: manifest?.renderers ?? renderers,
-		base: manifest?.base ??  ASTRO_CONFIG_DEFAULTS.base,
+		base: manifest?.base ?? ASTRO_CONFIG_DEFAULTS.base,
 		componentMetadata: manifest?.componentMetadata ?? new Map(),
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
 		i18n: manifest?.i18n,
@@ -102,7 +102,7 @@ function createManifest(
 	};
 }
 
-export type AstroContainerUserConfig = Omit<AstroUserConfig, 'integrations' | 'adapter' >
+export type AstroContainerUserConfig = Omit<AstroUserConfig, 'integrations' | 'adapter'>;
 
 /**
  * Options that are used for the entire lifecycle of the current instance of the container.
@@ -110,13 +110,13 @@ export type AstroContainerUserConfig = Omit<AstroUserConfig, 'integrations' | 'a
 export type AstroContainerOptions = {
 	/**
 	 * @default false
-	 * 
+	 *
 	 * @description
-	 * 
+	 *
 	 * Enables streaming during rendering
-	 * 
+	 *
 	 * ## Example
-	 * 
+	 *
 	 * ```js
 	 * const container = await AstroContainer.create({
 	 * 	streaming: true
@@ -127,11 +127,11 @@ export type AstroContainerOptions = {
 	/**
 	 * @default []
 	 * @description
-	 * 
+	 *
 	 * List or renderers to use when rendering components. Usually they are entry points
-	 * 
+	 *
 	 * ## Example
-	 * 
+	 *
 	 * ```js
 	 * const container = await AstroContainer.create({
 	 * 	renderers: [{
@@ -232,17 +232,14 @@ export class experimental_AstroContainer {
 
 	/**
 	 * Creates a new instance of a container.
-	 * 
+	 *
 	 * @param {AstroContainerOptions=} containerOptions
 	 */
 	public static async create(
 		containerOptions: AstroContainerOptions = {}
 	): Promise<experimental_AstroContainer> {
-		const {
-			streaming = false,
-			renderers = [],
-		} = containerOptions;
-		const loadedRenderers =  await Promise.all(
+		const { streaming = false, renderers = [] } = containerOptions;
+		const loadedRenderers = await Promise.all(
 			renderers.map(async (renderer) => {
 				const mod = await import(renderer.serverEntrypoint);
 				if (typeof mod.default !== 'undefined') {
@@ -255,13 +252,15 @@ export class experimental_AstroContainer {
 			})
 		);
 		const finalRenderers = loadedRenderers.filter((r): r is SSRLoadedRenderer => Boolean(r));
-		
+
 		return new experimental_AstroContainer({ streaming, renderers: finalRenderers });
 	}
 
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.
-	// @ematipico: I plan to use it for a possible integration that could help people 
-	private static async createFromManifest(manifest: SSRManifest): Promise<experimental_AstroContainer> {
+	// @ematipico: I plan to use it for a possible integration that could help people
+	private static async createFromManifest(
+		manifest: SSRManifest
+	): Promise<experimental_AstroContainer> {
 		const config = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
 		const container = new experimental_AstroContainer({
 			manifest,
@@ -269,7 +268,7 @@ export class experimental_AstroContainer {
 		container.#withManifest = true;
 		return container;
 	}
-	
+
 	#insertRoute({
 		path,
 		componentInstance,
@@ -278,13 +277,12 @@ export class experimental_AstroContainer {
 	}: {
 		path: string;
 		componentInstance: ComponentInstance;
-		route?: string,
+		route?: string;
 		params?: Record<string, string | undefined>;
 		type?: RouteType;
 	}): RouteData {
 		const pathUrl = new URL(path, 'https://example.com');
-		const routeData: RouteData = this.#createRoute(pathUrl, 
-			 params, type);
+		const routeData: RouteData = this.#createRoute(pathUrl, params, type);
 		this.#pipeline.manifest.routes.push({
 			routeData,
 			file: '',
@@ -299,19 +297,19 @@ export class experimental_AstroContainer {
 	/**
 	 * @description
 	 * It renders a component and returns the result as a string.
-	 * 
+	 *
 	 * ## Example
-	 * 
+	 *
 	 * ```js
 	 * import Card from "../src/components/Card.astro";
-	 * 
+	 *
 	 * const container = await AstroContainer.create();
 	 * const result = await container.renderToString(Card);
-	 * 
+	 *
 	 * console.log(result); // it's a string
 	 * ```
-	 * 
-	 * 
+	 *
+	 *
 	 * @param {AstroComponentFactory} component The instance of the component.
 	 * @param {ContainerRenderOptions=} options Possible options to pass when rendering the component.
 	 */
@@ -349,7 +347,10 @@ export class experimental_AstroContainer {
 		const { routeType = 'page', slots } = options;
 		const request = options?.request ?? new Request('https://example.com/');
 		const url = new URL(request.url);
-		const componentInstance = routeType === "endpoint" ? component as unknown as ComponentInstance : this.#wrapComponent(component, options.params);
+		const componentInstance =
+			routeType === 'endpoint'
+				? (component as unknown as ComponentInstance)
+				: this.#wrapComponent(component, options.params);
 		const routeData = this.#insertRoute({
 			path: request.url,
 			componentInstance,
@@ -387,7 +388,11 @@ export class experimental_AstroContainer {
 				return '';
 			},
 			params: Object.keys(params),
-			pattern: getPattern(segments, ASTRO_CONFIG_DEFAULTS.base, ASTRO_CONFIG_DEFAULTS.trailingSlash),
+			pattern: getPattern(
+				segments,
+				ASTRO_CONFIG_DEFAULTS.base,
+				ASTRO_CONFIG_DEFAULTS.trailingSlash
+			),
 			prerender: false,
 			segments,
 			type,
@@ -402,15 +407,18 @@ export class experimental_AstroContainer {
 	 * @param params
 	 * @private
 	 */
-	#wrapComponent(componentFactory: AstroComponentFactory, params?: Record<string, string | undefined>): ComponentInstance {
+	#wrapComponent(
+		componentFactory: AstroComponentFactory,
+		params?: Record<string, string | undefined>
+	): ComponentInstance {
 		if (params) {
 			return {
 				default: componentFactory,
 				getStaticPaths() {
 					return [{ params }];
-				}
-			}	
+				},
+			};
 		}
-		return ({ default: componentFactory  })
+		return { default: componentFactory };
 	}
 }

@@ -7,10 +7,10 @@ test('ReactWrapper with react renderer', async () => {
 		renderers: [
 			{
 				name: '@astrojs/react',
-				clientEntrypoint: "@astrojs/react/client.js",
-				serverEntrypoint: "@astrojs/react/server.js",
-			}
-		]
+				clientEntrypoint: '@astrojs/react/client.js',
+				serverEntrypoint: '@astrojs/react/server.js',
+			},
+		],
 	});
 	const result = await container.renderToString(ReactWrapper);
 

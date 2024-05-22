@@ -7,7 +7,7 @@ test('Dynamic route', async () => {
 	// @ts-ignore
 	const result = await container.renderToString(Locale, {
 		params: {
-			"locale": 'en'
+			locale: 'en',
 		},
 		request: new Request('http://example.com/en'),
 	});

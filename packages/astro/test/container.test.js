@@ -1,4 +1,6 @@
+import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { experimental_AstroContainer } from '../dist/container/index.js';
 import {
 	Fragment,
 	createComponent,
@@ -8,8 +10,6 @@ import {
 	renderHead,
 	renderSlot,
 } from '../dist/runtime/server/index.js';
-import { experimental_AstroContainer } from '../dist/container/index.js';
-import assert from 'node:assert/strict';
 
 const BaseLayout = createComponent((result, _props, slots) => {
 	return render`<html>
@@ -54,7 +54,7 @@ describe('Container', () => {
 
 		assert.match(response, /hello world/);
 	});
-	
+
 	it('Renders a slot', async () => {
 		const Page = createComponent(
 			(result, _props, slots) => {
