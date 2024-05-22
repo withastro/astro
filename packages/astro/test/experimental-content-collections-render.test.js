@@ -121,6 +121,21 @@ if (!isWindows) {
 					// Includes styles
 					assert.equal($('link[rel=stylesheet]').length, 1);
 				});
+
+				it('content folder is cleaned', async () => {
+					let found = true;
+					try {
+						await fixture.readFile('content/manifest.json');
+					} catch {
+						found = false;
+					}
+					assert.equal(found, false, 'manifest not in dist folder');
+				});
+
+				it('chunks folder is cleaned', async () => {
+					const files = await fixture.readdir('');
+					assert.equal(files.includes('chunks'), false, 'chunks folder removed');
+				});
 			});
 		});
 	});

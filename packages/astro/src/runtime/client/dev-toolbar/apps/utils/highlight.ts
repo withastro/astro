@@ -77,6 +77,9 @@ export function attachTooltipToHighlight(
 			if (dialogRect.right > document.documentElement.clientWidth) {
 				// Not enough space on the right, align to the right
 				tooltip.style.right = '0px';
+			} else if (dialogRect.left < 0) {
+				// Not enough space on the left, align to the left
+				tooltip.style.left = '0px';
 			}
 		});
 	});

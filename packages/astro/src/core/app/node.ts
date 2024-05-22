@@ -81,7 +81,11 @@ export class NodeApp extends App {
 			Object.assign(options, makeRequestBody(req));
 		}
 		const request = new Request(url, options);
-		if (req.socket?.remoteAddress) {
+
+		const clientIp = req.headers['x-forwarded-for'];
+		if (clientIp) {
+			Reflect.set(request, clientAddressSymbol, clientIp);
+		} else if (req.socket?.remoteAddress) {
 			Reflect.set(request, clientAddressSymbol, req.socket.remoteAddress);
 		}
 		return request;

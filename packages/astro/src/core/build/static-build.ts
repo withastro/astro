@@ -107,8 +107,9 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	const ssrOutputs = viteBuildReturnToRollupOutputs(ssrOutput);
 	const clientOutputs = viteBuildReturnToRollupOutputs(clientOutput ?? []);
 	await runPostBuildHooks(container, ssrOutputs, clientOutputs);
+	let contentFileNames: string[] | undefined = undefined;
 	if (opts.settings.config.experimental.contentCollectionCache) {
-		await copyContentToCache(opts);
+		contentFileNames = await copyContentToCache(opts);
 	}
 	settings.timer.end('Client build');
 
@@ -129,20 +130,21 @@ export async function viteBuild(opts: StaticBuildOptions) {
 		}
 	}
 
-	return { internals, ssrOutputChunkNames };
+	return { internals, ssrOutputChunkNames, contentFileNames };
 }
 
 export async function staticBuild(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
-	ssrOutputChunkNames: string[]
+	ssrOutputChunkNames: string[],
+	contentFileNames?: string[]
 ) {
 	const { settings } = opts;
 	switch (true) {
 		case settings.config.output === 'static': {
 			settings.timer.start('Static generate');
 			await generatePages(opts, internals);
-			await cleanServerOutput(opts, ssrOutputChunkNames, internals);
+			await cleanServerOutput(opts, ssrOutputChunkNames, contentFileNames, internals);
 			settings.timer.end('Static generate');
 			return;
 		}
@@ -431,11 +433,14 @@ async function cleanStaticOutput(
 async function cleanServerOutput(
 	opts: StaticBuildOptions,
 	ssrOutputChunkNames: string[],
+	contentFileNames: string[] | undefined,
 	internals: BuildInternals
 ) {
 	const out = getOutDirWithinCwd(opts.settings.config.outDir);
 	// The SSR output chunks for Astro are all .mjs files
-	const files = ssrOutputChunkNames.filter((f) => f.endsWith('.mjs'));
+	const files = ssrOutputChunkNames
+		.filter((f) => f.endsWith('.mjs'))
+		.concat(contentFileNames ?? []);
 	if (internals.manifestFileName) {
 		files.push(internals.manifestFileName);
 	}

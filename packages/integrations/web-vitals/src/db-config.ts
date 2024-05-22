@@ -11,6 +11,7 @@ const Metric = defineTable({
 		rating: column.text(),
 		timestamp: column.date(),
 	},
+	deprecated: Boolean(process.env.DEPRECATE_WEB_VITALS) ?? false,
 });
 
 // export const AstrojsWebVitals_Metric = asDrizzleTable('AstrojsWebVitals_Metric', Metric);

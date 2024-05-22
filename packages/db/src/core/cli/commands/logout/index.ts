@@ -1,5 +1,5 @@
 import { unlink } from 'node:fs/promises';
-import { SESSION_LOGIN_FILE } from '../../../tokens.js';
+import { SESSION_LOGIN_FILE } from '@astrojs/studio';
 
 export async function cmd() {
 	await unlink(SESSION_LOGIN_FILE);

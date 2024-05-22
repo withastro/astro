@@ -1,5 +1,29 @@
 # @astrojs/db
 
+## 0.11.4
+
+### Patch Changes
+
+- [#11032](https://github.com/withastro/astro/pull/11032) [`b78e83f`](https://github.com/withastro/astro/commit/b78e83f448d142e83be592f6249c4822e7cd5726) Thanks [@itsMapleLeaf](https://github.com/itsMapleLeaf)! - Adds support for multiple Astro Studio workspaces (aka “Teams”) to the Astro DB CLI
+
+  Users who are members of a team workspace in Astro Studio can now choose between those and their personal workspace when runnning `astro db link`.
+
+- [#11091](https://github.com/withastro/astro/pull/11091) [`e14ce57`](https://github.com/withastro/astro/commit/e14ce5726df73e2988fe1a39e078ef2d66d2f4a8) Thanks [@matthewp](https://github.com/matthewp)! - Fix inconsistent result type using raw SQL
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.0
+
+## 0.11.3
+
+### Patch Changes
+
+- [#11070](https://github.com/withastro/astro/pull/11070) [`1fec4a6`](https://github.com/withastro/astro/commit/1fec4a6eb986011d4d6d998410ff9b6144c28c34) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes some error messages not using the proper command to login or sync the project
+
+- [#11037](https://github.com/withastro/astro/pull/11037) [`9332bb1`](https://github.com/withastro/astro/commit/9332bb1c1f237f5666ded09532ccd651837b94e5) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Internal refactor, this change should have no visible effect
+
+- Updated dependencies [[`9332bb1`](https://github.com/withastro/astro/commit/9332bb1c1f237f5666ded09532ccd651837b94e5)]:
+  - @astrojs/studio@0.1.0
+
 ## 0.11.2
 
 ### Patch Changes

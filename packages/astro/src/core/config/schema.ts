@@ -46,7 +46,7 @@ type RehypePlugin = ComplexifyWithUnion<_RehypePlugin>;
 type RemarkPlugin = ComplexifyWithUnion<_RemarkPlugin>;
 type RemarkRehype = ComplexifyWithOmit<_RemarkRehype>;
 
-const ASTRO_CONFIG_DEFAULTS = {
+export const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
 	srcDir: './src',
 	publicDir: './public',
@@ -80,6 +80,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	vite: {},
 	legacy: {},
 	redirects: {},
+	security: {},
 	experimental: {
 		actions: false,
 		directRenderScript: false,
@@ -87,8 +88,6 @@ const ASTRO_CONFIG_DEFAULTS = {
 		contentCollectionJsonSchema: false,
 		clientPrerender: false,
 		globalRoutePriority: false,
-		i18nDomains: false,
-		security: {},
 		rewriting: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
@@ -494,6 +493,12 @@ export const AstroConfigSchema = z.object({
 				}
 			})
 	),
+	security: z
+		.object({
+			checkOrigin: z.boolean().default(false),
+		})
+		.optional()
+		.default(ASTRO_CONFIG_DEFAULTS.security),
 	experimental: z
 		.object({
 			actions: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.actions),
@@ -517,18 +522,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.globalRoutePriority),
-			security: z
-				.object({
-					csrfProtection: z
-						.object({
-							origin: z.boolean().default(false),
-						})
-						.optional()
-						.default({}),
-				})
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.security),
-			i18nDomains: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.i18nDomains),
 			rewriting: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rewriting),
 			env: z
 				.object({
@@ -675,22 +668,20 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		})
 		.superRefine((configuration, ctx) => {
 			const { site, experimental, i18n, output } = configuration;
-			if (experimental.i18nDomains) {
-				const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
-				if (hasDomains) {
-					if (!site) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message:
-								"The option `site` isn't set. When using the 'domains' strategy for `i18n`, `site` is required to create absolute URLs for locales that aren't mapped to a domain.",
-						});
-					}
-					if (output !== 'server') {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: 'Domain support is only available when `output` is `"server"`.',
-						});
-					}
+			const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
+			if (hasDomains) {
+				if (!site) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message:
+							"The option `site` isn't set. When using the 'domains' strategy for `i18n`, `site` is required to create absolute URLs for locales that aren't mapped to a domain.",
+					});
+				}
+				if (output !== 'server') {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Domain support is only available when `output` is `"server"`.',
+					});
 				}
 			}
 		});

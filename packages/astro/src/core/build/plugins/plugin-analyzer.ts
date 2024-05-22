@@ -54,7 +54,12 @@ export function vitePluginAnalyzer(
 				if (hoistedScripts.size) {
 					for (const parentInfo of getParentModuleInfos(from, this, isPropagatedAsset)) {
 						if (isPropagatedAsset(parentInfo.id)) {
-							internals.propagatedScriptsMap.set(parentInfo.id, hoistedScripts);
+							for (const hid of hoistedScripts) {
+								if (!internals.propagatedScriptsMap.has(parentInfo.id)) {
+									internals.propagatedScriptsMap.set(parentInfo.id, new Set());
+								}
+								internals.propagatedScriptsMap.get(parentInfo.id)?.add(hid);
+							}
 						} else if (moduleIsTopLevelPage(parentInfo)) {
 							for (const hid of hoistedScripts) {
 								if (!pageScripts.has(parentInfo.id)) {

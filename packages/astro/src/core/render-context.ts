@@ -4,13 +4,12 @@ import type {
 	AstroGlobalPartial,
 	ComponentInstance,
 	MiddlewareHandler,
-	MiddlewareNext,
 	RewritePayload,
 	RouteData,
 	SSRResult,
 } from '../@types/astro.js';
 import type { ActionAPIContext } from '../actions/runtime/store.js';
-import { createGetActionResult } from '../actions/utils.js';
+import { createGetActionResult, hasActionsInternal } from '../actions/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
@@ -92,7 +91,10 @@ export class RenderContext {
 	 * - endpoint
 	 * - fallback
 	 */
-	async render(componentInstance: ComponentInstance | undefined): Promise<Response> {
+	async render(
+		componentInstance: ComponentInstance | undefined,
+		slots: Record<string, any> = {}
+	): Promise<Response> {
 		const { cookies, middleware, pathname, pipeline } = this;
 		const { logger, routeCache, serverLike, streaming } = pipeline;
 		const props = await getProps({
@@ -118,7 +120,7 @@ export class RenderContext {
 			if (payload) {
 				if (this.pipeline.manifest.rewritingEnabled) {
 					try {
-						const [routeData, component] = await pipeline.tryRewrite(payload);
+						const [routeData, component] = await pipeline.tryRewrite(payload, this.request);
 						this.routeData = routeData;
 						componentInstance = component;
 					} catch (e) {
@@ -149,7 +151,7 @@ export class RenderContext {
 							result,
 							componentInstance?.default as any,
 							props,
-							{},
+							slots,
 							streaming,
 							this.routeData
 						);
@@ -212,7 +214,7 @@ export class RenderContext {
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			pipeline.logger.debug('router', 'Called rewriting to:', reroutePayload);
 			try {
-				const [routeData, component] = await pipeline.tryRewrite(reroutePayload);
+				const [routeData, component] = await pipeline.tryRewrite(reroutePayload, this.request);
 				this.routeData = routeData;
 				if (reroutePayload instanceof Request) {
 					this.request = reroutePayload;
@@ -295,6 +297,10 @@ export class RenderContext {
 			},
 		} satisfies AstroGlobal['response'];
 
+		const actionResult = hasActionsInternal(this.locals)
+			? this.locals._actionsInternal?.actionResult
+			: undefined;
+
 		// Create the result object that will be passed into the renderPage function.
 		// This object starts here as an empty shell (not yet the result) but then
 		// calling the render() function will populate the object with scripts, styles, etc.
@@ -314,8 +320,10 @@ export class RenderContext {
 			renderers,
 			resolve,
 			response,
+			request: this.request,
 			scripts,
 			styles,
+			actionResult,
 			_metadata: {
 				hasHydrationScript: false,
 				rendererSpecificHydrationScripts: new Set(),
@@ -398,7 +406,7 @@ export class RenderContext {
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			try {
 				pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
-				const [routeData, component] = await pipeline.tryRewrite(reroutePayload);
+				const [routeData, component] = await pipeline.tryRewrite(reroutePayload, this.request);
 				this.routeData = routeData;
 				if (reroutePayload instanceof Request) {
 					this.request = reroutePayload;

@@ -1,4 +1,4 @@
-import { defineAction, getApiContext, ActionError, z } from 'astro:actions';
+import { defineAction, ActionError, z } from 'astro:actions';
 
 export const server = {
 	subscribe: defineAction({
@@ -31,15 +31,13 @@ export const server = {
 	}),
 	getUser: defineAction({
 		accept: 'form',
-		handler: async () => {
-			const { locals } = getApiContext();
+		handler: async (_, { locals }) => {
 			return locals.user;
 		}
 	}),
 	getUserOrThrow: defineAction({
 		accept: 'form',
-		handler: async () => {
-			const { locals } = getApiContext();
+		handler: async (_, { locals }) => {
 			if (locals.user?.name !== 'admin') {
 				// Expected to throw
 				throw new ActionError({
