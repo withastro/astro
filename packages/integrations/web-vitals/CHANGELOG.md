@@ -1,5 +1,15 @@
 # @astrojs/web-vitals
 
+## 0.2.0
+
+### Minor Changes
+
+- [#11094](https://github.com/withastro/astro/pull/11094) [`3c7a4fa`](https://github.com/withastro/astro/commit/3c7a4fabea5ebb0e8f79742731415136ae3da9a6) Thanks [@delucis](https://github.com/delucis)! - Upgrades the `web-vitals` dependency to v4 and stops collecting data for the deprecated FID (First Input Delay) metric.
+
+### Patch Changes
+
+- [#11096](https://github.com/withastro/astro/pull/11096) [`0dbd8ee`](https://github.com/withastro/astro/commit/0dbd8eeb77065f3ed03f481c8042f2896a5448c4) Thanks [@delucis](https://github.com/delucis)! - Adds support for deprecating the web vitals DB table, so the integration can be removed if desired
+
 ## 0.1.1
 
 ### Patch Changes

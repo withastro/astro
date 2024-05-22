@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 3.0.1
+
+### Patch Changes
+
+- [#10813](https://github.com/withastro/astro/pull/10813) [`3cc3e2c`](https://github.com/withastro/astro/commit/3cc3e2ccba062749a6bd8469bc88ff797bea0abc) Thanks [@Xetera](https://github.com/Xetera)! - Omitting compiler-internal symbol from user components to fix breaking error messages
+
 ## 3.0.0
 
 ### Major Changes

@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/web-vitals",
   "description": "Track your website’s performance with Astro DB",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
