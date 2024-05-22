@@ -813,8 +813,8 @@ export interface AstroUserConfig {
 		 *
 		 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`. This is used to provide Cross-Site Request Forgery (CSRF) protection.
 		 *
-		 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST, `PATCH`, `DELETE` and `PUT` with
-		 * the following `content-type` header: 'application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'.
+		 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST`, `PATCH`, `DELETE` and `PUT` with
+		 * one of the following `content-type` headers: `'application/x-www-form-urlencoded'`, `'multipart/form-data'`, `'text/plain'`.
 		 *
 		 * If the "origin" header doesn't match the `pathname` of the request, Astro will return a 403 status code and will not render the page.
 		 */
