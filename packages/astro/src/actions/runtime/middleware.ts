@@ -8,6 +8,7 @@ import { callSafely } from './virtual/shared.js';
 export type Locals = {
 	_actionsInternal: {
 		getActionResult: APIContext['getActionResult'];
+		actionResult?: ReturnType<APIContext['getActionResult']>;
 	};
 };
 
@@ -56,6 +57,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			// Cast to `any` to satisfy `getActionResult()` type.
 			return result as any;
 		},
+		actionResult: result,
 	};
 	Object.defineProperty(locals, '_actionsInternal', { writable: false, value: actionsInternal });
 	const response = await next();

@@ -12,6 +12,28 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '/_actions/') {
 			action.safe = (input) => {
 				return callSafely(() => action(input));
 			};
+			action.safe.toString = () => path;
+
+			// Add progressive enhancement info for React.
+			action.$$FORM_ACTION = function () {
+				const data = new FormData();
+				data.set('_astroAction', action.toString());
+				return {
+					method: 'POST',
+					name: action.toString(),
+					data,
+				}
+			};
+			action.safe.$$FORM_ACTION = function () {
+				const data = new FormData();
+				data.set('_astroAction', action.toString());
+				data.set('_astroActionSafe', 'true');
+				return {
+					method: 'POST',
+					name: action.toString(),
+					data,
+				}
+			}
 			// recurse to construct queries for nested object paths
 			// ex. actions.user.admins.auth()
 			return toActionProxy(action, path + '.');
