@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import yaml from 'js-yaml';
+import { load as tomlParse } from 'js-toml';
 import type { AstroConfig, AstroSettings } from '../../@types/astro.js';
 import { getContentPaths } from '../../content/index.js';
 import createPreferences from '../../preferences/index.js';
@@ -94,6 +95,44 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 									: { file: fileUrl.pathname },
 						});
 					}
+				},
+			},
+			{
+				extensions: ['.toml'],
+				getEntryInfo({ contents, fileUrl }) {
+					if (contents === undefined || contents === '') return { data: {} };
+
+					const pathRelToContentDir = path.relative(
+						fileURLToPath(contentDir),
+						fileURLToPath(fileUrl)
+					);
+					let data;
+					try {
+						data = tomlParse(contents);
+					} catch (e) {
+						throw new AstroError({
+							...AstroErrorData.DataCollectionEntryParseError,
+							message: AstroErrorData.DataCollectionEntryParseError.message(
+								pathRelToContentDir,
+								e instanceof Error ? e.message : 'contains invalid TOML.'
+							),
+							location: { file: fileUrl.pathname },
+							stack: e instanceof Error ? e.stack : undefined,
+						});
+					}
+
+					if (data == null || typeof data !== 'object') {
+						throw new AstroError({
+							...AstroErrorData.DataCollectionEntryParseError,
+							message: AstroErrorData.DataCollectionEntryParseError.message(
+								pathRelToContentDir,
+								'data is not an object.'
+							),
+							location: { file: fileUrl.pathname },
+						});
+					}
+
+					return { data };
 				},
 			},
 		],
