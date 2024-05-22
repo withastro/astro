@@ -803,7 +803,7 @@ export interface AstroUserConfig {
 	 */
 	security?: {
 		/**
-	   * @docs
+		 * @docs
 		 * @name security.checkOrigin
 		 * @type {boolean}
 		 * @default 'false'
