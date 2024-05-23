@@ -93,7 +93,8 @@ export class RenderContext {
 	 */
 	async render(
 		componentInstance: ComponentInstance | undefined,
-		slots: Record<string, any> = {}
+		slots: Record<string, any> = {},
+		error: unknown = undefined
 	): Promise<Response> {
 		const { cookies, middleware, pathname, pipeline } = this;
 		const { logger, routeCache, serverLike, streaming } = pipeline;
@@ -105,6 +106,11 @@ export class RenderContext {
 			logger,
 			serverLike,
 		});
+		if (error) {
+			Object.assign(props, {
+				error,
+			});
+		}
 		const apiContext = this.createAPIContext(props);
 
 		this.counter++;

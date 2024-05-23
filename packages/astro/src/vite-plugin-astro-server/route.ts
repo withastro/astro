@@ -1,5 +1,5 @@
 import type http from 'node:http';
-import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro.js';
+import type { AstroConfig, ComponentInstance, ManifestData, RouteData } from '../@types/astro.js';
 import {
 	DEFAULT_404_COMPONENT,
 	REROUTE_DIRECTIVE_HEADER,
@@ -16,6 +16,8 @@ import { normalizeTheLocale } from '../i18n/index.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import type { DevPipeline } from './pipeline.js';
 import { default404Page, handle404Response, writeSSRResult, writeWebResponse } from './response.js';
+import { loadEnv } from 'vite';
+import { fileURLToPath } from 'node:url';
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any
@@ -141,6 +143,19 @@ type HandleRoute = {
 	status?: 404 | 500;
 	pipeline: DevPipeline;
 };
+
+function getCustom500Route(manifestData: ManifestData): RouteData | undefined {
+	const route500 = /^\/500\/?$/;
+	return manifestData.routes.find((r) => route500.test(r.route));
+}
+
+let loadedEnv: Record<string, string> | undefined = undefined;
+function shouldRenderCustom500(config: AstroConfig) {
+	if (!loadedEnv) {
+		loadedEnv = loadEnv('development', fileURLToPath(config.root), '');
+	}
+	return loadedEnv.ASTRO_CUSTOM_500 === 'true';
+}
 
 export async function handleRoute({
 	matchedRoute,
@@ -272,7 +287,18 @@ export async function handleRoute({
 		});
 	}
 
-	let response = await renderContext.render(mod);
+	let response: Response;
+	try {
+		response = await renderContext.render(mod);
+	} catch (err) {
+		const custom500 = getCustom500Route(manifestData);
+		if (!shouldRenderCustom500(config) || !custom500) {
+			throw err;
+		}
+		const filePath = new URL(`./${custom500.component}`, config.root);
+		const preloadedComponent = await pipeline.preload(custom500, filePath);
+		response = await renderContext.render(preloadedComponent, {}, err);
+	}
 	if (isLoggedRequest(pathname)) {
 		const timeEnd = performance.now();
 		logger.info(
