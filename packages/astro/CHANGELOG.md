@@ -1,5 +1,11 @@
 # astro
 
+## 4.9.1
+
+### Patch Changes
+
+- [#11129](https://github.com/withastro/astro/pull/11129) [`4bb9269`](https://github.com/withastro/astro/commit/4bb926908d9a7ee134701c3e5a1b5e6ea688f843) Thanks [@matthewp](https://github.com/matthewp)! - Prevent errors from adapters when i18n domains is not used
+
 ## 4.9.0
 
 ### Minor Changes
