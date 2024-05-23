@@ -1,5 +1,11 @@
 # @astrojs/web-vitals
 
+## 0.2.1
+
+### Patch Changes
+
+- [#11120](https://github.com/withastro/astro/pull/11120) [`9a0e94b`](https://github.com/withastro/astro/commit/9a0e94b2e6bc41b370d8a0518004c6f3cb1b833e) Thanks [@delucis](https://github.com/delucis)! - Fixes requests to the web vitals endpoint in setups like Vercel’s `trailingSlash: true` that redirect from `/web-vitals` to `/web-vitals/`
+
 ## 0.2.0
 
 ### Minor Changes
