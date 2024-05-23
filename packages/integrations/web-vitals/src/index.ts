@@ -32,7 +32,7 @@ export default function webVitals({ deprecated }: { deprecated?: boolean } = {})
 				// Endpoint that collects metrics and inserts them in Astro DB.
 				injectRoute({
 					entrypoint: '@astrojs/web-vitals/endpoint',
-					pattern: WEB_VITALS_ENDPOINT_PATH,
+					pattern: WEB_VITALS_ENDPOINT_PATH + '/[...any]',
 					prerender: false,
 				});
 				// Client-side performance measurement script.
