@@ -5691,22 +5691,22 @@ importers:
       '@astrojs/cli-kit':
         specifier: ^0.4.1
         version: 0.4.1
+      preferred-pm:
+        specifier: ^3.1.3
+        version: 3.1.3
       semver:
         specifier: ^7.6.2
         version: 7.6.2
       terminal-link:
         specifier: ^3.0.0
         version: 3.0.0
-      which-pm-runs:
-        specifier: ^1.1.0
-        version: 1.1.0
     devDependencies:
+      '@types/preferred-pm':
+        specifier: ^3.0.0
+        version: 3.0.0
       '@types/semver':
         specifier: ^7.5.8
         version: 7.5.8
-      '@types/which-pm-runs':
-        specifier: ^1.0.2
-        version: 1.0.2
       arg:
         specifier: ^5.0.2
         version: 5.0.2
@@ -8769,6 +8769,13 @@ packages:
 
   /@types/normalize-package-data@2.4.4:
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
+    dev: true
+
+  /@types/preferred-pm@3.0.0:
+    resolution: {integrity: sha512-Ub1de7EkdavsyM1KNrTb1K1QL+ISepEELELh2QWccyDcVEcyUDiGoYzzOJfonpGNwpymYXY13oRFpXQluGOC5w==}
+    deprecated: This is a stub types definition. preferred-pm provides its own type definitions, so you do not need this installed.
+    dependencies:
+      preferred-pm: 3.1.3
     dev: true
 
   /@types/prismjs@1.26.4:
