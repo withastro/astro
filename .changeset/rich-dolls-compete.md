@@ -21,7 +21,7 @@ const { error } = Astro.props
 
 Additionally, you can now use your custom 500 error page in development by setting the `ASTRO_CUSTOM_500` environment variable to `'true'`. For example using a `.env` file:
 
-```sh
+```ini
 ASTRO_CUSTOM_500=true
 ```
 
