@@ -7,12 +7,13 @@ import type {
 } from '../@types/astro.js';
 import { type HeadElements, Pipeline } from '../core/base-pipeline.js';
 import type { SinglePageBuiltModule } from '../core/build/types.js';
-import { RouteNotFound } from '../core/errors/errors-data.js';
+import { InvalidRewrite404, RouteNotFound } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
 import {
 	createModuleScriptElement,
 	createStylesheetElementSet,
 } from '../core/render/ssr-element.js';
+import { default404Page } from '../core/routing/astro-designed-error-pages.js';
 
 export class ContainerPipeline extends Pipeline {
 	/**
@@ -111,4 +112,12 @@ export class ContainerPipeline extends Pipeline {
 	// At the moment it's not used by the container via any public API
 	// @ts-expect-error It needs to be implemented.
 	async getComponentByRoute(_routeData: RouteData): Promise<ComponentInstance> {}
+
+	rewriteKnownRoute(pathname: string, _sourceRoute: RouteData): ComponentInstance {
+		if (pathname === '/404') {
+			return { default: default404Page } as any as ComponentInstance;
+		}
+
+		throw new AstroError(InvalidRewrite404);
+	}
 }
