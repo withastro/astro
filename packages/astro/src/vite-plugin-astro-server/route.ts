@@ -149,12 +149,8 @@ function getCustom500Route(manifestData: ManifestData): RouteData | undefined {
 	return manifestData.routes.find((r) => route500.test(r.route));
 }
 
-let loadedEnv: Record<string, string> | undefined = undefined;
-function shouldRenderCustom500(config: AstroConfig) {
-	if (!loadedEnv) {
-		loadedEnv = loadEnv('development', fileURLToPath(config.root), '');
-	}
-	return loadedEnv.ASTRO_CUSTOM_500 === 'true';
+function shouldRenderCustom500(config: AstroConfig): boolean {
+	return loadEnv('development', fileURLToPath(config.root), '').ASTRO_CUSTOM_500 === 'true';
 }
 
 export async function handleRoute({
@@ -298,6 +294,7 @@ export async function handleRoute({
 		const filePath = new URL(`./${custom500.component}`, config.root);
 		const preloadedComponent = await pipeline.preload(custom500, filePath);
 		response = await renderContext.render(preloadedComponent, undefined, { error: err });
+		status = 500;
 	}
 	if (isLoggedRequest(pathname)) {
 		const timeEnd = performance.now();

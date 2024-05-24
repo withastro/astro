@@ -127,9 +127,6 @@ importers:
 
   examples/basics:
     dependencies:
-      '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../packages/integrations/node
       astro:
         specifier: ^4.9.1
         version: link:../../packages/astro
@@ -2836,6 +2833,12 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/custom-404-static:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/custom-500:
     dependencies:
       astro:
         specifier: workspace:*
