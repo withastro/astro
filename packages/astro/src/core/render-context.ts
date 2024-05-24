@@ -154,10 +154,6 @@ export class RenderContext {
 				case 'page': {
 					const result = await this.createResult(componentInstance!);
 					let response: Response;
-					// no need to bother rendering a mock route 404, let's create a 404 straight away
-					// if (this.routeData.component === DEFAULT_404_COMPONENT) {
-					// response = new Response(null, { status: 404, statusText: 'Not Found' });
-					// } else {
 					try {
 						response = await renderPage(
 							result,
@@ -173,7 +169,6 @@ export class RenderContext {
 						result.cancelled = true;
 						throw e;
 					}
-					// }
 
 					// Signal to the i18n middleware to maybe act on this response
 					response.headers.set(ROUTE_TYPE_HEADER, 'page');
