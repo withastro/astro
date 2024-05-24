@@ -164,6 +164,14 @@ export type AstroContainerOptions = {
 
 	// TODO: document out of experimental
 	resolve?: SSRResult['resolve'];
+
+	/**
+	 * @default {}
+	 * @description
+	 * 
+	 * The raw manifest from the build output.
+	 */
+	manifest?: SSRManifest;
 };
 
 type AstroContainerManifest = Pick<
@@ -222,7 +230,7 @@ export class experimental_AstroContainer {
 			manifest: createManifest(manifest, renderers),
 			streaming,
 			serverLike: true,
-			renderers: [],
+			renderers: renderers ?? manifest?.renderers ?? [],
 			resolve: async (specifier: string) => {
 				if (this.#withManifest) {
 					return this.#containerResolve(specifier, astroConfig);
@@ -250,7 +258,7 @@ export class experimental_AstroContainer {
 	public static async create(
 		containerOptions: AstroContainerOptions = {}
 	): Promise<experimental_AstroContainer> {
-		const { streaming = false, renderers = [], resolve } = containerOptions;
+		const { streaming = false, manifest, renderers = [], resolve } = containerOptions;
 		const astroConfig = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
 		return new experimental_AstroContainer({ streaming, renderers, astroConfig, resolve });
 	}
