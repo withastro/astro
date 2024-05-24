@@ -3,7 +3,8 @@ import type {
 	AstroRenderer,
 	AstroUserConfig,
 	ComponentInstance,
-	MiddlewareHandler, Props,
+	MiddlewareHandler,
+	Props,
 	RouteData,
 	RouteType,
 	SSRLoadedRenderer,
@@ -73,12 +74,12 @@ export type ContainerRenderOptions = {
 
 	/**
 	 * Allows to pass `Astro.props` to an Astro component:
-	 * 
+	 *
 	 * ```js
 	 * container.renderToString(Endpoint, { props: { "lorem": "ipsum" } });
 	 * ```
 	 */
-	props?: Props
+	props?: Props;
 };
 
 function createManifest(

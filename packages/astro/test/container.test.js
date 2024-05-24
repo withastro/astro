@@ -140,7 +140,6 @@ describe('Container', () => {
 		assert.match(result, /Bar name/);
 	});
 
-
 	it('Renders props', async () => {
 		const Page = createComponent(
 			(result, props, _slots) => {
@@ -152,7 +151,7 @@ describe('Container', () => {
 					{
 						default: () => render`
 							${maybeRenderHead(result)}
-							${props.isOpen ? "Is open" : "Is closed"}
+							${props.isOpen ? 'Is open' : 'Is closed'}
 							`,
 						head: () => render`
 						${renderComponent(
@@ -175,7 +174,7 @@ describe('Container', () => {
 		const container = await experimental_AstroContainer.create();
 		const result = await container.renderToString(Page, {
 			props: {
-				isOpen: true
+				isOpen: true,
 			},
 		});
 
