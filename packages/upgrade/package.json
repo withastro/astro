@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/upgrade",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -22,7 +22,10 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
-  "files": ["dist", "upgrade.js"],
+  "files": [
+    "dist",
+    "upgrade.js"
+  ],
   "//a": "MOST PACKAGES SHOULD GO IN DEV_DEPENDENCIES! THEY WILL BE BUNDLED.",
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
   "dependencies": {

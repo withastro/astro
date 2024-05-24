@@ -1,5 +1,11 @@
 # @astrojs/upgrade
 
+## 0.3.1
+
+### Patch Changes
+
+- [#11139](https://github.com/withastro/astro/pull/11139) [`aaf0635`](https://github.com/withastro/astro/commit/aaf0635cc0fb7e9f892c710ec6ff3b16d3f90ab4) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes @astrojs/upgrade not using the package manager that was used to install the project to install dependencies
+
 ## 0.3.0
 
 ### Minor Changes
