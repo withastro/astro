@@ -94,9 +94,6 @@ export class BuildPipeline extends Pipeline {
 		manifest,
 		options,
 	}: Pick<BuildPipeline, 'internals' | 'manifest' | 'options'>) {
-		// options.manifest = ensure404Route({
-		// 	routes: manifest.routes.map((route) => route.routeData),
-		// })
 		return new BuildPipeline(internals, manifest, options);
 	}
 

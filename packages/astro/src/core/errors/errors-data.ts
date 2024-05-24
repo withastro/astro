@@ -1121,7 +1121,7 @@ export const MissingMiddlewareForInternationalization = {
  * @docs
  * @description
  *
- *
+ * The user tried to rewrite using a route that doesn't exist, or it emitted a runtime error during its rendering phase.
  */
 export const RewriteEncounteredAnError = {
 	name: 'RewriteEncounteredAnError',
@@ -1138,7 +1138,7 @@ export const RewriteEncounteredAnError = {
  * @docs
  * @description
  *
- *
+ * The user tried to rewrite a 404 page inside a static page.
  */
 export const InvalidRewrite404 = {
 	name: 'InvalidRewrite404',
