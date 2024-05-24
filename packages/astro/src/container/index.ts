@@ -260,7 +260,7 @@ export class experimental_AstroContainer {
 	): Promise<experimental_AstroContainer> {
 		const { streaming = false, manifest, renderers = [], resolve } = containerOptions;
 		const astroConfig = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
-		return new experimental_AstroContainer({ streaming, renderers, astroConfig, resolve });
+		return new experimental_AstroContainer({ streaming, manifest, renderers, astroConfig, resolve });
 	}
 
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.
