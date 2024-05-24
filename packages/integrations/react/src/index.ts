@@ -53,10 +53,16 @@ function getRenderer(reactConfig: ReactVersionConfig) {
 	};
 }
 
-export function getContainerRenderer(reactVersion: ReactVersionConfig): ContainerRenderer {
+export function getContainerRenderer(): ContainerRenderer {
+	const majorVersion = getReactMajorVersion();
+	if (isUnsupportedVersion(majorVersion)) {
+		throw new Error(`Unsupported React version: ${majorVersion}.`);
+	}
+	const versionConfig = versionsConfig[majorVersion as SupportedReactVersion];
+	
 	return {
 		name: "@astrojs/react",
-		serverEntrypoint: reactVersion.server,
+		serverEntrypoint: versionConfig.server,
 	}
 }
 
