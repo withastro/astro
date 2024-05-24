@@ -338,11 +338,11 @@ export class App {
 			REROUTABLE_STATUS_CODES.includes(response.status) &&
 			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 		) {
-			// TODO: can i pass an error here?
 			return this.#renderError(request, {
 				locals,
 				response,
 				status: response.status as 404 | 500,
+				error: response.status === 500 ? null : undefined,
 			});
 		}
 
@@ -393,7 +393,13 @@ export class App {
 	 */
 	async #renderError(
 		request: Request,
-		{ locals, status, response: originalResponse, skipMiddleware = false, error }: RenderErrorOptions
+		{
+			locals,
+			status,
+			response: originalResponse,
+			skipMiddleware = false,
+			error,
+		}: RenderErrorOptions
 	): Promise<Response> {
 		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
 		const errorRouteData = matchRoute(errorRoutePath, this.#manifestData);
@@ -424,7 +430,7 @@ export class App {
 					routeData: errorRouteData,
 					status,
 				});
-				const response = await renderContext.render(await mod.page(), {}, error);
+				const response = await renderContext.render(await mod.page(), undefined, { error });
 				return this.#mergeResponses(response, originalResponse);
 			} catch {
 				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
