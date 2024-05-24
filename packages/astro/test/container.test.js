@@ -139,4 +139,46 @@ describe('Container', () => {
 		assert.match(result, /Custom name/);
 		assert.match(result, /Bar name/);
 	});
+
+
+	it('Renders props', async () => {
+		const Page = createComponent(
+			(result, props, _slots) => {
+				return render`${renderComponent(
+					result,
+					'BaseLayout',
+					BaseLayout,
+					{},
+					{
+						default: () => render`
+							${maybeRenderHead(result)}
+							${props.isOpen ? "Is open" : "Is closed"}
+							`,
+						head: () => render`
+						${renderComponent(
+							result,
+							'Fragment',
+							Fragment,
+							{ slot: 'head' },
+							{
+								default: () => render`<meta charset="utf-8">`,
+							}
+						)}
+					`,
+					}
+				)}`;
+			},
+			'Component2.astro',
+			undefined
+		);
+
+		const container = await experimental_AstroContainer.create();
+		const result = await container.renderToString(Page, {
+			props: {
+				isOpen: true
+			},
+		});
+
+		assert.match(result, /Is open/);
+	});
 });
