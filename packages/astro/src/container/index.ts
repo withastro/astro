@@ -2,7 +2,7 @@ import { posix } from 'node:path';
 import type {
 	AstroRenderer,
 	AstroUserConfig,
-	ComponentInstance,
+	ComponentInstance, ContainerImportRendererFn, ContainerRenderer,
 	MiddlewareHandler,
 	Props,
 	RouteData,
@@ -83,7 +83,6 @@ export type ContainerRenderOptions = {
 };
 
 function createManifest(
-	renderers: SSRLoadedRenderer[],
 	manifest?: AstroContainerManifest,
 	middleware?: MiddlewareHandler
 ): SSRManifest {
@@ -102,7 +101,7 @@ function createManifest(
 		routes: manifest?.routes ?? [],
 		adapterName: '',
 		clientDirectives: manifest?.clientDirectives ?? new Map(),
-		renderers: manifest?.renderers ?? renderers,
+		renderers: manifest?.renderers ?? [],
 		base: manifest?.base ?? ASTRO_CONFIG_DEFAULTS.base,
 		componentMetadata: manifest?.componentMetadata ?? new Map(),
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
@@ -138,21 +137,9 @@ export type AstroContainerOptions = {
 	 * @default []
 	 * @description
 	 *
-	 * List or renderers to use when rendering components. Usually they are entry points
-	 *
-	 * ## Example
-	 *
-	 * ```js
-	 * const container = await AstroContainer.create({
-	 * 	renderers: [{
-	 * 	  name: "@astrojs/react"
-	 * 	  client: "@astrojs/react/client.js"
-	 * 	  server: "@astrojs/react/server.js"
-	 * 	}]
-	 * });
-	 * ```
+	 * List or renderers to use when rendering components. Usually, you want to pass these in an SSR context.
 	 */
-	renderers?: AstroRenderer[];
+	renderers?: SSRLoadedRenderer[];
 	/**
 	 * @default {}
 	 * @description
@@ -206,9 +193,14 @@ export class experimental_AstroContainer {
 	 */
 	#withManifest = false;
 
+	/**
+	 * Internal function responsible for importing a renderer
+	 * @private
+	 */
+	#getRenderer: ContainerImportRendererFn | undefined;
+
 	private constructor({
 		streaming = false,
-		renderers = [],
 		manifest,
 		resolve,
 	}: AstroContainerConstructor) {
@@ -217,10 +209,10 @@ export class experimental_AstroContainer {
 				level: 'info',
 				dest: nodeLogDestination,
 			}),
-			manifest: createManifest(renderers, manifest),
+			manifest: createManifest(manifest),
 			streaming,
 			serverLike: true,
-			renderers,
+			renderers: [],
 			resolve: async (specifier: string) => {
 				if (this.#withManifest) {
 					return this.#containerResolve(specifier);
@@ -249,21 +241,7 @@ export class experimental_AstroContainer {
 		containerOptions: AstroContainerOptions = {}
 	): Promise<experimental_AstroContainer> {
 		const { streaming = false, renderers = [] } = containerOptions;
-		const loadedRenderers = await Promise.all(
-			renderers.map(async (renderer) => {
-				const mod = await import(renderer.serverEntrypoint);
-				if (typeof mod.default !== 'undefined') {
-					return {
-						...renderer,
-						ssr: mod.default,
-					} as SSRLoadedRenderer;
-				}
-				return undefined;
-			})
-		);
-		const finalRenderers = loadedRenderers.filter((r): r is SSRLoadedRenderer => Boolean(r));
-
-		return new experimental_AstroContainer({ streaming, renderers: finalRenderers });
+		return new experimental_AstroContainer({ streaming, renderers });
 	}
 
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.

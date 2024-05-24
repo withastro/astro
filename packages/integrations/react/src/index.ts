@@ -1,5 +1,5 @@
 import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-react';
-import type { AstroIntegration } from 'astro';
+import type { AstroIntegration, ContainerRenderer } from 'astro';
 import { version as ReactVersion } from 'react-dom';
 import type * as vite from 'vite';
 
@@ -51,6 +51,13 @@ function getRenderer(reactConfig: ReactVersionConfig) {
 		clientEntrypoint: reactConfig.client,
 		serverEntrypoint: reactConfig.server,
 	};
+}
+
+export function getContainerRenderer(reactVersion: ReactVersionConfig): ContainerRenderer {
+	return {
+		name: "@astrojs/react",
+		serverEntrypoint: reactVersion.server,
+	}
 }
 
 function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {

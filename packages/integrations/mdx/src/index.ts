@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
-import type { AstroIntegration, ContentEntryType, HookParameters } from 'astro';
+import type {AstroIntegration, ContainerRenderer, ContentEntryType, HookParameters} from 'astro';
 import astroJSXRenderer from 'astro/jsx/renderer.js';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
@@ -27,6 +27,14 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	addPageExtension: (extension: string) => void;
 	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
+
+export function getContainerRenderer(): ContainerRenderer {
+	return {
+		name: "astro:jsx",
+		serverEntrypoint: 'astro/jsx/server.js',
+	}
+}
+
 
 export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroIntegration {
 	// @ts-expect-error Temporarily assign an empty object here, which will be re-assigned by the

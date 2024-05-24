@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { type PreactPluginOptions as VitePreactPluginOptions, preact } from '@preact/preset-vite';
-import type { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
+import type {AstroIntegration, AstroRenderer, ContainerRenderer, ViteUserConfig} from 'astro';
 
 const babelCwd = new URL('../', import.meta.url);
 
@@ -10,6 +10,13 @@ function getRenderer(development: boolean): AstroRenderer {
 		clientEntrypoint: development ? '@astrojs/preact/client-dev.js' : '@astrojs/preact/client.js',
 		serverEntrypoint: '@astrojs/preact/server.js',
 	};
+}
+
+export function getContainerRenderer(): ContainerRenderer {
+	return {
+		name: "@astrojs/preact",
+		serverEntrypoint: '@astrojs/preact/server.js',
+	}
 }
 
 export interface Options extends Pick<VitePreactPluginOptions, 'include' | 'exclude'> {

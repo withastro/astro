@@ -3,7 +3,7 @@ import type { Options as VueOptions } from '@vitejs/plugin-vue';
 import vue from '@vitejs/plugin-vue';
 import type { Options as VueJsxOptions } from '@vitejs/plugin-vue-jsx';
 import { MagicString } from '@vue/compiler-sfc';
-import type { AstroIntegration, AstroRenderer, HookParameters } from 'astro';
+import type {AstroIntegration, AstroRenderer, ContainerRenderer, HookParameters} from 'astro';
 import type { Plugin, UserConfig } from 'vite';
 import type { VitePluginVueDevToolsOptions } from 'vite-plugin-vue-devtools';
 
@@ -30,6 +30,13 @@ function getJsxRenderer(): AstroRenderer {
 		clientEntrypoint: '@astrojs/vue/client.js',
 		serverEntrypoint: '@astrojs/vue/server.js',
 	};
+}
+
+export function getContainerRenderer(): ContainerRenderer {
+	return {
+		name: "@astrojs/vue",
+		serverEntrypoint: '@astrojs/vue/server.js'
+	}
 }
 
 function virtualAppEntrypoint(options?: Options): Plugin {
