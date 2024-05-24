@@ -5,12 +5,12 @@ import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 
 describe('Custom 500', () => {
+	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/custom-500/',
-			site: 'http://example.com',
 			output: 'server',
 			adapter: testAdapter(),
 		});
@@ -29,10 +29,10 @@ describe('Custom 500', () => {
 		});
 
 		it('renders default error overlay', async () => {
-			const res = await fixture.fetch('/');
-			assert.equal(res.status, 500);
+			const response = await fixture.fetch('/');
+			assert.equal(response.status, 500);
 
-			const html = await res.text();
+			const html = await response.text();
 
 			assert.equal(html, '<title>Error</title><script type="module" src="/@vite/client"></script>');
 		});
@@ -40,10 +40,32 @@ describe('Custom 500', () => {
 		it('renders custom 500', async () => {
 			process.env.ASTRO_CUSTOM_500 = 'true';
 
-			const res = await fixture.fetch('/');
-			assert.equal(res.status, 500);
+			const response = await fixture.fetch('/');
+			assert.equal(response.status, 500);
 
-			const html = await res.text();
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			assert.equal($('h1').text(), 'Server error');
+			assert.equal($('p').text(), 'some error');
+		});
+	});
+
+	describe('preview', () => {
+		/** @type {Awaited<ReturnType<(typeof fixture)["loadTestAdapterApp"]>>} */
+		let app;
+
+		before(async () => {
+			await fixture.build();
+			app = await fixture.loadTestAdapterApp();
+		});
+
+		it('renders custom 500', async () => {
+			const request = new Request('http://example.com/');
+			const response = await app.render(request)
+			assert.equal(response.status, 500);
+
+			const html = await response.text();
 			const $ = cheerio.load(html);
 
 			assert.equal($('h1').text(), 'Server error');
