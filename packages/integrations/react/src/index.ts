@@ -59,11 +59,11 @@ export function getContainerRenderer(): ContainerRenderer {
 		throw new Error(`Unsupported React version: ${majorVersion}.`);
 	}
 	const versionConfig = versionsConfig[majorVersion as SupportedReactVersion];
-	
+
 	return {
-		name: "@astrojs/react",
+		name: '@astrojs/react',
 		serverEntrypoint: versionConfig.server,
-	}
+	};
 }
 
 function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {

@@ -3292,15 +3292,17 @@ declare global {
 }
 
 // Container types
-export type ContainerImportRendererFn = (containerRenderer: ContainerRenderer) => Promise<SSRLoadedRenderer>;
+export type ContainerImportRendererFn = (
+	containerRenderer: ContainerRenderer
+) => Promise<SSRLoadedRenderer>;
 
 export type ContainerRenderer = {
 	/**
 	 * The name of the renderer.
 	 */
-	name: string,
+	name: string;
 	/**
 	 * The entrypoint that is used to render a component on the server
 	 */
-	serverEntrypoint: string,
-}
+	serverEntrypoint: string;
+};

@@ -1,8 +1,11 @@
 import { posix } from 'node:path';
 import type {
+	AstroConfig,
 	AstroRenderer,
 	AstroUserConfig,
-	ComponentInstance, ContainerImportRendererFn, ContainerRenderer,
+	ComponentInstance,
+	ContainerImportRendererFn,
+	ContainerRenderer,
 	MiddlewareHandler,
 	Props,
 	RouteData,
@@ -84,6 +87,7 @@ export type ContainerRenderOptions = {
 
 function createManifest(
 	manifest?: AstroContainerManifest,
+	renderers?: SSRLoadedRenderer[],
 	middleware?: MiddlewareHandler
 ): SSRManifest {
 	const defaultMiddleware: MiddlewareHandler = (_, next) => {
@@ -101,7 +105,7 @@ function createManifest(
 		routes: manifest?.routes ?? [],
 		adapterName: '',
 		clientDirectives: manifest?.clientDirectives ?? new Map(),
-		renderers: manifest?.renderers ?? [],
+		renderers: renderers ?? manifest?.renderers ?? [],
 		base: manifest?.base ?? ASTRO_CONFIG_DEFAULTS.base,
 		componentMetadata: manifest?.componentMetadata ?? new Map(),
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
@@ -157,6 +161,9 @@ export type AstroContainerOptions = {
 	 * ```
 	 */
 	astroConfig?: AstroContainerUserConfig;
+
+	// TODO: document out of experimental
+	resolve?: SSRResult['resolve'];
 };
 
 type AstroContainerManifest = Pick<
@@ -182,6 +189,7 @@ type AstroContainerConstructor = {
 	renderers?: SSRLoadedRenderer[];
 	manifest?: AstroContainerManifest;
 	resolve?: SSRResult['resolve'];
+	astroConfig: AstroConfig;
 };
 
 export class experimental_AstroContainer {
@@ -202,20 +210,22 @@ export class experimental_AstroContainer {
 	private constructor({
 		streaming = false,
 		manifest,
+		renderers,
 		resolve,
+		astroConfig,
 	}: AstroContainerConstructor) {
 		this.#pipeline = ContainerPipeline.create({
 			logger: new Logger({
 				level: 'info',
 				dest: nodeLogDestination,
 			}),
-			manifest: createManifest(manifest),
+			manifest: createManifest(manifest, renderers),
 			streaming,
 			serverLike: true,
 			renderers: [],
 			resolve: async (specifier: string) => {
 				if (this.#withManifest) {
-					return this.#containerResolve(specifier);
+					return this.#containerResolve(specifier, astroConfig);
 				} else if (resolve) {
 					return resolve(specifier);
 				}
@@ -224,10 +234,10 @@ export class experimental_AstroContainer {
 		});
 	}
 
-	async #containerResolve(specifier: string): Promise<string> {
+	async #containerResolve(specifier: string, astroConfig: AstroConfig): Promise<string> {
 		const found = this.#pipeline.manifest.entryModules[specifier];
 		if (found) {
-			return new URL(found, ASTRO_CONFIG_DEFAULTS.build.client).toString();
+			return new URL(found, astroConfig.build.client).toString();
 		}
 		return found;
 	}
@@ -240,8 +250,9 @@ export class experimental_AstroContainer {
 	public static async create(
 		containerOptions: AstroContainerOptions = {}
 	): Promise<experimental_AstroContainer> {
-		const { streaming = false, renderers = [] } = containerOptions;
-		return new experimental_AstroContainer({ streaming, renderers });
+		const { streaming = false, renderers = [], resolve } = containerOptions;
+		const astroConfig = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
+		return new experimental_AstroContainer({ streaming, renderers, astroConfig, resolve });
 	}
 
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.
@@ -249,9 +260,10 @@ export class experimental_AstroContainer {
 	private static async createFromManifest(
 		manifest: SSRManifest
 	): Promise<experimental_AstroContainer> {
-		const config = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
+		const astroConfig = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
 		const container = new experimental_AstroContainer({
 			manifest,
+			astroConfig,
 		});
 		container.#withManifest = true;
 		return container;
