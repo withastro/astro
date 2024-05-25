@@ -1,5 +1,5 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import type { ImageInputFormat, ImageMetadata } from '../types.js';
+import { type ImageInputFormat, type ImageMetadata, image_metadata } from '../types.js';
 import { lookup as probe } from '../utils/vendor/image-size/lookup.js';
 
 export async function imageMetadata(
@@ -23,6 +23,7 @@ export async function imageMetadata(
 			height: isPortrait ? width : height,
 			format: type as ImageInputFormat,
 			orientation,
+			[image_metadata]: true,
 		};
 	} catch (e) {
 		throw new AstroError({

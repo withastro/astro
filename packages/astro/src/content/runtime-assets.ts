@@ -1,12 +1,12 @@
 import type { PluginContext } from 'rollup';
-import { z } from 'zod';
+import { type ZodTypeAny, z } from 'zod';
 import { emitESMImage } from '../assets/utils/emitAsset.js';
 
 export function createImage(
 	pluginContext: PluginContext,
 	shouldEmitFile: boolean,
 	entryFilePath: string
-) {
+): () => ZodTypeAny {
 	return () => {
 		return z.string().transform(async (imagePath, ctx) => {
 			const resolvedFilePath = (await pluginContext.resolve(imagePath, entryFilePath))?.id;

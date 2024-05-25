@@ -1,8 +1,10 @@
 declare module 'astro:content' {
+	import { image_metadata } from 'astro/assets';
 	export { z } from 'astro/zod';
 
 	// This needs to be in sync with ImageMetadata
 	export type ImageFunction = () => import('astro/zod').ZodObject<{
+		[image_metadata]: import('astro/zod').ZodLiteral<true>;
 		src: import('astro/zod').ZodString;
 		width: import('astro/zod').ZodNumber;
 		height: import('astro/zod').ZodNumber;

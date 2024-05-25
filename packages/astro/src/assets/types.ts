@@ -28,10 +28,12 @@ declare global {
 	};
 }
 
+export const image_metadata = Symbol.for('image_metadata');
+
 /**
  * Type returned by ESM imports of images
  */
-export interface ImageMetadata {
+export type ImageMetadata = {
 	src: string;
 	width: number;
 	height: number;
@@ -39,7 +41,8 @@ export interface ImageMetadata {
 	orientation?: number;
 	/** @internal */
 	fsPath: string;
-}
+	[image_metadata]: true;
+};
 
 /**
  * A yet to be completed with an url `SrcSetValue`. Other hooks will only see a resolved value, where the URL of the image has been added.
@@ -60,6 +63,8 @@ export type SrcSetValue = UnresolvedSrcSetValue & {
 export type UnresolvedImageTransform = Omit<ImageTransform, 'src'> & {
 	src: ImageMetadata | string | Promise<{ default: ImageMetadata }>;
 	inferSize?: boolean;
+	// Prevent people from spreading an image import unto getImage or Image by accident
+	[image_metadata]?: never;
 };
 
 /**
@@ -140,6 +145,7 @@ type ImageSharedProps<T> = T & {
 	 * ```
 	 */
 	quality?: ImageQuality;
+	[image_metadata]?: never;
 } & (
 		| {
 				/**
