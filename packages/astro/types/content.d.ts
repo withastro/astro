@@ -8,6 +8,7 @@ declare module 'astro:content' {
 		src: import('astro/zod').ZodString;
 		width: import('astro/zod').ZodNumber;
 		height: import('astro/zod').ZodNumber;
+		orientation: import('astro/zod').ZodOptional<import('astro/zod').ZodNumber>;
 		format: import('astro/zod').ZodUnion<
 			[
 				import('astro/zod').ZodLiteral<'png'>,
