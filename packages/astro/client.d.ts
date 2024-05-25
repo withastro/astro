@@ -72,38 +72,36 @@ declare module 'astro:assets' {
 	export const { getImage, getConfiguredImageService, imageConfig, Image, Picture }: AstroAssets;
 }
 
-type ImageMetadata = import('./dist/assets/types.js').ImageMetadata;
-
 declare module '*.gif' {
-	const metadata: ImageMetadata;
+	const metadata: import('./dist/assets/types.js').ImageMetadata;
 	export default metadata;
 }
 declare module '*.jpeg' {
-	const metadata: ImageMetadata;
+	const metadata: import('./dist/assets/types.js').ImageMetadata;
 	export default metadata;
 }
 declare module '*.jpg' {
-	const metadata: ImageMetadata;
+	const metadata: import('./dist/assets/types.js').ImageMetadata;
 	export default metadata;
 }
 declare module '*.png' {
-	const metadata: ImageMetadata;
+	const metadata: import('./dist/assets/types.js').ImageMetadata;
 	export default metadata;
 }
 declare module '*.tiff' {
-	const metadata: ImageMetadata;
+	const metadata: import('./dist/assets/types.js').ImageMetadata;
 	export default metadata;
 }
 declare module '*.webp' {
-	const metadata: ImageMetadata;
+	const metadata: import('./dist/assets/types.js').ImageMetadata;
 	export default metadata;
 }
 declare module '*.svg' {
-	const metadata: ImageMetadata;
+	const metadata: import('./dist/assets/types.js').ImageMetadata;
 	export default metadata;
 }
 declare module '*.avif' {
-	const metadata: ImageMetadata;
+	const metadata: import('./dist/assets/types.js').ImageMetadata;
 	export default metadata;
 }
 
@@ -145,7 +143,7 @@ declare module 'astro:transitions/client' {
 }
 
 declare module 'astro:prefetch' {
-	export { prefetch, PrefetchOptions } from 'astro/virtual-modules/prefetch.js';
+	export { PrefetchOptions, prefetch } from 'astro/virtual-modules/prefetch.js';
 }
 
 declare module 'astro:i18n' {

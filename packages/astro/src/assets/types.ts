@@ -33,7 +33,7 @@ export const image_metadata = Symbol.for('image_metadata');
 /**
  * Type returned by ESM imports of images
  */
-export type ImageMetadata = {
+export interface ImageMetadata {
 	src: string;
 	width: number;
 	height: number;
@@ -42,7 +42,7 @@ export type ImageMetadata = {
 	/** @internal */
 	fsPath: string;
 	[image_metadata]: true;
-};
+}
 
 /**
  * A yet to be completed with an url `SrcSetValue`. Other hooks will only see a resolved value, where the URL of the image has been added.
