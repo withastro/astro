@@ -45,9 +45,9 @@
   ],
   "engines": {
     "node": "^18.17.1 || ^20.3.0 || >=21.0.0",
-    "pnpm": ">=8.6.12"
+    "pnpm": ">=9.1.2"
   },
-  "packageManager": "pnpm@8.6.12",
+  "packageManager": "pnpm@9.1.2",
   "dependencies": {
     "astro-benchmark": "workspace:*"
   },
