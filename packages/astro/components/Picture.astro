@@ -100,7 +100,7 @@ if (import.meta.env.DEV) {
 			return (
 				<source
 					srcset={srcsetAttribute}
-					type={mime.lookup(image.options.format ?? '') ?? `image/${image.options.format}`}
+					type={mime.lookup(image.options.format) ?? `image/${image.options.format}`}
 					{...sourceAdditionalAttributes}
 				/>
 			);
