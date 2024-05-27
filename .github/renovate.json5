@@ -23,6 +23,7 @@
     // ignore "engines" update
     "node",
     "npm",
+    "pnpm",
 
     // follow vite deps version
     "postcss-load-config",

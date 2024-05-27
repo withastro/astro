@@ -234,7 +234,7 @@
   "engines": {
     "node": "^18.17.1 || ^20.3.0 || >=21.0.0",
     "npm": ">=9.6.5",
-    "pnpm": ">=9.1.2"
+    "pnpm": ">=7.1.0"
   },
   "publishConfig": {
     "provenance": true

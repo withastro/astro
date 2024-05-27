@@ -44,8 +44,7 @@
     "packages/*"
   ],
   "engines": {
-    "node": "^18.17.1 || ^20.3.0 || >=21.0.0",
-    "pnpm": ">=9.1.2"
+    "node": "^18.17.1 || ^20.3.0 || >=21.0.0"
   },
   "packageManager": "pnpm@9.1.2",
   "dependencies": {
