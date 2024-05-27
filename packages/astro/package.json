@@ -154,7 +154,7 @@
     "es-module-lexer": "^1.5.2",
     "esbuild": "^0.21.2",
     "estree-walker": "^3.0.3",
-    "execa": "^8.0.1",
+    "execa": "^9.1.0",
     "fast-glob": "^3.3.2",
     "flattie": "^1.1.1",
     "github-slugger": "^2.0.0",
