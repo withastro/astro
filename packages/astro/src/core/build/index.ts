@@ -54,7 +54,6 @@ export interface BuildOptions {
 	/**
 	 * Build a SSR project without running the static build. This allows us to use a workaround to split up the build into two builds, one with the old behavior and one without the prerendering logic. This is currently used for testng in the Cloudlfare adapter.
 	 * 
-	 * @internal very specific to the Cloudflare adapter
 	 * @default false
 	 */
 	ssronly?: boolean;
