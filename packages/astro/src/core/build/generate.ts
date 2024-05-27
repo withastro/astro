@@ -129,8 +129,8 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	if (ssr) {
 		for (const [pageData, filePath] of pagesToGenerate) {
 			if (pageData.route.prerender) {
-				// i18n domains won't work with pre rendered routes at the moment, so we need to to throw an error
-				if (config.experimental.i18nDomains) {
+				// i18n domains won't work with pre rendered routes at the moment, so we need to throw an error
+				if (config.i18n?.domains && Object.keys(config.i18n.domains).length > 0) {
 					throw new AstroError({
 						...NoPrerenderedRoutesWithDomains,
 						message: NoPrerenderedRoutesWithDomains.message(pageData.component),
@@ -284,7 +284,7 @@ async function getPathsForRoute(
 		const label = staticPaths.length === 1 ? 'page' : 'pages';
 		logger.debug(
 			'build',
-			`├── ${bold(green('✔'))} ${route.component} → ${magenta(`[${staticPaths.length} ${label}]`)}`
+			`├── ${bold(green('√'))} ${route.component} → ${magenta(`[${staticPaths.length} ${label}]`)}`
 		);
 
 		paths = staticPaths
@@ -558,6 +558,6 @@ function createBuildManifest(
 		buildFormat: settings.config.build.format,
 		middleware,
 		rewritingEnabled: settings.config.experimental.rewriting,
-		checkOrigin: settings.config.experimental.security?.csrfProtection?.origin ?? false,
+		checkOrigin: settings.config.security?.checkOrigin ?? false,
 	};
 }

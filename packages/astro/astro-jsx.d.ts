@@ -22,7 +22,7 @@ declare namespace astroHTML.JSX {
 		extends AstroBuiltinProps,
 			AstroBuiltinAttributes,
 			AstroClientDirectives {
-		slot?: string;
+		slot?: string | undefined | null;
 		children?: Children;
 	}
 

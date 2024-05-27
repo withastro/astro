@@ -115,7 +115,6 @@ export default function createVitePluginAstroServer({
  *
  * Renderers needs to be pulled out from the page module emitted during the build.
  * @param settings
- * @param renderers
  */
 export function createDevelopmentManifest(settings: AstroSettings): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
@@ -144,7 +143,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		componentMetadata: new Map(),
 		inlinedScripts: new Map(),
 		i18n: i18nManifest,
-		checkOrigin: settings.config.experimental.security?.csrfProtection?.origin ?? false,
+		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		rewritingEnabled: settings.config.experimental.rewriting,
 		middleware(_, next) {
 			return next();

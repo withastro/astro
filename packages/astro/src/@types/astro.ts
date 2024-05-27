@@ -781,6 +781,49 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @name security
+	 * @type {boolean}
+	 * @default `{}`
+	 * @version 4.9.0
+	 * @description
+	 *
+	 * Enables security measures for an Astro website.
+	 *
+	 * These features only exist for pages rendered on demand (SSR) using `server` mode or pages that opt out of prerendering in `hybrid` mode.
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * export default defineConfig({
+	 *   output: "server",
+	 *   security: {
+	 *     checkOrigin: true
+	 *   }
+	 * })
+	 * ```
+	 */
+	security?: {
+		/**
+		 * @docs
+		 * @name security.checkOrigin
+		 * @kind h4
+		 * @type {boolean}
+		 * @default 'false'
+		 * @version 4.9.0
+		 * @description
+		 *
+		 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`. This is used to provide Cross-Site Request Forgery (CSRF) protection.
+		 *
+		 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST`, `PATCH`, `DELETE` and `PUT` with
+		 * one of the following `content-type` headers: `'application/x-www-form-urlencoded'`, `'multipart/form-data'`, `'text/plain'`.
+		 *
+		 * If the "origin" header doesn't match the `pathname` of the request, Astro will return a 403 status code and will not render the page.
+		 */
+
+		checkOrigin?: boolean;
+	};
+
+	/**
+	 * @docs
 	 * @name vite
 	 * @typeraw {ViteUserConfig}
 	 * @description
@@ -1958,105 +2001,6 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.i18nDomains
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.3.0
-		 * @description
-		 *
-		 * Enables domain support for the [experimental `domains` routing strategy](https://docs.astro.build/en/guides/internationalization/#domains-experimental) which allows you to configure the URL pattern of one or more supported languages to use a custom domain (or sub-domain).
-		 *
-		 * When a locale is mapped to a domain, a `/[locale]/` path prefix will not be used. However, localized folders within `src/pages/` are still required, including for your configured `defaultLocale`.
-		 *
-		 * Any other locale not configured will default to a localized path-based URL according to your `prefixDefaultLocale` strategy (e.g. `https://example.com/[locale]/blog`).
-		 *
-		 * ```js
-		 * //astro.config.mjs
-		 * export default defineConfig({
-		 * 	site: "https://example.com",
-		 * 	output: "server", // required, with no prerendered pages
-		 * 	adapter: node({
-		 * 		mode: 'standalone',
-		 * 	}),
-		 * 	i18n: {
-		 * 		defaultLocale: "en",
-		 * 		locales: ["en", "fr", "pt-br", "es"],
-		 * 		prefixDefaultLocale: false,
-		 * 		domains: {
-		 * 			fr: "https://fr.example.com",
-		 * 			es: "https://example.es",
-		 * 		},
-		 * 	},
-		 * 	experimental: {
-		 * 		i18nDomains: true,
-		 * 	},
-		 * });
-		 * ```
-		 *
-		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/reference/api-reference/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/reference/api-reference/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
-		 *
-		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains-experimental) for more details, including the limitations of this experimental feature.
-		 */
-		i18nDomains?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.security
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.6.0
-		 * @description
-		 *
-		 * Enables CSRF protection for Astro websites.
-		 *
-		 * The CSRF protection works only for pages rendered on demand (SSR) using `server` or `hybrid` mode. The pages must opt out of prerendering in `hybrid` mode.
-		 *
-		 * ```js
-		 * // astro.config.mjs
-		 * export default defineConfig({
-		 *   output: "server",
-		 *   experimental: {
-		 *     security: {
-		 *       csrfProtection: {
-		 *         origin: true
-		 *       }
-		 *     }
-		 *   }
-		 * })
-		 * ```
-		 */
-		security?: {
-			/**
-			 * @name security.csrfProtection
-			 * @type {object}
-			 * @default '{}'
-			 * @version 4.6.0
-			 * @description
-			 *
-			 * Allows you to enable security measures to prevent CSRF attacks: https://owasp.org/www-community/attacks/csrf
-			 */
-
-			csrfProtection?: {
-				/**
-				 * @name security.csrfProtection.origin
-				 * @type {boolean}
-				 * @default 'false'
-				 * @version 4.6.0
-				 * @description
-				 *
-				 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`.
-				 *
-				 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST, `PATCH`, `DELETE` and `PUT` with
-				 * the following `content-type` header: 'application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'.
-				 *
-				 * If the "origin" header doesn't match the `pathname` of the request, Astro will return a 403 status code and will not render the page.
-				 */
-				origin?: boolean;
-			};
-		};
-
-		/**
-		 * @docs
 		 * @name experimental.rewriting
 		 * @type {boolean}
 		 * @default `false`
@@ -3150,6 +3094,8 @@ export interface SSRResult {
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
 	response: AstroGlobal['response'];
+	request: AstroGlobal['request'];
+	actionResult?: ReturnType<AstroGlobal['getActionResult']>;
 	renderers: SSRLoadedRenderer[];
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code

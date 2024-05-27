@@ -4,12 +4,13 @@ import type {
 	AstroGlobalPartial,
 	ComponentInstance,
 	MiddlewareHandler,
+	Props,
 	RewritePayload,
 	RouteData,
 	SSRResult,
 } from '../@types/astro.js';
 import type { ActionAPIContext } from '../actions/runtime/store.js';
-import { createGetActionResult } from '../actions/utils.js';
+import { createGetActionResult, hasActionsInternal } from '../actions/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
@@ -47,7 +48,8 @@ export class RenderContext {
 		public status: number,
 		protected cookies = new AstroCookies(request),
 		public params = getParams(routeData, pathname),
-		protected url = new URL(request.url)
+		protected url = new URL(request.url),
+		public props: Props = {}
 	) {}
 
 	/**
@@ -91,17 +93,23 @@ export class RenderContext {
 	 * - endpoint
 	 * - fallback
 	 */
-	async render(componentInstance: ComponentInstance | undefined): Promise<Response> {
+	async render(
+		componentInstance: ComponentInstance | undefined,
+		slots: Record<string, any> = {}
+	): Promise<Response> {
 		const { cookies, middleware, pathname, pipeline } = this;
 		const { logger, routeCache, serverLike, streaming } = pipeline;
-		const props = await getProps({
-			mod: componentInstance,
-			routeData: this.routeData,
-			routeCache,
-			pathname,
-			logger,
-			serverLike,
-		});
+		const props =
+			Object.keys(this.props).length > 0
+				? this.props
+				: await getProps({
+						mod: componentInstance,
+						routeData: this.routeData,
+						routeCache,
+						pathname,
+						logger,
+						serverLike,
+					});
 		const apiContext = this.createAPIContext(props);
 
 		this.counter++;
@@ -148,7 +156,7 @@ export class RenderContext {
 							result,
 							componentInstance?.default as any,
 							props,
-							{},
+							slots,
 							streaming,
 							this.routeData
 						);
@@ -294,6 +302,10 @@ export class RenderContext {
 			},
 		} satisfies AstroGlobal['response'];
 
+		const actionResult = hasActionsInternal(this.locals)
+			? this.locals._actionsInternal?.actionResult
+			: undefined;
+
 		// Create the result object that will be passed into the renderPage function.
 		// This object starts here as an empty shell (not yet the result) but then
 		// calling the render() function will populate the object with scripts, styles, etc.
@@ -313,8 +325,10 @@ export class RenderContext {
 			renderers,
 			resolve,
 			response,
+			request: this.request,
 			scripts,
 			styles,
+			actionResult,
 			_metadata: {
 				hasHydrationScript: false,
 				rendererSpecificHydrationScripts: new Set(),

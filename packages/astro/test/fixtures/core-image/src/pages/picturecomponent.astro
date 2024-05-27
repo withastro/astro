@@ -1,6 +1,7 @@
 ---
 import { Picture } from "astro:assets";
 import myImage from "../assets/penguin1.jpg";
+import myImageSvg from '../assets/penguin.svg';
 ---
 
 <div id="picture-density-2-format">
@@ -17,6 +18,11 @@ import myImage from "../assets/penguin1.jpg";
 
 <div id="picture-attributes">
   <Picture src={myImage} fallbackFormat="jpeg" alt="A penguin" class="img-comp" pictureAttributes={{ class: 'picture-comp' }} />
+</div>
+
+<div id="picture-mime-types">
+  <Picture alt="A penguin" src={myImage} formats={['jpg', 'jpeg', 'png', 'avif', 'webp']} />
+  <Picture alt="A penguin" src={myImageSvg} />
 </div>
 
 <style>

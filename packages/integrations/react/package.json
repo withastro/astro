@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/react",
   "description": "Use React components within Astro",
-  "version": "3.3.4",
+  "version": "3.4.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -21,6 +21,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/react/",
   "exports": {
     ".": "./dist/index.js",
+    "./actions": "./dist/actions.js",
     "./client.js": "./client.js",
     "./client-v17.js": "./client-v17.js",
     "./server.js": "./server.js",

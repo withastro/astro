@@ -214,5 +214,16 @@ describe('Astro Actions', () => {
 			const res = await app.render(req);
 			assert.equal(res.status, 204);
 		});
+
+		it('Is callable from the server with rewrite', async () => {
+			const req = new Request('http://example.com/rewrite');
+			const res = await app.render(req);
+			assert.equal(res.ok, true);
+
+			const html = await res.text();
+			let $ = cheerio.load(html);
+			assert.equal($('[data-url]').text(), '/subscribe');
+			assert.equal($('[data-channel]').text(), 'bholmesdev');
+		});
 	});
 });

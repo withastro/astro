@@ -7,7 +7,7 @@ export const server = {
 		like: defineAction({
 			input: z.object({ postId: z.string() }),
 			handler: async ({ postId }) => {
-				await new Promise((r) => setTimeout(r, 200));
+				await new Promise((r) => setTimeout(r, 1000));
 
 				const { likes } = await db
 					.update(Likes)

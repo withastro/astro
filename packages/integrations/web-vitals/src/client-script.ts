@@ -1,4 +1,4 @@
-import { type Metric, onCLS, onFCP, onFID, onINP, onLCP, onTTFB } from 'web-vitals';
+import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 import { WEB_VITALS_ENDPOINT_PATH } from './constants.js';
 import type { ClientMetric } from './schemas.js';
 
@@ -26,7 +26,7 @@ function flushQueue() {
 	queue.clear();
 }
 
-for (const listener of [onCLS, onLCP, onINP, onFID, onFCP, onTTFB]) {
+for (const listener of [onCLS, onLCP, onINP, onFCP, onTTFB]) {
 	listener(addToQueue);
 }
 
