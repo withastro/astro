@@ -50,6 +50,14 @@ export interface BuildOptions {
 	 * @default false
 	 */
 	force?: boolean;
+
+	/**
+	 * Build a SSR project without running the static build. This allows us to use a workaround to split up the build into two builds, one with the old behavior and one without the prerendering logic. This is currently used for testng in the Cloudlfare adapter.
+	 * 
+	 * @internal very specific to the Cloudflare adapter
+	 * @default false
+	 */
+	ssronly?: boolean;
 }
 
 /**
@@ -99,6 +107,7 @@ class AstroBuilder {
 	private manifest: ManifestData;
 	private timer: Record<string, number>;
 	private teardownCompiler: boolean;
+	private ssronly: boolean;
 
 	constructor(settings: AstroSettings, options: AstroBuilderOptions) {
 		if (options.mode) {
@@ -112,6 +121,7 @@ class AstroBuilder {
 			: `http://localhost:${settings.config.server.port}`;
 		this.manifest = { routes: [] };
 		this.timer = {};
+		this.ssronly = options.ssronly ?? false;
 	}
 
 	/** Setup Vite and run any async setup logic that couldn't run inside of the constructor. */
@@ -196,7 +206,9 @@ class AstroBuilder {
 		};
 
 		const { internals, ssrOutputChunkNames, contentFileNames } = await viteBuild(opts);
-		await staticBuild(opts, internals, ssrOutputChunkNames, contentFileNames);
+		if (!this.ssronly) {
+			await staticBuild(opts, internals, ssrOutputChunkNames, contentFileNames);
+		}
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();
