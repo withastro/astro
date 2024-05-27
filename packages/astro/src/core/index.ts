@@ -14,7 +14,7 @@ export { default as preview } from './preview/index.js';
  * @experimental The JavaScript API is experimental
  */
 // Wrap `_build` to prevent exposing the second internal options parameter
-export const build = (inlineConfig: AstroInlineConfig) => _build(inlineConfig);
+export const build = (inlineConfig: AstroInlineConfig, options: { ssronly?: boolean }) => _build(inlineConfig, options);
 
 /**
  * Generates TypeScript types for all Astro modules. This sets up a `src/env.d.ts` file for type inferencing,
