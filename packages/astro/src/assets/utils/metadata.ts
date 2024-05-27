@@ -5,7 +5,7 @@ import { lookup as probe } from '../utils/vendor/image-size/lookup.js';
 export async function imageMetadata(
 	data: Uint8Array,
 	src?: string
-): Promise<Omit<ImageMetadata, 'src' | 'fsPath'>> {
+): Promise<Omit<ImageMetadata, 'src' | 'fsPath' | typeof image_metadata>> {
 	try {
 		const result = probe(data);
 		if (!result.height || !result.width || !result.type) {
@@ -23,7 +23,6 @@ export async function imageMetadata(
 			height: isPortrait ? width : height,
 			format: type as ImageInputFormat,
 			orientation,
-			[image_metadata]: true,
 		};
 	} catch (e) {
 		throw new AstroError({

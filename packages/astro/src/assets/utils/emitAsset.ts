@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type * as vite from 'vite';
 import { prependForwardSlash, slash } from '../../core/path.js';
-import type { ImageMetadata } from '../types.js';
+import type { ImageMetadata, image_metadata } from '../types.js';
 import { imageMetadata } from './metadata.js';
 
 type FileEmitter = vite.Rollup.EmitFile;
@@ -30,7 +30,7 @@ export async function emitESMImage(
 
 	const fileMetadata = await imageMetadata(fileData, id);
 
-	const emittedImage: Omit<ImageMetadata, 'fsPath'> = {
+	const emittedImage: Omit<ImageMetadata, 'fsPath' | typeof image_metadata> = {
 		src: '',
 		...fileMetadata,
 	};
