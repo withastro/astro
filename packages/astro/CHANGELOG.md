@@ -56,7 +56,7 @@
   });
   ```
 
-  For a complete reference, see the [Container API docs](/en/reference/container-reference/).
+  For a complete reference, see the [Container API docs](https://docs.astro.build/en/reference/container-reference/).
 
   For a feature overview, and to give feedback on this experimental API, see the [Container API roadmap discussion](https://github.com/withastro/roadmap/pull/916).
 
