@@ -1,4 +1,4 @@
-import type { ExecaChildProcess } from 'execa';
+import type { ResultPromise } from 'execa';
 import { execa } from 'execa';
 
 /**
@@ -26,7 +26,7 @@ const getPlatformSpecificCommand = (): [string] | [string, string[]] => {
 	}
 };
 
-export async function openInBrowser(url: string): Promise<ExecaChildProcess> {
+export async function openInBrowser(url: string): Promise<ResultPromise> {
 	const [command, args = []] = getPlatformSpecificCommand();
 	return execa(command, [...args, encodeURI(url)]);
 }
