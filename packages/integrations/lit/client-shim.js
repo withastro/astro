@@ -7,9 +7,9 @@ async function polyfill() {
 	});
 }
 
-const polyfillCheckEl = Document
-	.parseHTMLUnsafe(`<p><template shadowrootmode="open"></template></p>`)
-	.querySelector('p');
+const polyfillCheckEl = Document.parseHTMLUnsafe(
+	`<p><template shadowrootmode="open"></template></p>`
+).querySelector('p');
 
 if (!polyfillCheckEl?.shadowRoot) {
 	polyfill();
