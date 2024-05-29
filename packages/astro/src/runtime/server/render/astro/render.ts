@@ -148,7 +148,7 @@ async function callComponentAsTemplateResultOrResponse(
 
 	if (factoryResult instanceof Response) {
 		return factoryResult;
-	} 
+	}
 	// we check if the component we attempt to render is a head+content
 	else if (isHeadAndContent(factoryResult)) {
 		// we make sure that content is valid template result

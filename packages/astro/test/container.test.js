@@ -4,13 +4,13 @@ import { experimental_AstroContainer } from '../dist/container/index.js';
 import {
 	Fragment,
 	createComponent,
+	createHeadAndContent,
 	maybeRenderHead,
 	render,
 	renderComponent,
 	renderHead,
 	renderSlot,
-	createHeadAndContent,
-	renderTemplate
+	renderTemplate,
 } from '../dist/runtime/server/index.js';
 
 const BaseLayout = createComponent((result, _props, slots) => {
@@ -145,7 +145,6 @@ describe('Container', () => {
 	it('Renders content and head component', async () => {
 		const Page = createComponent(
 			(result, _props, slots) => {
-
 				return createHeadAndContent(
 					'',
 					renderTemplate`${renderComponent(
@@ -161,18 +160,18 @@ describe('Container', () => {
 							`,
 							head: () => render`
 						${renderComponent(
-								result,
-								'Fragment',
-								Fragment,
-								{ slot: 'head' },
-								{
-									default: () => render`<meta charset="utf-8">`,
-								}
-							)}
+							result,
+							'Fragment',
+							Fragment,
+							{ slot: 'head' },
+							{
+								default: () => render`<meta charset="utf-8">`,
+							}
+						)}
 					`,
 						}
 					)}`
-			);
+				);
 			},
 			'Component2.astro',
 			undefined
