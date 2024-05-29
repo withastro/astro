@@ -148,6 +148,25 @@ async function callComponentAsTemplateResultOrResponse(
 
 	if (factoryResult instanceof Response) {
 		return factoryResult;
+	} 
+	// we check if the component we attempt to render is a head+content
+	else if (isHeadAndContent(factoryResult)) {
+		// we make sure that content is valid template result
+		if (!isRenderTemplateResult(factoryResult.content)) {
+			throw new AstroError({
+				...AstroErrorData.OnlyResponseCanBeReturned,
+				message: AstroErrorData.OnlyResponseCanBeReturned.message(
+					route?.route,
+					typeof factoryResult
+				),
+				location: {
+					file: route?.component,
+				},
+			});
+		}
+
+		// return the content
+		return factoryResult.content;
 	} else if (!isRenderTemplateResult(factoryResult)) {
 		throw new AstroError({
 			...AstroErrorData.OnlyResponseCanBeReturned,
@@ -158,7 +177,7 @@ async function callComponentAsTemplateResultOrResponse(
 		});
 	}
 
-	return isHeadAndContent(factoryResult) ? factoryResult.content : factoryResult;
+	return factoryResult;
 }
 
 // Recursively calls component instances that might have head content
