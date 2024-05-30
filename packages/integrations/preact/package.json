@@ -35,8 +35,8 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@babel/plugin-transform-react-jsx": "^7.23.4",
-    "@babel/plugin-transform-react-jsx-development": "^7.22.5",
+    "@babel/plugin-transform-react-jsx": "^7.24.6",
+    "@babel/plugin-transform-react-jsx-development": "^7.24.6",
     "@preact/preset-vite": "^2.8.2",
     "@preact/signals": "^1.2.3",
     "babel-plugin-transform-hook-names": "^1.0.2",
@@ -46,7 +46,7 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "preact": "^10.21.0"
+    "preact": "^10.22.0"
   },
   "peerDependencies": {
     "preact": "^10.6.5"
