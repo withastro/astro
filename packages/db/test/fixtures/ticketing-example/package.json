@@ -10,11 +10,11 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/check": "^0.6.0",
+    "@astrojs/check": "^0.7.0",
     "@astrojs/db": "workspace:*",
     "@astrojs/node": "workspace:*",
-    "@astrojs/react": "^3.3.4",
-    "@types/react": "^18.3.2",
+    "@astrojs/react": "^3.4.0",
+    "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "astro": "workspace:*",
     "open-props": "^1.7.4",

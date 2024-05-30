@@ -32,7 +32,7 @@
     "test": "astro-scripts test --timeout 50000 \"test/**/*.test.js\""
   },
   "dependencies": {
-    "web-vitals": "^4.0.0"
+    "web-vitals": "^4.0.1"
   },
   "peerDependencies": {
     "@astrojs/db": "^0.11.0"
