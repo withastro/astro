@@ -4,7 +4,6 @@ import { type MaybePromise } from '../utils.js';
 import {
 	ActionError,
 	ActionInputError,
-	type ErrorInferenceObject,
 	type SafeResult,
 	callSafely,
 } from './shared.js';
@@ -37,15 +36,12 @@ export type ActionClient<
 				input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
 			) => Promise<
 				SafeResult<
-					z.input<TInputSchema> extends ErrorInferenceObject
-						? z.input<TInputSchema>
-						: ErrorInferenceObject,
 					Awaited<TOutput>
 				>
 			>;
 		}
 	: ((input?: any) => Promise<Awaited<TOutput>>) & {
-			safe: (input?: any) => Promise<SafeResult<never, Awaited<TOutput>>>;
+			safe: (input?: any) => Promise<SafeResult<Awaited<TOutput>>>;
 		};
 
 export function defineAction<

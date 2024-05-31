@@ -112,7 +112,7 @@ describe('Build reroute', () => {
 
 	it('should render the 404 built-in page', async () => {
 		try {
-			const html = await fixture.readFile('/spread/oops/index.html');
+			await fixture.readFile('/spread/oops/index.html');
 			assert.fail('Not found');
 		} catch {
 			assert.ok;

@@ -660,7 +660,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				'The value of `outDir` must not point to a path within the folder set as `publicDir`, this will cause an infinite loop',
 		})
 		.superRefine((configuration, ctx) => {
-			const { site, experimental, i18n, output } = configuration;
+			const { site, i18n, output } = configuration;
 			const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
 			if (hasDomains) {
 				if (!site) {

@@ -168,8 +168,6 @@ test.describe('View Transitions', () => {
 	});
 
 	test('Moving from a page without ViewTransitions w/ back button', async ({ page, astro }) => {
-		const loads = collectLoads(page);
-
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
