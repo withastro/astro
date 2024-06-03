@@ -95,6 +95,6 @@
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0-rc.12",
     "typescript": "^5.4.5",
-    "vite": "^5.2.11"
+    "vite": "^5.2.12"
   }
 }

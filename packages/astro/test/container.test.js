@@ -4,11 +4,13 @@ import { experimental_AstroContainer } from '../dist/container/index.js';
 import {
 	Fragment,
 	createComponent,
+	createHeadAndContent,
 	maybeRenderHead,
 	render,
 	renderComponent,
 	renderHead,
 	renderSlot,
+	renderTemplate,
 } from '../dist/runtime/server/index.js';
 
 const BaseLayout = createComponent((result, _props, slots) => {
@@ -123,6 +125,53 @@ describe('Container', () => {
 					`,
 					}
 				)}`;
+			},
+			'Component2.astro',
+			undefined
+		);
+
+		const container = await experimental_AstroContainer.create();
+		const result = await container.renderToString(Page, {
+			slots: {
+				'custom-name': 'Custom name',
+				'foo-name': 'Bar name',
+			},
+		});
+
+		assert.match(result, /Custom name/);
+		assert.match(result, /Bar name/);
+	});
+
+	it('Renders content and head component', async () => {
+		const Page = createComponent(
+			(result, _props, slots) => {
+				return createHeadAndContent(
+					'',
+					renderTemplate`${renderComponent(
+						result,
+						'BaseLayout',
+						BaseLayout,
+						{},
+						{
+							default: () => render`
+							${maybeRenderHead(result)}
+							${renderSlot(result, slots['custom-name'])}
+							${renderSlot(result, slots['foo-name'])}
+							`,
+							head: () => render`
+						${renderComponent(
+							result,
+							'Fragment',
+							Fragment,
+							{ slot: 'head' },
+							{
+								default: () => render`<meta charset="utf-8">`,
+							}
+						)}
+					`,
+						}
+					)}`
+				);
 			},
 			'Component2.astro',
 			undefined

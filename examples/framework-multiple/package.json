@@ -16,14 +16,14 @@
     "@astrojs/solid-js": "^4.2.0",
     "@astrojs/svelte": "^5.4.0",
     "@astrojs/vue": "^4.3.0",
-    "@types/react": "^18.3.2",
+    "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "astro": "^4.9.2",
-    "preact": "^10.21.0",
+    "preact": "^10.22.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "solid-js": "^1.8.17",
-    "svelte": "^4.2.16",
+    "svelte": "^4.2.17",
     "vue": "^3.4.27"
   }
 }

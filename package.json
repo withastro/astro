@@ -52,25 +52,25 @@
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.6.0",
+    "@astrojs/check": "^0.7.0",
     "@biomejs/biome": "1.7.1",
     "@changesets/changelog-github": "^0.5.0",
-    "@changesets/cli": "^2.27.1",
-    "@eslint/eslintrc": "^3.0.2",
+    "@changesets/cli": "^2.27.5",
+    "@eslint/eslintrc": "^3.1.0",
     "@types/node": "^18.17.8",
-    "esbuild": "^0.21.2",
-    "eslint": "^9.2.0",
+    "esbuild": "^0.21.4",
+    "eslint": "^9.3.0",
     "eslint-plugin-no-only-tests": "^3.1.0",
-    "eslint-plugin-regexp": "^2.5.0",
+    "eslint-plugin-regexp": "^2.6.0",
     "globby": "^14.0.1",
     "only-allow": "^1.2.1",
     "organize-imports-cli": "^0.10.0",
     "prettier": "^3.2.5",
-    "prettier-plugin-astro": "^0.13.0",
+    "prettier-plugin-astro": "^0.14.0",
     "tiny-glob": "^0.2.9",
     "turbo": "^1.13.3",
     "typescript": "~5.4.5",
-    "typescript-eslint": "^7.8.0"
+    "typescript-eslint": "^7.11.0"
   },
   "pnpm": {
     "packageExtensions": {

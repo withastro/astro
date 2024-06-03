@@ -9,6 +9,7 @@
   ],
   "labels": ["dependencies"],
   "rangeStrategy": "bump",
+  "postUpdateOptions": ["pnpmDedupe"],
   "ignorePaths": ["**/node_modules/**"],
   "ignoreDeps": [
     // manually bumping deps
