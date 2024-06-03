@@ -2064,7 +2064,16 @@ export interface AstroUserConfig {
 		 * @version 4.10.0
 		 * @description
 		 *
-		 * Enables `astro:env` features. It lets you define a type-safe schema for your environments variables, and where they should be available (on the server or the client).
+		 * Enables experimental `astro:env` features .
+		 *
+		 * The `astro:env` API lets you configure a type-safe schema for your environment variables, and indicate whether they should be available on the server or the client. Import and use your defined variables from the appropriate `/client` or `/server` module:
+		 *
+		 * ```js
+		 * ---
+		 * import { PUBLIC_POKEAPI } from "astro:env/client"
+		 * 
+		 * const data = fetch(`${PUBLIC_POKEAPI}/pokemon/squirtle`);
+		 * ---
 		 * To define the data type and properties of your environment variables, declare a schema in your Astro config in `experimental.env.schema`. The `envField` helper allows you define your variable as a string, number, or boolean and pass properties in an object:
 		 * 
 		 * ```js
