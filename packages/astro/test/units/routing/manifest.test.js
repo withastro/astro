@@ -7,10 +7,11 @@ import { createBasicSettings, createFs } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
-function getManifestRoutes(manifest) {
+function getManifestRoutes(manifest, includeRedirect = false) {
 	return manifest.routes.map((route) => ({
 		type: route.type,
 		route: route.route,
+		...(includeRedirect ? { redirectRoute: route.redirectRoute } : {}),
 	}));
 }
 
@@ -466,6 +467,62 @@ describe('routing - createRouteManifest', () => {
 			{
 				route: '/',
 				type: 'page',
+			},
+		]);
+	});
+
+	it('redirect routes are correctly resolved', async () => {
+		const fs = createFs(
+			{
+				'/src/pages/[category]/page/[page].astro': `<h1>test</h1>`,
+				'/src/pages/[category]/[...slug].astro': `<h1>test</h1>`,
+			},
+			root
+		);
+
+		const settings = await createBasicSettings({
+			root: fileURLToPath(root),
+			output: 'server',
+			base: '/blog',
+			trailingSlash: 'never',
+			redirects: {
+				'/[category]': '/[category]/page/1',
+				'/[category]/old-pages/[page]': '/[category]/page/[page]',
+			},
+			integrations: [],
+			experimental: {
+				globalRoutePriority: true,
+			},
+		});
+
+		const manifest = createRouteManifest({
+			cwd: fileURLToPath(root),
+			settings,
+			fsMod: fs,
+		});
+
+		const targetRoute = manifest.routes.find((route) => route.route === '/[category]/page/[page]');
+
+		assert.deepEqual(getManifestRoutes(manifest, true), [
+			{
+				route: '/[category]/old-pages/[page]',
+				type: 'redirect',
+				redirectRoute: targetRoute,
+			},
+			{
+				route: '/[category]/page/[page]',
+				type: 'page',
+				redirectRoute: undefined,
+			},
+			{
+				route: '/[category]',
+				type: 'redirect',
+				redirectRoute: targetRoute,
+			},
+			{
+				route: '/[category]/[...slug]',
+				type: 'page',
+				redirectRoute: undefined,
 			},
 		]);
 	});
