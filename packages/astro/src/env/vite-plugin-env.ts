@@ -5,6 +5,7 @@ import {
 	MODULE_TEMPLATE_URL,
 	TYPES_TEMPLATE_URL,
 	VIRTUAL_MODULES_IDS,
+	VIRTUAL_MODULES_IDS_VALUES,
 	VIRTUAL_MODULE_SETUP_ID,
 } from './constants.js';
 import type { EnvSchema } from './schema.js';
@@ -38,7 +39,7 @@ export function astroEnv({
 	let templates: { client: string; server: string; internal: string } | null = null;
 
 	return {
-		name: 'astro-env-virtual-mod-plugin',
+		name: 'astro-env-plugin',
 		enforce: 'pre',
 		buildStart() {
 			const loadedEnv = loadEnv(
@@ -71,10 +72,8 @@ export function astroEnv({
 			templates = null;
 		},
 		resolveId(id) {
-			for (const moduleId of Object.values(VIRTUAL_MODULES_IDS)) {
-				if (id === moduleId) {
-					return resolveVirtualModuleId(moduleId);
-				}
+			if (VIRTUAL_MODULES_IDS_VALUES.has(id)) {
+				return resolveVirtualModuleId(id);
 			}
 			if (id === VIRTUAL_MODULE_SETUP_ID) {
 				return this.resolve('astro/virtual-modules/env-setup.js');

@@ -1,6 +1,6 @@
-import type { GetEnv } from '../../env/types.js';
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-export { validateEnvVariable } from '../../env/validators.js';
+import type { GetEnv } from './types.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
+export { validateEnvVariable } from './validators.js';
 
 export type { GetEnv };
 

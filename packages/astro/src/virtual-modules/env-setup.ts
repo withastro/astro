@@ -1,1 +1,1 @@
-export { setGetEnv, type GetEnv } from '../runtime/server/astro-env.js';
+export { setGetEnv, type GetEnv } from '../env/runtime.js';

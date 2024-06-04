@@ -2,7 +2,7 @@ import {
 	getEnv,
 	validateEnvVariable,
 	createInvalidVariableError,
-} from 'astro/runtime/server/astro-env';
+} from 'astro/env/runtime';
 import { schema } from 'virtual:astro:env/internal';
 
 export const getSecret = (key) => {

@@ -55,7 +55,6 @@ export default function ({
 													? `
 											await import('astro:env/setup')
 												.then(mod => mod.setGetEnv((key) => {
-													console.log({ key });
 													const data = ${JSON.stringify(env)};
 													return data[key];
 												}))
