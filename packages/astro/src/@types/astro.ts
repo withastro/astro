@@ -2124,7 +2124,7 @@ export interface AstroUserConfig {
 		 *     import { getSecret } from "astro:env/server"
 		 * 
 		 *     const API_SECRET = getSecret("API_SECRET") // typed
-		 *     const SECRET_THAT_MAY_EXIST = getSecret("SECRET_THAT_MAY_EXIST") // string | undefined
+		 *     const SECRET_NOT_IN_SCHEMA = getSecret("SECRET_NOT_IN_SCHEMA") // string | undefined
 		 *     ```
 		 * 
 		 * **Note:** Secret client variables are not supported because there is no safe way to send this data to the client. Therefore, it is not possible to configure both `context: "client"` and `access: "secret"` in your schema.
