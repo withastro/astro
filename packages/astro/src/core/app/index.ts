@@ -25,7 +25,7 @@ import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../routing/match.js';
 import { createOriginCheckMiddleware } from './middlewares.js';
 import { AppPipeline } from './pipeline.js';
-export { deserializeManifest } from './common.js';
+export { deserializeManifest, getSegmentsFromRoutePath } from './common.js';
 
 export interface RenderOptions {
 	/**
