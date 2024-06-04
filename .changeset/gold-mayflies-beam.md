@@ -2,9 +2,11 @@
 "astro": patch
 ---
 
-**BREAKING CHANGE** 
+**BREAKING CHANGE to the experimental Container API only** 
 
-The **type** of the `renderers` option of the `AstroContainer::create` function has been changed. Now, in order to load the renderer, you can use a dedicated function:
+Changes the **type** of the `renderers` option of the `AstroContainer::create` function and adds a dedicated function `loadRenderers()` to load the rendering scripts from renderer integration packages (`@astrojs/react`, `@astrojs/preact`, `@astrojs/solid-js`, `@astrojs/svelte`, `@astrojs/vue`, `@astrojs/lit`, and `@astrojs/mdx`).
+
+You no longer need to know the individual, direct file paths to the client and server rendering scripts for each renderer integration package. Now, there is a dedicated function to load the renderer from each package, which is available from `getContainerRenderer()`:
 
 ```js
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
@@ -24,4 +26,4 @@ test('ReactWrapper with react renderer', async () => {
 });
 ```
 
-The `astro:container` is a virtual module that can be used when running the Astro container inside `vite`.
+The new `loadRenderers()` helper function is available from `astro:container`,  a virtual module that can be used when running the Astro container inside `vite`.
