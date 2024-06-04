@@ -10,7 +10,7 @@ export async function copyRequest(newUrl: URL, oldRequest: Request): Promise<Req
 		return new Request(newUrl, {
 			method: oldRequest.method,
 			headers: oldRequest.headers,
-			body: requestBody,
+			body: oldRequest.body,
 			referrer: oldRequest.referrer,
 			referrerPolicy: oldRequest.referrerPolicy,
 			mode: oldRequest.mode,
