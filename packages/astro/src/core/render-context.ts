@@ -32,6 +32,7 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
+import { copyRequest } from "./routing/index.js";
 
 /**
  * Each request is rendered using a `RenderContext`.
@@ -224,7 +225,7 @@ export class RenderContext {
 				if (reroutePayload instanceof Request) {
 					this.request = reroutePayload;
 				} else {
-					this.request = new Request(
+					this.request = await copyRequest(
 						new URL(routeData.pathname ?? routeData.route, this.url.origin),
 						this.request
 					);
@@ -416,7 +417,7 @@ export class RenderContext {
 				if (reroutePayload instanceof Request) {
 					this.request = reroutePayload;
 				} else {
-					this.request = new Request(
+					this.request = await copyRequest(
 						new URL(routeData.pathname ?? routeData.route, this.url.origin),
 						this.request
 					);
