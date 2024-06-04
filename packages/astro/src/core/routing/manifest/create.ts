@@ -396,6 +396,28 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 	return routes;
 }
 
+function validateRedirectPaths(from: string, to: string) {
+	const fromSegments = getSegmentsFromRoutePath(from);
+	const toSegments = getSegmentsFromRoutePath(to);
+	if (!fromSegments.length && toSegments.length) return true;
+
+	const nonStaticFromParts = fromSegments.filter((segment) => !isStaticSegment(segment)).flat();
+	const nonStaticToParts = toSegments.filter((segment) => !isStaticSegment(segment)).flat();
+	return nonStaticToParts.every((toPart) => {
+		const found = nonStaticFromParts.find(
+			(fromPart) =>
+				fromPart.content === toPart.content &&
+				fromPart.dynamic === toPart.dynamic &&
+				fromPart.spread === toPart.spread
+		);
+		if (!found)
+			throw new Error(
+				`Invalid redirect target "${to}" \u2014 Parameter [${toPart.content}] must also be present in the old route "${from}"`
+			);
+		return found;
+	});
+}
+
 /**
  * Create route data for all configured redirects.
  */
@@ -439,6 +461,8 @@ function createRedirectRoutes(
 				`Redirecting to an external URL is not officially supported: ${from} -> ${destination}`
 			);
 		}
+
+		validateRedirectPaths(from, destination);
 
 		const redirectRoute =
 			routeMap.get(destination) ??
