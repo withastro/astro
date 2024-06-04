@@ -146,7 +146,9 @@ if (!isWindows) {
 
 					// Includes hoisted script
 					assert.notEqual(
-						[...allScripts].find((script) => $(script).attr('src')?.includes('/_astro/WithScripts')),
+						[...allScripts].find((script) =>
+							$(script).attr('src')?.includes('/_astro/WithScripts')
+						),
 						undefined,
 						'hoisted script missing from head.'
 					);
