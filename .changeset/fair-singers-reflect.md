@@ -11,27 +11,20 @@
 
 The integration now exposes a function called `getContainerRenderer`, that can be used inside the Container APIs to load the relative renderer.
 
-```diff
+```js
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import ReactWrapper from '../src/components/ReactWrapper.astro';
 import { loadRenderers } from "astro:container";
 import { getContainerRenderer } from "@astrojs/react";
 
 test('ReactWrapper with react renderer', async () => {
-+	const renderers = await loadRenderers([getContainerRenderer()])
--  const renderers = [
--    {
--      name: '@astrojs/react',
--      clientEntrypoint: '@astrojs/react/client.js',
--      serverEntrypoint: '@astrojs/react/server.js',
--    },
--  ];
-	const container = await AstroContainer.create({
-		renderers,
-	});
-	const result = await container.renderToString(ReactWrapper);
+  const renderers = await loadRenderers([getContainerRenderer()])
+  const container = await AstroContainer.create({
+    renderers,
+  });
+  const result = await container.renderToString(ReactWrapper);
 
-	expect(result).toContain('Counter');
-	expect(result).toContain('Count: <!-- -->5');
+  expect(result).toContain('Counter');
+  expect(result).toContain('Count: <!-- -->5');
 });
 ```
