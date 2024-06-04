@@ -2,9 +2,28 @@
 "astro": minor
 ---
 
-Adds experimental support for the `astro:env` API. It lets you define a type-safe schema for your environment variables and specify their availability on the server or client.
+Adds experimental support for the `astro:env` API.
 
-Start by declaring a schema in your Astro config in `experimental.env.schema`. Use the `envField` help to make your life easier:
+The `astro:env` API lets you configure a type-safe schema for your environment variables, and indicate whether they should be available on the server or the client. Import and use your defined variables from the appropriate `/client` or `/server` module:
+
+```astro
+---
+import { PUBLIC_APP_ID } from "astro:env/client"
+import { PUBLIC_API_URL, getSecret } from "astro:env/server"
+const API_TOKEN = getSecret("API_TOKEN")
+
+const data = await fetch(`${PUBLIC_API_URL}/users`, {
+	method: "POST",
+	headers: {
+		"Content-Type": "application/json",
+		"Authorization": `Bearer ${API_TOKEN}`
+	},
+	body: JSON.stringify({ appId: PUBLIC_APP_ID })
+})
+---
+```
+
+To define the data type and properties of your environment variables, declare a schema in your Astro config in `experimental.env.schema`. The `envField` helper allows you define your variable as a string, number, or boolean and pass properties in an object:
 
 ```js
 // astro.config.mjs
@@ -25,27 +44,29 @@ export default defineConfig({
 
 There are currently 3 data types supported: strings, numbers and booleans.
 
-There are also 3 kinds of variables:
+There are three kinds of variables, determined by the combination of `context` (`client` or `server`) and `access` (`private` or `public`) settings defined in your [`env.schema`](#experimentalenvschema):
 
-- **Public client variables**: These variables are included in both the client and server bundles and can be accessed from either via the astro:env/client module:
+- **Public client variables**: These variables end up in both your final client and server bundles, and can be accessed from both client and server through the `astro:env/client` module:
 
     ```js
     import { PUBLIC_API_URL } from "astro:env/client"
     ```
 
-- **Public server variables**: These variables are included only in the server bundle and can be accessed on the server via the astro:env/server module:
+- **Public server variables**: These variables end up in your final server bundle and can be accessed on the server through the `astro:env/server` module:
 
     ```js
     import { PUBLIC_PORT } from "astro:env/server"
     ```
 
-- **Secret server variables**: These variables are not included in the final bundle and can only be accessed on the server via the astro:env/server module:
+- **Secret server variables**: These variables are not part of your final bundle and can be accessed on the server through the `getSecret()` helper function available from the `astro:env/server` module:
 
     ```js
     import { getSecret } from "astro:env/server"
 
     const API_SECRET = getSecret("API_SECRET") // typed
-    const SECRET_THAT_MAY_EXIST = getSecret("SECRET_THAT_MAY_EXIST") // string | undefined
+    const SECRET_NOT_IN_SCHEMA = getSecret("SECRET_NOT_IN_SCHEMA") // string | undefined
     ```
 
-For a complete overview, and to give feedback on this experimental API, see the [Astro Env RFC](https://github.com/withastro/roadmap/blob/feat/astro-env-rfc/proposals/0046-astro-env.md).
+**Note:** Secret client variables are not supported because there is no safe way to send this data to the client. Therefore, it is not possible to configure both `context: "client"` and `access: "secret"` in your schema.
+
+To learn more, check out [the documentation](https://docs.astro.build/en/reference/configuration-reference/#experimentalenv).

@@ -2068,7 +2068,7 @@ export interface AstroUserConfig {
 		 *
 		 * The `astro:env` API lets you configure a type-safe schema for your environment variables, and indicate whether they should be available on the server or the client. Import and use your defined variables from the appropriate `/client` or `/server` module:
 		 *
-		 * ```js
+		 * ```astro
 		 * ---
 		 * import { PUBLIC_APP_ID } from "astro:env/client"
 		 * import { PUBLIC_API_URL, getSecret } from "astro:env/server"
@@ -2083,6 +2083,8 @@ export interface AstroUserConfig {
 		 * 	body: JSON.stringify({ appId: PUBLIC_APP_ID })
 		 * })
 		 * ---
+		 * ```
+		 * 
 		 * To define the data type and properties of your environment variables, declare a schema in your Astro config in `experimental.env.schema`. The `envField` helper allows you define your variable as a string, number, or boolean and pass properties in an object:
 		 * 
 		 * ```js
