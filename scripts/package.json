@@ -9,12 +9,12 @@
   },
   "dependencies": {
     "arg": "^5.0.2",
-    "esbuild": "^0.21.2",
+    "esbuild": "^0.21.4",
     "globby": "^14.0.1",
     "kleur": "^4.1.5",
     "p-limit": "^5.0.0",
-    "svelte": "^4.2.16",
-    "tar": "^7.1.0"
+    "svelte": "^4.2.17",
+    "tar": "^7.2.0"
   },
   "devDependencies": {
     "@octokit/action": "^7.0.0",

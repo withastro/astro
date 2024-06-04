@@ -1,8 +1,8 @@
 /* eslint no-console: 'off' */
 import { color, label, spinner as load } from '@astrojs/cli-kit';
 import { align } from '@astrojs/cli-kit/utils';
+import detectPackageManager from 'preferred-pm';
 import terminalLink from 'terminal-link';
-import detectPackageManager from 'which-pm-runs';
 import type { PackageInfo } from './actions/context.js';
 import { shell } from './shell.js';
 
@@ -14,7 +14,7 @@ let _registry: string;
 export async function getRegistry(): Promise<string> {
 	if (_registry) return _registry;
 	const fallback = 'https://registry.npmjs.org';
-	const packageManager = detectPackageManager()?.name || 'npm';
+	const packageManager = (await detectPackageManager(process.cwd()))?.name || 'npm';
 	try {
 		const { stdout } = await shell(packageManager, ['config', 'get', 'registry']);
 		_registry = stdout?.trim()?.replace(/\/$/, '') || fallback;

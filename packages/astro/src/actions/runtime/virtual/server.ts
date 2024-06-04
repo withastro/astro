@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { type ActionAPIContext, getApiContext as _getApiContext } from '../store.js';
-import { type MaybePromise, hasContentType } from '../utils.js';
+import { type MaybePromise } from '../utils.js';
 import {
 	ActionError,
 	ActionInputError,
@@ -104,9 +104,7 @@ function getJsonServerHandler<TOutput, TInputSchema extends InputSchema<'json'>>
 	inputSchema?: TInputSchema
 ) {
 	return async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
-		const context = getApiContext();
-		const contentType = context.request.headers.get('content-type');
-		if (!contentType || !hasContentType(contentType, ['application/json'])) {
+		if (unparsedInput instanceof FormData) {
 			throw new ActionError({
 				code: 'UNSUPPORTED_MEDIA_TYPE',
 				message: 'This action only accepts JSON.',

@@ -4,6 +4,7 @@ import type {
 	AstroGlobalPartial,
 	ComponentInstance,
 	MiddlewareHandler,
+	Props,
 	RewritePayload,
 	RouteData,
 	SSRResult,
@@ -47,7 +48,8 @@ export class RenderContext {
 		public status: number,
 		protected cookies = new AstroCookies(request),
 		public params = getParams(routeData, pathname),
-		protected url = new URL(request.url)
+		protected url = new URL(request.url),
+		public props: Props = {}
 	) {}
 
 	/**
@@ -97,14 +99,17 @@ export class RenderContext {
 	): Promise<Response> {
 		const { cookies, middleware, pathname, pipeline } = this;
 		const { logger, routeCache, serverLike, streaming } = pipeline;
-		const props = await getProps({
-			mod: componentInstance,
-			routeData: this.routeData,
-			routeCache,
-			pathname,
-			logger,
-			serverLike,
-		});
+		const props =
+			Object.keys(this.props).length > 0
+				? this.props
+				: await getProps({
+						mod: componentInstance,
+						routeData: this.routeData,
+						routeCache,
+						pathname,
+						logger,
+						serverLike,
+					});
 		const apiContext = this.createAPIContext(props);
 
 		this.counter++;
