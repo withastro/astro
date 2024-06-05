@@ -2137,7 +2137,7 @@ export interface AstroUserConfig {
 			/**
 			 * @docs
 			 * @name experimental.env.schema
-		   * @kind h4
+			 * @kind h4
 			 * @type {EnvSchema}
 			 * @default `undefined`
 			 * @version 4.10.0
