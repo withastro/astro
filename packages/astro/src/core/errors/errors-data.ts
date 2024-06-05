@@ -1199,6 +1199,18 @@ export const i18nNotEnabled = {
 /**
  * @docs
  * @description
+ * The path doesn't contain any locale. The user should use `pathHasLocale` first.
+ * 
+ */
+export const i18nNoLocaleFoundInPath = {
+	name: 'i18nNoLocaleFoundInPath',
+	title: 'The path doesn\'t contain any locale',
+	message: 'You tried to use an utility on a path that doesn\'t contain any locale. You should use `pathHasLocale` to determine, first, if the path has a locale.',
+} satisfies  ErrorData;
+
+/**
+ * @docs
+ * @description
  * Astro couldn't find a route matching the one provided by the user
  */
 export const RouteNotFound = {
