@@ -20,7 +20,7 @@ import { createImage } from './runtime-assets.js';
 /**
  * Amap from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
- * @see `content-module.template.mjs`
+ * @see `templates/content/module.mjs`
  */
 export type ContentLookupMap = {
 	[collectionName: string]: { type: 'content' | 'data'; entries: { [lookupId: string]: string } };
@@ -419,7 +419,6 @@ export function contentObservable(initialCtx: ContentCtx): ContentObservable {
 export type ContentPaths = {
 	contentDir: URL;
 	assetsDir: URL;
-	cacheDir: URL;
 	typesTemplate: URL;
 	virtualModTemplate: URL;
 	config: {
@@ -429,17 +428,16 @@ export type ContentPaths = {
 };
 
 export function getContentPaths(
-	{ srcDir, root }: Pick<AstroConfig, 'root' | 'srcDir'>,
+	{ srcDir }: Pick<AstroConfig, 'root' | 'srcDir'>,
 	fs: typeof fsMod = fsMod
 ): ContentPaths {
 	const configStats = search(fs, srcDir);
 	const pkgBase = new URL('../../', import.meta.url);
 	return {
-		cacheDir: new URL('.astro/', root),
 		contentDir: new URL('./content/', srcDir),
 		assetsDir: new URL('./assets/', srcDir),
-		typesTemplate: new URL('content-types.template.d.ts', pkgBase),
-		virtualModTemplate: new URL('content-module.template.mjs', pkgBase),
+		typesTemplate: new URL('templates/content/types.d.ts', pkgBase),
+		virtualModTemplate: new URL('templates/content/module.mjs', pkgBase),
 		config: configStats,
 	};
 }

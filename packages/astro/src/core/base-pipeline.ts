@@ -11,6 +11,9 @@ import type {
 import { createI18nMiddleware } from '../i18n/middleware.js';
 import type { Logger } from './logger/core.js';
 import { RouteCache } from './render/route-cache.js';
+import { setGetEnv } from '../env/runtime.js';
+import { AstroError } from './errors/errors.js';
+import { AstroErrorData } from './errors/index.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -48,7 +51,8 @@ export abstract class Pipeline {
 		/**
 		 * Used for `Astro.site`.
 		 */
-		readonly site = manifest.site ? new URL(manifest.site) : undefined
+		readonly site = manifest.site ? new URL(manifest.site) : undefined,
+		readonly callSetGetEnv = true
 	) {
 		this.internalMiddleware = [];
 		// We do use our middleware only if the user isn't using the manual setup
@@ -56,6 +60,13 @@ export abstract class Pipeline {
 			this.internalMiddleware.push(
 				createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat)
 			);
+		}
+		// In SSR, getSecret should fail by default. Setting it here will run before the
+		// adapter override.
+		if (callSetGetEnv && manifest.experimentalEnvGetSecretEnabled) {
+			setGetEnv(() => {
+				throw new AstroError(AstroErrorData.EnvUnsupportedGetSecret);
+			});
 		}
 	}
 

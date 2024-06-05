@@ -37,7 +37,16 @@ export class AppPipeline extends Pipeline {
 			renderers,
 			resolve,
 			serverLike,
-			streaming
+			streaming,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			false,
 		);
 		pipeline.#manifestData = manifestData;
 		return pipeline;

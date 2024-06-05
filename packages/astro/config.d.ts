@@ -4,6 +4,7 @@ type AstroUserConfig = import('./dist/@types/astro.js').AstroUserConfig;
 type AstroInlineConfig = import('./dist/@types/astro.js').AstroInlineConfig;
 type ImageServiceConfig = import('./dist/@types/astro.js').ImageServiceConfig;
 type SharpImageServiceConfig = import('./dist/assets/services/sharp.js').SharpImageServiceConfig;
+type EnvField = typeof import('./dist/env/config.js').envField;
 
 /**
  * See the full Astro Configuration API Documentation
@@ -37,3 +38,8 @@ export function squooshImageService(): ImageServiceConfig;
  * See: https://docs.astro.build/en/guides/images/#configure-no-op-passthrough-service
  */
 export function passthroughImageService(): ImageServiceConfig;
+
+/**
+ * Return a valid env field to use in this Astro config for `experimental.env.schema`.
+ */
+export const envField: EnvField;

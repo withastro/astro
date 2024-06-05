@@ -112,6 +112,7 @@ function createManifest(
 		i18n: manifest?.i18n,
 		checkOrigin: false,
 		middleware: manifest?.middleware ?? middleware ?? defaultMiddleware,
+		experimentalEnvGetSecretEnabled: false,
 	};
 }
 

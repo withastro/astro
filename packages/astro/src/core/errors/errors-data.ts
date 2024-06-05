@@ -1172,13 +1172,58 @@ export const i18nNotEnabled = {
 /**
  * @docs
  * @description
- *
  * Astro couldn't find a route matching the one provided by the user
  */
 export const RouteNotFound = {
 	name: 'RouteNotFound',
 	title: 'Route not found.',
 	message: `Astro could not find a route that matches the one you requested.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Some environment variables do not match the data type and/or properties defined in `experimental.env.schema`.
+ */
+export const EnvInvalidVariables = {
+	name: 'EnvInvalidVariables',
+	title: 'Invalid Environment Variables',
+	message: (variables: string) =>
+		`The following environment variables do not match the data type and/or properties defined in \`experimental.env.schema\`:\n\n${variables}\n`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * An environment variable does not match the data type and/or properties defined in `experimental.env.schema`.
+ */
+export const EnvInvalidVariable = {
+	name: 'EnvInvalidVariable',
+	title: 'Invalid Environment Variable',
+	message: (key: string, type: string) =>
+		`The following environment variable does not match the data type and/or properties defined in \`experimental.env.schema\`: ${key} is not of type ${type}`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * "astro:env/server" exported function "getSecret" is not supported by your adapter..
+ */
+export const EnvUnsupportedGetSecret = {
+	name: 'EnvUnsupportedGetSecret',
+	title: 'Unsupported astro:env getSecret',
+	message: '"astro:env/server" exported function "getSecret" is not supported by your adapter.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Module is only available server-side
+ */
+export const ServerOnlyModule = {
+	name: 'ServerOnlyModule',
+	title: 'Module is only available server-side',
+	message: (name: string) => `The "${name}" module is only available server-side.`,
 } satisfies ErrorData;
 
 /**
