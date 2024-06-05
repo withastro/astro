@@ -1239,7 +1239,7 @@ export const EnvInvalidVariable = {
 export const EnvUnsupportedGetSecret = {
 	name: 'EnvUnsupportedGetSecret',
 	title: 'Unsupported astro:env getSecret',
-	message: '\`astro:env/server\` exported function \`getSecret\` is not supported by your adapter.',
+	message: '`astro:env/server` exported function `getSecret` is not supported by your adapter.',
 } satisfies ErrorData;
 
 /**
