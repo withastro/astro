@@ -155,10 +155,10 @@ importers:
   examples/container-with-vitest:
     dependencies:
       '@astrojs/react':
-        specifier: ^3.4.0
+        specifier: experimental--container
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^4.9.3
+        specifier: experimental--container
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1

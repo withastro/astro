@@ -1,5 +1,5 @@
 import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-react';
-import type { AstroIntegration } from 'astro';
+import type { AstroIntegration, ContainerRenderer } from 'astro';
 import { version as ReactVersion } from 'react-dom';
 import type * as vite from 'vite';
 
@@ -50,6 +50,19 @@ function getRenderer(reactConfig: ReactVersionConfig) {
 		name: '@astrojs/react',
 		clientEntrypoint: reactConfig.client,
 		serverEntrypoint: reactConfig.server,
+	};
+}
+
+export function getContainerRenderer(): ContainerRenderer {
+	const majorVersion = getReactMajorVersion();
+	if (isUnsupportedVersion(majorVersion)) {
+		throw new Error(`Unsupported React version: ${majorVersion}.`);
+	}
+	const versionConfig = versionsConfig[majorVersion as SupportedReactVersion];
+
+	return {
+		name: '@astrojs/react',
+		serverEntrypoint: versionConfig.server,
 	};
 }
 
