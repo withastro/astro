@@ -9,7 +9,7 @@ import {
 	VIRTUAL_MODULE_SETUP_ID,
 } from './constants.js';
 import type { EnvSchema } from './schema.js';
-import { getType, validateEnvVariable } from './validators.js';
+import { getEnvFieldType, validateEnvVariable } from './validators.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type fsMod from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -212,7 +212,7 @@ function getServerTemplates({
 			continue;
 		}
 
-		secretTypes += `${key}: ${getType(options)};		\n`;
+		secretTypes += `${key}: ${getEnvFieldType(options)};		\n`;
 	}
 
 	return {

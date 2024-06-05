@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { validateEnvVariable, getType } from '../../../dist/env/validators.js';
+import { validateEnvVariable, getEnvFieldType } from '../../../dist/env/validators.js';
 
 /**
  * @typedef {Parameters<typeof validateEnvVariable>} Params
@@ -46,14 +46,14 @@ describe('astro:env validators', () => {
 
 	it('types codegen should return the right string based on the field options', () => {
 		assert.equal(
-			getType({
+			getEnvFieldType({
 				type: 'string',
 			}),
 			'string'
 		);
 
 		assert.equal(
-			getType({
+			getEnvFieldType({
 				type: 'string',
 				optional: true,
 			}),
@@ -61,7 +61,7 @@ describe('astro:env validators', () => {
 		);
 
 		assert.equal(
-			getType({
+			getEnvFieldType({
 				type: 'string',
 				optional: true,
 				default: 'abc',
@@ -70,14 +70,14 @@ describe('astro:env validators', () => {
 		);
 
 		assert.equal(
-			getType({
+			getEnvFieldType({
 				type: 'number',
 			}),
 			'number'
 		);
 
 		assert.equal(
-			getType({
+			getEnvFieldType({
 				type: 'number',
 				optional: true,
 			}),
@@ -85,7 +85,7 @@ describe('astro:env validators', () => {
 		);
 
 		assert.equal(
-			getType({
+			getEnvFieldType({
 				type: 'number',
 				optional: true,
 				default: 456,
@@ -94,14 +94,14 @@ describe('astro:env validators', () => {
 		);
 
 		assert.equal(
-			getType({
+			getEnvFieldType({
 				type: 'boolean',
 			}),
 			'boolean'
 		);
 
 		assert.equal(
-			getType({
+			getEnvFieldType({
 				type: 'boolean',
 				optional: true,
 			}),
@@ -109,7 +109,7 @@ describe('astro:env validators', () => {
 		);
 
 		assert.equal(
-			getType({
+			getEnvFieldType({
 				type: 'boolean',
 				optional: true,
 				default: true,

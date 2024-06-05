@@ -13,7 +13,7 @@ type ValidationResult =
 			type: string;
 	  };
 
-export function getType(options: EnvFieldType) {
+export function getEnvFieldType(options: EnvFieldType) {
 	const optional = options.optional ? (options.default !== undefined ? false : true) : false;
 	return `${options.type}${optional ? ' | undefined' : ''}`;
 }
@@ -56,7 +56,7 @@ export function validateEnvVariable(
 		boolean: booleanValidator,
 	}[options.type];
 
-	const type = getType(options);
+	const type = getEnvFieldType(options);
 
 	if (options.optional || options.default !== undefined) {
 		if (value === undefined) {
