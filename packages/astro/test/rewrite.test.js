@@ -61,6 +61,7 @@ describe('Dev reroute', () => {
 
 		assert.equal($('h1').text(), '404:  Not found');
 	});
+	
 });
 
 describe('Build reroute', () => {
@@ -112,7 +113,7 @@ describe('Build reroute', () => {
 
 	it('should render the 404 built-in page', async () => {
 		try {
-			const html = await fixture.readFile('/spread/oops/index.html');
+			await fixture.readFile('/spread/oops/index.html');
 			assert.fail('Not found');
 		} catch {
 			assert.ok;
@@ -186,6 +187,24 @@ describe('SSR reroute', () => {
 		const response = await app.render(request);
 		const html = await response.text();
 		assert.equal(html, 'Not found');
+	});
+
+	it('should pass the POST data from one page to another', async () => {
+		const request = new Request('http://example.com/post/post-a', {
+			method: "POST",
+			body: JSON.stringify({
+				email: "example@example.com",
+			}),
+			headers: {
+				"content-type": "application/json"
+			}
+		});
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Post B');
+		assert.match($('h2').text(), /example@example.com/);
 	});
 });
 
