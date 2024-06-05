@@ -1234,18 +1234,18 @@ export const EnvInvalidVariable = {
 /**
  * @docs
  * @description
- * "astro:env/server" exported function "getSecret" is not supported by your adapter..
+ * The `astro:env/server` exported function `getSecret()` is not supported by your adapter.
  */
 export const EnvUnsupportedGetSecret = {
 	name: 'EnvUnsupportedGetSecret',
 	title: 'Unsupported astro:env getSecret',
-	message: '"astro:env/server" exported function "getSecret" is not supported by your adapter.',
+	message: '\`astro:env/server\` exported function \`getSecret\` is not supported by your adapter.',
 } satisfies ErrorData;
 
 /**
  * @docs
  * @description
- * Module is only available server-side
+ * This module is only available server-side.
  */
 export const ServerOnlyModule = {
 	name: 'ServerOnlyModule',
