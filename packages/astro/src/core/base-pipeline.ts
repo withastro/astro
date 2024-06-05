@@ -80,11 +80,14 @@ export abstract class Pipeline {
 	 *
 	 * - if not `RouteData` is found
 	 *
-	 * @param {RewritePayload} rewritePayload
+	 * @param {RewritePayload} rewritePayload The payload provided by the user
+	 * @param {Request} request The original request
+	 * @param {RouteData} sourceRoute The original `RouteData`
 	 */
 	abstract tryRewrite(
 		rewritePayload: RewritePayload,
-		request: Request
+		request: Request,
+		sourceRoute: RouteData
 	): Promise<[RouteData, ComponentInstance]>;
 
 	/**
@@ -92,6 +95,16 @@ export abstract class Pipeline {
 	 * @param routeData
 	 */
 	abstract getComponentByRoute(routeData: RouteData): Promise<ComponentInstance>;
+
+	/**
+	 * Attempts to execute a rewrite of a known Astro route:
+	 * - /404 -> src/pages/404.astro -> template
+	 * - /500 -> src/pages/500.astro
+	 *
+	 * @param pathname The pathname where the user wants to rewrite e.g. "/404"
+	 * @param sourceRoute The original route where the first request started. This is needed in case a pipeline wants to check if the current route is pre-rendered or not
+	 */
+	abstract rewriteKnownRoute(pathname: string, sourceRoute: RouteData): ComponentInstance;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
