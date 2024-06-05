@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
 import { ServerOnlyModule } from '../dist/core/errors/errors-data.js';
 import { AstroError } from '../dist/core/errors/errors.js';
+import { loadFixture } from './test-utils.js';
 
 describe('astro:env public variables', () => {
 	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
@@ -42,8 +42,8 @@ describe('astro:env public variables', () => {
 		});
 
 		it('throws if server module is called on the client', async () => {
-			const error = await fixture.build().catch(err => err);
-			assert.equal(error instanceof AstroError, true)
+			const error = await fixture.build().catch((err) => err);
+			assert.equal(error instanceof AstroError, true);
 			assert.equal(error.name, ServerOnlyModule.name);
 		});
 	});

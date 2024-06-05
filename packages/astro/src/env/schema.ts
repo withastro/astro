@@ -18,7 +18,7 @@ const BooleanSchema = z.object({
 });
 
 const EnvFieldType = z.discriminatedUnion('type', [StringSchema, NumberSchema, BooleanSchema]);
-export type EnvFieldType = z.infer<typeof EnvFieldType>
+export type EnvFieldType = z.infer<typeof EnvFieldType>;
 
 const PublicClientEnvFieldMetadata = z.object({
 	context: z.literal('client'),
@@ -37,11 +37,9 @@ const KEY_REGEX = /^[A-Z_]+$/;
 
 export const EnvSchema = z
 	.record(
-		z
-			.string()
-			.regex(KEY_REGEX, {
-				message: 'A valid variable name can only contain uppercase letters and underscores.',
-			}),
+		z.string().regex(KEY_REGEX, {
+			message: 'A valid variable name can only contain uppercase letters and underscores.',
+		}),
 		z.intersection(
 			z.union([
 				PublicClientEnvFieldMetadata,
@@ -53,19 +51,13 @@ export const EnvSchema = z
 	)
 	.superRefine((schema, ctx) => {
 		for (const [key, value] of Object.entries(schema)) {
-			if (
-				key.startsWith(PUBLIC_PREFIX) &&
-				value.access !== 'public'
-			) {
+			if (key.startsWith(PUBLIC_PREFIX) && value.access !== 'public') {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
 					message: `An environment variable whose name is prefixed by "${PUBLIC_PREFIX}" must be public.`,
 				});
 			}
-			if (
-				value.access === 'public' &&
-				!key.startsWith(PUBLIC_PREFIX)
-			) {
+			if (value.access === 'public' && !key.startsWith(PUBLIC_PREFIX)) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
 					message: `An environment variable that is public must have a name prefixed by "${PUBLIC_PREFIX}".`,

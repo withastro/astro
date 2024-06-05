@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { validateEnvVariable, getEnvFieldType } from '../../../dist/env/validators.js';
+import { getEnvFieldType, validateEnvVariable } from '../../../dist/env/validators.js';
 
 /**
  * @typedef {Parameters<typeof validateEnvVariable>} Params

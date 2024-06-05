@@ -46,7 +46,7 @@ export class AppPipeline extends Pipeline {
 			undefined,
 			undefined,
 			undefined,
-			false,
+			false
 		);
 		pipeline.#manifestData = manifestData;
 		return pipeline;

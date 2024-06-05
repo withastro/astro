@@ -1,5 +1,8 @@
-import { loadEnv, type Plugin } from 'vite';
+import type fsMod from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { type Plugin, loadEnv } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import {
 	ENV_TYPES_FILE,
 	MODULE_TEMPLATE_URL,
@@ -10,9 +13,6 @@ import {
 } from './constants.js';
 import type { EnvSchema } from './schema.js';
 import { getEnvFieldType, validateEnvVariable } from './validators.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import type fsMod from 'node:fs';
-import { fileURLToPath } from 'node:url';
 
 // TODO: reminders for when astro:env comes out of experimental
 // Types should always be generated (like in types/content.d.ts). That means the client module will be empty
