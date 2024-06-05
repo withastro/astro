@@ -556,11 +556,7 @@ export class RenderContext {
 			keepalive: oldRequest.keepalive,
 			// https://fetch.spec.whatwg.org/#dom-request-duplex
 			// @ts-expect-error It isn't part of the types, but undici accepts it and it allows to carry over the body to a new request
-			duplex: "half"
-		})
+			duplex: 'half',
+		});
 	}
-
 }
-
-
-

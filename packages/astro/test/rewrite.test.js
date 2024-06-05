@@ -61,7 +61,6 @@ describe('Dev reroute', () => {
 
 		assert.equal($('h1').text(), '404:  Not found');
 	});
-	
 });
 
 describe('Build reroute', () => {
@@ -191,13 +190,13 @@ describe('SSR reroute', () => {
 
 	it('should pass the POST data from one page to another', async () => {
 		const request = new Request('http://example.com/post/post-a', {
-			method: "POST",
+			method: 'POST',
 			body: JSON.stringify({
-				email: "example@example.com",
+				email: 'example@example.com',
 			}),
 			headers: {
-				"content-type": "application/json"
-			}
+				'content-type': 'application/json',
+			},
 		});
 		const response = await app.render(request);
 		const html = await response.text();
