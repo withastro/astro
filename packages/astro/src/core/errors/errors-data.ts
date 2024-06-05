@@ -1205,7 +1205,7 @@ export const i18nNotEnabled = {
 export const i18nNoLocaleFoundInPath = {
 	name: 'i18nNoLocaleFoundInPath',
 	title: 'The path doesn\'t contain any locale',
-	message: 'You tried to use an utility on a path that doesn\'t contain any locale. You should use `pathHasLocale` to determine, first, if the path has a locale.',
+	message: 'You tried to use an i18n utility on a path that doesn\'t contain any locale. You can use \`pathHasLocale\` first to determine if the path has a locale.',
 } satisfies  ErrorData;
 
 /**
