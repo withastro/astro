@@ -1,11 +1,5 @@
 ---
 let email = ''
-if (Astro.request.method === 'POST') {
-	try {
-		const data = await Astro.request.formData();
-		email = data.get('email')?.toString().trim();
-	} catch {}
-}
 return Astro.rewrite('/post/post-b')
 ---
 

@@ -190,17 +190,17 @@ describe('SSR reroute', () => {
 	});
 
 	it('should pass the POST data from one page to another', async () => {
-		const html = await fixture.fetch('/post/post-a', {
+		const request = new Request('http://example.com/post/post-a', {
 			method: "POST",
 			body: JSON.stringify({
 				email: "example@example.com",
-				title: "Fix my bugs",
-				completed: false
 			}),
 			headers: {
-				"Content-type": "application/json; charset=UTF-8"
+				"content-type": "application/json"
 			}
-		}).then((res) => res.text());
+		});
+		const response = await app.render(request);
+		const html = await response.text();
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Post B');

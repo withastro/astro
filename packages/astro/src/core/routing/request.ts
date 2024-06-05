@@ -5,8 +5,6 @@
  * @param oldRequest The old `Request`
  */
 export async function copyRequest(newUrl: URL, oldRequest: Request): Promise<Request> {
-	const body = oldRequest.headers.get('content-type') ? oldRequest.blob() : Promise.resolve(undefined);
-	return body.then((requestBody) => {
 		return new Request(newUrl, {
 			method: oldRequest.method,
 			headers: oldRequest.headers,
@@ -20,8 +18,8 @@ export async function copyRequest(newUrl: URL, oldRequest: Request): Promise<Req
 			integrity: oldRequest.integrity,
 			signal: oldRequest.signal,
 			keepalive: oldRequest.keepalive,
+			// https://fetch.spec.whatwg.org/#dom-request-duplex
+			// @ts-expect-error It isn't part of the types, but undici accepts it and it allows to carry over the body to a new request
+			duplex: "half"
 		})
-	}
-			
-		);
 }
