@@ -44,8 +44,6 @@ import { getOutputFilename, isServerLikeOutput } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
 import { cssOrder, mergeInlineCss } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
-import { ASTRO_PAGE_MODULE_ID } from './plugins/plugin-pages.js';
-import { getVirtualModulePageName } from './plugins/util.js';
 import type {
 	PageBuildData,
 	SinglePageBuiltModule,
@@ -200,7 +198,7 @@ async function generatePage(
 	pipeline: BuildPipeline
 ) {
 	// prepare information we need
-	const { config, internals, logger } = pipeline;
+	const { config, logger } = pipeline;
 	const pageModulePromise = ssrEntry.page;
 
 	// Calculate information of the page, like scripts, links and styles

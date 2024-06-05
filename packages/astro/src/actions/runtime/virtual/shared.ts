@@ -42,7 +42,7 @@ const statusToCodeMap: Record<number, ActionErrorCode> = Object.entries(codeToSt
 
 export type ErrorInferenceObject = Record<string, any>;
 
-export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> extends Error {
+export class ActionError extends Error {
 	type = 'AstroActionError';
 	code: ActionErrorCode = 'INTERNAL_SERVER_ERROR';
 	status = 500;
@@ -84,19 +84,19 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 }
 
 export function isInputError<T extends ErrorInferenceObject>(
-	error?: ActionError<T>
+	error?: ActionError
 ): error is ActionInputError<T> {
 	return error instanceof ActionInputError;
 }
 
-export type SafeResult<TInput extends ErrorInferenceObject, TOutput> =
+export type SafeResult<TOutput> =
 	| {
 			data: TOutput;
 			error: undefined;
 	  }
 	| {
 			data: undefined;
-			error: ActionError<TInput>;
+			error: ActionError;
 	  };
 
 export class ActionInputError<T extends ErrorInferenceObject> extends ActionError {
@@ -128,7 +128,7 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 
 export async function callSafely<TOutput>(
 	handler: () => MaybePromise<TOutput>
-): Promise<SafeResult<z.ZodType, TOutput>> {
+): Promise<SafeResult<TOutput>> {
 	try {
 		const data = await handler();
 		return { data, error: undefined };

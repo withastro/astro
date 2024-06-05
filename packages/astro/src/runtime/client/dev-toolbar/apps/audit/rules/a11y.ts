@@ -125,12 +125,6 @@ const a11y_required_content = [
 
 const a11y_distracting_elements = ['blink', 'marquee'];
 
-// Unused for now
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const a11y_nested_implicit_semantics = new Map([
-	['header', 'banner'],
-	['footer', 'contentinfo'],
-]);
 const a11y_implicit_semantics = new Map([
 	['a', 'link'],
 	['area', 'link'],
@@ -621,19 +615,6 @@ export const a11y: AuditRuleWithSelector[] = [
 			if (!ariaRoles.has(role)) return true;
 		},
 	},
-];
-
-// Unused for now
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const a11y_labelable = [
-	'button',
-	'input',
-	'keygen',
-	'meter',
-	'output',
-	'progress',
-	'select',
-	'textarea',
 ];
 
 /**
