@@ -1124,8 +1124,12 @@ export const MissingMiddlewareForInternationalization = {
  */
 export const RewriteEncounteredAnError = {
 	name: 'RewriteEncounteredAnError',
-	title: "Astro couldn't find the route to rewrite, or if was found but it emitted an error during the rendering phase.",
-	message: (route: string, stack?: string) => `The route ${route} that you tried to render doesn't exist, or it emitted an error during the rendering phase. ${stack ? stack : ""}.`
+	title:
+		"Astro couldn't find the route to rewrite, or if was found but it emitted an error during the rendering phase.",
+	message: (route: string, stack?: string) =>
+		`The route ${route} that you tried to render doesn't exist, or it emitted an error during the rendering phase. ${
+			stack ? stack : ''
+		}.`,
 } satisfies ErrorData;
 
 /**
