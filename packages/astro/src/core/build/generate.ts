@@ -383,7 +383,7 @@ function getUrlForPath(
 	 */
 
 	let ending: string;
-	switch(format) {
+	switch (format) {
 		case 'directory':
 		case 'preserve': {
 			ending = trailingSlash === 'never' ? '' : '/';
