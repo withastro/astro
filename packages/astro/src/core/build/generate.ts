@@ -570,5 +570,7 @@ function createBuildManifest(
 		rewritingEnabled: settings.config.experimental.rewriting,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		experimentalEnvGetSecretEnabled: false,
+		experimentalEnvSecretsLeakDetectionEnabled:
+			settings.config.experimental?.env?.secretsLeakDetection ?? false,
 	};
 }

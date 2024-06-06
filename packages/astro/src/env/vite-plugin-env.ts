@@ -34,7 +34,7 @@ export function astroEnv({
 	if (!settings.config.experimental.env) {
 		return;
 	}
-	const schema = settings.config.experimental.env.schema ?? {};
+	const schema = settings.config.experimental.env?.schema ?? {};
 
 	let templates: { client: string; server: string; internal: string } | null = null;
 

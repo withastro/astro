@@ -9,6 +9,7 @@ import type {
 	SSRResult,
 } from '../@types/astro.js';
 import { setGetEnv } from '../env/runtime.js';
+import { createEnvSecretsLeakDetectionMiddleware } from '../env/middleware.js';
 import { createI18nMiddleware } from '../i18n/middleware.js';
 import { AstroError } from './errors/errors.js';
 import { AstroErrorData } from './errors/index.js';
@@ -67,6 +68,9 @@ export abstract class Pipeline {
 			setGetEnv(() => {
 				throw new AstroError(AstroErrorData.EnvUnsupportedGetSecret);
 			});
+		}
+		if (manifest.experimentalEnvSecretsLeakDetectionEnabled) {
+			this.internalMiddleware.push(createEnvSecretsLeakDetectionMiddleware());
 		}
 	}
 

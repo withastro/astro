@@ -282,5 +282,7 @@ function buildManifest(
 		experimentalEnvGetSecretEnabled:
 			settings.config.experimental.env !== undefined &&
 			(settings.adapter?.supportedAstroFeatures.envGetSecret ?? 'unsupported') !== 'unsupported',
+		experimentalEnvSecretsLeakDetectionEnabled:
+			settings.config.experimental?.env?.secretsLeakDetection ?? false,
 	};
 }

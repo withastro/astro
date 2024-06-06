@@ -1,6 +1,7 @@
 import { schema } from 'virtual:astro:env/internal';
 import { createInvalidVariableError, getEnv, validateEnvVariable } from 'astro/env/runtime';
 
+/** @param {string} key */
 export const getSecret = (key) => {
 	const rawVariable = getEnv(key);
 	const variable = rawVariable === '' ? undefined : rawVariable;

@@ -89,6 +89,11 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		globalRoutePriority: false,
 		rewriting: false,
+		env: {
+			// Make TS happy
+			schema: {},
+			secretsLeakDetection: false,
+		},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -525,7 +530,11 @@ export const AstroConfigSchema = z.object({
 			rewriting: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rewriting),
 			env: z
 				.object({
-					schema: EnvSchema.optional(),
+					schema: EnvSchema,
+					secretsLeakDetection: z
+						.boolean()
+						.optional()
+						.default(ASTRO_CONFIG_DEFAULTS.experimental.env.secretsLeakDetection),
 				})
 				.strict()
 				.optional(),
