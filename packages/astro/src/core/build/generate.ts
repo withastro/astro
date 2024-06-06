@@ -381,7 +381,19 @@ function getUrlForPath(
 	 * pathname: /, /foo
 	 * base: /
 	 */
-	const ending = format === 'directory' ? (trailingSlash === 'never' ? '' : '/') : '.html';
+
+	let ending: string;
+	switch (format) {
+		case 'directory':
+		case 'preserve': {
+			ending = trailingSlash === 'never' ? '' : '/';
+			break;
+		}
+		default: {
+			ending = '.html';
+			break;
+		}
+	}
 	let buildPathname: string;
 	if (pathname === '/' || pathname === '') {
 		buildPathname = base;
