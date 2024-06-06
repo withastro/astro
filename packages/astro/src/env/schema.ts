@@ -20,9 +20,11 @@ const EnumSchema = z.object({
 	type: z.literal('enum'),
 	values: z.array(
 		// We use "'" for codegen so it can't be passed here
-		z.string().refine((v) => !v.includes("'"), {
-			message: `The "'" character can't be used as an enum value`,
-		})
+		z
+			.string()
+			.refine((v) => !v.includes("'"), {
+				message: `The "'" character can't be used as an enum value`,
+			})
 	),
 	optional: z.boolean().optional(),
 	default: z.string().optional(),
@@ -91,8 +93,10 @@ export const EnvSchema = z
 		}
 	});
 
+// https://www.totaltypescript.com/concepts/the-prettify-helper
 type Prettify<T> = {
 	[K in keyof T]: T[K];
+	// @eslint-ignore
 } & {};
 
 export type EnvSchema = z.infer<typeof EnvSchema>;
