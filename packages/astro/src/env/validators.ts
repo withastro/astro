@@ -15,7 +15,15 @@ type ValidationResult =
 
 export function getEnvFieldType(options: EnvFieldType) {
 	const optional = options.optional ? (options.default !== undefined ? false : true) : false;
-	return `${options.type}${optional ? ' | undefined' : ''}`;
+
+	let type: string;
+	if (options.type === 'enum') {
+		type = options.values.map((v) => `'${v}'`).join(' | ');
+	} else {
+		type = options.type;
+	}
+
+	return `${type}${optional ? ' | undefined' : ''}`;
 }
 
 type ValueValidator = (input: string | undefined) => {
@@ -46,15 +54,33 @@ const booleanValidator: ValueValidator = (input) => {
 	};
 };
 
+const enumValidator =
+	(values: Array<string>): ValueValidator =>
+	(input) => {
+		return {
+			valid: typeof input === 'string' ? values.includes(input) : false,
+			parsed: input,
+		};
+	};
+
+function selectValidator(options: EnvFieldType): ValueValidator {
+	switch (options.type) {
+		case 'string':
+			return stringValidator;
+		case 'number':
+			return numberValidator;
+		case 'boolean':
+			return booleanValidator;
+		case 'enum':
+			return enumValidator(options.values);
+	}
+}
+
 export function validateEnvVariable(
 	value: string | undefined,
 	options: EnvFieldType
 ): ValidationResult {
-	const validator: ValueValidator = {
-		string: stringValidator,
-		number: numberValidator,
-		boolean: booleanValidator,
-	}[options.type];
+	const validator = selectValidator(options);
 
 	const type = getEnvFieldType(options);
 

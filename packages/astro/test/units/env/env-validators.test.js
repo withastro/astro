@@ -116,6 +116,40 @@ describe('astro:env validators', () => {
 			}),
 			'boolean'
 		);
+
+		assert.equal(
+			getEnvFieldType({
+				type: 'enum',
+				values: ['A'],
+			}),
+			"'A'"
+		);
+
+		assert.equal(
+			getEnvFieldType({
+				type: 'enum',
+				values: ['A', 'B'],
+			}),
+			"'A' | 'B'"
+		);
+
+		assert.equal(
+			getEnvFieldType({
+				type: 'enum',
+				optional: true,
+				values: ['A'],
+			}),
+			"'A' | undefined"
+		);
+		assert.equal(
+			getEnvFieldType({
+				type: 'enum',
+				optional: true,
+				values: ['A', 'B'],
+				default: 'A',
+			}),
+			"'A' | 'B'"
+		);
 	});
 
 	describe('string field', () => {
