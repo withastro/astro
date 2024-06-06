@@ -5,12 +5,26 @@ const StringSchema = z.object({
 	type: z.literal('string'),
 	optional: z.boolean().optional(),
 	default: z.string().optional(),
+	max: z.number().optional(),
+	min: z.number().min(0).optional(),
+	length: z.number().optional(),
+	url: z.boolean().optional(),
+	includes: z.string().optional(),
+	startsWith: z.string().optional(),
+	endsWith: z.string().optional(),
 });
+export type StringSchema = z.infer<typeof StringSchema>;
 const NumberSchema = z.object({
 	type: z.literal('number'),
 	optional: z.boolean().optional(),
 	default: z.number().optional(),
+	gt: z.number().optional(),
+	min: z.number().optional(),
+	lt: z.number().optional(),
+	max: z.number().optional(),
+	int: z.boolean().optional(),
 });
+export type NumberSchema = z.infer<typeof NumberSchema>;
 const BooleanSchema = z.object({
 	type: z.literal('boolean'),
 	optional: z.boolean().optional(),
@@ -29,6 +43,7 @@ const EnumSchema = z.object({
 	optional: z.boolean().optional(),
 	default: z.string().optional(),
 });
+export type EnumSchema = z.infer<typeof EnumSchema>;
 
 const EnvFieldType = z.union([
 	StringSchema,
