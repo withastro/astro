@@ -47,6 +47,12 @@ export function astroEnv({
 				fileURLToPath(settings.config.root),
 				''
 			);
+			for (const [key, value] of Object.entries(loadedEnv)) {
+				if (value !== undefined) {
+					process.env[key] = value;
+				}
+			}
+
 			const validatedVariables = validatePublicVariables({ schema, loadedEnv });
 
 			const clientTemplates = getClientTemplates({ validatedVariables });
