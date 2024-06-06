@@ -285,4 +285,49 @@ describe('astro:env validators', () => {
 			fixture.thenResultShouldBeValid(true);
 		});
 	});
+
+	describe('enum field', () => {
+		it('Should fail if the variable is missing', () => {
+			fixture.givenInput(undefined, {
+				type: 'enum',
+				values: ['a', 'b'],
+			});
+			fixture.thenResultShouldBeInvalid();
+		});
+
+		it('Should fail is the variable type is incorrect', () => {
+			fixture.givenInput('true', {
+				type: 'enum',
+				values: ['a', 'b'],
+			});
+			fixture.thenResultShouldBeInvalid();
+		});
+
+		it('Should not fail if the optional variable is missing', () => {
+			fixture.givenInput(undefined, {
+				type: 'enum',
+				values: ['a', 'b'],
+				optional: true,
+			});
+			fixture.thenResultShouldBeValid(undefined);
+		});
+
+		it('Should not fail if the variable is missing and a default value is provided', () => {
+			fixture.givenInput(undefined, {
+				type: 'enum',
+				values: ['a', 'b'],
+				default: 'a',
+			});
+			fixture.thenResultShouldBeValid('a');
+		});
+
+		it('Should not take a default value is the variable is not missing', () => {
+			fixture.givenInput('b', {
+				type: 'enum',
+				values: ['a', 'b'],
+				default: 'a',
+			});
+			fixture.thenResultShouldBeValid('b');
+		});
+	});
 });
