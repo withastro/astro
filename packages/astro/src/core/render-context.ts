@@ -4,13 +4,13 @@ import type {
 	AstroGlobalPartial,
 	ComponentInstance,
 	MiddlewareHandler,
-	MiddlewareNext,
+	Props,
 	RewritePayload,
 	RouteData,
 	SSRResult,
 } from '../@types/astro.js';
 import type { ActionAPIContext } from '../actions/runtime/store.js';
-import { createGetActionResult } from '../actions/utils.js';
+import { createGetActionResult, hasActionsInternal } from '../actions/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
@@ -20,6 +20,7 @@ import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
 import {
 	ASTRO_VERSION,
+	DEFAULT_404_COMPONENT,
 	REROUTE_DIRECTIVE_HEADER,
 	ROUTE_TYPE_HEADER,
 	clientAddressSymbol,
@@ -38,6 +39,9 @@ import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
  * It contains data unique to each request. It is responsible for executing middleware, calling endpoints, and rendering the page by gathering necessary data from a `Pipeline`.
  */
 export class RenderContext {
+	// The first route that this instance of the context attempts to render
+	originalRoute: RouteData;
+
 	private constructor(
 		readonly pipeline: Pipeline,
 		public locals: App.Locals,
@@ -48,8 +52,11 @@ export class RenderContext {
 		public status: number,
 		protected cookies = new AstroCookies(request),
 		public params = getParams(routeData, pathname),
-		protected url = new URL(request.url)
-	) {}
+		protected url = new URL(request.url),
+		public props: Props = {}
+	) {
+		this.originalRoute = routeData;
+	}
 
 	/**
 	 * A flag that tells the render content if the rewriting was triggered
@@ -92,17 +99,23 @@ export class RenderContext {
 	 * - endpoint
 	 * - fallback
 	 */
-	async render(componentInstance: ComponentInstance | undefined): Promise<Response> {
+	async render(
+		componentInstance: ComponentInstance | undefined,
+		slots: Record<string, any> = {}
+	): Promise<Response> {
 		const { cookies, middleware, pathname, pipeline } = this;
 		const { logger, routeCache, serverLike, streaming } = pipeline;
-		const props = await getProps({
-			mod: componentInstance,
-			routeData: this.routeData,
-			routeCache,
-			pathname,
-			logger,
-			serverLike,
-		});
+		const props =
+			Object.keys(this.props).length > 0
+				? this.props
+				: await getProps({
+						mod: componentInstance,
+						routeData: this.routeData,
+						routeCache,
+						pathname,
+						logger,
+						serverLike,
+					});
 		const apiContext = this.createAPIContext(props);
 
 		this.counter++;
@@ -117,18 +130,15 @@ export class RenderContext {
 		const lastNext = async (ctx: APIContext, payload?: RewritePayload) => {
 			if (payload) {
 				if (this.pipeline.manifest.rewritingEnabled) {
-					try {
-						const [routeData, component] = await pipeline.tryRewrite(payload);
-						this.routeData = routeData;
-						componentInstance = component;
-					} catch (e) {
-						return new Response('Not found', {
-							status: 404,
-							statusText: 'Not found',
-						});
-					} finally {
-						this.isRewriting = true;
-					}
+					// we intentionally let the error bubble up
+					const [routeData, component] = await pipeline.tryRewrite(
+						payload,
+						this.request,
+						this.originalRoute
+					);
+					this.routeData = routeData;
+					componentInstance = component;
+					this.isRewriting = true;
 				} else {
 					this.pipeline.logger.warn(
 						'router',
@@ -149,7 +159,7 @@ export class RenderContext {
 							result,
 							componentInstance?.default as any,
 							props,
-							{},
+							slots,
 							streaming,
 							this.routeData
 						);
@@ -159,6 +169,7 @@ export class RenderContext {
 						result.cancelled = true;
 						throw e;
 					}
+
 					// Signal to the i18n middleware to maybe act on this response
 					response.headers.set(ROUTE_TYPE_HEADER, 'page');
 					// Signal to the error-page-rerouting infra to let this response pass through to avoid loops
@@ -211,29 +222,25 @@ export class RenderContext {
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			pipeline.logger.debug('router', 'Called rewriting to:', reroutePayload);
-			try {
-				const [routeData, component] = await pipeline.tryRewrite(reroutePayload);
-				this.routeData = routeData;
-				if (reroutePayload instanceof Request) {
-					this.request = reroutePayload;
-				} else {
-					this.request = new Request(
-						new URL(routeData.pathname ?? routeData.route, this.url.origin),
-						this.request
-					);
-				}
-				this.url = new URL(this.request.url);
-				this.cookies = new AstroCookies(this.request);
-				this.params = getParams(routeData, url.toString());
-				this.isRewriting = true;
-				return await this.render(component);
-			} catch (e) {
-				pipeline.logger.debug('router', 'Rewrite failed.', e);
-				return new Response('Not found', {
-					status: 404,
-					statusText: 'Not found',
-				});
+			const [routeData, component] = await pipeline.tryRewrite(
+				reroutePayload,
+				this.request,
+				this.originalRoute
+			);
+			this.routeData = routeData;
+			if (reroutePayload instanceof Request) {
+				this.request = reroutePayload;
+			} else {
+				this.request = this.#copyRequest(
+					new URL(routeData.pathname ?? routeData.route, this.url.origin),
+					this.request
+				);
 			}
+			this.url = new URL(this.request.url);
+			this.cookies = new AstroCookies(this.request);
+			this.params = getParams(routeData, url.toString());
+			this.isRewriting = true;
+			return await this.render(component);
 		};
 
 		return {
@@ -295,6 +302,10 @@ export class RenderContext {
 			},
 		} satisfies AstroGlobal['response'];
 
+		const actionResult = hasActionsInternal(this.locals)
+			? this.locals._actionsInternal?.actionResult
+			: undefined;
+
 		// Create the result object that will be passed into the renderPage function.
 		// This object starts here as an empty shell (not yet the result) but then
 		// calling the render() function will populate the object with scripts, styles, etc.
@@ -314,8 +325,10 @@ export class RenderContext {
 			renderers,
 			resolve,
 			response,
+			request: this.request,
 			scripts,
 			styles,
+			actionResult,
 			_metadata: {
 				hasHydrationScript: false,
 				rendererSpecificHydrationScripts: new Set(),
@@ -396,30 +409,26 @@ export class RenderContext {
 		};
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
-			try {
-				pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
-				const [routeData, component] = await pipeline.tryRewrite(reroutePayload);
-				this.routeData = routeData;
-				if (reroutePayload instanceof Request) {
-					this.request = reroutePayload;
-				} else {
-					this.request = new Request(
-						new URL(routeData.pathname ?? routeData.route, this.url.origin),
-						this.request
-					);
-				}
-				this.url = new URL(this.request.url);
-				this.cookies = new AstroCookies(this.request);
-				this.params = getParams(routeData, url.toString());
-				this.isRewriting = true;
-				return await this.render(component);
-			} catch (e) {
-				pipeline.logger.debug('router', 'Rerouting failed, returning a 404.', e);
-				return new Response('Not found', {
-					status: 404,
-					statusText: 'Not found',
-				});
+			pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
+			const [routeData, component] = await pipeline.tryRewrite(
+				reroutePayload,
+				this.request,
+				this.originalRoute
+			);
+			this.routeData = routeData;
+			if (reroutePayload instanceof Request) {
+				this.request = reroutePayload;
+			} else {
+				this.request = this.#copyRequest(
+					new URL(routeData.pathname ?? routeData.route, this.url.origin),
+					this.request
+				);
 			}
+			this.url = new URL(this.request.url);
+			this.cookies = new AstroCookies(this.request);
+			this.params = getParams(routeData, url.toString());
+			this.isRewriting = true;
+			return await this.render(component);
 		};
 
 		return {
@@ -519,5 +528,31 @@ export class RenderContext {
 		} = this;
 		if (!i18n) return;
 		return (this.#preferredLocaleList ??= computePreferredLocaleList(request, i18n.locales));
+	}
+
+	/**
+	 * Utility function that creates a new `Request` with a new URL from an old `Request`.
+	 *
+	 * @param newUrl The new `URL`
+	 * @param oldRequest The old `Request`
+	 */
+	#copyRequest(newUrl: URL, oldRequest: Request): Request {
+		return new Request(newUrl, {
+			method: oldRequest.method,
+			headers: oldRequest.headers,
+			body: oldRequest.body,
+			referrer: oldRequest.referrer,
+			referrerPolicy: oldRequest.referrerPolicy,
+			mode: oldRequest.mode,
+			credentials: oldRequest.credentials,
+			cache: oldRequest.cache,
+			redirect: oldRequest.redirect,
+			integrity: oldRequest.integrity,
+			signal: oldRequest.signal,
+			keepalive: oldRequest.keepalive,
+			// https://fetch.spec.whatwg.org/#dom-request-duplex
+			// @ts-expect-error It isn't part of the types, but undici accepts it and it allows to carry over the body to a new request
+			duplex: 'half',
+		});
 	}
 }

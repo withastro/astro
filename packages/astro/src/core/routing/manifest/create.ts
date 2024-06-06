@@ -48,7 +48,7 @@ function countOccurrences(needle: string, haystack: string) {
 const ROUTE_DYNAMIC_SPLIT = /\[(.+?\(.+?\)|.+?)\]/;
 const ROUTE_SPREAD = /^\.{3}.+$/;
 
-function getParts(part: string, file: string) {
+export function getParts(part: string, file: string) {
 	const result: RoutePart[] = [];
 	part.split(ROUTE_DYNAMIC_SPLIT).map((str, i) => {
 		if (!str) return;
@@ -70,12 +70,11 @@ function getParts(part: string, file: string) {
 	return result;
 }
 
-function getPattern(
+export function getPattern(
 	segments: RoutePart[][],
-	config: AstroConfig,
+	base: AstroConfig['base'],
 	addTrailingSlash: AstroConfig['trailingSlash']
 ) {
-	const base = config.base;
 	const pathname = segments
 		.map((segment) => {
 			if (segment.length === 1 && segment[0].spread) {
@@ -124,7 +123,7 @@ function getTrailingSlashPattern(addTrailingSlash: AstroConfig['trailingSlash'])
 	return '\\/?$';
 }
 
-function validateSegment(segment: string, file = '') {
+export function validateSegment(segment: string, file = '') {
 	if (!file) file = segment;
 
 	if (/\]\[/.test(segment)) {
@@ -292,7 +291,7 @@ function createFileBasedRoutes(
 				components.push(item.file);
 				const component = item.file;
 				const { trailingSlash } = settings.config;
-				const pattern = getPattern(segments, settings.config, trailingSlash);
+				const pattern = getPattern(segments, settings.config.base, trailingSlash);
 				const generate = getRouteGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -363,7 +362,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 		const isPage = type === 'page';
 		const trailingSlash = isPage ? config.trailingSlash : 'never';
 
-		const pattern = getPattern(segments, settings.config, trailingSlash);
+		const pattern = getPattern(segments, settings.config.base, trailingSlash);
 		const generate = getRouteGenerator(segments, trailingSlash);
 		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -419,7 +418,7 @@ function createRedirectRoutes(
 				return getParts(s, from);
 			});
 
-		const pattern = getPattern(segments, settings.config, trailingSlash);
+		const pattern = getPattern(segments, settings.config.base, trailingSlash);
 		const generate = getRouteGenerator(segments, trailingSlash);
 		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -687,7 +686,7 @@ export function createRouteManifest(
 						pathname,
 						route,
 						segments,
-						pattern: getPattern(segments, config, config.trailingSlash),
+						pattern: getPattern(segments, config.base, config.trailingSlash),
 						type: 'fallback',
 					});
 				}
@@ -764,7 +763,7 @@ export function createRouteManifest(
 									route,
 									segments,
 									generate,
-									pattern: getPattern(segments, config, config.trailingSlash),
+									pattern: getPattern(segments, config.base, config.trailingSlash),
 									type: 'fallback',
 									fallbackRoutes: [],
 								};

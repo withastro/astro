@@ -12,7 +12,7 @@ interface ImportMetaEnv {
 	/**
 	 * The prefix for Astro-generated asset links if the build.assetsPrefix config option is set. This can be used to create asset links not handled by Astro.
 	 */
-	readonly ASSETS_PREFIX: string;
+	readonly ASSETS_PREFIX: string | Record<string, string>;
 	/**
 	 * This is set to the site option specified in your project’s Astro config file.
 	 */
@@ -152,12 +152,20 @@ declare module 'astro:i18n' {
 	export * from 'astro/virtual-modules/i18n.js';
 }
 
+declare module 'astro:container' {
+	export * from 'astro/virtual-modules/container.js';
+}
+
 declare module 'astro:middleware' {
 	export * from 'astro/virtual-modules/middleware.js';
 }
 
 declare module 'astro:components' {
 	export * from 'astro/components';
+}
+
+declare module 'astro:env/setup' {
+	export * from 'astro/virtual-modules/env-setup.js';
 }
 
 type MD = import('./dist/@types/astro.js').MarkdownInstance<Record<string, any>>;

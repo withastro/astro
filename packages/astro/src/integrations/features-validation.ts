@@ -42,6 +42,7 @@ export function validateSupportedFeatures(
 		staticOutput = UNSUPPORTED,
 		hybridOutput = UNSUPPORTED,
 		i18nDomains = UNSUPPORTED,
+		envGetSecret = UNSUPPORTED,
 	} = featureMap;
 	const validationResult: ValidationResult = {};
 
@@ -70,7 +71,7 @@ export function validateSupportedFeatures(
 	);
 	validationResult.assets = validateAssetsFeature(assets, adapterName, config, logger);
 
-	if (i18nDomains && config?.experimental?.i18nDomains === true && !config.i18n?.domains) {
+	if (config.i18n?.domains) {
 		validationResult.i18nDomains = validateSupportKind(
 			i18nDomains,
 			adapterName,
@@ -87,6 +88,14 @@ export function validateSupportedFeatures(
 			);
 		}
 	}
+
+	validationResult.envGetSecret = validateSupportKind(
+		envGetSecret,
+		adapterName,
+		logger,
+		'astro:env getSecret',
+		() => config?.experimental?.env !== undefined
+	);
 
 	return validationResult;
 }

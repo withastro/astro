@@ -46,34 +46,36 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	if (!isPrerelease) {
 		try {
 			// Don't await this, we don't want to block the dev server from starting
-			shouldCheckForUpdates(restart.container.settings.preferences).then(async (shouldCheck) => {
-				if (shouldCheck) {
-					const version = await fetchLatestAstroVersion(restart.container.settings.preferences);
+			shouldCheckForUpdates(restart.container.settings.preferences)
+				.then(async (shouldCheck) => {
+					if (shouldCheck) {
+						const version = await fetchLatestAstroVersion(restart.container.settings.preferences);
 
-					if (gt(version, currentVersion)) {
-						// Only update the latestAstroVersion if the latest version is greater than the current version, that way we don't need to check that again
-						// whenever we check for the latest version elsewhere
-						restart.container.settings.latestAstroVersion = version;
+						if (gt(version, currentVersion)) {
+							// Only update the latestAstroVersion if the latest version is greater than the current version, that way we don't need to check that again
+							// whenever we check for the latest version elsewhere
+							restart.container.settings.latestAstroVersion = version;
 
-						const sameMajor = major(version) === major(currentVersion);
-						const sameMinor = minor(version) === minor(currentVersion);
-						const patchDistance = patch(version) - patch(currentVersion);
+							const sameMajor = major(version) === major(currentVersion);
+							const sameMinor = minor(version) === minor(currentVersion);
+							const patchDistance = patch(version) - patch(currentVersion);
 
-						if (sameMajor && sameMinor && patchDistance < MAX_PATCH_DISTANCE) {
-							// Don't bother the user with a log if they're only a few patch versions behind
-							// We can still tell them in the dev toolbar, which has a more opt-in nature
-							return;
+							if (sameMajor && sameMinor && patchDistance < MAX_PATCH_DISTANCE) {
+								// Don't bother the user with a log if they're only a few patch versions behind
+								// We can still tell them in the dev toolbar, which has a more opt-in nature
+								return;
+							}
+
+							logger.warn(
+								'SKIP_FORMAT',
+								await msg.newVersionAvailable({
+									latestVersion: version,
+								})
+							);
 						}
-
-						logger.warn(
-							'SKIP_FORMAT',
-							await msg.newVersionAvailable({
-								latestVersion: version,
-							})
-						);
 					}
-				}
-			});
+				})
+				.catch(() => {});
 		} catch (e) {
 			// Just ignore the error, we don't want to block the dev server from starting and this is just a nice-to-have feature
 		}

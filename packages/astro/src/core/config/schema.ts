@@ -12,6 +12,7 @@ import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
+import { EnvSchema } from '../../env/schema.js';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
@@ -45,7 +46,7 @@ type RehypePlugin = ComplexifyWithUnion<_RehypePlugin>;
 type RemarkPlugin = ComplexifyWithUnion<_RemarkPlugin>;
 type RemarkRehype = ComplexifyWithOmit<_RemarkRehype>;
 
-const ASTRO_CONFIG_DEFAULTS = {
+export const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
 	srcDir: './src',
 	publicDir: './public',
@@ -79,6 +80,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 	vite: {},
 	legacy: {},
 	redirects: {},
+	security: {},
 	experimental: {
 		actions: false,
 		directRenderScript: false,
@@ -86,8 +88,6 @@ const ASTRO_CONFIG_DEFAULTS = {
 		contentCollectionJsonSchema: false,
 		clientPrerender: false,
 		globalRoutePriority: false,
-		i18nDomains: false,
-		security: {},
 		rewriting: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
@@ -493,6 +493,12 @@ export const AstroConfigSchema = z.object({
 				}
 			})
 	),
+	security: z
+		.object({
+			checkOrigin: z.boolean().default(false),
+		})
+		.optional()
+		.default(ASTRO_CONFIG_DEFAULTS.security),
 	experimental: z
 		.object({
 			actions: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.actions),
@@ -516,19 +522,13 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.globalRoutePriority),
-			security: z
-				.object({
-					csrfProtection: z
-						.object({
-							origin: z.boolean().default(false),
-						})
-						.optional()
-						.default({}),
-				})
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.security),
-			i18nDomains: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.i18nDomains),
 			rewriting: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rewriting),
+			env: z
+				.object({
+					schema: EnvSchema.optional(),
+				})
+				.strict()
+				.optional(),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`
@@ -668,22 +668,20 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		})
 		.superRefine((configuration, ctx) => {
 			const { site, experimental, i18n, output } = configuration;
-			if (experimental.i18nDomains) {
-				const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
-				if (hasDomains) {
-					if (!site) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message:
-								"The option `site` isn't set. When using the 'domains' strategy for `i18n`, `site` is required to create absolute URLs for locales that aren't mapped to a domain.",
-						});
-					}
-					if (output !== 'server') {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: 'Domain support is only available when `output` is `"server"`.',
-						});
-					}
+			const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
+			if (hasDomains) {
+				if (!site) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message:
+							"The option `site` isn't set. When using the 'domains' strategy for `i18n`, `site` is required to create absolute URLs for locales that aren't mapped to a domain.",
+					});
+				}
+				if (output !== 'server') {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Domain support is only available when `output` is `"server"`.',
+					});
 				}
 			}
 		});

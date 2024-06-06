@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/react",
   "description": "Use React components within Astro",
-  "version": "3.3.4",
+  "version": "3.4.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -21,6 +21,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/react/",
   "exports": {
     ".": "./dist/index.js",
+    "./actions": "./dist/actions.js",
     "./client.js": "./client.js",
     "./client-v17.js": "./client-v17.js",
     "./server.js": "./server.js",
@@ -46,18 +47,18 @@
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^4.2.1",
+    "@vitejs/plugin-react": "^4.3.0",
     "ultrahtml": "^1.5.3"
   },
   "devDependencies": {
-    "@types/react": "^18.3.1",
+    "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0-rc.12",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "vite": "^5.2.11"
+    "vite": "^5.2.12"
   },
   "peerDependencies": {
     "@types/react": "^17.0.50 || ^18.0.21",

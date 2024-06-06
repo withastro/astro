@@ -1,5 +1,11 @@
 # @astrojs/lit
 
+## 4.1.0
+
+### Minor Changes
+
+- [#11164](https://github.com/withastro/astro/pull/11164) [`cf9b2ff`](https://github.com/withastro/astro/commit/cf9b2ff7967c4287ab26ec65fc4bb2eed525a235) Thanks [@scottnath](https://github.com/scottnath)! - Removes deprecated `template` attribute and replaces deprecated domparser function
+
 ## 4.0.1
 
 ### Patch Changes

@@ -202,7 +202,7 @@ function getStringifiedCollectionFromLookup(
 /**
  * Generate a map from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
- * @see `content-module.template.mjs`
+ * @see `templates/content/module.mjs`
  */
 export async function generateLookupMap({
 	settings,

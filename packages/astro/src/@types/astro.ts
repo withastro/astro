@@ -20,6 +20,7 @@ import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
+import type { EnvSchema } from '../env/schema.js';
 import type { getToolbarServerCommunicationHelpers } from '../integrations/hooks.js';
 import type { AstroPreferences } from '../preferences/index.js';
 import type {
@@ -778,6 +779,49 @@ export interface AstroUserConfig {
 	 * Using `'attribute'` is useful when you are manipulating the `class` attribute of elements and need to avoid conflicts between your own styling logic and Astro's application of styles.
 	 */
 	scopedStyleStrategy?: 'where' | 'class' | 'attribute';
+
+	/**
+	 * @docs
+	 * @name security
+	 * @type {boolean}
+	 * @default `{}`
+	 * @version 4.9.0
+	 * @description
+	 *
+	 * Enables security measures for an Astro website.
+	 *
+	 * These features only exist for pages rendered on demand (SSR) using `server` mode or pages that opt out of prerendering in `hybrid` mode.
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * export default defineConfig({
+	 *   output: "server",
+	 *   security: {
+	 *     checkOrigin: true
+	 *   }
+	 * })
+	 * ```
+	 */
+	security?: {
+		/**
+		 * @docs
+		 * @name security.checkOrigin
+		 * @kind h4
+		 * @type {boolean}
+		 * @default 'false'
+		 * @version 4.9.0
+		 * @description
+		 *
+		 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`. This is used to provide Cross-Site Request Forgery (CSRF) protection.
+		 *
+		 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST`, `PATCH`, `DELETE` and `PUT` with
+		 * one of the following `content-type` headers: `'application/x-www-form-urlencoded'`, `'multipart/form-data'`, `'text/plain'`.
+		 *
+		 * If the "origin" header doesn't match the `pathname` of the request, Astro will return a 403 status code and will not render the page.
+		 */
+
+		checkOrigin?: boolean;
+	};
 
 	/**
 	 * @docs
@@ -1743,7 +1787,7 @@ export interface AstroUserConfig {
 		 *
 		 * Declare all your actions in `src/actions/index.ts`. This file is the global actions handler.
 		 *
-		 * Define an action using the `defineAction()` utility from the `astro:actions` module. These accept the `handler` property to define your server-side request handler. If your action accepts arguments, apply the `input` property to validate parameters with Zod.
+		 * Define an action using the `defineAction()` utility from the `astro:actions` module. An action accepts the `handler` property to define your server-side request handler. If your action accepts arguments, apply the `input` property to validate parameters with Zod.
 		 *
 		 * This example defines two actions: `like` and `comment`. The `like` action accepts a JSON object with a `postId` string, while the `comment` action accepts [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) with `postId`, `author`, and `body` strings. Each `handler` updates your database and return a type-safe response.
 		 *
@@ -1754,7 +1798,7 @@ export interface AstroUserConfig {
 		 * export const server = {
 		 *   like: defineAction({
 		 *     input: z.object({ postId: z.string() }),
-		 *     handler: async ({ postId }, context) => {
+		 *     handler: async ({ postId }) => {
 		 *       // update likes in db
 		 *
 		 *       return likes;
@@ -1767,7 +1811,7 @@ export interface AstroUserConfig {
 		 *       author: z.string(),
 		 *       body: z.string(),
 		 *     }),
-		 *     handler: async ({ postId }, context) => {
+		 *     handler: async ({ postId }) => {
 		 *       // insert comments in db
 		 *
 		 *       return comment;
@@ -1776,12 +1820,14 @@ export interface AstroUserConfig {
 		 * };
 		 * ```
 		 *
-		 * Then, call an action from your client components using the `actions` object from `astro:actions`. You can pass a type-safe object when using JSON, or a [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) object when using `accept: 'form'` in your action definition:
+		 * Then, call an action from your client components using the `actions` object from `astro:actions`. You can pass a type-safe object when using JSON, or a [FormData](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects) object when using `accept: 'form'` in your action definition.
+		 *
+		 * This example calls the `like` and `comment` actions from a React component:
 		 *
 		 * ```tsx "actions"
 		 * // src/components/blog.tsx
 		 * import { actions } from "astro:actions";
-		 * import { useState } from "preact/hooks";
+		 * import { useState } from "react";
 		 *
 		 * export function Like({ postId }: { postId: string }) {
 		 *   const [likes, setLikes] = useState(0);
@@ -1802,13 +1848,13 @@ export interface AstroUserConfig {
 		 *     <form
 		 *       onSubmit={async (e) => {
 		 *         e.preventDefault();
-		 *         const formData = new FormData(e.target);
+		 *         const formData = new FormData(e.target as HTMLFormElement);
 		 *         const result = await actions.blog.comment(formData);
 		 *         // handle result
 		 *       }}
 		 *     >
 		 *       <input type="hidden" name="postId" value={postId} />
-		 *       <label for="author">Author</label>
+		 *       <label htmlFor="author">Author</label>
 		 *       <input id="author" type="text" name="author" />
 		 *       <textarea rows={10} name="body"></textarea>
 		 *       <button type="submit">Post</button>
@@ -1956,105 +2002,6 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.i18nDomains
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.3.0
-		 * @description
-		 *
-		 * Enables domain support for the [experimental `domains` routing strategy](https://docs.astro.build/en/guides/internationalization/#domains-experimental) which allows you to configure the URL pattern of one or more supported languages to use a custom domain (or sub-domain).
-		 *
-		 * When a locale is mapped to a domain, a `/[locale]/` path prefix will not be used. However, localized folders within `src/pages/` are still required, including for your configured `defaultLocale`.
-		 *
-		 * Any other locale not configured will default to a localized path-based URL according to your `prefixDefaultLocale` strategy (e.g. `https://example.com/[locale]/blog`).
-		 *
-		 * ```js
-		 * //astro.config.mjs
-		 * export default defineConfig({
-		 * 	site: "https://example.com",
-		 * 	output: "server", // required, with no prerendered pages
-		 * 	adapter: node({
-		 * 		mode: 'standalone',
-		 * 	}),
-		 * 	i18n: {
-		 * 		defaultLocale: "en",
-		 * 		locales: ["en", "fr", "pt-br", "es"],
-		 * 		prefixDefaultLocale: false,
-		 * 		domains: {
-		 * 			fr: "https://fr.example.com",
-		 * 			es: "https://example.es",
-		 * 		},
-		 * 	},
-		 * 	experimental: {
-		 * 		i18nDomains: true,
-		 * 	},
-		 * });
-		 * ```
-		 *
-		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/reference/api-reference/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/reference/api-reference/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
-		 *
-		 * See the [Internationalization Guide](https://docs.astro.build/en/guides/internationalization/#domains-experimental) for more details, including the limitations of this experimental feature.
-		 */
-		i18nDomains?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.security
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.6.0
-		 * @description
-		 *
-		 * Enables CSRF protection for Astro websites.
-		 *
-		 * The CSRF protection works only for pages rendered on demand (SSR) using `server` or `hybrid` mode. The pages must opt out of prerendering in `hybrid` mode.
-		 *
-		 * ```js
-		 * // astro.config.mjs
-		 * export default defineConfig({
-		 *   output: "server",
-		 *   experimental: {
-		 *     security: {
-		 *       csrfProtection: {
-		 *         origin: true
-		 *       }
-		 *     }
-		 *   }
-		 * })
-		 * ```
-		 */
-		security?: {
-			/**
-			 * @name security.csrfProtection
-			 * @type {object}
-			 * @default '{}'
-			 * @version 4.6.0
-			 * @description
-			 *
-			 * Allows you to enable security measures to prevent CSRF attacks: https://owasp.org/www-community/attacks/csrf
-			 */
-
-			csrfProtection?: {
-				/**
-				 * @name security.csrfProtection.origin
-				 * @type {boolean}
-				 * @default 'false'
-				 * @version 4.6.0
-				 * @description
-				 *
-				 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`.
-				 *
-				 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST, `PATCH`, `DELETE` and `PUT` with
-				 * the following `content-type` header: 'application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'.
-				 *
-				 * If the "origin" header doesn't match the `pathname` of the request, Astro will return a 403 status code and will not render the page.
-				 */
-				origin?: boolean;
-			};
-		};
-
-		/**
-		 * @docs
 		 * @name experimental.rewriting
 		 * @type {boolean}
 		 * @default `false`
@@ -2108,6 +2055,114 @@ export interface AstroUserConfig {
 		 * For a complete overview, and to give feedback on this experimental API, see the [Rerouting RFC](https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md).
 		 */
 		rewriting?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.env
+		 * @type {object}
+		 * @default `undefined`
+		 * @version 4.10.0
+		 * @description
+		 *
+		 * Enables experimental `astro:env` features .
+		 *
+		 * The `astro:env` API lets you configure a type-safe schema for your environment variables, and indicate whether they should be available on the server or the client. Import and use your defined variables from the appropriate `/client` or `/server` module:
+		 *
+		 * ```astro
+		 * ---
+		 * import { PUBLIC_APP_ID } from "astro:env/client"
+		 * import { PUBLIC_API_URL, getSecret } from "astro:env/server"
+		 * const API_TOKEN = getSecret("API_TOKEN")
+		 *
+		 * const data = await fetch(`${PUBLIC_API_URL}/users`, {
+		 * 	method: "POST",
+		 * 	headers: {
+		 * 		"Content-Type": "application/json",
+		 * 		"Authorization": `Bearer ${API_TOKEN}`
+		 * 	},
+		 * 	body: JSON.stringify({ appId: PUBLIC_APP_ID })
+		 * })
+		 * ---
+		 * ```
+		 *
+		 * To define the data type and properties of your environment variables, declare a schema in your Astro config in `experimental.env.schema`. The `envField` helper allows you define your variable as a string, number, or boolean and pass properties in an object:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig, envField } from "astro/config"
+		 *
+		 * export default defineConfig({
+		 *     experimental: {
+		 *         env: {
+		 *             schema: {
+		 *                 PUBLIC_API_URL: envField.string({ context: "client", access: "public", optional: true }),
+		 *                 PUBLIC_PORT: envField.number({ context: "server", access: "public", default: 4321 }),
+		 *                 API_SECRET: envField.string({ context: "server", access: "secret" }),
+		 *             }
+		 *         }
+		 *     }
+		 * })
+		 * ```
+		 *
+		 * There are currently three data types supported: strings, numbers and booleans.
+		 *
+		 * There are three kinds of environment variables, determined by the combination of `context` (client or server) and `access` (private or public) settings defined in your [`env.schema`](#experimentalenvschema):
+		 *
+		 * - **Public client variables**: These variables end up in both your final client and server bundles, and can be accessed from both client and server through the `astro:env/client` module:
+		 *
+		 *     ```js
+		 *     import { PUBLIC_API_URL } from "astro:env/client"
+		 *     ```
+		 *
+		 * - **Public server variables**: These variables end up in your final server bundle and can be accessed on the server through the `astro:env/server` module:
+		 *
+		 *     ```js
+		 *     import { PUBLIC_PORT } from "astro:env/server"
+		 *     ```
+		 *
+		 * - **Secret server variables**: These variables are not part of your final bundle and can be accessed on the server through the `getSecret()` helper function available from the `astro:env/server` module:
+		 *
+		 *     ```js
+		 *     import { getSecret } from "astro:env/server"
+		 *
+		 *     const API_SECRET = getSecret("API_SECRET") // typed
+		 *     const SECRET_NOT_IN_SCHEMA = getSecret("SECRET_NOT_IN_SCHEMA") // string | undefined
+		 *     ```
+		 *
+		 * **Note:** Secret client variables are not supported because there is no safe way to send this data to the client. Therefore, it is not possible to configure both `context: "client"` and `access: "secret"` in your schema.
+		 *
+		 * For a complete overview, and to give feedback on this experimental API, see the [Astro Env RFC](https://github.com/withastro/roadmap/blob/feat/astro-env-rfc/proposals/0046-astro-env.md).
+		 */
+		env?: {
+			/**
+			 * @docs
+			 * @name experimental.env.schema
+			 * @kind h4
+			 * @type {EnvSchema}
+			 * @default `undefined`
+			 * @version 4.10.0
+			 * @description
+			 *
+			 * An object that uses `envField` to define the data type (`string`, `number`, or `boolean`) and properties of your environment variables: `context` (client or server), `access` (public or secret), a `default` value to use, and whether or not this environment variable is `optional` (defaults to `false`).
+			 * ```js
+			 * // astro.config.mjs
+			 * import { defineConfig, envField } from "astro/config"
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *     env: {
+			 *       schema: {
+			 *         PUBLIC_API_URL: envField.string({ context: "client", access: "public", optional: true }),
+			 *         PUBLIC_PORT: envField.number({ context: "server", access: "public", default: 4321 }),
+			 *         API_SECRET: envField.string({ context: "server", access: "secret" }),
+			 *       }
+			 *     }
+			 *   }
+			 * })
+			 * ```
+			 */
+			schema?: EnvSchema;
+		};
 	};
 }
 
@@ -2297,6 +2352,7 @@ export interface AstroSettings {
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
 	timer: AstroTimer;
+	dotAstroDir: URL;
 	/**
 	 * Latest version of Astro, will be undefined if:
 	 * - unable to check
@@ -2601,6 +2657,11 @@ export type AstroFeatureMap = {
 	 * List of features that orbit around the i18n routing
 	 */
 	i18nDomains?: SupportsKind;
+
+	/**
+	 * The adapter is able to support `getSecret` exported from `astro:env/server`
+	 */
+	envGetSecret?: SupportsKind;
 };
 
 export interface AstroAssetsFeature {
@@ -3148,6 +3209,8 @@ export interface SSRResult {
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
 	response: AstroGlobal['response'];
+	request: AstroGlobal['request'];
+	actionResult?: ReturnType<AstroGlobal['getActionResult']>;
 	renderers: SSRLoadedRenderer[];
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
@@ -3342,3 +3405,19 @@ declare global {
 		'astro:page-load': Event;
 	}
 }
+
+// Container types
+export type ContainerImportRendererFn = (
+	containerRenderer: ContainerRenderer
+) => Promise<SSRLoadedRenderer>;
+
+export type ContainerRenderer = {
+	/**
+	 * The name of the renderer.
+	 */
+	name: string;
+	/**
+	 * The entrypoint that is used to render a component on the server
+	 */
+	serverEntrypoint: string;
+};

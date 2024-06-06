@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import {
 	getMigrationQueries,
 	getTableChangeQueries,
@@ -44,14 +44,14 @@ describe('column queries', () => {
 			const oldTables = { [TABLE_NAME]: userInitial };
 			const newTables = { [TABLE_NAME]: userInitial };
 			const { queries } = await configChangeQueries(oldTables, newTables);
-			expect(queries).to.deep.equal([]);
+			assert.deepEqual(queries, []);
 		});
 
 		it('should create table for new tables', async () => {
 			const oldTables = {};
 			const newTables = { [TABLE_NAME]: userInitial };
 			const { queries } = await configChangeQueries(oldTables, newTables);
-			expect(queries).to.deep.equal([
+			assert.deepEqual(queries, [
 				`CREATE TABLE "${TABLE_NAME}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "email" text NOT NULL UNIQUE, "mi" text)`,
 			]);
 		});
@@ -60,7 +60,7 @@ describe('column queries', () => {
 			const oldTables = { [TABLE_NAME]: userInitial };
 			const newTables = {};
 			const { queries } = await configChangeQueries(oldTables, newTables);
-			expect(queries).to.deep.equal([`DROP TABLE "${TABLE_NAME}"`]);
+			assert.deepEqual(queries, [`DROP TABLE "${TABLE_NAME}"`]);
 		});
 
 		it('should error if possible table rename is detected', async () => {
@@ -73,7 +73,7 @@ describe('column queries', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			expect(error).to.include.string('Potential table rename detected');
+			assert.match(error, /Potential table rename detected/);
 		});
 
 		it('should error if possible column rename is detected', async () => {
@@ -93,14 +93,14 @@ describe('column queries', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			expect(error).to.include.string('Potential column rename detected');
+			assert.match(error, /Potential column rename detected/);
 		});
 	});
 
 	describe('getTableChangeQueries', () => {
 		it('should be empty when tables are the same', async () => {
 			const { queries } = await userChangeQueries(userInitial, userInitial);
-			expect(queries).to.deep.equal([]);
+			assert.deepEqual(queries, []);
 		});
 
 		it('should return warning if column type change introduces data loss', async () => {
@@ -117,11 +117,11 @@ describe('column queries', () => {
 				},
 			});
 			const { queries, confirmations } = await userChangeQueries(blogInitial, blogFinal);
-			expect(queries).to.deep.equal([
+			assert.deepEqual(queries, [
 				'DROP TABLE "Users"',
 				'CREATE TABLE "Users" (_id INTEGER PRIMARY KEY, "date" text NOT NULL)',
 			]);
-			expect(confirmations.length).to.equal(1);
+			assert.equal(confirmations.length, 1);
 		});
 
 		it('should return warning if new required column added', async () => {
@@ -136,11 +136,11 @@ describe('column queries', () => {
 				},
 			});
 			const { queries, confirmations } = await userChangeQueries(blogInitial, blogFinal);
-			expect(queries).to.deep.equal([
+			assert.deepEqual(queries, [
 				'DROP TABLE "Users"',
 				'CREATE TABLE "Users" (_id INTEGER PRIMARY KEY, "date" text NOT NULL)',
 			]);
-			expect(confirmations.length).to.equal(1);
+			assert.equal(confirmations.length, 1);
 		});
 
 		it('should return warning if non-number primary key with no default added', async () => {
@@ -155,11 +155,11 @@ describe('column queries', () => {
 				},
 			});
 			const { queries, confirmations } = await userChangeQueries(blogInitial, blogFinal);
-			expect(queries).to.deep.equal([
+			assert.deepEqual(queries, [
 				'DROP TABLE "Users"',
 				'CREATE TABLE "Users" ("id" text PRIMARY KEY)',
 			]);
-			expect(confirmations.length).to.equal(1);
+			assert.equal(confirmations.length, 1);
 		});
 
 		it('should be empty when type updated to same underlying SQL type', async () => {
@@ -178,7 +178,7 @@ describe('column queries', () => {
 				},
 			});
 			const { queries } = await userChangeQueries(blogInitial, blogFinal);
-			expect(queries).to.deep.equal([]);
+			assert.deepEqual(queries, []);
 		});
 
 		it('should respect user primary key without adding a hidden id', async () => {
@@ -199,10 +199,10 @@ describe('column queries', () => {
 			});
 
 			const { queries } = await userChangeQueries(user, userFinal);
-			expect(queries[0]).to.not.be.undefined;
+			assert.equal(queries[0] !== undefined, true);
 			const tempTableName = getTempTableName(queries[0]);
 
-			expect(queries).to.deep.equal([
+			assert.deepEqual(queries, [
 				`CREATE TABLE \"${tempTableName}\" (\"name\" text UNIQUE, \"age\" integer NOT NULL, \"email\" text NOT NULL UNIQUE, \"mi\" text, \"id\" integer PRIMARY KEY)`,
 				`INSERT INTO \"${tempTableName}\" (\"name\", \"age\", \"email\", \"mi\", \"id\") SELECT \"name\", \"age\", \"email\", \"mi\", \"id\" FROM \"Users\"`,
 				'DROP TABLE "Users"',
@@ -222,7 +222,7 @@ describe('column queries', () => {
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
 
-				expect(queries).to.deep.equal([
+				assert.deepEqual(queries, [
 					'DROP TABLE "Users"',
 					`CREATE TABLE "Users" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" text NOT NULL, "email" text NOT NULL UNIQUE, "mi" text)`,
 				]);
@@ -239,7 +239,7 @@ describe('column queries', () => {
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
 
-				expect(queries).to.deep.equal([
+				assert.deepEqual(queries, [
 					'DROP TABLE "Users"',
 					`CREATE TABLE "Users" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "email" text NOT NULL UNIQUE, "mi" text, "phoneNumber" text NOT NULL)`,
 				]);
@@ -257,10 +257,10 @@ describe('column queries', () => {
 				};
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
-				expect(queries[0]).to.not.be.undefined;
+				assert.equal(queries[0] !== undefined, true);
 
 				const tempTableName = getTempTableName(queries[0]);
-				expect(queries).to.deep.equal([
+				assert.deepEqual(queries, [
 					`CREATE TABLE \"${tempTableName}\" (\"name\" text NOT NULL, \"age\" integer NOT NULL, \"email\" text NOT NULL UNIQUE, \"mi\" text, \"id\" integer PRIMARY KEY)`,
 					`INSERT INTO \"${tempTableName}\" (\"name\", \"age\", \"email\", \"mi\") SELECT \"name\", \"age\", \"email\", \"mi\" FROM \"Users\"`,
 					'DROP TABLE "Users"',
@@ -278,10 +278,10 @@ describe('column queries', () => {
 				};
 
 				const { queries } = await userChangeQueries(user, userInitial);
-				expect(queries[0]).to.not.be.undefined;
+				assert.equal(queries[0] !== undefined, true);
 
 				const tempTableName = getTempTableName(queries[0]);
-				expect(queries).to.deep.equal([
+				assert.deepEqual(queries, [
 					`CREATE TABLE \"${tempTableName}\" (_id INTEGER PRIMARY KEY, \"name\" text NOT NULL, \"age\" integer NOT NULL, \"email\" text NOT NULL UNIQUE, \"mi\" text)`,
 					`INSERT INTO \"${tempTableName}\" (\"name\", \"age\", \"email\", \"mi\") SELECT \"name\", \"age\", \"email\", \"mi\" FROM \"Users\"`,
 					'DROP TABLE "Users"',
@@ -299,11 +299,11 @@ describe('column queries', () => {
 				};
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
-				expect(queries).to.have.lengthOf(4);
+				assert.equal(queries.length, 4);
 
 				const tempTableName = getTempTableName(queries[0]);
-				expect(tempTableName).to.be.a('string');
-				expect(queries).to.deep.equal([
+				assert.equal(typeof tempTableName, 'string');
+				assert.deepEqual(queries, [
 					`CREATE TABLE "${tempTableName}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "email" text NOT NULL UNIQUE, "mi" text, "phoneNumber" text UNIQUE)`,
 					`INSERT INTO "${tempTableName}" ("_id", "name", "age", "email", "mi") SELECT "_id", "name", "age", "email", "mi" FROM "Users"`,
 					'DROP TABLE "Users"',
@@ -321,11 +321,12 @@ describe('column queries', () => {
 				delete userFinal.columns.email;
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
-				expect(queries).to.have.lengthOf(4);
+				assert.equal(queries.length, 4);
+				assert.equal(queries.length, 4);
 
 				const tempTableName = getTempTableName(queries[0]);
-				expect(tempTableName).to.be.a('string');
-				expect(queries).to.deep.equal([
+				assert.equal(typeof tempTableName, 'string');
+				assert.deepEqual(queries, [
 					`CREATE TABLE "${tempTableName}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "mi" text)`,
 					`INSERT INTO "${tempTableName}" ("_id", "name", "age", "mi") SELECT "_id", "name", "age", "mi" FROM "Users"`,
 					'DROP TABLE "Users"',
@@ -351,11 +352,11 @@ describe('column queries', () => {
 				});
 
 				const { queries } = await userChangeQueries(initial, userFinal);
-				expect(queries).to.have.lengthOf(4);
+				assert.equal(queries.length, 4);
 
 				const tempTableName = getTempTableName(queries[0]);
-				expect(tempTableName).to.be.a('string');
-				expect(queries).to.deep.equal([
+				assert.equal(typeof tempTableName, 'string');
+				assert.deepEqual(queries, [
 					`CREATE TABLE "${tempTableName}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" text NOT NULL DEFAULT CURRENT_TIMESTAMP, "email" text NOT NULL UNIQUE, "mi" text)`,
 					`INSERT INTO "${tempTableName}" ("_id", "name", "age", "email", "mi") SELECT "_id", "name", "age", "email", "mi" FROM "Users"`,
 					'DROP TABLE "Users"',
@@ -373,11 +374,11 @@ describe('column queries', () => {
 				});
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
-				expect(queries).to.have.lengthOf(4);
+				assert.equal(queries.length, 4);
 
 				const tempTableName = getTempTableName(queries[0]);
-				expect(tempTableName).to.be.a('string');
-				expect(queries).to.deep.equal([
+				assert.equal(typeof tempTableName, 'string');
+				assert.deepEqual(queries, [
 					`CREATE TABLE "${tempTableName}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "email" text NOT NULL UNIQUE, "mi" text, "birthday" text NOT NULL DEFAULT CURRENT_TIMESTAMP)`,
 					`INSERT INTO "${tempTableName}" ("_id", "name", "age", "email", "mi") SELECT "_id", "name", "age", "email", "mi" FROM "Users"`,
 					'DROP TABLE "Users"',
@@ -403,11 +404,11 @@ describe('column queries', () => {
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
 
-				expect(queries).to.have.lengthOf(4);
+				assert.equal(queries.length, 4);
 
 				const tempTableName = getTempTableName(queries[0]);
-				expect(tempTableName).to.be.a('string');
-				expect(queries).to.deep.equal([
+				assert.equal(typeof tempTableName, 'string');
+				assert.deepEqual(queries, [
 					`CREATE TABLE "${tempTableName}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "email" text NOT NULL UNIQUE, "mi" text NOT NULL)`,
 					`INSERT INTO "${tempTableName}" ("_id", "name", "age", "email", "mi") SELECT "_id", "name", "age", "email", "mi" FROM "Users"`,
 					'DROP TABLE "Users"',
@@ -425,11 +426,11 @@ describe('column queries', () => {
 				};
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
-				expect(queries).to.have.lengthOf(4);
+				assert.equal(queries.length, 4);
 
 				const tempTableName = getTempTableName(queries[0]);
-				expect(tempTableName).to.be.a('string');
-				expect(queries).to.deep.equal([
+				assert.equal(typeof tempTableName, 'string');
+				assert.deepEqual(queries, [
 					`CREATE TABLE "${tempTableName}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL UNIQUE, "email" text NOT NULL UNIQUE, "mi" text)`,
 					`INSERT INTO "${tempTableName}" ("_id", "name", "age", "email", "mi") SELECT "_id", "name", "age", "email", "mi" FROM "Users"`,
 					'DROP TABLE "Users"',
@@ -449,7 +450,7 @@ describe('column queries', () => {
 				};
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
-				expect(queries).to.deep.equal(['ALTER TABLE "Users" ADD COLUMN "birthday" text']);
+				assert.deepEqual(queries, ['ALTER TABLE "Users" ADD COLUMN "birthday" text']);
 			});
 
 			it('when adding a required column with default', async () => {
@@ -463,7 +464,7 @@ describe('column queries', () => {
 				});
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
-				expect(queries).to.deep.equal([
+				assert.deepEqual(queries, [
 					`ALTER TABLE "Users" ADD COLUMN "birthday" text NOT NULL DEFAULT '${defaultDate.toISOString()}'`,
 				]);
 			});
@@ -480,7 +481,7 @@ describe('column queries', () => {
 				};
 
 				const { queries } = await userChangeQueries(userInitial, userFinal);
-				expect(queries).to.deep.equal([
+				assert.deepEqual(queries, [
 					'ALTER TABLE "Users" DROP COLUMN "age"',
 					'ALTER TABLE "Users" DROP COLUMN "mi"',
 				]);

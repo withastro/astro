@@ -382,7 +382,7 @@ async function writeContentFiles({
 	let contentTypesStr = '';
 	let dataTypesStr = '';
 
-	const collectionSchemasDir = new URL('./collections/', contentPaths.cacheDir);
+	const collectionSchemasDir = new URL('./collections/', settings.dotAstroDir);
 	if (
 		settings.config.experimental.contentCollectionJsonSchema &&
 		!fs.existsSync(collectionSchemasDir)
@@ -490,12 +490,12 @@ async function writeContentFiles({
 		}
 	}
 
-	if (!fs.existsSync(contentPaths.cacheDir)) {
-		fs.mkdirSync(contentPaths.cacheDir, { recursive: true });
+	if (!fs.existsSync(settings.dotAstroDir)) {
+		fs.mkdirSync(settings.dotAstroDir, { recursive: true });
 	}
 
 	const configPathRelativeToCacheDir = normalizeConfigPath(
-		contentPaths.cacheDir.pathname,
+		settings.dotAstroDir.pathname,
 		contentPaths.config.url.pathname
 	);
 
@@ -512,7 +512,7 @@ async function writeContentFiles({
 	);
 
 	await fs.promises.writeFile(
-		new URL(CONTENT_TYPES_FILE, contentPaths.cacheDir),
+		new URL(CONTENT_TYPES_FILE, settings.dotAstroDir),
 		typeTemplateContent
 	);
 }
