@@ -34,7 +34,7 @@ export function getViteConfig(inlineConfig: UserConfig, inlineAstroConfig: Astro
 			dest: nodeLogDestination,
 			level: 'info',
 		});
-		const { astroConfig: config } = await resolveConfig(inlineAstroConfig, cmd);
+		const { astroConfig: config, userConfig } = await resolveConfig(inlineAstroConfig, cmd);
 		let settings = await createSettings(config, inlineConfig.root);
 		settings = await runHookConfigSetup({ settings, command: cmd, logger });
 		const viteConfig = await createVite(
@@ -48,6 +48,6 @@ export function getViteConfig(inlineConfig: UserConfig, inlineAstroConfig: Astro
 			{ settings, logger, mode }
 		);
 		await runHookConfigDone({ settings, logger });
-		return mergeConfig(viteConfig, inlineConfig);
+		return mergeConfig(viteConfig, userConfig);
 	};
 }
