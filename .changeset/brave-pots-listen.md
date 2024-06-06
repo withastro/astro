@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-throw original AstroUserError in mdx
+Improves DX by throwing the original `AstroUserError` when an error is thrown inside a `.mdx` file.
