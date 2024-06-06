@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
+import { writeFileSync } from 'node:fs';
 import { after, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
-import { writeFileSync } from 'node:fs';
 
 describe('astro:env public variables', () => {
 	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
