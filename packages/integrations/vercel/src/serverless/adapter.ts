@@ -98,6 +98,7 @@ function getAdapter({
 				isSquooshCompatible: true,
 			},
 			i18nDomains: 'experimental',
+			envGetSecret: 'experimental',
 		},
 	};
 }
@@ -263,6 +264,11 @@ export default function vercelServerless({
 						...getSpeedInsightsViteConfig(speedInsights?.enabled),
 						ssr: {
 							external: ['@vercel/nft'],
+						},
+						build: {
+							rollupOptions: {
+								external: ['astro:env/setup'],
+							},
 						},
 					},
 					...getAstroImageConfig(

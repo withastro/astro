@@ -19,6 +19,7 @@ export function getAdapter(options: Options): AstroAdapter {
 				isSquooshCompatible: true,
 			},
 			i18nDomains: 'experimental',
+			envGetSecret: 'experimental',
 		},
 	};
 }
@@ -40,6 +41,11 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 					vite: {
 						ssr: {
 							noExternal: ['@astrojs/node'],
+						},
+						build: {
+							rollupOptions: {
+								external: ['astro:env/setup'],
+							},
 						},
 					},
 				});
