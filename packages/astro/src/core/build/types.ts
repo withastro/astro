@@ -29,7 +29,6 @@ export interface PageBuildData {
 	moduleSpecifier: string;
 	hoistedScript: HoistedScriptAsset | undefined;
 	styles: Array<{ depth: number; order: number; sheet: StylesheetAsset }>;
-	hasSharedModules: boolean;
 }
 
 export type AllPagesData = Record<ComponentPath, PageBuildData>;

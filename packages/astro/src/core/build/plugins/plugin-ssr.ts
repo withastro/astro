@@ -72,7 +72,6 @@ function vitePluginSSR(
 				contents.push(...ssrCode.contents);
 				return [...imports, ...contents, ...exports].join('\n');
 			}
-			return void 0;
 		},
 		async generateBundle(_opts, bundle) {
 			// Add assets from this SSR chunk as well.
@@ -141,23 +140,20 @@ function vitePluginSSRSplit(
 	adapter: AstroAdapter,
 	options: StaticBuildOptions
 ): VitePlugin {
-	const functionPerRouteEnabled = isFunctionPerRouteEnabled(options.settings.adapter);
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr-split',
 		enforce: 'post',
 		options(opts) {
-			if (functionPerRouteEnabled) {
-				const inputs = new Set<string>();
+			const inputs = new Set<string>();
 
-				for (const pageData of Object.values(options.allPages)) {
-					if (routeIsRedirect(pageData.route)) {
-						continue;
-					}
-					inputs.add(getVirtualModulePageName(SPLIT_MODULE_ID, pageData.component));
+			for (const pageData of Object.values(options.allPages)) {
+				if (routeIsRedirect(pageData.route)) {
+					continue;
 				}
-
-				return addRollupInput(opts, Array.from(inputs));
+				inputs.add(getVirtualModulePageName(SPLIT_MODULE_ID, pageData.component));
 			}
+
+			return addRollupInput(opts, Array.from(inputs));
 		},
 		resolveId(id) {
 			if (id.startsWith(SPLIT_MODULE_ID)) {
@@ -185,7 +181,6 @@ function vitePluginSSRSplit(
 
 				return [...imports, ...contents, ...exports].join('\n');
 			}
-			return void 0;
 		},
 		async generateBundle(_opts, bundle) {
 			// Add assets from this SSR chunk as well.
