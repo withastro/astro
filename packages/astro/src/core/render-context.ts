@@ -392,7 +392,6 @@ export class RenderContext {
 			},
 		});
 
-		console.log('Astro.params', Astro.params);
 		return Astro as AstroGlobal;
 	}
 
@@ -420,7 +419,6 @@ export class RenderContext {
 				this.request,
 				this.originalRoute
 			);
-			console.log(routeData);
 			this.routeData = routeData;
 			if (reroutePayload instanceof Request) {
 				this.request = reroutePayload;

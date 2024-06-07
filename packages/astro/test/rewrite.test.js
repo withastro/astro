@@ -83,7 +83,7 @@ describe('Dev rewrite, hybrid/server', () => {
 		const $ = cheerioLoad(html);
 
 		assert.match($('h1').text(), /Title/);
-		assert.match($('p').text(), /some slug/);
+		assert.match($('p').text(), /some-slug/);
 	});
 });
 
