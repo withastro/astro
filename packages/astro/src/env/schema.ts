@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { PUBLIC_PREFIX } from './constants.js';
 
 const StringSchema = z.object({
 	type: z.literal('string'),
@@ -35,36 +34,19 @@ const SecretServerEnvFieldMetadata = z.object({
 
 const KEY_REGEX = /^[A-Z_]+$/;
 
-export const EnvSchema = z
-	.record(
-		z.string().regex(KEY_REGEX, {
-			message: 'A valid variable name can only contain uppercase letters and underscores.',
-		}),
-		z.intersection(
-			z.union([
-				PublicClientEnvFieldMetadata,
-				PublicServerEnvFieldMetadata,
-				SecretServerEnvFieldMetadata,
-			]),
-			EnvFieldType
-		)
+export const EnvSchema = z.record(
+	z.string().regex(KEY_REGEX, {
+		message: 'A valid variable name can only contain uppercase letters and underscores.',
+	}),
+	z.intersection(
+		z.union([
+			PublicClientEnvFieldMetadata,
+			PublicServerEnvFieldMetadata,
+			SecretServerEnvFieldMetadata,
+		]),
+		EnvFieldType
 	)
-	.superRefine((schema, ctx) => {
-		for (const [key, value] of Object.entries(schema)) {
-			if (key.startsWith(PUBLIC_PREFIX) && value.access !== 'public') {
-				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
-					message: `An environment variable whose name is prefixed by "${PUBLIC_PREFIX}" must be public.`,
-				});
-			}
-			if (value.access === 'public' && !key.startsWith(PUBLIC_PREFIX)) {
-				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
-					message: `An environment variable that is public must have a name prefixed by "${PUBLIC_PREFIX}".`,
-				});
-			}
-		}
-	});
+);
 
 export type EnvSchema = z.infer<typeof EnvSchema>;
 
