@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 10.3.0
+
+### Minor Changes
+
+- [#251](https://github.com/withastro/adapters/pull/251) [`b826675`](https://github.com/withastro/adapters/commit/b826675e845c2115daa774ee697013de4ce5690f) Thanks [@adrianlyjak](https://github.com/adrianlyjak)! - Adds support for `.bin` and `.txt` files
+
 ## 10.2.6
 
 ### Patch Changes
