@@ -1,7 +1,6 @@
 import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
 import type { OutputChunk, ProgramNode } from 'rollup';
 import type { PluginOption } from 'vite';
-import type { CloudflareModulePluginExtra } from './utils/wasm-module-loader.js';
 
 import { createReadStream } from 'node:fs';
 import { appendFile, rename, stat, unlink } from 'node:fs/promises';
@@ -16,11 +15,14 @@ import { AstroError } from 'astro/errors';
 import { walk } from 'estree-walker';
 import MagicString from 'magic-string';
 import { getPlatformProxy } from 'wrangler';
+import {
+	type CloudflareModulePluginExtra,
+	cloudflareModuleLoader,
+} from './utils/cloudflare-module-loader.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { setImageConfig } from './utils/image-config.js';
 import { mutateDynamicPageImportsInPlace, mutatePageMapInPlace } from './utils/index.js';
 import { NonServerChunkDetector } from './utils/non-server-chunk-detector.js';
-import { cloudflareModuleLoader } from './utils/wasm-module-loader.js';
 
 export type { Runtime } from './entrypoints/server.js';
 
@@ -64,10 +66,17 @@ export type Options = {
 		/** Configuration persistence settings. Default '.wrangler/state/v3' */
 		persist?: boolean | { path: string };
 	};
+
 	/**
-	 * Allow bundling cloudflare worker specific file types
-	 * https://developers.cloudflare.com/workers/wrangler/bundling/
+	 * Allow bundling cloudflare worker specific file types as importable modules. Defaults to true.
+	 * When enabled, allows imports of '.wasm', '.bin', and '.txt' file types
+	 *
+	 * See https://developers.cloudflare.com/pages/functions/module-support/
+	 * for reference on how these file types are exported
 	 */
+	cloudflareModules?: boolean;
+
+	/** @deprecated - use `cloudflareModules`, which defaults to true. You can set `cloudflareModuleLoading: false` to disable */
 	wasmModuleImports?: boolean;
 };
 
@@ -75,7 +84,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 
 	const cloudflareModulePlugin: PluginOption & CloudflareModulePluginExtra = cloudflareModuleLoader(
-		args?.wasmModuleImports ?? false
+		args?.cloudflareModules ?? args?.wasmModuleImports ?? true
 	);
 
 	// Initialize the unused chunk analyzer as a shared state between hooks.

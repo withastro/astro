@@ -1,6 +1,6 @@
 import { type APIContext } from 'astro';
 // @ts-ignore
-import mod from '../util/add.wasm?module';
+import mod from '../util/add.wasm';
 
 const addModule: any = new WebAssembly.Instance(mod);
 

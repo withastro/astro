@@ -8,25 +8,41 @@ import type { PluginOption } from 'vite';
 export interface CloudflareModulePluginExtra {
 	afterBuildCompleted(config: AstroConfig): Promise<void>;
 }
+
+export type ModuleType = 'CompiledWasm' | 'Text' | 'Data';
+
 /**
- * Enables support for wasm modules within cloudflare pages functions
+ * Enables support for various non-standard extensions in module imports that cloudflare workers supports.
  *
- * Loads '*.wasm?module' and `*.wasm` imports as WebAssembly modules, which is the only way to load WASM in cloudflare workers.
- * Current proposal for WASM modules: https://github.com/WebAssembly/esm-integration/tree/main/proposals/esm-integration
- * Cloudflare worker WASM from javascript support: https://developers.cloudflare.com/workers/runtime-apis/webassembly/javascript/
- * @param enabled - if true, load '.wasm' imports as Uint8Arrays, otherwise will throw errors when encountered to clarify that it must be enabled
- * @returns Vite plugin to load WASM tagged with '?module' as a WASM modules
+ * See https://developers.cloudflare.com/pages/functions/module-support/ for reference
+ *
+ * This adds supports for imports in the following formats:
+ * - .wasm
+ * - .wasm?module
+ * - .bin
+ * - .txt
+ *
+ * @param enabled - if true, will load all cloudflare pages supported types
+ * @returns Vite plugin with additional extension method to hook into astro build
  */
 export function cloudflareModuleLoader(
 	enabled: boolean
 ): PluginOption & CloudflareModulePluginExtra {
-	const enabledAdapters = cloudflareImportAdapters.filter((x) => enabled);
+	/**
+	 * It's likely that eventually cloudflare will add support for custom extensions, like they do in vanilla cloudflare workers,
+	 * by adding rules to your wrangler.tome
+	 * https://developers.cloudflare.com/workers/wrangler/bundling/
+	 */
+	const adaptersByExtension: Record<string, ModuleType> = enabled ? { ...defaultAdapters } : {};
+
+	const extensions = Object.keys(adaptersByExtension);
+
 	let isDev = false;
 	const MAGIC_STRING = '__CLOUDFLARE_ASSET__';
 	const replacements: Replacement[] = [];
 
 	return {
-		name: 'vite:wasm-module-loader',
+		name: 'vite:cf-module-loader',
 		enforce: 'pre',
 		configResolved(config) {
 			isDev = config.command === 'serve';
@@ -34,12 +50,12 @@ export function cloudflareModuleLoader(
 		config(_, __) {
 			// let vite know that file format and the magic import string is intentional, and will be handled in this plugin
 			return {
-				assetsInclude: enabledAdapters.map((x) => `**/*.${x.qualifiedExtension}`),
+				assetsInclude: extensions.map((x) => `**/*${x}`),
 				build: {
 					rollupOptions: {
 						// mark the wasm files as external so that they are not bundled and instead are loaded from the files
-						external: enabledAdapters.map(
-							(x) => new RegExp(`^${MAGIC_STRING}.+\\.${x.extension}.mjs$`, 'i')
+						external: extensions.map(
+							(x) => new RegExp(`^${MAGIC_STRING}.+${escapeRegExp(x)}.mjs$`, 'i')
 						),
 					},
 				},
@@ -47,22 +63,27 @@ export function cloudflareModuleLoader(
 		},
 
 		async load(id, _) {
-			const importAdapter = cloudflareImportAdapters.find((x) => id.endsWith(x.qualifiedExtension));
-			if (!importAdapter) {
+			const maybeExtension = extensions.find((x) => id.endsWith(x));
+			const moduleType: ModuleType | undefined =
+				(maybeExtension && adaptersByExtension[maybeExtension]) || undefined;
+			if (!moduleType || !maybeExtension) {
 				return;
 			}
 			if (!enabled) {
 				throw new Error(
-					`Cloudflare module loading is experimental. The ${importAdapter.qualifiedExtension} module cannot be loaded unless you add \`wasmModuleImports: true\` to your astro config.`
+					`Cloudflare module loading is experimental. The ${maybeExtension} module cannot be loaded unless you add \`wasmModuleImports: true\` to your astro config.`
 				);
 			}
 
-			const filePath = id.replace(/\?module$/, '');
+			const moduleLoader = renderers[moduleType];
+
+			const filePath = id.replace(/\?\w+$/, '');
+			const extension = maybeExtension.replace(/\?\w+$/, '');
 
 			const data = await fs.readFile(filePath);
 			const base64 = data.toString('base64');
 
-			const inlineModule = importAdapter.asNodeModule(data);
+			const inlineModule = moduleLoader(data);
 
 			if (isDev) {
 				// no need to wire up the assets in dev mode, just rewrite
@@ -72,9 +93,7 @@ export function cloudflareModuleLoader(
 			const hash = hashString(base64);
 			// emit the wasm binary as an asset file, to be picked up later by the esbuild bundle for the worker.
 			// give it a shared deterministic name to make things easy for esbuild to switch on later
-			const assetName = `${path.basename(filePath).split('.')[0]}.${hash}.${
-				importAdapter.extension
-			}`;
+			const assetName = `${path.basename(filePath).split('.')[0]}.${hash}${extension}`;
 			this.emitFile({
 				type: 'asset',
 				// emit the data explicitly as an esset with `fileName` rather than `name` so that
@@ -91,7 +110,7 @@ export function cloudflareModuleLoader(
 				code: inlineModule,
 			});
 
-			return `import module from "${MAGIC_STRING}${chunkId}.${importAdapter.extension}.mjs";export default module;`;
+			return `import module from "${MAGIC_STRING}${chunkId}${extension}.mjs";export default module;`;
 		},
 
 		// output original wasm file relative to the chunk now that chunking has been achieved
@@ -103,10 +122,11 @@ export function cloudflareModuleLoader(
 			// SSR will need the .mjs suffix removed from the import before this works in cloudflare, but this is done as a final step
 			// so as to support prerendering from nodejs runtime
 			let replaced = code;
-			for (const loader of enabledAdapters) {
+			for (const ext of extensions) {
+				const extension = ext.replace(/\?\w+$/, '');
+				// chunk id can be many things, (alpha numeric, dollars, or underscores, maybe more)
 				replaced = replaced.replaceAll(
-					// chunk id can be many things, (alpha numeric, dollars, or underscores, maybe more)
-					new RegExp(`${MAGIC_STRING}([^\\s]+?)\\.${loader.extension}\\.mjs`, 'g'),
+					new RegExp(`${MAGIC_STRING}([^\\s]+?)${escapeRegExp(extension)}\\.mjs`, 'g'),
 					(s, assetId) => {
 						const fileName = this.getFileName(assetId);
 						const relativePath = path
@@ -122,9 +142,6 @@ export function cloudflareModuleLoader(
 						return `./${relativePath}`;
 					}
 				);
-			}
-			if (replaced.includes(MAGIC_STRING)) {
-				console.error('failed to replace', replaced);
 			}
 
 			return { code: replaced };
@@ -156,7 +173,9 @@ export function cloudflareModuleLoader(
 			const baseDir = url.fileURLToPath(config.outDir);
 			const replacementsByFileName = new Map<string, Replacement[]>();
 			for (const replacement of replacements) {
-				if (!replacement.fileName) continue;
+				if (!replacement.fileName) {
+					continue;
+				}
 				const repls = replacementsByFileName.get(replacement.fileName) || [];
 				if (!repls.length) {
 					replacementsByFileName.set(replacement.fileName, repls);
@@ -168,15 +187,13 @@ export function cloudflareModuleLoader(
 				const contents = await fs.readFile(filepath, 'utf-8');
 				let updated = contents;
 				for (const replacement of repls) {
-					updated = contents.replaceAll(replacement.nodejsImport, replacement.cloudflareImport);
+					updated = updated.replaceAll(replacement.nodejsImport, replacement.cloudflareImport);
 				}
 				await fs.writeFile(filepath, updated, 'utf-8');
 			}
 		},
 	};
 }
-
-export type ImportType = 'wasm';
 
 interface Replacement {
 	fileName?: string;
@@ -187,22 +204,30 @@ interface Replacement {
 	nodejsImport: string;
 }
 
-interface ModuleImportAdapter {
-	extension: ImportType;
-	qualifiedExtension: string;
-	asNodeModule(fileContents: Buffer): string;
-}
-
-const wasmImportAdapter: ModuleImportAdapter = {
-	extension: 'wasm',
-	qualifiedExtension: 'wasm?module',
-	asNodeModule(fileContents: Buffer) {
+const renderers: Record<ModuleType, (fileContents: Buffer) => string> = {
+	CompiledWasm(fileContents: Buffer) {
 		const base64 = fileContents.toString('base64');
 		return `const wasmModule = new WebAssembly.Module(Uint8Array.from(atob("${base64}"), c => c.charCodeAt(0)));export default wasmModule;`;
 	},
+	Data(fileContents: Buffer) {
+		const base64 = fileContents.toString('base64');
+		return `const binModule = Uint8Array.from(atob("${base64}"), c => c.charCodeAt(0)).buffer;export default binModule;`;
+	},
+	Text(fileContents: Buffer) {
+		const escaped = JSON.stringify(fileContents.toString('utf-8'));
+		return `const stringModule = ${escaped};export default stringModule;`;
+	},
 };
 
-const cloudflareImportAdapters = [wasmImportAdapter];
+const defaultAdapters: Record<string, ModuleType> = {
+	// Loads '*.wasm?module' imports as WebAssembly modules, which is the only way to load WASM in cloudflare workers.
+	// Current proposal for WASM modules: https://github.com/WebAssembly/esm-integration/tree/main/proposals/esm-integration
+	'.wasm?module': 'CompiledWasm',
+	// treats the module as a WASM module
+	'.wasm': 'CompiledWasm',
+	'.bin': 'Data',
+	'.txt': 'Text',
+};
 
 /**
  * Returns a deterministic 32 bit hash code from a string
@@ -215,4 +240,8 @@ function hashString(str: string): string {
 		hash &= hash; // Convert to 32bit integer
 	}
 	return new Uint32Array([hash])[0].toString(36);
+}
+
+function escapeRegExp(string: string) {
+	return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }

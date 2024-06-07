@@ -1,4 +1,4 @@
-import mod from './add.wasm?module';
+import mod from './add.wasm';
 
 
 const addModule: any = new WebAssembly.Instance(mod);
