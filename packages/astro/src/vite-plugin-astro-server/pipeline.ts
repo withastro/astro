@@ -195,15 +195,14 @@ export class DevPipeline extends Pipeline {
 		payload: RewritePayload,
 		request: Request,
 		sourceRoute: RouteData
-	): Promise<[RouteData, ComponentInstance]> {
+	): Promise<[RouteData, ComponentInstance, URL]> {
 		let foundRoute;
 		if (!this.manifestData) {
 			throw new Error('Missing manifest data. This is an internal error, please file an issue.');
 		}
 
+		let finalUrl: URL | undefined = undefined;
 		for (const route of this.manifestData.routes) {
-			let finalUrl: URL | undefined = undefined;
-
 			if (payload instanceof URL) {
 				finalUrl = payload;
 			} else if (payload instanceof Request) {
@@ -221,13 +220,13 @@ export class DevPipeline extends Pipeline {
 			}
 		}
 
-		if (foundRoute) {
+		if (foundRoute && finalUrl) {
 			if (foundRoute.pathname === '/404') {
 				const componentInstance = this.rewriteKnownRoute(foundRoute.pathname, sourceRoute);
-				return [foundRoute, componentInstance];
+				return [foundRoute, componentInstance, finalUrl];
 			} else {
 				const componentInstance = await this.getComponentByRoute(foundRoute);
-				return [foundRoute, componentInstance];
+				return [foundRoute, componentInstance, finalUrl];
 			}
 		} else {
 			throw new AstroError({
