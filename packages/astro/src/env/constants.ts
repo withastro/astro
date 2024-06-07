@@ -4,7 +4,6 @@ export const VIRTUAL_MODULES_IDS = {
 	internal: 'virtual:astro:env/internal',
 };
 export const VIRTUAL_MODULES_IDS_VALUES = new Set(Object.values(VIRTUAL_MODULES_IDS));
-export const VIRTUAL_MODULE_SETUP_ID = 'astro:env/setup';
 
 export const PUBLIC_PREFIX = 'PUBLIC_';
 export const ENV_TYPES_FILE = 'env.d.ts';
