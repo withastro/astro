@@ -270,8 +270,9 @@ export async function renderToAsyncIterable(
 			buffer.length = 0;
 
 			const returnValue = {
-				// The iterator is done if there are no chunks to return.
-				done: length === 0,
+				// The iterator is done when rendering has finished
+				// and there are no more chunks to return.
+				done: length === 0 && renderingComplete,
 				value: mergedArray,
 			};
 
