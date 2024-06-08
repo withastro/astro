@@ -2106,7 +2106,7 @@ export interface AstroUserConfig {
 		 *
 		 * There are currently three data types supported: strings, numbers and booleans.
 		 *
-		 * There are three kinds of environment variables, determined by the combination of `context` (client or server) and `access` (private or public) settings defined in your [`env.schema`](#experimentalenvschema):
+		 * There are three kinds of environment variables, determined by the combination of `context` (client or server) and `access` (secret or public) settings defined in your [`env.schema`](#experimentalenvschema):
 		 *
 		 * - **Public client variables**: These variables end up in both your final client and server bundles, and can be accessed from both client and server through the `astro:env/client` module:
 		 *

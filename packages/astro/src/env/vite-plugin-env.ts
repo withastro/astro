@@ -9,7 +9,6 @@ import {
 	TYPES_TEMPLATE_URL,
 	VIRTUAL_MODULES_IDS,
 	VIRTUAL_MODULES_IDS_VALUES,
-	VIRTUAL_MODULE_SETUP_ID,
 } from './constants.js';
 import type { EnvSchema } from './schema.js';
 import { getEnvFieldType, validateEnvVariable } from './validators.js';
@@ -47,6 +46,12 @@ export function astroEnv({
 				fileURLToPath(settings.config.root),
 				''
 			);
+			for (const [key, value] of Object.entries(loadedEnv)) {
+				if (value !== undefined) {
+					process.env[key] = value;
+				}
+			}
+
 			const validatedVariables = validatePublicVariables({ schema, loadedEnv });
 
 			const clientTemplates = getClientTemplates({ validatedVariables });
@@ -74,9 +79,6 @@ export function astroEnv({
 		resolveId(id) {
 			if (VIRTUAL_MODULES_IDS_VALUES.has(id)) {
 				return resolveVirtualModuleId(id);
-			}
-			if (id === VIRTUAL_MODULE_SETUP_ID) {
-				return this.resolve('astro/virtual-modules/env-setup.js');
 			}
 		},
 		load(id, options) {
