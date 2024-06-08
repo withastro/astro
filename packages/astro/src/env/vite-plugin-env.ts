@@ -12,6 +12,10 @@ import {
 } from './constants.js';
 import type { EnvSchema } from './schema.js';
 import { getEnvFieldType, validateEnvVariable } from './validators.js';
+import { parse } from 'acorn';
+import type { Node as ESTreeNode } from 'estree-walker';
+import { walk } from 'estree-walker';
+import MagicString from 'magic-string';
 
 // TODO: reminders for when astro:env comes out of experimental
 // Types should always be generated (like in types/content.d.ts). That means the client module will be empty
@@ -68,8 +72,7 @@ export function astroEnv({
 				content: getDts({
 					fs,
 					clientPublic: clientTemplates.types,
-					serverPublic: serverTemplates.types.public,
-					serverSecret: serverTemplates.types.secret,
+					server: serverTemplates.types,
 				}),
 			});
 		},
@@ -98,7 +101,136 @@ export function astroEnv({
 				return templates!.internal;
 			}
 		},
+		transform(code, id) {
+			if (!isValidExtension(id)) {
+				return null;
+			}
+			console.log({ id, code });
+
+			let s: MagicString | undefined;
+			const ast = parse(code, {
+				ecmaVersion: 'latest',
+				sourceType: 'module',
+			});
+
+			// TODO: get
+			const secretsKeys = ['KNOWN_SECRET'];
+			const usedSecrets: Array<string> = [];
+			const protectedNodes: Array<ESTreeNode> = [];
+
+			function updateAST(node: ESTreeNode, content: string) {
+				s ??= new MagicString(code);
+				s.overwrite((node as any).start, (node as any).end, content);
+			}
+
+			function isNodeProtected(node: ESTreeNode) {
+				for (const n of protectedNodes) {
+					if ((node as any).start === (n as any).start && (node as any).end === (n as any).end) {
+						return true;
+					}
+				}
+				return false;
+			}
+
+			// TODO: support import * as X; X.FOO
+			// TODO: support const X = await import(); X.FOO
+			// TODO: support object
+			walk(ast as ESTreeNode, {
+				enter(node, parent) {
+					// imports
+					if (node.type === 'ImportDeclaration' && node.source.value === 'astro:env/server') {
+						for (const specifier of node.specifiers) {
+							if (
+								specifier.type === 'ImportSpecifier' &&
+								secretsKeys.includes(specifier.imported.name)
+							) {
+								// accounts for imports aliases
+								usedSecrets.push(specifier.local.name);
+								protectedNodes.push(specifier);
+							}
+						}
+					}
+
+					// await import
+					if (
+						node.type === 'VariableDeclarator' &&
+						node.init &&
+						node.init.type === 'AwaitExpression' &&
+						node.init.argument.type === 'ImportExpression' &&
+						node.init.argument.source.type === 'Literal' &&
+						node.init.argument.source.value === 'astro:env/server' &&
+						node.id.type === 'ObjectPattern'
+					) {
+						for (const property of node.id.properties) {
+							if (
+								property.type === 'Property' &&
+								property.key.type === 'Identifier' &&
+								property.value.type === 'Identifier'
+							) {
+								if (
+									secretsKeys.includes(property.key.name) ||
+									secretsKeys.includes(property.value.name)
+								) {
+									if (property.key.name === property.value.name) {
+										usedSecrets.push(property.value.name);
+									} else {
+										usedSecrets.push(property.key.name);
+									}
+									protectedNodes.push(property.key);
+									protectedNodes.push(property.value);
+								}
+							}
+						}
+					}
+
+					// calls
+					if (
+						node.type === 'Identifier' &&
+						!isNodeProtected(node) &&
+						usedSecrets.includes(node.name)
+					) {
+						const shouldUpdateNode = !parent || parent.type !== 'ImportSpecifier';
+
+						if (shouldUpdateNode) {
+							if (
+								parent &&
+								parent.type === 'Property' &&
+								parent.key.type === 'Identifier' &&
+								parent.value.type === 'Identifier' &&
+								parent.key.name === parent.value.name
+							) {
+								// object shorthand
+								updateAST(parent.value, `${node.name}: ${node.name}()`);
+							} else {
+								updateAST(node, `${node.name}()`);
+							}
+						}
+					}
+				},
+			});
+
+			if (s) {
+				const code = s.toString();
+				console.log({ code });
+				return {
+					code,
+					map: s.generateMap({ hires: 'boundary' }),
+				};
+			}
+		},
 	};
+}
+
+// TODO: restore
+// const EXTENSIONS = ['.astro', '.ts', '.mts', '.tsx', '.js', '.mjs', '.jsx'];
+const EXTENSIONS = ['.astro'];
+function isValidExtension(id: string) {
+	for (const ext of EXTENSIONS) {
+		if (id.endsWith(ext)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 function resolveVirtualModuleId<T extends string>(id: T): `\0${T}` {
@@ -155,21 +287,16 @@ function validatePublicVariables({
 
 function getDts({
 	clientPublic,
-	serverPublic,
-	serverSecret,
+	server,
 	fs,
 }: {
 	clientPublic: string;
-	serverPublic: string;
-	serverSecret: string;
+	server: string;
 	fs: typeof fsMod;
 }) {
 	const template = fs.readFileSync(TYPES_TEMPLATE_URL, 'utf-8');
 
-	return template
-		.replace('// @@CLIENT@@', clientPublic)
-		.replace('// @@SERVER@@', serverPublic)
-		.replace('// @@SECRET_VALUES@@', serverSecret);
+	return template.replace('// @@CLIENT@@', clientPublic).replace('// @@SERVER@@', server);
 }
 
 function getClientTemplates({
@@ -201,12 +328,11 @@ function getServerTemplates({
 	fs: typeof fsMod;
 }) {
 	let module = fs.readFileSync(MODULE_TEMPLATE_URL, 'utf-8');
-	let publicTypes = '';
-	let secretTypes = '';
+	let types = '';
 
 	for (const { key, type, value } of validatedVariables.filter((e) => e.context === 'server')) {
 		module += `export const ${key} = ${JSON.stringify(value)};`;
-		publicTypes += `export const ${key}: ${type};	\n`;
+		types += `export const ${key}: ${type};	\n`;
 	}
 
 	for (const [key, options] of Object.entries(schema)) {
@@ -214,14 +340,12 @@ function getServerTemplates({
 			continue;
 		}
 
-		secretTypes += `${key}: ${getEnvFieldType(options)};		\n`;
+		module += `export const ${key} = () => _internalGetSecret(${JSON.stringify(key)})`;
+		types += `export const ${key}: ${getEnvFieldType(options)};	\n`;
 	}
 
 	return {
 		module,
-		types: {
-			public: publicTypes,
-			secret: secretTypes,
-		},
+		types,
 	};
 }

@@ -1,8 +1,20 @@
 ---
-import { getSecret } from "astro:env/server"
+import { getSecret, KNOWN_SECRET } from "astro:env/server"
 
-const KNOWN_SECRET = getSecret("KNOWN_SECRET")
+// const { getSecret, KNOWN_SECRET } = await import("astro:env/server")
+
+const X = KNOWN_SECRET
+console.log({ X })
+console.log(KNOWN_SECRET)
+console.log(`abc ${KNOWN_SECRET}`)
+
 const UNKNOWN_SECRET = getSecret("UNKNOWN_SECRET")
+
+const fn = (KNOWN_SECRET) => {
+    console.log(KNOWN_SECRET)
+}
+
+fn(`${KNOWN_SECRET} augf`)
 ---
 
 <pre id="data">{JSON.stringify({ KNOWN_SECRET, UNKNOWN_SECRET })}</pre>
