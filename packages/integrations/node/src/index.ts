@@ -42,11 +42,6 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 						ssr: {
 							noExternal: ['@astrojs/node'],
 						},
-						build: {
-							rollupOptions: {
-								external: ['astro:env/setup'],
-							},
-						},
 					},
 				});
 			},
