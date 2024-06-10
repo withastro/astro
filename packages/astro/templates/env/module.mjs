@@ -22,6 +22,6 @@ const _internalGetSecret = (key) => {
 	throw createInvalidVariableError(key, result.type);
 };
 
-eventEmitter.subscribe((reset) => {
+eventEmitter.on('setGetEnv', (reset) => {
 	// @@ON_SET_GET_ENV@@
 });
