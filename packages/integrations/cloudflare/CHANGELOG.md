@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 10.4.0
+
+### Minor Changes
+
+- [#258](https://github.com/withastro/adapters/pull/258) [`033847d`](https://github.com/withastro/adapters/commit/033847d6b58333a40a6a3da0eba49c4f41360dd8) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Adds support for experimental `astro:env` released in Astro 4.10
+
 ## 10.3.0
 
 ### Minor Changes
