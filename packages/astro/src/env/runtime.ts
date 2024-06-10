@@ -5,8 +5,10 @@ export type GetEnv = (key: string) => string | undefined;
 
 let _getEnv: GetEnv = (key) => process.env[key];
 
-export function setGetEnv(fn: GetEnv) {
+export function setGetEnv(fn: GetEnv, reset = false) {
 	_getEnv = fn;
+
+	eventEmitter.publish(reset);
 }
 
 export function getEnv(...args: Parameters<GetEnv>) {
@@ -21,3 +23,14 @@ export function createInvalidVariableError(
 		message: AstroErrorData.EnvInvalidVariable.message(...args),
 	});
 }
+
+class EventEmitter extends EventTarget {
+	publish(reset: boolean) {
+		this.dispatchEvent(new CustomEvent('update', { detail: { reset } }));
+	}
+	subscribe(cb: (reset: boolean) => void) {
+		this.addEventListener('update', (e) => cb((e as any).detail.reset));
+	}
+}
+
+export const eventEmitter = new EventEmitter();

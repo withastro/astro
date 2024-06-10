@@ -1,5 +1,10 @@
 import { schema } from 'virtual:astro:env/internal';
-import { createInvalidVariableError, getEnv, validateEnvVariable } from 'astro/env/runtime';
+import {
+	createInvalidVariableError,
+	getEnv,
+	validateEnvVariable,
+	eventEmitter,
+} from 'astro/env/runtime';
 
 export const getSecret = (key) => {
 	return getEnv(key);
@@ -16,3 +21,7 @@ const _internalGetSecret = (key) => {
 	}
 	throw createInvalidVariableError(key, result.type);
 };
+
+eventEmitter.subscribe((reset) => {
+	// @@ON_SET_GET_ENV@@
+});
