@@ -8,7 +8,7 @@ import type {
 } from '../@types/astro.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { REROUTE_DIRECTIVE_HEADER } from '../core/constants.js';
-import {i18nNoLocaleFoundInPath, MissingLocale} from '../core/errors/errors-data.js';
+import { MissingLocale, i18nNoLocaleFoundInPath } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
 import { createI18nMiddleware } from './middleware.js';
 import type { RoutingStrategies } from './utils.js';
