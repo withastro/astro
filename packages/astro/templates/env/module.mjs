@@ -3,7 +3,7 @@ import {
 	createInvalidVariableError,
 	getEnv,
 	validateEnvVariable,
-	eventEmitter,
+	setOnSetGetEnv,
 } from 'astro/env/runtime';
 
 export const getSecret = (key) => {
@@ -22,6 +22,6 @@ const _internalGetSecret = (key) => {
 	throw createInvalidVariableError(key, result.type);
 };
 
-eventEmitter.on('setGetEnv', (reset) => {
+setOnSetGetEnv((reset) => {
 	// @@ON_SET_GET_ENV@@
 });

@@ -1,6 +1,5 @@
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 export { validateEnvVariable } from './validators.js';
-import { EventEmitter } from 'node:events'
 
 export type GetEnv = (key: string) => string | undefined;
 
@@ -9,7 +8,13 @@ let _getEnv: GetEnv = (key) => process.env[key];
 export function setGetEnv(fn: GetEnv, reset = false) {
 	_getEnv = fn;
 
-	eventEmitter.emit('setGetEnv', reset);
+	_onSetGetEnv(reset);
+}
+
+let _onSetGetEnv = (reset: boolean) => {};
+
+export function setOnSetGetEnv(fn: typeof _onSetGetEnv) {
+	_onSetGetEnv = fn;
 }
 
 export function getEnv(...args: Parameters<GetEnv>) {
@@ -24,5 +29,3 @@ export function createInvalidVariableError(
 		message: AstroErrorData.EnvInvalidVariable.message(...args),
 	});
 }
-
-export const eventEmitter = new EventEmitter();
