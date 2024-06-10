@@ -1,5 +1,5 @@
 import type { OutputBundle } from 'rollup';
-import type { Plugin } from 'vite';
+import type { PluginOption } from 'vite';
 
 /**
  * A Vite bundle analyzer that identifies chunks that are not used for server rendering.
@@ -11,7 +11,7 @@ import type { Plugin } from 'vite';
 export class NonServerChunkDetector {
 	private nonServerChunks?: string[];
 
-	public getPlugin(): Plugin {
+	public getPlugin(): PluginOption {
 		return {
 			name: 'non-server-chunk-detector',
 			generateBundle: (_, bundle) => {
