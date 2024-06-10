@@ -2,4 +2,4 @@
 '@astrojs/db': patch
 ---
 
-Export type Database from `@astrojs/db/runtime`
+Export type `Database` from `@astrojs/db/runtime`
