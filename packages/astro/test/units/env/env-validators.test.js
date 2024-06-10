@@ -27,11 +27,12 @@ const createFixture = () => {
 			const result = validateEnvVariable(input.value, input.options);
 			assert.equal(result.ok, true);
 			assert.equal(result.value, value);
+			input = undefined;
 		},
 		thenResultShouldBeInvalid() {
 			const result = validateEnvVariable(input.value, input.options);
 			assert.equal(result.ok, false);
-			console.log(result.error);
+			input = undefined;
 		},
 	};
 };
@@ -116,6 +117,40 @@ describe('astro:env validators', () => {
 			}),
 			'boolean'
 		);
+
+		assert.equal(
+			getEnvFieldType({
+				type: 'enum',
+				values: ['A'],
+			}),
+			"'A'"
+		);
+
+		assert.equal(
+			getEnvFieldType({
+				type: 'enum',
+				values: ['A', 'B'],
+			}),
+			"'A' | 'B'"
+		);
+
+		assert.equal(
+			getEnvFieldType({
+				type: 'enum',
+				optional: true,
+				values: ['A'],
+			}),
+			"'A' | undefined"
+		);
+		assert.equal(
+			getEnvFieldType({
+				type: 'enum',
+				optional: true,
+				values: ['A', 'B'],
+				default: 'A',
+			}),
+			"'A' | 'B'"
+		);
 	});
 
 	describe('string field', () => {
@@ -131,6 +166,105 @@ describe('astro:env validators', () => {
 				type: 'string',
 			});
 			fixture.thenResultShouldBeValid('123456');
+		});
+
+		it('Should fail if conditions are not met', () => {
+			fixture.givenInput('abcdef', {
+				type: 'string',
+				max: 6,
+			});
+			fixture.thenResultShouldBeValid('abcdef');
+
+			fixture.givenInput('abcdef', {
+				type: 'string',
+				max: 3,
+			});
+			fixture.thenResultShouldBeInvalid();
+
+			fixture.givenInput('abc', {
+				type: 'string',
+				min: 1,
+			});
+			fixture.thenResultShouldBeValid('abc');
+
+			fixture.givenInput('abc', {
+				type: 'string',
+				min: 5,
+			});
+			fixture.thenResultShouldBeInvalid();
+
+			fixture.givenInput('abc', {
+				type: 'string',
+				length: 3,
+			});
+			fixture.thenResultShouldBeValid('abc');
+
+			fixture.givenInput('abc', {
+				type: 'string',
+				length: 10,
+			});
+			fixture.thenResultShouldBeInvalid();
+
+			fixture.givenInput('abc', {
+				type: 'string',
+				url: true,
+			});
+			fixture.thenResultShouldBeInvalid();
+
+			fixture.givenInput('https://example.com', {
+				type: 'string',
+				url: true,
+			});
+			fixture.thenResultShouldBeValid('https://example.com');
+
+			fixture.givenInput('abc', {
+				type: 'string',
+				includes: 'cd',
+			});
+			fixture.thenResultShouldBeInvalid();
+
+			fixture.givenInput('abc', {
+				type: 'string',
+				includes: 'bc',
+			});
+			fixture.thenResultShouldBeValid('abc');
+
+			fixture.givenInput('abc', {
+				type: 'string',
+				startsWith: 'za',
+			});
+			fixture.thenResultShouldBeInvalid();
+
+			fixture.givenInput('abc', {
+				type: 'string',
+				startsWith: 'ab',
+			});
+			fixture.thenResultShouldBeValid('abc');
+
+			fixture.givenInput('abc', {
+				type: 'string',
+				endsWith: 'za',
+			});
+			fixture.thenResultShouldBeInvalid();
+
+			fixture.givenInput('abc', {
+				type: 'string',
+				endsWith: 'bc',
+			});
+			fixture.thenResultShouldBeValid('abc');
+
+			fixture.givenInput('abcd', {
+				type: 'string',
+				startsWith: 'ab',
+				endsWith: 'cd',
+			});
+			fixture.thenResultShouldBeValid('abcd');
+
+			fixture.givenInput(undefined, {
+				type: 'string',
+				min: 5,
+			});
+			fixture.thenResultShouldBeInvalid();
 		});
 
 		it('Should not fail if the optional variable is missing', () => {
@@ -169,6 +303,110 @@ describe('astro:env validators', () => {
 		it('Should fail is the variable type is incorrect', () => {
 			fixture.givenInput('abc', {
 				type: 'number',
+			});
+			fixture.thenResultShouldBeInvalid();
+		});
+
+		it('Should fail if conditions are not met', () => {
+			fixture.givenInput('10', {
+				type: 'number',
+				gt: 15,
+			});
+			fixture.thenResultShouldBeInvalid();
+
+			fixture.givenInput('10', {
+				type: 'number',
+				gt: 10,
+			});
+			fixture.thenResultShouldBeInvalid();
+
+			fixture.givenInput('10', {
+				type: 'number',
+				gt: 5,
+			});
+			fixture.thenResultShouldBeValid(10);
+
+			fixture.givenInput('20', {
+				type: 'number',
+				min: 25,
+			});
+			fixture.thenResultShouldBeInvalid();
+
+			fixture.givenInput('20', {
+				type: 'number',
+				min: 20,
+			});
+			fixture.thenResultShouldBeValid(20);
+
+			fixture.givenInput('20', {
+				type: 'number',
+				min: 5,
+			});
+			fixture.thenResultShouldBeValid(20);
+
+			fixture.givenInput('15', {
+				type: 'number',
+				lt: 10,
+			});
+			fixture.thenResultShouldBeInvalid();
+
+			fixture.givenInput('10', {
+				type: 'number',
+				lt: 10,
+			});
+			fixture.thenResultShouldBeInvalid();
+
+			fixture.givenInput('5', {
+				type: 'number',
+				lt: 10,
+			});
+			fixture.thenResultShouldBeValid(5);
+
+			fixture.givenInput('25', {
+				type: 'number',
+				max: 20,
+			});
+			fixture.thenResultShouldBeInvalid();
+
+			fixture.givenInput('25', {
+				type: 'number',
+				max: 25,
+			});
+			fixture.thenResultShouldBeValid(25);
+
+			fixture.givenInput('25', {
+				type: 'number',
+				max: 30,
+			});
+			fixture.thenResultShouldBeValid(25);
+
+			fixture.givenInput('4.5', {
+				type: 'number',
+				int: true,
+			});
+			fixture.thenResultShouldBeInvalid();
+
+			fixture.givenInput('25', {
+				type: 'number',
+				int: true,
+			});
+			fixture.thenResultShouldBeValid(25);
+
+			fixture.givenInput('4', {
+				type: 'number',
+				int: false,
+			});
+			fixture.thenResultShouldBeInvalid();
+
+			fixture.givenInput('4.5', {
+				type: 'number',
+				int: false,
+			});
+			fixture.thenResultShouldBeValid(4.5);
+
+			fixture.givenInput(undefined, {
+				type: 'number',
+				gt: 10,
 			});
 			fixture.thenResultShouldBeInvalid();
 		});
@@ -249,6 +487,51 @@ describe('astro:env validators', () => {
 				default: false,
 			});
 			fixture.thenResultShouldBeValid(true);
+		});
+	});
+
+	describe('enum field', () => {
+		it('Should fail if the variable is missing', () => {
+			fixture.givenInput(undefined, {
+				type: 'enum',
+				values: ['a', 'b'],
+			});
+			fixture.thenResultShouldBeInvalid();
+		});
+
+		it('Should fail is the variable type is incorrect', () => {
+			fixture.givenInput('true', {
+				type: 'enum',
+				values: ['a', 'b'],
+			});
+			fixture.thenResultShouldBeInvalid();
+		});
+
+		it('Should not fail if the optional variable is missing', () => {
+			fixture.givenInput(undefined, {
+				type: 'enum',
+				values: ['a', 'b'],
+				optional: true,
+			});
+			fixture.thenResultShouldBeValid(undefined);
+		});
+
+		it('Should not fail if the variable is missing and a default value is provided', () => {
+			fixture.givenInput(undefined, {
+				type: 'enum',
+				values: ['a', 'b'],
+				default: 'a',
+			});
+			fixture.thenResultShouldBeValid('a');
+		});
+
+		it('Should not take a default value is the variable is not missing', () => {
+			fixture.givenInput('b', {
+				type: 'enum',
+				values: ['a', 'b'],
+				default: 'a',
+			});
+			fixture.thenResultShouldBeValid('b');
 		});
 	});
 });

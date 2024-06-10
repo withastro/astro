@@ -8,7 +8,7 @@ import type {
 } from '../@types/astro.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { REROUTE_DIRECTIVE_HEADER } from '../core/constants.js';
-import { MissingLocale } from '../core/errors/errors-data.js';
+import { MissingLocale, i18nNoLocaleFoundInPath } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
 import { createI18nMiddleware } from './middleware.js';
 import type { RoutingStrategies } from './utils.js';
@@ -190,11 +190,11 @@ export function getPathByLocale(locale: string, locales: Locales): string {
 			}
 		}
 	}
-	throw new Unreachable();
+	throw new AstroError(i18nNoLocaleFoundInPath);
 }
 
 /**
- * An utility function that retrieves the preferred locale that correspond to a path.
+ * A utility function that retrieves the preferred locale that correspond to a path.
  *
  * @param path
  * @param locales
@@ -205,14 +205,14 @@ export function getLocaleByPath(path: string, locales: Locales): string {
 			if (locale.path === path) {
 				// the first code is the one that user usually wants
 				const code = locale.codes.at(0);
-				if (code === undefined) throw new Unreachable();
+				if (code === undefined) throw new AstroError(i18nNoLocaleFoundInPath);
 				return code;
 			}
 		} else if (locale === path) {
 			return locale;
 		}
 	}
-	throw new Unreachable();
+	throw new AstroError(i18nNoLocaleFoundInPath);
 }
 
 /**
@@ -269,17 +269,6 @@ function peekCodePathToUse(locales: Locales, locale: string): undefined | string
 	}
 
 	return undefined;
-}
-
-class Unreachable extends Error {
-	constructor() {
-		super(
-			'Astro encountered an unexpected line of code.\n' +
-				'In most cases, this is not your fault, but a bug in astro code.\n' +
-				"If there isn't one already, please create an issue.\n" +
-				'https://astro.build/issues'
-		);
-	}
 }
 
 export type MiddlewarePayload = {

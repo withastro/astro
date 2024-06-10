@@ -10,7 +10,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^4.10.0",
+    "astro": "^4.10.1",
     "sass": "^1.77.3",
     "sharp": "^0.33.3"
   }
