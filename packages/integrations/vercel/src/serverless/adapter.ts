@@ -508,6 +508,7 @@ class VercelBuilder {
 
 		await generateEdgeMiddleware(
 			entry,
+			this.config.root,
 			new URL(VERCEL_EDGE_MIDDLEWARE_FILE, this.config.srcDir),
 			new URL('./middleware.mjs', functionFolder),
 			middlewareSecret,
