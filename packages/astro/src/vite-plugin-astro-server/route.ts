@@ -294,7 +294,8 @@ export async function handleRoute({
 		}
 		const filePath = new URL(`./${custom500.component}`, config.root);
 		const preloadedComponent = await pipeline.preload(custom500, filePath);
-		response = await renderContext.render(preloadedComponent, undefined, { error: err });
+		renderContext.props.error = err;
+		response = await renderContext.render(preloadedComponent);
 		status = 500;
 	}
 	if (isLoggedRequest(pathname)) {

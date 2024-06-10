@@ -67,6 +67,9 @@ export interface RenderErrorOptions {
 	 * Whether to skip middleware while rendering the error page. Defaults to false.
 	 */
 	skipMiddleware?: boolean;
+	/**
+	 * Allows passing an error to 500.astro. It will be available through `Astro.props.error`.
+	 */
 	error?: unknown;
 }
 
@@ -424,8 +427,9 @@ export class App {
 					request,
 					routeData: errorRouteData,
 					status,
+					props: { error }
 				});
-				const response = await renderContext.render(await mod.page(), undefined, { error });
+				const response = await renderContext.render(await mod.page());
 				return this.#mergeResponses(response, originalResponse);
 			} catch {
 				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.

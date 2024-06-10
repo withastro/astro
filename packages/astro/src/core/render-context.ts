@@ -75,8 +75,9 @@ export class RenderContext {
 		request,
 		routeData,
 		status = 200,
+		props,
 	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData'> &
-		Partial<Pick<RenderContext, 'locals' | 'middleware' | 'status'>>): RenderContext {
+		Partial<Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props'>>): RenderContext {
 		return new RenderContext(
 			pipeline,
 			locals,
@@ -84,7 +85,11 @@ export class RenderContext {
 			pathname,
 			request,
 			routeData,
-			status
+			status,
+			undefined,
+			undefined,
+			undefined,
+			props
 		);
 	}
 
