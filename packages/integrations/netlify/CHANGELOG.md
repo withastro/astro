@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 5.3.0
+
+### Minor Changes
+
+- [#275](https://github.com/withastro/adapters/pull/275) [`4a28bf6`](https://github.com/withastro/adapters/commit/4a28bf6cac7bd7e455551a91e40792f0737e87da) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds support for experimental `astro:env` released in Astro 4.10
+
 ## 5.2.1
 
 ### Patch Changes
