@@ -98,6 +98,7 @@ function getAdapter({
 				isSquooshCompatible: true,
 			},
 			i18nDomains: 'experimental',
+			envGetSecret: 'experimental',
 		},
 	};
 }
