@@ -389,7 +389,5 @@ describe('Content Collections', () => {
 
 			assert.equal(index, anotherPage);
 		});
-
 	});
-
 });

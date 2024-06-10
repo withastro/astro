@@ -114,7 +114,7 @@ export function createGetCollection({
 		if (typeof filter === 'function') {
 			return entries.filter(filter);
 		} else {
-			// Clone the array so users can safely mutate it. 
+			// Clone the array so users can safely mutate it.
 			// slice() is faster than ...spread for large arrays.
 			return entries.slice();
 		}
