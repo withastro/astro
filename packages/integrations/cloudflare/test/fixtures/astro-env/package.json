@@ -1,0 +1,12 @@
+{
+  "name": "@test/astro-cloudflare-astro-env",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/cloudflare": "workspace:*",
+    "astro": "^4.10.1"
+  },
+  "devDependencies": {
+    "wrangler": "^3.15.0"
+  }
+}

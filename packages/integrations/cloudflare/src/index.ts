@@ -19,6 +19,7 @@ import {
 	type CloudflareModulePluginExtra,
 	cloudflareModuleLoader,
 } from './utils/cloudflare-module-loader.js';
+import { createGetEnv } from './utils/env.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { setImageConfig } from './utils/image-config.js';
 import { mutateDynamicPageImportsInPlace, mutatePageMapInPlace } from './utils/index.js';
@@ -191,6 +192,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							isSharpCompatible: false,
 							isSquooshCompatible: false,
 						},
+						envGetSecret: 'experimental',
 					},
 				});
 			},
@@ -201,6 +203,17 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						experimentalJsonConfig: args.platformProxy.experimentalJsonConfig ?? false,
 						persist: args.platformProxy.persist ?? true,
 					});
+
+					const getEnv = createGetEnv(platformProxy.env);
+
+					if (_config.experimental.env?.schema) {
+						for (const key of Object.keys(_config.experimental.env.schema)) {
+							const value = getEnv(key);
+							if (value !== undefined) {
+								process.env[key] = value;
+							}
+						}
+					}
 
 					const clientLocalsSymbol = Symbol.for('astro.locals');
 
