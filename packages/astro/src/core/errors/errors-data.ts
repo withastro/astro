@@ -1199,7 +1199,7 @@ export const i18nNotEnabled = {
 /**
  * @docs
  * @description
- * An i18n utility tried to use the locale from a URL path that does not contain one. You can prevent this error by using pathHasLocale to check URLs for a `locale` first before using i18n utilities.
+ * An i18n utility tried to use the locale from a URL path that does not contain one. You can prevent this error by using pathHasLocale to check URLs for a locale first before using i18n utilities.
  *
  */
 export const i18nNoLocaleFoundInPath = {
