@@ -42,7 +42,7 @@
     "@netlify/edge-functions": "^2.0.0",
     "@netlify/edge-handler-types": "^0.34.1",
     "@types/node": "^18.17.8",
-    "astro": "^4.3.5",
+    "astro": "^4.10.1",
     "cheerio": "1.0.0-rc.12",
     "execa": "^8.0.1",
     "fast-glob": "^3.3.1",

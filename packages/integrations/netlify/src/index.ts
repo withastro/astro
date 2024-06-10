@@ -400,6 +400,7 @@ export default function netlifyIntegration(
 							isSharpCompatible: true,
 							isSquooshCompatible: true,
 						},
+						envGetSecret: 'experimental',
 					},
 				});
 			},
