@@ -1,5 +1,199 @@
 # astro
 
+## 4.10.1
+
+### Patch Changes
+
+- [#11198](https://github.com/withastro/astro/pull/11198) [`8b9a499`](https://github.com/withastro/astro/commit/8b9a499d3733e9d0fc6a0bd067ece19bd36f4726) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `astro:env` `getSecret` would not retrieve environment variables properly in dev and build modes
+
+- [#11206](https://github.com/withastro/astro/pull/11206) [`734b98f`](https://github.com/withastro/astro/commit/734b98fecf0212cd76be3c935a49f84a9a7dab34) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental `astro:env` feature only**
+
+  Updates the adapter `astro:env` entrypoint from `astro:env/setup` to `astro/env/setup`
+
+- [#11205](https://github.com/withastro/astro/pull/11205) [`8c45391`](https://github.com/withastro/astro/commit/8c4539145f0b6a735b65852b2f2b1a7e9f5a9c3f) Thanks [@Nin3lee](https://github.com/Nin3lee)! - Fixes a typo in the config reference
+
+## 4.10.0
+
+### Minor Changes
+
+- [#10974](https://github.com/withastro/astro/pull/10974) [`2668ef9`](https://github.com/withastro/astro/commit/2668ef984104574f25f29ef75e2572a0745d1666) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds experimental support for the `astro:env` API.
+
+  The `astro:env` API lets you configure a type-safe schema for your environment variables, and indicate whether they should be available on the server or the client. Import and use your defined variables from the appropriate `/client` or `/server` module:
+
+  ```astro
+  ---
+  import { PUBLIC_APP_ID } from 'astro:env/client';
+  import { PUBLIC_API_URL, getSecret } from 'astro:env/server';
+  const API_TOKEN = getSecret('API_TOKEN');
+
+  const data = await fetch(`${PUBLIC_API_URL}/users`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+    body: JSON.stringify({ appId: PUBLIC_APP_ID }),
+  });
+  ---
+  ```
+
+  To define the data type and properties of your environment variables, declare a schema in your Astro config in `experimental.env.schema`. The `envField` helper allows you define your variable as a string, number, or boolean and pass properties in an object:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig, envField } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      env: {
+        schema: {
+          PUBLIC_API_URL: envField.string({ context: 'client', access: 'public', optional: true }),
+          PUBLIC_PORT: envField.number({ context: 'server', access: 'public', default: 4321 }),
+          API_SECRET: envField.string({ context: 'server', access: 'secret' }),
+        },
+      },
+    },
+  });
+  ```
+
+  There are three kinds of environment variables, determined by the combination of `context` (`client` or `server`) and `access` (`private` or `public`) settings defined in your [`env.schema`](#experimentalenvschema):
+
+  - **Public client variables**: These variables end up in both your final client and server bundles, and can be accessed from both client and server through the `astro:env/client` module:
+
+    ```js
+    import { PUBLIC_API_URL } from 'astro:env/client';
+    ```
+
+  - **Public server variables**: These variables end up in your final server bundle and can be accessed on the server through the `astro:env/server` module:
+
+    ```js
+    import { PUBLIC_PORT } from 'astro:env/server';
+    ```
+
+  - **Secret server variables**: These variables are not part of your final bundle and can be accessed on the server through the `getSecret()` helper function available from the `astro:env/server` module:
+
+    ```js
+    import { getSecret } from 'astro:env/server';
+
+    const API_SECRET = getSecret('API_SECRET'); // typed
+    const SECRET_NOT_IN_SCHEMA = getSecret('SECRET_NOT_IN_SCHEMA'); // string | undefined
+    ```
+
+  **Note:** Secret client variables are not supported because there is no safe way to send this data to the client. Therefore, it is not possible to configure both `context: "client"` and `access: "secret"` in your schema.
+
+  To learn more, check out [the documentation](https://docs.astro.build/en/reference/configuration-reference/#experimentalenv).
+
+### Patch Changes
+
+- [#11192](https://github.com/withastro/astro/pull/11192) [`58b10a0`](https://github.com/withastro/astro/commit/58b10a073192030a251cff8ad706ab5b015180c9) Thanks [@liruifengv](https://github.com/liruifengv)! - Improves DX by throwing the original `AstroUserError` when an error is thrown inside a `.mdx` file.
+
+- [#11136](https://github.com/withastro/astro/pull/11136) [`35ef53c`](https://github.com/withastro/astro/commit/35ef53c0897c0d360efc086a71c5f4406721d2fe) Thanks [@ematipico](https://github.com/ematipico)! - Errors that are emitted during a rewrite are now bubbled up and shown to the user. A 404 response is not returned anymore.
+
+- [#11144](https://github.com/withastro/astro/pull/11144) [`803dd80`](https://github.com/withastro/astro/commit/803dd8061df02138b4928442bcb76e77dcf6f5e7) Thanks [@ematipico](https://github.com/ematipico)! - The integration now exposes a function called `getContainerRenderer`, that can be used inside the Container APIs to load the relative renderer.
+
+  ```js
+  import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+  import ReactWrapper from '../src/components/ReactWrapper.astro';
+  import { loadRenderers } from 'astro:container';
+  import { getContainerRenderer } from '@astrojs/react';
+
+  test('ReactWrapper with react renderer', async () => {
+    const renderers = await loadRenderers([getContainerRenderer()]);
+    const container = await AstroContainer.create({
+      renderers,
+    });
+    const result = await container.renderToString(ReactWrapper);
+
+    expect(result).toContain('Counter');
+    expect(result).toContain('Count: <!-- -->5');
+  });
+  ```
+
+- [#11144](https://github.com/withastro/astro/pull/11144) [`803dd80`](https://github.com/withastro/astro/commit/803dd8061df02138b4928442bcb76e77dcf6f5e7) Thanks [@ematipico](https://github.com/ematipico)! - **BREAKING CHANGE to the experimental Container API only**
+
+  Changes the **type** of the `renderers` option of the `AstroContainer::create` function and adds a dedicated function `loadRenderers()` to load the rendering scripts from renderer integration packages (`@astrojs/react`, `@astrojs/preact`, `@astrojs/solid-js`, `@astrojs/svelte`, `@astrojs/vue`, `@astrojs/lit`, and `@astrojs/mdx`).
+
+  You no longer need to know the individual, direct file paths to the client and server rendering scripts for each renderer integration package. Now, there is a dedicated function to load the renderer from each package, which is available from `getContainerRenderer()`:
+
+  ```diff
+  import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+  import ReactWrapper from '../src/components/ReactWrapper.astro';
+  import { loadRenderers } from "astro:container";
+  import { getContainerRenderer } from "@astrojs/react";
+
+  test('ReactWrapper with react renderer', async () => {
+  + const renderers = await loadRenderers([getContainerRenderer()])
+  - const renderers = [
+  - {
+  -  name: '@astrojs/react',
+  -   clientEntrypoint: '@astrojs/react/client.js',
+  -   serverEntrypoint: '@astrojs/react/server.js',
+  -  },
+  - ];
+    const container = await AstroContainer.create({
+      renderers,
+    });
+    const result = await container.renderToString(ReactWrapper);
+
+    expect(result).toContain('Counter');
+    expect(result).toContain('Count: <!-- -->5');
+  });
+  ```
+
+  The new `loadRenderers()` helper function is available from `astro:container`, a virtual module that can be used when running the Astro container inside `vite`.
+
+- [#11136](https://github.com/withastro/astro/pull/11136) [`35ef53c`](https://github.com/withastro/astro/commit/35ef53c0897c0d360efc086a71c5f4406721d2fe) Thanks [@ematipico](https://github.com/ematipico)! - It's not possible anymore to use `Astro.rewrite("/404")` inside static pages. This isn't counterproductive because Astro will end-up emitting a page that contains the HTML of 404 error page.
+
+  It's still possible to use `Astro.rewrite("/404")` inside on-demand pages, or pages that opt-out from prerendering.
+
+- [#11191](https://github.com/withastro/astro/pull/11191) [`6e29a17`](https://github.com/withastro/astro/commit/6e29a172f153d15fac07320488fae01dece71748) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a case where `Astro.url` would be incorrect when having `build.format` set to `'preserve'` in the Astro config
+
+- [#11182](https://github.com/withastro/astro/pull/11182) [`40b0b4d`](https://github.com/withastro/astro/commit/40b0b4d1e4ef1aa95d5e9011652444b855ab0b9c) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where `Astro.rewrite` wasn't carrying over the body of a `Request` in on-demand pages.
+
+- [#11194](https://github.com/withastro/astro/pull/11194) [`97fbe93`](https://github.com/withastro/astro/commit/97fbe938a9b07d52d61011da4bd5a8b5ad85a700) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the function `getViteConfig` wasn't returning the correct merged Astro configuration
+
+## 4.9.3
+
+### Patch Changes
+
+- [#11171](https://github.com/withastro/astro/pull/11171) [`ff8004f`](https://github.com/withastro/astro/commit/ff8004f6a7b2aab4c6ac367f13744a341c3c5462) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Guard globalThis.astroAsset usage in proxy code to avoid errors in wonky situations
+
+- [#11178](https://github.com/withastro/astro/pull/11178) [`1734c49`](https://github.com/withastro/astro/commit/1734c49f516ff7d778d6724a0db6d39649921b4b) Thanks [@theoephraim](https://github.com/theoephraim)! - Improves `isPromise` utility to check the presence of `then` on an object before trying to access it - which can cause undesired side-effects on Proxy objects
+
+- [#11183](https://github.com/withastro/astro/pull/11183) [`3cfa2ac`](https://github.com/withastro/astro/commit/3cfa2ac7e51d7bea96980403c393f9bcda1e9375) Thanks [@66Leo66](https://github.com/66Leo66)! - Suggest `pnpm dlx` instead of `pnpx` in update check.
+
+- [#11147](https://github.com/withastro/astro/pull/11147) [`2d93902`](https://github.com/withastro/astro/commit/2d93902f4c51dcc62b077b0546ead688e6f32c63) Thanks [@kitschpatrol](https://github.com/kitschpatrol)! - Fixes invalid MIME types in Picture source elements for jpg and svg extensions, which was preventing otherwise valid source variations from being shown by the browser
+
+- [#11141](https://github.com/withastro/astro/pull/11141) [`19df89f`](https://github.com/withastro/astro/commit/19df89f87c74205ebc76aeac43ca20b00694acec) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an internal error that prevented the `AstroContainer` to render the `Content` component.
+
+  You can now write code similar to the following to render content collections:
+
+  ```js
+  const entry = await getEntry(collection, slug);
+  const { Content } = await entry.render();
+  const content = await container.renderToString(Content);
+  ```
+
+- [#11170](https://github.com/withastro/astro/pull/11170) [`ba20c71`](https://github.com/withastro/astro/commit/ba20c718a4ccd1009bdf81f8265956bff1d19d05) Thanks [@matthewp](https://github.com/matthewp)! - Retain client scripts in content cache
+
+## 4.9.2
+
+### Patch Changes
+
+- [#11138](https://github.com/withastro/astro/pull/11138) [`98e0372`](https://github.com/withastro/astro/commit/98e0372cfd47a3e025be2ac68d1e9ebf06cf548b) Thanks [@ematipico](https://github.com/ematipico)! - You can now pass `props` when rendering a component using the Container APIs:
+
+  ```js
+  import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+  import Card from '../src/components/Card.astro';
+
+  const container = await AstroContainer.create();
+  const result = await container.renderToString(Card, {
+    props: {
+      someState: true,
+    },
+  });
+  ```
+
 ## 4.9.1
 
 ### Patch Changes
@@ -38,7 +232,7 @@
   });
   ```
 
-  For a complete reference, see the [Container API docs](/en/reference/container-reference/).
+  For a complete reference, see the [Container API docs](https://docs.astro.build/en/reference/container-reference/).
 
   For a feature overview, and to give feedback on this experimental API, see the [Container API roadmap discussion](https://github.com/withastro/roadmap/pull/916).
 

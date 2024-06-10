@@ -8,7 +8,10 @@ import type {
 	SSRManifest,
 	SSRResult,
 } from '../@types/astro.js';
+import { setGetEnv } from '../env/runtime.js';
 import { createI18nMiddleware } from '../i18n/middleware.js';
+import { AstroError } from './errors/errors.js';
+import { AstroErrorData } from './errors/index.js';
 import type { Logger } from './logger/core.js';
 import { RouteCache } from './render/route-cache.js';
 
@@ -48,7 +51,8 @@ export abstract class Pipeline {
 		/**
 		 * Used for `Astro.site`.
 		 */
-		readonly site = manifest.site ? new URL(manifest.site) : undefined
+		readonly site = manifest.site ? new URL(manifest.site) : undefined,
+		readonly callSetGetEnv = true
 	) {
 		this.internalMiddleware = [];
 		// We do use our middleware only if the user isn't using the manual setup
@@ -56,6 +60,13 @@ export abstract class Pipeline {
 			this.internalMiddleware.push(
 				createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat)
 			);
+		}
+		// In SSR, getSecret should fail by default. Setting it here will run before the
+		// adapter override.
+		if (callSetGetEnv && manifest.experimentalEnvGetSecretEnabled) {
+			setGetEnv(() => {
+				throw new AstroError(AstroErrorData.EnvUnsupportedGetSecret);
+			});
 		}
 	}
 
@@ -69,11 +80,14 @@ export abstract class Pipeline {
 	 *
 	 * - if not `RouteData` is found
 	 *
-	 * @param {RewritePayload} rewritePayload
+	 * @param {RewritePayload} rewritePayload The payload provided by the user
+	 * @param {Request} request The original request
+	 * @param {RouteData} sourceRoute The original `RouteData`
 	 */
 	abstract tryRewrite(
 		rewritePayload: RewritePayload,
-		request: Request
+		request: Request,
+		sourceRoute: RouteData
 	): Promise<[RouteData, ComponentInstance]>;
 
 	/**
@@ -81,6 +95,16 @@ export abstract class Pipeline {
 	 * @param routeData
 	 */
 	abstract getComponentByRoute(routeData: RouteData): Promise<ComponentInstance>;
+
+	/**
+	 * Attempts to execute a rewrite of a known Astro route:
+	 * - /404 -> src/pages/404.astro -> template
+	 * - /500 -> src/pages/500.astro
+	 *
+	 * @param pathname The pathname where the user wants to rewrite e.g. "/404"
+	 * @param sourceRoute The original route where the first request started. This is needed in case a pipeline wants to check if the current route is pre-rendered or not
+	 */
+	abstract rewriteKnownRoute(pathname: string, sourceRoute: RouteData): ComponentInstance;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

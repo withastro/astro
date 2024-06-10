@@ -279,5 +279,8 @@ function buildManifest(
 		buildFormat: settings.config.build.format,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		rewritingEnabled: settings.config.experimental.rewriting,
+		experimentalEnvGetSecretEnabled:
+			settings.config.experimental.env !== undefined &&
+			(settings.adapter?.supportedAstroFeatures.envGetSecret ?? 'unsupported') !== 'unsupported',
 	};
 }

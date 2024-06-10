@@ -9,8 +9,11 @@ import type {
 import { Pipeline } from '../base-pipeline.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
+import { RewriteEncounteredAnError } from '../errors/errors-data.js';
+import { AstroError } from '../errors/index.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/component.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../render/ssr-element.js';
+import { DEFAULT_404_ROUTE } from '../routing/astro-designed-error-pages.js';
 
 export class AppPipeline extends Pipeline {
 	#manifestData: ManifestData | undefined;
@@ -37,7 +40,16 @@ export class AppPipeline extends Pipeline {
 			renderers,
 			resolve,
 			serverLike,
-			streaming
+			streaming,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			false
 		);
 		pipeline.#manifestData = manifestData;
 		return pipeline;
@@ -73,36 +85,44 @@ export class AppPipeline extends Pipeline {
 
 	async tryRewrite(
 		payload: RewritePayload,
-		request: Request
+		request: Request,
+		sourceRoute: RouteData
 	): Promise<[RouteData, ComponentInstance]> {
 		let foundRoute;
 
 		for (const route of this.#manifestData!.routes) {
+			let finalUrl: URL | undefined = undefined;
+
 			if (payload instanceof URL) {
-				if (route.pattern.test(payload.pathname)) {
-					foundRoute = route;
-					break;
-				}
+				finalUrl = payload;
 			} else if (payload instanceof Request) {
-				const url = new URL(payload.url);
-				if (route.pattern.test(url.pathname)) {
-					foundRoute = route;
-					break;
-				}
+				finalUrl = new URL(payload.url);
 			} else {
-				const newUrl = new URL(payload, new URL(request.url).origin);
-				if (route.pattern.test(decodeURI(newUrl.pathname))) {
-					foundRoute = route;
-					break;
-				}
+				finalUrl = new URL(payload, new URL(request.url).origin);
+			}
+
+			if (route.pattern.test(decodeURI(finalUrl.pathname))) {
+				foundRoute = route;
+				break;
+			} else if (finalUrl.pathname === '/404') {
+				foundRoute = DEFAULT_404_ROUTE;
+				break;
 			}
 		}
 
 		if (foundRoute) {
-			const componentInstance = await this.getComponentByRoute(foundRoute);
-			return [foundRoute, componentInstance];
+			if (foundRoute.pathname === '/404') {
+				const componentInstance = this.rewriteKnownRoute(foundRoute.pathname, sourceRoute);
+				return [foundRoute, componentInstance];
+			} else {
+				const componentInstance = await this.getComponentByRoute(foundRoute);
+				return [foundRoute, componentInstance];
+			}
 		}
-		throw new Error('Route not found');
+		throw new AstroError({
+			...RewriteEncounteredAnError,
+			message: RewriteEncounteredAnError.message(payload.toString()),
+		});
 	}
 
 	async getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
@@ -130,6 +150,15 @@ export class AppPipeline extends Pipeline {
 			throw new Error(
 				"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue."
 			);
+		}
+	}
+
+	// We don't need to check the source route, we already are in SSR
+	rewriteKnownRoute(pathname: string, _sourceRoute: RouteData): ComponentInstance {
+		if (pathname === '/404') {
+			return { default: () => new Response(null, { status: 404 }) } as ComponentInstance;
+		} else {
+			return { default: () => new Response(null, { status: 500 }) } as ComponentInstance;
 		}
 	}
 }

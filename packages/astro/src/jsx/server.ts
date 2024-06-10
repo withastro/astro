@@ -1,4 +1,4 @@
-import { AstroError } from '../core/errors/errors.js';
+import { AstroError, AstroUserError } from '../core/errors/errors.js';
 import { AstroJSX, jsx } from '../jsx-runtime/index.js';
 import { renderJSX } from '../runtime/server/jsx.js';
 
@@ -52,6 +52,8 @@ function throwEnhancedErrorIfMdxComponent(error: Error, Component: any) {
 	// if the exception is from an mdx component
 	// throw an error
 	if (Component[Symbol.for('mdx-component')]) {
+		// if it's an AstroUserError, we don't need to re-throw, keep the original hint
+		if (AstroUserError.is(error)) return;
 		throw new AstroError({
 			message: error.message,
 			title: error.name,

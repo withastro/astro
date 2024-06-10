@@ -99,7 +99,7 @@ function getInstallCommand(packages: string[], packageManager: string) {
 }
 
 /**
- * Get the command to execute and download a package (e.g. `npx`, `yarn dlx`, `pnpx`, etc.)
+ * Get the command to execute and download a package (e.g. `npx`, `yarn dlx`, `pnpm dlx`, etc.)
  * @param packageManager - Optional package manager to use. If not provided, Astro will attempt to detect the preferred package manager.
  * @returns The command to execute and download a package
  */
@@ -114,7 +114,7 @@ export async function getExecCommand(packageManager?: string): Promise<string> {
 		case 'yarn':
 			return 'yarn dlx';
 		case 'pnpm':
-			return 'pnpx';
+			return 'pnpm dlx';
 		case 'bun':
 			return 'bunx';
 		default:

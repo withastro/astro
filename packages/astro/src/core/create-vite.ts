@@ -11,6 +11,7 @@ import {
 	astroContentImportPlugin,
 	astroContentVirtualModPlugin,
 } from '../content/index.js';
+import { astroEnv } from '../env/vite-plugin-env.js';
 import astroInternationalization from '../i18n/vite-plugin-i18n.js';
 import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
 import astroDevToolbar from '../toolbar/vite-plugin-dev-toolbar.js';
@@ -135,6 +136,7 @@ export async function createVite(
 			// the build to run very slow as the filewatcher is triggered often.
 			mode !== 'build' && vitePluginAstroServer({ settings, logger, fs }),
 			envVitePlugin({ settings }),
+			astroEnv({ settings, mode, fs }),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
 			mdxVitePlugin(),

@@ -4,6 +4,7 @@ import stripAnsi from 'strip-ansi';
 import { z } from 'zod';
 import { validateConfig } from '../../../dist/core/config/config.js';
 import { formatConfigErrorMessage } from '../../../dist/core/messages.js';
+import { envField } from '../../../dist/env/config.js';
 
 describe('Config Validation', () => {
 	it('empty user config is valid', async () => {
@@ -348,6 +349,64 @@ describe('Config Validation', () => {
 			assert.equal(
 				configError.errors[0].message,
 				'Domain support is only available when `output` is `"server"`.'
+			);
+		});
+	});
+
+	describe('env', () => {
+		it('Should allow not providing a schema', () => {
+			assert.doesNotThrow(() =>
+				validateConfig(
+					{
+						experimental: {
+							env: {
+								schema: undefined,
+							},
+						},
+					},
+					process.cwd()
+				).catch((err) => err)
+			);
+		});
+
+		it('Should not allow client variables without a PUBLIC_ prefix', async () => {
+			const configError = await validateConfig(
+				{
+					experimental: {
+						env: {
+							schema: {
+								FOO: envField.string({ context: 'client', access: 'public' }),
+							},
+						},
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.errors[0].message,
+				'An environment variable that is public must have a name prefixed by "PUBLIC_".'
+			);
+		});
+
+		it('Should not allow non client variables with a PUBLIC_ prefix', async () => {
+			const configError = await validateConfig(
+				{
+					experimental: {
+						env: {
+							schema: {
+								FOO: envField.string({ context: 'server', access: 'public' }),
+							},
+						},
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			console.log(configError);
+			assert.equal(
+				configError.errors[0].message,
+				'An environment variable that is public must have a name prefixed by "PUBLIC_".'
 			);
 		});
 	});

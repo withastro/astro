@@ -55,11 +55,10 @@ describe('Dev reroute', () => {
 		assert.equal($('h1').text(), 'Index');
 	});
 
-	it('should render the 404 built-in page', async () => {
-		const html = await fixture.fetch('/blog/oops').then((res) => res.text());
-		const $ = cheerioLoad(html);
+	it('should return a 404', async () => {
+		const response = await fixture.fetch('/blog/oops');
 
-		assert.equal($('h1').text(), '404:  Not found');
+		assert.equal(response.status, 404);
 	});
 });
 
@@ -112,10 +111,25 @@ describe('Build reroute', () => {
 
 	it('should render the 404 built-in page', async () => {
 		try {
-			const html = await fixture.readFile('/spread/oops/index.html');
+			await fixture.readFile('/spread/oops/index.html');
 			assert.fail('Not found');
 		} catch {
 			assert.ok;
+		}
+	});
+});
+
+describe('SSR route', () => {
+	it("should not build if a user tries to use rewrite('/404') in static pages", async () => {
+		try {
+			const fixture = await loadFixture({
+				root: './fixtures/rewrite-404-invalid/',
+			});
+			await fixture.build();
+			assert.fail('It should fail.');
+		} catch {
+			// it passes
+			assert.equal(true, true);
 		}
 	});
 });
@@ -184,8 +198,25 @@ describe('SSR reroute', () => {
 	it('should render the 404 built-in page', async () => {
 		const request = new Request('http://example.com/blog/oops');
 		const response = await app.render(request);
+		assert.equal(response.status, 404);
+	});
+
+	it('should pass the POST data from one page to another', async () => {
+		const request = new Request('http://example.com/post/post-a', {
+			method: 'POST',
+			body: JSON.stringify({
+				email: 'example@example.com',
+			}),
+			headers: {
+				'content-type': 'application/json',
+			},
+		});
+		const response = await app.render(request);
 		const html = await response.text();
-		assert.equal(html, 'Not found');
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Post B');
+		assert.match($('h2').text(), /example@example.com/);
 	});
 });
 
@@ -226,5 +257,29 @@ describe('Middleware', () => {
 		const $ = cheerioLoad(html);
 
 		assert.match($('h1').text(), /Index/);
+	});
+});
+
+describe('Runtime error', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-runtime-error/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('should render the index page when navigating /reroute ', async () => {
+		const html = await fixture.fetch('/errors/from').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.equal($('title').text(), 'Error');
 	});
 });
