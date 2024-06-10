@@ -240,7 +240,7 @@ export async function renderToAsyncIterable(
 				await next.promise;
 			}
 			// Buffer is empty so there's nothing to receive, wait for the next resolve.
-			else if(!renderingComplete && !buffer.length) {
+			else if (!renderingComplete && !buffer.length) {
 				next = promiseWithResolvers();
 				await next.promise;
 			}
@@ -311,7 +311,7 @@ export async function renderToAsyncIterable(
 				// will run.
 				buffer.push(bytes);
 				next?.resolve();
-			} else if(buffer.length > 0) {
+			} else if (buffer.length > 0) {
 				next?.resolve();
 			}
 		},
