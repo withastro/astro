@@ -51,6 +51,7 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import {stringifyParams} from "../routing/params.js";
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -288,7 +289,7 @@ async function getPathsForRoute(
 		paths = staticPaths
 			.map((staticPath) => {
 				try {
-					return route.generate(staticPath.params);
+					return stringifyParams(staticPath.params, route);
 				} catch (e) {
 					if (e instanceof TypeError) {
 						throw getInvalidRouteSegmentError(e, route, staticPath);
