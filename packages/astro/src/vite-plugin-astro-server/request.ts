@@ -1,6 +1,6 @@
 import type http from 'node:http';
 import type { ManifestData } from '../@types/astro.js';
-import { collapseDuplicateSlashes, removeTrailingForwardSlash } from '../core/path.js';
+import { removeTrailingForwardSlash } from '../core/path.js';
 import type { DevServerController } from './controller.js';
 import { runWithErrorHandling } from './controller.js';
 import { recordServerError } from './error.js';
@@ -27,7 +27,7 @@ export async function handleRequest({
 	const { config, loader } = pipeline;
 	const origin = `${loader.isHttps() ? 'https' : 'http'}://${incomingRequest.headers.host}`;
 
-	const url = new URL(collapseDuplicateSlashes(origin + incomingRequest.url));
+	const url = new URL(origin + incomingRequest.url);
 	let pathname: string;
 	if (config.trailingSlash === 'never' && !incomingRequest.url) {
 		pathname = '';
