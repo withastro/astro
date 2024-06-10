@@ -239,6 +239,11 @@ export async function renderToAsyncIterable(
 			if (next !== null) {
 				await next.promise;
 			}
+			// Buffer is empty so there's nothing to receive, wait for the next resolve.
+			else if(!renderingComplete && !buffer.length) {
+				next = promiseWithResolvers();
+				await next.promise;
+			}
 
 			// Only create a new promise if rendering is still ongoing. Otherwise
 			// there will be a dangling promises that breaks tests (probably not an actual app)
@@ -305,6 +310,8 @@ export async function renderToAsyncIterable(
 				// Push the chunks into the buffer and resolve the promise so that next()
 				// will run.
 				buffer.push(bytes);
+				next?.resolve();
+			} else if(buffer.length > 0) {
 				next?.resolve();
 			}
 		},
