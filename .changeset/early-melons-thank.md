@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Always return a cloned array from getCollection
+Updates `getCollection()` to always return a cloned array
