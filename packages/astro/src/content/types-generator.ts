@@ -121,16 +121,14 @@ export async function createContentTypesGenerator({
 
 			switch (event.name) {
 				case 'addDir':
-					collectionEntryMap[JSON.stringify(collection)] = {
+					collectionEntryMap[collectionKey] = {
 						type: 'unknown',
 						entries: {},
 					};
 					logger.debug('content', `${cyan(collection)} collection added`);
 					break;
 				case 'unlinkDir':
-					if (collectionKey in collectionEntryMap) {
-						delete collectionEntryMap[JSON.stringify(collection)];
-					}
+					delete collectionEntryMap[collectionKey];
 					break;
 			}
 			return { shouldGenerateTypes: true };
