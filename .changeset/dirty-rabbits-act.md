@@ -12,4 +12,4 @@ Server secrets specified in the schema must now be imported from `astro:env/serv
 + import { API_SECRET } from 'astro:env/server'
 ```
 
-Note that using `getSecret()` with these keys no longer involves any special handling and the raw value will be returned, just like retrieving secrets not specified in your schema.
+Note that using `getSecret()` with these keys is still possible, but no longer involves any special handling and the raw value will be returned, just like retrieving secrets not specified in your schema.
