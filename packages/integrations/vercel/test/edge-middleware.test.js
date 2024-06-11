@@ -31,7 +31,10 @@ describe('Vercel edge middleware', () => {
 	});
 
 	it('edge sets Set-Cookie headers', async () => {
-		let entry = new URL('../.vercel/output/functions/_middleware.func/middleware.mjs', build.config.outDir);
+		let entry = new URL(
+			'../.vercel/output/functions/_middleware.func/middleware.mjs',
+			build.config.outDir
+		);
 		const module = await import(entry);
 		const request = new Request('http://example.com/foo');
 		const response = await module.default(request, {});
