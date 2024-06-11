@@ -5,8 +5,16 @@ export type GetEnv = (key: string) => string | undefined;
 
 let _getEnv: GetEnv = (key) => process.env[key];
 
-export function setGetEnv(fn: GetEnv) {
+export function setGetEnv(fn: GetEnv, reset = false) {
 	_getEnv = fn;
+
+	_onSetGetEnv(reset);
+}
+
+let _onSetGetEnv = (reset: boolean) => {};
+
+export function setOnSetGetEnv(fn: typeof _onSetGetEnv) {
+	_onSetGetEnv = fn;
 }
 
 export function getEnv(...args: Parameters<GetEnv>) {
