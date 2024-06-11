@@ -5,7 +5,6 @@ export const VIRTUAL_MODULES_IDS = {
 };
 export const VIRTUAL_MODULES_IDS_VALUES = new Set(Object.values(VIRTUAL_MODULES_IDS));
 
-export const PUBLIC_PREFIX = 'PUBLIC_';
 export const ENV_TYPES_FILE = 'env.d.ts';
 
 const PKG_BASE = new URL('../../', import.meta.url);

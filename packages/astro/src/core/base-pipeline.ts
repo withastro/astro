@@ -66,7 +66,7 @@ export abstract class Pipeline {
 		if (callSetGetEnv && manifest.experimentalEnvGetSecretEnabled) {
 			setGetEnv(() => {
 				throw new AstroError(AstroErrorData.EnvUnsupportedGetSecret);
-			});
+			}, true);
 		}
 	}
 
