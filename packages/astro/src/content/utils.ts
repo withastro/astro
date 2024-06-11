@@ -199,7 +199,7 @@ export function reverseSymlinks({
 }): string {
 	const entryPath = typeof entry === 'string' ? entry : fileURLToPath(entry);
 	const contentDirPath = typeof contentDir === 'string' ? contentDir : fileURLToPath(contentDir);
-	if (!symlinks) {
+	if (!symlinks || symlinks.size === 0) {
 		return entryPath;
 	}
 

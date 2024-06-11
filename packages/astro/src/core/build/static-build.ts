@@ -8,7 +8,11 @@ import { bgGreen, bgMagenta, black, green } from 'kleur/colors';
 import * as vite from 'vite';
 import type { RouteData } from '../../@types/astro.js';
 import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
-import { hasAnyContentFlag } from '../../content/utils.js';
+import {
+	getSymlinkedContentCollections,
+	hasAnyContentFlag,
+	reverseSymlinks,
+} from '../../content/utils.js';
 import {
 	type BuildInternals,
 	createBuildInternals,
@@ -175,7 +179,8 @@ async function ssrBuild(
 	const routes = Object.values(allPages).flatMap((pageData) => pageData.route);
 	const isContentCache = !ssr && settings.config.experimental.contentCollectionCache;
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('server', input);
-
+	const contentDir = new URL('./src/content', settings.config.root);
+	const symlinks = await getSymlinkedContentCollections(contentDir);
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
 		mode: viteConfig.mode || 'production',
@@ -251,7 +256,12 @@ async function ssrBuild(
 							chunkInfo.facadeModuleId &&
 							hasAnyContentFlag(chunkInfo.facadeModuleId)
 						) {
-							const [srcRelative, flag] = chunkInfo.facadeModuleId.split('/src/')[1].split('?');
+							const moduleId = reverseSymlinks({
+								symlinks,
+								entry: chunkInfo.facadeModuleId,
+								contentDir,
+							});
+							const [srcRelative, flag] = moduleId.split('/src/')[1].split('?');
 							if (flag === PROPAGATED_ASSET_FLAG) {
 								return encodeName(`${removeFileExtension(srcRelative)}.entry.mjs`);
 							}
