@@ -148,6 +148,25 @@ async function callComponentAsTemplateResultOrResponse(
 
 	if (factoryResult instanceof Response) {
 		return factoryResult;
+	}
+	// we check if the component we attempt to render is a head+content
+	else if (isHeadAndContent(factoryResult)) {
+		// we make sure that content is valid template result
+		if (!isRenderTemplateResult(factoryResult.content)) {
+			throw new AstroError({
+				...AstroErrorData.OnlyResponseCanBeReturned,
+				message: AstroErrorData.OnlyResponseCanBeReturned.message(
+					route?.route,
+					typeof factoryResult
+				),
+				location: {
+					file: route?.component,
+				},
+			});
+		}
+
+		// return the content
+		return factoryResult.content;
 	} else if (!isRenderTemplateResult(factoryResult)) {
 		throw new AstroError({
 			...AstroErrorData.OnlyResponseCanBeReturned,
@@ -158,7 +177,7 @@ async function callComponentAsTemplateResultOrResponse(
 		});
 	}
 
-	return isHeadAndContent(factoryResult) ? factoryResult.content : factoryResult;
+	return factoryResult;
 }
 
 // Recursively calls component instances that might have head content
@@ -220,6 +239,11 @@ export async function renderToAsyncIterable(
 			if (next !== null) {
 				await next.promise;
 			}
+			// Buffer is empty so there's nothing to receive, wait for the next resolve.
+			else if (!renderingComplete && !buffer.length) {
+				next = promiseWithResolvers();
+				await next.promise;
+			}
 
 			// Only create a new promise if rendering is still ongoing. Otherwise
 			// there will be a dangling promises that breaks tests (probably not an actual app)
@@ -251,8 +275,9 @@ export async function renderToAsyncIterable(
 			buffer.length = 0;
 
 			const returnValue = {
-				// The iterator is done if there are no chunks to return.
-				done: length === 0,
+				// The iterator is done when rendering has finished
+				// and there are no more chunks to return.
+				done: length === 0 && renderingComplete,
 				value: mergedArray,
 			};
 
@@ -285,6 +310,8 @@ export async function renderToAsyncIterable(
 				// Push the chunks into the buffer and resolve the promise so that next()
 				// will run.
 				buffer.push(bytes);
+				next?.resolve();
+			} else if (buffer.length > 0) {
 				next?.resolve();
 			}
 		},

@@ -255,6 +255,7 @@ function vitePluginContent(
 				...oldManifest.clientEntries,
 				...internals.discoveredHydratedComponents.keys(),
 				...internals.discoveredClientOnlyComponents.keys(),
+				...internals.discoveredScripts,
 			]);
 			// Likewise, these are server modules that might not be referenced
 			// once the cached items are excluded from the build process

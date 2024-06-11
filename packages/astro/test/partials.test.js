@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Partials', () => {
@@ -27,6 +28,12 @@ describe('Partials', () => {
 		it('is only the written HTML', async () => {
 			const html = await fixture.fetch('/partials/item/').then((res) => res.text());
 			assert.equal(html.startsWith('<li'), true);
+		});
+
+		it('Nested conditionals render', async () => {
+			const html = await fixture.fetch('/partials/nested-conditional/').then((res) => res.text());
+			const $ = cheerio.load(html);
+			assert.equal($('#true').text(), 'test');
 		});
 	});
 

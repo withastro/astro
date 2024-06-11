@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import type { AstroIntegration } from 'astro';
+import type { AstroIntegration, ContainerRenderer } from 'astro';
 
 function getViteConfiguration() {
 	return {
@@ -16,6 +16,13 @@ function getViteConfiguration() {
 		ssr: {
 			external: ['lit-element', '@lit-labs/ssr', '@astrojs/lit', 'lit/decorators.js'],
 		},
+	};
+}
+
+export function getContainerRenderer(): ContainerRenderer {
+	return {
+		name: '@astrojs/lit',
+		serverEntrypoint: '@astrojs/lit/server.js',
 	};
 }
 

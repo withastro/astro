@@ -1,0 +1,15 @@
+---
+import { PUBLIC_FOO } from "astro:env/client"
+import { PUBLIC_BAZ } from "astro:env/server"
+
+console.log({ PUBLIC_BAZ })
+---
+
+<div id="server-rendered">{PUBLIC_FOO}</div>
+<div id="client-rendered"></div>
+
+<script>
+    import { PUBLIC_BAR } from "astro:env/client"
+
+    document.getElementById("client-rendered").innerText = PUBLIC_BAR
+</script>

@@ -32,6 +32,7 @@ function getAdapter(): AstroAdapter {
 			staticOutput: 'stable',
 			serverOutput: 'unsupported',
 			hybridOutput: 'unsupported',
+			envGetSecret: 'unsupported',
 		},
 		adapterFeatures: {
 			edgeMiddleware: false,

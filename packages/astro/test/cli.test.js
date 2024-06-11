@@ -123,10 +123,11 @@ describe('astro cli', () => {
 		const proc = cli('dev', '--root', fileURLToPath(projectRootURL));
 		const { messages } = await parseCliDevStart(proc);
 
-		const index = messages[0].includes('[vite]') ? 1 : 0;
-		assert.equal(messages[index].includes('astro'), true);
-		assert.equal(messages[index].includes(pkgVersion), true);
-		assert.equal(messages[index].includes('ready in'), true);
+		const message = messages.join('\n');
+
+		assert.equal(message.includes('astro'), true);
+		assert.equal(message.includes(pkgVersion), true);
+		assert.equal(message.includes('ready in'), true);
 	});
 
 	['dev', 'preview'].forEach((cmd) => {

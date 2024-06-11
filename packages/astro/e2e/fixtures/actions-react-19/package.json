@@ -10,15 +10,15 @@
 		"astro": "astro"
 	},
 	"dependencies": {
-		"@astrojs/check": "^0.6.0",
+		"@astrojs/check": "^0.7.0",
 		"@astrojs/db": "workspace:*",
 		"@astrojs/node": "workspace:*",
 		"@astrojs/react": "workspace:*",
 		"@types/react": "npm:types-react",
 		"@types/react-dom": "npm:types-react-dom",
 		"astro": "workspace:*",
-		"react": "19.0.0-beta-26f2496093-20240514",
-		"react-dom": "19.0.0-beta-26f2496093-20240514",
+		"react": "19.0.0-rc-f994737d14-20240522",
+		"react-dom": "19.0.0-rc-f994737d14-20240522",
 		"typescript": "^5.4.5"
 	},
   "overrides": {

@@ -1,5 +1,6 @@
 ---
 import { type LocalImageProps, type RemoteImageProps, getImage } from 'astro:assets';
+import * as mime from 'mrmime';
 import type { GetImageResult, ImageOutputFormat } from '../dist/@types/astro';
 import { isESMImportedImage, resolveSrc } from '../dist/assets/utils/imageKind';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
@@ -99,7 +100,7 @@ if (import.meta.env.DEV) {
 			return (
 				<source
 					srcset={srcsetAttribute}
-					type={'image/' + image.options.format}
+					type={mime.lookup(image.options.format ?? image.src) ?? `image/${image.options.format}`}
 					{...sourceAdditionalAttributes}
 				/>
 			);

@@ -199,5 +199,5 @@ export async function resolveConfig(
 	const mergedConfig = mergeConfig(userConfig, inlineUserConfig);
 	const astroConfig = await validateConfig(mergedConfig, root, command);
 
-	return { userConfig, astroConfig };
+	return { userConfig: mergedConfig, astroConfig };
 }
