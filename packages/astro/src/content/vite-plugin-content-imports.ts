@@ -28,10 +28,12 @@ import {
 	getEntryConfigByExtMap,
 	getEntryData,
 	getEntryType,
+	getSymlinkedContentCollections,
 	globalContentConfigObserver,
 	hasContentFlag,
 	parseEntrySlug,
 	reloadContentConfigObserver,
+	reverseSymlinks,
 } from './utils.js';
 
 function getContentRendererByViteId(
@@ -75,16 +77,26 @@ export function astroContentImportPlugin({
 	const dataEntryConfigByExt = getEntryConfigByExtMap(settings.dataEntryTypes);
 	const { contentDir } = contentPaths;
 	let shouldEmitFile = false;
-
+	let symlinks: Map<string, string>;
 	const plugins: Plugin[] = [
 		{
 			name: 'astro:content-imports',
 			config(_config, env) {
 				shouldEmitFile = env.command === 'build';
 			},
+			async buildStart() {
+				// Get symlinks once at build start
+				symlinks = await getSymlinkedContentCollections(contentDir);
+			},
 			async transform(_, viteId) {
 				if (hasContentFlag(viteId, DATA_FLAG)) {
-					const fileId = viteId.split('?')[0] ?? viteId;
+					// By default, Vite will resolve symlinks to their targets. We need to reverse this for
+					// content entries, so we can get the path relative to the content directory.
+					const fileId = reverseSymlinks({
+						entry: viteId.split('?')[0] ?? viteId,
+						contentDir,
+						symlinks,
+					});
 					// Data collections don't need to rely on the module cache.
 					// This cache only exists for the `render()` function specific to content.
 					const { id, data, collection, _internal } = await getDataEntryModule({
@@ -109,7 +121,7 @@ export const _internal = {
 `;
 					return code;
 				} else if (hasContentFlag(viteId, CONTENT_FLAG)) {
-					const fileId = viteId.split('?')[0];
+					const fileId = reverseSymlinks({ entry: viteId.split('?')[0], contentDir, symlinks });
 					const { id, slug, collection, body, data, _internal } = await getContentEntryModule({
 						fileId,
 						entryConfigByExt: contentEntryConfigByExt,

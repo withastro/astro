@@ -167,6 +167,46 @@ export function getEntryConfigByExtMap<TEntryType extends ContentEntryType | Dat
 	return map;
 }
 
+export async function getSymlinkedContentCollections(
+	contentDir: URL
+): Promise<Map<string, string>> {
+	const contentPaths = new Map<string, string>();
+	const contentDirPath = fileURLToPath(contentDir);
+
+	const contentDirEntries = await fsMod.promises.readdir(contentDir, { withFileTypes: true });
+	for (const entry of contentDirEntries) {
+		if (entry.isSymbolicLink()) {
+			const entryPath = path.join(contentDirPath, entry.name);
+			const realPath = await fsMod.promises.realpath(entryPath);
+			contentPaths.set(realPath, entry.name);
+		}
+	}
+	return contentPaths;
+}
+
+export function reverseSymlinks({
+	entry,
+	symlinks,
+	contentDir,
+}: {
+	entry: string | URL;
+	contentDir: string | URL;
+	symlinks?: Map<string, string>;
+}): string {
+	const entryPath = typeof entry === 'string' ? entry : fileURLToPath(entry);
+	const contentDirPath = typeof contentDir === 'string' ? contentDir : fileURLToPath(contentDir);
+	if (!symlinks) {
+		return entryPath;
+	}
+
+	for (const [realPath, symlinkName] of symlinks) {
+		if (entryPath.startsWith(realPath)) {
+			return path.join(contentDirPath, symlinkName, entryPath.replace(realPath, ''));
+		}
+	}
+	return entryPath;
+}
+
 export function getEntryCollectionName({
 	contentDir,
 	entry,
