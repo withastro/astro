@@ -358,11 +358,14 @@ export class RenderContext {
 		slotValues: Record<string, any> | null
 	): AstroGlobal {
 		let astroPagePartial;
-		// During rewriting, we must recompute the Astro global, because we need to purge the previous params/props/etc.  
+		// During rewriting, we must recompute the Astro global, because we need to purge the previous params/props/etc.
 		if (this.isRewriting) {
-			astroPagePartial = this.#astroPagePartial = this.createAstroPagePartial(result, astroStaticPartial);
+			astroPagePartial = this.#astroPagePartial = this.createAstroPagePartial(
+				result,
+				astroStaticPartial
+			);
 		} else {
-		// Create page partial with static partial so they can be cached together.
+			// Create page partial with static partial so they can be cached together.
 			astroPagePartial = this.#astroPagePartial ??= this.createAstroPagePartial(
 				result,
 				astroStaticPartial

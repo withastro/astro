@@ -13,7 +13,7 @@ import {
 	createModuleScriptElement,
 	createStylesheetElementSet,
 } from '../core/render/ssr-element.js';
-import {default404Page, DEFAULT_404_ROUTE} from '../core/routing/astro-designed-error-pages.js';
+import { DEFAULT_404_ROUTE, default404Page } from '../core/routing/astro-designed-error-pages.js';
 
 export class ContainerPipeline extends Pipeline {
 	/**
@@ -70,7 +70,10 @@ export class ContainerPipeline extends Pipeline {
 		return { links, styles, scripts };
 	}
 
-	async tryRewrite(payload: RewritePayload, request: Request): Promise<[RouteData, ComponentInstance, URL]> {
+	async tryRewrite(
+		payload: RewritePayload,
+		request: Request
+	): Promise<[RouteData, ComponentInstance, URL]> {
 		let foundRoute: RouteData | undefined;
 		// options.manifest is the actual type that contains the information
 		let finalUrl: URL | undefined = undefined;
