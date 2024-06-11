@@ -4,13 +4,13 @@
 
 **BREAKING CHANGE to the experimental `astro:env` feature only**
 
-Server secrets specfied in the schema must now be imported from `astro:env/server`:
+Server secrets specfied in the schema must now be imported from `astro:env/server` along with `getSecret()`:
 
 ```diff
 - import { getSecret } from 'astro:env/server'
-+ import { FOO, getSecret } from 'astro:env/server'
++ import { API_SECRET, getSecret } from 'astro:env/server'
 
-- const FOO = getSecret("FOO")
+- const API_SECRET = getSecret("API_SECRET")
 const UNKNOWN = getSecret("UNKNOWN")
 ```
 
