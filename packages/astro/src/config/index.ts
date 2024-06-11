@@ -6,7 +6,10 @@ export function defineConfig(config: AstroUserConfig) {
 	return config;
 }
 
-export function getViteConfig(userViteConfig: ViteUserConfig, inlineAstroConfig: AstroInlineConfig = {}) {
+export function getViteConfig(
+	userViteConfig: ViteUserConfig,
+	inlineAstroConfig: AstroInlineConfig = {}
+) {
 	// Return an async Vite config getter which exposes a resolved `mode` and `command`
 	return async ({ mode, command }: { mode: string; command: 'serve' | 'build' }) => {
 		// Vite `command` is `serve | build`, but Astro uses `dev | build`
