@@ -51,7 +51,7 @@ describe('Custom 500', () => {
 		});
 	});
 
-	describe('preview', () => {
+	describe('SSR', () => {
 		/** @type {Awaited<ReturnType<(typeof fixture)["loadTestAdapterApp"]>>} */
 		let app;
 
