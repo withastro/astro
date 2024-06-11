@@ -1,1 +1,1 @@
-export { setGetEnv, type GetEnv } from './runtime.js';
+export { setGetEnv, type GetEnv } from './runtime/index.js';

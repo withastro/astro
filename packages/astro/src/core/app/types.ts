@@ -70,8 +70,6 @@ export type SSRManifest = {
 	// TODO: rework to have a envManifest
 	// TODO: remove experimental prefix
 	experimentalEnvGetSecretEnabled: boolean;
-	// TODO: remove experimental prefix
-	experimentalEnvSecretsLeakDetectionEnabled: boolean;
 };
 
 export type SSRManifestI18n = {

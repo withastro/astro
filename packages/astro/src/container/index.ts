@@ -113,7 +113,6 @@ function createManifest(
 		checkOrigin: false,
 		middleware: manifest?.middleware ?? middleware ?? defaultMiddleware,
 		experimentalEnvGetSecretEnabled: false,
-		experimentalEnvSecretsLeakDetectionEnabled: false,
 	};
 }
 

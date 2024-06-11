@@ -2161,8 +2161,6 @@ export interface AstroUserConfig {
 			 * ```
 			 */
 			schema: EnvSchema;
-			/** TODO: */
-			secretsLeakDetection?: boolean;
 		};
 	};
 }

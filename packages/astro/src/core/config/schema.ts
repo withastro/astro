@@ -92,7 +92,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		env: {
 			// Make TS happy
 			schema: {},
-			secretsLeakDetection: false,
 		},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
@@ -531,10 +530,6 @@ export const AstroConfigSchema = z.object({
 			env: z
 				.object({
 					schema: EnvSchema,
-					secretsLeakDetection: z
-						.boolean()
-						.optional()
-						.default(ASTRO_CONFIG_DEFAULTS.experimental.env.secretsLeakDetection),
 				})
 				.strict()
 				.optional(),

@@ -1,5 +1,5 @@
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
-export { validateEnvVariable } from './validators.js';
+import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+export { validateEnvVariable } from '../validators.js';
 
 export type GetEnv = (key: string) => string | undefined;
 

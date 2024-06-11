@@ -32,7 +32,8 @@
       "default": "./dist/core/index.js"
     },
     "./env": "./env.d.ts",
-    "./env/runtime": "./dist/env/runtime.js",
+    "./env/runtime": "./dist/env/runtime/index.js",
+    "./env/middleware": "./dist/env/runtime/middleware.js",
     "./env/setup": "./dist/env/setup.js",
     "./types": "./types.d.ts",
     "./client": "./client.d.ts",

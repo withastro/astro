@@ -16,7 +16,6 @@ export default defineConfig({
                     default: 'this is another secret'
                 }),
             },
-            secretsLeakDetection: true
         }
     }
 });
