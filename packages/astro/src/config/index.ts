@@ -1,4 +1,4 @@
-import type { UserConfig as UserViteConfig } from 'vite';
+import type { UserConfig as ViteUserConfig } from 'vite';
 import type { AstroInlineConfig, AstroUserConfig } from '../@types/astro.js';
 import { Logger } from '../core/logger/core.js';
 
@@ -6,7 +6,7 @@ export function defineConfig(config: AstroUserConfig) {
 	return config;
 }
 
-export function getViteConfig(inlineUserViteConfig: UserViteConfig, inlineAstroConfig: AstroInlineConfig = {}) {
+export function getViteConfig(userViteConfig: ViteUserConfig, inlineAstroConfig: AstroInlineConfig = {}) {
 	// Return an async Vite config getter which exposes a resolved `mode` and `command`
 	return async ({ mode, command }: { mode: string; command: 'serve' | 'build' }) => {
 		// Vite `command` is `serve | build`, but Astro uses `dev | build`
@@ -35,7 +35,7 @@ export function getViteConfig(inlineUserViteConfig: UserViteConfig, inlineAstroC
 			level: 'info',
 		});
 		const { astroConfig: config } = await resolveConfig(inlineAstroConfig, cmd);
-		let settings = await createSettings(config, inlineUserViteConfig.root);
+		let settings = await createSettings(config, userViteConfig.root);
 		settings = await runHookConfigSetup({ settings, command: cmd, logger });
 		const viteConfig = await createVite(
 			{
@@ -48,6 +48,6 @@ export function getViteConfig(inlineUserViteConfig: UserViteConfig, inlineAstroC
 			{ settings, logger, mode }
 		);
 		await runHookConfigDone({ settings, logger });
-		return mergeConfig(viteConfig, inlineUserViteConfig);
+		return mergeConfig(viteConfig, userViteConfig);
 	};
 }
