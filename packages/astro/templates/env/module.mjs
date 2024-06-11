@@ -6,7 +6,6 @@ import {
 	setOnSetGetEnv,
 } from 'astro/env/runtime';
 
-/** @param {string} key */
 export const getSecret = (key) => {
 	return getEnv(key);
 };
