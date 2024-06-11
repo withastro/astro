@@ -8,10 +8,8 @@ Server secrets specified in the schema must now be imported from `astro:env/serv
 
 ```diff
 - import { getSecret } from 'astro:env/server'
-+ import { API_SECRET, getSecret } from 'astro:env/server'
-
 - const API_SECRET = getSecret("API_SECRET")
-const UNKNOWN = getSecret("UNKNOWN")
++ import { API_SECRET } from 'astro:env/server'
 ```
 
 Note that `getSecret()` can still be used to retrieve secrets not specified in your schema.
