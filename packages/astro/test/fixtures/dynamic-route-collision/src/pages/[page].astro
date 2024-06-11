@@ -9,6 +9,10 @@ export async function getStaticPaths() {
 			page: 'blog',
 			title: 'Dynamic Blog',
 		},
+		{
+			page: '/test',
+			title: 'Dynamic Test',
+		},
 	];
 	return pages.map(({ page, title }) => {
 		return {

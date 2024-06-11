@@ -1,5 +1,17 @@
 # @astrojs/node
 
+## 8.3.0
+
+### Minor Changes
+
+- [#11199](https://github.com/withastro/astro/pull/11199) [`2bdca27`](https://github.com/withastro/astro/commit/2bdca27ff4002efd330667b0b4ca3e00d5b7a2db) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds support for experimental `astro:env` released in Astro 4.10
+
+## 8.2.6
+
+### Patch Changes
+
+- [#11202](https://github.com/withastro/astro/pull/11202) [`d0248bc`](https://github.com/withastro/astro/commit/d0248bc083dff713b66d44bcefbf389cdf67e22d) Thanks [@dkobierski](https://github.com/dkobierski)! - Fixes suppressed logs when error occurs
+
 ## 8.2.5
 
 ### Patch Changes

@@ -1,15 +1,20 @@
 import { schema } from 'virtual:astro:env/internal';
-import { createInvalidVariableError, getEnv, validateEnvVariable } from 'astro/env/runtime';
+import {
+	createInvalidVariableError,
+	getEnv,
+	validateEnvVariable,
+	setOnSetGetEnv,
+} from 'astro/env/runtime';
 
 /** @param {string} key */
 export const getSecret = (key) => {
+	return getEnv(key);
+};
+
+const _internalGetSecret = (key) => {
 	const rawVariable = getEnv(key);
 	const variable = rawVariable === '' ? undefined : rawVariable;
 	const options = schema[key];
-
-	if (!options) {
-		return variable;
-	}
 
 	const result = validateEnvVariable(variable, options);
 	if (result.ok) {
@@ -17,3 +22,7 @@ export const getSecret = (key) => {
 	}
 	throw createInvalidVariableError(key, result.type);
 };
+
+setOnSetGetEnv((reset) => {
+	// @@ON_SET_GET_ENV@@
+});

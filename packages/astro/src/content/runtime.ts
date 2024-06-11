@@ -79,8 +79,7 @@ export function createGetCollection({
 		// Cache `getCollection()` calls in production only
 		// prevents stale cache in development
 		if (!import.meta.env?.DEV && cacheEntriesByCollection.has(collection)) {
-			// Always return a new instance so consumers can safely mutate it
-			entries = [...cacheEntriesByCollection.get(collection)!];
+			entries = cacheEntriesByCollection.get(collection)!;
 		} else {
 			const limit = pLimit(10);
 			entries = await Promise.all(
@@ -115,7 +114,9 @@ export function createGetCollection({
 		if (typeof filter === 'function') {
 			return entries.filter(filter);
 		} else {
-			return entries;
+			// Clone the array so users can safely mutate it.
+			// slice() is faster than ...spread for large arrays.
+			return entries.slice();
 		}
 	};
 }

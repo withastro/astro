@@ -164,10 +164,6 @@ declare module 'astro:components' {
 	export * from 'astro/components';
 }
 
-declare module 'astro:env/setup' {
-	export * from 'astro/virtual-modules/env-setup.js';
-}
-
 type MD = import('./dist/@types/astro.js').MarkdownInstance<Record<string, any>>;
 interface ExportedMarkdownModuleEntities {
 	frontmatter: MD['frontmatter'];

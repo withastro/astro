@@ -1,23 +1,66 @@
 import { z } from 'zod';
-import { PUBLIC_PREFIX } from './constants.js';
 
 const StringSchema = z.object({
 	type: z.literal('string'),
 	optional: z.boolean().optional(),
 	default: z.string().optional(),
+	max: z.number().optional(),
+	min: z.number().min(0).optional(),
+	length: z.number().optional(),
+	url: z.boolean().optional(),
+	includes: z.string().optional(),
+	startsWith: z.string().optional(),
+	endsWith: z.string().optional(),
 });
+export type StringSchema = z.infer<typeof StringSchema>;
 const NumberSchema = z.object({
 	type: z.literal('number'),
 	optional: z.boolean().optional(),
 	default: z.number().optional(),
+	gt: z.number().optional(),
+	min: z.number().optional(),
+	lt: z.number().optional(),
+	max: z.number().optional(),
+	int: z.boolean().optional(),
 });
+export type NumberSchema = z.infer<typeof NumberSchema>;
 const BooleanSchema = z.object({
 	type: z.literal('boolean'),
 	optional: z.boolean().optional(),
 	default: z.boolean().optional(),
 });
+const EnumSchema = z.object({
+	type: z.literal('enum'),
+	values: z.array(
+		// We use "'" for codegen so it can't be passed here
+		z
+			.string()
+			.refine((v) => !v.includes("'"), {
+				message: `The "'" character can't be used as an enum value`,
+			})
+	),
+	optional: z.boolean().optional(),
+	default: z.string().optional(),
+});
+export type EnumSchema = z.infer<typeof EnumSchema>;
 
-const EnvFieldType = z.discriminatedUnion('type', [StringSchema, NumberSchema, BooleanSchema]);
+const EnvFieldType = z.union([
+	StringSchema,
+	NumberSchema,
+	BooleanSchema,
+	EnumSchema.superRefine((schema, ctx) => {
+		if (schema.default) {
+			if (!schema.values.includes(schema.default)) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: `The default value "${
+						schema.default
+					}" must be one of the specified values: ${schema.values.join(', ')}.`,
+				});
+			}
+		}
+	}),
+]);
 export type EnvFieldType = z.infer<typeof EnvFieldType>;
 
 const PublicClientEnvFieldMetadata = z.object({
@@ -32,95 +75,47 @@ const SecretServerEnvFieldMetadata = z.object({
 	context: z.literal('server'),
 	access: z.literal('secret'),
 });
+const EnvFieldMetadata = z.union([
+	PublicClientEnvFieldMetadata,
+	PublicServerEnvFieldMetadata,
+	SecretServerEnvFieldMetadata,
+]);
 
 const KEY_REGEX = /^[A-Z_]+$/;
 
-export const EnvSchema = z
-	.record(
-		z.string().regex(KEY_REGEX, {
-			message: 'A valid variable name can only contain uppercase letters and underscores.',
-		}),
-		z.intersection(
-			z.union([
-				PublicClientEnvFieldMetadata,
-				PublicServerEnvFieldMetadata,
-				SecretServerEnvFieldMetadata,
-			]),
-			EnvFieldType
-		)
-	)
-	.superRefine((schema, ctx) => {
-		for (const [key, value] of Object.entries(schema)) {
-			if (key.startsWith(PUBLIC_PREFIX) && value.access !== 'public') {
-				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
-					message: `An environment variable whose name is prefixed by "${PUBLIC_PREFIX}" must be public.`,
-				});
-			}
-			if (value.access === 'public' && !key.startsWith(PUBLIC_PREFIX)) {
-				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
-					message: `An environment variable that is public must have a name prefixed by "${PUBLIC_PREFIX}".`,
-				});
-			}
-		}
-	});
+export const EnvSchema = z.record(
+	z.string().regex(KEY_REGEX, {
+		message: 'A valid variable name can only contain uppercase letters and underscores.',
+	}),
+	z.intersection(EnvFieldMetadata, EnvFieldType)
+);
+
+// https://www.totaltypescript.com/concepts/the-prettify-helper
+type Prettify<T> = {
+	[K in keyof T]: T[K];
+	// eslint-disable-next-line @typescript-eslint/ban-types
+} & {};
 
 export type EnvSchema = z.infer<typeof EnvSchema>;
 
-const StringField = z.intersection(
-	z.union([
-		PublicClientEnvFieldMetadata,
-		PublicServerEnvFieldMetadata,
-		SecretServerEnvFieldMetadata,
-	]),
-	StringSchema
-);
-export type StringField = z.infer<typeof StringField>;
-export const StringFieldInput = z.intersection(
-	z.union([
-		PublicClientEnvFieldMetadata,
-		PublicServerEnvFieldMetadata,
-		SecretServerEnvFieldMetadata,
-	]),
-	StringSchema.omit({ type: true })
-);
-export type StringFieldInput = z.infer<typeof StringFieldInput>;
+type _Field<T extends z.ZodType> = Prettify<z.infer<typeof EnvFieldMetadata & T>>;
+type _FieldInput<T extends z.ZodType, TKey extends string = 'type'> = Prettify<
+	z.infer<typeof EnvFieldMetadata> & Omit<z.infer<T>, TKey>
+>;
 
-const NumberField = z.intersection(
-	z.union([
-		PublicClientEnvFieldMetadata,
-		PublicServerEnvFieldMetadata,
-		SecretServerEnvFieldMetadata,
-	]),
-	NumberSchema
-);
-export type NumberField = z.infer<typeof NumberField>;
-export const NumberFieldInput = z.intersection(
-	z.union([
-		PublicClientEnvFieldMetadata,
-		PublicServerEnvFieldMetadata,
-		SecretServerEnvFieldMetadata,
-	]),
-	NumberSchema.omit({ type: true })
-);
-export type NumberFieldInput = z.infer<typeof NumberFieldInput>;
+export type StringField = _Field<typeof StringSchema>;
+export type StringFieldInput = _FieldInput<typeof StringSchema>;
 
-const BooleanField = z.intersection(
-	z.union([
-		PublicClientEnvFieldMetadata,
-		PublicServerEnvFieldMetadata,
-		SecretServerEnvFieldMetadata,
-	]),
-	BooleanSchema
-);
-export type BooleanField = z.infer<typeof BooleanField>;
-export const BooleanFieldInput = z.intersection(
-	z.union([
-		PublicClientEnvFieldMetadata,
-		PublicServerEnvFieldMetadata,
-		SecretServerEnvFieldMetadata,
-	]),
-	BooleanSchema.omit({ type: true })
-);
-export type BooleanFieldInput = z.infer<typeof BooleanFieldInput>;
+export type NumberField = _Field<typeof NumberSchema>;
+export type NumberFieldInput = _FieldInput<typeof NumberSchema>;
+
+export type BooleanField = _Field<typeof BooleanSchema>;
+export type BooleanFieldInput = _FieldInput<typeof BooleanSchema>;
+
+export type EnumField = _Field<typeof EnumSchema>;
+export type EnumFieldInput<T extends string> = Prettify<
+	_FieldInput<typeof EnumSchema, 'type' | 'values' | 'default'> & {
+		values: Array<T>;
+		default?: NoInfer<T> | undefined;
+	}
+>;

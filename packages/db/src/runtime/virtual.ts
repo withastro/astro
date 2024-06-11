@@ -11,10 +11,6 @@ import type {
 	TextColumnOpts,
 } from '../core/types.js';
 
-import type { LibSQLDatabase } from 'drizzle-orm/libsql';
-
-export type Database = Omit<LibSQLDatabase, 'transaction'>;
-
 function createColumn<S extends string, T extends Record<string, unknown>>(type: S, schema: T) {
 	return {
 		type,

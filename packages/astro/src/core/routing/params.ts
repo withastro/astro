@@ -18,5 +18,5 @@ export function stringifyParams(params: GetStaticPathsItem['params'], route: Rou
 		return acc;
 	}, {} as Params);
 
-	return JSON.stringify(route.generate(validatedParams));
+	return route.generate(validatedParams);
 }

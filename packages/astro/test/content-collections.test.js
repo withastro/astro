@@ -370,4 +370,24 @@ describe('Content Collections', () => {
 			assert.equal($('script').attr('src').startsWith('/docs'), true);
 		});
 	});
+
+	describe('Mutation', () => {
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/content-collections-mutation/',
+			});
+			await fixture.build();
+		});
+
+		it('Does not mutate cached collection', async () => {
+			const html = await fixture.readFile('/index.html');
+			const index = cheerio.load(html)('h2:first').text();
+			const html2 = await fixture.readFile('/another_page/index.html');
+			const anotherPage = cheerio.load(html2)('h2:first').text();
+
+			assert.equal(index, anotherPage);
+		});
+	});
 });

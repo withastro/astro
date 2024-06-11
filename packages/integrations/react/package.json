@@ -47,7 +47,7 @@
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^4.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
     "ultrahtml": "^1.5.3"
   },
   "devDependencies": {
@@ -58,7 +58,7 @@
     "cheerio": "1.0.0-rc.12",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "vite": "^5.2.12"
+    "vite": "^5.2.13"
   },
   "peerDependencies": {
     "@types/react": "^17.0.50 || ^18.0.21",
