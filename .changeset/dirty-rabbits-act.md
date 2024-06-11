@@ -4,7 +4,7 @@
 
 **BREAKING CHANGE to the experimental `astro:env` feature only**
 
-Server secrets specfied in the schema must now be imported from `astro:env/server` along with `getSecret()`:
+Server secrets specified in the schema must now be imported from `astro:env/server`. Using `getSecret()` with these keys no longer involves any special handling and the raw value will be returned.
 
 ```diff
 - import { getSecret } from 'astro:env/server'
@@ -14,4 +14,4 @@ Server secrets specfied in the schema must now be imported from `astro:env/serve
 const UNKNOWN = getSecret("UNKNOWN")
 ```
 
-Note that `getSecret` can still be used to retrieve secrets not specified in your schema. If the key is also in the schema, no special handling will occur and the raw value will be returned.
+Note that `getSecret()` can still be used to retrieve secrets not specified in your schema.
