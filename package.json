@@ -68,7 +68,7 @@
     "prettier": "^3.3.2",
     "prettier-plugin-astro": "^0.14.0",
     "tiny-glob": "^0.2.9",
-    "turbo": "^1.13.4",
+    "turbo": "^2.0.3",
     "typescript": "~5.4.5",
     "typescript-eslint": "^7.13.0"
   },
