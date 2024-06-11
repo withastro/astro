@@ -173,6 +173,10 @@ export async function getSymlinkedContentCollections(
 	const contentPaths = new Map<string, string>();
 	const contentDirPath = fileURLToPath(contentDir);
 
+	if(!fsMod.existsSync(contentDirPath) || !fsMod.lstatSync(contentDirPath).isDirectory()) {
+		return contentPaths;
+	}
+
 	const contentDirEntries = await fsMod.promises.readdir(contentDir, { withFileTypes: true });
 	for (const entry of contentDirEntries) {
 		if (entry.isSymbolicLink()) {
