@@ -3,7 +3,7 @@ import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro
 import {
 	DEFAULT_404_COMPONENT,
 	REROUTE_DIRECTIVE_HEADER,
-	clientLocalsSymbol,
+	clientLocalsSymbol, DEFAULT_500_COMPONENT,
 } from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { req } from '../core/messages.js';
@@ -11,7 +11,7 @@ import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import { RenderContext } from '../core/render-context.js';
 import { type SSROptions, getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
-import { default404Page } from '../core/routing/astro-designed-error-pages.js';
+import {default404Page, default500Page} from '../core/routing/astro-designed-error-pages.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { normalizeTheLocale } from '../i18n/index.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
@@ -39,6 +39,11 @@ function isLoggedRequest(url: string) {
 function getCustom404Route(manifestData: ManifestData): RouteData | undefined {
 	const route404 = /^\/404\/?$/;
 	return manifestData.routes.find((r) => route404.test(r.route));
+}
+
+function getCustom500Route(manifestData: ManifestData): RouteData | undefined {
+	const route500 = /^\/500\/?$/;
+	return manifestData.routes.find((r) => route500.test(r.route));
 }
 
 export async function matchRoute(
@@ -108,6 +113,21 @@ export async function matchRoute(
 		return {
 			route: custom404,
 			filePath: new URL(`file://${custom404.component}`),
+			resolvedPathname: pathname,
+			preloadedComponent: component,
+			mod: component,
+		};
+	}
+
+	const custom500 = getCustom500Route(manifestData);
+	
+	if (custom500 && custom500.component === DEFAULT_500_COMPONENT) {
+		const component: ComponentInstance = {
+			default: default500Page,
+		};
+		return {
+			route: custom500,
+			filePath: new URL(`file://${custom500.component}`),
 			resolvedPathname: pathname,
 			preloadedComponent: component,
 			mod: component,
@@ -302,6 +322,23 @@ export async function handleRoute({
 				incomingResponse,
 			});
 	}
+	
+	if (response.status === 500 && response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no') {
+		const fiveHundred = await matchRoute('/500', manifestData, pipeline);
+		if (options && options.route !== fiveHundred?.route)
+			return handleRoute({
+				...options,
+				matchedRoute: fiveHundred,
+				url: new URL(pathname, url),
+				status: 500,
+				body,
+				origin,
+				pipeline,
+				manifestData,
+				incomingRequest,
+				incomingResponse,
+			});
+	}
 
 	// We remove the internally-used header before we send the response to the user agent.
 	if (response.headers.has(REROUTE_DIRECTIVE_HEADER)) {
@@ -321,6 +358,7 @@ export async function handleRoute({
 		await writeSSRResult(request, response, incomingResponse);
 		return;
 	}
+
 	// Apply the `status` override to the response object before responding.
 	// Response.status is read-only, so a clone is required to override.
 	if (status && response.status !== status && (status === 404 || status === 500)) {
