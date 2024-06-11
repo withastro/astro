@@ -230,3 +230,11 @@ export default {
 	renderToStaticMarkup,
 	supportsAstroStaticSlot: true,
 };
+
+export const renderer = {
+	ssr: {
+		check,
+		renderToStaticMarkup,
+		supportsAstroStaticSlot: true,
+	} 
+}

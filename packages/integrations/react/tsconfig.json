@@ -1,6 +1,6 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": ["src", "server.js"],
+  "include": ["src"],
   "compilerOptions": {
     "outDir": "./dist",
     "allowJs": true
