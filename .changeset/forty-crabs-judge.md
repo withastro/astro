@@ -10,7 +10,7 @@ If you're using `astro:env`, you can now use a middleware to detect server envri
 // src/middleware.js
 
 import { leakDetectionMiddleware } from 'astro/env/middleware'
-import { sequence, defineMiddleware } form 'astro:middleware'
+import { sequence, defineMiddleware } from 'astro:middleware'
 
 const userMiddleware = defineMiddleware((_, next) => {
 	return next()
@@ -27,7 +27,7 @@ An error will be thrown instead of rendering the page if a leak is detected.
 
 You can pass 2 options:
 
-1. `filterContentType`: filters what response content type should trigger the check. Defaults to the content type starting with `/text` or `application/json` 
+1. `filterContentType`: filters what response content type should trigger the check. Defaults to the content type starting with `text/` or `application/json` 
 2. `excludeKeys`: by default, all server environment variables are checked. However, you may have variables whose value is really likely to end up on the client but not because it leaked (eg. `test`). In this case, you can exclude those keys.
 
 ```ts
