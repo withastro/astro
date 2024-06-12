@@ -4,7 +4,7 @@ import { load as cheerioLoad } from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
-describe.only('Dev reroute', () => {
+describe('Dev reroute', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let devServer;
@@ -61,7 +61,7 @@ describe.only('Dev reroute', () => {
 		assert.equal(response.status, 404);
 	});
 
-	it.only('should render the custom 500 when rewriting a page that throws an error', async () => {
+	it('should render the custom 500 when rewriting a page that throws an error', async () => {
 		const response = await fixture.fetch('/errors/start');
 		assert.equal(response.status, 500);
 		const html = await response.text();
