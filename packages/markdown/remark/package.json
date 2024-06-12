@@ -46,7 +46,7 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.0",
     "remark-smartypants": "^3.0.1",
-    "shiki": "^1.6.1",
+    "shiki": "^1.6.3",
     "unified": "^11.0.4",
     "unist-util-remove-position": "^5.0.0",
     "unist-util-visit": "^5.0.0",
@@ -59,7 +59,7 @@
     "@types/mdast": "^4.0.4",
     "@types/unist": "^3.0.2",
     "astro-scripts": "workspace:*",
-    "esbuild": "^0.21.4",
+    "esbuild": "^0.21.5",
     "mdast-util-mdx-expression": "^2.0.0"
   },
   "publishConfig": {

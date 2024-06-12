@@ -1,4 +1,5 @@
 import { type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
+import { type LibSQLDatabase } from 'drizzle-orm/libsql';
 import {
 	type IndexBuilder,
 	type SQLiteColumnBuilderBase,
@@ -11,7 +12,7 @@ import {
 import type { DBColumn, DBTable } from '../core/types.js';
 import { type SerializedSQL, isSerializedSQL } from './types.js';
 import { pathToFileURL } from './utils.js';
-
+export type Database = Omit<LibSQLDatabase, 'transaction'>;
 export type { Table } from './types.js';
 export { createRemoteDatabaseClient, createLocalDatabaseClient } from './db-client.js';
 

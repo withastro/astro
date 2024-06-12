@@ -40,8 +40,8 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "tailwindcss": "^3.4.3",
-    "vite": "^5.2.12"
+    "tailwindcss": "^3.4.4",
+    "vite": "^5.2.13"
   },
   "peerDependencies": {
     "astro": "^3.0.0 || ^4.0.0",

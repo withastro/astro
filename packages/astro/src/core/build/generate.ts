@@ -40,6 +40,7 @@ import { RenderContext } from '../render-context.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
+import { stringifyParams } from '../routing/params.js';
 import { getOutputFilename, isServerLikeOutput } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
 import { cssOrder, mergeInlineCss } from './internal.js';
@@ -288,7 +289,7 @@ async function getPathsForRoute(
 		paths = staticPaths
 			.map((staticPath) => {
 				try {
-					return route.generate(staticPath.params);
+					return stringifyParams(staticPath.params, route);
 				} catch (e) {
 					if (e instanceof TypeError) {
 						throw getInvalidRouteSegmentError(e, route, staticPath);

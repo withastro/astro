@@ -1,6 +1,8 @@
 import type {
 	BooleanField,
 	BooleanFieldInput,
+	EnumField,
+	EnumFieldInput,
 	NumberField,
 	NumberFieldInput,
 	StringField,
@@ -22,5 +24,9 @@ export const envField = {
 	boolean: (options: BooleanFieldInput): BooleanField => ({
 		...options,
 		type: 'boolean',
+	}),
+	enum: <T extends string>(options: EnumFieldInput<T>): EnumField => ({
+		...options,
+		type: 'enum',
 	}),
 };

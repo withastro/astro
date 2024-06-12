@@ -62,6 +62,31 @@ describe('Dev reroute', () => {
 	});
 });
 
+describe('Dev rewrite, hybrid/server', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-server/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('should rewrite the [slug]/title ', async () => {
+		const html = await fixture.fetch('/').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.match($('h1').text(), /Title/);
+		assert.match($('p').text(), /some-slug/);
+	});
+});
+
 describe('Build reroute', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -217,6 +242,35 @@ describe('SSR reroute', () => {
 
 		assert.equal($('h1').text(), 'Post B');
 		assert.match($('h2').text(), /example@example.com/);
+	});
+});
+
+describe('SSR rewrite, hybrid/server', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-server/',
+			output: 'server',
+			adapter: testAdapter(),
+		});
+
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should rewrite the [slug]/title ', async () => {
+		const request = new Request('http://example.com/');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerioLoad(html);
+
+		console.log(html);
+
+		assert.match($('h1').text(), /Title/);
+		assert.match($('p').text(), /some-slug/);
 	});
 });
 
