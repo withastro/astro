@@ -7,9 +7,20 @@ Adds an optional middleware for usage with `astro:env`
 If you're using `astro:env`, you can now use a middleware to detect server envrionment variables leaks on the client:
 
 ```ts
-import { leakDetectionMiddleware } from 'astro/env/middleware'
+// src/middleware.js
 
-export const onRequest = leakDetectionMiddleware()
+import { leakDetectionMiddleware } from 'astro/env/middleware'
+import { sequence, defineMiddleware } form 'astro:middleware'
+
+const userMiddleware = defineMiddleware((_, next) => {
+	return next()
+})
+
+export const onRequest = sequence(
+	// It's important to use use it first to be able to catch the returned response last
+	leakDetectionMiddleware(),
+	userMiddleware
+);
 ```
 
 An error will be thrown instead of rendering the page if a leak is detected.
