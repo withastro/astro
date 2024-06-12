@@ -182,11 +182,10 @@ export async function getSymlinkedContentCollections(
 		if (entry.isSymbolicLink()) {
 			const entryPath = path.join(contentDirPath, entry.name);
 			const realPath = await fsMod.promises.realpath(entryPath);
-			// Normalize path separators to posix to match Vite identifiers
-			contentPaths.set(realPath.split(path.sep).join(path.posix.sep), entry.name);
+			contentPaths.set(normalizePath(realPath), entry.name);
 		}
 	}
-	console.log({contentPaths });
+	console.log({ contentPaths });
 	return contentPaths;
 }
 
@@ -199,7 +198,7 @@ export function reverseSymlinks({
 	contentDir: string | URL;
 	symlinks?: Map<string, string>;
 }): string {
-	const entryPath = typeof entry === 'string' ? entry : fileURLToPath(entry);
+	const entryPath = normalizePath(typeof entry === 'string' ? entry : fileURLToPath(entry));
 	const contentDirPath = typeof contentDir === 'string' ? contentDir : fileURLToPath(contentDir);
 	if (!symlinks || symlinks.size === 0) {
 		return entryPath;
@@ -207,7 +206,9 @@ export function reverseSymlinks({
 
 	for (const [realPath, symlinkName] of symlinks) {
 		if (entryPath.startsWith(realPath)) {
-			return path.join(contentDirPath, symlinkName, entryPath.replace(realPath, ''));
+			const res = path.join(contentDirPath, symlinkName, entryPath.replace(realPath, ''));
+			console.log(`reverseSymlinks: ${entryPath} -> ${res}`);
+			return res;
 		}
 	}
 	return entryPath;
