@@ -35,6 +35,7 @@ import {
 	reloadContentConfigObserver,
 	reverseSymlink,
 } from './utils.js';
+import type { Logger } from '../core/logger/core.js';
 
 function getContentRendererByViteId(
 	viteId: string,
@@ -65,9 +66,11 @@ const COLLECTION_TYPES_TO_INVALIDATE_ON = ['data', 'content', 'config'];
 export function astroContentImportPlugin({
 	fs,
 	settings,
+	logger,
 }: {
 	fs: typeof fsMod;
 	settings: AstroSettings;
+	logger: Logger;
 }): Plugin[] {
 	const contentPaths = getContentPaths(settings.config, fs);
 	const contentEntryExts = getContentEntryExts(settings);
@@ -86,7 +89,7 @@ export function astroContentImportPlugin({
 			},
 			async buildStart() {
 				// Get symlinks once at build start
-				symlinks = await getSymlinkedContentCollections(contentDir);
+				symlinks = await getSymlinkedContentCollections({ contentDir, logger, fs });
 			},
 			async transform(_, viteId) {
 				if (hasContentFlag(viteId, DATA_FLAG)) {

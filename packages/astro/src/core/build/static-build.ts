@@ -40,9 +40,10 @@ import { RESOLVED_SPLIT_MODULE_ID, RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plug
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
+import type { Logger } from '../logger/core.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
-	const { allPages, settings } = opts;
+	const { allPages, settings, logger } = opts;
 	// Make sure we have an adapter before building
 	if (isModeServerWithNoAdapter(opts.settings)) {
 		throw new AstroError(AstroErrorData.NoAdapterInstalled);
@@ -82,7 +83,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrTime = performance.now();
 	opts.logger.info('build', `Building ${settings.config.output} entrypoints...`);
-	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
+	const ssrOutput = await ssrBuild(opts, internals, pageInput, container, logger);
 	opts.logger.info('build', green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`));
 
 	settings.timer.end('SSR build');
@@ -170,7 +171,8 @@ async function ssrBuild(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	input: Set<string>,
-	container: AstroBuildPluginContainer
+	container: AstroBuildPluginContainer,
+	logger: Logger
 ) {
 	const buildID = Date.now().toString();
 	const { allPages, settings, viteConfig } = opts;
@@ -180,7 +182,7 @@ async function ssrBuild(
 	const isContentCache = !ssr && settings.config.experimental.contentCollectionCache;
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('server', input);
 	const contentDir = new URL('./src/content', settings.config.root);
-	const symlinks = await getSymlinkedContentCollections(contentDir);
+	const symlinks = await getSymlinkedContentCollections({ contentDir, logger, fs });
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
 		mode: viteConfig.mode || 'production',

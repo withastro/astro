@@ -16,7 +16,7 @@ import { AstroError, AstroErrorData, MarkdownError, errorMap } from '../core/err
 import { isYAMLException } from '../core/errors/utils.js';
 import { CONTENT_FLAGS, PROPAGATED_ASSET_FLAG } from './consts.js';
 import { createImage } from './runtime-assets.js';
-
+import type { Logger } from "../core/logger/core.js";
 /**
  * Amap from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
@@ -167,13 +167,19 @@ export function getEntryConfigByExtMap<TEntryType extends ContentEntryType | Dat
 	return map;
 }
 
-export async function getSymlinkedContentCollections(
-	contentDir: URL
-): Promise<Map<string, string>> {
+export async function getSymlinkedContentCollections({
+	contentDir,
+	logger,
+	fs
+}: {
+	contentDir: URL;
+	logger: Logger;
+	fs: typeof fsMod;
+}): Promise<Map<string, string>> {
 	const contentPaths = new Map<string, string>();
 	const contentDirPath = fileURLToPath(contentDir);
 	try {
-		if (!fsMod.existsSync(contentDirPath) || !fsMod.lstatSync(contentDirPath).isDirectory()) {
+		if (!fs.existsSync(contentDirPath) || !fs.lstatSync(contentDirPath).isDirectory()) {
 			return contentPaths;
 		}
 	} catch {
@@ -181,15 +187,17 @@ export async function getSymlinkedContentCollections(
 		return contentPaths;
 	}
 	try {
-		const contentDirEntries = await fsMod.promises.readdir(contentDir, { withFileTypes: true });
+		const contentDirEntries = await fs.promises.readdir(contentDir, { withFileTypes: true });
 		for (const entry of contentDirEntries) {
 			if (entry.isSymbolicLink()) {
 				const entryPath = path.join(contentDirPath, entry.name);
-				const realPath = await fsMod.promises.realpath(entryPath);
+				const realPath = await fs.promises.realpath(entryPath);
 				contentPaths.set(normalizePath(realPath), entry.name);
 			}
 		}
-	} catch {
+	} catch (e) {
+		logger.warn('content', `Error when reading content directory "${contentDir}"`);
+		logger.debug('content', e);
 		// If there's an error, return an empty map
 		return new Map<string, string>();
 	}
