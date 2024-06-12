@@ -60,7 +60,6 @@ default404Page.isAstroComponentFactory = true;
 
 
 export async function default500Page() {
-	console.trace("calling default 500")
 	return new Response(
 		null,
 		{ status: 500, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
