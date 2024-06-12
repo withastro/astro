@@ -173,7 +173,7 @@ export async function getSymlinkedContentCollections(
 	const contentPaths = new Map<string, string>();
 	const contentDirPath = fileURLToPath(contentDir);
 
-	if(!fsMod.existsSync(contentDirPath) || !fsMod.lstatSync(contentDirPath).isDirectory()) {
+	if (!fsMod.existsSync(contentDirPath) || !fsMod.lstatSync(contentDirPath).isDirectory()) {
 		return contentPaths;
 	}
 
@@ -182,10 +182,11 @@ export async function getSymlinkedContentCollections(
 		if (entry.isSymbolicLink()) {
 			const entryPath = path.join(contentDirPath, entry.name);
 			const realPath = await fsMod.promises.realpath(entryPath);
-			contentPaths.set(realPath, entry.name);
+			// Normalize path separators to posix to match Vite identifiers
+			contentPaths.set(realPath.split(path.sep).join(path.posix.sep), entry.name);
 		}
 	}
-	console.log({contentPaths})
+	console.log({contentPaths });
 	return contentPaths;
 }
 
