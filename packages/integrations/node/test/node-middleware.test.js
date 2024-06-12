@@ -9,7 +9,6 @@ import { loadFixture, waitServerListen } from './test-utils.js';
  * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
  */
 
-
 describe('behavior from middleware, standalone', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -23,7 +22,7 @@ describe('behavior from middleware, standalone', () => {
 			adapter: nodejs({ mode: 'standalone' }),
 		});
 		await fixture.build();
-		const { startServer } = await fixture.loadAdapterEntryModule()
+		const { startServer } = await fixture.loadAdapterEntryModule();
 		let res = startServer();
 		server = res.server;
 		await waitServerListen(server.server);
@@ -63,7 +62,7 @@ describe('behavior from middleware, middleware', () => {
 			adapter: nodejs({ mode: 'middleware' }),
 		});
 		await fixture.build();
-		const { handler } = await fixture.loadAdapterEntryModule()
+		const { handler } = await fixture.loadAdapterEntryModule();
 		const app = express();
 		app.use(handler);
 		server = app.listen(8888);

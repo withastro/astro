@@ -29,7 +29,7 @@ describe('Prerendering', () => {
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await fixture.loadAdapterEntryModule()
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -103,7 +103,7 @@ describe('Prerendering', () => {
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await fixture.loadAdapterEntryModule()
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -216,7 +216,7 @@ describe('Hybrid rendering', () => {
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await fixture.loadAdapterEntryModule()
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -288,7 +288,7 @@ describe('Hybrid rendering', () => {
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await fixture.loadAdapterEntryModule()
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -352,7 +352,7 @@ describe('Hybrid rendering', () => {
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await fixture.loadAdapterEntryModule()
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);

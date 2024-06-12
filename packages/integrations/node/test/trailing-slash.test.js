@@ -8,7 +8,6 @@ import { loadFixture, waitServerListen } from './test-utils.js';
  * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
  */
 
-
 describe('Trailing slash', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;

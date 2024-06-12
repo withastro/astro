@@ -12,7 +12,7 @@ describe('Chunks', () => {
 		});
 		await fixture.build();
 	});
-  
+
 	it('does not have wrong chunks', async () => {
 		const content = await fixture.readFile('_worker.js/renderers.mjs');
 		const hasImportFromPrerender = !content.includes(`React } from './chunks/prerender`);
