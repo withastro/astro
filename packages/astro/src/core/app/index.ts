@@ -340,6 +340,8 @@ export class App {
 				locals,
 				response,
 				status: response.status as 404 | 500,
+				// We don't have an error to report here. Passing null means we pass nothing intentionally
+				// while undefined means there's no error
 				error: response.status === 500 ? null : undefined,
 			});
 		}
