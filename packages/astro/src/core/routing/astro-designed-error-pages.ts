@@ -57,12 +57,3 @@ export async function default404Page({ pathname }: { pathname: string }) {
 }
 // mark the function as an AstroComponentFactory for the rendering internals
 default404Page.isAstroComponentFactory = true;
-
-export async function default500Page() {
-	return new Response(null, {
-		status: 500,
-		headers: { 'Content-Type': 'text/html; charset=utf-8' },
-	});
-}
-// mark the function as an AstroComponentFactory for the rendering internals
-default500Page.isAstroComponentFactory = true;
