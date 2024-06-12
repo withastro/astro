@@ -172,23 +172,32 @@ export async function getSymlinkedContentCollections(
 ): Promise<Map<string, string>> {
 	const contentPaths = new Map<string, string>();
 	const contentDirPath = fileURLToPath(contentDir);
-
-	if (!fsMod.existsSync(contentDirPath) || !fsMod.lstatSync(contentDirPath).isDirectory()) {
+	try {
+		if (!fsMod.existsSync(contentDirPath) || !fsMod.lstatSync(contentDirPath).isDirectory()) {
+			return contentPaths;
+		}
+	} catch {
+		// Ignore if there isn't a valid content directory
 		return contentPaths;
 	}
-
-	const contentDirEntries = await fsMod.promises.readdir(contentDir, { withFileTypes: true });
-	for (const entry of contentDirEntries) {
-		if (entry.isSymbolicLink()) {
-			const entryPath = path.join(contentDirPath, entry.name);
-			const realPath = await fsMod.promises.realpath(entryPath);
-			contentPaths.set(normalizePath(realPath), entry.name);
+	try {
+		const contentDirEntries = await fsMod.promises.readdir(contentDir, { withFileTypes: true });
+		for (const entry of contentDirEntries) {
+			if (entry.isSymbolicLink()) {
+				const entryPath = path.join(contentDirPath, entry.name);
+				const realPath = await fsMod.promises.realpath(entryPath);
+				contentPaths.set(normalizePath(realPath), entry.name);
+			}
 		}
+	} catch {
+		// If there's an error, return an empty map
+		return new Map<string, string>();
 	}
+
 	return contentPaths;
 }
 
-export function reverseSymlinks({
+export function reverseSymlink({
 	entry,
 	symlinks,
 	contentDir,

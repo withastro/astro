@@ -11,7 +11,7 @@ import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 import {
 	getSymlinkedContentCollections,
 	hasAnyContentFlag,
-	reverseSymlinks,
+	reverseSymlink,
 } from '../../content/utils.js';
 import {
 	type BuildInternals,
@@ -256,7 +256,7 @@ async function ssrBuild(
 							chunkInfo.facadeModuleId &&
 							hasAnyContentFlag(chunkInfo.facadeModuleId)
 						) {
-							const moduleId = reverseSymlinks({
+							const moduleId = reverseSymlink({
 								symlinks,
 								entry: chunkInfo.facadeModuleId,
 								contentDir,

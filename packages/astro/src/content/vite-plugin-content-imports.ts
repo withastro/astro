@@ -33,7 +33,7 @@ import {
 	hasContentFlag,
 	parseEntrySlug,
 	reloadContentConfigObserver,
-	reverseSymlinks,
+	reverseSymlink,
 } from './utils.js';
 
 function getContentRendererByViteId(
@@ -92,7 +92,7 @@ export function astroContentImportPlugin({
 				if (hasContentFlag(viteId, DATA_FLAG)) {
 					// By default, Vite will resolve symlinks to their targets. We need to reverse this for
 					// content entries, so we can get the path relative to the content directory.
-					const fileId = reverseSymlinks({
+					const fileId = reverseSymlink({
 						entry: viteId.split('?')[0] ?? viteId,
 						contentDir,
 						symlinks,
@@ -121,7 +121,7 @@ export const _internal = {
 `;
 					return code;
 				} else if (hasContentFlag(viteId, CONTENT_FLAG)) {
-					const fileId = reverseSymlinks({ entry: viteId.split('?')[0], contentDir, symlinks });
+					const fileId = reverseSymlink({ entry: viteId.split('?')[0], contentDir, symlinks });
 					const { id, slug, collection, body, data, _internal } = await getContentEntryModule({
 						fileId,
 						entryConfigByExt: contentEntryConfigByExt,
