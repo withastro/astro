@@ -60,7 +60,6 @@ describe('Dev reroute', () => {
 
 		assert.equal(response.status, 404);
 	});
-	
 });
 
 describe('Dev rewrite, hybrid/server', () => {
@@ -339,7 +338,6 @@ describe('Runtime error, default 500', () => {
 	});
 });
 
-
 describe('Runtime error in SSR, default 500', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -355,16 +353,13 @@ describe('Runtime error in SSR, default 500', () => {
 		app = await fixture.loadTestAdapterApp();
 	});
 
-
 	it('should return a 500 status code, but not render the custom 500', async () => {
 		const request = new Request('http://example.com/errors/from');
 		const response = await app.render(request);
 		const text = await response.text();
 		assert.equal(text, '');
-	})
-
+	});
 });
-
 
 describe('Runtime error in dev, custom 500', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -388,7 +383,7 @@ describe('Runtime error in dev, custom 500', () => {
 		const html = await response.text();
 		assert.match(html, /I am the custom 500/);
 	});
-})
+});
 
 describe('Runtime error in SSR, custom 500', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -405,7 +400,6 @@ describe('Runtime error in SSR, custom 500', () => {
 		app = await fixture.loadTestAdapterApp();
 	});
 
-
 	it('should render the custom 500 when rewriting a page that throws an error', async () => {
 		const request = new Request('http://example.com/errors/start');
 		const response = await app.render(request);
@@ -414,6 +408,5 @@ describe('Runtime error in SSR, custom 500', () => {
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'I am the custom 500');
-	})
-
+	});
 });

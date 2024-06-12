@@ -3,7 +3,7 @@ import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro
 import {
 	DEFAULT_404_COMPONENT,
 	REROUTE_DIRECTIVE_HEADER,
-	clientLocalsSymbol, DEFAULT_500_COMPONENT,
+	clientLocalsSymbol,
 } from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { req } from '../core/messages.js';
@@ -11,7 +11,7 @@ import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import { RenderContext } from '../core/render-context.js';
 import { type SSROptions, getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
-import {default404Page, default500Page} from '../core/routing/astro-designed-error-pages.js';
+import { default404Page } from '../core/routing/astro-designed-error-pages.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { normalizeTheLocale } from '../i18n/index.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
@@ -113,21 +113,6 @@ export async function matchRoute(
 		return {
 			route: custom404,
 			filePath: new URL(`file://${custom404.component}`),
-			resolvedPathname: pathname,
-			preloadedComponent: component,
-			mod: component,
-		};
-	}
-
-	const custom500 = getCustom500Route(manifestData);
-	
-	if (custom500 && custom500.component === DEFAULT_500_COMPONENT) {
-		const component: ComponentInstance = {
-			default: default500Page,
-		};
-		return {
-			route: custom500,
-			filePath: new URL(`file://${custom500.component}`),
 			resolvedPathname: pathname,
 			preloadedComponent: component,
 			mod: component,
@@ -301,14 +286,14 @@ export async function handleRoute({
 		if (!custom500) {
 			throw err;
 		}
-		logger.error("router", err.stack || err.message);
+		logger.error('router', err.stack || err.message);
 		const filePath = new URL(`./${custom500.component}`, config.root);
 		const preloadedComponent = await pipeline.preload(custom500, filePath);
 		renderContext.props.error = err;
 		response = await renderContext.render(preloadedComponent);
 		status = 500;
 	}
-	
+
 	if (isLoggedRequest(pathname)) {
 		const timeEnd = performance.now();
 		logger.info(

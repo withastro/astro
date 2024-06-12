@@ -12,14 +12,18 @@ import type {
 } from '../@types/astro.js';
 import { getInfoOutput } from '../cli/info/index.js';
 import { type HeadElements } from '../core/base-pipeline.js';
-import {ASTRO_VERSION, DEFAULT_404_COMPONENT, DEFAULT_500_COMPONENT} from '../core/constants.js';
+import { ASTRO_VERSION, DEFAULT_404_COMPONENT, DEFAULT_500_COMPONENT } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
 import { InvalidRewrite404, RewriteEncounteredAnError } from '../core/errors/errors-data.js';
 import { AggregateError, AstroError, CSSError, MarkdownError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Pipeline, loadRenderer } from '../core/render/index.js';
-import {DEFAULT_404_ROUTE, default404Page, default500Page} from '../core/routing/astro-designed-error-pages.js';
+import {
+	DEFAULT_404_ROUTE,
+	default404Page,
+	default500Page,
+} from '../core/routing/astro-designed-error-pages.js';
 import { isPage, isServerLikeOutput, resolveIdToUrl, viteID } from '../core/util.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
@@ -159,7 +163,6 @@ export class DevPipeline extends Pipeline {
 		if (filePath.href === new URL(DEFAULT_500_COMPONENT, this.config.root).href) {
 			return { default: default500Page } as any as ComponentInstance;
 		}
-
 
 		// Important: This needs to happen first, in case a renderer provides polyfills.
 		const renderers__ = this.settings.renderers.map((r) => loadRenderer(r, loader));

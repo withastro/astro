@@ -13,7 +13,11 @@ import {
 	createModuleScriptElement,
 	createStylesheetElementSet,
 } from '../core/render/ssr-element.js';
-import {DEFAULT_404_ROUTE,default404Page, default500Page} from '../core/routing/astro-designed-error-pages.js';
+import {
+	DEFAULT_404_ROUTE,
+	default404Page,
+	default500Page,
+} from '../core/routing/astro-designed-error-pages.js';
 
 export class ContainerPipeline extends Pipeline {
 	/**
@@ -118,10 +122,6 @@ export class ContainerPipeline extends Pipeline {
 	rewriteKnownRoute(pathname: string, _sourceRoute: RouteData): ComponentInstance {
 		if (pathname === '/404') {
 			return { default: default404Page } as any as ComponentInstance;
-		}
-
-		if (pathname === '/500') {
-			return { default: default500Page } as any as ComponentInstance;
 		}
 
 		throw new AstroError(InvalidRewrite404);

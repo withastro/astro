@@ -1,6 +1,6 @@
 import type { ManifestData, RouteData } from '../../@types/astro.js';
 import notFoundTemplate from '../../template/4xx.js';
-import {DEFAULT_404_COMPONENT, DEFAULT_500_COMPONENT} from '../constants.js';
+import { DEFAULT_404_COMPONENT, DEFAULT_500_COMPONENT } from '../constants.js';
 
 export const DEFAULT_404_ROUTE: RouteData = {
 	component: DEFAULT_404_COMPONENT,
@@ -58,12 +58,11 @@ export async function default404Page({ pathname }: { pathname: string }) {
 // mark the function as an AstroComponentFactory for the rendering internals
 default404Page.isAstroComponentFactory = true;
 
-
 export async function default500Page() {
-	return new Response(
-		null,
-		{ status: 500, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
-	);
+	return new Response(null, {
+		status: 500,
+		headers: { 'Content-Type': 'text/html; charset=utf-8' },
+	});
 }
 // mark the function as an AstroComponentFactory for the rendering internals
 default500Page.isAstroComponentFactory = true;
