@@ -22,10 +22,10 @@ function vitePluginPrerender(internals: BuildInternals): VitePlugin {
 				pageInfo.route.prerender = prerender;
 			}
 
-			// Find all chunks that used in SSR runtime (not prerendered only), then use the Set
-			// to find the inverse, where chunks that are only used for prerendering. It's faster
-			// to compute `internals.prerenderedChunks` this way. The prerendered chunks will be
-			// deleted after we finish prerendering.
+			// Find all chunks used in the SSR runtime (that aren't used for prerendering only), then use
+			// the Set to find the inverse, where chunks that are only used for prerendering. It's faster
+			// to compute `internals.prerenderOnlyChunks` this way. The prerendered chunks will be deleted
+			// after we finish prerendering.
 			const nonPrerenderOnlyChunks = getNonPrerenderOnlyChunks(bundle, internals);
 			internals.prerenderOnlyChunks = Object.values(bundle).filter((chunk) => {
 				return chunk.type === 'chunk' && !nonPrerenderOnlyChunks.has(chunk);
@@ -37,6 +37,7 @@ function vitePluginPrerender(internals: BuildInternals): VitePlugin {
 function getNonPrerenderOnlyChunks(bundle: Rollup.OutputBundle, internals: BuildInternals) {
 	const chunks = Object.values(bundle);
 
+	const prerenderOnlyEntryChunks = new Set<Rollup.OutputChunk>();
 	const nonPrerenderOnlyEntryChunks = new Set<Rollup.OutputChunk>();
 	for (const chunk of chunks) {
 		if (chunk.type === 'chunk' && (chunk.isEntry || chunk.isDynamicEntry)) {
@@ -48,7 +49,10 @@ function getNonPrerenderOnlyChunks(bundle: Rollup.OutputBundle, internals: Build
 					chunk.facadeModuleId
 				);
 				const prerender = pageDatas.every((pageData) => pageData.route.prerender);
-				if (prerender) continue;
+				if (prerender) {
+					prerenderOnlyEntryChunks.add(chunk);
+					continue;
+				}
 			}
 			// Ideally we should record entries when `functionPerRoute` is enabled, but this breaks some tests
 			// that expect the entrypoint to still exist even if it should be unused.
@@ -60,7 +64,10 @@ function getNonPrerenderOnlyChunks(bundle: Rollup.OutputBundle, internals: Build
 			// 		chunk.facadeModuleId
 			// 	);
 			// 	const prerender = pageDatas.every((pageData) => pageData.route.prerender);
-			// 	if (prerender) continue;
+			// 	if (prerender) {
+			// 		prerenderOnlyEntryChunks.add(chunk);
+			// 		continue;
+			// 	}
 			// }
 
 			nonPrerenderOnlyEntryChunks.add(chunk);
@@ -85,7 +92,12 @@ function getNonPrerenderOnlyChunks(bundle: Rollup.OutputBundle, internals: Build
 		}
 		for (const dynamicImportFileName of chunk.dynamicImports) {
 			const dynamicImportChunk = bundle[dynamicImportFileName];
-			if (dynamicImportChunk?.type === 'chunk') {
+			// The main server entry (entry.mjs) may import a prerender-only entry chunk, we skip in this case
+			// to prevent incorrectly marking it as non-prerendered.
+			if (
+				dynamicImportChunk?.type === 'chunk' &&
+				!prerenderOnlyEntryChunks.has(dynamicImportChunk)
+			) {
 				crawlChunk(dynamicImportChunk);
 			}
 		}

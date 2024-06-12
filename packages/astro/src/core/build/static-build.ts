@@ -380,7 +380,12 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 	await Promise.all(
 		internals.prerenderOnlyChunks.map(async (chunk) => {
 			const url = new URL(chunk.fileName, out);
-			await fs.promises.unlink(url);
+			try {
+				await fs.promises.unlink(url);
+			} catch {
+				// Best-effort delete. Sometimes some chunks may be deleted by other plugins, like pure CSS chunks,
+				// so they may already not exist.
+			}
 		})
 	);
 }

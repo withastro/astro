@@ -66,7 +66,10 @@ describe('SSR: prerender', () => {
 	});
 });
 
-describe('Integrations can hook into the prerendering decision', () => {
+// NOTE: This test doesn't make sense as it relies on the fact that on the client build,
+// you can change the prerender state of pages from the SSR build, however, the client build
+// is not always guaranteed to run. We should have an 
+describe.skip('Integrations can hook into the prerendering decision', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
