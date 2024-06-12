@@ -289,7 +289,6 @@ export async function handleRoute({
 		logger.error('router', err.stack || err.message);
 		const filePath = new URL(`./${custom500.component}`, config.root);
 		const preloadedComponent = await pipeline.preload(custom500, filePath);
-		renderContext.props.error = err;
 		response = await renderContext.render(preloadedComponent);
 		status = 500;
 	}
