@@ -33,7 +33,7 @@ export const ROUTE_TYPE_HEADER = 'X-Astro-Route-Type';
 export const DEFAULT_404_COMPONENT = 'astro-default-404.astro';
 
 /**
- * The value of the `component` field of the default 404 page, which is used when there is no user-provided 404.astro page.
+ * The value of the `component` field of the default 500 page, which is used when there is no user-provided 404.astro page.
  */
 export const DEFAULT_500_COMPONENT = 'astro-default-500.astro';
 
