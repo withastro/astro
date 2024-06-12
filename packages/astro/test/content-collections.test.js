@@ -98,6 +98,28 @@ describe('Content Collections', () => {
 					subject: 'My Newsletter',
 				});
 			});
+
+			it('Handles symlinked content', async () => {
+				assert.ok(json.hasOwnProperty('withSymlinkedContent'));
+				assert.equal(Array.isArray(json.withSymlinkedContent), true);
+
+				const ids = json.withSymlinkedContent.map((item) => item.id);
+				assert.deepEqual(ids, ['first.md', 'second.md', 'third.md']);
+				assert.equal(json.withSymlinkedContent[0].data.title, 'First Blog');
+			});
+
+			it('Handles symlinked data', async () => {
+				assert.ok(json.hasOwnProperty('withSymlinkedData'));
+				assert.equal(Array.isArray(json.withSymlinkedData), true);
+
+				const ids = json.withSymlinkedData.map((item) => item.id);
+				assert.deepEqual(ids, ['welcome']);
+				assert.equal(
+					json.withSymlinkedData[0].data.alt,
+					'Futuristic landscape with chrome buildings and blue skies'
+				);
+				assert.notEqual(json.withSymlinkedData[0].data.src.src, undefined);
+			});
 		});
 
 		describe('Propagation', () => {
