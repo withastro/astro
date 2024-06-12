@@ -334,7 +334,7 @@ describe('Runtime error, default 500', () => {
 		const response = await fixture.fetch('/errors/from');
 		assert.equal(response.status, 500);
 		const text = await response.text();
-		assert.equal(text, '');
+		assert.match(text, /@vite\/client/);
 	});
 });
 

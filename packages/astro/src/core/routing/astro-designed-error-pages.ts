@@ -37,13 +37,6 @@ export function ensure404Route(manifest: ManifestData) {
 	return manifest;
 }
 
-export function ensure500Route(manifest: ManifestData) {
-	if (!manifest.routes.some((route) => route.route === '/500')) {
-		manifest.routes.push(DEFAULT_500_ROUTE);
-	}
-	return manifest;
-}
-
 export async function default404Page({ pathname }: { pathname: string }) {
 	return new Response(
 		notFoundTemplate({
