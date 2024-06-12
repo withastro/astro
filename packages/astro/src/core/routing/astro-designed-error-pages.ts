@@ -22,7 +22,7 @@ export const DEFAULT_500_ROUTE: RouteData = {
 	params: [],
 	pattern: /\/500/,
 	prerender: false,
-	pathname: '/404',
+	pathname: '/500',
 	segments: [[{ content: '500', dynamic: false, spread: false }]],
 	type: 'page',
 	route: '/500',
