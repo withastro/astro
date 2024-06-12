@@ -185,6 +185,7 @@ export async function getSymlinkedContentCollections(
 			contentPaths.set(realPath, entry.name);
 		}
 	}
+	console.log({contentPaths})
 	return contentPaths;
 }
 
