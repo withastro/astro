@@ -3493,6 +3493,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/rewrite-runtime-error-custom500:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/rewrite-server:
     dependencies:
       astro:
