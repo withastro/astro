@@ -293,7 +293,21 @@ export async function handleRoute({
 		});
 	}
 
-	let response = await renderContext.render(mod);
+	let response;
+	try {
+		response = await renderContext.render(mod);
+	} catch (err) {
+		const custom500 = getCustom500Route(manifestData);
+		if (!custom500) {
+			throw err;
+		}
+		const filePath = new URL(`./${custom500.component}`, config.root);
+		const preloadedComponent = await pipeline.preload(custom500, filePath);
+		renderContext.props.error = err;
+		response = await renderContext.render(preloadedComponent);
+		status = 500;
+	}
+	
 	if (isLoggedRequest(pathname)) {
 		const timeEnd = performance.now();
 		logger.info(
@@ -314,23 +328,6 @@ export async function handleRoute({
 				matchedRoute: fourOhFourRoute,
 				url: new URL(pathname, url),
 				status: 404,
-				body,
-				origin,
-				pipeline,
-				manifestData,
-				incomingRequest,
-				incomingResponse,
-			});
-	}
-	
-	if (response.status === 500 && response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no') {
-		const fiveHundred = await matchRoute('/500', manifestData, pipeline);
-		if (options && options.route !== fiveHundred?.route)
-			return handleRoute({
-				...options,
-				matchedRoute: fiveHundred,
-				url: new URL(pathname, url),
-				status: 500,
 				body,
 				origin,
 				pipeline,
