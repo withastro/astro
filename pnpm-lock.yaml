@@ -3748,6 +3748,32 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/ssr-prerender-chunks:
+    dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
+      '@test/ssr-prerender-chunks-test-adapter':
+        specifier: link:./deps/test-adapter
+        version: link:deps/test-adapter
+      '@types/react':
+        specifier: ^18.2.75
+        version: 18.3.3
+      '@types/react-dom':
+        specifier: ^18.2.24
+        version: 18.3.0
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+
+  packages/astro/test/fixtures/ssr-prerender-chunks/deps/test-adapter: {}
+
   packages/astro/test/fixtures/ssr-prerender-get-static-paths:
     dependencies:
       astro:
