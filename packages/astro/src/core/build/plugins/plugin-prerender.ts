@@ -1,10 +1,9 @@
-import type { Plugin as VitePlugin, Rollup } from 'vite';
+import type { Rollup, Plugin as VitePlugin } from 'vite';
 import { getPrerenderMetadata } from '../../../prerender/metadata.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugin-pages.js';
-import { RESOLVED_SPLIT_MODULE_ID } from './plugin-ssr.js';
 import { getPagesFromVirtualModulePageName } from './util.js';
 
 function vitePluginPrerender(internals: BuildInternals): VitePlugin {
@@ -50,15 +49,19 @@ function getNonPrerenderOnlyChunks(bundle: Rollup.OutputBundle, internals: Build
 				);
 				const prerender = pageDatas.every((pageData) => pageData.route.prerender);
 				if (prerender) continue;
-			} else if (chunk.facadeModuleId?.startsWith(RESOLVED_SPLIT_MODULE_ID)) {
-				const pageDatas = getPagesFromVirtualModulePageName(
-					internals,
-					RESOLVED_SPLIT_MODULE_ID,
-					chunk.facadeModuleId
-				);
-				const prerender = pageDatas.every((pageData) => pageData.route.prerender);
-				if (prerender) continue;
 			}
+			// Ideally we should record entries when `functionPerRoute` is enabled, but this breaks some tests
+			// that expect the entrypoint to still exist even if it should be unused.
+			// TODO: Revisit this so we can delete additional unused chunks
+			// else if (chunk.facadeModuleId?.startsWith(RESOLVED_SPLIT_MODULE_ID)) {
+			// 	const pageDatas = getPagesFromVirtualModulePageName(
+			// 		internals,
+			// 		RESOLVED_SPLIT_MODULE_ID,
+			// 		chunk.facadeModuleId
+			// 	);
+			// 	const prerender = pageDatas.every((pageData) => pageData.route.prerender);
+			// 	if (prerender) continue;
+			// }
 
 			nonPrerenderOnlyEntryChunks.add(chunk);
 		}

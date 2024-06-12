@@ -156,7 +156,7 @@ export function createBuildInternals(): BuildInternals {
 		ssrSplitEntryChunks: new Map(),
 		entryPoints: new Map(),
 		cacheManifestUsed: false,
-		prerenderOnlyChunks: []
+		prerenderOnlyChunks: [],
 	};
 }
 

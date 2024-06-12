@@ -27,7 +27,17 @@ function vitePluginSSR(
 		name: '@astrojs/vite-plugin-astro-ssr-server',
 		enforce: 'post',
 		options(opts) {
-			return addRollupInput(opts, [SSR_VIRTUAL_MODULE_ID]);
+			const inputs = new Set<string>();
+
+			for (const pageData of Object.values(options.allPages)) {
+				if (routeIsRedirect(pageData.route)) {
+					continue;
+				}
+				inputs.add(getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component));
+			}
+
+			inputs.add(SSR_VIRTUAL_MODULE_ID);
+			return addRollupInput(opts, Array.from(inputs));
 		},
 		resolveId(id) {
 			if (id === SSR_VIRTUAL_MODULE_ID) {
