@@ -185,7 +185,6 @@ export async function getSymlinkedContentCollections(
 			contentPaths.set(normalizePath(realPath), entry.name);
 		}
 	}
-	console.log({ contentPaths });
 	return contentPaths;
 }
 
@@ -206,9 +205,7 @@ export function reverseSymlinks({
 
 	for (const [realPath, symlinkName] of symlinks) {
 		if (entryPath.startsWith(realPath)) {
-			const res = path.join(contentDirPath, symlinkName, entryPath.replace(realPath, ''));
-			console.log(`reverseSymlinks: ${entryPath} -> ${res}`);
-			return res;
+			return normalizePath(path.join(contentDirPath, symlinkName, entryPath.replace(realPath, '')));
 		}
 	}
 	return entryPath;
