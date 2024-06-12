@@ -6,6 +6,7 @@ import { crawlFrameworkPkgs } from 'vitefu';
 import type { AstroSettings } from '../@types/astro.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
+import astroContainer from '../container/vite-plugin-container.js';
 import {
 	astroContentAssetPropagationPlugin,
 	astroContentImportPlugin,
@@ -38,7 +39,6 @@ import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
 import { isObject } from './util.js';
-import astroContainer from "../container/vite-plugin-container.js";
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -158,7 +158,7 @@ export async function createVite(
 			astroDevToolbar({ settings, logger }),
 			vitePluginFileURL({}),
 			astroInternationalization({ settings }),
-			astroContainer()
+			astroContainer(),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
