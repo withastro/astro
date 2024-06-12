@@ -35,9 +35,9 @@ export default function createVitePluginAstroServer({
 		configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
 			const manifest = createDevelopmentManifest(settings);
-			let manifestData: ManifestData = 
-				ensure404Route(createRouteManifest({ settings, fsMod }, logger))
-			;
+			let manifestData: ManifestData = ensure404Route(
+				createRouteManifest({ settings, fsMod }, logger)
+			);
 			const pipeline = DevPipeline.create(manifestData, { loader, logger, manifest, settings });
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();

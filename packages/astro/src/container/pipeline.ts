@@ -13,10 +13,7 @@ import {
 	createModuleScriptElement,
 	createStylesheetElementSet,
 } from '../core/render/ssr-element.js';
-import {
-	DEFAULT_404_ROUTE,
-	default404Page,
-} from '../core/routing/astro-designed-error-pages.js';
+import { DEFAULT_404_ROUTE, default404Page } from '../core/routing/astro-designed-error-pages.js';
 
 export class ContainerPipeline extends Pipeline {
 	/**

@@ -19,10 +19,7 @@ import { AggregateError, AstroError, CSSError, MarkdownError } from '../core/err
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Pipeline, loadRenderer } from '../core/render/index.js';
-import {
-	DEFAULT_404_ROUTE,
-	default404Page,
-} from '../core/routing/astro-designed-error-pages.js';
+import { DEFAULT_404_ROUTE, default404Page } from '../core/routing/astro-designed-error-pages.js';
 import { isPage, isServerLikeOutput, resolveIdToUrl, viteID } from '../core/util.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
