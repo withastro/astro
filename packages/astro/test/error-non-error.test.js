@@ -24,8 +24,6 @@ describe('Can handle errors that are not instanceof Error', () => {
 		let res = await fixture.fetch('/');
 		let html = await res.text();
 
-		console.log('html', html);
-
 		assert.equal(html.includes('Error'), true);
 		res = await fixture.fetch('/');
 		await res.text();
