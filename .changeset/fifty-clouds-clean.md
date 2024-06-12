@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Supports symlinked content collection directories
+Fixes a case where symlinked content collection directories were not correctly resolved
