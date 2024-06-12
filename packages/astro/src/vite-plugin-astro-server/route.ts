@@ -286,6 +286,7 @@ export async function handleRoute({
 		if (!custom500) {
 			throw err;
 		}
+		// Log useful information that the custom 500 page may not display unlike the default error overlay
 		logger.error('router', err.stack || err.message);
 		const filePath = new URL(`./${custom500.component}`, config.root);
 		const preloadedComponent = await pipeline.preload(custom500, filePath);
