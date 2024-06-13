@@ -3,5 +3,5 @@
   "include": ["src"],
   "compilerOptions": {
     "outDir": "./dist"
-  }
+  },
 }

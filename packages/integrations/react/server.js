@@ -230,3 +230,4 @@ export default {
 	renderToStaticMarkup,
 	supportsAstroStaticSlot: true,
 };
+

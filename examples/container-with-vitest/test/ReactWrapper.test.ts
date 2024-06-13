@@ -6,7 +6,7 @@ import ReactWrapper from '../src/components/ReactWrapper.astro';
 
 const renderers = await loadRenderers([getContainerRenderer()]);
 const container = await AstroContainer.create({
-	renderers,
+	renderers
 });
 
 test('ReactWrapper with react renderer', async () => {
