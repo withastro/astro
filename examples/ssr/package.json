@@ -12,9 +12,9 @@
     "server": "node dist/server/entry.mjs"
   },
   "dependencies": {
-    "@astrojs/node": "^8.2.6",
+    "@astrojs/node": "^8.3.0",
     "@astrojs/svelte": "^5.5.0",
-    "astro": "^4.10.1",
-    "svelte": "^4.2.17"
+    "astro": "^4.10.2",
+    "svelte": "^4.2.18"
   }
 }

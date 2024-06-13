@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 7.7.0
+
+### Minor Changes
+
+- [#11199](https://github.com/withastro/astro/pull/11199) [`2bdca27`](https://github.com/withastro/astro/commit/2bdca27ff4002efd330667b0b4ca3e00d5b7a2db) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds support for experimental `astro:env` released in Astro 4.10
+
 ## 7.6.0
 
 ### Minor Changes

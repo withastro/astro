@@ -66,7 +66,7 @@ export abstract class Pipeline {
 		if (callSetGetEnv && manifest.experimentalEnvGetSecretEnabled) {
 			setGetEnv(() => {
 				throw new AstroError(AstroErrorData.EnvUnsupportedGetSecret);
-			});
+			}, true);
 		}
 	}
 
@@ -88,7 +88,7 @@ export abstract class Pipeline {
 		rewritePayload: RewritePayload,
 		request: Request,
 		sourceRoute: RouteData
-	): Promise<[RouteData, ComponentInstance]>;
+	): Promise<[RouteData, ComponentInstance, URL]>;
 
 	/**
 	 * Tells the pipeline how to retrieve a component give a `RouteData`

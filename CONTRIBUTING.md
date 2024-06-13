@@ -12,9 +12,11 @@ We welcome contributions of any size and skill level. As an open source project,
 
 ```shell
 node: "^>=18.17.1"
-pnpm: "^8.6.12"
+pnpm: "^9.3.0"
 # otherwise, your build will fail
 ```
+
+We recommend using Corepack, [read PNPM docs](https://pnpm.io/installation#using-corepack).
 
 ### Setting up your local repo
 
