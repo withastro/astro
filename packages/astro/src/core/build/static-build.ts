@@ -381,9 +381,20 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 		internals.prerenderOnlyChunks.map(async (chunk) => {
 			const url = new URL(chunk.fileName, out);
 			try {
-				await fs.promises.unlink(url);
+				// Entry chunks may be referenced by non-deleted code, so we don't actually delete it
+				// but only empty its content. These chunks should never be executed in practice, but
+				// it should prevent broken import paths if adapters do a secondary bundle.
+				if (chunk.isEntry || chunk.isDynamicEntry) {
+					await fs.promises.writeFile(
+						url,
+						"// Contents removed by Astro as it's used for prerendering only",
+						'utf-8'
+					);
+				} else {
+					await fs.promises.unlink(url);
+				}
 			} catch {
-				// Best-effort delete. Sometimes some chunks may be deleted by other plugins, like pure CSS chunks,
+				// Best-effort only. Sometimes some chunks may be deleted by other plugins, like pure CSS chunks,
 				// so they may already not exist.
 			}
 		})

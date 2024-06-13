@@ -68,7 +68,8 @@ describe('SSR: prerender', () => {
 
 // NOTE: This test doesn't make sense as it relies on the fact that on the client build,
 // you can change the prerender state of pages from the SSR build, however, the client build
-// is not always guaranteed to run. We should have an 
+// is not always guaranteed to run. If we want to support this feature, we may want to only allow
+// editing `route.prerender` on the `astro:build:done` hook.
 describe.skip('Integrations can hook into the prerendering decision', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
