@@ -285,7 +285,7 @@ export interface AstroGlobal<
 	/**
 	 * The <Astro.self /> element allows a component to reference itself recursively.
 	 *
-	 * [Astro reference](https://docs.astro.build/en/guides/api-reference/#astroself)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroself)
 	 */
 	self: Self;
 	/** Utility functions for modifying an Astro component’s slotted children
@@ -2857,7 +2857,7 @@ export interface APIContext<
 	 * }
 	 * ```
 	 *
-	 * [Reference](https://docs.astro.build/en/guides/api-reference/#contextprops)
+	 * [Reference](https://docs.astro.build/en/reference/api-reference/#contextprops)
 	 */
 	props: AstroSharedContext<Props, APIParams>['props'];
 	/**
