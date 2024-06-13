@@ -2999,7 +2999,7 @@ export type SSRLoadedRendererValue =  {
 	renderHydrationScript?: () => string;
 }
 
-export interface SSRLoadedRenderer extends AstroRenderer {
+export interface SSRLoadedRenderer extends Pick<AstroRenderer, 'name' | 'clientEntrypoint'> {
 	ssr: SSRLoadedRendererValue;
 }
 

@@ -231,10 +231,3 @@ export default {
 	supportsAstroStaticSlot: true,
 };
 
-export const renderer = {
-	ssr: {
-		check,
-		renderToStaticMarkup,
-		supportsAstroStaticSlot: true,
-	} 
-}
