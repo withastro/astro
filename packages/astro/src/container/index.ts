@@ -1,16 +1,15 @@
 import { posix } from 'node:path';
 import type {
 	AstroConfig,
-	AstroRenderer,
 	AstroUserConfig,
 	ComponentInstance,
 	ContainerImportRendererFn,
-	ContainerRenderer,
 	MiddlewareHandler,
 	Props,
 	RouteData,
 	RouteType,
 	SSRLoadedRenderer,
+	SSRLoadedRendererValue,
 	SSRManifest,
 	SSRResult,
 } from '../@types/astro.js';
@@ -267,6 +266,40 @@ export class experimental_AstroContainer {
 			renderers,
 			astroConfig,
 			resolve,
+		});
+	}
+
+	/**
+	 * Use this function to manually add a renderer to the container.
+	 *
+	 * This function is preferred when you require to use the container with a renderer in environments such as on-demand pages.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * import reactRenderer from "@astrojs/react/server.js";
+	 * import vueRenderer from "@astrojs/vue/server.js";
+	 * import { experimental_AstroContainer as AstroContainer } from "astro/container"
+	 *
+	 * const container = await AstroContainer.create();
+	 * container.addServerRenderer("@astrojs/react", reactRenderer);
+	 * container.addServerRenderer("@astrojs/vue", vueRenderer);
+	 * ```
+	 *
+	 * @param name The name of the renderer. The name **isn't** arbitrary, and it should match the name of the package.
+	 * @param renderer The server renderer exported by integration.
+	 */
+	public addServerRenderer(name: string, renderer: SSRLoadedRendererValue) {
+		if (!renderer.check || !renderer.renderToStaticMarkup) {
+			throw new Error(
+				"The renderer you passed isn't valid. A renderer is usually an object that exposes the `check` and `renderToStaticMarkup` functions.\n" +
+					"Usually, the renderer is exported by a /server.js entrypoint e.g. `import renderer from '@astrojs/react/server.js'`"
+			);
+		}
+
+		this.#pipeline.manifest.renderers.push({
+			name,
+			ssr: renderer,
 		});
 	}
 

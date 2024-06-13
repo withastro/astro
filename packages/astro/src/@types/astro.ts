@@ -2977,27 +2977,29 @@ export interface AstroRenderer {
 	jsxTransformOptions?: JSXTransformFn;
 }
 
-export interface SSRLoadedRenderer extends AstroRenderer {
-	ssr: {
-		check: AsyncRendererComponentFn<boolean>;
-		renderToStaticMarkup: AsyncRendererComponentFn<{
-			html: string;
-			attrs?: Record<string, string>;
-		}>;
-		supportsAstroStaticSlot?: boolean;
-		/**
-		 * If provided, Astro will call this function and inject the returned
-		 * script in the HTML before the first component handled by this renderer.
-		 *
-		 * This feature is needed by some renderers (in particular, by Solid). The
-		 * Solid official hydration script sets up a page-level data structure.
-		 * It is mainly used to transfer data between the server side render phase
-		 * and the browser application state. Solid Components rendered later in
-		 * the HTML may inject tiny scripts into the HTML that call into this
-		 * page-level data structure.
-		 */
-		renderHydrationScript?: () => string;
-	};
+export type SSRLoadedRendererValue = {
+	check: AsyncRendererComponentFn<boolean>;
+	renderToStaticMarkup: AsyncRendererComponentFn<{
+		html: string;
+		attrs?: Record<string, string>;
+	}>;
+	supportsAstroStaticSlot?: boolean;
+	/**
+	 * If provided, Astro will call this function and inject the returned
+	 * script in the HTML before the first component handled by this renderer.
+	 *
+	 * This feature is needed by some renderers (in particular, by Solid). The
+	 * Solid official hydration script sets up a page-level data structure.
+	 * It is mainly used to transfer data between the server side render phase
+	 * and the browser application state. Solid Components rendered later in
+	 * the HTML may inject tiny scripts into the HTML that call into this
+	 * page-level data structure.
+	 */
+	renderHydrationScript?: () => string;
+};
+
+export interface SSRLoadedRenderer extends Pick<AstroRenderer, 'name' | 'clientEntrypoint'> {
+	ssr: SSRLoadedRendererValue;
 }
 
 export type HookParameters<
