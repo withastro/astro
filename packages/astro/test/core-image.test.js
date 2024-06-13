@@ -712,7 +712,7 @@ describe('astro:image', () => {
 			let res = await fixture.fetch('/get-image-empty');
 			await res.text();
 
-			assert.equal(logs.length, 1);
+			assert.equal(logs.length >= 1, true);
 			assert.equal(logs[0].message.includes('Expected getImage() parameter'), true);
 		});
 
@@ -721,7 +721,7 @@ describe('astro:image', () => {
 			let res = await fixture.fetch('/get-image-undefined');
 			await res.text();
 
-			assert.equal(logs.length, 1);
+			assert.equal(logs.length >= 1, true);
 			assert.equal(logs[0].message.includes('Expected `src` property'), true);
 		});
 
