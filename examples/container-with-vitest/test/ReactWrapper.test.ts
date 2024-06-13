@@ -2,17 +2,11 @@ import { loadRenderers } from 'astro:container';
 import { getContainerRenderer } from '@astrojs/react';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { expect, test } from 'vitest';
-import renderer from "@astrojs/react/server.js";
 import ReactWrapper from '../src/components/ReactWrapper.astro';
 
 const renderers = await loadRenderers([getContainerRenderer()]);
 const container = await AstroContainer.create({
-	renderers: [
-		{
-			name: "@astrojs/react",
-			ssr: renderer
-		}
-	],
+	renderers
 });
 
 test('ReactWrapper with react renderer', async () => {
