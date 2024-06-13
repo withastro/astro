@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { describe, it, before } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { experimental_AstroContainer } from '../dist/container/index.js';
 import {
 	Fragment,
@@ -12,8 +12,8 @@ import {
 	renderSlot,
 	renderTemplate,
 } from '../dist/runtime/server/index.js';
-import {loadFixture} from "./test-utils.js";
-import testAdapter from "./test-adapter.js";
+import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 const BaseLayout = createComponent((result, _props, slots) => {
 	return render`<html>
@@ -234,24 +234,23 @@ describe('Container', () => {
 });
 
 describe('Container with renderers', () => {
-	let fixture
+	let fixture;
 	let app;
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/container-react/', import.meta.url),
-			output: "server",
-			adapter: testAdapter()
+			output: 'server',
+			adapter: testAdapter(),
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
 	});
 
-	it("the endpoint should return the HTML of the React component", async () => {
-		const request = new Request("https://example.com/api");
-		const response = await app.render(request)
-		const html = await response.text()
+	it('the endpoint should return the HTML of the React component', async () => {
+		const request = new Request('https://example.com/api');
+		const response = await app.render(request);
+		const html = await response.text();
 
-		assert.match(html, /I am a react button/)
-	})
+		assert.match(html, /I am a react button/);
+	});
 });
-

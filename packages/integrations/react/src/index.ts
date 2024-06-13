@@ -1,12 +1,12 @@
 import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-react';
-import type {AstroIntegration, ContainerRenderer} from 'astro';
+import type { AstroIntegration, ContainerRenderer } from 'astro';
 import type * as vite from 'vite';
 import {
+	type ReactVersionConfig,
+	type SupportedReactVersion,
 	getReactMajorVersion,
 	isUnsupportedVersion,
 	versionsConfig,
-	type ReactVersionConfig,
-	type SupportedReactVersion,
 } from './version.js';
 
 export type ReactIntegrationOptions = Pick<
