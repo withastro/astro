@@ -226,6 +226,7 @@ function isFormRequest(contentType) {
 }
 
 export default {
+	name: '@astrojs/react',
 	check,
 	renderToStaticMarkup,
 	supportsAstroStaticSlot: true,

@@ -1,4 +1,4 @@
-import type { AstroComponentMetadata } from 'astro';
+import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
 import { Component as BaseComponent, type VNode, h } from 'preact';
 import { render } from 'preact-render-to-string';
 import prepass from 'preact-ssr-prepass';
@@ -147,8 +147,11 @@ function filteredConsoleError(msg: string, ...rest: any[]) {
 	originalConsoleError(msg, ...rest);
 }
 
-export default {
+const renderer: NamedSSRLoadedRendererValue = {
+	name: '@astrojs/preact',
 	check,
 	renderToStaticMarkup,
 	supportsAstroStaticSlot: true,
 };
+
+export default renderer;
