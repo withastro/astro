@@ -5608,7 +5608,7 @@ importers:
   packages/markdown/remark:
     dependencies:
       '@astrojs/prism':
-        specifier: ^3.1.0
+        specifier: workspace:*
         version: link:../../astro-prism
       github-slugger:
         specifier: ^2.0.0
