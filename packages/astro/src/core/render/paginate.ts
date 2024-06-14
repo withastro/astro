@@ -92,7 +92,7 @@ export function generatePaginateFunction(
 	};
 }
 
-function addRouteBase(route: string, base: string = '/') {
+function addRouteBase(route: string, base: string) {
 	// `routeMatch.generate` avoids appending `/`
 	// unless `trailingSlash: 'always'` is configured.
 	// This means an empty string is possible for the index route.
