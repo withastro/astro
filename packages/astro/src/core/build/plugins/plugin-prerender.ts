@@ -76,18 +76,12 @@ function getNonPrerenderOnlyChunks(bundle: Rollup.OutputBundle, internals: Build
 
 	// From the `nonPrerenderedEntryChunks`, we crawl all the imports/dynamicImports to find all
 	// other chunks that are use by the non-prerendered runtime
-	const nonPrerenderOnlyChunks = new Set();
-	for (const entryChunk of nonPrerenderOnlyEntryChunks) {
-		crawlChunk(entryChunk);
-	}
-
-	function crawlChunk(chunk: Rollup.OutputChunk) {
-		if (nonPrerenderOnlyChunks.has(chunk)) return;
-		nonPrerenderOnlyChunks.add(chunk);
+	const nonPrerenderOnlyChunks = new Set(nonPrerenderOnlyEntryChunks);
+	for (const chunk of nonPrerenderOnlyChunks) {
 		for (const importFileName of chunk.imports) {
 			const importChunk = bundle[importFileName];
 			if (importChunk?.type === 'chunk') {
-				crawlChunk(importChunk);
+				nonPrerenderOnlyChunks.add(importChunk);
 			}
 		}
 		for (const dynamicImportFileName of chunk.dynamicImports) {
@@ -98,7 +92,7 @@ function getNonPrerenderOnlyChunks(bundle: Rollup.OutputBundle, internals: Build
 				dynamicImportChunk?.type === 'chunk' &&
 				!prerenderOnlyEntryChunks.has(dynamicImportChunk)
 			) {
-				crawlChunk(dynamicImportChunk);
+				nonPrerenderOnlyChunks.add(dynamicImportChunk);
 			}
 		}
 	}
