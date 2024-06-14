@@ -7,6 +7,7 @@ import type {
 	Params,
 	RouteData,
 	RuntimeMode,
+	AstroConfig
 } from '../../@types/astro.js';
 import type { Logger } from '../logger/core.js';
 
@@ -20,7 +21,7 @@ interface CallGetStaticPathsOptions {
 	routeCache: RouteCache;
 	logger: Logger;
 	ssr: boolean;
-	base: string;
+	base: AstroConfig['base'];
 }
 
 export async function callGetStaticPaths({
@@ -71,7 +72,7 @@ export async function callGetStaticPaths({
 		const paramsKey = stringifyParams(sp.params, route);
 		keyedStaticPaths.keyed.set(paramsKey, sp);
 	}
-	 
+	
 	routeCache.set(route, { ...cached, staticPaths: keyedStaticPaths });
 	return keyedStaticPaths;
 }

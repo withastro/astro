@@ -5,13 +5,14 @@ import type {
 	Params,
 	Props,
 	RouteData,
+	AstroConfig
 } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { removeTrailingForwardSlash } from '../path.js';
+import { joinPaths } from '../path.js';
 
 export function generatePaginateFunction(
 	routeMatch: RouteData,
-	base: string,
+	base: AstroConfig['base'],
 ): (...args: Parameters<PaginateFunction>) => ReturnType<PaginateFunction> {
 	return function paginateUtility(
 		data: any[],
@@ -92,11 +93,11 @@ export function generatePaginateFunction(
 	};
 }
 
-function addRouteBase(route: string, base: string) {
+function addRouteBase(route: string, base: AstroConfig['base']) {
 	// `routeMatch.generate` avoids appending `/`
 	// unless `trailingSlash: 'always'` is configured.
 	// This means an empty string is possible for the index route.
-	let routeWithBase = base === '/' ? route : removeTrailingForwardSlash(base) + route;
+	let routeWithBase = joinPaths(base, route);
 	if (routeWithBase === '') routeWithBase = '/';
 	return routeWithBase;
 }
