@@ -71,8 +71,8 @@ export async function callGetStaticPaths({
 		const paramsKey = stringifyParams(sp.params, route);
 		keyedStaticPaths.keyed.set(paramsKey, sp);
 	}
-	if (base) routeCache.set(route, { ...cached, staticPaths: keyedStaticPaths });
-	
+	 
+	routeCache.set(route, { ...cached, staticPaths: keyedStaticPaths });
 	return keyedStaticPaths;
 }
 
