@@ -542,7 +542,7 @@ export class RenderContext {
 	 * @param oldRequest The old `Request`
 	 */
 	#copyRequest(newUrl: URL, oldRequest: Request): Request {
-		if(oldRequest.bodyUsed) {
+		if (oldRequest.bodyUsed) {
 			throw new AstroError(AstroErrorData.RewriteWithBodyUsed);
 		}
 		return new Request(newUrl, {
