@@ -13,7 +13,7 @@ type EnvSetupModule = typeof import('astro/env/setup');
 // Won't throw if the virtual module is not available because it's not supported in
 // the users's astro version or if astro:env is not enabled in the project
 const setupModule = 'astro/env/setup';
-await import(/* @vite-ignore */setupModule)
+await import(/* @vite-ignore */ setupModule)
 	.then((mod: EnvSetupModule) => mod.setGetEnv((key) => process.env[key]))
 	.catch(() => {});
 
