@@ -21,7 +21,10 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/lit/",
   "exports": {
     ".": "./dist/index.js",
-    "./server.js": "./server.js",
+    "./server.js": {
+      "default": "./server.js",
+      "types": "./server.d.ts"
+    },
     "./client-shim.js": "./client-shim.js",
     "./dist/client.js": "./dist/client.js",
     "./hydration-support.js": "./hydration-support.js",
@@ -33,6 +36,7 @@
     "client-shim.min.js",
     "hydration-support.js",
     "server.js",
+    "server.d.ts",
     "server-shim.js"
   ],
   "scripts": {

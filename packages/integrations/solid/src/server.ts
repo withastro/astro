@@ -9,6 +9,7 @@ import {
 } from 'solid-js/web';
 import { getContext, incrementId } from './context.js';
 import type { RendererContext } from './types.js';
+import type { NamedSSRLoadedRendererValue } from 'astro';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 
@@ -123,9 +124,12 @@ async function renderToStaticMarkup(
 	};
 }
 
-export default {
+const renderer: NamedSSRLoadedRendererValue = {
+	name: '@astrojs/solid',
 	check,
 	renderToStaticMarkup,
 	supportsAstroStaticSlot: true,
 	renderHydrationScript: () => generateHydrationScript(),
 };
+
+export default renderer;

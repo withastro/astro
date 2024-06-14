@@ -27,6 +27,7 @@ async function renderToStaticMarkup(Component, inputProps, slotted, metadata) {
 }
 
 export default {
+	name: '@astrojs/vue',
 	check,
 	renderToStaticMarkup,
 	supportsAstroStaticSlot: true,

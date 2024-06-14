@@ -24,8 +24,14 @@
     "./actions": "./dist/actions.js",
     "./client.js": "./client.js",
     "./client-v17.js": "./client-v17.js",
-    "./server.js": "./server.js",
-    "./server-v17.js": "./server-v17.js",
+    "./server.js": {
+      "default": "./server.js",
+      "types": "./server.d.ts"
+    },
+    "./server-v17.js": {
+      "default": "./server-v17.js",
+      "types": "./server-v17.d.ts"
+    },
     "./package.json": "./package.json",
     "./jsx-runtime": "./jsx-runtime.js"
   },
@@ -36,7 +42,9 @@
     "context.js",
     "jsx-runtime.js",
     "server.js",
+    "server.d.ts",
     "server-v17.js",
+    "server-v17.d.ts",
     "static-html.js",
     "vnode-children.js"
   ],
