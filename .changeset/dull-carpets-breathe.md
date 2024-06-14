@@ -20,11 +20,11 @@ import vueRenderer from '@astrojs/vue/server.js';
 import ReactComponent from "../components/button.jsx"
 import VueComponent from "../components/button.vue"
 
-// MDX runtime is contained inside the Astro
-import mdxRenderer from "@astrojs/jsx/serverr.js"
+// MDX runtime is contained inside the Astro core
+import mdxRenderer from "astro/jsx/server.js"
 
 // In case you need to import a custom renderer
-import customRenderer from "../renderers/custoRender.js";
+import customRenderer from "../renderers/customRenderer.js";
 
 export const GET: APIRoute = async (ctx) => {
   const container = await experimental_AstroContainer.create();
