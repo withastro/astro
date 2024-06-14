@@ -1,7 +1,7 @@
+import type { NamedSSRLoadedRendererValue } from '../@types/astro.js';
 import { AstroError, AstroUserError } from '../core/errors/errors.js';
 import { AstroJSX, jsx } from '../jsx-runtime/index.js';
 import { renderJSX } from '../runtime/server/jsx.js';
-import type { NamedSSRLoadedRendererValue } from '../@types/astro.js';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 

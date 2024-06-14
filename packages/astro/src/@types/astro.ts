@@ -3001,7 +3001,7 @@ export interface SSRLoadedRendererValue {
 	 * page-level data structure.
 	 */
 	renderHydrationScript?: () => string;
-};
+}
 
 export interface SSRLoadedRenderer extends Pick<AstroRenderer, 'name' | 'clientEntrypoint'> {
 	ssr: SSRLoadedRendererValue;
