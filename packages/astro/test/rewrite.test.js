@@ -85,6 +85,21 @@ describe('Dev rewrite, hybrid/server', () => {
 		assert.match($('h1').text(), /Title/);
 		assert.match($('p').text(), /some-slug/);
 	});
+
+	it('should display an error if a rewrite is attempted after the body has been consumed', async () => {
+		const formData = new FormData();
+		formData.append('email', 'example@example.com');
+
+		const request = new Request('http://example.com/post/post-body-used', {
+			method: 'POST',
+			body: formData,
+		});
+		const response = await fixture.fetch('/post/post-body-used', request);
+		const html = await response.text();
+		const $ = cheerioLoad(html);
+
+		assert.equal($('title').text(), 'RewriteWithBodyUsed');
+	});
 });
 
 describe('Build reroute', () => {
@@ -271,6 +286,18 @@ describe('SSR rewrite, hybrid/server', () => {
 
 		assert.match($('h1').text(), /Title/);
 		assert.match($('p').text(), /some-slug/);
+	});
+
+	it('should return a 500 if a rewrite is attempted after the body has been read', async () => {
+		const formData = new FormData();
+		formData.append('email', 'example@example.com');
+
+		const request = new Request('http://example.com/post/post-body-used', {
+			method: 'POST',
+			body: formData,
+		});
+		const response = await app.render(request);
+		assert.equal(response.status, 500);
 	});
 });
 
