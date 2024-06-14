@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fixes prerendering issue for libraries in node_modules when a folder with an underscore is in the path.
+Fixes a prerendering issue for libraries in `node_modules` when a folder with an underscore is in the path.
