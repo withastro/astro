@@ -112,7 +112,7 @@ export class RenderContext {
 		slots: Record<string, any> = {},
 	): Promise<Response> {
 		const { cookies, middleware, pipeline } = this;
-		const { logger, serverLike, streaming } = pipeline;
+		const { logger, serverLike, streaming, manifest } = pipeline;
 
 		const props =
 			Object.keys(this.props).length > 0
@@ -124,6 +124,7 @@ export class RenderContext {
 						pathname: this.pathname,
 						logger,
 						serverLike,
+						base: manifest.base,
 					});
 		const apiContext = this.createAPIContext(props);
 

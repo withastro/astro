@@ -20,6 +20,7 @@ interface CallGetStaticPathsOptions {
 	routeCache: RouteCache;
 	logger: Logger;
 	ssr: boolean;
+	base: string;
 }
 
 export async function callGetStaticPaths({
@@ -28,6 +29,7 @@ export async function callGetStaticPaths({
 	routeCache,
 	logger,
 	ssr,
+	base,
 }: CallGetStaticPathsOptions): Promise<GetStaticPathsResultKeyed> {
 	const cached = routeCache.get(route);
 	if (!mod) {
@@ -57,7 +59,7 @@ export async function callGetStaticPaths({
 	staticPaths = await mod.getStaticPaths({
 		// Q: Why the cast?
 		// A: So users downstream can have nicer typings, we have to make some sacrifice in our internal typings, which necessitate a cast here
-		paginate: generatePaginateFunction(route) as PaginateFunction,
+		paginate: generatePaginateFunction(route, base) as PaginateFunction,
 	});
 
 	validateGetStaticPathsResult(staticPaths, logger, route);
@@ -69,8 +71,8 @@ export async function callGetStaticPaths({
 		const paramsKey = stringifyParams(sp.params, route);
 		keyedStaticPaths.keyed.set(paramsKey, sp);
 	}
-
-	routeCache.set(route, { ...cached, staticPaths: keyedStaticPaths });
+	if (base) routeCache.set(route, { ...cached, staticPaths: keyedStaticPaths });
+	
 	return keyedStaticPaths;
 }
 

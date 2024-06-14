@@ -243,7 +243,7 @@ async function getPathsForRoute(
 	pipeline: BuildPipeline,
 	builtPaths: Set<string>,
 ): Promise<Array<string>> {
-	const { logger, options, routeCache, serverLike } = pipeline;
+	const { logger, options, routeCache, serverLike, config } = pipeline;
 	let paths: Array<string> = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
@@ -255,6 +255,7 @@ async function getPathsForRoute(
 			routeCache,
 			logger,
 			ssr: serverLike,
+			base: config.base,
 		}).catch((err) => {
 			logger.error('build', `Failed to call getStaticPaths for ${route.component}`);
 			throw err;
