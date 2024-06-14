@@ -20,8 +20,8 @@ import vueRenderer from '@astrojs/vue/server.js';
 import ReactComponent from "../components/button.jsx"
 import VueComponent from "../components/button.vue"
 
-// MDX runtime is contained inside the Astro
-import mdxRenderer from "@astrojs/jsx/server.js"
+// MDX runtime is contained inside the Astro core
+import mdxRenderer from "astro/jsx/server.js"
 
 // In case you need to import a custom renderer
 import customRenderer from "../renderers/customRenderer.js";
