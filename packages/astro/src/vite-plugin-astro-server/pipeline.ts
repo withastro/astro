@@ -152,6 +152,7 @@ export class DevPipeline extends Pipeline {
 
 	async preload(routeData: RouteData, filePath: URL) {
 		const { loader } = this;
+
 		if (filePath.href === new URL(DEFAULT_404_COMPONENT, this.config.root).href) {
 			return { default: default404Page } as any as ComponentInstance;
 		}

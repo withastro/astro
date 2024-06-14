@@ -29,6 +29,7 @@ import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { maybeRenderHead } from './head.js';
 import { type ComponentSlots, renderSlotToString, renderSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
+import { containsServerDirective, renderServerIsland } from './server-islands.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 const rendererAliases = new Map([['solid', 'solid-js']]);
@@ -473,6 +474,10 @@ function renderAstroComponent(
 	props: Record<string | number, any>,
 	slots: any = {}
 ): RenderInstance {
+	if(containsServerDirective(props)) {
+		return renderServerIsland(displayName, props, slots);
+	}
+	
 	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
 	return {
 		async render(destination) {

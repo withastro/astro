@@ -80,6 +80,7 @@
       "types": "./dist/core/middleware/index.d.ts",
       "default": "./dist/core/middleware/index.js"
     },
+    "./server-islands/endpoint": "./dist/core/server-islands/endpoint.js",
     "./virtual-modules/*": "./dist/virtual-modules/*"
   },
   "imports": {
@@ -123,7 +124,7 @@
     "test:node": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "^2.8.0",
+    "@astrojs/compiler": "0.0.0-server-islands-20240610194904",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",

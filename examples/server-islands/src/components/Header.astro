@@ -1,0 +1,24 @@
+---
+import Cart from '../components/Cart.astro';
+---
+<style>
+	header {
+		display: flex;
+		justify-content: space-between;
+	}
+	header > * {
+		flex: 1;
+	}
+
+	h1 {
+		margin: 0;
+	}
+</style>
+<header>
+	<h1>My App</h1>
+	<div class="items-left">
+		<Cart server:defer>
+			<div class="shopping-fallback" slot="fallback">Loading</div>
+		</Cart>
+	</div>
+</header>
