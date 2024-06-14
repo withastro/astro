@@ -113,7 +113,7 @@ node --test ./test/foo.test.js
 
 #### Running a single test
 
-Sometimes you want to run a single test case (`it` or `describe`) or a single test file. You can do so by using Node.js. 
+Sometimes you want to run a single test case (`it` or `describe`) or a single test file. You can do so by using Node.js.
 
 To run a single test file, for example `test/astro-basic.test.js`:
 
@@ -139,8 +139,9 @@ node --test --test-only test/astro-basic.test.js
 ```
 
 > [!WARNING]
+>
 > 1. If you have nested `describe`, all of them must postfix with `.only`
-> 2. `--test-only` and `--test` must be placed **before** declaring the path to the file. Failing to do so will test all files 
+> 2. `--test-only` and `--test` must be placed **before** declaring the path to the file. Failing to do so will test all files
 
 #### Debugging tests in CI
 
