@@ -19,7 +19,7 @@ describe('Pagination root', () => {
 		const prevMap = {
 			'/4/': '/blog/3',
 			'/3/': '/blog/2',
-			'/2/': '/blog',
+			'/2/': '/blog/',
 			'/': undefined,
 		};
 
