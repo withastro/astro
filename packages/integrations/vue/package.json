@@ -24,13 +24,17 @@
     "./editor": "./dist/editor.cjs",
     "./*": "./*",
     "./client.js": "./client.js",
-    "./server.js": "./server.js",
+    "./server.js": {
+      "default": "./server.js",
+      "types": "./server.d.ts"
+    },
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
     "client.js",
     "server.js",
+    "server.d.ts",
     "static-html.js"
   ],
   "scripts": {

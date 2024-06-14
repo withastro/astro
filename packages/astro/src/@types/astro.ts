@@ -2977,7 +2977,12 @@ export interface AstroRenderer {
 	jsxTransformOptions?: JSXTransformFn;
 }
 
-export type SSRLoadedRendererValue = {
+export interface NamedSSRLoadedRendererValue extends SSRLoadedRendererValue {
+	name: string;
+}
+
+export interface SSRLoadedRendererValue {
+	name?: string;
 	check: AsyncRendererComponentFn<boolean>;
 	renderToStaticMarkup: AsyncRendererComponentFn<{
 		html: string;
@@ -2996,7 +3001,7 @@ export type SSRLoadedRendererValue = {
 	 * page-level data structure.
 	 */
 	renderHydrationScript?: () => string;
-};
+}
 
 export interface SSRLoadedRenderer extends Pick<AstroRenderer, 'name' | 'clientEntrypoint'> {
 	ssr: SSRLoadedRendererValue;

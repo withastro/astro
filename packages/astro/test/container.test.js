@@ -238,7 +238,7 @@ describe('Container with renderers', () => {
 	let app;
 	before(async () => {
 		fixture = await loadFixture({
-			root: new URL('./fixtures/container-react/', import.meta.url),
+			root: new URL('./fixtures/container-custom-renderers/', import.meta.url),
 			output: 'server',
 			adapter: testAdapter(),
 		});
@@ -247,10 +247,18 @@ describe('Container with renderers', () => {
 	});
 
 	it('the endpoint should return the HTML of the React component', async () => {
-		const request = new Request('https://example.com/api');
+		const request = new Request('https://example.com/react');
 		const response = await app.render(request);
 		const html = await response.text();
 
 		assert.match(html, /I am a react button/);
+	});
+
+	it('the endpoint should return the HTML of the Vue component', async () => {
+		const request = new Request('https://example.com/vue');
+		const response = await app.render(request);
+		const html = await response.text();
+
+		assert.match(html, /I am a vue button/);
 	});
 });

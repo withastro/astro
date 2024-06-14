@@ -2539,11 +2539,14 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/container-react:
+  packages/astro/test/fixtures/container-custom-renderers:
     dependencies:
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../../../integrations/vue
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -2553,6 +2556,9 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      vue:
+        specifier: ^3.4.27
+        version: 3.4.27(typescript@5.4.5)
 
   packages/astro/test/fixtures/content:
     dependencies:
@@ -5608,7 +5614,7 @@ importers:
   packages/markdown/remark:
     dependencies:
       '@astrojs/prism':
-        specifier: ^3.1.0
+        specifier: workspace:*
         version: link:../../astro-prism
       github-slugger:
         specifier: ^2.0.0
