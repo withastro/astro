@@ -8,7 +8,11 @@ import { bgGreen, bgMagenta, black, green } from 'kleur/colors';
 import * as vite from 'vite';
 import type { RouteData } from '../../@types/astro.js';
 import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
-import { hasAnyContentFlag } from '../../content/utils.js';
+import {
+	getSymlinkedContentCollections,
+	hasAnyContentFlag,
+	reverseSymlink,
+} from '../../content/utils.js';
 import {
 	type BuildInternals,
 	createBuildInternals,
@@ -21,6 +25,7 @@ import { runHookBuildSetup } from '../../integrations/hooks.js';
 import { getOutputDirectory } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import type { Logger } from '../logger/core.js';
 import { routeIsRedirect } from '../redirects/index.js';
 import { getOutDirWithinCwd } from './common.js';
 import { CHUNKS_PATH } from './consts.js';
@@ -38,7 +43,7 @@ import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
-	const { allPages, settings } = opts;
+	const { allPages, settings, logger } = opts;
 	// Make sure we have an adapter before building
 	if (isModeServerWithNoAdapter(opts.settings)) {
 		throw new AstroError(AstroErrorData.NoAdapterInstalled);
@@ -78,7 +83,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrTime = performance.now();
 	opts.logger.info('build', `Building ${settings.config.output} entrypoints...`);
-	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
+	const ssrOutput = await ssrBuild(opts, internals, pageInput, container, logger);
 	opts.logger.info('build', green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`));
 
 	settings.timer.end('SSR build');
@@ -166,7 +171,8 @@ async function ssrBuild(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	input: Set<string>,
-	container: AstroBuildPluginContainer
+	container: AstroBuildPluginContainer,
+	logger: Logger
 ) {
 	const buildID = Date.now().toString();
 	const { allPages, settings, viteConfig } = opts;
@@ -175,7 +181,8 @@ async function ssrBuild(
 	const routes = Object.values(allPages).flatMap((pageData) => pageData.route);
 	const isContentCache = !ssr && settings.config.experimental.contentCollectionCache;
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('server', input);
-
+	const contentDir = new URL('./src/content', settings.config.root);
+	const symlinks = await getSymlinkedContentCollections({ contentDir, logger, fs });
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
 		mode: viteConfig.mode || 'production',
@@ -251,7 +258,12 @@ async function ssrBuild(
 							chunkInfo.facadeModuleId &&
 							hasAnyContentFlag(chunkInfo.facadeModuleId)
 						) {
-							const [srcRelative, flag] = chunkInfo.facadeModuleId.split('/src/')[1].split('?');
+							const moduleId = reverseSymlink({
+								symlinks,
+								entry: chunkInfo.facadeModuleId,
+								contentDir,
+							});
+							const [srcRelative, flag] = moduleId.split('/src/')[1].split('?');
 							if (flag === PROPAGATED_ASSET_FLAG) {
 								return encodeName(`${removeFileExtension(srcRelative)}.entry.mjs`);
 							}

@@ -21,6 +21,12 @@ describe('Dynamic route collision', () => {
 		assert.equal($('h1').text(), 'Static About');
 	});
 
+	it('Builds a static nested index when in conflict with a dynamic route with slug with leading slash', async () => {
+		const html = await fixture.readFile('/test/index.html');
+		const $ = cheerio.load(html);
+		assert.equal($('h1').text(), 'Static Test');
+	});
+
 	it('Builds a static route when in conflict with a spread route', async () => {
 		const html = await fixture.readFile('/who/index.html');
 		const $ = cheerio.load(html);
@@ -31,6 +37,12 @@ describe('Dynamic route collision', () => {
 		const html = await fixture.readFile('/tags/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('h1').text(), 'Static Tags Index');
+	});
+
+	it('Builds a static nested index when in conflict with a spread route with slug with leading slash', async () => {
+		const html = await fixture.readFile('/test/ing/index.html');
+		const $ = cheerio.load(html);
+		assert.equal($('h1').text(), 'Static TestIng');
 	});
 
 	it('Builds a static root index when in conflict with a spread route', async () => {

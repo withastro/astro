@@ -12,9 +12,11 @@ We welcome contributions of any size and skill level. As an open source project,
 
 ```shell
 node: "^>=18.17.1"
-pnpm: "^8.6.12"
+pnpm: "^9.3.0"
 # otherwise, your build will fail
 ```
+
+We recommend using Corepack, [read PNPM docs](https://pnpm.io/installation#using-corepack).
 
 ### Setting up your local repo
 
@@ -108,6 +110,53 @@ pnpm run test -m "$STRING_MATCH"
 # run a single test file, you can use `node --test` directly
 node --test ./test/foo.test.js
 ```
+
+#### Running a single test
+
+Sometimes you want to run a single test case (`it` or `describe`) or a single test file. You can do so by using Node.js.
+
+To run a single test file, for example `test/astro-basic.test.js`:
+
+```shell
+node --test test/astro-basic.test.js
+```
+
+If you wish to run a single test case, you have to postfix `it` and `describe` functions with `.only`:
+
+```diff
+// test/astro-basic.test.js
+- describe("description", () => {
++ describe.only("description", () => {
+-  it("description", () => {
++  it.only("description", () => {})
+})
+```
+
+Then, you have to pass the `--test-only` option to the Node.js:
+
+```shell
+node --test --test-only test/astro-basic.test.js
+```
+
+> [!WARNING]
+>
+> 1. If you have nested `describe`, all of them must postfix with `.only`
+> 2. `--test-only` and `--test` must be placed **before** declaring the path to the file. Failing to do so will test all files
+
+#### Debugging tests in CI
+
+There might be occasions where some tests fail in certain CI runs due to some timeout issue. If this happens, it will be very difficult to understand which file cause the timeout. That's caused by come quirks of the Node.js test runner combined with our architecture.
+
+To understand which file causes the issue, you can modify the `test` script inside the `package.json` by adding the `--parallel` option:
+
+```diff
+{
+-  "test": "astro-scripts test \"test/**/*.test.js\"",
++  "test": "astro-scripts test --parallel \"test/**/*.test.js\"",
+}
+```
+
+Save the change and **push it** to your PR. This change will make the test CI slower, but it will allow to see which files causes the timeout. Once you fixed the issue **revert the change and push it**.
 
 #### E2E tests
 

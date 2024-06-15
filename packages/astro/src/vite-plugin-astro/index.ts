@@ -202,7 +202,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 		async transform(source, id) {
 			const parsedId = parseAstroRequest(id);
 			// ignore astro file sub-requests, e.g. Foo.astro?astro&type=script&index=0&lang.ts
-			if (!id.endsWith('.astro') || parsedId.query.astro) {
+			if (!parsedId.filename.endsWith('.astro') || parsedId.query.astro) {
 				return;
 			}
 

@@ -47,14 +47,23 @@ const PKG_NAME = '@astrojs/sitemap';
 const OUTFILE = 'sitemap-index.xml';
 const STATUS_CODE_PAGES = new Set(['404', '500']);
 
-function isStatusCodePage(pathname: string): boolean {
-	if (pathname.endsWith('/')) {
-		pathname = pathname.slice(0, -1);
-	}
-	const end = pathname.split('/').pop() ?? '';
-	return STATUS_CODE_PAGES.has(end);
-}
+const isStatusCodePage = (locales: string[]) => {
+	const statusPathNames = new Set(
+		locales
+			.flatMap((locale) => [...STATUS_CODE_PAGES].map((page) => `${locale}/${page}`))
+			.concat([...STATUS_CODE_PAGES])
+	);
 
+	return (pathname: string): boolean => {
+		if (pathname.endsWith('/')) {
+			pathname = pathname.slice(0, -1);
+		}
+		if (pathname.startsWith('/')) {
+			pathname = pathname.slice(1);
+		}
+		return statusPathNames.has(pathname);
+	};
+};
 const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 	let config: AstroConfig;
 
@@ -88,9 +97,9 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						);
 						return;
 					}
-
+					const shouldIgnoreStatus = isStatusCodePage(Object.keys(opts.i18n?.locales ?? {}));
 					let pageUrls = pages
-						.filter((p) => !isStatusCodePage(p.pathname))
+						.filter((p) => !shouldIgnoreStatus(p.pathname))
 						.map((p) => {
 							if (p.pathname !== '' && !finalSiteUrl.pathname.endsWith('/'))
 								finalSiteUrl.pathname += '/';
@@ -107,7 +116,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						 * Dynamic URLs have entries with `undefined` pathnames
 						 */
 						if (r.pathname) {
-							if (isStatusCodePage(r.pathname ?? r.route)) return urls;
+							if (shouldIgnoreStatus(r.pathname ?? r.route)) return urls;
 
 							// `finalSiteUrl` may end with a trailing slash
 							// or not because of base paths.

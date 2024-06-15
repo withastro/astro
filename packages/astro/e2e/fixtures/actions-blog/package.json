@@ -1,5 +1,5 @@
 {
-	"name": "@e2e/astro-actions-basics",
+	"name": "@e2e/actions-blog",
 	"type": "module",
 	"version": "0.0.1",
 	"scripts": {
@@ -10,11 +10,11 @@
 		"astro": "astro"
 	},
 	"dependencies": {
-		"@astrojs/check": "^0.6.0",
+		"@astrojs/check": "^0.7.0",
 		"@astrojs/db": "workspace:*",
 		"@astrojs/node": "workspace:*",
 		"@astrojs/react": "workspace:*",
-		"@types/react": "^18.3.2",
+		"@types/react": "^18.3.3",
 		"@types/react-dom": "^18.3.0",
 		"astro": "workspace:*",
 		"react": "^18.3.1",

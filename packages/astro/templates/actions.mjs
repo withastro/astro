@@ -7,10 +7,32 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '/_actions/') {
 				return target[objKey];
 			}
 			const path = aggregatedPath + objKey.toString();
-			const action = (clientParam) => actionHandler(clientParam, path);
+			const action = (param) => actionHandler(param, path);
 			action.toString = () => path;
 			action.safe = (input) => {
 				return callSafely(() => action(input));
+			};
+			action.safe.toString = () => path;
+
+			// Add progressive enhancement info for React.
+			action.$$FORM_ACTION = function () {
+				const data = new FormData();
+				data.set('_astroAction', action.toString());
+				return {
+					method: 'POST',
+					name: action.toString(),
+					data,
+				};
+			};
+			action.safe.$$FORM_ACTION = function () {
+				const data = new FormData();
+				data.set('_astroAction', action.toString());
+				data.set('_astroActionSafe', 'true');
+				return {
+					method: 'POST',
+					name: action.toString(),
+					data,
+				};
 			};
 			// recurse to construct queries for nested object paths
 			// ex. actions.user.admins.auth()
@@ -20,24 +42,27 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '/_actions/') {
 }
 
 /**
- * @param {*} clientParam argument passed to the action when used on the client.
- * @param {string} path Built path to call action on the server.
- * Usage: `actions.[name](clientParam)`.
+ * @param {*} param argument passed to the action when called server or client-side.
+ * @param {string} path Built path to call action by path name.
+ * Usage: `actions.[name](param)`.
  */
-async function actionHandler(clientParam, path) {
+async function actionHandler(param, path) {
+	// When running server-side, import the action and call it.
 	if (import.meta.env.SSR) {
-		throw new ActionError({
-			code: 'BAD_REQUEST',
-			message:
-				'Action unexpectedly called on the server. If this error is unexpected, share your feedback on our RFC discussion: https://github.com/withastro/roadmap/pull/912',
-		});
+		const { getAction } = await import('astro/actions/runtime/utils.js');
+		const action = await getAction(path);
+		if (!action) throw new Error(`Action not found: ${path}`);
+
+		return action(param);
 	}
+
+	// When running client-side, make a fetch request to the action path.
 	const headers = new Headers();
 	headers.set('Accept', 'application/json');
-	let body = clientParam;
+	let body = param;
 	if (!(body instanceof FormData)) {
 		try {
-			body = clientParam ? JSON.stringify(clientParam) : undefined;
+			body = param ? JSON.stringify(param) : undefined;
 		} catch (e) {
 			throw new ActionError({
 				code: 'BAD_REQUEST',

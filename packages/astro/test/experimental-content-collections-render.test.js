@@ -136,6 +136,23 @@ if (!isWindows) {
 					const files = await fixture.readdir('');
 					assert.equal(files.includes('chunks'), false, 'chunks folder removed');
 				});
+
+				it('hoisted script is built', async () => {
+					const html = await fixture.readFile('/launch-week-component-scripts/index.html');
+					const $ = cheerio.load(html);
+
+					const allScripts = $('head > script[type="module"]');
+					assert.ok(allScripts.length > 0);
+
+					// Includes hoisted script
+					assert.notEqual(
+						[...allScripts].find((script) =>
+							$(script).attr('src')?.includes('/_astro/WithScripts')
+						),
+						undefined,
+						'hoisted script missing from head.'
+					);
+				});
 			});
 		});
 	});

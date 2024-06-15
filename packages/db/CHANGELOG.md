@@ -1,5 +1,27 @@
 # @astrojs/db
 
+## 0.11.5
+
+### Patch Changes
+
+- [#11216](https://github.com/withastro/astro/pull/11216) [`29463df`](https://github.com/withastro/astro/commit/29463dff52f2e74d0d522168afe6faf70ff2fabb) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Export type `Database` from `@astrojs/db/runtime`
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.0
+
+## 0.11.4
+
+### Patch Changes
+
+- [#11032](https://github.com/withastro/astro/pull/11032) [`b78e83f`](https://github.com/withastro/astro/commit/b78e83f448d142e83be592f6249c4822e7cd5726) Thanks [@itsMapleLeaf](https://github.com/itsMapleLeaf)! - Adds support for multiple Astro Studio workspaces (aka “Teams”) to the Astro DB CLI
+
+  Users who are members of a team workspace in Astro Studio can now choose between those and their personal workspace when runnning `astro db link`.
+
+- [#11091](https://github.com/withastro/astro/pull/11091) [`e14ce57`](https://github.com/withastro/astro/commit/e14ce5726df73e2988fe1a39e078ef2d66d2f4a8) Thanks [@matthewp](https://github.com/matthewp)! - Fix inconsistent result type using raw SQL
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.0
+
 ## 0.11.3
 
 ### Patch Changes

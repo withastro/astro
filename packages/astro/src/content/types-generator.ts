@@ -121,16 +121,14 @@ export async function createContentTypesGenerator({
 
 			switch (event.name) {
 				case 'addDir':
-					collectionEntryMap[JSON.stringify(collection)] = {
+					collectionEntryMap[collectionKey] = {
 						type: 'unknown',
 						entries: {},
 					};
 					logger.debug('content', `${cyan(collection)} collection added`);
 					break;
 				case 'unlinkDir':
-					if (collectionKey in collectionEntryMap) {
-						delete collectionEntryMap[JSON.stringify(collection)];
-					}
+					delete collectionEntryMap[collectionKey];
 					break;
 			}
 			return { shouldGenerateTypes: true };
@@ -382,7 +380,7 @@ async function writeContentFiles({
 	let contentTypesStr = '';
 	let dataTypesStr = '';
 
-	const collectionSchemasDir = new URL('./collections/', contentPaths.cacheDir);
+	const collectionSchemasDir = new URL('./collections/', settings.dotAstroDir);
 	if (
 		settings.config.experimental.contentCollectionJsonSchema &&
 		!fs.existsSync(collectionSchemasDir)
@@ -451,51 +449,49 @@ async function writeContentFiles({
 				for (const entryKey of Object.keys(collection.entries).sort()) {
 					const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
 					dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType}\n};\n`;
-					if (
-						settings.config.experimental.contentCollectionJsonSchema &&
-						collectionConfig?.schema
-					) {
-						let zodSchemaForJson =
-							typeof collectionConfig.schema === 'function'
-								? collectionConfig.schema({ image: () => z.string() })
-								: collectionConfig.schema;
-						if (zodSchemaForJson instanceof z.ZodObject) {
-							zodSchemaForJson = zodSchemaForJson.extend({
-								$schema: z.string().optional(),
-							});
-						}
-						try {
-							await fs.promises.writeFile(
-								new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
-								JSON.stringify(
-									zodToJsonSchema(zodSchemaForJson, {
-										name: collectionKey.replace(/"/g, ''),
-										markdownDescription: true,
-										errorMessages: true,
-									}),
-									null,
-									2
-								)
-							);
-						} catch (err) {
-							logger.warn(
-								'content',
-								`An error was encountered while creating the JSON schema for the ${entryKey} entry in ${collectionKey} collection. Proceeding without it. Error: ${err}`
-							);
-						}
+					dataTypesStr += `};\n`;
+				}
+
+				if (settings.config.experimental.contentCollectionJsonSchema && collectionConfig?.schema) {
+					let zodSchemaForJson =
+						typeof collectionConfig.schema === 'function'
+							? collectionConfig.schema({ image: () => z.string() })
+							: collectionConfig.schema;
+					if (zodSchemaForJson instanceof z.ZodObject) {
+						zodSchemaForJson = zodSchemaForJson.extend({
+							$schema: z.string().optional(),
+						});
+					}
+					try {
+						await fs.promises.writeFile(
+							new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
+							JSON.stringify(
+								zodToJsonSchema(zodSchemaForJson, {
+									name: collectionKey.replace(/"/g, ''),
+									markdownDescription: true,
+									errorMessages: true,
+								}),
+								null,
+								2
+							)
+						);
+					} catch (err) {
+						logger.warn(
+							'content',
+							`An error was encountered while creating the JSON schema for the ${collectionKey} collection. Proceeding without it. Error: ${err}`
+						);
 					}
 				}
-				dataTypesStr += `};\n`;
 				break;
 		}
 	}
 
-	if (!fs.existsSync(contentPaths.cacheDir)) {
-		fs.mkdirSync(contentPaths.cacheDir, { recursive: true });
+	if (!fs.existsSync(settings.dotAstroDir)) {
+		fs.mkdirSync(settings.dotAstroDir, { recursive: true });
 	}
 
 	const configPathRelativeToCacheDir = normalizeConfigPath(
-		contentPaths.cacheDir.pathname,
+		settings.dotAstroDir.pathname,
 		contentPaths.config.url.pathname
 	);
 
@@ -512,7 +508,7 @@ async function writeContentFiles({
 	);
 
 	await fs.promises.writeFile(
-		new URL(CONTENT_TYPES_FILE, contentPaths.cacheDir),
+		new URL(CONTENT_TYPES_FILE, settings.dotAstroDir),
 		typeTemplateContent
 	);
 }

@@ -7,7 +7,7 @@ type BrowserLocale = {
 };
 
 /**
- * Parses the value of the `Accept-Header` language:
+ * Parses the value of the `Accept-Language` header:
  *
  * More info: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language
  *

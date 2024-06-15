@@ -1,5 +1,51 @@
 # @astrojs/vue
 
+## 4.4.0
+
+### Minor Changes
+
+- [#11144](https://github.com/withastro/astro/pull/11144) [`803dd80`](https://github.com/withastro/astro/commit/803dd8061df02138b4928442bcb76e77dcf6f5e7) Thanks [@ematipico](https://github.com/ematipico)! - The integration now exposes a function called `getContainerRenderer`, that can be used inside the Container APIs to load the relative renderer.
+
+  ```js
+  import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+  import ReactWrapper from '../src/components/ReactWrapper.astro';
+  import { loadRenderers } from 'astro:container';
+  import { getContainerRenderer } from '@astrojs/react';
+
+  test('ReactWrapper with react renderer', async () => {
+    const renderers = await loadRenderers([getContainerRenderer()]);
+    const container = await AstroContainer.create({
+      renderers,
+    });
+    const result = await container.renderToString(ReactWrapper);
+
+    expect(result).toContain('Counter');
+    expect(result).toContain('Count: <!-- -->5');
+  });
+  ```
+
+## 4.3.0
+
+### Minor Changes
+
+- [#11055](https://github.com/withastro/astro/pull/11055) [`b92de22`](https://github.com/withastro/astro/commit/b92de22d2853efc4da4270a3812b9db120d06d3a) Thanks [@niklas-wortmann](https://github.com/niklas-wortmann)! - Updates the `devtools` type to allow passing `VueDevToolsOptions`
+
+  For more customization, you can pass options that the [Vue DevTools Vite Plugin](https://devtools-next.vuejs.org/guide/vite-plugin#options) supports. (Note: `appendTo` is not supported.) For example, you can set `launchEditor` to your preferred editor if you are not using Visual Studio Code:
+
+  ```js title="astro.config.mjs"
+  import { defineConfig } from 'astro/config';
+  import vue from '@astrojs/vue';
+
+  export default defineConfig({
+    // ...
+    integrations: [
+      vue({
+        devtools: { launchEditor: 'webstorm' },
+      }),
+    ],
+  });
+  ```
+
 ## 4.2.0
 
 ### Minor Changes

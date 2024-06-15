@@ -55,11 +55,50 @@ describe('Dev reroute', () => {
 		assert.equal($('h1').text(), 'Index');
 	});
 
-	it('should render the 404 built-in page', async () => {
-		const html = await fixture.fetch('/blog/oops').then((res) => res.text());
+	it('should return a 404', async () => {
+		const response = await fixture.fetch('/blog/oops');
+
+		assert.equal(response.status, 404);
+	});
+});
+
+describe('Dev rewrite, hybrid/server', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-server/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('should rewrite the [slug]/title ', async () => {
+		const html = await fixture.fetch('/').then((res) => res.text());
 		const $ = cheerioLoad(html);
 
-		assert.equal($('h1').text(), '404:  Not found');
+		assert.match($('h1').text(), /Title/);
+		assert.match($('p').text(), /some-slug/);
+	});
+
+	it('should display an error if a rewrite is attempted after the body has been consumed', async () => {
+		const formData = new FormData();
+		formData.append('email', 'example@example.com');
+
+		const request = new Request('http://example.com/post/post-body-used', {
+			method: 'POST',
+			body: formData,
+		});
+		const response = await fixture.fetch('/post/post-body-used', request);
+		const html = await response.text();
+		const $ = cheerioLoad(html);
+
+		assert.equal($('title').text(), 'RewriteWithBodyUsed');
 	});
 });
 
@@ -112,10 +151,25 @@ describe('Build reroute', () => {
 
 	it('should render the 404 built-in page', async () => {
 		try {
-			const html = await fixture.readFile('/spread/oops/index.html');
+			await fixture.readFile('/spread/oops/index.html');
 			assert.fail('Not found');
 		} catch {
 			assert.ok;
+		}
+	});
+});
+
+describe('SSR route', () => {
+	it("should not build if a user tries to use rewrite('/404') in static pages", async () => {
+		try {
+			const fixture = await loadFixture({
+				root: './fixtures/rewrite-404-invalid/',
+			});
+			await fixture.build();
+			assert.fail('It should fail.');
+		} catch {
+			// it passes
+			assert.equal(true, true);
 		}
 	});
 });
@@ -184,8 +238,66 @@ describe('SSR reroute', () => {
 	it('should render the 404 built-in page', async () => {
 		const request = new Request('http://example.com/blog/oops');
 		const response = await app.render(request);
+		assert.equal(response.status, 404);
+	});
+
+	it('should pass the POST data from one page to another', async () => {
+		const request = new Request('http://example.com/post/post-a', {
+			method: 'POST',
+			body: JSON.stringify({
+				email: 'example@example.com',
+			}),
+			headers: {
+				'content-type': 'application/json',
+			},
+		});
+		const response = await app.render(request);
 		const html = await response.text();
-		assert.equal(html, 'Not found');
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Post B');
+		assert.match($('h2').text(), /example@example.com/);
+	});
+});
+
+describe('SSR rewrite, hybrid/server', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-server/',
+			output: 'server',
+			adapter: testAdapter(),
+		});
+
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should rewrite the [slug]/title ', async () => {
+		const request = new Request('http://example.com/');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerioLoad(html);
+
+		console.log(html);
+
+		assert.match($('h1').text(), /Title/);
+		assert.match($('p').text(), /some-slug/);
+	});
+
+	it('should return a 500 if a rewrite is attempted after the body has been read', async () => {
+		const formData = new FormData();
+		formData.append('email', 'example@example.com');
+
+		const request = new Request('http://example.com/post/post-body-used', {
+			method: 'POST',
+			body: formData,
+		});
+		const response = await app.render(request);
+		assert.equal(response.status, 500);
 	});
 });
 
@@ -226,5 +338,102 @@ describe('Middleware', () => {
 		const $ = cheerioLoad(html);
 
 		assert.match($('h1').text(), /Index/);
+	});
+});
+
+describe('Runtime error, default 500', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-runtime-error/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('should return a 500 status code, but not render the custom 500', async () => {
+		const response = await fixture.fetch('/errors/from');
+		assert.equal(response.status, 500);
+		const text = await response.text();
+		assert.match(text, /@vite\/client/);
+	});
+});
+
+describe('Runtime error in SSR, default 500', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-runtime-error/',
+			output: 'server',
+			adapter: testAdapter(),
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should return a 500 status code, but not render the custom 500', async () => {
+		const request = new Request('http://example.com/errors/from');
+		const response = await app.render(request);
+		const text = await response.text();
+		assert.equal(text, '');
+	});
+});
+
+describe('Runtime error in dev, custom 500', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-runtime-error-custom500/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('should render the custom 500 when rewriting a page that throws an error', async () => {
+		const response = await fixture.fetch('/errors/start');
+		assert.equal(response.status, 500);
+		const html = await response.text();
+		assert.match(html, /I am the custom 500/);
+	});
+});
+
+describe('Runtime error in SSR, custom 500', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-runtime-error-custom500/',
+			output: 'server',
+			adapter: testAdapter(),
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should render the custom 500 when rewriting a page that throws an error', async () => {
+		const request = new Request('http://example.com/errors/start');
+		const response = await app.render(request);
+		const html = await response.text();
+
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'I am the custom 500');
 	});
 });

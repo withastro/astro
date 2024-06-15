@@ -11,11 +11,12 @@ import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import { RenderContext } from '../core/render-context.js';
 import { type SSROptions, getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
+import { default404Page } from '../core/routing/astro-designed-error-pages.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { normalizeTheLocale } from '../i18n/index.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import type { DevPipeline } from './pipeline.js';
-import { default404Page, handle404Response, writeSSRResult, writeWebResponse } from './response.js';
+import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any
@@ -38,6 +39,11 @@ function isLoggedRequest(url: string) {
 function getCustom404Route(manifestData: ManifestData): RouteData | undefined {
 	const route404 = /^\/404\/?$/;
 	return manifestData.routes.find((r) => route404.test(r.route));
+}
+
+function getCustom500Route(manifestData: ManifestData): RouteData | undefined {
+	const route500 = /^\/500\/?$/;
+	return manifestData.routes.find((r) => route500.test(r.route));
 }
 
 export async function matchRoute(
@@ -272,7 +278,22 @@ export async function handleRoute({
 		});
 	}
 
-	let response = await renderContext.render(mod);
+	let response;
+	try {
+		response = await renderContext.render(mod);
+	} catch (err: any) {
+		const custom500 = getCustom500Route(manifestData);
+		if (!custom500) {
+			throw err;
+		}
+		// Log useful information that the custom 500 page may not display unlike the default error overlay
+		logger.error('router', err.stack || err.message);
+		const filePath = new URL(`./${custom500.component}`, config.root);
+		const preloadedComponent = await pipeline.preload(custom500, filePath);
+		response = await renderContext.render(preloadedComponent);
+		status = 500;
+	}
+
 	if (isLoggedRequest(pathname)) {
 		const timeEnd = performance.now();
 		logger.info(
@@ -320,6 +341,7 @@ export async function handleRoute({
 		await writeSSRResult(request, response, incomingResponse);
 		return;
 	}
+
 	// Apply the `status` override to the response object before responding.
 	// Response.status is read-only, so a clone is required to override.
 	if (status && response.status !== status && (status === 404 || status === 500)) {

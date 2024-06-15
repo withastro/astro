@@ -1,10 +1,21 @@
-import { defineAction, getApiContext, ActionError, z } from 'astro:actions';
+import { defineAction, ActionError, z } from 'astro:actions';
 
 export const server = {
 	subscribe: defineAction({
 		input: z.object({ channel: z.string() }),
 		handler: async ({ channel }) => {
 			return {
+				channel,
+				subscribeButtonState: 'smashed',
+			};
+		},
+	}),
+	subscribeFromServer: defineAction({
+		input: z.object({ channel: z.string() }),
+		handler: async ({ channel }, { url }) => {
+			return {
+				// Returned to ensure path rewrites are respected
+				url: url.pathname,
 				channel,
 				subscribeButtonState: 'smashed',
 			};
@@ -31,15 +42,13 @@ export const server = {
 	}),
 	getUser: defineAction({
 		accept: 'form',
-		handler: async () => {
-			const { locals } = getApiContext();
+		handler: async (_, { locals }) => {
 			return locals.user;
 		}
 	}),
 	getUserOrThrow: defineAction({
 		accept: 'form',
-		handler: async () => {
-			const { locals } = getApiContext();
+		handler: async (_, { locals }) => {
 			if (locals.user?.name !== 'admin') {
 				// Expected to throw
 				throw new ActionError({

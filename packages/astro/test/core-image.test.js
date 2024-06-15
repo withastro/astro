@@ -244,6 +244,26 @@ describe('astro:image', () => {
 					srcset2.map((src) => src.w),
 					[207]
 				);
+
+				// MIME Types
+				const validMimeTypes = [
+					'image/webp',
+					'image/jpeg',
+					'image/avif',
+					'image/png',
+					'image/gif',
+					'image/svg+xml',
+				];
+
+				const $sources = $('#picture-mime-types picture source');
+				for ($source of $sources) {
+					const type = $source.attribs.type;
+					assert.equal(
+						validMimeTypes.includes(type),
+						true,
+						`Expected type attribute value to be a valid MIME type: ${type}`
+					);
+				}
 			});
 
 			it('Picture component scope styles work', async () => {
@@ -692,7 +712,7 @@ describe('astro:image', () => {
 			let res = await fixture.fetch('/get-image-empty');
 			await res.text();
 
-			assert.equal(logs.length, 1);
+			assert.equal(logs.length >= 1, true);
 			assert.equal(logs[0].message.includes('Expected getImage() parameter'), true);
 		});
 
@@ -701,7 +721,7 @@ describe('astro:image', () => {
 			let res = await fixture.fetch('/get-image-undefined');
 			await res.text();
 
-			assert.equal(logs.length, 1);
+			assert.equal(logs.length >= 1, true);
 			assert.equal(logs[0].message.includes('Expected `src` property'), true);
 		});
 

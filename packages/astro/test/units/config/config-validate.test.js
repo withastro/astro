@@ -319,9 +319,6 @@ describe('Config Validation', () => {
 							en: 'https://www.example.com/',
 						},
 					},
-					experimental: {
-						i18nDomains: true,
-					},
 				},
 				process.cwd()
 			).catch((err) => err);
@@ -343,9 +340,6 @@ describe('Config Validation', () => {
 							en: 'https://www.example.com/',
 						},
 					},
-					experimental: {
-						i18nDomains: true,
-					},
 					site: 'https://foo.org',
 				},
 				process.cwd()
@@ -354,6 +348,23 @@ describe('Config Validation', () => {
 			assert.equal(
 				configError.errors[0].message,
 				'Domain support is only available when `output` is `"server"`.'
+			);
+		});
+	});
+
+	describe('env', () => {
+		it('Should allow not providing a schema', () => {
+			assert.doesNotThrow(() =>
+				validateConfig(
+					{
+						experimental: {
+							env: {
+								schema: undefined,
+							},
+						},
+					},
+					process.cwd()
+				).catch((err) => err)
 			);
 		});
 	});

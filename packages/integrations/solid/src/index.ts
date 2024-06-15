@@ -1,4 +1,9 @@
-import type { AstroIntegration, AstroIntegrationLogger, AstroRenderer } from 'astro';
+import type {
+	AstroIntegration,
+	AstroIntegrationLogger,
+	AstroRenderer,
+	ContainerRenderer,
+} from 'astro';
 import type { PluginOption, UserConfig } from 'vite';
 import solid, { type Options as ViteSolidPluginOptions } from 'vite-plugin-solid';
 
@@ -90,6 +95,13 @@ function getRenderer(): AstroRenderer {
 	return {
 		name: '@astrojs/solid-js',
 		clientEntrypoint: '@astrojs/solid-js/client.js',
+		serverEntrypoint: '@astrojs/solid-js/server.js',
+	};
+}
+
+export function getContainerRenderer(): ContainerRenderer {
+	return {
+		name: '@astrojs/solid',
 		serverEntrypoint: '@astrojs/solid-js/server.js',
 	};
 }

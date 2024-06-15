@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { getTableChangeQueries } from '../../dist/core/cli/migration-queries.js';
 import { dbConfigSchema, tableSchema } from '../../dist/core/schemas.js';
 import { column } from '../../dist/runtime/virtual.js';
@@ -37,7 +37,7 @@ describe('index queries', () => {
 			newTable: dbConfig.tables.newTable,
 		});
 
-		expect(queries).to.deep.equal([
+		assert.deepEqual(queries, [
 			'CREATE INDEX "newTable_age_name_idx" ON "user" ("age", "name")',
 			'CREATE UNIQUE INDEX "newTable_email_idx" ON "user" ("email")',
 		]);
@@ -76,7 +76,7 @@ describe('index queries', () => {
 			newTable: final.tables.user,
 		});
 
-		expect(queries).to.be.empty;
+		assert.equal(queries.length, 0);
 	});
 
 	it('does not trigger queries when changing from legacy to new format', async () => {
@@ -110,7 +110,7 @@ describe('index queries', () => {
 			newTable: final.tables.user,
 		});
 
-		expect(queries).to.be.empty;
+		assert.equal(queries.length, 0);
 	});
 
 	it('adds indexes', async () => {
@@ -133,7 +133,7 @@ describe('index queries', () => {
 			newTable: dbConfig.tables.newTable,
 		});
 
-		expect(queries).to.deep.equal([
+		assert.deepEqual(queries, [
 			'CREATE INDEX "nameIdx" ON "user" ("name")',
 			'CREATE UNIQUE INDEX "emailIdx" ON "user" ("email")',
 		]);
@@ -162,7 +162,7 @@ describe('index queries', () => {
 			newTable: dbConfig.tables.newTable,
 		});
 
-		expect(queries).to.deep.equal(['DROP INDEX "nameIdx"', 'DROP INDEX "emailIdx"']);
+		assert.deepEqual(queries, ['DROP INDEX "nameIdx"', 'DROP INDEX "emailIdx"']);
 	});
 
 	it('drops and recreates modified indexes', async () => {
@@ -191,7 +191,7 @@ describe('index queries', () => {
 			newTable: dbConfig.tables.newTable,
 		});
 
-		expect(queries).to.deep.equal([
+		assert.deepEqual(queries, [
 			'DROP INDEX "nameIdx"',
 			'DROP INDEX "emailIdx"',
 			'CREATE UNIQUE INDEX "nameIdx" ON "user" ("name")',
@@ -216,7 +216,7 @@ describe('index queries', () => {
 				newTable: userFinal,
 			});
 
-			expect(queries).to.deep.equal([
+			assert.deepEqual(queries, [
 				'CREATE INDEX "nameIdx" ON "user" ("name")',
 				'CREATE UNIQUE INDEX "emailIdx" ON "user" ("email")',
 			]);
@@ -244,7 +244,7 @@ describe('index queries', () => {
 				newTable: final,
 			});
 
-			expect(queries).to.deep.equal(['DROP INDEX "nameIdx"', 'DROP INDEX "emailIdx"']);
+			assert.deepEqual(queries, ['DROP INDEX "nameIdx"', 'DROP INDEX "emailIdx"']);
 		});
 
 		it('drops and recreates modified indexes', async () => {
@@ -272,7 +272,7 @@ describe('index queries', () => {
 				newTable: final,
 			});
 
-			expect(queries).to.deep.equal([
+			assert.deepEqual(queries, [
 				'DROP INDEX "nameIdx"',
 				'DROP INDEX "emailIdx"',
 				'CREATE UNIQUE INDEX "nameIdx" ON "user" ("name")',
