@@ -89,6 +89,32 @@ describe('astro sync', () => {
 			);
 		});
 
+		it('Writes types for empty collections', async () => {
+			await fixture.whenSyncing('./fixtures/content-collections-empty-dir/');
+			fixture.thenFileShouldExist('.astro/types.d.ts');
+			fixture.thenFileContentShouldInclude(
+				'.astro/types.d.ts',
+				`"blog": Record<string, {
+  id: string;
+  slug: string;
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">;
+  render(): Render[".md"];
+}>;`,
+				'Types file does not include empty collection type'
+			);
+			fixture.thenFileContentShouldInclude(
+				'.astro/types.d.ts',
+				`"blogMeta": Record<string, {
+  id: string;
+  collection: "blogMeta";
+  data: InferEntrySchema<"blogMeta">;
+}>;`,
+				'Types file does not include empty collection type'
+			);
+		});
+
 		it('Adds type reference to `src/env.d.ts`', async () => {
 			await fixture.whenSyncing('./fixtures/content-collections/');
 			fixture.thenFileShouldExist('src/env.d.ts');
