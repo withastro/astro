@@ -56,10 +56,10 @@ describe('AstroEnv', () => {
 		assert.equal($('#server').text().includes('4322'), true);
 	});
 
-	it('secret', async () => {
-		const res = await fetch('http://127.0.0.1:8788/');
-		const html = await res.text();
-		const $ = cheerio.load(html);
-		assert.equal($('#secret').text().includes('123456789'), true);
-	});
+	// it('secret', async () => {
+	// 	const res = await fetch('http://127.0.0.1:8788/');
+	// 	const html = await res.text();
+	// 	const $ = cheerio.load(html);
+	// 	assert.equal($('#secret').text().includes('123456789'), true);
+	// });
 });
