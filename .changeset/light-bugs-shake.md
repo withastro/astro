@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes type generation for empty collections
+Fixes type generation for empty content collections
