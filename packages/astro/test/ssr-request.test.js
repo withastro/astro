@@ -43,18 +43,6 @@ describe('Using Astro.request in SSR', () => {
 		assert.equal($('#origin').text(), 'http://example.com');
 	});
 
-	it('Duplicate slashes are collapsed', async () => {
-		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/subpath////request/////');
-		const response = await app.render(request);
-		assert.equal(response.status, 200);
-		const html = await response.text();
-		const $ = cheerioLoad(html);
-		assert.equal($('#origin').text(), 'http://example.com');
-		assert.equal($('#pathname').text(), '/subpath/request/');
-		assert.equal($('#request-pathname').text(), '/subpath/request/');
-	});
-
 	it('public file is copied over', async () => {
 		const json = await fixture.readFile('/client/cars.json');
 		assert.notEqual(json, undefined);
@@ -106,5 +94,12 @@ describe('Using Astro.request in SSR', () => {
 		assert.equal(response.status, 200);
 		const data = await response.json();
 		assert.equal(data instanceof Array, true);
+	});
+
+	it('middleware gets the actual path sent in the request', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/this//is/my/////directory');
+		const response = await app.render(request);
+		assert.equal(response.status, 301);
 	});
 });

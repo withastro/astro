@@ -1,5 +1,14 @@
 # @astrojs/db
 
+## 0.11.5
+
+### Patch Changes
+
+- [#11216](https://github.com/withastro/astro/pull/11216) [`29463df`](https://github.com/withastro/astro/commit/29463dff52f2e74d0d522168afe6faf70ff2fabb) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Export type `Database` from `@astrojs/db/runtime`
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.0
+
 ## 0.11.4
 
 ### Patch Changes

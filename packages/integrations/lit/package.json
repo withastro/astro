@@ -21,7 +21,10 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/lit/",
   "exports": {
     ".": "./dist/index.js",
-    "./server.js": "./server.js",
+    "./server.js": {
+      "default": "./server.js",
+      "types": "./server.d.ts"
+    },
     "./client-shim.js": "./client-shim.js",
     "./dist/client.js": "./dist/client.js",
     "./hydration-support.js": "./hydration-support.js",
@@ -33,6 +36,7 @@
     "client-shim.min.js",
     "hydration-support.js",
     "server.js",
+    "server.d.ts",
     "server-shim.js"
   ],
   "scripts": {
@@ -56,8 +60,8 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0-rc.12",
-    "lit": "^3.1.3",
-    "sass": "^1.77.3"
+    "lit": "^3.1.4",
+    "sass": "^1.77.4"
   },
   "peerDependencies": {
     "@webcomponents/template-shadowroot": "^0.2.1",

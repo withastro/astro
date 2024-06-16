@@ -25,8 +25,14 @@
     "./*": "./*",
     "./client.js": "./client.js",
     "./client-v5.js": "./client-v5.js",
-    "./server.js": "./server.js",
-    "./server-v5.js": "./server-v5.js",
+    "./server.js": {
+      "default": "./server.js",
+      "types": "./server.d.ts"
+    },
+    "./server-v5.js": {
+      "default": "./server-v5.js",
+      "types": "./server-v5.d.ts"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -34,7 +40,9 @@
     "client.js",
     "client-v5.js",
     "server.js",
-    "server-v5.js"
+    "server.d.ts",
+    "server-v5.js",
+    "server-v5.d.ts"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/index.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
@@ -48,8 +56,8 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "svelte": "^4.2.17",
-    "vite": "^5.2.12"
+    "svelte": "^4.2.18",
+    "vite": "^5.2.13"
   },
   "peerDependencies": {
     "astro": "^4.0.0",

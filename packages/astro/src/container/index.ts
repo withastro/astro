@@ -1,16 +1,16 @@
 import { posix } from 'node:path';
 import type {
 	AstroConfig,
-	AstroRenderer,
 	AstroUserConfig,
 	ComponentInstance,
 	ContainerImportRendererFn,
-	ContainerRenderer,
 	MiddlewareHandler,
+	NamedSSRLoadedRendererValue,
 	Props,
 	RouteData,
 	RouteType,
 	SSRLoadedRenderer,
+	SSRLoadedRendererValue,
 	SSRManifest,
 	SSRResult,
 } from '../@types/astro.js';
@@ -84,6 +84,16 @@ export type ContainerRenderOptions = {
 	 */
 	props?: Props;
 };
+
+export type AddServerRenderer =
+	| {
+			renderer: NamedSSRLoadedRendererValue;
+			name: never;
+	  }
+	| {
+			renderer: SSRLoadedRendererValue;
+			name: string;
+	  };
 
 function createManifest(
 	manifest?: AstroContainerManifest,
@@ -270,6 +280,50 @@ export class experimental_AstroContainer {
 		});
 	}
 
+	/**
+	 * Use this function to manually add a renderer to the container.
+	 *
+	 * This function is preferred when you require to use the container with a renderer in environments such as on-demand pages.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * import reactRenderer from "@astrojs/react/server.js";
+	 * import vueRenderer from "@astrojs/vue/server.js";
+	 * import customRenderer from "../renderer/customRenderer.js";
+	 * import { experimental_AstroContainer as AstroContainer } from "astro/container"
+	 *
+	 * const container = await AstroContainer.create();
+	 * container.addServerRenderer(reactRenderer);
+	 * container.addServerRenderer(vueRenderer);
+	 * container.addServerRenderer("customRenderer", customRenderer);
+	 * ```
+	 *
+	 * @param options {object}
+	 * @param options.name The name of the renderer. The name **isn't** arbitrary, and it should match the name of the package.
+	 * @param options.renderer The server renderer exported by integration.
+	 */
+	public addServerRenderer(options: AddServerRenderer): void {
+		const { renderer, name } = options;
+		if (!renderer.check || !renderer.renderToStaticMarkup) {
+			throw new Error(
+				"The renderer you passed isn't valid. A renderer is usually an object that exposes the `check` and `renderToStaticMarkup` functions.\n" +
+					"Usually, the renderer is exported by a /server.js entrypoint e.g. `import renderer from '@astrojs/react/server.js'`"
+			);
+		}
+		if (isNamedRenderer(renderer)) {
+			this.#pipeline.manifest.renderers.push({
+				name: renderer.name,
+				ssr: renderer,
+			});
+		} else {
+			this.#pipeline.manifest.renderers.push({
+				name,
+				ssr: renderer,
+			});
+		}
+	}
+
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.
 	// @ematipico: I plan to use it for a possible integration that could help people
 	private static async createFromManifest(
@@ -439,4 +493,8 @@ export class experimental_AstroContainer {
 		}
 		return { default: componentFactory };
 	}
+}
+
+function isNamedRenderer(renderer: any): renderer is NamedSSRLoadedRendererValue {
+	return !!renderer?.name;
 }

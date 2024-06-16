@@ -1,7 +1,6 @@
 ---
-import { getSecret } from "astro:env/server"
+import { getSecret, KNOWN_SECRET } from "astro:env/server"
 
-const KNOWN_SECRET = getSecret("KNOWN_SECRET")
 const UNKNOWN_SECRET = getSecret("UNKNOWN_SECRET")
 ---
 

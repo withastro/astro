@@ -14,7 +14,6 @@ import { AstroIntegrationLogger, Logger } from '../logger/core.js';
 import { sequence } from '../middleware/index.js';
 import {
 	appendForwardSlash,
-	collapseDuplicateSlashes,
 	joinPaths,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
@@ -297,10 +296,6 @@ export class App {
 		}
 		if (clientAddress) {
 			Reflect.set(request, clientAddressSymbol, clientAddress);
-		}
-		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
-		if (request.url !== collapseDuplicateSlashes(request.url)) {
-			request = new Request(collapseDuplicateSlashes(request.url), request);
 		}
 		if (!routeData) {
 			routeData = this.match(request);

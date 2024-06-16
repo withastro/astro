@@ -1,4 +1,4 @@
-import type { EnvFieldType } from './schema.js';
+import type { EnumSchema, EnvFieldType, NumberSchema, StringSchema } from './schema.js';
 
 export type ValidationResultValue = EnvFieldType['default'];
 
@@ -15,7 +15,15 @@ type ValidationResult =
 
 export function getEnvFieldType(options: EnvFieldType) {
 	const optional = options.optional ? (options.default !== undefined ? false : true) : false;
-	return `${options.type}${optional ? ' | undefined' : ''}`;
+
+	let type: string;
+	if (options.type === 'enum') {
+		type = options.values.map((v) => `'${v}'`).join(' | ');
+	} else {
+		type = options.type;
+	}
+
+	return `${type}${optional ? ' | undefined' : ''}`;
 }
 
 type ValueValidator = (input: string | undefined) => {
@@ -23,20 +31,71 @@ type ValueValidator = (input: string | undefined) => {
 	parsed: ValidationResultValue;
 };
 
-const stringValidator: ValueValidator = (input) => {
-	return {
-		valid: typeof input === 'string',
-		parsed: input,
-	};
-};
+const stringValidator =
+	({ max, min, length, url, includes, startsWith, endsWith }: StringSchema): ValueValidator =>
+	(input) => {
+		let valid = typeof input === 'string';
 
-const numberValidator: ValueValidator = (input) => {
-	const num = parseFloat(input ?? '');
-	return {
-		valid: !isNaN(num),
-		parsed: num,
+		if (valid && max !== undefined) {
+			valid = input!.length <= max;
+		}
+		if (valid && min !== undefined) {
+			valid = input!.length >= min;
+		}
+		if (valid && length !== undefined) {
+			valid = input!.length === length;
+		}
+		if (valid && url !== undefined) {
+			try {
+				new URL(input!);
+			} catch (_) {
+				valid = false;
+			}
+		}
+		if (valid && includes !== undefined) {
+			valid = input!.includes(includes);
+		}
+		if (valid && startsWith !== undefined) {
+			valid = input!.startsWith(startsWith);
+		}
+		if (valid && endsWith !== undefined) {
+			valid = input!.endsWith(endsWith);
+		}
+
+		return {
+			valid,
+			parsed: input,
+		};
 	};
-};
+
+const numberValidator =
+	({ gt, min, lt, max, int }: NumberSchema): ValueValidator =>
+	(input) => {
+		const num = parseFloat(input ?? '');
+		let valid = !isNaN(num);
+
+		if (valid && gt !== undefined) {
+			valid = num > gt;
+		}
+		if (valid && min !== undefined) {
+			valid = num >= min;
+		}
+		if (valid && lt !== undefined) {
+			valid = num < lt;
+		}
+		if (valid && max !== undefined) {
+			valid = num <= max;
+		}
+		if (valid && int !== undefined) {
+			const isInt = Number.isInteger(num);
+			valid = int ? isInt : !isInt;
+		}
+
+		return {
+			valid,
+			parsed: num,
+		};
+	};
 
 const booleanValidator: ValueValidator = (input) => {
 	const bool = input === 'true' ? true : input === 'false' ? false : undefined;
@@ -46,15 +105,33 @@ const booleanValidator: ValueValidator = (input) => {
 	};
 };
 
+const enumValidator =
+	({ values }: EnumSchema): ValueValidator =>
+	(input) => {
+		return {
+			valid: typeof input === 'string' ? values.includes(input) : false,
+			parsed: input,
+		};
+	};
+
+function selectValidator(options: EnvFieldType): ValueValidator {
+	switch (options.type) {
+		case 'string':
+			return stringValidator(options);
+		case 'number':
+			return numberValidator(options);
+		case 'boolean':
+			return booleanValidator;
+		case 'enum':
+			return enumValidator(options);
+	}
+}
+
 export function validateEnvVariable(
 	value: string | undefined,
 	options: EnvFieldType
 ): ValidationResult {
-	const validator: ValueValidator = {
-		string: stringValidator,
-		number: numberValidator,
-		boolean: booleanValidator,
-	}[options.type];
+	const validator = selectValidator(options);
 
 	const type = getEnvFieldType(options);
 

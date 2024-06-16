@@ -120,11 +120,22 @@ function isInjectedRoute(file: URL, settings: AstroSettings) {
 }
 
 function isPublicRoute(file: URL, config: AstroConfig): boolean {
-	const pagesDir = resolvePages(config);
-	const parts = file.toString().replace(pagesDir.toString(), '').split('/').slice(1);
+	const rootDir = config.root.toString();
+	const pagesDir = resolvePages(config).toString();
+	const fileDir = file.toString();
+
+	// Normalize the file directory path by removing the pagesDir prefix if it exists,
+	// otherwise remove the rootDir prefix.
+	const normalizedDir = fileDir.startsWith(pagesDir)
+		? fileDir.slice(pagesDir.length)
+		: fileDir.slice(rootDir.length);
+
+	const parts = normalizedDir.replace(pagesDir.toString(), '').split('/').slice(1);
+
 	for (const part of parts) {
 		if (part.startsWith('_')) return false;
 	}
+
 	return true;
 }
 

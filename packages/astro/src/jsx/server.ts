@@ -1,3 +1,4 @@
+import type { NamedSSRLoadedRendererValue } from '../@types/astro.js';
 import { AstroError, AstroUserError } from '../core/errors/errors.js';
 import { AstroJSX, jsx } from '../jsx-runtime/index.js';
 import { renderJSX } from '../runtime/server/jsx.js';
@@ -64,7 +65,10 @@ function throwEnhancedErrorIfMdxComponent(error: Error, Component: any) {
 	}
 }
 
-export default {
+const renderer: NamedSSRLoadedRendererValue = {
+	name: 'astro:jsx',
 	check,
 	renderToStaticMarkup,
 };
+
+export default renderer;

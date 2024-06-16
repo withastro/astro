@@ -1199,6 +1199,19 @@ export const i18nNotEnabled = {
 /**
  * @docs
  * @description
+ * An i18n utility tried to use the locale from a URL path that does not contain one. You can prevent this error by using pathHasLocale to check URLs for a locale first before using i18n utilities.
+ *
+ */
+export const i18nNoLocaleFoundInPath = {
+	name: 'i18nNoLocaleFoundInPath',
+	title: "The path doesn't contain any locale",
+	message:
+		"You tried to use an i18n utility on a path that doesn't contain any locale. You can use `pathHasLocale` first to determine if the path has a locale.",
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * Astro couldn't find a route matching the one provided by the user
  */
 export const RouteNotFound = {
@@ -1251,6 +1264,29 @@ export const ServerOnlyModule = {
 	name: 'ServerOnlyModule',
 	title: 'Module is only available server-side',
 	message: (name: string) => `The "${name}" module is only available server-side.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * `Astro.rewrite()` cannot be used if the request body has already been read. If you need to read the body, first clone the request. For example:
+ *
+ * ```js
+ * const data = await Astro.request.clone().formData();
+ *
+ * Astro.rewrite("/target")
+ * ```
+ *
+ * @see
+ * - [Request.clone()](https://developer.mozilla.org/en-US/docs/Web/API/Request/clone)
+ * - [Astro.rewrite](https://docs.astro.build/en/reference/configuration-reference/#experimentalrewriting)
+ */
+
+export const RewriteWithBodyUsed = {
+	name: 'RewriteWithBodyUsed',
+	title: 'Cannot use Astro.rewrite after the request body has been read',
+	message:
+		'Astro.rewrite() cannot be used if the request body has already been read. If you need to read the body, first clone the request.',
 } satisfies ErrorData;
 
 /**

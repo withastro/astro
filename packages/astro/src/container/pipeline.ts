@@ -13,7 +13,7 @@ import {
 	createModuleScriptElement,
 	createStylesheetElementSet,
 } from '../core/render/ssr-element.js';
-import { default404Page } from '../core/routing/astro-designed-error-pages.js';
+import { DEFAULT_404_ROUTE, default404Page } from '../core/routing/astro-designed-error-pages.js';
 
 export class ContainerPipeline extends Pipeline {
 	/**
@@ -70,30 +70,32 @@ export class ContainerPipeline extends Pipeline {
 		return { links, styles, scripts };
 	}
 
-	async tryRewrite(rewritePayload: RewritePayload): Promise<[RouteData, ComponentInstance]> {
+	async tryRewrite(
+		payload: RewritePayload,
+		request: Request
+	): Promise<[RouteData, ComponentInstance, URL]> {
 		let foundRoute: RouteData | undefined;
 		// options.manifest is the actual type that contains the information
+		let finalUrl: URL | undefined = undefined;
 		for (const route of this.manifest.routes) {
-			const routeData = route.routeData;
-			if (rewritePayload instanceof URL) {
-				if (routeData.pattern.test(rewritePayload.pathname)) {
-					foundRoute = routeData;
-					break;
-				}
-			} else if (rewritePayload instanceof Request) {
-				const url = new URL(rewritePayload.url);
-				if (routeData.pattern.test(url.pathname)) {
-					foundRoute = routeData;
-					break;
-				}
-			} else if (routeData.pattern.test(decodeURI(rewritePayload))) {
-				foundRoute = routeData;
+			if (payload instanceof URL) {
+				finalUrl = payload;
+			} else if (payload instanceof Request) {
+				finalUrl = new URL(payload.url);
+			} else {
+				finalUrl = new URL(payload, new URL(request.url).origin);
+			}
+			if (route.routeData.pattern.test(decodeURI(finalUrl.pathname))) {
+				foundRoute = route.routeData;
+				break;
+			} else if (finalUrl.pathname === '/404') {
+				foundRoute = DEFAULT_404_ROUTE;
 				break;
 			}
 		}
-		if (foundRoute) {
+		if (foundRoute && finalUrl) {
 			const componentInstance = await this.getComponentByRoute(foundRoute);
-			return [foundRoute, componentInstance];
+			return [foundRoute, componentInstance, finalUrl];
 		} else {
 			throw new AstroError(RouteNotFound);
 		}
