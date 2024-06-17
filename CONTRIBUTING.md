@@ -176,6 +176,12 @@ Any tests for `astro build` output should use the main `mocha` tests rather than
 
 If a test needs to validate what happens on the page after it's loading in the browser, that's a perfect use for E2E dev server tests, i.e. to verify that hot-module reloading works in `astro dev` or that components were client hydrated and are interactive.
 
+#### Creating tests
+
+When creating new tests, it's best to reference other existing test files and replicate the same setup. Some other tips include:
+
+- When re-using a fixture multiple times with different configurations, you should also configure unique `outDir`, `build.client`, and `build.server` values so the build output runtime isn't cached and shared by ESM between test runs.
+
 ### Other useful commands
 
 ```shell

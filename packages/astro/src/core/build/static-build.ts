@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import path, { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { teardown } from '@astrojs/compiler';
-import * as eslexer from 'es-module-lexer';
 import glob from 'fast-glob';
 import { bgGreen, bgMagenta, black, green } from 'kleur/colors';
 import * as vite from 'vite';
@@ -156,7 +155,7 @@ export async function staticBuild(
 		case isServerLikeOutput(settings.config): {
 			settings.timer.start('Server generate');
 			await generatePages(opts, internals);
-			await cleanStaticOutput(opts, internals, ssrOutputChunkNames);
+			await cleanStaticOutput(opts, internals);
 			opts.logger.info(null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 			await ssrMoveAssets(opts);
 			settings.timer.end('Server generate');
@@ -199,6 +198,8 @@ async function ssrBuild(
 			copyPublicDir: !ssr,
 			rollupOptions: {
 				...viteConfig.build?.rollupOptions,
+				// Setting as `exports-only` allows us to safely delete inputs that are only used during prerendering
+				preserveEntrySignatures: 'exports-only',
 				input: [],
 				output: {
 					hoistTransitiveImports: isContentCache,
@@ -381,65 +382,35 @@ async function runPostBuildHooks(
 }
 
 /**
- * For each statically prerendered page, replace their SSR file with a noop.
- * This allows us to run the SSR build only once, but still remove dependencies for statically rendered routes.
- * If a component is shared between a statically rendered route and a SSR route, it will still be included in the SSR build.
+ * Remove chunks that are used for prerendering only
  */
-async function cleanStaticOutput(
-	opts: StaticBuildOptions,
-	internals: BuildInternals,
-	ssrOutputChunkNames: string[]
-) {
-	const prerenderedFiles = new Set();
-	const onDemandsFiles = new Set();
-	for (const pageData of internals.pagesByKeys.values()) {
-		const { moduleSpecifier } = pageData;
-		const bundleId =
-			internals.pageToBundleMap.get(moduleSpecifier) ??
-			internals.entrySpecifierToBundleMap.get(moduleSpecifier);
-		if (pageData.route.prerender && !pageData.hasSharedModules && !onDemandsFiles.has(bundleId)) {
-			prerenderedFiles.add(bundleId);
-		} else {
-			onDemandsFiles.add(bundleId);
-			// Check if the component was not previously added to the static build by a statically rendered route
-			if (prerenderedFiles.has(bundleId)) {
-				prerenderedFiles.delete(bundleId);
-			}
-		}
-	}
+async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInternals) {
 	const ssr = isServerLikeOutput(opts.settings.config);
 	const out = ssr
 		? opts.settings.config.build.server
 		: getOutDirWithinCwd(opts.settings.config.outDir);
-	// The SSR output chunks for Astro are all .mjs files
-	const files = ssrOutputChunkNames.filter((f) => f.endsWith('.mjs'));
-
-	if (files.length) {
-		await eslexer.init;
-
-		// Cleanup prerendered chunks.
-		// This has to happen AFTER the SSR build runs as a final step, because we need the code in order to generate the pages.
-		// These chunks should only contain prerendering logic, so they are safe to modify.
-		await Promise.all(
-			files.map(async (filename) => {
-				if (!prerenderedFiles.has(filename)) {
-					return;
+	await Promise.all(
+		internals.prerenderOnlyChunks.map(async (chunk) => {
+			const url = new URL(chunk.fileName, out);
+			try {
+				// Entry chunks may be referenced by non-deleted code, so we don't actually delete it
+				// but only empty its content. These chunks should never be executed in practice, but
+				// it should prevent broken import paths if adapters do a secondary bundle.
+				if (chunk.isEntry || chunk.isDynamicEntry) {
+					await fs.promises.writeFile(
+						url,
+						"// Contents removed by Astro as it's used for prerendering only",
+						'utf-8'
+					);
+				} else {
+					await fs.promises.unlink(url);
 				}
-				const url = new URL(filename, out);
-				const text = await fs.promises.readFile(url, { encoding: 'utf8' });
-				const [, exports] = eslexer.parse(text);
-				// Replace exports (only prerendered pages) with a noop
-				let value = 'const noop = () => {};';
-				for (const e of exports) {
-					if (e.n === 'default') value += `\n export default noop;`;
-					else value += `\nexport const ${e.n} = noop;`;
-				}
-				await fs.promises.writeFile(url, value, { encoding: 'utf8' });
-			})
-		);
-
-		removeEmptyDirs(out);
-	}
+			} catch {
+				// Best-effort only. Sometimes some chunks may be deleted by other plugins, like pure CSS chunks,
+				// so they may already not exist.
+			}
+		})
+	);
 }
 
 async function cleanServerOutput(
