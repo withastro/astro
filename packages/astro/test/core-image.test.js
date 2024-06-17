@@ -1142,7 +1142,7 @@ describe('astro:image', () => {
 			const app = await fixture.loadTestAdapterApp();
 			let request = new Request('http://example.com/');
 			let response = await app.render(request);
-			console.log
+			console.log;
 			assert.equal(response.status, 200);
 			const html = await response.text();
 			const $ = cheerio.load(html);
