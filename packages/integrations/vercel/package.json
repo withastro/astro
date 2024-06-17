@@ -64,7 +64,7 @@
     "astro": "^4.2.0"
   },
   "devDependencies": {
-    "@types/set-cookie-parser": "^2.4.7",
+    "@types/set-cookie-parser": "^2.4.9",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0-rc.12"
