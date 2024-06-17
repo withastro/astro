@@ -11,7 +11,7 @@ import { Code } from 'astro:components'
 
 const code = `const foo = 'hello'
 const bar = ' world'
-console.log(hello + world) // [!code focus]
+console.log(foo + bar) // [!code focus]
 `
 ---
 
