@@ -449,7 +449,6 @@ async function writeContentFiles({
 				for (const entryKey of Object.keys(collection.entries).sort()) {
 					const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
 					dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType}\n};\n`;
-					dataTypesStr += `};\n`;
 				}
 
 				if (settings.config.experimental.contentCollectionJsonSchema && collectionConfig?.schema) {
@@ -482,6 +481,7 @@ async function writeContentFiles({
 						);
 					}
 				}
+				dataTypesStr += `};\n`;
 				break;
 		}
 	}
