@@ -19,7 +19,7 @@ console.log(foo + bar) // [!code focus]
 
 <style is:global>
   pre.has-focused .line:not(.focused) {
-    backdrop-filter: blur(1px);
+    filter: blur(1px);
   }
 </style>
 ```
