@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 3.1.6
+
+### Patch Changes
+
+- [#11263](https://github.com/withastro/astro/pull/11263) [`7d59750`](https://github.com/withastro/astro/commit/7d597506615fa5a34327304e8321be7b9c4b799d) Thanks [@wackbyte](https://github.com/wackbyte)! - Refactor to use Astro's integration logger for logging
+
 ## 3.1.5
 
 ### Patch Changes
