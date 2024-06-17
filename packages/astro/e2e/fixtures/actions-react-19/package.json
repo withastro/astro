@@ -17,8 +17,8 @@
 		"@types/react": "npm:types-react",
 		"@types/react-dom": "npm:types-react-dom",
 		"astro": "workspace:*",
-		"react": "19.0.0-rc-f994737d14-20240522",
-		"react-dom": "19.0.0-rc-f994737d14-20240522",
+		"react": "19.0.0-rc-fb9a90fa48-20240614",
+		"react-dom": "19.0.0-rc-fb9a90fa48-20240614",
 		"typescript": "^5.4.5"
 	},
   "overrides": {

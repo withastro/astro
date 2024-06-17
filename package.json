@@ -58,7 +58,7 @@
     "@eslint/eslintrc": "^3.1.0",
     "@types/node": "^18.17.8",
     "esbuild": "^0.21.5",
-    "eslint": "^9.4.0",
+    "eslint": "^9.5.0",
     "eslint-plugin-no-only-tests": "^3.1.0",
     "eslint-plugin-regexp": "^2.6.0",
     "globby": "^14.0.1",
