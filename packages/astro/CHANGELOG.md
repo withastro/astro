@@ -1,5 +1,76 @@
 # astro
 
+## 4.10.3
+
+### Patch Changes
+
+- [#11213](https://github.com/withastro/astro/pull/11213) [`94ac7ef`](https://github.com/withastro/astro/commit/94ac7efd70fd264b10887805a02d5d1877af8701) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `PUBLIC_` prefix constraint for `astro:env` public variables
+
+- [#11213](https://github.com/withastro/astro/pull/11213) [`94ac7ef`](https://github.com/withastro/astro/commit/94ac7efd70fd264b10887805a02d5d1877af8701) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental `astro:env` feature only**
+
+  Server secrets specified in the schema must now be imported from `astro:env/server`. Using `getSecret()` is no longer required to use these environment variables in your schema:
+
+  ```diff
+  - import { getSecret } from 'astro:env/server'
+  - const API_SECRET = getSecret("API_SECRET")
+  + import { API_SECRET } from 'astro:env/server'
+  ```
+
+  Note that using `getSecret()` with these keys is still possible, but no longer involves any special handling and the raw value will be returned, just like retrieving secrets not specified in your schema.
+
+- [#11234](https://github.com/withastro/astro/pull/11234) [`4385bf7`](https://github.com/withastro/astro/commit/4385bf7a4dc9c65bff53a30c660f7a909fcabfc9) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new function called `addServerRenderer` to the Container API. Use this function to manually store renderers inside the instance of your container.
+
+  This new function should be preferred when using the Container API in environments like on-demand pages:
+
+  ```ts
+  import type { APIRoute } from 'astro';
+  import { experimental_AstroContainer } from 'astro/container';
+  import reactRenderer from '@astrojs/react/server.js';
+  import vueRenderer from '@astrojs/vue/server.js';
+  import ReactComponent from '../components/button.jsx';
+  import VueComponent from '../components/button.vue';
+
+  // MDX runtime is contained inside the Astro core
+  import mdxRenderer from 'astro/jsx/server.js';
+
+  // In case you need to import a custom renderer
+  import customRenderer from '../renderers/customRenderer.js';
+
+  export const GET: APIRoute = async (ctx) => {
+    const container = await experimental_AstroContainer.create();
+    container.addServerRenderer({ renderer: reactRenderer });
+    container.addServerRenderer({ renderer: vueRenderer });
+    container.addServerRenderer({ renderer: customRenderer });
+    // You can pass a custom name too
+    container.addServerRenderer({
+      name: 'customRenderer',
+      renderer: customRenderer,
+    });
+    const vueComponent = await container.renderToString(VueComponent);
+    return await container.renderToResponse(Component);
+  };
+  ```
+
+- [#11249](https://github.com/withastro/astro/pull/11249) [`de60c69`](https://github.com/withastro/astro/commit/de60c69aa06c41f76a5510cc1d0bee4c8a5326a5) Thanks [@markgaze](https://github.com/markgaze)! - Fixes a performance issue with JSON schema generation
+
+- [#11242](https://github.com/withastro/astro/pull/11242) [`e4fc2a0`](https://github.com/withastro/astro/commit/e4fc2a0bafb4723566552d0c5954b25447890f51) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a case where the virtual module `astro:container` wasn't resolved
+
+- [#11236](https://github.com/withastro/astro/pull/11236) [`39bc3a5`](https://github.com/withastro/astro/commit/39bc3a5e8161232d6fdc6cc52b1f246083966d8e) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a case where symlinked content collection directories were not correctly resolved
+
+- [#11258](https://github.com/withastro/astro/pull/11258) [`d996db6`](https://github.com/withastro/astro/commit/d996db6f0bf361ebd84b23d022db7bb10fb316e6) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds a new error `RewriteWithBodyUsed` that throws when `Astro.rewrite` is used after the request body has already been read.
+
+- [#11243](https://github.com/withastro/astro/pull/11243) [`ba2b14c`](https://github.com/withastro/astro/commit/ba2b14cc28bd219c241313cdf142b736e7442014) Thanks [@V3RON](https://github.com/V3RON)! - Fixes a prerendering issue for libraries in `node_modules` when a folder with an underscore is in the path.
+
+- [#11244](https://github.com/withastro/astro/pull/11244) [`d07d2f7`](https://github.com/withastro/astro/commit/d07d2f7ac9d87af907beaca700ba4116dc1d6f37) Thanks [@ematipico](https://github.com/ematipico)! - Improves the developer experience of the custom `500.astro` page in development mode.
+
+  Before, in development, an error thrown during the rendering phase would display the default error overlay, even when users had the `500.astro` page.
+
+  Now, the development server will display the `500.astro` and the original error is logged in the console.
+
+- [#11240](https://github.com/withastro/astro/pull/11240) [`2851b0a`](https://github.com/withastro/astro/commit/2851b0aa2e2abe80ea603b53c67770e94980a8d3) Thanks [@ascorbic](https://github.com/ascorbic)! - Ignores query strings in module identifiers when matching ".astro" file extensions in Vite plugin
+
+- [#11245](https://github.com/withastro/astro/pull/11245) [`e22be22`](https://github.com/withastro/astro/commit/e22be22e5729e60220726e92b52d2833c937fd1c) Thanks [@bluwy](https://github.com/bluwy)! - Refactors prerendering chunk handling to correctly remove unused code during the SSR runtime
+
 ## 4.10.2
 
 ### Patch Changes
