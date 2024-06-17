@@ -1,3 +1,4 @@
+import type { NamedSSRLoadedRendererValue } from 'astro';
 import {
 	NoHydration,
 	Suspense,
@@ -123,9 +124,12 @@ async function renderToStaticMarkup(
 	};
 }
 
-export default {
+const renderer: NamedSSRLoadedRendererValue = {
+	name: '@astrojs/solid',
 	check,
 	renderToStaticMarkup,
 	supportsAstroStaticSlot: true,
 	renderHydrationScript: () => generateHydrationScript(),
 };
+
+export default renderer;

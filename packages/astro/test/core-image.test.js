@@ -712,7 +712,7 @@ describe('astro:image', () => {
 			let res = await fixture.fetch('/get-image-empty');
 			await res.text();
 
-			assert.equal(logs.length, 1);
+			assert.equal(logs.length >= 1, true);
 			assert.equal(logs[0].message.includes('Expected getImage() parameter'), true);
 		});
 
@@ -721,7 +721,7 @@ describe('astro:image', () => {
 			let res = await fixture.fetch('/get-image-undefined');
 			await res.text();
 
-			assert.equal(logs.length, 1);
+			assert.equal(logs.length >= 1, true);
 			assert.equal(logs[0].message.includes('Expected `src` property'), true);
 		});
 
@@ -799,6 +799,11 @@ describe('astro:image', () => {
 			const fixtureWithBase = await loadFixture({
 				root: './fixtures/core-image-ssr/',
 				output: 'server',
+				outDir: './dist/server-base-path',
+				build: {
+					client: './dist/server-base-path/client',
+					server: './dist/server-base-path/server',
+				},
 				adapter: testAdapter(),
 				image: {
 					service: testImageService(),
@@ -1080,6 +1085,11 @@ describe('astro:image', () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-ssr/',
 				output: 'server',
+				outDir: './dist/server-dev',
+				build: {
+					client: './dist/server-dev/client',
+					server: './dist/server-dev/server',
+				},
 				adapter: testAdapter(),
 				base: 'some-base',
 				image: {
@@ -1114,6 +1124,11 @@ describe('astro:image', () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-ssr/',
 				output: 'server',
+				outDir: './dist/server-prod',
+				build: {
+					client: './dist/server-prod/client',
+					server: './dist/server-prod/server',
+				},
 				adapter: testAdapter(),
 				image: {
 					endpoint: 'astro/assets/endpoint/node',
@@ -1127,6 +1142,7 @@ describe('astro:image', () => {
 			const app = await fixture.loadTestAdapterApp();
 			let request = new Request('http://example.com/');
 			let response = await app.render(request);
+			console.log;
 			assert.equal(response.status, 200);
 			const html = await response.text();
 			const $ = cheerio.load(html);

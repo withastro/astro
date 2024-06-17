@@ -34,7 +34,7 @@
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/prism": "^3.1.0",
+    "@astrojs/prism": "workspace:*",
     "github-slugger": "^2.0.0",
     "hast-util-from-html": "^2.0.1",
     "hast-util-to-text": "^4.0.2",
@@ -46,7 +46,7 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.0",
     "remark-smartypants": "^3.0.1",
-    "shiki": "^1.6.3",
+    "shiki": "^1.6.5",
     "unified": "^11.0.4",
     "unist-util-remove-position": "^5.0.0",
     "unist-util-visit": "^5.0.0",

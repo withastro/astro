@@ -449,41 +449,39 @@ async function writeContentFiles({
 				for (const entryKey of Object.keys(collection.entries).sort()) {
 					const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
 					dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType}\n};\n`;
-					if (
-						settings.config.experimental.contentCollectionJsonSchema &&
-						collectionConfig?.schema
-					) {
-						let zodSchemaForJson =
-							typeof collectionConfig.schema === 'function'
-								? collectionConfig.schema({ image: () => z.string() })
-								: collectionConfig.schema;
-						if (zodSchemaForJson instanceof z.ZodObject) {
-							zodSchemaForJson = zodSchemaForJson.extend({
-								$schema: z.string().optional(),
-							});
-						}
-						try {
-							await fs.promises.writeFile(
-								new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
-								JSON.stringify(
-									zodToJsonSchema(zodSchemaForJson, {
-										name: collectionKey.replace(/"/g, ''),
-										markdownDescription: true,
-										errorMessages: true,
-									}),
-									null,
-									2
-								)
-							);
-						} catch (err) {
-							logger.warn(
-								'content',
-								`An error was encountered while creating the JSON schema for the ${entryKey} entry in ${collectionKey} collection. Proceeding without it. Error: ${err}`
-							);
-						}
+					dataTypesStr += `};\n`;
+				}
+
+				if (settings.config.experimental.contentCollectionJsonSchema && collectionConfig?.schema) {
+					let zodSchemaForJson =
+						typeof collectionConfig.schema === 'function'
+							? collectionConfig.schema({ image: () => z.string() })
+							: collectionConfig.schema;
+					if (zodSchemaForJson instanceof z.ZodObject) {
+						zodSchemaForJson = zodSchemaForJson.extend({
+							$schema: z.string().optional(),
+						});
+					}
+					try {
+						await fs.promises.writeFile(
+							new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
+							JSON.stringify(
+								zodToJsonSchema(zodSchemaForJson, {
+									name: collectionKey.replace(/"/g, ''),
+									markdownDescription: true,
+									errorMessages: true,
+								}),
+								null,
+								2
+							)
+						);
+					} catch (err) {
+						logger.warn(
+							'content',
+							`An error was encountered while creating the JSON schema for the ${collectionKey} collection. Proceeding without it. Error: ${err}`
+						);
 					}
 				}
-				dataTypesStr += `};\n`;
 				break;
 		}
 	}

@@ -216,6 +216,10 @@ export async function loadFixture(inlineConfig) {
 				});
 			}
 		},
+		loadAdapterEntryModule: async () => {
+			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);
+			return await import(url);
+		},
 		loadNodeAdapterHandler: async () => {
 			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);
 			const { handler } = await import(url);

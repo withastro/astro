@@ -57,7 +57,6 @@ export async function collectPagesData(
 				moduleSpecifier: '',
 				styles: [],
 				hoistedScript: undefined,
-				hasSharedModules: false,
 			};
 
 			clearInterval(routeCollectionLogTimeout);
@@ -80,7 +79,6 @@ export async function collectPagesData(
 			moduleSpecifier: '',
 			styles: [],
 			hoistedScript: undefined,
-			hasSharedModules: false,
 		};
 	}
 

@@ -8,13 +8,6 @@ import { loadFixture, waitServerListen } from './test-utils.js';
  * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
  */
 
-async function load() {
-	const mod = await import(
-		`./fixtures/prerender-404-500/dist/server/entry.mjs?dropcache=${Date.now()}`
-	);
-	return mod;
-}
-
 describe('Prerender 404', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -32,10 +25,15 @@ describe('Prerender 404', () => {
 				base: '/some-base',
 				root: './fixtures/prerender-404-500/',
 				output: 'server',
+				outDir: './dist/server-with-base',
+				build: {
+					client: './dist/server-with-base/client',
+					server: './dist/server-with-base/server',
+				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await load();
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -117,10 +115,15 @@ describe('Prerender 404', () => {
 				site: 'https://test.info/',
 				root: './fixtures/prerender-404-500/',
 				output: 'server',
+				outDir: './dist/server-without-base',
+				build: {
+					client: './dist/server-without-base/client',
+					server: './dist/server-without-base/server',
+				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await load();
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -181,10 +184,15 @@ describe('Hybrid 404', () => {
 				base: '/some-base',
 				root: './fixtures/prerender-404-500/',
 				output: 'hybrid',
+				outDir: './dist/hybrid-with-base',
+				build: {
+					client: './dist/hybrid-with-base/client',
+					server: './dist/hybrid-with-base/server',
+				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await load();
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -238,10 +246,15 @@ describe('Hybrid 404', () => {
 				site: 'https://test.net/',
 				root: './fixtures/prerender-404-500/',
 				output: 'hybrid',
+				outDir: './dist/hybrid-without-base',
+				build: {
+					client: './dist/hybrid-without-base/client',
+					server: './dist/hybrid-without-base/server',
+				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await load();
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);

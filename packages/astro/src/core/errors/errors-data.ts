@@ -1268,6 +1268,29 @@ export const ServerOnlyModule = {
 
 /**
  * @docs
+ * @description
+ * `Astro.rewrite()` cannot be used if the request body has already been read. If you need to read the body, first clone the request. For example:
+ *
+ * ```js
+ * const data = await Astro.request.clone().formData();
+ *
+ * Astro.rewrite("/target")
+ * ```
+ *
+ * @see
+ * - [Request.clone()](https://developer.mozilla.org/en-US/docs/Web/API/Request/clone)
+ * - [Astro.rewrite](https://docs.astro.build/en/reference/configuration-reference/#experimentalrewriting)
+ */
+
+export const RewriteWithBodyUsed = {
+	name: 'RewriteWithBodyUsed',
+	title: 'Cannot use Astro.rewrite after the request body has been read',
+	message:
+		'Astro.rewrite() cannot be used if the request body has already been read. If you need to read the body, first clone the request.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name CSS Errors
  */
