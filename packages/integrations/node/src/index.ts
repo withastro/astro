@@ -45,7 +45,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 					},
 				});
 			},
-			'astro:config:done': ({ setAdapter, config }) => {
+			'astro:config:done': ({ setAdapter, config, logger }) => {
 				_options = {
 					...userOptions,
 					client: config.build.client?.toString(),
@@ -57,8 +57,8 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 				setAdapter(getAdapter(_options));
 
 				if (config.output === 'static') {
-					console.warn(
-						`[@astrojs/node] \`output: "server"\` or  \`output: "hybrid"\` is required to use this adapter.`
+					logger.warn(
+						`\`output: "server"\` or  \`output: "hybrid"\` is required to use this adapter.`
 					);
 				}
 			},

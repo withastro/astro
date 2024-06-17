@@ -1,7 +1,13 @@
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
-import type { AstroIntegration, ContainerRenderer, ContentEntryType, HookParameters } from 'astro';
+import type {
+	AstroIntegration,
+	AstroIntegrationLogger,
+	ContainerRenderer,
+	ContentEntryType,
+	HookParameters,
+} from 'astro';
 import astroJSXRenderer from 'astro/jsx/renderer.js';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
@@ -75,7 +81,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					},
 				});
 			},
-			'astro:config:done': ({ config }) => {
+			'astro:config:done': ({ config, logger }) => {
 				// We resolve the final MDX options here so that other integrations have a chance to modify
 				// `config.markdown` before we access it
 				const extendMarkdownConfig =
@@ -84,7 +90,8 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				const resolvedMdxOptions = applyDefaultOptions({
 					options: partialMdxOptions,
 					defaults: markdownConfigToMdxOptions(
-						extendMarkdownConfig ? config.markdown : markdownConfigDefaults
+						extendMarkdownConfig ? config.markdown : markdownConfigDefaults,
+						logger
 					),
 				});
 
@@ -104,12 +111,15 @@ const defaultMdxOptions = {
 	optimize: false,
 } satisfies Partial<MdxOptions>;
 
-function markdownConfigToMdxOptions(markdownConfig: typeof markdownConfigDefaults): MdxOptions {
+function markdownConfigToMdxOptions(
+	markdownConfig: typeof markdownConfigDefaults,
+	logger: AstroIntegrationLogger
+): MdxOptions {
 	return {
 		...defaultMdxOptions,
 		...markdownConfig,
-		remarkPlugins: ignoreStringPlugins(markdownConfig.remarkPlugins),
-		rehypePlugins: ignoreStringPlugins(markdownConfig.rehypePlugins),
+		remarkPlugins: ignoreStringPlugins(markdownConfig.remarkPlugins, logger),
+		rehypePlugins: ignoreStringPlugins(markdownConfig.rehypePlugins, logger),
 		remarkRehype: (markdownConfig.remarkRehype as any) ?? {},
 	};
 }
