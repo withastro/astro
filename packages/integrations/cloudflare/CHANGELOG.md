@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 10.4.1
+
+### Patch Changes
+
+- [#282](https://github.com/withastro/adapters/pull/282) [`65337f3`](https://github.com/withastro/adapters/commit/65337f3aa67a1f2a40ea8c20a6fcc462e8cbfe94) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes backwards compatibility with Astro <= 4.9
+
 ## 10.4.0
 
 ### Minor Changes
