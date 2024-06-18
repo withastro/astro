@@ -52,6 +52,13 @@ describe('Astro.cookies', () => {
 				assert.equal(response.headers.has('set-cookie'), true);
 			}
 		});
+
+		it('can set cookies in a rewritten request', async () => {
+			const response = await fixture.fetch('/from');
+			assert.equal(response.status, 200);
+
+			assert.equal(response.headers.get('set-cookie'), 'my_cookie=value');
+		});
 	});
 
 	describe('Production', () => {

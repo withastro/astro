@@ -163,6 +163,12 @@ export class RenderContext {
 							streaming,
 							this.routeData
 						);
+
+						if (result.cookies) {
+							for (const cookie of AstroCookies.consume(result.cookies)) {
+								response.headers.append('Set-Cookie', cookie);
+							}
+						}
 					} catch (e) {
 						// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
 						// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
