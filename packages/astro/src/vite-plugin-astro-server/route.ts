@@ -162,11 +162,10 @@ export async function handleRoute({
 }: HandleRoute): Promise<void> {
 	const timeStart = performance.now();
 	const { config, loader, logger } = pipeline;
-	if (!matchedRoute && !config.i18n) {
-		if (isLoggedRequest(pathname)) {
-			logger.info(null, req({ url: pathname, method: incomingRequest.method, statusCode: 404 }));
-		}
-		return handle404Response(origin, incomingRequest, incomingResponse);
+
+	if (!matchedRoute) {
+		// This should never happen, because ensure404Route will add a 404 route if none exists.
+		throw new Error('No route matched, and default 404 route was not found.');
 	}
 
 	let request: Request;
@@ -177,106 +176,47 @@ export async function handleRoute({
 	const middleware = (await loadMiddleware(loader)).onRequest;
 	const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
 
-	if (!matchedRoute) {
-		if (config.i18n) {
-			const locales = config.i18n.locales;
-			const pathNameHasLocale = pathname
-				.split('/')
-				.filter(Boolean)
-				.some((segment) => {
-					let found = false;
-					for (const locale of locales) {
-						if (typeof locale === 'string') {
-							if (normalizeTheLocale(locale) === normalizeTheLocale(segment)) {
-								found = true;
-								break;
-							}
-						} else {
-							if (locale.path === segment) {
-								found = true;
-								break;
-							}
-						}
-					}
-					return found;
-				});
-			// Even when we have `config.base`, the pathname is still `/` because it gets stripped before
-			if (!pathNameHasLocale && pathname !== '/') {
-				return handle404Response(origin, incomingRequest, incomingResponse);
-			}
-		}
-		request = createRequest({
-			base: config.base,
-			url,
-			headers: incomingRequest.headers,
-			logger,
-			// no route found, so we assume the default for rendering the 404 page
-			staticLike: config.output === 'static' || config.output === 'hybrid',
-		});
-		route = {
-			component: '',
-			generate(_data: any): string {
-				return '';
-			},
-			params: [],
-			// Disable eslint as we only want to generate an empty RegExp
-			// eslint-disable-next-line prefer-regex-literals
-			pattern: new RegExp(''),
-			prerender: false,
-			segments: [],
-			type: 'fallback',
-			route: '',
-			fallbackRoutes: [],
-			isIndex: false,
-		};
+	const filePath: URL | undefined = matchedRoute.filePath;
+	const { preloadedComponent } = matchedRoute;
+	route = matchedRoute.route;
+	// Allows adapters to pass in locals in dev mode.
+	request = createRequest({
+		base: config.base,
+		url,
+		headers: incomingRequest.headers,
+		method: incomingRequest.method,
+		body,
+		logger,
+		clientAddress: incomingRequest.socket.remoteAddress,
+		staticLike: config.output === 'static' || route.prerender,
+	});
 
-		renderContext = RenderContext.create({
-			pipeline: pipeline,
-			pathname,
-			middleware,
-			request,
-			routeData: route,
-		});
-	} else {
-		const filePath: URL | undefined = matchedRoute.filePath;
-		const { preloadedComponent } = matchedRoute;
-		route = matchedRoute.route;
-		// Allows adapters to pass in locals in dev mode.
-		request = createRequest({
-			base: config.base,
-			url,
-			headers: incomingRequest.headers,
-			method: incomingRequest.method,
-			body,
-			logger,
-			clientAddress: incomingRequest.socket.remoteAddress,
-			staticLike: config.output === 'static' || route.prerender,
-		});
-
-		// Set user specified headers to response object.
-		for (const [name, value] of Object.entries(config.server.headers ?? {})) {
-			if (value) incomingResponse.setHeader(name, value);
-		}
-
-		options = {
-			pipeline,
-			filePath,
-			preload: preloadedComponent,
-			pathname,
-			request,
-			route,
-		};
-
-		mod = preloadedComponent;
-		renderContext = RenderContext.create({
-			locals,
-			pipeline,
-			pathname,
-			middleware,
-			request,
-			routeData: route,
-		});
+	// Set user specified headers to response object.
+	for (const [name, value] of Object.entries(config.server.headers ?? {})) {
+		if (value) incomingResponse.setHeader(name, value);
 	}
+
+	options = {
+		pipeline,
+		filePath,
+		preload: preloadedComponent,
+		pathname,
+		request,
+		route,
+	};
+
+	mod = preloadedComponent;
+
+	const isPrerendered404 = matchedRoute.route.route === '/404' && matchedRoute.route.prerender;
+
+	renderContext = RenderContext.create({
+		locals,
+		pipeline,
+		pathname,
+		middleware: isPrerendered404 ? undefined : middleware,
+		request,
+		routeData: route,
+	});
 
 	let response;
 	try {
@@ -288,9 +228,9 @@ export async function handleRoute({
 		}
 		// Log useful information that the custom 500 page may not display unlike the default error overlay
 		logger.error('router', err.stack || err.message);
-		const filePath = new URL(`./${custom500.component}`, config.root);
-		const preloadedComponent = await pipeline.preload(custom500, filePath);
-		response = await renderContext.render(preloadedComponent);
+		const filePath500 = new URL(`./${custom500.component}`, config.root);
+		const preloaded500Component = await pipeline.preload(custom500, filePath500);
+		response = await renderContext.render(preloaded500Component);
 		status = 500;
 	}
 
