@@ -3,11 +3,11 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { DEFAULT_HASH_PROPS } from './consts.js';
 import { type ImageService, isLocalService } from './services/service.js';
 import {
-	isImageMetadata,
 	type GetImageResult,
 	type ImageTransform,
 	type SrcSetValue,
 	type UnresolvedImageTransform,
+	isImageMetadata,
 } from './types.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { probe } from './utils/remoteProbe.js';
@@ -51,8 +51,8 @@ export async function getImage(
 			),
 		});
 	}
-	
-	if(isImageMetadata(options)) {
+
+	if (isImageMetadata(options)) {
 		throw new AstroError(AstroErrorData.ExpectedNotESMImage);
 	}
 

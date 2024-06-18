@@ -668,7 +668,7 @@ export const ExpectedImageOptions = {
  * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
  * An ESM-imported image cannot be passed directly to `getImage()`. Instead, pass an object with the image in the `src` property.
- * 
+ *
  * ```diff
  * import { getImage } from "astro:assets";
  * import myImage from "../assets/my_image.png";
@@ -680,8 +680,9 @@ export const ExpectedImageOptions = {
 export const ExpectedNotESMImage = {
 	name: 'ExpectedNotESMImage',
 	title: 'Expected image options, not an ESM-imported image.',
-	message: 'An ESM-imported image cannot be passed directly to `getImage()`. Instead, pass an object with the image in the `src` property.',
-	hint: 'Try changing `getImage(myImage)` to `getImage({ src: myImage })`'
+	message:
+		'An ESM-imported image cannot be passed directly to `getImage()`. Instead, pass an object with the image in the `src` property.',
+	hint: 'Try changing `getImage(myImage)` to `getImage({ src: myImage })`',
 } satisfies ErrorData;
 
 /**
