@@ -27,6 +27,7 @@ import {
 	responseSentSymbol,
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
+import { getFromResponse } from './cookies/response.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
@@ -164,10 +165,9 @@ export class RenderContext {
 							this.routeData
 						);
 
-						if (result.cookies) {
-							for (const cookie of AstroCookies.consume(result.cookies)) {
-								response.headers.append('Set-Cookie', cookie);
-							}
+						const responseCookies = getFromResponse(response);
+						if (result.cookies && responseCookies) {
+							result.cookies?.merge(responseCookies);
 						}
 					} catch (e) {
 						// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,

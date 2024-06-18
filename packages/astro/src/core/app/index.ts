@@ -347,9 +347,6 @@ export class App {
 			for (const setCookieHeaderValue of App.getSetCookieFromResponse(response)) {
 				response.headers.append('set-cookie', setCookieHeaderValue);
 			}
-		} else {
-			// It may have been set already in a rewrite
-			response.headers.delete('set-cookie');
 		}
 
 		Reflect.set(response, responseSentSymbol, true);
