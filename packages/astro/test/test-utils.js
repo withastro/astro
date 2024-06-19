@@ -179,10 +179,14 @@ export async function loadFixture(inlineConfig) {
 		fetch: async (url, init) => {
 			if (config.vite?.server?.https) {
 				init = {
+					// Use a custom fetch dispatcher. This is an undici option that allows
+					// us to customize the fetch behavior. We use it here to allow h2.
 					dispatcher: new Agent({
 						connect: {
+							// We disable cert validation because we're using self-signed certs
 							rejectUnauthorized: false,
 						},
+						// Enable HTTP/2 support
 						allowH2: true,
 					}),
 					...init,
