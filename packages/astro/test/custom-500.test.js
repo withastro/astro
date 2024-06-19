@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
+import { renameSync } from 'node:fs';
 import { afterEach, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
-import { renameSync } from 'node:fs';
+import { loadFixture } from './test-utils.js';
 
 describe('Custom 500', () => {
 	/** @type {Awaited<ReturnType<typeof loadFixture>>} */

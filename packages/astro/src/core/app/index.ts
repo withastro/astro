@@ -429,7 +429,7 @@ export class App {
 					request,
 					routeData: errorRouteData,
 					status,
-					props: { error }
+					props: { error },
 				});
 				const response = await renderContext.render(await mod.page());
 				return this.#mergeResponses(response, originalResponse);
