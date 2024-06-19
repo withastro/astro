@@ -230,6 +230,7 @@ export async function handleRoute({
 		logger.error('router', err.stack || err.message);
 		const filePath500 = new URL(`./${custom500.component}`, config.root);
 		const preloaded500Component = await pipeline.preload(custom500, filePath500);
+    renderContext.props.error = err;
 		response = await renderContext.render(preloaded500Component);
 		status = 500;
 	}
