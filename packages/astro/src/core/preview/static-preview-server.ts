@@ -23,6 +23,12 @@ export default async function createStaticPreviewServer(
 	const startServerTime = performance.now();
 
 	let previewServer: VitePreviewServer;
+
+	const previewConfig = Object.assign({},
+		settings.config.vite.server,
+		settings.config.vite.preview,
+		settings.config.server,
+	)
 	try {
 		previewServer = await preview({
 			configFile: false,
@@ -31,12 +37,7 @@ export default async function createStaticPreviewServer(
 			build: {
 				outDir: fileURLToPath(settings.config.outDir),
 			},
-			preview: {
-				host: settings.config.server.host,
-				port: settings.config.server.port,
-				headers: settings.config.server.headers,
-				open: settings.config.server.open,
-			},
+			preview: previewConfig,
 			plugins: [vitePluginAstroPreview(settings)],
 		});
 	} catch (err) {
