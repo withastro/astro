@@ -725,6 +725,17 @@ describe('astro:image', () => {
 			assert.equal(logs[0].message.includes('Expected `src` property'), true);
 		});
 
+		it('errors when an ESM imported image is passed directly to getImage', async () => {
+			logs.length = 0;
+			let res = await fixture.fetch('/get-image-import-passed');
+			await res.text();
+			assert.equal(logs.length >= 1, true);
+			assert.equal(
+				logs[0].message.includes('An ESM-imported image cannot be passed directly'),
+				true
+			);
+		});
+
 		it('properly error image in Markdown frontmatter is not found', async () => {
 			logs.length = 0;
 			let res = await fixture.fetch('/blog/one');

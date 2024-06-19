@@ -1,5 +1,6 @@
 import type { PluginContext } from 'rollup';
 import { z } from 'zod';
+import type { ImageMetadata, OmitBrand } from '../assets/types.js';
 import { emitESMImage } from '../assets/utils/emitAsset.js';
 
 export function createImage(
@@ -10,11 +11,11 @@ export function createImage(
 	return () => {
 		return z.string().transform(async (imagePath, ctx) => {
 			const resolvedFilePath = (await pluginContext.resolve(imagePath, entryFilePath))?.id;
-			const metadata = await emitESMImage(
+			const metadata = (await emitESMImage(
 				resolvedFilePath,
 				pluginContext.meta.watchMode,
 				shouldEmitFile ? pluginContext.emitFile : undefined
-			);
+			)) as OmitBrand<ImageMetadata>;
 
 			if (!metadata) {
 				ctx.addIssue({
