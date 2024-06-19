@@ -35,18 +35,18 @@ type DataEntryMetadata = Record<string, never>;
 type ContentEntryMetadata = { slug: string };
 type CollectionEntryMap = {
 	[collection: string]:
-		| {
-				type: 'unknown';
-				entries: Record<string, never>;
-		  }
-		| {
-				type: 'content';
-				entries: Record<string, ContentEntryMetadata>;
-		  }
-		| {
-				type: 'data';
-				entries: Record<string, DataEntryMetadata>;
-		  };
+	| {
+		type: 'unknown';
+		entries: Record<string, never>;
+	}
+	| {
+		type: 'content';
+		entries: Record<string, ContentEntryMetadata>;
+	}
+	| {
+		type: 'data';
+		entries: Record<string, DataEntryMetadata>;
+	};
 };
 
 type CreateContentGeneratorParams = {
@@ -425,16 +425,21 @@ async function writeContentFiles({
 		const resolvedType: 'content' | 'data' =
 			collection.type === 'unknown'
 				? // Add empty / unknown collections to the data type map by default
-					// This ensures `getCollection('empty-collection')` doesn't raise a type error
-					collectionConfig?.type ?? 'data'
+				// This ensures `getCollection('empty-collection')` doesn't raise a type error
+				collectionConfig?.type ?? 'data'
 				: collection.type;
 
+		const collectionEntryKeys = Object.keys(collection.entries).sort();
+		const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
 		switch (resolvedType) {
 			case 'content':
+				if (collectionEntryKeys.length === 0) {
+					contentTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  slug: string;\n  body: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  render(): Render[".md"];\n}>;\n`;
+					break;
+				}
 				contentTypesStr += `${collectionKey}: {\n`;
-				for (const entryKey of Object.keys(collection.entries).sort()) {
+				for (const entryKey of collectionEntryKeys) {
 					const entryMetadata = collection.entries[entryKey];
-					const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
 					const renderType = `{ render(): Render[${JSON.stringify(
 						path.extname(JSON.parse(entryKey))
 					)}] }`;
@@ -445,10 +450,14 @@ async function writeContentFiles({
 				contentTypesStr += `};\n`;
 				break;
 			case 'data':
-				dataTypesStr += `${collectionKey}: {\n`;
-				for (const entryKey of Object.keys(collection.entries).sort()) {
-					const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
-					dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType}\n};\n`;
+				if (collectionEntryKeys.length === 0) {
+					dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n}>;\n`;
+				} else {
+					dataTypesStr += `${collectionKey}: {\n`;
+					for (const entryKey of collectionEntryKeys) {
+						dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType}\n};\n`;
+					}
+					dataTypesStr += `};\n`;
 				}
 
 				if (settings.config.experimental.contentCollectionJsonSchema && collectionConfig?.schema) {
@@ -481,7 +490,6 @@ async function writeContentFiles({
 						);
 					}
 				}
-				dataTypesStr += `};\n`;
 				break;
 		}
 	}
