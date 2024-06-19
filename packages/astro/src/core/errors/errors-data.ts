@@ -1158,18 +1158,6 @@ export const RewriteEncounteredAnError = {
 /**
  * @docs
  * @description
- *
- * The user tried to rewrite a 404 page inside a static page.
- */
-export const InvalidRewrite404 = {
-	name: 'InvalidRewrite404',
-	title: "You attempted to rewrite a 404 inside a static page, and this isn't allowed.",
-	message: 'Rewriting a 404 is only allowed inside on-demand pages.',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
  * Astro could not find an associated file with content while trying to render the route. This is an Astro error and not a user error. If restarting the dev server does not fix the problem, please file an issue.
  */
 export const CantRenderPage = {

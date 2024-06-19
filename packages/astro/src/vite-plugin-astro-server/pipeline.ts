@@ -14,7 +14,7 @@ import { getInfoOutput } from '../cli/info/index.js';
 import { type HeadElements } from '../core/base-pipeline.js';
 import { ASTRO_VERSION, DEFAULT_404_COMPONENT } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
-import { InvalidRewrite404, RewriteEncounteredAnError } from '../core/errors/errors-data.js';
+import { RewriteEncounteredAnError } from '../core/errors/errors-data.js';
 import { AggregateError, AstroError, CSSError, MarkdownError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
@@ -26,6 +26,9 @@ import { getStylesForURL } from './css.js';
 import { getComponentMetadata } from './metadata.js';
 import { createResolve } from './resolve.js';
 import { getScriptsForURL } from './scripts.js';
+import { shouldAppendForwardSlash } from '../core/build/util.js';
+import { prependForwardSlash, removeTrailingForwardSlash } from '../core/path.js';
+import { findRouteToRewrite } from '../core/routing/rewrite.js';
 
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
@@ -194,59 +197,25 @@ export class DevPipeline extends Pipeline {
 	async tryRewrite(
 		payload: RewritePayload,
 		request: Request,
-		sourceRoute: RouteData
+		_sourceRoute: RouteData
 	): Promise<[RouteData, ComponentInstance, URL]> {
-		let foundRoute;
 		if (!this.manifestData) {
 			throw new Error('Missing manifest data. This is an internal error, please file an issue.');
 		}
+		const [foundRoute, finalUrl] = findRouteToRewrite({
+			payload,
+			request,
+			routes: this.manifestData?.routes,
+			trailingSlash: this.config.trailingSlash,
+			buildFormat: this.config.build.format,
+			base: this.config.base
+		});
 
-		let finalUrl: URL | undefined = undefined;
-		for (const route of this.manifestData.routes) {
-			if (payload instanceof URL) {
-				finalUrl = payload;
-			} else if (payload instanceof Request) {
-				finalUrl = new URL(payload.url);
-			} else {
-				finalUrl = new URL(payload, new URL(request.url).origin);
-			}
-
-			if (route.pattern.test(decodeURI(finalUrl.pathname))) {
-				foundRoute = route;
-				break;
-			} else if (finalUrl.pathname === '/404') {
-				foundRoute = DEFAULT_404_ROUTE;
-				break;
-			}
-		}
-
-		if (foundRoute && finalUrl) {
-			if (foundRoute.pathname === '/404') {
-				const componentInstance = this.rewriteKnownRoute(foundRoute.pathname, sourceRoute);
-				return [foundRoute, componentInstance, finalUrl];
-			} else {
-				const componentInstance = await this.getComponentByRoute(foundRoute);
-				return [foundRoute, componentInstance, finalUrl];
-			}
-		} else {
-			throw new AstroError({
-				...RewriteEncounteredAnError,
-				message: RewriteEncounteredAnError.message(payload.toString()),
-			});
-		}
+		const componentInstance = await this.getComponentByRoute(foundRoute);
+		return [foundRoute, componentInstance, finalUrl];
 	}
 
 	setManifestData(manifestData: ManifestData) {
 		this.manifestData = manifestData;
-	}
-
-	rewriteKnownRoute(route: string, sourceRoute: RouteData): ComponentInstance {
-		if (isServerLikeOutput(this.config) && sourceRoute.prerender) {
-			if (route === '/404') {
-				return { default: default404Page } as any as ComponentInstance;
-			}
-		}
-
-		throw new AstroError(InvalidRewrite404);
 	}
 }
