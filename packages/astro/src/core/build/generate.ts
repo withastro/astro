@@ -199,8 +199,18 @@ async function generatePage(
 	pipeline: BuildPipeline
 ) {
 	// prepare information we need
-	const { config, internals, logger } = pipeline;
+	const { config, logger, internals } = pipeline;
+	
 	const pageModulePromise = ssrEntry.page;
+	const viteId = internals.viteIdsByPage.get(pageData.key)
+	const hasStyles = pageData.styles.length > 0;
+	const hasScripts = Boolean(pageData.hoistedScript);
+	if(viteId && !internals.componentMetadata.get(viteId)?.containsHead && (hasScripts || hasStyles)) {
+		const reason = [hasScripts ? 'scripts' : '', hasStyles ? 'styles' : ''].filter(Boolean).join(' and ')
+		logger.warn(null, `${blue(pageData.component)} does not contain a ${green('<head>')} element, but has hoisted ${reason}. This is probably a mistake and can cause unexpected behavior.`)
+	}
+
+
 
 	// Calculate information of the page, like scripts, links and styles
 	const styles = pageData.styles

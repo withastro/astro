@@ -53,6 +53,11 @@ export interface BuildInternals {
 	pagesByViteID: Map<ViteID, PageBuildData>;
 
 	/**
+	 * A map for Vite module IDs by page key
+	 */
+	viteIdsByPage: Map<string, string>;
+
+	/**
 	 * A map for page-specific information by a client:only component
 	 */
 	pagesByClientOnly: Map<string, Set<PageBuildData>>;
@@ -142,6 +147,7 @@ export function createBuildInternals(): BuildInternals {
 		pagesByKeys: new Map(),
 		pageOptionsByPage: new Map(),
 		pagesByViteID: new Map(),
+		viteIdsByPage: new Map(),
 		pagesByClientOnly: new Map(),
 		pagesByScriptId: new Map(),
 
@@ -169,7 +175,9 @@ export function trackPageData(
 ): void {
 	pageData.moduleSpecifier = componentModuleId;
 	internals.pagesByKeys.set(pageData.key, pageData);
-	internals.pagesByViteID.set(viteID(componentURL), pageData);
+	const id = viteID(componentURL)
+	internals.pagesByViteID.set(id, pageData);
+	internals.viteIdsByPage.set(pageData.key, id);
 }
 
 /**
