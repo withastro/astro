@@ -8,8 +8,7 @@ import type {
 import { getOutputDirectory } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
-import { InvalidRewrite404, RewriteEncounteredAnError } from '../errors/errors-data.js';
-import { AstroError } from '../errors/index.js';
+import { DEFAULT_404_COMPONENT } from '../constants.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { Pipeline } from '../render/index.js';
@@ -18,7 +17,8 @@ import {
 	createModuleScriptsSet,
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
-import { DEFAULT_404_ROUTE } from '../routing/astro-designed-error-pages.js';
+import { default404Page } from '../routing/astro-designed-error-pages.js';
+import { findRouteToRewrite } from '../routing/rewrite.js';
 import { isServerLikeOutput } from '../util.js';
 import { getOutDirWithinCwd } from './common.js';
 import { type BuildInternals, cssOrder, getPageData, mergeInlineCss } from './internal.js';
@@ -269,6 +269,8 @@ export class BuildPipeline extends Pipeline {
 			// SAFETY: checked before
 			const entry = this.#componentsInterner.get(routeData)!;
 			return await entry.page();
+		} else if (routeData.component === DEFAULT_404_COMPONENT) {
+			return { default: default404Page };
 		} else {
 			// SAFETY: the pipeline calls `retrieveRoutesToGenerate`, which is in charge to fill the cache.
 			const filePath = this.#routesByFilePath.get(routeData)!;
@@ -280,42 +282,19 @@ export class BuildPipeline extends Pipeline {
 	async tryRewrite(
 		payload: RewritePayload,
 		request: Request,
-		sourceRoute: RouteData
+		_sourceRoute: RouteData
 	): Promise<[RouteData, ComponentInstance, URL]> {
-		let foundRoute: RouteData | undefined;
-		// options.manifest is the actual type that contains the information
-		let finalUrl: URL | undefined = undefined;
-		for (const route of this.options.manifest.routes) {
-			if (payload instanceof URL) {
-				finalUrl = payload;
-			} else if (payload instanceof Request) {
-				finalUrl = new URL(payload.url);
-			} else {
-				finalUrl = new URL(payload, new URL(request.url).origin);
-			}
+		const [foundRoute, finalUrl] = findRouteToRewrite({
+			payload,
+			request,
+			routes: this.options.manifest.routes,
+			trailingSlash: this.config.trailingSlash,
+			buildFormat: this.config.build.format,
+			base: this.config.base,
+		});
 
-			if (route.pattern.test(decodeURI(finalUrl.pathname))) {
-				foundRoute = route;
-				break;
-			} else if (finalUrl.pathname === '/404') {
-				foundRoute = DEFAULT_404_ROUTE;
-				break;
-			}
-		}
-		if (foundRoute && finalUrl) {
-			if (foundRoute.pathname === '/404') {
-				const componentInstance = await this.rewriteKnownRoute(foundRoute.pathname, sourceRoute);
-				return [foundRoute, componentInstance, finalUrl];
-			} else {
-				const componentInstance = await this.getComponentByRoute(foundRoute);
-				return [foundRoute, componentInstance, finalUrl];
-			}
-		} else {
-			throw new AstroError({
-				...RewriteEncounteredAnError,
-				message: RewriteEncounteredAnError.message(payload.toString()),
-			});
-		}
+		const componentInstance = await this.getComponentByRoute(foundRoute);
+		return [foundRoute, componentInstance, finalUrl];
 	}
 
 	async retrieveSsrEntry(route: RouteData, filePath: string): Promise<SinglePageBuiltModule> {
@@ -374,13 +353,6 @@ export class BuildPipeline extends Pipeline {
 		}
 
 		return RedirectSinglePageBuiltModule;
-	}
-
-	rewriteKnownRoute(_pathname: string, sourceRoute: RouteData): ComponentInstance {
-		if (!isServerLikeOutput(this.config) || sourceRoute.prerender) {
-			throw new AstroError(InvalidRewrite404);
-		}
-		throw new Error(`Unreachable, in SSG this route shouldn't be generated`);
 	}
 }
 

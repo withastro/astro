@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { execa } from 'execa';
 import fastGlob from 'fast-glob';
 import stripAnsi from 'strip-ansi';
+import { Agent } from 'undici';
 import { check } from '../dist/cli/check/index.js';
 import build from '../dist/core/build/index.js';
 import { RESOLVED_SPLIT_MODULE_ID } from '../dist/core/build/plugins/plugin-ssr.js';
@@ -122,8 +123,13 @@ export async function loadFixture(inlineConfig) {
 	// Load the config.
 	const { astroConfig: config } = await resolveConfig(inlineConfig, 'dev');
 
+	const protocol = config.vite?.server?.https ? 'https' : 'http';
+
 	const resolveUrl = (url) =>
-		`http://${config.server.host || 'localhost'}:${config.server.port}${url.replace(/^\/?/, '/')}`;
+		`${protocol}://${config.server.host || 'localhost'}:${config.server.port}${url.replace(
+			/^\/?/,
+			'/'
+		)}`;
 
 	// A map of files that have been edited.
 	let fileEdits = new Map();
@@ -171,6 +177,21 @@ export async function loadFixture(inlineConfig) {
 		config,
 		resolveUrl,
 		fetch: async (url, init) => {
+			if (config.vite?.server?.https) {
+				init = {
+					// Use a custom fetch dispatcher. This is an undici option that allows
+					// us to customize the fetch behavior. We use it here to allow h2.
+					dispatcher: new Agent({
+						connect: {
+							// We disable cert validation because we're using self-signed certs
+							rejectUnauthorized: false,
+						},
+						// Enable HTTP/2 support
+						allowH2: true,
+					}),
+					...init,
+				};
+			}
 			const resolvedUrl = resolveUrl(url);
 			try {
 				return await fetch(resolvedUrl, init);

@@ -25,7 +25,9 @@ export async function handleRequest({
 	incomingResponse,
 }: HandleRequest) {
 	const { config, loader } = pipeline;
-	const origin = `${loader.isHttps() ? 'https' : 'http'}://${incomingRequest.headers.host}`;
+	const origin = `${loader.isHttps() ? 'https' : 'http'}://${
+		incomingRequest.headers[':authority'] ?? incomingRequest.headers.host
+	}`;
 
 	const url = new URL(origin + incomingRequest.url);
 	let pathname: string;

@@ -173,10 +173,6 @@ export async function createVite(
 				process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production'
 					? false
 					: undefined, // disable HMR for test
-			// handle Vite URLs
-			proxy: {
-				// add proxies here
-			},
 			watch: {
 				// Prevent watching during the build to speed it up
 				ignored: mode === 'build' ? ['**'] : undefined,
