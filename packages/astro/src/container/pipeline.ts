@@ -14,6 +14,7 @@ import {
 	createStylesheetElementSet,
 } from '../core/render/ssr-element.js';
 import { DEFAULT_404_ROUTE } from '../core/routing/astro-designed-error-pages.js';
+import {findRouteToRewrite} from "../core/routing/rewrite.js";
 
 export class ContainerPipeline extends Pipeline {
 	/**
@@ -74,35 +75,17 @@ export class ContainerPipeline extends Pipeline {
 		payload: RewritePayload,
 		request: Request
 	): Promise<[RouteData, ComponentInstance, URL]> {
-		let foundRoute: RouteData | undefined;
-		// options.manifest is the actual type that contains the information
-		let finalUrl: URL | undefined = undefined;
-		if (payload instanceof URL) {
-			finalUrl = payload;
-		} else if (payload instanceof Request) {
-			finalUrl = new URL(payload.url);
-		} else {
-			finalUrl = new URL(payload, new URL(request.url).origin);
-		}
-		for (const route of this.manifest.routes) {
-			if (route.routeData.pattern.test(decodeURI(finalUrl.pathname))) {
-				foundRoute = route.routeData;
-				break;
-			}
-		}
+		const [foundRoute, finalUrl] = findRouteToRewrite({
+			payload,
+			request,
+			routes: this.manifest?.routes.map((r) => r.routeData),
+			trailingSlash: this.manifest.trailingSlash,
+			buildFormat: this.manifest.buildFormat,
+			base: this.manifest.base,
+		});
 
-		if (!foundRoute) {
-			if (finalUrl.pathname.includes('/404')) {
-				foundRoute = DEFAULT_404_ROUTE;
-			}
-		}
-
-		if (foundRoute && finalUrl) {
-			const componentInstance = await this.getComponentByRoute(foundRoute);
-			return [foundRoute, componentInstance, finalUrl];
-		} else {
-			throw new AstroError(RouteNotFound);
-		}
+		const componentInstance = await this.getComponentByRoute(foundRoute);
+		return [foundRoute, componentInstance, finalUrl];
 	}
 
 	insertRoute(route: RouteData, componentInstance: ComponentInstance): void {
