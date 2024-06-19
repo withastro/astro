@@ -50,7 +50,10 @@ export function createRequest({
 		? undefined
 		: headers instanceof Headers
 			? headers
-			: new Headers(Object.entries(headers as Record<string, any>));
+			: new Headers(
+					// Filter out H2 pseudo-headers, as these can't be created with Headers
+					Object.entries(headers as Record<string, any>).filter(([name]) => !name.startsWith(':'))
+				);
 
 	if (typeof url === 'string') url = new URL(url);
 

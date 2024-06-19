@@ -836,6 +836,9 @@ importers:
       srcset-parse:
         specifier: ^1.1.0
         version: 1.1.0
+      undici:
+        specifier: ^6.19.2
+        version: 6.19.2
       unified:
         specifier: ^11.0.4
         version: 11.0.4
@@ -2068,6 +2071,12 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/astro-dev-headers:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/astro-dev-http2:
     dependencies:
       astro:
         specifier: workspace:*
@@ -11531,9 +11540,9 @@ packages:
   undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
 
-  undici@6.13.0:
-    resolution: {integrity: sha512-Q2rtqmZWrbP8nePMq7mOJIN98M0fYvSgV89vwl/BQRT4mDOeY2GXZngfGpcBBhtky3woM7G24wZV3Q304Bv6cw==}
-    engines: {node: '>=18.0'}
+  undici@6.19.2:
+    resolution: {integrity: sha512-JfjKqIauur3Q6biAtHJ564e3bWa8VvT+7cSiOJHFbX4Erv6CLGDpg8z+Fmg/1OI/47RA+GI2QZaF48SSaLvyBA==}
+    engines: {node: '>=18.17'}
 
   unicorn-magic@0.1.0:
     resolution: {integrity: sha512-lRfVq8fE8gz6QMBuDM6a+LO3IAzTi05H6gCVaUpir2E1Rwpo4ZUog45KpNXKC/Mn3Yb9UDuHumeFTo9iV/D9FQ==}
@@ -13332,7 +13341,7 @@ snapshots:
       '@octokit/plugin-paginate-rest': 11.3.0(@octokit/core@6.1.2)
       '@octokit/plugin-rest-endpoint-methods': 13.2.1(@octokit/core@6.1.2)
       '@octokit/types': 13.5.0
-      undici: 6.13.0
+      undici: 6.19.2
 
   '@octokit/auth-action@5.1.1':
     dependencies:
@@ -18705,7 +18714,7 @@ snapshots:
 
   undici-types@5.26.5: {}
 
-  undici@6.13.0: {}
+  undici@6.19.2: {}
 
   unicorn-magic@0.1.0: {}
 
