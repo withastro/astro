@@ -86,7 +86,6 @@ describe('Dev rewrite, trailing slash -> never', () => {
 	});
 });
 
-
 describe('Dev rewrite, trailing slash -> never, with base', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -95,7 +94,7 @@ describe('Dev rewrite, trailing slash -> never, with base', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/rewrite-trailing-slash-never/',
-			base: "base",
+			base: 'base',
 		});
 		devServer = await fixture.startDevServer();
 	});

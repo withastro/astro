@@ -8,6 +8,7 @@ import type {
 import { getOutputDirectory } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
+import { DEFAULT_404_COMPONENT } from '../constants.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { Pipeline } from '../render/index.js';
@@ -16,6 +17,8 @@ import {
 	createModuleScriptsSet,
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
+import { default404Page } from '../routing/astro-designed-error-pages.js';
+import { findRouteToRewrite } from '../routing/rewrite.js';
 import { isServerLikeOutput } from '../util.js';
 import { getOutDirWithinCwd } from './common.js';
 import { type BuildInternals, cssOrder, getPageData, mergeInlineCss } from './internal.js';
@@ -24,9 +27,6 @@ import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { getPagesFromVirtualModulePageName, getVirtualModulePageName } from './plugins/util.js';
 import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
-import { findRouteToRewrite } from '../routing/rewrite.js';
-import {DEFAULT_404_COMPONENT} from "../constants.js";
-import {default404Page} from "../routing/astro-designed-error-pages.js";
 
 /**
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
@@ -270,7 +270,7 @@ export class BuildPipeline extends Pipeline {
 			const entry = this.#componentsInterner.get(routeData)!;
 			return await entry.page();
 		} else if (routeData.component === DEFAULT_404_COMPONENT) {
-			return { default: default404Page }
+			return { default: default404Page };
 		} else {
 			// SAFETY: the pipeline calls `retrieveRoutesToGenerate`, which is in charge to fill the cache.
 			const filePath = this.#routesByFilePath.get(routeData)!;
@@ -290,7 +290,7 @@ export class BuildPipeline extends Pipeline {
 			routes: this.options.manifest.routes,
 			trailingSlash: this.config.trailingSlash,
 			buildFormat: this.config.build.format,
-			base: this.config.base
+			base: this.config.base,
 		});
 
 		const componentInstance = await this.getComponentByRoute(foundRoute);

@@ -14,7 +14,7 @@ import {
 	createStylesheetElementSet,
 } from '../core/render/ssr-element.js';
 import { DEFAULT_404_ROUTE } from '../core/routing/astro-designed-error-pages.js';
-import {findRouteToRewrite} from "../core/routing/rewrite.js";
+import { findRouteToRewrite } from '../core/routing/rewrite.js';
 
 export class ContainerPipeline extends Pipeline {
 	/**
