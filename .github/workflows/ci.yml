@@ -71,7 +71,6 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: build
     steps:
       - name: Disable git crlf
         run: git config --global core.autocrlf false
