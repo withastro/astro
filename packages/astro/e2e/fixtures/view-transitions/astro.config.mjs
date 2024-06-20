@@ -11,8 +11,7 @@ export default defineConfig({
 	integrations: [react(),vue(),svelte()],
 	redirects: {
 		'/redirect-two': '/two',
-		'/redirect-external': 'http://example.com/',
-		'/redirect-cross-origin': 'http://127.0.0.1:4321/two',
+		'/redirect-external': 'http://example.com/'
 	},
 	devToolbar: {
 		enabled: false,
