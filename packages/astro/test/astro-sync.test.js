@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import * as fs from 'node:fs';
 import { before, describe, it } from 'node:test';
+import ts from 'typescript';
 import { loadFixture } from './test-utils.js';
 
 const createFixture = () => {
@@ -62,6 +63,20 @@ const createFixture = () => {
 			const expectedPath = new URL(path, astroFixture.config.root).href;
 			assert.equal(writtenFiles[expectedPath].includes(content), true, error);
 		},
+		thenFileShouldBeValidTypescript(path) {
+			const expectedPath = new URL(path, astroFixture.config.root).href;
+			try {
+				const content = writtenFiles[expectedPath];
+				const result = ts.transpileModule(content, {
+					compilerOptions: {
+						module: ts.ModuleKind.ESNext,
+					},
+				});
+				assert.equal(result.outputText, '', `${path} should be valid TypeScript. Output: ${result.outputText}`);
+			} catch (error) {
+				assert.fail(`${path} is not valid TypeScript. Error: ${error.message}`);
+			}
+		},
 	};
 };
 
@@ -87,6 +102,7 @@ describe('astro sync', () => {
 				`declare module 'astro:content' {`,
 				'Types file does not include `astro:content` module declaration'
 			);
+			fixture.thenFileShouldBeValidTypescript('.astro/types.d.ts');
 		});
 
 		it('Writes types for empty collections', async () => {

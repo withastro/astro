@@ -1,5 +1,12 @@
 import { defineCollection, z } from 'astro:content';
 
+const withData = defineCollection({
+	type: 'data',
+	schema: z.object({
+		title: z.string(),
+	}),
+});
+
 const withCustomSlugs = defineCollection({
 	// Ensure schema passes even when `slug` is present
 	schema: z.object({}).strict(),
@@ -46,6 +53,7 @@ const withSymlinkedContent = defineCollection({
 });
 
 export const collections = {
+	'with-data': withData,
 	'with-custom-slugs': withCustomSlugs,
 	'with-schema-config': withSchemaConfig,
 	'with-union-schema': withUnionSchema,
