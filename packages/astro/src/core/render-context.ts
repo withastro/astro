@@ -27,6 +27,7 @@ import {
 	responseSentSymbol,
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
+import { getFromResponse } from './cookies/response.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
@@ -151,14 +152,17 @@ export class RenderContext {
 					);
 				}
 			}
+			let response: Response;
+
 			switch (this.routeData.type) {
-				case 'endpoint':
-					return renderEndpoint(componentInstance as any, ctx, serverLike, logger);
+				case 'endpoint': {
+					response = await renderEndpoint(componentInstance as any, ctx, serverLike, logger);
+					break;
+				}
 				case 'redirect':
 					return renderRedirect(this);
 				case 'page': {
 					const result = await this.createResult(componentInstance!);
-					let response: Response;
 					try {
 						response = await renderPage(
 							result,
@@ -185,12 +189,19 @@ export class RenderContext {
 					) {
 						response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 					}
-					return response;
+					break;
 				}
 				case 'fallback': {
 					return new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
 				}
 			}
+			// We need to merge the cookies from the response back into this.cookies
+			// because they may need to be passed along from a rewrite.
+			const responseCookies = getFromResponse(response);
+			if (responseCookies) {
+				cookies.merge(responseCookies);
+			}
+			return response;
 		};
 
 		const response = await callMiddleware(
