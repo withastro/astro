@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 10.4.2
+
+### Patch Changes
+
+- [#292](https://github.com/withastro/adapters/pull/292) [`8972d60`](https://github.com/withastro/adapters/commit/8972d60c45af7cd163c193457baff49b0346f155) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes experimental support for `astro:env`
+
 ## 10.4.1
 
 ### Patch Changes
