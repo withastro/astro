@@ -263,12 +263,10 @@ export default function vercelServerless({
 					vite: {
 						...getSpeedInsightsViteConfig(speedInsights?.enabled),
 						ssr: {
-							external: ['@vercel/nft'],
-						},
-						build: {
-							rollupOptions: {
-								external: ['astro/env/setup'],
-							},
+							external: [
+								'@vercel/nft',
+								...((await shouldExternalizeAstroEnvSetup()) ? ['astro/env/setup'] : []),
+							],
 						},
 					},
 					...getAstroImageConfig(
@@ -446,6 +444,16 @@ export default function vercelServerless({
 }
 
 type Runtime = `nodejs${string}.x`;
+
+// TODO: remove once we don't use a TLA anymore
+async function shouldExternalizeAstroEnvSetup() {
+	try {
+		await import('astro/env/setup');
+		return false;
+	} catch {
+		return true;
+	}
+}
 
 class VercelBuilder {
 	readonly NTF_CACHE = {};
