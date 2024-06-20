@@ -49,19 +49,19 @@ describe('Printing', () => {
 	});
 
 	it('Properly handles force redirects', () => {
-				const _redirects = new Redirects();
+		const _redirects = new Redirects();
 		_redirects.add({
 			dynamic: false,
 			input: '/a',
 			target: '/b',
 			status: 200,
 			weight: 1,
-			force: true
+			force: true,
 		});
 		let out = _redirects.print();
 		let parts = out.split(/\s+/);
 
 		const expectedParts = ['/a', '/b', '200!'];
 		assert.deepEqual(parts, expectedParts);
-	})
+	});
 });
