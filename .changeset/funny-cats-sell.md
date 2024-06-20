@@ -1,5 +1,5 @@
 ---
-'@astrojs/underscore-redirects': minor
+'@astrojs/underscore-redirects': patch
 ---
 
 Adds support for forced redirects
