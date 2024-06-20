@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Removes type override from defineAction accept paramter
+Fixes a case where `defineAction` autocomplete for the `accept` prop would not show `"form"` as a possible value
