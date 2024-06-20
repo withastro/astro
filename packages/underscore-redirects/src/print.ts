@@ -29,7 +29,8 @@ export function print(
 			' '.repeat(inputSpaces) +
 			definition.target +
 			' '.repeat(Math.abs(targetSpaces)) +
-			definition.status;
+			definition.status +
+			(definition.force ? '!' : '');
 	}
 
 	return _redirects;
