@@ -160,7 +160,6 @@ export class DevPipeline extends Pipeline {
 		// First check built-in routes
 		for(const route of this.defaultRoutes) {
 			if(route.matchesComponent(filePath)) {
-				debugger;
 				return route.instance;
 			}
 		}
