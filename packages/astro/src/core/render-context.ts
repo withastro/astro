@@ -147,14 +147,17 @@ export class RenderContext {
 					);
 				}
 			}
+			let response: Response;
+
 			switch (this.routeData.type) {
-				case 'endpoint':
-					return renderEndpoint(componentInstance as any, ctx, serverLike, logger);
+				case 'endpoint': {
+					response = await renderEndpoint(componentInstance as any, ctx, serverLike, logger);
+					break;
+				}
 				case 'redirect':
 					return renderRedirect(this);
 				case 'page': {
 					const result = await this.createResult(componentInstance!);
-					let response: Response;
 					try {
 						response = await renderPage(
 							result,
@@ -164,11 +167,6 @@ export class RenderContext {
 							streaming,
 							this.routeData
 						);
-
-						const responseCookies = getFromResponse(response);
-						if (result.cookies && responseCookies) {
-							result.cookies?.merge(responseCookies);
-						}
 					} catch (e) {
 						// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
 						// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
@@ -186,12 +184,19 @@ export class RenderContext {
 					) {
 						response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 					}
-					return response;
+					break;
 				}
 				case 'fallback': {
 					return new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
 				}
 			}
+			// We need to merge the cookies from the response back into this.cookies
+			// because they may need to be passed along from a rewrite.
+			const responseCookies = getFromResponse(response);
+			if (responseCookies) {
+				cookies.merge(responseCookies);
+			}
+			return response;
 		};
 
 		const response = await callMiddleware(
