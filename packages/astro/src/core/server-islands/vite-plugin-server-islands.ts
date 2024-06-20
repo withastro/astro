@@ -1,4 +1,4 @@
-import type { AstroPluginMetadata } from '#astro/vite-plugin-astro/index';
+import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
 import type { AstroSettings, ComponentInstance } from '../../@types/astro.js';
 import type { ViteDevServer, Plugin as VitePlugin } from 'vite';
 
