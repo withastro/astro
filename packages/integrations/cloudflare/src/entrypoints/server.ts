@@ -5,14 +5,12 @@ import type {
 } from '@cloudflare/workers-types';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
-import { createGetEnv } from '../utils/env.js';
 
 type Env = {
 	[key: string]: unknown;
 	ASSETS: { fetch: (req: Request | string) => Promise<Response> };
 	ASTRO_STUDIO_APP_TOKEN?: string;
 };
-type EnvSetupModule = typeof import('astro/env/setup');
 
 export interface Runtime<T extends object = object> {
 	runtime: {
@@ -72,12 +70,6 @@ export function createExports(manifest: SSRManifest) {
 				},
 			},
 		};
-		// Won't throw if the virtual module is not available because it's not supported in
-		// the users's astro version or if astro:env is not enabled in the project
-		const setupModule = 'astro/env/setup';
-		await import(/* @vite-ignore */ setupModule)
-			.then((mod: EnvSetupModule) => mod.setGetEnv(createGetEnv(env)))
-			.catch(() => {});
 
 		const response = await app.render(request, { routeData, locals });
 
