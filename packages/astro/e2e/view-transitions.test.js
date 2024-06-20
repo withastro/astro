@@ -788,6 +788,28 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
 
+	test('Cross origin loads do not raise errors', async ({ page, astro }) => {
+		let consoleErrors = [];
+		page.on('console', (msg) => {
+			if (msg.type() === 'error') {
+				consoleErrors.push(msg.text());
+			}
+		});
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to external page
+		await page.click('#click-redirect-cross-origin');
+		// doesn't work for playwright when we are too fast
+
+		let pageTwo = page.locator('#two');
+		await expect(pageTwo, 'should have content').toHaveText('Page 2');
+		expect(consoleErrors.length, 'There should be no errors').toEqual(0);
+	});
+
 	test('client:only styles are retained on transition (1/2)', async ({ page, astro }) => {
 		const totalExpectedStyles = 9;
 
