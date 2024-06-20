@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 5.3.2
+
+### Patch Changes
+
+- [#293](https://github.com/withastro/adapters/pull/293) [`ee840fa`](https://github.com/withastro/adapters/commit/ee840fa52ce86c2409e5199fb10d600285fb95ae) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes `astro:env` getSecret compatibility
+
 ## 5.3.1
 
 ### Patch Changes
