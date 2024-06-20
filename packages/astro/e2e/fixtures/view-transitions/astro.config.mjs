@@ -11,7 +11,7 @@ export default defineConfig({
 	integrations: [react(),vue(),svelte()],
 	redirects: {
 		'/redirect-two': '/two',
-		'/redirect-external': 'http://example.com/'
+		'/redirect-external': 'http://example.com/',
 	},
 	devToolbar: {
 		enabled: false,
