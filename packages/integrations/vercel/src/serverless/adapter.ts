@@ -265,6 +265,11 @@ export default function vercelServerless({
 						ssr: {
 							external: ['@vercel/nft'],
 						},
+						build: {
+							rollupOptions: {
+								external: ['astro/env/setup'],
+							},
+						},
 					},
 					...getAstroImageConfig(
 						imageService,
