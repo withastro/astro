@@ -11,7 +11,6 @@ import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import { RenderContext } from '../core/render-context.js';
 import { type SSROptions, getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
-import { default404Page } from '../core/routing/astro-designed-error-pages.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { normalizeTheLocale } from '../i18n/index.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';

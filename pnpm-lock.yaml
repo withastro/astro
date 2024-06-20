@@ -379,7 +379,7 @@ importers:
         specifier: ^8.2.6
         version: link:../../packages/integrations/node
       '@astrojs/react':
-        specifier: ^3.5.0
+        specifier: workspace:*
         version: link:../../packages/integrations/react
       '@astrojs/tailwind':
         specifier: ^5.1.0
@@ -568,8 +568,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: 0.0.0-server-islands-20240610194904
-        version: 0.0.0-server-islands-20240610194904
+        specifier: 0.0.0-server-islands-20240620184241
+        version: 0.0.0-server-islands-20240620184241
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
@@ -5939,8 +5939,8 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
-  /@astrojs/compiler@0.0.0-server-islands-20240610194904:
-    resolution: {integrity: sha512-qp5mr/fKIYbNDgwkJDYoLbLGvEd3R4pz0xsja7KwVGTla7PnGl+RTmq2RwzUrpfiPAEBnrUiHinep6decgGmcA==}
+  /@astrojs/compiler@0.0.0-server-islands-20240620184241:
+    resolution: {integrity: sha512-vPcWdGvtYceezqcQyVGCHs9nwZZjqAVGrovbytN4S0nsUDqLVYZuDuRFxjvboRSSXFF9+42TBM1Wh8HNNC0r/Q==}
     dev: false
 
   /@astrojs/compiler@1.8.2:

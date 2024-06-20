@@ -19,7 +19,8 @@ import { AggregateError, AstroError, CSSError, MarkdownError } from '../core/err
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Pipeline, loadRenderer } from '../core/render/index.js';
-import { DEFAULT_404_ROUTE, default404Page } from '../core/routing/astro-designed-error-pages.js';
+import { DEFAULT_404_ROUTE } from '../core/routing/astro-designed-error-pages.js';
+import { createDefaultRoutes } from '../core/routing/default.js';
 import { isPage, isServerLikeOutput, resolveIdToUrl, viteID } from '../core/util.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
@@ -44,13 +45,16 @@ export class DevPipeline extends Pipeline {
 		readonly logger: Logger,
 		readonly manifest: SSRManifest,
 		readonly settings: AstroSettings,
-		readonly config = settings.config
+		readonly config = settings.config,
+		readonly defaultRoutes = createDefaultRoutes(manifest, config.root)
 	) {
 		const mode = 'development';
 		const resolve = createResolve(loader, config.root);
 		const serverLike = isServerLikeOutput(config);
 		const streaming = true;
 		super(logger, manifest, mode, [], resolve, serverLike, streaming);
+		manifest.serverIslandMap = settings.serverIslandMap;
+		manifest.serverIslandNameMap = settings.serverIslandNameMap;
 	}
 
 	static create(
@@ -153,8 +157,12 @@ export class DevPipeline extends Pipeline {
 	async preload(routeData: RouteData, filePath: URL) {
 		const { loader } = this;
 
-		if (filePath.href === new URL(DEFAULT_404_COMPONENT, this.config.root).href) {
-			return { default: default404Page } as any as ComponentInstance;
+		// First check built-in routes
+		for(const route of this.defaultRoutes) {
+			if(route.matchesComponent(filePath)) {
+				debugger;
+				return route.instance;
+			}
 		}
 
 		// Important: This needs to happen first, in case a renderer provides polyfills.
@@ -244,8 +252,10 @@ export class DevPipeline extends Pipeline {
 
 	rewriteKnownRoute(route: string, sourceRoute: RouteData): ComponentInstance {
 		if (isServerLikeOutput(this.config) && sourceRoute.prerender) {
-			if (route === '/404') {
-				return { default: default404Page } as any as ComponentInstance;
+			for(let def of this.defaultRoutes) {
+				if(route === def.route) {
+					return def.instance;
+				}
 			}
 		}
 

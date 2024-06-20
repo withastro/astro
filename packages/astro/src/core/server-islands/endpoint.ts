@@ -1,33 +1,18 @@
-import type { ManifestData, RouteData } from '#astro/@types/astro';
-import type { APIRoute } from '../../@types/astro.js';
+import { renderComponent, renderTemplate, type AstroComponentFactory } from '../../runtime/server/index.js';
+import type { APIRoute, ComponentInstance, ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
 import type { ModuleLoader } from '../module-loader/loader.js';
 
-export function createEndpoint(loader: ModuleLoader) {
-	const POST: APIRoute = async ({ request, params }) => {
-		let raw = await request.text();
-		let data = JSON.parse(raw);
-	
-		console.log("D", data);
-	
-		return new Response(`<div>Testing1</div>`, {
-			status: 200,
-			headers: {
-				'Content-Type': 'text/html'
-			}
-		});
+export const SERVER_ISLAND_ROUTE = '/_server-islands/[name]';
+export const SERVER_ISLAND_COMPONENT = '_server-islands.astro';
+
+export function ensureServerIslandRoute(manifest: ManifestData) {
+	if (manifest.routes.some((route) => route.route === '/_server-islands/[name]')) {
+		return;
 	}
 
-	return {
-		POST
-	};
-}
-
-export function ensureServerIslandRoute(manifest: ManifestData, loader: ModuleLoader) {
-	const endpoint = createEndpoint(loader);
-
 	const route: RouteData = {
-		type: 'endpoint',
-		component: '_server-islands.ts',
+		type: 'page',
+		component: SERVER_ISLAND_COMPONENT,
 		generate: () => '',
 		params: ['name'],
 		segments: [
@@ -38,39 +23,47 @@ export function ensureServerIslandRoute(manifest: ManifestData, loader: ModuleLo
 		prerender: false,
 		isIndex: false,
 		fallbackRoutes: [],
-		route: '/_server-islands/[name]',
-
-
-		/*
-		"type": "endpoint",
-		"isIndex": false,
-		"route": "/_server-islands/[name]",
-		"pattern": {},
-		"segments": [
-		 [
-			{
-			 "content": "_server-islands",
-			 "dynamic": false,
-			 "spread": false
-			}
-		 ],
-		 [
-			{
-			 "content": "name",
-			 "dynamic": true,
-			 "spread": false
-			}
-		 ]
-		],
-		"params": [
-		 "name"
-		],
-		"component": "../../packages/astro/dist/core/server-islands/endpoint.js",
-		"prerender": false,
-		"fallbackRoutes": []
-		*/
- 
+		route: SERVER_ISLAND_ROUTE,
 	}
-	
-	//manifest.routes.push();
+
+	manifest.routes.push(route);
 }
+
+type RenderOptions = {
+	componentExport: string;
+	props: Record<string, any>;
+	slots: Record<string, any>;
+}
+
+export function createEndpoint(manifest: SSRManifest) {
+	const page: AstroComponentFactory = async (result) => {
+		const params = result.params;
+		const request = result.request;
+		const raw = await request.text();
+		const data = JSON.parse(raw) as RenderOptions;
+		const componentId = params.name! as string;
+
+		const imp = manifest.serverIslandMap?.get(componentId);
+		if(!imp) {
+			return new Response('Not found', {
+				status: 404
+			});
+		}
+
+		const props = data.props;
+		const slots = data.slots;
+		const componentModule = await imp();
+		const Component = (componentModule as any)[data.componentExport];
+
+		return renderTemplate`${renderComponent(result, 'Component', Component, props, slots)}`;
+	}
+
+	page.isAstroComponentFactory = true;
+	
+	const instance: ComponentInstance = {
+		default: page,
+	};
+
+	return instance;
+}
+

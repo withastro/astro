@@ -13,7 +13,6 @@ import {
 	createModuleScriptElement,
 	createStylesheetElementSet,
 } from '../core/render/ssr-element.js';
-import { default404Page } from '../core/routing/astro-designed-error-pages.js';
 
 export class ContainerPipeline extends Pipeline {
 	/**

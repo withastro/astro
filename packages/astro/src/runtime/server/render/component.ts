@@ -475,7 +475,7 @@ function renderAstroComponent(
 	slots: any = {}
 ): RenderInstance {
 	if(containsServerDirective(props)) {
-		return renderServerIsland(displayName, props, slots);
+		return renderServerIsland(result, displayName, props, slots);
 	}
 	
 	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);

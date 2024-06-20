@@ -37,7 +37,6 @@ export default function createVitePluginAstroServer({
 			const manifest = createDevelopmentManifest(settings);
 			let manifestData: ManifestData = injectDefaultRoutes(
 				createRouteManifest({ settings, fsMod }, logger),
-				loader
 			);
 			const pipeline = DevPipeline.create(manifestData, { loader, logger, manifest, settings });
 			const controller = createController({ loader });
@@ -49,7 +48,6 @@ export default function createVitePluginAstroServer({
 				if (needsManifestRebuild) {
 					manifestData = injectDefaultRoutes(
 						createRouteManifest({ settings }, logger),
-						loader,
 					);
 					pipeline.setManifestData(manifestData);
 				}

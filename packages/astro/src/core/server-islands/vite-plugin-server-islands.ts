@@ -1,36 +1,44 @@
-import type { AstroSettings } from '../../@types/astro.js';
-import type { Plugin as VitePlugin } from 'vite';
-
-const virtualModuleId = 'astro:internal/server-islands';
-const resolvedVirtualModuleId = '\0' + virtualModuleId;
+import type { AstroPluginMetadata } from '#astro/vite-plugin-astro/index';
+import type { AstroSettings, ComponentInstance } from '../../@types/astro.js';
+import type { ViteDevServer, Plugin as VitePlugin } from 'vite';
 
 export function vitePluginServerIslands({ settings }: { settings: AstroSettings }): VitePlugin {
+	let viteServer: ViteDevServer | null = null;
 	return {
 		name: 'astro:server-islands',
-		resolveId(source) {
-			if(source === 'astro:internal/server-islands') {
-				return resolvedVirtualModuleId;
-			}
+		enforce: 'post',
+		configureServer(_server) {
+			viteServer = _server;
 		},
-		load(id) {
-			if(id === resolvedVirtualModuleId) {
-				return `
-export let islands = null;
+		transform(code, id, options) {
+			if(id.endsWith('.astro')) {
+				const info = this.getModuleInfo(id);
+				if(info?.meta) {
+					const astro = info.meta.astro as AstroPluginMetadata['astro'];
+					if(astro.serverComponents.length) {
+						if(viteServer) {
+							for(const comp of astro.serverComponents) {
+								if(!settings.serverIslandNameMap.has(comp.resolvedPath)) {
+									let name = comp.localName;
+									let idx = 1;
 
-if(import.meta.env.DEV) {
-	islands = new Proxy({}, {
-		get(target, name) {
-			return () => {
-				console.log("IMPORT", name);
-				return import(/* @vite-ignore */ name);
-			};
-		}
-	});
-} else {
-	// TODO inline all of the known server islands from the build artifacts.
-	islands = {};
-}
-`.trim();
+									while(true) {
+										// Name not taken, let's use it.
+										if(!settings.serverIslandMap.has(name)) {
+											break;
+										}
+										// Increment a number onto the name: Avatar -> Avatar1
+										name += idx++;
+									}
+									settings.serverIslandNameMap.set(comp.resolvedPath, name);
+									settings.serverIslandMap.set(name, () => {
+										return viteServer?.ssrLoadModule(comp.resolvedPath) as any;
+									});
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}

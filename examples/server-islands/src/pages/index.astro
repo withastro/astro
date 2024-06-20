@@ -44,8 +44,8 @@ import PersonalBar from '../components/PersonalBar.astro';
 
             <div class="flex items-center space-x-4">
                 <PersonalBar server:defer>
-									<PersonalBar slot="fallback" placeholder />
-								</PersonalBar>
+                  <PersonalBar placeholder slot="fallback" />
+                </PersonalBar>
             </div>
         </div>
     </header>

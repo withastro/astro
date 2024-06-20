@@ -212,6 +212,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			const astroMetadata: AstroPluginMetadata['astro'] = {
 				clientOnlyComponents: transformResult.clientOnlyComponents,
 				hydratedComponents: transformResult.hydratedComponents,
+				serverComponents: transformResult.serverComponents,
 				scripts: transformResult.scripts,
 				containsHead: transformResult.containsHead,
 				propagation: transformResult.propagation ? 'self' : 'none',

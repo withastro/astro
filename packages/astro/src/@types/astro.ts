@@ -13,7 +13,7 @@ import type * as rollup from 'rollup';
 import type * as vite from 'vite';
 import type { Accept, ActionClient, InputSchema } from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
-import type { AssetsPrefix, SerializedSSRManifest } from '../core/app/types.js';
+import type { AssetsPrefix, SSRManifest, SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import type { AstroConfigType } from '../core/config/index.js';
 import type { AstroTimer } from '../core/config/timer.js';
@@ -2361,6 +2361,8 @@ export interface AstroSettings {
 	 * - the user is on the latest version already
 	 */
 	latestAstroVersion: string | undefined;
+	serverIslandMap: NonNullable<SSRManifest['serverIslandMap']>;
+	serverIslandNameMap: NonNullable<SSRManifest['serverIslandNameMap']>;
 }
 
 export type AsyncRendererComponentFn<U> = (
@@ -3207,6 +3209,7 @@ export interface SSRResult {
 		props: Record<string, any>,
 		slots: Record<string, any> | null
 	): AstroGlobal;
+	params: Params;
 	resolve: (s: string) => Promise<string>;
 	response: AstroGlobal['response'];
 	request: AstroGlobal['request'];
@@ -3223,6 +3226,7 @@ export interface SSRResult {
 	 */
 	pathname: string;
 	cookies: AstroCookies | undefined;
+	serverIslandNameMap: Map<string, string>;
 	_metadata: SSRMetadata;
 }
 
@@ -3248,6 +3252,7 @@ export interface SSRMetadata {
 	headInTree: boolean;
 	extraHead: string[];
 	propagators: Set<AstroComponentInstance>;
+	
 }
 
 /* Preview server stuff */

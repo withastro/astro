@@ -124,7 +124,7 @@
     "test:node": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "0.0.0-server-islands-20240610194904",
+    "@astrojs/compiler": "0.0.0-server-islands-20240620184241",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
