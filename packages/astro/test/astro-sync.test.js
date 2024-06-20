@@ -72,7 +72,11 @@ const createFixture = () => {
 						module: ts.ModuleKind.ESNext,
 					},
 				});
-				assert.equal(result.outputText, '', `${path} should be valid TypeScript. Output: ${result.outputText}`);
+				assert.equal(
+					result.outputText,
+					'',
+					`${path} should be valid TypeScript. Output: ${result.outputText}`
+				);
 			} catch (error) {
 				assert.fail(`${path} is not valid TypeScript. Error: ${error.message}`);
 			}
