@@ -22,8 +22,8 @@ importers:
         specifier: ^0.7.0
         version: 0.7.0(prettier-plugin-astro@0.14.0)(prettier@3.3.2)(typescript@5.4.5)
       '@biomejs/biome':
-        specifier: 1.7.1
-        version: 1.7.1
+        specifier: 1.8.1
+        version: 1.8.1
       '@changesets/changelog-github':
         specifier: ^0.5.0
         version: 0.5.0
@@ -128,37 +128,37 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
 
   examples/blog:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
         specifier: ^4.0.6
         version: link:../../packages/astro-rss
       '@astrojs/sitemap':
-        specifier: ^3.1.5
+        specifier: ^3.1.6
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
 
   examples/component:
     devDependencies:
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
 
   examples/container-with-vitest:
     dependencies:
       '@astrojs/react':
-        specifier: ^3.5.0
+        specifier: ^3.6.0
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -189,19 +189,19 @@ importers:
         specifier: ^3.14.0
         version: 3.14.0
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
 
   examples/framework-lit:
     dependencies:
       '@astrojs/lit':
-        specifier: ^4.2.0
+        specifier: ^4.3.0
         version: link:../../packages/integrations/lit
       '@webcomponents/template-shadowroot':
         specifier: ^0.2.1
         version: 0.2.1
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
       lit:
         specifier: ^3.1.4
@@ -210,19 +210,19 @@ importers:
   examples/framework-multiple:
     dependencies:
       '@astrojs/preact':
-        specifier: ^3.4.0
+        specifier: ^3.5.0
         version: link:../../packages/integrations/preact
       '@astrojs/react':
-        specifier: ^3.5.0
+        specifier: ^3.6.0
         version: link:../../packages/integrations/react
       '@astrojs/solid-js':
-        specifier: ^4.3.0
+        specifier: ^4.4.0
         version: link:../../packages/integrations/solid
       '@astrojs/svelte':
-        specifier: ^5.5.0
+        specifier: ^5.6.0
         version: link:../../packages/integrations/svelte
       '@astrojs/vue':
-        specifier: ^4.4.0
+        specifier: ^4.5.0
         version: link:../../packages/integrations/vue
       '@types/react':
         specifier: ^18.3.3
@@ -231,7 +231,7 @@ importers:
         specifier: ^18.3.0
         version: 18.3.0
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.22.0
@@ -255,13 +255,13 @@ importers:
   examples/framework-preact:
     dependencies:
       '@astrojs/preact':
-        specifier: ^3.4.0
+        specifier: ^3.5.0
         version: link:../../packages/integrations/preact
       '@preact/signals':
         specifier: ^1.2.3
         version: 1.2.3(preact@10.22.0)
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.22.0
@@ -270,7 +270,7 @@ importers:
   examples/framework-react:
     dependencies:
       '@astrojs/react':
-        specifier: ^3.5.0
+        specifier: ^3.6.0
         version: link:../../packages/integrations/react
       '@types/react':
         specifier: ^18.3.3
@@ -279,7 +279,7 @@ importers:
         specifier: ^18.3.0
         version: 18.3.0
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -291,10 +291,10 @@ importers:
   examples/framework-solid:
     dependencies:
       '@astrojs/solid-js':
-        specifier: ^4.3.0
+        specifier: ^4.4.0
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.8.17
@@ -303,10 +303,10 @@ importers:
   examples/framework-svelte:
     dependencies:
       '@astrojs/svelte':
-        specifier: ^5.5.0
+        specifier: ^5.6.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.18
@@ -315,10 +315,10 @@ importers:
   examples/framework-vue:
     dependencies:
       '@astrojs/vue':
-        specifier: ^4.4.0
+        specifier: ^4.5.0
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
       vue:
         specifier: ^3.4.29
@@ -327,25 +327,25 @@ importers:
   examples/hackernews:
     dependencies:
       '@astrojs/node':
-        specifier: ^8.3.0
+        specifier: ^8.3.1
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
 
   examples/middleware:
     dependencies:
       '@astrojs/node':
-        specifier: ^8.3.0
+        specifier: ^8.3.1
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
       html-minifier:
         specifier: ^4.0.0
@@ -358,31 +358,31 @@ importers:
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
 
   examples/non-html-pages:
     dependencies:
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
 
   examples/ssr:
     dependencies:
       '@astrojs/node':
-        specifier: ^8.3.0
+        specifier: ^8.3.1
         version: link:../../packages/integrations/node
       '@astrojs/svelte':
-        specifier: ^5.5.0
+        specifier: ^5.6.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
       svelte:
         specifier: ^4.2.18
@@ -391,7 +391,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
       sass:
         specifier: ^1.77.5
@@ -403,19 +403,19 @@ importers:
   examples/toolbar-app:
     devDependencies:
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
 
   examples/view-transitions:
     devDependencies:
       '@astrojs/node':
-        specifier: ^8.3.0
+        specifier: ^8.3.1
         version: link:../../packages/integrations/node
       '@astrojs/tailwind':
         specifier: ^5.1.0
         version: link:../../packages/integrations/tailwind
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -424,7 +424,7 @@ importers:
         specifier: ^0.11.0
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
 
   examples/with-markdown-plugins:
@@ -433,7 +433,7 @@ importers:
         specifier: ^5.1.0
         version: link:../../packages/markdown/remark
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
       hast-util-select:
         specifier: ^6.0.2
@@ -454,19 +454,19 @@ importers:
   examples/with-markdown-shiki:
     dependencies:
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
 
   examples/with-mdx:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
-        specifier: ^3.4.0
+        specifier: ^3.5.0
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.22.0
@@ -475,13 +475,13 @@ importers:
   examples/with-nanostores:
     dependencies:
       '@astrojs/preact':
-        specifier: ^3.4.0
+        specifier: ^3.5.0
         version: link:../../packages/integrations/preact
       '@nanostores/preact':
         specifier: ^0.5.1
         version: 0.5.1(nanostores@0.10.3)(preact@10.22.0)
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.10.3
@@ -493,7 +493,7 @@ importers:
   examples/with-tailwindcss:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: link:../../packages/integrations/mdx
       '@astrojs/tailwind':
         specifier: ^5.1.0
@@ -502,7 +502,7 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
       autoprefixer:
         specifier: ^10.4.19
@@ -520,7 +520,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^4.10.2
+        specifier: ^4.11.0
         version: link:../../packages/astro
       vitest:
         specifier: ^1.6.0
@@ -836,6 +836,9 @@ importers:
       srcset-parse:
         specifier: ^1.1.0
         version: 1.1.0
+      undici:
+        specifier: ^6.19.2
+        version: 6.19.2
       unified:
         specifier: ^11.0.4
         version: 11.0.4
@@ -2073,6 +2076,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/astro-dev-http2:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/astro-directives:
     dependencies:
       astro:
@@ -2886,6 +2895,18 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/custom-500:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/custom-500-failing:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/custom-assets-name:
     dependencies:
       '@astrojs/node':
@@ -3521,6 +3542,12 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/rewrite-server:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/rewrite-trailing-slash-never:
     dependencies:
       astro:
         specifier: workspace:*
@@ -5805,9 +5832,6 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
     devDependencies:
-      '@types/preferred-pm':
-        specifier: ^3.0.0
-        version: 3.0.0
       '@types/semver':
         specifier: ^7.5.8
         version: 7.5.8
@@ -6134,55 +6158,55 @@ packages:
     resolution: {integrity: sha512-XEFXSlxiG5td2EJRe8vOmRbaXVgfcBlszKujvVmWIK/UpywWljQCfzAv3RQCGujWQ1RD4YYWEAqDXfuJiy8f5Q==}
     engines: {node: '>=6.9.0'}
 
-  '@biomejs/biome@1.7.1':
-    resolution: {integrity: sha512-wb2UNoFXcgaMdKXKT5ytsYntaogl2FSTjDt20CZynF3v7OXQUcIpTrr+be3XoOGpoZRj3Ytq9TSpmplUREXmeA==}
+  '@biomejs/biome@1.8.1':
+    resolution: {integrity: sha512-fQXGfvq6DIXem12dGQCM2tNF+vsNHH1qs3C7WeOu75Pd0trduoTmoO7G4ntLJ2qDs5wuw981H+cxQhi1uHnAtA==}
     engines: {node: '>=14.21.3'}
     hasBin: true
 
-  '@biomejs/cli-darwin-arm64@1.7.1':
-    resolution: {integrity: sha512-qfLrIIB58dkgiY/1tgG6fSCBK22PZaSIf6blweZBsG6iMij05mEuJt50ne+zPnNFNUmt8t43NC/qOXT3iFHQBA==}
+  '@biomejs/cli-darwin-arm64@1.8.1':
+    resolution: {integrity: sha512-XLiB7Uu6GALIOBWzQ2aMD0ru4Ly5/qSeQF7kk3AabzJ/kwsEWSe33iVySBP/SS2qv25cgqNiLksjGcw2bHT3mw==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [darwin]
 
-  '@biomejs/cli-darwin-x64@1.7.1':
-    resolution: {integrity: sha512-OGeyNsEcp5VnKbF9/TBjPCTHNEOm7oHegEve07U3KZmzqfpw2Oe3i9DVW8t6vvj1TYbrwWYCld25H34kBDY7Vg==}
+  '@biomejs/cli-darwin-x64@1.8.1':
+    resolution: {integrity: sha512-uMTSxVLMfqkBVqyc25hSn83jBbp+wtWjzM/pHFlKXt3htJuw7FErVGW0nmQ9Sxa9vJ7GcqoltLMl28VQRIMYzg==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [darwin]
 
-  '@biomejs/cli-linux-arm64-musl@1.7.1':
-    resolution: {integrity: sha512-giH0/CzLOJ+wbxLxd5Shnr5xQf5fGnTRWLDe3lzjaF7IplVydNCEeZJtncB01SvyA6DAFJsvQ4LNxzAOQfEVCg==}
+  '@biomejs/cli-linux-arm64-musl@1.8.1':
+    resolution: {integrity: sha512-UQ8Wc01J0wQL+5AYOc7qkJn20B4PZmQL1KrmDZh7ot0DvD6aX4+8mmfd/dG5b6Zjo/44QvCKcvkFGCMRYuhWZA==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [linux]
 
-  '@biomejs/cli-linux-arm64@1.7.1':
-    resolution: {integrity: sha512-MQDf5wErj1iBvlcxCyOa0XqZYN8WJrupVgbNnqhntO3yVATg8GxduVUn1fDSaolznkDRsj7Pz3Xu1esBFwvfmg==}
+  '@biomejs/cli-linux-arm64@1.8.1':
+    resolution: {integrity: sha512-3SzZRuC/9Oi2P2IBNPsEj0KXxSXUEYRR2kfRF/Ve8QAfGgrt4qnwuWd6QQKKN5R+oYH691qjm+cXBKEcrP1v/Q==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [linux]
 
-  '@biomejs/cli-linux-x64-musl@1.7.1':
-    resolution: {integrity: sha512-ySNDtPhsLxU125IFHHAxfpoHBpkM56s4mEXeO70GZtgZay/o1h8IUPWCWf5Z7gKgc4jwgYN1U1U9xabI3hZVAg==}
+  '@biomejs/cli-linux-x64-musl@1.8.1':
+    resolution: {integrity: sha512-fYbP/kNu/rtZ4kKzWVocIdqZOtBSUEg9qUhZaao3dy3CRzafR6u6KDtBeSCnt47O+iLnks1eOR1TUxzr5+QuqA==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [linux]
 
-  '@biomejs/cli-linux-x64@1.7.1':
-    resolution: {integrity: sha512-3wmCsGcC3KZ4pfTknXHfyMMlXPMhgfXVAcG5GlrR+Tq2JGiAw0EUydaLpsSBEbcG7IxH6OiUZEJZ95kAycCHBA==}
+  '@biomejs/cli-linux-x64@1.8.1':
+    resolution: {integrity: sha512-AeBycVdNrTzsyYKEOtR2R0Ph0hCD0sCshcp2aOnfGP0hCZbtFg09D0SdKLbyzKntisY41HxKVrydYiaApp+2uw==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [linux]
 
-  '@biomejs/cli-win32-arm64@1.7.1':
-    resolution: {integrity: sha512-8hIDakEqZn0i6+388noYKdZ0ZrovTwnvMU/Qp/oJou0G7EPVdXupOe0oxiQSdRN0W7f6CS/yjPCYuVGzDG6r0g==}
+  '@biomejs/cli-win32-arm64@1.8.1':
+    resolution: {integrity: sha512-6tEd1H/iFKpgpE3OIB7oNgW5XkjiVMzMRPL8zYoZ036YfuJ5nMYm9eB9H/y81+8Z76vL48fiYzMPotJwukGPqQ==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [win32]
 
-  '@biomejs/cli-win32-x64@1.7.1':
-    resolution: {integrity: sha512-3W9k3uH6Ea6VOpAS9xkkAlS0LTfnGQjmIUCegZ8SDtK2NgJ1gO+qdEkGJb0ltahusFTN1QxJ107dM7ASA9IUEg==}
+  '@biomejs/cli-win32-x64@1.8.1':
+    resolution: {integrity: sha512-g2H31jJzYmS4jkvl6TiyEjEX+Nv79a5km/xn+5DARTp5MBFzC9gwceusSSB2AkJKqZzY131AiACAWjKrVt5Ijw==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
@@ -7354,10 +7378,6 @@ packages:
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
-
-  '@types/preferred-pm@3.0.0':
-    resolution: {integrity: sha512-Ub1de7EkdavsyM1KNrTb1K1QL+ISepEELELh2QWccyDcVEcyUDiGoYzzOJfonpGNwpymYXY13oRFpXQluGOC5w==}
-    deprecated: This is a stub types definition. preferred-pm provides its own type definitions, so you do not need this installed.
 
   '@types/prismjs@1.26.4':
     resolution: {integrity: sha512-rlAnzkW2sZOjbqZ743IHUhFcvzaGbqijwOu8QZnZCjfQzBqFE3s4lOTJEsxikImav9uzz/42I+O7YUs1mWgMlg==}
@@ -11531,9 +11551,9 @@ packages:
   undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
 
-  undici@6.13.0:
-    resolution: {integrity: sha512-Q2rtqmZWrbP8nePMq7mOJIN98M0fYvSgV89vwl/BQRT4mDOeY2GXZngfGpcBBhtky3woM7G24wZV3Q304Bv6cw==}
-    engines: {node: '>=18.0'}
+  undici@6.19.2:
+    resolution: {integrity: sha512-JfjKqIauur3Q6biAtHJ564e3bWa8VvT+7cSiOJHFbX4Erv6CLGDpg8z+Fmg/1OI/47RA+GI2QZaF48SSaLvyBA==}
+    engines: {node: '>=18.17'}
 
   unicorn-magic@0.1.0:
     resolution: {integrity: sha512-lRfVq8fE8gz6QMBuDM6a+LO3IAzTi05H6gCVaUpir2E1Rwpo4ZUog45KpNXKC/Mn3Yb9UDuHumeFTo9iV/D9FQ==}
@@ -12435,39 +12455,39 @@ snapshots:
       '@babel/helper-validator-identifier': 7.24.7
       to-fast-properties: 2.0.0
 
-  '@biomejs/biome@1.7.1':
+  '@biomejs/biome@1.8.1':
     optionalDependencies:
-      '@biomejs/cli-darwin-arm64': 1.7.1
-      '@biomejs/cli-darwin-x64': 1.7.1
-      '@biomejs/cli-linux-arm64': 1.7.1
-      '@biomejs/cli-linux-arm64-musl': 1.7.1
-      '@biomejs/cli-linux-x64': 1.7.1
-      '@biomejs/cli-linux-x64-musl': 1.7.1
-      '@biomejs/cli-win32-arm64': 1.7.1
-      '@biomejs/cli-win32-x64': 1.7.1
+      '@biomejs/cli-darwin-arm64': 1.8.1
+      '@biomejs/cli-darwin-x64': 1.8.1
+      '@biomejs/cli-linux-arm64': 1.8.1
+      '@biomejs/cli-linux-arm64-musl': 1.8.1
+      '@biomejs/cli-linux-x64': 1.8.1
+      '@biomejs/cli-linux-x64-musl': 1.8.1
+      '@biomejs/cli-win32-arm64': 1.8.1
+      '@biomejs/cli-win32-x64': 1.8.1
 
-  '@biomejs/cli-darwin-arm64@1.7.1':
+  '@biomejs/cli-darwin-arm64@1.8.1':
     optional: true
 
-  '@biomejs/cli-darwin-x64@1.7.1':
+  '@biomejs/cli-darwin-x64@1.8.1':
     optional: true
 
-  '@biomejs/cli-linux-arm64-musl@1.7.1':
+  '@biomejs/cli-linux-arm64-musl@1.8.1':
     optional: true
 
-  '@biomejs/cli-linux-arm64@1.7.1':
+  '@biomejs/cli-linux-arm64@1.8.1':
     optional: true
 
-  '@biomejs/cli-linux-x64-musl@1.7.1':
+  '@biomejs/cli-linux-x64-musl@1.8.1':
     optional: true
 
-  '@biomejs/cli-linux-x64@1.7.1':
+  '@biomejs/cli-linux-x64@1.8.1':
     optional: true
 
-  '@biomejs/cli-win32-arm64@1.7.1':
+  '@biomejs/cli-win32-arm64@1.8.1':
     optional: true
 
-  '@biomejs/cli-win32-x64@1.7.1':
+  '@biomejs/cli-win32-x64@1.8.1':
     optional: true
 
   '@builder.io/partytown@0.10.2': {}
@@ -13332,7 +13352,7 @@ snapshots:
       '@octokit/plugin-paginate-rest': 11.3.0(@octokit/core@6.1.2)
       '@octokit/plugin-rest-endpoint-methods': 13.2.1(@octokit/core@6.1.2)
       '@octokit/types': 13.5.0
-      undici: 6.13.0
+      undici: 6.19.2
 
   '@octokit/auth-action@5.1.1':
     dependencies:
@@ -13711,10 +13731,6 @@ snapshots:
       undici-types: 5.26.5
 
   '@types/normalize-package-data@2.4.4': {}
-
-  '@types/preferred-pm@3.0.0':
-    dependencies:
-      preferred-pm: 3.1.3
 
   '@types/prismjs@1.26.4': {}
 
@@ -18705,7 +18721,7 @@ snapshots:
 
   undici-types@5.26.5: {}
 
-  undici@6.13.0: {}
+  undici@6.19.2: {}
 
   unicorn-magic@0.1.0: {}
 

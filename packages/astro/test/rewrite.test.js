@@ -62,6 +62,55 @@ describe('Dev reroute', () => {
 	});
 });
 
+describe('Dev rewrite, trailing slash -> never', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-trailing-slash-never/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('should rewrite to the homepage', async () => {
+		const html = await fixture.fetch('/foo').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Index');
+	});
+});
+
+describe('Dev rewrite, trailing slash -> never, with base', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-trailing-slash-never/',
+			base: 'base',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('should rewrite to the homepage', async () => {
+		const html = await fixture.fetch('/foo').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Index');
+	});
+});
+
 describe('Dev rewrite, hybrid/server', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -113,21 +162,21 @@ describe('Build reroute', () => {
 		await fixture.build();
 	});
 
-	it('should render the index page when navigating /reroute ', async () => {
+	it('should create the index page when navigating /reroute ', async () => {
 		const html = await fixture.readFile('/reroute/index.html');
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');
 	});
 
-	it('should render the index page when navigating /blog/hello ', async () => {
+	it('should create the index page when navigating /blog/hello ', async () => {
 		const html = await fixture.readFile('/blog/hello/index.html');
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');
 	});
 
-	it('should render the index page when navigating /blog/salut ', async () => {
+	it('should create the index page when navigating /blog/salut ', async () => {
 		const html = await fixture.readFile('/blog/salut/index.html');
 
 		const $ = cheerioLoad(html);
@@ -135,21 +184,21 @@ describe('Build reroute', () => {
 		assert.equal($('h1').text(), 'Index');
 	});
 
-	it('should render the index page when navigating dynamic route /dynamic/[id] ', async () => {
+	it('should create the index page when navigating dynamic route /dynamic/[id] ', async () => {
 		const html = await fixture.readFile('/dynamic/hello/index.html');
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');
 	});
 
-	it('should render the index page when navigating spread route /spread/[...spread] ', async () => {
+	it('should create the index page when navigating spread route /spread/[...spread] ', async () => {
 		const html = await fixture.readFile('/spread/hello/index.html');
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');
 	});
 
-	it('should render the 404 built-in page', async () => {
+	it('should create the 404 built-in page', async () => {
 		try {
 			await fixture.readFile('/spread/oops/index.html');
 			assert.fail('Not found');
