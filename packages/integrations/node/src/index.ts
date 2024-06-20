@@ -24,6 +24,16 @@ export function getAdapter(options: Options): AstroAdapter {
 	};
 }
 
+// TODO: remove once we don't use a TLA anymore
+async function shouldExternalizeAstroEnvSetup() {
+	try {
+		await import('astro/env/setup');
+		return false;
+	} catch {
+		return true;
+	}
+}
+
 export default function createIntegration(userOptions: UserOptions): AstroIntegration {
 	if (!userOptions?.mode) {
 		throw new AstroError(`Setting the 'mode' option is required.`);
@@ -33,7 +43,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 	return {
 		name: '@astrojs/node',
 		hooks: {
-			'astro:config:setup': ({ updateConfig, config }) => {
+			'astro:config:setup': async ({ updateConfig, config }) => {
 				updateConfig({
 					image: {
 						endpoint: config.image.endpoint ?? 'astro/assets/endpoint/node',
@@ -41,6 +51,11 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 					vite: {
 						ssr: {
 							noExternal: ['@astrojs/node'],
+							...((await shouldExternalizeAstroEnvSetup())
+								? {
+										external: ['astro/env/setup'],
+									}
+								: {}),
 						},
 					},
 				});
