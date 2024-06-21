@@ -95,7 +95,7 @@ function vitePluginContent(
 		try {
 			const data = fsMod.readFileSync(contentManifestFile, { encoding: 'utf8' });
 			oldManifest = JSON.parse(data);
-		} catch {}
+		} catch { }
 	}
 
 	return {
@@ -514,7 +514,9 @@ export function pluginContent(
 						promises.push(copyFiles(dist, cached, true));
 					}
 				}
-				await Promise.all(promises)
+				
+				if (promises.length)
+					await Promise.all(promises)
 			},
 		},
 	};
