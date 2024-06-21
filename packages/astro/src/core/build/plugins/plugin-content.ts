@@ -95,7 +95,7 @@ function vitePluginContent(
 		try {
 			const data = fsMod.readFileSync(contentManifestFile, { encoding: 'utf8' });
 			oldManifest = JSON.parse(data);
-		} catch {}
+		} catch { }
 	}
 
 	return {
@@ -508,11 +508,13 @@ export function pluginContent(
 					return;
 				}
 				// Cache build output of chunks and assets
+				const promises: Promise<void[] | undefined>[] = []
 				for (const { cached, dist } of cachedBuildOutput) {
 					if (fsMod.existsSync(dist)) {
-						await copyFiles(dist, cached, true);
+						promises.push(copyFiles(dist, cached, true))
 					}
 				}
+				await Promise.all(promises)
 			},
 		},
 	};
