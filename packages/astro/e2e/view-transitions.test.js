@@ -789,7 +789,6 @@ test.describe('View Transitions', () => {
 	});
 
 	test('Cross origin redirects do not raise errors', async ({ page, astro }) => {
-
 		let consoleErrors = [];
 		page.on('console', (msg) => {
 			if (msg.type() === 'error') {
