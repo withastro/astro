@@ -95,7 +95,7 @@ function vitePluginContent(
 		try {
 			const data = fsMod.readFileSync(contentManifestFile, { encoding: 'utf8' });
 			oldManifest = JSON.parse(data);
-		} catch { }
+		} catch {}
 	}
 
 	return {
