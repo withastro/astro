@@ -511,7 +511,7 @@ export function pluginContent(
 				const promises: Promise<void[] | undefined>[] = []
 				for (const { cached, dist } of cachedBuildOutput) {
 					if (fsMod.existsSync(dist)) {
-						promises.push(copyFiles(dist, cached, true))
+						promises.push(copyFiles(dist, cached, true));
 					}
 				}
 				await Promise.all(promises)
