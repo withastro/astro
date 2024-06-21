@@ -16,7 +16,8 @@ export function remarkCollectImages() {
 			if (node.type === 'imageReference') {
 				const imageDefinition = definition(node.identifier);
 				if (imageDefinition) {
-					if (shouldOptimizeImage(imageDefinition.url)) imagePaths.add(decodeURI(imageDefinition.url));
+					if (shouldOptimizeImage(imageDefinition.url))
+						imagePaths.add(decodeURI(imageDefinition.url));
 				}
 			}
 		});
