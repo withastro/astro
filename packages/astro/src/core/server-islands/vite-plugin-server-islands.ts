@@ -14,8 +14,8 @@ export function vitePluginServerIslands({ settings }: { settings: AstroSettings 
 			if(id.endsWith('.astro')) {
 				const info = this.getModuleInfo(id);
 				if(info?.meta) {
-					const astro = info.meta.astro as AstroPluginMetadata['astro'];
-					if(astro.serverComponents.length) {
+					const astro = info.meta.astro as AstroPluginMetadata['astro'] | undefined;
+					if(astro?.serverComponents.length) {
 						if(viteServer) {
 							for(const comp of astro.serverComponents) {
 								if(!settings.serverIslandNameMap.has(comp.resolvedPath)) {
