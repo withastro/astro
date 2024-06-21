@@ -105,19 +105,6 @@ export async function matchRoute(
 
 	const custom404 = getCustom404Route(manifestData);
 
-	if (custom404 && custom404.component === DEFAULT_404_COMPONENT) {
-		const component: ComponentInstance = {
-			default: default404Page,
-		};
-		return {
-			route: custom404,
-			filePath: new URL(`file://${custom404.component}`),
-			resolvedPathname: pathname,
-			preloadedComponent: component,
-			mod: component,
-		};
-	}
-
 	if (custom404) {
 		const filePath = new URL(`./${custom404.component}`, config.root);
 		const preloadedComponent = await pipeline.preload(custom404, filePath);
