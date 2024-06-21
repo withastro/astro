@@ -85,6 +85,13 @@ export async function renderPage(
 	if (route?.component.endsWith('.md')) {
 		headers.set('Content-Type', 'text/html; charset=utf-8');
 	}
-	const response = new Response(body, { ...init, headers });
-	return response;
+	let status = 200;
+	// Custom 404.astro and 500.astro are particular routes that must return a fixed status code
+	// The check uses the `/` to avoid possible false negatives such as custom_404.astro
+	if (route?.component.endsWith("/404.astro")) {
+		status = 404
+	} else if (route?.component.endsWith("/500.astro")) {
+		status = 500
+	}
+	return new Response(body, { ...init, headers, status });
 }
