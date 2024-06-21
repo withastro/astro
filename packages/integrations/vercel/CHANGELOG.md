@@ -1,5 +1,19 @@
 # @astrojs/vercel
 
+## 7.7.1
+
+### Patch Changes
+
+- [#11261](https://github.com/withastro/astro/pull/11261) [`f5f8ed2`](https://github.com/withastro/astro/commit/f5f8ed275b76adfb11b7c3c1e800753a25416498) Thanks [@matthewp](https://github.com/matthewp)! - Fix backwards compat with Astro <= 4.9
+
+- [#11227](https://github.com/withastro/astro/pull/11227) [`24ce898`](https://github.com/withastro/astro/commit/24ce8983e1e1b3c8ebebf2ac4de7bbf21a586e2e) Thanks [@matthewp](https://github.com/matthewp)! - In Vercel Edge, include cookies set by Astro.cookies.set
+
+## 7.7.0
+
+### Minor Changes
+
+- [#11199](https://github.com/withastro/astro/pull/11199) [`2bdca27`](https://github.com/withastro/astro/commit/2bdca27ff4002efd330667b0b4ca3e00d5b7a2db) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds support for experimental `astro:env` released in Astro 4.10
+
 ## 7.6.0
 
 ### Minor Changes

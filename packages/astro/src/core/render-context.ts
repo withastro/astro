@@ -20,7 +20,6 @@ import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
 import {
 	ASTRO_VERSION,
-	DEFAULT_404_COMPONENT,
 	REROUTE_DIRECTIVE_HEADER,
 	ROUTE_TYPE_HEADER,
 	clientAddressSymbol,
@@ -28,6 +27,7 @@ import {
 	responseSentSymbol,
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
+import { getFromResponse } from './cookies/response.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
@@ -46,7 +46,7 @@ export class RenderContext {
 		readonly pipeline: Pipeline,
 		public locals: App.Locals,
 		readonly middleware: MiddlewareHandler,
-		readonly pathname: string,
+		public pathname: string,
 		public request: Request,
 		public routeData: RouteData,
 		public status: number,
@@ -75,8 +75,9 @@ export class RenderContext {
 		request,
 		routeData,
 		status = 200,
+		props,
 	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData'> &
-		Partial<Pick<RenderContext, 'locals' | 'middleware' | 'status'>>): RenderContext {
+		Partial<Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props'>>): RenderContext {
 		return new RenderContext(
 			pipeline,
 			locals,
@@ -84,7 +85,11 @@ export class RenderContext {
 			pathname,
 			request,
 			routeData,
-			status
+			status,
+			undefined,
+			undefined,
+			undefined,
+			props
 		);
 	}
 
@@ -103,16 +108,17 @@ export class RenderContext {
 		componentInstance: ComponentInstance | undefined,
 		slots: Record<string, any> = {}
 	): Promise<Response> {
-		const { cookies, middleware, pathname, pipeline } = this;
-		const { logger, routeCache, serverLike, streaming } = pipeline;
+		const { cookies, middleware, pipeline } = this;
+		const { logger, serverLike, streaming } = pipeline;
+
 		const props =
 			Object.keys(this.props).length > 0
 				? this.props
 				: await getProps({
 						mod: componentInstance,
 						routeData: this.routeData,
-						routeCache,
-						pathname,
+						routeCache: this.pipeline.routeCache,
+						pathname: this.pathname,
 						logger,
 						serverLike,
 					});
@@ -146,14 +152,17 @@ export class RenderContext {
 					);
 				}
 			}
+			let response: Response;
+
 			switch (this.routeData.type) {
-				case 'endpoint':
-					return renderEndpoint(componentInstance as any, ctx, serverLike, logger);
+				case 'endpoint': {
+					response = await renderEndpoint(componentInstance as any, ctx, serverLike, logger);
+					break;
+				}
 				case 'redirect':
 					return renderRedirect(this);
 				case 'page': {
 					const result = await this.createResult(componentInstance!);
-					let response: Response;
 					try {
 						response = await renderPage(
 							result,
@@ -180,12 +189,19 @@ export class RenderContext {
 					) {
 						response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 					}
-					return response;
+					break;
 				}
 				case 'fallback': {
 					return new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
 				}
 			}
+			// We need to merge the cookies from the response back into this.cookies
+			// because they may need to be passed along from a rewrite.
+			const responseCookies = getFromResponse(response);
+			if (responseCookies) {
+				cookies.merge(responseCookies);
+			}
+			return response;
 		};
 
 		const response = await callMiddleware(
@@ -222,7 +238,7 @@ export class RenderContext {
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			pipeline.logger.debug('router', 'Called rewriting to:', reroutePayload);
-			const [routeData, component] = await pipeline.tryRewrite(
+			const [routeData, component, newURL] = await pipeline.tryRewrite(
 				reroutePayload,
 				this.request,
 				this.originalRoute
@@ -231,15 +247,13 @@ export class RenderContext {
 			if (reroutePayload instanceof Request) {
 				this.request = reroutePayload;
 			} else {
-				this.request = this.#copyRequest(
-					new URL(routeData.pathname ?? routeData.route, this.url.origin),
-					this.request
-				);
+				this.request = this.#copyRequest(newURL, this.request);
 			}
-			this.url = new URL(this.request.url);
+			this.url = newURL;
 			this.cookies = new AstroCookies(this.request);
-			this.params = getParams(routeData, url.toString());
+			this.params = getParams(routeData, this.url.pathname);
 			this.isRewriting = true;
+			this.pathname = this.url.pathname;
 			return await this.render(component);
 		};
 
@@ -361,11 +375,20 @@ export class RenderContext {
 		props: Record<string, any>,
 		slotValues: Record<string, any> | null
 	): AstroGlobal {
-		// Create page partial with static partial so they can be cached together.
-		const astroPagePartial = (this.#astroPagePartial ??= this.createAstroPagePartial(
-			result,
-			astroStaticPartial
-		));
+		let astroPagePartial;
+		// During rewriting, we must recompute the Astro global, because we need to purge the previous params/props/etc.
+		if (this.isRewriting) {
+			astroPagePartial = this.#astroPagePartial = this.createAstroPagePartial(
+				result,
+				astroStaticPartial
+			);
+		} else {
+			// Create page partial with static partial so they can be cached together.
+			astroPagePartial = this.#astroPagePartial ??= this.createAstroPagePartial(
+				result,
+				astroStaticPartial
+			);
+		}
 		// Create component-level partials. `Astro.self` is added by the compiler.
 		const astroComponentPartial = { props, self: null };
 
@@ -412,7 +435,7 @@ export class RenderContext {
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
-			const [routeData, component] = await pipeline.tryRewrite(
+			const [routeData, component, newURL] = await pipeline.tryRewrite(
 				reroutePayload,
 				this.request,
 				this.originalRoute
@@ -421,14 +444,12 @@ export class RenderContext {
 			if (reroutePayload instanceof Request) {
 				this.request = reroutePayload;
 			} else {
-				this.request = this.#copyRequest(
-					new URL(routeData.pathname ?? routeData.route, this.url.origin),
-					this.request
-				);
+				this.request = this.#copyRequest(newURL, this.request);
 			}
 			this.url = new URL(this.request.url);
 			this.cookies = new AstroCookies(this.request);
-			this.params = getParams(routeData, url.toString());
+			this.params = getParams(routeData, this.url.pathname);
+			this.pathname = this.url.pathname;
 			this.isRewriting = true;
 			return await this.render(component);
 		};
@@ -539,6 +560,9 @@ export class RenderContext {
 	 * @param oldRequest The old `Request`
 	 */
 	#copyRequest(newUrl: URL, oldRequest: Request): Request {
+		if (oldRequest.bodyUsed) {
+			throw new AstroError(AstroErrorData.RewriteWithBodyUsed);
+		}
 		return new Request(newUrl, {
 			method: oldRequest.method,
 			headers: oldRequest.headers,

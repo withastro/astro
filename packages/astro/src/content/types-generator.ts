@@ -429,12 +429,17 @@ async function writeContentFiles({
 					collectionConfig?.type ?? 'data'
 				: collection.type;
 
+		const collectionEntryKeys = Object.keys(collection.entries).sort();
+		const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
 		switch (resolvedType) {
 			case 'content':
+				if (collectionEntryKeys.length === 0) {
+					contentTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  slug: string;\n  body: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  render(): Render[".md"];\n}>;\n`;
+					break;
+				}
 				contentTypesStr += `${collectionKey}: {\n`;
-				for (const entryKey of Object.keys(collection.entries).sort()) {
+				for (const entryKey of collectionEntryKeys) {
 					const entryMetadata = collection.entries[entryKey];
-					const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
 					const renderType = `{ render(): Render[${JSON.stringify(
 						path.extname(JSON.parse(entryKey))
 					)}] }`;
@@ -445,45 +450,46 @@ async function writeContentFiles({
 				contentTypesStr += `};\n`;
 				break;
 			case 'data':
-				dataTypesStr += `${collectionKey}: {\n`;
-				for (const entryKey of Object.keys(collection.entries).sort()) {
-					const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
-					dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType}\n};\n`;
-					if (
-						settings.config.experimental.contentCollectionJsonSchema &&
-						collectionConfig?.schema
-					) {
-						let zodSchemaForJson =
-							typeof collectionConfig.schema === 'function'
-								? collectionConfig.schema({ image: () => z.string() })
-								: collectionConfig.schema;
-						if (zodSchemaForJson instanceof z.ZodObject) {
-							zodSchemaForJson = zodSchemaForJson.extend({
-								$schema: z.string().optional(),
-							});
-						}
-						try {
-							await fs.promises.writeFile(
-								new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
-								JSON.stringify(
-									zodToJsonSchema(zodSchemaForJson, {
-										name: collectionKey.replace(/"/g, ''),
-										markdownDescription: true,
-										errorMessages: true,
-									}),
-									null,
-									2
-								)
-							);
-						} catch (err) {
-							logger.warn(
-								'content',
-								`An error was encountered while creating the JSON schema for the ${entryKey} entry in ${collectionKey} collection. Proceeding without it. Error: ${err}`
-							);
-						}
+				if (collectionEntryKeys.length === 0) {
+					dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n}>;\n`;
+				} else {
+					dataTypesStr += `${collectionKey}: {\n`;
+					for (const entryKey of collectionEntryKeys) {
+						dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType}\n};\n`;
+					}
+					dataTypesStr += `};\n`;
+				}
+
+				if (settings.config.experimental.contentCollectionJsonSchema && collectionConfig?.schema) {
+					let zodSchemaForJson =
+						typeof collectionConfig.schema === 'function'
+							? collectionConfig.schema({ image: () => z.string() })
+							: collectionConfig.schema;
+					if (zodSchemaForJson instanceof z.ZodObject) {
+						zodSchemaForJson = zodSchemaForJson.extend({
+							$schema: z.string().optional(),
+						});
+					}
+					try {
+						await fs.promises.writeFile(
+							new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
+							JSON.stringify(
+								zodToJsonSchema(zodSchemaForJson, {
+									name: collectionKey.replace(/"/g, ''),
+									markdownDescription: true,
+									errorMessages: true,
+								}),
+								null,
+								2
+							)
+						);
+					} catch (err) {
+						logger.warn(
+							'content',
+							`An error was encountered while creating the JSON schema for the ${collectionKey} collection. Proceeding without it. Error: ${err}`
+						);
 					}
 				}
-				dataTypesStr += `};\n`;
 				break;
 		}
 	}

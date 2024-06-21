@@ -285,7 +285,7 @@ export interface AstroGlobal<
 	/**
 	 * The <Astro.self /> element allows a component to reference itself recursively.
 	 *
-	 * [Astro reference](https://docs.astro.build/en/guides/api-reference/#astroself)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroself)
 	 */
 	self: Self;
 	/** Utility functions for modifying an Astro component’s slotted children
@@ -1417,7 +1417,7 @@ export interface AstroUserConfig {
 		 * import remarkToc from 'remark-toc';
 		 * {
 		 *   markdown: {
-		 *     remarkPlugins: [remarkToc]
+		 *     remarkPlugins: [ [remarkToc, { heading: "contents"} ] ]
 		 *   }
 		 * }
 		 * ```
@@ -2070,17 +2070,17 @@ export interface AstroUserConfig {
 		 *
 		 * ```astro
 		 * ---
-		 * import { PUBLIC_APP_ID } from "astro:env/client"
-		 * import { PUBLIC_API_URL, getSecret } from "astro:env/server"
-		 * const API_TOKEN = getSecret("API_TOKEN")
+		 * import { APP_ID } from "astro:env/client"
+		 * import { API_URL, API_TOKEN, getSecret } from "astro:env/server"
+		 * const NODE_ENV = getSecret("NODE_ENV")
 		 *
-		 * const data = await fetch(`${PUBLIC_API_URL}/users`, {
+		 * const data = await fetch(`${API_URL}/users`, {
 		 * 	method: "POST",
 		 * 	headers: {
 		 * 		"Content-Type": "application/json",
 		 * 		"Authorization": `Bearer ${API_TOKEN}`
 		 * 	},
-		 * 	body: JSON.stringify({ appId: PUBLIC_APP_ID })
+		 * 	body: JSON.stringify({ appId: APP_ID, nodeEnv: NODE_ENV })
 		 * })
 		 * ---
 		 * ```
@@ -2095,8 +2095,8 @@ export interface AstroUserConfig {
 		 *     experimental: {
 		 *         env: {
 		 *             schema: {
-		 *                 PUBLIC_API_URL: envField.string({ context: "client", access: "public", optional: true }),
-		 *                 PUBLIC_PORT: envField.number({ context: "server", access: "public", default: 4321 }),
+		 *                 API_URL: envField.string({ context: "client", access: "public", optional: true }),
+		 *                 PORT: envField.number({ context: "server", access: "public", default: 4321 }),
 		 *                 API_SECRET: envField.string({ context: "server", access: "secret" }),
 		 *             }
 		 *         }
@@ -2104,28 +2104,27 @@ export interface AstroUserConfig {
 		 * })
 		 * ```
 		 *
-		 * There are currently three data types supported: strings, numbers and booleans.
+		 * There are currently four data types supported: strings, numbers, booleans and enums.
 		 *
 		 * There are three kinds of environment variables, determined by the combination of `context` (client or server) and `access` (secret or public) settings defined in your [`env.schema`](#experimentalenvschema):
 		 *
 		 * - **Public client variables**: These variables end up in both your final client and server bundles, and can be accessed from both client and server through the `astro:env/client` module:
 		 *
 		 *     ```js
-		 *     import { PUBLIC_API_URL } from "astro:env/client"
+		 *     import { API_URL } from "astro:env/client"
 		 *     ```
 		 *
 		 * - **Public server variables**: These variables end up in your final server bundle and can be accessed on the server through the `astro:env/server` module:
 		 *
 		 *     ```js
-		 *     import { PUBLIC_PORT } from "astro:env/server"
+		 *     import { PORT } from "astro:env/server"
 		 *     ```
 		 *
-		 * - **Secret server variables**: These variables are not part of your final bundle and can be accessed on the server through the `getSecret()` helper function available from the `astro:env/server` module:
+		 * - **Secret server variables**: These variables are not part of your final bundle and can be accessed on the server through the `astro:env/server` module. The `getSecret()` helper function can be used to retrieve secrets not specified in the schema:
 		 *
 		 *     ```js
-		 *     import { getSecret } from "astro:env/server"
+		 *     import { API_SECRET, getSecret } from "astro:env/server"
 		 *
-		 *     const API_SECRET = getSecret("API_SECRET") // typed
 		 *     const SECRET_NOT_IN_SCHEMA = getSecret("SECRET_NOT_IN_SCHEMA") // string | undefined
 		 *     ```
 		 *
@@ -2152,8 +2151,8 @@ export interface AstroUserConfig {
 			 *   experimental: {
 			 *     env: {
 			 *       schema: {
-			 *         PUBLIC_API_URL: envField.string({ context: "client", access: "public", optional: true }),
-			 *         PUBLIC_PORT: envField.number({ context: "server", access: "public", default: 4321 }),
+			 *         API_URL: envField.string({ context: "client", access: "public", optional: true }),
+			 *         PORT: envField.number({ context: "server", access: "public", default: 4321 }),
 			 *         API_SECRET: envField.string({ context: "server", access: "secret" }),
 			 *       }
 			 *     }
@@ -2860,7 +2859,7 @@ export interface APIContext<
 	 * }
 	 * ```
 	 *
-	 * [Reference](https://docs.astro.build/en/guides/api-reference/#contextprops)
+	 * [Reference](https://docs.astro.build/en/reference/api-reference/#contextprops)
 	 */
 	props: AstroSharedContext<Props, APIParams>['props'];
 	/**
@@ -2980,27 +2979,34 @@ export interface AstroRenderer {
 	jsxTransformOptions?: JSXTransformFn;
 }
 
-export interface SSRLoadedRenderer extends AstroRenderer {
-	ssr: {
-		check: AsyncRendererComponentFn<boolean>;
-		renderToStaticMarkup: AsyncRendererComponentFn<{
-			html: string;
-			attrs?: Record<string, string>;
-		}>;
-		supportsAstroStaticSlot?: boolean;
-		/**
-		 * If provided, Astro will call this function and inject the returned
-		 * script in the HTML before the first component handled by this renderer.
-		 *
-		 * This feature is needed by some renderers (in particular, by Solid). The
-		 * Solid official hydration script sets up a page-level data structure.
-		 * It is mainly used to transfer data between the server side render phase
-		 * and the browser application state. Solid Components rendered later in
-		 * the HTML may inject tiny scripts into the HTML that call into this
-		 * page-level data structure.
-		 */
-		renderHydrationScript?: () => string;
-	};
+export interface NamedSSRLoadedRendererValue extends SSRLoadedRendererValue {
+	name: string;
+}
+
+export interface SSRLoadedRendererValue {
+	name?: string;
+	check: AsyncRendererComponentFn<boolean>;
+	renderToStaticMarkup: AsyncRendererComponentFn<{
+		html: string;
+		attrs?: Record<string, string>;
+	}>;
+	supportsAstroStaticSlot?: boolean;
+	/**
+	 * If provided, Astro will call this function and inject the returned
+	 * script in the HTML before the first component handled by this renderer.
+	 *
+	 * This feature is needed by some renderers (in particular, by Solid). The
+	 * Solid official hydration script sets up a page-level data structure.
+	 * It is mainly used to transfer data between the server side render phase
+	 * and the browser application state. Solid Components rendered later in
+	 * the HTML may inject tiny scripts into the HTML that call into this
+	 * page-level data structure.
+	 */
+	renderHydrationScript?: () => string;
+}
+
+export interface SSRLoadedRenderer extends Pick<AstroRenderer, 'name' | 'clientEntrypoint'> {
+	ssr: SSRLoadedRendererValue;
 }
 
 export type HookParameters<

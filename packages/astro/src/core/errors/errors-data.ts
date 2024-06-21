@@ -667,6 +667,29 @@ export const ExpectedImageOptions = {
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
+ * An ESM-imported image cannot be passed directly to `getImage()`. Instead, pass an object with the image in the `src` property.
+ *
+ * ```diff
+ * import { getImage } from "astro:assets";
+ * import myImage from "../assets/my_image.png";
+ * - const optimizedImage = await getImage( myImage );
+ * + const optimizedImage = await getImage({ src: myImage });
+ * ```
+ */
+
+export const ExpectedNotESMImage = {
+	name: 'ExpectedNotESMImage',
+	title: 'Expected image options, not an ESM-imported image.',
+	message:
+		'An ESM-imported image cannot be passed directly to `getImage()`. Instead, pass an object with the image in the `src` property.',
+	hint: 'Try changing `getImage(myImage)` to `getImage({ src: myImage })`',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * @description
  * Only one of `densities` or `widths` can be specified. Those attributes are used to construct a `srcset` attribute, which cannot have both `x` and `w` descriptors.
  */
 export const IncompatibleDescriptorOptions = {
@@ -1135,18 +1158,6 @@ export const RewriteEncounteredAnError = {
 /**
  * @docs
  * @description
- *
- * The user tried to rewrite a 404 page inside a static page.
- */
-export const InvalidRewrite404 = {
-	name: 'InvalidRewrite404',
-	title: "You attempted to rewrite a 404 inside a static page, and this isn't allowed.",
-	message: 'Rewriting a 404 is only allowed inside on-demand pages.',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
  * Astro could not find an associated file with content while trying to render the route. This is an Astro error and not a user error. If restarting the dev server does not fix the problem, please file an issue.
  */
 export const CantRenderPage = {
@@ -1264,6 +1275,29 @@ export const ServerOnlyModule = {
 	name: 'ServerOnlyModule',
 	title: 'Module is only available server-side',
 	message: (name: string) => `The "${name}" module is only available server-side.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * `Astro.rewrite()` cannot be used if the request body has already been read. If you need to read the body, first clone the request. For example:
+ *
+ * ```js
+ * const data = await Astro.request.clone().formData();
+ *
+ * Astro.rewrite("/target")
+ * ```
+ *
+ * @see
+ * - [Request.clone()](https://developer.mozilla.org/en-US/docs/Web/API/Request/clone)
+ * - [Astro.rewrite](https://docs.astro.build/en/reference/configuration-reference/#experimentalrewriting)
+ */
+
+export const RewriteWithBodyUsed = {
+	name: 'RewriteWithBodyUsed',
+	title: 'Cannot use Astro.rewrite after the request body has been read',
+	message:
+		'Astro.rewrite() cannot be used if the request body has already been read. If you need to read the body, first clone the request.',
 } satisfies ErrorData;
 
 /**

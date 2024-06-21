@@ -2,11 +2,12 @@ import type { AstroConfig } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { DEFAULT_HASH_PROPS } from './consts.js';
 import { type ImageService, isLocalService } from './services/service.js';
-import type {
-	GetImageResult,
-	ImageTransform,
-	SrcSetValue,
-	UnresolvedImageTransform,
+import {
+	type GetImageResult,
+	type ImageTransform,
+	type SrcSetValue,
+	type UnresolvedImageTransform,
+	isImageMetadata,
 } from './types.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { probe } from './utils/remoteProbe.js';
@@ -49,6 +50,10 @@ export async function getImage(
 				JSON.stringify(options)
 			),
 		});
+	}
+
+	if (isImageMetadata(options)) {
+		throw new AstroError(AstroErrorData.ExpectedNotESMImage);
 	}
 
 	const service = await getConfiguredImageService();

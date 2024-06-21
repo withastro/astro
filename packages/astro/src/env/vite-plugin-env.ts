@@ -67,9 +67,8 @@ export function astroEnv({
 				fs,
 				content: getDts({
 					fs,
-					clientPublic: clientTemplates.types,
-					serverPublic: serverTemplates.types.public,
-					serverSecret: serverTemplates.types.secret,
+					client: clientTemplates.types,
+					server: serverTemplates.types,
 				}),
 			});
 		},
@@ -154,22 +153,17 @@ function validatePublicVariables({
 }
 
 function getDts({
-	clientPublic,
-	serverPublic,
-	serverSecret,
+	client,
+	server,
 	fs,
 }: {
-	clientPublic: string;
-	serverPublic: string;
-	serverSecret: string;
+	client: string;
+	server: string;
 	fs: typeof fsMod;
 }) {
 	const template = fs.readFileSync(TYPES_TEMPLATE_URL, 'utf-8');
 
-	return template
-		.replace('// @@CLIENT@@', clientPublic)
-		.replace('// @@SERVER@@', serverPublic)
-		.replace('// @@SECRET_VALUES@@', serverSecret);
+	return template.replace('// @@CLIENT@@', client).replace('// @@SERVER@@', server);
 }
 
 function getClientTemplates({
@@ -201,12 +195,12 @@ function getServerTemplates({
 	fs: typeof fsMod;
 }) {
 	let module = fs.readFileSync(MODULE_TEMPLATE_URL, 'utf-8');
-	let publicTypes = '';
-	let secretTypes = '';
+	let types = '';
+	let onSetGetEnv = '';
 
 	for (const { key, type, value } of validatedVariables.filter((e) => e.context === 'server')) {
 		module += `export const ${key} = ${JSON.stringify(value)};`;
-		publicTypes += `export const ${key}: ${type};	\n`;
+		types += `export const ${key}: ${type};	\n`;
 	}
 
 	for (const [key, options] of Object.entries(schema)) {
@@ -214,14 +208,15 @@ function getServerTemplates({
 			continue;
 		}
 
-		secretTypes += `${key}: ${getEnvFieldType(options)};		\n`;
+		types += `export const ${key}: ${getEnvFieldType(options)};		\n`;
+		module += `export let ${key} = _internalGetSecret(${JSON.stringify(key)});\n`;
+		onSetGetEnv += `${key} = reset ? undefined : _internalGetSecret(${JSON.stringify(key)});\n`;
 	}
+
+	module = module.replace('// @@ON_SET_GET_ENV@@', onSetGetEnv);
 
 	return {
 		module,
-		types: {
-			public: publicTypes,
-			secret: secretTypes,
-		},
+		types,
 	};
 }

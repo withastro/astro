@@ -66,7 +66,7 @@ export abstract class Pipeline {
 		if (callSetGetEnv && manifest.experimentalEnvGetSecretEnabled) {
 			setGetEnv(() => {
 				throw new AstroError(AstroErrorData.EnvUnsupportedGetSecret);
-			});
+			}, true);
 		}
 	}
 
@@ -88,23 +88,13 @@ export abstract class Pipeline {
 		rewritePayload: RewritePayload,
 		request: Request,
 		sourceRoute: RouteData
-	): Promise<[RouteData, ComponentInstance]>;
+	): Promise<[RouteData, ComponentInstance, URL]>;
 
 	/**
 	 * Tells the pipeline how to retrieve a component give a `RouteData`
 	 * @param routeData
 	 */
 	abstract getComponentByRoute(routeData: RouteData): Promise<ComponentInstance>;
-
-	/**
-	 * Attempts to execute a rewrite of a known Astro route:
-	 * - /404 -> src/pages/404.astro -> template
-	 * - /500 -> src/pages/500.astro
-	 *
-	 * @param pathname The pathname where the user wants to rewrite e.g. "/404"
-	 * @param sourceRoute The original route where the first request started. This is needed in case a pipeline wants to check if the current route is pre-rendered or not
-	 */
-	abstract rewriteKnownRoute(pathname: string, sourceRoute: RouteData): ComponentInstance;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

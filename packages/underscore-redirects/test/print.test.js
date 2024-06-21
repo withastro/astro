@@ -47,4 +47,21 @@ describe('Printing', () => {
 		const expectedParts = ['/pets/:cat', '/pets/:cat/index.html', '200'];
 		assert.deepEqual(parts, expectedParts);
 	});
+
+	it('Properly handles force redirects', () => {
+		const _redirects = new Redirects();
+		_redirects.add({
+			dynamic: false,
+			input: '/a',
+			target: '/b',
+			status: 200,
+			weight: 1,
+			force: true,
+		});
+		let out = _redirects.print();
+		let parts = out.split(/\s+/);
+
+		const expectedParts = ['/a', '/b', '200!'];
+		assert.deepEqual(parts, expectedParts);
+	});
 });
