@@ -6,12 +6,12 @@ import { astroCli, wranglerCli } from './_test-utils.js';
 
 const root = new URL('./fixtures/astro-env/', import.meta.url);
 
-describe('AstroEnv', () => {
+describe('astro:env', () => {
 	let wrangler;
 
 	before(async () => {
-		process.env.PUBLIC_API_URL = 'https://google.de';
-		process.env.PUBLIC_PORT = '4322';
+		process.env.API_URL = 'https://google.de';
+		process.env.PORT = '4322';
 		await astroCli(fileURLToPath(root), 'build');
 
 		wrangler = wranglerCli(fileURLToPath(root));
@@ -26,7 +26,7 @@ describe('AstroEnv', () => {
 		});
 	});
 
-	after((done) => {
+	after(() => {
 		wrangler.kill();
 	});
 
@@ -56,10 +56,10 @@ describe('AstroEnv', () => {
 		assert.equal($('#server').text().includes('4322'), true);
 	});
 
-	// it('secret', async () => {
-	// 	const res = await fetch('http://127.0.0.1:8788/');
-	// 	const html = await res.text();
-	// 	const $ = cheerio.load(html);
-	// 	assert.equal($('#secret').text().includes('123456789'), true);
-	// });
+	it('secret', async () => {
+		const res = await fetch('http://127.0.0.1:8788/');
+		const html = await res.text();
+		const $ = cheerio.load(html);
+		assert.equal($('#secret').text().includes('123456789'), true);
+	});
 });

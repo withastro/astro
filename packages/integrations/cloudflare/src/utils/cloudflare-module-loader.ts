@@ -71,7 +71,7 @@ export function cloudflareModuleLoader(
 			}
 			if (!enabled) {
 				throw new Error(
-					`Cloudflare module loading is experimental. The ${maybeExtension} module cannot be loaded unless you add \`wasmModuleImports: true\` to your astro config.`
+					`Cloudflare module loading is experimental. The ${maybeExtension} module cannot be loaded unless you add \`cloudflareModules: true\` to your astro config.`
 				);
 			}
 
@@ -161,7 +161,10 @@ export function cloudflareModuleLoader(
 			for (const chunk of Object.values(bundle)) {
 				const repls = chunk.name && replacementsByChunkName.get(chunk.name);
 				for (const replacement of repls || []) {
-					replacement.fileName = chunk.fileName;
+					if (!replacement.fileName) {
+						replacement.fileName = [] as string[];
+					}
+					replacement.fileName.push(chunk.fileName);
 				}
 			}
 		},
@@ -176,11 +179,13 @@ export function cloudflareModuleLoader(
 				if (!replacement.fileName) {
 					continue;
 				}
-				const repls = replacementsByFileName.get(replacement.fileName) || [];
-				if (!repls.length) {
-					replacementsByFileName.set(replacement.fileName, repls);
+				for (const fileName of replacement.fileName) {
+					const repls = replacementsByFileName.get(fileName) || [];
+					if (!repls.length) {
+						replacementsByFileName.set(fileName, repls);
+					}
+					repls.push(replacement);
 				}
-				repls.push(replacement);
 			}
 			for (const [fileName, repls] of replacementsByFileName.entries()) {
 				const filepath = path.join(baseDir, '_worker.js', fileName);
@@ -196,7 +201,7 @@ export function cloudflareModuleLoader(
 }
 
 interface Replacement {
-	fileName?: string;
+	fileName?: string[];
 	chunkName: string;
 	// desired import for cloudflare
 	cloudflareImport: string;

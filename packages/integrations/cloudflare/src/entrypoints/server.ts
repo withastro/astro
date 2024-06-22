@@ -5,6 +5,8 @@ import type {
 } from '@cloudflare/workers-types';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
+import { setGetEnv } from 'astro/env/setup';
+import { createGetEnv } from '../utils/env.js';
 
 type Env = {
 	[key: string]: unknown;
@@ -66,10 +68,17 @@ export function createExports(manifest: SSRManifest) {
 				caches: caches as unknown as CLOUDFLARE_CACHESTORAGE,
 				ctx: {
 					waitUntil: (promise: Promise<any>) => context.waitUntil(promise),
-					passThroughOnException: () => context.passThroughOnException(),
+					// Currently not available: https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions
+					passThroughOnException: () => {
+						throw new Error(
+							'`passThroughOnException` is currently not available in Cloudflare Pages. See https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions.'
+						);
+					},
 				},
 			},
 		};
+
+		setGetEnv(createGetEnv(env));
 
 		const response = await app.render(request, { routeData, locals });
 

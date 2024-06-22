@@ -1,5 +1,5 @@
 name = "astro-env"
 
 [vars]
-PUBLIC_API_URL = "https://google.de"
-PUBLIC_PORT = 4322
+API_URL = "https://google.de"
+PORT = 4322
