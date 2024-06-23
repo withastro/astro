@@ -1,6 +1,0 @@
-{
-  "compilerOptions": {
-    "allowJs": true
-  },
-  "extends": "./tsconfig.base.json"
-}
