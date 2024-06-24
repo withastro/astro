@@ -1,5 +1,16 @@
 # @astrojs/vercel
 
+## 7.7.2
+
+### Patch Changes
+
+- [#11323](https://github.com/withastro/astro/pull/11323) [`41064ce`](https://github.com/withastro/astro/commit/41064cee78c1cccd428f710a24c483aeb275fd95) Thanks [@ascorbic](https://github.com/ascorbic)! - Extracts fs helpers into shared internal-helpers module
+
+- [#11296](https://github.com/withastro/astro/pull/11296) [`5848d97`](https://github.com/withastro/astro/commit/5848d9786768d1290de982670bcc7773280ef08d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes `astro:env` getSecret compatibility
+
+- Updated dependencies [[`41064ce`](https://github.com/withastro/astro/commit/41064cee78c1cccd428f710a24c483aeb275fd95)]:
+  - @astrojs/internal-helpers@0.4.1
+
 ## 7.7.1
 
 ### Patch Changes
