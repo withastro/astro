@@ -1,12 +1,12 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
+import { emptyDir, writeJson } from '@astrojs/internal-helpers/fs';
 import {
 	type DevImageService,
 	type VercelImageConfig,
 	getAstroImageConfig,
 	getDefaultImageConfig,
 } from '../image/shared.js';
-import { emptyDir, writeJson } from '@astrojs/internal-helpers/fs';
 import { isServerLikeOutput } from '../lib/prerender.js';
 import { getRedirects } from '../lib/redirects.js';
 import {
