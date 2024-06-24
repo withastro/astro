@@ -6,7 +6,7 @@ import {
 	getAstroImageConfig,
 	getDefaultImageConfig,
 } from '../image/shared.js';
-import { emptyDir, writeJson } from '../lib/fs.js';
+import { emptyDir, writeJson } from '@astrojs/internal-helpers/fs';
 import { isServerLikeOutput } from '../lib/prerender.js';
 import { getRedirects } from '../lib/redirects.js';
 import {

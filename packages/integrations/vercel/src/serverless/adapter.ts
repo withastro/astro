@@ -16,7 +16,7 @@ import {
 	getAstroImageConfig,
 	getDefaultImageConfig,
 } from '../image/shared.js';
-import { removeDir, writeJson } from '../lib/fs.js';
+import { removeDir, writeJson } from '@astrojs/internal-helpers/fs';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { escapeRegex, getRedirects } from '../lib/redirects.js';
 import {
