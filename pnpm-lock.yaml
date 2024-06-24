@@ -3523,7 +3523,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/rewrite-404-invalid:
+  packages/astro/test/fixtures/rewrite-custom-404:
     dependencies:
       astro:
         specifier: workspace:*
