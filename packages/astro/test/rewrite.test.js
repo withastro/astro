@@ -390,7 +390,6 @@ describe('Middleware', () => {
 	});
 });
 
-
 describe('Middleware with custom 404.astro and 500.astro', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
