@@ -406,6 +406,7 @@ export async function loadContentConfig({
 	unparsedConfig = await viteServer.ssrLoadModule(configPathname);
 
 	const config = contentConfigParser.safeParse(unparsedConfig);
+	console.log({config});
 	if (config.success) {
 		return config.data;
 	} else {
