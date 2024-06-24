@@ -14,20 +14,14 @@ import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 // This import includes ambient types for hast to include mdx nodes
 import type {} from 'mdast-util-mdx';
+import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
 export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 	return (tree, file) => {
 		// Initial metadata for this MDX file, it will be mutated as we traverse the tree
-		const metadata: PluginMetadata['astro'] = {
-			clientOnlyComponents: [],
-			hydratedComponents: [],
-			scripts: [],
-			containsHead: false,
-			propagation: 'none',
-			pageOptions: {},
-		};
+		const metadata = createDefaultAstroMetadata();
 
 		// Parse imports in this file. This is used to match components with their import source
 		const imports = parseImports(tree.children);
@@ -71,6 +65,7 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 				// Add this component to the metadata
 				metadata.clientOnlyComponents.push({
 					exportName: matchedImport.name,
+					localName: '',
 					specifier: tagName,
 					resolvedPath,
 				});
@@ -80,6 +75,7 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 				// Add this component to the metadata
 				metadata.hydratedComponents.push({
 					exportName: '*',
+					localName: '',
 					specifier: tagName,
 					resolvedPath,
 				});

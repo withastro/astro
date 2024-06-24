@@ -1,0 +1,17 @@
+---
+import Cart from './Cart.js';
+
+// Delay for fun
+await new Promise(resolve => setTimeout(resolve, 3000));
+---
+<style>
+	.shopping-cart {
+		display: inline-block;
+		background-color: tomato;
+	}
+</style>
+<div class="shopping-cart">
+	I'm a shopping cart
+
+	<Cart client:load />
+</div>
