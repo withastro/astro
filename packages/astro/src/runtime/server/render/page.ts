@@ -1,4 +1,4 @@
-import type { RouteData, SSRResult } from '../../../@types/astro.js';
+import type {AstroConfig, RouteData, SSRResult} from '../../../@types/astro.js';
 import { type NonAstroPageComponent, renderComponentToString } from './component.js';
 import type { AstroComponentFactory } from './index.js';
 
@@ -87,10 +87,9 @@ export async function renderPage(
 	}
 	let status = init.status;
 	// Custom 404.astro and 500.astro are particular routes that must return a fixed status code
-	// The check uses the `/` to avoid possible false negatives such as custom_404.astro
-	if (route?.component.endsWith("/404.astro")) {
+	if (route?.route === "/404") {
 		status = 404
-	} else if (route?.component.endsWith("/500.astro")) {
+	} else if (route?.route === "/500") {
 		status = 500
 	}
 	if (status) {
