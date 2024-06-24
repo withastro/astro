@@ -5594,8 +5594,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       vite-svg-loader:
-        specifier: 4.0.0
-        version: 4.0.0
+        specifier: 5.1.0
+        version: 5.1.0(vue@3.4.29(typescript@5.4.5))
 
   packages/integrations/vue/test/fixtures/app-entrypoint-relative:
     dependencies:
@@ -9518,6 +9518,7 @@ packages:
 
   libsql@0.3.12:
     resolution: {integrity: sha512-to30hj8O3DjS97wpbKN6ERZ8k66MN1IaOfFLR6oHqd25GMiPJ/ZX0VaZ7w+TsPmxcFS3p71qArj/hiedCyvXCg==}
+    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lilconfig@2.1.0:
@@ -11720,14 +11721,6 @@ packages:
     resolution: {integrity: sha512-M+yH2LlQtVNzJAljQM+61CqDXBvHim8dU5ImGaQuwlo13tMDHue5D7IC20YwDJuWDODiYc/cZBUYspVlyPf2vQ==}
     peerDependencies:
       vite: ^3.0.0-0 || ^4.0.0-0 || ^5.0.0-0
-
-  vite-svg-loader@4.0.0:
-    resolution: {integrity: sha512-0MMf1yzzSYlV4MGePsLVAOqXsbF5IVxbn4EEzqRnWxTQl8BJg/cfwIzfQNmNQxZp5XXwd4kyRKF1LytuHZTnqA==}
-    peerDependencies:
-      vue: '*'
-    peerDependenciesMeta:
-      vue:
-        optional: true
 
   vite-svg-loader@5.1.0:
     resolution: {integrity: sha512-M/wqwtOEjgb956/+m5ZrYT/Iq6Hax0OakWbokj8+9PXOnB7b/4AxESHieEtnNEy7ZpjsjYW1/5nK8fATQMmRxw==}
@@ -18951,11 +18944,6 @@ snapshots:
       vite: 5.3.1(@types/node@20.12.7)(sass@1.77.5)
     transitivePeerDependencies:
       - supports-color
-
-  vite-svg-loader@4.0.0:
-    dependencies:
-      '@vue/compiler-sfc': 3.4.29
-      svgo: 3.2.0
 
   vite-svg-loader@5.1.0(vue@3.4.29(typescript@5.4.5)):
     dependencies:
