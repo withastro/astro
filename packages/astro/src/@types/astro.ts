@@ -2174,7 +2174,7 @@ export interface AstroUserConfig {
 			 * @version 4.11.2
 			 * @description
 			 *
-			 * If enabled, secrets will also be checked on start (dev/build modes). This is useful for example in some CIs to make sure all your secrets are correctly set before deplouyig.
+			 * If enabled, secrets will also be checked on start (dev/build modes). This is useful for example in some CIs to make sure all your secrets are correctly set before deploying.
 			 * 
 			 * ```js
 			 * // astro.config.mjs
