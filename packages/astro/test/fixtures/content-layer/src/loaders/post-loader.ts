@@ -8,7 +8,7 @@ export function loader(config:PostLoaderConfig): Loader {
 	return {
 		name: "post-loader",
 		load: async ({
-			store, collection, meta, logger
+			store, meta, logger
 		}) => {
 			logger.info('Loading posts');
 

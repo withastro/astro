@@ -40,7 +40,7 @@ declare module 'astro:content' {
 		store: ScopedDataStore;
 		// A simple KV store, designed for things like sync tokens
 		meta: MetaStore;
-		logger: AstroIntegrationLogger
+		logger: AstroIntegrationLogger;
 	}
 
 	export interface Loader<S extends BaseSchema = BaseSchema> {

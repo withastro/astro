@@ -14,7 +14,7 @@ import {
 	unescapeHTML,
 } from '../runtime/server/index.js';
 import type { ContentLookupMap } from './utils.js';
-import { DataStore, globalDataStore } from './data-store.js';
+import { globalDataStore } from './data-store.js';
 
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;

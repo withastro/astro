@@ -26,7 +26,7 @@ export async function syncDataLayer({
 				collection: name,
 				store: store.scopedStore(name),
 				meta: store.metaStore(name),
-				logger: logger.forkIntegrationLogger('content')
+				logger: logger.forkIntegrationLogger('content'),
 			});
 		})
 	);

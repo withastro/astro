@@ -9,7 +9,7 @@ import {
 	createReference,
 } from 'astro/content/runtime';
 
-export { defineCollection } from 'astro/content/runtime';
+export { defineCollection, file } from 'astro/content/runtime';
 export { z } from 'astro/zod';
 
 const contentDir = '@@CONTENT_DIR@@';
