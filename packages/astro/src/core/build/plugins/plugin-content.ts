@@ -508,15 +508,14 @@ export function pluginContent(
 					return;
 				}
 				// Cache build output of chunks and assets
-				const promises: Promise<void[] | undefined>[] = []
+				const promises: Promise<void[] | undefined>[] = [];
 				for (const { cached, dist } of cachedBuildOutput) {
 					if (fsMod.existsSync(dist)) {
 						promises.push(copyFiles(dist, cached, true));
 					}
 				}
 
-				if (promises.length)
-					await Promise.all(promises)
+				if (promises.length) await Promise.all(promises);
 			},
 		},
 	};
