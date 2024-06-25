@@ -35,6 +35,19 @@ export const collectionConfigParser = z.union([
 		type: z.literal('data'),
 		schema: z.any().optional(),
 	}),
+	z.object({
+		type: z.literal('experimental_data'),
+		name: z.string(),
+		schema: z.undefined().optional(),
+		loader: z.object({
+			name: z.string(),
+			load: z.function(
+				z.tuple([z.object({ collection: z.string(), store: z.any(), cache: z.any() })], z.unknown())
+			),
+			schema: z.any().optional(),
+			render: z.function(z.tuple([z.any()], z.unknown())).optional(),
+		}),
+	}),
 ]);
 
 export const contentConfigParser = z.object({
@@ -406,7 +419,6 @@ export async function loadContentConfig({
 	unparsedConfig = await viteServer.ssrLoadModule(configPathname);
 
 	const config = contentConfigParser.safeParse(unparsedConfig);
-	console.log({config});
 	if (config.success) {
 		return config.data;
 	} else {

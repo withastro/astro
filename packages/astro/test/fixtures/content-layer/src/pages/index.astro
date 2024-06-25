@@ -12,7 +12,7 @@ const blog = await getCollection('blog');
 
 	<ul>
 		{blog.map(post => (
-			<li>{ post.data.title }</li>
+			<li>{ post.data?.title }</li>
 		))}
 	</ul>
 </body>

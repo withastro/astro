@@ -10,7 +10,7 @@ export function loader(config:PostLoaderConfig): Loader {
 		load: async ({
 			store, collection, cache
 		}) => {
-
+			console.log('loading posts');
 			const posts = await fetch(config.url)
 				.then((res) => res.json());
 			
@@ -19,7 +19,6 @@ export function loader(config:PostLoaderConfig): Loader {
 			for (const post of posts) {
 				store.set(collection, post.id, post);
 			}
-
 		},
 	};
 }

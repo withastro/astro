@@ -32,7 +32,7 @@ declare module 'astro:content' {
 
 	export type SchemaContext = { image: ImageFunction };
 
-	export interface DataStore<T = any>{
+	export interface DataStore<T = any> {
 		get: (collection: string, key: string) => T | undefined;
 		entries: (collection: string) => Array<[key: string, T]>;
 		set: (collection: string, key: string, value: T) => void;
@@ -57,12 +57,13 @@ declare module 'astro:content' {
 		// Allow a loader to define its own schema
 		schema?: S | Promise<S> | ((context: SchemaContext) => S | Promise<S>);
 		// Render content from the store
-		render?: (entry: any) => AstroComponentFactory;
+		render?: (entry: any) => any;
 	}
 
 	type ContentCollectionV2Config<S extends BaseSchema> = {
-		type: 'experimental_content';
+		type: 'experimental_data';
 		name: string;
+		schema?: undefined;
 		loader: Loader<S>;
 	};
 

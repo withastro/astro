@@ -46,6 +46,10 @@ type CollectionEntryMap = {
 		| {
 				type: 'data';
 				entries: Record<string, DataEntryMetadata>;
+		  }
+		| {
+				type: 'experimental_data';
+				entries: Record<string, DataEntryMetadata>;
 		  };
 };
 
@@ -400,6 +404,7 @@ async function writeContentFiles({
 		if (
 			collectionConfig?.type &&
 			collection.type !== 'unknown' &&
+			collectionConfig.type !== 'experimental_data' &&
 			collection.type !== collectionConfig.type
 		) {
 			viteServer.hot.send({
@@ -422,7 +427,7 @@ async function writeContentFiles({
 			});
 			return;
 		}
-		const resolvedType: 'content' | 'data' =
+		const resolvedType: 'content' | 'data' | 'experimental_data' =
 			collection.type === 'unknown'
 				? // Add empty / unknown collections to the data type map by default
 					// This ensures `getCollection('empty-collection')` doesn't raise a type error
@@ -490,6 +495,9 @@ async function writeContentFiles({
 						);
 					}
 				}
+				break;
+			case 'experimental_data':
+				console.log('experimental_data', collectionKey);
 				break;
 		}
 	}

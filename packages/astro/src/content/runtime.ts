@@ -57,6 +57,7 @@ export function createGetCollection({
 }) {
 	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
 		let type: 'content' | 'data';
+		console.log({ collection, contentCollectionToEntryMap, dataCollectionToEntryMap });
 		if (collection in contentCollectionToEntryMap) {
 			type = 'content';
 		} else if (collection in dataCollectionToEntryMap) {
