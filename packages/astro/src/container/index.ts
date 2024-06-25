@@ -14,8 +14,8 @@ import type {
 	SSRManifest,
 	SSRResult,
 } from '../@types/astro.js';
-import { validateConfig } from '../core/config/validate.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
+import { validateConfig } from '../core/config/validate.js';
 import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
 import { removeLeadingForwardSlash } from '../core/path.js';

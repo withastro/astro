@@ -8,8 +8,8 @@ import type { AstroSettings } from '../@types/astro.js';
 import { encodeName } from '../core/build/util.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { appendForwardSlash, removeFileExtension } from '../core/path.js';
-import {  rootRelativePath } from '../core/viteUtils.js';
-import { isServerLikeOutput } from "../core/util.js";
+import { isServerLikeOutput } from '../core/util.js';
+import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
 import {
 	CONTENT_FLAG,

@@ -1,10 +1,9 @@
-import type {ModuleLoader} from "./module-loader/index.js";
-import path from "node:path";
-import {fileURLToPath} from "node:url";
-import {prependForwardSlash} from "../core/path.js";
-import {resolveJsToTs, unwrapId, VALID_ID_PREFIX, viteID} from "./util.js";
-import {normalizePath} from "vite";
-
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { normalizePath } from 'vite';
+import { prependForwardSlash } from '../core/path.js';
+import type { ModuleLoader } from './module-loader/index.js';
+import { VALID_ID_PREFIX, resolveJsToTs, unwrapId, viteID } from './util.js';
 
 /**
  * Resolve the hydration paths so that it can be imported in the client
@@ -17,7 +16,6 @@ export function resolvePath(specifier: string, importer: string) {
 		return specifier;
 	}
 }
-
 
 export function rootRelativePath(
 	root: URL,
@@ -36,7 +34,6 @@ export function rootRelativePath(
 	}
 	return shouldPrependForwardSlash ? prependForwardSlash(id) : id;
 }
-
 
 /**
  * Simulate Vite's resolve and import analysis so we can import the id as an URL

@@ -182,7 +182,6 @@ export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
 	return id.slice(slash(fileURLToPath(config.srcDir)).length);
 }
 
-
 export function emoji(char: string, fallback: string) {
 	return process.platform !== 'win32' ? char : fallback;
 }
@@ -196,8 +195,6 @@ export function resolveJsToTs(filePath: string) {
 	}
 	return filePath;
 }
-
-
 
 /**
  * Set a default NODE_ENV so Vite doesn't set an incorrect default when loading the Astro config

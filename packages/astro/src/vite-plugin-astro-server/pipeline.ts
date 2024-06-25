@@ -14,14 +14,14 @@ import { getInfoOutput } from '../cli/info/index.js';
 import { type HeadElements } from '../core/base-pipeline.js';
 import { ASTRO_VERSION, DEFAULT_404_COMPONENT } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
-import { AggregateError,  CSSError, MarkdownError } from '../core/errors/index.js';
+import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Pipeline, loadRenderer } from '../core/render/index.js';
-import {  default404Page } from '../core/routing/astro-designed-error-pages.js';
+import { default404Page } from '../core/routing/astro-designed-error-pages.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 import { isPage, isServerLikeOutput, viteID } from '../core/util.js';
-import { resolveIdToUrl } from "../core/viteUtils.js"
+import { resolveIdToUrl } from '../core/viteUtils.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
 import { getComponentMetadata } from './metadata.js';

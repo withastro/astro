@@ -1,4 +1,9 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import * as colors from 'kleur/colors';
 import type { Arguments as Flags } from 'yargs-parser';
+import { ZodError } from 'zod';
 import type {
 	AstroConfig,
 	AstroInlineConfig,
@@ -6,18 +11,13 @@ import type {
 	AstroUserConfig,
 	CLIFlags,
 } from '../../@types/astro.js';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import * as colors from 'kleur/colors';
+import { eventConfigError, telemetry } from '../../events/index.js';
+import { trackAstroConfigZodError } from '../errors/errors.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { formatConfigErrorMessage } from '../messages.js';
 import { mergeConfig } from './merge.js';
+import { validateConfig } from './validate.js';
 import { loadConfigWithVite } from './vite-load.js';
-import {validateConfig} from "./validate.js";
-import {ZodError} from "zod";
-import {trackAstroConfigZodError} from "../errors/errors.js";
-import {formatConfigErrorMessage} from "../messages.js";
-import {eventConfigError, telemetry} from "../../events/index.js";
 
 /** Convert the generic "yargs" flag object into our own, custom TypeScript object. */
 // NOTE: This function will be removed in a later PR. Use `flagsToAstroInlineConfig` instead.
@@ -171,7 +171,6 @@ export async function resolveConfig(
 	let astroConfig: AstroConfig;
 	try {
 		astroConfig = await validateConfig(mergedConfig, root, command);
-		
 	} catch (e) {
 		// Improve config zod error messages
 		if (e instanceof ZodError) {

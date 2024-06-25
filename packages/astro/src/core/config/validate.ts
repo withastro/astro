@@ -1,5 +1,5 @@
-import type {AstroConfig} from "../../@types/astro.js";
-import {createRelativeSchema} from "./schema.js";
+import type { AstroConfig } from '../../@types/astro.js';
+import { createRelativeSchema } from './schema.js';
 
 /** Turn raw config values into normalized values */
 export async function validateConfig(
