@@ -47,7 +47,10 @@ const createFixture = () => {
 				},
 			};
 
-			await astroFixture.sync({}, { fs: fsMock });
+			const code = await astroFixture.sync({}, { fs: fsMock });
+			if (code !== 0) {
+				throw new Error(`Process error code ${code}`);
+			}
 		},
 		/** @param {string} path */
 		thenFileShouldExist(path) {
@@ -163,6 +166,17 @@ describe('astro sync', () => {
 				'src/env.d.ts',
 				`/// <reference path="../.astro/env.d.ts" />`
 			);
+		});
+
+		it('Does not throw if a public variable is required', async () => {
+			let error = null;
+			try {
+				await fixture.whenSyncing('./fixtures/astro-env-required-public/');
+			} catch (e) {
+				error = e;
+			}
+
+			assert.equal(error, null, 'Syncing should not throw astro:env validation errors');
 		});
 	});
 

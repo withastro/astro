@@ -27,6 +27,7 @@ import {
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
+import { syncAstroEnv } from '../../env/sync.js';
 
 export type ProcessExit = 0 | 1;
 
@@ -83,6 +84,7 @@ export default async function sync(
 		await dbPackage?.typegen?.(astroConfig);
 		const exitCode = await syncContentCollections(settings, { ...options, logger });
 		if (exitCode !== 0) return exitCode;
+		syncAstroEnv(settings, options?.fs);
 
 		logger.info(null, `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 		return 0;
@@ -123,7 +125,7 @@ export async function syncContentCollections(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode: 'build', command: 'build', fs }
+			{ settings, logger, mode: 'build', command: 'build', fs, sync: true }
 		)
 	);
 
