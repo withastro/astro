@@ -86,6 +86,7 @@ export interface AstroBuiltinProps {
 	'client:media'?: string;
 	'client:visible'?: ClientVisibleOptions | boolean;
 	'client:only'?: boolean | string;
+	'server:defer'?: boolean;
 }
 
 export type ClientVisibleOptions = Pick<IntersectionObserverInit, 'rootMargin'>;
