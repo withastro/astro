@@ -37,8 +37,7 @@ export const collectionConfigParser = z.union([
 	}),
 	z.object({
 		type: z.literal('experimental_data'),
-		name: z.string(),
-		schema: z.undefined().optional(),
+		schema: z.any().optional(),
 		loader: z.object({
 			name: z.string(),
 			load: z.function(
@@ -49,6 +48,7 @@ export const collectionConfigParser = z.union([
 							store: z.any(),
 							meta: z.any(),
 							logger: z.any(),
+							settings: z.any(),
 						}),
 					],
 					z.unknown()

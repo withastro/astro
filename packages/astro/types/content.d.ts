@@ -1,4 +1,4 @@
-import type { Logger } from '../src/core/logger/core.js';
+import type { AstroIntegrationLogger } from '../src/core/logger/core.js';
 import type { MetaStore, ScopedDataStore } from '../src/content/data-store.js';
 declare module 'astro:content' {
 	export { z } from 'astro/zod';
@@ -56,8 +56,7 @@ declare module 'astro:content' {
 
 	type ContentCollectionV2Config<S extends BaseSchema> = {
 		type: 'experimental_data';
-		name: string;
-		schema?: undefined;
+		schema?: S | ((context: SchemaContext) => S);
 		loader: Loader<S>;
 	};
 
