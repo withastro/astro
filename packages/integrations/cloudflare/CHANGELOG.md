@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 11.0.1
+
+### Patch Changes
+
+- [#302](https://github.com/withastro/adapters/pull/302) [`dc0039f`](https://github.com/withastro/adapters/commit/dc0039fa23de59c95f2943186b403c82eacf6f7a) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue where projects break when no `wrangler.toml` file was present
+
 ## 11.0.0
 
 ### Major Changes
