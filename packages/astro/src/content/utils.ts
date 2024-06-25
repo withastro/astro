@@ -42,7 +42,17 @@ export const collectionConfigParser = z.union([
 		loader: z.object({
 			name: z.string(),
 			load: z.function(
-				z.tuple([z.object({ collection: z.string(), store: z.any(), cache: z.any() })], z.unknown())
+				z.tuple(
+					[
+						z.object({
+							collection: z.string(),
+							store: z.any(),
+							meta: z.any(),
+							logger: z.any(),
+						}),
+					],
+					z.unknown()
+				)
 			),
 			schema: z.any().optional(),
 			render: z.function(z.tuple([z.any()], z.unknown())).optional(),

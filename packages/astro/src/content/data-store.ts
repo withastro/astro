@@ -53,6 +53,10 @@ export class DataStore {
 		};
 	}
 
+	metaStore(collectionName: string): MetaStore {
+		return this.scopedStore(`meta:${collectionName}`);
+	}
+
 	toString() {
 		return JSON.stringify(
 			Array.from(this.#collections.entries()).map(([collectionName, collection]) => {
@@ -104,6 +108,12 @@ export interface ScopedDataStore {
 	set: (key: string, value: any) => void;
 	delete: (key: string) => void;
 	clear: () => void;
+	has: (key: string) => boolean;
+}
+
+export interface MetaStore {
+	get: (key: string) => string | undefined;
+	set: (key: string, value: string) => void;
 	has: (key: string) => boolean;
 }
 

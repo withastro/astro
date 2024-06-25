@@ -1,7 +1,6 @@
 import type { AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
-import type { DataStore } from './data-store.js';
-import { globalDataStore } from './data-store.js';
+import { DataStore, globalDataStore } from './data-store.js';
 import { globalContentConfigObserver } from './utils.js';
 
 export async function syncDataLayer({
@@ -10,7 +9,8 @@ export async function syncDataLayer({
 	store,
 }: { settings: AstroSettings; logger: Logger; store?: DataStore }) {
 	if (!store) {
-		store = await globalDataStore.get();
+		store = await DataStore.fromDisk(new URL('data-store.json', settings.config.cacheDir));
+		globalDataStore.set(store);
 	}
 	const contentConfig = globalContentConfigObserver.get();
 	if (contentConfig?.status !== 'loaded') {
@@ -25,7 +25,8 @@ export async function syncDataLayer({
 			return collection.loader.load({
 				collection: name,
 				store: store.scopedStore(name),
-				cache: {},
+				meta: store.metaStore(name),
+				logger: logger.forkIntegrationLogger('content')
 			});
 		})
 	);

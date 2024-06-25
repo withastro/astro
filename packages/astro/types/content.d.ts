@@ -1,4 +1,5 @@
-import type { ScopedDataStore } from '../src/content/data-store.js';
+import type { Logger } from '../src/core/logger/core.js';
+import type { MetaStore, ScopedDataStore } from '../src/content/data-store.js';
 declare module 'astro:content' {
 	export { z } from 'astro/zod';
 
@@ -38,8 +39,8 @@ declare module 'astro:content' {
 		// A database abstraction to store the actual data
 		store: ScopedDataStore;
 		// A simple KV store, designed for things like sync tokens
-		// Persisted to disk
-		cache: any;
+		meta: MetaStore;
+		logger: AstroIntegrationLogger
 	}
 
 	export interface Loader<S extends BaseSchema = BaseSchema> {
