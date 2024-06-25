@@ -7,6 +7,7 @@ import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types
 import { getPackage } from '../../cli/install-package.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
+import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigSetup } from '../../integrations/hooks.js';
@@ -27,7 +28,6 @@ import {
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
-import { syncAstroEnv } from '../../env/sync.js';
 
 export type ProcessExit = 0 | 1;
 
