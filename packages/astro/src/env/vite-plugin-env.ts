@@ -21,14 +21,14 @@ interface AstroEnvVirtualModPluginParams {
 	settings: AstroSettings;
 	mode: 'dev' | 'build' | string;
 	fs: typeof fsMod;
-	sync: boolean | undefined;
+	sync: boolean;
 }
 
 export function astroEnv({
 	settings,
 	mode,
 	fs,
-	sync = false,
+	sync,
 }: AstroEnvVirtualModPluginParams): Plugin | undefined {
 	if (!settings.config.experimental.env || sync) {
 		return;

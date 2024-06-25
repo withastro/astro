@@ -47,7 +47,7 @@ interface CreateViteOptions {
 	// will be undefined when using `getViteConfig`
 	command?: 'dev' | 'build';
 	fs?: typeof nodeFs;
-	sync?: boolean;
+	sync: boolean;
 }
 
 const ALWAYS_NOEXTERNAL = [
