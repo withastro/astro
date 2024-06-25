@@ -2171,10 +2171,26 @@ export interface AstroUserConfig {
 			 * @kind h4
 			 * @type {boolean}
 			 * @default `false`
-			 * @version TODO:
+			 * @version 4.11.2
 			 * @description
 			 *
-			 * TODO:
+			 * If enabled, secrets will also be checked on start (dev/build modes). This is useful for example in some CIs to make sure all your secrets are correctly set before deplouyig.
+			 * 
+			 * ```js
+			 * // astro.config.mjs
+			 * import { defineConfig, envField } from "astro/config"
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *     env: {
+			 *       schema: {
+			 * 			// ...
+			 *       },
+			 * 		 validateSecretsOnStart: true
+			 *     }
+			 *   }
+			 * })
+			 * ```
 			 */
 			validateSecretsOnStart?: boolean;
 		};
