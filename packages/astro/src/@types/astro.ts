@@ -2164,6 +2164,19 @@ export interface AstroUserConfig {
 			 * ```
 			 */
 			schema?: EnvSchema;
+
+			/**
+			 * @docs
+			 * @name experimental.env.validateSecretsOnStart
+			 * @kind h4
+			 * @type {boolean}
+			 * @default `false`
+			 * @version TODO:
+			 * @description
+			 *
+			 * TODO:
+			 */
+			validateSecretsOnStart?: boolean;
 		};
 	};
 }
