@@ -773,9 +773,6 @@ importers:
       '@types/prompts':
         specifier: ^2.4.9
         version: 2.4.9
-      '@types/resolve':
-        specifier: ^1.20.6
-        version: 1.20.6
       '@types/semver':
         specifier: ^7.5.8
         version: 7.5.8
