@@ -751,9 +751,9 @@ export interface AstroUserConfig {
 	 * @default `true`
 	 * @description
 	 *
-	 * This is an option to minify your HTML output and reduce the size of your HTML files, occuring both in development mode and in the final build. 
+	 * This is an option to minify your HTML output and reduce the size of your HTML files, occuring both in development mode and in the final build.
 	 * By default, Astro removes whitespace from your HTML, including line breaks, from .astro components in a lossless manner.
-	 * It is important to note that some whitespace may be kept to preserve the visual rendering of your HTML.  
+	 * It is important to note that some whitespace may be kept to preserve the visual rendering of your HTML.
 	 * To disable HTML compression, set the compressHTML flag to false.
 	 *
 	 * ```js
