@@ -92,7 +92,7 @@ function setProcessEnv(config: AstroConfig, env: Record<string, unknown>) {
 
 function createPlatformProxy(platformProxy: Options['platformProxy']) {
 	return getPlatformProxy({
-		configPath: platformProxy?.configPath ?? 'wrangler.toml',
+		configPath: platformProxy?.configPath,
 		experimentalJsonConfig: platformProxy?.experimentalJsonConfig ?? false,
 		persist: platformProxy?.persist ?? true,
 	});
