@@ -329,10 +329,10 @@ export class experimental_AstroContainer {
 	private static async createFromManifest(
 		manifest: SSRManifest
 	): Promise<experimental_AstroContainer> {
-		// const astroConfig = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
+		const astroConfig = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
 		const container = new experimental_AstroContainer({
 			manifest,
-			// astroConfig,
+			astroConfig,
 		});
 		container.#withManifest = true;
 		return container;
