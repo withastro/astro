@@ -14,6 +14,7 @@ import {
 	CONTENT_FLAG,
 	CONTENT_RENDER_FLAG,
 	DATA_FLAG,
+	DATA_STORE_VIRTUAL_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
@@ -41,6 +42,7 @@ export function astroContentVirtualModPlugin({
 }: AstroContentVirtualModPluginParams): Plugin {
 	let IS_DEV = false;
 	const IS_SERVER = isServerLikeOutput(settings.config);
+	const dataStoreFile = fileURLToPath(new URL('data-store.json', settings.config.cacheDir));
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
@@ -58,6 +60,9 @@ export function astroContentVirtualModPlugin({
 					// For SSG (production), we will build this file ourselves
 					return { id: RESOLVED_VIRTUAL_MODULE_ID, external: true };
 				}
+			}
+			if (id === DATA_STORE_VIRTUAL_ID) {
+				return dataStoreFile;
 			}
 		},
 		async load(id, args) {

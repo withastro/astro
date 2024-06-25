@@ -1,14 +1,17 @@
 import type { AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
-import { globalDataStore, type DataStore } from './data-store.js';
+import type { DataStore } from './data-store.js';
+import { globalDataStore } from './data-store.js';
 import { globalContentConfigObserver } from './utils.js';
 
 export async function syncDataLayer({
 	settings,
 	logger,
-	store = globalDataStore.get(),
+	store,
 }: { settings: AstroSettings; logger: Logger; store?: DataStore }) {
-
+	if (!store) {
+		store = await globalDataStore.get();
+	}
 	const contentConfig = globalContentConfigObserver.get();
 	if (contentConfig?.status !== 'loaded') {
 		logger.debug('content', 'Content config not loaded, skipping sync');
@@ -26,4 +29,7 @@ export async function syncDataLayer({
 			});
 		})
 	);
+	const cacheFile = new URL('data-store.json', settings.config.cacheDir);
+	await store.writeToDisk(cacheFile);
+	logger.info(null, 'Synced data layer');
 }

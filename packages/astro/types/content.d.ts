@@ -1,3 +1,4 @@
+import type { ScopedDataStore } from '../src/content/data-store.js';
 declare module 'astro:content' {
 	export { z } from 'astro/zod';
 
@@ -32,18 +33,10 @@ declare module 'astro:content' {
 
 	export type SchemaContext = { image: ImageFunction };
 
-	export interface DataStore<T = any> {
-		get: (collection: string, key: string) => T | undefined;
-		entries: (collection: string) => Array<[key: string, T]>;
-		set: (collection: string, key: string, value: T) => void;
-		delete: (collection: string, key: string) => void;
-		clear: (collection: string) => void;
-	}
-
 	export interface LoaderContext {
 		collection: string;
 		// A database abstraction to store the actual data
-		store: DataStore;
+		store: ScopedDataStore;
 		// A simple KV store, designed for things like sync tokens
 		// Persisted to disk
 		cache: any;

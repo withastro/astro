@@ -5,6 +5,8 @@ export const DATA_FLAG = 'astroDataCollectionEntry';
 
 export const VIRTUAL_MODULE_ID = 'astro:content';
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
+export const DATA_STORE_VIRTUAL_ID = 'astro:data-layer-content';
+export const RESOLVED_DATA_STORE_VIRTUAL_ID = '\0' + DATA_STORE_VIRTUAL_ID;
 export const LINKS_PLACEHOLDER = '@@ASTRO-LINKS@@';
 export const STYLES_PLACEHOLDER = '@@ASTRO-STYLES@@';
 export const SCRIPTS_PLACEHOLDER = '@@ASTRO-SCRIPTS@@';

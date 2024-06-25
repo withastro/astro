@@ -14,10 +14,10 @@ export function loader(config:PostLoaderConfig): Loader {
 			const posts = await fetch(config.url)
 				.then((res) => res.json());
 			
-			store.clear(collection);
+			store.clear();
 
 			for (const post of posts) {
-				store.set(collection, post.id, post);
+				store.set(post.id, post);
 			}
 		},
 	};

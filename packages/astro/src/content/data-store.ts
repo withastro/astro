@@ -1,10 +1,11 @@
+import { promises as fs, type PathLike, existsSync } from 'fs';
 export class DataStore {
 	#collections = new Map<string, Map<string, any>>();
 	constructor() {
 		this.#collections = new Map();
 	}
-	get(collectionName: string) {
-		return this.#collections.get(collectionName);
+	get(collectionName: string, key: string) {
+		return this.#collections.get(collectionName)?.get(key);
 	}
 	entries(collectionName: string): IterableIterator<[id: string, any]> {
 		const collection = this.#collections.get(collectionName) ?? new Map();
@@ -33,15 +34,67 @@ export class DataStore {
 		return false;
 	}
 
+	hasCollection(collectionName: string) {
+		return this.#collections.has(collectionName);
+	}
+
+	collections() {
+		return this.#collections;
+	}
+
 	scopedStore(collectionName: string): ScopedDataStore {
 		return {
-			get: (key: string) => this.get(collectionName)?.get(key),
+			get: (key: string) => this.get(collectionName, key),
 			entries: () => this.entries(collectionName),
 			set: (key: string, value: any) => this.set(collectionName, key, value),
 			delete: (key: string) => this.delete(collectionName, key),
 			clear: () => this.clear(collectionName),
 			has: (key: string) => this.has(collectionName, key),
 		};
+	}
+
+	toString() {
+		return JSON.stringify(
+			Array.from(this.#collections.entries()).map(([collectionName, collection]) => {
+				return [collectionName, Array.from(collection.entries())];
+			})
+		);
+	}
+
+	async writeToDisk(filePath: PathLike) {
+		await fs.writeFile(filePath, this.toString());
+	}
+
+	static async fromDisk(filePath: PathLike) {
+		if (!existsSync(filePath)) {
+			return new DataStore();
+		}
+		const str = await fs.readFile(filePath, 'utf-8');
+		return DataStore.fromString(str);
+	}
+
+	static fromString(str: string) {
+		const entries = JSON.parse(str);
+		return DataStore.fromJSON(entries);
+	}
+
+	static async fromModule() {
+		try {
+			// @ts-expect-error
+			const data = await import('astro:data-layer-content');
+			return DataStore.fromJSON(data.default);
+		} catch {}
+		return new DataStore();
+	}
+
+	static fromJSON(entries: Array<[string, Array<[string, any]>]>) {
+		const collections = new Map<string, Map<string, any>>();
+		for (const [collectionName, collection] of entries) {
+			collections.set(collectionName, new Map(collection));
+		}
+		const store = new DataStore();
+		store.#collections = collections;
+		return store;
 	}
 }
 
@@ -55,11 +108,11 @@ export interface ScopedDataStore {
 }
 
 function dataStoreSingleton() {
-	let instance: DataStore | undefined = undefined;
+	let instance: Promise<DataStore> | DataStore | undefined = undefined;
 	return {
-		get: () => {
+		get: async () => {
 			if (!instance) {
-				instance = new DataStore();
+				instance = DataStore.fromModule();
 			}
 			return instance;
 		},

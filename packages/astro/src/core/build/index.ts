@@ -33,7 +33,7 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
-import { globalDataStore } from '../../content/data-store.js';
+import { globalDataStore, DataStore } from '../../content/data-store.js';
 export interface BuildOptions {
 	/**
 	 * Teardown the compiler WASM instance after build. This can improve performance when
@@ -149,6 +149,9 @@ class AstroBuilder {
 		if (syncRet !== 0) {
 			return process.exit(syncRet);
 		}
+
+		const dataStore = await DataStore.fromModule();
+		globalDataStore.set(dataStore);
 		await syncDataLayer({ settings: this.settings, logger: logger });
 
 		return { viteConfig };
