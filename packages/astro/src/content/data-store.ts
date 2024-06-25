@@ -5,7 +5,7 @@ export class DataStore {
 		this.#collections = new Map();
 	}
 	get(collectionName: string, key: string) {
-		return this.#collections.get(collectionName)?.get(key);
+		return this.#collections.get(collectionName)?.get(String(key));
 	}
 	entries(collectionName: string): IterableIterator<[id: string, any]> {
 		const collection = this.#collections.get(collectionName) ?? new Map();
@@ -13,13 +13,13 @@ export class DataStore {
 	}
 	set(collectionName: string, key: string, value: any) {
 		const collection = this.#collections.get(collectionName) ?? new Map();
-		collection.set(key, value);
+		collection.set(String(key), value);
 		this.#collections.set(collectionName, collection);
 	}
 	delete(collectionName: string, key: string) {
 		const collection = this.#collections.get(collectionName);
 		if (collection) {
-			collection.delete(key);
+			collection.delete(String(key));
 		}
 	}
 	clear(collectionName: string) {
@@ -29,7 +29,7 @@ export class DataStore {
 	has(collectionName: string, key: string) {
 		const collection = this.#collections.get(collectionName);
 		if (collection) {
-			return collection.has(key);
+			return collection.has(String(key));
 		}
 		return false;
 	}

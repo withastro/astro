@@ -1,7 +1,8 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, getDataEntryById } from 'astro:content';
 
 const blog = await getCollection('blog');
+const first = await getDataEntryById('blog', 1);
 ---
 <html>
 <head>
@@ -10,9 +11,10 @@ const blog = await getCollection('blog');
 <body>
 	<h1>Blog Posts</h1>
 
+	<h2>{first.data.title}</h2>
 	<ul>
 		{blog.map(post => (
-			<li>{ post.data?.title }</li>
+			<li><a href={`/blog/${post.id}`}>{ post.data?.title }</a></li>
 		))}
 	</ul>
 </body>
