@@ -60,6 +60,7 @@ function getViteConfiguration(
 				'react/jsx-runtime',
 				'react/jsx-dev-runtime',
 				'react-dom',
+				``,
 			],
 			exclude: [reactConfig.server],
 		},
