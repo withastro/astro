@@ -1,5 +1,4 @@
 import { createRequire } from 'node:module';
-import { pathToFileURL } from 'node:url';
 import boxen from 'boxen';
 import ci from 'ci-info';
 import { execa } from 'execa';
@@ -7,10 +6,8 @@ import { bold, cyan, dim, magenta } from 'kleur/colors';
 import ora from 'ora';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
-import resolvePackage from 'resolve';
 import whichPm from 'which-pm';
-import { type Logger } from '../core/logger/core.js';
-const require = createRequire(import.meta.url);
+import type { Logger } from '../core/logger/core.js';
 
 type GetPackageOptions = {
 	skipAsk?: boolean;
@@ -25,17 +22,9 @@ export async function getPackage<T>(
 	otherDeps: string[] = []
 ): Promise<T | undefined> {
 	try {
-		// Custom resolution logic for @astrojs/db. Since it lives in our monorepo,
-		// the generic tryResolve() method doesn't work.
-		if (packageName === '@astrojs/db') {
-			const packageJsonLoc = require.resolve(packageName + '/package.json', {
-				paths: [options.cwd ?? process.cwd()],
-			});
-			const packageLoc = pathToFileURL(packageJsonLoc.replace(`package.json`, 'dist/index.js'));
-			const packageImport = await import(packageLoc.toString());
-			return packageImport as T;
-		}
-		await tryResolve(packageName, options.cwd ?? process.cwd());
+		// Try to resolve with `createRequire` first to prevent ESM caching of the package
+		// if it errors and fails here
+		createRequire(options.cwd ?? process.cwd()).resolve(packageName);
 		const packageImport = await import(packageName);
 		return packageImport as T;
 	} catch (e) {
@@ -63,24 +52,6 @@ export async function getPackage<T>(
 			return undefined;
 		}
 	}
-}
-
-function tryResolve(packageName: string, cwd: string) {
-	return new Promise((resolve, reject) => {
-		resolvePackage(
-			packageName,
-			{
-				basedir: cwd,
-			},
-			(err) => {
-				if (err) {
-					reject(err);
-				} else {
-					resolve(0);
-				}
-			}
-		);
-	});
 }
 
 function getInstallCommand(packages: string[], packageManager: string) {
