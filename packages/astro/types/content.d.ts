@@ -35,33 +35,35 @@ declare module 'astro:content' {
 	}
 
 	export interface ParseDataOptions {
-    /** The ID of the entry. Unique per collection */
-    id: string;
-    /** The raw, unvalidated data of the entry */
-    data: Record<string, unknown>;
-    /** An optional file path, where the entry represents a local file */
-    filePath?: string;
-}
-export interface LoaderContext {
-    collection: string;
-    /** A database abstraction to store the actual data */
-    store: DataStore;
-    /**  A simple KV store, designed for things like sync tokens */
-    meta: MetaStore;
-    logger: import("astro").AstroIntegrationLogger;
-    settings: any;
-    /** Validates and parses the data according to the schema */
-    parseData<T extends Record<string, unknown> = Record<string, unknown>>(props: ParseDataOptions): T;
-}
-export interface Loader<S extends BaseSchema = BaseSchema> {
-    /** Unique name of the loader, e.g. the npm package name */
-    name: string;
-    /** Do the actual loading of the data */
-    load: (context: LoaderContext) => Promise<void>;
-    /** Optionally, define the schema of the data. Will be overridden by user-defined schema */
-    schema?: S | Promise<S> | (() => S | Promise<S>);
-    render?: (entry: any) => any;
-}
+		/** The ID of the entry. Unique per collection */
+		id: string;
+		/** The raw, unvalidated data of the entry */
+		data: Record<string, unknown>;
+		/** An optional file path, where the entry represents a local file */
+		filePath?: string;
+	}
+	export interface LoaderContext {
+		collection: string;
+		/** A database abstraction to store the actual data */
+		store: DataStore;
+		/**  A simple KV store, designed for things like sync tokens */
+		meta: MetaStore;
+		logger: import('astro').AstroIntegrationLogger;
+		settings: any;
+		/** Validates and parses the data according to the schema */
+		parseData<T extends Record<string, unknown> = Record<string, unknown>>(
+			props: ParseDataOptions
+		): T;
+	}
+	export interface Loader<S extends BaseSchema = BaseSchema> {
+		/** Unique name of the loader, e.g. the npm package name */
+		name: string;
+		/** Do the actual loading of the data */
+		load: (context: LoaderContext) => Promise<void>;
+		/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
+		schema?: S | Promise<S> | (() => S | Promise<S>);
+		render?: (entry: any) => any;
+	}
 
 	export function file(filePath: string): Loader;
 
