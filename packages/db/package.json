@@ -17,22 +17,22 @@
   "exports": {
     ".": {
       "types": "./index.d.ts",
-      "import": "./dist/index.js"
+      "default": "./dist/index.js"
     },
     "./utils": {
       "types": "./dist/utils.d.ts",
-      "import": "./dist/utils.js"
+      "default": "./dist/utils.js"
     },
     "./runtime": {
       "types": "./dist/runtime/index.d.ts",
-      "import": "./dist/runtime/index.js"
+      "default": "./dist/runtime/index.js"
     },
     "./dist/runtime/virtual.js": {
-      "import": "./dist/runtime/virtual.js"
+      "default": "./dist/runtime/virtual.js"
     },
     "./types": {
       "types": "./dist/core/types.d.ts",
-      "import": "./dist/core/types.js"
+      "default": "./dist/core/types.js"
     },
     "./package.json": "./package.json"
   },
