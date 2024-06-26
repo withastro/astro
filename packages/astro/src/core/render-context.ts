@@ -239,35 +239,37 @@ export class RenderContext {
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			pipeline.logger.debug('router', 'Called rewriting to:', reroutePayload);
-			if (this.pipeline.manifest.rewritingEnabled) {
-				const [routeData, component, newURL] = await pipeline.tryRewrite(
-					reroutePayload,
-					this.request,
-					this.originalRoute
-				);
-				this.routeData = routeData;
-				if (reroutePayload instanceof Request) {
-					this.request = reroutePayload;
-				} else {
-					this.request = this.#copyRequest(newURL, this.request);
-				}
-				this.url = newURL;
-				this.cookies = new AstroCookies(this.request);
-				this.params = getParams(routeData, this.url.pathname);
-				this.isRewriting = true;
-				this.pathname = this.url.pathname;
-				return await this.render(component);
-			} else {
+			if (!this.pipeline.manifest.rewritingEnabled) {
 				this.pipeline.logger.error(
 					'router',
 					'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
 				);
-				return new Response('The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.', {
-					status: 500,
-					statusText: 'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
-				})
+				return new Response(
+					'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
+					{
+						status: 500,
+						statusText:
+							'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
+					}
+				);
 			}
-			
+			const [routeData, component, newURL] = await pipeline.tryRewrite(
+				reroutePayload,
+				this.request,
+				this.originalRoute
+			);
+			this.routeData = routeData;
+			if (reroutePayload instanceof Request) {
+				this.request = reroutePayload;
+			} else {
+				this.request = this.#copyRequest(newURL, this.request);
+			}
+			this.url = newURL;
+			this.cookies = new AstroCookies(this.request);
+			this.params = getParams(routeData, this.url.pathname);
+			this.isRewriting = true;
+			this.pathname = this.url.pathname;
+			return await this.render(component);
 		};
 
 		return {
@@ -445,36 +447,38 @@ export class RenderContext {
 		};
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
-			if (this.pipeline.manifest.rewritingEnabled) {
-				pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
-				const [routeData, component, newURL] = await pipeline.tryRewrite(
-					reroutePayload,
-					this.request,
-					this.originalRoute
-				);
-				this.routeData = routeData;
-				if (reroutePayload instanceof Request) {
-					this.request = reroutePayload;
-				} else {
-					this.request = this.#copyRequest(newURL, this.request);
-				}
-				this.url = new URL(this.request.url);
-				this.cookies = new AstroCookies(this.request);
-				this.params = getParams(routeData, this.url.pathname);
-				this.pathname = this.url.pathname;
-				this.isRewriting = true;
-				return await this.render(component);
-			} else {
+			if (!this.pipeline.manifest.rewritingEnabled) {
 				this.pipeline.logger.error(
 					'router',
 					'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
 				);
-				return new Response('The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.', {
-					status: 500,
-					statusText: 'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
-				})
+				return new Response(
+					'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
+					{
+						status: 500,
+						statusText:
+							'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
+					}
+				);
 			}
-
+			pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
+			const [routeData, component, newURL] = await pipeline.tryRewrite(
+				reroutePayload,
+				this.request,
+				this.originalRoute
+			);
+			this.routeData = routeData;
+			if (reroutePayload instanceof Request) {
+				this.request = reroutePayload;
+			} else {
+				this.request = this.#copyRequest(newURL, this.request);
+			}
+			this.url = new URL(this.request.url);
+			this.cookies = new AstroCookies(this.request);
+			this.params = getParams(routeData, this.url.pathname);
+			this.pathname = this.url.pathname;
+			this.isRewriting = true;
+			return await this.render(component);
 		};
 
 		return {
