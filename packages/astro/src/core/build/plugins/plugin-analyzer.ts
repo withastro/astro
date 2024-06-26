@@ -32,7 +32,7 @@ export function vitePluginAnalyzer(
 ): VitePlugin {
 	function hoistedScriptScanner() {
 		const uniqueHoistedIds = new Map<string, string>();
-		const pageScripts = new Map<
+		const pageScriptsMap = new Map<
 			string,
 			{
 				hoistedSet: Set<string>;
@@ -54,20 +54,22 @@ export function vitePluginAnalyzer(
 				if (hoistedScripts.size) {
 					for (const parentInfo of getParentModuleInfos(from, this, isPropagatedAsset)) {
 						if (isPropagatedAsset(parentInfo.id)) {
+							if (!internals.propagatedScriptsMap.has(parentInfo.id)) {
+								internals.propagatedScriptsMap.set(parentInfo.id, new Set());
+							}
+							const propagatedScripts = internals.propagatedScriptsMap.get(parentInfo.id)!;
 							for (const hid of hoistedScripts) {
-								if (!internals.propagatedScriptsMap.has(parentInfo.id)) {
-									internals.propagatedScriptsMap.set(parentInfo.id, new Set());
-								}
-								internals.propagatedScriptsMap.get(parentInfo.id)?.add(hid);
+								propagatedScripts.add(hid);
 							}
 						} else if (moduleIsTopLevelPage(parentInfo)) {
+							if (!pageScriptsMap.has(parentInfo.id)) {
+								pageScriptsMap.set(parentInfo.id, {
+									hoistedSet: new Set(),
+								});
+							}
+							const pageScripts = pageScriptsMap.get(parentInfo.id)!;
 							for (const hid of hoistedScripts) {
-								if (!pageScripts.has(parentInfo.id)) {
-									pageScripts.set(parentInfo.id, {
-										hoistedSet: new Set(),
-									});
-								}
-								pageScripts.get(parentInfo.id)?.hoistedSet.add(hid);
+								pageScripts.hoistedSet.add(hid);
 							}
 						}
 					}
@@ -83,7 +85,7 @@ export function vitePluginAnalyzer(
 					}
 				}
 
-				for (const [pageId, { hoistedSet }] of pageScripts) {
+				for (const [pageId, { hoistedSet }] of pageScriptsMap) {
 					const pageData = getPageDataByViteID(internals, pageId);
 					if (!pageData) continue;
 

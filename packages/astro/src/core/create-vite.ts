@@ -47,6 +47,7 @@ interface CreateViteOptions {
 	// will be undefined when using `getViteConfig`
 	command?: 'dev' | 'build';
 	fs?: typeof nodeFs;
+	sync: boolean;
 }
 
 const ALWAYS_NOEXTERNAL = [
@@ -74,7 +75,7 @@ const ONLY_DEV_EXTERNAL = [
 /** Return a base vite config as a common starting point for all Vite commands. */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
-	{ settings, logger, mode, command, fs = nodeFs }: CreateViteOptions
+	{ settings, logger, mode, command, fs = nodeFs, sync }: CreateViteOptions
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
@@ -137,7 +138,7 @@ export async function createVite(
 			// the build to run very slow as the filewatcher is triggered often.
 			mode !== 'build' && vitePluginAstroServer({ settings, logger, fs }),
 			envVitePlugin({ settings }),
-			astroEnv({ settings, mode, fs }),
+			astroEnv({ settings, mode, fs, sync }),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
 			mdxVitePlugin(),

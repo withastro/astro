@@ -7,6 +7,7 @@ import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types
 import { getPackage } from '../../cli/install-package.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
+import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigSetup } from '../../integrations/hooks.js';
@@ -83,6 +84,7 @@ export default async function sync(
 		await dbPackage?.typegen?.(astroConfig);
 		const exitCode = await syncContentCollections(settings, { ...options, logger });
 		if (exitCode !== 0) return exitCode;
+		syncAstroEnv(settings, options?.fs);
 
 		logger.info(null, `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 		return 0;
@@ -123,7 +125,7 @@ export async function syncContentCollections(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode: 'build', command: 'build', fs }
+			{ settings, logger, mode: 'build', command: 'build', fs, sync: true }
 		)
 	);
 

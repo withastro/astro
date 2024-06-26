@@ -489,7 +489,10 @@ describe('astro:image', () => {
 				$ = cheerio.load(html);
 
 				let $img = $('img');
-				assert.equal($img.attr('src').startsWith('/_image'), true);
+				assert.equal($img.length, 3);
+				$img.each((_, el) => {
+					assert.equal(el.attribs.src?.startsWith('/_image'), true);
+				});
 			});
 
 			it('properly handles remote images', async () => {

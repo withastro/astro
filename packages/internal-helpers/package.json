@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/internal-helpers",
   "description": "Internal helpers used by core Astro packages.",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -12,12 +12,16 @@
   },
   "bugs": "https://github.com/withastro/astro/issues",
   "exports": {
-    "./path": "./dist/path.js"
+    "./path": "./dist/path.js",
+    "./fs": "./dist/fs.js"
   },
   "typesVersions": {
     "*": {
       "path": [
         "./dist/path.d.ts"
+      ],
+      "fs": [
+        "./dist/fs.d.ts"
       ]
     }
   },
