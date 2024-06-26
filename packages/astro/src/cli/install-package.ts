@@ -9,6 +9,8 @@ import prompts from 'prompts';
 import whichPm from 'which-pm';
 import type { Logger } from '../core/logger/core.js';
 
+const require = createRequire(import.meta.url);
+
 type GetPackageOptions = {
 	skipAsk?: boolean;
 	optional?: boolean;
@@ -24,7 +26,7 @@ export async function getPackage<T>(
 	try {
 		// Try to resolve with `createRequire` first to prevent ESM caching of the package
 		// if it errors and fails here
-		createRequire(options.cwd ?? process.cwd()).resolve(packageName);
+		require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
 		const packageImport = await import(packageName);
 		return packageImport as T;
 	} catch (e) {
