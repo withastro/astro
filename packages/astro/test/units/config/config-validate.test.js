@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import stripAnsi from 'strip-ansi';
 import { z } from 'zod';
-import { validateConfig } from '../../../dist/core/config/config.js';
+import { validateConfig } from '../../../dist/core/config/validate.js';
 import { formatConfigErrorMessage } from '../../../dist/core/messages.js';
 
 describe('Config Validation', () => {
