@@ -2,14 +2,13 @@ import { fileURLToPath } from 'url';
 import type { Loader } from './loaders.js';
 import { promises as fs, existsSync } from 'fs';
 
-
 /**
  * Loads entries from a JSON file. The file must contain an array of objects that contain unique `id` fields, or an object with string keys.
  * @todo Add support for other file types, such as YAML, CSV etc.
  * @param fileName The path to the JSON file to load, relative to the content directory.
  */
 export function file(fileName: string): Loader {
-	if(fileName.includes('*')) {
+	if (fileName.includes('*')) {
 		throw new Error('Glob patterns are not supported in file loader. Use `glob` loader instead.');
 	}
 	return {

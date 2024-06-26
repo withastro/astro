@@ -86,9 +86,9 @@ export default async function sync(
 		const exitCode = await syncContentCollections(settings, { ...options, logger });
 		if (exitCode !== 0) return exitCode;
 		syncAstroEnv(settings, options?.fs);
-		
+
 		await syncDataLayer({ settings, logger });
-		
+
 		logger.info(null, `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 		return 0;
 	} catch (err) {
