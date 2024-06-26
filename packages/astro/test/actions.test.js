@@ -11,8 +11,8 @@ describe('Astro Actions', () => {
 			root: './fixtures/actions/',
 			adapter: testAdapter(),
 			experimental: {
-				rewriting: true
-			}
+				rewriting: true,
+			},
 		});
 	});
 
