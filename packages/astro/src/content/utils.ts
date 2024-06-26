@@ -49,6 +49,7 @@ export const collectionConfigParser = z.union([
 							meta: z.any(),
 							logger: z.any(),
 							settings: z.any(),
+							parseData: z.any(),
 						}),
 					],
 					z.unknown()
@@ -104,10 +105,10 @@ export async function getEntryData(
 	},
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
-	pluginContext: PluginContext
+	pluginContext?: PluginContext
 ) {
 	let data;
-	if (collectionConfig.type === 'data') {
+	if (collectionConfig.type === 'data' || collectionConfig.type === 'experimental_data') {
 		data = entry.unvalidatedData;
 	} else {
 		const { slug, ...unvalidatedData } = entry.unvalidatedData;
@@ -116,6 +117,9 @@ export async function getEntryData(
 
 	let schema = collectionConfig.schema;
 	if (typeof schema === 'function') {
+		if (!pluginContext) {
+			throw new Error('Plugin context is required for schema functions');
+		}
 		schema = schema({
 			image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
 		});

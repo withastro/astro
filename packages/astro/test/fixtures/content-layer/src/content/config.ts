@@ -16,7 +16,7 @@ const dogs = defineCollection({
 		size: z.string(),
 		origin: z.string(),
 		lifespan: z.string(),
-		temperament: z.array(z.string()),
+		temperament: z.array(z.string())
 	}),
 })
 export const collections = { blog, dogs };
