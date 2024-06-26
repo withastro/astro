@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import glob from 'fast-glob';
 import type { OutputChunk } from 'rollup';
-import { type Plugin as VitePlugin } from 'vite';
+import type { Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
