@@ -1,5 +1,5 @@
 import type { ModuleLoader } from '../core/module-loader/index.js';
-import { resolveIdToUrl } from '../core/util.js';
+import { resolveIdToUrl } from '../core/viteUtils.js';
 
 export function createResolve(loader: ModuleLoader, root: URL) {
 	// Resolves specifiers in the inline hydrated scripts, such as:

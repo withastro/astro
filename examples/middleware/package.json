@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@astrojs/node": "^8.3.2",
-    "astro": "^4.11.1",
+    "astro": "^4.11.3",
     "html-minifier": "^4.0.0"
   },
   "devDependencies": {
