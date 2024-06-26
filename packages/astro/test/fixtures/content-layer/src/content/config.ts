@@ -1,5 +1,4 @@
 import { defineCollection, file, z } from 'astro:content';
-console.log({file})
 import { loader } from '../loaders/post-loader.js';
 
 const blog = defineCollection({
