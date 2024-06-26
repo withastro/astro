@@ -295,7 +295,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		renderer &&
 		!renderer.clientEntrypoint &&
 		renderer.name !== '@astrojs/lit' &&
-		metadata.hydrate
+		metadata.hydrate &&
+		!result.skipHydration
 	) {
 		throw new AstroError({
 			...AstroErrorData.NoClientEntrypoint,

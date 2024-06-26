@@ -3220,6 +3220,12 @@ export interface SSRResult {
 	response: AstroGlobal['response'];
 	request: AstroGlobal['request'];
 	actionResult?: ReturnType<AstroGlobal['getActionResult']>;
+	// Metadata used to signal Astro renderer to skip any client hydration, such as:
+	// - client directories
+	// - client entrypoint
+	// - renderer-url
+	skipHydration: boolean;
+
 	renderers: SSRLoadedRenderer[];
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code

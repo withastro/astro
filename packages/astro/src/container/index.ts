@@ -14,6 +14,7 @@ import type {
 	SSRManifest,
 	SSRResult,
 } from '../@types/astro.js';
+import { getDefaultClientDirectives } from '../core/client-directive/index.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
 import { validateConfig } from '../core/config/validate.js';
 import { Logger } from '../core/logger/core.js';
@@ -114,7 +115,7 @@ function createManifest(
 		entryModules: manifest?.entryModules ?? {},
 		routes: manifest?.routes ?? [],
 		adapterName: '',
-		clientDirectives: manifest?.clientDirectives ?? new Map(),
+		clientDirectives: manifest?.clientDirectives ?? getDefaultClientDirectives(),
 		renderers: renderers ?? manifest?.renderers ?? [],
 		base: manifest?.base ?? ASTRO_CONFIG_DEFAULTS.base,
 		componentMetadata: manifest?.componentMetadata ?? new Map(),
@@ -435,6 +436,8 @@ export class experimental_AstroContainer {
 			pathname: url.pathname,
 			locals: options?.locals ?? {},
 		});
+		// client directives aren't needed in this case
+		renderContext.skipHydration = true;
 		if (options.params) {
 			renderContext.params = options.params;
 		}
