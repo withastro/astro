@@ -34,7 +34,7 @@ const {
 	description,
 	image,
 	locale = 'en',
-	canonicalURL = new URL(Astro.url.pathname, Astro.site),
+	canonicalURL = new URL(Astro.url.pathname, Astro.site).href,
 } = Astro.props;
 
 const og = {

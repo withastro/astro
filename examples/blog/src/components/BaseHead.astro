@@ -25,7 +25,7 @@ const { title, description, image = '/blog-placeholder-1.jpg' } = Astro.props;
 <link rel="preload" href="/fonts/atkinson-bold.woff" as="font" type="font/woff" crossorigin />
 
 <!-- Canonical URL -->
-<link rel="canonical" href={canonicalURL} />
+<link rel="canonical" href={canonicalURL.href} />
 
 <!-- Primary Meta Tags -->
 <title>{title}</title>
