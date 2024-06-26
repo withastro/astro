@@ -92,6 +92,7 @@ export async function renderPage(
 	} else if (route?.route === '/500') {
 		status = 500;
 	}
+	console.log(status, init.status);
 	if (status) {
 		return new Response(body, { ...init, headers, status });
 	} else {
