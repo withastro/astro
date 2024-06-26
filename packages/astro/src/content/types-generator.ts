@@ -249,7 +249,7 @@ export async function createContentTypesGenerator({
 					collectionEntryMap[collectionKey] = {
 						type: 'content',
 						entries: {
-							...collectionInfo.entries,
+							...(collectionInfo.entries as Record<string, ContentEntryMetadata>),
 							[entryKey]: { slug: addedSlug },
 						},
 					};
