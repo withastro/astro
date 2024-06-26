@@ -147,7 +147,7 @@ export class RenderContext {
 					componentInstance = component;
 					this.isRewriting = true;
 				} else {
-					this.pipeline.logger.warn(
+					this.pipeline.logger.error(
 						'router',
 						'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
 					);
@@ -239,6 +239,20 @@ export class RenderContext {
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			pipeline.logger.debug('router', 'Called rewriting to:', reroutePayload);
+			if (!this.pipeline.manifest.rewritingEnabled) {
+				this.pipeline.logger.error(
+					'router',
+					'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
+				);
+				return new Response(
+					'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
+					{
+						status: 500,
+						statusText:
+							'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
+					}
+				);
+			}
 			const [routeData, component, newURL] = await pipeline.tryRewrite(
 				reroutePayload,
 				this.request,
@@ -433,6 +447,20 @@ export class RenderContext {
 		};
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
+			if (!this.pipeline.manifest.rewritingEnabled) {
+				this.pipeline.logger.error(
+					'router',
+					'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
+				);
+				return new Response(
+					'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
+					{
+						status: 500,
+						statusText:
+							'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
+					}
+				);
+			}
 			pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
 			const [routeData, component, newURL] = await pipeline.tryRewrite(
 				reroutePayload,
