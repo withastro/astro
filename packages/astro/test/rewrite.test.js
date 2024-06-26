@@ -520,7 +520,7 @@ describe('Runtime error in SSR, custom 500', () => {
 	});
 });
 
-describe.only('Runtime error in SSR, custom 500', () => {
+describe('Runtime error in SSR, custom 500', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let app;
@@ -535,7 +535,7 @@ describe.only('Runtime error in SSR, custom 500', () => {
 		app = await fixture.loadTestAdapterApp();
 	});
 
-	it.only('should return a status 200 when rewriting from the middleware to the homepage', async () => {
+	it('should return a status 200 when rewriting from the middleware to the homepage', async () => {
 		const request = new Request('http://example.com/foo');
 		const response = await app.render(request);
 		assert.equal(response.status, 200);
