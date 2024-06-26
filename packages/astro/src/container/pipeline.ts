@@ -7,13 +7,10 @@ import type {
 } from '../@types/astro.js';
 import { type HeadElements, Pipeline } from '../core/base-pipeline.js';
 import type { SinglePageBuiltModule } from '../core/build/types.js';
-import { RouteNotFound } from '../core/errors/errors-data.js';
-import { AstroError } from '../core/errors/index.js';
 import {
 	createModuleScriptElement,
 	createStylesheetElementSet,
 } from '../core/render/ssr-element.js';
-import { DEFAULT_404_ROUTE } from '../core/routing/astro-designed-error-pages.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 
 export class ContainerPipeline extends Pipeline {
