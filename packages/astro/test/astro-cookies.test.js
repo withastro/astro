@@ -14,8 +14,8 @@ describe('Astro.cookies', () => {
 			output: 'server',
 			adapter: testAdapter(),
 			experimental: {
-				rewriting: true
-			}
+				rewriting: true,
+			},
 		});
 	});
 
