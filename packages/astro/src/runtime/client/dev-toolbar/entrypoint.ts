@@ -246,8 +246,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 					app.eventTarget.addEventListener('toggle-notification', (evt) => {
 						if (!(evt instanceof CustomEvent)) return;
 
-						const newState = evt.detail.state ?? true;
-						const level = notificationLevels.includes(evt?.detail?.level)
+						let newState = evt.detail.state ?? true;
+						let level = notificationLevels.includes(evt?.detail?.level)
 							? (evt.detail.level as (typeof notificationLevels)[number])
 							: 'error';
 
