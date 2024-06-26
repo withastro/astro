@@ -4,14 +4,12 @@ import { type Plugin, loadEnv } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import {
-	ENV_TYPES_FILE,
 	MODULE_TEMPLATE_URL,
-	TYPES_TEMPLATE_URL,
 	VIRTUAL_MODULES_IDS,
 	VIRTUAL_MODULES_IDS_VALUES,
 } from './constants.js';
 import type { EnvSchema } from './schema.js';
-import { getEnvFieldType, validateEnvVariable } from './validators.js';
+import { validateEnvVariable } from './validators.js';
 
 // TODO: reminders for when astro:env comes out of experimental
 // Types should always be generated (like in types/content.d.ts). That means the client module will be empty
@@ -23,14 +21,16 @@ interface AstroEnvVirtualModPluginParams {
 	settings: AstroSettings;
 	mode: 'dev' | 'build' | string;
 	fs: typeof fsMod;
+	sync: boolean;
 }
 
 export function astroEnv({
 	settings,
 	mode,
 	fs,
+	sync,
 }: AstroEnvVirtualModPluginParams): Plugin | undefined {
-	if (!settings.config.experimental.env) {
+	if (!settings.config.experimental.env || sync) {
 		return;
 	}
 	const schema = settings.config.experimental.env.schema ?? {};
@@ -54,23 +54,10 @@ export function astroEnv({
 
 			const validatedVariables = validatePublicVariables({ schema, loadedEnv });
 
-			const clientTemplates = getClientTemplates({ validatedVariables });
-			const serverTemplates = getServerTemplates({ validatedVariables, schema, fs });
-
 			templates = {
-				client: clientTemplates.module,
-				server: serverTemplates.module,
+				...getTemplates(schema, fs, validatedVariables),
 				internal: `export const schema = ${JSON.stringify(schema)};`,
 			};
-			generateDts({
-				settings,
-				fs,
-				content: getDts({
-					fs,
-					client: clientTemplates.types,
-					server: serverTemplates.types,
-				}),
-			});
 		},
 		buildEnd() {
 			templates = null;
@@ -102,19 +89,6 @@ export function astroEnv({
 
 function resolveVirtualModuleId<T extends string>(id: T): `\0${T}` {
 	return `\0${id}`;
-}
-
-function generateDts({
-	content,
-	settings,
-	fs,
-}: {
-	content: string;
-	settings: AstroSettings;
-	fs: typeof fsMod;
-}) {
-	fs.mkdirSync(settings.dotAstroDir, { recursive: true });
-	fs.writeFileSync(new URL(ENV_TYPES_FILE, settings.dotAstroDir), content, 'utf-8');
 }
 
 function validatePublicVariables({
@@ -152,55 +126,22 @@ function validatePublicVariables({
 	return valid;
 }
 
-function getDts({
-	client,
-	server,
-	fs,
-}: {
-	client: string;
-	server: string;
-	fs: typeof fsMod;
-}) {
-	const template = fs.readFileSync(TYPES_TEMPLATE_URL, 'utf-8');
-
-	return template.replace('// @@CLIENT@@', client).replace('// @@SERVER@@', server);
-}
-
-function getClientTemplates({
-	validatedVariables,
-}: {
-	validatedVariables: ReturnType<typeof validatePublicVariables>;
-}) {
-	let module = '';
-	let types = '';
-
-	for (const { key, type, value } of validatedVariables.filter((e) => e.context === 'client')) {
-		module += `export const ${key} = ${JSON.stringify(value)};`;
-		types += `export const ${key}: ${type};	\n`;
-	}
-
-	return {
-		module,
-		types,
-	};
-}
-
-function getServerTemplates({
-	validatedVariables,
-	schema,
-	fs,
-}: {
-	validatedVariables: ReturnType<typeof validatePublicVariables>;
-	schema: EnvSchema;
-	fs: typeof fsMod;
-}) {
-	let module = fs.readFileSync(MODULE_TEMPLATE_URL, 'utf-8');
-	let types = '';
+function getTemplates(
+	schema: EnvSchema,
+	fs: typeof fsMod,
+	validatedVariables: ReturnType<typeof validatePublicVariables>
+) {
+	let client = '';
+	let server = fs.readFileSync(MODULE_TEMPLATE_URL, 'utf-8');
 	let onSetGetEnv = '';
 
-	for (const { key, type, value } of validatedVariables.filter((e) => e.context === 'server')) {
-		module += `export const ${key} = ${JSON.stringify(value)};`;
-		types += `export const ${key}: ${type};	\n`;
+	for (const { key, value, context } of validatedVariables) {
+		const str = `export const ${key} = ${JSON.stringify(value)};`;
+		if (context === 'client') {
+			client += str;
+		} else {
+			server += str;
+		}
 	}
 
 	for (const [key, options] of Object.entries(schema)) {
@@ -208,15 +149,14 @@ function getServerTemplates({
 			continue;
 		}
 
-		types += `export const ${key}: ${getEnvFieldType(options)};		\n`;
-		module += `export let ${key} = _internalGetSecret(${JSON.stringify(key)});\n`;
+		server += `export let ${key} = _internalGetSecret(${JSON.stringify(key)});\n`;
 		onSetGetEnv += `${key} = reset ? undefined : _internalGetSecret(${JSON.stringify(key)});\n`;
 	}
 
-	module = module.replace('// @@ON_SET_GET_ENV@@', onSetGetEnv);
+	server = server.replace('// @@ON_SET_GET_ENV@@', onSetGetEnv);
 
 	return {
-		module,
-		types,
+		client,
+		server,
 	};
 }
