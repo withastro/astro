@@ -146,26 +146,34 @@ export default {
 					const elements =
 						selectorCache.get(rule.selector) ?? document.querySelectorAll(rule.selector);
 					let matches: Element[] = [];
+					const promises: (() => Promise<void>)[] = [];
 					if (typeof rule.match === 'undefined') {
 						matches = Array.from(elements);
 					} else {
 						for (const element of elements) {
-							try {
-								if (await rule.match(element)) {
-									matches.push(element);
+							promises.push(async () => {
+								try {
+									if (await rule.match!(element)) {
+										matches.push(element);
+									}
+								} catch (e) {
+									settings.logger.error(`Error while running audit's match function: ${e}`);
 								}
-							} catch (e) {
-								settings.logger.error(`Error while running audit's match function: ${e}`);
-							}
+							});
 						}
+						await Promise.all(promises);
+						promises.length = 0;
 					}
+
 					for (const element of matches) {
 						// Don't audit elements that already have an audit on them
 						// TODO: This is a naive implementation, it'd be good to show all the audits for an element at the same time.
 						if (audits.some((audit) => audit.auditedElement === element)) continue;
-
-						await createAuditProblem(rule, element);
+						promises.push(async () => {
+							await createAuditProblem(rule, element);
+						});
 					}
+					await Promise.all(promises);
 				}
 			}
 
