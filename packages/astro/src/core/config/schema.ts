@@ -318,6 +318,7 @@ export const AstroConfigSchema = z.object({
 								.or(z.custom<ShikiTheme>())
 						)
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.themes!),
+					defaultColor: z.union([z.string(), z.literal(false)]).optional(),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
 					transformers: z
 						.custom<ShikiTransformer>()
