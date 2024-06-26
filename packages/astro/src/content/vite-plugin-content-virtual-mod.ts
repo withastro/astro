@@ -4,6 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import glob from 'fast-glob';
 import pLimit from 'p-limit';
 import type { Plugin } from 'vite';
+import { dataToEsm } from '@rollup/pluginutils';
 import type { AstroSettings } from '../@types/astro.js';
 import { encodeName } from '../core/build/util.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -97,12 +98,24 @@ export function astroContentVirtualModPlugin({
 					} satisfies AstroPluginMetadata,
 				};
 			}
-			if(id === RESOLVED_DATA_STORE_VIRTUAL_ID) {
-				if(!fs.existsSync(dataStoreFile)) {
-					return 'export default {}'
+			if (id === RESOLVED_DATA_STORE_VIRTUAL_ID) {
+				if (!fs.existsSync(dataStoreFile)) {
+					return 'export default {}';
 				}
 				const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
-				return `export default ${jsonData}`;
+
+				try {
+					const parsed = JSON.parse(jsonData);
+					return {
+						code: dataToEsm(parsed, {
+							compact: true,
+						}),
+						map: { mappings: '' },
+					};
+				} catch (err) {
+					const message = 'Could not parse JSON file';
+					this.error({ message, id, cause: err });
+				}
 			}
 		},
 		renderChunk(code, chunk) {

@@ -558,6 +558,9 @@ importers:
       '@babel/types':
         specifier: ^7.24.7
         version: 7.24.7
+      '@rollup/pluginutils':
+        specifier: ^5.1.0
+        version: 5.1.0(rollup@4.18.0)
       '@types/babel__core':
         specifier: ^7.20.5
         version: 7.20.5
