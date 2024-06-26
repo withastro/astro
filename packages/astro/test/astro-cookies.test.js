@@ -13,6 +13,9 @@ describe('Astro.cookies', () => {
 			root: './fixtures/astro-cookies/',
 			output: 'server',
 			adapter: testAdapter(),
+			experimental: {
+				rewriting: true,
+			},
 		});
 	});
 
