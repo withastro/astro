@@ -14,8 +14,8 @@ import type {
 	SSRManifest,
 	SSRResult,
 } from '../@types/astro.js';
-import { validateConfig } from '../core/config/config.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
+import { validateConfig } from '../core/config/validate.js';
 import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
@@ -208,7 +208,7 @@ type AstroContainerConstructor = {
 	renderers?: SSRLoadedRenderer[];
 	manifest?: AstroContainerManifest;
 	resolve?: SSRResult['resolve'];
-	astroConfig: AstroConfig;
+	astroConfig?: AstroConfig;
 };
 
 export class experimental_AstroContainer {
@@ -253,10 +253,10 @@ export class experimental_AstroContainer {
 		});
 	}
 
-	async #containerResolve(specifier: string, astroConfig: AstroConfig): Promise<string> {
+	async #containerResolve(specifier: string, astroConfig?: AstroConfig): Promise<string> {
 		const found = this.#pipeline.manifest.entryModules[specifier];
 		if (found) {
-			return new URL(found, astroConfig.build.client).toString();
+			return new URL(found, astroConfig?.build.client).toString();
 		}
 		return found;
 	}
