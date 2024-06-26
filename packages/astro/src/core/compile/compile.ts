@@ -9,7 +9,7 @@ import type { AstroPreferences } from '../../preferences/index.js';
 import type { AstroError } from '../errors/errors.js';
 import { AggregateError, CompilerError } from '../errors/errors.js';
 import { AstroErrorData } from '../errors/index.js';
-import { resolvePath } from '../util.js';
+import { resolvePath } from '../viteUtils.js';
 import { type PartialCompileCssResult, createStylePreprocessor } from './style.js';
 import type { CompileCssResult } from './types.js';
 
