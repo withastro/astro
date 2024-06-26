@@ -1,30 +1,24 @@
 import assert from 'node:assert/strict';
-import { writeFileSync, unlinkSync, existsSync } from 'node:fs';
-import { after, describe, it } from 'node:test';
+import { afterEach, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
-import { AstroError } from '../dist/core/errors/errors.js';
-
-const dotEnvPath = new URL('./fixtures/astro-env-server-secret/.env', import.meta.url);
 
 describe('astro:env secret variables', () => {
 	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
 	let fixture;
-	/** @type {Awaited<ReturnType<(typeof fixture)["loadTestAdapterApp"]>>} */
-	let app;
 	/** @type {Awaited<ReturnType<(typeof fixture)["startDevServer"]>>} */
 	let devServer = undefined;
 
-	after(async () => {
+	afterEach(async () => {
 		await devServer?.stop();
-		if (existsSync(dotEnvPath)) {
-			unlinkSync(dotEnvPath);
+		if (process.env.KNOWN_SECRET) {
+			delete process.env.KNOWN_SECRET
 		}
 	});
 
 	it('works in dev', async () => {
-		writeFileSync(dotEnvPath, 'KNOWN_SECRET=5', 'utf-8');
+		process.env.KNOWN_SECRET = '5'
 		fixture = await loadFixture({
 			root: './fixtures/astro-env-server-secret/',
 		});
@@ -45,7 +39,6 @@ describe('astro:env secret variables', () => {
 			}),
 		});
 		await fixture.build();
-		app = await fixture.loadTestAdapterApp();
 		assert.equal(true, true);
 	});
 
@@ -61,7 +54,7 @@ describe('astro:env secret variables', () => {
 			}),
 		});
 		await fixture.build();
-		app = await fixture.loadTestAdapterApp();
+		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/');
 		const response = await app.render(request);
 		assert.equal(response.status, 200);
@@ -92,7 +85,7 @@ describe('astro:env secret variables', () => {
 			error = e;
 		}
 
-		assert.equal(error instanceof AstroError, true);
+		assert.equal(error instanceof Error, true);
 		assert.equal(error.title, 'Invalid Environment Variables');
 		assert.equal(error.message.includes('Variable KNOWN_SECRET is not of type: number.'), true);
 	});
