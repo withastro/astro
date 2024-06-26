@@ -1,5 +1,3 @@
-import type { AstroIntegrationLogger } from '../src/core/logger/core.js';
-import type { MetaStore, ScopedDataStore } from '../src/content/data-store.js';
 declare module 'astro:content' {
 	export { z } from 'astro/zod';
 
@@ -22,6 +20,51 @@ declare module 'astro:content' {
 		>;
 	}>;
 
+	export interface DataStore {
+		get: (key: string) => any;
+		entries: () => IterableIterator<[id: string, any]>;
+		set: (key: string, value: any) => void;
+		delete: (key: string) => void;
+		clear: () => void;
+		has: (key: string) => boolean;
+	}
+	export interface MetaStore {
+		get: (key: string) => string | undefined;
+		set: (key: string, value: string) => void;
+		has: (key: string) => boolean;
+	}
+
+	export interface ParseDataOptions {
+    /** The ID of the entry. Unique per collection */
+    id: string;
+    /** The raw, unvalidated data of the entry */
+    data: Record<string, unknown>;
+    /** An optional file path, where the entry represents a local file */
+    filePath?: string;
+}
+export interface LoaderContext {
+    collection: string;
+    /** A database abstraction to store the actual data */
+    store: DataStore;
+    /**  A simple KV store, designed for things like sync tokens */
+    meta: MetaStore;
+    logger: import("astro").AstroIntegrationLogger;
+    settings: any;
+    /** Validates and parses the data according to the schema */
+    parseData<T extends Record<string, unknown> = Record<string, unknown>>(props: ParseDataOptions): T;
+}
+export interface Loader<S extends BaseSchema = BaseSchema> {
+    /** Unique name of the loader, e.g. the npm package name */
+    name: string;
+    /** Do the actual loading of the data */
+    load: (context: LoaderContext) => Promise<void>;
+    /** Optionally, define the schema of the data. Will be overridden by user-defined schema */
+    schema?: S | Promise<S> | (() => S | Promise<S>);
+    render?: (entry: any) => any;
+}
+
+	export function file(filePath: string): Loader;
+
 	type BaseSchemaWithoutEffects =
 		| import('astro/zod').AnyZodObject
 		| import('astro/zod').ZodUnion<[BaseSchemaWithoutEffects, ...BaseSchemaWithoutEffects[]]>
@@ -33,26 +76,6 @@ declare module 'astro:content' {
 		| import('astro/zod').ZodEffects<BaseSchemaWithoutEffects>;
 
 	export type SchemaContext = { image: ImageFunction };
-
-	export interface LoaderContext {
-		collection: string;
-		// A database abstraction to store the actual data
-		store: ScopedDataStore;
-		// A simple KV store, designed for things like sync tokens
-		meta: MetaStore;
-		logger: AstroIntegrationLogger;
-	}
-
-	export interface Loader<S extends BaseSchema = BaseSchema> {
-		// Name of the loader, e.g. the npm package name
-		name: string;
-		// Do the actual loading of the data
-		load: (context: LoaderContext) => Promise<void>;
-		// Allow a loader to define its own schema
-		schema?: S | Promise<S> | ((context: SchemaContext) => S | Promise<S>);
-		// Render content from the store
-		render?: (entry: any) => any;
-	}
 
 	type ContentCollectionV2Config<S extends BaseSchema> = {
 		type: 'experimental_data';
