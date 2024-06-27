@@ -185,7 +185,8 @@
     "which-pm": "^2.2.0",
     "yargs-parser": "^21.1.1",
     "zod": "^3.23.8",
-    "zod-to-json-schema": "^3.23.1"
+    "zod-to-json-schema": "^3.23.1",
+    "zod-to-ts": "^1.2.0"
   },
   "optionalDependencies": {
     "sharp": "^0.33.3"

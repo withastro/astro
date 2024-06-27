@@ -6,6 +6,7 @@
     "declarationDir": "./dist",
     "outDir": "./dist",
     "jsx": "preserve",
-    "types": ["@types/dom-view-transitions"]
+    "types": ["@types/dom-view-transitions"],
+    "rootDir": "src"
   }
 }

@@ -55,13 +55,13 @@ declare module 'astro:content' {
 			props: ParseDataOptions
 		): T;
 	}
-	export interface Loader<S extends BaseSchema = BaseSchema> {
+	export interface Loader {
 		/** Unique name of the loader, e.g. the npm package name */
 		name: string;
 		/** Do the actual loading of the data */
 		load: (context: LoaderContext) => Promise<void>;
 		/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
-		schema?: S | Promise<S> | (() => S | Promise<S>);
+		schema?: BaseSchema | Promise<BaseSchema> | (() => BaseSchema | Promise<BaseSchema>);
 		render?: (entry: any) => any;
 	}
 
@@ -82,7 +82,7 @@ declare module 'astro:content' {
 	type ContentCollectionV2Config<S extends BaseSchema> = {
 		type: 'experimental_data';
 		schema?: S | ((context: SchemaContext) => S);
-		loader: Loader<S>;
+		loader: Loader;
 	};
 
 	type DataCollectionConfig<S extends BaseSchema> = {
