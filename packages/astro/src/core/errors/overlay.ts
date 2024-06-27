@@ -711,9 +711,9 @@ class ErrorOverlay extends HTMLElement {
 				})
 				.join(' ');
 
-			el.innerHTML = text.trim();
-		} else {
 			el.textContent = text.trim();
+		} else {
+			el.innerHTML = text.trim();
 		}
 	}
 
