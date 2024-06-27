@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 5.3.3
+
+### Patch Changes
+
+- [#296](https://github.com/withastro/adapters/pull/296) [`8a00cad`](https://github.com/withastro/adapters/commit/8a00cad52a94ba75feab3b42e702896f0bc8872e) Thanks [@ascorbic](https://github.com/ascorbic)! - Improves performance for serverless function builds by not bundling dependencies
+
 ## 5.3.2
 
 ### Patch Changes
