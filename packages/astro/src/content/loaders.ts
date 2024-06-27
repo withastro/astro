@@ -1,4 +1,4 @@
-import type { AnyZodObject } from 'astro/zod';
+import type { ZodSchema } from 'zod';
 import type { AstroSettings } from '../@types/astro.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { DataStore, globalDataStore, type MetaStore, type ScopedDataStore } from './data-store.js';
@@ -36,7 +36,7 @@ export interface Loader {
 	/** Do the actual loading of the data */
 	load: (context: LoaderContext) => Promise<void>;
 	/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
-	schema?: AnyZodObject | Promise<AnyZodObject> | (() => AnyZodObject | Promise<AnyZodObject>);
+	schema?: ZodSchema | Promise<ZodSchema> | (() => ZodSchema | Promise<ZodSchema>);
 	render?: (entry: any) => any;
 }
 export async function syncDataLayer({
