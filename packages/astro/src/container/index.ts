@@ -84,6 +84,13 @@ export type ContainerRenderOptions = {
 	 * ```
 	 */
 	props?: Props;
+
+	/**
+	 * Allows to bypass clientside hydration of components.
+	 *
+	 * If you're testing components that use `client:*` directives, you might want to use this option.
+	 */
+	skipClientDirectives?: boolean;
 };
 
 export type AddServerRenderer =
@@ -436,8 +443,9 @@ export class experimental_AstroContainer {
 			pathname: url.pathname,
 			locals: options?.locals ?? {},
 		});
-		// client directives aren't needed in this case
-		renderContext.skipHydration = true;
+		if (options.skipClientDirectives === true) {
+			renderContext.skipHydration = true;
+		}
 		if (options.params) {
 			renderContext.params = options.params;
 		}
