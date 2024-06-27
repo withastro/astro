@@ -16,6 +16,7 @@ import {
 	CONTENT_FLAG,
 	CONTENT_RENDER_FLAG,
 	DATA_FLAG,
+	DATA_STORE_FILE,
 	DATA_STORE_VIRTUAL_ID,
 	RESOLVED_DATA_STORE_VIRTUAL_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
@@ -45,7 +46,7 @@ export function astroContentVirtualModPlugin({
 }: AstroContentVirtualModPluginParams): Plugin {
 	let IS_DEV = false;
 	const IS_SERVER = isServerLikeOutput(settings.config);
-	const dataStoreFile = new URL('data-store.json', settings.config.cacheDir);
+	const dataStoreFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',

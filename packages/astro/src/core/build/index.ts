@@ -11,7 +11,7 @@ import type {
 	RuntimeMode,
 } from '../../@types/astro.js';
 import { injectImageEndpoint } from '../../assets/endpoint/config.js';
-import { syncDataLayer } from '../../content/loaders.js';
+import { syncContentLayer } from '../../content/loaders.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import {
@@ -152,7 +152,7 @@ class AstroBuilder {
 
 		const dataStore = await DataStore.fromModule();
 		globalDataStore.set(dataStore);
-		await syncDataLayer({ settings: this.settings, logger: logger });
+		await syncContentLayer({ settings: this.settings, logger: logger });
 
 		return { viteConfig };
 	}

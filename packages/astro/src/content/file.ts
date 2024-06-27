@@ -9,7 +9,8 @@ import { promises as fs, existsSync } from 'fs';
  */
 export function file(fileName: string): Loader {
 	if (fileName.includes('*')) {
-		throw new Error('Glob patterns are not supported in file loader. Use `glob` loader instead.');
+		// TODO: AstroError
+		throw new Error('Glob patterns are not supported in `file` loader. Use `glob` loader instead.');
 	}
 	return {
 		name: 'file-loader',
@@ -22,8 +23,16 @@ export function file(fileName: string): Loader {
 				return;
 			}
 
-			const data = await fs.readFile(url, 'utf-8');
-			const json = JSON.parse(data);
+			let json: Array<Record<string, unknown>>;
+
+			try {
+				const data = await fs.readFile(url, 'utf-8');
+				json = JSON.parse(data);
+			} catch (error: any) {
+				logger.error(`Error reading data from ${fileName}`);
+				logger.debug(error.message);
+				return;
+			}
 
 			const filePath = fileURLToPath(url);
 
@@ -32,7 +41,11 @@ export function file(fileName: string): Loader {
 					logger.warn(`No items found in ${fileName}`);
 				}
 				for (const rawItem of json) {
-					const id = rawItem.id ?? rawItem.slug;
+					const id = (rawItem.id ?? rawItem.slug)?.toString();
+					if (!id) {
+						logger.error(`Item in ${fileName} is missing an id or slug field.`);
+						continue;
+					}
 					const item = await parseData({ id, data: rawItem, filePath });
 					store.set(id, item);
 				}
@@ -44,8 +57,6 @@ export function file(fileName: string): Loader {
 			} else {
 				logger.error(`Invalid data in ${fileName}. Must be an array or object.`);
 			}
-
-			logger.info('Loading posts');
 		},
 	};
 }

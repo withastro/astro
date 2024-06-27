@@ -19,3 +19,5 @@ export const CONTENT_FLAGS = [
 ] as const;
 
 export const CONTENT_TYPES_FILE = 'types.d.ts';
+
+export const DATA_STORE_FILE = 'data-store.json';

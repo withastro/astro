@@ -6,7 +6,7 @@ import { type HMRPayload, createServer } from 'vite';
 import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { getPackage } from '../../cli/install-package.js';
 import { createContentTypesGenerator } from '../../content/index.js';
-import { syncDataLayer } from '../../content/loaders.js';
+import { syncContentLayer } from '../../content/loaders.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
@@ -87,7 +87,7 @@ export default async function sync(
 		if (exitCode !== 0) return exitCode;
 		syncAstroEnv(settings, options?.fs);
 
-		await syncDataLayer({ settings, logger });
+		await syncContentLayer({ settings, logger });
 
 		logger.info(null, `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 		return 0;
