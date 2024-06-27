@@ -4,17 +4,19 @@ import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { DataStore, globalDataStore, type MetaStore, type ScopedDataStore } from './data-store.js';
 import { getEntryData, globalContentConfigObserver } from './utils.js';
 import { promises as fs, existsSync } from 'fs';
+import { DATA_STORE_FILE } from './consts.js';
 
 export interface ParseDataOptions {
 	/** The ID of the entry. Unique per collection */
 	id: string;
 	/** The raw, unvalidated data of the entry */
 	data: Record<string, unknown>;
-	/** An optional file path, where the entry represents a local file */
+	/** An optional file path, where the entry represents a local file. */
 	filePath?: string;
 }
 
 export interface LoaderContext {
+	/** The unique name of the collection */
 	collection: string;
 	/** A database abstraction to store the actual data */
 	store: ScopedDataStore;
@@ -24,7 +26,7 @@ export interface LoaderContext {
 
 	settings: AstroSettings;
 
-	/** Validates and parses the data according to the schema */
+	/** Validates and parses the data according to the collection schema */
 	parseData<T extends Record<string, unknown> = Record<string, unknown>>(
 		props: ParseDataOptions
 	): T;
@@ -39,14 +41,20 @@ export interface Loader<S extends ZodSchema = ZodSchema> {
 	schema?: S | Promise<S> | (() => S | Promise<S>);
 	render?: (entry: any) => any;
 }
-export async function syncDataLayer({
+
+/**
+ * Run the `load()` method of each collection's loader, which will load the data and save it in the data store.
+ * The loader itself is responsible for deciding whether this will clear and reload the full collection, or
+ * perform an incremental update. After the data is loaded, the data store is written to disk.
+ */
+export async function syncContentLayer({
 	settings,
 	logger: globalLogger,
 	store,
 }: { settings: AstroSettings; logger: Logger; store?: DataStore }) {
 	const logger = globalLogger.forkIntegrationLogger('content');
 	if (!store) {
-		store = await DataStore.fromDisk(new URL('data-store.json', settings.config.cacheDir));
+		store = await DataStore.fromDisk(new URL(DATA_STORE_FILE, settings.config.cacheDir));
 		globalDataStore.set(store);
 	}
 	const contentConfig = globalContentConfigObserver.get();
@@ -106,7 +114,7 @@ export async function syncDataLayer({
 			});
 		})
 	);
-	const cacheFile = new URL('data-store.json', settings.config.cacheDir);
+	const cacheFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
 	if (!existsSync(settings.config.cacheDir)) {
 		await fs.mkdir(settings.config.cacheDir, { recursive: true });
 	}

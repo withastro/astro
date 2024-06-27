@@ -7,11 +7,19 @@ export class DataStore {
 	get(collectionName: string, key: string) {
 		return this.#collections.get(collectionName)?.get(String(key));
 	}
-	entries(collectionName: string): IterableIterator<[id: string, any]> {
+	entries(collectionName: string): Array<[id: string, any]> {
 		const collection = this.#collections.get(collectionName) ?? new Map();
-		return collection.entries();
+		return [...collection.entries()];
 	}
-	set(collectionName: string, key: string, value: any) {
+	values(collectionName: string): Array<unknown> {
+		const collection = this.#collections.get(collectionName) ?? new Map();
+		return [...collection.values()];
+	}
+	keys(collectionName: string): Array<string> {
+		const collection = this.#collections.get(collectionName) ?? new Map();
+		return [...collection.keys()];
+	}
+	set(collectionName: string, key: string, value: unknown) {
 		const collection = this.#collections.get(collectionName) ?? new Map();
 		collection.set(String(key), value);
 		this.#collections.set(collectionName, collection);
@@ -46,6 +54,8 @@ export class DataStore {
 		return {
 			get: (key: string) => this.get(collectionName, key),
 			entries: () => this.entries(collectionName),
+			values: () => this.values(collectionName),
+			keys: () => this.keys(collectionName),
 			set: (key: string, value: any) => this.set(collectionName, key, value),
 			delete: (key: string) => this.delete(collectionName, key),
 			clear: () => this.clear(collectionName),
@@ -54,7 +64,7 @@ export class DataStore {
 	}
 
 	metaStore(collectionName: string): MetaStore {
-		return this.scopedStore(`meta:${collectionName}`);
+		return this.scopedStore(`meta:${collectionName}`) as MetaStore;
 	}
 
 	toString() {
@@ -66,7 +76,11 @@ export class DataStore {
 	}
 
 	async writeToDisk(filePath: PathLike) {
-		await fs.writeFile(filePath, this.toString());
+		try {
+			await fs.writeFile(filePath, this.toString());
+		} catch {
+			throw new Error(`Failed to save data store to disk`);
+		}
 	}
 
 	static async fromDisk(filePath: PathLike) {
@@ -103,13 +117,19 @@ export class DataStore {
 }
 
 export interface ScopedDataStore {
-	get: (key: string) => any;
-	entries: () => IterableIterator<[id: string, any]>;
-	set: (key: string, value: any) => void;
+	get: (key: string) => unknown;
+	entries: () => Array<[id: string, unknown]>;
+	set: (key: string, value: unknown) => void;
+	values: () => Array<unknown>;
+	keys: () => Array<string>;
 	delete: (key: string) => void;
 	clear: () => void;
 	has: (key: string) => boolean;
 }
+
+/**
+ * A key-value store for metadata strings. Useful for storing things like sync tokens.
+ */
 
 export interface MetaStore {
 	get: (key: string) => string | undefined;
