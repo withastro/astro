@@ -2,11 +2,12 @@ import { randomUUID } from 'node:crypto';
 import { appendFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import type { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
+import { emptyDir } from '@astrojs/internal-helpers/fs';
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
 import type { Context } from '@netlify/functions';
 import type { AstroConfig, AstroIntegration, AstroIntegrationLogger, RouteData } from 'astro';
-import { AstroError } from 'astro/errors';
 import { build } from 'esbuild';
+import { copyDependenciesToFunction } from './lib/nft.js';
 import type { Args } from './ssr-function.js';
 
 const { version: packageVersion } = JSON.parse(
@@ -21,8 +22,6 @@ export interface NetlifyLocals {
 
 const isStaticRedirect = (route: RouteData) =>
 	route.type === 'redirect' && (route.redirect || route.redirectRoute);
-
-const clearDirectory = (dir: URL) => rm(dir, { recursive: true }).catch(() => {});
 
 type RemotePattern = AstroConfig['image']['remotePatterns'][number];
 
@@ -190,11 +189,18 @@ export default function netlifyIntegration(
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
 	const middlewareSecret = randomUUID();
 
+	const TRACE_CACHE = {};
+
+	const ssrBuildDir = () => new URL('./.netlify/build/', rootDir);
 	const ssrOutputDir = () => new URL('./.netlify/functions-internal/ssr/', rootDir);
 	const middlewareOutputDir = () => new URL('.netlify/edge-functions/middleware/', rootDir);
 
 	const cleanFunctions = async () =>
-		await Promise.all([clearDirectory(middlewareOutputDir()), clearDirectory(ssrOutputDir())]);
+		await Promise.all([
+			emptyDir(middlewareOutputDir()),
+			emptyDir(ssrOutputDir()),
+			emptyDir(ssrBuildDir()),
+		]);
 
 	async function writeRedirects(routes: RouteData[], dir: URL) {
 		const fallback = _config.output === 'static' ? '/.netlify/static' : '/.netlify/functions/ssr';
@@ -219,17 +225,44 @@ export default function netlifyIntegration(
 		}
 	}
 
-	async function writeSSRFunction(notFoundContent?: string) {
+	async function writeSSRFunction({
+		notFoundContent,
+		logger,
+	}: { notFoundContent?: string; logger: AstroIntegrationLogger }) {
+		const entry = new URL('./entry.mjs', ssrBuildDir());
+
+		const { handler } = await copyDependenciesToFunction(
+			{
+				entry,
+				outDir: ssrOutputDir(),
+				includeFiles: [],
+				excludeFiles: [],
+				logger,
+			},
+			TRACE_CACHE
+		);
+
 		await writeFile(
 			new URL('./ssr.mjs', ssrOutputDir()),
 			`
-				import createSSRHandler from './entry.mjs';
+				import createSSRHandler from './${handler}';
 				export default createSSRHandler(${JSON.stringify({
 					cacheOnDemandPages: Boolean(integrationConfig?.cacheOnDemandPages),
 					notFoundContent,
 				})});
 				export const config = { name: "Astro SSR", generator: "@astrojs/netlify@${packageVersion}", path: "/*", preferStatic: true };
 			`
+		);
+
+		await writeFile(
+			new URL('.netlify/functions-internal/ssr/ssr.json', rootDir),
+			JSON.stringify({
+				config: {
+					nodeBundler: 'none',
+					includedFiles: ['.netlify/functions-internal/ssr/**/*'],
+				},
+				version: 1,
+			})
 		);
 	}
 
@@ -312,8 +345,6 @@ export default function netlifyIntegration(
 				city: 'Mock City',
 				country: { code: 'mock', name: 'Mock Country' },
 				subdivision: { code: 'SD', name: 'Mock Subdivision' },
-
-				// @ts-expect-error: these are smhw missing from the Netlify types - fix is on the way
 				timezone: 'UTC',
 				longitude: 0,
 				latitude: 0,
@@ -332,6 +363,8 @@ export default function netlifyIntegration(
 			get cookies(): never {
 				throw new Error('Please use Astro.cookies instead.');
 			},
+			// @ts-expect-error This is not currently included in the public Netlify types
+			flags: undefined,
 			json: (input) => Response.json(input),
 			log: console.log,
 			next: () => {
@@ -364,7 +397,7 @@ export default function netlifyIntegration(
 					build: {
 						redirects: false,
 						client: outDir,
-						server: ssrOutputDir(),
+						server: ssrBuildDir(),
 					},
 					vite: {
 						server: {
@@ -431,10 +464,9 @@ export default function netlifyIntegration(
 					try {
 						notFoundContent = await readFile(new URL('./404.html', dir), 'utf8');
 					} catch {}
-					await writeSSRFunction(notFoundContent);
+					await writeSSRFunction({ notFoundContent, logger });
 					logger.info('Generated SSR Function');
 				}
-
 				if (astroMiddlewareEntryPoint) {
 					await writeMiddleware(astroMiddlewareEntryPoint);
 					logger.info('Generated Middleware Edge Function');
