@@ -7,7 +7,7 @@ import { loadFixture } from './test-utils.js';
 describe('astro:env secret variables', () => {
 	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
 	let fixture;
-	/** @type {Awaited<ReturnType<(typeof fixture)["startDevServer"]>>} */
+	/** @type {Awaited<ReturnType<(typeof fixture)["startDevServer"]>> | undefined} */
 	let devServer = undefined;
 
 	afterEach(async () => {
@@ -78,15 +78,13 @@ describe('astro:env secret variables', () => {
 			},
 		});
 
-		let error = null;
 		try {
 			devServer = await fixture.startDevServer();
-		} catch (e) {
-			error = e;
+			assert.fail()
+		} catch (error) {
+			assert.equal(error instanceof Error, true);
+			assert.equal(error.title, 'Invalid Environment Variables');
+			assert.equal(error.message.includes('Variable KNOWN_SECRET is not of type: number.'), true);
 		}
-
-		assert.equal(error instanceof Error, true);
-		assert.equal(error.title, 'Invalid Environment Variables');
-		assert.equal(error.message.includes('Variable KNOWN_SECRET is not of type: number.'), true);
 	});
 });
