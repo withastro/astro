@@ -2,4 +2,11 @@
 'astro': patch
 ---
 
-Fixes a bug in the Container API that was triggered when trying to render a client component with some `client:*` directives.
+Adds a new option to the Container API to skip client side directives. This option should be used if you render a component that uses `client:*` directives.
+
+```js
+const container = await experimental_AstroContainer.create();
+return await container.renderToResponse(Component, {
+  skipClientDirectives: true,
+});
+```
