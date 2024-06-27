@@ -79,7 +79,7 @@ describe('astro:env secret variables', () => {
 		});
 
 		try {
-			devServer = await fixture.startDevServer();
+			await fixture.build();
 			assert.fail()
 		} catch (error) {
 			assert.equal(error instanceof Error, true);
