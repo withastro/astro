@@ -53,6 +53,7 @@ export async function syncContentLayer({
 	store,
 }: { settings: AstroSettings; logger: Logger; store?: DataStore }) {
 	const logger = globalLogger.forkIntegrationLogger('content');
+	logger.info('Syncing content');
 	if (!store) {
 		store = await DataStore.fromDisk(new URL(DATA_STORE_FILE, settings.config.cacheDir));
 		globalDataStore.set(store);
@@ -108,7 +109,7 @@ export async function syncContentLayer({
 				collection: name,
 				store: store.scopedStore(name),
 				meta: store.metaStore(name),
-				logger,
+				logger: globalLogger.forkIntegrationLogger(collection.loader.name ?? 'content'),
 				settings,
 				parseData,
 			});

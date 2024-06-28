@@ -7,6 +7,7 @@ import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
 import type { AstroInlineConfig } from '../../@types/astro.js';
 import { attachContentServerListeners } from '../../content/index.js';
+import { syncContentLayer } from '../../content/loaders.js';
 import { telemetry } from '../../events/index.js';
 import * as msg from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
@@ -101,6 +102,8 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	}
 
 	await attachContentServerListeners(restart.container);
+
+	await syncContentLayer({ settings: restart.container.settings, logger: logger });
 
 	logger.info(null, green('watching for file changes...'));
 
