@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'url';
-import type { Loader } from './loaders.js';
+import type { Loader, LoaderContext } from './loaders.js';
 import { promises as fs, existsSync } from 'fs';
 
 /**
@@ -12,54 +12,68 @@ export function file(fileName: string): Loader {
 		// TODO: AstroError
 		throw new Error('Glob patterns are not supported in `file` loader. Use `glob` loader instead.');
 	}
+
+	async function syncData(filePath: string, { logger, parseData, store }: LoaderContext) {
+		let json: Array<Record<string, unknown>>;
+
+		try {
+			const data = await fs.readFile(filePath, 'utf-8');
+			json = JSON.parse(data);
+		} catch (error: any) {
+			logger.error(`Error reading data from ${fileName}`);
+			logger.debug(error.message);
+			return;
+		}
+
+		if (Array.isArray(json)) {
+			if (json.length === 0) {
+				logger.warn(`No items found in ${fileName}`);
+			}
+			logger.debug(`Found ${json.length} item array in ${fileName}`);
+			store.clear();
+			for (const rawItem of json) {
+				const id = (rawItem.id ?? rawItem.slug)?.toString();
+				if (!id) {
+					logger.error(`Item in ${fileName} is missing an id or slug field.`);
+					continue;
+				}
+				const item = await parseData({ id, data: rawItem, filePath });
+				store.set(id, item);
+			}
+		} else if (typeof json === 'object') {
+			const entries = Object.entries<Record<string, unknown>>(json);
+			logger.debug(`Found object with ${entries.length} entries in ${fileName}`);
+			store.clear();
+			for (const [id, rawItem] of entries) {
+				const item = await parseData({ id, data: rawItem, filePath });
+				store.set(id, item);
+			}
+		} else {
+			logger.error(`Invalid data in ${fileName}. Must be an array or object.`);
+		}
+	}
+
 	return {
 		name: 'file-loader',
-		load: async ({ store, logger, settings, parseData }) => {
+		load: async (options) => {
+			const { settings, logger, watcher } = options;
 			const contentDir = new URL('./content/', settings.config.srcDir);
-			logger.debug(`Loading data from ${fileName}`)
+			logger.debug(`Loading data from ${fileName}`);
 			const url = new URL(fileName, contentDir);
 			if (!existsSync(url)) {
 				logger.error(`File not found: ${fileName}`);
 				return;
 			}
-
-			let json: Array<Record<string, unknown>>;
-
-			try {
-				const data = await fs.readFile(url, 'utf-8');
-				json = JSON.parse(data);
-			} catch (error: any) {
-				logger.error(`Error reading data from ${fileName}`);
-				logger.debug(error.message);
-				return;
-			}
-
 			const filePath = fileURLToPath(url);
 
-			if (Array.isArray(json)) {
-				if (json.length === 0) {
-					logger.warn(`No items found in ${fileName}`);
+			await syncData(filePath, options);
+
+			watcher?.on('change', async (changedPath) => {
+				if (changedPath === filePath) {
+					logger.info(`Reloading data from ${fileName}`);
+					await syncData(filePath, options);
 				}
-				logger.debug(`Found ${json.length} item array in ${fileName}`);
-				for (const rawItem of json) {
-					const id = (rawItem.id ?? rawItem.slug)?.toString();
-					if (!id) {
-						logger.error(`Item in ${fileName} is missing an id or slug field.`);
-						continue;
-					}
-					const item = await parseData({ id, data: rawItem, filePath });
-					store.set(id, item);
-				}
-			} else if (typeof json === 'object') {
-				const entries =  Object.entries<Record<string, unknown>>(json);
-				logger.debug(`Found object with ${entries.length} entries in ${fileName}`);
-				for (const [id, rawItem] of entries) {
-					const item = await parseData({ id, data: rawItem, filePath });
-					store.set(id, item);
-				}
-			} else {
-				logger.error(`Invalid data in ${fileName}. Must be an array or object.`);
-			}
+			});
 		},
 	};
 }

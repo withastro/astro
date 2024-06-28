@@ -103,7 +103,11 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	await attachContentServerListeners(restart.container);
 
-	await syncContentLayer({ settings: restart.container.settings, logger: logger });
+	await syncContentLayer({
+		settings: restart.container.settings,
+		logger,
+		watcher: restart.container.viteServer.watcher,
+	});
 
 	logger.info(null, green('watching for file changes...'));
 
