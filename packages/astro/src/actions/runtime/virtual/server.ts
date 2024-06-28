@@ -50,7 +50,7 @@ export type ActionClient<
 
 export function defineAction<
 	TOutput,
-	TAccept extends Accept,
+	TAccept extends Accept = 'json',
 	TInputSchema extends InputSchema<Accept> | undefined = TAccept extends 'form'
 		? // If `input` is omitted, default to `FormData` for forms and `any` for JSON.
 			z.ZodType<FormData>

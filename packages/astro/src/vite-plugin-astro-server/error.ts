@@ -24,11 +24,6 @@ export function recordServerError(
 	// Our error should already be complete, but let's try to add a bit more through some guesswork
 	const errorWithMetadata = collectErrorMetadata(err, config.root);
 
-	// Ignore unhandled rejection errors as they appear A LOT and we cannot record the amount to telemetry
-	if (errorWithMetadata.name !== AstroErrorData.UnhandledRejection.name) {
-		telemetry.record(eventError({ cmd: 'dev', err: errorWithMetadata, isFatal: false }));
-	}
-
 	logger.error(null, formatErrorMessage(errorWithMetadata, logger.level() === 'debug'));
 
 	return {
