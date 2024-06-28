@@ -46,6 +46,10 @@ type CollectionEntryMap = {
 		| {
 				type: 'data';
 				entries: Record<string, DataEntryMetadata>;
+		  }
+		| {
+				type: 'experimental_data';
+				entries: Record<string, DataEntryMetadata>;
 		  };
 };
 
@@ -245,7 +249,7 @@ export async function createContentTypesGenerator({
 					collectionEntryMap[collectionKey] = {
 						type: 'content',
 						entries: {
-							...collectionInfo.entries,
+							...(collectionInfo.entries as Record<string, ContentEntryMetadata>),
 							[entryKey]: { slug: addedSlug },
 						},
 					};
@@ -400,6 +404,7 @@ async function writeContentFiles({
 		if (
 			collectionConfig?.type &&
 			collection.type !== 'unknown' &&
+			collectionConfig.type !== 'experimental_data' &&
 			collection.type !== collectionConfig.type
 		) {
 			viteServer.hot.send({
@@ -422,7 +427,7 @@ async function writeContentFiles({
 			});
 			return;
 		}
-		const resolvedType: 'content' | 'data' =
+		const resolvedType: 'content' | 'data' | 'experimental_data' =
 			collection.type === 'unknown'
 				? // Add empty / unknown collections to the data type map by default
 					// This ensures `getCollection('empty-collection')` doesn't raise a type error
@@ -430,7 +435,11 @@ async function writeContentFiles({
 				: collection.type;
 
 		const collectionEntryKeys = Object.keys(collection.entries).sort();
-		const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
+		const dataType =
+			collectionConfig?.schema ||
+			(collectionConfig?.type === 'experimental_data' && collectionConfig.loader?.schema)
+				? `InferEntrySchema<${collectionKey}>`
+				: 'any';
 		switch (resolvedType) {
 			case 'content':
 				if (collectionEntryKeys.length === 0) {
@@ -450,6 +459,7 @@ async function writeContentFiles({
 				contentTypesStr += `};\n`;
 				break;
 			case 'data':
+			case 'experimental_data':
 				if (collectionEntryKeys.length === 0) {
 					dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n}>;\n`;
 				} else {

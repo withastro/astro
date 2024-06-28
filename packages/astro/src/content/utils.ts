@@ -35,6 +35,30 @@ export const collectionConfigParser = z.union([
 		type: z.literal('data'),
 		schema: z.any().optional(),
 	}),
+	z.object({
+		type: z.literal('experimental_data'),
+		schema: z.any().optional(),
+		loader: z.object({
+			name: z.string(),
+			load: z.function(
+				z.tuple(
+					[
+						z.object({
+							collection: z.string(),
+							store: z.any(),
+							meta: z.any(),
+							logger: z.any(),
+							settings: z.any(),
+							parseData: z.any(),
+						}),
+					],
+					z.unknown()
+				)
+			),
+			schema: z.any().optional(),
+			render: z.function(z.tuple([z.any()], z.unknown())).optional(),
+		}),
+	}),
 ]);
 
 export const contentConfigParser = z.object({
@@ -81,10 +105,10 @@ export async function getEntryData(
 	},
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
-	pluginContext: PluginContext
+	pluginContext?: PluginContext
 ) {
 	let data;
-	if (collectionConfig.type === 'data') {
+	if (collectionConfig.type === 'data' || collectionConfig.type === 'experimental_data') {
 		data = entry.unvalidatedData;
 	} else {
 		const { slug, ...unvalidatedData } = entry.unvalidatedData;
@@ -93,6 +117,9 @@ export async function getEntryData(
 
 	let schema = collectionConfig.schema;
 	if (typeof schema === 'function') {
+		if (!pluginContext) {
+			throw new Error('Plugin context is required for schema functions');
+		}
 		schema = schema({
 			image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
 		});

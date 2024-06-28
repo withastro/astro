@@ -133,6 +133,7 @@
     "@babel/plugin-transform-react-jsx": "^7.24.7",
     "@babel/traverse": "^7.24.7",
     "@babel/types": "^7.24.7",
+    "@rollup/pluginutils": "^5.1.0",
     "@types/babel__core": "^7.20.5",
     "@types/cookie": "^0.6.0",
     "acorn": "^8.12.0",
