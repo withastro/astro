@@ -32,13 +32,13 @@ export interface LoaderContext {
 	): T;
 }
 
-export interface Loader<S extends ZodSchema = ZodSchema> {
+export interface Loader {
 	/** Unique name of the loader, e.g. the npm package name */
 	name: string;
 	/** Do the actual loading of the data */
 	load: (context: LoaderContext) => Promise<void>;
 	/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
-	schema?: S | Promise<S> | (() => S | Promise<S>);
+	schema?: ZodSchema | Promise<ZodSchema> | (() => ZodSchema | Promise<ZodSchema>);
 	render?: (entry: any) => any;
 }
 

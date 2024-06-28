@@ -1,4 +1,4 @@
-import type { Loader } from 'astro:content';
+import { type Loader, z } from 'astro:content';
 
 export interface PostLoaderConfig {
 	url: string;
@@ -30,5 +30,15 @@ export function loader(config:PostLoaderConfig): Loader {
 			}
 			meta.set('lastSynced', String(Date.now()));
 		},
+		schema: async () => {
+			// Simulate a delay
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+			return z.object({
+				title: z.string(),
+				body: z.string(),
+				userId: z.number(),
+				id: z.number(),
+			});
+		}
 	};
 }
