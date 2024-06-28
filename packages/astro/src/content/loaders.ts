@@ -5,6 +5,7 @@ import { DataStore, globalDataStore, type MetaStore, type ScopedDataStore } from
 import { getEntryData, globalContentConfigObserver } from './utils.js';
 import { promises as fs, existsSync } from 'fs';
 import { DATA_STORE_FILE } from './consts.js';
+import type { FSWatcher } from 'vite';
 
 export interface ParseDataOptions {
 	/** The ID of the entry. Unique per collection */
@@ -30,6 +31,9 @@ export interface LoaderContext {
 	parseData<T extends Record<string, unknown> = Record<string, unknown>>(
 		props: ParseDataOptions
 	): T;
+
+	/** When running in dev, this is a filesystem watcher that can be used to trigger updates */
+	watcher?: FSWatcher;
 }
 
 export interface Loader {
@@ -42,6 +46,13 @@ export interface Loader {
 	render?: (entry: any) => any;
 }
 
+export interface SyncContentLayerOptions {
+	store?: DataStore;
+	settings: AstroSettings;
+	logger: Logger;
+	watcher?: FSWatcher;
+}
+
 /**
  * Run the `load()` method of each collection's loader, which will load the data and save it in the data store.
  * The loader itself is responsible for deciding whether this will clear and reload the full collection, or
@@ -51,7 +62,8 @@ export async function syncContentLayer({
 	settings,
 	logger: globalLogger,
 	store,
-}: { settings: AstroSettings; logger: Logger; store?: DataStore }) {
+	watcher,
+}: SyncContentLayerOptions) {
 	const logger = globalLogger.forkIntegrationLogger('content');
 	logger.info('Syncing content');
 	if (!store) {
@@ -112,6 +124,7 @@ export async function syncContentLayer({
 				logger: globalLogger.forkIntegrationLogger(collection.loader.name ?? 'content'),
 				settings,
 				parseData,
+				watcher,
 			});
 		})
 	);

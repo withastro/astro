@@ -50,6 +50,7 @@ export const collectionConfigParser = z.union([
 							logger: z.any(),
 							settings: z.any(),
 							parseData: z.any(),
+							watcher: z.any().optional(),
 						}),
 					],
 					z.unknown()

@@ -54,6 +54,8 @@ declare module 'astro:content' {
 		parseData<T extends Record<string, unknown> = Record<string, unknown>>(
 			props: ParseDataOptions
 		): T;
+		/** When running in dev, this is a filesystem watcher that can be used to trigger updates */
+		watcher?: import('vite').FSWatcher;
 	}
 	export interface Loader {
 		/** Unique name of the loader, e.g. the npm package name */

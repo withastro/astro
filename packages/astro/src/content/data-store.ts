@@ -1,6 +1,15 @@
 import { promises as fs, type PathLike, existsSync } from 'fs';
+
+const SAVE_DEBOUNCE_MS = 500;
 export class DataStore {
 	#collections = new Map<string, Map<string, any>>();
+
+	#file?: PathLike;
+
+	#saveTimeout: NodeJS.Timeout | undefined;
+
+	#dirty = false;
+
 	constructor() {
 		this.#collections = new Map();
 	}
@@ -23,15 +32,18 @@ export class DataStore {
 		const collection = this.#collections.get(collectionName) ?? new Map();
 		collection.set(String(key), value);
 		this.#collections.set(collectionName, collection);
+		this.#saveToDiskDebounced();
 	}
 	delete(collectionName: string, key: string) {
 		const collection = this.#collections.get(collectionName);
 		if (collection) {
 			collection.delete(String(key));
+			this.#saveToDiskDebounced();
 		}
 	}
 	clear(collectionName: string) {
 		this.#collections.delete(collectionName);
+		this.#saveToDiskDebounced();
 	}
 
 	has(collectionName: string, key: string) {
@@ -49,6 +61,20 @@ export class DataStore {
 	collections() {
 		return this.#collections;
 	}
+
+	#saveToDiskDebounced = () => {
+		this.#dirty = true;
+		// Only save to disk if it has already been saved once
+		if (this.#file) {
+			if (this.#saveTimeout) {
+				clearTimeout(this.#saveTimeout);
+			}
+			this.#saveTimeout = setTimeout(() => {
+				this.#saveTimeout = undefined;
+				this.writeToDisk(this.#file!);
+			}, SAVE_DEBOUNCE_MS);
+		}
+	};
 
 	scopedStore(collectionName: string): ScopedDataStore {
 		return {
@@ -76,8 +102,13 @@ export class DataStore {
 	}
 
 	async writeToDisk(filePath: PathLike) {
+		if (!this.#dirty) {
+			return;
+		}
 		try {
 			await fs.writeFile(filePath, this.toString());
+			this.#file = filePath;
+			this.#dirty = false;
 		} catch {
 			throw new Error(`Failed to save data store to disk`);
 		}

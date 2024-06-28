@@ -129,6 +129,31 @@ export function astroContentVirtualModPlugin({
 				return code.replaceAll(RESOLVED_VIRTUAL_MODULE_ID, `${prefix}content/entry.mjs`);
 			}
 		},
+
+		configureServer(server) {
+			const dataStorePath = fileURLToPath(dataStoreFile);
+			// Watch for changes to the data store file
+			if (Array.isArray(server.watcher.options.ignored)) {
+				// The data store file is in node_modules, so is ignored by default,
+				// so we need to un-ignore it.
+				server.watcher.options.ignored.push(`!${dataStorePath}`);
+			}
+			server.watcher.add(dataStorePath);
+
+			server.watcher.on('change', (changedPath) => {
+				// If the datastore file changes, invalidate the virtual module
+				if (changedPath === dataStorePath) {
+					const module = server.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
+					if (module) {
+						server.moduleGraph.invalidateModule(module);
+					}
+					server.ws.send({
+						type: 'full-reload',
+						path: '*',
+					});
+				}
+			});
+		},
 	};
 }
 
