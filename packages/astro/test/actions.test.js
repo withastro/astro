@@ -10,6 +10,9 @@ describe('Astro Actions', () => {
 		fixture = await loadFixture({
 			root: './fixtures/actions/',
 			adapter: testAdapter(),
+			experimental: {
+				rewriting: true,
+			},
 		});
 	});
 

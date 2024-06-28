@@ -40,7 +40,7 @@ export async function getFilesFromFolder(dir: URL) {
  * @param {URL[]} [exclude] A list of files to exclude (absolute path).
  * @returns {Promise<string>} The common ancestor of the copied files.
  */
-export async function copyFilesToFunction(
+export async function copyFilesToFolder(
 	files: URL[],
 	outDir: URL,
 	exclude: URL[] = []
@@ -48,7 +48,7 @@ export async function copyFilesToFunction(
 	const excludeList = exclude.map(fileURLToPath);
 	const fileList = files.map(fileURLToPath).filter((f) => !excludeList.includes(f));
 
-	if (files.length === 0) throw new Error('[@astrojs/vercel] No files found to copy');
+	if (files.length === 0) throw new Error('No files found to copy');
 
 	let commonAncestor = nodePath.dirname(fileList[0]);
 	for (const file of fileList.slice(1)) {
@@ -86,8 +86,4 @@ export async function copyFilesToFunction(
 	}
 
 	return commonAncestor;
-}
-
-export async function writeFile(path: PathLike, content: string) {
-	await fs.writeFile(path, content, { encoding: 'utf-8' });
 }

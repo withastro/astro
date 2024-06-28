@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import * as fs from 'node:fs';
 import { before, describe, it } from 'node:test';
+import ts from 'typescript';
 import { loadFixture } from './test-utils.js';
 
 const createFixture = () => {
@@ -46,7 +47,10 @@ const createFixture = () => {
 				},
 			};
 
-			await astroFixture.sync({}, { fs: fsMock });
+			const code = await astroFixture.sync({}, { fs: fsMock });
+			if (code !== 0) {
+				throw new Error(`Process error code ${code}`);
+			}
 		},
 		/** @param {string} path */
 		thenFileShouldExist(path) {
@@ -61,6 +65,24 @@ const createFixture = () => {
 		thenFileContentShouldInclude(path, content, error) {
 			const expectedPath = new URL(path, astroFixture.config.root).href;
 			assert.equal(writtenFiles[expectedPath].includes(content), true, error);
+		},
+		thenFileShouldBeValidTypescript(path) {
+			const expectedPath = new URL(path, astroFixture.config.root).href;
+			try {
+				const content = writtenFiles[expectedPath];
+				const result = ts.transpileModule(content, {
+					compilerOptions: {
+						module: ts.ModuleKind.ESNext,
+					},
+				});
+				assert.equal(
+					result.outputText,
+					'',
+					`${path} should be valid TypeScript. Output: ${result.outputText}`
+				);
+			} catch (error) {
+				assert.fail(`${path} is not valid TypeScript. Error: ${error.message}`);
+			}
 		},
 	};
 };
@@ -87,6 +109,7 @@ describe('astro sync', () => {
 				`declare module 'astro:content' {`,
 				'Types file does not include `astro:content` module declaration'
 			);
+			fixture.thenFileShouldBeValidTypescript('.astro/types.d.ts');
 		});
 
 		it('Writes types for empty collections', async () => {
@@ -143,6 +166,17 @@ describe('astro sync', () => {
 				'src/env.d.ts',
 				`/// <reference path="../.astro/env.d.ts" />`
 			);
+		});
+
+		it('Does not throw if a public variable is required', async () => {
+			let error = null;
+			try {
+				await fixture.whenSyncing('./fixtures/astro-env-required-public/');
+			} catch (e) {
+				error = e;
+			}
+
+			assert.equal(error, null, 'Syncing should not throw astro:env validation errors');
 		});
 	});
 

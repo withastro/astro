@@ -1,5 +1,111 @@
 # astro
 
+## 4.11.3
+
+### Patch Changes
+
+- [#11347](https://github.com/withastro/astro/pull/11347) [`33bdc54`](https://github.com/withastro/astro/commit/33bdc5472929f72fa8e39624598bf929c48e60c0) Thanks [@bluwy](https://github.com/bluwy)! - Fixes installed packages detection when running `astro check`
+
+- [#11327](https://github.com/withastro/astro/pull/11327) [`0df8142`](https://github.com/withastro/astro/commit/0df81422a81c8f8900684d100e9b8f26365fa0b1) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue with the container APIs where a runtime error was thrown during the build, when using `pnpm` as package manager.
+
+## 4.11.2
+
+### Patch Changes
+
+- [#11335](https://github.com/withastro/astro/pull/11335) [`4c4741b`](https://github.com/withastro/astro/commit/4c4741b42dc531403f7b9647bd51951d0cdb8f5b) Thanks [@ematipico](https://github.com/ematipico)! - Reverts [#11292](https://github.com/withastro/astro/pull/11292), which caused a regression to the input type
+
+- [#11326](https://github.com/withastro/astro/pull/11326) [`41121fb`](https://github.com/withastro/astro/commit/41121fbe00e144d4d93835811e1c4349664d9003) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where running `astro sync` when using the experimental `astro:env` feature would fail if environment variables were missing
+
+- [#11338](https://github.com/withastro/astro/pull/11338) [`9752a0b`](https://github.com/withastro/astro/commit/9752a0b27526270fd0066f3db7049e9ae6af1ef8) Thanks [@zaaakher](https://github.com/zaaakher)! - Fixes svg icon margin in devtool tooltip title to look coherent in `rtl` and `ltr` layouts
+
+- [#11331](https://github.com/withastro/astro/pull/11331) [`f1b78a4`](https://github.com/withastro/astro/commit/f1b78a496034d53b0e9dfc276a4a1b1d691772c4) Thanks [@bluwy](https://github.com/bluwy)! - Removes `resolve` package and simplify internal resolve check
+
+- [#11339](https://github.com/withastro/astro/pull/11339) [`8fdbf0e`](https://github.com/withastro/astro/commit/8fdbf0e45beffdae3da1e7f36797575c92f8a0ba) Thanks [@matthewp](https://github.com/matthewp)! - Remove non-fatal errors from telemetry
+
+  Previously we tracked non-fatal errors in telemetry to get a good idea of the types of errors that occur in `astro dev`. However this has become noisy over time and results in a lot of data that isn't particularly useful. This removes those non-fatal errors from being tracked.
+
+## 4.11.1
+
+### Patch Changes
+
+- [#11308](https://github.com/withastro/astro/pull/11308) [`44c61dd`](https://github.com/withastro/astro/commit/44c61ddfd85f1c23f8cec8caeaa5e25897121996) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where custom `404.astro` and `500.astro` were not returning the correct status code when rendered inside a rewriting cycle.
+
+- [#11302](https://github.com/withastro/astro/pull/11302) [`0622567`](https://github.com/withastro/astro/commit/06225673269201044358788f2a81dbe13912adce) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue with the view transition router when redirecting to an URL with different origin.
+
+- Updated dependencies [[`b6afe6a`](https://github.com/withastro/astro/commit/b6afe6a782f68f4a279463a144baaf99cb96b6dc), [`41064ce`](https://github.com/withastro/astro/commit/41064cee78c1cccd428f710a24c483aeb275fd95)]:
+  - @astrojs/markdown-remark@5.1.1
+  - @astrojs/internal-helpers@0.4.1
+
+## 4.11.0
+
+### Minor Changes
+
+- [#11197](https://github.com/withastro/astro/pull/11197) [`4b46bd9`](https://github.com/withastro/astro/commit/4b46bd9bdcbb302f294aa27b8aa07099e104fa17) Thanks [@braebo](https://github.com/braebo)! - Adds [`ShikiTransformer`](https://shiki.style/packages/transformers#shikijs-transformers) support to the [`<Code />`](https://docs.astro.build/en/reference/api-reference/#code-) component with a new `transformers` prop.
+
+  Note that `transformers` only applies classes and you must provide your own CSS rules to target the elements of your code block.
+
+  ```astro
+  ---
+  import { transformerNotationFocus } from '@shikijs/transformers';
+  import { Code } from 'astro:components';
+
+  const code = `const foo = 'hello'
+  const bar = ' world'
+  console.log(foo + bar) // [!code focus]
+  `;
+  ---
+
+  <Code {code} lang="js" transformers={[transformerNotationFocus()]} />
+
+  <style is:global>
+    pre.has-focused .line:not(.focused) {
+      filter: blur(1px);
+    }
+  </style>
+  ```
+
+- [#11134](https://github.com/withastro/astro/pull/11134) [`9042be0`](https://github.com/withastro/astro/commit/9042be049157ce859355f911565bc0c3d68f0aa1) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves the developer experience of the `500.astro` file by passing it a new `error` prop.
+
+  When an error is thrown, the special `src/pages/500.astro` page now automatically receives the error as a prop. This allows you to display more specific information about the error on a custom 500 page.
+
+  ```astro
+  ---
+  // src/pages/500.astro
+  interface Props {
+    error: unknown;
+  }
+
+  const { error } = Astro.props;
+  ---
+
+  <div>{error instanceof Error ? error.message : 'Unknown error'}</div>
+  ```
+
+  If an error occurs rendering this page, your host's default 500 error page will be shown to your visitor in production, and Astro's default error overlay will be shown in development.
+
+### Patch Changes
+
+- [#11280](https://github.com/withastro/astro/pull/11280) [`fd3645f`](https://github.com/withastro/astro/commit/fd3645fe8364ec5e280b6802d1468867890d463c) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that prevented cookies from being set when using experimental rewrites
+
+- [#11275](https://github.com/withastro/astro/pull/11275) [`bab700d`](https://github.com/withastro/astro/commit/bab700d69085b1de8f03fc1b0b31651f709cbfe3) Thanks [@syhily](https://github.com/syhily)! - Drop duplicated brackets in data collections schema generation.
+
+- [#11272](https://github.com/withastro/astro/pull/11272) [`ea987d7`](https://github.com/withastro/astro/commit/ea987d7da589ead9aa4b550f167f5e2f6c939d2e) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a case where rewriting `/` would cause an issue, when `trailingSlash` was set to `"never"`.
+
+- [#11272](https://github.com/withastro/astro/pull/11272) [`ea987d7`](https://github.com/withastro/astro/commit/ea987d7da589ead9aa4b550f167f5e2f6c939d2e) Thanks [@ematipico](https://github.com/ematipico)! - Reverts a logic where it wasn't possible to rewrite `/404` in static mode. It's **now possible** again
+
+- [#11264](https://github.com/withastro/astro/pull/11264) [`5a9c9a6`](https://github.com/withastro/astro/commit/5a9c9a60e7c32aa461b86b5bc667cb955e23d4d9) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes type generation for empty content collections
+
+- [#11279](https://github.com/withastro/astro/pull/11279) [`9a08d74`](https://github.com/withastro/astro/commit/9a08d74bc00ae2c3bc254f99580a22ce4df1d002) Thanks [@ascorbic](https://github.com/ascorbic)! - Improves type-checking and error handling to catch case where an image import is passed directly to `getImage()`
+
+- [#11292](https://github.com/withastro/astro/pull/11292) [`7f8f347`](https://github.com/withastro/astro/commit/7f8f34799528ed0b2011e1ea273bd0636f6e767d) Thanks [@jdtjenkins](https://github.com/jdtjenkins)! - Fixes a case where `defineAction` autocomplete for the `accept` prop would not show `"form"` as a possible value
+
+- [#11273](https://github.com/withastro/astro/pull/11273) [`cb4d078`](https://github.com/withastro/astro/commit/cb4d07819f0dbdfd94bc4f084edf7720ada01323) Thanks [@ascorbic](https://github.com/ascorbic)! - Corrects an inconsistency in dev where middleware would run for prerendered 404 routes.
+  Middleware is not run for prerendered 404 routes in production, so this was incorrect.
+
+- [#11284](https://github.com/withastro/astro/pull/11284) [`f4b029b`](https://github.com/withastro/astro/commit/f4b029b08264268c68fc81ea25b264e81f47e683) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes an issue that would break `Astro.request.url` and `Astro.request.headers` in `astro dev` if HTTP/2 was enabled.
+
+  HTTP/2 is now enabled by default in `astro dev` if `https` is configured in the Vite config.
+
 ## 4.10.3
 
 ### Patch Changes
