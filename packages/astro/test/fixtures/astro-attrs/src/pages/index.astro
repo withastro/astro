@@ -24,3 +24,11 @@
 
 <span id="url" attr={"https://example.com/api/og?title=hello&description=somedescription"}/>
 <span id="code" attr={"cmd: echo \"foo\" && echo \"bar\" > /tmp/hello.txt"} />
+
+<!--
+    Other attributes should be treated as string enums
+    These should always render <span draggable="true" /> or <span draggable="false" />
+-->
+<span id='html-enum' draggable='true' />
+<span id='html-enum-true' draggable={true} />
+<span id='html-enum-false' draggable={false} />

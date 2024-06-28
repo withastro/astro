@@ -36,6 +36,9 @@ describe('Attributes', async () => {
 			'normal-attr-number-falsy': { attribute: 'foobar', value: '0' },
 			null: { attribute: 'attr', value: undefined },
 			undefined: { attribute: 'attr', value: undefined },
+			'html-enum': { attribute: 'draggable', value: 'true' },
+			'html-enum-true': { attribute: 'draggable', value: 'true' },
+			'html-enum-false': { attribute: 'draggable', value: 'false' },
 		};
 
 		assert.ok(!/allowfullscreen=/.test(html), 'boolean attributes should not have values');
