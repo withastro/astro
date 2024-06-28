@@ -16,7 +16,7 @@ export function file(fileName: string): Loader {
 		name: 'file-loader',
 		load: async ({ store, logger, settings, parseData }) => {
 			const contentDir = new URL('./content/', settings.config.srcDir);
-
+			logger.debug(`Loading data from ${fileName}`)
 			const url = new URL(fileName, contentDir);
 			if (!existsSync(url)) {
 				logger.error(`File not found: ${fileName}`);
@@ -40,6 +40,7 @@ export function file(fileName: string): Loader {
 				if (json.length === 0) {
 					logger.warn(`No items found in ${fileName}`);
 				}
+				logger.debug(`Found ${json.length} item array in ${fileName}`);
 				for (const rawItem of json) {
 					const id = (rawItem.id ?? rawItem.slug)?.toString();
 					if (!id) {
@@ -50,7 +51,9 @@ export function file(fileName: string): Loader {
 					store.set(id, item);
 				}
 			} else if (typeof json === 'object') {
-				for (const [id, rawItem] of Object.entries<Record<string, unknown>>(json)) {
+				const entries =  Object.entries<Record<string, unknown>>(json);
+				logger.debug(`Found object with ${entries.length} entries in ${fileName}`);
+				for (const [id, rawItem] of entries) {
 					const item = await parseData({ id, data: rawItem, filePath });
 					store.set(id, item);
 				}

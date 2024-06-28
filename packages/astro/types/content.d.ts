@@ -49,7 +49,7 @@ declare module 'astro:content' {
 		/**  A simple KV store, designed for things like sync tokens */
 		meta: MetaStore;
 		logger: import('astro').AstroIntegrationLogger;
-		settings: any;
+		settings: import('astro').AstroSettings;
 		/** Validates and parses the data according to the schema */
 		parseData<T extends Record<string, unknown> = Record<string, unknown>>(
 			props: ParseDataOptions
