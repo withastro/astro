@@ -382,7 +382,7 @@ async function writeContentFiles({
 
 	const collectionSchemasDir = new URL('./collections/', settings.dotAstroDir);
 	if (
-		settings.config.experimental.contentCollectionJsonSchema &&
+		settings.config.contentCollection?.JsonSchema &&
 		!fs.existsSync(collectionSchemasDir)
 	) {
 		fs.mkdirSync(collectionSchemasDir, { recursive: true });
@@ -460,7 +460,7 @@ async function writeContentFiles({
 					dataTypesStr += `};\n`;
 				}
 
-				if (settings.config.experimental.contentCollectionJsonSchema && collectionConfig?.schema) {
+				if (settings.config.contentCollection?.JsonSchema && collectionConfig?.schema) {
 					let zodSchemaForJson =
 						typeof collectionConfig.schema === 'function'
 							? collectionConfig.schema({ image: () => z.string() })
