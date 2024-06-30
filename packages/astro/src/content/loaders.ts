@@ -86,7 +86,7 @@ export async function syncContentLayer({
 
 			let { schema } = collection;
 
-			if (!schema) {
+			if (!schema && typeof collection.loader === 'object') {
 				schema = collection.loader.schema;
 			}
 
@@ -129,7 +129,7 @@ export async function syncContentLayer({
 				return simpleLoader(collection.loader, payload);
 			}
 
-			if(!collection.loader.load) {
+			if (!collection.loader.load) {
 				throw new Error(`Collection loader for ${name} does not have a load method`);
 			}
 
@@ -144,8 +144,11 @@ export async function syncContentLayer({
 	logger.info('Synced content');
 }
 
-export async function simpleLoader(handler: () => Array<DataWithId>, context: LoaderContext) {
-	const data = handler();
+export async function simpleLoader(
+	handler: () => Array<DataWithId> | Promise<Array<DataWithId>>,
+	context: LoaderContext
+) {
+	const data = await handler();
 	context.store.clear();
 	for (const raw of data) {
 		const item = await context.parseData({ id: raw.id, data: raw });

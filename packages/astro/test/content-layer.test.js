@@ -86,6 +86,27 @@ describe('Content Layer', () => {
 				},
 			});
 		});
+
+		it('returns collection from a simple loader', async () => {
+			assert.ok(json.hasOwnProperty('simpleLoader'));
+			assert.ok(Array.isArray(json.simpleLoader));
+
+			const item = json.simpleLoader[0];
+			assert.equal(json.simpleLoader.length, 4);
+			assert.deepEqual(item, {
+				id: 'siamese',
+				collection: 'cats',
+				data: {
+					breed: 'Siamese',
+					id: 'siamese',
+					size: 'Medium',
+					origin: 'Thailand',
+					lifespan: '15 years',
+					temperament: ['Active', 'Affectionate', 'Social', 'Playful'],
+				},
+				type: 'experimental_data',
+			});
+		});
 	});
 
 	describe('Dev', () => {
