@@ -101,7 +101,6 @@ export class AppPipeline extends Pipeline {
 	async getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
 		for(const defaultRoute of this.defaultRoutes) {
 			if(route.component === defaultRoute.component) {
-				//return defaultRoute.instance;
 				return {
 					page: () => Promise.resolve(defaultRoute.instance),
 					renderers: []
