@@ -259,7 +259,7 @@ export default function netlifyIntegration(
 			JSON.stringify({
 				config: {
 					nodeBundler: 'none',
-					includedFiles: ['.netlify/functions-internal/ssr/**/*'],
+					includedFiles: [fileURLToPath(new URL('.netlify/functions-internal/ssr/**/*', rootDir))],
 				},
 				version: 1,
 			})
