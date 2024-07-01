@@ -1,5 +1,5 @@
 import type { InStatement } from '@libsql/client';
-import { createClient } from '@libsql/client';
+import { type Config as LibSQLConfig, createClient } from '@libsql/client';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
 import { type SqliteRemoteDatabase, drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
@@ -23,7 +23,9 @@ export function createLocalDatabaseClient({ dbUrl }: { dbUrl: string }): LibSQLD
 	const client = createClient({ url });
 	const db = drizzleLibsql(client);
 
-	applyTransactionNotSupported(db);
+	if (!process.env.ASTRO_DB_ENABLE_TRANSACTIONS) {
+		applyTransactionNotSupported(db);
+	}
 	return db;
 }
 
@@ -36,6 +38,44 @@ const remoteResultSchema = z.object({
 });
 
 export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string) {
+	const remoteUrl = new URL(remoteDbURL);
+
+	switch (remoteUrl.protocol) {
+		case 'http:':
+		case 'https:':
+			return createStudioDatabaseClient(appToken, remoteUrl);
+		case 'libsql+http:':
+			remoteUrl.protocol = 'http:';
+			return createRemoteLibSQLClient(appToken, remoteUrl);
+		case 'libsql+https:':
+			remoteUrl.protocol = 'https:';
+			return createRemoteLibSQLClient(appToken, remoteUrl);
+		case 'ws:':
+		case 'wss:':
+		case 'file:':
+		case 'memory:':
+		case 'libsql:':
+			return createRemoteLibSQLClient(appToken, remoteUrl);
+		default:
+			throw new Error(`Unsupported remote DB: ${remoteDbURL}`);
+	}
+}
+
+function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL) {
+	const options: Partial<LibSQLConfig> = Object.fromEntries(remoteDbURL.searchParams.entries());
+	remoteDbURL.search = '';
+
+	const client = createClient({
+		...options,
+		authToken: appToken,
+		url: remoteDbURL.protocol === 'memory:' ? ':memory:' : remoteDbURL.toString(),
+	});
+	const db = drizzleLibsql(client);
+
+	return db;
+}
+
+function createStudioDatabaseClient(appToken: string, remoteDbURL: URL) {
 	if (appToken == null) {
 		throw new Error(`Cannot create a remote client: missing app token.`);
 	}
