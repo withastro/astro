@@ -146,6 +146,7 @@ export class RenderContext {
 					this.routeData = routeData;
 					componentInstance = component;
 					this.isRewriting = true;
+					this.status = 200;
 				} else {
 					this.pipeline.logger.error(
 						'router',
@@ -230,16 +231,9 @@ export class RenderContext {
 		});
 	}
 
-	createActionAPIContext(): ActionAPIContext {
-		const renderContext = this;
-		const { cookies, params, pipeline, url } = this;
-		const generator = `Astro v${ASTRO_VERSION}`;
-		const redirect = (path: string, status = 302) =>
-			new Response(null, { status, headers: { Location: path } });
-
-		const rewrite = async (reroutePayload: RewritePayload) => {
-			pipeline.logger.debug('router', 'Called rewriting to:', reroutePayload);
-			if (!this.pipeline.manifest.rewritingEnabled) {
+	async #executeRewrite(reroutePayload: RewritePayload) {
+		this.pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
+		if (!this.pipeline.manifest.rewritingEnabled) {
 				this.pipeline.logger.error(
 					'router',
 					'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
@@ -253,23 +247,36 @@ export class RenderContext {
 					}
 				);
 			}
-			const [routeData, component, newURL] = await pipeline.tryRewrite(
-				reroutePayload,
-				this.request,
-				this.originalRoute
-			);
-			this.routeData = routeData;
-			if (reroutePayload instanceof Request) {
-				this.request = reroutePayload;
-			} else {
-				this.request = this.#copyRequest(newURL, this.request);
-			}
-			this.url = newURL;
-			this.cookies = new AstroCookies(this.request);
-			this.params = getParams(routeData, this.url.pathname);
-			this.isRewriting = true;
-			this.pathname = this.url.pathname;
-			return await this.render(component);
+			const [routeData, component, newURL] = await this.pipeline.tryRewrite(
+			reroutePayload,
+			this.request,
+			this.originalRoute
+		);
+		this.routeData = routeData;
+		if (reroutePayload instanceof Request) {
+			this.request = reroutePayload;
+		} else {
+			this.request = this.#copyRequest(newURL, this.request);
+		}
+		this.url = new URL(this.request.url);
+		this.cookies = new AstroCookies(this.request);
+		this.params = getParams(routeData, this.url.pathname);
+		this.pathname = this.url.pathname;
+		this.isRewriting = true;
+		// we found a route and a component, we can change the status code to 200
+		this.status = 200;
+		return await this.render(component);
+	}
+
+	createActionAPIContext(): ActionAPIContext {
+		const renderContext = this;
+		const { cookies, params, pipeline, url } = this;
+		const generator = `Astro v${ASTRO_VERSION}`;
+		const redirect = (path: string, status = 302) =>
+			new Response(null, { status, headers: { Location: path } });
+
+		const rewrite = async (reroutePayload: RewritePayload) => {
+			return await this.#executeRewrite(reroutePayload);
 		};
 
 		return {
@@ -447,38 +454,7 @@ export class RenderContext {
 		};
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
-			if (!this.pipeline.manifest.rewritingEnabled) {
-				this.pipeline.logger.error(
-					'router',
-					'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
-				);
-				return new Response(
-					'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
-					{
-						status: 500,
-						statusText:
-							'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
-					}
-				);
-			}
-			pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
-			const [routeData, component, newURL] = await pipeline.tryRewrite(
-				reroutePayload,
-				this.request,
-				this.originalRoute
-			);
-			this.routeData = routeData;
-			if (reroutePayload instanceof Request) {
-				this.request = reroutePayload;
-			} else {
-				this.request = this.#copyRequest(newURL, this.request);
-			}
-			this.url = new URL(this.request.url);
-			this.cookies = new AstroCookies(this.request);
-			this.params = getParams(routeData, this.url.pathname);
-			this.pathname = this.url.pathname;
-			this.isRewriting = true;
-			return await this.render(component);
+			return await this.#executeRewrite(reroutePayload);
 		};
 
 		return {
