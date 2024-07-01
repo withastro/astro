@@ -29,5 +29,6 @@
 
     // follow vite deps version
     "postcss-load-config",
+    "esbuild",
   ],
 }
