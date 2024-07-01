@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 5.3.5
+
+### Patch Changes
+
+- [#316](https://github.com/withastro/adapters/pull/316) [`d81806a`](https://github.com/withastro/adapters/commit/d81806a94a9bb5242b38c75bc173c17075fd3a41) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a regression where edge middleware tried to bundle node builtins
+
 ## 5.3.4
 
 ### Patch Changes
