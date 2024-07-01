@@ -84,11 +84,12 @@ export type SSRManifestI18n = {
 
 export type SerializedSSRManifest = Omit<
 	SSRManifest,
-	'middleware' | 'routes' | 'assets' | 'componentMetadata' | 'inlinedScripts' | 'clientDirectives'
+	'middleware' | 'routes' | 'assets' | 'componentMetadata' | 'inlinedScripts' | 'clientDirectives' | 'serverIslandNameMap'
 > & {
 	routes: SerializedRouteInfo[];
 	assets: string[];
 	componentMetadata: [string, SSRComponentMetadata][];
 	inlinedScripts: [string, string][];
 	clientDirectives: [string, string][];
+	serverIslandNameMap: [string, string][];
 };
