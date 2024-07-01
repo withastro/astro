@@ -1596,6 +1596,27 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
+  packages/astro/e2e/fixtures/server-islands:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+
   packages/astro/e2e/fixtures/solid-circular:
     dependencies:
       '@astrojs/solid-js':
@@ -3615,6 +3636,30 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../..
+
+  packages/astro/test/fixtures/server-islands/hybrid:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../../../../integrations/svelte
+      astro:
+        specifier: workspace:*
+        version: link:../../../..
+      svelte:
+        specifier: ^4.2.18
+        version: 4.2.18
+
+  packages/astro/test/fixtures/server-islands/ssr:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../../../../integrations/svelte
+      astro:
+        specifier: workspace:*
+        version: link:../../../..
+      svelte:
+        specifier: ^4.2.18
+        version: 4.2.18
 
   packages/astro/test/fixtures/set-html:
     dependencies:

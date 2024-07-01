@@ -69,6 +69,7 @@ export function createEndpoint(manifest: SSRManifest) {
 	
 	const instance: ComponentInstance = {
 		default: page,
+		partial: true,
 	};
 
 	return instance;
