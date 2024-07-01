@@ -46,8 +46,10 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 			return createStudioDatabaseClient(appToken, remoteUrl);
 		case 'libsql+http:':
 			remoteUrl.protocol = 'http:';
+			return createRemoteLibSQLClient(appToken, remoteUrl);
 		case 'libsql+https:':
 			remoteUrl.protocol = 'https:';
+			return createRemoteLibSQLClient(appToken, remoteUrl);
 		case 'ws:':
 		case 'wss:':
 		case 'file:':
