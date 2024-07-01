@@ -27,29 +27,29 @@
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "0.3.0",
-    "@astrojs/underscore-redirects": "^0.3.3",
-    "@cloudflare/workers-types": "^4.20240320.1",
-    "esbuild": "^0.19.5",
+    "@astrojs/internal-helpers": "0.4.1",
+    "@astrojs/underscore-redirects": "^0.3.4",
+    "@cloudflare/workers-types": "^4.20240620.0",
+    "esbuild": "^0.22.0",
     "estree-walker": "^3.0.3",
     "magic-string": "^0.30.10",
-    "miniflare": "^3.20240320.0",
+    "miniflare": "^3.20240620.0",
     "tiny-glob": "^0.2.9",
-    "wrangler": "^3.39.0"
+    "wrangler": "^3.62.0"
   },
   "peerDependencies": {
     "astro": "^4.10.3"
   },
   "devDependencies": {
     "@astrojs/test-utils": "workspace:*",
-    "astro": "^4.10.3",
+    "astro": "^4.11.3",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0-rc.12",
     "execa": "^8.0.1",
     "fast-glob": "^3.3.2",
-    "rollup": "^4.14.0",
+    "rollup": "^4.18.0",
     "strip-ansi": "^7.1.0",
-    "vite": "^5.2.13"
+    "vite": "^5.3.2"
   },
   "publishConfig": {
     "provenance": true
