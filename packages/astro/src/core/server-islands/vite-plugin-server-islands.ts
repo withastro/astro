@@ -1,17 +1,21 @@
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
-import type { AstroSettings, ComponentInstance } from '../../@types/astro.js';
-import type { ViteDevServer, Plugin as VitePlugin } from 'vite';
+import type { AstroSettings } from '../../@types/astro.js';
+import type { ConfigEnv, ViteDevServer, Plugin as VitePlugin } from 'vite';
 
 export const VIRTUAL_ISLAND_MAP_ID = '@astro-server-islands';
 export const RESOLVED_VIRTUAL_ISLAND_MAP_ID = '\0' + VIRTUAL_ISLAND_MAP_ID;
 const serverIslandPlaceholder = '\'$$server-islands$$\'';
 
 export function vitePluginServerIslands({ settings }: { settings: AstroSettings }): VitePlugin {
+	let command: ConfigEnv['command'] = 'serve';
 	let viteServer: ViteDevServer | null = null;
 	const referenceIdMap = new Map<string, string>();
 	return {
 		name: 'astro:server-islands',
 		enforce: 'post',
+		config(_config, { command: _command }) {
+			command = _command;
+		},
 		configureServer(_server) {
 			viteServer = _server;
 		},
@@ -53,7 +57,7 @@ export function vitePluginServerIslands({ settings }: { settings: AstroSettings 
 								});
 
 								// Build mode
-								if(!viteServer) {
+								if(command === 'build') {
 									let referenceId = this.emitFile({
 										type: 'chunk',
 										id: comp.specifier,
@@ -79,10 +83,8 @@ export function vitePluginServerIslands({ settings }: { settings: AstroSettings 
 			mapSource += '\n]);';
 			referenceIdMap.clear();
 
-			for (const [fileName, output] of Object.entries(bundles)) {
+			for (const [_fileName, output] of Object.entries(bundles)) {
 				if(output.type !== 'chunk') continue;
-
-				//console.log("OUTPUT", output.code);
 
 				if(output.code.includes(serverIslandPlaceholder)) {
 					output.code = output.code.replace(serverIslandPlaceholder, mapSource);
