@@ -66,16 +66,19 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 	if (typeof previewModule.default !== 'function') {
 		throw new Error(`[preview] ${settings.adapter.name} cannot preview your app.`);
 	}
-
+	const previewConfig = Object.assign({},
+		settings.config.vite.server,
+		settings.config.vite.preview,
+		settings.config.server,
+	)
 	const server = await previewModule.default({
+		...previewConfig,
 		outDir: settings.config.outDir,
 		client: settings.config.build.client,
 		serverEntrypoint: new URL(settings.config.build.serverEntry, settings.config.build.server),
-		host: getResolvedHostForHttpServer(settings.config.server.host),
-		port: settings.config.server.port,
+		host: getResolvedHostForHttpServer(previewConfig.host),
 		base: settings.config.base,
 		logger: new AstroIntegrationLogger(logger.options, settings.adapter.name),
-		headers: settings.config.server.headers,
 	});
 
 	return server;
