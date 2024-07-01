@@ -66,6 +66,7 @@ export async function matchRoute(
 				pathname: pathname,
 				logger,
 				serverLike,
+				base: config.base,
 			});
 			return {
 				route: maybeRoute,

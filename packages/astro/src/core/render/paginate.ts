@@ -5,11 +5,14 @@ import type {
 	Params,
 	Props,
 	RouteData,
+	AstroConfig
 } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { joinPaths } from '../path.js';
 
 export function generatePaginateFunction(
-	routeMatch: RouteData
+	routeMatch: RouteData,
+	base: AstroConfig['base'],
 ): (...args: Parameters<PaginateFunction>) => ReturnType<PaginateFunction> {
 	return function paginateUtility(
 		data: any[],
@@ -41,20 +44,20 @@ export function generatePaginateFunction(
 				...additionalParams,
 				[paramName]: includesFirstPageNumber || pageNum > 1 ? String(pageNum) : undefined,
 			};
-			const current = correctIndexRoute(routeMatch.generate({ ...params }));
+			const current = addRouteBase(routeMatch.generate({ ...params }), base);
 			const next =
 				pageNum === lastPage
 					? undefined
-					: correctIndexRoute(routeMatch.generate({ ...params, page: String(pageNum + 1) }));
+					: addRouteBase(routeMatch.generate({ ...params, page: String(pageNum + 1) }),  base);
 			const prev =
 				pageNum === 1
 					? undefined
-					: correctIndexRoute(
+					: addRouteBase(
 							routeMatch.generate({
 								...params,
 								page:
 									!includesFirstPageNumber && pageNum - 1 === 1 ? undefined : String(pageNum - 1),
-							})
+							}), base
 						);
 			return {
 				params,
@@ -77,12 +80,11 @@ export function generatePaginateFunction(
 	};
 }
 
-function correctIndexRoute(route: string) {
+function addRouteBase(route: string, base: AstroConfig['base']) {
 	// `routeMatch.generate` avoids appending `/`
 	// unless `trailingSlash: 'always'` is configured.
 	// This means an empty string is possible for the index route.
-	if (route === '') {
-		return '/';
-	}
-	return route;
+	let routeWithBase = joinPaths(base, route);
+	if (routeWithBase === '') routeWithBase = '/';
+	return routeWithBase;
 }
