@@ -78,6 +78,9 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	integrations: [],
 	markdown: markdownConfigDefaults,
 	vite: {},
+	contentCollection: {
+		JsonSchema: false
+	},
 	legacy: {},
 	redirects: {},
 	security: {},
@@ -85,7 +88,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		actions: false,
 		directRenderScript: false,
 		contentCollectionCache: false,
-		contentCollectionJsonSchema: false,
 		clientPrerender: false,
 		globalRoutePriority: false,
 		rewriting: false,
@@ -493,6 +495,9 @@ export const AstroConfigSchema = z.object({
 				}
 			})
 	),
+	contentCollection: z.optional(z.object({
+		JsonSchema: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.contentCollection.JsonSchema)
+	})),
 	security: z
 		.object({
 			checkOrigin: z.boolean().default(false),
@@ -510,10 +515,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
-			contentCollectionJsonSchema: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionJsonSchema),
 			clientPrerender: z
 				.boolean()
 				.optional()
