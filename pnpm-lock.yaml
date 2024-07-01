@@ -5322,8 +5322,8 @@ importers:
         specifier: ^2.6.0
         version: 2.6.0
       web-vitals:
-        specifier: ^3.5.2
-        version: 3.5.2
+        specifier: ^4.2.1
+        version: 4.2.1
     devDependencies:
       '@types/set-cookie-parser':
         specifier: ^2.4.9
@@ -5628,7 +5628,7 @@ importers:
     dependencies:
       web-vitals:
         specifier: ^4.2.0
-        version: 4.2.0
+        version: 4.2.1
     devDependencies:
       '@astrojs/db':
         specifier: workspace:*
@@ -9302,6 +9302,7 @@ packages:
 
   libsql@0.3.12:
     resolution: {integrity: sha512-to30hj8O3DjS97wpbKN6ERZ8k66MN1IaOfFLR6oHqd25GMiPJ/ZX0VaZ7w+TsPmxcFS3p71qArj/hiedCyvXCg==}
+    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lilconfig@2.1.0:
@@ -11526,11 +11527,8 @@ packages:
     resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
     engines: {node: '>= 8'}
 
-  web-vitals@3.5.2:
-    resolution: {integrity: sha512-c0rhqNcHXRkY/ogGDJQxZ9Im9D19hDihbzSQJrsioex+KnFgmMzBiy57Z1EjkhX/+OjyBpclDCzz2ITtjokFmg==}
-
-  web-vitals@4.2.0:
-    resolution: {integrity: sha512-ohj72kbtVWCpKYMxcbJ+xaOBV3En76hW47j52dG+tEGG36LZQgfFw5yHl9xyjmosy3XUMn8d/GBUAy4YPM839w==}
+  web-vitals@4.2.1:
+    resolution: {integrity: sha512-U6bAxeudnhDqcXNl50JC4hLlqox9DZnngxfISZm3DMZnonW35xtJOVUc091L+DOY+6hVZVpKXoiCP0RiT6339Q==}
 
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
@@ -18204,9 +18202,7 @@ snapshots:
 
   web-streams-polyfill@3.3.3: {}
 
-  web-vitals@3.5.2: {}
-
-  web-vitals@4.2.0: {}
+  web-vitals@4.2.1: {}
 
   webidl-conversions@3.0.1: {}
 
