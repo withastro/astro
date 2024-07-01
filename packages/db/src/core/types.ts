@@ -1,4 +1,3 @@
-import type { AstroIntegration } from 'astro';
 import type { z } from 'zod';
 import type {
 	MaybeArray,
@@ -88,13 +87,16 @@ interface LegacyIndexConfig<TColumns extends ColumnsConfig>
 export type NumberColumnOpts = z.input<typeof numberColumnOptsSchema>;
 export type TextColumnOpts = z.input<typeof textColumnOptsSchema>;
 
-export type AstroDbIntegration = AstroIntegration & {
-	hooks: {
-		'astro:db:setup'?: (options: {
-			extendDb: (options: {
-				configEntrypoint?: URL | string;
-				seedEntrypoint?: URL | string;
-			}) => void;
-		}) => void | Promise<void>;
-	};
-};
+declare global {
+	// eslint-disable-next-line  @typescript-eslint/no-namespace
+	namespace Astro {
+		export interface IntegrationHooks {
+			'astro:db:setup'?: (options: {
+				extendDb: (options: {
+					configEntrypoint?: URL | string;
+					seedEntrypoint?: URL | string;
+				}) => void;
+			}) => void | Promise<void>;
+		}
+	}
+}
