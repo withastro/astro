@@ -16,6 +16,11 @@ export interface ParseDataOptions {
 	filePath?: string;
 }
 
+export type DataWithId = {
+	id: string;
+	[key: string]: unknown;
+};
+
 export interface LoaderContext {
 	/** The unique name of the collection */
 	collection: string;
@@ -28,9 +33,7 @@ export interface LoaderContext {
 	settings: AstroSettings;
 
 	/** Validates and parses the data according to the collection schema */
-	parseData<T extends Record<string, unknown> = Record<string, unknown>>(
-		props: ParseDataOptions
-	): T;
+	parseData(props: ParseDataOptions): Promise<DataWithId>;
 
 	/** When running in dev, this is a filesystem watcher that can be used to trigger updates */
 	watcher?: FSWatcher;
@@ -83,7 +86,7 @@ export async function syncContentLayer({
 
 			let { schema } = collection;
 
-			if (!schema) {
+			if (!schema && typeof collection.loader === 'object') {
 				schema = collection.loader.schema;
 			}
 
@@ -97,12 +100,8 @@ export async function syncContentLayer({
 
 			const collectionWithResolvedSchema = { ...collection, schema };
 
-			function parseData<T extends Record<string, unknown> = Record<string, unknown>>({
-				id,
-				data,
-				filePath = '',
-			}: { id: string; data: T; filePath?: string }): T {
-				return getEntryData(
+			const parseData: LoaderContext['parseData'] = ({ id, data, filePath = '' }) =>
+				getEntryData(
 					{
 						id,
 						collection: name,
@@ -114,10 +113,9 @@ export async function syncContentLayer({
 					},
 					collectionWithResolvedSchema,
 					false
-				) as unknown as T;
-			}
+				) as Promise<DataWithId>;
 
-			return collection.loader.load({
+			const payload: LoaderContext = {
 				collection: name,
 				store: store.scopedStore(name),
 				meta: store.metaStore(name),
@@ -125,7 +123,17 @@ export async function syncContentLayer({
 				settings,
 				parseData,
 				watcher,
-			});
+			};
+
+			if (typeof collection.loader === 'function') {
+				return simpleLoader(collection.loader, payload);
+			}
+
+			if (!collection.loader.load) {
+				throw new Error(`Collection loader for ${name} does not have a load method`);
+			}
+
+			return collection.loader.load(payload);
 		})
 	);
 	const cacheFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
@@ -134,4 +142,16 @@ export async function syncContentLayer({
 	}
 	await store.writeToDisk(cacheFile);
 	logger.info('Synced content');
+}
+
+export async function simpleLoader(
+	handler: () => Array<DataWithId> | Promise<Array<DataWithId>>,
+	context: LoaderContext
+) {
+	const data = await handler();
+	context.store.clear();
+	for (const raw of data) {
+		const item = await context.parseData({ id: raw.id, data: raw });
+		context.store.set(raw.id, item);
+	}
 }

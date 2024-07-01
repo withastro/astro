@@ -369,7 +369,11 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 		return `InferEntrySchema<${collectionKey}>`;
 	}
 
-	if (collection?.type === 'experimental_data' && collection.loader.schema) {
+	if (
+		collection?.type === 'experimental_data' &&
+		typeof collection.loader === 'object' &&
+		collection.loader.schema
+	) {
 		let schema = collection.loader.schema;
 		if (typeof schema === 'function') {
 			schema = await schema();
