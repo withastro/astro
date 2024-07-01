@@ -234,20 +234,20 @@ export class RenderContext {
 	async #executeRewrite(reroutePayload: RewritePayload) {
 		this.pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
 		if (!this.pipeline.manifest.rewritingEnabled) {
-				this.pipeline.logger.error(
-					'router',
-					'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
-				);
-				return new Response(
-					'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
-					{
-						status: 500,
-						statusText:
-							'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
-					}
-				);
-			}
-			const [routeData, component, newURL] = await this.pipeline.tryRewrite(
+			this.pipeline.logger.error(
+				'router',
+				'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
+			);
+			return new Response(
+				'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
+				{
+					status: 500,
+					statusText:
+						'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
+				}
+			);
+		}
+		const [routeData, component, newURL] = await this.pipeline.tryRewrite(
 			reroutePayload,
 			this.request,
 			this.originalRoute
