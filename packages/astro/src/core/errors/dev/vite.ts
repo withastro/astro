@@ -146,8 +146,7 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 	let highlighterLang = err.loc?.file?.split('.').pop();
 	if (ALTERNATIVE_JS_EXTS.includes(highlighterLang ?? '')) {
 		highlighterLang = 'js';
-	}
-	if (ALTERNATIVE_MD_EXTS.includes(highlighterLang ?? '')) {
+	} else if (ALTERNATIVE_MD_EXTS.includes(highlighterLang ?? '')) {
 		highlighterLang = 'md';
 	}
 	const highlightedCode = err.fullCode

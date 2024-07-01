@@ -29,8 +29,7 @@ export function transformSlots(vnode: AstroVNode) {
 		slots[name]['$$slot'] = true;
 		delete child.props.slot;
 		delete vnode.props.children;
-	}
-	if (Array.isArray(vnode.props.children)) {
+	} else if (Array.isArray(vnode.props.children)) {
 		// Handle many children with slot attributes
 		vnode.props.children = vnode.props.children
 			.map((child) => {
