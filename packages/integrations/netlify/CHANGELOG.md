@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 5.3.4
+
+### Patch Changes
+
+- [#313](https://github.com/withastro/adapters/pull/313) [`55a3e1a`](https://github.com/withastro/adapters/commit/55a3e1a4356c87f86ae60990a87c6a055f217efb) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes an issue where files were not included in the SSR function when built in a monorepo
+
 ## 5.3.3
 
 ### Patch Changes
