@@ -39,6 +39,7 @@ export interface ShikiConfig {
 	langs?: LanguageRegistration[];
 	theme?: ThemePresets | ThemeRegistration | ThemeRegistrationRaw;
 	themes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
+	defaultColor?: 'light' | 'dark' | string | false;
 	wrap?: boolean | null;
 	transformers?: ShikiTransformer[];
 }

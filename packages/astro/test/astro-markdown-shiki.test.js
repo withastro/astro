@@ -78,6 +78,22 @@ describe('Astro Markdown Shiki', () => {
 				);
 			});
 		});
+
+		describe('Default color', async () => {
+			let fixture;
+
+			before(async () => {
+				fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/default-color/' });
+				await fixture.build();
+			});
+
+			it('Renders default color without themes', async () => {
+				const html = await fixture.readFile('/index.html');
+				const $ = cheerio.load(html);
+
+				assert.doesNotMatch($('pre').attr().style, /background-color/);
+			});
+		});
 	});
 
 	describe('Languages', () => {
