@@ -1,9 +1,11 @@
 import deepDiff from 'deep-diff';
+import { sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import * as color from 'kleur/colors';
 import { customAlphabet } from 'nanoid';
 import stripAnsi from 'strip-ansi';
 import { hasPrimaryKey } from '../../runtime/index.js';
+import { createRemoteDatabaseClient } from '../../runtime/index.js';
 import { isSerializedSQL } from '../../runtime/types.js';
 import { safeFetch } from '../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../consts.js';
@@ -33,7 +35,7 @@ import {
 	type ResolvedIndexes,
 	type TextColumn,
 } from '../types.js';
-import { type Result, getRemoteDatabaseUrl } from '../utils.js';
+import { type Result, getRemoteDatabaseUrl, isRemoteStudio } from '../utils.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
@@ -422,12 +424,46 @@ function hasRuntimeDefault(column: DBColumn): column is DBColumnWithDefault {
 	return !!(column.schema.default && isSerializedSQL(column.schema.default));
 }
 
-export async function getProductionCurrentSnapshot({
-	appToken,
-}: {
+export function getProductionCurrentSnapshot(options: {
 	appToken: string;
 }): Promise<DBSnapshot | undefined> {
-	const url = new URL('/db/schema', getRemoteDatabaseUrl());
+	const remoteUrl = getRemoteDatabaseUrl();
+
+	return isRemoteStudio(remoteUrl)
+		? getStudioCurrentSnapshot(options.appToken, remoteUrl)
+		: getDbCurrentSnapshot(options.appToken, remoteUrl);
+}
+
+async function getDbCurrentSnapshot(
+	appToken: string,
+	remoteUrl: string
+): Promise<DBSnapshot | undefined> {
+	const client = createRemoteDatabaseClient(appToken, remoteUrl);
+
+	try {
+		const res = await client.get<{ snapshot: string }>(
+			// Latest snapshot
+			sql`select snapshot from _astro_db_snapshot order by id desc limit 1;`
+		);
+
+		console.log('DB res:', res);
+
+		return JSON.parse(res.snapshot);
+	} catch (error: any) {
+		if (error.code === 'SQLITE_UNKNOWN') {
+			// Snapshots table was not created yet,
+			return;
+		}
+
+		throw error;
+	}
+}
+
+async function getStudioCurrentSnapshot(
+	appToken: string,
+	remoteUrl: string
+): Promise<DBSnapshot | undefined> {
+	const url = new URL('/db/schema', remoteUrl);
 
 	const response = await safeFetch(
 		url,

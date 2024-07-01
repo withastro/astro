@@ -1,11 +1,13 @@
 import { getManagedAppTokenOrExit } from '@astrojs/studio';
 import type { AstroConfig } from 'astro';
+import { sql } from 'drizzle-orm';
 import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
+import { createRemoteDatabaseClient } from '../../../../runtime/index.js';
 import { safeFetch } from '../../../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../../../consts.js';
 import { type DBConfig, type DBSnapshot } from '../../../types.js';
-import { type Result, getRemoteDatabaseUrl } from '../../../utils.js';
+import { type Result, getRemoteDatabaseUrl, isRemoteStudio } from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
@@ -87,7 +89,7 @@ async function pushSchema({
 	isDryRun: boolean;
 	currentSnapshot: DBSnapshot;
 }) {
-	const requestBody = {
+	const requestBody: RequestBody = {
 		snapshot: currentSnapshot,
 		sql: statements,
 		version: MIGRATION_VERSION,
@@ -96,7 +98,43 @@ async function pushSchema({
 		console.info('[DRY RUN] Batch query:', JSON.stringify(requestBody, null, 2));
 		return new Response(null, { status: 200 });
 	}
-	const url = new URL('/db/push', getRemoteDatabaseUrl());
+
+	const remoteUrl = getRemoteDatabaseUrl();
+
+	return isRemoteStudio(remoteUrl)
+		? pushToStudio(requestBody, appToken, remoteUrl)
+		: pushToDb(requestBody, appToken, remoteUrl);
+}
+
+type RequestBody = {
+	snapshot: DBSnapshot;
+	sql: string[];
+	version: string;
+};
+
+async function pushToDb(requestBody: RequestBody, appToken: string, remoteUrl: string) {
+	const client = createRemoteDatabaseClient(appToken, remoteUrl);
+
+	await client.run(sql`create table if not exists _astro_db_snapshot (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		version TEXT,
+		snapshot BLOB
+	);`);
+
+	await client.transaction(async (tx) => {
+		for (const stmt of requestBody.sql) {
+			await tx.run(sql.raw(stmt));
+		}
+
+		await tx.run(sql`insert into _astro_db_snapshot (version, snapshot) values (
+			${requestBody.version},
+			${JSON.stringify(requestBody.snapshot)}
+		)`);
+	});
+}
+
+async function pushToStudio(requestBody: RequestBody, appToken: string, remoteUrl: string) {
+	const url = new URL('/db/push', remoteUrl);
 	const response = await safeFetch(
 		url,
 		{
