@@ -25,7 +25,7 @@
     "./client.js": "./client.js",
     "./client-v17.js": "./client-v17.js",
     "./server.js": {
-      "default": "./server.js",
+      "import": "./server.js",
       "types": "./server.d.ts"
     },
     "./server-v17.js": {

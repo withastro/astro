@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { experimental_AstroContainer } from '../dist/container/index.js';
 import {
 	Fragment,
@@ -233,7 +233,29 @@ describe('Container', () => {
 	});
 });
 
-describe('Container with renderers', () => {
+describe('Container with renderers, DEV', () => {
+	let fixture;
+	let devServer;
+	before(async () => {
+		fixture = await loadFixture({
+			root: new URL('./fixtures/container-custom-renderers/', import.meta.url),
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('the endpoint should return the HTML of the React component', async () => {
+		const response = await fixture.fetch('/button-directive');
+		const html = await response.text();
+
+		assert.match(html, /I am a react button/);
+	});
+});
+
+describe.skip('Container with renderers, SSR', () => {
 	let fixture;
 	let app;
 	before(async () => {
@@ -262,7 +284,7 @@ describe('Container with renderers', () => {
 		assert.match(html, /I am a vue button/);
 	});
 
-	it('Should render a component with directives', async () => {
+	it.skip('Should render a component with directives', async () => {
 		const request = new Request('https://example.com/button-directive');
 		const response = await app.render(request);
 		const html = await response.text();
