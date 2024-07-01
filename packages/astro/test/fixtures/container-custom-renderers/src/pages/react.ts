@@ -1,4 +1,4 @@
-import type {APIRoute, SSRLoadedRenderer} from "astro";
+import type {APIRoute} from "astro";
 import { experimental_AstroContainer } from "astro/container";
 import renderer from '@astrojs/react/server.js';
 import Component from "../components/button.jsx"

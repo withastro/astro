@@ -14,6 +14,7 @@ import type {
 	SSRManifest,
 	SSRResult,
 } from '../@types/astro.js';
+import { getDefaultClientDirectives } from '../core/client-directive/index.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
 import { validateConfig } from '../core/config/validate.js';
 import { Logger } from '../core/logger/core.js';
@@ -83,6 +84,13 @@ export type ContainerRenderOptions = {
 	 * ```
 	 */
 	props?: Props;
+
+	/**
+	 * Allows to bypass clientside hydration of components.
+	 *
+	 * If you're testing components that use `client:*` directives, you might want to use this option.
+	 */
+	skipClientDirectives?: boolean;
 };
 
 export type AddServerRenderer =
@@ -114,7 +122,7 @@ function createManifest(
 		entryModules: manifest?.entryModules ?? {},
 		routes: manifest?.routes ?? [],
 		adapterName: '',
-		clientDirectives: manifest?.clientDirectives ?? new Map(),
+		clientDirectives: manifest?.clientDirectives ?? getDefaultClientDirectives(),
 		renderers: renderers ?? manifest?.renderers ?? [],
 		base: manifest?.base ?? ASTRO_CONFIG_DEFAULTS.base,
 		componentMetadata: manifest?.componentMetadata ?? new Map(),
@@ -435,6 +443,9 @@ export class experimental_AstroContainer {
 			pathname: url.pathname,
 			locals: options?.locals ?? {},
 		});
+		if (options.skipClientDirectives === true) {
+			renderContext.skipHydration = true;
+		}
 		if (options.params) {
 			renderContext.params = options.params;
 		}
