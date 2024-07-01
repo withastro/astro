@@ -39,7 +39,26 @@ export const collectionConfigParser = z.union([
 		type: z.literal('experimental_data'),
 		schema: z.any().optional(),
 		loader: z.union([
-			z.function().returns(z.union([z.array(z.any()), z.promise(z.array(z.any()))])),
+			z.function().returns(
+				z.union([
+					z.array(
+						z
+							.object({
+								id: z.string(),
+							})
+							.catchall(z.unknown())
+					),
+					z.promise(
+						z.array(
+							z
+								.object({
+									id: z.string(),
+								})
+								.catchall(z.unknown())
+						)
+					),
+				])
+			),
 			z.object({
 				name: z.string(),
 				load: z.function(
