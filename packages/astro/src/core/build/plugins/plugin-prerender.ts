@@ -40,7 +40,7 @@ function getNonPrerenderOnlyChunks(bundle: Rollup.OutputBundle, internals: Build
 	const prerenderOnlyEntryChunks = new Set<Rollup.OutputChunk>();
 	const nonPrerenderOnlyEntryChunks = new Set<Rollup.OutputChunk>();
 	for (const chunk of chunks) {
-		if (chunk.type === 'chunk' && (chunk.isEntry || chunk.isDynamicEntry)) {
+		if (chunk.type === 'chunk' && chunk.isEntry) {
 			// See if this entry chunk is prerendered, if so, skip it
 			if (chunk.facadeModuleId?.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
 				const pageDatas = getPagesFromVirtualModulePageName(
