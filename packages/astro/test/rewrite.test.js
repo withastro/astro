@@ -519,3 +519,30 @@ describe('Runtime error in SSR, custom 500', () => {
 		assert.equal($('h1').text(), 'I am the custom 500');
 	});
 });
+
+describe('Runtime error in SSR, custom 500', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-i18n-manual-routing/',
+			output: 'server',
+			adapter: testAdapter(),
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should return a status 200 when rewriting from the middleware to the homepage', async () => {
+		const request = new Request('http://example.com/foo');
+		const response = await app.render(request);
+		assert.equal(response.status, 200);
+		const html = await response.text();
+
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Expected http status of index page is 200');
+	});
+});
