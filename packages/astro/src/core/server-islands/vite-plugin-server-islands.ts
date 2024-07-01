@@ -29,7 +29,7 @@ export function vitePluginServerIslands({ settings }: { settings: AstroSettings 
 				return `export const serverIslandMap = ${serverIslandPlaceholder};`;
 			}
 		},
-		transform(code, id, options) {
+		transform(_code, id) {
 			if(id.endsWith('.astro')) {
 				const info = this.getModuleInfo(id);
 				if(info?.meta) {
@@ -73,7 +73,7 @@ export function vitePluginServerIslands({ settings }: { settings: AstroSettings 
 				}
 			}
 		},
-		generateBundle(options, bundles) {
+		generateBundle(_options, bundles) {
 			let mapSource = 'new Map([';
 			for(let [resolvedPath, referenceId] of referenceIdMap) {
 				const fileName = this.getFileName(referenceId);
