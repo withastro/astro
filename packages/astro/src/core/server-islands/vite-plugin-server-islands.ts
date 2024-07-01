@@ -73,23 +73,18 @@ export function vitePluginServerIslands({ settings }: { settings: AstroSettings 
 				}
 			}
 		},
-		generateBundle(_options, bundles) {
-			let mapSource = 'new Map([';
-			for(let [resolvedPath, referenceId] of referenceIdMap) {
-				const fileName = this.getFileName(referenceId);
-				const islandName = settings.serverIslandNameMap.get(resolvedPath)!;
-				mapSource += `\n\t['${islandName}', () => import('./${fileName}')],`
-			}
-			mapSource += '\n]);';
-			referenceIdMap.clear();
-
-			for (const [_fileName, output] of Object.entries(bundles)) {
-				if(output.type !== 'chunk') continue;
-
-				if(output.code.includes(serverIslandPlaceholder)) {
-					output.code = output.code.replace(serverIslandPlaceholder, mapSource);
+		renderChunk(code) {
+			if(code.includes(serverIslandPlaceholder)) {
+				let mapSource = 'new Map([';
+				for(let [resolvedPath, referenceId] of referenceIdMap) {
+					const fileName = this.getFileName(referenceId);
+					const islandName = settings.serverIslandNameMap.get(resolvedPath)!;
+					mapSource += `\n\t['${islandName}', () => import('./${fileName}')],`
 				}
+				mapSource += '\n]);';
+				referenceIdMap.clear();
+				return code.replace(serverIslandPlaceholder, mapSource);
 			}
-		}
+		},
 	}
 }
