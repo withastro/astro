@@ -46,7 +46,7 @@ import type {
 	TransitionBeforePreparationEvent,
 	TransitionBeforeSwapEvent,
 } from '../transitions/events.js';
-import type { DeepPartial, OmitIndexSignature, Simplify, WithRequired } from '../type-utils.js';
+import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
 export type { AstroIntegrationLogger, ToolbarServerHelpers };

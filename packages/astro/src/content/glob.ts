@@ -5,15 +5,17 @@ import fastGlob from 'fast-glob';
 import pLimit from 'p-limit';
 import { getContentEntryIdAndSlug, getEntryConfigByExtMap } from './utils.js';
 import type { ContentEntryType, DataEntryType } from '../@types/astro.js';
+import micromatch from 'micromatch';
+import { relative } from 'path/posix';
 
 export interface GlobOptions {
 	/** The glob pattern to match files, relative to the base directory */
 	pattern: string;
-	/** The base directory to resolve the glob pattern from. Relative to the site root. Defaults to the content directory */
+	/** The base directory to resolve the glob pattern from, relative to the root directory. Defaults to `.` */
 	base?: string;
 }
 
-function generateSlug(entry: URL, base: URL) {
+function generateSlugDefault(entry: URL, base: URL) {
 	const { slug } = getContentEntryIdAndSlug({
 		entry,
 		contentDir: base,
@@ -26,14 +28,7 @@ function generateSlug(entry: URL, base: URL) {
  * Loads multiple entries, using a glob pattern to match files.
  * @param pattern A glob pattern to match files, relative to the content directory.
  */
-export function glob(patternOrOptions: string | GlobOptions): Loader {
-	const globOptions: GlobOptions =
-		typeof patternOrOptions === 'string'
-			? {
-					pattern: patternOrOptions,
-				}
-			: patternOrOptions;
-
+export function glob(globOptions: GlobOptions): Loader {
 	if (globOptions.pattern.startsWith('../')) {
 		throw new Error(
 			'Glob patterns cannot start with `../`. Set the `base` option to a parent directory instead.'
@@ -60,7 +55,6 @@ export function glob(patternOrOptions: string | GlobOptions): Loader {
 		});
 
 		const resolvedId = (info as any).id || (info as any).slug || id;
-		console.log('setting', resolvedId, info);
 		store.set(resolvedId, { ...info, id: resolvedId });
 	}
 
@@ -74,11 +68,9 @@ export function glob(patternOrOptions: string | GlobOptions): Loader {
 				...settings.dataEntryTypes,
 			]);
 
-			const contentDir = new URL('./content/', settings.config.srcDir);
-
 			const baseDir = globOptions.base
 				? new URL(globOptions.base, settings.config.root)
-				: contentDir;
+				: settings.config.root;
 
 			if (!baseDir.pathname.endsWith('/')) {
 				baseDir.pathname = `${baseDir.pathname}/`;
@@ -104,21 +96,38 @@ export function glob(patternOrOptions: string | GlobOptions): Loader {
 					limit(async () => {
 						const entryType = configForFile(file);
 						const fileURL = new URL(file, baseDir);
-						const slug = generateSlug(fileURL, baseDir);
+						const slug = generateSlugDefault(fileURL, baseDir);
 						await syncData(slug, fileURL, options, entryType);
 					})
 				)
 			);
 
-			watcher?.on('change', async (changedPath) => {
+			const matcher: RegExp = micromatch.makeRe(globOptions.pattern);
+
+			const matchesGlob = (entry: string) => !entry.startsWith('../') && matcher.test(entry);
+
+			const basePath = fileURLToPath(baseDir);
+
+			async function onChange(changedPath: string) {
+				const entry = relative(basePath, changedPath);
+				if (!matchesGlob(entry)) {
+					return;
+				}
 				const entryType = configForFile(changedPath);
 				const changedFile = pathToFileURL(changedPath);
-				const slug = generateSlug(changedFile, baseDir);
+				const slug = generateSlugDefault(changedFile, baseDir);
 				await syncData(slug, changedFile, options, entryType);
-			});
+			}
+			watcher?.on('change', onChange);
+
+			watcher?.on('add', onChange);
 
 			watcher?.on('unlink', async (deletedPath) => {
-				const slug = generateSlug(pathToFileURL(deletedPath), baseDir);
+				const entry = relative(basePath, deletedPath);
+				if (!matchesGlob(entry)) {
+					return;
+				}
+				const slug = generateSlugDefault(pathToFileURL(deletedPath), baseDir);
 				options.store.delete(slug);
 			});
 		},

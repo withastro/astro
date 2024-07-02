@@ -67,6 +67,9 @@ export async function syncContentLayer({
 	store,
 	watcher,
 }: SyncContentLayerOptions) {
+	// The default max listeners is 10, which can be exceeded when using a lot of loaders
+	watcher?.setMaxListeners(50);
+
 	const logger = globalLogger.forkIntegrationLogger('content');
 	logger.info('Syncing content');
 	if (!store) {

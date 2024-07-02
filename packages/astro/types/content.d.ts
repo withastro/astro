@@ -76,7 +76,7 @@ declare module 'astro:content' {
 		base?: string;
 	}
 
-	export function glob(patternOrOptions: string | GlobOptions): Loader;
+	export function glob(options: GlobOptions): Loader;
 
 	type BaseSchemaWithoutEffects =
 		| import('astro/zod').AnyZodObject

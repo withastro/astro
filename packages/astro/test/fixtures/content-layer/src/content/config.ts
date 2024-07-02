@@ -8,7 +8,7 @@ const blog = defineCollection({
 
 const dogs = defineCollection({
 	type: "experimental_data",
-	loader: file("_data/dogs.json"),
+	loader: file("src/data/dogs.json"),
 	schema: z.object({
 		breed: z.string(),
 		id: z.string(),
@@ -73,7 +73,7 @@ const spacecraft = defineCollection({
 
 const numbers = defineCollection({
 	type: "experimental_data",
-	loader: glob("_data/glob-data/*"),
+	loader: glob({pattern: "src/data/glob-data/*", base: "."}),
 })
 
 export const collections = { blog, dogs, cats, numbers, spacecraft };
