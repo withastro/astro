@@ -58,10 +58,10 @@
     "@eslint/eslintrc": "^3.1.0",
     "@types/node": "^18.17.8",
     "esbuild": "^0.21.5",
-    "eslint": "^9.5.0",
+    "eslint": "^9.6.0",
     "eslint-plugin-no-only-tests": "^3.1.0",
     "eslint-plugin-regexp": "^2.6.0",
-    "globby": "^14.0.1",
+    "globby": "^14.0.2",
     "only-allow": "^1.2.1",
     "organize-imports-cli": "^0.10.0",
     "prettier": "^3.3.2",
@@ -69,7 +69,7 @@
     "tiny-glob": "^0.2.9",
     "turbo": "^1.13.4",
     "typescript": "~5.5.2",
-    "typescript-eslint": "^7.13.1"
+    "typescript-eslint": "^7.14.1"
   },
   "pnpm": {
     "packageExtensions": {

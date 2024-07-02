@@ -11,6 +11,7 @@ import * as I18nInternals from '../i18n/index.js';
 import type { RedirectToFallback } from '../i18n/index.js';
 import { toRoutingStrategy } from '../i18n/utils.js';
 import type { I18nInternalConfig } from '../i18n/vite-plugin-i18n.js';
+
 export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
 
 const { trailingSlash, format, site, i18n, isBuild } =
@@ -19,7 +20,7 @@ const { trailingSlash, format, site, i18n, isBuild } =
 const { defaultLocale, locales, domains, fallback, routing } = i18n!;
 const base = import.meta.env.BASE_URL;
 
-const strategy = toRoutingStrategy(routing, domains);
+let strategy = toRoutingStrategy(routing, domains);
 
 export type GetLocaleOptions = I18nInternals.GetLocaleOptions;
 
@@ -372,10 +373,11 @@ export let middleware: (customOptions: NewAstroRoutingConfigWithoutManual) => Mi
 
 if (i18n?.routing === 'manual') {
 	middleware = (customOptions: NewAstroRoutingConfigWithoutManual) => {
+		strategy = toRoutingStrategy(customOptions, {});
 		const manifest: SSRManifest['i18n'] = {
 			...i18n,
 			fallback: undefined,
-			strategy: toRoutingStrategy(customOptions, {}),
+			strategy,
 			domainLookupTable: {},
 		};
 		return I18nInternals.createMiddleware(manifest, base, trailingSlash, format);

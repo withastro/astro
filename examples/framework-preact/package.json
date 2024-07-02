@@ -14,6 +14,6 @@
     "@astrojs/preact": "^3.5.0",
     "@preact/signals": "^1.2.3",
     "astro": "^4.11.3",
-    "preact": "^10.22.0"
+    "preact": "^10.22.1"
   }
 }
