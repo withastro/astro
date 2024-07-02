@@ -1,4 +1,4 @@
-import { defineCollection, file, z } from 'astro:content';
+import { defineCollection, file, glob, z } from 'astro:content';
 import { loader } from '../loaders/post-loader.js';
 
 const blog = defineCollection({
@@ -8,7 +8,7 @@ const blog = defineCollection({
 
 const dogs = defineCollection({
 	type: "experimental_data",
-	loader: file("_data/dogs.json"),
+	loader: file("src/data/dogs.json"),
 	schema: z.object({
 		breed: z.string(),
 		id: z.string(),
@@ -66,4 +66,14 @@ const cats = defineCollection({
 	}),
 })
 
-export const collections = { blog, dogs, cats };
+const spacecraft = defineCollection({
+	type: "experimental_data",
+	loader: glob({ pattern: "*", base: "content-outside-src" })
+})
+
+const numbers = defineCollection({
+	type: "experimental_data",
+	loader: glob({pattern: "src/data/glob-data/*", base: "."}),
+})
+
+export const collections = { blog, dogs, cats, numbers, spacecraft };

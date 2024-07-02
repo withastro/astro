@@ -57,9 +57,8 @@ export function file(fileName: string): Loader {
 		name: 'file-loader',
 		load: async (options) => {
 			const { settings, logger, watcher } = options;
-			const contentDir = new URL('./content/', settings.config.srcDir);
 			logger.debug(`Loading data from ${fileName}`);
-			const url = new URL(fileName, contentDir);
+			const url = new URL(fileName, settings.config.root);
 			if (!existsSync(url)) {
 				logger.error(`File not found: ${fileName}`);
 				return;

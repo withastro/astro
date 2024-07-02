@@ -16,7 +16,7 @@ import {
 import type { ContentLookupMap } from './utils.js';
 import { globalDataStore } from './data-store.js';
 export { file } from './file.js';
-
+export { glob } from './glob.js';
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
