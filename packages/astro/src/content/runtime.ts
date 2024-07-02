@@ -14,6 +14,8 @@ import {
 	unescapeHTML,
 } from '../runtime/server/index.js';
 import type { ContentLookupMap } from './utils.js';
+import { globalDataStore } from './data-store.js';
+export { file } from './file.js';
 
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
@@ -56,11 +58,19 @@ export function createGetCollection({
 	cacheEntriesByCollection: Map<string, any[]>;
 }) {
 	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
-		let type: 'content' | 'data';
+		const store = await globalDataStore.get();
+		let type: 'content' | 'data' | 'experimental_data';
 		if (collection in contentCollectionToEntryMap) {
 			type = 'content';
 		} else if (collection in dataCollectionToEntryMap) {
 			type = 'data';
+		} else if (store.hasCollection(collection)) {
+			return [...store.entries(collection)].map(([id, data]) => ({
+				id,
+				collection,
+				data,
+				type: 'experimental_data',
+			}));
 		} else {
 			// eslint-disable-next-line no-console
 			console.warn(
@@ -153,6 +163,21 @@ export function createGetEntryBySlug({
 
 export function createGetDataEntryById({ getEntryImport }: { getEntryImport: GetEntryImport }) {
 	return async function getDataEntryById(collection: string, id: string) {
+		const store = await globalDataStore.get();
+
+		if (store.hasCollection(collection)) {
+			const data = store.get(collection, id);
+			if (!data) {
+				throw new Error(`Entry ${collection} → ${id} was not found.`);
+			}
+
+			return {
+				id,
+				collection,
+				data: store.get(collection, id),
+			};
+		}
+
 		const lazyImport = await getEntryImport(collection, id);
 
 		// TODO: AstroError

@@ -1,0 +1,30 @@
+---
+import { getCollection, getDataEntryById } from 'astro:content';
+
+const blog = await getCollection('blog');
+const first = await getDataEntryById('blog', 1);
+const dogs = await getCollection('dogs');
+---
+<html>
+<head>
+	<title>Index</title>
+</head>
+<body>
+
+	<h1>Dogs</h1>
+	<ul>
+		{dogs.map(dog => (
+			<li><a href={`/dogs/${dog.id}`}>{ dog.data?.breed }</a></li>
+		))}
+	</ul>
+	<h1>Blog Posts</h1>
+
+	<h2>{first.data.title}</h2>
+	<ul>
+		{blog.map(post => (
+			<li><a href={`/blog/${post.id}`}>{ post.data?.title }</a></li>
+		))}
+	</ul>
+	
+</body>
+</html>

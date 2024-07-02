@@ -4,6 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import glob from 'fast-glob';
 import pLimit from 'p-limit';
 import type { Plugin } from 'vite';
+import { dataToEsm } from '@rollup/pluginutils';
 import type { AstroSettings } from '../@types/astro.js';
 import { encodeName } from '../core/build/util.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -15,6 +16,9 @@ import {
 	CONTENT_FLAG,
 	CONTENT_RENDER_FLAG,
 	DATA_FLAG,
+	DATA_STORE_FILE,
+	DATA_STORE_VIRTUAL_ID,
+	RESOLVED_DATA_STORE_VIRTUAL_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
@@ -42,6 +46,7 @@ export function astroContentVirtualModPlugin({
 }: AstroContentVirtualModPluginParams): Plugin {
 	let IS_DEV = false;
 	const IS_SERVER = isServerLikeOutput(settings.config);
+	const dataStoreFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
@@ -59,6 +64,9 @@ export function astroContentVirtualModPlugin({
 					// For SSG (production), we will build this file ourselves
 					return { id: RESOLVED_VIRTUAL_MODULE_ID, external: true };
 				}
+			}
+			if (id === DATA_STORE_VIRTUAL_ID) {
+				return RESOLVED_DATA_STORE_VIRTUAL_ID;
 			}
 		},
 		async load(id, args) {
@@ -91,6 +99,25 @@ export function astroContentVirtualModPlugin({
 					} satisfies AstroPluginMetadata,
 				};
 			}
+			if (id === RESOLVED_DATA_STORE_VIRTUAL_ID) {
+				if (!fs.existsSync(dataStoreFile)) {
+					return 'export default {}';
+				}
+				const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
+
+				try {
+					const parsed = JSON.parse(jsonData);
+					return {
+						code: dataToEsm(parsed, {
+							compact: true,
+						}),
+						map: { mappings: '' },
+					};
+				} catch (err) {
+					const message = 'Could not parse JSON file';
+					this.error({ message, id, cause: err });
+				}
+			}
 		},
 		renderChunk(code, chunk) {
 			if (!settings.config.experimental.contentCollectionCache) {
@@ -101,6 +128,31 @@ export function astroContentVirtualModPlugin({
 				const prefix = depth > 0 ? '../'.repeat(depth) : './';
 				return code.replaceAll(RESOLVED_VIRTUAL_MODULE_ID, `${prefix}content/entry.mjs`);
 			}
+		},
+
+		configureServer(server) {
+			const dataStorePath = fileURLToPath(dataStoreFile);
+			// Watch for changes to the data store file
+			if (Array.isArray(server.watcher.options.ignored)) {
+				// The data store file is in node_modules, so is ignored by default,
+				// so we need to un-ignore it.
+				server.watcher.options.ignored.push(`!${dataStorePath}`);
+			}
+			server.watcher.add(dataStorePath);
+
+			server.watcher.on('change', (changedPath) => {
+				// If the datastore file changes, invalidate the virtual module
+				if (changedPath === dataStorePath) {
+					const module = server.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
+					if (module) {
+						server.moduleGraph.invalidateModule(module);
+					}
+					server.ws.send({
+						type: 'full-reload',
+						path: '*',
+					});
+				}
+			});
 		},
 	};
 }
