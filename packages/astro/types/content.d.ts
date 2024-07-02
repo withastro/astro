@@ -69,6 +69,15 @@ declare module 'astro:content' {
 
 	export function file(filePath: string): Loader;
 
+	export interface GlobOptions {
+		/** The glob pattern to match files, relative to the base directory */
+		pattern: string;
+		/** The base directory to resolve the glob pattern from. Relative to the site root. Defaults to the content directory */
+		base?: string;
+	}
+
+	export function glob(patternOrOptions: string | GlobOptions): Loader;
+
 	type BaseSchemaWithoutEffects =
 		| import('astro/zod').AnyZodObject
 		| import('astro/zod').ZodUnion<[BaseSchemaWithoutEffects, ...BaseSchemaWithoutEffects[]]>
