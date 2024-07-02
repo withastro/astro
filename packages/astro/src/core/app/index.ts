@@ -20,7 +20,7 @@ import {
 } from '../path.js';
 import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
-import { ensure404Route } from '../routing/astro-designed-error-pages.js';
+import { injectDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
 import { createOriginCheckMiddleware } from './middlewares.js';
 import { AppPipeline } from './pipeline.js';
@@ -87,7 +87,7 @@ export class App {
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
-		this.#manifestData = ensure404Route({
+		this.#manifestData = injectDefaultRoutes({
 			routes: manifest.routes.map((route) => route.routeData),
 		});
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);

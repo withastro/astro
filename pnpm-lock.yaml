@@ -379,7 +379,7 @@ importers:
         specifier: ^8.2.6
         version: link:../../packages/integrations/node
       '@astrojs/react':
-        specifier: workspace:*
+        specifier: ^3.6.0
         version: link:../../packages/integrations/react
       '@astrojs/tailwind':
         specifier: ^5.1.0

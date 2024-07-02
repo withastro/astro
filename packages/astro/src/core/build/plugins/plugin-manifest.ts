@@ -279,6 +279,7 @@ function buildManifest(
 		buildFormat: settings.config.build.format,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		rewritingEnabled: settings.config.experimental.rewriting,
+		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		experimentalEnvGetSecretEnabled:
 			settings.config.experimental.env !== undefined &&
 			(settings.adapter?.supportedAstroFeatures.envGetSecret ?? 'unsupported') !== 'unsupported',

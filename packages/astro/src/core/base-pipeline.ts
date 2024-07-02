@@ -14,6 +14,7 @@ import { AstroError } from './errors/errors.js';
 import { AstroErrorData } from './errors/index.js';
 import type { Logger } from './logger/core.js';
 import { RouteCache } from './render/route-cache.js';
+import { createDefaultRoutes } from './routing/default.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -52,7 +53,12 @@ export abstract class Pipeline {
 		 * Used for `Astro.site`.
 		 */
 		readonly site = manifest.site ? new URL(manifest.site) : undefined,
-		readonly callSetGetEnv = true
+		readonly callSetGetEnv = true,
+		/**
+		 * Array of built-in, internal, routes.
+		 * Used to find the route module
+		 */
+		readonly defaultRoutes = createDefaultRoutes(manifest, new URL(import.meta.url))
 	) {
 		this.internalMiddleware = [];
 		// We do use our middleware only if the user isn't using the manual setup

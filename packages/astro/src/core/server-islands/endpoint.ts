@@ -41,12 +41,19 @@ export function createEndpoint(manifest: SSRManifest) {
 		const request = result.request;
 		const raw = await request.text();
 		const data = JSON.parse(raw) as RenderOptions;
-		const componentId = params.name! as string;
+		if(!params.name) {
+			return new Response(null, {
+				status: 400,
+				statusText: 'Bad request'
+			});
+		}
+		const componentId = params.name;
 
 		const imp = manifest.serverIslandMap?.get(componentId);
 		if(!imp) {
-			return new Response('Not found', {
-				status: 404
+			return new Response(null, {
+				status: 404,
+				statusText: 'Not found'
 			});
 		}
 
