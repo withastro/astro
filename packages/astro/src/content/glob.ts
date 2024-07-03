@@ -43,19 +43,27 @@ export function glob(globOptions: GlobOptions): Loader {
 		id: string,
 		fileUrl: URL,
 		{ logger, parseData, store }: LoaderContext,
-		entryType?: ContentEntryType | DataEntryType
+		entryType?: ContentEntryType
 	) {
 		if (!entryType) {
 			logger.warn(`No entry type found for ${fileUrl.pathname}`);
 			return;
 		}
-		const info = await entryType.getEntryInfo({
+		const { slug, body, data } = await entryType.getEntryInfo({
 			contents: await fs.readFile(fileUrl, 'utf-8'),
 			fileUrl,
 		});
 
-		const resolvedId = (info as any).id || (info as any).slug || id;
-		store.set(resolvedId, { ...info, id: resolvedId });
+		const filePath = fileURLToPath(fileUrl);
+		const resolvedId = slug || id;
+
+		const parsedData = await parseData({
+			id: resolvedId,
+			data,
+			filePath,
+		});
+
+		store.set(resolvedId, parsedData, body, filePath);
 	}
 
 	return {
@@ -66,7 +74,7 @@ export function glob(globOptions: GlobOptions): Loader {
 			const entryConfigByExt = getEntryConfigByExtMap([
 				...settings.contentEntryTypes,
 				...settings.dataEntryTypes,
-			]);
+			] as Array<ContentEntryType>);
 
 			const baseDir = globOptions.base
 				? new URL(globOptions.base, settings.config.root)

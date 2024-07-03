@@ -1,6 +1,14 @@
 import { promises as fs, type PathLike, existsSync } from 'fs';
 
 const SAVE_DEBOUNCE_MS = 500;
+
+export interface DataEntry {
+	id: string;
+	data: Record<string, unknown>;
+	filePath?: string;
+	body?: string;
+}
+
 export class DataStore {
 	#collections = new Map<string, Map<string, any>>();
 
@@ -13,14 +21,14 @@ export class DataStore {
 	constructor() {
 		this.#collections = new Map();
 	}
-	get(collectionName: string, key: string) {
+	get<T = unknown>(collectionName: string, key: string): T | undefined {
 		return this.#collections.get(collectionName)?.get(String(key));
 	}
-	entries(collectionName: string): Array<[id: string, any]> {
+	entries<T = unknown>(collectionName: string): Array<[id: string, T]> {
 		const collection = this.#collections.get(collectionName) ?? new Map();
 		return [...collection.entries()];
 	}
-	values(collectionName: string): Array<unknown> {
+	values<T = unknown>(collectionName: string): Array<T> {
 		const collection = this.#collections.get(collectionName) ?? new Map();
 		return [...collection.values()];
 	}
@@ -78,11 +86,30 @@ export class DataStore {
 
 	scopedStore(collectionName: string): ScopedDataStore {
 		return {
-			get: (key: string) => this.get(collectionName, key),
+			get: (key: string) => this.get<DataEntry>(collectionName, key),
 			entries: () => this.entries(collectionName),
 			values: () => this.values(collectionName),
 			keys: () => this.keys(collectionName),
-			set: (key: string, value: any) => this.set(collectionName, key, value),
+			set: (key, data, body, filePath) => {
+				if (!key) {
+					throw new Error(`Key must be a non-empty string`);
+				}
+				const id = String(key);
+				const entry: DataEntry = {
+					id,
+					data,
+				};
+				// We do it like this so we don't waste space stringifying
+				// the body and filePath if they are not set
+				if (body) {
+					entry.body = body;
+				}
+				if (filePath) {
+					entry.filePath = filePath;
+				}
+
+				this.set(collectionName, id, entry);
+			},
 			delete: (key: string) => this.delete(collectionName, key),
 			clear: () => this.clear(collectionName),
 			has: (key: string) => this.has(collectionName, key),
@@ -90,7 +117,13 @@ export class DataStore {
 	}
 
 	metaStore(collectionName: string): MetaStore {
-		return this.scopedStore(`meta:${collectionName}`) as MetaStore;
+		const collectionKey = `meta:${collectionName}`;
+		return {
+			get: (key: string) => this.get(collectionKey, key),
+			set: (key: string, data: string) => this.set(collectionKey, key, data),
+			delete: (key: string) => this.delete(collectionKey, key),
+			has: (key: string) => this.has(collectionKey, key),
+		};
 	}
 
 	toString() {
@@ -148,10 +181,10 @@ export class DataStore {
 }
 
 export interface ScopedDataStore {
-	get: (key: string) => unknown;
-	entries: () => Array<[id: string, unknown]>;
-	set: (key: string, value: unknown) => void;
-	values: () => Array<unknown>;
+	get: (key: string) => DataEntry | undefined;
+	entries: () => Array<[id: string, DataEntry]>;
+	set: (key: string, data: Record<string, unknown>, body?: string, filePath?: string) => void;
+	values: () => Array<DataEntry>;
 	keys: () => Array<string>;
 	delete: (key: string) => void;
 	clear: () => void;
@@ -166,6 +199,7 @@ export interface MetaStore {
 	get: (key: string) => string | undefined;
 	set: (key: string, value: string) => void;
 	has: (key: string) => boolean;
+	delete: (key: string) => void;
 }
 
 function dataStoreSingleton() {

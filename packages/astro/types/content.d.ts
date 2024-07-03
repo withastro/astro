@@ -20,17 +20,28 @@ declare module 'astro:content' {
 		>;
 	}>;
 
+	export interface DataEntry {
+		id: string;
+		data: Record<string, unknown>;
+		filePath?: string;
+		body?: string;
+	}
+
 	export interface DataStore {
-		get: (key: string) => any;
-		entries: () => IterableIterator<[id: string, any]>;
-		set: (key: string, value: any) => void;
+		get: (key: string) => DataEntry;
+		entries: () => Array<[id: string, DataEntry]>;
+		set: (key: string, data: Record<string, unknown>, body?: string, filePath?: string) => void;
+		values: () => Array<DataEntry>;
+		keys: () => Array<string>;
 		delete: (key: string) => void;
 		clear: () => void;
 		has: (key: string) => boolean;
 	}
+
 	export interface MetaStore {
 		get: (key: string) => string | undefined;
 		set: (key: string, value: string) => void;
+		delete: (key: string) => void;
 		has: (key: string) => boolean;
 	}
 

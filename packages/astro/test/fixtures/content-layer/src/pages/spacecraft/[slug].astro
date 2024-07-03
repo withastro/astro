@@ -9,7 +9,7 @@ export const getStaticPaths = (async () => {
 			slug: craft.id
 		},
 		props: {
-			craft: craft.data
+			craft
 		}
 	}));
 }) satisfies GetStaticPaths;
@@ -18,9 +18,10 @@ export const getStaticPaths = (async () => {
 
 
 const { craft } = Astro.props as any
-
 ---
 
 <h1>{craft.data.title}</h1>
-
+<pre>
+	{craft.body}
+</pre>
 </ul>

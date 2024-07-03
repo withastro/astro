@@ -14,7 +14,7 @@ import {
 	unescapeHTML,
 } from '../runtime/server/index.js';
 import type { ContentLookupMap } from './utils.js';
-import { globalDataStore } from './data-store.js';
+import { globalDataStore, type DataEntry } from './data-store.js';
 export { file } from './file.js';
 export { glob } from './glob.js';
 type LazyImport = () => Promise<any>;
@@ -65,10 +65,9 @@ export function createGetCollection({
 		} else if (collection in dataCollectionToEntryMap) {
 			type = 'data';
 		} else if (store.hasCollection(collection)) {
-			return [...store.entries(collection)].map(([id, data]) => ({
-				id,
+			return [...store.values<DataEntry>(collection)].map((entry) => ({
+				...entry,
 				collection,
-				data,
 				type: 'experimental_data',
 			}));
 		} else {
@@ -139,6 +138,23 @@ export function createGetEntryBySlug({
 	getRenderEntryImport: GetEntryImport;
 }) {
 	return async function getEntryBySlug(collection: string, slug: string) {
+		const store = await globalDataStore.get();
+
+		if (store.hasCollection(collection)) {
+			const data = store.get(collection, slug);
+			if (!data) {
+				throw new Error(`Entry ${collection} → ${slug} was not found.`);
+			}
+
+			const entry = store.get<DataEntry>(collection, slug);
+
+			return {
+				...entry,
+				collection,
+				type: 'experimental_data',
+			};
+		}
+
 		const entryImport = await getEntryImport(collection, slug);
 		if (typeof entryImport !== 'function') return undefined;
 
@@ -171,11 +187,7 @@ export function createGetDataEntryById({ getEntryImport }: { getEntryImport: Get
 				throw new Error(`Entry ${collection} → ${id} was not found.`);
 			}
 
-			return {
-				id,
-				collection,
-				data: store.get(collection, id),
-			};
+			return store.get(collection, id);
 		}
 
 		const lazyImport = await getEntryImport(collection, id);

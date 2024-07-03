@@ -38,7 +38,7 @@ export function file(fileName: string): Loader {
 					continue;
 				}
 				const item = await parseData({ id, data: rawItem, filePath });
-				store.set(id, item);
+				store.set(id, item, undefined, filePath);
 			}
 		} else if (typeof json === 'object') {
 			const entries = Object.entries<Record<string, unknown>>(json);
