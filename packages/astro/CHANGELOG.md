@@ -1,5 +1,11 @@
 # astro
 
+## 4.11.5
+
+### Patch Changes
+
+- [#11408](https://github.com/withastro/astro/pull/11408) [`b9e906f`](https://github.com/withastro/astro/commit/b9e906f8e75444739aa259b62489d9f5749260b9) Thanks [@matthewp](https://github.com/matthewp)! - Revert change to how boolean attributes work
+
 ## 4.11.4
 
 ### Patch Changes
