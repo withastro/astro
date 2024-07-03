@@ -187,7 +187,13 @@ export function createGetDataEntryById({ getEntryImport }: { getEntryImport: Get
 				throw new Error(`Entry ${collection} → ${id} was not found.`);
 			}
 
-			return store.get(collection, id);
+			const entry = store.get<DataEntry>(collection, id);
+
+			return {
+				...entry,
+				collection,
+				type: 'experimental_data',
+			};
 		}
 
 		const lazyImport = await getEntryImport(collection, id);

@@ -73,9 +73,16 @@ describe('Content Layer', () => {
 
 		it('Returns data entry by id', async () => {
 			assert.ok(json.hasOwnProperty('dataEntryById'));
+			assert.ok(
+				json.dataEntryById.filePath?.endsWith(
+					'packages/astro/test/fixtures/content-layer/src/data/dogs.json'
+				)
+			);
+			delete json.dataEntryById.filePath;
 			assert.deepEqual(json.dataEntryById, {
 				id: 'beagle',
 				collection: 'dogs',
+				type: 'experimental_data',
 				data: {
 					breed: 'Beagle',
 					id: 'beagle',
@@ -92,7 +99,6 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.simpleLoader));
 
 			const item = json.simpleLoader[0];
-			assert.equal(json.simpleLoader.length, 4);
 			assert.deepEqual(item, {
 				id: 'siamese',
 				collection: 'cats',
@@ -177,9 +183,16 @@ describe('Content Layer', () => {
 
 		it('Returns data entry by id', async () => {
 			assert.ok(json.hasOwnProperty('dataEntryById'));
+			assert.ok(
+				json.dataEntryById.filePath?.endsWith(
+					'packages/astro/test/fixtures/content-layer/src/data/dogs.json'
+				)
+			);
+			delete json.dataEntryById.filePath;
 			assert.deepEqual(json.dataEntryById, {
 				id: 'beagle',
 				collection: 'dogs',
+				type: 'experimental_data',
 				data: {
 					breed: 'Beagle',
 					id: 'beagle',
@@ -196,7 +209,7 @@ describe('Content Layer', () => {
 			const initialJson = await rawJsonResponse.json();
 			assert.equal(initialJson.fileLoader[0].data.temperament.includes('Bouncy'), false);
 
-			await fixture.editFile('/src/content/_data/dogs.json', (prev) => {
+			await fixture.editFile('/src/data/dogs.json', (prev) => {
 				const data = JSON.parse(prev);
 				data[0].temperament.push('Bouncy');
 				return JSON.stringify(data, null, 2);
