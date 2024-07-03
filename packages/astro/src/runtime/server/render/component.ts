@@ -494,7 +494,7 @@ export async function renderComponent(
 	displayName: string,
 	Component: unknown,
 	props: Record<string | number, any>,
-	slots: any = {}
+	slots: ComponentSlots = {}
 ): Promise<RenderInstance> {
 	if (isPromise(Component)) {
 		Component = await Component.catch(handleCancellation);

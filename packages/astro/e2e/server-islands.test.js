@@ -30,6 +30,13 @@ test.describe('Server islands', () => {
 			await expect(el, 'element rendered').toBeVisible();
 			await expect(el, 'should have content').toHaveText('I am an island');
 		});
+
+		test('Slots are provided back to the server islands', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/'));
+			let el = page.locator('#children');
+
+			await expect(el, 'element rendered').toBeVisible();
+		});
 	});
 
 	test.describe('Production', () => {

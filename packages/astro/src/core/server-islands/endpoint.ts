@@ -1,6 +1,6 @@
-import { renderComponent, renderTemplate, type AstroComponentFactory } from '../../runtime/server/index.js';
-import type { APIRoute, ComponentInstance, ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
-import type { ModuleLoader } from '../module-loader/loader.js';
+import { renderComponent, renderTemplate, type AstroComponentFactory, type ComponentSlots } from '../../runtime/server/index.js';
+import type { ComponentInstance, ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
+import { createSlotValueFromString } from '../../runtime/server/render/slot.js';
 
 export const SERVER_ISLAND_ROUTE = '/_server-islands/[name]';
 export const SERVER_ISLAND_COMPONENT = '_server-islands.astro';
@@ -33,7 +33,7 @@ export function ensureServerIslandRoute(manifest: ManifestData) {
 type RenderOptions = {
 	componentExport: string;
 	props: Record<string, any>;
-	slots: Record<string, any>;
+	slots: Record<string, string>;
 }
 
 export function createEndpoint(manifest: SSRManifest) {
@@ -59,9 +59,13 @@ export function createEndpoint(manifest: SSRManifest) {
 		}
 
 		const props = data.props;
-		const slots = data.slots;
 		const componentModule = await imp();
 		const Component = (componentModule as any)[data.componentExport];
+
+		const slots: ComponentSlots = {};
+		for(const prop in data.slots) {
+			slots[prop] = createSlotValueFromString(data.slots[prop]);
+		}
 
 		return renderTemplate`${renderComponent(result, 'Component', Component, props, slots)}`;
 	}
