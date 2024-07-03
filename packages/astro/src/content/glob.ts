@@ -4,24 +4,43 @@ import { promises as fs } from 'fs';
 import fastGlob from 'fast-glob';
 import pLimit from 'p-limit';
 import { getContentEntryIdAndSlug, getEntryConfigByExtMap } from './utils.js';
-import type { ContentEntryType, DataEntryType } from '../@types/astro.js';
+import type { ContentEntryType } from '../@types/astro.js';
 import micromatch from 'micromatch';
 import { relative } from 'path/posix';
+import { green } from 'kleur/colors';
 
+export interface GenerateIdOptions {
+	/** The path to the entry file, relative to the base directory. */
+	entry: string;
+
+	/** The base directory URL. */
+	base: URL;
+	/** The parsed, unvalidated data of the entry. */
+	data: Record<string, unknown>;
+}
 export interface GlobOptions {
 	/** The glob pattern to match files, relative to the base directory */
 	pattern: string;
 	/** The base directory to resolve the glob pattern from, relative to the root directory. Defaults to `.` */
 	base?: string;
+	/**
+	 * Function that generates an ID for an entry. Default implementation generates a slug from the entry path.
+	 * @returns The ID of the entry. Must be unique per collection.
+	 **/
+	generateId?: (options: GenerateIdOptions) => string;
 }
 
-function generateSlugDefault(entry: URL, base: URL) {
+function generateIdDefault({ entry, base, data }: GenerateIdOptions): string {
+	if (data.slug) {
+		return data.slug as string;
+	}
+	const entryURL = new URL(entry, base);
 	const { slug } = getContentEntryIdAndSlug({
-		entry,
+		entry: entryURL,
 		contentDir: base,
 		collection: '',
 	});
-	return slug.startsWith('/') ? slug : `/${slug}`;
+	return slug;
 }
 
 /**
@@ -39,31 +58,40 @@ export function glob(globOptions: GlobOptions): Loader {
 			'Glob patterns cannot start with `/`. Set the `base` option to a parent directory or use a relative path instead.'
 		);
 	}
+
+	const generateId = globOptions?.generateId ?? generateIdDefault;
+
+	const fileToIdMap = new Map<string, string>();
+
 	async function syncData(
-		id: string,
-		fileUrl: URL,
+		entry: string,
+		base: URL,
 		{ logger, parseData, store }: LoaderContext,
 		entryType?: ContentEntryType
 	) {
 		if (!entryType) {
-			logger.warn(`No entry type found for ${fileUrl.pathname}`);
+			logger.warn(`No entry type found for ${entry}`);
 			return;
 		}
-		const { slug, body, data } = await entryType.getEntryInfo({
+		const fileUrl = new URL(entry, base);
+		const { body, data } = await entryType.getEntryInfo({
 			contents: await fs.readFile(fileUrl, 'utf-8'),
 			fileUrl,
 		});
 
+		const id = generateId({ entry, base, data });
+
 		const filePath = fileURLToPath(fileUrl);
-		const resolvedId = slug || id;
 
 		const parsedData = await parseData({
-			id: resolvedId,
+			id,
 			data,
 			filePath,
 		});
 
-		store.set(resolvedId, parsedData, body, filePath);
+		store.set(id, parsedData, body, filePath);
+
+		fileToIdMap.set(filePath, id);
 	}
 
 	return {
@@ -100,12 +128,10 @@ export function glob(globOptions: GlobOptions): Loader {
 			const limit = pLimit(10);
 			options.store.clear();
 			await Promise.all(
-				files.map((file) =>
+				files.map((entry) =>
 					limit(async () => {
-						const entryType = configForFile(file);
-						const fileURL = new URL(file, baseDir);
-						const slug = generateSlugDefault(fileURL, baseDir);
-						await syncData(slug, fileURL, options, entryType);
+						const entryType = configForFile(entry);
+						await syncData(entry, baseDir, options, entryType);
 					})
 				)
 			);
@@ -122,9 +148,9 @@ export function glob(globOptions: GlobOptions): Loader {
 					return;
 				}
 				const entryType = configForFile(changedPath);
-				const changedFile = pathToFileURL(changedPath);
-				const slug = generateSlugDefault(changedFile, baseDir);
-				await syncData(slug, changedFile, options, entryType);
+				const baseUrl = pathToFileURL(basePath);
+				await syncData(entry, baseUrl, options, entryType);
+				logger.info(`Reloaded data from ${green(entry)}`);
 			}
 			watcher?.on('change', onChange);
 
@@ -135,8 +161,11 @@ export function glob(globOptions: GlobOptions): Loader {
 				if (!matchesGlob(entry)) {
 					return;
 				}
-				const slug = generateSlugDefault(pathToFileURL(deletedPath), baseDir);
-				options.store.delete(slug);
+				const id = fileToIdMap.get(deletedPath);
+				if (id) {
+					options.store.delete(id);
+					fileToIdMap.delete(deletedPath);
+				}
 			});
 		},
 	};
