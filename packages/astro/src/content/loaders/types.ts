@@ -1,7 +1,7 @@
-import type { AstroIntegrationLogger, AstroSettings } from '../../@types/astro.js';
-import type { MetaStore, ScopedDataStore } from '../data-store.js';
 import type { FSWatcher } from 'vite';
 import type { ZodSchema } from 'zod';
+import type { AstroIntegrationLogger, AstroSettings } from '../../@types/astro.js';
+import type { MetaStore, ScopedDataStore } from '../data-store.js';
 
 export interface ParseDataOptions {
 	/** The ID of the entry. Unique per collection */

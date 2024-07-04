@@ -1,13 +1,13 @@
-import { fileURLToPath, pathToFileURL } from 'url';
-import type { Loader, LoaderContext } from './types.js';
 import { promises as fs } from 'fs';
+import { fileURLToPath, pathToFileURL } from 'url';
 import fastGlob from 'fast-glob';
-import pLimit from 'p-limit';
-import { getContentEntryIdAndSlug, getEntryConfigByExtMap } from '../utils.js';
-import type { ContentEntryType } from '../../@types/astro.js';
-import micromatch from 'micromatch';
-import { relative } from 'path/posix';
 import { green } from 'kleur/colors';
+import micromatch from 'micromatch';
+import pLimit from 'p-limit';
+import { relative } from 'path/posix';
+import type { ContentEntryType } from '../../@types/astro.js';
+import { getContentEntryIdAndSlug, getEntryConfigByExtMap } from '../utils.js';
+import type { Loader, LoaderContext } from './types.js';
 
 export interface GenerateIdOptions {
 	/** The path to the entry file, relative to the base directory. */

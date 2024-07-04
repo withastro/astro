@@ -13,8 +13,8 @@ import {
 	renderUniqueStylesheet,
 	unescapeHTML,
 } from '../runtime/server/index.js';
+import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
-import { globalDataStore, type DataEntry } from './data-store.js';
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;

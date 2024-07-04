@@ -1,6 +1,6 @@
+import { promises as fs, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import type { Loader, LoaderContext } from './types.js';
-import { promises as fs, existsSync } from 'fs';
 
 /**
  * Loads entries from a JSON file. The file must contain an array of objects that contain unique `id` fields, or an object with string keys.

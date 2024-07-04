@@ -1,11 +1,11 @@
+import { promises as fs, existsSync } from 'fs';
+import type { FSWatcher } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
-import { DataStore, globalDataStore } from './data-store.js';
-import { getEntryData, globalContentConfigObserver } from './utils.js';
-import { promises as fs, existsSync } from 'fs';
 import { DATA_STORE_FILE } from './consts.js';
-import type { FSWatcher } from 'vite';
+import { DataStore, globalDataStore } from './data-store.js';
 import type { DataWithId, LoaderContext } from './loaders/types.js';
+import { getEntryData, globalContentConfigObserver } from './utils.js';
 export interface SyncContentLayerOptions {
 	store?: DataStore;
 	settings: AstroSettings;

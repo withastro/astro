@@ -1,10 +1,10 @@
 import nodeFs from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { dataToEsm } from '@rollup/pluginutils';
 import glob from 'fast-glob';
 import pLimit from 'p-limit';
 import type { Plugin } from 'vite';
-import { dataToEsm } from '@rollup/pluginutils';
 import type { AstroSettings } from '../@types/astro.js';
 import { encodeName } from '../core/build/util.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';

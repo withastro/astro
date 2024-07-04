@@ -11,6 +11,7 @@ import type {
 	RuntimeMode,
 } from '../../@types/astro.js';
 import { injectImageEndpoint } from '../../assets/endpoint/config.js';
+import { DataStore, globalDataStore } from '../../content/data-store.js';
 import { syncContentLayer } from '../../content/sync.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
@@ -33,7 +34,6 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
-import { globalDataStore, DataStore } from '../../content/data-store.js';
 export interface BuildOptions {
 	/**
 	 * Teardown the compiler WASM instance after build. This can improve performance when
