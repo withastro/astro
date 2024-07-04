@@ -53,7 +53,6 @@ export async function createContainer({
 	await sync({
 		settings,
 		logger,
-		fs,
 	});
 
 	settings = injectImageEndpoint(settings, 'dev');

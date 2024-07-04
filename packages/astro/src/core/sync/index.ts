@@ -95,7 +95,7 @@ export default async function sync({
  */
 async function syncContentCollections(
 	settings: AstroSettings,
-	{ logger, fs }: Pick<SyncOptions, 'logger' | 'fs'>
+	{ logger, fs }: Required<Pick<SyncOptions, 'logger' | 'fs'>>
 ): Promise<void> {
 	// Needed to load content config
 	const tempViteServer = await createServer(
@@ -124,7 +124,7 @@ async function syncContentCollections(
 		const contentTypesGenerator = await createContentTypesGenerator({
 			contentConfigObserver: globalContentConfigObserver,
 			logger: logger,
-			fs: fs ?? fsMod,
+			fs,
 			settings,
 			viteServer: tempViteServer,
 		});
