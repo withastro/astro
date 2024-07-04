@@ -1,4 +1,5 @@
-import { type Loader, z } from 'astro:content';
+import { z } from 'astro:content';
+import type { Loader } from "astro/loaders"
 
 export interface PostLoaderConfig {
 	url: string;

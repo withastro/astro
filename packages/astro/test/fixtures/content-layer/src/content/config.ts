@@ -1,4 +1,5 @@
-import { defineCollection, file, glob, z } from 'astro:content';
+import { defineCollection, z } from 'astro:content';
+import { file, glob } from "astro/loaders"
 import { loader } from '../loaders/post-loader.js';
 
 const blog = defineCollection({
@@ -7,7 +8,7 @@ const blog = defineCollection({
 });
 
 const dogs = defineCollection({
-	type: "experimental_data",
+	type: "experimental_data", 
 	loader: file("src/data/dogs.json"),
 	schema: z.object({
 		breed: z.string(),

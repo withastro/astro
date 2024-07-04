@@ -45,50 +45,6 @@ declare module 'astro:content' {
 		has: (key: string) => boolean;
 	}
 
-	export interface ParseDataOptions {
-		/** The ID of the entry. Unique per collection */
-		id: string;
-		/** The raw, unvalidated data of the entry */
-		data: Record<string, unknown>;
-		/** An optional file path, where the entry represents a local file */
-		filePath?: string;
-	}
-	export interface LoaderContext {
-		collection: string;
-		/** A database abstraction to store the actual data */
-		store: DataStore;
-		/**  A simple KV store, designed for things like sync tokens */
-		meta: MetaStore;
-		logger: import('astro').AstroIntegrationLogger;
-		settings: import('astro').AstroSettings;
-		/** Validates and parses the data according to the schema */
-		parseData<T extends Record<string, unknown> = Record<string, unknown>>(
-			props: ParseDataOptions
-		): T;
-		/** When running in dev, this is a filesystem watcher that can be used to trigger updates */
-		watcher?: import('vite').FSWatcher;
-	}
-	export interface Loader {
-		/** Unique name of the loader, e.g. the npm package name */
-		name: string;
-		/** Do the actual loading of the data */
-		load: (context: LoaderContext) => Promise<void>;
-		/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
-		schema?: BaseSchema | Promise<BaseSchema> | (() => BaseSchema | Promise<BaseSchema>);
-		render?: (entry: any) => any;
-	}
-
-	export function file(filePath: string): Loader;
-
-	export interface GlobOptions {
-		/** The glob pattern to match files, relative to the base directory */
-		pattern: string;
-		/** The base directory to resolve the glob pattern from. Relative to the site root. Defaults to the content directory */
-		base?: string;
-	}
-
-	export function glob(options: GlobOptions): Loader;
-
 	type BaseSchemaWithoutEffects =
 		| import('astro/zod').AnyZodObject
 		| import('astro/zod').ZodUnion<[BaseSchemaWithoutEffects, ...BaseSchemaWithoutEffects[]]>
@@ -109,7 +65,9 @@ declare module 'astro:content' {
 	type ContentCollectionV2Config<S extends BaseSchema> = {
 		type: 'experimental_data';
 		schema?: S | ((context: SchemaContext) => S);
-		loader: Loader | (() => Array<DataWithId> | Promise<Array<DataWithId>>);
+		loader:
+			| import('astro/loader/types').Loader
+			| (() => Array<DataWithId> | Promise<Array<DataWithId>>);
 	};
 
 	type DataCollectionConfig<S extends BaseSchema> = {
