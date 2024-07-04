@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'url';
-import type { Loader, LoaderContext } from './loaders.js';
+import type { Loader, LoaderContext } from './sync.js';
 import { promises as fs, existsSync } from 'fs';
 
 /**

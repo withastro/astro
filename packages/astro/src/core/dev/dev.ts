@@ -7,7 +7,7 @@ import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
 import type { AstroInlineConfig } from '../../@types/astro.js';
 import { attachContentServerListeners } from '../../content/index.js';
-import { syncContentLayer } from '../../content/loaders.js';
+import { syncContentLayer } from '../../content/sync.js';
 import { telemetry } from '../../events/index.js';
 import * as msg from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';

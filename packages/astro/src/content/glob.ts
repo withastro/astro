@@ -1,5 +1,5 @@
 import { fileURLToPath, pathToFileURL } from 'url';
-import type { Loader, LoaderContext } from './loaders.js';
+import type { Loader, LoaderContext } from './sync.js';
 import { promises as fs } from 'fs';
 import fastGlob from 'fast-glob';
 import pLimit from 'p-limit';
