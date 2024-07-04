@@ -3,6 +3,11 @@ import * as fs from 'node:fs';
 import { before, describe, it } from 'node:test';
 import ts from 'typescript';
 import { loadFixture } from './test-utils.js';
+import { createNodeLogger } from '../dist/core/config/logging.js';
+import { resolveConfig } from '../dist/core/config/config.js';
+import { createSettings } from '../dist/core/config/settings.js';
+import { fileURLToPath } from 'node:url';
+import { runHookConfigSetup } from '../dist/integrations/hooks.js';
 
 const createFixture = () => {
 	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
@@ -47,10 +52,16 @@ const createFixture = () => {
 				},
 			};
 
-			const code = await astroFixture.sync({}, { fs: fsMock });
-			if (code !== 0) {
-				throw new Error(`Process error code ${code}`);
-			}
+			const inlineConfig = { root: fileURLToPath(new URL(root, import.meta.url)) };
+			const logger = createNodeLogger(inlineConfig);
+			const { astroConfig } = await resolveConfig(inlineConfig, 'sync');
+			let settings = await createSettings(astroConfig, inlineConfig.root);
+			settings = await runHookConfigSetup({
+				settings,
+				command: 'build',
+				logger,
+			});
+			await astroFixture.sync({ settings, logger, fs: fsMock });
 		},
 		/** @param {string} path */
 		thenFileShouldExist(path) {

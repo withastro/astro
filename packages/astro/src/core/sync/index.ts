@@ -42,11 +42,7 @@ type DBPackage = {
  *
  * @experimental The JavaScript API is experimental
  */
-export default async function sync({
-	logger,
-	fs = fsMod,
-	settings,
-}: SyncOptions): Promise<void> {
+export default async function sync({ logger, fs = fsMod, settings }: SyncOptions): Promise<void> {
 	ensureProcessNodeEnv('production');
 	const cwd = fileURLToPath(settings.config.root);
 

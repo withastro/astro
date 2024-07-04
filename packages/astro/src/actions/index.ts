@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import fsMod from 'node:fs';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroIntegration } from '../@types/astro.js';
 import { ActionsWithoutServerOutputError } from '../core/errors/errors-data.js';
@@ -6,7 +6,7 @@ import { AstroError } from '../core/errors/errors.js';
 import { isServerLikeOutput, viteID } from '../core/util.js';
 import { ACTIONS_TYPES_FILE, RESOLVED_VIRTUAL_MODULE_ID, VIRTUAL_MODULE_ID } from './consts.js';
 
-export default function astroActions(): AstroIntegration {
+export default function astroActions({ fs = fsMod }: { fs?: typeof fsMod }): AstroIntegration {
 	return {
 		name: VIRTUAL_MODULE_ID,
 		hooks: {
@@ -25,7 +25,7 @@ export default function astroActions(): AstroIntegration {
 						define: {
 							'import.meta.env.ACTIONS_PATH': stringifiedActionsImport,
 						},
-						plugins: [vitePluginActions],
+						plugins: [vitePluginActions(fs)],
 					},
 				});
 
@@ -43,13 +43,14 @@ export default function astroActions(): AstroIntegration {
 				await typegen({
 					stringifiedActionsImport,
 					root: params.config.root,
+					fs,
 				});
 			},
 		},
 	};
 }
 
-const vitePluginActions: VitePlugin = {
+const vitePluginActions = (fs: typeof fsMod): VitePlugin => ({
 	name: VIRTUAL_MODULE_ID,
 	enforce: 'pre',
 	resolveId(id) {
@@ -60,7 +61,10 @@ const vitePluginActions: VitePlugin = {
 	async load(id, opts) {
 		if (id !== RESOLVED_VIRTUAL_MODULE_ID) return;
 
-		let code = await readFile(new URL('../../templates/actions.mjs', import.meta.url), 'utf-8');
+		let code = await fs.promises.readFile(
+			new URL('../../templates/actions.mjs', import.meta.url),
+			'utf-8'
+		);
 		if (opts?.ssr) {
 			code += `\nexport * from 'astro/actions/runtime/virtual/server.js';`;
 		} else {
@@ -68,14 +72,16 @@ const vitePluginActions: VitePlugin = {
 		}
 		return code;
 	},
-};
+});
 
 async function typegen({
 	stringifiedActionsImport,
 	root,
+	fs,
 }: {
 	stringifiedActionsImport: string;
 	root: URL;
+	fs: typeof fsMod;
 }) {
 	const content = `declare module "astro:actions" {
 	type Actions = typeof import(${stringifiedActionsImport})["server"];
@@ -85,6 +91,6 @@ async function typegen({
 
 	const dotAstroDir = new URL('.astro/', root);
 
-	await mkdir(dotAstroDir, { recursive: true });
-	await writeFile(new URL(ACTIONS_TYPES_FILE, dotAstroDir), content);
+	await fs.promises.mkdir(dotAstroDir, { recursive: true });
+	await fs.promises.writeFile(new URL(ACTIONS_TYPES_FILE, dotAstroDir), content);
 }
