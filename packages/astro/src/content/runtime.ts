@@ -257,6 +257,22 @@ export function createGetEntry({
 					: collectionOrLookupObject.slug;
 		}
 
+		const store = await globalDataStore.get();
+
+		if (store.hasCollection(collection)) {
+			const data = store.get(collection, lookupId);
+			if (!data) {
+				throw new Error(`Entry ${collection} → ${lookupId} was not found.`);
+			}
+
+			const entry = store.get<DataEntry>(collection, lookupId);
+
+			return {
+				...entry,
+				collection,
+			} as DataEntryResult | ContentEntryResult;
+		}
+
 		const entryImport = await getEntryImport(collection, lookupId);
 		if (typeof entryImport !== 'function') return undefined;
 

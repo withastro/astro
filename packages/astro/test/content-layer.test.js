@@ -72,14 +72,14 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns data entry by id', async () => {
-			assert.ok(json.hasOwnProperty('dataEntryById'));
+			assert.ok(json.hasOwnProperty('dataEntry'));
 			assert.ok(
-				json.dataEntryById.filePath?.endsWith(
+				json.dataEntry.filePath?.endsWith(
 					'packages/astro/test/fixtures/content-layer/src/data/dogs.json'
 				)
 			);
-			delete json.dataEntryById.filePath;
-			assert.deepEqual(json.dataEntryById, {
+			delete json.dataEntry.filePath;
+			assert.deepEqual(json.dataEntry, {
 				id: 'beagle',
 				collection: 'dogs',
 				type: 'experimental_data',
@@ -182,14 +182,14 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns data entry by id', async () => {
-			assert.ok(json.hasOwnProperty('dataEntryById'));
+			assert.ok(json.hasOwnProperty('dataEntry'));
 			assert.ok(
-				json.dataEntryById.filePath?.endsWith(
+				json.dataEntry.filePath?.endsWith(
 					'packages/astro/test/fixtures/content-layer/src/data/dogs.json'
 				)
 			);
-			delete json.dataEntryById.filePath;
-			assert.deepEqual(json.dataEntryById, {
+			delete json.dataEntry.filePath;
+			assert.deepEqual(json.dataEntry, {
 				id: 'beagle',
 				collection: 'dogs',
 				type: 'experimental_data',
