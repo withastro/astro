@@ -4,6 +4,7 @@ import { ensureProcessNodeEnv } from '../../core/util.js';
 import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { getPackage } from '../install-package.js';
 import { resolveConfig } from '../../core/config/config.js';
+import { createSettings } from '../../core/config/settings.js';
 
 export async function check(flags: Arguments) {
 	ensureProcessNodeEnv('production');
@@ -31,8 +32,9 @@ export async function check(flags: Arguments) {
 	const { default: sync } = await import('../../core/sync/index.js');
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const { astroConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
+	const settings = await createSettings(astroConfig, inlineConfig.root);
 	try {
-		await sync({ astroConfig, logger });
+		await sync({ settings, logger });
 	} catch (_) {
 		return process.exit(1);
 	}

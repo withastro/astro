@@ -17,6 +17,7 @@ import {
 	runHookBuildDone,
 	runHookBuildStart,
 	runHookConfigDone,
+	runHookConfigSetup,
 } from '../../integrations/hooks.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
@@ -119,12 +120,15 @@ class AstroBuilder {
 		const { logger } = this;
 		this.timer.init = performance.now();
 
+		this.settings = await runHookConfigSetup({
+			settings: this.settings,
+			command: 'build',
+			logger: logger,
+		});
 		const { default: sync } = await import('../sync/index.js');
-
-		this.settings = await sync({
+		await sync({
 			settings: this.settings,
 			logger,
-			astroConfig: this.settings.config,
 			fs,
 		});
 

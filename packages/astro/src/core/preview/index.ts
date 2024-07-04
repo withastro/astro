@@ -29,6 +29,7 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 
 	const _settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
+	// TODO: should astro:config:* hooks be removed in preview? To be tested
 	const settings = await runHookConfigSetup({
 		settings: _settings,
 		command: 'preview',

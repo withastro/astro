@@ -14,6 +14,7 @@ import {
 import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
+import sync from '../sync/index.js';
 
 export interface Container {
 	fs: typeof nodeFs;
@@ -48,6 +49,11 @@ export async function createContainer({
 		command: 'dev',
 		logger: logger,
 		isRestart,
+	});
+	await sync({
+		settings,
+		logger,
+		fs,
 	});
 
 	settings = injectImageEndpoint(settings, 'dev');

@@ -6,6 +6,7 @@ import { resolveConfig } from '../../core/config/config.js';
 import { createNodeLogger } from '../../core/config/logging.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
+import { createSettings } from '../../core/config/settings.js';
 
 type ProcessExit = 0 | 1;
 
@@ -30,9 +31,10 @@ export async function sync({ flags }: SyncOptions): Promise<ProcessExit> {
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
 	telemetry.record(eventCliSession('sync', userConfig));
+	const settings = await createSettings(astroConfig, inlineConfig.root);
 
 	try {
-		await _sync({ astroConfig, logger });
+		await _sync({ logger, settings });
 		return 0;
 	} catch (_) {
 		return 1;

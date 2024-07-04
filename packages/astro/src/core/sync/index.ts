@@ -8,10 +8,8 @@ import { getPackage } from '../../cli/install-package.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { syncAstroEnv } from '../../env/sync.js';
-import { runHookConfigSetup } from '../../integrations/hooks.js';
 import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
 import { getTimeStat } from '../build/util.js';
-import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import {
@@ -31,8 +29,7 @@ export type SyncOptions = {
 	 */
 	fs?: typeof fsMod;
 	logger: Logger;
-	astroConfig: AstroConfig;
-	settings?: AstroSettings;
+	settings: AstroSettings;
 };
 
 type DBPackage = {
@@ -46,21 +43,12 @@ type DBPackage = {
  * @experimental The JavaScript API is experimental
  */
 export default async function sync({
-	astroConfig,
 	logger,
 	fs = fsMod,
 	settings,
-}: SyncOptions): Promise<AstroSettings> {
+}: SyncOptions): Promise<void> {
 	ensureProcessNodeEnv('production');
-	const cwd = fileURLToPath(astroConfig.root);
-
-	settings ??= await createSettings(astroConfig, cwd);
-
-	settings = await runHookConfigSetup({
-		settings,
-		logger,
-		command: 'build',
-	});
+	const cwd = fileURLToPath(settings.config.root);
 
 	const timerStart = performance.now();
 	const dbPackage = await getPackage<DBPackage>(
@@ -74,14 +62,12 @@ export default async function sync({
 	);
 
 	try {
-		await dbPackage?.typegen?.(astroConfig);
+		await dbPackage?.typegen?.(settings.config);
 		await syncContentCollections(settings, { fs, logger });
 		syncAstroEnv(settings, fs);
 
 		await setUpEnvTs({ settings, logger, fs });
 		logger.info(null, `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
-
-		return settings;
 	} catch (err) {
 		const error = createSafeError(err);
 		logger.error(
