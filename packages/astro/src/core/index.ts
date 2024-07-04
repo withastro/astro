@@ -3,6 +3,10 @@
 import type { AstroInlineConfig } from '../@types/astro.js';
 import { default as _build } from './build/index.js';
 import { default as _sync } from './sync/index.js';
+import { resolveConfig } from './config/config.js';
+import { createNodeLogger } from './config/logging.js';
+import { telemetry } from '../events/index.js';
+import { eventCliSession } from '../events/session.js';
 
 export { default as dev } from './dev/index.js';
 export { default as preview } from './preview/index.js';
@@ -23,4 +27,9 @@ export const build = (inlineConfig: AstroInlineConfig) => _build(inlineConfig);
  * @experimental The JavaScript API is experimental
  */
 // Wrap `_sync` to prevent exposing the second internal options parameter
-export const sync = (inlineConfig: AstroInlineConfig) => _sync(inlineConfig);
+export const sync = async (inlineConfig: AstroInlineConfig) => {
+	const logger = createNodeLogger(inlineConfig);
+	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
+	telemetry.record(eventCliSession('sync', userConfig));
+	return await _sync({ astroConfig, logger });
+};

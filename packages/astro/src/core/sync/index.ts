@@ -1,20 +1,16 @@
+import { dim } from 'kleur/colors';
 import fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import { dim } from 'kleur/colors';
 import { type HMRPayload, createServer } from 'vite';
-import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
+import type { AstroConfig, AstroSettings } from '../../@types/astro.js';
 import { getPackage } from '../../cli/install-package.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { syncAstroEnv } from '../../env/sync.js';
-import { telemetry } from '../../events/index.js';
-import { eventCliSession } from '../../events/session.js';
 import { runHookConfigSetup } from '../../integrations/hooks.js';
 import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
 import { getTimeStat } from '../build/util.js';
-import { resolveConfig } from '../config/config.js';
-import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
@@ -29,17 +25,14 @@ import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
 
-export type ProcessExit = 0 | 1;
-
 export type SyncOptions = {
 	/**
 	 * @internal only used for testing
 	 */
 	fs?: typeof fsMod;
-};
-
-export type SyncInternalOptions = SyncOptions & {
 	logger: Logger;
+	astroConfig: AstroConfig;
+	settings?: AstroSettings;
 };
 
 type DBPackage = {
@@ -52,20 +45,20 @@ type DBPackage = {
  *
  * @experimental The JavaScript API is experimental
  */
-export default async function sync(
-	inlineConfig: AstroInlineConfig,
-	options?: SyncOptions
-): Promise<ProcessExit> {
+export default async function sync({
+	astroConfig,
+	logger,
+	fs = fsMod,
+	settings,
+}: SyncOptions): Promise<AstroSettings> {
 	ensureProcessNodeEnv('production');
-	const logger = createNodeLogger(inlineConfig);
-	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
-	telemetry.record(eventCliSession('sync', userConfig));
+	const cwd = fileURLToPath(astroConfig.root);
 
-	const _settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
+	settings ??= await createSettings(astroConfig, cwd);
 
-	const settings = await runHookConfigSetup({
-		settings: _settings,
-		logger: logger,
+	settings = await runHookConfigSetup({
+		settings,
+		logger,
 		command: 'build',
 	});
 
@@ -75,26 +68,28 @@ export default async function sync(
 		logger,
 		{
 			optional: true,
-			cwd: inlineConfig.root,
+			cwd,
 		},
 		[]
 	);
 
 	try {
 		await dbPackage?.typegen?.(astroConfig);
-		const exitCode = await syncContentCollections(settings, { ...options, logger });
-		if (exitCode !== 0) return exitCode;
-		syncAstroEnv(settings, options?.fs);
+		await syncContentCollections(settings, { fs, logger });
+		syncAstroEnv(settings, fs);
 
+		await setUpEnvTs({ settings, logger, fs });
 		logger.info(null, `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
-		return 0;
+
+		return settings;
 	} catch (err) {
 		const error = createSafeError(err);
 		logger.error(
-			'content',
+			'types',
 			formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n'
 		);
-		return 1;
+		// Will return exit code 1 in CLI
+		throw error;
 	}
 }
 
@@ -112,10 +107,10 @@ export default async function sync(
  * @param {LogOptions} options.logging Logging options
  * @return {Promise<ProcessExit>}
  */
-export async function syncContentCollections(
+async function syncContentCollections(
 	settings: AstroSettings,
-	{ logger, fs }: SyncInternalOptions
-): Promise<ProcessExit> {
+	{ logger, fs }: Pick<SyncOptions, 'logger' | 'fs'>
+): Promise<void> {
 	// Needed to load content config
 	const tempViteServer = await createServer(
 		await createVite(
@@ -159,7 +154,6 @@ export async function syncContentCollections(
 				case 'no-content-dir':
 				default:
 					logger.debug('types', 'No content directory found. Skipping type generation.');
-					return 0;
 			}
 		}
 	} catch (e) {
@@ -179,8 +173,4 @@ export async function syncContentCollections(
 	} finally {
 		await tempViteServer.close();
 	}
-
-	await setUpEnvTs({ settings, logger, fs: fs ?? fsMod });
-
-	return 0;
 }

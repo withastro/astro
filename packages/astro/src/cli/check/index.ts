@@ -3,6 +3,7 @@ import type { Arguments } from 'yargs-parser';
 import { ensureProcessNodeEnv } from '../../core/util.js';
 import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { getPackage } from '../install-package.js';
+import { resolveConfig } from '../../core/config/config.js';
 
 export async function check(flags: Arguments) {
 	ensureProcessNodeEnv('production');
@@ -29,9 +30,11 @@ export async function check(flags: Arguments) {
 	// For now, we run this once as usually `astro check --watch` is ran alongside `astro dev` which also calls `astro sync`.
 	const { default: sync } = await import('../../core/sync/index.js');
 	const inlineConfig = flagsToAstroInlineConfig(flags);
-	const exitCode = await sync(inlineConfig);
-	if (exitCode !== 0) {
-		process.exit(exitCode);
+	const { astroConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
+	try {
+		await sync({ astroConfig, logger });
+	} catch (_) {
+		return process.exit(1);
 	}
 
 	const { check: checker, parseArgsAsCheckConfig } = checkPackage;

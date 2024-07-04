@@ -17,7 +17,6 @@ import {
 	runHookBuildDone,
 	runHookBuildStart,
 	runHookConfigDone,
-	runHookConfigSetup,
 } from '../../integrations/hooks.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
@@ -119,10 +118,14 @@ class AstroBuilder {
 		this.logger.debug('build', 'Initial setup...');
 		const { logger } = this;
 		this.timer.init = performance.now();
-		this.settings = await runHookConfigSetup({
+
+		const { default: sync } = await import('../sync/index.js');
+
+		this.settings = await sync({
 			settings: this.settings,
-			command: 'build',
-			logger: logger,
+			logger,
+			astroConfig: this.settings.config,
+			fs,
 		});
 
 		if (isServerLikeOutput(this.settings.config)) {
@@ -142,12 +145,6 @@ class AstroBuilder {
 			{ settings: this.settings, logger: this.logger, mode: 'build', command: 'build', sync: false }
 		);
 		await runHookConfigDone({ settings: this.settings, logger: logger });
-
-		const { syncContentCollections } = await import('../sync/index.js');
-		const syncRet = await syncContentCollections(this.settings, { logger: logger, fs });
-		if (syncRet !== 0) {
-			return process.exit(syncRet);
-		}
 
 		return { viteConfig };
 	}
