@@ -66,7 +66,6 @@ export function createGetCollection({
 			return [...store.values<DataEntry>(collection)].map((entry) => ({
 				...entry,
 				collection,
-				type: 'experimental_data',
 			}));
 		} else {
 			// eslint-disable-next-line no-console
@@ -149,7 +148,6 @@ export function createGetEntryBySlug({
 			return {
 				...entry,
 				collection,
-				type: 'experimental_data',
 			};
 		}
 
@@ -190,7 +188,6 @@ export function createGetDataEntryById({ getEntryImport }: { getEntryImport: Get
 			return {
 				...entry,
 				collection,
-				type: 'experimental_data',
 			};
 		}
 

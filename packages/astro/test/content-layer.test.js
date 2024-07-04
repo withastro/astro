@@ -33,7 +33,6 @@ describe('Content Layer', () => {
 					title: 'sunt aut facere repellat provident occaecati excepturi optio reprehenderit',
 					body: 'quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto',
 				},
-				type: 'experimental_data',
 			});
 		});
 
@@ -82,7 +81,6 @@ describe('Content Layer', () => {
 			assert.deepEqual(json.dataEntry, {
 				id: 'beagle',
 				collection: 'dogs',
-				type: 'experimental_data',
 				data: {
 					breed: 'Beagle',
 					id: 'beagle',
@@ -110,7 +108,6 @@ describe('Content Layer', () => {
 					lifespan: '15 years',
 					temperament: ['Active', 'Affectionate', 'Social', 'Playful'],
 				},
-				type: 'experimental_data',
 			});
 		});
 	});
@@ -143,7 +140,6 @@ describe('Content Layer', () => {
 					title: 'sunt aut facere repellat provident occaecati excepturi optio reprehenderit',
 					body: 'quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto',
 				},
-				type: 'experimental_data',
 			});
 		});
 
@@ -192,7 +188,6 @@ describe('Content Layer', () => {
 			assert.deepEqual(json.dataEntry, {
 				id: 'beagle',
 				collection: 'dogs',
-				type: 'experimental_data',
 				data: {
 					breed: 'Beagle',
 					id: 'beagle',
