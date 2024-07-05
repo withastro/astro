@@ -18,6 +18,7 @@ describe('Redirects', () => {
 				},
 				'/blog/[...slug]': '/team/articles/[...slug]',
 				'/Basic/http-2-0.html': '/posts/http2',
+				'/google': 'https://google.com'
 			},
 			trailingSlash: 'always',
 		});
@@ -54,6 +55,14 @@ describe('Redirects', () => {
 		assert.notEqual(staticRoute, undefined);
 		assert.equal(staticRoute.headers.Location, '/posts/http2');
 		assert.equal(staticRoute.status, 301);
+	});
+
+	it('define external redirects', async () => {
+		const config = await getConfig();
+
+		const route = config.routes.find((r) => r.src === '/google');
+		assert.equal(route.headers.Location, 'https://google.com');
+		assert.equal(route.status, 301);
 	});
 
 	it('defines dynamic routes', async () => {
