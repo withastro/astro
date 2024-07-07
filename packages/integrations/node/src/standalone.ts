@@ -17,10 +17,10 @@ export const hostOptions = (host: Options['host']): string => {
 	return host;
 };
 
-export default function standalone(app: NodeApp, options: Options) {
+export default async function standalone(app: NodeApp, options: Options) {
 	const port = process.env.PORT ? Number(process.env.PORT) : options.port ?? 8080;
 	const host = process.env.HOST ?? hostOptions(options.host);
-	const handler = createStandaloneHandler(app, options);
+	const handler = await createStandaloneHandler(app, options);
 	const server = createServer(handler, host, port);
 	server.server.listen(port, host);
 	if (process.env.ASTRO_NODE_LOGGING !== 'disabled') {
@@ -33,7 +33,8 @@ export default function standalone(app: NodeApp, options: Options) {
 }
 
 // also used by server entrypoint
-export function createStandaloneHandler(app: NodeApp, options: Options) {
+export async function createStandaloneHandler(app: NodeApp, options: Options) {
+	const importMiddleware = options.middleware ? await import(options.middleware) : null;
 	const appHandler = createAppHandler(app);
 	const staticHandler = createStaticHandler(app, options);
 	return (req: http.IncomingMessage, res: http.ServerResponse) => {
@@ -45,7 +46,11 @@ export function createStandaloneHandler(app: NodeApp, options: Options) {
 			res.end('Bad request.');
 			return;
 		}
-		staticHandler(req, res, () => appHandler(req, res));
+		if (importMiddleware) {
+			importMiddleware.default(req, res, () => staticHandler(req, res, () => appHandler(req, res)));
+		} else {
+			staticHandler(req, res, () => appHandler(req, res));
+		}
 	};
 }
 

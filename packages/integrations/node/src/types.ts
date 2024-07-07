@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { SSRManifest } from 'astro';
 import type { NodeApp } from 'astro/app/node';
+import type * as http from 'http';
 
 export interface UserOptions {
 	/**
@@ -10,6 +11,10 @@ export interface UserOptions {
 	 * - 'standalone' - Build to a standalone server. The server starts up just by running the built script.
 	 */
 	mode: 'middleware' | 'standalone';
+	/**
+	 * Optional middleware (file path) which exports an array of middleware functions to be used in the standalone mode.
+	 */
+	middleware?: string;
 }
 
 export interface Options extends UserOptions {
