@@ -19,6 +19,7 @@ export function ensureServerIslandRoute(manifest: ManifestData) {
 			[{ content: '_server-islands', dynamic: false, spread: false }],
 			[{ content: 'name', dynamic: true, spread: false }]
 		],
+		// eslint-disable-next-line
 		pattern: /^\/_server-islands\/([^/]+?)$/,
 		prerender: false,
 		isIndex: false,
@@ -69,6 +70,7 @@ export function createEndpoint(manifest: SSRManifest) {
 	
 	const instance: ComponentInstance = {
 		default: page,
+		partial: true,
 	};
 
 	return instance;
