@@ -186,6 +186,14 @@
           "meta.embedded.block.astro": "astro",
           "meta.embedded.block.astro.frontmatter": "typescriptreact"
         }
+      },
+      {
+        "scopeName": "text.mdx.astro.codeblock",
+        "path": "./syntaxes/mdx.astro.tmLanguage.json",
+        "injectTo": ["source.mdx"],
+        "embeddedLanguages": {
+          "mdx.embedded.astro": "astro"
+        }
       }
     ]
   },

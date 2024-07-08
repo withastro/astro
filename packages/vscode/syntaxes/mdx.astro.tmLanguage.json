@@ -1,0 +1,84 @@
+{
+  "fileTypes": [],
+  "scopeName": "text.mdx.astro.codeblock",
+  "injectionSelector": "L:source.mdx",
+  "patterns": [
+    {
+      "begin": "(?:^|\\G)[\\t ]*(`{3,})(?:[\\t ]*((?i:(?:.*\\.)?astro))(?:[\\t ]+((?:[^\\n\\r`])+))?)(?:[\\t ]*$)",
+      "beginCaptures": {
+        "1": {
+          "name": "string.other.begin.code.fenced.mdx"
+        },
+        "2": {
+          "name": "entity.name.function.mdx"
+        }
+      },
+      "contentName": "meta.embedded.astro",
+      "end": "(\\1)(?:[\\t ]*$)",
+      "endCaptures": {
+        "1": {
+          "name": "string.other.end.code.fenced.mdx"
+        }
+      },
+      "name": "markup.code.astro.mdx",
+      "patterns": [
+        {
+          "include": "#astro-code-block"
+        }
+      ]
+    },
+    {
+      "begin": "(?:^|\\G)[\\t ]*(~{3,})(?:[\\t ]*((?i:(?:.*\\.)?astro))(?:[\\t ]+((?:[^\\n\\r])+))?)(?:[\\t ]*$)",
+      "beginCaptures": {
+        "1": {
+          "name": "string.other.begin.code.fenced.mdx"
+        },
+        "2": {
+          "name": "entity.name.function.mdx"
+        }
+      },
+      "contentName": "meta.embedded.astro",
+      "end": "(\\1)(?:[\\t ]*$)",
+      "endCaptures": {
+        "1": {
+          "name": "string.other.end.code.fenced.mdx"
+        }
+      },
+      "name": "markup.code.astro.mdx",
+      "patterns": [
+        {
+          "include": "#astro-code-block"
+        }
+      ]
+    }
+  ],
+  "repository": {
+    "astro-code-block": {
+      "patterns": [
+        {
+          "begin": "^\\s*---\\s*$",
+          "end": "^\\s*---\\s*$",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.tag.xi.begin.t"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.tag.xi.end.t"
+            }
+          },
+          "contentName": "meta.embedded.block.astro.frontmatter",
+          "patterns": [
+            {
+              "include": "source.tsx"
+            }
+          ]
+        },
+        {
+          "include": "source.astro"
+        }
+      ]
+    }
+  }
+}
