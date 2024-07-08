@@ -12,8 +12,7 @@ import { type LanguageServer, getLanguageServer } from '../server.js';
 
 const fixtureDir = path.join(__dirname, '../fixture');
 
-// TODO: Skipping this suite for now, I can't seems to be able to replicate the notifications being sent correctly, not sure if it's a bug in the test or in Volar
-describe.skip('TypeScript - Cache invalidation', async () => {
+describe('TypeScript - Cache invalidation', async () => {
 	let languageServer: LanguageServer;
 
 	async function createFile(name: string, contents: string) {
@@ -106,7 +105,8 @@ describe.skip('TypeScript - Cache invalidation', async () => {
 		);
 	});
 
-	it('Can get auto-imports for new files', async () => {
+	// TODO: Unskip this once the upstream issue is fixed
+	it.skip('Can get auto-imports for new files', async () => {
 		const fileNames = ['AutoImport.astro', 'AutoImport2.astro'];
 
 		const document = await languageServer.handle.openTextDocument(
@@ -114,7 +114,7 @@ describe.skip('TypeScript - Cache invalidation', async () => {
 			'astro'
 		);
 
-		// Try two different files, to make sure the cache capture everything
+		// Try two different files in a row, to make sure the cache updates properly for each file individually
 		for (const fileName of fileNames) {
 			await createFile(fileName, '');
 
@@ -159,8 +159,8 @@ describe.skip('TypeScript - Cache invalidation', async () => {
 		);
 
 		const hoverSuperModule = await languageServer.handle.sendHoverRequest(document.uri, {
-			line: 1,
-			character: 25,
+			line: 2,
+			character: 22,
 		});
 
 		expect((hoverSuperModule?.contents as MarkupContent).value).to.include(

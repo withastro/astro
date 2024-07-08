@@ -36,6 +36,12 @@ export async function getLanguageServer(): Promise<LanguageServer> {
 					),
 				},
 				pullModelDiagnostics: true,
+			},
+			{
+				workspace: {
+					// Needed for tests that use didChangeWatchedFiles
+					didChangeWatchedFiles: {},
+				},
 			}
 		);
 		// Ensure that our first test does not suffer from a TypeScript overhead
