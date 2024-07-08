@@ -136,6 +136,10 @@ export function glob(globOptions: GlobOptions): Loader {
 				)
 			);
 
+			if (!watcher) {
+				return;
+			}
+
 			const matcher: RegExp = micromatch.makeRe(globOptions.pattern);
 
 			const matchesGlob = (entry: string) => !entry.startsWith('../') && matcher.test(entry);
@@ -152,11 +156,11 @@ export function glob(globOptions: GlobOptions): Loader {
 				await syncData(entry, baseUrl, options, entryType);
 				logger.info(`Reloaded data from ${green(entry)}`);
 			}
-			watcher?.on('change', onChange);
+			watcher.on('change', onChange);
 
-			watcher?.on('add', onChange);
+			watcher.on('add', onChange);
 
-			watcher?.on('unlink', async (deletedPath) => {
+			watcher.on('unlink', async (deletedPath) => {
 				const entry = relative(basePath, deletedPath);
 				if (!matchesGlob(entry)) {
 					return;

@@ -69,8 +69,9 @@ const cats = defineCollection({
 	}),
 });
 
+
 // Absolute paths should also work
-const absoluteRoot = fileURLToPath(new URL('../../content-outside-src', import.meta.url))
+const absoluteRoot = new URL('../../content-outside-src', import.meta.url).href;
 
 const spacecraft = defineCollection({
 	type: 'experimental_data',
