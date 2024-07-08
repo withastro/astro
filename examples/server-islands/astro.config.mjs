@@ -12,4 +12,7 @@ export default defineConfig({
 		tailwind({ applyBaseStyles: false })
 	],
 	devToolbar: { enabled: false },
+	experimental: {
+		serverIslands: true,
+	}
 });
