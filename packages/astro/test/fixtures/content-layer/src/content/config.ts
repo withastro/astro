@@ -1,6 +1,7 @@
 import { defineCollection, z } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 import { loader } from '../loaders/post-loader.js';
+import { fileURLToPath } from 'node:url';
 
 const blog = defineCollection({
 	type: 'experimental_data',
@@ -68,9 +69,12 @@ const cats = defineCollection({
 	}),
 });
 
+// Absolute paths should also work
+const absoluteRoot = fileURLToPath(new URL('../../content-outside-src', import.meta.url))
+
 const spacecraft = defineCollection({
 	type: 'experimental_data',
-	loader: glob({ pattern: '*', base: 'content-outside-src' }),
+	loader: glob({ pattern: '*', base: absoluteRoot }),
 });
 
 const numbers = defineCollection({
