@@ -5,9 +5,9 @@ import { pathToFileURL } from 'node:url';
 import * as kit from '@volar/kit';
 import { Diagnostic, DiagnosticSeverity } from '@volar/language-server';
 import fg from 'fast-glob';
-import { getLanguageModule } from './core/index.js';
-import { getSvelteLanguageModule } from './core/svelte.js';
-import { getVueLanguageModule } from './core/vue.js';
+import { getAstroLanguagePlugin } from './core/index.js';
+import { getSvelteLanguagePlugin } from './core/svelte.js';
+import { getVueLanguagePlugin } from './core/vue.js';
 import { getAstroInstall } from './utils.js';
 
 import { create as createAstroService } from './plugins/astro.js';
@@ -62,9 +62,7 @@ export class AstroCheck {
 			| undefined;
 	}): Promise<CheckResult> {
 		let files = (
-			fileNames !== undefined
-				? fileNames
-				: this.linter.language.typescript!.projectHost.getScriptFileNames()
+			fileNames !== undefined ? fileNames : this.linter.projectHost.getScriptFileNames()
 		).filter((file) => {
 			// We don't have the same understanding of Svelte and Vue files as their own respective tools (vue-tsc, svelte-check)
 			// So we don't want to check them here
@@ -106,7 +104,7 @@ export class AstroCheck {
 					console.info(errorText);
 				}
 
-				const fileSnapshot = this.linter.language.typescript!.projectHost.getScriptSnapshot(file);
+				const fileSnapshot = this.linter.projectHost.getScriptSnapshot(file);
 				const fileContent = fileSnapshot?.getText(0, fileSnapshot.getLength());
 
 				result.fileResult.push({
@@ -139,17 +137,17 @@ export class AstroCheck {
 		const tsconfigPath = this.getTsconfig();
 
 		const astroInstall = getAstroInstall([this.workspacePath]);
-		const languages = [
-			getLanguageModule(typeof astroInstall === 'string' ? undefined : astroInstall, this.ts),
-			getSvelteLanguageModule(),
-			getVueLanguageModule(),
+		const languagePlugins = [
+			getAstroLanguagePlugin(typeof astroInstall === 'string' ? undefined : astroInstall, this.ts),
+			getSvelteLanguagePlugin(),
+			getVueLanguagePlugin(),
 		];
 		const services = [...createTypeScriptServices(this.ts), createAstroService(this.ts)];
 
 		if (tsconfigPath) {
-			this.linter = kit.createTypeScriptChecker(languages, services, tsconfigPath);
+			this.linter = kit.createTypeScriptChecker(languagePlugins, services, tsconfigPath);
 		} else {
-			this.linter = kit.createTypeScriptInferredChecker(languages, services, () => {
+			this.linter = kit.createTypeScriptInferredChecker(languagePlugins, services, () => {
 				return fg.sync('**/*.astro', {
 					cwd: this.workspacePath,
 					ignore: ['node_modules'],

@@ -1,14 +1,10 @@
 import type { ParentNode, ParseResult } from '@astrojs/compiler/types';
 import { is } from '@astrojs/compiler/utils';
-import {
-	type CodeInformation,
-	type Segment,
-	type VirtualCode,
-	buildMappings,
-	toString,
-} from '@volar/language-core';
+import type { CodeInformation, VirtualCode } from '@volar/language-core';
+import { Segment, toString } from 'muggle-string';
 import type ts from 'typescript';
 import type { HTMLDocument, Node } from 'vscode-html-languageservice';
+import { buildMappings } from '../buildMappings';
 
 export function extractScriptTags(
 	snapshot: ts.IScriptSnapshot,

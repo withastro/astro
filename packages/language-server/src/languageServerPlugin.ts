@@ -1,15 +1,14 @@
 import {
 	Connection,
 	LanguagePlugin,
+	LanguageServiceEnvironment,
 	MessageType,
-	ServiceEnvironment,
 	ShowMessageNotification,
-	VirtualCode,
 } from '@volar/language-server/node';
 import { URI } from 'vscode-uri';
-import { getLanguageModule } from './core';
-import { getSvelteLanguageModule } from './core/svelte.js';
-import { getVueLanguageModule } from './core/vue.js';
+import { getAstroLanguagePlugin } from './core';
+import { getSvelteLanguagePlugin } from './core/svelte.js';
+import { getVueLanguagePlugin } from './core/vue.js';
 import { getPrettierPluginPath, importPrettier } from './importPackage.js';
 import { getAstroInstall } from './utils.js';
 
@@ -27,17 +26,17 @@ import { create as createTypeScriptServices } from './plugins/typescript/index.j
 export function getLanguagePlugins(
 	connection: Connection,
 	ts: typeof import('typescript'),
-	serviceEnv: ServiceEnvironment,
+	serviceEnv: LanguageServiceEnvironment,
 	tsconfig: string | undefined
 ) {
-	const languagePlugins: LanguagePlugin<VirtualCode>[] = [
-		getVueLanguageModule(),
-		getSvelteLanguageModule(),
+	const languagePlugins: LanguagePlugin<URI>[] = [
+		getVueLanguagePlugin(),
+		getSvelteLanguagePlugin(),
 	];
 
 	const rootPath = tsconfig
 		? tsconfig.split('/').slice(0, -1).join('/')
-		: serviceEnv.typescript!.uriToFileName(serviceEnv.workspaceFolder);
+		: serviceEnv.workspaceFolders[0]!.fsPath;
 	const nearestPackageJson = ts.findConfigFile(rootPath, ts.sys.fileExists, 'package.json');
 
 	const astroInstall = getAstroInstall([rootPath], {
@@ -53,7 +52,7 @@ export function getLanguagePlugins(
 	}
 
 	languagePlugins.unshift(
-		getLanguageModule(typeof astroInstall === 'string' ? undefined : astroInstall, ts)
+		getAstroLanguagePlugin(typeof astroInstall === 'string' ? undefined : astroInstall, ts)
 	);
 
 	return languagePlugins;
@@ -77,26 +76,28 @@ export function getLanguageServicePlugins(connection: Connection, ts: typeof imp
 
 		return createPrettierService(
 			(context) => {
-				const workspaceUri = URI.parse(context.env.workspaceFolder);
-				if (workspaceUri.scheme === 'file') {
-					prettier = importPrettier(workspaceUri.fsPath);
-					prettierPluginPath = getPrettierPluginPath(workspaceUri.fsPath);
-					if ((!prettier || !prettierPluginPath) && !hasShownNotification) {
-						connection.sendNotification(ShowMessageNotification.type, {
-							message:
-								"Couldn't load `prettier` or `prettier-plugin-astro`. Formatting will not work. Please make sure those two packages are installed into your project and restart the language server.",
-							type: MessageType.Warning,
-						});
-						hasShownNotification = true;
+				for (const workspaceFolder of context.env.workspaceFolders) {
+					if (workspaceFolder.scheme === 'file') {
+						prettier = importPrettier(workspaceFolder.fsPath);
+						prettierPluginPath = getPrettierPluginPath(workspaceFolder.fsPath);
+						if ((!prettier || !prettierPluginPath) && !hasShownNotification) {
+							connection.sendNotification(ShowMessageNotification.type, {
+								message:
+									"Couldn't load `prettier` or `prettier-plugin-astro`. Formatting will not work. Please make sure those two packages are installed into your project and restart the language server.",
+								type: MessageType.Warning,
+							});
+							hasShownNotification = true;
+						}
+						return prettier;
 					}
-					return prettier;
 				}
 			},
 			{
 				documentSelector: ['astro'],
 				getFormattingOptions: async (prettierInstance, document, formatOptions, context) => {
-					const documentUri = context.decodeEmbeddedDocumentUri(document.uri)?.[0] ?? document.uri;
-					const filePath = URI.parse(documentUri).fsPath;
+					const uri = URI.parse(document.uri);
+					const documentUri = context.decodeEmbeddedDocumentUri(uri)?.[0] ?? uri;
+					const filePath = documentUri.fsPath;
 
 					if (!filePath) {
 						return {};

@@ -11,19 +11,22 @@ import { astroAttributes, astroElements, classListAttribute } from './html-data.
 import { isInComponentStartTag } from './utils.js';
 
 export const create = (): LanguageServicePlugin => {
-	const htmlServicePlugin = createHtmlService({
+	const htmlPlugin = createHtmlService({
 		getCustomData: async (context) => {
 			const customData: string[] = (await context.env.getConfiguration?.('html.customData')) ?? [];
 			const newData: html.IHTMLDataProvider[] = [];
 			for (const customDataPath of customData) {
-				const uri = Utils.resolvePath(URI.parse(context.env.workspaceFolder), customDataPath);
-				const json = await context.env.fs?.readFile?.(uri.toString());
-				if (json) {
-					try {
-						const data = JSON.parse(json);
-						newData.push(html.newHTMLDataProvider(customDataPath, data));
-					} catch (error) {
-						console.error(error);
+				for (const workspaceFolder of context.env.workspaceFolders) {
+					const uri = Utils.resolvePath(workspaceFolder, customDataPath);
+					const json = await context.env.fs?.readFile?.(uri);
+					if (json) {
+						try {
+							const data = JSON.parse(json);
+							newData.push(html.newHTMLDataProvider(customDataPath, data));
+						} catch (error) {
+							console.error(error);
+						}
+						break;
 					}
 				}
 			}
@@ -31,16 +34,16 @@ export const create = (): LanguageServicePlugin => {
 		},
 	});
 	return {
-		...htmlServicePlugin,
+		...htmlPlugin,
 		create(context): LanguageServicePluginInstance {
-			const htmlPlugin = htmlServicePlugin.create(context);
+			const htmlPluginInstance = htmlPlugin.create(context);
 
 			return {
-				...htmlPlugin,
+				...htmlPluginInstance,
 				async provideCompletionItems(document, position, completionContext, token) {
 					if (document.languageId !== 'html') return;
 
-					const decoded = context.decodeEmbeddedDocumentUri(document.uri);
+					const decoded = context.decodeEmbeddedDocumentUri(URI.parse(document.uri));
 					const sourceScript = decoded && context.language.scripts.get(decoded[0]);
 					const root = sourceScript?.generated?.root;
 					if (!(root instanceof AstroVirtualCode)) return;
@@ -50,7 +53,7 @@ export const create = (): LanguageServicePlugin => {
 						return null;
 					}
 
-					const completions = await htmlPlugin.provideCompletionItems!(
+					const completions = await htmlPluginInstance.provideCompletionItems!(
 						document,
 						position,
 						completionContext,

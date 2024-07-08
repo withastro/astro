@@ -6,27 +6,21 @@ import {
 	forEachEmbeddedCode,
 } from '@volar/language-core';
 import type ts from 'typescript';
-import { URI } from 'vscode-uri';
+import type { URI } from 'vscode-uri';
 import { framework2tsx } from './utils.js';
 
-export function getVueLanguageModule(): LanguagePlugin<VueVirtualCode> {
+export function getVueLanguagePlugin(): LanguagePlugin<URI, VueVirtualCode> {
 	return {
-		getLanguageId(scriptId) {
-			if (scriptId.endsWith('.vue')) {
+		getLanguageId(uri) {
+			if (uri.path.endsWith('.vue')) {
 				return 'vue';
 			}
 		},
-		createVirtualCode(scriptId, languageId, snapshot) {
+		createVirtualCode(uri, languageId, snapshot) {
 			if (languageId === 'vue') {
-				const fileName = scriptId.includes('://')
-					? URI.parse(scriptId).fsPath.replace(/\\/g, '/')
-					: scriptId;
+				const fileName = uri.fsPath.replace(/\\/g, '/');
 				return new VueVirtualCode(fileName, snapshot);
 			}
-		},
-		updateVirtualCode(_scriptId, vueCode, snapshot) {
-			vueCode.update(snapshot);
-			return vueCode;
 		},
 		typescript: {
 			extraFileExtensions: [{ extension: 'vue', isMixedContent: true, scriptKind: 7 }],
@@ -56,15 +50,6 @@ class VueVirtualCode implements VirtualCode {
 		public fileName: string,
 		public snapshot: ts.IScriptSnapshot
 	) {
-		this.onSnapshotUpdated();
-	}
-
-	public update(newSnapshot: ts.IScriptSnapshot) {
-		this.snapshot = newSnapshot;
-		this.onSnapshotUpdated();
-	}
-
-	private onSnapshotUpdated() {
 		this.mappings = [];
 
 		this.embeddedCodes = [];

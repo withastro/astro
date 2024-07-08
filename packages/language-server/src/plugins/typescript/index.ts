@@ -1,5 +1,6 @@
 import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-server';
 import { create as createTypeScriptServices } from 'volar-service-typescript';
+import { URI } from 'vscode-uri';
 import { AstroVirtualCode } from '../../core/index.js';
 import { enhancedProvideCodeActions, enhancedResolveCodeAction } from './codeActions.js';
 import { enhancedProvideCompletionItems, enhancedResolveCompletionItem } from './completions.js';
@@ -56,7 +57,7 @@ export const create = (ts: typeof import('typescript')): LanguageServicePlugin[]
 							return enhancedResolveCodeAction(resolvedCodeAction, context);
 						},
 						async provideSemanticDiagnostics(document, token) {
-							const decoded = context.decodeEmbeddedDocumentUri(document.uri);
+							const decoded = context.decodeEmbeddedDocumentUri(URI.parse(document.uri));
 							const sourceScript = decoded && context.language.scripts.get(decoded[0]);
 							const root = sourceScript?.generated?.root;
 

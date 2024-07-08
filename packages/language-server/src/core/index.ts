@@ -2,14 +2,14 @@ import * as path from 'node:path';
 import type { DiagnosticMessage } from '@astrojs/compiler/types';
 import {
 	type CodeMapping,
-	type ExtraServiceScript,
 	type LanguagePlugin,
 	type VirtualCode,
 	forEachEmbeddedCode,
 } from '@volar/language-core';
+import type { TypeScriptExtraServiceScript } from '@volar/typescript';
 import type ts from 'typescript';
 import type { HTMLDocument } from 'vscode-html-languageservice';
-import { URI } from 'vscode-uri';
+import type { URI } from 'vscode-uri';
 import { type AstroInstall, getLanguageServerTypesDir } from '../utils.js';
 import { astro2tsx } from './astro2tsx';
 import { AstroMetadata, getAstroMetadata } from './parseAstro';
@@ -17,27 +17,21 @@ import { extractStylesheets } from './parseCSS';
 import { parseHTML } from './parseHTML';
 import { extractScriptTags } from './parseJS.js';
 
-export function getLanguageModule(
+export function getAstroLanguagePlugin(
 	astroInstall: AstroInstall | undefined,
 	ts: typeof import('typescript')
-): LanguagePlugin<AstroVirtualCode> {
+): LanguagePlugin<URI, AstroVirtualCode> {
 	return {
-		getLanguageId(scriptId) {
-			if (scriptId.endsWith('.astro')) {
+		getLanguageId(uri) {
+			if (uri.path.endsWith('.astro')) {
 				return 'astro';
 			}
 		},
-		createVirtualCode(scriptId, languageId, snapshot) {
+		createVirtualCode(uri, languageId, snapshot) {
 			if (languageId === 'astro') {
-				const fileName = scriptId.includes('://')
-					? URI.parse(scriptId).fsPath.replace(/\\/g, '/')
-					: scriptId;
+				const fileName = uri.fsPath.replace(/\\/g, '/');
 				return new AstroVirtualCode(fileName, snapshot);
 			}
-		},
-		updateVirtualCode(_scriptId, astroCode, snapshot) {
-			astroCode.update(snapshot);
-			return astroCode;
 		},
 		typescript: {
 			extraFileExtensions: [{ extension: 'astro', isMixedContent: true, scriptKind: 7 }],
@@ -54,7 +48,7 @@ export function getLanguageModule(
 				return undefined;
 			},
 			getExtraServiceScripts(fileName, astroCode) {
-				const result: ExtraServiceScript[] = [];
+				const result: TypeScriptExtraServiceScript[] = [];
 				for (const code of forEachEmbeddedCode(astroCode)) {
 					if (code.id.endsWith('.mjs') || code.id.endsWith('.mts')) {
 						const fileExtension = code.id.endsWith('.mjs') ? '.mjs' : '.mts';
@@ -150,19 +144,6 @@ export class AstroVirtualCode implements VirtualCode {
 		public fileName: string,
 		public snapshot: ts.IScriptSnapshot
 	) {
-		this.onSnapshotUpdated();
-	}
-
-	get hasCompilationErrors(): boolean {
-		return this.compilerDiagnostics.filter((diag) => diag.severity === 1).length > 0;
-	}
-
-	public update(newSnapshot: ts.IScriptSnapshot) {
-		this.snapshot = newSnapshot;
-		this.onSnapshotUpdated();
-	}
-
-	onSnapshotUpdated() {
 		this.mappings = [
 			{
 				sourceOffsets: [0],
@@ -219,5 +200,9 @@ export class AstroVirtualCode implements VirtualCode {
 		this.astroMeta = { ...astroMetadata, tsxRanges: tsx.ranges };
 		this.compilerDiagnostics.push(...tsx.diagnostics);
 		this.embeddedCodes.push(tsx.virtualCode);
+	}
+
+	get hasCompilationErrors(): boolean {
+		return this.compilerDiagnostics.filter((diag) => diag.severity === 1).length > 0;
 	}
 }

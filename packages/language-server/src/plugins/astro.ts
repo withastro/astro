@@ -15,19 +15,26 @@ import {
 import fg from 'fast-glob';
 import type { Provide } from 'volar-service-typescript';
 import type { TextDocument } from 'vscode-html-languageservice';
+import { URI } from 'vscode-uri';
 import { AstroVirtualCode } from '../core/index.js';
 import { isJSDocument } from './utils.js';
 
 export const create = (ts: typeof import('typescript')): LanguageServicePlugin => {
 	return {
-		triggerCharacters: ['-'],
+		capabilities: {
+			completionProvider: {
+				triggerCharacters: ['-'],
+			},
+			diagnosticProvider: {},
+			codeLensProvider: {},
+		},
 		create(context): LanguageServicePluginInstance {
 			return {
 				provideCompletionItems(document, position, completionContext, token) {
 					if (token.isCancellationRequested) return null;
 					let items: CompletionItem[] = [];
 
-					const decoded = context.decodeEmbeddedDocumentUri(document.uri);
+					const decoded = context.decodeEmbeddedDocumentUri(URI.parse(document.uri));
 					const sourceScript = decoded && context.language.scripts.get(decoded[0]);
 					const virtualCode = decoded && sourceScript?.generated?.embeddedCodes.get(decoded[1]);
 					if (!(virtualCode instanceof AstroVirtualCode)) return;
@@ -45,7 +52,7 @@ export const create = (ts: typeof import('typescript')): LanguageServicePlugin =
 				provideSemanticDiagnostics(document, token) {
 					if (token.isCancellationRequested) return [];
 
-					const decoded = context.decodeEmbeddedDocumentUri(document.uri);
+					const decoded = context.decodeEmbeddedDocumentUri(URI.parse(document.uri));
 					const sourceScript = decoded && context.language.scripts.get(decoded[0]);
 					const virtualCode = decoded && sourceScript?.generated?.embeddedCodes.get(decoded[1]);
 					if (!(virtualCode instanceof AstroVirtualCode)) return;
@@ -68,6 +75,9 @@ export const create = (ts: typeof import('typescript')): LanguageServicePlugin =
 					if (token.isCancellationRequested) return;
 					if (!isJSDocument(document.languageId)) return;
 
+					if (!context.project.typescript) return;
+
+					const { uriConverter } = context.project.typescript;
 					const languageService = context.inject<Provide, 'typescript/languageService'>(
 						'typescript/languageService'
 					);
@@ -88,7 +98,7 @@ export const create = (ts: typeof import('typescript')): LanguageServicePlugin =
 									globcodeLens.push(
 										getGlobResultAsCodeLens(
 											globArgument.getText().slice(1, -1),
-											dirname(context.env.typescript!.uriToFileName(document.uri)),
+											dirname(uriConverter.asFileName(URI.parse(document.uri))),
 											document.positionAt(node.arguments.pos)
 										)
 									);

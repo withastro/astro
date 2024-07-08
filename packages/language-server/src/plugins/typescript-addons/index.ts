@@ -3,12 +3,18 @@ import type {
 	LanguageServicePlugin,
 	LanguageServicePluginInstance,
 } from '@volar/language-server';
+import { URI } from 'vscode-uri';
 import { AstroVirtualCode } from '../../core/index.js';
 import { isInsideFrontmatter, isJSDocument } from '../utils.js';
 import { getSnippetCompletions } from './snippets.js';
 
 export const create = (): LanguageServicePlugin => {
 	return {
+		capabilities: {
+			completionProvider: {
+				resolveProvider: true,
+			},
+		},
 		create(context): LanguageServicePluginInstance {
 			return {
 				isAdditionalCompletion: true,
@@ -27,7 +33,7 @@ export const create = (): LanguageServicePlugin => {
 					)
 						return null;
 
-					const decoded = context.decodeEmbeddedDocumentUri(document.uri);
+					const decoded = context.decodeEmbeddedDocumentUri(URI.parse(document.uri));
 					const sourceScript = decoded && context.language.scripts.get(decoded[0]);
 					const root = sourceScript?.generated?.root;
 					if (!(root instanceof AstroVirtualCode)) return undefined;

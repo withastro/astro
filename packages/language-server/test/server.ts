@@ -35,6 +35,7 @@ export async function getLanguageServer(): Promise<LanguageServer> {
 						'lib'
 					),
 				},
+				pullModelDiagnostics: true,
 			}
 		);
 		// Ensure that our first test does not suffer from a TypeScript overhead

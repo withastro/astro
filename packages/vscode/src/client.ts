@@ -1,5 +1,4 @@
 import * as path from 'node:path';
-import type { InitializationOptions } from '@volar/language-server';
 import * as protocol from '@volar/language-server/protocol';
 import {
 	LabsInfo,
@@ -16,7 +15,7 @@ import * as lsp from 'vscode-languageclient/node';
 
 let client: lsp.BaseLanguageClient;
 
-type InitOptions = InitializationOptions & {
+type InitOptions = {
 	typescript: {
 		tsdk: string;
 	};
@@ -64,7 +63,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 
 	const initializationOptions = {
 		typescript: {
-			tsdk: (await getTsdk(context)).tsdk,
+			tsdk: (await getTsdk(context))!.tsdk,
 		},
 	} satisfies InitOptions;
 
@@ -80,13 +79,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 	activateFindFileReferences('astro.findFileReferences', client);
 	activateReloadProjects('astro.reloadProjects', client);
 	activateTsConfigStatusItem('astro', 'astro.openTsConfig', client);
-	activateTsVersionStatusItem(
-		'astro',
-		'astro.selectTypescriptVersion',
-		context,
-		client,
-		(text) => text
-	);
+	activateTsVersionStatusItem('astro', 'astro.selectTypescriptVersion', context, (text) => text);
 
 	const volarLabs = createLabsInfo(protocol);
 	volarLabs.addLanguageClient(client);

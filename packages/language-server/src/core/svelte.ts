@@ -6,27 +6,21 @@ import {
 	forEachEmbeddedCode,
 } from '@volar/language-core';
 import type ts from 'typescript';
-import { URI } from 'vscode-uri';
+import type { URI } from 'vscode-uri';
 import { framework2tsx } from './utils.js';
 
-export function getSvelteLanguageModule(): LanguagePlugin<SvelteVirtualCode> {
+export function getSvelteLanguagePlugin(): LanguagePlugin<URI, SvelteVirtualCode> {
 	return {
-		getLanguageId(scriptId) {
-			if (scriptId.endsWith('.svelte')) {
+		getLanguageId(uri) {
+			if (uri.path.endsWith('.svelte')) {
 				return 'svelte';
 			}
 		},
-		createVirtualCode(scriptId, languageId, snapshot) {
+		createVirtualCode(uri, languageId, snapshot) {
 			if (languageId === 'svelte') {
-				const fileName = scriptId.includes('://')
-					? URI.parse(scriptId).fsPath.replace(/\\/g, '/')
-					: scriptId;
+				const fileName = uri.fsPath.replace(/\\/g, '/');
 				return new SvelteVirtualCode(fileName, snapshot);
 			}
-		},
-		updateVirtualCode(_scriptId, svelteCode, snapshot) {
-			svelteCode.update(snapshot);
-			return svelteCode;
 		},
 		typescript: {
 			extraFileExtensions: [{ extension: 'svelte', isMixedContent: true, scriptKind: 7 }],
@@ -56,15 +50,6 @@ class SvelteVirtualCode implements VirtualCode {
 		public fileName: string,
 		public snapshot: ts.IScriptSnapshot
 	) {
-		this.onSnapshotUpdated();
-	}
-
-	public update(newSnapshot: ts.IScriptSnapshot) {
-		this.snapshot = newSnapshot;
-		this.onSnapshotUpdated();
-	}
-
-	private onSnapshotUpdated() {
 		this.mappings = [];
 
 		this.embeddedCodes = [];
