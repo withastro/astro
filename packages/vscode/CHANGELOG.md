@@ -1,5 +1,15 @@
 # astro-vscode
 
+## 2.11.0
+
+### Minor Changes
+
+- b8a6af3: Upgrades to the latest version of Volar, the underlying framework powering the Astro language server. This update should fix some of the recent issues regarding intellisense inside script tags.
+
+### Patch Changes
+
+- 829093f: Add syntax highlighting for `astro` tagged code block inside MDX files.
+
 ## 2.10.2
 
 ### Patch Changes

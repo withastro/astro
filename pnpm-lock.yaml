@@ -36,7 +36,7 @@ importers:
   packages/astro-check:
     dependencies:
       '@astrojs/language-server':
-        specifier: ^2.10.0
+        specifier: ^2.11.0
         version: link:../language-server
       chokidar:
         specifier: ^3.5.3
@@ -232,10 +232,10 @@ importers:
         version: 0.13.0
     devDependencies:
       '@astrojs/language-server':
-        specifier: ^2.10.0
+        specifier: ^2.11.0
         version: link:../language-server
       '@astrojs/ts-plugin':
-        specifier: ^1.8.0
+        specifier: ^1.9.0
         version: link:../ts-plugin
       '@types/glob':
         specifier: ^8.1.0
@@ -2188,7 +2188,7 @@ packages:
       globby: 11.1.0
       is-glob: 4.0.3
       minimatch: 9.0.3
-      semver: 7.5.4
+      semver: 7.6.2
       ts-api-utils: 1.2.1(typescript@5.2.2)
       typescript: 5.2.2
     transitivePeerDependencies:
@@ -2208,7 +2208,7 @@ packages:
       '@typescript-eslint/types': 6.21.0
       '@typescript-eslint/typescript-estree': 6.21.0(typescript@5.2.2)
       eslint: 8.56.0
-      semver: 7.5.4
+      semver: 7.6.2
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -2467,7 +2467,7 @@ packages:
       minimatch: 3.1.2
       parse-semver: 1.1.1
       read: 1.0.7
-      semver: 7.5.4
+      semver: 7.6.2
       tmp: 0.2.1
       typed-rest-client: 1.8.9
       url-join: 4.0.1
@@ -4234,6 +4234,7 @@ packages:
 
   /glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
     dependencies:
       fs.realpath: 1.0.0
       inflight: 1.0.6
@@ -5797,7 +5798,7 @@ packages:
     engines: {node: '>=10'}
     requiresBuild: true
     dependencies:
-      semver: 7.5.4
+      semver: 7.6.2
     dev: true
     optional: true
 
@@ -6542,6 +6543,7 @@ packages:
 
   /rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
     dependencies:
       glob: 7.2.3
@@ -6658,7 +6660,7 @@ packages:
       detect-libc: 2.0.2
       node-addon-api: 6.1.0
       prebuild-install: 7.1.1
-      semver: 7.5.4
+      semver: 7.6.2
       simple-get: 4.0.1
       tar-fs: 3.0.4
       tunnel-agent: 0.6.0

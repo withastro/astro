@@ -1,5 +1,17 @@
 # @astrojs/check
 
+## 0.8.0
+
+### Minor Changes
+
+- b8a6af3: Upgrades to the latest version of Volar, the underlying framework powering the Astro language server. This update should fix some of the recent issues regarding intellisense inside script tags.
+
+### Patch Changes
+
+- a1769da: Adds a README with helpful links
+- Updated dependencies [b8a6af3]
+  - @astrojs/language-server@2.11.0
+
 ## 0.7.0
 
 ### Minor Changes

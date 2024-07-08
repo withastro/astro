@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.9.0
+
+### Minor Changes
+
+- b8a6af3: Upgrades to the latest version of Volar, the underlying framework powering the Astro language server. This update should fix some of the recent issues regarding intellisense inside script tags.
+
 ## 1.8.0
 
 ### Minor Changes
