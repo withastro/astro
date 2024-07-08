@@ -166,7 +166,7 @@
     "magic-string": "^0.30.10",
     "mrmime": "^2.0.0",
     "ora": "^8.0.1",
-    "p-limit": "^5.0.0",
+    "p-limit": "^6.1.0",
     "p-queue": "^8.0.1",
     "path-to-regexp": "^6.2.2",
     "preferred-pm": "^3.1.3",

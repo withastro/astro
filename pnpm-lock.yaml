@@ -658,8 +658,8 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1
       p-limit:
-        specifier: ^5.0.0
-        version: 5.0.0
+        specifier: ^6.1.0
+        version: 6.1.0
       p-queue:
         specifier: ^8.0.1
         version: 8.0.1
@@ -5866,8 +5866,8 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5
       p-limit:
-        specifier: ^5.0.0
-        version: 5.0.0
+        specifier: ^6.1.0
+        version: 6.1.0
       svelte:
         specifier: ^4.2.18
         version: 4.2.18
@@ -9308,6 +9308,7 @@ packages:
 
   libsql@0.3.12:
     resolution: {integrity: sha512-to30hj8O3DjS97wpbKN6ERZ8k66MN1IaOfFLR6oHqd25GMiPJ/ZX0VaZ7w+TsPmxcFS3p71qArj/hiedCyvXCg==}
+    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lilconfig@2.1.0:
@@ -9932,6 +9933,10 @@ packages:
 
   p-limit@5.0.0:
     resolution: {integrity: sha512-/Eaoq+QyLSiXQ4lyYV23f14mZRQcXnxfHrN0vCai+ak9G0pp9iEQukIIZq5NccEvwRB8PUnZT0KsOoDCINS1qQ==}
+    engines: {node: '>=18'}
+
+  p-limit@6.1.0:
+    resolution: {integrity: sha512-H0jc0q1vOzlEk0TqAKXKZxdl7kX3OFUzCnNVUnq5Pc3DGo0kpeaMuPqxQn235HibwBEb0/pm9dgKTjXy66fBkg==}
     engines: {node: '>=18'}
 
   p-locate@4.1.0:
@@ -11675,8 +11680,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  yocto-queue@1.0.0:
-    resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
+  yocto-queue@1.1.1:
+    resolution: {integrity: sha512-b4JR1PFR10y1mKjhHY9LaGo6tmrgjit7hxVIeAmyMw3jegXR4dhYqLaQF5zMXZxY7tLpMyJeLjr1C4rLmkVe8g==}
     engines: {node: '>=12.20'}
 
   zod-to-json-schema@3.23.1:
@@ -16419,7 +16424,11 @@ snapshots:
 
   p-limit@5.0.0:
     dependencies:
-      yocto-queue: 1.0.0
+      yocto-queue: 1.1.1
+
+  p-limit@6.1.0:
+    dependencies:
+      yocto-queue: 1.1.1
 
   p-locate@4.1.0:
     dependencies:
@@ -18330,7 +18339,7 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  yocto-queue@1.0.0: {}
+  yocto-queue@1.1.1: {}
 
   zod-to-json-schema@3.23.1(zod@3.23.8):
     dependencies:
