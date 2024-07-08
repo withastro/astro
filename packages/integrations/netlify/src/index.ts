@@ -297,6 +297,18 @@ export default function netlifyIntegration(
 		// taking over bundling, because Netlify bundling trips over NPM modules
 		await build({
 			entryPoints: [fileURLToPath(new URL('./entry.mjs', middlewareOutputDir()))],
+			// allow `node:` prefixed imports, which are valid in netlify's deno edge runtime
+			plugins: [
+				{
+					name: 'allowNodePrefixedImports',
+					setup(build) {
+						build.onResolve({ filter: /^node:.*$/ }, (args) => ({
+							path: args.path,
+							external: true,
+						}));
+					},
+				},
+			],
 			target: 'es2022',
 			platform: 'neutral',
 			mainFields: ['module', 'main'],
