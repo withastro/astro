@@ -21,8 +21,8 @@ export interface GenerateIdOptions {
 export interface GlobOptions {
 	/** The glob pattern to match files, relative to the base directory */
 	pattern: string;
-	/** The base directory to resolve the glob pattern from, relative to the root directory. Defaults to `.` */
-	base?: string;
+	/** The base directory to resolve the glob pattern from. Relative to the root directory, or an absolute file URL. Defaults to `.` */
+	base?: string | URL;
 	/**
 	 * Function that generates an ID for an entry. Default implementation generates a slug from the entry path.
 	 * @returns The ID of the entry. Must be unique per collection.
