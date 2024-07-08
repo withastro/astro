@@ -14,7 +14,7 @@ describe(
 
 		it('Can set multiple', async () => {
 			const entryURL = new URL(
-				'./fixtures/cookies/.netlify/functions-internal/ssr/ssr.mjs',
+				'./fixtures/cookies/.netlify/v1/functions/ssr/ssr.mjs',
 				import.meta.url
 			);
 			const { default: handler } = await import(entryURL);
@@ -29,7 +29,7 @@ describe(
 
 		it('renders dynamic 404 page', async () => {
 			const entryURL = new URL(
-				'./fixtures/cookies/.netlify/functions-internal/ssr/ssr.mjs',
+				'./fixtures/cookies/.netlify/v1/functions/ssr/ssr.mjs',
 				import.meta.url
 			);
 			const { default: handler } = await import(entryURL);

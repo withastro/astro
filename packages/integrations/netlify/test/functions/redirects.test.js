@@ -33,7 +33,7 @@ describe(
 
 		it('renders static 404 page', async () => {
 			const entryURL = new URL(
-				'./fixtures/redirects/.netlify/functions-internal/ssr/ssr.mjs',
+				'./fixtures/redirects/.netlify/v1/functions/ssr/ssr.mjs',
 				import.meta.url
 			);
 			const { default: handler } = await import(entryURL);
@@ -53,7 +53,7 @@ describe(
 			});
 			testServer.listen(5678);
 			const entryURL = new URL(
-				'./fixtures/redirects/.netlify/functions-internal/ssr/ssr.mjs',
+				'./fixtures/redirects/.netlify/v1/functions/ssr/ssr.mjs',
 				import.meta.url
 			);
 			const { default: handler } = await import(entryURL);

@@ -51,7 +51,7 @@ describe(
 				const fixture = await loadFixture({ root });
 				await fixture.build();
 
-				const config = await fixture.readFile('../.netlify/deploy/v1/config.json');
+				const config = await fixture.readFile('../.netlify/v1/config.json');
 				if (config) {
 					regexes = JSON.parse(config).images.remote_images.map((pattern) => new RegExp(pattern));
 				}
