@@ -8,8 +8,7 @@ import type {
 import { getOutputDirectory } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
-import { RouteNotFound } from '../errors/errors-data.js';
-import { AstroError } from '../errors/index.js';
+import { DEFAULT_404_COMPONENT } from '../constants.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { Pipeline } from '../render/index.js';
@@ -18,6 +17,8 @@ import {
 	createModuleScriptsSet,
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
+import { default404Page } from '../routing/astro-designed-error-pages.js';
+import { findRouteToRewrite } from '../routing/rewrite.js';
 import { isServerLikeOutput } from '../util.js';
 import { getOutDirWithinCwd } from './common.js';
 import { type BuildInternals, cssOrder, getPageData, mergeInlineCss } from './internal.js';
@@ -268,6 +269,8 @@ export class BuildPipeline extends Pipeline {
 			// SAFETY: checked before
 			const entry = this.#componentsInterner.get(routeData)!;
 			return await entry.page();
+		} else if (routeData.component === DEFAULT_404_COMPONENT) {
+			return { default: default404Page };
 		} else {
 			// SAFETY: the pipeline calls `retrieveRoutesToGenerate`, which is in charge to fill the cache.
 			const filePath = this.#routesByFilePath.get(routeData)!;
@@ -278,36 +281,20 @@ export class BuildPipeline extends Pipeline {
 
 	async tryRewrite(
 		payload: RewritePayload,
-		request: Request
-	): Promise<[RouteData, ComponentInstance]> {
-		let foundRoute: RouteData | undefined;
-		// options.manifest is the actual type that contains the information
-		for (const route of this.options.manifest.routes) {
-			if (payload instanceof URL) {
-				if (route.pattern.test(payload.pathname)) {
-					foundRoute = route;
-					break;
-				}
-			} else if (payload instanceof Request) {
-				const url = new URL(payload.url);
-				if (route.pattern.test(url.pathname)) {
-					foundRoute = route;
-					break;
-				}
-			} else {
-				const newUrl = new URL(payload, new URL(request.url).origin);
-				if (route.pattern.test(decodeURI(newUrl.pathname))) {
-					foundRoute = route;
-					break;
-				}
-			}
-		}
-		if (foundRoute) {
-			const componentInstance = await this.getComponentByRoute(foundRoute);
-			return [foundRoute, componentInstance];
-		} else {
-			throw new AstroError(RouteNotFound);
-		}
+		request: Request,
+		_sourceRoute: RouteData
+	): Promise<[RouteData, ComponentInstance, URL]> {
+		const [foundRoute, finalUrl] = findRouteToRewrite({
+			payload,
+			request,
+			routes: this.options.manifest.routes,
+			trailingSlash: this.config.trailingSlash,
+			buildFormat: this.config.build.format,
+			base: this.config.base,
+		});
+
+		const componentInstance = await this.getComponentByRoute(foundRoute);
+		return [foundRoute, componentInstance, finalUrl];
 	}
 
 	async retrieveSsrEntry(route: RouteData, filePath: string): Promise<SinglePageBuiltModule> {

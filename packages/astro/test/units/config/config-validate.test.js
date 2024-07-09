@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import stripAnsi from 'strip-ansi';
 import { z } from 'zod';
-import { validateConfig } from '../../../dist/core/config/config.js';
+import { validateConfig } from '../../../dist/core/config/validate.js';
 import { formatConfigErrorMessage } from '../../../dist/core/messages.js';
 
 describe('Config Validation', () => {
@@ -348,6 +348,23 @@ describe('Config Validation', () => {
 			assert.equal(
 				configError.errors[0].message,
 				'Domain support is only available when `output` is `"server"`.'
+			);
+		});
+	});
+
+	describe('env', () => {
+		it('Should allow not providing a schema', () => {
+			assert.doesNotThrow(() =>
+				validateConfig(
+					{
+						experimental: {
+							env: {
+								schema: undefined,
+							},
+						},
+					},
+					process.cwd()
+				).catch((err) => err)
 			);
 		});
 	});

@@ -667,6 +667,29 @@ export const ExpectedImageOptions = {
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
+ * An ESM-imported image cannot be passed directly to `getImage()`. Instead, pass an object with the image in the `src` property.
+ *
+ * ```diff
+ * import { getImage } from "astro:assets";
+ * import myImage from "../assets/my_image.png";
+ * - const optimizedImage = await getImage( myImage );
+ * + const optimizedImage = await getImage({ src: myImage });
+ * ```
+ */
+
+export const ExpectedNotESMImage = {
+	name: 'ExpectedNotESMImage',
+	title: 'Expected image options, not an ESM-imported image.',
+	message:
+		'An ESM-imported image cannot be passed directly to `getImage()`. Instead, pass an object with the image in the `src` property.',
+	hint: 'Try changing `getImage(myImage)` to `getImage({ src: myImage })`',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * @description
  * Only one of `densities` or `widths` can be specified. Those attributes are used to construct a `srcset` attribute, which cannot have both `x` and `w` descriptors.
  */
 export const IncompatibleDescriptorOptions = {
@@ -1120,6 +1143,21 @@ export const MissingMiddlewareForInternationalization = {
 /**
  * @docs
  * @description
+ * The user tried to rewrite using a route that doesn't exist, or it emitted a runtime error during its rendering phase.
+ */
+export const RewriteEncounteredAnError = {
+	name: 'RewriteEncounteredAnError',
+	title:
+		"Astro couldn't find the route to rewrite, or if was found but it emitted an error during the rendering phase.",
+	message: (route: string, stack?: string) =>
+		`The route ${route} that you tried to render doesn't exist, or it emitted an error during the rendering phase. ${
+			stack ? stack : ''
+		}.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * Astro could not find an associated file with content while trying to render the route. This is an Astro error and not a user error. If restarting the dev server does not fix the problem, please file an issue.
  */
 export const CantRenderPage = {
@@ -1172,13 +1210,94 @@ export const i18nNotEnabled = {
 /**
  * @docs
  * @description
+ * An i18n utility tried to use the locale from a URL path that does not contain one. You can prevent this error by using pathHasLocale to check URLs for a locale first before using i18n utilities.
  *
+ */
+export const i18nNoLocaleFoundInPath = {
+	name: 'i18nNoLocaleFoundInPath',
+	title: "The path doesn't contain any locale",
+	message:
+		"You tried to use an i18n utility on a path that doesn't contain any locale. You can use `pathHasLocale` first to determine if the path has a locale.",
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * Astro couldn't find a route matching the one provided by the user
  */
 export const RouteNotFound = {
 	name: 'RouteNotFound',
 	title: 'Route not found.',
 	message: `Astro could not find a route that matches the one you requested.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Some environment variables do not match the data type and/or properties defined in `experimental.env.schema`.
+ */
+export const EnvInvalidVariables = {
+	name: 'EnvInvalidVariables',
+	title: 'Invalid Environment Variables',
+	message: (variables: string) =>
+		`The following environment variables do not match the data type and/or properties defined in \`experimental.env.schema\`:\n\n${variables}\n`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * An environment variable does not match the data type and/or properties defined in `experimental.env.schema`.
+ */
+export const EnvInvalidVariable = {
+	name: 'EnvInvalidVariable',
+	title: 'Invalid Environment Variable',
+	message: (key: string, type: string) =>
+		`The following environment variable does not match the data type and/or properties defined in \`experimental.env.schema\`: ${key} is not of type ${type}`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * The `astro:env/server` exported function `getSecret()` is not supported by your adapter.
+ */
+export const EnvUnsupportedGetSecret = {
+	name: 'EnvUnsupportedGetSecret',
+	title: 'Unsupported astro:env getSecret',
+	message: '`astro:env/server` exported function `getSecret` is not supported by your adapter.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * This module is only available server-side.
+ */
+export const ServerOnlyModule = {
+	name: 'ServerOnlyModule',
+	title: 'Module is only available server-side',
+	message: (name: string) => `The "${name}" module is only available server-side.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * `Astro.rewrite()` cannot be used if the request body has already been read. If you need to read the body, first clone the request. For example:
+ *
+ * ```js
+ * const data = await Astro.request.clone().formData();
+ *
+ * Astro.rewrite("/target")
+ * ```
+ *
+ * @see
+ * - [Request.clone()](https://developer.mozilla.org/en-US/docs/Web/API/Request/clone)
+ * - [Astro.rewrite](https://docs.astro.build/en/reference/configuration-reference/#experimentalrewriting)
+ */
+
+export const RewriteWithBodyUsed = {
+	name: 'RewriteWithBodyUsed',
+	title: 'Cannot use Astro.rewrite after the request body has been read',
+	message:
+		'Astro.rewrite() cannot be used if the request body has already been read. If you need to read the body, first clone the request.',
 } satisfies ErrorData;
 
 /**

@@ -113,6 +113,11 @@ export interface BuildInternals {
 	ssrSplitEntryChunks: Map<string, Rollup.OutputChunk>;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint?: URL;
+
+	/**
+	 * Chunks in the bundle that are only used in prerendering that we can delete later
+	 */
+	prerenderOnlyChunks: Rollup.OutputChunk[];
 }
 
 /**
@@ -151,6 +156,7 @@ export function createBuildInternals(): BuildInternals {
 		ssrSplitEntryChunks: new Map(),
 		entryPoints: new Map(),
 		cacheManifestUsed: false,
+		prerenderOnlyChunks: [],
 	};
 }
 

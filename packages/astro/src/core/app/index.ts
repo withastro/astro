@@ -14,7 +14,6 @@ import { AstroIntegrationLogger, Logger } from '../logger/core.js';
 import { sequence } from '../middleware/index.js';
 import {
 	appendForwardSlash,
-	collapseDuplicateSlashes,
 	joinPaths,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
@@ -68,6 +67,10 @@ export interface RenderErrorOptions {
 	 * Whether to skip middleware while rendering the error page. Defaults to false.
 	 */
 	skipMiddleware?: boolean;
+	/**
+	 * Allows passing an error to 500.astro. It will be available through `Astro.props.error`.
+	 */
+	error?: unknown;
 }
 
 export class App {
@@ -290,17 +293,14 @@ export class App {
 		}
 		if (locals) {
 			if (typeof locals !== 'object') {
-				this.#logger.error(null, new AstroError(AstroErrorData.LocalsNotAnObject).stack!);
-				return this.#renderError(request, { status: 500 });
+				const error = new AstroError(AstroErrorData.LocalsNotAnObject);
+				this.#logger.error(null, error.stack!);
+				return this.#renderError(request, { status: 500, error });
 			}
 			Reflect.set(request, clientLocalsSymbol, locals);
 		}
 		if (clientAddress) {
 			Reflect.set(request, clientAddressSymbol, clientAddress);
-		}
-		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
-		if (request.url !== collapseDuplicateSlashes(request.url)) {
-			request = new Request(collapseDuplicateSlashes(request.url), request);
 		}
 		if (!routeData) {
 			routeData = this.match(request);
@@ -329,7 +329,7 @@ export class App {
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
-			return this.#renderError(request, { locals, status: 500 });
+			return this.#renderError(request, { locals, status: 500, error: err });
 		}
 
 		if (
@@ -340,6 +340,9 @@ export class App {
 				locals,
 				response,
 				status: response.status as 404 | 500,
+				// We don't have an error to report here. Passing null means we pass nothing intentionally
+				// while undefined means there's no error
+				error: response.status === 500 ? null : undefined,
 			});
 		}
 
@@ -390,7 +393,13 @@ export class App {
 	 */
 	async #renderError(
 		request: Request,
-		{ locals, status, response: originalResponse, skipMiddleware = false }: RenderErrorOptions
+		{
+			locals,
+			status,
+			response: originalResponse,
+			skipMiddleware = false,
+			error,
+		}: RenderErrorOptions
 	): Promise<Response> {
 		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
 		const errorRouteData = matchRoute(errorRoutePath, this.#manifestData);
@@ -420,6 +429,7 @@ export class App {
 					request,
 					routeData: errorRouteData,
 					status,
+					props: { error },
 				});
 				const response = await renderContext.render(await mod.page());
 				return this.#mergeResponses(response, originalResponse);

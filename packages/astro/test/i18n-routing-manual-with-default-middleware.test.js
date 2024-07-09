@@ -35,6 +35,14 @@ describe('Dev server manual routing', () => {
 		const text = await response.text();
 		assert.equal(text.includes('ABOUT ME'), true);
 	});
+
+	it('should correctly print the relative locale url', async () => {
+		const response = await fixture.fetch('/en/start');
+		assert.equal(response.status, 200);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		assert.equal($('p').text(), '/en/blog/title/');
+	});
 });
 //
 // // SSG
@@ -60,6 +68,12 @@ describe('SSG manual routing', () => {
 		let html = await fixture.readFile('/about/index.html');
 		let $ = cheerio.load(html);
 		assert.equal($('body').text().includes('ABOUT ME'), true);
+	});
+
+	it('should correctly print the relative locale url', async () => {
+		const html = await fixture.readFile('/en/start/index.html');
+		const $ = cheerio.load(html);
+		assert.equal($('p').text(), '/en/blog/title/');
 	});
 });
 
@@ -93,5 +107,14 @@ describe('SSR manual routing', () => {
 		assert.equal(response.status, 200);
 		const text = await response.text();
 		assert.equal(text.includes('ABOUT ME'), true);
+	});
+
+	it('should correctly print the relative locale url', async () => {
+		let request = new Request('http://example.com/en/start');
+		let response = await app.render(request);
+		assert.equal(response.status, 200);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		assert.equal($('p').text(), '/en/blog/title/');
 	});
 });

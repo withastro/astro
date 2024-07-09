@@ -11,20 +11,21 @@ import type {
 	SSRManifest,
 } from '../@types/astro.js';
 import { getInfoOutput } from '../cli/info/index.js';
-import type { HeadElements } from '../core/base-pipeline.js';
+import { type HeadElements } from '../core/base-pipeline.js';
 import { ASTRO_VERSION, DEFAULT_404_COMPONENT } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
-import { RouteNotFound } from '../core/errors/errors-data.js';
-import { AggregateError, AstroError, CSSError, MarkdownError } from '../core/errors/index.js';
+import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Pipeline, loadRenderer } from '../core/render/index.js';
-import { isPage, isServerLikeOutput, resolveIdToUrl, viteID } from '../core/util.js';
+import { default404Page } from '../core/routing/astro-designed-error-pages.js';
+import { findRouteToRewrite } from '../core/routing/rewrite.js';
+import { isPage, isServerLikeOutput, viteID } from '../core/util.js';
+import { resolveIdToUrl } from '../core/viteUtils.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
 import { getComponentMetadata } from './metadata.js';
 import { createResolve } from './resolve.js';
-import { default404Page } from './response.js';
 import { getScriptsForURL } from './scripts.js';
 
 export class DevPipeline extends Pipeline {
@@ -193,40 +194,23 @@ export class DevPipeline extends Pipeline {
 
 	async tryRewrite(
 		payload: RewritePayload,
-		request: Request
-	): Promise<[RouteData, ComponentInstance]> {
-		let foundRoute;
+		request: Request,
+		_sourceRoute: RouteData
+	): Promise<[RouteData, ComponentInstance, URL]> {
 		if (!this.manifestData) {
 			throw new Error('Missing manifest data. This is an internal error, please file an issue.');
 		}
+		const [foundRoute, finalUrl] = findRouteToRewrite({
+			payload,
+			request,
+			routes: this.manifestData?.routes,
+			trailingSlash: this.config.trailingSlash,
+			buildFormat: this.config.build.format,
+			base: this.config.base,
+		});
 
-		for (const route of this.manifestData.routes) {
-			if (payload instanceof URL) {
-				if (route.pattern.test(payload.pathname)) {
-					foundRoute = route;
-					break;
-				}
-			} else if (payload instanceof Request) {
-				const url = new URL(payload.url);
-				if (route.pattern.test(url.pathname)) {
-					foundRoute = route;
-					break;
-				}
-			} else {
-				const newUrl = new URL(payload, new URL(request.url).origin);
-				if (route.pattern.test(decodeURI(newUrl.pathname))) {
-					foundRoute = route;
-					break;
-				}
-			}
-		}
-
-		if (foundRoute) {
-			const componentInstance = await this.getComponentByRoute(foundRoute);
-			return [foundRoute, componentInstance];
-		} else {
-			throw new AstroError(RouteNotFound);
-		}
+		const componentInstance = await this.getComponentByRoute(foundRoute);
+		return [foundRoute, componentInstance, finalUrl];
 	}
 
 	setManifestData(manifestData: ManifestData) {

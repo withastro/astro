@@ -27,6 +27,7 @@ import {
 	responseSentSymbol,
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
+import { getCookiesFromResponse } from './cookies/response.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
@@ -38,11 +39,14 @@ import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
  * It contains data unique to each request. It is responsible for executing middleware, calling endpoints, and rendering the page by gathering necessary data from a `Pipeline`.
  */
 export class RenderContext {
+	// The first route that this instance of the context attempts to render
+	originalRoute: RouteData;
+
 	private constructor(
 		readonly pipeline: Pipeline,
 		public locals: App.Locals,
 		readonly middleware: MiddlewareHandler,
-		readonly pathname: string,
+		public pathname: string,
 		public request: Request,
 		public routeData: RouteData,
 		public status: number,
@@ -50,7 +54,9 @@ export class RenderContext {
 		public params = getParams(routeData, pathname),
 		protected url = new URL(request.url),
 		public props: Props = {}
-	) {}
+	) {
+		this.originalRoute = routeData;
+	}
 
 	/**
 	 * A flag that tells the render content if the rewriting was triggered
@@ -69,8 +75,9 @@ export class RenderContext {
 		request,
 		routeData,
 		status = 200,
+		props,
 	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData'> &
-		Partial<Pick<RenderContext, 'locals' | 'middleware' | 'status'>>): RenderContext {
+		Partial<Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props'>>): RenderContext {
 		return new RenderContext(
 			pipeline,
 			locals,
@@ -78,7 +85,11 @@ export class RenderContext {
 			pathname,
 			request,
 			routeData,
-			status
+			status,
+			undefined,
+			undefined,
+			undefined,
+			props
 		);
 	}
 
@@ -97,16 +108,17 @@ export class RenderContext {
 		componentInstance: ComponentInstance | undefined,
 		slots: Record<string, any> = {}
 	): Promise<Response> {
-		const { cookies, middleware, pathname, pipeline } = this;
-		const { logger, routeCache, serverLike, streaming } = pipeline;
+		const { cookies, middleware, pipeline } = this;
+		const { logger, serverLike, streaming } = pipeline;
+
 		const props =
 			Object.keys(this.props).length > 0
 				? this.props
 				: await getProps({
 						mod: componentInstance,
 						routeData: this.routeData,
-						routeCache,
-						pathname,
+						routeCache: this.pipeline.routeCache,
+						pathname: this.pathname,
 						logger,
 						serverLike,
 					});
@@ -124,33 +136,35 @@ export class RenderContext {
 		const lastNext = async (ctx: APIContext, payload?: RewritePayload) => {
 			if (payload) {
 				if (this.pipeline.manifest.rewritingEnabled) {
-					try {
-						const [routeData, component] = await pipeline.tryRewrite(payload, this.request);
-						this.routeData = routeData;
-						componentInstance = component;
-					} catch (e) {
-						return new Response('Not found', {
-							status: 404,
-							statusText: 'Not found',
-						});
-					} finally {
-						this.isRewriting = true;
-					}
+					pipeline.logger.debug('router', 'Called rewriting to:', payload);
+					// we intentionally let the error bubble up
+					const [routeData, component] = await pipeline.tryRewrite(
+						payload,
+						this.request,
+						this.originalRoute
+					);
+					this.routeData = routeData;
+					componentInstance = component;
+					this.isRewriting = true;
+					this.status = 200;
 				} else {
-					this.pipeline.logger.warn(
+					this.pipeline.logger.error(
 						'router',
 						'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
 					);
 				}
 			}
+			let response: Response;
+
 			switch (this.routeData.type) {
-				case 'endpoint':
-					return renderEndpoint(componentInstance as any, ctx, serverLike, logger);
+				case 'endpoint': {
+					response = await renderEndpoint(componentInstance as any, ctx, serverLike, logger);
+					break;
+				}
 				case 'redirect':
 					return renderRedirect(this);
 				case 'page': {
 					const result = await this.createResult(componentInstance!);
-					let response: Response;
 					try {
 						response = await renderPage(
 							result,
@@ -166,6 +180,7 @@ export class RenderContext {
 						result.cancelled = true;
 						throw e;
 					}
+
 					// Signal to the i18n middleware to maybe act on this response
 					response.headers.set(ROUTE_TYPE_HEADER, 'page');
 					// Signal to the error-page-rerouting infra to let this response pass through to avoid loops
@@ -176,12 +191,19 @@ export class RenderContext {
 					) {
 						response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 					}
-					return response;
+					break;
 				}
 				case 'fallback': {
 					return new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
 				}
 			}
+			// We need to merge the cookies from the response back into this.cookies
+			// because they may need to be passed along from a rewrite.
+			const responseCookies = getCookiesFromResponse(response);
+			if (responseCookies) {
+				cookies.merge(responseCookies);
+			}
+			return response;
 		};
 
 		const response = await callMiddleware(
@@ -209,6 +231,43 @@ export class RenderContext {
 		});
 	}
 
+	async #executeRewrite(reroutePayload: RewritePayload) {
+		this.pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
+		if (!this.pipeline.manifest.rewritingEnabled) {
+			this.pipeline.logger.error(
+				'router',
+				'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
+			);
+			return new Response(
+				'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
+				{
+					status: 500,
+					statusText:
+						'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
+				}
+			);
+		}
+		const [routeData, component, newURL] = await this.pipeline.tryRewrite(
+			reroutePayload,
+			this.request,
+			this.originalRoute
+		);
+		this.routeData = routeData;
+		if (reroutePayload instanceof Request) {
+			this.request = reroutePayload;
+		} else {
+			this.request = this.#copyRequest(newURL, this.request);
+		}
+		this.url = new URL(this.request.url);
+		this.cookies = new AstroCookies(this.request);
+		this.params = getParams(routeData, this.url.pathname);
+		this.pathname = this.url.pathname;
+		this.isRewriting = true;
+		// we found a route and a component, we can change the status code to 200
+		this.status = 200;
+		return await this.render(component);
+	}
+
 	createActionAPIContext(): ActionAPIContext {
 		const renderContext = this;
 		const { cookies, params, pipeline, url } = this;
@@ -217,30 +276,7 @@ export class RenderContext {
 			new Response(null, { status, headers: { Location: path } });
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
-			pipeline.logger.debug('router', 'Called rewriting to:', reroutePayload);
-			try {
-				const [routeData, component] = await pipeline.tryRewrite(reroutePayload, this.request);
-				this.routeData = routeData;
-				if (reroutePayload instanceof Request) {
-					this.request = reroutePayload;
-				} else {
-					this.request = new Request(
-						new URL(routeData.pathname ?? routeData.route, this.url.origin),
-						this.request
-					);
-				}
-				this.url = new URL(this.request.url);
-				this.cookies = new AstroCookies(this.request);
-				this.params = getParams(routeData, url.toString());
-				this.isRewriting = true;
-				return await this.render(component);
-			} catch (e) {
-				pipeline.logger.debug('router', 'Rewrite failed.', e);
-				return new Response('Not found', {
-					status: 404,
-					statusText: 'Not found',
-				});
-			}
+			return await this.#executeRewrite(reroutePayload);
 		};
 
 		return {
@@ -359,11 +395,20 @@ export class RenderContext {
 		props: Record<string, any>,
 		slotValues: Record<string, any> | null
 	): AstroGlobal {
-		// Create page partial with static partial so they can be cached together.
-		const astroPagePartial = (this.#astroPagePartial ??= this.createAstroPagePartial(
-			result,
-			astroStaticPartial
-		));
+		let astroPagePartial;
+		// During rewriting, we must recompute the Astro global, because we need to purge the previous params/props/etc.
+		if (this.isRewriting) {
+			astroPagePartial = this.#astroPagePartial = this.createAstroPagePartial(
+				result,
+				astroStaticPartial
+			);
+		} else {
+			// Create page partial with static partial so they can be cached together.
+			astroPagePartial = this.#astroPagePartial ??= this.createAstroPagePartial(
+				result,
+				astroStaticPartial
+			);
+		}
 		// Create component-level partials. `Astro.self` is added by the compiler.
 		const astroComponentPartial = { props, self: null };
 
@@ -409,30 +454,7 @@ export class RenderContext {
 		};
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
-			try {
-				pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
-				const [routeData, component] = await pipeline.tryRewrite(reroutePayload, this.request);
-				this.routeData = routeData;
-				if (reroutePayload instanceof Request) {
-					this.request = reroutePayload;
-				} else {
-					this.request = new Request(
-						new URL(routeData.pathname ?? routeData.route, this.url.origin),
-						this.request
-					);
-				}
-				this.url = new URL(this.request.url);
-				this.cookies = new AstroCookies(this.request);
-				this.params = getParams(routeData, url.toString());
-				this.isRewriting = true;
-				return await this.render(component);
-			} catch (e) {
-				pipeline.logger.debug('router', 'Rerouting failed, returning a 404.', e);
-				return new Response('Not found', {
-					status: 404,
-					statusText: 'Not found',
-				});
-			}
+			return await this.#executeRewrite(reroutePayload);
 		};
 
 		return {
@@ -532,5 +554,34 @@ export class RenderContext {
 		} = this;
 		if (!i18n) return;
 		return (this.#preferredLocaleList ??= computePreferredLocaleList(request, i18n.locales));
+	}
+
+	/**
+	 * Utility function that creates a new `Request` with a new URL from an old `Request`.
+	 *
+	 * @param newUrl The new `URL`
+	 * @param oldRequest The old `Request`
+	 */
+	#copyRequest(newUrl: URL, oldRequest: Request): Request {
+		if (oldRequest.bodyUsed) {
+			throw new AstroError(AstroErrorData.RewriteWithBodyUsed);
+		}
+		return new Request(newUrl, {
+			method: oldRequest.method,
+			headers: oldRequest.headers,
+			body: oldRequest.body,
+			referrer: oldRequest.referrer,
+			referrerPolicy: oldRequest.referrerPolicy,
+			mode: oldRequest.mode,
+			credentials: oldRequest.credentials,
+			cache: oldRequest.cache,
+			redirect: oldRequest.redirect,
+			integrity: oldRequest.integrity,
+			signal: oldRequest.signal,
+			keepalive: oldRequest.keepalive,
+			// https://fetch.spec.whatwg.org/#dom-request-duplex
+			// @ts-expect-error It isn't part of the types, but undici accepts it and it allows to carry over the body to a new request
+			duplex: 'half',
+		});
 	}
 }

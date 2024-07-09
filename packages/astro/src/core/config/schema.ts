@@ -12,6 +12,7 @@ import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
+import { EnvSchema } from '../../env/schema.js';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
@@ -522,6 +523,12 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.globalRoutePriority),
 			rewriting: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rewriting),
+			env: z
+				.object({
+					schema: EnvSchema.optional(),
+				})
+				.strict()
+				.optional(),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`

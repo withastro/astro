@@ -6,11 +6,13 @@ import { crawlFrameworkPkgs } from 'vitefu';
 import type { AstroSettings } from '../@types/astro.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
+import astroContainer from '../container/vite-plugin-container.js';
 import {
 	astroContentAssetPropagationPlugin,
 	astroContentImportPlugin,
 	astroContentVirtualModPlugin,
 } from '../content/index.js';
+import { astroEnv } from '../env/vite-plugin-env.js';
 import astroInternationalization from '../i18n/vite-plugin-i18n.js';
 import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
 import astroDevToolbar from '../toolbar/vite-plugin-dev-toolbar.js';
@@ -45,6 +47,7 @@ interface CreateViteOptions {
 	// will be undefined when using `getViteConfig`
 	command?: 'dev' | 'build';
 	fs?: typeof nodeFs;
+	sync: boolean;
 }
 
 const ALWAYS_NOEXTERNAL = [
@@ -72,7 +75,7 @@ const ONLY_DEV_EXTERNAL = [
 /** Return a base vite config as a common starting point for all Vite commands. */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
-	{ settings, logger, mode, command, fs = nodeFs }: CreateViteOptions
+	{ settings, logger, mode, command, fs = nodeFs, sync }: CreateViteOptions
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
@@ -135,6 +138,7 @@ export async function createVite(
 			// the build to run very slow as the filewatcher is triggered often.
 			mode !== 'build' && vitePluginAstroServer({ settings, logger, fs }),
 			envVitePlugin({ settings }),
+			astroEnv({ settings, mode, fs, sync }),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
 			mdxVitePlugin(),
@@ -145,7 +149,7 @@ export async function createVite(
 			astroScannerPlugin({ settings, logger }),
 			astroInjectEnvTsPlugin({ settings, logger, fs }),
 			astroContentVirtualModPlugin({ fs, settings }),
-			astroContentImportPlugin({ fs, settings }),
+			astroContentImportPlugin({ fs, settings, logger }),
 			astroContentAssetPropagationPlugin({ mode, settings }),
 			vitePluginMiddleware({ settings }),
 			vitePluginSSRManifest(),
@@ -155,6 +159,7 @@ export async function createVite(
 			astroDevToolbar({ settings, logger }),
 			vitePluginFileURL({}),
 			astroInternationalization({ settings }),
+			astroContainer(),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
@@ -169,10 +174,6 @@ export async function createVite(
 				process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production'
 					? false
 					: undefined, // disable HMR for test
-			// handle Vite URLs
-			proxy: {
-				// add proxies here
-			},
 			watch: {
 				// Prevent watching during the build to speed it up
 				ignored: mode === 'build' ? ['**'] : undefined,

@@ -20,7 +20,7 @@ describe('Serverless prerender', () => {
 
 	it('outDir is tree-shaken if not needed', async () => {
 		const [file] = await fixture.glob(
-			'../.vercel/output/functions/_render.func/packages/integrations/vercel/test/fixtures/serverless-prerender/.vercel/output/_functions/chunks/pages/generic_*.mjs'
+			'../.vercel/output/functions/_render.func/packages/integrations/vercel/test/fixtures/serverless-prerender/.vercel/output/_functions/pages/_image.astro.mjs'
 		);
 		const contents = await fixture.readFile(file);
 		assert.ok(!contents.includes('const outDir ='), "outDir is tree-shaken if it's not imported");

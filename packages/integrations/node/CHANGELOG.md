@@ -1,5 +1,31 @@
 # @astrojs/node
 
+## 8.3.2
+
+### Patch Changes
+
+- [#11296](https://github.com/withastro/astro/pull/11296) [`5848d97`](https://github.com/withastro/astro/commit/5848d9786768d1290de982670bcc7773280ef08d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes `astro:env` getSecret compatibility
+
+## 8.3.1
+
+### Patch Changes
+
+- [#11261](https://github.com/withastro/astro/pull/11261) [`f5f8ed2`](https://github.com/withastro/astro/commit/f5f8ed275b76adfb11b7c3c1e800753a25416498) Thanks [@matthewp](https://github.com/matthewp)! - Fix backwards compat with Astro <= 4.9
+
+- [#11263](https://github.com/withastro/astro/pull/11263) [`7d59750`](https://github.com/withastro/astro/commit/7d597506615fa5a34327304e8321be7b9c4b799d) Thanks [@wackbyte](https://github.com/wackbyte)! - Refactor to use Astro's integration logger for logging
+
+## 8.3.0
+
+### Minor Changes
+
+- [#11199](https://github.com/withastro/astro/pull/11199) [`2bdca27`](https://github.com/withastro/astro/commit/2bdca27ff4002efd330667b0b4ca3e00d5b7a2db) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds support for experimental `astro:env` released in Astro 4.10
+
+## 8.2.6
+
+### Patch Changes
+
+- [#11202](https://github.com/withastro/astro/pull/11202) [`d0248bc`](https://github.com/withastro/astro/commit/d0248bc083dff713b66d44bcefbf389cdf67e22d) Thanks [@dkobierski](https://github.com/dkobierski)! - Fixes suppressed logs when error occurs
+
 ## 8.2.5
 
 ### Patch Changes

@@ -255,6 +255,7 @@ function vitePluginContent(
 				...oldManifest.clientEntries,
 				...internals.discoveredHydratedComponents.keys(),
 				...internals.discoveredClientOnlyComponents.keys(),
+				...internals.discoveredScripts,
 			]);
 			// Likewise, these are server modules that might not be referenced
 			// once the cached items are excluded from the build process
@@ -507,11 +508,14 @@ export function pluginContent(
 					return;
 				}
 				// Cache build output of chunks and assets
+				const promises: Promise<void[] | undefined>[] = [];
 				for (const { cached, dist } of cachedBuildOutput) {
 					if (fsMod.existsSync(dist)) {
-						await copyFiles(dist, cached, true);
+						promises.push(copyFiles(dist, cached, true));
 					}
 				}
+
+				if (promises.length) await Promise.all(promises);
 			},
 		},
 	};

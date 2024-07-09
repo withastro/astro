@@ -67,6 +67,8 @@ export type SSRManifest = {
 	checkOrigin: boolean;
 	// TODO: remove once the experimental flag is removed
 	rewritingEnabled: boolean;
+	// TODO: remove experimental prefix
+	experimentalEnvGetSecretEnabled: boolean;
 };
 
 export type SSRManifestI18n = {

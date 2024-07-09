@@ -6,6 +6,14 @@ const blog = defineCollection({
 	}),
 });
 
+const blogMeta = defineCollection({
+	type: 'data',
+	schema: z.object({
+		title: z.string(),
+	}),
+});
+
 export const collections = {
 	blog,
+	blogMeta,
 };

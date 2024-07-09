@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/vue",
-  "version": "4.3.0",
+  "version": "4.5.0",
   "description": "Use Vue components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -24,13 +24,17 @@
     "./editor": "./dist/editor.cjs",
     "./*": "./*",
     "./client.js": "./client.js",
-    "./server.js": "./server.js",
+    "./server.js": {
+      "default": "./server.js",
+      "types": "./server.d.ts"
+    },
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
     "client.js",
     "server.js",
+    "server.d.ts",
     "static-html.js"
   ],
   "scripts": {
@@ -40,18 +44,18 @@
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@vitejs/plugin-vue": "^5.0.4",
-    "@vitejs/plugin-vue-jsx": "^3.1.0",
-    "@vue/compiler-sfc": "^3.4.27",
-    "vite-plugin-vue-devtools": "^7.2.1"
+    "@vitejs/plugin-vue": "^5.0.5",
+    "@vitejs/plugin-vue-jsx": "^4.0.0",
+    "@vue/compiler-sfc": "^3.4.31",
+    "vite-plugin-vue-devtools": "^7.3.5"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0-rc.12",
-    "linkedom": "^0.18.0",
-    "vite": "^5.2.12",
-    "vue": "^3.4.27"
+    "linkedom": "^0.18.4",
+    "vite": "^5.3.2",
+    "vue": "^3.4.31"
   },
   "peerDependencies": {
     "astro": "^4.0.0",

@@ -8,10 +8,6 @@ import { loadFixture, waitServerListen } from './test-utils.js';
  * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
  */
 
-async function load() {
-	const mod = await import(`./fixtures/prerender/dist/server/entry.mjs?dropcache=${Date.now()}`);
-	return mod;
-}
 describe('Prerendering', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -25,10 +21,15 @@ describe('Prerendering', () => {
 				base: '/some-base',
 				root: './fixtures/prerender/',
 				output: 'server',
+				outDir: './dist/with-base',
+				build: {
+					client: './dist/with-base/client',
+					server: './dist/with-base/server',
+				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await load();
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -94,10 +95,15 @@ describe('Prerendering', () => {
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
 				output: 'server',
+				outDir: './dist/without-base',
+				build: {
+					client: './dist/without-base/client',
+					server: './dist/without-base/server',
+				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await await load();
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -155,6 +161,11 @@ describe('Prerendering', () => {
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
 				output: 'server',
+				outDir: './dist/dev',
+				build: {
+					client: './dist/dev/client',
+					server: './dist/dev/server',
+				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			devServer = await fixture.startDevServer();
@@ -197,10 +208,15 @@ describe('Hybrid rendering', () => {
 				base: '/some-base',
 				root: './fixtures/prerender/',
 				output: 'hybrid',
+				outDir: './dist/hybrid-with-base',
+				build: {
+					client: './dist/hybrid-with-base/client',
+					server: './dist/hybrid-with-base/server',
+				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await load();
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -264,10 +280,15 @@ describe('Hybrid rendering', () => {
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
 				output: 'hybrid',
+				outDir: './dist/hybrid-without-base',
+				build: {
+					client: './dist/hybrid-without-base/client',
+					server: './dist/hybrid-without-base/server',
+				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await load();
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
@@ -323,10 +344,15 @@ describe('Hybrid rendering', () => {
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
 				output: 'hybrid',
+				outDir: './dist/hybrid-shared-modules',
+				build: {
+					client: './dist/hybrid-shared-modules/client',
+					server: './dist/hybrid-shared-modules/server',
+				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await load();
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			let res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);

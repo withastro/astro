@@ -3,6 +3,7 @@ import type { ThemePresets } from '@astrojs/markdown-remark';
 import type {
 	BuiltinLanguage,
 	LanguageRegistration,
+	ShikiTransformer,
 	SpecialLanguage,
 	ThemeRegistration,
 	ThemeRegistrationRaw,
@@ -50,6 +51,12 @@ interface Props extends Omit<HTMLAttributes<'pre'>, 'lang'> {
 	 * @default false
 	 */
 	inline?: boolean;
+	/**
+	 * Shiki transformers to customize the generated HTML by manipulating the hast tree.
+	 * Supports all transformers listed here: https://shiki.style/packages/transformers#transformers
+	 * Instructions for custom transformers: https://shiki.style/guide/transformers
+	 */
+	transformers?: ShikiTransformer[];
 }
 
 const {
@@ -59,6 +66,7 @@ const {
 	themes = {},
 	wrap = false,
 	inline = false,
+	transformers = [],
 	...rest
 } = Astro.props;
 
@@ -85,6 +93,7 @@ const highlighter = await getCachedHighlighter({
 	theme,
 	themes,
 	wrap,
+	transformers,
 });
 
 const html = await highlighter.highlight(code, typeof lang === 'string' ? lang : lang.name, {

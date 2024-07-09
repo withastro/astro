@@ -98,6 +98,28 @@ describe('Content Collections', () => {
 					subject: 'My Newsletter',
 				});
 			});
+
+			it('Handles symlinked content', async () => {
+				assert.ok(json.hasOwnProperty('withSymlinkedContent'));
+				assert.equal(Array.isArray(json.withSymlinkedContent), true);
+
+				const ids = json.withSymlinkedContent.map((item) => item.id);
+				assert.deepEqual(ids, ['first.md', 'second.md', 'third.md']);
+				assert.equal(json.withSymlinkedContent[0].data.title, 'First Blog');
+			});
+
+			it('Handles symlinked data', async () => {
+				assert.ok(json.hasOwnProperty('withSymlinkedData'));
+				assert.equal(Array.isArray(json.withSymlinkedData), true);
+
+				const ids = json.withSymlinkedData.map((item) => item.id);
+				assert.deepEqual(ids, ['welcome']);
+				assert.equal(
+					json.withSymlinkedData[0].data.alt,
+					'Futuristic landscape with chrome buildings and blue skies'
+				);
+				assert.notEqual(json.withSymlinkedData[0].data.src.src, undefined);
+			});
 		});
 
 		describe('Propagation', () => {
@@ -368,6 +390,26 @@ describe('Content Collections', () => {
 			const html = await fixture.readFile('/docs/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('script').attr('src').startsWith('/docs'), true);
+		});
+	});
+
+	describe('Mutation', () => {
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/content-collections-mutation/',
+			});
+			await fixture.build();
+		});
+
+		it('Does not mutate cached collection', async () => {
+			const html = await fixture.readFile('/index.html');
+			const index = cheerio.load(html)('h2:first').text();
+			const html2 = await fixture.readFile('/another_page/index.html');
+			const anotherPage = cheerio.load(html2)('h2:first').text();
+
+			assert.equal(index, anotherPage);
 		});
 	});
 });
