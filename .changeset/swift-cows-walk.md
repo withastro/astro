@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fix autocompletion for the Actions `accept` property.
+Fixes `astro:actions` autocompletion for the `defineAction` `accept` property
