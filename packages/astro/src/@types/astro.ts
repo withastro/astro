@@ -2188,9 +2188,9 @@ export interface AstroUserConfig {
 			 *   experimental: {
 			 *     env: {
 			 *       schema: {
-			 * 			// ...
+			 *         // ...
 			 *       },
-			 * 		 validateSecrets: true
+			 *       validateSecrets: true
 			 *     }
 			 *   }
 			 * })
