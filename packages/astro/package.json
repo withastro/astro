@@ -215,6 +215,7 @@
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0-rc.12",
     "eol": "^0.9.1",
+    "expect-type": "^0.19.0",
     "mdast-util-mdx": "^3.0.0",
     "mdast-util-mdx-jsx": "^3.1.2",
     "memfs": "^4.9.3",
