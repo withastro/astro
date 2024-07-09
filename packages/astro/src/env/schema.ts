@@ -81,12 +81,18 @@ const EnvFieldMetadata = z.union([
 	SecretServerEnvFieldMetadata,
 ]);
 
-const KEY_REGEX = /^[A-Z_]+$/;
+const KEY_REGEX = /^[A-Z0-9_]+$/;
 
 export const EnvSchema = z.record(
-	z.string().regex(KEY_REGEX, {
-		message: 'A valid variable name can only contain uppercase letters and underscores.',
-	}),
+	z
+		.string()
+		.min(1)
+		.refine(([firstChar]) => isNaN(Number.parseInt(firstChar)), {
+			message: 'A valid variable name cannot start with a number.',
+		})
+		.refine((str) => KEY_REGEX.test(str), {
+			message: 'A valid variable name can only contain uppercase letters, numbers and underscores.',
+		}),
 	z.intersection(EnvFieldMetadata, EnvFieldType)
 );
 
