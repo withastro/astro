@@ -248,8 +248,12 @@ class AstroCookies implements AstroCookiesInterface {
 		if (!raw) {
 			return;
 		}
+		console.log('$$$raw', raw);
+		console.log('$$$options', options);
 
 		this.#requestValues = parse(raw, options);
+
+		console.log('$$$this.#requestValues', this.#requestValues);
 	}
 }
 

@@ -4,6 +4,7 @@ import { actions } from 'astro:actions';
 const { url, channel } = await actions.subscribeFromServer({
 	channel: 'bholmesdev',
 });
+console.log('###', Astro.cookies.get('subscribed'))
 ---
 
 <p data-url>{url}</p>

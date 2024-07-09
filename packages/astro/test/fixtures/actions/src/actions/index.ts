@@ -12,7 +12,8 @@ export const server = {
 	}),
 	subscribeFromServer: defineAction({
 		input: z.object({ channel: z.string() }),
-		handler: async ({ channel }, { url }) => {
+		handler: async ({ channel }, { url, cookies }) => {
+			cookies.set('subscribed', 'true');
 			return {
 				// Returned to ensure path rewrites are respected
 				url: url.pathname,
