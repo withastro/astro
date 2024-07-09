@@ -385,5 +385,25 @@ describe('Config Validation', () => {
 				).catch((err) => err)
 			);
 		});
+
+		it('Should not allow schema variables starting with a number', async () => {
+			const configError = await validateConfig(
+				{
+					experimental: {
+						env: {
+							schema: {
+								"123ABC": envField.string({ access: 'public', context: 'server' }),
+							},
+						},
+					},
+				},
+				process.cwd()
+			).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.errors[0].message,
+				'A valid variable name cannot start with a number.'
+			);
+		});
 	});
 });
