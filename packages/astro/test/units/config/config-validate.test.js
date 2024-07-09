@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 import stripAnsi from 'strip-ansi';
 import { z } from 'zod';
 import { validateConfig } from '../../../dist/core/config/validate.js';
+import { envField } from '../../../dist/env/config.js';
 import { formatConfigErrorMessage } from '../../../dist/core/messages.js';
 
 describe('Config Validation', () => {
@@ -360,6 +361,23 @@ describe('Config Validation', () => {
 						experimental: {
 							env: {
 								schema: undefined,
+							},
+						},
+					},
+					process.cwd()
+				).catch((err) => err)
+			);
+		});
+
+		it('Should allow schema variables with numbers', () => {
+			assert.doesNotThrow(() =>
+				validateConfig(
+					{
+						experimental: {
+							env: {
+								schema: {
+									ABC123: envField.string({ access: 'public', context: 'server' }),
+								},
 							},
 						},
 					},
