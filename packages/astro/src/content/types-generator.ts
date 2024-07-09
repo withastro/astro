@@ -35,18 +35,18 @@ type DataEntryMetadata = Record<string, never>;
 type ContentEntryMetadata = { slug: string };
 type CollectionEntryMap = {
 	[collection: string]:
-		| {
-				type: 'unknown';
-				entries: Record<string, never>;
-		  }
-		| {
-				type: 'content';
-				entries: Record<string, ContentEntryMetadata>;
-		  }
-		| {
-				type: 'data';
-				entries: Record<string, DataEntryMetadata>;
-		  };
+	| {
+		type: 'unknown';
+		entries: Record<string, never>;
+	}
+	| {
+		type: 'content';
+		entries: Record<string, ContentEntryMetadata>;
+	}
+	| {
+		type: 'data';
+		entries: Record<string, DataEntryMetadata>;
+	};
 };
 
 type CreateContentGeneratorParams = {
@@ -425,8 +425,8 @@ async function writeContentFiles({
 		const resolvedType: 'content' | 'data' =
 			collection.type === 'unknown'
 				? // Add empty / unknown collections to the data type map by default
-					// This ensures `getCollection('empty-collection')` doesn't raise a type error
-					collectionConfig?.type ?? 'data'
+				// This ensures `getCollection('empty-collection')` doesn't raise a type error
+				collectionConfig?.type ?? 'data'
 				: collection.type;
 
 		const collectionEntryKeys = Object.keys(collection.entries).sort();
@@ -478,6 +478,8 @@ async function writeContentFiles({
 									name: collectionKey.replace(/"/g, ''),
 									markdownDescription: true,
 									errorMessages: true,
+									// Fix for https://github.com/StefanTerdell/zod-to-json-schema/issues/110
+									dateStrategy: ["format:date-time", "format:date", "integer"]
 								}),
 								null,
 								2
