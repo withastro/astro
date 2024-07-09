@@ -11,7 +11,7 @@ export { z } from 'zod';
 export const getApiContext = _getApiContext;
 
 export type Accept = 'form' | 'json';
-export type InputSchema<T extends Accept> = T extends 'form'
+export type InputSchema<T extends Accept | undefined> = T extends 'form'
 	? z.AnyZodObject | z.ZodType<FormData>
 	: z.ZodType;
 
@@ -21,7 +21,7 @@ type Handler<TInputSchema, TOutput> = TInputSchema extends z.ZodType
 
 export type ActionClient<
 	TOutput,
-	TAccept extends Accept,
+	TAccept extends Accept | undefined,
 	TInputSchema extends InputSchema<TAccept> | undefined,
 > = TInputSchema extends z.ZodType
 	? ((
@@ -44,7 +44,7 @@ export type ActionClient<
 
 export function defineAction<
 	TOutput,
-	TAccept extends Accept = 'json',
+	TAccept extends Accept | undefined = undefined,
 	TInputSchema extends InputSchema<Accept> | undefined = TAccept extends 'form'
 		? // If `input` is omitted, default to `FormData` for forms and `any` for JSON.
 			z.ZodType<FormData>
