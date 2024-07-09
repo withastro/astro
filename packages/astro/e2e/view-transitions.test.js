@@ -182,6 +182,10 @@ test.describe('View Transitions', () => {
 		await page.goBack();
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
+		expect(
+			loads.length,
+			'There should be 3 page loads (for page one & three), and an additional loads for the back navigation'
+		).toEqual(3);
 	});
 
 	test('Stylesheets in the head are waited on', async ({ page, astro }) => {
