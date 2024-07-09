@@ -72,6 +72,8 @@ export function glob(globOptions: GlobOptions): Loader {
 
 			const renderFunctionByContentType = new WeakMap<ContentEntryType, RenderFunction>();
 
+			const untouchedEntries = new Set(options.store.keys());
+
 			async function syncData(entry: string, base: URL, entryType?: ContentEntryType) {
 				if (!entryType) {
 					logger.warn(`No entry type found for ${entry}`);
@@ -88,6 +90,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				const digest = h64ToString(contents);
 
 				const id = generateId({ entry, base, data });
+				untouchedEntries.delete(id);
 
 				const existingEntry = store.get(id);
 
@@ -161,7 +164,6 @@ export function glob(globOptions: GlobOptions): Loader {
 			}
 
 			const limit = pLimit(10);
-			options.store.clear();
 			await Promise.all(
 				files.map((entry) =>
 					limit(async () => {
@@ -170,6 +172,10 @@ export function glob(globOptions: GlobOptions): Loader {
 					})
 				)
 			);
+			// Remove entries that were not found this time
+			untouchedEntries.forEach((id) => {
+				options.store.delete(id);
+			});
 
 			if (!watcher) {
 				return;
