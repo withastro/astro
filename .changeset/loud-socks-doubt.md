@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Allow env schema variables to include numbers, except as a first character
+Fixes a case where Astro's config `experimental.env.schema` keys did not allow numbers. Numbers are still not allowed as the first character to be able to generate valid JavaScript identifiers
