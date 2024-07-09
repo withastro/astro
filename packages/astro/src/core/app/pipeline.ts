@@ -9,11 +9,8 @@ import type {
 import { Pipeline } from '../base-pipeline.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
-import { RewriteEncounteredAnError } from '../errors/errors-data.js';
-import { AstroError } from '../errors/index.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/component.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../render/ssr-element.js';
-import { DEFAULT_404_ROUTE } from '../routing/astro-designed-error-pages.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 
 export class AppPipeline extends Pipeline {
