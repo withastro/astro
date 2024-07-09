@@ -13,12 +13,12 @@ describe('astro:env secret variables', () => {
 	afterEach(async () => {
 		await devServer?.stop();
 		if (process.env.KNOWN_SECRET) {
-			delete process.env.KNOWN_SECRET
+			delete process.env.KNOWN_SECRET;
 		}
 	});
 
 	it('works in dev', async () => {
-		process.env.KNOWN_SECRET = '5'
+		process.env.KNOWN_SECRET = '5';
 		fixture = await loadFixture({
 			root: './fixtures/astro-env-server-secret/',
 		});
@@ -80,7 +80,7 @@ describe('astro:env secret variables', () => {
 
 		try {
 			await fixture.build();
-			assert.fail()
+			assert.fail();
 		} catch (error) {
 			assert.equal(error instanceof Error, true);
 			assert.equal(error.title, 'Invalid Environment Variables');
