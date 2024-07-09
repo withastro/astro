@@ -55,7 +55,7 @@ export function astroEnv({
 			const validatedVariables = validatePublicVariables({
 				schema,
 				loadedEnv,
-				validateSecretsOnStart: settings.config.experimental.env?.validateSecretsOnStart ?? false,
+				validateSecrets: settings.config.experimental.env?.validateSecrets ?? false,
 			});
 
 			templates = {
@@ -98,11 +98,11 @@ function resolveVirtualModuleId<T extends string>(id: T): `\0${T}` {
 function validatePublicVariables({
 	schema,
 	loadedEnv,
-	validateSecretsOnStart,
+	validateSecrets,
 }: {
 	schema: EnvSchema;
 	loadedEnv: Record<string, string>;
-	validateSecretsOnStart: boolean;
+	validateSecrets: boolean;
 }) {
 	const valid: Array<{ key: string; value: any; type: string; context: 'server' | 'client' }> = [];
 	const invalid: Array<{ key: string; type: string }> = [];
@@ -110,7 +110,7 @@ function validatePublicVariables({
 	for (const [key, options] of Object.entries(schema)) {
 		const variable = loadedEnv[key] === '' ? undefined : loadedEnv[key];
 
-		if (options.access === 'secret' && !validateSecretsOnStart) {
+		if (options.access === 'secret' && !validateSecrets) {
 			continue;
 		}
 

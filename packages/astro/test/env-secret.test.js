@@ -68,12 +68,12 @@ describe('astro:env secret variables', () => {
 		assert.equal(data.UNKNOWN_SECRET, 'abc');
 	});
 
-	it('fails if validateSecretsOnStart is enabled and secret is not set', async () => {
+	it('fails if validateSecrets is enabled and secret is not set', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-env-server-secret/',
 			experimental: {
 				env: {
-					validateSecretsOnStart: true,
+					validateSecrets: true,
 				},
 			},
 		});

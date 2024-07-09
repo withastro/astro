@@ -2169,11 +2169,11 @@ export interface AstroUserConfig {
 
 			/**
 			 * @docs
-			 * @name experimental.env.validateSecretsOnStart
+			 * @name experimental.env.validateSecrets
 			 * @kind h4
 			 * @type {boolean}
 			 * @default `false`
-			 * @version 4.11.3
+			 * @version 4.11.6
 			 * @description
 			 *
 			 * Whether or not to validate secrets on the server when starting the dev server or running a build.
@@ -2190,13 +2190,13 @@ export interface AstroUserConfig {
 			 *       schema: {
 			 * 			// ...
 			 *       },
-			 * 		 validateSecretsOnStart: true
+			 * 		 validateSecrets: true
 			 *     }
 			 *   }
 			 * })
 			 * ```
 			 */
-			validateSecretsOnStart?: boolean;
+			validateSecrets?: boolean;
 		};
 	};
 }
