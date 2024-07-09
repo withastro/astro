@@ -1,6 +1,7 @@
 import { expectTypeOf } from 'expect-type';
 import { isInputError, defineAction } from '../../dist/actions/runtime/virtual/server.js';
 import { z } from '../../zod.mjs';
+import { describe, it } from 'node:test';
 
 const exampleAction = defineAction({
 	input: z.object({
@@ -11,16 +12,20 @@ const exampleAction = defineAction({
 
 const result = await exampleAction.safe({ name: 'Alice' });
 
-// `isInputError` narrows unknown error types
-try {
-	await exampleAction({ name: 'Alice' });
-} catch (e) {
-	if (isInputError(e)) {
-		expectTypeOf(e.fields).toEqualTypeOf<Record<string, string[] | undefined>>();
-	}
-}
+describe('isInputError', () => {
+	it('isInputError narrows unknown error types', async () => {
+		try {
+			await exampleAction({ name: 'Alice' });
+		} catch (e) {
+			if (isInputError(e)) {
+				expectTypeOf(e.fields).toEqualTypeOf<Record<string, string[] | undefined>>();
+			}
+		}
+	});
 
-// `isInputError` preserves `fields` object type for ActionError objects
-if (isInputError(result.error)) {
-	expectTypeOf(result.error.fields).toEqualTypeOf<{ name?: string[] }>();
-}
+	it('`isInputError` preserves `fields` object type for ActionError objects', async () => {
+		if (isInputError(result.error)) {
+			expectTypeOf(result.error.fields).toEqualTypeOf<{ name?: string[] }>();
+		}
+	});
+});
