@@ -112,7 +112,7 @@ export function glob(globOptions: GlobOptions): Loader {
 						render = await entryType.getRenderFunction(settings);
 						renderFunctionByContentType.set(entryType, render);
 					}
-					const renderResult = await render({
+					const rendered = await render({
 						id,
 						data: parsedData,
 						body,
@@ -125,10 +125,7 @@ export function glob(globOptions: GlobOptions): Loader {
 						body,
 						filePath,
 						digest,
-						rendered: {
-							html: renderResult.code,
-							metadata: renderResult.metadata,
-						},
+						rendered,
 					});
 				} else {
 					store.set({ id, data: parsedData, body, filePath, digest });

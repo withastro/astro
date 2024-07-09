@@ -48,7 +48,7 @@ import type {
 } from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
-import type { DataEntry } from '../content/data-store.js';
+import type { DataEntry, RenderedContent } from '../content/data-store.js';
 
 export type { AstroIntegrationLogger, ToolbarServerHelpers };
 
@@ -2277,11 +2277,7 @@ export type DataEntryModule = {
 	};
 };
 
-export interface RenderResult {
-	code: string;
-	metadata?: Record<string, any>;
-}
-export type RenderFunction = (entry: DataEntry) => Promise<RenderResult>;
+export type RenderFunction = (entry: DataEntry) => Promise<RenderedContent>;
 
 export interface ContentEntryType {
 	extensions: string[];

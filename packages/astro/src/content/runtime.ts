@@ -66,7 +66,7 @@ export function createGetCollection({
 			return [...store.values<DataEntry>(collection)].map((entry) => ({
 				...entry,
 				collection,
-				render: async () => renderEntry(entry),
+				render: () => renderEntry(entry),
 			}));
 		} else {
 			// eslint-disable-next-line no-console
@@ -149,7 +149,7 @@ export function createGetEntryBySlug({
 			return {
 				...entry,
 				collection,
-				render: async () => renderEntry(entry),
+				render: () => renderEntry(entry),
 			};
 		}
 
@@ -269,7 +269,7 @@ export function createGetEntry({
 			return {
 				...entry,
 				collection,
-				render: async () => render({ ...entry, id: lookupId, collection }),
+				render: () => renderEntry(entry),
 			} as DataEntryResult | ContentEntryResult;
 		}
 

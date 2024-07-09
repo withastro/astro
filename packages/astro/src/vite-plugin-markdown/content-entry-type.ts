@@ -22,13 +22,16 @@ export const markdownContentEntryType: ContentEntryType = {
 		return async function renderToString(entry) {
 			if (!entry.body) {
 				return {
-					code: '',
+					html: '',
 				};
 			}
-			const res = await processor.render(entry.body, {
+			const result = await processor.render(entry.body, {
 				frontmatter: entry.data,
 			});
-			return res;
+			return {
+				html: result.code,
+				metadata: result.metadata,
+			};
 		};
 	},
 };

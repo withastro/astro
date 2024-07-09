@@ -2,16 +2,18 @@ import { promises as fs, type PathLike, existsSync } from 'fs';
 
 const SAVE_DEBOUNCE_MS = 500;
 
+export interface RenderedContent {
+	html: string;
+	metadata?: Record<string, unknown>;
+}
+
 export interface DataEntry {
 	id: string;
 	data: Record<string, unknown>;
 	filePath?: string;
 	body?: string;
 	digest?: number | string;
-	rendered?: {
-		html: string;
-		metadata?: Record<string, unknown>;
-	};
+	rendered?: RenderedContent;
 }
 
 export class DataStore {
@@ -207,10 +209,7 @@ export interface ScopedDataStore {
 		body?: string;
 		filePath?: string;
 		digest?: number | string;
-		rendered?: {
-			html: string;
-			metadata?: Record<string, unknown>;
-		};
+		rendered?: RenderedContent;
 	}) => boolean;
 	values: () => Array<DataEntry>;
 	keys: () => Array<string>;
