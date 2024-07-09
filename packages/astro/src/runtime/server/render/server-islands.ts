@@ -3,7 +3,7 @@ import type {
 } from '../../../@types/astro.js';
 import { renderChild } from "./any.js";
 import type { RenderInstance } from "./common.js";
-import { renderSlot, type ComponentSlotValue } from "./slot.js";
+import { renderSlotToString, type ComponentSlots } from "./slot.js";
 
 const internalProps = new Set([
 	'server:component-path',
@@ -18,9 +18,9 @@ export function containsServerDirective(props: Record<string | number, any>,) {
 
 export function renderServerIsland(
 	result: SSRResult,
-	displayName: string,
+	_displayName: string,
 	props: Record<string | number, any>,
-	slots:  Record<string, ComponentSlotValue>,
+	slots:  ComponentSlots,
 ): RenderInstance {
 	return {
 		async render(destination) {
@@ -42,8 +42,14 @@ export function renderServerIsland(
 			destination.write('<!--server-island-start-->')
 
 			// Render the slots
-			if(slots.fallback) {
-				await renderChild(destination, slots.fallback(result));
+			const renderedSlots: Record<string, string> = {};
+			for(const name in slots) {
+				if(name !== 'fallback') {
+					const content = await renderSlotToString(result, slots[name]);
+					renderedSlots[name] = content.toString();
+				} else {
+					await renderChild(destination, slots.fallback(result));
+				}
 			}
 
 			const hostId = crypto.randomUUID();
@@ -55,7 +61,7 @@ let script = document.querySelector('script[data-island-id="${hostId}"]');
 let data = {
 	componentExport,
 	props: ${JSON.stringify(props)},
-	slot: ${JSON.stringify(slots)},
+	slots: ${JSON.stringify(renderedSlots)},
 };
 
 let response = await fetch('/_server-islands/${componentId}', {
