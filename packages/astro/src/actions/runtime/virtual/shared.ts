@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import type { MaybePromise } from '../utils.js';
+import type { ErrorInferenceObject, MaybePromise } from '../utils.js';
 
 type ActionErrorCode =
 	| 'BAD_REQUEST'
@@ -39,8 +39,6 @@ const statusToCodeMap: Record<number, ActionErrorCode> = Object.entries(codeToSt
 	(acc, [key, value]) => ({ ...acc, [value]: key }),
 	{}
 );
-
-export type ErrorInferenceObject = Record<string, any>;
 
 export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> extends Error {
 	type = 'AstroActionError';
@@ -85,6 +83,10 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 
 export function isInputError<T extends ErrorInferenceObject>(
 	error?: ActionError<T>
+): error is ActionInputError<T>;
+export function isInputError(error?: unknown): error is ActionInputError<ErrorInferenceObject>;
+export function isInputError<T extends ErrorInferenceObject>(
+	error?: unknown | ActionError<T>
 ): error is ActionInputError<T> {
 	return error instanceof ActionInputError;
 }
