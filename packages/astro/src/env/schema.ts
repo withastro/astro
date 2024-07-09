@@ -92,7 +92,7 @@ const EnvSchemaKey = z
 	});
 
 export const EnvSchema = z.record(
-	EnvSchemaKey
+	EnvSchemaKey,
 	z.intersection(EnvFieldMetadata, EnvFieldType)
 );
 
