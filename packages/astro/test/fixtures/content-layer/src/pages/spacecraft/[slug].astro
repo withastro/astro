@@ -18,10 +18,11 @@ export const getStaticPaths = (async () => {
 
 
 const { craft } = Astro.props as any
+
+const { Content } = await craft.render()
+
 ---
 
 <h1>{craft.data.title}</h1>
-<pre>
-	{craft.body}
-</pre>
+<Content />
 </ul>

@@ -7,6 +7,11 @@ export interface DataEntry {
 	data: Record<string, unknown>;
 	filePath?: string;
 	body?: string;
+	digest?: number | string;
+	rendered?: {
+		html: string;
+		metadata?: Record<string, unknown>;
+	};
 }
 
 export class DataStore {
@@ -90,25 +95,38 @@ export class DataStore {
 			entries: () => this.entries(collectionName),
 			values: () => this.values(collectionName),
 			keys: () => this.keys(collectionName),
-			set: (key, data, body, filePath) => {
+			set: ({ id: key, data, body, filePath, digest, rendered }) => {
 				if (!key) {
-					throw new Error(`Key must be a non-empty string`);
+					throw new Error(`ID must be a non-empty string`);
 				}
 				const id = String(key);
+				if (digest) {
+					const existing = this.get<DataEntry>(collectionName, id);
+					if (existing && existing.digest === digest) {
+						return false;
+					}
+				}
 				const entry: DataEntry = {
 					id,
 					data,
 				};
 				// We do it like this so we don't waste space stringifying
-				// the body and filePath if they are not set
+				// the fields if they are not set
 				if (body) {
 					entry.body = body;
 				}
 				if (filePath) {
 					entry.filePath = filePath;
 				}
+				if (digest) {
+					entry.digest = digest;
+				}
+				if (rendered) {
+					entry.rendered = rendered;
+				}
 
 				this.set(collectionName, id, entry);
+				return true;
 			},
 			delete: (key: string) => this.delete(collectionName, key),
 			clear: () => this.clear(collectionName),
@@ -183,7 +201,17 @@ export class DataStore {
 export interface ScopedDataStore {
 	get: (key: string) => DataEntry | undefined;
 	entries: () => Array<[id: string, DataEntry]>;
-	set: (key: string, data: Record<string, unknown>, body?: string, filePath?: string) => void;
+	set: (opts: {
+		id: string;
+		data: Record<string, unknown>;
+		body?: string;
+		filePath?: string;
+		digest?: number | string;
+		rendered?: {
+			html: string;
+			metadata?: Record<string, unknown>;
+		};
+	}) => boolean;
 	values: () => Array<DataEntry>;
 	keys: () => Array<string>;
 	delete: (key: string) => void;

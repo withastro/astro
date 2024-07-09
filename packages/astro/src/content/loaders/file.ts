@@ -37,16 +37,16 @@ export function file(fileName: string): Loader {
 					logger.error(`Item in ${fileName} is missing an id or slug field.`);
 					continue;
 				}
-				const item = await parseData({ id, data: rawItem, filePath });
-				store.set(id, item, undefined, filePath);
+				const data = await parseData({ id, data: rawItem, filePath });
+				store.set({ id, data, filePath });
 			}
 		} else if (typeof json === 'object') {
 			const entries = Object.entries<Record<string, unknown>>(json);
 			logger.debug(`Found object with ${entries.length} entries in ${fileName}`);
 			store.clear();
 			for (const [id, rawItem] of entries) {
-				const item = await parseData({ id, data: rawItem, filePath });
-				store.set(id, item);
+				const data = await parseData({ id, data: rawItem, filePath });
+				store.set({ id, data });
 			}
 		} else {
 			logger.error(`Invalid data in ${fileName}. Must be an array or object.`);

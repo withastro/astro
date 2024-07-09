@@ -48,6 +48,7 @@ import type {
 } from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type { DataEntry } from '../content/data-store.js';
 
 export type { AstroIntegrationLogger, ToolbarServerHelpers };
 
@@ -2276,6 +2277,12 @@ export type DataEntryModule = {
 	};
 };
 
+export interface RenderResult {
+	code: string;
+	metadata?: Record<string, any>;
+}
+export type RenderFunction = (entry: DataEntry) => Promise<RenderResult>;
+
 export interface ContentEntryType {
 	extensions: string[];
 	getEntryInfo(params: {
@@ -2291,6 +2298,8 @@ export interface ContentEntryType {
 		}
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
+	getRenderFunction?(settings: AstroSettings): Promise<RenderFunction>;
+
 	/**
 	 * Handle asset propagation for rendered content to avoid bleed.
 	 * Ex. MDX content can import styles and scripts, so `handlePropagation` should be true.

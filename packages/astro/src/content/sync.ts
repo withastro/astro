@@ -6,6 +6,7 @@ import { DATA_STORE_FILE } from './consts.js';
 import { DataStore, globalDataStore } from './data-store.js';
 import type { DataWithId, LoaderContext } from './loaders/types.js';
 import { getEntryData, globalContentConfigObserver } from './utils.js';
+
 export interface SyncContentLayerOptions {
 	store?: DataStore;
 	settings: AstroSettings;
@@ -38,6 +39,7 @@ export async function syncContentLayer({
 		logger.debug('Content config not loaded, skipping sync');
 		return;
 	}
+
 	await Promise.all(
 		Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
 			if (collection.type !== 'experimental_data') {
@@ -112,6 +114,6 @@ export async function simpleLoader(
 	context.store.clear();
 	for (const raw of data) {
 		const item = await context.parseData({ id: raw.id, data: raw });
-		context.store.set(raw.id, item);
+		context.store.set({ id: raw.id, data: item });
 	}
 }

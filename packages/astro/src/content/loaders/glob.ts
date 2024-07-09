@@ -5,9 +5,10 @@ import { green } from 'kleur/colors';
 import micromatch from 'micromatch';
 import pLimit from 'p-limit';
 import { relative } from 'path/posix';
-import type { ContentEntryType } from '../../@types/astro.js';
+import type { ContentEntryType, RenderFunction } from '../../@types/astro.js';
 import { getContentEntryIdAndSlug, getEntryConfigByExtMap } from '../utils.js';
 import type { Loader, LoaderContext } from './types.js';
+import xxhash from 'xxhash-wasm';
 
 export interface GenerateIdOptions {
 	/** The path to the entry file, relative to the base directory. */
@@ -63,41 +64,75 @@ export function glob(globOptions: GlobOptions): Loader {
 
 	const fileToIdMap = new Map<string, string>();
 
-	async function syncData(
-		entry: string,
-		base: URL,
-		{ logger, parseData, store }: LoaderContext,
-		entryType?: ContentEntryType
-	) {
-		if (!entryType) {
-			logger.warn(`No entry type found for ${entry}`);
-			return;
-		}
-		const fileUrl = new URL(entry, base);
-		const { body, data } = await entryType.getEntryInfo({
-			contents: await fs.readFile(fileUrl, 'utf-8'),
-			fileUrl,
-		});
-
-		const id = generateId({ entry, base, data });
-
-		const filePath = fileURLToPath(fileUrl);
-
-		const parsedData = await parseData({
-			id,
-			data,
-			filePath,
-		});
-
-		store.set(id, parsedData, body, filePath);
-
-		fileToIdMap.set(filePath, id);
-	}
-
 	return {
 		name: 'glob-loader',
 		load: async (options) => {
-			const { settings, logger, watcher } = options;
+			const { settings, logger, watcher, parseData, store } = options;
+			const { h64ToString } = await xxhash();
+
+			const renderFunctionByContentType = new WeakMap<ContentEntryType, RenderFunction>();
+
+			async function syncData(entry: string, base: URL, entryType?: ContentEntryType) {
+				if (!entryType) {
+					logger.warn(`No entry type found for ${entry}`);
+					return;
+				}
+				const fileUrl = new URL(entry, base);
+				const contents = await fs.readFile(fileUrl, 'utf-8');
+
+				const { body, data } = await entryType.getEntryInfo({
+					contents,
+					fileUrl,
+				});
+
+				const digest = h64ToString(contents);
+
+				const id = generateId({ entry, base, data });
+
+				const existingEntry = store.get(id);
+
+				if (existingEntry && existingEntry.digest === digest) {
+					return;
+				}
+
+				const filePath = fileURLToPath(fileUrl);
+
+				const parsedData = await parseData({
+					id,
+					data,
+					filePath,
+				});
+
+				if (entryType.getRenderFunction) {
+					let render = renderFunctionByContentType.get(entryType);
+					if (!render) {
+						render = await entryType.getRenderFunction(settings);
+						renderFunctionByContentType.set(entryType, render);
+					}
+					const renderResult = await render({
+						id,
+						data: parsedData,
+						body,
+						filePath,
+						digest,
+					});
+					store.set({
+						id,
+						data: parsedData,
+						body,
+						filePath,
+						digest,
+						rendered: {
+							html: renderResult.code,
+							metadata: renderResult.metadata,
+						},
+					});
+				} else {
+					store.set({ id, data: parsedData, body, filePath, digest });
+				}
+
+				fileToIdMap.set(filePath, id);
+			}
 
 			const entryConfigByExt = getEntryConfigByExtMap([
 				...settings.contentEntryTypes,
@@ -131,7 +166,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				files.map((entry) =>
 					limit(async () => {
 						const entryType = configForFile(entry);
-						await syncData(entry, baseDir, options, entryType);
+						await syncData(entry, baseDir, entryType);
 					})
 				)
 			);
@@ -153,7 +188,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				}
 				const entryType = configForFile(changedPath);
 				const baseUrl = pathToFileURL(basePath);
-				await syncData(entry, baseUrl, options, entryType);
+				await syncData(entry, baseUrl, entryType);
 				logger.info(`Reloaded data from ${green(entry)}`);
 			}
 			watcher.on('change', onChange);
