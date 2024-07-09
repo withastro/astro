@@ -2163,6 +2163,34 @@ export interface AstroUserConfig {
 			 */
 			schema?: EnvSchema;
 		};
+
+		/**
+		 * @docs
+		 * @name experimental.serverIslands
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.12.0
+		 * @description
+		 *
+		 * Enables Server Islands, the ability to defer a component to render asynchronously after the page has already rendered.
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     serverIslands: true,
+		 *   },
+		 * }
+		 * ```
+		 * 
+		 * Use the `server:defer` directive on any component, Astro or framework, and the component will not render initially.
+		 *
+		 * ```astro "server:defer"
+		 * <Avatar server:defer />
+		 * ```
+		 *
+		 * For a complete overview, and to give feedback on this experimental API, see the [Server Islands RFC](https://github.com/withastro/roadmap/pull/963).
+		 */
+		serverIslands?: boolean;
 	};
 }
 

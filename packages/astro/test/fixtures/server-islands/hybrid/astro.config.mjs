@@ -5,6 +5,9 @@ export default defineConfig({
   output: 'hybrid',
   integrations: [
     svelte()
-  ]
+  ],
+  experimental: {
+    serverIslands: true,
+  }
 });
 

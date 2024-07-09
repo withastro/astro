@@ -8,4 +8,7 @@ export default defineConfig({
 	output: 'hybrid',
 	adapter: nodejs({ mode: 'standalone' }),
 	integrations: [react(), mdx()],
+	experimental: {
+		serverIslands: true,
+	}
 });
