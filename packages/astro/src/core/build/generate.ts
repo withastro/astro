@@ -234,18 +234,29 @@ async function generatePage(
 		const paths = await getPathsForRoute(route, pageModule, pipeline, builtPaths);
 		let timeStart = performance.now();
 		let prevTimeEnd = timeStart;
+		const maxPathsToLog = 100;
 		for (let i = 0; i < paths.length; i++) {
 			const path = paths[i];
 			pipeline.logger.debug('build', `Generating: ${path}`);
-			const filePath = getOutputFilename(config, path, pageData.route.type);
-			const lineIcon = i === paths.length - 1 ? '└─' : '├─';
-			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
+			if (i < maxPathsToLog) {
+				const filePath = getOutputFilename(config, path, pageData.route.type);
+				const lineIcon = i === paths.length - 1 ? '└─' : '├─';
+				logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
+			}
 			await generatePath(path, pipeline, generationOptions, route);
-			const timeEnd = performance.now();
-			const timeChange = getTimeStat(prevTimeEnd, timeEnd);
-			const timeIncrease = `(+${timeChange})`;
-			logger.info('SKIP_FORMAT', ` ${dim(timeIncrease)}`);
-			prevTimeEnd = timeEnd;
+			if (i < maxPathsToLog) {
+				const timeEnd = performance.now();
+				const timeChange = getTimeStat(prevTimeEnd, timeEnd);
+				const timeIncrease = `(+${timeChange})`;
+				logger.info('SKIP_FORMAT', ` ${dim(timeIncrease)}`);
+				prevTimeEnd = timeEnd;
+			}
+			if (i === maxPathsToLog && paths.length > maxPathsToLog) {
+				logger.info(null, `  ${blue('└─')} ${dim(`...`)}`, false);
+			}
+		}
+		if (paths.length > maxPathsToLog) {
+			logger.info('SKIP_FORMAT', `${dim(`${paths.length - maxPathsToLog} more paths.`)}`);
 		}
 	}
 }
