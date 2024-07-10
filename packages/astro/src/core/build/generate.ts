@@ -237,6 +237,10 @@ async function generatePage(
 		const paths = await getPathsForRoute(route, pageModule, pipeline, builtPaths);
 		let timeStart = performance.now();
 		let prevTimeEnd = timeStart;
+
+		const shouldTruncate =
+			pipeline.logger.options.level !== 'debug' && paths.length > maxPathsToLog;
+
 		for (let i = 0; i < paths.length; i++) {
 			const path = paths[i];
 			pipeline.logger.debug('build', `Generating: ${path}`);
@@ -246,14 +250,14 @@ async function generatePage(
 				logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
 			}
 			await generatePath(path, pipeline, generationOptions, route);
-			if (i < maxPathsToLog) {
+			if (!shouldTruncate || i < maxPathsToLog) {
 				const timeEnd = performance.now();
 				const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 				const timeIncrease = `(+${timeChange})`;
 				logger.info('SKIP_FORMAT', ` ${dim(timeIncrease)}`);
 				prevTimeEnd = timeEnd;
 			}
-			if (i === maxPathsToLog && paths.length > maxPathsToLog) {
+			if (shouldTruncate && i === maxPathsToLog && paths.length > maxPathsToLog) {
 				logger.info(
 					null,
 					`  ${blue('└─')} ${dim(`...rendering ${paths.length - maxPathsToLog} more paths.`)}`,
@@ -261,7 +265,7 @@ async function generatePage(
 				);
 			}
 		}
-		if (paths.length > maxPathsToLog) {
+		if (shouldTruncate) {
 			const timeEnd = performance.now();
 			const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 			const timeIncrease = `(+${timeChange})`;
