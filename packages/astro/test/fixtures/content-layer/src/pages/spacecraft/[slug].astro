@@ -1,0 +1,27 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection } from "astro:content"
+export const getStaticPaths = (async () => {
+	const collection = await getCollection("spacecraft");
+	if(!collection) return []
+	return collection.map((craft) => ({
+		params: {
+			slug: `/${craft.id}`
+		},
+		props: {
+			craft
+		}
+	}));
+}) satisfies GetStaticPaths;
+
+
+
+
+const { craft } = Astro.props as any
+---
+
+<h1>{craft.data.title}</h1>
+<pre>
+	{craft.body}
+</pre>
+</ul>

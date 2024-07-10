@@ -1,59 +1,62 @@
-import { defineCollection, file, z } from 'astro:content';
+import { defineCollection, z } from 'astro:content';
+import { file, glob } from 'astro/loaders';
 import { loader } from '../loaders/post-loader.js';
+import { fileURLToPath } from 'node:url';
 
 const blog = defineCollection({
-	type: "experimental_data",
-	loader: loader({ url: "https://jsonplaceholder.typicode.com/posts" }),
+	type: 'experimental_data',
+	loader: loader({ url: 'https://jsonplaceholder.typicode.com/posts' }),
 });
 
 const dogs = defineCollection({
-	type: "experimental_data",
-	loader: file("_data/dogs.json"),
+	type: 'experimental_data',
+	loader: file('src/data/dogs.json'),
 	schema: z.object({
 		breed: z.string(),
 		id: z.string(),
 		size: z.string(),
 		origin: z.string(),
 		lifespan: z.string(),
-		temperament: z.array(z.string())
+		temperament: z.array(z.string()),
 	}),
-})
+});
 
 const cats = defineCollection({
-	type: "experimental_data",
-	loader: async function() {
-		return  [{
-				"breed": "Siamese",
-				"id": "siamese",
-				"size": "Medium",
-				"origin": "Thailand",
-				"lifespan": "15 years",
-				"temperament": ["Active", "Affectionate", "Social", "Playful"]
-			},
-			 {
-				"breed": "Persian",
-				"id": "persian",
-				"size": "Medium",
-				"origin": "Iran",
-				"lifespan": "15 years",
-				"temperament": ["Calm", "Affectionate", "Social"]
-			},
-			 {
-				"breed": "Tabby",
-				"id": "tabby",
-				"size": "Medium",
-				"origin": "Egypt",
-				"lifespan": "15 years",
-				"temperament": ["Curious", "Playful", "Independent"]
+	type: 'experimental_data',
+	loader: async function () {
+		return [
+			{
+				breed: 'Siamese',
+				id: 'siamese',
+				size: 'Medium',
+				origin: 'Thailand',
+				lifespan: '15 years',
+				temperament: ['Active', 'Affectionate', 'Social', 'Playful'],
 			},
 			{
-				"breed": "Ragdoll",
-				"id": "ragdoll",
-				"size": "Medium",
-				"origin": "United States",
-				"lifespan": "15 years",
-				"temperament": ["Calm", "Affectionate", "Social"]
-			}
+				breed: 'Persian',
+				id: 'persian',
+				size: 'Medium',
+				origin: 'Iran',
+				lifespan: '15 years',
+				temperament: ['Calm', 'Affectionate', 'Social'],
+			},
+			{
+				breed: 'Tabby',
+				id: 'tabby',
+				size: 'Medium',
+				origin: 'Egypt',
+				lifespan: '15 years',
+				temperament: ['Curious', 'Playful', 'Independent'],
+			},
+			{
+				breed: 'Ragdoll',
+				id: 'ragdoll',
+				size: 'Medium',
+				origin: 'United States',
+				lifespan: '15 years',
+				temperament: ['Calm', 'Affectionate', 'Social'],
+			},
 		];
 	},
 	schema: z.object({
@@ -62,8 +65,22 @@ const cats = defineCollection({
 		size: z.string(),
 		origin: z.string(),
 		lifespan: z.string(),
-		temperament: z.array(z.string())
+		temperament: z.array(z.string()),
 	}),
-})
+});
 
-export const collections = { blog, dogs, cats };
+
+// Absolute paths should also work
+const absoluteRoot = new URL('../../content-outside-src', import.meta.url);
+
+const spacecraft = defineCollection({
+	type: 'experimental_data',
+	loader: glob({ pattern: '*', base: absoluteRoot }),
+});
+
+const numbers = defineCollection({
+	type: 'experimental_data',
+	loader: glob({ pattern: 'src/data/glob-data/*', base: '.' }),
+});
+
+export const collections = { blog, dogs, cats, numbers, spacecraft };

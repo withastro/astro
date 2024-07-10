@@ -20,54 +20,30 @@ declare module 'astro:content' {
 		>;
 	}>;
 
+	export interface DataEntry {
+		id: string;
+		data: Record<string, unknown>;
+		filePath?: string;
+		body?: string;
+	}
+
 	export interface DataStore {
-		get: (key: string) => any;
-		entries: () => IterableIterator<[id: string, any]>;
-		set: (key: string, value: any) => void;
+		get: (key: string) => DataEntry;
+		entries: () => Array<[id: string, DataEntry]>;
+		set: (key: string, data: Record<string, unknown>, body?: string, filePath?: string) => void;
+		values: () => Array<DataEntry>;
+		keys: () => Array<string>;
 		delete: (key: string) => void;
 		clear: () => void;
 		has: (key: string) => boolean;
 	}
+
 	export interface MetaStore {
 		get: (key: string) => string | undefined;
 		set: (key: string, value: string) => void;
+		delete: (key: string) => void;
 		has: (key: string) => boolean;
 	}
-
-	export interface ParseDataOptions {
-		/** The ID of the entry. Unique per collection */
-		id: string;
-		/** The raw, unvalidated data of the entry */
-		data: Record<string, unknown>;
-		/** An optional file path, where the entry represents a local file */
-		filePath?: string;
-	}
-	export interface LoaderContext {
-		collection: string;
-		/** A database abstraction to store the actual data */
-		store: DataStore;
-		/**  A simple KV store, designed for things like sync tokens */
-		meta: MetaStore;
-		logger: import('astro').AstroIntegrationLogger;
-		settings: import('astro').AstroSettings;
-		/** Validates and parses the data according to the schema */
-		parseData<T extends Record<string, unknown> = Record<string, unknown>>(
-			props: ParseDataOptions
-		): T;
-		/** When running in dev, this is a filesystem watcher that can be used to trigger updates */
-		watcher?: import('vite').FSWatcher;
-	}
-	export interface Loader {
-		/** Unique name of the loader, e.g. the npm package name */
-		name: string;
-		/** Do the actual loading of the data */
-		load: (context: LoaderContext) => Promise<void>;
-		/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
-		schema?: BaseSchema | Promise<BaseSchema> | (() => BaseSchema | Promise<BaseSchema>);
-		render?: (entry: any) => any;
-	}
-
-	export function file(filePath: string): Loader;
 
 	type BaseSchemaWithoutEffects =
 		| import('astro/zod').AnyZodObject
@@ -89,7 +65,9 @@ declare module 'astro:content' {
 	type ContentCollectionV2Config<S extends BaseSchema> = {
 		type: 'experimental_data';
 		schema?: S | ((context: SchemaContext) => S);
-		loader: Loader | (() => Array<DataWithId> | Promise<Array<DataWithId>>);
+		loader:
+			| import('astro/loader/types').Loader
+			| (() => Array<DataWithId> | Promise<Array<DataWithId>>);
 	};
 
 	type DataCollectionConfig<S extends BaseSchema> = {

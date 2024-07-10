@@ -1,4 +1,5 @@
-import { type Loader, z } from 'astro:content';
+import { z } from 'astro:content';
+import type { Loader } from "astro/loaders"
 
 export interface PostLoaderConfig {
 	url: string;
@@ -25,7 +26,7 @@ export function loader(config:PostLoaderConfig): Loader {
 
 			store.clear();
 
-			for (const post of posts) {
+			for (const post of posts.slice(0, 10)) {
 				store.set(post.id, post);
 			}
 			meta.set('lastSynced', String(Date.now()));

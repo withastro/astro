@@ -1,6 +1,6 @@
-import { fileURLToPath } from 'url';
-import type { Loader, LoaderContext } from './loaders.js';
 import { promises as fs, existsSync } from 'fs';
+import { fileURLToPath } from 'url';
+import type { Loader, LoaderContext } from './types.js';
 
 /**
  * Loads entries from a JSON file. The file must contain an array of objects that contain unique `id` fields, or an object with string keys.
@@ -38,7 +38,7 @@ export function file(fileName: string): Loader {
 					continue;
 				}
 				const item = await parseData({ id, data: rawItem, filePath });
-				store.set(id, item);
+				store.set(id, item, undefined, filePath);
 			}
 		} else if (typeof json === 'object') {
 			const entries = Object.entries<Record<string, unknown>>(json);
@@ -57,9 +57,8 @@ export function file(fileName: string): Loader {
 		name: 'file-loader',
 		load: async (options) => {
 			const { settings, logger, watcher } = options;
-			const contentDir = new URL('./content/', settings.config.srcDir);
 			logger.debug(`Loading data from ${fileName}`);
-			const url = new URL(fileName, contentDir);
+			const url = new URL(fileName, settings.config.root);
 			if (!existsSync(url)) {
 				logger.error(`File not found: ${fileName}`);
 				return;

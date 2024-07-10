@@ -13,10 +13,8 @@ import {
 	renderUniqueStylesheet,
 	unescapeHTML,
 } from '../runtime/server/index.js';
+import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
-import { globalDataStore } from './data-store.js';
-export { file } from './file.js';
-
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
@@ -65,11 +63,9 @@ export function createGetCollection({
 		} else if (collection in dataCollectionToEntryMap) {
 			type = 'data';
 		} else if (store.hasCollection(collection)) {
-			return [...store.entries(collection)].map(([id, data]) => ({
-				id,
+			return [...store.values<DataEntry>(collection)].map((entry) => ({
+				...entry,
 				collection,
-				data,
-				type: 'experimental_data',
 			}));
 		} else {
 			// eslint-disable-next-line no-console
@@ -139,6 +135,22 @@ export function createGetEntryBySlug({
 	getRenderEntryImport: GetEntryImport;
 }) {
 	return async function getEntryBySlug(collection: string, slug: string) {
+		const store = await globalDataStore.get();
+
+		if (store.hasCollection(collection)) {
+			const data = store.get(collection, slug);
+			if (!data) {
+				throw new Error(`Entry ${collection} → ${slug} was not found.`);
+			}
+
+			const entry = store.get<DataEntry>(collection, slug);
+
+			return {
+				...entry,
+				collection,
+			};
+		}
+
 		const entryImport = await getEntryImport(collection, slug);
 		if (typeof entryImport !== 'function') return undefined;
 
@@ -171,10 +183,11 @@ export function createGetDataEntryById({ getEntryImport }: { getEntryImport: Get
 				throw new Error(`Entry ${collection} → ${id} was not found.`);
 			}
 
+			const entry = store.get<DataEntry>(collection, id);
+
 			return {
-				id,
+				...entry,
 				collection,
-				data: store.get(collection, id),
 			};
 		}
 
@@ -239,6 +252,22 @@ export function createGetEntry({
 				'id' in collectionOrLookupObject
 					? collectionOrLookupObject.id
 					: collectionOrLookupObject.slug;
+		}
+
+		const store = await globalDataStore.get();
+
+		if (store.hasCollection(collection)) {
+			const data = store.get(collection, lookupId);
+			if (!data) {
+				throw new Error(`Entry ${collection} → ${lookupId} was not found.`);
+			}
+
+			const entry = store.get<DataEntry>(collection, lookupId);
+
+			return {
+				...entry,
+				collection,
+			} as DataEntryResult | ContentEntryResult;
 		}
 
 		const entryImport = await getEntryImport(collection, lookupId);
