@@ -27,6 +27,7 @@ import { resolveConfig } from '../config/config.js';
 import { createSettings } from '../config/settings.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
+import { runHookConfigSetup } from '../../integrations/hooks.js';
 
 export type SyncOptions = {
 	/**
