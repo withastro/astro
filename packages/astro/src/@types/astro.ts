@@ -11,7 +11,11 @@ import type {
 import type * as babel from '@babel/core';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
-import type { Accept, ActionClient, InputSchema } from '../actions/runtime/virtual/server.js';
+import type {
+	ActionAccept,
+	ActionClient,
+	ActionInputSchema,
+} from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
 import type { AssetsPrefix, SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
@@ -2764,8 +2768,8 @@ interface AstroSharedContext<
 	 * Get action result on the server when using a form POST.
 	 */
 	getActionResult: <
-		TAccept extends Accept,
-		TInputSchema extends InputSchema<TAccept>,
+		TAccept extends ActionAccept,
+		TInputSchema extends ActionInputSchema<TAccept>,
 		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
 	>(
 		action: TAction

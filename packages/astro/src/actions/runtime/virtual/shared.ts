@@ -1,20 +1,23 @@
 import type { z } from 'zod';
 import type { ErrorInferenceObject, MaybePromise } from '../utils.js';
 
-type ActionErrorCode =
-	| 'BAD_REQUEST'
-	| 'UNAUTHORIZED'
-	| 'FORBIDDEN'
-	| 'NOT_FOUND'
-	| 'TIMEOUT'
-	| 'CONFLICT'
-	| 'PRECONDITION_FAILED'
-	| 'PAYLOAD_TOO_LARGE'
-	| 'UNSUPPORTED_MEDIA_TYPE'
-	| 'UNPROCESSABLE_CONTENT'
-	| 'TOO_MANY_REQUESTS'
-	| 'CLIENT_CLOSED_REQUEST'
-	| 'INTERNAL_SERVER_ERROR';
+export const ACTION_ERROR_CODES = [
+	'BAD_REQUEST',
+	'UNAUTHORIZED',
+	'FORBIDDEN',
+	'NOT_FOUND',
+	'TIMEOUT',
+	'CONFLICT',
+	'PRECONDITION_FAILED',
+	'PAYLOAD_TOO_LARGE',
+	'UNSUPPORTED_MEDIA_TYPE',
+	'UNPROCESSABLE_CONTENT',
+	'TOO_MANY_REQUESTS',
+	'CLIENT_CLOSED_REQUEST',
+	'INTERNAL_SERVER_ERROR',
+] as const;
+
+export type ActionErrorCode = (typeof ACTION_ERROR_CODES)[number];
 
 const codeToStatusMap: Record<ActionErrorCode, number> = {
 	// Implemented from tRPC error code table
