@@ -19,7 +19,7 @@ export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.ZodTyp
 	? (input: z.infer<TInputSchema>, context: ActionAPIContext) => MaybePromise<TOutput>
 	: (input: any, context: ActionAPIContext) => MaybePromise<TOutput>;
 
-export type ActionReturnType<T extends Handler<any, any>> = Awaited<ReturnType<T>>;
+export type ActionReturnType<T extends ActionHandler<any, any>> = Awaited<ReturnType<T>>;
 
 export type ActionClient<
 	TOutput,
