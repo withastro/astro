@@ -3,8 +3,8 @@ import { describe, it } from 'node:test';
 import stripAnsi from 'strip-ansi';
 import { z } from 'zod';
 import { validateConfig } from '../../../dist/core/config/validate.js';
-import { envField } from '../../../dist/env/config.js';
 import { formatConfigErrorMessage } from '../../../dist/core/messages.js';
+import { envField } from '../../../dist/env/config.js';
 
 describe('Config Validation', () => {
 	it('empty user config is valid', async () => {
@@ -392,7 +392,7 @@ describe('Config Validation', () => {
 					experimental: {
 						env: {
 							schema: {
-								"123ABC": envField.string({ access: 'public', context: 'server' }),
+								'123ABC': envField.string({ access: 'public', context: 'server' }),
 							},
 						},
 					},

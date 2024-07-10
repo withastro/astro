@@ -91,10 +91,7 @@ const EnvSchemaKey = z
 		message: 'A valid variable name can only contain uppercase letters, numbers and underscores.',
 	});
 
-export const EnvSchema = z.record(
-	EnvSchemaKey,
-	z.intersection(EnvFieldMetadata, EnvFieldType)
-);
+export const EnvSchema = z.record(EnvSchemaKey, z.intersection(EnvFieldMetadata, EnvFieldType));
 
 // https://www.totaltypescript.com/concepts/the-prettify-helper
 type Prettify<T> = {
