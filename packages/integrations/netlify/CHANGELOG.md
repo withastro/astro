@@ -1,5 +1,15 @@
 # @astrojs/netlify
 
+## 5.4.0
+
+### Minor Changes
+
+- [#315](https://github.com/withastro/adapters/pull/315) [`a45eb36`](https://github.com/withastro/adapters/commit/a45eb365c609bbc1b9ca480c0e49da9cced682aa) Thanks [@eduardoboucas](https://github.com/eduardoboucas)! - Refactors the adapter to use the Netlify Frameworks API
+
+### Patch Changes
+
+- [#286](https://github.com/withastro/adapters/pull/286) [`e2ecf64`](https://github.com/withastro/adapters/commit/e2ecf646f9eefb64c23012598501d8de69dca285) Thanks [@theoephraim](https://github.com/theoephraim)! - Allows support for `node:` prefixed imports if using the Adapter with `edgeMiddleware: true`
+
 ## 5.3.5
 
 ### Patch Changes
