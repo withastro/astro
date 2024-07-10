@@ -14,7 +14,7 @@ import { makeSplitEntryPointFileName } from '../dist/core/build/static-build.js'
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import { dev, preview } from '../dist/core/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
-import sync from '../dist/core/sync/index.js';
+import { syncInlineConfig } from '../dist/core/sync/index.js';
 
 // Disable telemetry when running tests
 process.env.ASTRO_TELEMETRY_DISABLED = true;
@@ -162,7 +162,7 @@ export async function loadFixture(inlineConfig) {
 			return build(mergeConfig(inlineConfig, extraInlineConfig), { teardownCompiler: false });
 		},
 		sync: async (options) => {
-			return sync(options);
+			return await syncInlineConfig(options)
 		},
 		check: async (opts) => {
 			return await check(opts);

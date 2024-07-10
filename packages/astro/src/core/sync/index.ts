@@ -3,7 +3,7 @@ import fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { type HMRPayload, createServer } from 'vite';
-import type { AstroConfig, AstroSettings } from '../../@types/astro.js';
+import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { getPackage } from '../../cli/install-package.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
@@ -22,6 +22,11 @@ import {
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
+import { createNodeLogger } from '../config/logging.js';
+import { resolveConfig } from '../config/config.js';
+import { createSettings } from '../config/settings.js';
+import { telemetry } from '../../events/index.js';
+import { eventCliSession } from '../../events/session.js';
 
 export type SyncOptions = {
 	/**
@@ -39,6 +44,25 @@ export type SyncOptions = {
 type DBPackage = {
 	typegen?: (args: Pick<AstroConfig, 'root' | 'integrations'>) => Promise<void>;
 };
+
+export async function syncInlineConfig({
+	inlineConfig,
+	fs,
+	telemetry: _telemetry = false,
+}: { inlineConfig: AstroInlineConfig; fs?: typeof fsMod; telemetry?: boolean }) {
+	const logger = createNodeLogger(inlineConfig);
+	const { astroConfig, userConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
+	if (_telemetry) {
+		telemetry.record(eventCliSession('sync', userConfig));
+	}
+	let settings = await createSettings(astroConfig, inlineConfig.root);
+	settings = await runHookConfigSetup({
+		command: 'build',
+		settings,
+		logger,
+	});
+	return await sync({ settings, logger, fs });
+}
 
 /**
  * Generates TypeScript types for all Astro modules. This sets up a `src/env.d.ts` file for type inferencing,

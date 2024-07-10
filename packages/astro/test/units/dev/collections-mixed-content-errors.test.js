@@ -1,24 +1,20 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import _sync from '../../../dist/core/sync/index.js';
-import { resolveConfig } from '../../../dist/core/config/config.js';
-import { createSettings } from '../../../dist/core/config/settings.js';
-import { createNodeLogger } from '../../../dist/core/config/logging.js';
+import { syncInlineConfig } from '../../../dist/core/sync/index.js';
 import { createFsWithFallback } from '../test-utils.js';
 
 const root = new URL('../../fixtures/content-mixed-errors/', import.meta.url);
 
 async function sync({ fs }) {
-	const inlineConfig = {
-		root: fileURLToPath(root),
-		logLevel: 'silent',
-	};
-	const logger = createNodeLogger(inlineConfig);
-	const { astroConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
-	const settings = await createSettings(astroConfig, inlineConfig.root);
 	try {
-		await _sync({ settings, logger, fs });
+		await syncInlineConfig({
+			inlineConfig: {
+				root: fileURLToPath(root),
+				logLevel: 'silent',
+			},
+			fs,
+		});
 		return 0;
 	} catch (_) {
 		return 1;

@@ -3,8 +3,6 @@ import type { Arguments } from 'yargs-parser';
 import { ensureProcessNodeEnv } from '../../core/util.js';
 import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { getPackage } from '../install-package.js';
-import { resolveConfig } from '../../core/config/config.js';
-import { createSettings } from '../../core/config/settings.js';
 
 export async function check(flags: Arguments) {
 	ensureProcessNodeEnv('production');
@@ -29,12 +27,9 @@ export async function check(flags: Arguments) {
 	// Run sync before check to make sure types are generated.
 	// NOTE: In the future, `@astrojs/check` can expose a `before lint` hook so that this works during `astro check --watch` too.
 	// For now, we run this once as usually `astro check --watch` is ran alongside `astro dev` which also calls `astro sync`.
-	const { default: sync } = await import('../../core/sync/index.js');
-	const inlineConfig = flagsToAstroInlineConfig(flags);
-	const { astroConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
-	const settings = await createSettings(astroConfig, inlineConfig.root);
+	const { syncInlineConfig } = await import('../../core/sync/index.js');
 	try {
-		await sync({ settings, logger });
+		await syncInlineConfig({ inlineConfig: flagsToAstroInlineConfig(flags) });
 	} catch (_) {
 		return process.exit(1);
 	}
