@@ -199,7 +199,7 @@ async function generatePage(
 	pipeline: BuildPipeline
 ) {
 	// prepare information we need
-	const { config, internals, logger } = pipeline;
+	const { config, logger } = pipeline;
 	const pageModulePromise = ssrEntry.page;
 
 	// Calculate information of the page, like scripts, links and styles
@@ -223,6 +223,9 @@ async function generatePage(
 		styles,
 		mod: pageModule,
 	};
+
+	const maxPathsToLog = 100;
+
 	// Now we explode the routes. A route render itself, and it can render its fallbacks (i18n routing)
 	for (const route of eachRouteInRouteData(pageData)) {
 		const icon =
@@ -234,7 +237,6 @@ async function generatePage(
 		const paths = await getPathsForRoute(route, pageModule, pipeline, builtPaths);
 		let timeStart = performance.now();
 		let prevTimeEnd = timeStart;
-		const maxPathsToLog = 100;
 		for (let i = 0; i < paths.length; i++) {
 			const path = paths[i];
 			pipeline.logger.debug('build', `Generating: ${path}`);
@@ -252,11 +254,18 @@ async function generatePage(
 				prevTimeEnd = timeEnd;
 			}
 			if (i === maxPathsToLog && paths.length > maxPathsToLog) {
-				logger.info(null, `  ${blue('└─')} ${dim(`...`)}`, false);
+				logger.info(
+					null,
+					`  ${blue('└─')} ${dim(`...rendering ${paths.length - maxPathsToLog} more paths.`)}`,
+					false
+				);
 			}
 		}
 		if (paths.length > maxPathsToLog) {
-			logger.info('SKIP_FORMAT', `${dim(`${paths.length - maxPathsToLog} more paths.`)}`);
+			const timeEnd = performance.now();
+			const timeChange = getTimeStat(prevTimeEnd, timeEnd);
+			const timeIncrease = `(+${timeChange})`;
+			logger.info('SKIP_FORMAT', ` ${green('Done.')} ${dim(timeIncrease)}`);
 		}
 	}
 }
