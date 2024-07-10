@@ -2,36 +2,12 @@ import type fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
-import { type Plugin, normalizePath } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
-import { ACTIONS_TYPES_FILE } from '../actions/consts.js';
-import { CONTENT_TYPES_FILE } from '../content/consts.js';
-import { type Logger } from '../core/logger/core.js';
-import { ENV_TYPES_FILE } from '../env/constants.js';
-
-export function getEnvTsPath({ srcDir }: { srcDir: URL }) {
-	return new URL('env.d.ts', srcDir);
-}
-
-export function astroInjectEnvTsPlugin({
-	settings,
-	logger,
-	fs,
-}: {
-	settings: AstroSettings;
-	logger: Logger;
-	fs: typeof fsMod;
-}): Plugin {
-	return {
-		name: 'astro-inject-env-ts',
-		// Use `post` to ensure project setup is complete
-		// Ex. `.astro` types have been written
-		enforce: 'post',
-		async config() {
-			await setUpEnvTs({ settings, logger, fs });
-		},
-	};
-}
+import { normalizePath } from 'vite';
+import type { AstroSettings } from '../../@types/astro.js';
+import { ACTIONS_TYPES_FILE } from '../../actions/consts.js';
+import { CONTENT_TYPES_FILE } from '../../content/consts.js';
+import { type Logger } from '../logger/core.js';
+import { ENV_TYPES_FILE } from '../../env/constants.js';
 
 function getDotAstroTypeReference({
 	settings,
@@ -58,7 +34,7 @@ export async function setUpEnvTs({
 	logger: Logger;
 	fs: typeof fsMod;
 }) {
-	const envTsPath = getEnvTsPath(settings.config);
+	const envTsPath = new URL('env.d.ts', settings.config.srcDir);
 	const envTsPathRelativetoRoot = normalizePath(
 		path.relative(fileURLToPath(settings.config.root), fileURLToPath(envTsPath))
 	);

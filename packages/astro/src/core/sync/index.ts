@@ -8,7 +8,7 @@ import { getPackage } from '../../cli/install-package.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { syncAstroEnv } from '../../env/sync.js';
-import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
+import { setUpEnvTs } from './setup-env-ts.js';
 import { getTimeStat } from '../build/util.js';
 import { createVite } from '../create-vite.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
