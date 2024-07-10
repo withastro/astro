@@ -103,22 +103,22 @@ importers:
         specifier: ^0.4.1
         version: 0.4.1
       volar-service-css:
-        specifier: volar-2.4
+        specifier: 0.0.59
         version: 0.0.59(@volar/language-service@2.4.0-alpha.15)
       volar-service-emmet:
-        specifier: volar-2.4
+        specifier: 0.0.59
         version: 0.0.59(@volar/language-service@2.4.0-alpha.15)
       volar-service-html:
-        specifier: volar-2.4
+        specifier: 0.0.59
         version: 0.0.59(@volar/language-service@2.4.0-alpha.15)
       volar-service-prettier:
-        specifier: volar-2.4
+        specifier: 0.0.59
         version: 0.0.59(@volar/language-service@2.4.0-alpha.15)(prettier@3.2.5)
       volar-service-typescript:
-        specifier: volar-2.4
+        specifier: 0.0.59
         version: 0.0.59(@volar/language-service@2.4.0-alpha.15)
       volar-service-typescript-twoslash-queries:
-        specifier: volar-2.4
+        specifier: 0.0.59
         version: 0.0.59(@volar/language-service@2.4.0-alpha.15)
       vscode-html-languageservice:
         specifier: ^5.2.0
