@@ -50,10 +50,6 @@ export async function createContainer({
 		logger: logger,
 		isRestart,
 	});
-	await sync({
-		settings,
-		logger,
-	});
 
 	settings = injectImageEndpoint(settings, 'dev');
 
@@ -82,6 +78,11 @@ export async function createContainer({
 		{ settings, logger, mode: 'dev', command: 'dev', fs, sync: false }
 	);
 	await runHookConfigDone({ settings, logger });
+	await sync({
+		settings,
+		logger,
+	});
+
 	const viteServer = await vite.createServer(viteConfig);
 
 	const container: Container = {
