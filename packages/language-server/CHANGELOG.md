@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.11.1
+
+### Patch Changes
+
+- 5eb20f2: Fixes installation on Yarn 4
+
 ## 2.11.0
 
 ### Minor Changes

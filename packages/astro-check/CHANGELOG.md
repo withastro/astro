@@ -1,5 +1,13 @@
 # @astrojs/check
 
+## 0.8.1
+
+### Patch Changes
+
+- 5eb20f2: Fixes installation on Yarn 4
+- Updated dependencies [5eb20f2]
+  - @astrojs/language-server@2.11.1
+
 ## 0.8.0
 
 ### Minor Changes
