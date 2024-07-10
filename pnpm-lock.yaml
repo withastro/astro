@@ -794,6 +794,9 @@ importers:
       eol:
         specifier: ^0.9.1
         version: 0.9.1
+      expect-type:
+        specifier: ^0.19.0
+        version: 0.19.0
       mdast-util-mdx:
         specifier: ^3.0.0
         version: 3.0.0
@@ -8654,6 +8657,10 @@ packages:
     resolution: {integrity: sha512-VyhnebXciFV2DESc+p6B+y0LjSm0krU4OgJN44qFAhBY0TJ+1V61tYD2+wHusZ6F9n5K+vl8k0sTy7PEfV4qpg==}
     engines: {node: '>=16.17'}
 
+  expect-type@0.19.0:
+    resolution: {integrity: sha512-piv9wz3IrAG4Wnk2A+n2VRCHieAyOSxrRLU872Xo6nyn39kYXKDALk4OcqnvLRnFvkz659CnWC8MWZLuuQnoqg==}
+    engines: {node: '>=12.0.0'}
+
   express@4.19.2:
     resolution: {integrity: sha512-5T6nhjsT+EOMzuck8JjBHARTHfMht0POzlA60WV2pMD3gyXw2LZnZ+ueGdNxG+0calOJcWKbpFcuzLZ91YWq9Q==}
     engines: {node: '>= 0.10.0'}
@@ -9308,6 +9315,7 @@ packages:
 
   libsql@0.3.12:
     resolution: {integrity: sha512-to30hj8O3DjS97wpbKN6ERZ8k66MN1IaOfFLR6oHqd25GMiPJ/ZX0VaZ7w+TsPmxcFS3p71qArj/hiedCyvXCg==}
+    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lilconfig@2.1.0:
@@ -14703,6 +14711,8 @@ snapshots:
       onetime: 6.0.0
       signal-exit: 4.1.0
       strip-final-newline: 3.0.0
+
+  expect-type@0.19.0: {}
 
   express@4.19.2:
     dependencies:

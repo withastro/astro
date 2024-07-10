@@ -2166,6 +2166,37 @@ export interface AstroUserConfig {
 			 * ```
 			 */
 			schema?: EnvSchema;
+
+			/**
+			 * @docs
+			 * @name experimental.env.validateSecrets
+			 * @kind h4
+			 * @type {boolean}
+			 * @default `false`
+			 * @version 4.11.6
+			 * @description
+			 *
+			 * Whether or not to validate secrets on the server when starting the dev server or running a build.
+			 *
+			 * By default, only public variables are validated on the server when starting the dev server or a build, and private variables are validated at runtime only. If enabled, private variables will also be checked on start. This is useful in some continuous integration (CI) pipelines to make sure all your secrets are correctly set before deploying.
+			 *
+			 * ```js
+			 * // astro.config.mjs
+			 * import { defineConfig, envField } from "astro/config"
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *     env: {
+			 *       schema: {
+			 *         // ...
+			 *       },
+			 *       validateSecrets: true
+			 *     }
+			 *   }
+			 * })
+			 * ```
+			 */
+			validateSecrets?: boolean;
 		};
 	};
 }
