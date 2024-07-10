@@ -119,17 +119,10 @@ class AstroBuilder {
 		this.logger.debug('build', 'Initial setup...');
 		const { logger } = this;
 		this.timer.init = performance.now();
-
 		this.settings = await runHookConfigSetup({
 			settings: this.settings,
 			command: 'build',
 			logger: logger,
-		});
-		const { default: sync } = await import('../sync/index.js');
-		await sync({
-			settings: this.settings,
-			logger,
-			fs,
 		});
 
 		if (isServerLikeOutput(this.settings.config)) {
@@ -149,6 +142,13 @@ class AstroBuilder {
 			{ settings: this.settings, logger: this.logger, mode: 'build', command: 'build', sync: false }
 		);
 		await runHookConfigDone({ settings: this.settings, logger: logger });
+
+		const { default: sync } = await import('../sync/index.js');
+		await sync({
+			settings: this.settings,
+			logger,
+			fs,
+		});
 
 		return { viteConfig };
 	}
