@@ -30,6 +30,10 @@ export type SyncOptions = {
 	fs?: typeof fsMod;
 	logger: Logger;
 	settings: AstroSettings;
+	skip?: {
+		// Must be skipped in dev
+		content?: boolean;
+	};
 };
 
 type DBPackage = {
@@ -42,7 +46,12 @@ type DBPackage = {
  *
  * @experimental The JavaScript API is experimental
  */
-export default async function sync({ logger, fs = fsMod, settings }: SyncOptions): Promise<void> {
+export default async function sync({
+	logger,
+	fs = fsMod,
+	settings,
+	skip,
+}: SyncOptions): Promise<void> {
 	ensureProcessNodeEnv('production');
 	const cwd = fileURLToPath(settings.config.root);
 
@@ -59,7 +68,9 @@ export default async function sync({ logger, fs = fsMod, settings }: SyncOptions
 
 	try {
 		await dbPackage?.typegen?.(settings.config);
-		await syncContentCollections(settings, { fs, logger });
+		if (!skip?.content) {
+			await syncContentCollections(settings, { fs, logger });
+		}
 		syncAstroEnv(settings, fs);
 
 		await setUpEnvTs({ settings, logger, fs });

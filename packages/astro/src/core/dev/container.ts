@@ -81,6 +81,9 @@ export async function createContainer({
 	await sync({
 		settings,
 		logger,
+		skip: {
+			content: true,
+		},
 	});
 
 	const viteServer = await vite.createServer(viteConfig);
