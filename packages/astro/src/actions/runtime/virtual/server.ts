@@ -10,21 +10,21 @@ export { z } from 'zod';
 /** @deprecated Access context from the second `handler()` parameter. */
 export const getApiContext = _getApiContext;
 
-export type Accept = 'form' | 'json';
-export type InputSchema<T extends Accept | undefined> = T extends 'form'
+export type ActionAccept = 'form' | 'json';
+export type ActionInputSchema<T extends ActionAccept | undefined> = T extends 'form'
 	? z.AnyZodObject | z.ZodType<FormData>
 	: z.ZodType;
 
-type Handler<TInputSchema, TOutput> = TInputSchema extends z.ZodType
+export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.ZodType
 	? (input: z.infer<TInputSchema>, context: ActionAPIContext) => MaybePromise<TOutput>
 	: (input: any, context: ActionAPIContext) => MaybePromise<TOutput>;
 
-export type ActionReturnType<T extends Handler<any, any>> = Awaited<ReturnType<T>>;
+export type ActionReturnType<T extends ActionHandler<any, any>> = Awaited<ReturnType<T>>;
 
 export type ActionClient<
 	TOutput,
-	TAccept extends Accept | undefined,
-	TInputSchema extends InputSchema<TAccept> | undefined,
+	TAccept extends ActionAccept | undefined,
+	TInputSchema extends ActionInputSchema<TAccept> | undefined,
 > = TInputSchema extends z.ZodType
 	? ((
 			input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
@@ -46,8 +46,8 @@ export type ActionClient<
 
 export function defineAction<
 	TOutput,
-	TAccept extends Accept | undefined = undefined,
-	TInputSchema extends InputSchema<Accept> | undefined = TAccept extends 'form'
+	TAccept extends ActionAccept | undefined = undefined,
+	TInputSchema extends ActionInputSchema<ActionAccept> | undefined = TAccept extends 'form'
 		? // If `input` is omitted, default to `FormData` for forms and `any` for JSON.
 			z.ZodType<FormData>
 		: undefined,
@@ -58,7 +58,7 @@ export function defineAction<
 }: {
 	input?: TInputSchema;
 	accept?: TAccept;
-	handler: Handler<TInputSchema, TOutput>;
+	handler: ActionHandler<TInputSchema, TOutput>;
 }): ActionClient<TOutput, TAccept, TInputSchema> {
 	const serverHandler =
 		accept === 'form'
@@ -73,8 +73,8 @@ export function defineAction<
 	return serverHandler as ActionClient<TOutput, TAccept, TInputSchema>;
 }
 
-function getFormServerHandler<TOutput, TInputSchema extends InputSchema<'form'>>(
-	handler: Handler<TInputSchema, TOutput>,
+function getFormServerHandler<TOutput, TInputSchema extends ActionInputSchema<'form'>>(
+	handler: ActionHandler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema
 ) {
 	return async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
@@ -95,8 +95,8 @@ function getFormServerHandler<TOutput, TInputSchema extends InputSchema<'form'>>
 	};
 }
 
-function getJsonServerHandler<TOutput, TInputSchema extends InputSchema<'json'>>(
-	handler: Handler<TInputSchema, TOutput>,
+function getJsonServerHandler<TOutput, TInputSchema extends ActionInputSchema<'json'>>(
+	handler: ActionHandler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema
 ) {
 	return async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
