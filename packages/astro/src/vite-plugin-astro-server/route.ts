@@ -13,10 +13,9 @@ import { type SSROptions, getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { default404Page } from '../core/routing/astro-designed-error-pages.js';
 import { matchAllRoutes } from '../core/routing/index.js';
-import { normalizeTheLocale } from '../i18n/index.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import type { DevPipeline } from './pipeline.js';
-import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
+import { writeSSRResult, writeWebResponse } from './response.js';
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any

@@ -76,7 +76,7 @@ const style = /* css */ `
   --astro-code-token-parameter: #aa0000;
   --astro-code-token-function: #4ca48f;
   --astro-code-token-string-expression: #9f722a;
-  --astro-code-token-punctuation: #ffffff;
+  --astro-code-token-punctuation: #000000;
   --astro-code-token-link: #9f722a;
 }
 
