@@ -59,7 +59,7 @@ export function defineAction<
 	input?: TInputSchema;
 	accept?: TAccept;
 	handler: ActionHandler<TInputSchema, TOutput>;
-}): ActionClient<TOutput, TAccept, TInputSchema> {
+}): ActionClient<TOutput, TAccept, TInputSchema> | string {
 	const serverHandler =
 		accept === 'form'
 			? getFormServerHandler(handler, inputSchema)
