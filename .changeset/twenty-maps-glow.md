@@ -2,4 +2,4 @@
 'astro': minor
 ---
 
-feat: Add urls to the first and the last page in the Page interface
+Adds two new values to the [pagination `page` prop](https://docs.astro.build/en/reference/api-reference/#the-pagination-page-prop): `page.first` and `page.last` for accessing the URLs of the first and last pages.
