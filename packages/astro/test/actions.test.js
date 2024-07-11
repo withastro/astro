@@ -176,7 +176,26 @@ describe('Astro Actions', () => {
 
 		it('Respects user middleware', async () => {
 			const formData = new FormData();
-			formData.append('_astroAction', '/_actions/getUser');
+			const url = new URL('http://example.com/user');
+			url.searchParams.set('__action', 'getUser');
+			const req = new Request(url, {
+				method: 'POST',
+				body: formData,
+			});
+			const expectedRedirect = await app.render(req);
+			assert.equal(expectedRedirect.status, 302);
+			const res = await app.render(new Request(expectedRedirect.headers.get('Location')));
+			assert.equal(res.ok, true);
+
+			const html = await res.text();
+			console.log('###html', html);
+			let $ = cheerio.load(html);
+			assert.equal($('#user').text(), 'Houston');
+		});
+
+		it('Respects user middleware - deprecated getActionProps', async () => {
+			const formData = new FormData();
+			formData.append('__action', 'getUser');
 			const req = new Request('http://example.com/user', {
 				method: 'POST',
 				body: formData,
@@ -190,8 +209,28 @@ describe('Astro Actions', () => {
 		});
 
 		it('Respects custom errors', async () => {
+			const url = new URL('http://example.com/user-or-throw');
+			url.searchParams.set('__action', 'getUserOrThrow');
+			const req = new Request(url, {
+				method: 'POST',
+				body: new FormData(),
+				redirect: 'follow',
+			});
+			const expectedRedirect = await app.render(req);
+			assert.equal(expectedRedirect.status, 302);
+			const res = await app.render(new Request(expectedRedirect.headers.get('Location')));
+			assert.equal(res.ok, false);
+			assert.equal(res.status, 401);
+
+			const html = await res.text();
+			let $ = cheerio.load(html);
+			assert.equal($('#error-message').text(), 'Not logged in');
+			assert.equal($('#error-code').text(), 'UNAUTHORIZED');
+		});
+
+		it('Respects custom errors - deprecated getActionProps', async () => {
 			const formData = new FormData();
-			formData.append('_astroAction', '/_actions/getUserOrThrow');
+			formData.append('__action', 'getUserOrThrow');
 			const req = new Request('http://example.com/user-or-throw', {
 				method: 'POST',
 				body: formData,
