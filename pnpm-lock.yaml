@@ -573,6 +573,9 @@ importers:
       axobject-query:
         specifier: ^4.0.0
         version: 4.0.0
+      base-64:
+        specifier: ^1.0.0
+        version: 1.0.0
       boxen:
         specifier: ^8.0.0
         version: 8.0.0
@@ -693,6 +696,9 @@ importers:
       unist-util-visit:
         specifier: ^5.0.0
         version: 5.0.0
+      utf8:
+        specifier: ^3.0.0
+        version: 3.0.0
       vfile:
         specifier: ^6.0.1
         version: 6.0.1
@@ -734,6 +740,9 @@ importers:
       '@types/babel__traverse':
         specifier: ^7.20.6
         version: 7.20.6
+      '@types/base-64':
+        specifier: ^1.0.2
+        version: 1.0.2
       '@types/common-ancestor-path':
         specifier: ^1.0.2
         version: 1.0.2
@@ -782,6 +791,9 @@ importers:
       '@types/unist':
         specifier: ^3.0.2
         version: 3.0.2
+      '@types/utf8':
+        specifier: ^3.0.3
+        version: 3.0.3
       '@types/yargs-parser':
         specifier: ^21.0.3
         version: 21.0.3
@@ -7252,6 +7264,9 @@ packages:
   '@types/babel__traverse@7.20.6':
     resolution: {integrity: sha512-r1bzfrm0tomOI8g1SzvCaQHo6Lcv6zu0EA+W2kHrt8dyrHQxGzBBL4kdkzIS+jBMV+EYcMAEAqXqYaLJq5rOZg==}
 
+  '@types/base-64@1.0.2':
+    resolution: {integrity: sha512-uPgKMmM9fmn7I+Zi6YBqctOye4SlJsHKcisjHIMWpb2YKZRc36GpKyNuQ03JcT+oNXg1m7Uv4wU94EVltn8/cw==}
+
   '@types/body-parser@1.19.5':
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
 
@@ -7443,6 +7458,9 @@ packages:
 
   '@types/unist@3.0.2':
     resolution: {integrity: sha512-dqId9J8K/vGi5Zr7oo212BGii5m3q5Hxlkwy3WpYuKPklmBEvsbMYYyLxAQpSffdLl/gdW0XUpKWFvYmyoWCoQ==}
+
+  '@types/utf8@3.0.3':
+    resolution: {integrity: sha512-+lqLGxWZsEe4Z6OrzBI7Ym4SMUTaMS5yOrHZ0/IL0bpIye1Qbs4PpobJL2mLDbftUXlPFZR7fu6d1yM+bHLX1w==}
 
   '@types/which-pm-runs@1.0.2':
     resolution: {integrity: sha512-M0ZefeDApctHbjqtATOiixiwafG7pXD3exxnjku4XmX9+2DmONGghv5Z8Pnm0lNLBZKvDQyuG+4pLkH2UkP5gg==}
@@ -9298,7 +9316,6 @@ packages:
 
   libsql@0.3.12:
     resolution: {integrity: sha512-to30hj8O3DjS97wpbKN6ERZ8k66MN1IaOfFLR6oHqd25GMiPJ/ZX0VaZ7w+TsPmxcFS3p71qArj/hiedCyvXCg==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lilconfig@2.1.0:
@@ -11259,6 +11276,9 @@ packages:
   url-parse@1.5.10:
     resolution: {integrity: sha512-WypcfiRhfeUP9vvF0j6rw0J3hrWrw6iZv3+22h6iRMJ/8z1Tj6XfLP4DsUix5MhMPnXpiHDoKyoZ/bdCkwBCiQ==}
 
+  utf8@3.0.0:
+    resolution: {integrity: sha512-E8VjFIQ/TyQgp+TZfS6l8yp/xWppSAHzidGiRrqe4bK4XP9pTRyKFgGJpO3SN7zdX4DeomTrwaseCHovfpFcqQ==}
+
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
@@ -13172,6 +13192,8 @@ snapshots:
     dependencies:
       '@babel/types': 7.24.7
 
+  '@types/base-64@1.0.2': {}
+
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
@@ -13370,6 +13392,8 @@ snapshots:
   '@types/unist@2.0.10': {}
 
   '@types/unist@3.0.2': {}
+
+  '@types/utf8@3.0.3': {}
 
   '@types/which-pm-runs@1.0.2': {}
 
@@ -17882,6 +17906,8 @@ snapshots:
     dependencies:
       querystringify: 2.2.0
       requires-port: 1.0.0
+
+  utf8@3.0.0: {}
 
   util-deprecate@1.0.2: {}
 
