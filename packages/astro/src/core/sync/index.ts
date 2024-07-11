@@ -99,7 +99,7 @@ export default async function sync({
 		syncAstroEnv(settings, fs);
 
 		await setUpEnvTs({ settings, logger, fs });
-		logger.info(null, `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
+		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 	} catch (err) {
 		const error = createSafeError(err);
 		logger.error(

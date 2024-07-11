@@ -56,7 +56,8 @@ export async function setUpEnvTs({
 	}
 
 	if (fs.existsSync(envTsPath)) {
-		let typesEnvContents = await fs.promises.readFile(envTsPath, 'utf-8');
+		const initialEnvContents = await fs.promises.readFile(envTsPath, 'utf-8');
+		let typesEnvContents = initialEnvContents
 
 		for (const injectedType of injectedTypes) {
 			if (!injectedType.meetsCondition || (await injectedType.meetsCondition?.())) {
@@ -71,8 +72,10 @@ export async function setUpEnvTs({
 			}
 		}
 
-		logger.info('types', `Added ${bold(envTsPathRelativetoRoot)} type declarations.`);
-		await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
+		if (initialEnvContents !== typesEnvContents) {
+			logger.info('types', `Updated ${bold(envTsPathRelativetoRoot)} type declarations.`);
+			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
+		}
 	} else {
 		// Otherwise, inject the `env.d.ts` file
 		let referenceDefs: string[] = [];
