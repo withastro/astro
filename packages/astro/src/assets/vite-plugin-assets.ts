@@ -1,4 +1,4 @@
-import { extname } from 'node:path';
+import { basename, extname } from 'node:path';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
@@ -99,6 +99,7 @@ export default function assets({
 
 	globalThis.astroAsset = {
 		referencedImages: new Set(),
+		originalAssets: {}
 	};
 
 	return [
@@ -173,6 +174,13 @@ export default function assets({
 					const [full, hash, postfix = ''] = match;
 
 					const file = this.getFileName(hash);
+					const fileBasename = basename(file);
+
+					if (globalThis.astroAsset.originalAssets) {
+						globalThis.astroAsset.originalAssets[fileBasename] ??= 0;
+						globalThis.astroAsset.originalAssets[fileBasename]++;
+					}
+
 					const fileExtension = extname(file);
 					const pf = getAssetsPrefix(fileExtension, settings.config.build.assetsPrefix);
 					const prefix = pf ? appendForwardSlash(pf) : resolvedConfig.base;

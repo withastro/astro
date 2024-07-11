@@ -25,6 +25,7 @@ declare global {
 			| undefined;
 		staticImages?: AssetsGlobalStaticImagesList;
 		referencedImages?: Set<string>;
+		originalAssets?: Record<string, number>
 	};
 }
 

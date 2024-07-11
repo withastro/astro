@@ -115,6 +115,13 @@ export async function generateImagesForPath(
 		transformsAndPath.originalSrcPath &&
 		!globalThis.astroAsset.referencedImages?.has(transformsAndPath.originalSrcPath)
 	) {
+		// If multiple images imports resulted in the same output file, don't delete the original file as
+		// we cannot know if the other references to it are used or not.
+		const creationCount = globalThis.astroAsset.originalAssets?.[basename(originalFilePath)];
+		if (creationCount && creationCount > 1) {
+			return;
+		}
+
 		try {
 			if (transformsAndPath.originalSrcPath) {
 				env.logger.debug(
