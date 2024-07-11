@@ -151,10 +151,27 @@ export async function callSafely<TOutput>(
 	}
 }
 
+export function getActionQueryString(name: string) {
+	const searchParams = new URLSearchParams({ __action: name });
+	return `?${searchParams.toString()}`;
+}
+
+/**
+ * @deprecated You can now pass action functions
+ * directly to the `action` attribute on a form.
+ *
+ * Example: `<form action={actions.like} />`
+ */
 export function getActionProps<T extends (args: FormData) => MaybePromise<unknown>>(action: T) {
+	const params = new URLSearchParams(action.toString());
+	const actionName = params.get('__action');
+	if (!actionName) {
+		// TODO: AstroError
+		throw new Error('Invalid function was passed to getActionProps()');
+	}
 	return {
 		type: 'hidden',
-		name: '_astroAction',
-		value: action.toString(),
+		name: '__action',
+		value: actionName,
 	} as const;
 }

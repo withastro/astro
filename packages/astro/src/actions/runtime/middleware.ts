@@ -1,9 +1,11 @@
 import { yellow } from 'kleur/colors';
+import utf8 from 'utf8';
+import base64 from 'base-64';
 import type { APIContext, MiddlewareNext } from '../../@types/astro.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
 import { ApiContextStorage } from './store.js';
 import { formContentTypes, getAction, hasContentType } from './utils.js';
-import { callSafely } from './virtual/shared.js';
+import { callSafely, getActionQueryString } from './virtual/shared.js';
 
 export type Locals = {
 	_actionsInternal: {
@@ -19,57 +21,127 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	// `_actionsInternal` is the same for every page,
 	// so short circuit if already defined.
 	if (locals._actionsInternal) return ApiContextStorage.run(context, () => next());
-	if (context.request.method === 'GET') {
-		return nextWithLocalsStub(next, context);
+
+	const actionName = context.url.searchParams.get('__action');
+	const encodedActionResult = context.url.searchParams.get('__result');
+
+	if (context.request.method === 'GET' && actionName && encodedActionResult) {
+		const actionResult = encodedActionResult ? decodeResult(encodedActionResult) : undefined;
+		return handleResult({ context, next, actionName, actionResult });
 	}
+
+	if (context.request.method === 'POST' && actionName) {
+		return handlePost({ context, next, actionName });
+	}
+
+	// TODO: handle GET form requests with actions
+	if (context.request.method === 'GET' && actionName) {
+		throw new Error(
+			'Actions cannot be invoked with GET requests. Did you forget to set method="post" on your form?'
+		);
+	}
+
+	if (context.request.method === 'POST') {
+		return handlePostLegacy({ context, next });
+	}
+
+	return nextWithLocalsStub(next, context);
+});
+
+async function handlePost({
+	context,
+	next,
+	actionName,
+}: { context: APIContext; next: MiddlewareNext; actionName: string }) {
+	const { request } = context;
 
 	// Heuristic: If body is null, Astro might've reset this for prerendering.
 	// Stub with warning when `getActionResult()` is used.
-	if (context.request.method === 'POST' && context.request.body === null) {
+	if (request.body === null) {
 		return nextWithStaticStub(next, context);
 	}
 
-	const { request, url } = context;
-	const contentType = request.headers.get('Content-Type');
-
-	// Avoid double-handling with middleware when calling actions directly.
-	if (url.pathname.startsWith('/_actions')) return nextWithLocalsStub(next, context);
-
-	if (!contentType || !hasContentType(contentType, formContentTypes)) {
-		return nextWithLocalsStub(next, context);
+	const action = await getAction(actionName);
+	// TODO: AstroError
+	if (!action) {
+		throw new Error(`Action "${actionName}" not found.`);
 	}
 
-	const formData = await request.clone().formData();
-	const actionPath = formData.get('_astroAction');
-	if (typeof actionPath !== 'string') return nextWithLocalsStub(next, context);
-
-	const action = await getAction(actionPath);
-	if (!action) return nextWithLocalsStub(next, context);
-
+	const contentType = request.headers.get('content-type');
+	let formData: FormData | undefined;
+	if (contentType && hasContentType(contentType, formContentTypes)) {
+		formData = await request.clone().formData();
+	}
 	const result = await ApiContextStorage.run(context, () => callSafely(() => action(formData)));
 
+	const redirectUrl = new URL(context.url);
+	redirectUrl.searchParams.set('__result', encodeResult(result));
+	return context.redirect(redirectUrl.href);
+}
+
+function handleResult({
+	context,
+	next,
+	actionName,
+	actionResult,
+}: { context: APIContext; next: MiddlewareNext; actionName: string; actionResult: any }) {
 	const actionsInternal: Locals['_actionsInternal'] = {
 		getActionResult: (actionFn) => {
-			if (actionFn.toString() !== actionPath) return Promise.resolve(undefined);
-			// The `action` uses type `unknown` since we can't infer the user's action type.
-			// Cast to `any` to satisfy `getActionResult()` type.
-			return result as any;
+			if (actionFn.toString() !== getActionQueryString(actionName)) {
+				return Promise.resolve(undefined);
+			}
+			return actionResult;
 		},
-		actionResult: result,
+		actionResult,
 	};
+	const locals = context.locals as Locals;
 	Object.defineProperty(locals, '_actionsInternal', { writable: false, value: actionsInternal });
+
 	return ApiContextStorage.run(context, async () => {
 		const response = await next();
-		if (result.error) {
+		if (actionResult.error) {
+			console.log('$$$error', actionResult.error.status);
 			return new Response(response.body, {
-				status: result.error.status,
-				statusText: result.error.name,
+				status: actionResult.error.status,
+				statusText: actionResult.error.type,
 				headers: response.headers,
 			});
 		}
 		return response;
 	});
-});
+}
+
+async function handlePostLegacy({ context, next }: { context: APIContext; next: MiddlewareNext }) {
+	const { request } = context;
+
+	// Heuristic: If body is null, Astro might've reset this for prerendering.
+	// Stub with warning when `getActionResult()` is used.
+	if (request.body === null) {
+		return nextWithStaticStub(next, context);
+	}
+
+	const contentType = request.headers.get('content-type');
+	let formData: FormData | undefined;
+	if (contentType && hasContentType(contentType, formContentTypes)) {
+		formData = await request.clone().formData();
+	}
+
+	if (!formData) return nextWithLocalsStub(next, context);
+
+	const actionName = formData.get('__action') as string;
+	if (!actionName) return nextWithLocalsStub(next, context);
+
+	const action = await getAction(actionName);
+	// TODO: AstroError
+	if (!action) {
+		throw new Error(`Action "${actionName}" not found.`);
+	}
+
+	const actionResult = await ApiContextStorage.run(context, () =>
+		callSafely(() => action(formData))
+	);
+	return handleResult({ context, next, actionName, actionResult });
+}
 
 function nextWithStaticStub(next: MiddlewareNext, context: APIContext) {
 	Object.defineProperty(context.locals, '_actionsInternal', {
@@ -95,4 +167,16 @@ function nextWithLocalsStub(next: MiddlewareNext, context: APIContext) {
 		},
 	});
 	return ApiContextStorage.run(context, () => next());
+}
+
+function encodeResult(result: any) {
+	const str = JSON.stringify(result);
+	const bytes = utf8.encode(str);
+	return base64.encode(bytes);
+}
+
+function decodeResult(encodedResult: string) {
+	const bytes = base64.decode(encodedResult);
+	const str = utf8.decode(bytes);
+	return JSON.parse(str);
 }

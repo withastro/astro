@@ -1,7 +1,18 @@
 ---
-import { actions } from 'astro:actions';
+import { actions, getActionProps } from 'astro:actions';
 
 const res = Astro.getActionResult(actions.getUser);
 ---
 
 <h1 id="user">{res?.data?.name}</h1>
+
+<h2>Action param</h2>
+<form method="POST" action={actions.getUser}>
+	<button>Get user</button>
+</form>
+
+<h2>Legacy getActionProps</h2>
+<form method="POST">
+	<input {...getActionProps(actions.getUser)} />
+	<button>Get user</button>
+</form>

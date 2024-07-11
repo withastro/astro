@@ -142,7 +142,7 @@ async function getFormState({ result }) {
 	 * This matches the endpoint path.
 	 * @example "/_actions/blog.like"
 	 */
-	const actionName = formData.get('_astroAction')?.toString();
+	const actionName = formData.get('__action')?.toString();
 
 	if (!actionKey || !actionName) return undefined;
 
