@@ -9,7 +9,7 @@ import {
 	VIRTUAL_MODULES_IDS_VALUES,
 } from './constants.js';
 import type { EnvSchema } from './schema.js';
-import { validateEnvVariable } from './validators.js';
+import { getEnvFieldType, validateEnvVariable } from './validators.js';
 
 // TODO: reminders for when astro:env comes out of experimental
 // Types should always be generated (like in types/content.d.ts). That means the client module will be empty
@@ -105,7 +105,7 @@ function validatePublicVariables({
 	validateSecrets: boolean;
 }) {
 	const valid: Array<{ key: string; value: any; type: string; context: 'server' | 'client' }> = [];
-	const invalid: Array<{ key: string; type: string }> = [];
+	const invalid: Array<{ key: string; type: string; errors: Array<'type' | string> }> = [];
 
 	for (const [key, options] of Object.entries(schema)) {
 		const variable = loadedEnv[key] === '' ? undefined : loadedEnv[key];
@@ -115,15 +115,17 @@ function validatePublicVariables({
 		}
 
 		const result = validateEnvVariable(variable, options);
+		const type = getEnvFieldType(options);
 		if (!result.ok) {
-			invalid.push({ key, type: result.type });
+			invalid.push({ key, type, errors: result.errors });
 			// We don't do anything with validated secrets so we don't store them
 		} else if (options.access === 'public') {
-			valid.push({ key, value: result.value, type: result.type, context: options.context });
+			valid.push({ key, value: result.value, type, context: options.context });
 		}
 	}
 
 	if (invalid.length > 0) {
+		// TODO: improve
 		throw new AstroError({
 			...AstroErrorData.EnvInvalidVariables,
 			message: AstroErrorData.EnvInvalidVariables.message(

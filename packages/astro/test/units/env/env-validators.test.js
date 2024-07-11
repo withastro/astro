@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { getEnvFieldType, validateEnvVariable } from '../../../dist/env/validators.js';
 
+// TODO: add cases for several failing conditions
+
 /**
  * @typedef {Parameters<typeof validateEnvVariable>} Params
  */
@@ -29,9 +31,17 @@ const createFixture = () => {
 			assert.equal(result.value, value);
 			input = undefined;
 		},
-		thenResultShouldBeInvalid() {
+		/**
+		 * @param {string | Array<string>} providedErrors
+		 */
+		thenResultShouldBeInvalid(providedErrors) {
 			const result = validateEnvVariable(input.value, input.options);
 			assert.equal(result.ok, false);
+			const errors = typeof providedErrors === 'string' ? [] : providedErrors;
+			assert.equal(
+				result.errors.every((element) => errors.includes(element)),
+				true
+			);
 			input = undefined;
 		},
 	};
@@ -158,7 +168,7 @@ describe('astro:env validators', () => {
 			fixture.givenInput(undefined, {
 				type: 'string',
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('type');
 		});
 
 		it('Should not fail is the variable type is incorrect', () => {
@@ -179,7 +189,7 @@ describe('astro:env validators', () => {
 				type: 'string',
 				max: 3,
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('max');
 
 			fixture.givenInput('abc', {
 				type: 'string',
@@ -191,7 +201,7 @@ describe('astro:env validators', () => {
 				type: 'string',
 				min: 5,
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('min');
 
 			fixture.givenInput('abc', {
 				type: 'string',
@@ -203,13 +213,13 @@ describe('astro:env validators', () => {
 				type: 'string',
 				length: 10,
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('length');
 
 			fixture.givenInput('abc', {
 				type: 'string',
 				url: true,
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('url');
 
 			fixture.givenInput('https://example.com', {
 				type: 'string',
@@ -221,7 +231,7 @@ describe('astro:env validators', () => {
 				type: 'string',
 				includes: 'cd',
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('includes');
 
 			fixture.givenInput('abc', {
 				type: 'string',
@@ -233,7 +243,7 @@ describe('astro:env validators', () => {
 				type: 'string',
 				startsWith: 'za',
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('startsWith');
 
 			fixture.givenInput('abc', {
 				type: 'string',
@@ -245,7 +255,7 @@ describe('astro:env validators', () => {
 				type: 'string',
 				endsWith: 'za',
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('endsWith');
 
 			fixture.givenInput('abc', {
 				type: 'string',
@@ -264,7 +274,7 @@ describe('astro:env validators', () => {
 				type: 'string',
 				min: 5,
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('min');
 		});
 
 		it('Should not fail if the optional variable is missing', () => {
@@ -297,14 +307,14 @@ describe('astro:env validators', () => {
 			fixture.givenInput(undefined, {
 				type: 'number',
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('type');
 		});
 
 		it('Should fail is the variable type is incorrect', () => {
 			fixture.givenInput('abc', {
 				type: 'number',
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('type');
 		});
 
 		it('Should fail if conditions are not met', () => {
@@ -312,13 +322,13 @@ describe('astro:env validators', () => {
 				type: 'number',
 				gt: 15,
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('gt');
 
 			fixture.givenInput('10', {
 				type: 'number',
 				gt: 10,
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('gt');
 
 			fixture.givenInput('10', {
 				type: 'number',
@@ -330,7 +340,7 @@ describe('astro:env validators', () => {
 				type: 'number',
 				min: 25,
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('min');
 
 			fixture.givenInput('20', {
 				type: 'number',
@@ -348,13 +358,13 @@ describe('astro:env validators', () => {
 				type: 'number',
 				lt: 10,
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('lt');
 
 			fixture.givenInput('10', {
 				type: 'number',
 				lt: 10,
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('lt');
 
 			fixture.givenInput('5', {
 				type: 'number',
@@ -366,7 +376,7 @@ describe('astro:env validators', () => {
 				type: 'number',
 				max: 20,
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('max');
 
 			fixture.givenInput('25', {
 				type: 'number',
@@ -384,7 +394,7 @@ describe('astro:env validators', () => {
 				type: 'number',
 				int: true,
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('int');
 
 			fixture.givenInput('25', {
 				type: 'number',
@@ -396,7 +406,7 @@ describe('astro:env validators', () => {
 				type: 'number',
 				int: false,
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('int');
 
 			fixture.givenInput('4.5', {
 				type: 'number',
@@ -408,7 +418,7 @@ describe('astro:env validators', () => {
 				type: 'number',
 				gt: 10,
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('gt');
 		});
 
 		it('Should accept integers', () => {
@@ -455,14 +465,14 @@ describe('astro:env validators', () => {
 			fixture.givenInput(undefined, {
 				type: 'boolean',
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('type');
 		});
 
 		it('Should fail is the variable type is incorrect', () => {
 			fixture.givenInput('abc', {
 				type: 'boolean',
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('type');
 		});
 
 		it('Should not fail if the optional variable is missing', () => {
@@ -496,7 +506,7 @@ describe('astro:env validators', () => {
 				type: 'enum',
 				values: ['a', 'b'],
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('type');
 		});
 
 		it('Should fail is the variable type is incorrect', () => {
@@ -504,7 +514,7 @@ describe('astro:env validators', () => {
 				type: 'enum',
 				values: ['a', 'b'],
 			});
-			fixture.thenResultShouldBeInvalid();
+			fixture.thenResultShouldBeInvalid('type');
 		});
 
 		it('Should not fail if the optional variable is missing', () => {
