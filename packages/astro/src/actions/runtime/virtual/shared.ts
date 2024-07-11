@@ -47,9 +47,11 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 	type = 'AstroActionError';
 	code: ActionErrorCode = 'INTERNAL_SERVER_ERROR';
 	status = 500;
+	message: string;
 
 	constructor(params: { message?: string; code: ActionErrorCode; stack?: string }) {
 		super(params.message);
+		this.message = params.message ?? this.type;
 		this.code = params.code;
 		this.status = ActionError.codeToStatus(params.code);
 		if (params.stack) {
