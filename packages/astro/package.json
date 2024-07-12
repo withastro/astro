@@ -114,12 +114,13 @@
     "build:ci": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" && pnpm run postbuild",
     "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\" && astro-scripts copy \"src/**/*.wasm\"",
-    "test": "pnpm run test:node",
+    "test": "pnpm run test:node && pnpm run test:types",
     "test:match": "pnpm run test:node --match",
     "test:e2e": "pnpm test:e2e:chrome && pnpm test:e2e:firefox",
     "test:e2e:match": "playwright test -g",
     "test:e2e:chrome": "playwright test",
     "test:e2e:firefox": "playwright test --config playwright.firefox.config.js",
+    "test:types": "tsc --project tsconfig.tests.json",
     "test:node": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
@@ -215,6 +216,7 @@
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0-rc.12",
     "eol": "^0.9.1",
+    "expect-type": "^0.19.0",
     "mdast-util-mdx": "^3.0.0",
     "mdast-util-mdx-jsx": "^3.1.2",
     "memfs": "^4.9.3",
