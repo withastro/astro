@@ -2,8 +2,6 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { getEnvFieldType, validateEnvVariable } from '../../../dist/env/validators.js';
 
-// TODO: add cases for several failing conditions
-
 /**
  * @typedef {Parameters<typeof validateEnvVariable>} Params
  */
@@ -37,7 +35,7 @@ const createFixture = () => {
 		thenResultShouldBeInvalid(providedErrors) {
 			const result = validateEnvVariable(input.value, input.options);
 			assert.equal(result.ok, false);
-			const errors = typeof providedErrors === 'string' ? [] : providedErrors;
+			const errors = typeof providedErrors === 'string' ? [providedErrors] : providedErrors;
 			assert.equal(
 				result.errors.every((element) => errors.includes(element)),
 				true
@@ -274,7 +272,14 @@ describe('astro:env validators', () => {
 				type: 'string',
 				min: 5,
 			});
-			fixture.thenResultShouldBeInvalid('min');
+			fixture.thenResultShouldBeInvalid('type');
+
+			fixture.givenInput('ab', {
+				type: 'string',
+				startsWith: 'x',
+				min: 5
+			})
+			fixture.thenResultShouldBeInvalid(['startsWith', 'min']);
 		});
 
 		it('Should not fail if the optional variable is missing', () => {
@@ -418,7 +423,7 @@ describe('astro:env validators', () => {
 				type: 'number',
 				gt: 10,
 			});
-			fixture.thenResultShouldBeInvalid('gt');
+			fixture.thenResultShouldBeInvalid('type');
 		});
 
 		it('Should accept integers', () => {
