@@ -12,6 +12,7 @@ import {
 	renderTemplate,
 	renderUniqueStylesheet,
 	unescapeHTML,
+	render as serverRender,
 } from '../runtime/server/index.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
@@ -319,11 +320,8 @@ type RenderResult = {
 };
 
 async function renderEntry(entry?: DataEntry) {
-	const Content = createComponent({
-		factory() {
-			return createHeadAndContent('', renderTemplate`${entry?.rendered?.html ?? ''}`);
-		},
-	});
+	console.log('entry:', entry?.rendered?.metadata);
+	const Content = createComponent(() => serverRender`${unescapeHTML(entry?.rendered?.html)}`);
 	return { Content };
 }
 

@@ -75,7 +75,7 @@ const absoluteRoot = new URL('../../content-outside-src', import.meta.url);
 
 const spacecraft = defineCollection({
 	type: 'experimental_data',
-	loader: glob({ pattern: '*', base: absoluteRoot }),
+	loader: glob({ pattern: '*.md', base: absoluteRoot }),
 });
 
 const numbers = defineCollection({

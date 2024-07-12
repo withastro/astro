@@ -1,4 +1,4 @@
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createMarkdownProcessor } from '@astrojs/markdown-remark';
 import type { ContentEntryType } from '../@types/astro.js';
 import { safeParseFrontmatter } from '../content/utils.js';
@@ -27,10 +27,15 @@ export const markdownContentEntryType: ContentEntryType = {
 			}
 			const result = await processor.render(entry.body, {
 				frontmatter: entry.data,
+				// @ts-expect-error Internal API
+				fileURL: entry.filePath ? pathToFileURL(entry.filePath) : undefined,
 			});
 			return {
 				html: result.code,
-				metadata: result.metadata,
+				metadata: {
+					...result.metadata,
+					imagePaths: Array.from(result.metadata.imagePaths),
+				},
 			};
 		};
 	},
