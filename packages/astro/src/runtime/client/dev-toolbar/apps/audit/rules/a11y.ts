@@ -101,6 +101,7 @@ const aria_non_interactive_roles = [
 	'rowheader',
 	'search',
 	'status',
+	'tabpanel',
 	'term',
 	'timer',
 	'toolbar',
