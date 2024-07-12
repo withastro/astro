@@ -125,26 +125,20 @@ function validatePublicVariables({
 	}
 
 	if (invalid.length > 0) {
-		const data: Array<{
-			key: string;
-			error: string;
-		}> = [];
+		const _errors: Array<string> = [];
 		for (const { key, type, errors } of invalid) {
 			if (errors[0] === 'missing') {
-				// TODO:
-				data.push({ key, error: '' });
+				_errors.push(`${key} is missing`);
 			} else if (errors[0] === 'type') {
-				// TODO:
-				data.push({ key, error: '' });
+				_errors.push(`${key}'s type (${type}) is invalid`);
 			} else {
 				// constraints
-				// TODO:
-				data.push({ key, error: '' });
+				_errors.push(`The following constraints for ${key} are not met: ${errors.join(', ')}`);
 			}
 		}
 		throw new AstroError({
 			...AstroErrorData.EnvInvalidVariables,
-			message: AstroErrorData.EnvInvalidVariables.message(data),
+			message: AstroErrorData.EnvInvalidVariables.message(_errors),
 		});
 	}
 
