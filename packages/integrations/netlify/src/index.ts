@@ -112,6 +112,17 @@ async function writeNetlifyFrameworkConfig(config: AstroConfig, logger: AstroInt
 			.filter(Boolean as unknown as (pattern?: string) => pattern is string)
 	);
 
+	const headers = config.build.assetsPrefix
+		? undefined
+		: [
+				{
+					for: `${config.base}${config.base.endsWith('/') ? '' : '/'}${config.build.assets}/*`,
+					values: {
+						'Cache-Control': 'public, max-age=31536000, immutable',
+					},
+				},
+			];
+
 	// See https://docs.netlify.com/image-cdn/create-integration/
 	const deployConfigDir = new URL('.netlify/v1/', config.root);
 	await mkdir(deployConfigDir, { recursive: true });
@@ -119,6 +130,7 @@ async function writeNetlifyFrameworkConfig(config: AstroConfig, logger: AstroInt
 		new URL('./config.json', deployConfigDir),
 		JSON.stringify({
 			images: { remote_images: remoteImages },
+			headers,
 		})
 	);
 }
@@ -432,9 +444,7 @@ export default function netlifyIntegration(
 				rootDir = config.root;
 				_config = config;
 
-				if (config.image?.domains?.length || config.image?.remotePatterns?.length) {
-					await writeNetlifyFrameworkConfig(config, logger);
-				}
+				await writeNetlifyFrameworkConfig(config, logger);
 
 				const edgeMiddleware = integrationConfig?.edgeMiddleware ?? false;
 
