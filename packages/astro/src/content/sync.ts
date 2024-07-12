@@ -40,7 +40,8 @@ export async function syncContentLayer({
 		logger.debug('Content config not loaded, skipping sync');
 		return;
 	}
-
+	// xxhash is a very fast non-cryptographic hash function that is used to generate a content digest
+	// It uses wasm, so we need to load it asynchronously.
 	const { h64ToString } = await xxhash();
 
 	const generateDigest = (data: Record<string, unknown> | string) => {

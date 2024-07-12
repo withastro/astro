@@ -106,6 +106,7 @@ export function glob(globOptions: GlobOptions): Loader {
 					let render = renderFunctionByContentType.get(entryType);
 					if (!render) {
 						render = await entryType.getRenderFunction(settings);
+						// Cache the render function for this content type, so it can re-use parsers and other expensive setup
 						renderFunctionByContentType.set(entryType, render);
 					}
 					const rendered = await render({
