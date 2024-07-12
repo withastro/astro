@@ -89,6 +89,9 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		globalRoutePriority: false,
 		rewriting: false,
+		env: {
+			validateSecrets: false,
+		},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -526,6 +529,10 @@ export const AstroConfigSchema = z.object({
 			env: z
 				.object({
 					schema: EnvSchema.optional(),
+					validateSecrets: z
+						.boolean()
+						.optional()
+						.default(ASTRO_CONFIG_DEFAULTS.experimental.env.validateSecrets),
 				})
 				.strict()
 				.optional(),

@@ -52,7 +52,11 @@ export function astroEnv({
 				}
 			}
 
-			const validatedVariables = validatePublicVariables({ schema, loadedEnv });
+			const validatedVariables = validatePublicVariables({
+				schema,
+				loadedEnv,
+				validateSecrets: settings.config.experimental.env?.validateSecrets ?? false,
+			});
 
 			templates = {
 				...getTemplates(schema, fs, validatedVariables),
@@ -94,23 +98,28 @@ function resolveVirtualModuleId<T extends string>(id: T): `\0${T}` {
 function validatePublicVariables({
 	schema,
 	loadedEnv,
+	validateSecrets,
 }: {
 	schema: EnvSchema;
 	loadedEnv: Record<string, string>;
+	validateSecrets: boolean;
 }) {
 	const valid: Array<{ key: string; value: any; type: string; context: 'server' | 'client' }> = [];
 	const invalid: Array<{ key: string; type: string }> = [];
 
 	for (const [key, options] of Object.entries(schema)) {
-		if (options.access !== 'public') {
+		const variable = loadedEnv[key] === '' ? undefined : loadedEnv[key];
+
+		if (options.access === 'secret' && !validateSecrets) {
 			continue;
 		}
-		const variable = loadedEnv[key];
-		const result = validateEnvVariable(variable === '' ? undefined : variable, options);
-		if (result.ok) {
-			valid.push({ key, value: result.value, type: result.type, context: options.context });
-		} else {
+
+		const result = validateEnvVariable(variable, options);
+		if (!result.ok) {
 			invalid.push({ key, type: result.type });
+			// We don't do anything with validated secrets so we don't store them
+		} else if (options.access === 'public') {
+			valid.push({ key, value: result.value, type: result.type, context: options.context });
 		}
 	}
 
