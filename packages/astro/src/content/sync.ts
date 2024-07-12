@@ -1,5 +1,6 @@
 import { promises as fs, existsSync } from 'fs';
 import type { FSWatcher } from 'vite';
+import xxhash from 'xxhash-wasm';
 import type { AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
 import { DATA_STORE_FILE } from './consts.js';
@@ -39,6 +40,13 @@ export async function syncContentLayer({
 		logger.debug('Content config not loaded, skipping sync');
 		return;
 	}
+
+	const { h64ToString } = await xxhash();
+
+	const generateDigest = (data: Record<string, unknown> | string) => {
+		const dataString = typeof data === 'string' ? data : JSON.stringify(data);
+		return h64ToString(dataString);
+	};
 
 	await Promise.all(
 		Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
@@ -84,6 +92,7 @@ export async function syncContentLayer({
 				logger: globalLogger.forkIntegrationLogger(collection.loader.name ?? 'content'),
 				settings,
 				parseData,
+				generateDigest,
 				watcher,
 			};
 

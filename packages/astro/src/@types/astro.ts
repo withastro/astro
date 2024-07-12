@@ -17,6 +17,7 @@ import type {
 	ActionInputSchema,
 } from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
+import type { DataEntry, RenderedContent } from '../content/data-store.js';
 import type { AssetsPrefix, SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import type { AstroConfigType } from '../core/config/index.js';
@@ -52,7 +53,6 @@ import type {
 } from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
-import type { DataEntry, RenderedContent } from '../content/data-store.js';
 
 export type { AstroIntegrationLogger, ToolbarServerHelpers };
 

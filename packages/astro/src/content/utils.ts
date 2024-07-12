@@ -71,6 +71,7 @@ export const collectionConfigParser = z.union([
 								logger: z.any(),
 								settings: z.any(),
 								parseData: z.any(),
+								generateDigest: z.function(z.tuple([z.any()], z.string())),
 								watcher: z.any().optional(),
 							}),
 						],

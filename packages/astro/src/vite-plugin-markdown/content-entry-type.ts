@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
+import { createMarkdownProcessor } from '@astrojs/markdown-remark';
 import type { ContentEntryType } from '../@types/astro.js';
 import { safeParseFrontmatter } from '../content/utils.js';
-import { createMarkdownProcessor } from '@astrojs/markdown-remark';
 
 export const markdownContentEntryType: ContentEntryType = {
 	extensions: ['.md'],

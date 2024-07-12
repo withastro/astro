@@ -7,8 +7,7 @@ import pLimit from 'p-limit';
 import { relative } from 'path/posix';
 import type { ContentEntryType, RenderFunction } from '../../@types/astro.js';
 import { getContentEntryIdAndSlug, getEntryConfigByExtMap } from '../utils.js';
-import type { Loader, LoaderContext } from './types.js';
-import xxhash from 'xxhash-wasm';
+import type { Loader } from './types.js';
 
 export interface GenerateIdOptions {
 	/** The path to the entry file, relative to the base directory. */
@@ -66,13 +65,10 @@ export function glob(globOptions: GlobOptions): Loader {
 
 	return {
 		name: 'glob-loader',
-		load: async (options) => {
-			const { settings, logger, watcher, parseData, store } = options;
-			const { h64ToString } = await xxhash();
-
+		load: async ({ settings, logger, watcher, parseData, store, generateDigest }) => {
 			const renderFunctionByContentType = new WeakMap<ContentEntryType, RenderFunction>();
 
-			const untouchedEntries = new Set(options.store.keys());
+			const untouchedEntries = new Set(store.keys());
 
 			async function syncData(entry: string, base: URL, entryType?: ContentEntryType) {
 				if (!entryType) {
@@ -87,12 +83,12 @@ export function glob(globOptions: GlobOptions): Loader {
 					fileUrl,
 				});
 
-				const digest = h64ToString(contents);
-
 				const id = generateId({ entry, base, data });
 				untouchedEntries.delete(id);
 
 				const existingEntry = store.get(id);
+
+				const digest = generateDigest(contents);
 
 				if (existingEntry && existingEntry.digest === digest) {
 					return;
@@ -170,9 +166,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				)
 			);
 			// Remove entries that were not found this time
-			untouchedEntries.forEach((id) => {
-				options.store.delete(id);
-			});
+			untouchedEntries.forEach((id) => store.delete(id));
 
 			if (!watcher) {
 				return;
@@ -205,7 +199,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				}
 				const id = fileToIdMap.get(deletedPath);
 				if (id) {
-					options.store.delete(id);
+					store.delete(id);
 					fileToIdMap.delete(deletedPath);
 				}
 			});

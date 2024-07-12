@@ -31,6 +31,9 @@ export interface LoaderContext {
 	/** Validates and parses the data according to the collection schema */
 	parseData(props: ParseDataOptions): Promise<DataWithId>;
 
+	/** Generates a non-cryptographic content digest. This can be used to check if the data has changed */
+	generateDigest(data: Record<string, unknown> | string): string;
+
 	/** When running in dev, this is a filesystem watcher that can be used to trigger updates */
 	watcher?: FSWatcher;
 }
