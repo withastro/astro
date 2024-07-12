@@ -2172,20 +2172,42 @@ export interface AstroUserConfig {
 		 * @version 4.12.0
 		 * @description
 		 *
-		 * Enables Server Islands, the ability to defer a component to render asynchronously after the page has already rendered.
+		 * Enables experimental Server Island features.
+		 * Server Islands offer the ability to defer a component to render asynchronously after the page has already rendered.
 		 *
-		 * ```js
-		 * {
-		 *   experimental: {
-		 *     serverIslands: true,
-		 *   },
-		 * }
-		 * ```
+		 * Server Islands must be used with either `hybrid` or `server` output.
 		 * 
-		 * Use the `server:defer` directive on any component, Astro or framework, and the component will not render initially.
+		 * Use the `server:defer` directive on any Astro component and the component will not render initially.
 		 *
 		 * ```astro "server:defer"
 		 * <Avatar server:defer />
+		 * ```
+		 *
+		 * The outer page will be rendered, either at build-time (`hybrid`) or at runtime (`server`) with the island content omitted and a `<script>` tag included in its place.
+		 *
+		 * When the page loads in the browser the script tag will replace itself with the the contents of the island by making a request.
+		 *
+		 * Your island code can look like any normal Astro component; there is no special API for it:
+		 *
+		 * ```astro
+		 * ---
+		 * import { getUser } from '../api';
+		 *
+		 * const user = await getUser(Astro.locals.userId);
+		 * ---
+		 * <img class="avatar" src={user.imageUrl}>
+		 * ```
+		 *
+		 * #### Fallback
+		 *
+		 * Since your component doesn't render with the rest of the page you'll likely want to add fallback content. This content will be displayed when the page first renders but before the island has loaded.
+		 * 
+		 * Fallback is used to show generic content in the place of the islands. This could be loading messages or placeholder content. It could be a generic avatar that you animate towards the user avatar when it loads.
+		 *
+		 * ```astro
+		 * <Avatar server:defer>
+		 *   <svg slot="fallback" class="generic-avatar">...</svg>
+		 * </Avatar>
 		 * ```
 		 *
 		 * For a complete overview, and to give feedback on this experimental API, see the [Server Islands RFC](https://github.com/withastro/roadmap/pull/963).
