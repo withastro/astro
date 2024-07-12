@@ -130,7 +130,7 @@ function validatePublicVariables({
 			if (errors[0] === 'missing') {
 				_errors.push(`${key} is missing`);
 			} else if (errors[0] === 'type') {
-				_errors.push(`${key}'s type (${type}) is invalid`);
+				_errors.push(`${key}'s type is invalid, expected: ${type}`);
 			} else {
 				// constraints
 				_errors.push(`The following constraints for ${key} are not met: ${errors.join(', ')}`);
