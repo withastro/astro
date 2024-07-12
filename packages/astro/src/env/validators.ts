@@ -1,6 +1,7 @@
 import type { EnumSchema, EnvFieldType, NumberSchema, StringSchema } from './schema.js';
 
 export type ValidationResultValue = EnvFieldType['default'];
+export type ValidationResultErrors = ['missing'] | ['type'] | Array<string>;
 
 type ValidationResult =
 	| {
@@ -9,7 +10,7 @@ type ValidationResult =
 	  }
 	| {
 			ok: false;
-			errors: Array<'type' | string>;
+			errors: ValidationResultErrors;
 	  };
 
 export function getEnvFieldType(options: EnvFieldType) {
@@ -161,14 +162,19 @@ export function validateEnvVariable(
 	value: string | undefined,
 	options: EnvFieldType
 ): ValidationResult {
-	// TODO: error for missing secrets
-	if (options.optional || options.default !== undefined) {
-		if (value === undefined) {
-			return {
-				ok: true,
-				value: options.default,
-			};
-		}
+	const isOptional = options.optional || options.default !== undefined;
+	if (isOptional && value === undefined) {
+		return {
+			ok: true,
+			value: options.default,
+		};
 	}
+	if (!isOptional && value === undefined) {
+		return {
+			ok: false,
+			errors: ['missing'],
+		};
+	}
+
 	return selectValidator(options)(value);
 }
