@@ -2,9 +2,11 @@
 'astro': minor
 ---
 
-Refactor type for integration hooks to be extensible from an interface on the global `Astro` namespace.
+Refactors the type for integration hooks so that integration authors writing custom integration hooks can now allow runtime interactions between their integration and other integrations. 
 
-To declare your own hooks for integrations extend the interface by adding the following code in your integration:
+This internal change should not break existing code for integration authors.
+
+To declare your own hooks for your integration, extend the `Astro.IntegrationHooks` interface:
 
 ```ts
 // your-integration/types.ts
@@ -17,7 +19,7 @@ declare global {
 }
 ```
 
-Call your hooks on all integrations when you want to trigger them:
+Call your hooks on all other integrations installed in a project at the appropriate time. For example, you can call your hook on initialization before either the Vite or Astro config have resolved:
 
 ```ts
 // your-integration/index.ts
@@ -37,7 +39,7 @@ export default (): AstroIntegration => {
 }
 ```
 
-Other integrations can now declare your hooks:
+Other integrations can also now declare your hooks:
 
 ```ts
 // other-integration/index.ts

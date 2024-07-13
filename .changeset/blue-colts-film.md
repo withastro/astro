@@ -2,7 +2,7 @@
 '@astrojs/db': minor
 ---
 
-Remove `AstroDbIntegration` type
+Removes the `AstroDbIntegration` type
 
 Astro integration hooks can now be extended and as such `@astrojs/db` no longer needs to declare it's own integration type. Using `AstroIntegration` will have the same type.
 
