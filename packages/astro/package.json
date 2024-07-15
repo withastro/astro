@@ -139,7 +139,7 @@
     "acorn": "^8.12.0",
     "aria-query": "^5.3.0",
     "axobject-query": "^4.0.0",
-    "boxen": "^7.1.1",
+    "boxen": "^8.0.0",
     "chokidar": "^3.6.0",
     "ci-info": "^4.0.0",
     "clsx": "^2.1.1",
