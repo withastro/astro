@@ -7,6 +7,7 @@ settings:
 overrides:
   organize-imports-cli>ts-morph: ^19.0.0
   tsconfig-resolver>type-fest: 3.0.0
+  svelte: link:../svelte/packages/svelte
 
 packageExtensionsChecksum: 43e9b7451c9943c617aef017ec172155
 
@@ -246,8 +247,8 @@ importers:
         specifier: ^1.8.18
         version: 1.8.18
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../svelte/packages/svelte
+        version: link:../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -309,8 +310,8 @@ importers:
         specifier: ^4.11.5
         version: link:../../packages/astro
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../svelte/packages/svelte
+        version: link:../../../svelte/packages/svelte
 
   examples/framework-vue:
     dependencies:
@@ -385,8 +386,8 @@ importers:
         specifier: ^4.11.5
         version: link:../../packages/astro
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../svelte/packages/svelte
+        version: link:../../../svelte/packages/svelte
 
   examples/starlog:
     dependencies:
@@ -989,8 +990,8 @@ importers:
         specifier: ^1.8.18
         version: 1.8.18
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -1113,8 +1114,8 @@ importers:
         specifier: ^1.8.18
         version: 1.8.18
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -1182,8 +1183,8 @@ importers:
         specifier: ^1.8.18
         version: 1.8.18
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -1241,8 +1242,8 @@ importers:
         specifier: ^1.8.18
         version: 1.8.18
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -1281,8 +1282,8 @@ importers:
         specifier: ^1.8.18
         version: 1.8.18
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -1321,8 +1322,8 @@ importers:
         specifier: ^1.8.18
         version: 1.8.18
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -1361,8 +1362,8 @@ importers:
         specifier: ^1.8.18
         version: 1.8.18
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -1401,8 +1402,8 @@ importers:
         specifier: ^1.8.18
         version: 1.8.18
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -1441,8 +1442,8 @@ importers:
         specifier: ^1.8.18
         version: 1.8.18
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -1607,8 +1608,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
 
   packages/astro/e2e/fixtures/tailwindcss:
     dependencies:
@@ -1667,8 +1668,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -1811,8 +1812,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -1832,8 +1833,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
 
   packages/astro/test/fixtures/alias-tsconfig:
     dependencies:
@@ -1847,8 +1848,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
 
   packages/astro/test/fixtures/alias-tsconfig-baseurl-only:
     dependencies:
@@ -1859,8 +1860,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
 
   packages/astro/test/fixtures/alias-tsconfig/deps/namespace-package: {}
 
@@ -1984,8 +1985,8 @@ importers:
         specifier: ^10.22.1
         version: 10.22.1
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -2017,8 +2018,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
 
   packages/astro/test/fixtures/astro-client-only/pkg: {}
 
@@ -2109,8 +2110,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
 
   packages/astro/test/fixtures/astro-env:
     dependencies:
@@ -2427,8 +2428,8 @@ importers:
         specifier: ^1.8.18
         version: 1.8.18
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -2511,8 +2512,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
 
   packages/astro/test/fixtures/component-library-shared:
     dependencies:
@@ -2763,8 +2764,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
 
   packages/astro/test/fixtures/css-import-as-inline:
     dependencies:
@@ -3015,8 +3016,8 @@ importers:
         specifier: ^10.22.1
         version: 10.22.1
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -3213,8 +3214,8 @@ importers:
         specifier: ^1.8.18
         version: 1.8.18
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -3401,8 +3402,8 @@ importers:
         specifier: ^1.8.18
         version: 1.8.18
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -3652,8 +3653,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
 
   packages/astro/test/fixtures/slots-vue:
     dependencies:
@@ -3977,8 +3978,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
 
   packages/astro/test/fixtures/tailwindcss:
     dependencies:
@@ -4100,8 +4101,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../../../svelte/packages/svelte
+        version: link:../../../../../../svelte/packages/svelte
       vue:
         specifier: ^3.4.31
         version: 3.4.31(typescript@5.5.2)
@@ -5255,10 +5256,10 @@ importers:
     dependencies:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^3.1.1
-        version: 3.1.1(svelte@4.2.18)(vite@5.3.2(@types/node@20.12.7)(sass@1.77.6))
+        version: 3.1.1(svelte@svelte+packages+svelte)(vite@5.3.2(@types/node@20.12.7)(sass@1.77.6))
       svelte2tsx:
         specifier: ^0.7.13
-        version: 0.7.13(svelte@4.2.18)(typescript@5.5.2)
+        version: 0.7.13(svelte@svelte+packages+svelte)(typescript@5.5.2)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -5267,8 +5268,8 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../../../svelte/packages/svelte
+        version: link:../../../../svelte/packages/svelte
       vite:
         specifier: ^5.3.2
         version: 5.3.2(@types/node@20.12.7)(sass@1.77.6)
@@ -5872,8 +5873,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
       svelte:
-        specifier: ^4.2.18
-        version: 4.2.18
+        specifier: link:../../svelte/packages/svelte
+        version: link:../../svelte/packages/svelte
       tar:
         specifier: ^7.4.0
         version: 7.4.0
@@ -7221,14 +7222,14 @@ packages:
     engines: {node: ^18.0.0 || >=20}
     peerDependencies:
       '@sveltejs/vite-plugin-svelte': ^3.0.0
-      svelte: ^4.0.0 || ^5.0.0-next.0
+      svelte: link:/Users/bjorn/Work/oss/svelte/packages/svelte
       vite: ^5.0.0
 
   '@sveltejs/vite-plugin-svelte@3.1.1':
     resolution: {integrity: sha512-rimpFEAboBBHIlzISibg94iP09k/KYdHgVhJlcsTfn7KMBhc70jFX/GRWkRdFCc2fdnk+4+Bdfej23cMDnJS6A==}
     engines: {node: ^18.0.0 || >=20}
     peerDependencies:
-      svelte: ^4.0.0 || ^5.0.0-next.0
+      svelte: link:/Users/bjorn/Work/oss/svelte/packages/svelte
       vite: ^5.0.0
 
   '@trysound/sax@0.2.0':
@@ -8070,9 +8071,6 @@ packages:
 
   code-block-writer@12.0.0:
     resolution: {integrity: sha512-q4dMFMlXtKR3XNBHyMHt/3pwYNA69EDk00lloMOaaUMKPUXBw6lpXtbu3MMVG6/uOihGnRDOlkyqsONEUj60+w==}
-
-  code-red@1.0.4:
-    resolution: {integrity: sha512-7qJWqItLA8/VPVlKJlFXU+NBlo/qyfs39aJcuMT/2ere32ZqvF5OSxgdM5xOfJJ7O429gg2HM47y8v9P+9wrNw==}
 
   collapse-white-space@2.1.0:
     resolution: {integrity: sha512-loKTxY1zCOuG4j9f6EPnuyyYkf58RnhhWTvRoZEokgB+WbdXehfjFviyOVYkqzEWz1Q5kRiZdBYS5SwxbQYwzw==}
@@ -9315,7 +9313,6 @@ packages:
 
   libsql@0.3.12:
     resolution: {integrity: sha512-to30hj8O3DjS97wpbKN6ERZ8k66MN1IaOfFLR6oHqd25GMiPJ/ZX0VaZ7w+TsPmxcFS3p71qArj/hiedCyvXCg==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lilconfig@2.1.0:
@@ -9354,9 +9351,6 @@ packages:
   local-pkg@0.5.0:
     resolution: {integrity: sha512-ok6z3qlYyCDS4ZEU27HaU6x/xZa9Whf8jD4ptH5UZTQYZVYeb9bnZ3ojVhiJNLiXK1Hfc0GNbLXcmZ5plLDDBg==}
     engines: {node: '>=14'}
-
-  locate-character@3.0.0:
-    resolution: {integrity: sha512-SW13ws7BjaeJ6p7Q6CO2nchbYEc3X3J6WrmTTDto7yMPqVSZTUyY5Tjbid+Ab8gLnATtygYtiDIJGQRRn2ZOiA==}
 
   locate-path@5.0.0:
     resolution: {integrity: sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==}
@@ -10938,17 +10932,13 @@ packages:
     resolution: {integrity: sha512-Gyc7cOS3VJzLlfj7wKS0ZnzDVdv3Pn2IuVeJPk9m2skfhcu5bq3wtIZyQGggr7/Iim5rH5cncyQft/kRLupcnA==}
     engines: {node: ^12.20 || ^14.13.1 || >= 16}
     peerDependencies:
-      svelte: ^3.19.0 || ^4.0.0
+      svelte: link:/Users/bjorn/Work/oss/svelte/packages/svelte
 
   svelte2tsx@0.7.13:
     resolution: {integrity: sha512-aObZ93/kGAiLXA/I/kP+x9FriZM+GboB/ReOIGmLNbVGEd2xC+aTCppm3mk1cc9I/z60VQf7b2QDxC3jOXu3yw==}
     peerDependencies:
-      svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
+      svelte: link:/Users/bjorn/Work/oss/svelte/packages/svelte
       typescript: ^4.9.4 || ^5.0.0
-
-  svelte@4.2.18:
-    resolution: {integrity: sha512-d0FdzYIiAePqRJEb90WlJDkjUEx42xhivxN8muUBmfZnP+tzUgz12DJ2hRJi8sIHCME7jeK1PTMgKPSfTd8JrA==}
-    engines: {node: '>=16'}
 
   svg-tags@1.0.0:
     resolution: {integrity: sha512-ovssysQTa+luh7A5Weu3Rta6FJlFBBbInjOh722LIt6klpU2/HtdUbszju/G4devcvk8PGt7FCLv5wftu3THUA==}
@@ -13149,24 +13139,24 @@ snapshots:
     dependencies:
       solid-js: 1.8.18
 
-  '@sveltejs/vite-plugin-svelte-inspector@2.1.0(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.18)(vite@5.3.2(@types/node@20.12.7)(sass@1.77.6)))(svelte@4.2.18)(vite@5.3.2(@types/node@20.12.7)(sass@1.77.6))':
+  '@sveltejs/vite-plugin-svelte-inspector@2.1.0(@sveltejs/vite-plugin-svelte@3.1.1(svelte@svelte+packages+svelte)(vite@5.3.2(@types/node@20.12.7)(sass@1.77.6)))(svelte@svelte+packages+svelte)(vite@5.3.2(@types/node@20.12.7)(sass@1.77.6))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 3.1.1(svelte@4.2.18)(vite@5.3.2(@types/node@20.12.7)(sass@1.77.6))
+      '@sveltejs/vite-plugin-svelte': 3.1.1(svelte@svelte+packages+svelte)(vite@5.3.2(@types/node@20.12.7)(sass@1.77.6))
       debug: 4.3.5
-      svelte: 4.2.18
+      svelte: link:../svelte/packages/svelte
       vite: 5.3.2(@types/node@20.12.7)(sass@1.77.6)
     transitivePeerDependencies:
       - supports-color
 
-  '@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.18)(vite@5.3.2(@types/node@20.12.7)(sass@1.77.6))':
+  '@sveltejs/vite-plugin-svelte@3.1.1(svelte@svelte+packages+svelte)(vite@5.3.2(@types/node@20.12.7)(sass@1.77.6))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte-inspector': 2.1.0(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.18)(vite@5.3.2(@types/node@20.12.7)(sass@1.77.6)))(svelte@4.2.18)(vite@5.3.2(@types/node@20.12.7)(sass@1.77.6))
+      '@sveltejs/vite-plugin-svelte-inspector': 2.1.0(@sveltejs/vite-plugin-svelte@3.1.1(svelte@svelte+packages+svelte)(vite@5.3.2(@types/node@20.12.7)(sass@1.77.6)))(svelte@svelte+packages+svelte)(vite@5.3.2(@types/node@20.12.7)(sass@1.77.6))
       debug: 4.3.5
       deepmerge: 4.3.1
       kleur: 4.1.5
       magic-string: 0.30.10
-      svelte: 4.2.18
-      svelte-hmr: 0.16.0(svelte@4.2.18)
+      svelte: link:../svelte/packages/svelte
+      svelte-hmr: 0.16.0(svelte@svelte+packages+svelte)
       vite: 5.3.2(@types/node@20.12.7)(sass@1.77.6)
       vitefu: 0.2.5(vite@5.3.2(@types/node@20.12.7)(sass@1.77.6))
     transitivePeerDependencies:
@@ -14209,14 +14199,6 @@ snapshots:
   clsx@2.1.1: {}
 
   code-block-writer@12.0.0: {}
-
-  code-red@1.0.4:
-    dependencies:
-      '@jridgewell/sourcemap-codec': 1.4.15
-      '@types/estree': 1.0.5
-      acorn: 8.12.0
-      estree-walker: 3.0.3
-      periscopic: 3.1.0
 
   collapse-white-space@2.1.0: {}
 
@@ -15573,8 +15555,6 @@ snapshots:
     dependencies:
       mlly: 1.6.1
       pkg-types: 1.0.3
-
-  locate-character@3.0.0: {}
 
   locate-path@5.0.0:
     dependencies:
@@ -17570,33 +17550,16 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte-hmr@0.16.0(svelte@4.2.18):
+  svelte-hmr@0.16.0(svelte@svelte+packages+svelte):
     dependencies:
-      svelte: 4.2.18
+      svelte: link:../svelte/packages/svelte
 
-  svelte2tsx@0.7.13(svelte@4.2.18)(typescript@5.5.2):
+  svelte2tsx@0.7.13(svelte@svelte+packages+svelte)(typescript@5.5.2):
     dependencies:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
-      svelte: 4.2.18
+      svelte: link:../svelte/packages/svelte
       typescript: 5.5.2
-
-  svelte@4.2.18:
-    dependencies:
-      '@ampproject/remapping': 2.3.0
-      '@jridgewell/sourcemap-codec': 1.4.15
-      '@jridgewell/trace-mapping': 0.3.25
-      '@types/estree': 1.0.5
-      acorn: 8.12.0
-      aria-query: 5.3.0
-      axobject-query: 4.0.0
-      code-red: 1.0.4
-      css-tree: 2.3.1
-      estree-walker: 3.0.3
-      is-reference: 3.0.2
-      locate-character: 3.0.0
-      magic-string: 0.30.10
-      periscopic: 3.1.0
 
   svg-tags@1.0.0: {}
 

@@ -91,7 +91,8 @@
     },
     "overrides": {
       "organize-imports-cli>ts-morph": "^19.0.0",
-      "tsconfig-resolver>type-fest": "3.0.0"
+      "tsconfig-resolver>type-fest": "3.0.0",
+      "svelte": "link:../svelte/packages/svelte"
     },
     "peerDependencyRules": {
       "ignoreMissing": [
