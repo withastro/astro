@@ -1,6 +1,7 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import pLimit from 'p-limit';
 import { ZodIssueCode, string as zodString } from 'zod';
+import { Traverse } from 'neotraverse/modern';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 import {
@@ -16,7 +17,9 @@ import {
 } from '../runtime/server/index.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
-import { imageSrcToImportId } from '#astro/assets/utils/resolveImports';
+import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
+import { getImage } from 'astro:assets';
+import type { GetImageResult } from '../@types/astro.js';
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
@@ -261,13 +264,14 @@ export function createGetEntry({
 		const store = await globalDataStore.get();
 
 		if (store.hasCollection(collection)) {
-			const data = store.get(collection, lookupId);
-			if (!data) {
+			const entry = store.get<DataEntry>(collection, lookupId);
+			if (!entry) {
 				throw new Error(`Entry ${collection} → ${lookupId} was not found.`);
 			}
 
-			const entry = store.get<DataEntry>(collection, lookupId);
-
+			if (entry.filePath) {
+				entry.data = await updateImageReferencesInData(entry.data, entry.filePath);
+			}
 			return {
 				...entry,
 				collection,
@@ -320,27 +324,83 @@ type RenderResult = {
 	remarkPluginFrontmatter: Record<string, any>;
 };
 
-async function updateImageReferences(html: string, fileName: string) {
+const IMAGE_REGEX = /__ASTRO_IMAGE_="([^"]+)"/g;
+
+async function updateImageReferencesInBody(html: string, fileName: string) {
 	// @ts-expect-error Virtual module
 	const { default: imageAssetMap } = await import('astro:asset-imports');
-	return html.replaceAll(/__ASTRO_IMAGE_="([^"]+)"/g, (full, imagePath) => {
+
+	const imageObjects = new Map<string, GetImageResult>();
+
+	for (const match of html.matchAll(IMAGE_REGEX)) {
+		const imagePath = match[1];
 		const decodedImagePath = JSON.parse(imagePath.replace(/&#x22;/g, '"'));
 		const id = imageSrcToImportId(decodedImagePath.src, fileName);
-		const { format, ...imported } = imageAssetMap.get(id) ?? {};
-		const { index, ...attributes } = decodedImagePath;
+
+		if (!id || imageObjects.has(id)) {
+			continue;
+		}
+
+		const imported = imageAssetMap.get(id);
+		if (!imported) {
+			continue;
+		}
+		const image: GetImageResult = await getImage({ src: imported });
+		imageObjects.set(id, image);
+	}
+
+	return html.replaceAll(IMAGE_REGEX, (full, imagePath) => {
+		const decodedImagePath = JSON.parse(imagePath.replace(/&#x22;/g, '"'));
+		const id = imageSrcToImportId(decodedImagePath.src, fileName);
+
+		if (!id) {
+			return full;
+		}
+
+		const image = imageObjects.get(id);
+
+		if (!image) {
+			return full;
+		}
+
 		return Object.entries({
-			...attributes,
-			...imported,
+			...image.attributes,
+			src: image.src,
+			srcset: image.srcSet.attribute,
+			alt: decodedImagePath.alt,
 		})
-			.map(([key, value]) => `${key}=${JSON.stringify(String(value))}`)
+			.map(([key, value]) => (value ? `${key}=${JSON.stringify(String(value))}` : ''))
 			.join(' ');
+	});
+}
+
+async function updateImageReferencesInData<T extends Record<string, unknown>>(
+	data: T,
+	fileName: string
+): Promise<T> {
+	// @ts-expect-error Virtual module
+	const { default: imageAssetMap } = await import('astro:asset-imports');
+	console.log('traverse', data);
+	return new Traverse(data).map(function (ctx, val) {
+		console.log(val);
+		if (typeof val === 'string' && val.startsWith('__ASTRO_IMAGE_')) {
+			console.log('replace', val);
+			const src = val.replace('__ASTRO_IMAGE_', '');
+			const id = imageSrcToImportId(src, fileName);
+			const imported = imageAssetMap.get(id);
+			if (imported) {
+				ctx.update(imported);
+			} else {
+				ctx.update(src);
+			}
+		}
 	});
 }
 
 async function renderEntry(entry?: DataEntry) {
 	const html =
 		entry?.rendered?.metadata?.imagePaths?.length && entry.filePath
-			? await updateImageReferences(entry.rendered.html, entry.filePath)
+			? await updateImageReferencesInBody(entry.rendered.html, entry.filePath)
 			: entry?.rendered?.html;
 
 	const Content = createComponent(() => serverRender`${unescapeHTML(html)}`);

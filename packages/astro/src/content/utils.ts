@@ -140,13 +140,23 @@ export async function getEntryData(
 	}
 
 	let schema = collectionConfig.schema;
+
+	const imageImports = new Set<string>();
+
 	if (typeof schema === 'function') {
-		if (!pluginContext) {
-			throw new Error('Plugin context is required for schema functions');
+		if (pluginContext) {
+			schema = schema({
+				image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
+			});
+		} else if (collectionConfig.type === 'experimental_data') {
+			schema = schema({
+				image: () =>
+					z.string().transform((val) => {
+						imageImports.add(val);
+						return `__ASTRO_IMAGE_${val}`;
+					}),
+			});
 		}
-		schema = schema({
-			image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
-		});
 	}
 
 	if (schema) {
@@ -194,6 +204,14 @@ export async function getEntryData(
 			}
 			throw formattedError;
 		}
+	}
+	if (imageImports.size > 0) {
+		Object.defineProperties(data, {
+			_internal_imageImports: {
+				value: Array.from(imageImports),
+				enumerable: false,
+			},
+		});
 	}
 	return data;
 }

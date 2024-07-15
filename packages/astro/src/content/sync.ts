@@ -66,8 +66,8 @@ export async function syncContentLayer({
 
 			const collectionWithResolvedSchema = { ...collection, schema };
 
-			const parseData: LoaderContext['parseData'] = ({ id, data, filePath = '' }) =>
-				getEntryData(
+			const parseData: LoaderContext['parseData'] = async ({ id, data, filePath = '' }) => {
+				const { _internal_imageImports: imageImports, ...parsedData } = (await getEntryData(
 					{
 						id,
 						collection: name,
@@ -79,7 +79,17 @@ export async function syncContentLayer({
 					},
 					collectionWithResolvedSchema,
 					false
-				) as Promise<DataWithId>;
+				)) as DataWithId & {
+					_internal_imageImports?: Array<string>;
+				};
+
+				if (imageImports) {
+					console.log('Adding image imports', imageImports);
+					store.addAssetImports(imageImports, filePath);
+				}
+
+				return parsedData;
+			};
 
 			const payload: LoaderContext = {
 				collection: name,
