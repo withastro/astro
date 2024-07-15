@@ -1,3 +1,4 @@
+import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageMetadata } from '../types.js';
 import { imageMetadata } from './metadata.js';
 
@@ -5,7 +6,10 @@ export async function inferRemoteSize(url: string): Promise<Omit<ImageMetadata, 
 	// Start fetching the image
 	const response = await fetch(url);
 	if (!response.body || !response.ok) {
-		throw new Error('Failed to fetch image');
+		throw new AstroError({
+			...AstroErrorData.FailedToFetchRemoteImageDimensions,
+			message: AstroErrorData.FailedToFetchRemoteImageDimensions.message(url),
+		});
 	}
 
 	const reader = response.body.getReader();
@@ -45,5 +49,8 @@ export async function inferRemoteSize(url: string): Promise<Omit<ImageMetadata, 
 		}
 	}
 
-	throw new Error('Failed to parse the size');
+	throw new AstroError({
+		...AstroErrorData.NoImageMetadata,
+		message: AstroErrorData.NoImageMetadata.message(url),
+	});
 }
