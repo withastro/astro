@@ -82,6 +82,7 @@ function renderToStaticMarkup(Component, props, { default: children, ...slotted 
 }
 
 export default {
+	name: '@astrojs/react',
 	check,
 	renderToStaticMarkup,
 	supportsAstroStaticSlot: true,

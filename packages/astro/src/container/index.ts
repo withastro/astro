@@ -1,18 +1,21 @@
 import { posix } from 'node:path';
 import type {
-	AstroRenderer,
+	AstroConfig,
 	AstroUserConfig,
 	ComponentInstance,
+	ContainerImportRendererFn,
 	MiddlewareHandler,
+	NamedSSRLoadedRendererValue,
 	Props,
 	RouteData,
 	RouteType,
 	SSRLoadedRenderer,
+	SSRLoadedRendererValue,
 	SSRManifest,
 	SSRResult,
 } from '../@types/astro.js';
-import { validateConfig } from '../core/config/config.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
+import { validateConfig } from '../core/config/validate.js';
 import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
@@ -82,9 +85,19 @@ export type ContainerRenderOptions = {
 	props?: Props;
 };
 
+export type AddServerRenderer =
+	| {
+			renderer: NamedSSRLoadedRendererValue;
+			name: never;
+	  }
+	| {
+			renderer: SSRLoadedRendererValue;
+			name: string;
+	  };
+
 function createManifest(
-	renderers: SSRLoadedRenderer[],
 	manifest?: AstroContainerManifest,
+	renderers?: SSRLoadedRenderer[],
 	middleware?: MiddlewareHandler
 ): SSRManifest {
 	const defaultMiddleware: MiddlewareHandler = (_, next) => {
@@ -102,13 +115,14 @@ function createManifest(
 		routes: manifest?.routes ?? [],
 		adapterName: '',
 		clientDirectives: manifest?.clientDirectives ?? new Map(),
-		renderers: manifest?.renderers ?? renderers,
+		renderers: renderers ?? manifest?.renderers ?? [],
 		base: manifest?.base ?? ASTRO_CONFIG_DEFAULTS.base,
 		componentMetadata: manifest?.componentMetadata ?? new Map(),
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
 		i18n: manifest?.i18n,
 		checkOrigin: false,
 		middleware: manifest?.middleware ?? middleware ?? defaultMiddleware,
+		experimentalEnvGetSecretEnabled: false,
 	};
 }
 
@@ -138,21 +152,9 @@ export type AstroContainerOptions = {
 	 * @default []
 	 * @description
 	 *
-	 * List or renderers to use when rendering components. Usually they are entry points
-	 *
-	 * ## Example
-	 *
-	 * ```js
-	 * const container = await AstroContainer.create({
-	 * 	renderers: [{
-	 * 	  name: "@astrojs/react"
-	 * 	  client: "@astrojs/react/client.js"
-	 * 	  server: "@astrojs/react/server.js"
-	 * 	}]
-	 * });
-	 * ```
+	 * List or renderers to use when rendering components. Usually, you want to pass these in an SSR context.
 	 */
-	renderers?: AstroRenderer[];
+	renderers?: SSRLoadedRenderer[];
 	/**
 	 * @default {}
 	 * @description
@@ -170,6 +172,17 @@ export type AstroContainerOptions = {
 	 * ```
 	 */
 	astroConfig?: AstroContainerUserConfig;
+
+	// TODO: document out of experimental
+	resolve?: SSRResult['resolve'];
+
+	/**
+	 * @default {}
+	 * @description
+	 *
+	 * The raw manifest from the build output.
+	 */
+	manifest?: SSRManifest;
 };
 
 type AstroContainerManifest = Pick<
@@ -195,6 +208,7 @@ type AstroContainerConstructor = {
 	renderers?: SSRLoadedRenderer[];
 	manifest?: AstroContainerManifest;
 	resolve?: SSRResult['resolve'];
+	astroConfig?: AstroConfig;
 };
 
 export class experimental_AstroContainer {
@@ -206,24 +220,31 @@ export class experimental_AstroContainer {
 	 */
 	#withManifest = false;
 
+	/**
+	 * Internal function responsible for importing a renderer
+	 * @private
+	 */
+	#getRenderer: ContainerImportRendererFn | undefined;
+
 	private constructor({
 		streaming = false,
-		renderers = [],
 		manifest,
+		renderers,
 		resolve,
+		astroConfig,
 	}: AstroContainerConstructor) {
 		this.#pipeline = ContainerPipeline.create({
 			logger: new Logger({
 				level: 'info',
 				dest: nodeLogDestination,
 			}),
-			manifest: createManifest(renderers, manifest),
+			manifest: createManifest(manifest, renderers),
 			streaming,
 			serverLike: true,
-			renderers,
+			renderers: renderers ?? manifest?.renderers ?? [],
 			resolve: async (specifier: string) => {
 				if (this.#withManifest) {
-					return this.#containerResolve(specifier);
+					return this.#containerResolve(specifier, astroConfig);
 				} else if (resolve) {
 					return resolve(specifier);
 				}
@@ -232,10 +253,10 @@ export class experimental_AstroContainer {
 		});
 	}
 
-	async #containerResolve(specifier: string): Promise<string> {
+	async #containerResolve(specifier: string, astroConfig?: AstroConfig): Promise<string> {
 		const found = this.#pipeline.manifest.entryModules[specifier];
 		if (found) {
-			return new URL(found, ASTRO_CONFIG_DEFAULTS.build.client).toString();
+			return new URL(found, astroConfig?.build.client).toString();
 		}
 		return found;
 	}
@@ -248,22 +269,59 @@ export class experimental_AstroContainer {
 	public static async create(
 		containerOptions: AstroContainerOptions = {}
 	): Promise<experimental_AstroContainer> {
-		const { streaming = false, renderers = [] } = containerOptions;
-		const loadedRenderers = await Promise.all(
-			renderers.map(async (renderer) => {
-				const mod = await import(renderer.serverEntrypoint);
-				if (typeof mod.default !== 'undefined') {
-					return {
-						...renderer,
-						ssr: mod.default,
-					} as SSRLoadedRenderer;
-				}
-				return undefined;
-			})
-		);
-		const finalRenderers = loadedRenderers.filter((r): r is SSRLoadedRenderer => Boolean(r));
+		const { streaming = false, manifest, renderers = [], resolve } = containerOptions;
+		const astroConfig = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
+		return new experimental_AstroContainer({
+			streaming,
+			manifest,
+			renderers,
+			astroConfig,
+			resolve,
+		});
+	}
 
-		return new experimental_AstroContainer({ streaming, renderers: finalRenderers });
+	/**
+	 * Use this function to manually add a renderer to the container.
+	 *
+	 * This function is preferred when you require to use the container with a renderer in environments such as on-demand pages.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * import reactRenderer from "@astrojs/react/server.js";
+	 * import vueRenderer from "@astrojs/vue/server.js";
+	 * import customRenderer from "../renderer/customRenderer.js";
+	 * import { experimental_AstroContainer as AstroContainer } from "astro/container"
+	 *
+	 * const container = await AstroContainer.create();
+	 * container.addServerRenderer(reactRenderer);
+	 * container.addServerRenderer(vueRenderer);
+	 * container.addServerRenderer("customRenderer", customRenderer);
+	 * ```
+	 *
+	 * @param options {object}
+	 * @param options.name The name of the renderer. The name **isn't** arbitrary, and it should match the name of the package.
+	 * @param options.renderer The server renderer exported by integration.
+	 */
+	public addServerRenderer(options: AddServerRenderer): void {
+		const { renderer, name } = options;
+		if (!renderer.check || !renderer.renderToStaticMarkup) {
+			throw new Error(
+				"The renderer you passed isn't valid. A renderer is usually an object that exposes the `check` and `renderToStaticMarkup` functions.\n" +
+					"Usually, the renderer is exported by a /server.js entrypoint e.g. `import renderer from '@astrojs/react/server.js'`"
+			);
+		}
+		if (isNamedRenderer(renderer)) {
+			this.#pipeline.manifest.renderers.push({
+				name: renderer.name,
+				ssr: renderer,
+			});
+		} else {
+			this.#pipeline.manifest.renderers.push({
+				name,
+				ssr: renderer,
+			});
+		}
 	}
 
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.
@@ -271,9 +329,10 @@ export class experimental_AstroContainer {
 	private static async createFromManifest(
 		manifest: SSRManifest
 	): Promise<experimental_AstroContainer> {
-		const config = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
+		const astroConfig = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
 		const container = new experimental_AstroContainer({
 			manifest,
+			astroConfig,
 		});
 		container.#withManifest = true;
 		return container;
@@ -434,4 +493,8 @@ export class experimental_AstroContainer {
 		}
 		return { default: componentFactory };
 	}
+}
+
+function isNamedRenderer(renderer: any): renderer is NamedSSRLoadedRendererValue {
+	return !!renderer?.name;
 }

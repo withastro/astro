@@ -7,12 +7,11 @@ import type {
 } from '../@types/astro.js';
 import { type HeadElements, Pipeline } from '../core/base-pipeline.js';
 import type { SinglePageBuiltModule } from '../core/build/types.js';
-import { RouteNotFound } from '../core/errors/errors-data.js';
-import { AstroError } from '../core/errors/index.js';
 import {
 	createModuleScriptElement,
 	createStylesheetElementSet,
 } from '../core/render/ssr-element.js';
+import { findRouteToRewrite } from '../core/routing/rewrite.js';
 
 export class ContainerPipeline extends Pipeline {
 	/**
@@ -69,33 +68,21 @@ export class ContainerPipeline extends Pipeline {
 		return { links, styles, scripts };
 	}
 
-	async tryRewrite(rewritePayload: RewritePayload): Promise<[RouteData, ComponentInstance]> {
-		let foundRoute: RouteData | undefined;
-		// options.manifest is the actual type that contains the information
-		for (const route of this.manifest.routes) {
-			const routeData = route.routeData;
-			if (rewritePayload instanceof URL) {
-				if (routeData.pattern.test(rewritePayload.pathname)) {
-					foundRoute = routeData;
-					break;
-				}
-			} else if (rewritePayload instanceof Request) {
-				const url = new URL(rewritePayload.url);
-				if (routeData.pattern.test(url.pathname)) {
-					foundRoute = routeData;
-					break;
-				}
-			} else if (routeData.pattern.test(decodeURI(rewritePayload))) {
-				foundRoute = routeData;
-				break;
-			}
-		}
-		if (foundRoute) {
-			const componentInstance = await this.getComponentByRoute(foundRoute);
-			return [foundRoute, componentInstance];
-		} else {
-			throw new AstroError(RouteNotFound);
-		}
+	async tryRewrite(
+		payload: RewritePayload,
+		request: Request
+	): Promise<[RouteData, ComponentInstance, URL]> {
+		const [foundRoute, finalUrl] = findRouteToRewrite({
+			payload,
+			request,
+			routes: this.manifest?.routes.map((r) => r.routeData),
+			trailingSlash: this.manifest.trailingSlash,
+			buildFormat: this.manifest.buildFormat,
+			base: this.manifest.base,
+		});
+
+		const componentInstance = await this.getComponentByRoute(foundRoute);
+		return [foundRoute, componentInstance, finalUrl];
 	}
 
 	insertRoute(route: RouteData, componentInstance: ComponentInstance): void {

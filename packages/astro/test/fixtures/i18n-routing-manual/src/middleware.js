@@ -11,7 +11,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		return await next();
 	}
 
-	if (context.url.pathname === '/') {
+	if (context.url.pathname === '/' || context.url.pathname === '/redirect-me') {
 		return redirectToDefaultLocale(context);
 	}
 	return new Response(null, {

@@ -7,8 +7,10 @@ export async function GET() {
 	const withSchemaConfig = stripAllRenderFn(await getCollection('with-schema-config'));
 	const withSlugConfig = stripAllRenderFn(await getCollection('with-custom-slugs'));
 	const withUnionSchema = stripAllRenderFn(await getCollection('with-union-schema'));
+	const withSymlinkedContent = stripAllRenderFn(await getCollection('with-symlinked-content'));
+	const withSymlinkedData = stripAllRenderFn(await getCollection('with-symlinked-data'));
 
 	return new Response(
-		devalue.stringify({ withoutConfig, withSchemaConfig, withSlugConfig, withUnionSchema })
+		devalue.stringify({ withoutConfig, withSchemaConfig, withSlugConfig, withUnionSchema, withSymlinkedContent, withSymlinkedData }),
 	);
 }

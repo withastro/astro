@@ -11,7 +11,11 @@ import type {
 import type * as babel from '@babel/core';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
-import type { Accept, ActionClient, InputSchema } from '../actions/runtime/virtual/server.js';
+import type {
+	ActionAccept,
+	ActionClient,
+	ActionInputSchema,
+} from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
 import type { AssetsPrefix, SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
@@ -20,6 +24,7 @@ import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroCookies } from '../core/cookies/index.js';
 import type { AstroIntegrationLogger, Logger, LoggerLevel } from '../core/logger/core.js';
+import type { EnvSchema } from '../env/schema.js';
 import type { getToolbarServerCommunicationHelpers } from '../integrations/hooks.js';
 import type { AstroPreferences } from '../preferences/index.js';
 import type {
@@ -284,7 +289,7 @@ export interface AstroGlobal<
 	/**
 	 * The <Astro.self /> element allows a component to reference itself recursively.
 	 *
-	 * [Astro reference](https://docs.astro.build/en/guides/api-reference/#astroself)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroself)
 	 */
 	self: Self;
 	/** Utility functions for modifying an Astro component’s slotted children
@@ -749,8 +754,13 @@ export interface AstroUserConfig {
 	 * @type {boolean}
 	 * @default `true`
 	 * @description
-	 * This is an option to minify your HTML output and reduce the size of your HTML files. By default, Astro removes all whitespace from your HTML, including line breaks, from `.astro` components. This occurs both in development mode and in the final build.
-	 * To disable HTML compression, set the `compressHTML` flag to `false`.
+	 *
+	 * This is an option to minify your HTML output and reduce the size of your HTML files.
+	 *
+	 * By default, Astro removes whitespace from your HTML, including line breaks, from `.astro` components in a lossless manner.
+	 * Some whitespace may be kept as needed to preserve the visual rendering of your HTML. This occurs both in development mode and in the final build.
+	 *
+	 * To disable HTML compression, set `compressHTML` to false.
 	 *
 	 * ```js
 	 * {
@@ -1416,7 +1426,7 @@ export interface AstroUserConfig {
 		 * import remarkToc from 'remark-toc';
 		 * {
 		 *   markdown: {
-		 *     remarkPlugins: [remarkToc]
+		 *     remarkPlugins: [ [remarkToc, { heading: "contents"} ] ]
 		 *   }
 		 * }
 		 * ```
@@ -2054,6 +2064,144 @@ export interface AstroUserConfig {
 		 * For a complete overview, and to give feedback on this experimental API, see the [Rerouting RFC](https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md).
 		 */
 		rewriting?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.env
+		 * @type {object}
+		 * @default `undefined`
+		 * @version 4.10.0
+		 * @description
+		 *
+		 * Enables experimental `astro:env` features .
+		 *
+		 * The `astro:env` API lets you configure a type-safe schema for your environment variables, and indicate whether they should be available on the server or the client. Import and use your defined variables from the appropriate `/client` or `/server` module:
+		 *
+		 * ```astro
+		 * ---
+		 * import { APP_ID } from "astro:env/client"
+		 * import { API_URL, API_TOKEN, getSecret } from "astro:env/server"
+		 * const NODE_ENV = getSecret("NODE_ENV")
+		 *
+		 * const data = await fetch(`${API_URL}/users`, {
+		 * 	method: "POST",
+		 * 	headers: {
+		 * 		"Content-Type": "application/json",
+		 * 		"Authorization": `Bearer ${API_TOKEN}`
+		 * 	},
+		 * 	body: JSON.stringify({ appId: APP_ID, nodeEnv: NODE_ENV })
+		 * })
+		 * ---
+		 * ```
+		 *
+		 * To define the data type and properties of your environment variables, declare a schema in your Astro config in `experimental.env.schema`. The `envField` helper allows you define your variable as a string, number, or boolean and pass properties in an object:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig, envField } from "astro/config"
+		 *
+		 * export default defineConfig({
+		 *     experimental: {
+		 *         env: {
+		 *             schema: {
+		 *                 API_URL: envField.string({ context: "client", access: "public", optional: true }),
+		 *                 PORT: envField.number({ context: "server", access: "public", default: 4321 }),
+		 *                 API_SECRET: envField.string({ context: "server", access: "secret" }),
+		 *             }
+		 *         }
+		 *     }
+		 * })
+		 * ```
+		 *
+		 * There are currently four data types supported: strings, numbers, booleans and enums.
+		 *
+		 * There are three kinds of environment variables, determined by the combination of `context` (client or server) and `access` (secret or public) settings defined in your [`env.schema`](#experimentalenvschema):
+		 *
+		 * - **Public client variables**: These variables end up in both your final client and server bundles, and can be accessed from both client and server through the `astro:env/client` module:
+		 *
+		 *     ```js
+		 *     import { API_URL } from "astro:env/client"
+		 *     ```
+		 *
+		 * - **Public server variables**: These variables end up in your final server bundle and can be accessed on the server through the `astro:env/server` module:
+		 *
+		 *     ```js
+		 *     import { PORT } from "astro:env/server"
+		 *     ```
+		 *
+		 * - **Secret server variables**: These variables are not part of your final bundle and can be accessed on the server through the `astro:env/server` module. The `getSecret()` helper function can be used to retrieve secrets not specified in the schema:
+		 *
+		 *     ```js
+		 *     import { API_SECRET, getSecret } from "astro:env/server"
+		 *
+		 *     const SECRET_NOT_IN_SCHEMA = getSecret("SECRET_NOT_IN_SCHEMA") // string | undefined
+		 *     ```
+		 *
+		 * **Note:** Secret client variables are not supported because there is no safe way to send this data to the client. Therefore, it is not possible to configure both `context: "client"` and `access: "secret"` in your schema.
+		 *
+		 * For a complete overview, and to give feedback on this experimental API, see the [Astro Env RFC](https://github.com/withastro/roadmap/blob/feat/astro-env-rfc/proposals/0046-astro-env.md).
+		 */
+		env?: {
+			/**
+			 * @docs
+			 * @name experimental.env.schema
+			 * @kind h4
+			 * @type {EnvSchema}
+			 * @default `undefined`
+			 * @version 4.10.0
+			 * @description
+			 *
+			 * An object that uses `envField` to define the data type (`string`, `number`, or `boolean`) and properties of your environment variables: `context` (client or server), `access` (public or secret), a `default` value to use, and whether or not this environment variable is `optional` (defaults to `false`).
+			 * ```js
+			 * // astro.config.mjs
+			 * import { defineConfig, envField } from "astro/config"
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *     env: {
+			 *       schema: {
+			 *         API_URL: envField.string({ context: "client", access: "public", optional: true }),
+			 *         PORT: envField.number({ context: "server", access: "public", default: 4321 }),
+			 *         API_SECRET: envField.string({ context: "server", access: "secret" }),
+			 *       }
+			 *     }
+			 *   }
+			 * })
+			 * ```
+			 */
+			schema?: EnvSchema;
+
+			/**
+			 * @docs
+			 * @name experimental.env.validateSecrets
+			 * @kind h4
+			 * @type {boolean}
+			 * @default `false`
+			 * @version 4.11.6
+			 * @description
+			 *
+			 * Whether or not to validate secrets on the server when starting the dev server or running a build.
+			 *
+			 * By default, only public variables are validated on the server when starting the dev server or a build, and private variables are validated at runtime only. If enabled, private variables will also be checked on start. This is useful in some continuous integration (CI) pipelines to make sure all your secrets are correctly set before deploying.
+			 *
+			 * ```js
+			 * // astro.config.mjs
+			 * import { defineConfig, envField } from "astro/config"
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *     env: {
+			 *       schema: {
+			 *         // ...
+			 *       },
+			 *       validateSecrets: true
+			 *     }
+			 *   }
+			 * })
+			 * ```
+			 */
+			validateSecrets?: boolean;
+		};
 	};
 }
 
@@ -2243,6 +2391,7 @@ export interface AstroSettings {
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
 	timer: AstroTimer;
+	dotAstroDir: URL;
 	/**
 	 * Latest version of Astro, will be undefined if:
 	 * - unable to check
@@ -2547,6 +2696,11 @@ export type AstroFeatureMap = {
 	 * List of features that orbit around the i18n routing
 	 */
 	i18nDomains?: SupportsKind;
+
+	/**
+	 * The adapter is able to support `getSecret` exported from `astro:env/server`
+	 */
+	envGetSecret?: SupportsKind;
 };
 
 export interface AstroAssetsFeature {
@@ -2614,8 +2768,8 @@ interface AstroSharedContext<
 	 * Get action result on the server when using a form POST.
 	 */
 	getActionResult: <
-		TAccept extends Accept,
-		TInputSchema extends InputSchema<TAccept>,
+		TAccept extends ActionAccept,
+		TInputSchema extends ActionInputSchema<TAccept>,
 		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
 	>(
 		action: TAction
@@ -2743,7 +2897,7 @@ export interface APIContext<
 	 * }
 	 * ```
 	 *
-	 * [Reference](https://docs.astro.build/en/guides/api-reference/#contextprops)
+	 * [Reference](https://docs.astro.build/en/reference/api-reference/#contextprops)
 	 */
 	props: AstroSharedContext<Props, APIParams>['props'];
 	/**
@@ -2863,27 +3017,34 @@ export interface AstroRenderer {
 	jsxTransformOptions?: JSXTransformFn;
 }
 
-export interface SSRLoadedRenderer extends AstroRenderer {
-	ssr: {
-		check: AsyncRendererComponentFn<boolean>;
-		renderToStaticMarkup: AsyncRendererComponentFn<{
-			html: string;
-			attrs?: Record<string, string>;
-		}>;
-		supportsAstroStaticSlot?: boolean;
-		/**
-		 * If provided, Astro will call this function and inject the returned
-		 * script in the HTML before the first component handled by this renderer.
-		 *
-		 * This feature is needed by some renderers (in particular, by Solid). The
-		 * Solid official hydration script sets up a page-level data structure.
-		 * It is mainly used to transfer data between the server side render phase
-		 * and the browser application state. Solid Components rendered later in
-		 * the HTML may inject tiny scripts into the HTML that call into this
-		 * page-level data structure.
-		 */
-		renderHydrationScript?: () => string;
-	};
+export interface NamedSSRLoadedRendererValue extends SSRLoadedRendererValue {
+	name: string;
+}
+
+export interface SSRLoadedRendererValue {
+	name?: string;
+	check: AsyncRendererComponentFn<boolean>;
+	renderToStaticMarkup: AsyncRendererComponentFn<{
+		html: string;
+		attrs?: Record<string, string>;
+	}>;
+	supportsAstroStaticSlot?: boolean;
+	/**
+	 * If provided, Astro will call this function and inject the returned
+	 * script in the HTML before the first component handled by this renderer.
+	 *
+	 * This feature is needed by some renderers (in particular, by Solid). The
+	 * Solid official hydration script sets up a page-level data structure.
+	 * It is mainly used to transfer data between the server side render phase
+	 * and the browser application state. Solid Components rendered later in
+	 * the HTML may inject tiny scripts into the HTML that call into this
+	 * page-level data structure.
+	 */
+	renderHydrationScript?: () => string;
+}
+
+export interface SSRLoadedRenderer extends Pick<AstroRenderer, 'name' | 'clientEntrypoint'> {
+	ssr: SSRLoadedRendererValue;
 }
 
 export type HookParameters<
@@ -3290,3 +3451,19 @@ declare global {
 		'astro:page-load': Event;
 	}
 }
+
+// Container types
+export type ContainerImportRendererFn = (
+	containerRenderer: ContainerRenderer
+) => Promise<SSRLoadedRenderer>;
+
+export type ContainerRenderer = {
+	/**
+	 * The name of the renderer.
+	 */
+	name: string;
+	/**
+	 * The entrypoint that is used to render a component on the server
+	 */
+	serverEntrypoint: string;
+};

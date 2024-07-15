@@ -418,7 +418,13 @@ async function transition(
 		}
 		// if there was a redirection, show the final URL in the browser's address bar
 		if (response.redirected) {
-			preparationEvent.to = new URL(response.redirected);
+			const redirectedTo = new URL(response.redirected);
+			// but do not redirect cross origin
+			if (redirectedTo.origin !== preparationEvent.to.origin) {
+				preparationEvent.preventDefault();
+				return;
+			}
+			preparationEvent.to = redirectedTo;
 		}
 
 		parser ??= new DOMParser();

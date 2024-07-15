@@ -1,5 +1,32 @@
 # @astrojs/db
 
+## 0.11.7
+
+### Patch Changes
+
+- [#11331](https://github.com/withastro/astro/pull/11331) [`f1b78a4`](https://github.com/withastro/astro/commit/f1b78a496034d53b0e9dfc276a4a1b1d691772c4) Thanks [@bluwy](https://github.com/bluwy)! - Relaxes exports condition to allow importing ESM from CJS
+
+- Updated dependencies [[`f1b78a4`](https://github.com/withastro/astro/commit/f1b78a496034d53b0e9dfc276a4a1b1d691772c4)]:
+  - @astrojs/studio@0.1.1
+
+## 0.11.6
+
+### Patch Changes
+
+- [#11262](https://github.com/withastro/astro/pull/11262) [`9b03023`](https://github.com/withastro/astro/commit/9b030239cb4db4e51a8a1da638743b60837f7e1a) Thanks [@nezouse](https://github.com/nezouse)! - Import type `Database` from correct file
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.0
+
+## 0.11.5
+
+### Patch Changes
+
+- [#11216](https://github.com/withastro/astro/pull/11216) [`29463df`](https://github.com/withastro/astro/commit/29463dff52f2e74d0d522168afe6faf70ff2fabb) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Export type `Database` from `@astrojs/db/runtime`
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.0
+
 ## 0.11.4
 
 ### Patch Changes

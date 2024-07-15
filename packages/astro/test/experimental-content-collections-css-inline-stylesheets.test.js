@@ -59,7 +59,10 @@ describe('Experimental Content Collections cache - inlineStylesheets to never in
 			root: './fixtures/css-inline-stylesheets/',
 			output: 'server',
 			adapter: testAdapter(),
+			outDir: './dist/inline-stylesheets-never',
 			build: {
+				client: './dist/inline-stylesheets-never/client',
+				server: './dist/inline-stylesheets-never/server',
 				inlineStylesheets: 'never',
 			},
 			experimental: {
@@ -103,7 +106,10 @@ describe('Experimental Content Collections cache - inlineStylesheets to auto in 
 			site: 'https://test.info/',
 			root: './fixtures/css-inline-stylesheets/',
 			output: 'static',
+			outDir: './dist/inline-stylesheets-auto',
 			build: {
+				client: './dist/inline-stylesheets-auto/client',
+				server: './dist/inline-stylesheets-auto/server',
 				inlineStylesheets: 'auto',
 			},
 			vite: {
@@ -202,7 +208,10 @@ describe('Setting inlineStylesheets to always in server output', () => {
 			root: './fixtures/css-inline-stylesheets/',
 			output: 'server',
 			adapter: testAdapter(),
+			outDir: './dist/inline-stylesheets-always',
 			build: {
+				client: './dist/inline-stylesheets-always/client',
+				server: './dist/inline-stylesheets-always/server',
 				inlineStylesheets: 'always',
 			},
 			experimental: {

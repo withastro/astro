@@ -74,7 +74,7 @@ export async function createContainer({
 				include: rendererClientEntries,
 			},
 		},
-		{ settings, logger, mode: 'dev', command: 'dev', fs }
+		{ settings, logger, mode: 'dev', command: 'dev', fs, sync: false }
 	);
 	await runHookConfigDone({ settings, logger });
 	const viteServer = await vite.createServer(viteConfig);

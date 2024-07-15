@@ -1,5 +1,453 @@
 # astro
 
+## 4.11.5
+
+### Patch Changes
+
+- [#11408](https://github.com/withastro/astro/pull/11408) [`b9e906f`](https://github.com/withastro/astro/commit/b9e906f8e75444739aa259b62489d9f5749260b9) Thanks [@matthewp](https://github.com/matthewp)! - Revert change to how boolean attributes work
+
+## 4.11.4
+
+### Patch Changes
+
+- [#11362](https://github.com/withastro/astro/pull/11362) [`93993b7`](https://github.com/withastro/astro/commit/93993b77cf4915b4c0d245df9ecbf2265f5893e7) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where creating manually the i18n middleware could break the logic of the functions of the virtual module `astro:i18n`
+
+- [#11349](https://github.com/withastro/astro/pull/11349) [`98d9ce4`](https://github.com/withastro/astro/commit/98d9ce41f20c8bf024c937e8bde80d3c3dbbed99) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where Astro didn't throw an error when `Astro.rewrite` was used without providing the experimental flag
+
+- [#11352](https://github.com/withastro/astro/pull/11352) [`a55ee02`](https://github.com/withastro/astro/commit/a55ee0268e1ca22597e9b5e6d1f24b4f28ad978b) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the rewrites didn't update the status code when using manual i18n routing.
+
+- [#11388](https://github.com/withastro/astro/pull/11388) [`3a223b4`](https://github.com/withastro/astro/commit/3a223b4811708cc93ebb27706118c1723e1fc013) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Adjusts the color of punctuations in error overlay.
+
+- [#11369](https://github.com/withastro/astro/pull/11369) [`e6de11f`](https://github.com/withastro/astro/commit/e6de11f4a941e29123da3714e5b8f17d25744f0f) Thanks [@bluwy](https://github.com/bluwy)! - Fixes attribute rendering for non-boolean attributes with boolean values
+
+## 4.11.3
+
+### Patch Changes
+
+- [#11347](https://github.com/withastro/astro/pull/11347) [`33bdc54`](https://github.com/withastro/astro/commit/33bdc5472929f72fa8e39624598bf929c48e60c0) Thanks [@bluwy](https://github.com/bluwy)! - Fixes installed packages detection when running `astro check`
+
+- [#11327](https://github.com/withastro/astro/pull/11327) [`0df8142`](https://github.com/withastro/astro/commit/0df81422a81c8f8900684d100e9b8f26365fa0b1) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue with the container APIs where a runtime error was thrown during the build, when using `pnpm` as package manager.
+
+## 4.11.2
+
+### Patch Changes
+
+- [#11335](https://github.com/withastro/astro/pull/11335) [`4c4741b`](https://github.com/withastro/astro/commit/4c4741b42dc531403f7b9647bd51951d0cdb8f5b) Thanks [@ematipico](https://github.com/ematipico)! - Reverts [#11292](https://github.com/withastro/astro/pull/11292), which caused a regression to the input type
+
+- [#11326](https://github.com/withastro/astro/pull/11326) [`41121fb`](https://github.com/withastro/astro/commit/41121fbe00e144d4d93835811e1c4349664d9003) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where running `astro sync` when using the experimental `astro:env` feature would fail if environment variables were missing
+
+- [#11338](https://github.com/withastro/astro/pull/11338) [`9752a0b`](https://github.com/withastro/astro/commit/9752a0b27526270fd0066f3db7049e9ae6af1ef8) Thanks [@zaaakher](https://github.com/zaaakher)! - Fixes svg icon margin in devtool tooltip title to look coherent in `rtl` and `ltr` layouts
+
+- [#11331](https://github.com/withastro/astro/pull/11331) [`f1b78a4`](https://github.com/withastro/astro/commit/f1b78a496034d53b0e9dfc276a4a1b1d691772c4) Thanks [@bluwy](https://github.com/bluwy)! - Removes `resolve` package and simplify internal resolve check
+
+- [#11339](https://github.com/withastro/astro/pull/11339) [`8fdbf0e`](https://github.com/withastro/astro/commit/8fdbf0e45beffdae3da1e7f36797575c92f8a0ba) Thanks [@matthewp](https://github.com/matthewp)! - Remove non-fatal errors from telemetry
+
+  Previously we tracked non-fatal errors in telemetry to get a good idea of the types of errors that occur in `astro dev`. However this has become noisy over time and results in a lot of data that isn't particularly useful. This removes those non-fatal errors from being tracked.
+
+## 4.11.1
+
+### Patch Changes
+
+- [#11308](https://github.com/withastro/astro/pull/11308) [`44c61dd`](https://github.com/withastro/astro/commit/44c61ddfd85f1c23f8cec8caeaa5e25897121996) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where custom `404.astro` and `500.astro` were not returning the correct status code when rendered inside a rewriting cycle.
+
+- [#11302](https://github.com/withastro/astro/pull/11302) [`0622567`](https://github.com/withastro/astro/commit/06225673269201044358788f2a81dbe13912adce) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue with the view transition router when redirecting to an URL with different origin.
+
+- Updated dependencies [[`b6afe6a`](https://github.com/withastro/astro/commit/b6afe6a782f68f4a279463a144baaf99cb96b6dc), [`41064ce`](https://github.com/withastro/astro/commit/41064cee78c1cccd428f710a24c483aeb275fd95)]:
+  - @astrojs/markdown-remark@5.1.1
+  - @astrojs/internal-helpers@0.4.1
+
+## 4.11.0
+
+### Minor Changes
+
+- [#11197](https://github.com/withastro/astro/pull/11197) [`4b46bd9`](https://github.com/withastro/astro/commit/4b46bd9bdcbb302f294aa27b8aa07099e104fa17) Thanks [@braebo](https://github.com/braebo)! - Adds [`ShikiTransformer`](https://shiki.style/packages/transformers#shikijs-transformers) support to the [`<Code />`](https://docs.astro.build/en/reference/api-reference/#code-) component with a new `transformers` prop.
+
+  Note that `transformers` only applies classes and you must provide your own CSS rules to target the elements of your code block.
+
+  ```astro
+  ---
+  import { transformerNotationFocus } from '@shikijs/transformers';
+  import { Code } from 'astro:components';
+
+  const code = `const foo = 'hello'
+  const bar = ' world'
+  console.log(foo + bar) // [!code focus]
+  `;
+  ---
+
+  <Code {code} lang="js" transformers={[transformerNotationFocus()]} />
+
+  <style is:global>
+    pre.has-focused .line:not(.focused) {
+      filter: blur(1px);
+    }
+  </style>
+  ```
+
+- [#11134](https://github.com/withastro/astro/pull/11134) [`9042be0`](https://github.com/withastro/astro/commit/9042be049157ce859355f911565bc0c3d68f0aa1) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves the developer experience of the `500.astro` file by passing it a new `error` prop.
+
+  When an error is thrown, the special `src/pages/500.astro` page now automatically receives the error as a prop. This allows you to display more specific information about the error on a custom 500 page.
+
+  ```astro
+  ---
+  // src/pages/500.astro
+  interface Props {
+    error: unknown;
+  }
+
+  const { error } = Astro.props;
+  ---
+
+  <div>{error instanceof Error ? error.message : 'Unknown error'}</div>
+  ```
+
+  If an error occurs rendering this page, your host's default 500 error page will be shown to your visitor in production, and Astro's default error overlay will be shown in development.
+
+### Patch Changes
+
+- [#11280](https://github.com/withastro/astro/pull/11280) [`fd3645f`](https://github.com/withastro/astro/commit/fd3645fe8364ec5e280b6802d1468867890d463c) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that prevented cookies from being set when using experimental rewrites
+
+- [#11275](https://github.com/withastro/astro/pull/11275) [`bab700d`](https://github.com/withastro/astro/commit/bab700d69085b1de8f03fc1b0b31651f709cbfe3) Thanks [@syhily](https://github.com/syhily)! - Drop duplicated brackets in data collections schema generation.
+
+- [#11272](https://github.com/withastro/astro/pull/11272) [`ea987d7`](https://github.com/withastro/astro/commit/ea987d7da589ead9aa4b550f167f5e2f6c939d2e) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a case where rewriting `/` would cause an issue, when `trailingSlash` was set to `"never"`.
+
+- [#11272](https://github.com/withastro/astro/pull/11272) [`ea987d7`](https://github.com/withastro/astro/commit/ea987d7da589ead9aa4b550f167f5e2f6c939d2e) Thanks [@ematipico](https://github.com/ematipico)! - Reverts a logic where it wasn't possible to rewrite `/404` in static mode. It's **now possible** again
+
+- [#11264](https://github.com/withastro/astro/pull/11264) [`5a9c9a6`](https://github.com/withastro/astro/commit/5a9c9a60e7c32aa461b86b5bc667cb955e23d4d9) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes type generation for empty content collections
+
+- [#11279](https://github.com/withastro/astro/pull/11279) [`9a08d74`](https://github.com/withastro/astro/commit/9a08d74bc00ae2c3bc254f99580a22ce4df1d002) Thanks [@ascorbic](https://github.com/ascorbic)! - Improves type-checking and error handling to catch case where an image import is passed directly to `getImage()`
+
+- [#11292](https://github.com/withastro/astro/pull/11292) [`7f8f347`](https://github.com/withastro/astro/commit/7f8f34799528ed0b2011e1ea273bd0636f6e767d) Thanks [@jdtjenkins](https://github.com/jdtjenkins)! - Fixes a case where `defineAction` autocomplete for the `accept` prop would not show `"form"` as a possible value
+
+- [#11273](https://github.com/withastro/astro/pull/11273) [`cb4d078`](https://github.com/withastro/astro/commit/cb4d07819f0dbdfd94bc4f084edf7720ada01323) Thanks [@ascorbic](https://github.com/ascorbic)! - Corrects an inconsistency in dev where middleware would run for prerendered 404 routes.
+  Middleware is not run for prerendered 404 routes in production, so this was incorrect.
+
+- [#11284](https://github.com/withastro/astro/pull/11284) [`f4b029b`](https://github.com/withastro/astro/commit/f4b029b08264268c68fc81ea25b264e81f47e683) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes an issue that would break `Astro.request.url` and `Astro.request.headers` in `astro dev` if HTTP/2 was enabled.
+
+  HTTP/2 is now enabled by default in `astro dev` if `https` is configured in the Vite config.
+
+## 4.10.3
+
+### Patch Changes
+
+- [#11213](https://github.com/withastro/astro/pull/11213) [`94ac7ef`](https://github.com/withastro/astro/commit/94ac7efd70fd264b10887805a02d5d1877af8701) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `PUBLIC_` prefix constraint for `astro:env` public variables
+
+- [#11213](https://github.com/withastro/astro/pull/11213) [`94ac7ef`](https://github.com/withastro/astro/commit/94ac7efd70fd264b10887805a02d5d1877af8701) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental `astro:env` feature only**
+
+  Server secrets specified in the schema must now be imported from `astro:env/server`. Using `getSecret()` is no longer required to use these environment variables in your schema:
+
+  ```diff
+  - import { getSecret } from 'astro:env/server'
+  - const API_SECRET = getSecret("API_SECRET")
+  + import { API_SECRET } from 'astro:env/server'
+  ```
+
+  Note that using `getSecret()` with these keys is still possible, but no longer involves any special handling and the raw value will be returned, just like retrieving secrets not specified in your schema.
+
+- [#11234](https://github.com/withastro/astro/pull/11234) [`4385bf7`](https://github.com/withastro/astro/commit/4385bf7a4dc9c65bff53a30c660f7a909fcabfc9) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new function called `addServerRenderer` to the Container API. Use this function to manually store renderers inside the instance of your container.
+
+  This new function should be preferred when using the Container API in environments like on-demand pages:
+
+  ```ts
+  import type { APIRoute } from 'astro';
+  import { experimental_AstroContainer } from 'astro/container';
+  import reactRenderer from '@astrojs/react/server.js';
+  import vueRenderer from '@astrojs/vue/server.js';
+  import ReactComponent from '../components/button.jsx';
+  import VueComponent from '../components/button.vue';
+
+  // MDX runtime is contained inside the Astro core
+  import mdxRenderer from 'astro/jsx/server.js';
+
+  // In case you need to import a custom renderer
+  import customRenderer from '../renderers/customRenderer.js';
+
+  export const GET: APIRoute = async (ctx) => {
+    const container = await experimental_AstroContainer.create();
+    container.addServerRenderer({ renderer: reactRenderer });
+    container.addServerRenderer({ renderer: vueRenderer });
+    container.addServerRenderer({ renderer: customRenderer });
+    // You can pass a custom name too
+    container.addServerRenderer({
+      name: 'customRenderer',
+      renderer: customRenderer,
+    });
+    const vueComponent = await container.renderToString(VueComponent);
+    return await container.renderToResponse(Component);
+  };
+  ```
+
+- [#11249](https://github.com/withastro/astro/pull/11249) [`de60c69`](https://github.com/withastro/astro/commit/de60c69aa06c41f76a5510cc1d0bee4c8a5326a5) Thanks [@markgaze](https://github.com/markgaze)! - Fixes a performance issue with JSON schema generation
+
+- [#11242](https://github.com/withastro/astro/pull/11242) [`e4fc2a0`](https://github.com/withastro/astro/commit/e4fc2a0bafb4723566552d0c5954b25447890f51) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a case where the virtual module `astro:container` wasn't resolved
+
+- [#11236](https://github.com/withastro/astro/pull/11236) [`39bc3a5`](https://github.com/withastro/astro/commit/39bc3a5e8161232d6fdc6cc52b1f246083966d8e) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a case where symlinked content collection directories were not correctly resolved
+
+- [#11258](https://github.com/withastro/astro/pull/11258) [`d996db6`](https://github.com/withastro/astro/commit/d996db6f0bf361ebd84b23d022db7bb10fb316e6) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds a new error `RewriteWithBodyUsed` that throws when `Astro.rewrite` is used after the request body has already been read.
+
+- [#11243](https://github.com/withastro/astro/pull/11243) [`ba2b14c`](https://github.com/withastro/astro/commit/ba2b14cc28bd219c241313cdf142b736e7442014) Thanks [@V3RON](https://github.com/V3RON)! - Fixes a prerendering issue for libraries in `node_modules` when a folder with an underscore is in the path.
+
+- [#11244](https://github.com/withastro/astro/pull/11244) [`d07d2f7`](https://github.com/withastro/astro/commit/d07d2f7ac9d87af907beaca700ba4116dc1d6f37) Thanks [@ematipico](https://github.com/ematipico)! - Improves the developer experience of the custom `500.astro` page in development mode.
+
+  Before, in development, an error thrown during the rendering phase would display the default error overlay, even when users had the `500.astro` page.
+
+  Now, the development server will display the `500.astro` and the original error is logged in the console.
+
+- [#11240](https://github.com/withastro/astro/pull/11240) [`2851b0a`](https://github.com/withastro/astro/commit/2851b0aa2e2abe80ea603b53c67770e94980a8d3) Thanks [@ascorbic](https://github.com/ascorbic)! - Ignores query strings in module identifiers when matching ".astro" file extensions in Vite plugin
+
+- [#11245](https://github.com/withastro/astro/pull/11245) [`e22be22`](https://github.com/withastro/astro/commit/e22be22e5729e60220726e92b52d2833c937fd1c) Thanks [@bluwy](https://github.com/bluwy)! - Refactors prerendering chunk handling to correctly remove unused code during the SSR runtime
+
+## 4.10.2
+
+### Patch Changes
+
+- [#11231](https://github.com/withastro/astro/pull/11231) [`58d7dbb`](https://github.com/withastro/astro/commit/58d7dbb5e0cabea1ac7a35af5b46685fce50d723) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression for `getViteConfig`, where the inline config wasn't merged in the final config.
+
+- [#11228](https://github.com/withastro/astro/pull/11228) [`1e293a1`](https://github.com/withastro/astro/commit/1e293a1b819024f16bfe482f272df0678cdd7874) Thanks [@ascorbic](https://github.com/ascorbic)! - Updates `getCollection()` to always return a cloned array
+
+- [#11207](https://github.com/withastro/astro/pull/11207) [`7d9aac3`](https://github.com/withastro/astro/commit/7d9aac376c4b8844917901f7f566f7259d7f66c8) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue in the rewriting logic where old data was not purged during the rewrite flow. This caused some false positives when checking the validity of URL path names during the rendering phase.
+
+- [#11189](https://github.com/withastro/astro/pull/11189) [`75a8fe7`](https://github.com/withastro/astro/commit/75a8fe7e72b95f20c36f034de2b51b6a9550e27e) Thanks [@ematipico](https://github.com/ematipico)! - Improve error message when using `getLocaleByPath` on path that doesn't contain any locales.
+
+- [#11195](https://github.com/withastro/astro/pull/11195) [`0a6ab6f`](https://github.com/withastro/astro/commit/0a6ab6f562651b558ca90761feed5c07f54f2633) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds support for enums to `astro:env`
+
+  You can now call `envField.enum`:
+
+  ```js
+  import { defineConfig, envField } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      env: {
+        schema: {
+          API_VERSION: envField.enum({
+            context: 'server',
+            access: 'secret',
+            values: ['v1', 'v2'],
+          }),
+        },
+      },
+    },
+  });
+  ```
+
+- [#11210](https://github.com/withastro/astro/pull/11210) [`66fc028`](https://github.com/withastro/astro/commit/66fc0283d3f1d1a4f17d7db65ca3521a01fb5bec) Thanks [@matthewp](https://github.com/matthewp)! - Close the iterator only after rendering is complete
+
+- [#11195](https://github.com/withastro/astro/pull/11195) [`0a6ab6f`](https://github.com/withastro/astro/commit/0a6ab6f562651b558ca90761feed5c07f54f2633) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds additional validation options to `astro:env`
+
+  `astro:env` schema datatypes `string` and `number` now have new optional validation rules:
+
+  ```js
+  import { defineConfig, envField } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      env: {
+        schema: {
+          FOO: envField.string({
+            // ...
+            max: 32,
+            min: 3,
+            length: 12,
+            url: true,
+            includes: 'foo',
+            startsWith: 'bar',
+            endsWith: 'baz',
+          }),
+          BAR: envField.number({
+            // ...
+            gt: 2,
+            min: 3,
+            lt: 10,
+            max: 9,
+            int: true,
+          }),
+        },
+      },
+    },
+  });
+  ```
+
+- [#11211](https://github.com/withastro/astro/pull/11211) [`97724da`](https://github.com/withastro/astro/commit/97724da93ed7b1db19632c0cdb4b3aab1ff84812) Thanks [@matthewp](https://github.com/matthewp)! - Let middleware handle the original request URL
+
+- [#10607](https://github.com/withastro/astro/pull/10607) [`7327c6a`](https://github.com/withastro/astro/commit/7327c6acb197e1f2ea6cf94cfbc5700bc755f982) Thanks [@frankbits](https://github.com/frankbits)! - Fixes an issue where a leading slash created incorrect conflict resolution between pages generated from static routes and catch-all dynamic routes
+
+## 4.10.1
+
+### Patch Changes
+
+- [#11198](https://github.com/withastro/astro/pull/11198) [`8b9a499`](https://github.com/withastro/astro/commit/8b9a499d3733e9d0fc6a0bd067ece19bd36f4726) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `astro:env` `getSecret` would not retrieve environment variables properly in dev and build modes
+
+- [#11206](https://github.com/withastro/astro/pull/11206) [`734b98f`](https://github.com/withastro/astro/commit/734b98fecf0212cd76be3c935a49f84a9a7dab34) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental `astro:env` feature only**
+
+  Updates the adapter `astro:env` entrypoint from `astro:env/setup` to `astro/env/setup`
+
+- [#11205](https://github.com/withastro/astro/pull/11205) [`8c45391`](https://github.com/withastro/astro/commit/8c4539145f0b6a735b65852b2f2b1a7e9f5a9c3f) Thanks [@Nin3lee](https://github.com/Nin3lee)! - Fixes a typo in the config reference
+
+## 4.10.0
+
+### Minor Changes
+
+- [#10974](https://github.com/withastro/astro/pull/10974) [`2668ef9`](https://github.com/withastro/astro/commit/2668ef984104574f25f29ef75e2572a0745d1666) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds experimental support for the `astro:env` API.
+
+  The `astro:env` API lets you configure a type-safe schema for your environment variables, and indicate whether they should be available on the server or the client. Import and use your defined variables from the appropriate `/client` or `/server` module:
+
+  ```astro
+  ---
+  import { PUBLIC_APP_ID } from 'astro:env/client';
+  import { PUBLIC_API_URL, getSecret } from 'astro:env/server';
+  const API_TOKEN = getSecret('API_TOKEN');
+
+  const data = await fetch(`${PUBLIC_API_URL}/users`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+    body: JSON.stringify({ appId: PUBLIC_APP_ID }),
+  });
+  ---
+  ```
+
+  To define the data type and properties of your environment variables, declare a schema in your Astro config in `experimental.env.schema`. The `envField` helper allows you define your variable as a string, number, or boolean and pass properties in an object:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig, envField } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      env: {
+        schema: {
+          PUBLIC_API_URL: envField.string({ context: 'client', access: 'public', optional: true }),
+          PUBLIC_PORT: envField.number({ context: 'server', access: 'public', default: 4321 }),
+          API_SECRET: envField.string({ context: 'server', access: 'secret' }),
+        },
+      },
+    },
+  });
+  ```
+
+  There are three kinds of environment variables, determined by the combination of `context` (`client` or `server`) and `access` (`private` or `public`) settings defined in your [`env.schema`](#experimentalenvschema):
+
+  - **Public client variables**: These variables end up in both your final client and server bundles, and can be accessed from both client and server through the `astro:env/client` module:
+
+    ```js
+    import { PUBLIC_API_URL } from 'astro:env/client';
+    ```
+
+  - **Public server variables**: These variables end up in your final server bundle and can be accessed on the server through the `astro:env/server` module:
+
+    ```js
+    import { PUBLIC_PORT } from 'astro:env/server';
+    ```
+
+  - **Secret server variables**: These variables are not part of your final bundle and can be accessed on the server through the `getSecret()` helper function available from the `astro:env/server` module:
+
+    ```js
+    import { getSecret } from 'astro:env/server';
+
+    const API_SECRET = getSecret('API_SECRET'); // typed
+    const SECRET_NOT_IN_SCHEMA = getSecret('SECRET_NOT_IN_SCHEMA'); // string | undefined
+    ```
+
+  **Note:** Secret client variables are not supported because there is no safe way to send this data to the client. Therefore, it is not possible to configure both `context: "client"` and `access: "secret"` in your schema.
+
+  To learn more, check out [the documentation](https://docs.astro.build/en/reference/configuration-reference/#experimentalenv).
+
+### Patch Changes
+
+- [#11192](https://github.com/withastro/astro/pull/11192) [`58b10a0`](https://github.com/withastro/astro/commit/58b10a073192030a251cff8ad706ab5b015180c9) Thanks [@liruifengv](https://github.com/liruifengv)! - Improves DX by throwing the original `AstroUserError` when an error is thrown inside a `.mdx` file.
+
+- [#11136](https://github.com/withastro/astro/pull/11136) [`35ef53c`](https://github.com/withastro/astro/commit/35ef53c0897c0d360efc086a71c5f4406721d2fe) Thanks [@ematipico](https://github.com/ematipico)! - Errors that are emitted during a rewrite are now bubbled up and shown to the user. A 404 response is not returned anymore.
+
+- [#11144](https://github.com/withastro/astro/pull/11144) [`803dd80`](https://github.com/withastro/astro/commit/803dd8061df02138b4928442bcb76e77dcf6f5e7) Thanks [@ematipico](https://github.com/ematipico)! - The integration now exposes a function called `getContainerRenderer`, that can be used inside the Container APIs to load the relative renderer.
+
+  ```js
+  import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+  import ReactWrapper from '../src/components/ReactWrapper.astro';
+  import { loadRenderers } from 'astro:container';
+  import { getContainerRenderer } from '@astrojs/react';
+
+  test('ReactWrapper with react renderer', async () => {
+    const renderers = await loadRenderers([getContainerRenderer()]);
+    const container = await AstroContainer.create({
+      renderers,
+    });
+    const result = await container.renderToString(ReactWrapper);
+
+    expect(result).toContain('Counter');
+    expect(result).toContain('Count: <!-- -->5');
+  });
+  ```
+
+- [#11144](https://github.com/withastro/astro/pull/11144) [`803dd80`](https://github.com/withastro/astro/commit/803dd8061df02138b4928442bcb76e77dcf6f5e7) Thanks [@ematipico](https://github.com/ematipico)! - **BREAKING CHANGE to the experimental Container API only**
+
+  Changes the **type** of the `renderers` option of the `AstroContainer::create` function and adds a dedicated function `loadRenderers()` to load the rendering scripts from renderer integration packages (`@astrojs/react`, `@astrojs/preact`, `@astrojs/solid-js`, `@astrojs/svelte`, `@astrojs/vue`, `@astrojs/lit`, and `@astrojs/mdx`).
+
+  You no longer need to know the individual, direct file paths to the client and server rendering scripts for each renderer integration package. Now, there is a dedicated function to load the renderer from each package, which is available from `getContainerRenderer()`:
+
+  ```diff
+  import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+  import ReactWrapper from '../src/components/ReactWrapper.astro';
+  import { loadRenderers } from "astro:container";
+  import { getContainerRenderer } from "@astrojs/react";
+
+  test('ReactWrapper with react renderer', async () => {
+  + const renderers = await loadRenderers([getContainerRenderer()])
+  - const renderers = [
+  - {
+  -  name: '@astrojs/react',
+  -   clientEntrypoint: '@astrojs/react/client.js',
+  -   serverEntrypoint: '@astrojs/react/server.js',
+  -  },
+  - ];
+    const container = await AstroContainer.create({
+      renderers,
+    });
+    const result = await container.renderToString(ReactWrapper);
+
+    expect(result).toContain('Counter');
+    expect(result).toContain('Count: <!-- -->5');
+  });
+  ```
+
+  The new `loadRenderers()` helper function is available from `astro:container`, a virtual module that can be used when running the Astro container inside `vite`.
+
+- [#11136](https://github.com/withastro/astro/pull/11136) [`35ef53c`](https://github.com/withastro/astro/commit/35ef53c0897c0d360efc086a71c5f4406721d2fe) Thanks [@ematipico](https://github.com/ematipico)! - It's not possible anymore to use `Astro.rewrite("/404")` inside static pages. This isn't counterproductive because Astro will end-up emitting a page that contains the HTML of 404 error page.
+
+  It's still possible to use `Astro.rewrite("/404")` inside on-demand pages, or pages that opt-out from prerendering.
+
+- [#11191](https://github.com/withastro/astro/pull/11191) [`6e29a17`](https://github.com/withastro/astro/commit/6e29a172f153d15fac07320488fae01dece71748) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a case where `Astro.url` would be incorrect when having `build.format` set to `'preserve'` in the Astro config
+
+- [#11182](https://github.com/withastro/astro/pull/11182) [`40b0b4d`](https://github.com/withastro/astro/commit/40b0b4d1e4ef1aa95d5e9011652444b855ab0b9c) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where `Astro.rewrite` wasn't carrying over the body of a `Request` in on-demand pages.
+
+- [#11194](https://github.com/withastro/astro/pull/11194) [`97fbe93`](https://github.com/withastro/astro/commit/97fbe938a9b07d52d61011da4bd5a8b5ad85a700) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the function `getViteConfig` wasn't returning the correct merged Astro configuration
+
+## 4.9.3
+
+### Patch Changes
+
+- [#11171](https://github.com/withastro/astro/pull/11171) [`ff8004f`](https://github.com/withastro/astro/commit/ff8004f6a7b2aab4c6ac367f13744a341c3c5462) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Guard globalThis.astroAsset usage in proxy code to avoid errors in wonky situations
+
+- [#11178](https://github.com/withastro/astro/pull/11178) [`1734c49`](https://github.com/withastro/astro/commit/1734c49f516ff7d778d6724a0db6d39649921b4b) Thanks [@theoephraim](https://github.com/theoephraim)! - Improves `isPromise` utility to check the presence of `then` on an object before trying to access it - which can cause undesired side-effects on Proxy objects
+
+- [#11183](https://github.com/withastro/astro/pull/11183) [`3cfa2ac`](https://github.com/withastro/astro/commit/3cfa2ac7e51d7bea96980403c393f9bcda1e9375) Thanks [@66Leo66](https://github.com/66Leo66)! - Suggest `pnpm dlx` instead of `pnpx` in update check.
+
+- [#11147](https://github.com/withastro/astro/pull/11147) [`2d93902`](https://github.com/withastro/astro/commit/2d93902f4c51dcc62b077b0546ead688e6f32c63) Thanks [@kitschpatrol](https://github.com/kitschpatrol)! - Fixes invalid MIME types in Picture source elements for jpg and svg extensions, which was preventing otherwise valid source variations from being shown by the browser
+
+- [#11141](https://github.com/withastro/astro/pull/11141) [`19df89f`](https://github.com/withastro/astro/commit/19df89f87c74205ebc76aeac43ca20b00694acec) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an internal error that prevented the `AstroContainer` to render the `Content` component.
+
+  You can now write code similar to the following to render content collections:
+
+  ```js
+  const entry = await getEntry(collection, slug);
+  const { Content } = await entry.render();
+  const content = await container.renderToString(Content);
+  ```
+
+- [#11170](https://github.com/withastro/astro/pull/11170) [`ba20c71`](https://github.com/withastro/astro/commit/ba20c718a4ccd1009bdf81f8265956bff1d19d05) Thanks [@matthewp](https://github.com/matthewp)! - Retain client scripts in content cache
+
 ## 4.9.2
 
 ### Patch Changes

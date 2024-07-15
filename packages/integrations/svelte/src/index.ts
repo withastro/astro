@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import type { Options } from '@sveltejs/vite-plugin-svelte';
 import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import type { AstroIntegration, AstroRenderer } from 'astro';
+import type { AstroIntegration, AstroRenderer, ContainerRenderer } from 'astro';
 import { VERSION } from 'svelte/compiler';
 import type { UserConfig } from 'vite';
 
@@ -11,6 +11,13 @@ function getRenderer(): AstroRenderer {
 	return {
 		name: '@astrojs/svelte',
 		clientEntrypoint: isSvelte5 ? '@astrojs/svelte/client-v5.js' : '@astrojs/svelte/client.js',
+		serverEntrypoint: isSvelte5 ? '@astrojs/svelte/server-v5.js' : '@astrojs/svelte/server.js',
+	};
+}
+
+export function getContainerRenderer(): ContainerRenderer {
+	return {
+		name: '@astrojs/svelte',
 		serverEntrypoint: isSvelte5 ? '@astrojs/svelte/server-v5.js' : '@astrojs/svelte/server.js',
 	};
 }
