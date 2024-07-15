@@ -3,7 +3,7 @@ import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
 import type { AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
-import { DATA_STORE_FILE } from './consts.js';
+import { ASSET_IMPORTS_FILE, DATA_STORE_FILE } from './consts.js';
 import { DataStore, globalDataStore } from './data-store.js';
 import type { DataWithId, LoaderContext } from './loaders/types.js';
 import { getEntryData, globalContentConfigObserver } from './utils.js';
@@ -59,14 +59,9 @@ export async function syncContentLayer({
 
 			if (!schema && typeof collection.loader === 'object') {
 				schema = collection.loader.schema;
-			}
-
-			if (typeof schema === 'function') {
-				schema = await schema({
-					image: () => {
-						throw new Error('Images are currently not supported for experimental data collections');
-					},
-				});
+				if (typeof schema === 'function') {
+					schema = await schema();
+				}
 			}
 
 			const collectionWithResolvedSchema = { ...collection, schema };
@@ -108,11 +103,13 @@ export async function syncContentLayer({
 			return collection.loader.load(payload);
 		})
 	);
-	const cacheFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
 	if (!existsSync(settings.config.cacheDir)) {
 		await fs.mkdir(settings.config.cacheDir, { recursive: true });
 	}
+	const cacheFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
 	await store.writeToDisk(cacheFile);
+	const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.config.cacheDir);
+	await store.writeAssetImports(assetImportsFile);
 	logger.info('Synced content');
 }
 

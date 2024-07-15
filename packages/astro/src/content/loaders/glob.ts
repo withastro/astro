@@ -124,6 +124,9 @@ export function glob(globOptions: GlobOptions): Loader {
 						digest,
 						rendered,
 					});
+					if (rendered.metadata?.imagePaths?.length) {
+						store.addAssetImports(rendered.metadata.imagePaths, filePath);
+					}
 				} else {
 					store.set({ id, data: parsedData, body, filePath, digest });
 				}

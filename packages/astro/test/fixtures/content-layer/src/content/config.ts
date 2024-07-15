@@ -76,6 +76,13 @@ const absoluteRoot = new URL('../../content-outside-src', import.meta.url);
 const spacecraft = defineCollection({
 	type: 'experimental_data',
 	loader: glob({ pattern: '*.md', base: absoluteRoot }),
+	schema: ({ image }) => z.object({
+		title: z.string(),
+		description: z.string(),
+		publishedDate: z.string(),
+		tags: z.array(z.string()),
+		heroImage: image().optional(),
+	}),
 });
 
 const numbers = defineCollection({

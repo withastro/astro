@@ -16,6 +16,7 @@ import {
 } from '../runtime/server/index.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
+import { imageSrcToImportId } from '#astro/assets/utils/resolveImports';
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
@@ -319,9 +320,30 @@ type RenderResult = {
 	remarkPluginFrontmatter: Record<string, any>;
 };
 
+async function updateImageReferences(html: string, fileName: string) {
+	// @ts-expect-error Virtual module
+	const { default: imageAssetMap } = await import('astro:asset-imports');
+	return html.replaceAll(/__ASTRO_IMAGE_="([^"]+)"/g, (full, imagePath) => {
+		const decodedImagePath = JSON.parse(imagePath.replace(/&#x22;/g, '"'));
+		const id = imageSrcToImportId(decodedImagePath.src, fileName);
+		const { format, ...imported } = imageAssetMap.get(id) ?? {};
+		const { index, ...attributes } = decodedImagePath;
+		return Object.entries({
+			...attributes,
+			...imported,
+		})
+			.map(([key, value]) => `${key}=${JSON.stringify(String(value))}`)
+			.join(' ');
+	});
+}
+
 async function renderEntry(entry?: DataEntry) {
-	console.log('entry:', entry?.rendered?.metadata);
-	const Content = createComponent(() => serverRender`${unescapeHTML(entry?.rendered?.html)}`);
+	const html =
+		entry?.rendered?.metadata?.imagePaths?.length && entry.filePath
+			? await updateImageReferences(entry.rendered.html, entry.filePath)
+			: entry?.rendered?.html;
+
+	const Content = createComponent(() => serverRender`${unescapeHTML(html)}`);
 	return { Content };
 }
 

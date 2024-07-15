@@ -13,6 +13,8 @@ import { isServerLikeOutput } from '../core/util.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
 import {
+	ASSET_IMPORTS_FILE,
+	ASSET_IMPORTS_VIRTUAL_ID,
 	CONTENT_FLAG,
 	CONTENT_RENDER_FLAG,
 	DATA_FLAG,
@@ -67,6 +69,10 @@ export function astroContentVirtualModPlugin({
 			}
 			if (id === DATA_STORE_VIRTUAL_ID) {
 				return RESOLVED_DATA_STORE_VIRTUAL_ID;
+			}
+			if (id === ASSET_IMPORTS_VIRTUAL_ID) {
+				const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.config.cacheDir);
+				return fileURLToPath(assetImportsFile);
 			}
 		},
 		async load(id, args) {
