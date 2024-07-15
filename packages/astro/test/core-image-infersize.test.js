@@ -70,6 +70,11 @@ describe('astro:image:infersize', () => {
 					true
 				);
 			});
+
+			it('direct function call work', async () => {
+				let $dimensions = $('#direct');
+				assert.equal($dimensions.text(), '64x64');
+			});
 		});
 	});
 });

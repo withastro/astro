@@ -1,4 +1,4 @@
-export { emitESMImage } from './emitAsset.js';
+export { emitESMImage } from './node/emitAsset.js';
 export { isESMImportedImage, isRemoteImage } from './imageKind.js';
 export { imageMetadata } from './metadata.js';
 export { getOrigQueryParams } from './queryParams.js';
