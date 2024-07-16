@@ -7,7 +7,7 @@ import {
 	formContentTypes,
 	getAction,
 	hasContentType,
-	actionKey,
+	getActionKey,
 	encoder,
 	decoder,
 } from './utils.js';
@@ -175,9 +175,12 @@ function nextWithLocalsStub(next: MiddlewareNext, context: APIContext) {
 	return ApiContextStorage.run(context, () => next());
 }
 
+const IV_LENGTH = 24;
+
 async function encodeResult(result: any) {
-	const iv = crypto.getRandomValues(new Uint8Array(12));
+	const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH / 2));
 	const data = encoder.encode(JSON.stringify(result));
+	const actionKey = await getActionKey();
 	const encryptedBuffer = await crypto.subtle.encrypt(
 		{
 			name: 'AES-GCM',
@@ -191,8 +194,9 @@ async function encodeResult(result: any) {
 }
 
 async function decodeResult(encodedResult: string) {
-	const iv = decodeHex(encodedResult.slice(0, 24));
-	const dataArray = base64.decode(encodedResult.slice(24));
+	const iv = decodeHex(encodedResult.slice(0, IV_LENGTH));
+	const dataArray = base64.decode(encodedResult.slice(IV_LENGTH));
+	const actionKey = await getActionKey();
 	const decryptedBuffer = await crypto.subtle.decrypt(
 		{
 			name: 'AES-GCM',

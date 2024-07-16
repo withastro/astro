@@ -5,7 +5,7 @@ import { ActionsWithoutServerOutputError } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
 import { isServerLikeOutput, viteID } from '../core/util.js';
 import { ACTIONS_TYPES_FILE, RESOLVED_VIRTUAL_MODULE_ID, VIRTUAL_MODULE_ID } from './consts.js';
-import { generateRandomActionKeyRaw } from './utils.js';
+import { base64 } from 'oslo/encoding';
 
 export default function astroActions(): AstroIntegration {
 	return {
@@ -21,13 +21,13 @@ export default function astroActions(): AstroIntegration {
 				const stringifiedActionsImport = JSON.stringify(
 					viteID(new URL('./actions', params.config.srcDir))
 				);
-				const key = await generateRandomActionKeyRaw();
+				const actionKey = await createActionKey();
 				params.updateConfig({
 					vite: {
 						define: {
 							'import.meta.env.ACTIONS_PATH': stringifiedActionsImport,
 							// TODO: move to manifest instead of inlined environment variable?
-							'import.meta.env.ACTIONS_ENCRYPTION_KEY': `"${key}"`,
+							'import.meta.env.ACTIONS_ENCRYPTION_KEY': JSON.stringify(actionKey),
 						},
 						plugins: [vitePluginActions],
 					},
@@ -91,4 +91,17 @@ async function typegen({
 
 	await mkdir(dotAstroDir, { recursive: true });
 	await writeFile(new URL(ACTIONS_TYPES_FILE, dotAstroDir), content);
+}
+
+async function createActionKey() {
+	const key = await crypto.subtle.generateKey(
+		{
+			name: 'AES-GCM',
+			length: 256,
+		},
+		true,
+		['encrypt', 'decrypt']
+	);
+	const exported = await crypto.subtle.exportKey('raw', key);
+	return base64.encode(new Uint8Array(exported));
 }

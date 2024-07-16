@@ -1,3 +1,5 @@
+import { base64 } from 'oslo/encoding';
+
 export const formContentTypes = ['application/x-www-form-urlencoded', 'multipart/form-data'];
 
 export function hasContentType(contentType: string, expected: string[]) {
@@ -34,23 +36,12 @@ export async function getAction(
 
 export const encoder = new TextEncoder();
 export const decoder = new TextDecoder();
-export const actionKey = await crypto.subtle.generateKey(
-	{
-		name: 'AES-GCM',
-		length: 256,
-	},
-	true,
-	['encrypt', 'decrypt']
-);
 
-// export async function getActionKey() {
-// 	const rawKey = import.meta.env.ACTIONS_ENCRYPTION_KEY;
-// 	console.log('$$$raw', rawKey);
-// 	return crypto.subtle.importKey('raw', stringToUint8Array(atob(rawKey)), 'AES-GCM', true, [
-// 		'encrypt',
-// 		'decrypt',
-// 	]);
-// }
+export async function getActionKey() {
+	const rawKey = import.meta.env.ACTIONS_ENCRYPTION_KEY;
+	const uint8 = base64.decode(rawKey);
+	return crypto.subtle.importKey('raw', uint8, 'AES-GCM', true, ['encrypt', 'decrypt']);
+}
 
 /**
  * Used to preserve the input schema type in the error object.
