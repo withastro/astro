@@ -4166,8 +4166,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       drizzle-orm:
-        specifier: ^0.32.0
-        version: 0.32.0(@libsql/client@0.7.0)(@types/react@18.3.3)(react@18.3.1)
+        specifier: ^0.31.2
+        version: 0.31.4(@libsql/client@0.7.0)(@types/react@18.3.3)(react@18.3.1)
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -8382,8 +8382,8 @@ packages:
     resolution: {integrity: sha512-IrPdXQsk2BbzvCBGBOTmmSH5SodmqZNt4ERAZDmW4CT+tL8VtvinqywuANaFu4bOMWki16nqf0e4oC0QIaDr/g==}
     engines: {node: '>=10'}
 
-  drizzle-orm@0.32.0:
-    resolution: {integrity: sha512-99IlfVGPNHzOFEXo9Phyu5At5TALLsY2t6WxFFy68rYd9Ej4cHX/7WjdPOn7JNRW69MNeNtP8XrDQg43SppuAA==}
+  drizzle-orm@0.31.4:
+    resolution: {integrity: sha512-VGD9SH9aStF2z4QOTnVlVX/WghV/EnuEzTmsH3fSVp2E4fFgc8jl3viQrS/XUJx1ekW4rVVLJMH42SfGQdjX3Q==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
       '@cloudflare/workers-types': '>=3'
@@ -9305,7 +9305,6 @@ packages:
 
   libsql@0.3.12:
     resolution: {integrity: sha512-to30hj8O3DjS97wpbKN6ERZ8k66MN1IaOfFLR6oHqd25GMiPJ/ZX0VaZ7w+TsPmxcFS3p71qArj/hiedCyvXCg==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lilconfig@2.1.0:
@@ -14436,7 +14435,7 @@ snapshots:
 
   dotenv@8.6.0: {}
 
-  drizzle-orm@0.32.0(@libsql/client@0.7.0)(@types/react@18.3.3)(react@18.3.1):
+  drizzle-orm@0.31.4(@libsql/client@0.7.0)(@types/react@18.3.3)(react@18.3.1):
     optionalDependencies:
       '@libsql/client': 0.7.0
       '@types/react': 18.3.3
