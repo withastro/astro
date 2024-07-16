@@ -1,7 +1,8 @@
-import { resolve } from 'node:path/posix';
 import { CONTENT_IMAGE_FLAG, IMAGE_IMPORT_PREFIX } from '../../content/consts.js';
 import { shorthash } from '../../runtime/server/shorthash.js';
 import { VALID_INPUT_FORMATS } from '../consts.js';
+import { isRemotePath } from '@astrojs/internal-helpers/path';
+import { pathToFileURL } from 'node:url';
 
 /**
  * Resolves an image src from a content file (such as markdown) to an import id.
@@ -17,7 +18,7 @@ export function imageSrcToImportId(imageSrc: string, filePath: string): string |
 	}
 
 	// We only care about local imports
-	if (['http', 'https'].includes(imageSrc.split(':')[0]) || imageSrc.startsWith('/')) {
+	if (isRemotePath(imageSrc) || imageSrc.startsWith('/')) {
 		return;
 	}
 	// We only care about images
@@ -27,7 +28,7 @@ export function imageSrcToImportId(imageSrc: string, filePath: string): string |
 	}
 	// If the import is relative, we can resolve it here
 	if (imageSrc.startsWith('./') || imageSrc.startsWith('../')) {
-		return resolve(filePath, '..', imageSrc);
+		return new URL(imageSrc, pathToFileURL(filePath)).href;
 	}
 	// Otherwise we need to resolve it with Vite. We set the importer to the current file so
 	// that Vite can resolve it correctly.

@@ -3,7 +3,7 @@ import { Traverse } from 'neotraverse/modern';
 import pLimit from 'p-limit';
 import { ZodIssueCode, string as zodString } from 'zod';
 import type { GetImageResult, ImageMetadata } from '../@types/astro.js';
-import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
+import { imageSrcToImportId } from '../assets/node/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 import {

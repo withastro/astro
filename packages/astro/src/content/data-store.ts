@@ -1,5 +1,5 @@
 import { promises as fs, type PathLike, existsSync } from 'fs';
-import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
+import { imageSrcToImportId, importIdToSymbolName } from '../assets/node/resolveImports.js';
 
 const SAVE_DEBOUNCE_MS = 500;
 
