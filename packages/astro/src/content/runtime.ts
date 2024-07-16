@@ -345,6 +345,8 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 	// @ts-expect-error Virtual module resolved at runtime
 	const { getImage } = await import('astro:assets');
 
+	// First load all the images. This is done outside of the replaceAll
+	// function because getImage is async.
 	for (const match of html.matchAll(IMAGE_REGEX)) {
 		const imagePath = match[1];
 		const decodedImagePath = JSON.parse(imagePath.replace(/&#x22;/g, '"'));
