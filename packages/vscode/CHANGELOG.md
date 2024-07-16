@@ -1,5 +1,15 @@
 # astro-vscode
 
+## 2.12.0
+
+### Minor Changes
+
+- d993c0d: Improves the handling of script and style tags. This release fixes numerous issues where the presence of those tags could break intellisense in certain parts of the file.
+
+### Patch Changes
+
+- aae45af: Updates `prettier-plugin-astro` to 0.14.1
+
 ## 2.11.0
 
 ### Minor Changes
