@@ -121,7 +121,7 @@ export async function createVite(
 		appType: 'custom',
 		optimizeDeps: {
 			// Scan framework component code within `srcDir`
-			entries: [`${srcDirPattern}**/(*.jsx|*.tsx|*.vue|*.svelte)`],
+			entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`],
 			exclude: ['astro', 'node-fetch'],
 		},
 		plugins: [
