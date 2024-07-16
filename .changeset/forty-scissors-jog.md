@@ -2,4 +2,4 @@
 '@astrojs/markdoc': patch
 ---
 
-Adds support for markdoc-it's typographer option
+Adds support for markdown-it's typographer option
