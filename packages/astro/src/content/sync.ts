@@ -84,7 +84,6 @@ export async function syncContentLayer({
 				};
 
 				if (imageImports) {
-					console.log('Adding image imports', imageImports);
 					store.addAssetImports(imageImports, filePath);
 				}
 
