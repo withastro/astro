@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
+import { promises as fs } from 'node:fs';
 import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
@@ -16,7 +17,10 @@ describe('Content Layer', () => {
 		let json;
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/content-layer/' });
-			await fixture.build();
+			await fs
+				.unlink(new URL('./node_modules/.astro/data-store.json', fixture.config.root))
+				.catch(() => {});
+			await fixture.build({});
 			const rawJson = await fixture.readFile('/collections.json');
 			json = JSON.parse(rawJson);
 		});
@@ -74,12 +78,7 @@ describe('Content Layer', () => {
 
 		it('Returns data entry by id', async () => {
 			assert.ok(json.hasOwnProperty('dataEntry'));
-			assert.ok(
-				json.dataEntry.filePath
-					?.split(sep)
-					.join(posixSep)
-					.endsWith('packages/astro/test/fixtures/content-layer/src/data/dogs.json')
-			);
+			assert.equal(json.dataEntry.filePath?.split(sep).join(posixSep), 'src/data/dogs.json');
 			delete json.dataEntry.filePath;
 			assert.deepEqual(json.dataEntry, {
 				id: 'beagle',
@@ -182,12 +181,7 @@ describe('Content Layer', () => {
 
 		it('Returns data entry by id', async () => {
 			assert.ok(json.hasOwnProperty('dataEntry'));
-			assert.ok(
-				json.dataEntry.filePath
-					?.split(sep)
-					.join(posixSep)
-					.endsWith('packages/astro/test/fixtures/content-layer/src/data/dogs.json')
-			);
+			assert.equal(json.dataEntry.filePath?.split(sep).join(posixSep), 'src/data/dogs.json');
 			delete json.dataEntry.filePath;
 			assert.deepEqual(json.dataEntry, {
 				id: 'beagle',
