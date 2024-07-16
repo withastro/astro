@@ -71,8 +71,7 @@ export async function createContainer({
 
 	// Open server to the correct path. We pass the `base` here as we didn't pass the
 	// base to the initial Vite config
-	const open = isServerOpenURL ? serverOpen
-		: isServerOpenBoolean ? base : false;
+	const open = isServerOpenURL ? serverOpen : isServerOpenBoolean ? base : false;
 
 	// The client entrypoint for renderers. Since these are imported dynamically
 	// we need to tell Vite to preoptimize them.
