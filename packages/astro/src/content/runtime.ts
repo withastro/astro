@@ -18,6 +18,7 @@ import {
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
+// @ts-expect-error Virtual module resolved at runtime
 import { getImage } from 'astro:assets';
 import type { GetImageResult, ImageMetadata } from '../@types/astro.js';
 type LazyImport = () => Promise<any>;
