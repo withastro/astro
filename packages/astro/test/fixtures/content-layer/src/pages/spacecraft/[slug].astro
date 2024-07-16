@@ -1,6 +1,8 @@
 ---
 import type { GetStaticPaths } from "astro";
 import { getCollection } from "astro:content"
+import { Image } from "astro:assets"
+
 export const getStaticPaths = (async () => {
 	const collection = await getCollection("spacecraft");
 	if(!collection) return []
@@ -24,6 +26,6 @@ const { Content } = await craft.render()
 ---
 
 <h1>{craft.data.title}</h1>
-<h2>{craft.data.heroImage}</h2>
+{craft.data.heroImage ? <Image src={craft.data.heroImage} alt={craft.data.title} width="100" height="100"/> : undefined}
 <Content />
 </ul>

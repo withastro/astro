@@ -19,7 +19,7 @@ import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { getImage } from 'astro:assets';
-import type { GetImageResult } from '../@types/astro.js';
+import type { GetImageResult, ImageMetadata } from '../@types/astro.js';
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
@@ -68,11 +68,19 @@ export function createGetCollection({
 		} else if (collection in dataCollectionToEntryMap) {
 			type = 'data';
 		} else if (store.hasCollection(collection)) {
-			return [...store.values<DataEntry>(collection)].map((entry) => ({
-				...entry,
-				collection,
-				render: () => renderEntry(entry),
-			}));
+			// @ts-expect-error	virtual module
+			const { default: imageAssetMap } = await import('astro:asset-imports');
+
+			return [...store.values<DataEntry>(collection)].map((entry) => {
+				if (entry.filePath) {
+					entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
+				}
+				return {
+					...entry,
+					collection,
+					render: () => renderEntry(entry),
+				};
+			});
 		} else {
 			// eslint-disable-next-line no-console
 			console.warn(
@@ -270,7 +278,9 @@ export function createGetEntry({
 			}
 
 			if (entry.filePath) {
-				entry.data = await updateImageReferencesInData(entry.data, entry.filePath);
+				// @ts-expect-error	virtual module
+				const { default: imageAssetMap } = await import('astro:asset-imports');
+				entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
 			}
 			return {
 				...entry,
@@ -374,19 +384,19 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 	});
 }
 
-async function updateImageReferencesInData<T extends Record<string, unknown>>(
+function updateImageReferencesInData<T extends Record<string, unknown>>(
 	data: T,
-	fileName: string
-): Promise<T> {
-	// @ts-expect-error Virtual module
-	const { default: imageAssetMap } = await import('astro:asset-imports');
-	console.log('traverse', data);
+	fileName: string,
+	imageAssetMap: Map<string, ImageMetadata>
+): T {
 	return new Traverse(data).map(function (ctx, val) {
-		console.log(val);
 		if (typeof val === 'string' && val.startsWith('__ASTRO_IMAGE_')) {
-			console.log('replace', val);
 			const src = val.replace('__ASTRO_IMAGE_', '');
 			const id = imageSrcToImportId(src, fileName);
+			if (!id) {
+				ctx.update(src);
+				return;
+			}
 			const imported = imageAssetMap.get(id);
 			if (imported) {
 				ctx.update(imported);
