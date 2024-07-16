@@ -2219,7 +2219,7 @@ export interface AstroUserConfig {
 		 *
 		 * ```astro
 		 * <Avatar server:defer>
-		 *   <svg slot="fallback" class="generic-avatar">...</svg>
+		 *   <svg slot="fallback" class="generic-avatar" transition:name="avatar">...</svg>
 		 * </Avatar>
 		 * ```
 		 *
