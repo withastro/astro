@@ -2187,11 +2187,12 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 *
-		 * Server Islands must be used with either `hybrid` or `server` output.
-		 * 
-		 * Use the `server:defer` directive on any Astro component and the component will not render initially.
+		 * Use the `server:defer` directive on any Astro component to delay initial rendering:
 		 *
 		 * ```astro "server:defer"
+		 * ---
+		 * import Avatar from '~/components/Avatar.astro';
+		 * ---
 		 * <Avatar server:defer />
 		 * ```
 		 *
