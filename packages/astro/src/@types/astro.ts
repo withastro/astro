@@ -2200,7 +2200,7 @@ export interface AstroUserConfig {
 		 *
 		 * After the page loads in the browser, the script tag will replace itself with the the contents of the island by making a request.
 		 *
-		 * Your island code can look like any normal Astro component; there is no special API for it:
+		 * Any Astro component can be given the `server: defer` attribute to delay its rendering. There is no special API and you can write `.astro` code as normal:
 		 *
 		 * ```astro
 		 * ---
