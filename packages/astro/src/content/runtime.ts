@@ -1,5 +1,3 @@
-// @ts-expect-error Virtual module resolved at runtime
-import { getImage } from 'astro:assets';
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { Traverse } from 'neotraverse/modern';
 import pLimit from 'p-limit';
@@ -343,6 +341,9 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 	const { default: imageAssetMap } = await import('astro:asset-imports');
 
 	const imageObjects = new Map<string, GetImageResult>();
+
+	// @ts-expect-error Virtual module resolved at runtime
+	const { getImage } = await import('astro:assets');
 
 	for (const match of html.matchAll(IMAGE_REGEX)) {
 		const imagePath = match[1];
