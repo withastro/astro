@@ -90,7 +90,16 @@ export function glob(globOptions: GlobOptions): Loader {
 
 				const digest = generateDigest(contents);
 
-				if (existingEntry && existingEntry.digest === digest) {
+				if (existingEntry && existingEntry.digest === digest && existingEntry.filePath) {
+					if (existingEntry.rendered?.metadata?.imagePaths?.length) {
+						// Add asset imports for existing entries
+						store.addAssetImports(
+							existingEntry.rendered?.metadata.imagePaths,
+							existingEntry.filePath
+						);
+					}
+					// Re-parsing to resolve images and other effects
+					await parseData(existingEntry);
 					return;
 				}
 

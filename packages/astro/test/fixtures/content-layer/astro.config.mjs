@@ -4,6 +4,9 @@ import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
   integrations: [mdx()],
+	// experimental: {
+	// 	contentCollectionCache: true,
+	// },
 	vite: {
 		resolve: {
 			alias: {

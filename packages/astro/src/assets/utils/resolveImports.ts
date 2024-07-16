@@ -1,5 +1,5 @@
 import { resolve } from 'node:path/posix';
-import { CONTENT_IMAGE_FLAG } from '../../content/consts.js';
+import { CONTENT_IMAGE_FLAG, IMAGE_IMPORT_PREFIX } from '../../content/consts.js';
 import { shorthash } from '../../runtime/server/shorthash.js';
 import { VALID_INPUT_FORMATS } from '../consts.js';
 
@@ -10,6 +10,12 @@ import { VALID_INPUT_FORMATS } from '../consts.js';
  * @returns The import id of the image, or undefined if it is not a local image
  */
 export function imageSrcToImportId(imageSrc: string, filePath: string): string | undefined {
+	// If the import is coming from the data store it will have a special prefix to identify it
+	// as an image import. We remove this prefix so that we can resolve the image correctly.
+	if (imageSrc.startsWith(IMAGE_IMPORT_PREFIX)) {
+		imageSrc = imageSrc.slice(IMAGE_IMPORT_PREFIX.length);
+	}
+
 	// We only care about local imports
 	if (['http', 'https'].includes(imageSrc.split(':')[0]) || imageSrc.startsWith('/')) {
 		return;

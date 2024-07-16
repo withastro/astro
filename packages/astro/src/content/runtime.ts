@@ -21,6 +21,7 @@ import {
 } from '../runtime/server/index.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
+import { IMAGE_IMPORT_PREFIX } from './consts.js';
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
@@ -391,8 +392,8 @@ function updateImageReferencesInData<T extends Record<string, unknown>>(
 	imageAssetMap: Map<string, ImageMetadata>
 ): T {
 	return new Traverse(data).map(function (ctx, val) {
-		if (typeof val === 'string' && val.startsWith('__ASTRO_IMAGE_')) {
-			const src = val.replace('__ASTRO_IMAGE_', '');
+		if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
+			const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 			const id = imageSrcToImportId(src, fileName);
 			if (!id) {
 				ctx.update(src);
