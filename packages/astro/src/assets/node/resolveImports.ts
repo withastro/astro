@@ -1,8 +1,8 @@
+import { pathToFileURL } from 'node:url';
+import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { CONTENT_IMAGE_FLAG, IMAGE_IMPORT_PREFIX } from '../../content/consts.js';
 import { shorthash } from '../../runtime/server/shorthash.js';
 import { VALID_INPUT_FORMATS } from '../consts.js';
-import { isRemotePath } from '@astrojs/internal-helpers/path';
-import { pathToFileURL } from 'node:url';
 
 /**
  * Resolves an image src from a content file (such as markdown) to an import id.

@@ -17,9 +17,9 @@ import {
 	render as serverRender,
 	unescapeHTML,
 } from '../runtime/server/index.js';
+import { IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
-import { IMAGE_IMPORT_PREFIX } from './consts.js';
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
