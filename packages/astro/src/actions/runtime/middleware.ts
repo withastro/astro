@@ -36,10 +36,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		try {
 			actionResult = await decodeResult(encodedActionResult);
 		} catch (e) {
-			// TODO: AstroError
-			throw new Error(`Failed to decode action result: ${e}`, {
-				cause: e,
-			});
+			// If we failed to decode, the site may have redeployed
+			// with a new private key. Redirect to the base pathname.
+			// 307: Webpage temporarily unavailable
+			return context.redirect(context.url.pathname, 307);
 		}
 		return handleResult({ context, next, actionName, actionResult });
 	}
@@ -92,13 +92,12 @@ async function handlePost({
 	try {
 		redirectUrl.searchParams.set('__result', await encodeResult(result));
 	} catch (e) {
-		// TODO: AstroError
-		throw new Error(`Failed to encode action result: ${e}`, {
+		// TODO: astro error
+		throw new Error(`Failed to encode result for ${JSON.stringify(actionName)}. Reason: ${e}`, {
 			cause: e,
 		});
 	}
-	console.log('$$$redirect', redirectUrl.href);
-	return context.redirect(redirectUrl.href);
+	return context.redirect(redirectUrl.href, 303);
 }
 
 function handleResult({
