@@ -108,6 +108,9 @@ importers:
       pretty-bytes:
         specifier: ^6.1.1
         version: 6.1.1
+      sharp:
+        specifier: ^0.33.3
+        version: 0.33.3
 
   benchmark/packages/timer:
     dependencies:
