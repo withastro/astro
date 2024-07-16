@@ -11,7 +11,7 @@ heroImage: "@images/launch.webp"
 ![columbia bare](shuttle.jpg)
 ![columbia relative](./shuttle.jpg)
 ![atlantis alias](@images/atlantis.avif)
-![columbia relative](./shuttle.jpg)
+![columbia relative 2](./shuttle.jpg)
 
 ## Columbia
 

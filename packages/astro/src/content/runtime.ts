@@ -347,8 +347,7 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 
 	// First load all the images. This is done outside of the replaceAll
 	// function because getImage is async.
-	for (const match of html.matchAll(IMAGE_REGEX)) {
-		const imagePath = match[1];
+	for (const [_full, imagePath] of html.matchAll(IMAGE_REGEX)) {
 		const decodedImagePath = JSON.parse(imagePath.replace(/&#x22;/g, '"'));
 		const id = imageSrcToImportId(decodedImagePath.src, fileName);
 
@@ -360,29 +359,23 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 		if (!imported) {
 			continue;
 		}
-		const image: GetImageResult = await getImage({ src: imported });
-		imageObjects.set(id, image);
+		const image: GetImageResult = await getImage({ ...decodedImagePath, src: imported });
+		imageObjects.set(imagePath, image);
 	}
 
 	return html.replaceAll(IMAGE_REGEX, (full, imagePath) => {
-		const decodedImagePath = JSON.parse(imagePath.replace(/&#x22;/g, '"'));
-		const id = imageSrcToImportId(decodedImagePath.src, fileName);
-
-		if (!id) {
-			return full;
-		}
-
-		const image = imageObjects.get(id);
+		const image = imageObjects.get(imagePath);
 
 		if (!image) {
 			return full;
 		}
 
+		const { index, ...attributes } = image.attributes;
+
 		return Object.entries({
-			...image.attributes,
+			...attributes,
 			src: image.src,
 			srcset: image.srcSet.attribute,
-			alt: decodedImagePath.alt,
 		})
 			.map(([key, value]) => (value ? `${key}=${JSON.stringify(String(value))}` : ''))
 			.join(' ');
