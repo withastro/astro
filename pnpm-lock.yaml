@@ -568,8 +568,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: 0.0.0-server-islands-20240620184241
-        version: 0.0.0-server-islands-20240620184241
+        specifier: ^2.9.0
+        version: 2.9.1
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
@@ -6028,14 +6028,11 @@ packages:
     resolution: {integrity: sha512-bVzyKzEpIwqjihBU/aUzt1LQckJuHK0agd3/ITdXhPUYculrc6K1/K7H+XG4rwjXtg+ikT3PM05V1MVYWiIvQw==}
     engines: {node: '>=18.14.1'}
 
-  '@astrojs/compiler@0.0.0-server-islands-20240620184241':
-    resolution: {integrity: sha512-vPcWdGvtYceezqcQyVGCHs9nwZZjqAVGrovbytN4S0nsUDqLVYZuDuRFxjvboRSSXFF9+42TBM1Wh8HNNC0r/Q==}
-
   '@astrojs/compiler@1.8.2':
     resolution: {integrity: sha512-o/ObKgtMzl8SlpIdzaxFnt7SATKPxu4oIP/1NL+HDJRzxfJcAkOTAb/ZKMRyULbz4q+1t2/DAebs2Z1QairkZw==}
 
-  '@astrojs/compiler@2.8.0':
-    resolution: {integrity: sha512-yrpD1WRGqsJwANaDIdtHo+YVjvIOFAjC83lu5qENIgrafwZcJgSXDuwVMXOgok4tFzpeKLsFQ6c3FoUdloLWBQ==}
+  '@astrojs/compiler@2.9.1':
+    resolution: {integrity: sha512-s8Ge2lWHx/s3kl4UoerjL/iPtwdtogNM/BLOaGCwQA6crMOVYpphy5wUkYlKyuh8GAeGYH/5haLAFBsgNy9AQQ==}
 
   '@astrojs/language-server@2.10.0':
     resolution: {integrity: sha512-crHXpqYfA5qWioiuZnZFpTsNItgBlF1f0S9MzDYS7/pfCALkHNJ7K3w9U/j0uMKymsT4hC7BfMaX0DYlfdSzHg==}
@@ -12262,15 +12259,13 @@ snapshots:
       log-update: 5.0.1
       sisteransi: 1.0.5
 
-  '@astrojs/compiler@0.0.0-server-islands-20240620184241': {}
-
   '@astrojs/compiler@1.8.2': {}
 
-  '@astrojs/compiler@2.8.0': {}
+  '@astrojs/compiler@2.9.1': {}
 
   '@astrojs/language-server@2.10.0(prettier-plugin-astro@0.14.0)(prettier@3.3.2)(typescript@5.4.5)':
     dependencies:
-      '@astrojs/compiler': 2.8.0
+      '@astrojs/compiler': 2.9.1
       '@jridgewell/sourcemap-codec': 1.4.15
       '@volar/kit': 2.2.5(typescript@5.4.5)
       '@volar/language-core': 2.2.5
