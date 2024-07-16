@@ -120,7 +120,7 @@ export async function createVite(
 		customLogger: createViteLogger(logger, settings.config.vite.logLevel),
 		appType: 'custom',
 		optimizeDeps: {
-			// Scan framework component code within `srcDir`
+			// Scan for component code within `srcDir`
 			entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`],
 			exclude: ['astro', 'node-fetch'],
 		},
