@@ -2211,7 +2211,7 @@ export interface AstroUserConfig {
 		 * <img class="avatar" src={user.imageUrl}>
 		 * ```
 		 *
-		 * #### Fallback
+		 * #### Server island fallback content
 		 *
 		 * Since your component doesn't render with the rest of the page you'll likely want to add fallback content. This content will be displayed when the page first renders but before the island has loaded.
 		 * 
