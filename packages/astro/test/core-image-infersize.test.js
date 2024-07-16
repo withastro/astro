@@ -73,7 +73,7 @@ describe('astro:image:infersize', () => {
 
 			it('direct function call work', async () => {
 				let $dimensions = $('#direct');
-				assert.equal($dimensions.text(), '64x64');
+				assert.equal($dimensions.text().trim(), '64x64');
 			});
 		});
 	});
