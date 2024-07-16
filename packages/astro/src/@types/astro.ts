@@ -2175,6 +2175,18 @@ export interface AstroUserConfig {
 		 * Enables experimental Server Island features.
 		 * Server Islands offer the ability to defer a component to render asynchronously after the page has already rendered.
 		 *
+		 * To enable, configure an [on-demand server rendering `output` mode](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered) with an adapter, and add the `serverIslands` flag to the `experimental` object:
+		 *
+		 * ```js
+		 * {
+		 *   output: 'hybrid', // or 'server'
+		 *   adapter: nodejs({ mode: 'standalone' }),
+		 *   experimental: {
+		 *     serverIslands: true,
+		 *   },
+		 * }
+		 * ```
+		 *
 		 * Server Islands must be used with either `hybrid` or `server` output.
 		 * 
 		 * Use the `server:defer` directive on any Astro component and the component will not render initially.
