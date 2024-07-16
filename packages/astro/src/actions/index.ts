@@ -5,6 +5,7 @@ import { ActionsWithoutServerOutputError } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
 import { isServerLikeOutput, viteID } from '../core/util.js';
 import { ACTIONS_TYPES_FILE, RESOLVED_VIRTUAL_MODULE_ID, VIRTUAL_MODULE_ID } from './consts.js';
+import { generateRandomActionKeyRaw } from './utils.js';
 
 export default function astroActions(): AstroIntegration {
 	return {
@@ -20,10 +21,13 @@ export default function astroActions(): AstroIntegration {
 				const stringifiedActionsImport = JSON.stringify(
 					viteID(new URL('./actions', params.config.srcDir))
 				);
+				const key = await generateRandomActionKeyRaw();
 				params.updateConfig({
 					vite: {
 						define: {
 							'import.meta.env.ACTIONS_PATH': stringifiedActionsImport,
+							// TODO: move to manifest instead of inlined environment variable?
+							'import.meta.env.ACTIONS_ENCRYPTION_KEY': `"${key}"`,
 						},
 						plugins: [vitePluginActions],
 					},

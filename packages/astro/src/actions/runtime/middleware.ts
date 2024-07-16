@@ -1,10 +1,16 @@
 import { yellow } from 'kleur/colors';
-import utf8 from 'utf8';
-import base64 from 'base-64';
+import { encodeHex, decodeHex, base64 } from 'oslo/encoding';
 import type { APIContext, MiddlewareNext } from '../../@types/astro.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
 import { ApiContextStorage } from './store.js';
-import { formContentTypes, getAction, hasContentType } from './utils.js';
+import {
+	formContentTypes,
+	getAction,
+	hasContentType,
+	actionKey,
+	encoder,
+	decoder,
+} from './utils.js';
 import { callSafely, getActionQueryString } from './virtual/shared.js';
 
 export type Locals = {
@@ -26,7 +32,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	const encodedActionResult = context.url.searchParams.get('__result');
 
 	if (context.request.method === 'GET' && actionName && encodedActionResult) {
-		const actionResult = encodedActionResult ? decodeResult(encodedActionResult) : undefined;
+		const actionResult = encodedActionResult ? await decodeResult(encodedActionResult) : undefined;
 		return handleResult({ context, next, actionName, actionResult });
 	}
 
@@ -75,7 +81,8 @@ async function handlePost({
 	const result = await ApiContextStorage.run(context, () => callSafely(() => action(formData)));
 
 	const redirectUrl = new URL(context.url);
-	redirectUrl.searchParams.set('__result', encodeResult(result));
+	redirectUrl.searchParams.set('__result', await encodeResult(result));
+	console.log('$$$redirect', redirectUrl.href);
 	return context.redirect(redirectUrl.href);
 }
 
@@ -100,7 +107,6 @@ function handleResult({
 	return ApiContextStorage.run(context, async () => {
 		const response = await next();
 		if (actionResult.error) {
-			console.log('$$$error', actionResult.error.status);
 			return new Response(response.body, {
 				status: actionResult.error.status,
 				statusText: actionResult.error.type,
@@ -169,14 +175,32 @@ function nextWithLocalsStub(next: MiddlewareNext, context: APIContext) {
 	return ApiContextStorage.run(context, () => next());
 }
 
-function encodeResult(result: any) {
-	const str = JSON.stringify(result);
-	const bytes = utf8.encode(str);
-	return base64.encode(bytes);
+async function encodeResult(result: any) {
+	const iv = crypto.getRandomValues(new Uint8Array(12));
+	const data = encoder.encode(JSON.stringify(result));
+	const encryptedBuffer = await crypto.subtle.encrypt(
+		{
+			name: 'AES-GCM',
+			iv,
+		},
+		actionKey,
+		data
+	);
+	const encryptedString = base64.encode(new Uint8Array(encryptedBuffer));
+	return encodeHex(iv) + encryptedString;
 }
 
-function decodeResult(encodedResult: string) {
-	const bytes = base64.decode(encodedResult);
-	const str = utf8.decode(bytes);
-	return JSON.parse(str);
+async function decodeResult(encodedResult: string) {
+	const iv = decodeHex(encodedResult.slice(0, 24));
+	const dataArray = base64.decode(encodedResult.slice(24));
+	const decryptedBuffer = await crypto.subtle.decrypt(
+		{
+			name: 'AES-GCM',
+			iv,
+		},
+		actionKey,
+		dataArray
+	);
+	const decryptedString = decoder.decode(decryptedBuffer);
+	return JSON.parse(decryptedString);
 }
