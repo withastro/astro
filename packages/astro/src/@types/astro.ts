@@ -2213,9 +2213,11 @@ export interface AstroUserConfig {
 		 *
 		 * #### Server island fallback content
 		 *
-		 * Since your component doesn't render with the rest of the page you'll likely want to add fallback content. This content will be displayed when the page first renders but before the island has loaded.
+		 * Since your component will not render with the rest of the page, you may want to add generic content (e.g. a loading message) to temporarily show in its place. This content will be displayed when the page first renders but before the island has loaded.
 		 * 
-		 * Fallback is used to show generic content in the place of the islands. This could be loading messages or placeholder content. It could be a generic avatar that you animate towards the user avatar when it loads.
+		 * Add placeholder content as a child of your Astro component with the `slot="fallback:` attribute. When your island content is available, the fallback content will be replaced.
+		 *
+		 * The example below displays a generic avatar as fallback content, then animates into a personalized avatar using view transitions:
 		 *
 		 * ```astro
 		 * <Avatar server:defer>
