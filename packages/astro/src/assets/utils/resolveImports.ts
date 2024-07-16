@@ -1,7 +1,7 @@
 import { resolve } from 'node:path/posix';
 import { CONTENT_IMAGE_FLAG } from '../../content/consts.js';
-import { VALID_INPUT_FORMATS } from '../consts.js';
 import { shorthash } from '../../runtime/server/shorthash.js';
+import { VALID_INPUT_FORMATS } from '../consts.js';
 
 /**
  * Resolves an image src from a content file (such as markdown) to an import id.

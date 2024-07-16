@@ -1,7 +1,11 @@
+// @ts-expect-error Virtual module resolved at runtime
+import { getImage } from 'astro:assets';
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import { Traverse } from 'neotraverse/modern';
 import pLimit from 'p-limit';
 import { ZodIssueCode, string as zodString } from 'zod';
-import { Traverse } from 'neotraverse/modern';
+import type { GetImageResult, ImageMetadata } from '../@types/astro.js';
+import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 import {
@@ -12,15 +16,11 @@ import {
 	renderScriptElement,
 	renderTemplate,
 	renderUniqueStylesheet,
-	unescapeHTML,
 	render as serverRender,
+	unescapeHTML,
 } from '../runtime/server/index.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
-import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
-// @ts-expect-error Virtual module resolved at runtime
-import { getImage } from 'astro:assets';
-import type { GetImageResult, ImageMetadata } from '../@types/astro.js';
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
