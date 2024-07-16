@@ -32,7 +32,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	const encodedActionResult = context.url.searchParams.get('__result');
 
 	if (context.request.method === 'GET' && actionName && encodedActionResult) {
-		const actionResult = encodedActionResult ? await decodeResult(encodedActionResult) : undefined;
+		let actionResult: any;
+		try {
+			actionResult = await decodeResult(encodedActionResult);
+		} catch (e) {
+			// TODO: AstroError
+			throw new Error(`Failed to decode action result: ${e}`, {
+				cause: e,
+			});
+		}
 		return handleResult({ context, next, actionName, actionResult });
 	}
 
@@ -81,7 +89,14 @@ async function handlePost({
 	const result = await ApiContextStorage.run(context, () => callSafely(() => action(formData)));
 
 	const redirectUrl = new URL(context.url);
-	redirectUrl.searchParams.set('__result', await encodeResult(result));
+	try {
+		redirectUrl.searchParams.set('__result', await encodeResult(result));
+	} catch (e) {
+		// TODO: AstroError
+		throw new Error(`Failed to encode action result: ${e}`, {
+			cause: e,
+		});
+	}
 	console.log('$$$redirect', redirectUrl.href);
 	return context.redirect(redirectUrl.href);
 }
