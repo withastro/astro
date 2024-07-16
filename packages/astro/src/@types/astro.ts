@@ -2198,7 +2198,7 @@ export interface AstroUserConfig {
 		 *
 		 * The outer page will be rendered, either at build-time (`hybrid`) or at runtime (`server`) with the island content omitted and a `<script>` tag included in its place.
 		 *
-		 * When the page loads in the browser the script tag will replace itself with the the contents of the island by making a request.
+		 * After the page loads in the browser, the script tag will replace itself with the the contents of the island by making a request.
 		 *
 		 * Your island code can look like any normal Astro component; there is no special API for it:
 		 *
