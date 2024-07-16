@@ -9,6 +9,7 @@ export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 export const DATA_STORE_VIRTUAL_ID = 'astro:data-layer-content';
 export const RESOLVED_DATA_STORE_VIRTUAL_ID = '\0' + DATA_STORE_VIRTUAL_ID;
 export const ASSET_IMPORTS_VIRTUAL_ID = 'astro:asset-imports';
+export const ASSET_IMPORTS_RESOLVED_STUB_ID = '\0' + ASSET_IMPORTS_VIRTUAL_ID;
 export const LINKS_PLACEHOLDER = '@@ASTRO-LINKS@@';
 export const STYLES_PLACEHOLDER = '@@ASTRO-STYLES@@';
 export const SCRIPTS_PLACEHOLDER = '@@ASTRO-SCRIPTS@@';

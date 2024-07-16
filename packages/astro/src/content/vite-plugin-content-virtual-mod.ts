@@ -14,6 +14,7 @@ import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
 import {
 	ASSET_IMPORTS_FILE,
+	ASSET_IMPORTS_RESOLVED_STUB_ID,
 	ASSET_IMPORTS_VIRTUAL_ID,
 	CONTENT_FLAG,
 	CONTENT_RENDER_FLAG,
@@ -72,7 +73,10 @@ export function astroContentVirtualModPlugin({
 			}
 			if (id === ASSET_IMPORTS_VIRTUAL_ID) {
 				const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.config.cacheDir);
-				return fileURLToPath(assetImportsFile);
+				if (fs.existsSync(assetImportsFile)) {
+					return fileURLToPath(assetImportsFile);
+				}
+				return ASSET_IMPORTS_RESOLVED_STUB_ID;
 			}
 		},
 		async load(id, args) {
@@ -123,6 +127,10 @@ export function astroContentVirtualModPlugin({
 					const message = 'Could not parse JSON file';
 					this.error({ message, id, cause: err });
 				}
+			}
+
+			if (id === ASSET_IMPORTS_RESOLVED_STUB_ID) {
+				return 'export default new Map()';
 			}
 		},
 		renderChunk(code, chunk) {
