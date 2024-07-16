@@ -121,6 +121,9 @@ export async function syncContentLayer({
 	}
 	const cacheFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
 	await store.writeToDisk(cacheFile);
+	if (!existsSync(settings.dotAstroDir)) {
+		await fs.mkdir(settings.dotAstroDir, { recursive: true });
+	}
 	const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
 	await store.writeAssetImports(assetImportsFile);
 	logger.info('Synced content');
