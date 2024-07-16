@@ -1,39 +1,29 @@
 import { expect } from 'chai';
-import ts from 'typescript/lib/typescript.js';
-import { getAstroMetadata } from '../../src/core/parseAstro.js';
-import { parseHTML } from '../../src/core/parseHTML.js';
+import { astro2tsx } from '../../src/core/astro2tsx.js';
 import { extractScriptTags } from '../../src/core/parseJS.js';
 
 describe('parseJS - Can find all the scripts in an Astro file', () => {
 	it('Can find all the scripts in an Astro file, including nested tags', () => {
 		const input = `<script>console.log('hi')</script><div><script>console.log('hi2')</script></div>`;
-		const snapshot = ts.ScriptSnapshot.fromString(input);
-		const html = parseHTML(snapshot, 0);
-		const astroAst = getAstroMetadata('file.astro', input).ast;
-
-		const scriptTags = extractScriptTags(snapshot, html.htmlDocument, astroAst);
+		const { ranges } = astro2tsx(input, 'file.astro');
+		const scriptTags = extractScriptTags(ranges.scripts);
 
 		expect(scriptTags.length).to.equal(2);
 	});
 
+	// TODO: This will be outdated in the future, once we add JSON support
 	it('Ignore JSON scripts', () => {
 		const input = `<script type="application/json">{foo: "bar"}</script>`;
-		const snapshot = ts.ScriptSnapshot.fromString(input);
-		const html = parseHTML(snapshot, 0);
-		const astroAst = getAstroMetadata('file.astro', input).ast;
-
-		const scriptTags = extractScriptTags(snapshot, html.htmlDocument, astroAst);
+		const { ranges } = astro2tsx(input, 'file.astro');
+		const scriptTags = extractScriptTags(ranges.scripts);
 
 		expect(scriptTags.length).to.equal(0);
 	});
 
-	it('returns the proper capabilities for inline script tags', () => {
+	it('returns the proper capabilities for inline script tags', async () => {
 		const input = `<script is:inline>console.log('hi')</script>`;
-		const snapshot = ts.ScriptSnapshot.fromString(input);
-		const html = parseHTML(snapshot, 0);
-		const astroAst = getAstroMetadata('file.astro', input).ast;
-
-		const scriptTags = extractScriptTags(snapshot, html.htmlDocument, astroAst);
+		const { ranges } = astro2tsx(input, 'file.astro');
+		const scriptTags = extractScriptTags(ranges.scripts);
 
 		scriptTags[0].mappings.forEach((mapping) => {
 			expect(mapping.data).to.deep.equal({

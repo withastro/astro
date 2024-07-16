@@ -137,7 +137,6 @@ export class AstroVirtualCode implements VirtualCode {
 	astroMeta!: AstroMetadata;
 	compilerDiagnostics!: DiagnosticMessage[];
 	htmlDocument!: HTMLDocument;
-	scriptCodeIds!: string[];
 	codegenStacks = [];
 
 	constructor(
@@ -159,16 +158,12 @@ export class AstroVirtualCode implements VirtualCode {
 				},
 			},
 		];
-		this.compilerDiagnostics = [];
 
+		const tsx = astro2tsx(this.snapshot.getText(0, this.snapshot.getLength()), this.fileName);
 		const astroMetadata = getAstroMetadata(
 			this.fileName,
 			this.snapshot.getText(0, this.snapshot.getLength())
 		);
-
-		if (astroMetadata.diagnostics.length > 0) {
-			this.compilerDiagnostics.push(...astroMetadata.diagnostics);
-		}
 
 		const { htmlDocument, virtualCode: htmlVirtualCode } = parseHTML(
 			this.snapshot,
@@ -176,30 +171,16 @@ export class AstroVirtualCode implements VirtualCode {
 				? astroMetadata.frontmatter.position.end.offset
 				: 0
 		);
+
 		this.htmlDocument = htmlDocument;
-
-		const scriptTags = extractScriptTags(this.snapshot, htmlDocument, astroMetadata.ast);
-
-		this.scriptCodeIds = scriptTags.map((scriptTag) => scriptTag.id);
-
-		htmlVirtualCode.embeddedCodes = [];
-		htmlVirtualCode.embeddedCodes.push(
-			...extractStylesheets(this.snapshot, htmlDocument, astroMetadata.ast),
-			...scriptTags
-		);
-
-		this.embeddedCodes = [];
-		this.embeddedCodes.push(htmlVirtualCode);
-
-		const tsx = astro2tsx(
-			this.snapshot.getText(0, this.snapshot.getLength()),
-			this.fileName,
-			htmlDocument
-		);
+		htmlVirtualCode.embeddedCodes = [
+			extractStylesheets(tsx.ranges.styles),
+			...extractScriptTags(tsx.ranges.scripts),
+		];
 
 		this.astroMeta = { ...astroMetadata, tsxRanges: tsx.ranges };
-		this.compilerDiagnostics.push(...tsx.diagnostics);
-		this.embeddedCodes.push(tsx.virtualCode);
+		this.compilerDiagnostics = [...tsx.diagnostics, ...astroMetadata.diagnostics];
+		this.embeddedCodes = [htmlVirtualCode, tsx.virtualCode];
 	}
 
 	get hasCompilationErrors(): boolean {

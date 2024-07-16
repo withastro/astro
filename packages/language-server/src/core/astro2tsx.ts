@@ -1,14 +1,21 @@
 import { convertToTSX } from '@astrojs/compiler/sync';
-import type { ConvertToTSXOptions, TSXResult } from '@astrojs/compiler/types';
+import type {
+	ConvertToTSXOptions,
+	TSXExtractedScript,
+	TSXExtractedStyle,
+	TSXResult,
+} from '@astrojs/compiler/types';
 import { decode } from '@jridgewell/sourcemap-codec';
-import type { CodeInformation, CodeMapping, VirtualCode } from '@volar/language-core';
+import type { CodeMapping, VirtualCode } from '@volar/language-core';
 import { Range } from '@volar/language-server';
-import { HTMLDocument, TextDocument } from 'vscode-html-languageservice';
+import { TextDocument } from 'vscode-html-languageservice';
 import { patchTSX } from './utils.js';
 
 export interface LSPTSXRanges {
 	frontmatter: Range;
 	body: Range;
+	scripts: TSXExtractedScript[];
+	styles: TSXExtractedStyle[];
 }
 
 export function safeConvertToTSX(content: string, options: ConvertToTSXOptions) {
@@ -47,6 +54,8 @@ export function safeConvertToTSX(content: string, options: ConvertToTSXOptions) 
 					start: 0,
 					end: 0,
 				},
+				scripts: [],
+				styles: [],
 			},
 		} satisfies TSXResult;
 	}
@@ -64,25 +73,22 @@ export function getTSXRangesAsLSPRanges(tsx: TSXResult): LSPTSXRanges {
 			textDocument.positionAt(tsx.metaRanges.body.start),
 			textDocument.positionAt(tsx.metaRanges.body.end)
 		),
+		scripts: tsx.metaRanges.scripts ?? [],
+		styles: tsx.metaRanges.styles ?? [],
 	};
 }
 
-export function astro2tsx(input: string, fileName: string, htmlDocument: HTMLDocument) {
+export function astro2tsx(input: string, fileName: string) {
 	const tsx = safeConvertToTSX(input, { filename: fileName });
 
 	return {
-		virtualCode: getVirtualCodeTSX(input, tsx, fileName, htmlDocument),
+		virtualCode: getVirtualCodeTSX(input, tsx, fileName),
 		diagnostics: tsx.diagnostics,
 		ranges: getTSXRangesAsLSPRanges(tsx),
 	};
 }
 
-function getVirtualCodeTSX(
-	input: string,
-	tsx: TSXResult,
-	fileName: string,
-	htmlDocument: HTMLDocument
-): VirtualCode {
+function getVirtualCodeTSX(input: string, tsx: TSXResult, fileName: string): VirtualCode {
 	tsx.code = patchTSX(tsx.code, fileName);
 	const v3Mappings = decode(tsx.map.mappings);
 	const sourcedDoc = TextDocument.create('', 'astro', 0, input);
@@ -123,33 +129,18 @@ function getVirtualCodeTSX(
 					) {
 						lastMapping.lengths[0] += length;
 					} else {
-						// Disable features inside script tags. This is a bit annoying to do, I wonder if maybe leaving script tags
-						// unmapped would be better.
-						const node = htmlDocument.findNodeAt(current.sourceOffset);
-						const rangeCapabilities: CodeInformation =
-							node.tag !== 'script'
-								? {
-										verification: true,
-										completion: true,
-										semantic: true,
-										navigation: true,
-										structure: true,
-										format: false,
-								  }
-								: {
-										verification: false,
-										completion: false,
-										semantic: false,
-										navigation: false,
-										structure: false,
-										format: false,
-								  };
-
 						mappings.push({
 							sourceOffsets: [current.sourceOffset],
 							generatedOffsets: [current.genOffset],
 							lengths: [length],
-							data: rangeCapabilities,
+							data: {
+								verification: true,
+								completion: true,
+								semantic: true,
+								navigation: true,
+								structure: true,
+								format: false,
+							},
 						});
 					}
 				}

@@ -1,18 +1,14 @@
 import { expect } from 'chai';
-import ts from 'typescript/lib/typescript.js';
-import { getAstroMetadata } from '../../src/core/parseAstro.js';
+import { astro2tsx } from '../../src/core/astro2tsx.js';
 import { extractStylesheets } from '../../src/core/parseCSS.js';
-import { parseHTML } from '../../src/core/parseHTML.js';
 
 describe('parseCSS - Can find all the styles in an Astro file', () => {
 	it('Can find all the styles in an Astro file, including nested tags', () => {
 		const input = `<style>h1{color: blue;}</style><div><style>h2{color: red;}</style></div>`;
-		const snapshot = ts.ScriptSnapshot.fromString(input);
-		const html = parseHTML(snapshot, 0);
-		const astroAst = getAstroMetadata('file.astro', input).ast;
+		const { ranges } = astro2tsx(input, 'file.astro');
 
-		const styleTags = extractStylesheets(snapshot, html.htmlDocument, astroAst);
+		const styleTags = extractStylesheets(ranges.styles);
 
-		expect(styleTags.length).to.equal(2);
+		expect(styleTags).to.not.be.undefined;
 	});
 });

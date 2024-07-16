@@ -91,4 +91,35 @@ describe('TypeScript - Completions', async () => {
 		);
 		expect(edits?.additionalTextEdits?.[0].range.start.line).to.equal(0);
 	});
+
+	it('Can get completions inside HTML events', async () => {
+		const document = await languageServer.openFakeDocument('<div onload="a"></div>', 'astro');
+		const completions = await languageServer.handle.sendCompletionRequest(
+			document.uri,
+			Position.create(0, 13)
+		);
+
+		expect(completions?.items).to.not.be.empty;
+
+		// Make sure we have the `alert` completion, which is a global function
+		const allLabels = completions?.items.map((item) => item.label);
+		expect(allLabels).to.include('alert');
+	});
+
+	it('Can get completions inside HTML events with multi-bytes characters in the file', async () => {
+		const document = await languageServer.openFakeDocument(
+			'<div>あ</div><div onload="a"></div>',
+			'astro'
+		);
+		const completions = await languageServer.handle.sendCompletionRequest(
+			document.uri,
+			Position.create(0, 24)
+		);
+
+		expect(completions?.items).to.not.be.empty;
+
+		// Make sure we have the `alert` completion, which is a global function
+		const allLabels = completions?.items.map((item) => item.label);
+		expect(allLabels).to.include('alert');
+	});
 });
