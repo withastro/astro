@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/db",
-  "version": "0.11.6",
+  "version": "0.11.7",
   "description": "Add libSQL and Astro Studio support to your Astro site",
   "license": "MIT",
   "repository": {
@@ -17,22 +17,22 @@
   "exports": {
     ".": {
       "types": "./index.d.ts",
-      "import": "./dist/index.js"
+      "default": "./dist/index.js"
     },
     "./utils": {
       "types": "./dist/utils.d.ts",
-      "import": "./dist/utils.js"
+      "default": "./dist/utils.js"
     },
     "./runtime": {
       "types": "./dist/runtime/index.d.ts",
-      "import": "./dist/runtime/index.js"
+      "default": "./dist/runtime/index.js"
     },
     "./dist/runtime/virtual.js": {
-      "import": "./dist/runtime/virtual.js"
+      "default": "./dist/runtime/virtual.js"
     },
     "./types": {
       "types": "./dist/core/types.d.ts",
-      "import": "./dist/core/types.js"
+      "default": "./dist/core/types.js"
     },
     "./package.json": "./package.json"
   },
@@ -70,7 +70,7 @@
   },
   "dependencies": {
     "@astrojs/studio": "workspace:*",
-    "@libsql/client": "^0.6.2",
+    "@libsql/client": "^0.7.0",
     "async-listen": "^3.0.1",
     "ci-info": "^4.0.0",
     "deep-diff": "^1.0.2",
@@ -94,7 +94,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0-rc.12",
-    "typescript": "^5.4.5",
-    "vite": "^5.3.1"
+    "typescript": "^5.5.2",
+    "vite": "^5.3.2"
   }
 }

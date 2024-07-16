@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 5.1.1
+
+### Patch Changes
+
+- [#11310](https://github.com/withastro/astro/pull/11310) [`b6afe6a`](https://github.com/withastro/astro/commit/b6afe6a782f68f4a279463a144baaf99cb96b6dc) Thanks [@bluwy](https://github.com/bluwy)! - Handles encoded image paths in internal rehype plugins and return decoded paths from markdown vfile's `data.imagePaths`
+
 ## 5.1.0
 
 ### Minor Changes

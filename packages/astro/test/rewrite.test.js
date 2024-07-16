@@ -390,6 +390,39 @@ describe('Middleware', () => {
 	});
 });
 
+describe('Middleware with custom 404.astro and 500.astro', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-custom-404/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('The `next()` function should return a Response with status code 404', async () => {
+		const html = await fixture.fetch('/about').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Custom error');
+		assert.equal($('p').text(), 'Interjected');
+	});
+
+	it('The `next()` function should return a Response with status code 500', async () => {
+		const html = await fixture.fetch('/about-2').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Custom error');
+		assert.equal($('p').text(), 'Interjected');
+	});
+});
+
 describe('Runtime error, default 500', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -484,5 +517,32 @@ describe('Runtime error in SSR, custom 500', () => {
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'I am the custom 500');
+	});
+});
+
+describe('Runtime error in SSR, custom 500', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-i18n-manual-routing/',
+			output: 'server',
+			adapter: testAdapter(),
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should return a status 200 when rewriting from the middleware to the homepage', async () => {
+		const request = new Request('http://example.com/foo');
+		const response = await app.render(request);
+		assert.equal(response.status, 200);
+		const html = await response.text();
+
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Expected http status of index page is 200');
 	});
 });

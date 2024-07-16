@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -46,8 +46,8 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.0",
     "remark-smartypants": "^3.0.1",
-    "shiki": "^1.6.5",
-    "unified": "^11.0.4",
+    "shiki": "^1.10.0",
+    "unified": "^11.0.5",
     "unist-util-remove-position": "^5.0.0",
     "unist-util-visit": "^5.0.0",
     "unist-util-visit-parents": "^6.0.1",

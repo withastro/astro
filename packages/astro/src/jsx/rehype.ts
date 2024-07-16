@@ -9,7 +9,7 @@ import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
-import { resolvePath } from '../core/util.js';
+import { resolvePath } from '../core/viteUtils.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 // This import includes ambient types for hast to include mdx nodes

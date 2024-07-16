@@ -1,5 +1,61 @@
 # astro
 
+## 4.11.5
+
+### Patch Changes
+
+- [#11408](https://github.com/withastro/astro/pull/11408) [`b9e906f`](https://github.com/withastro/astro/commit/b9e906f8e75444739aa259b62489d9f5749260b9) Thanks [@matthewp](https://github.com/matthewp)! - Revert change to how boolean attributes work
+
+## 4.11.4
+
+### Patch Changes
+
+- [#11362](https://github.com/withastro/astro/pull/11362) [`93993b7`](https://github.com/withastro/astro/commit/93993b77cf4915b4c0d245df9ecbf2265f5893e7) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where creating manually the i18n middleware could break the logic of the functions of the virtual module `astro:i18n`
+
+- [#11349](https://github.com/withastro/astro/pull/11349) [`98d9ce4`](https://github.com/withastro/astro/commit/98d9ce41f20c8bf024c937e8bde80d3c3dbbed99) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where Astro didn't throw an error when `Astro.rewrite` was used without providing the experimental flag
+
+- [#11352](https://github.com/withastro/astro/pull/11352) [`a55ee02`](https://github.com/withastro/astro/commit/a55ee0268e1ca22597e9b5e6d1f24b4f28ad978b) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the rewrites didn't update the status code when using manual i18n routing.
+
+- [#11388](https://github.com/withastro/astro/pull/11388) [`3a223b4`](https://github.com/withastro/astro/commit/3a223b4811708cc93ebb27706118c1723e1fc013) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Adjusts the color of punctuations in error overlay.
+
+- [#11369](https://github.com/withastro/astro/pull/11369) [`e6de11f`](https://github.com/withastro/astro/commit/e6de11f4a941e29123da3714e5b8f17d25744f0f) Thanks [@bluwy](https://github.com/bluwy)! - Fixes attribute rendering for non-boolean attributes with boolean values
+
+## 4.11.3
+
+### Patch Changes
+
+- [#11347](https://github.com/withastro/astro/pull/11347) [`33bdc54`](https://github.com/withastro/astro/commit/33bdc5472929f72fa8e39624598bf929c48e60c0) Thanks [@bluwy](https://github.com/bluwy)! - Fixes installed packages detection when running `astro check`
+
+- [#11327](https://github.com/withastro/astro/pull/11327) [`0df8142`](https://github.com/withastro/astro/commit/0df81422a81c8f8900684d100e9b8f26365fa0b1) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue with the container APIs where a runtime error was thrown during the build, when using `pnpm` as package manager.
+
+## 4.11.2
+
+### Patch Changes
+
+- [#11335](https://github.com/withastro/astro/pull/11335) [`4c4741b`](https://github.com/withastro/astro/commit/4c4741b42dc531403f7b9647bd51951d0cdb8f5b) Thanks [@ematipico](https://github.com/ematipico)! - Reverts [#11292](https://github.com/withastro/astro/pull/11292), which caused a regression to the input type
+
+- [#11326](https://github.com/withastro/astro/pull/11326) [`41121fb`](https://github.com/withastro/astro/commit/41121fbe00e144d4d93835811e1c4349664d9003) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where running `astro sync` when using the experimental `astro:env` feature would fail if environment variables were missing
+
+- [#11338](https://github.com/withastro/astro/pull/11338) [`9752a0b`](https://github.com/withastro/astro/commit/9752a0b27526270fd0066f3db7049e9ae6af1ef8) Thanks [@zaaakher](https://github.com/zaaakher)! - Fixes svg icon margin in devtool tooltip title to look coherent in `rtl` and `ltr` layouts
+
+- [#11331](https://github.com/withastro/astro/pull/11331) [`f1b78a4`](https://github.com/withastro/astro/commit/f1b78a496034d53b0e9dfc276a4a1b1d691772c4) Thanks [@bluwy](https://github.com/bluwy)! - Removes `resolve` package and simplify internal resolve check
+
+- [#11339](https://github.com/withastro/astro/pull/11339) [`8fdbf0e`](https://github.com/withastro/astro/commit/8fdbf0e45beffdae3da1e7f36797575c92f8a0ba) Thanks [@matthewp](https://github.com/matthewp)! - Remove non-fatal errors from telemetry
+
+  Previously we tracked non-fatal errors in telemetry to get a good idea of the types of errors that occur in `astro dev`. However this has become noisy over time and results in a lot of data that isn't particularly useful. This removes those non-fatal errors from being tracked.
+
+## 4.11.1
+
+### Patch Changes
+
+- [#11308](https://github.com/withastro/astro/pull/11308) [`44c61dd`](https://github.com/withastro/astro/commit/44c61ddfd85f1c23f8cec8caeaa5e25897121996) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where custom `404.astro` and `500.astro` were not returning the correct status code when rendered inside a rewriting cycle.
+
+- [#11302](https://github.com/withastro/astro/pull/11302) [`0622567`](https://github.com/withastro/astro/commit/06225673269201044358788f2a81dbe13912adce) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue with the view transition router when redirecting to an URL with different origin.
+
+- Updated dependencies [[`b6afe6a`](https://github.com/withastro/astro/commit/b6afe6a782f68f4a279463a144baaf99cb96b6dc), [`41064ce`](https://github.com/withastro/astro/commit/41064cee78c1cccd428f710a24c483aeb275fd95)]:
+  - @astrojs/markdown-remark@5.1.1
+  - @astrojs/internal-helpers@0.4.1
+
 ## 4.11.0
 
 ### Minor Changes
