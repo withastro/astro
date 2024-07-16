@@ -1,4 +1,5 @@
-import { promises as fs, existsSync } from 'fs';
+import { promises as fs, existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
 import type { AstroSettings } from '../@types/astro.js';
@@ -6,7 +7,7 @@ import type { Logger } from '../core/logger/core.js';
 import { ASSET_IMPORTS_FILE, DATA_STORE_FILE } from './consts.js';
 import { DataStore, globalDataStore } from './data-store.js';
 import type { DataWithId, LoaderContext } from './loaders/types.js';
-import { getEntryData, globalContentConfigObserver } from './utils.js';
+import { getEntryData, globalContentConfigObserver, posixRelative } from './utils.js';
 
 export interface SyncContentLayerOptions {
 	store?: DataStore;
@@ -84,7 +85,10 @@ export async function syncContentLayer({
 				};
 
 				if (imageImports) {
-					store.addAssetImports(imageImports, filePath);
+					store.addAssetImports(
+						imageImports,
+						posixRelative(fileURLToPath(settings.config.root), filePath)
+					);
 				}
 
 				return parsedData;
@@ -117,7 +121,7 @@ export async function syncContentLayer({
 	}
 	const cacheFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
 	await store.writeToDisk(cacheFile);
-	const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.config.cacheDir);
+	const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
 	await store.writeAssetImports(assetImportsFile);
 	logger.info('Synced content');
 }

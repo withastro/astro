@@ -1,5 +1,6 @@
-import { promises as fs, existsSync } from 'fs';
-import { fileURLToPath } from 'url';
+import { promises as fs, existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { posixRelative } from '../utils.js';
 import type { Loader, LoaderContext } from './types.js';
 
 /**
@@ -13,7 +14,7 @@ export function file(fileName: string): Loader {
 		throw new Error('Glob patterns are not supported in `file` loader. Use `glob` loader instead.');
 	}
 
-	async function syncData(filePath: string, { logger, parseData, store }: LoaderContext) {
+	async function syncData(filePath: string, { logger, parseData, store, settings }: LoaderContext) {
 		let json: Array<Record<string, unknown>>;
 
 		try {
@@ -38,7 +39,11 @@ export function file(fileName: string): Loader {
 					continue;
 				}
 				const data = await parseData({ id, data: rawItem, filePath });
-				store.set({ id, data, filePath });
+				store.set({
+					id,
+					data,
+					filePath: posixRelative(fileURLToPath(settings.config.root), filePath),
+				});
 			}
 		} else if (typeof json === 'object') {
 			const entries = Object.entries<Record<string, unknown>>(json);

@@ -1,5 +1,5 @@
 import { promises as fs, type PathLike, existsSync } from 'fs';
-import { imageSrcToImportId, importIdToSymbolName } from '../assets/node/resolveImports.js';
+import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 
 const SAVE_DEBOUNCE_MS = 500;
 
@@ -180,6 +180,9 @@ export default new Map([${exports.join(', ')}]);
 					entry.body = body;
 				}
 				if (filePath) {
+					if (filePath.startsWith('/')) {
+						throw new Error(`File path must be relative to the site root. Got: ${filePath}`);
+					}
 					entry.filePath = filePath;
 				}
 				if (digest) {
@@ -276,7 +279,7 @@ export interface ScopedDataStore {
 	 * @param opts.id The ID of the entry. Must be unique per collection.
 	 * @param opts.data The data to store.
 	 * @param opts.body The raw body of the content, if applicable.
-	 * @param opts.filePath The file path of the content, if applicable.
+	 * @param opts.filePath The file path of the content, if applicable. Relative to the site root.
 	 * @param opts.digest A content digest, to check if the content has changed.
 	 * @param opts.rendered The rendered content, if applicable.
 	 * @returns

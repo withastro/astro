@@ -1,5 +1,5 @@
 import { extname } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin, Rollup } from 'vite';
 import type { AstroSettings, SSRElement } from '../@types/astro.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
@@ -36,7 +36,13 @@ export function astroContentAssetPropagationPlugin({
 			if (hasContentFlag(id, CONTENT_IMAGE_FLAG)) {
 				const [base, query] = id.split('?');
 				const params = new URLSearchParams(query);
-				return this.resolve(base, params.get('importer') ?? importer, { skipSelf: true, ...opts });
+				const importerParam = params.get('importer');
+
+				const importerPath = importerParam
+					? fileURLToPath(new URL(importerParam, settings.config.root))
+					: importer;
+
+				return this.resolve(base, importerPath, { skipSelf: true, ...opts });
 			}
 			if (hasContentFlag(id, CONTENT_RENDER_FLAG)) {
 				const base = id.split('?')[0];

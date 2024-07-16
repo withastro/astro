@@ -1,5 +1,4 @@
-import { pathToFileURL } from 'node:url';
-import { isRemotePath } from '@astrojs/internal-helpers/path';
+import { isRemotePath, removeBase } from '@astrojs/internal-helpers/path';
 import { CONTENT_IMAGE_FLAG, IMAGE_IMPORT_PREFIX } from '../../content/consts.js';
 import { shorthash } from '../../runtime/server/shorthash.js';
 import { VALID_INPUT_FORMATS } from '../consts.js';
@@ -13,9 +12,7 @@ import { VALID_INPUT_FORMATS } from '../consts.js';
 export function imageSrcToImportId(imageSrc: string, filePath: string): string | undefined {
 	// If the import is coming from the data store it will have a special prefix to identify it
 	// as an image import. We remove this prefix so that we can resolve the image correctly.
-	if (imageSrc.startsWith(IMAGE_IMPORT_PREFIX)) {
-		imageSrc = imageSrc.slice(IMAGE_IMPORT_PREFIX.length);
-	}
+	imageSrc = removeBase(imageSrc, IMAGE_IMPORT_PREFIX);
 
 	// We only care about local imports
 	if (isRemotePath(imageSrc) || imageSrc.startsWith('/')) {
@@ -26,12 +23,7 @@ export function imageSrcToImportId(imageSrc: string, filePath: string): string |
 	if (!ext || !VALID_INPUT_FORMATS.includes(ext)) {
 		return;
 	}
-	// If the import is relative, we can resolve it here
-	if (imageSrc.startsWith('./') || imageSrc.startsWith('../')) {
-		return new URL(imageSrc, pathToFileURL(filePath)).href;
-	}
-	// Otherwise we need to resolve it with Vite. We set the importer to the current file so
-	// that Vite can resolve it correctly.
+
 	const params = new URLSearchParams(CONTENT_IMAGE_FLAG);
 	params.set('importer', filePath);
 	return `${imageSrc}?${params.toString()}`;

@@ -72,7 +72,7 @@ export function astroContentVirtualModPlugin({
 				return RESOLVED_DATA_STORE_VIRTUAL_ID;
 			}
 			if (id === ASSET_IMPORTS_VIRTUAL_ID) {
-				const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.config.cacheDir);
+				const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
 				if (fs.existsSync(assetImportsFile)) {
 					return fileURLToPath(assetImportsFile);
 				}
