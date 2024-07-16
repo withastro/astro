@@ -1,5 +1,5 @@
 import { yellow } from 'kleur/colors';
-import { encodeHex, decodeHex, base64 } from 'oslo/encoding';
+import { encodeHex, decodeHex, base64url } from 'oslo/encoding';
 import type { APIContext, MiddlewareNext } from '../../@types/astro.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
 import { ApiContextStorage } from './store.js';
@@ -189,13 +189,13 @@ async function encodeResult(result: any) {
 		actionKey,
 		data
 	);
-	const encryptedString = base64.encode(new Uint8Array(encryptedBuffer));
+	const encryptedString = base64url.encode(new Uint8Array(encryptedBuffer));
 	return encodeHex(iv) + encryptedString;
 }
 
 async function decodeResult(encodedResult: string) {
 	const iv = decodeHex(encodedResult.slice(0, IV_LENGTH));
-	const dataArray = base64.decode(encodedResult.slice(IV_LENGTH));
+	const dataArray = base64url.decode(encodedResult.slice(IV_LENGTH));
 	const actionKey = await getActionKey();
 	const decryptedBuffer = await crypto.subtle.decrypt(
 		{
