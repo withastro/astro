@@ -159,6 +159,12 @@ describe('Astro basic build', () => {
 		assert.equal($('h1').text(), 'WORKS');
 	});
 
+	it('Handles importing .astro?raw correctly', async () => {
+		const html = await fixture.readFile('/import-queries/raw/index.html');
+		const $ = cheerio.load(html);
+		assert.equal($('.raw-value').text(), '<h1>Hello</h1>\n');
+	});
+
 	describe('preview', () => {
 		it('returns 200 for valid URLs', async () => {
 			const result = await fixture.fetch('/');
@@ -210,5 +216,13 @@ describe('Astro basic development', () => {
 			res.headers.get('content-type').includes('charset=utf-8') ||
 			html.includes('<meta charset="utf-8">');
 		assert.ok(isUtf8);
+	});
+
+	it('Handles importing .astro?raw correctly', async () => {
+		const res = await fixture.fetch('/import-queries/raw/index.html');
+		assert.equal(res.status, 200);
+		const html = await res.text();
+		const $ = cheerio.load(html);
+		assert.equal($('.raw-value').text(), '<h1>Hello</h1>\n');
 	});
 });
