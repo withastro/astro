@@ -15,17 +15,26 @@ function needsHydration(metadata) {
 async function renderToStaticMarkup(Component, props, slotted, metadata) {
 	const tagName = needsHydration(metadata) ? 'astro-slot' : 'astro-static-slot';
 
+	let children = undefined;
 	let $$slots = undefined;
 	for (const [key, value] of Object.entries(slotted)) {
 		$$slots ??= {};
-		$$slots[key] = createRawSnippet({
-			render: () => `<${tagName}${key === 'default' ? '' : ` name="${key}"`}>${value}</${tagName}>`,
-		});
+		if (key === 'default') {
+			$$slots.default = true;
+			children = createRawSnippet(() => ({
+				render: () => `<${tagName}>${value}</${tagName}>`,
+			}));
+		} else {
+			$$slots[key] = createRawSnippet(() => ({
+				render: () => `<${tagName} name="${key}">${value}</${tagName}>`,
+			}));
+		}
 	}
 
 	const result = render(Component, {
 		props: {
 			...props,
+			children,
 			$$slots,
 		},
 	});

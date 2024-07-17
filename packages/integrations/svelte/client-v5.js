@@ -4,17 +4,20 @@ export default (element) => {
 	return async (Component, props, slotted, { client }) => {
 		if (!element.hasAttribute('ssr')) return;
 
+		let children = undefined;
 		let $$slots = undefined;
 		for (const [key, value] of Object.entries(slotted)) {
 			$$slots ??= {};
-			$$slots[key] = createRawSnippet({
-				mount() {
-					const el = document.createElement('astro-slot');
-					if (key !== 'default') el.setAttribute('name', key);
-					el.innerHTML = value;
-					return el;
-				},
-			});
+			if (key === 'default') {
+				$$slots.default = true;
+				children = createRawSnippet(() => ({
+					render: () => `<astro-slot>${value}</astro-slot>`,
+				}));
+			} else {
+				$$slots[key] = createRawSnippet(() => ({
+					render: () => `<astro-slot name="${key}">${value}</astro-slot>`,
+				}));
+			}
 		}
 
 		const bootstrap = client !== 'only' ? hydrate : mount;
@@ -23,6 +26,7 @@ export default (element) => {
 			target: element,
 			props: {
 				...props,
+				children,
 				$$slots,
 			},
 		});
