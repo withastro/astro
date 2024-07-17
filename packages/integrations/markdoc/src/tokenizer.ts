@@ -29,7 +29,6 @@ export function getMarkdocTokenizer(options: MarkdocIntegrationOptions | undefin
 			tokenizerOptions.typographer = options.typographer;
 		}
 
-
 		_cachedMarkdocTokenizers[key] = new Markdoc.Tokenizer(tokenizerOptions);
 	}
 
