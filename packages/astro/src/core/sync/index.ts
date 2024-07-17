@@ -51,6 +51,7 @@ export async function syncInlineConfig({
 	fs,
 	telemetry: _telemetry = false,
 }: { inlineConfig: AstroInlineConfig; fs?: typeof fsMod; telemetry?: boolean }) {
+	ensureProcessNodeEnv('production');
 	const logger = createNodeLogger(inlineConfig);
 	const { astroConfig, userConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
 	if (_telemetry) {
@@ -77,7 +78,6 @@ export default async function sync({
 	settings,
 	skip,
 }: SyncOptions): Promise<void> {
-	ensureProcessNodeEnv('production');
 	const cwd = fileURLToPath(settings.config.root);
 
 	const timerStart = performance.now();
