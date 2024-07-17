@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
+import { promises as fs } from 'node:fs';
 import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
-import { promises as fs } from 'node:fs';
 import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
