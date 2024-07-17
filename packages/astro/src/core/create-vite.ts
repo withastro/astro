@@ -120,13 +120,8 @@ export async function createVite(
 		customLogger: createViteLogger(logger, settings.config.vite.logLevel),
 		appType: 'custom',
 		optimizeDeps: {
-			// Scan all files within `srcDir` except for known server-code (e.g endpoints)
-			entries: [
-				`${srcDirPattern}!(pages)/**/*`, // All files except for pages
-				`${srcDirPattern}pages/**/!(*.js|*.mjs|*.ts|*.mts)`, // All pages except for endpoints
-				`${srcDirPattern}pages/**/_*.{js,mjs,ts,mts}`, // Remaining JS/TS files prefixed with `_` (not endpoints)
-				`${srcDirPattern}pages/**/_*/**/*.{js,mjs,ts,mts}`, // Remaining JS/TS files within directories prefixed with `_` (not endpoints)
-			],
+			// Scan for component code within `srcDir`
+			entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`],
 			exclude: ['astro', 'node-fetch'],
 		},
 		plugins: [
