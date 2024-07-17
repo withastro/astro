@@ -3,7 +3,7 @@ import {
 	createInvalidVariableError,
 	getEnv,
 	setOnSetGetEnv,
-	validateEnvVariable,
+	validateEnvVariables,
 	getEnvFieldType
 } from 'astro/env/runtime';
 
@@ -16,7 +16,7 @@ const _internalGetSecret = (key) => {
 	const variable = rawVariable === '' ? undefined : rawVariable;
 	const options = schema[key];
 
-	const result = validateEnvVariable(variable, options);
+	const result = validateEnvVariables(variable, options);
 	if (result.ok) {
 		return result.value;
 	}
