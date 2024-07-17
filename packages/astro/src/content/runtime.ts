@@ -71,16 +71,19 @@ export function createGetCollection({
 			// @ts-expect-error	virtual module
 			const { default: imageAssetMap } = await import('astro:asset-imports');
 
-			return [...store.values<DataEntry>(collection)].map((entry) => {
-				if (entry.filePath) {
-					entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
-				}
-				return {
+			const result = [];
+			for (const entry of store.values<DataEntry>(collection)) {
+				const data = entry.filePath
+					? updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap)
+					: entry.data;
+				result.push({
 					...entry,
+					data,
 					collection,
 					render: () => renderEntry(entry),
-				};
-			});
+				});
+			}
+			return result;
 		} else {
 			// eslint-disable-next-line no-console
 			console.warn(
