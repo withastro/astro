@@ -170,7 +170,7 @@
     "p-limit": "^5.0.0",
     "p-queue": "^8.0.1",
     "path-to-regexp": "^6.2.2",
-    "preferred-pm": "^3.1.4",
+    "preferred-pm": "^4.0.0",
     "prompts": "^2.4.2",
     "rehype": "^13.0.1",
     "semver": "^7.6.2",

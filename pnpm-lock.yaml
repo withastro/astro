@@ -667,8 +667,8 @@ importers:
         specifier: ^6.2.2
         version: 6.2.2
       preferred-pm:
-        specifier: ^3.1.4
-        version: 3.1.4
+        specifier: ^4.0.0
+        version: 4.0.0
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
@@ -5832,8 +5832,8 @@ importers:
         specifier: ^0.4.1
         version: 0.4.1
       preferred-pm:
-        specifier: ^3.1.4
-        version: 3.1.4
+        specifier: ^4.0.0
+        version: 4.0.0
       semver:
         specifier: ^7.6.2
         version: 7.6.2
@@ -8715,6 +8715,10 @@ packages:
     resolution: {integrity: sha512-5uXcUVftlQMFnWC9qu/svkWv3GTd2PfUhK/3PLkYNAe7FbqJMt3515HaxE6eRL74GdsriiwujiawdaB1BpEISg==}
     engines: {node: '>= 0.8'}
 
+  find-up-simple@1.0.0:
+    resolution: {integrity: sha512-q7Us7kcjj2VMePAa02hDAF6d+MzsdsAWEwYyOpwUtlerRBkOEPBCRZrAV4XfcSN8fHAgaD0hP7miwoay6DCprw==}
+    engines: {node: '>=18'}
+
   find-up@4.1.0:
     resolution: {integrity: sha512-PpOwAdQ/YlXQ2vj8a3h8IipDuYRi3wceVQQGYWxNINccq40Anw7BlsEXCMbt1Zt+OLA6Fq9suIpIWD0OsnISlw==}
     engines: {node: '>=8'}
@@ -10287,6 +10291,10 @@ packages:
   preferred-pm@3.1.4:
     resolution: {integrity: sha512-lEHd+yEm22jXdCphDrkvIJQU66EuLojPPtvZkpKIkiD+l0DMThF/niqZKJSoU8Vl7iuvtmzyMhir9LdVy5WMnA==}
     engines: {node: '>=10'}
+
+  preferred-pm@4.0.0:
+    resolution: {integrity: sha512-gYBeFTZLu055D8Vv3cSPox/0iTPtkzxpLroSYYA7WXgRi31WCJ51Uyl8ZiPeUUjyvs2MBzK+S8v9JVUgHU/Sqw==}
+    engines: {node: '>=18.12'}
 
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
@@ -14774,6 +14782,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  find-up-simple@1.0.0: {}
+
   find-up@4.1.0:
     dependencies:
       locate-path: 5.0.0
@@ -16774,6 +16784,12 @@ snapshots:
       find-yarn-workspace-root2: 1.2.16
       path-exists: 4.0.0
       which-pm: 2.2.0
+
+  preferred-pm@4.0.0:
+    dependencies:
+      find-up-simple: 1.0.0
+      find-yarn-workspace-root2: 1.2.16
+      which-pm: 3.0.0
 
   prelude-ls@1.2.1: {}
 
