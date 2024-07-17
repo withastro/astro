@@ -62,13 +62,13 @@ export function generatePaginateFunction(
 					: correctIndexRoute(
 							routeMatch.generate({
 								...params,
-								page: includesFirstPageNumber? "1": undefined,
+								page: includesFirstPageNumber ? '1' : undefined,
 							})
-					);
+						);
 			const last =
-					pageNum === lastPage
+				pageNum === lastPage
 					? undefined
-					: correctIndexRoute(routeMatch.generate({ ...params, page: String(lastPage)}));
+					: correctIndexRoute(routeMatch.generate({ ...params, page: String(lastPage) }));
 			return {
 				params,
 				props: {
