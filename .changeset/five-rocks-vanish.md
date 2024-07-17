@@ -38,3 +38,5 @@ export default defineConfig({
   },
 });
 ```
+
+For more information, see the [server islands documentation](https://docs.astro.build/en/reference/configuration-reference/#experimentalserverislands)
