@@ -373,6 +373,45 @@ importers:
         specifier: ^4.11.6
         version: link:../../packages/astro
 
+  examples/server-islands:
+    devDependencies:
+      '@astrojs/node':
+        specifier: ^8.2.6
+        version: link:../../packages/integrations/node
+      '@astrojs/react':
+        specifier: ^3.6.0
+        version: link:../../packages/integrations/react
+      '@astrojs/tailwind':
+        specifier: ^5.1.0
+        version: link:../../packages/integrations/tailwind
+      '@fortawesome/fontawesome-free':
+        specifier: ^6.5.2
+        version: 6.5.2
+      '@tailwindcss/forms':
+        specifier: ^0.5.7
+        version: 0.5.7(tailwindcss@3.4.5)
+      '@types/react':
+        specifier: ^18.3.3
+        version: 18.3.3
+      '@types/react-dom':
+        specifier: ^18.3.0
+        version: 18.3.0
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
+      postcss:
+        specifier: ^8.4.38
+        version: 8.4.39
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+      tailwindcss:
+        specifier: ^3.4.3
+        version: 3.4.5
+
   examples/ssr:
     dependencies:
       '@astrojs/node':
@@ -529,8 +568,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^2.8.2
-        version: 2.8.2
+        specifier: ^2.9.0
+        version: 2.9.1
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
@@ -1541,6 +1580,27 @@ importers:
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../../../integrations/mdx
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+
+  packages/astro/e2e/fixtures/server-islands:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -3591,6 +3651,30 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../..
+
+  packages/astro/test/fixtures/server-islands/hybrid:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../../../../integrations/svelte
+      astro:
+        specifier: workspace:*
+        version: link:../../../..
+      svelte:
+        specifier: ^4.2.18
+        version: 4.2.18
+
+  packages/astro/test/fixtures/server-islands/ssr:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../../../../integrations/svelte
+      astro:
+        specifier: workspace:*
+        version: link:../../../..
+      svelte:
+        specifier: ^4.2.18
+        version: 4.2.18
 
   packages/astro/test/fixtures/set-html:
     dependencies:
@@ -5968,8 +6052,8 @@ packages:
   '@astrojs/compiler@1.8.2':
     resolution: {integrity: sha512-o/ObKgtMzl8SlpIdzaxFnt7SATKPxu4oIP/1NL+HDJRzxfJcAkOTAb/ZKMRyULbz4q+1t2/DAebs2Z1QairkZw==}
 
-  '@astrojs/compiler@2.8.2':
-    resolution: {integrity: sha512-2v2N2oDnMH6+CX1Wn6f45Afa4tdkUMutdx8pJaokfaOYnAU+u6+UK7o7sXqydKro1cLwVmmOIJv6AqiXnAdLDA==}
+  '@astrojs/compiler@2.9.1':
+    resolution: {integrity: sha512-s8Ge2lWHx/s3kl4UoerjL/iPtwdtogNM/BLOaGCwQA6crMOVYpphy5wUkYlKyuh8GAeGYH/5haLAFBsgNy9AQQ==}
 
   '@astrojs/language-server@2.11.1':
     resolution: {integrity: sha512-WSIBBUK9lSeVD4KhPiZk2u3wsXdj7WEYvYPPs8ZsgbSVIOzUJWAKVcITHiXmcXlzZB5ubK44YUN/Hq+f2GeMyQ==}
@@ -6744,6 +6828,10 @@ packages:
   '@fontsource/montserrat@5.0.18':
     resolution: {integrity: sha512-85JBs2rCdFK/VBdSb401e2lXk5gynVo2zi3Rh2Guem4WNtT2q52+V90o3KzjmajY3TPJvCZA/kI7R05ev7148g==}
 
+  '@fortawesome/fontawesome-free@6.5.2':
+    resolution: {integrity: sha512-hRILoInAx8GNT5IMkrtIt9blOdrqHOnPBH+k70aWUAqPZPgopb9G5EQJFpaBx/S8zp2fC+mPW349Bziuk1o28Q==}
+    engines: {node: '>=6'}
+
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
     engines: {node: '>=12.22'}
@@ -7238,6 +7326,11 @@ packages:
     peerDependencies:
       svelte: ^4.0.0 || ^5.0.0-next.0
       vite: ^5.0.0
+
+  '@tailwindcss/forms@0.5.7':
+    resolution: {integrity: sha512-QE7X69iQI+ZXwldE+rzasvbJiyV/ju1FGHH0Qn2W3FKbuYtqp8LKcy6iSw79fVUT5/Vvf+0XgLCeYVG+UV6hOw==}
+    peerDependencies:
+      tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1'
 
   '@trysound/sax@0.2.0':
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}
@@ -9687,6 +9780,10 @@ packages:
     resolution: {integrity: sha512-vqiC06CuhBTUdZH+RYl8sFrL096vA45Ok5ISO6sE/Mr1jRbGH4Csnhi8f3wKVl7x8mO4Au7Ir9D3Oyv1VYMFJw==}
     engines: {node: '>=12'}
 
+  mini-svg-data-uri@1.4.4:
+    resolution: {integrity: sha512-r9deDe9p5FJUPZAk3A59wGH7Ii9YrjjWw0jmw/liSbHl2CHiyXj6FcDXDu2K3TjVAXqiJdaw3xxwlZZr9E6nHg==}
+    hasBin: true
+
   minimatch@3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
 
@@ -11759,11 +11856,11 @@ snapshots:
 
   '@astrojs/compiler@1.8.2': {}
 
-  '@astrojs/compiler@2.8.2': {}
+  '@astrojs/compiler@2.9.1': {}
 
   '@astrojs/language-server@2.11.1(prettier-plugin-astro@0.14.0)(prettier@3.3.3)(typescript@5.5.3)':
     dependencies:
-      '@astrojs/compiler': 2.8.2
+      '@astrojs/compiler': 2.9.1
       '@jridgewell/sourcemap-codec': 1.4.15
       '@volar/kit': 2.4.0-alpha.16(typescript@5.5.3)
       '@volar/language-core': 2.4.0-alpha.16
@@ -12645,6 +12742,8 @@ snapshots:
 
   '@fontsource/montserrat@5.0.18': {}
 
+  '@fortawesome/fontawesome-free@6.5.2': {}
+
   '@humanwhocodes/module-importer@1.0.1': {}
 
   '@humanwhocodes/retry@0.3.0': {}
@@ -13155,6 +13254,11 @@ snapshots:
       vitefu: 0.2.5(vite@5.3.4(@types/node@20.12.7)(sass@1.77.8))
     transitivePeerDependencies:
       - supports-color
+
+  '@tailwindcss/forms@0.5.7(tailwindcss@3.4.5)':
+    dependencies:
+      mini-svg-data-uri: 1.4.4
+      tailwindcss: 3.4.5
 
   '@trysound/sax@0.2.0': {}
 
@@ -16147,6 +16251,8 @@ snapshots:
   mimic-fn@2.1.0: {}
 
   mimic-fn@4.0.0: {}
+
+  mini-svg-data-uri@1.4.4: {}
 
   minimatch@3.1.2:
     dependencies:

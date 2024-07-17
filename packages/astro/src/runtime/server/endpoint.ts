@@ -26,6 +26,7 @@ export async function renderEndpoint(
 		);
 	}
 	if (handler === undefined) {
+
 		logger.warn(
 			'router',
 			`No API Route handler exists for the method "${method}" for the route "${url.pathname}".\n` +
