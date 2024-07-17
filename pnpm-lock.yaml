@@ -5100,7 +5100,7 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2(@babel/core@7.24.7)
       preact-render-to-string:
-        specifier: 6.5.5
+        specifier: ^6.5.5
         version: 6.5.5(preact@10.22.1)
     devDependencies:
       astro:
