@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 3.5.1
+
+### Patch Changes
+
+- [#11464](https://github.com/withastro/astro/pull/11464) [`2cdb685`](https://github.com/withastro/astro/commit/2cdb685ce757fc9932b67b8a52b465296dbaedcd) Thanks [@rschristian](https://github.com/rschristian)! - Swap out `preact-ssr-prepass` for `renderToStringAsync` from `preact-render-to-string`
+
 ## 3.5.0
 
 ### Minor Changes
