@@ -1239,8 +1239,8 @@ export const RouteNotFound = {
 export const EnvInvalidVariables = {
 	name: 'EnvInvalidVariables',
 	title: 'Invalid Environment Variables',
-	message: (variables: string) =>
-		`The following environment variables do not match the data type and/or properties defined in \`experimental.env.schema\`:\n\n${variables}\n`,
+	message: (errors: Array<string>) =>
+		`The following environment variables defined in \`experimental.env.schema\` are invalid:\n\n${errors.map((err) => `- ${err}`).join('\n')}\n`,
 } satisfies ErrorData;
 
 /**

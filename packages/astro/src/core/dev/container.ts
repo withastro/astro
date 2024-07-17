@@ -14,6 +14,7 @@ import {
 import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
+import { syncInternal } from '../sync/index.js';
 
 export interface Container {
 	fs: typeof nodeFs;
@@ -90,6 +91,14 @@ export async function createContainer({
 		{ settings, logger, mode: 'dev', command: 'dev', fs, sync: false }
 	);
 	await runHookConfigDone({ settings, logger });
+	await syncInternal({
+		settings,
+		logger,
+		skip: {
+			content: true,
+		},
+	});
+
 	const viteServer = await vite.createServer(viteConfig);
 
 	const container: Container = {

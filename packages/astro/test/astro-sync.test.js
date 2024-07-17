@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import * as fs from 'node:fs';
 import { before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { loadFixture } from './test-utils.js';
 
@@ -47,10 +48,10 @@ const createFixture = () => {
 				},
 			};
 
-			const code = await astroFixture.sync({}, { fs: fsMock });
-			if (code !== 0) {
-				throw new Error(`Process error code ${code}`);
-			}
+			await astroFixture.sync({
+				inlineConfig: { root: fileURLToPath(new URL(root, import.meta.url)) },
+				fs: fsMock,
+			});
 		},
 		/** @param {string} path */
 		thenFileShouldExist(path) {

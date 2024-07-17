@@ -1,8 +1,8 @@
 import type { SSRResult } from '../../../@types/astro.js';
-import type { renderTemplate } from './astro/render-template.js';
+import { renderTemplate } from './astro/render-template.js';
 import type { RenderInstruction } from './instruction.js';
 
-import { HTMLString, markHTMLString } from '../escape.js';
+import { HTMLString, markHTMLString, unescapeHTML } from '../escape.js';
 import { renderChild } from './any.js';
 import { type RenderDestination, type RenderInstance, chunkToString } from './common.js';
 
@@ -102,4 +102,10 @@ export async function renderSlots(
 		);
 	}
 	return { slotInstructions, children };
+}
+
+export function createSlotValueFromString(content: string): ComponentSlotValue {
+	return function () {
+		return renderTemplate`${unescapeHTML(content)}`;
+	};
 }
