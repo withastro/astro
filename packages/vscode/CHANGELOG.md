@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.12.2
+
+### Patch Changes
+
+- 7938491: Fixes publishing
+
 ## 2.12.1
 
 ### Patch Changes
