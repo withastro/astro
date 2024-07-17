@@ -1,9 +1,10 @@
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroAdapter } from '../../../@types/astro.js';
+import type { AstroAdapter, AstroSettings } from '../../../@types/astro.js';
 import { isFunctionPerRouteEnabled } from '../../../integrations/hooks.js';
 import { routeIsRedirect } from '../../redirects/index.js';
+import { VIRTUAL_ISLAND_MAP_ID } from '../../server-islands/vite-plugin-server-islands.js';
 import { isServerLikeOutput } from '../../util.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
@@ -77,7 +78,7 @@ function vitePluginSSR(
 				contents.push(`const pageMap = new Map([\n    ${pageMap.join(',\n    ')}\n]);`);
 				exports.push(`export { pageMap }`);
 				const middleware = await this.resolve(MIDDLEWARE_MODULE_ID);
-				const ssrCode = generateSSRCode(adapter, middleware!.id);
+				const ssrCode = generateSSRCode(options.settings, adapter, middleware!.id);
 				imports.push(...ssrCode.imports);
 				contents.push(...ssrCode.contents);
 				return [...imports, ...contents, ...exports].join('\n');
@@ -183,7 +184,7 @@ function vitePluginSSRSplit(
 					imports.push(`import * as pageModule from "${virtualModuleName}";`);
 				}
 				const middleware = await this.resolve(MIDDLEWARE_MODULE_ID);
-				const ssrCode = generateSSRCode(adapter, middleware!.id);
+				const ssrCode = generateSSRCode(options.settings, adapter, middleware!.id);
 				imports.push(...ssrCode.imports);
 				contents.push(...ssrCode.contents);
 
@@ -240,7 +241,7 @@ export function pluginSSRSplit(
 	};
 }
 
-function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
+function generateSSRCode(settings: AstroSettings, adapter: AstroAdapter, middlewareId: string) {
 	const edgeMiddleware = adapter?.adapterFeatures?.edgeMiddleware ?? false;
 	const pageMap = isFunctionPerRouteEnabled(adapter) ? 'pageModule' : 'pageMap';
 
@@ -249,12 +250,17 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 		`import { manifest as defaultManifest } from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';`,
 		`import * as serverEntrypointModule from '${adapter.serverEntrypoint}';`,
 		edgeMiddleware ? `` : `import { onRequest as middleware } from '${middlewareId}';`,
+		settings.config.experimental.serverIslands
+			? `import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';`
+			: '',
 	];
 
 	const contents = [
+		settings.config.experimental.serverIslands ? '' : `const serverIslandMap = new Map()`,
 		edgeMiddleware ? `const middleware = (_, next) => next()` : '',
 		`const _manifest = Object.assign(defaultManifest, {`,
 		`    ${pageMap},`,
+		`    serverIslandMap,`,
 		`    renderers,`,
 		`    middleware`,
 		`});`,

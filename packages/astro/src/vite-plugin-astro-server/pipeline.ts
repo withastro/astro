@@ -12,13 +12,13 @@ import type {
 } from '../@types/astro.js';
 import { getInfoOutput } from '../cli/info/index.js';
 import { type HeadElements } from '../core/base-pipeline.js';
-import { ASTRO_VERSION, DEFAULT_404_COMPONENT } from '../core/constants.js';
+import { ASTRO_VERSION } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Pipeline, loadRenderer } from '../core/render/index.js';
-import { default404Page } from '../core/routing/astro-designed-error-pages.js';
+import { createDefaultRoutes } from '../core/routing/default.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 import { isPage, isServerLikeOutput, viteID } from '../core/util.js';
 import { resolveIdToUrl } from '../core/viteUtils.js';
@@ -45,13 +45,16 @@ export class DevPipeline extends Pipeline {
 		readonly logger: Logger,
 		readonly manifest: SSRManifest,
 		readonly settings: AstroSettings,
-		readonly config = settings.config
+		readonly config = settings.config,
+		readonly defaultRoutes = createDefaultRoutes(manifest, config.root)
 	) {
 		const mode = 'development';
 		const resolve = createResolve(loader, config.root);
 		const serverLike = isServerLikeOutput(config);
 		const streaming = true;
 		super(logger, manifest, mode, [], resolve, serverLike, streaming);
+		manifest.serverIslandMap = settings.serverIslandMap;
+		manifest.serverIslandNameMap = settings.serverIslandNameMap;
 	}
 
 	static create(
@@ -153,8 +156,12 @@ export class DevPipeline extends Pipeline {
 
 	async preload(routeData: RouteData, filePath: URL) {
 		const { loader } = this;
-		if (filePath.href === new URL(DEFAULT_404_COMPONENT, this.config.root).href) {
-			return { default: default404Page } as any as ComponentInstance;
+
+		// First check built-in routes
+		for (const route of this.defaultRoutes) {
+			if (route.matchesComponent(filePath)) {
+				return route.instance;
+			}
 		}
 
 		// Important: This needs to happen first, in case a renderer provides polyfills.
@@ -215,5 +222,17 @@ export class DevPipeline extends Pipeline {
 
 	setManifestData(manifestData: ManifestData) {
 		this.manifestData = manifestData;
+	}
+
+	rewriteKnownRoute(route: string, sourceRoute: RouteData): ComponentInstance {
+		if (isServerLikeOutput(this.config) && sourceRoute.prerender) {
+			for (let def of this.defaultRoutes) {
+				if (route === def.route) {
+					return def.instance;
+				}
+			}
+		}
+
+		throw new Error('Unknown route');
 	}
 }

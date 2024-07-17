@@ -8,12 +8,8 @@ import type {
 } from '../../@types/astro.js';
 import { Pipeline } from '../base-pipeline.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
-import { DEFAULT_404_COMPONENT } from '../constants.js';
-import { RewriteEncounteredAnError } from '../errors/errors-data.js';
-import { AstroError } from '../errors/index.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/component.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../render/ssr-element.js';
-import { DEFAULT_404_ROUTE } from '../routing/astro-designed-error-pages.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 
 export class AppPipeline extends Pipeline {
@@ -103,13 +99,15 @@ export class AppPipeline extends Pipeline {
 	}
 
 	async getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
-		if (route.component === DEFAULT_404_COMPONENT) {
-			return {
-				page: async () =>
-					({ default: () => new Response(null, { status: 404 }) }) as ComponentInstance,
-				renderers: [],
-			};
+		for (const defaultRoute of this.defaultRoutes) {
+			if (route.component === defaultRoute.component) {
+				return {
+					page: () => Promise.resolve(defaultRoute.instance),
+					renderers: [],
+				};
+			}
 		}
+
 		if (route.type === 'redirect') {
 			return RedirectSinglePageBuiltModule;
 		} else {

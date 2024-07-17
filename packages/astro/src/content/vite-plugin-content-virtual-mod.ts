@@ -12,6 +12,7 @@ import { appendForwardSlash, removeFileExtension } from '../core/path.js';
 import { isServerLikeOutput } from '../core/util.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
+import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import {
 	ASSET_IMPORTS_FILE,
 	ASSET_IMPORTS_RESOLVED_STUB_ID,
@@ -95,17 +96,12 @@ export function astroContentVirtualModPlugin({
 					isClient,
 				});
 
+				const astro = createDefaultAstroMetadata();
+				astro.propagation = 'in-tree';
 				return {
 					code,
 					meta: {
-						astro: {
-							hydratedComponents: [],
-							clientOnlyComponents: [],
-							scripts: [],
-							containsHead: false,
-							propagation: 'in-tree',
-							pageOptions: {},
-						},
+						astro,
 					} satisfies AstroPluginMetadata,
 				};
 			}

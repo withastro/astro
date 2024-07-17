@@ -27,6 +27,7 @@ import {
 } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { maybeRenderHead } from './head.js';
+import { containsServerDirective, renderServerIsland } from './server-islands.js';
 import { type ComponentSlots, renderSlotToString, renderSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
@@ -473,6 +474,10 @@ function renderAstroComponent(
 	props: Record<string | number, any>,
 	slots: any = {}
 ): RenderInstance {
+	if (containsServerDirective(props)) {
+		return renderServerIsland(result, displayName, props, slots);
+	}
+
 	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
 	return {
 		async render(destination) {
@@ -489,7 +494,7 @@ export async function renderComponent(
 	displayName: string,
 	Component: unknown,
 	props: Record<string | number, any>,
-	slots: any = {}
+	slots: ComponentSlots = {}
 ): Promise<RenderInstance> {
 	if (isPromise(Component)) {
 		Component = await Component.catch(handleCancellation);
