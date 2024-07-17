@@ -30,6 +30,7 @@ import {
 	getEntryType,
 	getExtGlob,
 } from './utils.js';
+import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -77,17 +78,12 @@ export function astroContentVirtualModPlugin({
 					isClient,
 				});
 
+				const astro = createDefaultAstroMetadata();
+				astro.propagation = 'in-tree';
 				return {
 					code,
 					meta: {
-						astro: {
-							hydratedComponents: [],
-							clientOnlyComponents: [],
-							scripts: [],
-							containsHead: false,
-							propagation: 'in-tree',
-							pageOptions: {},
-						},
+						astro,
 					} satisfies AstroPluginMetadata,
 				};
 			}

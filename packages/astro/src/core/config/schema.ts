@@ -89,6 +89,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		globalRoutePriority: false,
 		rewriting: false,
+		serverIslands: false,
 		env: {
 			validateSecrets: false,
 		},
@@ -539,6 +540,7 @@ export const AstroConfigSchema = z.object({
 				})
 				.strict()
 				.optional(),
+			serverIslands: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.serverIslands),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`
@@ -677,7 +679,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				'The value of `outDir` must not point to a path within the folder set as `publicDir`, this will cause an infinite loop',
 		})
 		.superRefine((configuration, ctx) => {
-			const { site, experimental, i18n, output } = configuration;
+			const { site, i18n, output } = configuration;
 			const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
 			if (hasDomains) {
 				if (!site) {
