@@ -1,10 +1,11 @@
+// @ts-check
 import { schema } from 'virtual:astro:env/internal';
 import {
-	createInvalidVariableError,
+	createInvalidVariablesError,
 	getEnv,
 	setOnSetGetEnv,
-	validateEnvVariables,
-	getEnvFieldType
+	validateEnvVariable,
+	getEnvFieldType,
 } from 'astro/env/runtime';
 
 export const getSecret = (key) => {
@@ -16,12 +17,12 @@ const _internalGetSecret = (key) => {
 	const variable = rawVariable === '' ? undefined : rawVariable;
 	const options = schema[key];
 
-	const result = validateEnvVariables(variable, options);
+	const result = validateEnvVariable(variable, options);
 	if (result.ok) {
 		return result.value;
 	}
-	const type = getEnvFieldType(options)
-	throw createInvalidVariableError(key, type, result);
+	const type = getEnvFieldType(options);
+	throw createInvalidVariablesError(key, type, result);
 };
 
 setOnSetGetEnv((reset) => {
