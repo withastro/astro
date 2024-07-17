@@ -124,8 +124,8 @@ export function formDataToObject<T extends z.AnyZodObject>(
 	const obj: Record<string, unknown> = {};
 	for (const [key, baseValidator] of Object.entries(schema.shape)) {
 		let validator = baseValidator;
-		if (baseValidator instanceof z.ZodOptional || baseValidator instanceof z.ZodNullable) {
-			validator = baseValidator._def.innerType;
+		while (validator instanceof z.ZodOptional || validator instanceof z.ZodNullable) {
+			validator = validator._def.innerType;
 		}
 		if (validator instanceof z.ZodBoolean) {
 			obj[key] = formData.has(key);
