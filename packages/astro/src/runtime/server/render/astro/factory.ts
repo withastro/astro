@@ -7,7 +7,7 @@ export type AstroFactoryReturnValue = RenderTemplateResult | Response | HeadAndC
 // The callback passed to to $$createComponent
 export interface AstroComponentFactory {
 	(
-		result: SSRResult,
+		result: any,
 		props: any,
 		slots: any
 	): AstroFactoryReturnValue | Promise<AstroFactoryReturnValue>;
