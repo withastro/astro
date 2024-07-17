@@ -10,18 +10,18 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/check": "^0.7.0",
+    "@astrojs/check": "^0.8.1",
     "@astrojs/db": "workspace:*",
     "@astrojs/node": "workspace:*",
     "@astrojs/react": "^3.6.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "astro": "workspace:*",
-    "open-props": "^1.7.4",
+    "open-props": "^1.7.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "simple-stack-form": "^0.1.12",
-    "typescript": "^5.5.2",
+    "typescript": "^5.5.3",
     "zod": "^3.23.8"
   }
 }
