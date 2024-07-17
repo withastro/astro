@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.12.1
+
+### Patch Changes
+
+- 708167e: Fixes script and style tags being wrongfully included in the generated TSX
+
 ## 2.12.0
 
 ### Minor Changes

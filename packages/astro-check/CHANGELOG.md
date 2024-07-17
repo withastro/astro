@@ -1,5 +1,13 @@
 # @astrojs/check
 
+## 0.8.2
+
+### Patch Changes
+
+- 708167e: Fixes script and style tags being wrongfully included in the generated TSX
+- Updated dependencies [708167e]
+  - @astrojs/language-server@2.12.1
+
 ## 0.8.1
 
 ### Patch Changes
