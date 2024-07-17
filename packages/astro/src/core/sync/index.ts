@@ -1,15 +1,20 @@
-import { dim } from 'kleur/colors';
 import fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
+import { dim } from 'kleur/colors';
 import { type HMRPayload, createServer } from 'vite';
 import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { getPackage } from '../../cli/install-package.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { syncAstroEnv } from '../../env/sync.js';
-import { setUpEnvTs } from './setup-env-ts.js';
+import { telemetry } from '../../events/index.js';
+import { eventCliSession } from '../../events/session.js';
+import { runHookConfigSetup } from '../../integrations/hooks.js';
 import { getTimeStat } from '../build/util.js';
+import { resolveConfig } from '../config/config.js';
+import { createNodeLogger } from '../config/logging.js';
+import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import {
@@ -22,12 +27,7 @@ import {
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
-import { createNodeLogger } from '../config/logging.js';
-import { resolveConfig } from '../config/config.js';
-import { createSettings } from '../config/settings.js';
-import { telemetry } from '../../events/index.js';
-import { eventCliSession } from '../../events/session.js';
-import { runHookConfigSetup } from '../../integrations/hooks.js';
+import { setUpEnvTs } from './setup-env-ts.js';
 
 export type SyncOptions = {
 	/**

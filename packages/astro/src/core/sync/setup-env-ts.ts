@@ -6,8 +6,8 @@ import { normalizePath } from 'vite';
 import type { AstroSettings } from '../../@types/astro.js';
 import { ACTIONS_TYPES_FILE } from '../../actions/consts.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
-import { type Logger } from '../logger/core.js';
 import { ENV_TYPES_FILE } from '../../env/constants.js';
+import { type Logger } from '../logger/core.js';
 
 function getDotAstroTypeReference({
 	settings,
@@ -57,7 +57,7 @@ export async function setUpEnvTs({
 
 	if (fs.existsSync(envTsPath)) {
 		const initialEnvContents = await fs.promises.readFile(envTsPath, 'utf-8');
-		let typesEnvContents = initialEnvContents
+		let typesEnvContents = initialEnvContents;
 
 		for (const injectedType of injectedTypes) {
 			if (!injectedType.meetsCondition || (await injectedType.meetsCondition?.())) {
