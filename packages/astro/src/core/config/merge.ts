@@ -36,7 +36,9 @@ function mergeConfigRecursively(
 				};
 				continue;
 			}
-		} else if (key === 'data' && rootPath === 'db') {
+		}
+
+		if (key === 'data' && rootPath === 'db') {
 			// db.data can be a function or an array of functions. When
 			// merging, make sure they become an array
 			if (!Array.isArray(existing) && !Array.isArray(value)) {
