@@ -2647,6 +2647,10 @@ export interface Page<T = any> {
 		prev: string | undefined;
 		/** url of the next page (if there is one) */
 		next: string | undefined;
+		/** url of the first page (if the current page is not the first page) */
+		first: string | undefined;
+		/** url of the next page (if the current page in not the last page) */
+		last: string | undefined;
 	};
 }
 
