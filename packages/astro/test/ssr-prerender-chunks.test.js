@@ -24,7 +24,7 @@ describe('Chunks', () => {
 		assert.ok(files.length > 0);
 		for (const file of files) {
 			// Skip astro folder
-			if (file === 'astro') continue
+			if (file === 'astro') continue;
 			const content = await fixture.readFile(`/_worker.js/chunks/${file}`);
 			assert.doesNotMatch(content, /Static Page should not exist in chunks/);
 		}
