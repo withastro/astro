@@ -14,6 +14,6 @@
     "vue": "^3.4.31"
   },
   "devDependencies": {
-    "postcss-preset-env": "^9.5.15"
+    "postcss-preset-env": "^9.6.0"
   }
 }
