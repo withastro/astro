@@ -1,4 +1,5 @@
 import type {
+	ComponentInstance,
 	Locales,
 	MiddlewareHandler,
 	RouteData,
@@ -62,6 +63,8 @@ export type SSRManifest = {
 	componentMetadata: SSRResult['componentMetadata'];
 	pageModule?: SinglePageBuiltModule;
 	pageMap?: Map<ComponentPath, ImportComponentInstance>;
+	serverIslandMap?: Map<string, () => Promise<ComponentInstance>>;
+	serverIslandNameMap?: Map<string, string>;
 	i18n: SSRManifestI18n | undefined;
 	middleware: MiddlewareHandler;
 	checkOrigin: boolean;
@@ -81,11 +84,18 @@ export type SSRManifestI18n = {
 
 export type SerializedSSRManifest = Omit<
 	SSRManifest,
-	'middleware' | 'routes' | 'assets' | 'componentMetadata' | 'inlinedScripts' | 'clientDirectives'
+	| 'middleware'
+	| 'routes'
+	| 'assets'
+	| 'componentMetadata'
+	| 'inlinedScripts'
+	| 'clientDirectives'
+	| 'serverIslandNameMap'
 > & {
 	routes: SerializedRouteInfo[];
 	assets: string[];
 	componentMetadata: [string, SSRComponentMetadata][];
 	inlinedScripts: [string, string][];
 	clientDirectives: [string, string][];
+	serverIslandNameMap: [string, string][];
 };
