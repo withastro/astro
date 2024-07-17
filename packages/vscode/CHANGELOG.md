@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.12.4
+
+### Patch Changes
+
+- de10bb2: Try publishing - a third time
+
 ## 2.12.3
 
 ### Patch Changes
