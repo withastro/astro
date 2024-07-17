@@ -13,9 +13,9 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
 import { shorthash } from '../runtime/server/shorthash.js';
+import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import { type MarkdownImagePath, getMarkdownCodeForImages } from './images.js';
-import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;

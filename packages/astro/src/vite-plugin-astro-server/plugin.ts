@@ -9,8 +9,8 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
-import { createRouteManifest } from '../core/routing/index.js';
 import { injectDefaultRoutes } from '../core/routing/default.js';
+import { createRouteManifest } from '../core/routing/index.js';
 import { toRoutingStrategy } from '../i18n/utils.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
@@ -36,7 +36,7 @@ export default function createVitePluginAstroServer({
 			const loader = createViteLoader(viteServer);
 			const manifest = createDevelopmentManifest(settings);
 			let manifestData: ManifestData = injectDefaultRoutes(
-				createRouteManifest({ settings, fsMod }, logger),
+				createRouteManifest({ settings, fsMod }, logger)
 			);
 			const pipeline = DevPipeline.create(manifestData, { loader, logger, manifest, settings });
 			const controller = createController({ loader });
@@ -46,9 +46,7 @@ export default function createVitePluginAstroServer({
 			function rebuildManifest(needsManifestRebuild: boolean) {
 				pipeline.clearRouteCache();
 				if (needsManifestRebuild) {
-					manifestData = injectDefaultRoutes(
-						createRouteManifest({ settings }, logger),
-					);
+					manifestData = injectDefaultRoutes(createRouteManifest({ settings }, logger));
 					pipeline.setManifestData(manifestData);
 				}
 			}

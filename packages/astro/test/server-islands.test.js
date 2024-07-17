@@ -1,4 +1,3 @@
-
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
@@ -27,22 +26,22 @@ describe('Server islands', () => {
 				await devServer.stop();
 			});
 
-	    it('omits the islands HTML', async () => {
+			it('omits the islands HTML', async () => {
 				const res = await fixture.fetch('/');
 				assert.equal(res.status, 200);
 				const html = await res.text();
 				const $ = cheerio.load(html);
 				const serverIslandEl = $('h2#island');
 				assert.equal(serverIslandEl.length, 0);
-	    });
-	  });
+			});
+		});
 
 		describe('prod', () => {
 			before(async () => {
 				await fixture.build();
 			});
 
-	    it('omits the islands HTML', async () => {
+			it('omits the islands HTML', async () => {
 				const app = await fixture.loadTestAdapterApp();
 				const request = new Request('http://example.com/');
 				const response = await app.render(request);
@@ -54,8 +53,8 @@ describe('Server islands', () => {
 
 				const serverIslandScript = $('script[data-island-id]');
 				assert.equal(serverIslandScript.length, 1, 'has the island script');
-	    });
-	  });
+			});
+		});
 	});
 
 	describe('Hybrid mode', () => {
@@ -93,11 +92,11 @@ describe('Server islands', () => {
 							componentExport: 'default',
 							props: {},
 							slots: {},
-						})
+						}),
 					});
 					return app.render(request);
 				}
-			
+
 				it('Island returns its HTML', async () => {
 					const response = await fetchIsland();
 					const html = await response.text();

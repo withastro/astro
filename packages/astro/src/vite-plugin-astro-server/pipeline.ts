@@ -158,8 +158,8 @@ export class DevPipeline extends Pipeline {
 		const { loader } = this;
 
 		// First check built-in routes
-		for(const route of this.defaultRoutes) {
-			if(route.matchesComponent(filePath)) {
+		for (const route of this.defaultRoutes) {
+			if (route.matchesComponent(filePath)) {
 				return route.instance;
 			}
 		}
@@ -226,8 +226,8 @@ export class DevPipeline extends Pipeline {
 
 	rewriteKnownRoute(route: string, sourceRoute: RouteData): ComponentInstance {
 		if (isServerLikeOutput(this.config) && sourceRoute.prerender) {
-			for(let def of this.defaultRoutes) {
-				if(route === def.route) {
+			for (let def of this.defaultRoutes) {
+				if (route === def.route) {
 					return def.instance;
 				}
 			}
