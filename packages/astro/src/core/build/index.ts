@@ -143,8 +143,8 @@ class AstroBuilder {
 		);
 		await runHookConfigDone({ settings: this.settings, logger: logger });
 
-		const { default: sync } = await import('../sync/index.js');
-		await sync({
+		const { syncInternal } = await import('../sync/index.js');
+		await syncInternal({
 			settings: this.settings,
 			logger,
 			fs,

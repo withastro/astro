@@ -27,9 +27,9 @@ export async function check(flags: Arguments) {
 	// Run sync before check to make sure types are generated.
 	// NOTE: In the future, `@astrojs/check` can expose a `before lint` hook so that this works during `astro check --watch` too.
 	// For now, we run this once as usually `astro check --watch` is ran alongside `astro dev` which also calls `astro sync`.
-	const { syncInlineConfig } = await import('../../core/sync/index.js');
+	const { default: sync } = await import('../../core/sync/index.js');
 	try {
-		await syncInlineConfig({ inlineConfig: flagsToAstroInlineConfig(flags) });
+		await sync({ inlineConfig: flagsToAstroInlineConfig(flags) });
 	} catch (_) {
 		return process.exit(1);
 	}

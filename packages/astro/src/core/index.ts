@@ -2,7 +2,7 @@
 
 import type { AstroInlineConfig } from '../@types/astro.js';
 import { default as _build } from './build/index.js';
-import { syncInlineConfig } from './sync/index.js';
+import { default as _sync } from './sync/index.js';
 
 export { default as dev } from './dev/index.js';
 export { default as preview } from './preview/index.js';
@@ -22,5 +22,5 @@ export const build = (inlineConfig: AstroInlineConfig) => _build(inlineConfig);
  *
  * @experimental The JavaScript API is experimental
  */
-// Wrap `syncInlineConfig` to prevent exposing internal options
-export const sync = (inlineConfig: AstroInlineConfig) => syncInlineConfig({ inlineConfig });
+// Wrap `_sync` to prevent exposing internal options
+export const sync = (inlineConfig: AstroInlineConfig) => _sync({ inlineConfig });

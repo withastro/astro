@@ -46,7 +46,7 @@ type DBPackage = {
 	typegen?: (args: Pick<AstroConfig, 'root' | 'integrations'>) => Promise<void>;
 };
 
-export async function syncInlineConfig({
+export default async function sync({
 	inlineConfig,
 	fs,
 	telemetry: _telemetry = false,
@@ -63,7 +63,7 @@ export async function syncInlineConfig({
 		settings,
 		logger,
 	});
-	return await sync({ settings, logger, fs });
+	return await syncInternal({ settings, logger, fs });
 }
 
 /**
@@ -72,7 +72,7 @@ export async function syncInlineConfig({
  *
  * @experimental The JavaScript API is experimental
  */
-export default async function sync({
+export async function syncInternal({
 	logger,
 	fs = fsMod,
 	settings,

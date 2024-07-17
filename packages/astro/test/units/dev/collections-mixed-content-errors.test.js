@@ -1,14 +1,14 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { syncInlineConfig } from '../../../dist/core/sync/index.js';
+import sync from '../../../dist/core/sync/index.js';
 import { createFsWithFallback } from '../test-utils.js';
 
 const root = new URL('../../fixtures/content-mixed-errors/', import.meta.url);
 
 async function sync({ fs }) {
 	try {
-		await syncInlineConfig({
+		await sync({
 			inlineConfig: {
 				root: fileURLToPath(root),
 				logLevel: 'silent',
