@@ -2250,6 +2250,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/astro-markdown-shiki/default-color:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../../..
+
   packages/astro/test/fixtures/astro-markdown-shiki/langs:
     dependencies:
       astro:
