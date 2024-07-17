@@ -3058,7 +3058,7 @@ export type HookParameters<
 
 declare global {
 	// eslint-disable-next-line  @typescript-eslint/no-namespace
- 	namespace Astro {
+	namespace Astro {
 		export interface IntegrationHooks {
 			'astro:config:setup': (options: {
 				config: AstroConfig;
@@ -3071,9 +3071,9 @@ declare global {
 				injectRoute: (injectRoute: InjectedRoute) => void;
 				addClientDirective: (directive: ClientDirectiveConfig) => void;
 				/**
-			 	 * @deprecated Use `addDevToolbarApp` instead.
-			 	 * TODO: Fully remove in Astro 5.0
-			 	 */
+				 * @deprecated Use `addDevToolbarApp` instead.
+				 * TODO: Fully remove in Astro 5.0
+				 */
 				addDevOverlayPlugin: (entrypoint: string) => void;
 				// TODO: Deprecate the `string` overload once a few apps have been migrated to the new API.
 				addDevToolbarApp: (entrypoint: DevToolbarAppEntry | string) => void;
@@ -3102,13 +3102,13 @@ declare global {
 			'astro:build:ssr': (options: {
 				manifest: SerializedSSRManifest;
 				/**
-			 	 * This maps a {@link RouteData} to an {@link URL}, this URL represents
-			 	 * the physical file you should import.
-			 	 */
+				 * This maps a {@link RouteData} to an {@link URL}, this URL represents
+				 * the physical file you should import.
+				 */
 				entryPoints: Map<RouteData, URL>;
 				/**
-			 	 * File path of the emitted middleware
-			 	 */
+				 * File path of the emitted middleware
+				 */
 				middlewareEntryPoint: URL | undefined;
 				logger: AstroIntegrationLogger;
 			}) => void | Promise<void>;
@@ -3140,8 +3140,8 @@ export interface AstroIntegration {
 	name: string;
 	/** The different hooks available to extend. */
 	hooks: {
-		[K in keyof Astro.IntegrationHooks]?: Astro.IntegrationHooks[K]
-	} & Partial<Record<string, unknown>>
+		[K in keyof Astro.IntegrationHooks]?: Astro.IntegrationHooks[K];
+	} & Partial<Record<string, unknown>>;
 }
 
 export type RewritePayload = string | URL | Request;
