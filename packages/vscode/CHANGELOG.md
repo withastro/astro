@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.12.3
+
+### Patch Changes
+
+- a360c7e: Second attempt at publishing
+
 ## 2.12.2
 
 ### Patch Changes
