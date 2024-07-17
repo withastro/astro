@@ -24,7 +24,7 @@ import GenericUser from '../components/GenericUser.astro';
 
 The `server:defer` directive can be used on any Astro component in a project using `hybrid` or `server` mode with an adapter. There are no special APIs needed inside of the island.
 
-This is an experimental feature that should be enabled in your config:
+Enable server islands by adding the experimental flag to your Astro config with an appropriate `output` mode and adatper:
 
 ```js
 import { defineConfig } from 'astro/config';
