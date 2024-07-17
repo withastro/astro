@@ -277,8 +277,8 @@ describe('astro:env validators', () => {
 			fixture.givenInput('ab', {
 				type: 'string',
 				startsWith: 'x',
-				min: 5
-			})
+				min: 5,
+			});
 			fixture.thenResultShouldBeInvalid(['startsWith', 'min']);
 		});
 
