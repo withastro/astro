@@ -520,6 +520,34 @@ describe('Runtime error in SSR, custom 500', () => {
 	});
 });
 
+describe('Runtime error in dev, custom 500', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-i18n-manual-routing/',
+		});
+
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('should return a status 200 when rewriting from the middleware to the homepage', async () => {
+		const response = await fixture.fetch('/reroute');
+		assert.equal(response.status, 200);
+		const html = await response.text();
+
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Expected http status of index page is 200');
+	});
+});
+
 describe('Runtime error in SSR, custom 500', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;

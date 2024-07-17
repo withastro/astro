@@ -101,6 +101,7 @@ const aria_non_interactive_roles = [
 	'rowheader',
 	'search',
 	'status',
+	'tabpanel',
 	'term',
 	'timer',
 	'toolbar',
@@ -503,7 +504,7 @@ export const a11y: AuditRuleWithSelector[] = [
 		description:
 			'The `tabindex` attribute should only be used on interactive elements, as it can be confusing for keyboard-only users to navigate through non-interactive elements. If your element is only conditionally interactive, consider using `tabindex="-1"` to make it focusable only when it is actually interactive.',
 		message: (element) => `${element.localName} elements should not have \`tabindex\` attribute`,
-		selector: '[tabindex]',
+		selector: '[tabindex]:not([role="tabpanel"])',
 		match(element) {
 			// Scrollable elements are considered interactive
 			// See: https://www.w3.org/WAI/standards-guidelines/act/rules/0ssw9k/proposed/
