@@ -351,15 +351,19 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 	// First load all the images. This is done outside of the replaceAll
 	// function because getImage is async.
 	for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
-		const decodedImagePath = JSON.parse(imagePath.replaceAll('&#x22;', '"'));
-		const id = imageSrcToImportId(decodedImagePath.src, fileName);
+		try {
+			const decodedImagePath = JSON.parse(imagePath.replaceAll('&#x22;', '"'));
+			const id = imageSrcToImportId(decodedImagePath.src, fileName);
 
-		const imported = imageAssetMap.get(id);
-		if (!id || imageObjects.has(id) || !imported) {
-			continue;
+			const imported = imageAssetMap.get(id);
+			if (!id || imageObjects.has(id) || !imported) {
+				continue;
+			}
+			const image: GetImageResult = await getImage({ ...decodedImagePath, src: imported });
+			imageObjects.set(imagePath, image);
+		} catch (e) {
+			throw new Error(`Failed to parse image reference: ${imagePath}`);
 		}
-		const image: GetImageResult = await getImage({ ...decodedImagePath, src: imported });
-		imageObjects.set(imagePath, image);
 	}
 
 	return html.replaceAll(CONTENT_LAYER_IMAGE_REGEX, (full, imagePath) => {

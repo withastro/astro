@@ -1,5 +1,6 @@
 import { promises as fs, type PathLike, existsSync } from 'fs';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 
 const SAVE_DEBOUNCE_MS = 500;
 
@@ -106,7 +107,14 @@ export class DataStore {
 		this.#assetsFile = filePath;
 
 		if (this.#assetImports.size === 0) {
-			await fs.writeFile(filePath, 'export default new Map();');
+			try {
+				await fs.writeFile(filePath, 'export default new Map();');
+			} catch (err) {
+				throw new AstroError({
+					...(err as Error),
+					...AstroErrorData.ContentLayerWriteError,
+				});
+			}
 		}
 
 		if (!this.#assetsDirty && existsSync(filePath)) {
@@ -126,7 +134,14 @@ export class DataStore {
 ${imports.join('\n')}
 export default new Map([${exports.join(', ')}]);
 		`;
-		await fs.writeFile(filePath, code);
+		try {
+			await fs.writeFile(filePath, code);
+		} catch (err) {
+			throw new AstroError({
+				...(err as Error),
+				...AstroErrorData.ContentLayerWriteError,
+			});
+		}
 		this.#assetsDirty = false;
 	}
 
@@ -235,8 +250,11 @@ export default new Map([${exports.join(', ')}]);
 			await fs.writeFile(filePath, this.toString());
 			this.#file = filePath;
 			this.#dirty = false;
-		} catch {
-			throw new Error(`Failed to save data store to disk`);
+		} catch (err) {
+			throw new AstroError({
+				...(err as Error),
+				...AstroErrorData.ContentLayerWriteError,
+			});
 		}
 	}
 
