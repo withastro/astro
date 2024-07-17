@@ -4,7 +4,7 @@
 
 Experimental Server Islands
 
-Server Islands allow you to specify components that should run on the server, allowing the rest of the page to be more aggressively cached, or even generated statically. Server Islands are marked with the `server:defer` directive.
+Server Islands allow you to specify components that should run on the server, allowing the rest of the page to be more aggressively cached, or even generated statically. Turn any `.astro` component into a server island by adding the `server:defer` directive and optionally, fallback placeholder content:
 
 ```astro
 ---
