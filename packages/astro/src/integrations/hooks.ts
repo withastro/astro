@@ -105,13 +105,13 @@ export async function runHookConfigSetup({
 	command,
 	logger,
 	isRestart = false,
-	fs = fsMod
+	fs = fsMod,
 }: {
 	settings: AstroSettings;
 	command: 'dev' | 'build' | 'preview';
 	logger: Logger;
 	isRestart?: boolean;
-	fs?: typeof fsMod
+	fs?: typeof fsMod;
 }): Promise<AstroSettings> {
 	// An adapter is an integration, so if one is provided push it.
 	if (settings.config.adapter) {

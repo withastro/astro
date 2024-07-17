@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import * as fs from 'node:fs';
 import { before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { loadFixture } from './test-utils.js';
-import { fileURLToPath } from 'node:url';
 
 const createFixture = () => {
 	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
