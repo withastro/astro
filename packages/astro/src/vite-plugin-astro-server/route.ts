@@ -218,8 +218,10 @@ export async function handleRoute({
 	});
 
 	let response;
+	let isRewrite = false;
 	try {
 		response = await renderContext.render(mod);
+		isRewrite = response.headers.has(REROUTE_DIRECTIVE_HEADER);
 	} catch (err: any) {
 		const custom500 = getCustom500Route(manifestData);
 		if (!custom500) {
@@ -264,7 +266,7 @@ export async function handleRoute({
 	}
 
 	// We remove the internally-used header before we send the response to the user agent.
-	if (response.headers.has(REROUTE_DIRECTIVE_HEADER)) {
+	if (isRewrite) {
 		response.headers.delete(REROUTE_DIRECTIVE_HEADER);
 	}
 
@@ -284,7 +286,14 @@ export async function handleRoute({
 
 	// Apply the `status` override to the response object before responding.
 	// Response.status is read-only, so a clone is required to override.
-	if (status && response.status !== status && (status === 404 || status === 500)) {
+	if (
+		status &&
+		response.status !== status &&
+		// This check is important in case of rewrites.
+		// A route can start with a 404 code, then the rewrite kicks in and can return a 200 status code
+		!isRewrite &&
+		(status === 404 || status === 500)
+	) {
 		response = new Response(response.body, {
 			status: status,
 			headers: response.headers,
