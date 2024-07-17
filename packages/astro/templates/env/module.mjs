@@ -4,6 +4,7 @@ import {
 	getEnv,
 	setOnSetGetEnv,
 	validateEnvVariable,
+	getEnvFieldType
 } from 'astro/env/runtime';
 
 export const getSecret = (key) => {
@@ -19,7 +20,8 @@ const _internalGetSecret = (key) => {
 	if (result.ok) {
 		return result.value;
 	}
-	throw createInvalidVariableError(key, result.type);
+	const type = getEnvFieldType(options)
+	throw createInvalidVariableError(key, type, result);
 };
 
 setOnSetGetEnv((reset) => {
