@@ -120,7 +120,7 @@ describe('Markdoc - render', () => {
 
 		it('renders content - with typographer option', async () => {
 			const fixture = await getFixture('render-typographer');
-			await fixture.build()
+			await fixture.build();
 
 			const html = await fixture.readFile('/index.html');
 
