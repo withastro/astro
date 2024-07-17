@@ -9,7 +9,7 @@ import type {
 } from './types.js';
 
 import { normalizePath } from 'vite';
-import { normalizeFilename } from '../vite-plugin-utils/index.js';
+import { hasSpecialQueries, normalizeFilename } from '../vite-plugin-utils/index.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
@@ -200,6 +200,8 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			}
 		},
 		async transform(source, id) {
+			if (hasSpecialQueries(id)) return;
+
 			const parsedId = parseAstroRequest(id);
 			// ignore astro file sub-requests, e.g. Foo.astro?astro&type=script&index=0&lang.ts
 			if (!parsedId.filename.endsWith('.astro') || parsedId.query.astro) {

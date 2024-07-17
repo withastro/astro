@@ -314,10 +314,12 @@ export class App {
 		}
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
-		const mod = await this.#pipeline.getModuleForRoute(routeData);
 
 		let response;
 		try {
+			// Load route module. We also catch its error here if it fails on initialization
+			const mod = await this.#pipeline.getModuleForRoute(routeData);
+
 			const renderContext = RenderContext.create({
 				pipeline: this.#pipeline,
 				locals,

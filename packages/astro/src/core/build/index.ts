@@ -143,11 +143,12 @@ class AstroBuilder {
 		);
 		await runHookConfigDone({ settings: this.settings, logger: logger });
 
-		const { syncContentCollections } = await import('../sync/index.js');
-		const syncRet = await syncContentCollections(this.settings, { logger: logger, fs });
-		if (syncRet !== 0) {
-			return process.exit(syncRet);
-		}
+		const { syncInternal } = await import('../sync/index.js');
+		await syncInternal({
+			settings: this.settings,
+			logger,
+			fs,
+		});
 
 		return { viteConfig };
 	}
