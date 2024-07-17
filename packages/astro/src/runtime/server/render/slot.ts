@@ -105,7 +105,7 @@ export async function renderSlots(
 }
 
 export function createSlotValueFromString(content: string): ComponentSlotValue {
-	return function() {
+	return function () {
 		return renderTemplate`${unescapeHTML(content)}`;
 	};
 }

@@ -1,5 +1,15 @@
-import { renderComponent, renderTemplate, type AstroComponentFactory, type ComponentSlots } from '../../runtime/server/index.js';
-import type { ComponentInstance, ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
+import type {
+	ComponentInstance,
+	ManifestData,
+	RouteData,
+	SSRManifest,
+} from '../../@types/astro.js';
+import {
+	type AstroComponentFactory,
+	type ComponentSlots,
+	renderComponent,
+	renderTemplate,
+} from '../../runtime/server/index.js';
 import { createSlotValueFromString } from '../../runtime/server/render/slot.js';
 
 export const SERVER_ISLAND_ROUTE = '/_server-islands/[name]';
@@ -17,7 +27,7 @@ export function ensureServerIslandRoute(manifest: ManifestData) {
 		params: ['name'],
 		segments: [
 			[{ content: '_server-islands', dynamic: false, spread: false }],
-			[{ content: 'name', dynamic: true, spread: false }]
+			[{ content: 'name', dynamic: true, spread: false }],
 		],
 		// eslint-disable-next-line
 		pattern: /^\/_server-islands\/([^/]+?)$/,
@@ -25,7 +35,7 @@ export function ensureServerIslandRoute(manifest: ManifestData) {
 		isIndex: false,
 		fallbackRoutes: [],
 		route: SERVER_ISLAND_ROUTE,
-	}
+	};
 
 	manifest.routes.push(route);
 }
@@ -34,7 +44,7 @@ type RenderOptions = {
 	componentExport: string;
 	props: Record<string, any>;
 	slots: Record<string, string>;
-}
+};
 
 export function createEndpoint(manifest: SSRManifest) {
 	const page: AstroComponentFactory = async (result) => {
@@ -42,19 +52,19 @@ export function createEndpoint(manifest: SSRManifest) {
 		const request = result.request;
 		const raw = await request.text();
 		const data = JSON.parse(raw) as RenderOptions;
-		if(!params.name) {
+		if (!params.name) {
 			return new Response(null, {
 				status: 400,
-				statusText: 'Bad request'
+				statusText: 'Bad request',
 			});
 		}
 		const componentId = params.name;
 
 		const imp = manifest.serverIslandMap?.get(componentId);
-		if(!imp) {
+		if (!imp) {
 			return new Response(null, {
 				status: 404,
-				statusText: 'Not found'
+				statusText: 'Not found',
 			});
 		}
 
@@ -63,15 +73,15 @@ export function createEndpoint(manifest: SSRManifest) {
 		const Component = (componentModule as any)[data.componentExport];
 
 		const slots: ComponentSlots = {};
-		for(const prop in data.slots) {
+		for (const prop in data.slots) {
 			slots[prop] = createSlotValueFromString(data.slots[prop]);
 		}
 
 		return renderTemplate`${renderComponent(result, 'Component', Component, props, slots)}`;
-	}
+	};
 
 	page.isAstroComponentFactory = true;
-	
+
 	const instance: ComponentInstance = {
 		default: page,
 		partial: true,
@@ -79,4 +89,3 @@ export function createEndpoint(manifest: SSRManifest) {
 
 	return instance;
 }
-

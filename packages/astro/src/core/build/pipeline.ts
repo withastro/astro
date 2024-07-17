@@ -272,8 +272,8 @@ export class BuildPipeline extends Pipeline {
 			return await entry.page();
 		}
 
-		for(const route of this.defaultRoutes) {
-			if(route.component === routeData.component) {
+		for (const route of this.defaultRoutes) {
+			if (route.component === routeData.component) {
 				return route.instance;
 			}
 		}

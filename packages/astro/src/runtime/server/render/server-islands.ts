@@ -1,18 +1,16 @@
-import type {
-	SSRResult,
-} from '../../../@types/astro.js';
-import { renderChild } from "./any.js";
-import type { RenderInstance } from "./common.js";
-import { renderSlotToString, type ComponentSlots } from "./slot.js";
+import type { SSRResult } from '../../../@types/astro.js';
+import { renderChild } from './any.js';
+import type { RenderInstance } from './common.js';
+import { type ComponentSlots, renderSlotToString } from './slot.js';
 
 const internalProps = new Set([
 	'server:component-path',
 	'server:component-export',
 	'server:component-directive',
-	'server:defer'
+	'server:defer',
 ]);
 
-export function containsServerDirective(props: Record<string | number, any>,) {
+export function containsServerDirective(props: Record<string | number, any>) {
 	return 'server:component-directive' in props;
 }
 
@@ -20,7 +18,7 @@ export function renderServerIsland(
 	result: SSRResult,
 	_displayName: string,
 	props: Record<string | number, any>,
-	slots:  ComponentSlots,
+	slots: ComponentSlots
 ): RenderInstance {
 	return {
 		async render(destination) {
@@ -28,23 +26,23 @@ export function renderServerIsland(
 			const componentExport = props['server:component-export'];
 			const componentId = result.serverIslandNameMap.get(componentPath);
 
-			if(!componentId) {
+			if (!componentId) {
 				throw new Error(`Could not find server component name`);
 			}
 
 			// Remove internal props
-			for(const key of Object.keys(props)) {
-				if(internalProps.has(key)) {
+			for (const key of Object.keys(props)) {
+				if (internalProps.has(key)) {
 					delete props[key];
 				}
 			}
-		
-			destination.write('<!--server-island-start-->')
+
+			destination.write('<!--server-island-start-->');
 
 			// Render the slots
 			const renderedSlots: Record<string, string> = {};
-			for(const name in slots) {
-				if(name !== 'fallback') {
+			for (const name in slots) {
+				if (name !== 'fallback') {
 					const content = await renderSlotToString(result, slots[name]);
 					renderedSlots[name] = content.toString();
 				} else {
@@ -83,7 +81,7 @@ if(response.status === 200 && response.headers.get('content-type') === 'text/htm
 	script.before(frag);
 }
 script.remove();
-</script>`)
-		}
-	}
+</script>`);
+		},
+	};
 }

@@ -11,6 +11,7 @@ import { appendForwardSlash, removeFileExtension } from '../core/path.js';
 import { isServerLikeOutput } from '../core/util.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
+import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import {
 	CONTENT_FLAG,
 	CONTENT_RENDER_FLAG,
@@ -30,7 +31,6 @@ import {
 	getEntryType,
 	getExtGlob,
 } from './utils.js';
-import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;

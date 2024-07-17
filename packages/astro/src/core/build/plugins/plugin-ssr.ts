@@ -4,6 +4,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { AstroAdapter, AstroSettings } from '../../../@types/astro.js';
 import { isFunctionPerRouteEnabled } from '../../../integrations/hooks.js';
 import { routeIsRedirect } from '../../redirects/index.js';
+import { VIRTUAL_ISLAND_MAP_ID } from '../../server-islands/vite-plugin-server-islands.js';
 import { isServerLikeOutput } from '../../util.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
@@ -13,7 +14,6 @@ import { SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugin-manifest.js';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
-import { VIRTUAL_ISLAND_MAP_ID } from '../../server-islands/vite-plugin-server-islands.js';
 import { getComponentFromVirtualModulePageName, getVirtualModulePageName } from './util.js';
 
 export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
@@ -250,7 +250,9 @@ function generateSSRCode(settings: AstroSettings, adapter: AstroAdapter, middlew
 		`import { manifest as defaultManifest } from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';`,
 		`import * as serverEntrypointModule from '${adapter.serverEntrypoint}';`,
 		edgeMiddleware ? `` : `import { onRequest as middleware } from '${middlewareId}';`,
-		settings.config.experimental.serverIslands ? `import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';` : ''
+		settings.config.experimental.serverIslands
+			? `import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';`
+			: '',
 	];
 
 	const contents = [
