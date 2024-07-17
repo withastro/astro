@@ -28,10 +28,10 @@ export async function check(flags: Arguments) {
 	// NOTE: In the future, `@astrojs/check` can expose a `before lint` hook so that this works during `astro check --watch` too.
 	// For now, we run this once as usually `astro check --watch` is ran alongside `astro dev` which also calls `astro sync`.
 	const { default: sync } = await import('../../core/sync/index.js');
-	const inlineConfig = flagsToAstroInlineConfig(flags);
-	const exitCode = await sync(inlineConfig);
-	if (exitCode !== 0) {
-		process.exit(exitCode);
+	try {
+		await sync({ inlineConfig: flagsToAstroInlineConfig(flags) });
+	} catch (_) {
+		return process.exit(1);
 	}
 
 	const { check: checker, parseArgsAsCheckConfig } = checkPackage;

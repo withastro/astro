@@ -9,7 +9,7 @@ import {
 	VIRTUAL_MODULES_IDS_VALUES,
 } from './constants.js';
 import type { EnvSchema } from './schema.js';
-import { validateEnvVariable } from './validators.js';
+import { type ValidationResultErrors, getEnvFieldType, validateEnvVariable } from './validators.js';
 
 // TODO: reminders for when astro:env comes out of experimental
 // Types should always be generated (like in types/content.d.ts). That means the client module will be empty
@@ -105,7 +105,7 @@ function validatePublicVariables({
 	validateSecrets: boolean;
 }) {
 	const valid: Array<{ key: string; value: any; type: string; context: 'server' | 'client' }> = [];
-	const invalid: Array<{ key: string; type: string }> = [];
+	const invalid: Array<{ key: string; type: string; errors: ValidationResultErrors }> = [];
 
 	for (const [key, options] of Object.entries(schema)) {
 		const variable = loadedEnv[key] === '' ? undefined : loadedEnv[key];
@@ -115,20 +115,30 @@ function validatePublicVariables({
 		}
 
 		const result = validateEnvVariable(variable, options);
+		const type = getEnvFieldType(options);
 		if (!result.ok) {
-			invalid.push({ key, type: result.type });
+			invalid.push({ key, type, errors: result.errors });
 			// We don't do anything with validated secrets so we don't store them
 		} else if (options.access === 'public') {
-			valid.push({ key, value: result.value, type: result.type, context: options.context });
+			valid.push({ key, value: result.value, type, context: options.context });
 		}
 	}
 
 	if (invalid.length > 0) {
+		const _errors: Array<string> = [];
+		for (const { key, type, errors } of invalid) {
+			if (errors[0] === 'missing') {
+				_errors.push(`${key} is missing`);
+			} else if (errors[0] === 'type') {
+				_errors.push(`${key}'s type is invalid, expected: ${type}`);
+			} else {
+				// constraints
+				_errors.push(`The following constraints for ${key} are not met: ${errors.join(', ')}`);
+			}
+		}
 		throw new AstroError({
 			...AstroErrorData.EnvInvalidVariables,
-			message: AstroErrorData.EnvInvalidVariables.message(
-				invalid.map(({ key, type }) => `Variable ${key} is not of type: ${type}.`).join('\n')
-			),
+			message: AstroErrorData.EnvInvalidVariables.message(_errors),
 		});
 	}
 

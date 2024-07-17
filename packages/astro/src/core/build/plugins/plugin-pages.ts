@@ -44,8 +44,8 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 				for (const pageData of pageDatas) {
 					const resolvedPage = await this.resolve(pageData.moduleSpecifier);
 					if (resolvedPage) {
-						imports.push(`const page = () => import(${JSON.stringify(pageData.moduleSpecifier)});`);
-						exports.push(`export { page }`);
+						imports.push(`import * as _page from ${JSON.stringify(pageData.moduleSpecifier)};`);
+						exports.push(`export const page = () => _page`);
 
 						imports.push(`import { renderers } from "${RENDERERS_MODULE_ID}";`);
 						exports.push(`export { renderers };`);
