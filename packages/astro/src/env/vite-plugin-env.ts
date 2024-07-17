@@ -9,7 +9,7 @@ import {
 	VIRTUAL_MODULES_IDS_VALUES,
 } from './constants.js';
 import type { EnvSchema } from './schema.js';
-import { getEnvFieldType, validateEnvVariable, type ValidationResultErrors } from './validators.js';
+import { type ValidationResultErrors, getEnvFieldType, validateEnvVariable } from './validators.js';
 
 // TODO: reminders for when astro:env comes out of experimental
 // Types should always be generated (like in types/content.d.ts). That means the client module will be empty
