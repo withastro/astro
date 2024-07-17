@@ -334,7 +334,7 @@ type RenderResult = {
 	remarkPluginFrontmatter: Record<string, any>;
 };
 
-const IMAGE_REGEX = /__ASTRO_IMAGE_="([^"]+)"/g;
+const CONTENT_LAYER_IMAGE_REGEX = /__ASTRO_IMAGE_="([^"]+)"/g;
 
 async function updateImageReferencesInBody(html: string, fileName: string) {
 	// @ts-expect-error Virtual module
@@ -347,23 +347,19 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 
 	// First load all the images. This is done outside of the replaceAll
 	// function because getImage is async.
-	for (const [_full, imagePath] of html.matchAll(IMAGE_REGEX)) {
-		const decodedImagePath = JSON.parse(imagePath.replace(/&#x22;/g, '"'));
+	for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
+		const decodedImagePath = JSON.parse(imagePath.replaceAll('&#x22;', '"'));
 		const id = imageSrcToImportId(decodedImagePath.src, fileName);
 
-		if (!id || imageObjects.has(id)) {
-			continue;
-		}
-
 		const imported = imageAssetMap.get(id);
-		if (!imported) {
+		if (!id || imageObjects.has(id) || !imported) {
 			continue;
 		}
 		const image: GetImageResult = await getImage({ ...decodedImagePath, src: imported });
 		imageObjects.set(imagePath, image);
 	}
 
-	return html.replaceAll(IMAGE_REGEX, (full, imagePath) => {
+	return html.replaceAll(CONTENT_LAYER_IMAGE_REGEX, (full, imagePath) => {
 		const image = imageObjects.get(imagePath);
 
 		if (!image) {

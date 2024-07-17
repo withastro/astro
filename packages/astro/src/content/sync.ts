@@ -7,7 +7,12 @@ import type { Logger } from '../core/logger/core.js';
 import { ASSET_IMPORTS_FILE, DATA_STORE_FILE } from './consts.js';
 import { DataStore, globalDataStore } from './data-store.js';
 import type { DataWithId, LoaderContext } from './loaders/types.js';
-import { getEntryData, globalContentConfigObserver, posixRelative } from './utils.js';
+import {
+	getEntryData,
+	getEntryDataAndImages,
+	globalContentConfigObserver,
+	posixRelative,
+} from './utils.js';
 
 export interface SyncContentLayerOptions {
 	store?: DataStore;
@@ -68,11 +73,11 @@ export async function syncContentLayer({
 			const collectionWithResolvedSchema = { ...collection, schema };
 
 			const parseData: LoaderContext['parseData'] = async ({ id, data, filePath = '' }) => {
-				const { _internal_imageImports: imageImports, ...parsedData } = (await getEntryData(
+				const { imageImports, data: parsedData } = await getEntryDataAndImages(
 					{
 						id,
 						collection: name,
-						unvalidatedData: data,
+						unvalidatedData: data as DataWithId,
 						_internal: {
 							rawData: undefined,
 							filePath,
@@ -80,9 +85,7 @@ export async function syncContentLayer({
 					},
 					collectionWithResolvedSchema,
 					false
-				)) as DataWithId & {
-					_internal_imageImports?: Array<string>;
-				};
+				);
 
 				if (imageImports) {
 					store.addAssetImports(

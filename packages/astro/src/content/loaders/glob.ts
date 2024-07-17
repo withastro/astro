@@ -93,7 +93,7 @@ export function glob(globOptions: GlobOptions): Loader {
 					if (existingEntry.rendered?.metadata?.imagePaths?.length) {
 						// Add asset imports for existing entries
 						store.addAssetImports(
-							existingEntry.rendered?.metadata.imagePaths,
+							existingEntry.rendered.metadata.imagePaths,
 							existingEntry.filePath
 						);
 					}

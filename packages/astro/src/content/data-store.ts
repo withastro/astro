@@ -91,6 +91,9 @@ export class DataStore {
 		const id = imageSrcToImportId(assetImport, filePath);
 		if (id) {
 			this.#assetImports.add(id);
+			// We debounce the writes to disk because addAssetImport is called for every image in every file,
+			// and can be called many times in quick succession by a filesystem watcher. We only want to write
+			// the file once, after all the imports have been added.
 			this.#writeAssetsImportsDebounced();
 		}
 	}
@@ -124,6 +127,7 @@ ${imports.join('\n')}
 export default new Map([${exports.join(', ')}]);
 		`;
 		await fs.writeFile(filePath, code);
+		this.#assetsDirty = false;
 	}
 
 	#writeAssetsImportsDebounced() {

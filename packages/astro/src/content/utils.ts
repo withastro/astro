@@ -120,23 +120,26 @@ export function parseEntrySlug({
 	}
 }
 
-export async function getEntryData(
+export async function getEntryDataAndImages<
+	TInputData extends Record<string, unknown> = Record<string, unknown>,
+	TOutputData extends TInputData = TInputData,
+>(
 	entry: {
 		id: string;
 		collection: string;
-		unvalidatedData: Record<string, unknown>;
+		unvalidatedData: TInputData;
 		_internal: EntryInternal;
 	},
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
 	pluginContext?: PluginContext
-) {
-	let data;
+): Promise<{ data: TOutputData; imageImports: Array<string> }> {
+	let data: TOutputData;
 	if (collectionConfig.type === 'data' || collectionConfig.type === 'experimental_data') {
-		data = entry.unvalidatedData;
+		data = entry.unvalidatedData as TOutputData;
 	} else {
 		const { slug, ...unvalidatedData } = entry.unvalidatedData;
-		data = unvalidatedData;
+		data = unvalidatedData as TOutputData;
 	}
 
 	let schema = collectionConfig.schema;
@@ -185,7 +188,7 @@ export async function getEntryData(
 			},
 		});
 		if (parsed.success) {
-			data = parsed.data as Record<string, unknown>;
+			data = parsed.data as TOutputData;
 		} else {
 			if (!formattedError) {
 				formattedError = new AstroError({
@@ -205,14 +208,27 @@ export async function getEntryData(
 			throw formattedError;
 		}
 	}
-	if (imageImports.size > 0) {
-		Object.defineProperties(data, {
-			_internal_imageImports: {
-				value: Array.from(imageImports),
-				enumerable: false,
-			},
-		});
-	}
+
+	return { data, imageImports: Array.from(imageImports) };
+}
+
+export async function getEntryData(
+	entry: {
+		id: string;
+		collection: string;
+		unvalidatedData: Record<string, unknown>;
+		_internal: EntryInternal;
+	},
+	collectionConfig: CollectionConfig,
+	shouldEmitFile: boolean,
+	pluginContext?: PluginContext
+) {
+	const { data } = await getEntryDataAndImages(
+		entry,
+		collectionConfig,
+		shouldEmitFile,
+		pluginContext
+	);
 	return data;
 }
 
