@@ -11,7 +11,11 @@ import type {
 import type * as babel from '@babel/core';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
-import type { Accept, ActionClient, InputSchema } from '../actions/runtime/virtual/server.js';
+import type {
+	ActionAccept,
+	ActionClient,
+	ActionInputSchema,
+} from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
 import type { AssetsPrefix, SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
@@ -2166,6 +2170,37 @@ export interface AstroUserConfig {
 			 * ```
 			 */
 			schema?: EnvSchema;
+
+			/**
+			 * @docs
+			 * @name experimental.env.validateSecrets
+			 * @kind h4
+			 * @type {boolean}
+			 * @default `false`
+			 * @version 4.11.6
+			 * @description
+			 *
+			 * Whether or not to validate secrets on the server when starting the dev server or running a build.
+			 *
+			 * By default, only public variables are validated on the server when starting the dev server or a build, and private variables are validated at runtime only. If enabled, private variables will also be checked on start. This is useful in some continuous integration (CI) pipelines to make sure all your secrets are correctly set before deploying.
+			 *
+			 * ```js
+			 * // astro.config.mjs
+			 * import { defineConfig, envField } from "astro/config"
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *     env: {
+			 *       schema: {
+			 *         // ...
+			 *       },
+			 *       validateSecrets: true
+			 *     }
+			 *   }
+			 * })
+			 * ```
+			 */
+			validateSecrets?: boolean;
 		};
 	};
 }
@@ -2733,8 +2768,8 @@ interface AstroSharedContext<
 	 * Get action result on the server when using a form POST.
 	 */
 	getActionResult: <
-		TAccept extends Accept,
-		TInputSchema extends InputSchema<TAccept>,
+		TAccept extends ActionAccept,
+		TInputSchema extends ActionInputSchema<TAccept>,
 		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
 	>(
 		action: TAction
