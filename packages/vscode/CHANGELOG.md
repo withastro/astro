@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.12.5
+
+### Patch Changes
+
+- 91e77e1: Try publishing - a fourth time
+
 ## 2.12.4
 
 ### Patch Changes
