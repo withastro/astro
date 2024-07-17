@@ -21,12 +21,12 @@ import { renderPage } from '../runtime/server/index.js';
 import {
 	ASTRO_VERSION,
 	REROUTE_DIRECTIVE_HEADER,
+	REWRITE_DIRECTIVE_HEADER_KEY,
+	REWRITE_DIRECTIVE_HEADER_VALUE,
 	ROUTE_TYPE_HEADER,
 	clientAddressSymbol,
 	clientLocalsSymbol,
 	responseSentSymbol,
-	REWRITE_DIRECTIVE_HEADER_KEY,
-	REWRITE_DIRECTIVE_HEADER_VALUE,
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
 import { getCookiesFromResponse } from './cookies/response.js';

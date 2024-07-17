@@ -3,8 +3,8 @@ import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro
 import {
 	DEFAULT_404_COMPONENT,
 	REROUTE_DIRECTIVE_HEADER,
-	clientLocalsSymbol,
 	REWRITE_DIRECTIVE_HEADER_KEY,
+	clientLocalsSymbol,
 } from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { req } from '../core/messages.js';
