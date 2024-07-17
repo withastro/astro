@@ -37,6 +37,7 @@ import type { Logger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
+import { vitePluginServerIslands } from './server-islands/vite-plugin-server-islands.js';
 import { isObject } from './util.js';
 
 interface CreateViteOptions {
@@ -152,6 +153,7 @@ export async function createVite(
 			astroDevToolbar({ settings, logger }),
 			vitePluginFileURL({}),
 			astroInternationalization({ settings }),
+			settings.config.experimental.serverIslands && vitePluginServerIslands({ settings }),
 			astroContainer(),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
