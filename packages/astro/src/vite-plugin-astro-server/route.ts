@@ -4,6 +4,7 @@ import {
 	DEFAULT_404_COMPONENT,
 	REROUTE_DIRECTIVE_HEADER,
 	clientLocalsSymbol,
+	REWRITE_DIRECTIVE_HEADER_KEY,
 } from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { req } from '../core/messages.js';
@@ -218,8 +219,12 @@ export async function handleRoute({
 	});
 
 	let response;
+	let isReroute = false;
+	let isRewrite = false;
 	try {
 		response = await renderContext.render(mod);
+		isReroute = response.headers.has(REROUTE_DIRECTIVE_HEADER);
+		isRewrite = response.headers.has(REWRITE_DIRECTIVE_HEADER_KEY);
 	} catch (err: any) {
 		const custom500 = getCustom500Route(manifestData);
 		if (!custom500) {
@@ -264,7 +269,10 @@ export async function handleRoute({
 	}
 
 	// We remove the internally-used header before we send the response to the user agent.
-	if (response.headers.has(REROUTE_DIRECTIVE_HEADER)) {
+	if (isReroute) {
+		response.headers.delete(REROUTE_DIRECTIVE_HEADER);
+	}
+	if (isRewrite) {
 		response.headers.delete(REROUTE_DIRECTIVE_HEADER);
 	}
 
@@ -272,6 +280,14 @@ export async function handleRoute({
 		await writeWebResponse(incomingResponse, response);
 		return;
 	}
+
+	// This check is important in case of rewrites.
+	// A route can start with a 404 code, then the rewrite kicks in and can return a 200 status code
+	if (isRewrite) {
+		await writeSSRResult(request, response, incomingResponse);
+		return;
+	}
+
 	// We are in a recursion, and it's possible that this function is called itself with a status code
 	// By default, the status code passed via parameters is computed by the matched route.
 	//
