@@ -34,7 +34,10 @@ export default async function standalone(app: NodeApp, options: Options) {
 
 // also used by server entrypoint
 export async function createStandaloneHandler(app: NodeApp, options: Options) {
-	const importMiddleware = options.middleware ? await import(options.middleware) : null;
+	let importMiddleware = null;
+	try {
+		importMiddleware = options.middleware ? await import(options.middleware) : null;
+	} catch (err) {}
 	const appHandler = createAppHandler(app);
 	const staticHandler = createStaticHandler(app, options);
 	return (req: http.IncomingMessage, res: http.ServerResponse) => {
