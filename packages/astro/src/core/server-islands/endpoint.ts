@@ -11,7 +11,7 @@ import {
 	renderTemplate,
 } from '../../runtime/server/index.js';
 import { createSlotValueFromString } from '../../runtime/server/render/slot.js';
-import { getPattern } from '../routing/manifest/create.js';
+import { getPattern } from '../routing/manifest/pattern.js';
 
 export const SERVER_ISLAND_ROUTE = '/_server-islands/[name]';
 export const SERVER_ISLAND_COMPONENT = '_server-islands.astro';
