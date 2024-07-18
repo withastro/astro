@@ -32,6 +32,7 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
+import { SERVER_ISLAND_ROUTE_DATA } from '../server-islands/endpoint.js';
 
 export interface BuildOptions {
 	/**
@@ -216,7 +217,10 @@ class AstroBuilder {
 			pages: pageNames,
 			routes: Object.values(allPages)
 				.flat()
-				.map((pageData) => pageData.route),
+				.map((pageData) => pageData.route).concat(
+					this.settings.config.experimental.serverIslands ?
+					[ SERVER_ISLAND_ROUTE_DATA] : []
+				),
 			logging: this.logger,
 			cacheManifest: internals.cacheManifestUsed,
 		});
