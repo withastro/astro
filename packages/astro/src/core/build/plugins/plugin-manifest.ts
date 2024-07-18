@@ -262,7 +262,7 @@ function buildManifest(
 	}
 
 	return {
-		hrefRoot: new URL(import.meta.url).href,
+		hrefRoot: fileURLToPath(opts.settings.config.root),
 		adapterName: opts.settings.adapter?.name ?? '',
 		routes,
 		site: settings.config.site,

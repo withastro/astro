@@ -553,7 +553,7 @@ function createBuildManifest(
 		};
 	}
 	return {
-		hrefRoot: settings.config.root.href,
+		hrefRoot: fileURLToPath(settings.config.root),
 		trailingSlash: settings.config.trailingSlash,
 		assets: new Set(),
 		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),

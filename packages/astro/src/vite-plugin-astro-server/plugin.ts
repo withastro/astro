@@ -130,7 +130,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		};
 	}
 	return {
-		hrefRoot: new URL(import.meta.url).href,
+		hrefRoot: import.meta.url,
 		trailingSlash: settings.config.trailingSlash,
 		buildFormat: settings.config.build.format,
 		compressHTML: settings.config.compressHTML,

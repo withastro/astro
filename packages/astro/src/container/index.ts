@@ -105,7 +105,7 @@ function createManifest(
 	};
 
 	return {
-		hrefRoot: new URL(import.meta.url).href,
+		hrefRoot: import.meta.url,
 		rewritingEnabled: false,
 		trailingSlash: manifest?.trailingSlash ?? ASTRO_CONFIG_DEFAULTS.trailingSlash,
 		buildFormat: manifest?.buildFormat ?? ASTRO_CONFIG_DEFAULTS.build.format,
