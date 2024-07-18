@@ -20,7 +20,8 @@ import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
 import { RenderContext } from '../core/render-context.js';
-import { getParts, getPattern, validateSegment } from '../core/routing/manifest/create.js';
+import { getParts, validateSegment } from '../core/routing/manifest/create.js';
+import { getPattern } from '../core/routing/manifest/pattern.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
 import { ContainerPipeline } from './pipeline.js';
 
