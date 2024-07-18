@@ -127,8 +127,8 @@ describe('Content Layer', () => {
 					id: 'tabby',
 					size: 'Medium',
 					origin: 'Egypt',
-					lifespan: '12-15 years',
-					temperament: ['Curious', 'Playful', 'Affectionate'],
+					lifespan: '15 years',
+					temperament: ['Curious', 'Playful', 'Independent'],
 				},
 				id: 'tabby',
 			});
