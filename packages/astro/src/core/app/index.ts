@@ -88,7 +88,7 @@ export class App {
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
-		this.#manifestData = injectDefaultRoutes({
+		this.#manifestData = injectDefaultRoutes(manifest, {
 			routes: manifest.routes.map((route) => route.routeData),
 		});
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
