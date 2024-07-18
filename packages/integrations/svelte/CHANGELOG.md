@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 5.7.0
+
+### Minor Changes
+
+- [#11490](https://github.com/withastro/astro/pull/11490) [`6ad02b5`](https://github.com/withastro/astro/commit/6ad02b590279ea845398c6cc4edb0681f8049db6) Thanks [@bluwy](https://github.com/bluwy)! - Bumps Svelte 5 peer dependency to `^5.0.0-next.190` and support the latest slots/snippets API
+
 ## 5.6.0
 
 ### Minor Changes
