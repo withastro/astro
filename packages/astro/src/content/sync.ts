@@ -7,12 +7,7 @@ import type { Logger } from '../core/logger/core.js';
 import { ASSET_IMPORTS_FILE, DATA_STORE_FILE } from './consts.js';
 import { DataStore, globalDataStore } from './data-store.js';
 import type { DataWithId, LoaderContext } from './loaders/types.js';
-import {
-	getEntryData,
-	getEntryDataAndImages,
-	globalContentConfigObserver,
-	posixRelative,
-} from './utils.js';
+import { getEntryDataAndImages, globalContentConfigObserver, posixRelative } from './utils.js';
 
 export interface SyncContentLayerOptions {
 	store?: DataStore;
@@ -86,11 +81,13 @@ export async function syncContentLayer({
 					collectionWithResolvedSchema,
 					false
 				);
-
-				if (imageImports) {
+				if (imageImports?.length) {
 					store.addAssetImports(
 						imageImports,
-						posixRelative(fileURLToPath(settings.config.root), filePath)
+						// This path may already be relative, if we're re-parsing an existing entry
+						filePath.startsWith('/')
+							? posixRelative(fileURLToPath(settings.config.root), filePath)
+							: filePath
 					);
 				}
 
