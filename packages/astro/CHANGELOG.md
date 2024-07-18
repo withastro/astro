@@ -1,5 +1,88 @@
 # astro
 
+## 4.11.6
+
+### Patch Changes
+
+- [#11459](https://github.com/withastro/astro/pull/11459) [`bc2e74d`](https://github.com/withastro/astro/commit/bc2e74de384776caa252fd47dbeda895c0488c11) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Fixes false positive audit warnings on elements with the role "tabpanel".
+
+- [#11472](https://github.com/withastro/astro/pull/11472) [`cb4e6d0`](https://github.com/withastro/astro/commit/cb4e6d09deb7507058115a3fd2a567019a501e4d) Thanks [@delucis](https://github.com/delucis)! - Avoids targeting all files in the `src/` directory for eager optimization by Vite. After this change, only JSX, Vue, Svelte, and Astro components get scanned for early optimization.
+
+- [#11387](https://github.com/withastro/astro/pull/11387) [`b498461`](https://github.com/withastro/astro/commit/b498461e277bffb0abe21b59a94b1e56a8c69d47) Thanks [@bluwy](https://github.com/bluwy)! - Fixes prerendering not removing unused dynamic imported chunks
+
+- [#11437](https://github.com/withastro/astro/pull/11437) [`6ccb30e`](https://github.com/withastro/astro/commit/6ccb30e610eed34c2cc2c275485a8ac45c9b6b9e) Thanks [@NuroDev](https://github.com/NuroDev)! - Fixes a case where Astro's config `experimental.env.schema` keys did not allow numbers. Numbers are still not allowed as the first character to be able to generate valid JavaScript identifiers
+
+- [#11439](https://github.com/withastro/astro/pull/11439) [`08baf56`](https://github.com/withastro/astro/commit/08baf56f328ce4b6814a7f90089c0b3398d8bbfe) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Expands the `isInputError()` utility from `astro:actions` to accept errors of any type. This should now allow type narrowing from a try / catch block.
+
+  ```ts
+  // example.ts
+  import { actions, isInputError } from 'astro:actions';
+
+  try {
+    await actions.like(new FormData());
+  } catch (error) {
+    if (isInputError(error)) {
+      console.log(error.fields);
+    }
+  }
+  ```
+
+- [#11452](https://github.com/withastro/astro/pull/11452) [`0e66849`](https://github.com/withastro/astro/commit/0e6684983b9b24660a8fef83fe401ec1d567378a) Thanks [@FugiTech](https://github.com/FugiTech)! - Fixes an issue where using .nullish() in a formdata Astro action would always parse as a string
+
+- [#11438](https://github.com/withastro/astro/pull/11438) [`619f07d`](https://github.com/withastro/astro/commit/619f07db701ebab2d2f2598dd2dcf93ba1e5719c) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Exposes utility types from `astro:actions` for the `defineAction` handler (`ActionHandler`) and the `ActionError` code (`ActionErrorCode`).
+
+- [#11456](https://github.com/withastro/astro/pull/11456) [`17e048d`](https://github.com/withastro/astro/commit/17e048de0e79d76b933d128676be2388954b419e) Thanks [@RickyC0626](https://github.com/RickyC0626)! - Fixes `astro dev --open` unexpected behavior that spawns a new tab every time a config file is saved
+
+- [#11337](https://github.com/withastro/astro/pull/11337) [`0a4b31f`](https://github.com/withastro/astro/commit/0a4b31ffeb41ad1dfb3141384e22787763fcae3d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new property `experimental.env.validateSecrets` to allow validating private variables on the server.
+
+  By default, this is set to `false` and only public variables are checked on start. If enabled, secrets will also be checked on start (dev/build modes). This is useful for example in some CIs to make sure all your secrets are correctly set before deploying.
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig, envField } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      env: {
+        schema: {
+          // ...
+        },
+        validateSecrets: true,
+      },
+    },
+  });
+  ```
+
+- [#11443](https://github.com/withastro/astro/pull/11443) [`ea4bc04`](https://github.com/withastro/astro/commit/ea4bc04e9489c456e2b4b5dbd67d5e4cf3f89f97) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Expose new `ActionReturnType` utility from `astro:actions`. This infers the return type of an action by passing `typeof actions.name` as a type argument. This example defines a `like` action that returns `likes` as an object:
+
+  ```ts
+  // actions/index.ts
+  import { defineAction } from 'astro:actions';
+
+  export const server = {
+    like: defineAction({
+      handler: () => {
+        /* ... */
+        return { likes: 42 };
+      },
+    }),
+  };
+  ```
+
+  In your client code, you can infer this handler return value with `ActionReturnType`:
+
+  ```ts
+  // client.ts
+  import { actions, ActionReturnType } from 'astro:actions';
+
+  type LikesResult = ActionReturnType<typeof actions.like>;
+  // -> { likes: number }
+  ```
+
+- [#11436](https://github.com/withastro/astro/pull/11436) [`7dca68f`](https://github.com/withastro/astro/commit/7dca68ff2e0f089a3fd090650ee05b1942792fed) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fixes `astro:actions` autocompletion for the `defineAction` `accept` property
+
+- [#11455](https://github.com/withastro/astro/pull/11455) [`645e128`](https://github.com/withastro/astro/commit/645e128537f1f20da6703afc115d06371d7da5dd) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves `astro:env` invalid variables errors
+
 ## 4.11.5
 
 ### Patch Changes

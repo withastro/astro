@@ -50,3 +50,12 @@ const postfixRE = /[?#].*$/s;
 export function cleanUrl(url: string): string {
 	return url.replace(postfixRE, '');
 }
+
+const specialQueriesRE = /(?:\?|&)(?:url|raw|direct)(?:&|$)/;
+/**
+ * Detect `?url`, `?raw`, and `?direct`, in which case we usually want to skip
+ * transforming any code with this queries as Vite will handle it directly.
+ */
+export function hasSpecialQueries(id: string): boolean {
+	return specialQueriesRE.test(id);
+}

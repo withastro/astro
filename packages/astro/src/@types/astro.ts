@@ -17,7 +17,7 @@ import type {
 	ActionInputSchema,
 } from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
-import type { AssetsPrefix, SerializedSSRManifest } from '../core/app/types.js';
+import type { AssetsPrefix, SSRManifest, SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import type { AstroConfigType } from '../core/config/index.js';
 import type { AstroTimer } from '../core/config/timer.js';
@@ -90,6 +90,7 @@ export interface AstroBuiltinProps {
 	'client:media'?: string;
 	'client:visible'?: ClientVisibleOptions | boolean;
 	'client:only'?: boolean | string;
+	'server:defer'?: boolean;
 }
 
 export type ClientVisibleOptions = Pick<IntersectionObserverInit, 'rootMargin'>;
@@ -2202,6 +2203,71 @@ export interface AstroUserConfig {
 			 */
 			validateSecrets?: boolean;
 		};
+
+		/**
+		 * @docs
+		 * @name experimental.serverIslands
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.12.0
+		 * @description
+		 *
+		 * Enables experimental Server Island features.
+		 * Server Islands offer the ability to defer a component to render asynchronously after the page has already rendered.
+		 *
+		 * To enable, configure an [on-demand server rendering `output` mode](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered) with an adapter, and add the `serverIslands` flag to the `experimental` object:
+		 *
+		 * ```js
+		 * {
+		 *   output: 'hybrid', // or 'server'
+		 *   adapter: nodejs({ mode: 'standalone' }),
+		 *   experimental: {
+		 *     serverIslands: true,
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * Use the `server:defer` directive on any Astro component to delay initial rendering:
+		 *
+		 * ```astro "server:defer"
+		 * ---
+		 * import Avatar from '~/components/Avatar.astro';
+		 * ---
+		 * <Avatar server:defer />
+		 * ```
+		 *
+		 * The outer page will be rendered, either at build-time (`hybrid`) or at runtime (`server`) with the island content omitted and a `<script>` tag included in its place.
+		 *
+		 * After the page loads in the browser, the script tag will replace itself with the the contents of the island by making a request.
+		 *
+		 * Any Astro component can be given the `server: defer` attribute to delay its rendering. There is no special API and you can write `.astro` code as normal:
+		 *
+		 * ```astro
+		 * ---
+		 * import { getUser } from '../api';
+		 *
+		 * const user = await getUser(Astro.locals.userId);
+		 * ---
+		 * <img class="avatar" src={user.imageUrl}>
+		 * ```
+		 *
+		 * #### Server island fallback content
+		 *
+		 * Since your component will not render with the rest of the page, you may want to add generic content (e.g. a loading message) to temporarily show in its place. This content will be displayed when the page first renders but before the island has loaded.
+		 *
+		 * Add placeholder content as a child of your Astro component with the `slot="fallback:` attribute. When your island content is available, the fallback content will be replaced.
+		 *
+		 * The example below displays a generic avatar as fallback content, then animates into a personalized avatar using view transitions:
+		 *
+		 * ```astro
+		 * <Avatar server:defer>
+		 *   <svg slot="fallback" class="generic-avatar" transition:name="avatar">...</svg>
+		 * </Avatar>
+		 * ```
+		 *
+		 * For a complete overview, and to give feedback on this experimental API, see the [Server Islands RFC](https://github.com/withastro/roadmap/pull/963).
+		 */
+		serverIslands?: boolean;
 	};
 }
 
@@ -2400,6 +2466,8 @@ export interface AstroSettings {
 	 * - the user is on the latest version already
 	 */
 	latestAstroVersion: string | undefined;
+	serverIslandMap: NonNullable<SSRManifest['serverIslandMap']>;
+	serverIslandNameMap: NonNullable<SSRManifest['serverIslandNameMap']>;
 }
 
 export type AsyncRendererComponentFn<U> = (
@@ -2647,6 +2715,10 @@ export interface Page<T = any> {
 		prev: string | undefined;
 		/** url of the next page (if there is one) */
 		next: string | undefined;
+		/** url of the first page (if the current page is not the first page) */
+		first: string | undefined;
+		/** url of the next page (if the current page in not the last page) */
+		last: string | undefined;
 	};
 }
 
@@ -3052,83 +3124,92 @@ export type HookParameters<
 	Fn = AstroIntegration['hooks'][Hook],
 > = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
 
+declare global {
+	// eslint-disable-next-line  @typescript-eslint/no-namespace
+	namespace Astro {
+		export interface IntegrationHooks {
+			'astro:config:setup': (options: {
+				config: AstroConfig;
+				command: 'dev' | 'build' | 'preview';
+				isRestart: boolean;
+				updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
+				addRenderer: (renderer: AstroRenderer) => void;
+				addWatchFile: (path: URL | string) => void;
+				injectScript: (stage: InjectedScriptStage, content: string) => void;
+				injectRoute: (injectRoute: InjectedRoute) => void;
+				addClientDirective: (directive: ClientDirectiveConfig) => void;
+				/**
+				 * @deprecated Use `addDevToolbarApp` instead.
+				 * TODO: Fully remove in Astro 5.0
+				 */
+				addDevOverlayPlugin: (entrypoint: string) => void;
+				// TODO: Deprecate the `string` overload once a few apps have been migrated to the new API.
+				addDevToolbarApp: (entrypoint: DevToolbarAppEntry | string) => void;
+				addMiddleware: (mid: AstroIntegrationMiddleware) => void;
+				logger: AstroIntegrationLogger;
+				// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
+				// This may require some refactoring of `scripts`, `styles`, and `links` into something
+				// more generalized. Consider the SSR use-case as well.
+				// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
+			}) => void | Promise<void>;
+			'astro:config:done': (options: {
+				config: AstroConfig;
+				setAdapter: (adapter: AstroAdapter) => void;
+				logger: AstroIntegrationLogger;
+			}) => void | Promise<void>;
+			'astro:server:setup': (options: {
+				server: vite.ViteDevServer;
+				logger: AstroIntegrationLogger;
+				toolbar: ReturnType<typeof getToolbarServerCommunicationHelpers>;
+			}) => void | Promise<void>;
+			'astro:server:start': (options: {
+				address: AddressInfo;
+				logger: AstroIntegrationLogger;
+			}) => void | Promise<void>;
+			'astro:server:done': (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
+			'astro:build:ssr': (options: {
+				manifest: SerializedSSRManifest;
+				/**
+				 * This maps a {@link RouteData} to an {@link URL}, this URL represents
+				 * the physical file you should import.
+				 */
+				entryPoints: Map<RouteData, URL>;
+				/**
+				 * File path of the emitted middleware
+				 */
+				middlewareEntryPoint: URL | undefined;
+				logger: AstroIntegrationLogger;
+			}) => void | Promise<void>;
+			'astro:build:start': (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
+			'astro:build:setup': (options: {
+				vite: vite.InlineConfig;
+				pages: Map<string, PageBuildData>;
+				target: 'client' | 'server';
+				updateConfig: (newConfig: vite.InlineConfig) => void;
+				logger: AstroIntegrationLogger;
+			}) => void | Promise<void>;
+			'astro:build:generated': (options: {
+				dir: URL;
+				logger: AstroIntegrationLogger;
+			}) => void | Promise<void>;
+			'astro:build:done': (options: {
+				pages: { pathname: string }[];
+				dir: URL;
+				routes: RouteData[];
+				logger: AstroIntegrationLogger;
+				cacheManifest: boolean;
+			}) => void | Promise<void>;
+		}
+	}
+}
+
 export interface AstroIntegration {
 	/** The name of the integration. */
 	name: string;
 	/** The different hooks available to extend. */
 	hooks: {
-		'astro:config:setup'?: (options: {
-			config: AstroConfig;
-			command: 'dev' | 'build' | 'preview';
-			isRestart: boolean;
-			updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
-			addRenderer: (renderer: AstroRenderer) => void;
-			addWatchFile: (path: URL | string) => void;
-			injectScript: (stage: InjectedScriptStage, content: string) => void;
-			injectRoute: (injectRoute: InjectedRoute) => void;
-			addClientDirective: (directive: ClientDirectiveConfig) => void;
-			/**
-			 * @deprecated Use `addDevToolbarApp` instead.
-			 * TODO: Fully remove in Astro 5.0
-			 */
-			addDevOverlayPlugin: (entrypoint: string) => void;
-			// TODO: Deprecate the `string` overload once a few apps have been migrated to the new API.
-			addDevToolbarApp: (entrypoint: DevToolbarAppEntry | string) => void;
-			addMiddleware: (mid: AstroIntegrationMiddleware) => void;
-			logger: AstroIntegrationLogger;
-			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
-			// This may require some refactoring of `scripts`, `styles`, and `links` into something
-			// more generalized. Consider the SSR use-case as well.
-			// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
-		}) => void | Promise<void>;
-		'astro:config:done'?: (options: {
-			config: AstroConfig;
-			setAdapter: (adapter: AstroAdapter) => void;
-			logger: AstroIntegrationLogger;
-		}) => void | Promise<void>;
-		'astro:server:setup'?: (options: {
-			server: vite.ViteDevServer;
-			logger: AstroIntegrationLogger;
-			toolbar: ReturnType<typeof getToolbarServerCommunicationHelpers>;
-		}) => void | Promise<void>;
-		'astro:server:start'?: (options: {
-			address: AddressInfo;
-			logger: AstroIntegrationLogger;
-		}) => void | Promise<void>;
-		'astro:server:done'?: (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
-		'astro:build:ssr'?: (options: {
-			manifest: SerializedSSRManifest;
-			/**
-			 * This maps a {@link RouteData} to an {@link URL}, this URL represents
-			 * the physical file you should import.
-			 */
-			entryPoints: Map<RouteData, URL>;
-			/**
-			 * File path of the emitted middleware
-			 */
-			middlewareEntryPoint: URL | undefined;
-			logger: AstroIntegrationLogger;
-		}) => void | Promise<void>;
-		'astro:build:start'?: (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
-		'astro:build:setup'?: (options: {
-			vite: vite.InlineConfig;
-			pages: Map<string, PageBuildData>;
-			target: 'client' | 'server';
-			updateConfig: (newConfig: vite.InlineConfig) => void;
-			logger: AstroIntegrationLogger;
-		}) => void | Promise<void>;
-		'astro:build:generated'?: (options: {
-			dir: URL;
-			logger: AstroIntegrationLogger;
-		}) => void | Promise<void>;
-		'astro:build:done'?: (options: {
-			pages: { pathname: string }[];
-			dir: URL;
-			routes: RouteData[];
-			logger: AstroIntegrationLogger;
-			cacheManifest: boolean;
-		}) => void | Promise<void>;
-	};
+		[K in keyof Astro.IntegrationHooks]?: Astro.IntegrationHooks[K];
+	} & Partial<Record<string, unknown>>;
 }
 
 export type RewritePayload = string | URL | Request;
@@ -3253,6 +3334,7 @@ export interface SSRResult {
 		props: Record<string, any>,
 		slots: Record<string, any> | null
 	): AstroGlobal;
+	params: Params;
 	resolve: (s: string) => Promise<string>;
 	response: AstroGlobal['response'];
 	request: AstroGlobal['request'];
@@ -3269,6 +3351,7 @@ export interface SSRResult {
 	 */
 	pathname: string;
 	cookies: AstroCookies | undefined;
+	serverIslandNameMap: Map<string, string>;
 	_metadata: SSRMetadata;
 }
 

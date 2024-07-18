@@ -45,13 +45,13 @@
     "remark-gfm": "^4.0.0",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.0",
-    "remark-smartypants": "^3.0.1",
-    "shiki": "^1.10.0",
+    "remark-smartypants": "^3.0.2",
+    "shiki": "^1.10.3",
     "unified": "^11.0.5",
     "unist-util-remove-position": "^5.0.0",
     "unist-util-visit": "^5.0.0",
     "unist-util-visit-parents": "^6.0.1",
-    "vfile": "^6.0.1"
+    "vfile": "^6.0.2"
   },
   "devDependencies": {
     "@types/estree": "^1.0.5",
