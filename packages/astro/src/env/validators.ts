@@ -2,16 +2,15 @@ import type { EnumSchema, EnvFieldType, NumberSchema, StringSchema } from './sch
 
 export type ValidationResultValue = EnvFieldType['default'];
 export type ValidationResultErrors = ['missing'] | ['type'] | Array<string>;
-
-type ValidationResult =
-	| {
-			ok: true;
-			value: ValidationResultValue;
-	  }
-	| {
-			ok: false;
-			errors: ValidationResultErrors;
-	  };
+interface ValidationResultValid {
+	ok: true;
+	value: ValidationResultValue;
+}
+export interface ValidationResultInvalid {
+	ok: false;
+	errors: ValidationResultErrors;
+}
+type ValidationResult = ValidationResultValid | ValidationResultInvalid;
 
 export function getEnvFieldType(options: EnvFieldType) {
 	const optional = options.optional ? (options.default !== undefined ? false : true) : false;
