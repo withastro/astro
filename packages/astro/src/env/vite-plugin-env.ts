@@ -8,8 +8,9 @@ import {
 	VIRTUAL_MODULES_IDS,
 	VIRTUAL_MODULES_IDS_VALUES,
 } from './constants.js';
+import { type InvalidVariable, invalidVariablesToError } from './errors.js';
 import type { EnvSchema } from './schema.js';
-import { type ValidationResultErrors, getEnvFieldType, validateEnvVariable } from './validators.js';
+import { getEnvFieldType, validateEnvVariable } from './validators.js';
 
 // TODO: reminders for when astro:env comes out of experimental
 // Types should always be generated (like in types/content.d.ts). That means the client module will be empty
@@ -105,7 +106,7 @@ function validatePublicVariables({
 	validateSecrets: boolean;
 }) {
 	const valid: Array<{ key: string; value: any; type: string; context: 'server' | 'client' }> = [];
-	const invalid: Array<{ key: string; type: string; errors: ValidationResultErrors }> = [];
+	const invalid: Array<InvalidVariable> = [];
 
 	for (const [key, options] of Object.entries(schema)) {
 		const variable = loadedEnv[key] === '' ? undefined : loadedEnv[key];
@@ -125,20 +126,9 @@ function validatePublicVariables({
 	}
 
 	if (invalid.length > 0) {
-		const _errors: Array<string> = [];
-		for (const { key, type, errors } of invalid) {
-			if (errors[0] === 'missing') {
-				_errors.push(`${key} is missing`);
-			} else if (errors[0] === 'type') {
-				_errors.push(`${key}'s type is invalid, expected: ${type}`);
-			} else {
-				// constraints
-				_errors.push(`The following constraints for ${key} are not met: ${errors.join(', ')}`);
-			}
-		}
 		throw new AstroError({
 			...AstroErrorData.EnvInvalidVariables,
-			message: AstroErrorData.EnvInvalidVariables.message(_errors),
+			message: AstroErrorData.EnvInvalidVariables.message(invalidVariablesToError(invalid)),
 		});
 	}
 

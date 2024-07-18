@@ -1235,24 +1235,14 @@ export const RouteNotFound = {
  * @docs
  * @description
  * Some environment variables do not match the data type and/or properties defined in `experimental.env.schema`.
+ * @message
+ * The following environment variables defined in `experimental.env.schema` are invalid.
  */
 export const EnvInvalidVariables = {
 	name: 'EnvInvalidVariables',
 	title: 'Invalid Environment Variables',
 	message: (errors: Array<string>) =>
 		`The following environment variables defined in \`experimental.env.schema\` are invalid:\n\n${errors.map((err) => `- ${err}`).join('\n')}\n`,
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
- * An environment variable does not match the data type and/or properties defined in `experimental.env.schema`.
- */
-export const EnvInvalidVariable = {
-	name: 'EnvInvalidVariable',
-	title: 'Invalid Environment Variable',
-	message: (key: string, type: string) =>
-		`The following environment variable does not match the data type and/or properties defined in \`experimental.env.schema\`: ${key} is not of type ${type}`,
 } satisfies ErrorData;
 
 /**
