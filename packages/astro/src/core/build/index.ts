@@ -27,12 +27,12 @@ import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { createRouteManifest } from '../routing/index.js';
+import { getServerIslandRouteData } from '../server-islands/endpoint.js';
 import { ensureProcessNodeEnv, isServerLikeOutput } from '../util.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
-import { getServerIslandRouteData } from '../server-islands/endpoint.js';
 
 export interface BuildOptions {
 	/**
@@ -217,9 +217,11 @@ class AstroBuilder {
 			pages: pageNames,
 			routes: Object.values(allPages)
 				.flat()
-				.map((pageData) => pageData.route).concat(
-					this.settings.config.experimental.serverIslands ?
-					[ getServerIslandRouteData(this.settings.config) ] : []
+				.map((pageData) => pageData.route)
+				.concat(
+					this.settings.config.experimental.serverIslands
+						? [getServerIslandRouteData(this.settings.config)]
+						: []
 				),
 			logging: this.logger,
 			cacheManifest: internals.cacheManifestUsed,

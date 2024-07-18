@@ -1,7 +1,4 @@
-import type {
-	AstroConfig,
-	RoutePart,
-} from '../../../@types/astro.js';
+import type { AstroConfig, RoutePart } from '../../../@types/astro.js';
 
 export function getPattern(
 	segments: RoutePart[][],

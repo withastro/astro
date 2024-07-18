@@ -38,8 +38,6 @@ export function getServerIslandRouteData(config: ConfigFields) {
 	return route;
 }
 
-
-
 export function ensureServerIslandRoute(config: ConfigFields, routeManifest: ManifestData) {
 	if (routeManifest.routes.some((route) => route.route === '/_server-islands/[name]')) {
 		return;
