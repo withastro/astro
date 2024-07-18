@@ -15,7 +15,7 @@ import type {
 import { AstroError, AstroErrorData, MarkdownError, errorMap } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
-import { CONTENT_FLAGS, PROPAGATED_ASSET_FLAG } from './consts.js';
+import { CONTENT_FLAGS, IMAGE_IMPORT_PREFIX, PROPAGATED_ASSET_FLAG } from './consts.js';
 import { createImage } from './runtime-assets.js';
 /**
  * Amap from a collection + slug to the local file path.
@@ -120,33 +120,46 @@ export function parseEntrySlug({
 	}
 }
 
-export async function getEntryData(
+export async function getEntryDataAndImages<
+	TInputData extends Record<string, unknown> = Record<string, unknown>,
+	TOutputData extends TInputData = TInputData,
+>(
 	entry: {
 		id: string;
 		collection: string;
-		unvalidatedData: Record<string, unknown>;
+		unvalidatedData: TInputData;
 		_internal: EntryInternal;
 	},
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
 	pluginContext?: PluginContext
-) {
-	let data;
+): Promise<{ data: TOutputData; imageImports: Array<string> }> {
+	let data: TOutputData;
 	if (collectionConfig.type === 'data' || collectionConfig.type === 'experimental_data') {
-		data = entry.unvalidatedData;
+		data = entry.unvalidatedData as TOutputData;
 	} else {
 		const { slug, ...unvalidatedData } = entry.unvalidatedData;
-		data = unvalidatedData;
+		data = unvalidatedData as TOutputData;
 	}
 
 	let schema = collectionConfig.schema;
+
+	const imageImports = new Set<string>();
+
 	if (typeof schema === 'function') {
-		if (!pluginContext) {
-			throw new Error('Plugin context is required for schema functions');
+		if (pluginContext) {
+			schema = schema({
+				image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
+			});
+		} else if (collectionConfig.type === 'experimental_data') {
+			schema = schema({
+				image: () =>
+					z.string().transform((val) => {
+						imageImports.add(val);
+						return `${IMAGE_IMPORT_PREFIX}${val}`;
+					}),
+			});
 		}
-		schema = schema({
-			image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
-		});
 	}
 
 	if (schema) {
@@ -175,7 +188,7 @@ export async function getEntryData(
 			},
 		});
 		if (parsed.success) {
-			data = parsed.data as Record<string, unknown>;
+			data = parsed.data as TOutputData;
 		} else {
 			if (!formattedError) {
 				formattedError = new AstroError({
@@ -195,6 +208,27 @@ export async function getEntryData(
 			throw formattedError;
 		}
 	}
+
+	return { data, imageImports: Array.from(imageImports) };
+}
+
+export async function getEntryData(
+	entry: {
+		id: string;
+		collection: string;
+		unvalidatedData: Record<string, unknown>;
+		_internal: EntryInternal;
+	},
+	collectionConfig: CollectionConfig,
+	shouldEmitFile: boolean,
+	pluginContext?: PluginContext
+) {
+	const { data } = await getEntryDataAndImages(
+		entry,
+		collectionConfig,
+		shouldEmitFile,
+		pluginContext
+	);
 	return data;
 }
 
@@ -611,4 +645,18 @@ export function hasAssetPropagationFlag(id: string): boolean {
 	} catch {
 		return false;
 	}
+}
+
+/**
+ * Convert a platform path to a posix path.
+ */
+export function posixifyPath(filePath: string) {
+	return filePath.split(path.sep).join('/');
+}
+
+/**
+ * Unlike `path.posix.relative`, this function will accept a platform path and return a posix path.
+ */
+export function posixRelative(from: string, to: string) {
+	return posixifyPath(path.relative(from, to));
 }

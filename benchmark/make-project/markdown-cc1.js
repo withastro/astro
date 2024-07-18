@@ -8,6 +8,7 @@ export async function run(projectDir) {
 	await fs.rm(projectDir, { recursive: true, force: true });
 	await fs.mkdir(new URL('./src/pages/blog', projectDir), { recursive: true });
 	await fs.mkdir(new URL('./src/content/blog', projectDir), { recursive: true });
+	await fs.copyFile(new URL('./image.jpg', import.meta.url), new URL('./src/image.jpg', projectDir));
 
 	const promises = [];
 
@@ -17,6 +18,10 @@ export async function run(projectDir) {
 # Article ${i}
 
 ${loremIpsumMd}
+
+![image ${i}](../../image.jpg)
+
+
 `;
 		promises.push(
 			fs.writeFile(new URL(`./src/content/blog/article-${i}.md`, projectDir), content, 'utf-8')

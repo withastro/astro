@@ -1,6 +1,9 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import { Traverse } from 'neotraverse/modern';
 import pLimit from 'p-limit';
 import { ZodIssueCode, string as zodString } from 'zod';
+import type { GetImageResult, ImageMetadata } from '../@types/astro.js';
+import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 import {
@@ -11,9 +14,10 @@ import {
 	renderScriptElement,
 	renderTemplate,
 	renderUniqueStylesheet,
-	unescapeHTML,
 	render as serverRender,
+	unescapeHTML,
 } from '../runtime/server/index.js';
+import { IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
 type LazyImport = () => Promise<any>;
@@ -64,11 +68,22 @@ export function createGetCollection({
 		} else if (collection in dataCollectionToEntryMap) {
 			type = 'data';
 		} else if (store.hasCollection(collection)) {
-			return [...store.values<DataEntry>(collection)].map((entry) => ({
-				...entry,
-				collection,
-				render: () => renderEntry(entry),
-			}));
+			// @ts-expect-error	virtual module
+			const { default: imageAssetMap } = await import('astro:asset-imports');
+
+			const result = [];
+			for (const entry of store.values<DataEntry>(collection)) {
+				const data = entry.filePath
+					? updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap)
+					: entry.data;
+				result.push({
+					...entry,
+					data,
+					collection,
+					render: () => renderEntry(entry),
+				});
+			}
+			return result;
 		} else {
 			// eslint-disable-next-line no-console
 			console.warn(
@@ -260,13 +275,16 @@ export function createGetEntry({
 		const store = await globalDataStore.get();
 
 		if (store.hasCollection(collection)) {
-			const data = store.get(collection, lookupId);
-			if (!data) {
+			const entry = store.get<DataEntry>(collection, lookupId);
+			if (!entry) {
 				throw new Error(`Entry ${collection} → ${lookupId} was not found.`);
 			}
 
-			const entry = store.get<DataEntry>(collection, lookupId);
-
+			if (entry.filePath) {
+				// @ts-expect-error	virtual module
+				const { default: imageAssetMap } = await import('astro:asset-imports');
+				entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
+			}
 			return {
 				...entry,
 				collection,
@@ -319,9 +337,84 @@ type RenderResult = {
 	remarkPluginFrontmatter: Record<string, any>;
 };
 
+const CONTENT_LAYER_IMAGE_REGEX = /__ASTRO_IMAGE_="([^"]+)"/g;
+
+async function updateImageReferencesInBody(html: string, fileName: string) {
+	// @ts-expect-error Virtual module
+	const { default: imageAssetMap } = await import('astro:asset-imports');
+
+	const imageObjects = new Map<string, GetImageResult>();
+
+	// @ts-expect-error Virtual module resolved at runtime
+	const { getImage } = await import('astro:assets');
+
+	// First load all the images. This is done outside of the replaceAll
+	// function because getImage is async.
+	for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
+		try {
+			const decodedImagePath = JSON.parse(imagePath.replaceAll('&#x22;', '"'));
+			const id = imageSrcToImportId(decodedImagePath.src, fileName);
+
+			const imported = imageAssetMap.get(id);
+			if (!id || imageObjects.has(id) || !imported) {
+				continue;
+			}
+			const image: GetImageResult = await getImage({ ...decodedImagePath, src: imported });
+			imageObjects.set(imagePath, image);
+		} catch (e) {
+			throw new Error(`Failed to parse image reference: ${imagePath}`);
+		}
+	}
+
+	return html.replaceAll(CONTENT_LAYER_IMAGE_REGEX, (full, imagePath) => {
+		const image = imageObjects.get(imagePath);
+
+		if (!image) {
+			return full;
+		}
+
+		const { index, ...attributes } = image.attributes;
+
+		return Object.entries({
+			...attributes,
+			src: image.src,
+			srcset: image.srcSet.attribute,
+		})
+			.map(([key, value]) => (value ? `${key}=${JSON.stringify(String(value))}` : ''))
+			.join(' ');
+	});
+}
+
+function updateImageReferencesInData<T extends Record<string, unknown>>(
+	data: T,
+	fileName: string,
+	imageAssetMap: Map<string, ImageMetadata>
+): T {
+	return new Traverse(data).map(function (ctx, val) {
+		if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
+			const src = val.replace(IMAGE_IMPORT_PREFIX, '');
+			const id = imageSrcToImportId(src, fileName);
+			if (!id) {
+				ctx.update(src);
+				return;
+			}
+			const imported = imageAssetMap.get(id);
+			if (imported) {
+				ctx.update(imported);
+			} else {
+				ctx.update(src);
+			}
+		}
+	});
+}
+
 async function renderEntry(entry?: DataEntry) {
-	console.log('entry:', entry?.rendered?.metadata);
-	const Content = createComponent(() => serverRender`${unescapeHTML(entry?.rendered?.html)}`);
+	const html =
+		entry?.rendered?.metadata?.imagePaths?.length && entry.filePath
+			? await updateImageReferencesInBody(entry.rendered.html, entry.filePath)
+			: entry?.rendered?.html;
+
+	const Content = createComponent(() => serverRender`${unescapeHTML(html)}`);
 	return { Content };
 }
 

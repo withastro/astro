@@ -1,12 +1,11 @@
-import { promises as fs } from 'fs';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { promises as fs } from 'node:fs';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import fastGlob from 'fast-glob';
 import { green } from 'kleur/colors';
 import micromatch from 'micromatch';
 import pLimit from 'p-limit';
-import { relative } from 'path/posix';
 import type { ContentEntryType, RenderFunction } from '../../@types/astro.js';
-import { getContentEntryIdAndSlug, getEntryConfigByExtMap } from '../utils.js';
+import { getContentEntryIdAndSlug, getEntryConfigByExtMap, posixRelative } from '../utils.js';
 import type { Loader } from './types.js';
 
 export interface GenerateIdOptions {
@@ -90,11 +89,22 @@ export function glob(globOptions: GlobOptions): Loader {
 
 				const digest = generateDigest(contents);
 
-				if (existingEntry && existingEntry.digest === digest) {
+				if (existingEntry && existingEntry.digest === digest && existingEntry.filePath) {
+					if (existingEntry.rendered?.metadata?.imagePaths?.length) {
+						// Add asset imports for existing entries
+						store.addAssetImports(
+							existingEntry.rendered.metadata.imagePaths,
+							existingEntry.filePath
+						);
+					}
+					// Re-parsing to resolve images and other effects
+					await parseData(existingEntry);
 					return;
 				}
 
 				const filePath = fileURLToPath(fileUrl);
+
+				const relativePath = posixRelative(fileURLToPath(settings.config.root), filePath);
 
 				const parsedData = await parseData({
 					id,
@@ -120,12 +130,15 @@ export function glob(globOptions: GlobOptions): Loader {
 						id,
 						data: parsedData,
 						body,
-						filePath,
+						filePath: relativePath,
 						digest,
 						rendered,
 					});
+					if (rendered.metadata?.imagePaths?.length) {
+						store.addAssetImports(rendered.metadata.imagePaths, relativePath);
+					}
 				} else {
-					store.set({ id, data: parsedData, body, filePath, digest });
+					store.set({ id, data: parsedData, body, filePath: relativePath, digest });
 				}
 
 				fileToIdMap.set(filePath, id);
@@ -180,7 +193,7 @@ export function glob(globOptions: GlobOptions): Loader {
 			const basePath = fileURLToPath(baseDir);
 
 			async function onChange(changedPath: string) {
-				const entry = relative(basePath, changedPath);
+				const entry = posixRelative(basePath, changedPath);
 				if (!matchesGlob(entry)) {
 					return;
 				}
@@ -194,7 +207,7 @@ export function glob(globOptions: GlobOptions): Loader {
 			watcher.on('add', onChange);
 
 			watcher.on('unlink', async (deletedPath) => {
-				const entry = relative(basePath, deletedPath);
+				const entry = posixRelative(basePath, deletedPath);
 				if (!matchesGlob(entry)) {
 					return;
 				}

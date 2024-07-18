@@ -1,5 +1,5 @@
 import { extname } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin, Rollup } from 'vite';
 import type { AstroSettings, SSRElement } from '../@types/astro.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
@@ -12,6 +12,7 @@ import { joinPaths, prependForwardSlash } from '../core/path.js';
 import { getStylesForURL } from '../vite-plugin-astro-server/css.js';
 import { getScriptsForURL } from '../vite-plugin-astro-server/scripts.js';
 import {
+	CONTENT_IMAGE_FLAG,
 	CONTENT_RENDER_FLAG,
 	LINKS_PLACEHOLDER,
 	PROPAGATED_ASSET_FLAG,
@@ -32,6 +33,17 @@ export function astroContentAssetPropagationPlugin({
 		name: 'astro:content-asset-propagation',
 		enforce: 'pre',
 		async resolveId(id, importer, opts) {
+			if (hasContentFlag(id, CONTENT_IMAGE_FLAG)) {
+				const [base, query] = id.split('?');
+				const params = new URLSearchParams(query);
+				const importerParam = params.get('importer');
+
+				const importerPath = importerParam
+					? fileURLToPath(new URL(importerParam, settings.config.root))
+					: importer;
+
+				return this.resolve(base, importerPath, { skipSelf: true, ...opts });
+			}
 			if (hasContentFlag(id, CONTENT_RENDER_FLAG)) {
 				const base = id.split('?')[0];
 

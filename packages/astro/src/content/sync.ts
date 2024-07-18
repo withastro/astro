@@ -1,12 +1,13 @@
-import { promises as fs, existsSync } from 'fs';
+import { promises as fs, existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
 import type { AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
-import { DATA_STORE_FILE } from './consts.js';
+import { ASSET_IMPORTS_FILE, DATA_STORE_FILE } from './consts.js';
 import { DataStore, globalDataStore } from './data-store.js';
 import type { DataWithId, LoaderContext } from './loaders/types.js';
-import { getEntryData, globalContentConfigObserver } from './utils.js';
+import { getEntryDataAndImages, globalContentConfigObserver, posixRelative } from './utils.js';
 
 export interface SyncContentLayerOptions {
 	store?: DataStore;
@@ -59,24 +60,19 @@ export async function syncContentLayer({
 
 			if (!schema && typeof collection.loader === 'object') {
 				schema = collection.loader.schema;
-			}
-
-			if (typeof schema === 'function') {
-				schema = await schema({
-					image: () => {
-						throw new Error('Images are currently not supported for experimental data collections');
-					},
-				});
+				if (typeof schema === 'function') {
+					schema = await schema();
+				}
 			}
 
 			const collectionWithResolvedSchema = { ...collection, schema };
 
-			const parseData: LoaderContext['parseData'] = ({ id, data, filePath = '' }) =>
-				getEntryData(
+			const parseData: LoaderContext['parseData'] = async ({ id, data, filePath = '' }) => {
+				const { imageImports, data: parsedData } = await getEntryDataAndImages(
 					{
 						id,
 						collection: name,
-						unvalidatedData: data,
+						unvalidatedData: data as DataWithId,
 						_internal: {
 							rawData: undefined,
 							filePath,
@@ -84,7 +80,19 @@ export async function syncContentLayer({
 					},
 					collectionWithResolvedSchema,
 					false
-				) as Promise<DataWithId>;
+				);
+				if (imageImports?.length) {
+					store.addAssetImports(
+						imageImports,
+						// This path may already be relative, if we're re-parsing an existing entry
+						filePath.startsWith('/')
+							? posixRelative(fileURLToPath(settings.config.root), filePath)
+							: filePath
+					);
+				}
+
+				return parsedData;
+			};
 
 			const payload: LoaderContext = {
 				collection: name,
@@ -108,11 +116,16 @@ export async function syncContentLayer({
 			return collection.loader.load(payload);
 		})
 	);
-	const cacheFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
 	if (!existsSync(settings.config.cacheDir)) {
 		await fs.mkdir(settings.config.cacheDir, { recursive: true });
 	}
+	const cacheFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
 	await store.writeToDisk(cacheFile);
+	if (!existsSync(settings.dotAstroDir)) {
+		await fs.mkdir(settings.dotAstroDir, { recursive: true });
+	}
+	const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
+	await store.writeAssetImports(assetImportsFile);
 	logger.info('Synced content');
 }
 

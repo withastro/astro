@@ -108,6 +108,9 @@ importers:
       pretty-bytes:
         specifier: ^6.1.1
         version: 6.1.1
+      sharp:
+        specifier: ^0.33.3
+        version: 0.33.3
 
   benchmark/packages/timer:
     dependencies:
@@ -699,6 +702,9 @@ importers:
       mrmime:
         specifier: ^2.0.0
         version: 2.0.0
+      neotraverse:
+        specifier: ^0.6.9
+        version: 0.6.9
       ora:
         specifier: ^8.0.1
         version: 8.0.1
@@ -9958,6 +9964,10 @@ packages:
     resolution: {integrity: sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==}
     engines: {node: '>= 0.6'}
 
+  neotraverse@0.6.9:
+    resolution: {integrity: sha512-IJ00Agk9rMj4ChQwT/nWhLG/vC7PgNAk+BEKOE0DU5ToOHrmv3wefk8+2TcPDb4TRTQNpq0TIaDlaqvmrTAbrw==}
+    engines: {node: '>= 18'}
+
   nlcst-to-string@4.0.0:
     resolution: {integrity: sha512-YKLBCcUYKAg0FNlOBT6aI91qFmSiFKiluk655WzPF+DDMA02qIyy8uiRqI8QXtcFpEvll12LpL5MXqEmAZ+dcA==}
 
@@ -16482,6 +16492,8 @@ snapshots:
   natural-compare@1.4.0: {}
 
   negotiator@0.6.3: {}
+
+  neotraverse@0.6.9: {}
 
   nlcst-to-string@4.0.0:
     dependencies:

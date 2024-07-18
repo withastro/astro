@@ -1,10 +1,15 @@
 import { promises as fs, type PathLike, existsSync } from 'fs';
+import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 
 const SAVE_DEBOUNCE_MS = 500;
 
 export interface RenderedContent {
 	html: string;
-	metadata?: Record<string, unknown>;
+	metadata?: {
+		imagePaths: Array<string>;
+		[key: string]: unknown;
+	};
 }
 
 export interface DataEntry {
@@ -21,9 +26,15 @@ export class DataStore {
 
 	#file?: PathLike;
 
+	#assetsFile?: PathLike;
+
 	#saveTimeout: NodeJS.Timeout | undefined;
+	#assetsSaveTimeout: NodeJS.Timeout | undefined;
 
 	#dirty = false;
+	#assetsDirty = false;
+
+	#assetImports = new Set<string>();
 
 	constructor() {
 		this.#collections = new Map();
@@ -77,7 +88,77 @@ export class DataStore {
 		return this.#collections;
 	}
 
-	#saveToDiskDebounced = () => {
+	addAssetImport(assetImport: string, filePath: string) {
+		const id = imageSrcToImportId(assetImport, filePath);
+		if (id) {
+			this.#assetImports.add(id);
+			// We debounce the writes to disk because addAssetImport is called for every image in every file,
+			// and can be called many times in quick succession by a filesystem watcher. We only want to write
+			// the file once, after all the imports have been added.
+			this.#writeAssetsImportsDebounced();
+		}
+	}
+
+	addAssetImports(assets: Array<string>, filePath: string) {
+		assets.forEach((asset) => this.addAssetImport(asset, filePath));
+	}
+
+	async writeAssetImports(filePath: PathLike) {
+		this.#assetsFile = filePath;
+
+		if (this.#assetImports.size === 0) {
+			try {
+				await fs.writeFile(filePath, 'export default new Map();');
+			} catch (err) {
+				throw new AstroError({
+					...(err as Error),
+					...AstroErrorData.ContentLayerWriteError,
+				});
+			}
+		}
+
+		if (!this.#assetsDirty && existsSync(filePath)) {
+			return;
+		}
+		// Import the assets, with a symbol name that is unique to the import id. The import
+		// for each asset is an object with path, format and dimensions.
+		// We then export them all, mapped by the import id, so we can find them again in the build.
+		const imports: Array<string> = [];
+		const exports: Array<string> = [];
+		this.#assetImports.forEach((id) => {
+			const symbol = importIdToSymbolName(id);
+			imports.push(`import ${symbol} from '${id}';`);
+			exports.push(`[${JSON.stringify(id)}, ${symbol}]`);
+		});
+		const code = /* js */ `
+${imports.join('\n')}
+export default new Map([${exports.join(', ')}]);
+		`;
+		try {
+			await fs.writeFile(filePath, code);
+		} catch (err) {
+			throw new AstroError({
+				...(err as Error),
+				...AstroErrorData.ContentLayerWriteError,
+			});
+		}
+		this.#assetsDirty = false;
+	}
+
+	#writeAssetsImportsDebounced() {
+		this.#assetsDirty = true;
+		if (this.#assetsFile) {
+			if (this.#assetsSaveTimeout) {
+				clearTimeout(this.#assetsSaveTimeout);
+			}
+			this.#assetsSaveTimeout = setTimeout(() => {
+				this.#assetsSaveTimeout = undefined;
+				this.writeAssetImports(this.#assetsFile!);
+			}, SAVE_DEBOUNCE_MS);
+		}
+	}
+
+	#saveToDiskDebounced() {
 		this.#dirty = true;
 		// Only save to disk if it has already been saved once
 		if (this.#file) {
@@ -89,7 +170,7 @@ export class DataStore {
 				this.writeToDisk(this.#file!);
 			}, SAVE_DEBOUNCE_MS);
 		}
-	};
+	}
 
 	scopedStore(collectionName: string): ScopedDataStore {
 		return {
@@ -118,6 +199,9 @@ export class DataStore {
 					entry.body = body;
 				}
 				if (filePath) {
+					if (filePath.startsWith('/')) {
+						throw new Error(`File path must be relative to the site root. Got: ${filePath}`);
+					}
 					entry.filePath = filePath;
 				}
 				if (digest) {
@@ -133,6 +217,10 @@ export class DataStore {
 			delete: (key: string) => this.delete(collectionName, key),
 			clear: () => this.clear(collectionName),
 			has: (key: string) => this.has(collectionName, key),
+			addAssetImport: (assetImport: string, fileName: string) =>
+				this.addAssetImport(assetImport, fileName),
+			addAssetImports: (assets: Array<string>, fileName: string) =>
+				this.addAssetImports(assets, fileName),
 		};
 	}
 
@@ -162,8 +250,11 @@ export class DataStore {
 			await fs.writeFile(filePath, this.toString());
 			this.#file = filePath;
 			this.#dirty = false;
-		} catch {
-			throw new Error(`Failed to save data store to disk`);
+		} catch (err) {
+			throw new AstroError({
+				...(err as Error),
+				...AstroErrorData.ContentLayerWriteError,
+			});
 		}
 	}
 
@@ -203,6 +294,18 @@ export class DataStore {
 export interface ScopedDataStore {
 	get: (key: string) => DataEntry | undefined;
 	entries: () => Array<[id: string, DataEntry]>;
+	/**
+	 * Adds a new entry to the store. If an entry with the same ID already exists,
+	 * it will be replaced.
+	 * @param opts
+	 * @param opts.id The ID of the entry. Must be unique per collection.
+	 * @param opts.data The data to store.
+	 * @param opts.body The raw body of the content, if applicable.
+	 * @param opts.filePath The file path of the content, if applicable. Relative to the site root.
+	 * @param opts.digest A content digest, to check if the content has changed.
+	 * @param opts.rendered The rendered content, if applicable.
+	 * @returns
+	 */
 	set: (opts: {
 		id: string;
 		data: Record<string, unknown>;
@@ -216,6 +319,21 @@ export interface ScopedDataStore {
 	delete: (key: string) => void;
 	clear: () => void;
 	has: (key: string) => boolean;
+	/**
+	 * Adds image etc assets to the store. These assets will be transformed
+	 * by Vite, and the URLs will be available in the final build.
+	 * @param assets An array of asset src values, relative to the importing file.
+	 * @param fileName The full path of the file that is importing the assets.
+	 */
+	addAssetImports: (assets: Array<string>, fileName: string) => void;
+	/**
+	 * Adds a single asset to the store. This asset will be transformed
+	 * by Vite, and the URL will be available in the final build.
+	 * @param assetImport
+	 * @param fileName
+	 * @returns
+	 */
+	addAssetImport: (assetImport: string, fileName: string) => void;
 }
 
 /**

@@ -8,7 +8,5 @@ export async function GET() {
 
 	const simpleLoader = await getCollection('cats');
 
-	return new Response(
-		JSON.stringify({ customLoader, fileLoader, dataEntry, simpleLoader }),
-	);
+	return Response.json({ customLoader, fileLoader, dataEntry, simpleLoader })
 }

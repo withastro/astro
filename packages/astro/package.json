@@ -170,6 +170,7 @@
     "magic-string": "^0.30.10",
     "micromatch": "^4.0.7",
     "mrmime": "^2.0.0",
+    "neotraverse": "^0.6.9",
     "ora": "^8.0.1",
     "p-limit": "^6.1.0",
     "p-queue": "^8.0.1",
