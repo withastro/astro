@@ -58,7 +58,7 @@ export abstract class Pipeline {
 		 * Array of built-in, internal, routes.
 		 * Used to find the route module
 		 */
-		readonly defaultRoutes = createDefaultRoutes(manifest, new URL(import.meta.url))
+		readonly defaultRoutes = createDefaultRoutes(manifest)
 	) {
 		this.internalMiddleware = [];
 		// We do use our middleware only if the user isn't using the manual setup

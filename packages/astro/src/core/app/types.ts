@@ -44,7 +44,7 @@ export type AssetsPrefix =
 	| undefined;
 
 export type SSRManifest = {
-	root: string;
+	hrefRoot: string;
 	adapterName: string;
 	routes: RouteInfo[];
 	site?: string;

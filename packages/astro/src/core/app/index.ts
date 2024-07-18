@@ -123,7 +123,7 @@ export class App {
 			manifest: this.#manifest,
 			mode: 'production',
 			renderers: this.#manifest.renderers,
-			defaultRoutes: createDefaultRoutes(this.#manifest, new URL(this.#manifest.root)),
+			defaultRoutes: createDefaultRoutes(this.#manifest),
 			resolve: async (specifier: string) => {
 				if (!(specifier in this.#manifest.entryModules)) {
 					throw new Error(`Unable to resolve [${specifier}]`);
