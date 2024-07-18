@@ -11,8 +11,6 @@ import type {
 	RuntimeMode,
 } from '../../@types/astro.js';
 import { injectImageEndpoint } from '../../assets/endpoint/config.js';
-import { DataStore, globalDataStore } from '../../content/data-store.js';
-import { syncContentLayer } from '../../content/sync.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import {
@@ -151,25 +149,14 @@ class AstroBuilder {
 			fs,
 		});
 
-		const dataStore = await DataStore.fromModule();
-		globalDataStore.set(dataStore);
-		await syncContentLayer({ settings: this.settings, logger: logger });
-
 		return { viteConfig };
 	}
 
 	/** Run the build logic. build() is marked private because usage should go through ".run()" */
 	private async build({ viteConfig }: { viteConfig: vite.InlineConfig }) {
-		this.settings.timer.start('Total build');
-
 		await runHookBuildStart({ config: this.settings.config, logging: this.logger });
 		this.validateConfig();
 
-		const dataStore = await DataStore.fromModule();
-		globalDataStore.set(dataStore);
-		this.settings.timer.start('Sync content layer');
-		await syncContentLayer({ settings: this.settings, logger: this.logger });
-		this.settings.timer.end('Sync content layer');
 		this.logger.info('build', `output: ${blue('"' + this.settings.config.output + '"')}`);
 		this.logger.info('build', `directory: ${blue(fileURLToPath(this.settings.config.outDir))}`);
 		if (this.settings.adapter) {
@@ -241,18 +228,21 @@ class AstroBuilder {
 				buildMode: this.settings.config.output,
 			});
 		}
-		this.settings.timer.end('Total build');
-		// Benchmark results
-		this.settings.timer.writeStats();
 	}
 
 	/** Build the given Astro project.  */
 	async run() {
+		this.settings.timer.start('Total build');
+
 		const setupData = await this.setup();
 		try {
 			await this.build(setupData);
 		} catch (_err) {
 			throw _err;
+		} finally {
+			this.settings.timer.end('Total build');
+			// Benchmark results
+			this.settings.timer.writeStats();
 		}
 	}
 

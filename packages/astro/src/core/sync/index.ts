@@ -29,6 +29,7 @@ import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { setUpEnvTs } from './setup-env-ts.js';
+import { DataStore, globalDataStore } from '../../content/data-store.js';
 
 export type SyncOptions = {
 	/**
@@ -99,7 +100,11 @@ export async function syncInternal({
 		}
 		syncAstroEnv(settings, fs);
 
+		settings.timer.start('Sync content layer');
+		const dataStore = await DataStore.fromModule();
+		globalDataStore.set(dataStore);
 		await syncContentLayer({ settings, logger });
+		settings.timer.end('Sync content layer');
 
 		await setUpEnvTs({ settings, logger, fs });
 		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
