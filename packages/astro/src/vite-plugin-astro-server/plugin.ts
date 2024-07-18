@@ -18,7 +18,6 @@ import { recordServerError } from './error.js';
 import { DevPipeline } from './pipeline.js';
 import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
-import { fileURLToPath } from 'node:url';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -130,7 +129,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		};
 	}
 	return {
-		hrefRoot: import.meta.url,
+		hrefRoot: settings.config.root.toString(),
 		trailingSlash: settings.config.trailingSlash,
 		buildFormat: settings.config.build.format,
 		compressHTML: settings.config.compressHTML,

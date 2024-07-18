@@ -26,18 +26,19 @@ type DefaultRouteParams = {
 };
 
 export function createDefaultRoutes(manifest: SSRManifest): DefaultRouteParams[] {
+	const root = new URL(manifest.hrefRoot);
 	return [
 		{
 			instance: default404Instance,
 			matchesComponent: (filePath) =>
-				filePath.href === new URL(DEFAULT_404_COMPONENT, new URL(manifest.hrefRoot)).href,
+				filePath.href === new URL(DEFAULT_404_COMPONENT, root).href,
 			route: DEFAULT_404_ROUTE.route,
 			component: DEFAULT_404_COMPONENT,
 		},
 		{
 			instance: createServerIslandEndpoint(manifest),
 			matchesComponent: (filePath) =>
-				filePath.href === new URL(SERVER_ISLAND_COMPONENT, new URL(manifest.hrefRoot)).href,
+				filePath.href === new URL(SERVER_ISLAND_COMPONENT, root).href,
 			route: SERVER_ISLAND_ROUTE,
 			component: SERVER_ISLAND_COMPONENT,
 		},
