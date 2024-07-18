@@ -6,7 +6,6 @@ import Component from '../components/buttonDirective.astro';
 export const GET: APIRoute = async (ctx) => {
 	const container = await experimental_AstroContainer.create();
 	container.addServerRenderer({ renderer });
-	return await container.renderToResponse(Component, {
-		skipClientDirectives: true,
-	});
+	container.addClientRenderer({ name: '@astrojs/react', entrypoint: '@astrojs/react/client.js' });
+	return await container.renderToResponse(Component);
 };

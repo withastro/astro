@@ -267,6 +267,7 @@ describe('Container with renderers', () => {
 		const response = await app.render(request);
 		const html = await response.text();
 
+		assert.match(html, /Button not rendered/);
 		assert.match(html, /I am a react button/);
 	});
 });

@@ -44,9 +44,6 @@ export class RenderContext {
 	// The first route that this instance of the context attempts to render
 	originalRoute: RouteData;
 
-	// Metadata used to signal Astro renderer to skip any client hydration
-	skipHydration: boolean;
-
 	private constructor(
 		readonly pipeline: Pipeline,
 		public locals: App.Locals,
@@ -61,7 +58,6 @@ export class RenderContext {
 		public props: Props = {}
 	) {
 		this.originalRoute = routeData;
-		this.skipHydration = false;
 	}
 
 	/**
@@ -323,7 +319,7 @@ export class RenderContext {
 	}
 
 	async createResult(mod: ComponentInstance) {
-		const { cookies, pathname, pipeline, routeData, status, skipHydration } = this;
+		const { cookies, pathname, pipeline, routeData, status } = this;
 		const { clientDirectives, inlinedScripts, compressHTML, manifest, renderers, resolve } =
 			pipeline;
 		const { links, scripts, styles } = await pipeline.headElements(routeData);
@@ -370,7 +366,6 @@ export class RenderContext {
 			request: this.request,
 			scripts,
 			styles,
-			skipHydration,
 			actionResult,
 			serverIslandNameMap: manifest.serverIslandNameMap ?? new Map(),
 			_metadata: {

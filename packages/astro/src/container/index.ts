@@ -84,13 +84,6 @@ export type ContainerRenderOptions = {
 	 * ```
 	 */
 	props?: Props;
-
-	/**
-	 * Allows to bypass clientside hydration of components.
-	 *
-	 * If you're testing components that use `client:*` directives, you might want to use this option.
-	 */
-	skipClientDirectives?: boolean;
 };
 
 export type AddServerRenderer =
@@ -102,6 +95,11 @@ export type AddServerRenderer =
 			renderer: SSRLoadedRendererValue;
 			name: string;
 	  };
+
+export type AddClientRenderer = {
+	name: string;
+	entrypoint: string;
+};
 
 function createManifest(
 	manifest?: AstroContainerManifest,
@@ -289,7 +287,7 @@ export class experimental_AstroContainer {
 	}
 
 	/**
-	 * Use this function to manually add a renderer to the container.
+	 * Use this function to manually add a **server** renderer to the container.
 	 *
 	 * This function is preferred when you require to use the container with a renderer in environments such as on-demand pages.
 	 *
@@ -330,6 +328,46 @@ export class experimental_AstroContainer {
 				ssr: renderer,
 			});
 		}
+	}
+
+	/**
+	 * Use this function to manually add a **client** renderer to the container.
+	 *
+	 * When rendering components that use the `client:*` directives, you need to use this function.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * import reactRenderer from "@astrojs/react/server.js";
+	 * import { experimental_AstroContainer as AstroContainer } from "astro/container"
+	 *
+	 * const container = await AstroContainer.create();
+	 * container.addServerRenderer(reactRenderer);
+	 * container.addClientRenderer({
+	 * 	name: "@astrojs/react",
+	 * 	entrypoint: "@astrojs/react/client.js"
+	 * });
+	 * ```
+	 *
+	 * @param options {object}
+	 * @param options.name The name of the renderer. The name **isn't** arbitrary, and it should match the name of the package.
+	 * @param options.entrypoint The entrypoint of the client renderer.
+	 */
+	public addClientRenderer(options: AddClientRenderer): void {
+		const { entrypoint, name } = options;
+
+		const rendererIndex = this.#pipeline.manifest.renderers.findIndex((r) => r.name === name);
+		if (rendererIndex === -1) {
+			throw new Error(
+				'You tried to add the ' +
+					name +
+					" client renderer, but its server renderer wasn't added. You must add the server renderer first. Use the `addServerRenderer` function."
+			);
+		}
+		const renderer = this.#pipeline.manifest.renderers[rendererIndex];
+		renderer.clientEntrypoint = entrypoint;
+
+		this.#pipeline.manifest.renderers[rendererIndex] = renderer;
 	}
 
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.
@@ -443,9 +481,6 @@ export class experimental_AstroContainer {
 			pathname: url.pathname,
 			locals: options?.locals ?? {},
 		});
-		if (options.skipClientDirectives === true) {
-			renderContext.skipHydration = true;
-		}
 		if (options.params) {
 			renderContext.params = options.params;
 		}

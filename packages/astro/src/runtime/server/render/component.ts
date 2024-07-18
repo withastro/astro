@@ -296,8 +296,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		renderer &&
 		!renderer.clientEntrypoint &&
 		renderer.name !== '@astrojs/lit' &&
-		metadata.hydrate &&
-		!result.skipHydration
+		metadata.hydrate
 	) {
 		throw new AstroError({
 			...AstroErrorData.NoClientEntrypoint,
@@ -522,7 +521,10 @@ export async function renderComponent(
 	);
 
 	function handleCancellation(e: unknown) {
-		if (result.cancelled) return { render() {} };
+		if (result.cancelled)
+			return {
+				render() {},
+			};
 		throw e;
 	}
 }
