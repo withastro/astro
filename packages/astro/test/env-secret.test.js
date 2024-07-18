@@ -68,23 +68,23 @@ describe('astro:env secret variables', () => {
 		assert.equal(data.UNKNOWN_SECRET, 'abc');
 	});
 
-	// it('fails if validateSecrets is enabled and secret is not set', async () => {
-	// 	fixture = await loadFixture({
-	// 		root: './fixtures/astro-env-server-secret/',
-	// 		experimental: {
-	// 			env: {
-	// 				validateSecrets: true,
-	// 			},
-	// 		},
-	// 	});
+	it('fails if validateSecrets is enabled and secret is not set', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/astro-env-server-secret/',
+			experimental: {
+				env: {
+					validateSecrets: true,
+				},
+			},
+		});
 
-	// 	try {
-	// 		await fixture.build();
-	// 		assert.fail();
-	// 	} catch (error) {
-	// 		assert.equal(error instanceof Error, true);
-	// 		assert.equal(error.title, 'Invalid Environment Variables');
-	// 		assert.equal(error.message.includes('KNOWN_SECRET is missing'), true);
-	// 	}
-	// });
+		try {
+			await fixture.build();
+			assert.fail();
+		} catch (error) {
+			assert.equal(error instanceof Error, true);
+			assert.equal(error.title, 'Invalid Environment Variables');
+			assert.equal(error.message.includes('KNOWN_SECRET is missing'), true);
+		}
+	});
 });

@@ -402,7 +402,7 @@ describe('Config Validation', () => {
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
 				configError.errors[0].message,
-				'A valid variable name can only contain uppercase letters and underscores.'
+				'A valid variable name cannot start with a number.'
 			);
 		});
 	});
