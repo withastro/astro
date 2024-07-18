@@ -77,6 +77,7 @@ export abstract class Pipeline {
 	}
 
 	abstract headElements(routeData: RouteData): Promise<HeadElements> | HeadElements;
+
 	abstract componentMetadata(routeData: RouteData): Promise<SSRResult['componentMetadata']> | void;
 
 	/**

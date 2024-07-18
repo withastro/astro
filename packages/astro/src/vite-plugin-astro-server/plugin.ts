@@ -18,6 +18,7 @@ import { recordServerError } from './error.js';
 import { DevPipeline } from './pipeline.js';
 import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
+import { fileURLToPath } from 'node:url';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -50,6 +51,7 @@ export default function createVitePluginAstroServer({
 					pipeline.setManifestData(manifestData);
 				}
 			}
+
 			// Rebuild route manifest on file change, if needed.
 			viteServer.watcher.on('add', rebuildManifest.bind(null, true));
 			viteServer.watcher.on('unlink', rebuildManifest.bind(null, true));
@@ -128,6 +130,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		};
 	}
 	return {
+		root: import.meta.url,
 		trailingSlash: settings.config.trailingSlash,
 		buildFormat: settings.config.build.format,
 		compressHTML: settings.config.compressHTML,
