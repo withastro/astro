@@ -1,5 +1,7 @@
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-export { validateEnvVariable } from './validators.js';
+import { invalidVariablesToError } from './errors.js';
+import type { ValidationResultInvalid } from './validators.js';
+export { validateEnvVariable, getEnvFieldType } from './validators.js';
 
 export type GetEnv = (key: string) => string | undefined;
 
@@ -21,11 +23,15 @@ export function getEnv(...args: Parameters<GetEnv>) {
 	return _getEnv(...args);
 }
 
-export function createInvalidVariableError(
-	...args: Parameters<typeof AstroErrorData.EnvInvalidVariable.message>
+export function createInvalidVariablesError(
+	key: string,
+	type: string,
+	result: ValidationResultInvalid
 ) {
 	return new AstroError({
-		...AstroErrorData.EnvInvalidVariable,
-		message: AstroErrorData.EnvInvalidVariable.message(...args),
+		...AstroErrorData.EnvInvalidVariables,
+		message: AstroErrorData.EnvInvalidVariables.message(
+			invalidVariablesToError([{ key, type, errors: result.errors }])
+		),
 	});
 }
