@@ -18,6 +18,7 @@ import {
 	fetchLatestAstroVersion,
 	shouldCheckForUpdates,
 } from './update-check.js';
+import { DataStore, globalDataStore } from '../../content/data-store.js';
 
 export interface DevServer {
 	address: AddressInfo;
@@ -102,6 +103,9 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	}
 
 	await attachContentServerListeners(restart.container);
+
+	const dataStore = await DataStore.fromModule();
+	globalDataStore.set(dataStore);
 
 	await syncContentLayer({
 		settings: restart.container.settings,
