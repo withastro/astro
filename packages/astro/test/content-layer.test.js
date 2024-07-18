@@ -112,6 +112,27 @@ describe('Content Layer', () => {
 				},
 			});
 		});
+
+		it('transforms a reference id to a reference object', async () => {
+			assert.ok(json.hasOwnProperty('entryWithReference'));
+			assert.deepEqual(json.entryWithReference.data.cat, { collection: 'cats', id: 'tabby' });
+		});
+
+		it('returns a referenced entry', async () => {
+			assert.ok(json.hasOwnProperty('referencedEntry'));
+			assert.deepEqual(json.referencedEntry, {
+				collection: 'cats',
+				data: {
+					breed: 'Tabby',
+					id: 'tabby',
+					size: 'Medium',
+					origin: 'Egypt',
+					lifespan: '12-15 years',
+					temperament: ['Curious', 'Playful', 'Affectionate'],
+				},
+				id: 'tabby',
+			});
+		});
 	});
 
 	describe('Dev', () => {

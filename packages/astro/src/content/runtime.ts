@@ -1,7 +1,7 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { Traverse } from 'neotraverse/modern';
 import pLimit from 'p-limit';
-import { ZodIssueCode, string as zodString } from 'zod';
+import { ZodIssueCode, z } from 'zod';
 import type { GetImageResult, ImageMetadata } from '../@types/astro.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -514,36 +514,92 @@ async function render({
 
 export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) {
 	return function reference(collection: string) {
-		return zodString().transform((lookupId: string, ctx) => {
-			const flattenedErrorPath = ctx.path.join('.');
-			if (!lookupMap[collection]) {
-				ctx.addIssue({
-					code: ZodIssueCode.custom,
-					message: `**${flattenedErrorPath}:** Reference to ${collection} invalid. Collection does not exist or is empty.`,
-				});
-				return;
-			}
+		return z
+			.union([
+				z.string(),
+				z.object({
+					id: z.string(),
+					collection: z.string(),
+				}),
+				z.object({
+					slug: z.string(),
+					collection: z.string(),
+				}),
+			])
+			.transform(
+				async (
+					lookup:
+						| string
+						| { id: string; collection: string }
+						| { slug: string; collection: string },
+					ctx
+				) => {
+					const flattenedErrorPath = ctx.path.join('.');
+					const store = await globalDataStore.get();
+					const collectionIsInStore = store.hasCollection(collection);
 
-			const { type, entries } = lookupMap[collection];
-			const entry = entries[lookupId];
+					if (typeof lookup === 'object') {
+						// If these don't match then something is wrong with the reference
+						if (lookup.collection !== collection) {
+							ctx.addIssue({
+								code: ZodIssueCode.custom,
+								message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${collection}. Received ${lookup.collection}.`,
+							});
+							return;
+						}
 
-			if (!entry) {
-				ctx.addIssue({
-					code: ZodIssueCode.custom,
-					message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${Object.keys(
-						entries
-					)
-						.map((c) => JSON.stringify(c))
-						.join(' | ')}. Received ${JSON.stringify(lookupId)}.`,
-				});
-				return;
-			}
-			// Content is still identified by slugs, so map to a `slug` key for consistency.
-			if (type === 'content') {
-				return { slug: lookupId, collection };
-			}
-			return { id: lookupId, collection };
-		});
+						// A reference object might refer to an invalid collection, because when we convert it we don't have access to the store.
+						// If it is an object then we're validating later in the pipeline, so we can check the collection at that point.
+						if (!lookupMap[collection] && !collectionIsInStore) {
+							ctx.addIssue({
+								code: ZodIssueCode.custom,
+								message: `**${flattenedErrorPath}:** Reference to ${collection} invalid. Collection does not exist or is empty.`,
+							});
+							return;
+						}
+						return lookup;
+					}
+
+					if (collectionIsInStore) {
+						const entry = store.get(collection, lookup);
+						if (!entry) {
+							ctx.addIssue({
+								code: ZodIssueCode.custom,
+								message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Entry ${lookup} does not exist.`,
+							});
+							return;
+						}
+						return { id: lookup, collection };
+					}
+
+					if (!lookupMap[collection] && store.collections().size === 0) {
+						// If the collection is not in the lookup map or store, it may be a content layer collection and the store may not yet be populated.
+						// For now, we can't validate this reference, so we'll optimistically convert it to a reference object which we'll validate
+						// later in the pipeline when we do have access to the store.
+						return { id: lookup, collection };
+					}
+
+					const { type, entries } = lookupMap[collection];
+					const entry = entries[lookup];
+
+					if (!entry) {
+						ctx.addIssue({
+							code: ZodIssueCode.custom,
+							message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${Object.keys(
+								entries
+							)
+								.map((c) => JSON.stringify(c))
+								.join(' | ')}. Received ${JSON.stringify(lookup)}.`,
+						});
+						return;
+					}
+					// Content is still identified by slugs, so map to a `slug` key for consistency.
+					if (type === 'content') {
+						return { slug: lookup, collection };
+					}
+					return { id: lookup, collection };
+				}
+			);
 	};
 }
 
