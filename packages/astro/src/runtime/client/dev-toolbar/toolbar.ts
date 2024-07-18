@@ -49,6 +49,11 @@ export class AstroDevToolbar extends HTMLElement {
 				z-index: 999999;
 				view-transition-name: astro-dev-toolbar;
 				display: contents;
+
+				/* Hide the dev toolbar on window.print() (CTRL + P) */
+				@media print {
+					display: none;
+				}
 			}
 
 			::view-transition-old(astro-dev-toolbar),
