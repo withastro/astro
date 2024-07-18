@@ -97,14 +97,13 @@ export async function syncInternal({
 		await dbPackage?.typegen?.(settings.config);
 		if (!skip?.content) {
 			await syncContentCollections(settings, { fs, logger });
+			settings.timer.start('Sync content layer');
+			const dataStore = await DataStore.fromModule();
+			globalDataStore.set(dataStore);
+			await syncContentLayer({ settings, logger });
+			settings.timer.end('Sync content layer');
 		}
 		syncAstroEnv(settings, fs);
-
-		settings.timer.start('Sync content layer');
-		const dataStore = await DataStore.fromModule();
-		globalDataStore.set(dataStore);
-		await syncContentLayer({ settings, logger });
-		settings.timer.end('Sync content layer');
 
 		await setUpEnvTs({ settings, logger, fs });
 		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
