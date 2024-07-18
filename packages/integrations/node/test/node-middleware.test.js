@@ -23,7 +23,7 @@ describe('behavior from middleware, standalone', () => {
 		});
 		await fixture.build();
 		const { startServer } = await fixture.loadAdapterEntryModule();
-		let res = startServer();
+		let res = await startServer();
 		server = res.server;
 		await waitServerListen(server.server);
 	});
