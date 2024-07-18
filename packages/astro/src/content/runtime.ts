@@ -147,9 +147,11 @@ export function createGetCollection({
 export function createGetEntryBySlug({
 	getEntryImport,
 	getRenderEntryImport,
+	collectionNames,
 }: {
 	getEntryImport: GetEntryImport;
 	getRenderEntryImport: GetEntryImport;
+	collectionNames: Set<string>;
 }) {
 	return async function getEntryBySlug(collection: string, slug: string) {
 		const store = await globalDataStore.get();
@@ -167,6 +169,11 @@ export function createGetEntryBySlug({
 				collection,
 				render: () => renderEntry(entry),
 			};
+		}
+		if (!collectionNames.has(collection)) {
+			// eslint-disable-next-line no-console
+			console.warn(`The collection ${JSON.stringify(collection)} does not exist.`);
+			return undefined;
 		}
 
 		const entryImport = await getEntryImport(collection, slug);
@@ -191,7 +198,10 @@ export function createGetEntryBySlug({
 	};
 }
 
-export function createGetDataEntryById({ getEntryImport }: { getEntryImport: GetEntryImport }) {
+export function createGetDataEntryById({
+	getEntryImport,
+	collectionNames,
+}: { getEntryImport: GetEntryImport; collectionNames: Set<string> }) {
 	return async function getDataEntryById(collection: string, id: string) {
 		const store = await globalDataStore.get();
 
@@ -207,6 +217,11 @@ export function createGetDataEntryById({ getEntryImport }: { getEntryImport: Get
 				...entry,
 				collection,
 			};
+		}
+		if (!collectionNames.has(collection)) {
+			// eslint-disable-next-line no-console
+			console.warn(`The collection ${JSON.stringify(collection)} does not exist.`);
+			return undefined;
 		}
 
 		const lazyImport = await getEntryImport(collection, id);
@@ -243,9 +258,11 @@ type EntryLookupObject = { collection: string; id: string } | { collection: stri
 export function createGetEntry({
 	getEntryImport,
 	getRenderEntryImport,
+	collectionNames,
 }: {
 	getEntryImport: GetEntryImport;
 	getRenderEntryImport: GetEntryImport;
+	collectionNames: Set<string>;
 }) {
 	return async function getEntry(
 		// Can either pass collection and identifier as 2 positional args,
@@ -277,7 +294,9 @@ export function createGetEntry({
 		if (store.hasCollection(collection)) {
 			const entry = store.get<DataEntry>(collection, lookupId);
 			if (!entry) {
-				throw new Error(`Entry ${collection} → ${lookupId} was not found.`);
+				// eslint-disable-next-line no-console
+				console.warn(`Entry ${collection} → ${lookupId} was not found.`);
+				return;
 			}
 
 			if (entry.filePath) {
@@ -290,6 +309,12 @@ export function createGetEntry({
 				collection,
 				render: () => renderEntry(entry),
 			} as DataEntryResult | ContentEntryResult;
+		}
+
+		if (!collectionNames.has(collection)) {
+			// eslint-disable-next-line no-console
+			console.warn(`The collection ${JSON.stringify(collection)} does not exist.`);
+			return undefined;
 		}
 
 		const entryImport = await getEntryImport(collection, lookupId);
