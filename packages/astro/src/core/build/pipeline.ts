@@ -17,7 +17,7 @@ import {
 	createModuleScriptsSet,
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
-import { default404Page } from '../routing/astro-designed-error-pages.js';
+import { createDefaultRoutes } from '../routing/default.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import { isServerLikeOutput } from '../util.js';
 import { getOutDirWithinCwd } from './common.js';
@@ -54,7 +54,8 @@ export class BuildPipeline extends Pipeline {
 		readonly manifest: SSRManifest,
 		readonly options: StaticBuildOptions,
 		readonly config = options.settings.config,
-		readonly settings = options.settings
+		readonly settings = options.settings,
+		readonly defaultRoutes = createDefaultRoutes(manifest, config.root)
 	) {
 		const resolveCache = new Map<string, string>();
 		async function resolve(specifier: string) {
@@ -269,14 +270,18 @@ export class BuildPipeline extends Pipeline {
 			// SAFETY: checked before
 			const entry = this.#componentsInterner.get(routeData)!;
 			return await entry.page();
-		} else if (routeData.component === DEFAULT_404_COMPONENT) {
-			return { default: default404Page };
-		} else {
-			// SAFETY: the pipeline calls `retrieveRoutesToGenerate`, which is in charge to fill the cache.
-			const filePath = this.#routesByFilePath.get(routeData)!;
-			const module = await this.retrieveSsrEntry(routeData, filePath);
-			return module.page();
 		}
+
+		for (const route of this.defaultRoutes) {
+			if (route.component === routeData.component) {
+				return route.instance;
+			}
+		}
+
+		// SAFETY: the pipeline calls `retrieveRoutesToGenerate`, which is in charge to fill the cache.
+		const filePath = this.#routesByFilePath.get(routeData)!;
+		const module = await this.retrieveSsrEntry(routeData, filePath);
+		return module.page();
 	}
 
 	async tryRewrite(

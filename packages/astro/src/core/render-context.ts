@@ -357,6 +357,7 @@ export class RenderContext {
 			createAstro: (astroGlobal, props, slots) =>
 				this.createAstro(result, astroGlobal, props, slots),
 			links,
+			params: this.params,
 			partial,
 			pathname,
 			renderers,
@@ -366,6 +367,7 @@ export class RenderContext {
 			scripts,
 			styles,
 			actionResult,
+			serverIslandNameMap: manifest.serverIslandNameMap ?? new Map(),
 			_metadata: {
 				hasHydrationScript: false,
 				rendererSpecificHydrationScripts: new Set(),

@@ -125,7 +125,7 @@
     "test:node": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "^2.8.2",
+    "@astrojs/compiler": "^2.9.0",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
@@ -140,7 +140,7 @@
     "acorn": "^8.12.1",
     "aria-query": "^5.3.0",
     "axobject-query": "^4.1.0",
-    "boxen": "^8.0.0",
+    "boxen": "7.1.1",
     "chokidar": "^3.6.0",
     "ci-info": "^4.0.0",
     "clsx": "^2.1.1",
