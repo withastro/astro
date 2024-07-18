@@ -1,5 +1,25 @@
 # astro
 
+## 4.12.1
+
+### Patch Changes
+
+- [#11486](https://github.com/withastro/astro/pull/11486) [`9c0c849`](https://github.com/withastro/astro/commit/9c0c8492d987cd9214ed53e71fb29599c206966a) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new function called `addClientRenderer` to the Container API.
+
+  This function should be used when rendering components using the `client:*` directives. The `addClientRenderer` API must be used
+  _after_ the use of the `addServerRenderer`:
+
+  ```js
+  const container = await experimental_AstroContainer.create();
+  container.addServerRenderer({ renderer });
+  container.addClientRenderer({ name: '@astrojs/react', entrypoint: '@astrojs/react/client.js' });
+  const response = await container.renderToResponse(Component);
+  ```
+
+- [#11500](https://github.com/withastro/astro/pull/11500) [`4e142d3`](https://github.com/withastro/astro/commit/4e142d38cbaf0938be7077c88e32b38a6b60eaed) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes inferRemoteSize type not working
+
+- [#11496](https://github.com/withastro/astro/pull/11496) [`53ccd20`](https://github.com/withastro/astro/commit/53ccd206f9bfe5f6a0d888d199776b4043f63f58) Thanks [@alfawal](https://github.com/alfawal)! - Hide the dev toolbar on `window.print()` (CTRL + P)
+
 ## 4.12.0
 
 ### Minor Changes
