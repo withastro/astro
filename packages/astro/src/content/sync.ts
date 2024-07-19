@@ -8,6 +8,7 @@ import { ASSET_IMPORTS_FILE, DATA_STORE_FILE } from './consts.js';
 import { DataStore, globalDataStore } from './data-store.js';
 import type { DataWithId, LoaderContext } from './loaders/types.js';
 import { getEntryDataAndImages, globalContentConfigObserver, posixRelative } from './utils.js';
+import { isAbsolute } from 'node:path';
 
 export interface SyncContentLayerOptions {
 	store?: DataStore;
@@ -85,7 +86,7 @@ export async function syncContentLayer({
 					store.addAssetImports(
 						imageImports,
 						// This path may already be relative, if we're re-parsing an existing entry
-						filePath.startsWith('/')
+						isAbsolute(filePath)
 							? posixRelative(fileURLToPath(settings.config.root), filePath)
 							: filePath
 					);

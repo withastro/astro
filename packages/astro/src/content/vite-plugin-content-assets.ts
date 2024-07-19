@@ -39,7 +39,7 @@ export function astroContentAssetPropagationPlugin({
 				const importerParam = params.get('importer');
 
 				const importerPath = importerParam
-					? fileURLToPath(new URL(importerParam, settings.config.root))
+					? fileURLToPath(new URL(importerParam!, settings.config.root))
 					: importer;
 
 				return this.resolve(base, importerPath, { skipSelf: true, ...opts });
