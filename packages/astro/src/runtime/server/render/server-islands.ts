@@ -2,6 +2,7 @@ import type { SSRResult } from '../../../@types/astro.js';
 import { renderChild } from './any.js';
 import type { RenderInstance } from './common.js';
 import { type ComponentSlots, renderSlotToString } from './slot.js';
+import {escape} from 'html-escaper';
 
 const internalProps = new Set([
 	'server:component-path',
@@ -12,6 +13,10 @@ const internalProps = new Set([
 
 export function containsServerDirective(props: Record<string | number, any>) {
 	return 'server:component-directive' in props;
+}
+
+function safeJsonStringify(obj: any) {
+	return escape(JSON.stringify(obj));
 }
 
 export function renderServerIsland(
@@ -53,13 +58,13 @@ export function renderServerIsland(
 			const hostId = crypto.randomUUID();
 
 			destination.write(`<script async type="module" data-island-id="${hostId}">
-let componentId = ${JSON.stringify(componentId)};
-let componentExport = ${JSON.stringify(componentExport)};
+let componentId = ${safeJsonStringify(componentId)};
+let componentExport = ${safeJsonStringify(componentExport)};
 let script = document.querySelector('script[data-island-id="${hostId}"]');
 let data = {
 	componentExport,
-	props: ${JSON.stringify(props)},
-	slots: ${JSON.stringify(renderedSlots)},
+	props: ${safeJsonStringify(props)},
+	slots: ${safeJsonStringify(renderedSlots)},
 };
 
 let response = await fetch('/_server-islands/${componentId}', {
