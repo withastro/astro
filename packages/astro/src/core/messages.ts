@@ -36,24 +36,19 @@ export function req({
 	method,
 	statusCode,
 	reqTime,
-	formerStatusCode,
+	isRewrite,
 }: {
 	url: string;
 	statusCode: number;
 	method?: string;
 	reqTime?: number;
-	formerStatusCode?: number;
+	isRewrite?: boolean;
 }): string {
 	const color = statusCode >= 500 ? red : statusCode >= 300 ? yellow : blue;
-	let statusCodeLabel;
-	if (formerStatusCode) {
-		statusCodeLabel = color(`[${formerStatusCode} → rewrite → ${statusCode}]`);
-	} else {
-		statusCodeLabel = color(`[${statusCode}]`);
-	}
 	return (
-		statusCodeLabel +
+		color(`[${statusCode}]`) +
 		` ` +
+		`${isRewrite ? color('(rewrite) ') : ''}` +
 		(method && method !== 'GET' ? color(method) + ' ' : '') +
 		url +
 		` ` +
