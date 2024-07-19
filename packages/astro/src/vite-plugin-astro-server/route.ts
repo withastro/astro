@@ -232,7 +232,8 @@ export async function handleRoute({
 			req({
 				url: pathname,
 				method: incomingRequest.method,
-				statusCode: status ?? response.status,
+				statusCode: isRewrite ? response.status : (status ?? response.status),
+				formerStatusCode: isRewrite ? status : undefined,
 				reqTime: timeEnd - timeStart,
 			})
 		);
