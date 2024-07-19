@@ -304,7 +304,7 @@ export interface ScopedDataStore {
 	 * @param opts.filePath The file path of the content, if applicable. Relative to the site root.
 	 * @param opts.digest A content digest, to check if the content has changed.
 	 * @param opts.rendered The rendered content, if applicable.
-	 * @returns
+	 * @returns `true` if the entry was added or updated, `false` if the entry was not changed. This will be the case if the provided digest matches the one in the store.
 	 */
 	set: (opts: {
 		id: string;

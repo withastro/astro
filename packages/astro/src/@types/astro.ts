@@ -2378,7 +2378,7 @@ export type DataEntryModule = {
 	};
 };
 
-export type RenderFunction = (entry: DataEntry) => Promise<RenderedContent>;
+export type ContentEntryRenderFuction = (entry: DataEntry) => Promise<RenderedContent>;
 
 export interface ContentEntryType {
 	extensions: string[];
@@ -2395,7 +2395,7 @@ export interface ContentEntryType {
 		}
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
-	getRenderFunction?(settings: AstroSettings): Promise<RenderFunction>;
+	getRenderFunction?(settings: AstroSettings): Promise<ContentEntryRenderFuction>;
 
 	/**
 	 * Handle asset propagation for rendered content to avoid bleed.
