@@ -14,6 +14,15 @@ export function containsServerDirective(props: Record<string | number, any>) {
 	return 'server:component-directive' in props;
 }
 
+function safeJsonStringify(obj: any) {
+	return JSON.stringify(obj)
+		.replace(/\u2028/g, '\\u2028')
+		.replace(/\u2029/g, '\\u2029')
+		.replace(/</g, '\\u003c')
+		.replace(/>/g, '\\u003e')
+		.replace(/\//g, '\\u002f');
+}
+
 export function renderServerIsland(
 	result: SSRResult,
 	_displayName: string,
@@ -53,13 +62,13 @@ export function renderServerIsland(
 			const hostId = crypto.randomUUID();
 
 			destination.write(`<script async type="module" data-island-id="${hostId}">
-let componentId = ${JSON.stringify(componentId)};
-let componentExport = ${JSON.stringify(componentExport)};
+let componentId = ${safeJsonStringify(componentId)};
+let componentExport = ${safeJsonStringify(componentExport)};
 let script = document.querySelector('script[data-island-id="${hostId}"]');
 let data = {
 	componentExport,
-	props: ${JSON.stringify(props)},
-	slots: ${JSON.stringify(renderedSlots)},
+	props: ${safeJsonStringify(props)},
+	slots: ${safeJsonStringify(renderedSlots)},
 };
 
 let response = await fetch('/_server-islands/${componentId}', {

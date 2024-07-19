@@ -132,7 +132,7 @@ async function fetchHTML(
 	}
 }
 
-function getFallback(): Fallback {
+export function getFallback(): Fallback {
 	const el = document.querySelector('[name="astro-view-transitions-fallback"]');
 	if (el) {
 		return el.getAttribute('content') as Fallback;

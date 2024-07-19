@@ -22,6 +22,7 @@ import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { routeComparator } from '../priority.js';
 import { getRouteGenerator } from './generator.js';
+import { getPattern } from './pattern.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -68,59 +69,6 @@ export function getParts(part: string, file: string) {
 	});
 
 	return result;
-}
-
-export function getPattern(
-	segments: RoutePart[][],
-	base: AstroConfig['base'],
-	addTrailingSlash: AstroConfig['trailingSlash']
-) {
-	const pathname = segments
-		.map((segment) => {
-			if (segment.length === 1 && segment[0].spread) {
-				return '(?:\\/(.*?))?';
-			} else {
-				return (
-					'\\/' +
-					segment
-						.map((part) => {
-							if (part.spread) {
-								return '(.*?)';
-							} else if (part.dynamic) {
-								return '([^/]+?)';
-							} else {
-								return part.content
-									.normalize()
-									.replace(/\?/g, '%3F')
-									.replace(/#/g, '%23')
-									.replace(/%5B/g, '[')
-									.replace(/%5D/g, ']')
-									.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-							}
-						})
-						.join('')
-				);
-			}
-		})
-		.join('');
-
-	const trailing =
-		addTrailingSlash && segments.length ? getTrailingSlashPattern(addTrailingSlash) : '$';
-	let initial = '\\/';
-	if (addTrailingSlash === 'never' && base !== '/') {
-		initial = '';
-	}
-	return new RegExp(`^${pathname || initial}${trailing}`);
-}
-
-function getTrailingSlashPattern(addTrailingSlash: AstroConfig['trailingSlash']): string {
-	if (addTrailingSlash === 'always') {
-		return '\\/$';
-	}
-	if (addTrailingSlash === 'never') {
-		return '$';
-	}
-	return '\\/?$';
 }
 
 export function validateSegment(segment: string, file = '') {
@@ -486,7 +434,7 @@ function isStaticSegment(segment: RoutePart[]) {
  *   For example, `/foo/[bar]` and `/foo/[baz]` or `/foo/[...bar]` and `/foo/[...baz]`
  *     but not `/foo/[bar]` and `/foo/[...baz]`.
  */
-function detectRouteCollision(a: RouteData, b: RouteData, config: AstroConfig, logger: Logger) {
+function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, logger: Logger) {
 	if (a.type === 'fallback' || b.type === 'fallback') {
 		// If either route is a fallback route, they don't collide.
 		// Fallbacks are always added below other routes exactly to avoid collisions.

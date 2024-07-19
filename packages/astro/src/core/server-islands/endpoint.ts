@@ -11,33 +11,39 @@ import {
 	renderTemplate,
 } from '../../runtime/server/index.js';
 import { createSlotValueFromString } from '../../runtime/server/render/slot.js';
+import { getPattern } from '../routing/manifest/pattern.js';
 
 export const SERVER_ISLAND_ROUTE = '/_server-islands/[name]';
 export const SERVER_ISLAND_COMPONENT = '_server-islands.astro';
 
-export function ensureServerIslandRoute(manifest: ManifestData) {
-	if (manifest.routes.some((route) => route.route === '/_server-islands/[name]')) {
-		return;
-	}
+type ConfigFields = Pick<SSRManifest, 'base' | 'trailingSlash'>;
 
+export function getServerIslandRouteData(config: ConfigFields) {
+	const segments = [
+		[{ content: '_server-islands', dynamic: false, spread: false }],
+		[{ content: 'name', dynamic: true, spread: false }],
+	];
 	const route: RouteData = {
 		type: 'page',
 		component: SERVER_ISLAND_COMPONENT,
 		generate: () => '',
 		params: ['name'],
-		segments: [
-			[{ content: '_server-islands', dynamic: false, spread: false }],
-			[{ content: 'name', dynamic: true, spread: false }],
-		],
-		// eslint-disable-next-line
-		pattern: /^\/_server-islands\/([^/]+?)$/,
+		segments,
+		pattern: getPattern(segments, config.base, config.trailingSlash),
 		prerender: false,
 		isIndex: false,
 		fallbackRoutes: [],
 		route: SERVER_ISLAND_ROUTE,
 	};
+	return route;
+}
 
-	manifest.routes.push(route);
+export function ensureServerIslandRoute(config: ConfigFields, routeManifest: ManifestData) {
+	if (routeManifest.routes.some((route) => route.route === '/_server-islands/[name]')) {
+		return;
+	}
+
+	routeManifest.routes.push(getServerIslandRouteData(config));
 }
 
 type RenderOptions = {
