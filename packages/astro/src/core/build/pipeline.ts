@@ -55,9 +55,10 @@ export class BuildPipeline extends Pipeline {
 		readonly options: StaticBuildOptions,
 		readonly config = options.settings.config,
 		readonly settings = options.settings,
-		readonly defaultRoutes = createDefaultRoutes(manifest, config.root)
+		readonly defaultRoutes = createDefaultRoutes(manifest)
 	) {
 		const resolveCache = new Map<string, string>();
+
 		async function resolve(specifier: string) {
 			if (resolveCache.has(specifier)) {
 				return resolveCache.get(specifier)!;
@@ -76,6 +77,7 @@ export class BuildPipeline extends Pipeline {
 			resolveCache.set(specifier, assetLink);
 			return assetLink;
 		}
+
 		const serverLike = isServerLikeOutput(config);
 		// We can skip streaming in SSG for performance as writing as strings are faster
 		const streaming = serverLike;

@@ -521,7 +521,10 @@ export async function renderComponent(
 	);
 
 	function handleCancellation(e: unknown) {
-		if (result.cancelled) return { render() {} };
+		if (result.cancelled)
+			return {
+				render() {},
+			};
 		throw e;
 	}
 }

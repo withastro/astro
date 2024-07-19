@@ -12,10 +12,10 @@ import {
 	ensure404Route,
 } from './astro-designed-error-pages.js';
 
-export function injectDefaultRoutes(manifest: ManifestData) {
-	ensure404Route(manifest);
-	ensureServerIslandRoute(manifest);
-	return manifest;
+export function injectDefaultRoutes(ssrManifest: SSRManifest, routeManifest: ManifestData) {
+	ensure404Route(routeManifest);
+	ensureServerIslandRoute(ssrManifest, routeManifest);
+	return routeManifest;
 }
 
 type DefaultRouteParams = {
@@ -25,7 +25,8 @@ type DefaultRouteParams = {
 	component: string;
 };
 
-export function createDefaultRoutes(manifest: SSRManifest, root: URL): DefaultRouteParams[] {
+export function createDefaultRoutes(manifest: SSRManifest): DefaultRouteParams[] {
+	const root = new URL(manifest.hrefRoot);
 	return [
 		{
 			instance: default404Instance,
