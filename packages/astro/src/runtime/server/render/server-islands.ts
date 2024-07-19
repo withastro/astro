@@ -1,4 +1,3 @@
-import { escape } from 'html-escaper';
 import type { SSRResult } from '../../../@types/astro.js';
 import { renderChild } from './any.js';
 import type { RenderInstance } from './common.js';
@@ -16,7 +15,12 @@ export function containsServerDirective(props: Record<string | number, any>) {
 }
 
 function safeJsonStringify(obj: any) {
-	return escape(JSON.stringify(obj));
+	return JSON.stringify(obj)
+		.replace(/\u2028/g, '\\u2028')
+		.replace(/\u2029/g, '\\u2029')
+		.replace(/</g, '\\u003c')
+		.replace(/>/g, '\\u003e')
+		.replace(/\//g, '\\u002f');
 }
 
 export function renderServerIsland(
