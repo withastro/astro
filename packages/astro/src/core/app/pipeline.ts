@@ -25,9 +25,17 @@ export class AppPipeline extends Pipeline {
 			resolve,
 			serverLike,
 			streaming,
+			defaultRoutes,
 		}: Pick<
 			AppPipeline,
-			'logger' | 'manifest' | 'mode' | 'renderers' | 'resolve' | 'serverLike' | 'streaming'
+			| 'logger'
+			| 'manifest'
+			| 'mode'
+			| 'renderers'
+			| 'resolve'
+			| 'serverLike'
+			| 'streaming'
+			| 'defaultRoutes'
 		>
 	) {
 		const pipeline = new AppPipeline(
@@ -46,7 +54,8 @@ export class AppPipeline extends Pipeline {
 			undefined,
 			undefined,
 			undefined,
-			false
+			false,
+			defaultRoutes
 		);
 		pipeline.#manifestData = manifestData;
 		return pipeline;
@@ -75,6 +84,7 @@ export class AppPipeline extends Pipeline {
 	}
 
 	componentMetadata() {}
+
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
 		const module = await this.getModuleForRoute(routeData);
 		return module.page();

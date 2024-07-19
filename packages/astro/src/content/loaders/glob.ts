@@ -4,9 +4,10 @@ import fastGlob from 'fast-glob';
 import { green } from 'kleur/colors';
 import micromatch from 'micromatch';
 import pLimit from 'p-limit';
-import type { ContentEntryType, RenderFunction } from '../../@types/astro.js';
+import type { ContentEntryType, ContentEntryRenderFuction } from '../../@types/astro.js';
 import { getContentEntryIdAndSlug, getEntryConfigByExtMap, posixRelative } from '../utils.js';
 import type { Loader } from './types.js';
+import type { RenderedContent } from '../data-store.js';
 
 export interface GenerateIdOptions {
 	/** The path to the entry file, relative to the base directory. */
@@ -65,7 +66,10 @@ export function glob(globOptions: GlobOptions): Loader {
 	return {
 		name: 'glob-loader',
 		load: async ({ settings, logger, watcher, parseData, store, generateDigest }) => {
-			const renderFunctionByContentType = new WeakMap<ContentEntryType, RenderFunction>();
+			const renderFunctionByContentType = new WeakMap<
+				ContentEntryType,
+				ContentEntryRenderFuction
+			>();
 
 			const untouchedEntries = new Set(store.keys());
 
@@ -75,7 +79,15 @@ export function glob(globOptions: GlobOptions): Loader {
 					return;
 				}
 				const fileUrl = new URL(entry, base);
-				const contents = await fs.readFile(fileUrl, 'utf-8');
+				const contents = await fs.readFile(fileUrl, 'utf-8').catch((err) => {
+					logger.error(`Error reading ${entry}: ${err.message}`);
+					return;
+				});
+
+				if (!contents) {
+					logger.warn(`No contents found for ${entry}`);
+					return;
+				}
 
 				const { body, data } = await entryType.getEntryInfo({
 					contents,
@@ -119,13 +131,20 @@ export function glob(globOptions: GlobOptions): Loader {
 						// Cache the render function for this content type, so it can re-use parsers and other expensive setup
 						renderFunctionByContentType.set(entryType, render);
 					}
-					const rendered = await render({
-						id,
-						data: parsedData,
-						body,
-						filePath,
-						digest,
-					});
+					let rendered: RenderedContent | undefined = undefined;
+
+					try {
+						rendered = await render?.({
+							id,
+							data: parsedData,
+							body,
+							filePath,
+							digest,
+						});
+					} catch (error: any) {
+						logger.error(`Error rendering ${entry}: ${error.message}`);
+					}
+
 					store.set({
 						id,
 						data: parsedData,
@@ -134,7 +153,7 @@ export function glob(globOptions: GlobOptions): Loader {
 						digest,
 						rendered,
 					});
-					if (rendered.metadata?.imagePaths?.length) {
+					if (rendered?.metadata?.imagePaths?.length) {
 						store.addAssetImports(rendered.metadata.imagePaths, relativePath);
 					}
 				} else {

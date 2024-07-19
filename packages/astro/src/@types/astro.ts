@@ -2237,7 +2237,7 @@ export interface AstroUserConfig {
 		 * <Avatar server:defer />
 		 * ```
 		 *
-		 * The outer page will be rendered, either at build-time (`hybrid`) or at runtime (`server`) with the island content omitted and a `<script>` tag included in its place.
+		 * The outer page will be rendered, either at build time (`hybrid`) or at runtime (`server`) with the island content omitted and a `<script>` tag included in its place.
 		 *
 		 * After the page loads in the browser, the script tag will replace itself with the the contents of the island by making a request.
 		 *
@@ -2256,7 +2256,7 @@ export interface AstroUserConfig {
 		 *
 		 * Since your component will not render with the rest of the page, you may want to add generic content (e.g. a loading message) to temporarily show in its place. This content will be displayed when the page first renders but before the island has loaded.
 		 *
-		 * Add placeholder content as a child of your Astro component with the `slot="fallback:` attribute. When your island content is available, the fallback content will be replaced.
+		 * Add placeholder content as a child of your Astro component with the `slot="fallback"` attribute. When your island content is available, the fallback content will be replaced.
 		 *
 		 * The example below displays a generic avatar as fallback content, then animates into a personalized avatar using view transitions:
 		 *
@@ -2378,7 +2378,7 @@ export type DataEntryModule = {
 	};
 };
 
-export type RenderFunction = (entry: DataEntry) => Promise<RenderedContent>;
+export type ContentEntryRenderFuction = (entry: DataEntry) => Promise<RenderedContent>;
 
 export interface ContentEntryType {
 	extensions: string[];
@@ -2395,7 +2395,7 @@ export interface ContentEntryType {
 		}
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
-	getRenderFunction?(settings: AstroSettings): Promise<RenderFunction>;
+	getRenderFunction?(settings: AstroSettings): Promise<ContentEntryRenderFuction>;
 
 	/**
 	 * Handle asset propagation for rendered content to avoid bleed.

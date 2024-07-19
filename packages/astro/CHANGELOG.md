@@ -1,5 +1,215 @@
 # astro
 
+## 4.12.2
+
+### Patch Changes
+
+- [#11505](https://github.com/withastro/astro/pull/11505) [`8ff7658`](https://github.com/withastro/astro/commit/8ff7658001c2c7bedf6adcddf7a9341196f2d376) Thanks [@ematipico](https://github.com/ematipico)! - Enhances the dev server logging when rewrites occur during the lifecycle or rendering.
+
+  The dev server will log the status code **before** and **after** a rewrite:
+
+  ```shell
+  08:16:48 [404] (rewrite) /foo/about 200ms
+  08:22:13 [200] (rewrite) /about 23ms
+  ```
+
+- [#11506](https://github.com/withastro/astro/pull/11506) [`026e8ba`](https://github.com/withastro/astro/commit/026e8baf3323e99f96530999fd32a0a9b305854d) Thanks [@sarah11918](https://github.com/sarah11918)! - Fixes typo in documenting the `slot="fallback"` attribute for Server Islands experimental feature.
+
+- [#11508](https://github.com/withastro/astro/pull/11508) [`ca335e1`](https://github.com/withastro/astro/commit/ca335e1dc09bc83d3f8f5b9dd54f116bcb4881e4) Thanks [@cramforce](https://github.com/cramforce)! - Escapes HTML in serialized props
+
+- [#11501](https://github.com/withastro/astro/pull/11501) [`4db78ae`](https://github.com/withastro/astro/commit/4db78ae046a39628dfe8d68e776706559d4f8ba7) Thanks [@martrapp](https://github.com/martrapp)! - Adds the missing export for accessing the `getFallback()` function of the client site router.
+
+## 4.12.1
+
+### Patch Changes
+
+- [#11486](https://github.com/withastro/astro/pull/11486) [`9c0c849`](https://github.com/withastro/astro/commit/9c0c8492d987cd9214ed53e71fb29599c206966a) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new function called `addClientRenderer` to the Container API.
+
+  This function should be used when rendering components using the `client:*` directives. The `addClientRenderer` API must be used
+  _after_ the use of the `addServerRenderer`:
+
+  ```js
+  const container = await experimental_AstroContainer.create();
+  container.addServerRenderer({ renderer });
+  container.addClientRenderer({ name: '@astrojs/react', entrypoint: '@astrojs/react/client.js' });
+  const response = await container.renderToResponse(Component);
+  ```
+
+- [#11500](https://github.com/withastro/astro/pull/11500) [`4e142d3`](https://github.com/withastro/astro/commit/4e142d38cbaf0938be7077c88e32b38a6b60eaed) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes inferRemoteSize type not working
+
+- [#11496](https://github.com/withastro/astro/pull/11496) [`53ccd20`](https://github.com/withastro/astro/commit/53ccd206f9bfe5f6a0d888d199776b4043f63f58) Thanks [@alfawal](https://github.com/alfawal)! - Hide the dev toolbar on `window.print()` (CTRL + P)
+
+## 4.12.0
+
+### Minor Changes
+
+- [#11341](https://github.com/withastro/astro/pull/11341) [`49b5145`](https://github.com/withastro/astro/commit/49b5145158a603b9bb951bf914a6a9780c218704) Thanks [@madcampos](https://github.com/madcampos)! - Adds support for [Shiki's `defaultColor` option](https://shiki.style/guide/dual-themes#without-default-color).
+
+  This option allows you to override the values of a theme's inline style, adding only CSS variables to give you more flexibility in applying multiple color themes.
+
+  Configure `defaultColor: false` in your Shiki config to apply throughout your site, or pass to Astro's built-in `<Code>` component to style an individual code block.
+
+  ```js title="astro.config.mjs"
+  import { defineConfig } from 'astro/config';
+  export default defineConfig({
+    markdown: {
+      shikiConfig: {
+        themes: {
+          light: 'github-light',
+          dark: 'github-dark',
+        },
+        defaultColor: false,
+      },
+    },
+  });
+  ```
+
+  ```astro
+  ---
+  import { Code } from 'astro:components';
+  ---
+
+  <Code code={`const useMyColors = true`} lang="js" defaultColor={false} />
+  ```
+
+- [#11304](https://github.com/withastro/astro/pull/11304) [`2e70741`](https://github.com/withastro/astro/commit/2e70741362afc1e7d03c8b2a9d8edb8466dfe9c3) Thanks [@Fryuni](https://github.com/Fryuni)! - Refactors the type for integration hooks so that integration authors writing custom integration hooks can now allow runtime interactions between their integration and other integrations.
+
+  This internal change should not break existing code for integration authors.
+
+  To declare your own hooks for your integration, extend the `Astro.IntegrationHooks` interface:
+
+  ```ts
+  // your-integration/types.ts
+  declare global {
+    namespace Astro {
+      interface IntegrationHooks {
+        'myLib:eventHappened': (your: string, parameters: number) => Promise<void>;
+      }
+    }
+  }
+  ```
+
+  Call your hooks on all other integrations installed in a project at the appropriate time. For example, you can call your hook on initialization before either the Vite or Astro config have resolved:
+
+  ```ts
+  // your-integration/index.ts
+  import './types.ts';
+
+  export default (): AstroIntegration => {
+    return {
+      name: 'your-integration',
+      hooks: {
+        'astro:config:setup': async ({ config }) => {
+          for (const integration of config.integrations) {
+            await integration.hooks['myLib:eventHappened'].?('your values', 123);
+          }
+        },
+      }
+    }
+  }
+  ```
+
+  Other integrations can also now declare your hooks:
+
+  ```ts
+  // other-integration/index.ts
+  import 'your-integration/types.ts';
+
+  export default (): AstroIntegration => {
+    return {
+      name: 'other-integration',
+      hooks: {
+        'myLib:eventHappened': async (your, values) => {
+          // ...
+        },
+      },
+    };
+  };
+  ```
+
+- [#11305](https://github.com/withastro/astro/pull/11305) [`d495df5`](https://github.com/withastro/astro/commit/d495df5361e16ebdf83dea6e2de004f438e698c4) Thanks [@matthewp](https://github.com/matthewp)! - Experimental Server Islands
+
+  Server Islands allow you to specify components that should run on the server, allowing the rest of the page to be more aggressively cached, or even generated statically. Turn any `.astro` component into a server island by adding the `server:defer` directive and optionally, fallback placeholder content:
+
+  ```astro
+  ---
+  import Avatar from '../components/Avatar.astro';
+  import GenericUser from '../components/GenericUser.astro';
+  ---
+
+  <header>
+    <h1>Page Title</h1>
+    <div class="header-right">
+      <Avatar server:defer>
+        <GenericUser slot="fallback" />
+      </Avatar>
+    </div>
+  </header>
+  ```
+
+  The `server:defer` directive can be used on any Astro component in a project using `hybrid` or `server` mode with an adapter. There are no special APIs needed inside of the island.
+
+  Enable server islands by adding the experimental flag to your Astro config with an appropriate `output` mode and adatper:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import netlify from '@astrojs/netlify';
+
+  export default defineConfig({
+    output: 'hybrid',
+    adapter: netlify(),
+    experimental: {
+      serverIslands: true,
+    },
+  });
+  ```
+
+  For more information, see the [server islands documentation](https://docs.astro.build/en/reference/configuration-reference/#experimentalserverislands).
+
+- [#11482](https://github.com/withastro/astro/pull/11482) [`7c9ed71`](https://github.com/withastro/astro/commit/7c9ed71bf1e13a0c825ba67946b6307d06f77233) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a `--noSync` parameter to the `astro check` command to skip the type-gen step. This can be useful when running `astro check` inside packages that have Astro components, but are not Astro projects
+
+- [#11098](https://github.com/withastro/astro/pull/11098) [`36e30a3`](https://github.com/withastro/astro/commit/36e30a33092c32c2de1deac316f49660247902b0) Thanks [@itsmatteomanf](https://github.com/itsmatteomanf)! - Adds a new `inferRemoteSize()` function that can be used to infer the dimensions of a remote image.
+
+  Previously, the ability to infer these values was only available by adding the [`inferSize`] attribute to the `<Image>` and `<Picture>` components or `getImage()`. Now, you can also access this data outside of these components.
+
+  This is useful for when you need to know the dimensions of an image for styling purposes or to calculate different densities for responsive images.
+
+  ```astro
+  ---
+  import { inferRemoteSize, Image } from 'astro:assets';
+
+  const imageUrl = 'https://...';
+  const { width, height } = await inferRemoteSize(imageUrl);
+  ---
+
+  <Image src={imageUrl} width={width / 2} height={height} densities={[1.5, 2]} />
+  ```
+
+- [#11391](https://github.com/withastro/astro/pull/11391) [`6f9b527`](https://github.com/withastro/astro/commit/6f9b52710567f3bec7939a98eb8c76f5ea0b2f91) Thanks [@ARipeAppleByYoursTruly](https://github.com/ARipeAppleByYoursTruly)! - Adds Shiki's [`defaultColor`](https://shiki.style/guide/dual-themes#without-default-color) option to the `<Code />` component, giving you more control in applying multiple themes
+
+- [#11176](https://github.com/withastro/astro/pull/11176) [`a751458`](https://github.com/withastro/astro/commit/a75145871b7bb9277584066e1f625df2aaabebce) Thanks [@tsawada](https://github.com/tsawada)! - Adds two new values to the [pagination `page` prop](https://docs.astro.build/en/reference/api-reference/#the-pagination-page-prop): `page.first` and `page.last` for accessing the URLs of the first and last pages.
+
+### Patch Changes
+
+- [#11477](https://github.com/withastro/astro/pull/11477) [`7e9c4a1`](https://github.com/withastro/astro/commit/7e9c4a134c6ea7c8b92ea00038c0845b58c02bc5) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the development server was emitting a 404 status code when the user uses a rewrite that emits a 200 status code.
+
+- [#11479](https://github.com/withastro/astro/pull/11479) [`ca969d5`](https://github.com/withastro/astro/commit/ca969d538a6a8d64573f426b8a87ebd7e434bd71) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where invalid `astro:env` variables at runtime would not throw correctly
+
+- [#11489](https://github.com/withastro/astro/pull/11489) [`061f1f4`](https://github.com/withastro/astro/commit/061f1f4d0cb306efd0c768645439111aec765c76) Thanks [@ematipico](https://github.com/ematipico)! - Move root inside the manifest and make serialisable
+
+- [#11415](https://github.com/withastro/astro/pull/11415) [`e9334d0`](https://github.com/withastro/astro/commit/e9334d05ca88ed6df1becc1512c673e20414bf47) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Refactors how `sync` works and when it's called. Fixes an issue with `astro:env` types in dev not being generated
+
+- [#11478](https://github.com/withastro/astro/pull/11478) [`3161b67`](https://github.com/withastro/astro/commit/3161b6789c57a3bb740ed117205dc55997eb74ea) Thanks [@bluwy](https://github.com/bluwy)! - Supports importing Astro components with Vite queries, like `?url`, `?raw`, and `?direct`
+
+- [#11491](https://github.com/withastro/astro/pull/11491) [`fe3afeb`](https://github.com/withastro/astro/commit/fe3afebd652289ec1b65eed983e804dbb37ed092) Thanks [@matthewp](https://github.com/matthewp)! - Fix for Server Islands in Vercel adapter
+
+  Vercel, and probably other adapters only allow pre-defined routes. This makes it so that the `astro:build:done` hook includes the `_server-islands/` route as part of the route data, which is used to configure available routes.
+
+- [#11483](https://github.com/withastro/astro/pull/11483) [`34f9c25`](https://github.com/withastro/astro/commit/34f9c25740f8eaae0d5e2a2b685b83556d23e63e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes Astro not working on low versions of Node 18 and 20
+
+- Updated dependencies [[`49b5145`](https://github.com/withastro/astro/commit/49b5145158a603b9bb951bf914a6a9780c218704)]:
+  - @astrojs/markdown-remark@5.2.0
+
 ## 4.11.6
 
 ### Patch Changes

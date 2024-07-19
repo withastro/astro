@@ -20,10 +20,11 @@ import {
 } from '../path.js';
 import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
-import { injectDefaultRoutes } from '../routing/default.js';
+import { createDefaultRoutes, injectDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
 import { createOriginCheckMiddleware } from './middlewares.js';
 import { AppPipeline } from './pipeline.js';
+
 export { deserializeManifest } from './common.js';
 
 export interface RenderOptions {
@@ -87,7 +88,7 @@ export class App {
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
-		this.#manifestData = injectDefaultRoutes({
+		this.#manifestData = injectDefaultRoutes(manifest, {
 			routes: manifest.routes.map((route) => route.routeData),
 		});
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
@@ -122,6 +123,7 @@ export class App {
 			manifest: this.#manifest,
 			mode: 'production',
 			renderers: this.#manifest.renderers,
+			defaultRoutes: createDefaultRoutes(this.#manifest),
 			resolve: async (specifier: string) => {
 				if (!(specifier in this.#manifest.entryModules)) {
 					throw new Error(`Unable to resolve [${specifier}]`);
@@ -145,6 +147,7 @@ export class App {
 	set setManifestData(newManifestData: ManifestData) {
 		this.#manifestData = newManifestData;
 	}
+
 	removeBase(pathname: string) {
 		if (pathname.startsWith(this.#manifest.base)) {
 			return pathname.slice(this.#baseWithoutTrailingSlash.length + 1);
