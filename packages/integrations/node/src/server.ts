@@ -12,13 +12,13 @@ await import('astro/env/setup')
 	.catch(() => {});
 
 applyPolyfills();
-export function createExports(manifest: SSRManifest, options: Options) {
+export async function createExports(manifest: SSRManifest, options: Options) {
 	const app = new NodeApp(manifest);
 	options.trailingSlash = manifest.trailingSlash;
 	return {
 		options: options,
 		handler:
-			options.mode === 'middleware' ? createMiddleware(app) : createStandaloneHandler(app, options),
+			options.mode === 'middleware' ? createMiddleware(app) : await createStandaloneHandler(app, options),
 		startServer: () => startServer(app, options),
 	};
 }
