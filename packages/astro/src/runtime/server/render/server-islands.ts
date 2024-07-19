@@ -1,8 +1,8 @@
+import { escape } from 'html-escaper';
 import type { SSRResult } from '../../../@types/astro.js';
 import { renderChild } from './any.js';
 import type { RenderInstance } from './common.js';
 import { type ComponentSlots, renderSlotToString } from './slot.js';
-import {escape} from 'html-escaper';
 
 const internalProps = new Set([
 	'server:component-path',
