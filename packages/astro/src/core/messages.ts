@@ -47,9 +47,7 @@ export function req({
 	const color = statusCode >= 500 ? red : statusCode >= 300 ? yellow : blue;
 	let statusCodeLabel;
 	if (formerStatusCode) {
-		const colorFormerStatusCode =
-			formerStatusCode >= 500 ? red : formerStatusCode >= 300 ? yellow : blue;
-		statusCodeLabel = `[${colorFormerStatusCode(formerStatusCode)} ${green('→ rewrite →')} ${color(statusCode)}]`;
+		statusCodeLabel = color(`[${formerStatusCode} → rewrite → ${statusCode}]`);
 	} else {
 		statusCodeLabel = color(`[${statusCode}]`);
 	}
