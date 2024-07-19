@@ -1,5 +1,24 @@
 # astro
 
+## 4.12.2
+
+### Patch Changes
+
+- [#11505](https://github.com/withastro/astro/pull/11505) [`8ff7658`](https://github.com/withastro/astro/commit/8ff7658001c2c7bedf6adcddf7a9341196f2d376) Thanks [@ematipico](https://github.com/ematipico)! - Enhances the dev server logging when rewrites occur during the lifecycle or rendering.
+
+  The dev server will log the status code **before** and **after** a rewrite:
+
+  ```shell
+  08:16:48 [404] (rewrite) /foo/about 200ms
+  08:22:13 [200] (rewrite) /about 23ms
+  ```
+
+- [#11506](https://github.com/withastro/astro/pull/11506) [`026e8ba`](https://github.com/withastro/astro/commit/026e8baf3323e99f96530999fd32a0a9b305854d) Thanks [@sarah11918](https://github.com/sarah11918)! - Fixes typo in documenting the `slot="fallback"` attribute for Server Islands experimental feature.
+
+- [#11508](https://github.com/withastro/astro/pull/11508) [`ca335e1`](https://github.com/withastro/astro/commit/ca335e1dc09bc83d3f8f5b9dd54f116bcb4881e4) Thanks [@cramforce](https://github.com/cramforce)! - Escapes HTML in serialized props
+
+- [#11501](https://github.com/withastro/astro/pull/11501) [`4db78ae`](https://github.com/withastro/astro/commit/4db78ae046a39628dfe8d68e776706559d4f8ba7) Thanks [@martrapp](https://github.com/martrapp)! - Adds the missing export for accessing the `getFallback()` function of the client site router.
+
 ## 4.12.1
 
 ### Patch Changes
