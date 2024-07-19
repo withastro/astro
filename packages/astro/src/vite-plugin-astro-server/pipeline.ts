@@ -46,7 +46,7 @@ export class DevPipeline extends Pipeline {
 		readonly manifest: SSRManifest,
 		readonly settings: AstroSettings,
 		readonly config = settings.config,
-		readonly defaultRoutes = createDefaultRoutes(manifest, config.root)
+		readonly defaultRoutes = createDefaultRoutes(manifest)
 	) {
 		const mode = 'development';
 		const resolve = createResolve(loader, config.root);

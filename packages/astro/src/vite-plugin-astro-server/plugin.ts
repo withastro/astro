@@ -36,6 +36,7 @@ export default function createVitePluginAstroServer({
 			const loader = createViteLoader(viteServer);
 			const manifest = createDevelopmentManifest(settings);
 			let manifestData: ManifestData = injectDefaultRoutes(
+				manifest,
 				createRouteManifest({ settings, fsMod }, logger)
 			);
 			const pipeline = DevPipeline.create(manifestData, { loader, logger, manifest, settings });
@@ -46,10 +47,11 @@ export default function createVitePluginAstroServer({
 			function rebuildManifest(needsManifestRebuild: boolean) {
 				pipeline.clearRouteCache();
 				if (needsManifestRebuild) {
-					manifestData = injectDefaultRoutes(createRouteManifest({ settings }, logger));
+					manifestData = injectDefaultRoutes(manifest, createRouteManifest({ settings }, logger));
 					pipeline.setManifestData(manifestData);
 				}
 			}
+
 			// Rebuild route manifest on file change, if needed.
 			viteServer.watcher.on('add', rebuildManifest.bind(null, true));
 			viteServer.watcher.on('unlink', rebuildManifest.bind(null, true));
@@ -128,6 +130,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		};
 	}
 	return {
+		hrefRoot: settings.config.root.toString(),
 		trailingSlash: settings.config.trailingSlash,
 		buildFormat: settings.config.build.format,
 		compressHTML: settings.config.compressHTML,
