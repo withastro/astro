@@ -5,7 +5,7 @@ import { logListeningOn } from './log-listening-on.js';
 import type { createExports } from './server.js';
 import { createServer } from './standalone.js';
 
-type ServerModule = ReturnType<typeof createExports>;
+type ServerModule = Awaited<ReturnType<typeof createExports>>;
 type MaybeServerModule = Partial<ServerModule>;
 
 const createPreviewServer: CreatePreviewServer = async function (preview) {
