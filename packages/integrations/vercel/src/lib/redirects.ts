@@ -97,9 +97,8 @@ function getRedirectLocation(route: RouteData, config: AstroConfig): string {
 		redirectPath = route.redirect || '';
 	}
 
-	// Is external link - do not transform
-	const hasProtocol = redirectPath.includes('://');
-	if (hasProtocol) {
+	// Is a full URL - do not transform
+	if (URL.canParse(redirectPath)) {
 		return redirectPath;
 	}
 
