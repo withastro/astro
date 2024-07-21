@@ -27,9 +27,11 @@ export default function standalone(app: NodeApp, options: Options) {
 	if (options.standaloneMiddleware) {
 		import(options.standaloneMiddleware)
 			.then((middleware) => {
-				return (req: http.IncomingMessage, res: http.ServerResponse) => {
-					middleware.default(req, res, () => handler);
-				};
+				server.updateServerListener((req: http.IncomingMessage, res: http.ServerResponse) => {
+					middleware.default(req, res, () => {
+						handler(req, res);
+					});
+				});
 			})
 			.catch(() => {});
 	}
