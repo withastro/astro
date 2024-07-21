@@ -21,6 +21,8 @@ import { renderPage } from '../runtime/server/index.js';
 import {
 	ASTRO_VERSION,
 	REROUTE_DIRECTIVE_HEADER,
+	REWRITE_DIRECTIVE_HEADER_KEY,
+	REWRITE_DIRECTIVE_HEADER_VALUE,
 	ROUTE_TYPE_HEADER,
 	clientAddressSymbol,
 	clientLocalsSymbol,
@@ -184,12 +186,11 @@ export class RenderContext {
 					// Signal to the i18n middleware to maybe act on this response
 					response.headers.set(ROUTE_TYPE_HEADER, 'page');
 					// Signal to the error-page-rerouting infra to let this response pass through to avoid loops
-					if (
-						this.routeData.route === '/404' ||
-						this.routeData.route === '/500' ||
-						this.isRewriting
-					) {
+					if (this.routeData.route === '/404' || this.routeData.route === '/500') {
 						response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
+					}
+					if (this.isRewriting) {
+						response.headers.set(REWRITE_DIRECTIVE_HEADER_KEY, REWRITE_DIRECTIVE_HEADER_VALUE);
 					}
 					break;
 				}
@@ -356,6 +357,7 @@ export class RenderContext {
 			createAstro: (astroGlobal, props, slots) =>
 				this.createAstro(result, astroGlobal, props, slots),
 			links,
+			params: this.params,
 			partial,
 			pathname,
 			renderers,
@@ -365,6 +367,7 @@ export class RenderContext {
 			scripts,
 			styles,
 			actionResult,
+			serverIslandNameMap: manifest.serverIslandNameMap ?? new Map(),
 			_metadata: {
 				hasHydrationScript: false,
 				rendererSpecificHydrationScripts: new Set(),
@@ -381,6 +384,7 @@ export class RenderContext {
 	}
 
 	#astroPagePartial?: Omit<AstroGlobal, 'props' | 'self' | 'slots'>;
+
 	/**
 	 * The Astro global is sourced in 3 different phases:
 	 * - **Static**: `.generator` and `.glob` is printed by the compiler, instantiated once per process per astro file
@@ -512,6 +516,7 @@ export class RenderContext {
 	 * So, it is computed and saved here on creation of the first APIContext and reused for later ones.
 	 */
 	#currentLocale: APIContext['currentLocale'];
+
 	computeCurrentLocale() {
 		const {
 			url,
@@ -537,6 +542,7 @@ export class RenderContext {
 	}
 
 	#preferredLocale: APIContext['preferredLocale'];
+
 	computePreferredLocale() {
 		const {
 			pipeline: { i18n },
@@ -547,6 +553,7 @@ export class RenderContext {
 	}
 
 	#preferredLocaleList: APIContext['preferredLocaleList'];
+
 	computePreferredLocaleList() {
 		const {
 			pipeline: { i18n },

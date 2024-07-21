@@ -1,7 +1,6 @@
 import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
 import { Component as BaseComponent, type VNode, h } from 'preact';
-import { render } from 'preact-render-to-string';
-import prepass from 'preact-ssr-prepass';
+import { renderToStringAsync } from 'preact-render-to-string';
 import { getContext } from './context.js';
 import { restoreSignalsOnProps, serializeSignals } from './signals.js';
 import StaticHtml from './static-html.js';
@@ -89,8 +88,7 @@ async function renderToStaticMarkup(
 			: children
 	);
 
-	await prepass(vNode);
-	const html = render(vNode);
+	const html = await renderToStringAsync(vNode);
 	return { attrs, html };
 }
 

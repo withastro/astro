@@ -25,7 +25,6 @@ import envVitePlugin from '../vite-plugin-env/index.js';
 import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
 import astroHeadPlugin from '../vite-plugin-head/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
-import { astroInjectEnvTsPlugin } from '../vite-plugin-inject-env-ts/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
@@ -38,6 +37,7 @@ import type { Logger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
+import { vitePluginServerIslands } from './server-islands/vite-plugin-server-islands.js';
 import { isObject } from './util.js';
 
 interface CreateViteOptions {
@@ -120,13 +120,8 @@ export async function createVite(
 		customLogger: createViteLogger(logger, settings.config.vite.logLevel),
 		appType: 'custom',
 		optimizeDeps: {
-			// Scan all files within `srcDir` except for known server-code (e.g endpoints)
-			entries: [
-				`${srcDirPattern}!(pages)/**/*`, // All files except for pages
-				`${srcDirPattern}pages/**/!(*.js|*.mjs|*.ts|*.mts)`, // All pages except for endpoints
-				`${srcDirPattern}pages/**/_*.{js,mjs,ts,mts}`, // Remaining JS/TS files prefixed with `_` (not endpoints)
-				`${srcDirPattern}pages/**/_*/**/*.{js,mjs,ts,mts}`, // Remaining JS/TS files within directories prefixed with `_` (not endpoints)
-			],
+			// Scan for component code within `srcDir`
+			entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`],
 			exclude: ['astro', 'node-fetch'],
 		},
 		plugins: [
@@ -147,7 +142,6 @@ export async function createVite(
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPlugin(),
 			astroScannerPlugin({ settings, logger }),
-			astroInjectEnvTsPlugin({ settings, logger, fs }),
 			astroContentVirtualModPlugin({ fs, settings }),
 			astroContentImportPlugin({ fs, settings, logger }),
 			astroContentAssetPropagationPlugin({ mode, settings }),
@@ -159,6 +153,7 @@ export async function createVite(
 			astroDevToolbar({ settings, logger }),
 			vitePluginFileURL({}),
 			astroInternationalization({ settings }),
+			settings.config.experimental.serverIslands && vitePluginServerIslands({ settings }),
 			astroContainer(),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
