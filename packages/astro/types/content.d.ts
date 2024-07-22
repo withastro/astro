@@ -62,8 +62,8 @@ declare module 'astro:content' {
 		[key: string]: unknown;
 	}
 
-	type ContentCollectionV2Config<S extends BaseSchema> = {
-		type: 'experimental_data';
+	type ContentLayerConfig<S extends BaseSchema> = {
+		type: 'experimental_data' | 'experimental_content';
 		schema?: S | ((context: SchemaContext) => S);
 		loader:
 			| import('astro/loader/types').Loader
@@ -83,7 +83,7 @@ declare module 'astro:content' {
 	export type CollectionConfig<S extends BaseSchema> =
 		| ContentCollectionConfig<S>
 		| DataCollectionConfig<S>
-		| ContentCollectionV2Config<S>;
+		| ContentLayerConfig<S>;
 
 	export function defineCollection<S extends BaseSchema>(
 		input: CollectionConfig<S>

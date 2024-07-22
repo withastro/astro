@@ -45,11 +45,7 @@ type CollectionEntryMap = {
 				entries: Record<string, ContentEntryMetadata>;
 		  }
 		| {
-				type: 'data';
-				entries: Record<string, DataEntryMetadata>;
-		  }
-		| {
-				type: 'experimental_data';
+				type: 'data' | 'experimental_content' | 'experimental_data';
 				entries: Record<string, DataEntryMetadata>;
 		  };
 };
@@ -370,7 +366,7 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	}
 
 	if (
-		collection?.type === 'experimental_data' &&
+		(collection?.type === 'experimental_data' || collection?.type === 'experimental_content') &&
 		typeof collection.loader === 'object' &&
 		collection.loader.schema
 	) {
@@ -431,6 +427,7 @@ async function writeContentFiles({
 			collectionConfig?.type &&
 			collection.type !== 'unknown' &&
 			collectionConfig.type !== 'experimental_data' &&
+			collectionConfig.type !== 'experimental_content' &&
 			collection.type !== collectionConfig.type
 		) {
 			viteServer.hot.send({
@@ -453,7 +450,7 @@ async function writeContentFiles({
 			});
 			return;
 		}
-		const resolvedType: 'content' | 'data' | 'experimental_data' =
+		const resolvedType: 'content' | 'data' | 'experimental_data' | 'experimental_content' =
 			collection.type === 'unknown'
 				? // Add empty / unknown collections to the data type map by default
 					// This ensures `getCollection('empty-collection')` doesn't raise a type error
@@ -480,14 +477,19 @@ async function writeContentFiles({
 				}
 				contentTypesStr += `};\n`;
 				break;
-			case 'data':
 			case 'experimental_data':
+				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n}>;\n`;
+				break;
+			case 'experimental_content':
+				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  render(): ContentLayerRenderer;\n  rendered?: RenderedContent \n}>;\n`;
+				break;
+			case 'data':
 				if (collectionEntryKeys.length === 0) {
 					dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n}>;\n`;
 				} else {
 					dataTypesStr += `${collectionKey}: {\n`;
 					for (const entryKey of collectionEntryKeys) {
-						dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType};\n render(): Render[".md"];\n };\n`;
+						dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType}\n};\n`;
 					}
 					dataTypesStr += `};\n`;
 				}

@@ -6,6 +6,17 @@ declare module 'astro:content' {
 			remarkPluginFrontmatter: Record<string, any>;
 		}>;
 	}
+	interface ContentLayerRenderer {
+		Content: import('astro/runtime/server').AstroComponentFactory;
+	}
+
+	export interface RenderedContent {
+		html: string;
+		metadata?: {
+			imagePaths: Array<string>;
+			[key: string]: unknown;
+		};
+	}
 }
 
 declare module 'astro:content' {

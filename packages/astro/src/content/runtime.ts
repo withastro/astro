@@ -62,7 +62,7 @@ export function createGetCollection({
 }) {
 	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
 		const store = await globalDataStore.get();
-		let type: 'content' | 'data' | 'experimental_data';
+		let type: 'content' | 'data' | 'experimental_data' | 'experimental_content';
 		if (collection in contentCollectionToEntryMap) {
 			type = 'content';
 		} else if (collection in dataCollectionToEntryMap) {
