@@ -247,7 +247,7 @@ async function generatePage(
 			const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 			const timeIncrease = `(+${timeChange})`;
 			let timeIncreaseLabel;
-			if (Math.round(timeEnd - prevTimeEnd) > THRESHOLD_SLOW_RENDER_TIME_MS) {
+			if (timeEnd - prevTimeEnd > THRESHOLD_SLOW_RENDER_TIME_MS) {
 				timeIncreaseLabel = red(timeIncrease);
 			} else {
 				timeIncreaseLabel = dim(timeIncrease);
