@@ -7,7 +7,7 @@ import type { AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
 import { ASSET_IMPORTS_FILE, DATA_STORE_FILE } from './consts.js';
 import { DataStore, globalDataStore } from './data-store.js';
-import type { DataWithId, LoaderContext } from './loaders/types.js';
+import type { LoaderContext } from './loaders/types.js';
 import { getEntryDataAndImages, globalContentConfigObserver, posixRelative } from './utils.js';
 
 export interface SyncContentLayerOptions {
@@ -73,7 +73,7 @@ export async function syncContentLayer({
 					{
 						id,
 						collection: name,
-						unvalidatedData: data as DataWithId,
+						unvalidatedData: data,
 						_internal: {
 							rawData: undefined,
 							filePath,
@@ -130,8 +130,8 @@ export async function syncContentLayer({
 	logger.info('Synced content');
 }
 
-export async function simpleLoader(
-	handler: () => Array<DataWithId> | Promise<Array<DataWithId>>,
+export async function simpleLoader<TData extends { id: string }>(
+	handler: () => Array<TData> | Promise<Array<TData>>,
 	context: LoaderContext
 ) {
 	const data = await handler();
