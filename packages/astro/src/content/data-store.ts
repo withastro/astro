@@ -12,9 +12,9 @@ export interface RenderedContent {
 	};
 }
 
-export interface DataEntry {
+export interface DataEntry<TData extends Record<string, unknown> = Record<string, unknown>> {
 	id: string;
-	data: Record<string, unknown>;
+	data: TData;
 	filePath?: string;
 	body?: string;
 	digest?: number | string;
@@ -174,7 +174,8 @@ export default new Map([${exports.join(', ')}]);
 
 	scopedStore(collectionName: string): ScopedDataStore {
 		return {
-			get: (key: string) => this.get<DataEntry>(collectionName, key),
+			get: <TData extends Record<string, unknown> = Record<string, unknown>>(key: string) =>
+				this.get<DataEntry<TData>>(collectionName, key),
 			entries: () => this.entries(collectionName),
 			values: () => this.values(collectionName),
 			keys: () => this.keys(collectionName),
@@ -292,7 +293,9 @@ export default new Map([${exports.join(', ')}]);
 }
 
 export interface ScopedDataStore {
-	get: (key: string) => DataEntry | undefined;
+	get: <TData extends Record<string, unknown> = Record<string, unknown>>(
+		key: string
+	) => DataEntry<TData> | undefined;
 	entries: () => Array<[id: string, DataEntry]>;
 	/**
 	 * Adds a new entry to the store. If an entry with the same ID already exists,
@@ -306,9 +309,9 @@ export interface ScopedDataStore {
 	 * @param opts.rendered The rendered content, if applicable.
 	 * @returns `true` if the entry was added or updated, `false` if the entry was not changed. This will be the case if the provided digest matches the one in the store.
 	 */
-	set: (opts: {
+	set: <TData extends Record<string, unknown>>(opts: {
 		id: string;
-		data: Record<string, unknown>;
+		data: TData;
 		body?: string;
 		filePath?: string;
 		digest?: number | string;
