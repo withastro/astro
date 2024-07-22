@@ -60,6 +60,11 @@ export default function astroActions({
 	};
 }
 
+/**
+ * This plugin is responsible to load the known file `actions/index.js` / `actions.js`
+ * If the file doesn't exist, it returns an empty object.
+ * @param settings
+ */
 export function vitePluginUserActions({ settings }: { settings: AstroSettings }): VitePlugin {
 	let resolvedActionsId: string;
 	return {

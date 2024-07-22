@@ -5,7 +5,7 @@ import { callSafely } from './virtual/shared.js';
 
 export const POST: APIRoute = async (context) => {
 	const { request, url } = context;
-	const action = await getAction(url.pathname, import.meta.env.ACTIONS_PATH);
+	const action = await getAction(url.pathname);
 	if (!action) {
 		return new Response(null, { status: 404 });
 	}
