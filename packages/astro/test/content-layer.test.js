@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { promises as fs } from 'node:fs';
 import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
+import { after, before, describe, it } from 'node:test';
+import { loadFixture } from './test-utils.js';
 
 describe('Content Layer', () => {
 	/** @type {import("./test-utils.js").Fixture} */
@@ -16,7 +17,10 @@ describe('Content Layer', () => {
 		let json;
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/content-layer/' });
-			await fixture.build();
+			await fs
+				.unlink(new URL('./node_modules/.astro/data-store.json', fixture.config.root))
+				.catch(() => {});
+			await fixture.build({});
 			const rawJson = await fixture.readFile('/collections.json');
 			json = JSON.parse(rawJson);
 		});
@@ -74,12 +78,7 @@ describe('Content Layer', () => {
 
 		it('Returns data entry by id', async () => {
 			assert.ok(json.hasOwnProperty('dataEntry'));
-			assert.ok(
-				json.dataEntry.filePath
-					?.split(sep)
-					.join(posixSep)
-					.endsWith('packages/astro/test/fixtures/content-layer/src/data/dogs.json')
-			);
+			assert.equal(json.dataEntry.filePath?.split(sep).join(posixSep), 'src/data/dogs.json');
 			delete json.dataEntry.filePath;
 			assert.deepEqual(json.dataEntry, {
 				id: 'beagle',
@@ -111,6 +110,27 @@ describe('Content Layer', () => {
 					lifespan: '15 years',
 					temperament: ['Active', 'Affectionate', 'Social', 'Playful'],
 				},
+			});
+		});
+
+		it('transforms a reference id to a reference object', async () => {
+			assert.ok(json.hasOwnProperty('entryWithReference'));
+			assert.deepEqual(json.entryWithReference.data.cat, { collection: 'cats', id: 'tabby' });
+		});
+
+		it('returns a referenced entry', async () => {
+			assert.ok(json.hasOwnProperty('referencedEntry'));
+			assert.deepEqual(json.referencedEntry, {
+				collection: 'cats',
+				data: {
+					breed: 'Tabby',
+					id: 'tabby',
+					size: 'Medium',
+					origin: 'Egypt',
+					lifespan: '15 years',
+					temperament: ['Curious', 'Playful', 'Independent'],
+				},
+				id: 'tabby',
 			});
 		});
 	});
@@ -182,12 +202,7 @@ describe('Content Layer', () => {
 
 		it('Returns data entry by id', async () => {
 			assert.ok(json.hasOwnProperty('dataEntry'));
-			assert.ok(
-				json.dataEntry.filePath
-					?.split(sep)
-					.join(posixSep)
-					.endsWith('packages/astro/test/fixtures/content-layer/src/data/dogs.json')
-			);
+			assert.equal(json.dataEntry.filePath?.split(sep).join(posixSep), 'src/data/dogs.json');
 			delete json.dataEntry.filePath;
 			assert.deepEqual(json.dataEntry, {
 				id: 'beagle',

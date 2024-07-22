@@ -1468,6 +1468,19 @@ export const UnknownContentCollectionError = {
 	name: 'UnknownContentCollectionError',
 	title: 'Unknown Content Collection Error.',
 } satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Astro encountered an unexpected error when writing your content layer data to disk.
+ *
+ * If you can reliably cause this error to happen, we'd appreciate if you could [open an issue](https://astro.build/issues/)
+ */
+export const ContentLayerWriteError = {
+	name: 'ContentLayerWriteError',
+	title: 'Could not write content layer data.',
+} satisfies ErrorData;
+
 /**
  * @docs
  * @message

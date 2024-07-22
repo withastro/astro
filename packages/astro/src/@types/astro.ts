@@ -17,6 +17,7 @@ import type {
 	ActionInputSchema,
 } from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
+import type { DataEntry, RenderedContent } from '../content/data-store.js';
 import type { AssetsPrefix, SSRManifest, SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import type { AstroConfigType } from '../core/config/index.js';
@@ -2377,6 +2378,8 @@ export type DataEntryModule = {
 	};
 };
 
+export type ContentEntryRenderFuction = (entry: DataEntry) => Promise<RenderedContent>;
+
 export interface ContentEntryType {
 	extensions: string[];
 	getEntryInfo(params: {
@@ -2392,6 +2395,8 @@ export interface ContentEntryType {
 		}
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
+	getRenderFunction?(settings: AstroSettings): Promise<ContentEntryRenderFuction>;
+
 	/**
 	 * Handle asset propagation for rendered content to avoid bleed.
 	 * Ex. MDX content can import styles and scripts, so `handlePropagation` should be true.

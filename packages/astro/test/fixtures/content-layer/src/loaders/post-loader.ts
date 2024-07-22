@@ -26,8 +26,8 @@ export function loader(config:PostLoaderConfig): Loader {
 
 			store.clear();
 
-			for (const post of posts.slice(0, 10)) {
-				store.set(post.id, post);
+			for (const data of posts.slice(0, 10)) {
+				store.set({id: data.id, data});
 			}
 			meta.set('lastSynced', String(Date.now()));
 		},

@@ -1,13 +1,13 @@
-import { promises as fs } from 'fs';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { promises as fs } from 'node:fs';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import fastGlob from 'fast-glob';
 import { green } from 'kleur/colors';
 import micromatch from 'micromatch';
 import pLimit from 'p-limit';
-import { relative } from 'path/posix';
-import type { ContentEntryType } from '../../@types/astro.js';
-import { getContentEntryIdAndSlug, getEntryConfigByExtMap } from '../utils.js';
-import type { Loader, LoaderContext } from './types.js';
+import type { ContentEntryType, ContentEntryRenderFuction } from '../../@types/astro.js';
+import { getContentEntryIdAndSlug, getEntryConfigByExtMap, posixRelative } from '../utils.js';
+import type { Loader } from './types.js';
+import type { RenderedContent } from '../data-store.js';
 
 export interface GenerateIdOptions {
 	/** The path to the entry file, relative to the base directory. */
@@ -63,41 +63,105 @@ export function glob(globOptions: GlobOptions): Loader {
 
 	const fileToIdMap = new Map<string, string>();
 
-	async function syncData(
-		entry: string,
-		base: URL,
-		{ logger, parseData, store }: LoaderContext,
-		entryType?: ContentEntryType
-	) {
-		if (!entryType) {
-			logger.warn(`No entry type found for ${entry}`);
-			return;
-		}
-		const fileUrl = new URL(entry, base);
-		const { body, data } = await entryType.getEntryInfo({
-			contents: await fs.readFile(fileUrl, 'utf-8'),
-			fileUrl,
-		});
-
-		const id = generateId({ entry, base, data });
-
-		const filePath = fileURLToPath(fileUrl);
-
-		const parsedData = await parseData({
-			id,
-			data,
-			filePath,
-		});
-
-		store.set(id, parsedData, body, filePath);
-
-		fileToIdMap.set(filePath, id);
-	}
-
 	return {
 		name: 'glob-loader',
-		load: async (options) => {
-			const { settings, logger, watcher } = options;
+		load: async ({ settings, logger, watcher, parseData, store, generateDigest }) => {
+			const renderFunctionByContentType = new WeakMap<
+				ContentEntryType,
+				ContentEntryRenderFuction
+			>();
+
+			const untouchedEntries = new Set(store.keys());
+
+			async function syncData(entry: string, base: URL, entryType?: ContentEntryType) {
+				if (!entryType) {
+					logger.warn(`No entry type found for ${entry}`);
+					return;
+				}
+				const fileUrl = new URL(entry, base);
+				const contents = await fs.readFile(fileUrl, 'utf-8').catch((err) => {
+					logger.error(`Error reading ${entry}: ${err.message}`);
+					return;
+				});
+
+				if (!contents) {
+					logger.warn(`No contents found for ${entry}`);
+					return;
+				}
+
+				const { body, data } = await entryType.getEntryInfo({
+					contents,
+					fileUrl,
+				});
+
+				const id = generateId({ entry, base, data });
+				untouchedEntries.delete(id);
+
+				const existingEntry = store.get(id);
+
+				const digest = generateDigest(contents);
+
+				if (existingEntry && existingEntry.digest === digest && existingEntry.filePath) {
+					if (existingEntry.rendered?.metadata?.imagePaths?.length) {
+						// Add asset imports for existing entries
+						store.addAssetImports(
+							existingEntry.rendered.metadata.imagePaths,
+							existingEntry.filePath
+						);
+					}
+					// Re-parsing to resolve images and other effects
+					await parseData(existingEntry);
+					return;
+				}
+
+				const filePath = fileURLToPath(fileUrl);
+
+				const relativePath = posixRelative(fileURLToPath(settings.config.root), filePath);
+
+				const parsedData = await parseData({
+					id,
+					data,
+					filePath,
+				});
+
+				if (entryType.getRenderFunction) {
+					let render = renderFunctionByContentType.get(entryType);
+					if (!render) {
+						render = await entryType.getRenderFunction(settings);
+						// Cache the render function for this content type, so it can re-use parsers and other expensive setup
+						renderFunctionByContentType.set(entryType, render);
+					}
+					let rendered: RenderedContent | undefined = undefined;
+
+					try {
+						rendered = await render?.({
+							id,
+							data: parsedData,
+							body,
+							filePath,
+							digest,
+						});
+					} catch (error: any) {
+						logger.error(`Error rendering ${entry}: ${error.message}`);
+					}
+
+					store.set({
+						id,
+						data: parsedData,
+						body,
+						filePath: relativePath,
+						digest,
+						rendered,
+					});
+					if (rendered?.metadata?.imagePaths?.length) {
+						store.addAssetImports(rendered.metadata.imagePaths, relativePath);
+					}
+				} else {
+					store.set({ id, data: parsedData, body, filePath: relativePath, digest });
+				}
+
+				fileToIdMap.set(filePath, id);
+			}
 
 			const entryConfigByExt = getEntryConfigByExtMap([
 				...settings.contentEntryTypes,
@@ -126,15 +190,16 @@ export function glob(globOptions: GlobOptions): Loader {
 			}
 
 			const limit = pLimit(10);
-			options.store.clear();
 			await Promise.all(
 				files.map((entry) =>
 					limit(async () => {
 						const entryType = configForFile(entry);
-						await syncData(entry, baseDir, options, entryType);
+						await syncData(entry, baseDir, entryType);
 					})
 				)
 			);
+			// Remove entries that were not found this time
+			untouchedEntries.forEach((id) => store.delete(id));
 
 			if (!watcher) {
 				return;
@@ -147,13 +212,13 @@ export function glob(globOptions: GlobOptions): Loader {
 			const basePath = fileURLToPath(baseDir);
 
 			async function onChange(changedPath: string) {
-				const entry = relative(basePath, changedPath);
+				const entry = posixRelative(basePath, changedPath);
 				if (!matchesGlob(entry)) {
 					return;
 				}
 				const entryType = configForFile(changedPath);
 				const baseUrl = pathToFileURL(basePath);
-				await syncData(entry, baseUrl, options, entryType);
+				await syncData(entry, baseUrl, entryType);
 				logger.info(`Reloaded data from ${green(entry)}`);
 			}
 			watcher.on('change', onChange);
@@ -161,13 +226,13 @@ export function glob(globOptions: GlobOptions): Loader {
 			watcher.on('add', onChange);
 
 			watcher.on('unlink', async (deletedPath) => {
-				const entry = relative(basePath, deletedPath);
+				const entry = posixRelative(basePath, deletedPath);
 				if (!matchesGlob(entry)) {
 					return;
 				}
 				const id = fileToIdMap.get(deletedPath);
 				if (id) {
-					options.store.delete(id);
+					store.delete(id);
 					fileToIdMap.delete(deletedPath);
 				}
 			});

@@ -1,6 +1,9 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import { Traverse } from 'neotraverse/modern';
 import pLimit from 'p-limit';
-import { ZodIssueCode, string as zodString } from 'zod';
+import { ZodIssueCode, z } from 'zod';
+import type { GetImageResult, ImageMetadata } from '../@types/astro.js';
+import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 import {
@@ -11,8 +14,10 @@ import {
 	renderScriptElement,
 	renderTemplate,
 	renderUniqueStylesheet,
+	render as serverRender,
 	unescapeHTML,
 } from '../runtime/server/index.js';
+import { IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
 type LazyImport = () => Promise<any>;
@@ -63,10 +68,22 @@ export function createGetCollection({
 		} else if (collection in dataCollectionToEntryMap) {
 			type = 'data';
 		} else if (store.hasCollection(collection)) {
-			return [...store.values<DataEntry>(collection)].map((entry) => ({
-				...entry,
-				collection,
-			}));
+			// @ts-expect-error	virtual module
+			const { default: imageAssetMap } = await import('astro:asset-imports');
+
+			const result = [];
+			for (const entry of store.values<DataEntry>(collection)) {
+				const data = entry.filePath
+					? updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap)
+					: entry.data;
+				result.push({
+					...entry,
+					data,
+					collection,
+					render: () => renderEntry(entry),
+				});
+			}
+			return result;
 		} else {
 			// eslint-disable-next-line no-console
 			console.warn(
@@ -130,9 +147,11 @@ export function createGetCollection({
 export function createGetEntryBySlug({
 	getEntryImport,
 	getRenderEntryImport,
+	collectionNames,
 }: {
 	getEntryImport: GetEntryImport;
 	getRenderEntryImport: GetEntryImport;
+	collectionNames: Set<string>;
 }) {
 	return async function getEntryBySlug(collection: string, slug: string) {
 		const store = await globalDataStore.get();
@@ -148,7 +167,13 @@ export function createGetEntryBySlug({
 			return {
 				...entry,
 				collection,
+				render: () => renderEntry(entry),
 			};
+		}
+		if (!collectionNames.has(collection)) {
+			// eslint-disable-next-line no-console
+			console.warn(`The collection ${JSON.stringify(collection)} does not exist.`);
+			return undefined;
 		}
 
 		const entryImport = await getEntryImport(collection, slug);
@@ -173,7 +198,10 @@ export function createGetEntryBySlug({
 	};
 }
 
-export function createGetDataEntryById({ getEntryImport }: { getEntryImport: GetEntryImport }) {
+export function createGetDataEntryById({
+	getEntryImport,
+	collectionNames,
+}: { getEntryImport: GetEntryImport; collectionNames: Set<string> }) {
 	return async function getDataEntryById(collection: string, id: string) {
 		const store = await globalDataStore.get();
 
@@ -189,6 +217,11 @@ export function createGetDataEntryById({ getEntryImport }: { getEntryImport: Get
 				...entry,
 				collection,
 			};
+		}
+		if (!collectionNames.has(collection)) {
+			// eslint-disable-next-line no-console
+			console.warn(`The collection ${JSON.stringify(collection)} does not exist.`);
+			return undefined;
 		}
 
 		const lazyImport = await getEntryImport(collection, id);
@@ -225,9 +258,11 @@ type EntryLookupObject = { collection: string; id: string } | { collection: stri
 export function createGetEntry({
 	getEntryImport,
 	getRenderEntryImport,
+	collectionNames,
 }: {
 	getEntryImport: GetEntryImport;
 	getRenderEntryImport: GetEntryImport;
+	collectionNames: Set<string>;
 }) {
 	return async function getEntry(
 		// Can either pass collection and identifier as 2 positional args,
@@ -257,17 +292,29 @@ export function createGetEntry({
 		const store = await globalDataStore.get();
 
 		if (store.hasCollection(collection)) {
-			const data = store.get(collection, lookupId);
-			if (!data) {
-				throw new Error(`Entry ${collection} → ${lookupId} was not found.`);
+			const entry = store.get<DataEntry>(collection, lookupId);
+			if (!entry) {
+				// eslint-disable-next-line no-console
+				console.warn(`Entry ${collection} → ${lookupId} was not found.`);
+				return;
 			}
 
-			const entry = store.get<DataEntry>(collection, lookupId);
-
+			if (entry.filePath) {
+				// @ts-expect-error	virtual module
+				const { default: imageAssetMap } = await import('astro:asset-imports');
+				entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
+			}
 			return {
 				...entry,
 				collection,
+				render: () => renderEntry(entry),
 			} as DataEntryResult | ContentEntryResult;
+		}
+
+		if (!collectionNames.has(collection)) {
+			// eslint-disable-next-line no-console
+			console.warn(`The collection ${JSON.stringify(collection)} does not exist.`);
+			return undefined;
 		}
 
 		const entryImport = await getEntryImport(collection, lookupId);
@@ -314,6 +361,87 @@ type RenderResult = {
 	headings: MarkdownHeading[];
 	remarkPluginFrontmatter: Record<string, any>;
 };
+
+const CONTENT_LAYER_IMAGE_REGEX = /__ASTRO_IMAGE_="([^"]+)"/g;
+
+async function updateImageReferencesInBody(html: string, fileName: string) {
+	// @ts-expect-error Virtual module
+	const { default: imageAssetMap } = await import('astro:asset-imports');
+
+	const imageObjects = new Map<string, GetImageResult>();
+
+	// @ts-expect-error Virtual module resolved at runtime
+	const { getImage } = await import('astro:assets');
+
+	// First load all the images. This is done outside of the replaceAll
+	// function because getImage is async.
+	for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
+		try {
+			const decodedImagePath = JSON.parse(imagePath.replaceAll('&#x22;', '"'));
+			const id = imageSrcToImportId(decodedImagePath.src, fileName);
+
+			const imported = imageAssetMap.get(id);
+			if (!id || imageObjects.has(id) || !imported) {
+				continue;
+			}
+			const image: GetImageResult = await getImage({ ...decodedImagePath, src: imported });
+			imageObjects.set(imagePath, image);
+		} catch (e) {
+			throw new Error(`Failed to parse image reference: ${imagePath}`);
+		}
+	}
+
+	return html.replaceAll(CONTENT_LAYER_IMAGE_REGEX, (full, imagePath) => {
+		const image = imageObjects.get(imagePath);
+
+		if (!image) {
+			return full;
+		}
+
+		const { index, ...attributes } = image.attributes;
+
+		return Object.entries({
+			...attributes,
+			src: image.src,
+			srcset: image.srcSet.attribute,
+		})
+			.map(([key, value]) => (value ? `${key}=${JSON.stringify(String(value))}` : ''))
+			.join(' ');
+	});
+}
+
+function updateImageReferencesInData<T extends Record<string, unknown>>(
+	data: T,
+	fileName: string,
+	imageAssetMap: Map<string, ImageMetadata>
+): T {
+	return new Traverse(data).map(function (ctx, val) {
+		if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
+			const src = val.replace(IMAGE_IMPORT_PREFIX, '');
+			const id = imageSrcToImportId(src, fileName);
+			if (!id) {
+				ctx.update(src);
+				return;
+			}
+			const imported = imageAssetMap.get(id);
+			if (imported) {
+				ctx.update(imported);
+			} else {
+				ctx.update(src);
+			}
+		}
+	});
+}
+
+async function renderEntry(entry?: DataEntry) {
+	const html =
+		entry?.rendered?.metadata?.imagePaths?.length && entry.filePath
+			? await updateImageReferencesInBody(entry.rendered.html, entry.filePath)
+			: entry?.rendered?.html;
+
+	const Content = createComponent(() => serverRender`${unescapeHTML(html)}`);
+	return { Content };
+}
 
 async function render({
 	collection,
@@ -411,36 +539,92 @@ async function render({
 
 export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) {
 	return function reference(collection: string) {
-		return zodString().transform((lookupId: string, ctx) => {
-			const flattenedErrorPath = ctx.path.join('.');
-			if (!lookupMap[collection]) {
-				ctx.addIssue({
-					code: ZodIssueCode.custom,
-					message: `**${flattenedErrorPath}:** Reference to ${collection} invalid. Collection does not exist or is empty.`,
-				});
-				return;
-			}
+		return z
+			.union([
+				z.string(),
+				z.object({
+					id: z.string(),
+					collection: z.string(),
+				}),
+				z.object({
+					slug: z.string(),
+					collection: z.string(),
+				}),
+			])
+			.transform(
+				async (
+					lookup:
+						| string
+						| { id: string; collection: string }
+						| { slug: string; collection: string },
+					ctx
+				) => {
+					const flattenedErrorPath = ctx.path.join('.');
+					const store = await globalDataStore.get();
+					const collectionIsInStore = store.hasCollection(collection);
 
-			const { type, entries } = lookupMap[collection];
-			const entry = entries[lookupId];
+					if (typeof lookup === 'object') {
+						// If these don't match then something is wrong with the reference
+						if (lookup.collection !== collection) {
+							ctx.addIssue({
+								code: ZodIssueCode.custom,
+								message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${collection}. Received ${lookup.collection}.`,
+							});
+							return;
+						}
 
-			if (!entry) {
-				ctx.addIssue({
-					code: ZodIssueCode.custom,
-					message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${Object.keys(
-						entries
-					)
-						.map((c) => JSON.stringify(c))
-						.join(' | ')}. Received ${JSON.stringify(lookupId)}.`,
-				});
-				return;
-			}
-			// Content is still identified by slugs, so map to a `slug` key for consistency.
-			if (type === 'content') {
-				return { slug: lookupId, collection };
-			}
-			return { id: lookupId, collection };
-		});
+						// A reference object might refer to an invalid collection, because when we convert it we don't have access to the store.
+						// If it is an object then we're validating later in the pipeline, so we can check the collection at that point.
+						if (!lookupMap[collection] && !collectionIsInStore) {
+							ctx.addIssue({
+								code: ZodIssueCode.custom,
+								message: `**${flattenedErrorPath}:** Reference to ${collection} invalid. Collection does not exist or is empty.`,
+							});
+							return;
+						}
+						return lookup;
+					}
+
+					if (collectionIsInStore) {
+						const entry = store.get(collection, lookup);
+						if (!entry) {
+							ctx.addIssue({
+								code: ZodIssueCode.custom,
+								message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Entry ${lookup} does not exist.`,
+							});
+							return;
+						}
+						return { id: lookup, collection };
+					}
+
+					if (!lookupMap[collection] && store.collections().size === 0) {
+						// If the collection is not in the lookup map or store, it may be a content layer collection and the store may not yet be populated.
+						// For now, we can't validate this reference, so we'll optimistically convert it to a reference object which we'll validate
+						// later in the pipeline when we do have access to the store.
+						return { id: lookup, collection };
+					}
+
+					const { type, entries } = lookupMap[collection];
+					const entry = entries[lookup];
+
+					if (!entry) {
+						ctx.addIssue({
+							code: ZodIssueCode.custom,
+							message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${Object.keys(
+								entries
+							)
+								.map((c) => JSON.stringify(c))
+								.join(' | ')}. Received ${JSON.stringify(lookup)}.`,
+						});
+						return;
+					}
+					// Content is still identified by slugs, so map to a `slug` key for consistency.
+					if (type === 'content') {
+						return { slug: lookup, collection };
+					}
+					return { id: lookup, collection };
+				}
+			);
 	};
 }
 

@@ -3,13 +3,20 @@ title: Columbia
 description: 'Learn about the Columbia NASA space shuttle.'
 publishedDate: 'Sat May 21 2022 00:00:00 GMT-0400 (Eastern Daylight Time)'
 tags: [space, 90s]
+heroImage: "@images/launch.webp"
 ---
 
 **Source:** [Wikipedia](https://en.wikipedia.org/wiki/Space_Shuttle_Endeavour)
 
-Space Shuttle Endeavour (Orbiter Vehicle Designation: OV-105) is a retired orbiter from NASA's Space Shuttle program and the fifth and final operational Shuttle built. It embarked on its first mission, STS-49, in May 1992 and its 25th and final mission, STS-134, in May 2011. STS-134 was expected to be the final mission of the Space Shuttle program, but with the authorization of STS-135, Atlantis became the last shuttle to fly.
+![columbia bare](shuttle.jpg)
+![columbia relative](./shuttle.jpg)
+![atlantis alias](@images/atlantis.avif)
+![columbia relative 2](./shuttle.jpg)
 
-The United States Congress approved the construction of Endeavour in 1987 to replace the Space Shuttle Challenger, which was destroyed in 1986.
+## Columbia
 
-NASA chose, on cost grounds, to build much of Endeavour from spare parts rather than refitting the Space Shuttle Enterprise, and used structural spares built during the construction of Discovery and Atlantis in its assembly.
-Space Shuttle Endeavour (Orbiter Vehicle Designation: OV-105) is a retired orbiter from NASA's Space Shuttle program and the fifth and final operational Shuttle built. It embarked on its first mission, STS-49, in May 1992 and its 25th and final mission, STS-134, in May 2011. STS-134 was expected to be the final mission of the Space Shuttle program, but with the authorization of STS-135, Atlantis became the last shuttle to fly.
+Space Shuttle Columbia (Orbiter Vehicle Designation: OV-102) was the first space-rated orbiter in NASA's Space Shuttle fleet. It launched for the first time on mission STS-1 on April 12, 1981, the first flight of the Space Shuttle program. Over 22 years of service, it completed 27 missions before disintegrating during re-entry near the end of its 28th mission, STS-107 on February 1, 2003, resulting in the deaths of all seven crew members.
+
+Columbia was named after the American sloop Columbia Rediviva which, from 1787 to 1793, under the command of Captain Robert Gray, explored the US Pacific Northwest and became the first American vessel to circumnavigate the globe. It is also named after the Command Module of Apollo 11, the first crewed landing on another celestial body. Columbia
+
+Columbia was the first space shuttle to reach space, on mission STS-1. It was also the first space shuttle to be launched more than once, with a total of 28 missions flown over 22 years. In 2003, Columbia was destroyed as it re-entered Earth's atmosphere, killing all seven crew members. The disaster led to the grounding of the space shuttle fleet for over two years, and the eventual retirement of the remaining orbiters.

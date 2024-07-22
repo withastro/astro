@@ -487,7 +487,7 @@ async function writeContentFiles({
 				} else {
 					dataTypesStr += `${collectionKey}: {\n`;
 					for (const entryKey of collectionEntryKeys) {
-						dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType}\n};\n`;
+						dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType};\n render(): Render[".md"];\n };\n`;
 					}
 					dataTypesStr += `};\n`;
 				}

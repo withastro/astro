@@ -1,4 +1,4 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection, z, reference } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 import { loader } from '../loaders/post-loader.js';
 import { fileURLToPath } from 'node:url';
@@ -75,7 +75,15 @@ const absoluteRoot = new URL('../../content-outside-src', import.meta.url);
 
 const spacecraft = defineCollection({
 	type: 'experimental_data',
-	loader: glob({ pattern: '*', base: absoluteRoot }),
+	loader: glob({ pattern: '*.md', base: absoluteRoot }),
+	schema: ({ image }) => z.object({
+		title: z.string(),
+		description: z.string(),
+		publishedDate: z.string(),
+		tags: z.array(z.string()),
+		heroImage: image().optional(),
+		cat: reference('cats').optional(),
+	}),
 });
 
 const numbers = defineCollection({

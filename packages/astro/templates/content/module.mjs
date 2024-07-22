@@ -33,6 +33,8 @@ const collectionToEntryMap = createCollectionToGlobResultMap({
 let lookupMap = {};
 /* @@LOOKUP_MAP_ASSIGNMENT@@ */
 
+const collectionNames = new Set(Object.keys(lookupMap));
+
 function createGlobLookup(glob) {
 	return async (collection, lookupId) => {
 		const filePath = lookupMap[collection]?.entries[lookupId];
@@ -59,15 +61,18 @@ export const getCollection = createGetCollection({
 export const getEntryBySlug = createGetEntryBySlug({
 	getEntryImport: createGlobLookup(contentCollectionToEntryMap),
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
+	collectionNames,
 });
 
 export const getDataEntryById = createGetDataEntryById({
 	getEntryImport: createGlobLookup(dataCollectionToEntryMap),
+	collectionNames,
 });
 
 export const getEntry = createGetEntry({
 	getEntryImport: createGlobLookup(collectionToEntryMap),
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
+	collectionNames,
 });
 
 export const getEntries = createGetEntries(getEntry);

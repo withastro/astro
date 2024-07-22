@@ -108,6 +108,9 @@ importers:
       pretty-bytes:
         specifier: ^6.1.1
         version: 6.1.1
+      sharp:
+        specifier: ^0.33.3
+        version: 0.33.3
 
   benchmark/packages/timer:
     dependencies:
@@ -699,6 +702,9 @@ importers:
       mrmime:
         specifier: ^2.0.0
         version: 2.0.0
+      neotraverse:
+        specifier: ^0.6.9
+        version: 0.6.9
       ora:
         specifier: ^8.0.1
         version: 8.0.1
@@ -750,6 +756,9 @@ importers:
       which-pm:
         specifier: ^3.0.0
         version: 3.0.0
+      xxhash-wasm:
+        specifier: ^1.0.2
+        version: 1.0.2
       yargs-parser:
         specifier: ^21.1.1
         version: 21.1.1
@@ -9964,6 +9973,10 @@ packages:
     resolution: {integrity: sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==}
     engines: {node: '>= 0.6'}
 
+  neotraverse@0.6.9:
+    resolution: {integrity: sha512-IJ00Agk9rMj4ChQwT/nWhLG/vC7PgNAk+BEKOE0DU5ToOHrmv3wefk8+2TcPDb4TRTQNpq0TIaDlaqvmrTAbrw==}
+    engines: {node: '>= 18'}
+
   nlcst-to-string@4.0.0:
     resolution: {integrity: sha512-YKLBCcUYKAg0FNlOBT6aI91qFmSiFKiluk655WzPF+DDMA02qIyy8uiRqI8QXtcFpEvll12LpL5MXqEmAZ+dcA==}
 
@@ -11824,6 +11837,9 @@ packages:
     resolution: {integrity: sha512-f9s+fUkX04BxQf+7mMWAp5zk61pciie+fFLC9hX9UVvCeJQfNHRHXpeo5MPcR0EUf57PYLdt+ZO4f3Ipk2oZUw==}
     engines: {node: '>=0.1'}
 
+  xxhash-wasm@1.0.2:
+    resolution: {integrity: sha512-ibF0Or+FivM9lNrg+HGJfVX8WJqgo+kCLDc4vx6xMeTce7Aj+DLttKbxxRR/gNLSAelRc1omAPlJ77N/Jem07A==}
+
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
     engines: {node: '>=10'}
@@ -12225,7 +12241,7 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.24.7
       '@babel/parser': 7.24.8
-      '@babel/types': 7.24.7
+      '@babel/types': 7.24.9
 
   '@babel/traverse@7.24.7':
     dependencies:
@@ -16486,6 +16502,8 @@ snapshots:
 
   negotiator@0.6.3: {}
 
+  neotraverse@0.6.9: {}
+
   nlcst-to-string@4.0.0:
     dependencies:
       '@types/nlcst': 2.0.3
@@ -18549,6 +18567,8 @@ snapshots:
   xmlchars@2.2.0: {}
 
   xmldom-sre@0.1.31: {}
+
+  xxhash-wasm@1.0.2: {}
 
   y18n@5.0.8: {}
 
