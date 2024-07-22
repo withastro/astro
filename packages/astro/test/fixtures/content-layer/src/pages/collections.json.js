@@ -4,9 +4,12 @@ export async function GET() {
 	const customLoader = (await getCollection('blog')).slice(0, 10);
 	const fileLoader = await getCollection('dogs');
 
-	const dataEntry= await getEntry('dogs', 'beagle');
+	const dataEntry = await getEntry('dogs', 'beagle');
 
 	const simpleLoader = await getCollection('cats');
 
-	return Response.json({ customLoader, fileLoader, dataEntry, simpleLoader })
+	const entryWithReference = await getEntry('spacecraft', 'columbia-copy')
+	const referencedEntry = await getEntry(entryWithReference.data.cat)
+
+	return Response.json({ customLoader, fileLoader, dataEntry, simpleLoader, entryWithReference, referencedEntry });
 }
