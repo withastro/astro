@@ -24,7 +24,7 @@ test.describe('Server islands', () => {
 		});
 
 		test('Can be in an MDX file', async ({ page, astro }) => {
-			await page.goto(astro.resolveUrl('/mdx'));
+			await page.goto(astro.resolveUrl('/mdx/'));
 			let el = page.locator('#island');
 
 			await expect(el, 'element rendered').toBeVisible();
