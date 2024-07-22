@@ -21,6 +21,7 @@ import { mergeConfig } from '../core/config/index.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../core/util.js';
 import { validateSupportedFeatures } from './features-validation.js';
+import { vitePluginUserActions } from '../actions/index.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -119,7 +120,7 @@ export async function runHookConfigSetup({
 	}
 	if (settings.config.experimental?.actions) {
 		const { default: actionsIntegration } = await import('../actions/index.js');
-		settings.config.integrations.push(actionsIntegration({ fs }));
+		settings.config.integrations.push(actionsIntegration({ fs, settings }));
 	}
 
 	let updatedConfig: AstroConfig = { ...settings.config };
@@ -230,9 +231,11 @@ export async function runHookConfigSetup({
 				const exts = (input.flat(Infinity) as string[]).map((ext) => `.${ext.replace(/^\./, '')}`);
 				updatedSettings.pageExtensions.push(...exts);
 			}
+
 			function addContentEntryType(contentEntryType: ContentEntryType) {
 				updatedSettings.contentEntryTypes.push(contentEntryType);
 			}
+
 			function addDataEntryType(dataEntryType: DataEntryType) {
 				updatedSettings.dataEntryTypes.push(dataEntryType);
 			}

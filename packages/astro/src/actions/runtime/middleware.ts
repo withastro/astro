@@ -43,7 +43,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	const actionPath = formData.get('_astroAction');
 	if (typeof actionPath !== 'string') return nextWithLocalsStub(next, context);
 
-	const action = await getAction(actionPath);
+	const action = await getAction(actionPath, import.meta.env.ACTIONS_PATH);
 	if (!action) return nextWithLocalsStub(next, context);
 
 	const result = await ApiContextStorage.run(context, () => callSafely(() => action(formData)));

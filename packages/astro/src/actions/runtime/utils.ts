@@ -16,10 +16,13 @@ export type MaybePromise<T> = T | Promise<T>;
  * the user's `src/actions/index.ts` file at build-time.
  */
 export async function getAction(
-	path: string
+	path: string,
+	actionsPath: string
 ): Promise<((param: unknown) => MaybePromise<unknown>) | undefined> {
 	const pathKeys = path.replace('/_actions/', '').split('.');
-	let { server: actionLookup } = await import(import.meta.env.ACTIONS_PATH);
+	// @ts-expect-error virtual module
+	let { server: actionLookup } = await import('astro:internal-actions');
+
 	for (const key of pathKeys) {
 		if (!(key in actionLookup)) {
 			return undefined;
