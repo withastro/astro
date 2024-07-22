@@ -7,7 +7,7 @@ declare module 'astro:content' {
 		}>;
 	}
 	interface ContentLayerRenderer {
-		Content: import('astro/runtime/server').AstroComponentFactory;
+		Content: import('astro/runtime/server/index.js').AstroComponentFactory;
 	}
 
 	export interface RenderedContent {
