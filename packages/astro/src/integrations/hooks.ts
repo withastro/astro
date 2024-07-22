@@ -21,7 +21,6 @@ import { mergeConfig } from '../core/config/index.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../core/util.js';
 import { validateSupportedFeatures } from './features-validation.js';
-import { vitePluginUserActions } from '../actions/index.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,

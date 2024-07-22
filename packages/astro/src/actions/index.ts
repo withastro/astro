@@ -75,7 +75,7 @@ export function vitePluginUserActions({ settings }: { settings: AstroSettings })
 			}
 			if (id === VIRTUAL_INTERNAL_MODULE_ID) {
 				const resolvedModule = await this.resolve(
-					`${decodeURI(settings.config.srcDir.pathname)}actions`
+					`${decodeURI(new URL('actions', settings.config.srcDir).pathname)}`
 				);
 
 				if (!resolvedModule) {
