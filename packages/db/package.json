@@ -74,7 +74,7 @@
     "async-listen": "^3.0.1",
     "ci-info": "^4.0.0",
     "deep-diff": "^1.0.2",
-    "drizzle-orm": "^0.32.0",
+    "drizzle-orm": "^0.31.2",
     "github-slugger": "^2.0.0",
     "kleur": "^4.1.5",
     "nanoid": "^5.0.7",
