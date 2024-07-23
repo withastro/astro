@@ -42,7 +42,10 @@ const statusToCodeMap: Record<number, ActionErrorCode> = Object.entries(codeToSt
 
 export type ErrorInferenceObject = Record<string, any>;
 
-export class ActionError extends Error {
+// T is used for error inference with SafeInput -> isInputError.
+// See: https://github.com/withastro/astro/pull/11173/files#r1622767246
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> extends Error {
 	type = 'AstroActionError';
 	code: ActionErrorCode = 'INTERNAL_SERVER_ERROR';
 	status = 500;
@@ -89,14 +92,14 @@ export function isInputError<T extends ErrorInferenceObject>(
 	return error instanceof ActionInputError;
 }
 
-export type SafeResult<TOutput> =
+export type SafeResult<TInput extends ErrorInferenceObject, TOutput> =
 	| {
 			data: TOutput;
 			error: undefined;
 	  }
 	| {
 			data: undefined;
-			error: ActionError;
+			error: ActionError<TInput>;
 	  };
 
 export class ActionInputError<T extends ErrorInferenceObject> extends ActionError {
@@ -128,7 +131,7 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 
 export async function callSafely<TOutput>(
 	handler: () => MaybePromise<TOutput>
-): Promise<SafeResult<TOutput>> {
+): Promise<SafeResult<z.ZodType, TOutput>> {
 	try {
 		const data = await handler();
 		return { data, error: undefined };
