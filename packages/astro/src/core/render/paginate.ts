@@ -56,6 +56,19 @@ export function generatePaginateFunction(
 									!includesFirstPageNumber && pageNum - 1 === 1 ? undefined : String(pageNum - 1),
 							})
 						);
+			const first =
+				pageNum === 1
+					? undefined
+					: correctIndexRoute(
+							routeMatch.generate({
+								...params,
+								page: includesFirstPageNumber ? '1' : undefined,
+							})
+						);
+			const last =
+				pageNum === lastPage
+					? undefined
+					: correctIndexRoute(routeMatch.generate({ ...params, page: String(lastPage) }));
 			return {
 				params,
 				props: {
@@ -68,7 +81,7 @@ export function generatePaginateFunction(
 						total: data.length,
 						currentPage: pageNum,
 						lastPage: lastPage,
-						url: { current, next, prev },
+						url: { current, next, prev, first, last },
 					} as Page,
 				},
 			};

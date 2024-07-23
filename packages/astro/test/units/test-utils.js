@@ -188,7 +188,9 @@ export function createBasicPipeline(options = {}) {
 	const mode = options.mode ?? 'development';
 	const pipeline = new Pipeline(
 		options.logger ?? defaultLogger,
-		options.manifest ?? {},
+		options.manifest ?? {
+			hrefRoot: import.meta.url,
+		},
 		options.mode ?? 'development',
 		options.renderers ?? [],
 		options.resolve ?? ((s) => Promise.resolve(s)),

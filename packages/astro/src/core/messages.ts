@@ -36,16 +36,19 @@ export function req({
 	method,
 	statusCode,
 	reqTime,
+	isRewrite,
 }: {
 	url: string;
 	statusCode: number;
 	method?: string;
 	reqTime?: number;
+	isRewrite?: boolean;
 }): string {
 	const color = statusCode >= 500 ? red : statusCode >= 300 ? yellow : blue;
 	return (
 		color(`[${statusCode}]`) +
 		` ` +
+		`${isRewrite ? color('(rewrite) ') : ''}` +
 		(method && method !== 'GET' ? color(method) + ' ' : '') +
 		url +
 		` ` +
@@ -240,6 +243,7 @@ export function formatConfigErrorMessage(err: ZodError) {
 // a regex to match the first line of a stack trace
 const STACK_LINE_REGEXP = /^\s+at /g;
 const IRRELEVANT_STACK_REGEXP = /node_modules|astro[/\\]dist/g;
+
 function formatErrorStackTrace(
 	err: Error | ErrorWithMetadata,
 	showFullStacktrace: boolean
@@ -364,6 +368,7 @@ export function printHelp({
 		function calculateTablePadding(rows: [string, string][]) {
 			return rows.reduce((val, [first]) => Math.max(val, first.length), 0) + 2;
 		}
+
 		const tableEntries = Object.entries(tables);
 		const padding = Math.max(...tableEntries.map(([, rows]) => calculateTablePadding(rows)));
 		for (const [tableTitle, tableRows] of tableEntries) {

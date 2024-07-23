@@ -23,6 +23,14 @@ export const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
 export const REROUTE_DIRECTIVE_HEADER = 'X-Astro-Reroute';
 
 /**
+ * Header and value that are attached to a Response object when a **user rewrite** occurs.
+ *
+ * This metadata is used to determine the origin of a Response. If a rewrite has occurred, it should be prioritised over other logic.
+ */
+export const REWRITE_DIRECTIVE_HEADER_KEY = 'X-Astro-Rewrite';
+export const REWRITE_DIRECTIVE_HEADER_VALUE = 'yes';
+
+/**
  * The name for the header used to help i18n middleware, which only needs to act on "page" and "fallback" route types.
  */
 export const ROUTE_TYPE_HEADER = 'X-Astro-Route-Type';

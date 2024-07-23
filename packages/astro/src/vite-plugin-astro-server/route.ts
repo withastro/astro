@@ -3,6 +3,7 @@ import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro
 import {
 	DEFAULT_404_COMPONENT,
 	REROUTE_DIRECTIVE_HEADER,
+	REWRITE_DIRECTIVE_HEADER_KEY,
 	clientLocalsSymbol,
 } from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
@@ -11,7 +12,6 @@ import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import { RenderContext } from '../core/render-context.js';
 import { type SSROptions, getProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
-import { default404Page } from '../core/routing/astro-designed-error-pages.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import type { DevPipeline } from './pipeline.js';
@@ -105,19 +105,6 @@ export async function matchRoute(
 
 	const custom404 = getCustom404Route(manifestData);
 
-	if (custom404 && custom404.component === DEFAULT_404_COMPONENT) {
-		const component: ComponentInstance = {
-			default: default404Page,
-		};
-		return {
-			route: custom404,
-			filePath: new URL(`file://${custom404.component}`),
-			resolvedPathname: pathname,
-			preloadedComponent: component,
-			mod: component,
-		};
-	}
-
 	if (custom404) {
 		const filePath = new URL(`./${custom404.component}`, config.root);
 		const preloadedComponent = await pipeline.preload(custom404, filePath);
@@ -143,7 +130,7 @@ type HandleRoute = {
 	manifestData: ManifestData;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
-	status?: 404 | 500;
+	status?: 404 | 500 | 200;
 	pipeline: DevPipeline;
 };
 
@@ -218,8 +205,12 @@ export async function handleRoute({
 	});
 
 	let response;
+	let isReroute = false;
+	let isRewrite = false;
 	try {
 		response = await renderContext.render(mod);
+		isReroute = response.headers.has(REROUTE_DIRECTIVE_HEADER);
+		isRewrite = response.headers.has(REWRITE_DIRECTIVE_HEADER_KEY);
 	} catch (err: any) {
 		const custom500 = getCustom500Route(manifestData);
 		if (!custom500) {
@@ -241,7 +232,8 @@ export async function handleRoute({
 			req({
 				url: pathname,
 				method: incomingRequest.method,
-				statusCode: status ?? response.status,
+				statusCode: isRewrite ? response.status : status ?? response.status,
+				isRewrite,
 				reqTime: timeEnd - timeStart,
 			})
 		);
@@ -264,7 +256,10 @@ export async function handleRoute({
 	}
 
 	// We remove the internally-used header before we send the response to the user agent.
-	if (response.headers.has(REROUTE_DIRECTIVE_HEADER)) {
+	if (isReroute) {
+		response.headers.delete(REROUTE_DIRECTIVE_HEADER);
+	}
+	if (isRewrite) {
 		response.headers.delete(REROUTE_DIRECTIVE_HEADER);
 	}
 
@@ -272,6 +267,14 @@ export async function handleRoute({
 		await writeWebResponse(incomingResponse, response);
 		return;
 	}
+
+	// This check is important in case of rewrites.
+	// A route can start with a 404 code, then the rewrite kicks in and can return a 200 status code
+	if (isRewrite) {
+		await writeSSRResult(request, response, incomingResponse);
+		return;
+	}
+
 	// We are in a recursion, and it's possible that this function is called itself with a status code
 	// By default, the status code passed via parameters is computed by the matched route.
 	//
@@ -293,8 +296,9 @@ export async function handleRoute({
 	await writeSSRResult(request, response, incomingResponse);
 }
 
-function getStatus(matchedRoute?: MatchedRoute): 404 | 500 | undefined {
+function getStatus(matchedRoute?: MatchedRoute): 404 | 500 | 200 {
 	if (!matchedRoute) return 404;
 	if (matchedRoute.route.route === '/404') return 404;
 	if (matchedRoute.route.route === '/500') return 500;
+	return 200;
 }

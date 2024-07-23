@@ -417,6 +417,7 @@ interface GeneratePathOptions {
 	styles: StylesheetAsset[];
 	mod: ComponentInstance;
 }
+
 async function generatePath(
 	pathname: string,
 	pipeline: BuildPipeline,
@@ -552,6 +553,7 @@ function createBuildManifest(
 		};
 	}
 	return {
+		hrefRoot: settings.config.root.toString(),
 		trailingSlash: settings.config.trailingSlash,
 		assets: new Set(),
 		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),

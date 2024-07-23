@@ -81,14 +81,17 @@ const EnvFieldMetadata = z.union([
 	SecretServerEnvFieldMetadata,
 ]);
 
-const KEY_REGEX = /^[A-Z_]+$/;
+const EnvSchemaKey = z
+	.string()
+	.min(1)
+	.refine(([firstChar]) => isNaN(Number.parseInt(firstChar)), {
+		message: 'A valid variable name cannot start with a number.',
+	})
+	.refine((str) => /^[A-Z0-9_]+$/.test(str), {
+		message: 'A valid variable name can only contain uppercase letters, numbers and underscores.',
+	});
 
-export const EnvSchema = z.record(
-	z.string().regex(KEY_REGEX, {
-		message: 'A valid variable name can only contain uppercase letters and underscores.',
-	}),
-	z.intersection(EnvFieldMetadata, EnvFieldType)
-);
+export const EnvSchema = z.record(EnvSchemaKey, z.intersection(EnvFieldMetadata, EnvFieldType));
 
 // https://www.totaltypescript.com/concepts/the-prettify-helper
 type Prettify<T> = {

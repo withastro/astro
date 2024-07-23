@@ -37,6 +37,16 @@ interface Props extends Omit<HTMLAttributes<'pre'>, 'lang'> {
 	 */
 	themes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
 	/**
+	 * Chooses a theme from the "themes" option that you've defined as the default styling theme.
+	 *  - <string>: one of the keys defined in the "themes" option. Will throw an error if the key is not defined.
+	 *  - false: disabled. You'll have to apply the styling theme yourself. No effect if the "themes" option is not set.
+	 *
+	 * See https://shiki.style/guide/dual-themes#without-default-color for more information.
+	 *
+	 * @default "light"
+	 */
+	defaultColor?: 'light' | 'dark' | string | false;
+	/**
 	 * Enable word wrapping.
 	 *  - true: enabled.
 	 *  - false: disabled.
@@ -64,6 +74,7 @@ const {
 	lang = 'plaintext',
 	theme = 'github-dark',
 	themes = {},
+	defaultColor = 'light',
 	wrap = false,
 	inline = false,
 	transformers = [],
@@ -92,6 +103,7 @@ const highlighter = await getCachedHighlighter({
 	],
 	theme,
 	themes,
+	defaultColor,
 	wrap,
 	transformers,
 });

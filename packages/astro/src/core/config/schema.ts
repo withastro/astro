@@ -89,6 +89,10 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		globalRoutePriority: false,
 		rewriting: false,
+		serverIslands: false,
+		env: {
+			validateSecrets: false,
+		},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -318,6 +322,9 @@ export const AstroConfigSchema = z.object({
 								.or(z.custom<ShikiTheme>())
 						)
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.themes!),
+					defaultColor: z
+						.union([z.literal('light'), z.literal('dark'), z.string(), z.literal(false)])
+						.optional(),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
 					transformers: z
 						.custom<ShikiTransformer>()
@@ -526,9 +533,17 @@ export const AstroConfigSchema = z.object({
 			env: z
 				.object({
 					schema: EnvSchema.optional(),
+					validateSecrets: z
+						.boolean()
+						.optional()
+						.default(ASTRO_CONFIG_DEFAULTS.experimental.env.validateSecrets),
 				})
 				.strict()
 				.optional(),
+			serverIslands: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.serverIslands),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`
