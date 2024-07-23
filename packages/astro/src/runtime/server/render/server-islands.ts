@@ -73,7 +73,7 @@ let componentExport = ${safeJsonStringify(componentExport)};
 let script = document.querySelector('script[data-island-id="${hostId}"]');
 let data = {
 	componentExport,
-	props: ${JSON.stringify(propsEncrypted)},
+	props: ${safeJsonStringify(propsEncrypted)},
 	slots: ${safeJsonStringify(renderedSlots)},
 };
 

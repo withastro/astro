@@ -49,6 +49,7 @@ export async function encryptData(key: CryptoKey, raw: string) {
 		key,
 		data
 	);
+	// iv is 12, hex brings it to 24
 	return encodeHex(iv) + base64.encode(new Uint8Array(buffer));
 }
 
