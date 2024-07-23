@@ -104,7 +104,8 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 			options.settings,
 			internals,
 			renderers.renderers as SSRLoadedRenderer[],
-			middleware
+			middleware,
+			options.key,
 		);
 	}
 	const pipeline = BuildPipeline.create({ internals, manifest, options });
@@ -540,7 +541,8 @@ function createBuildManifest(
 	settings: AstroSettings,
 	internals: BuildInternals,
 	renderers: SSRLoadedRenderer[],
-	middleware: MiddlewareHandler
+	middleware: MiddlewareHandler,
+	key: Promise<CryptoKey>
 ): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
 	if (settings.config.i18n) {
@@ -572,6 +574,7 @@ function createBuildManifest(
 		middleware,
 		rewritingEnabled: settings.config.experimental.rewriting,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
+		key,
 		experimentalEnvGetSecretEnabled: false,
 	};
 }

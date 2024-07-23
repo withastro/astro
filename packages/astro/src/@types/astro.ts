@@ -3354,6 +3354,7 @@ export interface SSRResult {
 	cookies: AstroCookies | undefined;
 	serverIslandNameMap: Map<string, string>;
 	trailingSlash: AstroConfig['trailingSlash'];
+	key: Promise<CryptoKey>;
 	_metadata: SSRMetadata;
 }
 

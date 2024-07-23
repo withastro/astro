@@ -44,6 +44,7 @@ export interface StaticBuildOptions {
 	pageNames: string[];
 	viteConfig: InlineConfig;
 	teardownCompiler: boolean;
+	key: Promise<CryptoKey>;
 }
 
 type ImportComponentInstance = () => Promise<ComponentInstance>;

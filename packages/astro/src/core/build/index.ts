@@ -33,6 +33,7 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
+import { createKey } from '../encryption.js';
 
 export interface BuildOptions {
 	/**
@@ -195,6 +196,7 @@ class AstroBuilder {
 			pageNames,
 			teardownCompiler: this.teardownCompiler,
 			viteConfig,
+			key: createKey(),
 		};
 
 		const { internals, ssrOutputChunkNames, contentFileNames } = await viteBuild(opts);

@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import glob from 'fast-glob';
+import { base64 } from 'oslo/encoding';
 import type { OutputChunk } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
@@ -20,6 +21,7 @@ import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
+import { encodeKey } from '../../encryption.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
@@ -132,7 +134,8 @@ export async function createManifest(
 	}
 
 	const staticFiles = internals.staticFiles;
-	return buildManifest(buildOpts, internals, Array.from(staticFiles));
+	const encodedKey = await encodeKey(await buildOpts.key);
+	return buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
 }
 
 /**
@@ -152,7 +155,8 @@ export function injectManifest(manifest: SerializedSSRManifest, chunk: Readonly<
 function buildManifest(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
-	staticFiles: string[]
+	staticFiles: string[],
+	encodedKey: string,
 ): SerializedSSRManifest {
 	const { settings } = opts;
 
@@ -281,6 +285,7 @@ function buildManifest(
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		rewritingEnabled: settings.config.experimental.rewriting,
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
+		key: encodedKey,
 		experimentalEnvGetSecretEnabled:
 			settings.config.experimental.env !== undefined &&
 			(settings.adapter?.supportedAstroFeatures.envGetSecret ?? 'unsupported') !== 'unsupported',

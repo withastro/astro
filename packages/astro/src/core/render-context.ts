@@ -343,6 +343,7 @@ export class RenderContext {
 			? this.locals._actionsInternal?.actionResult
 			: undefined;
 
+
 		// Create the result object that will be passed into the renderPage function.
 		// This object starts here as an empty shell (not yet the result) but then
 		// calling the render() function will populate the object with scripts, styles, etc.
@@ -369,6 +370,7 @@ export class RenderContext {
 			styles,
 			actionResult,
 			serverIslandNameMap: manifest.serverIslandNameMap ?? new Map(),
+			key: manifest.key,
 			trailingSlash: manifest.trailingSlash,
 			_metadata: {
 				hasHydrationScript: false,

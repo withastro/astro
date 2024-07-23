@@ -25,6 +25,7 @@ import { getParts, validateSegment } from '../core/routing/manifest/create.js';
 import { getPattern } from '../core/routing/manifest/pattern.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
 import { ContainerPipeline } from './pipeline.js';
+import { createKey } from '../core/encryption.js';
 
 /**
  * Options to be passed when rendering a route
@@ -131,6 +132,7 @@ function createManifest(
 		checkOrigin: false,
 		middleware: manifest?.middleware ?? middleware ?? defaultMiddleware,
 		experimentalEnvGetSecretEnabled: false,
+		key: createKey(),
 	};
 }
 
