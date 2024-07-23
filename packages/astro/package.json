@@ -125,7 +125,7 @@
     "test:node": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "^2.9.0",
+    "@astrojs/compiler": "^2.9.2",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
@@ -174,8 +174,8 @@
     "preferred-pm": "^4.0.0",
     "prompts": "^2.4.2",
     "rehype": "^13.0.1",
-    "semver": "^7.6.2",
-    "shiki": "^1.10.3",
+    "semver": "^7.6.3",
+    "shiki": "^1.11.0",
     "string-width": "^7.2.0",
     "strip-ansi": "^7.1.0",
     "tsconfck": "^3.1.1",
@@ -192,7 +192,7 @@
     "sharp": "^0.33.3"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.8.1",
+    "@astrojs/check": "^0.8.2",
     "@playwright/test": "^1.45.2",
     "@types/aria-query": "^5.0.4",
     "@types/babel__generator": "^7.6.8",
@@ -203,7 +203,7 @@
     "@types/debug": "^4.1.12",
     "@types/diff": "^5.2.1",
     "@types/dlv": "^1.1.4",
-    "@types/dom-view-transitions": "^1.0.4",
+    "@types/dom-view-transitions": "^1.0.5",
     "@types/hast": "^3.0.4",
     "@types/html-escaper": "^3.0.2",
     "@types/http-cache-semantics": "^4.0.4",
@@ -227,7 +227,7 @@
     "rehype-slug": "^6.0.0",
     "rehype-toc": "^3.0.2",
     "remark-code-titles": "^0.1.2",
-    "rollup": "^4.18.1",
+    "rollup": "^4.19.0",
     "sass": "^1.77.8",
     "srcset-parse": "^1.1.0",
     "undici": "^6.19.2",
