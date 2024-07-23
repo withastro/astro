@@ -47,12 +47,12 @@
   "engines": {
     "node": "^18.17.1 || ^20.3.0 || >=21.0.0"
   },
-  "packageManager": "pnpm@9.3.0",
+  "packageManager": "pnpm@9.6.0",
   "dependencies": {
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.8.1",
+    "@astrojs/check": "^0.8.2",
     "@biomejs/biome": "1.8.1",
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.7",
@@ -66,7 +66,7 @@
     "only-allow": "^1.2.1",
     "organize-imports-cli": "^0.10.0",
     "prettier": "^3.3.3",
-    "prettier-plugin-astro": "^0.14.0",
+    "prettier-plugin-astro": "^0.14.1",
     "tiny-glob": "^0.2.9",
     "turbo": "^1.13.4",
     "typescript": "~5.5.3",

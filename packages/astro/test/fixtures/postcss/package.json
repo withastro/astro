@@ -11,7 +11,7 @@
     "postcss": "^8.4.39",
     "solid-js": "^1.8.18",
     "svelte": "^4.2.18",
-    "vue": "^3.4.31"
+    "vue": "^3.4.33"
   },
   "devDependencies": {
     "postcss-preset-env": "^9.6.0"
