@@ -43,8 +43,6 @@ const statusToCodeMap: Record<number, ActionErrorCode> = Object.entries(codeToSt
 	{}
 );
 
-export type ErrorInferenceObject = Record<string, any>;
-
 // T is used for error inference with SafeInput -> isInputError.
 // See: https://github.com/withastro/astro/pull/11173/files#r1622767246
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
