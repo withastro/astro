@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.12.6
+
+### Patch Changes
+
+- adc8d53: Try to publish again
+
 ## 2.12.5
 
 ### Patch Changes
