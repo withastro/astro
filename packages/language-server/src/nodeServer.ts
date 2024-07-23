@@ -51,9 +51,6 @@ connection.onInitialized(() => {
 			'astro',
 			'vue',
 			'svelte',
-			'md',
-			'mdx',
-			'mdoc',
 		].join(',')}}`,
 	]);
 });

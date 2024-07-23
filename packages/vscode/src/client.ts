@@ -68,7 +68,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 	} satisfies InitOptions;
 
 	const clientOptions = {
-		documentSelector: [{ language: 'astro' }, { language: 'markdown' }],
+		documentSelector: [{ language: 'astro' }],
 		initializationOptions,
 	} satisfies lsp.LanguageClientOptions;
 	client = new lsp.LanguageClient('astro', 'Astro Language Server', serverOptions, clientOptions);
