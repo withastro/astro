@@ -74,7 +74,7 @@ const cats = defineCollection({
 const absoluteRoot = new URL('../../content-outside-src', import.meta.url);
 
 const spacecraft = defineCollection({
-	type: 'experimental_data',
+	type: 'experimental_content',
 	loader: glob({ pattern: '*.md', base: absoluteRoot }),
 	schema: ({ image }) => z.object({
 		title: z.string(),
@@ -87,7 +87,7 @@ const spacecraft = defineCollection({
 });
 
 const numbers = defineCollection({
-	type: 'experimental_data',
+	type: 'experimental_content',
 	loader: glob({ pattern: 'src/data/glob-data/*', base: '.' }),
 });
 

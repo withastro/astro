@@ -3,19 +3,14 @@ import type { ZodSchema } from 'zod';
 import type { AstroIntegrationLogger, AstroSettings } from '../../@types/astro.js';
 import type { MetaStore, ScopedDataStore } from '../data-store.js';
 
-export interface ParseDataOptions {
+export interface ParseDataOptions<TData extends Record<string, unknown>> {
 	/** The ID of the entry. Unique per collection */
 	id: string;
 	/** The raw, unvalidated data of the entry */
-	data: Record<string, unknown>;
+	data: TData;
 	/** An optional file path, where the entry represents a local file. */
 	filePath?: string;
 }
-
-export type DataWithId = {
-	id: string;
-	[key: string]: unknown;
-};
 
 export interface LoaderContext {
 	/** The unique name of the collection */
@@ -29,7 +24,7 @@ export interface LoaderContext {
 	settings: AstroSettings;
 
 	/** Validates and parses the data according to the collection schema */
-	parseData(props: ParseDataOptions): Promise<DataWithId>;
+	parseData<TData extends Record<string, unknown>>(props: ParseDataOptions<TData>): Promise<TData>;
 
 	/** Generates a non-cryptographic content digest. This can be used to check if the data has changed */
 	generateDigest(data: Record<string, unknown> | string): string;

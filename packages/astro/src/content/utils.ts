@@ -36,7 +36,7 @@ export const collectionConfigParser = z.union([
 		schema: z.any().optional(),
 	}),
 	z.object({
-		type: z.literal('experimental_data'),
+		type: z.union([z.literal('experimental_data'), z.literal('experimental_content')]),
 		schema: z.any().optional(),
 		loader: z.union([
 			z.function().returns(
@@ -135,7 +135,11 @@ export async function getEntryDataAndImages<
 	pluginContext?: PluginContext
 ): Promise<{ data: TOutputData; imageImports: Array<string> }> {
 	let data: TOutputData;
-	if (collectionConfig.type === 'data' || collectionConfig.type === 'experimental_data') {
+	if (
+		collectionConfig.type === 'data' ||
+		collectionConfig.type === 'experimental_data' ||
+		collectionConfig.type === 'experimental_content'
+	) {
 		data = entry.unvalidatedData as TOutputData;
 	} else {
 		const { slug, ...unvalidatedData } = entry.unvalidatedData;
@@ -151,7 +155,10 @@ export async function getEntryDataAndImages<
 			schema = schema({
 				image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
 			});
-		} else if (collectionConfig.type === 'experimental_data') {
+		} else if (
+			collectionConfig.type === 'experimental_data' ||
+			collectionConfig.type === 'experimental_content'
+		) {
 			schema = schema({
 				image: () =>
 					z.string().transform((val) => {

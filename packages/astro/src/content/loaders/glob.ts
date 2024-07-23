@@ -4,10 +4,10 @@ import fastGlob from 'fast-glob';
 import { green } from 'kleur/colors';
 import micromatch from 'micromatch';
 import pLimit from 'p-limit';
-import type { ContentEntryType, ContentEntryRenderFuction } from '../../@types/astro.js';
+import type { ContentEntryRenderFuction, ContentEntryType } from '../../@types/astro.js';
+import type { RenderedContent } from '../data-store.js';
 import { getContentEntryIdAndSlug, getEntryConfigByExtMap, posixRelative } from '../utils.js';
 import type { Loader } from './types.js';
-import type { RenderedContent } from '../data-store.js';
 
 export interface GenerateIdOptions {
 	/** The path to the entry file, relative to the base directory. */

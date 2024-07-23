@@ -5,6 +5,7 @@ import { dim } from 'kleur/colors';
 import { type HMRPayload, createServer } from 'vite';
 import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { getPackage } from '../../cli/install-package.js';
+import { DataStore, globalDataStore } from '../../content/data-store.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { syncContentLayer } from '../../content/sync.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
@@ -29,7 +30,6 @@ import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { setUpEnvTs } from './setup-env-ts.js';
-import { DataStore, globalDataStore } from '../../content/data-store.js';
 
 export type SyncOptions = {
 	/**

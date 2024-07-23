@@ -57,17 +57,10 @@ declare module 'astro:content' {
 
 	export type SchemaContext = { image: ImageFunction };
 
-	export interface DataWithId {
-		id: string;
-		[key: string]: unknown;
-	}
-
-	type ContentCollectionV2Config<S extends BaseSchema> = {
-		type: 'experimental_data';
+	type ContentLayerConfig<S extends BaseSchema, TData extends { id: string } = { id: string }> = {
+		type: 'experimental_data' | 'experimental_content';
 		schema?: S | ((context: SchemaContext) => S);
-		loader:
-			| import('astro/loader/types').Loader
-			| (() => Array<DataWithId> | Promise<Array<DataWithId>>);
+		loader: import('astro/loaders').Loader | (() => Array<TData> | Promise<Array<TData>>);
 	};
 
 	type DataCollectionConfig<S extends BaseSchema> = {
@@ -83,7 +76,7 @@ declare module 'astro:content' {
 	export type CollectionConfig<S extends BaseSchema> =
 		| ContentCollectionConfig<S>
 		| DataCollectionConfig<S>
-		| ContentCollectionV2Config<S>;
+		| ContentLayerConfig<S>;
 
 	export function defineCollection<S extends BaseSchema>(
 		input: CollectionConfig<S>
