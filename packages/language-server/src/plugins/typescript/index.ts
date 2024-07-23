@@ -16,6 +16,17 @@ export const create = (ts: typeof import('typescript')): LanguageServicePlugin[]
 					const typeScriptPlugin = plugin.create(context);
 					return {
 						...typeScriptPlugin,
+						async provideDefinition(document, position, token) {
+							const originalDefinition = await typeScriptPlugin.provideDefinition!(
+								document,
+								position,
+								token
+							);
+
+							if (!originalDefinition) return null;
+
+							return originalDefinition;
+						},
 						async provideCompletionItems(document, position, completionContext, token) {
 							const originalCompletions = await typeScriptPlugin.provideCompletionItems!(
 								document,

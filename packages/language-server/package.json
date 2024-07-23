@@ -10,7 +10,12 @@
   },
   "type": "commonjs",
   "main": "dist/index.js",
-  "files": ["bin", "dist/**/*.js", "dist/**/*.d.ts", "types/**/*.d.ts"],
+  "files": [
+    "bin",
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "types/**/*.d.ts"
+  ],
   "bin": {
     "astro-ls": "./bin/nodeServer.js"
   },
@@ -29,6 +34,7 @@
     "@volar/language-service": "~2.4.0-alpha.15",
     "@volar/typescript": "~2.4.0-alpha.15",
     "fast-glob": "^3.2.12",
+    "gray-matter": "^4.0.3",
     "muggle-string": "^0.4.1",
     "volar-service-css": "0.0.59",
     "volar-service-emmet": "0.0.59",
@@ -37,7 +43,8 @@
     "volar-service-typescript": "0.0.59",
     "volar-service-typescript-twoslash-queries": "0.0.59",
     "vscode-html-languageservice": "^5.2.0",
-    "vscode-uri": "^3.0.8"
+    "vscode-uri": "^3.0.8",
+    "yaml": "^2.4.5"
   },
   "devDependencies": {
     "@astrojs/svelte": "^5.0.3",

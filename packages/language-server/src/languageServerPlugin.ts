@@ -18,8 +18,10 @@ import { create as createEmmetService } from 'volar-service-emmet';
 import { create as createPrettierService } from 'volar-service-prettier';
 import { create as createTypeScriptTwoSlashService } from 'volar-service-typescript-twoslash-queries';
 
+import { getFrontmatterLanguagePlugin } from './frontmatter/languagePlugin.js';
 import { create as createAstroService } from './plugins/astro.js';
 import { create as createHtmlService } from './plugins/html.js';
+import { create as createMarkdownService } from './plugins/markdown.js';
 import { create as createTypescriptAddonsService } from './plugins/typescript-addons/index.js';
 import { create as createTypeScriptServices } from './plugins/typescript/index.js';
 
@@ -52,7 +54,8 @@ export function getLanguagePlugins(
 	}
 
 	languagePlugins.unshift(
-		getAstroLanguagePlugin(typeof astroInstall === 'string' ? undefined : astroInstall, ts)
+		getAstroLanguagePlugin(typeof astroInstall === 'string' ? undefined : astroInstall, ts),
+		getFrontmatterLanguagePlugin(typeof astroInstall === 'string' ? undefined : astroInstall, ts)
 	);
 
 	return languagePlugins;
@@ -68,6 +71,7 @@ export function getLanguageServicePlugins(connection: Connection, ts: typeof imp
 		createTypescriptAddonsService(),
 		createAstroService(ts),
 		getPrettierService(),
+		createMarkdownService(),
 	];
 	function getPrettierService() {
 		let prettier: ReturnType<typeof importPrettier>;

@@ -10,6 +10,10 @@ export function isJSDocument(languageId: string) {
 	);
 }
 
+export function isFrontmatterHolderDocument(languageId: string) {
+	return languageId === 'markdown' || languageId === 'mdx' || languageId === 'mdoc';
+}
+
 /**
  * Return true if a specific node could be a component.
  * This is not a 100% sure test as it'll return false for any component that does not match the standard format for a component
