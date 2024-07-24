@@ -2,10 +2,6 @@
 'astro': minor
 ---
 
----
-"astro": minor
----
-
 The `experimental.rewriting` feature introduced behind a flag in [v4.8.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#480) is no longer experimental and is available for general use.
 
 `Astro.rewrite()`/`ctw.rewrite()` allows to **render
