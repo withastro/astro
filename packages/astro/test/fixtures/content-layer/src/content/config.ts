@@ -69,21 +69,21 @@ const cats = defineCollection({
 	}),
 });
 
-
 // Absolute paths should also work
 const absoluteRoot = new URL('../../content-outside-src', import.meta.url);
 
 const spacecraft = defineCollection({
 	type: 'experimental_content',
 	loader: glob({ pattern: '*.md', base: absoluteRoot }),
-	schema: ({ image }) => z.object({
-		title: z.string(),
-		description: z.string(),
-		publishedDate: z.string(),
-		tags: z.array(z.string()),
-		heroImage: image().optional(),
-		cat: reference('cats').optional(),
-	}),
+	schema: ({ image }) =>
+		z.object({
+			title: z.string(),
+			description: z.string(),
+			publishedDate: z.string(),
+			tags: z.array(z.string()),
+			heroImage: image().optional(),
+			cat: reference('cats').optional(),
+		}),
 });
 
 const numbers = defineCollection({
@@ -91,4 +91,24 @@ const numbers = defineCollection({
 	loader: glob({ pattern: 'src/data/glob-data/*', base: '.' }),
 });
 
-export const collections = { blog, dogs, cats, numbers, spacecraft };
+const increment = defineCollection({
+	type: 'experimental_data',
+	loader: {
+		name: 'increment-loader',
+		load: async ({ store }) => {
+			const entry = store.get<{ lastValue: number }>('value');
+			const lastValue: number = entry?.data.lastValue ?? 0;
+			store.set({
+				id: 'value',
+				data: {
+					lastValue: lastValue + 1,
+				},
+			});
+		},
+	},
+	schema: z.object({
+		lastValue: z.number(),
+	}),
+});
+
+export const collections = { blog, dogs, cats, numbers, spacecraft, increment };
