@@ -36,6 +36,7 @@ import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } f
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ComplexifyUnionObj {}
+
 type ComplexifyWithUnion<T> = T & ComplexifyUnionObj;
 type ComplexifyWithOmit<T> = Omit<T, '__nonExistent'>;
 
@@ -88,7 +89,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		contentCollectionJsonSchema: false,
 		clientPrerender: false,
 		globalRoutePriority: false,
-		rewriting: false,
 		serverIslands: false,
 		env: {
 			validateSecrets: false,
@@ -529,7 +529,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.globalRoutePriority),
-			rewriting: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rewriting),
 			env: z
 				.object({
 					schema: EnvSchema.optional(),

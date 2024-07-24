@@ -2012,62 +2012,6 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.rewriting
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.8.0
-		 * @description
-		 *
-		 * Enables a routing feature for rewriting requests in Astro pages, endpoints and Astro middleware, giving you programmatic control over your routes.
-		 *
-		 * ```js
-		 * {
-		 *   experimental: {
-		 *     rewriting: true,
-		 *   },
-		 * }
-		 * ```
-		 *
-		 * Use `Astro.rewrite` in your `.astro` files to reroute to a different page:
-		 *
-		 * ```astro "rewrite"
-		 * ---
-		 * // src/pages/dashboard.astro
-		 * if (!Astro.props.allowed) {
-		 * 	return Astro.rewrite("/")
-		 * }
-		 * ---
-		 * ```
-		 *
-		 * Use `context.rewrite` in your endpoint files to reroute to a different page:
-		 *
-		 * ```js
-		 * // src/pages/api.js
-		 * export function GET(ctx) {
-		 * 	if (!ctx.locals.allowed) {
-		 * 		return ctx.rewrite("/")
-		 * 	}
-		 * }
-		 * ```
-		 *
-		 * Use `next("/")` in your middleware file to reroute to a different page, and then call the next middleware function:
-		 *
-		 * ```js
-		 * // src/middleware.js
-		 * export function onRequest(ctx, next) {
-		 * 	if (!ctx.cookies.get("allowed")) {
-		 * 		return next("/") // new signature
-		 * 	}
-		 * 	return next();
-		 * }
-		 * ```
-		 *
-		 * For a complete overview, and to give feedback on this experimental API, see the [Rerouting RFC](https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md).
-		 */
-		rewriting?: boolean;
-
-		/**
-		 * @docs
 		 * @name experimental.env
 		 * @type {object}
 		 * @default `undefined`
