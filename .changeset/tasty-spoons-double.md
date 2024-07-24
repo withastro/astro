@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-The `JSON Schema` feature introduced behind a flag in [v4.5.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#450) is no longer experimental and is available for general use.
+The `experimental.contentCollectionJsonSchema` feature introduced behind a flag in [v4.5.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#450) is no longer experimental and is available for general use.
 
 If you are working with collections of type `data`, Astro will auto-generate JSON schema files for your editor to get IntelliSense and type-checking. A separate file will be created for each data collection in your project based on your collections defined in `src/content/config.ts` using a library called [zod-to-json-schema](https://github.com/StefanTerdell/zod-to-json-schema#known-issues).
 
