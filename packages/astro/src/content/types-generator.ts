@@ -382,7 +382,6 @@ async function writeContentFiles({
 
 	const collectionSchemasDir = new URL('./collections/', settings.dotAstroDir);
 	if (
-		settings.config.contentCollection?.JsonSchema &&
 		!fs.existsSync(collectionSchemasDir)
 	) {
 		fs.mkdirSync(collectionSchemasDir, { recursive: true });
@@ -460,7 +459,7 @@ async function writeContentFiles({
 					dataTypesStr += `};\n`;
 				}
 
-				if (settings.config.contentCollection?.JsonSchema && collectionConfig?.schema) {
+				if (collectionConfig?.schema) {
 					let zodSchemaForJson =
 						typeof collectionConfig.schema === 'function'
 							? collectionConfig.schema({ image: () => z.string() })
@@ -486,6 +485,7 @@ async function writeContentFiles({
 							)
 						);
 					} catch (err) {
+						// This should error gracefully and not crash the dev server
 						logger.warn(
 							'content',
 							`An error was encountered while creating the JSON schema for the ${collectionKey} collection. Proceeding without it. Error: ${err}`
