@@ -33,10 +33,10 @@ export type ActionClient<
 				input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
 			) => Promise<
 				SafeResult<
-					z.input<TInputSchema> extends ErrorInferenceObject
-						? z.input<TInputSchema>
-						: ErrorInferenceObject,
-					Awaited<TOutput>
+							z.input<TInputSchema> extends ErrorInferenceObject
+								? z.input<TInputSchema>
+								: ErrorInferenceObject,
+							Awaited<TOutput>
 				>
 			>;
 		}
