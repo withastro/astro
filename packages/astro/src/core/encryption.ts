@@ -34,7 +34,7 @@ const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 const IV_LENGTH = 24;
 
-export async function encryptData(key: CryptoKey, raw: string) {
+export async function encryptString(key: CryptoKey, raw: string) {
 	const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH / 2));
 	const data = encoder.encode(raw);
 	const buffer = await crypto.subtle.encrypt(
@@ -49,7 +49,7 @@ export async function encryptData(key: CryptoKey, raw: string) {
 	return encodeHex(iv) + base64.encode(new Uint8Array(buffer));
 }
 
-export async function decryptData(key: CryptoKey, encoded: string) {
+export async function decryptString(key: CryptoKey, encoded: string) {
   const iv = decodeHex(encoded.slice(0, IV_LENGTH));
 	const dataArray = base64.decode(encoded.slice(IV_LENGTH));
 	const decryptedBuffer = await crypto.subtle.decrypt(

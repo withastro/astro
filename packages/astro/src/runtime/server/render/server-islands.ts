@@ -1,4 +1,4 @@
-import { encryptData } from '../../../core/encryption.js';
+import { encryptString } from '../../../core/encryption.js';
 import type { SSRResult } from '../../../@types/astro.js';
 import { renderChild } from './any.js';
 import type { RenderInstance } from './common.js';
@@ -62,7 +62,7 @@ export function renderServerIsland(
 			}
 
 			const key = await result.key;
-			const propsEncrypted = await encryptData(key, JSON.stringify(props));
+			const propsEncrypted = await encryptString(key, JSON.stringify(props));
 
 			const hostId = crypto.randomUUID();
 			const serverIslandUrl = `${result.base}_server-islands/${componentId}${result.trailingSlash === 'always' ? '/' : ''}`;

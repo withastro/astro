@@ -11,7 +11,7 @@ import {
 	renderTemplate,
 } from '../../runtime/server/index.js';
 import { createSlotValueFromString } from '../../runtime/server/render/slot.js';
-import { decryptData } from '../encryption.js';
+import { decryptString } from '../encryption.js';
 import { getPattern } from '../routing/manifest/pattern.js';
 
 export const SERVER_ISLAND_ROUTE = '/_server-islands/[name]';
@@ -77,7 +77,7 @@ export function createEndpoint(manifest: SSRManifest) {
 
 		const key = await manifest.key;
 		const encryptedProps = data.props;
-		const propString = await decryptData(key, encryptedProps);
+		const propString = await decryptString(key, encryptedProps);
 		const props = JSON.parse(propString);
 		
 		const componentModule = await imp();
