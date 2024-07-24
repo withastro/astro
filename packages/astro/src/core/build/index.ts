@@ -33,6 +33,7 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
+import { DATA_STORE_FILE } from '../../content/consts.js';
 export interface BuildOptions {
 	/**
 	 * Teardown the compiler WASM instance after build. This can improve performance when
@@ -67,12 +68,20 @@ export default async function build(
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
 	telemetry.record(eventCliSession('build', userConfig));
-	if (astroConfig.experimental.contentCollectionCache && options.force) {
-		const contentCacheDir = new URL('./content/', astroConfig.cacheDir);
-		if (fs.existsSync(contentCacheDir)) {
-			logger.debug('content', 'clearing content cache');
-			await fs.promises.rm(contentCacheDir, { force: true, recursive: true });
-			logger.warn('content', 'content cache cleared (force)');
+	if (options.force) {
+		if (astroConfig.experimental.contentCollectionCache) {
+			const contentCacheDir = new URL('./content/', astroConfig.cacheDir);
+			if (fs.existsSync(contentCacheDir)) {
+				logger.debug('content', 'clearing content cache');
+				await fs.promises.rm(contentCacheDir, { force: true, recursive: true });
+				logger.warn('content', 'content cache cleared (force)');
+			}
+		}
+		const dataStore = new URL(DATA_STORE_FILE, astroConfig.cacheDir);
+		if (fs.existsSync(dataStore)) {
+			logger.debug('content', 'clearing data store');
+			await fs.promises.rm(dataStore, { force: true });
+			logger.warn('content', 'data store cleared (force)');
 		}
 	}
 
