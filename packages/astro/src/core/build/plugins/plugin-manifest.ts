@@ -1,6 +1,5 @@
 import { fileURLToPath } from 'node:url';
 import glob from 'fast-glob';
-import { base64 } from 'oslo/encoding';
 import type { OutputChunk } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';

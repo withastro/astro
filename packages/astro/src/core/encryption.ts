@@ -1,25 +1,21 @@
-import { base64, decodeHex, encodeHex } from 'oslo/encoding';
+import { base64, decodeHex, encodeHex } from '@oslojs/encoding';
 
-export async function createKeyBytes() {
+const ALGORITHM = 'AES-GCM';
+
+export async function createKey() {
 	const key = await crypto.subtle.generateKey(
 		{
-			name: 'AES-GCM',
+			name: ALGORITHM,
 			length: 256,
 		},
 		true,
 		['encrypt', 'decrypt']
 	);
-	const exported = await crypto.subtle.exportKey('raw', key);
-	return new Uint8Array(exported);
-}
-
-export async function createKey() {
-  const bytes = await createKeyBytes();
-  return importKey(bytes);
+	return key;
 }
 
 export async function importKey(bytes: Uint8Array) {
-  const key = await crypto.subtle.importKey('raw', bytes, 'AES-GCM', true, ['encrypt', 'decrypt']);
+  const key = await crypto.subtle.importKey('raw', bytes, ALGORITHM, true, ['encrypt', 'decrypt']);
   return key;
 }
 
@@ -31,7 +27,7 @@ export async function encodeKey(key: CryptoKey) {
 
 export async function decodeKey(encoded: string) {
   const bytes = base64.decode(encoded);
-	return crypto.subtle.importKey('raw', bytes, 'AES-GCM', true, ['encrypt', 'decrypt']);
+	return crypto.subtle.importKey('raw', bytes, ALGORITHM, true, ['encrypt', 'decrypt']);
 }
 
 const encoder = new TextEncoder();
@@ -43,7 +39,7 @@ export async function encryptData(key: CryptoKey, raw: string) {
 	const data = encoder.encode(raw);
 	const buffer = await crypto.subtle.encrypt(
 		{
-			name: 'AES-GCM',
+			name: ALGORITHM,
 			iv,
 		},
 		key,
@@ -58,7 +54,7 @@ export async function decryptData(key: CryptoKey, encoded: string) {
 	const dataArray = base64.decode(encoded.slice(IV_LENGTH));
 	const decryptedBuffer = await crypto.subtle.decrypt(
 		{
-			name: 'AES-GCM',
+			name: ALGORITHM,
 			iv,
 		},
 		key,
