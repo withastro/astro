@@ -20,7 +20,7 @@ describe('Content Layer', () => {
 			await fs
 				.unlink(new URL('./node_modules/.astro/data-store.json', fixture.config.root))
 				.catch(() => {});
-			await fixture.build({});
+			await fixture.build();
 			const rawJson = await fixture.readFile('/collections.json');
 			json = JSON.parse(rawJson);
 		});
@@ -132,6 +132,21 @@ describe('Content Layer', () => {
 				},
 				id: 'tabby',
 			});
+		});
+
+		it('updates the store on new builds', async () => {
+			assert.equal(json.increment.data.lastValue, 1);
+			await fixture.build();
+			const newJson = JSON.parse(await fixture.readFile('/collections.json'));
+			assert.equal(newJson.increment.data.lastValue, 2);
+		});
+
+		it('clears the store on new build with force flag', async () => {
+			let newJson = JSON.parse(await fixture.readFile('/collections.json'));
+			assert.equal(newJson.increment.data.lastValue, 2);
+			await fixture.build({}, { force: true });
+			newJson = JSON.parse(await fixture.readFile('/collections.json'));
+			assert.equal(newJson.increment.data.lastValue, 1);
 		});
 	});
 

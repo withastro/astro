@@ -157,9 +157,12 @@ export async function loadFixture(inlineConfig) {
 	let devServer;
 
 	return {
-		build: async (extraInlineConfig = {}) => {
+		build: async (extraInlineConfig = {}, options = {}) => {
 			process.env.NODE_ENV = 'production';
-			return build(mergeConfig(inlineConfig, extraInlineConfig), { teardownCompiler: false });
+			return build(mergeConfig(inlineConfig, extraInlineConfig), {
+				teardownCompiler: false,
+				...options,
+			});
 		},
 		sync,
 		check: async (opts) => {

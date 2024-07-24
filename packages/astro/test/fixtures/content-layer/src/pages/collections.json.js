@@ -11,5 +11,7 @@ export async function GET() {
 	const entryWithReference = await getEntry('spacecraft', 'columbia-copy')
 	const referencedEntry = await getEntry(entryWithReference.data.cat)
 
-	return Response.json({ customLoader, fileLoader, dataEntry, simpleLoader, entryWithReference, referencedEntry });
+	const increment = await getEntry('increment', 'value')
+
+	return Response.json({ customLoader, fileLoader, dataEntry, simpleLoader, entryWithReference, referencedEntry, increment });
 }
