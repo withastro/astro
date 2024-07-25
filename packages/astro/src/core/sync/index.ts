@@ -3,8 +3,7 @@ import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
 import { type HMRPayload, createServer, normalizePath } from 'vite';
-import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
-import { getPackage } from '../../cli/install-package.js';
+import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { syncAstroEnv } from '../../env/sync.js';
@@ -46,10 +45,6 @@ export type SyncOptions = {
 	};
 };
 
-type DBPackage = {
-	typegen?: (args: Pick<AstroConfig, 'root' | 'integrations'>) => Promise<void>;
-};
-
 export default async function sync(
 	inlineConfig: AstroInlineConfig,
 	{ fs, telemetry: _telemetry = false }: { fs?: typeof fsMod; telemetry?: boolean } = {}
@@ -82,22 +77,9 @@ export async function syncInternal({
 	settings,
 	skip,
 }: SyncOptions): Promise<void> {
-	const cwd = fileURLToPath(settings.config.root);
-
 	const timerStart = performance.now();
-	const dbPackage = await getPackage<DBPackage>(
-		'@astrojs/db',
-		logger,
-		{
-			optional: true,
-			cwd,
-		},
-		[]
-	);
 
 	try {
-		// TODO: remove and use injectTypes instead
-		await dbPackage?.typegen?.(settings.config);
 		if (!skip?.content) {
 			await syncContentCollections(settings, { fs, logger });
 		}
