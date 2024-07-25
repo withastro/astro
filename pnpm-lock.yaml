@@ -127,6 +127,9 @@ importers:
 
   examples/basics:
     dependencies:
+      '@astrojs/node':
+        specifier: ^8.3.2
+        version: link:../../packages/integrations/node
       astro:
         specifier: ^4.12.2
         version: link:../../packages/astro
@@ -9420,6 +9423,7 @@ packages:
 
   libsql@0.3.12:
     resolution: {integrity: sha512-to30hj8O3DjS97wpbKN6ERZ8k66MN1IaOfFLR6oHqd25GMiPJ/ZX0VaZ7w+TsPmxcFS3p71qArj/hiedCyvXCg==}
+    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lilconfig@2.1.0:

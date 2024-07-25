@@ -499,7 +499,7 @@ async function writeContentFiles({
 	}
 
 	const configPathRelativeToCacheDir = normalizeConfigPath(
-		settings.dotAstroDir.pathname,
+		new URL('astro', settings.dotAstroDir).pathname,
 		contentPaths.config.url.pathname
 	);
 
@@ -515,8 +515,8 @@ async function writeContentFiles({
 		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never'
 	);
 
-	await fs.promises.writeFile(
-		new URL(CONTENT_TYPES_FILE, settings.dotAstroDir),
-		typeTemplateContent
-	);
+	const filepath = new URL(CONTENT_TYPES_FILE, settings.dotAstroDir);
+
+	await fs.promises.mkdir(path.dirname(fileURLToPath(filepath)), { recursive: true });
+	await fs.promises.writeFile(filepath, typeTemplateContent);
 }
