@@ -1,5 +1,14 @@
 # @astrojs/check
 
+## 0.8.3
+
+### Patch Changes
+
+- 0a46801: Fixes a regression where errors could wrongly show (or not show) inside scripts and style tags
+- Updated dependencies [0a46801]
+- Updated dependencies [72f61e1]
+  - @astrojs/language-server@2.12.7
+
 ## 0.8.2
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @astrojs/language-server
 
+## 2.12.7
+
+### Patch Changes
+
+- 0a46801: Fixes a regression where errors could wrongly show (or not show) inside scripts and style tags
+- 72f61e1: Fixes Emmet completions sometimes showing in places they shouldn't
+
 ## 2.12.1
 
 ### Patch Changes
