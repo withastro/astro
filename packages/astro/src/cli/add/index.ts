@@ -692,7 +692,7 @@ async function resolveRangeToInstallSpecifier(name: string, range: string): Prom
 	const versions = await fetchPackageVersions(name);
 	if (versions instanceof Error) return name;
 	// Filter out any prerelease versions, but fallback if there are no stable versions
-	let stableVersions = versions.filter((v) => !v.includes('-'));
+	const stableVersions = versions.filter((v) => !v.includes('-'));
 	const maxStable = maxSatisfying(stableVersions.length !== 0 ? stableVersions : versions, range);
 	return `${name}@^${maxStable}`;
 }
