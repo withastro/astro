@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.12.8
+
+### Patch Changes
+
+- 7733a56: Revert changes to Emmet completions, it was generating the wrong completions in certain cases
+
 ## 2.12.7
 
 ### Patch Changes
