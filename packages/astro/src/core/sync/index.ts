@@ -2,7 +2,7 @@ import fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
-import { type HMRPayload, createServer } from 'vite';
+import { type HMRPayload, createServer, normalizePath } from 'vite';
 import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { getPackage } from '../../cli/install-package.js';
 import { createContentTypesGenerator } from '../../content/index.js';
@@ -28,6 +28,7 @@ import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { setUpEnvTs } from './setup-env-ts.js';
+import { dirname, relative } from 'node:path';
 
 export type SyncOptions = {
 	/**
@@ -98,6 +99,8 @@ export async function syncInternal({
 		}
 		syncAstroEnv(settings, fs);
 
+		writeInjectedTypes(settings, fs);
+
 		await setUpEnvTs({ settings, logger, fs });
 		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 	} catch (err) {
@@ -109,6 +112,27 @@ export async function syncInternal({
 		// Will return exit code 1 in CLI
 		throw error;
 	}
+}
+
+function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
+	const references: Array<string> = [];
+
+	// TODO: special handling for actions
+	// TODO: special handling for db
+	// TODO: special handling for content
+	// TODO: special handling for env
+
+	for (const { filename, content } of settings.injectedTypes) {
+		const path = fileURLToPath(new URL(filename, settings.dotAstroDir));
+		fs.mkdirSync(dirname(path), { recursive: true });
+		// TODO: format content using recast
+		fs.writeFileSync(path, content, 'utf-8');
+		references.push(normalizePath(relative(fileURLToPath(settings.dotAstroDir), path)));
+	}
+
+	const astroDtsContent = `/// <reference types="astro/client" />\n${references.map((reference) => `/// <reference path=${JSON.stringify(reference)} />`).join('\n')}`;
+	// TODO: use types.d.ts for backward compatibility. Use astro.d.ts in Astro 5.0
+	fs.writeFileSync(new URL('./astro.d.ts', settings.dotAstroDir), astroDtsContent, 'utf-8');
 }
 
 /**

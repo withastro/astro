@@ -111,8 +111,9 @@ export function normalizeInjectedTypeFilename(filename: string, integrationName:
 	// TODO: validate filename
 	const result = validInjectedTypeFilenameSchema.safeParse(filename);
 	if (!result.success) {
+		throw new Error("TODO: astro error")
 	}
-	return `${integrationName.replace(/[^\w.-]/g, '_')}/${filename}`;
+	return `./integrations/${integrationName.replace(/[^\w.-]/g, '_')}/${filename}`;
 }
 
 export async function runHookConfigSetup({
@@ -349,11 +350,11 @@ export async function runHookConfigDone({
 						);
 
 						settings.injectedTypes.push({
-							filename: injectedType.filename,
+							filename: normalizedFilename,
 							content: injectedType.content,
 						});
 
-						return new URL(`./${normalizedFilename}`, settings.config.root);
+						return new URL(normalizedFilename, settings.config.root);
 					},
 					logger: getLogger(integration, logger),
 				}),
