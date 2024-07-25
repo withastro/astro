@@ -1,6 +1,7 @@
 import type {
 	ComponentInstance,
 	ManifestData,
+	MiddlewareHandler,
 	RewritePayload,
 	RouteData,
 	SSRElement,
@@ -11,9 +12,28 @@ import type { SinglePageBuiltModule } from '../build/types.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/component.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../render/ssr-element.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
+import { sequence } from '../middleware/index.js';
+import { createOriginCheckMiddleware } from './middlewares.js';
+import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 
 export class AppPipeline extends Pipeline {
 	#manifestData: ManifestData | undefined;
+	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
+
+	async getMiddleware(): Promise<MiddlewareHandler> {
+		if (this.resolvedMiddleware) {
+			return this.resolvedMiddleware;
+		} else {
+			const middlewareInstance = await this.middleware();
+			const onRequest = middlewareInstance.onRequest ?? NOOP_MIDDLEWARE_FN;
+			if (this.manifest.checkOrigin) {
+				this.resolvedMiddleware = sequence(createOriginCheckMiddleware(), onRequest);
+			} else {
+				this.resolvedMiddleware = onRequest;
+			}
+			return this.resolvedMiddleware;
+		}
+	}
 
 	static create(
 		manifestData: ManifestData,

@@ -1,5 +1,6 @@
 import type {
 	ComponentInstance,
+	MiddlewareHandler,
 	RewritePayload,
 	RouteData,
 	SSRElement,
@@ -12,6 +13,9 @@ import {
 	createStylesheetElementSet,
 } from '../core/render/ssr-element.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
+import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
+import { sequence } from '../core/middleware/index.js';
+import { createOriginCheckMiddleware } from '../core/app/middlewares.js';
 
 export class ContainerPipeline extends Pipeline {
 	/**
@@ -22,6 +26,23 @@ export class ContainerPipeline extends Pipeline {
 		RouteData,
 		SinglePageBuiltModule
 	>();
+
+	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
+
+	async getMiddleware(): Promise<MiddlewareHandler> {
+		if (this.resolvedMiddleware) {
+			return this.resolvedMiddleware;
+		} else {
+			const middlewareInstance = await this.middleware();
+			const onRequest = middlewareInstance.onRequest ?? NOOP_MIDDLEWARE_FN;
+			if (this.manifest.checkOrigin) {
+				this.resolvedMiddleware = sequence(createOriginCheckMiddleware(), onRequest);
+			} else {
+				this.resolvedMiddleware = onRequest;
+			}
+			return this.resolvedMiddleware;
+		}
+	}
 
 	static create({
 		logger,
@@ -88,7 +109,7 @@ export class ContainerPipeline extends Pipeline {
 				return Promise.resolve(componentInstance);
 			},
 			renderers: this.manifest.renderers,
-			onRequest: this.manifest.middleware,
+			onRequest: this.resolvedMiddleware,
 		});
 	}
 

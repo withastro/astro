@@ -97,6 +97,12 @@ export abstract class Pipeline {
 	 * @param routeData
 	 */
 	abstract getComponentByRoute(routeData: RouteData): Promise<ComponentInstance>;
+
+	/**
+	 * Resolves the middleware from the manifest, and returns the `onRequest` function. If `onRequest` isn't there,
+	 * it returns a no-op function
+	 */
+	abstract getMiddleware(): Promise<MiddlewareHandler>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type

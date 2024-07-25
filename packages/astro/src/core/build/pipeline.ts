@@ -1,5 +1,6 @@
 import type {
 	ComponentInstance,
+	MiddlewareHandler,
 	RewritePayload,
 	RouteData,
 	SSRLoadedRenderer,
@@ -27,6 +28,9 @@ import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { getPagesFromVirtualModulePageName, getVirtualModulePageName } from './plugins/util.js';
 import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
+import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
+import { sequence } from '../middleware/index.js';
+import { createOriginCheckMiddleware } from '../app/middlewares.js';
 
 /**
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
@@ -47,6 +51,19 @@ export class BuildPipeline extends Pipeline {
 		return ssr
 			? this.settings.config.build.server
 			: getOutDirWithinCwd(this.settings.config.outDir);
+	}
+
+	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
+
+	async getMiddleware(): Promise<MiddlewareHandler> {
+		if (this.resolvedMiddleware) {
+			return this.resolvedMiddleware;
+		} else {
+			const middlewareInstance = await this.middleware();
+			const onRequest = middlewareInstance.onRequest ?? NOOP_MIDDLEWARE_FN;
+			this.resolvedMiddleware = onRequest;
+			return this.resolvedMiddleware;
+		}
 	}
 
 	private constructor(
@@ -138,7 +155,11 @@ export class BuildPipeline extends Pipeline {
 		const renderers = await import(renderersEntryUrl.toString());
 
 		const middleware = await import(new URL('middleware.mjs', baseDirectory).toString())
-			.then((mod) => mod.onRequest)
+			.then((mod) => {
+				return function () {
+					return { onRequest: mod.onRequest };
+				};
+			})
 			// middleware.mjs is not emitted if there is no user middleware
 			// in which case the import fails with ERR_MODULE_NOT_FOUND, and we fall back to a no-op middleware
 			.catch(() => manifest.middleware);

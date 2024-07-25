@@ -152,8 +152,12 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		experimentalEnvGetSecretEnabled: false,
 		key: createKey(),
-		middleware(_, next) {
-			return next();
+		middleware() {
+			return {
+				onRequest(_, next) {
+					return next();
+				},
+			};
 		},
 	};
 }

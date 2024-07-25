@@ -36,6 +36,7 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
+import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 
@@ -67,7 +68,7 @@ export class RenderContext {
 	 */
 	counter = 0;
 
-	static create({
+	static async create({
 		locals = {},
 		middleware,
 		pathname,
@@ -77,11 +78,14 @@ export class RenderContext {
 		status = 200,
 		props,
 	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData'> &
-		Partial<Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props'>>): RenderContext {
+		Partial<
+			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props'>
+		>): Promise<RenderContext> {
+		const pipelineMiddleware = await pipeline.getMiddleware();
 		return new RenderContext(
 			pipeline,
 			locals,
-			sequence(...pipeline.internalMiddleware, middleware ?? pipeline.middleware),
+			sequence(...pipeline.internalMiddleware, middleware ?? pipelineMiddleware),
 			pathname,
 			request,
 			routeData,
