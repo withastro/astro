@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fix `astro add` for packages with only prerelease versions.
+Fixes `astro add` for packages with only prerelease versions
