@@ -8,13 +8,15 @@ const root = new URL('../../fixtures/content-mixed-errors/', import.meta.url);
 
 async function sync({ fs }) {
 	try {
-		await _sync({
-			inlineConfig: {
+		await _sync(
+			{
 				root: fileURLToPath(root),
 				logLevel: 'silent',
 			},
-			fs,
-		});
+			{
+				fs,
+			}
+		);
 		return 0;
 	} catch (_) {
 		return 1;

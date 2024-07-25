@@ -48,10 +48,12 @@ const createFixture = () => {
 				},
 			};
 
-			await astroFixture.sync({
-				inlineConfig: { root: fileURLToPath(new URL(root, import.meta.url)) },
-				fs: fsMock,
-			});
+			await astroFixture.sync(
+				{ root: fileURLToPath(new URL(root, import.meta.url)) },
+				{
+					fs: fsMock,
+				}
+			);
 		},
 		/** @param {string} path */
 		thenFileShouldExist(path) {

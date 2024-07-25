@@ -46,11 +46,10 @@ type DBPackage = {
 	typegen?: (args: Pick<AstroConfig, 'root' | 'integrations'>) => Promise<void>;
 };
 
-export default async function sync({
-	inlineConfig,
-	fs,
-	telemetry: _telemetry = false,
-}: { inlineConfig: AstroInlineConfig; fs?: typeof fsMod; telemetry?: boolean }) {
+export default async function sync(
+	inlineConfig: AstroInlineConfig,
+	{ fs, telemetry: _telemetry = false }: { fs?: typeof fsMod; telemetry?: boolean } = {}
+) {
 	ensureProcessNodeEnv('production');
 	const logger = createNodeLogger(inlineConfig);
 	const { astroConfig, userConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
