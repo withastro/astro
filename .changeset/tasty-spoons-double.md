@@ -45,4 +45,4 @@ export default defineConfig({
 
 If you have been waiting for stabilization before using JSON Schema generation for content collections, you can now do so.
 
-Please see [the specific page in docs](https://docs.astro.build/en/guides/content-collections/) for more about this feature.
+Please see [the content collections guide](https://docs.astro.build/en/guides/content-collections/#enabling-json-schema-generation) for more about this feature.
