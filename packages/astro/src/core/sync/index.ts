@@ -100,6 +100,18 @@ export async function syncInternal({
 	}
 }
 
+function handleFilename(filename: string) {
+	// TODO: reuse logic
+	if (filename === `./integrations/${VIRTUAL_MODULE_ID.replace(':', '_')}/${ACTIONS_TYPES_FILE}`) {
+		return `./astro/${ACTIONS_TYPES_FILE}`;
+	}
+	if (filename === `./integrations/astro_db/db-types.d.ts`) {
+		return './astro/db.d.ts'
+	}
+
+	return filename
+}
+
 function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 	const references: Array<string> = [];
 
@@ -108,12 +120,7 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 	}
 
 	for (const { filename, content } of settings.injectedTypes) {
-		// TODO: reuse logic
-		const newFilename =
-			filename === `./integrations/${VIRTUAL_MODULE_ID.replace(':', '_')}/${ACTIONS_TYPES_FILE}`
-				? `./astro/${ACTIONS_TYPES_FILE}`
-				: filename;
-		const path = fileURLToPath(new URL(newFilename, settings.dotAstroDir));
+		const path = fileURLToPath(new URL(handleFilename(filename), settings.dotAstroDir));
 		fs.mkdirSync(dirname(path), { recursive: true });
 		// TODO: format content using recast
 		fs.writeFileSync(path, content, 'utf-8');
