@@ -21,6 +21,7 @@ import { mergeConfig } from '../core/config/index.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../core/util.js';
 import { validateSupportedFeatures } from './features-validation.js';
+import { z } from 'zod';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -98,6 +99,20 @@ export function getToolbarServerCommunicationHelpers(server: ViteDevServer) {
 			server.hot.on(`${serverEventPrefix}:${appId}:toggled`, callback);
 		},
 	};
+}
+
+const validInjectedTypeFilenameSchema = z
+	.string()
+	.regex(/^[\w.-]+$/, 'Invalid chars')
+	.endsWith('.d.ts');
+
+// TODO: test
+export function normalizeInjectedTypeFilename(filename: string, integrationName: string): string {
+	// TODO: validate filename
+	const result = validInjectedTypeFilenameSchema.safeParse(filename);
+	if (!result.success) {
+	}
+	return `${integrationName.replace(/[^\w.-]/g, '_')}/${filename}`;
 }
 
 export async function runHookConfigSetup({
@@ -326,6 +341,19 @@ export async function runHookConfigDone({
 							}
 						}
 						settings.adapter = adapter;
+					},
+					injectTypes(injectedType) {
+						const normalizedFilename = normalizeInjectedTypeFilename(
+							injectedType.filename,
+							integration.name
+						);
+
+						settings.injectedTypes.push({
+							filename: injectedType.filename,
+							content: injectedType.content,
+						});
+
+						return new URL(`./${normalizedFilename}`, settings.config.root);
 					},
 					logger: getLogger(integration, logger),
 				}),
