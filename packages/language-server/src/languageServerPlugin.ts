@@ -62,11 +62,7 @@ export function getLanguageServicePlugins(connection: Connection, ts: typeof imp
 	return [
 		createHtmlService(),
 		createCssService(),
-		createEmmetService({
-			mappedLanguages: {
-				html: 'jsx',
-			},
-		}),
+		createEmmetService(),
 		...createTypeScriptServices(ts),
 		createTypeScriptTwoSlashService(ts),
 		createTypescriptAddonsService(),
