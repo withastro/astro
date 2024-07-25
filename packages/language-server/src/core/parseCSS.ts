@@ -10,14 +10,15 @@ export function extractStylesheets(styles: TSXExtractedStyle[]): VirtualCode {
 function mergeCSSContexts(inlineStyles: TSXExtractedStyle[]): VirtualCode {
 	const codes: Segment<CodeInformation>[] = [];
 
-	for (const javascriptContext of inlineStyles) {
-		if (javascriptContext.type === 'style-attribute') codes.push('__ { ');
+	for (const cssContext of inlineStyles) {
+		const isStyleAttribute = cssContext.type === 'style-attribute';
+		if (isStyleAttribute) codes.push('__ { ');
 		codes.push([
-			javascriptContext.content,
+			cssContext.content,
 			undefined,
-			javascriptContext.position.start,
+			cssContext.position.start,
 			{
-				verification: true,
+				verification: false,
 				completion: true,
 				semantic: true,
 				navigation: true,
@@ -25,7 +26,7 @@ function mergeCSSContexts(inlineStyles: TSXExtractedStyle[]): VirtualCode {
 				format: false,
 			},
 		]);
-		if (javascriptContext.type === 'style-attribute') codes.push(' }\n');
+		if (isStyleAttribute) codes.push(' }\n');
 	}
 
 	const mappings = buildMappings(codes);

@@ -62,7 +62,7 @@ export const create = (ts: typeof import('typescript')): LanguageServicePlugin[]
 							const root = sourceScript?.generated?.root;
 
 							let tsxLineCount = undefined;
-							if (root instanceof AstroVirtualCode) {
+							if (root instanceof AstroVirtualCode && decoded?.[1] === 'tsx') {
 								// If we have compiler errors, our TSX isn't valid so don't bother showing TS errors
 								if (root.hasCompilationErrors) return null;
 
