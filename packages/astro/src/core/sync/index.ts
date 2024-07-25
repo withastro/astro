@@ -10,7 +10,7 @@ import { globalContentConfigObserver } from '../../content/utils.js';
 import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
-import { runHookConfigSetup } from '../../integrations/hooks.js';
+import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
@@ -62,6 +62,7 @@ export default async function sync(
 		settings,
 		logger,
 	});
+	await runHookConfigDone({ settings, logger });
 	return await syncInternal({ settings, logger, fs });
 }
 
