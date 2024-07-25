@@ -8,7 +8,6 @@ import type {
 import { getOutputDirectory } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
-import { DEFAULT_404_COMPONENT } from '../constants.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { Pipeline } from '../render/index.js';
@@ -17,7 +16,7 @@ import {
 	createModuleScriptsSet,
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
-import { default404Page } from '../routing/astro-designed-error-pages.js';
+import { createDefaultRoutes } from '../routing/default.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import { isServerLikeOutput } from '../util.js';
 import { getOutDirWithinCwd } from './common.js';
@@ -54,9 +53,11 @@ export class BuildPipeline extends Pipeline {
 		readonly manifest: SSRManifest,
 		readonly options: StaticBuildOptions,
 		readonly config = options.settings.config,
-		readonly settings = options.settings
+		readonly settings = options.settings,
+		readonly defaultRoutes = createDefaultRoutes(manifest)
 	) {
 		const resolveCache = new Map<string, string>();
+
 		async function resolve(specifier: string) {
 			if (resolveCache.has(specifier)) {
 				return resolveCache.get(specifier)!;
@@ -75,6 +76,7 @@ export class BuildPipeline extends Pipeline {
 			resolveCache.set(specifier, assetLink);
 			return assetLink;
 		}
+
 		const serverLike = isServerLikeOutput(config);
 		// We can skip streaming in SSG for performance as writing as strings are faster
 		const streaming = serverLike;
@@ -269,14 +271,18 @@ export class BuildPipeline extends Pipeline {
 			// SAFETY: checked before
 			const entry = this.#componentsInterner.get(routeData)!;
 			return await entry.page();
-		} else if (routeData.component === DEFAULT_404_COMPONENT) {
-			return { default: default404Page };
-		} else {
-			// SAFETY: the pipeline calls `retrieveRoutesToGenerate`, which is in charge to fill the cache.
-			const filePath = this.#routesByFilePath.get(routeData)!;
-			const module = await this.retrieveSsrEntry(routeData, filePath);
-			return module.page();
 		}
+
+		for (const route of this.defaultRoutes) {
+			if (route.component === routeData.component) {
+				return route.instance;
+			}
+		}
+
+		// SAFETY: the pipeline calls `retrieveRoutesToGenerate`, which is in charge to fill the cache.
+		const filePath = this.#routesByFilePath.get(routeData)!;
+		const module = await this.retrieveSsrEntry(routeData, filePath);
+		return module.page();
 	}
 
 	async tryRewrite(

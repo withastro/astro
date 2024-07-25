@@ -76,7 +76,7 @@ const style = /* css */ `
   --astro-code-token-parameter: #aa0000;
   --astro-code-token-function: #4ca48f;
   --astro-code-token-string-expression: #9f722a;
-  --astro-code-token-punctuation: #ffffff;
+  --astro-code-token-punctuation: #000000;
   --astro-code-token-link: #9f722a;
 }
 
@@ -695,6 +695,10 @@ class ErrorOverlay extends HTMLElement {
 
 		const el = this.root.querySelector(selector);
 
+		if (!el) {
+			return;
+		}
+
 		if (html) {
 			// Automatically detect links
 			text = text
@@ -706,14 +710,10 @@ class ErrorOverlay extends HTMLElement {
 					return `<a target="_blank" href="${v}">${v}</a>`;
 				})
 				.join(' ');
-		}
 
-		if (el) {
-			if (!html) {
-				el.textContent = text.trim();
-			} else {
-				el.innerHTML = text.trim();
-			}
+			el.innerHTML = text.trim();
+		} else {
+			el.textContent = text.trim();
 		}
 	}
 

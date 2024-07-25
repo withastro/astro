@@ -62,7 +62,7 @@ export default [
 			// These off/configured-differently-by-default rules fit well for us
 			'@typescript-eslint/switch-exhaustiveness-check': 'error',
 			'@typescript-eslint/no-unused-vars': [
-				'warn',
+				'error',
 				{
 					argsIgnorePattern: '^_',
 					varsIgnorePattern: '^_',

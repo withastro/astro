@@ -691,9 +691,9 @@ async function convertIntegrationsToInstallSpecifiers(
 async function resolveRangeToInstallSpecifier(name: string, range: string): Promise<string> {
 	const versions = await fetchPackageVersions(name);
 	if (versions instanceof Error) return name;
-	// Filter out any prerelease versions
+	// Filter out any prerelease versions, but fallback if there are no stable versions
 	const stableVersions = versions.filter((v) => !v.includes('-'));
-	const maxStable = maxSatisfying(stableVersions, range);
+	const maxStable = maxSatisfying(stableVersions.length !== 0 ? stableVersions : versions, range);
 	return `${name}@^${maxStable}`;
 }
 

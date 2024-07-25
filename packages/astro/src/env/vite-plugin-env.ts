@@ -8,8 +8,9 @@ import {
 	VIRTUAL_MODULES_IDS,
 	VIRTUAL_MODULES_IDS_VALUES,
 } from './constants.js';
+import { type InvalidVariable, invalidVariablesToError } from './errors.js';
 import type { EnvSchema } from './schema.js';
-import { validateEnvVariable } from './validators.js';
+import { getEnvFieldType, validateEnvVariable } from './validators.js';
 
 // TODO: reminders for when astro:env comes out of experimental
 // Types should always be generated (like in types/content.d.ts). That means the client module will be empty
@@ -52,7 +53,11 @@ export function astroEnv({
 				}
 			}
 
-			const validatedVariables = validatePublicVariables({ schema, loadedEnv });
+			const validatedVariables = validatePublicVariables({
+				schema,
+				loadedEnv,
+				validateSecrets: settings.config.experimental.env?.validateSecrets ?? false,
+			});
 
 			templates = {
 				...getTemplates(schema, fs, validatedVariables),
@@ -94,32 +99,36 @@ function resolveVirtualModuleId<T extends string>(id: T): `\0${T}` {
 function validatePublicVariables({
 	schema,
 	loadedEnv,
+	validateSecrets,
 }: {
 	schema: EnvSchema;
 	loadedEnv: Record<string, string>;
+	validateSecrets: boolean;
 }) {
 	const valid: Array<{ key: string; value: any; type: string; context: 'server' | 'client' }> = [];
-	const invalid: Array<{ key: string; type: string }> = [];
+	const invalid: Array<InvalidVariable> = [];
 
 	for (const [key, options] of Object.entries(schema)) {
-		if (options.access !== 'public') {
+		const variable = loadedEnv[key] === '' ? undefined : loadedEnv[key];
+
+		if (options.access === 'secret' && !validateSecrets) {
 			continue;
 		}
-		const variable = loadedEnv[key];
-		const result = validateEnvVariable(variable === '' ? undefined : variable, options);
-		if (result.ok) {
-			valid.push({ key, value: result.value, type: result.type, context: options.context });
-		} else {
-			invalid.push({ key, type: result.type });
+
+		const result = validateEnvVariable(variable, options);
+		const type = getEnvFieldType(options);
+		if (!result.ok) {
+			invalid.push({ key, type, errors: result.errors });
+			// We don't do anything with validated secrets so we don't store them
+		} else if (options.access === 'public') {
+			valid.push({ key, value: result.value, type, context: options.context });
 		}
 	}
 
 	if (invalid.length > 0) {
 		throw new AstroError({
 			...AstroErrorData.EnvInvalidVariables,
-			message: AstroErrorData.EnvInvalidVariables.message(
-				invalid.map(({ key, type }) => `Variable ${key} is not of type: ${type}.`).join('\n')
-			),
+			message: AstroErrorData.EnvInvalidVariables.message(invalidVariablesToError(invalid)),
 		});
 	}
 

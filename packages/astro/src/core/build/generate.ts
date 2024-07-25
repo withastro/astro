@@ -199,7 +199,7 @@ async function generatePage(
 	pipeline: BuildPipeline
 ) {
 	// prepare information we need
-	const { config, internals, logger } = pipeline;
+	const { config, logger } = pipeline;
 	const pageModulePromise = ssrEntry.page;
 
 	// Calculate information of the page, like scripts, links and styles
@@ -417,6 +417,7 @@ interface GeneratePathOptions {
 	styles: StylesheetAsset[];
 	mod: ComponentInstance;
 }
+
 async function generatePath(
 	pathname: string,
 	pipeline: BuildPipeline,
@@ -552,6 +553,7 @@ function createBuildManifest(
 		};
 	}
 	return {
+		hrefRoot: settings.config.root.toString(),
 		trailingSlash: settings.config.trailingSlash,
 		assets: new Set(),
 		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
