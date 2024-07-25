@@ -44,4 +44,11 @@ describe('Content Collections - entry info', () => {
 		const info = getContentEntryIdAndSlug({ entry, contentDir, collection });
 		assert.equal(info.slug, '2021/01/01');
 	});
+
+	it('Returns correct slug when when use special character', () => {
+		const collection = 'blog';
+		const entry = new URL(`${collection}/tutorial-c++`, contentDir);
+		const info = getContentEntryIdAndSlug({ entry, contentDir, collection });
+		assert.equal(info.slug, 'tutorial-c++');
+	});
 });

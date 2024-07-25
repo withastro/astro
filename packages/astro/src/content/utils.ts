@@ -1,7 +1,6 @@
 import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { slug as githubSlug } from 'github-slugger';
 import matter from 'gray-matter';
 import type { PluginContext } from 'rollup';
 import { type ViteDevServer, normalizePath } from 'vite';
@@ -272,9 +271,7 @@ export function getContentEntryIdAndSlug({
 	const rawSlugSegments = withoutFileExt.split(path.sep);
 
 	const slug = rawSlugSegments
-		// Slugify each route segment to handle capitalization and spaces.
-		// Note: using `slug` instead of `new Slugger()` means no slug deduping.
-		.map((segment) => githubSlug(segment))
+		.map((segment) => segment.toLowerCase().replace(/ /g, '-'))
 		.join('/')
 		.replace(/\/index$/, '');
 

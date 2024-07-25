@@ -159,7 +159,6 @@
     "execa": "^8.0.1",
     "fast-glob": "^3.3.2",
     "flattie": "^1.1.1",
-    "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
     "html-escaper": "^3.0.3",
     "http-cache-semantics": "^4.1.1",
