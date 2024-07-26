@@ -5,6 +5,7 @@ import nodejs from '@astrojs/node';
 
 // https://astro.build/config
 export default defineConfig({
+	base: '/base',
 	output: 'hybrid',
 	adapter: nodejs({ mode: 'standalone' }),
 	integrations: [react(), mdx()],

@@ -72,7 +72,7 @@ let data = {
 	slots: ${safeJsonStringify(renderedSlots)},
 };
 
-let response = await fetch('${serverIslandUrl}'), {
+let response = await fetch('${serverIslandUrl}', {
 	method: 'POST',
 	body: JSON.stringify(data),
 });
