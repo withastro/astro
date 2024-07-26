@@ -481,7 +481,7 @@ async function writeContentFiles({
 				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n}>;\n`;
 				break;
 			case 'experimental_content':
-				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  render(): ContentLayerRenderer;\n  rendered?: RenderedContent \n}>;\n`;
+				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  render(): Promise<ContentLayerRenderer>;\n  rendered?: RenderedContent \n}>;\n`;
 				break;
 			case 'data':
 				if (collectionEntryKeys.length === 0) {
