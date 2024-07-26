@@ -1,13 +1,15 @@
 import { promises as fs, type PathLike, existsSync } from 'fs';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-
+import type { MarkdownHeading } from '@astrojs/markdown-remark';
 const SAVE_DEBOUNCE_MS = 500;
 
 export interface RenderedContent {
 	html: string;
 	metadata?: {
 		imagePaths: Array<string>;
+		headings?: MarkdownHeading[];
+		frontmatter?: Record<string, any>;
 		[key: string]: unknown;
 	};
 }
