@@ -228,5 +228,33 @@ describe('Astro Actions', () => {
 			assert.equal($('[data-url]').text(), '/subscribe');
 			assert.equal($('[data-channel]').text(), 'bholmesdev');
 		});
+
+		it('Returns content when the value is 0', async () => {
+			const req = new Request('http://example.com/_actions/zero', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Content-Length': '0',
+				},
+			});
+			const res = await app.render(req);
+			assert.equal(res.status, 200);
+			const value = await res.json();
+			assert.equal(value, 0);
+		});
+
+		it('Returns content when the value is false', async () => {
+			const req = new Request('http://example.com/_actions/false', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Content-Length': '0',
+				},
+			});
+			const res = await app.render(req);
+			assert.equal(res.status, 200);
+			const value = await res.json();
+			assert.equal(value, false);
+		});
 	});
 });
