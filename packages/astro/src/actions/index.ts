@@ -51,7 +51,7 @@ export default function astroActions({
 				const stringifiedActionsImport = JSON.stringify(
 					viteID(new URL('./actions', params.config.srcDir))
 				);
-				params.injectTypes({
+				settings.injectedTypes.push({
 					filename: ACTIONS_TYPES_FILE,
 					content: `declare module "astro:actions" {
 	type Actions = typeof import(${stringifiedActionsImport})["server"];

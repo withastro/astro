@@ -515,8 +515,8 @@ async function writeContentFiles({
 		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never'
 	);
 
-	const filepath = new URL(CONTENT_TYPES_FILE, settings.dotAstroDir);
-
-	await fs.promises.mkdir(path.dirname(fileURLToPath(filepath)), { recursive: true });
-	await fs.promises.writeFile(filepath, typeTemplateContent);
+	settings.injectedTypes.push({
+		filename: CONTENT_TYPES_FILE,
+		content: typeTemplateContent,
+	});
 }

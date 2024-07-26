@@ -28,8 +28,6 @@ import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { setUpEnvTs } from './setup-env-ts.js';
 import { dirname, relative } from 'node:path';
-import { CONTENT_TYPES_FILE } from '../../content/consts.js';
-import { ACTIONS_TYPES_FILE, VIRTUAL_MODULE_ID } from '../../actions/consts.js';
 import { REFERENCE_FILE } from './constants.js';
 
 export type SyncOptions = {
@@ -102,9 +100,6 @@ export async function syncInternal({
 
 function handleFilename(filename: string) {
 	// TODO: reuse logic
-	if (filename === `./integrations/${VIRTUAL_MODULE_ID.replace(':', '_')}/${ACTIONS_TYPES_FILE}`) {
-		return `./astro/${ACTIONS_TYPES_FILE}`;
-	}
 	if (filename === `./integrations/astro_db/db-types.d.ts`) {
 		return './astro/db.d.ts'
 	}
@@ -112,12 +107,9 @@ function handleFilename(filename: string) {
 	return filename
 }
 
+// TODO: move to other file
 function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 	const references: Array<string> = [];
-
-	if (fs.existsSync(new URL(CONTENT_TYPES_FILE, settings.dotAstroDir))) {
-		references.push(CONTENT_TYPES_FILE);
-	}
 
 	for (const { filename, content } of settings.injectedTypes) {
 		const path = fileURLToPath(new URL(handleFilename(filename), settings.dotAstroDir));
