@@ -2704,7 +2704,7 @@ export interface Page<T = any> {
 	total: number;
 	/** the current page number, starting from 1 */
 	currentPage: number;
-	/** number of items per page (default: 25) */
+	/** number of items per page (default: 10) */
 	size: number;
 	/** number of last page */
 	lastPage: number;
