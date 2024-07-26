@@ -101,10 +101,10 @@ export async function syncInternal({
 function handleFilename(filename: string) {
 	// TODO: reuse logic
 	if (filename === `./integrations/astro_db/db-types.d.ts`) {
-		return './astro/db.d.ts'
+		return './astro/db.d.ts';
 	}
 
-	return filename
+	return filename;
 }
 
 // TODO: move to other file
@@ -112,15 +112,17 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 	const references: Array<string> = [];
 
 	for (const { filename, content } of settings.injectedTypes) {
-		const path = fileURLToPath(new URL(handleFilename(filename), settings.dotAstroDir));
-		fs.mkdirSync(dirname(path), { recursive: true });
+		const path = new URL(handleFilename(filename), settings.dotAstroDir);
+		fs.mkdirSync(dirname(normalizePath(fileURLToPath(path))), { recursive: true });
 		// TODO: format content using recast
 		fs.writeFileSync(path, content, 'utf-8');
-		references.push(normalizePath(relative(fileURLToPath(settings.dotAstroDir), path)));
+		references.push(normalizePath(relative(fileURLToPath(settings.dotAstroDir), fileURLToPath(path))));
 	}
-	
+
 	const astroDtsContent = `/// <reference types="astro/client" />\n${references.map((reference) => `/// <reference path=${JSON.stringify(reference)} />`).join('\n')}`;
-	fs.mkdirSync(settings.dotAstroDir, { recursive: true });
+	if (references.length === 0) {
+		fs.mkdirSync(settings.dotAstroDir, { recursive: true });
+	}
 	fs.writeFileSync(new URL(REFERENCE_FILE, settings.dotAstroDir), astroDtsContent, 'utf-8');
 }
 
