@@ -16,6 +16,7 @@ const createFixture = () => {
 		/** @param {string} root */
 		async load(root) {
 			astroFixture = await loadFixture({ root });
+			return astroFixture.config;
 		},
 		clean() {
 			const envPath = new URL('env.d.ts', astroFixture.config.srcDir);
@@ -114,10 +115,10 @@ describe('astro sync', () => {
 		});
 
 		it('Updates `src/env.d.ts` if one exists', async () => {
-			await fixture.load('./fixtures/astro-basic/');
+			const config = await fixture.load('./fixtures/astro-basic/');
 			fixture.clean();
 			fs.writeFileSync(
-				new URL('./fixtures/astro-basics/src/env.d.ts', import.meta.url),
+				new URL('./env.d.ts', config.srcDir),
 				'// whatever',
 				'utf-8'
 			);
