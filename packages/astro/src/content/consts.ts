@@ -25,5 +25,5 @@ export const CONTENT_FLAGS = [
 
 export const CONTENT_TYPES_FILE = 'types.d.ts';
 
-export const DATA_STORE_FILE = 'data-store.json';
+export const DATA_STORE_FILE = 'data-store-module.mjs';
 export const ASSET_IMPORTS_FILE = 'assets.mjs';

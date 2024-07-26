@@ -2,6 +2,7 @@ import { promises as fs, type PathLike, existsSync } from 'fs';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import * as devalue from 'devalue';
 const SAVE_DEBOUNCE_MS = 500;
 
 export interface RenderedContent {
@@ -238,11 +239,7 @@ export default new Map([${exports.join(', ')}]);
 	}
 
 	toString() {
-		return JSON.stringify(
-			Array.from(this.#collections.entries()).map(([collectionName, collection]) => {
-				return [collectionName, Array.from(collection.entries())];
-			})
-		);
+		return `export default ${devalue.uneval(this.#collections)}`;
 	}
 
 	async writeToDisk(filePath: PathLike) {
@@ -260,37 +257,41 @@ export default new Map([${exports.join(', ')}]);
 			});
 		}
 	}
-
-	static async fromDisk(filePath: PathLike) {
-		if (!existsSync(filePath)) {
-			return new DataStore();
-		}
-		const str = await fs.readFile(filePath, 'utf-8');
-		return DataStore.fromString(str);
-	}
-
-	static fromString(str: string) {
-		const entries = JSON.parse(str);
-		return DataStore.fromJSON(entries);
-	}
-
+	/**
+	 * Attempts to load a DataStore from the virtual module.
+	 * This only works in Vite.
+	 */
 	static async fromModule() {
 		try {
 			// @ts-expect-error
-			const data = await import('astro:data-layer-content');
-			return DataStore.fromJSON(data.default);
+			const mod = await import('astro:data-layer-content');
+
+			const store = new DataStore();
+			store.#collections = mod?.default;
+
+			return store;
 		} catch {}
 		return new DataStore();
 	}
 
-	static fromJSON(entries: Array<[string, Array<[string, any]>]>) {
-		const collections = new Map<string, Map<string, any>>();
-		for (const [collectionName, collection] of entries) {
-			collections.set(collectionName, new Map(collection));
-		}
+	static async fromMap(data: Map<string, Map<string, any>>) {
 		const store = new DataStore();
-		store.#collections = collections;
+		store.#collections = data;
 		return store;
+	}
+
+	/**
+	 * Attempts to dynamically load a DataStore from a file.
+	 */
+
+	static async fromModuleFile(filePath: string) {
+		try {
+			if (existsSync(filePath)) {
+				const mod = await import(/* @vite-ignore */ filePath);
+				return DataStore.fromMap(mod.default);
+			}
+		} catch {}
+		return new DataStore();
 	}
 }
 

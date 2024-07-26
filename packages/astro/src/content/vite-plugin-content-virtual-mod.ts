@@ -1,7 +1,6 @@
 import nodeFs from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { dataToEsm } from '@rollup/pluginutils';
 import glob from 'fast-glob';
 import pLimit from 'p-limit';
 import type { Plugin } from 'vite';
@@ -107,16 +106,13 @@ export function astroContentVirtualModPlugin({
 			}
 			if (id === RESOLVED_DATA_STORE_VIRTUAL_ID) {
 				if (!fs.existsSync(dataStoreFile)) {
-					return 'export default {}';
+					return 'export default new Map()';
 				}
-				const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
+				const code = await fs.promises.readFile(dataStoreFile, 'utf-8');
 
 				try {
-					const parsed = JSON.parse(jsonData);
 					return {
-						code: dataToEsm(parsed, {
-							compact: true,
-						}),
+						code,
 						map: { mappings: '' },
 					};
 				} catch (err) {
