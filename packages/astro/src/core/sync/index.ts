@@ -112,18 +112,20 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 	const references: Array<string> = [];
 
 	for (const { filename, content } of settings.injectedTypes) {
-		const path = new URL(handleFilename(filename), settings.dotAstroDir);
-		fs.mkdirSync(dirname(normalizePath(fileURLToPath(path))), { recursive: true });
+		const path = normalizePath(
+			fileURLToPath(new URL(handleFilename(filename), settings.dotAstroDir))
+		);
+		fs.mkdirSync(dirname(path), { recursive: true });
 		// TODO: format content using recast
 		fs.writeFileSync(path, content, 'utf-8');
-		references.push(normalizePath(relative(fileURLToPath(settings.dotAstroDir), fileURLToPath(path))));
+		references.push(normalizePath(relative(fileURLToPath(settings.dotAstroDir), path)));
 	}
 
 	const astroDtsContent = `/// <reference types="astro/client" />\n${references.map((reference) => `/// <reference path=${JSON.stringify(reference)} />`).join('\n')}`;
 	if (references.length === 0) {
 		fs.mkdirSync(settings.dotAstroDir, { recursive: true });
 	}
-	fs.writeFileSync(new URL(REFERENCE_FILE, settings.dotAstroDir), astroDtsContent, 'utf-8');
+	fs.writeFileSync(normalizePath(fileURLToPath(new URL(REFERENCE_FILE, settings.dotAstroDir))), astroDtsContent, 'utf-8');
 }
 
 /**

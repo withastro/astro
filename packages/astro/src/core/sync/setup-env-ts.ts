@@ -30,9 +30,9 @@ export async function setUpEnvTs({
 	logger: Logger;
 	fs: typeof fsMod;
 }) {
-	const envTsPath = new URL('env.d.ts', settings.config.srcDir);
+	const envTsPath = normalizePath(fileURLToPath(new URL('env.d.ts', settings.config.srcDir)));
 	const envTsPathRelativetoRoot = normalizePath(
-		path.relative(fileURLToPath(settings.config.root), fileURLToPath(envTsPath))
+		path.relative(fileURLToPath(settings.config.root), envTsPath)
 	);
 	const expectedTypeReference = getDotAstroTypeReference({
 		settings,

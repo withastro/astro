@@ -5,12 +5,19 @@ import { beforeEach, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { loadFixture } from './test-utils.js';
+import { normalizePath } from 'vite';
 
 const createFixture = () => {
 	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
 	let astroFixture;
 	/** @type {Record<string, string>} */
 	const writtenFiles = {};
+
+	/**
+	 * @param {string} path
+	 */
+	const getExpectedPath = (path) =>
+		normalizePath(fileURLToPath(new URL(path, astroFixture.config.root)));
 
 	return {
 		/** @param {string} root */
@@ -59,8 +66,7 @@ const createFixture = () => {
 		},
 		/** @param {string} path */
 		thenFileShouldExist(path) {
-			const expectedPath = new URL(path, astroFixture.config.root).href;
-			assert.equal(writtenFiles.hasOwnProperty(expectedPath), true, `${path} does not exist`);
+			assert.equal(writtenFiles.hasOwnProperty(getExpectedPath(path)), true, `${path} does not exist`);
 		},
 		/**
 		 * @param {string} path
@@ -68,16 +74,14 @@ const createFixture = () => {
 		 * @param {string | undefined} error
 		 */
 		thenFileContentShouldInclude(path, content, error = undefined) {
-			const expectedPath = new URL(path, astroFixture.config.root).href;
-			assert.equal(writtenFiles[expectedPath].includes(content), true, error);
+			assert.equal(writtenFiles[getExpectedPath(path)].includes(content), true, error);
 		},
 		/**
 		 * @param {string} path
 		 */
 		thenFileShouldBeValidTypescript(path) {
-			const expectedPath = new URL(path, astroFixture.config.root).href;
 			try {
-				const content = writtenFiles[expectedPath];
+				const content = writtenFiles[getExpectedPath(path)];
 				const result = ts.transpileModule(content, {
 					compilerOptions: {
 						module: ts.ModuleKind.ESNext,
@@ -117,11 +121,7 @@ describe('astro sync', () => {
 		it('Updates `src/env.d.ts` if one exists', async () => {
 			const config = await fixture.load('./fixtures/astro-basic/');
 			fixture.clean();
-			fs.writeFileSync(
-				new URL('./env.d.ts', config.srcDir),
-				'// whatever',
-				'utf-8'
-			);
+			fs.writeFileSync(new URL('./env.d.ts', config.srcDir), '// whatever', 'utf-8');
 			await fixture.whenSyncing();
 			fixture.thenFileShouldExist('src/env.d.ts');
 			fixture.thenFileContentShouldInclude(

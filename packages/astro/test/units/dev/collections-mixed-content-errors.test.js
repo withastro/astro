@@ -123,11 +123,7 @@ title: Post
 			root
 		);
 
-		try {
-			const res = await sync({ fs });
-			assert.equal(res, 0);
-		} catch (e) {
-			assert.fail(`Did not expect sync to throw: ${e.message}`);
-		}
+		const res = await sync({ fs });
+		assert.equal(res, 0);
 	});
 });
