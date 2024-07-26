@@ -118,8 +118,9 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 		fs.writeFileSync(path, content, 'utf-8');
 		references.push(normalizePath(relative(fileURLToPath(settings.dotAstroDir), path)));
 	}
-
+	
 	const astroDtsContent = `/// <reference types="astro/client" />\n${references.map((reference) => `/// <reference path=${JSON.stringify(reference)} />`).join('\n')}`;
+	fs.mkdirSync(settings.dotAstroDir, { recursive: true });
 	fs.writeFileSync(new URL(REFERENCE_FILE, settings.dotAstroDir), astroDtsContent, 'utf-8');
 }
 
