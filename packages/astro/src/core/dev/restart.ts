@@ -30,6 +30,7 @@ async function createRestartedContainer(
 }
 
 const configRE = /.*astro.config.(?:mjs|cjs|js|ts)$/;
+// TODO: can we use dotAstroDir?
 const preferencesRE = /.*\.astro\/settings.json$/;
 
 export function shouldRestartContainer(
