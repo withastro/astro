@@ -35,18 +35,18 @@ type DataEntryMetadata = Record<string, never>;
 type ContentEntryMetadata = { slug: string };
 type CollectionEntryMap = {
 	[collection: string]:
-	| {
-		type: 'unknown';
-		entries: Record<string, never>;
-	}
-	| {
-		type: 'content';
-		entries: Record<string, ContentEntryMetadata>;
-	}
-	| {
-		type: 'data';
-		entries: Record<string, DataEntryMetadata>;
-	};
+		| {
+				type: 'unknown';
+				entries: Record<string, never>;
+		  }
+		| {
+				type: 'content';
+				entries: Record<string, ContentEntryMetadata>;
+		  }
+		| {
+				type: 'data';
+				entries: Record<string, DataEntryMetadata>;
+		  };
 };
 
 type CreateContentGeneratorParams = {
