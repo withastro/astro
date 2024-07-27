@@ -11,9 +11,13 @@ import type {
 import type * as babel from '@babel/core';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
-import type { Accept, ActionClient, InputSchema } from '../actions/runtime/virtual/server.js';
+import type {
+	ActionAccept,
+	ActionClient,
+	ActionInputSchema,
+} from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
-import type { AssetsPrefix, SerializedSSRManifest } from '../core/app/types.js';
+import type { AssetsPrefix, SSRManifest, SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import type { AstroConfigType } from '../core/config/index.js';
 import type { AstroTimer } from '../core/config/timer.js';
@@ -46,7 +50,7 @@ import type {
 	TransitionBeforePreparationEvent,
 	TransitionBeforeSwapEvent,
 } from '../transitions/events.js';
-import type { DeepPartial, OmitIndexSignature, Simplify, WithRequired } from '../type-utils.js';
+import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
 export type { AstroIntegrationLogger, ToolbarServerHelpers };
@@ -86,6 +90,7 @@ export interface AstroBuiltinProps {
 	'client:media'?: string;
 	'client:visible'?: ClientVisibleOptions | boolean;
 	'client:only'?: boolean | string;
+	'server:defer'?: boolean;
 }
 
 export type ClientVisibleOptions = Pick<IntersectionObserverInit, 'rootMargin'>;
@@ -118,15 +123,15 @@ export type TransitionAnimationValue =
 
 // Allow users to extend this for astro-jsx.d.ts
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AstroClientDirectives { }
+export interface AstroClientDirectives {}
 
 export interface AstroBuiltinAttributes {
 	'class:list'?:
-	| Record<string, boolean>
-	| Record<any, any>
-	| Iterable<string>
-	| Iterable<any>
-	| string;
+		| Record<string, boolean>
+		| Record<any, any>
+		| Iterable<string>
+		| Iterable<any>
+		| string;
 	'set:html'?: any;
 	'set:text'?: any;
 	'is:raw'?: boolean;
@@ -182,7 +187,7 @@ export interface AstroGlobal<
 	Self = AstroComponentFactory,
 	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
 > extends AstroGlobalPartial,
-	AstroSharedContext<Props, Params> {
+		AstroSharedContext<Props, Params> {
 	/**
 	 * A full URL object of the request URL.
 	 * Equivalent to: `new URL(Astro.request.url)`
@@ -257,7 +262,7 @@ export interface AstroGlobal<
 	 * ```
 	 */
 	getActionResult: AstroSharedContext['getActionResult'];
-	/** Redirect to another page (**SSR Only**)
+	/** Redirect to another page
 	 *
 	 * Example usage:
 	 * ```typescript
@@ -266,7 +271,7 @@ export interface AstroGlobal<
 	 * }
 	 * ```
 	 *
-	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroredirect)
 	 */
 	redirect: AstroSharedContext['redirect'];
 	/**
@@ -1195,51 +1200,51 @@ export interface AstroUserConfig {
 	 * See the [Prefetch guide](https://docs.astro.build/en/guides/prefetch/) for more information.
 	 */
 	prefetch?:
-	| boolean
-	| {
-		/**
-		 * @docs
-		 * @name prefetch.prefetchAll
-		 * @type {boolean}
-		 * @description
-		 * Enable prefetching for all links, including those without the `data-astro-prefetch` attribute.
-		 * This value defaults to `true` when using the `<ViewTransitions />` router. Otherwise, the default value is `false`.
-		 *
-		 * ```js
-		 * prefetch: {
-		 * 	prefetchAll: true
-		 * }
-		 * ```
-		 *
-		 * When set to `true`, you can disable prefetching individually by setting `data-astro-prefetch="false"` on any individual links.
-		 *
-		 * ```html
-		 * <a href="/about" data-astro-prefetch="false">About</a>
-		 *```
-		 */
-		prefetchAll?: boolean;
+		| boolean
+		| {
+				/**
+				 * @docs
+				 * @name prefetch.prefetchAll
+				 * @type {boolean}
+				 * @description
+				 * Enable prefetching for all links, including those without the `data-astro-prefetch` attribute.
+				 * This value defaults to `true` when using the `<ViewTransitions />` router. Otherwise, the default value is `false`.
+				 *
+				 * ```js
+				 * prefetch: {
+				 * 	prefetchAll: true
+				 * }
+				 * ```
+				 *
+				 * When set to `true`, you can disable prefetching individually by setting `data-astro-prefetch="false"` on any individual links.
+				 *
+				 * ```html
+				 * <a href="/about" data-astro-prefetch="false">About</a>
+				 *```
+				 */
+				prefetchAll?: boolean;
 
-		/**
-		 * @docs
-		 * @name prefetch.defaultStrategy
-		 * @type {'tap' | 'hover' | 'viewport' | 'load'}
-		 * @default `'hover'`
-		 * @description
-		 * The default prefetch strategy to use when the `data-astro-prefetch` attribute is set on a link with no value.
-		 *
-		 * - `'tap'`: Prefetch just before you click on the link.
-		 * - `'hover'`: Prefetch when you hover over or focus on the link. (default)
-		 * - `'viewport'`: Prefetch as the links enter the viewport.
-		 * - `'load'`: Prefetch all links on the page after the page is loaded.
-		 *
-		 * You can override this default value and select a different strategy for any individual link by setting a value on the attribute.
-		 *
-		 * ```html
-		 * <a href="/about" data-astro-prefetch="viewport">About</a>
-		 * ```
-		 */
-		defaultStrategy?: 'tap' | 'hover' | 'viewport' | 'load';
-	};
+				/**
+				 * @docs
+				 * @name prefetch.defaultStrategy
+				 * @type {'tap' | 'hover' | 'viewport' | 'load'}
+				 * @default `'hover'`
+				 * @description
+				 * The default prefetch strategy to use when the `data-astro-prefetch` attribute is set on a link with no value.
+				 *
+				 * - `'tap'`: Prefetch just before you click on the link.
+				 * - `'hover'`: Prefetch when you hover over or focus on the link. (default)
+				 * - `'viewport'`: Prefetch as the links enter the viewport.
+				 * - `'load'`: Prefetch all links on the page after the page is loaded.
+				 *
+				 * You can override this default value and select a different strategy for any individual link by setting a value on the attribute.
+				 *
+				 * ```html
+				 * <a href="/about" data-astro-prefetch="viewport">About</a>
+				 * ```
+				 */
+				defaultStrategy?: 'tap' | 'hover' | 'viewport' | 'load';
+		  };
 
 	/**
 	 * @docs
@@ -1582,23 +1587,89 @@ export interface AstroUserConfig {
 		 *
 		 */
 		routing?:
-		| {
+			| {
+					/**
+					 * @docs
+					 * @name i18n.routing.prefixDefaultLocale
+					 * @kind h4
+					 * @type {boolean}
+					 * @default `false`
+					 * @version 3.7.0
+					 * @description
+					 *
+					 * When `false`, only non-default languages will display a language prefix.
+					 * The `defaultLocale` will not show a language prefix and content files do not exist in a localized folder.
+					 *  URLs will be of the form `example.com/[locale]/content/` for all non-default languages, but `example.com/content/` for the default locale.
+					 *
+					 * When `true`, all URLs will display a language prefix.
+					 * URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
+					 * Localized folders are used for every language, including the default.
+					 *
+					 * ```js
+					 * export default defineConfig({
+					 * 	i18n: {
+					 * 		defaultLocale: "en",
+					 * 		locales: ["en", "fr", "pt-br", "es"],
+					 * 		routing: {
+					 * 			prefixDefaultLocale: true,
+					 * 		}
+					 * 	}
+					 * })
+					 * ```
+					 */
+					prefixDefaultLocale?: boolean;
+
+					/**
+					 * @docs
+					 * @name i18n.routing.redirectToDefaultLocale
+					 * @kind h4
+					 * @type {boolean}
+					 * @default `true`
+					 * @version 4.2.0
+					 * @description
+					 *
+					 * Configures whether or not the home URL (`/`) generated by `src/pages/index.astro`
+					 * will redirect to `/[defaultLocale]` when `prefixDefaultLocale: true` is set.
+					 *
+					 * Set `redirectToDefaultLocale: false` to disable this automatic redirection at the root of your site:
+					 * ```js
+					 * // astro.config.mjs
+					 * export default defineConfig({
+					 *   i18n:{
+					 *     defaultLocale: "en",
+					 * 		locales: ["en", "fr"],
+					 *     routing: {
+					 *       prefixDefaultLocale: true,
+					 *       redirectToDefaultLocale: false
+					 *     }
+					 *   }
+					 * })
+					 *```
+					 * */
+					redirectToDefaultLocale?: boolean;
+
+					/**
+					 * @name i18n.routing.strategy
+					 * @type {"pathname"}
+					 * @default `"pathname"`
+					 * @version 3.7.0
+					 * @description
+					 *
+					 * - `"pathname": The strategy is applied to the pathname of the URLs
+					 */
+					strategy?: 'pathname';
+			  }
 			/**
+			 *
 			 * @docs
-			 * @name i18n.routing.prefixDefaultLocale
+			 * @name i18n.routing.manual
 			 * @kind h4
-			 * @type {boolean}
-			 * @default `false`
-			 * @version 3.7.0
+			 * @type {string}
+			 * @version 4.6.0
 			 * @description
+			 * When this option is enabled, Astro will **disable** its i18n middleware so that you can implement your own custom logic. No other `routing` options (e.g. `prefixDefaultLocale`) may be configured with `routing: "manual"`.
 			 *
-			 * When `false`, only non-default languages will display a language prefix.
-			 * The `defaultLocale` will not show a language prefix and content files do not exist in a localized folder.
-			 *  URLs will be of the form `example.com/[locale]/content/` for all non-default languages, but `example.com/content/` for the default locale.
-			 *
-			 * When `true`, all URLs will display a language prefix.
-			 * URLs will be of the form `example.com/[locale]/content/` for every route, including the default language.
-			 * Localized folders are used for every language, including the default.
+			 * You will be responsible for writing your own routing logic, or executing Astro's i18n middleware manually alongside your own.
 			 *
 			 * ```js
 			 * export default defineConfig({
@@ -1612,73 +1683,7 @@ export interface AstroUserConfig {
 			 * })
 			 * ```
 			 */
-			prefixDefaultLocale?: boolean;
-
-			/**
-			 * @docs
-			 * @name i18n.routing.redirectToDefaultLocale
-			 * @kind h4
-			 * @type {boolean}
-			 * @default `true`
-			 * @version 4.2.0
-			 * @description
-			 *
-			 * Configures whether or not the home URL (`/`) generated by `src/pages/index.astro`
-			 * will redirect to `/[defaultLocale]` when `prefixDefaultLocale: true` is set.
-			 *
-			 * Set `redirectToDefaultLocale: false` to disable this automatic redirection at the root of your site:
-			 * ```js
-			 * // astro.config.mjs
-			 * export default defineConfig({
-			 *   i18n:{
-			 *     defaultLocale: "en",
-			 * 		locales: ["en", "fr"],
-			 *     routing: {
-			 *       prefixDefaultLocale: true,
-			 *       redirectToDefaultLocale: false
-			 *     }
-			 *   }
-			 * })
-			 *```
-			 * */
-			redirectToDefaultLocale?: boolean;
-
-			/**
-			 * @name i18n.routing.strategy
-			 * @type {"pathname"}
-			 * @default `"pathname"`
-			 * @version 3.7.0
-			 * @description
-			 *
-			 * - `"pathname": The strategy is applied to the pathname of the URLs
-			 */
-			strategy?: 'pathname';
-		}
-		/**
-		 *
-		 * @docs
-		 * @name i18n.routing.manual
-		 * @kind h4
-		 * @type {string}
-		 * @version 4.6.0
-		 * @description
-		 * When this option is enabled, Astro will **disable** its i18n middleware so that you can implement your own custom logic. No other `routing` options (e.g. `prefixDefaultLocale`) may be configured with `routing: "manual"`.
-		 *
-		 * You will be responsible for writing your own routing logic, or executing Astro's i18n middleware manually alongside your own.
-		 *
-		 * ```js
-		 * export default defineConfig({
-		 * 	i18n: {
-		 * 		defaultLocale: "en",
-		 * 		locales: ["en", "fr", "pt-br", "es"],
-		 * 		routing: {
-		 * 			prefixDefaultLocale: true,
-		 * 		}
-		 * 	}
-		 * })
-		 * ```
-		 */
-		| 'manual';
+			| 'manual';
 
 		/**
 		 * @name i18n.domains
@@ -2118,7 +2123,103 @@ export interface AstroUserConfig {
 			 * ```
 			 */
 			schema?: EnvSchema;
+
+			/**
+			 * @docs
+			 * @name experimental.env.validateSecrets
+			 * @kind h4
+			 * @type {boolean}
+			 * @default `false`
+			 * @version 4.11.6
+			 * @description
+			 *
+			 * Whether or not to validate secrets on the server when starting the dev server or running a build.
+			 *
+			 * By default, only public variables are validated on the server when starting the dev server or a build, and private variables are validated at runtime only. If enabled, private variables will also be checked on start. This is useful in some continuous integration (CI) pipelines to make sure all your secrets are correctly set before deploying.
+			 *
+			 * ```js
+			 * // astro.config.mjs
+			 * import { defineConfig, envField } from "astro/config"
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *     env: {
+			 *       schema: {
+			 *         // ...
+			 *       },
+			 *       validateSecrets: true
+			 *     }
+			 *   }
+			 * })
+			 * ```
+			 */
+			validateSecrets?: boolean;
 		};
+
+		/**
+		 * @docs
+		 * @name experimental.serverIslands
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.12.0
+		 * @description
+		 *
+		 * Enables experimental Server Island features.
+		 * Server Islands offer the ability to defer a component to render asynchronously after the page has already rendered.
+		 *
+		 * To enable, configure an [on-demand server rendering `output` mode](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered) with an adapter, and add the `serverIslands` flag to the `experimental` object:
+		 *
+		 * ```js
+		 * {
+		 *   output: 'hybrid', // or 'server'
+		 *   adapter: nodejs({ mode: 'standalone' }),
+		 *   experimental: {
+		 *     serverIslands: true,
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * Use the `server:defer` directive on any Astro component to delay initial rendering:
+		 *
+		 * ```astro "server:defer"
+		 * ---
+		 * import Avatar from '~/components/Avatar.astro';
+		 * ---
+		 * <Avatar server:defer />
+		 * ```
+		 *
+		 * The outer page will be rendered, either at build time (`hybrid`) or at runtime (`server`) with the island content omitted and a `<script>` tag included in its place.
+		 *
+		 * After the page loads in the browser, the script tag will replace itself with the the contents of the island by making a request.
+		 *
+		 * Any Astro component can be given the `server: defer` attribute to delay its rendering. There is no special API and you can write `.astro` code as normal:
+		 *
+		 * ```astro
+		 * ---
+		 * import { getUser } from '../api';
+		 *
+		 * const user = await getUser(Astro.locals.userId);
+		 * ---
+		 * <img class="avatar" src={user.imageUrl}>
+		 * ```
+		 *
+		 * #### Server island fallback content
+		 *
+		 * Since your component will not render with the rest of the page, you may want to add generic content (e.g. a loading message) to temporarily show in its place. This content will be displayed when the page first renders but before the island has loaded.
+		 *
+		 * Add placeholder content as a child of your Astro component with the `slot="fallback"` attribute. When your island content is available, the fallback content will be replaced.
+		 *
+		 * The example below displays a generic avatar as fallback content, then animates into a personalized avatar using view transitions:
+		 *
+		 * ```astro
+		 * <Avatar server:defer>
+		 *   <svg slot="fallback" class="generic-avatar" transition:name="avatar">...</svg>
+		 * </Avatar>
+		 * ```
+		 *
+		 * For a complete overview, and to give feedback on this experimental API, see the [Server Islands RFC](https://github.com/withastro/roadmap/pull/963).
+		 */
+		serverIslands?: boolean;
 	};
 }
 
@@ -2173,7 +2274,7 @@ export interface AstroConfig extends AstroConfigType {
  * An inline Astro config that takes highest priority when merging with the user config,
  * and includes inline-specific options to configure how Astro runs.
  */
-export interface AstroInlineConfig extends AstroUserConfig, AstroInlineOnlyConfig { }
+export interface AstroInlineConfig extends AstroUserConfig, AstroInlineOnlyConfig {}
 export interface AstroInlineOnlyConfig {
 	/**
 	 * A custom path to the Astro config file. If relative, it'll resolve based on the current working directory.
@@ -2317,6 +2418,8 @@ export interface AstroSettings {
 	 * - the user is on the latest version already
 	 */
 	latestAstroVersion: string | undefined;
+	serverIslandMap: NonNullable<SSRManifest['serverIslandMap']>;
+	serverIslandNameMap: NonNullable<SSRManifest['serverIslandNameMap']>;
 }
 
 export type AsyncRendererComponentFn<U> = (
@@ -2434,10 +2537,10 @@ export type InferGetStaticParamsType<T> = T extends (
 	opts?: GetStaticPathsOptions
 ) => infer R | Promise<infer R>
 	? R extends Array<infer U>
-	? U extends { params: infer P }
-	? P
-	: never
-	: never
+		? U extends { params: infer P }
+			? P
+			: never
+		: never
 	: never;
 
 /**
@@ -2467,10 +2570,10 @@ export type InferGetStaticPropsType<T> = T extends (
 	opts: GetStaticPathsOptions
 ) => infer R | Promise<infer R>
 	? R extends Array<infer U>
-	? U extends { props: infer P }
-	? P
-	: never
-	: never
+		? U extends { props: infer P }
+			? P
+			: never
+		: never
 	: never;
 
 export interface HydrateOptions {
@@ -2553,7 +2656,7 @@ export interface Page<T = any> {
 	total: number;
 	/** the current page number, starting from 1 */
 	currentPage: number;
-	/** number of items per page (default: 25) */
+	/** number of items per page (default: 10) */
 	size: number;
 	/** number of last page */
 	lastPage: number;
@@ -2564,6 +2667,10 @@ export interface Page<T = any> {
 		prev: string | undefined;
 		/** url of the next page (if there is one) */
 		next: string | undefined;
+		/** url of the first page (if the current page is not the first page) */
+		first: string | undefined;
+		/** url of the next page (if the current page in not the last page) */
+		last: string | undefined;
 	};
 }
 
@@ -2685,8 +2792,8 @@ interface AstroSharedContext<
 	 * Get action result on the server when using a form POST.
 	 */
 	getActionResult: <
-		TAccept extends Accept,
-		TInputSchema extends InputSchema<TAccept>,
+		TAccept extends ActionAccept,
+		TInputSchema extends ActionInputSchema<TAccept>,
 		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
 	>(
 		action: TAction
@@ -2969,83 +3076,92 @@ export type HookParameters<
 	Fn = AstroIntegration['hooks'][Hook],
 > = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
 
+declare global {
+	// eslint-disable-next-line  @typescript-eslint/no-namespace
+	namespace Astro {
+		export interface IntegrationHooks {
+			'astro:config:setup': (options: {
+				config: AstroConfig;
+				command: 'dev' | 'build' | 'preview';
+				isRestart: boolean;
+				updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
+				addRenderer: (renderer: AstroRenderer) => void;
+				addWatchFile: (path: URL | string) => void;
+				injectScript: (stage: InjectedScriptStage, content: string) => void;
+				injectRoute: (injectRoute: InjectedRoute) => void;
+				addClientDirective: (directive: ClientDirectiveConfig) => void;
+				/**
+				 * @deprecated Use `addDevToolbarApp` instead.
+				 * TODO: Fully remove in Astro 5.0
+				 */
+				addDevOverlayPlugin: (entrypoint: string) => void;
+				// TODO: Deprecate the `string` overload once a few apps have been migrated to the new API.
+				addDevToolbarApp: (entrypoint: DevToolbarAppEntry | string) => void;
+				addMiddleware: (mid: AstroIntegrationMiddleware) => void;
+				logger: AstroIntegrationLogger;
+				// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
+				// This may require some refactoring of `scripts`, `styles`, and `links` into something
+				// more generalized. Consider the SSR use-case as well.
+				// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
+			}) => void | Promise<void>;
+			'astro:config:done': (options: {
+				config: AstroConfig;
+				setAdapter: (adapter: AstroAdapter) => void;
+				logger: AstroIntegrationLogger;
+			}) => void | Promise<void>;
+			'astro:server:setup': (options: {
+				server: vite.ViteDevServer;
+				logger: AstroIntegrationLogger;
+				toolbar: ReturnType<typeof getToolbarServerCommunicationHelpers>;
+			}) => void | Promise<void>;
+			'astro:server:start': (options: {
+				address: AddressInfo;
+				logger: AstroIntegrationLogger;
+			}) => void | Promise<void>;
+			'astro:server:done': (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
+			'astro:build:ssr': (options: {
+				manifest: SerializedSSRManifest;
+				/**
+				 * This maps a {@link RouteData} to an {@link URL}, this URL represents
+				 * the physical file you should import.
+				 */
+				entryPoints: Map<RouteData, URL>;
+				/**
+				 * File path of the emitted middleware
+				 */
+				middlewareEntryPoint: URL | undefined;
+				logger: AstroIntegrationLogger;
+			}) => void | Promise<void>;
+			'astro:build:start': (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
+			'astro:build:setup': (options: {
+				vite: vite.InlineConfig;
+				pages: Map<string, PageBuildData>;
+				target: 'client' | 'server';
+				updateConfig: (newConfig: vite.InlineConfig) => void;
+				logger: AstroIntegrationLogger;
+			}) => void | Promise<void>;
+			'astro:build:generated': (options: {
+				dir: URL;
+				logger: AstroIntegrationLogger;
+			}) => void | Promise<void>;
+			'astro:build:done': (options: {
+				pages: { pathname: string }[];
+				dir: URL;
+				routes: RouteData[];
+				logger: AstroIntegrationLogger;
+				cacheManifest: boolean;
+			}) => void | Promise<void>;
+		}
+	}
+}
+
 export interface AstroIntegration {
 	/** The name of the integration. */
 	name: string;
 	/** The different hooks available to extend. */
 	hooks: {
-		'astro:config:setup'?: (options: {
-			config: AstroConfig;
-			command: 'dev' | 'build' | 'preview';
-			isRestart: boolean;
-			updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
-			addRenderer: (renderer: AstroRenderer) => void;
-			addWatchFile: (path: URL | string) => void;
-			injectScript: (stage: InjectedScriptStage, content: string) => void;
-			injectRoute: (injectRoute: InjectedRoute) => void;
-			addClientDirective: (directive: ClientDirectiveConfig) => void;
-			/**
-			 * @deprecated Use `addDevToolbarApp` instead.
-			 * TODO: Fully remove in Astro 5.0
-			 */
-			addDevOverlayPlugin: (entrypoint: string) => void;
-			// TODO: Deprecate the `string` overload once a few apps have been migrated to the new API.
-			addDevToolbarApp: (entrypoint: DevToolbarAppEntry | string) => void;
-			addMiddleware: (mid: AstroIntegrationMiddleware) => void;
-			logger: AstroIntegrationLogger;
-			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
-			// This may require some refactoring of `scripts`, `styles`, and `links` into something
-			// more generalized. Consider the SSR use-case as well.
-			// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
-		}) => void | Promise<void>;
-		'astro:config:done'?: (options: {
-			config: AstroConfig;
-			setAdapter: (adapter: AstroAdapter) => void;
-			logger: AstroIntegrationLogger;
-		}) => void | Promise<void>;
-		'astro:server:setup'?: (options: {
-			server: vite.ViteDevServer;
-			logger: AstroIntegrationLogger;
-			toolbar: ReturnType<typeof getToolbarServerCommunicationHelpers>;
-		}) => void | Promise<void>;
-		'astro:server:start'?: (options: {
-			address: AddressInfo;
-			logger: AstroIntegrationLogger;
-		}) => void | Promise<void>;
-		'astro:server:done'?: (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
-		'astro:build:ssr'?: (options: {
-			manifest: SerializedSSRManifest;
-			/**
-			 * This maps a {@link RouteData} to an {@link URL}, this URL represents
-			 * the physical file you should import.
-			 */
-			entryPoints: Map<RouteData, URL>;
-			/**
-			 * File path of the emitted middleware
-			 */
-			middlewareEntryPoint: URL | undefined;
-			logger: AstroIntegrationLogger;
-		}) => void | Promise<void>;
-		'astro:build:start'?: (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
-		'astro:build:setup'?: (options: {
-			vite: vite.InlineConfig;
-			pages: Map<string, PageBuildData>;
-			target: 'client' | 'server';
-			updateConfig: (newConfig: vite.InlineConfig) => void;
-			logger: AstroIntegrationLogger;
-		}) => void | Promise<void>;
-		'astro:build:generated'?: (options: {
-			dir: URL;
-			logger: AstroIntegrationLogger;
-		}) => void | Promise<void>;
-		'astro:build:done'?: (options: {
-			pages: { pathname: string }[];
-			dir: URL;
-			routes: RouteData[];
-			logger: AstroIntegrationLogger;
-			cacheManifest: boolean;
-		}) => void | Promise<void>;
-	};
+		[K in keyof Astro.IntegrationHooks]?: Astro.IntegrationHooks[K];
+	} & Partial<Record<string, unknown>>;
 }
 
 export type RewritePayload = string | URL | Request;
@@ -3089,10 +3205,10 @@ export interface RoutePart {
 type RedirectConfig =
 	| string
 	| {
-		status: ValidRedirectStatus;
-		destination: string;
-		priority?: RoutePriorityOverride;
-	};
+			status: ValidRedirectStatus;
+			destination: string;
+			priority?: RoutePriorityOverride;
+	  };
 
 export interface RouteData {
 	route: string;
@@ -3160,6 +3276,7 @@ export interface SSRResult {
 	 * Whether the page has failed with a non-recoverable error, or the client disconnected.
 	 */
 	cancelled: boolean;
+	base: string;
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
@@ -3170,6 +3287,7 @@ export interface SSRResult {
 		props: Record<string, any>,
 		slots: Record<string, any> | null
 	): AstroGlobal;
+	params: Params;
 	resolve: (s: string) => Promise<string>;
 	response: AstroGlobal['response'];
 	request: AstroGlobal['request'];
@@ -3186,6 +3304,8 @@ export interface SSRResult {
 	 */
 	pathname: string;
 	cookies: AstroCookies | undefined;
+	serverIslandNameMap: Map<string, string>;
+	trailingSlash: AstroConfig['trailingSlash'];
 	_metadata: SSRMetadata;
 }
 
