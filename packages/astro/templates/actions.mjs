@@ -10,8 +10,8 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 			const action = (param) => callSafely(() => actionHandler(param, path));
 
 			Object.assign(action, {
-				toString: () => getActionQueryString(path),
-				queryString: action.toString(),
+				queryString: getActionQueryString(path),
+				toString: () => action.queryString,
 				orThrow: (param) => {
 					return actionHandler(param, path);
 				},
