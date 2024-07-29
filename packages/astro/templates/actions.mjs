@@ -81,7 +81,6 @@ async function actionHandler(param, path) {
 	if (res.status === 204) return;
 
 	const json = await res.json();
-	console.log('$$$json', json);
 	return json;
 }
 
