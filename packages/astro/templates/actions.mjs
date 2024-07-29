@@ -1,18 +1,19 @@
-import { ActionError, callSafely } from 'astro:actions';
+import { ActionError, callSafely, getActionQueryString } from 'astro:actions';
 
-function toActionProxy(actionCallback = {}, aggregatedPath = '/_actions/') {
+function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 	return new Proxy(actionCallback, {
 		get(target, objKey) {
-			if (objKey in target) {
+			if (objKey in target || typeof objKey === 'symbol') {
 				return target[objKey];
 			}
 			const path = aggregatedPath + objKey.toString();
 			const action = (param) => actionHandler(param, path);
-			action.toString = () => path;
+
+			action.toString = () => getActionQueryString(path);
 			action.safe = (input) => {
 				return callSafely(() => action(input));
 			};
-			action.safe.toString = () => path;
+			action.safe.toString = () => action.toString();
 
 			// Add progressive enhancement info for React.
 			action.$$FORM_ACTION = function () {
@@ -72,7 +73,7 @@ async function actionHandler(param, path) {
 		headers.set('Content-Type', 'application/json');
 		headers.set('Content-Length', body?.length.toString() ?? '0');
 	}
-	const res = await fetch(path, {
+	const res = await fetch(`/_actions/${path}`, {
 		method: 'POST',
 		body,
 		headers,
