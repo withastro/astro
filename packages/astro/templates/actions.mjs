@@ -17,21 +17,22 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 
 			// Add progressive enhancement info for React.
 			action.$$FORM_ACTION = function () {
-				const data = new FormData();
-				data.set('_astroAction', action.toString());
 				return {
 					method: 'POST',
-					name: action.toString(),
-					data,
+					// `name` creates a hidden input.
+					// It's unused by Astro, but we can't turn this off.
+					// At least use a name that won't conflict with a user's formData.
+					name: '_astroAction',
+					action: action.toString(),
 				};
 			};
 			action.safe.$$FORM_ACTION = function () {
 				const data = new FormData();
-				data.set('_astroAction', action.toString());
 				data.set('_astroActionSafe', 'true');
 				return {
 					method: 'POST',
-					name: action.toString(),
+					name: '_astroAction',
+					action: action.toString(),
 					data,
 				};
 			};
