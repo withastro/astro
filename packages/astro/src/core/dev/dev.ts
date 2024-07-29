@@ -20,7 +20,6 @@ import {
 	shouldCheckForUpdates,
 } from './update-check.js';
 import { DATA_STORE_FILE } from '../../content/consts.js';
-import { fileURLToPath } from 'node:url';
 
 export interface DevServer {
 	address: AddressInfo;
