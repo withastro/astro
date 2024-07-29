@@ -16,7 +16,7 @@ test.describe('Server islands', () => {
 		});
 
 		test('Load content from the server', async ({ page, astro }) => {
-			await page.goto(astro.resolveUrl('/'));
+			await page.goto(astro.resolveUrl('/base/'));
 			let el = page.locator('#island');
 
 			await expect(el, 'element rendered').toBeVisible();
@@ -24,7 +24,7 @@ test.describe('Server islands', () => {
 		});
 
 		test('Can be in an MDX file', async ({ page, astro }) => {
-			await page.goto(astro.resolveUrl('/mdx'));
+			await page.goto(astro.resolveUrl('/base/mdx/'));
 			let el = page.locator('#island');
 
 			await expect(el, 'element rendered').toBeVisible();
@@ -32,7 +32,7 @@ test.describe('Server islands', () => {
 		});
 
 		test('Slots are provided back to the server islands', async ({ page, astro }) => {
-			await page.goto(astro.resolveUrl('/'));
+			await page.goto(astro.resolveUrl('/base/'));
 			let el = page.locator('#children');
 
 			await expect(el, 'element rendered').toBeVisible();
@@ -55,7 +55,7 @@ test.describe('Server islands', () => {
 		});
 
 		test('Only one component in prod', async ({ page, astro }) => {
-			await page.goto(astro.resolveUrl('/'));
+			await page.goto(astro.resolveUrl('/base/'));
 
 			let el = page.locator('#island');
 
