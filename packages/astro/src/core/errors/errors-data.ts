@@ -1620,6 +1620,21 @@ export const ActionsWithoutServerOutputError = {
 /**
  * @docs
  * @see
+ * - [On-demand rendering](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered)
+ * @description
+ * Your project must have a server output to create backend functions with Actions.
+ */
+export const ActionQueryStringInvalidError = {
+	name: 'ActionQueryStringInvalidError',
+	title: 'An invalid Action query string was passed by a form.',
+	message: (actionName: string) =>
+		`The server received the query string \`?_astroAction=${actionName}\`, but could not find an action with that name. Use the action function's \`.queryString\` property to retrieve the form \`action\` URL.`,
+	hint: 'Actions are experimental. Visit the RFC for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
  * - [devalue library](https://github.com/rich-harris/devalue)
  * @description
  * `transform()` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).

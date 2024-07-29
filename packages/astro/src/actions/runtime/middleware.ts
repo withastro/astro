@@ -4,6 +4,8 @@ import { defineMiddleware } from '../../core/middleware/index.js';
 import { ApiContextStorage } from './store.js';
 import { formContentTypes, getAction, hasContentType } from './utils.js';
 import { callSafely, getActionQueryString } from './virtual/shared.js';
+import { AstroError } from '../../core/errors/errors.js';
+import { ActionQueryStringInvalidError } from '../../core/errors/errors-data.js';
 
 export type Locals = {
 	_actionsInternal: {
@@ -55,9 +57,11 @@ async function handlePost({
 	const { request } = context;
 
 	const action = await getAction(actionName);
-	// TODO: AstroError
 	if (!action) {
-		throw new Error(`Action "${actionName}" not found.`);
+		throw new AstroError({
+			...ActionQueryStringInvalidError,
+			message: ActionQueryStringInvalidError.message(actionName),
+		});
 	}
 
 	const contentType = request.headers.get('content-type');
@@ -121,9 +125,11 @@ async function handlePostLegacy({ context, next }: { context: APIContext; next: 
 	if (!actionName) return nextWithLocalsStub(next, context);
 
 	const action = await getAction(actionName);
-	// TODO: AstroError
 	if (!action) {
-		throw new Error(`Action "${actionName}" not found.`);
+		throw new AstroError({
+			...ActionQueryStringInvalidError,
+			message: ActionQueryStringInvalidError.message(actionName),
+		});
 	}
 
 	const actionResult = await ApiContextStorage.run(context, () =>
