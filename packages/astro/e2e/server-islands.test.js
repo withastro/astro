@@ -39,7 +39,7 @@ test.describe('Server islands', () => {
 		});
 
 		test('Props are encrypted', async ({ page, astro }) => {
-			await page.goto(astro.resolveUrl('/'));
+			await page.goto(astro.resolveUrl('/base/'));
 			let el = page.locator('#secret');
 			await expect(el).toHaveText('test');
 		});
