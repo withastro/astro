@@ -5,7 +5,10 @@ import { ApiContextStorage } from './store.js';
 import { formContentTypes, getAction, hasContentType } from './utils.js';
 import { callSafely, getActionQueryString } from './virtual/shared.js';
 import { AstroError } from '../../core/errors/errors.js';
-import { ActionQueryStringInvalidError } from '../../core/errors/errors-data.js';
+import {
+	ActionQueryStringInvalidError,
+	ActionsUsedWithForGetError,
+} from '../../core/errors/errors-data.js';
 
 export type Locals = {
 	_actionsInternal: {
@@ -35,11 +38,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		return handlePost({ context, next, actionName });
 	}
 
-	// TODO: handle GET form requests with actions
 	if (context.request.method === 'GET' && actionName) {
-		throw new Error(
-			'Actions cannot be invoked with GET requests. Did you forget to set method="post" on your form?'
-		);
+		throw new AstroError({
+			...ActionsUsedWithForGetError,
+			message: ActionsUsedWithForGetError.message(actionName),
+		});
 	}
 
 	if (context.request.method === 'POST') {
