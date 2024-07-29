@@ -29,3 +29,12 @@ body:
         5. Error! Describe what went wrong (and what was expected instead)...
     validations:
       required: true
+  - type: input
+    attributes:
+      label: Link to Minimal Reproducible Example
+      description: |
+        Provide a link to a minimal reproducible example. If the error only happens in one file, please specify in which file and where precisely does the error happen.
+        If the file is in a private repository you can share a minimal version by copying the file's content in this issue, or using a service like [GitHub Gist](https://gist.github.com/) or [Pastebin](https://pastebin.com).
+      placeholder: 'https://github.com/user/repo/blob/main/src/pages/index.astro'
+    validations:
+      required: true
