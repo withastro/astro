@@ -7,36 +7,41 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 				return target[objKey];
 			}
 			const path = aggregatedPath + objKey.toString();
-			const action = (param) => actionHandler(param, path);
+			const action = (param) => callSafely(() => actionHandler(param, path));
 
-			action.toString = () => getActionQueryString(path);
-			action.queryString = action.toString();
-			action.safe = (input) => {
-				return callSafely(() => action(input));
-			};
-			action.safe.toString = () => action.toString();
+			Object.assign(action, {
+				toString: () => getActionQueryString(path),
+				queryString: action.toString(),
+				orThrow: (param) => {
+					return actionHandler(param, path);
+				},
+				// Add progressive enhancement info for React.
+				$$FORM_ACTION: function () {
+					const data = new FormData();
+					data.set('_astroActionSafe', 'true');
+					return {
+						method: 'POST',
+						// `name` creates a hidden input.
+						// It's unused by Astro, but we can't turn this off.
+						// At least use a name that won't conflict with a user's formData.
+						name: '_astroAction',
+						action: action.toString(),
+						data,
+					};
+				},
+			});
 
-			// Add progressive enhancement info for React.
-			action.$$FORM_ACTION = function () {
-				return {
-					method: 'POST',
-					// `name` creates a hidden input.
-					// It's unused by Astro, but we can't turn this off.
-					// At least use a name that won't conflict with a user's formData.
-					name: '_astroAction',
-					action: action.toString(),
-				};
-			};
-			action.safe.$$FORM_ACTION = function () {
-				const data = new FormData();
-				data.set('_astroActionSafe', 'true');
-				return {
-					method: 'POST',
-					name: '_astroAction',
-					action: action.toString(),
-					data,
-				};
-			};
+			Object.assign(action.orThrow, {
+				toString: () => action.toString(),
+				$$FORM_ACTION: function () {
+					return {
+						method: 'POST',
+						name: '_astroAction',
+						action: action.toString(),
+					};
+				},
+			});
+
 			// recurse to construct queries for nested object paths
 			// ex. actions.user.admins.auth()
 			return toActionProxy(action, path + '.');
@@ -87,6 +92,7 @@ async function actionHandler(param, path) {
 	if (res.status === 204) return;
 
 	const json = await res.json();
+	console.log('$$$json', json);
 	return json;
 }
 
