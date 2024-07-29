@@ -68,7 +68,7 @@
     "prettier-plugin-astro": "^0.14.0",
     "tiny-glob": "^0.2.9",
     "turbo": "^1.13.4",
-    "typescript": "~5.4.5",
+    "typescript": "~5.5.4",
     "typescript-eslint": "rc-v8"
   },
   "pnpm": {
