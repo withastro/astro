@@ -24,9 +24,11 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 		AggregateError.is(e) || Array.isArray(e.errors) ? (e.errors as SSRError[]) : [e as SSRError];
 
 	err.forEach((error) => {
-		if (e.stack && isWritable(error, 'stack')) {
+		if (e.stack) {
 			const stackInfo = collectInfoFromStacktrace(e);
-			error.stack = stripAnsi(stackInfo.stack);
+			try {
+				error.stack = stripAnsi(stackInfo.stack);
+			} catch {}
 			error.loc = stackInfo.loc;
 			error.plugin = stackInfo.plugin;
 			error.pluginCode = stackInfo.pluginCode;
@@ -71,9 +73,12 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 
 		// Strip ANSI for `message` property. Note that ESBuild errors may not have the property,
 		// but it will be handled and added below, which is already ANSI-free
-		// We need to check if it's writable because, unusually, some errors, like DomException, have a read-only message property
-		if (error.message && isWritable(error, 'message')) {
-			error.message = stripAnsi(error.message);
+		if (error.message) {
+			try {
+				error.message = stripAnsi(error.message);
+			} catch {
+				// Setting `error.message` can fail here if the message is read-only, which for the vast majority of cases will never happen, however some somewhat obscure cases can cause this to happen.
+			}
 		}
 	});
 
@@ -84,8 +89,10 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 			const { location, pluginName, text } = buildError;
 
 			// ESBuild can give us a slightly better error message than the one in the error, so let's use it
-			if (text && isWritable(err[i], 'message')) {
-				err[i].message = text;
+			if (text) {
+				try {
+					err[i].message = text;
+				} catch {}
 			}
 
 			if (location) {
@@ -255,12 +262,4 @@ export function renderErrorMarkdown(markdown: string, target: 'html' | 'cli') {
 			.replace(urlRegex, (fullMatch) => ` ${underline(fullMatch.trim())}`)
 			.replace(boldRegex, (_, m1) => `${bold(m1)}`);
 	}
-}
-
-function isWritable<T extends object>(obj: T, key: keyof T) {
-	const desc =
-		Object.getOwnPropertyDescriptor(obj, key) ||
-		Object.getOwnPropertyDescriptor(Object.getPrototypeOf(obj), key) ||
-		{};
-	return Boolean(desc?.writable);
 }
