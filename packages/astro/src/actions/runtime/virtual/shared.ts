@@ -169,8 +169,8 @@ export function getActionProps<T extends (args: FormData) => MaybePromise<unknow
 	const params = new URLSearchParams(action.toString());
 	const actionName = params.get('_astroAction');
 	if (!actionName) {
-		// TODO: AstroError
-		throw new Error('Invalid function was passed to getActionProps()');
+		// No need for AstroError. `getActionProps()` will be removed for stable.
+		throw new Error('Invalid actions function was passed to getActionProps()');
 	}
 	return {
 		type: 'hidden',
