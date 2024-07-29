@@ -26,14 +26,16 @@ export type ActionClient<
 	TAccept extends ActionAccept | undefined,
 	TInputSchema extends ActionInputSchema<TAccept> | undefined,
 > = TInputSchema extends z.ZodType
-	? (input: TAccept extends 'form' ? FormData : z.input<TInputSchema>) => Promise<
+	? ((
+			input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
+		) => Promise<
 			SafeResult<
 				z.input<TInputSchema> extends ErrorInferenceObject
 					? z.input<TInputSchema>
 					: ErrorInferenceObject,
 				Awaited<TOutput>
 			>
-		> & {
+		>) & {
 			queryString: string;
 			orThrow: (
 				input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
