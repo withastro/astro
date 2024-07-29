@@ -125,4 +125,10 @@ test.describe('Error display', () => {
 		const message = (await getErrorOverlayContent(page)).message;
 		expect(message).toMatch('can only be used in');
 	});
+
+	test('can handle DomException errors', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/dom-exception'), { waitUntil: 'networkidle' });
+		const message = (await getErrorOverlayContent(page)).message;
+		expect(message).toMatch('The operation was aborted due to timeout');
+	});
 });
