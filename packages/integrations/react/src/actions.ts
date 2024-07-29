@@ -90,7 +90,6 @@ function injectStateIntoFormActionData<R extends [this: unknown, state: unknown,
 
 	if ('$$FORM_ACTION' in fn && typeof fn.$$FORM_ACTION === 'function') {
 		const metadata = fn.$$FORM_ACTION();
-		// console.log('$$$fn', metadata);
 		boundFn.$$FORM_ACTION = () => {
 			const data = (metadata.data as FormData) ?? new FormData();
 			data.set('_astroActionState', JSON.stringify(state));
