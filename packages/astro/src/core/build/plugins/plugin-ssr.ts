@@ -37,6 +37,11 @@ function vitePluginSSR(
 				inputs.add(getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component));
 			}
 
+			const adapterServerEntrypoint = options.settings.adapter?.serverEntrypoint;
+			if(adapterServerEntrypoint) {
+				inputs.add(adapterServerEntrypoint);
+			}
+
 			inputs.add(SSR_VIRTUAL_MODULE_ID);
 			return addRollupInput(opts, Array.from(inputs));
 		},
@@ -247,8 +252,8 @@ function generateSSRCode(settings: AstroSettings, adapter: AstroAdapter, middlew
 
 	const imports = [
 		`import { renderers } from '${RENDERERS_MODULE_ID}';`,
-		`import { manifest as defaultManifest } from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';`,
 		`import * as serverEntrypointModule from '${adapter.serverEntrypoint}';`,
+		`import { manifest as defaultManifest } from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';`,
 		edgeMiddleware ? `` : `import { onRequest as middleware } from '${middlewareId}';`,
 		settings.config.experimental.serverIslands
 			? `import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';`

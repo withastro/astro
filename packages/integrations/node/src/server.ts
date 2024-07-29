@@ -4,6 +4,7 @@ import createMiddleware from './middleware.js';
 import { createStandaloneHandler } from './standalone.js';
 import startServer from './standalone.js';
 import type { Options } from './types.js';
+applyPolyfills();
 
 // Won't throw if the virtual module is not available because it's not supported in
 // the users's astro version or if astro:env is not enabled in the project
@@ -11,7 +12,6 @@ await import('astro/env/setup')
 	.then((mod) => mod.setGetEnv((key) => process.env[key]))
 	.catch(() => {});
 
-applyPolyfills();
 export function createExports(manifest: SSRManifest, options: Options) {
 	const app = new NodeApp(manifest);
 	options.trailingSlash = manifest.trailingSlash;
