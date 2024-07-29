@@ -1,5 +1,4 @@
 import opts from 'astro:react:opts';
-import { AstroError } from 'astro/errors';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { incrementId } from './context.js';
@@ -151,17 +150,7 @@ async function getFormState({ result }) {
 
 	if (!actionKey || !actionName) return undefined;
 
-	const isUsingSafe = formData.has('_astroActionSafe');
-	if (!isUsingSafe && actionResult.error) {
-		throw new AstroError(
-			`Unhandled error calling action ${actionName.replace(/^\/_actions\//, '')}:\n[${
-				actionResult.error.code
-			}] ${actionResult.error.message}`,
-			'use `.safe()` to handle from your React component.'
-		);
-	}
-
-	return [isUsingSafe ? actionResult : actionResult.data, actionKey, actionName];
+	return [actionResult, actionKey, actionName];
 }
 
 async function renderToPipeableStreamAsync(vnode, options) {
