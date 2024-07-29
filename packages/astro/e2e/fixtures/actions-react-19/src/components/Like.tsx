@@ -15,14 +15,14 @@ export function Like({ postId, label, likes }: { postId: string; label: string; 
 
 export function LikeWithActionState({ postId, label, likes: initial }: { postId: string; label: string; likes: number }) {
 	const [likes, action] = useActionState(
-		experimental_withState(actions.blog.likeWithActionState.orThrow),
-		initial,
+		experimental_withState(actions.blog.likeWithActionState),
+		{ data: initial },
 	);
 
 	return (
 		<form action={action}>
 			<input type="hidden" name="postId" value={postId} />
-			<Button likes={likes} label={label} />
+			<Button likes={likes.data} label={label} />
 		</form>
 	);
 }
