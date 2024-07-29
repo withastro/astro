@@ -7,7 +7,7 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 				return target[objKey];
 			}
 			const path = aggregatedPath + objKey.toString();
-			const action = (param) => callSafely(() => actionHandler(param, path));
+			const action = (param) => callSafely(() => handleActionOrThrow(param, path));
 
 			Object.assign(action, {
 				queryString: getActionQueryString(path),
@@ -27,7 +27,7 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 				// If you want to throw exceptions,
 				//  you must handle those exceptions with client JS.
 				orThrow: (param) => {
-					return actionHandler(param, path);
+					return handleActionOrThrow(param, path);
 				},
 			});
 
@@ -43,14 +43,14 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
  * @param {string} path Built path to call action by path name.
  * Usage: `actions.[name](param)`.
  */
-async function actionHandler(param, path) {
+async function handleActionOrThrow(param, path) {
 	// When running server-side, import the action and call it.
 	if (import.meta.env.SSR) {
 		const { getAction } = await import('astro/actions/runtime/utils.js');
 		const action = await getAction(path);
 		if (!action) throw new Error(`Action not found: ${path}`);
 
-		return action(param);
+		return action.orThrow(param);
 	}
 
 	// When running client-side, make a fetch request to the action path.
