@@ -113,7 +113,9 @@ function handleResult({
 async function handlePostLegacy({ context, next }: { context: APIContext; next: MiddlewareNext }) {
 	const { request } = context;
 
-	// Ignore requests directly to the _actions URL
+	// We should not run a middleware handler for fetch()
+	// requests directly to the /_actions URL.
+	// Otherwise, we may handle the result twice.
 	if (context.url.pathname.startsWith('/_actions')) return nextWithLocalsStub(next, context);
 
 	const contentType = request.headers.get('content-type');
