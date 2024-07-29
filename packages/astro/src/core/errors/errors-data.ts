@@ -1620,9 +1620,9 @@ export const ActionsWithoutServerOutputError = {
 /**
  * @docs
  * @see
- * - [On-demand rendering](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered)
+ * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
  * @description
- * Your project must have a server output to create backend functions with Actions.
+ * The server received the query string `?_astroAction=name`, but could not find an action with that name. Use the action function's `.queryString` property to retrieve the form `action` URL.
  */
 export const ActionQueryStringInvalidError = {
 	name: 'ActionQueryStringInvalidError',
