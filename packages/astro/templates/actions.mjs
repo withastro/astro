@@ -12,13 +12,8 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 			Object.assign(action, {
 				queryString: getActionQueryString(path),
 				toString: () => action.queryString,
-				orThrow: (param) => {
-					return actionHandler(param, path);
-				},
-				// Add progressive enhancement info for React.
+				// Progressive enhancement info for React.
 				$$FORM_ACTION: function () {
-					const data = new FormData();
-					data.set('_astroActionSafe', 'true');
 					return {
 						method: 'POST',
 						// `name` creates a hidden input.
@@ -26,19 +21,13 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 						// At least use a name that won't conflict with a user's formData.
 						name: '_astroAction',
 						action: action.toString(),
-						data,
 					};
 				},
-			});
-
-			Object.assign(action.orThrow, {
-				toString: () => action.toString(),
-				$$FORM_ACTION: function () {
-					return {
-						method: 'POST',
-						name: '_astroAction',
-						action: action.toString(),
-					};
+				// Note: `orThrow` does not have progressive enhancement info.
+				// If you want to throw exceptions,
+				//  you must handle those exceptions with client JS.
+				orThrow: (param) => {
+					return actionHandler(param, path);
 				},
 			});
 
