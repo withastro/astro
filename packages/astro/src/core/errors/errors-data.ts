@@ -1643,7 +1643,7 @@ export const ActionQueryStringInvalidError = {
 	name: 'ActionQueryStringInvalidError',
 	title: 'An invalid Action query string was passed by a form.',
 	message: (actionName: string) =>
-		`The server received the query string \`?_astroAction=${actionName}\`, but could not find an action with that name. Use the action function's \`.queryString\` property to retrieve the form \`action\` URL.`,
+		`The server received the query string \`?_astroAction=${actionName}\`, but could not find an action with that name. If you changed an action's name in development, remove this query param from your URL and refresh.`,
 	hint: 'Actions are experimental. Visit the RFC for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md',
 } satisfies ErrorData;
 
