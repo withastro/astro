@@ -8,7 +8,7 @@ import { AstroError } from '../../core/errors/errors.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
 import { ApiContextStorage } from './store.js';
 import { formContentTypes, getAction, hasContentType } from './utils.js';
-import { callSafely, getActionQueryString } from './virtual/shared.js';
+import { getActionQueryString } from './virtual/shared.js';
 
 export type Locals = {
 	_actionsInternal: {
