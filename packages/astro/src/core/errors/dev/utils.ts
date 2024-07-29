@@ -24,7 +24,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 		AggregateError.is(e) || Array.isArray(e.errors) ? (e.errors as SSRError[]) : [e as SSRError];
 
 	err.forEach((error) => {
-		if (e.stack) {
+		if (e.stack && isWritable(error, 'stack')) {
 			const stackInfo = collectInfoFromStacktrace(e);
 			error.stack = stripAnsi(stackInfo.stack);
 			error.loc = stackInfo.loc;
@@ -71,7 +71,8 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 
 		// Strip ANSI for `message` property. Note that ESBuild errors may not have the property,
 		// but it will be handled and added below, which is already ANSI-free
-		if (error.message) {
+		// We need to check if it's writable because, unusually, some errors, like DomException, have a read-only message property
+		if (error.message && isWritable(error, 'message')) {
 			error.message = stripAnsi(error.message);
 		}
 	});
@@ -83,7 +84,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 			const { location, pluginName, text } = buildError;
 
 			// ESBuild can give us a slightly better error message than the one in the error, so let's use it
-			if (text) {
+			if (text && isWritable(err[i], 'message')) {
 				err[i].message = text;
 			}
 
@@ -254,4 +255,12 @@ export function renderErrorMarkdown(markdown: string, target: 'html' | 'cli') {
 			.replace(urlRegex, (fullMatch) => ` ${underline(fullMatch.trim())}`)
 			.replace(boldRegex, (_, m1) => `${bold(m1)}`);
 	}
+}
+
+function isWritable<T extends object>(obj: T, key: keyof T) {
+	const desc =
+		Object.getOwnPropertyDescriptor(obj, key) ||
+		Object.getOwnPropertyDescriptor(Object.getPrototypeOf(obj), key) ||
+		{};
+	return Boolean(desc?.writable);
 }
