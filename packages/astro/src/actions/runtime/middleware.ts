@@ -106,6 +106,9 @@ function handleResult({
 async function handlePostLegacy({ context, next }: { context: APIContext; next: MiddlewareNext }) {
 	const { request } = context;
 
+	// Ignore requests directly to the _actions URL
+	if (context.url.pathname.startsWith('/_actions')) return nextWithLocalsStub(next, context);
+
 	const contentType = request.headers.get('content-type');
 	let formData: FormData | undefined;
 	if (contentType && hasContentType(contentType, formContentTypes)) {
