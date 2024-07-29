@@ -239,7 +239,7 @@ export default new Map([${exports.join(', ')}]);
 	}
 
 	toString() {
-		return `export default ${devalue.uneval(this.#collections)}`;
+		return devalue.stringify(this.#collections);
 	}
 
 	async writeToDisk(filePath: PathLike) {
@@ -263,13 +263,10 @@ export default new Map([${exports.join(', ')}]);
 	 */
 	static async fromModule() {
 		try {
-			// @ts-expect-error
-			const mod = await import('astro:data-layer-content');
-
-			const store = new DataStore();
-			store.#collections = mod?.default;
-
-			return store;
+			// @ts-expect-error - this is a virtual module
+			const data = await import('astro:data-layer-content');
+			const map = devalue.unflatten(data.default);
+			return DataStore.fromMap(map);
 		} catch {}
 		return new DataStore();
 	}
@@ -280,15 +277,16 @@ export default new Map([${exports.join(', ')}]);
 		return store;
 	}
 
-	/**
-	 * Attempts to dynamically load a DataStore from a file.
-	 */
+	static async fromString(data: string) {
+		const map = devalue.parse(data);
+		return DataStore.fromMap(map);
+	}
 
-	static async fromModuleFile(filePath: string) {
+	static async fromFile(filePath: string | URL) {
 		try {
 			if (existsSync(filePath)) {
-				const mod = await import(/* @vite-ignore */ filePath);
-				return DataStore.fromMap(mod.default);
+				const data = await fs.readFile(filePath, 'utf-8');
+				return DataStore.fromString(data);
 			}
 		} catch {}
 		return new DataStore();

@@ -108,11 +108,9 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	let store: DataStore | undefined;
 	try {
-		const dataStoreFile = fileURLToPath(
-			new URL(DATA_STORE_FILE, restart.container.settings.config.cacheDir)
-		);
+		const dataStoreFile = new URL(DATA_STORE_FILE, restart.container.settings.config.cacheDir);
 		if (existsSync(dataStoreFile)) {
-			store = await DataStore.fromModuleFile(dataStoreFile);
+			store = await DataStore.fromFile(dataStoreFile);
 			globalDataStore.set(store);
 		}
 	} catch (err: any) {
