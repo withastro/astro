@@ -55,7 +55,7 @@ const commentPostIdOverride = Astro.url.searchParams.get('commentPostIdOverride'
 			: undefined}
 		client:load
 	/>
-	<form method="POST" data-testid="progressive-fallback" action={actions.blog.comment}>
+	<form method="POST" data-testid="progressive-fallback" action={actions.blog.comment.queryString}>
 		<input type="hidden" name="postId" value={post.id} />
 		<label for="fallback-author">
 			Author

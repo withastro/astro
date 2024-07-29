@@ -10,6 +10,7 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 			const action = (param) => actionHandler(param, path);
 
 			action.toString = () => getActionQueryString(path);
+			action.queryString = action.toString();
 			action.safe = (input) => {
 				return callSafely(() => action(input));
 			};
