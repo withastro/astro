@@ -347,6 +347,7 @@ export class RenderContext {
 		// This object starts here as an empty shell (not yet the result) but then
 		// calling the render() function will populate the object with scripts, styles, etc.
 		const result: SSRResult = {
+			base: manifest.base,
 			cancelled: false,
 			clientDirectives,
 			inlinedScripts,
@@ -368,6 +369,7 @@ export class RenderContext {
 			styles,
 			actionResult,
 			serverIslandNameMap: manifest.serverIslandNameMap ?? new Map(),
+			trailingSlash: manifest.trailingSlash,
 			_metadata: {
 				hasHydrationScript: false,
 				rendererSpecificHydrationScripts: new Set(),

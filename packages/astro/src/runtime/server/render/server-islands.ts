@@ -60,6 +60,7 @@ export function renderServerIsland(
 			}
 
 			const hostId = crypto.randomUUID();
+			const serverIslandUrl = `${result.base}_server-islands/${componentId}${result.trailingSlash === 'always' ? '/' : ''}`;
 
 			destination.write(`<script async type="module" data-island-id="${hostId}">
 let componentId = ${safeJsonStringify(componentId)};
@@ -71,7 +72,7 @@ let data = {
 	slots: ${safeJsonStringify(renderedSlots)},
 };
 
-let response = await fetch('/_server-islands/${componentId}', {
+let response = await fetch('${serverIslandUrl}', {
 	method: 'POST',
 	body: JSON.stringify(data),
 });
