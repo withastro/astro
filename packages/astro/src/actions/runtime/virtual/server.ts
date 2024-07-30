@@ -28,21 +28,21 @@ export type ActionClient<
 > = TInputSchema extends z.ZodType
 	? ((
 			input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
-		) => Promise<Awaited<TOutput>>) & {
+		) => Promise<
+			SafeResult<
+				z.input<TInputSchema> extends ErrorInferenceObject
+					? z.input<TInputSchema>
+					: ErrorInferenceObject,
+				Awaited<TOutput>
+			>
+		>) & {
 			queryString: string;
-			safe: (
+			orThrow: (
 				input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
-			) => Promise<
-				SafeResult<
-					z.input<TInputSchema> extends ErrorInferenceObject
-						? z.input<TInputSchema>
-						: ErrorInferenceObject,
-					Awaited<TOutput>
-				>
-			>;
+			) => Promise<Awaited<TOutput>>;
 		}
-	: ((input?: any) => Promise<Awaited<TOutput>>) & {
-			safe: (input?: any) => Promise<SafeResult<never, Awaited<TOutput>>>;
+	: (input?: any) => Promise<SafeResult<never, Awaited<TOutput>>> & {
+			orThrow: (input?: any) => Promise<Awaited<TOutput>>;
 		};
 
 export function defineAction<
@@ -66,12 +66,15 @@ export function defineAction<
 			? getFormServerHandler(handler, inputSchema)
 			: getJsonServerHandler(handler, inputSchema);
 
-	Object.assign(serverHandler, {
-		safe: async (unparsedInput: unknown) => {
-			return callSafely(() => serverHandler(unparsedInput));
-		},
+	const safeServerHandler = async (unparsedInput: unknown) => {
+		return callSafely(() => serverHandler(unparsedInput));
+	};
+
+	Object.assign(safeServerHandler, {
+		orThrow: serverHandler,
 	});
-	return serverHandler as ActionClient<TOutput, TAccept, TInputSchema> & string;
+
+	return safeServerHandler as ActionClient<TOutput, TAccept, TInputSchema> & string;
 }
 
 function getFormServerHandler<TOutput, TInputSchema extends ActionInputSchema<'form'>>(

@@ -8,7 +8,7 @@ import { AstroError } from '../../core/errors/errors.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
 import { ApiContextStorage } from './store.js';
 import { formContentTypes, getAction, hasContentType } from './utils.js';
-import { callSafely, getActionQueryString } from './virtual/shared.js';
+import { getActionQueryString } from './virtual/shared.js';
 
 export type Locals = {
 	_actionsInternal: {
@@ -72,9 +72,7 @@ async function handlePost({
 	if (contentType && hasContentType(contentType, formContentTypes)) {
 		formData = await request.clone().formData();
 	}
-	const actionResult = await ApiContextStorage.run(context, () =>
-		callSafely(() => action(formData))
-	);
+	const actionResult = await ApiContextStorage.run(context, () => action(formData));
 
 	return handleResult({ context, next, actionName, actionResult });
 }
@@ -137,9 +135,7 @@ async function handlePostLegacy({ context, next }: { context: APIContext; next: 
 		});
 	}
 
-	const actionResult = await ApiContextStorage.run(context, () =>
-		callSafely(() => action(formData))
-	);
+	const actionResult = await ApiContextStorage.run(context, () => action(formData));
 	return handleResult({ context, next, actionName, actionResult });
 }
 

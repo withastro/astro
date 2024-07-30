@@ -10,7 +10,7 @@ const exampleAction = defineAction({
 	handler: () => {},
 });
 
-const result = await exampleAction.safe({ name: 'Alice' });
+const result = await exampleAction({ name: 'Alice' });
 
 describe('isInputError', () => {
 	it('isInputError narrows unknown error types', async () => {

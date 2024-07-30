@@ -1,3 +1,6 @@
+import type { ZodType } from 'zod';
+import type { ActionAccept, ActionClient } from './virtual/server.js';
+
 export const formContentTypes = ['application/x-www-form-urlencoded', 'multipart/form-data'];
 
 export function hasContentType(contentType: string, expected: string[]) {
@@ -17,7 +20,7 @@ export type MaybePromise<T> = T | Promise<T>;
  */
 export async function getAction(
 	path: string
-): Promise<((param: unknown) => MaybePromise<unknown>) | undefined> {
+): Promise<ActionClient<unknown, ActionAccept, ZodType> | undefined> {
 	const pathKeys = path.replace('/_actions/', '').split('.');
 	// @ts-expect-error virtual module
 	let { server: actionLookup } = await import('astro:internal-actions');
