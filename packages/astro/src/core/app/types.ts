@@ -7,6 +7,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 	SerializedRouteData,
+	AstroMiddlewareInstance,
 } from '../../@types/astro.js';
 import type { RoutingStrategies } from '../../i18n/utils.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
@@ -67,7 +68,7 @@ export type SSRManifest = {
 	serverIslandMap?: Map<string, () => Promise<ComponentInstance>>;
 	serverIslandNameMap?: Map<string, string>;
 	i18n: SSRManifestI18n | undefined;
-	middleware: MiddlewareHandler;
+	middleware: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	checkOrigin: boolean;
 	// TODO: remove once the experimental flag is removed
 	rewritingEnabled: boolean;
