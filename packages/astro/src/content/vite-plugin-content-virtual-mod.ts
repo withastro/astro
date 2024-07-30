@@ -107,7 +107,7 @@ export function astroContentVirtualModPlugin({
 			}
 			if (id === RESOLVED_DATA_STORE_VIRTUAL_ID) {
 				if (!fs.existsSync(dataStoreFile)) {
-					return 'export default {}';
+					return 'export default new Map()';
 				}
 				const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
 

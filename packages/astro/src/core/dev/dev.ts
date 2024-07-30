@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import fs, { existsSync } from 'node:fs';
 import type http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { green } from 'kleur/colors';
@@ -19,6 +19,7 @@ import {
 	fetchLatestAstroVersion,
 	shouldCheckForUpdates,
 } from './update-check.js';
+import { DATA_STORE_FILE } from '../../content/consts.js';
 
 export interface DevServer {
 	address: AddressInfo;
@@ -104,13 +105,26 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	await attachContentServerListeners(restart.container);
 
-	const dataStore = await DataStore.fromModule();
-	globalDataStore.set(dataStore);
+	let store: DataStore | undefined;
+	try {
+		const dataStoreFile = new URL(DATA_STORE_FILE, restart.container.settings.config.cacheDir);
+		if (existsSync(dataStoreFile)) {
+			store = await DataStore.fromFile(dataStoreFile);
+			globalDataStore.set(store);
+		}
+	} catch (err: any) {
+		logger.error('content', err.message);
+	}
+	if (!store) {
+		store = new DataStore();
+		globalDataStore.set(store);
+	}
 
 	await syncContentLayer({
 		settings: restart.container.settings,
 		logger,
 		watcher: restart.container.viteServer.watcher,
+		store,
 	});
 
 	logger.info(null, green('watching for file changes...'));

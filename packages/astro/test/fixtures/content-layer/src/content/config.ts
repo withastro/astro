@@ -79,7 +79,7 @@ const spacecraft = defineCollection({
 		z.object({
 			title: z.string(),
 			description: z.string(),
-			publishedDate: z.string(),
+			publishedDate: z.coerce.date(),
 			tags: z.array(z.string()),
 			heroImage: image().optional(),
 			cat: reference('cats').optional(),

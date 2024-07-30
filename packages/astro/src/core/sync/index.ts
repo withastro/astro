@@ -1,4 +1,4 @@
-import fsMod from 'node:fs';
+import fsMod, { existsSync } from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
@@ -30,6 +30,7 @@ import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { setUpEnvTs } from './setup-env-ts.js';
+import { DATA_STORE_FILE } from '../../content/consts.js';
 
 export type SyncOptions = {
 	/**
@@ -98,9 +99,21 @@ export async function syncInternal({
 		if (!skip?.content) {
 			await syncContentCollections(settings, { fs, logger });
 			settings.timer.start('Sync content layer');
-			const dataStore = await DataStore.fromModule();
-			globalDataStore.set(dataStore);
-			await syncContentLayer({ settings, logger });
+			let store: DataStore | undefined;
+			try {
+				const dataStoreFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
+				if (existsSync(dataStoreFile)) {
+					store = await DataStore.fromFile(dataStoreFile);
+					globalDataStore.set(store);
+				}
+			} catch (err: any) {
+				logger.error('content', err.message);
+			}
+			if (!store) {
+				store = new DataStore();
+				globalDataStore.set(store);
+			}
+			await syncContentLayer({ settings, logger, store });
 			settings.timer.end('Sync content layer');
 		}
 		syncAstroEnv(settings, fs);

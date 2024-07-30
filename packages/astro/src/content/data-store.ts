@@ -2,6 +2,7 @@ import { promises as fs, type PathLike, existsSync } from 'fs';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import * as devalue from 'devalue';
 const SAVE_DEBOUNCE_MS = 500;
 
 export interface RenderedContent {
@@ -113,7 +114,7 @@ export class DataStore {
 				await fs.writeFile(filePath, 'export default new Map();');
 			} catch (err) {
 				throw new AstroError({
-					...(err as Error),
+					message: (err as Error).message,
 					...AstroErrorData.ContentLayerWriteError,
 				});
 			}
@@ -140,7 +141,7 @@ export default new Map([${exports.join(', ')}]);
 			await fs.writeFile(filePath, code);
 		} catch (err) {
 			throw new AstroError({
-				...(err as Error),
+				message: (err as Error).message,
 				...AstroErrorData.ContentLayerWriteError,
 			});
 		}
@@ -238,11 +239,7 @@ export default new Map([${exports.join(', ')}]);
 	}
 
 	toString() {
-		return JSON.stringify(
-			Array.from(this.#collections.entries()).map(([collectionName, collection]) => {
-				return [collectionName, Array.from(collection.entries())];
-			})
-		);
+		return devalue.stringify(this.#collections);
 	}
 
 	async writeToDisk(filePath: PathLike) {
@@ -255,42 +252,44 @@ export default new Map([${exports.join(', ')}]);
 			this.#dirty = false;
 		} catch (err) {
 			throw new AstroError({
-				...(err as Error),
+				message: (err as Error).message,
 				...AstroErrorData.ContentLayerWriteError,
 			});
 		}
 	}
-
-	static async fromDisk(filePath: PathLike) {
-		if (!existsSync(filePath)) {
-			return new DataStore();
-		}
-		const str = await fs.readFile(filePath, 'utf-8');
-		return DataStore.fromString(str);
-	}
-
-	static fromString(str: string) {
-		const entries = JSON.parse(str);
-		return DataStore.fromJSON(entries);
-	}
-
+	/**
+	 * Attempts to load a DataStore from the virtual module.
+	 * This only works in Vite.
+	 */
 	static async fromModule() {
 		try {
-			// @ts-expect-error
+			// @ts-expect-error - this is a virtual module
 			const data = await import('astro:data-layer-content');
-			return DataStore.fromJSON(data.default);
+			const map = devalue.unflatten(data.default);
+			return DataStore.fromMap(map);
 		} catch {}
 		return new DataStore();
 	}
 
-	static fromJSON(entries: Array<[string, Array<[string, any]>]>) {
-		const collections = new Map<string, Map<string, any>>();
-		for (const [collectionName, collection] of entries) {
-			collections.set(collectionName, new Map(collection));
-		}
+	static async fromMap(data: Map<string, Map<string, any>>) {
 		const store = new DataStore();
-		store.#collections = collections;
+		store.#collections = data;
 		return store;
+	}
+
+	static async fromString(data: string) {
+		const map = devalue.parse(data);
+		return DataStore.fromMap(map);
+	}
+
+	static async fromFile(filePath: string | URL) {
+		try {
+			if (existsSync(filePath)) {
+				const data = await fs.readFile(filePath, 'utf-8');
+				return DataStore.fromString(data);
+			}
+		} catch {}
+		return new DataStore();
 	}
 }
 

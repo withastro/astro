@@ -6,12 +6,12 @@ import xxhash from 'xxhash-wasm';
 import type { AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
 import { ASSET_IMPORTS_FILE, DATA_STORE_FILE } from './consts.js';
-import { DataStore, globalDataStore } from './data-store.js';
+import type { DataStore } from './data-store.js';
 import type { LoaderContext } from './loaders/types.js';
 import { getEntryDataAndImages, globalContentConfigObserver, posixRelative } from './utils.js';
 
 export interface SyncContentLayerOptions {
-	store?: DataStore;
+	store: DataStore;
 	settings: AstroSettings;
 	logger: Logger;
 	watcher?: FSWatcher;
@@ -33,10 +33,6 @@ export async function syncContentLayer({
 
 	const logger = globalLogger.forkIntegrationLogger('content');
 	logger.info('Syncing content');
-	if (!store) {
-		store = await DataStore.fromDisk(new URL(DATA_STORE_FILE, settings.config.cacheDir));
-		globalDataStore.set(store);
-	}
 	const contentConfig = globalContentConfigObserver.get();
 	if (contentConfig?.status !== 'loaded') {
 		logger.debug('Content config not loaded, skipping sync');

@@ -4,7 +4,7 @@ import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
 import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
-
+import * as devalue from 'devalue';
 describe('Content Layer', () => {
 	/** @type {import("./test-utils.js").Fixture} */
 	let fixture;
@@ -22,7 +22,7 @@ describe('Content Layer', () => {
 				.catch(() => {});
 			await fixture.build();
 			const rawJson = await fixture.readFile('/collections.json');
-			json = JSON.parse(rawJson);
+			json = devalue.parse(rawJson);
 		});
 
 		it('Returns custom loader collection', async () => {
@@ -118,6 +118,10 @@ describe('Content Layer', () => {
 			assert.deepEqual(json.entryWithReference.data.cat, { collection: 'cats', id: 'tabby' });
 		});
 
+		it('can store Date objects', async () => {
+			assert.ok(json.entryWithReference.data.publishedDate instanceof Date);
+		});
+
 		it('returns a referenced entry', async () => {
 			assert.ok(json.hasOwnProperty('referencedEntry'));
 			assert.deepEqual(json.referencedEntry, {
@@ -137,15 +141,15 @@ describe('Content Layer', () => {
 		it('updates the store on new builds', async () => {
 			assert.equal(json.increment.data.lastValue, 1);
 			await fixture.build();
-			const newJson = JSON.parse(await fixture.readFile('/collections.json'));
+			const newJson = devalue.parse(await fixture.readFile('/collections.json'));
 			assert.equal(newJson.increment.data.lastValue, 2);
 		});
 
 		it('clears the store on new build with force flag', async () => {
-			let newJson = JSON.parse(await fixture.readFile('/collections.json'));
+			let newJson = devalue.parse(await fixture.readFile('/collections.json'));
 			assert.equal(newJson.increment.data.lastValue, 2);
 			await fixture.build({}, { force: true });
-			newJson = JSON.parse(await fixture.readFile('/collections.json'));
+			newJson = devalue.parse(await fixture.readFile('/collections.json'));
 			assert.equal(newJson.increment.data.lastValue, 1);
 		});
 	});
@@ -157,7 +161,7 @@ describe('Content Layer', () => {
 			devServer = await fixture.startDevServer();
 			const rawJsonResponse = await fixture.fetch('/collections.json');
 			const rawJson = await rawJsonResponse.text();
-			json = JSON.parse(rawJson);
+			json = devalue.parse(rawJson);
 		});
 
 		after(async () => {
@@ -235,7 +239,7 @@ describe('Content Layer', () => {
 
 		it('updates collection when data file is changed', async () => {
 			const rawJsonResponse = await fixture.fetch('/collections.json');
-			const initialJson = await rawJsonResponse.json();
+			const initialJson = devalue.parse(await rawJsonResponse.text());
 			assert.equal(initialJson.fileLoader[0].data.temperament.includes('Bouncy'), false);
 
 			await fixture.editFile('/src/data/dogs.json', (prev) => {
@@ -248,7 +252,7 @@ describe('Content Layer', () => {
 			await new Promise((r) => setTimeout(r, 700));
 
 			const updatedJsonResponse = await fixture.fetch('/collections.json');
-			const updated = await updatedJsonResponse.json();
+			const updated = devalue.parse(await updatedJsonResponse.text());
 			assert.ok(updated.fileLoader[0].data.temperament.includes('Bouncy'));
 		});
 	});
