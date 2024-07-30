@@ -174,7 +174,7 @@ export class AstroVirtualCode implements VirtualCode {
 
 		this.htmlDocument = htmlDocument;
 		htmlVirtualCode.embeddedCodes = [
-			extractStylesheets(tsx.ranges.styles),
+			...extractStylesheets(tsx.ranges.styles),
 			...extractScriptTags(tsx.ranges.scripts),
 		];
 

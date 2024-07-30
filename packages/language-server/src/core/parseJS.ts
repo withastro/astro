@@ -11,7 +11,13 @@ export function extractScriptTags(scripts: TSXExtractedScript[]): VirtualCode[] 
 		.map(moduleScriptToVirtualCode) satisfies VirtualCode[];
 
 	const inlineScripts = scripts
-		.filter((script) => script.type === 'event-attribute' || script.type === 'inline')
+		.filter(
+			(script) =>
+				// TODO: Change this at some point so that unknown scripts are not included
+				// We can't guarantee that they are JavaScript, so we shouldn't treat them as such, even if it might work in some cases
+				// Perhaps we should make it so that the user has to specify the language of the script if it's not a known type (ex: lang="js"), not sure.
+				script.type === 'event-attribute' || script.type === 'inline' || script.type === 'unknown'
+		)
 		.sort((a, b) => a.position.start - b.position.start);
 
 	embeddedJSCodes.push(...moduleScripts);
@@ -19,6 +25,11 @@ export function extractScriptTags(scripts: TSXExtractedScript[]): VirtualCode[] 
 	if (mergedJSContext) {
 		embeddedJSCodes.push(mergedJSContext);
 	}
+
+	const JSONScripts = scripts
+		.filter((script) => script.type === 'json')
+		.map(jsonScriptToVirtualCode) satisfies VirtualCode[];
+	embeddedJSCodes.push(...JSONScripts);
 
 	return embeddedJSCodes;
 }
@@ -50,6 +61,35 @@ function moduleScriptToVirtualCode(script: TSXExtractedScript, index: number): V
 					semantic: true,
 					navigation: true,
 					structure: true,
+					format: false,
+				},
+			},
+		],
+		embeddedCodes: [],
+	};
+}
+
+function jsonScriptToVirtualCode(script: TSXExtractedScript, index: number): VirtualCode {
+	return {
+		id: `${index}.json`,
+		languageId: 'json',
+		snapshot: {
+			getText: (start, end) => script.content.substring(start, end),
+			getLength: () => script.content.length,
+			getChangeRange: () => undefined,
+		},
+		mappings: [
+			{
+				sourceOffsets: [script.position.start],
+				generatedOffsets: [0],
+				lengths: [script.content.length],
+				// TODO: Support JSON features
+				data: {
+					verification: false,
+					completion: false,
+					semantic: false,
+					navigation: false,
+					structure: false,
 					format: false,
 				},
 			},

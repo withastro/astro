@@ -21,7 +21,7 @@
   "dependencies": {
     "@volar/language-core": "~2.4.0-alpha.15",
     "@volar/typescript": "~2.4.0-alpha.15",
-    "@astrojs/compiler": "^2.7.0",
+    "@astrojs/compiler": "^2.10.0",
     "@jridgewell/sourcemap-codec": "^1.4.15",
     "semver": "^7.3.8",
     "vscode-languageserver-textdocument": "^1.0.11"

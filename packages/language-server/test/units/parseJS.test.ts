@@ -11,13 +11,12 @@ describe('parseJS - Can find all the scripts in an Astro file', () => {
 		expect(scriptTags.length).to.equal(2);
 	});
 
-	// TODO: This will be outdated in the future, once we add JSON support
-	it('Ignore JSON scripts', () => {
+	it('Includes JSON scripts', () => {
 		const input = `<script type="application/json">{foo: "bar"}</script>`;
 		const { ranges } = astro2tsx(input, 'file.astro');
 		const scriptTags = extractScriptTags(ranges.scripts);
 
-		expect(scriptTags.length).to.equal(0);
+		expect(scriptTags.length).to.equal(1);
 	});
 
 	it('returns the proper capabilities for inline script tags', async () => {

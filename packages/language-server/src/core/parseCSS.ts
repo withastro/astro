@@ -3,17 +3,30 @@ import type { CodeInformation, VirtualCode } from '@volar/language-core';
 import { Segment, toString } from 'muggle-string';
 import { buildMappings } from '../buildMappings.js';
 
-export function extractStylesheets(styles: TSXExtractedStyle[]): VirtualCode {
-	return mergeCSSContexts(styles);
+const SUPPORTED_LANGUAGES = ['css', 'scss', 'less'] as const;
+type SupportedLanguages = (typeof SUPPORTED_LANGUAGES)[number];
+
+function isSupportedLanguage(lang: string): lang is SupportedLanguages {
+	return SUPPORTED_LANGUAGES.includes(lang as SupportedLanguages);
 }
 
-function mergeCSSContexts(inlineStyles: TSXExtractedStyle[]): VirtualCode {
-	const codes: Segment<CodeInformation>[] = [];
+export function extractStylesheets(styles: TSXExtractedStyle[]): VirtualCode[] {
+	return mergeCSSContextsByLanguage(styles);
+}
+
+function mergeCSSContextsByLanguage(inlineStyles: TSXExtractedStyle[]): VirtualCode[] {
+	const codes: Record<SupportedLanguages, Segment<CodeInformation>[]> = {
+		css: [],
+		scss: [],
+		less: [],
+	};
 
 	for (const cssContext of inlineStyles) {
+		const currentCode = isSupportedLanguage(cssContext.lang) ? codes[cssContext.lang] : codes.css;
+
 		const isStyleAttribute = cssContext.type === 'style-attribute';
-		if (isStyleAttribute) codes.push('__ { ');
-		codes.push([
+		if (isStyleAttribute) currentCode.push('__ { ');
+		currentCode.push([
 			cssContext.content,
 			undefined,
 			cssContext.position.start,
@@ -26,15 +39,26 @@ function mergeCSSContexts(inlineStyles: TSXExtractedStyle[]): VirtualCode {
 				format: false,
 			},
 		]);
-		if (isStyleAttribute) codes.push(' }\n');
+		if (isStyleAttribute) currentCode.push(' }\n');
 	}
 
-	const mappings = buildMappings(codes);
-	const text = toString(codes);
+	let virtualCodes: VirtualCode[] = [];
+	for (const lang of SUPPORTED_LANGUAGES) {
+		if (codes[lang].length) {
+			virtualCodes.push(createVirtualCodeForLanguage(codes[lang], lang));
+		}
+	}
+
+	return virtualCodes;
+}
+
+function createVirtualCodeForLanguage(code: Segment<CodeInformation>[], lang: string): VirtualCode {
+	const mappings = buildMappings(code);
+	const text = toString(code);
 
 	return {
-		id: 'style.css',
-		languageId: 'css',
+		id: `style.${lang}`,
+		languageId: lang,
 		snapshot: {
 			getText: (start, end) => text.substring(start, end),
 			getLength: () => text.length,
