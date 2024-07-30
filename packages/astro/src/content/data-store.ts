@@ -114,7 +114,7 @@ export class DataStore {
 				await fs.writeFile(filePath, 'export default new Map();');
 			} catch (err) {
 				throw new AstroError({
-					...(err as Error),
+					message: (err as Error).message,
 					...AstroErrorData.ContentLayerWriteError,
 				});
 			}
@@ -141,7 +141,7 @@ export default new Map([${exports.join(', ')}]);
 			await fs.writeFile(filePath, code);
 		} catch (err) {
 			throw new AstroError({
-				...(err as Error),
+				message: (err as Error).message,
 				...AstroErrorData.ContentLayerWriteError,
 			});
 		}
@@ -252,7 +252,7 @@ export default new Map([${exports.join(', ')}]);
 			this.#dirty = false;
 		} catch (err) {
 			throw new AstroError({
-				...(err as Error),
+				message: (err as Error).message,
 				...AstroErrorData.ContentLayerWriteError,
 			});
 		}
