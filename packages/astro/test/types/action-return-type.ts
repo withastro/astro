@@ -1,8 +1,8 @@
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
 import {
-	type SafeResult,
 	type ActionReturnType,
+	type SafeResult,
 	defineAction,
 } from '../../dist/actions/runtime/virtual/server.js';
 import { z } from '../../zod.mjs';
