@@ -25,11 +25,10 @@ export const server = {
 		likeWithActionState: defineAction({
 			accept: 'form',
 			input: z.object({ postId: z.string() }),
-			handler: async ({ postId }) => {
+			handler: async ({ postId }, ctx) => {
 				await new Promise((r) => setTimeout(r, 200));
 
-				const context = getApiContext();
-				const state = await experimental_getActionState<number>(context);
+				const state = await experimental_getActionState<number>(ctx);
 
 				const { likes } = await db
 					.update(Likes)

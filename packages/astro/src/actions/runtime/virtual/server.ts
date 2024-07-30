@@ -29,6 +29,7 @@ export type ActionClient<
 	? ((
 			input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
 		) => Promise<Awaited<TOutput>>) & {
+			queryString: string;
 			safe: (
 				input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
 			) => Promise<
@@ -59,7 +60,7 @@ export function defineAction<
 	input?: TInputSchema;
 	accept?: TAccept;
 	handler: ActionHandler<TInputSchema, TOutput>;
-}): ActionClient<TOutput, TAccept, TInputSchema> {
+}): ActionClient<TOutput, TAccept, TInputSchema> & string {
 	const serverHandler =
 		accept === 'form'
 			? getFormServerHandler(handler, inputSchema)
@@ -70,7 +71,7 @@ export function defineAction<
 			return callSafely(() => serverHandler(unparsedInput));
 		},
 	});
-	return serverHandler as ActionClient<TOutput, TAccept, TInputSchema>;
+	return serverHandler as ActionClient<TOutput, TAccept, TInputSchema> & string;
 }
 
 function getFormServerHandler<TOutput, TInputSchema extends ActionInputSchema<'form'>>(

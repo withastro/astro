@@ -4,7 +4,7 @@ import BlogPost from '../../layouts/BlogPost.astro';
 import { db, eq, Comment, Likes } from 'astro:db';
 import { Like } from '../../components/Like';
 import { PostComment } from '../../components/PostComment';
-import { actions, getActionProps } from 'astro:actions';
+import { actions } from 'astro:actions';
 import { isInputError } from 'astro:actions';
 
 export const prerender = false;
@@ -55,8 +55,7 @@ const commentPostIdOverride = Astro.url.searchParams.get('commentPostIdOverride'
 			: undefined}
 		client:load
 	/>
-	<form method="POST" data-testid="progressive-fallback">
-		<input {...getActionProps(actions.blog.comment)} />
+	<form method="POST" data-testid="progressive-fallback" action={actions.blog.comment.queryString}>
 		<input type="hidden" name="postId" value={post.id} />
 		<label for="fallback-author">
 			Author
