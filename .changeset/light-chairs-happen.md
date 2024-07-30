@@ -1,7 +1,9 @@
 ---
-'@astrojs/react': minor
-'astro': minor
+'@astrojs/react': patch
+'astro': patch
 ---
+
+**BREAKING CHANGE to the experimental Actions API only**
 
 Make `.safe()` the default return value for actions. This means `{ data, error }` will be returned when calling an action directly. If you prefer to get the data while allowing errors to throw, chain the `.orThrow()` modifier.
 
