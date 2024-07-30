@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { codeToHtml, createCssVariablesTheme } from 'shiki';
+import type { ShikiTransformer } from 'shiki';
 import type { ErrorPayload } from 'vite';
 import type { ModuleLoader } from '../../module-loader/index.js';
 import { FailedToLoadModuleSSR, InvalidGlob, MdxIntegrationMissingError } from '../errors-data.js';
@@ -151,10 +152,13 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 	}
 	const highlightedCode = err.fullCode
 		? await codeToHtml(err.fullCode, {
-				// @ts-expect-error always assume that shiki can accept the lang string
-				lang: highlighterLang,
+				lang: highlighterLang ?? 'text',
 				theme: cssVariablesTheme(),
-				lineOptions: err.loc?.line ? [{ line: err.loc.line, classes: ['error-line'] }] : undefined,
+				transformers: [
+					transformerCompactLineOptions(
+						err.loc?.line ? [{ line: err.loc.line, classes: ['error-line'] }] : undefined
+					),
+				],
 			})
 		: undefined;
 
@@ -177,6 +181,30 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 			plugin,
 			stack: err.stack,
 			cause: err.cause,
+		},
+	};
+}
+
+/**
+ * Transformer for `shiki`'s legacy `lineOptions`, allows to add classes to specific lines
+ * FROM: https://github.com/shikijs/shiki/blob/4a58472070a9a359a4deafec23bb576a73e24c6a/packages/transformers/src/transformers/compact-line-options.ts
+ * LICENSE: https://github.com/shikijs/shiki/blob/4a58472070a9a359a4deafec23bb576a73e24c6a/LICENSE
+ */
+export function transformerCompactLineOptions(
+	lineOptions: {
+		/**
+		 * 1-based line number.
+		 */
+		line: number;
+		classes?: string[];
+	}[] = []
+): ShikiTransformer {
+	return {
+		name: '@shikijs/transformers:compact-line-options',
+		line(node, line) {
+			const lineOption = lineOptions.find((o) => o.line === line);
+			if (lineOption?.classes) this.addClassToHast(node, lineOption.classes);
+			return node;
 		},
 	};
 }
