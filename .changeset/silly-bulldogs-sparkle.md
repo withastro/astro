@@ -1,7 +1,9 @@
 ---
-'@astrojs/react': minor
-'astro': minor
+'@astrojs/react': patch
+'astro': patch
 ---
+
+**BREAKING CHANGE to the experimental Actions API only.** Install the latest `@astrojs/react` integration as well if you're using React 19 features.
 
 Updates the Astro Actions fallback to support `action={actions.name}` instead of using `getActionProps().` This will submit a form to the server in zero-JS scenarios using a search parameter:
 
