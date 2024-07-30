@@ -86,19 +86,22 @@ export const create = (ts: typeof import('typescript')): LanguageServicePlugin =
 					const tsProgram = languageService.getProgram();
 					if (!tsProgram) return;
 
+					const decoded = context.decodeEmbeddedDocumentUri(URI.parse(document.uri));
+					if (!decoded) return;
+
 					const globcodeLens: CodeLens[] = [];
-					const sourceFile = tsProgram.getSourceFile(document.uri)!;
+					const sourceFile = tsProgram.getSourceFile(decoded[0].fsPath)!;
 
 					function walk() {
 						return ts.forEachChild(sourceFile, function cb(node): void {
 							if (ts.isCallExpression(node) && node.expression.getText() === 'Astro.glob') {
 								const globArgument = node.arguments.at(0);
 
-								if (globArgument) {
+								if (globArgument && decoded) {
 									globcodeLens.push(
 										getGlobResultAsCodeLens(
 											globArgument.getText().slice(1, -1),
-											dirname(uriConverter.asFileName(URI.parse(document.uri))),
+											dirname(uriConverter.asFileName(decoded[0])),
 											document.positionAt(node.arguments.pos)
 										)
 									);
