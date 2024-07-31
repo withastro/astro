@@ -1,4 +1,3 @@
-import { yellow } from 'kleur/colors';
 import type { APIContext, MiddlewareNext } from '../../@types/astro.js';
 import {
 	ActionQueryStringInvalidError,
@@ -7,13 +6,11 @@ import {
 import { AstroError } from '../../core/errors/errors.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
 import { formContentTypes, getAction, hasContentType } from './utils.js';
-import { getActionQueryString } from './virtual/shared.js';
 
 export type Locals = {
 	_actionsInternal: {
-		getActionResult: APIContext['getActionResult'];
-		callAction: APIContext['callAction'];
-		actionResult?: ReturnType<APIContext['getActionResult']>;
+		actionResult: ReturnType<APIContext['getActionResult']>;
+		actionName: string;
 	};
 };
 
@@ -24,11 +21,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	// See https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md#ctxrewrite
 	// `_actionsInternal` is the same for every page,
 	// so short circuit if already defined.
-	if (locals._actionsInternal) {
-		// Re-bind `callAction` with the new API context
-		locals._actionsInternal.callAction = createCallAction(context);
-		return next();
-	}
+	if (locals._actionsInternal) return next();
 
 	// Heuristic: If body is null, Astro might've reset this for prerendering.
 	// Stub with warning when `getActionResult()` is used.
@@ -53,7 +46,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		return handlePostLegacy({ context, next });
 	}
 
-	return nextWithLocalsStub(next, context);
+	return next();
 });
 
 async function handlePost({
@@ -89,13 +82,7 @@ async function handleResult({
 	actionResult,
 }: { context: APIContext; next: MiddlewareNext; actionName: string; actionResult: any }) {
 	const actionsInternal: Locals['_actionsInternal'] = {
-		getActionResult: (actionFn) => {
-			if (actionFn.toString() !== getActionQueryString(actionName)) {
-				return Promise.resolve(undefined);
-			}
-			return actionResult;
-		},
-		callAction: createCallAction(context),
+		actionName,
 		actionResult,
 	};
 	const locals = context.locals as Locals;
@@ -118,7 +105,7 @@ async function handlePostLegacy({ context, next }: { context: APIContext; next: 
 	// We should not run a middleware handler for fetch()
 	// requests directly to the /_actions URL.
 	// Otherwise, we may handle the result twice.
-	if (context.url.pathname.startsWith('/_actions')) return nextWithLocalsStub(next, context);
+	if (context.url.pathname.startsWith('/_actions')) return next();
 
 	const contentType = request.headers.get('content-type');
 	let formData: FormData | undefined;
@@ -126,10 +113,10 @@ async function handlePostLegacy({ context, next }: { context: APIContext; next: 
 		formData = await request.clone().formData();
 	}
 
-	if (!formData) return nextWithLocalsStub(next, context);
+	if (!formData) return next();
 
 	const actionName = formData.get('_astroAction') as string;
-	if (!actionName) return nextWithLocalsStub(next, context);
+	if (!actionName) return next();
 
 	const baseAction = await getAction(actionName);
 	if (!baseAction) {
@@ -148,14 +135,15 @@ function nextWithStaticStub(next: MiddlewareNext, context: APIContext) {
 	Object.defineProperty(context.locals, '_actionsInternal', {
 		writable: false,
 		value: {
-			getActionResult: () => {
-				console.warn(
-					yellow('[astro:actions]'),
-					'`getActionResult()` should not be called on prerendered pages. Astro can only handle actions for pages rendered on-demand.'
-				);
-				return undefined;
-			},
-			callAction: createCallAction(context),
+			actionResult: undefined,
+			actionName: undefined,
+			// getActionResult: () => {
+			// 	console.warn(
+			// 		yellow('[astro:actions]'),
+			// 		'`getActionResult()` should not be called on prerendered pages. Astro can only handle actions for pages rendered on-demand.'
+			// 	);
+			// 	return undefined;
+			// },
 		},
 	});
 	return next();
@@ -165,8 +153,8 @@ function nextWithLocalsStub(next: MiddlewareNext, context: APIContext) {
 	Object.defineProperty(context.locals, '_actionsInternal', {
 		writable: false,
 		value: {
-			getActionResult: () => undefined,
-			callAction: createCallAction(context),
+			actionResult: undefined,
+			actionName: undefined,
 		},
 	});
 	return next();

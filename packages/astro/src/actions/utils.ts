@@ -1,6 +1,6 @@
 import type { APIContext } from '../@types/astro.js';
-import { AstroError } from '../core/errors/errors.js';
 import type { Locals } from './runtime/middleware.js';
+import { getActionQueryString } from './runtime/virtual/shared.js';
 
 export function hasActionsInternal(locals: APIContext['locals']): locals is Locals {
 	return '_actionsInternal' in locals;
@@ -8,26 +8,19 @@ export function hasActionsInternal(locals: APIContext['locals']): locals is Loca
 
 export function createGetActionResult(locals: APIContext['locals']): APIContext['getActionResult'] {
 	return (actionFn) => {
-		if (!hasActionsInternal(locals))
-			throw new AstroError({
-				name: 'AstroActionError',
-				message: 'Experimental actions are not enabled in your project.',
-				hint: 'See https://docs.astro.build/en/reference/configuration-reference/#experimental-flags',
-			});
-
-		return locals._actionsInternal.getActionResult(actionFn);
+		if (
+			!hasActionsInternal(locals) ||
+			actionFn.toString() !== getActionQueryString(locals._actionsInternal.actionName)
+		) {
+			return Promise.resolve(undefined);
+		}
+		return locals._actionsInternal.actionResult as any;
 	};
 }
 
-export function createCallAction(locals: APIContext['locals']): APIContext['callAction'] {
-	return (actionFn, input) => {
-		if (!hasActionsInternal(locals))
-			throw new AstroError({
-				name: 'AstroActionError',
-				message: 'Experimental actions are not enabled in your project.',
-				hint: 'See https://docs.astro.build/en/reference/configuration-reference/#experimental-flags',
-			});
-
-		return locals._actionsInternal.callAction(actionFn, input);
+export function createCallAction(context: APIContext): APIContext['callAction'] {
+	return (baseAction, input) => {
+		const action = baseAction.bind(context);
+		return action(input) as any;
 	};
 }

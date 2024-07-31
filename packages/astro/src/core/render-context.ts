@@ -216,7 +216,7 @@ export class RenderContext {
 		return Object.assign(context, {
 			props,
 			getActionResult: createGetActionResult(context.locals),
-			callAction: createCallAction(context.locals),
+			callAction: createCallAction(context),
 		});
 	}
 
@@ -459,7 +459,7 @@ export class RenderContext {
 			rewrite,
 			request: this.request,
 			getActionResult: createGetActionResult(locals),
-			callAction: createCallAction(locals),
+			callAction: createCallAction(),
 			response,
 			site: pipeline.site,
 			url,
