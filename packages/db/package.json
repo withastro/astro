@@ -70,7 +70,7 @@
   },
   "dependencies": {
     "@astrojs/studio": "workspace:*",
-    "@libsql/client": "^0.7.0",
+    "@libsql/client": "^0.8.0",
     "async-listen": "^3.0.1",
     "ci-info": "^4.0.0",
     "deep-diff": "^1.0.2",
@@ -94,7 +94,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0-rc.12",
-    "typescript": "^5.5.3",
-    "vite": "^5.3.4"
+    "typescript": "^5.5.4",
+    "vite": "^5.3.5"
   }
 }

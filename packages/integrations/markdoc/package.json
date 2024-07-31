@@ -78,12 +78,12 @@
   },
   "devDependencies": {
     "@types/html-escaper": "^3.0.2",
-    "@types/markdown-it": "^14.1.1",
+    "@types/markdown-it": "^14.1.2",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "devalue": "^5.0.0",
     "linkedom": "^0.18.4",
-    "vite": "^5.3.4"
+    "vite": "^5.3.5"
   },
   "engines": {
     "node": "^18.17.1 || ^20.3.0 || >=21.0.0"
