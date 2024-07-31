@@ -24,7 +24,7 @@ const post = await getEntry('blog', Astro.params.slug)!;
 const { Content } = await post.render();
 
 if (Astro.url.searchParams.has('like')) {
-	await actions.blog.like({postId: post.id });
+	await Astro.callAction(actions.blog.like.orThrow, {postId: post.id});
 }
 
 const comment = Astro.getActionResult(actions.blog.comment);
