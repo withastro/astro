@@ -1,14 +1,11 @@
 import { z } from 'zod';
-import { type ActionAPIContext, getApiContext as _getApiContext } from '../store.js';
+import { type ActionAPIContext } from '../store.js';
 import type { ErrorInferenceObject, MaybePromise } from '../utils.js';
 import { ActionError, ActionInputError, type SafeResult, callSafely } from './shared.js';
 
 export * from './shared.js';
 
 export { z } from 'zod';
-
-/** @deprecated Access context from the second `handler()` parameter. */
-export const getApiContext = _getApiContext;
 
 export type ActionAccept = 'form' | 'json';
 export type ActionInputSchema<T extends ActionAccept | undefined> = T extends 'form'
@@ -66,12 +63,14 @@ export function defineAction<
 			? getFormServerHandler(handler, inputSchema)
 			: getJsonServerHandler(handler, inputSchema);
 
-	const safeServerHandler = async (unparsedInput: unknown) => {
-		return callSafely(() => serverHandler(unparsedInput));
-	};
+	async function safeServerHandler(this: ActionAPIContext, unparsedInput: unknown) {
+		return callSafely(() => serverHandler(unparsedInput, this));
+	}
 
 	Object.assign(safeServerHandler, {
-		orThrow: serverHandler,
+		orThrow(this: ActionAPIContext, unparsedInput: unknown) {
+			return serverHandler(unparsedInput, this);
+		},
 	});
 
 	return safeServerHandler as ActionClient<TOutput, TAccept, TInputSchema> & string;
@@ -81,7 +80,7 @@ function getFormServerHandler<TOutput, TInputSchema extends ActionInputSchema<'f
 	handler: ActionHandler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema
 ) {
-	return async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
+	return async (unparsedInput: unknown, context: ActionAPIContext): Promise<Awaited<TOutput>> => {
 		if (!(unparsedInput instanceof FormData)) {
 			throw new ActionError({
 				code: 'UNSUPPORTED_MEDIA_TYPE',
@@ -89,13 +88,13 @@ function getFormServerHandler<TOutput, TInputSchema extends ActionInputSchema<'f
 			});
 		}
 
-		if (!(inputSchema instanceof z.ZodObject)) return await handler(unparsedInput, getApiContext());
+		if (!(inputSchema instanceof z.ZodObject)) return await handler(unparsedInput, context);
 
 		const parsed = await inputSchema.safeParseAsync(formDataToObject(unparsedInput, inputSchema));
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error.issues);
 		}
-		return await handler(parsed.data, getApiContext());
+		return await handler(parsed.data, context);
 	};
 }
 
@@ -103,7 +102,7 @@ function getJsonServerHandler<TOutput, TInputSchema extends ActionInputSchema<'j
 	handler: ActionHandler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema
 ) {
-	return async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
+	return async (unparsedInput: unknown, context: ActionAPIContext): Promise<Awaited<TOutput>> => {
 		if (unparsedInput instanceof FormData) {
 			throw new ActionError({
 				code: 'UNSUPPORTED_MEDIA_TYPE',
@@ -111,12 +110,12 @@ function getJsonServerHandler<TOutput, TInputSchema extends ActionInputSchema<'j
 			});
 		}
 
-		if (!inputSchema) return await handler(unparsedInput, getApiContext());
+		if (!inputSchema) return await handler(unparsedInput, context);
 		const parsed = await inputSchema.safeParseAsync(unparsedInput);
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error.issues);
 		}
-		return await handler(parsed.data, getApiContext());
+		return await handler(parsed.data, context);
 	};
 }
 
