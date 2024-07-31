@@ -10,7 +10,7 @@ Rewrites can be useful for showing the same content at multiple paths (e.g. /pro
 
 Rewrites are supported in Astro pages, endpoints, and middleware.
 
-Return Astro.rewrite() in the frontmatter of a `.astro` page component to display a different page's content, such as fallback localized content:
+Return `Astro.rewrite()` in the frontmatter of a `.astro` page component to display a different page's content, such as fallback localized content:
 
 ```astro
 ---
