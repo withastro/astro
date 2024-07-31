@@ -85,7 +85,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		actions: false,
 		directRenderScript: false,
 		contentCollectionCache: false,
-		contentCollectionJsonSchema: false,
 		clientPrerender: false,
 		globalRoutePriority: false,
 		rewriting: false,
@@ -517,10 +516,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
-			contentCollectionJsonSchema: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionJsonSchema),
 			clientPrerender: z
 				.boolean()
 				.optional()
