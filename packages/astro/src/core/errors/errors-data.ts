@@ -1141,6 +1141,7 @@ export const MissingMiddlewareForInternationalization = {
 } satisfies ErrorData;
 
 /**
+ * @deprecated
  * @docs
  * @description
  * The user tried to rewrite using a route that doesn't exist, or it emitted a runtime error during its rendering phase.
@@ -1280,7 +1281,7 @@ export const ServerOnlyModule = {
  *
  * @see
  * - [Request.clone()](https://developer.mozilla.org/en-US/docs/Web/API/Request/clone)
- * - [Astro.rewrite](https://docs.astro.build/en/reference/configuration-reference/#experimentalrewriting)
+ * - [Astro.rewrite](https://docs.astro.build/en/reference/api-reference/#astrorewrite)
  */
 
 export const RewriteWithBodyUsed = {
