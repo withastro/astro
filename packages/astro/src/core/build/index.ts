@@ -11,7 +11,6 @@ import type {
 	RuntimeMode,
 } from '../../@types/astro.js';
 import { injectImageEndpoint } from '../../assets/endpoint/config.js';
-import { DATA_STORE_FILE } from '../../content/consts.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import {
