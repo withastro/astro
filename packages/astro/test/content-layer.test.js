@@ -148,7 +148,7 @@ describe('Content Layer', () => {
 		it('clears the store on new build with force flag', async () => {
 			let newJson = devalue.parse(await fixture.readFile('/collections.json'));
 			assert.equal(newJson.increment.data.lastValue, 2);
-			await fixture.build({}, { force: true });
+			await fixture.build({ force: true }, {});
 			newJson = devalue.parse(await fixture.readFile('/collections.json'));
 			assert.equal(newJson.increment.data.lastValue, 1);
 		});

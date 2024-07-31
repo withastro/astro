@@ -39,6 +39,7 @@ export type SyncOptions = {
 	fs?: typeof fsMod;
 	logger: Logger;
 	settings: AstroSettings;
+	force?: boolean;
 	skip?: {
 		// Must be skipped in dev
 		content?: boolean;
@@ -66,7 +67,19 @@ export default async function sync({
 		settings,
 		logger,
 	});
-	return await syncInternal({ settings, logger, fs });
+	return await syncInternal({ settings, logger, fs, force: inlineConfig.force });
+}
+
+/**
+ * Clears the content layer and content collection cache, forcing a full rebuild.
+ */
+export async function clearContentLayerCache({ astroConfig, logger, fs = fsMod }: { astroConfig: AstroConfig; logger: Logger, fs?: typeof fsMod }) {
+	const dataStore = new URL(DATA_STORE_FILE, astroConfig.cacheDir);
+	if (fs.existsSync(dataStore)) {
+		logger.debug('content', 'clearing data store');
+		await fs.promises.rm(dataStore, { force: true });
+		logger.warn('content', 'data store cleared (force)');
+	}
 }
 
 /**
@@ -80,7 +93,13 @@ export async function syncInternal({
 	fs = fsMod,
 	settings,
 	skip,
+	force
 }: SyncOptions): Promise<void> {
+
+	if (force) {
+		await clearContentLayerCache({ astroConfig: settings.config, logger, fs });
+	}
+
 	const cwd = fileURLToPath(settings.config.root);
 
 	const timerStart = performance.now();
