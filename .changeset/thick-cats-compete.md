@@ -4,17 +4,25 @@
 
 The `experimental.rewriting` feature introduced behind a flag in [v4.8.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#480) is no longer experimental and is available for general use.
 
-`Astro.rewrite()`/`ctw.rewrite()` allows to **render
-** another page without changing the URL of the browser in Astro pages and endpoints.
+`Astro.rewrite()` and `context.rewrite()` allow you to render a different page without changing the URL in the browser. Unlike using a redirect, your visitor is kept on the original page they visited.
+
+Rewrites can be useful for showing the same content at multiple paths (e.g. /products/shoes/men/ and /products/men/shoes/) without needing to maintain two identical source files.
+
+Rewrites are supported in Astro pages, endpoints, and middleware.
+
+Return Astro.rewrite() in the frontmatter of a `.astro` page component to display a different page's content, such as fallback localized content:
 
 ```astro
 ---
-// src/pages/dashboard.astro
-if (!Astro.props.allowed) {
-  return Astro.rewrite('/');
+---
+// src/pages/es-cu/articles/introduction.astro
+return Astro.rewrite("/es/articles/introduction")
+---
 }
 ---
 ```
+
+Use `context.rewrite()` in endpoints, for example to reroute to a different page:
 
 ```js
 // src/pages/api.js
@@ -50,6 +58,6 @@ export default defineConfig({
 
 If you have been waiting for stabilization before using rewrites in Astro, you can now do so.
 
-Please see [the specific page in docs](https://docs.astro.build/en/reference/api-reference/#astrorewrite) for more about this feature.
+Please see [the routing guide in docs](https://docs.astro.build/en/guides/routing/#rewrites) for more about using this feature.
 
 
