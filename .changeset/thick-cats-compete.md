@@ -26,9 +26,9 @@ Use `context.rewrite()` in endpoints, for example to reroute to a different page
 
 ```js
 // src/pages/api.js
-export function GET(ctx) {
-  if (!ctx.locals.allowed) {
-    return ctx.rewrite('/');
+export function GET(context) {
+  if (!context.locals.allowed) {
+    return context.rewrite('/');
   }
 }
 ```
@@ -37,8 +37,8 @@ The middleware `next()` function now accepts a parameter with the same type as t
 
 ```js
 // src/middleware.js
-export function onRequest(ctx, next) {
-  if (!ctx.cookies.get('allowed')) {
+export function onRequest(context, next) {
+  if (!context.cookies.get('allowed')) {
     return next('/'); // new signature
   }
   return next();
