@@ -101,6 +101,7 @@ const aria_non_interactive_roles = [
 	'rowheader',
 	'search',
 	'status',
+	'tabpanel',
 	'term',
 	'timer',
 	'toolbar',
@@ -125,12 +126,6 @@ const a11y_required_content = [
 
 const a11y_distracting_elements = ['blink', 'marquee'];
 
-// Unused for now
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const a11y_nested_implicit_semantics = new Map([
-	['header', 'banner'],
-	['footer', 'contentinfo'],
-]);
 const a11y_implicit_semantics = new Map([
 	['a', 'link'],
 	['area', 'link'],
@@ -503,7 +498,7 @@ export const a11y: AuditRuleWithSelector[] = [
 		description:
 			'The `tabindex` attribute should only be used on interactive elements, as it can be confusing for keyboard-only users to navigate through non-interactive elements. If your element is only conditionally interactive, consider using `tabindex="-1"` to make it focusable only when it is actually interactive.',
 		message: (element) => `${element.localName} elements should not have \`tabindex\` attribute`,
-		selector: '[tabindex]',
+		selector: '[tabindex]:not([role="tabpanel"])',
 		match(element) {
 			// Scrollable elements are considered interactive
 			// See: https://www.w3.org/WAI/standards-guidelines/act/rules/0ssw9k/proposed/
@@ -621,19 +616,6 @@ export const a11y: AuditRuleWithSelector[] = [
 			if (!ariaRoles.has(role)) return true;
 		},
 	},
-];
-
-// Unused for now
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const a11y_labelable = [
-	'button',
-	'input',
-	'keygen',
-	'meter',
-	'output',
-	'progress',
-	'select',
-	'textarea',
 ];
 
 /**

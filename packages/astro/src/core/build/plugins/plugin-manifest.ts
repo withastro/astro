@@ -27,7 +27,7 @@ const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
 export const SSR_MANIFEST_VIRTUAL_MODULE_ID = '@astrojs-manifest';
 export const RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID = '\0' + SSR_MANIFEST_VIRTUAL_MODULE_ID;
 
-function vitePluginManifest(options: StaticBuildOptions, internals: BuildInternals): VitePlugin {
+function vitePluginManifest(_options: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/plugin-build-manifest',
 		enforce: 'post',
@@ -262,6 +262,7 @@ function buildManifest(
 	}
 
 	return {
+		hrefRoot: opts.settings.config.root.toString(),
 		adapterName: opts.settings.adapter?.name ?? '',
 		routes,
 		site: settings.config.site,
@@ -279,6 +280,7 @@ function buildManifest(
 		buildFormat: settings.config.build.format,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		rewritingEnabled: settings.config.experimental.rewriting,
+		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		experimentalEnvGetSecretEnabled:
 			settings.config.experimental.env !== undefined &&
 			(settings.adapter?.supportedAstroFeatures.envGetSecret ?? 'unsupported') !== 'unsupported',

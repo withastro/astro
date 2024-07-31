@@ -1235,24 +1235,14 @@ export const RouteNotFound = {
  * @docs
  * @description
  * Some environment variables do not match the data type and/or properties defined in `experimental.env.schema`.
+ * @message
+ * The following environment variables defined in `experimental.env.schema` are invalid.
  */
 export const EnvInvalidVariables = {
 	name: 'EnvInvalidVariables',
 	title: 'Invalid Environment Variables',
-	message: (variables: string) =>
-		`The following environment variables do not match the data type and/or properties defined in \`experimental.env.schema\`:\n\n${variables}\n`,
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
- * An environment variable does not match the data type and/or properties defined in `experimental.env.schema`.
- */
-export const EnvInvalidVariable = {
-	name: 'EnvInvalidVariable',
-	title: 'Invalid Environment Variable',
-	message: (key: string, type: string) =>
-		`The following environment variable does not match the data type and/or properties defined in \`experimental.env.schema\`: ${key} is not of type ${type}`,
+	message: (errors: Array<string>) =>
+		`The following environment variables defined in \`experimental.env.schema\` are invalid:\n\n${errors.map((err) => `- ${err}`).join('\n')}\n`,
 } satisfies ErrorData;
 
 /**
@@ -1625,6 +1615,36 @@ export const ActionsWithoutServerOutputError = {
 	message:
 		'Actions enabled without setting a server build output. A server is required to create callable backend functions. To deploy routes to a server, add a server adapter to your astro config.',
 	hint: 'Learn about on-demand rendering: https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
+ * @description
+ * Action was called from a form using a GET request, but only POST requests are supported. This often occurs if `method="POST"` is missing on the form.
+ */
+export const ActionsUsedWithForGetError = {
+	name: 'ActionsUsedWithForGetError',
+	title: 'An invalid Action query string was passed by a form.',
+	message: (actionName: string) =>
+		`Action ${actionName} was called from a form using a GET request, but only POST requests are supported. This often occurs if \`method="POST"\` is missing on the form.`,
+	hint: 'Actions are experimental. Visit the RFC for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
+ * @description
+ * The server received the query string `?_astroAction=name`, but could not find an action with that name. Use the action function's `.queryString` property to retrieve the form `action` URL.
+ */
+export const ActionQueryStringInvalidError = {
+	name: 'ActionQueryStringInvalidError',
+	title: 'An invalid Action query string was passed by a form.',
+	message: (actionName: string) =>
+		`The server received the query string \`?_astroAction=${actionName}\`, but could not find an action with that name. If you changed an action's name in development, remove this query param from your URL and refresh.`,
+	hint: 'Actions are experimental. Visit the RFC for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md',
 } satisfies ErrorData;
 
 /**

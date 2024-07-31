@@ -1,6 +1,6 @@
 import type { SSRResult } from '../../../../@types/astro.js';
 import type { ComponentSlots } from '../slot.js';
-import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.js';
+import type { AstroComponentFactory } from './factory.js';
 
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';

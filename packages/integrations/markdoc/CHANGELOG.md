@@ -1,5 +1,18 @@
 # @astrojs/markdoc
 
+## 0.11.3
+
+### Patch Changes
+
+- Updated dependencies [[`49b5145`](https://github.com/withastro/astro/commit/49b5145158a603b9bb951bf914a6a9780c218704)]:
+  - @astrojs/markdown-remark@5.2.0
+
+## 0.11.2
+
+### Patch Changes
+
+- [#11450](https://github.com/withastro/astro/pull/11450) [`eb303e1`](https://github.com/withastro/astro/commit/eb303e1ad5dade7787c0d9bbb520c21292cf3950) Thanks [@schpet](https://github.com/schpet)! - Adds support for markdown-it's typographer option
+
 ## 0.11.1
 
 ### Patch Changes

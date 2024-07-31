@@ -1,12 +1,25 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import fsMod from 'node:fs';
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroIntegration } from '../@types/astro.js';
+import type { AstroIntegration, AstroSettings } from '../@types/astro.js';
 import { ActionsWithoutServerOutputError } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
 import { isServerLikeOutput, viteID } from '../core/util.js';
-import { ACTIONS_TYPES_FILE, RESOLVED_VIRTUAL_MODULE_ID, VIRTUAL_MODULE_ID } from './consts.js';
+import {
+	ACTIONS_TYPES_FILE,
+	NOOP_ACTIONS,
+	RESOLVED_VIRTUAL_INTERNAL_MODULE_ID,
+	RESOLVED_VIRTUAL_MODULE_ID,
+	VIRTUAL_INTERNAL_MODULE_ID,
+	VIRTUAL_MODULE_ID,
+} from './consts.js';
 
-export default function astroActions(): AstroIntegration {
+export default function astroActions({
+	fs = fsMod,
+	settings,
+}: {
+	fs?: typeof fsMod;
+	settings: AstroSettings;
+}): AstroIntegration {
 	return {
 		name: VIRTUAL_MODULE_ID,
 		hooks: {
@@ -22,10 +35,7 @@ export default function astroActions(): AstroIntegration {
 				);
 				params.updateConfig({
 					vite: {
-						define: {
-							'import.meta.env.ACTIONS_PATH': stringifiedActionsImport,
-						},
-						plugins: [vitePluginActions],
+						plugins: [vitePluginUserActions({ settings }), vitePluginActions(fs)],
 					},
 				});
 
@@ -43,13 +53,50 @@ export default function astroActions(): AstroIntegration {
 				await typegen({
 					stringifiedActionsImport,
 					root: params.config.root,
+					fs,
 				});
 			},
 		},
 	};
 }
 
-const vitePluginActions: VitePlugin = {
+/**
+ * This plugin is responsible to load the known file `actions/index.js` / `actions.js`
+ * If the file doesn't exist, it returns an empty object.
+ * @param settings
+ */
+export function vitePluginUserActions({ settings }: { settings: AstroSettings }): VitePlugin {
+	let resolvedActionsId: string;
+	return {
+		name: '@astro/plugin-actions',
+		async resolveId(id) {
+			if (id === NOOP_ACTIONS) {
+				return NOOP_ACTIONS;
+			}
+			if (id === VIRTUAL_INTERNAL_MODULE_ID) {
+				const resolvedModule = await this.resolve(
+					`${decodeURI(new URL('actions', settings.config.srcDir).pathname)}`
+				);
+
+				if (!resolvedModule) {
+					return NOOP_ACTIONS;
+				}
+				resolvedActionsId = resolvedModule.id;
+				return RESOLVED_VIRTUAL_INTERNAL_MODULE_ID;
+			}
+		},
+
+		load(id) {
+			if (id === NOOP_ACTIONS) {
+				return 'export const server = {}';
+			} else if (id === RESOLVED_VIRTUAL_INTERNAL_MODULE_ID) {
+				return `export { server } from '${resolvedActionsId}';`;
+			}
+		},
+	};
+}
+
+const vitePluginActions = (fs: typeof fsMod): VitePlugin => ({
 	name: VIRTUAL_MODULE_ID,
 	enforce: 'pre',
 	resolveId(id) {
@@ -60,7 +107,10 @@ const vitePluginActions: VitePlugin = {
 	async load(id, opts) {
 		if (id !== RESOLVED_VIRTUAL_MODULE_ID) return;
 
-		let code = await readFile(new URL('../../templates/actions.mjs', import.meta.url), 'utf-8');
+		let code = await fs.promises.readFile(
+			new URL('../../templates/actions.mjs', import.meta.url),
+			'utf-8'
+		);
 		if (opts?.ssr) {
 			code += `\nexport * from 'astro/actions/runtime/virtual/server.js';`;
 		} else {
@@ -68,14 +118,16 @@ const vitePluginActions: VitePlugin = {
 		}
 		return code;
 	},
-};
+});
 
 async function typegen({
 	stringifiedActionsImport,
 	root,
+	fs,
 }: {
 	stringifiedActionsImport: string;
 	root: URL;
+	fs: typeof fsMod;
 }) {
 	const content = `declare module "astro:actions" {
 	type Actions = typeof import(${stringifiedActionsImport})["server"];
@@ -85,6 +137,6 @@ async function typegen({
 
 	const dotAstroDir = new URL('.astro/', root);
 
-	await mkdir(dotAstroDir, { recursive: true });
-	await writeFile(new URL(ACTIONS_TYPES_FILE, dotAstroDir), content);
+	await fs.promises.mkdir(dotAstroDir, { recursive: true });
+	await fs.promises.writeFile(new URL(ACTIONS_TYPES_FILE, dotAstroDir), content);
 }

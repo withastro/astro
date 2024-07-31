@@ -1,20 +1,23 @@
 import type { z } from 'zod';
-import type { MaybePromise } from '../utils.js';
+import type { ErrorInferenceObject, MaybePromise } from '../utils.js';
 
-type ActionErrorCode =
-	| 'BAD_REQUEST'
-	| 'UNAUTHORIZED'
-	| 'FORBIDDEN'
-	| 'NOT_FOUND'
-	| 'TIMEOUT'
-	| 'CONFLICT'
-	| 'PRECONDITION_FAILED'
-	| 'PAYLOAD_TOO_LARGE'
-	| 'UNSUPPORTED_MEDIA_TYPE'
-	| 'UNPROCESSABLE_CONTENT'
-	| 'TOO_MANY_REQUESTS'
-	| 'CLIENT_CLOSED_REQUEST'
-	| 'INTERNAL_SERVER_ERROR';
+export const ACTION_ERROR_CODES = [
+	'BAD_REQUEST',
+	'UNAUTHORIZED',
+	'FORBIDDEN',
+	'NOT_FOUND',
+	'TIMEOUT',
+	'CONFLICT',
+	'PRECONDITION_FAILED',
+	'PAYLOAD_TOO_LARGE',
+	'UNSUPPORTED_MEDIA_TYPE',
+	'UNPROCESSABLE_CONTENT',
+	'TOO_MANY_REQUESTS',
+	'CLIENT_CLOSED_REQUEST',
+	'INTERNAL_SERVER_ERROR',
+] as const;
+
+export type ActionErrorCode = (typeof ACTION_ERROR_CODES)[number];
 
 const codeToStatusMap: Record<ActionErrorCode, number> = {
 	// Implemented from tRPC error code table
@@ -40,8 +43,9 @@ const statusToCodeMap: Record<number, ActionErrorCode> = Object.entries(codeToSt
 	{}
 );
 
-export type ErrorInferenceObject = Record<string, any>;
-
+// T is used for error inference with SafeInput -> isInputError.
+// See: https://github.com/withastro/astro/pull/11173/files#r1622767246
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> extends Error {
 	type = 'AstroActionError';
 	code: ActionErrorCode = 'INTERNAL_SERVER_ERROR';
@@ -85,6 +89,10 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 
 export function isInputError<T extends ErrorInferenceObject>(
 	error?: ActionError<T>
+): error is ActionInputError<T>;
+export function isInputError(error?: unknown): error is ActionInputError<ErrorInferenceObject>;
+export function isInputError<T extends ErrorInferenceObject>(
+	error?: unknown | ActionError<T>
 ): error is ActionInputError<T> {
 	return error instanceof ActionInputError;
 }
@@ -146,10 +154,27 @@ export async function callSafely<TOutput>(
 	}
 }
 
+export function getActionQueryString(name: string) {
+	const searchParams = new URLSearchParams({ _astroAction: name });
+	return `?${searchParams.toString()}`;
+}
+
+/**
+ * @deprecated You can now pass action functions
+ * directly to the `action` attribute on a form.
+ *
+ * Example: `<form action={actions.like} />`
+ */
 export function getActionProps<T extends (args: FormData) => MaybePromise<unknown>>(action: T) {
+	const params = new URLSearchParams(action.toString());
+	const actionName = params.get('_astroAction');
+	if (!actionName) {
+		// No need for AstroError. `getActionProps()` will be removed for stable.
+		throw new Error('Invalid actions function was passed to getActionProps()');
+	}
 	return {
 		type: 'hidden',
 		name: '_astroAction',
-		value: action.toString(),
+		value: actionName,
 	} as const;
 }

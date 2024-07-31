@@ -1,6 +1,6 @@
 import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import type { Plugin, Rollup } from 'vite';
+import type { Plugin } from 'vite';
 import type { AstroSettings, SSRElement } from '../@types/astro.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import type { BuildInternals } from '../core/build/internal.js';
@@ -129,22 +129,9 @@ export function astroConfigBuildPlugin(
 	options: StaticBuildOptions,
 	internals: BuildInternals
 ): AstroBuildPlugin {
-	let ssrPluginContext: Rollup.PluginContext | undefined = undefined;
 	return {
 		targets: ['server'],
 		hooks: {
-			'build:before': ({ target }) => {
-				return {
-					vitePlugin: {
-						name: 'astro:content-build-plugin',
-						generateBundle() {
-							if (target === 'server') {
-								ssrPluginContext = this;
-							}
-						},
-					},
-				};
-			},
 			'build:post': ({ ssrOutputs, clientOutputs, mutate }) => {
 				const outputs = ssrOutputs.flatMap((o) => o.output);
 				const prependBase = (src: string) => {
@@ -232,8 +219,6 @@ export function astroConfigBuildPlugin(
 						mutate(chunk, ['server'], newCode);
 					}
 				}
-
-				ssrPluginContext = undefined;
 			},
 		},
 	};
