@@ -1662,6 +1662,17 @@ export const UnsupportedConfigTransformError = {
 	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
 } satisfies ErrorData;
 
+/**
+ * @docs
+ * @description
+ * Action called from a server page or endpoint without using `Astro.callAction()`.
+ */
+export const ActionCalledFromServerError = {
+	name: 'ActionCalledFromServerError',
+	title: 'Action unexpected called from the server.',
+	message: `Action called from a server page or endpoint without using \`Astro.callAction()\`. See the RFC section on server calls for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md#call-actions-directly-from-server-code`,
+} satisfies ErrorData;
+
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
 

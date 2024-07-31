@@ -2,6 +2,8 @@ import { z } from 'zod';
 import { type ActionAPIContext } from '../store.js';
 import type { ErrorInferenceObject, MaybePromise } from '../utils.js';
 import { ActionError, ActionInputError, type SafeResult, callSafely } from './shared.js';
+import { AstroError } from '../../../core/errors/errors.js';
+import { ActionCalledFromServerError } from '../../../core/errors/errors-data.js';
 
 export * from './shared.js';
 
@@ -64,11 +66,8 @@ export function defineAction<
 			: getJsonServerHandler(handler, inputSchema);
 
 	async function safeServerHandler(this: ActionAPIContext, unparsedInput: unknown) {
-		// TODO: astro error
 		if (typeof this === 'function') {
-			throw new Error(
-				'Action unexpectedly called on the server. Use Astro.callAction() to call functions directly from Astro pages or API endpoints.'
-			);
+			throw new AstroError(ActionCalledFromServerError);
 		}
 		return callSafely(() => serverHandler(unparsedInput, this));
 	}
@@ -76,9 +75,7 @@ export function defineAction<
 	Object.assign(safeServerHandler, {
 		orThrow(this: ActionAPIContext, unparsedInput: unknown) {
 			if (typeof this === 'function') {
-				throw new Error(
-					'Action unexpectedly called on the server. Use Astro.callAction() to call functions directly from Astro pages or API endpoints.'
-				);
+				throw new AstroError(ActionCalledFromServerError);
 			}
 			return serverHandler(unparsedInput, this);
 		},
