@@ -1,5 +1,17 @@
 # @astrojs/check
 
+## 0.9.0
+
+### Minor Changes
+
+- b65d6b4: Adds support for SCSS and LESS intellisense inside style tags
+
+### Patch Changes
+
+- Updated dependencies [3a60f00]
+- Updated dependencies [b65d6b4]
+  - @astrojs/language-server@2.13.0
+
 ## 0.8.3
 
 ### Patch Changes
