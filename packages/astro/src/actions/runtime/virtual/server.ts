@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { type ActionAPIContext } from '../store.js';
-import type { ErrorInferenceObject, MaybePromise } from '../utils.js';
+import type { ErrorInferenceObject, MaybePromise, ActionAPIContext } from '../utils.js';
 import { ActionError, ActionInputError, type SafeResult, callSafely } from './shared.js';
 import { AstroError } from '../../../core/errors/errors.js';
 import { ActionCalledFromServerError } from '../../../core/errors/errors-data.js';
