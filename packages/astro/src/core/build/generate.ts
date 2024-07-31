@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { bgGreen, black, blue, bold, dim, green, magenta } from 'kleur/colors';
+import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
 import PQueue from 'p-queue';
 import type { OutputAsset, OutputChunk } from 'rollup';
 import type {
@@ -192,6 +192,8 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	await runHookBuildGenerated({ config, logger });
 }
 
+const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
+
 async function generatePage(
 	pageData: PageBuildData,
 	ssrEntry: SinglePageBuiltModule,
@@ -244,7 +246,13 @@ async function generatePage(
 			const timeEnd = performance.now();
 			const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 			const timeIncrease = `(+${timeChange})`;
-			logger.info('SKIP_FORMAT', ` ${dim(timeIncrease)}`);
+			let timeIncreaseLabel;
+			if (timeEnd - prevTimeEnd > THRESHOLD_SLOW_RENDER_TIME_MS) {
+				timeIncreaseLabel = red(timeIncrease);
+			} else {
+				timeIncreaseLabel = dim(timeIncrease);
+			}
+			logger.info('SKIP_FORMAT', ` ${timeIncreaseLabel}`);
 			prevTimeEnd = timeEnd;
 		}
 	}
