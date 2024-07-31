@@ -2351,6 +2351,10 @@ export interface AstroInlineOnlyConfig {
 	 */
 	logLevel?: LoggerLevel;
 	/**
+	 * Clear the content layer cache, forcing a rebuild of all content entries.
+	 */
+	force?: boolean;
+	/**
 	 * @internal for testing only, use `logLevel` instead.
 	 */
 	logger?: Logger;
