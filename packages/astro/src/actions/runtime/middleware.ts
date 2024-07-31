@@ -24,7 +24,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	// See https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md#ctxrewrite
 	// `_actionsInternal` is the same for every page,
 	// so short circuit if already defined.
-	if (locals._actionsInternal) return next();
+	if (locals._actionsInternal) {
+		// Re-bind `callAction` with the new API context
+		locals._actionsInternal.callAction = createCallAction(context);
+		return next();
+	}
 
 	// Heuristic: If body is null, Astro might've reset this for prerendering.
 	// Stub with warning when `getActionResult()` is used.
