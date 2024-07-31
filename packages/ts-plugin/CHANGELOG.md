@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.9.1
+
+### Patch Changes
+
+- cc94bef: Revert a change to top-level returns that could prevent the return types of functions from being correct in certain cases
+
 ## 1.9.0
 
 ### Minor Changes

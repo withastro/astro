@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.13.1
+
+### Patch Changes
+
+- cc94bef: Revert a change to top-level returns that could prevent the return types of functions from being correct in certain cases
+
 ## 2.13.0
 
 ### Minor Changes

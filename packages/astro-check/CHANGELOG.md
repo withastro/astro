@@ -1,5 +1,13 @@
 # @astrojs/check
 
+## 0.9.1
+
+### Patch Changes
+
+- cc94bef: Revert a change to top-level returns that could prevent the return types of functions from being correct in certain cases
+- Updated dependencies [cc94bef]
+  - @astrojs/language-server@2.13.1
+
 ## 0.9.0
 
 ### Minor Changes
