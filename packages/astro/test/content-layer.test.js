@@ -3,8 +3,8 @@ import { promises as fs } from 'node:fs';
 import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
 import * as devalue from 'devalue';
+import { loadFixture } from './test-utils.js';
 describe('Content Layer', () => {
 	/** @type {import("./test-utils.js").Fixture} */
 	let fixture;

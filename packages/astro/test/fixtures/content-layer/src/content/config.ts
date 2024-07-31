@@ -4,12 +4,12 @@ import { loader } from '../loaders/post-loader.js';
 import { fileURLToPath } from 'node:url';
 
 const blog = defineCollection({
-	type: 'experimental_data',
+	type: 'experimental_content',
 	loader: loader({ url: 'https://jsonplaceholder.typicode.com/posts' }),
 });
 
 const dogs = defineCollection({
-	type: 'experimental_data',
+	type: 'experimental_content',
 	loader: file('src/data/dogs.json'),
 	schema: z.object({
 		breed: z.string(),
@@ -22,7 +22,7 @@ const dogs = defineCollection({
 });
 
 const cats = defineCollection({
-	type: 'experimental_data',
+	type: 'experimental_content',
 	loader: async function () {
 		return [
 			{
@@ -92,7 +92,7 @@ const numbers = defineCollection({
 });
 
 const increment = defineCollection({
-	type: 'experimental_data',
+	type: 'experimental_content',
 	loader: {
 		name: 'increment-loader',
 		load: async ({ store }) => {

@@ -5,7 +5,7 @@ import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
 import type { AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
-import { ASSET_IMPORTS_FILE, DATA_STORE_FILE } from './consts.js';
+import { ASSET_IMPORTS_FILE, CONTENT_LAYER_TYPE, DATA_STORE_FILE } from './consts.js';
 import type { DataStore } from './data-store.js';
 import type { LoaderContext } from './loaders/types.js';
 import { getEntryDataAndImages, globalContentConfigObserver, posixRelative } from './utils.js';
@@ -49,7 +49,7 @@ export async function syncContentLayer({
 
 	await Promise.all(
 		Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
-			if (collection.type !== 'experimental_data' && collection.type !== 'experimental_content') {
+			if (collection.type !== CONTENT_LAYER_TYPE) {
 				return;
 			}
 

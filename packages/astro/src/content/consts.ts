@@ -27,3 +27,5 @@ export const CONTENT_TYPES_FILE = 'types.d.ts';
 
 export const DATA_STORE_FILE = 'data-store.json';
 export const ASSET_IMPORTS_FILE = 'assets.mjs';
+
+export const CONTENT_LAYER_TYPE = 'experimental_content';

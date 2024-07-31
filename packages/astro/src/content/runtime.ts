@@ -17,7 +17,7 @@ import {
 	render as serverRender,
 	unescapeHTML,
 } from '../runtime/server/index.js';
-import { IMAGE_IMPORT_PREFIX } from './consts.js';
+import { CONTENT_LAYER_TYPE, IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
 type LazyImport = () => Promise<any>;
@@ -26,6 +26,13 @@ type CollectionToEntryMap = Record<string, GlobResult>;
 type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImport>;
 
 export function defineCollection(config: any) {
+	if (
+		('loader' in config && config.type !== CONTENT_LAYER_TYPE) ||
+		(config.type === CONTENT_LAYER_TYPE && !('loader' in config))
+	) {
+		// TODO: when this moves out of experimental, we will set the type automatically
+		throw new AstroError(AstroErrorData.ContentLayerTypeError);
+	}
 	if (!config.type) config.type = 'content';
 	return config;
 }
@@ -62,7 +69,7 @@ export function createGetCollection({
 }) {
 	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
 		const store = await globalDataStore.get();
-		let type: 'content' | 'data' | 'experimental_data' | 'experimental_content';
+		let type: 'content' | 'data';
 		if (collection in contentCollectionToEntryMap) {
 			type = 'content';
 		} else if (collection in dataCollectionToEntryMap) {
@@ -80,7 +87,6 @@ export function createGetCollection({
 					...entry,
 					data,
 					collection,
-					render: () => renderEntry(entry),
 				});
 			}
 			return result;
@@ -167,7 +173,6 @@ export function createGetEntryBySlug({
 			return {
 				...entry,
 				collection,
-				render: () => renderEntry(entry),
 			};
 		}
 		if (!collectionNames.has(collection)) {
@@ -201,7 +206,10 @@ export function createGetEntryBySlug({
 export function createGetDataEntryById({
 	getEntryImport,
 	collectionNames,
-}: { getEntryImport: GetEntryImport; collectionNames: Set<string> }) {
+}: {
+	getEntryImport: GetEntryImport;
+	collectionNames: Set<string>;
+}) {
 	return async function getDataEntryById(collection: string, id: string) {
 		const store = await globalDataStore.get();
 
@@ -307,7 +315,6 @@ export function createGetEntry({
 			return {
 				...entry,
 				collection,
-				render: () => renderEntry(entry),
 			} as DataEntryResult | ContentEntryResult;
 		}
 
@@ -433,7 +440,14 @@ function updateImageReferencesInData<T extends Record<string, unknown>>(
 	});
 }
 
-async function renderEntry(entry?: DataEntry) {
+export async function renderEntry(
+	entry?: DataEntry | { render: () => Promise<{ Content: AstroComponentFactory }> }
+) {
+	if (entry && 'render' in entry) {
+		// This is an old content collection entry, so we use its render method
+		return entry.render();
+	}
+
 	const html =
 		entry?.rendered?.metadata?.imagePaths?.length && entry.filePath
 			? await updateImageReferencesInBody(entry.rendered.html, entry.filePath)
