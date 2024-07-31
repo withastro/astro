@@ -578,7 +578,6 @@ function createBuildManifest(
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
 		middleware,
-		rewritingEnabled: settings.config.experimental.rewriting,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		experimentalEnvGetSecretEnabled: false,
 	};

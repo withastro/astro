@@ -279,7 +279,6 @@ function buildManifest(
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
-		rewritingEnabled: settings.config.experimental.rewriting,
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		experimentalEnvGetSecretEnabled:
 			settings.config.experimental.env !== undefined &&

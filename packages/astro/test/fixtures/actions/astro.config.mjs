@@ -4,7 +4,6 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	output: 'server',
 	experimental: {
-		rewriting: true,
 		actions: true,
 	},
 });
