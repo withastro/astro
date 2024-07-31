@@ -1143,21 +1143,6 @@ export const MissingMiddlewareForInternationalization = {
 /**
  * @docs
  * @description
- * The user tried to rewrite using a route that doesn't exist, or it emitted a runtime error during its rendering phase.
- */
-export const RewriteEncounteredAnError = {
-	name: 'RewriteEncounteredAnError',
-	title:
-		"Astro couldn't find the route to rewrite, or if was found but it emitted an error during the rendering phase.",
-	message: (route: string, stack?: string) =>
-		`The route ${route} that you tried to render doesn't exist, or it emitted an error during the rendering phase. ${
-			stack ? stack : ''
-		}.`,
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
  * Astro could not find an associated file with content while trying to render the route. This is an Astro error and not a user error. If restarting the dev server does not fix the problem, please file an issue.
  */
 export const CantRenderPage = {
