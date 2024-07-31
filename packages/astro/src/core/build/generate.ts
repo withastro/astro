@@ -199,7 +199,7 @@ async function generatePage(
 	pipeline: BuildPipeline
 ) {
 	// prepare information we need
-	const { config, internals, logger } = pipeline;
+	const { config, logger } = pipeline;
 	const pageModulePromise = ssrEntry.page;
 
 	// Calculate information of the page, like scripts, links and styles

@@ -50,7 +50,7 @@ import type {
 	TransitionBeforePreparationEvent,
 	TransitionBeforeSwapEvent,
 } from '../transitions/events.js';
-import type { DeepPartial, OmitIndexSignature, Simplify, WithRequired } from '../type-utils.js';
+import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 
 export type { AstroIntegrationLogger, ToolbarServerHelpers };
@@ -262,7 +262,7 @@ export interface AstroGlobal<
 	 * ```
 	 */
 	getActionResult: AstroSharedContext['getActionResult'];
-	/** Redirect to another page (**SSR Only**)
+	/** Redirect to another page
 	 *
 	 * Example usage:
 	 * ```typescript
@@ -271,7 +271,7 @@ export interface AstroGlobal<
 	 * }
 	 * ```
 	 *
-	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroredirect)
 	 */
 	redirect: AstroSharedContext['redirect'];
 	/**
@@ -1898,54 +1898,6 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.contentCollectionJsonSchema
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.5.0
-		 * @description
-		 * This feature will auto-generate a JSON schema for content collections of `type: 'data'` which can be used as the `$schema` value for TypeScript-style autocompletion/hints in tools like VSCode.
-		 *
-		 * To enable this feature, add the experimental flag:
-		 *
-		 * ```diff
-		 * import { defineConfig } from 'astro/config';
-
-		 * export default defineConfig({
-		 * 	experimental: {
-		 * +		contentCollectionJsonSchema: true
-		 * 	}
-		 * });
-		 * ```
-		 *
-		 * This experimental implementation requires you to manually reference the schema in each data entry file of the collection:
-		 *
-		 * ```diff
-		 * // src/content/test/entry.json
-		 * {
-		 * +  "$schema": "../../../.astro/collections/test.schema.json",
-		 * 	"test": "test"
-		 * }
-		 * ```
-		 *
-		 * Alternatively, you can set this in your [VSCode `json.schemas` settings](https://code.visualstudio.com/docs/languages/json#_json-schemas-and-settings):
-		 *
-		 * ```diff
-		 * "json.schemas": [
-		 * 	{
-		 * 		"fileMatch": [
-		 * 			"/src/content/test/**"
-		 * 		],
-		 * 		"url": "./.astro/collections/test.schema.json"
-		 * 	}
-		 * ]
-		 * ```
-		 *
-		 * Note that this initial implementation uses a library with [known issues for advanced Zod schemas](https://github.com/StefanTerdell/zod-to-json-schema#known-issues), so you may wish to consult these limitations before enabling the experimental flag.
-		 */
-		contentCollectionJsonSchema?: boolean;
-
-		/**
-		 * @docs
 		 * @name experimental.clientPrerender
 		 * @type {boolean}
 		 * @default `false`
@@ -2648,7 +2600,7 @@ export interface Page<T = any> {
 	total: number;
 	/** the current page number, starting from 1 */
 	currentPage: number;
-	/** number of items per page (default: 25) */
+	/** number of items per page (default: 10) */
 	size: number;
 	/** number of last page */
 	lastPage: number;
@@ -2789,7 +2741,7 @@ interface AstroSharedContext<
 		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
 	>(
 		action: TAction
-	) => Awaited<ReturnType<TAction['safe']>> | undefined;
+	) => Awaited<ReturnType<TAction>> | undefined;
 	/**
 	 * Route parameters for this request if this is a dynamic route.
 	 */
@@ -3268,6 +3220,7 @@ export interface SSRResult {
 	 * Whether the page has failed with a non-recoverable error, or the client disconnected.
 	 */
 	cancelled: boolean;
+	base: string;
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
@@ -3296,6 +3249,7 @@ export interface SSRResult {
 	pathname: string;
 	cookies: AstroCookies | undefined;
 	serverIslandNameMap: Map<string, string>;
+	trailingSlash: AstroConfig['trailingSlash'];
 	_metadata: SSRMetadata;
 }
 

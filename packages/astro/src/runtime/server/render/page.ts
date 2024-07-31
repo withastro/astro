@@ -1,4 +1,4 @@
-import type { AstroConfig, RouteData, SSRResult } from '../../../@types/astro.js';
+import type { RouteData, SSRResult } from '../../../@types/astro.js';
 import { type NonAstroPageComponent, renderComponentToString } from './component.js';
 import type { AstroComponentFactory } from './index.js';
 

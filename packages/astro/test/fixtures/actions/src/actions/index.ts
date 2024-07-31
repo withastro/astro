@@ -64,4 +64,14 @@ export const server = {
 			return;
 		}
 	}),
+	zero: defineAction({
+		handler: async () => {
+			return 0;
+		}
+	}),
+	false: defineAction({
+		handler: async () => {
+			return false;
+		}
+	})
 };
