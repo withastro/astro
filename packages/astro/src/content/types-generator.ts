@@ -381,9 +381,7 @@ async function writeContentFiles({
 	let dataTypesStr = '';
 
 	const collectionSchemasDir = new URL('./collections/', settings.dotAstroDir);
-	if (
-		!fs.existsSync(collectionSchemasDir)
-	) {
+	if (!fs.existsSync(collectionSchemasDir)) {
 		fs.mkdirSync(collectionSchemasDir, { recursive: true });
 	}
 
@@ -424,8 +422,8 @@ async function writeContentFiles({
 		const resolvedType: 'content' | 'data' =
 			collection.type === 'unknown'
 				? // Add empty / unknown collections to the data type map by default
-				// This ensures `getCollection('empty-collection')` doesn't raise a type error
-				collectionConfig?.type ?? 'data'
+					// This ensures `getCollection('empty-collection')` doesn't raise a type error
+					collectionConfig?.type ?? 'data'
 				: collection.type;
 
 		const collectionEntryKeys = Object.keys(collection.entries).sort();
@@ -478,7 +476,7 @@ async function writeContentFiles({
 									markdownDescription: true,
 									errorMessages: true,
 									// Fix for https://github.com/StefanTerdell/zod-to-json-schema/issues/110
-									dateStrategy: ["format:date-time", "format:date", "integer"]
+									dateStrategy: ['format:date-time', 'format:date', 'integer'],
 								}),
 								null,
 								2
