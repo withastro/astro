@@ -12,6 +12,7 @@ import { getActionQueryString } from './virtual/shared.js';
 export type Locals = {
 	_actionsInternal: {
 		getActionResult: APIContext['getActionResult'];
+		callAction: APIContext['callAction'];
 		actionResult?: ReturnType<APIContext['getActionResult']>;
 	};
 };
@@ -90,6 +91,7 @@ async function handleResult({
 			}
 			return actionResult;
 		},
+		callAction: createCallAction(context),
 		actionResult,
 	};
 	const locals = context.locals as Locals;
@@ -149,6 +151,7 @@ function nextWithStaticStub(next: MiddlewareNext, context: APIContext) {
 				);
 				return undefined;
 			},
+			callAction: createCallAction(context),
 		},
 	});
 	return next();
@@ -159,7 +162,15 @@ function nextWithLocalsStub(next: MiddlewareNext, context: APIContext) {
 		writable: false,
 		value: {
 			getActionResult: () => undefined,
+			callAction: createCallAction(context),
 		},
 	});
 	return next();
+}
+
+function createCallAction(context: APIContext): APIContext['callAction'] {
+	return (baseAction, input) => {
+		const action = baseAction.bind(context);
+		return action(input) as any;
+	};
 }

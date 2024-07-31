@@ -1,7 +1,7 @@
 ---
 import { actions } from 'astro:actions';
 
-const res = await actions.subscribeFromServer.orThrow({
+const res = await Astro.callAction(actions.subscribeFromServer.orThrow, {
 	channel: 'bholmesdev',
 });
 ---

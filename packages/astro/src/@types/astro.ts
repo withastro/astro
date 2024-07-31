@@ -15,6 +15,7 @@ import type {
 	ActionAccept,
 	ActionClient,
 	ActionInputSchema,
+	ActionReturnType,
 } from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
 import type { AssetsPrefix, SSRManifest, SerializedSSRManifest } from '../core/app/types.js';
@@ -262,6 +263,21 @@ export interface AstroGlobal<
 	 * ```
 	 */
 	getActionResult: AstroSharedContext['getActionResult'];
+	/**
+	 * Call an Action directly from an Astro page or API endpoint.
+	 * Expects the action function as the first parameter,
+	 * and the type-safe action input as the second parameter.
+	 * Returns a Promise with the action result.
+	 *
+	 * Example usage:
+	 *
+	 * ```typescript
+	 * import { actions } from 'astro:actions';
+	 *
+	 * const result = await Astro.callAction(actions.getPost, { postId: 'test' });
+	 * ```
+	 */
+	callAction: AstroSharedContext['callAction'];
 	/** Redirect to another page
 	 *
 	 * Example usage:
@@ -2741,7 +2757,21 @@ interface AstroSharedContext<
 		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
 	>(
 		action: TAction
-	) => Awaited<ReturnType<TAction>> | undefined;
+	) => ActionReturnType<TAction> | undefined;
+	/**
+	 * Call action handler from the server.
+	 */
+	callAction: <
+		TAccept extends ActionAccept,
+		TInputSchema extends ActionInputSchema<TAccept>,
+		TOutput,
+		TAction extends
+			| ActionClient<TOutput, TAccept, TInputSchema>
+			| ActionClient<TOutput, TAccept, TInputSchema>['orThrow'],
+	>(
+		action: TAction,
+		input: Parameters<TAction>[0]
+	) => Promise<ActionReturnType<TAction>>;
 	/**
 	 * Route parameters for this request if this is a dynamic route.
 	 */

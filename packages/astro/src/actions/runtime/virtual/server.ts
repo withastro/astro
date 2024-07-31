@@ -64,11 +64,22 @@ export function defineAction<
 			: getJsonServerHandler(handler, inputSchema);
 
 	async function safeServerHandler(this: ActionAPIContext, unparsedInput: unknown) {
+		// TODO: astro error
+		if (typeof this === 'function') {
+			throw new Error(
+				'Action unexpectedly called on the server. Use Astro.callAction() to call functions directly from Astro pages or API endpoints.'
+			);
+		}
 		return callSafely(() => serverHandler(unparsedInput, this));
 	}
 
 	Object.assign(safeServerHandler, {
 		orThrow(this: ActionAPIContext, unparsedInput: unknown) {
+			if (typeof this === 'function') {
+				throw new Error(
+					'Action unexpectedly called on the server. Use Astro.callAction() to call functions directly from Astro pages or API endpoints.'
+				);
+			}
 			return serverHandler(unparsedInput, this);
 		},
 	});

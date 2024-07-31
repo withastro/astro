@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import type { APIContext } from '../../@types/astro.js';
 import { AstroError } from '../../core/errors/errors.js';
 
-export type ActionAPIContext = Omit<APIContext, 'getActionResult' | 'props'>;
+export type ActionAPIContext = Omit<APIContext, 'getActionResult' | 'callAction' | 'props'>;
 export const ApiContextStorage = new AsyncLocalStorage<ActionAPIContext>();
 
 export function getApiContext(): ActionAPIContext {
