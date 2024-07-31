@@ -8,10 +8,10 @@
     "@astrojs/vue": "workspace:*",
     "astro": "workspace:*",
     "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.39",
-    "solid-js": "^1.8.18",
+    "postcss": "^8.4.40",
+    "solid-js": "^1.8.19",
     "svelte": "^4.2.18",
-    "vue": "^3.4.33"
+    "vue": "^3.4.35"
   },
   "devDependencies": {
     "postcss-preset-env": "^9.6.0"
