@@ -33,19 +33,9 @@ export interface BuildInternals {
 	entrySpecifierToBundleMap: Map<string, string>;
 
 	/**
-	 * A map to get a specific page's bundled output file.
-	 */
-	pageToBundleMap: Map<string, string>;
-
-	/**
 	 * A map for page-specific information.
 	 */
 	pagesByKeys: Map<string, PageBuildData>;
-
-	/**
-	 * A map for page-specific output.
-	 */
-	pageOptionsByPage: Map<string, PageOptions>;
 
 	/**
 	 * A map for page-specific information by Vite ID (a path-like string)
@@ -110,7 +100,6 @@ export interface BuildInternals {
 	manifestEntryChunk?: Rollup.OutputChunk;
 	manifestFileName?: string;
 	entryPoints: Map<RouteData, URL>;
-	ssrSplitEntryChunks: Map<string, Rollup.OutputChunk>;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint?: URL;
 
@@ -138,9 +127,7 @@ export function createBuildInternals(): BuildInternals {
 		hoistedScriptIdToPagesMap,
 		inlinedScripts: new Map(),
 		entrySpecifierToBundleMap: new Map<string, string>(),
-		pageToBundleMap: new Map<string, string>(),
 		pagesByKeys: new Map(),
-		pageOptionsByPage: new Map(),
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
 		pagesByScriptId: new Map(),
@@ -153,7 +140,6 @@ export function createBuildInternals(): BuildInternals {
 		discoveredScripts: new Set(),
 		staticFiles: new Set(),
 		componentMetadata: new Map(),
-		ssrSplitEntryChunks: new Map(),
 		entryPoints: new Map(),
 		cacheManifestUsed: false,
 		prerenderOnlyChunks: [],
