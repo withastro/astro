@@ -225,7 +225,10 @@ export function serializeActionResult(res: SafeResult<any, any>): SerializedActi
 		type: 'data',
 		status: 200,
 		contentType: 'application/json+devalue',
-		body: devalueStringify(res.data),
+		body: devalueStringify(res.data, {
+			// Add support for URL objects
+			URL: (value) => value instanceof URL && value.href,
+		}),
 	};
 }
 
@@ -236,5 +239,10 @@ export function deserializeActionResult(res: SerializedActionResult): SafeResult
 	if (res.type === 'empty') {
 		return { data: undefined, error: undefined };
 	}
-	return { data: devalueParse(res.body), error: undefined };
+	return {
+		data: devalueParse(res.body, {
+			URL: (href) => new URL(href),
+		}),
+		error: undefined,
+	};
 }

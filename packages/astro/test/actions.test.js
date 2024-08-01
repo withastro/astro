@@ -286,7 +286,7 @@ describe('Astro Actions', () => {
 			assert.equal(value, false);
 		});
 
-		it('Supports complex values like Date and Set', async () => {
+		it('Supports complex values: Date, Set, URL', async () => {
 			const req = new Request('http://example.com/_actions/complexValues', {
 				method: 'POST',
 				headers: {
@@ -298,7 +298,9 @@ describe('Astro Actions', () => {
 			assert.equal(res.status, 200);
 			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
 
-			const value = devalue.parse(await res.text());
+			const value = devalue.parse(await res.text(), {
+				URL: (href) => new URL(href),
+			});
 			assert.ok(value.date instanceof Date);
 			assert.ok(value.set instanceof Set);
 		});

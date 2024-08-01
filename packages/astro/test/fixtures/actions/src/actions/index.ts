@@ -79,6 +79,7 @@ export const server = {
 			return {
 				date: new Date(),
 				set: new Set(),
+				url: new URL('https://example.com'),
 			}
 		}
 	})
