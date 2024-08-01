@@ -1,5 +1,6 @@
 import type { APIRoute } from '../../@types/astro.js';
 import { formContentTypes, getAction, hasContentType } from './utils.js';
+import { serializeActionResult } from './virtual/shared.js';
 
 export const POST: APIRoute = async (context) => {
 	const { request, url } = context;
@@ -23,25 +24,18 @@ export const POST: APIRoute = async (context) => {
 	}
 	const action = baseAction.bind(context);
 	const result = await action(args);
-	if (result.error) {
-		return new Response(
-			JSON.stringify({
-				...result.error,
-				message: result.error.message,
-				stack: import.meta.env.PROD ? undefined : result.error.stack,
-			}),
-			{
-				status: result.error.status,
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			}
-		);
+	const serialized = serializeActionResult(result);
+
+	if (serialized.type === 'empty') {
+		return new Response(null, {
+			status: serialized.status,
+		});
 	}
-	return new Response(JSON.stringify(result.data), {
-		status: result.data !== undefined ? 200 : 204,
+
+	return new Response(serialized.body, {
+		status: serialized.status,
 		headers: {
-			'Content-Type': 'application/json',
+			'Content-Type': serialized.contentType,
 		},
 	});
 };

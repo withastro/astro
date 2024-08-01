@@ -1,4 +1,9 @@
-import { ActionError, callSafely, getActionQueryString } from 'astro:actions';
+import {
+	ActionError,
+	callSafely,
+	getActionQueryString,
+	deserializeActionResult,
+} from 'astro:actions';
 
 function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 	return new Proxy(actionCallback, {
@@ -72,19 +77,21 @@ async function handleActionOrThrow(param, path, context) {
 		headers.set('Content-Type', 'application/json');
 		headers.set('Content-Length', body?.length.toString() ?? '0');
 	}
-	const res = await fetch(`/_actions/${path}`, {
+	const rawResult = await fetch(`/_actions/${path}`, {
 		method: 'POST',
 		body,
 		headers,
 	});
-	if (!res.ok) {
-		throw await ActionError.fromResponse(res);
-	}
-	// Check if response body is empty before parsing.
-	if (res.status === 204) return;
+	if (rawResult.status === 204) return;
 
-	const json = await res.json();
-	return json;
+	const res = deserializeActionResult({
+		type: rawResult.ok ? 'data' : 'error',
+		body: await rawResult.text(),
+	});
+	if (res.error) {
+		throw res.error;
+	}
+	return res.data;
 }
 
 export const actions = toActionProxy();

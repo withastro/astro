@@ -1,3 +1,4 @@
+import { yellow } from 'kleur/colors';
 import type { APIContext, MiddlewareNext } from '../../@types/astro.js';
 import {
 	ActionQueryStringInvalidError,
@@ -5,14 +6,16 @@ import {
 } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
-import { serializeActionResult } from '../utils.js';
 import { formContentTypes, getAction, hasContentType } from './utils.js';
-import type { SafeResult } from './virtual/shared.js';
+import {
+	type SafeResult,
+	type SerializedActionResult,
+	serializeActionResult,
+} from './virtual/shared.js';
 
 export type Locals = {
 	_actionsInternal: {
-		/* Stringify to ensure everything serializes for edge middleware environments. */
-		actionResult: { error: string } | { data: string };
+		actionResult: SerializedActionResult;
 		actionName: string;
 	};
 };
@@ -27,9 +30,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	if (locals._actionsInternal) return next();
 
 	// Heuristic: If body is null, Astro might've reset this for prerendering.
-	// Stub with warning when `getActionResult()` is used.
-	if (request.method === 'POST' && request.body === null) {
-		return nextWithStaticStub(next, context);
+	if (import.meta.env.DEV && request.method === 'POST' && request.body === null) {
+		console.warn(
+			yellow('[astro:actions]'),
+			'POST requests should not be sent to prerendered pages. If you\'re using Actions, disable prerendering with `export const prerender = "false".'
+		);
+		return next();
 	}
 
 	const actionName = context.url.searchParams.get('_astroAction');
@@ -136,22 +142,4 @@ async function handlePostLegacy({ context, next }: { context: APIContext; next: 
 	const action = baseAction.bind(context);
 	const actionResult = await action(formData);
 	return handleResult({ context, next, actionName, actionResult });
-}
-
-function nextWithStaticStub(next: MiddlewareNext, context: APIContext) {
-	Object.defineProperty(context.locals, '_actionsInternal', {
-		writable: false,
-		value: {
-			actionResult: undefined,
-			actionName: undefined,
-			// getActionResult: () => {
-			// 	console.warn(
-			// 		yellow('[astro:actions]'),
-			// 		'`getActionResult()` should not be called on prerendered pages. Astro can only handle actions for pages rendered on-demand.'
-			// 	);
-			// 	return undefined;
-			// },
-		},
-	});
-	return next();
 }

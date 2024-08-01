@@ -1,5 +1,6 @@
 import type { z } from 'zod';
 import type { ErrorInferenceObject, MaybePromise } from '../utils.js';
+import { stringify as devalueStringify, parse as devalueParse } from 'devalue';
 
 export const ACTION_ERROR_CODES = [
 	'BAD_REQUEST',
@@ -66,11 +67,6 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 
 	static statusToCode(status: number): ActionErrorCode {
 		return statusToCodeMap[status] ?? 'INTERNAL_SERVER_ERROR';
-	}
-
-	static async fromResponse(res: Response) {
-		const body = await res.clone().json();
-		return this.fromJson(body);
 	}
 
 	static fromJson(body: any) {
@@ -186,4 +182,59 @@ export function getActionProps<T extends (args: FormData) => MaybePromise<unknow
 		name: '_astroAction',
 		value: actionName,
 	} as const;
+}
+
+export type SerializedActionResult =
+	| {
+			type: 'data';
+			contentType: 'application/json+devalue';
+			status: 200;
+			body: string;
+	  }
+	| {
+			type: 'error';
+			contentType: 'application/json';
+			status: number;
+			body: string;
+	  }
+	| {
+			type: 'empty';
+			status: 204;
+	  };
+
+export function serializeActionResult(res: SafeResult<any, any>): SerializedActionResult {
+	if (res.error) {
+		return {
+			type: 'error',
+			status: res.error.status,
+			contentType: 'application/json',
+			body: JSON.stringify({
+				...res.error,
+				message: res.error.message,
+				stack: import.meta.env.PROD ? undefined : res.error.stack,
+			}),
+		};
+	}
+	if (res.data === undefined) {
+		return {
+			type: 'empty',
+			status: 204,
+		};
+	}
+	return {
+		type: 'data',
+		status: 200,
+		contentType: 'application/json+devalue',
+		body: devalueStringify(res.data),
+	};
+}
+
+export function deserializeActionResult(res: SerializedActionResult): SafeResult<any, any> {
+	if (res.type === 'error') {
+		return { error: ActionError.fromJson(JSON.parse(res.body)), data: undefined };
+	}
+	if (res.type === 'empty') {
+		return { data: undefined, error: undefined };
+	}
+	return { data: devalueParse(res.body), error: undefined };
 }

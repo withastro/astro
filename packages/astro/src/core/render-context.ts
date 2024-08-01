@@ -1,3 +1,4 @@
+import { deserializeActionResult } from '../actions/runtime/virtual/shared.js';
 import type {
 	APIContext,
 	AstroGlobal,
@@ -10,12 +11,7 @@ import type {
 	SSRResult,
 } from '../@types/astro.js';
 import type { ActionAPIContext } from '../actions/runtime/utils.js';
-import {
-	createCallAction,
-	createGetActionResult,
-	deserializeActionResult,
-	hasActionsInternal,
-} from '../actions/utils.js';
+import { createCallAction, createGetActionResult, hasActionsInternal } from '../actions/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
