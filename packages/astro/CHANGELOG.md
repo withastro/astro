@@ -63,9 +63,8 @@
 
   ```astro
   ---
-  // src/pages/es-cu/articles/introduction.astro 
-  return Astro.rewrite("/es/articles/introduction")
-
+  // src/pages/es-cu/articles/introduction.astro
+  return Astro.rewrite('/es/articles/introduction');
   ---
   ```
 
