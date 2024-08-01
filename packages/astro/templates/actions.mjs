@@ -1,9 +1,4 @@
-import {
-	ActionError,
-	callSafely,
-	getActionQueryString,
-	deserializeActionResult,
-} from 'astro:actions';
+import { ActionError, getActionQueryString, deserializeActionResult } from 'astro:actions';
 
 function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 	return new Proxy(actionCallback, {
@@ -13,7 +8,7 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 			}
 			const path = aggregatedPath + objKey.toString();
 			function action(param) {
-				return callSafely(() => handleActionOrThrow(param, path, this));
+				return handleAction(param, path, this);
 			}
 
 			Object.assign(action, {
@@ -33,8 +28,10 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 				// Note: `orThrow` does not have progressive enhancement info.
 				// If you want to throw exceptions,
 				//  you must handle those exceptions with client JS.
-				orThrow(param) {
-					return handleActionOrThrow(param, path, this);
+				async orThrow(param) {
+					const { data, error } = await handleAction(param, path, this);
+					if (error) throw error;
+					return data;
 				},
 			});
 
@@ -48,17 +45,18 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 /**
  * @param {*} param argument passed to the action when called server or client-side.
  * @param {string} path Built path to call action by path name.
- * @param {import('../src/@types/astro.d.ts').APIContext | undefined} context Injected API context when calling actions from the server.
+ * @param {import('../dist/@types/astro.d.ts').APIContext | undefined} context Injected API context when calling actions from the server.
  * Usage: `actions.[name](param)`.
+ * @returns {Promise<import('../dist/actions/runtime/virtual/shared.js').SafeResult<any, any>>}
  */
-async function handleActionOrThrow(param, path, context) {
+async function handleAction(param, path, context) {
 	// When running server-side, import the action and call it.
 	if (import.meta.env.SSR) {
 		const { getAction } = await import('astro/actions/runtime/utils.js');
 		const action = await getAction(path);
 		if (!action) throw new Error(`Action not found: ${path}`);
 
-		return action.orThrow.bind(context)(param);
+		return action.bind(context)(param);
 	}
 
 	// When running client-side, make a fetch request to the action path.
@@ -84,14 +82,10 @@ async function handleActionOrThrow(param, path, context) {
 	});
 	if (rawResult.status === 204) return;
 
-	const res = deserializeActionResult({
+	return deserializeActionResult({
 		type: rawResult.ok ? 'data' : 'error',
 		body: await rawResult.text(),
 	});
-	if (res.error) {
-		throw res.error;
-	}
-	return res.data;
 }
 
 export const actions = toActionProxy();
