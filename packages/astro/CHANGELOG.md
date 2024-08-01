@@ -1,5 +1,113 @@
 # astro
 
+## 4.13.0
+
+### Minor Changes
+
+- [#11507](https://github.com/withastro/astro/pull/11507) [`a62345f`](https://github.com/withastro/astro/commit/a62345fd182ae4886d586c8406ed8f3e5f942730) Thanks [@ematipico](https://github.com/ematipico)! - Adds color-coding to the console output during the build to highlight slow pages.
+
+  Pages that take more than 500 milliseconds to render will have their build time logged in red. This change can help you discover pages of your site that are not performant and may need attention.
+
+- [#11379](https://github.com/withastro/astro/pull/11379) [`e5e2d3e`](https://github.com/withastro/astro/commit/e5e2d3ed3076f10b4645f011b13888d5fa16e92e) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - The `experimental.contentCollectionJsonSchema` feature introduced behind a flag in [v4.5.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#450) is no longer experimental and is available for general use.
+
+  If you are working with collections of type `data`, Astro will now auto-generate JSON schema files for your editor to get IntelliSense and type-checking. A separate file will be created for each data collection in your project based on your collections defined in `src/content/config.ts` using a library called [`zod-to-json-schema`](https://github.com/StefanTerdell/zod-to-json-schema).
+
+  This feature requires you to manually set your schema's file path as the value for `$schema` in each data entry file of the collection:
+
+  ```json title="src/content/authors/armand.json" ins={2}
+  {
+    "$schema": "../../../.astro/collections/authors.schema.json",
+    "name": "Armand",
+    "skills": ["Astro", "Starlight"]
+  }
+  ```
+
+  Alternatively, you can set this value in your editor settings. For example, to set this value in [VSCode's `json.schemas` setting](https://code.visualstudio.com/docs/languages/json#_json-schemas-and-settings), provide the path of files to match and the location of your JSON schema:
+
+  ```json
+  {
+    "json.schemas": [
+      {
+        "fileMatch": ["/src/content/authors/**"],
+        "url": "./.astro/collections/authors.schema.json"
+      }
+    ]
+  }
+  ```
+
+  If you were previously using this feature, please remove the experimental flag from your Astro config:
+
+  ```diff
+  import { defineConfig } from 'astro'
+
+  export default defineConfig({
+  -  experimental: {
+  -    contentCollectionJsonSchema: true
+  -  }
+  })
+  ```
+
+  If you have been waiting for stabilization before using JSON Schema generation for content collections, you can now do so.
+
+  Please see [the content collections guide](https://docs.astro.build/en/guides/content-collections/#enabling-json-schema-generation) for more about this feature.
+
+- [#11542](https://github.com/withastro/astro/pull/11542) [`45ad326`](https://github.com/withastro/astro/commit/45ad326932971b44630a32d9092c9505f24f42f8) Thanks [@ematipico](https://github.com/ematipico)! - The `experimental.rewriting` feature introduced behind a flag in [v4.8.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#480) is no longer experimental and is available for general use.
+
+  `Astro.rewrite()` and `context.rewrite()` allow you to render a different page without changing the URL in the browser. Unlike using a redirect, your visitor is kept on the original page they visited.
+
+  Rewrites can be useful for showing the same content at multiple paths (e.g. /products/shoes/men/ and /products/men/shoes/) without needing to maintain two identical source files.
+
+  Rewrites are supported in Astro pages, endpoints, and middleware.
+
+  Return `Astro.rewrite()` in the frontmatter of a `.astro` page component to display a different page's content, such as fallback localized content:
+
+  ```astro
+  ---
+
+  ---
+
+  // src/pages/es-cu/articles/introduction.astro return Astro.rewrite("/es/articles/introduction")
+  --- } ---
+  ```
+
+  Use `context.rewrite()` in endpoints, for example to reroute to a different page:
+
+  ```js
+  // src/pages/api.js
+  export function GET(context) {
+    if (!context.locals.allowed) {
+      return context.rewrite('/');
+    }
+  }
+  ```
+
+  The middleware `next()` function now accepts a parameter with the same type as the `rewrite()` function. For example, with `next("/")`, you can call the next middleware function with a new `Request`.
+
+  ```js
+  // src/middleware.js
+  export function onRequest(context, next) {
+    if (!context.cookies.get('allowed')) {
+      return next('/'); // new signature
+    }
+    return next();
+  }
+  ```
+
+  If you were previously using this feature, please remove the experimental flag from your Astro config:
+
+  ```diff
+  // astro.config.mjs
+  export default defineConfig({
+  -  experimental: {
+  -    rewriting: true
+  -  }
+  })
+  ```
+
+  If you have been waiting for stabilization before using rewrites in Astro, you can now do so.
+
+  Please see [the routing guide in docs](https://docs.astro.build/en/guides/routing/#rewrites) for more about using this feature.
+
 ## 4.12.3
 
 ### Patch Changes
