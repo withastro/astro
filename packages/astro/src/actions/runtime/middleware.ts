@@ -6,12 +6,13 @@ import {
 } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
-import { formContentTypes, getAction, hasContentType } from './utils.js';
+import { formContentTypes, hasContentType } from './utils.js';
 import {
 	type SafeResult,
 	type SerializedActionResult,
 	serializeActionResult,
 } from './virtual/shared.js';
+import { getAction } from './virtual/get-action.js';
 
 export type Locals = {
 	_actionsInternal: {

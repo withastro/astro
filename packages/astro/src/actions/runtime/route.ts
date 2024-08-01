@@ -1,5 +1,6 @@
 import type { APIRoute } from '../../@types/astro.js';
-import { formContentTypes, getAction, hasContentType } from './utils.js';
+import { formContentTypes, hasContentType } from './utils.js';
+import { getAction } from './virtual/get-action.js';
 import { serializeActionResult } from './virtual/shared.js';
 
 export const POST: APIRoute = async (context) => {
