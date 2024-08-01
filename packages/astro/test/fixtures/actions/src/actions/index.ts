@@ -73,5 +73,13 @@ export const server = {
 		handler: async () => {
 			return false;
 		}
+	}),
+	complexValues: defineAction({
+		handler: async () => {
+			return {
+				date: new Date(),
+				set: new Set(),
+			}
+		}
 	})
 };

@@ -285,5 +285,22 @@ describe('Astro Actions', () => {
 			const value = devalue.parse(await res.text());
 			assert.equal(value, false);
 		});
+
+		it('Supports complex values like Date and Set', async () => {
+			const req = new Request('http://example.com/_actions/complexValues', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Content-Length': '0',
+				},
+			});
+			const res = await app.render(req);
+			assert.equal(res.status, 200);
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+
+			const value = devalue.parse(await res.text());
+			assert.ok(value.date instanceof Date);
+			assert.ok(value.set instanceof Set);
+		});
 	});
 });
