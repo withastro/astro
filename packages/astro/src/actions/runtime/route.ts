@@ -1,11 +1,10 @@
 import type { APIRoute } from '../../@types/astro.js';
-import { ApiContextStorage } from './store.js';
 import { formContentTypes, getAction, hasContentType } from './utils.js';
 
 export const POST: APIRoute = async (context) => {
 	const { request, url } = context;
-	const action = await getAction(url.pathname);
-	if (!action) {
+	const baseAction = await getAction(url.pathname);
+	if (!baseAction) {
 		return new Response(null, { status: 404 });
 	}
 	const contentType = request.headers.get('Content-Type');
@@ -22,7 +21,8 @@ export const POST: APIRoute = async (context) => {
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/415
 		return new Response(null, { status: 415 });
 	}
-	const result = await ApiContextStorage.run(context, () => action(args));
+	const action = baseAction.bind(context);
+	const result = await action(args);
 	if (result.error) {
 		return new Response(
 			JSON.stringify({

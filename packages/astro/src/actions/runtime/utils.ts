@@ -1,4 +1,5 @@
 import type { ZodType } from 'zod';
+import type { APIContext } from '../../@types/astro.js';
 import type { ActionAccept, ActionClient } from './virtual/server.js';
 
 export const formContentTypes = ['application/x-www-form-urlencoded', 'multipart/form-data'];
@@ -11,6 +12,7 @@ export function hasContentType(contentType: string, expected: string[]) {
 	return expected.some((t) => type === t);
 }
 
+export type ActionAPIContext = Omit<APIContext, 'getActionResult' | 'callAction' | 'props'>;
 export type MaybePromise<T> = T | Promise<T>;
 
 /**

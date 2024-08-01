@@ -9,8 +9,8 @@ import type {
 	RouteData,
 	SSRResult,
 } from '../@types/astro.js';
-import type { ActionAPIContext } from '../actions/runtime/store.js';
-import { createGetActionResult, hasActionsInternal } from '../actions/utils.js';
+import type { ActionAPIContext } from '../actions/runtime/utils.js';
+import { createCallAction, createGetActionResult, hasActionsInternal } from '../actions/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
@@ -216,6 +216,7 @@ export class RenderContext {
 		return Object.assign(context, {
 			props,
 			getActionResult: createGetActionResult(context.locals),
+			callAction: createCallAction(context.locals),
 		});
 	}
 
@@ -458,6 +459,7 @@ export class RenderContext {
 			rewrite,
 			request: this.request,
 			getActionResult: createGetActionResult(locals),
+			callAction: createCallAction(locals),
 			response,
 			site: pipeline.site,
 			url,

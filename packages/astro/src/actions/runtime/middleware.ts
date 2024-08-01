@@ -6,13 +6,13 @@ import {
 } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
-import { ApiContextStorage } from './store.js';
 import { formContentTypes, getAction, hasContentType } from './utils.js';
 import { getActionQueryString } from './virtual/shared.js';
 
 export type Locals = {
 	_actionsInternal: {
 		getActionResult: APIContext['getActionResult'];
+		callAction: APIContext['callAction'];
 		actionResult?: ReturnType<APIContext['getActionResult']>;
 	};
 };
@@ -24,7 +24,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	// See https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md#ctxrewrite
 	// `_actionsInternal` is the same for every page,
 	// so short circuit if already defined.
-	if (locals._actionsInternal) return ApiContextStorage.run(context, () => next());
+	if (locals._actionsInternal) {
+		// Re-bind `callAction` with the new API context
+		locals._actionsInternal.callAction = createCallAction(context);
+		return next();
+	}
 
 	// Heuristic: If body is null, Astro might've reset this for prerendering.
 	// Stub with warning when `getActionResult()` is used.
@@ -59,8 +63,8 @@ async function handlePost({
 }: { context: APIContext; next: MiddlewareNext; actionName: string }) {
 	const { request } = context;
 
-	const action = await getAction(actionName);
-	if (!action) {
+	const baseAction = await getAction(actionName);
+	if (!baseAction) {
 		throw new AstroError({
 			...ActionQueryStringInvalidError,
 			message: ActionQueryStringInvalidError.message(actionName),
@@ -72,12 +76,13 @@ async function handlePost({
 	if (contentType && hasContentType(contentType, formContentTypes)) {
 		formData = await request.clone().formData();
 	}
-	const actionResult = await ApiContextStorage.run(context, () => action(formData));
+	const action = baseAction.bind(context);
+	const actionResult = await action(formData);
 
 	return handleResult({ context, next, actionName, actionResult });
 }
 
-function handleResult({
+async function handleResult({
 	context,
 	next,
 	actionName,
@@ -90,22 +95,21 @@ function handleResult({
 			}
 			return actionResult;
 		},
+		callAction: createCallAction(context),
 		actionResult,
 	};
 	const locals = context.locals as Locals;
 	Object.defineProperty(locals, '_actionsInternal', { writable: false, value: actionsInternal });
 
-	return ApiContextStorage.run(context, async () => {
-		const response = await next();
-		if (actionResult.error) {
-			return new Response(response.body, {
-				status: actionResult.error.status,
-				statusText: actionResult.error.type,
-				headers: response.headers,
-			});
-		}
-		return response;
-	});
+	const response = await next();
+	if (actionResult.error) {
+		return new Response(response.body, {
+			status: actionResult.error.status,
+			statusText: actionResult.error.type,
+			headers: response.headers,
+		});
+	}
+	return response;
 }
 
 async function handlePostLegacy({ context, next }: { context: APIContext; next: MiddlewareNext }) {
@@ -127,15 +131,16 @@ async function handlePostLegacy({ context, next }: { context: APIContext; next: 
 	const actionName = formData.get('_astroAction') as string;
 	if (!actionName) return nextWithLocalsStub(next, context);
 
-	const action = await getAction(actionName);
-	if (!action) {
+	const baseAction = await getAction(actionName);
+	if (!baseAction) {
 		throw new AstroError({
 			...ActionQueryStringInvalidError,
 			message: ActionQueryStringInvalidError.message(actionName),
 		});
 	}
 
-	const actionResult = await ApiContextStorage.run(context, () => action(formData));
+	const action = baseAction.bind(context);
+	const actionResult = await action(formData);
 	return handleResult({ context, next, actionName, actionResult });
 }
 
@@ -150,9 +155,10 @@ function nextWithStaticStub(next: MiddlewareNext, context: APIContext) {
 				);
 				return undefined;
 			},
+			callAction: createCallAction(context),
 		},
 	});
-	return ApiContextStorage.run(context, () => next());
+	return next();
 }
 
 function nextWithLocalsStub(next: MiddlewareNext, context: APIContext) {
@@ -160,7 +166,15 @@ function nextWithLocalsStub(next: MiddlewareNext, context: APIContext) {
 		writable: false,
 		value: {
 			getActionResult: () => undefined,
+			callAction: createCallAction(context),
 		},
 	});
-	return ApiContextStorage.run(context, () => next());
+	return next();
+}
+
+function createCallAction(context: APIContext): APIContext['callAction'] {
+	return (baseAction, input) => {
+		const action = baseAction.bind(context);
+		return action(input) as any;
+	};
 }

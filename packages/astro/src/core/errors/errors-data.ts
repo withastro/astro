@@ -1606,6 +1606,21 @@ export const DuplicateContentEntrySlugError = {
 /**
  * @docs
  * @see
+ * - [devalue library](https://github.com/rich-harris/devalue)
+ * @description
+ * `transform()` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).
+ */
+export const UnsupportedConfigTransformError = {
+	name: 'UnsupportedConfigTransformError',
+	title: 'Unsupported transform in content config.',
+	message: (parseError: string) =>
+		`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
+	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
  * - [On-demand rendering](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered)
  * @description
  * Your project must have a server output to create backend functions with Actions.
@@ -1650,17 +1665,14 @@ export const ActionQueryStringInvalidError = {
 
 /**
  * @docs
- * @see
- * - [devalue library](https://github.com/rich-harris/devalue)
  * @description
- * `transform()` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).
+ * Action called from a server page or endpoint without using `Astro.callAction()`.
  */
-export const UnsupportedConfigTransformError = {
-	name: 'UnsupportedConfigTransformError',
-	title: 'Unsupported transform in content config.',
-	message: (parseError: string) =>
-		`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
-	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
+export const ActionCalledFromServerError = {
+	name: 'ActionCalledFromServerError',
+	title: 'Action unexpected called from the server.',
+	message: 'Action called from a server page or endpoint without using `Astro.callAction()`.',
+	hint: 'See the RFC section on server calls for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md#call-actions-directly-from-server-code',
 } satisfies ErrorData;
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.
