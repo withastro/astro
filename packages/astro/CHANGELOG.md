@@ -63,11 +63,10 @@
 
   ```astro
   ---
+  // src/pages/es-cu/articles/introduction.astro 
+  return Astro.rewrite("/es/articles/introduction")
 
   ---
-
-  // src/pages/es-cu/articles/introduction.astro return Astro.rewrite("/es/articles/introduction")
-  --- } ---
   ```
 
   Use `context.rewrite()` in endpoints, for example to reroute to a different page:
