@@ -75,6 +75,11 @@ export class DataStore {
 		this.#saveToDiskDebounced();
 	}
 
+	clearAll() {
+		this.#collections.clear();
+		this.#saveToDiskDebounced();
+	}
+
 	has(collectionName: string, key: string) {
 		const collection = this.#collections.get(collectionName);
 		if (collection) {
@@ -227,8 +232,10 @@ export default new Map([${exports.join(', ')}]);
 				this.addAssetImports(assets, fileName),
 		};
 	}
-
-	metaStore(collectionName: string): MetaStore {
+	/**
+	 * Returns a MetaStore for a given collection, or if no collection is provided, the default meta collection.
+	 */
+	metaStore(collectionName = ':meta'): MetaStore {
 		const collectionKey = `meta:${collectionName}`;
 		return {
 			get: (key: string) => this.get(collectionKey, key),

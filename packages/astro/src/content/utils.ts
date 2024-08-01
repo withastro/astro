@@ -22,6 +22,7 @@ import {
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
 import { createImage } from './runtime-assets.js';
+import xxhash from 'xxhash-wasm';
 /**
  * Amap from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
@@ -95,7 +96,7 @@ export const contentConfigParser = z.object({
 });
 
 export type CollectionConfig = z.infer<typeof collectionConfigParser>;
-export type ContentConfig = z.infer<typeof contentConfigParser>;
+export type ContentConfig = z.infer<typeof contentConfigParser> & { digest?: string };
 
 type EntryInternal = { rawData: string | undefined; filePath: string };
 
@@ -497,7 +498,10 @@ export async function loadContentConfig({
 
 	const config = contentConfigParser.safeParse(unparsedConfig);
 	if (config.success) {
-		return config.data;
+		// Generate a digest of the config file so we can invalidate the cache if it changes
+		const hasher = await xxhash();
+		const digest = await hasher.h64ToString(await fs.promises.readFile(configPathname, 'utf-8'));
+		return { ...config.data, digest };
 	} else {
 		return undefined;
 	}
