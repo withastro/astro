@@ -278,7 +278,7 @@ export async function loadFixture(inlineConfig) {
 				typeof newContentsOrCallback === 'function'
 					? newContentsOrCallback(contents)
 					: newContentsOrCallback;
-			const nextChange = onNextChange();
+			const nextChange = devServer ? onNextChange() : Promise.resolve();
 			await fs.promises.writeFile(fileUrl, newContents);
 			await nextChange;
 			return reset;

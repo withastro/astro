@@ -38,6 +38,15 @@ export async function syncContentLayer({
 		logger.debug('Content config not loaded, skipping sync');
 		return;
 	}
+
+	const previousConfigDigest = await store.metaStore().get('config-digest');
+	const { digest: currentConfigDigest } = contentConfig.config;
+	if (currentConfigDigest && previousConfigDigest !== currentConfigDigest) {
+		logger.info('Content config changed, clearing cache');
+		store.clearAll();
+		await store.metaStore().set('config-digest', currentConfigDigest);
+	}
+
 	// xxhash is a very fast non-cryptographic hash function that is used to generate a content digest
 	// It uses wasm, so we need to load it asynchronously.
 	const { h64ToString } = await xxhash();

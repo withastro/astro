@@ -5,6 +5,7 @@ import { slug as githubSlug } from 'github-slugger';
 import matter from 'gray-matter';
 import type { PluginContext } from 'rollup';
 import { type ViteDevServer, normalizePath } from 'vite';
+import xxhash from 'xxhash-wasm';
 import { z } from 'zod';
 import type {
 	AstroConfig,
@@ -95,7 +96,7 @@ export const contentConfigParser = z.object({
 });
 
 export type CollectionConfig = z.infer<typeof collectionConfigParser>;
-export type ContentConfig = z.infer<typeof contentConfigParser>;
+export type ContentConfig = z.infer<typeof contentConfigParser> & { digest?: string };
 
 type EntryInternal = { rawData: string | undefined; filePath: string };
 
@@ -497,7 +498,10 @@ export async function loadContentConfig({
 
 	const config = contentConfigParser.safeParse(unparsedConfig);
 	if (config.success) {
-		return config.data;
+		// Generate a digest of the config file so we can invalidate the cache if it changes
+		const hasher = await xxhash();
+		const digest = await hasher.h64ToString(await fs.promises.readFile(configPathname, 'utf-8'));
+		return { ...config.data, digest };
 	} else {
 		return undefined;
 	}
