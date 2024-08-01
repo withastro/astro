@@ -5,7 +5,9 @@ import {
 } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
+import { serializeActionResult } from '../utils.js';
 import { formContentTypes, getAction, hasContentType } from './utils.js';
+import type { SafeResult } from './virtual/shared.js';
 
 export type Locals = {
 	_actionsInternal: {
@@ -81,21 +83,16 @@ async function handleResult({
 	next,
 	actionName,
 	actionResult,
-}: { context: APIContext; next: MiddlewareNext; actionName: string; actionResult: any }) {
+}: {
+	context: APIContext;
+	next: MiddlewareNext;
+	actionName: string;
+	actionResult: SafeResult<any, any>;
+}) {
 	const locals = context.locals as Locals;
 	locals._actionsInternal = {
 		actionName,
-		actionResult: actionResult.data
-			? {
-					data: JSON.stringify(actionResult.data) ?? null,
-				}
-			: {
-					error: JSON.stringify({
-						...actionResult.error,
-						message: actionResult.error.message,
-						stack: import.meta.env.PROD ? undefined : actionResult.error.stack,
-					}),
-				},
+		actionResult: serializeActionResult(actionResult),
 	};
 
 	const response = await next();
