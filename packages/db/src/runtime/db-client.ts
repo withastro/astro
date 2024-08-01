@@ -70,9 +70,7 @@ function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL) {
 		authToken: appToken,
 		url: remoteDbURL.protocol === 'memory:' ? ':memory:' : remoteDbURL.toString(),
 	});
-	const db = drizzleLibsql(client);
-
-	return db;
+ return drizzleLibsql(client);
 }
 
 function createStudioDatabaseClient(appToken: string, remoteDbURL: URL) {
