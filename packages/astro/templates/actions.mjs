@@ -52,7 +52,7 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 async function handleAction(param, path, context) {
 	// When running server-side, import the action and call it.
 	if (import.meta.env.SSR) {
-		const { getAction } = await import('astro/actions/runtime/utils.js');
+		const { getAction } = await import('astro/actions/runtime/virtual/get-action.js');
 		const action = await getAction(path);
 		if (!action) throw new Error(`Action not found: ${path}`);
 
