@@ -1,6 +1,5 @@
 import type { Rollup } from 'vite';
 import type { RouteData, SSRResult } from '../../@types/astro.js';
-import type { PageOptions } from '../../vite-plugin-astro/types.js';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
 import { makePageDataKey } from './plugins/util.js';
