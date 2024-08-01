@@ -1,8 +1,8 @@
 import { promises as fs, type PathLike, existsSync } from 'fs';
-import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import * as devalue from 'devalue';
+import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 const SAVE_DEBOUNCE_MS = 500;
 
 export interface RenderedContent {

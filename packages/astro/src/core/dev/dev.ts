@@ -6,6 +6,7 @@ import { performance } from 'perf_hooks';
 import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
 import type { AstroInlineConfig } from '../../@types/astro.js';
+import { DATA_STORE_FILE } from '../../content/consts.js';
 import { DataStore, globalDataStore } from '../../content/data-store.js';
 import { attachContentServerListeners } from '../../content/index.js';
 import { syncContentLayer } from '../../content/sync.js';
@@ -19,7 +20,6 @@ import {
 	fetchLatestAstroVersion,
 	shouldCheckForUpdates,
 } from './update-check.js';
-import { DATA_STORE_FILE } from '../../content/consts.js';
 
 export interface DevServer {
 	address: AddressInfo;

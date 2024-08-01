@@ -6,7 +6,7 @@ declare module 'astro:content' {
 			remarkPluginFrontmatter: Record<string, any>;
 		}>;
 	}
-	interface ContentLayerRenderer {
+	interface ContentLayerRenderResult {
 		Content: import('astro/runtime/server/index.js').AstroComponentFactory;
 	}
 
@@ -108,6 +108,10 @@ declare module 'astro:content' {
 			id: keyof DataEntryMap[C];
 		}[]
 	): Promise<CollectionEntry<C>[]>;
+
+	export function render<C extends keyof AnyEntryMap>(
+		entry: AnyEntryMap[C][string]
+	): Promise<ContentLayerRenderResult>;
 
 	export function reference<C extends keyof AnyEntryMap>(
 		collection: C

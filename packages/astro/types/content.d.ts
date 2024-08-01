@@ -58,7 +58,7 @@ declare module 'astro:content' {
 	export type SchemaContext = { image: ImageFunction };
 
 	type ContentLayerConfig<S extends BaseSchema, TData extends { id: string } = { id: string }> = {
-		type: 'experimental_data' | 'experimental_content';
+		type: 'experimental_content';
 		schema?: S | ((context: SchemaContext) => S);
 		loader: import('astro/loaders').Loader | (() => Array<TData> | Promise<Array<TData>>);
 	};

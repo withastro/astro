@@ -12,6 +12,7 @@ import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
+import { CONTENT_LAYER_TYPE } from './consts.js';
 import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
 	type ContentConfig,
@@ -45,7 +46,7 @@ type CollectionEntryMap = {
 				entries: Record<string, ContentEntryMetadata>;
 		  }
 		| {
-				type: 'data' | 'experimental_content' | 'experimental_data';
+				type: 'data' | typeof CONTENT_LAYER_TYPE;
 				entries: Record<string, DataEntryMetadata>;
 		  };
 };
@@ -366,7 +367,7 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	}
 
 	if (
-		(collection?.type === 'experimental_data' || collection?.type === 'experimental_content') &&
+		collection?.type === CONTENT_LAYER_TYPE &&
 		typeof collection.loader === 'object' &&
 		collection.loader.schema
 	) {
@@ -426,8 +427,7 @@ async function writeContentFiles({
 		if (
 			collectionConfig?.type &&
 			collection.type !== 'unknown' &&
-			collectionConfig.type !== 'experimental_data' &&
-			collectionConfig.type !== 'experimental_content' &&
+			collectionConfig.type !== CONTENT_LAYER_TYPE &&
 			collection.type !== collectionConfig.type
 		) {
 			viteServer.hot.send({
@@ -450,7 +450,7 @@ async function writeContentFiles({
 			});
 			return;
 		}
-		const resolvedType: 'content' | 'data' | 'experimental_data' | 'experimental_content' =
+		const resolvedType =
 			collection.type === 'unknown'
 				? // Add empty / unknown collections to the data type map by default
 					// This ensures `getCollection('empty-collection')` doesn't raise a type error
@@ -477,11 +477,8 @@ async function writeContentFiles({
 				}
 				contentTypesStr += `};\n`;
 				break;
-			case 'experimental_data':
-				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n}>;\n`;
-				break;
-			case 'experimental_content':
-				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  render(): Promise<ContentLayerRenderer>;\n  rendered?: RenderedContent \n}>;\n`;
+			case CONTENT_LAYER_TYPE:
+				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent \n}>;\n`;
 				break;
 			case 'data':
 				if (collectionEntryKeys.length === 0) {

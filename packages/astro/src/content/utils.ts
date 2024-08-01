@@ -15,7 +15,12 @@ import type {
 import { AstroError, AstroErrorData, MarkdownError, errorMap } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
-import { CONTENT_FLAGS, IMAGE_IMPORT_PREFIX, PROPAGATED_ASSET_FLAG } from './consts.js';
+import {
+	CONTENT_FLAGS,
+	CONTENT_LAYER_TYPE,
+	IMAGE_IMPORT_PREFIX,
+	PROPAGATED_ASSET_FLAG,
+} from './consts.js';
 import { createImage } from './runtime-assets.js';
 /**
  * Amap from a collection + slug to the local file path.
@@ -36,7 +41,7 @@ export const collectionConfigParser = z.union([
 		schema: z.any().optional(),
 	}),
 	z.object({
-		type: z.union([z.literal('experimental_data'), z.literal('experimental_content')]),
+		type: z.literal(CONTENT_LAYER_TYPE),
 		schema: z.any().optional(),
 		loader: z.union([
 			z.function().returns(
@@ -135,11 +140,7 @@ export async function getEntryDataAndImages<
 	pluginContext?: PluginContext
 ): Promise<{ data: TOutputData; imageImports: Array<string> }> {
 	let data: TOutputData;
-	if (
-		collectionConfig.type === 'data' ||
-		collectionConfig.type === 'experimental_data' ||
-		collectionConfig.type === 'experimental_content'
-	) {
+	if (collectionConfig.type === 'data' || collectionConfig.type === CONTENT_LAYER_TYPE) {
 		data = entry.unvalidatedData as TOutputData;
 	} else {
 		const { slug, ...unvalidatedData } = entry.unvalidatedData;
@@ -155,10 +156,7 @@ export async function getEntryDataAndImages<
 			schema = schema({
 				image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
 			});
-		} else if (
-			collectionConfig.type === 'experimental_data' ||
-			collectionConfig.type === 'experimental_content'
-		) {
+		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
 			schema = schema({
 				image: () =>
 					z.string().transform((val) => {
