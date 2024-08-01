@@ -70,6 +70,10 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 
 	static async fromResponse(res: Response) {
 		const body = await res.clone().json();
+		return this.fromJson(body);
+	}
+
+	static fromJson(body: any) {
 		if (
 			typeof body === 'object' &&
 			body?.type === 'AstroActionInputError' &&
@@ -81,8 +85,8 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 			return new ActionError(body);
 		}
 		return new ActionError({
-			message: res.statusText,
-			code: ActionError.statusToCode(res.status),
+			message: body.message,
+			code: ActionError.statusToCode(body.status),
 		});
 	}
 }
@@ -94,7 +98,12 @@ export function isInputError(error?: unknown): error is ActionInputError<ErrorIn
 export function isInputError<T extends ErrorInferenceObject>(
 	error?: unknown | ActionError<T>
 ): error is ActionInputError<T> {
-	return error instanceof ActionInputError;
+	return (
+		typeof error === 'object' &&
+		error != null &&
+		'type' in error &&
+		error.type === 'AstroActionInputError'
+	);
 }
 
 export type SafeResult<TInput extends ErrorInferenceObject, TOutput> =

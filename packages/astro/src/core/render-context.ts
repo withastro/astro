@@ -10,7 +10,12 @@ import type {
 	SSRResult,
 } from '../@types/astro.js';
 import type { ActionAPIContext } from '../actions/runtime/utils.js';
-import { createCallAction, createGetActionResult, hasActionsInternal } from '../actions/utils.js';
+import {
+	createCallAction,
+	createGetActionResult,
+	deserializeActionResult,
+	hasActionsInternal,
+} from '../actions/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
@@ -314,7 +319,7 @@ export class RenderContext {
 		} satisfies AstroGlobal['response'];
 
 		const actionResult = hasActionsInternal(this.locals)
-			? this.locals._actionsInternal?.actionResult
+			? deserializeActionResult(this.locals._actionsInternal.actionResult)
 			: undefined;
 
 		// Create the result object that will be passed into the renderPage function.
@@ -458,10 +463,12 @@ export class RenderContext {
 			redirect,
 			rewrite,
 			request: this.request,
-			getActionResult: createGetActionResult(locals),
-			callAction: createCallAction(),
 			response,
 			site: pipeline.site,
+			getActionResult: createGetActionResult(locals),
+			get callAction() {
+				return createCallAction(this);
+			},
 			url,
 		};
 	}

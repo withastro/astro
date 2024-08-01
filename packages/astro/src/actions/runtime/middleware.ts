@@ -9,7 +9,8 @@ import { formContentTypes, getAction, hasContentType } from './utils.js';
 
 export type Locals = {
 	_actionsInternal: {
-		actionResult: ReturnType<APIContext['getActionResult']>;
+		/* Stringify to ensure everything serializes for edge middleware environments. */
+		actionResult: { error: string } | { data: string };
 		actionName: string;
 	};
 };
@@ -81,12 +82,21 @@ async function handleResult({
 	actionName,
 	actionResult,
 }: { context: APIContext; next: MiddlewareNext; actionName: string; actionResult: any }) {
-	const actionsInternal: Locals['_actionsInternal'] = {
-		actionName,
-		actionResult,
-	};
 	const locals = context.locals as Locals;
-	Object.defineProperty(locals, '_actionsInternal', { writable: false, value: actionsInternal });
+	locals._actionsInternal = {
+		actionName,
+		actionResult: actionResult.data
+			? {
+					data: JSON.stringify(actionResult.data) ?? null,
+				}
+			: {
+					error: JSON.stringify({
+						...actionResult.error,
+						message: actionResult.error.message,
+						stack: import.meta.env.PROD ? undefined : actionResult.error.stack,
+					}),
+				},
+	};
 
 	const response = await next();
 	if (actionResult.error) {
@@ -147,22 +157,4 @@ function nextWithStaticStub(next: MiddlewareNext, context: APIContext) {
 		},
 	});
 	return next();
-}
-
-function nextWithLocalsStub(next: MiddlewareNext, context: APIContext) {
-	Object.defineProperty(context.locals, '_actionsInternal', {
-		writable: false,
-		value: {
-			actionResult: undefined,
-			actionName: undefined,
-		},
-	});
-	return next();
-}
-
-function createCallAction(context: APIContext): APIContext['callAction'] {
-	return (baseAction, input) => {
-		const action = baseAction.bind(context);
-		return action(input) as any;
-	};
 }
