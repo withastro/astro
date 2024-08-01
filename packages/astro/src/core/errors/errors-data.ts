@@ -1450,21 +1450,6 @@ export const GenerateContentTypesError = {
 		`\`astro sync\` command failed to generate content collection types: ${errorMessage}`,
 	hint: 'Check your `src/content/config.*` file for typos.',
 } satisfies ErrorData;
-
-/**
- * @docs
- * @description
- * Invalid content layer collection definition
- * @see
- * - [Content collections documentation](https://docs.astro.build/en/guides/content-collections/)
- */
-export const ContentLayerTypeError = {
-	name: 'ContentLayerTypeError',
-	title: 'Invalid content layer collection definition',
-	message: 'Collections that use the content layer must have a `loader` defined and `type` set to `experimental_content`',
-	hint: 'Check your collection definitions in `src/content/config.*`.',
-} satisfies ErrorData;
-
 /**
  * @docs
  * @kind heading

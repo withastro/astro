@@ -4,7 +4,7 @@ import pLimit from 'p-limit';
 import { ZodIssueCode, z } from 'zod';
 import type { GetImageResult, ImageMetadata } from '../@types/astro.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 import {
 	type AstroComponentFactory,
@@ -31,7 +31,10 @@ export function defineCollection(config: any) {
 		(config.type === CONTENT_LAYER_TYPE && !('loader' in config))
 	) {
 		// TODO: when this moves out of experimental, we will set the type automatically
-		throw new AstroError(AstroErrorData.ContentLayerTypeError);
+		throw new AstroUserError(
+			'Collections that use the content layer must have a `loader` defined and `type` set to `experimental_content`',
+			"Check your collection definitions in `src/content/config.*`.'"
+		);
 	}
 	if (!config.type) config.type = 'content';
 	return config;
@@ -441,7 +444,7 @@ function updateImageReferencesInData<T extends Record<string, unknown>>(
 }
 
 export async function renderEntry(
-	entry?: DataEntry | { render: () => Promise<{ Content: AstroComponentFactory }> }
+	entry: DataEntry | { render: () => Promise<{ Content: AstroComponentFactory }> }
 ) {
 	if (entry && 'render' in entry) {
 		// This is an old content collection entry, so we use its render method
