@@ -156,11 +156,8 @@ export const _internal = {
 						const entryType = getEntryType(entry, contentPaths, contentEntryExts, dataEntryExts);
 						if (!COLLECTION_TYPES_TO_INVALIDATE_ON.includes(entryType)) return;
 
-						// The content config could depend on collection entries via `reference()`.
 						// Reload the config in case of changes.
-						if (entryType === 'content' || entryType === 'data') {
-							await reloadContentConfigObserver({ fs, settings, viteServer });
-						}
+						await reloadContentConfigObserver({ fs, settings, viteServer });
 
 						// Invalidate all content imports and `render()` modules.
 						// TODO: trace `reference()` calls for fine-grained invalidation.

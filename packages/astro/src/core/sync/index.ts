@@ -73,7 +73,11 @@ export default async function sync({
 /**
  * Clears the content layer and content collection cache, forcing a full rebuild.
  */
-export async function clearContentLayerCache({ astroConfig, logger, fs = fsMod }: { astroConfig: AstroConfig; logger: Logger, fs?: typeof fsMod }) {
+export async function clearContentLayerCache({
+	astroConfig,
+	logger,
+	fs = fsMod,
+}: { astroConfig: AstroConfig; logger: Logger; fs?: typeof fsMod }) {
 	const dataStore = new URL(DATA_STORE_FILE, astroConfig.cacheDir);
 	if (fs.existsSync(dataStore)) {
 		logger.debug('content', 'clearing data store');
@@ -93,9 +97,8 @@ export async function syncInternal({
 	fs = fsMod,
 	settings,
 	skip,
-	force
+	force,
 }: SyncOptions): Promise<void> {
-
 	if (force) {
 		await clearContentLayerCache({ astroConfig: settings.config, logger, fs });
 	}
