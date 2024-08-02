@@ -114,17 +114,15 @@ async function handlePost({
 		});
 	}
 
-	return redirectWithResult({ context, next, actionName, actionResult });
+	return redirectWithResult({ context, actionName, actionResult });
 }
 
 async function redirectWithResult({
 	context,
-	next,
 	actionName,
 	actionResult,
 }: {
 	context: APIContext;
-	next: MiddlewareNext;
 	actionName: string;
 	actionResult: SafeResult<any, any>;
 }) {
@@ -136,7 +134,9 @@ async function redirectWithResult({
 
 	if (actionResult.error) {
 		const referer = context.request.headers.get('Referer');
-		if (!referer) return next();
+		if (!referer) {
+			throw new Error('Internal: Referer unexpectedly missing from Action POST request.');
+		}
 
 		return context.redirect(referer);
 	}
@@ -173,5 +173,5 @@ async function handlePostLegacy({ context, next }: { context: APIContext; next: 
 
 	const action = baseAction.bind(context);
 	const actionResult = await action(formData);
-	return redirectWithResult({ context, next, actionName, actionResult });
+	return redirectWithResult({ context, actionName, actionResult });
 }
