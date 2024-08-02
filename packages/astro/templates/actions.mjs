@@ -20,7 +20,7 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 					// Astro will redirect with a GET request by default.
 					// Disable this behavior to preserve form state
 					// for React's progressive enhancement.
-					searchParams.set('_actionResultBehavior', 'none');
+					searchParams.set('_astroActionDisableRedirect', 'true');
 					return {
 						method: 'POST',
 						// `name` creates a hidden input.
