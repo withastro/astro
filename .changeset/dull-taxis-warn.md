@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Adds deprecation warning on `getEntryBySlug` and `getDataEntryById` functions exported by `astro:content`.
+Deprecates `getEntryBySlug` and `getDataEntryById` functions exported by `astro:content` in favor of `getEntry`.
