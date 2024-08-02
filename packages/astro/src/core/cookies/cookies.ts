@@ -35,7 +35,7 @@ const DELETED_EXPIRATION = new Date(0);
 const DELETED_VALUE = 'deleted';
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
-export class AstroCookie implements AstroCookieInterface {
+class AstroCookie implements AstroCookieInterface {
 	constructor(public value: string) {}
 	json() {
 		if (this.value === undefined) {

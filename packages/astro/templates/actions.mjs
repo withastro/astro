@@ -16,13 +16,18 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 				toString: () => action.queryString,
 				// Progressive enhancement info for React.
 				$$FORM_ACTION: function () {
+					const searchParams = new URLSearchParams(action.toString());
+					// Astro will redirect with a GET request by default.
+					// Disable this behavior to preserve form state
+					// for React's progressive enhancement.
+					searchParams.set('_actionResultBehavior', 'none');
 					return {
 						method: 'POST',
 						// `name` creates a hidden input.
 						// It's unused by Astro, but we can't turn this off.
 						// At least use a name that won't conflict with a user's formData.
 						name: '_astroAction',
-						action: action.toString(),
+						action: '?' + searchParams.toString(),
 					};
 				},
 				// Note: `orThrow` does not have progressive enhancement info.
