@@ -190,7 +190,7 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
  * FROM: https://github.com/shikijs/shiki/blob/4a58472070a9a359a4deafec23bb576a73e24c6a/packages/transformers/src/transformers/compact-line-options.ts
  * LICENSE: https://github.com/shikijs/shiki/blob/4a58472070a9a359a4deafec23bb576a73e24c6a/LICENSE
  */
-export function transformerCompactLineOptions(
+function transformerCompactLineOptions(
 	lineOptions: {
 		/**
 		 * 1-based line number.

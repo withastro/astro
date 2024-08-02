@@ -172,20 +172,6 @@ export function isContentCollectionsCacheEnabled(config: AstroConfig): boolean {
 	);
 }
 
-export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
-	let id: string;
-	if (typeof idOrUrl !== 'string') {
-		id = unwrapId(viteID(idOrUrl));
-	} else {
-		id = idOrUrl;
-	}
-	return id.slice(slash(fileURLToPath(config.srcDir)).length);
-}
-
-export function emoji(char: string, fallback: string) {
-	return process.platform !== 'win32' ? char : fallback;
-}
-
 export function resolveJsToTs(filePath: string) {
 	if (filePath.endsWith('.jsx') && !fs.existsSync(filePath)) {
 		const tryPath = filePath.slice(0, -4) + '.tsx';
