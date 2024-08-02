@@ -10,6 +10,7 @@ import {
 	type SerializedActionResult,
 	serializeActionResult,
 } from './virtual/shared.js';
+import type { AstroCookie } from '../../core/cookies/cookies.js';
 
 export type Locals = {
 	_actionsInternal: {
@@ -26,6 +27,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	// `_actionsInternal` is the same for every page,
 	// so short circuit if already defined.
 	if (locals._actionsInternal) return next();
+
+	const actionResultCookie = context.cookies.get('_actionResult');
+	if (actionResultCookie) {
+		return renderResult({ context, next, actionResultCookie });
+	}
 
 	// Heuristic: If body is null, Astro might've reset this for prerendering.
 	if (import.meta.env.DEV && request.method === 'POST' && request.body === null) {
@@ -50,6 +56,27 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	return next();
 });
 
+async function renderResult({
+	context,
+	next,
+	actionResultCookie,
+}: { context: APIContext; next: MiddlewareNext; actionResultCookie: AstroCookie }) {
+	const locals = context.locals as Locals;
+
+	locals._actionsInternal = actionResultCookie.json();
+	const response = await next();
+	context.cookies.delete('_actionResult');
+
+	if (locals._actionsInternal.actionResult.type === 'error') {
+		return new Response(response.body, {
+			status: locals._actionsInternal.actionResult.status,
+			statusText: locals._actionsInternal.actionResult.type,
+			headers: response.headers,
+		});
+	}
+	return response;
+}
+
 async function handlePost({
 	context,
 	next,
@@ -73,10 +100,10 @@ async function handlePost({
 	const action = baseAction.bind(context);
 	const actionResult = await action(formData);
 
-	return handleResult({ context, next, actionName, actionResult });
+	return redirectWithResult({ context, next, actionName, actionResult });
 }
 
-async function handleResult({
+async function redirectWithResult({
 	context,
 	next,
 	actionName,
@@ -87,21 +114,20 @@ async function handleResult({
 	actionName: string;
 	actionResult: SafeResult<any, any>;
 }) {
-	const locals = context.locals as Locals;
-	locals._actionsInternal = {
+	// TODO: encrypt the action result
+	context.cookies.set('_actionResult', {
 		actionName,
 		actionResult: serializeActionResult(actionResult),
-	};
+	});
 
-	const response = await next();
 	if (actionResult.error) {
-		return new Response(response.body, {
-			status: actionResult.error.status,
-			statusText: actionResult.error.type,
-			headers: response.headers,
-		});
+		const referer = context.request.headers.get('Referer');
+		if (!referer) return next();
+
+		return context.redirect(referer);
 	}
-	return response;
+
+	return context.redirect(context.url.pathname);
 }
 
 async function handlePostLegacy({ context, next }: { context: APIContext; next: MiddlewareNext }) {
@@ -133,5 +159,5 @@ async function handlePostLegacy({ context, next }: { context: APIContext; next: 
 
 	const action = baseAction.bind(context);
 	const actionResult = await action(formData);
-	return handleResult({ context, next, actionName, actionResult });
+	return redirectWithResult({ context, next, actionName, actionResult });
 }
