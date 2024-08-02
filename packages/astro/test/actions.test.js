@@ -244,7 +244,7 @@ describe('Astro Actions', () => {
 					method: 'POST',
 					body: formData,
 					headers: {
-						Referer: 'http://example.com/user',
+						Referer: 'http://example.com/user-or-throw',
 					},
 				});
 				const res = await followRedirect(req, app);
