@@ -198,7 +198,7 @@ export async function fetchPackageVersions(packageName: string): Promise<string[
 //
 // A copy of this function also exists in the create-astro package
 let _registry: string;
-export async function getRegistry(): Promise<string> {
+async function getRegistry(): Promise<string> {
 	if (_registry) return _registry;
 	const fallback = 'https://registry.npmjs.org';
 	const packageManager = (await preferredPM(process.cwd()))?.name || 'npm';

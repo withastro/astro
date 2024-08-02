@@ -643,7 +643,6 @@ function input_implicit_role(attributes: Record<string, string>) {
 	return input_type_to_implicit_role.get(type);
 }
 
-/** @param {Map<string, import('#compiler').Attribute>} attribute_map */
 function menuitem_implicit_role(attributes: Record<string, string>) {
 	if (!('type' in attributes)) return;
 	const { type } = attributes;
@@ -679,13 +678,8 @@ function getAttributeObject(element: Element): Record<string, string> {
 	return obj;
 }
 
-/**
- * @param {import('aria-query').ARIARoleDefinitionKey} role
- * @param {string} tag_name
- * @param {Map<string, import('#compiler').Attribute>} attribute_map
- */
 function is_semantic_role_element(
-	role: string,
+	role: ARIARoleDefinitionKey,
 	tag_name: string,
 	attributes: Record<string, string>
 ) {

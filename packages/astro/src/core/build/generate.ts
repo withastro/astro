@@ -1,9 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
-import { fileURLToPath } from 'node:url';
 import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
 import PQueue from 'p-queue';
-import type { OutputAsset, OutputChunk } from 'rollup';
 import type {
 	AstroConfig,
 	AstroSettings,
@@ -25,7 +23,6 @@ import { type BuildInternals, hasPrerenderedPages } from '../../core/build/inter
 import {
 	isRelativePath,
 	joinPaths,
-	prependForwardSlash,
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
@@ -55,31 +52,6 @@ import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
-}
-
-// Gives back a facadeId that is relative to the root.
-// ie, src/pages/index.astro instead of /Users/name..../src/pages/index.astro
-export function rootRelativeFacadeId(facadeId: string, settings: AstroSettings): string {
-	return facadeId.slice(fileURLToPath(settings.config.root).length);
-}
-
-// Determines of a Rollup chunk is an entrypoint page.
-export function chunkIsPage(
-	settings: AstroSettings,
-	output: OutputAsset | OutputChunk,
-	internals: BuildInternals
-) {
-	if (output.type !== 'chunk') {
-		return false;
-	}
-	const chunk = output;
-	if (chunk.facadeModuleId) {
-		const facadeToEntryId = prependForwardSlash(
-			rootRelativeFacadeId(chunk.facadeModuleId, settings)
-		);
-		return internals.entrySpecifierToBundleMap.has(facadeToEntryId);
-	}
-	return false;
 }
 
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {

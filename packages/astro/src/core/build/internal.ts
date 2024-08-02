@@ -198,18 +198,6 @@ export function trackScriptPageDatas(
 	}
 }
 
-export function* getPageDatasByChunk(
-	internals: BuildInternals,
-	chunk: Rollup.RenderedChunk
-): Generator<PageBuildData, void, unknown> {
-	const pagesByViteID = internals.pagesByViteID;
-	for (const [modulePath] of Object.entries(chunk.modules)) {
-		if (pagesByViteID.has(modulePath)) {
-			yield pagesByViteID.get(modulePath)!;
-		}
-	}
-}
-
 export function* getPageDatasByClientOnlyID(
 	internals: BuildInternals,
 	viteid: ViteID
@@ -264,7 +252,7 @@ export function getPageData(
  * @param internals Build Internals with all the pages
  * @param component path to the component, used to identify related pages
  */
-export function getPagesDatasByComponent(
+function getPagesDatasByComponent(
 	internals: BuildInternals,
 	component: string
 ): PageBuildData[] {
@@ -324,10 +312,6 @@ export function getPageDataByViteID(
 		return internals.pagesByViteID.get(viteid);
 	}
 	return undefined;
-}
-
-export function hasPageDataByViteID(internals: BuildInternals, viteid: ViteID): boolean {
-	return internals.pagesByViteID.has(viteid);
 }
 
 export function hasPrerenderedPages(internals: BuildInternals) {
