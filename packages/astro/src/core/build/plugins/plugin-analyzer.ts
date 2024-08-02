@@ -133,11 +133,6 @@ export function vitePluginAnalyzer(
 
 				const astro = info.meta.astro as AstroPluginMetadata['astro'];
 
-				const pageData = getPageDataByViteID(internals, id);
-				if (pageData) {
-					internals.pageOptionsByPage.set(id, astro.pageOptions);
-				}
-
 				for (const c of astro.hydratedComponents) {
 					const rid = c.resolvedPath ? decodeURI(c.resolvedPath) : c.specifier;
 					if (internals.discoveredHydratedComponents.has(rid)) {

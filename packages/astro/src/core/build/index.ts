@@ -166,7 +166,7 @@ class AstroBuilder {
 		}
 		this.logger.info('build', 'Collecting build info...');
 		this.timer.loadStart = performance.now();
-		const { assets, allPages } = await collectPagesData({
+		const { assets, allPages } = collectPagesData({
 			settings: this.settings,
 			logger: this.logger,
 			manifest: this.manifest,
