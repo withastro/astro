@@ -15,9 +15,9 @@ export const POST: APIRoute = async (context) => {
 	if (contentLength === '0') {
 		args = undefined;
 	} else if (contentType && hasContentType(contentType, formContentTypes)) {
-		args = await request.clone().formData();
+		args = await request.formData();
 	} else if (contentType && hasContentType(contentType, ['application/json'])) {
-		args = await request.clone().json();
+		args = await request.json();
 	} else {
 		// 415: Unsupported media type
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/415
