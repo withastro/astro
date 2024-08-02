@@ -252,10 +252,7 @@ export function getPageData(
  * @param internals Build Internals with all the pages
  * @param component path to the component, used to identify related pages
  */
-function getPagesDatasByComponent(
-	internals: BuildInternals,
-	component: string
-): PageBuildData[] {
+function getPagesDatasByComponent(internals: BuildInternals, component: string): PageBuildData[] {
 	const pageDatas: PageBuildData[] = [];
 	internals.pagesByKeys.forEach((pageData) => {
 		if (component === pageData.component) pageDatas.push(pageData);

@@ -1,4 +1,4 @@
-import type { BuildOptions, Plugin as VitePlugin, Rollup } from 'vite';
+import type { BuildOptions, Rollup, Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../../@types/astro.js';
 import { viteID } from '../../util.js';
 import type { BuildInternals } from '../internal.js';
