@@ -1620,6 +1620,12 @@ export const UnsupportedConfigTransformError = {
 
 /**
  * @docs
+ * @kind heading
+ * @name Action Errors
+ */
+// Action Errors
+/**
+ * @docs
  * @see
  * - [On-demand rendering](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered)
  * @description
