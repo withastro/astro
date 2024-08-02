@@ -13,7 +13,6 @@ import {
 	type SerializedActionResult,
 	serializeActionResult,
 } from './virtual/shared.js';
-import type { AstroCookie } from '../../core/cookies/cookies.js';
 
 export type Locals = {
 	_actionsInternal: {
@@ -33,7 +32,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	const actionResultCookie = context.cookies.get('_actionResult');
 	if (actionResultCookie) {
-		return renderResult({ context, next, actionResultCookie });
+		return renderResult({ context, next, ...actionResultCookie.json() });
 	}
 
 	// Heuristic: If body is null, Astro might've reset this for prerendering.
@@ -69,11 +68,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
 async function renderResult({
 	context,
 	next,
-	actionResultCookie,
-}: { context: APIContext; next: MiddlewareNext; actionResultCookie: AstroCookie }) {
+	actionResult,
+	actionName,
+}: {
+	context: APIContext;
+	next: MiddlewareNext;
+	actionResult: SerializedActionResult;
+	actionName: string;
+}) {
 	const locals = context.locals as Locals;
 
-	locals._actionsInternal = actionResultCookie.json();
+	locals._actionsInternal = { actionResult, actionName };
 	const response = await next();
 	context.cookies.delete('_actionResult');
 
@@ -109,6 +114,15 @@ async function handlePost({
 	}
 	const action = baseAction.bind(context);
 	const actionResult = await action(formData);
+
+	if (context.url.searchParams.get('_actionResultBehavior') === 'none') {
+		return renderResult({
+			context,
+			next,
+			actionName,
+			actionResult: serializeActionResult(actionResult),
+		});
+	}
 
 	return redirectWithResult({ context, next, actionName, actionResult });
 }
