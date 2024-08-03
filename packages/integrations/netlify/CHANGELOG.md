@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 5.5.0
+
+### Minor Changes
+
+- [#326](https://github.com/withastro/adapters/pull/326) [`6dd65a0`](https://github.com/withastro/adapters/commit/6dd65a04c2afea941da34a1a1ce7b991f0768615) Thanks [@ascorbic](https://github.com/ascorbic)! - Sets immutable cache headers for static assets
+
 ## 5.4.0
 
 ### Minor Changes
