@@ -17,6 +17,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./entrypoints/server.js": "./dist/entrypoints/server.js",
+    "./entrypoints/middleware.js": "./dist/entrypoints/middleware.js",
     "./image-service": "./dist/entrypoints/image-service.js",
     "./image-endpoint": "./dist/entrypoints/image-endpoint.js",
     "./package.json": "./package.json"
@@ -35,7 +36,8 @@
     "magic-string": "^0.30.10",
     "miniflare": "^3.20240620.0",
     "tiny-glob": "^0.2.9",
-    "wrangler": "^3.62.0"
+    "wrangler": "^3.62.0",
+    "@inox-tools/astro-when": "^0.2.0"
   },
   "peerDependencies": {
     "astro": "^4.10.3"

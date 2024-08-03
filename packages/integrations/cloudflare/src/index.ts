@@ -10,6 +10,7 @@ import {
 	removeLeadingForwardSlash,
 } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
+import astroWhen from '@inox-tools/astro-when';
 import { AstroError } from 'astro/errors';
 import { getPlatformProxy } from 'wrangler';
 import {
@@ -108,7 +109,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	return {
 		name: '@astrojs/cloudflare',
 		hooks: {
-			'astro:config:setup': ({ command, config, updateConfig, logger, addWatchFile }) => {
+			'astro:config:setup': ({
+				command,
+				config,
+				updateConfig,
+				logger,
+				addWatchFile,
+				addMiddleware,
+			}) => {
 				updateConfig({
 					build: {
 						client: new URL(`.${wrapWithSlashes(config.base)}`, config.outDir),
@@ -123,10 +131,15 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							cloudflareModulePlugin,
 						],
 					},
+					integrations: [astroWhen()],
 					image: setImageConfig(args?.imageService ?? 'compile', config.image, command, logger),
 				});
 				addWatchFile(new URL('./wrangler.toml', config.root));
 				addWatchFile(new URL('./wrangler.json', config.root));
+				addMiddleware({
+					entrypoint: '@astrojs/cloudflare/entrypoints/middleware.js',
+					order: 'pre',
+				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
 				if (config.output === 'static') {
