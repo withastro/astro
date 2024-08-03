@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 11.0.2
+
+### Patch Changes
+
+- [#340](https://github.com/withastro/adapters/pull/340) [`45d0abb`](https://github.com/withastro/adapters/commit/45d0abb52b8e940a7c702a148be779428836396c) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue if environment variables where used inside the middleware and a prerendering occured.
+
 ## 11.0.1
 
 ### Patch Changes
