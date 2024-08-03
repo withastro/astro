@@ -1,7 +1,12 @@
 import { When, whenAmI } from '@it-astro:when';
 import type { MiddlewareHandler } from 'astro';
 
-const middlewares: Record<any, MiddlewareHandler> = {
+const middlewares: Record<When, MiddlewareHandler> = {
+	[When.Client]: () => {
+		throw new Error('Client should not run a middleware!');
+	},
+	[When.DevServer]: (_, next) => next(),
+	[When.Server]: (_, next) => next(),
 	[When.Prerender]: (ctx, next) => {
 		if (ctx.locals.runtime === undefined) {
 			ctx.locals.runtime = {
@@ -10,6 +15,7 @@ const middlewares: Record<any, MiddlewareHandler> = {
 		}
 		return next();
 	},
+	[When.StaticBuild]: (_, next) => next(),
 };
 
 export const onRequest = middlewares[whenAmI];
