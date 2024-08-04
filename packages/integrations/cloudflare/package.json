@@ -37,7 +37,7 @@
     "miniflare": "^3.20240620.0",
     "tiny-glob": "^0.2.9",
     "wrangler": "^3.62.0",
-    "@inox-tools/astro-when": "^0.2.0"
+    "@inox-tools/astro-when": "^0.2.1"
   },
   "peerDependencies": {
     "astro": "^4.10.3"
