@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 11.0.4
+
+### Patch Changes
+
+- [#344](https://github.com/withastro/adapters/pull/344) [`8d7766e`](https://github.com/withastro/adapters/commit/8d7766ea89e7663f7de4edf7d0ee3e74b79e73af) Thanks [@Fryuni](https://github.com/Fryuni)! - Updates a dependency to align the peer dependency version for Astro
+
 ## 11.0.3
 
 ### Patch Changes
