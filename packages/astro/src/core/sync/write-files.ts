@@ -6,6 +6,8 @@ import { normalizePath } from 'vite';
 import type { AstroSettings } from '../../@types/astro.js';
 import type { Logger } from '../logger/core.js';
 import { REFERENCE_FILE } from './constants.js';
+import { parse } from '@babel/parser';
+import generate from '@babel/generator';
 
 export async function writeFiles(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
 	writeInjectedTypes(settings, fs);
@@ -24,8 +26,7 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 	for (const { filename, content } of settings.injectedTypes) {
 		const filepath = normalizePath(fileURLToPath(new URL(filename, settings.dotAstroDir)));
 		fs.mkdirSync(dirname(filepath), { recursive: true });
-		// TODO: format content using recast
-		fs.writeFileSync(filepath, content, 'utf-8');
+		fs.writeFileSync(filepath, formatContent(content), 'utf-8');
 		references.push(normalizePath(relative(fileURLToPath(settings.dotAstroDir), filepath)));
 	}
 
@@ -71,4 +72,17 @@ async function setUpEnvTs(settings: AstroSettings, fs: typeof fsMod, logger: Log
 		await fs.promises.writeFile(envTsPath, expectedTypeReference, 'utf-8');
 		logger.info('types', `Added ${bold(envTsPathRelativetoRoot)} type declarations`);
 	}
+}
+
+function formatContent(source: string) {
+	const ast = parse(source, {
+		sourceType: 'module',
+		plugins: ['typescript'],
+	});
+
+	const result = generate.default(ast, {
+		retainLines: false,
+	});
+
+	return result.code;
 }
