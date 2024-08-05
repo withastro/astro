@@ -30,7 +30,6 @@ import {
 	resolved,
 	vitePluginDb,
 } from './vite-plugin-db.js';
-import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectToStudio = false;
@@ -102,7 +101,7 @@ function astroDBIntegration(): AstroIntegration {
 				updateConfig({
 					vite: {
 						assetsInclude: [DB_PATH],
-						plugins: [dbPlugin, vitePluginInjectEnvTs(config, logger)],
+						plugins: [dbPlugin],
 					},
 				});
 			},
