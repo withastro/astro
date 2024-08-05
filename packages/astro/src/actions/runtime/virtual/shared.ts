@@ -77,7 +77,7 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 		) {
 			return new ActionInputError(body.issues);
 		}
-		if (typeof body === 'object' && body?.type === 'AstroActionError') {
+		if (isActionError(body)) {
 			return new ActionError(body);
 		}
 		return new ActionError({
@@ -85,6 +85,15 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 			code: ActionError.statusToCode(body.status),
 		});
 	}
+}
+
+export function isActionError(error?: unknown): error is ActionError {
+	return (
+		typeof error === 'object' &&
+		error != null &&
+		'type' in error &&
+		error.type === 'AstroActionError'
+	);
 }
 
 export function isInputError<T extends ErrorInferenceObject>(
