@@ -23,6 +23,7 @@ export class ContentLayer {
 	#settings: AstroSettings;
 	#watcher?: FSWatcher;
 	#lastConfigDigest?: string;
+	#unsubscribe?: () => void;
 
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 
@@ -48,7 +49,8 @@ export class ContentLayer {
 	 * Watch for changes to the content config and trigger a sync when it changes.
 	 */
 	watchContentConfig() {
-		globalContentConfigObserver.subscribe(async (ctx) => {
+		this.#unsubscribe?.();
+		this.#unsubscribe = globalContentConfigObserver.subscribe(async (ctx) => {
 			if (
 				!this.#loading &&
 				ctx.status === 'loaded' &&
@@ -58,6 +60,10 @@ export class ContentLayer {
 				this.sync();
 			}
 		});
+	}
+
+	unwatchContentConfig() {
+		this.#unsubscribe?.();
 	}
 
 	/**
@@ -223,9 +229,7 @@ function contentLayerSingleton() {
 	return {
 		initialized: () => Boolean(instance),
 		init: (options: ContentLayerOptions) => {
-			if (instance) {
-				throw new Error('Content layer already initialized');
-			}
+			instance?.unwatchContentConfig();
 			instance = new ContentLayer(options);
 			return instance;
 		},
@@ -235,8 +239,8 @@ function contentLayerSingleton() {
 			}
 			return instance;
 		},
-		/** @internal */
 		dispose: () => {
+			instance?.unwatchContentConfig();
 			instance = null;
 		},
 	};

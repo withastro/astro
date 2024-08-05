@@ -171,6 +171,7 @@ export async function loadFixture(inlineConfig) {
 			return await check(opts);
 		},
 		startDevServer: async (extraInlineConfig = {}) => {
+			globalContentLayer.dispose();
 			process.env.NODE_ENV = 'development';
 			devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
