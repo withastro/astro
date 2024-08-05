@@ -70,11 +70,7 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 	}
 
 	static fromJson(body: any) {
-		if (
-			typeof body === 'object' &&
-			body?.type === 'AstroActionInputError' &&
-			Array.isArray(body.issues)
-		) {
+		if (isInputError(body)) {
 			return new ActionInputError(body.issues);
 		}
 		if (isActionError(body)) {
@@ -107,7 +103,9 @@ export function isInputError<T extends ErrorInferenceObject>(
 		typeof error === 'object' &&
 		error != null &&
 		'type' in error &&
-		error.type === 'AstroActionInputError'
+		error.type === 'AstroActionInputError' &&
+		'issues' in error &&
+		Array.isArray(error.issues)
 	);
 }
 
