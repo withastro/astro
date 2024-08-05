@@ -3,9 +3,9 @@ import type { AstroSettings } from '../@types/astro.js';
 import { TYPES_TEMPLATE_URL } from './constants.js';
 import { getEnvFieldType } from './validators.js';
 
-export function syncAstroEnv(settings: AstroSettings, fs = fsMod): AstroSettings {
+export function syncAstroEnv(settings: AstroSettings, fs = fsMod): void {
 	if (!settings.config.experimental.env) {
-		return settings;
+		return;
 	}
 
 	const schema = settings.config.experimental.env.schema ?? {};
@@ -23,12 +23,10 @@ export function syncAstroEnv(settings: AstroSettings, fs = fsMod): AstroSettings
 	}
 
 	const template = fs.readFileSync(TYPES_TEMPLATE_URL, 'utf-8');
-	const dts = template.replace('// @@CLIENT@@', client).replace('// @@SERVER@@', server);
+	const content = template.replace('// @@CLIENT@@', client).replace('// @@SERVER@@', server);
 
 	settings.injectedTypes.push({
 		filename: 'astro/env.d.ts',
-		content: dts,
+		content,
 	});
-
-	return settings;
 }

@@ -81,7 +81,7 @@ export async function syncInternal({
 		if (!skip?.content) {
 			await syncContentCollections(settings, { fs, logger });
 		}
-		settings = syncAstroEnv(settings, fs);
+		syncAstroEnv(settings, fs);
 
 		writeInjectedTypes(settings, fs);
 
