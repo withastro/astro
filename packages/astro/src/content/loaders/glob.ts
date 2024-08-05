@@ -199,28 +199,29 @@ export function glob(globOptions: GlobOptions): Loader {
 				return fileUrl.href.startsWith(contentDir.href);
 			}
 
+			const configFiles = new Set(
+				['config.js', 'config.ts', 'config.mjs'].map((file) => new URL(file, contentDir).href)
+			);
+
 			function isConfigFile(file: string) {
-				const configFiles = ['config.js', 'config.ts', 'config.mjs'];
 				const fileUrl = new URL(file, baseDir);
-				return configFiles.some(
-					(configFile) => new URL(configFile, contentDir).href === fileUrl.href
-				);
+				return configFiles.has(fileUrl.href);
 			}
 
 			await Promise.all(
-				files.map((entry) =>
-					limit(async () => {
-						if (isConfigFile(entry)) {
-							return;
-						}
-						if (isInContentDir(entry)) {
-							skippedFiles.push(entry);
-							return;
-						}
+				files.map((entry) => {
+					if (isConfigFile(entry)) {
+						return;
+					}
+					if (isInContentDir(entry)) {
+						skippedFiles.push(entry);
+						return;
+					}
+					return limit(async () => {
 						const entryType = configForFile(entry);
 						await syncData(entry, baseDir, entryType);
-					})
-				)
+					});
+				})
 			);
 
 			const skipCount = skippedFiles.length;
