@@ -30,8 +30,6 @@ async function createRestartedContainer(
 }
 
 const configRE = /.*astro.config.(?:mjs|cjs|js|ts)$/;
-// TODO: can we use dotAstroDir?
-const preferencesRE = /.*\.astro\/settings.json$/;
 
 export function shouldRestartContainer(
 	{ settings, inlineConfig, restartInFlight }: Container,
@@ -40,17 +38,19 @@ export function shouldRestartContainer(
 	if (restartInFlight) return false;
 
 	let shouldRestart = false;
+	const normalizedChangedFile = vite.normalizePath(changedFile);
 
 	// If the config file changed, reload the config and restart the server.
 	if (inlineConfig.configFile) {
-		shouldRestart = vite.normalizePath(inlineConfig.configFile) === vite.normalizePath(changedFile);
+		shouldRestart = vite.normalizePath(inlineConfig.configFile) === normalizedChangedFile;
 	}
 	// Otherwise, watch for any astro.config.* file changes in project root
 	else {
-		const normalizedChangedFile = vite.normalizePath(changedFile);
 		shouldRestart = configRE.test(normalizedChangedFile);
-
-		if (preferencesRE.test(normalizedChangedFile)) {
+		const settingsPath = vite.normalizePath(
+			fileURLToPath(new URL('settings.json', settings.dotAstroDir))
+		);
+		if (settingsPath.match(normalizedChangedFile)) {
 			shouldRestart = settings.preferences.ignoreNextPreferenceReload ? false : true;
 
 			settings.preferences.ignoreNextPreferenceReload = false;
