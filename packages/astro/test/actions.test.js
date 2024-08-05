@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
+import * as devalue from 'devalue';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
-import * as devalue from 'devalue';
 
 describe('Astro Actions', () => {
 	let fixture;

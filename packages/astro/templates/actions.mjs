@@ -1,4 +1,4 @@
-import { ActionError, getActionQueryString, deserializeActionResult } from 'astro:actions';
+import { ActionError, deserializeActionResult, getActionQueryString } from 'astro:actions';
 
 function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 	return new Proxy(actionCallback, {
