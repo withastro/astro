@@ -28,12 +28,16 @@ async function check(
 	// In general, components from other frameworks (eg, MDX, React, etc.) tend to render as "undefined",
 	// so we take advantage of this trick to decide if this is a Solid component or not.
 
-	const { html } = await renderToStaticMarkup.call(this, Component, props, children, {
-		// The purpose of check() is just to validate that this is a Solid component and not
-		// React, etc. We should render in sync mode which should skip Suspense boundaries
-		// or loading resources like external API calls.
-		renderStrategy: 'sync' as RenderStrategy,
-	});
+	let html: string | undefined;
+	try {
+		const result = await renderToStaticMarkup.call(this, Component, props, children, {
+			// The purpose of check() is just to validate that this is a Solid component and not
+			// React, etc. We should render in sync mode which should skip Suspense boundaries
+			// or loading resources like external API calls.
+			renderStrategy: 'sync' as RenderStrategy,
+		});
+		html = result.html;
+	} catch {}
 
 	return typeof html === 'string';
 }
