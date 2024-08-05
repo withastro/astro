@@ -229,9 +229,9 @@ export function glob(globOptions: GlobOptions): Loader {
 			if (skipCount > 0) {
 				logger.warn(`The glob() loader cannot be used for files in ${bold('src/content')}.`);
 				if (skipCount > 10) {
-					logger.warn(`Skipped ${green(skippedFiles.length)} files.`);
+					logger.warn(`Skipped ${green(skippedFiles.length)} files that matched ${green(globOptions.pattern)}.`);
 				} else {
-					logger.warn(`Skipped:`);
+					logger.warn(`Skipped the following files that matched ${green(globOptions.pattern)}:`);
 					skippedFiles.forEach((file) => logger.warn(`• ${green(file)}`));
 				}
 			}
