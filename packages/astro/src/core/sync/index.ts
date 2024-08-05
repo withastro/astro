@@ -98,23 +98,12 @@ export async function syncInternal({
 	}
 }
 
-function handleFilename(filename: string) {
-	// TODO: reuse logic
-	if (filename === `./integrations/astro_db/db-types.d.ts`) {
-		return './astro/db.d.ts';
-	}
-
-	return filename;
-}
-
 // TODO: move to other file
 function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 	const references: Array<string> = [];
 
 	for (const { filename, content } of settings.injectedTypes) {
-		const path = normalizePath(
-			fileURLToPath(new URL(handleFilename(filename), settings.dotAstroDir))
-		);
+		const path = normalizePath(fileURLToPath(new URL(filename, settings.dotAstroDir)));
 		fs.mkdirSync(dirname(path), { recursive: true });
 		// TODO: format content using recast
 		fs.writeFileSync(path, content, 'utf-8');
@@ -125,7 +114,11 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 	if (references.length === 0) {
 		fs.mkdirSync(settings.dotAstroDir, { recursive: true });
 	}
-	fs.writeFileSync(normalizePath(fileURLToPath(new URL(REFERENCE_FILE, settings.dotAstroDir))), astroDtsContent, 'utf-8');
+	fs.writeFileSync(
+		normalizePath(fileURLToPath(new URL(REFERENCE_FILE, settings.dotAstroDir))),
+		astroDtsContent,
+		'utf-8'
+	);
 }
 
 /**

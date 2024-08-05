@@ -111,7 +111,7 @@ export function normalizeInjectedTypeFilename(filename: string, integrationName:
 	// TODO: validate filename
 	const result = validInjectedTypeFilenameSchema.safeParse(filename);
 	if (!result.success) {
-		throw new Error("TODO: astro error")
+		throw new Error('TODO: astro error');
 	}
 	return `./integrations/${integrationName.replace(/[^\w.-]/g, '_')}/${filename}`;
 }
@@ -344,6 +344,15 @@ export async function runHookConfigDone({
 						settings.adapter = adapter;
 					},
 					injectTypes(injectedType) {
+						if (integration.name === 'astro:db' && injectedType.filename === 'db-types.d.ts') {
+							const filename = './astro/db.d.ts';
+							settings.injectedTypes.push({
+								filename,
+								content: injectedType.content,
+							});
+							return new URL(filename, settings.dotAstroDir);
+						}
+
 						const normalizedFilename = normalizeInjectedTypeFilename(
 							injectedType.filename,
 							integration.name
