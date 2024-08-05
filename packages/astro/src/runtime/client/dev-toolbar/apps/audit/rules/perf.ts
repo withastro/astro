@@ -36,7 +36,7 @@ export const perf: AuditRuleWithSelector[] = [
 		match(element) {
 			const htmlElement = element as HTMLImageElement | HTMLIFrameElement;
 			// Ignore elements that are above the fold, they should be loaded eagerly
-			const elementYPosition = htmlElement.getBoundingClientRect().y + window.scrollY 
+			const elementYPosition = htmlElement.getBoundingClientRect().y + window.scrollY;
 			if (elementYPosition < window.innerHeight) return false;
 
 			// Ignore elements using `data:` URI, the `loading` attribute doesn't do anything for these
@@ -55,7 +55,7 @@ export const perf: AuditRuleWithSelector[] = [
 			const htmlElement = element as HTMLImageElement | HTMLIFrameElement;
 
 			// Ignore elements that are below the fold, they should be loaded lazily
-			const elementYPosition = htmlElement.getBoundingClientRect().y + window.scrollY 
+			const elementYPosition = htmlElement.getBoundingClientRect().y + window.scrollY;
 			if (elementYPosition > window.innerHeight) return false;
 
 			// Ignore elements using `data:` URI, the `loading` attribute doesn't do anything for these
