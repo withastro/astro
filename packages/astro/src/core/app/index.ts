@@ -1,13 +1,6 @@
-import type {
-	ComponentInstance,
-	ManifestData,
-	RouteData,
-	SSRManifest,
-} from '../../@types/astro.js';
+import type { ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
-import type { SinglePageBuiltModule } from '../build/types.js';
 import {
-	DEFAULT_404_COMPONENT,
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	clientAddressSymbol,
@@ -21,18 +14,17 @@ import { AstroIntegrationLogger, Logger } from '../logger/core.js';
 import { sequence } from '../middleware/index.js';
 import {
 	appendForwardSlash,
-	collapseDuplicateSlashes,
 	joinPaths,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '../path.js';
-import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
-import { ensure404Route } from '../routing/astro-designed-error-pages.js';
+import { createDefaultRoutes, injectDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
 import { createOriginCheckMiddleware } from './middlewares.js';
 import { AppPipeline } from './pipeline.js';
+
 export { deserializeManifest } from './common.js';
 
 export interface RenderOptions {
@@ -76,6 +68,10 @@ export interface RenderErrorOptions {
 	 * Whether to skip middleware while rendering the error page. Defaults to false.
 	 */
 	skipMiddleware?: boolean;
+	/**
+	 * Allows passing an error to 500.astro. It will be available through `Astro.props.error`.
+	 */
+	error?: unknown;
 }
 
 export class App {
@@ -92,11 +88,11 @@ export class App {
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
-		this.#manifestData = ensure404Route({
+		this.#manifestData = injectDefaultRoutes(manifest, {
 			routes: manifest.routes.map((route) => route.routeData),
 		});
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
-		this.#pipeline = this.#createPipeline(streaming);
+		this.#pipeline = this.#createPipeline(this.#manifestData, streaming);
 		this.#adapterLogger = new AstroIntegrationLogger(
 			this.#logger.options,
 			this.#manifest.adapterName
@@ -110,10 +106,11 @@ export class App {
 	/**
 	 * Creates a pipeline by reading the stored manifest
 	 *
+	 * @param manifestData
 	 * @param streaming
 	 * @private
 	 */
-	#createPipeline(streaming = false) {
+	#createPipeline(manifestData: ManifestData, streaming = false) {
 		if (this.#manifest.checkOrigin) {
 			this.#manifest.middleware = sequence(
 				createOriginCheckMiddleware(),
@@ -121,11 +118,12 @@ export class App {
 			);
 		}
 
-		return AppPipeline.create({
+		return AppPipeline.create(manifestData, {
 			logger: this.#logger,
 			manifest: this.#manifest,
 			mode: 'production',
 			renderers: this.#manifest.renderers,
+			defaultRoutes: createDefaultRoutes(this.#manifest),
 			resolve: async (specifier: string) => {
 				if (!(specifier in this.#manifest.entryModules)) {
 					throw new Error(`Unable to resolve [${specifier}]`);
@@ -149,6 +147,7 @@ export class App {
 	set setManifestData(newManifestData: ManifestData) {
 		this.#manifestData = newManifestData;
 	}
+
 	removeBase(pathname: string) {
 		if (pathname.startsWith(this.#manifest.base)) {
 			return pathname.slice(this.#baseWithoutTrailingSlash.length + 1);
@@ -287,32 +286,43 @@ export class App {
 				this.#logRenderOptionsDeprecationWarning();
 			}
 		}
+		if (routeData) {
+			this.#logger.debug(
+				'router',
+				'The adapter ' + this.#manifest.adapterName + ' provided a custom RouteData for ',
+				request.url
+			);
+			this.#logger.debug('router', 'RouteData:\n' + routeData);
+		}
 		if (locals) {
 			if (typeof locals !== 'object') {
-				this.#logger.error(null, new AstroError(AstroErrorData.LocalsNotAnObject).stack!);
-				return this.#renderError(request, { status: 500 });
+				const error = new AstroError(AstroErrorData.LocalsNotAnObject);
+				this.#logger.error(null, error.stack!);
+				return this.#renderError(request, { status: 500, error });
 			}
 			Reflect.set(request, clientLocalsSymbol, locals);
 		}
 		if (clientAddress) {
 			Reflect.set(request, clientAddressSymbol, clientAddress);
 		}
-		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
-		if (request.url !== collapseDuplicateSlashes(request.url)) {
-			request = new Request(collapseDuplicateSlashes(request.url), request);
-		}
 		if (!routeData) {
 			routeData = this.match(request);
+			this.#logger.debug('router', 'Astro matched the following route for ' + request.url);
+			this.#logger.debug('router', 'RouteData:\n' + routeData);
 		}
 		if (!routeData) {
+			this.#logger.debug('router', "Astro hasn't found routes that match " + request.url);
+			this.#logger.debug('router', "Here's the available routes:\n", this.#manifestData);
 			return this.#renderError(request, { locals, status: 404 });
 		}
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
-		const mod = await this.#getModuleForRoute(routeData);
 
 		let response;
 		try {
+			// Load route module. We also catch its error here if it fails on initialization
+			const mod = await this.#pipeline.getModuleForRoute(routeData);
+
 			const renderContext = RenderContext.create({
 				pipeline: this.#pipeline,
 				locals,
@@ -324,7 +334,7 @@ export class App {
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
-			return this.#renderError(request, { locals, status: 500 });
+			return this.#renderError(request, { locals, status: 500, error: err });
 		}
 
 		if (
@@ -335,6 +345,9 @@ export class App {
 				locals,
 				response,
 				status: response.status as 404 | 500,
+				// We don't have an error to report here. Passing null means we pass nothing intentionally
+				// while undefined means there's no error
+				error: response.status === 500 ? null : undefined,
 			});
 		}
 
@@ -385,7 +398,13 @@ export class App {
 	 */
 	async #renderError(
 		request: Request,
-		{ locals, status, response: originalResponse, skipMiddleware = false }: RenderErrorOptions
+		{
+			locals,
+			status,
+			response: originalResponse,
+			skipMiddleware = false,
+			error,
+		}: RenderErrorOptions
 	): Promise<Response> {
 		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
 		const errorRouteData = matchRoute(errorRoutePath, this.#manifestData);
@@ -405,7 +424,7 @@ export class App {
 
 				return this.#mergeResponses(response, originalResponse, override);
 			}
-			const mod = await this.#getModuleForRoute(errorRouteData);
+			const mod = await this.#pipeline.getModuleForRoute(errorRouteData);
 			try {
 				const renderContext = RenderContext.create({
 					locals,
@@ -415,6 +434,7 @@ export class App {
 					request,
 					routeData: errorRouteData,
 					status,
+					props: { error },
 				});
 				const response = await renderContext.render(await mod.page());
 				return this.#mergeResponses(response, originalResponse);
@@ -492,36 +512,5 @@ export class App {
 		if (route.endsWith('/404')) return 404;
 		if (route.endsWith('/500')) return 500;
 		return 200;
-	}
-
-	async #getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
-		if (route.component === DEFAULT_404_COMPONENT) {
-			return {
-				page: async () =>
-					({ default: () => new Response(null, { status: 404 }) }) as ComponentInstance,
-				renderers: [],
-			};
-		}
-		if (route.type === 'redirect') {
-			return RedirectSinglePageBuiltModule;
-		} else {
-			if (this.#manifest.pageMap) {
-				const importComponentInstance = this.#manifest.pageMap.get(route.component);
-				if (!importComponentInstance) {
-					throw new Error(
-						`Unexpectedly unable to find a component instance for route ${route.route}`
-					);
-				}
-				const pageModule = await importComponentInstance();
-				return pageModule;
-			} else if (this.#manifest.pageModule) {
-				const importComponentInstance = this.#manifest.pageModule;
-				return importComponentInstance;
-			} else {
-				throw new Error(
-					"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue."
-				);
-			}
-		}
 	}
 }

@@ -22,6 +22,7 @@ import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { routeComparator } from '../priority.js';
 import { getRouteGenerator } from './generator.js';
+import { getPattern } from './pattern.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -48,7 +49,7 @@ function countOccurrences(needle: string, haystack: string) {
 const ROUTE_DYNAMIC_SPLIT = /\[(.+?\(.+?\)|.+?)\]/;
 const ROUTE_SPREAD = /^\.{3}.+$/;
 
-function getParts(part: string, file: string) {
+export function getParts(part: string, file: string) {
 	const result: RoutePart[] = [];
 	part.split(ROUTE_DYNAMIC_SPLIT).map((str, i) => {
 		if (!str) return;
@@ -70,61 +71,7 @@ function getParts(part: string, file: string) {
 	return result;
 }
 
-function getPattern(
-	segments: RoutePart[][],
-	config: AstroConfig,
-	addTrailingSlash: AstroConfig['trailingSlash']
-) {
-	const base = config.base;
-	const pathname = segments
-		.map((segment) => {
-			if (segment.length === 1 && segment[0].spread) {
-				return '(?:\\/(.*?))?';
-			} else {
-				return (
-					'\\/' +
-					segment
-						.map((part) => {
-							if (part.spread) {
-								return '(.*?)';
-							} else if (part.dynamic) {
-								return '([^/]+?)';
-							} else {
-								return part.content
-									.normalize()
-									.replace(/\?/g, '%3F')
-									.replace(/#/g, '%23')
-									.replace(/%5B/g, '[')
-									.replace(/%5D/g, ']')
-									.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-							}
-						})
-						.join('')
-				);
-			}
-		})
-		.join('');
-
-	const trailing =
-		addTrailingSlash && segments.length ? getTrailingSlashPattern(addTrailingSlash) : '$';
-	let initial = '\\/';
-	if (addTrailingSlash === 'never' && base !== '/') {
-		initial = '';
-	}
-	return new RegExp(`^${pathname || initial}${trailing}`);
-}
-
-function getTrailingSlashPattern(addTrailingSlash: AstroConfig['trailingSlash']): string {
-	if (addTrailingSlash === 'always') {
-		return '\\/$';
-	}
-	if (addTrailingSlash === 'never') {
-		return '$';
-	}
-	return '\\/?$';
-}
-
-function validateSegment(segment: string, file = '') {
+export function validateSegment(segment: string, file = '') {
 	if (!file) file = segment;
 
 	if (/\]\[/.test(segment)) {
@@ -292,7 +239,7 @@ function createFileBasedRoutes(
 				components.push(item.file);
 				const component = item.file;
 				const { trailingSlash } = settings.config;
-				const pattern = getPattern(segments, settings.config, trailingSlash);
+				const pattern = getPattern(segments, settings.config.base, trailingSlash);
 				const generate = getRouteGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -363,7 +310,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 		const isPage = type === 'page';
 		const trailingSlash = isPage ? config.trailingSlash : 'never';
 
-		const pattern = getPattern(segments, settings.config, trailingSlash);
+		const pattern = getPattern(segments, settings.config.base, trailingSlash);
 		const generate = getRouteGenerator(segments, trailingSlash);
 		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -419,7 +366,7 @@ function createRedirectRoutes(
 				return getParts(s, from);
 			});
 
-		const pattern = getPattern(segments, settings.config, trailingSlash);
+		const pattern = getPattern(segments, settings.config.base, trailingSlash);
 		const generate = getRouteGenerator(segments, trailingSlash);
 		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -487,7 +434,7 @@ function isStaticSegment(segment: RoutePart[]) {
  *   For example, `/foo/[bar]` and `/foo/[baz]` or `/foo/[...bar]` and `/foo/[...baz]`
  *     but not `/foo/[bar]` and `/foo/[...baz]`.
  */
-function detectRouteCollision(a: RouteData, b: RouteData, config: AstroConfig, logger: Logger) {
+function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, logger: Logger) {
 	if (a.type === 'fallback' || b.type === 'fallback') {
 		// If either route is a fallback route, they don't collide.
 		// Fallbacks are always added below other routes exactly to avoid collisions.
@@ -589,7 +536,7 @@ export function createRouteManifest(
 
 	const i18n = settings.config.i18n;
 	if (i18n) {
-		const strategy = toRoutingStrategy(i18n);
+		const strategy = toRoutingStrategy(i18n.routing, i18n.domains);
 		// First we check if the user doesn't have an index page.
 		if (strategy === 'pathname-prefix-always') {
 			let index = routes.find((route) => route.route === '/');
@@ -687,7 +634,7 @@ export function createRouteManifest(
 						pathname,
 						route,
 						segments,
-						pattern: getPattern(segments, config, config.trailingSlash),
+						pattern: getPattern(segments, config.base, config.trailingSlash),
 						type: 'fallback',
 					});
 				}
@@ -764,7 +711,7 @@ export function createRouteManifest(
 									route,
 									segments,
 									generate,
-									pattern: getPattern(segments, config, config.trailingSlash),
+									pattern: getPattern(segments, config.base, config.trailingSlash),
 									type: 'fallback',
 									fallbackRoutes: [],
 								};

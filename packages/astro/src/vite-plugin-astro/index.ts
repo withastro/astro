@@ -3,13 +3,13 @@ import type * as vite from 'vite';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
 import type {
-	CompileMetadata,
 	PluginCssMetadata as AstroPluginCssMetadata,
 	PluginMetadata as AstroPluginMetadata,
+	CompileMetadata,
 } from './types.js';
 
 import { normalizePath } from 'vite';
-import { normalizeFilename } from '../vite-plugin-utils/index.js';
+import { hasSpecialQueries, normalizeFilename } from '../vite-plugin-utils/index.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
@@ -89,12 +89,22 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			// modules are compiled first, then its virtual modules.
 			const filename = normalizePath(normalizeFilename(parsedId.filename, config.root));
 			let compileMetadata = astroFileToCompileMetadata.get(filename);
-			// If `compileMetadata` doesn't exist in dev, that means the virtual module may have been invalidated.
-			// We try to re-compile the main Astro module (`filename`) first before retrieving the metadata again.
-			if (!compileMetadata && server) {
-				const code = await loadId(server.pluginContainer, filename);
-				// `compile` should re-set `filename` in `astroFileToCompileMetadata`
-				if (code != null) await compile(code, filename);
+			if (!compileMetadata) {
+				// If `compileMetadata` doesn't exist in dev, that means the virtual module may have been invalidated.
+				// We try to re-compile the main Astro module (`filename`) first before retrieving the metadata again.
+				if (server) {
+					const code = await loadId(server.pluginContainer, filename);
+					// `compile` should re-set `filename` in `astroFileToCompileMetadata`
+					if (code != null) await compile(code, filename);
+				}
+				// When cached we might load client-side scripts during the build
+				else if (config.experimental.contentCollectionCache) {
+					await this.load({
+						id: filename,
+						resolveDependencies: false,
+					});
+				}
+
 				compileMetadata = astroFileToCompileMetadata.get(filename);
 			}
 			// If the metadata still doesn't exist, that means the virtual modules are somehow compiled first,
@@ -190,9 +200,11 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			}
 		},
 		async transform(source, id) {
+			if (hasSpecialQueries(id)) return;
+
 			const parsedId = parseAstroRequest(id);
 			// ignore astro file sub-requests, e.g. Foo.astro?astro&type=script&index=0&lang.ts
-			if (!id.endsWith('.astro') || parsedId.query.astro) {
+			if (!parsedId.filename.endsWith('.astro') || parsedId.query.astro) {
 				return;
 			}
 
@@ -202,6 +214,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			const astroMetadata: AstroPluginMetadata['astro'] = {
 				clientOnlyComponents: transformResult.clientOnlyComponents,
 				hydratedComponents: transformResult.hydratedComponents,
+				serverComponents: transformResult.serverComponents,
 				scripts: transformResult.scripts,
 				containsHead: transformResult.containsHead,
 				propagation: transformResult.propagation ? 'self' : 'none',

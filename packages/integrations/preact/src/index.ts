@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { type PreactPluginOptions as VitePreactPluginOptions, preact } from '@preact/preset-vite';
-import type { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
+import type { AstroIntegration, AstroRenderer, ContainerRenderer, ViteUserConfig } from 'astro';
 
 const babelCwd = new URL('../', import.meta.url);
 
@@ -12,13 +12,23 @@ function getRenderer(development: boolean): AstroRenderer {
 	};
 }
 
-export type Options = Pick<VitePreactPluginOptions, 'include' | 'exclude'> & { compat?: boolean };
+export function getContainerRenderer(): ContainerRenderer {
+	return {
+		name: '@astrojs/preact',
+		serverEntrypoint: '@astrojs/preact/server.js',
+	};
+}
 
-export default function ({ include, exclude, compat }: Options = {}): AstroIntegration {
+export interface Options extends Pick<VitePreactPluginOptions, 'include' | 'exclude'> {
+	compat?: boolean;
+	devtools?: boolean;
+}
+
+export default function ({ include, exclude, compat, devtools }: Options = {}): AstroIntegration {
 	return {
 		name: '@astrojs/preact',
 		hooks: {
-			'astro:config:setup': ({ addRenderer, updateConfig, command }) => {
+			'astro:config:setup': ({ addRenderer, updateConfig, command, injectScript }) => {
 				const preactPlugin = preact({
 					reactAliasesEnabled: compat ?? false,
 					include,
@@ -56,6 +66,10 @@ export default function ({ include, exclude, compat }: Options = {}): AstroInteg
 				updateConfig({
 					vite: viteConfig,
 				});
+
+				if (command === 'dev' && devtools) {
+					injectScript('page', 'import "preact/debug";');
+				}
 			},
 		},
 	};

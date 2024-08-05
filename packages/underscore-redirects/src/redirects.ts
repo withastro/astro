@@ -9,6 +9,7 @@ export type RedirectDefinition = {
 	// a priority once inserted.
 	weight: number;
 	status: number;
+	force?: number;
 };
 
 export class Redirects {

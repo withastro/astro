@@ -1,5 +1,6 @@
 /// <reference types="vite/types/import-meta.d.ts" />
 /// <reference path="./types/content.d.ts" />
+/// <reference path="./types/actions.d.ts" />
 
 // eslint-disable-next-line  @typescript-eslint/no-namespace
 declare namespace App {
@@ -11,7 +12,7 @@ interface ImportMetaEnv {
 	/**
 	 * The prefix for Astro-generated asset links if the build.assetsPrefix config option is set. This can be used to create asset links not handled by Astro.
 	 */
-	readonly ASSETS_PREFIX: string;
+	readonly ASSETS_PREFIX: string | Record<string, string>;
 	/**
 	 * This is set to the site option specified in your project’s Astro config file.
 	 */
@@ -53,6 +54,7 @@ declare module 'astro:assets' {
 		) => Promise<import('./dist/assets/types.js').GetImageResult>;
 		imageConfig: import('./dist/@types/astro.js').AstroConfig['image'];
 		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
+		inferRemoteSize: typeof import('./dist/assets/utils/index.js').inferRemoteSize;
 		Image: typeof import('./components/Image.astro').default;
 		Picture: typeof import('./components/Picture.astro').default;
 	};
@@ -68,7 +70,14 @@ declare module 'astro:assets' {
 	export type RemoteImageProps = import('./dist/type-utils.js').Simplify<
 		import('./dist/assets/types.js').RemoteImageProps<ImgAttributes>
 	>;
-	export const { getImage, getConfiguredImageService, imageConfig, Image, Picture }: AstroAssets;
+	export const {
+		getImage,
+		getConfiguredImageService,
+		imageConfig,
+		Image,
+		Picture,
+		inferRemoteSize,
+	}: AstroAssets;
 }
 
 type ImageMetadata = import('./dist/assets/types.js').ImageMetadata;
@@ -149,6 +158,10 @@ declare module 'astro:prefetch' {
 
 declare module 'astro:i18n' {
 	export * from 'astro/virtual-modules/i18n.js';
+}
+
+declare module 'astro:container' {
+	export * from 'astro/virtual-modules/container.js';
 }
 
 declare module 'astro:middleware' {

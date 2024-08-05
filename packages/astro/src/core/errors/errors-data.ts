@@ -69,6 +69,19 @@ export const ClientAddressNotAvailable = {
 /**
  * @docs
  * @see
+ * - [Opting-in to pre-rendering](https://docs.astro.build/en/guides/server-side-rendering/#opting-in-to-pre-rendering-in-server-mode)
+ * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
+ * @description
+ * The `Astro.clientAddress` property cannot be used inside prerendered routes.
+ */
+export const PrerenderClientAddressNotAvailable = {
+	name: 'PrerenderClientAddressNotAvailable',
+	title: '`Astro.clientAddress` cannot be used inside prerendered routes.',
+	message: `\`Astro.clientAddress\` cannot be used inside prerendered routes`,
+} satisfies ErrorData;
+/**
+ * @docs
+ * @see
  * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/)
  * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
  * @description
@@ -168,9 +181,7 @@ export const NoMatchingRenderer = {
 
 ${
 	validRenderersCount > 0
-		? `There ${plural ? 'are' : 'is'} ${validRenderersCount} renderer${
-				plural ? 's' : ''
-			} configured in your \`astro.config.mjs\` file,
+		? `There ${plural ? 'are' : 'is'} ${validRenderersCount} renderer${plural ? 's' : ''} configured in your \`astro.config.mjs\` file,
 but ${plural ? 'none were' : 'it was not'} able to server-side render \`${componentName}\`.`
 		: `No valid renderer was found ${
 				componentExtension
@@ -441,8 +452,8 @@ export const NoMatchingImport = {
 export const InvalidPrerenderExport = {
 	name: 'InvalidPrerenderExport',
 	title: 'Invalid prerender export.',
-	message(prefix: string, suffix: string, isHydridOuput: boolean) {
-		const defaultExpectedValue = isHydridOuput ? 'false' : 'true';
+	message(prefix: string, suffix: string, isHydridOutput: boolean) {
+		const defaultExpectedValue = isHydridOutput ? 'false' : 'true';
 		let msg = `A \`prerender\` export has been detected, but its value cannot be statically analyzed.`;
 		if (prefix !== 'const') msg += `\nExpected \`const\` declaration but got \`${prefix}\`.`;
 		if (suffix !== 'true')
@@ -649,6 +660,29 @@ export const ExpectedImageOptions = {
 	title: 'Expected image options.',
 	message: (options: string) =>
 		`Expected getImage() parameter to be an object. Received \`${options}\`.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * @description
+ * An ESM-imported image cannot be passed directly to `getImage()`. Instead, pass an object with the image in the `src` property.
+ *
+ * ```diff
+ * import { getImage } from "astro:assets";
+ * import myImage from "../assets/my_image.png";
+ * - const optimizedImage = await getImage( myImage );
+ * + const optimizedImage = await getImage({ src: myImage });
+ * ```
+ */
+
+export const ExpectedNotESMImage = {
+	name: 'ExpectedNotESMImage',
+	title: 'Expected image options, not an ESM-imported image.',
+	message:
+		'An ESM-imported image cannot be passed directly to `getImage()`. Instead, pass an object with the image in the `src` property.',
+	hint: 'Try changing `getImage(myImage)` to `getImage({ src: myImage })`',
 } satisfies ErrorData;
 
 /**
@@ -1070,13 +1104,56 @@ export const MissingIndexForInternationalization = {
 /**
  * @docs
  * @description
+ * Some internationalization functions are only available when Astro's own i18n routing is disabled by the configuration setting `i18n.routing: "manual"`.
+ *
+ * @see
+ * - [`i18n` routing](https://docs.astro.build/en/guides/internationalization/#routing)
+ */
+export const IncorrectStrategyForI18n = {
+	name: 'IncorrectStrategyForI18n',
+	title: "You can't use the current function with the current strategy",
+	message: (functionName: string) =>
+		`The function \`${functionName}\` can only be used when the \`i18n.routing.strategy\` is set to \`"manual"\`.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * Static pages aren't yet supported with i18n domains. If you wish to enable this feature, you have to disable prerendering.
  */
 export const NoPrerenderedRoutesWithDomains = {
 	name: 'NoPrerenderedRoutesWithDomains',
 	title: "Prerendered routes aren't supported when internationalization domains are enabled.",
 	message: (component: string) =>
-		`Static pages aren't yet supported with multiple domains. If you wish to enable this feature, you have to disable prerendering for the page ${component}`,
+		`Static pages aren't yet supported with multiple domains. To enable this feature, you must disable prerendering for the page ${component}`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Astro throws an error if the user enables manual routing, but it doesn't have a middleware file.
+ */
+export const MissingMiddlewareForInternationalization = {
+	name: 'MissingMiddlewareForInternationalization',
+	title: 'Enabled manual internationalization routing without having a middleware.',
+	message:
+		"Your configuration setting `i18n.routing: 'manual'` requires you to provide your own i18n `middleware` file.",
+} satisfies ErrorData;
+
+/**
+ * @deprecated
+ * @docs
+ * @description
+ * The user tried to rewrite using a route that doesn't exist, or it emitted a runtime error during its rendering phase.
+ */
+export const RewriteEncounteredAnError = {
+	name: 'RewriteEncounteredAnError',
+	title:
+		"Astro couldn't find the route to rewrite, or if was found but it emitted an error during the rendering phase.",
+	message: (route: string, stack?: string) =>
+		`The route ${route} that you tried to render doesn't exist, or it emitted an error during the rendering phase. ${
+			stack ? stack : ''
+		}.`,
 } satisfies ErrorData;
 
 /**
@@ -1129,6 +1206,89 @@ export const i18nNotEnabled = {
 	title: 'i18n Not Enabled',
 	message: 'The `astro:i18n` module can not be used without enabling i18n in your Astro config.',
 	hint: 'See https://docs.astro.build/en/guides/internationalization for a guide on setting up i18n.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * An i18n utility tried to use the locale from a URL path that does not contain one. You can prevent this error by using pathHasLocale to check URLs for a locale first before using i18n utilities.
+ *
+ */
+export const i18nNoLocaleFoundInPath = {
+	name: 'i18nNoLocaleFoundInPath',
+	title: "The path doesn't contain any locale",
+	message:
+		"You tried to use an i18n utility on a path that doesn't contain any locale. You can use `pathHasLocale` first to determine if the path has a locale.",
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Astro couldn't find a route matching the one provided by the user
+ */
+export const RouteNotFound = {
+	name: 'RouteNotFound',
+	title: 'Route not found.',
+	message: `Astro could not find a route that matches the one you requested.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Some environment variables do not match the data type and/or properties defined in `experimental.env.schema`.
+ * @message
+ * The following environment variables defined in `experimental.env.schema` are invalid.
+ */
+export const EnvInvalidVariables = {
+	name: 'EnvInvalidVariables',
+	title: 'Invalid Environment Variables',
+	message: (errors: Array<string>) =>
+		`The following environment variables defined in \`experimental.env.schema\` are invalid:\n\n${errors.map((err) => `- ${err}`).join('\n')}\n`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * The `astro:env/server` exported function `getSecret()` is not supported by your adapter.
+ */
+export const EnvUnsupportedGetSecret = {
+	name: 'EnvUnsupportedGetSecret',
+	title: 'Unsupported astro:env getSecret',
+	message: '`astro:env/server` exported function `getSecret` is not supported by your adapter.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * This module is only available server-side.
+ */
+export const ServerOnlyModule = {
+	name: 'ServerOnlyModule',
+	title: 'Module is only available server-side',
+	message: (name: string) => `The "${name}" module is only available server-side.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * `Astro.rewrite()` cannot be used if the request body has already been read. If you need to read the body, first clone the request. For example:
+ *
+ * ```js
+ * const data = await Astro.request.clone().formData();
+ *
+ * Astro.rewrite("/target")
+ * ```
+ *
+ * @see
+ * - [Request.clone()](https://developer.mozilla.org/en-US/docs/Web/API/Request/clone)
+ * - [Astro.rewrite](https://docs.astro.build/en/reference/api-reference/#astrorewrite)
+ */
+
+export const RewriteWithBodyUsed = {
+	name: 'RewriteWithBodyUsed',
+	title: 'Cannot use Astro.rewrite after the request body has been read',
+	message:
+		'Astro.rewrite() cannot be used if the request body has already been read. If you need to read the body, first clone the request.',
 } satisfies ErrorData;
 
 /**
@@ -1456,6 +1616,69 @@ export const UnsupportedConfigTransformError = {
 	message: (parseError: string) =>
 		`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
 	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @kind heading
+ * @name Action Errors
+ */
+// Action Errors
+/**
+ * @docs
+ * @see
+ * - [On-demand rendering](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered)
+ * @description
+ * Your project must have a server output to create backend functions with Actions.
+ */
+export const ActionsWithoutServerOutputError = {
+	name: 'ActionsWithoutServerOutputError',
+	title: 'Actions must be used with server output.',
+	message:
+		'Actions enabled without setting a server build output. A server is required to create callable backend functions. To deploy routes to a server, add a server adapter to your astro config.',
+	hint: 'Learn about on-demand rendering: https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
+ * @description
+ * Action was called from a form using a GET request, but only POST requests are supported. This often occurs if `method="POST"` is missing on the form.
+ */
+export const ActionsUsedWithForGetError = {
+	name: 'ActionsUsedWithForGetError',
+	title: 'An invalid Action query string was passed by a form.',
+	message: (actionName: string) =>
+		`Action ${actionName} was called from a form using a GET request, but only POST requests are supported. This often occurs if \`method="POST"\` is missing on the form.`,
+	hint: 'Actions are experimental. Visit the RFC for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
+ * @description
+ * The server received the query string `?_astroAction=name`, but could not find an action with that name. Use the action function's `.queryString` property to retrieve the form `action` URL.
+ */
+export const ActionQueryStringInvalidError = {
+	name: 'ActionQueryStringInvalidError',
+	title: 'An invalid Action query string was passed by a form.',
+	message: (actionName: string) =>
+		`The server received the query string \`?_astroAction=${actionName}\`, but could not find an action with that name. If you changed an action's name in development, remove this query param from your URL and refresh.`,
+	hint: 'Actions are experimental. Visit the RFC for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Action called from a server page or endpoint without using `Astro.callAction()`.
+ */
+export const ActionCalledFromServerError = {
+	name: 'ActionCalledFromServerError',
+	title: 'Action unexpected called from the server.',
+	message: 'Action called from a server page or endpoint without using `Astro.callAction()`.',
+	hint: 'See the RFC section on server calls for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md#call-actions-directly-from-server-code',
 } satisfies ErrorData;
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.

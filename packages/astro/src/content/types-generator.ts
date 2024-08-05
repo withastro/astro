@@ -121,16 +121,14 @@ export async function createContentTypesGenerator({
 
 			switch (event.name) {
 				case 'addDir':
-					collectionEntryMap[JSON.stringify(collection)] = {
+					collectionEntryMap[collectionKey] = {
 						type: 'unknown',
 						entries: {},
 					};
 					logger.debug('content', `${cyan(collection)} collection added`);
 					break;
 				case 'unlinkDir':
-					if (collectionKey in collectionEntryMap) {
-						delete collectionEntryMap[JSON.stringify(collection)];
-					}
+					delete collectionEntryMap[collectionKey];
 					break;
 			}
 			return { shouldGenerateTypes: true };
@@ -382,11 +380,8 @@ async function writeContentFiles({
 	let contentTypesStr = '';
 	let dataTypesStr = '';
 
-	const collectionSchemasDir = new URL('./collections/', contentPaths.cacheDir);
-	if (
-		settings.config.experimental.contentCollectionJsonSchema &&
-		!fs.existsSync(collectionSchemasDir)
-	) {
+	const collectionSchemasDir = new URL('./collections/', settings.dotAstroDir);
+	if (!fs.existsSync(collectionSchemasDir)) {
 		fs.mkdirSync(collectionSchemasDir, { recursive: true });
 	}
 
@@ -431,12 +426,17 @@ async function writeContentFiles({
 					collectionConfig?.type ?? 'data'
 				: collection.type;
 
+		const collectionEntryKeys = Object.keys(collection.entries).sort();
+		const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
 		switch (resolvedType) {
 			case 'content':
+				if (collectionEntryKeys.length === 0) {
+					contentTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  slug: string;\n  body: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  render(): Render[".md"];\n}>;\n`;
+					break;
+				}
 				contentTypesStr += `${collectionKey}: {\n`;
-				for (const entryKey of Object.keys(collection.entries).sort()) {
+				for (const entryKey of collectionEntryKeys) {
 					const entryMetadata = collection.entries[entryKey];
-					const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
 					const renderType = `{ render(): Render[${JSON.stringify(
 						path.extname(JSON.parse(entryKey))
 					)}] }`;
@@ -447,55 +447,59 @@ async function writeContentFiles({
 				contentTypesStr += `};\n`;
 				break;
 			case 'data':
-				dataTypesStr += `${collectionKey}: {\n`;
-				for (const entryKey of Object.keys(collection.entries).sort()) {
-					const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
-					dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType}\n};\n`;
-					if (
-						settings.config.experimental.contentCollectionJsonSchema &&
-						collectionConfig?.schema
-					) {
-						let zodSchemaForJson =
-							typeof collectionConfig.schema === 'function'
-								? collectionConfig.schema({ image: () => z.string() })
-								: collectionConfig.schema;
-						if (zodSchemaForJson instanceof z.ZodObject) {
-							zodSchemaForJson = zodSchemaForJson.extend({
-								$schema: z.string().optional(),
-							});
-						}
-						try {
-							await fs.promises.writeFile(
-								new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
-								JSON.stringify(
-									zodToJsonSchema(zodSchemaForJson, {
-										name: collectionKey.replace(/"/g, ''),
-										markdownDescription: true,
-										errorMessages: true,
-									}),
-									null,
-									2
-								)
-							);
-						} catch (err) {
-							logger.warn(
-								'content',
-								`An error was encountered while creating the JSON schema for the ${entryKey} entry in ${collectionKey} collection. Proceeding without it. Error: ${err}`
-							);
-						}
+				if (collectionEntryKeys.length === 0) {
+					dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n}>;\n`;
+				} else {
+					dataTypesStr += `${collectionKey}: {\n`;
+					for (const entryKey of collectionEntryKeys) {
+						dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType}\n};\n`;
+					}
+					dataTypesStr += `};\n`;
+				}
+
+				if (collectionConfig?.schema) {
+					let zodSchemaForJson =
+						typeof collectionConfig.schema === 'function'
+							? collectionConfig.schema({ image: () => z.string() })
+							: collectionConfig.schema;
+					if (zodSchemaForJson instanceof z.ZodObject) {
+						zodSchemaForJson = zodSchemaForJson.extend({
+							$schema: z.string().optional(),
+						});
+					}
+					try {
+						await fs.promises.writeFile(
+							new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
+							JSON.stringify(
+								zodToJsonSchema(zodSchemaForJson, {
+									name: collectionKey.replace(/"/g, ''),
+									markdownDescription: true,
+									errorMessages: true,
+									// Fix for https://github.com/StefanTerdell/zod-to-json-schema/issues/110
+									dateStrategy: ['format:date-time', 'format:date', 'integer'],
+								}),
+								null,
+								2
+							)
+						);
+					} catch (err) {
+						// This should error gracefully and not crash the dev server
+						logger.warn(
+							'content',
+							`An error was encountered while creating the JSON schema for the ${collectionKey} collection. Proceeding without it. Error: ${err}`
+						);
 					}
 				}
-				dataTypesStr += `};\n`;
 				break;
 		}
 	}
 
-	if (!fs.existsSync(contentPaths.cacheDir)) {
-		fs.mkdirSync(contentPaths.cacheDir, { recursive: true });
+	if (!fs.existsSync(settings.dotAstroDir)) {
+		fs.mkdirSync(settings.dotAstroDir, { recursive: true });
 	}
 
 	const configPathRelativeToCacheDir = normalizeConfigPath(
-		contentPaths.cacheDir.pathname,
+		settings.dotAstroDir.pathname,
 		contentPaths.config.url.pathname
 	);
 
@@ -512,7 +516,7 @@ async function writeContentFiles({
 	);
 
 	await fs.promises.writeFile(
-		new URL(CONTENT_TYPES_FILE, contentPaths.cacheDir),
+		new URL(CONTENT_TYPES_FILE, settings.dotAstroDir),
 		typeTemplateContent
 	);
 }

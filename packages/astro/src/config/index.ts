@@ -1,12 +1,15 @@
-import type { UserConfig } from 'vite';
-import type { AstroUserConfig } from '../@types/astro.js';
+import type { UserConfig as ViteUserConfig } from 'vite';
+import type { AstroInlineConfig, AstroUserConfig } from '../@types/astro.js';
 import { Logger } from '../core/logger/core.js';
 
 export function defineConfig(config: AstroUserConfig) {
 	return config;
 }
 
-export function getViteConfig(inlineConfig: UserConfig) {
+export function getViteConfig(
+	userViteConfig: ViteUserConfig,
+	inlineAstroConfig: AstroInlineConfig = {}
+) {
 	// Return an async Vite config getter which exposes a resolved `mode` and `command`
 	return async ({ mode, command }: { mode: string; command: 'serve' | 'build' }) => {
 		// Vite `command` is `serve | build`, but Astro uses `dev | build`
@@ -27,16 +30,16 @@ export function getViteConfig(inlineConfig: UserConfig) {
 			import('../core/logger/node.js'),
 			import('../core/config/index.js'),
 			import('../core/create-vite.js'),
-			import('../integrations/index.js'),
+			import('../integrations/hooks.js'),
 			import('./vite-plugin-content-listen.js'),
 		]);
 		const logger = new Logger({
 			dest: nodeLogDestination,
 			level: 'info',
 		});
-		const { astroConfig: config } = await resolveConfig({}, cmd);
-		const settings = await createSettings(config, inlineConfig.root);
-		await runHookConfigSetup({ settings, command: cmd, logger });
+		const { astroConfig: config } = await resolveConfig(inlineAstroConfig, cmd);
+		let settings = await createSettings(config, userViteConfig.root);
+		settings = await runHookConfigSetup({ settings, command: cmd, logger });
 		const viteConfig = await createVite(
 			{
 				mode,
@@ -45,9 +48,9 @@ export function getViteConfig(inlineConfig: UserConfig) {
 					astroContentListenPlugin({ settings, logger, fs }),
 				],
 			},
-			{ settings, logger, mode }
+			{ settings, logger, mode, sync: false }
 		);
 		await runHookConfigDone({ settings, logger });
-		return mergeConfig(viteConfig, inlineConfig);
+		return mergeConfig(viteConfig, userViteConfig);
 	};
 }

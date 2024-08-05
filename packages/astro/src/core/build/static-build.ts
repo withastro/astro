@@ -2,31 +2,37 @@ import fs from 'node:fs';
 import path, { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { teardown } from '@astrojs/compiler';
-import * as eslexer from 'es-module-lexer';
 import glob from 'fast-glob';
 import { bgGreen, bgMagenta, black, green } from 'kleur/colors';
 import * as vite from 'vite';
 import type { RouteData } from '../../@types/astro.js';
 import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
-import { hasAnyContentFlag } from '../../content/utils.js';
+import {
+	getSymlinkedContentCollections,
+	hasAnyContentFlag,
+	reverseSymlink,
+} from '../../content/utils.js';
 import {
 	type BuildInternals,
 	createBuildInternals,
-	eachPageData,
+	getPageDatasWithPublicKey,
 } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash, removeFileExtension } from '../../core/path.js';
-import { isModeServerWithNoAdapter } from '../../core/util.js';
-import { runHookBuildSetup } from '../../integrations/index.js';
-import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
+import { isModeServerWithNoAdapter, isServerLikeOutput } from '../../core/util.js';
+import { runHookBuildSetup } from '../../integrations/hooks.js';
+import { getOutputDirectory } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import type { Logger } from '../logger/core.js';
 import { routeIsRedirect } from '../redirects/index.js';
 import { getOutDirWithinCwd } from './common.js';
+import { CHUNKS_PATH } from './consts.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { type AstroBuildPluginContainer, createPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
+import { copyContentToCache } from './plugins/plugin-content.js';
 import { RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugins/plugin-manifest.js';
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
@@ -36,8 +42,7 @@ import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
-	const { allPages, settings } = opts;
-
+	const { allPages, settings, logger } = opts;
 	// Make sure we have an adapter before building
 	if (isModeServerWithNoAdapter(opts.settings)) {
 		throw new AstroError(AstroErrorData.NoAdapterInstalled);
@@ -46,17 +51,18 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	settings.timer.start('SSR build');
 
 	// The pages to be built for rendering purposes.
+	// (comment above may be outdated ?)
 	const pageInput = new Set<string>();
 
 	// Build internals needed by the CSS plugin
 	const internals = createBuildInternals();
 
-	for (const [component, pageData] of Object.entries(allPages)) {
-		const astroModuleURL = new URL('./' + component, settings.config.root);
-		const astroModuleId = prependForwardSlash(component);
+	for (const pageData of Object.values(allPages)) {
+		const astroModuleURL = new URL('./' + pageData.component, settings.config.root);
+		const astroModuleId = prependForwardSlash(pageData.component);
 
 		// Track the page data in internals
-		trackPageData(internals, component, pageData, astroModuleId, astroModuleURL);
+		trackPageData(internals, pageData.component, pageData, astroModuleId, astroModuleURL);
 
 		if (!routeIsRedirect(pageData.route)) {
 			pageInput.add(astroModuleId);
@@ -73,11 +79,10 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	// Register plugins
 	const container = createPluginContainer(opts, internals);
 	registerAllPlugins(container);
-
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrTime = performance.now();
 	opts.logger.info('build', `Building ${settings.config.output} entrypoints...`);
-	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
+	const ssrOutput = await ssrBuild(opts, internals, pageInput, container, logger);
 	opts.logger.info('build', green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`));
 
 	settings.timer.end('SSR build');
@@ -106,7 +111,10 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	const ssrOutputs = viteBuildReturnToRollupOutputs(ssrOutput);
 	const clientOutputs = viteBuildReturnToRollupOutputs(clientOutput ?? []);
 	await runPostBuildHooks(container, ssrOutputs, clientOutputs);
-
+	let contentFileNames: string[] | undefined = undefined;
+	if (opts.settings.config.experimental.contentCollectionCache) {
+		contentFileNames = await copyContentToCache(opts);
+	}
 	settings.timer.end('Client build');
 
 	// Free up memory
@@ -126,27 +134,28 @@ export async function viteBuild(opts: StaticBuildOptions) {
 		}
 	}
 
-	return { internals, ssrOutputChunkNames };
+	return { internals, ssrOutputChunkNames, contentFileNames };
 }
 
 export async function staticBuild(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
-	ssrOutputChunkNames: string[]
+	ssrOutputChunkNames: string[],
+	contentFileNames?: string[]
 ) {
 	const { settings } = opts;
 	switch (true) {
 		case settings.config.output === 'static': {
 			settings.timer.start('Static generate');
 			await generatePages(opts, internals);
-			await cleanServerOutput(opts, ssrOutputChunkNames, internals);
+			await cleanServerOutput(opts, ssrOutputChunkNames, contentFileNames, internals);
 			settings.timer.end('Static generate');
 			return;
 		}
 		case isServerLikeOutput(settings.config): {
 			settings.timer.start('Server generate');
 			await generatePages(opts, internals);
-			await cleanStaticOutput(opts, internals, ssrOutputChunkNames);
+			await cleanStaticOutput(opts, internals);
 			opts.logger.info(null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 			await ssrMoveAssets(opts);
 			settings.timer.end('Server generate');
@@ -161,7 +170,8 @@ async function ssrBuild(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	input: Set<string>,
-	container: AstroBuildPluginContainer
+	container: AstroBuildPluginContainer,
+	logger: Logger
 ) {
 	const buildID = Date.now().toString();
 	const { allPages, settings, viteConfig } = opts;
@@ -170,7 +180,8 @@ async function ssrBuild(
 	const routes = Object.values(allPages).flatMap((pageData) => pageData.route);
 	const isContentCache = !ssr && settings.config.experimental.contentCollectionCache;
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('server', input);
-
+	const contentDir = new URL('./src/content', settings.config.root);
+	const symlinks = await getSymlinkedContentCollections({ contentDir, logger, fs });
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
 		mode: viteConfig.mode || 'production',
@@ -187,6 +198,8 @@ async function ssrBuild(
 			copyPublicDir: !ssr,
 			rollupOptions: {
 				...viteConfig.build?.rollupOptions,
+				// Setting as `exports-only` allows us to safely delete inputs that are only used during prerendering
+				preserveEntrySignatures: 'exports-only',
 				input: [],
 				output: {
 					hoistTransitiveImports: isContentCache,
@@ -196,20 +209,21 @@ async function ssrBuild(
 					// We need to keep these separate
 					chunkFileNames(chunkInfo) {
 						const { name } = chunkInfo;
-						let prefix = 'chunks/';
+						let prefix = CHUNKS_PATH;
 						let suffix = '_[hash].mjs';
 
 						if (isContentCache) {
 							prefix += `${buildID}/`;
 							suffix = '.mjs';
-						}
 
-						if (isContentCache && name.includes('/content/')) {
-							const parts = name.split('/');
-							if (parts.at(1) === 'content') {
-								return encodeName(parts.slice(1).join('/'));
+							if (name.includes('/content/')) {
+								const parts = name.split('/');
+								if (parts.at(1) === 'content') {
+									return encodeName(parts.slice(1).join('/'));
+								}
 							}
 						}
+
 						// Sometimes chunks have the `@_@astro` suffix due to SSR logic. Remove it!
 						// TODO: refactor our build logic to avoid this
 						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
@@ -246,7 +260,12 @@ async function ssrBuild(
 							chunkInfo.facadeModuleId &&
 							hasAnyContentFlag(chunkInfo.facadeModuleId)
 						) {
-							const [srcRelative, flag] = chunkInfo.facadeModuleId.split('/src/')[1].split('?');
+							const moduleId = reverseSymlink({
+								symlinks,
+								entry: chunkInfo.facadeModuleId,
+								contentDir,
+							});
+							const [srcRelative, flag] = moduleId.split('/src/')[1].split('?');
 							if (flag === PROPAGATED_ASSET_FLAG) {
 								return encodeName(`${removeFileExtension(srcRelative)}.entry.mjs`);
 							}
@@ -271,7 +290,7 @@ async function ssrBuild(
 
 	const updatedViteBuildConfig = await runHookBuildSetup({
 		config: settings.config,
-		pages: internals.pagesByComponent,
+		pages: getPageDatasWithPublicKey(internals.pagesByKeys),
 		vite: viteBuildConfig,
 		target: 'server',
 		logger: opts.logger,
@@ -332,7 +351,7 @@ async function clientBuild(
 
 	await runHookBuildSetup({
 		config: settings.config,
-		pages: internals.pagesByComponent,
+		pages: getPageDatasWithPublicKey(internals.pagesByKeys),
 		vite: viteBuildConfig,
 		target: 'client',
 		logger: opts.logger,
@@ -364,66 +383,48 @@ async function runPostBuildHooks(
 }
 
 /**
- * For each statically prerendered page, replace their SSR file with a noop.
- * This allows us to run the SSR build only once, but still remove dependencies for statically rendered routes.
+ * Remove chunks that are used for prerendering only
  */
-async function cleanStaticOutput(
-	opts: StaticBuildOptions,
-	internals: BuildInternals,
-	ssrOutputChunkNames: string[]
-) {
-	const allStaticFiles = new Set();
-	for (const pageData of eachPageData(internals)) {
-		if (pageData.route.prerender && !pageData.hasSharedModules) {
-			const { moduleSpecifier } = pageData;
-			const pageBundleId = internals.pageToBundleMap.get(moduleSpecifier);
-			const entryBundleId = internals.entrySpecifierToBundleMap.get(moduleSpecifier);
-			allStaticFiles.add(pageBundleId ?? entryBundleId);
-		}
-	}
+async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInternals) {
 	const ssr = isServerLikeOutput(opts.settings.config);
 	const out = ssr
 		? opts.settings.config.build.server
 		: getOutDirWithinCwd(opts.settings.config.outDir);
-	// The SSR output chunks for Astro are all .mjs files
-	const files = ssrOutputChunkNames.filter((f) => f.endsWith('.mjs'));
-
-	if (files.length) {
-		await eslexer.init;
-
-		// Cleanup prerendered chunks.
-		// This has to happen AFTER the SSR build runs as a final step, because we need the code in order to generate the pages.
-		// These chunks should only contain prerendering logic, so they are safe to modify.
-		await Promise.all(
-			files.map(async (filename) => {
-				if (!allStaticFiles.has(filename)) {
-					return;
+	await Promise.all(
+		internals.prerenderOnlyChunks.map(async (chunk) => {
+			const url = new URL(chunk.fileName, out);
+			try {
+				// Entry chunks may be referenced by non-deleted code, so we don't actually delete it
+				// but only empty its content. These chunks should never be executed in practice, but
+				// it should prevent broken import paths if adapters do a secondary bundle.
+				if (chunk.isEntry || chunk.isDynamicEntry) {
+					await fs.promises.writeFile(
+						url,
+						"// Contents removed by Astro as it's used for prerendering only",
+						'utf-8'
+					);
+				} else {
+					await fs.promises.unlink(url);
 				}
-				const url = new URL(filename, out);
-				const text = await fs.promises.readFile(url, { encoding: 'utf8' });
-				const [, exports] = eslexer.parse(text);
-				// Replace exports (only prerendered pages) with a noop
-				let value = 'const noop = () => {};';
-				for (const e of exports) {
-					if (e.n === 'default') value += `\n export default noop;`;
-					else value += `\nexport const ${e.n} = noop;`;
-				}
-				await fs.promises.writeFile(url, value, { encoding: 'utf8' });
-			})
-		);
-
-		removeEmptyDirs(out);
-	}
+			} catch {
+				// Best-effort only. Sometimes some chunks may be deleted by other plugins, like pure CSS chunks,
+				// so they may already not exist.
+			}
+		})
+	);
 }
 
 async function cleanServerOutput(
 	opts: StaticBuildOptions,
 	ssrOutputChunkNames: string[],
+	contentFileNames: string[] | undefined,
 	internals: BuildInternals
 ) {
 	const out = getOutDirWithinCwd(opts.settings.config.outDir);
 	// The SSR output chunks for Astro are all .mjs files
-	const files = ssrOutputChunkNames.filter((f) => f.endsWith('.mjs'));
+	const files = ssrOutputChunkNames
+		.filter((f) => f.endsWith('.mjs'))
+		.concat(contentFileNames ?? []);
 	if (internals.manifestFileName) {
 		files.push(internals.manifestFileName);
 	}
@@ -441,6 +442,13 @@ async function cleanServerOutput(
 
 	// Clean out directly if the outDir is outside of root
 	if (out.toString() !== opts.settings.config.outDir.toString()) {
+		// Remove .d.ts files
+		const fileNames = await fs.promises.readdir(out);
+		await Promise.all(
+			fileNames
+				.filter((fileName) => fileName.endsWith('.d.ts'))
+				.map((fileName) => fs.promises.rm(new URL(fileName, out)))
+		);
 		// Copy assets before cleaning directory if outside root
 		await copyFiles(out, opts.settings.config.outDir, true);
 		await fs.promises.rm(out, { recursive: true });
@@ -454,7 +462,7 @@ export async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles 
 		dot: includeDotfiles,
 	});
 	if (files.length === 0) return;
-	await Promise.all(
+	return await Promise.all(
 		files.map(async function copyFile(filename) {
 			const from = new URL(filename, fromFolder);
 			const to = new URL(filename, toFolder);

@@ -100,6 +100,35 @@ test.describe('Dev Toolbar', () => {
 		await expect(xrayHighlightTooltip).not.toBeVisible();
 	});
 
+	test("xray tooltips don't overflow", async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/xray-overlay-positioning'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="astro:xray"]');
+		await appButton.click();
+
+		const executeTest = async () => {
+			const xrayCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:xray"]');
+			const xrayHighlights = xrayCanvas.locator('astro-dev-toolbar-highlight');
+			const xrayHighlightsCount = await xrayHighlights.count();
+
+			for (let i = 0; i < xrayHighlightsCount; i++) {
+				const currentHighlight = xrayHighlights.nth(i);
+				await currentHighlight.hover();
+				await expect(currentHighlight.locator('astro-dev-toolbar-tooltip')).toBeInViewport({
+					ratio: 0.9,
+				});
+			}
+		};
+
+		// LTR
+		await executeTest();
+
+		// RTL
+		await page.locator('body').evaluate((element) => (element.dir = 'rtl'));
+		await executeTest();
+	});
+
 	test('xray escapes props content', async ({ page, astro }) => {
 		let isAlertCalled = false;
 		page.on('dialog', async (dialog) => {
@@ -146,7 +175,7 @@ test.describe('Dev Toolbar', () => {
 		await expect(xrayWindow.locator('astro-dev-toolbar-icon[icon=lightbulb]')).toBeVisible();
 	});
 
-	test('audit shows higlights and tooltips', async ({ page, astro }) => {
+	test('audit shows highlights and tooltips', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const toolbar = page.locator('astro-dev-toolbar');
@@ -304,6 +333,8 @@ test.describe('Dev Toolbar', () => {
 		await expect(myAppWindow).toHaveCount(1);
 		await expect(myAppWindow).toBeVisible();
 
+		await expect(myAppWindow).toContainText('Hello from the server!');
+
 		// Toggle app off
 		await appButton.click();
 		await expect(myAppWindow).not.toBeVisible();
@@ -348,5 +379,62 @@ test.describe('Dev Toolbar', () => {
 			await page.click('body');
 			await expect(appButton).not.toHaveClass('active');
 		}
+	});
+
+	test('can adjust the placement', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/audit-no-warning'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const settingsAppButton = toolbar.locator('button[data-app-id="astro:settings"]');
+		await settingsAppButton.click();
+
+		const settingsAppCanvas = toolbar.locator(
+			'astro-dev-toolbar-app-canvas[data-app-id="astro:settings"]'
+		);
+		const settingsWindow = settingsAppCanvas.locator('astro-dev-toolbar-window');
+		await expect(settingsWindow).toBeVisible();
+
+		for (const placement of ['bottom-left', 'bottom-center', 'bottom-right']) {
+			const select = toolbar.getByRole('combobox');
+			await expect(select).toBeVisible();
+			await select.selectOption(placement);
+
+			const toolbarRoot = toolbar.locator('#dev-toolbar-root');
+			await expect(toolbarRoot).toHaveAttribute('data-placement', placement);
+
+			for (const appId of ['astro:home', 'astro:xray', 'astro:settings']) {
+				const appButton = toolbar.locator(`button[data-app-id="${appId}"]`);
+				await appButton.click();
+
+				const appCanvas = toolbar.locator(`astro-dev-toolbar-app-canvas[data-app-id="${appId}"]`);
+				const appWindow = appCanvas.locator('astro-dev-toolbar-window');
+				await expect(appWindow).toBeVisible();
+				await expect(appWindow).toHaveJSProperty('placement', placement);
+			}
+		}
+	});
+
+	test('hidden on print media', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+
+		const settingsAppButton = toolbar.locator('button[data-app-id="astro:settings"]');
+		await settingsAppButton.click();
+
+		const settingsAppCanvas = toolbar.locator(
+			'astro-dev-toolbar-app-canvas[data-app-id="astro:settings"]'
+		);
+		const settingsWindow = settingsAppCanvas.locator('astro-dev-toolbar-window');
+		await expect(settingsWindow).toBeVisible();
+
+		await page.emulateMedia({ media: 'print' });
+		await expect(settingsWindow).not.toBeVisible();
+
+		await page.emulateMedia({ media: 'screen' });
+		await expect(settingsWindow).toBeVisible();
+
+		await settingsAppButton.click();
+		await expect(settingsWindow).not.toBeVisible();
 	});
 });

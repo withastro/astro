@@ -12,24 +12,21 @@ import type {
 	ContentEntryType,
 	DataEntryType,
 } from '../@types/astro.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
-
-import { MarkdownError } from '../core/errors/index.js';
+import { AstroError, AstroErrorData, MarkdownError, errorMap } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
-import { CONTENT_FLAGS, CONTENT_TYPES_FILE, PROPAGATED_ASSET_FLAG } from './consts.js';
-import { errorMap } from './error-map.js';
+import type { Logger } from '../core/logger/core.js';
+import { CONTENT_FLAGS, PROPAGATED_ASSET_FLAG } from './consts.js';
 import { createImage } from './runtime-assets.js';
-
 /**
  * Amap from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
- * @see `content-module.template.mjs`
+ * @see `templates/content/module.mjs`
  */
 export type ContentLookupMap = {
 	[collectionName: string]: { type: 'content' | 'data'; entries: { [lookupId: string]: string } };
 };
 
-export const collectionConfigParser = z.union([
+const collectionConfigParser = z.union([
 	z.object({
 		type: z.literal('content').optional().default('content'),
 		schema: z.any().optional(),
@@ -40,16 +37,7 @@ export const collectionConfigParser = z.union([
 	}),
 ]);
 
-export function getDotAstroTypeReference({ root, srcDir }: { root: URL; srcDir: URL }) {
-	const { cacheDir } = getContentPaths({ root, srcDir });
-	const contentTypesRelativeToSrcDir = normalizePath(
-		path.relative(fileURLToPath(srcDir), fileURLToPath(new URL(CONTENT_TYPES_FILE, cacheDir)))
-	);
-
-	return `/// <reference path=${JSON.stringify(contentTypesRelativeToSrcDir)} />`;
-}
-
-export const contentConfigParser = z.object({
+const contentConfigParser = z.object({
 	collections: z.record(collectionConfigParser),
 });
 
@@ -57,11 +45,6 @@ export type CollectionConfig = z.infer<typeof collectionConfigParser>;
 export type ContentConfig = z.infer<typeof contentConfigParser>;
 
 type EntryInternal = { rawData: string | undefined; filePath: string };
-
-export const msg = {
-	collectionConfigMissing: (collection: string) =>
-		`${collection} does not have a config. We suggest adding one for type safety!`,
-};
 
 export function parseEntrySlug({
 	id,
@@ -92,6 +75,7 @@ export async function getEntryData(
 		_internal: EntryInternal;
 	},
 	collectionConfig: CollectionConfig,
+	shouldEmitFile: boolean,
 	pluginContext: PluginContext
 ) {
 	let data;
@@ -105,7 +89,7 @@ export async function getEntryData(
 	let schema = collectionConfig.schema;
 	if (typeof schema === 'function') {
 		schema = schema({
-			image: createImage(pluginContext, entry._internal.filePath),
+			image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
 		});
 	}
 
@@ -135,7 +119,7 @@ export async function getEntryData(
 			},
 		});
 		if (parsed.success) {
-			data = parsed.data;
+			data = parsed.data as Record<string, unknown>;
 		} else {
 			if (!formattedError) {
 				formattedError = new AstroError({
@@ -176,6 +160,67 @@ export function getEntryConfigByExtMap<TEntryType extends ContentEntryType | Dat
 		}
 	}
 	return map;
+}
+
+export async function getSymlinkedContentCollections({
+	contentDir,
+	logger,
+	fs,
+}: {
+	contentDir: URL;
+	logger: Logger;
+	fs: typeof fsMod;
+}): Promise<Map<string, string>> {
+	const contentPaths = new Map<string, string>();
+	const contentDirPath = fileURLToPath(contentDir);
+	try {
+		if (!fs.existsSync(contentDirPath) || !fs.lstatSync(contentDirPath).isDirectory()) {
+			return contentPaths;
+		}
+	} catch {
+		// Ignore if there isn't a valid content directory
+		return contentPaths;
+	}
+	try {
+		const contentDirEntries = await fs.promises.readdir(contentDir, { withFileTypes: true });
+		for (const entry of contentDirEntries) {
+			if (entry.isSymbolicLink()) {
+				const entryPath = path.join(contentDirPath, entry.name);
+				const realPath = await fs.promises.realpath(entryPath);
+				contentPaths.set(normalizePath(realPath), entry.name);
+			}
+		}
+	} catch (e) {
+		logger.warn('content', `Error when reading content directory "${contentDir}"`);
+		logger.debug('content', e);
+		// If there's an error, return an empty map
+		return new Map<string, string>();
+	}
+
+	return contentPaths;
+}
+
+export function reverseSymlink({
+	entry,
+	symlinks,
+	contentDir,
+}: {
+	entry: string | URL;
+	contentDir: string | URL;
+	symlinks?: Map<string, string>;
+}): string {
+	const entryPath = normalizePath(typeof entry === 'string' ? entry : fileURLToPath(entry));
+	const contentDirPath = typeof contentDir === 'string' ? contentDir : fileURLToPath(contentDir);
+	if (!symlinks || symlinks.size === 0) {
+		return entryPath;
+	}
+
+	for (const [realPath, symlinkName] of symlinks) {
+		if (entryPath.startsWith(realPath)) {
+			return normalizePath(path.join(contentDirPath, symlinkName, entryPath.replace(realPath, '')));
+		}
+	}
+	return entryPath;
 }
 
 export function getEntryCollectionName({
@@ -263,7 +308,7 @@ export function getEntryType(
 	}
 }
 
-export function hasUnderscoreBelowContentDirectoryPath(
+function hasUnderscoreBelowContentDirectoryPath(
 	fileUrl: URL,
 	contentDir: ContentPaths['contentDir']
 ): boolean {
@@ -338,7 +383,7 @@ export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[numb
 	return flags.has(flag);
 }
 
-export async function loadContentConfig({
+async function loadContentConfig({
 	fs,
 	settings,
 	viteServer,
@@ -430,7 +475,6 @@ export function contentObservable(initialCtx: ContentCtx): ContentObservable {
 export type ContentPaths = {
 	contentDir: URL;
 	assetsDir: URL;
-	cacheDir: URL;
 	typesTemplate: URL;
 	virtualModTemplate: URL;
 	config: {
@@ -440,17 +484,16 @@ export type ContentPaths = {
 };
 
 export function getContentPaths(
-	{ srcDir, root }: Pick<AstroConfig, 'root' | 'srcDir'>,
+	{ srcDir }: Pick<AstroConfig, 'root' | 'srcDir'>,
 	fs: typeof fsMod = fsMod
 ): ContentPaths {
 	const configStats = search(fs, srcDir);
 	const pkgBase = new URL('../../', import.meta.url);
 	return {
-		cacheDir: new URL('.astro/', root),
 		contentDir: new URL('./content/', srcDir),
 		assetsDir: new URL('./assets/', srcDir),
-		typesTemplate: new URL('content-types.template.d.ts', pkgBase),
-		virtualModTemplate: new URL('content-module.template.mjs', pkgBase),
+		typesTemplate: new URL('templates/content/types.d.ts', pkgBase),
+		virtualModTemplate: new URL('templates/content/module.mjs', pkgBase),
 		config: configStats,
 	};
 }

@@ -1,8 +1,9 @@
-import type { DevToolbarApp as DevToolbarAppDefinition } from '../../../@types/astro.js';
+// @ts-expect-error - This module is private and untyped
+import { loadDevToolbarApps } from 'astro:toolbar:internal';
+import type { ResolvedDevToolbarApp as DevToolbarAppDefinition } from '../../../@types/astro.js';
+import { ToolbarAppEventTarget } from './helpers.js';
 import { settings } from './settings.js';
 import type { AstroDevToolbar, DevToolbarApp } from './toolbar.js';
-// @ts-expect-error
-import { loadDevToolbarApps } from 'astro:dev-toolbar';
 
 let overlay: AstroDevToolbar;
 
@@ -23,6 +24,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 			DevToolbarButton,
 			DevToolbarBadge,
 			DevToolbarIcon,
+			DevToolbarSelect,
+			DevToolbarRadioCheckbox,
 		},
 	] = await Promise.all([
 		loadDevToolbarApps() as DevToolbarAppDefinition[],
@@ -45,6 +48,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 	customElements.define('astro-dev-toolbar-button', DevToolbarButton);
 	customElements.define('astro-dev-toolbar-badge', DevToolbarBadge);
 	customElements.define('astro-dev-toolbar-icon', DevToolbarIcon);
+	customElements.define('astro-dev-toolbar-select', DevToolbarSelect);
+	customElements.define('astro-dev-toolbar-radio-checkbox', DevToolbarRadioCheckbox);
 
 	// Add deprecated names
 	// TODO: Remove in Astro 5.0
@@ -72,7 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	} as const;
 
 	const prepareApp = (appDefinition: DevToolbarAppDefinition, builtIn: boolean): DevToolbarApp => {
-		const eventTarget = new EventTarget();
+		const eventTarget = new ToolbarAppEventTarget();
 		const app: DevToolbarApp = {
 			...appDefinition,
 			builtIn: builtIn,
@@ -87,8 +92,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 			if (!(evt instanceof CustomEvent)) return;
 
 			const target = overlay.shadowRoot?.querySelector(`[data-app-id="${app.id}"]`);
-			const notificationElement = target?.querySelector('.notification');
-			if (!target || !notificationElement) return;
+			if (!target) return;
+			const notificationElement = target.querySelector('.notification');
+			if (!notificationElement) return;
 
 			let newState = evt.detail.state ?? true;
 			let level = notificationLevels.includes(evt?.detail?.level)

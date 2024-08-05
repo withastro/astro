@@ -32,13 +32,13 @@ export type RSSOptions = {
 
 export type RSSFeedItem = {
 	/** Link to item */
-	link: z.infer<typeof rssSchema>['link'];
+	link?: z.infer<typeof rssSchema>['link'];
 	/** Full content of the item. Should be valid HTML */
 	content?: z.infer<typeof rssSchema>['content'];
 	/** Title of item */
-	title: z.infer<typeof rssSchema>['title'];
+	title?: z.infer<typeof rssSchema>['title'];
 	/** Publication date of item */
-	pubDate: z.infer<typeof rssSchema>['pubDate'];
+	pubDate?: z.infer<typeof rssSchema>['pubDate'];
 	/** Item description */
 	description?: z.infer<typeof rssSchema>['description'];
 	/** Append some other XML-valid data to this item */
@@ -202,7 +202,7 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 	root.rss.channel = {
 		title: rssOptions.title,
 		description: rssOptions.description,
-		link: createCanonicalURL(site, rssOptions.trailingSlash, undefined).href,
+		link: createCanonicalURL(site, rssOptions.trailingSlash, undefined),
 	};
 	if (typeof rssOptions.customData === 'string')
 		Object.assign(
@@ -220,7 +220,7 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 			// If the item's link is already a valid URL, don't mess with it.
 			const itemLink = isValidURL(result.link)
 				? result.link
-				: createCanonicalURL(result.link, rssOptions.trailingSlash, site).href;
+				: createCanonicalURL(result.link, rssOptions.trailingSlash, site);
 			item.link = itemLink;
 			item.guid = { '#text': itemLink, '@_isPermaLink': 'true' };
 		}
@@ -246,7 +246,7 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 		if (typeof result.commentsUrl === 'string') {
 			item.comments = isValidURL(result.commentsUrl)
 				? result.commentsUrl
-				: createCanonicalURL(result.commentsUrl, rssOptions.trailingSlash, site).href;
+				: createCanonicalURL(result.commentsUrl, rssOptions.trailingSlash, site);
 		}
 		if (result.source) {
 			item.source = parser.parse(
@@ -256,7 +256,7 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 		if (result.enclosure) {
 			const enclosureURL = isValidURL(result.enclosure.url)
 				? result.enclosure.url
-				: createCanonicalURL(result.enclosure.url, rssOptions.trailingSlash, site).href;
+				: createCanonicalURL(result.enclosure.url, rssOptions.trailingSlash, site);
 			item.enclosure = parser.parse(
 				`<enclosure url="${enclosureURL}" length="${result.enclosure.length}" type="${result.enclosure.type}"/>`
 			).enclosure;

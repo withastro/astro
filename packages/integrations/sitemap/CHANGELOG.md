@@ -1,5 +1,29 @@
 # @astrojs/sitemap
 
+## 3.1.6
+
+### Patch Changes
+
+- [#11263](https://github.com/withastro/astro/pull/11263) [`7d59750`](https://github.com/withastro/astro/commit/7d597506615fa5a34327304e8321be7b9c4b799d) Thanks [@wackbyte](https://github.com/wackbyte)! - Refactor to use Astro's integration logger for logging
+
+## 3.1.5
+
+### Patch Changes
+
+- [#10779](https://github.com/withastro/astro/pull/10779) [`cefeadf`](https://github.com/withastro/astro/commit/cefeadf0a4a51420130445b6dc5ab1e5b331732b) Thanks [@adrianlyjak](https://github.com/adrianlyjak)! - Fixes false positives for status code routes like `404` and `500` when generating sitemaps.
+
+## 3.1.4
+
+### Patch Changes
+
+- [#10772](https://github.com/withastro/astro/pull/10772) [`0e22462d1534afc8f7bb6782f86db680c7a5f245`](https://github.com/withastro/astro/commit/0e22462d1534afc8f7bb6782f86db680c7a5f245) Thanks [@gislerro](https://github.com/gislerro)! - Fixes an issue where the root url does not follow the `trailingSlash` config option
+
+## 3.1.3
+
+### Patch Changes
+
+- [#10795](https://github.com/withastro/astro/pull/10795) [`1ce22881c657becf0397b83ac393fb5d2399104c`](https://github.com/withastro/astro/commit/1ce22881c657becf0397b83ac393fb5d2399104c) Thanks [@bluwy](https://github.com/bluwy)! - Improves performance when generating the sitemap data
+
 ## 3.1.2
 
 ### Patch Changes

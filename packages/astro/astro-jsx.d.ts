@@ -9,8 +9,6 @@
  * Adapted from React’s TypeScript definition from DefinitelyTyped.
  * @see https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/react/index.d.ts
  */
-// BUG! Prettier 3.0 removes `declare`: https://github.com/prettier/prettier/issues/15207
-// prettier-ignore
 declare namespace astroHTML.JSX {
 	export type Child = Node | Node[] | string | number | boolean | null | undefined | unknown;
 	export type Children = Child | Child[];
@@ -24,7 +22,7 @@ declare namespace astroHTML.JSX {
 		extends AstroBuiltinProps,
 			AstroBuiltinAttributes,
 			AstroClientDirectives {
-		slot?: string;
+		slot?: string | undefined | null;
 		children?: Children;
 	}
 
@@ -607,6 +605,7 @@ declare namespace astroHTML.JSX {
 		href?: string | URL | undefined | null;
 		hreflang?: string | undefined | null;
 		media?: string | undefined | null;
+		name?: string | undefined | null;
 		ping?: string | undefined | null;
 		rel?: string | undefined | null;
 		target?: HTMLAttributeAnchorTarget | undefined | null;
@@ -651,6 +650,7 @@ declare namespace astroHTML.JSX {
 		type?: 'submit' | 'reset' | 'button' | undefined | null;
 		value?: string | string[] | number | undefined | null;
 		popovertarget?: string | undefined | null;
+		popovertargetaction?: 'hide' | 'show' | 'toggle' | undefined | null;
 	}
 
 	interface CanvasHTMLAttributes extends HTMLAttributes {
@@ -817,6 +817,7 @@ declare namespace astroHTML.JSX {
 		value?: string | string[] | number | undefined | null;
 		width?: number | string | undefined | null;
 		popovertarget?: string | undefined | null;
+		popovertargetaction?: 'hide' | 'show' | 'toggle' | undefined | null;
 	}
 
 	interface KeygenHTMLAttributes extends HTMLAttributes {

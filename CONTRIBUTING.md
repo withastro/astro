@@ -2,7 +2,9 @@
 
 We welcome contributions of any size and skill level. As an open source project, we believe in giving back to our contributors and are happy to help with guidance on PRs, technical writing, and turning any feature idea into a reality.
 
-> [!Tip] > **For new contributors:** Take a look at [https://github.com/firstcontributions/first-contributions](https://github.com/firstcontributions/first-contributions) for helpful information on contributing
+> [!Tip]
+>
+> **For new contributors:** Take a look at [https://github.com/firstcontributions/first-contributions](https://github.com/firstcontributions/first-contributions) for helpful information on contributing
 
 ## Quick Guide
 
@@ -10,9 +12,11 @@ We welcome contributions of any size and skill level. As an open source project,
 
 ```shell
 node: "^>=18.17.1"
-pnpm: "^8.6.12"
+pnpm: "^9.3.0"
 # otherwise, your build will fail
 ```
+
+We recommend using Corepack, [read PNPM docs](https://pnpm.io/installation#using-corepack).
 
 ### Setting up your local repo
 
@@ -107,6 +111,53 @@ pnpm run test -m "$STRING_MATCH"
 node --test ./test/foo.test.js
 ```
 
+#### Running a single test
+
+Sometimes you want to run a single test case (`it` or `describe`) or a single test file. You can do so by using Node.js.
+
+To run a single test file, for example `test/astro-basic.test.js`:
+
+```shell
+node --test test/astro-basic.test.js
+```
+
+If you wish to run a single test case, you have to postfix `it` and `describe` functions with `.only`:
+
+```diff
+// test/astro-basic.test.js
+- describe("description", () => {
++ describe.only("description", () => {
+-  it("description", () => {
++  it.only("description", () => {})
+})
+```
+
+Then, you have to pass the `--test-only` option to the Node.js:
+
+```shell
+node --test --test-only test/astro-basic.test.js
+```
+
+> [!WARNING]
+>
+> 1. If you have nested `describe`, all of them must postfix with `.only`
+> 2. `--test-only` and `--test` must be placed **before** declaring the path to the file. Failing to do so will test all files
+
+#### Debugging tests in CI
+
+There might be occasions where some tests fail in certain CI runs due to some timeout issue. If this happens, it will be very difficult to understand which file cause the timeout. That's caused by come quirks of the Node.js test runner combined with our architecture.
+
+To understand which file causes the issue, you can modify the `test` script inside the `package.json` by adding the `--parallel` option:
+
+```diff
+{
+-  "test": "astro-scripts test \"test/**/*.test.js\"",
++  "test": "astro-scripts test --parallel \"test/**/*.test.js\"",
+}
+```
+
+Save the change and **push it** to your PR. This change will make the test CI slower, but it will allow to see which files causes the timeout. Once you fixed the issue **revert the change and push it**.
+
 #### E2E tests
 
 Certain features, like HMR and client hydration, need end-to-end tests to verify functionality in the dev server. [Playwright](https://playwright.dev/) is used to test against the dev server.
@@ -124,6 +175,12 @@ pnpm run test:e2e:match "$STRING_MATCH"
 Any tests for `astro build` output should use the main `mocha` tests rather than E2E - these tests will run faster than having Playwright start the `astro preview` server.
 
 If a test needs to validate what happens on the page after it's loading in the browser, that's a perfect use for E2E dev server tests, i.e. to verify that hot-module reloading works in `astro dev` or that components were client hydrated and are interactive.
+
+#### Creating tests
+
+When creating new tests, it's best to reference other existing test files and replicate the same setup. Some other tips include:
+
+- When re-using a fixture multiple times with different configurations, you should also configure unique `outDir`, `build.client`, and `build.server` values so the build output runtime isn't cached and shared by ESM between test runs.
 
 ### Other useful commands
 

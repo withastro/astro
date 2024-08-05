@@ -1,6 +1,6 @@
+import { getManagedAppTokenOrExit } from '@astrojs/studio';
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
-import { getManagedAppTokenOrExit } from '../../../tokens.js';
 import type { DBConfig } from '../../../types.js';
 import {
 	createCurrentSnapshot,

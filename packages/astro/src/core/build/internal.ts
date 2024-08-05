@@ -1,15 +1,9 @@
 import type { Rollup } from 'vite';
 import type { RouteData, SSRResult } from '../../@types/astro.js';
-import type { PageOptions } from '../../vite-plugin-astro/types.js';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
-import {
-	ASTRO_PAGE_RESOLVED_MODULE_ID,
-	getVirtualModulePageIdFromPath,
-} from './plugins/plugin-pages.js';
-import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
-import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
-import type { AllPagesData, PageBuildData, StylesheetAsset, ViteID } from './types.js';
+import { makePageDataKey } from './plugins/util.js';
+import type { PageBuildData, StylesheetAsset, ViteID } from './types.js';
 
 export interface BuildInternals {
 	/**
@@ -38,19 +32,9 @@ export interface BuildInternals {
 	entrySpecifierToBundleMap: Map<string, string>;
 
 	/**
-	 * A map to get a specific page's bundled output file.
-	 */
-	pageToBundleMap: Map<string, string>;
-
-	/**
 	 * A map for page-specific information.
 	 */
-	pagesByComponent: Map<string, PageBuildData>;
-
-	/**
-	 * A map for page-specific output.
-	 */
-	pageOptionsByPage: Map<string, PageOptions>;
+	pagesByKeys: Map<string, PageBuildData>;
 
 	/**
 	 * A map for page-specific information by Vite ID (a path-like string)
@@ -61,6 +45,11 @@ export interface BuildInternals {
 	 * A map for page-specific information by a client:only component
 	 */
 	pagesByClientOnly: Map<string, Set<PageBuildData>>;
+
+	/**
+	 * A map for page-specific information by a script in an Astro file
+	 */
+	pagesByScriptId: Map<string, Set<PageBuildData>>;
 
 	/**
 	 * A map of hydrated components to export names that are discovered during the SSR build.
@@ -89,8 +78,17 @@ export interface BuildInternals {
 	discoveredScripts: Set<string>;
 
 	cachedClientEntries: string[];
+	cacheManifestUsed: boolean;
 
+	/**
+	 * Map of propagated module ids (usually something like `/Users/...blog.mdx?astroPropagatedAssets`)
+	 * to a set of stylesheets that it uses.
+	 */
 	propagatedStylesMap: Map<string, Set<StylesheetAsset>>;
+	/**
+	 * Map of propagated module ids (usually something like `/Users/...blog.mdx?astroPropagatedAssets`)
+	 * to a set of hoisted scripts that it uses.
+	 */
 	propagatedScriptsMap: Map<string, Set<string>>;
 
 	// A list of all static files created during the build. Used for SSR.
@@ -101,9 +99,13 @@ export interface BuildInternals {
 	manifestEntryChunk?: Rollup.OutputChunk;
 	manifestFileName?: string;
 	entryPoints: Map<RouteData, URL>;
-	ssrSplitEntryChunks: Map<string, Rollup.OutputChunk>;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint?: URL;
+
+	/**
+	 * Chunks in the bundle that are only used in prerendering that we can delete later
+	 */
+	prerenderOnlyChunks: Rollup.OutputChunk[];
 }
 
 /**
@@ -124,11 +126,10 @@ export function createBuildInternals(): BuildInternals {
 		hoistedScriptIdToPagesMap,
 		inlinedScripts: new Map(),
 		entrySpecifierToBundleMap: new Map<string, string>(),
-		pageToBundleMap: new Map<string, string>(),
-		pagesByComponent: new Map(),
-		pageOptionsByPage: new Map(),
+		pagesByKeys: new Map(),
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
+		pagesByScriptId: new Map(),
 
 		propagatedStylesMap: new Map(),
 		propagatedScriptsMap: new Map(),
@@ -138,8 +139,9 @@ export function createBuildInternals(): BuildInternals {
 		discoveredScripts: new Set(),
 		staticFiles: new Set(),
 		componentMetadata: new Map(),
-		ssrSplitEntryChunks: new Map(),
 		entryPoints: new Map(),
+		cacheManifestUsed: false,
+		prerenderOnlyChunks: [],
 	};
 }
 
@@ -151,7 +153,7 @@ export function trackPageData(
 	componentURL: URL
 ): void {
 	pageData.moduleSpecifier = componentModuleId;
-	internals.pagesByComponent.set(component, pageData);
+	internals.pagesByKeys.set(pageData.key, pageData);
 	internals.pagesByViteID.set(viteID(componentURL), pageData);
 }
 
@@ -176,15 +178,23 @@ export function trackClientOnlyPageDatas(
 	}
 }
 
-export function* getPageDatasByChunk(
+/**
+ * Tracks scripts to the pages they are associated with. (experimental.directRenderScript)
+ */
+export function trackScriptPageDatas(
 	internals: BuildInternals,
-	chunk: Rollup.RenderedChunk
-): Generator<PageBuildData, void, unknown> {
-	const pagesByViteID = internals.pagesByViteID;
-	for (const [modulePath] of Object.entries(chunk.modules)) {
-		if (pagesByViteID.has(modulePath)) {
-			yield pagesByViteID.get(modulePath)!;
+	pageData: PageBuildData,
+	scriptIds: string[]
+) {
+	for (const scriptId of scriptIds) {
+		let pageDataSet: Set<PageBuildData>;
+		if (internals.pagesByScriptId.has(scriptId)) {
+			pageDataSet = internals.pagesByScriptId.get(scriptId)!;
+		} else {
+			pageDataSet = new Set<PageBuildData>();
+			internals.pagesByScriptId.set(scriptId, pageDataSet);
 		}
+		pageDataSet.add(pageData);
 	}
 }
 
@@ -219,14 +229,76 @@ export function* getPageDatasByClientOnlyID(
 	}
 }
 
-export function getPageDataByComponent(
+/**
+ * From its route and component, get the page data from the build internals.
+ * @param internals Build Internals with all the pages
+ * @param route The route of the page, used to identify the page
+ * @param component The component of the page, used to identify the page
+ */
+export function getPageData(
 	internals: BuildInternals,
+	route: string,
 	component: string
 ): PageBuildData | undefined {
-	if (internals.pagesByComponent.has(component)) {
-		return internals.pagesByComponent.get(component);
+	let pageData = internals.pagesByKeys.get(makePageDataKey(route, component));
+	if (pageData) {
+		return pageData;
 	}
 	return undefined;
+}
+
+/**
+ * Get all pages datas from the build internals, using a specific component.
+ * @param internals Build Internals with all the pages
+ * @param component path to the component, used to identify related pages
+ */
+function getPagesDatasByComponent(internals: BuildInternals, component: string): PageBuildData[] {
+	const pageDatas: PageBuildData[] = [];
+	internals.pagesByKeys.forEach((pageData) => {
+		if (component === pageData.component) pageDatas.push(pageData);
+	});
+	return pageDatas;
+}
+
+// TODO: Should be removed in the future. (Astro 5?)
+/**
+ * Map internals.pagesByKeys to a new map with the public key instead of the internal key.
+ * This function is only used to avoid breaking changes in the Integrations API, after we changed the way
+ * we identify pages, from the entrypoint component to an internal key.
+ * If the page component is unique -> the public key is the component path. (old behavior)
+ * If the page component is shared -> the public key is the internal key. (new behavior)
+ * The new behavior on shared entrypoint it's not a breaking change, because it was not supported before.
+ * @param pagesByKeys A map of all page data by their internal key
+ */
+export function getPageDatasWithPublicKey(
+	pagesByKeys: Map<string, PageBuildData>
+): Map<string, PageBuildData> {
+	// Create a map to store the pages with the public key, mimicking internal.pagesByKeys
+	const pagesWithPublicKey = new Map<string, PageBuildData>();
+
+	const pagesByComponentsArray = Array.from(pagesByKeys.values()).map((pageData) => {
+		return { component: pageData.component, pageData: pageData };
+	});
+
+	// Get pages with unique component, and set the public key to the component.
+	const pagesWithUniqueComponent = pagesByComponentsArray.filter((page) => {
+		return pagesByComponentsArray.filter((p) => p.component === page.component).length === 1;
+	});
+
+	pagesWithUniqueComponent.forEach((page) => {
+		pagesWithPublicKey.set(page.component, page.pageData);
+	});
+
+	// Get pages with shared component, and set the public key to the internal key.
+	const pagesWithSharedComponent = pagesByComponentsArray.filter((page) => {
+		return pagesByComponentsArray.filter((p) => p.component === page.component).length > 1;
+	});
+
+	pagesWithSharedComponent.forEach((page) => {
+		pagesWithPublicKey.set(page.pageData.key, page.pageData);
+	});
+
+	return pagesWithPublicKey;
 }
 
 export function getPageDataByViteID(
@@ -239,48 +311,8 @@ export function getPageDataByViteID(
 	return undefined;
 }
 
-export function hasPageDataByViteID(internals: BuildInternals, viteid: ViteID): boolean {
-	return internals.pagesByViteID.has(viteid);
-}
-
-export function* eachPageData(internals: BuildInternals) {
-	yield* internals.pagesByComponent.values();
-}
-
-export function* eachPageFromAllPages(allPages: AllPagesData): Generator<[string, PageBuildData]> {
-	for (const [path, pageData] of Object.entries(allPages)) {
-		yield [path, pageData];
-	}
-}
-
-export function* eachPageDataFromEntryPoint(
-	internals: BuildInternals
-): Generator<[PageBuildData, string]> {
-	for (const [entrypoint, filePath] of internals.entrySpecifierToBundleMap) {
-		// virtual pages can be emitted with different prefixes:
-		// - the classic way are pages emitted with prefix ASTRO_PAGE_RESOLVED_MODULE_ID -> plugin-pages
-		// - pages emitted using `build.split`, in this case pages are emitted with prefix RESOLVED_SPLIT_MODULE_ID
-		if (
-			entrypoint.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
-			entrypoint.includes(RESOLVED_SPLIT_MODULE_ID)
-		) {
-			const [, pageName] = entrypoint.split(':');
-			const pageData = internals.pagesByComponent.get(
-				`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`
-			);
-			if (!pageData) {
-				throw new Error(
-					"Build failed. Astro couldn't find the emitted page from " + pageName + ' pattern'
-				);
-			}
-
-			yield [pageData, filePath];
-		}
-	}
-}
-
 export function hasPrerenderedPages(internals: BuildInternals) {
-	for (const pageData of eachPageData(internals)) {
+	for (const pageData of internals.pagesByKeys.values()) {
 		if (pageData.route.prerender) {
 			return true;
 		}
@@ -340,27 +372,23 @@ export function mergeInlineCss(
 	return acc;
 }
 
-export function isHoistedScript(internals: BuildInternals, id: string): boolean {
-	return internals.hoistedScriptIdToPagesMap.has(id);
-}
-
-export function* getPageDatasByHoistedScriptId(
+/**
+ * Get all pages data from the build internals, using a specific hoisted script id.
+ * @param internals Build Internals with all the pages
+ * @param id Hoisted script id, used to identify the pages using it
+ */
+export function getPageDatasByHoistedScriptId(
 	internals: BuildInternals,
 	id: string
-): Generator<PageBuildData, void, unknown> {
+): PageBuildData[] {
 	const set = internals.hoistedScriptIdToPagesMap.get(id);
+	const pageDatas: PageBuildData[] = [];
 	if (set) {
 		for (const pageId of set) {
-			const pageData = getPageDataByComponent(internals, pageId.slice(1));
-			if (pageData) {
-				yield pageData;
-			}
+			getPagesDatasByComponent(internals, pageId.slice(1)).forEach((pageData) => {
+				pageDatas.push(pageData);
+			});
 		}
 	}
-}
-
-// From a component path such as pages/index.astro find the entrypoint module
-export function getEntryFilePathFromComponentPath(internals: BuildInternals, path: string) {
-	const id = getVirtualModulePageIdFromPath(path);
-	return internals.entrySpecifierToBundleMap.get(id);
+	return pageDatas;
 }

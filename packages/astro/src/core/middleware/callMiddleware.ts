@@ -1,4 +1,9 @@
-import type { APIContext, MiddlewareHandler, MiddlewareNext } from '../../@types/astro.js';
+import type {
+	APIContext,
+	MiddlewareHandler,
+	MiddlewareNext,
+	RewritePayload,
+} from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
 /**
@@ -38,13 +43,17 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 export async function callMiddleware(
 	onRequest: MiddlewareHandler,
 	apiContext: APIContext,
-	responseFunction: () => Promise<Response> | Response
+	responseFunction: (
+		apiContext: APIContext,
+		rewritePayload?: RewritePayload
+	) => Promise<Response> | Response
 ): Promise<Response> {
 	let nextCalled = false;
 	let responseFunctionPromise: Promise<Response> | Response | undefined = undefined;
-	const next: MiddlewareNext = async () => {
+	const next: MiddlewareNext = async (payload) => {
 		nextCalled = true;
-		responseFunctionPromise = responseFunction();
+		responseFunctionPromise = responseFunction(apiContext, payload);
+		// We need to pass the APIContext pass to `callMiddleware` because it can be mutated across middleware functions
 		return responseFunctionPromise;
 	};
 

@@ -22,6 +22,7 @@ import {
  */
 export async function generateEdgeMiddleware(
 	astroMiddlewareEntryPointPath: URL,
+	root: URL,
 	vercelEdgeMiddlewareHandlerPath: URL,
 	outPath: URL,
 	middlewareSecret: string,
@@ -39,7 +40,7 @@ export async function generateEdgeMiddleware(
 	await esbuild.build({
 		stdin: {
 			contents: code,
-			resolveDir: process.cwd(),
+			resolveDir: fileURLToPath(root),
 		},
 		target: 'es2020',
 		platform: 'browser',
@@ -96,18 +97,28 @@ export default async function middleware(request, context) {
 	});
 	ctx.locals = { vercel: { edge: context }, ...${handlerTemplateCall} };
 	const { origin } = new URL(request.url);
-	const next = () => {
+	const next = async () => {
 		const { vercel, ...locals } = ctx.locals;
-		return fetch(new URL('/${NODE_PATH}', request.url), {
+		const response = await fetch(new URL('/${NODE_PATH}', request.url), {
 			headers: {
 				...Object.fromEntries(request.headers.entries()),
 				'${ASTRO_MIDDLEWARE_SECRET_HEADER}': '${middlewareSecret}',
 				'${ASTRO_PATH_HEADER}': request.url.replace(origin, ''),
 				'${ASTRO_LOCALS_HEADER}': trySerializeLocals(locals)
 			}
-		})
-	}
+		});
+		return new Response(response.body, {
+			status: response.status,
+			statusText: response.statusText,
+			headers: response.headers,
+		});
+	};
 
-	return onRequest(ctx, next);
+	const response = await onRequest(ctx, next);
+	// Append cookies from Astro.cookies
+	for(const setCookieHeaderValue of ctx.cookies.headers()) {
+		response.headers.append('set-cookie', setCookieHeaderValue);
+	}
+	return response;
 }`;
 }

@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import { basename } from 'node:path';
 import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
+import { removeDir } from '@astrojs/internal-helpers/fs';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
-import { removeDir } from '../dist/core/fs/index.js';
 import { Logger } from '../dist/core/logger/core.js';
 import testAdapter from './test-adapter.js';
 import { testImageService } from './test-image-service.js';
@@ -244,6 +244,39 @@ describe('astro:image', () => {
 					srcset2.map((src) => src.w),
 					[207]
 				);
+
+				// MIME Types
+				const validMimeTypes = [
+					'image/webp',
+					'image/jpeg',
+					'image/avif',
+					'image/png',
+					'image/gif',
+					'image/svg+xml',
+				];
+
+				const $sources = $('#picture-mime-types picture source');
+				for ($source of $sources) {
+					const type = $source.attribs.type;
+					assert.equal(
+						validMimeTypes.includes(type),
+						true,
+						`Expected type attribute value to be a valid MIME type: ${type}`
+					);
+				}
+			});
+
+			it('Picture component scope styles work', async () => {
+				let res = await fixture.fetch('/picturecomponent');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				// Should have scoped attribute
+				let $picture = $('#picture-attributes picture');
+				assert.ok(Object.keys($picture.attr()).find((a) => a.startsWith('data-astro-cid-')));
+
+				let $img = $('#picture-attributes img');
+				assert.ok(Object.keys($img.attr()).find((a) => a.startsWith('data-astro-cid-')));
 			});
 
 			it('properly deduplicate srcset images', async () => {
@@ -456,7 +489,10 @@ describe('astro:image', () => {
 				$ = cheerio.load(html);
 
 				let $img = $('img');
-				assert.equal($img.attr('src').startsWith('/_image'), true);
+				assert.equal($img.length, 3);
+				$img.each((_, el) => {
+					assert.equal(el.attribs.src?.startsWith('/_image'), true);
+				});
 			});
 
 			it('properly handles remote images', async () => {
@@ -679,7 +715,7 @@ describe('astro:image', () => {
 			let res = await fixture.fetch('/get-image-empty');
 			await res.text();
 
-			assert.equal(logs.length, 1);
+			assert.equal(logs.length >= 1, true);
 			assert.equal(logs[0].message.includes('Expected getImage() parameter'), true);
 		});
 
@@ -688,8 +724,19 @@ describe('astro:image', () => {
 			let res = await fixture.fetch('/get-image-undefined');
 			await res.text();
 
-			assert.equal(logs.length, 1);
+			assert.equal(logs.length >= 1, true);
 			assert.equal(logs[0].message.includes('Expected `src` property'), true);
+		});
+
+		it('errors when an ESM imported image is passed directly to getImage', async () => {
+			logs.length = 0;
+			let res = await fixture.fetch('/get-image-import-passed');
+			await res.text();
+			assert.equal(logs.length >= 1, true);
+			assert.equal(
+				logs[0].message.includes('An ESM-imported image cannot be passed directly'),
+				true
+			);
 		});
 
 		it('properly error image in Markdown frontmatter is not found', async () => {
@@ -766,6 +813,11 @@ describe('astro:image', () => {
 			const fixtureWithBase = await loadFixture({
 				root: './fixtures/core-image-ssr/',
 				output: 'server',
+				outDir: './dist/server-base-path',
+				build: {
+					client: './dist/server-base-path/client',
+					server: './dist/server-base-path/server',
+				},
 				adapter: testAdapter(),
 				image: {
 					service: testImageService(),
@@ -1047,6 +1099,11 @@ describe('astro:image', () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-ssr/',
 				output: 'server',
+				outDir: './dist/server-dev',
+				build: {
+					client: './dist/server-dev/client',
+					server: './dist/server-dev/server',
+				},
 				adapter: testAdapter(),
 				base: 'some-base',
 				image: {
@@ -1081,6 +1138,11 @@ describe('astro:image', () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-ssr/',
 				output: 'server',
+				outDir: './dist/server-prod',
+				build: {
+					client: './dist/server-prod/client',
+					server: './dist/server-prod/server',
+				},
 				adapter: testAdapter(),
 				image: {
 					endpoint: 'astro/assets/endpoint/node',
@@ -1094,6 +1156,7 @@ describe('astro:image', () => {
 			const app = await fixture.loadTestAdapterApp();
 			let request = new Request('http://example.com/');
 			let response = await app.render(request);
+			console.log;
 			assert.equal(response.status, 200);
 			const html = await response.text();
 			const $ = cheerio.load(html);

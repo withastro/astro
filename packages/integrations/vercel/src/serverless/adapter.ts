@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { removeDir, writeJson } from '@astrojs/internal-helpers/fs';
 import type {
 	AstroAdapter,
 	AstroConfig,
@@ -16,7 +17,6 @@ import {
 	getAstroImageConfig,
 	getDefaultImageConfig,
 } from '../image/shared.js';
-import { removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { escapeRegex, getRedirects } from '../lib/redirects.js';
 import {
@@ -72,16 +72,18 @@ function getAdapter({
 	edgeMiddleware,
 	functionPerRoute,
 	middlewareSecret,
+	skewProtection,
 }: {
 	edgeMiddleware: boolean;
 	functionPerRoute: boolean;
 	middlewareSecret: string;
+	skewProtection: boolean;
 }): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
 		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
 		exports: ['default'],
-		args: { middlewareSecret },
+		args: { middlewareSecret, skewProtection },
 		adapterFeatures: {
 			edgeMiddleware,
 			functionPerRoute,
@@ -96,6 +98,7 @@ function getAdapter({
 				isSquooshCompatible: true,
 			},
 			i18nDomains: 'experimental',
+			envGetSecret: 'experimental',
 		},
 	};
 }
@@ -139,6 +142,10 @@ export interface VercelServerlessConfig {
 
 	/** Whether to cache on-demand rendered pages in the same way as static files. */
 	isr?: boolean | VercelISRConfig;
+	/**
+	 * It enables Vercel skew protection: https://vercel.com/docs/deployments/skew-protection
+	 */
+	skewProtection?: boolean;
 }
 
 interface VercelISRConfig {
@@ -180,6 +187,7 @@ export default function vercelServerless({
 	edgeMiddleware = false,
 	maxDuration,
 	isr = false,
+	skewProtection = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	if (maxDuration) {
 		if (typeof maxDuration !== 'number') {
@@ -255,7 +263,10 @@ export default function vercelServerless({
 					vite: {
 						...getSpeedInsightsViteConfig(speedInsights?.enabled),
 						ssr: {
-							external: ['@vercel/nft'],
+							external: [
+								'@vercel/nft',
+								...((await shouldExternalizeAstroEnvSetup()) ? ['astro/env/setup'] : []),
+							],
 						},
 					},
 					...getAstroImageConfig(
@@ -277,7 +288,9 @@ export default function vercelServerless({
 					);
 				}
 
-				setAdapter(getAdapter({ functionPerRoute, edgeMiddleware, middlewareSecret }));
+				setAdapter(
+					getAdapter({ functionPerRoute, edgeMiddleware, middlewareSecret, skewProtection })
+				);
 
 				_config = config;
 				_buildTempFolder = config.build.server;
@@ -432,6 +445,16 @@ export default function vercelServerless({
 
 type Runtime = `nodejs${string}.x`;
 
+// TODO: remove once we don't use a TLA anymore
+async function shouldExternalizeAstroEnvSetup() {
+	try {
+		await import('astro/env/setup');
+		return false;
+	} catch {
+		return true;
+	}
+}
+
 class VercelBuilder {
 	readonly NTF_CACHE = {};
 
@@ -498,6 +521,7 @@ class VercelBuilder {
 
 		await generateEdgeMiddleware(
 			entry,
+			this.config.root,
 			new URL(VERCEL_EDGE_MIDDLEWARE_FILE, this.config.srcDir),
 			new URL('./middleware.mjs', functionFolder),
 			middlewareSecret,

@@ -5,6 +5,7 @@ import {
 	remarkCollectImages,
 } from '@astrojs/markdown-remark';
 import { createProcessor, nodeTypes } from '@mdx-js/mdx';
+import { rehypeAnalyzeAstroMetadata } from 'astro/jsx/rehype.js';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
@@ -13,9 +14,9 @@ import type { PluggableList } from 'unified';
 import type { MdxOptions } from './index.js';
 import { rehypeApplyFrontmatterExport } from './rehype-apply-frontmatter-export.js';
 import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
+import { rehypeImageToComponent } from './rehype-images-to-component.js';
 import rehypeMetaString from './rehype-meta-string.js';
 import { rehypeOptimizeStatic } from './rehype-optimize-static.js';
-import { remarkImageToComponent } from './remark-images-to-component.js';
 
 // Skip nonessential plugins during performance benchmark runs
 const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
@@ -30,7 +31,6 @@ export function createMdxProcessor(mdxOptions: MdxOptions, extraOptions: MdxProc
 		rehypePlugins: getRehypePlugins(mdxOptions),
 		recmaPlugins: mdxOptions.recmaPlugins,
 		remarkRehypeOptions: mdxOptions.remarkRehype,
-		jsx: true,
 		jsxImportSource: 'astro',
 		// Note: disable `.md` (and other alternative extensions for markdown files like `.markdown`) support
 		format: 'mdx',
@@ -52,7 +52,7 @@ function getRemarkPlugins(mdxOptions: MdxOptions): PluggableList {
 		}
 	}
 
-	remarkPlugins.push(...mdxOptions.remarkPlugins, remarkCollectImages, remarkImageToComponent);
+	remarkPlugins.push(...mdxOptions.remarkPlugins, remarkCollectImages);
 
 	return remarkPlugins;
 }
@@ -74,7 +74,7 @@ function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
 		}
 	}
 
-	rehypePlugins.push(...mdxOptions.rehypePlugins);
+	rehypePlugins.push(...mdxOptions.rehypePlugins, rehypeImageToComponent);
 
 	if (!isPerformanceBenchmark) {
 		// getHeadings() is guaranteed by TS, so this must be included.
@@ -82,8 +82,12 @@ function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
 		rehypePlugins.push(rehypeHeadingIds, rehypeInjectHeadingsExport);
 	}
 
-	// computed from `astro.data.frontmatter` in VFile data
-	rehypePlugins.push(rehypeApplyFrontmatterExport);
+	rehypePlugins.push(
+		// Render info from `vfile.data.astro.data.frontmatter` as JS
+		rehypeApplyFrontmatterExport,
+		// Analyze MDX nodes and attach to `vfile.data.__astroMetadata`
+		rehypeAnalyzeAstroMetadata
+	);
 
 	if (mdxOptions.optimize) {
 		// Convert user `optimize` option to compatible `rehypeOptimizeStatic` option

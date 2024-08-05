@@ -17,8 +17,5 @@ export default defineConfig({
 			redirectToDefaultLocale: false
 		}
 	},
-	experimental: {
-		i18nDomains: true
-	},
 	site: "https://example.com",
 })

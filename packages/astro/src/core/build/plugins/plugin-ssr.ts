@@ -1,20 +1,20 @@
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroAdapter } from '../../../@types/astro.js';
-import { isFunctionPerRouteEnabled } from '../../../integrations/index.js';
-import { isServerLikeOutput } from '../../../prerender/utils.js';
+import type { AstroAdapter, AstroSettings } from '../../../@types/astro.js';
+import { isFunctionPerRouteEnabled } from '../../../integrations/hooks.js';
 import { routeIsRedirect } from '../../redirects/index.js';
+import { VIRTUAL_ISLAND_MAP_ID } from '../../server-islands/vite-plugin-server-islands.js';
+import { isServerLikeOutput } from '../../util.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
-import { eachPageFromAllPages } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugin-manifest.js';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
-import { getPathFromVirtualModulePageName, getVirtualModulePageNameFromPath } from './util.js';
+import { getComponentFromVirtualModulePageName, getVirtualModulePageName } from './util.js';
 
 export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
 export const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
@@ -28,7 +28,17 @@ function vitePluginSSR(
 		name: '@astrojs/vite-plugin-astro-ssr-server',
 		enforce: 'post',
 		options(opts) {
-			return addRollupInput(opts, [SSR_VIRTUAL_MODULE_ID]);
+			const inputs = new Set<string>();
+
+			for (const pageData of Object.values(options.allPages)) {
+				if (routeIsRedirect(pageData.route)) {
+					continue;
+				}
+				inputs.add(getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component));
+			}
+
+			inputs.add(SSR_VIRTUAL_MODULE_ID);
+			return addRollupInput(opts, Array.from(inputs));
 		},
 		resolveId(id) {
 			if (id === SSR_VIRTUAL_MODULE_ID) {
@@ -44,18 +54,21 @@ function vitePluginSSR(
 				let i = 0;
 				const pageMap: string[] = [];
 
-				for (const [path, pageData] of eachPageFromAllPages(allPages)) {
+				for (const pageData of Object.values(allPages)) {
 					if (routeIsRedirect(pageData.route)) {
 						continue;
 					}
-					const virtualModuleName = getVirtualModulePageNameFromPath(ASTRO_PAGE_MODULE_ID, path);
+					const virtualModuleName = getVirtualModulePageName(
+						ASTRO_PAGE_MODULE_ID,
+						pageData.component
+					);
 					let module = await this.resolve(virtualModuleName);
 					if (module) {
 						const variable = `_page${i}`;
 						// we need to use the non-resolved ID in order to resolve correctly the virtual module
 						imports.push(`const ${variable} = () => import("${virtualModuleName}");`);
 
-						const pageData2 = internals.pagesByComponent.get(path);
+						const pageData2 = internals.pagesByKeys.get(pageData.key);
 						if (pageData2) {
 							pageMap.push(`[${JSON.stringify(pageData2.component)}, ${variable}]`);
 						}
@@ -65,12 +78,11 @@ function vitePluginSSR(
 				contents.push(`const pageMap = new Map([\n    ${pageMap.join(',\n    ')}\n]);`);
 				exports.push(`export { pageMap }`);
 				const middleware = await this.resolve(MIDDLEWARE_MODULE_ID);
-				const ssrCode = generateSSRCode(adapter, middleware!.id);
+				const ssrCode = generateSSRCode(options.settings, adapter, middleware!.id);
 				imports.push(...ssrCode.imports);
 				contents.push(...ssrCode.contents);
 				return [...imports, ...contents, ...exports].join('\n');
 			}
-			return void 0;
 		},
 		async generateBundle(_opts, bundle) {
 			// Add assets from this SSR chunk as well.
@@ -139,23 +151,20 @@ function vitePluginSSRSplit(
 	adapter: AstroAdapter,
 	options: StaticBuildOptions
 ): VitePlugin {
-	const functionPerRouteEnabled = isFunctionPerRouteEnabled(options.settings.adapter);
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr-split',
 		enforce: 'post',
 		options(opts) {
-			if (functionPerRouteEnabled) {
-				const inputs = new Set<string>();
+			const inputs = new Set<string>();
 
-				for (const [path, pageData] of eachPageFromAllPages(options.allPages)) {
-					if (routeIsRedirect(pageData.route)) {
-						continue;
-					}
-					inputs.add(getVirtualModulePageNameFromPath(SPLIT_MODULE_ID, path));
+			for (const pageData of Object.values(options.allPages)) {
+				if (routeIsRedirect(pageData.route)) {
+					continue;
 				}
-
-				return addRollupInput(opts, Array.from(inputs));
+				inputs.add(getVirtualModulePageName(SPLIT_MODULE_ID, pageData.component));
 			}
+
+			return addRollupInput(opts, Array.from(inputs));
 		},
 		resolveId(id) {
 			if (id.startsWith(SPLIT_MODULE_ID)) {
@@ -167,16 +176,15 @@ function vitePluginSSRSplit(
 				const imports: string[] = [];
 				const contents: string[] = [];
 				const exports: string[] = [];
-
-				const path = getPathFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, id);
-				const virtualModuleName = getVirtualModulePageNameFromPath(ASTRO_PAGE_MODULE_ID, path);
+				const componentPath = getComponentFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, id);
+				const virtualModuleName = getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, componentPath);
 				let module = await this.resolve(virtualModuleName);
 				if (module) {
 					// we need to use the non-resolved ID in order to resolve correctly the virtual module
 					imports.push(`import * as pageModule from "${virtualModuleName}";`);
 				}
 				const middleware = await this.resolve(MIDDLEWARE_MODULE_ID);
-				const ssrCode = generateSSRCode(adapter, middleware!.id);
+				const ssrCode = generateSSRCode(options.settings, adapter, middleware!.id);
 				imports.push(...ssrCode.imports);
 				contents.push(...ssrCode.contents);
 
@@ -184,7 +192,6 @@ function vitePluginSSRSplit(
 
 				return [...imports, ...contents, ...exports].join('\n');
 			}
-			return void 0;
 		},
 		async generateBundle(_opts, bundle) {
 			// Add assets from this SSR chunk as well.
@@ -200,7 +207,6 @@ function vitePluginSSRSplit(
 				}
 				for (const moduleKey of Object.keys(chunk.modules)) {
 					if (moduleKey.startsWith(RESOLVED_SPLIT_MODULE_ID)) {
-						internals.ssrSplitEntryChunks.set(moduleKey, chunk);
 						storeEntryPoint(moduleKey, options, internals, chunk.fileName);
 					}
 				}
@@ -234,7 +240,7 @@ export function pluginSSRSplit(
 	};
 }
 
-function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
+function generateSSRCode(settings: AstroSettings, adapter: AstroAdapter, middlewareId: string) {
 	const edgeMiddleware = adapter?.adapterFeatures?.edgeMiddleware ?? false;
 	const pageMap = isFunctionPerRouteEnabled(adapter) ? 'pageModule' : 'pageMap';
 
@@ -243,12 +249,17 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 		`import { manifest as defaultManifest } from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';`,
 		`import * as serverEntrypointModule from '${adapter.serverEntrypoint}';`,
 		edgeMiddleware ? `` : `import { onRequest as middleware } from '${middlewareId}';`,
+		settings.config.experimental.serverIslands
+			? `import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';`
+			: '',
 	];
 
 	const contents = [
+		settings.config.experimental.serverIslands ? '' : `const serverIslandMap = new Map()`,
 		edgeMiddleware ? `const middleware = (_, next) => next()` : '',
 		`const _manifest = Object.assign(defaultManifest, {`,
 		`    ${pageMap},`,
+		`    serverIslandMap,`,
 		`    renderers,`,
 		`    middleware`,
 		`});`,
@@ -284,7 +295,7 @@ if (_start in serverEntrypointModule) {
  *  we can't use `writeBundle` hook to get the final file name of the entry point written on disk.
  *  We use this hook instead.
  *
- *  We retrieve the {@link RouteData} that belongs the current moduleKey
+ *  We retrieve all the {@link RouteData} that have the same component as the one we are processing.
  */
 function storeEntryPoint(
 	moduleKey: string,
@@ -292,9 +303,9 @@ function storeEntryPoint(
 	internals: BuildInternals,
 	fileName: string
 ) {
-	const componentPath = getPathFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, moduleKey);
-	for (const [page, pageData] of eachPageFromAllPages(options.allPages)) {
-		if (componentPath == page) {
+	const componentPath = getComponentFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, moduleKey);
+	for (const pageData of Object.values(options.allPages)) {
+		if (componentPath == pageData.component) {
 			const publicPath = fileURLToPath(options.settings.config.build.server);
 			internals.entryPoints.set(pageData.route, pathToFileURL(join(publicPath, fileName)));
 		}

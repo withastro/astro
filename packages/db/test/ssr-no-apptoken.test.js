@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
 import { setupRemoteDbServer } from './test-utils.js';
@@ -26,11 +27,11 @@ describe('missing app token', () => {
 	it('Errors as runtime', async () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/');
+		const response = await app.render(request);
 		try {
-			const response = await app.render(request);
 			await response.text();
 		} catch {
-			expect(response.status).to.equal(501);
+			assert.equal(response.status, 501);
 		}
 	});
 });

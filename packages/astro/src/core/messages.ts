@@ -16,6 +16,7 @@ import {
 } from 'kleur/colors';
 import type { ResolvedServerUrls } from 'vite';
 import type { ZodError } from 'zod';
+import { getExecCommand } from '../cli/install-package.js';
 import { getDocsForError, renderErrorMarkdown } from './errors/dev/utils.js';
 import {
 	AstroError,
@@ -35,16 +36,19 @@ export function req({
 	method,
 	statusCode,
 	reqTime,
+	isRewrite,
 }: {
 	url: string;
 	statusCode: number;
 	method?: string;
 	reqTime?: number;
+	isRewrite?: boolean;
 }): string {
 	const color = statusCode >= 500 ? red : statusCode >= 300 ? yellow : blue;
 	return (
 		color(`[${statusCode}]`) +
 		` ` +
+		`${isRewrite ? color('(rewrite) ') : ''}` +
 		(method && method !== 'GET' ? color(method) + ' ' : '') +
 		url +
 		` ` +
@@ -102,6 +106,15 @@ export function serverStart({
 /** Display custom dev server shortcuts */
 export function serverShortcuts({ key, label }: { key: string; label: string }): string {
 	return [dim('  Press'), key, dim('to'), label].join(' ');
+}
+
+export async function newVersionAvailable({ latestVersion }: { latestVersion: string }) {
+	const badge = bgYellow(black(` update `));
+	const headline = yellow(`▶ New version of Astro available: ${latestVersion}`);
+	const execCommand = await getExecCommand();
+
+	const details = `  Run ${cyan(`${execCommand} @astrojs/upgrade`)} to update`;
+	return ['', `${badge} ${headline}`, details, ''].join('\n');
 }
 
 export function telemetryNotice() {
@@ -208,7 +221,7 @@ export function cancelled(message: string, tip?: string) {
 
 const LOCAL_IP_HOSTS = new Set(['localhost', '127.0.0.1']);
 
-export function getNetworkLogging(host: string | boolean): 'none' | 'host-to-expose' | 'visible' {
+function getNetworkLogging(host: string | boolean): 'none' | 'host-to-expose' | 'visible' {
 	if (host === false) {
 		return 'host-to-expose';
 	} else if (typeof host === 'string' && LOCAL_IP_HOSTS.has(host)) {
@@ -230,6 +243,7 @@ export function formatConfigErrorMessage(err: ZodError) {
 // a regex to match the first line of a stack trace
 const STACK_LINE_REGEXP = /^\s+at /g;
 const IRRELEVANT_STACK_REGEXP = /node_modules|astro[/\\]dist/g;
+
 function formatErrorStackTrace(
 	err: Error | ErrorWithMetadata,
 	showFullStacktrace: boolean
@@ -354,6 +368,7 @@ export function printHelp({
 		function calculateTablePadding(rows: [string, string][]) {
 			return rows.reduce((val, [first]) => Math.max(val, first.length), 0) + 2;
 		}
+
 		const tableEntries = Object.entries(tables);
 		const padding = Math.max(...tableEntries.map(([, rows]) => calculateTablePadding(rows)));
 		for (const [tableTitle, tableRows] of tableEntries) {

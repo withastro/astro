@@ -1,7 +1,6 @@
 import type * as vite from 'vite';
 import type { InlineConfig } from 'vite';
 import type {
-	AstroConfig,
 	AstroSettings,
 	ComponentInstance,
 	ManifestData,
@@ -14,21 +13,20 @@ import type { Logger } from '../logger/core.js';
 
 export type ComponentPath = string;
 export type ViteID = string;
-export type PageOutput = AstroConfig['output'];
 
 export type StylesheetAsset =
 	| { type: 'inline'; content: string }
 	| { type: 'external'; src: string };
 
+export type HoistedScriptAsset = { type: 'inline' | 'external'; value: string };
+
 export interface PageBuildData {
+	key: string;
 	component: ComponentPath;
 	route: RouteData;
 	moduleSpecifier: string;
-	propagatedStyles: Map<string, Set<StylesheetAsset>>;
-	propagatedScripts: Map<string, Set<string>>;
-	hoistedScript: { type: 'inline' | 'external'; value: string } | undefined;
+	hoistedScript: HoistedScriptAsset | undefined;
 	styles: Array<{ depth: number; order: number; sheet: StylesheetAsset }>;
-	hasSharedModules: boolean;
 }
 
 export type AllPagesData = Record<ComponentPath, PageBuildData>;
@@ -58,8 +56,3 @@ export interface SinglePageBuiltModule {
 }
 
 export type ViteBuildReturn = Awaited<ReturnType<typeof vite.build>>;
-export type RollupOutput = Extract<
-	Extract<ViteBuildReturn, Exclude<ViteBuildReturn, Array<any>>>,
-	{ output: any }
->;
-export type OutputChunk = Extract<RollupOutput['output'][number], { type: 'chunk' }>;

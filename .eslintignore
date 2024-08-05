@@ -1,9 +1,0 @@
-**/*.d.ts
-packages/**/*.min.js
-packages/**/dist/**/*
-packages/**/fixtures/**/*
-packages/astro/vendor/vite/**/*
-examples/**/*
-scripts/**/*
-.github
-.changeset

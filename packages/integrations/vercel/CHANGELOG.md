@@ -1,5 +1,50 @@
 # @astrojs/vercel
 
+## 7.7.2
+
+### Patch Changes
+
+- [#11323](https://github.com/withastro/astro/pull/11323) [`41064ce`](https://github.com/withastro/astro/commit/41064cee78c1cccd428f710a24c483aeb275fd95) Thanks [@ascorbic](https://github.com/ascorbic)! - Extracts fs helpers into shared internal-helpers module
+
+- [#11296](https://github.com/withastro/astro/pull/11296) [`5848d97`](https://github.com/withastro/astro/commit/5848d9786768d1290de982670bcc7773280ef08d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes `astro:env` getSecret compatibility
+
+- Updated dependencies [[`41064ce`](https://github.com/withastro/astro/commit/41064cee78c1cccd428f710a24c483aeb275fd95)]:
+  - @astrojs/internal-helpers@0.4.1
+
+## 7.7.1
+
+### Patch Changes
+
+- [#11261](https://github.com/withastro/astro/pull/11261) [`f5f8ed2`](https://github.com/withastro/astro/commit/f5f8ed275b76adfb11b7c3c1e800753a25416498) Thanks [@matthewp](https://github.com/matthewp)! - Fix backwards compat with Astro <= 4.9
+
+- [#11227](https://github.com/withastro/astro/pull/11227) [`24ce898`](https://github.com/withastro/astro/commit/24ce8983e1e1b3c8ebebf2ac4de7bbf21a586e2e) Thanks [@matthewp](https://github.com/matthewp)! - In Vercel Edge, include cookies set by Astro.cookies.set
+
+## 7.7.0
+
+### Minor Changes
+
+- [#11199](https://github.com/withastro/astro/pull/11199) [`2bdca27`](https://github.com/withastro/astro/commit/2bdca27ff4002efd330667b0b4ca3e00d5b7a2db) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds support for experimental `astro:env` released in Astro 4.10
+
+## 7.6.0
+
+### Minor Changes
+
+- [#10761](https://github.com/withastro/astro/pull/10761) [`f0acd30`](https://github.com/withastro/astro/commit/f0acd30a12c380830884108f7cad67a31d879339) Thanks [@ematipico](https://github.com/ematipico)! - Implements the vercel skew protection
+
+## 7.5.4
+
+### Patch Changes
+
+- [#10833](https://github.com/withastro/astro/pull/10833) [`8d5f3e8`](https://github.com/withastro/astro/commit/8d5f3e8656027023f9fda51c66b0213ffe16d3a5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `esbuild` dependency to v0.20. This should not affect projects in most cases.
+
+## 7.5.3
+
+### Patch Changes
+
+- [#10756](https://github.com/withastro/astro/pull/10756) [`c75ededdb401cfa55e1ad2682d5e95494f49604e`](https://github.com/withastro/astro/commit/c75ededdb401cfa55e1ad2682d5e95494f49604e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `widths` and `densities` not working when using Vercel's Image Optimization.
+
+  Note that you still need to make sure that the widths you're outputting are enabled in [the `imageConfig` property of the Vercel adapter](https://docs.astro.build/en/guides/integrations-guide/vercel/#imagesconfig) in order for these properties to work.
+
 ## 7.5.2
 
 ### Patch Changes

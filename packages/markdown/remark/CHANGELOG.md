@@ -1,5 +1,93 @@
 # @astrojs/markdown-remark
 
+## 5.2.0
+
+### Minor Changes
+
+- [#11341](https://github.com/withastro/astro/pull/11341) [`49b5145`](https://github.com/withastro/astro/commit/49b5145158a603b9bb951bf914a6a9780c218704) Thanks [@madcampos](https://github.com/madcampos)! - Adds support for [Shiki's `defaultColor` option](https://shiki.style/guide/dual-themes#without-default-color).
+
+  This option allows you to override the values of a theme's inline style, adding only CSS variables to give you more flexibility in applying multiple color themes.
+
+  Configure `defaultColor: false` in your Shiki config to apply throughout your site, or pass to Astro's built-in `<Code>` component to style an individual code block.
+
+  ```js title="astro.config.mjs"
+  import { defineConfig } from 'astro/config';
+  export default defineConfig({
+    markdown: {
+      shikiConfig: {
+        themes: {
+          light: 'github-light',
+          dark: 'github-dark',
+        },
+        defaultColor: false,
+      },
+    },
+  });
+  ```
+
+  ```astro
+  ---
+  import { Code } from 'astro:components';
+  ---
+
+  <Code code={`const useMyColors = true`} lang="js" defaultColor={false} />
+  ```
+
+## 5.1.1
+
+### Patch Changes
+
+- [#11310](https://github.com/withastro/astro/pull/11310) [`b6afe6a`](https://github.com/withastro/astro/commit/b6afe6a782f68f4a279463a144baaf99cb96b6dc) Thanks [@bluwy](https://github.com/bluwy)! - Handles encoded image paths in internal rehype plugins and return decoded paths from markdown vfile's `data.imagePaths`
+
+## 5.1.0
+
+### Minor Changes
+
+- [#10538](https://github.com/withastro/astro/pull/10538) [`ccafa8d230f65c9302421a0ce0a0adc5824bfd55`](https://github.com/withastro/astro/commit/ccafa8d230f65c9302421a0ce0a0adc5824bfd55) Thanks [@604qgc](https://github.com/604qgc)! - Adds a `data-language` attribute on the rendered `pre` elements to expose the highlighted syntax language.
+
+  For example, the following Markdown code block will expose `data-language="python"`:
+
+  ````
+  \```python
+  def func():
+      print('Hello Astro!')
+  \```
+  ````
+
+  This allows retrieving the language in a rehype plugin from `node.properties.dataLanguage` by accessing the `<pre>` element using `{ tagName: "pre" }`:
+
+  ```js
+  // myRehypePre.js
+  import { visit } from "unist-util-visit";
+  export default function myRehypePre() {
+    return (tree) => {
+      visit(tree, { tagName: "pre" }, (node) => {
+        const lang = node.properties.dataLanguage;
+        [...]
+      });
+    };
+  }
+  ```
+
+  Note: The `<pre>` element is not exposed when using Astro's `<Code />` component which outputs flattened HTML.
+
+  The `data-language` attribute may also be used in css rules:
+
+  ```css
+  pre::before {
+    content: attr(data-language);
+  }
+
+  pre[data-language='javascript'] {
+    font-size: 2rem;
+  }
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`683d51a5eecafbbfbfed3910a3f1fbf0b3531b99`](https://github.com/withastro/astro/commit/683d51a5eecafbbfbfed3910a3f1fbf0b3531b99)]:
+  - @astrojs/prism@3.1.0
+
 ## 5.0.0
 
 ### Major Changes

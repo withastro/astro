@@ -11,12 +11,13 @@ export function remarkCollectImages() {
 		const imagePaths = new Set<string>();
 		visit(tree, ['image', 'imageReference'], (node: Image | ImageReference) => {
 			if (node.type === 'image') {
-				if (shouldOptimizeImage(node.url)) imagePaths.add(node.url);
+				if (shouldOptimizeImage(node.url)) imagePaths.add(decodeURI(node.url));
 			}
 			if (node.type === 'imageReference') {
 				const imageDefinition = definition(node.identifier);
 				if (imageDefinition) {
-					if (shouldOptimizeImage(imageDefinition.url)) imagePaths.add(imageDefinition.url);
+					if (shouldOptimizeImage(imageDefinition.url))
+						imagePaths.add(decodeURI(imageDefinition.url));
 				}
 			}
 		});

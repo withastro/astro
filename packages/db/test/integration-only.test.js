@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from '../../astro/test/test-utils.js';
 
@@ -25,8 +26,8 @@ describe('astro:db with only integrations, no user db config', () => {
 			const $ = cheerioLoad(html);
 
 			const ul = $('ul.menu');
-			expect(ul.children()).to.have.a.lengthOf(4);
-			expect(ul.children().eq(0).text()).to.equal('Pancakes');
+			assert.equal(ul.children().length, 4);
+			assert.match(ul.children().eq(0).text(), /Pancakes/);
 		});
 	});
 
@@ -40,8 +41,8 @@ describe('astro:db with only integrations, no user db config', () => {
 			const $ = cheerioLoad(html);
 
 			const ul = $('ul.menu');
-			expect(ul.children()).to.have.a.lengthOf(4);
-			expect(ul.children().eq(0).text()).to.equal('Pancakes');
+			assert.equal(ul.children().length, 4);
+			assert.match(ul.children().eq(0).text(), /Pancakes/);
 		});
 	});
 });

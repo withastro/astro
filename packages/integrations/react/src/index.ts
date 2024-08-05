@@ -1,7 +1,13 @@
 import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-react';
-import type { AstroIntegration } from 'astro';
-import { version as ReactVersion } from 'react-dom';
+import type { AstroIntegration, ContainerRenderer } from 'astro';
 import type * as vite from 'vite';
+import {
+	type ReactVersionConfig,
+	type SupportedReactVersion,
+	getReactMajorVersion,
+	isUnsupportedVersion,
+	versionsConfig,
+} from './version.js';
 
 export type ReactIntegrationOptions = Pick<
 	ViteReactPluginOptions,
@@ -12,15 +18,11 @@ export type ReactIntegrationOptions = Pick<
 
 const FAST_REFRESH_PREAMBLE = react.preambleCode;
 
-function getRenderer() {
+function getRenderer(reactConfig: ReactVersionConfig) {
 	return {
 		name: '@astrojs/react',
-		clientEntrypoint: ReactVersion.startsWith('18.')
-			? '@astrojs/react/client.js'
-			: '@astrojs/react/client-v17.js',
-		serverEntrypoint: ReactVersion.startsWith('18.')
-			? '@astrojs/react/server.js'
-			: '@astrojs/react/server-v17.js',
+		clientEntrypoint: reactConfig.client,
+		serverEntrypoint: reactConfig.server,
 	};
 }
 
@@ -46,43 +48,32 @@ function optionsPlugin(experimentalReactChildren: boolean): vite.Plugin {
 	};
 }
 
-function getViteConfiguration({
-	include,
-	exclude,
-	babel,
-	experimentalReactChildren,
-}: ReactIntegrationOptions = {}) {
+function getViteConfiguration(
+	{ include, exclude, babel, experimentalReactChildren }: ReactIntegrationOptions = {},
+	reactConfig: ReactVersionConfig
+) {
 	return {
 		optimizeDeps: {
 			include: [
-				ReactVersion.startsWith('18.')
-					? '@astrojs/react/client.js'
-					: '@astrojs/react/client-v17.js',
+				reactConfig.client,
 				'react',
 				'react/jsx-runtime',
 				'react/jsx-dev-runtime',
 				'react-dom',
 			],
-			exclude: [
-				ReactVersion.startsWith('18.')
-					? '@astrojs/react/server.js'
-					: '@astrojs/react/server-v17.js',
-			],
+			exclude: [reactConfig.server],
 		},
 		plugins: [react({ include, exclude, babel }), optionsPlugin(!!experimentalReactChildren)],
 		resolve: {
 			dedupe: ['react', 'react-dom', 'react-dom/server'],
 		},
 		ssr: {
-			external: ReactVersion.startsWith('18.')
-				? ['react-dom/server', 'react-dom/client']
-				: ['react-dom/server.js', 'react-dom/client.js'],
+			external: reactConfig.externals,
 			noExternal: [
 				// These are all needed to get mui to work.
 				'@mui/material',
 				'@mui/base',
 				'@babel/runtime',
-				'redoc',
 				'use-immer',
 				'@material-tailwind/react',
 			],
@@ -96,13 +87,22 @@ export default function ({
 	babel,
 	experimentalReactChildren,
 }: ReactIntegrationOptions = {}): AstroIntegration {
+	const majorVersion = getReactMajorVersion();
+	if (isUnsupportedVersion(majorVersion)) {
+		throw new Error(`Unsupported React version: ${majorVersion}.`);
+	}
+	const versionConfig = versionsConfig[majorVersion as SupportedReactVersion];
+
 	return {
 		name: '@astrojs/react',
 		hooks: {
 			'astro:config:setup': ({ command, addRenderer, updateConfig, injectScript }) => {
-				addRenderer(getRenderer());
+				addRenderer(getRenderer(versionConfig));
 				updateConfig({
-					vite: getViteConfiguration({ include, exclude, babel, experimentalReactChildren }),
+					vite: getViteConfiguration(
+						{ include, exclude, babel, experimentalReactChildren },
+						versionConfig
+					),
 				});
 				if (command === 'dev') {
 					const preamble = FAST_REFRESH_PREAMBLE.replace(`__BASE__`, '/');
@@ -110,5 +110,18 @@ export default function ({
 				}
 			},
 		},
+	};
+}
+
+export function getContainerRenderer(): ContainerRenderer {
+	const majorVersion = getReactMajorVersion();
+	if (isUnsupportedVersion(majorVersion)) {
+		throw new Error(`Unsupported React version: ${majorVersion}.`);
+	}
+	const versionConfig = versionsConfig[majorVersion as SupportedReactVersion];
+
+	return {
+		name: '@astrojs/react',
+		serverEntrypoint: versionConfig.server,
 	};
 }

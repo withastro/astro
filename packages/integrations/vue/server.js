@@ -1,7 +1,7 @@
+import { setup } from 'virtual:@astrojs/vue/app';
 import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import StaticHtml from './static-html.js';
-import { setup } from 'virtual:@astrojs/vue/app';
 
 function check(Component) {
 	return !!Component['ssrRender'] || !!Component['__ssrInlineRender'];
@@ -27,6 +27,7 @@ async function renderToStaticMarkup(Component, inputProps, slotted, metadata) {
 }
 
 export default {
+	name: '@astrojs/vue',
 	check,
 	renderToStaticMarkup,
 	supportsAstroStaticSlot: true,

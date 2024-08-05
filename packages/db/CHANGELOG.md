@@ -1,5 +1,134 @@
 # @astrojs/db
 
+## 0.12.0
+
+### Minor Changes
+
+- [#11304](https://github.com/withastro/astro/pull/11304) [`2e70741`](https://github.com/withastro/astro/commit/2e70741362afc1e7d03c8b2a9d8edb8466dfe9c3) Thanks [@Fryuni](https://github.com/Fryuni)! - Removes the `AstroDbIntegration` type
+
+  Astro integration hooks can now be extended and as such `@astrojs/db` no longer needs to declare it's own integration type. Using `AstroIntegration` will have the same type.
+
+  If you were using the `AstroDbIntegration` type, apply this change to your integration code:
+
+  ```diff
+  - import { defineDbIntegration, type AstroDbIntegration } from '@astrojs/db/utils';
+  + import { defineDbIntegration } from '@astrojs/db/utils';
+  import type { AstroIntegration } from 'astro';
+
+  - export default (): AstroDbIntegration => {
+  + export default (): AstroIntegration => {
+    return defineDbIntegration({
+      name: 'your-integration',
+      hooks: {},
+    });
+  }
+  ```
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
+## 0.11.7
+
+### Patch Changes
+
+- [#11331](https://github.com/withastro/astro/pull/11331) [`f1b78a4`](https://github.com/withastro/astro/commit/f1b78a496034d53b0e9dfc276a4a1b1d691772c4) Thanks [@bluwy](https://github.com/bluwy)! - Relaxes exports condition to allow importing ESM from CJS
+
+- Updated dependencies [[`f1b78a4`](https://github.com/withastro/astro/commit/f1b78a496034d53b0e9dfc276a4a1b1d691772c4)]:
+  - @astrojs/studio@0.1.1
+
+## 0.11.6
+
+### Patch Changes
+
+- [#11262](https://github.com/withastro/astro/pull/11262) [`9b03023`](https://github.com/withastro/astro/commit/9b030239cb4db4e51a8a1da638743b60837f7e1a) Thanks [@nezouse](https://github.com/nezouse)! - Import type `Database` from correct file
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.0
+
+## 0.11.5
+
+### Patch Changes
+
+- [#11216](https://github.com/withastro/astro/pull/11216) [`29463df`](https://github.com/withastro/astro/commit/29463dff52f2e74d0d522168afe6faf70ff2fabb) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Export type `Database` from `@astrojs/db/runtime`
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.0
+
+## 0.11.4
+
+### Patch Changes
+
+- [#11032](https://github.com/withastro/astro/pull/11032) [`b78e83f`](https://github.com/withastro/astro/commit/b78e83f448d142e83be592f6249c4822e7cd5726) Thanks [@itsMapleLeaf](https://github.com/itsMapleLeaf)! - Adds support for multiple Astro Studio workspaces (aka “Teams”) to the Astro DB CLI
+
+  Users who are members of a team workspace in Astro Studio can now choose between those and their personal workspace when runnning `astro db link`.
+
+- [#11091](https://github.com/withastro/astro/pull/11091) [`e14ce57`](https://github.com/withastro/astro/commit/e14ce5726df73e2988fe1a39e078ef2d66d2f4a8) Thanks [@matthewp](https://github.com/matthewp)! - Fix inconsistent result type using raw SQL
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.0
+
+## 0.11.3
+
+### Patch Changes
+
+- [#11070](https://github.com/withastro/astro/pull/11070) [`1fec4a6`](https://github.com/withastro/astro/commit/1fec4a6eb986011d4d6d998410ff9b6144c28c34) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes some error messages not using the proper command to login or sync the project
+
+- [#11037](https://github.com/withastro/astro/pull/11037) [`9332bb1`](https://github.com/withastro/astro/commit/9332bb1c1f237f5666ded09532ccd651837b94e5) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Internal refactor, this change should have no visible effect
+
+- Updated dependencies [[`9332bb1`](https://github.com/withastro/astro/commit/9332bb1c1f237f5666ded09532ccd651837b94e5)]:
+  - @astrojs/studio@0.1.0
+
+## 0.11.2
+
+### Patch Changes
+
+- [#11027](https://github.com/withastro/astro/pull/11027) [`eb1d9a4`](https://github.com/withastro/astro/commit/eb1d9a447bc73534b8dd8fa6d3dcdb265950753a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix `isDbError()` returning `false` for remote database errors. Astro will now return a `LibsqlError` in development and production.
+
+## 0.11.1
+
+### Patch Changes
+
+- [#10967](https://github.com/withastro/astro/pull/10967) [`a134318`](https://github.com/withastro/astro/commit/a1343184da2a67439de4792e9e404d17ec3943df) Thanks [@matthewp](https://github.com/matthewp)! - Convert non-ISO date to UTC time
+
+## 0.11.0
+
+### Minor Changes
+
+- [#10919](https://github.com/withastro/astro/pull/10919) [`44bafa9`](https://github.com/withastro/astro/commit/44bafa989af0cc380696bb6381048fc1ee55dd5b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - - Fix duplicate table recreations when you start your dev server.
+  - Remove eager re-seeding when updating your seed file in development. Seeding still runs on dev server startup for SQLite inspector tools.
+
+## 0.10.7
+
+### Patch Changes
+
+- [#10882](https://github.com/withastro/astro/pull/10882) [`cf58d1e`](https://github.com/withastro/astro/commit/cf58d1ed56c671d0ee077dfecc286002b4bae5ed) Thanks [@delucis](https://github.com/delucis)! - Improves the typing of the `asDrizzleTable()` utility
+
+  Fixes a type error when passing the output of `defineTable()` to the utility and returns a more detailed type inferred from the columns of the passed table config.
+
+- [#10918](https://github.com/withastro/astro/pull/10918) [`ca605f4`](https://github.com/withastro/astro/commit/ca605f4dd8fcd070d3d5a5ca2f7080d921801e17) Thanks [@matthewp](https://github.com/matthewp)! - Provide a better error message when app token is missing in CI
+
+- [#10925](https://github.com/withastro/astro/pull/10925) [`a0c77fc`](https://github.com/withastro/astro/commit/a0c77fc7164662ea62b65c51fd1bd4c2f6028bc1) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `ASTRO_DATABASE_FILE` not correctly resolving relative paths (e.g. `ASTRO_DATABASE_FILE=./api/database.db`
+
+## 0.10.6
+
+### Patch Changes
+
+- [#10816](https://github.com/withastro/astro/pull/10816) [`8e6eb62`](https://github.com/withastro/astro/commit/8e6eb624aee40bac66a58169a30107f624a8c539) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add `astro login` support from online editors like Stackblitz and GitHub Codespaces
+
+## 0.10.5
+
+### Patch Changes
+
+- [#10789](https://github.com/withastro/astro/pull/10789) [`d4c91cb10924a0627a9e9a80bc549b3c82d043e6`](https://github.com/withastro/astro/commit/d4c91cb10924a0627a9e9a80bc549b3c82d043e6) Thanks [@NickDubelman](https://github.com/NickDubelman)! - Expose the Drizzle `alias` utility from `astro:db` to enable self-joins on a table.
+
+## 0.10.4
+
+### Patch Changes
+
+- [#10764](https://github.com/withastro/astro/pull/10764) [`d1080ea81de0db1d1aed97a65c490766c17ab312`](https://github.com/withastro/astro/commit/d1080ea81de0db1d1aed97a65c490766c17ab312) Thanks [@delucis](https://github.com/delucis)! - Improves `package.json` metadata fields
+
 ## 0.10.3
 
 ### Patch Changes

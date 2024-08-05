@@ -1,8 +1,8 @@
 import type {
+	ShikiConfig,
 	RehypePlugin as _RehypePlugin,
 	RemarkPlugin as _RemarkPlugin,
 	RemarkRehype as _RemarkRehype,
-	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
@@ -12,6 +12,7 @@ import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
+import { EnvSchema } from '../../env/schema.js';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
@@ -35,6 +36,7 @@ import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } f
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ComplexifyUnionObj {}
+
 type ComplexifyWithUnion<T> = T & ComplexifyUnionObj;
 type ComplexifyWithOmit<T> = Omit<T, '__nonExistent'>;
 
@@ -45,7 +47,7 @@ type RehypePlugin = ComplexifyWithUnion<_RehypePlugin>;
 type RemarkPlugin = ComplexifyWithUnion<_RemarkPlugin>;
 type RemarkRehype = ComplexifyWithOmit<_RemarkRehype>;
 
-const ASTRO_CONFIG_DEFAULTS = {
+export const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
 	srcDir: './src',
 	publicDir: './public',
@@ -79,14 +81,17 @@ const ASTRO_CONFIG_DEFAULTS = {
 	vite: {},
 	legacy: {},
 	redirects: {},
+	security: {},
 	experimental: {
+		actions: false,
 		directRenderScript: false,
 		contentCollectionCache: false,
-		contentCollectionJsonSchema: false,
 		clientPrerender: false,
 		globalRoutePriority: false,
-		i18nDomains: false,
-		security: {},
+		serverIslands: false,
+		env: {
+			validateSecrets: false,
+		},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -316,6 +321,9 @@ export const AstroConfigSchema = z.object({
 								.or(z.custom<ShikiTheme>())
 						)
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.themes!),
+					defaultColor: z
+						.union([z.literal('light'), z.literal('dark'), z.string(), z.literal(false)])
+						.optional(),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
 					transformers: z
 						.custom<ShikiTransformer>()
@@ -387,21 +395,25 @@ export const AstroConfigSchema = z.object({
 					.optional(),
 				fallback: z.record(z.string(), z.string()).optional(),
 				routing: z
-					.object({
-						prefixDefaultLocale: z.boolean().default(false),
-						redirectToDefaultLocale: z.boolean().default(true),
-						strategy: z.enum(['pathname']).default('pathname'),
-					})
-					.default({})
-					.refine(
-						({ prefixDefaultLocale, redirectToDefaultLocale }) => {
-							return !(prefixDefaultLocale === false && redirectToDefaultLocale === false);
-						},
-						{
-							message:
-								'The option `i18n.redirectToDefaultLocale` is only useful when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change its value to `true`.',
-						}
-					),
+					.literal('manual')
+					.or(
+						z
+							.object({
+								prefixDefaultLocale: z.boolean().optional().default(false),
+								redirectToDefaultLocale: z.boolean().optional().default(true),
+							})
+							.refine(
+								({ prefixDefaultLocale, redirectToDefaultLocale }) => {
+									return !(prefixDefaultLocale === false && redirectToDefaultLocale === false);
+								},
+								{
+									message:
+										'The option `i18n.redirectToDefaultLocale` is only useful when the `i18n.prefixDefaultLocale` is set to `true`. Remove the option `i18n.redirectToDefaultLocale`, or change its value to `true`.',
+								}
+							)
+					)
+					.optional()
+					.default({}),
 			})
 			.optional()
 			.superRefine((i18n, ctx) => {
@@ -487,8 +499,15 @@ export const AstroConfigSchema = z.object({
 				}
 			})
 	),
+	security: z
+		.object({
+			checkOrigin: z.boolean().default(false),
+		})
+		.optional()
+		.default(ASTRO_CONFIG_DEFAULTS.security),
 	experimental: z
 		.object({
+			actions: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.actions),
 			directRenderScript: z
 				.boolean()
 				.optional()
@@ -497,10 +516,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
-			contentCollectionJsonSchema: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionJsonSchema),
 			clientPrerender: z
 				.boolean()
 				.optional()
@@ -509,18 +524,20 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.globalRoutePriority),
-			security: z
+			env: z
 				.object({
-					csrfProtection: z
-						.object({
-							origin: z.boolean().default(false),
-						})
+					schema: EnvSchema.optional(),
+					validateSecrets: z
+						.boolean()
 						.optional()
-						.default({}),
+						.default(ASTRO_CONFIG_DEFAULTS.experimental.env.validateSecrets),
 				})
+				.strict()
+				.optional(),
+			serverIslands: z
+				.boolean()
 				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.security),
-			i18nDomains: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.i18nDomains),
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.serverIslands),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`
@@ -659,23 +676,21 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				'The value of `outDir` must not point to a path within the folder set as `publicDir`, this will cause an infinite loop',
 		})
 		.superRefine((configuration, ctx) => {
-			const { site, experimental, i18n, output } = configuration;
-			if (experimental.i18nDomains) {
-				const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
-				if (hasDomains) {
-					if (!site) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message:
-								"The option `site` isn't set. When using the 'domains' strategy for `i18n`, `site` is required to create absolute URLs for locales that aren't mapped to a domain.",
-						});
-					}
-					if (output !== 'server') {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: 'Domain support is only available when `output` is `"server"`.',
-						});
-					}
+			const { site, i18n, output } = configuration;
+			const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
+			if (hasDomains) {
+				if (!site) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message:
+							"The option `site` isn't set. When using the 'domains' strategy for `i18n`, `site` is required to create absolute URLs for locales that aren't mapped to a domain.",
+					});
+				}
+				if (output !== 'server') {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Domain support is only available when `output` is `"server"`.',
+					});
 				}
 			}
 		});

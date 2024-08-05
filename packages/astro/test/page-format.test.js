@@ -51,7 +51,35 @@ describe('build.format', () => {
 		});
 	});
 
-	describe('preserve', () => {
+	describe('preserve - i18n', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		before(async () => {
+			fixture = await loadFixture({
+				base: '/test',
+				root: './fixtures/page-format/',
+				trailingSlash: 'always',
+				build: {
+					format: 'preserve',
+				},
+			});
+		});
+
+		describe('Build', () => {
+			before(async () => {
+				await fixture.build();
+			});
+
+			it('Astro.url points to right file', async () => {
+				let html = await fixture.readFile('/nested/index.html');
+				let $ = cheerio.load(html);
+				console.log(html);
+				assert.equal($('h2').text(), '/test/nested/');
+			});
+		});
+	});
+
+	describe('preserve - i18n', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 		before(async () => {
@@ -81,7 +109,7 @@ describe('build.format', () => {
 			it('relative urls created point to sibling folders', async () => {
 				let html = await fixture.readFile('/en/nested/page.html');
 				let $ = cheerio.load(html);
-				assert.equal($('#another').attr('href'), '/test/en/nested/another/');
+				assert.equal($('#another').attr('href'), '/test/en/nested/page/another/');
 			});
 
 			it('index files are written as index.html', async () => {

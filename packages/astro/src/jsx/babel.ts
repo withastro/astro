@@ -2,7 +2,8 @@ import type { PluginObj } from '@babel/core';
 import * as t from '@babel/types';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
-import { resolvePath } from '../core/util.js';
+import { resolvePath } from '../core/viteUtils.js';
+import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
@@ -134,20 +135,16 @@ function addClientOnlyMetadata(
 	}
 }
 
+/**
+ * @deprecated This plugin is no longer used. Remove in Astro 5.0
+ */
 export default function astroJSX(): PluginObj {
 	return {
 		visitor: {
 			Program: {
 				enter(path, state) {
 					if (!(state.file.metadata as PluginMetadata).astro) {
-						(state.file.metadata as PluginMetadata).astro = {
-							clientOnlyComponents: [],
-							hydratedComponents: [],
-							scripts: [],
-							containsHead: false,
-							propagation: 'none',
-							pageOptions: {},
-						};
+						(state.file.metadata as PluginMetadata).astro = createDefaultAstroMetadata();
 					}
 					path.node.body.splice(
 						0,
@@ -224,6 +221,7 @@ export default function astroJSX(): PluginObj {
 					if (isClientOnly) {
 						(state.file.metadata as PluginMetadata).astro.clientOnlyComponents.push({
 							exportName: meta.name,
+							localName: '',
 							specifier: tagName,
 							resolvedPath,
 						});
@@ -233,6 +231,7 @@ export default function astroJSX(): PluginObj {
 					} else {
 						(state.file.metadata as PluginMetadata).astro.hydratedComponents.push({
 							exportName: '*',
+							localName: '',
 							specifier: tagName,
 							resolvedPath,
 						});
@@ -297,6 +296,7 @@ export default function astroJSX(): PluginObj {
 					if (isClientOnly) {
 						(state.file.metadata as PluginMetadata).astro.clientOnlyComponents.push({
 							exportName: meta.name,
+							localName: '',
 							specifier: meta.name,
 							resolvedPath,
 						});
@@ -306,6 +306,7 @@ export default function astroJSX(): PluginObj {
 					} else {
 						(state.file.metadata as PluginMetadata).astro.hydratedComponents.push({
 							exportName: meta.name,
+							localName: '',
 							specifier: meta.name,
 							resolvedPath,
 						});

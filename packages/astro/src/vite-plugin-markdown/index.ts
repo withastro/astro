@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
 	InvalidAstroDataError,
@@ -14,7 +13,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
 import { shorthash } from '../runtime/server/shorthash.js';
-import type { PluginMetadata } from '../vite-plugin-astro/types.js';
+import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import { type MarkdownImagePath, getMarkdownCodeForImages } from './images.js';
 
@@ -43,6 +42,13 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 		buildEnd() {
 			processor = undefined;
 		},
+		async resolveId(source, importer, options) {
+			if (importer?.endsWith('.md') && source[0] !== '/') {
+				let resolved = await this.resolve(source, importer, options);
+				if (!resolved) resolved = await this.resolve('./' + source, importer, options);
+				return resolved;
+			}
+		},
 		// Why not the "transform" hook instead of "load" + readFile?
 		// A: Vite transforms all "import.meta.env" references to their values before
 		// passing to the transform hook. This lets us get the truly raw value
@@ -55,7 +61,15 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 
 				const fileURL = pathToFileURL(fileId);
 
-				const renderResult = await processor!
+				// `processor` is initialized in `buildStart`, and removed in `buildEnd`. `load`
+				// should be called in between those two lifecycles, so this error should never happen
+				if (!processor) {
+					return this.error(
+						'MDX processor is not initialized. This is an internal error. Please file an issue.'
+					);
+				}
+
+				const renderResult = await processor
 					.render(raw.content, {
 						// @ts-expect-error passing internal prop
 						fileURL,
@@ -77,8 +91,6 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				for (const imagePath of rawImagePaths.values()) {
 					imagePaths.push({
 						raw: imagePath,
-						resolved:
-							(await this.resolve(imagePath, id))?.id ?? path.join(path.dirname(id), imagePath),
 						safeName: shorthash(imagePath),
 					});
 				}
@@ -147,14 +159,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				return {
 					code,
 					meta: {
-						astro: {
-							hydratedComponents: [],
-							clientOnlyComponents: [],
-							scripts: [],
-							propagation: 'none',
-							containsHead: false,
-							pageOptions: {},
-						} as PluginMetadata['astro'],
+						astro: createDefaultAstroMetadata(),
 						vite: {
 							lang: 'ts',
 						},

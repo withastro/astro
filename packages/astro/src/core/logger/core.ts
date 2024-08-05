@@ -29,6 +29,8 @@ export type LoggerLabel =
 	| 'redirects'
 	| 'toolbar'
 	| 'assets'
+	| 'env'
+	| 'update'
 	// SKIP_FORMAT: A special label that tells the logger not to apply any formatting.
 	// Useful for messages that are already formatted, like the server start message.
 	| 'SKIP_FORMAT';
@@ -164,27 +166,6 @@ export function getEventPrefix({ level, label }: LogMessage) {
 		return dim(prefix[0]);
 	}
 	return dim(prefix[0]) + ' ' + blue(prefix.splice(1).join(' '));
-}
-
-export let defaultLogLevel: LoggerLevel;
-if (typeof process !== 'undefined') {
-	// This could be a shimmed environment so we don't know that `process` is the full
-	// NodeJS.process. This code treats it as a plain object so TS doesn't let us
-	// get away with incorrect assumptions.
-	let proc: object = process;
-	if ('argv' in proc && Array.isArray(proc.argv)) {
-		if (proc.argv.includes('--verbose')) {
-			defaultLogLevel = 'debug';
-		} else if (proc.argv.includes('--silent')) {
-			defaultLogLevel = 'silent';
-		} else {
-			defaultLogLevel = 'info';
-		}
-	} else {
-		defaultLogLevel = 'info';
-	}
-} else {
-	defaultLogLevel = 'info';
 }
 
 /** Print out a timer message for debug() */

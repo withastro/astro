@@ -66,7 +66,12 @@ export class NodeApp extends App {
 		const hostname =
 			req.headers['x-forwarded-host'] ?? req.headers.host ?? req.headers[':authority'];
 		const port = req.headers['x-forwarded-port'];
-		const url = `${protocol}://${hostname}${port ? `:${port}` : ''}${req.url}`;
+
+		const portInHostname =
+			typeof hostname === 'string' && typeof port === 'string' && hostname.endsWith(port);
+		const hostnamePort = portInHostname ? hostname : hostname + (port ? `:${port}` : '');
+
+		const url = `${protocol}://${hostnamePort}${req.url}`;
 		const options: RequestInit = {
 			method: req.method || 'GET',
 			headers: makeRequestHeaders(req),
@@ -76,7 +81,11 @@ export class NodeApp extends App {
 			Object.assign(options, makeRequestBody(req));
 		}
 		const request = new Request(url, options);
-		if (req.socket?.remoteAddress) {
+
+		const clientIp = req.headers['x-forwarded-for'];
+		if (clientIp) {
+			Reflect.set(request, clientAddressSymbol, clientIp);
+		} else if (req.socket?.remoteAddress) {
 			Reflect.set(request, clientAddressSymbol, req.socket.remoteAddress);
 		}
 		return request;

@@ -12,11 +12,11 @@ import {
 	removeBase,
 	removeQueryString,
 } from '../core/path.js';
-import { isServerLikeOutput } from '../prerender/utils.js';
+import { isServerLikeOutput } from '../core/util.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
-import { emitESMImage } from './utils/emitAsset.js';
 import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 import { isESMImportedImage } from './utils/imageKind.js';
+import { emitESMImage } from './utils/node/emitAsset.js';
 import { getProxyCode } from './utils/proxy.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
@@ -95,6 +95,7 @@ export default function assets({
 	mode,
 }: AstroPluginOptions & { mode: string }): vite.Plugin[] {
 	let resolvedConfig: vite.ResolvedConfig;
+	let shouldEmitFile = false;
 
 	globalThis.astroAsset = {
 		referencedImages: new Set(),
@@ -132,6 +133,7 @@ export default function assets({
 					import { getImage as getImageInternal } from "astro/assets";
 					export { default as Image } from "astro/components/Image.astro";
 					export { default as Picture } from "astro/components/Picture.astro";
+					export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
 
 					export const imageConfig = ${JSON.stringify(settings.config.image)};
 					// This is used by the @astrojs/node integration to locate images.
@@ -147,7 +149,9 @@ export default function assets({
 								: settings.config.outDir
 						)
 					)});
-					export const assetsDir = /* #__PURE__ */ new URL(${JSON.stringify(settings.config.build.assets)}, outDir);
+					export const assetsDir = /* #__PURE__ */ new URL(${JSON.stringify(
+						settings.config.build.assets
+					)}, outDir);
 					export const getImage = async (options) => await getImageInternal(options, imageConfig);
 				`;
 				}
@@ -192,6 +196,9 @@ export default function assets({
 		{
 			name: 'astro:assets:esm',
 			enforce: 'pre',
+			config(_, env) {
+				shouldEmitFile = env.command === 'build';
+			},
 			configResolved(viteConfig) {
 				resolvedConfig = viteConfig;
 			},
@@ -212,7 +219,8 @@ export default function assets({
 						return;
 					}
 
-					const imageMetadata = await emitESMImage(id, this.meta.watchMode, this.emitFile);
+					const emitFile = shouldEmitFile ? this.emitFile : undefined;
+					const imageMetadata = await emitESMImage(id, this.meta.watchMode, emitFile);
 
 					if (!imageMetadata) {
 						throw new AstroError({

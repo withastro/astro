@@ -1,4 +1,5 @@
 import type {
+	ComponentInstance,
 	Locales,
 	MiddlewareHandler,
 	RouteData,
@@ -43,6 +44,7 @@ export type AssetsPrefix =
 	| undefined;
 
 export type SSRManifest = {
+	hrefRoot: string;
 	adapterName: string;
 	routes: RouteInfo[];
 	site?: string;
@@ -62,13 +64,17 @@ export type SSRManifest = {
 	componentMetadata: SSRResult['componentMetadata'];
 	pageModule?: SinglePageBuiltModule;
 	pageMap?: Map<ComponentPath, ImportComponentInstance>;
+	serverIslandMap?: Map<string, () => Promise<ComponentInstance>>;
+	serverIslandNameMap?: Map<string, string>;
 	i18n: SSRManifestI18n | undefined;
 	middleware: MiddlewareHandler;
 	checkOrigin: boolean;
+	// TODO: remove experimental prefix
+	experimentalEnvGetSecretEnabled: boolean;
 };
 
 export type SSRManifestI18n = {
-	fallback?: Record<string, string>;
+	fallback: Record<string, string> | undefined;
 	strategy: RoutingStrategies;
 	locales: Locales;
 	defaultLocale: string;
@@ -77,11 +83,18 @@ export type SSRManifestI18n = {
 
 export type SerializedSSRManifest = Omit<
 	SSRManifest,
-	'middleware' | 'routes' | 'assets' | 'componentMetadata' | 'inlinedScripts' | 'clientDirectives'
+	| 'middleware'
+	| 'routes'
+	| 'assets'
+	| 'componentMetadata'
+	| 'inlinedScripts'
+	| 'clientDirectives'
+	| 'serverIslandNameMap'
 > & {
 	routes: SerializedRouteInfo[];
 	assets: string[];
 	componentMetadata: [string, SSRComponentMetadata][];
 	inlinedScripts: [string, string][];
 	clientDirectives: [string, string][];
+	serverIslandNameMap: [string, string][];
 };

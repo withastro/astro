@@ -1,5 +1,19 @@
 # create-astro
 
+## 4.8.1
+
+### Patch Changes
+
+- [#11567](https://github.com/withastro/astro/pull/11567) [`d27cf6d`](https://github.com/withastro/astro/commit/d27cf6df7bd612642a1e8da5948333b00b70e8bd) Thanks [@ascorbic](https://github.com/ascorbic)! - Logs underlying error when a template cannot be downloaded
+
+## 4.8.0
+
+### Minor Changes
+
+- [#10689](https://github.com/withastro/astro/pull/10689) [`683d51a5eecafbbfbfed3910a3f1fbf0b3531b99`](https://github.com/withastro/astro/commit/683d51a5eecafbbfbfed3910a3f1fbf0b3531b99) Thanks [@ematipico](https://github.com/ematipico)! - Deprecate support for versions of Node.js older than `v18.17.1` for Node.js 18, older than `v20.0.3` for Node.js 20, and the complete Node.js v19 release line.
+
+  This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
+
 ## 4.7.5
 
 ### Patch Changes

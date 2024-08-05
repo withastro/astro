@@ -54,7 +54,7 @@ async function preloadAndSetPrerenderStatus({
 			continue;
 		}
 
-		const preloadedComponent = await pipeline.preload(filePath);
+		const preloadedComponent = await pipeline.preload(route, filePath);
 
 		// gets the prerender metadata set by the `astro:scanner` vite plugin
 		const prerenderStatus = getPrerenderStatus({

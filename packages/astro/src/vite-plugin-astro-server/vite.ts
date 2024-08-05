@@ -2,6 +2,7 @@ import npath from 'node:path';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../core/constants.js';
 import type { ModuleLoader, ModuleNode } from '../core/module-loader/index.js';
 import { unwrapId } from '../core/util.js';
+import { hasSpecialQueries } from '../vite-plugin-utils/index.js';
 import { isCSSRequest } from './util.js';
 
 /**
@@ -29,7 +30,7 @@ export async function* crawlGraph(
 			// Needed for slower CSS preprocessing like Tailwind
 			loader.getModulesByFile(id) ?? new Set()
 		: // For non-root files, we're safe to pull from "getModuleById" based on testing.
-			// TODO: Find better invalidation strat to use "getModuleById" in all cases!
+			// TODO: Find better invalidation strategy to use "getModuleById" in all cases!
 			new Set([loader.getModuleById(id)]);
 
 	// Collect all imported modules for the module(s).
@@ -41,7 +42,26 @@ export async function* crawlGraph(
 		}
 		if (id === entry.id) {
 			scanned.add(id);
-			const entryIsStyle = isCSSRequest(id);
+
+			// NOTE: It may be worth revisiting if we can crawl direct imports of the module since
+			// `.importedModules` would also include modules that are dynamically watched, not imported.
+			// That way we no longer need the below `continue` skips.
+
+			// CSS requests `importedModules` are usually from `@import`, but we don't really need
+			// to crawl into those as the `@import` code are already inlined into this `id`.
+			// If CSS requests `importedModules` contain non-CSS files, e.g. Tailwind might add HMR
+			// dependencies as `importedModules`, we should also skip them as they aren't really
+			// imported. Without this, every hoisted script in the project is added to every page!
+			if (isCSSRequest(id)) {
+				continue;
+			}
+			// Some special Vite queries like `?url` or `?raw` are known to be a simple default export
+			// and doesn't have any imports to crawl. However, since they would `this.addWatchFile` the
+			// underlying module, our logic would crawl into them anyways which is incorrect as they
+			// don't take part in the final rendering, so we skip it here.
+			if (hasSpecialQueries(id)) {
+				continue;
+			}
 
 			for (const importedModule of entry.importedModules) {
 				if (!importedModule.id) continue;
@@ -54,13 +74,6 @@ export async function* crawlGraph(
 				// NOTE: Cannot use `new URL()` here because not all IDs will be valid paths.
 				// For example, `virtual:image-loader` if you don't have the plugin installed.
 				const importedModulePathname = importedModule.id.replace(STRIP_QUERY_PARAMS_REGEX, '');
-				// If the entry is a style, skip any modules that are not also styles.
-				// Tools like Tailwind might add HMR dependencies as `importedModules`
-				// but we should skip them--they aren't really imported. Without this,
-				// every hoisted script in the project is added to every page!
-				if (entryIsStyle && !isCSSRequest(importedModulePathname)) {
-					continue;
-				}
 
 				const isFileTypeNeedingSSR = fileExtensionsToSSR.has(npath.extname(importedModulePathname));
 				// A propagation stopping point is a module with the ?astroPropagatedAssets flag.

@@ -1,4 +1,5 @@
 import { existsSync } from 'node:fs';
+import { getManagedAppTokenOrExit } from '@astrojs/studio';
 import { LibsqlError } from '@libsql/client';
 import type { AstroConfig } from 'astro';
 import { green } from 'kleur/colors';
@@ -14,8 +15,7 @@ import {
 	getStudioVirtualModContents,
 } from '../../../integration/vite-plugin-db.js';
 import { bundleFile, importBundledFile } from '../../../load-file.js';
-import { getManagedAppTokenOrExit } from '../../../tokens.js';
-import { type DBConfig } from '../../../types.js';
+import type { DBConfig } from '../../../types.js';
 
 export async function cmd({
 	astroConfig,
@@ -51,8 +51,6 @@ export async function cmd({
 		virtualModContents = getLocalVirtualModContents({
 			tables: dbConfig.tables ?? {},
 			root: astroConfig.root,
-			shouldSeed: false,
-			seedFiles: [],
 		});
 	}
 	const { code } = await bundleFile({ virtualModContents, root: astroConfig.root, fileUrl });

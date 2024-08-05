@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/svelte",
-  "version": "5.3.0",
+  "version": "5.7.0",
   "description": "Use Svelte components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -25,8 +25,14 @@
     "./*": "./*",
     "./client.js": "./client.js",
     "./client-v5.js": "./client-v5.js",
-    "./server.js": "./server.js",
-    "./server-v5.js": "./server-v5.js",
+    "./server.js": {
+      "default": "./server.js",
+      "types": "./server.d.ts"
+    },
+    "./server-v5.js": {
+      "default": "./server-v5.js",
+      "types": "./server-v5.d.ts"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -34,7 +40,9 @@
     "client.js",
     "client-v5.js",
     "server.js",
-    "server-v5.js"
+    "server.d.ts",
+    "server-v5.js",
+    "server-v5.d.ts"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/index.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
@@ -42,18 +50,18 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@sveltejs/vite-plugin-svelte": "^3.0.0",
-    "svelte2tsx": "^0.6.27"
+    "@sveltejs/vite-plugin-svelte": "^3.1.1",
+    "svelte2tsx": "^0.7.15"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "svelte": "^4.2.5",
-    "vite": "^5.1.4"
+    "svelte": "^4.2.18",
+    "vite": "^5.3.5"
   },
   "peerDependencies": {
     "astro": "^4.0.0",
-    "svelte": "^4.0.0 || ^5.0.0-next.90",
+    "svelte": "^4.0.0 || ^5.0.0-next.190",
     "typescript": "^5.3.3"
   },
   "engines": {

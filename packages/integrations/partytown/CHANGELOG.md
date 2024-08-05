@@ -1,5 +1,21 @@
 # @astrojs/partytown
 
+## 2.1.1
+
+### Patch Changes
+
+- [#11083](https://github.com/withastro/astro/pull/11083) [`416c4ac`](https://github.com/withastro/astro/commit/416c4ac66d432d4c5abd13a4c7ecd20defb4fc30) Thanks [@V3RON](https://github.com/V3RON)! - Prevent Partytown from crashing when View Transitions are enabled
+
+  When View Transitions are turned on, Partytown executes on every transition.
+  It's not meant to be like that, and therefore it breaks the integration completely.
+  Starting from now, Partytown will be executed only once.
+
+## 2.1.0
+
+### Minor Changes
+
+- [#10833](https://github.com/withastro/astro/pull/10833) [`8d5f3e8`](https://github.com/withastro/astro/commit/8d5f3e8656027023f9fda51c66b0213ffe16d3a5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates the `@builder.io/partytown` dependency to v0.10. This should not affect projects in most cases.
+
 ## 2.0.4
 
 ### Patch Changes

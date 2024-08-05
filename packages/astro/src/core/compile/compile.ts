@@ -9,7 +9,7 @@ import type { AstroPreferences } from '../../preferences/index.js';
 import type { AstroError } from '../errors/errors.js';
 import { AggregateError, CompilerError } from '../errors/errors.js';
 import { AstroErrorData } from '../errors/index.js';
-import { resolvePath } from '../util.js';
+import { resolvePath } from '../viteUtils.js';
 import { type PartialCompileCssResult, createStylePreprocessor } from './style.js';
 import type { CompileCssResult } from './types.js';
 
@@ -49,7 +49,7 @@ export async function compile({
 			normalizedFilename: normalizeFilename(filename, astroConfig.root),
 			sourcemap: 'both',
 			internalURL: 'astro/compiler-runtime',
-			// TODO: this is no longer neccessary for `Astro.site`
+			// TODO: this is no longer necessary for `Astro.site`
 			// but it somehow allows working around caching issues in content collections for some tests
 			astroGlobalArgs: JSON.stringify(astroConfig.site),
 			scopedStyleStrategy: astroConfig.scopedStyleStrategy,

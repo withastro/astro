@@ -25,6 +25,8 @@ export function createAppHandler(app: NodeApp): RequestHandler {
 		try {
 			request = NodeApp.createRequest(req);
 		} catch (err) {
+			logger.error(`Could not render ${req.url}`);
+			console.error(err);
 			res.statusCode = 500;
 			res.end('Internal Server Error');
 			return;

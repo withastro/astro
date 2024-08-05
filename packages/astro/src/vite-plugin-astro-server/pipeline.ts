@@ -1,28 +1,31 @@
-import url from 'node:url';
+import { fileURLToPath } from 'node:url';
 import type {
 	AstroSettings,
 	ComponentInstance,
 	DevToolbarMetadata,
+	ManifestData,
+	RewritePayload,
 	RouteData,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRManifest,
 } from '../@types/astro.js';
 import { getInfoOutput } from '../cli/info/index.js';
-import type { HeadElements } from '../core/base-pipeline.js';
-import { ASTRO_VERSION, DEFAULT_404_COMPONENT } from '../core/constants.js';
+import { type HeadElements } from '../core/base-pipeline.js';
+import { ASTRO_VERSION } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { Pipeline, loadRenderer } from '../core/render/index.js';
-import { isPage, resolveIdToUrl, viteID } from '../core/util.js';
-import { isServerLikeOutput } from '../prerender/utils.js';
+import { createDefaultRoutes } from '../core/routing/default.js';
+import { findRouteToRewrite } from '../core/routing/rewrite.js';
+import { isPage, isServerLikeOutput, viteID } from '../core/util.js';
+import { resolveIdToUrl } from '../core/viteUtils.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
 import { getComponentMetadata } from './metadata.js';
 import { createResolve } from './resolve.js';
-import { default404Page } from './response.js';
 import { getScriptsForURL } from './scripts.js';
 
 export class DevPipeline extends Pipeline {
@@ -30,27 +33,42 @@ export class DevPipeline extends Pipeline {
 	// so it needs to be mutable here unlike in other environments
 	override renderers = new Array<SSRLoadedRenderer>();
 
+	manifestData: ManifestData | undefined;
+
+	componentInterner: WeakMap<RouteData, ComponentInstance> = new WeakMap<
+		RouteData,
+		ComponentInstance
+	>();
+
 	private constructor(
 		readonly loader: ModuleLoader,
 		readonly logger: Logger,
 		readonly manifest: SSRManifest,
 		readonly settings: AstroSettings,
-		readonly config = settings.config
+		readonly config = settings.config,
+		readonly defaultRoutes = createDefaultRoutes(manifest)
 	) {
 		const mode = 'development';
 		const resolve = createResolve(loader, config.root);
 		const serverLike = isServerLikeOutput(config);
 		const streaming = true;
 		super(logger, manifest, mode, [], resolve, serverLike, streaming);
+		manifest.serverIslandMap = settings.serverIslandMap;
+		manifest.serverIslandNameMap = settings.serverIslandNameMap;
 	}
 
-	static create({
-		loader,
-		logger,
-		manifest,
-		settings,
-	}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>) {
-		return new DevPipeline(loader, logger, manifest, settings);
+	static create(
+		manifestData: ManifestData,
+		{
+			loader,
+			logger,
+			manifest,
+			settings,
+		}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>
+	) {
+		const pipeline = new DevPipeline(loader, logger, manifest, settings);
+		pipeline.manifestData = manifestData;
+		return pipeline;
 	}
 
 	async headElements(routeData: RouteData): Promise<HeadElements> {
@@ -60,7 +78,7 @@ export class DevPipeline extends Pipeline {
 			mode,
 			settings,
 		} = this;
-		const filePath = new URL(`./${routeData.component}`, root);
+		const filePath = new URL(`${routeData.component}`, root);
 		// Add hoisted script tags, skip if direct rendering with `directRenderScript`
 		const { scripts } = settings.config.experimental.directRenderScript
 			? { scripts: new Set<SSRElement>() }
@@ -81,8 +99,9 @@ export class DevPipeline extends Pipeline {
 				scripts.add({ props: { type: 'module', src }, children: '' });
 
 				const additionalMetadata: DevToolbarMetadata['__astro_dev_toolbar__'] = {
-					root: url.fileURLToPath(settings.config.root),
+					root: fileURLToPath(settings.config.root),
 					version: ASTRO_VERSION,
+					latestAstroVersion: settings.latestAstroVersion,
 					debugInfo: await getInfoOutput({ userConfig: settings.config, print: false }),
 				};
 
@@ -131,14 +150,18 @@ export class DevPipeline extends Pipeline {
 			config: { root },
 			loader,
 		} = this;
-		const filePath = new URL(`./${routeData.component}`, root);
+		const filePath = new URL(`${routeData.component}`, root);
 		return getComponentMetadata(filePath, loader);
 	}
 
-	async preload(filePath: URL) {
+	async preload(routeData: RouteData, filePath: URL) {
 		const { loader } = this;
-		if (filePath.href === new URL(DEFAULT_404_COMPONENT, this.config.root).href) {
-			return { default: default404Page } as any as ComponentInstance;
+
+		// First check built-in routes
+		for (const route of this.defaultRoutes) {
+			if (route.matchesComponent(filePath)) {
+				return route.instance;
+			}
 		}
 
 		// Important: This needs to happen first, in case a renderer provides polyfills.
@@ -148,7 +171,9 @@ export class DevPipeline extends Pipeline {
 
 		try {
 			// Load the module from the Vite SSR Runtime.
-			return (await loader.import(viteID(filePath))) as ComponentInstance;
+			const componentInstance = (await loader.import(viteID(filePath))) as ComponentInstance;
+			this.componentInterner.set(routeData, componentInstance);
+			return componentInstance;
 		} catch (error) {
 			// If the error came from Markdown or CSS, we already handled it and there's no need to enhance it
 			if (MarkdownError.is(error) || CSSError.is(error) || AggregateError.is(error)) {
@@ -161,5 +186,53 @@ export class DevPipeline extends Pipeline {
 
 	clearRouteCache() {
 		this.routeCache.clearAll();
+		this.componentInterner = new WeakMap<RouteData, ComponentInstance>();
+	}
+
+	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
+		const component = this.componentInterner.get(routeData);
+		if (component) {
+			return component;
+		} else {
+			const filePath = new URL(`${routeData.component}`, this.config.root);
+			return await this.preload(routeData, filePath);
+		}
+	}
+
+	async tryRewrite(
+		payload: RewritePayload,
+		request: Request,
+		_sourceRoute: RouteData
+	): Promise<[RouteData, ComponentInstance, URL]> {
+		if (!this.manifestData) {
+			throw new Error('Missing manifest data. This is an internal error, please file an issue.');
+		}
+		const [foundRoute, finalUrl] = findRouteToRewrite({
+			payload,
+			request,
+			routes: this.manifestData?.routes,
+			trailingSlash: this.config.trailingSlash,
+			buildFormat: this.config.build.format,
+			base: this.config.base,
+		});
+
+		const componentInstance = await this.getComponentByRoute(foundRoute);
+		return [foundRoute, componentInstance, finalUrl];
+	}
+
+	setManifestData(manifestData: ManifestData) {
+		this.manifestData = manifestData;
+	}
+
+	rewriteKnownRoute(route: string, sourceRoute: RouteData): ComponentInstance {
+		if (isServerLikeOutput(this.config) && sourceRoute.prerender) {
+			for (let def of this.defaultRoutes) {
+				if (route === def.route) {
+					return def.instance;
+				}
+			}
+		}
+
+		throw new Error('Unknown route');
 	}
 }

@@ -1,5 +1,5 @@
-import type { APIRoute } from 'astro';
 import { Ingredient, db, isDbError } from 'astro:db';
+import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async () => {
 	try {
@@ -11,8 +11,8 @@ export const GET: APIRoute = async () => {
 		});
 	} catch (e) {
 		if (isDbError(e)) {
-			return new Response(JSON.stringify({ error: `LibsqlError: ${e.message}` }));
+			return new Response(JSON.stringify({ message: `LibsqlError: ${e.message}`, code: e.code }));
 		}
 	}
-	return new Response(JSON.stringify({ error: 'Did not raise expected exception' }));
+	return new Response(JSON.stringify({ message: 'Did not raise expected exception' }));
 };

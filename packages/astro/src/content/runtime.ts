@@ -1,4 +1,5 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import pLimit from 'p-limit';
 import { ZodIssueCode, string as zodString } from 'zod';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
@@ -43,15 +44,16 @@ export function createCollectionToGlobResultMap({
 	return collectionToGlobResultMap;
 }
 
-const cacheEntriesByCollection = new Map<string, any[]>();
 export function createGetCollection({
 	contentCollectionToEntryMap,
 	dataCollectionToEntryMap,
 	getRenderEntryImport,
+	cacheEntriesByCollection,
 }: {
 	contentCollectionToEntryMap: CollectionToEntryMap;
 	dataCollectionToEntryMap: CollectionToEntryMap;
 	getRenderEntryImport: GetEntryImport;
+	cacheEntriesByCollection: Map<string, any[]>;
 }) {
 	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
 		let type: 'content' | 'data';
@@ -77,40 +79,44 @@ export function createGetCollection({
 		// Cache `getCollection()` calls in production only
 		// prevents stale cache in development
 		if (!import.meta.env?.DEV && cacheEntriesByCollection.has(collection)) {
-			// Always return a new instance so consumers can safely mutate it
-			entries = [...cacheEntriesByCollection.get(collection)!];
+			entries = cacheEntriesByCollection.get(collection)!;
 		} else {
+			const limit = pLimit(10);
 			entries = await Promise.all(
-				lazyImports.map(async (lazyImport) => {
-					const entry = await lazyImport();
-					return type === 'content'
-						? {
-								id: entry.id,
-								slug: entry.slug,
-								body: entry.body,
-								collection: entry.collection,
-								data: entry.data,
-								async render() {
-									return render({
-										collection: entry.collection,
-										id: entry.id,
-										renderEntryImport: await getRenderEntryImport(collection, entry.slug),
-									});
-								},
-							}
-						: {
-								id: entry.id,
-								collection: entry.collection,
-								data: entry.data,
-							};
-				})
+				lazyImports.map((lazyImport) =>
+					limit(async () => {
+						const entry = await lazyImport();
+						return type === 'content'
+							? {
+									id: entry.id,
+									slug: entry.slug,
+									body: entry.body,
+									collection: entry.collection,
+									data: entry.data,
+									async render() {
+										return render({
+											collection: entry.collection,
+											id: entry.id,
+											renderEntryImport: await getRenderEntryImport(collection, entry.slug),
+										});
+									},
+								}
+							: {
+									id: entry.id,
+									collection: entry.collection,
+									data: entry.data,
+								};
+					})
+				)
 			);
 			cacheEntriesByCollection.set(collection, entries);
 		}
 		if (typeof filter === 'function') {
 			return entries.filter(filter);
 		} else {
-			return entries;
+			// Clone the array so users can safely mutate it.
+			// slice() is faster than ...spread for large arrays.
+			return entries.slice();
 		}
 	};
 }

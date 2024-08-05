@@ -358,7 +358,7 @@ describe('[DEV] i18n routing', () => {
 			const response = await fixture.fetch('/xyz');
 			assert.equal(response.status, 404);
 			const text = await response.text();
-			assert.equal(text.includes("Can't find the page youre looking for."), true);
+			assert.equal(text.includes("Can't find the page you're looking for."), true);
 		});
 	});
 
@@ -580,6 +580,16 @@ describe('[SSG] i18n routing', () => {
 			assert.equal($('body').text().includes('Lo siento'), true);
 		});
 
+		it('should create a custom 404.html and 505.html', async () => {
+			let html = await fixture.readFile('/404.html');
+			let $ = cheerio.load(html);
+			assert.equal($('body').text().includes("Can't find the page you're looking for."), true);
+
+			html = await fixture.readFile('/500.html');
+			$ = cheerio.load(html);
+			assert.equal($('body').text().includes('Unexpected error.'), true);
+		});
+
 		it("should NOT render the default locale if there isn't a fallback and the route is missing", async () => {
 			try {
 				await fixture.readFile('/it/start/index.html');
@@ -772,7 +782,6 @@ describe('[SSG] i18n routing', () => {
 
 		it('should redirect to the index of the default locale', async () => {
 			const html = await fixture.readFile('/index.html');
-			assert.equal(html.includes('http-equiv="refresh'), true);
 			assert.equal(html.includes('http-equiv="refresh'), true);
 			assert.equal(html.includes('url=/new-site/en'), true);
 		});
@@ -1327,6 +1336,11 @@ describe('[SSR] i18n routing', () => {
 			fixture = await loadFixture({
 				root: './fixtures/i18n-routing-prefix-always/',
 				output: 'server',
+				outDir: './dist/pathname-prefix-always-no-redirect',
+				build: {
+					client: './dist/pathname-prefix-always-no-redirect/client',
+					server: './dist/pathname-prefix-always-no-redirect/server',
+				},
 				adapter: testAdapter(),
 				i18n: {
 					routing: {
@@ -1351,7 +1365,7 @@ describe('[SSR] i18n routing', () => {
 			const response = await app.render(request);
 			assert.equal(response.status, 404);
 			const text = await response.text();
-			assert.equal(text.includes("Can't find the page youre looking for."), true);
+			assert.equal(text.includes("Can't find the page you're looking for."), true);
 		});
 	});
 
@@ -1613,6 +1627,11 @@ describe('[SSR] i18n routing', () => {
 				fixture = await loadFixture({
 					root: './fixtures/i18n-routing/',
 					output: 'server',
+					outDir: './dist/locales-underscore',
+					build: {
+						client: './dist/locales-underscore/client',
+						server: './dist/locales-underscore/server',
+					},
 					adapter: testAdapter(),
 					i18n: {
 						defaultLocale: 'en',
@@ -1870,5 +1889,43 @@ describe('i18n routing does not break assets and endpoints', () => {
 			assert.equal(response.status, 200);
 			assert.equal((await response.text()).includes('Oi essa e start\n'), true);
 		});
+	});
+});
+
+describe('SSR fallback from missing locale index to default locale index', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing-prefix-other-locales/',
+			output: 'server',
+			outDir: './dist/missing-locale-to-default',
+			build: {
+				client: './dist/missing-locale-to-default/client',
+				server: './dist/missing-locale-to-default/server',
+			},
+			adapter: testAdapter(),
+			i18n: {
+				defaultLocale: 'en',
+				locales: ['en', 'fr'],
+				routing: {
+					prefixDefaultLocale: false,
+				},
+				fallback: {
+					fr: 'en',
+				},
+			},
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should correctly redirect', async () => {
+		let request = new Request('http://example.com/fr');
+		let response = await app.render(request);
+		assert.equal(response.status, 302);
+		assert.equal(response.headers.get('location'), '/');
 	});
 });

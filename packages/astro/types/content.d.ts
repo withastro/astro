@@ -26,7 +26,7 @@ declare module 'astro:content' {
 		| import('astro/zod').ZodDiscriminatedUnion<string, import('astro/zod').AnyZodObject[]>
 		| import('astro/zod').ZodIntersection<BaseSchemaWithoutEffects, BaseSchemaWithoutEffects>;
 
-	type BaseSchema =
+	export type BaseSchema =
 		| BaseSchemaWithoutEffects
 		| import('astro/zod').ZodEffects<BaseSchemaWithoutEffects>;
 
@@ -42,7 +42,7 @@ declare module 'astro:content' {
 		schema?: S | ((context: SchemaContext) => S);
 	};
 
-	type CollectionConfig<S extends BaseSchema> =
+	export type CollectionConfig<S extends BaseSchema> =
 		| ContentCollectionConfig<S>
 		| DataCollectionConfig<S>;
 

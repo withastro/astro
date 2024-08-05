@@ -9,7 +9,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
-import { ensure404Route } from '../core/routing/astro-designed-error-pages.js';
+import { injectDefaultRoutes } from '../core/routing/default.js';
 import { createRouteManifest } from '../core/routing/index.js';
 import { toRoutingStrategy } from '../i18n/utils.js';
 import { baseMiddleware } from './base.js';
@@ -35,10 +35,11 @@ export default function createVitePluginAstroServer({
 		configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
 			const manifest = createDevelopmentManifest(settings);
-			const pipeline = DevPipeline.create({ loader, logger, manifest, settings });
-			let manifestData: ManifestData = ensure404Route(
+			let manifestData: ManifestData = injectDefaultRoutes(
+				manifest,
 				createRouteManifest({ settings, fsMod }, logger)
 			);
+			const pipeline = DevPipeline.create(manifestData, { loader, logger, manifest, settings });
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();
 
@@ -46,9 +47,11 @@ export default function createVitePluginAstroServer({
 			function rebuildManifest(needsManifestRebuild: boolean) {
 				pipeline.clearRouteCache();
 				if (needsManifestRebuild) {
-					manifestData = ensure404Route(createRouteManifest({ settings }, logger));
+					manifestData = injectDefaultRoutes(manifest, createRouteManifest({ settings }, logger));
+					pipeline.setManifestData(manifestData);
 				}
 			}
+
 			// Rebuild route manifest on file change, if needed.
 			viteServer.watcher.on('add', rebuildManifest.bind(null, true));
 			viteServer.watcher.on('unlink', rebuildManifest.bind(null, true));
@@ -114,27 +117,27 @@ export default function createVitePluginAstroServer({
  *
  * Renderers needs to be pulled out from the page module emitted during the build.
  * @param settings
- * @param renderers
  */
 export function createDevelopmentManifest(settings: AstroSettings): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
-			strategy: toRoutingStrategy(settings.config.i18n),
+			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
 		};
 	}
 	return {
+		hrefRoot: settings.config.root.toString(),
 		trailingSlash: settings.config.trailingSlash,
 		buildFormat: settings.config.build.format,
 		compressHTML: settings.config.compressHTML,
 		assets: new Set(),
 		entryModules: {},
 		routes: [],
-		adapterName: '',
+		adapterName: settings?.adapter?.name || '',
 		clientDirectives: settings.clientDirectives,
 		renderers: [],
 		base: settings.config.base,
@@ -143,7 +146,8 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		componentMetadata: new Map(),
 		inlinedScripts: new Map(),
 		i18n: i18nManifest,
-		checkOrigin: settings.config.experimental.security?.csrfProtection?.origin ?? false,
+		checkOrigin: settings.config.security?.checkOrigin ?? false,
+		experimentalEnvGetSecretEnabled: false,
 		middleware(_, next) {
 			return next();
 		},
