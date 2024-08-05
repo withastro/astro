@@ -8,7 +8,7 @@ import { getPackage } from '../../cli/install-package.js';
 import { DATA_STORE_FILE } from '../../content/consts.js';
 import { DataStore, globalDataStore } from '../../content/data-store.js';
 import { createContentTypesGenerator } from '../../content/index.js';
-import { syncContentLayer } from '../../content/sync.js';
+import { globalContentLayer } from '../../content/sync.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
@@ -135,7 +135,12 @@ export async function syncInternal({
 				store = new DataStore();
 				globalDataStore.set(store);
 			}
-			await syncContentLayer({ settings, logger, store });
+			const contentLayer = globalContentLayer.init({
+				settings,
+				logger,
+				store,
+			});
+			await contentLayer.sync();
 			settings.timer.end('Sync content layer');
 		}
 		syncAstroEnv(settings, fs);
