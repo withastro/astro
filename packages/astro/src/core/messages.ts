@@ -99,6 +99,8 @@ export function serverStart({
 		...localUrlMessages,
 		...networkUrlMessages,
 		'',
+		`${dim('Press')} ${bold('h + enter')} ${dim('to')} ${bold('show hot keys')}`,
+		''
 	];
 	return messages.filter((msg) => typeof msg === 'string').join('\n');
 }
