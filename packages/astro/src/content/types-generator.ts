@@ -515,8 +515,16 @@ async function writeContentFiles({
 		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never'
 	);
 
-	settings.injectedTypes.push({
-		filename: CONTENT_TYPES_FILE,
-		content: typeTemplateContent,
-	});
+	if (settings.injectedTypes.some((t) => t.filename === CONTENT_TYPES_FILE)) {
+		fs.promises.writeFile(
+			new URL(CONTENT_TYPES_FILE, settings.dotAstroDir),
+			typeTemplateContent,
+			'utf-8'
+		);
+	} else {
+		settings.injectedTypes.push({
+			filename: CONTENT_TYPES_FILE,
+			content: typeTemplateContent,
+		});
+	}
 }
