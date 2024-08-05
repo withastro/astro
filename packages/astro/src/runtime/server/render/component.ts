@@ -4,11 +4,10 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../../@types/astro.js';
-import { type RenderInstruction, createRenderInstruction } from './instruction.js';
+import { createRenderInstruction } from './instruction.js';
 
 import { clsx } from 'clsx';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
-import type { HTMLBytes } from '../escape.js';
 import { markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
@@ -56,8 +55,6 @@ function guessRenderers(componentUrl?: string): string[] {
 			];
 	}
 }
-
-export type ComponentIterable = AsyncIterable<string | HTMLBytes | RenderInstruction>;
 
 function isFragmentComponent(Component: unknown) {
 	return Component === Fragment;

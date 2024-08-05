@@ -221,7 +221,7 @@ export function cancelled(message: string, tip?: string) {
 
 const LOCAL_IP_HOSTS = new Set(['localhost', '127.0.0.1']);
 
-export function getNetworkLogging(host: string | boolean): 'none' | 'host-to-expose' | 'visible' {
+function getNetworkLogging(host: string | boolean): 'none' | 'host-to-expose' | 'visible' {
 	if (host === false) {
 		return 'host-to-expose';
 	} else if (typeof host === 'string' && LOCAL_IP_HOSTS.has(host)) {

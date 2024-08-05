@@ -1,6 +1,10 @@
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
-import { type ActionReturnType, defineAction } from '../../dist/actions/runtime/virtual/server.js';
+import {
+	type ActionReturnType,
+	type SafeResult,
+	defineAction,
+} from '../../dist/actions/runtime/virtual/server.js';
 import { z } from '../../zod.mjs';
 
 describe('ActionReturnType', () => {
@@ -13,6 +17,9 @@ describe('ActionReturnType', () => {
 				return { name };
 			},
 		});
-		expectTypeOf<ActionReturnType<typeof action>>().toEqualTypeOf<{ name: string }>();
+		expectTypeOf<ActionReturnType<typeof action>>().toEqualTypeOf<
+			SafeResult<any, { name: string }>
+		>();
+		expectTypeOf<ActionReturnType<typeof action.orThrow>>().toEqualTypeOf<{ name: string }>();
 	});
 });

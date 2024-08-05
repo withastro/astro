@@ -5,7 +5,6 @@ import type {
 	RewritePayload,
 } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { Logger } from '../logger/core.js';
 
 /**
  * Utility function that is in charge of calling the middleware.
@@ -47,27 +46,13 @@ export async function callMiddleware(
 	responseFunction: (
 		apiContext: APIContext,
 		rewritePayload?: RewritePayload
-	) => Promise<Response> | Response,
-	// TODO: remove these two arguments once rerouting goes out of experimental
-	enableRerouting: boolean,
-	logger: Logger
+	) => Promise<Response> | Response
 ): Promise<Response> {
 	let nextCalled = false;
 	let responseFunctionPromise: Promise<Response> | Response | undefined = undefined;
 	const next: MiddlewareNext = async (payload) => {
 		nextCalled = true;
-
-		if (enableRerouting) {
-			responseFunctionPromise = responseFunction(apiContext, payload);
-		} else {
-			if (payload) {
-				logger.warn(
-					'router',
-					'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
-				);
-			}
-			responseFunctionPromise = responseFunction(apiContext);
-		}
+		responseFunctionPromise = responseFunction(apiContext, payload);
 		// We need to pass the APIContext pass to `callMiddleware` because it can be mutated across middleware functions
 		return responseFunctionPromise;
 	};

@@ -22,6 +22,7 @@ declare module 'astro:content' {
 		ContentEntryMap[C]
 	>['slug'];
 
+	/** @deprecated Use `getEntry` instead. */
 	export function getEntryBySlug<
 		C extends keyof ContentEntryMap,
 		E extends ValidContentEntrySlug<C> | (string & {}),
@@ -33,6 +34,7 @@ declare module 'astro:content' {
 		? Promise<CollectionEntry<C>>
 		: Promise<CollectionEntry<C> | undefined>;
 
+	/** @deprecated Use `getEntry` instead. */
 	export function getDataEntryById<C extends keyof DataEntryMap, E extends keyof DataEntryMap[C]>(
 		collection: C,
 		entryId: E

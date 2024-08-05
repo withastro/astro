@@ -31,7 +31,7 @@ async function createRestartedContainer(
 
 const configRE = /.*astro.config.(?:mjs|cjs|js|ts)$/;
 
-export function shouldRestartContainer(
+function shouldRestartContainer(
 	{ settings, inlineConfig, restartInFlight }: Container,
 	changedFile: string
 ): boolean {
@@ -67,7 +67,7 @@ export function shouldRestartContainer(
 	return shouldRestart;
 }
 
-export async function restartContainer(container: Container): Promise<Container | Error> {
+async function restartContainer(container: Container): Promise<Container | Error> {
 	const { logger, close, settings: existingSettings } = container;
 	container.restartInFlight = true;
 
