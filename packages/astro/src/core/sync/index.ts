@@ -1,8 +1,7 @@
+import { dim } from 'kleur/colors';
 import fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
-import { fileURLToPath } from 'node:url';
-import { dim } from 'kleur/colors';
-import { type HMRPayload, createServer, normalizePath } from 'vite';
+import { type HMRPayload, createServer } from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
@@ -26,9 +25,7 @@ import {
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
-import { setUpEnvTs } from './setup-env-ts.js';
-import { dirname, relative } from 'node:path';
-import { REFERENCE_FILE } from './constants.js';
+import { writeFiles } from './write-files.js';
 
 export type SyncOptions = {
 	/**
@@ -83,9 +80,7 @@ export async function syncInternal({
 		}
 		syncAstroEnv(settings, fs);
 
-		writeInjectedTypes(settings, fs);
-
-		await setUpEnvTs({ settings, logger, fs });
+		await writeFiles(settings, fs, logger);
 		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 	} catch (err) {
 		const error = createSafeError(err);
@@ -96,29 +91,6 @@ export async function syncInternal({
 		// Will return exit code 1 in CLI
 		throw error;
 	}
-}
-
-// TODO: move to other file
-function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
-	const references: Array<string> = [];
-
-	for (const { filename, content } of settings.injectedTypes) {
-		const path = normalizePath(fileURLToPath(new URL(filename, settings.dotAstroDir)));
-		fs.mkdirSync(dirname(path), { recursive: true });
-		// TODO: format content using recast
-		fs.writeFileSync(path, content, 'utf-8');
-		references.push(normalizePath(relative(fileURLToPath(settings.dotAstroDir), path)));
-	}
-
-	const astroDtsContent = `/// <reference types="astro/client" />\n${references.map((reference) => `/// <reference path=${JSON.stringify(reference)} />`).join('\n')}`;
-	if (references.length === 0) {
-		fs.mkdirSync(settings.dotAstroDir, { recursive: true });
-	}
-	fs.writeFileSync(
-		normalizePath(fileURLToPath(new URL(REFERENCE_FILE, settings.dotAstroDir))),
-		astroDtsContent,
-		'utf-8'
-	);
 }
 
 /**
