@@ -1,3 +1,4 @@
+import { deserializeActionResult } from '../actions/runtime/virtual/shared.js';
 import type {
 	APIContext,
 	AstroGlobal,
@@ -216,7 +217,7 @@ export class RenderContext {
 		return Object.assign(context, {
 			props,
 			getActionResult: createGetActionResult(context.locals),
-			callAction: createCallAction(context.locals),
+			callAction: createCallAction(context),
 		});
 	}
 
@@ -314,7 +315,7 @@ export class RenderContext {
 		} satisfies AstroGlobal['response'];
 
 		const actionResult = hasActionsInternal(this.locals)
-			? this.locals._actionsInternal?.actionResult
+			? deserializeActionResult(this.locals._actionsInternal.actionResult)
 			: undefined;
 
 		// Create the result object that will be passed into the renderPage function.
@@ -458,10 +459,12 @@ export class RenderContext {
 			redirect,
 			rewrite,
 			request: this.request,
-			getActionResult: createGetActionResult(locals),
-			callAction: createCallAction(locals),
 			response,
 			site: pipeline.site,
+			getActionResult: createGetActionResult(locals),
+			get callAction() {
+				return createCallAction(this);
+			},
 			url,
 		};
 	}
