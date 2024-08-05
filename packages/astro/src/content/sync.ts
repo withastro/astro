@@ -10,129 +10,200 @@ import type { DataStore } from './data-store.js';
 import type { LoaderContext } from './loaders/types.js';
 import { getEntryDataAndImages, globalContentConfigObserver, posixRelative } from './utils.js';
 
-export interface SyncContentLayerOptions {
+export interface ContentLayerOptions {
 	store: DataStore;
 	settings: AstroSettings;
 	logger: Logger;
 	watcher?: FSWatcher;
 }
 
-/**
- * Run the `load()` method of each collection's loader, which will load the data and save it in the data store.
- * The loader itself is responsible for deciding whether this will clear and reload the full collection, or
- * perform an incremental update. After the data is loaded, the data store is written to disk.
- */
-export async function syncContentLayer({
-	settings,
-	logger: globalLogger,
-	store,
-	watcher,
-}: SyncContentLayerOptions) {
-	// The default max listeners is 10, which can be exceeded when using a lot of loaders
-	watcher?.setMaxListeners(50);
+export class ContentLayer {
+	#logger: Logger;
+	#store: DataStore;
+	#settings: AstroSettings;
+	#watcher?: FSWatcher;
+	#lastConfigDigest?: string;
 
-	const logger = globalLogger.forkIntegrationLogger('content');
-	logger.info('Syncing content');
-	const contentConfig = globalContentConfigObserver.get();
-	if (contentConfig?.status !== 'loaded') {
-		logger.debug('Content config not loaded, skipping sync');
-		return;
+	#generateDigest?: (data: Record<string, unknown> | string) => string;
+
+	#loading = false;
+	constructor({ settings, logger, store, watcher }: ContentLayerOptions) {
+		// The default max listeners is 10, which can be exceeded when using a lot of loaders
+		watcher?.setMaxListeners(50);
+
+		this.#logger = logger;
+		this.#store = store;
+		this.#settings = settings;
+		this.#watcher = watcher;
 	}
 
-	const previousConfigDigest = await store.metaStore().get('config-digest');
-	const { digest: currentConfigDigest } = contentConfig.config;
-	if (currentConfigDigest && previousConfigDigest !== currentConfigDigest) {
-		logger.info('Content config changed, clearing cache');
-		store.clearAll();
-		await store.metaStore().set('config-digest', currentConfigDigest);
+	/**
+	 * Whether the content layer is currently loading content
+	 */
+	get loading() {
+		return this.#loading;
 	}
 
-	// xxhash is a very fast non-cryptographic hash function that is used to generate a content digest
-	// It uses wasm, so we need to load it asynchronously.
-	const { h64ToString } = await xxhash();
-
-	const generateDigest = (data: Record<string, unknown> | string) => {
-		const dataString = typeof data === 'string' ? data : JSON.stringify(data);
-		return h64ToString(dataString);
-	};
-
-	await Promise.all(
-		Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
-			if (collection.type !== CONTENT_LAYER_TYPE) {
-				return;
+	/**
+	 * Watch for changes to the content config and trigger a sync when it changes.
+	 */
+	watchContentConfig() {
+		globalContentConfigObserver.subscribe(async (ctx) => {
+			if (
+				!this.#loading &&
+				ctx.status === 'loaded' &&
+				ctx.config.digest !== this.#lastConfigDigest
+			) {
+				this.#lastConfigDigest = ctx.config.digest;
+				this.sync();
 			}
+		});
+	}
 
-			let { schema } = collection;
+	/**
+	 * Run the `load()` method of each collection's loader, which will load the data and save it in the data store.
+	 * The loader itself is responsible for deciding whether this will clear and reload the full collection, or
+	 * perform an incremental update. After the data is loaded, the data store is written to disk.
+	 */
+	async sync() {
+		if (this.#loading) {
+			return;
+		}
+		this.#loading = true;
+		try {
+			await this.#doSync();
+		} finally {
+			this.#loading = false;
+		}
+	}
 
-			if (!schema && typeof collection.loader === 'object') {
-				schema = collection.loader.schema;
-				if (typeof schema === 'function') {
-					schema = await schema();
+	async #getGenerateDigest() {
+		if (this.#generateDigest) {
+			return this.#generateDigest;
+		}
+		// xxhash is a very fast non-cryptographic hash function that is used to generate a content digest
+		// It uses wasm, so we need to load it asynchronously.
+		const { h64ToString } = await xxhash();
+
+		this.#generateDigest = (data: Record<string, unknown> | string) => {
+			const dataString = typeof data === 'string' ? data : JSON.stringify(data);
+			return h64ToString(dataString);
+		};
+
+		return this.#generateDigest;
+	}
+
+	async #getLoaderContext({
+		collectionName,
+		loaderName = 'content',
+		parseData,
+	}: {
+		collectionName: string;
+		loaderName: string;
+		parseData: LoaderContext['parseData'];
+	}): Promise<LoaderContext> {
+		return {
+			collection: collectionName,
+			store: this.#store.scopedStore(collectionName),
+			meta: this.#store.metaStore(collectionName),
+			logger: this.#logger.forkIntegrationLogger(loaderName),
+			settings: this.#settings,
+			parseData,
+			generateDigest: await this.#getGenerateDigest(),
+			watcher: this.#watcher,
+		};
+	}
+
+	async #doSync() {
+		const logger = this.#logger.forkIntegrationLogger('content');
+		logger.info('Syncing content');
+		const contentConfig = globalContentConfigObserver.get();
+		if (contentConfig?.status !== 'loaded') {
+			logger.debug('Content config not loaded, skipping sync');
+			return;
+		}
+
+		const previousConfigDigest = await this.#store.metaStore().get('config-digest');
+		const { digest: currentConfigDigest } = contentConfig.config;
+		if (currentConfigDigest && previousConfigDigest !== currentConfigDigest) {
+			logger.info('Content config changed, clearing cache');
+			this.#store.clearAll();
+			await this.#store.metaStore().set('config-digest', currentConfigDigest);
+		}
+
+		await Promise.all(
+			Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
+				if (collection.type !== CONTENT_LAYER_TYPE) {
+					return;
 				}
-			}
 
-			const collectionWithResolvedSchema = { ...collection, schema };
+				let { schema } = collection;
 
-			const parseData: LoaderContext['parseData'] = async ({ id, data, filePath = '' }) => {
-				const { imageImports, data: parsedData } = await getEntryDataAndImages(
-					{
-						id,
-						collection: name,
-						unvalidatedData: data,
-						_internal: {
-							rawData: undefined,
-							filePath,
+				if (!schema && typeof collection.loader === 'object') {
+					schema = collection.loader.schema;
+					if (typeof schema === 'function') {
+						schema = await schema();
+					}
+				}
+
+				const collectionWithResolvedSchema = { ...collection, schema };
+
+				const parseData: LoaderContext['parseData'] = async ({ id, data, filePath = '' }) => {
+					const { imageImports, data: parsedData } = await getEntryDataAndImages(
+						{
+							id,
+							collection: name,
+							unvalidatedData: data,
+							_internal: {
+								rawData: undefined,
+								filePath,
+							},
 						},
-					},
-					collectionWithResolvedSchema,
-					false
-				);
-				if (imageImports?.length) {
-					store.addAssetImports(
-						imageImports,
-						// This path may already be relative, if we're re-parsing an existing entry
-						isAbsolute(filePath)
-							? posixRelative(fileURLToPath(settings.config.root), filePath)
-							: filePath
+						collectionWithResolvedSchema,
+						false
 					);
+					if (imageImports?.length) {
+						this.#store.addAssetImports(
+							imageImports,
+							// This path may already be relative, if we're re-parsing an existing entry
+							isAbsolute(filePath)
+								? posixRelative(fileURLToPath(this.#settings.config.root), filePath)
+								: filePath
+						);
+					}
+
+					return parsedData;
+				};
+
+				const context = await this.#getLoaderContext({
+					collectionName: name,
+					parseData,
+					loaderName: collection.loader.name,
+				});
+
+				if (typeof collection.loader === 'function') {
+					return simpleLoader(collection.loader, context);
 				}
 
-				return parsedData;
-			};
+				if (!collection.loader.load) {
+					throw new Error(`Collection loader for ${name} does not have a load method`);
+				}
 
-			const payload: LoaderContext = {
-				collection: name,
-				store: store.scopedStore(name),
-				meta: store.metaStore(name),
-				logger: globalLogger.forkIntegrationLogger(collection.loader.name ?? 'content'),
-				settings,
-				parseData,
-				generateDigest,
-				watcher,
-			};
-
-			if (typeof collection.loader === 'function') {
-				return simpleLoader(collection.loader, payload);
-			}
-
-			if (!collection.loader.load) {
-				throw new Error(`Collection loader for ${name} does not have a load method`);
-			}
-
-			return collection.loader.load(payload);
-		})
-	);
-	if (!existsSync(settings.config.cacheDir)) {
-		await fs.mkdir(settings.config.cacheDir, { recursive: true });
+				return collection.loader.load(context);
+			})
+		);
+		if (!existsSync(this.#settings.config.cacheDir)) {
+			await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
+		}
+		const cacheFile = new URL(DATA_STORE_FILE, this.#settings.config.cacheDir);
+		await this.#store.writeToDisk(cacheFile);
+		if (!existsSync(this.#settings.dotAstroDir)) {
+			await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
+		}
+		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
+		await this.#store.writeAssetImports(assetImportsFile);
+		logger.info('Synced content');
 	}
-	const cacheFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
-	await store.writeToDisk(cacheFile);
-	if (!existsSync(settings.dotAstroDir)) {
-		await fs.mkdir(settings.dotAstroDir, { recursive: true });
-	}
-	const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
-	await store.writeAssetImports(assetImportsFile);
-	logger.info('Synced content');
 }
 
 export async function simpleLoader<TData extends { id: string }>(
@@ -146,3 +217,25 @@ export async function simpleLoader<TData extends { id: string }>(
 		context.store.set({ id: raw.id, data: item });
 	}
 }
+
+function contentLayerSingleton() {
+	let instance: ContentLayer | null = null;
+	return {
+		initialized: () => Boolean(instance),
+		init: (options: ContentLayerOptions) => {
+			if (instance) {
+				throw new Error('Content layer already initialized');
+			}
+			instance = new ContentLayer(options);
+			return instance;
+		},
+		get: () => {
+			if (!instance) {
+				throw new Error('Content layer not initialized');
+			}
+			return instance;
+		},
+	};
+}
+
+export const globalContentLayer = contentLayerSingleton();

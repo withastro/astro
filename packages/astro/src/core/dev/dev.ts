@@ -9,7 +9,7 @@ import type { AstroInlineConfig } from '../../@types/astro.js';
 import { DATA_STORE_FILE } from '../../content/consts.js';
 import { DataStore, globalDataStore } from '../../content/data-store.js';
 import { attachContentServerListeners } from '../../content/index.js';
-import { syncContentLayer } from '../../content/sync.js';
+import { globalContentLayer } from '../../content/sync.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
 import * as msg from '../messages.js';
@@ -122,36 +122,18 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	}
 
 	const config = globalContentConfigObserver.get();
-	let currentDigest: string | undefined = undefined;
-	// mutex to prevent multiple syncContentLayer calls
-	let loading = false;
 	if (config.status === 'loaded') {
-		currentDigest = config.config.digest;
-		loading = true;
-		await syncContentLayer({
+		const contentLayer = globalContentLayer.init({
 			settings: restart.container.settings,
 			logger,
 			watcher: restart.container.viteServer.watcher,
 			store,
-		}).finally(() => {
-			loading = false;
-		});
+		})
+		contentLayer.watchContentConfig();
+		await contentLayer.sync();
 	}
 
-	globalContentConfigObserver.subscribe(async (ctx) => {
-		if (!loading && ctx.status === 'loaded' && ctx.config.digest !== currentDigest) {
-			loading = true;
-			currentDigest = ctx.config.digest;
-			await syncContentLayer({
-				settings: restart.container.settings,
-				logger,
-				watcher: restart.container.viteServer.watcher,
-				store,
-			}).finally(() => {
-				loading = false;
-			});
-		}
-	});
+
 
 	logger.info(null, green('watching for file changes...'));
 
