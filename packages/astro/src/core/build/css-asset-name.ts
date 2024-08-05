@@ -2,6 +2,7 @@ import type { GetModuleInfo, ModuleInfo } from 'rollup';
 
 import crypto from 'node:crypto';
 import npath from 'node:path';
+import process from 'node:process';
 import type { AstroSettings } from '../../@types/astro.js';
 import { viteID } from '../util.js';
 import { getTopLevelPageModuleInfos } from './graph.js';
@@ -24,8 +25,13 @@ export function shortHashedName(id: string, ctx: { getModuleInfo: GetModuleInfo 
 export function createNameHash(baseId: string | undefined, hashIds: string[]): string {
 	const baseName = baseId ? prettifyBaseName(npath.parse(baseId).name) : 'index';
 	const hash = crypto.createHash('sha256');
+	const cwd = process.cwd();
+
 	for (const id of hashIds) {
-		hash.update(id, 'utf-8');
+		// Strip the project directory from the paths before they are hashed, so that assets
+		// that import these css files have consistent hashes when built in different environments.
+		const relativePath = npath.relative(cwd, id);
+		hash.update(relativePath, 'utf-8');
 	}
 	const h = hash.digest('hex').slice(0, 8);
 	const proposedName = baseName + '.' + h;
