@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
+import * as devalue from 'devalue';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
@@ -34,11 +35,11 @@ describe('Astro Actions', () => {
 			});
 
 			assert.equal(res.ok, true);
-			assert.equal(res.headers.get('Content-Type'), 'application/json');
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
 
-			const json = await res.json();
-			assert.equal(json.channel, 'bholmesdev');
-			assert.equal(json.subscribeButtonState, 'smashed');
+			const data = devalue.parse(await res.text());
+			assert.equal(data.channel, 'bholmesdev');
+			assert.equal(data.subscribeButtonState, 'smashed');
 		});
 
 		it('Exposes comment action', async () => {
@@ -51,11 +52,11 @@ describe('Astro Actions', () => {
 			});
 
 			assert.equal(res.ok, true);
-			assert.equal(res.headers.get('Content-Type'), 'application/json');
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
 
-			const json = await res.json();
-			assert.equal(json.channel, 'bholmesdev');
-			assert.equal(json.comment, 'Hello, World!');
+			const data = devalue.parse(await res.text());
+			assert.equal(data.channel, 'bholmesdev');
+			assert.equal(data.comment, 'Hello, World!');
 		});
 
 		it('Raises validation error on bad form data', async () => {
@@ -70,8 +71,8 @@ describe('Astro Actions', () => {
 			assert.equal(res.status, 400);
 			assert.equal(res.headers.get('Content-Type'), 'application/json');
 
-			const json = await res.json();
-			assert.equal(json.type, 'AstroActionInputError');
+			const data = await res.json();
+			assert.equal(data.type, 'AstroActionInputError');
 		});
 
 		it('Exposes plain formData action', async () => {
@@ -84,11 +85,11 @@ describe('Astro Actions', () => {
 			});
 
 			assert.equal(res.ok, true);
-			assert.equal(res.headers.get('Content-Type'), 'application/json');
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
 
-			const json = await res.json();
-			assert.equal(json.success, true);
-			assert.equal(json.isFormData, true, 'Should receive plain FormData');
+			const data = devalue.parse(await res.text());
+			assert.equal(data.success, true);
+			assert.equal(data.isFormData, true, 'Should receive plain FormData');
 		});
 	});
 
@@ -111,11 +112,11 @@ describe('Astro Actions', () => {
 			const res = await app.render(req);
 
 			assert.equal(res.ok, true);
-			assert.equal(res.headers.get('Content-Type'), 'application/json');
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
 
-			const json = await res.json();
-			assert.equal(json.channel, 'bholmesdev');
-			assert.equal(json.subscribeButtonState, 'smashed');
+			const data = devalue.parse(await res.text());
+			assert.equal(data.channel, 'bholmesdev');
+			assert.equal(data.subscribeButtonState, 'smashed');
 		});
 
 		it('Exposes comment action', async () => {
@@ -129,11 +130,11 @@ describe('Astro Actions', () => {
 			const res = await app.render(req);
 
 			assert.equal(res.ok, true);
-			assert.equal(res.headers.get('Content-Type'), 'application/json');
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
 
-			const json = await res.json();
-			assert.equal(json.channel, 'bholmesdev');
-			assert.equal(json.comment, 'Hello, World!');
+			const data = devalue.parse(await res.text());
+			assert.equal(data.channel, 'bholmesdev');
+			assert.equal(data.comment, 'Hello, World!');
 		});
 
 		it('Raises validation error on bad form data', async () => {
@@ -149,8 +150,8 @@ describe('Astro Actions', () => {
 			assert.equal(res.status, 400);
 			assert.equal(res.headers.get('Content-Type'), 'application/json');
 
-			const json = await res.json();
-			assert.equal(json.type, 'AstroActionInputError');
+			const data = await res.json();
+			assert.equal(data.type, 'AstroActionInputError');
 		});
 
 		it('Exposes plain formData action', async () => {
@@ -164,11 +165,11 @@ describe('Astro Actions', () => {
 			const res = await app.render(req);
 
 			assert.equal(res.ok, true);
-			assert.equal(res.headers.get('Content-Type'), 'application/json');
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
 
-			const json = await res.json();
-			assert.equal(json.success, true);
-			assert.equal(json.isFormData, true, 'Should receive plain FormData');
+			const data = devalue.parse(await res.text());
+			assert.equal(data.success, true);
+			assert.equal(data.isFormData, true, 'Should receive plain FormData');
 		});
 
 		it('Response middleware fallback', async () => {
@@ -266,7 +267,7 @@ describe('Astro Actions', () => {
 			});
 			const res = await app.render(req);
 			assert.equal(res.status, 200);
-			const value = await res.json();
+			const value = devalue.parse(await res.text());
 			assert.equal(value, 0);
 		});
 
@@ -280,8 +281,28 @@ describe('Astro Actions', () => {
 			});
 			const res = await app.render(req);
 			assert.equal(res.status, 200);
-			const value = await res.json();
+
+			const value = devalue.parse(await res.text());
 			assert.equal(value, false);
+		});
+
+		it('Supports complex values: Date, Set, URL', async () => {
+			const req = new Request('http://example.com/_actions/complexValues', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Content-Length': '0',
+				},
+			});
+			const res = await app.render(req);
+			assert.equal(res.status, 200);
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+
+			const value = devalue.parse(await res.text(), {
+				URL: (href) => new URL(href),
+			});
+			assert.ok(value.date instanceof Date);
+			assert.ok(value.set instanceof Set);
 		});
 	});
 });
