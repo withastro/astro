@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import fastGlob from 'fast-glob';
-import { green } from 'kleur/colors';
+import { bold, green } from 'kleur/colors';
 import micromatch from 'micromatch';
 import pLimit from 'p-limit';
 import type { ContentEntryRenderFuction, ContentEntryType } from '../../@types/astro.js';
@@ -190,14 +190,51 @@ export function glob(globOptions: GlobOptions): Loader {
 			}
 
 			const limit = pLimit(10);
+			const skippedFiles: Array<string> = [];
+
+			const contentDir = new URL('content/', settings.config.srcDir);
+
+			function isInContentDir(file: string) {
+				const fileUrl = new URL(file, baseDir);
+				return fileUrl.href.startsWith(contentDir.href);
+			}
+
+			function isConfigFile(file: string) {
+				const configFiles = ['config.js', 'config.ts', 'config.mjs'];
+				const fileUrl = new URL(file, baseDir);
+				return configFiles.some(
+					(configFile) => new URL(configFile, contentDir).href === fileUrl.href
+				);
+			}
+
 			await Promise.all(
 				files.map((entry) =>
 					limit(async () => {
+						if (isConfigFile(entry)) {
+							return;
+						}
+						if (isInContentDir(entry)) {
+							skippedFiles.push(entry);
+							return;
+						}
 						const entryType = configForFile(entry);
 						await syncData(entry, baseDir, entryType);
 					})
 				)
 			);
+
+			const skipCount = skippedFiles.length;
+
+			if (skipCount > 0) {
+				logger.warn(`The glob() loader cannot be used for files in ${bold('src/content')}.`);
+				if (skipCount > 10) {
+					logger.warn(`Skipped ${green(skippedFiles.length)} files.`);
+				} else {
+					logger.warn(`Skipped:`);
+					skippedFiles.forEach((file) => logger.warn(`• ${green(file)}`));
+				}
+			}
+
 			// Remove entries that were not found this time
 			untouchedEntries.forEach((id) => store.delete(id));
 
