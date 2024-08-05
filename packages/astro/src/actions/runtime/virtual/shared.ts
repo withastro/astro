@@ -77,8 +77,7 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 			return new ActionError(body);
 		}
 		return new ActionError({
-			message: body.message,
-			code: ActionError.statusToCode(body.status),
+			code: 'INTERNAL_SERVER_ERROR',
 		});
 	}
 }
