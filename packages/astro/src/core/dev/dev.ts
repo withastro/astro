@@ -128,12 +128,10 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			logger,
 			watcher: restart.container.viteServer.watcher,
 			store,
-		})
+		});
 		contentLayer.watchContentConfig();
 		await contentLayer.sync();
 	}
-
-
 
 	logger.info(null, green('watching for file changes...'));
 

@@ -235,6 +235,10 @@ function contentLayerSingleton() {
 			}
 			return instance;
 		},
+		/** @internal */
+		dispose: () => {
+			instance = null;
+		},
 	};
 }
 
