@@ -32,7 +32,7 @@ export type ContentLookupMap = {
 	[collectionName: string]: { type: 'content' | 'data'; entries: { [lookupId: string]: string } };
 };
 
-export const collectionConfigParser = z.union([
+const collectionConfigParser = z.union([
 	z.object({
 		type: z.literal('content').optional().default('content'),
 		schema: z.any().optional(),
@@ -91,7 +91,7 @@ export const collectionConfigParser = z.union([
 	}),
 ]);
 
-export const contentConfigParser = z.object({
+const contentConfigParser = z.object({
 	collections: z.record(collectionConfigParser),
 });
 
@@ -99,11 +99,6 @@ export type CollectionConfig = z.infer<typeof collectionConfigParser>;
 export type ContentConfig = z.infer<typeof contentConfigParser> & { digest?: string };
 
 type EntryInternal = { rawData: string | undefined; filePath: string };
-
-export const msg = {
-	collectionConfigMissing: (collection: string) =>
-		`${collection} does not have a config. We suggest adding one for type safety!`,
-};
 
 export function parseEntrySlug({
 	id,
@@ -404,7 +399,7 @@ export function getEntryType(
 	}
 }
 
-export function hasUnderscoreBelowContentDirectoryPath(
+function hasUnderscoreBelowContentDirectoryPath(
 	fileUrl: URL,
 	contentDir: ContentPaths['contentDir']
 ): boolean {
@@ -479,7 +474,7 @@ export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[numb
 	return flags.has(flag);
 }
 
-export async function loadContentConfig({
+async function loadContentConfig({
 	fs,
 	settings,
 	viteServer,

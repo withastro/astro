@@ -69,8 +69,6 @@ export type SSRManifest = {
 	i18n: SSRManifestI18n | undefined;
 	middleware: MiddlewareHandler;
 	checkOrigin: boolean;
-	// TODO: remove once the experimental flag is removed
-	rewritingEnabled: boolean;
 	// TODO: remove experimental prefix
 	experimentalEnvGetSecretEnabled: boolean;
 };

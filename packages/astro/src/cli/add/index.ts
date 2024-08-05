@@ -786,7 +786,7 @@ async function tryToInstallIntegrations({
 	}
 }
 
-export async function validateIntegrations(integrations: string[]): Promise<IntegrationInfo[]> {
+async function validateIntegrations(integrations: string[]): Promise<IntegrationInfo[]> {
 	const spinner = ora('Resolving packages...').start();
 	try {
 		const integrationEntries = await Promise.all(

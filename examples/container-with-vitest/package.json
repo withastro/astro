@@ -12,11 +12,11 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@astrojs/react": "^3.6.0",
-    "astro": "^4.12.2",
+    "@astrojs/react": "^3.6.1",
+    "astro": "^4.13.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "vitest": "^2.0.3"
+    "vitest": "^2.0.5"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

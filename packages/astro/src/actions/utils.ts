@@ -18,3 +18,16 @@ export function createGetActionResult(locals: APIContext['locals']): APIContext[
 		return locals._actionsInternal.getActionResult(actionFn);
 	};
 }
+
+export function createCallAction(locals: APIContext['locals']): APIContext['callAction'] {
+	return (actionFn, input) => {
+		if (!hasActionsInternal(locals))
+			throw new AstroError({
+				name: 'AstroActionError',
+				message: 'Experimental actions are not enabled in your project.',
+				hint: 'See https://docs.astro.build/en/reference/configuration-reference/#experimental-flags',
+			});
+
+		return locals._actionsInternal.callAction(actionFn, input);
+	};
+}

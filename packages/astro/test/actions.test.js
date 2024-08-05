@@ -10,9 +10,6 @@ describe('Astro Actions', () => {
 		fixture = await loadFixture({
 			root: './fixtures/actions/',
 			adapter: testAdapter(),
-			experimental: {
-				rewriting: true,
-			},
 		});
 	});
 
@@ -174,12 +171,10 @@ describe('Astro Actions', () => {
 			assert.equal(json.isFormData, true, 'Should receive plain FormData');
 		});
 
-		it('Respects user middleware', async () => {
-			const formData = new FormData();
-			formData.append('_astroAction', '/_actions/getUser');
-			const req = new Request('http://example.com/user', {
+		it('Response middleware fallback', async () => {
+			const req = new Request('http://example.com/user?_astroAction=getUser', {
 				method: 'POST',
-				body: formData,
+				body: new FormData(),
 			});
 			const res = await app.render(req);
 			assert.equal(res.ok, true);
@@ -190,11 +185,9 @@ describe('Astro Actions', () => {
 		});
 
 		it('Respects custom errors', async () => {
-			const formData = new FormData();
-			formData.append('_astroAction', '/_actions/getUserOrThrow');
-			const req = new Request('http://example.com/user-or-throw', {
+			const req = new Request('http://example.com/user-or-throw?_astroAction=getUserOrThrow', {
 				method: 'POST',
-				body: formData,
+				body: new FormData(),
 			});
 			const res = await app.render(req);
 			assert.equal(res.ok, false);
@@ -204,6 +197,40 @@ describe('Astro Actions', () => {
 			let $ = cheerio.load(html);
 			assert.equal($('#error-message').text(), 'Not logged in');
 			assert.equal($('#error-code').text(), 'UNAUTHORIZED');
+		});
+
+		describe('legacy', () => {
+			it('Response middleware fallback', async () => {
+				const formData = new FormData();
+				formData.append('_astroAction', 'getUser');
+				const req = new Request('http://example.com/user', {
+					method: 'POST',
+					body: formData,
+				});
+				const res = await app.render(req);
+				assert.equal(res.ok, true);
+
+				const html = await res.text();
+				let $ = cheerio.load(html);
+				assert.equal($('#user').text(), 'Houston');
+			});
+
+			it('Respects custom errors', async () => {
+				const formData = new FormData();
+				formData.append('_astroAction', 'getUserOrThrow');
+				const req = new Request('http://example.com/user-or-throw', {
+					method: 'POST',
+					body: formData,
+				});
+				const res = await app.render(req);
+				assert.equal(res.ok, false);
+				assert.equal(res.status, 401);
+
+				const html = await res.text();
+				let $ = cheerio.load(html);
+				assert.equal($('#error-message').text(), 'Not logged in');
+				assert.equal($('#error-code').text(), 'UNAUTHORIZED');
+			});
 		});
 
 		it('Sets status to 204 when no content', async () => {
@@ -227,6 +254,34 @@ describe('Astro Actions', () => {
 			let $ = cheerio.load(html);
 			assert.equal($('[data-url]').text(), '/subscribe');
 			assert.equal($('[data-channel]').text(), 'bholmesdev');
+		});
+
+		it('Returns content when the value is 0', async () => {
+			const req = new Request('http://example.com/_actions/zero', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Content-Length': '0',
+				},
+			});
+			const res = await app.render(req);
+			assert.equal(res.status, 200);
+			const value = await res.json();
+			assert.equal(value, 0);
+		});
+
+		it('Returns content when the value is false', async () => {
+			const req = new Request('http://example.com/_actions/false', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Content-Length': '0',
+				},
+			});
+			const res = await app.render(req);
+			assert.equal(res.status, 200);
+			const value = await res.json();
+			assert.equal(value, false);
 		});
 	});
 });

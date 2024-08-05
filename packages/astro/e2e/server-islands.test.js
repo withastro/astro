@@ -37,6 +37,13 @@ test.describe('Server islands', () => {
 
 			await expect(el, 'element rendered').toBeVisible();
 		});
+
+		test('Self imported module can server defer', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/base/'));
+			let el = page.locator('.now');
+
+			await expect(el).toHaveCount(2);
+		});
 	});
 
 	test.describe('Production', () => {

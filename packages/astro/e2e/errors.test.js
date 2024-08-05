@@ -131,4 +131,12 @@ test.describe('Error display', () => {
 		const message = (await getErrorOverlayContent(page)).message;
 		expect(message).toMatch('The operation was aborted due to timeout');
 	});
+
+	test('properly highlight the line with the error', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/import-not-found'), { waitUntil: 'networkidle' });
+
+		const { codeFrame } = await getErrorOverlayContent(page);
+		const codeFrameContent = await codeFrame.innerHTML();
+		expect(codeFrameContent).toContain('error-line');
+	});
 });

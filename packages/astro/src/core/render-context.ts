@@ -9,8 +9,8 @@ import type {
 	RouteData,
 	SSRResult,
 } from '../@types/astro.js';
-import type { ActionAPIContext } from '../actions/runtime/store.js';
-import { createGetActionResult, hasActionsInternal } from '../actions/utils.js';
+import type { ActionAPIContext } from '../actions/runtime/utils.js';
+import { createCallAction, createGetActionResult, hasActionsInternal } from '../actions/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
@@ -137,24 +137,17 @@ export class RenderContext {
 		}
 		const lastNext = async (ctx: APIContext, payload?: RewritePayload) => {
 			if (payload) {
-				if (this.pipeline.manifest.rewritingEnabled) {
-					pipeline.logger.debug('router', 'Called rewriting to:', payload);
-					// we intentionally let the error bubble up
-					const [routeData, component] = await pipeline.tryRewrite(
-						payload,
-						this.request,
-						this.originalRoute
-					);
-					this.routeData = routeData;
-					componentInstance = component;
-					this.isRewriting = true;
-					this.status = 200;
-				} else {
-					this.pipeline.logger.error(
-						'router',
-						'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
-					);
-				}
+				pipeline.logger.debug('router', 'Called rewriting to:', payload);
+				// we intentionally let the error bubble up
+				const [routeData, component] = await pipeline.tryRewrite(
+					payload,
+					this.request,
+					this.originalRoute
+				);
+				this.routeData = routeData;
+				componentInstance = component;
+				this.isRewriting = true;
+				this.status = 200;
 			}
 			let response: Response;
 
@@ -207,13 +200,7 @@ export class RenderContext {
 			return response;
 		};
 
-		const response = await callMiddleware(
-			middleware,
-			apiContext,
-			lastNext,
-			this.pipeline.manifest.rewritingEnabled,
-			this.pipeline.logger
-		);
+		const response = await callMiddleware(middleware, apiContext, lastNext);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
 			response.headers.delete(ROUTE_TYPE_HEADER);
 		}
@@ -229,25 +216,12 @@ export class RenderContext {
 		return Object.assign(context, {
 			props,
 			getActionResult: createGetActionResult(context.locals),
+			callAction: createCallAction(context.locals),
 		});
 	}
 
 	async #executeRewrite(reroutePayload: RewritePayload) {
 		this.pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
-		if (!this.pipeline.manifest.rewritingEnabled) {
-			this.pipeline.logger.error(
-				'router',
-				'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.'
-			);
-			return new Response(
-				'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
-				{
-					status: 500,
-					statusText:
-						'The rewrite API is experimental. To use this feature, add the `rewriting` flag to the `experimental` object in your Astro config.',
-				}
-			);
-		}
 		const [routeData, component, newURL] = await this.pipeline.tryRewrite(
 			reroutePayload,
 			this.request,
@@ -485,6 +459,7 @@ export class RenderContext {
 			rewrite,
 			request: this.request,
 			getActionResult: createGetActionResult(locals),
+			callAction: createCallAction(locals),
 			response,
 			site: pipeline.site,
 			url,
