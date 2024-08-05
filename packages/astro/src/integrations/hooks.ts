@@ -21,7 +21,6 @@ import { mergeConfig } from '../core/config/index.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../core/util.js';
 import { validateSupportedFeatures } from './features-validation.js';
-import { z } from 'zod';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -101,19 +100,15 @@ export function getToolbarServerCommunicationHelpers(server: ViteDevServer) {
 	};
 }
 
-const validInjectedTypeFilenameSchema = z
-	.string()
-	.regex(/^[\w.-]+$/, 'Invalid chars')
-	.endsWith('.d.ts');
+const SAFE_CHARS_RE = /[^\w.-]/g
 
-// TODO: test
 export function normalizeInjectedTypeFilename(filename: string, integrationName: string): string {
-	// TODO: validate filename
-	const result = validInjectedTypeFilenameSchema.safeParse(filename);
-	if (!result.success) {
-		throw new Error('TODO: astro error');
+	if (!filename.endsWith('.d.ts')) {
+		throw new Error(
+			`Integration ${bold(integrationName)} is injecting a type that does not end with "${bold('.d.ts')}"`
+		);
 	}
-	return `./integrations/${integrationName.replace(/[^\w.-]/g, '_')}/${filename}`;
+	return `./integrations/${integrationName.replace(SAFE_CHARS_RE, '_')}/${filename.replace(SAFE_CHARS_RE, '_')}`;
 }
 
 export async function runHookConfigSetup({
