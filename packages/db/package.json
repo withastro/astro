@@ -70,7 +70,7 @@
   },
   "dependencies": {
     "@astrojs/studio": "workspace:*",
-    "@libsql/client": "^0.8.0",
+    "@libsql/client": "^0.8.1",
     "async-listen": "^3.0.1",
     "deep-diff": "^1.0.2",
     "drizzle-orm": "^0.31.2",
