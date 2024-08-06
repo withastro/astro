@@ -1,19 +1,20 @@
 import { getCollection, getEntry } from 'astro:content';
 import * as devalue from 'devalue';
-import { stripAllRenderFn, stripRenderFn } from '../utils';
 
 export async function GET() {
-	const customLoader = stripAllRenderFn((await getCollection('blog')).slice(0, 10));
-	const fileLoader = stripAllRenderFn(await getCollection('dogs'));
+	const customLoader = await getCollection('blog', (entry) => {
+		return entry.data.id < 6;
+	});
+	const fileLoader = await getCollection('dogs');
 
-	const dataEntry = stripRenderFn(await getEntry('dogs', 'beagle'));
+	const dataEntry = await getEntry('dogs', 'beagle');
 
-	const simpleLoader = stripAllRenderFn(await getCollection('cats'));
+	const simpleLoader = await getCollection('cats');
 
-	const entryWithReference = stripRenderFn(await getEntry('spacecraft', 'columbia-copy'));
-	const referencedEntry = stripRenderFn(await getEntry(entryWithReference.data.cat));
+	const entryWithReference = await getEntry('spacecraft', 'columbia-copy');
+	const referencedEntry = await getEntry(entryWithReference.data.cat);
 
-	const increment = stripRenderFn(await getEntry('increment', 'value'));
+	const increment = await getEntry('increment', 'value');
 
 	return new Response(
 		devalue.stringify({
