@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.13.2
+
+### Patch Changes
+
+- e8e18a8: Fixes an issue where errors inside script and style tags could be offset by a few characters when multi bytes characters were present in the file
+
 ## 2.13.1
 
 ### Patch Changes

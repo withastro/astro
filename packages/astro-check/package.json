@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/check",
   "description": "Type checking and diagnostics for Astro projects",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "author": "withastro",
   "license": "MIT",
   "homepage": "https://github.com/withastro/language-tools/tree/main/packages/astro-check",
@@ -24,7 +24,7 @@
     "test:match": "pnpm run test -g"
   },
   "dependencies": {
-    "@astrojs/language-server": "^2.13.1",
+    "@astrojs/language-server": "^2.13.2",
     "chokidar": "^3.5.3",
     "fast-glob": "^3.3.1",
     "kleur": "^4.1.5",
