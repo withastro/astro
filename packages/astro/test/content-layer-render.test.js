@@ -26,7 +26,6 @@ describe('Content Layer', () => {
 	});
 
 	describe('Build', () => {
-		let devServer;
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/content-layer/' });
 			await fixture.build();

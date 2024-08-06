@@ -114,6 +114,7 @@ export class DataStore {
 	}
 
 	hasCollection(collectionName: string) {
+		console.log(this.#collections.keys());
 		return this.#collections.has(collectionName);
 	}
 
