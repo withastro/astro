@@ -88,17 +88,15 @@ const spacecraft = defineCollection({
 const reptiles = defineCollection({
 	type: 'experimental_content',
 	loader: glob({
-		pattern: '*.mdx',
+		pattern: '*.{mdx, md}',
 		base: new URL('../../content-outside-src-mdx', import.meta.url),
 	}),
-	schema: ({ image }) =>
+	schema: () =>
 		z.object({
 			title: z.string(),
 			description: z.string(),
 			publishedDate: z.coerce.date(),
 			tags: z.array(z.string()),
-			heroImage: image().optional(),
-			cat: reference('cats').optional(),
 		}),
 });
 
