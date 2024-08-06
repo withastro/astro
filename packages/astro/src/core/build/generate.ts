@@ -306,7 +306,7 @@ function getInvalidRouteSegmentError(
 	route: RouteData,
 	staticPath: GetStaticPathsItem
 ): AstroError {
-	const invalidParam = e.message.match(/^Expected "([^"]+)"/)?.[1];
+	const invalidParam = /^Expected "([^"]+)"/.exec(e.message)?.[1];
 	const received = invalidParam ? staticPath.params[invalidParam] : undefined;
 	let hint =
 		'Learn about dynamic routes at https://docs.astro.build/en/core-concepts/routing/#dynamic-routes';
@@ -421,7 +421,7 @@ async function generatePath(
 		// always be rendered
 		route.pathname !== '/' &&
 		// Check if there is a translated page with the same path
-		Object.values(options.allPages).some((val) => pathname.match(val.route.pattern))
+		Object.values(options.allPages).some((val) => val.route.pattern.test(pathname))
 	) {
 		return;
 	}
@@ -503,7 +503,7 @@ function getPrettyRouteName(route: RouteData): string {
 	} else if (route.component.includes('node_modules/')) {
 		// For routes from node_modules (usually injected by integrations),
 		// prettify it by only grabbing the part after the last `node_modules/`
-		return route.component.match(/.*node_modules\/(.+)/)?.[1] ?? route.component;
+		return /.*node_modules\/(.+)/.exec(route.component)?.[1] ?? route.component;
 	} else {
 		return route.component;
 	}
