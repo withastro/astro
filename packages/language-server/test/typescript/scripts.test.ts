@@ -1,4 +1,4 @@
-import { FullDocumentDiagnosticReport, Position } from '@volar/language-server';
+import { type FullDocumentDiagnosticReport, Position, Range } from '@volar/language-server';
 import { expect } from 'chai';
 import { type LanguageServer, getLanguageServer } from '../server.js';
 
@@ -58,5 +58,20 @@ describe('TypeScript - Diagnostics', async () => {
 		);
 
 		expect(hoverInfo).to.be.null;
+	});
+
+	it('supports script tags in files with multibytes characters', async () => {
+		const document = await languageServer.openFakeDocument(
+			`🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
+<script>doesntExists</script>`,
+			'astro'
+		);
+
+		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
+			document.uri
+		)) as FullDocumentDiagnosticReport;
+
+		expect(diagnostics.items).length(1);
+		expect(diagnostics.items[0].range).to.deep.equal(Range.create(1, 8, 1, 20));
 	});
 });
