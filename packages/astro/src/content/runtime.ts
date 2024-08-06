@@ -19,7 +19,7 @@ import {
 } from '../runtime/server/index.js';
 import { CONTENT_LAYER_TYPE, IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
-import { type ContentLookupMap } from './utils.js';
+import type { ContentLookupMap } from './utils.js';
 
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
@@ -89,13 +89,8 @@ export function createGetCollection({
 					? updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap)
 					: rawEntry.data;
 				let entry;
-				if (!rawEntry.isModule) {
-					entry = {
-						...rawEntry,
-						data,
-						collection,
-					};
-				} else {
+				if (rawEntry.isModule === true) {
+					console.log("he4re????")
 					// @ts-expect-error	virtual module
 					const { default: contentModules } = await import('astro:content-module-imports');
 					const module = contentModules.get(rawEntry.filePath);
@@ -119,6 +114,12 @@ export function createGetCollection({
 								}
 							};
 						},
+					};
+				} else {
+					entry = {
+						...rawEntry,
+						data,
+						collection,
 					};
 				}
 				if (hasFilter && !filter(entry)) {

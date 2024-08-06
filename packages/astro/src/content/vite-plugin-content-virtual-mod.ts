@@ -18,7 +18,6 @@ import {
 	ASSET_IMPORTS_RESOLVED_STUB_ID,
 	ASSET_IMPORTS_VIRTUAL_ID,
 	CONTENT_FLAG,
-	CONTENT_MODULE_FLAG,
 	CONTENT_RENDER_FLAG,
 	DATA_FLAG,
 	DATA_STORE_FILE,
@@ -155,10 +154,9 @@ export function astroContentVirtualModPlugin({
 				return 'export default new Map()';
 			}
 
-			// if (MODULES_IMPORTS_VIRTUAL_ID) {
-			//
-			// 	return 'export default new Map()';
-			// }
+			if (id === MODULES_IMPORTS_VIRTUAL_ID) {
+				return 'export default new Map()';
+			}
 		},
 		renderChunk(code, chunk) {
 			if (!settings.config.experimental.contentCollectionCache) {
