@@ -152,6 +152,81 @@ describe('Prerendering', () => {
 		});
 	});
 
+	describe('Via integration', () => {
+		before(async () => {
+			process.env.PRERENDER = false;
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'server',
+				outDir: './dist/hybrid-via-integration',
+				build: {
+					client: './dist/hybrid-via-integration/client',
+					server: './dist/hybrid-via-integration/server',
+				},
+				adapter: nodejs({ mode: 'standalone' }),
+				integrations: [
+					{
+						name: 'test',
+						hooks: {
+							'astro:config:setup': ({ handleRouteOptions }) => {
+								handleRouteOptions((route) => {
+									console.log
+								})
+							}
+						}
+					}
+				]
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			let res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+			delete process.env.PRERENDER;
+		});
+
+		it('Can render SSR route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/one`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
+		});
+
+		it('Can render prerendered route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/two`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
+		});
+
+		it('Can render prerendered route with redirect and query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/two?foo=bar`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
+		});
+
+		it('Can render prerendered route with query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/two/?foo=bar`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
+		});
+	});
+
 	describe('Dev', () => {
 		let devServer;
 

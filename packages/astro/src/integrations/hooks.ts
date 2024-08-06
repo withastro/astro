@@ -182,6 +182,9 @@ export async function runHookConfigSetup({
 					}
 					updatedSettings.injectedRoutes.push(injectRoute);
 				},
+				handleRouteOptions: (handler) => {
+					updatedSettings.routeOptionsHandlers.push(handler);
+				},
 				addWatchFile: (path) => {
 					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
 				},

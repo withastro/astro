@@ -2220,6 +2220,8 @@ export interface ResolvedInjectedRoute extends InjectedRoute {
 	resolvedEntryPoint?: URL;
 }
 
+export type RouteOptionsHandler = (route: { prerender?: boolean }) => void;
+
 /**
  * Resolved Astro Config
  * Config with user settings along with all defaults filled in.
@@ -2351,6 +2353,7 @@ export interface AstroSettings {
 	preferences: AstroPreferences;
 	injectedRoutes: InjectedRoute[];
 	resolvedInjectedRoutes: ResolvedInjectedRoute[];
+	routeOptionsHandlers: RouteOptionsHandler[];
 	pageExtensions: string[];
 	contentEntryTypes: ContentEntryType[];
 	dataEntryTypes: DataEntryType[];
@@ -3063,6 +3066,7 @@ declare global {
 				addWatchFile: (path: URL | string) => void;
 				injectScript: (stage: InjectedScriptStage, content: string) => void;
 				injectRoute: (injectRoute: InjectedRoute) => void;
+				handleRouteOptions: (handler: RouteOptionsHandler) => void;
 				addClientDirective: (directive: ClientDirectiveConfig) => void;
 				/**
 				 * @deprecated Use `addDevToolbarApp` instead.

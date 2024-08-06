@@ -3,6 +3,7 @@ import type { PageOptions } from '../vite-plugin-astro/types.js';
 
 import * as eslexer from 'es-module-lexer';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { rootRelativePath } from '../core/viteUtils.js';
 
 const BOOLEAN_EXPORTS = new Set(['prerender']);
 
@@ -36,6 +37,7 @@ function isFalsy(value: string) {
 
 let didInit = false;
 
+// NOTE: `settings` is only undefined in tests
 export async function scan(
 	code: string,
 	id: string,
@@ -80,6 +82,17 @@ export async function scan(
 				pageOptions[name as keyof PageOptions] = isTruthy(suffix);
 			}
 		}
+	}
+
+	if (settings) {
+
+		const route = { 
+			component: rootRelativePath(settings.config.root, new URL(id, 'file://'), true),
+			prerender: pageOptions.prerender };
+		for (const handler of settings.routeOptionsHandlers) {
+			handler(route);
+		}
+		pageOptions.prerender = route.prerender;
 	}
 
 	return pageOptions;
