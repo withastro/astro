@@ -77,14 +77,6 @@ export function astroContentVirtualModPlugin({
 				return RESOLVED_DATA_STORE_VIRTUAL_ID;
 			}
 
-			if (id === MODULES_IMPORTS_ID) {
-				const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
-				if (fs.existsSync(modules)) {
-					return fileURLToPath(modules);
-				}
-				return MODULES_IMPORTS_VIRTUAL_ID;
-			}
-
 			if (hasContentModuleFlag(id)) {
 				const [, query] = id.split('?');
 				const params = new URLSearchParams(query);
@@ -96,6 +88,16 @@ export function astroContentVirtualModPlugin({
 					return await this.resolve(importerPath);
 				}
 			}
+
+			if (id === MODULES_IMPORTS_ID) {
+				const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
+				if (fs.existsSync(modules)) {
+					return fileURLToPath(modules);
+				}
+				return MODULES_IMPORTS_VIRTUAL_ID;
+			}
+
+
 
 			if (id === ASSET_IMPORTS_VIRTUAL_ID) {
 				const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
