@@ -1,5 +1,3 @@
-import type { OutgoingHttpHeaders } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import type {
 	MarkdownHeading,
 	MarkdownVFile,
@@ -9,6 +7,8 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
+import type { OutgoingHttpHeaders } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
 import type {
@@ -77,7 +77,7 @@ export type {
 	UnresolvedImageTransform,
 } from '../assets/types.js';
 export type { RemotePattern } from '../assets/utils/remotePattern.js';
-export type { SSRManifest, AssetsPrefix } from '../core/app/types.js';
+export type { AssetsPrefix, SSRManifest } from '../core/app/types.js';
 export type {
 	AstroCookieGetOptions,
 	AstroCookieSetOptions,
@@ -2268,6 +2268,16 @@ export interface AstroUserConfig {
 		 * For a complete overview, and to give feedback on this experimental API, see the [Server Islands RFC](https://github.com/withastro/roadmap/pull/963).
 		 */
 		serverIslands?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.contentCollectionIntellisense
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.14.0
+		 * @description
+		 */
+		contentCollectionIntellisense?: boolean;
 	};
 }
 

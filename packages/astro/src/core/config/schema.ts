@@ -90,6 +90,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		globalRoutePriority: false,
 		rewriting: false,
 		serverIslands: false,
+		contentCollectionIntellisense: false,
 		env: {
 			validateSecrets: false,
 		},
@@ -544,6 +545,10 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.serverIslands),
+			contentCollectionIntellisense: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionIntellisense),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`

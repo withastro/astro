@@ -1,8 +1,8 @@
+import glob from 'fast-glob';
+import { bold, cyan } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import glob from 'fast-glob';
-import { bold, cyan } from 'kleur/colors';
 import { type ViteDevServer, normalizePath } from 'vite';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
@@ -13,6 +13,7 @@ import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
+	type CollectionConfig,
 	type ContentConfig,
 	type ContentObservable,
 	type ContentPaths,
@@ -460,35 +461,14 @@ async function writeContentFiles({
 					dataTypesStr += `};\n`;
 				}
 
-				if (settings.config.experimental.contentCollectionJsonSchema && collectionConfig?.schema) {
-					let zodSchemaForJson =
-						typeof collectionConfig.schema === 'function'
-							? collectionConfig.schema({ image: () => z.string() })
-							: collectionConfig.schema;
-					if (zodSchemaForJson instanceof z.ZodObject) {
-						zodSchemaForJson = zodSchemaForJson.extend({
-							$schema: z.string().optional(),
-						});
-					}
-					try {
-						await fs.promises.writeFile(
-							new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
-							JSON.stringify(
-								zodToJsonSchema(zodSchemaForJson, {
-									name: collectionKey.replace(/"/g, ''),
-									markdownDescription: true,
-									errorMessages: true,
-								}),
-								null,
-								2
-							)
-						);
-					} catch (err) {
-						logger.warn(
-							'content',
-							`An error was encountered while creating the JSON schema for the ${collectionKey} collection. Proceeding without it. Error: ${err}`
-						);
-					}
+				if (collectionConfig?.schema) {
+					await generateJSONSchema(
+						fs,
+						collectionConfig,
+						collectionKey,
+						collectionSchemasDir,
+						logger
+					);
 				}
 				break;
 		}
@@ -519,4 +499,44 @@ async function writeContentFiles({
 		new URL(CONTENT_TYPES_FILE, settings.dotAstroDir),
 		typeTemplateContent
 	);
+}
+
+async function generateJSONSchema(
+	fsMod: typeof import('node:fs'),
+	collectionConfig: CollectionConfig,
+	collectionKey: string,
+	collectionSchemasDir: URL,
+	logger: Logger
+) {
+	let zodSchemaForJson =
+		typeof collectionConfig.schema === 'function'
+			? collectionConfig.schema({ image: () => z.string() })
+			: collectionConfig.schema;
+	if (zodSchemaForJson instanceof z.ZodObject) {
+		zodSchemaForJson = zodSchemaForJson.extend({
+			$schema: z.string().optional(),
+		});
+	}
+	try {
+		await fsMod.promises.writeFile(
+			new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
+			JSON.stringify(
+				zodToJsonSchema(zodSchemaForJson, {
+					name: collectionKey.replace(/"/g, ''),
+					markdownDescription: true,
+					errorMessages: true,
+					// Fix for https://github.com/StefanTerdell/zod-to-json-schema/issues/110
+					dateStrategy: ['format:date-time', 'format:date', 'integer'],
+				}),
+				null,
+				2
+			)
+		);
+	} catch (err) {
+		// This should error gracefully and not crash the dev server
+		logger.warn(
+			'content',
+			`An error was encountered while creating the JSON schema for the ${collectionKey} collection. Proceeding without it. Error: ${err}`
+		);
+	}
 }
