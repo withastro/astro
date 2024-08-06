@@ -133,35 +133,6 @@ export function createGetCollection({
 			return [];
 		}
 
-		// if (entry.isModule) {
-		// 	// @ts-expect-error	virtual module
-		// 	const { default: contentModules } = await import("astro:content-module-imports");
-		//
-		// 	const module = contentModules.get(entry.filePath);
-		//
-		// 	console.log("here");
-		//
-		//
-		// 	const resolvedComponent = await module();
-		//
-		// 	console.log("entry", entry)
-		// 	return {
-		// 		...entry,
-		// 		collection,
-		// 		id: entry.id,
-		// 		body: entry.body,
-		// 		data: entry.data,
-		// 		async render() {
-		// 			return {
-		// 				Content: resolvedComponent.Content,
-		// 				headings: resolvedComponent.getHeadings?.() ?? [],
-		// 				remarkPluginFrontmatter: resolvedComponent.frontmatter ?? {},
-		// 			};
-		// 		},
-		// 	}
-		//
-		// }
-
 		const lazyImports = Object.values(
 			type === 'content'
 				? contentCollectionToEntryMap[collection]

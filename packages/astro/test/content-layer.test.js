@@ -6,7 +6,7 @@ import { after, before, describe, it } from 'node:test';
 import * as devalue from 'devalue';
 
 import { loadFixture } from './test-utils.js';
-describe.only('Content Layer', () => {
+describe('Content Layer', () => {
 	/** @type {import("./test-utils.js").Fixture} */
 	let fixture;
 
@@ -14,7 +14,7 @@ describe.only('Content Layer', () => {
 		fixture = await loadFixture({ root: './fixtures/content-layer/' });
 	});
 
-	describe.only('Build', () => {
+	describe('Build', () => {
 		let json;
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/content-layer/' });

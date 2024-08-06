@@ -86,7 +86,7 @@ export function astroContentVirtualModPlugin({
 				return MODULES_IMPORTS_VIRTUAL_ID;
 			}
 
-			if (hasContentModuleFlag(id, CONTENT_MODULE_FLAG)) {
+			if (hasContentModuleFlag(id)) {
 				const [, query] = id.split('?');
 				const params = new URLSearchParams(query);
 				const importerParam = params.get('importer');
@@ -94,9 +94,7 @@ export function astroContentVirtualModPlugin({
 					? fileURLToPath(new URL(importerParam, settings.config.root))
 					: importer;
 				if (importerPath) {
-					const result = await this.resolve(importerPath);
-					console.log(result);
-					return result;
+					return await this.resolve(importerPath);
 				}
 			}
 
@@ -175,7 +173,6 @@ export function astroContentVirtualModPlugin({
 
 		configureServer(server) {
 			const dataStorePath = fileURLToPath(dataStoreFile);
-			// Watch for changes to the data store file
 			// Watch for changes to the data store file
 			if (Array.isArray(server.watcher.options.ignored)) {
 				// The data store file is in node_modules, so is ignored by default,
