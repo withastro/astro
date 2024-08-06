@@ -2,16 +2,16 @@
 '@astrojs/db': minor
 ---
 
-Changes how typegen works
+Changes how type generation works
 
-The generated dts file is now at a new location:
+The generated `.d.ts` file is now at a new location:
 
 ```diff
 - .astro/db-types.d.ts
 + .astro/astro/db.d.ts
 ```
 
-The update made to `src/env.d.ts` can be undone:
+The following line can now be removed from `src/env.d.ts`:
 
 ```diff
 - /// <reference path="../.astro/db-types.d.ts" />
