@@ -19,7 +19,8 @@ import {
 } from '../runtime/server/index.js';
 import { CONTENT_LAYER_TYPE, IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
-import type { ContentLookupMap } from './utils.js';
+import { type ContentLookupMap } from './utils.js';
+
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
@@ -87,11 +88,35 @@ export function createGetCollection({
 				const data = rawEntry.filePath
 					? updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap)
 					: rawEntry.data;
-				const entry = {
-					...rawEntry,
-					data,
-					collection,
-				};
+				let entry;
+				if (!rawEntry.isModule) {
+					entry = {
+						...rawEntry,
+						data,
+						collection,
+					};
+				} else {
+					// @ts-expect-error	virtual module
+					const { default: contentModules } = await import('astro:content-module-imports');
+					const module = contentModules.get(rawEntry.filePath);
+					const resolvedComponent = await module();
+
+					entry = {
+						...rawEntry,
+						collection,
+						id: rawEntry.id,
+						slug: rawEntry.id,
+						body: rawEntry.body,
+						data: rawEntry.data,
+						async render() {
+							return {
+								Content: resolvedComponent.Content,
+								headings: resolvedComponent.getHeadings?.() ?? [],
+								remarkPluginFrontmatter: resolvedComponent.frontmatter ?? {},
+							};
+						},
+					};
+				}
 				if (hasFilter && !filter(entry)) {
 					continue;
 				}
@@ -107,6 +132,36 @@ export function createGetCollection({
 			);
 			return [];
 		}
+
+		// if (entry.isModule) {
+		// 	// @ts-expect-error	virtual module
+		// 	const { default: contentModules } = await import("astro:content-module-imports");
+		//
+		// 	const module = contentModules.get(entry.filePath);
+		//
+		// 	console.log("here");
+		//
+		//
+		// 	const resolvedComponent = await module();
+		//
+		// 	console.log("entry", entry)
+		// 	return {
+		// 		...entry,
+		// 		collection,
+		// 		id: entry.id,
+		// 		body: entry.body,
+		// 		data: entry.data,
+		// 		async render() {
+		// 			return {
+		// 				Content: resolvedComponent.Content,
+		// 				headings: resolvedComponent.getHeadings?.() ?? [],
+		// 				remarkPluginFrontmatter: resolvedComponent.frontmatter ?? {},
+		// 			};
+		// 		},
+		// 	}
+		//
+		// }
+
 		const lazyImports = Object.values(
 			type === 'content'
 				? contentCollectionToEntryMap[collection]

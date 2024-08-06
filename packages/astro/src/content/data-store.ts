@@ -3,6 +3,8 @@ import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import * as devalue from 'devalue';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { CONTENT_MODULE_FLAG } from './consts.js';
+
 const SAVE_DEBOUNCE_MS = 500;
 
 export interface RenderedContent {
@@ -33,6 +35,7 @@ export interface DataEntry<TData extends Record<string, unknown> = Record<string
 	digest?: number | string;
 	/** The rendered content of the entry, if applicable. */
 	rendered?: RenderedContent;
+	isModule?: boolean;
 }
 
 export class DataStore {
@@ -41,39 +44,49 @@ export class DataStore {
 	#file?: PathLike;
 
 	#assetsFile?: PathLike;
+	#modulesFile?: PathLike;
 
 	#saveTimeout: NodeJS.Timeout | undefined;
 	#assetsSaveTimeout: NodeJS.Timeout | undefined;
+	#modulesSaveTimeout: NodeJS.Timeout | undefined;
 
 	#dirty = false;
 	#assetsDirty = false;
+	#modulesDirty = false;
 
 	#assetImports = new Set<string>();
+	#moduleImports = new Map<string, string>();
 
 	constructor() {
 		this.#collections = new Map();
 	}
+
 	get<T = unknown>(collectionName: string, key: string): T | undefined {
 		return this.#collections.get(collectionName)?.get(String(key));
 	}
+
 	entries<T = unknown>(collectionName: string): Array<[id: string, T]> {
 		const collection = this.#collections.get(collectionName) ?? new Map();
 		return [...collection.entries()];
 	}
+
 	values<T = unknown>(collectionName: string): Array<T> {
 		const collection = this.#collections.get(collectionName) ?? new Map();
 		return [...collection.values()];
 	}
+
 	keys(collectionName: string): Array<string> {
 		const collection = this.#collections.get(collectionName) ?? new Map();
 		return [...collection.keys()];
 	}
+
 	set(collectionName: string, key: string, value: unknown) {
 		const collection = this.#collections.get(collectionName) ?? new Map();
 		collection.set(String(key), value);
 		this.#collections.set(collectionName, collection);
 		this.#saveToDiskDebounced();
 	}
+
 	delete(collectionName: string, key: string) {
 		const collection = this.#collections.get(collectionName);
 		if (collection) {
@@ -81,6 +94,7 @@ export class DataStore {
 			this.#saveToDiskDebounced();
 		}
 	}
+
 	clear(collectionName: string) {
 		this.#collections.delete(collectionName);
 		this.#saveToDiskDebounced();
@@ -120,6 +134,18 @@ export class DataStore {
 
 	addAssetImports(assets: Array<string>, filePath: string) {
 		assets.forEach((asset) => this.addAssetImport(asset, filePath));
+	}
+
+	addModuleImport(fileName: string, specifier: string) {
+		// TODO change resolution function
+		const id = contentModuleToId(specifier, fileName);
+		if (id) {
+			this.#moduleImports.set(fileName, id);
+			// We debounce the writes to disk because addAssetImport is called for every image in every file,
+			// and can be called many times in quick succession by a filesystem watcher. We only want to write
+			// the file once, after all the imports have been added.
+			this.#writeModulesImportsDebounced();
+		}
 	}
 
 	async writeAssetImports(filePath: PathLike) {
@@ -164,6 +190,45 @@ export default new Map([${exports.join(', ')}]);
 		this.#assetsDirty = false;
 	}
 
+	async writeModuleImports(filePath: PathLike) {
+		this.#modulesFile = filePath;
+
+		if (this.#moduleImports.size === 0) {
+			try {
+				await fs.writeFile(filePath, 'export default new Map();');
+			} catch (err) {
+				throw new AstroError({
+					message: (err as Error).message,
+					...AstroErrorData.ContentLayerWriteError,
+				});
+			}
+		}
+
+		if (!this.#modulesDirty && existsSync(filePath)) {
+			return;
+		}
+
+		// Import the assets, with a symbol name that is unique to the import id. The import
+		// for each asset is an object with path, format and dimensions.
+		// We then export them all, mapped by the import id, so we can find them again in the build.
+		const lines: Array<string> = [];
+		for (const [fileName, specifier] of this.#moduleImports) {
+			lines.push(`['${fileName}', () => import('${specifier}')]`);
+		}
+		const code = /* js */ `
+export default new Map([\n${lines.join(',\n')}]);
+		`;
+		try {
+			await fs.writeFile(filePath, code);
+		} catch (err) {
+			throw new AstroError({
+				message: (err as Error).message,
+				...AstroErrorData.ContentLayerWriteError,
+			});
+		}
+		this.#modulesDirty = false;
+	}
+
 	#writeAssetsImportsDebounced() {
 		this.#assetsDirty = true;
 		if (this.#assetsFile) {
@@ -173,6 +238,19 @@ export default new Map([${exports.join(', ')}]);
 			this.#assetsSaveTimeout = setTimeout(() => {
 				this.#assetsSaveTimeout = undefined;
 				this.writeAssetImports(this.#assetsFile!);
+			}, SAVE_DEBOUNCE_MS);
+		}
+	}
+
+	#writeModulesImportsDebounced() {
+		this.#modulesDirty = true;
+		if (this.#modulesFile) {
+			if (this.#modulesSaveTimeout) {
+				clearTimeout(this.#modulesSaveTimeout);
+			}
+			this.#modulesSaveTimeout = setTimeout(() => {
+				this.#modulesSaveTimeout = undefined;
+				this.writeModuleImports(this.#modulesFile!);
 			}, SAVE_DEBOUNCE_MS);
 		}
 	}
@@ -198,7 +276,7 @@ export default new Map([${exports.join(', ')}]);
 			entries: () => this.entries(collectionName),
 			values: () => this.values(collectionName),
 			keys: () => this.keys(collectionName),
-			set: ({ id: key, data, body, filePath, digest, rendered }) => {
+			set: ({ id: key, data, body, filePath, isModule, digest, rendered }) => {
 				if (!key) {
 					throw new Error(`ID must be a non-empty string`);
 				}
@@ -230,7 +308,9 @@ export default new Map([${exports.join(', ')}]);
 				if (rendered) {
 					entry.rendered = rendered;
 				}
-
+				if (isModule) {
+					entry.isModule = isModule;
+				}
 				this.set(collectionName, id, entry);
 				return true;
 			},
@@ -241,6 +321,10 @@ export default new Map([${exports.join(', ')}]);
 				this.addAssetImport(assetImport, fileName),
 			addAssetImports: (assets: Array<string>, fileName: string) =>
 				this.addAssetImports(assets, fileName),
+			addModuleImport: (fileName: string, specifier: string) =>
+				this.addModuleImport(fileName, specifier),
+			// addModuleImports: (modules: Array<string>, fileName: string) =>
+			// 	this.addModuleImports(modules, fileName),
 		};
 	}
 	/**
@@ -275,6 +359,7 @@ export default new Map([${exports.join(', ')}]);
 			});
 		}
 	}
+
 	/**
 	 * Attempts to load a DataStore from the virtual module.
 	 * This only works in Vite.
@@ -329,6 +414,7 @@ export interface ScopedDataStore {
 		digest?: number | string;
 		/** The rendered content, if applicable. */
 		rendered?: RenderedContent;
+		isModule?: boolean;
 	}) => boolean;
 	values: () => Array<DataEntry>;
 	keys: () => Array<string>;
@@ -343,6 +429,14 @@ export interface ScopedDataStore {
 	 * @internal Adds an asset import to the store. This is used to track image imports for the build. This API is subject to change.
 	 */
 	addAssetImport: (assetImport: string, fileName: string) => void;
+	/**
+	 * Adds a single asset to the store. This asset will be transformed
+	 * by Vite, and the URL will be available in the final build.
+	 * @param fileName
+	 * @param specifier
+	 * @returns
+	 */
+	addModuleImport: (fileName: string, specifier: string) => void;
 }
 
 /**
@@ -369,6 +463,14 @@ function dataStoreSingleton() {
 			instance = store;
 		},
 	};
+}
+
+// TODO: find a better place to put this image
+export function contentModuleToId(specifier: string, filePath: string) {
+	const params = new URLSearchParams(specifier);
+	params.set('importer', filePath);
+	params.set(CONTENT_MODULE_FLAG, 'true');
+	return `${specifier}?${params.toString()}`;
 }
 
 /** @internal */

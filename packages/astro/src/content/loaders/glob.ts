@@ -18,6 +18,7 @@ export interface GenerateIdOptions {
 	/** The parsed, unvalidated data of the entry. */
 	data: Record<string, unknown>;
 }
+
 export interface GlobOptions {
 	/** The glob pattern to match files, relative to the base directory */
 	pattern: string;
@@ -102,6 +103,10 @@ export function glob(globOptions: GlobOptions): Loader {
 				const digest = generateDigest(contents);
 
 				if (existingEntry && existingEntry.digest === digest && existingEntry.filePath) {
+					if (existingEntry.filePath.endsWith('.mdx')) {
+						store.addModuleImport(existingEntry.filePath, 'astro:content-module-imports');
+					}
+
 					if (existingEntry.rendered?.metadata?.imagePaths?.length) {
 						// Add asset imports for existing entries
 						store.addAssetImports(
@@ -124,7 +129,10 @@ export function glob(globOptions: GlobOptions): Loader {
 					filePath,
 				});
 
-				if (entryType.getRenderFunction) {
+				if (entryType.extensions.includes('.mdx')) {
+					store.addModuleImport(relativePath, 'astro:content-module-imports');
+					store.set({ id, data: parsedData, body, filePath: relativePath, digest, isModule: true });
+				} else if (entryType.getRenderFunction) {
 					let render = renderFunctionByContentType.get(entryType);
 					if (!render) {
 						render = await entryType.getRenderFunction(settings);
@@ -261,6 +269,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				await syncData(entry, baseUrl, entryType);
 				logger.info(`Reloaded data from ${green(entry)}`);
 			}
+
 			watcher.on('change', onChange);
 
 			watcher.on('add', onChange);

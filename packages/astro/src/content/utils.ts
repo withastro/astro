@@ -474,6 +474,14 @@ export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[numb
 	return flags.has(flag);
 }
 
+export function hasContentModuleFlag(
+	viteId: string,
+	flag: (typeof CONTENT_FLAGS)[number]
+): boolean {
+	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
+	return flags.has(flag);
+}
+
 async function loadContentConfig({
 	fs,
 	settings,

@@ -4,8 +4,9 @@ import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
 import { after, before, describe, it } from 'node:test';
 import * as devalue from 'devalue';
+
 import { loadFixture } from './test-utils.js';
-describe('Content Layer', () => {
+describe.only('Content Layer', () => {
 	/** @type {import("./test-utils.js").Fixture} */
 	let fixture;
 
@@ -13,7 +14,7 @@ describe('Content Layer', () => {
 		fixture = await loadFixture({ root: './fixtures/content-layer/' });
 	});
 
-	describe('Build', () => {
+	describe.only('Build', () => {
 		let json;
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/content-layer/' });

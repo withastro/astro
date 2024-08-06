@@ -18,10 +18,14 @@ import {
 	ASSET_IMPORTS_RESOLVED_STUB_ID,
 	ASSET_IMPORTS_VIRTUAL_ID,
 	CONTENT_FLAG,
+	CONTENT_MODULE_FLAG,
 	CONTENT_RENDER_FLAG,
 	DATA_FLAG,
 	DATA_STORE_FILE,
 	DATA_STORE_VIRTUAL_ID,
+	MODULES_IMPORTS_FILE,
+	MODULES_IMPORTS_ID,
+	MODULES_IMPORTS_VIRTUAL_ID,
 	RESOLVED_DATA_STORE_VIRTUAL_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
@@ -37,6 +41,7 @@ import {
 	getEntrySlug,
 	getEntryType,
 	getExtGlob,
+	hasContentModuleFlag,
 } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
@@ -57,7 +62,7 @@ export function astroContentVirtualModPlugin({
 		configResolved(config) {
 			IS_DEV = config.mode === 'development';
 		},
-		resolveId(id) {
+		async resolveId(id, importer, opts) {
 			if (id === VIRTUAL_MODULE_ID) {
 				if (!settings.config.experimental.contentCollectionCache) {
 					return RESOLVED_VIRTUAL_MODULE_ID;
@@ -72,6 +77,29 @@ export function astroContentVirtualModPlugin({
 			if (id === DATA_STORE_VIRTUAL_ID) {
 				return RESOLVED_DATA_STORE_VIRTUAL_ID;
 			}
+
+			if (id === MODULES_IMPORTS_ID) {
+				const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
+				if (fs.existsSync(modules)) {
+					return fileURLToPath(modules);
+				}
+				return MODULES_IMPORTS_VIRTUAL_ID;
+			}
+
+			if (hasContentModuleFlag(id, CONTENT_MODULE_FLAG)) {
+				const [, query] = id.split('?');
+				const params = new URLSearchParams(query);
+				const importerParam = params.get('importer');
+				const importerPath = importerParam
+					? fileURLToPath(new URL(importerParam, settings.config.root))
+					: importer;
+				if (importerPath) {
+					const result = await this.resolve(importerPath);
+					console.log(result);
+					return result;
+				}
+			}
+
 			if (id === ASSET_IMPORTS_VIRTUAL_ID) {
 				const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
 				if (fs.existsSync(assetImportsFile)) {
@@ -128,6 +156,11 @@ export function astroContentVirtualModPlugin({
 			if (id === ASSET_IMPORTS_RESOLVED_STUB_ID) {
 				return 'export default new Map()';
 			}
+
+			// if (MODULES_IMPORTS_VIRTUAL_ID) {
+			//
+			// 	return 'export default new Map()';
+			// }
 		},
 		renderChunk(code, chunk) {
 			if (!settings.config.experimental.contentCollectionCache) {
@@ -142,6 +175,7 @@ export function astroContentVirtualModPlugin({
 
 		configureServer(server) {
 			const dataStorePath = fileURLToPath(dataStoreFile);
+			// Watch for changes to the data store file
 			// Watch for changes to the data store file
 			if (Array.isArray(server.watcher.options.ignored)) {
 				// The data store file is in node_modules, so is ignored by default,
