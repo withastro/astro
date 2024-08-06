@@ -24,4 +24,20 @@ describe('Content Layer', () => {
 			assert.match(html, /This is a rendered entry/);
 		});
 	});
+
+	describe('Build', () => {
+		let devServer;
+		before(async () => {
+			fixture = await loadFixture({ root: './fixtures/content-layer/' });
+			await fixture.build();
+		});
+
+
+		it('Render an MDX file', async () => {
+			const html = await fixture.readFile('/reptiles/iguana/index.html');
+
+			assert.match(html, /Iguana/);
+			assert.match(html, /This is a rendered entry/);
+		});
+	});
 });
