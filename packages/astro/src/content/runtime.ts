@@ -90,7 +90,6 @@ export function createGetCollection({
 					: rawEntry.data;
 				let entry;
 				if (rawEntry.isModule === true) {
-					console.log("he4re????")
 					// @ts-expect-error	virtual module
 					const { default: contentModules } = await import('astro:content-module-imports');
 					const module = contentModules.get(rawEntry.filePath);
