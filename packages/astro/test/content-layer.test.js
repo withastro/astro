@@ -42,6 +42,12 @@ describe('Content Layer', () => {
 			});
 		});
 
+		it('filters collection items', async () => {
+			assert.ok(json.hasOwnProperty('customLoader'));
+			assert.ok(Array.isArray(json.customLoader));
+			assert.equal(json.customLoader.length, 5);
+		});
+
 		it('Returns `file()` loader collection', async () => {
 			assert.ok(json.hasOwnProperty('fileLoader'));
 			assert.ok(Array.isArray(json.fileLoader));

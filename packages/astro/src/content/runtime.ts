@@ -71,6 +71,7 @@ export function createGetCollection({
 	cacheEntriesByCollection: Map<string, any[]>;
 }) {
 	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
+		const hasFilter = typeof filter === 'function';
 		const store = await globalDataStore.get();
 		let type: 'content' | 'data';
 		if (collection in contentCollectionToEntryMap) {
@@ -82,15 +83,19 @@ export function createGetCollection({
 			const { default: imageAssetMap } = await import('astro:asset-imports');
 
 			const result = [];
-			for (const entry of store.values<DataEntry>(collection)) {
-				const data = entry.filePath
-					? updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap)
-					: entry.data;
-				result.push({
-					...entry,
+			for (const rawEntry of store.values<DataEntry>(collection)) {
+				const data = rawEntry.filePath
+					? updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap)
+					: rawEntry.data;
+				const entry = {
+					...rawEntry,
 					data,
 					collection,
-				});
+				};
+				if(hasFilter && !filter(entry)) {
+					continue;
+				}
+				result.push(entry);
 			}
 			return result;
 		} else {
@@ -143,7 +148,7 @@ export function createGetCollection({
 			);
 			cacheEntriesByCollection.set(collection, entries);
 		}
-		if (typeof filter === 'function') {
+		if (hasFilter) {
 			return entries.filter(filter);
 		} else {
 			// Clone the array so users can safely mutate it.
