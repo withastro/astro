@@ -92,7 +92,7 @@ export function createGetCollection({
 					data,
 					collection,
 				};
-				if(hasFilter && !filter(entry)) {
+				if (hasFilter && !filter(entry)) {
 					continue;
 				}
 				result.push(entry);
@@ -170,20 +170,13 @@ export function createGetEntryBySlug({
 	return async function getEntryBySlug(collection: string, slug: string) {
 		const store = await globalDataStore.get();
 
-		if (store.hasCollection(collection)) {
-			const data = store.get(collection, slug);
-			if (!data) {
-				throw new Error(`Entry ${collection} → ${slug} was not found.`);
-			}
-
-			const entry = store.get<DataEntry>(collection, slug);
-
-			return {
-				...entry,
-				collection,
-			};
-		}
 		if (!collectionNames.has(collection)) {
+			if (store.hasCollection(collection)) {
+				throw new AstroError({
+					...AstroErrorData.GetEntryDeprecationError,
+					message: AstroErrorData.GetEntryDeprecationError.message(collection, 'getEntryBySlug'),
+				});
+			}
 			// eslint-disable-next-line no-console
 			console.warn(`The collection ${JSON.stringify(collection)} does not exist.`);
 			return undefined;
@@ -221,20 +214,13 @@ export function createGetDataEntryById({
 	return async function getDataEntryById(collection: string, id: string) {
 		const store = await globalDataStore.get();
 
-		if (store.hasCollection(collection)) {
-			const data = store.get(collection, id);
-			if (!data) {
-				throw new Error(`Entry ${collection} → ${id} was not found.`);
-			}
-
-			const entry = store.get<DataEntry>(collection, id);
-
-			return {
-				...entry,
-				collection,
-			};
-		}
 		if (!collectionNames.has(collection)) {
+			if (store.hasCollection(collection)) {
+				throw new AstroError({
+					...AstroErrorData.GetEntryDeprecationError,
+					message: AstroErrorData.GetEntryDeprecationError.message(collection, 'getDataEntryById'),
+				});
+			}
 			// eslint-disable-next-line no-console
 			console.warn(`The collection ${JSON.stringify(collection)} does not exist.`);
 			return undefined;
