@@ -65,15 +65,18 @@ async function handleAction(param, path, context) {
 	let body = param;
 	if (!(body instanceof FormData)) {
 		try {
-			body = param ? JSON.stringify(param) : undefined;
+			body = JSON.stringify(param);
 		} catch (e) {
 			throw new ActionError({
 				code: 'BAD_REQUEST',
 				message: `Failed to serialize request body to JSON. Full error: ${e.message}`,
 			});
 		}
-		headers.set('Content-Type', 'application/json');
-		headers.set('Content-Length', body?.length.toString() ?? '0');
+		if (body) {
+			headers.set('Content-Type', 'application/json');
+		} else {
+			headers.set('Content-Length', '0');
+		}
 	}
 	const rawResult = await fetch(`/_actions/${path}`, {
 		method: 'POST',
