@@ -62,7 +62,7 @@ export function astroContentVirtualModPlugin({
 		configResolved(config) {
 			IS_DEV = config.mode === 'development';
 		},
-		async resolveId(id, importer, opts) {
+		async resolveId(id, importer) {
 			if (id === VIRTUAL_MODULE_ID) {
 				if (!settings.config.experimental.contentCollectionCache) {
 					return RESOLVED_VIRTUAL_MODULE_ID;

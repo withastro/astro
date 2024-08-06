@@ -103,7 +103,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				const digest = generateDigest(contents);
 
 				if (existingEntry && existingEntry.digest === digest && existingEntry.filePath) {
-					if (existingEntry.filePath.endsWith('.mdx')) {
+					if (entryType.extensions.includes('.mdx')) {
 						store.addModuleImport(existingEntry.filePath, 'astro:content-module-imports');
 					}
 

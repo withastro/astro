@@ -111,8 +111,12 @@ export function createGetCollection({
 						async render() {
 							return {
 								Content: resolvedComponent.Content,
-								headings: resolvedComponent.getHeadings?.() ?? [],
-								remarkPluginFrontmatter: resolvedComponent.frontmatter ?? {},
+								rendered: {
+									metadata: {
+										headings: resolvedComponent.getHeadings?.() ?? [],
+										remarkPluginFrontmatter: resolvedComponent.frontmatter ?? {},
+									}
+								}
 							};
 						},
 					};
