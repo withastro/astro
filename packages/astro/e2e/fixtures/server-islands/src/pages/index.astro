@@ -1,5 +1,6 @@
 ---
 import Island from '../components/Island.astro';
+import Self from '../components/Self.astro';
 ---
 
 <html>
@@ -10,5 +11,6 @@ import Island from '../components/Island.astro';
 		<Island server:defer>
 			<h3 id="children">children</h3>
 		</Island>
+		<Self server:defer />
 	</body>
 </html>

@@ -26,7 +26,9 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 	err.forEach((error) => {
 		if (e.stack) {
 			const stackInfo = collectInfoFromStacktrace(e);
-			error.stack = stripAnsi(stackInfo.stack);
+			try {
+				error.stack = stripAnsi(stackInfo.stack);
+			} catch {}
 			error.loc = stackInfo.loc;
 			error.plugin = stackInfo.plugin;
 			error.pluginCode = stackInfo.pluginCode;
@@ -72,7 +74,11 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 		// Strip ANSI for `message` property. Note that ESBuild errors may not have the property,
 		// but it will be handled and added below, which is already ANSI-free
 		if (error.message) {
-			error.message = stripAnsi(error.message);
+			try {
+				error.message = stripAnsi(error.message);
+			} catch {
+				// Setting `error.message` can fail here if the message is read-only, which for the vast majority of cases will never happen, however some somewhat obscure cases can cause this to happen.
+			}
 		}
 	});
 
@@ -84,7 +90,9 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 
 			// ESBuild can give us a slightly better error message than the one in the error, so let's use it
 			if (text) {
-				err[i].message = text;
+				try {
+					err[i].message = text;
+				} catch {}
 			}
 
 			if (location) {

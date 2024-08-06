@@ -1,6 +1,5 @@
 import type { Rollup } from 'vite';
 import type { RouteData, SSRResult } from '../../@types/astro.js';
-import type { PageOptions } from '../../vite-plugin-astro/types.js';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
 import { makePageDataKey } from './plugins/util.js';
@@ -33,19 +32,9 @@ export interface BuildInternals {
 	entrySpecifierToBundleMap: Map<string, string>;
 
 	/**
-	 * A map to get a specific page's bundled output file.
-	 */
-	pageToBundleMap: Map<string, string>;
-
-	/**
 	 * A map for page-specific information.
 	 */
 	pagesByKeys: Map<string, PageBuildData>;
-
-	/**
-	 * A map for page-specific output.
-	 */
-	pageOptionsByPage: Map<string, PageOptions>;
 
 	/**
 	 * A map for page-specific information by Vite ID (a path-like string)
@@ -110,7 +99,6 @@ export interface BuildInternals {
 	manifestEntryChunk?: Rollup.OutputChunk;
 	manifestFileName?: string;
 	entryPoints: Map<RouteData, URL>;
-	ssrSplitEntryChunks: Map<string, Rollup.OutputChunk>;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint?: URL;
 
@@ -138,9 +126,7 @@ export function createBuildInternals(): BuildInternals {
 		hoistedScriptIdToPagesMap,
 		inlinedScripts: new Map(),
 		entrySpecifierToBundleMap: new Map<string, string>(),
-		pageToBundleMap: new Map<string, string>(),
 		pagesByKeys: new Map(),
-		pageOptionsByPage: new Map(),
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
 		pagesByScriptId: new Map(),
@@ -153,7 +139,6 @@ export function createBuildInternals(): BuildInternals {
 		discoveredScripts: new Set(),
 		staticFiles: new Set(),
 		componentMetadata: new Map(),
-		ssrSplitEntryChunks: new Map(),
 		entryPoints: new Map(),
 		cacheManifestUsed: false,
 		prerenderOnlyChunks: [],
@@ -213,18 +198,6 @@ export function trackScriptPageDatas(
 	}
 }
 
-export function* getPageDatasByChunk(
-	internals: BuildInternals,
-	chunk: Rollup.RenderedChunk
-): Generator<PageBuildData, void, unknown> {
-	const pagesByViteID = internals.pagesByViteID;
-	for (const [modulePath] of Object.entries(chunk.modules)) {
-		if (pagesByViteID.has(modulePath)) {
-			yield pagesByViteID.get(modulePath)!;
-		}
-	}
-}
-
 export function* getPageDatasByClientOnlyID(
 	internals: BuildInternals,
 	viteid: ViteID
@@ -279,10 +252,7 @@ export function getPageData(
  * @param internals Build Internals with all the pages
  * @param component path to the component, used to identify related pages
  */
-export function getPagesDatasByComponent(
-	internals: BuildInternals,
-	component: string
-): PageBuildData[] {
+function getPagesDatasByComponent(internals: BuildInternals, component: string): PageBuildData[] {
 	const pageDatas: PageBuildData[] = [];
 	internals.pagesByKeys.forEach((pageData) => {
 		if (component === pageData.component) pageDatas.push(pageData);
@@ -339,10 +309,6 @@ export function getPageDataByViteID(
 		return internals.pagesByViteID.get(viteid);
 	}
 	return undefined;
-}
-
-export function hasPageDataByViteID(internals: BuildInternals, viteid: ViteID): boolean {
-	return internals.pagesByViteID.has(viteid);
 }
 
 export function hasPrerenderedPages(internals: BuildInternals) {

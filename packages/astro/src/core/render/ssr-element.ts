@@ -74,16 +74,6 @@ export function createModuleScriptElementWithSrc(
 	};
 }
 
-export function createModuleScriptElementWithSrcSet(
-	srces: string[],
-	site?: string,
-	assetsPrefix?: AssetsPrefix
-): Set<SSRElement> {
-	return new Set<SSRElement>(
-		srces.map((src) => createModuleScriptElementWithSrc(src, site, assetsPrefix))
-	);
-}
-
 export function createModuleScriptsSet(
 	scripts: { type: 'inline' | 'external'; value: string }[],
 	base?: string,

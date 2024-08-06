@@ -1,3 +1,4 @@
+import { parse as devalueParse, stringify as devalueStringify } from 'devalue';
 import type { z } from 'zod';
 import type { ErrorInferenceObject, MaybePromise } from '../utils.js';
 
@@ -68,23 +69,26 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 		return statusToCodeMap[status] ?? 'INTERNAL_SERVER_ERROR';
 	}
 
-	static async fromResponse(res: Response) {
-		const body = await res.clone().json();
-		if (
-			typeof body === 'object' &&
-			body?.type === 'AstroActionInputError' &&
-			Array.isArray(body.issues)
-		) {
+	static fromJson(body: any) {
+		if (isInputError(body)) {
 			return new ActionInputError(body.issues);
 		}
-		if (typeof body === 'object' && body?.type === 'AstroActionError') {
+		if (isActionError(body)) {
 			return new ActionError(body);
 		}
 		return new ActionError({
-			message: res.statusText,
-			code: ActionError.statusToCode(res.status),
+			code: 'INTERNAL_SERVER_ERROR',
 		});
 	}
+}
+
+export function isActionError(error?: unknown): error is ActionError {
+	return (
+		typeof error === 'object' &&
+		error != null &&
+		'type' in error &&
+		error.type === 'AstroActionError'
+	);
 }
 
 export function isInputError<T extends ErrorInferenceObject>(
@@ -94,7 +98,14 @@ export function isInputError(error?: unknown): error is ActionInputError<ErrorIn
 export function isInputError<T extends ErrorInferenceObject>(
 	error?: unknown | ActionError<T>
 ): error is ActionInputError<T> {
-	return error instanceof ActionInputError;
+	return (
+		typeof error === 'object' &&
+		error != null &&
+		'type' in error &&
+		error.type === 'AstroActionInputError' &&
+		'issues' in error &&
+		Array.isArray(error.issues)
+	);
 }
 
 export type SafeResult<TInput extends ErrorInferenceObject, TOutput> =
@@ -154,10 +165,90 @@ export async function callSafely<TOutput>(
 	}
 }
 
+export function getActionQueryString(name: string) {
+	const searchParams = new URLSearchParams({ _astroAction: name });
+	return `?${searchParams.toString()}`;
+}
+
+/**
+ * @deprecated You can now pass action functions
+ * directly to the `action` attribute on a form.
+ *
+ * Example: `<form action={actions.like} />`
+ */
 export function getActionProps<T extends (args: FormData) => MaybePromise<unknown>>(action: T) {
+	const params = new URLSearchParams(action.toString());
+	const actionName = params.get('_astroAction');
+	if (!actionName) {
+		// No need for AstroError. `getActionProps()` will be removed for stable.
+		throw new Error('Invalid actions function was passed to getActionProps()');
+	}
 	return {
 		type: 'hidden',
 		name: '_astroAction',
-		value: action.toString(),
+		value: actionName,
 	} as const;
+}
+
+export type SerializedActionResult =
+	| {
+			type: 'data';
+			contentType: 'application/json+devalue';
+			status: 200;
+			body: string;
+	  }
+	| {
+			type: 'error';
+			contentType: 'application/json';
+			status: number;
+			body: string;
+	  }
+	| {
+			type: 'empty';
+			status: 204;
+	  };
+
+export function serializeActionResult(res: SafeResult<any, any>): SerializedActionResult {
+	if (res.error) {
+		return {
+			type: 'error',
+			status: res.error.status,
+			contentType: 'application/json',
+			body: JSON.stringify({
+				...res.error,
+				message: res.error.message,
+				stack: import.meta.env.PROD ? undefined : res.error.stack,
+			}),
+		};
+	}
+	if (res.data === undefined) {
+		return {
+			type: 'empty',
+			status: 204,
+		};
+	}
+	return {
+		type: 'data',
+		status: 200,
+		contentType: 'application/json+devalue',
+		body: devalueStringify(res.data, {
+			// Add support for URL objects
+			URL: (value) => value instanceof URL && value.href,
+		}),
+	};
+}
+
+export function deserializeActionResult(res: SerializedActionResult): SafeResult<any, any> {
+	if (res.type === 'error') {
+		return { error: ActionError.fromJson(JSON.parse(res.body)), data: undefined };
+	}
+	if (res.type === 'empty') {
+		return { data: undefined, error: undefined };
+	}
+	return {
+		data: devalueParse(res.body, {
+			URL: (href) => new URL(href),
+		}),
+		error: undefined,
+	};
 }

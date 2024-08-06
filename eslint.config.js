@@ -2,7 +2,6 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { builtinModules } from 'node:module';
 
-import { FlatCompat } from '@eslint/eslintrc';
 import tseslint from 'typescript-eslint';
 
 // plugins
@@ -15,12 +14,6 @@ const typescriptParser = tseslint.parser;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// ref: https://eslint.org/docs/latest/use/configure/migration-guide#using-eslintrc-configs-in-flat-config
-// mimic CommonJS variables -- not needed if using CommonJS
-const compat = new FlatCompat({
-	baseDirectory: __dirname,
-});
 
 export default [
 	// If ignores is used without any other keys in the configuration object, then the patterns act as global ignores.
@@ -43,8 +36,7 @@ export default [
 
 	...tseslint.configs.recommendedTypeChecked,
 	...tseslint.configs.stylisticTypeChecked,
-	// mimic ESLintRC-style extends
-	...compat.extends('plugin:regexp/recommended'),
+	regexpEslint.configs['flat/recommended'],
 	{
 		languageOptions: {
 			parser: typescriptParser,

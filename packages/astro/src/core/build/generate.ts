@@ -1,9 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
-import { fileURLToPath } from 'node:url';
-import { bgGreen, black, blue, bold, dim, green, magenta } from 'kleur/colors';
+import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
 import PQueue from 'p-queue';
-import type { OutputAsset, OutputChunk } from 'rollup';
 import type {
 	AstroConfig,
 	AstroSettings,
@@ -25,7 +23,6 @@ import { type BuildInternals, hasPrerenderedPages } from '../../core/build/inter
 import {
 	isRelativePath,
 	joinPaths,
-	prependForwardSlash,
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
@@ -55,31 +52,6 @@ import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
-}
-
-// Gives back a facadeId that is relative to the root.
-// ie, src/pages/index.astro instead of /Users/name..../src/pages/index.astro
-export function rootRelativeFacadeId(facadeId: string, settings: AstroSettings): string {
-	return facadeId.slice(fileURLToPath(settings.config.root).length);
-}
-
-// Determines of a Rollup chunk is an entrypoint page.
-export function chunkIsPage(
-	settings: AstroSettings,
-	output: OutputAsset | OutputChunk,
-	internals: BuildInternals
-) {
-	if (output.type !== 'chunk') {
-		return false;
-	}
-	const chunk = output;
-	if (chunk.facadeModuleId) {
-		const facadeToEntryId = prependForwardSlash(
-			rootRelativeFacadeId(chunk.facadeModuleId, settings)
-		);
-		return internals.entrySpecifierToBundleMap.has(facadeToEntryId);
-	}
-	return false;
 }
 
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
@@ -192,6 +164,8 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	await runHookBuildGenerated({ config, logger });
 }
 
+const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
+
 async function generatePage(
 	pageData: PageBuildData,
 	ssrEntry: SinglePageBuiltModule,
@@ -244,7 +218,13 @@ async function generatePage(
 			const timeEnd = performance.now();
 			const timeChange = getTimeStat(prevTimeEnd, timeEnd);
 			const timeIncrease = `(+${timeChange})`;
-			logger.info('SKIP_FORMAT', ` ${dim(timeIncrease)}`);
+			let timeIncreaseLabel;
+			if (timeEnd - prevTimeEnd > THRESHOLD_SLOW_RENDER_TIME_MS) {
+				timeIncreaseLabel = red(timeIncrease);
+			} else {
+				timeIncreaseLabel = dim(timeIncrease);
+			}
+			logger.info('SKIP_FORMAT', ` ${timeIncreaseLabel}`);
 			prevTimeEnd = timeEnd;
 		}
 	}
@@ -570,7 +550,6 @@ function createBuildManifest(
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
 		middleware,
-		rewritingEnabled: settings.config.experimental.rewriting,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		experimentalEnvGetSecretEnabled: false,
 	};

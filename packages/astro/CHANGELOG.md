@@ -1,5 +1,273 @@
 # astro
 
+## 4.13.1
+
+### Patch Changes
+
+- [#11584](https://github.com/withastro/astro/pull/11584) [`a65ffe3`](https://github.com/withastro/astro/commit/a65ffe314b112213421def26c7cc5b7e7b93558c) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Removes async local storage dependency from Astro Actions. This allows Actions to run in Cloudflare and Stackblitz without opt-in flags or other configuration.
+
+  This also introduces a new convention for calling actions from server code. Instead of calling actions directly, you must wrap function calls with the new `Astro.callAction()` utility.
+
+  > `callAction()` is meant to _trigger_ an action from server code. `getActionResult()` usage with form submissions remains unchanged.
+
+  ```astro
+  ---
+  import { actions } from 'astro:actions';
+
+  const result = await Astro.callAction(actions.searchPosts, {
+    searchTerm: Astro.url.searchParams.get('search'),
+  });
+  ---
+
+  {
+    result.data &&
+      {
+        /* render the results */
+      }
+  }
+  ```
+
+  ## Migration
+
+  If you call actions directly from server code, update function calls to use the `Astro.callAction()` wrapper for pages and `context.callAction()` for endpoints:
+
+  ```diff
+  ---
+  import { actions } from 'astro:actions';
+
+  - const result = await actions.searchPosts({ searchTerm: 'test' });
+  + const result = await Astro.callAction(actions.searchPosts, { searchTerm: 'test' });
+  ---
+  ```
+
+  If you deploy with Cloudflare and added [the `nodejs_compat` or `nodejs_als` flags](https://developers.cloudflare.com/workers/runtime-apis/nodejs) for Actions, we recommend removing these:
+
+  ```diff
+  compatibility_flags = [
+  - "nodejs_compat",
+  - "nodejs_als"
+  ]
+  ```
+
+  You can also remove `node:async_hooks` from the `vite.ssr.external` option in your `astro.config` file:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+  - vite: {
+  -   ssr: {
+  -     external: ["node:async_hooks"]
+  -   }
+  - }
+  })
+  ```
+
+## 4.13.0
+
+### Minor Changes
+
+- [#11507](https://github.com/withastro/astro/pull/11507) [`a62345f`](https://github.com/withastro/astro/commit/a62345fd182ae4886d586c8406ed8f3e5f942730) Thanks [@ematipico](https://github.com/ematipico)! - Adds color-coding to the console output during the build to highlight slow pages.
+
+  Pages that take more than 500 milliseconds to render will have their build time logged in red. This change can help you discover pages of your site that are not performant and may need attention.
+
+- [#11379](https://github.com/withastro/astro/pull/11379) [`e5e2d3e`](https://github.com/withastro/astro/commit/e5e2d3ed3076f10b4645f011b13888d5fa16e92e) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - The `experimental.contentCollectionJsonSchema` feature introduced behind a flag in [v4.5.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#450) is no longer experimental and is available for general use.
+
+  If you are working with collections of type `data`, Astro will now auto-generate JSON schema files for your editor to get IntelliSense and type-checking. A separate file will be created for each data collection in your project based on your collections defined in `src/content/config.ts` using a library called [`zod-to-json-schema`](https://github.com/StefanTerdell/zod-to-json-schema).
+
+  This feature requires you to manually set your schema's file path as the value for `$schema` in each data entry file of the collection:
+
+  ```json title="src/content/authors/armand.json" ins={2}
+  {
+    "$schema": "../../../.astro/collections/authors.schema.json",
+    "name": "Armand",
+    "skills": ["Astro", "Starlight"]
+  }
+  ```
+
+  Alternatively, you can set this value in your editor settings. For example, to set this value in [VSCode's `json.schemas` setting](https://code.visualstudio.com/docs/languages/json#_json-schemas-and-settings), provide the path of files to match and the location of your JSON schema:
+
+  ```json
+  {
+    "json.schemas": [
+      {
+        "fileMatch": ["/src/content/authors/**"],
+        "url": "./.astro/collections/authors.schema.json"
+      }
+    ]
+  }
+  ```
+
+  If you were previously using this feature, please remove the experimental flag from your Astro config:
+
+  ```diff
+  import { defineConfig } from 'astro'
+
+  export default defineConfig({
+  -  experimental: {
+  -    contentCollectionJsonSchema: true
+  -  }
+  })
+  ```
+
+  If you have been waiting for stabilization before using JSON Schema generation for content collections, you can now do so.
+
+  Please see [the content collections guide](https://docs.astro.build/en/guides/content-collections/#enabling-json-schema-generation) for more about this feature.
+
+- [#11542](https://github.com/withastro/astro/pull/11542) [`45ad326`](https://github.com/withastro/astro/commit/45ad326932971b44630a32d9092c9505f24f42f8) Thanks [@ematipico](https://github.com/ematipico)! - The `experimental.rewriting` feature introduced behind a flag in [v4.8.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#480) is no longer experimental and is available for general use.
+
+  `Astro.rewrite()` and `context.rewrite()` allow you to render a different page without changing the URL in the browser. Unlike using a redirect, your visitor is kept on the original page they visited.
+
+  Rewrites can be useful for showing the same content at multiple paths (e.g. /products/shoes/men/ and /products/men/shoes/) without needing to maintain two identical source files.
+
+  Rewrites are supported in Astro pages, endpoints, and middleware.
+
+  Return `Astro.rewrite()` in the frontmatter of a `.astro` page component to display a different page's content, such as fallback localized content:
+
+  ```astro
+  ---
+  // src/pages/es-cu/articles/introduction.astro
+  return Astro.rewrite('/es/articles/introduction');
+  ---
+  ```
+
+  Use `context.rewrite()` in endpoints, for example to reroute to a different page:
+
+  ```js
+  // src/pages/api.js
+  export function GET(context) {
+    if (!context.locals.allowed) {
+      return context.rewrite('/');
+    }
+  }
+  ```
+
+  The middleware `next()` function now accepts a parameter with the same type as the `rewrite()` function. For example, with `next("/")`, you can call the next middleware function with a new `Request`.
+
+  ```js
+  // src/middleware.js
+  export function onRequest(context, next) {
+    if (!context.cookies.get('allowed')) {
+      return next('/'); // new signature
+    }
+    return next();
+  }
+  ```
+
+  If you were previously using this feature, please remove the experimental flag from your Astro config:
+
+  ```diff
+  // astro.config.mjs
+  export default defineConfig({
+  -  experimental: {
+  -    rewriting: true
+  -  }
+  })
+  ```
+
+  If you have been waiting for stabilization before using rewrites in Astro, you can now do so.
+
+  Please see [the routing guide in docs](https://docs.astro.build/en/guides/routing/#rewrites) for more about using this feature.
+
+## 4.12.3
+
+### Patch Changes
+
+- [#11509](https://github.com/withastro/astro/pull/11509) [`dfbca06`](https://github.com/withastro/astro/commit/dfbca06dda674c64c7010db2f4de951496a1e631) Thanks [@bluwy](https://github.com/bluwy)! - Excludes hoisted scripts and styles from Astro components imported with `?url` or `?raw`
+
+- [#11561](https://github.com/withastro/astro/pull/11561) [`904f1e5`](https://github.com/withastro/astro/commit/904f1e535aeb7a14ba7ce07c3130e25f3e708266) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Uses the correct pageSize default in `page.size` JSDoc comment
+
+- [#11571](https://github.com/withastro/astro/pull/11571) [`1c3265a`](https://github.com/withastro/astro/commit/1c3265a8c9c0b1b1bd597f756b63463146bacc3a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - **BREAKING CHANGE to the experimental Actions API only.** Install the latest `@astrojs/react` integration as well if you're using React 19 features.
+
+  Make `.safe()` the default return value for actions. This means `{ data, error }` will be returned when calling an action directly. If you prefer to get the data while allowing errors to throw, chain the `.orThrow()` modifier.
+
+  ```ts
+  import { actions } from 'astro:actions';
+
+  // Before
+  const { data, error } = await actions.like.safe();
+  // After
+  const { data, error } = await actions.like();
+
+  // Before
+  const newLikes = await actions.like();
+  // After
+  const newLikes = await actions.like.orThrow();
+  ```
+
+  ## Migration
+
+  To migrate your existing action calls:
+
+  - Remove `.safe` from existing _safe_ action calls
+  - Add `.orThrow` to existing _unsafe_ action calls
+
+- [#11546](https://github.com/withastro/astro/pull/11546) [`7f26de9`](https://github.com/withastro/astro/commit/7f26de906e87f1e8973a1f84399f23e36e506bb3) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Remove "SSR Only" mention in `Astro.redirect` inline documentation and update reference link.
+
+- [#11525](https://github.com/withastro/astro/pull/11525) [`8068131`](https://github.com/withastro/astro/commit/80681318c6cb0f612fcb5188933fdd20a8f474a3) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a case where the build was failing when `experimental.actions` was enabled, an adapter was in use, and there were not actions inside the user code base.
+
+- [#11574](https://github.com/withastro/astro/pull/11574) [`e3f29d4`](https://github.com/withastro/astro/commit/e3f29d416a2e0a0b5328ae1075b12575260dddfd) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes line with the error not being properly highlighted in the error overlay
+
+- [#11570](https://github.com/withastro/astro/pull/11570) [`84189b6`](https://github.com/withastro/astro/commit/84189b6511dc2a14bcfe608696f56a64c2046f39) Thanks [@bholmesdev](https://github.com/bholmesdev)! - **BREAKING CHANGE to the experimental Actions API only.** Install the latest `@astrojs/react` integration as well if you're using React 19 features.
+
+  Updates the Astro Actions fallback to support `action={actions.name}` instead of using `getActionProps().` This will submit a form to the server in zero-JS scenarios using a search parameter:
+
+  ```astro
+  ---
+  import { actions } from 'astro:actions';
+  ---
+
+  <form action={actions.logOut}>
+    <!--output: action="?_astroAction=logOut"-->
+    <button>Log Out</button>
+  </form>
+  ```
+
+  You may also construct form action URLs using string concatenation, or by using the `URL()` constructor, with the an action's `.queryString` property:
+
+  ```astro
+  ---
+  import { actions } from 'astro:actions';
+
+  const confirmationUrl = new URL('/confirmation', Astro.url);
+  confirmationUrl.search = actions.queryString;
+  ---
+
+  <form method="POST" action={confirmationUrl.pathname}>
+    <button>Submit</button>
+  </form>
+  ```
+
+  ## Migration
+
+  `getActionProps()` is now deprecated. To use the new fallback pattern, remove the `getActionProps()` input from your form and pass your action function to the form `action` attribute:
+
+  ```diff
+  ---
+  import {
+    actions,
+  - getActionProps,
+  } from 'astro:actions';
+  ---
+
+  + <form method="POST" action={actions.logOut}>
+  - <form method="POST">
+  - <input {...getActionProps(actions.logOut)} />
+    <button>Log Out</button>
+  </form>
+  ```
+
+- [#11559](https://github.com/withastro/astro/pull/11559) [`1953dbb`](https://github.com/withastro/astro/commit/1953dbbd41d2d7803837601a9e192654f02275ef) Thanks [@bryanwood](https://github.com/bryanwood)! - Allows actions to return falsy values without an error
+
+- [#11553](https://github.com/withastro/astro/pull/11553) [`02c85b5`](https://github.com/withastro/astro/commit/02c85b541241a07db45bf9e15717e111104898e5) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue in content collection caching, where two documents with the same contents were generating an error during the build.
+
+- [#11548](https://github.com/withastro/astro/pull/11548) [`602c5bf`](https://github.com/withastro/astro/commit/602c5bf05de4fe5ec1ea97f8e10455485aceb05f) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Fixes `astro add` for packages with only prerelease versions
+
+- [#11566](https://github.com/withastro/astro/pull/11566) [`0dcef3a`](https://github.com/withastro/astro/commit/0dcef3ab171bd7f81c2f99e9366db3724aa7091b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes DomException errors not being handled properly
+
+- [#11529](https://github.com/withastro/astro/pull/11529) [`504c383`](https://github.com/withastro/astro/commit/504c383e20dfb5d8eb0825a70935f221b43577b2) Thanks [@matthewp](https://github.com/matthewp)! - Fix server islands with trailingSlash: always
+
 ## 4.12.2
 
 ### Patch Changes

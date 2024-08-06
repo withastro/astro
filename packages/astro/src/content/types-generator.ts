@@ -382,10 +382,7 @@ async function writeContentFiles({
 	let dataTypesStr = '';
 
 	const collectionSchemasDir = new URL('./collections/', settings.dotAstroDir);
-	if (
-		settings.config.experimental.contentCollectionJsonSchema &&
-		!fs.existsSync(collectionSchemasDir)
-	) {
+	if (!fs.existsSync(collectionSchemasDir)) {
 		fs.mkdirSync(collectionSchemasDir, { recursive: true });
 	}
 

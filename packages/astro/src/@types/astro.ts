@@ -15,6 +15,7 @@ import type {
 	ActionAccept,
 	ActionClient,
 	ActionInputSchema,
+	ActionReturnType,
 } from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
 import type { AssetsPrefix, SSRManifest, SerializedSSRManifest } from '../core/app/types.js';
@@ -262,6 +263,21 @@ export interface AstroGlobal<
 	 * ```
 	 */
 	getActionResult: AstroSharedContext['getActionResult'];
+	/**
+	 * Call an Action directly from an Astro page or API endpoint.
+	 * Expects the action function as the first parameter,
+	 * and the type-safe action input as the second parameter.
+	 * Returns a Promise with the action result.
+	 *
+	 * Example usage:
+	 *
+	 * ```typescript
+	 * import { actions } from 'astro:actions';
+	 *
+	 * const result = await Astro.callAction(actions.getPost, { postId: 'test' });
+	 * ```
+	 */
+	callAction: AstroSharedContext['callAction'];
 	/** Redirect to another page
 	 *
 	 * Example usage:
@@ -1898,54 +1914,6 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.contentCollectionJsonSchema
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.5.0
-		 * @description
-		 * This feature will auto-generate a JSON schema for content collections of `type: 'data'` which can be used as the `$schema` value for TypeScript-style autocompletion/hints in tools like VSCode.
-		 *
-		 * To enable this feature, add the experimental flag:
-		 *
-		 * ```diff
-		 * import { defineConfig } from 'astro/config';
-
-		 * export default defineConfig({
-		 * 	experimental: {
-		 * +		contentCollectionJsonSchema: true
-		 * 	}
-		 * });
-		 * ```
-		 *
-		 * This experimental implementation requires you to manually reference the schema in each data entry file of the collection:
-		 *
-		 * ```diff
-		 * // src/content/test/entry.json
-		 * {
-		 * +  "$schema": "../../../.astro/collections/test.schema.json",
-		 * 	"test": "test"
-		 * }
-		 * ```
-		 *
-		 * Alternatively, you can set this in your [VSCode `json.schemas` settings](https://code.visualstudio.com/docs/languages/json#_json-schemas-and-settings):
-		 *
-		 * ```diff
-		 * "json.schemas": [
-		 * 	{
-		 * 		"fileMatch": [
-		 * 			"/src/content/test/**"
-		 * 		],
-		 * 		"url": "./.astro/collections/test.schema.json"
-		 * 	}
-		 * ]
-		 * ```
-		 *
-		 * Note that this initial implementation uses a library with [known issues for advanced Zod schemas](https://github.com/StefanTerdell/zod-to-json-schema#known-issues), so you may wish to consult these limitations before enabling the experimental flag.
-		 */
-		contentCollectionJsonSchema?: boolean;
-
-		/**
-		 * @docs
 		 * @name experimental.clientPrerender
 		 * @type {boolean}
 		 * @default `false`
@@ -2009,62 +1977,6 @@ export interface AstroUserConfig {
 		 * In the event of route collisions, where two routes of equal route priority attempt to build the same URL, Astro will log a warning identifying the conflicting routes.
 		 */
 		globalRoutePriority?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.rewriting
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.8.0
-		 * @description
-		 *
-		 * Enables a routing feature for rewriting requests in Astro pages, endpoints and Astro middleware, giving you programmatic control over your routes.
-		 *
-		 * ```js
-		 * {
-		 *   experimental: {
-		 *     rewriting: true,
-		 *   },
-		 * }
-		 * ```
-		 *
-		 * Use `Astro.rewrite` in your `.astro` files to reroute to a different page:
-		 *
-		 * ```astro "rewrite"
-		 * ---
-		 * // src/pages/dashboard.astro
-		 * if (!Astro.props.allowed) {
-		 * 	return Astro.rewrite("/")
-		 * }
-		 * ---
-		 * ```
-		 *
-		 * Use `context.rewrite` in your endpoint files to reroute to a different page:
-		 *
-		 * ```js
-		 * // src/pages/api.js
-		 * export function GET(ctx) {
-		 * 	if (!ctx.locals.allowed) {
-		 * 		return ctx.rewrite("/")
-		 * 	}
-		 * }
-		 * ```
-		 *
-		 * Use `next("/")` in your middleware file to reroute to a different page, and then call the next middleware function:
-		 *
-		 * ```js
-		 * // src/middleware.js
-		 * export function onRequest(ctx, next) {
-		 * 	if (!ctx.cookies.get("allowed")) {
-		 * 		return next("/") // new signature
-		 * 	}
-		 * 	return next();
-		 * }
-		 * ```
-		 *
-		 * For a complete overview, and to give feedback on this experimental API, see the [Rerouting RFC](https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md).
-		 */
-		rewriting?: boolean;
 
 		/**
 		 * @docs
@@ -2855,7 +2767,21 @@ interface AstroSharedContext<
 		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
 	>(
 		action: TAction
-	) => Awaited<ReturnType<TAction['safe']>> | undefined;
+	) => ActionReturnType<TAction> | undefined;
+	/**
+	 * Call action handler from the server.
+	 */
+	callAction: <
+		TAccept extends ActionAccept,
+		TInputSchema extends ActionInputSchema<TAccept>,
+		TOutput,
+		TAction extends
+			| ActionClient<TOutput, TAccept, TInputSchema>
+			| ActionClient<TOutput, TAccept, TInputSchema>['orThrow'],
+	>(
+		action: TAction,
+		input: Parameters<TAction>[0]
+	) => Promise<ActionReturnType<TAction>>;
 	/**
 	 * Route parameters for this request if this is a dynamic route.
 	 */

@@ -113,7 +113,7 @@ export function pluginManifest(
 	};
 }
 
-export async function createManifest(
+async function createManifest(
 	buildOpts: StaticBuildOptions,
 	internals: BuildInternals
 ): Promise<SerializedSSRManifest> {
@@ -137,11 +137,8 @@ export async function createManifest(
 
 /**
  * It injects the manifest in the given output rollup chunk. It returns the new emitted code
- * @param buildOpts
- * @param internals
- * @param chunk
  */
-export function injectManifest(manifest: SerializedSSRManifest, chunk: Readonly<OutputChunk>) {
+function injectManifest(manifest: SerializedSSRManifest, chunk: Readonly<OutputChunk>) {
 	const code = chunk.code;
 
 	return code.replace(replaceExp, () => {
@@ -279,7 +276,6 @@ function buildManifest(
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
-		rewritingEnabled: settings.config.experimental.rewriting,
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		experimentalEnvGetSecretEnabled:
 			settings.config.experimental.env !== undefined &&
