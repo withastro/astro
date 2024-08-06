@@ -446,6 +446,20 @@ async function writeContentFiles({
 					contentTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  slug: ${slugType};\n  body: string;\n  collection: ${collectionKey};\n  data: ${dataType}\n} & ${renderType};\n`;
 				}
 				contentTypesStr += `};\n`;
+
+				if (
+					collectionConfig?.schema &&
+					settings.config.experimental.contentCollectionIntellisense
+				) {
+					await generateJSONSchema(
+						fs,
+						collectionConfig,
+						collectionKey,
+						collectionSchemasDir,
+						logger
+					);
+				}
+
 				break;
 			case 'data':
 				if (collectionEntryKeys.length === 0) {
