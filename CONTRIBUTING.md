@@ -369,20 +369,22 @@ Full documentation: https://github.com/changesets/changesets/blob/main/docs/prer
 
 ### Entering prerelease mode
 
-If you have gotten permission from the core contributors, you can enter into prerelease mode by following the following steps:
+If you have gotten permission from the core contributors, you can enter into prerelease mode with the following steps:
 
 - Run: `pnpm exec changeset pre enter next` in the project root
+- Update `.changeset/config.json` with `"baseBranch": "next"` (for easier changesets creation)
 - Create a new PR from the changes created by this command
-- Review, approve, and more the PR to enter prerelease mode.
+- Review, approve, and merge the PR to enter prerelease mode.
 - If successful, The "[ci] release" PR (if one exists) will now say "[ci] release (next)".
 
 ### Exiting prerelease mode
 
-Exiting prerelease mode should happen once an experimental release is ready to go from `npm install astro@next` to `npm install astro`. Only a core contributor run these steps. These steps should be run before
+Exiting prerelease mode should happen once an experimental release is ready to go from `npm install astro@next` to `npm install astro`. Only a core contributor can run these steps:
 
 - Run: `pnpm exec changeset pre exit` in the project root
+- Update `.changeset/config.json` with `"baseBranch": "main"`
 - Create a new PR from the changes created by this command.
-- Review, approve, and more the PR to enter prerelease mode.
+- Review, approve, and merge the PR to enter prerelease mode.
 - If successful, The "[ci] release (next)" PR (if one exists) will now say "[ci] release".
 
 ### Releasing `astro@latest` while in prerelease mode
