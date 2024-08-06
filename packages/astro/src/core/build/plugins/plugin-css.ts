@@ -70,7 +70,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			const assetFileNames = outputOptions.assetFileNames;
 			const namingIncludesHash = assetFileNames?.toString().includes('[hash]');
 			const createNameForParentPages = namingIncludesHash
-				? assetName.shortHashedName
+				? assetName.shortHashedName(settings)
 				: assetName.createSlugger(settings);
 
 			extendManualChunks(outputOptions, {
@@ -94,7 +94,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							if (hasAssetPropagationFlag(pageInfo.id)) {
 								// Split delayed assets to separate modules
 								// so they can be injected where needed
-								const chunkId = assetName.createNameHash(id, [id]);
+								const chunkId = assetName.createNameHash(id, [id], settings);
 								internals.cssModuleToChunkIdMap.set(id, chunkId);
 								return chunkId;
 							}
