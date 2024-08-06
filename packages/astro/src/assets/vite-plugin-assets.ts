@@ -14,9 +14,9 @@ import {
 } from '../core/path.js';
 import { isServerLikeOutput } from '../core/util.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
-import { emitESMImage } from './utils/emitAsset.js';
 import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 import { isESMImportedImage } from './utils/imageKind.js';
+import { emitESMImage } from './utils/node/emitAsset.js';
 import { getProxyCode } from './utils/proxy.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
@@ -133,6 +133,7 @@ export default function assets({
 					import { getImage as getImageInternal } from "astro/assets";
 					export { default as Image } from "astro/components/Image.astro";
 					export { default as Picture } from "astro/components/Picture.astro";
+					export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
 
 					export const imageConfig = ${JSON.stringify(settings.config.image)};
 					// This is used by the @astrojs/node integration to locate images.

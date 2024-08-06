@@ -6,7 +6,7 @@ import * as path from 'node:path';
 import pLimit from 'p-limit';
 import { tsconfigResolverSync } from 'tsconfig-resolver';
 
-const skippedExamples = ['toolbar-app', 'component']
+const skippedExamples = ['toolbar-app', 'component', 'server-islands'];
 
 function checkExamples() {
 	let examples = readdirSync('./examples', { withFileTypes: true });

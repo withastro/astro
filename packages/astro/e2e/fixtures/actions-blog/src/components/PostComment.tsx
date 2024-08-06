@@ -21,7 +21,7 @@ export function PostComment({
 					e.preventDefault();
 					const form = e.target as HTMLFormElement;
 					const formData = new FormData(form);
-					const { data, error } = await actions.blog.comment.safe(formData);
+					const { data, error } = await actions.blog.comment(formData);
 					if (isInputError(error)) {
 						return setBodyError(error.fields.body?.join(' '));
 					} else if (error) {

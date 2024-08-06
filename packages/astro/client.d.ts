@@ -54,6 +54,7 @@ declare module 'astro:assets' {
 		) => Promise<import('./dist/assets/types.js').GetImageResult>;
 		imageConfig: import('./dist/@types/astro.js').AstroConfig['image'];
 		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
+		inferRemoteSize: typeof import('./dist/assets/utils/index.js').inferRemoteSize;
 		Image: typeof import('./components/Image.astro').default;
 		Picture: typeof import('./components/Picture.astro').default;
 	};
@@ -69,7 +70,14 @@ declare module 'astro:assets' {
 	export type RemoteImageProps = import('./dist/type-utils.js').Simplify<
 		import('./dist/assets/types.js').RemoteImageProps<ImgAttributes>
 	>;
-	export const { getImage, getConfiguredImageService, imageConfig, Image, Picture }: AstroAssets;
+	export const {
+		getImage,
+		getConfiguredImageService,
+		imageConfig,
+		Image,
+		Picture,
+		inferRemoteSize,
+	}: AstroAssets;
 }
 
 type ImageMetadata = import('./dist/assets/types.js').ImageMetadata;

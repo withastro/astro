@@ -45,7 +45,7 @@ export class DevToolbarTooltip extends HTMLElement {
 
 			svg {
 				vertical-align: bottom;
-				margin-right: 4px;
+				margin-inline-end: 4px;
 			}
 
 			hr {

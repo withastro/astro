@@ -52,6 +52,31 @@ describe('Astro.cookies', () => {
 				assert.equal(response.headers.has('set-cookie'), true);
 			}
 		});
+
+		it('can set cookies in a rewritten page request', async () => {
+			const response = await fixture.fetch('/from');
+			assert.equal(response.status, 200);
+
+			assert.match(response.headers.get('set-cookie'), /my_cookie=value/);
+		});
+
+		it('overwrites cookie values set in the source page with values from the target page', async () => {
+			const response = await fixture.fetch('/from');
+			assert.equal(response.status, 200);
+			assert.match(response.headers.get('set-cookie'), /another=set-in-target/);
+		});
+
+		it('allows cookies to be set in the source page', async () => {
+			const response = await fixture.fetch('/from');
+			assert.equal(response.status, 200);
+			assert.match(response.headers.get('set-cookie'), /set-in-from=yes/);
+		});
+
+		it('can set cookies in a rewritten endpoint request', async () => {
+			const response = await fixture.fetch('/from-endpoint');
+			assert.equal(response.status, 200);
+			assert.match(response.headers.get('set-cookie'), /test=value/);
+		});
 	});
 
 	describe('Production', () => {
@@ -139,6 +164,35 @@ describe('Astro.cookies', () => {
 			let data = JSON.parse(decodeURIComponent(raw));
 			assert.equal(typeof data, 'object');
 			assert.equal(data.mode, 'dark');
+		});
+
+		it('can set cookies in a rewritten page request', async () => {
+			const request = new Request('http://example.com/from');
+			const response = await app.render(request, { addCookieHeader: true });
+			assert.equal(response.status, 200);
+
+			assert.match(response.headers.get('Set-Cookie'), /my_cookie=value/);
+		});
+
+		it('overwrites cookie values set in the source page with values from the target page', async () => {
+			const request = new Request('http://example.com/from');
+			const response = await app.render(request, { addCookieHeader: true });
+			assert.equal(response.status, 200);
+			assert.match(response.headers.get('Set-Cookie'), /another=set-in-target/);
+		});
+
+		it('allows cookies to be set in the source page', async () => {
+			const request = new Request('http://example.com/from');
+			const response = await app.render(request, { addCookieHeader: true });
+			assert.equal(response.status, 200);
+			assert.match(response.headers.get('Set-Cookie'), /set-in-from=yes/);
+		});
+
+		it('can set cookies in a rewritten endpoint request', async () => {
+			const request = new Request('http://example.com/from-endpoint');
+			const response = await app.render(request, { addCookieHeader: true });
+			assert.equal(response.status, 200);
+			assert.match(response.headers.get('Set-Cookie'), /test=value/);
 		});
 	});
 });

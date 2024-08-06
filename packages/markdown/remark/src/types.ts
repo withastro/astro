@@ -9,7 +9,7 @@ import type {
 	ThemeRegistrationRaw,
 } from 'shiki';
 import type * as unified from 'unified';
-import type { VFile } from 'vfile';
+import type { DataMap, VFile } from 'vfile';
 
 export type { Node } from 'unist';
 
@@ -39,6 +39,7 @@ export interface ShikiConfig {
 	langs?: LanguageRegistration[];
 	theme?: ThemePresets | ThemeRegistration | ThemeRegistrationRaw;
 	themes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
+	defaultColor?: 'light' | 'dark' | string | false;
 	wrap?: boolean | null;
 	transformers?: ShikiTransformer[];
 }
@@ -82,9 +83,11 @@ export interface MarkdownHeading {
 	text: string;
 }
 
+// TODO: Remove `MarkdownVFile` and move all additional properties to `DataMap` instead
 export interface MarkdownVFile extends VFile {
-	data: {
-		__astroHeadings?: MarkdownHeading[];
-		imagePaths?: Set<string>;
-	};
+	data: Record<string, unknown> &
+		Partial<DataMap> & {
+			__astroHeadings?: MarkdownHeading[];
+			imagePaths?: Set<string>;
+		};
 }

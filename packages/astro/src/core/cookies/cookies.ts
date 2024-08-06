@@ -192,6 +192,19 @@ class AstroCookies implements AstroCookiesInterface {
 	}
 
 	/**
+	 * Merges a new AstroCookies instance into the current instance. Any new cookies
+	 * will be added to the current instance, overwriting any existing cookies with the same name.
+	 */
+	merge(cookies: AstroCookies) {
+		const outgoing = cookies.#outgoing;
+		if (outgoing) {
+			for (const [key, value] of outgoing) {
+				this.#ensureOutgoingMap().set(key, value);
+			}
+		}
+	}
+
+	/**
 	 * Astro.cookies.header() returns an iterator for the cookies that have previously
 	 * been set by either Astro.cookies.set() or Astro.cookies.delete().
 	 * This method is primarily used by adapters to set the header on outgoing responses.

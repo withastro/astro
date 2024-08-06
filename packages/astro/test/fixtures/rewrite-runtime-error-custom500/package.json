@@ -1,0 +1,8 @@
+{
+  "name": "@test/rewrite-runtime-errror-custom500",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*"
+  }
+}

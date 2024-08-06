@@ -8,13 +8,6 @@ import { loadFixture, waitServerListen } from './test-utils.js';
  * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
  */
 
-async function load() {
-	const mod = await import(
-		`./fixtures/trailing-slash/dist/server/entry.mjs?dropcache=${Date.now()}`
-	);
-	return mod;
-}
-
 describe('Trailing slash', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -30,10 +23,15 @@ describe('Trailing slash', () => {
 					base: '/some-base',
 					output: 'hybrid',
 					trailingSlash: 'always',
+					outDir: './dist/always-with-base',
+					build: {
+						client: './dist/always-with-base/client',
+						server: './dist/always-with-base/server',
+					},
 					adapter: nodejs({ mode: 'standalone' }),
 				});
 				await fixture.build();
-				const { startServer } = await load();
+				const { startServer } = await fixture.loadAdapterEntryModule();
 				let res = startServer();
 				server = res.server;
 				await waitServerListen(server.server);
@@ -96,10 +94,15 @@ describe('Trailing slash', () => {
 					root: './fixtures/trailing-slash/',
 					output: 'hybrid',
 					trailingSlash: 'always',
+					outDir: './dist/always-without-base',
+					build: {
+						client: './dist/always-without-base/client',
+						server: './dist/always-without-base/server',
+					},
 					adapter: nodejs({ mode: 'standalone' }),
 				});
 				await fixture.build();
-				const { startServer } = await load();
+				const { startServer } = await fixture.loadAdapterEntryModule();
 				let res = startServer();
 				server = res.server;
 				await waitServerListen(server.server);
@@ -165,10 +168,15 @@ describe('Trailing slash', () => {
 					base: '/some-base',
 					output: 'hybrid',
 					trailingSlash: 'never',
+					outDir: './dist/never-with-base',
+					build: {
+						client: './dist/never-with-base/client',
+						server: './dist/never-with-base/server',
+					},
 					adapter: nodejs({ mode: 'standalone' }),
 				});
 				await fixture.build();
-				const { startServer } = await load();
+				const { startServer } = await fixture.loadAdapterEntryModule();
 				let res = startServer();
 				server = res.server;
 				await waitServerListen(server.server);
@@ -224,10 +232,15 @@ describe('Trailing slash', () => {
 					root: './fixtures/trailing-slash/',
 					output: 'hybrid',
 					trailingSlash: 'never',
+					outDir: './dist/never-without-base',
+					build: {
+						client: './dist/never-without-base/client',
+						server: './dist/never-without-base/server',
+					},
 					adapter: nodejs({ mode: 'standalone' }),
 				});
 				await fixture.build();
-				const { startServer } = await load();
+				const { startServer } = await fixture.loadAdapterEntryModule();
 				let res = startServer();
 				server = res.server;
 				await waitServerListen(server.server);
@@ -286,10 +299,15 @@ describe('Trailing slash', () => {
 					base: '/some-base',
 					output: 'hybrid',
 					trailingSlash: 'ignore',
+					outDir: './dist/ignore-with-base',
+					build: {
+						client: './dist/ignore-with-base/client',
+						server: './dist/ignore-with-base/server',
+					},
 					adapter: nodejs({ mode: 'standalone' }),
 				});
 				await fixture.build();
-				const { startServer } = await load();
+				const { startServer } = await fixture.loadAdapterEntryModule();
 				let res = startServer();
 				server = res.server;
 				await waitServerListen(server.server);
@@ -363,10 +381,15 @@ describe('Trailing slash', () => {
 					root: './fixtures/trailing-slash/',
 					output: 'hybrid',
 					trailingSlash: 'ignore',
+					outDir: './dist/ignore-without-base',
+					build: {
+						client: './dist/ignore-without-base/client',
+						server: './dist/ignore-without-base/server',
+					},
 					adapter: nodejs({ mode: 'standalone' }),
 				});
 				await fixture.build();
-				const { startServer } = await load();
+				const { startServer } = await fixture.loadAdapterEntryModule();
 				let res = startServer();
 				server = res.server;
 				await waitServerListen(server.server);

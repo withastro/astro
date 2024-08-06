@@ -112,6 +112,7 @@ async function renderToStaticMarkup(Component, props, slots) {
 }
 
 export default {
+	name: '@astrojs/lit',
 	check,
 	renderToStaticMarkup,
 };

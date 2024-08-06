@@ -50,7 +50,13 @@ export function createRequest({
 		? undefined
 		: headers instanceof Headers
 			? headers
-			: new Headers(Object.entries(headers as Record<string, any>));
+			: new Headers(
+					// Filter out HTTP/2 pseudo-headers. These are internally-generated headers added to all HTTP/2 requests with trusted metadata about the request.
+					// Examples include `:method`, `:scheme`, `:authority`, and `:path`.
+					// They are always prefixed with a colon to distinguish them from other headers, and it is an error to add the to a Headers object manually.
+					// See https://httpwg.org/specs/rfc7540.html#HttpRequest
+					Object.entries(headers as Record<string, any>).filter(([name]) => !name.startsWith(':'))
+				);
 
 	if (typeof url === 'string') url = new URL(url);
 

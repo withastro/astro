@@ -20,8 +20,10 @@ export async function sync({ flags }: SyncOptions) {
 		return 0;
 	}
 
-	const inlineConfig = flagsToAstroInlineConfig(flags);
-
-	const exitCode = await _sync(inlineConfig);
-	return exitCode;
+	try {
+		await _sync({ inlineConfig: flagsToAstroInlineConfig(flags), telemetry: true });
+		return 0;
+	} catch (_) {
+		return 1;
+	}
 }

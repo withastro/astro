@@ -1,5 +1,5 @@
 import type { APIContext, MiddlewareHandler, Params, RewritePayload } from '../../@types/astro.js';
-import { createGetActionResult } from '../../actions/utils.js';
+import { createCallAction, createGetActionResult } from '../../actions/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
@@ -52,7 +52,7 @@ function createContext({
 		// return dummy response
 		return Promise.resolve(new Response(null));
 	};
-	const context: Omit<APIContext, 'getActionResult'> = {
+	const context: Omit<APIContext, 'getActionResult' | 'callAction'> = {
 		cookies: new AstroCookies(request),
 		request,
 		params,
@@ -106,6 +106,7 @@ function createContext({
 	};
 	return Object.assign(context, {
 		getActionResult: createGetActionResult(context.locals),
+		callAction: createCallAction(context),
 	});
 }
 

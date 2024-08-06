@@ -4,7 +4,8 @@ import type { Plugin as VitePlugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { type Logger } from '../core/logger/core.js';
-import { isEndpoint, isPage, isServerLikeOutput, rootRelativePath } from '../core/util.js';
+import { isEndpoint, isPage, isServerLikeOutput } from '../core/util.js';
+import { rootRelativePath } from '../core/viteUtils.js';
 import { getPrerenderDefault } from '../prerender/utils.js';
 import { scan } from './scan.js';
 

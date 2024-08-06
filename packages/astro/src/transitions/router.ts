@@ -1,13 +1,5 @@
-import type { TransitionBeforePreparationEvent, TransitionBeforeSwapEvent } from './events.js';
+import type { TransitionBeforePreparationEvent } from './events.js';
 import { TRANSITION_AFTER_SWAP, doPreparation, doSwap } from './events.js';
-import {
-	deselectScripts,
-	restoreFocus,
-	saveFocus,
-	swapBodyElement,
-	swapHeadElements,
-	swapRootAttributes,
-} from './swap-functions.js';
 import type { Direction, Fallback, Options } from './types.js';
 
 type State = {
@@ -132,7 +124,7 @@ async function fetchHTML(
 	}
 }
 
-function getFallback(): Fallback {
+export function getFallback(): Fallback {
 	const el = document.querySelector('[name="astro-view-transitions-fallback"]');
 	if (el) {
 		return el.getAttribute('content') as Fallback;
@@ -418,7 +410,13 @@ async function transition(
 		}
 		// if there was a redirection, show the final URL in the browser's address bar
 		if (response.redirected) {
-			preparationEvent.to = new URL(response.redirected);
+			const redirectedTo = new URL(response.redirected);
+			// but do not redirect cross origin
+			if (redirectedTo.origin !== preparationEvent.to.origin) {
+				preparationEvent.preventDefault();
+				return;
+			}
+			preparationEvent.to = redirectedTo;
 		}
 
 		parser ??= new DOMParser();

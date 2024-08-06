@@ -131,7 +131,7 @@ export default function createPreferences(config: AstroConfig): AstroPreferences
 }
 
 // Adapted from https://github.com/sindresorhus/env-paths
-export function getGlobalPreferenceDir() {
+function getGlobalPreferenceDir() {
 	const name = 'astro';
 	const homedir = os.homedir();
 	const macos = () => path.join(homedir, 'Library', 'Preferences', name);

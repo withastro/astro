@@ -11,7 +11,7 @@ export function Like({ postId, initial }: { postId: string; initial: number }) {
 			disabled={pending}
 			onClick={async () => {
 				setPending(true);
-				setLikes(await actions.blog.like({ postId }));
+				setLikes(await actions.blog.like.orThrow({ postId }));
 				setPending(false);
 			}}
 			type="submit"

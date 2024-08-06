@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { MissingLocale } from '#astro/core/errors/errors-data';
 import { AstroError } from '#astro/core/errors/index';
 import { toRoutingStrategy } from '#astro/i18n/utils';
-import { validateConfig } from '../../../dist/core/config/config.js';
+import { validateConfig } from '../../../dist/core/config/validate.js';
 import {
 	getLocaleAbsoluteUrl,
 	getLocaleAbsoluteUrlList,

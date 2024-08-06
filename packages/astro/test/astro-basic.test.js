@@ -159,6 +159,19 @@ describe('Astro basic build', () => {
 		assert.equal($('h1').text(), 'WORKS');
 	});
 
+	it('Handles importing .astro?raw correctly', async () => {
+		const html = await fixture.readFile('/import-queries/raw/index.html');
+		const $ = cheerio.load(html);
+		const rawValue = $('.raw-value').text();
+		assert.match(rawValue, /<h1>Hello<\/h1>/);
+		assert.match(rawValue, /<script>/);
+		assert.match(rawValue, /<style>/);
+		// The rest of HTML should not contain any scripts or styles hoisted from the raw import
+		const otherHtml = html.replace(rawValue, '');
+		assert.doesNotMatch(otherHtml, /<script/);
+		assert.doesNotMatch(otherHtml, /<style/);
+	});
+
 	describe('preview', () => {
 		it('returns 200 for valid URLs', async () => {
 			const result = await fixture.fetch('/');
@@ -210,5 +223,20 @@ describe('Astro basic development', () => {
 			res.headers.get('content-type').includes('charset=utf-8') ||
 			html.includes('<meta charset="utf-8">');
 		assert.ok(isUtf8);
+	});
+
+	it('Handles importing .astro?raw correctly', async () => {
+		const res = await fixture.fetch('/import-queries/raw/index.html');
+		assert.equal(res.status, 200);
+		const html = await res.text();
+		const $ = cheerio.load(html);
+		const rawValue = $('.raw-value').text();
+		assert.match(rawValue, /<h1>Hello<\/h1>/);
+		assert.match(rawValue, /<script>/);
+		assert.match(rawValue, /<style>/);
+		// The rest of HTML should not contain any scripts or styles hoisted from the raw import.
+		// However we don't check them here as dev plugins could add scripts and styles dynam
+		assert.doesNotMatch(html, /_content.astro\?astro&type=style/);
+		assert.doesNotMatch(html, /_content.astro\?astro&type=script/);
 	});
 });

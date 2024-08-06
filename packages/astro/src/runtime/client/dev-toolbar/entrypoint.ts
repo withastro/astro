@@ -92,8 +92,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 			if (!(evt instanceof CustomEvent)) return;
 
 			const target = overlay.shadowRoot?.querySelector(`[data-app-id="${app.id}"]`);
-			const notificationElement = target?.querySelector('.notification');
-			if (!target || !notificationElement) return;
+			if (!target) return;
+			const notificationElement = target.querySelector('.notification');
+			if (!notificationElement) return;
 
 			let newState = evt.detail.state ?? true;
 			let level = notificationLevels.includes(evt?.detail?.level)

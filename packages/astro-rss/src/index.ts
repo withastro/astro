@@ -32,13 +32,13 @@ export type RSSOptions = {
 
 export type RSSFeedItem = {
 	/** Link to item */
-	link: z.infer<typeof rssSchema>['link'];
+	link?: z.infer<typeof rssSchema>['link'];
 	/** Full content of the item. Should be valid HTML */
 	content?: z.infer<typeof rssSchema>['content'];
 	/** Title of item */
-	title: z.infer<typeof rssSchema>['title'];
+	title?: z.infer<typeof rssSchema>['title'];
 	/** Publication date of item */
-	pubDate: z.infer<typeof rssSchema>['pubDate'];
+	pubDate?: z.infer<typeof rssSchema>['pubDate'];
 	/** Item description */
 	description?: z.infer<typeof rssSchema>['description'];
 	/** Append some other XML-valid data to this item */

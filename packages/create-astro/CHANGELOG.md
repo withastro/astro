@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.8.1
+
+### Patch Changes
+
+- [#11567](https://github.com/withastro/astro/pull/11567) [`d27cf6d`](https://github.com/withastro/astro/commit/d27cf6df7bd612642a1e8da5948333b00b70e8bd) Thanks [@ascorbic](https://github.com/ascorbic)! - Logs underlying error when a template cannot be downloaded
+
 ## 4.8.0
 
 ### Minor Changes

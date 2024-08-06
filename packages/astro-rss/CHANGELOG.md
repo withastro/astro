@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 4.0.7
+
+### Patch Changes
+
+- [#11299](https://github.com/withastro/astro/pull/11299) [`8ce66f2`](https://github.com/withastro/astro/commit/8ce66f2ef7328546d823f1076f9bab4217a6be7d) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `pagesGlobToRssItems` returned an incorrect type for `items`
+
 ## 4.0.6
 
 ### Patch Changes

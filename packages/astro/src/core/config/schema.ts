@@ -36,6 +36,7 @@ import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } f
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ComplexifyUnionObj {}
+
 type ComplexifyWithUnion<T> = T & ComplexifyUnionObj;
 type ComplexifyWithOmit<T> = Omit<T, '__nonExistent'>;
 
@@ -85,10 +86,12 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		actions: false,
 		directRenderScript: false,
 		contentCollectionCache: false,
-		contentCollectionJsonSchema: false,
 		clientPrerender: false,
 		globalRoutePriority: false,
-		rewriting: false,
+		serverIslands: false,
+		env: {
+			validateSecrets: false,
+		},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -318,6 +321,9 @@ export const AstroConfigSchema = z.object({
 								.or(z.custom<ShikiTheme>())
 						)
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.themes!),
+					defaultColor: z
+						.union([z.literal('light'), z.literal('dark'), z.string(), z.literal(false)])
+						.optional(),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
 					transformers: z
 						.custom<ShikiTransformer>()
@@ -510,10 +516,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionCache),
-			contentCollectionJsonSchema: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionJsonSchema),
 			clientPrerender: z
 				.boolean()
 				.optional()
@@ -522,13 +524,20 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.globalRoutePriority),
-			rewriting: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rewriting),
 			env: z
 				.object({
 					schema: EnvSchema.optional(),
+					validateSecrets: z
+						.boolean()
+						.optional()
+						.default(ASTRO_CONFIG_DEFAULTS.experimental.env.validateSecrets),
 				})
 				.strict()
 				.optional(),
+			serverIslands: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.serverIslands),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`
@@ -667,7 +676,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				'The value of `outDir` must not point to a path within the folder set as `publicDir`, this will cause an infinite loop',
 		})
 		.superRefine((configuration, ctx) => {
-			const { site, experimental, i18n, output } = configuration;
+			const { site, i18n, output } = configuration;
 			const hasDomains = i18n?.domains ? Object.keys(i18n.domains).length > 0 : false;
 			if (hasDomains) {
 				if (!site) {

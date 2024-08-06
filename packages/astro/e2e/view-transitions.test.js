@@ -169,7 +169,6 @@ test.describe('View Transitions', () => {
 
 	test('Moving from a page without ViewTransitions w/ back button', async ({ page, astro }) => {
 		const loads = collectLoads(page);
-
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
@@ -184,6 +183,10 @@ test.describe('View Transitions', () => {
 		await page.goBack();
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
+		expect(
+			loads.length,
+			'There should be 3 page loads (for page one & three), and an additional loads for the back navigation'
+		).toEqual(3);
 	});
 
 	test('Stylesheets in the head are waited on', async ({ page, astro }) => {
@@ -786,6 +789,25 @@ test.describe('View Transitions', () => {
 		await page.waitForURL('http://example.com');
 		await expect(page.locator('h1'), 'should have content').toHaveText('Example Domain');
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
+	});
+
+	test('Cross origin redirects do not raise errors', async ({ page, astro }) => {
+		let consoleErrors = [];
+		page.on('console', (msg) => {
+			if (msg.type() === 'error') {
+				consoleErrors.push(msg.text());
+			}
+		});
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		await page.click('#click-redirect');
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		expect(consoleErrors.length, 'There should be no errors').toEqual(0);
 	});
 
 	test('client:only styles are retained on transition (1/2)', async ({ page, astro }) => {

@@ -88,15 +88,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 					const { filter, customPages, serialize, entryLimit } = opts;
 
-					let finalSiteUrl: URL;
-					if (config.site) {
-						finalSiteUrl = new URL(config.base, config.site);
-					} else {
-						console.warn(
-							'The Sitemap integration requires the `site` astro.config option. Skipping.'
-						);
-						return;
-					}
+					let finalSiteUrl = new URL(config.base, config.site);
 					const shouldIgnoreStatus = isStatusCodePage(Object.keys(opts.i18n?.locales ?? {}));
 					let pageUrls = pages
 						.filter((p) => !shouldIgnoreStatus(p.pathname))

@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.4.1
+
+### Patch Changes
+
+- [#11323](https://github.com/withastro/astro/pull/11323) [`41064ce`](https://github.com/withastro/astro/commit/41064cee78c1cccd428f710a24c483aeb275fd95) Thanks [@ascorbic](https://github.com/ascorbic)! - Extracts fs helpers into shared internal-helpers module
+
 ## 0.4.0
 
 ### Minor Changes

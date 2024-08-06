@@ -58,10 +58,14 @@ for (const caseNumber of [1, 2, 3, 4, 5]) {
 			});
 
 			// IMPORTANT: never skip
-			it('prod server stays responsive', { timeout: 1000 }, async () => {
-				const response = await app.render(new Request('https://example.com/alvsibdlvjks'));
-				assert.equal(response.status, 404);
-			});
+			it(
+				'prod server stays responsive for case number ' + caseNumber,
+				{ timeout: 1000 },
+				async () => {
+					const response = await app.render(new Request('https://example.com/alvsibdlvjks'));
+					assert.equal(response.status, 404);
+				}
+			);
 		});
 	});
 }

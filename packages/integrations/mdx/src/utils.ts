@@ -1,8 +1,8 @@
 import type { Options as AcornOpts } from 'acorn';
 import { parse } from 'acorn';
-import type { AstroConfig, SSRError } from 'astro';
+import type { AstroConfig, AstroIntegrationLogger, SSRError } from 'astro';
 import matter from 'gray-matter';
-import { bold, yellow } from 'kleur/colors';
+import { bold } from 'kleur/colors';
 import type { MdxjsEsm } from 'mdast-util-mdx';
 import type { PluggableList } from 'unified';
 
@@ -85,22 +85,22 @@ export function jsToTreeNode(
 	};
 }
 
-export function ignoreStringPlugins(plugins: any[]): PluggableList {
+export function ignoreStringPlugins(plugins: any[], logger: AstroIntegrationLogger): PluggableList {
 	let validPlugins: PluggableList = [];
 	let hasInvalidPlugin = false;
 	for (const plugin of plugins) {
 		if (typeof plugin === 'string') {
-			console.warn(yellow(`[MDX] ${bold(plugin)} not applied.`));
+			logger.warn(`${bold(plugin)} not applied.`);
 			hasInvalidPlugin = true;
 		} else if (Array.isArray(plugin) && typeof plugin[0] === 'string') {
-			console.warn(yellow(`[MDX] ${bold(plugin[0])} not applied.`));
+			logger.warn(`${bold(plugin[0])} not applied.`);
 			hasInvalidPlugin = true;
 		} else {
 			validPlugins.push(plugin);
 		}
 	}
 	if (hasInvalidPlugin) {
-		console.warn(
+		logger.warn(
 			`To inherit Markdown plugins in MDX, please use explicit imports in your config instead of "strings." See Markdown docs: https://docs.astro.build/en/guides/markdown-content/#markdown-plugins`
 		);
 	}

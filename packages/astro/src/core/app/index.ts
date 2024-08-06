@@ -20,10 +20,11 @@ import {
 } from '../path.js';
 import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
-import { ensure404Route } from '../routing/astro-designed-error-pages.js';
+import { createDefaultRoutes, injectDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
 import { createOriginCheckMiddleware } from './middlewares.js';
 import { AppPipeline } from './pipeline.js';
+
 export { deserializeManifest } from './common.js';
 
 export interface RenderOptions {
@@ -67,6 +68,10 @@ export interface RenderErrorOptions {
 	 * Whether to skip middleware while rendering the error page. Defaults to false.
 	 */
 	skipMiddleware?: boolean;
+	/**
+	 * Allows passing an error to 500.astro. It will be available through `Astro.props.error`.
+	 */
+	error?: unknown;
 }
 
 export class App {
@@ -83,7 +88,7 @@ export class App {
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
-		this.#manifestData = ensure404Route({
+		this.#manifestData = injectDefaultRoutes(manifest, {
 			routes: manifest.routes.map((route) => route.routeData),
 		});
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
@@ -118,6 +123,7 @@ export class App {
 			manifest: this.#manifest,
 			mode: 'production',
 			renderers: this.#manifest.renderers,
+			defaultRoutes: createDefaultRoutes(this.#manifest),
 			resolve: async (specifier: string) => {
 				if (!(specifier in this.#manifest.entryModules)) {
 					throw new Error(`Unable to resolve [${specifier}]`);
@@ -141,6 +147,7 @@ export class App {
 	set setManifestData(newManifestData: ManifestData) {
 		this.#manifestData = newManifestData;
 	}
+
 	removeBase(pathname: string) {
 		if (pathname.startsWith(this.#manifest.base)) {
 			return pathname.slice(this.#baseWithoutTrailingSlash.length + 1);
@@ -289,8 +296,9 @@ export class App {
 		}
 		if (locals) {
 			if (typeof locals !== 'object') {
-				this.#logger.error(null, new AstroError(AstroErrorData.LocalsNotAnObject).stack!);
-				return this.#renderError(request, { status: 500 });
+				const error = new AstroError(AstroErrorData.LocalsNotAnObject);
+				this.#logger.error(null, error.stack!);
+				return this.#renderError(request, { status: 500, error });
 			}
 			Reflect.set(request, clientLocalsSymbol, locals);
 		}
@@ -309,10 +317,12 @@ export class App {
 		}
 		const pathname = this.#getPathnameFromRequest(request);
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
-		const mod = await this.#pipeline.getModuleForRoute(routeData);
 
 		let response;
 		try {
+			// Load route module. We also catch its error here if it fails on initialization
+			const mod = await this.#pipeline.getModuleForRoute(routeData);
+
 			const renderContext = RenderContext.create({
 				pipeline: this.#pipeline,
 				locals,
@@ -324,7 +334,7 @@ export class App {
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
 			this.#logger.error(null, err.stack || err.message || String(err));
-			return this.#renderError(request, { locals, status: 500 });
+			return this.#renderError(request, { locals, status: 500, error: err });
 		}
 
 		if (
@@ -335,6 +345,9 @@ export class App {
 				locals,
 				response,
 				status: response.status as 404 | 500,
+				// We don't have an error to report here. Passing null means we pass nothing intentionally
+				// while undefined means there's no error
+				error: response.status === 500 ? null : undefined,
 			});
 		}
 
@@ -385,7 +398,13 @@ export class App {
 	 */
 	async #renderError(
 		request: Request,
-		{ locals, status, response: originalResponse, skipMiddleware = false }: RenderErrorOptions
+		{
+			locals,
+			status,
+			response: originalResponse,
+			skipMiddleware = false,
+			error,
+		}: RenderErrorOptions
 	): Promise<Response> {
 		const errorRoutePath = `/${status}${this.#manifest.trailingSlash === 'always' ? '/' : ''}`;
 		const errorRouteData = matchRoute(errorRoutePath, this.#manifestData);
@@ -415,6 +434,7 @@ export class App {
 					request,
 					routeData: errorRouteData,
 					status,
+					props: { error },
 				});
 				const response = await renderContext.render(await mod.page());
 				return this.#mergeResponses(response, originalResponse);

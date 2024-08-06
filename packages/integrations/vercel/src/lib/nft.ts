@@ -1,7 +1,7 @@
 import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { copyFilesToFolder } from '@astrojs/internal-helpers/fs';
 import type { AstroIntegrationLogger } from 'astro';
-import { copyFilesToFunction } from './fs.js';
 
 export async function copyDependenciesToFunction(
 	{
@@ -72,7 +72,7 @@ export async function copyDependenciesToFunction(
 		}
 	}
 
-	const commonAncestor = await copyFilesToFunction(
+	const commonAncestor = await copyFilesToFolder(
 		[...result.fileList].map((file) => new URL(file, base)).concat(includeFiles),
 		outDir,
 		excludeFiles

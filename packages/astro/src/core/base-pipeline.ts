@@ -14,6 +14,7 @@ import { AstroError } from './errors/errors.js';
 import { AstroErrorData } from './errors/index.js';
 import type { Logger } from './logger/core.js';
 import { RouteCache } from './render/route-cache.js';
+import { createDefaultRoutes } from './routing/default.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -52,7 +53,12 @@ export abstract class Pipeline {
 		 * Used for `Astro.site`.
 		 */
 		readonly site = manifest.site ? new URL(manifest.site) : undefined,
-		readonly callSetGetEnv = true
+		readonly callSetGetEnv = true,
+		/**
+		 * Array of built-in, internal, routes.
+		 * Used to find the route module
+		 */
+		readonly defaultRoutes = createDefaultRoutes(manifest)
 	) {
 		this.internalMiddleware = [];
 		// We do use our middleware only if the user isn't using the manual setup
@@ -71,6 +77,7 @@ export abstract class Pipeline {
 	}
 
 	abstract headElements(routeData: RouteData): Promise<HeadElements> | HeadElements;
+
 	abstract componentMetadata(routeData: RouteData): Promise<SSRResult['componentMetadata']> | void;
 
 	/**
@@ -95,16 +102,6 @@ export abstract class Pipeline {
 	 * @param routeData
 	 */
 	abstract getComponentByRoute(routeData: RouteData): Promise<ComponentInstance>;
-
-	/**
-	 * Attempts to execute a rewrite of a known Astro route:
-	 * - /404 -> src/pages/404.astro -> template
-	 * - /500 -> src/pages/500.astro
-	 *
-	 * @param pathname The pathname where the user wants to rewrite e.g. "/404"
-	 * @param sourceRoute The original route where the first request started. This is needed in case a pipeline wants to check if the current route is pre-rendered or not
-	 */
-	abstract rewriteKnownRoute(pathname: string, sourceRoute: RouteData): ComponentInstance;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

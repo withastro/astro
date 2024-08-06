@@ -42,6 +42,7 @@ export async function createShikiHighlighter({
 	langs = [],
 	theme = 'github-dark',
 	themes = {},
+	defaultColor,
 	wrap = false,
 	transformers = [],
 }: ShikiConfig = {}): Promise<ShikiHighlighter> {
@@ -73,6 +74,7 @@ export async function createShikiHighlighter({
 
 			return highlighter.codeToHtml(code, {
 				...themeOptions,
+				defaultColor,
 				lang,
 				// NOTE: while we can spread `options.attributes` here so that Shiki can auto-serialize this as rendered
 				// attributes on the top-level tag, it's not clear whether it is fine to pass all attributes as meta, as

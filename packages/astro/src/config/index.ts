@@ -48,7 +48,7 @@ export function getViteConfig(
 					astroContentListenPlugin({ settings, logger, fs }),
 				],
 			},
-			{ settings, logger, mode }
+			{ settings, logger, mode, sync: false }
 		);
 		await runHookConfigDone({ settings, logger });
 		return mergeConfig(viteConfig, userViteConfig);

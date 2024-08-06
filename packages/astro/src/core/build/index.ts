@@ -27,6 +27,7 @@ import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { createRouteManifest } from '../routing/index.js';
+import { getServerIslandRouteData } from '../server-islands/endpoint.js';
 import { ensureProcessNodeEnv, isServerLikeOutput } from '../util.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
@@ -139,15 +140,16 @@ class AstroBuilder {
 					middlewareMode: true,
 				},
 			},
-			{ settings: this.settings, logger: this.logger, mode: 'build', command: 'build' }
+			{ settings: this.settings, logger: this.logger, mode: 'build', command: 'build', sync: false }
 		);
 		await runHookConfigDone({ settings: this.settings, logger: logger });
 
-		const { syncContentCollections } = await import('../sync/index.js');
-		const syncRet = await syncContentCollections(this.settings, { logger: logger, fs });
-		if (syncRet !== 0) {
-			return process.exit(syncRet);
-		}
+		const { syncInternal } = await import('../sync/index.js');
+		await syncInternal({
+			settings: this.settings,
+			logger,
+			fs,
+		});
 
 		return { viteConfig };
 	}
@@ -164,7 +166,7 @@ class AstroBuilder {
 		}
 		this.logger.info('build', 'Collecting build info...');
 		this.timer.loadStart = performance.now();
-		const { assets, allPages } = await collectPagesData({
+		const { assets, allPages } = collectPagesData({
 			settings: this.settings,
 			logger: this.logger,
 			manifest: this.manifest,
@@ -215,7 +217,12 @@ class AstroBuilder {
 			pages: pageNames,
 			routes: Object.values(allPages)
 				.flat()
-				.map((pageData) => pageData.route),
+				.map((pageData) => pageData.route)
+				.concat(
+					this.settings.config.experimental.serverIslands
+						? [getServerIslandRouteData(this.settings.config)]
+						: []
+				),
 			logging: this.logger,
 			cacheManifest: internals.cacheManifestUsed,
 		});

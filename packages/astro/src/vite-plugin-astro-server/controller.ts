@@ -32,7 +32,7 @@ export function createController(params: CreateControllerParams): DevServerContr
 	}
 }
 
-export function createBaseController({ reload }: { reload: ReloadFn }): DevServerController {
+function createBaseController({ reload }: { reload: ReloadFn }): DevServerController {
 	const serverState = createServerState();
 
 	const onFileChange: LoaderEvents['file-change'] = () => {
@@ -58,7 +58,7 @@ export function createBaseController({ reload }: { reload: ReloadFn }): DevServe
 	};
 }
 
-export function createLoaderController(loader: ModuleLoader): DevServerController {
+function createLoaderController(loader: ModuleLoader): DevServerController {
 	const controller = createBaseController({
 		reload() {
 			loader.clientReload();

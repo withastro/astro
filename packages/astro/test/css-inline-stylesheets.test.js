@@ -15,7 +15,10 @@ describe('Setting inlineStylesheets to never in static output', () => {
 			site: 'https://test.dev/',
 			root: './fixtures/css-inline-stylesheets/',
 			output: 'static',
+			outDir: './dist/static-inline-stylesheets-never',
 			build: {
+				client: './dist/static-inline-stylesheets-never/client',
+				server: './dist/static-inline-stylesheets-never/server',
 				inlineStylesheets: 'never',
 			},
 		});
@@ -53,7 +56,10 @@ describe('Setting inlineStylesheets to never in server output', () => {
 			root: './fixtures/css-inline-stylesheets/',
 			output: 'server',
 			adapter: testAdapter(),
+			outDir: './dist/server-inline-stylesheets-never',
 			build: {
+				client: './dist/server-inline-stylesheets-never/client',
+				server: './dist/server-inline-stylesheets-never/server',
 				inlineStylesheets: 'never',
 			},
 		});
@@ -92,7 +98,10 @@ describe('Setting inlineStylesheets to auto in static output', () => {
 			site: 'https://test.info/',
 			root: './fixtures/css-inline-stylesheets/',
 			output: 'static',
+			outDir: './dist/static-inline-stylesheets-auto',
 			build: {
+				client: './dist/static-inline-stylesheets-auto/client',
+				server: './dist/static-inline-stylesheets-auto/server',
 				inlineStylesheets: 'auto',
 			},
 			vite: {
@@ -137,7 +146,10 @@ describe('Setting inlineStylesheets to auto in server output', () => {
 			root: './fixtures/css-inline-stylesheets/',
 			output: 'server',
 			adapter: testAdapter(),
+			outDir: './dist/server-inline-stylesheets-auto',
 			build: {
+				client: './dist/server-inline-stylesheets-auto/client',
+				server: './dist/server-inline-stylesheets-auto/server',
 				inlineStylesheets: 'auto',
 			},
 			vite: {
@@ -184,7 +196,10 @@ describe('Setting inlineStylesheets to always in static output', () => {
 			site: 'https://test.net/',
 			root: './fixtures/css-inline-stylesheets/',
 			output: 'static',
+			outDir: './dist/static-inline-stylesheets-always',
 			build: {
+				client: './dist/static-inline-stylesheets-always/client',
+				server: './dist/static-inline-stylesheets-always/server',
 				inlineStylesheets: 'always',
 			},
 		});
@@ -221,7 +236,10 @@ describe('Setting inlineStylesheets to always in server output', () => {
 			root: './fixtures/css-inline-stylesheets/',
 			output: 'server',
 			adapter: testAdapter(),
+			outDir: './dist/server-inline-stylesheets-always',
 			build: {
+				client: './dist/server-inline-stylesheets-always/client',
+				server: './dist/server-inline-stylesheets-always/server',
 				inlineStylesheets: 'always',
 			},
 		});

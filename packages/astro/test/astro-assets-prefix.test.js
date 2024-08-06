@@ -14,6 +14,11 @@ describe('Assets Prefix - Static', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-assets-prefix/',
+			outDir: './dist/static',
+			build: {
+				client: './dist/static/client',
+				server: './dist/static/server',
+			},
 		});
 		await fixture.build();
 	});
@@ -72,7 +77,10 @@ describe('Assets Prefix - with path prefix', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-assets-prefix/',
+			outDir: './dist/server',
 			build: {
+				client: './dist/server/client',
+				server: './dist/server/server',
 				assetsPrefix: '/starting-slash',
 			},
 		});
@@ -97,6 +105,11 @@ describe('Assets Prefix, server', () => {
 			root: './fixtures/astro-assets-prefix/',
 			output: 'server',
 			adapter: testAdapter(),
+			outDir: './dist/server',
+			build: {
+				client: './dist/server/client',
+				server: './dist/server/server',
+			},
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
@@ -154,7 +167,10 @@ describe('Assets Prefix, with path prefix', () => {
 			root: './fixtures/astro-assets-prefix/',
 			output: 'server',
 			adapter: testAdapter(),
+			outDir: './dist/server-path-prefix',
 			build: {
+				client: './dist/server-path-prefix/client',
+				server: './dist/server-path-prefix/server',
 				assetsPrefix: '/starting-slash',
 			},
 		});

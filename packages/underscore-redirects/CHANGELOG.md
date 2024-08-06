@@ -1,5 +1,22 @@
 # @astrojs/underscore-redirects
 
+## 0.3.4
+
+### Patch Changes
+
+- [#11271](https://github.com/withastro/astro/pull/11271) [`7f956f0`](https://github.com/withastro/astro/commit/7f956f07958e1a486ca0e28d4135c33ec7c347b0) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds support for forced redirects
+
+  Redirects can be forced by setting `force` to `true`:
+
+  ```ts
+  redirects.add({
+    // ...
+    force: true,
+  });
+  ```
+
+  It will append a `!` after the status.
+
 ## 0.3.3
 
 ### Patch Changes

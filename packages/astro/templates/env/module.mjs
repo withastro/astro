@@ -1,7 +1,9 @@
+// @ts-check
 import { schema } from 'virtual:astro:env/internal';
 import {
-	createInvalidVariableError,
+	createInvalidVariablesError,
 	getEnv,
+	getEnvFieldType,
 	setOnSetGetEnv,
 	validateEnvVariable,
 } from 'astro/env/runtime';
@@ -19,9 +21,12 @@ const _internalGetSecret = (key) => {
 	if (result.ok) {
 		return result.value;
 	}
-	throw createInvalidVariableError(key, result.type);
+	const type = getEnvFieldType(options);
+	throw createInvalidVariablesError(key, type, result);
 };
 
+// used while generating the virtual module
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 setOnSetGetEnv((reset) => {
 	// @@ON_SET_GET_ENV@@
 });

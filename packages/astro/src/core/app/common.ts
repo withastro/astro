@@ -17,6 +17,7 @@ export function deserializeManifest(serializedManifest: SerializedSSRManifest): 
 	const componentMetadata = new Map(serializedManifest.componentMetadata);
 	const inlinedScripts = new Map(serializedManifest.inlinedScripts);
 	const clientDirectives = new Map(serializedManifest.clientDirectives);
+	const serverIslandNameMap = new Map(serializedManifest.serverIslandNameMap);
 
 	return {
 		// in case user middleware exists, this no-op middleware will be reassigned (see plugin-ssr.ts)
@@ -29,5 +30,6 @@ export function deserializeManifest(serializedManifest: SerializedSSRManifest): 
 		inlinedScripts,
 		clientDirectives,
 		routes,
+		serverIslandNameMap,
 	};
 }

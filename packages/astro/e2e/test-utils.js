@@ -51,8 +51,8 @@ export function testFactory(inlineConfig) {
 
 /**
  *
- * @param {string} page
- * @returns {Promise<{message: string, hint: string, absoluteFileLocation: string, fileLocation: string}>}
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<{message: string, hint: string, absoluteFileLocation: string, fileLocation: string, codeFrame: import('@playwright/test').ElementHandle}>}
  */
 export async function getErrorOverlayContent(page) {
 	const overlay = await page.waitForSelector('vite-error-overlay', {
@@ -68,7 +68,10 @@ export async function getErrorOverlayContent(page) {
 		m[0].title,
 		m[0].textContent,
 	]);
-	return { message, hint, absoluteFileLocation, fileLocation };
+
+	const codeFrame = await overlay.$('#code pre code');
+
+	return { message, hint, absoluteFileLocation, fileLocation, codeFrame };
 }
 
 /**

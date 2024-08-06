@@ -1,10 +1,10 @@
-import type { BuildOptions, Plugin as VitePlugin } from 'vite';
+import type { BuildOptions, Rollup, Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../../@types/astro.js';
 import { viteID } from '../../util.js';
 import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
-import type { OutputChunk, StaticBuildOptions } from '../types.js';
+import type { StaticBuildOptions } from '../types.js';
 import { shouldInlineAsset } from './util.js';
 
 function virtualHoistedEntry(id: string) {
@@ -49,7 +49,7 @@ export function vitePluginHoistedScripts(
 		},
 
 		async generateBundle(_options, bundle) {
-			const considerInlining = new Map<string, OutputChunk>();
+			const considerInlining = new Map<string, Rollup.OutputChunk>();
 			const importedByOtherScripts = new Set<string>();
 
 			// Find all page entry points and create a map of the entry point to the hashed hoisted script.

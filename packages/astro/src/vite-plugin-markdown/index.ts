@@ -13,7 +13,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
 import { shorthash } from '../runtime/server/shorthash.js';
-import type { PluginMetadata } from '../vite-plugin-astro/types.js';
+import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import { type MarkdownImagePath, getMarkdownCodeForImages } from './images.js';
 
@@ -159,14 +159,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				return {
 					code,
 					meta: {
-						astro: {
-							hydratedComponents: [],
-							clientOnlyComponents: [],
-							scripts: [],
-							propagation: 'none',
-							containsHead: false,
-							pageOptions: {},
-						} as PluginMetadata['astro'],
+						astro: createDefaultAstroMetadata(),
 						vite: {
 							lang: 'ts',
 						},

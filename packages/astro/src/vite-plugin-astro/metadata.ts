@@ -7,3 +7,15 @@ export function getAstroMetadata(modInfo: ModuleInfo): PluginMetadata['astro'] |
 	}
 	return undefined;
 }
+
+export function createDefaultAstroMetadata(): PluginMetadata['astro'] {
+	return {
+		hydratedComponents: [],
+		clientOnlyComponents: [],
+		serverComponents: [],
+		scripts: [],
+		propagation: 'none',
+		containsHead: false,
+		pageOptions: {},
+	};
+}

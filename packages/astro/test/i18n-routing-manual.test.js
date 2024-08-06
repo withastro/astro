@@ -52,6 +52,11 @@ describe('Dev server manual routing', () => {
 		text = await response.text();
 		assert.equal(text.includes('Hola.'), true);
 	});
+
+	it('should not redirect prerendered 404 routes in dev', async () => {
+		const response = await fixture.fetch('/redirect-me');
+		assert.equal(response.status, 404);
+	});
 });
 
 // SSG

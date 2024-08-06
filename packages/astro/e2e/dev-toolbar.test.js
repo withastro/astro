@@ -413,4 +413,28 @@ test.describe('Dev Toolbar', () => {
 			}
 		}
 	});
+
+	test('hidden on print media', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+
+		const settingsAppButton = toolbar.locator('button[data-app-id="astro:settings"]');
+		await settingsAppButton.click();
+
+		const settingsAppCanvas = toolbar.locator(
+			'astro-dev-toolbar-app-canvas[data-app-id="astro:settings"]'
+		);
+		const settingsWindow = settingsAppCanvas.locator('astro-dev-toolbar-window');
+		await expect(settingsWindow).toBeVisible();
+
+		await page.emulateMedia({ media: 'print' });
+		await expect(settingsWindow).not.toBeVisible();
+
+		await page.emulateMedia({ media: 'screen' });
+		await expect(settingsWindow).toBeVisible();
+
+		await settingsAppButton.click();
+		await expect(settingsWindow).not.toBeVisible();
+	});
 });

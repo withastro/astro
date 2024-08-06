@@ -1,4 +1,9 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import * as colors from 'kleur/colors';
 import type { Arguments as Flags } from 'yargs-parser';
+import { ZodError } from 'zod';
 import type {
 	AstroConfig,
 	AstroInlineConfig,
@@ -6,48 +11,13 @@ import type {
 	AstroUserConfig,
 	CLIFlags,
 } from '../../@types/astro.js';
-
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import * as colors from 'kleur/colors';
-import { ZodError } from 'zod';
 import { eventConfigError, telemetry } from '../../events/index.js';
 import { trackAstroConfigZodError } from '../errors/errors.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { formatConfigErrorMessage } from '../messages.js';
 import { mergeConfig } from './merge.js';
-import { createRelativeSchema } from './schema.js';
+import { validateConfig } from './validate.js';
 import { loadConfigWithVite } from './vite-load.js';
-
-/** Turn raw config values into normalized values */
-export async function validateConfig(
-	userConfig: any,
-	root: string,
-	cmd: string
-): Promise<AstroConfig> {
-	const AstroConfigRelativeSchema = createRelativeSchema(cmd, root);
-
-	// First-Pass Validation
-	let result: AstroConfig;
-	try {
-		result = await AstroConfigRelativeSchema.parseAsync(userConfig);
-	} catch (e) {
-		// Improve config zod error messages
-		if (e instanceof ZodError) {
-			// Mark this error so the callee can decide to suppress Zod's error if needed.
-			// We still want to throw the error to signal an error in validation.
-			trackAstroConfigZodError(e);
-			// eslint-disable-next-line no-console
-			console.error(formatConfigErrorMessage(e) + '\n');
-			telemetry.record(eventConfigError({ cmd, err: e, isFatal: true }));
-		}
-		throw e;
-	}
-
-	// If successful, return the result as a verified AstroConfig object.
-	return result;
-}
 
 /** Convert the generic "yargs" flag object into our own, custom TypeScript object. */
 // NOTE: This function will be removed in a later PR. Use `flagsToAstroInlineConfig` instead.
@@ -197,7 +167,22 @@ export async function resolveConfig(
 
 	const userConfig = await loadConfig(root, inlineOnlyConfig.configFile, fsMod);
 	const mergedConfig = mergeConfig(userConfig, inlineUserConfig);
-	const astroConfig = await validateConfig(mergedConfig, root, command);
+	// First-Pass Validation
+	let astroConfig: AstroConfig;
+	try {
+		astroConfig = await validateConfig(mergedConfig, root, command);
+	} catch (e) {
+		// Improve config zod error messages
+		if (e instanceof ZodError) {
+			// Mark this error so the callee can decide to suppress Zod's error if needed.
+			// We still want to throw the error to signal an error in validation.
+			trackAstroConfigZodError(e);
+			// eslint-disable-next-line no-console
+			console.error(formatConfigErrorMessage(e) + '\n');
+			telemetry.record(eventConfigError({ cmd: command, err: e, isFatal: true }));
+		}
+		throw e;
+	}
 
 	return { userConfig: mergedConfig, astroConfig };
 }

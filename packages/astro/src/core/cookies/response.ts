@@ -10,7 +10,7 @@ export function responseHasCookies(response: Response): boolean {
 	return Reflect.has(response, astroCookiesSymbol);
 }
 
-function getFromResponse(response: Response): AstroCookies | undefined {
+export function getCookiesFromResponse(response: Response): AstroCookies | undefined {
 	let cookies = Reflect.get(response, astroCookiesSymbol);
 	if (cookies != null) {
 		return cookies as AstroCookies;
@@ -20,7 +20,7 @@ function getFromResponse(response: Response): AstroCookies | undefined {
 }
 
 export function* getSetCookiesFromResponse(response: Response): Generator<string, string[]> {
-	const cookies = getFromResponse(response);
+	const cookies = getCookiesFromResponse(response);
 	if (!cookies) {
 		return [];
 	}

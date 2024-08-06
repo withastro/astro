@@ -12,6 +12,11 @@ describe('SSR: prerender', () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-prerender/',
 			output: 'server',
+			outDir: './dist/normal',
+			build: {
+				client: './dist/normal/client',
+				server: './dist/normal/server',
+			},
 			adapter: testAdapter(),
 		});
 		await fixture.build();
@@ -61,7 +66,11 @@ describe('SSR: prerender', () => {
 	});
 });
 
-describe('Integrations can hook into the prerendering decision', () => {
+// NOTE: This test doesn't make sense as it relies on the fact that on the client build,
+// you can change the prerender state of pages from the SSR build, however, the client build
+// is not always guaranteed to run. If we want to support this feature, we may want to only allow
+// editing `route.prerender` on the `astro:build:done` hook.
+describe.skip('Integrations can hook into the prerendering decision', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
@@ -83,6 +92,11 @@ describe('Integrations can hook into the prerendering decision', () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-prerender/',
 			output: 'server',
+			outDir: './dist/integration-prerender',
+			build: {
+				client: './dist/integration-prerender/client',
+				server: './dist/integration-prerender/server',
+			},
 			integrations: [testIntegration],
 			adapter: testAdapter(),
 		});
