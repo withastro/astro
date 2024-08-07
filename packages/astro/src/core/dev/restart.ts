@@ -174,8 +174,8 @@ export async function createContainerWithAutomaticRestart({
 		restart.container.viteServer.bindCLIShortcuts({
 			customShortcuts: [
 				{
-					key: 'r',
-					description: 'reload content layer',
+					key: 's',
+					description: 'sync content layer',
 					action: () => {
 						if (globalContentLayer.initialized()) {
 							globalContentLayer.get().sync();
@@ -183,6 +183,7 @@ export async function createContainerWithAutomaticRestart({
 					},
 				},
 				// Disable default Vite shortcuts that don't work well with Astro
+				{ key: 'r', description: '' },
 				{ key: 'u', description: '' },
 				{ key: 'c', description: '' },
 			],
