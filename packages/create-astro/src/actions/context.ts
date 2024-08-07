@@ -98,7 +98,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 	dryRun = !!dryRun;
 	ref = typeof ref == 'string' ? ref : undefined;
 
-	const { messages, hats, ties } = getSeasonalData({ fancy: !!fancy });
+	const { messages, hats, ties } = getSeasonalData({ fancy });
 
 	const context: Context = {
 		help,

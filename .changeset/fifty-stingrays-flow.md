@@ -1,6 +1,4 @@
 ---
-'create-astro': patch
-'@astrojs/upgrade': patch
 'astro': patch
 '@astrojs/db': patch
 ---
