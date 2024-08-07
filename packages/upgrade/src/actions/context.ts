@@ -7,7 +7,7 @@ export interface Context {
 	help: boolean;
 	prompt: typeof prompt;
 	version: string;
-	dryRun?: boolean;
+	dryRun: boolean;
 	cwd: URL;
 	stdin?: typeof process.stdin;
 	stdout?: typeof process.stdout;
