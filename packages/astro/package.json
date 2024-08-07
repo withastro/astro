@@ -83,9 +83,6 @@
     },
     "./virtual-modules/*": "./dist/virtual-modules/*"
   },
-  "imports": {
-    "#astro/*": "./dist/*.js"
-  },
   "bin": {
     "astro": "astro.js"
   },
