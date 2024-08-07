@@ -120,7 +120,7 @@
     "test:e2e:chrome": "playwright test",
     "test:e2e:firefox": "playwright test --config playwright.firefox.config.js",
     "test:types": "tsc --project tsconfig.tests.json",
-    "test:node": "astro-scripts test --parallel \"test/**/*.test.js\""
+    "test:node": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
     "@astrojs/compiler": "^2.10.1",
