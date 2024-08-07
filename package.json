@@ -59,7 +59,6 @@
     "@types/node": "^18.17.8",
     "esbuild": "^0.21.5",
     "eslint": "^9.8.0",
-    "eslint-plugin-no-only-tests": "^3.1.0",
     "eslint-plugin-regexp": "^2.6.0",
     "globby": "^14.0.2",
     "only-allow": "^1.2.1",
@@ -70,22 +69,6 @@
     "typescript-eslint": "^7.18.0"
   },
   "pnpm": {
-    "packageExtensions": {
-      "vite-svg-loader": {
-        "peerDependenciesMeta": {
-          "vue": {
-            "optional": true
-          }
-        }
-      },
-      "rehype-pretty-code": {
-        "peerDependenciesMeta": {
-          "shiki": {
-            "optional": true
-          }
-        }
-      }
-    },
     "peerDependencyRules": {
       "ignoreMissing": [
         "rollup",
