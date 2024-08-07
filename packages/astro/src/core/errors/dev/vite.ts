@@ -41,7 +41,7 @@ export function enhanceViteSSRError({
 		// Vite has a fairly generic error message when it fails to load a module, let's try to enhance it a bit
 		// https://github.com/vitejs/vite/blob/ee7c28a46a6563d54b828af42570c55f16b15d2c/packages/vite/src/node/ssr/ssrModuleLoader.ts#L91
 		let importName: string | undefined;
-		if ((importName = safeError.message.match(/Failed to load url (.*?) \(resolved id:/)?.[1])) {
+		if ((importName = /Failed to load url (.*?) \(resolved id:/.exec(safeError.message)?.[1])) {
 			safeError.title = FailedToLoadModuleSSR.title;
 			safeError.name = 'FailedToLoadModuleSSR';
 			safeError.message = FailedToLoadModuleSSR.message(importName);
@@ -64,9 +64,10 @@ export function enhanceViteSSRError({
 		// Vite throws a syntax error trying to parse MDX without a plugin.
 		// Suggest installing the MDX integration if none is found.
 		if (
+			fileId &&
 			!renderers?.find((r) => r.name === '@astrojs/mdx') &&
-			safeError.message.match(/Syntax error/) &&
-			fileId?.match(/\.mdx$/)
+			/Syntax error/.test(safeError.message) &&
+			/.mdx$/.test(fileId)
 		) {
 			safeError = new AstroError({
 				...MdxIntegrationMissingError,
@@ -78,7 +79,7 @@ export function enhanceViteSSRError({
 
 		// Since Astro.glob is a wrapper around Vite's import.meta.glob, errors don't show accurate information, let's fix that
 		if (/Invalid glob/.test(safeError.message)) {
-			const globPattern = safeError.message.match(/glob: "(.+)" \(/)?.[1];
+			const globPattern = /glob: "(.+)" \(/.exec(safeError.message)?.[1];
 
 			if (globPattern) {
 				safeError.message = InvalidGlob.message(globPattern);

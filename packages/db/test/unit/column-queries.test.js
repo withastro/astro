@@ -492,6 +492,5 @@ describe('column queries', () => {
 
 /** @param {string} query */
 function getTempTableName(query) {
-	// eslint-disable-next-line regexp/no-unused-capturing-group
-	return query.match(/Users_([a-z\d]+)/)?.[0];
+	return /Users_[a-z\d]+/.exec(query)?.[0];
 }

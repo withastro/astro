@@ -15,7 +15,7 @@ async function compile(mdxCode, options) {
 	});
 	const code = result.toString();
 	// Capture the returned JSX code for testing
-	const jsx = code.match(/return (.+);\n\}\nexport default function MDXContent/s)?.[1];
+	const jsx = /return (.+);\n\}\nexport default function MDXContent/s.exec(code)?.[1];
 	if (jsx == null) throw new Error('Could not find JSX code in compiled MDX');
 	return dedent(jsx);
 }

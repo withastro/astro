@@ -1,8 +1,8 @@
 ---
-import { getCollection, getDataEntryById } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 
 const blog = await getCollection('blog');
-const first = await getDataEntryById('blog', 1);
+const first = await getEntry('blog', 1);
 const dogs = await getCollection('dogs');
 ---
 <html>

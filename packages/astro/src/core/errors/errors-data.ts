@@ -1484,6 +1484,18 @@ export const ContentLayerWriteError = {
 
 /**
  * @docs
+ * @description
+ * The `getDataEntryById` and `getEntryBySlug` functions are deprecated and cannot be used with content layer collections. Use the `getEntry` function instead.
+ */
+export const GetEntryDeprecationError = {
+	name: 'GetEntryDeprecationError',
+	title: 'Invalid use of `getDataEntryById` or `getEntryBySlug` function.',
+	message: (collection: string, method: string) => `The \`${method}\` function is deprecated and cannot be used to query the "${collection}" collection. Use \`getEntry\` instead.`,
+	hint: 'Use the `getEntry` or `getCollection` functions to query content layer collections.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @message
  * **Example error message:**<br/>
  * **blog** → **post.md** frontmatter does not match collection schema.<br/>

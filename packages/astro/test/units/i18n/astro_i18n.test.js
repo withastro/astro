@@ -1,15 +1,15 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { MissingLocale } from '#astro/core/errors/errors-data';
-import { AstroError } from '#astro/core/errors/index';
-import { toRoutingStrategy } from '#astro/i18n/utils';
 import { validateConfig } from '../../../dist/core/config/validate.js';
+import { MissingLocale } from '../../../dist/core/errors/errors-data.js';
+import { AstroError } from '../../../dist/core/errors/index.js';
 import {
 	getLocaleAbsoluteUrl,
 	getLocaleAbsoluteUrlList,
 	getLocaleRelativeUrl,
 	getLocaleRelativeUrlList,
 } from '../../../dist/i18n/index.js';
+import { toRoutingStrategy } from '../../../dist/i18n/utils.js';
 import { parseLocale } from '../../../dist/i18n/utils.js';
 
 describe('getLocaleRelativeUrl', () => {
