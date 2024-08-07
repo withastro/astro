@@ -40,5 +40,4 @@ export interface Loader {
 	load: (context: LoaderContext) => Promise<void>;
 	/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
 	schema?: ZodSchema | Promise<ZodSchema> | (() => ZodSchema | Promise<ZodSchema>);
-	render?: (entry: any) => any;
 }
