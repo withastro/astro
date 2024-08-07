@@ -56,7 +56,6 @@ export class ContentLayer {
 				ctx.status === 'loaded' &&
 				ctx.config.digest !== this.#lastConfigDigest
 			) {
-				this.#lastConfigDigest = ctx.config.digest;
 				this.sync();
 			}
 		});
@@ -128,9 +127,10 @@ export class ContentLayer {
 			logger.debug('Content config not loaded, skipping sync');
 			return;
 		}
+		const { digest: currentConfigDigest } = contentConfig.config;
+		this.#lastConfigDigest = currentConfigDigest;
 
 		const previousConfigDigest = await this.#store.metaStore().get('config-digest');
-		const { digest: currentConfigDigest } = contentConfig.config;
 		if (currentConfigDigest && previousConfigDigest !== currentConfigDigest) {
 			logger.info('Content config changed, clearing cache');
 			this.#store.clearAll();
