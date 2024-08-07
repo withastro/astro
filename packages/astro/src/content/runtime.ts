@@ -90,30 +90,35 @@ export function createGetCollection({
 					: rawEntry.data;
 				let entry;
 				if (rawEntry.isModule === true) {
+					try {
 					// @ts-expect-error	virtual module
-					const { default: contentModules } = await import('astro:content-module-imports');
-					const module = contentModules.get(rawEntry.filePath);
-					const resolvedComponent = await module();
+						const { default: contentModules } = await import('astro:content-module-imports');
+						const module = contentModules.get(rawEntry.filePath);
+						const resolvedComponent = await module();
 
-					entry = {
-						...rawEntry,
-						collection,
-						id: rawEntry.id,
-						slug: rawEntry.id,
-						body: rawEntry.body,
-						data: rawEntry.data,
-						async render() {
-							return {
-								Content: resolvedComponent.Content,
-								rendered: {
-									metadata: {
-										headings: resolvedComponent.getHeadings?.() ?? [],
-										remarkPluginFrontmatter: resolvedComponent.frontmatter ?? {},
+						entry = {
+							...rawEntry,
+							collection,
+							id: rawEntry.id,
+							slug: rawEntry.id,
+							body: rawEntry.body,
+							data: rawEntry.data,
+							async render() {
+								return {
+									Content: resolvedComponent.Content,
+									rendered: {
+										metadata: {
+											headings: resolvedComponent.getHeadings?.() ?? [],
+											remarkPluginFrontmatter: resolvedComponent.frontmatter ?? {},
+										}
 									}
-								}
-							};
-						},
-					};
+								};
+							},
+						};
+					} catch (e) {
+						console.log(e)
+					}
+					
 				} else {
 					entry = {
 						...rawEntry,

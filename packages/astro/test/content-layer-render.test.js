@@ -28,8 +28,7 @@ describe('Content Layer build', () => {
 	/** @type {import("./test-utils.js").Fixture} */
 	let fixture;
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/content-layer/' });
-		fixture = await loadFixture({ root: './fixtures/content-layer/' });
+		fixture = await loadFixture({ root: './fixtures/content-layer-rendering/' });
 		await fixture.build();
 	});
 
