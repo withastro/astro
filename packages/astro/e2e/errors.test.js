@@ -88,7 +88,7 @@ test.describe('Error display', () => {
 		expect(fileExists).toBeTruthy();
 
 		const fileContent = await astro.readFile(absoluteFileUrl);
-		const lineNumber = absoluteFileLocation.match(/:(\d+):\d+$/)[1];
+		const lineNumber = /:(\d+):\d+$/.exec(absoluteFileLocation)[1];
 		const highlightedLine = fileContent.split('\n')[lineNumber - 1];
 		expect(highlightedLine).toContain(`@use '../styles/inexistent' as *;`);
 

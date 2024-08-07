@@ -28,7 +28,7 @@ interface ConfigErrorEventPayload extends ErrorEventPayload {
  */
 const ANONYMIZE_MESSAGE_REGEX = /^(?:\w| )+/;
 function anonymizeErrorMessage(msg: string): string | undefined {
-	const matchedMessage = msg.match(ANONYMIZE_MESSAGE_REGEX);
+	const matchedMessage = ANONYMIZE_MESSAGE_REGEX.exec(msg);
 	if (!matchedMessage?.[0]) {
 		return undefined;
 	}

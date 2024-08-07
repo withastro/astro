@@ -111,6 +111,8 @@ export default [
 
 			// In some cases, using explicit letter-casing is more performant than the `i` flag
 			'regexp/use-ignore-case': 'off',
+			'regexp/prefer-regexp-exec': 'warn',
+			'regexp/prefer-regexp-test': 'warn',
 		},
 	},
 

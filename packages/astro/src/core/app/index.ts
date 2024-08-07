@@ -501,7 +501,7 @@ export class App {
 	}
 
 	#getDefaultStatusCode(routeData: RouteData, pathname: string): number {
-		if (!routeData.pattern.exec(pathname)) {
+		if (!routeData.pattern.test(pathname)) {
 			for (const fallbackRoute of routeData.fallbackRoutes) {
 				if (fallbackRoute.pattern.test(pathname)) {
 					return 302;

@@ -92,8 +92,8 @@ describe('CSS production ordering', () => {
 			assert.ok(content.length, 3, 'there are 3 stylesheets');
 			const [, sharedStyles, pageStyles] = content;
 
-			assert.ok(sharedStyles.css.match(/red/));
-			assert.ok(pageStyles.css.match(/#00f/));
+			assert.ok(/red/.exec(sharedStyles.css));
+			assert.ok(/#00f/.exec(pageStyles.css));
 		});
 
 		it('CSS injected by injectScript comes first because of import order', async () => {

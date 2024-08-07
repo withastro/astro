@@ -32,6 +32,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	// Heuristic: If body is null, Astro might've reset this for prerendering.
 	if (import.meta.env.DEV && request.method === 'POST' && request.body === null) {
+		// eslint-disable-next-line no-console
 		console.warn(
 			yellow('[astro:actions]'),
 			'POST requests should not be sent to prerendered pages. If you\'re using Actions, disable prerendering with `export const prerender = "false".'

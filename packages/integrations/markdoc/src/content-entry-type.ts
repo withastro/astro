@@ -245,7 +245,7 @@ function raiseValidationErrors({
 			e.error.id !== 'variable-undefined' &&
 			// Ignore missing partial errors.
 			// We will resolve these in `resolvePartials`.
-			!(e.error.id === 'attribute-value-invalid' && e.error.message.match(/^Partial .+ not found/))
+			!(e.error.id === 'attribute-value-invalid' && /^Partial .+ not found/.test(e.error.message))
 		);
 	});
 
@@ -275,7 +275,7 @@ function getUsedTags(markdocAst: Node) {
 	// This is our signal that a tag is being used!
 	for (const { error } of validationErrors) {
 		if (error.id === 'tag-undefined') {
-			const [, tagName] = error.message.match(/Undefined tag: '(.*)'/) ?? [];
+			const [, tagName] = /Undefined tag: '(.*)'/.exec(error.message) ?? [];
 			tags.add(tagName);
 		}
 	}
