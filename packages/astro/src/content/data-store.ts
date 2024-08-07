@@ -6,21 +6,32 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 const SAVE_DEBOUNCE_MS = 500;
 
 export interface RenderedContent {
+	/** Rendered HTML string. If present then `render(entry)` will return a component that renders this HTML. */
 	html: string;
 	metadata?: {
-		imagePaths: Array<string>;
+		/** Any images that are present in this entry. Relative to the {@link DataEntry} filePath. */
+		imagePaths?: Array<string>;
+		/** Any headings that are present in this file. */
 		headings?: MarkdownHeading[];
+		/** Raw frontmatter, parsed parsed from the file. This may include data from remark plugins. */
 		frontmatter?: Record<string, any>;
+		/** Any other metadata that is present in this file. */
 		[key: string]: unknown;
 	};
 }
 
 export interface DataEntry<TData extends Record<string, unknown> = Record<string, unknown>> {
+	/** The ID of the entry. Unique per collection. */
 	id: string;
+	/** The parsed entry data */
 	data: TData;
+	/** The file path of the content, if applicable. Relative to the site root. */
 	filePath?: string;
+	/** The raw body of the content, if applicable. */
 	body?: string;
+	/** An optional content digest, to check if the content has changed. */
 	digest?: number | string;
+	/** The rendered content of the entry, if applicable. */
 	rendered?: RenderedContent;
 }
 
@@ -305,24 +316,18 @@ export interface ScopedDataStore {
 		key: string
 	) => DataEntry<TData> | undefined;
 	entries: () => Array<[id: string, DataEntry]>;
-	/**
-	 * Adds a new entry to the store. If an entry with the same ID already exists,
-	 * it will be replaced.
-	 * @param opts
-	 * @param opts.id The ID of the entry. Must be unique per collection.
-	 * @param opts.data The data to store.
-	 * @param opts.body The raw body of the content, if applicable.
-	 * @param opts.filePath The file path of the content, if applicable. Relative to the site root.
-	 * @param opts.digest A content digest, to check if the content has changed.
-	 * @param opts.rendered The rendered content, if applicable.
-	 * @returns `true` if the entry was added or updated, `false` if the entry was not changed. This will be the case if the provided digest matches the one in the store.
-	 */
 	set: <TData extends Record<string, unknown>>(opts: {
+		/** The ID of the entry. Must be unique per collection. */
 		id: string;
+		/** The data to store. */
 		data: TData;
+		/** The raw body of the content, if applicable. */
 		body?: string;
+		/** The file path of the content, if applicable. Relative to the site root. */
 		filePath?: string;
+		/** A content digest, to check if the content has changed. */
 		digest?: number | string;
+		/** The rendered content, if applicable. */
 		rendered?: RenderedContent;
 	}) => boolean;
 	values: () => Array<DataEntry>;
@@ -331,18 +336,11 @@ export interface ScopedDataStore {
 	clear: () => void;
 	has: (key: string) => boolean;
 	/**
-	 * Adds image etc assets to the store. These assets will be transformed
-	 * by Vite, and the URLs will be available in the final build.
-	 * @param assets An array of asset src values, relative to the importing file.
-	 * @param fileName The full path of the file that is importing the assets.
+	 * @internal Adds asset imports to the store. This is used to track image imports for the build. This API is subject to change.
 	 */
 	addAssetImports: (assets: Array<string>, fileName: string) => void;
 	/**
-	 * Adds a single asset to the store. This asset will be transformed
-	 * by Vite, and the URL will be available in the final build.
-	 * @param assetImport
-	 * @param fileName
-	 * @returns
+	 * @internal Adds an asset import to the store. This is used to track image imports for the build. This API is subject to change.
 	 */
 	addAssetImport: (assetImport: string, fileName: string) => void;
 }
@@ -373,4 +371,5 @@ function dataStoreSingleton() {
 	};
 }
 
+/** @internal */
 export const globalDataStore = dataStoreSingleton();
