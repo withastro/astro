@@ -542,6 +542,7 @@ async function transition(
 		// This log doesn't make it worse than before, where we got error messages about uncaught exceptions, which can't be caught when the trigger was a click or history traversal.
 		// Needs more investigation on root causes if errors still occur sporadically
 		const err = e as Error;
+		// eslint-disable-next-line no-console
 		console.log('[astro]', err.name, err.message, err.stack);
 	}
 }
