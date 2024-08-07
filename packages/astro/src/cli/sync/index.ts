@@ -1,6 +1,6 @@
 import { printHelp } from '../../core/messages.js';
 import _sync from '../../core/sync/index.js';
-import { flagsToAstroInlineConfig, type Flags } from '../flags.js';
+import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface SyncOptions {
 	flags: Flags;

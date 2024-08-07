@@ -1,7 +1,7 @@
+import { parseArgs } from 'node:util';
 /* eslint-disable no-console */
 import * as colors from 'kleur/colors';
 import { ASTRO_VERSION } from '../core/constants.js';
-import { parseArgs } from 'node:util';
 import type { ParsedArgsResult } from './flags.js';
 
 type CLICommand =

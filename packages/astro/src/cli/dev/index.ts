@@ -1,7 +1,7 @@
 import { cyan } from 'kleur/colors';
 import devServer from '../../core/dev/index.js';
 import { printHelp } from '../../core/messages.js';
-import { flagsToAstroInlineConfig, type Flags } from '../flags.js';
+import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface DevOptions {
 	flags: Flags;

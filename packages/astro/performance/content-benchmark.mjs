@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
 import { bold, cyan, dim } from 'kleur/colors';
 import { loadFixture } from '../test/test-utils.js';
 import { generatePosts } from './scripts/generate-posts.mjs';
-import { parseArgs } from 'node:util';
 
 // Skip nonessential remark / rehype plugins for a fair comparison.
 // This includes heading ID generation, syntax highlighting, GFM, and Smartypants.

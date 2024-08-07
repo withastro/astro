@@ -1,7 +1,7 @@
 import { cyan } from 'kleur/colors';
 import { printHelp } from '../../core/messages.js';
 import previewServer from '../../core/preview/index.js';
-import { flagsToAstroInlineConfig, type Flags } from '../flags.js';
+import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface PreviewOptions {
 	flags: Flags;

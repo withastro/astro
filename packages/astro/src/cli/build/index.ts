@@ -1,6 +1,6 @@
 import _build from '../../core/build/index.js';
 import { printHelp } from '../../core/messages.js';
-import { flagsToAstroInlineConfig, type Flags } from '../flags.js';
+import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface BuildOptions {
 	flags: Flags;

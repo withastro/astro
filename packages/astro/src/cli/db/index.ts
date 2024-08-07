@@ -1,7 +1,7 @@
 import type { AstroConfig } from '../../@types/astro.js';
 import { resolveConfig } from '../../core/config/config.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
-import { createLoggerFromFlags, flagsToAstroInlineConfig, type Flags } from '../flags.js';
+import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { getPackage } from '../install-package.js';
 
 interface YargsArguments {

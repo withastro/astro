@@ -14,7 +14,7 @@ import * as msg from '../../core/messages.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
 import { type PreferenceKey, coerce, isValidKey } from '../../preferences/index.js';
-import { createLoggerFromFlags, flagsToAstroInlineConfig, type Flags } from '../flags.js';
+import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface PreferencesOptions {
 	flags: Flags;
