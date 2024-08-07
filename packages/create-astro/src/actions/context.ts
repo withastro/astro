@@ -79,10 +79,6 @@ export async function getContext(argv: string[]): Promise<Context> {
 		if (typescript == undefined) typescript = 'strict';
 	}
 
-	skipHouston =
-		((os.platform() === 'win32' && !fancy) || !!skipHouston) ??
-		[yes, no, install, git, typescript].some((v) => v !== undefined);
-
 	// We use `strict: false` in `parseArgs` to allow unknown options, but Node also
 	// simply doesn't guarantee the types anymore, so we need to validate ourselves :(
 	help = !!help;
@@ -94,9 +90,14 @@ export async function getContext(argv: string[]): Promise<Context> {
 	git = !!git;
 	noGit = !!noGit;
 	typescript = typeof typescript == 'string' ? typescript : undefined;
+	skipHouston = typeof skipHouston == 'boolean' ? skipHouston : undefined;
 	fancy = !!fancy;
 	dryRun = !!dryRun;
 	ref = typeof ref == 'string' ? ref : undefined;
+
+	skipHouston =
+		((os.platform() === 'win32' && !fancy) || skipHouston) ??
+		[yes, no, install, git, typescript].some((v) => v !== undefined);
 
 	const { messages, hats, ties } = getSeasonalData({ fancy });
 
