@@ -85,21 +85,6 @@ const spacecraft = defineCollection({
 		}),
 });
 
-const reptiles = defineCollection({
-	type: 'experimental_content',
-	loader: glob({
-		pattern: '*.{mdx, md}',
-		base: new URL('../../content-outside-src-mdx', import.meta.url),
-	}),
-	schema: () =>
-		z.object({
-			title: z.string(),
-			description: z.string(),
-			publishedDate: z.coerce.date(),
-			tags: z.array(z.string()),
-		}),
-});
-
 const numbers = defineCollection({
 	type: 'experimental_content',
 	loader: glob({ pattern: 'src/data/glob-data/*', base: '.' }),
@@ -127,4 +112,4 @@ const increment = defineCollection({
 	}),
 });
 
-export const collections = { blog, dogs, cats, numbers, spacecraft, increment, reptiles };
+export const collections = { blog, dogs, cats, numbers, spacecraft, increment };
