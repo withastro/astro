@@ -126,10 +126,6 @@ declare module 'astro:content' {
 		ReturnTypeOrOriginal<Required<ContentConfig['collections'][C]>['schema']>
 	>;
 
-	type InferInputSchema<C extends keyof AnyEntryMap> = import('astro/zod').input<
-		ReturnTypeOrOriginal<Required<ContentConfig['collections'][C]>['schema']>
-	>;
-
 	type ContentEntryMap = {
 		// @@CONTENT_ENTRY_MAP@@
 	};
