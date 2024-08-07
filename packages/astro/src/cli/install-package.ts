@@ -21,7 +21,7 @@ export async function getPackage<T>(
 	packageName: string,
 	logger: Logger,
 	options: GetPackageOptions,
-	otherDeps: string[] = []
+	otherDeps: string[] = [],
 ): Promise<T | undefined> {
 	try {
 		// Try to resolve with `createRequire` first to prevent ESM caching of the package
@@ -32,7 +32,7 @@ export async function getPackage<T>(
 	} catch (e) {
 		if (options.optional) return undefined;
 		let message = `To continue, Astro requires the following dependency to be installed: ${bold(
-			packageName
+			packageName,
 		)}.`;
 
 		if (ci.isCI) {
@@ -98,7 +98,7 @@ export async function getExecCommand(packageManager?: string): Promise<string> {
 async function installPackage(
 	packageNames: string[],
 	options: GetPackageOptions,
-	logger: Logger
+	logger: Logger,
 ): Promise<boolean> {
 	const cwd = options.cwd ?? process.cwd();
 	const packageManager = (await whichPm(cwd))?.name ?? 'npm';
@@ -120,8 +120,8 @@ async function installPackage(
 	logger.info(
 		'SKIP_FORMAT',
 		`\n  ${magenta('Astro will run the following command:')}\n  ${dim(
-			'If you skip this step, you can always run it yourself later'
-		)}\n${message}`
+			'If you skip this step, you can always run it yourself later',
+		)}\n${message}`,
 	);
 
 	let response;
@@ -144,7 +144,7 @@ async function installPackage(
 			await execa(
 				installCommand.pm,
 				[installCommand.command, ...installCommand.flags, ...installCommand.dependencies],
-				{ cwd: cwd }
+				{ cwd: cwd },
 			);
 			spinner.succeed();
 
@@ -163,7 +163,7 @@ async function installPackage(
 export async function fetchPackageJson(
 	scope: string | undefined,
 	name: string,
-	tag: string
+	tag: string,
 ): Promise<Record<string, any> | Error> {
 	const packageName = `${scope ? `${scope}/` : ''}${name}`;
 	const registry = await getRegistry();

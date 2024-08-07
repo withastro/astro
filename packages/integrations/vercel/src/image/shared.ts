@@ -69,7 +69,7 @@ export function getAstroImageConfig(
 	imagesConfig: VercelImageConfig | undefined,
 	command: string,
 	devImageService: DevImageService,
-	astroImageConfig: AstroConfig['image']
+	astroImageConfig: AstroConfig['image'],
 ) {
 	let devService = '@astrojs/vercel/dev-image-service';
 
@@ -106,7 +106,7 @@ export function getAstroImageConfig(
 export function sharedValidateOptions(
 	options: ImageTransform,
 	serviceConfig: Record<string, any>,
-	mode: 'development' | 'production'
+	mode: 'development' | 'production',
 ) {
 	const vercelImageOptions = serviceConfig as VercelImageConfig;
 

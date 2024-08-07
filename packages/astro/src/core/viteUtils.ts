@@ -20,7 +20,7 @@ export function resolvePath(specifier: string, importer: string) {
 export function rootRelativePath(
 	root: URL,
 	idOrUrl: URL | string,
-	shouldPrependForwardSlash = true
+	shouldPrependForwardSlash = true,
 ) {
 	let id: string;
 	if (typeof idOrUrl !== 'string') {

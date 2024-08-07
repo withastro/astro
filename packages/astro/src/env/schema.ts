@@ -37,7 +37,7 @@ const EnumSchema = z.object({
 			.string()
 			.refine((v) => !v.includes("'"), {
 				message: `The "'" character can't be used as an enum value`,
-			})
+			}),
 	),
 	optional: z.boolean().optional(),
 	default: z.string().optional(),

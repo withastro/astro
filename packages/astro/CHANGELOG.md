@@ -1127,7 +1127,7 @@
   export function Like({ postId }: { postId: string }) {
     const [state, action, pending] = useActionState(
       experimental_withState(actions.like),
-      0 // initial likes
+      0, // initial likes
     );
 
     return (
@@ -1341,7 +1341,7 @@
     {
       site: 'https://example.com',
       trailingSlash: 'never',
-    }
+    },
   );
   ```
 
@@ -1714,7 +1714,7 @@
     middleware({
       redirectToDefaultLocale: false,
       prefixDefaultLocale: true,
-    })
+    }),
   );
   ```
 
@@ -1985,7 +1985,7 @@
       detail: {
         level: 'warning',
       },
-    })
+    }),
   );
   ```
 
@@ -6675,7 +6675,7 @@
         const hydrate = await load();
         await hydrate();
       },
-      { once: true }
+      { once: true },
     );
   };
 
@@ -8970,7 +8970,7 @@
     { darkMode: true },
     {
       expires: '1 month',
-    }
+    },
   );
 
   const prefs = Astro.cookies.get<Prefs>('prefs').json();

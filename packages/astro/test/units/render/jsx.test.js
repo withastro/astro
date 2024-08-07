@@ -105,9 +105,9 @@ describe('core/render', () => {
 			const html = await response.text();
 			assert.equal(
 				html.includes(
-					'<main><div><p class="n">works</p></div><div><p class="p">works</p></div></main>'
+					'<main><div><p class="n">works</p></div><div><p class="p">works</p></div></main>',
 				),
-				true
+				true,
 			);
 		});
 

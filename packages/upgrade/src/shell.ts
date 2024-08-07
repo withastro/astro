@@ -23,7 +23,7 @@ let signal: AbortSignal;
 export async function shell(
 	command: string,
 	flags: string[],
-	opts: ExecaOptions = {}
+	opts: ExecaOptions = {},
 ): Promise<Output> {
 	let child: ChildProcess;
 	let stdout = '';

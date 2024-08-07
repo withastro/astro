@@ -11,7 +11,7 @@ describe('resolveConfig', () => {
 				configFile: false,
 				root: 'relative/path',
 			},
-			'dev'
+			'dev',
 		);
 		const expectedRoot = path.join(process.cwd(), 'relative/path/');
 		assert.equal(fileURLToPath(astroConfig.root), expectedRoot);

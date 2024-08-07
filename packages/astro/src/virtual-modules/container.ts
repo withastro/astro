@@ -25,7 +25,7 @@ export async function loadRenderers(renderers: AstroRenderer[]) {
 				} as SSRLoadedRenderer;
 			}
 			return undefined;
-		})
+		}),
 	);
 
 	return loadedRenderers.filter((r): r is SSRLoadedRenderer => Boolean(r));

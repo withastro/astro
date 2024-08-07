@@ -375,5 +375,5 @@ describe(
 			const $ = cheerio.load(html);
 			assert.equal($('p').html(), 'bar');
 		});
-	}
+	},
 );

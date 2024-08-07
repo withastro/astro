@@ -46,10 +46,10 @@ describe('Container', () => {
 							{ slot: 'head' },
 							{
 								default: () => render`<meta charset="utf-8">`,
-							}
+							},
 						)}
 					`,
-				}
+				},
 			)}`;
 		});
 
@@ -80,14 +80,14 @@ describe('Container', () => {
 							{ slot: 'head' },
 							{
 								default: () => render`<meta charset="utf-8">`,
-							}
+							},
 						)}
 					`,
-					}
+					},
 				)}`;
 			},
 			'Component2.astro',
-			undefined
+			undefined,
 		);
 
 		const container = await experimental_AstroContainer.create();
@@ -122,14 +122,14 @@ describe('Container', () => {
 							{ slot: 'head' },
 							{
 								default: () => render`<meta charset="utf-8">`,
-							}
+							},
 						)}
 					`,
-					}
+					},
 				)}`;
 			},
 			'Component2.astro',
-			undefined
+			undefined,
 		);
 
 		const container = await experimental_AstroContainer.create();
@@ -168,15 +168,15 @@ describe('Container', () => {
 							{ slot: 'head' },
 							{
 								default: () => render`<meta charset="utf-8">`,
-							}
+							},
 						)}
 					`,
-						}
-					)}`
+						},
+					)}`,
 				);
 			},
 			'Component2.astro',
-			undefined
+			undefined,
 		);
 
 		const container = await experimental_AstroContainer.create();
@@ -212,14 +212,14 @@ describe('Container', () => {
 							{ slot: 'head' },
 							{
 								default: () => render`<meta charset="utf-8">`,
-							}
+							},
 						)}
 					`,
-					}
+					},
 				)}`;
 			},
 			'Component2.astro',
-			undefined
+			undefined,
 		);
 
 		const container = await experimental_AstroContainer.create();

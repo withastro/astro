@@ -60,7 +60,7 @@ export const GET: APIRoute = async ({ request }) => {
 		const { data, format } = await imageService.transform(
 			new Uint8Array(inputBuffer),
 			transform,
-			imageConfig
+			imageConfig,
 		);
 
 		return new Response(data, {

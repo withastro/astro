@@ -6,7 +6,7 @@ export { MIDDLEWARE_MODULE_ID } from '../../middleware/vite-plugin.js';
 
 export function pluginMiddleware(
 	opts: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): AstroBuildPlugin {
 	return {
 		targets: ['server'],

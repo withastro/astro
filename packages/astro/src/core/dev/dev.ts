@@ -70,7 +70,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 								'SKIP_FORMAT',
 								await msg.newVersionAvailable({
 									latestVersion: version,
-								})
+								}),
 							);
 						}
 					}
@@ -90,7 +90,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			resolvedUrls: restart.container.viteServer.resolvedUrls || { local: [], network: [] },
 			host: restart.container.settings.config.server.host,
 			base: restart.container.settings.config.base,
-		})
+		}),
 	);
 
 	if (isPrerelease) {

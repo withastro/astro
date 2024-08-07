@@ -33,7 +33,7 @@ test.describe('Error display', () => {
 			// Edit the component file
 			await astro.editFile(
 				'./src/pages/astro-syntax-error.astro',
-				() => `<h1>No syntax error</h1>`
+				() => `<h1>No syntax error</h1>`,
 			),
 		]);
 
@@ -107,7 +107,7 @@ test.describe('Error display', () => {
 			// Edit the component file
 			astro.editFile(
 				'./src/components/svelte/SvelteSyntaxError.svelte',
-				() => `<h1>No mismatch</h1>`
+				() => `<h1>No mismatch</h1>`,
 			),
 		]);
 

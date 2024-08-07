@@ -10,7 +10,7 @@ import type { VitePlugin } from '../utils.js';
 
 export function vitePluginInjectEnvTs(
 	{ srcDir, root }: { srcDir: URL; root: URL },
-	logger: AstroIntegrationLogger
+	logger: AstroIntegrationLogger,
 ): VitePlugin {
 	return {
 		name: 'db-inject-env-ts',
@@ -32,7 +32,7 @@ export async function setUpEnvTs({
 }) {
 	const envTsPath = getEnvTsPath({ srcDir });
 	const envTsPathRelativetoRoot = normalizePath(
-		path.relative(fileURLToPath(root), fileURLToPath(envTsPath))
+		path.relative(fileURLToPath(root), fileURLToPath(envTsPath)),
 	);
 
 	if (existsSync(envTsPath)) {
@@ -54,7 +54,7 @@ export async function setUpEnvTs({
 function getDBTypeReference({ srcDir, dotAstroDir }: { srcDir: URL; dotAstroDir: URL }) {
 	const dbTypesFile = new URL(DB_TYPES_FILE, dotAstroDir);
 	const contentTypesRelativeToSrcDir = normalizePath(
-		path.relative(fileURLToPath(srcDir), fileURLToPath(dbTypesFile))
+		path.relative(fileURLToPath(srcDir), fileURLToPath(dbTypesFile)),
 	);
 
 	return `/// <reference path=${JSON.stringify(contentTypesRelativeToSrcDir)} />`;

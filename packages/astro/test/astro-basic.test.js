@@ -139,7 +139,7 @@ describe('Astro basic build', () => {
 		// <Input type="select"><option>option</option></Input>
 		assert.equal(
 			$('body > :nth-child(4)').prop('outerHTML'),
-			'<select><option>option</option></select>'
+			'<select><option>option</option></select>',
 		);
 
 		// <Input type="textarea">textarea</Input>

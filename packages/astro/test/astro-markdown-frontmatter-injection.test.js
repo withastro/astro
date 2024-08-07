@@ -24,7 +24,7 @@ describe('Astro Markdown - frontmatter injection', () => {
 	it('rehype supports custom vfile data - reading time', async () => {
 		const frontmatterByPage = JSON.parse(await fixture.readFile('/glob.json'));
 		const readingTimes = frontmatterByPage.map(
-			(frontmatter = {}) => frontmatter.injectedReadingTime
+			(frontmatter = {}) => frontmatter.injectedReadingTime,
 		);
 		assert.ok(readingTimes.length > 0);
 		for (let readingTime of readingTimes) {
