@@ -2,6 +2,7 @@ import type { GetModuleInfo, ModuleInfo } from 'rollup';
 
 import crypto from 'node:crypto';
 import npath from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../../@types/astro.js';
 import { viteID } from '../util.js';
@@ -32,7 +33,7 @@ export function createNameHash(
 ): string {
 	const baseName = baseId ? prettifyBaseName(npath.parse(baseId).name) : 'index';
 	const hash = crypto.createHash('sha256');
-	const root = settings.config.root.pathname;
+	const root = fileURLToPath(settings.config.root);
 
 	for (const id of hashIds) {
 		// Strip the project directory from the paths before they are hashed, so that assets
