@@ -35,6 +35,9 @@ export interface DataEntry<TData extends Record<string, unknown> = Record<string
 	digest?: number | string;
 	/** The rendered content of the entry, if applicable. */
 	rendered?: RenderedContent;
+	/**
+	 * If an entry is a module, its rendering phase is delegated to a virtual module during the runtime phase.
+	 */
 	isModule?: boolean;
 }
 
