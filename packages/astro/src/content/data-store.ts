@@ -473,7 +473,7 @@ function dataStoreSingleton() {
 // TODO: find a better place to put this image
 export function contentModuleToId(fileName: string, specifier: string) {
 	const params = new URLSearchParams(specifier);
-	params.set('importer', fileName);
+	params.set('fileName', fileName);
 	params.set(DEFERRED_MODULE, 'true');
 	return `${specifier}?${params.toString()}`;
 }

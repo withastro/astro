@@ -80,10 +80,10 @@ export function astroContentVirtualModPlugin({
 			if (isDeferredModule(id)) {
 				const [, query] = id.split('?');
 				const params = new URLSearchParams(query);
-				const importerParam = params.get('importer');
+				const fileName = params.get('fileName');
 				let importerPath = undefined;
-				if (importerParam && URL.canParse(importerParam, settings.config.root.toString())) {
-					importerPath = fileURLToPath(new URL(importerParam, settings.config.root));
+				if (fileName && URL.canParse(fileName, settings.config.root.toString())) {
+					importerPath = fileURLToPath(new URL(fileName, settings.config.root));
 				}
 				if (importerPath) {
 					return await this.resolve(importerPath);
