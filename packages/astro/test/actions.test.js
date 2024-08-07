@@ -180,7 +180,7 @@ describe('Astro Actions', () => {
 					Referer: 'http://example.com/user',
 				},
 			});
-			const res = await followRedirect(req, app);
+			const res = await followExpectedRedirect(req, app);
 			assert.equal(res.ok, true);
 
 			const html = await res.text();
@@ -196,7 +196,7 @@ describe('Astro Actions', () => {
 					Referer: 'http://example.com/user-or-throw',
 				},
 			});
-			const res = await followRedirect(req, app);
+			const res = await followExpectedRedirect(req, app);
 			assert.equal(res.status, 401);
 
 			const html = await res.text();
@@ -217,7 +217,7 @@ describe('Astro Actions', () => {
 						Referer: 'http://example.com/user',
 					},
 				});
-				const res = await followRedirect(req, app);
+				const res = await followExpectedRedirect(req, app);
 				assert.equal(res.ok, true);
 
 				const html = await res.text();
@@ -235,7 +235,7 @@ describe('Astro Actions', () => {
 						Referer: 'http://example.com/user-or-throw',
 					},
 				});
-				const res = await followRedirect(req, app);
+				const res = await followExpectedRedirect(req, app);
 				assert.equal(res.status, 401);
 
 				const html = await res.text();
@@ -346,7 +346,7 @@ const validRedirectStatuses = new Set([301, 302, 303, 304, 307, 308]);
  * @param {*} app
  * @returns {Promise<Response>}
  */
-async function followRedirect(req, app) {
+async function followExpectedRedirect(req, app) {
 	const redirect = await app.render(req, { addCookieHeader: true });
 	assert.ok(
 		validRedirectStatuses.has(redirect.status),
