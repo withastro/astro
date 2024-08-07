@@ -1,5 +1,43 @@
 # @astrojs/db
 
+## 0.12.0
+
+### Minor Changes
+
+- [#11304](https://github.com/withastro/astro/pull/11304) [`2e70741`](https://github.com/withastro/astro/commit/2e70741362afc1e7d03c8b2a9d8edb8466dfe9c3) Thanks [@Fryuni](https://github.com/Fryuni)! - Removes the `AstroDbIntegration` type
+
+  Astro integration hooks can now be extended and as such `@astrojs/db` no longer needs to declare it's own integration type. Using `AstroIntegration` will have the same type.
+
+  If you were using the `AstroDbIntegration` type, apply this change to your integration code:
+
+  ```diff
+  - import { defineDbIntegration, type AstroDbIntegration } from '@astrojs/db/utils';
+  + import { defineDbIntegration } from '@astrojs/db/utils';
+  import type { AstroIntegration } from 'astro';
+
+  - export default (): AstroDbIntegration => {
+  + export default (): AstroIntegration => {
+    return defineDbIntegration({
+      name: 'your-integration',
+      hooks: {},
+    });
+  }
+  ```
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
+## 0.11.7
+
+### Patch Changes
+
+- [#11331](https://github.com/withastro/astro/pull/11331) [`f1b78a4`](https://github.com/withastro/astro/commit/f1b78a496034d53b0e9dfc276a4a1b1d691772c4) Thanks [@bluwy](https://github.com/bluwy)! - Relaxes exports condition to allow importing ESM from CJS
+
+- Updated dependencies [[`f1b78a4`](https://github.com/withastro/astro/commit/f1b78a496034d53b0e9dfc276a4a1b1d691772c4)]:
+  - @astrojs/studio@0.1.1
+
 ## 0.11.6
 
 ### Patch Changes

@@ -40,6 +40,7 @@ interface ContentManifestKey {
 	type: 'content' | 'data';
 	entry: string;
 }
+
 interface ContentManifest {
 	version: number;
 	entries: [ContentManifestKey, string][];
@@ -304,6 +305,7 @@ interface ContentEntries {
 	restoreFromCache: ContentManifestKey[];
 	buildFromSource: ContentManifestKey[];
 }
+
 function getEntriesFromManifests(
 	oldManifest: ContentManifest,
 	newManifest: ContentManifest
@@ -379,7 +381,7 @@ async function generateContentManifest(
 			promises.push(
 				limit(async () => {
 					const data = await fsMod.promises.readFile(fileURL, { encoding: 'utf8' });
-					manifest.entries.push([key, checksum(data)]);
+					manifest.entries.push([key, checksum(data, fileURL.toString())]);
 				})
 			);
 		}
@@ -508,11 +510,14 @@ export function pluginContent(
 					return;
 				}
 				// Cache build output of chunks and assets
+				const promises: Promise<void[] | undefined>[] = [];
 				for (const { cached, dist } of cachedBuildOutput) {
 					if (fsMod.existsSync(dist)) {
-						await copyFiles(dist, cached, true);
+						promises.push(copyFiles(dist, cached, true));
 					}
 				}
+
+				if (promises.length) await Promise.all(promises);
 			},
 		},
 	};

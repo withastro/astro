@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import glob from 'fast-glob';
 import type { OutputChunk } from 'rollup';
-import { type Plugin as VitePlugin } from 'vite';
+import type { Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
@@ -27,7 +27,7 @@ const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
 export const SSR_MANIFEST_VIRTUAL_MODULE_ID = '@astrojs-manifest';
 export const RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID = '\0' + SSR_MANIFEST_VIRTUAL_MODULE_ID;
 
-function vitePluginManifest(options: StaticBuildOptions, internals: BuildInternals): VitePlugin {
+function vitePluginManifest(_options: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/plugin-build-manifest',
 		enforce: 'post',
@@ -113,7 +113,7 @@ export function pluginManifest(
 	};
 }
 
-export async function createManifest(
+async function createManifest(
 	buildOpts: StaticBuildOptions,
 	internals: BuildInternals
 ): Promise<SerializedSSRManifest> {
@@ -137,11 +137,8 @@ export async function createManifest(
 
 /**
  * It injects the manifest in the given output rollup chunk. It returns the new emitted code
- * @param buildOpts
- * @param internals
- * @param chunk
  */
-export function injectManifest(manifest: SerializedSSRManifest, chunk: Readonly<OutputChunk>) {
+function injectManifest(manifest: SerializedSSRManifest, chunk: Readonly<OutputChunk>) {
 	const code = chunk.code;
 
 	return code.replace(replaceExp, () => {
@@ -262,6 +259,7 @@ function buildManifest(
 	}
 
 	return {
+		hrefRoot: opts.settings.config.root.toString(),
 		adapterName: opts.settings.adapter?.name ?? '',
 		routes,
 		site: settings.config.site,
@@ -278,7 +276,7 @@ function buildManifest(
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
-		rewritingEnabled: settings.config.experimental.rewriting,
+		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		experimentalEnvGetSecretEnabled:
 			settings.config.experimental.env !== undefined &&
 			(settings.adapter?.supportedAstroFeatures.envGetSecret ?? 'unsupported') !== 'unsupported',

@@ -126,7 +126,7 @@ describe('CSS ordering - import order', () => {
 
 			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
 			const css = content.map((c) => c.css).join('');
-			assert.equal(css.match(/\.astro-jsx/).length, 1, '.astro-jsx class is duplicated');
+			assert.equal(/\.astro-jsx/.exec(css).length, 1, '.astro-jsx class is duplicated');
 		});
 	});
 

@@ -1141,6 +1141,7 @@ export const MissingMiddlewareForInternationalization = {
 } satisfies ErrorData;
 
 /**
+ * @deprecated
  * @docs
  * @description
  * The user tried to rewrite using a route that doesn't exist, or it emitted a runtime error during its rendering phase.
@@ -1235,24 +1236,14 @@ export const RouteNotFound = {
  * @docs
  * @description
  * Some environment variables do not match the data type and/or properties defined in `experimental.env.schema`.
+ * @message
+ * The following environment variables defined in `experimental.env.schema` are invalid.
  */
 export const EnvInvalidVariables = {
 	name: 'EnvInvalidVariables',
 	title: 'Invalid Environment Variables',
-	message: (variables: string) =>
-		`The following environment variables do not match the data type and/or properties defined in \`experimental.env.schema\`:\n\n${variables}\n`,
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
- * An environment variable does not match the data type and/or properties defined in `experimental.env.schema`.
- */
-export const EnvInvalidVariable = {
-	name: 'EnvInvalidVariable',
-	title: 'Invalid Environment Variable',
-	message: (key: string, type: string) =>
-		`The following environment variable does not match the data type and/or properties defined in \`experimental.env.schema\`: ${key} is not of type ${type}`,
+	message: (errors: Array<string>) =>
+		`The following environment variables defined in \`experimental.env.schema\` are invalid:\n\n${errors.map((err) => `- ${err}`).join('\n')}\n`,
 } satisfies ErrorData;
 
 /**
@@ -1290,7 +1281,7 @@ export const ServerOnlyModule = {
  *
  * @see
  * - [Request.clone()](https://developer.mozilla.org/en-US/docs/Web/API/Request/clone)
- * - [Astro.rewrite](https://docs.astro.build/en/reference/configuration-reference/#experimentalrewriting)
+ * - [Astro.rewrite](https://docs.astro.build/en/reference/api-reference/#astrorewrite)
  */
 
 export const RewriteWithBodyUsed = {
@@ -1615,6 +1606,27 @@ export const DuplicateContentEntrySlugError = {
 /**
  * @docs
  * @see
+ * - [devalue library](https://github.com/rich-harris/devalue)
+ * @description
+ * `transform()` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).
+ */
+export const UnsupportedConfigTransformError = {
+	name: 'UnsupportedConfigTransformError',
+	title: 'Unsupported transform in content config.',
+	message: (parseError: string) =>
+		`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
+	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @kind heading
+ * @name Action Errors
+ */
+// Action Errors
+/**
+ * @docs
+ * @see
  * - [On-demand rendering](https://docs.astro.build/en/basics/rendering-modes/#on-demand-rendered)
  * @description
  * Your project must have a server output to create backend functions with Actions.
@@ -1630,16 +1642,43 @@ export const ActionsWithoutServerOutputError = {
 /**
  * @docs
  * @see
- * - [devalue library](https://github.com/rich-harris/devalue)
+ * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
  * @description
- * `transform()` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).
+ * Action was called from a form using a GET request, but only POST requests are supported. This often occurs if `method="POST"` is missing on the form.
  */
-export const UnsupportedConfigTransformError = {
-	name: 'UnsupportedConfigTransformError',
-	title: 'Unsupported transform in content config.',
-	message: (parseError: string) =>
-		`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
-	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
+export const ActionsUsedWithForGetError = {
+	name: 'ActionsUsedWithForGetError',
+	title: 'An invalid Action query string was passed by a form.',
+	message: (actionName: string) =>
+		`Action ${actionName} was called from a form using a GET request, but only POST requests are supported. This often occurs if \`method="POST"\` is missing on the form.`,
+	hint: 'Actions are experimental. Visit the RFC for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
+ * @description
+ * The server received the query string `?_astroAction=name`, but could not find an action with that name. Use the action function's `.queryString` property to retrieve the form `action` URL.
+ */
+export const ActionQueryStringInvalidError = {
+	name: 'ActionQueryStringInvalidError',
+	title: 'An invalid Action query string was passed by a form.',
+	message: (actionName: string) =>
+		`The server received the query string \`?_astroAction=${actionName}\`, but could not find an action with that name. If you changed an action's name in development, remove this query param from your URL and refresh.`,
+	hint: 'Actions are experimental. Visit the RFC for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Action called from a server page or endpoint without using `Astro.callAction()`.
+ */
+export const ActionCalledFromServerError = {
+	name: 'ActionCalledFromServerError',
+	title: 'Action unexpected called from the server.',
+	message: 'Action called from a server page or endpoint without using `Astro.callAction()`.',
+	hint: 'See the RFC section on server calls for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md#call-actions-directly-from-server-code',
 } satisfies ErrorData;
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.

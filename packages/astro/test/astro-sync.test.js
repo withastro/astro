@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import * as fs from 'node:fs';
 import { before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { loadFixture } from './test-utils.js';
 
@@ -47,7 +48,10 @@ const createFixture = () => {
 				},
 			};
 
-			await astroFixture.sync({}, { fs: fsMock });
+			await astroFixture.sync({
+				inlineConfig: { root: fileURLToPath(new URL(root, import.meta.url)) },
+				fs: fsMock,
+			});
 		},
 		/** @param {string} path */
 		thenFileShouldExist(path) {
@@ -163,6 +167,17 @@ describe('astro sync', () => {
 				'src/env.d.ts',
 				`/// <reference path="../.astro/env.d.ts" />`
 			);
+		});
+
+		it('Does not throw if a public variable is required', async () => {
+			let error = null;
+			try {
+				await fixture.whenSyncing('./fixtures/astro-env-required-public/');
+			} catch (e) {
+				error = e;
+			}
+
+			assert.equal(error, null, 'Syncing should not throw astro:env validation errors');
 		});
 	});
 

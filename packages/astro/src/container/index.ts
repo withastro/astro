@@ -14,13 +14,15 @@ import type {
 	SSRManifest,
 	SSRResult,
 } from '../@types/astro.js';
-import { validateConfig } from '../core/config/config.js';
+import { getDefaultClientDirectives } from '../core/client-directive/index.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
+import { validateConfig } from '../core/config/validate.js';
 import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
 import { RenderContext } from '../core/render-context.js';
-import { getParts, getPattern, validateSegment } from '../core/routing/manifest/create.js';
+import { getParts, validateSegment } from '../core/routing/manifest/create.js';
+import { getPattern } from '../core/routing/manifest/pattern.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
 import { ContainerPipeline } from './pipeline.js';
 
@@ -95,6 +97,11 @@ export type AddServerRenderer =
 			name: string;
 	  };
 
+export type AddClientRenderer = {
+	name: string;
+	entrypoint: string;
+};
+
 function createManifest(
 	manifest?: AstroContainerManifest,
 	renderers?: SSRLoadedRenderer[],
@@ -105,7 +112,7 @@ function createManifest(
 	};
 
 	return {
-		rewritingEnabled: false,
+		hrefRoot: import.meta.url,
 		trailingSlash: manifest?.trailingSlash ?? ASTRO_CONFIG_DEFAULTS.trailingSlash,
 		buildFormat: manifest?.buildFormat ?? ASTRO_CONFIG_DEFAULTS.build.format,
 		compressHTML: manifest?.compressHTML ?? ASTRO_CONFIG_DEFAULTS.compressHTML,
@@ -114,7 +121,7 @@ function createManifest(
 		entryModules: manifest?.entryModules ?? {},
 		routes: manifest?.routes ?? [],
 		adapterName: '',
-		clientDirectives: manifest?.clientDirectives ?? new Map(),
+		clientDirectives: manifest?.clientDirectives ?? getDefaultClientDirectives(),
 		renderers: renderers ?? manifest?.renderers ?? [],
 		base: manifest?.base ?? ASTRO_CONFIG_DEFAULTS.base,
 		componentMetadata: manifest?.componentMetadata ?? new Map(),
@@ -208,7 +215,7 @@ type AstroContainerConstructor = {
 	renderers?: SSRLoadedRenderer[];
 	manifest?: AstroContainerManifest;
 	resolve?: SSRResult['resolve'];
-	astroConfig: AstroConfig;
+	astroConfig?: AstroConfig;
 };
 
 export class experimental_AstroContainer {
@@ -253,10 +260,10 @@ export class experimental_AstroContainer {
 		});
 	}
 
-	async #containerResolve(specifier: string, astroConfig: AstroConfig): Promise<string> {
+	async #containerResolve(specifier: string, astroConfig?: AstroConfig): Promise<string> {
 		const found = this.#pipeline.manifest.entryModules[specifier];
 		if (found) {
-			return new URL(found, astroConfig.build.client).toString();
+			return new URL(found, astroConfig?.build.client).toString();
 		}
 		return found;
 	}
@@ -281,7 +288,7 @@ export class experimental_AstroContainer {
 	}
 
 	/**
-	 * Use this function to manually add a renderer to the container.
+	 * Use this function to manually add a **server** renderer to the container.
 	 *
 	 * This function is preferred when you require to use the container with a renderer in environments such as on-demand pages.
 	 *
@@ -322,6 +329,46 @@ export class experimental_AstroContainer {
 				ssr: renderer,
 			});
 		}
+	}
+
+	/**
+	 * Use this function to manually add a **client** renderer to the container.
+	 *
+	 * When rendering components that use the `client:*` directives, you need to use this function.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * import reactRenderer from "@astrojs/react/server.js";
+	 * import { experimental_AstroContainer as AstroContainer } from "astro/container"
+	 *
+	 * const container = await AstroContainer.create();
+	 * container.addServerRenderer(reactRenderer);
+	 * container.addClientRenderer({
+	 * 	name: "@astrojs/react",
+	 * 	entrypoint: "@astrojs/react/client.js"
+	 * });
+	 * ```
+	 *
+	 * @param options {object}
+	 * @param options.name The name of the renderer. The name **isn't** arbitrary, and it should match the name of the package.
+	 * @param options.entrypoint The entrypoint of the client renderer.
+	 */
+	public addClientRenderer(options: AddClientRenderer): void {
+		const { entrypoint, name } = options;
+
+		const rendererIndex = this.#pipeline.manifest.renderers.findIndex((r) => r.name === name);
+		if (rendererIndex === -1) {
+			throw new Error(
+				'You tried to add the ' +
+					name +
+					" client renderer, but its server renderer wasn't added. You must add the server renderer first. Use the `addServerRenderer` function."
+			);
+		}
+		const renderer = this.#pipeline.manifest.renderers[rendererIndex];
+		renderer.clientEntrypoint = entrypoint;
+
+		this.#pipeline.manifest.renderers[rendererIndex] = renderer;
 	}
 
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.

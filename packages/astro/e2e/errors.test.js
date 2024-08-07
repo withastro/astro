@@ -88,7 +88,7 @@ test.describe('Error display', () => {
 		expect(fileExists).toBeTruthy();
 
 		const fileContent = await astro.readFile(absoluteFileUrl);
-		const lineNumber = absoluteFileLocation.match(/:(\d+):\d+$/)[1];
+		const lineNumber = /:(\d+):\d+$/.exec(absoluteFileLocation)[1];
 		const highlightedLine = fileContent.split('\n')[lineNumber - 1];
 		expect(highlightedLine).toContain(`@use '../styles/inexistent' as *;`);
 
@@ -124,5 +124,19 @@ test.describe('Error display', () => {
 		await page.goto(astro.resolveUrl('/astro-glob-outside-astro'), { waitUntil: 'networkidle' });
 		const message = (await getErrorOverlayContent(page)).message;
 		expect(message).toMatch('can only be used in');
+	});
+
+	test('can handle DomException errors', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/dom-exception'), { waitUntil: 'networkidle' });
+		const message = (await getErrorOverlayContent(page)).message;
+		expect(message).toMatch('The operation was aborted due to timeout');
+	});
+
+	test('properly highlight the line with the error', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/import-not-found'), { waitUntil: 'networkidle' });
+
+		const { codeFrame } = await getErrorOverlayContent(page);
+		const codeFrameContent = await codeFrame.innerHTML();
+		expect(codeFrameContent).toContain('error-line');
 	});
 });

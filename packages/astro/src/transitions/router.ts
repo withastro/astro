@@ -1,13 +1,5 @@
-import type { TransitionBeforePreparationEvent, TransitionBeforeSwapEvent } from './events.js';
+import type { TransitionBeforePreparationEvent } from './events.js';
 import { TRANSITION_AFTER_SWAP, doPreparation, doSwap } from './events.js';
-import {
-	deselectScripts,
-	restoreFocus,
-	saveFocus,
-	swapBodyElement,
-	swapHeadElements,
-	swapRootAttributes,
-} from './swap-functions.js';
 import type { Direction, Fallback, Options } from './types.js';
 
 type State = {
@@ -132,7 +124,7 @@ async function fetchHTML(
 	}
 }
 
-function getFallback(): Fallback {
+export function getFallback(): Fallback {
 	const el = document.querySelector('[name="astro-view-transitions-fallback"]');
 	if (el) {
 		return el.getAttribute('content') as Fallback;
@@ -550,6 +542,7 @@ async function transition(
 		// This log doesn't make it worse than before, where we got error messages about uncaught exceptions, which can't be caught when the trigger was a click or history traversal.
 		// Needs more investigation on root causes if errors still occur sporadically
 		const err = e as Error;
+		// eslint-disable-next-line no-console
 		console.log('[astro]', err.name, err.message, err.stack);
 	}
 }

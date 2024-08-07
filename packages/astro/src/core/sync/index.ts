@@ -7,10 +7,10 @@ import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types
 import { getPackage } from '../../cli/install-package.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
+import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigSetup } from '../../integrations/hooks.js';
-import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
@@ -27,23 +27,44 @@ import {
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
-
-export type ProcessExit = 0 | 1;
+import { setUpEnvTs } from './setup-env-ts.js';
 
 export type SyncOptions = {
 	/**
 	 * @internal only used for testing
 	 */
 	fs?: typeof fsMod;
-};
-
-export type SyncInternalOptions = SyncOptions & {
 	logger: Logger;
+	settings: AstroSettings;
+	skip?: {
+		// Must be skipped in dev
+		content?: boolean;
+	};
 };
 
 type DBPackage = {
 	typegen?: (args: Pick<AstroConfig, 'root' | 'integrations'>) => Promise<void>;
 };
+
+export default async function sync({
+	inlineConfig,
+	fs,
+	telemetry: _telemetry = false,
+}: { inlineConfig: AstroInlineConfig; fs?: typeof fsMod; telemetry?: boolean }) {
+	ensureProcessNodeEnv('production');
+	const logger = createNodeLogger(inlineConfig);
+	const { astroConfig, userConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
+	if (_telemetry) {
+		telemetry.record(eventCliSession('sync', userConfig));
+	}
+	let settings = await createSettings(astroConfig, inlineConfig.root);
+	settings = await runHookConfigSetup({
+		command: 'build',
+		settings,
+		logger,
+	});
+	return await syncInternal({ settings, logger, fs });
+}
 
 /**
  * Generates TypeScript types for all Astro modules. This sets up a `src/env.d.ts` file for type inferencing,
@@ -51,22 +72,13 @@ type DBPackage = {
  *
  * @experimental The JavaScript API is experimental
  */
-export default async function sync(
-	inlineConfig: AstroInlineConfig,
-	options?: SyncOptions
-): Promise<ProcessExit> {
-	ensureProcessNodeEnv('production');
-	const logger = createNodeLogger(inlineConfig);
-	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
-	telemetry.record(eventCliSession('sync', userConfig));
-
-	const _settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
-
-	const settings = await runHookConfigSetup({
-		settings: _settings,
-		logger: logger,
-		command: 'build',
-	});
+export async function syncInternal({
+	logger,
+	fs = fsMod,
+	settings,
+	skip,
+}: SyncOptions): Promise<void> {
+	const cwd = fileURLToPath(settings.config.root);
 
 	const timerStart = performance.now();
 	const dbPackage = await getPackage<DBPackage>(
@@ -74,25 +86,28 @@ export default async function sync(
 		logger,
 		{
 			optional: true,
-			cwd: inlineConfig.root,
+			cwd,
 		},
 		[]
 	);
 
 	try {
-		await dbPackage?.typegen?.(astroConfig);
-		const exitCode = await syncContentCollections(settings, { ...options, logger });
-		if (exitCode !== 0) return exitCode;
+		await dbPackage?.typegen?.(settings.config);
+		if (!skip?.content) {
+			await syncContentCollections(settings, { fs, logger });
+		}
+		syncAstroEnv(settings, fs);
 
-		logger.info(null, `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
-		return 0;
+		await setUpEnvTs({ settings, logger, fs });
+		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 	} catch (err) {
 		const error = createSafeError(err);
 		logger.error(
-			'content',
+			'types',
 			formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n'
 		);
-		return 1;
+		// Will return exit code 1 in CLI
+		throw error;
 	}
 }
 
@@ -110,10 +125,10 @@ export default async function sync(
  * @param {LogOptions} options.logging Logging options
  * @return {Promise<ProcessExit>}
  */
-export async function syncContentCollections(
+async function syncContentCollections(
 	settings: AstroSettings,
-	{ logger, fs }: SyncInternalOptions
-): Promise<ProcessExit> {
+	{ logger, fs }: Required<Pick<SyncOptions, 'logger' | 'fs'>>
+): Promise<void> {
 	// Needed to load content config
 	const tempViteServer = await createServer(
 		await createVite(
@@ -123,7 +138,7 @@ export async function syncContentCollections(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode: 'build', command: 'build', fs }
+			{ settings, logger, mode: 'build', command: 'build', fs, sync: true }
 		)
 	);
 
@@ -141,7 +156,7 @@ export async function syncContentCollections(
 		const contentTypesGenerator = await createContentTypesGenerator({
 			contentConfigObserver: globalContentConfigObserver,
 			logger: logger,
-			fs: fs ?? fsMod,
+			fs,
 			settings,
 			viteServer: tempViteServer,
 		});
@@ -157,7 +172,6 @@ export async function syncContentCollections(
 				case 'no-content-dir':
 				default:
 					logger.debug('types', 'No content directory found. Skipping type generation.');
-					return 0;
 			}
 		}
 	} catch (e) {
@@ -177,8 +191,4 @@ export async function syncContentCollections(
 	} finally {
 		await tempViteServer.close();
 	}
-
-	await setUpEnvTs({ settings, logger, fs: fs ?? fsMod });
-
-	return 0;
 }

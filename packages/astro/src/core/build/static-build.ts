@@ -215,14 +215,15 @@ async function ssrBuild(
 						if (isContentCache) {
 							prefix += `${buildID}/`;
 							suffix = '.mjs';
-						}
 
-						if (isContentCache && name.includes('/content/')) {
-							const parts = name.split('/');
-							if (parts.at(1) === 'content') {
-								return encodeName(parts.slice(1).join('/'));
+							if (name.includes('/content/')) {
+								const parts = name.split('/');
+								if (parts.at(1) === 'content') {
+									return encodeName(parts.slice(1).join('/'));
+								}
 							}
 						}
+
 						// Sometimes chunks have the `@_@astro` suffix due to SSR logic. Remove it!
 						// TODO: refactor our build logic to avoid this
 						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {

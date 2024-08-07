@@ -4,11 +4,10 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../../@types/astro.js';
-import { type RenderInstruction, createRenderInstruction } from './instruction.js';
+import { createRenderInstruction } from './instruction.js';
 
 import { clsx } from 'clsx';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
-import type { HTMLBytes } from '../escape.js';
 import { markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
@@ -27,6 +26,7 @@ import {
 } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { maybeRenderHead } from './head.js';
+import { containsServerDirective, renderServerIsland } from './server-islands.js';
 import { type ComponentSlots, renderSlotToString, renderSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
@@ -55,8 +55,6 @@ function guessRenderers(componentUrl?: string): string[] {
 			];
 	}
 }
-
-export type ComponentIterable = AsyncIterable<string | HTMLBytes | RenderInstruction>;
 
 function isFragmentComponent(Component: unknown) {
 	return Component === Fragment;
@@ -473,6 +471,10 @@ function renderAstroComponent(
 	props: Record<string | number, any>,
 	slots: any = {}
 ): RenderInstance {
+	if (containsServerDirective(props)) {
+		return renderServerIsland(result, displayName, props, slots);
+	}
+
 	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
 	return {
 		async render(destination) {
@@ -489,7 +491,7 @@ export async function renderComponent(
 	displayName: string,
 	Component: unknown,
 	props: Record<string | number, any>,
-	slots: any = {}
+	slots: ComponentSlots = {}
 ): Promise<RenderInstance> {
 	if (isPromise(Component)) {
 		Component = await Component.catch(handleCancellation);
@@ -516,7 +518,10 @@ export async function renderComponent(
 	);
 
 	function handleCancellation(e: unknown) {
-		if (result.cancelled) return { render() {} };
+		if (result.cancelled)
+			return {
+				render() {},
+			};
 		throw e;
 	}
 }

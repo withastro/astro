@@ -25,8 +25,9 @@ export function experimental_withState<T>(action: FormFn<T>) {
 	callback.$$FORM_ACTION = action.$$FORM_ACTION;
 	// Called by React when form state is passed from the server.
 	// If the action names match, React returns this state from `useActionState()`.
-	callback.$$IS_SIGNATURE_EQUAL = (actionName: string) => {
-		return action.toString() === actionName;
+	callback.$$IS_SIGNATURE_EQUAL = (incomingActionName: string) => {
+		const actionName = new URLSearchParams(action.toString()).get('_astroAction');
+		return actionName === incomingActionName;
 	};
 
 	// React calls `.bind()` internally to pass the initial state value.
