@@ -14,7 +14,7 @@ import {
 	loadEnv,
 	mergeConfig,
 } from 'vite';
-import parseArgs from 'yargs-parser';
+import { parseArgs } from 'node:util';
 import { AstroDbError } from '../../runtime/utils.js';
 import { CONFIG_FILE_NAMES, DB_PATH } from '../consts.js';
 import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
@@ -72,8 +72,8 @@ function astroDBIntegration(): AstroIntegration {
 				if (command === 'preview') return;
 
 				let dbPlugin: VitePlugin | undefined = undefined;
-				const args = parseArgs(process.argv.slice(3));
-				connectToStudio = process.env.ASTRO_INTERNAL_TEST_REMOTE || args['remote'];
+				const args = parseArgs({ strict: false });
+				connectToStudio = !!process.env.ASTRO_INTERNAL_TEST_REMOTE || !!args.values.remote;
 
 				if (connectToStudio) {
 					appToken = await getManagedAppTokenOrExit();
