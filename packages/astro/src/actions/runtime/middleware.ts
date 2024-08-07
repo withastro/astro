@@ -46,13 +46,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		return handlePost({ context, next, actionName });
 	}
 
-	if (context.request.method === 'GET' && actionName) {
-		throw new AstroError({
-			...ActionsUsedWithForGetError,
-			message: ActionsUsedWithForGetError.message(actionName),
-		});
-	}
-
 	if (context.request.method === 'POST') {
 		return handlePostLegacy({ context, next });
 	}
