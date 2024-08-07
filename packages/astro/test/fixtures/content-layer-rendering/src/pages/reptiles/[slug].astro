@@ -8,7 +8,7 @@ export const getStaticPaths = (async () => {
 	if(!collection) return []
 	return collection.map((reptile) => ({
 		params: {
-			slug: `/${reptile.id}`
+			slug: `${reptile.id}`
 		},
 		props: {
 			reptile

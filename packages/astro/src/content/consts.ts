@@ -9,8 +9,15 @@ export const VIRTUAL_MODULE_ID = 'astro:content';
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 export const DATA_STORE_VIRTUAL_ID = 'astro:data-layer-content';
 export const RESOLVED_DATA_STORE_VIRTUAL_ID = '\0' + DATA_STORE_VIRTUAL_ID;
-export const MODULES_IMPORTS_ID = 'astro:content-module-imports';
-export const MODULES_IMPORTS_VIRTUAL_ID = '\0' + MODULES_IMPORTS_ID;
+
+// Used by the content layer to create a virtual module that loads the `modules.mjs`, a file created by the content layer
+// to map modules that are renderer at runtime
+export const MODULES_MJS_ID = 'astro:content-module-imports';
+export const MODULES_MJS_VIRTUAL_ID = '\0' + MODULES_MJS_ID;
+
+export const DEFERRED_MODULE = 'astro:content-layer-deferred-module';
+
+// Used by the content layer to create a virtual module that loads the `assets.mjs`
 export const ASSET_IMPORTS_VIRTUAL_ID = 'astro:asset-imports';
 export const ASSET_IMPORTS_RESOLVED_STUB_ID = '\0' + ASSET_IMPORTS_VIRTUAL_ID;
 export const LINKS_PLACEHOLDER = '@@ASTRO-LINKS@@';

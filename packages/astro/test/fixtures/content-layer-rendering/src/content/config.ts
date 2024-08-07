@@ -1,5 +1,5 @@
 import { defineCollection, z, reference } from 'astro:content';
-import { file, glob } from 'astro/loaders';
+import { glob } from 'astro/loaders';
 
 const reptiles = defineCollection({
 	type: 'experimental_content',

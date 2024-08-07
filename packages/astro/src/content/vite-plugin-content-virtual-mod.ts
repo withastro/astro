@@ -23,8 +23,8 @@ import {
 	DATA_STORE_FILE,
 	DATA_STORE_VIRTUAL_ID,
 	MODULES_IMPORTS_FILE,
-	MODULES_IMPORTS_ID,
-	MODULES_IMPORTS_VIRTUAL_ID,
+	MODULES_MJS_ID,
+	MODULES_MJS_VIRTUAL_ID,
 	RESOLVED_DATA_STORE_VIRTUAL_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
@@ -40,7 +40,7 @@ import {
 	getEntrySlug,
 	getEntryType,
 	getExtGlob,
-	hasContentModuleFlag,
+	isDeferredModule,
 } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
@@ -61,7 +61,7 @@ export function astroContentVirtualModPlugin({
 		configResolved(config) {
 			IS_DEV = config.mode === 'development';
 		},
-		async resolveId(id, importer) {
+		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
 				if (!settings.config.experimental.contentCollectionCache) {
 					return RESOLVED_VIRTUAL_MODULE_ID;
@@ -77,27 +77,26 @@ export function astroContentVirtualModPlugin({
 				return RESOLVED_DATA_STORE_VIRTUAL_ID;
 			}
 
-			if (hasContentModuleFlag(id)) {
+			if (isDeferredModule(id)) {
 				const [, query] = id.split('?');
 				const params = new URLSearchParams(query);
 				const importerParam = params.get('importer');
-				const importerPath = importerParam
-					? fileURLToPath(new URL(importerParam, settings.config.root))
-					: importer;
+				let importerPath = undefined;
+				if (importerParam && URL.canParse(importerParam, settings.config.root.toString())) {
+					importerPath = fileURLToPath(new URL(importerParam, settings.config.root));
+				}
 				if (importerPath) {
 					return await this.resolve(importerPath);
 				}
 			}
 
-			if (id === MODULES_IMPORTS_ID) {
+			if (id === MODULES_MJS_ID) {
 				const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
 				if (fs.existsSync(modules)) {
 					return fileURLToPath(modules);
 				}
-				return MODULES_IMPORTS_VIRTUAL_ID;
+				return MODULES_MJS_VIRTUAL_ID;
 			}
-
-
 
 			if (id === ASSET_IMPORTS_VIRTUAL_ID) {
 				const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
@@ -156,7 +155,7 @@ export function astroContentVirtualModPlugin({
 				return 'export default new Map()';
 			}
 
-			if (id === MODULES_IMPORTS_VIRTUAL_ID) {
+			if (id === MODULES_MJS_VIRTUAL_ID) {
 				return 'export default new Map()';
 			}
 		},

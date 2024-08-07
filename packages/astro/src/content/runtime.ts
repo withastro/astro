@@ -88,44 +88,12 @@ export function createGetCollection({
 				const data = rawEntry.filePath
 					? updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap)
 					: rawEntry.data;
-				let entry;
-				if (rawEntry.isModule === true) {
-					try {
-					// @ts-expect-error	virtual module
-						const { default: contentModules } = await import('astro:content-module-imports');
-						const module = contentModules.get(rawEntry.filePath);
-						const resolvedComponent = await module();
 
-						entry = {
-							...rawEntry,
-							collection,
-							id: rawEntry.id,
-							slug: rawEntry.id,
-							body: rawEntry.body,
-							data: rawEntry.data,
-							async render() {
-								return {
-									Content: resolvedComponent.Content,
-									rendered: {
-										metadata: {
-											headings: resolvedComponent.getHeadings?.() ?? [],
-											remarkPluginFrontmatter: resolvedComponent.frontmatter ?? {},
-										}
-									}
-								};
-							},
-						};
-					} catch (e) {
-						console.log(e)
-					}
-					
-				} else {
-					entry = {
-						...rawEntry,
-						data,
-						collection,
-					};
-				}
+				const entry = {
+					...rawEntry,
+					data,
+					collection,
+				};
 				if (hasFilter && !filter(entry)) {
 					continue;
 				}
@@ -475,6 +443,23 @@ export async function renderEntry(
 	if (entry && 'render' in entry) {
 		// This is an old content collection entry, so we use its render method
 		return entry.render();
+	}
+
+	if (entry.isDeferred) {
+		// @ts-expect-error	virtual module
+		const { default: contentModules } = await import('astro:content-module-imports');
+		const module = contentModules.get(entry.filePath);
+		const resolvedComponent = await module();
+		
+		return {
+			Content: resolvedComponent.Content,
+			rendered: {
+				metadata: {
+					headings: resolvedComponent.getHeadings?.() ?? [],
+					remarkPluginFrontmatter: resolvedComponent.frontmatter ?? {},
+				},
+			},
+		};
 	}
 
 	const html =

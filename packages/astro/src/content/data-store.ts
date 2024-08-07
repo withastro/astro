@@ -3,7 +3,7 @@ import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import * as devalue from 'devalue';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { CONTENT_MODULE_FLAG } from './consts.js';
+import {DEFERRED_MODULE} from './consts.js';
 
 const SAVE_DEBOUNCE_MS = 500;
 
@@ -36,9 +36,9 @@ export interface DataEntry<TData extends Record<string, unknown> = Record<string
 	/** The rendered content of the entry, if applicable. */
 	rendered?: RenderedContent;
 	/**
-	 * If an entry is a module, its rendering phase is delegated to a virtual module during the runtime phase.
+	 * If an entry is a deferred, its rendering phase is delegated to a virtual module during the runtime phase when calling `renderEntry`.
 	 */
-	isModule?: boolean;
+	isDeferred?: boolean;
 }
 
 export class DataStore {
@@ -140,8 +140,7 @@ export class DataStore {
 	}
 
 	addModuleImport(fileName: string, specifier: string) {
-		// TODO change resolution function
-		const id = contentModuleToId(specifier, fileName);
+		const id = contentModuleToId(fileName, specifier);
 		if (id) {
 			this.#moduleImports.set(fileName, id);
 			// We debounce the writes to disk because addAssetImport is called for every image in every file,
@@ -279,7 +278,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			entries: () => this.entries(collectionName),
 			values: () => this.values(collectionName),
 			keys: () => this.keys(collectionName),
-			set: ({ id: key, data, body, filePath, isModule, digest, rendered }) => {
+			set: ({ id: key, data, body, filePath, isDeferred, digest, rendered }) => {
 				if (!key) {
 					throw new Error(`ID must be a non-empty string`);
 				}
@@ -311,8 +310,8 @@ export default new Map([\n${lines.join(',\n')}]);
 				if (rendered) {
 					entry.rendered = rendered;
 				}
-				if (isModule) {
-					entry.isModule = isModule;
+				if (isDeferred) {
+					entry.isDeferred = isDeferred;
 				}
 				this.set(collectionName, id, entry);
 				return true;
@@ -417,7 +416,10 @@ export interface ScopedDataStore {
 		digest?: number | string;
 		/** The rendered content, if applicable. */
 		rendered?: RenderedContent;
-		isModule?: boolean;
+		/**
+		 * If an entry is a deferred, its rendering phase is delegated to a virtual module during the runtime phase.
+		 */
+		isDeferred?: boolean;
 	}) => boolean;
 	values: () => Array<DataEntry>;
 	keys: () => Array<string>;
@@ -469,10 +471,10 @@ function dataStoreSingleton() {
 }
 
 // TODO: find a better place to put this image
-export function contentModuleToId(specifier: string, filePath: string) {
+export function contentModuleToId(fileName: string, specifier: string) {
 	const params = new URLSearchParams(specifier);
-	params.set('importer', filePath);
-	params.set(CONTENT_MODULE_FLAG, 'true');
+	params.set('importer', fileName);
+	params.set(DEFERRED_MODULE, 'true');
 	return `${specifier}?${params.toString()}`;
 }
 

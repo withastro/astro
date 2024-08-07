@@ -1490,7 +1490,8 @@ export const ContentLayerWriteError = {
 export const GetEntryDeprecationError = {
 	name: 'GetEntryDeprecationError',
 	title: 'Invalid use of `getDataEntryById` or `getEntryBySlug` function.',
-	message: (collection: string, method: string) => `The \`${method}\` function is deprecated and cannot be used to query the "${collection}" collection. Use \`getEntry\` instead.`,
+	message: (collection: string, method: string) =>
+		`The \`${method}\` function is deprecated and cannot be used to query the "${collection}" collection. Use \`getEntry\` instead.`,
 	hint: 'Use the `getEntry` or `getCollection` functions to query content layer collections.',
 } satisfies ErrorData;
 
