@@ -1,10 +1,9 @@
-import type yargs from 'yargs-parser';
 import _build from '../../core/build/index.js';
 import { printHelp } from '../../core/messages.js';
-import { flagsToAstroInlineConfig } from '../flags.js';
+import { flagsToAstroInlineConfig, type Flags } from '../flags.js';
 
 interface BuildOptions {
-	flags: yargs.Arguments;
+	flags: Flags;
 }
 
 export async function build({ flags }: BuildOptions) {
@@ -25,5 +24,5 @@ export async function build({ flags }: BuildOptions) {
 
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 
-	await _build(inlineConfig, { force: flags.force ?? false });
+	await _build(inlineConfig, { force: !!flags.force });
 }

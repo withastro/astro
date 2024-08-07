@@ -14,35 +14,17 @@ export default async function test() {
 		allowPositionals: true,
 		options: {
 			// aka --test-name-pattern: https://nodejs.org/api/test.html#filtering-tests-by-name
-			match: {
-				type: 'string',
-				alias: 'm',
-			},
+			match: { type: 'string', alias: 'm' },
 			// aka --test-only: https://nodejs.org/api/test.html#only-tests
-			only: {
-				type: 'boolean',
-				alias: 'o',
-			},
+			only: { type: 'boolean', alias: 'o' },
 			// aka --test-concurrency: https://nodejs.org/api/test.html#test-runner-execution-model
-			parallel: {
-				type: 'boolean',
-				alias: 'p',
-			},
+			parallel: { type: 'boolean', alias: 'p' },
 			// experimental: https://nodejs.org/api/test.html#watch-mode
-			watch: {
-				type: 'boolean',
-				alias: 'w',
-			},
+			watch: { type: 'boolean', alias: 'w' },
 			// Test timeout in milliseconds (default: 30000ms)
-			timeout: {
-				type: 'string',
-				alias: 't',
-			},
+			timeout: { type: 'string', alias: 't' },
 			// Test setup file
-			setup: {
-				type: 'string',
-				alias: 's',
-			},
+			setup: { type: 'string', alias: 's' },
 		},
 	});
 

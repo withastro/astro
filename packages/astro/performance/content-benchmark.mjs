@@ -2,9 +2,9 @@
 
 import { fileURLToPath } from 'node:url';
 import { bold, cyan, dim } from 'kleur/colors';
-import yargs from 'yargs-parser';
 import { loadFixture } from '../test/test-utils.js';
 import { generatePosts } from './scripts/generate-posts.mjs';
+import { parseArgs } from 'node:util';
 
 // Skip nonessential remark / rehype plugins for a fair comparison.
 // This includes heading ID generation, syntax highlighting, GFM, and Smartypants.
@@ -40,7 +40,7 @@ async function benchmark({ fixtures, templates, numPosts }) {
 // Test the build performance for content collections across multiple file types (md, mdx, mdoc)
 (async function benchmarkAll() {
 	try {
-		const flags = yargs(process.argv.slice(2));
+		const { values: flags } = parseArgs({ strict: false });
 		const test = Array.isArray(flags.test)
 			? flags.test
 			: typeof flags.test === 'string'

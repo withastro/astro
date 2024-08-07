@@ -9,7 +9,6 @@ import ora from 'ora';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import maxSatisfying from 'semver/ranges/max-satisfying.js';
-import type yargs from 'yargs-parser';
 import {
 	loadTSConfig,
 	resolveConfig,
@@ -29,14 +28,14 @@ import { appendForwardSlash } from '../../core/path.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { ensureProcessNodeEnv, parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
-import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
+import { createLoggerFromFlags, flagsToAstroInlineConfig, type Flags } from '../flags.js';
 import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
 import { generate, parse, t, visit } from './babel.js';
 import { ensureImport } from './imports.js';
 import { wrapDefaultExport } from './wrapper.js';
 
 interface AddOptions {
-	flags: yargs.Arguments;
+	flags: Flags;
 }
 
 interface IntegrationInfo {
@@ -143,7 +142,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 	}
 
 	// Some packages might have a common alias! We normalize those here.
-	const cwd = flags.root;
+	const cwd = inlineConfig.root;
 	const logger = createLoggerFromFlags(flags);
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 	const integrations = await validateIntegrations(integrationNames);
@@ -249,7 +248,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 	const rawConfigPath = await resolveConfigPath({
 		root: rootPath,
-		configFile: flags.config,
+		configFile: inlineConfig.configFile,
 		fs: fsMod,
 	});
 	let configURL = rawConfigPath ? pathToFileURL(rawConfigPath) : undefined;
@@ -580,7 +579,7 @@ async function updateAstroConfig({
 }: {
 	configURL: URL;
 	ast: t.File;
-	flags: yargs.Arguments;
+	flags: Flags;
 	logger: Logger;
 	logAdapterInstructions: boolean;
 }): Promise<UpdateResult> {
@@ -717,7 +716,7 @@ async function tryToInstallIntegrations({
 }: {
 	integrations: IntegrationInfo[];
 	cwd?: string;
-	flags: yargs.Arguments;
+	flags: Flags;
 	logger: Logger;
 }): Promise<UpdateResult> {
 	const installCommand = await getInstallIntegrationsCommand({ integrations, cwd, logger });
@@ -893,7 +892,7 @@ async function updateTSConfig(
 	cwd = process.cwd(),
 	logger: Logger,
 	integrationsInfo: IntegrationInfo[],
-	flags: yargs.Arguments
+	flags: Flags
 ): Promise<UpdateResult> {
 	const integrations = integrationsInfo.map(
 		(integration) => integration.id as frameworkWithTSSettings
@@ -996,7 +995,7 @@ function parseIntegrationName(spec: string) {
 	return { scope, name, tag };
 }
 
-async function askToContinue({ flags }: { flags: yargs.Arguments }): Promise<boolean> {
+async function askToContinue({ flags }: { flags: Flags }): Promise<boolean> {
 	if (flags.yes || flags.y) return true;
 
 	const response = await prompts({
@@ -1038,7 +1037,7 @@ function getDiffContent(input: string, output: string): string | null {
 async function setupIntegrationConfig(opts: {
 	root: URL;
 	logger: Logger;
-	flags: yargs.Arguments;
+	flags: Flags;
 	integrationName: string;
 	possibleConfigFiles: string[];
 	defaultConfigFile: string;

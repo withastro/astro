@@ -728,9 +728,6 @@ importers:
       which-pm:
         specifier: ^3.0.0
         version: 3.0.0
-      yargs-parser:
-        specifier: ^21.1.1
-        version: 21.1.1
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -793,9 +790,6 @@ importers:
       '@types/semver':
         specifier: ^7.5.8
         version: 7.5.8
-      '@types/yargs-parser':
-        specifier: ^21.0.3
-        version: 21.0.3
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
@@ -1719,15 +1713,9 @@ importers:
 
   packages/astro/performance:
     devDependencies:
-      '@types/yargs-parser':
-        specifier: ^21.0.3
-        version: 21.0.3
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
-      yargs-parser:
-        specifier: ^21.1.1
-        version: 21.1.1
 
   packages/astro/performance/fixtures/md:
     dependencies:
@@ -4251,9 +4239,6 @@ importers:
       strip-ansi:
         specifier: ^7.1.0
         version: 7.1.0
-      yargs-parser:
-        specifier: ^21.1.1
-        version: 21.1.1
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -4264,9 +4249,6 @@ importers:
       '@types/prompts':
         specifier: ^2.4.9
         version: 2.4.9
-      '@types/yargs-parser':
-        specifier: ^21.0.3
-        version: 21.0.3
       astro:
         specifier: workspace:*
         version: link:../astro
@@ -7484,9 +7466,6 @@ packages:
   '@types/xml2js@0.4.14':
     resolution: {integrity: sha512-4YnrRemBShWRO2QjvUin8ESA41rH+9nQGLUGZV/1IDhi3SL9OhdpNC/MrulTWuptXKwhx/aDxE7toV0f/ypIXQ==}
 
-  '@types/yargs-parser@21.0.3':
-    resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
-
   '@typescript-eslint/eslint-plugin@7.18.0':
     resolution: {integrity: sha512-94EQTWZ40mzBc42ATNIBimBEDltSJ9RQHCC8vc/PDbxi4k8dVwUAv4o98dk50M1zB+JGFxp43FP7f8+FP8R6Sw==}
     engines: {node: ^18.18.0 || >=20.0.0}
@@ -9330,7 +9309,6 @@ packages:
 
   libsql@0.3.12:
     resolution: {integrity: sha512-to30hj8O3DjS97wpbKN6ERZ8k66MN1IaOfFLR6oHqd25GMiPJ/ZX0VaZ7w+TsPmxcFS3p71qArj/hiedCyvXCg==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lilconfig@2.1.0:
@@ -13343,8 +13321,6 @@ snapshots:
   '@types/xml2js@0.4.14':
     dependencies:
       '@types/node': 18.19.31
-
-  '@types/yargs-parser@21.0.3': {}
 
   '@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@9.8.0)(typescript@5.5.4))(eslint@9.8.0)(typescript@5.5.4)':
     dependencies:

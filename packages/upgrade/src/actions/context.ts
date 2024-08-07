@@ -33,8 +33,8 @@ export async function getContext(argv: string[]): Promise<Context> {
 		allowPositionals: true,
 		strict: false,
 		options: {
-			['dry-run']: { type: 'boolean' },
-			['help']: { type: 'boolean', short: 'h' },
+			'dry-run': { type: 'boolean' },
+			help: { type: 'boolean', short: 'h' },
 		},
 	});
 

@@ -10,9 +10,7 @@ export default async function copy() {
 	const args = parseArgs({
 		allowPositionals: true,
 		options: {
-			tgz: {
-				type: 'boolean',
-			},
+			tgz: { type: 'boolean' },
 		},
 	});
 	const patterns = args.positionals.slice(1);
