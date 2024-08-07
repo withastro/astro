@@ -84,7 +84,7 @@ async function verifyTemplate(tmpl: string, ref?: string) {
 const GIT_RE = /^(?<repo>[\w.-]+\/[\w.-]+)(?<subdir>[^#]+)?(?<ref>#[\w.-]+)?/;
 
 function parseGitURI(input: string) {
-	const m = input.match(GIT_RE)?.groups;
+	const m = GIT_RE.exec(input)?.groups;
 	if (!m) throw new Error(`Unable to parse "${input}"`);
 	return {
 		repo: m.repo,

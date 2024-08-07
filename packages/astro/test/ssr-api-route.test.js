@@ -118,7 +118,7 @@ describe('API routes in SSR', () => {
 
 			let count = 0;
 			let exp = /set-cookie:/g;
-			while (exp.exec(response)) {
+			while (exp.test(response)) {
 				count++;
 			}
 
