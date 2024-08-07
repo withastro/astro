@@ -19,7 +19,7 @@ export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
 		base: typeof flags.base === 'string' ? flags.base : undefined,
 		outDir: typeof flags.outDir === 'string' ? flags.outDir : undefined,
 		server: {
-			port: typeof flags.port === 'number' ? flags.port : undefined,
+			port: typeof flags.port === 'string' ? Number(flags.port) : undefined,
 			host:
 				typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 			open:

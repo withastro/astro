@@ -211,6 +211,8 @@ export async function cli(argv: string[]) {
 		strict: false,
 		options: {
 			global: { type: 'boolean', short: 'g' },
+			host: { type: 'string' }, // Can be boolean too, which is covered by `strict: false`
+			open: { type: 'string' }, // Can be boolean too, which is covered by `strict: false`
 			// TODO: Add more flags here
 		},
 	});
