@@ -96,18 +96,20 @@ const increment = defineCollection({
 	loader: {
 		name: 'increment-loader',
 		load: async ({ store }) => {
-			const entry = store.get<{ lastValue: number }>('value');
+			const entry = store.get('value');
 			const lastValue: number = entry?.data.lastValue ?? 0;
 			store.set({
 				id: 'value',
 				data: {
 					lastValue: lastValue + 1,
+					lastUpdated: new Date(),
 				},
 			});
 		},
 	},
 	schema: z.object({
 		lastValue: z.number(),
+		lastUpdated: z.date(),
 	}),
 });
 
