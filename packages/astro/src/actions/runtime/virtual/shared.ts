@@ -1,6 +1,7 @@
 import { parse as devalueParse, stringify as devalueStringify } from 'devalue';
 import type { z } from 'zod';
 import type { ErrorInferenceObject, MaybePromise } from '../utils.js';
+import { ACTION_QUERY_PARAMS } from '../../consts.js';
 
 export const ACTION_ERROR_CODES = [
 	'BAD_REQUEST',
@@ -166,7 +167,7 @@ export async function callSafely<TOutput>(
 }
 
 export function getActionQueryString(name: string) {
-	const searchParams = new URLSearchParams({ _astroAction: name });
+	const searchParams = new URLSearchParams({ [ACTION_QUERY_PARAMS.actionName]: name });
 	return `?${searchParams.toString()}`;
 }
 

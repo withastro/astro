@@ -48,7 +48,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		return next();
 	}
 
-	const actionName = context.url.searchParams.get('_astroAction');
+	const actionName = context.url.searchParams.get(ACTION_QUERY_PARAMS.actionName);
 
 	if (context.request.method === 'POST' && actionName) {
 		return handlePost({ context, next, actionName });
@@ -165,7 +165,7 @@ async function handlePostLegacy({ context, next }: { context: APIContext; next: 
 
 	if (!formData) return next();
 
-	const actionName = formData.get('_astroAction') as string;
+	const actionName = formData.get(ACTION_QUERY_PARAMS.actionName) as string;
 	if (!actionName) return next();
 
 	const baseAction = await getAction(actionName);
