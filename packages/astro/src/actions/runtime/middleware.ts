@@ -78,10 +78,10 @@ async function renderResult({
 	const response = await next();
 	context.cookies.delete(ACTION_QUERY_PARAMS.actionPayload);
 
-	if (locals._actionPayload.actionResult.type === 'error') {
+	if (actionResult.type === 'error') {
 		return new Response(response.body, {
-			status: locals._actionPayload.actionResult.status,
-			statusText: locals._actionPayload.actionResult.type,
+			status: actionResult.status,
+			statusText: actionResult.type,
 			headers: response.headers,
 		});
 	}
