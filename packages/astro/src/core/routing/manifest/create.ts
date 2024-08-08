@@ -74,7 +74,7 @@ export function getParts(part: string, file: string) {
 export function validateSegment(segment: string, file = '') {
 	if (!file) file = segment;
 
-	if (/\]\[/.test(segment)) {
+	if (segment.includes('][')) {
 		throw new Error(`Invalid route ${file} \u2014 parameters must be separated`);
 	}
 	if (countOccurrences('[', segment) !== countOccurrences(']', segment)) {
@@ -133,7 +133,7 @@ export interface CreateRouteManifestParams {
 
 function createFileBasedRoutes(
 	{ settings, cwd, fsMod }: CreateRouteManifestParams,
-	logger: Logger
+	logger: Logger,
 ): RouteData[] {
 	const components: string[] = [];
 	const routes: RouteData[] = [];
@@ -150,7 +150,7 @@ function createFileBasedRoutes(
 		fs: typeof nodeFs,
 		dir: string,
 		parentSegments: RoutePart[][],
-		parentParams: string[]
+		parentParams: string[],
 	) {
 		let items: Item[] = [];
 		const files = fs.readdirSync(dir);
@@ -172,8 +172,8 @@ function createFileBasedRoutes(
 				logger.warn(
 					null,
 					`Unsupported file type ${bold(
-						resolved
-					)} found. Prefix filename with an underscore (\`_\`) to ignore.`
+						resolved,
+					)} found. Prefix filename with an underscore (\`_\`) to ignore.`,
 				);
 
 				continue;
@@ -293,7 +293,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 		let resolved: string;
 		try {
 			resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
-		} catch (e) {
+		} catch {
 			resolved = fileURLToPath(new URL(entrypoint, config.root));
 		}
 		const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
@@ -346,7 +346,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 function createRedirectRoutes(
 	{ settings }: CreateRouteManifestParams,
 	routeMap: Map<string, RouteData>,
-	logger: Logger
+	logger: Logger,
 ): PrioritizedRoutesData {
 	const { config } = settings;
 	const trailingSlash = config.trailingSlash;
@@ -387,7 +387,7 @@ function createRedirectRoutes(
 		if (/^https?:\/\//.test(destination)) {
 			logger.warn(
 				'redirects',
-				`Redirecting to an external URL is not officially supported: ${from} -> ${destination}`
+				`Redirecting to an external URL is not officially supported: ${from} -> ${destination}`,
 			);
 		}
 
@@ -450,11 +450,11 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
 		// such that one of them will never be matched.
 		logger.warn(
 			'router',
-			`The route "${a.route}" is defined in both "${a.component}" and "${b.component}". A static route cannot be defined more than once.`
+			`The route "${a.route}" is defined in both "${a.component}" and "${b.component}". A static route cannot be defined more than once.`,
 		);
 		logger.warn(
 			'router',
-			'A collision will result in an hard error in following versions of Astro.'
+			'A collision will result in an hard error in following versions of Astro.',
 		);
 		return;
 	}
@@ -488,7 +488,7 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
 	// Both routes are guaranteed to collide such that one will never be matched.
 	logger.warn(
 		'router',
-		`The route "${a.route}" is defined in both "${a.component}" and "${b.component}" using SSR mode. A dynamic SSR route cannot be defined more than once.`
+		`The route "${a.route}" is defined in both "${a.component}" and "${b.component}" using SSR mode. A dynamic SSR route cannot be defined more than once.`,
 	);
 	logger.warn('router', 'A collision will result in an hard error in following versions of Astro.');
 }
@@ -496,7 +496,7 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
 /** Create manifest of all static routes */
 export function createRouteManifest(
 	params: CreateRouteManifestParams,
-	logger: Logger
+	logger: Logger,
 ): ManifestData {
 	const { settings } = params;
 	const { config } = settings;
@@ -520,7 +520,7 @@ export function createRouteManifest(
 	const routes: RouteData[] = [
 		...injectedRoutes['legacy'].sort(routeComparator),
 		...[...fileBasedRoutes, ...injectedRoutes['normal'], ...redirectRoutes['normal']].sort(
-			routeComparator
+			routeComparator,
 		),
 		...redirectRoutes['legacy'].sort(routeComparator),
 	];
@@ -543,7 +543,7 @@ export function createRouteManifest(
 			if (!index) {
 				let relativePath = path.relative(
 					fileURLToPath(settings.config.root),
-					fileURLToPath(new URL('pages', settings.config.srcDir))
+					fileURLToPath(new URL('pages', settings.config.srcDir)),
 				);
 				throw new AstroError({
 					...MissingIndexForInternationalization,

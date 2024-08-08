@@ -40,7 +40,7 @@ describe('Markdoc - syntax highlighting', () => {
 				ast,
 				await getConfigExtendingShiki({
 					theme: 'dracula',
-				})
+				}),
 			);
 			assert.equal(content.children.length, 2);
 			for (const codeBlock of content.children) {
@@ -57,7 +57,7 @@ describe('Markdoc - syntax highlighting', () => {
 				ast,
 				await getConfigExtendingShiki({
 					wrap: true,
-				})
+				}),
 			);
 			assert.equal(content.children.length, 2);
 			for (const codeBlock of content.children) {

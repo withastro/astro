@@ -724,7 +724,7 @@
     { darkMode: true },
     {
       expires: '1 month',
-    }
+    },
   );
 
   const prefs = Astro.cookies.get<Prefs>('prefs').json();

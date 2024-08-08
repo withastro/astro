@@ -92,7 +92,7 @@ export function getParams(route: RouteData, pathname: string): Params {
 function validatePrerenderEndpointCollision(
 	route: RouteData,
 	mod: ComponentInstance,
-	params: Params
+	params: Params,
 ) {
 	if (route.type === 'endpoint' && mod.getStaticPaths) {
 		const lastSegment = route.segments[route.segments.length - 1];

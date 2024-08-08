@@ -18,7 +18,7 @@ async function getRegistry(packageManager: string): Promise<string> {
 		_registry = stdout?.trim()?.replace(/\/$/, '') || fallback;
 		// Detect cases where the shell command returned a non-URL (e.g. a warning)
 		if (!new URL(_registry).host) _registry = fallback;
-	} catch (e) {
+	} catch {
 		_registry = fallback;
 	}
 	return _registry;
@@ -111,8 +111,8 @@ export const nextSteps = async ({ projectDir, devCmd }: { projectDir: string; de
 	await sleep(200);
 	log(
 		`\n ${color.bgCyan(` ${color.black('next')} `)}  ${color.bold(
-			'Liftoff confirmed. Explore your project!'
-		)}`
+			'Liftoff confirmed. Explore your project!',
+		)}`,
 	);
 
 	await sleep(100);
@@ -126,13 +126,13 @@ export const nextSteps = async ({ projectDir, devCmd }: { projectDir: string; de
 		log(enter.join(len > max ? '\n' + prefix : ' '));
 	}
 	log(
-		`${prefix}Run ${color.cyan(devCmd)} to start the dev server. ${color.cyan('CTRL+C')} to stop.`
+		`${prefix}Run ${color.cyan(devCmd)} to start the dev server. ${color.cyan('CTRL+C')} to stop.`,
 	);
 	await sleep(100);
 	log(
 		`${prefix}Add frameworks like ${color.cyan(`react`)} or ${color.cyan(
-			'tailwind'
-		)} using ${color.cyan('astro add')}.`
+			'tailwind',
+		)} using ${color.cyan('astro add')}.`,
 	);
 	await sleep(100);
 	log(`\n${prefix}Stuck? Join us at ${color.cyan(`https://astro.build/chat`)}`);
@@ -174,7 +174,7 @@ export function printHelp({
 	if (headline) {
 		message.push(
 			linebreak(),
-			`${title(commandName)} ${color.green(`v${process.env.PACKAGE_VERSION ?? ''}`)} ${headline}`
+			`${title(commandName)} ${color.green(`v${process.env.PACKAGE_VERSION ?? ''}`)} ${headline}`,
 		);
 	}
 

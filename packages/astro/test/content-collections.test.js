@@ -59,7 +59,7 @@ describe('Content Collections', () => {
 				assert.equal(
 					publishedDates.every((date) => date instanceof Date),
 					true,
-					'Not all publishedAt dates are Date objects'
+					'Not all publishedAt dates are Date objects',
 				);
 				assert.deepEqual(
 					publishedDates.map((date) => date.toISOString()),
@@ -68,7 +68,7 @@ describe('Content Collections', () => {
 						'2021-01-01T00:00:00.000Z',
 						'2021-01-03T00:00:00.000Z',
 						'2021-01-02T00:00:00.000Z',
-					]
+					],
 				);
 			});
 
@@ -116,7 +116,7 @@ describe('Content Collections', () => {
 				assert.deepEqual(ids, ['welcome']);
 				assert.equal(
 					json.withSymlinkedData[0].data.alt,
-					'Futuristic landscape with chrome buildings and blue skies'
+					'Futuristic landscape with chrome buildings and blue skies',
 				);
 				assert.notEqual(json.withSymlinkedData[0].data.src.src, undefined);
 			});
@@ -148,7 +148,7 @@ describe('Content Collections', () => {
 				assert.equal(json.oneWithSchemaConfig.data.publishedAt instanceof Date, true);
 				assert.equal(
 					json.oneWithSchemaConfig.data.publishedAt.toISOString(),
-					'2021-01-01T00:00:00.000Z'
+					'2021-01-01T00:00:00.000Z',
 				);
 			});
 
@@ -239,7 +239,7 @@ describe('Content Collections', () => {
 				const $ = cheerio.load(post);
 				assert.equal(
 					$(blogSlugToContents[slug].element).text().trim(),
-					blogSlugToContents[slug].content
+					blogSlugToContents[slug].content,
 				);
 			}
 		});
@@ -364,7 +364,7 @@ describe('Content Collections', () => {
 				const $ = cheerio.load(body);
 				assert.equal(
 					$(blogSlugToContents[slug].element).text().trim(),
-					blogSlugToContents[slug].content
+					blogSlugToContents[slug].content,
 				);
 			}
 		});

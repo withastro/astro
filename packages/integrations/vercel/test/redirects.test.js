@@ -77,7 +77,7 @@ describe('Redirects', () => {
 		const config = await getConfig();
 		assert.equal(
 			config.routes.find((r) => r.src === '/'),
-			undefined
+			undefined,
 		);
 	});
 });

@@ -18,7 +18,7 @@ export interface PreviewServer {
 
 export default async function createStaticPreviewServer(
 	settings: AstroSettings,
-	logger: Logger
+	logger: Logger,
 ): Promise<PreviewServer> {
 	const startServerTime = performance.now();
 
@@ -54,7 +54,7 @@ export default async function createStaticPreviewServer(
 			resolvedUrls: previewServer.resolvedUrls ?? { local: [], network: [] },
 			host: settings.config.server.host,
 			base: settings.config.base,
-		})
+		}),
 	);
 
 	// Resolves once the server is closed

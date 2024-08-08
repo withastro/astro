@@ -56,7 +56,7 @@ describe('Errors', () => {
 			const $ = cheerio.load(html);
 
 			assert.equal($('p').text().trim(), 'Internal server error');
-		}
+		},
 	);
 
 	it(
@@ -84,6 +84,6 @@ describe('Errors', () => {
 			} else {
 				throw new Error('The response should take at most 2 chunks.');
 			}
-		}
+		},
 	);
 });

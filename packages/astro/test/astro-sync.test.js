@@ -79,7 +79,7 @@ const createFixture = () => {
 				assert.equal(
 					result.outputText,
 					'',
-					`${path} should be valid TypeScript. Output: ${result.outputText}`
+					`${path} should be valid TypeScript. Output: ${result.outputText}`,
 				);
 			} catch (error) {
 				assert.fail(`${path} is not valid TypeScript. Error: ${error.message}`);
@@ -108,7 +108,7 @@ describe('astro sync', () => {
 			fixture.thenFileContentShouldInclude(
 				'.astro/types.d.ts',
 				`declare module 'astro:content' {`,
-				'Types file does not include `astro:content` module declaration'
+				'Types file does not include `astro:content` module declaration',
 			);
 			fixture.thenFileShouldBeValidTypescript('.astro/types.d.ts');
 		});
@@ -126,7 +126,7 @@ describe('astro sync', () => {
   data: InferEntrySchema<"blog">;
   render(): Render[".md"];
 }>;`,
-				'Types file does not include empty collection type'
+				'Types file does not include empty collection type',
 			);
 			fixture.thenFileContentShouldInclude(
 				'.astro/types.d.ts',
@@ -135,7 +135,7 @@ describe('astro sync', () => {
   collection: "blogMeta";
   data: InferEntrySchema<"blogMeta">;
 }>;`,
-				'Types file does not include empty collection type'
+				'Types file does not include empty collection type',
 			);
 		});
 
@@ -144,7 +144,7 @@ describe('astro sync', () => {
 			fixture.thenFileShouldExist('src/env.d.ts');
 			fixture.thenFileContentShouldInclude(
 				'src/env.d.ts',
-				`/// <reference path="../.astro/types.d.ts" />`
+				`/// <reference path="../.astro/types.d.ts" />`,
 			);
 		});
 	});
@@ -156,7 +156,7 @@ describe('astro sync', () => {
 			fixture.thenFileContentShouldInclude(
 				'.astro/env.d.ts',
 				`declare module 'astro:env/client' {`,
-				'Types file does not include `astro:env` module declaration'
+				'Types file does not include `astro:env` module declaration',
 			);
 		});
 
@@ -165,7 +165,7 @@ describe('astro sync', () => {
 			fixture.thenFileShouldExist('src/env.d.ts');
 			fixture.thenFileContentShouldInclude(
 				'src/env.d.ts',
-				`/// <reference path="../.astro/env.d.ts" />`
+				`/// <reference path="../.astro/env.d.ts" />`,
 			);
 		});
 
@@ -190,7 +190,7 @@ describe('astro sync', () => {
 			fixture.thenFileShouldExist('src/env.d.ts');
 			fixture.thenFileContentShouldInclude(
 				'src/env.d.ts',
-				`/// <reference path="../.astro/actions.d.ts" />`
+				`/// <reference path="../.astro/actions.d.ts" />`,
 			);
 		});
 	});

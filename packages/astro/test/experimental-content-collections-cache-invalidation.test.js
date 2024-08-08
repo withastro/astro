@@ -57,7 +57,7 @@ describe('Experimental Content Collections cache - invalidation', () => {
 			});
 			backup = new CacheBackup(
 				'./fixtures/content-collections-cache-invalidation/',
-				'./cache/version-mismatch/'
+				'./cache/version-mismatch/',
 			);
 			backup.backup();
 			await fixture.build();
@@ -88,7 +88,7 @@ describe('Experimental Content Collections cache - invalidation', () => {
 			});
 			backup = new CacheBackup(
 				'./fixtures/content-collections-cache-invalidation/',
-				'./cache/lockfile-mismatch/'
+				'./cache/lockfile-mismatch/',
 			);
 			backup.backup();
 			await fixture.build();
@@ -119,7 +119,7 @@ describe('Experimental Content Collections cache - invalidation', () => {
 			});
 			backup = new CacheBackup(
 				'./fixtures/content-collections-same-contents/',
-				'./cache/same-contents/'
+				'./cache/same-contents/',
 			);
 			backup.backup();
 			await fixture.build();

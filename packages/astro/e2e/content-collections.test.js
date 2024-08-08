@@ -19,7 +19,7 @@ test.describe('Content Collections', () => {
 		await page.goto(astro.resolveUrl('/'));
 
 		await astro.editFile('./src/components/MyComponent.astro', (original) =>
-			original.replace('red', 'green')
+			original.replace('red', 'green'),
 		);
 
 		const h1 = page.locator('#my-heading');
