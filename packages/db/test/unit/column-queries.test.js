@@ -20,7 +20,7 @@ const userInitial = tableSchema.parse(
 			email: column.text({ unique: true }),
 			mi: column.text({ optional: true }),
 		},
-	})
+	}),
 );
 
 function userChangeQueries(oldTable, newTable) {

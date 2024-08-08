@@ -10,7 +10,7 @@ import { MarkdocError } from './utils.js';
 function getSlug(
 	attributes: Record<string, any>,
 	children: RenderableTreeNode[],
-	headingSlugger: Slugger
+	headingSlugger: Slugger,
 ): string {
 	if (attributes.id && typeof attributes.id === 'string') {
 		return attributes.id;

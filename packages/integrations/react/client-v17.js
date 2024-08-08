@@ -10,7 +10,7 @@ export default (element) =>
 		const componentEl = createElement(
 			Component,
 			props,
-			children != null ? createElement(StaticHtml, { value: children }) : children
+			children != null ? createElement(StaticHtml, { value: children }) : children,
 		);
 
 		const isHydrate = client !== 'only';

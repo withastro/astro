@@ -29,7 +29,7 @@ export async function writeSitemap(
 		limit = 50000,
 		publicBasePath = './',
 	}: WriteSitemapConfig,
-	astroConfig: AstroConfig
+	astroConfig: AstroConfig,
 ) {
 	await mkdir(destinationDir, { recursive: true });
 

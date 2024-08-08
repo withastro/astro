@@ -175,7 +175,7 @@ export const NoMatchingRenderer = {
 		componentName: string,
 		componentExtension: string | undefined,
 		plural: boolean,
-		validRenderersCount: number
+		validRenderersCount: number,
 	) =>
 		`Unable to render \`${componentName}\`.
 
@@ -576,7 +576,7 @@ export const UnsupportedImageFormat = {
 	title: 'Unsupported image format',
 	message: (format: string, imagePath: string, supportedFormats: readonly string[]) =>
 		`Received unsupported format \`${format}\` from \`${imagePath}\`. Currently only ${supportedFormats.join(
-			', '
+			', ',
 		)} are supported by our image services.`,
 	hint: "Using an `img` tag directly instead of the `Image` component might be what you're looking for.",
 } satisfies ErrorData;
@@ -1514,7 +1514,7 @@ export const InvalidContentEntryFrontmatterError = {
 	message(collection: string, entryId: string, error: ZodError) {
 		return [
 			`**${String(collection)} → ${String(
-				entryId
+				entryId,
 			)}** frontmatter does not match collection schema.`,
 			...error.errors.map((zodError) => zodError.message),
 		].join('\n');
@@ -1534,7 +1534,7 @@ export const InvalidContentEntrySlugError = {
 	title: 'Invalid content entry slug.',
 	message(collection: string, entryId: string) {
 		return `${String(collection)} → ${String(
-			entryId
+			entryId,
 		)} has an invalid slug. \`slug\` must be a string.`;
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on the `slug` field.',

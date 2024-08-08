@@ -1,7 +1,7 @@
 import { bold, cyan, red } from 'kleur/colors';
 
 export const MISSING_EXECUTE_PATH_ERROR = `${red(
-	'▶ No file path provided.'
+	'▶ No file path provided.',
 )} Provide a path by running ${cyan('astro db execute <path>')}\n`;
 
 export const RENAME_TABLE_ERROR = (oldTable: string, newTable: string) => {
@@ -28,7 +28,7 @@ export const RENAME_COLUMN_ERROR = (oldSelector: string, newSelector: string) =>
 export const FILE_NOT_FOUND_ERROR = (path: string) => `${red('▶ File not found:')} ${bold(path)}\n`;
 
 export const SHELL_QUERY_MISSING_ERROR = `${red(
-	'▶ Please provide a query to execute using the --query flag.'
+	'▶ Please provide a query to execute using the --query flag.',
 )}\n`;
 
 export const EXEC_ERROR = (error: string) => {
@@ -42,7 +42,7 @@ export const EXEC_DEFAULT_EXPORT_ERROR = (fileName: string) => {
 export const INTEGRATION_TABLE_CONFLICT_ERROR = (
 	integrationName: string,
 	tableName: string,
-	isUserConflict: boolean
+	isUserConflict: boolean,
 ) => {
 	return red('▶ Conflicting table name in integration ' + bold(integrationName)) + isUserConflict
 		? `\n  A user-defined table named ${bold(tableName)} already exists`

@@ -25,7 +25,7 @@ export function serializeSignals(
 	ctx: Context,
 	props: Record<string, any>,
 	attrs: AstroPreactAttrs,
-	map: PropNameToSignalMap
+	map: PropNameToSignalMap,
 ) {
 	// Check for signals
 	const signals: Record<string, string> = {};

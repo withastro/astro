@@ -8,7 +8,7 @@ const CHECK_MS_INTERVAL = 1_036_800_000; // 12 days, give or take
 let _latestVersion: string | undefined = undefined;
 
 export async function fetchLatestAstroVersion(
-	preferences: AstroPreferences | undefined
+	preferences: AstroPreferences | undefined,
 ): Promise<string> {
 	if (_latestVersion) {
 		return _latestVersion;

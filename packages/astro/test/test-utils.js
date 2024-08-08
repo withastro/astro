@@ -129,7 +129,7 @@ export async function loadFixture(inlineConfig) {
 	const resolveUrl = (url) =>
 		`${protocol}://${config.server.host || 'localhost'}:${config.server.port}${url.replace(
 			/^\/?/,
-			'/'
+			'/',
 		)}`;
 
 	// A map of files that have been edited.
@@ -219,7 +219,7 @@ export async function loadFixture(inlineConfig) {
 		readFile: (filePath, encoding) =>
 			fs.promises.readFile(
 				new URL(filePath.replace(/^\//, ''), config.outDir),
-				encoding === undefined ? 'utf8' : encoding
+				encoding === undefined ? 'utf8' : encoding,
 			),
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.outDir)),
 		glob: (p) =>

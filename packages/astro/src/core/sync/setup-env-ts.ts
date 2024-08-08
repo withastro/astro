@@ -16,8 +16,8 @@ function getDotAstroTypeReference({
 	const relativePath = normalizePath(
 		path.relative(
 			fileURLToPath(settings.config.srcDir),
-			fileURLToPath(new URL(filename, settings.dotAstroDir))
-		)
+			fileURLToPath(new URL(filename, settings.dotAstroDir)),
+		),
 	);
 
 	return `/// <reference path=${JSON.stringify(relativePath)} />`;
@@ -36,7 +36,7 @@ export async function setUpEnvTs({
 }) {
 	const envTsPath = new URL('env.d.ts', settings.config.srcDir);
 	const envTsPathRelativetoRoot = normalizePath(
-		path.relative(fileURLToPath(settings.config.root), fileURLToPath(envTsPath))
+		path.relative(fileURLToPath(settings.config.root), fileURLToPath(envTsPath)),
 	);
 
 	const injectedTypes: Array<InjectedType> = [

@@ -20,7 +20,7 @@ export const SitemapOptionsSchema = z
 						.min(2)
 						.regex(/^[a-zA-Z\-]+$/gm, {
 							message: 'Only English alphabet symbols and hyphen allowed',
-						})
+						}),
 				),
 			})
 			.refine((val) => !val || val.locales[val.defaultLocale], {

@@ -74,13 +74,13 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 								'SKIP_FORMAT',
 								await msg.newVersionAvailable({
 									latestVersion: version,
-								})
+								}),
 							);
 						}
 					}
 				})
 				.catch(() => {});
-		} catch (e) {
+		} catch {
 			// Just ignore the error, we don't want to block the dev server from starting and this is just a nice-to-have feature
 		}
 	}
@@ -94,7 +94,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			resolvedUrls: restart.container.viteServer.resolvedUrls || { local: [], network: [] },
 			host: restart.container.settings.config.server.host,
 			base: restart.container.settings.config.base,
-		})
+		}),
 	);
 
 	if (isPrerelease) {

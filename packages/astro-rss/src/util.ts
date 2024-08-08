@@ -5,7 +5,7 @@ import type { RSSOptions } from './index.js';
 export function createCanonicalURL(
 	url: string,
 	trailingSlash?: RSSOptions['trailingSlash'],
-	base?: string
+	base?: string,
 ): string {
 	let pathname = url.replace(/\/index.html$/, ''); // index.html is not canonical
 	if (!getUrlExtension(url)) {
@@ -28,7 +28,7 @@ export function isValidURL(url: string): boolean {
 	try {
 		new URL(url);
 		return true;
-	} catch (e) {}
+	} catch {}
 	return false;
 }
 

@@ -54,7 +54,7 @@ export class BuildPipeline extends Pipeline {
 		readonly options: StaticBuildOptions,
 		readonly config = options.settings.config,
 		readonly settings = options.settings,
-		readonly defaultRoutes = createDefaultRoutes(manifest)
+		readonly defaultRoutes = createDefaultRoutes(manifest),
 	) {
 		const resolveCache = new Map<string, string>();
 
@@ -87,7 +87,7 @@ export class BuildPipeline extends Pipeline {
 			manifest.renderers,
 			resolve,
 			serverLike,
-			streaming
+			streaming,
 		);
 	}
 
@@ -114,18 +114,18 @@ export class BuildPipeline extends Pipeline {
 	 */
 	static async retrieveManifest(
 		staticBuildOptions: StaticBuildOptions,
-		internals: BuildInternals
+		internals: BuildInternals,
 	): Promise<SSRManifest> {
 		const config = staticBuildOptions.settings.config;
 		const baseDirectory = getOutputDirectory(config);
 		const manifestEntryUrl = new URL(
 			`${internals.manifestFileName}?time=${Date.now()}`,
-			baseDirectory
+			baseDirectory,
 		);
 		const { manifest } = await import(manifestEntryUrl.toString());
 		if (!manifest) {
 			throw new Error(
-				"Astro couldn't find the emitted manifest. This is an internal error, please file an issue."
+				"Astro couldn't find the emitted manifest. This is an internal error, please file an issue.",
 			);
 		}
 
@@ -140,7 +140,7 @@ export class BuildPipeline extends Pipeline {
 
 		if (!renderers) {
 			throw new Error(
-				"Astro couldn't find the emitted renderers. This is an internal error, please file an issue."
+				"Astro couldn't find the emitted renderers. This is an internal error, please file an issue.",
 			);
 		}
 		return {
@@ -161,7 +161,7 @@ export class BuildPipeline extends Pipeline {
 		const scripts = createModuleScriptsSet(
 			pageBuildData?.hoistedScript ? [pageBuildData.hoistedScript] : [],
 			base,
-			assetsPrefix
+			assetsPrefix,
 		);
 		const sortedCssAssets = pageBuildData?.styles
 			.sort(cssOrder)
@@ -216,8 +216,8 @@ export class BuildPipeline extends Pipeline {
 						...getPagesFromVirtualModulePageName(
 							this.internals,
 							ASTRO_PAGE_RESOLVED_MODULE_ID,
-							virtualModulePageName
-						)
+							virtualModulePageName,
+						),
 					);
 				}
 				if (virtualModulePageName.includes(RESOLVED_SPLIT_MODULE_ID)) {
@@ -225,8 +225,8 @@ export class BuildPipeline extends Pipeline {
 						...getPagesFromVirtualModulePageName(
 							this.internals,
 							RESOLVED_SPLIT_MODULE_ID,
-							virtualModulePageName
-						)
+							virtualModulePageName,
+						),
 					);
 				}
 				for (const pageData of pageDatas) {
@@ -288,7 +288,7 @@ export class BuildPipeline extends Pipeline {
 	async tryRewrite(
 		payload: RewritePayload,
 		request: Request,
-		_sourceRoute: RouteData
+		_sourceRoute: RouteData,
 	): Promise<[RouteData, ComponentInstance, URL]> {
 		const [foundRoute, finalUrl] = findRouteToRewrite({
 			payload,
@@ -324,7 +324,7 @@ export class BuildPipeline extends Pipeline {
 	async #getEntryForFallbackRoute(
 		route: RouteData,
 		internals: BuildInternals,
-		outFolder: URL
+		outFolder: URL,
 	): Promise<SinglePageBuiltModule> {
 		if (route.type !== 'fallback') {
 			throw new Error(`Expected a redirect route.`);
@@ -344,7 +344,7 @@ export class BuildPipeline extends Pipeline {
 	async #getEntryForRedirectRoute(
 		route: RouteData,
 		internals: BuildInternals,
-		outFolder: URL
+		outFolder: URL,
 	): Promise<SinglePageBuiltModule> {
 		if (route.type !== 'redirect') {
 			throw new Error(`Expected a redirect route.`);

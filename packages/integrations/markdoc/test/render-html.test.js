@@ -250,7 +250,7 @@ function renderComponentsHTMLChecks(html) {
 	const aside1SectionP1 = aside1Section.querySelector('p:nth-of-type(1)');
 	assert.equal(
 		aside1SectionP1.textContent,
-		"I'm a Markdown paragraph inside an top-level aside tag"
+		"I'm a Markdown paragraph inside an top-level aside tag",
 	);
 	const aside1H2_1 = aside1Section.querySelector('h2:nth-of-type(1)');
 	assert.equal(aside1H2_1.id, 'im-an-h2-via-markdown-markup'); // automatic slug

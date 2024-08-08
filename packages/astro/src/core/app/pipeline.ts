@@ -36,7 +36,7 @@ export class AppPipeline extends Pipeline {
 			| 'serverLike'
 			| 'streaming'
 			| 'defaultRoutes'
-		>
+		>,
 	) {
 		const pipeline = new AppPipeline(
 			logger,
@@ -55,7 +55,7 @@ export class AppPipeline extends Pipeline {
 			undefined,
 			undefined,
 			false,
-			defaultRoutes
+			defaultRoutes,
 		);
 		pipeline.#manifestData = manifestData;
 		return pipeline;
@@ -93,7 +93,7 @@ export class AppPipeline extends Pipeline {
 	async tryRewrite(
 		payload: RewritePayload,
 		request: Request,
-		_sourceRoute: RouteData
+		_sourceRoute: RouteData,
 	): Promise<[RouteData, ComponentInstance, URL]> {
 		const [foundRoute, finalUrl] = findRouteToRewrite({
 			payload,
@@ -125,7 +125,7 @@ export class AppPipeline extends Pipeline {
 				const importComponentInstance = this.manifest.pageMap.get(route.component);
 				if (!importComponentInstance) {
 					throw new Error(
-						`Unexpectedly unable to find a component instance for route ${route.route}`
+						`Unexpectedly unable to find a component instance for route ${route.route}`,
 					);
 				}
 				return await importComponentInstance();
@@ -133,7 +133,7 @@ export class AppPipeline extends Pipeline {
 				return this.manifest.pageModule;
 			}
 			throw new Error(
-				"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue."
+				"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue.",
 			);
 		}
 	}

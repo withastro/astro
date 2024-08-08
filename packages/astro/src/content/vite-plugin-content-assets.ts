@@ -89,7 +89,7 @@ export function astroContentAssetPropagationPlugin({
 						: await getScriptsForURL(
 								pathToFileURL(basePath),
 								settings.config.root,
-								devModuleLoader
+								devModuleLoader,
 							);
 
 					// Register files we crawled to be able to retrieve the rendered styles and scripts,
@@ -139,7 +139,7 @@ export function astroContentAssetPropagationPlugin({
 
 export function astroConfigBuildPlugin(
 	options: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): AstroBuildPlugin {
 	return {
 		targets: ['server'],
@@ -188,7 +188,7 @@ export function astroConfigBuildPlugin(
 						if (entryStyles.size) {
 							newCode = newCode.replace(
 								JSON.stringify(STYLES_PLACEHOLDER),
-								JSON.stringify(Array.from(entryStyles))
+								JSON.stringify(Array.from(entryStyles)),
 							);
 						} else {
 							newCode = newCode.replace(JSON.stringify(STYLES_PLACEHOLDER), '[]');
@@ -196,7 +196,7 @@ export function astroConfigBuildPlugin(
 						if (entryLinks.size) {
 							newCode = newCode.replace(
 								JSON.stringify(LINKS_PLACEHOLDER),
-								JSON.stringify(Array.from(entryLinks).map(prependBase))
+								JSON.stringify(Array.from(entryLinks).map(prependBase)),
 							);
 						} else {
 							newCode = newCode.replace(JSON.stringify(LINKS_PLACEHOLDER), '[]');
@@ -222,8 +222,8 @@ export function astroConfigBuildPlugin(
 											type: 'module',
 										},
 										children: '',
-									}))
-								)
+									})),
+								),
 							);
 						} else {
 							newCode = newCode.replace(JSON.stringify(SCRIPTS_PLACEHOLDER), '[]');

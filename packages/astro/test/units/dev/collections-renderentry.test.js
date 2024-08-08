@@ -51,7 +51,7 @@ _describe('Content Collections - render()', () => {
 					</html>
 				`,
 			},
-			root
+			root,
 		);
 
 		await runInContainerWithContentListeners(
@@ -77,7 +77,7 @@ _describe('Content Collections - render()', () => {
 
 				// Rendered the styles
 				assert.equal($('style').length, 1);
-			}
+			},
 		);
 	});
 
@@ -111,7 +111,7 @@ _describe('Content Collections - render()', () => {
 					</Layout>
 				`,
 			},
-			root
+			root,
 		);
 
 		await runInContainerWithContentListeners(
@@ -137,7 +137,7 @@ _describe('Content Collections - render()', () => {
 
 				// Rendered the styles
 				assert.equal($('style').length, 1);
-			}
+			},
 		);
 	});
 
@@ -181,7 +181,7 @@ _describe('Content Collections - render()', () => {
 					</Layout>
 				`,
 			},
-			root
+			root,
 		);
 
 		await runInContainerWithContentListeners(
@@ -207,7 +207,7 @@ _describe('Content Collections - render()', () => {
 
 				// Rendered the styles
 				assert.equal($('style').length, 1);
-			}
+			},
 		);
 	});
 
@@ -250,7 +250,7 @@ _describe('Content Collections - render()', () => {
 					</html>
 				`,
 			},
-			root
+			root,
 		);
 
 		await runInContainerWithContentListeners(
@@ -276,7 +276,7 @@ _describe('Content Collections - render()', () => {
 
 				// Rendered the styles
 				assert.equal($('style').length, 1);
-			}
+			},
 		);
 	});
 });

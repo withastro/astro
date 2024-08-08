@@ -44,7 +44,7 @@ name: Ben
 
 					export const collections = { authors };`,
 			},
-			root
+			root,
 		);
 
 		assert.equal(await sync({ fs }), 1);
@@ -72,7 +72,7 @@ title: Post
 
 					export const collections = { blog };`,
 			},
-			root
+			root,
 		);
 
 		assert.equal(await sync({ fs }), 1);
@@ -95,7 +95,7 @@ title: Post
 
 					export const collections = { banners };`,
 			},
-			root
+			root,
 		);
 
 		assert.equal(await sync({ fs }), 1);
@@ -118,7 +118,7 @@ title: Post
 
 					export const collections = { i18n };`,
 			},
-			root
+			root,
 		);
 
 		try {

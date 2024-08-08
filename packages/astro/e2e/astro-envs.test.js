@@ -35,7 +35,7 @@ test.describe('Astro Environment BASE_URL', () => {
 
 		const clientComponentBaseUrl = page.locator('id=client-component-base-url');
 		await expect(clientComponentBaseUrl, 'clientComponentBaseUrl equals to /blog').toHaveText(
-			'/blog'
+			'/blog',
 		);
 	});
 });
