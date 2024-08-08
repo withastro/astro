@@ -33,6 +33,9 @@ importers:
       eslint:
         specifier: ^9.8.0
         version: 9.8.0
+      eslint-plugin-no-only-tests:
+        specifier: ^3.1.0
+        version: 3.1.0
       eslint-plugin-regexp:
         specifier: ^2.6.0
         version: 2.6.0(eslint@9.8.0)
@@ -8584,6 +8587,10 @@ packages:
     resolution: {integrity: sha512-/veY75JbMK4j1yjvuUxuVsiS/hr/4iHs9FTT6cgTexxdE0Ly/glccBAkloH/DofkjRbZU3bnoj38mOmhkZ0lHw==}
     engines: {node: '>=12'}
 
+  eslint-plugin-no-only-tests@3.1.0:
+    resolution: {integrity: sha512-Lf4YW/bL6Un1R6A76pRZyE1dl1vr31G/ev8UzIc/geCgFWyrKil8hVjYqWVKGB/UIGmb6Slzs9T0wNezdSVegw==}
+    engines: {node: '>=5.0.0'}
+
   eslint-plugin-regexp@2.6.0:
     resolution: {integrity: sha512-FCL851+kislsTEQEMioAlpDuK5+E5vs0hi1bF8cFlPlHcEjeRhuAzEsGikXRreE+0j4WhW2uO54MqTjXtYOi3A==}
     engines: {node: ^18 || >=20}
@@ -14459,6 +14466,8 @@ snapshots:
   escape-string-regexp@4.0.0: {}
 
   escape-string-regexp@5.0.0: {}
+
+  eslint-plugin-no-only-tests@3.1.0: {}
 
   eslint-plugin-regexp@2.6.0(eslint@9.8.0):
     dependencies:

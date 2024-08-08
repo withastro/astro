@@ -5,6 +5,7 @@ import { builtinModules } from 'node:module';
 import tseslint from 'typescript-eslint';
 
 // plugins
+import noOnlyTestsEslint from 'eslint-plugin-no-only-tests';
 import regexpEslint from 'eslint-plugin-regexp';
 const typescriptEslint = tseslint.plugin;
 
@@ -46,6 +47,7 @@ export default [
 		},
 		plugins: {
 			'@typescript-eslint': typescriptEslint,
+			'no-only-tests': noOnlyTestsEslint,
 			regexp: regexpEslint,
 		},
 		rules: {
@@ -60,6 +62,7 @@ export default [
 					ignoreRestSiblings: true,
 				},
 			],
+			'no-only-tests/no-only-tests': 'error',
 			'@typescript-eslint/no-shadow': 'error',
 			'no-console': 'warn',
 
