@@ -30,7 +30,7 @@ export function defineCollection(config: any) {
 	if ('loader' in config) {
 		if (config.type && config.type !== CONTENT_LAYER_TYPE) {
 			throw new AstroUserError(
-				'Collections that use the content layer must have a `loader` defined and no `type` set.',
+				'Collections that use the Content Layer API must have a `loader` defined and no `type` set.',
 				"Check your collection definitions in `src/content/config.*`.'",
 			);
 		}

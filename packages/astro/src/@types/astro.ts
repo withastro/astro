@@ -124,7 +124,7 @@ export type TransitionAnimationValue =
 	| TransitionDirectionalAnimations;
 
 // Allow users to extend this for astro-jsx.d.ts
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+ 
 export interface AstroClientDirectives {}
 
 export interface AstroBuiltinAttributes {
@@ -2193,9 +2193,9 @@ export interface AstroUserConfig {
 		 * @version 4.16.0
 		 * @description
 		 *
-		 * The Content Layer API is a new way to handle content and data in Astro. It builds upon [content collections](https://docs.astro.build/en/guides/content-collections/), taking them beyond local files in `src/content` and allowing you to fetch content from anywhere, including remote APIs, or files anywhere in your project. As well as being more powerful, the Content Layer is designed to be more performant, helping sites scale to thousands of pages. Data is cached between builds and updated incrementally. Markdown parsing is also 5-10x faster, with similar scale reductions in memory. While the feature is experimental and subject to breaking changes, we invite you to try it today and let us know how it works for you.
+		 * The Content Layer API is a new way to handle content and data in Astro. It takes [content collections](https://docs.astro.build/en/guides/content-collections/) beyond local files in `src/content` and allowing you to fetch content from anywhere, including remote APIs, or files anywhere in your project. As well as being more powerful, the Content Layer API is designed to be more performant, helping sites scale to tens of thousands of pages. Data is cached between builds and updated incrementally. Markdown parsing is also 5-10x faster, with similar scale reductions in memory. While the feature is experimental and subject to breaking changes, we invite you to try it today and let us know how it works for you.
 		 *
-		 * #### Enabling content layer
+		 * #### Enabling the Content Layer API
 		 *
 		 * To enable, add the `contentLayer` flag to the `experimental` object in your Astro config:
 		 *
@@ -2207,14 +2207,13 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 *
-		 * #### Using the content layer
+		 * #### Using the Content Layer API
 		 *
 		 * :::tip
-		 * The content layer APIs are based on content collections, so you can learn more about them in the [content collection docs](https://docs.astro.build/en/guides/content-collections/. Any differences are highlighted below.
-		 *
+		 * The Content Layer API is a new way to define content collections, but many of the APIs are the same. It will be helpful to refer to the current [content collection docs](https://docs.astro.build/en/guides/content-collections/) for more information. Any differences in the API usage are highlighted below.
 		 * :::
 		 *
-		 * To use content layer, create a collection in `src/content/config.ts` with a `loader` property. For local files where there is one entry per file, use the `glob()` loader. You can put your content files anywhere, but *not* in `src/content` because these would be handled by the current content collections instead. In this example the files are in `src/data`.
+		 * To use the Content Layer API, create a collection in `src/content/config.ts` with a `loader` property. For local files where there is one entry per file, use the `glob()` loader. You can put your content files anywhere, but *not* in `src/content` because these would be handled by the current content collections APIs instead. In this example the files are in `src/data`.
 		 *
 		 * ```ts
 		 * import { defineCollection, z } from 'astro:content';
@@ -2317,7 +2316,7 @@ export interface AstroUserConfig {
 		 * export const collections = { dogs };
 		 * ```
 		 *
-		 * The collection can be queried in the same way as content collections:
+		 * The collection can be queried in the same way as existing content collections:
 		 *
 		 * ```ts
 		 * import { getCollection, getEntry } from 'astro:content';
@@ -2336,7 +2335,7 @@ export interface AstroUserConfig {
 		 * Entries generated from markdown or MDX can be rendered directly to a page using the `render()` function.
 		 *
 		 * :::caution
-		 * The syntax for rendering content layer items is different from current content collections syntax.
+		 * The syntax for rendering entries from collections that use the Content Layer is different from current content collections syntax.
 		 * :::
 		 *
 		 * ```astro
@@ -2351,9 +2350,9 @@ export interface AstroUserConfig {
 		 * <Content />
 		 * ```
 		 *
-		 * #### Creating a content layer loader
+		 * #### Creating a loader
 		 *
-		 * Content layer loaders aren't restricted to just loading local files. You can also use loaders to load or generate content from anywhere. The simplest type of loader is an async function that returns an array of objects, each of which has an `id`:
+		 * Content loaders aren't restricted to just loading local files. You can also use loaders to fetch or generate content from anywhere. The simplest type of loader is an async function that returns an array of objects, each of which has an `id`:
 		 *
 		 * ```ts
 		 * const countries = defineCollection({
@@ -2373,13 +2372,13 @@ export interface AstroUserConfig {
 		 * export const collections = { countries };
 		 * ```
 		 *
-		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading, and gives full access to the data store. See the API in [the draft RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/content-layer.md#loaders).
+		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading, and gives full access to the data store. See the API in [the RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/content-layer.md#loaders).
 		 *
-		 * ### Migrating a content collection to content layer
+		 * ### Migrating an existing content collection to use the Content Layer API
 		 *
-		 * If you have used [content collections](https://docs.astro.build/en/guides/content-collections/), content layer will be very familiar as most of the APIs are the same. You can convert an existing content collection to content layer if it uses markdown, MDX or JSON, with these steps:
+		 * You can convert an existing content collection to use the Content Layer API if it uses markdown, MDX or JSON, with these steps:
 		 *
-		 * 1. **Move the collection folder out of `src/content`.** This is so it won't be handled as a current content collection. This example assumes the content has been moved to `src/data`. The `config.ts` file must remain in `src/content`.
+		 * 1. **Move the collection folder out of `src/content`.** This is so it won't be handled using the existing content collection APIs. This example assumes the content has been moved to `src/data`. The `config.ts` file must remain in `src/content`.
 		 * 2. **Edit the collection definition**. The collection should not have `type` set, and needs a `loader` defined.
 		 *
 		 * ```diff
@@ -2399,7 +2398,7 @@ export interface AstroUserConfig {
 		 * });
 		 * ```
 		 *
-		 * 3. **Change references from `slug` to `id`**. Content layer collections do not have a `slug` field. You should use `id` instead, which has the same syntax.
+		 * 3. **Change references from `slug` to `id`**. Content collections created with the Content Layer API do not have a `slug` field. You should use `id` instead, which has the same syntax.
 		 *
 		 * ```diff
 		 * ---
@@ -2430,7 +2429,7 @@ export interface AstroUserConfig {
 		 * <Content />
 		 * ```
 		 *
-		 * The `getEntryBySlug` and `getDataEntryByID` functions are deprecated and cannot be used with content layer collections. Instead, use `getEntry`, which is a drop-in replacement for both.
+		 * The `getEntryBySlug` and `getDataEntryByID` functions are deprecated and cannot be used with collections that use the Content Layer API. Instead, use `getEntry`, which is a drop-in replacement for both.
 		 *
 		 * #### Learn more
 		 *

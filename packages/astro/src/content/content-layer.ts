@@ -139,7 +139,7 @@ export class ContentLayer {
 			if (contentLayerCollections.length > 0) {
 				throw new AstroUserError(
 					`The following collections have a loader defined, but the content layer is not enabled: ${contentLayerCollections.map(([title]) => title).join(', ')}.`,
-					'To enable the content layer, set `experimental: { contentLayer: true }` in your Astro config file.',
+					'To enable the Content Layer API, set `experimental: { contentLayer: true }` in your Astro config file.',
 				);
 			}
 			return;
