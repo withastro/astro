@@ -12,13 +12,13 @@ import {
 } from './virtual/shared.js';
 import { ACTION_QUERY_PARAMS } from '../consts.js';
 
-type ActionPayload = {
+export type ActionPayload = {
 	actionResult: SerializedActionResult;
 	actionName: string;
 };
 
 export type Locals = {
-	_actionsInternal: ActionPayload;
+	_actionPayload: ActionPayload;
 };
 
 export const onRequest = defineMiddleware(async (context, next) => {
@@ -26,9 +26,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	const { request } = context;
 	// Actions middleware may have run already after a path rewrite.
 	// See https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md#ctxrewrite
-	// `_actionsInternal` is the same for every page,
+	// `_actionPayload` is the same for every page,
 	// so short circuit if already defined.
-	if (locals._actionsInternal) return next();
+	if (locals._actionPayload) return next();
 
 	const actionPayload = context.cookies.get(ACTION_QUERY_PARAMS.actionPayload)?.json();
 	if (actionPayload) {
@@ -74,14 +74,14 @@ async function renderResult({
 }) {
 	const locals = context.locals as Locals;
 
-	locals._actionsInternal = { actionResult, actionName };
+	locals._actionPayload = { actionResult, actionName };
 	const response = await next();
 	context.cookies.delete(ACTION_QUERY_PARAMS.actionPayload);
 
-	if (locals._actionsInternal.actionResult.type === 'error') {
+	if (locals._actionPayload.actionResult.type === 'error') {
 		return new Response(response.body, {
-			status: locals._actionsInternal.actionResult.status,
-			statusText: locals._actionsInternal.actionResult.type,
+			status: locals._actionPayload.actionResult.status,
+			statusText: locals._actionPayload.actionResult.type,
 			headers: response.headers,
 		});
 	}
