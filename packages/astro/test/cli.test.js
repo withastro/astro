@@ -88,7 +88,7 @@ describe('astro cli', () => {
 			const projectRootURL = new URL('./fixtures/astro-check-no-errors/', import.meta.url);
 			try {
 				proc = await cli('check', '--root', fileURLToPath(projectRootURL));
-			} catch (err) {}
+			} catch {}
 
 			assert.equal(proc?.stdout.includes('0 errors'), true);
 		},

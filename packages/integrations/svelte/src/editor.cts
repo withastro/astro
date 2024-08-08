@@ -13,7 +13,7 @@ export function toTSX(code: string, className: string): string {
 			'export default class extends __sveltets_2_createSvelte2TsxComponent(',
 			`export default function ${className}__AstroComponent_(_props: typeof Component.props): any {}\nlet Component = `,
 		);
-	} catch (e: any) {
+	} catch {
 		return result;
 	}
 

@@ -82,7 +82,7 @@ class VirtualVolumeWithFallback extends VirtualVolume {
 	readFileSync(p, ...args) {
 		try {
 			return super.readFileSync(p, ...args);
-		} catch (e) {
+		} catch {
 			return realFS.readFileSync(p, ...args);
 		}
 	}

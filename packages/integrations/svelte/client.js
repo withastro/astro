@@ -77,7 +77,7 @@ function useConsoleFilter() {
 		originalConsoleWarning = console.warn;
 		try {
 			console.warn = filteredConsoleWarning;
-		} catch (error) {
+		} catch {
 			// If we're unable to hook `console.warn`, just accept it
 		}
 	}

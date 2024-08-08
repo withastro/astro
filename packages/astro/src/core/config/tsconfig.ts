@@ -53,8 +53,7 @@ export const presets = new Map<frameworkWithTSSettings, TSConfig>([
 	],
 ]);
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type TSConfigResult<T = {}> = Promise<
+type TSConfigResult<T = object> = Promise<
 	(TSConfckParseResult & T) | 'invalid-config' | 'missing-config' | 'unknown-error'
 >;
 

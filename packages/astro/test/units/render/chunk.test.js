@@ -44,7 +44,7 @@ describe('core/render chunk', () => {
 
 					assert.ok(target);
 					assert.equal(target.text(), '[object Object]');
-				} catch (e) {
+				} catch {
 					assert.fail();
 				}
 			},

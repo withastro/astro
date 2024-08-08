@@ -90,7 +90,7 @@ function createRemoteDbServer() {
 			let json;
 			try {
 				json = JSON.parse(Buffer.concat(rawBody).toString());
-			} catch (e) {
+			} catch {
 				applyParseError(res);
 				return;
 			}

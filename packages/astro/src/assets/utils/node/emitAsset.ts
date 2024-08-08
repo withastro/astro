@@ -24,7 +24,7 @@ export async function emitESMImage(
 	let fileData: Buffer;
 	try {
 		fileData = await fs.readFile(url);
-	} catch (err) {
+	} catch {
 		return undefined;
 	}
 
