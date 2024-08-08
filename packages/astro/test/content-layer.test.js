@@ -169,6 +169,7 @@ describe('Content Layer', () => {
 			await fixture.build();
 			newJson = devalue.parse(await fixture.readFile('/collections.json'));
 			assert.equal(newJson.increment.data.lastValue, 1);
+			await fixture.resetAllFiles();
 		});
 	});
 
@@ -272,6 +273,7 @@ describe('Content Layer', () => {
 			const updatedJsonResponse = await fixture.fetch('/collections.json');
 			const updated = devalue.parse(await updatedJsonResponse.text());
 			assert.ok(updated.fileLoader[0].data.temperament.includes('Bouncy'));
+			await fixture.resetAllFiles();
 		});
 	});
 });
