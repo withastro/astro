@@ -200,6 +200,18 @@ describe('Astro Actions', () => {
 			assert.equal($('#error-code').text(), 'UNAUTHORIZED');
 		});
 
+		it('Ignores `_astroAction` name for GET requests', async () => {
+			const req = new Request('http://example.com/user-or-throw?_astroAction=getUserOrThrow', {
+				method: 'GET',
+			});
+			const res = await app.render(req);
+			assert.equal(res.ok, true);
+
+			const html = await res.text();
+			let $ = cheerio.load(html);
+			assert.ok($('#user'));
+		});
+
 		describe('legacy', () => {
 			it('Response middleware fallback', async () => {
 				const formData = new FormData();
@@ -234,16 +246,35 @@ describe('Astro Actions', () => {
 			});
 		});
 
-		it('Sets status to 204 when no content', async () => {
+		it('Sets status to 204 when content-length is 0', async () => {
 			const req = new Request('http://example.com/_actions/fireAndForget', {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json',
 					'Content-Length': '0',
 				},
 			});
 			const res = await app.render(req);
 			assert.equal(res.status, 204);
+		});
+
+		it('Sets status to 204 when content-type is omitted', async () => {
+			const req = new Request('http://example.com/_actions/fireAndForget', {
+				method: 'POST',
+			});
+			const res = await app.render(req);
+			assert.equal(res.status, 204);
+		});
+
+		it('Sets status to 415 when content-type is unexpected', async () => {
+			const req = new Request('http://example.com/_actions/fireAndForget', {
+				method: 'POST',
+				body: 'hey',
+				headers: {
+					'Content-Type': 'text/plain',
+				},
+			});
+			const res = await app.render(req);
+			assert.equal(res.status, 415);
 		});
 
 		it('Is callable from the server with rewrite', async () => {

@@ -41,7 +41,7 @@ const codeToStatusMap: Record<ActionErrorCode, number> = {
 const statusToCodeMap: Record<number, ActionErrorCode> = Object.entries(codeToStatusMap).reduce(
 	// reverse the key-value pairs
 	(acc, [key, value]) => ({ ...acc, [value]: key }),
-	{}
+	{},
 );
 
 // T is used for error inference with SafeInput -> isInputError.
@@ -92,11 +92,11 @@ export function isActionError(error?: unknown): error is ActionError {
 }
 
 export function isInputError<T extends ErrorInferenceObject>(
-	error?: ActionError<T>
+	error?: ActionError<T>,
 ): error is ActionInputError<T>;
 export function isInputError(error?: unknown): error is ActionInputError<ErrorInferenceObject>;
 export function isInputError<T extends ErrorInferenceObject>(
-	error?: unknown | ActionError<T>
+	error?: unknown | ActionError<T>,
 ): error is ActionInputError<T> {
 	return (
 		typeof error === 'object' &&
@@ -146,7 +146,7 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 }
 
 export async function callSafely<TOutput>(
-	handler: () => MaybePromise<TOutput>
+	handler: () => MaybePromise<TOutput>,
 ): Promise<SafeResult<z.ZodType, TOutput>> {
 	try {
 		const data = await handler();

@@ -61,7 +61,7 @@ describe('SSG manual routing', () => {
 		try {
 			await fixture.readFile('/blog.html');
 			assert.fail();
-		} catch (e) {}
+		} catch {}
 	});
 
 	it('should return a 200 because the custom middleware allows it', async () => {

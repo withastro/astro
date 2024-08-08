@@ -12,14 +12,13 @@ import { isCSSRequest } from './util.js';
 const fileExtensionsToSSR = new Set(['.astro', '.mdoc', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS]);
 
 const STRIP_QUERY_PARAMS_REGEX = /\?.*$/;
-const ASTRO_PROPAGATED_ASSET_REGEX = /\?astroPropagatedAssets/;
 
 /** recursively crawl the module graph to get all style files imported by parent id */
 export async function* crawlGraph(
 	loader: ModuleLoader,
 	_id: string,
 	isRootFile: boolean,
-	scanned = new Set<string>()
+	scanned = new Set<string>(),
 ): AsyncGenerator<ModuleNode, void, unknown> {
 	const id = unwrapId(_id);
 	const importedModules = new Set<ModuleNode>();
@@ -78,7 +77,7 @@ export async function* crawlGraph(
 				const isFileTypeNeedingSSR = fileExtensionsToSSR.has(npath.extname(importedModulePathname));
 				// A propagation stopping point is a module with the ?astroPropagatedAssets flag.
 				// When we encounter one of these modules we don't want to continue traversing.
-				const isPropagationStoppingPoint = ASTRO_PROPAGATED_ASSET_REGEX.test(importedModule.id);
+				const isPropagationStoppingPoint = importedModule.id.includes('?astroPropagatedAssets');
 				if (
 					isFileTypeNeedingSSR &&
 					// Should not SSR a module with ?astroPropagatedAssets

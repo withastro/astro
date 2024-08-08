@@ -12,7 +12,7 @@ export function ensureImport(root: t.File, importDeclaration: t.ImportDeclaratio
 						if (specifier.local.name === specifierToFind.local.name) {
 							specifiersToFind.splice(i, 1);
 						}
-					})
+					}),
 				);
 			}
 		},

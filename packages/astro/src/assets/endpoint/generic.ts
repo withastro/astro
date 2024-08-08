@@ -19,7 +19,7 @@ async function loadRemoteImage(src: URL, headers: Headers) {
 		}
 
 		return await res.arrayBuffer();
-	} catch (err: unknown) {
+	} catch {
 		return undefined;
 	}
 }
@@ -60,7 +60,7 @@ export const GET: APIRoute = async ({ request }) => {
 		const { data, format } = await imageService.transform(
 			new Uint8Array(inputBuffer),
 			transform,
-			imageConfig
+			imageConfig,
 		);
 
 		return new Response(data, {

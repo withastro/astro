@@ -75,7 +75,7 @@ const ONLY_DEV_EXTERNAL = [
 /** Return a base vite config as a common starting point for all Vite commands. */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
-	{ settings, logger, mode, command, fs = nodeFs, sync }: CreateViteOptions
+	{ settings, logger, mode, command, fs = nodeFs, sync }: CreateViteOptions,
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
@@ -312,7 +312,7 @@ function isCommonNotAstro(dep: string): boolean {
 			(prefix) =>
 				prefix.startsWith('@')
 					? dep.startsWith(prefix)
-					: dep.substring(dep.lastIndexOf('/') + 1).startsWith(prefix) // check prefix omitting @scope/
+					: dep.substring(dep.lastIndexOf('/') + 1).startsWith(prefix), // check prefix omitting @scope/
 		)
 	);
 }

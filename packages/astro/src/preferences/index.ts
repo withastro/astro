@@ -49,12 +49,12 @@ export interface PreferenceList extends Record<PreferenceLocation, DeepPartial<P
 export interface AstroPreferences {
 	get<Key extends PreferenceKey>(
 		key: Key,
-		opts?: PreferenceOptions
+		opts?: PreferenceOptions,
 	): Promise<GetDotKey<Preferences, Key>>;
 	set<Key extends PreferenceKey>(
 		key: Key,
 		value: GetDotKey<Preferences, Key>,
-		opts?: PreferenceOptions
+		opts?: PreferenceOptions,
 	): Promise<void>;
 	getAll(): Promise<PublicPreferences>;
 	list(opts?: PreferenceOptions): Promise<PreferenceList>;
@@ -104,7 +104,7 @@ export default function createPreferences(config: AstroConfig): AstroPreferences
 				{},
 				DEFAULT_PREFERENCES,
 				stores['global'].getAll(),
-				stores['project'].getAll()
+				stores['project'].getAll(),
 			);
 
 			const { _variables, ...prefs } = allPrefs;
@@ -122,7 +122,7 @@ export default function createPreferences(config: AstroConfig): AstroPreferences
 
 			function mapFrom(defaults: Preferences, astroConfig: Record<string, any>) {
 				return Object.fromEntries(
-					Object.entries(defaults).map(([key, _]) => [key, astroConfig[key]])
+					Object.entries(defaults).map(([key, _]) => [key, astroConfig[key]]),
 				);
 			}
 		},

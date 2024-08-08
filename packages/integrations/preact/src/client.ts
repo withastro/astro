@@ -9,7 +9,7 @@ export default (element: HTMLElement) =>
 		Component: any,
 		props: Record<string, any>,
 		{ default: children, ...slotted }: Record<string, any>,
-		{ client }: Record<string, string>
+		{ client }: Record<string, string>,
 	) => {
 		if (!element.hasAttribute('ssr')) return;
 		for (const [key, value] of Object.entries(slotted)) {
@@ -32,7 +32,7 @@ export default (element: HTMLElement) =>
 
 		bootstrap(
 			h(Component, props, children != null ? h(StaticHtml, { value: children }) : children),
-			element
+			element,
 		);
 
 		// Preact has no "unmount" option, but you can use `render(null, element)`

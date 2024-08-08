@@ -154,7 +154,7 @@
   export function Like({ postId }: { postId: string }) {
     const [state, action, pending] = useActionState(
       experimental_withState(actions.like),
-      0 // initial likes
+      0, // initial likes
     );
 
     return (

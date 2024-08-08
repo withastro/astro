@@ -47,7 +47,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	 */
 	getSrcSet?: (
 		options: ImageTransform,
-		imageConfig: ImageConfig<T>
+		imageConfig: ImageConfig<T>,
 	) => UnresolvedSrcSetValue[] | Promise<UnresolvedSrcSetValue[]>;
 	/**
 	 * Return any additional HTML attributes separate from `src` that your service requires to show the image properly.
@@ -57,7 +57,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	 */
 	getHTMLAttributes?: (
 		options: ImageTransform,
-		imageConfig: ImageConfig<T>
+		imageConfig: ImageConfig<T>,
 	) => Record<string, any> | Promise<Record<string, any>>;
 	/**
 	 * Validate and return the options passed by the user.
@@ -69,7 +69,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	 */
 	validateOptions?: (
 		options: ImageTransform,
-		imageConfig: ImageConfig<T>
+		imageConfig: ImageConfig<T>,
 	) => ImageTransform | Promise<ImageTransform>;
 }
 
@@ -90,7 +90,7 @@ export interface LocalImageService<T extends Record<string, any> = Record<string
 	 */
 	parseURL: (
 		url: URL,
-		imageConfig: ImageConfig<T>
+		imageConfig: ImageConfig<T>,
 	) => LocalImageTransform | undefined | Promise<LocalImageTransform> | Promise<undefined>;
 	/**
 	 * Performs the image transformations on the input image and returns both the binary data and
@@ -99,7 +99,7 @@ export interface LocalImageService<T extends Record<string, any> = Record<string
 	transform: (
 		inputBuffer: Uint8Array,
 		transform: LocalImageTransform,
-		imageConfig: ImageConfig<T>
+		imageConfig: ImageConfig<T>,
 	) => Promise<{ data: Uint8Array; format: ImageOutputFormat }>;
 
 	/**
@@ -148,7 +148,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				message: AstroErrorData.ExpectedImage.message(
 					JSON.stringify(options.src),
 					typeof options.src,
-					JSON.stringify(options, (_, v) => (v === undefined ? null : v))
+					JSON.stringify(options, (_, v) => (v === undefined ? null : v)),
 				),
 			});
 		}
@@ -188,7 +188,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 					message: AstroErrorData.UnsupportedImageFormat.message(
 						options.src.format,
 						options.src.src,
-						VALID_SUPPORTED_FORMATS
+						VALID_SUPPORTED_FORMATS,
 					),
 				});
 			}
@@ -281,14 +281,14 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				...densityWidths.map((width, index) => ({
 					maxTargetWidth: Math.min(width, maxWidth),
 					descriptor: `${densityValues[index]}x` as const,
-				}))
+				})),
 			);
 		} else if (widths) {
 			allWidths.push(
 				...widths.map((width) => ({
 					maxTargetWidth: Math.min(width, maxWidth),
 					descriptor: `${width}w` as const,
-				}))
+				})),
 			);
 		}
 

@@ -7,7 +7,7 @@ import { downloadTemplate } from 'giget';
 import { error, info, title } from '../messages.js';
 
 export async function template(
-	ctx: Pick<Context, 'template' | 'prompt' | 'yes' | 'dryRun' | 'exit' | 'tasks'>
+	ctx: Pick<Context, 'template' | 'prompt' | 'yes' | 'dryRun' | 'exit' | 'tasks'>,
 ) {
 	if (!ctx.template && ctx.yes) ctx.template = 'basics';
 
@@ -64,9 +64,9 @@ const FILES_TO_UPDATE = {
 				JSON.stringify(
 					Object.assign(JSON.parse(value), Object.assign(overrides, { private: undefined })),
 					null,
-					indent
+					indent,
 				),
-				'utf-8'
+				'utf-8',
 			);
 		}),
 };

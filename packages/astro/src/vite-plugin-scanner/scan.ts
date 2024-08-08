@@ -41,7 +41,7 @@ let didInit = false;
 export async function scan(
 	code: string,
 	id: string,
-	settings?: AstroSettings
+	settings?: AstroSettings,
 ): Promise<PageOptions> {
 	if (!includesExport(code)) return {};
 	if (!didInit) {
@@ -74,7 +74,7 @@ export async function scan(
 					message: AstroErrorData.InvalidPrerenderExport.message(
 						prefix,
 						suffix,
-						settings?.config.output === 'hybrid'
+						settings?.config.output === 'hybrid',
 					),
 					location: { file: id },
 				});

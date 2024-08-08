@@ -31,7 +31,7 @@ describe('dev container restarts', () => {
 
 				`,
 			},
-			root
+			root,
 		);
 
 		const restart = await createContainerWithAutomaticRestart({
@@ -57,7 +57,7 @@ describe('dev container restarts', () => {
 			// Vite watches the real filesystem, so we have to mock this part. It's not so bad.
 			restart.container.viteServer.watcher.emit(
 				'change',
-				fs.getFullyResolvedPath('/astro.config.mjs')
+				fs.getFullyResolvedPath('/astro.config.mjs'),
 			);
 
 			// Wait for the restart to finish
@@ -72,7 +72,7 @@ describe('dev container restarts', () => {
 			// Vite watches the real filesystem, so we have to mock this part. It's not so bad.
 			restart.container.viteServer.watcher.emit(
 				'change',
-				fs.getFullyResolvedPath('/astro.config.mjs')
+				fs.getFullyResolvedPath('/astro.config.mjs'),
 			);
 
 			hmrError = await restartComplete;
@@ -95,7 +95,7 @@ describe('dev container restarts', () => {
 			`,
 				'/astro.config.mjs': ``,
 			},
-			root
+			root,
 		);
 
 		const restart = await createContainerWithAutomaticRestart({
@@ -124,7 +124,7 @@ describe('dev container restarts', () => {
 				'/src/pages/index.astro': ``,
 				'/astro.config.ts': ``,
 			},
-			troot
+			troot,
 		);
 
 		const restart = await createContainerWithAutomaticRestart({
@@ -151,7 +151,7 @@ describe('dev container restarts', () => {
 			{
 				'/src/pages/index.astro': ``,
 			},
-			root
+			root,
 		);
 
 		const restart = await createContainerWithAutomaticRestart({
@@ -176,7 +176,7 @@ describe('dev container restarts', () => {
 			{
 				'/src/pages/index.astro': ``,
 			},
-			root
+			root,
 		);
 
 		const restart = await createContainerWithAutomaticRestart({

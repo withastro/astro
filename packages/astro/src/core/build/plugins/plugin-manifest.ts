@@ -78,7 +78,7 @@ function vitePluginManifest(_options: StaticBuildOptions, internals: BuildIntern
 
 export function pluginManifest(
 	options: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): AstroBuildPlugin {
 	return {
 		targets: ['server'],
@@ -115,7 +115,7 @@ export function pluginManifest(
 
 async function createManifest(
 	buildOpts: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): Promise<SerializedSSRManifest> {
 	if (!internals.manifestEntryChunk) {
 		throw new Error(`Did not generate an entry chunk for SSR`);
@@ -125,7 +125,7 @@ async function createManifest(
 	const clientStatics = new Set(
 		await glob('**/*', {
 			cwd: fileURLToPath(buildOpts.settings.config.build.client),
-		})
+		}),
 	);
 	for (const file of clientStatics) {
 		internals.staticFiles.add(file);
@@ -149,7 +149,7 @@ function injectManifest(manifest: SerializedSSRManifest, chunk: Readonly<OutputC
 function buildManifest(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
-	staticFiles: string[]
+	staticFiles: string[],
 ): SerializedSSRManifest {
 	const { settings } = opts;
 
@@ -197,7 +197,7 @@ function buildManifest(
 			scripts.unshift(
 				Object.assign({}, pageData.hoistedScript, {
 					value,
-				})
+				}),
 			);
 		}
 		if (settings.scripts.some((script) => script.stage === 'page')) {

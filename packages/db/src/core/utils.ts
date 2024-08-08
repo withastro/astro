@@ -31,9 +31,9 @@ export type Result<T> = { success: true; data: T } | { success: false; data: unk
  */
 export function mapObject<T, U = T>(
 	item: Record<string, T>,
-	callback: (key: string, value: T) => U
+	callback: (key: string, value: T) => U,
 ): Record<string, U> {
 	return Object.fromEntries(
-		Object.entries(item).map(([key, value]) => [key, callback(key, value)])
+		Object.entries(item).map(([key, value]) => [key, callback(key, value)]),
 	);
 }

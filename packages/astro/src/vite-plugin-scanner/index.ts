@@ -31,7 +31,7 @@ export default function astroScannerPlugin({
 			let fileURL: URL;
 			try {
 				fileURL = new URL(`file://${filename}`);
-			} catch (e) {
+			} catch {
 				// If we can't construct a valid URL, exit early
 				return;
 			}
@@ -56,8 +56,8 @@ export default function astroScannerPlugin({
 				logger.warn(
 					'router',
 					`getStaticPaths() ignored in dynamic page ${bold(
-						rootRelativePath(settings.config.root, fileURL, true)
-					)}. Add \`export const prerender = true;\` to prerender the page as static HTML during the build process.`
+						rootRelativePath(settings.config.root, fileURL, true),
+					)}. Add \`export const prerender = true;\` to prerender the page as static HTML during the build process.`,
 				);
 			}
 

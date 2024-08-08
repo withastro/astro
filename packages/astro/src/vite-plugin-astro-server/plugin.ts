@@ -37,7 +37,7 @@ export default function createVitePluginAstroServer({
 			const manifest = createDevelopmentManifest(settings);
 			let manifestData: ManifestData = injectDefaultRoutes(
 				manifest,
-				createRouteManifest({ settings, fsMod }, logger)
+				createRouteManifest({ settings, fsMod }, logger),
 			);
 			const pipeline = DevPipeline.create(manifestData, { loader, logger, manifest, settings });
 			const controller = createController({ loader });
@@ -70,7 +70,7 @@ export default function createVitePluginAstroServer({
 				const { errorWithMetadata } = recordServerError(loader, settings.config, pipeline, error);
 				setTimeout(
 					async () => loader.webSocketSend(await getViteErrorPayload(errorWithMetadata)),
-					200
+					200,
 				);
 			}
 

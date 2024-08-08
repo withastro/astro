@@ -37,7 +37,7 @@ describe('CSS', function () {
 			},
 			{
 				timeout: 45000,
-			}
+			},
 		);
 
 		describe('Astro Styles', () => {
@@ -260,7 +260,7 @@ describe('CSS', function () {
 				const el = $('#svelte-css');
 				const classes = el.attr('class').split(' ');
 				const scopedClass = classes.find(
-					(name) => name !== 'svelte-css' && /^svelte-[A-Za-z\d-]+/.test(name)
+					(name) => name !== 'svelte-css' && /^svelte-[A-Za-z\d-]+/.test(name),
 				);
 
 				// 1. check HTML
@@ -269,7 +269,7 @@ describe('CSS', function () {
 				// 2. check CSS
 				assert.match(
 					bundledCSS,
-					new RegExp(`.svelte-css.${scopedClass}[^{]*{font-family:ComicSansMS`)
+					new RegExp(`.svelte-css.${scopedClass}[^{]*{font-family:ComicSansMS`),
 				);
 			});
 
@@ -277,7 +277,7 @@ describe('CSS', function () {
 				const el = $('#svelte-sass');
 				const classes = el.attr('class').split(' ');
 				const scopedClass = classes.find(
-					(name) => name !== 'svelte-sass' && /^svelte-[A-Za-z\d-]+/.test(name)
+					(name) => name !== 'svelte-sass' && /^svelte-[A-Za-z\d-]+/.test(name),
 				);
 
 				// 1. check HTML
@@ -286,7 +286,7 @@ describe('CSS', function () {
 				// 2. check CSS
 				assert.match(
 					bundledCSS,
-					new RegExp(`.svelte-sass.${scopedClass}[^{]*{font-family:ComicSansMS`)
+					new RegExp(`.svelte-sass.${scopedClass}[^{]*{font-family:ComicSansMS`),
 				);
 			});
 
@@ -294,7 +294,7 @@ describe('CSS', function () {
 				const el = $('#svelte-scss');
 				const classes = el.attr('class').split(' ');
 				const scopedClass = classes.find(
-					(name) => name !== 'svelte-scss' && /^svelte-[A-Za-z\d-]+/.test(name)
+					(name) => name !== 'svelte-scss' && /^svelte-[A-Za-z\d-]+/.test(name),
 				);
 
 				// 1. check HTML
@@ -303,7 +303,7 @@ describe('CSS', function () {
 				// 2. check CSS
 				assert.match(
 					bundledCSS,
-					new RegExp(`.svelte-scss.${scopedClass}[^{]*{font-family:ComicSansMS`)
+					new RegExp(`.svelte-scss.${scopedClass}[^{]*{font-family:ComicSansMS`),
 				);
 			});
 
@@ -436,7 +436,7 @@ describe('CSS', function () {
 			assert.equal(
 				foundVitePreloadCSS,
 				false,
-				'Should not have found a preload for the dynamic CSS'
+				'Should not have found a preload for the dynamic CSS',
 			);
 		});
 
