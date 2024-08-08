@@ -86,7 +86,7 @@ export async function syncInternal({
 		const error = createSafeError(err);
 		logger.error(
 			'types',
-			formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n'
+			formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n',
 		);
 		// Will return exit code 1 in CLI
 		throw error;
@@ -109,7 +109,7 @@ export async function syncInternal({
  */
 async function syncContentCollections(
 	settings: AstroSettings,
-	{ logger, fs }: Required<Pick<SyncOptions, 'logger' | 'fs'>>
+	{ logger, fs }: Required<Pick<SyncOptions, 'logger' | 'fs'>>,
 ): Promise<void> {
 	// Needed to load content config
 	const tempViteServer = await createServer(
@@ -120,8 +120,8 @@ async function syncContentCollections(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode: 'build', command: 'build', fs, sync: true }
-		)
+			{ settings, logger, mode: 'build', command: 'build', fs, sync: true },
+		),
 	);
 
 	// Patch `hot.send` to bubble up error events
@@ -168,7 +168,7 @@ async function syncContentCollections(
 				hint,
 				message: AstroErrorData.GenerateContentTypesError.message(safeError.message),
 			},
-			{ cause: e }
+			{ cause: e },
 		);
 	} finally {
 		await tempViteServer.close();

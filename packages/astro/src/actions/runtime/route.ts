@@ -12,7 +12,7 @@ export const POST: APIRoute = async (context) => {
 	const contentType = request.headers.get('Content-Type');
 	const contentLength = request.headers.get('Content-Length');
 	let args: unknown;
-	if (contentLength === '0') {
+	if (!contentType || contentLength === '0') {
 		args = undefined;
 	} else if (contentType && hasContentType(contentType, formContentTypes)) {
 		args = await request.clone().formData();

@@ -112,7 +112,7 @@ export async function createContentTypesGenerator({
 	async function handleEvent(event: ContentEvent): Promise<{ shouldGenerateTypes: boolean }> {
 		if (event.name === 'addDir' || event.name === 'unlinkDir') {
 			const collection = normalizePath(
-				path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry))
+				path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry)),
 			);
 			const collectionKey = JSON.stringify(collection);
 			// If directory is multiple levels deep, it is not a collection. Ignore event.
@@ -137,7 +137,7 @@ export async function createContentTypesGenerator({
 			fileURLToPath(event.entry),
 			contentPaths,
 			contentEntryExts,
-			dataEntryExts
+			dataEntryExts,
 		);
 		if (fileType === 'ignored') {
 			return { shouldGenerateTypes: false };
@@ -156,9 +156,9 @@ export async function createContentTypesGenerator({
 				'content',
 				`${bold(
 					normalizePath(
-						path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry))
-					)
-				)} must live in a ${bold('content/...')} collection subdirectory.`
+						path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry)),
+					),
+				)} must live in a ${bold('content/...')} collection subdirectory.`,
 			);
 			return { shouldGenerateTypes: false };
 		}
@@ -406,7 +406,7 @@ async function writeContentFiles({
 					message: AstroErrorData.ContentCollectionTypeMismatchError.message(
 						collectionKey,
 						collection.type,
-						collectionConfig.type
+						collectionConfig.type,
 					),
 					hint:
 						collection.type === 'data'
@@ -438,7 +438,7 @@ async function writeContentFiles({
 				for (const entryKey of collectionEntryKeys) {
 					const entryMetadata = collection.entries[entryKey];
 					const renderType = `{ render(): Render[${JSON.stringify(
-						path.extname(JSON.parse(entryKey))
+						path.extname(JSON.parse(entryKey)),
 					)}] }`;
 
 					const slugType = JSON.stringify(entryMetadata.slug);
@@ -479,14 +479,14 @@ async function writeContentFiles({
 									dateStrategy: ['format:date-time', 'format:date', 'integer'],
 								}),
 								null,
-								2
-							)
+								2,
+							),
 						);
 					} catch (err) {
 						// This should error gracefully and not crash the dev server
 						logger.warn(
 							'content',
-							`An error was encountered while creating the JSON schema for the ${collectionKey} collection. Proceeding without it. Error: ${err}`
+							`An error was encountered while creating the JSON schema for the ${collectionKey} collection. Proceeding without it. Error: ${err}`,
 						);
 					}
 				}
@@ -512,7 +512,7 @@ async function writeContentFiles({
 	typeTemplateContent = typeTemplateContent.replace('// @@DATA_ENTRY_MAP@@', dataTypesStr);
 	typeTemplateContent = typeTemplateContent.replace(
 		"'@@CONTENT_CONFIG_TYPE@@'",
-		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never'
+		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never',
 	);
 
 	if (settings.injectedTypes.some((t) => t.filename === CONTENT_TYPES_FILE)) {

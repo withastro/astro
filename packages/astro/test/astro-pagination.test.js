@@ -64,7 +64,7 @@ describe('Pagination', () => {
 					assert.equal(prevHref, '/posts/blue/1');
 					assert.equal(nextHref, undefined);
 				}
-			})
+			}),
 		);
 	});
 });

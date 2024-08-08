@@ -146,7 +146,7 @@ describe('Hoisted external scripts in SSR', () => {
 			const $ = cheerioLoad(html);
 			assert.match(
 				$('script').attr('src'),
-				/^https:\/\/cdn\.example\.com\/_astro\/hoisted\..{8}\.js$/
+				/^https:\/\/cdn\.example\.com\/_astro\/hoisted\..{8}\.js$/,
 			);
 		});
 	});
@@ -247,7 +247,7 @@ describe('Hoisted external scripts in SSR', () => {
 			const $ = cheerioLoad(html);
 			assert.match(
 				$('script').attr('src'),
-				/^https:\/\/cdn\.example\.com\/assets\/entry\..{8}\.mjs$/
+				/^https:\/\/cdn\.example\.com\/assets\/entry\..{8}\.mjs$/,
 			);
 		});
 	});

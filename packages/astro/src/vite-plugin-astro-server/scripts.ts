@@ -9,7 +9,7 @@ import { crawlGraph } from './vite.js';
 export async function getScriptsForURL(
 	filePath: URL,
 	root: URL,
-	loader: ModuleLoader
+	loader: ModuleLoader,
 ): Promise<{ scripts: Set<SSRElement>; crawledFiles: Set<string> }> {
 	const elements = new Set<SSRElement>();
 	const crawledFiles = new Set<string>();

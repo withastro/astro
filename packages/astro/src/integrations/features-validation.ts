@@ -34,7 +34,7 @@ export function validateSupportedFeatures(
 	featureMap: AstroFeatureMap,
 	config: AstroConfig,
 	adapterFeatures: AstroAdapterFeatures | undefined,
-	logger: Logger
+	logger: Logger,
 ): ValidationResult {
 	const {
 		assets = UNSUPPORTED_ASSETS_FEATURE,
@@ -51,7 +51,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'staticOutput',
-		() => config?.output === 'static'
+		() => config?.output === 'static',
 	);
 
 	validationResult.hybridOutput = validateSupportKind(
@@ -59,7 +59,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'hybridOutput',
-		() => config?.output === 'hybrid'
+		() => config?.output === 'hybrid',
 	);
 
 	validationResult.serverOutput = validateSupportKind(
@@ -67,7 +67,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'serverOutput',
-		() => config?.output === 'server'
+		() => config?.output === 'server',
 	);
 	validationResult.assets = validateAssetsFeature(assets, adapterName, config, logger);
 
@@ -79,12 +79,12 @@ export function validateSupportedFeatures(
 			'i18nDomains',
 			() => {
 				return config?.output === 'server' && !config?.site;
-			}
+			},
 		);
 		if (adapterFeatures?.functionPerRoute) {
 			logger.error(
 				'config',
-				'The Astro feature `i18nDomains` is incompatible with the Adapter feature `functionPerRoute`'
+				'The Astro feature `i18nDomains` is incompatible with the Adapter feature `functionPerRoute`',
 			);
 		}
 	}
@@ -94,7 +94,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'astro:env getSecret',
-		() => config?.experimental?.env !== undefined
+		() => config?.experimental?.env !== undefined,
 	);
 
 	return validationResult;
@@ -105,7 +105,7 @@ function validateSupportKind(
 	adapterName: string,
 	logger: Logger,
 	featureName: string,
-	hasCorrectConfig: () => boolean
+	hasCorrectConfig: () => boolean,
 ): boolean {
 	if (supportKind === STABLE) {
 		return true;
@@ -130,14 +130,14 @@ function featureIsUnsupported(adapterName: string, logger: Logger, featureName: 
 function featureIsExperimental(adapterName: string, logger: Logger, featureName: string) {
 	logger.warn(
 		'config',
-		`The feature "${featureName}" is experimental and subject to change (used by ${adapterName}).`
+		`The feature "${featureName}" is experimental and subject to change (used by ${adapterName}).`,
 	);
 }
 
 function featureIsDeprecated(adapterName: string, logger: Logger, featureName: string) {
 	logger.warn(
 		'config',
-		`The feature "${featureName}" is deprecated and will be removed in the future (used by ${adapterName}).`
+		`The feature "${featureName}" is deprecated and will be removed in the future (used by ${adapterName}).`,
 	);
 }
 
@@ -148,7 +148,7 @@ function validateAssetsFeature(
 	assets: AstroAssetsFeature,
 	adapterName: string,
 	config: AstroConfig,
-	logger: Logger
+	logger: Logger,
 ): boolean {
 	const {
 		supportKind = UNSUPPORTED,
@@ -158,7 +158,7 @@ function validateAssetsFeature(
 	if (config?.image?.service?.entrypoint === SHARP_SERVICE && !isSharpCompatible) {
 		logger.warn(
 			null,
-			`The currently selected adapter \`${adapterName}\` is not compatible with the image service "Sharp".`
+			`The currently selected adapter \`${adapterName}\` is not compatible with the image service "Sharp".`,
 		);
 		return false;
 	}
@@ -166,7 +166,7 @@ function validateAssetsFeature(
 	if (config?.image?.service?.entrypoint === SQUOOSH_SERVICE && !isSquooshCompatible) {
 		logger.warn(
 			null,
-			`The currently selected adapter \`${adapterName}\` is not compatible with the image service "Squoosh".`
+			`The currently selected adapter \`${adapterName}\` is not compatible with the image service "Squoosh".`,
 		);
 		return false;
 	}

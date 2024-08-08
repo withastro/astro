@@ -69,7 +69,7 @@ export async function resolveDbConfig({
 }
 
 async function loadUserConfigFile(
-	root: URL
+	root: URL,
 ): Promise<{ mod: { default?: unknown } | undefined; dependencies: string[] }> {
 	let configFileUrl: URL | undefined;
 	for (const fileName of CONFIG_FILE_NAMES) {

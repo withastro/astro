@@ -23,7 +23,7 @@ describe('Adapter', () => {
 				e
 					.toString()
 					.includes("The adapter my-ssr-adapter doesn't support the feature build.middleware."),
-				true
+				true,
 			);
 		}
 	});
@@ -45,7 +45,7 @@ describe('Adapter', () => {
 				e
 					.toString()
 					.includes("The adapter my-ssr-adapter doesn't support the feature build.split."),
-				true
+				true,
 			);
 		}
 	});

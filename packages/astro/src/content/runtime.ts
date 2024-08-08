@@ -65,15 +65,15 @@ export function createGetCollection({
 			// eslint-disable-next-line no-console
 			console.warn(
 				`The collection ${JSON.stringify(
-					collection
-				)} does not exist or is empty. Ensure a collection directory with this name exists.`
+					collection,
+				)} does not exist or is empty. Ensure a collection directory with this name exists.`,
 			);
 			return [];
 		}
 		const lazyImports = Object.values(
 			type === 'content'
 				? contentCollectionToEntryMap[collection]
-				: dataCollectionToEntryMap[collection]
+				: dataCollectionToEntryMap[collection],
 		);
 		let entries: any[] = [];
 		// Cache `getCollection()` calls in production only
@@ -106,8 +106,8 @@ export function createGetCollection({
 									collection: entry.collection,
 									data: entry.data,
 								};
-					})
-				)
+					}),
+				),
 			);
 			cacheEntriesByCollection.set(collection, entries);
 		}
@@ -196,7 +196,7 @@ export function createGetEntry({
 		// Or pass a single object with the collection and identifier as properties.
 		// This means the first positional arg can have different shapes.
 		collectionOrLookupObject: string | EntryLookupObject,
-		_lookupId?: string
+		_lookupId?: string,
 	): Promise<ContentEntryResult | DataEntryResult | undefined> {
 		let collection: string, lookupId: string;
 		if (typeof collectionOrLookupObject === 'string') {
@@ -249,7 +249,7 @@ export function createGetEntry({
 
 export function createGetEntries(getEntry: ReturnType<typeof createGetEntry>) {
 	return async function getEntries(
-		entries: { collection: string; id: string }[] | { collection: string; slug: string }[]
+		entries: { collection: string; id: string }[] | { collection: string; slug: string }[],
 	) {
 		return Promise.all(entries.map((e) => getEntry(e)));
 	};
@@ -332,8 +332,8 @@ async function render({
 						'Content',
 						propagationMod.Content,
 						props,
-						slots
-					)}`
+						slots,
+					)}`,
 				);
 			},
 			propagation: 'self',
@@ -374,7 +374,7 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 				ctx.addIssue({
 					code: ZodIssueCode.custom,
 					message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${Object.keys(
-						entries
+						entries,
 					)
 						.map((c) => JSON.stringify(c))
 						.join(' | ')}. Received ${JSON.stringify(lookupId)}.`,

@@ -90,7 +90,7 @@ const createFixture = () => {
 				assert.equal(
 					result.outputText,
 					'',
-					`${path} should be valid TypeScript. Output: ${result.outputText}`
+					`${path} should be valid TypeScript. Output: ${result.outputText}`,
 				);
 			} catch (error) {
 				assert.fail(`${path} is not valid TypeScript. Error: ${error.message}`);
@@ -114,7 +114,7 @@ describe('astro sync', () => {
 			fixture.thenFileShouldExist('src/env.d.ts');
 			fixture.thenFileContentShouldInclude(
 				'src/env.d.ts',
-				`/// <reference path="../.astro/types.d.ts" />`
+				`/// <reference path="../.astro/types.d.ts" />`,
 			);
 		});
 
@@ -203,7 +203,7 @@ describe('astro sync', () => {
 			fixture.thenFileContentShouldInclude(
 				'.astro/astro/env.d.ts',
 				`declare module 'astro:env/client' {`,
-				'Types file does not include `astro:env` module declaration'
+				'Types file does not include `astro:env` module declaration',
 			);
 		});
 
@@ -213,7 +213,7 @@ describe('astro sync', () => {
 				fixture.clean();
 				await fixture.whenSyncing();
 				assert.ok(true);
-			} catch (e) {
+			} catch {
 				assert.fail();
 			}
 		});

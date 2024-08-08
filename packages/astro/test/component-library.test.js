@@ -63,7 +63,7 @@ describe('Component Libraries', () => {
 			assert.equal(
 				await findEvidence('with-astro/index.html'),
 				true,
-				"Included the .astro component's <style>"
+				"Included the .astro component's <style>",
 			);
 		});
 
@@ -76,7 +76,7 @@ describe('Component Libraries', () => {
 			assert.equal(
 				$('#react-idle').text(),
 				'Hello idle!',
-				'Rendered the client hydrated component'
+				'Rendered the client hydrated component',
 			);
 
 			assert.equal($('astro-island[uid]').length, 1, 'Included one hydration island');
@@ -90,7 +90,7 @@ describe('Component Libraries', () => {
 			assert.equal(
 				$('.counter-message').text().trim(),
 				'Hello, Svelte!',
-				"rendered the counter's slot"
+				"rendered the counter's slot",
 			);
 
 			assert.equal($('astro-island[uid]').length, 1, 'Included one hydration island');
@@ -144,7 +144,7 @@ describe('Component Libraries', () => {
 			assert.equal(
 				await findEvidence('/with-astro/'),
 				true,
-				"Included the .astro component's <style>"
+				"Included the .astro component's <style>",
 			);
 		});
 
@@ -157,7 +157,7 @@ describe('Component Libraries', () => {
 			assert.equal(
 				$('#react-idle').text(),
 				'Hello idle!',
-				'Rendered the client hydrated component'
+				'Rendered the client hydrated component',
 			);
 
 			assert.equal($('astro-island[uid]').length, 1, 'Included one hydration island');
@@ -171,7 +171,7 @@ describe('Component Libraries', () => {
 			assert.equal(
 				$('.counter-message').text().trim(),
 				'Hello, Svelte!',
-				"rendered the counter's slot"
+				"rendered the counter's slot",
 			);
 
 			assert.equal($('astro-island[uid]').length, 1, 'Included one hydration island');

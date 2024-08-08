@@ -79,7 +79,7 @@ export function vitePluginUserActions({ settings }: { settings: AstroSettings })
 			}
 			if (id === VIRTUAL_INTERNAL_MODULE_ID) {
 				const resolvedModule = await this.resolve(
-					`${decodeURI(new URL('actions', settings.config.srcDir).pathname)}`
+					`${decodeURI(new URL('actions', settings.config.srcDir).pathname)}`,
 				);
 
 				if (!resolvedModule) {
@@ -113,7 +113,7 @@ const vitePluginActions = (fs: typeof fsMod): VitePlugin => ({
 
 		let code = await fs.promises.readFile(
 			new URL('../../templates/actions.mjs', import.meta.url),
-			'utf-8'
+			'utf-8',
 		);
 		if (opts?.ssr) {
 			code += `\nexport * from 'astro/actions/runtime/virtual/server.js';`;

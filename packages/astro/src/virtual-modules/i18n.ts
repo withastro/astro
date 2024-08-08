@@ -254,7 +254,7 @@ export const pathHasLocale = (path: string) => I18nInternals.pathHasLocale(path,
  */
 export let redirectToDefaultLocale: (
 	context: APIContext,
-	statusCode?: ValidRedirectStatus
+	statusCode?: ValidRedirectStatus,
 ) => Response | undefined;
 
 if (i18n?.routing === 'manual') {

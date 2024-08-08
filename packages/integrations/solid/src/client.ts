@@ -55,7 +55,7 @@ export default (element: HTMLElement) =>
 			element,
 			{
 				renderId,
-			}
+			},
 		);
 
 		element.addEventListener('astro:unmount', () => dispose(), { once: true });

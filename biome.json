@@ -29,7 +29,7 @@
   "linter": { "enabled": false },
   "javascript": {
     "formatter": {
-      "trailingCommas": "es5",
+      "trailingCommas": "all",
       "quoteStyle": "single",
       "semicolons": "always"
     }

@@ -116,7 +116,7 @@ describe('getStaticPaths - dev calls', () => {
 			assert.equal(
 				canonical.attr('href'),
 				`https://mysite.dev/posts/${page}`,
-				`doesn't trim the /${page} route param`
+				`doesn't trim the /${page} route param`,
 			);
 		}
 	});

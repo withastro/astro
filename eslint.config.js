@@ -83,10 +83,13 @@ export default [
 			'@typescript-eslint/no-unsafe-assignment': 'off',
 			'@typescript-eslint/no-unsafe-call': 'off',
 			'@typescript-eslint/no-unsafe-member-access': 'off',
+			'@typescript-eslint/no-unused-expressions': 'off',
+			'@typescript-eslint/only-throw-error': 'off',
 			'@typescript-eslint/no-unsafe-return': 'off',
 			'@typescript-eslint/no-unnecessary-type-assertion': 'off',
 			'@typescript-eslint/prefer-nullish-coalescing': 'off',
 			'@typescript-eslint/prefer-optional-chain': 'off',
+			'@typescript-eslint/prefer-promise-reject-errors': 'off',
 			'@typescript-eslint/prefer-string-starts-ends-with': 'off',
 			'@typescript-eslint/require-await': 'off',
 			'@typescript-eslint/restrict-plus-operands': 'off',
@@ -111,6 +114,8 @@ export default [
 
 			// In some cases, using explicit letter-casing is more performant than the `i` flag
 			'regexp/use-ignore-case': 'off',
+			'regexp/prefer-regexp-exec': 'warn',
+			'regexp/prefer-regexp-test': 'warn',
 		},
 	},
 
