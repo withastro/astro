@@ -39,7 +39,7 @@ export type ActionClient<
 				input: TAccept extends 'form' ? FormData : z.input<TInputSchema>,
 			) => Promise<Awaited<TOutput>>;
 		}
-	: (input?: any) => Promise<SafeResult<never, Awaited<TOutput>>> & {
+	: ((input?: any) => Promise<SafeResult<never, Awaited<TOutput>>>) & {
 			orThrow: (input?: any) => Promise<Awaited<TOutput>>;
 		};
 
