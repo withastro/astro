@@ -25,7 +25,7 @@ describe('MDX with Astro Markdown remark-rehype config', () => {
 		assert.equal(document.querySelector('#footnote-label').textContent, 'Catatan kaki');
 		assert.equal(
 			document.querySelector('.data-footnote-backref').getAttribute('aria-label'),
-			'Kembali ke konten'
+			'Kembali ke konten',
 		);
 	});
 
@@ -54,7 +54,7 @@ describe('MDX with Astro Markdown remark-rehype config', () => {
 		assert.equal(document.querySelector('#footnote-label').textContent, 'Catatan kaki');
 		assert.equal(
 			document.querySelector('.data-footnote-backref').getAttribute('aria-label'),
-			'Kembali ke konten'
+			'Kembali ke konten',
 		);
 	});
 
@@ -83,7 +83,7 @@ describe('MDX with Astro Markdown remark-rehype config', () => {
 		assert.equal(document.querySelector('#footnote-label').textContent, 'Catatan kaki');
 		assert.equal(
 			document.querySelector('.data-footnote-backref').getAttribute('aria-label'),
-			'Back to reference 1'
+			'Back to reference 1',
 		);
 	});
 });

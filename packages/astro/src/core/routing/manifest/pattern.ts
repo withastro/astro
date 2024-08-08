@@ -3,7 +3,7 @@ import type { AstroConfig, RoutePart } from '../../../@types/astro.js';
 export function getPattern(
 	segments: RoutePart[][],
 	base: AstroConfig['base'],
-	addTrailingSlash: AstroConfig['trailingSlash']
+	addTrailingSlash: AstroConfig['trailingSlash'],
 ) {
 	const pathname = segments
 		.map((segment) => {

@@ -10,7 +10,7 @@ export function recordServerError(
 	loader: ModuleLoader,
 	config: AstroConfig,
 	{ logger }: DevPipeline,
-	_err: unknown
+	_err: unknown,
 ) {
 	const err = createSafeError(_err);
 

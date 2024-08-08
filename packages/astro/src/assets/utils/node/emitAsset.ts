@@ -14,7 +14,7 @@ export async function emitESMImage(
 	_watchMode: boolean,
 	// FIX: in Astro 5, this function should not be passed in dev mode at all.
 	// Or rethink the API so that a function that throws isn't passed through.
-	fileEmitter?: FileEmitter
+	fileEmitter?: FileEmitter,
 ): Promise<ImageMetadata | undefined> {
 	if (!id) {
 		return undefined;
@@ -24,7 +24,7 @@ export async function emitESMImage(
 	let fileData: Buffer;
 	try {
 		fileData = await fs.readFile(url);
-	} catch (err) {
+	} catch {
 		return undefined;
 	}
 

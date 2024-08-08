@@ -6,7 +6,7 @@ import { shell } from '../shell.js';
 import type { Context } from './context.js';
 
 export async function dependencies(
-	ctx: Pick<Context, 'install' | 'yes' | 'prompt' | 'packageManager' | 'cwd' | 'dryRun' | 'tasks'>
+	ctx: Pick<Context, 'install' | 'yes' | 'prompt' | 'packageManager' | 'cwd' | 'dryRun' | 'tasks'>,
 ) {
 	let deps = ctx.install ?? ctx.yes;
 	if (deps === undefined) {
@@ -33,8 +33,8 @@ export async function dependencies(
 				error(
 					'error',
 					`Dependencies failed to install, please run ${color.bold(
-						ctx.packageManager + ' install'
-					)} to install them manually after setup.`
+						ctx.packageManager + ' install',
+					)} to install them manually after setup.`,
 				);
 			},
 			while: () => install({ packageManager: ctx.packageManager, cwd: ctx.cwd }),
@@ -42,7 +42,7 @@ export async function dependencies(
 	} else {
 		await info(
 			ctx.yes === false ? 'deps [skip]' : 'No problem!',
-			'Remember to install dependencies after setup.'
+			'Remember to install dependencies after setup.',
 		);
 	}
 }

@@ -27,7 +27,7 @@ describe('Not returning responses', () => {
 			assert.equal(
 				e instanceof Error,
 				true,
-				'Only instance of Response can be returned from an Astro file'
+				'Only instance of Response can be returned from an Astro file',
 			);
 			return null;
 		}

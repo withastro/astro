@@ -24,7 +24,7 @@ const viteShortcutHelpMsg = /press (.+?) to (.+)$/s;
 
 export function createViteLogger(
 	astroLogger: AstroLogger,
-	viteLogLevel: LogLevel = 'info'
+	viteLogLevel: LogLevel = 'info',
 ): ViteLogger {
 	const warnedMessages = new Set<string>();
 	const loggedErrors = new WeakSet<Error | Rollup.RollupError>();

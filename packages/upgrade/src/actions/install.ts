@@ -27,7 +27,7 @@ export async function install(
 	ctx: Pick<
 		Context,
 		'version' | 'packages' | 'packageManager' | 'prompt' | 'dryRun' | 'exit' | 'cwd'
-	>
+	>,
 ) {
 	await banner();
 	newline();
@@ -60,7 +60,7 @@ export async function install(
 			label: title('wait'),
 			message: `${pluralize(
 				['One package has', 'Some packages have'],
-				majors.length
+				majors.length,
 			)} breaking changes. Continue?`,
 			initial: true,
 		});
@@ -118,7 +118,7 @@ function sortPackages(a: PackageInfo, b: PackageInfo): number {
 async function runInstallCommand(
 	ctx: Pick<Context, 'cwd' | 'packageManager' | 'exit'>,
 	dependencies: PackageInfo[],
-	devDependencies: PackageInfo[]
+	devDependencies: PackageInfo[],
 ) {
 	const cwd = fileURLToPath(ctx.cwd);
 	if (ctx.packageManager === 'yarn') await ensureYarnLock({ cwd });
@@ -137,10 +137,10 @@ async function runInstallCommand(
 						[
 							installCmd,
 							...dependencies.map(
-								({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`
+								({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`,
 							),
 						],
-						{ cwd, timeout: 90_000, stdio: 'ignore' }
+						{ cwd, timeout: 90_000, stdio: 'ignore' },
 					);
 				}
 				if (devDependencies.length > 0) {
@@ -150,10 +150,10 @@ async function runInstallCommand(
 							installCmd,
 							'--save-dev',
 							...devDependencies.map(
-								({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`
+								({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`,
 							),
 						],
-						{ cwd, timeout: 90_000, stdio: 'ignore' }
+						{ cwd, timeout: 90_000, stdio: 'ignore' },
 					);
 				}
 			} catch {
@@ -164,8 +164,8 @@ async function runInstallCommand(
 				error(
 					'error',
 					`Dependencies failed to install, please run the following command manually:\n${color.bold(
-						`${ctx.packageManager} ${installCmd} ${packages}`
-					)}`
+						`${ctx.packageManager} ${installCmd} ${packages}`,
+					)}`,
 				);
 				return ctx.exit(1);
 			}

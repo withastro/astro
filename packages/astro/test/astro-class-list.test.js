@@ -23,7 +23,7 @@ describe('Class List', async () => {
 		assert.equal(
 			$('[class="hello goodbye hello world hello friend"]').length,
 			1,
-			'[class="hello goodbye hello world hello friend"]'
+			'[class="hello goodbye hello world hello friend"]',
 		);
 		assert.equal($('[class="foo baz"]').length, 1, '[class="foo baz"]');
 		assert.equal($('span:not([class])').length, 1, 'span:not([class])');
@@ -43,7 +43,7 @@ describe('Class List', async () => {
 		assert.equal(
 			$('[class="hello goodbye hello world hello friend"]').length,
 			1,
-			'[class="hello goodbye hello world hello friend"]'
+			'[class="hello goodbye hello world hello friend"]',
 		);
 		assert.equal($('[class="foo baz"]').length, 1, '[class="foo baz"]');
 		assert.equal($('span:not([class])').length, 1, 'span:not([class])');
@@ -55,7 +55,7 @@ describe('Class List', async () => {
 		assert.equal($('[class="test set"]').text(), 'test set');
 		assert.equal(
 			$('[class="hello goodbye hello world hello friend"]').text(),
-			'hello goodbye hello world hello friend'
+			'hello goodbye hello world hello friend',
 		);
 		assert.equal($('[class="foo baz"]').text(), 'foo baz');
 		assert.equal($('span:not([class])').text(), '');

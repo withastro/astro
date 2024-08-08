@@ -112,7 +112,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			if (!compileMetadata) {
 				throw new Error(
 					`No cached compile metadata found for "${id}". The main Astro module "${filename}" should have ` +
-						`compiled and filled the metadata first, before its virtual modules can be requested.`
+						`compiled and filled the metadata first, before its virtual modules can be requested.`,
 				);
 			}
 
@@ -166,7 +166,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 						if (src.startsWith('/') && !isBrowserPath(src)) {
 							const publicDir = config.publicDir.pathname.replace(/\/$/, '').split('/').pop() + '/';
 							throw new Error(
-								`\n\n<script src="${src}"> references an asset in the "${publicDir}" directory. Please add the "is:inline" directive to keep this asset from being bundled.\n\nFile: ${id}`
+								`\n\n<script src="${src}"> references an asset in the "${publicDir}" directory. Please add the "is:inline" directive to keep this asset from being bundled.\n\nFile: ${id}`,
 							);
 						}
 					}
@@ -256,6 +256,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 function appendSourceMap(content: string, map?: string) {
 	if (!map) return content;
 	return `${content}\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
-		map
+		map,
 	).toString('base64')}`;
 }

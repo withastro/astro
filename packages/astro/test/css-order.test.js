@@ -38,7 +38,7 @@ describe('CSS production ordering', () => {
 			await fixture.build();
 			staticHTML = await fixture.readFile('/one/index.html');
 			staticCSS = await Promise.all(
-				getLinks(staticHTML).map((href) => getLinkContent(fixture, href))
+				getLinks(staticHTML).map((href) => getLinkContent(fixture, href)),
 			);
 		});
 
@@ -58,7 +58,7 @@ describe('CSS production ordering', () => {
 				getLinks(serverHTML).map(async (href) => {
 					const css = await fixture.readFile(`/client${href}`);
 					return { href, css };
-				})
+				}),
 			);
 		});
 
@@ -86,7 +86,7 @@ describe('CSS production ordering', () => {
 			let html = await fixture.readFile('/two/index.html');
 
 			const content = await Promise.all(
-				getLinks(html).map((href) => getLinkContent(fixture, href))
+				getLinks(html).map((href) => getLinkContent(fixture, href)),
 			);
 
 			assert.ok(content.length, 3, 'there are 3 stylesheets');
@@ -103,7 +103,7 @@ describe('CSS production ordering', () => {
 
 			for (const html of [oneHtml, twoHtml, threeHtml]) {
 				const content = await Promise.all(
-					getLinks(html).map((href) => getLinkContent(fixture, href))
+					getLinks(html).map((href) => getLinkContent(fixture, href)),
 				);
 
 				const [first] = content;

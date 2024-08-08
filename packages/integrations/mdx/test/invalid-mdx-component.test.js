@@ -32,7 +32,7 @@ describe('MDX component with runtime error', () => {
 			assert.ok(error);
 			assert.match(
 				error?.hint,
-				/This issue often occurs when your MDX component encounters runtime errors/
+				/This issue often occurs when your MDX component encounters runtime errors/,
 			);
 		});
 	});

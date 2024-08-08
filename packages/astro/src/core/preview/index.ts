@@ -40,7 +40,7 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 		if (!fs.existsSync(settings.config.outDir)) {
 			const outDirPath = fileURLToPath(settings.config.outDir);
 			throw new Error(
-				`[preview] The output directory ${outDirPath} does not exist. Did you run \`astro build\`?`
+				`[preview] The output directory ${outDirPath} does not exist. Did you run \`astro build\`?`,
 			);
 		}
 		const server = await createStaticPreviewServer(settings, logger);
@@ -51,7 +51,7 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 	}
 	if (!settings.adapter.previewEntrypoint) {
 		throw new Error(
-			`[preview] The ${settings.adapter.name} adapter does not support the preview command.`
+			`[preview] The ${settings.adapter.name} adapter does not support the preview command.`,
 		);
 	}
 	// We need to use require.resolve() here so that advanced package managers like pnpm
@@ -59,7 +59,7 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 	// preview entrypoint of the integration package, relative to the user's project root.
 	const require = createRequire(settings.config.root);
 	const previewEntrypointUrl = pathToFileURL(
-		require.resolve(settings.adapter.previewEntrypoint)
+		require.resolve(settings.adapter.previewEntrypoint),
 	).href;
 
 	const previewModule = (await import(previewEntrypointUrl)) as Partial<PreviewModule>;

@@ -387,7 +387,7 @@ export function createMiddleware(
 	i18nManifest: SSRManifest['i18n'],
 	base: SSRManifest['base'],
 	trailingSlash: SSRManifest['trailingSlash'],
-	format: SSRManifest['buildFormat']
+	format: SSRManifest['buildFormat'],
 ) {
 	return createI18nMiddleware(i18nManifest, base, trailingSlash, format);
 }

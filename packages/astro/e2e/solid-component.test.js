@@ -4,7 +4,7 @@ const { test, createTests } = prepareTestFactory(
 	{ root: './fixtures/solid-component/' },
 	{
 		canReplayClicks: true,
-	}
+	},
 );
 
 const config = {

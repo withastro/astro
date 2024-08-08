@@ -93,7 +93,7 @@ export function serverStart({
 	const messages = [
 		'',
 		`${bgGreen(bold(` astro `))} ${green(`v${version}`)} ${dim(`ready in`)} ${Math.round(
-			startupTime
+			startupTime,
 		)} ${dim('ms')}`,
 		'',
 		...localUrlMessages,
@@ -151,7 +151,7 @@ export function preferenceDefaultIntro(name: string) {
 
 export function preferenceDefault(name: string, value: any) {
 	return `${yellow('◯')} ${name} has not been set. It defaults to ${bgYellow(
-		black(` ${JSON.stringify(value)} `)
+		black(` ${JSON.stringify(value)} `),
 	)}\n`;
 }
 
@@ -233,10 +233,10 @@ function getNetworkLogging(host: string | boolean): 'none' | 'host-to-expose' | 
 
 export function formatConfigErrorMessage(err: ZodError) {
 	const errorList = err.issues.map(
-		(issue) => `  ! ${bold(issue.path.join('.'))}  ${red(issue.message + '.')}`
+		(issue) => `  ! ${bold(issue.path.join('.'))}  ${red(issue.message + '.')}`,
 	);
 	return `${red('[config]')} Astro found issue(s) with your configuration:\n${errorList.join(
-		'\n'
+		'\n',
 	)}`;
 }
 
@@ -246,7 +246,7 @@ const IRRELEVANT_STACK_REGEXP = /node_modules|astro[/\\]dist/g;
 
 function formatErrorStackTrace(
 	err: Error | ErrorWithMetadata,
-	showFullStacktrace: boolean
+	showFullStacktrace: boolean,
 ): string {
 	const stackLines = (err.stack || '').split('\n').filter((line) => STACK_LINE_REGEXP.test(line));
 	// If full details are required, just return the entire stack trace.
@@ -355,8 +355,8 @@ export function printHelp({
 		message.push(
 			linebreak(),
 			`  ${bgGreen(black(` ${commandName} `))} ${green(
-				`v${process.env.PACKAGE_VERSION ?? ''}`
-			)} ${headline}`
+				`v${process.env.PACKAGE_VERSION ?? ''}`,
+			)} ${headline}`,
 		);
 	}
 

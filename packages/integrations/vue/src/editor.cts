@@ -57,7 +57,7 @@ export function toTSX(code: string, className: string): string {
 				}
 			}
 		}
-	} catch (e: any) {
+	} catch {
 		return result;
 	}
 

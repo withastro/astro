@@ -35,7 +35,7 @@ function collectPreloads(page) {
 			mutations.forEach((mutation) =>
 				mutation.addedNodes.forEach((node) => {
 					if (node.nodeName === 'LINK' && node.rel === 'preload') preloads.push(node.href);
-				})
+				}),
 			);
 		});
 		observer.observe(document.head, { childList: true });
@@ -132,7 +132,7 @@ test.describe('View Transitions', () => {
 
 		expect(
 			loads.length,
-			'There should be 2 page loads. The original, then going from 3 to 2'
+			'There should be 2 page loads. The original, then going from 3 to 2',
 		).toEqual(2);
 	});
 
@@ -163,7 +163,7 @@ test.describe('View Transitions', () => {
 
 		expect(
 			loads.length,
-			'There should be only 2 page loads (for page one & three), but no additional loads for the hash change'
+			'There should be only 2 page loads (for page one & three), but no additional loads for the hash change',
 		).toEqual(2);
 	});
 
@@ -185,7 +185,7 @@ test.describe('View Transitions', () => {
 		await expect(p, 'should have content').toHaveText('Page 1');
 		expect(
 			loads.length,
-			'There should be 3 page loads (for page one & three), and an additional loads for the back navigation'
+			'There should be 3 page loads (for page one & three), and an additional loads for the back navigation',
 		).toEqual(3);
 	});
 
@@ -628,7 +628,7 @@ test.describe('View Transitions', () => {
 
 		expect(
 			loads.length,
-			'There should be only 1 page load. No additional loads for going back on same page'
+			'There should be only 1 page load. No additional loads for going back on same page',
 		).toEqual(1);
 	});
 
@@ -770,7 +770,7 @@ test.describe('View Transitions', () => {
 
 		expect(
 			loads.length,
-			'There should only be the initial page load and two normal transitions'
+			'There should only be the initial page load and two normal transitions',
 		).toEqual(1);
 	});
 
@@ -1030,7 +1030,7 @@ test.describe('View Transitions', () => {
 
 		expect(
 			loads.length,
-			'There should be only 1 page load. No additional loads for the form submission'
+			'There should be only 1 page load. No additional loads for the form submission',
 		).toEqual(1);
 	});
 
@@ -1056,7 +1056,7 @@ test.describe('View Transitions', () => {
 
 		expect(
 			loads.length,
-			'There should be only 1 page load. No additional loads for the form submission'
+			'There should be only 1 page load. No additional loads for the form submission',
 		).toEqual(1);
 	});
 
@@ -1075,7 +1075,7 @@ test.describe('View Transitions', () => {
 
 		expect(
 			loads.length,
-			'There should be only 1 page load. No additional loads for the form submission'
+			'There should be only 1 page load. No additional loads for the form submission',
 		).toEqual(1);
 	});
 
@@ -1104,12 +1104,12 @@ test.describe('View Transitions', () => {
 
 		expect(
 			loads.length,
-			'There should be only 1 page load. No additional loads for the form submission'
+			'There should be only 1 page load. No additional loads for the form submission',
 		).toEqual(1);
 
 		expect(
 			postedEncodings,
-			'There should be 1 POST, with encoding set to `multipart/form-data`'
+			'There should be 1 POST, with encoding set to `multipart/form-data`',
 		).toEqual(['multipart/form-data']);
 	});
 
@@ -1130,8 +1130,8 @@ test.describe('View Transitions', () => {
 
 		await page.goto(
 			astro.resolveUrl(
-				`/form-one?${new URLSearchParams({ enctype: 'application/x-www-form-urlencoded' })}`
-			)
+				`/form-one?${new URLSearchParams({ enctype: 'application/x-www-form-urlencoded' })}`,
+			),
 		);
 
 		// Submit the form
@@ -1139,12 +1139,12 @@ test.describe('View Transitions', () => {
 
 		expect(
 			loads.length,
-			'There should be only 1 page load. No additional loads for the form submission'
+			'There should be only 1 page load. No additional loads for the form submission',
 		).toEqual(1);
 
 		expect(
 			postedEncodings,
-			'There should be 1 POST, with encoding set to `multipart/form-data`'
+			'There should be 1 POST, with encoding set to `multipart/form-data`',
 		).toEqual(['application/x-www-form-urlencoded']);
 	});
 
@@ -1216,7 +1216,7 @@ test.describe('View Transitions', () => {
 
 		expect(
 			loads.length,
-			'There should be only 1 page load. No additional loads for the form submission'
+			'There should be only 1 page load. No additional loads for the form submission',
 		).toEqual(1);
 	});
 
@@ -1333,7 +1333,7 @@ test.describe('View Transitions', () => {
 			expectedAnimations.add(name);
 			expect(page.locator(selector), 'should be escaped correctly').toHaveCSS(
 				'view-transition-name',
-				name
+				name,
 			);
 		};
 
@@ -1361,36 +1361,36 @@ test.describe('View Transitions', () => {
 		await checkName('#thirteen', '___01____02______');
 		await checkName(
 			'#batch0',
-			'__00_01_02_03_04_05_06_07_08_09_0a_0b_0c_0d_0e_0f_10_11_12_13_14_15_16_17_18_19_1a_1b_1c_1d_1e_1f'
+			'__00_01_02_03_04_05_06_07_08_09_0a_0b_0c_0d_0e_0f_10_11_12_13_14_15_16_17_18_19_1a_1b_1c_1d_1e_1f',
 		);
 		await checkName(
 			'#batch1',
-			'__20_21_22_23_24_25_26_27_28_29_2a_2b_2c-_2e_2f0123456789_3a_3b_3c_3d_3e_3f'
+			'__20_21_22_23_24_25_26_27_28_29_2a_2b_2c-_2e_2f0123456789_3a_3b_3c_3d_3e_3f',
 		);
 		await checkName('#batch2', '__40ABCDEFGHIJKLMNOPQRSTUVWXYZ_5b_5c_5d_5e__');
 		await checkName('#batch3', '__60abcdefghijklmnopqrstuvwxyz_7b_7c_7d_7e_7f');
 		await checkName(
 			'#batch4',
-			'\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f'
+			'\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f',
 		);
 		await checkName(
 			'#batch5',
-			'\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf'
+			'\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf',
 		);
 		await checkName(
 			'#batch6',
-			'\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf'
+			'\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf',
 		);
 		await checkName(
 			'#batch7',
-			'\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff'
+			'\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff',
 		);
 
 		await page.click('#navigate');
 		await page.waitForTimeout(400); // yes, I dislike this, too. Might fix later.
 		expect(
 			expectedAnimations.size,
-			'all animations for transition:names should have been found'
+			'all animations for transition:names should have been found',
 		).toEqual(0);
 	});
 
@@ -1425,7 +1425,7 @@ test.describe('View Transitions', () => {
 		const attributeValue = await page.$eval(
 			':root',
 			(element, attributeName) => element.getAttribute(attributeName),
-			'data-theme'
+			'data-theme',
 		);
 		expect(attributeValue).toBe('purple');
 	});
