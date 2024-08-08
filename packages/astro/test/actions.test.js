@@ -200,6 +200,18 @@ describe('Astro Actions', () => {
 			assert.equal($('#error-code').text(), 'UNAUTHORIZED');
 		});
 
+		it('Ignores `_astroAction` name for GET requests', async () => {
+			const req = new Request('http://example.com/user-or-throw?_astroAction=getUserOrThrow', {
+				method: 'GET',
+			});
+			const res = await app.render(req);
+			assert.equal(res.ok, true);
+
+			const html = await res.text();
+			let $ = cheerio.load(html);
+			assert.ok($('#user'));
+		});
+
 		describe('legacy', () => {
 			it('Response middleware fallback', async () => {
 				const formData = new FormData();
