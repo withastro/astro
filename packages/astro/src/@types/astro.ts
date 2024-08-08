@@ -2206,10 +2206,11 @@ export interface AstroUserConfig {
 		 *
 		 * #### Using the content layer
 		 *
-		 * > [!HINT]
-		 * >
-		 * > The content layer APIs are based on content collections, so you can learn more about them in the [content collection docs](https://docs.astro.build/en/guides/content-collections/. Any differences are highlighted below.
-		 *
+		 * :::tip
+		 * The content layer APIs are based on content collections, so you can learn more about them in the [content collection docs](https://docs.astro.build/en/guides/content-collections/. Any differences are highlighted below.
+		 * 
+		 * :::
+		 * 
 		 * To use content layer, create a collection in `src/content/config.ts` with a `loader` property. For local files where there is one entry per file, use the `glob()` loader. You can put your content files anywhere, but *not* in `src/content` because these would be handled by the current content collections instead. In this example the files are in `src/data`.
 		 *
 		 * ```ts
@@ -2331,10 +2332,10 @@ export interface AstroUserConfig {
 		 *
 		 * Entries generated from markdown or MDX can be rendered directly to a page using the `render()` function.
 		 *
-		 * > [!WARNING]
-		 * >
-		 * > The syntax for rendering content layer collections is different from existing content collections syntax.
-		 *
+		 * :::caution
+		 * The syntax for rendering content layer items is different from current content collections syntax.
+		 * :::
+		 * 
 		 * ```astro
 		 * ---
 		 * import { getEntry, render } from 'astro:content';
