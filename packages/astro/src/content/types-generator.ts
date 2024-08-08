@@ -392,6 +392,8 @@ async function writeContentFiles({
 			entries: {},
 		};
 	}
+
+	let contentCollectionsMap: CollectionEntryMap = {};
 	for (const collectionKey of Object.keys(collectionEntryMap).sort()) {
 		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
 		const collection = collectionEntryMap[collectionKey];
@@ -456,8 +458,10 @@ async function writeContentFiles({
 						collectionConfig,
 						collectionKey,
 						collectionSchemasDir,
-						logger
+						logger,
 					);
+
+					contentCollectionsMap[collectionKey] = collection;
 				}
 
 				break;
@@ -478,7 +482,7 @@ async function writeContentFiles({
 						collectionConfig,
 						collectionKey,
 						collectionSchemasDir,
-						logger
+						logger,
 					);
 				}
 				break;
@@ -492,7 +496,7 @@ async function writeContentFiles({
 		collections: [],
 		entries: {},
 	};
-	Object.entries(collectionEntryMap).forEach(([collectionKey, collection]) => {
+	Object.entries(contentCollectionsMap).forEach(([collectionKey, collection]) => {
 		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
 		const key = JSON.parse(collectionKey);
 
@@ -503,7 +507,7 @@ async function writeContentFiles({
 
 		Object.keys(collection.entries).forEach((entryKey) => {
 			const entryPath = fileURLToPath(
-				new URL(JSON.parse(entryKey), contentPaths.contentDir + `${key}/`)
+				new URL(JSON.parse(entryKey), contentPaths.contentDir + `${key}/`),
 			);
 			contentCollectionManifest.entries[entryPath] = key;
 		});
@@ -511,7 +515,7 @@ async function writeContentFiles({
 
 	await fs.promises.writeFile(
 		new URL('./collections.json', collectionSchemasDir),
-		JSON.stringify(contentCollectionManifest, null, 2)
+		JSON.stringify(contentCollectionManifest, null, 2),
 	);
 
 	if (!fs.existsSync(settings.dotAstroDir)) {
@@ -546,7 +550,7 @@ async function generateJSONSchema(
 	collectionConfig: CollectionConfig,
 	collectionKey: string,
 	collectionSchemasDir: URL,
-	logger: Logger
+	logger: Logger,
 ) {
 	let zodSchemaForJson =
 		typeof collectionConfig.schema === 'function'
@@ -569,14 +573,14 @@ async function generateJSONSchema(
 					dateStrategy: ['format:date-time', 'format:date', 'integer'],
 				}),
 				null,
-				2
-			)
+				2,
+			),
 		);
 	} catch (err) {
 		// This should error gracefully and not crash the dev server
 		logger.warn(
 			'content',
-			`An error was encountered while creating the JSON schema for the ${collectionKey} collection. Proceeding without it. Error: ${err}`
+			`An error was encountered while creating the JSON schema for the ${collectionKey} collection. Proceeding without it. Error: ${err}`,
 		);
 	}
 }
