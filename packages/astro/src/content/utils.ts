@@ -53,7 +53,7 @@ const collectionConfigParser = z.union([
 							.object({
 								id: z.string(),
 							})
-							.catchall(z.unknown())
+							.catchall(z.unknown()),
 					),
 					z.promise(
 						z.array(
@@ -61,10 +61,10 @@ const collectionConfigParser = z.union([
 								.object({
 									id: z.string(),
 								})
-								.catchall(z.unknown())
-						)
+								.catchall(z.unknown()),
+						),
 					),
-				])
+				]),
 			),
 			z.object({
 				name: z.string(),
@@ -82,8 +82,8 @@ const collectionConfigParser = z.union([
 								watcher: z.any().optional(),
 							}),
 						],
-						z.unknown()
-					)
+						z.unknown(),
+					),
 				),
 				schema: z.any().optional(),
 				render: z.function(z.tuple([z.any()], z.unknown())).optional(),
@@ -134,7 +134,7 @@ export async function getEntryDataAndImages<
 	},
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
-	pluginContext?: PluginContext
+	pluginContext?: PluginContext,
 ): Promise<{ data: TOutputData; imageImports: Array<string> }> {
 	let data: TOutputData;
 	if (collectionConfig.type === 'data' || collectionConfig.type === CONTENT_LAYER_TYPE) {
@@ -198,7 +198,7 @@ export async function getEntryDataAndImages<
 					message: AstroErrorData.InvalidContentEntryFrontmatterError.message(
 						entry.collection,
 						entry.id,
-						parsed.error
+						parsed.error,
 					),
 					location: {
 						file: entry._internal.filePath,
@@ -223,13 +223,13 @@ export async function getEntryData(
 	},
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
-	pluginContext?: PluginContext
+	pluginContext?: PluginContext,
 ) {
 	const { data } = await getEntryDataAndImages(
 		entry,
 		collectionConfig,
 		shouldEmitFile,
-		pluginContext
+		pluginContext,
 	);
 	return data;
 }
@@ -243,7 +243,7 @@ export function getDataEntryExts(settings: Pick<AstroSettings, 'dataEntryTypes'>
 }
 
 export function getEntryConfigByExtMap<TEntryType extends ContentEntryType | DataEntryType>(
-	entryTypes: TEntryType[]
+	entryTypes: TEntryType[],
 ): Map<string, TEntryType> {
 	const map = new Map<string, TEntryType>();
 	for (const entryType of entryTypes) {
@@ -340,7 +340,7 @@ export function getDataEntryId({
 	const relativePath = getRelativeEntryPath(entry, collection, contentDir);
 	const withoutFileExt = normalizePath(relativePath).replace(
 		new RegExp(path.extname(relativePath) + '$'),
-		''
+		'',
 	);
 
 	return withoutFileExt;
@@ -382,7 +382,7 @@ export function getEntryType(
 	entryPath: string,
 	paths: Pick<ContentPaths, 'config' | 'contentDir'>,
 	contentFileExts: string[],
-	dataFileExts: string[]
+	dataFileExts: string[],
 ): 'content' | 'data' | 'config' | 'ignored' {
 	const { ext } = path.parse(entryPath);
 	const fileUrl = pathToFileURL(entryPath);
@@ -402,7 +402,7 @@ export function getEntryType(
 
 function hasUnderscoreBelowContentDirectoryPath(
 	fileUrl: URL,
-	contentDir: ContentPaths['contentDir']
+	contentDir: ContentPaths['contentDir'],
 ): boolean {
 	const parts = fileUrl.pathname.replace(contentDir.pathname, '').split('/');
 	for (const part of parts) {
@@ -416,7 +416,7 @@ function getYAMLErrorLine(rawData: string | undefined, objectKey: string) {
 	const indexOfObjectKey = rawData.search(
 		// Match key either at the top of the file or after a newline
 		// Ensures matching on top-level object keys only
-		new RegExp(`(\n|^)${objectKey}`)
+		new RegExp(`(\n|^)${objectKey}`),
 	);
 	if (indexOfObjectKey === -1) return 0;
 
@@ -585,7 +585,7 @@ export type ContentPaths = {
 
 export function getContentPaths(
 	{ srcDir }: Pick<AstroConfig, 'root' | 'srcDir'>,
-	fs: typeof fsMod = fsMod
+	fs: typeof fsMod = fsMod,
 ): ContentPaths {
 	const configStats = search(fs, srcDir);
 	const pkgBase = new URL('../../', import.meta.url);
@@ -599,7 +599,7 @@ export function getContentPaths(
 }
 function search(fs: typeof fsMod, srcDir: URL) {
 	const paths = ['config.mjs', 'config.js', 'config.mts', 'config.ts'].map(
-		(p) => new URL(`./content/${p}`, srcDir)
+		(p) => new URL(`./content/${p}`, srcDir),
 	);
 	for (const file of paths) {
 		if (fs.existsSync(file)) {

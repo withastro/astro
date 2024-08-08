@@ -39,7 +39,7 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 						} else {
 							newRequest = new Request(
 								new URL(payload, handleContext.url.origin),
-								handleContext.request
+								handleContext.request,
 							);
 						}
 						carriedPayload = payload;

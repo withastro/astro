@@ -32,7 +32,7 @@ function resolveReferences(
 	{ User = BaseUser, SentBox = BaseSentBox } = {
 		User: BaseUser,
 		SentBox: BaseSentBox,
-	}
+	},
 ) {
 	return tablesSchema.parse({ User, SentBox });
 }
@@ -153,12 +153,12 @@ describe('reference queries', () => {
 		assert.notEqual(typeof updatedForeignKey.queries[0], 'undefined');
 		assert.deepEqual(
 			addedForeignKey.queries,
-			expected(getTempTableName(addedForeignKey.queries[0]))
+			expected(getTempTableName(addedForeignKey.queries[0])),
 		);
 
 		assert.deepEqual(
 			updatedForeignKey.queries,
-			expected(getTempTableName(updatedForeignKey.queries[0]))
+			expected(getTempTableName(updatedForeignKey.queries[0])),
 		);
 	});
 });

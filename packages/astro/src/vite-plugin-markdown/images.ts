@@ -15,7 +15,7 @@ export function getMarkdownCodeForImages(imagePaths: MarkdownImagePath[], html: 
 							return `{
 											const regex = new RegExp('__ASTRO_IMAGE_="([^"]*' + ${rawUrl.replace(
 												/[.*+?^${}()|[\]\\]/g,
-												'\\\\$&'
+												'\\\\$&',
 											)} + '[^"]*)"', 'g');
 											let match;
 											let occurrenceCounter = 0;

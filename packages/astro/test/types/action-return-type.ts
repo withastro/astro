@@ -9,6 +9,7 @@ import { z } from '../../zod.mjs';
 
 describe('ActionReturnType', () => {
 	it('Infers action return type', async () => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const action = defineAction({
 			input: z.object({
 				name: z.string(),

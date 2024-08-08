@@ -80,7 +80,7 @@ declare module 'astro:content' {
 		| ContentLayerConfig<S>;
 
 	export function defineCollection<S extends BaseSchema>(
-		input: CollectionConfig<S>
+		input: CollectionConfig<S>,
 	): CollectionConfig<S>;
 
 	/** Run `astro sync` to generate high fidelity types */

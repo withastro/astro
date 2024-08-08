@@ -124,7 +124,7 @@ export type TransitionAnimationValue =
 	| TransitionDirectionalAnimations;
 
 // Allow users to extend this for astro-jsx.d.ts
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface AstroClientDirectives {}
 
 export interface AstroBuiltinAttributes {
@@ -379,7 +379,7 @@ export interface AstroGlobalPartial {
 	 */
 	glob(globStr: `${any}.astro`): Promise<AstroInstance[]>;
 	glob<T extends Record<string, any>>(
-		globStr: `${any}${MarkdowFileExtension}`
+		globStr: `${any}${MarkdowFileExtension}`,
 	): Promise<MarkdownInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: `${any}.mdx`): Promise<MDXInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
@@ -460,7 +460,6 @@ export interface ViteUserConfig extends vite.UserConfig {
 }
 
 export interface ImageServiceConfig<T extends Record<string, any> = Record<string, any>> {
-	// eslint-disable-next-line @typescript-eslint/ban-types
 	entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
 	config?: T;
 }
@@ -1987,25 +1986,29 @@ export interface AstroUserConfig {
 		 * @version 4.10.0
 		 * @description
 		 *
-		 * Enables experimental `astro:env` features .
+		 * Enables experimental `astro:env` features.
 		 *
 		 * The `astro:env` API lets you configure a type-safe schema for your environment variables, and indicate whether they should be available on the server or the client. Import and use your defined variables from the appropriate `/client` or `/server` module:
 		 *
 		 * ```astro
 		 * ---
-		 * import { APP_ID } from "astro:env/client"
-		 * import { API_URL, API_TOKEN, getSecret } from "astro:env/server"
-		 * const NODE_ENV = getSecret("NODE_ENV")
+		 * import { API_URL } from "astro:env/client"
+		 * import { API_SECRET_TOKEN } from "astro:env/server"
 		 *
 		 * const data = await fetch(`${API_URL}/users`, {
-		 * 	method: "POST",
+		 * 	method: "GET",
 		 * 	headers: {
 		 * 		"Content-Type": "application/json",
-		 * 		"Authorization": `Bearer ${API_TOKEN}`
+		 * 		"Authorization": `Bearer ${API_SECRET_TOKEN}`
 		 * 	},
-		 * 	body: JSON.stringify({ appId: APP_ID, nodeEnv: NODE_ENV })
 		 * })
 		 * ---
+		 *
+		 * <script>
+		 * import { API_URL } from "astro:env/client"
+		 *
+		 * fetch(`${API_URL}/ping`)
+		 * </script>
 		 * ```
 		 *
 		 * To define the data type and properties of your environment variables, declare a schema in your Astro config in `experimental.env.schema`. The `envField` helper allows you define your variable as a string, number, or boolean and pass properties in an object:
@@ -2043,7 +2046,7 @@ export interface AstroUserConfig {
 		 *     import { PORT } from "astro:env/server"
 		 *     ```
 		 *
-		 * - **Secret server variables**: These variables are not part of your final bundle and can be accessed on the server through the `astro:env/server` module. The `getSecret()` helper function can be used to retrieve secrets not specified in the schema:
+		 * - **Secret server variables**: These variables are not part of your final bundle and can be accessed on the server through the `astro:env/server` module. The `getSecret()` helper function can be used to retrieve secrets not specified in the schema. Its implementation is provided by your adapter and defaults to `process.env`:
 		 *
 		 *     ```js
 		 *     import { API_SECRET, getSecret } from "astro:env/server"
@@ -2561,7 +2564,7 @@ export interface ContentEntryType {
 			contents: string;
 			fileUrl: URL;
 			viteId: string;
-		}
+		},
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
 	getRenderFunction?(settings: AstroSettings): Promise<ContentEntryRenderFuction>;
@@ -2648,7 +2651,7 @@ export type AsyncRendererComponentFn<U> = (
 	Component: any,
 	props: any,
 	slots: Record<string, string>,
-	metadata?: AstroComponentMetadata
+	metadata?: AstroComponentMetadata,
 ) => Promise<U>;
 
 /** Generic interface for a component (Astro, Svelte, React, etc.) */
@@ -2733,7 +2736,7 @@ export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
  * [Astro Reference](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
  */
 export type GetStaticPaths = (
-	options: GetStaticPathsOptions
+	options: GetStaticPathsOptions,
 ) => Promise<GetStaticPathsResult> | GetStaticPathsResult;
 
 /**
@@ -2756,7 +2759,7 @@ export type GetStaticPaths = (
  * ```
  */
 export type InferGetStaticParamsType<T> = T extends (
-	opts?: GetStaticPathsOptions
+	opts?: GetStaticPathsOptions,
 ) => infer R | Promise<infer R>
 	? R extends Array<infer U>
 		? U extends { params: infer P }
@@ -2789,7 +2792,7 @@ export type InferGetStaticParamsType<T> = T extends (
  * ```
  */
 export type InferGetStaticPropsType<T> = T extends (
-	opts: GetStaticPathsOptions
+	opts: GetStaticPathsOptions,
 ) => infer R | Promise<infer R>
 	? R extends Array<infer U>
 		? U extends { props: infer P }
@@ -2902,7 +2905,7 @@ export type PaginateFunction = <
 	AdditionalPaginateParams extends Params,
 >(
 	data: PaginateData[],
-	args?: PaginateOptions<AdditionalPaginateProps, AdditionalPaginateParams>
+	args?: PaginateOptions<AdditionalPaginateProps, AdditionalPaginateParams>,
 ) => {
 	params: Simplify<
 		{
@@ -3018,7 +3021,7 @@ interface AstroSharedContext<
 		TInputSchema extends ActionInputSchema<TAccept>,
 		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
 	>(
-		action: TAction
+		action: TAction,
 	) => ActionReturnType<TAction> | undefined;
 	/**
 	 * Call action handler from the server.
@@ -3032,7 +3035,7 @@ interface AstroSharedContext<
 			| ActionClient<TOutput, TAccept, TInputSchema>['orThrow'],
 	>(
 		action: TAction,
-		input: Parameters<TAction>[0]
+		input: Parameters<TAction>[0],
 	) => Promise<ActionReturnType<TAction>>;
 	/**
 	 * Route parameters for this request if this is a dynamic route.
@@ -3405,7 +3408,7 @@ export type RewritePayload = string | URL | Request;
 export type MiddlewareNext = (rewritePayload?: RewritePayload) => Promise<Response>;
 export type MiddlewareHandler = (
 	context: APIContext,
-	next: MiddlewareNext
+	next: MiddlewareNext,
 ) => Promise<Response> | Response | Promise<void> | void;
 
 // NOTE: when updating this file with other functions,
@@ -3521,7 +3524,7 @@ export interface SSRResult {
 	createAstro(
 		Astro: AstroGlobalPartial,
 		props: Record<string, any>,
-		slots: Record<string, any> | null
+		slots: Record<string, any> | null,
 	): AstroGlobal;
 	params: Params;
 	resolve: (s: string) => Promise<string>;
@@ -3589,7 +3592,7 @@ export interface PreviewServerParams {
 }
 
 export type CreatePreviewServer = (
-	params: PreviewServerParams
+	params: PreviewServerParams,
 ) => PreviewServer | Promise<PreviewServer>;
 
 export interface PreviewModule {
@@ -3614,7 +3617,7 @@ type DirectiveOptions = {
 export type ClientDirective = (
 	load: DirectiveLoad,
 	options: DirectiveOptions,
-	el: HTMLElement
+	el: HTMLElement,
 ) => void;
 
 export interface ClientDirectiveConfig {
@@ -3662,7 +3665,7 @@ export type DevToolbarApp = {
 	init?(
 		canvas: ShadowRoot,
 		app: ToolbarAppEventTarget,
-		server: ToolbarServerHelpers
+		server: ToolbarServerHelpers,
 	): void | Promise<void>;
 	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
 };
@@ -3727,7 +3730,7 @@ declare global {
 
 // Container types
 export type ContainerImportRendererFn = (
-	containerRenderer: ContainerRenderer
+	containerRenderer: ContainerRenderer,
 ) => Promise<SSRLoadedRenderer>;
 
 export type ContainerRenderer = {

@@ -14,7 +14,7 @@ import { createContainer, startContainer } from './container.js';
 
 async function createRestartedContainer(
 	container: Container,
-	settings: AstroSettings
+	settings: AstroSettings,
 ): Promise<Container> {
 	const { logger, fs, inlineConfig } = container;
 	const newContainer = await createContainer({
@@ -35,7 +35,7 @@ const preferencesRE = /.*\.astro\/settings.json$/;
 
 function shouldRestartContainer(
 	{ settings, inlineConfig, restartInFlight }: Container,
-	changedFile: string
+	changedFile: string,
 ): boolean {
 	if (restartInFlight) return false;
 
@@ -60,7 +60,7 @@ function shouldRestartContainer(
 	if (!shouldRestart && settings.watchFiles.length > 0) {
 		// If the config file didn't change, check if any of the watched files changed.
 		shouldRestart = settings.watchFiles.some(
-			(path) => vite.normalizePath(path) === vite.normalizePath(changedFile)
+			(path) => vite.normalizePath(path) === vite.normalizePath(changedFile),
 		);
 	}
 
@@ -82,7 +82,7 @@ async function restartContainer(container: Container): Promise<Container | Error
 		if (!isAstroConfigZodError(_err)) {
 			logger.error(
 				'config',
-				formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n'
+				formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n',
 			);
 		}
 		// Inform connected clients of the config error

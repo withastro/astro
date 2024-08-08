@@ -137,7 +137,7 @@ describe('Experimental Content Collections cache - inlineStylesheets to auto in 
 			// this test should be updated if it changes
 			assert.equal($('style').length, 3);
 			assert.equal($('link[rel=stylesheet]').length, 1);
-		}
+		},
 	);
 
 	describe('Inspect linked and inlined stylesheets', () => {
@@ -273,7 +273,7 @@ async function stylesFromServer(app) {
 			const cssRequest = new Request(`http://example.com${href}`);
 			const cssResponse = await app.render(cssRequest);
 			return await cssResponse.text();
-		})
+		}),
 	);
 	const allLinkedStyles = allLinkedStylesheets.join('');
 
@@ -299,7 +299,7 @@ function commonExpectations(allStyles) {
 
 			// authored in layouts/Layout.astro
 			assert.equal(allStyles.value.includes('Menlo'), true);
-		}
+		},
 	);
 
 	it('Styles used both in content layout and directly in page are included only once', () => {

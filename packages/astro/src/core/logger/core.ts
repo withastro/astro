@@ -77,7 +77,7 @@ export function log(
 	level: LoggerLevel,
 	label: string | null,
 	message: string,
-	newLine = true
+	newLine = true,
 ) {
 	const logLevel = opts.level;
 	const dest = opts.dest;

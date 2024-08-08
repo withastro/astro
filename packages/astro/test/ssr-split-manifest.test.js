@@ -48,7 +48,7 @@ describe('astro:ssr-manifest, split', () => {
 		const $ = cheerio.load(html);
 		assert.match(
 			$('#assets').text(),
-			/\["\/_astro\/index\.([\w-]{8})\.css","\/prerender\/index\.html"\]/
+			/\["\/_astro\/index\.([\w-]{8})\.css","\/prerender\/index\.html"\]/,
 		);
 	});
 
@@ -66,7 +66,7 @@ describe('astro:ssr-manifest, split', () => {
 			resolve('./test/fixtures/ssr-split-manifest/dist/client/prerender/index.html'),
 			{
 				encoding: 'utf8',
-			}
+			},
 		);
 		assert.equal(text.includes('<title>Pre render me</title>'), true);
 	});

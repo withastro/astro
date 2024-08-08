@@ -82,7 +82,7 @@ export function eventError({
 /**
  * Safely get the error message from an error, even if it's a function.
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 function getSafeErrorMessage(message: string | Function): string {
 	if (typeof message === 'string') {
 		return message;
@@ -105,7 +105,7 @@ function getSafeErrorMessage(message: string | Function): string {
 					`${match1
 						.split(/\.?(?=[A-Z])/)
 						.join('_')
-						.toUpperCase()}`
+						.toUpperCase()}`,
 			)
 			.replace(/\\`/g, '`');
 	}

@@ -36,7 +36,7 @@ describe('rehype-optimize-static', () => {
 			`\
 <_components.h1 {...{
   "set:html": "hello"
-}} />`
+}} />`,
 		);
 	});
 
@@ -50,7 +50,7 @@ foo bar
 			jsx,
 			`\
 <Fragment set:html="<h1>hello</h1>
-<p>foo bar</p>" />`
+<p>foo bar</p>" />`,
 		);
 	});
 
@@ -66,7 +66,7 @@ This is a <Comp />
 			jsx,
 			`\
 <><Fragment set:html="<h1>hello</h1>
-" /><_components.p>{"This is a "}<Comp /></_components.p></>`
+" /><_components.p>{"This is a "}<Comp /></_components.p></>`,
 		);
 	});
 
@@ -83,7 +83,7 @@ foo <strong>bar</strong> baz
 			`\
 <Fragment set:html="<h1>hello</h1>
 <p>foo <strong>bar</strong> baz</p>
-<strong>qux</strong>" />`
+<strong>qux</strong>" />`,
 		);
 	});
 });

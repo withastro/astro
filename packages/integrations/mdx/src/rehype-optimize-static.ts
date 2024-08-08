@@ -183,7 +183,7 @@ interface ElementGroup {
 function findElementGroups(
 	allPossibleElements: Set<OptimizableNode>,
 	elementMetadatas: WeakMap<OptimizableNode, ElementMetadata>,
-	isNodeNonStatic: (node: Node) => boolean
+	isNodeNonStatic: (node: Node) => boolean,
 ): ElementGroup[] {
 	const elementGroups: ElementGroup[] = [];
 
@@ -195,7 +195,7 @@ function findElementGroups(
 		const metadata = elementMetadatas.get(el);
 		if (!metadata) {
 			throw new Error(
-				'Internal MDX error: rehype-optimize-static should have metadata for element node'
+				'Internal MDX error: rehype-optimize-static should have metadata for element node',
 			);
 		}
 

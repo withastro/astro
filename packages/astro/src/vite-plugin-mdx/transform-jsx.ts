@@ -11,7 +11,7 @@ import { tagExportsPlugin } from './tag.js';
 export async function transformJSX(
 	code: string,
 	id: string,
-	ssr?: boolean
+	ssr?: boolean,
 ): Promise<TransformResult> {
 	const options = await getJsxTransformOptions();
 	const plugins = ssr ? [...(options.plugins ?? []), tagExportsPlugin] : options.plugins;

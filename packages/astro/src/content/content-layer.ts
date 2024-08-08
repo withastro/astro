@@ -134,12 +134,12 @@ export class ContentLayer {
 		}
 		if (!this.#settings.config.experimental.contentLayer) {
 			const contentLayerCollections = Object.entries(contentConfig.config.collections).filter(
-				([_, collection]) => collection.type === CONTENT_LAYER_TYPE
+				([_, collection]) => collection.type === CONTENT_LAYER_TYPE,
 			);
 			if (contentLayerCollections.length > 0) {
 				throw new AstroUserError(
 					`The following collections have a loader defined, but the content layer is not enabled: ${contentLayerCollections.map(([title]) => title).join(', ')}.`,
-					'To enable the content layer, set `experimental: { contentLayer: true }` in your Astro config file.'
+					'To enable the content layer, set `experimental: { contentLayer: true }` in your Astro config file.',
 				);
 			}
 			return;
@@ -185,7 +185,7 @@ export class ContentLayer {
 							},
 						},
 						collectionWithResolvedSchema,
-						false
+						false,
 					);
 					if (imageImports?.length) {
 						this.#store.addAssetImports(
@@ -193,7 +193,7 @@ export class ContentLayer {
 							// This path may already be relative, if we're re-parsing an existing entry
 							isAbsolute(filePath)
 								? posixRelative(fileURLToPath(this.#settings.config.root), filePath)
-								: filePath
+								: filePath,
 						);
 					}
 
@@ -215,7 +215,7 @@ export class ContentLayer {
 				}
 
 				return collection.loader.load(context);
-			})
+			}),
 		);
 		if (!existsSync(this.#settings.config.cacheDir)) {
 			await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
@@ -235,7 +235,7 @@ export class ContentLayer {
 
 export async function simpleLoader<TData extends { id: string }>(
 	handler: () => Array<TData> | Promise<Array<TData>>,
-	context: LoaderContext
+	context: LoaderContext,
 ) {
 	const data = await handler();
 	context.store.clear();

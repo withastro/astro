@@ -51,12 +51,12 @@ function generateIdDefault({ entry, base, data }: GenerateIdOptions): string {
 export function glob(globOptions: GlobOptions): Loader {
 	if (globOptions.pattern.startsWith('../')) {
 		throw new Error(
-			'Glob patterns cannot start with `../`. Set the `base` option to a parent directory instead.'
+			'Glob patterns cannot start with `../`. Set the `base` option to a parent directory instead.',
 		);
 	}
 	if (globOptions.pattern.startsWith('/')) {
 		throw new Error(
-			'Glob patterns cannot start with `/`. Set the `base` option to a parent directory or use a relative path instead.'
+			'Glob patterns cannot start with `/`. Set the `base` option to a parent directory or use a relative path instead.',
 		);
 	}
 
@@ -111,7 +111,7 @@ export function glob(globOptions: GlobOptions): Loader {
 						// Add asset imports for existing entries
 						store.addAssetImports(
 							existingEntry.rendered.metadata.imagePaths,
-							existingEntry.filePath
+							existingEntry.filePath,
 						);
 					}
 					// Re-parsing to resolve images and other effects
@@ -214,7 +214,7 @@ export function glob(globOptions: GlobOptions): Loader {
 			}
 
 			const configFiles = new Set(
-				['config.js', 'config.ts', 'config.mjs'].map((file) => new URL(file, contentDir).href)
+				['config.js', 'config.ts', 'config.mjs'].map((file) => new URL(file, contentDir).href),
 			);
 
 			function isConfigFile(file: string) {
@@ -235,7 +235,7 @@ export function glob(globOptions: GlobOptions): Loader {
 						const entryType = configForFile(entry);
 						await syncData(entry, baseDir, entryType);
 					});
-				})
+				}),
 			);
 
 			const skipCount = skippedFiles.length;
@@ -244,7 +244,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				logger.warn(`The glob() loader cannot be used for files in ${bold('src/content')}.`);
 				if (skipCount > 10) {
 					logger.warn(
-						`Skipped ${green(skippedFiles.length)} files that matched ${green(globOptions.pattern)}.`
+						`Skipped ${green(skippedFiles.length)} files that matched ${green(globOptions.pattern)}.`,
 					);
 				} else {
 					logger.warn(`Skipped the following files that matched ${green(globOptions.pattern)}:`);

@@ -74,8 +74,8 @@ async function benchmark({ fixtures, templates, numPosts }) {
 			const fixtures = formats.filter((format) => format !== 'md');
 			console.log(
 				`\n${bold('With Astro components')} ${dim(
-					`${numPosts} posts (${formatsToString(fixtures)})`
-				)}`
+					`${numPosts} posts (${formatsToString(fixtures)})`,
+				)}`,
 			);
 			process.env.ASTRO_PERFORMANCE_TEST_NAME = 'with-astro-components';
 			await benchmark({
@@ -92,8 +92,8 @@ async function benchmark({ fixtures, templates, numPosts }) {
 			const fixtures = formats.filter((format) => format !== 'md');
 			console.log(
 				`\n${bold('With React components')} ${dim(
-					`${numPosts} posts (${formatsToString(fixtures)})`
-				)}`
+					`${numPosts} posts (${formatsToString(fixtures)})`,
+				)}`,
 			);
 			process.env.ASTRO_PERFORMANCE_TEST_NAME = 'with-react-components';
 			await benchmark({

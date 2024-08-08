@@ -178,8 +178,8 @@ function getStringifiedTableExports(tables: DBTables) {
 		.map(
 			([name, table]) =>
 				`export const ${name} = asDrizzleTable(${JSON.stringify(name)}, ${JSON.stringify(
-					table
-				)}, false)`
+					table,
+				)}, false)`,
 		)
 		.join('\n');
 }

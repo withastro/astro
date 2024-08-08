@@ -55,7 +55,7 @@ export function getOutputFilename(astroConfig: AstroConfig, name: string, type: 
 
 /** is a specifier an npm package? */
 export function parseNpmName(
-	spec: string
+	spec: string,
 ): { scope?: string; name: string; subpath?: string } | undefined {
 	// not an npm package
 	if (!spec || spec[0] === '.' || spec[0] === '/') return undefined;

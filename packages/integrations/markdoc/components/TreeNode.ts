@@ -42,7 +42,7 @@ export const ComponentNode = createComponent({
 		const slots = {
 			default: () =>
 				render`${treeNode.children.map((child) =>
-					renderComponent(result, 'ComponentNode', ComponentNode, { treeNode: child })
+					renderComponent(result, 'ComponentNode', ComponentNode, { treeNode: child }),
 				)}`,
 		};
 		if (treeNode.type === 'component') {
@@ -55,7 +55,7 @@ export const ComponentNode = createComponent({
 						renderUniqueStylesheet(result, {
 							type: 'inline',
 							content: style,
-						})
+						}),
 					)
 					.join('');
 			}
@@ -84,8 +84,8 @@ export const ComponentNode = createComponent({
 					treeNode.component.name,
 					treeNode.component,
 					treeNode.props,
-					slots
-				)}`
+					slots,
+				)}`,
 			);
 
 			// Let the runtime know that this component is being used.

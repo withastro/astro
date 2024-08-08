@@ -400,7 +400,7 @@ export default new Map([\n${lines.join(',\n')}]);
 
 export interface ScopedDataStore {
 	get: <TData extends Record<string, unknown> = Record<string, unknown>>(
-		key: string
+		key: string,
 	) => DataEntry<TData> | undefined;
 	entries: () => Array<[id: string, DataEntry]>;
 	set: <TData extends Record<string, unknown>>(opts: {

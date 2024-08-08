@@ -45,7 +45,7 @@ export function astroEnv({
 			const loadedEnv = loadEnv(
 				mode === 'dev' ? 'development' : 'production',
 				fileURLToPath(settings.config.root),
-				''
+				'',
 			);
 			for (const [key, value] of Object.entries(loadedEnv)) {
 				if (value !== undefined) {
@@ -138,7 +138,7 @@ function validatePublicVariables({
 function getTemplates(
 	schema: EnvSchema,
 	fs: typeof fsMod,
-	validatedVariables: ReturnType<typeof validatePublicVariables>
+	validatedVariables: ReturnType<typeof validatePublicVariables>,
 ) {
 	let client = '';
 	let server = fs.readFileSync(MODULE_TEMPLATE_URL, 'utf-8');
