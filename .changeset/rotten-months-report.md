@@ -7,7 +7,7 @@ Improves user experience when render an Action result from a form POST request:
 - Removes "Confirm post resubmission?" dialog when refreshing a result.
 - Removes the `?_astroAction=NAME` flag when a result is rendered.
 
-Also improves the DX of directing to a new route on success. Actions will now redirect to the route specified in your `action` string on success, and redirect back to the previous page on error.
+Also improves the DX of directing to a new route on success. Actions will now redirect to the route specified in your `action` string on success, and redirect back to the previous page on error. This follows the routing convention of established backend frameworks like Laravel.
 
 For example, say you want to redirect to a `/success` route when `actions.signup` succeeds. You can add `/success` to your `action` string like so:
 
