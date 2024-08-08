@@ -15,7 +15,7 @@ async function check(
 	this: RendererContext,
 	Component: any,
 	props: Record<string, any>,
-	children: any
+	children: any,
 ) {
 	if (typeof Component !== 'function') return false;
 	if (Component.name === 'QwikComponent') return false;
@@ -53,7 +53,7 @@ async function renderToStaticMarkup(
 	Component: any,
 	props: Record<string, any>,
 	{ default: children, ...slotted }: Record<string, any>,
-	metadata: AstroComponentMetadata | undefined
+	metadata: AstroComponentMetadata | undefined,
 ) {
 	const ctx = getContext(this.result);
 
@@ -83,7 +83,7 @@ async function renderToStaticMarkup(
 					hydrate: shouldHydrate(metadata),
 					value: children,
 				})
-			: children
+			: children,
 	);
 
 	const html = await renderToStringAsync(vNode);
