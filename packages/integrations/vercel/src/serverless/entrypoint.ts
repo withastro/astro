@@ -18,7 +18,7 @@ applyPolyfills();
 
 export const createExports = (
 	manifest: SSRManifest,
-	{ middlewareSecret, skewProtection }: { middlewareSecret: string; skewProtection: boolean }
+	{ middlewareSecret, skewProtection }: { middlewareSecret: string; skewProtection: boolean },
 ) => {
 	const app = new NodeApp(manifest);
 	const handler = async (req: IncomingMessage, res: ServerResponse) => {

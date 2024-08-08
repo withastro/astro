@@ -41,7 +41,7 @@ function createSlotDefinition(key, children) {
 				parent = target;
 				target.insertAdjacentHTML(
 					'beforeend',
-					`<astro-slot${key === 'default' ? '' : ` name="${key}"`}>${children}</astro-slot>`
+					`<astro-slot${key === 'default' ? '' : ` name="${key}"`}>${children}</astro-slot>`,
 				);
 			},
 			// create
@@ -52,7 +52,7 @@ function createSlotDefinition(key, children) {
 			d() {
 				if (!parent) return;
 				const slot = parent.querySelector(
-					`astro-slot${key === 'default' ? ':not([name])' : `[name="${key}"]`}`
+					`astro-slot${key === 'default' ? ':not([name])' : `[name="${key}"]`}`,
 				);
 				if (slot) slot.remove();
 			},

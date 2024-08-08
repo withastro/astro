@@ -41,7 +41,7 @@ export class ContainerPipeline extends Pipeline {
 			renderers,
 			resolve,
 			serverLike,
-			streaming
+			streaming,
 		);
 	}
 
@@ -70,7 +70,7 @@ export class ContainerPipeline extends Pipeline {
 
 	async tryRewrite(
 		payload: RewritePayload,
-		request: Request
+		request: Request,
 	): Promise<[RouteData, ComponentInstance, URL]> {
 		const [foundRoute, finalUrl] = findRouteToRewrite({
 			payload,

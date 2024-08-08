@@ -18,7 +18,7 @@ export async function* crawlGraph(
 	loader: ModuleLoader,
 	_id: string,
 	isRootFile: boolean,
-	scanned = new Set<string>()
+	scanned = new Set<string>(),
 ): AsyncGenerator<ModuleNode, void, unknown> {
 	const id = unwrapId(_id);
 	const importedModules = new Set<ModuleNode>();

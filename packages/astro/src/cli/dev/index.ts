@@ -23,7 +23,7 @@ export async function dev({ flags }: DevOptions) {
 				],
 			},
 			description: `Check ${cyan(
-				'https://docs.astro.build/en/reference/cli-reference/#astro-dev'
+				'https://docs.astro.build/en/reference/cli-reference/#astro-dev',
 			)} for more information.`,
 		});
 		return;

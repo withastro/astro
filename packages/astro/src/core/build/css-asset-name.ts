@@ -21,7 +21,7 @@ export function shortHashedName(settings: AstroSettings) {
 		return createNameHash(
 			getFirstParentId(parents),
 			parents.map((page) => page.id),
-			settings
+			settings,
 		);
 	};
 }
@@ -29,7 +29,7 @@ export function shortHashedName(settings: AstroSettings) {
 export function createNameHash(
 	baseId: string | undefined,
 	hashIds: string[],
-	settings: AstroSettings
+	settings: AstroSettings,
 ): string {
 	const baseName = baseId ? prettifyBaseName(npath.parse(baseId).name) : 'index';
 	const hash = crypto.createHash('sha256');

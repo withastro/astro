@@ -93,7 +93,7 @@ async function copyToClipboard(text: string) {
 		});
 	} catch {
 		console.error(
-			colors.red(`\nSorry, something went wrong!`) + ` Please copy the text above manually.`
+			colors.red(`\nSorry, something went wrong!`) + ` Please copy the text above manually.`,
 		);
 	}
 }

@@ -83,7 +83,7 @@ export const GET: APIRoute = async ({ request }) => {
 
 		if (!transform?.src) {
 			const err = new Error(
-				'Incorrect transform returned by `parseURL`. Expected a transform with a `src` property.'
+				'Incorrect transform returned by `parseURL`. Expected a transform with a `src` property.',
 			);
 			console.error('Could not parse image transform from URL:', err);
 			return new Response('Internal Server Error', { status: 500 });
@@ -122,7 +122,7 @@ export const GET: APIRoute = async ({ request }) => {
 			import.meta.env.DEV ? `Could not process image request: ${err}` : `Internal Server Error`,
 			{
 				status: 500,
-			}
+			},
 		);
 	}
 };

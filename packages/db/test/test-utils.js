@@ -78,7 +78,7 @@ function createRemoteDbServer() {
 			res.end(
 				JSON.stringify({
 					success: false,
-				})
+				}),
 			);
 			return;
 		}
@@ -116,7 +116,7 @@ function createRemoteDbServer() {
 							code: e instanceof LibsqlError ? e.code : 'SQLITE_QUERY_FAILED',
 							details: e.message,
 						},
-					})
+					}),
 				);
 			}
 		});
@@ -137,6 +137,6 @@ function applyParseError(res) {
 			// Use JSON response with `success: boolean` property
 			// to match remote error responses.
 			success: false,
-		})
+		}),
 	);
 }

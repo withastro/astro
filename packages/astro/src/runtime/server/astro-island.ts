@@ -8,7 +8,7 @@ declare const Astro: {
 	[k in directiveAstroKeys]?: (
 		fn: () => Promise<() => void>,
 		opts: Record<string, any>,
-		root: HTMLElement
+		root: HTMLElement,
 	) => unknown;
 };
 
@@ -123,7 +123,7 @@ declare const Astro: {
 						return this.hydrate;
 					},
 					opts,
-					this
+					this,
 				);
 			} catch (e) {
 				// eslint-disable-next-line no-console
@@ -182,7 +182,7 @@ declare const Astro: {
 				console.error(
 					`[hydrate] Error parsing props for component ${componentName}`,
 					this.getAttribute('props'),
-					e
+					e,
 				);
 				throw e;
 			}
@@ -195,7 +195,7 @@ declare const Astro: {
 			if (process.env.NODE_ENV === 'development' && hydrationTimeStart)
 				this.setAttribute(
 					'client-render-time',
-					(performance.now() - hydrationTimeStart).toString()
+					(performance.now() - hydrationTimeStart).toString(),
 				);
 			this.removeAttribute('ssr');
 			this.dispatchEvent(new CustomEvent('astro:hydrate'));

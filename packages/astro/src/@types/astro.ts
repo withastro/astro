@@ -378,7 +378,7 @@ export interface AstroGlobalPartial {
 	 */
 	glob(globStr: `${any}.astro`): Promise<AstroInstance[]>;
 	glob<T extends Record<string, any>>(
-		globStr: `${any}${MarkdowFileExtension}`
+		globStr: `${any}${MarkdowFileExtension}`,
 	): Promise<MarkdownInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: `${any}.mdx`): Promise<MDXInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
@@ -2300,7 +2300,7 @@ export interface ContentEntryType {
 			contents: string;
 			fileUrl: URL;
 			viteId: string;
-		}
+		},
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
 	/**
@@ -2385,7 +2385,7 @@ export type AsyncRendererComponentFn<U> = (
 	Component: any,
 	props: any,
 	slots: Record<string, string>,
-	metadata?: AstroComponentMetadata
+	metadata?: AstroComponentMetadata,
 ) => Promise<U>;
 
 /** Generic interface for a component (Astro, Svelte, React, etc.) */
@@ -2470,7 +2470,7 @@ export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
  * [Astro Reference](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
  */
 export type GetStaticPaths = (
-	options: GetStaticPathsOptions
+	options: GetStaticPathsOptions,
 ) => Promise<GetStaticPathsResult> | GetStaticPathsResult;
 
 /**
@@ -2493,7 +2493,7 @@ export type GetStaticPaths = (
  * ```
  */
 export type InferGetStaticParamsType<T> = T extends (
-	opts?: GetStaticPathsOptions
+	opts?: GetStaticPathsOptions,
 ) => infer R | Promise<infer R>
 	? R extends Array<infer U>
 		? U extends { params: infer P }
@@ -2526,7 +2526,7 @@ export type InferGetStaticParamsType<T> = T extends (
  * ```
  */
 export type InferGetStaticPropsType<T> = T extends (
-	opts: GetStaticPathsOptions
+	opts: GetStaticPathsOptions,
 ) => infer R | Promise<infer R>
 	? R extends Array<infer U>
 		? U extends { props: infer P }
@@ -2639,7 +2639,7 @@ export type PaginateFunction = <
 	AdditionalPaginateParams extends Params,
 >(
 	data: PaginateData[],
-	args?: PaginateOptions<AdditionalPaginateProps, AdditionalPaginateParams>
+	args?: PaginateOptions<AdditionalPaginateProps, AdditionalPaginateParams>,
 ) => {
 	params: Simplify<
 		{
@@ -2755,7 +2755,7 @@ interface AstroSharedContext<
 		TInputSchema extends ActionInputSchema<TAccept>,
 		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
 	>(
-		action: TAction
+		action: TAction,
 	) => ActionReturnType<TAction> | undefined;
 	/**
 	 * Call action handler from the server.
@@ -2769,7 +2769,7 @@ interface AstroSharedContext<
 			| ActionClient<TOutput, TAccept, TInputSchema>['orThrow'],
 	>(
 		action: TAction,
-		input: Parameters<TAction>[0]
+		input: Parameters<TAction>[0],
 	) => Promise<ActionReturnType<TAction>>;
 	/**
 	 * Route parameters for this request if this is a dynamic route.
@@ -3142,7 +3142,7 @@ export type RewritePayload = string | URL | Request;
 export type MiddlewareNext = (rewritePayload?: RewritePayload) => Promise<Response>;
 export type MiddlewareHandler = (
 	context: APIContext,
-	next: MiddlewareNext
+	next: MiddlewareNext,
 ) => Promise<Response> | Response | Promise<void> | void;
 
 // NOTE: when updating this file with other functions,
@@ -3258,7 +3258,7 @@ export interface SSRResult {
 	createAstro(
 		Astro: AstroGlobalPartial,
 		props: Record<string, any>,
-		slots: Record<string, any> | null
+		slots: Record<string, any> | null,
 	): AstroGlobal;
 	params: Params;
 	resolve: (s: string) => Promise<string>;
@@ -3326,7 +3326,7 @@ export interface PreviewServerParams {
 }
 
 export type CreatePreviewServer = (
-	params: PreviewServerParams
+	params: PreviewServerParams,
 ) => PreviewServer | Promise<PreviewServer>;
 
 export interface PreviewModule {
@@ -3351,7 +3351,7 @@ type DirectiveOptions = {
 export type ClientDirective = (
 	load: DirectiveLoad,
 	options: DirectiveOptions,
-	el: HTMLElement
+	el: HTMLElement,
 ) => void;
 
 export interface ClientDirectiveConfig {
@@ -3399,7 +3399,7 @@ export type DevToolbarApp = {
 	init?(
 		canvas: ShadowRoot,
 		app: ToolbarAppEventTarget,
-		server: ToolbarServerHelpers
+		server: ToolbarServerHelpers,
 	): void | Promise<void>;
 	beforeTogglingOff?(canvas: ShadowRoot): boolean | Promise<boolean>;
 };
@@ -3464,7 +3464,7 @@ declare global {
 
 // Container types
 export type ContainerImportRendererFn = (
-	containerRenderer: ContainerRenderer
+	containerRenderer: ContainerRenderer,
 ) => Promise<SSRLoadedRenderer>;
 
 export type ContainerRenderer = {

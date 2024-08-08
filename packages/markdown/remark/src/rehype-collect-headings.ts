@@ -97,7 +97,7 @@ function getMdxFrontmatterVariablePath(node: MdxTextExpression): string[] | Erro
 		expressionPath.push(
 			expression.property.type === 'Literal'
 				? String(expression.property.value)
-				: expression.property.name
+				: expression.property.name,
 		);
 
 		expression = expression.object;

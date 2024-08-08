@@ -13,7 +13,7 @@ function virtualHoistedEntry(id: string) {
 
 export function vitePluginHoistedScripts(
 	settings: AstroSettings,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): VitePlugin {
 	let assetsInlineLimit: NonNullable<BuildOptions['assetsInlineLimit']>;
 
@@ -104,7 +104,7 @@ export function vitePluginHoistedScripts(
 
 export function pluginHoistedScripts(
 	options: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): AstroBuildPlugin {
 	return {
 		targets: ['client'],

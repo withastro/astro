@@ -10,7 +10,7 @@ export function rehypeApplyFrontmatterExport() {
 			throw new Error(
 				// Copied from Astro core `errors-data`
 				// TODO: find way to import error data from core
-				'[MDX] A remark or rehype plugin attempted to inject invalid frontmatter. Ensure "astro.frontmatter" is set to a valid JSON object that is not `null` or `undefined`.'
+				'[MDX] A remark or rehype plugin attempted to inject invalid frontmatter. Ensure "astro.frontmatter" is set to a valid JSON object that is not `null` or `undefined`.',
 			);
 		const { frontmatter } = astroData;
 		const exportNodes = [
@@ -40,8 +40,8 @@ export function rehypeApplyFrontmatterExport() {
 						'server:root': true,
 						children,
 					});
-				};`
-				)
+				};`,
+				),
 			);
 		}
 		tree.children = exportNodes.concat(tree.children);

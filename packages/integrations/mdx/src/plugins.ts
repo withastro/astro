@@ -86,7 +86,7 @@ function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
 		// Render info from `vfile.data.astro.data.frontmatter` as JS
 		rehypeApplyFrontmatterExport,
 		// Analyze MDX nodes and attach to `vfile.data.__astroMetadata`
-		rehypeAnalyzeAstroMetadata
+		rehypeAnalyzeAstroMetadata,
 	);
 
 	if (mdxOptions.optimize) {

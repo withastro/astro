@@ -17,7 +17,7 @@ describe('core/render chunk', () => {
 				<div id="chunk">{value}</div>
 			`,
 			},
-			root
+			root,
 		);
 
 		await runInContainer(
@@ -47,7 +47,7 @@ describe('core/render chunk', () => {
 				} catch {
 					assert.fail();
 				}
-			}
+			},
 		);
 	});
 });

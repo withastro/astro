@@ -157,7 +157,7 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 				theme: cssVariablesTheme(),
 				transformers: [
 					transformerCompactLineOptions(
-						err.loc?.line ? [{ line: err.loc.line, classes: ['error-line'] }] : undefined
+						err.loc?.line ? [{ line: err.loc.line, classes: ['error-line'] }] : undefined,
 					),
 				],
 			})
@@ -198,7 +198,7 @@ function transformerCompactLineOptions(
 		 */
 		line: number;
 		classes?: string[];
-	}[] = []
+	}[] = [],
 ): ShikiTransformer {
 	return {
 		name: '@shikijs/transformers:compact-line-options',

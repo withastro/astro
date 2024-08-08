@@ -8,7 +8,7 @@ import { compile } from 'path-to-regexp';
  * @returns {Record<string, string | number | undefined>} The sanitized parameters object.
  */
 function sanitizeParams(
-	params: Record<string, string | number | undefined>
+	params: Record<string, string | number | undefined>,
 ): Record<string, string | number | undefined> {
 	return Object.fromEntries(
 		Object.entries(params).map(([key, value]) => {
@@ -16,13 +16,13 @@ function sanitizeParams(
 				return [key, value.normalize().replace(/#/g, '%23').replace(/\?/g, '%3F')];
 			}
 			return [key, value];
-		})
+		}),
 	);
 }
 
 export function getRouteGenerator(
 	segments: RoutePart[][],
-	addTrailingSlash: AstroConfig['trailingSlash']
+	addTrailingSlash: AstroConfig['trailingSlash'],
 ) {
 	const template = segments
 		.map((segment) => {

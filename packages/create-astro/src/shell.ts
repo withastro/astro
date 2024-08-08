@@ -22,7 +22,7 @@ const text = (stream: NodeJS.ReadableStream | Readable | null) =>
 export async function shell(
 	command: string,
 	flags: string[],
-	opts: ExecaOptions = {}
+	opts: ExecaOptions = {},
 ): Promise<Output> {
 	let child: ChildProcess;
 	let stdout = '';

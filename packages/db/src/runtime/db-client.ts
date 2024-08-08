@@ -12,7 +12,7 @@ function applyTransactionNotSupported(db: SqliteRemoteDatabase) {
 	Object.assign(db, {
 		transaction() {
 			throw new Error(
-				'`db.transaction()` is not currently supported. We recommend `db.batch()` for automatic error rollbacks across multiple queries.'
+				'`db.transaction()` is not currently supported. We recommend `db.batch()` for automatic error rollbacks across multiple queries.',
 			);
 		},
 	});
@@ -57,7 +57,7 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 				},
 				async (response) => {
 					throw await parseRemoteError(response);
-				}
+				},
 			);
 
 			let remoteResult: z.infer<typeof remoteResultSchema>;
@@ -118,7 +118,7 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 				},
 				async (response) => {
 					throw await parseRemoteError(response);
-				}
+				},
 			);
 
 			let remoteResults: z.infer<typeof remoteResultSchema>[];
@@ -154,7 +154,7 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 				results.push({ rows: rowValues });
 			}
 			return results;
-		}
+		},
 	);
 	applyTransactionNotSupported(db);
 	return db;

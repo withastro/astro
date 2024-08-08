@@ -5,7 +5,7 @@ export function rehypeInjectHeadingsExport() {
 	return function (tree: any, file: MarkdownVFile) {
 		const headings: MarkdownHeading[] = file.data.__astroHeadings || [];
 		tree.children.unshift(
-			jsToTreeNode(`export function getHeadings() { return ${JSON.stringify(headings)} }`)
+			jsToTreeNode(`export function getHeadings() { return ${JSON.stringify(headings)} }`),
 		);
 	};
 }

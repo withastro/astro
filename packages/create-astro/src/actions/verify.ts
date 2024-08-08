@@ -6,7 +6,7 @@ import { bannerAbort, error, info, log } from '../messages.js';
 import { getTemplateTarget } from './template.js';
 
 export async function verify(
-	ctx: Pick<Context, 'version' | 'dryRun' | 'template' | 'ref' | 'exit'>
+	ctx: Pick<Context, 'version' | 'dryRun' | 'template' | 'ref' | 'exit'>,
 ) {
 	if (!ctx.dryRun) {
 		const online = await isOnline();
@@ -33,7 +33,7 @@ export async function verify(
 function isOnline(): Promise<boolean> {
 	return dns.lookup('github.com').then(
 		() => true,
-		() => false
+		() => false,
 	);
 }
 
