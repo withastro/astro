@@ -200,7 +200,6 @@ describe('Astro Actions', () => {
 			assert.equal(res.status, 401);
 
 			const html = await res.text();
-			console.log({ html });
 			let $ = cheerio.load(html);
 			assert.equal($('#error-message').text(), 'Not logged in');
 			assert.equal($('#error-code').text(), 'UNAUTHORIZED');
@@ -362,7 +361,7 @@ async function followExpectedRedirect(req, app) {
 	const redirect = await app.render(req, { addCookieHeader: true });
 	assert.ok(
 		validRedirectStatuses.has(redirect.status),
-		`Expected redirect status, got ${redirect.status}`
+		`Expected redirect status, got ${redirect.status}`,
 	);
 
 	const redirectUrl = new URL(redirect.headers.get('Location'), req.url);
