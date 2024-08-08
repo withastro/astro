@@ -221,7 +221,6 @@ export default new Map([${exports.join(', ')}]);
 export default new Map([\n${lines.join(',\n')}]);
 		`;
 		try {
-			console.log("writing to disk now")
 			await fs.writeFile(filePath, code);
 		} catch (err) {
 			throw new AstroError({
@@ -313,6 +312,9 @@ export default new Map([\n${lines.join(',\n')}]);
 				}
 				if (deferredRender) {
 					entry.deferredRender = deferredRender;
+					if (filePath) {
+						this.addModuleImport(filePath)
+					}
 				}
 				this.set(collectionName, id, entry);
 				return true;

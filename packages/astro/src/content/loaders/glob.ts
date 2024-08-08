@@ -103,7 +103,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				const digest = generateDigest(contents);
 
 				if (existingEntry && existingEntry.digest === digest && existingEntry.filePath) {
-					if (entryType.extensions.includes('.mdx')) {
+					if (existingEntry.deferredRender) {
 						store.addModuleImport(existingEntry.filePath);
 					}
 
@@ -130,7 +130,6 @@ export function glob(globOptions: GlobOptions): Loader {
 				});
 
 				if (entryType.extensions.includes('.mdx')) {
-					store.addModuleImport(relativePath);
 					store.set({ id, data: parsedData, body, filePath: relativePath, digest, deferredRender: true });
 				} else if (entryType.getRenderFunction) {
 					let render = renderFunctionByContentType.get(entryType);
