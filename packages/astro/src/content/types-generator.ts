@@ -512,7 +512,8 @@ async function writeContentFiles({
 					contentPaths.contentDir + `${key}/`,
 				).toString();
 
-				contentCollectionManifest.entries[entryPath] = key;
+				// Save entry path in lower case to avoid case sensitivity issues between Windows and Unix
+				contentCollectionManifest.entries[entryPath.toLowerCase()] = key;
 			});
 		});
 
