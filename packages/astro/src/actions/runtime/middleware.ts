@@ -111,7 +111,7 @@ async function handlePost({
 	const action = baseAction.bind(context);
 	const actionResult = await action(formData);
 
-	if (context.url.searchParams.has('_astroActionDisableRedirect')) {
+	if (context.url.searchParams.get(ACTION_QUERY_PARAMS.actionRedirect) === 'false') {
 		return renderResult({
 			context,
 			next,

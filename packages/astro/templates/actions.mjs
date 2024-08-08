@@ -1,4 +1,9 @@
-import { ActionError, deserializeActionResult, getActionQueryString } from 'astro:actions';
+import {
+	ActionError,
+	deserializeActionResult,
+	getActionQueryString,
+	ACTION_QUERY_PARAMS,
+} from 'astro:actions';
 
 function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 	return new Proxy(actionCallback, {
@@ -20,7 +25,7 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 					// Astro will redirect with a GET request by default.
 					// Disable this behavior to preserve form state
 					// for React's progressive enhancement.
-					searchParams.set('_astroActionDisableRedirect', 'true');
+					searchParams.set(ACTION_QUERY_PARAMS.actionRedirect, 'false');
 					return {
 						method: 'POST',
 						// `name` creates a hidden input.
