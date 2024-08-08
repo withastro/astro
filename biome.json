@@ -1,5 +1,5 @@
 {
-  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "$schema": "https://biomejs.dev/schemas/1.8.1/schema.json",
   "files": {
     "ignore": [
       "**/dist/**/*",
@@ -15,26 +15,42 @@
     "ignoreUnknown": true
   },
   "formatter": {
-    "lineWidth": 100
-  },
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "single",
-      "trailingComma": "all"
-    }
-  },
-  "json": {
-    "formatter": {
-      "indentStyle": "space"
-    },
-    "parser": {
-      "allowComments": true
-    }
+    "indentStyle": "tab",
+    "indentWidth": 2,
+    "lineWidth": 100,
+    "ignore": [".changeset", "pnpm-lock.yaml", "*.astro"]
   },
   "organizeImports": {
     "enabled": true
   },
   "linter": {
     "enabled": false
-  }
+  },
+  "javascript": {
+    "formatter": {
+      "trailingCommas": "all",
+      "quoteStyle": "single",
+      "semicolons": "always"
+    }
+  },
+  "json": {
+    "parser": {
+      "allowComments": true,
+      "allowTrailingCommas": true
+    },
+    "formatter": {
+      "indentStyle": "space",
+      "trailingCommas": "none"
+    }
+  },
+  "overrides": [
+    {
+      "include": ["package.json"],
+      "json": {
+        "formatter": {
+          "lineWidth": 1
+        }
+      }
+    }
+  ]
 }

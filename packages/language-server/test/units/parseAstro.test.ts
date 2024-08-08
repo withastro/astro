@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { getAstroMetadata } from '../../src/core/parseAstro.js';
+import { getAstroMetadata } from '../../dist/core/parseAstro.js';
 import { createCompilerPoint, createCompilerPosition } from '../utils.js';
 
 describe('parseAstro - Can parse astro files', () => {

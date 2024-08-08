@@ -55,7 +55,7 @@ describe('TypeScript - Cache invalidation', async () => {
 
 		try {
 			await mkdir(path.join(fixtureDir, 'caching'));
-		} catch (e) {}
+		} catch {}
 
 		await createFile('toBeDeleted.astro', '');
 	});

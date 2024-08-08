@@ -28,7 +28,7 @@ export function getPackagePath(
 		return root
 			? dirname(require.resolve(packageName + '/package.json', { paths }))
 			: require.resolve(packageName, { paths });
-	} catch (e) {
+	} catch {
 		return undefined;
 	}
 }

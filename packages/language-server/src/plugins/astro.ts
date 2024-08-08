@@ -1,13 +1,15 @@
 import { dirname } from 'node:path';
 import type { DiagnosticMessage } from '@astrojs/compiler/types';
-import {
+import type {
 	CodeLens,
 	CompletionItem,
-	CompletionItemKind,
 	Diagnostic,
-	InsertTextFormat,
 	LanguageServicePlugin,
 	LanguageServicePluginInstance,
+} from '@volar/language-server';
+import {
+	CompletionItemKind,
+	InsertTextFormat,
 	Position,
 	Range,
 	TextEdit,
@@ -155,7 +157,7 @@ function getFrontmatterCompletion(
 		return {
 			...base,
 			insertText: '---\n$0\n---',
-			textEdit: prefix.match(/^\s*\-+/)
+			textEdit: /^\s*-+/.test(prefix)
 				? TextEdit.replace({ start: { ...position, character: 0 }, end: position }, '---\n$0\n---')
 				: undefined,
 		};
@@ -175,7 +177,7 @@ function getFrontmatterCompletion(
 			insertText,
 			detail:
 				insertText === '---' ? 'Close component script block' : 'Create component script block',
-			textEdit: prefix.match(/^\s*\-+/)
+			textEdit: /^\s*-+/.test(prefix)
 				? TextEdit.replace({ start: { ...position, character: 0 }, end: position }, insertText)
 				: undefined,
 		};

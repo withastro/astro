@@ -2,7 +2,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
-import { AstroCheck, CheckResult } from '../../dist/check.js';
+import type { CheckResult } from '../../dist/check.js';
+import { AstroCheck } from '../../dist/check.js';
 
 describe('AstroCheck', async () => {
 	let checker: AstroCheck;

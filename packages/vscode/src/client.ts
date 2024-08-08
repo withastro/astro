@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import * as protocol from '@volar/language-server/protocol';
+import type { LabsInfo } from '@volar/vscode';
 import {
-	LabsInfo,
 	activateAutoInsertion,
 	activateFindFileReferences,
 	activateReloadProjects,

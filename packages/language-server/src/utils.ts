@@ -28,7 +28,7 @@ export function getAstroInstall(
 	if (checkForAstro && checkForAstro.nearestPackageJson) {
 		basePaths.push(path.dirname(checkForAstro.nearestPackageJson));
 
-		let deps: Set<string> = new Set();
+		let deps = new Set<string>();
 		try {
 			const packageJSON = require(checkForAstro.nearestPackageJson);
 			[
@@ -71,7 +71,7 @@ export function getAstroInstall(
 			}
 
 			version = require(path.resolve(astroPath, 'package.json')).version;
-		} catch (e) {
+		} catch {
 			// If we still couldn't find it, it probably just doesn't exist
 			console.error(
 				`${basePaths[0]} seems to be an Astro project, but we couldn't find Astro or Astro is not installed`,

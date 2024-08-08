@@ -1,10 +1,6 @@
 import * as path from 'node:path';
-import {
-	type Diagnostic,
-	DiagnosticSeverity,
-	FullDocumentDiagnosticReport,
-	Range,
-} from '@volar/language-server';
+import type { FullDocumentDiagnosticReport } from '@volar/language-server';
+import { type Diagnostic, DiagnosticSeverity, Range } from '@volar/language-server';
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
 import { type LanguageServer, getLanguageServer } from '../server.js';

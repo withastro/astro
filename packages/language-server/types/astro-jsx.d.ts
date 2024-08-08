@@ -14,7 +14,7 @@ declare namespace astroHTML.JSX {
 	export type Children = Child | Child[];
 
 	interface ElementChildrenAttribute {
-		// eslint-disable-next-line @typescript-eslint/ban-types
+		// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 		children: {};
 	}
 
@@ -591,7 +591,7 @@ declare namespace astroHTML.JSX {
 		referrerpolicy?: HTMLAttributeReferrerPolicy | undefined | null;
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-empty-interface
+	// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 	interface AudioHTMLAttributes extends MediaHTMLAttributes {}
 
 	interface AreaHTMLAttributes extends HTMLAttributes {

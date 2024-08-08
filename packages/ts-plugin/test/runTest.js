@@ -39,7 +39,7 @@ async function main() {
 			vscodeExecutablePath: vsPath,
 			launchArgs: ['./fixtures/fixtures.code-workspace'],
 		});
-	} catch (err) {
+	} catch {
 		console.error('Failed to run tests');
 		process.exit(1);
 	}

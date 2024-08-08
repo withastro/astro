@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { astro2tsx } from '../../src/core/astro2tsx.js';
-import { extractScriptTags } from '../../src/core/parseJS.js';
+import { astro2tsx } from '../../dist/core/astro2tsx.js';
+import { extractScriptTags } from '../../dist/core/parseJS.js';
 
 describe('parseJS - Can find all the scripts in an Astro file', () => {
 	it('Can find all the scripts in an Astro file, including nested tags', () => {

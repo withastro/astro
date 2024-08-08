@@ -1,7 +1,8 @@
 import { Position } from '@volar/language-server';
 import { expect } from 'chai';
 import { describe } from 'mocha';
-import { LanguageServer, getLanguageServer } from '../server.js';
+import type { LanguageServer } from '../server.js';
+import { getLanguageServer } from '../server.js';
 
 describe('CSS - Hover', () => {
 	let languageServer: LanguageServer;

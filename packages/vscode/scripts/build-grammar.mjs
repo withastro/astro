@@ -14,7 +14,7 @@ const syntaxesDir = new URL('../syntaxes/', import.meta.url);
 const isWatch = process.argv.includes('--watch');
 
 if (isWatch) {
-	console.log('Watching for changes in the syntaxes directory...');
+	console.info('Watching for changes in the syntaxes directory...');
 }
 
 // Absolute paths to the grammars
@@ -41,5 +41,5 @@ function buildGrammar(grammarFile) {
 	fs.writeFileSync(finalPath, JSON.stringify(grammar, null, 2));
 
 	const date = dt.format(new Date());
-	console.log(dim(`[${date}] `) + green(`✔ updated ${finalPath}`));
+	console.info(dim(`[${date}] `) + green(`✔ updated ${finalPath}`));
 }

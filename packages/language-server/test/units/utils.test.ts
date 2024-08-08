@@ -4,10 +4,10 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import type { Node } from 'vscode-html-languageservice';
 import * as html from 'vscode-html-languageservice';
-import { getTSXRangesAsLSPRanges, safeConvertToTSX } from '../../src/core/astro2tsx.js';
-import * as compilerUtils from '../../src/core/compilerUtils.js';
-import { getAstroMetadata } from '../../src/core/parseAstro.js';
-import * as utils from '../../src/plugins/utils.js';
+import { getTSXRangesAsLSPRanges, safeConvertToTSX } from '../../dist/core/astro2tsx.js';
+import * as compilerUtils from '../../dist/core/compilerUtils.js';
+import { getAstroMetadata } from '../../dist/core/parseAstro.js';
+import * as utils from '../../dist/plugins/utils.js';
 
 describe('Utilities', async () => {
 	it('isTsDocument - properly return if a document is JavaScript', () => {

@@ -1,7 +1,0 @@
-**/dist
-**/node_modules
-**/fixtures
-**/fixture
-**/.vscode-test
-.github
-.changeset

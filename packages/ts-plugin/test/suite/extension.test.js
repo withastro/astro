@@ -1,4 +1,3 @@
-const assert = require('assert');
 const { expect } = require('chai');
 const path = require('path');
 const vscode = require('vscode');

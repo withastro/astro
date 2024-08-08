@@ -1,10 +1,9 @@
-import {
+import type {
 	Connection,
 	LanguagePlugin,
 	LanguageServiceEnvironment,
-	MessageType,
-	ShowMessageNotification,
 } from '@volar/language-server/node';
+import { MessageType, ShowMessageNotification } from '@volar/language-server/node';
 import { URI } from 'vscode-uri';
 import { getAstroLanguagePlugin } from './core';
 import { getSvelteLanguagePlugin } from './core/svelte.js';

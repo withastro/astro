@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { astro2tsx } from '../../src/core/astro2tsx.js';
-import { extractStylesheets } from '../../src/core/parseCSS.js';
+import { astro2tsx } from '../../dist/core/astro2tsx.js';
+import { extractStylesheets } from '../../dist/core/parseCSS.js';
 
 describe('parseCSS - Can find all the styles in an Astro file', () => {
 	it('Can find all the styles in an Astro file, including nested tags', () => {

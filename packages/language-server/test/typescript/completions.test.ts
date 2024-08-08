@@ -1,4 +1,3 @@
-import { EOL } from 'node:os';
 import path from 'node:path';
 import { Position } from '@volar/language-server';
 import { expect } from 'chai';

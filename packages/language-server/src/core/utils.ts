@@ -56,7 +56,7 @@ export function classNameFromFilename(filename: string): string {
 	const withoutInvalidCharacters = withoutExtensions
 		.split('')
 		// Although "-" is invalid, we leave it in, pascal-case-handling will throw it out later
-		.filter((char) => /[A-Za-z$_\d-]/.test(char))
+		.filter((char) => /[\w$-]/.test(char))
 		.join('');
 	const firstValidCharIdx = withoutInvalidCharacters
 		.split('')
@@ -76,7 +76,7 @@ export function patchTSX(code: string, filePath: string) {
 	const basename = filePath.split('/').pop()!;
 	const isDynamic = basename.startsWith('[') && basename.endsWith(']');
 
-	return code.replace(/\b(\S*)__AstroComponent_/gm, (fullMatch, m1: string) => {
+	return code.replace(/\b(\S*)__AstroComponent_/g, (fullMatch, m1: string) => {
 		// If we don't have a match here, it usually means the file has a weird name that couldn't be expressed with valid identifier characters
 		if (!m1) {
 			if (basename === '404') return 'FourOhFour';

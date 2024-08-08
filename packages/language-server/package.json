@@ -10,7 +10,12 @@
   },
   "type": "commonjs",
   "main": "dist/index.js",
-  "files": ["bin", "dist/**/*.js", "dist/**/*.d.ts", "types/**/*.d.ts"],
+  "files": [
+    "bin",
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "types/**/*.d.ts"
+  ],
   "bin": {
     "astro-ls": "./bin/nodeServer.js"
   },

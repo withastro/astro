@@ -1,9 +1,9 @@
-import {
+import type {
 	CompletionItem,
-	CompletionItemKind,
 	CompletionList,
 	LanguageServiceContext,
 } from '@volar/language-server';
+import { CompletionItemKind } from '@volar/language-server';
 import { URI } from 'vscode-uri';
 import { AstroVirtualCode } from '../../core/index.js';
 import { mapEdit } from './utils.js';

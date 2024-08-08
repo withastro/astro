@@ -1,4 +1,5 @@
-import { HTMLDocument, Node, Range, TextEdit } from 'vscode-html-languageservice';
+import type { HTMLDocument, Node, TextEdit } from 'vscode-html-languageservice';
+import { Range } from 'vscode-html-languageservice';
 import type { AstroMetadata, FrontmatterStatus } from '../core/parseAstro.js';
 
 export function isJSDocument(languageId: string) {
@@ -15,7 +16,8 @@ export function isJSDocument(languageId: string) {
  * This is not a 100% sure test as it'll return false for any component that does not match the standard format for a component
  */
 export function isPossibleComponent(node: Node): boolean {
-	return !!node.tag?.[0].match(/[A-Z]/) || !!node.tag?.match(/.+[.][A-Z]?/);
+	if (!node.tag) return false;
+	return !!/[A-Z]/.test(node.tag?.[0]) || !!/.+\.[A-Z]?/.test(node.tag);
 }
 
 /**

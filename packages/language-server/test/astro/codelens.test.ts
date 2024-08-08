@@ -1,7 +1,8 @@
 import * as _ from '@volar/language-server/node';
 import { expect } from 'chai';
 import { describe } from 'mocha';
-import { LanguageServer, getLanguageServer } from '../server.js';
+import type { LanguageServer } from '../server.js';
+import { getLanguageServer } from '../server.js';
 
 describe('Astro - Code Lens', () => {
 	let languageServer: LanguageServer;

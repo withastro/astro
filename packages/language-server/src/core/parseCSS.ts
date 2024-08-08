@@ -1,6 +1,7 @@
 import type { TSXExtractedStyle } from '@astrojs/compiler/types';
 import type { CodeInformation, VirtualCode } from '@volar/language-core';
-import { Segment, toString } from 'muggle-string';
+import type { Segment } from 'muggle-string';
+import { toString } from 'muggle-string';
 import { buildMappings } from '../buildMappings.js';
 
 const SUPPORTED_LANGUAGES = ['css', 'scss', 'less'] as const;

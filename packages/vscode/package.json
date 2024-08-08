@@ -2,7 +2,11 @@
   "name": "astro-vscode",
   "displayName": "Astro",
   "description": "Language support for Astro",
-  "categories": ["Programming Languages", "Formatters", "Linters"],
+  "categories": [
+    "Programming Languages",
+    "Formatters",
+    "Linters"
+  ],
   "qna": false,
   "keywords": [
     "astro",
@@ -27,9 +31,17 @@
   "engines": {
     "vscode": "^1.82.0"
   },
-  "activationEvents": ["onLanguage:astro", "workspaceContains:astro.config.*"],
+  "activationEvents": [
+    "onLanguage:astro",
+    "workspaceContains:astro.config.*"
+  ],
   "main": "./dist/node/client.js",
-  "files": ["dist/", "languages/", "syntaxes/", "assets/"],
+  "files": [
+    "dist/",
+    "languages/",
+    "syntaxes/",
+    "assets/"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/withastro/language-tools.git",
@@ -129,7 +141,11 @@
         "astro.trace.server": {
           "scope": "window",
           "type": "string",
-          "enum": ["off", "messages", "verbose"],
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
           "default": "off",
           "description": "Traces the communication between VS Code and the language server."
         }
@@ -138,8 +154,12 @@
     "languages": [
       {
         "id": "astro",
-        "extensions": [".astro"],
-        "aliases": ["Astro"],
+        "extensions": [
+          ".astro"
+        ],
+        "aliases": [
+          "Astro"
+        ],
         "configuration": "./languages/astro-language-configuration.json",
         "icon": {
           "light": "./assets/lang-icon-light.svg",
@@ -181,7 +201,10 @@
       {
         "scopeName": "text.html.markdown.astro",
         "path": "./syntaxes/markdown.astro.tmLanguage.json",
-        "injectTo": ["text.html.markdown", "source.astro"],
+        "injectTo": [
+          "text.html.markdown",
+          "source.astro"
+        ],
         "embeddedLanguages": {
           "meta.embedded.block.astro": "astro",
           "meta.embedded.block.astro.frontmatter": "typescriptreact"
@@ -190,7 +213,9 @@
       {
         "scopeName": "text.mdx.astro.codeblock",
         "path": "./syntaxes/mdx.astro.tmLanguage.json",
-        "injectTo": ["source.mdx"],
+        "injectTo": [
+          "source.mdx"
+        ],
         "embeddedLanguages": {
           "mdx.embedded.astro": "astro"
         }

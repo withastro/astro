@@ -1,8 +1,8 @@
-/* eslint-disable no-console */
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { LanguageServerHandle, startLanguageServer } from '@volar/test-utils';
+import type { LanguageServerHandle } from '@volar/test-utils';
+import { startLanguageServer } from '@volar/test-utils';
 import * as protocol from 'vscode-languageserver-protocol/node';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';

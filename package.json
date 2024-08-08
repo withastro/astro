@@ -14,18 +14,18 @@
     "test": "turbo run test --filter=\"@astrojs/**\" --filter=astro-vscode",
     "test:skip-vs": "turbo run test --filter=\"@astrojs/language-server\" --filter=\"@astrojs/check\"",
     "format:ci": "pnpm run format",
-    "format": "biome check --apply ./ && prettier -w \"**/*\" --ignore-unknown --cache",
-    "lint": "eslint . --ext .js,.ts,.mjs,.cjs"
+    "format": "biome check --write ./ && prettier -w \"**/*\" --ignore-unknown --cache",
+    "lint": "eslint ."
   },
   "devDependencies": {
-    "@biomejs/biome": "1.6.0",
+    "@biomejs/biome": "1.8.1",
     "@changesets/cli": "^2.26.1",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
-    "eslint": "^8.56.0",
     "prettier": "^3.2.5",
     "turbo": "1.10.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "eslint": "^9.8.0",
+    "typescript-eslint": "^8.0.1",
+    "eslint-plugin-regexp": "^2.6.0"
   },
   "engines": {
     "node": ">=16.12.0",
@@ -34,7 +34,12 @@
   "packageManager": "pnpm@8.6.2",
   "pnpm": {
     "peerDependencyRules": {
-      "ignoreMissing": ["vue", "vite", "svelte", "@babel/core"]
+      "ignoreMissing": [
+        "vue",
+        "vite",
+        "svelte",
+        "@babel/core"
+      ]
     }
   }
 }
