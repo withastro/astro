@@ -126,7 +126,6 @@ async function redirectWithResult({
 	actionName: string;
 	actionResult: SafeResult<any, any>;
 }) {
-	// TODO: encrypt the action result
 	context.cookies.set('_actionResult', {
 		actionName,
 		actionResult: serializeActionResult(actionResult),
