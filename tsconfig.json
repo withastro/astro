@@ -6,7 +6,8 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "allowJs": true
+    "allowJs": true,
+    "noEmit": true
   },
   "include": [
     ".",
