@@ -26,7 +26,7 @@ describe('build: split', () => {
 		assert.equal(config.routes.length, 5);
 		assert.equal(
 			config.routes.some((route) => route.dest === 'prerender.astro'),
-			false
+			false,
 		);
 	});
 });
