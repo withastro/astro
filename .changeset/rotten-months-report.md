@@ -9,7 +9,6 @@ Improves user experience when render an Action result from a form POST request:
 
 Also improves the DX of directing to a new route on success. Actions will now redirect to the route specified in your `action` string on success, and redirect back to the previous page on error.
 
-
 For example, say you want to redirect to a `/success` route when `actions.signup` succeeds. You can add `/success` to your `action` string like so:
 
 ```astro
