@@ -390,7 +390,7 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 			}
 			const image: GetImageResult = await getImage({ ...decodedImagePath, src: imported });
 			imageObjects.set(imagePath, image);
-		} catch (e) {
+		} catch {
 			throw new Error(`Failed to parse image reference: ${imagePath}`);
 		}
 	}
