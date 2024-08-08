@@ -20,6 +20,7 @@ import {
 import { CONTENT_LAYER_TYPE, IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
+
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
@@ -87,6 +88,7 @@ export function createGetCollection({
 				const data = rawEntry.filePath
 					? updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap)
 					: rawEntry.data;
+
 				const entry = {
 					...rawEntry,
 					data,
@@ -107,6 +109,7 @@ export function createGetCollection({
 			);
 			return [];
 		}
+
 		const lazyImports = Object.values(
 			type === 'content'
 				? contentCollectionToEntryMap[collection]
@@ -368,7 +371,7 @@ const CONTENT_LAYER_IMAGE_REGEX = /__ASTRO_IMAGE_="([^"]+)"/g;
 async function updateImageReferencesInBody(html: string, fileName: string) {
 	// @ts-expect-error Virtual module
 	const { default: imageAssetMap } = await import('astro:asset-imports');
-
+	
 	const imageObjects = new Map<string, GetImageResult>();
 
 	// @ts-expect-error Virtual module resolved at runtime
@@ -440,6 +443,20 @@ export async function renderEntry(
 	if (entry && 'render' in entry) {
 		// This is an old content collection entry, so we use its render method
 		return entry.render();
+	}
+
+	if (entry.deferredRender) {
+		try {
+			// @ts-expect-error	virtual module
+			const { default: contentModules } = await import('astro:content-module-imports');
+			const module = contentModules.get(entry.filePath);
+			return await module();
+			
+		} catch (e) {
+			// eslint-disable-next-line
+			console.error(e);
+		}
+		
 	}
 
 	const html =

@@ -22,6 +22,9 @@ import {
 	DATA_FLAG,
 	DATA_STORE_FILE,
 	DATA_STORE_VIRTUAL_ID,
+	MODULES_IMPORTS_FILE,
+	MODULES_MJS_ID,
+	MODULES_MJS_VIRTUAL_ID,
 	RESOLVED_DATA_STORE_VIRTUAL_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
@@ -37,6 +40,7 @@ import {
 	getEntrySlug,
 	getEntryType,
 	getExtGlob,
+	isDeferredModule,
 } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
@@ -57,7 +61,7 @@ export function astroContentVirtualModPlugin({
 		configResolved(config) {
 			IS_DEV = config.mode === 'development';
 		},
-		resolveId(id) {
+		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
 				if (!settings.config.experimental.contentCollectionCache) {
 					return RESOLVED_VIRTUAL_MODULE_ID;
@@ -72,6 +76,28 @@ export function astroContentVirtualModPlugin({
 			if (id === DATA_STORE_VIRTUAL_ID) {
 				return RESOLVED_DATA_STORE_VIRTUAL_ID;
 			}
+
+			if (isDeferredModule(id)) {
+				const [, query] = id.split('?');
+				const params = new URLSearchParams(query);
+				const fileName = params.get('fileName');
+				let importerPath = undefined;
+				if (fileName && URL.canParse(fileName, settings.config.root.toString())) {
+					importerPath = fileURLToPath(new URL(fileName, settings.config.root));
+				}
+				if (importerPath) {
+					return await this.resolve(importerPath);
+				}
+			}
+
+			if (id === MODULES_MJS_ID) {
+				const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
+				if (fs.existsSync(modules)) {
+					return fileURLToPath(modules);
+				}
+				return MODULES_MJS_VIRTUAL_ID;
+			}
+
 			if (id === ASSET_IMPORTS_VIRTUAL_ID) {
 				const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
 				if (fs.existsSync(assetImportsFile)) {
@@ -126,7 +152,20 @@ export function astroContentVirtualModPlugin({
 			}
 
 			if (id === ASSET_IMPORTS_RESOLVED_STUB_ID) {
-				return 'export default new Map()';
+				const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
+				if (!fs.existsSync(assetImportsFile)) {
+					return 'export default new Map()';
+				}
+				return fs.readFileSync(assetImportsFile, 'utf-8');
+
+			}
+
+			if (id === MODULES_MJS_VIRTUAL_ID) {
+				const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
+				if (!fs.existsSync(modules)) {
+					return 'export default new Map()';
+				}
+				return fs.readFileSync(modules, 'utf-8');
 			}
 		},
 		renderChunk(code, chunk) {

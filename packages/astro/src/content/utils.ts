@@ -18,7 +18,7 @@ import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
 import {
 	CONTENT_FLAGS,
-	CONTENT_LAYER_TYPE,
+	CONTENT_LAYER_TYPE, CONTENT_MODULE_FLAG,
 	IMAGE_IMPORT_PREFIX,
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
@@ -472,6 +472,11 @@ export function hasAnyContentFlag(viteId: string): boolean {
 export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[number]): boolean {
 	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
 	return flags.has(flag);
+}
+
+export function isDeferredModule(viteId: string): boolean {
+	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
+	return flags.has(CONTENT_MODULE_FLAG);
 }
 
 async function loadContentConfig({
