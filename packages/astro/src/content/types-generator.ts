@@ -489,36 +489,38 @@ async function writeContentFiles({
 		}
 	}
 
-	let contentCollectionManifest: {
-		collections: { hasSchema: boolean; name: string }[];
-		entries: Record<string, string>;
-	} = {
-		collections: [],
-		entries: {},
-	};
-	Object.entries(contentCollectionsMap).forEach(([collectionKey, collection]) => {
-		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
-		const key = JSON.parse(collectionKey);
+	if (settings.config.experimental.contentCollectionIntellisense) {
+		let contentCollectionManifest: {
+			collections: { hasSchema: boolean; name: string }[];
+			entries: Record<string, string>;
+		} = {
+			collections: [],
+			entries: {},
+		};
+		Object.entries(contentCollectionsMap).forEach(([collectionKey, collection]) => {
+			const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
+			const key = JSON.parse(collectionKey);
 
-		contentCollectionManifest.collections.push({
-			hasSchema: Boolean(collectionConfig?.schema),
-			name: key,
+			contentCollectionManifest.collections.push({
+				hasSchema: Boolean(collectionConfig?.schema),
+				name: key,
+			});
+
+			Object.keys(collection.entries).forEach((entryKey) => {
+				const entryPath = new URL(
+					JSON.parse(entryKey),
+					contentPaths.contentDir + `${key}/`,
+				).toString();
+
+				contentCollectionManifest.entries[entryPath] = key;
+			});
 		});
 
-		Object.keys(collection.entries).forEach((entryKey) => {
-			const entryPath = new URL(
-				JSON.parse(entryKey),
-				contentPaths.contentDir + `${key}/`,
-			).toString();
-
-			contentCollectionManifest.entries[entryPath] = key;
-		});
-	});
-
-	await fs.promises.writeFile(
-		new URL('./collections.json', collectionSchemasDir),
-		JSON.stringify(contentCollectionManifest, null, 2),
-	);
+		await fs.promises.writeFile(
+			new URL('./collections.json', collectionSchemasDir),
+			JSON.stringify(contentCollectionManifest, null, 2),
+		);
+	}
 
 	if (!fs.existsSync(settings.dotAstroDir)) {
 		fs.mkdirSync(settings.dotAstroDir, { recursive: true });
