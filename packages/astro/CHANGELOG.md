@@ -1,5 +1,23 @@
 # astro
 
+## 4.13.2
+
+### Patch Changes
+
+- [#11648](https://github.com/withastro/astro/pull/11648) [`589d351`](https://github.com/withastro/astro/commit/589d35158da1a2136387d0ad76609f5c8535c03a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fixes unexpected error when refreshing a POST request from a form using Actions.
+
+- [#11600](https://github.com/withastro/astro/pull/11600) [`09ec2ca`](https://github.com/withastro/astro/commit/09ec2cadce01a9a1f9c54ac433f137348907aa56) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Deprecates `getEntryBySlug` and `getDataEntryById` functions exported by `astro:content` in favor of `getEntry`.
+
+- [#11593](https://github.com/withastro/astro/pull/11593) [`81d7150`](https://github.com/withastro/astro/commit/81d7150e02472430eab555dfc4f053738bf99bb6) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Adds support for `Date()`, `Map()`, and `Set()` from action results. See [devalue](https://github.com/Rich-Harris/devalue) for a complete list of supported values.
+
+  Also fixes serialization exceptions when deploying Actions with edge middleware on Netlify and Vercel.
+
+- [#11617](https://github.com/withastro/astro/pull/11617) [`196092a`](https://github.com/withastro/astro/commit/196092ae69eb1249206846ddfc162049b03f42b4) Thanks [@abubakriz](https://github.com/abubakriz)! - Fix toolbar audit incorrectly flagging images as above the fold.
+
+- [#11634](https://github.com/withastro/astro/pull/11634) [`2716f52`](https://github.com/withastro/astro/commit/2716f52aae7194439ebb2336849ddd9e8226658a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fixes internal server error when calling an Astro Action without arguments on Vercel.
+
+- [#11628](https://github.com/withastro/astro/pull/11628) [`9aaf58c`](https://github.com/withastro/astro/commit/9aaf58c1339b54f2c1394e718a0f6f609f0b6342) Thanks [@madbook](https://github.com/madbook)! - Ensures consistent CSS chunk hashes across different environments
+
 ## 4.13.1
 
 ### Patch Changes
