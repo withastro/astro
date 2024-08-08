@@ -370,7 +370,7 @@ const CONTENT_LAYER_IMAGE_REGEX = /__ASTRO_IMAGE_="([^"]+)"/g;
 async function updateImageReferencesInBody(html: string, fileName: string) {
 	// @ts-expect-error Virtual module
 	const { default: imageAssetMap } = await import('astro:asset-imports');
-	
+
 	const imageObjects = new Map<string, GetImageResult>();
 
 	// @ts-expect-error Virtual module resolved at runtime
@@ -450,12 +450,10 @@ export async function renderEntry(
 			const { default: contentModules } = await import('astro:content-module-imports');
 			const module = contentModules.get(entry.filePath);
 			return await module();
-			
 		} catch (e) {
 			// eslint-disable-next-line
 			console.error(e);
 		}
-		
 	}
 
 	const html =

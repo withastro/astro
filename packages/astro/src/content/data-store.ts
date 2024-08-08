@@ -3,7 +3,7 @@ import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import * as devalue from 'devalue';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import {CONTENT_MODULE_FLAG, DEFERRED_MODULE} from './consts.js';
+import { CONTENT_MODULE_FLAG, DEFERRED_MODULE } from './consts.js';
 
 const SAVE_DEBOUNCE_MS = 500;
 
@@ -313,7 +313,7 @@ export default new Map([\n${lines.join(',\n')}]);
 				if (deferredRender) {
 					entry.deferredRender = deferredRender;
 					if (filePath) {
-						this.addModuleImport(filePath)
+						this.addModuleImport(filePath);
 					}
 				}
 				this.set(collectionName, id, entry);
@@ -326,8 +326,7 @@ export default new Map([\n${lines.join(',\n')}]);
 				this.addAssetImport(assetImport, fileName),
 			addAssetImports: (assets: Array<string>, fileName: string) =>
 				this.addAssetImports(assets, fileName),
-			addModuleImport: (fileName: string) =>
-				this.addModuleImport(fileName),
+			addModuleImport: (fileName: string) => this.addModuleImport(fileName),
 		};
 	}
 	/**

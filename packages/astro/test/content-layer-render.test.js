@@ -8,7 +8,10 @@ describe('Content Layer dev', () => {
 
 	let devServer;
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/content-layer-rendering/', cacheDir: "./fixtures/content-layer-rendering/.cache" });
+		fixture = await loadFixture({
+			root: './fixtures/content-layer-rendering/',
+			cacheDir: './fixtures/content-layer-rendering/.cache',
+		});
 		devServer = await fixture.startDevServer();
 	});
 
@@ -28,7 +31,10 @@ describe('Content Layer build', () => {
 	/** @type {import("./test-utils.js").Fixture} */
 	let fixture;
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/content-layer-rendering/', cacheDir: "./fixtures/content-layer-rendering/.cache"  });
+		fixture = await loadFixture({
+			root: './fixtures/content-layer-rendering/',
+			cacheDir: './fixtures/content-layer-rendering/.cache',
+		});
 		await fixture.build();
 	});
 

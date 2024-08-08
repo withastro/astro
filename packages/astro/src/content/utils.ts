@@ -18,7 +18,8 @@ import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
 import {
 	CONTENT_FLAGS,
-	CONTENT_LAYER_TYPE, CONTENT_MODULE_FLAG,
+	CONTENT_LAYER_TYPE,
+	CONTENT_MODULE_FLAG,
 	IMAGE_IMPORT_PREFIX,
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';

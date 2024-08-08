@@ -2208,9 +2208,9 @@ export interface AstroUserConfig {
 		 *
 		 * :::tip
 		 * The content layer APIs are based on content collections, so you can learn more about them in the [content collection docs](https://docs.astro.build/en/guides/content-collections/. Any differences are highlighted below.
-		 * 
+		 *
 		 * :::
-		 * 
+		 *
 		 * To use content layer, create a collection in `src/content/config.ts` with a `loader` property. For local files where there is one entry per file, use the `glob()` loader. You can put your content files anywhere, but *not* in `src/content` because these would be handled by the current content collections instead. In this example the files are in `src/data`.
 		 *
 		 * ```ts
@@ -2335,7 +2335,7 @@ export interface AstroUserConfig {
 		 * :::caution
 		 * The syntax for rendering content layer items is different from current content collections syntax.
 		 * :::
-		 * 
+		 *
 		 * ```astro
 		 * ---
 		 * import { getEntry, render } from 'astro:content';
@@ -2431,7 +2431,7 @@ export interface AstroUserConfig {
 		 *
 		 * #### Learn more
 		 *
-		 * To see the full API look at [the draft RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/content-layer.md) and [share your feedback on the feature and API](https://github.com/withastro/roadmap/pull/982).
+		 * To see the full API look at [the RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/content-layer.md) and [share your feedback on the feature and API](https://github.com/withastro/roadmap/pull/982).
 		 */
 		contentLayer?: boolean;
 	};
