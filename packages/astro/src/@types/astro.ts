@@ -1985,25 +1985,29 @@ export interface AstroUserConfig {
 		 * @version 4.10.0
 		 * @description
 		 *
-		 * Enables experimental `astro:env` features .
+		 * Enables experimental `astro:env` features.
 		 *
 		 * The `astro:env` API lets you configure a type-safe schema for your environment variables, and indicate whether they should be available on the server or the client. Import and use your defined variables from the appropriate `/client` or `/server` module:
 		 *
 		 * ```astro
 		 * ---
-		 * import { APP_ID } from "astro:env/client"
-		 * import { API_URL, API_TOKEN, getSecret } from "astro:env/server"
-		 * const NODE_ENV = getSecret("NODE_ENV")
+		 * import { API_URL } from "astro:env/client"
+		 * import { API_SECRET_TOKEN } from "astro:env/server"
 		 *
 		 * const data = await fetch(`${API_URL}/users`, {
-		 * 	method: "POST",
+		 * 	method: "GET",
 		 * 	headers: {
 		 * 		"Content-Type": "application/json",
-		 * 		"Authorization": `Bearer ${API_TOKEN}`
+		 * 		"Authorization": `Bearer ${API_SECRET_TOKEN}`
 		 * 	},
-		 * 	body: JSON.stringify({ appId: APP_ID, nodeEnv: NODE_ENV })
 		 * })
 		 * ---
+		 * 
+		 * <script>
+		 * import { API_URL } from "astro:env/client"
+		 * 
+		 * fetch(`${API_URL}/ping`)
+		 * </script>
 		 * ```
 		 *
 		 * To define the data type and properties of your environment variables, declare a schema in your Astro config in `experimental.env.schema`. The `envField` helper allows you define your variable as a string, number, or boolean and pass properties in an object:
@@ -2041,7 +2045,7 @@ export interface AstroUserConfig {
 		 *     import { PORT } from "astro:env/server"
 		 *     ```
 		 *
-		 * - **Secret server variables**: These variables are not part of your final bundle and can be accessed on the server through the `astro:env/server` module. The `getSecret()` helper function can be used to retrieve secrets not specified in the schema:
+		 * - **Secret server variables**: These variables are not part of your final bundle and can be accessed on the server through the `astro:env/server` module. The `getSecret()` helper function can be used to retrieve secrets not specified in the schema. Its implementation is provided by your adapter and defaults to `process.env`:
 		 *
 		 *     ```js
 		 *     import { API_SECRET, getSecret } from "astro:env/server"
