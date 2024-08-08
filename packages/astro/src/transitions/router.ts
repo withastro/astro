@@ -290,7 +290,7 @@ async function updateDOM(
 	) {
 		try {
 			await animate('old');
-		} catch  {
+		} catch {
 			// animate might reject as a consequence of a call to skipTransition()
 			// ignored on purpose
 		}

@@ -27,7 +27,7 @@ export default function loadFallbackPlugin({
 		try {
 			// await is necessary for the catch
 			return await fs.promises.readFile(cleanUrl(id), 'utf-8');
-		} catch{
+		} catch {
 			try {
 				return await fs.promises.readFile(id, 'utf-8');
 			} catch {

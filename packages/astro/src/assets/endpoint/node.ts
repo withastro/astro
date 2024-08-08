@@ -30,7 +30,7 @@ async function loadLocalImage(src: string, url: URL) {
 			if (!isAbsolute(filePath) || !filePath.startsWith(assetsDirPath)) {
 				return undefined;
 			}
-		} catch{
+		} catch {
 			return undefined;
 		}
 	}
