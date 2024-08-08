@@ -17,7 +17,7 @@ export function defineConfig(config: AstroUserConfig): AstroUserConfig;
  */
 export function getViteConfig(
 	config: ViteUserConfig,
-	inlineAstroConfig?: AstroInlineConfig
+	inlineAstroConfig?: AstroInlineConfig,
 ): ViteUserConfigFn;
 
 /**

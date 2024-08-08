@@ -70,7 +70,7 @@ async function copyToClipboard(text: string) {
 				return;
 			}
 			command = 'xclip -sel clipboard -l 1';
-		} catch (e) {
+		} catch {
 			// Did not find xclip, bail out!
 			return;
 		}
@@ -90,9 +90,9 @@ async function copyToClipboard(text: string) {
 			input: text.trim(),
 			encoding: 'utf8',
 		});
-	} catch (e) {
+	} catch {
 		console.error(
-			colors.red(`\nSorry, something went wrong!`) + ` Please copy the text above manually.`
+			colors.red(`\nSorry, something went wrong!`) + ` Please copy the text above manually.`,
 		);
 	}
 }

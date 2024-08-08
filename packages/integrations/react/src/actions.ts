@@ -51,7 +51,7 @@ export async function experimental_getActionState<T>({
 	if (!contentType || !isFormRequest(contentType)) {
 		throw new AstroError(
 			'`getActionState()` must be called with a form request.',
-			"Ensure your action uses the `accept: 'form'` option."
+			"Ensure your action uses the `accept: 'form'` option.",
 		);
 	}
 	const formData = await request.clone().formData();
@@ -59,7 +59,7 @@ export async function experimental_getActionState<T>({
 	if (!state) {
 		throw new AstroError(
 			'`getActionState()` could not find a state object.',
-			'Ensure your action was passed to `useActionState()` with the `experimental_withState()` wrapper.'
+			'Ensure your action was passed to `useActionState()` with the `experimental_withState()` wrapper.',
 		);
 	}
 	return JSON.parse(state) as T;

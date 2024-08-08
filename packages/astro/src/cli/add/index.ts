@@ -190,9 +190,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 						'SKIP_FORMAT',
 						`\n  ${magenta(
 							`Astro will scaffold ${green('./db/config.ts')}${magenta(' and ')}${green(
-								'./db/seed.ts'
-							)}${magenta(' files.')}`
-						)}\n`
+								'./db/seed.ts',
+							)}${magenta(' files.')}`,
+						)}\n`,
 					);
 
 					if (await askToContinue({ flags })) {
@@ -204,7 +204,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					} else {
 						logger.info(
 							'SKIP_FORMAT',
-							`\n  Astro DB requires additional configuration. Please refer to https://astro.build/db/config`
+							`\n  Astro DB requires additional configuration. Please refer to https://astro.build/db/config`,
 						);
 					}
 				} else {
@@ -234,8 +234,8 @@ export async function add(names: string[], { flags }: AddOptions) {
 				'SKIP_FORMAT',
 				msg.cancelled(
 					`Dependencies ${bold('NOT')} installed.`,
-					`Be sure to install them manually before continuing!`
-				)
+					`Be sure to install them manually before continuing!`,
+				),
 			);
 			break;
 		}
@@ -272,8 +272,8 @@ export async function add(names: string[], { flags }: AddOptions) {
 			ast,
 			t.importDeclaration(
 				[t.importSpecifier(defineConfig, defineConfig)],
-				t.stringLiteral('astro/config')
-			)
+				t.stringLiteral('astro/config'),
+			),
 		);
 		wrapDefaultExport(ast, defineConfig);
 
@@ -289,9 +289,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 						'SKIP_FORMAT',
 						`\n  ${magenta(
 							`Check our deployment docs for ${bold(
-								integration.packageName
-							)} to update your "adapter" config.`
-						)}`
+								integration.packageName,
+							)} to update your "adapter" config.`,
+						)}`,
 					);
 				}
 			} else {
@@ -325,7 +325,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 		case UpdateResult.cancelled: {
 			logger.info(
 				'SKIP_FORMAT',
-				msg.cancelled(`Your configuration has ${bold('NOT')} been updated.`)
+				msg.cancelled(`Your configuration has ${bold('NOT')} been updated.`),
 			);
 			break;
 		}
@@ -337,7 +337,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					.then((res) => JSON.parse(res.toString()));
 				const deps = Object.keys(Object.assign(dependencies, devDependencies));
 				const missingDeps = integrations.filter(
-					(integration) => !deps.includes(integration.packageName)
+					(integration) => !deps.includes(integration.packageName),
 				);
 				if (missingDeps.length === 0) {
 					logger.info('SKIP_FORMAT', msg.success(`Configuration up-to-date.`));
@@ -355,8 +355,8 @@ export async function add(names: string[], { flags }: AddOptions) {
 				msg.success(
 					`Added the following integration${
 						integrations.length === 1 ? '' : 's'
-					} to your project:\n${list}`
-				)
+					} to your project:\n${list}`,
+				),
 			);
 		}
 	}
@@ -370,13 +370,13 @@ export async function add(names: string[], { flags }: AddOptions) {
 		case UpdateResult.cancelled: {
 			logger.info(
 				'SKIP_FORMAT',
-				msg.cancelled(`Your TypeScript configuration has ${bold('NOT')} been updated.`)
+				msg.cancelled(`Your TypeScript configuration has ${bold('NOT')} been updated.`),
 			);
 			break;
 		}
 		case UpdateResult.failure: {
 			throw new Error(
-				`Unknown error parsing tsconfig.json or jsconfig.json. Could not update TypeScript settings.`
+				`Unknown error parsing tsconfig.json or jsconfig.json. Could not update TypeScript settings.`,
 			);
 		}
 		default:
@@ -385,7 +385,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 }
 
 function isAdapter(
-	integration: IntegrationInfo
+	integration: IntegrationInfo,
 ): integration is IntegrationInfo & { type: 'adapter' } {
 	return integration.type === 'adapter';
 }
@@ -444,8 +444,8 @@ async function addIntegration(ast: t.File, integration: IntegrationInfo) {
 		ast,
 		t.importDeclaration(
 			[t.importDefaultSpecifier(integrationId)],
-			t.stringLiteral(integration.packageName)
-		)
+			t.stringLiteral(integration.packageName),
+		),
 	);
 
 	visit(ast, {
@@ -471,7 +471,7 @@ async function addIntegration(ast: t.File, integration: IntegrationInfo) {
 
 			if (!integrationsProp) {
 				configObject.properties.push(
-					t.objectProperty(t.identifier('integrations'), t.arrayExpression([integrationCall]))
+					t.objectProperty(t.identifier('integrations'), t.arrayExpression([integrationCall])),
 				);
 				return;
 			}
@@ -483,7 +483,7 @@ async function addIntegration(ast: t.File, integration: IntegrationInfo) {
 				(expr) =>
 					t.isCallExpression(expr) &&
 					t.isIdentifier(expr.callee) &&
-					expr.callee.name === integrationId.name
+					expr.callee.name === integrationId.name,
 			);
 
 			if (existingIntegrationCall) return;
@@ -498,7 +498,7 @@ async function setAdapter(ast: t.File, adapter: IntegrationInfo, exportName: str
 
 	ensureImport(
 		ast,
-		t.importDeclaration([t.importDefaultSpecifier(adapterId)], t.stringLiteral(exportName))
+		t.importDeclaration([t.importDefaultSpecifier(adapterId)], t.stringLiteral(exportName)),
 	);
 
 	visit(ast, {
@@ -522,7 +522,7 @@ async function setAdapter(ast: t.File, adapter: IntegrationInfo, exportName: str
 
 			if (!outputProp) {
 				configObject.properties.push(
-					t.objectProperty(t.identifier('output'), t.stringLiteral('server'))
+					t.objectProperty(t.identifier('output'), t.stringLiteral('server')),
 				);
 			}
 
@@ -609,7 +609,7 @@ async function updateAstroConfig({
 
 	logger.info(
 		'SKIP_FORMAT',
-		`\n  ${magenta('Astro will make the following changes to your config file:')}\n${message}`
+		`\n  ${magenta('Astro will make the following changes to your config file:')}\n${message}`,
 	);
 
 	if (logAdapterInstructions) {
@@ -617,9 +617,9 @@ async function updateAstroConfig({
 			'SKIP_FORMAT',
 			magenta(
 				`  For complete deployment options, visit\n  ${bold(
-					'https://docs.astro.build/en/guides/deploy/'
-				)}\n`
-			)
+					'https://docs.astro.build/en/guides/deploy/',
+				)}\n`,
+			),
 		);
 	}
 
@@ -668,7 +668,7 @@ async function getInstallIntegrationsCommand({
 }
 
 async function convertIntegrationsToInstallSpecifiers(
-	integrations: IntegrationInfo[]
+	integrations: IntegrationInfo[],
 ): Promise<string[]> {
 	const ranges: Record<string, string> = {};
 	for (let { packageName, dependencies } of integrations) {
@@ -678,7 +678,7 @@ async function convertIntegrationsToInstallSpecifiers(
 		}
 	}
 	return Promise.all(
-		Object.entries(ranges).map(([name, range]) => resolveRangeToInstallSpecifier(name, range))
+		Object.entries(ranges).map(([name, range]) => resolveRangeToInstallSpecifier(name, range)),
 	);
 }
 
@@ -748,8 +748,8 @@ async function tryToInstallIntegrations({
 		logger.info(
 			'SKIP_FORMAT',
 			`\n  ${magenta('Astro will run the following command:')}\n  ${dim(
-				'If you skip this step, you can always run it yourself later'
-			)}\n${message}`
+				'If you skip this step, you can always run it yourself later',
+			)}\n${message}`,
 		);
 
 		if (await askToContinue({ flags })) {
@@ -767,7 +767,7 @@ async function tryToInstallIntegrations({
 						cwd,
 						// reset NODE_ENV to ensure install command run in dev mode
 						env: { NODE_ENV: undefined },
-					}
+					},
 				);
 				spinner.succeed();
 				return UpdateResult.updated;
@@ -816,8 +816,8 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 						if (!response.askToContinue) {
 							throw new Error(
 								`No problem! Find our official integrations at ${cyan(
-									'https://astro.build/integrations'
-								)}`
+									'https://astro.build/integrations',
+								)}`,
 							);
 						}
 						spinner.start('Resolving with third party packages...');
@@ -866,15 +866,15 @@ async function validateIntegrations(integrations: string[]): Promise<Integration
 				} else {
 					throw new Error(
 						`${bold(
-							packageName
+							packageName,
 						)} doesn't appear to be an integration or an adapter. Find our official integrations at ${cyan(
-							'https://astro.build/integrations'
-						)}`
+							'https://astro.build/integrations',
+						)}`,
 					);
 				}
 
 				return { id: integration, packageName, dependencies, type: integrationType };
-			})
+			}),
 		);
 		spinner.succeed();
 		return integrationEntries;
@@ -892,13 +892,13 @@ async function updateTSConfig(
 	cwd = process.cwd(),
 	logger: Logger,
 	integrationsInfo: IntegrationInfo[],
-	flags: Flags
+	flags: Flags,
 ): Promise<UpdateResult> {
 	const integrations = integrationsInfo.map(
-		(integration) => integration.id as frameworkWithTSSettings
+		(integration) => integration.id as frameworkWithTSSettings,
 	);
 	const firstIntegrationWithTSSettings = integrations.find((integration) =>
-		presets.has(integration)
+		presets.has(integration),
 	);
 
 	if (!firstIntegrationWithTSSettings) {
@@ -925,7 +925,7 @@ async function updateTSConfig(
 
 	const outputConfig = updateTSConfigForFramework(
 		inputConfig.rawConfig,
-		firstIntegrationWithTSSettings
+		firstIntegrationWithTSSettings,
 	);
 
 	const output = JSON.stringify(outputConfig, null, 2);
@@ -944,7 +944,7 @@ async function updateTSConfig(
 
 	logger.info(
 		'SKIP_FORMAT',
-		`\n  ${magenta(`Astro will make the following changes to your ${configFileName}:`)}\n${message}`
+		`\n  ${magenta(`Astro will make the following changes to your ${configFileName}:`)}\n${message}`,
 	);
 
 	// Every major framework, apart from Vue and Svelte requires different `jsxImportSource`, as such it's impossible to config
@@ -960,11 +960,11 @@ async function updateTSConfig(
 			'SKIP_FORMAT',
 			red(
 				`  ${bold(
-					'Caution:'
+					'Caution:',
 				)} Selected UI frameworks require conflicting tsconfig.json settings, as such only settings for ${bold(
-					firstIntegrationWithTSSettings
-				)} were used.\n  More information: https://docs.astro.build/en/guides/typescript/#errors-typing-multiple-jsx-frameworks-at-the-same-time\n`
-			)
+					firstIntegrationWithTSSettings,
+				)} were used.\n  More information: https://docs.astro.build/en/guides/typescript/#errors-typing-multiple-jsx-frameworks-at-the-same-time\n`,
+			),
 		);
 	}
 
@@ -1045,7 +1045,7 @@ async function setupIntegrationConfig(opts: {
 }) {
 	const logger = opts.logger;
 	const possibleConfigFiles = opts.possibleConfigFiles.map((p) =>
-		fileURLToPath(new URL(p, opts.root))
+		fileURLToPath(new URL(p, opts.root)),
 	);
 	let alreadyConfigured = false;
 	for (const possibleConfigPath of possibleConfigFiles) {
@@ -1057,7 +1057,7 @@ async function setupIntegrationConfig(opts: {
 	if (!alreadyConfigured) {
 		logger.info(
 			'SKIP_FORMAT',
-			`\n  ${magenta(`Astro will generate a minimal ${bold(opts.defaultConfigFile)} file.`)}\n`
+			`\n  ${magenta(`Astro will generate a minimal ${bold(opts.defaultConfigFile)} file.`)}\n`,
 		);
 		if (await askToContinue({ flags: opts.flags })) {
 			await fs.writeFile(
@@ -1065,7 +1065,7 @@ async function setupIntegrationConfig(opts: {
 				opts.defaultConfigContent,
 				{
 					encoding: 'utf-8',
-				}
+				},
 			);
 			logger.debug('add', `Generated default ${opts.defaultConfigFile} file`);
 		}

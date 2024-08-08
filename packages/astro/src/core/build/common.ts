@@ -17,7 +17,7 @@ function getOutRoot(astroConfig: AstroConfig): URL {
 export function getOutFolder(
 	astroConfig: AstroConfig,
 	pathname: string,
-	routeData: RouteData
+	routeData: RouteData,
 ): URL {
 	const outRoot = getOutRoot(astroConfig);
 	const routeType = routeData.type;
@@ -59,7 +59,7 @@ export function getOutFile(
 	astroConfig: AstroConfig,
 	outFolder: URL,
 	pathname: string,
-	routeData: RouteData
+	routeData: RouteData,
 ): URL {
 	const routeType = routeData.type;
 	switch (routeType) {

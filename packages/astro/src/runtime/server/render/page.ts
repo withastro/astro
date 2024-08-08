@@ -13,7 +13,7 @@ export async function renderPage(
 	props: any,
 	children: any,
 	streaming: boolean,
-	route?: RouteData
+	route?: RouteData,
 ): Promise<Response> {
 	if (!isAstroComponentFactory(componentFactory)) {
 		result._metadata.headInTree =
@@ -28,7 +28,7 @@ export async function renderPage(
 			pageProps,
 			{},
 			true,
-			route
+			route,
 		);
 
 		const bytes = encoder.encode(str);
@@ -57,7 +57,7 @@ export async function renderPage(
 				props,
 				children,
 				true,
-				route
+				route,
 			);
 			// Node.js allows passing in an AsyncIterable to the Response constructor.
 			// This is non-standard so using `any` here to preserve types everywhere else.

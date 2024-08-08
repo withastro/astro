@@ -14,14 +14,14 @@ export async function check(flags: Flags) {
 		'@astrojs/check',
 		logger,
 		getPackageOpts,
-		['typescript']
+		['typescript'],
 	);
 	const typescript = await getPackage('typescript', logger, getPackageOpts);
 
 	if (!checkPackage || !typescript) {
 		logger.error(
 			'check',
-			'The `@astrojs/check` and `typescript` packages are required for this command to work. Please manually install them into your project and try again.'
+			'The `@astrojs/check` and `typescript` packages are required for this command to work. Please manually install them into your project and try again.',
 		);
 		return;
 	}

@@ -117,7 +117,7 @@ describe('CSS ordering - import order', () => {
 			const [, { css }] = content;
 			assert.ok(
 				!css.includes('.client-1{background:red!important}'),
-				'CSS from Client2.jsx leaked into index.astro when chunking'
+				'CSS from Client2.jsx leaked into index.astro when chunking',
 			);
 		});
 
@@ -145,7 +145,7 @@ describe('CSS ordering - import order', () => {
 		it('dynamic imports taken into account', async () => {
 			let html = await fixture.readFile('/one/index.html');
 			const content = await Promise.all(
-				getLinks(html).map((href) => getLinkContent(href, fixture))
+				getLinks(html).map((href) => getLinkContent(href, fixture)),
 			);
 			let [link1, link2] = content;
 			assert.ok(link1.css.includes('f0f8ff')); // aliceblue minified

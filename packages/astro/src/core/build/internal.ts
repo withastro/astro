@@ -150,7 +150,7 @@ export function trackPageData(
 	component: string,
 	pageData: PageBuildData,
 	componentModuleId: string,
-	componentURL: URL
+	componentURL: URL,
 ): void {
 	pageData.moduleSpecifier = componentModuleId;
 	internals.pagesByKeys.set(pageData.key, pageData);
@@ -163,7 +163,7 @@ export function trackPageData(
 export function trackClientOnlyPageDatas(
 	internals: BuildInternals,
 	pageData: PageBuildData,
-	clientOnlys: string[]
+	clientOnlys: string[],
 ) {
 	for (const clientOnlyComponent of clientOnlys) {
 		let pageDataSet: Set<PageBuildData>;
@@ -184,7 +184,7 @@ export function trackClientOnlyPageDatas(
 export function trackScriptPageDatas(
 	internals: BuildInternals,
 	pageData: PageBuildData,
-	scriptIds: string[]
+	scriptIds: string[],
 ) {
 	for (const scriptId of scriptIds) {
 		let pageDataSet: Set<PageBuildData>;
@@ -200,7 +200,7 @@ export function trackScriptPageDatas(
 
 export function* getPageDatasByClientOnlyID(
 	internals: BuildInternals,
-	viteid: ViteID
+	viteid: ViteID,
 ): Generator<PageBuildData, void, unknown> {
 	const pagesByClientOnly = internals.pagesByClientOnly;
 	if (pagesByClientOnly.size) {
@@ -238,7 +238,7 @@ export function* getPageDatasByClientOnlyID(
 export function getPageData(
 	internals: BuildInternals,
 	route: string,
-	component: string
+	component: string,
 ): PageBuildData | undefined {
 	let pageData = internals.pagesByKeys.get(makePageDataKey(route, component));
 	if (pageData) {
@@ -271,7 +271,7 @@ function getPagesDatasByComponent(internals: BuildInternals, component: string):
  * @param pagesByKeys A map of all page data by their internal key
  */
 export function getPageDatasWithPublicKey(
-	pagesByKeys: Map<string, PageBuildData>
+	pagesByKeys: Map<string, PageBuildData>,
 ): Map<string, PageBuildData> {
 	// Create a map to store the pages with the public key, mimicking internal.pagesByKeys
 	const pagesWithPublicKey = new Map<string, PageBuildData>();
@@ -303,7 +303,7 @@ export function getPageDatasWithPublicKey(
 
 export function getPageDataByViteID(
 	internals: BuildInternals,
-	viteid: ViteID
+	viteid: ViteID,
 ): PageBuildData | undefined {
 	if (internals.pagesByViteID.has(viteid)) {
 		return internals.pagesByViteID.get(viteid);
@@ -358,7 +358,7 @@ export function cssOrder(a: OrderInfo, b: OrderInfo) {
 
 export function mergeInlineCss(
 	acc: Array<StylesheetAsset>,
-	current: StylesheetAsset
+	current: StylesheetAsset,
 ): Array<StylesheetAsset> {
 	const lastAdded = acc.at(acc.length - 1);
 	const lastWasInline = lastAdded?.type === 'inline';
@@ -379,7 +379,7 @@ export function mergeInlineCss(
  */
 export function getPageDatasByHoistedScriptId(
 	internals: BuildInternals,
-	id: string
+	id: string,
 ): PageBuildData[] {
 	const set = internals.hoistedScriptIdToPagesMap.get(id);
 	const pageDatas: PageBuildData[] = [];

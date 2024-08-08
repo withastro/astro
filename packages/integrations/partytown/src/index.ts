@@ -44,7 +44,7 @@ export default function createPlugin(options?: PartytownOptions): AstroIntegrati
 						dev: true,
 						etag: true,
 						extensions: [],
-					})
+					}),
 				);
 			},
 			'astro:build:done': async ({ dir }) => {

@@ -35,7 +35,7 @@ export class ToolbarAppEventTarget extends EventTarget {
 					state: options.state,
 					level: options.state === true ? options.level : undefined,
 				} satisfies NotificationPayload,
-			})
+			}),
 		);
 	}
 
@@ -50,7 +50,7 @@ export class ToolbarAppEventTarget extends EventTarget {
 				detail: {
 					state: options.state,
 				} satisfies AppStatePayload,
-			})
+			}),
 		);
 	}
 

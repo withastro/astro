@@ -79,12 +79,12 @@ describe('Component children', () => {
 		assert.equal(
 			$('#client').parent().children().length,
 			2,
-			'rendered the client component and a template'
+			'rendered the client component and a template',
 		);
 		assert.equal(
 			$('#client').parent().find('template[data-astro-template]').length,
 			1,
-			'Found 1 template'
+			'Found 1 template',
 		);
 
 		// test 3: If client, and children are rendered, no template is.

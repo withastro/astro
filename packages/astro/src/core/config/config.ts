@@ -55,7 +55,7 @@ interface ResolveConfigPathOptions {
  * Resolve the file URL of the user's `astro.config.js|cjs|mjs|ts` file
  */
 export async function resolveConfigPath(
-	options: ResolveConfigPathOptions
+	options: ResolveConfigPathOptions,
 ): Promise<string | undefined> {
 	let userConfigPath: string | undefined;
 	if (options.configFile) {
@@ -76,7 +76,7 @@ export async function resolveConfigPath(
 async function loadConfig(
 	root: string,
 	configFile?: string | false,
-	fsMod = fs
+	fsMod = fs,
 ): Promise<Record<string, any>> {
 	if (configFile === false) return {};
 
@@ -136,7 +136,7 @@ interface ResolveConfigResult {
 export async function resolveConfig(
 	inlineConfig: AstroInlineConfig,
 	command: string,
-	fsMod = fs
+	fsMod = fs,
 ): Promise<ResolveConfigResult> {
 	const root = resolveRoot(inlineConfig.root);
 	const { inlineUserConfig, inlineOnlyConfig } = splitInlineConfig(inlineConfig);

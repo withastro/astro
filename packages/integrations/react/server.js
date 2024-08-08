@@ -174,7 +174,7 @@ async function renderToPipeableStreamAsync(vnode, options) {
 						destroy() {
 							resolve(html);
 						},
-					})
+					}),
 				);
 			},
 		});

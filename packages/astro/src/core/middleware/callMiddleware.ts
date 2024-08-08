@@ -45,8 +45,8 @@ export async function callMiddleware(
 	apiContext: APIContext,
 	responseFunction: (
 		apiContext: APIContext,
-		rewritePayload?: RewritePayload
-	) => Promise<Response> | Response
+		rewritePayload?: RewritePayload,
+	) => Promise<Response> | Response,
 ): Promise<Response> {
 	let nextCalled = false;
 	let responseFunctionPromise: Promise<Response> | Response | undefined = undefined;

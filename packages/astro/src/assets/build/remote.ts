@@ -8,7 +8,7 @@ export async function loadRemoteImage(src: string) {
 
 	if (!res.ok) {
 		throw new Error(
-			`Failed to load remote image ${src}. The request did not return a 200 OK response. (received ${res.status}))`
+			`Failed to load remote image ${src}. The request did not return a 200 OK response. (received ${res.status}))`,
 		);
 	}
 

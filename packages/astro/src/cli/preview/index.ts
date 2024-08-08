@@ -22,7 +22,7 @@ export async function preview({ flags }: PreviewOptions) {
 				],
 			},
 			description: `Starts a local server to serve your static dist/ directory. Check ${cyan(
-				'https://docs.astro.build/en/reference/cli-reference/#astro-preview'
+				'https://docs.astro.build/en/reference/cli-reference/#astro-preview',
 			)} for more information.`,
 		});
 		return;

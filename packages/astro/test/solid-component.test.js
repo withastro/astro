@@ -102,7 +102,7 @@ describe.skip('Solid component build', { todo: 'Check why an error is thrown.' }
 
 		assert.equal(
 			firstHydrationScriptAt < firstHydrationEventAt,
-			'Position of first hydration event'
+			'Position of first hydration event',
 		);
 	});
 
@@ -119,7 +119,7 @@ describe.skip('Solid component build', { todo: 'Check why an error is thrown.' }
 		assert.equal(hydrationScriptCount, 1);
 		assert.equal(
 			firstHydrationScriptAt < firstHydrationEventAt,
-			'Position of first hydration event'
+			'Position of first hydration event',
 		);
 	});
 });

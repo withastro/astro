@@ -22,7 +22,7 @@ export const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
 function vitePluginSSR(
 	internals: BuildInternals,
 	adapter: AstroAdapter,
-	options: StaticBuildOptions
+	options: StaticBuildOptions,
 ): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr-server',
@@ -60,7 +60,7 @@ function vitePluginSSR(
 					}
 					const virtualModuleName = getVirtualModulePageName(
 						ASTRO_PAGE_MODULE_ID,
-						pageData.component
+						pageData.component,
 					);
 					let module = await this.resolve(virtualModuleName);
 					if (module) {
@@ -106,7 +106,7 @@ function vitePluginSSR(
 
 export function pluginSSR(
 	options: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): AstroBuildPlugin {
 	const ssr = isServerLikeOutput(options.settings.config);
 	const functionPerRouteEnabled = isFunctionPerRouteEnabled(options.settings.adapter);
@@ -149,7 +149,7 @@ export const RESOLVED_SPLIT_MODULE_ID = '\0@astro-page-split:';
 function vitePluginSSRSplit(
 	internals: BuildInternals,
 	adapter: AstroAdapter,
-	options: StaticBuildOptions
+	options: StaticBuildOptions,
 ): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr-split',
@@ -217,7 +217,7 @@ function vitePluginSSRSplit(
 
 export function pluginSSRSplit(
 	options: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): AstroBuildPlugin {
 	const ssr = isServerLikeOutput(options.settings.config);
 	const functionPerRouteEnabled = isFunctionPerRouteEnabled(options.settings.adapter);
@@ -301,7 +301,7 @@ function storeEntryPoint(
 	moduleKey: string,
 	options: StaticBuildOptions,
 	internals: BuildInternals,
-	fileName: string
+	fileName: string,
 ) {
 	const componentPath = getComponentFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, moduleKey);
 	for (const pageData of Object.values(options.allPages)) {

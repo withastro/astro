@@ -1,9 +1,6 @@
 import { yellow } from 'kleur/colors';
 import type { APIContext, MiddlewareNext } from '../../@types/astro.js';
-import {
-	ActionQueryStringInvalidError,
-	ActionsUsedWithForGetError,
-} from '../../core/errors/errors-data.js';
+import { ActionQueryStringInvalidError } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
 import { formContentTypes, hasContentType } from './utils.js';
@@ -35,7 +32,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		// eslint-disable-next-line no-console
 		console.warn(
 			yellow('[astro:actions]'),
-			'POST requests should not be sent to prerendered pages. If you\'re using Actions, disable prerendering with `export const prerender = "false".'
+			'POST requests should not be sent to prerendered pages. If you\'re using Actions, disable prerendering with `export const prerender = "false".',
 		);
 		return next();
 	}
@@ -44,13 +41,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	if (context.request.method === 'POST' && actionName) {
 		return handlePost({ context, next, actionName });
-	}
-
-	if (context.request.method === 'GET' && actionName) {
-		throw new AstroError({
-			...ActionsUsedWithForGetError,
-			message: ActionsUsedWithForGetError.message(actionName),
-		});
 	}
 
 	if (context.request.method === 'POST') {

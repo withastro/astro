@@ -26,7 +26,7 @@ export async function db({ positionals, flags }: { positionals: string[]; flags:
 	if (!dbPackage) {
 		logger.error(
 			'check',
-			'The `@astrojs/db` package is required for this command to work. Please manually install it in your project and try again.'
+			'The `@astrojs/db` package is required for this command to work. Please manually install it in your project and try again.',
 		);
 		return;
 	}

@@ -11,7 +11,7 @@ describe('astro global', () => {
 			},
 			{
 				message: /can only be used in/,
-			}
+			},
 		);
 	});
 
@@ -23,7 +23,7 @@ describe('astro global', () => {
 			},
 			{
 				message: /did not return any matching files/,
-			}
+			},
 		);
 	});
 });

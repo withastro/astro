@@ -35,7 +35,7 @@ export async function cmd({
 		const { ASTRO_DATABASE_FILE } = getAstroEnv();
 		const dbUrl = normalizeDatabaseUrl(
 			ASTRO_DATABASE_FILE,
-			new URL(DB_PATH, astroConfig.root).href
+			new URL(DB_PATH, astroConfig.root).href,
 		);
 		const db = createLocalDatabaseClient({ dbUrl });
 		const result = await db.run(sql.raw(query));

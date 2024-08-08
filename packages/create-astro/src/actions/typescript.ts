@@ -53,8 +53,8 @@ export async function typescript(ctx: PickedTypeScriptContext) {
 			error(
 				'Error',
 				`Unknown TypeScript option ${color.reset(ts)}${color.dim(
-					'! Expected strict | strictest | relaxed'
-				)}`
+					'! Expected strict | strictest | relaxed',
+				)}`,
 			);
 			ctx.exit(1);
 		}
@@ -84,7 +84,7 @@ export async function typescript(ctx: PickedTypeScriptContext) {
 const FILES_TO_UPDATE = {
 	'package.json': async (
 		file: string,
-		options: { value: string; ctx: PickedTypeScriptContext }
+		options: { value: string; ctx: PickedTypeScriptContext },
 	) => {
 		try {
 			// inject additional command to build script
@@ -127,7 +127,7 @@ const FILES_TO_UPDATE = {
 				await writeFile(file, JSON.stringify(result, null, 2));
 			} else {
 				throw new Error(
-					"There was an error applying the requested TypeScript settings. This could be because the template's tsconfig.json is malformed"
+					"There was an error applying the requested TypeScript settings. This could be because the template's tsconfig.json is malformed",
 				);
 			}
 		} catch (err) {
@@ -135,7 +135,7 @@ const FILES_TO_UPDATE = {
 				// If the template doesn't have a tsconfig.json, let's add one instead
 				await writeFile(
 					file,
-					JSON.stringify({ extends: `astro/tsconfigs/${options.value}` }, null, 2)
+					JSON.stringify({ extends: `astro/tsconfigs/${options.value}` }, null, 2),
 				);
 			}
 		}
@@ -145,7 +145,7 @@ const FILES_TO_UPDATE = {
 export async function setupTypeScript(value: string, ctx: PickedTypeScriptContext) {
 	await Promise.all(
 		Object.entries(FILES_TO_UPDATE).map(async ([file, update]) =>
-			update(path.resolve(path.join(ctx.cwd, file)), { value, ctx })
-		)
+			update(path.resolve(path.join(ctx.cwd, file)), { value, ctx }),
+		),
 	);
 }

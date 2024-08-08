@@ -23,7 +23,7 @@ let signal: AbortSignal;
 export async function shell(
 	command: string,
 	flags: string[],
-	opts: ExecaOptions = {}
+	opts: ExecaOptions = {},
 ): Promise<Output> {
 	let child: ChildProcess;
 	let stdout = '';
@@ -46,7 +46,7 @@ export async function shell(
 		const done = new Promise((resolve) => child.on('close', resolve));
 		[stdout, stderr] = await Promise.all([text(child.stdout), text(child.stderr)]);
 		await done;
-	} catch (e) {
+	} catch {
 		throw { stdout, stderr, exitCode: 1 };
 	}
 	const { exitCode } = child;

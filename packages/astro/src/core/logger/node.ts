@@ -44,6 +44,6 @@ export function enableVerboseLogging() {
 	debug('cli', '--verbose flag enabled! Enabling: DEBUG="astro:*,vite:*"');
 	debug(
 		'cli',
-		'Tip: Set the DEBUG env variable directly for more control. Example: "DEBUG=astro:*,vite:* astro build".'
+		'Tip: Set the DEBUG env variable directly for more control. Example: "DEBUG=astro:*,vite:* astro build".',
 	);
 }

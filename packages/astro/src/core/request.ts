@@ -55,7 +55,7 @@ export function createRequest({
 					// Examples include `:method`, `:scheme`, `:authority`, and `:path`.
 					// They are always prefixed with a colon to distinguish them from other headers, and it is an error to add the to a Headers object manually.
 					// See https://httpwg.org/specs/rfc7540.html#HttpRequest
-					Object.entries(headers as Record<string, any>).filter(([name]) => !name.startsWith(':'))
+					Object.entries(headers as Record<string, any>).filter(([name]) => !name.startsWith(':')),
 				);
 
 	if (typeof url === 'string') url = new URL(url);
@@ -83,7 +83,7 @@ export function createRequest({
 			get() {
 				logger.warn(
 					null,
-					`\`Astro.request.headers\` is unavailable in "static" output mode, and in prerendered pages within "hybrid" and "server" output modes. If you need access to request headers, make sure that \`output\` is configured as either \`"server"\` or \`output: "hybrid"\` in your config file, and that the page accessing the headers is rendered on-demand.`
+					`\`Astro.request.headers\` is unavailable in "static" output mode, and in prerendered pages within "hybrid" and "server" output modes. If you need access to request headers, make sure that \`output\` is configured as either \`"server"\` or \`output: "hybrid"\` in your config file, and that the page accessing the headers is rendered on-demand.`,
 				);
 				return _headers;
 			},
