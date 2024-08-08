@@ -24,7 +24,7 @@ export async function imageMetadata(
 			format: type as ImageInputFormat,
 			orientation,
 		};
-	} catch (e) {
+	} catch {
 		throw new AstroError({
 			...AstroErrorData.NoImageMetadata,
 			message: AstroErrorData.NoImageMetadata.message(src),

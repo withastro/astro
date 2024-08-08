@@ -20,7 +20,7 @@ export async function getRegistry(): Promise<string> {
 		_registry = stdout?.trim()?.replace(/\/$/, '') || fallback;
 		// Detect cases where the shell command returned a non-URL (e.g. a warning)
 		if (!new URL(_registry).host) _registry = fallback;
-	} catch (e) {
+	} catch {
 		_registry = fallback;
 	}
 	return _registry;

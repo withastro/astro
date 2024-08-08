@@ -190,7 +190,7 @@ function getDefaultValueSql(columnName: string, column: DBColumnWithDefault): st
 			let stringified = '';
 			try {
 				stringified = JSON.stringify(column.schema.default);
-			} catch (e) {
+			} catch {
 				// eslint-disable-next-line no-console
 				console.log(
 					`Invalid default value for column ${bold(

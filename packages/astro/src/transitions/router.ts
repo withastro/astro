@@ -118,7 +118,7 @@ async function fetchHTML(
 			redirected: res.redirected ? res.url : undefined,
 			mediaType,
 		};
-	} catch (err) {
+	} catch {
 		// can't fetch, let someone else deal with it.
 		return null;
 	}
@@ -290,7 +290,7 @@ async function updateDOM(
 	) {
 		try {
 			await animate('old');
-		} catch (err) {
+		} catch  {
 			// animate might reject as a consequence of a call to skipTransition()
 			// ignored on purpose
 		}

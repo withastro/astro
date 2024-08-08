@@ -3,7 +3,7 @@ import type { BuildOptions, Rollup, Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { PageBuildData } from '../types.js';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 type OutputOptionsHook = Extract<VitePlugin['outputOptions'], Function>;
 type OutputOptions = Parameters<OutputOptionsHook>[0];
 

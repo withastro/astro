@@ -74,7 +74,7 @@ export function getParts(part: string, file: string) {
 export function validateSegment(segment: string, file = '') {
 	if (!file) file = segment;
 
-	if (/\]\[/.test(segment)) {
+	if (segment.includes('][')) {
 		throw new Error(`Invalid route ${file} \u2014 parameters must be separated`);
 	}
 	if (countOccurrences('[', segment) !== countOccurrences(']', segment)) {
@@ -293,7 +293,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 		let resolved: string;
 		try {
 			resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
-		} catch (e) {
+		} catch {
 			resolved = fileURLToPath(new URL(entrypoint, config.root));
 		}
 		const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));

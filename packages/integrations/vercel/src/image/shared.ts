@@ -13,7 +13,6 @@ export function isESMImportedImage(src: ImageMetadata | string): src is ImageMet
 	return typeof src === 'object';
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export type DevImageService = 'sharp' | 'squoosh' | (string & {});
 
 // https://vercel.com/docs/build-output-api/v3/configuration#images

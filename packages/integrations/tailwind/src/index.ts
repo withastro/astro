@@ -15,7 +15,7 @@ async function getPostCssConfig(
 		const searchPath = typeof postcssInlineOptions === 'string' ? postcssInlineOptions : root!;
 		try {
 			postcssConfigResult = await postcssrc({}, searchPath);
-		} catch (e) {
+		} catch {
 			postcssConfigResult = null;
 		}
 	}

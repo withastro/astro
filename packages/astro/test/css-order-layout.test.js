@@ -51,9 +51,9 @@ describe('CSS ordering - import order with layouts', () => {
 			let specialButtonCSS = -1;
 			let globalCSS = -1;
 			for (let i = 0; i < content.length; i++) {
-				if (content[i].css.indexOf('.SpecialButton') !== -1) {
+				if (content[i].css.includes('.SpecialButton')) {
 					specialButtonCSS = i;
-				} else if (content[i].css.indexOf('green') !== -1) {
+				} else if (content[i].css.includes('green')) {
 					globalCSS = i;
 				}
 			}
