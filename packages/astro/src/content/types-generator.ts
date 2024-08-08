@@ -506,9 +506,11 @@ async function writeContentFiles({
 		});
 
 		Object.keys(collection.entries).forEach((entryKey) => {
-			const entryPath = fileURLToPath(
-				new URL(JSON.parse(entryKey), contentPaths.contentDir + `${key}/`),
-			);
+			const entryPath = new URL(
+				JSON.parse(entryKey),
+				contentPaths.contentDir + `${key}/`,
+			).toString();
+
 			contentCollectionManifest.entries[entryPath] = key;
 		});
 	});
