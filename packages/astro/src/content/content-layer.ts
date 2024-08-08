@@ -6,7 +6,12 @@ import xxhash from 'xxhash-wasm';
 import type { AstroSettings } from '../@types/astro.js';
 import { AstroUserError } from '../core/errors/errors.js';
 import type { Logger } from '../core/logger/core.js';
-import { ASSET_IMPORTS_FILE, CONTENT_LAYER_TYPE, DATA_STORE_FILE } from './consts.js';
+import {
+	ASSET_IMPORTS_FILE,
+	CONTENT_LAYER_TYPE,
+	DATA_STORE_FILE,
+	MODULES_IMPORTS_FILE,
+} from './consts.js';
 import type { DataStore } from './data-store.js';
 import type { LoaderContext } from './loaders/types.js';
 import { getEntryDataAndImages, globalContentConfigObserver, posixRelative } from './utils.js';
@@ -222,6 +227,8 @@ export class ContentLayer {
 		}
 		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
 		await this.#store.writeAssetImports(assetImportsFile);
+		const modulesImportsFile = new URL(MODULES_IMPORTS_FILE, this.#settings.dotAstroDir);
+		await this.#store.writeModuleImports(modulesImportsFile);
 		logger.info('Synced content');
 	}
 }

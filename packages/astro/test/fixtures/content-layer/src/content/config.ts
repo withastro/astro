@@ -1,7 +1,6 @@
 import { defineCollection, z, reference } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 import { loader } from '../loaders/post-loader.js';
-import { fileURLToPath } from 'node:url';
 
 const blog = defineCollection({
 	loader: loader({ url: 'https://jsonplaceholder.typicode.com/posts' }),
