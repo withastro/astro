@@ -64,7 +64,7 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 			try {
 				const json = await res.json();
 				remoteResult = remoteResultSchema.parse(json);
-			} catch (e) {
+			} catch {
 				throw new DetailedLibsqlError({
 					message: await getUnexpectedResponseMessage(res),
 					code: KNOWN_ERROR_CODES.SQL_QUERY_FAILED,
@@ -125,7 +125,7 @@ export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string
 			try {
 				const json = await res.json();
 				remoteResults = z.array(remoteResultSchema).parse(json);
-			} catch (e) {
+			} catch {
 				throw new DetailedLibsqlError({
 					message: await getUnexpectedResponseMessage(res),
 					code: KNOWN_ERROR_CODES.SQL_QUERY_FAILED,
@@ -181,7 +181,7 @@ async function parseRemoteError(response: Response): Promise<DetailedLibsqlError
 	let error;
 	try {
 		error = errorSchema.parse(await response.clone().json()).error;
-	} catch (e) {
+	} catch {
 		return new DetailedLibsqlError({
 			message: await getUnexpectedResponseMessage(response),
 			code: KNOWN_ERROR_CODES.SQL_QUERY_FAILED,

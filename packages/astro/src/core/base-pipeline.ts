@@ -104,5 +104,5 @@ export abstract class Pipeline {
 	abstract getComponentByRoute(routeData: RouteData): Promise<ComponentInstance>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface HeadElements extends Pick<SSRResult, 'scripts' | 'styles' | 'links'> {}

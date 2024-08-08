@@ -62,14 +62,14 @@ describe('astro/src/core/cookies', () => {
 
 			let headers = Array.from(cookies.headers());
 			assert.equal(headers.length, 1);
-			assert.equal(/foo=deleted/.test(headers[0]), true);
-			assert.equal(/Expires=Thu, 01 Jan 1970 00:00:00 GMT/.test(headers[0]), true);
+			assert.equal(headers[0].includes('foo=deleted'), true);
+			assert.equal(headers[0].includes('Expires=Thu, 01 Jan 1970 00:00:00 GMT'), true);
 			assert.equal(/Domain=example.com/.test(headers[0]), true);
-			assert.equal(/Path=\/subpath\//.test(headers[0]), true);
-			assert.equal(/Priority=High/.test(headers[0]), true);
-			assert.equal(/Secure/.test(headers[0]), true);
-			assert.equal(/HttpOnly/.test(headers[0]), true);
-			assert.equal(/SameSite=Strict/.test(headers[0]), true);
+			assert.equal(headers[0].includes('Path=/subpath/'), true);
+			assert.equal(headers[0].includes('Priority=High'), true);
+			assert.equal(headers[0].includes('Secure'), true);
+			assert.equal(headers[0].includes('HttpOnly'), true);
+			assert.equal(headers[0].includes('SameSite=Strict'), true);
 		});
 
 		it('ignores expires option', () => {
@@ -82,8 +82,8 @@ describe('astro/src/core/cookies', () => {
 
 			let headers = Array.from(cookies.headers());
 			assert.equal(headers.length, 1);
-			assert.equal(/foo=deleted/.test(headers[0]), true);
-			assert.equal(/Expires=Thu, 01 Jan 1970 00:00:00 GMT/.test(headers[0]), true);
+			assert.equal(headers[0].includes('foo=deleted'), true);
+			assert.equal(headers[0].includes('Expires=Thu, 01 Jan 1970 00:00:00 GMT'), true);
 		});
 
 		it('ignores maxAge option', () => {
@@ -96,8 +96,8 @@ describe('astro/src/core/cookies', () => {
 
 			let headers = Array.from(cookies.headers());
 			assert.equal(headers.length, 1);
-			assert.equal(/foo=deleted/.test(headers[0]), true);
-			assert.equal(/Expires=Thu, 01 Jan 1970 00:00:00 GMT/.test(headers[0]), true);
+			assert.equal(headers[0].includes('foo=deleted'), true);
+			assert.equal(headers[0].includes('Expires=Thu, 01 Jan 1970 00:00:00 GMT'), true);
 		});
 	});
 });

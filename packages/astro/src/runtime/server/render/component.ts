@@ -179,9 +179,9 @@ async function renderFrameworkComponent(
 		// Attempt: can we guess the renderer from the export extension?
 		if (!renderer) {
 			const extname = metadata.componentUrl?.split('.').pop();
-			renderer = renderers.filter(
+			renderer = renderers.find(
 				({ name }) => name === `@astrojs/${extname}` || name === extname
-			)[0];
+			);
 		}
 	}
 

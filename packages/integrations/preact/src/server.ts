@@ -36,8 +36,8 @@ async function check(
 			// There are edge cases (SolidJS) where Preact *might* render a string,
 			// but components would be <undefined></undefined>
 			// It also might render an empty sting.
-			return html == '' ? false : !/<undefined>/.test(html);
-		} catch (err) {
+			return html == '' ? false : !html.includes('<undefined>');
+		} catch {
 			return false;
 		}
 	} finally {
@@ -108,7 +108,7 @@ function useConsoleFilter() {
 
 		try {
 			console.error = filteredConsoleError;
-		} catch (error) {
+		} catch {
 			// If we're unable to hook `console.error`, just accept it
 		}
 	}

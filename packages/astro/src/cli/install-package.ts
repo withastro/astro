@@ -29,7 +29,7 @@ export async function getPackage<T>(
 		require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
 		const packageImport = await import(packageName);
 		return packageImport as T;
-	} catch (e) {
+	} catch {
 		if (options.optional) return undefined;
 		let message = `To continue, Astro requires the following dependency to be installed: ${bold(
 			packageName
@@ -207,7 +207,7 @@ async function getRegistry(): Promise<string> {
 		_registry = stdout?.trim()?.replace(/\/$/, '') || fallback;
 		// Detect cases where the shell command returned a non-URL (e.g. a warning)
 		if (!new URL(_registry).host) _registry = fallback;
-	} catch (e) {
+	} catch {
 		_registry = fallback;
 	}
 	return _registry;

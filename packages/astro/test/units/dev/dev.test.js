@@ -200,7 +200,7 @@ describe('dev container', () => {
 					container.handle(r.req, r.res);
 					await r.done;
 					const doc = await r.text();
-					assert.equal(/Regular page/.test(doc), true);
+					assert.equal(doc.includes('Regular page'), true);
 					assert.equal(r.res.statusCode, 200);
 				}
 				{
@@ -209,7 +209,7 @@ describe('dev container', () => {
 					container.handle(r.req, r.res);
 					await r.done;
 					const doc = await r.text();
-					assert.equal(/Custom 404/.test(doc), true);
+					assert.equal(doc.includes('Custom 404'), true);
 					assert.equal(r.res.statusCode, 404);
 				}
 				{
@@ -218,7 +218,7 @@ describe('dev container', () => {
 					container.handle(r.req, r.res);
 					await r.done;
 					const doc = await r.text();
-					assert.equal(/Custom 404/.test(doc), true);
+					assert.equal(doc.includes('Custom 404'), true);
 					assert.equal(r.res.statusCode, 404);
 				}
 			}

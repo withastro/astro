@@ -52,6 +52,7 @@ async function errorNodeUnsupported() {
 Node.js v${process.versions.node} is not supported by Astro!
 Please upgrade Node.js to a supported version: "${engines}"\n`);
 
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
 	const ci = typeof require !== 'undefined' ? require('ci-info') : await import('ci-info');
 
 	// Special instructions for CI environments, which may have special steps needed.

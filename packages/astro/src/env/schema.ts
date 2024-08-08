@@ -96,7 +96,6 @@ export const EnvSchema = z.record(EnvSchemaKey, z.intersection(EnvFieldMetadata,
 // https://www.totaltypescript.com/concepts/the-prettify-helper
 type Prettify<T> = {
 	[K in keyof T]: T[K];
-	// eslint-disable-next-line @typescript-eslint/ban-types
 } & {};
 
 export type EnvSchema = z.infer<typeof EnvSchema>;

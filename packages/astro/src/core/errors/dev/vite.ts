@@ -66,7 +66,7 @@ export function enhanceViteSSRError({
 		if (
 			fileId &&
 			!renderers?.find((r) => r.name === '@astrojs/mdx') &&
-			/Syntax error/.test(safeError.message) &&
+			safeError.message.includes('Syntax error') &&
 			/.mdx$/.test(fileId)
 		) {
 			safeError = new AstroError({
@@ -78,7 +78,7 @@ export function enhanceViteSSRError({
 		}
 
 		// Since Astro.glob is a wrapper around Vite's import.meta.glob, errors don't show accurate information, let's fix that
-		if (/Invalid glob/.test(safeError.message)) {
+		if (safeError.message.includes('Invalid glob')) {
 			const globPattern = /glob: "(.+)" \(/.exec(safeError.message)?.[1];
 
 			if (globPattern) {
