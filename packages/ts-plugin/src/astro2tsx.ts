@@ -11,7 +11,7 @@ function safeConvertToTSX(content: string, options: ConvertToTSXOptions) {
 		return tsx;
 	} catch (e) {
 		console.error(
-			`There was an error transforming ${options.filename} to TSX. An empty file will be returned instead. Please create an issue: https://github.com/withastro/language-tools/issues\nError: ${e}.`
+			`There was an error transforming ${options.filename} to TSX. An empty file will be returned instead. Please create an issue: https://github.com/withastro/language-tools/issues\nError: ${e}.`,
 		);
 
 		return {

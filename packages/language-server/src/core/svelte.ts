@@ -48,13 +48,13 @@ class SvelteVirtualCode implements VirtualCode {
 
 	constructor(
 		public fileName: string,
-		public snapshot: ts.IScriptSnapshot
+		public snapshot: ts.IScriptSnapshot,
 	) {
 		this.mappings = [];
 
 		this.embeddedCodes = [];
 		this.embeddedCodes.push(
-			framework2tsx(this.fileName, this.snapshot.getText(0, this.snapshot.getLength()), 'svelte')
+			framework2tsx(this.fileName, this.snapshot.getText(0, this.snapshot.getLength()), 'svelte'),
 		);
 	}
 }

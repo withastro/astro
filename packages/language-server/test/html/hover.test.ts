@@ -19,7 +19,7 @@ describe('HTML - Hover', () => {
 		const document = await languageServer.openFakeDocument(`<blockquote c`, 'astro');
 		const hover = await languageServer.handle.sendHoverRequest(
 			document.uri,
-			Position.create(0, 13)
+			Position.create(0, 13),
 		);
 
 		expect(hover).to.not.be.null;

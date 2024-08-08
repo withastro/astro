@@ -6,7 +6,7 @@ import { mapEdit } from './utils.js';
 
 export function enhancedProvideCodeActions(
 	codeActions: CodeAction[],
-	context: LanguageServiceContext
+	context: LanguageServiceContext,
 ) {
 	return codeActions.map((codeAction) => mapCodeAction(codeAction, context));
 }

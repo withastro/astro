@@ -12,7 +12,7 @@ describe('HTML - Completions', () => {
 		const document = await languageServer.openFakeDocument(`<block`, 'astro');
 		const completions = await languageServer.handle.sendCompletionRequest(
 			document.uri,
-			Position.create(0, 6)
+			Position.create(0, 6),
 		);
 
 		const allLabels = completions!.items.map((i) => i.label);
@@ -24,7 +24,7 @@ describe('HTML - Completions', () => {
 		const document = await languageServer.openFakeDocument(`<blockquote c`, 'astro');
 		const completions = await languageServer.handle.sendCompletionRequest(
 			document.uri,
-			Position.create(0, 13)
+			Position.create(0, 13),
 		);
 
 		expect(completions!.items).to.not.be.empty;

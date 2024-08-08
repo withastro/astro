@@ -15,7 +15,7 @@ export enum DiagnosticCodes {
 
 export function enhancedProvideSemanticDiagnostics(
 	originalDiagnostics: Diagnostic[],
-	tsxLineCount?: number | undefined
+	tsxLineCount?: number | undefined,
 ) {
 	const diagnostics = originalDiagnostics
 		.filter(
@@ -23,10 +23,10 @@ export function enhancedProvideSemanticDiagnostics(
 				(tsxLineCount ? diagnostic.range.start.line <= tsxLineCount : true) &&
 				isNoCantReturnOutsideFunction(diagnostic) &&
 				isNoIsolatedModuleError(diagnostic) &&
-				isNoJsxCannotHaveMultipleAttrsError(diagnostic)
+				isNoJsxCannotHaveMultipleAttrsError(diagnostic),
 		)
 		.map((diag) =>
-			tsxLineCount ? generalEnhancements(astroEnhancements(diag)) : generalEnhancements(diag)
+			tsxLineCount ? generalEnhancements(astroEnhancements(diag)) : generalEnhancements(diag),
 		);
 
 	return diagnostics;
@@ -84,7 +84,7 @@ function astroEnhancements(diagnostic: Diagnostic): Diagnostic {
 				.replace('JSX element type', 'Component')
 				.replace(
 					'does not have any construct or call signatures.',
-					'is not a valid component.\n\nIf this is a Svelte or Vue component, it might have a syntax error that makes it impossible to parse.'
+					'is not a valid component.\n\nIf this is a Svelte or Vue component, it might have a syntax error that makes it impossible to parse.',
 				),
 		};
 	}

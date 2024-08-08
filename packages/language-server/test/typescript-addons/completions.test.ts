@@ -12,7 +12,7 @@ describe('TypeScript Addons - Completions', async () => {
 		const document = await languageServer.openFakeDocument('---\nprerender\n---', 'astro');
 		const completions = await languageServer.handle.sendCompletionRequest(
 			document.uri,
-			Position.create(1, 10)
+			Position.create(1, 10),
 		);
 
 		const prerenderCompletions = completions?.items.filter((item) => item.label === 'prerender');

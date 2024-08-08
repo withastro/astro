@@ -16,7 +16,7 @@ connection.onInitialize((params) => {
 
 	if (!tsdk) {
 		throw new Error(
-			'The `typescript.tsdk` init option is required. It should point to a directory containing a `typescript.js` or `tsserverlibrary.js` file, such as `node_modules/typescript/lib`.'
+			'The `typescript.tsdk` init option is required. It should point to a directory containing a `typescript.js` or `tsserverlibrary.js` file, such as `node_modules/typescript/lib`.',
 		);
 	}
 
@@ -31,7 +31,7 @@ connection.onInitialize((params) => {
 			};
 		}),
 		getLanguageServicePlugins(connection, typescript),
-		{ pullModelDiagnostics: params.initializationOptions?.pullModelDiagnostics }
+		{ pullModelDiagnostics: params.initializationOptions?.pullModelDiagnostics },
 	);
 });
 

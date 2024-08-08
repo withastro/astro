@@ -20,7 +20,7 @@ export async function getLanguageServer(): Promise<LanguageServer> {
 	if (!serverHandle) {
 		serverHandle = startLanguageServer(
 			path.resolve('./bin/nodeServer.js'),
-			fileURLToPath(new URL('./fixture', import.meta.url))
+			fileURLToPath(new URL('./fixture', import.meta.url)),
 		);
 
 		initializeResult = await serverHandle.initialize(
@@ -32,7 +32,7 @@ export async function getLanguageServer(): Promise<LanguageServer> {
 						'../',
 						'node_modules',
 						'typescript',
-						'lib'
+						'lib',
 					),
 				},
 				pullModelDiagnostics: true,
@@ -42,12 +42,12 @@ export async function getLanguageServer(): Promise<LanguageServer> {
 					// Needed for tests that use didChangeWatchedFiles
 					didChangeWatchedFiles: {},
 				},
-			}
+			},
 		);
 		// Ensure that our first test does not suffer from a TypeScript overhead
 		await serverHandle.sendCompletionRequest(
 			'file://doesnt-exists',
-			protocol.Position.create(0, 0)
+			protocol.Position.create(0, 0),
 		);
 	}
 

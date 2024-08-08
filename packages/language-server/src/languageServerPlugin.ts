@@ -27,7 +27,7 @@ export function getLanguagePlugins(
 	connection: Connection,
 	ts: typeof import('typescript'),
 	serviceEnv: LanguageServiceEnvironment,
-	tsconfig: string | undefined
+	tsconfig: string | undefined,
 ) {
 	const languagePlugins: LanguagePlugin<URI>[] = [
 		getVueLanguagePlugin(),
@@ -52,7 +52,7 @@ export function getLanguagePlugins(
 	}
 
 	languagePlugins.unshift(
-		getAstroLanguagePlugin(typeof astroInstall === 'string' ? undefined : astroInstall, ts)
+		getAstroLanguagePlugin(typeof astroInstall === 'string' ? undefined : astroInstall, ts),
 	);
 
 	return languagePlugins;
@@ -120,7 +120,7 @@ export function getLanguageServicePlugins(connection: Connection, ts: typeof imp
 
 					const editorOptions = await context.env.getConfiguration<object>?.(
 						'prettier',
-						document.uri
+						document.uri,
 					);
 
 					// Return a config with the following cascade:
@@ -153,7 +153,7 @@ export function getLanguageServicePlugins(connection: Connection, ts: typeof imp
 						return hasPluginLoadedAlready ? [] : [prettierPluginPath];
 					}
 				},
-			}
+			},
 		);
 	}
 }

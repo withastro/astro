@@ -37,7 +37,7 @@ export class AstroCheck {
 	constructor(
 		private readonly workspacePath: string,
 		private readonly typescriptPath: string | undefined,
-		private readonly tsconfigPath: string | undefined
+		private readonly tsconfigPath: string | undefined,
 	) {
 		this.initialize();
 	}
@@ -115,13 +115,13 @@ export class AstroCheck {
 				});
 
 				result.errors += fileDiagnostics.filter(
-					(diag) => diag.severity === DiagnosticSeverity.Error
+					(diag) => diag.severity === DiagnosticSeverity.Error,
 				).length;
 				result.warnings += fileDiagnostics.filter(
-					(diag) => diag.severity === DiagnosticSeverity.Warning
+					(diag) => diag.severity === DiagnosticSeverity.Warning,
 				).length;
 				result.hints += fileDiagnostics.filter(
-					(diag) => diag.severity === DiagnosticSeverity.Hint
+					(diag) => diag.severity === DiagnosticSeverity.Hint,
 				).length;
 			}
 

@@ -16,19 +16,19 @@ suite('Extension Test Suite', () => {
 			await new Promise((resolve) => setTimeout(resolve, 100));
 		}
 		throw new Error(
-			`TypeScript plugin never started or condition never resolved for command ${command}`
+			`TypeScript plugin never started or condition never resolved for command ${command}`,
 		);
 	}
 
 	test('can find references inside Astro files', async () => {
 		const doc = await vscode.workspace.openTextDocument(
-			vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts'))
+			vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts')),
 		);
 
 		const references = await waitForTS(
 			'vscode.executeReferenceProvider',
 			[doc.uri, new vscode.Position(0, 18)],
-			(result) => result.length > 1
+			(result) => result.length > 1,
 		);
 
 		const hasAstroRef = references.some((ref) => ref.uri.path.includes('MyAstroComponent.astro'));
@@ -37,13 +37,13 @@ suite('Extension Test Suite', () => {
 
 	test('can get completions for Astro components', async () => {
 		const doc = await vscode.workspace.openTextDocument(
-			vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts'))
+			vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts')),
 		);
 
 		const completions = await waitForTS(
 			'vscode.executeCompletionItemProvider',
 			[doc.uri, new vscode.Position(4, 12)],
-			(result) => result.items.length > 0
+			(result) => result.items.length > 0,
 		);
 
 		const hasAstroCompletion = completions.items.some((item) => {
@@ -54,17 +54,17 @@ suite('Extension Test Suite', () => {
 
 	test('can get implementations inside Astro files', async () => {
 		const doc = await vscode.workspace.openTextDocument(
-			vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts'))
+			vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts')),
 		);
 
 		const implementations = await waitForTS(
 			'vscode.executeImplementationProvider',
 			[doc.uri, new vscode.Position(6, 15)],
-			(result) => result.length > 1
+			(result) => result.length > 1,
 		);
 
 		const hasAstroImplementation = implementations.some((impl) =>
-			impl.uri.path.includes('MyAstroComponent')
+			impl.uri.path.includes('MyAstroComponent'),
 		);
 		expect(hasAstroImplementation).to.be.true;
 	}).timeout(12000);

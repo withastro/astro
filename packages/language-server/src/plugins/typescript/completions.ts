@@ -34,13 +34,13 @@ export function enhancedProvideCompletionItems(completions: CompletionList): Com
 
 export function enhancedResolveCompletionItem(
 	resolvedCompletion: CompletionItem,
-	context: LanguageServiceContext
+	context: LanguageServiceContext,
 ): CompletionItem {
 	// Make sure we keep our icons even when the completion is resolved
 	if (resolvedCompletion.data.isComponent) {
 		resolvedCompletion.detail = getDetailForFileCompletion(
 			resolvedCompletion.detail ?? '',
-			resolvedCompletion.data.originalItem.source
+			resolvedCompletion.data.originalItem.source,
 		);
 	}
 
@@ -52,7 +52,7 @@ export function enhancedResolveCompletionItem(
 		if (!virtualCode || !(root instanceof AstroVirtualCode)) return resolvedCompletion;
 
 		resolvedCompletion.additionalTextEdits = resolvedCompletion.additionalTextEdits.map((edit) =>
-			mapEdit(edit, root, virtualCode.languageId)
+			mapEdit(edit, root, virtualCode.languageId),
 		);
 	}
 

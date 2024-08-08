@@ -28,7 +28,7 @@ export function safeConvertToTSX(content: string, options: ConvertToTSXOptions) 
 		return tsx;
 	} catch (e) {
 		console.error(
-			`There was an error transforming ${options.filename} to TSX. An empty file will be returned instead. Please create an issue: https://github.com/withastro/language-tools/issues\nError: ${e}.`
+			`There was an error transforming ${options.filename} to TSX. An empty file will be returned instead. Please create an issue: https://github.com/withastro/language-tools/issues\nError: ${e}.`,
 		);
 
 		return {
@@ -71,11 +71,11 @@ export function getTSXRangesAsLSPRanges(tsx: TSXResult): LSPTSXRanges {
 	return {
 		frontmatter: Range.create(
 			textDocument.positionAt(tsx.metaRanges.frontmatter.start),
-			textDocument.positionAt(tsx.metaRanges.frontmatter.end)
+			textDocument.positionAt(tsx.metaRanges.frontmatter.end),
 		),
 		body: Range.create(
 			textDocument.positionAt(tsx.metaRanges.body.start),
-			textDocument.positionAt(tsx.metaRanges.body.end)
+			textDocument.positionAt(tsx.metaRanges.body.end),
 		),
 		scripts: tsx.metaRanges.scripts ?? [],
 		styles: tsx.metaRanges.styles ?? [],

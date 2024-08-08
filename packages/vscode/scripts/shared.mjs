@@ -19,7 +19,7 @@ export const rebuildPlugin = {
 			} else {
 				if (result.warnings.length) {
 					console.log(
-						dim(`[${date}] `) + yellow('⚠ updated with warnings:\n' + result.warnings.join('\n'))
+						dim(`[${date}] `) + yellow('⚠ updated with warnings:\n' + result.warnings.join('\n')),
 					);
 				}
 				console.log(dim(`[${date}] `) + green('✔ updated'));

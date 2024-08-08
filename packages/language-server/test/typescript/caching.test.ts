@@ -65,7 +65,7 @@ describe('TypeScript - Cache invalidation', async () => {
 
 		const document = await languageServer.handle.openTextDocument(
 			path.join(fixtureDir, 'cachingTest.astro'),
-			'astro'
+			'astro',
 		);
 
 		// Try two different files, to make sure the cache capture everything
@@ -85,7 +85,7 @@ describe('TypeScript - Cache invalidation', async () => {
 	it('Does not get path completions for removed files', async () => {
 		const document = await languageServer.handle.openTextDocument(
 			path.join(fixtureDir, 'cachingTest.astro'),
-			'astro'
+			'astro',
 		);
 
 		await removeFile('toBeDeleted.astro');
@@ -101,7 +101,7 @@ describe('TypeScript - Cache invalidation', async () => {
 		const labels = completions?.items.map((i) => i.label);
 		expect(labels).to.not.include(
 			'toBeDeleted.astro',
-			`Expected toBeDeleted.astro to not be in the completions, since the file was deleted`
+			`Expected toBeDeleted.astro to not be in the completions, since the file was deleted`,
 		);
 	});
 
@@ -111,7 +111,7 @@ describe('TypeScript - Cache invalidation', async () => {
 
 		const document = await languageServer.handle.openTextDocument(
 			path.join(fixtureDir, 'cachingTest.astro'),
-			'astro'
+			'astro',
 		);
 
 		// Try two different files in a row, to make sure the cache updates properly for each file individually
@@ -132,30 +132,30 @@ describe('TypeScript - Cache invalidation', async () => {
 	it('New files have access to context of the project', async () => {
 		const existingDocument = await languageServer.handle.openTextDocument(
 			path.join(fixtureDir, 'importFromSuperModule.astro'),
-			'astro'
+			'astro',
 		);
 
 		const existingDiagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
-			existingDocument.uri
+			existingDocument.uri,
 		)) as FullDocumentDiagnosticReport;
 
 		expect(existingDiagnostics.items).to.have.length(
 			0,
-			'Expected no diagnostics, as the file is part of the project'
+			'Expected no diagnostics, as the file is part of the project',
 		);
 
 		const document = await createFile(
 			'WillImportFromSuperModule.astro',
-			'---\n\nimport { hello } from "im-a-super-module";\n\nhello;\n\n---\n'
+			'---\n\nimport { hello } from "im-a-super-module";\n\nhello;\n\n---\n',
 		);
 
 		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
-			document.uri
+			document.uri,
 		)) as FullDocumentDiagnosticReport;
 
 		expect(diagnostics.items).to.have.length(
 			0,
-			'Expected no diagnostics, as new files should have access to the module declaration in the project like already existing files.'
+			'Expected no diagnostics, as new files should have access to the module declaration in the project like already existing files.',
 		);
 
 		const hoverSuperModule = await languageServer.handle.sendHoverRequest(document.uri, {
@@ -164,7 +164,7 @@ describe('TypeScript - Cache invalidation', async () => {
 		});
 
 		expect((hoverSuperModule?.contents as MarkupContent).value).to.include(
-			'module "im-a-super-module"'
+			'module "im-a-super-module"',
 		);
 	});
 

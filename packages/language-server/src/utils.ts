@@ -20,7 +20,7 @@ export function getAstroInstall(
 	checkForAstro?: {
 		nearestPackageJson: string | undefined;
 		readDirectory: typeof import('typescript').sys.readDirectory;
-	}
+	},
 ): AstroInstall | 'not-an-astro-project' | 'not-found' {
 	let astroPath;
 	let version;
@@ -44,7 +44,7 @@ export function getAstroInstall(
 				['.js', '.mjs', '.cjs', '.ts', '.mts', '.cts'],
 				undefined,
 				undefined,
-				1
+				1,
 			);
 
 			if (!directoryContent.some((file) => path.basename(file).startsWith('astro.config'))) {
@@ -74,7 +74,7 @@ export function getAstroInstall(
 		} catch (e) {
 			// If we still couldn't find it, it probably just doesn't exist
 			console.error(
-				`${basePaths[0]} seems to be an Astro project, but we couldn't find Astro or Astro is not installed`
+				`${basePaths[0]} seems to be an Astro project, but we couldn't find Astro or Astro is not installed`,
 			);
 
 			return 'not-found';

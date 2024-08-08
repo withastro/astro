@@ -47,7 +47,7 @@ export class AstroVirtualCode implements VirtualCode {
 
 	constructor(
 		public fileName: string,
-		public snapshot: ts.IScriptSnapshot
+		public snapshot: ts.IScriptSnapshot,
 	) {
 		this.mappings = [
 			{

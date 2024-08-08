@@ -27,7 +27,7 @@ describe('Formatting - Prettier', () => {
 	it('Can ignore documents correctly', async () => {
 		const document = await languageServer.handle.openTextDocument(
 			path.resolve(__dirname, '..', 'fixture', 'dontFormat.astro'),
-			'astro'
+			'astro',
 		);
 		const formatEdits = await languageServer.handle.sendDocumentFormattingRequest(document.uri, {
 			tabSize: 2,
@@ -40,7 +40,7 @@ describe('Formatting - Prettier', () => {
 	it('Respect .editorconfig', async () => {
 		const document = await languageServer.handle.openTextDocument(
 			path.resolve(__dirname, '..', 'fixture', 'editorConfig.astro'),
-			'astro'
+			'astro',
 		);
 		const formatEdits = await languageServer.handle.sendDocumentFormattingRequest(document.uri, {
 			tabSize: 2,

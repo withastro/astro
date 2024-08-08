@@ -121,7 +121,7 @@ async function getConfiguredServerPath(workspaceState: vscode.Memento) {
 			msg,
 			allowPrompt,
 			dismissPrompt,
-			neverPrompt
+			neverPrompt,
 		);
 
 		if (result === allowPrompt) {

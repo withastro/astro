@@ -12,7 +12,7 @@ describe('CSS - Completions', () => {
 		const document = await languageServer.openFakeDocument(`<style>.foo { colo }</style>`, 'astro');
 		const completions = await languageServer.handle.sendCompletionRequest(
 			document.uri,
-			Position.create(0, 18)
+			Position.create(0, 18),
 		);
 
 		expect(completions!.items).to.not.be.empty;
@@ -21,11 +21,11 @@ describe('CSS - Completions', () => {
 	it('Can provide completions for CSS values', async () => {
 		const document = await languageServer.openFakeDocument(
 			`<style>.foo { color: re }</style>`,
-			'astro'
+			'astro',
 		);
 		const completions = await languageServer.handle.sendCompletionRequest(
 			document.uri,
-			Position.create(0, 21)
+			Position.create(0, 21),
 		);
 
 		expect(completions!.items).to.not.be.empty;
@@ -35,7 +35,7 @@ describe('CSS - Completions', () => {
 		const document = await languageServer.openFakeDocument(`<div style="color: ;"></div>`, 'astro');
 		const completions = await languageServer.handle.sendCompletionRequest(
 			document.uri,
-			Position.create(0, 18)
+			Position.create(0, 18),
 		);
 
 		expect(completions!.items).to.not.be.empty;
@@ -45,11 +45,11 @@ describe('CSS - Completions', () => {
 	it('Can provide completions inside inline styles with multi-bytes characters in the file', async () => {
 		const document = await languageServer.openFakeDocument(
 			`<div>あ</div><div style="color: ;"></div>`,
-			'astro'
+			'astro',
 		);
 		const completions = await languageServer.handle.sendCompletionRequest(
 			document.uri,
-			Position.create(0, 30)
+			Position.create(0, 30),
 		);
 
 		expect(completions!.items).to.not.be.empty;
@@ -65,11 +65,11 @@ describe('CSS - Completions', () => {
 	}
 </style>
 `,
-			'astro'
+			'astro',
 		);
 		const completions = await languageServer.handle.sendCompletionRequest(
 			document.uri,
-			Position.create(3, 10)
+			Position.create(3, 10),
 		);
 
 		const allLabels = completions?.items.map((i) => i.label);
@@ -87,11 +87,11 @@ describe('CSS - Completions', () => {
 	}
 </style>
 `,
-			'astro'
+			'astro',
 		);
 		const completions = await languageServer.handle.sendCompletionRequest(
 			document.uri,
-			Position.create(3, 10)
+			Position.create(3, 10),
 		);
 
 		const allLabels = completions?.items.map((i) => i.label);

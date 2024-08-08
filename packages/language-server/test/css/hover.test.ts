@@ -13,7 +13,7 @@ describe('CSS - Hover', () => {
 	it('Can get hover in style tags', async () => {
 		const document = await languageServer.openFakeDocument(
 			'<style>\nh1 {\ncolor: red;\n}\n</style>',
-			'astro'
+			'astro',
 		);
 		const hover = await languageServer.handle.sendHoverRequest(document.uri, Position.create(2, 7));
 

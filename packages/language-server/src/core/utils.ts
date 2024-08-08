@@ -5,7 +5,7 @@ import { importSvelteIntegration, importVueIntegration } from '../importPackage'
 export function framework2tsx(
 	filePath: string,
 	sourceCode: string,
-	framework: 'vue' | 'svelte'
+	framework: 'vue' | 'svelte',
 ): VirtualCode {
 	const integrationEditorEntrypoint =
 		framework === 'vue' ? importVueIntegration(filePath) : importSvelteIntegration(filePath);
@@ -44,7 +44,7 @@ function toPascalCase(string: string) {
 		.replace(new RegExp(/[^\w\s]/, 'g'), '')
 		.replace(
 			new RegExp(/\s+(.)(\w*)/, 'g'),
-			($1, $2, $3) => `${$2.toUpperCase() + $3.toLowerCase()}`
+			($1, $2, $3) => `${$2.toUpperCase() + $3.toLowerCase()}`,
 		)
 		.replace(new RegExp(/\w/), (s) => s.toUpperCase());
 }

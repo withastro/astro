@@ -17,7 +17,7 @@ describe('TypeScript - Diagnostics', async () => {
 	it('Can get diagnostics in the frontmatter', async () => {
 		const document = await languageServer.openFakeDocument('---\nNotAThing\n---', 'astro');
 		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
-			document.uri
+			document.uri,
 		)) as FullDocumentDiagnosticReport;
 
 		// We should only have one error here.
@@ -39,7 +39,7 @@ describe('TypeScript - Diagnostics', async () => {
 	it('Can get diagnostics in the template', async () => {
 		const document = await languageServer.openFakeDocument('---\n\n---\n{nope}', 'astro');
 		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
-			document.uri
+			document.uri,
 		)) as FullDocumentDiagnosticReport;
 		expect(diagnostics.items).length(1);
 
@@ -57,10 +57,10 @@ describe('TypeScript - Diagnostics', async () => {
 	it('shows enhanced diagnostics', async () => {
 		const document = await languageServer.handle.openTextDocument(
 			path.resolve(__dirname, '..', 'fixture', 'enhancedDiagnostics.astro'),
-			'astro'
+			'astro',
 		);
 		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
-			document.uri
+			document.uri,
 		)) as FullDocumentDiagnosticReport;
 		expect(diagnostics.items).length(2);
 
@@ -90,10 +90,10 @@ describe('TypeScript - Diagnostics', async () => {
 	it('can get diagnostics in script tags', async () => {
 		const document = await languageServer.openFakeDocument(
 			`<script>const something: string = "Hello";something;</script><div><script>console.log(doesnotexist);</script></div>`,
-			'astro'
+			'astro',
 		);
 		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
-			document.uri
+			document.uri,
 		)) as FullDocumentDiagnosticReport;
 		expect(diagnostics.items).length(1);
 	});

@@ -54,7 +54,7 @@ export function ensureProperEditForFrontmatter(
 	edit: TextEdit,
 	metadata: AstroMetadata,
 	newLine: string,
-	position: FrontmatterEditPosition = 'top'
+	position: FrontmatterEditPosition = 'top',
 ): TextEdit {
 	switch (metadata.frontmatter.status) {
 		case 'open':
@@ -80,7 +80,7 @@ export function ensureProperEditForFrontmatter(
 export function ensureRangeIsInFrontmatter(
 	range: Range,
 	metadata: AstroMetadata,
-	position: FrontmatterEditPosition = 'top'
+	position: FrontmatterEditPosition = 'top',
 ): Range {
 	if (metadata.frontmatter.status === 'open' || metadata.frontmatter.status === 'closed') {
 		const frontmatterEndPosition = metadata.frontmatter.position.end
@@ -98,7 +98,7 @@ export function ensureRangeIsInFrontmatter(
 
 			return Range.create(
 				metadata.tsxRanges.frontmatter.start,
-				metadata.tsxRanges.frontmatter.start
+				metadata.tsxRanges.frontmatter.start,
 			);
 		}
 
@@ -111,14 +111,14 @@ export function ensureRangeIsInFrontmatter(
 export function getNewFrontmatterEdit(
 	edit: TextEdit,
 	astroMetadata: AstroMetadata,
-	newLine: string
+	newLine: string,
 ) {
 	edit.newText = `---${edit.newText.startsWith(newLine) ? '' : newLine}${
 		edit.newText
 	}---${newLine}${newLine}`;
 	edit.range = Range.create(
 		astroMetadata.tsxRanges.frontmatter.start,
-		astroMetadata.tsxRanges.frontmatter.start
+		astroMetadata.tsxRanges.frontmatter.start,
 	);
 
 	return edit;
@@ -127,14 +127,14 @@ export function getNewFrontmatterEdit(
 export function getOpenFrontmatterEdit(
 	edit: TextEdit,
 	astroMetadata: AstroMetadata,
-	newLine: string
+	newLine: string,
 ) {
 	edit.newText = edit.newText.startsWith(newLine)
 		? `${edit.newText}---`
 		: `${newLine}${edit.newText}---`;
 	edit.range = Range.create(
 		astroMetadata.tsxRanges.frontmatter.start,
-		astroMetadata.tsxRanges.frontmatter.start
+		astroMetadata.tsxRanges.frontmatter.start,
 	);
 	return edit;
 }
@@ -146,7 +146,7 @@ type FrontmatterEditValidity =
 // Most edits that are at the beginning of the TSX, or outside the document are intended for the frontmatter
 export function editShouldBeInFrontmatter(
 	range: Range,
-	astroMetadata: AstroMetadata
+	astroMetadata: AstroMetadata,
 ): FrontmatterEditValidity {
 	const isAtTSXStart = range.start.line < astroMetadata.tsxRanges.frontmatter.start.line;
 

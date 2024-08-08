@@ -57,7 +57,7 @@ export const create = (): LanguageServicePlugin => {
 						document,
 						position,
 						completionContext,
-						token
+						token,
 					);
 
 					if (!completions) {
@@ -66,7 +66,7 @@ export const create = (): LanguageServicePlugin => {
 
 					// We don't want completions for file references, as they're mostly invalid for Astro
 					completions.items = completions.items.filter(
-						(completion) => completion.kind !== CompletionItemKind.File
+						(completion) => completion.kind !== CompletionItemKind.File,
 					);
 
 					return completions;

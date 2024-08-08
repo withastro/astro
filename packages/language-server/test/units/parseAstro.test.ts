@@ -13,7 +13,7 @@ describe('parseAstro - Can parse astro files', () => {
 				{
 					position: createCompilerPosition(
 						createCompilerPoint(1, 1, 0),
-						createCompilerPoint(2, 4, 7)
+						createCompilerPoint(2, 4, 7),
 					),
 					type: 'frontmatter',
 					value: '\n',
@@ -24,7 +24,7 @@ describe('parseAstro - Can parse astro files', () => {
 						{
 							position: createCompilerPosition(
 								createCompilerPoint(2, 10, 13),
-								createCompilerPoint(2, 16, 19)
+								createCompilerPoint(2, 16, 19),
 							),
 							type: 'text',
 							value: 'Astro!',
@@ -33,7 +33,7 @@ describe('parseAstro - Can parse astro files', () => {
 					name: 'div',
 					position: createCompilerPosition(
 						createCompilerPoint(2, 5, 8),
-						createCompilerPoint(2, 22, 25)
+						createCompilerPoint(2, 22, 25),
 					),
 					type: 'element',
 				},

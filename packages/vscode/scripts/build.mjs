@@ -51,7 +51,7 @@ export default async function build() {
 							// Call twice the replace is to solve the problem of the path in Windows
 							const pathEsm = pathUmdMay.replace('/umd/', '/esm/').replace('\\umd\\', '\\esm\\');
 							return { path: pathEsm };
-						}
+						},
 					);
 				},
 			},

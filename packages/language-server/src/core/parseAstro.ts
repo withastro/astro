@@ -10,7 +10,7 @@ export type AstroMetadata = ParseResult & {
 export function getAstroMetadata(
 	fileName: string,
 	input: string,
-	options: ParseOptions = { position: true }
+	options: ParseOptions = { position: true },
 ): Omit<AstroMetadata, 'tsxRanges'> {
 	const parseResult = safeParseAst(fileName, input, options);
 
@@ -26,7 +26,7 @@ function safeParseAst(fileName: string, input: string, parseOptions: ParseOption
 		return parseResult;
 	} catch (e) {
 		console.error(
-			`There was an error parsing ${fileName}'s AST. An empty AST will be returned instead to avoid breaking the server. Please create an issue: https://github.com/withastro/language-tools/issues\nError: ${e}.`
+			`There was an error parsing ${fileName}'s AST. An empty AST will be returned instead to avoid breaking the server. Please create an issue: https://github.com/withastro/language-tools/issues\nError: ${e}.`,
 		);
 
 		return {

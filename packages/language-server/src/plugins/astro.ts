@@ -79,7 +79,7 @@ export const create = (ts: typeof import('typescript')): LanguageServicePlugin =
 
 					const { uriConverter } = context.project.typescript;
 					const languageService = context.inject<Provide, 'typescript/languageService'>(
-						'typescript/languageService'
+						'typescript/languageService',
 					);
 					if (!languageService) return;
 
@@ -102,8 +102,8 @@ export const create = (ts: typeof import('typescript')): LanguageServicePlugin =
 										getGlobResultAsCodeLens(
 											globArgument.getText().slice(1, -1),
 											dirname(uriConverter.asFileName(decoded[0])),
-											document.positionAt(node.arguments.pos)
-										)
+											document.positionAt(node.arguments.pos),
+										),
 									);
 								}
 							}
@@ -135,7 +135,7 @@ function getGlobResultAsCodeLens(globText: string, dir: string, position: Positi
 function getFrontmatterCompletion(
 	file: AstroVirtualCode,
 	document: TextDocument,
-	position: Position
+	position: Position,
 ) {
 	const base: CompletionItem = {
 		kind: CompletionItemKind.Snippet,

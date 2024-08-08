@@ -26,7 +26,7 @@ async function main() {
 			files.forEach((file) => {
 				if (file.startsWith('vscode-')) {
 					vsPath = downloadDirToExecutablePath(
-						path.resolve(__dirname, '../../vscode/.vscode-test/', file)
+						path.resolve(__dirname, '../../vscode/.vscode-test/', file),
 					);
 					return;
 				}

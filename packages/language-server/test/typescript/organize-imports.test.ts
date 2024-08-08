@@ -12,7 +12,7 @@ describe('TypeScript - Organize & Sort Imports', () => {
 	it('Can organize imports', async () => {
 		const document = await languageServer.openFakeDocument(
 			`---\n\nimport os from "node:os";\n\nimport fs from "node:fs";\n\n---\n\n`,
-			'astro'
+			'astro',
 		);
 		const organizeEdits = await languageServer.handle.sendCodeActionsRequest(
 			document.uri,
@@ -21,7 +21,7 @@ describe('TypeScript - Organize & Sort Imports', () => {
 				diagnostics: [],
 				only: ['source.organizeImports'],
 				triggerKind: 1,
-			}
+			},
 		);
 
 		expect(organizeEdits).to.deep.equal([

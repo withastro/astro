@@ -12,7 +12,7 @@ describe('HTML - Custom Data', () => {
 		const document = await languageServer.openFakeDocument(`<div class></div>`, 'astro');
 		const completions = await languageServer.handle.sendCompletionRequest(
 			document.uri,
-			Position.create(0, 10)
+			Position.create(0, 10),
 		);
 
 		const labels = completions!.items.map((i) => i.label);

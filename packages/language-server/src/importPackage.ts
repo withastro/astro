@@ -17,7 +17,7 @@ export function setIsTrusted(_isTrusted: boolean) {
 export function getPackagePath(
 	packageName: string,
 	fromPath: string[],
-	root = true
+	root = true,
 ): string | undefined {
 	const paths = [];
 	if (isTrusted) {
@@ -43,14 +43,14 @@ function importEditorIntegration<T>(packageName: string, fromPath: string): T | 
 			return require(main) as T;
 		} catch (e) {
 			console.error(
-				`Couldn't load editor module from ${pkgPath}. Make sure you're using at least version v0.2.1 of the corresponding integration. Reason: ${e}`
+				`Couldn't load editor module from ${pkgPath}. Make sure you're using at least version v0.2.1 of the corresponding integration. Reason: ${e}`,
 			);
 
 			return undefined;
 		}
 	} else {
 		console.info(
-			`Couldn't find package ${packageName} (searching from ${fromPath}). Make sure it's installed. If you believe this to be an error, please open an issue.`
+			`Couldn't find package ${packageName} (searching from ${fromPath}). Make sure it's installed. If you believe this to be an error, please open an issue.`,
 		);
 	}
 

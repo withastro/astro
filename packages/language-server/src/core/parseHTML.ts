@@ -7,7 +7,7 @@ const htmlLs = html.getLanguageService();
 
 export function parseHTML(
 	snapshot: ts.IScriptSnapshot,
-	frontmatterEnd: number
+	frontmatterEnd: number,
 ): { virtualCode: VirtualCode; htmlDocument: html.HTMLDocument } {
 	const htmlContent = preprocessHTML(snapshot.getText(0, snapshot.getLength()), frontmatterEnd);
 
@@ -20,7 +20,7 @@ export function parseHTML(
 const createScanner = htmlLs.createScanner as (
 	input: string,
 	initialOffset?: number,
-	initialState?: html.ScannerState
+	initialState?: html.ScannerState,
 ) => html.Scanner;
 
 /**
