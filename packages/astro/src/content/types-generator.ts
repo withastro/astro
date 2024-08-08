@@ -500,7 +500,7 @@ async function writeContentFiles({
 
 	const configPathRelativeToCacheDir = normalizeConfigPath(
 		new URL('astro', settings.dotAstroDir).pathname,
-		contentPaths.config.url.pathname
+		contentPaths.config.url.pathname,
 	);
 
 	for (const contentEntryType of contentEntryTypes) {
@@ -519,7 +519,7 @@ async function writeContentFiles({
 		fs.promises.writeFile(
 			new URL(CONTENT_TYPES_FILE, settings.dotAstroDir),
 			typeTemplateContent,
-			'utf-8'
+			'utf-8',
 		);
 	} else {
 		settings.injectedTypes.push({

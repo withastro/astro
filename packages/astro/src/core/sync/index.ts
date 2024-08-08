@@ -1,6 +1,6 @@
-import { dim } from 'kleur/colors';
 import fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
+import { dim } from 'kleur/colors';
 import { type HMRPayload, createServer } from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { createContentTypesGenerator } from '../../content/index.js';
@@ -42,7 +42,7 @@ export type SyncOptions = {
 
 export default async function sync(
 	inlineConfig: AstroInlineConfig,
-	{ fs, telemetry: _telemetry = false }: { fs?: typeof fsMod; telemetry?: boolean } = {}
+	{ fs, telemetry: _telemetry = false }: { fs?: typeof fsMod; telemetry?: boolean } = {},
 ) {
 	ensureProcessNodeEnv('production');
 	const logger = createNodeLogger(inlineConfig);

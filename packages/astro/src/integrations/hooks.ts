@@ -100,12 +100,12 @@ export function getToolbarServerCommunicationHelpers(server: ViteDevServer) {
 	};
 }
 
-const SAFE_CHARS_RE = /[^\w.-]/g
+const SAFE_CHARS_RE = /[^\w.-]/g;
 
 export function normalizeInjectedTypeFilename(filename: string, integrationName: string): string {
 	if (!filename.endsWith('.d.ts')) {
 		throw new Error(
-			`Integration ${bold(integrationName)} is injecting a type that does not end with "${bold('.d.ts')}"`
+			`Integration ${bold(integrationName)} is injecting a type that does not end with "${bold('.d.ts')}"`,
 		);
 	}
 	return `./integrations/${integrationName.replace(SAFE_CHARS_RE, '_')}/${filename.replace(SAFE_CHARS_RE, '_')}`;
@@ -350,7 +350,7 @@ export async function runHookConfigDone({
 
 						const normalizedFilename = normalizeInjectedTypeFilename(
 							injectedType.filename,
-							integration.name
+							integration.name,
 						);
 
 						settings.injectedTypes.push({

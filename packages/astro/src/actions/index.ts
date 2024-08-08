@@ -49,7 +49,7 @@ export default function astroActions({
 			},
 			'astro:config:done': (params) => {
 				const stringifiedActionsImport = JSON.stringify(
-					viteID(new URL('./actions', params.config.srcDir))
+					viteID(new URL('./actions', params.config.srcDir)),
 				);
 				settings.injectedTypes.push({
 					filename: ACTIONS_TYPES_FILE,

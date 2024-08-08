@@ -2,9 +2,9 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { validateSupportedFeatures } from '../../../dist/integrations/features-validation.js';
 import {
+	normalizeInjectedTypeFilename,
 	runHookBuildSetup,
 	runHookConfigSetup,
-	normalizeInjectedTypeFilename,
 } from '../../../dist/integrations/hooks.js';
 import { defaultLogger } from '../test-utils.js';
 
@@ -324,11 +324,11 @@ describe('normalizeInjectedTypeFilename', () => {
 	// filename normalization
 	assert.equal(
 		normalizeInjectedTypeFilename('aA1-*/_"~.d.ts', 'integration'),
-		'./integrations/integration/aA1-_____.d.ts'
+		'./integrations/integration/aA1-_____.d.ts',
 	);
 	// integration name normalization
 	assert.equal(
 		normalizeInjectedTypeFilename('types.d.ts', 'aA1-*/_"~.'),
-		'./integrations/aA1-_____./types.d.ts'
+		'./integrations/aA1-_____./types.d.ts',
 	);
 });

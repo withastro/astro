@@ -15,7 +15,7 @@ async function sync({ fs }) {
 			},
 			{
 				fs,
-			}
+			},
 		);
 		return 0;
 	} catch (_) {

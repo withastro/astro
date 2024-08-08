@@ -1,13 +1,13 @@
 import type fsMod from 'node:fs';
 import { dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import generate from '@babel/generator';
+import { parse } from '@babel/parser';
 import { bold } from 'kleur/colors';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../../@types/astro.js';
 import type { Logger } from '../logger/core.js';
 import { REFERENCE_FILE } from './constants.js';
-import { parse } from '@babel/parser';
-import generate from '@babel/generator';
 
 export async function writeFiles(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
 	writeInjectedTypes(settings, fs);
@@ -37,20 +37,20 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 	fs.writeFileSync(
 		normalizePath(fileURLToPath(new URL(REFERENCE_FILE, settings.dotAstroDir))),
 		astroDtsContent,
-		'utf-8'
+		'utf-8',
 	);
 }
 
 async function setUpEnvTs(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
 	const envTsPath = normalizePath(fileURLToPath(new URL('env.d.ts', settings.config.srcDir)));
 	const envTsPathRelativetoRoot = normalizePath(
-		relative(fileURLToPath(settings.config.root), envTsPath)
+		relative(fileURLToPath(settings.config.root), envTsPath),
 	);
 	const relativePath = normalizePath(
 		relative(
 			fileURLToPath(settings.config.srcDir),
-			fileURLToPath(new URL(REFERENCE_FILE, settings.dotAstroDir))
-		)
+			fileURLToPath(new URL(REFERENCE_FILE, settings.dotAstroDir)),
+		),
 	);
 	const expectedTypeReference = getTsReference('path', relativePath);
 

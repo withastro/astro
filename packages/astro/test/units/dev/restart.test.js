@@ -201,7 +201,7 @@ describe('dev container restarts', () => {
 				'/src/pages/index.astro': ``,
 				'/.astro/settings.json': `{}`,
 			},
-			root
+			root,
 		);
 
 		const restart = await createContainerWithAutomaticRestart({

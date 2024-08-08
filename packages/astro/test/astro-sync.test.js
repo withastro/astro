@@ -4,8 +4,8 @@ import * as fs from 'node:fs';
 import { beforeEach, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
-import { loadFixture } from './test-utils.js';
 import { normalizePath } from 'vite';
+import { loadFixture } from './test-utils.js';
 
 const createFixture = () => {
 	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
@@ -61,12 +61,16 @@ const createFixture = () => {
 				{
 					// @ts-ignore
 					fs: fsMock,
-				}
+				},
 			);
 		},
 		/** @param {string} path */
 		thenFileShouldExist(path) {
-			assert.equal(writtenFiles.hasOwnProperty(getExpectedPath(path)), true, `${path} does not exist`);
+			assert.equal(
+				writtenFiles.hasOwnProperty(getExpectedPath(path)),
+				true,
+				`${path} does not exist`,
+			);
 		},
 		/**
 		 * @param {string} path
@@ -126,7 +130,7 @@ describe('astro sync', () => {
 			fixture.thenFileShouldExist('src/env.d.ts');
 			fixture.thenFileContentShouldInclude(
 				'src/env.d.ts',
-				`/// <reference path="../.astro/types.d.ts" />`
+				`/// <reference path="../.astro/types.d.ts" />`,
 			);
 		});
 
@@ -137,7 +141,7 @@ describe('astro sync', () => {
 			fixture.thenFileShouldExist('.astro/types.d.ts');
 			fixture.thenFileContentShouldInclude(
 				'.astro/types.d.ts',
-				`/// <reference types="astro/client" />`
+				`/// <reference types="astro/client" />`,
 			);
 		});
 	});
@@ -150,13 +154,13 @@ describe('astro sync', () => {
 			fixture.thenFileShouldExist('.astro/types.d.ts');
 			fixture.thenFileContentShouldInclude(
 				'.astro/types.d.ts',
-				`/// <reference path="astro/content.d.ts" />`
+				`/// <reference path="astro/content.d.ts" />`,
 			);
 			fixture.thenFileShouldExist('.astro/astro/content.d.ts');
 			fixture.thenFileContentShouldInclude(
 				'.astro/astro/content.d.ts',
 				`declare module 'astro:content' {`,
-				'Types file does not include `astro:content` module declaration'
+				'Types file does not include `astro:content` module declaration',
 			);
 			fixture.thenFileShouldBeValidTypescript('.astro/astro/content.d.ts');
 		});
@@ -175,7 +179,7 @@ describe('astro sync', () => {
       data: InferEntrySchema<"blog">;
       render(): Render[".md"];
     }>;`,
-				'Types file does not include empty collection type'
+				'Types file does not include empty collection type',
 			);
 			fixture.thenFileContentShouldInclude(
 				'.astro/astro/content.d.ts',
@@ -184,7 +188,7 @@ describe('astro sync', () => {
       collection: "blogMeta";
       data: InferEntrySchema<"blogMeta">;
     }>`,
-				'Types file does not include empty collection type'
+				'Types file does not include empty collection type',
 			);
 		});
 	});
@@ -197,7 +201,7 @@ describe('astro sync', () => {
 			fixture.thenFileShouldExist('.astro/types.d.ts');
 			fixture.thenFileContentShouldInclude(
 				'.astro/types.d.ts',
-				`/// <reference path="astro/env.d.ts" />`
+				`/// <reference path="astro/env.d.ts" />`,
 			);
 			fixture.thenFileShouldExist('.astro/astro/env.d.ts');
 			fixture.thenFileContentShouldInclude(
@@ -227,13 +231,13 @@ describe('astro sync', () => {
 			fixture.thenFileShouldExist('.astro/types.d.ts');
 			fixture.thenFileContentShouldInclude(
 				'.astro/types.d.ts',
-				`/// <reference path="astro/actions.d.ts" />`
+				`/// <reference path="astro/actions.d.ts" />`,
 			);
 			fixture.thenFileShouldExist('.astro/astro/actions.d.ts');
 			fixture.thenFileContentShouldInclude(
 				'.astro/astro/actions.d.ts',
 				`declare module "astro:actions" {`,
-				'Types file does not include `astro:actions` module declaration'
+				'Types file does not include `astro:actions` module declaration',
 			);
 			fixture.thenFileShouldBeValidTypescript('.astro/astro/actions.d.ts');
 		});
