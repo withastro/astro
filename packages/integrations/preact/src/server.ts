@@ -36,7 +36,7 @@ async function check(
 		// but components would be <undefined></undefined>
 		// It also might render an empty sting.
 		return html == '' ? false : !html.includes('<undefined>');
-	} catch (err) {
+	} catch {
 		return false;
 	} finally {
 		finishUsingConsoleFilter();
