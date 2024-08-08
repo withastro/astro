@@ -10,12 +10,15 @@ import {
 	type SerializedActionResult,
 	serializeActionResult,
 } from './virtual/shared.js';
+import { ACTION_QUERY_PARAMS } from '../consts.js';
+
+type ActionPayload = {
+	actionResult: SerializedActionResult;
+	actionName: string;
+};
 
 export type Locals = {
-	_actionsInternal: {
-		actionResult: SerializedActionResult;
-		actionName: string;
-	};
+	_actionsInternal: ActionPayload;
 };
 
 export const onRequest = defineMiddleware(async (context, next) => {
@@ -27,9 +30,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	// so short circuit if already defined.
 	if (locals._actionsInternal) return next();
 
-	const actionResultCookie = context.cookies.get('_actionResult');
-	if (actionResultCookie) {
-		return renderResult({ context, next, ...actionResultCookie.json() });
+	const actionPayload = context.cookies.get(ACTION_QUERY_PARAMS.actionPayload)?.json();
+	if (actionPayload) {
+		if (!isActionPayload(actionPayload)) {
+			throw new Error('Internal: Invalid action payload in cookie.');
+		}
+		return renderResult({ context, next, ...actionPayload });
 	}
 
 	// Heuristic: If body is null, Astro might've reset this for prerendering.
@@ -70,7 +76,7 @@ async function renderResult({
 
 	locals._actionsInternal = { actionResult, actionName };
 	const response = await next();
-	context.cookies.delete('_actionResult');
+	context.cookies.delete(ACTION_QUERY_PARAMS.actionPayload);
 
 	if (locals._actionsInternal.actionResult.type === 'error') {
 		return new Response(response.body, {
@@ -126,7 +132,7 @@ async function redirectWithResult({
 	actionName: string;
 	actionResult: SafeResult<any, any>;
 }) {
-	context.cookies.set('_actionResult', {
+	context.cookies.set(ACTION_QUERY_PARAMS.actionPayload, {
 		actionName,
 		actionResult: serializeActionResult(actionResult),
 	});
@@ -173,4 +179,12 @@ async function handlePostLegacy({ context, next }: { context: APIContext; next: 
 	const action = baseAction.bind(context);
 	const actionResult = await action(formData);
 	return redirectWithResult({ context, actionName, actionResult });
+}
+
+function isActionPayload(json: unknown): json is ActionPayload {
+	if (typeof json !== 'object' || json == null) return false;
+
+	if (!('actionResult' in json) || typeof json.actionResult !== 'object') return false;
+	if (!('actionName' in json) || typeof json.actionName !== 'string') return false;
+	return true;
 }
