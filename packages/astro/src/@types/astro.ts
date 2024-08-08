@@ -2002,10 +2002,10 @@ export interface AstroUserConfig {
 		 * 	},
 		 * })
 		 * ---
-		 * 
+		 *
 		 * <script>
 		 * import { API_URL } from "astro:env/client"
-		 * 
+		 *
 		 * fetch(`${API_URL}/ping`)
 		 * </script>
 		 * ```
