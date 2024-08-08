@@ -10,5 +10,8 @@ export default defineConfig({
 				'@images': fileURLToPath(new URL('./images', import.meta.url))
 			}
 		},
-	}
+	},
+	experimental: {
+		contentLayer: true,
+	},
 });

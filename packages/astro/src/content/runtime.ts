@@ -26,15 +26,14 @@ type CollectionToEntryMap = Record<string, GlobResult>;
 type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImport>;
 
 export function defineCollection(config: any) {
-	if (
-		('loader' in config && config.type !== CONTENT_LAYER_TYPE) ||
-		(config.type === CONTENT_LAYER_TYPE && !('loader' in config))
-	) {
-		// TODO: when this moves out of experimental, we will set the type automatically
-		throw new AstroUserError(
-			'Collections that use the content layer must have a `loader` defined and `type` set to `experimental_content`',
-			"Check your collection definitions in `src/content/config.*`.'"
-		);
+	if ('loader' in config) {
+		if (config.type && config.type !== CONTENT_LAYER_TYPE) {
+			throw new AstroUserError(
+				'Collections that use the content layer must have a `loader` defined and no `type` set.',
+				"Check your collection definitions in `src/content/config.*`.'"
+			);
+		}
+		config.type = CONTENT_LAYER_TYPE;
 	}
 	if (!config.type) config.type = 'content';
 	return config;

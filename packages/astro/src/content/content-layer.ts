@@ -9,6 +9,7 @@ import { ASSET_IMPORTS_FILE, CONTENT_LAYER_TYPE, DATA_STORE_FILE } from './const
 import type { DataStore } from './data-store.js';
 import type { LoaderContext } from './loaders/types.js';
 import { getEntryDataAndImages, globalContentConfigObserver, posixRelative } from './utils.js';
+import { AstroUserError } from '../core/errors/errors.js';
 
 export interface ContentLayerOptions {
 	store: DataStore;
@@ -120,13 +121,26 @@ export class ContentLayer {
 	}
 
 	async #doSync() {
-		const logger = this.#logger.forkIntegrationLogger('content');
-		logger.info('Syncing content');
 		const contentConfig = globalContentConfigObserver.get();
+		const logger = this.#logger.forkIntegrationLogger('content');
 		if (contentConfig?.status !== 'loaded') {
 			logger.debug('Content config not loaded, skipping sync');
 			return;
 		}
+		if (!this.#settings.config.experimental.contentLayer) {
+			const contentLayerCollections = Object.entries(contentConfig.config.collections).filter(
+				([_, collection]) => collection.type === CONTENT_LAYER_TYPE
+			);
+			if (contentLayerCollections.length > 0) {
+				throw new AstroUserError(
+					`The following collections have a loader defined, but the content layer is not enabled: ${contentLayerCollections.map(([title]) => title).join(', ')}.`,
+					'To enable the content layer, set `experimental: { contentLayer: true }` in your Astro config file.'
+				);
+			}
+			return;
+		}
+
+		logger.info('Syncing content');
 		const { digest: currentConfigDigest } = contentConfig.config;
 		this.#lastConfigDigest = currentConfigDigest;
 
