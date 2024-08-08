@@ -3,7 +3,7 @@ import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import * as devalue from 'devalue';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import {DEFERRED_MODULE} from './consts.js';
+import {CONTENT_MODULE_FLAG, DEFERRED_MODULE} from './consts.js';
 
 const SAVE_DEBOUNCE_MS = 500;
 
@@ -139,8 +139,8 @@ export class DataStore {
 		assets.forEach((asset) => this.addAssetImport(asset, filePath));
 	}
 
-	addModuleImport(fileName: string, specifier: string) {
-		const id = contentModuleToId(fileName, specifier);
+	addModuleImport(fileName: string) {
+		const id = contentModuleToId(fileName);
 		if (id) {
 			this.#moduleImports.set(fileName, id);
 			// We debounce the writes to disk because addAssetImport is called for every image in every file,
@@ -221,6 +221,7 @@ export default new Map([${exports.join(', ')}]);
 export default new Map([\n${lines.join(',\n')}]);
 		`;
 		try {
+			console.log("writing to disk now")
 			await fs.writeFile(filePath, code);
 		} catch (err) {
 			throw new AstroError({
@@ -323,10 +324,8 @@ export default new Map([\n${lines.join(',\n')}]);
 				this.addAssetImport(assetImport, fileName),
 			addAssetImports: (assets: Array<string>, fileName: string) =>
 				this.addAssetImports(assets, fileName),
-			addModuleImport: (fileName: string, specifier: string) =>
-				this.addModuleImport(fileName, specifier),
-			// addModuleImports: (modules: Array<string>, fileName: string) =>
-			// 	this.addModuleImports(modules, fileName),
+			addModuleImport: (fileName: string) =>
+				this.addModuleImport(fileName),
 		};
 	}
 	/**
@@ -441,7 +440,7 @@ export interface ScopedDataStore {
 	 * @param specifier
 	 * @returns
 	 */
-	addModuleImport: (fileName: string, specifier: string) => void;
+	addModuleImport: (fileName: string) => void;
 }
 
 /**
@@ -471,11 +470,11 @@ function dataStoreSingleton() {
 }
 
 // TODO: find a better place to put this image
-export function contentModuleToId(fileName: string, specifier: string) {
-	const params = new URLSearchParams(specifier);
+export function contentModuleToId(fileName: string) {
+	const params = new URLSearchParams(DEFERRED_MODULE);
 	params.set('fileName', fileName);
-	params.set(DEFERRED_MODULE, 'true');
-	return `${specifier}?${params.toString()}`;
+	params.set(CONTENT_MODULE_FLAG, 'true');
+	return `${DEFERRED_MODULE}?${params.toString()}`;
 }
 
 /** @internal */

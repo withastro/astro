@@ -152,11 +152,20 @@ export function astroContentVirtualModPlugin({
 			}
 
 			if (id === ASSET_IMPORTS_RESOLVED_STUB_ID) {
-				return 'export default new Map()';
+				const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
+				if (!fs.existsSync(assetImportsFile)) {
+					return 'export default new Map()';
+				}
+				return fs.readFileSync(assetImportsFile, 'utf-8');
+
 			}
 
 			if (id === MODULES_MJS_VIRTUAL_ID) {
-				return 'export default new Map()';
+				const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
+				if (!fs.existsSync(modules)) {
+					return 'export default new Map()';
+				}
+				return fs.readFileSync(modules, 'utf-8');
 			}
 		},
 		renderChunk(code, chunk) {

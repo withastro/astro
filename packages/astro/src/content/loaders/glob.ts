@@ -104,7 +104,7 @@ export function glob(globOptions: GlobOptions): Loader {
 
 				if (existingEntry && existingEntry.digest === digest && existingEntry.filePath) {
 					if (entryType.extensions.includes('.mdx')) {
-						store.addModuleImport(existingEntry.filePath, 'astro:content-layer-deferred-module');
+						store.addModuleImport(existingEntry.filePath);
 					}
 
 					if (existingEntry.rendered?.metadata?.imagePaths?.length) {
@@ -130,7 +130,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				});
 
 				if (entryType.extensions.includes('.mdx')) {
-					store.addModuleImport(relativePath, 'astro:content-layer-deferred-module');
+					store.addModuleImport(relativePath);
 					store.set({ id, data: parsedData, body, filePath: relativePath, digest, deferredRender: true });
 				} else if (entryType.getRenderFunction) {
 					let render = renderFunctionByContentType.get(entryType);
