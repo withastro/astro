@@ -100,6 +100,7 @@ export function getToolbarServerCommunicationHelpers(server: ViteDevServer) {
 	};
 }
 
+// Will match any invalid characters (will be converted to _). We only allow a-zA-Z0-9.-_
 const SAFE_CHARS_RE = /[^\w.-]/g;
 
 export function normalizeInjectedTypeFilename(filename: string, integrationName: string): string {
