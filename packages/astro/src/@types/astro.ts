@@ -2373,7 +2373,7 @@ export interface AstroUserConfig {
 		 *
 		 * ### Migrating a content collection to content layer
 		 *
-		 * If you have used [content collections](https://docs.astro.build/en/guides/content-collections/), content layer will be very familiar as most of the APIs are the same. You can try converting an existing content collection to content layer if it uses markdown, MDX or JSON, with these steps:
+		 * If you have used [content collections](https://docs.astro.build/en/guides/content-collections/), content layer will be very familiar as most of the APIs are the same. You can convert an existing content collection to content layer if it uses markdown, MDX or JSON, with these steps:
 		 *
 		 * 1. **Move the collection folder out of `src/content`.** This is so it won't be handled as a current content collection. This example assumes the content has been moved to `src/data`. The `config.ts` file must remain in `src/content`.
 		 * 2. **Edit the collection definition**. The collection should not have `type` set, and needs a `loader` defined.
@@ -2420,7 +2420,7 @@ export interface AstroUserConfig {
 		 *   const post = await getEntry('blog', params.slug);
 		 *
 		 * - const { Content, headings } = await post.render();
-		 * + const { Content, headings } = await render(entry);
+		 * + const { Content, headings } = await render(post);
 		 * ---
 		 *
 		 * <Content />

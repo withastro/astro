@@ -122,7 +122,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	}
 
 	const config = globalContentConfigObserver.get();
-	if(config.status === 'error') {
+	if (config.status === 'error') {
 		logger.error('content', config.error.message);
 	}
 	if (config.status === 'loaded') {
