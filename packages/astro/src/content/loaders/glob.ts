@@ -131,7 +131,7 @@ export function glob(globOptions: GlobOptions): Loader {
 
 				if (entryType.extensions.includes('.mdx')) {
 					store.addModuleImport(relativePath, 'astro:content-layer-deferred-module');
-					store.set({ id, data: parsedData, body, filePath: relativePath, digest, isDeferred: true });
+					store.set({ id, data: parsedData, body, filePath: relativePath, digest, deferredRender: true });
 				} else if (entryType.getRenderFunction) {
 					let render = renderFunctionByContentType.get(entryType);
 					if (!render) {

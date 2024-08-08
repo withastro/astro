@@ -445,22 +445,13 @@ export async function renderEntry(
 		return entry.render();
 	}
 
-	if (entry.isDeferred) {
+	if (entry.deferredRender) {
 		try {
 			// @ts-expect-error	virtual module
 			const { default: contentModules } = await import('astro:content-module-imports');
 			const module = contentModules.get(entry.filePath);
-			const resolvedComponent = await module();
+			return await module();
 			
-			return {
-				Content: resolvedComponent.Content,
-				rendered: {
-					metadata: {
-						headings: resolvedComponent.getHeadings?.() ?? [],
-						remarkPluginFrontmatter: resolvedComponent.frontmatter ?? {},
-					},
-				},
-			};
 		} catch (e) {
 			// eslint-disable-next-line
 			console.error(e);

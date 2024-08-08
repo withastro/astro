@@ -38,7 +38,7 @@ export interface DataEntry<TData extends Record<string, unknown> = Record<string
 	/**
 	 * If an entry is a deferred, its rendering phase is delegated to a virtual module during the runtime phase when calling `renderEntry`.
 	 */
-	isDeferred?: boolean;
+	deferredRender?: boolean;
 }
 
 export class DataStore {
@@ -278,7 +278,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			entries: () => this.entries(collectionName),
 			values: () => this.values(collectionName),
 			keys: () => this.keys(collectionName),
-			set: ({ id: key, data, body, filePath, isDeferred, digest, rendered }) => {
+			set: ({ id: key, data, body, filePath, deferredRender, digest, rendered }) => {
 				if (!key) {
 					throw new Error(`ID must be a non-empty string`);
 				}
@@ -310,8 +310,8 @@ export default new Map([\n${lines.join(',\n')}]);
 				if (rendered) {
 					entry.rendered = rendered;
 				}
-				if (isDeferred) {
-					entry.isDeferred = isDeferred;
+				if (deferredRender) {
+					entry.deferredRender = deferredRender;
 				}
 				this.set(collectionName, id, entry);
 				return true;
@@ -419,7 +419,7 @@ export interface ScopedDataStore {
 		/**
 		 * If an entry is a deferred, its rendering phase is delegated to a virtual module during the runtime phase.
 		 */
-		isDeferred?: boolean;
+		deferredRender?: boolean;
 	}) => boolean;
 	values: () => Array<DataEntry>;
 	keys: () => Array<string>;
