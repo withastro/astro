@@ -18,7 +18,8 @@ import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
 import {
 	CONTENT_FLAGS,
-	CONTENT_LAYER_TYPE, CONTENT_MODULE_FLAG,
+	CONTENT_LAYER_TYPE,
+	CONTENT_MODULE_FLAG,
 	IMAGE_IMPORT_PREFIX,
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
@@ -52,7 +53,7 @@ const collectionConfigParser = z.union([
 							.object({
 								id: z.string(),
 							})
-							.catchall(z.unknown())
+							.catchall(z.unknown()),
 					),
 					z.promise(
 						z.array(
@@ -60,10 +61,10 @@ const collectionConfigParser = z.union([
 								.object({
 									id: z.string(),
 								})
-								.catchall(z.unknown())
-						)
+								.catchall(z.unknown()),
+						),
 					),
-				])
+				]),
 			),
 			z.object({
 				name: z.string(),
@@ -81,8 +82,8 @@ const collectionConfigParser = z.union([
 								watcher: z.any().optional(),
 							}),
 						],
-						z.unknown()
-					)
+						z.unknown(),
+					),
 				),
 				schema: z.any().optional(),
 				render: z.function(z.tuple([z.any()], z.unknown())).optional(),
@@ -222,13 +223,13 @@ export async function getEntryData(
 	},
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
-	pluginContext?: PluginContext
+	pluginContext?: PluginContext,
 ) {
 	const { data } = await getEntryDataAndImages(
 		entry,
 		collectionConfig,
 		shouldEmitFile,
-		pluginContext
+		pluginContext,
 	);
 	return data;
 }

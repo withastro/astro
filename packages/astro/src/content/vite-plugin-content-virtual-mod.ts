@@ -157,7 +157,6 @@ export function astroContentVirtualModPlugin({
 					return 'export default new Map()';
 				}
 				return fs.readFileSync(assetImportsFile, 'utf-8');
-
 			}
 
 			if (id === MODULES_MJS_VIRTUAL_ID) {

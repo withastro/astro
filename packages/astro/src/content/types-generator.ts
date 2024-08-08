@@ -360,7 +360,7 @@ function normalizeConfigPath(from: string, to: string) {
 
 async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T] | undefined,
-	collectionKey: T
+	collectionKey: T,
 ): Promise<string> {
 	if (collection?.schema) {
 		return `InferEntrySchema<${collectionKey}>`;

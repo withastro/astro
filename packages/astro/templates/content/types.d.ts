@@ -112,7 +112,7 @@ declare module 'astro:content' {
 	): Promise<CollectionEntry<C>[]>;
 
 	export function render<C extends keyof AnyEntryMap>(
-		entry: AnyEntryMap[C][string]
+		entry: AnyEntryMap[C][string],
 	): Promise<ContentLayerRenderResult>;
 
 	export function reference<C extends keyof AnyEntryMap>(

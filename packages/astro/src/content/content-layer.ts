@@ -171,7 +171,7 @@ export class ContentLayer {
 							},
 						},
 						collectionWithResolvedSchema,
-						false
+						false,
 					);
 					if (imageImports?.length) {
 						this.#store.addAssetImports(
@@ -179,7 +179,7 @@ export class ContentLayer {
 							// This path may already be relative, if we're re-parsing an existing entry
 							isAbsolute(filePath)
 								? posixRelative(fileURLToPath(this.#settings.config.root), filePath)
-								: filePath
+								: filePath,
 						);
 					}
 
@@ -201,7 +201,7 @@ export class ContentLayer {
 				}
 
 				return collection.loader.load(context);
-			})
+			}),
 		);
 		if (!existsSync(this.#settings.config.cacheDir)) {
 			await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
@@ -221,7 +221,7 @@ export class ContentLayer {
 
 export async function simpleLoader<TData extends { id: string }>(
 	handler: () => Array<TData> | Promise<Array<TData>>,
-	context: LoaderContext
+	context: LoaderContext,
 ) {
 	const data = await handler();
 	context.store.clear();

@@ -34,7 +34,7 @@ export function defineCollection(config: any) {
 		// TODO: when this moves out of experimental, we will set the type automatically
 		throw new AstroUserError(
 			'Collections that use the content layer must have a `loader` defined and `type` set to `experimental_content`',
-			"Check your collection definitions in `src/content/config.*`.'"
+			"Check your collection definitions in `src/content/config.*`.'",
 		);
 	}
 	if (!config.type) config.type = 'content';
@@ -371,7 +371,7 @@ const CONTENT_LAYER_IMAGE_REGEX = /__ASTRO_IMAGE_="([^"]+)"/g;
 async function updateImageReferencesInBody(html: string, fileName: string) {
 	// @ts-expect-error Virtual module
 	const { default: imageAssetMap } = await import('astro:asset-imports');
-	
+
 	const imageObjects = new Map<string, GetImageResult>();
 
 	// @ts-expect-error Virtual module resolved at runtime
@@ -417,7 +417,7 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 function updateImageReferencesInData<T extends Record<string, unknown>>(
 	data: T,
 	fileName: string,
-	imageAssetMap: Map<string, ImageMetadata>
+	imageAssetMap: Map<string, ImageMetadata>,
 ): T {
 	return new Traverse(data).map(function (ctx, val) {
 		if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
@@ -438,7 +438,7 @@ function updateImageReferencesInData<T extends Record<string, unknown>>(
 }
 
 export async function renderEntry(
-	entry: DataEntry | { render: () => Promise<{ Content: AstroComponentFactory }> }
+	entry: DataEntry | { render: () => Promise<{ Content: AstroComponentFactory }> },
 ) {
 	if (entry && 'render' in entry) {
 		// This is an old content collection entry, so we use its render method
@@ -451,12 +451,10 @@ export async function renderEntry(
 			const { default: contentModules } = await import('astro:content-module-imports');
 			const module = contentModules.get(entry.filePath);
 			return await module();
-			
 		} catch (e) {
 			// eslint-disable-next-line
 			console.error(e);
 		}
-		
 	}
 
 	const html =
@@ -582,7 +580,7 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 						| string
 						| { id: string; collection: string }
 						| { slug: string; collection: string },
-					ctx
+					ctx,
 				) => {
 					const flattenedErrorPath = ctx.path.join('.');
 					const store = await globalDataStore.get();
@@ -648,7 +646,7 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 						return { slug: lookup, collection };
 					}
 					return { id: lookup, collection };
-				}
+				},
 			);
 	};
 }
