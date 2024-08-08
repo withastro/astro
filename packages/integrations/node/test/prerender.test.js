@@ -57,6 +57,7 @@ describe('Prerendering', () => {
 
 			assert.equal(res.status, 200);
 			assert.equal($('h1').text(), 'Two');
+			assert.ok(fixture.pathExists('/client/two/index.html'));
 		});
 
 		it('Can render prerendered route with redirect and query params', async () => {
@@ -131,6 +132,7 @@ describe('Prerendering', () => {
 
 			assert.equal(res.status, 200);
 			assert.equal($('h1').text(), 'Two');
+			assert.ok(fixture.pathExists('/client/two/index.html'));
 		});
 
 		it('Can render prerendered route with redirect and query params', async () => {
@@ -158,10 +160,10 @@ describe('Prerendering', () => {
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
 				output: 'server',
-				outDir: './dist/hybrid-via-integration',
+				outDir: './dist/via-integration',
 				build: {
-					client: './dist/hybrid-via-integration/client',
-					server: './dist/hybrid-via-integration/server',
+					client: './dist/via-integration/client',
+					server: './dist/via-integration/server',
 				},
 				adapter: nodejs({ mode: 'standalone' }),
 				integrations: [
@@ -170,12 +172,14 @@ describe('Prerendering', () => {
 						hooks: {
 							'astro:config:setup': ({ handleRouteOptions }) => {
 								handleRouteOptions((route) => {
-									console.log
-								})
-							}
-						}
-					}
-				]
+									if (route.component.endsWith('two.astro')) {
+										route.prerender = true;
+									}
+								});
+							},
+						},
+					},
+				],
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
@@ -206,24 +210,7 @@ describe('Prerendering', () => {
 
 			assert.equal(res.status, 200);
 			assert.equal($('h1').text(), 'Two');
-		});
-
-		it('Can render prerendered route with redirect and query params', async () => {
-			const res = await fetch(`http://${server.host}:${server.port}/two?foo=bar`);
-			const html = await res.text();
-			const $ = cheerio.load(html);
-
-			assert.equal(res.status, 200);
-			assert.equal($('h1').text(), 'Two');
-		});
-
-		it('Can render prerendered route with query params', async () => {
-			const res = await fetch(`http://${server.host}:${server.port}/two/?foo=bar`);
-			const html = await res.text();
-			const $ = cheerio.load(html);
-
-			assert.equal(res.status, 200);
-			assert.equal($('h1').text(), 'Two');
+			assert.ok(fixture.pathExists('/client/two/index.html'));
 		});
 	});
 
@@ -318,6 +305,7 @@ describe('Hybrid rendering', () => {
 
 			assert.equal(res.status, 200);
 			assert.equal($('h1').text(), 'One');
+			assert.ok(fixture.pathExists('/client/one/index.html'));
 		});
 
 		it('Can render prerendered route with redirect and query params', async () => {
@@ -391,6 +379,7 @@ describe('Hybrid rendering', () => {
 
 			assert.equal(res.status, 200);
 			assert.equal($('h1').text(), 'One');
+			assert.ok(fixture.pathExists('/client/one/index.html'));
 		});
 
 		it('Can render prerendered route with redirect and query params', async () => {

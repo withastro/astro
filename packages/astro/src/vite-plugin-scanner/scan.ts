@@ -1,4 +1,4 @@
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings, RouteOptions } from '../@types/astro.js';
 import type { PageOptions } from '../vite-plugin-astro/types.js';
 
 import * as eslexer from 'es-module-lexer';
@@ -37,10 +37,11 @@ function isFalsy(value: string) {
 
 let didInit = false;
 
-// NOTE: `settings` is only undefined in tests
+// NOTE: `fileURL` and `settings` are only undefined in tests
 export async function scan(
 	code: string,
 	id: string,
+	fileURL?: URL,
 	settings?: AstroSettings,
 ): Promise<PageOptions> {
 	if (!includesExport(code)) return {};
@@ -84,11 +85,11 @@ export async function scan(
 		}
 	}
 
-	if (settings) {
-
-		const route = { 
-			component: rootRelativePath(settings.config.root, new URL(id, 'file://'), true),
-			prerender: pageOptions.prerender };
+	if (settings && fileURL) {
+		const route: RouteOptions = {
+			component: rootRelativePath(settings.config.root, fileURL, false),
+			prerender: pageOptions.prerender,
+		};
 		for (const handler of settings.routeOptionsHandlers) {
 			handler(route);
 		}
