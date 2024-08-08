@@ -47,7 +47,7 @@ declare module 'astro:content' {
 		| DataCollectionConfig<S>;
 
 	export function defineCollection<S extends BaseSchema>(
-		input: CollectionConfig<S>
+		input: CollectionConfig<S>,
 	): CollectionConfig<S>;
 
 	/** Run `astro sync` to generate high fidelity types */

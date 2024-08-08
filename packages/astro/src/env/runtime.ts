@@ -27,12 +27,12 @@ export function getEnv(...args: Parameters<GetEnv>) {
 export function createInvalidVariablesError(
 	key: string,
 	type: string,
-	result: ValidationResultInvalid
+	result: ValidationResultInvalid,
 ) {
 	return new AstroError({
 		...AstroErrorData.EnvInvalidVariables,
 		message: AstroErrorData.EnvInvalidVariables.message(
-			invalidVariablesToError([{ key, type, errors: result.errors }])
+			invalidVariablesToError([{ key, type, errors: result.errors }]),
 		),
 	});
 }

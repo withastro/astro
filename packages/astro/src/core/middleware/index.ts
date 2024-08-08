@@ -106,7 +106,7 @@ function createContext({
 	};
 	return Object.assign(context, {
 		getActionResult: createGetActionResult(context.locals),
-		callAction: createCallAction(context.locals),
+		callAction: createCallAction(context),
 	});
 }
 

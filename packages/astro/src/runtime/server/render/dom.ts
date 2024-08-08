@@ -12,7 +12,7 @@ export async function renderHTMLElement(
 	result: SSRResult,
 	constructor: typeof HTMLElement,
 	props: any,
-	slots: any
+	slots: any,
 ): Promise<string> {
 	const name = getHTMLElementName(constructor);
 
@@ -23,7 +23,7 @@ export async function renderHTMLElement(
 	}
 
 	return markHTMLString(
-		`<${name}${attrHTML}>${await renderSlotToString(result, slots?.default)}</${name}>`
+		`<${name}${attrHTML}>${await renderSlotToString(result, slots?.default)}</${name}>`,
 	);
 }
 

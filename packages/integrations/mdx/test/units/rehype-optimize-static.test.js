@@ -15,7 +15,7 @@ async function compile(mdxCode, options) {
 	});
 	const code = result.toString();
 	// Capture the returned JSX code for testing
-	const jsx = code.match(/return (.+);\n\}\nexport default function MDXContent/s)?.[1];
+	const jsx = /return (.+);\n\}\nexport default function MDXContent/s.exec(code)?.[1];
 	if (jsx == null) throw new Error('Could not find JSX code in compiled MDX');
 	return dedent(jsx);
 }
@@ -36,7 +36,7 @@ describe('rehype-optimize-static', () => {
 			`\
 <_components.h1 {...{
   "set:html": "hello"
-}} />`
+}} />`,
 		);
 	});
 
@@ -50,7 +50,7 @@ foo bar
 			jsx,
 			`\
 <Fragment set:html="<h1>hello</h1>
-<p>foo bar</p>" />`
+<p>foo bar</p>" />`,
 		);
 	});
 
@@ -66,7 +66,7 @@ This is a <Comp />
 			jsx,
 			`\
 <><Fragment set:html="<h1>hello</h1>
-" /><_components.p>{"This is a "}<Comp /></_components.p></>`
+" /><_components.p>{"This is a "}<Comp /></_components.p></>`,
 		);
 	});
 
@@ -83,7 +83,7 @@ foo <strong>bar</strong> baz
 			`\
 <Fragment set:html="<h1>hello</h1>
 <p>foo <strong>bar</strong> baz</p>
-<strong>qux</strong>" />`
+<strong>qux</strong>" />`,
 		);
 	});
 });

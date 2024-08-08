@@ -3,7 +3,7 @@ import type { BuildOptions, Rollup, Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { PageBuildData } from '../types.js';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 type OutputOptionsHook = Extract<VitePlugin['outputOptions'], Function>;
 type OutputOptions = Parameters<OutputOptionsHook>[0];
 
@@ -82,7 +82,7 @@ export function getVirtualModulePageName(virtualModulePrefix: string, path: stri
 export function getPagesFromVirtualModulePageName(
 	internals: BuildInternals,
 	virtualModulePrefix: string,
-	id: string
+	id: string,
 ): PageBuildData[] {
 	const path = getComponentFromVirtualModulePageName(virtualModulePrefix, id);
 
@@ -105,7 +105,7 @@ export function getPagesFromVirtualModulePageName(
  */
 export function getComponentFromVirtualModulePageName(
 	virtualModulePrefix: string,
-	id: string
+	id: string,
 ): string {
 	return id.slice(virtualModulePrefix.length).replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
 }
@@ -113,7 +113,7 @@ export function getComponentFromVirtualModulePageName(
 export function shouldInlineAsset(
 	assetContent: string,
 	assetPath: string,
-	assetsInlineLimit: NonNullable<BuildOptions['assetsInlineLimit']>
+	assetsInlineLimit: NonNullable<BuildOptions['assetsInlineLimit']>,
 ) {
 	if (typeof assetsInlineLimit === 'function') {
 		const result = assetsInlineLimit(assetPath, Buffer.from(assetContent));

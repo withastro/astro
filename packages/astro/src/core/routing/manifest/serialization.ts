@@ -4,7 +4,7 @@ import { getRouteGenerator } from './generator.js';
 
 export function serializeRouteData(
 	routeData: RouteData,
-	trailingSlash: AstroConfig['trailingSlash']
+	trailingSlash: AstroConfig['trailingSlash'],
 ): SerializedRouteData {
 	return {
 		...routeData,

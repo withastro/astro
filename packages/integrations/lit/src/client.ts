@@ -23,7 +23,7 @@ export default (element: HTMLElement) =>
 	async (
 		Component: any,
 		props: Record<string, any>,
-		{ default: defaultChildren, ...slotted }: { default: string; [slotName: string]: string }
+		{ default: defaultChildren, ...slotted }: { default: string; [slotName: string]: string },
 	) => {
 		// Get the LitElement element instance.
 		let component = element.children[0];

@@ -141,12 +141,12 @@ function astroDBIntegration(): AstroIntegration {
 				// Wait for dev server log before showing "connected".
 				setTimeout(() => {
 					logger.info(
-						connectToStudio ? 'Connected to remote database.' : 'New local database created.'
+						connectToStudio ? 'Connected to remote database.' : 'New local database created.',
 					);
 					if (connectToStudio) return;
 
 					const localSeedPaths = SEED_DEV_FILE_NAME.map(
-						(name) => new URL(name, getDbDirectoryUrl(root))
+						(name) => new URL(name, getDbDirectoryUrl(root)),
 					);
 					// Eager load astro:db module on startup
 					if (seedFiles.get().length || localSeedPaths.find((path) => existsSync(path))) {
@@ -224,7 +224,7 @@ async function getTempViteServer({ viteConfig }: { viteConfig: UserConfig }) {
 			optimizeDeps: { noDiscovery: true },
 			ssr: { external: [] },
 			logLevel: 'silent',
-		})
+		}),
 	);
 
 	const hotSend = tempViteServer.hot.send;

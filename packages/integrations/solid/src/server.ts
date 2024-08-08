@@ -19,7 +19,7 @@ async function check(
 	this: RendererContext,
 	Component: any,
 	props: Record<string, any>,
-	children: any
+	children: any,
 ) {
 	if (typeof Component !== 'function') return false;
 	if (Component.name === 'QwikComponent') return false;
@@ -48,7 +48,7 @@ async function renderToStaticMarkup(
 	Component: any,
 	props: Record<string, any>,
 	{ default: children, ...slotted }: any,
-	metadata?: undefined | Record<string, any>
+	metadata?: undefined | Record<string, any>,
 ) {
 	const ctx = getContext(this.result);
 	const renderId = metadata?.hydrate ? incrementId(ctx) : '';

@@ -12,7 +12,7 @@ interface ImportedStyle {
 /** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
 export async function getStylesForURL(
 	filePath: URL,
-	loader: ModuleLoader
+	loader: ModuleLoader,
 ): Promise<{ urls: Set<string>; styles: ImportedStyle[]; crawledFiles: Set<string> }> {
 	const importedCssUrls = new Set<string>();
 	// Map of url to injected style object. Use a `url` key to deduplicate styles

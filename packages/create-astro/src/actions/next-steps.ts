@@ -4,7 +4,7 @@ import type { Context } from './context.js';
 import { nextSteps, say } from '../messages.js';
 
 export async function next(
-	ctx: Pick<Context, 'hat' | 'tie' | 'cwd' | 'packageManager' | 'skipHouston'>
+	ctx: Pick<Context, 'hat' | 'tie' | 'cwd' | 'packageManager' | 'skipHouston'>,
 ) {
 	let projectDir = path.relative(process.cwd(), ctx.cwd);
 

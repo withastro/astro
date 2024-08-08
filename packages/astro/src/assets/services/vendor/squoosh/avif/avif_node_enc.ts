@@ -1660,7 +1660,7 @@ var Module = (function () {
         wasmMemory.grow((size - buffer.byteLength + 65535) >>> 16)
         updateGlobalBufferAndViews(wasmMemory.buffer)
         return 1
-      } catch (e) {}
+      } catch {}
     }
     function _emscripten_resize_heap(requestedSize) {
       var oldSize = HEAPU8.length

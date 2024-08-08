@@ -46,7 +46,7 @@ export function collectPagesData(opts: CollectPagesDataOptions): CollectPagesDat
 				const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
 				debug(
 					'build',
-					`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`
+					`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`,
 				);
 			} else {
 				debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component}`);
