@@ -1,5 +1,19 @@
-// Yes this file is intentionally empty!
+// Yes this file is intentionally near-empty!
 // ---
 // Having a blank `tsconfig.json` file prevents TypeScript from crawling up your directory tree
-// and possibly picking up a parent `tsconfig.json` (which, unsurprisingly, is very hard to debug)
-{}
+// and possibly picking up a parent `tsconfig.json` (which, unsurprisingly, is very hard to debug).
+// This is also used for linting out-of-project files with type information.
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "allowJs": true
+  },
+  "include": [
+    ".",
+    "packages/upgrade/upgrade.mjs",
+    // ...and yet:
+    // /Users/josh/repos/astro/packages/upgrade/upgrade.mjs
+    // 0:0  error  Parsing error: /Users/josh/repos/astro/packages/upgrade/upgrade.mjs was not found by the project service.
+    // Consider either including it in the tsconfig.json or including it in allowDefaultProject
+  ]
+}
