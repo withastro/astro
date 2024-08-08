@@ -137,6 +137,21 @@ export function formDataToObject<T extends z.AnyZodObject>(
 		while (validator instanceof z.ZodOptional || validator instanceof z.ZodNullable) {
 			validator = validator._def.innerType;
 		}
+
+		// use zod default value when key is undefined
+   		// else continue to get correct zod class
+		if(validator instanceof z.ZodDefault) {
+			if(!formData.has(key)) {
+				obj[key] = validator._def.defaultValue();
+				continue;
+			}
+
+			while (validator instanceof z.ZodOptional || validator instanceof z.ZodNullable) {
+				validator = validator._def.innerType;
+			}
+		}
+		
+
 		if (validator instanceof z.ZodBoolean) {
 			obj[key] = formData.has(key);
 		} else if (validator instanceof z.ZodArray) {

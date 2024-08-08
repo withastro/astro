@@ -91,6 +91,37 @@ describe('formDataToObject', () => {
 		assert.equal(res.age, null);
 	});
 
+	it('should handle zod default values', () => {
+		const formData = new FormData();
+		
+		const input = z.object({
+			name: z.string().default("test"),
+			email: z.string().default('test@test.test'),
+			favoriteNumbers: z.array(z.number()).default([1,2])
+		});
+
+		const res = formDataToObject(formData, input);
+		assert.equal(res.name, 'test');
+		assert.equal(res.email, 'test@test.test');
+		assert.deepEqual(res.favoriteNumbers, [1, 2]);
+	})
+
+	it('should handle zod chaining of optional, default, and nullish values', () => {
+		const formData = new FormData();
+		formData.set('email', 'test@test.test')
+		
+		const input = z.object({
+			name: z.string().default("test").optional(),
+			email: z.string().optional().nullish(),
+			favoriteNumbers: z.array(z.number()).default([1,2]).nullish().optional()
+		});
+
+		const res = formDataToObject(formData, input);
+		assert.equal(res.name, 'test');
+		assert.equal(res.email, 'test@test.test');
+		assert.deepEqual(res.favoriteNumbers, [1, 2])
+	})
+
 	it('should handle File objects', () => {
 		const formData = new FormData();
 		formData.set('file', new File([''], 'test.txt'));
@@ -134,5 +165,22 @@ describe('formDataToObject', () => {
 
 		assert.ok(Array.isArray(res.age), 'age is not an array');
 		assert.deepEqual(res.age.sort(), [25, 30, 35]);
+	});
+
+	it('should handle an array of File objects', () => {
+		const formData = new FormData();
+		const file1 = new File([''], 'test1.txt');
+		const file2 = new File([''], 'test2.txt')
+		formData.append('files', file1);
+		formData.append('files', file2);
+
+		const input = z.object({
+			files: z.array(z.instanceof(File))
+		});
+
+		const res = formDataToObject(formData, input);
+
+		assert.equal(res.files instanceof Array, true);
+		assert.deepEqual(res.files, [file1, file2])
 	});
 });
