@@ -51,7 +51,7 @@ Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll 
 ## Directory
 
 | Package                                                                                    | Release Notes                                                                                                                                                        |
-| ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|--------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [astro](packages/astro)                                                                    | [![astro version](https://img.shields.io/npm/v/astro.svg?label=%20)](packages/astro/CHANGELOG.md)                                                                    |
 | [create-astro](packages/create-astro)                                                      | [![create-astro version](https://img.shields.io/npm/v/create-astro.svg?label=%20)](packages/create-astro/CHANGELOG.md)                                               |
 | [@astrojs/react](packages/integrations/react)                                              | [![astro version](https://img.shields.io/npm/v/@astrojs/react.svg?label=%20)](packages/integrations/react/CHANGELOG.md)                                              |
@@ -68,6 +68,8 @@ Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll 
 | [@astrojs/tailwind](packages/integrations/tailwind)                                        | [![astro version](https://img.shields.io/npm/v/@astrojs/tailwind.svg?label=%20)](packages/integrations/tailwind/CHANGELOG.md)                                        |
 | [@astrojs/alpinejs](packages/integrations/alpinejs)                                        | [![astro version](https://img.shields.io/npm/v/@astrojs/alpinejs.svg?label=%20)](packages/integrations/alpinejs/CHANGELOG.md)                                        |
 | [@astrojs/mdx](packages/integrations/mdx)                                                  | [![astro version](https://img.shields.io/npm/v/@astrojs/mdx.svg?label=%20)](packages/integrations/mdx/CHANGELOG.md)                                                  |
+| [@astrojs/db](packages/db)                                                                 | [![create-astro version](https://img.shields.io/npm/v/@astrojs/db.svg?label=%20)](packages/db/CHANGELOG.md)                                                          |
+| [@astrojs/rss](packages/integrations/astro-rss)                                            | [![create-astro version](https://img.shields.io/npm/v/@astrojs/rss.svg?label=%20)](packages/astro-rss/CHANGELOG.md)                                                  |
 
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6178/badge)](https://bestpractices.coreinfrastructure.org/projects/6178)
 
