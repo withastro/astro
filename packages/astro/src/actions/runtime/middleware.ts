@@ -30,14 +30,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	// so short circuit if already defined.
 	if (locals._actionPayload) return next();
 
-	const actionPayload = context.cookies.get(ACTION_QUERY_PARAMS.actionPayload)?.json();
-	if (actionPayload) {
-		if (!isActionPayload(actionPayload)) {
-			throw new Error('Internal: Invalid action payload in cookie.');
-		}
-		return renderResult({ context, next, ...actionPayload });
-	}
-
 	// Heuristic: If body is null, Astro might've reset this for prerendering.
 	if (import.meta.env.DEV && request.method === 'POST' && request.body === null) {
 		// eslint-disable-next-line no-console
@@ -56,6 +48,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	if (context.request.method === 'POST') {
 		return handlePostLegacy({ context, next });
+	}
+
+	const actionPayload = context.cookies.get(ACTION_QUERY_PARAMS.actionPayload)?.json();
+	if (context.request.method === 'GET' && actionPayload) {
+		if (!isActionPayload(actionPayload)) {
+			throw new Error('Internal: Invalid action payload in cookie.');
+		}
+		return renderResult({ context, next, ...actionPayload });
 	}
 
 	return next();
