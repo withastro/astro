@@ -18,7 +18,7 @@ export async function run(projectDir, outputFile) {
 	const outputFilePath = fileURLToPath(outputFile);
 
 	console.log('Building and benchmarking...');
-	await execaCommand(`node --expose-gc --max_old_space_size=256 ${astroBin} build`, {
+	await execaCommand(`node --expose-gc --max_old_space_size=10000 ${astroBin} build --silent`, {
 		cwd: root,
 		stdio: 'inherit',
 		env: {

@@ -16,6 +16,7 @@
     "markdown-table": "^3.0.3",
     "mri": "^1.2.0",
     "port-authority": "^2.0.1",
-    "pretty-bytes": "^6.1.1"
+    "pretty-bytes": "^6.1.1",
+    "sharp": "^0.33.3"
   }
 }

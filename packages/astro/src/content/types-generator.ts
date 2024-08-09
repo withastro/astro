@@ -6,11 +6,13 @@ import { bold, cyan } from 'kleur/colors';
 import { type ViteDevServer, normalizePath } from 'vite';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
+import { printNode, zodToTs } from 'zod-to-ts';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
+import { CONTENT_LAYER_TYPE } from './consts.js';
 import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
 	type ContentConfig,
@@ -44,7 +46,7 @@ type CollectionEntryMap = {
 				entries: Record<string, ContentEntryMetadata>;
 		  }
 		| {
-				type: 'data';
+				type: 'data' | typeof CONTENT_LAYER_TYPE;
 				entries: Record<string, DataEntryMetadata>;
 		  };
 };
@@ -245,7 +247,7 @@ export async function createContentTypesGenerator({
 					collectionEntryMap[collectionKey] = {
 						type: 'content',
 						entries: {
-							...collectionInfo.entries,
+							...(collectionInfo.entries as Record<string, ContentEntryMetadata>),
 							[entryKey]: { slug: addedSlug },
 						},
 					};
@@ -356,6 +358,31 @@ function normalizeConfigPath(from: string, to: string) {
 	return `"${isRelativePath(configPath) ? '' : './'}${normalizedPath}"` as const;
 }
 
+async function typeForCollection<T extends keyof ContentConfig['collections']>(
+	collection: ContentConfig['collections'][T] | undefined,
+	collectionKey: T,
+): Promise<string> {
+	if (collection?.schema) {
+		return `InferEntrySchema<${collectionKey}>`;
+	}
+
+	if (
+		collection?.type === CONTENT_LAYER_TYPE &&
+		typeof collection.loader === 'object' &&
+		collection.loader.schema
+	) {
+		let schema = collection.loader.schema;
+		if (typeof schema === 'function') {
+			schema = await schema();
+		}
+		if (schema) {
+			const ast = zodToTs(schema);
+			return printNode(ast.node);
+		}
+	}
+	return 'any';
+}
+
 async function writeContentFiles({
 	fs,
 	contentPaths,
@@ -397,6 +424,7 @@ async function writeContentFiles({
 		if (
 			collectionConfig?.type &&
 			collection.type !== 'unknown' &&
+			collectionConfig.type !== CONTENT_LAYER_TYPE &&
 			collection.type !== collectionConfig.type
 		) {
 			viteServer.hot.send({
@@ -419,7 +447,7 @@ async function writeContentFiles({
 			});
 			return;
 		}
-		const resolvedType: 'content' | 'data' =
+		const resolvedType =
 			collection.type === 'unknown'
 				? // Add empty / unknown collections to the data type map by default
 					// This ensures `getCollection('empty-collection')` doesn't raise a type error
@@ -427,7 +455,7 @@ async function writeContentFiles({
 				: collection.type;
 
 		const collectionEntryKeys = Object.keys(collection.entries).sort();
-		const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
+		const dataType = await typeForCollection(collectionConfig, collectionKey);
 		switch (resolvedType) {
 			case 'content':
 				if (collectionEntryKeys.length === 0) {
@@ -445,6 +473,9 @@ async function writeContentFiles({
 					contentTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  slug: ${slugType};\n  body: string;\n  collection: ${collectionKey};\n  data: ${dataType}\n} & ${renderType};\n`;
 				}
 				contentTypesStr += `};\n`;
+				break;
+			case CONTENT_LAYER_TYPE:
+				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent \n}>;\n`;
 				break;
 			case 'data':
 				if (collectionEntryKeys.length === 0) {

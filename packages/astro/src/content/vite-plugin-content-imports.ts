@@ -158,6 +158,7 @@ export const _internal = {
 
 						// The content config could depend on collection entries via `reference()`.
 						// Reload the config in case of changes.
+						// Changes to the config file itself are handled in types-generator.ts, so we skip them here
 						if (entryType === 'content' || entryType === 'data') {
 							await reloadContentConfigObserver({ fs, settings, viteServer });
 						}

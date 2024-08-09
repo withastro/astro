@@ -13,7 +13,10 @@ export async function sync({ flags }: SyncOptions) {
 			commandName: 'astro sync',
 			usage: '[...flags]',
 			tables: {
-				Flags: [['--help (-h)', 'See all available flags.']],
+				Flags: [
+					['--force', 'Clear the content layer cache, forcing a full rebuild.'],
+					['--help (-h)', 'See all available flags.'],
+				],
 			},
 			description: `Generates TypeScript types for all Astro modules.`,
 		});
@@ -21,7 +24,10 @@ export async function sync({ flags }: SyncOptions) {
 	}
 
 	try {
-		await _sync({ inlineConfig: flagsToAstroInlineConfig(flags), telemetry: true });
+		await _sync({
+			inlineConfig: flagsToAstroInlineConfig(flags),
+			telemetry: true,
+		});
 		return 0;
 	} catch (_) {
 		return 1;
