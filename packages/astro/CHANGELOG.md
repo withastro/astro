@@ -1,5 +1,13 @@
 # astro
 
+## 4.13.3
+
+### Patch Changes
+
+- [#11653](https://github.com/withastro/astro/pull/11653) [`32be549`](https://github.com/withastro/astro/commit/32be5494f6d33dbe32208704405162c95a64f0bc) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates `astro:env` docs to reflect current developments and usage guidance
+
+- [#11658](https://github.com/withastro/astro/pull/11658) [`13b912a`](https://github.com/withastro/astro/commit/13b912a8702afb96e2d0bc20dcc1b4135ae58147) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fixes `orThrow()` type when calling an Action without an `input` validator.
+
 ## 4.13.2
 
 ### Patch Changes

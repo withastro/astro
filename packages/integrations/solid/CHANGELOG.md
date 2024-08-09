@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 4.4.1
+
+### Patch Changes
+
+- [#11624](https://github.com/withastro/astro/pull/11624) [`7adb350`](https://github.com/withastro/astro/commit/7adb350a37f3975c8c9db89a32bf63b9fd0b78c2) Thanks [@bluwy](https://github.com/bluwy)! - Prevents throwing errors when checking if a component is a Solid component in runtime
+
 ## 4.4.0
 
 ### Minor Changes
