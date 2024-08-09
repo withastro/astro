@@ -2,7 +2,7 @@
 '@astrojs/markdown-remark': major
 ---
 
-Renames the CSS variables theme color token names to better align with the Shiki v1 defaults:
+Renames the following CSS variables theme color token names to better align with the Shiki v1 defaults:
 
 - `--astro-code-color-text` => `--astro-code-foreground`
 - `--astro-code-color-background` => `--astro-code-background`
