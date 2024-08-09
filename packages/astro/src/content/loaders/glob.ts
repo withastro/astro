@@ -128,17 +128,7 @@ export function glob(globOptions: GlobOptions): Loader {
 					data,
 					filePath,
 				});
-
-				if (entryType.extensions.includes('.mdx')) {
-					store.set({
-						id,
-						data: parsedData,
-						body,
-						filePath: relativePath,
-						digest,
-						deferredRender: true,
-					});
-				} else if (entryType.getRenderFunction) {
+				if (entryType.getRenderFunction) {
 					let render = renderFunctionByContentType.get(entryType);
 					if (!render) {
 						render = await entryType.getRenderFunction(settings);
@@ -170,6 +160,16 @@ export function glob(globOptions: GlobOptions): Loader {
 					if (rendered?.metadata?.imagePaths?.length) {
 						store.addAssetImports(rendered.metadata.imagePaths, relativePath);
 					}
+					// todo: add an explicit way to opt in to deferred rendering
+				} else if ('contentModuleTypes' in entryType) {
+					store.set({
+						id,
+						data: parsedData,
+						body,
+						filePath: relativePath,
+						digest,
+						deferredRender: true,
+					});
 				} else {
 					store.set({ id, data: parsedData, body, filePath: relativePath, digest });
 				}
