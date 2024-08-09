@@ -449,7 +449,12 @@ export async function renderEntry(
 			// @ts-expect-error	virtual module
 			const { default: contentModules } = await import('astro:content-module-imports');
 			const module = contentModules.get(entry.filePath);
-			return await module();
+			const deferredMod = await module();
+			return {
+				Content: deferredMod.Content,
+				headings: deferredMod.getHeadings?.() ?? [],
+				remarkPluginFrontmatter: deferredMod.frontmatter ?? {},
+			};
 		} catch (e) {
 			// eslint-disable-next-line
 			console.error(e);
@@ -462,7 +467,11 @@ export async function renderEntry(
 			: entry?.rendered?.html;
 
 	const Content = createComponent(() => serverRender`${unescapeHTML(html)}`);
-	return { Content };
+	return {
+		Content,
+		headings: entry?.rendered?.metadata?.headings ?? [],
+		remarkPluginFrontmatter: entry?.rendered?.metadata?.frontmatter ?? {},
+	};
 }
 
 async function render({

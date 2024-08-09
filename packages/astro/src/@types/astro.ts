@@ -124,7 +124,7 @@ export type TransitionAnimationValue =
 	| TransitionDirectionalAnimations;
 
 // Allow users to extend this for astro-jsx.d.ts
- 
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface AstroClientDirectives {}
 
