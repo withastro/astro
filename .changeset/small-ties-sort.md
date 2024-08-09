@@ -9,8 +9,10 @@ Given this Astro code (where `allowfullscreen` is a boolean attribute):
 ```astro
 <p allowfullscren={true}></p>
 <p allowfullscren={false}></p>
+
 <p unknown={true}></p>
 <p unknown={false}></p>
+
 <p data-foo={true}></p>
 <p data-foo={false}></p>
 ```
@@ -18,11 +20,13 @@ Given this Astro code (where `allowfullscreen` is a boolean attribute):
 The rendered HTML will be:
 
 ```diff
-<p allowfullscren></p>
-<p></p>
-<p unknown="true"></p>
+  <p allowfullscren></p>
+  <p></p>
+
+  <p unknown="true"></p>
 - <p unknown></p>
 + <p unknown="false"></p>
+
 - <p data-foo></p>
 + <p data-foo="true"></p>
 - <p></p>
