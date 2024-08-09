@@ -17,7 +17,7 @@ Given this Astro code (where `allowfullscreen` is a boolean attribute):
 <p data-foo={false}></p>
 ```
 
-The rendered HTML will be:
+Astro v5.0 now preserves the full data attribute with its value when rendering the HTML of non-boolean attributes:
 
 ```diff
   <p allowfullscren></p>
@@ -33,12 +33,12 @@ The rendered HTML will be:
 + <p data-foo="false"></p>
 ```
 
-To migrate, make sure you're reading the attribute values state correctly. For example:
+If you rely on attribute values, for example to locate elements or to conditionally render, update your code to match the new non-boolean attribute values:
 
 ```diff
-- el.getAttribute('unknown') === ''
-+ el.getAttribute('unknown') === 'false'
+- el.getAttribute('inherit') === ''
++ el.getAttribute('inherit') === 'false'
 
-- el.hasAttribute('data-foo')
+- el.hasAttribute('data-light')
 + el.dataset.foo === 'true'
 ```
