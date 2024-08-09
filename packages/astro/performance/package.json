@@ -11,8 +11,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/yargs-parser": "^21.0.3",
-    "kleur": "^4.1.5",
-    "yargs-parser": "^21.1.1"
+    "kleur": "^4.1.5"
   }
 }

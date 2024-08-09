@@ -2,14 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as colors from 'kleur/colors';
-import type { Arguments as Flags } from 'yargs-parser';
 import { ZodError } from 'zod';
 import type {
 	AstroConfig,
 	AstroInlineConfig,
 	AstroInlineOnlyConfig,
 	AstroUserConfig,
-	CLIFlags,
 } from '../../@types/astro.js';
 import { eventConfigError, telemetry } from '../../events/index.js';
 import { trackAstroConfigZodError } from '../errors/errors.js';
@@ -18,23 +16,6 @@ import { formatConfigErrorMessage } from '../messages.js';
 import { mergeConfig } from './merge.js';
 import { validateConfig } from './validate.js';
 import { loadConfigWithVite } from './vite-load.js';
-
-/** Convert the generic "yargs" flag object into our own, custom TypeScript object. */
-// NOTE: This function will be removed in a later PR. Use `flagsToAstroInlineConfig` instead.
-// All CLI related flow should be located in the `packages/astro/src/cli` directory.
-export function resolveFlags(flags: Partial<Flags>): CLIFlags {
-	return {
-		root: typeof flags.root === 'string' ? flags.root : undefined,
-		site: typeof flags.site === 'string' ? flags.site : undefined,
-		base: typeof flags.base === 'string' ? flags.base : undefined,
-		port: typeof flags.port === 'number' ? flags.port : undefined,
-		config: typeof flags.config === 'string' ? flags.config : undefined,
-		host:
-			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
-		open:
-			typeof flags.open === 'string' || typeof flags.open === 'boolean' ? flags.open : undefined,
-	};
-}
 
 export function resolveRoot(cwd?: string | URL): string {
 	if (cwd instanceof URL) {
@@ -66,7 +47,7 @@ async function search(fsMod: typeof fs, root: string) {
 
 interface ResolveConfigPathOptions {
 	root: string;
-	configFile?: string;
+	configFile?: string | false;
 	fs: typeof fs;
 }
 

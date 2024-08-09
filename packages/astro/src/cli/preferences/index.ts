@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import type yargs from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro.js';
 
 import { fileURLToPath } from 'node:url';
@@ -15,10 +14,10 @@ import * as msg from '../../core/messages.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
 import { type PreferenceKey, coerce, isValidKey } from '../../preferences/index.js';
-import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
+import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface PreferencesOptions {
-	flags: yargs.Arguments;
+	flags: Flags;
 }
 
 const PREFERENCES_SUBCOMMANDS = [
@@ -77,7 +76,7 @@ export async function preferences(
 	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 	const opts: SubcommandOptions = {
 		location: flags.global ? 'global' : undefined,
-		json: flags.json,
+		json: !!flags.json,
 	};
 
 	if (subcommand === 'list') {

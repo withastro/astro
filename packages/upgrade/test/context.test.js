@@ -6,12 +6,12 @@ describe('context', () => {
 	it('no arguments', async () => {
 		const ctx = await getContext([]);
 		assert.equal(ctx.version, 'latest');
-		assert.equal(ctx.dryRun, undefined);
+		assert.equal(ctx.dryRun, false);
 	});
 	it('tag', async () => {
 		const ctx = await getContext(['beta']);
 		assert.equal(ctx.version, 'beta');
-		assert.equal(ctx.dryRun, undefined);
+		assert.equal(ctx.dryRun, false);
 	});
 	it('dry run', async () => {
 		const ctx = await getContext(['--dry-run']);

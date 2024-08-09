@@ -1,18 +1,26 @@
-import type { Arguments } from 'yargs-parser';
 import type { AstroConfig } from '../../@types/astro.js';
 import { resolveConfig } from '../../core/config/config.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
-import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
+import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { getPackage } from '../install-package.js';
 
+interface YargsArguments {
+	_: Array<string | number>;
+	'--'?: Array<string | number>;
+	[argName: string]: any;
+}
+
 type DBPackage = {
-	cli: (args: { flags: Arguments; config: AstroConfig }) => unknown;
+	cli: (args: { flags: YargsArguments; config: AstroConfig }) => unknown;
 };
 
-export async function db({ flags }: { flags: Arguments }) {
+export async function db({ positionals, flags }: { positionals: string[]; flags: Flags }) {
 	applyPolyfill();
 	const logger = createLoggerFromFlags(flags);
-	const getPackageOpts = { skipAsk: flags.yes || flags.y, cwd: flags.root };
+	const getPackageOpts = {
+		skipAsk: !!flags.yes || !!flags.y,
+		cwd: typeof flags.root == 'string' ? flags.root : undefined,
+	};
 	const dbPackage = await getPackage<DBPackage>('@astrojs/db', logger, getPackageOpts, []);
 
 	if (!dbPackage) {
@@ -27,5 +35,10 @@ export async function db({ flags }: { flags: Arguments }) {
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const { astroConfig } = await resolveConfig(inlineConfig, 'build');
 
-	await cli({ flags, config: astroConfig });
+	const yargsArgs: YargsArguments = {
+		_: positionals,
+		...flags,
+	};
+
+	await cli({ flags: yargsArgs, config: astroConfig });
 }
