@@ -22,12 +22,14 @@ export const getStaticPaths = (async () => {
 const { craft } = Astro.props as any
 
 let cat = craft.data.cat ? await getEntry(craft.data.cat) : undefined
-const { Content } = await render(craft)
+const { Content, headings } = await render(craft)
 
 ---
 <meta charset="utf-8">
 <h1>{craft.data.title}</h1>
+<ul>
+{headings.map((heading) => <li><a href={`#${heading.slug}`}>{heading.text}</a></li>)}
+</ul>
 {cat? <p>🐈: {cat.data.breed}</p> : undefined}
 {craft.data.heroImage ? <Image src={craft.data.heroImage} alt={craft.data.title} width="100" height="100"/> : undefined}
 <Content />
-</ul>

@@ -1,14 +1,14 @@
 declare module 'astro:content' {
-	interface Render {
-		'.md': Promise<{
-			Content: import('astro').MarkdownInstance<{}>['Content'];
-			headings: import('astro').MarkdownHeading[];
-			remarkPluginFrontmatter: Record<string, any>;
-		}>;
-	}
-	interface ContentLayerRenderResult {
+
+	interface RenderResult {
 		Content: import('astro/runtime/server/index.js').AstroComponentFactory;
+		headings: import('astro').MarkdownHeading[];
+		remarkPluginFrontmatter: Record<string, any>;
 	}
+	interface Render {
+		'.md': Promise<RenderResult>;
+	}
+
 
 	export interface RenderedContent {
 		html: string;
@@ -113,7 +113,7 @@ declare module 'astro:content' {
 
 	export function render<C extends keyof AnyEntryMap>(
 		entry: AnyEntryMap[C][string],
-	): Promise<ContentLayerRenderResult>;
+	): Promise<RenderResult>;
 
 	export function reference<C extends keyof AnyEntryMap>(
 		collection: C,
