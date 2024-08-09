@@ -5,7 +5,6 @@ import {
 	getHighlighter,
 	isSpecialLang,
 } from 'shiki';
-import { visit } from 'unist-util-visit';
 import type { ShikiConfig } from './types.js';
 
 export interface ShikiHighlighter {
@@ -22,16 +21,6 @@ export interface ShikiHighlighter {
 		}
 	): Promise<string>;
 }
-
-// TODO: Remove this special replacement in Astro 5
-const ASTRO_COLOR_REPLACEMENTS: Record<string, string> = {
-	'--astro-code-foreground': '--astro-code-color-text',
-	'--astro-code-background': '--astro-code-color-background',
-};
-const COLOR_REPLACEMENT_REGEX = new RegExp(
-	`${Object.keys(ASTRO_COLOR_REPLACEMENTS).join('|')}`,
-	'g'
-);
 
 let _cssVariablesTheme: ReturnType<typeof createCssVariablesTheme>;
 const cssVariablesTheme = () =>
@@ -145,21 +134,6 @@ export async function createShikiHighlighter({
 								return node.children[0] as typeof node;
 							}
 						},
-						root(node) {
-							if (Object.values(themes).length) {
-								return;
-							}
-
-							const themeName = typeof theme === 'string' ? theme : theme.name;
-							if (themeName === 'css-variables') {
-								// Replace special color tokens to CSS variables
-								visit(node as any, 'element', (child) => {
-									if (child.properties?.style) {
-										child.properties.style = replaceCssVariables(child.properties.style);
-									}
-								});
-							}
-						},
 					},
 					...transformers,
 				],
@@ -170,8 +144,4 @@ export async function createShikiHighlighter({
 
 function normalizePropAsString(value: Properties[string]): string | null {
 	return Array.isArray(value) ? value.join(' ') : (value as string | null);
-}
-
-function replaceCssVariables(str: string) {
-	return str.replace(COLOR_REPLACEMENT_REGEX, (match) => ASTRO_COLOR_REPLACEMENTS[match] || match);
 }
