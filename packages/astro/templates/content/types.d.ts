@@ -22,29 +22,31 @@ declare module 'astro:content' {
 		ContentEntryMap[C]
 	>['slug'];
 
+	/** @deprecated Use `getEntry` instead. */
 	export function getEntryBySlug<
 		C extends keyof ContentEntryMap,
 		E extends ValidContentEntrySlug<C> | (string & {}),
 	>(
 		collection: C,
 		// Note that this has to accept a regular string too, for SSR
-		entrySlug: E
+		entrySlug: E,
 	): E extends ValidContentEntrySlug<C>
 		? Promise<CollectionEntry<C>>
 		: Promise<CollectionEntry<C> | undefined>;
 
+	/** @deprecated Use `getEntry` instead. */
 	export function getDataEntryById<C extends keyof DataEntryMap, E extends keyof DataEntryMap[C]>(
 		collection: C,
-		entryId: E
+		entryId: E,
 	): Promise<CollectionEntry<C>>;
 
 	export function getCollection<C extends keyof AnyEntryMap, E extends CollectionEntry<C>>(
 		collection: C,
-		filter?: (entry: CollectionEntry<C>) => entry is E
+		filter?: (entry: CollectionEntry<C>) => entry is E,
 	): Promise<E[]>;
 	export function getCollection<C extends keyof AnyEntryMap>(
 		collection: C,
-		filter?: (entry: CollectionEntry<C>) => unknown
+		filter?: (entry: CollectionEntry<C>) => unknown,
 	): Promise<CollectionEntry<C>[]>;
 
 	export function getEntry<
@@ -70,7 +72,7 @@ declare module 'astro:content' {
 		E extends ValidContentEntrySlug<C> | (string & {}),
 	>(
 		collection: C,
-		slug: E
+		slug: E,
 	): E extends ValidContentEntrySlug<C>
 		? Promise<CollectionEntry<C>>
 		: Promise<CollectionEntry<C> | undefined>;
@@ -79,7 +81,7 @@ declare module 'astro:content' {
 		E extends keyof DataEntryMap[C] | (string & {}),
 	>(
 		collection: C,
-		id: E
+		id: E,
 	): E extends keyof DataEntryMap[C]
 		? Promise<DataEntryMap[C][E]>
 		: Promise<CollectionEntry<C> | undefined>;
@@ -89,17 +91,17 @@ declare module 'astro:content' {
 		entries: {
 			collection: C;
 			slug: ValidContentEntrySlug<C>;
-		}[]
+		}[],
 	): Promise<CollectionEntry<C>[]>;
 	export function getEntries<C extends keyof DataEntryMap>(
 		entries: {
 			collection: C;
 			id: keyof DataEntryMap[C];
-		}[]
+		}[],
 	): Promise<CollectionEntry<C>[]>;
 
 	export function reference<C extends keyof AnyEntryMap>(
-		collection: C
+		collection: C,
 	): import('astro/zod').ZodEffects<
 		import('astro/zod').ZodString,
 		C extends keyof ContentEntryMap
@@ -116,7 +118,7 @@ declare module 'astro:content' {
 	// if `dev` is not running to update as you edit.
 	// Invalid collection names will be caught at build time.
 	export function reference<C extends string>(
-		collection: C
+		collection: C,
 	): import('astro/zod').ZodEffects<import('astro/zod').ZodString, never>;
 
 	type ReturnTypeOrOriginal<T> = T extends (...args: any[]) => infer R ? R : T;

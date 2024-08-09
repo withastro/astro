@@ -52,7 +52,7 @@ describe('Content Collections - data collections', () => {
 					},
 					$schema: 'http://json-schema.org/draft-07/schema#',
 				}),
-				JSON.stringify(JSON.parse(rawJson))
+				JSON.stringify(JSON.parse(rawJson)),
 			);
 		});
 
@@ -96,7 +96,7 @@ describe('Content Collections - data collections', () => {
 					},
 					$schema: 'http://json-schema.org/draft-07/schema#',
 				}),
-				JSON.stringify(JSON.parse(rawJson))
+				JSON.stringify(JSON.parse(rawJson)),
 			);
 		});
 	});

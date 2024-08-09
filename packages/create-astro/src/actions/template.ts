@@ -7,7 +7,7 @@ import { downloadTemplate } from 'giget';
 import { error, info, title } from '../messages.js';
 
 export async function template(
-	ctx: Pick<Context, 'template' | 'prompt' | 'yes' | 'dryRun' | 'exit' | 'tasks'>
+	ctx: Pick<Context, 'template' | 'prompt' | 'yes' | 'dryRun' | 'exit' | 'tasks'>,
 ) {
 	if (!ctx.template && ctx.yes) ctx.template = 'basics';
 
@@ -64,9 +64,9 @@ const FILES_TO_UPDATE = {
 				JSON.stringify(
 					Object.assign(JSON.parse(value), Object.assign(overrides, { private: undefined })),
 					null,
-					indent
+					indent,
 				),
-				'utf-8'
+				'utf-8',
 			);
 		}),
 };
@@ -83,7 +83,6 @@ export function getTemplateTarget(tmpl: string, ref = 'latest') {
 
 export default async function copyTemplate(tmpl: string, ctx: Context) {
 	const templateTarget = getTemplateTarget(tmpl, ctx.ref);
-
 	// Copy
 	if (!ctx.dryRun) {
 		try {
@@ -104,11 +103,26 @@ export default async function copyTemplate(tmpl: string, ctx: Context) {
 				}
 			}
 
-			if (err.message.includes('404')) {
+			if (err.message?.includes('404')) {
 				throw new Error(`Template ${color.reset(tmpl)} ${color.dim('does not exist!')}`);
-			} else {
-				throw new Error(err.message);
 			}
+
+			if (err.message) {
+				error('error', err.message);
+			}
+			try {
+				// The underlying error is often buried deep in the `cause` property
+				// This is in a try/catch block in case of weirdnesses in accessing the `cause` property
+				if ('cause' in err) {
+					// This is probably included in err.message, but we can log it just in case it has extra info
+					error('error', err.cause);
+					if ('cause' in err.cause) {
+						// Hopefully the actual fetch error message
+						error('error', err.cause?.cause);
+					}
+				}
+			} catch {}
+			throw new Error(`Unable to download template ${color.reset(tmpl)}`);
 		}
 
 		// It's possible the repo exists (ex. `withastro/astro`),

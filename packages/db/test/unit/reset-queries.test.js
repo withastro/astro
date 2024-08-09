@@ -17,7 +17,7 @@ const userInitial = tableSchema.parse(
 			email: column.text({ unique: true }),
 			mi: column.text({ optional: true }),
 		},
-	})
+	}),
 );
 
 describe('force reset', () => {

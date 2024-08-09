@@ -11,7 +11,7 @@ import { writeHtmlResponse } from './response.js';
 
 export function baseMiddleware(
 	settings: AstroSettings,
-	logger: Logger
+	logger: Logger,
 ): vite.Connect.NextHandleFunction {
 	const { config } = settings;
 	const site = config.site ? new URL(config.base, config.site) : undefined;
@@ -55,15 +55,15 @@ export function baseMiddleware(
 		fs.stat(publicPath, (_err, stats) => {
 			if (stats) {
 				const publicDir = appendForwardSlash(
-					path.posix.relative(config.root.pathname, config.publicDir.pathname)
+					path.posix.relative(config.root.pathname, config.publicDir.pathname),
 				);
 				const expectedLocation = new URL(devRootURL.pathname + url, devRootURL).pathname;
 
 				logger.error(
 					'router',
 					`Request URLs for ${bold(
-						publicDir
-					)} assets must also include your base. "${expectedLocation}" expected, but received "${url}".`
+						publicDir,
+					)} assets must also include your base. "${expectedLocation}" expected, but received "${url}".`,
 				);
 				const html = subpathNotUsedTemplate(devRoot, pathname);
 				return writeHtmlResponse(res, 404, html);

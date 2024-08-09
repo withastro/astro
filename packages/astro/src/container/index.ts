@@ -106,7 +106,7 @@ export type AddClientRenderer = {
 function createManifest(
 	manifest?: AstroContainerManifest,
 	renderers?: SSRLoadedRenderer[],
-	middleware?: MiddlewareHandler
+	middleware?: MiddlewareHandler,
 ): SSRManifest {
 	const defaultMiddleware: MiddlewareHandler = (_, next) => {
 		return next();
@@ -114,7 +114,6 @@ function createManifest(
 
 	return {
 		hrefRoot: import.meta.url,
-		rewritingEnabled: false,
 		trailingSlash: manifest?.trailingSlash ?? ASTRO_CONFIG_DEFAULTS.trailingSlash,
 		buildFormat: manifest?.buildFormat ?? ASTRO_CONFIG_DEFAULTS.build.format,
 		compressHTML: manifest?.compressHTML ?? ASTRO_CONFIG_DEFAULTS.compressHTML,
@@ -277,7 +276,7 @@ export class experimental_AstroContainer {
 	 * @param {AstroContainerOptions=} containerOptions
 	 */
 	public static async create(
-		containerOptions: AstroContainerOptions = {}
+		containerOptions: AstroContainerOptions = {},
 	): Promise<experimental_AstroContainer> {
 		const { streaming = false, manifest, renderers = [], resolve } = containerOptions;
 		const astroConfig = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
@@ -318,7 +317,7 @@ export class experimental_AstroContainer {
 		if (!renderer.check || !renderer.renderToStaticMarkup) {
 			throw new Error(
 				"The renderer you passed isn't valid. A renderer is usually an object that exposes the `check` and `renderToStaticMarkup` functions.\n" +
-					"Usually, the renderer is exported by a /server.js entrypoint e.g. `import renderer from '@astrojs/react/server.js'`"
+					"Usually, the renderer is exported by a /server.js entrypoint e.g. `import renderer from '@astrojs/react/server.js'`",
 			);
 		}
 		if (isNamedRenderer(renderer)) {
@@ -365,7 +364,7 @@ export class experimental_AstroContainer {
 			throw new Error(
 				'You tried to add the ' +
 					name +
-					" client renderer, but its server renderer wasn't added. You must add the server renderer first. Use the `addServerRenderer` function."
+					" client renderer, but its server renderer wasn't added. You must add the server renderer first. Use the `addServerRenderer` function.",
 			);
 		}
 		const renderer = this.#pipeline.manifest.renderers[rendererIndex];
@@ -377,7 +376,7 @@ export class experimental_AstroContainer {
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.
 	// @ematipico: I plan to use it for a possible integration that could help people
 	private static async createFromManifest(
-		manifest: SSRManifest
+		manifest: SSRManifest,
 	): Promise<experimental_AstroContainer> {
 		const astroConfig = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
 		const container = new experimental_AstroContainer({
@@ -434,7 +433,7 @@ export class experimental_AstroContainer {
 	 */
 	public async renderToString(
 		component: AstroComponentFactory,
-		options: ContainerRenderOptions = {}
+		options: ContainerRenderOptions = {},
 	): Promise<string> {
 		const response = await this.renderToResponse(component, options);
 		return await response.text();
@@ -461,7 +460,7 @@ export class experimental_AstroContainer {
 	 */
 	public async renderToResponse(
 		component: AstroComponentFactory,
-		options: ContainerRenderOptions = {}
+		options: ContainerRenderOptions = {},
 	): Promise<Response> {
 		const { routeType = 'page', slots } = options;
 		const request = options?.request ?? new Request('https://example.com/');
@@ -513,7 +512,7 @@ export class experimental_AstroContainer {
 			pattern: getPattern(
 				segments,
 				ASTRO_CONFIG_DEFAULTS.base,
-				ASTRO_CONFIG_DEFAULTS.trailingSlash
+				ASTRO_CONFIG_DEFAULTS.trailingSlash,
 			),
 			prerender: false,
 			segments,
@@ -531,7 +530,7 @@ export class experimental_AstroContainer {
 	 */
 	#wrapComponent(
 		componentFactory: AstroComponentFactory,
-		params?: Record<string, string | undefined>
+		params?: Record<string, string | undefined>,
 	): ComponentInstance {
 		if (params) {
 			return {

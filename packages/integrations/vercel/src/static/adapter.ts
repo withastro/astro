@@ -74,7 +74,7 @@ export default function vercelStatic({
 						'head-inline',
 						await getInjectableWebAnalyticsContent({
 							mode: command === 'dev' ? 'development' : 'production',
-						})
+						}),
 					);
 				}
 				if (command === 'build' && speedInsights?.enabled) {
@@ -95,7 +95,7 @@ export default function vercelStatic({
 						imagesConfig,
 						command,
 						devImageService,
-						config.image
+						config.image,
 					),
 				});
 			},

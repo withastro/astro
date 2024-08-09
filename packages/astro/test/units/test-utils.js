@@ -82,7 +82,7 @@ class VirtualVolumeWithFallback extends VirtualVolume {
 	readFileSync(p, ...args) {
 		try {
 			return super.readFileSync(p, ...args);
-		} catch (e) {
+		} catch {
 			return realFS.readFileSync(p, ...args);
 		}
 	}
@@ -203,7 +203,7 @@ export function createBasicPipeline(options = {}) {
 		options.i18n,
 		options.middleware,
 		options.routeCache ?? new RouteCache(options.logging, mode),
-		options.site
+		options.site,
 	);
 	pipeline.headElements = () => ({ scripts: new Set(), styles: new Set(), links: new Set() });
 	pipeline.componentMetadata = () => new Map();

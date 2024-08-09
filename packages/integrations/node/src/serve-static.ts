@@ -52,7 +52,7 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 					break;
 				case 'always':
 					// trailing slash is not added to "subresources"
-					if (!hasSlash && !urlPath.match(isSubresourceRegex)) {
+					if (!hasSlash && !isSubresourceRegex.test(urlPath)) {
 						pathname = urlPath + '/' + (urlQuery ? '?' + urlQuery : '');
 						res.statusCode = 301;
 						res.setHeader('Location', pathname);

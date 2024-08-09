@@ -70,9 +70,8 @@
   },
   "dependencies": {
     "@astrojs/studio": "workspace:*",
-    "@libsql/client": "^0.7.0",
+    "@libsql/client": "^0.8.1",
     "async-listen": "^3.0.1",
-    "ci-info": "^4.0.0",
     "deep-diff": "^1.0.2",
     "drizzle-orm": "^0.31.2",
     "github-slugger": "^2.0.0",
@@ -86,15 +85,13 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.16",
     "@types/deep-diff": "^1.0.5",
-    "@types/diff": "^5.2.1",
     "@types/prompts": "^2.4.9",
     "@types/yargs-parser": "^21.0.3",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0-rc.12",
-    "typescript": "^5.5.3",
-    "vite": "^5.3.4"
+    "typescript": "^5.5.4",
+    "vite": "^5.3.5"
   }
 }

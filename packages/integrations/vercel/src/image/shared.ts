@@ -13,7 +13,6 @@ export function isESMImportedImage(src: ImageMetadata | string): src is ImageMet
 	return typeof src === 'object';
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export type DevImageService = 'sharp' | 'squoosh' | (string & {});
 
 // https://vercel.com/docs/build-output-api/v3/configuration#images
@@ -69,7 +68,7 @@ export function getAstroImageConfig(
 	imagesConfig: VercelImageConfig | undefined,
 	command: string,
 	devImageService: DevImageService,
-	astroImageConfig: AstroConfig['image']
+	astroImageConfig: AstroConfig['image'],
 ) {
 	let devService = '@astrojs/vercel/dev-image-service';
 
@@ -106,7 +105,7 @@ export function getAstroImageConfig(
 export function sharedValidateOptions(
 	options: ImageTransform,
 	serviceConfig: Record<string, any>,
-	mode: 'development' | 'production'
+	mode: 'development' | 'production',
 ) {
 	const vercelImageOptions = serviceConfig as VercelImageConfig;
 

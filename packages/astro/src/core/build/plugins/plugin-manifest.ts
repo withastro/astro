@@ -79,7 +79,7 @@ function vitePluginManifest(_options: StaticBuildOptions, internals: BuildIntern
 
 export function pluginManifest(
 	options: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): AstroBuildPlugin {
 	return {
 		targets: ['server'],
@@ -114,9 +114,9 @@ export function pluginManifest(
 	};
 }
 
-export async function createManifest(
+async function createManifest(
 	buildOpts: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): Promise<SerializedSSRManifest> {
 	if (!internals.manifestEntryChunk) {
 		throw new Error(`Did not generate an entry chunk for SSR`);
@@ -126,7 +126,7 @@ export async function createManifest(
 	const clientStatics = new Set(
 		await glob('**/*', {
 			cwd: fileURLToPath(buildOpts.settings.config.build.client),
-		})
+		}),
 	);
 	for (const file of clientStatics) {
 		internals.staticFiles.add(file);
@@ -139,11 +139,8 @@ export async function createManifest(
 
 /**
  * It injects the manifest in the given output rollup chunk. It returns the new emitted code
- * @param buildOpts
- * @param internals
- * @param chunk
  */
-export function injectManifest(manifest: SerializedSSRManifest, chunk: Readonly<OutputChunk>) {
+function injectManifest(manifest: SerializedSSRManifest, chunk: Readonly<OutputChunk>) {
 	const code = chunk.code;
 
 	return code.replace(replaceExp, () => {
@@ -203,7 +200,7 @@ function buildManifest(
 			scripts.unshift(
 				Object.assign({}, pageData.hoistedScript, {
 					value,
-				})
+				}),
 			);
 		}
 		if (settings.scripts.some((script) => script.stage === 'page')) {
@@ -282,7 +279,6 @@ function buildManifest(
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
-		rewritingEnabled: settings.config.experimental.rewriting,
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		key: encodedKey,
 		experimentalEnvGetSecretEnabled:

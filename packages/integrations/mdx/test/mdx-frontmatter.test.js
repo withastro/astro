@@ -50,7 +50,7 @@ describe('MDX frontmatter', () => {
 		const { document } = parseHTML(html);
 
 		const headingSlugs = [...document.querySelectorAll('[data-headings] > li')].map(
-			(el) => el.textContent
+			(el) => el.textContent,
 		);
 
 		assert.equal(headingSlugs.length > 0, true);
@@ -70,7 +70,7 @@ describe('MDX frontmatter', () => {
 		assert.equal(
 			frontmatterFile?.endsWith('with-headings.mdx'),
 			true,
-			'"file" prop does not end with correct path or is undefined'
+			'"file" prop does not end with correct path or is undefined',
 		);
 		assert.equal(frontmatterUrl, '/with-headings');
 		assert.equal(file, frontmatterFile);

@@ -13,7 +13,7 @@ import { createContainer, startContainer } from './container.js';
 
 async function createRestartedContainer(
 	container: Container,
-	settings: AstroSettings
+	settings: AstroSettings,
 ): Promise<Container> {
 	const { logger, fs, inlineConfig } = container;
 	const newContainer = await createContainer({
@@ -32,9 +32,9 @@ async function createRestartedContainer(
 const configRE = /.*astro.config.(?:mjs|cjs|js|ts)$/;
 const preferencesRE = /.*\.astro\/settings.json$/;
 
-export function shouldRestartContainer(
+function shouldRestartContainer(
 	{ settings, inlineConfig, restartInFlight }: Container,
-	changedFile: string
+	changedFile: string,
 ): boolean {
 	if (restartInFlight) return false;
 
@@ -59,14 +59,14 @@ export function shouldRestartContainer(
 	if (!shouldRestart && settings.watchFiles.length > 0) {
 		// If the config file didn't change, check if any of the watched files changed.
 		shouldRestart = settings.watchFiles.some(
-			(path) => vite.normalizePath(path) === vite.normalizePath(changedFile)
+			(path) => vite.normalizePath(path) === vite.normalizePath(changedFile),
 		);
 	}
 
 	return shouldRestart;
 }
 
-export async function restartContainer(container: Container): Promise<Container | Error> {
+async function restartContainer(container: Container): Promise<Container | Error> {
 	const { logger, close, settings: existingSettings } = container;
 	container.restartInFlight = true;
 
@@ -81,7 +81,7 @@ export async function restartContainer(container: Container): Promise<Container 
 		if (!isAstroConfigZodError(_err)) {
 			logger.error(
 				'config',
-				formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n'
+				formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n',
 			);
 		}
 		// Inform connected clients of the config error

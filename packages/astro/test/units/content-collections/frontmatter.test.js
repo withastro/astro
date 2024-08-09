@@ -49,7 +49,7 @@ describe('frontmatter', () => {
 					</html>
 				`,
 			},
-			root
+			root,
 		);
 
 		await runInContainer({ fs, inlineConfig: { root: fileURLToPath(root) } }, async (container) => {
@@ -62,7 +62,7 @@ describe('frontmatter', () => {
 				title: One
 				title: two
 				---
-				`
+				`,
 			);
 			triggerFSEvent(container, fs, '/src/content/posts/blog.md', 'change');
 			await new Promise((resolve) => setTimeout(resolve, 100));

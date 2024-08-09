@@ -20,7 +20,7 @@ describe('collect images', async () => {
 
 		assert.equal(
 			code,
-			'<p>Hello <img __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;./img.png&#x22;,&#x22;alt&#x22;:&#x22;inline image url&#x22;,&#x22;index&#x22;:0}"></p>'
+			'<p>Hello <img __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;./img.png&#x22;,&#x22;alt&#x22;:&#x22;inline image url&#x22;,&#x22;index&#x22;:0}"></p>',
 		);
 
 		assert.deepEqual(Array.from(imagePaths), ['./img.png']);
@@ -34,7 +34,7 @@ describe('collect images', async () => {
 
 		assert.equal(
 			code,
-			'<p>Hello <img __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;./img.webp&#x22;,&#x22;alt&#x22;:&#x22;image ref&#x22;,&#x22;index&#x22;:0}"></p>'
+			'<p>Hello <img __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;./img.webp&#x22;,&#x22;alt&#x22;:&#x22;image ref&#x22;,&#x22;index&#x22;:0}"></p>',
 		);
 
 		assert.deepEqual(Array.from(metadata.imagePaths), ['./img.webp']);

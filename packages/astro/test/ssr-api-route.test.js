@@ -81,7 +81,7 @@ describe('API routes in SSR', () => {
 		it('Can be passed binary data from multipart formdata', async () => {
 			const formData = new FormData();
 			const raw = await fs.promises.readFile(
-				new URL('./fixtures/ssr-api-route/src/images/penguin.jpg', import.meta.url)
+				new URL('./fixtures/ssr-api-route/src/images/penguin.jpg', import.meta.url),
 			);
 			const file = new File([raw], 'penguin.jpg', { type: 'text/jpg' });
 			formData.set('file', file, 'penguin.jpg');
@@ -118,7 +118,7 @@ describe('API routes in SSR', () => {
 
 			let count = 0;
 			let exp = /set-cookie:/g;
-			while (exp.exec(response)) {
+			while (exp.test(response)) {
 				count++;
 			}
 
@@ -137,9 +137,9 @@ describe('API routes in SSR', () => {
 			assert.match(data.generator, /^Astro v/);
 			assert.equal(
 				['http://[::1]:4321/blog/context/any', 'http://127.0.0.1:4321/blog/context/any'].includes(
-					data.url
+					data.url,
 				),
-				true
+				true,
 			);
 			assert.equal(['::1', '127.0.0.1'].includes(data.clientAddress), true);
 			assert.equal(data.site, 'https://mysite.dev/subsite/');

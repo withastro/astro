@@ -21,7 +21,7 @@ describe('MDX optimize', () => {
 		assert.equal(document.querySelector('h1').textContent.includes('MDX page'), true);
 		assert.equal(
 			document.querySelector('p').textContent.includes('I once heard a very inspirational quote:'),
-			true
+			true,
 		);
 
 		const blockquote = document.querySelector('blockquote.custom-blockquote');
@@ -40,7 +40,7 @@ describe('MDX optimize', () => {
 		assert.equal(document.querySelector('h1').textContent.includes('Astro page'), true);
 		assert.equal(
 			document.querySelector('p').textContent.includes('I once heard a very inspirational quote:'),
-			true
+			true,
 		);
 
 		const blockquote = document.querySelector('blockquote.custom-blockquote');

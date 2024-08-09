@@ -54,7 +54,7 @@ describe('Scripts (hoisted and not)', () => {
 			assert.equal(
 				inlineEntryJS.includes('I AM IMPORTED INLINE'),
 				true,
-				'The inline imported JS is included in the bundle'
+				'The inline imported JS is included in the bundle',
 			);
 		});
 

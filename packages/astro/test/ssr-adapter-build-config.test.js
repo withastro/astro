@@ -28,7 +28,7 @@ describe('Integration buildConfig hook', () => {
 												return id;
 											} else if (id === 'astro/app') {
 												const viteId = viteID(
-													new URL('../dist/core/app/index.js', import.meta.url)
+													new URL('../dist/core/app/index.js', import.meta.url),
 												);
 												return viteId;
 											}

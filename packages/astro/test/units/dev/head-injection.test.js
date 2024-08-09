@@ -59,7 +59,7 @@ describe('head injection', () => {
 					</html>
 				`,
 			},
-			root
+			root,
 		);
 
 		await runInContainer(
@@ -82,7 +82,7 @@ describe('head injection', () => {
 
 				assert.equal($('link[rel=stylesheet][href="/some/fake/styles.css"]').length, 1);
 				assert.equal($('#other').length, 1);
-			}
+			},
 		);
 	});
 
@@ -159,7 +159,7 @@ describe('head injection', () => {
 					</Layout>
 				`,
 			},
-			root
+			root,
 		);
 
 		await runInContainer(
@@ -183,10 +183,10 @@ describe('head injection', () => {
 				assert.equal(
 					$('link[rel=stylesheet][href="/some/fake/styles.css"]').length,
 					1,
-					'found inner link'
+					'found inner link',
 				);
 				assert.equal($('#other').length, 1, 'Found the #other div');
-			}
+			},
 		);
 	});
 });

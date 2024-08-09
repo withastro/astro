@@ -127,7 +127,7 @@ describe('Astro feature map', function () {
 				output: 'hybrid',
 			},
 			{},
-			defaultLogger
+			defaultLogger,
 		);
 		assert.equal(result['hybridOutput'], true);
 	});
@@ -140,7 +140,7 @@ describe('Astro feature map', function () {
 				output: 'hybrid',
 			},
 			{},
-			defaultLogger
+			defaultLogger,
 		);
 		assert.equal(result['hybridOutput'], false);
 	});
@@ -153,7 +153,7 @@ describe('Astro feature map', function () {
 				output: 'hybrid',
 			},
 			{},
-			defaultLogger
+			defaultLogger,
 		);
 		assert.equal(result['hybridOutput'], false);
 	});
@@ -167,7 +167,7 @@ describe('Astro feature map', function () {
 					output: 'static',
 				},
 				{},
-				defaultLogger
+				defaultLogger,
 			);
 			assert.equal(result['staticOutput'], true);
 		});
@@ -180,7 +180,7 @@ describe('Astro feature map', function () {
 					output: 'static',
 				},
 				{},
-				defaultLogger
+				defaultLogger,
 			);
 			assert.equal(result['staticOutput'], false);
 		});
@@ -194,7 +194,7 @@ describe('Astro feature map', function () {
 					output: 'hybrid',
 				},
 				{},
-				defaultLogger
+				defaultLogger,
 			);
 			assert.equal(result['hybridOutput'], true);
 		});
@@ -209,7 +209,7 @@ describe('Astro feature map', function () {
 					output: 'hybrid',
 				},
 				{},
-				defaultLogger
+				defaultLogger,
 			);
 			assert.equal(result['hybridOutput'], false);
 		});
@@ -223,7 +223,7 @@ describe('Astro feature map', function () {
 					output: 'server',
 				},
 				{},
-				defaultLogger
+				defaultLogger,
 			);
 			assert.equal(result['serverOutput'], true);
 		});
@@ -238,7 +238,7 @@ describe('Astro feature map', function () {
 					output: 'server',
 				},
 				{},
-				defaultLogger
+				defaultLogger,
 			);
 			assert.equal(result['serverOutput'], false);
 		});
@@ -262,7 +262,7 @@ describe('Astro feature map', function () {
 					},
 				},
 				{},
-				defaultLogger
+				defaultLogger,
 			);
 			assert.equal(result['assets'], true);
 		});
@@ -283,7 +283,7 @@ describe('Astro feature map', function () {
 					},
 				},
 				{},
-				defaultLogger
+				defaultLogger,
 			);
 			assert.equal(result['assets'], true);
 		});
@@ -305,7 +305,7 @@ describe('Astro feature map', function () {
 					},
 				},
 				{},
-				defaultLogger
+				defaultLogger,
 			);
 			assert.equal(result['assets'], false);
 		});

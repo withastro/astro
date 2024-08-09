@@ -19,7 +19,7 @@ describe('Astro', () => {
 					{ pathname: '/one', distURL: new URL('./one/index.html', import.meta.url), segments: [] },
 					'./.adapter/dist/entry.mjs',
 				],
-			])
+			]),
 		);
 		const _redirects = createRedirectsFromAstroRoutes({
 			config: serverConfig,

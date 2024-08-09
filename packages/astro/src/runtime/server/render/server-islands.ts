@@ -29,7 +29,7 @@ export function renderServerIsland(
 	result: SSRResult,
 	_displayName: string,
 	props: Record<string | number, any>,
-	slots: ComponentSlots
+	slots: ComponentSlots,
 ): RenderInstance {
 	return {
 		async render(destination) {

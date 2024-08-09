@@ -50,7 +50,7 @@ function injectUnderscoreFragmentImport(code: string, imports: readonly ImportSp
 function injectMetadataExports(
 	code: string,
 	exports: readonly ExportSpecifier[],
-	fileInfo: FileInfo
+	fileInfo: FileInfo,
 ) {
 	if (!exports.some(({ n }) => n === 'url')) {
 		code += `\nexport const url = ${JSON.stringify(fileInfo.fileUrl)};`;
@@ -101,7 +101,7 @@ function annotateContentExport(
 	code: string,
 	id: string,
 	ssr: boolean,
-	imports: readonly ImportSpecifier[]
+	imports: readonly ImportSpecifier[],
 ) {
 	// Mark `Content` as MDX component
 	code += `\nContent[Symbol.for('mdx-component')] = true`;
@@ -117,7 +117,7 @@ function annotateContentExport(
 				code,
 				imports,
 				astroTagComponentImportRegex,
-				'astro/runtime/server/index.js'
+				'astro/runtime/server/index.js',
 			)
 		) {
 			code += `\nimport { __astro_tag_component__ } from 'astro/runtime/server/index.js';`;
@@ -135,7 +135,7 @@ function isSpecifierImported(
 	code: string,
 	imports: readonly ImportSpecifier[],
 	specifierRegex: RegExp,
-	source: string
+	source: string,
 ) {
 	for (const imp of imports) {
 		if (imp.n !== source) continue;

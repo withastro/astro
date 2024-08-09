@@ -20,7 +20,7 @@ const exportConstPrerenderRe = /\bexport\s+const\s+prerender\s*=\s*import\.meta\
 
 function getPrivateEnv(
 	viteConfig: vite.ResolvedConfig,
-	astroConfig: AstroConfig
+	astroConfig: AstroConfig,
 ): Record<string, string> {
 	let envPrefixes: string[] = ['PUBLIC_'];
 	if (viteConfig.envPrefix) {
@@ -33,7 +33,7 @@ function getPrivateEnv(
 	const fullEnv = loadEnv(
 		viteConfig.mode,
 		viteConfig.envDir ?? fileURLToPath(astroConfig.root),
-		''
+		'',
 	);
 
 	const privateEnv: Record<string, string> = {};
@@ -79,7 +79,7 @@ async function replaceDefine(
 	code: string,
 	id: string,
 	define: Record<string, string>,
-	config: vite.ResolvedConfig
+	config: vite.ResolvedConfig,
 ): Promise<{ code: string; map: string | null }> {
 	// Since esbuild doesn't support replacing complex expressions, we replace `import.meta.env`
 	// with a marker string first, then postprocess and apply the `Object.assign` code.
@@ -89,7 +89,7 @@ async function replaceDefine(
 		// Compute the marker from the length of the replaced code. We do this so that esbuild generates
 		// the sourcemap with the right column offset when we do the postprocessing.
 		const marker = `__astro_import_meta_env${'_'.repeat(
-			env.length - 23 /* length of preceding string */
+			env.length - 23 /* length of preceding string */,
 		)}`;
 		replacementMarkers[marker] = env;
 		define = { ...define, 'import.meta.env': marker };
@@ -133,11 +133,11 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 
 			// HACK: move ourselves before Vite's define plugin to apply replacements at the right time (before Vite normal plugins)
 			const viteDefinePluginIndex = resolvedConfig.plugins.findIndex(
-				(p) => p.name === 'vite:define'
+				(p) => p.name === 'vite:define',
 			);
 			if (viteDefinePluginIndex !== -1) {
 				const myPluginIndex = resolvedConfig.plugins.findIndex(
-					(p) => p.name === 'astro:vite-plugin-env'
+					(p) => p.name === 'astro:vite-plugin-env',
 				);
 				if (myPluginIndex !== -1) {
 					const myPlugin = resolvedConfig.plugins[myPluginIndex];
