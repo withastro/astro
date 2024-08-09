@@ -176,8 +176,11 @@ describe('Astro Actions', () => {
 			const req = new Request('http://example.com/user?_astroAction=getUser', {
 				method: 'POST',
 				body: new FormData(),
+				headers: {
+					Referer: 'http://example.com/user',
+				},
 			});
-			const res = await app.render(req);
+			const res = await followExpectedRedirect(req, app);
 			assert.equal(res.ok, true);
 
 			const html = await res.text();
@@ -189,9 +192,11 @@ describe('Astro Actions', () => {
 			const req = new Request('http://example.com/user-or-throw?_astroAction=getUserOrThrow', {
 				method: 'POST',
 				body: new FormData(),
+				headers: {
+					Referer: 'http://example.com/user-or-throw',
+				},
 			});
-			const res = await app.render(req);
-			assert.equal(res.ok, false);
+			const res = await followExpectedRedirect(req, app);
 			assert.equal(res.status, 401);
 
 			const html = await res.text();
@@ -219,8 +224,11 @@ describe('Astro Actions', () => {
 				const req = new Request('http://example.com/user', {
 					method: 'POST',
 					body: formData,
+					headers: {
+						Referer: 'http://example.com/user',
+					},
 				});
-				const res = await app.render(req);
+				const res = await followExpectedRedirect(req, app);
 				assert.equal(res.ok, true);
 
 				const html = await res.text();
@@ -234,9 +242,11 @@ describe('Astro Actions', () => {
 				const req = new Request('http://example.com/user-or-throw', {
 					method: 'POST',
 					body: formData,
+					headers: {
+						Referer: 'http://example.com/user-or-throw',
+					},
 				});
-				const res = await app.render(req);
-				assert.equal(res.ok, false);
+				const res = await followExpectedRedirect(req, app);
 				assert.equal(res.status, 401);
 
 				const html = await res.text();
@@ -337,3 +347,28 @@ describe('Astro Actions', () => {
 		});
 	});
 });
+
+const validRedirectStatuses = new Set([301, 302, 303, 304, 307, 308]);
+
+/**
+ * Follow an expected redirect response.
+ *
+ * @param {Request} req
+ * @param {*} app
+ * @returns {Promise<Response>}
+ */
+async function followExpectedRedirect(req, app) {
+	const redirect = await app.render(req, { addCookieHeader: true });
+	assert.ok(
+		validRedirectStatuses.has(redirect.status),
+		`Expected redirect status, got ${redirect.status}`,
+	);
+
+	const redirectUrl = new URL(redirect.headers.get('Location'), req.url);
+	const redirectReq = new Request(redirectUrl, {
+		headers: {
+			Cookie: redirect.headers.get('Set-Cookie'),
+		},
+	});
+	return app.render(redirectReq);
+}

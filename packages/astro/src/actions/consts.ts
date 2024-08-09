@@ -4,3 +4,9 @@ export const ACTIONS_TYPES_FILE = 'actions.d.ts';
 export const VIRTUAL_INTERNAL_MODULE_ID = 'astro:internal-actions';
 export const RESOLVED_VIRTUAL_INTERNAL_MODULE_ID = '\0astro:internal-actions';
 export const NOOP_ACTIONS = '\0noop-actions';
+
+export const ACTION_QUERY_PARAMS = {
+	actionName: '_astroAction',
+	actionPayload: '_astroActionPayload',
+	actionRedirect: '_astroActionRedirect',
+};
