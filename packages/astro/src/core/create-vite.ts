@@ -132,7 +132,7 @@ export async function createVite(
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
 			mode !== 'build' && vitePluginAstroServer({ settings, logger, fs }),
-			envVitePlugin({ settings }),
+			envVitePlugin({ settings, logger }),
 			astroEnv({ settings, mode, fs, sync }),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
