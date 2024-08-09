@@ -17,6 +17,7 @@ type WriteSitemapConfig = {
 	destinationDir: string;
 	publicBasePath?: string;
 	limit?: number;
+	xslURL?: string;
 };
 
 // adapted from sitemap.js/sitemap-simple
@@ -28,6 +29,7 @@ export async function writeSitemap(
 		destinationDir,
 		limit = 50000,
 		publicBasePath = './',
+		xslURL: xslUrl,
 	}: WriteSitemapConfig,
 	astroConfig: AstroConfig,
 ) {
@@ -38,6 +40,7 @@ export async function writeSitemap(
 		getSitemapStream: (i) => {
 			const sitemapStream = new SitemapStream({
 				hostname,
+				xslUrl,
 			});
 			const path = `./sitemap-${i}.xml`;
 			const writePath = resolve(destinationDir, path);
@@ -63,7 +66,7 @@ export async function writeSitemap(
 		},
 	});
 
-	let src = Readable.from(sourceData);
+	const src = Readable.from(sourceData);
 	const indexPath = resolve(destinationDir, `./sitemap-index.xml`);
 	return promisify(pipeline)(src, sitemapAndIndexStream, createWriteStream(indexPath));
 }
