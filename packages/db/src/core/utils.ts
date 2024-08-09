@@ -15,6 +15,11 @@ export function getRemoteDatabaseUrl(): string {
 	return env.ASTRO_STUDIO_REMOTE_DB_URL || 'https://db.services.astro.build';
 }
 
+export function isRemoteStudio(url: string): boolean {
+	const protocol = new URL(url).protocol;
+	return protocol === 'http:' || protocol === 'https:';
+}
+
 export function getDbDirectoryUrl(root: URL | string) {
 	return new URL('db/', root);
 }
