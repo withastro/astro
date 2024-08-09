@@ -1,4 +1,4 @@
-import { base64, decodeHex, encodeHex } from '@oslojs/encoding';
+import { encodeBase64, decodeBase64, decodeHex, encodeHexUpperCase } from '@oslojs/encoding';
 
 // Chose this algorithm for no particular reason, can change.
 // This algo does check against text manipulation though. See
@@ -33,7 +33,7 @@ export async function importKey(bytes: Uint8Array): Promise<CryptoKey> {
  */
 export async function encodeKey(key: CryptoKey) {
 	const exported = await crypto.subtle.exportKey('raw', key);
-	const encodedKey = base64.encode(new Uint8Array(exported));
+	const encodedKey = encodeBase64(new Uint8Array(exported));
 	return encodedKey;
 }
 
@@ -41,7 +41,7 @@ export async function encodeKey(key: CryptoKey) {
  * Decodes a base64 string into bytes and then imports the key.
  */
 export async function decodeKey(encoded: string): Promise<CryptoKey> {
-  const bytes = base64.decode(encoded);
+  const bytes = decodeBase64(encoded);
 	return crypto.subtle.importKey('raw', bytes, ALGORITHM, true, ['encrypt', 'decrypt']);
 }
 
@@ -66,7 +66,7 @@ export async function encryptString(key: CryptoKey, raw: string) {
 		data
 	);
 	// iv is 12, hex brings it to 24
-	return encodeHex(iv) + base64.encode(new Uint8Array(buffer));
+	return encodeHexUpperCase(iv) + encodeBase64(new Uint8Array(buffer));
 }
 
 /**
@@ -74,7 +74,7 @@ export async function encryptString(key: CryptoKey, raw: string) {
  */
 export async function decryptString(key: CryptoKey, encoded: string) {
   const iv = decodeHex(encoded.slice(0, IV_LENGTH));
-	const dataArray = base64.decode(encoded.slice(IV_LENGTH));
+	const dataArray = decodeBase64(encoded.slice(IV_LENGTH));
 	const decryptedBuffer = await crypto.subtle.decrypt(
 		{
 			name: ALGORITHM,
