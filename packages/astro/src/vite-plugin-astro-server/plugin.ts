@@ -18,6 +18,7 @@ import { recordServerError } from './error.js';
 import { DevPipeline } from './pipeline.js';
 import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
+import { createKey } from '../core/encryption.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -129,6 +130,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			domainLookupTable: {},
 		};
 	}
+
 	return {
 		hrefRoot: settings.config.root.toString(),
 		trailingSlash: settings.config.trailingSlash,
@@ -148,6 +150,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		i18n: i18nManifest,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		experimentalEnvGetSecretEnabled: false,
+		key: createKey(),
 		middleware(_, next) {
 			return next();
 		},

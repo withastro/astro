@@ -38,6 +38,12 @@ test.describe('Server islands', () => {
 			await expect(el, 'element rendered').toBeVisible();
 		});
 
+		test('Props are encrypted', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/base/'));
+			let el = page.locator('#secret');
+			await expect(el).toHaveText('test');
+		});
+
 		test('Self imported module can server defer', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/base/'));
 			let el = page.locator('.now');
@@ -68,6 +74,12 @@ test.describe('Server islands', () => {
 
 			await expect(el, 'element rendered').toBeVisible();
 			await expect(el, 'should have content').toHaveText('I am an island');
+		});
+
+		test('Props are encrypted', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/'));
+			let el = page.locator('#secret');
+			await expect(el).toHaveText('test');
 		});
 	});
 });

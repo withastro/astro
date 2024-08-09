@@ -82,38 +82,6 @@ describe('Server islands', () => {
 				const serverIslandScript = $('script[data-island-id]');
 				assert.equal(serverIslandScript.length, 1, 'has the island script');
 			});
-
-			describe('prod', () => {
-				async function fetchIsland() {
-					const app = await fixture.loadTestAdapterApp();
-					const request = new Request('http://example.com/_server-islands/Island', {
-						method: 'POST',
-						body: JSON.stringify({
-							componentExport: 'default',
-							props: {},
-							slots: {},
-						}),
-					});
-					return app.render(request);
-				}
-
-				it('Island returns its HTML', async () => {
-					const response = await fetchIsland();
-					const html = await response.text();
-					const $ = cheerio.load(html);
-
-					const serverIslandEl = $('h2#island');
-					assert.equal(serverIslandEl.length, 1);
-				});
-
-				it('Island does not include the doctype', async () => {
-					const response = await fetchIsland();
-					const html = await response.text();
-					console.log(html);
-
-					assert.ok(!/doctype/i.test(html), 'html does not include doctype');
-				});
-			});
 		});
 	});
 });

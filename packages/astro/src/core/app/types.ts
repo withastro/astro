@@ -66,6 +66,7 @@ export type SSRManifest = {
 	pageMap?: Map<ComponentPath, ImportComponentInstance>;
 	serverIslandMap?: Map<string, () => Promise<ComponentInstance>>;
 	serverIslandNameMap?: Map<string, string>;
+	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
 	middleware: MiddlewareHandler;
 	checkOrigin: boolean;
@@ -90,6 +91,7 @@ export type SerializedSSRManifest = Omit<
 	| 'inlinedScripts'
 	| 'clientDirectives'
 	| 'serverIslandNameMap'
+	| 'key'
 > & {
 	routes: SerializedRouteInfo[];
 	assets: string[];
@@ -97,4 +99,5 @@ export type SerializedSSRManifest = Omit<
 	inlinedScripts: [string, string][];
 	clientDirectives: [string, string][];
 	serverIslandNameMap: [string, string][];
+	key: string;
 };
