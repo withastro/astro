@@ -16,7 +16,7 @@ const path = injectTypes({
 console.log(path) // URL
 ```
 
-Codegen has been refactored. As a user, you just need to update `src/env.d.ts`:
+Codegen has been refactored. Although `src/env.d.ts` will continue to work as is, we recommend you update it:
 
 ```diff
 - /// <reference types="astro/client" />
