@@ -1469,6 +1469,32 @@ export const UnknownContentCollectionError = {
 	name: 'UnknownContentCollectionError',
 	title: 'Unknown Content Collection Error.',
 } satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Astro encountered an unexpected error when writing your content layer data to disk.
+ *
+ * If you can reliably cause this error to happen, we'd appreciate if you could [open an issue](https://astro.build/issues/)
+ */
+export const ContentLayerWriteError = {
+	name: 'ContentLayerWriteError',
+	title: 'Could not write content layer data.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * The `getDataEntryById` and `getEntryBySlug` functions are deprecated and cannot be used with content layer collections. Use the `getEntry` function instead.
+ */
+export const GetEntryDeprecationError = {
+	name: 'GetEntryDeprecationError',
+	title: 'Invalid use of `getDataEntryById` or `getEntryBySlug` function.',
+	message: (collection: string, method: string) =>
+		`The \`${method}\` function is deprecated and cannot be used to query the "${collection}" collection. Use \`getEntry\` instead.`,
+	hint: 'Use the `getEntry` or `getCollection` functions to query content layer collections.',
+} satisfies ErrorData;
+
 /**
  * @docs
  * @message

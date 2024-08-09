@@ -7,6 +7,8 @@ import fastGlob from 'fast-glob';
 import stripAnsi from 'strip-ansi';
 import { Agent } from 'undici';
 import { check } from '../dist/cli/check/index.js';
+import { globalContentLayer } from '../dist/content/content-layer.js';
+import { globalContentConfigObserver } from '../dist/content/utils.js';
 import build from '../dist/core/build/index.js';
 import { RESOLVED_SPLIT_MODULE_ID } from '../dist/core/build/plugins/plugin-ssr.js';
 import { getVirtualModulePageName } from '../dist/core/build/plugins/util.js';
@@ -36,7 +38,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @property {(path: string) => Promise<boolean>} pathExists
  * @property {(url: string, opts: Parameters<typeof fetch>[1]) => Promise<Response>} fetch
  * @property {(path: string) => Promise<string>} readFile
- * @property {(path: string, updater: (content: string) => string) => Promise<void>} writeFile
+ * @property {(path: string, updater: (content: string) => string) => Promise<void>} editFile
  * @property {(path: string) => Promise<string[]>} readdir
  * @property {(pattern: string) => Promise<string[]>} glob
  * @property {typeof dev} startDevServer
@@ -157,15 +159,22 @@ export async function loadFixture(inlineConfig) {
 	let devServer;
 
 	return {
-		build: async (extraInlineConfig = {}) => {
+		build: async (extraInlineConfig = {}, options = {}) => {
+			globalContentLayer.dispose();
+			globalContentConfigObserver.set({ status: 'init' });
 			process.env.NODE_ENV = 'production';
-			return build(mergeConfig(inlineConfig, extraInlineConfig), { teardownCompiler: false });
+			return build(mergeConfig(inlineConfig, extraInlineConfig), {
+				teardownCompiler: false,
+				...options,
+			});
 		},
 		sync,
 		check: async (opts) => {
 			return await check(opts);
 		},
 		startDevServer: async (extraInlineConfig = {}) => {
+			globalContentLayer.dispose();
+			globalContentConfigObserver.set({ status: 'init' });
 			process.env.NODE_ENV = 'development';
 			devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
@@ -275,7 +284,7 @@ export async function loadFixture(inlineConfig) {
 				typeof newContentsOrCallback === 'function'
 					? newContentsOrCallback(contents)
 					: newContentsOrCallback;
-			const nextChange = onNextChange();
+			const nextChange = devServer ? onNextChange() : Promise.resolve();
 			await fs.promises.writeFile(fileUrl, newContents);
 			await nextChange;
 			return reset;

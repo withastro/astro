@@ -18,6 +18,7 @@ import type {
 	ActionReturnType,
 } from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
+import type { DataEntry, RenderedContent } from '../content/data-store.js';
 import type { AssetsPrefix, SSRManifest, SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import type { AstroConfigType } from '../core/config/index.js';
@@ -123,6 +124,7 @@ export type TransitionAnimationValue =
 	| TransitionDirectionalAnimations;
 
 // Allow users to extend this for astro-jsx.d.ts
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface AstroClientDirectives {}
 
@@ -2207,6 +2209,258 @@ export interface AstroUserConfig {
 		 * To use this feature with the Astro VS Code extension, make sure to also enable the `astro.content-intellisense` option in your VS Code settings. For editor using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature.
 		 */
 		contentCollectionIntellisense?: boolean;
+
+ /**
+		 * @docs
+		 * @name experimental.contentLayer
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.16.0
+		 * @description
+		 *
+		 * The Content Layer API is a new way to handle content and data in Astro. It takes [content collections](https://docs.astro.build/en/guides/content-collections/) beyond local files in `src/content` and allowing you to fetch content from anywhere, including remote APIs, or files anywhere in your project. As well as being more powerful, the Content Layer API is designed to be more performant, helping sites scale to tens of thousands of pages. Data is cached between builds and updated incrementally. Markdown parsing is also 5-10x faster, with similar scale reductions in memory. While the feature is experimental and subject to breaking changes, we invite you to try it today and let us know how it works for you.
+		 *
+		 * #### Enabling the Content Layer API
+		 *
+		 * To enable, add the `contentLayer` flag to the `experimental` object in your Astro config:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 * 		contentLayer: true,
+		 * 	}
+		 * }
+		 * ```
+		 *
+		 * #### Using the Content Layer API
+		 *
+		 * :::tip
+		 * The Content Layer API is a new way to define content collections, but many of the APIs are the same. It will be helpful to refer to the current [content collection docs](https://docs.astro.build/en/guides/content-collections/) for more information. Any differences in the API usage are highlighted below.
+		 * :::
+		 *
+		 * To use the Content Layer API, create a collection in `src/content/config.ts` with a `loader` property. For local files where there is one entry per file, use the `glob()` loader. You can put your content files anywhere, but *not* in `src/content` because these would be handled by the current content collections APIs instead. In this example the files are in `src/data`.
+		 *
+		 * ```ts
+		 * import { defineCollection, z } from 'astro:content';
+		 * import { glob } from 'astro/loaders';
+		 *
+		 * const blog = defineCollection({
+		 *   // By default the ID is a slug, generated from the path of the file relative to `base`
+		 *   loader: glob({ pattern: "**\/*.md", base: "./src/data/blog" }),
+		 *   schema: z.object({
+		 *     title: z.string(),
+		 *     description: z.string(),
+		 *     pubDate: z.coerce.date(),
+		 *     updatedDate: z.coerce.date().optional(),
+		 *   }),
+		 * });
+		 *
+		 * export const collections = { blog };
+		 * ```
+		 *
+		 * You can load multiple entries from a single JSON file using the `file()` loader. In this case the data must either be an array of objects, which each contain an `id` property, or an object where each key is the ID.
+		 *
+		 * **Array syntax:**
+		 *
+		 * ```json
+		 * [
+		 *   {
+		 *     "id": "labrador-retriever",
+		 *     "breed": "Labrador Retriever",
+		 *     "size": "Large",
+		 *     "origin": "Canada",
+		 *     "lifespan": "10-12 years",
+		 *     "temperament": [
+		 *       "Friendly",
+		 *       "Active",
+		 *       "Outgoing"
+		 *     ]
+		 *   },
+		 *   {
+		 *     "id": "german-shepherd",
+		 *     "breed": "German Shepherd",
+		 *     "size": "Large",
+		 *     "origin": "Germany",
+		 *     "lifespan": "9-13 years",
+		 *     "temperament": [
+		 *       "Loyal",
+		 *       "Intelligent",
+		 *       "Confident"
+		 *     ]
+		 *   }
+		 * ]
+		 * ```
+		 *
+		 * **Object syntax:**
+		 *
+		 * ```json
+		 * {
+		 *   "labrador-retriever": {
+		 *     "breed": "Labrador Retriever",
+		 *     "size": "Large",
+		 *     "origin": "Canada",
+		 *     "lifespan": "10-12 years",
+		 *     "temperament": [
+		 *       "Friendly",
+		 *       "Active",
+		 *       "Outgoing"
+		 *     ]
+		 *   },
+		 *   "german-shepherd": {
+		 *     "breed": "German Shepherd",
+		 *     "size": "Large",
+		 *     "origin": "Germany",
+		 *     "lifespan": "9-13 years",
+		 *     "temperament": [
+		 *       "Loyal",
+		 *       "Intelligent",
+		 *       "Confident"
+		 *     ]
+		 *   }
+		 * }
+		 * ```
+		 *
+		 * The collection is then defined using the `file()` loader:
+		 *
+		 * ```ts
+		 * import { defineCollection, z } from 'astro:content';
+		 * import { file } from 'astro/loaders';
+		 *
+		 * const dogs = defineCollection({
+		 * 	loader: file('src/data/dogs.json'),
+		 * 	schema: z.object({
+		 * 		id: z.string(),
+		 *     breed: z.string(),
+		 * 		size: z.string(),
+		 * 		origin: z.string(),
+		 * 		lifespan: z.string(),
+		 * 		temperament: z.array(z.string()),
+		 * 	}),
+		 * });
+		 *
+		 * export const collections = { dogs };
+		 * ```
+		 *
+		 * The collection can be queried in the same way as existing content collections:
+		 *
+		 * ```ts
+		 * import { getCollection, getEntry } from 'astro:content';
+		 *
+		 * // Get all entries from a collection.
+		 * // Requires the name of the collection as an argument.
+		 * const allBlogPosts = await getCollection('blog');
+		 *
+		 * // Get a single entry from a collection.
+		 * // Requires the name of the collection and ID
+		 * const labradorData = await getEntry('dogs', 'labrador-retriever');
+		 * ```
+		 *
+		 * #### Rendering content
+		 *
+		 * Entries generated from markdown or MDX can be rendered directly to a page using the `render()` function.
+		 *
+		 * :::caution
+		 * The syntax for rendering entries from collections that use the Content Layer is different from current content collections syntax.
+		 * :::
+		 *
+		 * ```astro
+		 * ---
+		 * import { getEntry, render } from 'astro:content';
+		 *
+		 * const post = await getEntry('blog', Astro.params.slug);
+		 *
+		 * const { Content, headings } = await render(entry);
+		 * ---
+		 *
+		 * <Content />
+		 * ```
+		 *
+		 * #### Creating a loader
+		 *
+		 * Content loaders aren't restricted to just loading local files. You can also use loaders to fetch or generate content from anywhere. The simplest type of loader is an async function that returns an array of objects, each of which has an `id`:
+		 *
+		 * ```ts
+		 * const countries = defineCollection({
+		 *   loader: async () => {
+		 *     const response = await fetch("https://restcountries.com/v3.1/all");
+		 *     const data = await response.json();
+		 *     // Must return an array of entries with an id property, or an object with IDs as keys and entries as values
+		 *     return data.map((country) => ({
+		 *       id: country.cca3,
+		 *       ...country,
+		 *     }));
+		 *   },
+		 *   // optionally add a schema
+		 *   // schema: z.object...
+		 * });
+		 *
+		 * export const collections = { countries };
+		 * ```
+		 *
+		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading, and gives full access to the data store. See the API in [the RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/content-layer.md#loaders).
+		 *
+		 * ### Migrating an existing content collection to use the Content Layer API
+		 *
+		 * You can convert an existing content collection to use the Content Layer API if it uses markdown, MDX or JSON, with these steps:
+		 *
+		 * 1. **Move the collection folder out of `src/content`.** This is so it won't be handled using the existing content collection APIs. This example assumes the content has been moved to `src/data`. The `config.ts` file must remain in `src/content`.
+		 * 2. **Edit the collection definition**. The collection should not have `type` set, and needs a `loader` defined.
+		 *
+		 * ```diff
+		 * import { defineCollection, z } from 'astro:content';
+		 * + import { glob } from 'astro/loaders';
+		 *
+		 * const blog = defineCollection({
+		 *   // For content layer you do not define a `type`
+		 * - type: 'content',
+		 * + loader: glob({ pattern: "**\/*.md", base: "./src/data/blog" }),
+		 *   schema: z.object({
+		 * 		title: z.string(),
+		 * 		description: z.string(),
+		 * 		pubDate: z.coerce.date(),
+		 * 		updatedDate: z.coerce.date().optional(),
+		 * 	}),
+		 * });
+		 * ```
+		 *
+		 * 3. **Change references from `slug` to `id`**. Content collections created with the Content Layer API do not have a `slug` field. You should use `id` instead, which has the same syntax.
+		 *
+		 * ```diff
+		 * ---
+		 * export async function getStaticPaths() {
+		 * 	const posts = await getCollection('blog');
+		 * 	return posts.map((post) => ({
+		 * -   params: { slug: post.slug },
+		 * +   params: { slug: post.id },
+		 *     props: post,
+		 * 	}));
+		 * }
+		 * ---
+		 * ```
+		 *
+		 * 4. **Switch to the new `render()` function**. Entries no longer have a `render()` method, as they are now serializable plain objects. Instead, import the `render()` function from `astro:content`.
+		 *
+		 * ```diff
+		 * ---
+		 * - import { getEntry } from 'astro:content';
+		 * + import { getEntry, render } from 'astro:content';
+		 *
+		 *   const post = await getEntry('blog', params.slug);
+		 *
+		 * - const { Content, headings } = await post.render();
+		 * + const { Content, headings } = await render(post);
+		 * ---
+		 *
+		 * <Content />
+		 * ```
+		 *
+		 * The `getEntryBySlug` and `getDataEntryByID` functions are deprecated and cannot be used with collections that use the Content Layer API. Instead, use `getEntry`, which is a drop-in replacement for both.
+		 *
+		 * #### Learn more
+		 *
+		 * To see the full API look at [the RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/content-layer.md) and [share your feedback on the feature and API](https://github.com/withastro/roadmap/pull/982).
+		 */
+		contentLayer?: boolean;
 	};
 }
 
@@ -2289,6 +2543,10 @@ export interface AstroInlineOnlyConfig {
 	 */
 	logLevel?: LoggerLevel;
 	/**
+	 * Clear the content layer cache, forcing a rebuild of all content entries.
+	 */
+	force?: boolean;
+	/**
 	 * @internal for testing only, use `logLevel` instead.
 	 */
 	logger?: Logger;
@@ -2316,6 +2574,8 @@ export type DataEntryModule = {
 	};
 };
 
+export type ContentEntryRenderFuction = (entry: DataEntry) => Promise<RenderedContent>;
+
 export interface ContentEntryType {
 	extensions: string[];
 	getEntryInfo(params: {
@@ -2331,6 +2591,8 @@ export interface ContentEntryType {
 		},
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
+	getRenderFunction?(settings: AstroSettings): Promise<ContentEntryRenderFuction>;
+
 	/**
 	 * Handle asset propagation for rendered content to avoid bleed.
 	 * Ex. MDX content can import styles and scripts, so `handlePropagation` should be true.
