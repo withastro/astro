@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
-describe('Content Layer dev', () => {
+describe('Content Layer MDX rendering dev', () => {
 	/** @type {import("./test-utils.js").Fixture} */
 	let fixture;
 
@@ -10,7 +10,6 @@ describe('Content Layer dev', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/content-layer-rendering/',
-			cacheDir: './fixtures/content-layer-rendering/.cache',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -27,13 +26,12 @@ describe('Content Layer dev', () => {
 	});
 });
 
-describe('Content Layer build', () => {
+describe('Content Layer MDX rendering build', () => {
 	/** @type {import("./test-utils.js").Fixture} */
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/content-layer-rendering/',
-			cacheDir: './fixtures/content-layer-rendering/.cache',
 		});
 		await fixture.build();
 	});
