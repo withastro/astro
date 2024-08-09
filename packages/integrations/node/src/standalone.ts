@@ -22,6 +22,20 @@ export default function standalone(app: NodeApp, options: Options) {
 	const host = process.env.HOST ?? hostOptions(options.host);
 	const handler = createStandaloneHandler(app, options);
 	const server = createServer(handler, host, port);
+
+	// optionally add standalone middleware (if passed)
+	if (options.standaloneMiddleware) {
+		import(options.standaloneMiddleware)
+			.then((middleware) => {
+				server.updateServerListener((req: http.IncomingMessage, res: http.ServerResponse) => {
+					middleware.default(req, res, () => {
+						handler(req, res);
+					});
+				});
+			})
+			.catch(() => {});
+	}
+
 	server.server.listen(port, host);
 	if (process.env.ASTRO_NODE_LOGGING !== 'disabled') {
 		logListeningOn(app.getAdapterLogger(), server.server, options);
@@ -72,6 +86,11 @@ export function createServer(listener: http.RequestListener, host: string, port:
 		httpServer.addListener('error', reject);
 	});
 
+	const updateServerListener = (middleware: http.RequestListener) => {
+		httpServer.removeListener('request', listener);
+		httpServer.addListener('request', middleware);
+	}
+
 	const previewable = {
 		host,
 		port,
@@ -87,6 +106,7 @@ export function createServer(listener: http.RequestListener, host: string, port:
 
 	return {
 		server: httpServer,
+		updateServerListener,
 		...previewable,
 	};
 }

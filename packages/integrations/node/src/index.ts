@@ -38,6 +38,9 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 	if (!userOptions?.mode) {
 		throw new AstroError(`Setting the 'mode' option is required.`);
 	}
+	if (userOptions.mode !== 'standalone' && userOptions.standaloneMiddleware) {
+		throw new AstroError(`'standaloneMiddleware' option is only available in 'standalone' mode.`);
+	}
 
 	let _options: Options;
 	return {

@@ -10,6 +10,10 @@ export interface UserOptions {
 	 * - 'standalone' - Build to a standalone server. The server starts up just by running the built script.
 	 */
 	mode: 'middleware' | 'standalone';
+	/**
+	 * Optional file path that (default) exports middleware function to be used in the standalone mode.
+	 */
+	standaloneMiddleware?: string;
 }
 
 export interface Options extends UserOptions {
