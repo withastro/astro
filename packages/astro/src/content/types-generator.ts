@@ -12,8 +12,7 @@ import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
-import { CONTENT_LAYER_TYPE } from './consts.js';
-import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
+import { CONTENT_LAYER_TYPE, CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
 	type CollectionConfig,
 	type ContentConfig,
@@ -476,22 +475,6 @@ async function writeContentFiles({
 					contentTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  slug: ${slugType};\n  body: string;\n  collection: ${collectionKey};\n  data: ${dataType}\n} & ${renderType};\n`;
 				}
 				contentTypesStr += `};\n`;
-
-				if (
-					collectionConfig?.schema &&
-					settings.config.experimental.contentCollectionIntellisense
-				) {
-					await generateJSONSchema(
-						fs,
-						collectionConfig,
-						collectionKey,
-						collectionSchemasDir,
-						logger,
-					);
-
-					contentCollectionsMap[collectionKey] = collection;
-				}
-
 				break;
 			case CONTENT_LAYER_TYPE:
 				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent \n}>;\n`;
@@ -517,6 +500,12 @@ async function writeContentFiles({
 					);
 				}
 				break;
+		}
+
+		if (collectionConfig?.schema && settings.config.experimental.contentCollectionIntellisense) {
+			await generateJSONSchema(fs, collectionConfig, collectionKey, collectionSchemasDir, logger);
+
+			contentCollectionsMap[collectionKey] = collection;
 		}
 	}
 
