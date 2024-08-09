@@ -76,13 +76,9 @@ async function renderResult({
 
 	locals._actionPayload = { actionResult, actionName };
 	const response = await next();
+	context.cookies.delete(ACTION_QUERY_PARAMS.actionPayload);
 
 	if (actionResult.type === 'error') {
-		// Clear the cookie after rendering the error state.
-		// Otherwise, errors will reappear when revisiting a stale form.
-		// This is based on Laravel's implementation.
-		context.cookies.delete(ACTION_QUERY_PARAMS.actionPayload);
-
 		return new Response(response.body, {
 			status: actionResult.status,
 			statusText: actionResult.type,
