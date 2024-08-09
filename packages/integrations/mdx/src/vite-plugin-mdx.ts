@@ -54,7 +54,7 @@ export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
 			// should be called in between those two lifecycle, so this error should never happen
 			if (!processor) {
 				return this.error(
-					'MDX processor is not initialized. This is an internal error. Please file an issue.'
+					'MDX processor is not initialized. This is an internal error. Please file an issue.',
 				);
 			}
 
@@ -86,7 +86,7 @@ function getMdxMeta(vfile: VFile): Record<string, any> {
 	const astroMetadata = getAstroMetadata(vfile);
 	if (!astroMetadata) {
 		throw new Error(
-			'Internal MDX error: Astro metadata is not set by rehype-analyze-astro-metadata'
+			'Internal MDX error: Astro metadata is not set by rehype-analyze-astro-metadata',
 		);
 	}
 	return {

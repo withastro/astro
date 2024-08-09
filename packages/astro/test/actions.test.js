@@ -176,8 +176,11 @@ describe('Astro Actions', () => {
 			const req = new Request('http://example.com/user?_astroAction=getUser', {
 				method: 'POST',
 				body: new FormData(),
+				headers: {
+					Referer: 'http://example.com/user',
+				},
 			});
-			const res = await app.render(req);
+			const res = await followExpectedRedirect(req, app);
 			assert.equal(res.ok, true);
 
 			const html = await res.text();
@@ -189,15 +192,29 @@ describe('Astro Actions', () => {
 			const req = new Request('http://example.com/user-or-throw?_astroAction=getUserOrThrow', {
 				method: 'POST',
 				body: new FormData(),
+				headers: {
+					Referer: 'http://example.com/user-or-throw',
+				},
 			});
-			const res = await app.render(req);
-			assert.equal(res.ok, false);
+			const res = await followExpectedRedirect(req, app);
 			assert.equal(res.status, 401);
 
 			const html = await res.text();
 			let $ = cheerio.load(html);
 			assert.equal($('#error-message').text(), 'Not logged in');
 			assert.equal($('#error-code').text(), 'UNAUTHORIZED');
+		});
+
+		it('Ignores `_astroAction` name for GET requests', async () => {
+			const req = new Request('http://example.com/user-or-throw?_astroAction=getUserOrThrow', {
+				method: 'GET',
+			});
+			const res = await app.render(req);
+			assert.equal(res.ok, true);
+
+			const html = await res.text();
+			let $ = cheerio.load(html);
+			assert.ok($('#user'));
 		});
 
 		describe('legacy', () => {
@@ -207,8 +224,11 @@ describe('Astro Actions', () => {
 				const req = new Request('http://example.com/user', {
 					method: 'POST',
 					body: formData,
+					headers: {
+						Referer: 'http://example.com/user',
+					},
 				});
-				const res = await app.render(req);
+				const res = await followExpectedRedirect(req, app);
 				assert.equal(res.ok, true);
 
 				const html = await res.text();
@@ -222,9 +242,11 @@ describe('Astro Actions', () => {
 				const req = new Request('http://example.com/user-or-throw', {
 					method: 'POST',
 					body: formData,
+					headers: {
+						Referer: 'http://example.com/user-or-throw',
+					},
 				});
-				const res = await app.render(req);
-				assert.equal(res.ok, false);
+				const res = await followExpectedRedirect(req, app);
 				assert.equal(res.status, 401);
 
 				const html = await res.text();
@@ -234,16 +256,35 @@ describe('Astro Actions', () => {
 			});
 		});
 
-		it('Sets status to 204 when no content', async () => {
+		it('Sets status to 204 when content-length is 0', async () => {
 			const req = new Request('http://example.com/_actions/fireAndForget', {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json',
 					'Content-Length': '0',
 				},
 			});
 			const res = await app.render(req);
 			assert.equal(res.status, 204);
+		});
+
+		it('Sets status to 204 when content-type is omitted', async () => {
+			const req = new Request('http://example.com/_actions/fireAndForget', {
+				method: 'POST',
+			});
+			const res = await app.render(req);
+			assert.equal(res.status, 204);
+		});
+
+		it('Sets status to 415 when content-type is unexpected', async () => {
+			const req = new Request('http://example.com/_actions/fireAndForget', {
+				method: 'POST',
+				body: 'hey',
+				headers: {
+					'Content-Type': 'text/plain',
+				},
+			});
+			const res = await app.render(req);
+			assert.equal(res.status, 415);
 		});
 
 		it('Is callable from the server with rewrite', async () => {
@@ -306,3 +347,28 @@ describe('Astro Actions', () => {
 		});
 	});
 });
+
+const validRedirectStatuses = new Set([301, 302, 303, 304, 307, 308]);
+
+/**
+ * Follow an expected redirect response.
+ *
+ * @param {Request} req
+ * @param {*} app
+ * @returns {Promise<Response>}
+ */
+async function followExpectedRedirect(req, app) {
+	const redirect = await app.render(req, { addCookieHeader: true });
+	assert.ok(
+		validRedirectStatuses.has(redirect.status),
+		`Expected redirect status, got ${redirect.status}`,
+	);
+
+	const redirectUrl = new URL(redirect.headers.get('Location'), req.url);
+	const redirectReq = new Request(redirectUrl, {
+		headers: {
+			Cookie: redirect.headers.get('Set-Cookie'),
+		},
+	});
+	return app.render(redirectReq);
+}

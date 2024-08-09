@@ -13,7 +13,7 @@ describe('Component bundling', () => {
 	it('should treeshake FooComponent', async () => {
 		const astroChunkDir = await fixture.readdir('/_astro');
 		const manyComponentsChunkName = astroChunkDir.find((chunk) =>
-			chunk.startsWith('ManyComponents')
+			chunk.startsWith('ManyComponents'),
 		);
 		const manyComponentsChunkContent = await fixture.readFile(`/_astro/${manyComponentsChunkName}`);
 		assert.equal(manyComponentsChunkContent.includes('FooComponent'), false);

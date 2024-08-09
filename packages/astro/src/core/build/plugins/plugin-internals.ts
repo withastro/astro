@@ -36,7 +36,7 @@ export function vitePluginInternals(input: Set<string>, internals: BuildInternal
 								mapping.set(result.id, new Set<string>([specifier]));
 							}
 						}
-					})
+					}),
 				);
 			}
 			await Promise.all(promises);

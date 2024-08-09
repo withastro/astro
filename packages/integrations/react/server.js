@@ -7,14 +7,6 @@ import StaticHtml from './static-html.js';
 const slotName = (str) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 const reactTypeof = Symbol.for('react.element');
 
-function errorIsComingFromPreactComponent(err) {
-	return (
-		err.message &&
-		(err.message.startsWith("Cannot read property '__H'") ||
-			err.message.includes("(reading '__H')"))
-	);
-}
-
 async function check(Component, props, children) {
 	// Note: there are packages that do some unholy things to create "components".
 	// Checking the $$typeof property catches most of these patterns.
@@ -32,7 +24,6 @@ async function check(Component, props, children) {
 		return React.Component.isPrototypeOf(Component) || React.PureComponent.isPrototypeOf(Component);
 	}
 
-	let error = null;
 	let isReactComponent = false;
 	function Tester(...args) {
 		try {
@@ -40,20 +31,13 @@ async function check(Component, props, children) {
 			if (vnode && vnode['$$typeof'] === reactTypeof) {
 				isReactComponent = true;
 			}
-		} catch (err) {
-			if (!errorIsComingFromPreactComponent(err)) {
-				error = err;
-			}
-		}
+		} catch {}
 
 		return React.createElement('div');
 	}
 
 	await renderToStaticMarkup(Tester, props, children, {});
 
-	if (error) {
-		throw error;
-	}
 	return isReactComponent;
 }
 
@@ -174,7 +158,7 @@ async function renderToPipeableStreamAsync(vnode, options) {
 						destroy() {
 							resolve(html);
 						},
-					})
+					}),
 				);
 			},
 		});

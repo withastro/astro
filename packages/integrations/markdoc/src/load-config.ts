@@ -18,7 +18,7 @@ export type MarkdocConfigResult = {
 };
 
 export async function loadMarkdocConfig(
-	astroConfig: Pick<AstroConfig, 'root'>
+	astroConfig: Pick<AstroConfig, 'root'>,
 ): Promise<MarkdocConfigResult | undefined> {
 	let markdocConfigUrl: URL | undefined;
 	for (const filename of SUPPORTED_MARKDOC_CONFIG_FILES) {

@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "4.13.1",
+  "version": "4.13.3",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -82,9 +82,6 @@
       "default": "./dist/core/middleware/index.js"
     },
     "./virtual-modules/*": "./dist/virtual-modules/*"
-  },
-  "imports": {
-    "#astro/*": "./dist/*.js"
   },
   "bin": {
     "astro": "astro.js"

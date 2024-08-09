@@ -18,7 +18,7 @@ export interface ShikiHighlighter {
 			 * Raw `meta` information to be used by Shiki transformers
 			 */
 			meta?: string;
-		}
+		},
 	): Promise<string>;
 }
 
@@ -52,7 +52,7 @@ export async function createShikiHighlighter({
 				} catch (_err) {
 					// eslint-disable-next-line no-console
 					console.warn(
-						`[Shiki] The language "${lang}" doesn't exist, falling back to "plaintext".`
+						`[Shiki] The language "${lang}" doesn't exist, falling back to "plaintext".`,
 					);
 					lang = 'plaintext';
 				}

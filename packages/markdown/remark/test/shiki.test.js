@@ -46,7 +46,7 @@ describe('shiki syntax highlighting', () => {
 			`\
 - const foo = "bar";
 + const foo = "world";`,
-			'diff'
+			'diff',
 		);
 
 		assert.match(html, /user-select: none/);

@@ -32,14 +32,14 @@ export type RenderInstruction =
 	| RendererHydrationScriptInstruction;
 
 export function createRenderInstruction(
-	instruction: RenderDirectiveInstruction
+	instruction: RenderDirectiveInstruction,
 ): RenderDirectiveInstruction;
 export function createRenderInstruction(
-	instruction: RendererHydrationScriptInstruction
+	instruction: RendererHydrationScriptInstruction,
 ): RendererHydrationScriptInstruction;
 export function createRenderInstruction(instruction: RenderHeadInstruction): RenderHeadInstruction;
 export function createRenderInstruction(
-	instruction: MaybeRenderHeadInstruction
+	instruction: MaybeRenderHeadInstruction,
 ): MaybeRenderHeadInstruction;
 export function createRenderInstruction(instruction: { type: string }): RenderInstruction {
 	return Object.defineProperty(instruction as RenderInstruction, RenderInstructionSymbol, {

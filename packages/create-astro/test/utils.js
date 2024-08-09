@@ -12,7 +12,7 @@ export function setup() {
 					ctx.messages.push(stripAnsi(String(buf)).trim());
 					return true;
 				},
-			})
+			}),
 		);
 	});
 	beforeEach(() => {
@@ -40,7 +40,7 @@ const resetNotEmptyFixture = async () => {
 	const tsconfigPath = new URL('./fixtures/not-empty/tsconfig.json', import.meta.url);
 
 	const packageJsonData = JSON.parse(
-		await fs.promises.readFile(packagePath, { encoding: 'utf-8' })
+		await fs.promises.readFile(packagePath, { encoding: 'utf-8' }),
 	);
 	const overriddenPackageJson = Object.assign(packageJsonData, {
 		scripts: {

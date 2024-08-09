@@ -31,7 +31,7 @@ const qualityTable: Record<
 
 async function getRotationForEXIF(
 	inputBuffer: Uint8Array,
-	src?: string
+	src?: string,
 ): Promise<Operation | undefined> {
 	const meta = await imageMetadata(inputBuffer, src);
 	if (!meta) return undefined;

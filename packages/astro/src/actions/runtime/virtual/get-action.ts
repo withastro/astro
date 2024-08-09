@@ -7,7 +7,7 @@ import type { ActionAccept, ActionClient } from './server.js';
  * the user's `src/actions/index.ts` file at build-time.
  */
 export async function getAction(
-	path: string
+	path: string,
 ): Promise<ActionClient<unknown, ActionAccept, ZodType> | undefined> {
 	const pathKeys = path.replace('/_actions/', '').split('.');
 	// @ts-expect-error virtual module

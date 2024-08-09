@@ -1,4 +1,9 @@
-import { ActionError, deserializeActionResult, getActionQueryString } from 'astro:actions';
+import {
+	ACTION_QUERY_PARAMS,
+	ActionError,
+	deserializeActionResult,
+	getActionQueryString,
+} from 'astro:actions';
 
 function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 	return new Proxy(actionCallback, {
@@ -16,13 +21,18 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 				toString: () => action.queryString,
 				// Progressive enhancement info for React.
 				$$FORM_ACTION: function () {
+					const searchParams = new URLSearchParams(action.toString());
+					// Astro will redirect with a GET request by default.
+					// Disable this behavior to preserve form state
+					// for React's progressive enhancement.
+					searchParams.set(ACTION_QUERY_PARAMS.actionRedirect, 'false');
 					return {
 						method: 'POST',
 						// `name` creates a hidden input.
 						// It's unused by Astro, but we can't turn this off.
 						// At least use a name that won't conflict with a user's formData.
 						name: '_astroAction',
-						action: action.toString(),
+						action: '?' + searchParams.toString(),
 					};
 				},
 				// Note: `orThrow` does not have progressive enhancement info.
@@ -65,15 +75,18 @@ async function handleAction(param, path, context) {
 	let body = param;
 	if (!(body instanceof FormData)) {
 		try {
-			body = param ? JSON.stringify(param) : undefined;
+			body = JSON.stringify(param);
 		} catch (e) {
 			throw new ActionError({
 				code: 'BAD_REQUEST',
 				message: `Failed to serialize request body to JSON. Full error: ${e.message}`,
 			});
 		}
-		headers.set('Content-Type', 'application/json');
-		headers.set('Content-Length', body?.length.toString() ?? '0');
+		if (body) {
+			headers.set('Content-Type', 'application/json');
+		} else {
+			headers.set('Content-Length', '0');
+		}
 	}
 	const rawResult = await fetch(`/_actions/${path}`, {
 		method: 'POST',

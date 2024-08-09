@@ -20,7 +20,7 @@ export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
 			if (node.type !== 'element') return;
 			const { tagName } = node;
 			if (tagName[0] !== 'h') return;
-			const [, level] = tagName.match(/h([0-6])/) ?? [];
+			const [, level] = /h([0-6])/.exec(tagName) ?? [];
 			if (!level) return;
 			const depth = Number.parseInt(level);
 
@@ -30,7 +30,7 @@ export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
 					return;
 				}
 				if (child.type === 'raw') {
-					if (child.value.match(/^\n?<.*>\n?$/)) {
+					if (/^\n?<.*>\n?$/.test(child.value)) {
 						return;
 					}
 				}
@@ -97,7 +97,7 @@ function getMdxFrontmatterVariablePath(node: MdxTextExpression): string[] | Erro
 		expressionPath.push(
 			expression.property.type === 'Literal'
 				? String(expression.property.value)
-				: expression.property.name
+				: expression.property.name,
 		);
 
 		expression = expression.object;

@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 3.6.2
+
+### Patch Changes
+
+- [#11624](https://github.com/withastro/astro/pull/11624) [`7adb350`](https://github.com/withastro/astro/commit/7adb350a37f3975c8c9db89a32bf63b9fd0b78c2) Thanks [@bluwy](https://github.com/bluwy)! - Prevents throwing errors when checking if a component is a React component in runtime
+
 ## 3.6.1
 
 ### Patch Changes
@@ -154,7 +160,7 @@
   export function Like({ postId }: { postId: string }) {
     const [state, action, pending] = useActionState(
       experimental_withState(actions.like),
-      0 // initial likes
+      0, // initial likes
     );
 
     return (

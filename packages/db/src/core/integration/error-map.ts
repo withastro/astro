@@ -37,7 +37,7 @@ export const errorMap: z.ZodErrorMap = (baseError, ctx) => {
 		const messages: string[] = [
 			prefix(
 				baseErrorPath,
-				typeOrLiteralErrByPath.size ? 'Did not match union:' : 'Did not match union.'
+				typeOrLiteralErrByPath.size ? 'Did not match union:' : 'Did not match union.',
 			),
 		];
 		return {
@@ -51,8 +51,8 @@ export const errorMap: z.ZodErrorMap = (baseError, ctx) => {
 							// Avoid printing the key again if it's a base error
 							key === baseErrorPath
 								? `> ${getTypeOrLiteralMsg(error)}`
-								: `> ${prefix(key, getTypeOrLiteralMsg(error))}`
-						)
+								: `> ${prefix(key, getTypeOrLiteralMsg(error))}`,
+						),
 				)
 				.join('\n'),
 		};
@@ -65,7 +65,7 @@ export const errorMap: z.ZodErrorMap = (baseError, ctx) => {
 					code: baseError.code,
 					received: (baseError as any).received,
 					expected: [baseError.expected],
-				})
+				}),
 			),
 		};
 	} else if (baseError.message) {
@@ -81,11 +81,11 @@ const getTypeOrLiteralMsg = (error: TypeOrLiteralErrByPathEntry): string => {
 	switch (error.code) {
 		case 'invalid_type':
 			return `Expected type \`${unionExpectedVals(expectedDeduped)}\`, received ${JSON.stringify(
-				error.received
+				error.received,
 			)}`;
 		case 'invalid_literal':
 			return `Expected \`${unionExpectedVals(expectedDeduped)}\`, received ${JSON.stringify(
-				error.received
+				error.received,
 			)}`;
 	}
 };

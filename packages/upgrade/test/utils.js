@@ -11,7 +11,7 @@ export function setup() {
 					ctx.messages.push(stripAnsi(String(buf)).trim());
 					return true;
 				},
-			})
+			}),
 		);
 	});
 	beforeEach(() => {
