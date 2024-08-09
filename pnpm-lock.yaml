@@ -675,9 +675,6 @@ importers:
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
-      linkedom:
-        specifier: ^0.18.4
-        version: 0.18.4
       magic-string:
         specifier: ^0.30.11
         version: 0.30.11
@@ -9441,7 +9438,6 @@ packages:
 
   libsql@0.3.12:
     resolution: {integrity: sha512-to30hj8O3DjS97wpbKN6ERZ8k66MN1IaOfFLR6oHqd25GMiPJ/ZX0VaZ7w+TsPmxcFS3p71qArj/hiedCyvXCg==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lilconfig@2.1.0:
@@ -11453,9 +11449,6 @@ packages:
     resolution: {integrity: sha512-M/wqwtOEjgb956/+m5ZrYT/Iq6Hax0OakWbokj8+9PXOnB7b/4AxESHieEtnNEy7ZpjsjYW1/5nK8fATQMmRxw==}
     peerDependencies:
       vue: '>=3.2.13'
-    peerDependenciesMeta:
-      vue:
-        optional: true
 
   vite@5.3.5:
     resolution: {integrity: sha512-MdjglKR6AQXQb9JGiS7Rc2wC6uMjcm7Go/NHNO63EwiJXfuk9PgqiP/n5IDJCziMkfw9n4Ubp7lttNwz+8ZVKA==}
@@ -18113,7 +18106,6 @@ snapshots:
   vite-svg-loader@5.1.0(vue@3.4.35(typescript@5.5.4)):
     dependencies:
       svgo: 3.2.0
-    optionalDependencies:
       vue: 3.4.35(typescript@5.5.4)
 
   vite@5.3.5(@types/node@18.19.31)(sass@1.77.8):

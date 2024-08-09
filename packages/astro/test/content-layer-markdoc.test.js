@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { parseHTML } from 'linkedom';
+import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Content layer markdoc', () => {
@@ -59,29 +59,30 @@ describe('Content layer markdoc', () => {
 
 /** @param {string} html */
 function renderComponentsChecks(html) {
-	const { document } = parseHTML(html);
-	const h2 = document.querySelector('h2');
-	assert.equal(h2.textContent, 'Post with components');
+	const $ = cheerio.load(html);
+	const h2 = $('h2');
+	assert.equal(h2.text(), 'Post with components');
 
 	// Renders custom shortcode component
-	const marquee = document.querySelector('marquee');
+	const marquee = $('marquee');
 	assert.notEqual(marquee, null);
-	assert.equal(marquee.hasAttribute('data-custom-marquee'), true);
+	assert.equal(marquee.attr('data-custom-marquee'), '');
 
 	// Renders Astro Code component
-	const pre = document.querySelector('pre');
+	const pre = $('pre');
 	assert.notEqual(pre, null);
-	assert.equal(pre.className, 'astro-code github-dark');
+	assert.ok(pre.hasClass('github-dark'));
+	assert.ok(pre.hasClass('astro-code'));
 }
 
 /** @param {string} html */
 function renderComponentsInsidePartialsChecks(html) {
-	const { document } = parseHTML(html);
+	const $ = cheerio.load(html);
 	// renders Counter.tsx
-	const button = document.querySelector('#counter');
-	assert.equal(button.textContent, '1');
+	const button = $('#counter');
+	assert.equal(button.text(), '1');
 
 	// renders DeeplyNested.astro
-	const deeplyNested = document.querySelector('#deeply-nested');
-	assert.equal(deeplyNested.textContent, 'Deeply nested partial');
+	const deeplyNested = $('#deeply-nested');
+	assert.equal(deeplyNested.text(), 'Deeply nested partial');
 }
