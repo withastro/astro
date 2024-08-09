@@ -1,8 +1,6 @@
 import type fsMod from 'node:fs';
 import { dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import generate from '@babel/generator';
-import { parse } from '@babel/parser';
 import { bold } from 'kleur/colors';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../../@types/astro.js';
@@ -26,7 +24,7 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 	for (const { filename, content } of settings.injectedTypes) {
 		const filepath = normalizePath(fileURLToPath(new URL(filename, settings.dotAstroDir)));
 		fs.mkdirSync(dirname(filepath), { recursive: true });
-		fs.writeFileSync(filepath, formatContent(content), 'utf-8');
+		fs.writeFileSync(filepath, content, 'utf-8');
 		references.push(normalizePath(relative(fileURLToPath(settings.dotAstroDir), filepath)));
 	}
 
@@ -72,17 +70,4 @@ async function setUpEnvTs(settings: AstroSettings, fs: typeof fsMod, logger: Log
 		await fs.promises.writeFile(envTsPath, expectedTypeReference, 'utf-8');
 		logger.info('types', `Added ${bold(envTsPathRelativetoRoot)} type declarations`);
 	}
-}
-
-function formatContent(source: string) {
-	const ast = parse(source, {
-		sourceType: 'module',
-		plugins: ['typescript'],
-	});
-
-	const result = generate.default(ast, {
-		retainLines: false,
-	});
-
-	return result.code;
 }

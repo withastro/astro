@@ -172,22 +172,22 @@ describe('astro sync', () => {
 			fixture.thenFileContentShouldInclude(
 				'.astro/astro/content.d.ts',
 				`"blog": Record<string, {
-      id: string;
-      slug: string;
-      body: string;
-      collection: "blog";
-      data: InferEntrySchema<"blog">;
-      render(): Render[".md"];
-    }>;`,
+  id: string;
+  slug: string;
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">;
+  render(): Render[".md"];
+}>;`,
 				'Types file does not include empty collection type',
 			);
 			fixture.thenFileContentShouldInclude(
 				'.astro/astro/content.d.ts',
 				`"blogMeta": Record<string, {
-      id: string;
-      collection: "blogMeta";
-      data: InferEntrySchema<"blogMeta">;
-    }>`,
+  id: string;
+  collection: "blogMeta";
+  data: InferEntrySchema<"blogMeta">;
+}>;`,
 				'Types file does not include empty collection type',
 			);
 		});
