@@ -2191,6 +2191,20 @@ export interface AstroUserConfig {
 		 * @default `false`
 		 * @version 4.14.0
 		 * @description
+		 *
+		 * Enables the generation of files required for content collection intellisense for Astro content files.
+		 *
+		 * When enabled, this feature will add JSON schemas to the `.astro` directory in your project, which can be used by the Astro language server to provide intellisense inside content files (`.md`, `.mdx`, `.mdoc`).
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     contentCollectionIntellisense: true,
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * To use this feature with the Astro VS Code extension, make sure to also enable the `astro.content-intellisense` option in your VS Code settings. For editor using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature.
 		 */
 		contentCollectionIntellisense?: boolean;
 	};
