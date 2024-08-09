@@ -187,6 +187,14 @@
   "optionalDependencies": {
     "sharp": "^0.33.3"
   },
+  "peerDependencies": {
+    "zod": "^3.23.8"
+  },
+  "peerDependenciesMeta": {
+    "zod": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@astrojs/check": "^0.9.1",
     "@playwright/test": "^1.45.3",
