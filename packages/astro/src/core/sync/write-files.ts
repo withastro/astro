@@ -6,10 +6,15 @@ import { normalizePath } from 'vite';
 import type { AstroSettings } from '../../@types/astro.js';
 import type { Logger } from '../logger/core.js';
 import { REFERENCE_FILE } from './constants.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 
 export async function writeFiles(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
-	writeInjectedTypes(settings, fs);
-	await setUpEnvTs(settings, fs, logger);
+	try {
+		writeInjectedTypes(settings, fs);
+		await setUpEnvTs(settings, fs, logger);
+	} catch (e) {
+		throw new AstroError(AstroErrorData.UnknownError, { cause: e });
+	}
 }
 
 function getTsReference(type: 'path' | 'types', value: string) {
