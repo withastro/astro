@@ -31,5 +31,11 @@
     "@astrojs/underscore-redirects": "0.3.4",
     "@astrojs/upgrade": "0.3.1"
   },
-  "changesets": []
+  "changesets": [
+    "chatty-teachers-sit",
+    "dull-taxis-warn",
+    "happy-zebras-clean",
+    "quick-ads-exercise",
+    "shy-bees-look"
+  ]
 }

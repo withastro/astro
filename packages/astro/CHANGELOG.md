@@ -1,5 +1,24 @@
 # astro
 
+## 5.0.0-beta.0
+
+### Major Changes
+
+- [#10742](https://github.com/withastro/astro/pull/10742) [`b6fbdaa`](https://github.com/withastro/astro/commit/b6fbdaa94a9ecec706a99e1938fbf5cd028c72e0) Thanks [@ematipico](https://github.com/ematipico)! - The lowest version of Node supported by Astro is now Node v18.17.1 and higher.
+
+### Patch Changes
+
+- [#11600](https://github.com/withastro/astro/pull/11600) [`09ec2ca`](https://github.com/withastro/astro/commit/09ec2cadce01a9a1f9c54ac433f137348907aa56) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Deprecates `getEntryBySlug` and `getDataEntryById` functions exported by `astro:content` in favor of `getEntry`.
+
+- [#11593](https://github.com/withastro/astro/pull/11593) [`81d7150`](https://github.com/withastro/astro/commit/81d7150e02472430eab555dfc4f053738bf99bb6) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Adds support for `Date()`, `Map()`, and `Set()` from action results. See [devalue](https://github.com/Rich-Harris/devalue) for a complete list of supported values.
+
+  Also fixes serialization exceptions when deploying Actions with edge middleware on Netlify and Vercel.
+
+- [#11617](https://github.com/withastro/astro/pull/11617) [`196092a`](https://github.com/withastro/astro/commit/196092ae69eb1249206846ddfc162049b03f42b4) Thanks [@abubakriz](https://github.com/abubakriz)! - Fix toolbar audit incorrectly flagging images as above the fold.
+
+- Updated dependencies [[`83a2a64`](https://github.com/withastro/astro/commit/83a2a648418ad30f4eb781d1c1b5f2d8a8ac846e)]:
+  - @astrojs/markdown-remark@6.0.0-beta.0
+
 ## 4.13.1
 
 ### Patch Changes
