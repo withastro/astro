@@ -122,7 +122,7 @@ function astroDBIntegration(): AstroIntegration {
 				}
 
 				injectTypes({
-					filename: 'types.d.ts',
+					filename: 'db.d.ts',
 					content: getDtsContent(tables.get() ?? {}),
 				});
 			},

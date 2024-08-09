@@ -340,15 +340,6 @@ export async function runHookConfigDone({
 						settings.adapter = adapter;
 					},
 					injectTypes(injectedType) {
-						if (integration.name === 'astro:db' && injectedType.filename === 'db-types.d.ts') {
-							const filename = './astro/db.d.ts';
-							settings.injectedTypes.push({
-								filename,
-								content: injectedType.content,
-							});
-							return new URL(filename, settings.dotAstroDir);
-						}
-
 						const normalizedFilename = normalizeInjectedTypeFilename(
 							injectedType.filename,
 							integration.name,
