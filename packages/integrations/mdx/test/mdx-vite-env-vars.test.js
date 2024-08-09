@@ -57,8 +57,8 @@ describe('MDX - Vite env vars', () => {
 		const dataAttrDump = document.querySelector('[data-env-dump]');
 		assert.notEqual(dataAttrDump, null);
 
-		assert.notEqual(dataAttrDump.getAttribute('data-env-prod'), null);
-		assert.equal(dataAttrDump.getAttribute('data-env-dev'), null);
+		assert.equal(dataAttrDump.getAttribute('data-env-prod'), 'true');
+		assert.equal(dataAttrDump.getAttribute('data-env-dev'), 'false');
 		assert.equal(dataAttrDump.getAttribute('data-env-base-url'), '/');
 		assert.equal(dataAttrDump.getAttribute('data-env-mode'), 'production');
 	});
