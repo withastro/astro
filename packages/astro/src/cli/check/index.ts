@@ -30,7 +30,7 @@ export async function check(flags: Arguments) {
 		// For now, we run this once as usually `astro check --watch` is ran alongside `astro dev` which also calls `astro sync`.
 		const { default: sync } = await import('../../core/sync/index.js');
 		try {
-			await sync({ inlineConfig: flagsToAstroInlineConfig(flags) });
+			await sync(flagsToAstroInlineConfig(flags));
 		} catch (_) {
 			return process.exit(1);
 		}

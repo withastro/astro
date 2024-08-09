@@ -30,9 +30,6 @@ export default function astroActions({
 					throw error;
 				}
 
-				const stringifiedActionsImport = JSON.stringify(
-					viteID(new URL('./actions', params.config.srcDir)),
-				);
 				params.updateConfig({
 					vite: {
 						plugins: [vitePluginUserActions({ settings }), vitePluginActions(fs)],
@@ -49,11 +46,18 @@ export default function astroActions({
 					entrypoint: 'astro/actions/runtime/middleware.js',
 					order: 'post',
 				});
+			},
+			'astro:config:done': (params) => {
+				const stringifiedActionsImport = JSON.stringify(
+					viteID(new URL('./actions', params.config.srcDir)),
+				);
+				settings.injectedTypes.push({
+					filename: ACTIONS_TYPES_FILE,
+					content: `declare module "astro:actions" {
+	type Actions = typeof import(${stringifiedActionsImport})["server"];
 
-				await typegen({
-					stringifiedActionsImport,
-					root: params.config.root,
-					fs,
+	export const actions: Actions;
+}`,
 				});
 			},
 		},
@@ -119,24 +123,3 @@ const vitePluginActions = (fs: typeof fsMod): VitePlugin => ({
 		return code;
 	},
 });
-
-async function typegen({
-	stringifiedActionsImport,
-	root,
-	fs,
-}: {
-	stringifiedActionsImport: string;
-	root: URL;
-	fs: typeof fsMod;
-}) {
-	const content = `declare module "astro:actions" {
-	type Actions = typeof import(${stringifiedActionsImport})["server"];
-
-	export const actions: Actions;
-}`;
-
-	const dotAstroDir = new URL('.astro/', root);
-
-	await fs.promises.mkdir(dotAstroDir, { recursive: true });
-	await fs.promises.writeFile(new URL(ACTIONS_TYPES_FILE, dotAstroDir), content);
-}

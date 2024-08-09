@@ -1,9 +1,9 @@
 import fsMod from 'node:fs';
 import type { AstroSettings } from '../@types/astro.js';
-import { ENV_TYPES_FILE, TYPES_TEMPLATE_URL } from './constants.js';
+import { TYPES_TEMPLATE_URL } from './constants.js';
 import { getEnvFieldType } from './validators.js';
 
-export function syncAstroEnv(settings: AstroSettings, fs = fsMod) {
+export function syncAstroEnv(settings: AstroSettings, fs = fsMod): void {
 	if (!settings.config.experimental.env) {
 		return;
 	}
@@ -23,8 +23,10 @@ export function syncAstroEnv(settings: AstroSettings, fs = fsMod) {
 	}
 
 	const template = fs.readFileSync(TYPES_TEMPLATE_URL, 'utf-8');
-	const dts = template.replace('// @@CLIENT@@', client).replace('// @@SERVER@@', server);
+	const content = template.replace('// @@CLIENT@@', client).replace('// @@SERVER@@', server);
 
-	fs.mkdirSync(settings.dotAstroDir, { recursive: true });
-	fs.writeFileSync(new URL(ENV_TYPES_FILE, settings.dotAstroDir), dts, 'utf-8');
+	settings.injectedTypes.push({
+		filename: 'astro/env.d.ts',
+		content,
+	});
 }

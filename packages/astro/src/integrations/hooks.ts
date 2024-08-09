@@ -100,6 +100,18 @@ export function getToolbarServerCommunicationHelpers(server: ViteDevServer) {
 	};
 }
 
+// Will match any invalid characters (will be converted to _). We only allow a-zA-Z0-9.-_
+const SAFE_CHARS_RE = /[^\w.-]/g;
+
+export function normalizeInjectedTypeFilename(filename: string, integrationName: string): string {
+	if (!filename.endsWith('.d.ts')) {
+		throw new Error(
+			`Integration ${bold(integrationName)} is injecting a type that does not end with "${bold('.d.ts')}"`,
+		);
+	}
+	return `./integrations/${integrationName.replace(SAFE_CHARS_RE, '_')}/${filename.replace(SAFE_CHARS_RE, '_')}`;
+}
+
 export async function runHookConfigSetup({
 	settings,
 	command,
@@ -326,6 +338,19 @@ export async function runHookConfigDone({
 							}
 						}
 						settings.adapter = adapter;
+					},
+					injectTypes(injectedType) {
+						const normalizedFilename = normalizeInjectedTypeFilename(
+							injectedType.filename,
+							integration.name,
+						);
+
+						settings.injectedTypes.push({
+							filename: normalizedFilename,
+							content: injectedType.content,
+						});
+
+						return new URL(normalizedFilename, settings.config.root);
 					},
 					logger: getLogger(integration, logger),
 				}),

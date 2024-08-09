@@ -2348,6 +2348,11 @@ export interface AstroAdapterFeatures {
 	functionPerRoute: boolean;
 }
 
+export interface InjectedType {
+	filename: string;
+	content: string;
+}
+
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
@@ -2383,6 +2388,7 @@ export interface AstroSettings {
 	latestAstroVersion: string | undefined;
 	serverIslandMap: NonNullable<SSRManifest['serverIslandMap']>;
 	serverIslandNameMap: NonNullable<SSRManifest['serverIslandNameMap']>;
+	injectedTypes: Array<InjectedType>;
 }
 
 export type AsyncRendererComponentFn<U> = (
@@ -3084,6 +3090,7 @@ declare global {
 			'astro:config:done': (options: {
 				config: AstroConfig;
 				setAdapter: (adapter: AstroAdapter) => void;
+				injectTypes: (injectedType: InjectedType) => URL;
 				logger: AstroIntegrationLogger;
 			}) => void | Promise<void>;
 			'astro:server:setup': (options: {
