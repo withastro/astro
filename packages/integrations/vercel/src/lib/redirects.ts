@@ -85,15 +85,28 @@ function getReplacePattern(segments: RoutePart[][]) {
 }
 
 function getRedirectLocation(route: RouteData, config: AstroConfig): string {
+	let redirectPath: string;
+	let forceTrailingSlash = false;
+
 	if (route.redirectRoute) {
-		const pattern = getReplacePattern(route.redirectRoute.segments);
-		const path = config.trailingSlash === 'always' ? appendForwardSlash(pattern) : pattern;
-		return pathJoin(config.base, path);
+		redirectPath = getReplacePattern(route.redirectRoute.segments);
+		if (config.trailingSlash === 'always') forceTrailingSlash = true;
 	} else if (typeof route.redirect === 'object') {
-		return pathJoin(config.base, route.redirect.destination);
+		redirectPath = route.redirect.destination;
 	} else {
-		return pathJoin(config.base, route.redirect || '');
+		redirectPath = route.redirect || '';
 	}
+
+	// Is a full URL - do not transform
+	if (URL.canParse(redirectPath)) {
+		return redirectPath;
+	}
+
+	if (forceTrailingSlash) {
+		redirectPath = appendForwardSlash(redirectPath);
+	}
+
+	return pathJoin(config.base, redirectPath);
 }
 
 function getRedirectStatus(route: RouteData): number {
