@@ -1,5 +1,3 @@
-import type { OutgoingHttpHeaders } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import type {
 	MarkdownHeading,
 	MarkdownVFile,
@@ -9,6 +7,8 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
+import type { OutgoingHttpHeaders } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
 import type {
@@ -78,7 +78,7 @@ export type {
 	UnresolvedImageTransform,
 } from '../assets/types.js';
 export type { RemotePattern } from '../assets/utils/remotePattern.js';
-export type { SSRManifest, AssetsPrefix } from '../core/app/types.js';
+export type { AssetsPrefix, SSRManifest } from '../core/app/types.js';
 export type {
 	AstroCookieGetOptions,
 	AstroCookieSetOptions,
@@ -2183,6 +2183,30 @@ export interface AstroUserConfig {
 		 * For a complete overview, and to give feedback on this experimental API, see the [Server Islands RFC](https://github.com/withastro/roadmap/pull/963).
 		 */
 		serverIslands?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.contentCollectionIntellisense
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.14.0
+		 * @description
+		 *
+		 * Enables the generation of files required for content collection intellisense for Astro content files.
+		 *
+		 * When enabled, this feature will add JSON schemas to the `.astro` directory in your project, which can be used by the Astro language server to provide intellisense inside content files (`.md`, `.mdx`, `.mdoc`).
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     contentCollectionIntellisense: true,
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * To use this feature with the Astro VS Code extension, make sure to also enable the `astro.content-intellisense` option in your VS Code settings. For editor using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature.
+		 */
+		contentCollectionIntellisense?: boolean;
 	};
 }
 
