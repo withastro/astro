@@ -3,6 +3,7 @@ import type { APIContext, MiddlewareNext } from '../../@types/astro.js';
 import { ActionQueryStringInvalidError } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
+import { ACTION_QUERY_PARAMS } from '../consts.js';
 import { formContentTypes, hasContentType } from './utils.js';
 import { getAction } from './virtual/get-action.js';
 import {
@@ -10,7 +11,6 @@ import {
 	type SerializedActionResult,
 	serializeActionResult,
 } from './virtual/shared.js';
-import { ACTION_QUERY_PARAMS } from '../consts.js';
 
 export type ActionPayload = {
 	actionResult: SerializedActionResult;

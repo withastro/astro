@@ -1,8 +1,8 @@
 import {
+	ACTION_QUERY_PARAMS,
 	ActionError,
 	deserializeActionResult,
 	getActionQueryString,
-	ACTION_QUERY_PARAMS,
 } from 'astro:actions';
 
 function toActionProxy(actionCallback = {}, aggregatedPath = '') {
