@@ -2,7 +2,6 @@ import { defineCollection, z, reference } from 'astro:content';
 import { glob } from 'astro/loaders';
 
 const reptiles = defineCollection({
-	type: 'experimental_content',
 	loader: glob({
 		pattern: '*.mdx',
 		base: new URL('../../content-outside-src-mdx', import.meta.url),

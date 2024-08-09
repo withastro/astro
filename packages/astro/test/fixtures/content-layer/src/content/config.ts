@@ -3,12 +3,10 @@ import { file, glob } from 'astro/loaders';
 import { loader } from '../loaders/post-loader.js';
 
 const blog = defineCollection({
-	type: 'experimental_content',
 	loader: loader({ url: 'https://jsonplaceholder.typicode.com/posts' }),
 });
 
 const dogs = defineCollection({
-	type: 'experimental_content',
 	loader: file('src/data/dogs.json'),
 	schema: z.object({
 		breed: z.string(),
@@ -21,7 +19,6 @@ const dogs = defineCollection({
 });
 
 const cats = defineCollection({
-	type: 'experimental_content',
 	loader: async function () {
 		return [
 			{
@@ -72,7 +69,6 @@ const cats = defineCollection({
 const absoluteRoot = new URL('../../content-outside-src', import.meta.url);
 
 const spacecraft = defineCollection({
-	type: 'experimental_content',
 	loader: glob({ pattern: '*.md', base: absoluteRoot }),
 	schema: ({ image }) =>
 		z.object({
@@ -86,17 +82,15 @@ const spacecraft = defineCollection({
 });
 
 const numbers = defineCollection({
-	type: 'experimental_content',
 	loader: glob({ pattern: 'src/data/glob-data/*', base: '.' }),
 });
 
 const increment = defineCollection({
-	type: 'experimental_content',
 	loader: {
 		name: 'increment-loader',
 		load: async ({ store }) => {
-			const entry = store.get('value');
-			const lastValue: number = entry?.data.lastValue ?? 0;
+			const entry = store.get<{lastValue: number}>('value');
+			const lastValue = entry?.data.lastValue ?? 0;
 			store.set({
 				id: 'value',
 				data: {

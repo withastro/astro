@@ -40,4 +40,4 @@ export const DATA_STORE_FILE = 'data-store.json';
 export const ASSET_IMPORTS_FILE = 'assets.mjs';
 export const MODULES_IMPORTS_FILE = 'modules.mjs';
 
-export const CONTENT_LAYER_TYPE = 'experimental_content';
+export const CONTENT_LAYER_TYPE = 'content_layer';

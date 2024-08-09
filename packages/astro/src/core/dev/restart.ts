@@ -171,22 +171,27 @@ export async function createContainerWithAutomaticRestart({
 		restart.container.viteServer.restart = () => handleServerRestart();
 
 		// Set up shortcuts
-		restart.container.viteServer.bindCLIShortcuts({
-			customShortcuts: [
-				{
-					key: 's',
-					description: 'sync content layer',
-					action: () => {
-						if (globalContentLayer.initialized()) {
-							globalContentLayer.get().sync();
-						}
-					},
+
+		const customShortcuts: Array<vite.CLIShortcut> = [
+			// Disable default Vite shortcuts that don't work well with Astro
+			{ key: 'r', description: '' },
+			{ key: 'u', description: '' },
+			{ key: 'c', description: '' },
+		];
+
+		if (restart.container.settings.config.experimental.contentLayer) {
+			customShortcuts.push({
+				key: 's',
+				description: 'sync content layer',
+				action: () => {
+					if (globalContentLayer.initialized()) {
+						globalContentLayer.get().sync();
+					}
 				},
-				// Disable default Vite shortcuts that don't work well with Astro
-				{ key: 'r', description: '' },
-				{ key: 'u', description: '' },
-				{ key: 'c', description: '' },
-			],
+			});
+		}
+		restart.container.viteServer.bindCLIShortcuts({
+			customShortcuts,
 		});
 	}
 	setupContainer();
