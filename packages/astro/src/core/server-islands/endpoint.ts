@@ -49,7 +49,7 @@ export function ensureServerIslandRoute(config: ConfigFields, routeManifest: Man
 
 type RenderOptions = {
 	componentExport: string;
-	props: string;
+	encryptedProps: string;
 	slots: Record<string, string>;
 };
 
@@ -76,7 +76,7 @@ export function createEndpoint(manifest: SSRManifest) {
 		}
 
 		const key = await manifest.key;
-		const encryptedProps = data.props;
+		const encryptedProps = data.encryptedProps;
 		const propString = await decryptString(key, encryptedProps);
 		const props = JSON.parse(propString);
 		

@@ -4,6 +4,7 @@ import createMiddleware from './middleware.js';
 import { createStandaloneHandler } from './standalone.js';
 import startServer from './standalone.js';
 import type { Options } from './types.js';
+// This needs to run first because some internals depend on `crypto`
 applyPolyfills();
 
 // Won't throw if the virtual module is not available because it's not supported in
