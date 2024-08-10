@@ -25,6 +25,7 @@ interface Props extends Omit<HTMLAttributes<'pre'>, 'lang'> {
 	lang?: BuiltinLanguage | SpecialLanguage | LanguageRegistration;
 	/**
 	 * A metastring to pass to the highlighter.
+	 * Allows passing information to transformers: https://shiki.style/guide/transformers#meta
 	 * 
 	 * @default undefined
 	 */
