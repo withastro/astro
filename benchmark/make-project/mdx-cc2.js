@@ -23,7 +23,7 @@ ${loremIpsumMd}
 
 `;
 		promises.push(
-			fs.writeFile(new URL(`./data/blog/article-${i}.md`, projectDir), content, 'utf-8')
+			fs.writeFile(new URL(`./data/blog/article-${i}.mdx`, projectDir), content, 'utf-8')
 		);
 	}
 
@@ -70,7 +70,10 @@ const { Content } = await render(entry);
 		`\
 import { defineConfig } from 'astro/config';
 
+import mdx from '@astrojs/mdx';
+
 export default defineConfig({
+  integrations: [mdx()],
 		experimental: {
 			contentLayer: true
 		}
