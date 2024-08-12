@@ -17,6 +17,9 @@ import { getEnvFieldType, validateEnvVariable } from './validators.js';
 // and server will only contain getSecret for unknown variables. Then, specifying a schema should only add
 // variables as needed. For secret variables, it will only require specifying SecretValues and it should get
 // merged with the static types/content.d.ts
+// TODO: rename experimentalWhatever in ssr manifest
+// TODO: update integrations compat
+// TODO: update adapters
 
 interface AstroEnvVirtualModPluginParams {
 	settings: AstroSettings;
