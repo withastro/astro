@@ -12,32 +12,22 @@ import { type InvalidVariable, invalidVariablesToError } from './errors.js';
 import type { EnvSchema } from './schema.js';
 import { getEnvFieldType, validateEnvVariable } from './validators.js';
 
-// TODO: reminders for when astro:env comes out of experimental
-// Types should always be generated (like in types/content.d.ts). That means the client module will be empty
-// and server will only contain getSecret for unknown variables. Then, specifying a schema should only add
-// variables as needed. For secret variables, it will only require specifying SecretValues and it should get
-// merged with the static types/content.d.ts
 // TODO: rename experimentalWhatever in ssr manifest
 // TODO: update integrations compat
 // TODO: update adapters
 
-interface AstroEnvVirtualModPluginParams {
+interface AstroEnvPluginParams {
 	settings: AstroSettings;
 	mode: 'dev' | 'build' | string;
 	fs: typeof fsMod;
 	sync: boolean;
 }
 
-export function astroEnv({
-	settings,
-	mode,
-	fs,
-	sync,
-}: AstroEnvVirtualModPluginParams): Plugin | undefined {
-	if (!settings.config.experimental.env || sync) {
+export function astroEnv({ settings, mode, fs, sync }: AstroEnvPluginParams): Plugin | undefined {
+	if (sync) {
 		return;
 	}
-	const schema = settings.config.experimental.env.schema ?? {};
+	const { schema, validateSecrets } = settings.config.env;
 
 	let templates: { client: string; server: string; internal: string } | null = null;
 
@@ -59,7 +49,7 @@ export function astroEnv({
 			const validatedVariables = validatePublicVariables({
 				schema,
 				loadedEnv,
-				validateSecrets: settings.config.experimental.env?.validateSecrets ?? false,
+				validateSecrets,
 			});
 
 			templates = {

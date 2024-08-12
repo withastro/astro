@@ -82,6 +82,10 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	legacy: {},
 	redirects: {},
 	security: {},
+	env: {
+		schema: {},
+		validateSecrets: false,
+	},
 	experimental: {
 		actions: false,
 		directRenderScript: false,
@@ -89,9 +93,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		globalRoutePriority: false,
 		serverIslands: false,
-		env: {
-			validateSecrets: false,
-		},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -505,6 +506,14 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.security),
+	env: z
+		.object({
+			schema: EnvSchema.optional().default(ASTRO_CONFIG_DEFAULTS.env.schema),
+			validateSecrets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.env.validateSecrets),
+		})
+		.strict()
+		.optional()
+		.default(ASTRO_CONFIG_DEFAULTS.env),
 	experimental: z
 		.object({
 			actions: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.actions),
@@ -524,16 +533,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.globalRoutePriority),
-			env: z
-				.object({
-					schema: EnvSchema.optional(),
-					validateSecrets: z
-						.boolean()
-						.optional()
-						.default(ASTRO_CONFIG_DEFAULTS.experimental.env.validateSecrets),
-				})
-				.strict()
-				.optional(),
 			serverIslands: z
 				.boolean()
 				.optional()
