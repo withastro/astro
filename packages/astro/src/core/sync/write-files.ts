@@ -13,7 +13,7 @@ export async function writeFiles(settings: AstroSettings, fs: typeof fsMod, logg
 		writeInjectedTypes(settings, fs);
 		await setUpEnvTs(settings, fs, logger);
 	} catch (e) {
-		throw new AstroError(AstroErrorData.UnknownError, { cause: e });
+		throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
 	}
 }
 

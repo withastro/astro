@@ -1293,6 +1293,16 @@ export const RewriteWithBodyUsed = {
 
 /**
  * @docs
+ * @description
+ * An unknown error occured while reading or writing files to disk.
+ */
+export const UnknownFilesystemError = {
+	name: 'UnknownFilesystemError',
+	title: 'An unknown error occured while reading or writing files to disk.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name CSS Errors
  */
