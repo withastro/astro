@@ -1757,92 +1757,21 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @name experimental.env
+	 * @name env
 	 * @type {object}
-	 * @default `undefined`
-	 * @version 4.10.0
+	 * @default `{}`
+	 * @version 5.0.0
 	 * @description
 	 *
-	 * Enables experimental `astro:env` features.
-	 *
-	 * The `astro:env` API lets you configure a type-safe schema for your environment variables, and indicate whether they should be available on the server or the client. Import and use your defined variables from the appropriate `/client` or `/server` module:
-	 *
-	 * ```astro
-	 * ---
-	 * import { API_URL } from "astro:env/client"
-	 * import { API_SECRET_TOKEN } from "astro:env/server"
-	 *
-	 * const data = await fetch(`${API_URL}/users`, {
-	 * 	method: "GET",
-	 * 	headers: {
-	 * 		"Content-Type": "application/json",
-	 * 		"Authorization": `Bearer ${API_SECRET_TOKEN}`
-	 * 	},
-	 * })
-	 * ---
-	 *
-	 * <script>
-	 * import { API_URL } from "astro:env/client"
-	 *
-	 * fetch(`${API_URL}/ping`)
-	 * </script>
-	 * ```
-	 *
-	 * To define the data type and properties of your environment variables, declare a schema in your Astro config in `experimental.env.schema`. The `envField` helper allows you define your variable as a string, number, or boolean and pass properties in an object:
-	 *
-	 * ```js
-	 * // astro.config.mjs
-	 * import { defineConfig, envField } from "astro/config"
-	 *
-	 * export default defineConfig({
-	 *     experimental: {
-	 *         env: {
-	 *             schema: {
-	 *                 API_URL: envField.string({ context: "client", access: "public", optional: true }),
-	 *                 PORT: envField.number({ context: "server", access: "public", default: 4321 }),
-	 *                 API_SECRET: envField.string({ context: "server", access: "secret" }),
-	 *             }
-	 *         }
-	 *     }
-	 * })
-	 * ```
-	 *
-	 * There are currently four data types supported: strings, numbers, booleans and enums.
-	 *
-	 * There are three kinds of environment variables, determined by the combination of `context` (client or server) and `access` (secret or public) settings defined in your [`env.schema`](#experimentalenvschema):
-	 *
-	 * - **Public client variables**: These variables end up in both your final client and server bundles, and can be accessed from both client and server through the `astro:env/client` module:
-	 *
-	 *     ```js
-	 *     import { API_URL } from "astro:env/client"
-	 *     ```
-	 *
-	 * - **Public server variables**: These variables end up in your final server bundle and can be accessed on the server through the `astro:env/server` module:
-	 *
-	 *     ```js
-	 *     import { PORT } from "astro:env/server"
-	 *     ```
-	 *
-	 * - **Secret server variables**: These variables are not part of your final bundle and can be accessed on the server through the `astro:env/server` module. The `getSecret()` helper function can be used to retrieve secrets not specified in the schema. Its implementation is provided by your adapter and defaults to `process.env`:
-	 *
-	 *     ```js
-	 *     import { API_SECRET, getSecret } from "astro:env/server"
-	 *
-	 *     const SECRET_NOT_IN_SCHEMA = getSecret("SECRET_NOT_IN_SCHEMA") // string | undefined
-	 *     ```
-	 *
-	 * **Note:** Secret client variables are not supported because there is no safe way to send this data to the client. Therefore, it is not possible to configure both `context: "client"` and `access: "secret"` in your schema.
-	 *
-	 * For a complete overview, and to give feedback on this experimental API, see the [Astro Env RFC](https://github.com/withastro/roadmap/blob/feat/astro-env-rfc/proposals/0046-astro-env.md).
+	 * Holds `astro:env` options.
 	 */
 	env?: {
 		/**
 		 * @docs
-		 * @name experimental.env.schema
-		 * @kind h4
+		 * @name env.schema
 		 * @type {EnvSchema}
-		 * @default `undefined`
-		 * @version 4.10.0
+		 * @default `{}`
+		 * @version 5.0.0
 		 * @description
 		 *
 		 * An object that uses `envField` to define the data type (`string`, `number`, or `boolean`) and properties of your environment variables: `context` (client or server), `access` (public or secret), a `default` value to use, and whether or not this environment variable is `optional` (defaults to `false`).
@@ -1867,11 +1796,10 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.env.validateSecrets
-		 * @kind h4
+		 * @name env.validateSecrets
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 4.11.6
+		 * @version 5.0.0
 		 * @description
 		 *
 		 * Whether or not to validate secrets on the server when starting the dev server or running a build.
