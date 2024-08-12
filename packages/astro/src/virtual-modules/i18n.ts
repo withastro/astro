@@ -17,7 +17,7 @@ export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
 const { trailingSlash, format, site, i18n, isBuild } =
 	// @ts-expect-error
 	__ASTRO_INTERNAL_I18N_CONFIG__ as I18nInternalConfig;
-const { defaultLocale, locales, domains, fallback, routing } = i18n!;
+const { defaultLocale, locales, domains, fallback, routing, fallbackType, } = i18n!;
 const base = import.meta.env.BASE_URL;
 
 let strategy = toRoutingStrategy(routing, domains);
@@ -267,6 +267,7 @@ if (i18n?.routing === 'manual') {
 		strategy,
 		domains,
 		fallback,
+		fallbackType
 	});
 } else {
 	redirectToDefaultLocale = noop('redirectToDefaultLocale');
@@ -295,6 +296,7 @@ if (i18n?.routing === 'manual') {
 		strategy,
 		domains,
 		fallback,
+		fallbackType
 	});
 } else {
 	notFound = noop('notFound');
@@ -317,7 +319,7 @@ if (i18n?.routing === 'manual') {
  * Allows to use the build-in fallback system of Astro
  *
  * @param {APIContext} context The context passed to the middleware
- * @param {Response} response An optional `Response` in case you're handling a `Response` coming from the `next` function.
+ * @param {Promise<Response>} response An optional `Response` in case you're handling a `Response` coming from the `next` function.
  */
 export let redirectToFallback: RedirectToFallback;
 
@@ -331,6 +333,7 @@ if (i18n?.routing === 'manual') {
 		strategy,
 		domains,
 		fallback,
+		fallbackType
 	});
 } else {
 	redirectToFallback = noop('useFallback');

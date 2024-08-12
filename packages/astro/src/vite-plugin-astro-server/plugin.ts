@@ -128,6 +128,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
+			fallbackType: settings.config.i18n.fallbackType,
 		};
 	}
 
