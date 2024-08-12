@@ -3101,10 +3101,6 @@ declare global {
 				setAdapter: (adapter: AstroAdapter) => void;
 				logger: AstroIntegrationLogger;
 			}) => void | Promise<void>;
-			'astro:route:setup': (options: {
-				route: RouteOptions;
-				logger: AstroIntegrationLogger;
-			}) => void | Promise<void>;
 			'astro:server:setup': (options: {
 				server: vite.ViteDevServer;
 				logger: AstroIntegrationLogger;
@@ -3146,6 +3142,10 @@ declare global {
 				routes: RouteData[];
 				logger: AstroIntegrationLogger;
 				cacheManifest: boolean;
+			}) => void | Promise<void>;
+			'astro:route:setup': (options: {
+				route: RouteOptions;
+				logger: AstroIntegrationLogger;
 			}) => void | Promise<void>;
 		}
 	}
