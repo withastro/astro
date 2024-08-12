@@ -2,6 +2,7 @@ import type nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
+import { globalContentLayer } from '../../content/content-layer.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { createNodeLogger, createSettings, resolveConfig } from '../config/index.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
@@ -170,14 +171,28 @@ export async function createContainerWithAutomaticRestart({
 		// Ignore the `forceOptimize` parameter for now.
 		restart.container.viteServer.restart = () => handleServerRestart();
 
-		// Set up shortcuts, overriding Vite's default shortcuts so it works for Astro
+		// Set up shortcuts
+
+		const customShortcuts: Array<vite.CLIShortcut> = [
+			// Disable default Vite shortcuts that don't work well with Astro
+			{ key: 'r', description: '' },
+			{ key: 'u', description: '' },
+			{ key: 'c', description: '' },
+		];
+
+		if (restart.container.settings.config.experimental.contentLayer) {
+			customShortcuts.push({
+				key: 's',
+				description: 'sync content layer',
+				action: () => {
+					if (globalContentLayer.initialized()) {
+						globalContentLayer.get().sync();
+					}
+				},
+			});
+		}
 		restart.container.viteServer.bindCLIShortcuts({
-			customShortcuts: [
-				// Disable Vite's builtin "r" (restart server), "u" (print server urls) and "c" (clear console) shortcuts
-				{ key: 'r', description: '' },
-				{ key: 'u', description: '' },
-				{ key: 'c', description: '' },
-			],
+			customShortcuts,
 		});
 	}
 	setupContainer();
