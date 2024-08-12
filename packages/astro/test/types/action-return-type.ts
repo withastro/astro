@@ -9,8 +9,7 @@ import { z } from '../../zod.mjs';
 
 describe('ActionReturnType', () => {
 	it('Infers action return type', async () => {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const action = defineAction({
+		const _action = defineAction({
 			input: z.object({
 				name: z.string(),
 			}),
@@ -18,9 +17,21 @@ describe('ActionReturnType', () => {
 				return { name };
 			},
 		});
-		expectTypeOf<ActionReturnType<typeof action>>().toEqualTypeOf<
+		expectTypeOf<ActionReturnType<typeof _action>>().toEqualTypeOf<
 			SafeResult<any, { name: string }>
 		>();
-		expectTypeOf<ActionReturnType<typeof action.orThrow>>().toEqualTypeOf<{ name: string }>();
+		expectTypeOf<ActionReturnType<typeof _action.orThrow>>().toEqualTypeOf<{ name: string }>();
+	});
+
+	it('Infers action return type when input is omitted', async () => {
+		const _action = defineAction({
+			handler: async () => {
+				return { name: 'Ben' };
+			},
+		});
+		expectTypeOf<ActionReturnType<typeof _action>>().toEqualTypeOf<
+			SafeResult<any, { name: string }>
+		>();
+		expectTypeOf<ActionReturnType<typeof _action.orThrow>>().toEqualTypeOf<{ name: string }>();
 	});
 });
