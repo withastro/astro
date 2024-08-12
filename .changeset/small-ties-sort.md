@@ -11,8 +11,8 @@ In the following `.astro` examples passed values of `true` and `false`, only `al
 ```astro
 <!-- src/pages/index.astro -->
 <!-- `allowfullscreen` is a boolean attribute -->
-<p allowfullscren={true}></p>
-<p allowfullscren={false}></p>
+<p allowfullscreen={true}></p>
+<p allowfullscreen={false}></p>
 
 <!-- `inherit` is *not* a boolean attribute -->
 <p inherit={true}></p>
