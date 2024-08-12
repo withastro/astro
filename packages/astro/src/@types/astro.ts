@@ -2238,8 +2238,6 @@ export interface RouteOptions {
 	prerender?: boolean;
 }
 
-export type RouteOptionsHandler = (route: RouteOptions) => void;
-
 /**
  * Resolved Astro Config
  * Config with user settings along with all defaults filled in.
@@ -2371,7 +2369,6 @@ export interface AstroSettings {
 	preferences: AstroPreferences;
 	injectedRoutes: InjectedRoute[];
 	resolvedInjectedRoutes: ResolvedInjectedRoute[];
-	routeOptionsHandlers: RouteOptionsHandler[];
 	pageExtensions: string[];
 	contentEntryTypes: ContentEntryType[];
 	dataEntryTypes: DataEntryType[];
@@ -3084,7 +3081,6 @@ declare global {
 				addWatchFile: (path: URL | string) => void;
 				injectScript: (stage: InjectedScriptStage, content: string) => void;
 				injectRoute: (injectRoute: InjectedRoute) => void;
-				handleRouteOptions: (handler: RouteOptionsHandler) => void;
 				addClientDirective: (directive: ClientDirectiveConfig) => void;
 				/**
 				 * @deprecated Use `addDevToolbarApp` instead.
@@ -3103,6 +3099,10 @@ declare global {
 			'astro:config:done': (options: {
 				config: AstroConfig;
 				setAdapter: (adapter: AstroAdapter) => void;
+				logger: AstroIntegrationLogger;
+			}) => void | Promise<void>;
+			'astro:route:setup': (options: {
+				route: RouteOptions;
 				logger: AstroIntegrationLogger;
 			}) => void | Promise<void>;
 			'astro:server:setup': (options: {

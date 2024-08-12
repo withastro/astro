@@ -186,10 +186,10 @@ export default function envVitePlugin({ settings, logger }: EnvPluginOptions): v
 				if (exportConstPrerenderStr) {
 					logger.warn(
 						'router',
-						`Exporting dynamic values from prerender is deprecated. Please use an integration with the "astro:config:setup" hook ` +
-							`and update the route's prerender option with the \`handleRouteOptions()\` API. This allows for better treeshaking ` +
-							`and bundling configuration in the future. See <TODO-link-to-handleRouteOptions> for a migration example. \n` +
-							`Found \`${bold(exportConstPrerenderStr)}\` in ${bold(id)}.`,
+						`Exporting dynamic values from prerender is deprecated. Please use an integration with the "astro:route:setup" hook ` +
+							`to update the route's \`prerender\` option instead. This allows for better treeshaking and bundling configuration ` +
+							`in the future. See https://docs.astro.build/en/reference/integrations-reference/#astroroutesetup for a migration example.` +
+							`\nFound \`${bold(exportConstPrerenderStr)}\` in ${bold(id)}.`,
 					);
 				}
 

@@ -23,7 +23,6 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		adapter: undefined,
 		injectedRoutes: [],
 		resolvedInjectedRoutes: [],
-		routeOptionsHandlers: [],
 		serverIslandMap: new Map(),
 		serverIslandNameMap: new Map(),
 		pageExtensions: ['.astro', '.html', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS],

@@ -170,12 +170,10 @@ describe('Prerendering', () => {
 					{
 						name: 'test',
 						hooks: {
-							'astro:config:setup': ({ handleRouteOptions }) => {
-								handleRouteOptions((route) => {
-									if (route.component.endsWith('two.astro')) {
-										route.prerender = true;
-									}
-								});
+							'astro:route:setup': ({ route }) => {
+								if (route.component.endsWith('two.astro')) {
+									route.prerender = true;
+								}
 							},
 						},
 					},

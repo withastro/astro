@@ -40,7 +40,7 @@ export default function astroScannerPlugin({
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
 			const defaultPrerender = getPrerenderDefault(settings.config);
-			const pageOptions = await scan(code, id, fileURL, settings);
+			const pageOptions = await scan(code, id, fileURL, settings, logger);
 
 			if (typeof pageOptions.prerender === 'undefined') {
 				pageOptions.prerender = defaultPrerender;
