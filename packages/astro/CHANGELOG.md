@@ -1,5 +1,37 @@
 # astro
 
+## 4.13.3
+
+### Patch Changes
+
+- [#11653](https://github.com/withastro/astro/pull/11653) [`32be549`](https://github.com/withastro/astro/commit/32be5494f6d33dbe32208704405162c95a64f0bc) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates `astro:env` docs to reflect current developments and usage guidance
+
+- [#11658](https://github.com/withastro/astro/pull/11658) [`13b912a`](https://github.com/withastro/astro/commit/13b912a8702afb96e2d0bc20dcc1b4135ae58147) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fixes `orThrow()` type when calling an Action without an `input` validator.
+
+- [#11603](https://github.com/withastro/astro/pull/11603) [`f31d466`](https://github.com/withastro/astro/commit/f31d4665c1cbb0918b9e00ba1431fb6f264025f7) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Improves user experience when render an Action result from a form POST request:
+
+  - Removes "Confirm post resubmission?" dialog when refreshing a result.
+  - Removes the `?_astroAction=NAME` flag when a result is rendered.
+
+  Also improves the DX of directing to a new route on success. Actions will now redirect to the route specified in your `action` string on success, and redirect back to the previous page on error. This follows the routing convention of established backend frameworks like Laravel.
+
+  For example, say you want to redirect to a `/success` route when `actions.signup` succeeds. You can add `/success` to your `action` string like so:
+
+  ```astro
+  <form method="POST" action={'/success' + actions.signup}></form>
+  ```
+
+  - On success, Astro will redirect to `/success`.
+  - On error, Astro will redirect back to the current page.
+
+  You can retrieve the action result from either page using the `Astro.getActionResult()` function.
+
+  ### Note on security
+
+  This uses a temporary cookie to forward the action result to the next page. The cookie will be deleted when that page is rendered.
+
+  ⚠ **The action result is not encrypted.** In general, we recommend returning minimal data from an action handler to a) avoid leaking sensitive information, and b) avoid unexpected render issues once the temporary cookie is deleted. For example, a `login` function may return a user's session id to retrieve from your Astro frontmatter, rather than the entire user object.
+
 ## 4.13.2
 
 ### Patch Changes
