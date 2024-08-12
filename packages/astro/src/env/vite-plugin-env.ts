@@ -1,4 +1,4 @@
-import type fsMod from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { type Plugin, loadEnv } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
@@ -15,11 +15,10 @@ import { getEnvFieldType, validateEnvVariable } from './validators.js';
 interface AstroEnvPluginParams {
 	settings: AstroSettings;
 	mode: 'dev' | 'build' | string;
-	fs: typeof fsMod;
 	sync: boolean;
 }
 
-export function astroEnv({ settings, mode, fs, sync }: AstroEnvPluginParams): Plugin | undefined {
+export function astroEnv({ settings, mode, sync }: AstroEnvPluginParams): Plugin | undefined {
 	if (sync) {
 		return;
 	}
@@ -49,7 +48,7 @@ export function astroEnv({ settings, mode, fs, sync }: AstroEnvPluginParams): Pl
 			});
 
 			templates = {
-				...getTemplates(schema, fs, validatedVariables),
+				...getTemplates(schema, validatedVariables),
 				internal: `export const schema = ${JSON.stringify(schema)};`,
 			};
 		},
@@ -126,11 +125,10 @@ function validatePublicVariables({
 
 function getTemplates(
 	schema: EnvSchema,
-	fs: typeof fsMod,
 	validatedVariables: ReturnType<typeof validatePublicVariables>,
 ) {
 	let client = '';
-	let server = fs.readFileSync(MODULE_TEMPLATE_URL, 'utf-8');
+	let server = readFileSync(MODULE_TEMPLATE_URL, 'utf-8');
 	let onSetGetEnv = '';
 
 	for (const { key, value, context } of validatedVariables) {

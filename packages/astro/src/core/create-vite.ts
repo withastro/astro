@@ -133,7 +133,7 @@ export async function createVite(
 			// the build to run very slow as the filewatcher is triggered often.
 			mode !== 'build' && vitePluginAstroServer({ settings, logger, fs }),
 			envVitePlugin({ settings }),
-			astroEnv({ settings, mode, fs, sync }),
+			astroEnv({ settings, mode, sync }),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
 			mdxVitePlugin(),
