@@ -69,7 +69,7 @@ export abstract class Pipeline {
 		}
 		// In SSR, getSecret should fail by default. Setting it here will run before the
 		// adapter override.
-		if (callSetGetEnv && manifest.experimentalEnvGetSecretEnabled) {
+		if (callSetGetEnv && manifest.envGetSecretEnabled) {
 			setGetEnv(() => {
 				throw new AstroError(AstroErrorData.EnvUnsupportedGetSecret);
 			}, true);

@@ -147,7 +147,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		inlinedScripts: new Map(),
 		i18n: i18nManifest,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
-		experimentalEnvGetSecretEnabled: false,
+		envGetSecretEnabled: false,
 		middleware(_, next) {
 			return next();
 		},

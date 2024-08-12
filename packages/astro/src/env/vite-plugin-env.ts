@@ -12,10 +12,6 @@ import { type InvalidVariable, invalidVariablesToError } from './errors.js';
 import type { EnvSchema } from './schema.js';
 import { getEnvFieldType, validateEnvVariable } from './validators.js';
 
-// TODO: rename experimentalWhatever in ssr manifest
-// TODO: update integrations compat
-// TODO: update adapters
-
 interface AstroEnvPluginParams {
 	settings: AstroSettings;
 	mode: 'dev' | 'build' | string;

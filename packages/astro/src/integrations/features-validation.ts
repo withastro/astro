@@ -94,7 +94,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'astro:env getSecret',
-		() => config?.experimental?.env !== undefined,
+		() => Object.keys(config?.env.schema ?? {}).length !== 0,
 	);
 
 	return validationResult;

@@ -48,12 +48,10 @@ export async function setUpEnvTs({
 			filename: ACTIONS_TYPES_FILE,
 			meetsCondition: () => fs.existsSync(new URL(ACTIONS_TYPES_FILE, settings.dotAstroDir)),
 		},
-	];
-	if (settings.config.experimental.env) {
-		injectedTypes.push({
+		{
 			filename: ENV_TYPES_FILE,
-		});
-	}
+		},
+	];
 
 	if (fs.existsSync(envTsPath)) {
 		const initialEnvContents = await fs.promises.readFile(envTsPath, 'utf-8');

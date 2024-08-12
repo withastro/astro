@@ -551,6 +551,6 @@ function createBuildManifest(
 		buildFormat: settings.config.build.format,
 		middleware,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
-		experimentalEnvGetSecretEnabled: false,
+		envGetSecretEnabled: false,
 	};
 }
