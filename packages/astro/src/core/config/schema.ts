@@ -89,7 +89,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		globalRoutePriority: false,
 		serverIslands: false,
-		contentCollectionIntellisense: false,
+		contentIntellisense: false,
 		env: {
 			validateSecrets: false,
 		},
@@ -540,10 +540,10 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.serverIslands),
-			contentCollectionIntellisense: z
+			contentIntellisense: z
 				.boolean()
 				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionIntellisense),
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
 			contentLayer: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.contentLayer),
 		})
 		.strict(

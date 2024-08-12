@@ -502,14 +502,14 @@ async function writeContentFiles({
 				break;
 		}
 
-		if (collectionConfig?.schema && settings.config.experimental.contentCollectionIntellisense) {
+		if (collectionConfig?.schema && settings.config.experimental.contentIntellisense) {
 			await generateJSONSchema(fs, collectionConfig, collectionKey, collectionSchemasDir, logger);
 
 			contentCollectionsMap[collectionKey] = collection;
 		}
 	}
 
-	if (settings.config.experimental.contentCollectionIntellisense) {
+	if (settings.config.experimental.contentIntellisense) {
 		let contentCollectionManifest: {
 			collections: { hasSchema: boolean; name: string }[];
 			entries: Record<string, string>;
