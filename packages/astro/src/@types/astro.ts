@@ -2194,9 +2194,9 @@ export interface AstroUserConfig {
 		 * @version 4.14.0
 		 * @description
 		 *
-		 * Enables the generation of files required for content intellisense for Astro content files.
+		 * Enables Intellisense features (e.g. code completion, quick hints) for your content collection entries in compatible editors.
 		 *
-		 * When enabled, this feature will add JSON schemas to the `.astro` directory in your project, which can be used by the Astro language server to provide intellisense inside content files (`.md`, `.mdx`, `.mdoc`).
+		 * When enabled, this feature will generate and add JSON schemas to the `.astro` directory in your project. These files can be used by the Astro language server to provide Intellisense inside content files (`.md`, `.mdx`, `.mdoc`).
 		 *
 		 * ```js
 		 * {
