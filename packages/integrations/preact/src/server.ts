@@ -27,19 +27,17 @@ async function check(
 	useConsoleFilter();
 
 	try {
-		try {
-			const { html } = await renderToStaticMarkup.call(this, Component, props, children, undefined);
-			if (typeof html !== 'string') {
-				return false;
-			}
-
-			// There are edge cases (SolidJS) where Preact *might* render a string,
-			// but components would be <undefined></undefined>
-			// It also might render an empty sting.
-			return html == '' ? false : !html.includes('<undefined>');
-		} catch {
+		const { html } = await renderToStaticMarkup.call(this, Component, props, children, undefined);
+		if (typeof html !== 'string') {
 			return false;
 		}
+
+		// There are edge cases (SolidJS) where Preact *might* render a string,
+		// but components would be <undefined></undefined>
+		// It also might render an empty sting.
+		return html == '' ? false : !html.includes('<undefined>');
+	} catch {
+		return false;
 	} finally {
 		finishUsingConsoleFilter();
 	}
