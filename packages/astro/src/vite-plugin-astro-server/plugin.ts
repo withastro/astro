@@ -4,6 +4,7 @@ import { IncomingMessage } from 'node:http';
 import type * as vite from 'vite';
 import type { AstroSettings, ManifestData, SSRManifest } from '../@types/astro.js';
 import type { SSRManifestI18n } from '../core/app/types.js';
+import { createKey } from '../core/encryption.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { patchOverlay } from '../core/errors/overlay.js';
@@ -18,7 +19,6 @@ import { recordServerError } from './error.js';
 import { DevPipeline } from './pipeline.js';
 import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
-import { createKey } from '../core/encryption.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;

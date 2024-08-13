@@ -318,7 +318,6 @@ export class RenderContext {
 			? deserializeActionResult(this.locals._actionPayload.actionResult)
 			: undefined;
 
-
 		// Create the result object that will be passed into the renderPage function.
 		// This object starts here as an empty shell (not yet the result) but then
 		// calling the render() function will populate the object with scripts, styles, etc.

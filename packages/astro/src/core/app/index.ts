@@ -416,7 +416,7 @@ export class App {
 					`${this.#baseWithoutTrailingSlash}/${status}${maybeDotHtml}`,
 					url,
 				);
-				if(statusURL.toString() !== request.url) {
+				if (statusURL.toString() !== request.url) {
 					const response = await fetch(statusURL.toString());
 
 					// response for /404.html and 500.html is 200, which is not meaningful

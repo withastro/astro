@@ -38,7 +38,7 @@ function vitePluginSSR(
 			}
 
 			const adapterServerEntrypoint = options.settings.adapter?.serverEntrypoint;
-			if(adapterServerEntrypoint) {
+			if (adapterServerEntrypoint) {
 				inputs.add(adapterServerEntrypoint);
 			}
 

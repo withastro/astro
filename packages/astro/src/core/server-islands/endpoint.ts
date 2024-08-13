@@ -79,7 +79,7 @@ export function createEndpoint(manifest: SSRManifest) {
 		const encryptedProps = data.encryptedProps;
 		const propString = await decryptString(key, encryptedProps);
 		const props = JSON.parse(propString);
-		
+
 		const componentModule = await imp();
 		const Component = (componentModule as any)[data.componentExport];
 

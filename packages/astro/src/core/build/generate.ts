@@ -522,7 +522,7 @@ function createBuildManifest(
 	internals: BuildInternals,
 	renderers: SSRLoadedRenderer[],
 	middleware: MiddlewareHandler,
-	key: Promise<CryptoKey>
+	key: Promise<CryptoKey>,
 ): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
 	if (settings.config.i18n) {
