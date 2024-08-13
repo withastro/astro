@@ -2198,7 +2198,7 @@ export interface AstroUserConfig {
 		 *
 		 * Your existing content collections can be [migrated to the Content Layer API](#migrating-a-content-collection-to-content-layer) with a few small changes. However, it is not necessary to update all your collections at once to add a new collection powered by the Content Layer API. You may have collections using both the existing and new APIs defined in `src/content/config.ts` at the same time.
 		 *
-		 * The Content Layer API is designed to be more powerful and more performant, helping sites scale to thousands of pages. Data is cached between builds and updated incrementally. Markdown parsing is also 5-10 times faster, with similar scale reductions in memory.
+		 * The Content Layer API is designed to be more powerful and more performant, helping sites scale to thousands of pages. Data is cached between builds and updated incrementally. Markdown parsing is also 5-10 times faster, with similar scale reductions in memory, and MDX is 2-3 times faster.
 		 *
 		 * To enable, add the `contentLayer` flag to the `experimental` object in your Astro config:
 		 *
@@ -2266,7 +2266,7 @@ export interface AstroUserConfig {
 		 * const labradorData = await getEntry('dogs', 'labrador-retriever');
 		 * ```
 		 *
-		 * Entries generated from markdown or MDX can be rendered directly to a page using the `render()` function.
+		 * Entries generated from Markdown, MDX or Markdoc can be rendered directly to a page using the `render()` function.
 		 *
 		 * :::note
 		 * The syntax for rendering collection entries is different from current content collections syntax.
