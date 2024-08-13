@@ -2221,7 +2221,7 @@ export interface AstroUserConfig {
 		 *
 		 * The `file()` loader creates multiple entries from a single local file. Use this when all your entries are stored in an array of objects.
 		 *
-		 * ```ts  {3,8,17}
+		 * ```ts  {3,8,19}
 		 * // src/content/config.ts
 		 * import { defineCollection, z } from 'astro:content';
 		 * import { glob, file } from 'astro/loaders';
@@ -2235,7 +2235,9 @@ export interface AstroUserConfig {
 		 *     description: z.string(),
 		 *     pubDate: z.coerce.date(),
 		 *     updatedDate: z.coerce.date().optional(),
-		 *   }),
+		 *   })
+		 * });
+		 * 
 		 * const dogs = defineCollection({
 		 *   // The path is relative to the project root, or an absolute path.
 		 *   loader: file("src/data/dogs.json"),
