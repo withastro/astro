@@ -33,7 +33,7 @@ test.describe('Error display', () => {
 			// Edit the component file
 			await astro.editFile(
 				'./src/pages/astro-syntax-error.astro',
-				() => `<h1>No syntax error</h1>`
+				() => `<h1>No syntax error</h1>`,
 			),
 		]);
 
@@ -67,15 +67,18 @@ test.describe('Error display', () => {
 		expect(fileLocation).toMatch(/^pages\/import-not-found\.astro/);
 	});
 
+	// NOTE: It's not possible to detect some JSX components if they have errors because
+	// their renderers' check functions run the render directly, and if a runtime error is
+	// thrown, it assumes that it's simply not that renderer's component and skips it
 	test('shows correct file path when a component has an error', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/preact-runtime-error'), { waitUntil: 'networkidle' });
+		await page.goto(astro.resolveUrl('/vue-runtime-error'), { waitUntil: 'networkidle' });
 
 		const { fileLocation, absoluteFileLocation } = await getErrorOverlayContent(page);
 		const absoluteFileUrl = 'file://' + absoluteFileLocation.replace(/:\d+:\d+$/, '');
 		const fileExists = astro.pathExists(absoluteFileUrl);
 
 		expect(fileExists).toBeTruthy();
-		expect(fileLocation).toMatch(/^preact\/PreactRuntimeError.jsx/);
+		expect(fileLocation).toMatch(/^vue\/VueRuntimeError.vue/);
 	});
 
 	test('shows correct line when a style preprocess has an error', async ({ page, astro }) => {
@@ -107,7 +110,7 @@ test.describe('Error display', () => {
 			// Edit the component file
 			astro.editFile(
 				'./src/components/svelte/SvelteSyntaxError.svelte',
-				() => `<h1>No mismatch</h1>`
+				() => `<h1>No mismatch</h1>`,
 			),
 		]);
 

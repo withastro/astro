@@ -79,7 +79,7 @@ export async function waitForHydrate(page, el) {
 	const astroIslandId = await astroIsland.last().getAttribute('uid');
 	await page.waitForFunction(
 		(selector) => document.querySelector(selector)?.hasAttribute('ssr') === false,
-		`astro-island[uid="${astroIslandId}"]`
+		`astro-island[uid="${astroIslandId}"]`,
 	);
 }
 

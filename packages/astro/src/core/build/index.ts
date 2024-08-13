@@ -53,7 +53,7 @@ export interface BuildOptions {
  */
 export default async function build(
 	inlineConfig: AstroInlineConfig,
-	options: BuildOptions = {}
+	options: BuildOptions = {},
 ): Promise<void> {
 	ensureProcessNodeEnv('production');
 	applyPolyfill();
@@ -135,7 +135,13 @@ class AstroBuilder {
 					middlewareMode: true,
 				},
 			},
-			{ settings: this.settings, logger: this.logger, mode: 'build', command: 'build', sync: false }
+			{
+				settings: this.settings,
+				logger: this.logger,
+				mode: 'build',
+				command: 'build',
+				sync: false,
+			},
 		);
 		await runHookConfigDone({ settings: this.settings, logger: logger });
 
@@ -177,7 +183,7 @@ class AstroBuilder {
 		this.timer.buildStart = performance.now();
 		this.logger.info(
 			'build',
-			green(`✓ Completed in ${getTimeStat(this.timer.init, performance.now())}.`)
+			green(`✓ Completed in ${getTimeStat(this.timer.init, performance.now())}.`),
 		);
 
 		const opts: StaticBuildOptions = {
@@ -216,7 +222,7 @@ class AstroBuilder {
 				.concat(
 					this.settings.config.experimental.serverIslands
 						? [getServerIslandRouteData(this.settings.config)]
-						: []
+						: [],
 				),
 			logging: this.logger,
 			cacheManifest: internals.cacheManifestUsed,
@@ -254,7 +260,7 @@ class AstroBuilder {
 		// outDir gets blown away so it can't be the root.
 		if (config.outDir.toString() === config.root.toString()) {
 			throw new Error(
-				`the outDir cannot be the root folder. Please build to a folder such as dist.`
+				`the outDir cannot be the root folder. Please build to a folder such as dist.`,
 			);
 		}
 	}

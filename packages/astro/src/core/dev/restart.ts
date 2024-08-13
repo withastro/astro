@@ -2,6 +2,7 @@ import type nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
+import { globalContentLayer } from '../../content/content-layer.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { createNodeLogger, createSettings, resolveConfig } from '../config/index.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
@@ -13,7 +14,7 @@ import { createContainer, startContainer } from './container.js';
 
 async function createRestartedContainer(
 	container: Container,
-	settings: AstroSettings
+	settings: AstroSettings,
 ): Promise<Container> {
 	const { logger, fs, inlineConfig } = container;
 	const newContainer = await createContainer({
@@ -34,7 +35,7 @@ const preferencesRE = /.*\.astro\/settings.json$/;
 
 function shouldRestartContainer(
 	{ settings, inlineConfig, restartInFlight }: Container,
-	changedFile: string
+	changedFile: string,
 ): boolean {
 	if (restartInFlight) return false;
 
@@ -59,7 +60,7 @@ function shouldRestartContainer(
 	if (!shouldRestart && settings.watchFiles.length > 0) {
 		// If the config file didn't change, check if any of the watched files changed.
 		shouldRestart = settings.watchFiles.some(
-			(path) => vite.normalizePath(path) === vite.normalizePath(changedFile)
+			(path) => vite.normalizePath(path) === vite.normalizePath(changedFile),
 		);
 	}
 
@@ -81,7 +82,7 @@ async function restartContainer(container: Container): Promise<Container | Error
 		if (!isAstroConfigZodError(_err)) {
 			logger.error(
 				'config',
-				formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n'
+				formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n',
 			);
 		}
 		// Inform connected clients of the config error
@@ -169,14 +170,28 @@ export async function createContainerWithAutomaticRestart({
 		// Ignore the `forceOptimize` parameter for now.
 		restart.container.viteServer.restart = () => handleServerRestart();
 
-		// Set up shortcuts, overriding Vite's default shortcuts so it works for Astro
+		// Set up shortcuts
+
+		const customShortcuts: Array<vite.CLIShortcut> = [
+			// Disable default Vite shortcuts that don't work well with Astro
+			{ key: 'r', description: '' },
+			{ key: 'u', description: '' },
+			{ key: 'c', description: '' },
+		];
+
+		if (restart.container.settings.config.experimental.contentLayer) {
+			customShortcuts.push({
+				key: 's',
+				description: 'sync content layer',
+				action: () => {
+					if (globalContentLayer.initialized()) {
+						globalContentLayer.get().sync();
+					}
+				},
+			});
+		}
 		restart.container.viteServer.bindCLIShortcuts({
-			customShortcuts: [
-				// Disable Vite's builtin "r" (restart server), "u" (print server urls) and "c" (clear console) shortcuts
-				{ key: 'r', description: '' },
-				{ key: 'u', description: '' },
-				{ key: 'c', description: '' },
-			],
+			customShortcuts,
 		});
 	}
 	setupContainer();

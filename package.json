@@ -67,25 +67,9 @@
     "prettier-plugin-astro": "^0.14.1",
     "turbo": "^1.13.4",
     "typescript": "~5.5.4",
-    "typescript-eslint": "^7.18.0"
+    "typescript-eslint": "^8.0.1"
   },
   "pnpm": {
-    "packageExtensions": {
-      "vite-svg-loader": {
-        "peerDependenciesMeta": {
-          "vue": {
-            "optional": true
-          }
-        }
-      },
-      "rehype-pretty-code": {
-        "peerDependenciesMeta": {
-          "shiki": {
-            "optional": true
-          }
-        }
-      }
-    },
     "peerDependencyRules": {
       "ignoreMissing": [
         "rollup",

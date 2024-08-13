@@ -34,7 +34,7 @@ test.describe('Loading styles that are nested', () => {
 
 		await expect(header, 'should have background color').toHaveCSS(
 			'background-color',
-			'rgb(0, 0, 139)' // darkblue
+			'rgb(0, 0, 139)', // darkblue
 		);
 	});
 });

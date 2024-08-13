@@ -58,7 +58,7 @@ declare module 'astro:content' {
 	export type SchemaContext = { image: ImageFunction };
 
 	type ContentLayerConfig<S extends BaseSchema, TData extends { id: string } = { id: string }> = {
-		type: 'experimental_content';
+		type?: 'content_layer';
 		schema?: S | ((context: SchemaContext) => S);
 		loader: import('astro/loaders').Loader | (() => Array<TData> | Promise<Array<TData>>);
 	};
@@ -71,6 +71,7 @@ declare module 'astro:content' {
 	type ContentCollectionConfig<S extends BaseSchema> = {
 		type?: 'content';
 		schema?: S | ((context: SchemaContext) => S);
+		loader?: never;
 	};
 
 	export type CollectionConfig<S extends BaseSchema> =
@@ -79,7 +80,7 @@ declare module 'astro:content' {
 		| ContentLayerConfig<S>;
 
 	export function defineCollection<S extends BaseSchema>(
-		input: CollectionConfig<S>
+		input: CollectionConfig<S>,
 	): CollectionConfig<S>;
 
 	/** Run `astro sync` to generate high fidelity types */

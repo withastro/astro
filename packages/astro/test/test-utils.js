@@ -7,7 +7,8 @@ import fastGlob from 'fast-glob';
 import stripAnsi from 'strip-ansi';
 import { Agent } from 'undici';
 import { check } from '../dist/cli/check/index.js';
-import { globalContentLayer } from '../dist/content/sync.js';
+import { globalContentLayer } from '../dist/content/content-layer.js';
+import { globalContentConfigObserver } from '../dist/content/utils.js';
 import build from '../dist/core/build/index.js';
 import { RESOLVED_SPLIT_MODULE_ID } from '../dist/core/build/plugins/plugin-ssr.js';
 import { getVirtualModulePageName } from '../dist/core/build/plugins/util.js';
@@ -129,7 +130,7 @@ export async function loadFixture(inlineConfig) {
 	const resolveUrl = (url) =>
 		`${protocol}://${config.server.host || 'localhost'}:${config.server.port}${url.replace(
 			/^\/?/,
-			'/'
+			'/',
 		)}`;
 
 	// A map of files that have been edited.
@@ -160,6 +161,7 @@ export async function loadFixture(inlineConfig) {
 	return {
 		build: async (extraInlineConfig = {}, options = {}) => {
 			globalContentLayer.dispose();
+			globalContentConfigObserver.set({ status: 'init' });
 			process.env.NODE_ENV = 'production';
 			return build(mergeConfig(inlineConfig, extraInlineConfig), {
 				teardownCompiler: false,
@@ -172,6 +174,7 @@ export async function loadFixture(inlineConfig) {
 		},
 		startDevServer: async (extraInlineConfig = {}) => {
 			globalContentLayer.dispose();
+			globalContentConfigObserver.set({ status: 'init' });
 			process.env.NODE_ENV = 'development';
 			devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
@@ -219,7 +222,7 @@ export async function loadFixture(inlineConfig) {
 		readFile: (filePath, encoding) =>
 			fs.promises.readFile(
 				new URL(filePath.replace(/^\//, ''), config.outDir),
-				encoding === undefined ? 'utf8' : encoding
+				encoding === undefined ? 'utf8' : encoding,
 			),
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.outDir)),
 		glob: (p) =>

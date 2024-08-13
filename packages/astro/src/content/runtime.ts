@@ -20,21 +20,21 @@ import {
 import { CONTENT_LAYER_TYPE, IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import type { ContentLookupMap } from './utils.js';
+
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
 type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImport>;
 
 export function defineCollection(config: any) {
-	if (
-		('loader' in config && config.type !== CONTENT_LAYER_TYPE) ||
-		(config.type === CONTENT_LAYER_TYPE && !('loader' in config))
-	) {
-		// TODO: when this moves out of experimental, we will set the type automatically
-		throw new AstroUserError(
-			'Collections that use the content layer must have a `loader` defined and `type` set to `experimental_content`',
-			"Check your collection definitions in `src/content/config.*`.'"
-		);
+	if ('loader' in config) {
+		if (config.type && config.type !== CONTENT_LAYER_TYPE) {
+			throw new AstroUserError(
+				'Collections that use the Content Layer API must have a `loader` defined and no `type` set.',
+				"Check your collection definitions in `src/content/config.*`.'",
+			);
+		}
+		config.type = CONTENT_LAYER_TYPE;
 	}
 	if (!config.type) config.type = 'content';
 	return config;
@@ -87,6 +87,7 @@ export function createGetCollection({
 				const data = rawEntry.filePath
 					? updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap)
 					: rawEntry.data;
+
 				const entry = {
 					...rawEntry,
 					data,
@@ -102,15 +103,16 @@ export function createGetCollection({
 			// eslint-disable-next-line no-console
 			console.warn(
 				`The collection ${JSON.stringify(
-					collection
-				)} does not exist or is empty. Ensure a collection directory with this name exists.`
+					collection,
+				)} does not exist or is empty. Ensure a collection directory with this name exists.`,
 			);
 			return [];
 		}
+
 		const lazyImports = Object.values(
 			type === 'content'
 				? contentCollectionToEntryMap[collection]
-				: dataCollectionToEntryMap[collection]
+				: dataCollectionToEntryMap[collection],
 		);
 		let entries: any[] = [];
 		// Cache `getCollection()` calls in production only
@@ -143,8 +145,8 @@ export function createGetCollection({
 									collection: entry.collection,
 									data: entry.data,
 								};
-					})
-				)
+					}),
+				),
 			);
 			cacheEntriesByCollection.set(collection, entries);
 		}
@@ -271,7 +273,7 @@ export function createGetEntry({
 		// Or pass a single object with the collection and identifier as properties.
 		// This means the first positional arg can have different shapes.
 		collectionOrLookupObject: string | EntryLookupObject,
-		_lookupId?: string
+		_lookupId?: string,
 	): Promise<ContentEntryResult | DataEntryResult | undefined> {
 		let collection: string, lookupId: string;
 		if (typeof collectionOrLookupObject === 'string') {
@@ -351,7 +353,7 @@ export function createGetEntry({
 
 export function createGetEntries(getEntry: ReturnType<typeof createGetEntry>) {
 	return async function getEntries(
-		entries: { collection: string; id: string }[] | { collection: string; slug: string }[]
+		entries: { collection: string; id: string }[] | { collection: string; slug: string }[],
 	) {
 		return Promise.all(entries.map((e) => getEntry(e)));
 	};
@@ -387,7 +389,7 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 			}
 			const image: GetImageResult = await getImage({ ...decodedImagePath, src: imported });
 			imageObjects.set(imagePath, image);
-		} catch (e) {
+		} catch {
 			throw new Error(`Failed to parse image reference: ${imagePath}`);
 		}
 	}
@@ -414,7 +416,7 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 function updateImageReferencesInData<T extends Record<string, unknown>>(
 	data: T,
 	fileName: string,
-	imageAssetMap: Map<string, ImageMetadata>
+	imageAssetMap: Map<string, ImageMetadata>,
 ): T {
 	return new Traverse(data).map(function (ctx, val) {
 		if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
@@ -435,11 +437,28 @@ function updateImageReferencesInData<T extends Record<string, unknown>>(
 }
 
 export async function renderEntry(
-	entry: DataEntry | { render: () => Promise<{ Content: AstroComponentFactory }> }
+	entry: DataEntry | { render: () => Promise<{ Content: AstroComponentFactory }> },
 ) {
 	if (entry && 'render' in entry) {
 		// This is an old content collection entry, so we use its render method
 		return entry.render();
+	}
+
+	if (entry.deferredRender) {
+		try {
+			// @ts-expect-error	virtual module
+			const { default: contentModules } = await import('astro:content-module-imports');
+			const module = contentModules.get(entry.filePath);
+			const deferredMod = await module();
+			return {
+				Content: deferredMod.Content,
+				headings: deferredMod.getHeadings?.() ?? [],
+				remarkPluginFrontmatter: deferredMod.frontmatter ?? {},
+			};
+		} catch (e) {
+			// eslint-disable-next-line
+			console.error(e);
+		}
 	}
 
 	const html =
@@ -448,7 +467,11 @@ export async function renderEntry(
 			: entry?.rendered?.html;
 
 	const Content = createComponent(() => serverRender`${unescapeHTML(html)}`);
-	return { Content };
+	return {
+		Content,
+		headings: entry?.rendered?.metadata?.headings ?? [],
+		remarkPluginFrontmatter: entry?.rendered?.metadata?.frontmatter ?? {},
+	};
 }
 
 async function render({
@@ -522,8 +545,8 @@ async function render({
 						'Content',
 						propagationMod.Content,
 						props,
-						slots
-					)}`
+						slots,
+					)}`,
 				);
 			},
 			propagation: 'self',
@@ -565,7 +588,7 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 						| string
 						| { id: string; collection: string }
 						| { slug: string; collection: string },
-					ctx
+					ctx,
 				) => {
 					const flattenedErrorPath = ctx.path.join('.');
 					const store = await globalDataStore.get();
@@ -619,7 +642,7 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 						ctx.addIssue({
 							code: ZodIssueCode.custom,
 							message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${Object.keys(
-								entries
+								entries,
 							)
 								.map((c) => JSON.stringify(c))
 								.join(' | ')}. Received ${JSON.stringify(lookup)}.`,
@@ -631,7 +654,7 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 						return { slug: lookup, collection };
 					}
 					return { id: lookup, collection };
-				}
+				},
 			);
 	};
 }

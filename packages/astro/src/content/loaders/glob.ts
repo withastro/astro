@@ -18,6 +18,7 @@ export interface GenerateIdOptions {
 	/** The parsed, unvalidated data of the entry. */
 	data: Record<string, unknown>;
 }
+
 export interface GlobOptions {
 	/** The glob pattern to match files, relative to the base directory */
 	pattern: string;
@@ -50,12 +51,12 @@ function generateIdDefault({ entry, base, data }: GenerateIdOptions): string {
 export function glob(globOptions: GlobOptions): Loader {
 	if (globOptions.pattern.startsWith('../')) {
 		throw new Error(
-			'Glob patterns cannot start with `../`. Set the `base` option to a parent directory instead.'
+			'Glob patterns cannot start with `../`. Set the `base` option to a parent directory instead.',
 		);
 	}
 	if (globOptions.pattern.startsWith('/')) {
 		throw new Error(
-			'Glob patterns cannot start with `/`. Set the `base` option to a parent directory or use a relative path instead.'
+			'Glob patterns cannot start with `/`. Set the `base` option to a parent directory or use a relative path instead.',
 		);
 	}
 
@@ -102,11 +103,15 @@ export function glob(globOptions: GlobOptions): Loader {
 				const digest = generateDigest(contents);
 
 				if (existingEntry && existingEntry.digest === digest && existingEntry.filePath) {
+					if (existingEntry.deferredRender) {
+						store.addModuleImport(existingEntry.filePath);
+					}
+
 					if (existingEntry.rendered?.metadata?.imagePaths?.length) {
 						// Add asset imports for existing entries
 						store.addAssetImports(
 							existingEntry.rendered.metadata.imagePaths,
-							existingEntry.filePath
+							existingEntry.filePath,
 						);
 					}
 					// Re-parsing to resolve images and other effects
@@ -123,7 +128,6 @@ export function glob(globOptions: GlobOptions): Loader {
 					data,
 					filePath,
 				});
-
 				if (entryType.getRenderFunction) {
 					let render = renderFunctionByContentType.get(entryType);
 					if (!render) {
@@ -156,6 +160,16 @@ export function glob(globOptions: GlobOptions): Loader {
 					if (rendered?.metadata?.imagePaths?.length) {
 						store.addAssetImports(rendered.metadata.imagePaths, relativePath);
 					}
+					// todo: add an explicit way to opt in to deferred rendering
+				} else if ('contentModuleTypes' in entryType) {
+					store.set({
+						id,
+						data: parsedData,
+						body,
+						filePath: relativePath,
+						digest,
+						deferredRender: true,
+					});
 				} else {
 					store.set({ id, data: parsedData, body, filePath: relativePath, digest });
 				}
@@ -200,7 +214,7 @@ export function glob(globOptions: GlobOptions): Loader {
 			}
 
 			const configFiles = new Set(
-				['config.js', 'config.ts', 'config.mjs'].map((file) => new URL(file, contentDir).href)
+				['config.js', 'config.ts', 'config.mjs'].map((file) => new URL(file, contentDir).href),
 			);
 
 			function isConfigFile(file: string) {
@@ -221,7 +235,7 @@ export function glob(globOptions: GlobOptions): Loader {
 						const entryType = configForFile(entry);
 						await syncData(entry, baseDir, entryType);
 					});
-				})
+				}),
 			);
 
 			const skipCount = skippedFiles.length;
@@ -230,7 +244,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				logger.warn(`The glob() loader cannot be used for files in ${bold('src/content')}.`);
 				if (skipCount > 10) {
 					logger.warn(
-						`Skipped ${green(skippedFiles.length)} files that matched ${green(globOptions.pattern)}.`
+						`Skipped ${green(skippedFiles.length)} files that matched ${green(globOptions.pattern)}.`,
 					);
 				} else {
 					logger.warn(`Skipped the following files that matched ${green(globOptions.pattern)}:`);
@@ -261,6 +275,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				await syncData(entry, baseUrl, entryType);
 				logger.info(`Reloaded data from ${green(entry)}`);
 			}
+
 			watcher.on('change', onChange);
 
 			watcher.on('add', onChange);

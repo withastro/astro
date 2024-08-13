@@ -57,7 +57,7 @@ describe('renderToStaticMarkup', () => {
 				render() {
 					return html`<p>hola</p>`;
 				}
-			}
+			},
 		);
 		const render = await renderToStaticMarkup(tagName);
 		const $ = cheerio.load(render.html);
@@ -83,7 +83,7 @@ describe('renderToStaticMarkup', () => {
 				render() {
 					return html`<p>Hello ${this.prop1}</p>`;
 				}
-			}
+			},
 		);
 		const render = await renderToStaticMarkup(tagName, { prop1, attr1 });
 		const $ = cheerio.load(render.html);
@@ -100,7 +100,7 @@ describe('renderToStaticMarkup', () => {
 				render() {
 					return html`<p>child</p>`;
 				}
-			}
+			},
 		);
 		customElements.define(
 			tagName,
@@ -108,7 +108,7 @@ describe('renderToStaticMarkup', () => {
 				render() {
 					return html`<child-component></child-component>`;
 				}
-			}
+			},
 		);
 		const render = await renderToStaticMarkup(tagName);
 		const $ = cheerio.load(render.html);
@@ -124,7 +124,7 @@ describe('renderToStaticMarkup', () => {
 			tagName,
 			class extends LitElement {
 				static shadowRootOptions = { ...LitElement.shadowRootOptions, delegatesFocus: true };
-			}
+			},
 		);
 		const render = await renderToStaticMarkup(tagName);
 		assert.deepEqual(render, {

@@ -11,7 +11,7 @@ export async function safeFetch(
 	options: Parameters<typeof fetch>[1] = {},
 	onNotOK: (response: Response) => void | Promise<void> = () => {
 		throw new Error(`Request to ${url} returned a non-OK status code.`);
-	}
+	},
 ): Promise<Response> {
 	const response = await fetch(url, options);
 

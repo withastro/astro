@@ -34,7 +34,6 @@ ${loremIpsumMd}
 		import { glob } from 'astro/loaders';
 
 		const blog = defineCollection({
-			type: 'experimental_data',
 			loader: glob({ pattern: '*', base: './data/blog' }),
 		});
 		
@@ -47,7 +46,7 @@ ${loremIpsumMd}
 		new URL(`./src/pages/blog/[...slug].astro`, projectDir),
 		`\
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 export async function getStaticPaths() {
   const blogEntries = await getCollection('blog');
   return blogEntries.map(entry => ({
@@ -55,7 +54,7 @@ export async function getStaticPaths() {
   }));
 }
 const { entry } = Astro.props;
-const { Content } = await entry.render();
+const { Content } = await render(entry);
 
 ---
 <h1>{entry.data.title}</h1>
@@ -72,6 +71,9 @@ const { Content } = await entry.render();
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
+		experimental: {
+			contentLayer: true
+		}
 });`,
 		'utf-8'
 	);

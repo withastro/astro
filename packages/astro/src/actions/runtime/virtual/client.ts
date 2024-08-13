@@ -10,5 +10,5 @@ export const z = new Proxy(
 		get() {
 			throw new Error('[astro:action] `z` unexpectedly used on the client.');
 		},
-	}
+	},
 );

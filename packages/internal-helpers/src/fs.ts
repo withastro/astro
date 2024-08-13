@@ -43,7 +43,7 @@ export async function getFilesFromFolder(dir: URL) {
 export async function copyFilesToFolder(
 	files: URL[],
 	outDir: URL,
-	exclude: URL[] = []
+	exclude: URL[] = [],
 ): Promise<string> {
 	const excludeList = exclude.map(fileURLToPath);
 	const fileList = files.map(fileURLToPath).filter((f) => !excludeList.includes(f));

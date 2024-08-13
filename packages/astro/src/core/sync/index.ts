@@ -6,9 +6,9 @@ import { type HMRPayload, createServer } from 'vite';
 import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { getPackage } from '../../cli/install-package.js';
 import { DATA_STORE_FILE } from '../../content/consts.js';
+import { globalContentLayer } from '../../content/content-layer.js';
 import { DataStore, globalDataStore } from '../../content/data-store.js';
 import { createContentTypesGenerator } from '../../content/index.js';
-import { globalContentLayer } from '../../content/sync.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
@@ -113,7 +113,7 @@ export async function syncInternal({
 			optional: true,
 			cwd,
 		},
-		[]
+		[],
 	);
 
 	try {
@@ -151,7 +151,7 @@ export async function syncInternal({
 		const error = createSafeError(err);
 		logger.error(
 			'types',
-			formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n'
+			formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n',
 		);
 		// Will return exit code 1 in CLI
 		throw error;
@@ -174,7 +174,7 @@ export async function syncInternal({
  */
 async function syncContentCollections(
 	settings: AstroSettings,
-	{ logger, fs }: Required<Pick<SyncOptions, 'logger' | 'fs'>>
+	{ logger, fs }: Required<Pick<SyncOptions, 'logger' | 'fs'>>,
 ): Promise<void> {
 	// Needed to load content config
 	const tempViteServer = await createServer(
@@ -185,8 +185,8 @@ async function syncContentCollections(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode: 'build', command: 'build', fs, sync: true }
-		)
+			{ settings, logger, mode: 'build', command: 'build', fs, sync: true },
+		),
 	);
 
 	// Patch `hot.send` to bubble up error events
@@ -233,7 +233,7 @@ async function syncContentCollections(
 				hint,
 				message: AstroErrorData.GenerateContentTypesError.message(safeError.message),
 			},
-			{ cause: e }
+			{ cause: e },
 		);
 	} finally {
 		await tempViteServer.close();

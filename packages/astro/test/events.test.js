@@ -17,7 +17,7 @@ describe('Events', () => {
 				{
 					cliCommand: 'dev',
 				},
-				config
+				config,
 			);
 			assert.equal(payload.config.build.format, 'file');
 		});
@@ -32,7 +32,7 @@ describe('Events', () => {
 				{
 					cliCommand: 'dev',
 				},
-				config
+				config,
 			);
 			assert.equal(payload.config.markdown.syntaxHighlight, 'shiki');
 		});
@@ -55,7 +55,7 @@ describe('Events', () => {
 				{
 					cliCommand: 'dev',
 				},
-				config
+				config,
 			);
 			assert.deepEqual(Object.keys(payload.config.vite), [
 				'css',
@@ -75,7 +75,7 @@ describe('Events', () => {
 				{
 					cliCommand: 'dev',
 				},
-				config
+				config,
 			);
 			assert.equal(payload.config.integrations.length, 0);
 		});
@@ -112,7 +112,7 @@ describe('Events', () => {
 					cliCommand: 'dev',
 				},
 				config,
-				flags
+				flags,
 			);
 			assert.deepEqual(payload.flags, [
 				'root',

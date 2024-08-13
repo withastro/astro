@@ -4,6 +4,7 @@ import { sep } from 'node:path';
 import { sep as posixSep } from 'node:path/posix';
 import { after, before, describe, it } from 'node:test';
 import * as devalue from 'devalue';
+
 import { loadFixture } from './test-utils.js';
 describe('Content Layer', () => {
 	/** @type {import("./test-utils.js").Fixture} */
@@ -168,6 +169,7 @@ describe('Content Layer', () => {
 			await fixture.build();
 			newJson = devalue.parse(await fixture.readFile('/collections.json'));
 			assert.equal(newJson.increment.data.lastValue, 1);
+			await fixture.resetAllFiles();
 		});
 	});
 
@@ -271,6 +273,7 @@ describe('Content Layer', () => {
 			const updatedJsonResponse = await fixture.fetch('/collections.json');
 			const updated = devalue.parse(await updatedJsonResponse.text());
 			assert.ok(updated.fileLoader[0].data.temperament.includes('Bouncy'));
+			await fixture.resetAllFiles();
 		});
 	});
 });

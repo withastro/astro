@@ -7,9 +7,9 @@ import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
 import type { AstroInlineConfig } from '../../@types/astro.js';
 import { DATA_STORE_FILE } from '../../content/consts.js';
+import { globalContentLayer } from '../../content/content-layer.js';
 import { DataStore, globalDataStore } from '../../content/data-store.js';
 import { attachContentServerListeners } from '../../content/index.js';
-import { globalContentLayer } from '../../content/sync.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
 import * as msg from '../messages.js';
@@ -74,13 +74,13 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 								'SKIP_FORMAT',
 								await msg.newVersionAvailable({
 									latestVersion: version,
-								})
+								}),
 							);
 						}
 					}
 				})
 				.catch(() => {});
-		} catch (e) {
+		} catch {
 			// Just ignore the error, we don't want to block the dev server from starting and this is just a nice-to-have feature
 		}
 	}
@@ -94,7 +94,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			resolvedUrls: restart.container.viteServer.resolvedUrls || { local: [], network: [] },
 			host: restart.container.settings.config.server.host,
 			base: restart.container.settings.config.base,
-		})
+		}),
 	);
 
 	if (isPrerelease) {
@@ -122,6 +122,9 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	}
 
 	const config = globalContentConfigObserver.get();
+	if (config.status === 'error') {
+		logger.error('content', config.error.message);
+	}
 	if (config.status === 'loaded') {
 		const contentLayer = globalContentLayer.init({
 			settings: restart.container.settings,

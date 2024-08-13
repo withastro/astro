@@ -48,7 +48,7 @@ type ImageData = { data: Uint8Array; expires: number };
 
 export async function prepareAssetsGenerationEnv(
 	pipeline: BuildPipeline,
-	totalCount: number
+	totalCount: number,
 ): Promise<AssetEnv> {
 	const { config, logger } = pipeline;
 	let useCache = true;
@@ -61,7 +61,7 @@ export async function prepareAssetsGenerationEnv(
 	} catch (err) {
 		logger.warn(
 			null,
-			`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${err}`
+			`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${err}`,
 		);
 		useCache = false;
 	}
@@ -96,7 +96,7 @@ export async function generateImagesForPath(
 	originalFilePath: string,
 	transformsAndPath: MapValue<AssetsGlobalStaticImagesList>,
 	env: AssetEnv,
-	queue: PQueue
+	queue: PQueue,
 ) {
 	const originalImageData = await loadImage(originalFilePath, env);
 
@@ -119,11 +119,11 @@ export async function generateImagesForPath(
 			if (transformsAndPath.originalSrcPath) {
 				env.logger.debug(
 					'assets',
-					`Deleting ${originalFilePath} as it's not referenced outside of image processing.`
+					`Deleting ${originalFilePath} as it's not referenced outside of image processing.`,
 				);
 				await fs.promises.unlink(getFullImagePath(originalFilePath, env));
 			}
-		} catch (e) {
+		} catch {
 			/* No-op, it's okay if we fail to delete one of the file, we're not too picky. */
 		}
 	}
@@ -131,7 +131,7 @@ export async function generateImagesForPath(
 	async function generateImage(
 		originalImage: ImageData,
 		filepath: string,
-		options: ImageTransform
+		options: ImageTransform,
 	) {
 		const timeStart = performance.now();
 		const generationData = await generateImageInternal(originalImage, filepath, options);
@@ -145,7 +145,7 @@ export async function generateImagesForPath(
 		const count = `(${env.count.current}/${env.count.total})`;
 		env.logger.info(
 			null,
-			`  ${green('▶')} ${filepath} ${dim(statsText)} ${dim(timeIncrease)} ${dim(count)}`
+			`  ${green('▶')} ${filepath} ${dim(statsText)} ${dim(timeIncrease)} ${dim(count)}`,
 		);
 		env.count.current++;
 	}
@@ -153,7 +153,7 @@ export async function generateImagesForPath(
 	async function generateImageInternal(
 		originalImage: ImageData,
 		filepath: string,
-		options: ImageTransform
+		options: ImageTransform,
 	): Promise<GenerationData> {
 		const isLocalImage = isESMImportedImage(options.src);
 		const finalFileURL = new URL('.' + filepath, env.clientRoot);
@@ -177,7 +177,7 @@ export async function generateImagesForPath(
 					await fs.promises.unlink(cachedFileURL);
 
 					throw new Error(
-						`Malformed cache entry for ${filepath}, cache will be regenerated for this file.`
+						`Malformed cache entry for ${filepath}, cache will be regenerated for this file.`,
 					);
 				}
 
@@ -219,7 +219,7 @@ export async function generateImagesForPath(
 				await imageService.transform(
 					originalImage.data,
 					{ ...options, src: originalImagePath },
-					env.imageConfig
+					env.imageConfig,
 				)
 			).data;
 		} catch (e) {
@@ -228,7 +228,7 @@ export async function generateImagesForPath(
 					...AstroErrorData.CouldNotTransformImage,
 					message: AstroErrorData.CouldNotTransformImage.message(originalFilePath),
 				},
-				{ cause: e }
+				{ cause: e },
 			);
 
 			throw error;
@@ -245,14 +245,14 @@ export async function generateImagesForPath(
 						JSON.stringify({
 							data: Buffer.from(resultData.data).toString('base64'),
 							expires: resultData.expires,
-						})
+						}),
 					);
 				}
 			}
 		} catch (e) {
 			env.logger.warn(
 				null,
-				`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${e}`
+				`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${e}`,
 			);
 		} finally {
 			// Write the final file
