@@ -85,9 +85,10 @@ if(response.status === 200 && response.headers.get('content-type') === 'text/htm
 	let html = await response.text();
 
 	// Swap!
-	while(script.previousSibling?.nodeType !== 8 &&
-		script.previousSibling?.data !== 'server-island-start') {
-		script.previousSibling?.remove();
+	while(script.previousSibling &&
+		script.previousSibling.nodeType !== 8 &&
+		script.previousSibling.data !== 'server-island-start') {
+		script.previousSibling.remove();
 	}
 	script.previousSibling?.remove();
 

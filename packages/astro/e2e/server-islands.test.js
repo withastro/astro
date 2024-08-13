@@ -50,6 +50,12 @@ test.describe('Server islands', () => {
 
 			await expect(el).toHaveCount(2);
 		});
+
+		test('Missing server island start comment doesn\'t cause browser to lock up', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/base/'));
+			let el = page.locator('#first');
+			await expect(el).toHaveCount(1);
+		});
 	});
 
 	test.describe('Production', () => {
