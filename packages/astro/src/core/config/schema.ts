@@ -60,6 +60,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		client: './dist/client/',
 		server: './dist/server/',
 		assets: '_astro',
+		assetsHashDelimiter: '_',
 		serverEntry: 'entry.mjs',
 		redirects: true,
 		inlineStylesheets: 'auto',
@@ -179,6 +180,7 @@ export const AstroConfigSchema = z.object({
 						message: 'The `fallback` is mandatory when defining the option as an object.',
 					},
 				),
+			assetsHashDelimiter: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assetsHashDelimiter),
 			serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
 			inlineStylesheets: z
@@ -607,6 +609,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 							message: 'The `fallback` is mandatory when defining the option as an object.',
 						},
 					),
+				assetsHashDelimiter: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assetsHashDelimiter),
 				serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 				redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
 				inlineStylesheets: z

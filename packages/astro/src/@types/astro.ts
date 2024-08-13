@@ -1025,6 +1025,28 @@ export interface AstroUserConfig {
 		assetsPrefix?: AssetsPrefix;
 		/**
 		 * @docs
+		 * @name build.assetsHashDelimiter
+		 * @type {string}
+		 * @default `_`
+		 * @version 2.2.0
+		 * @description
+		 * Specifies the delimiter for attaching the hash to the filename.
+		 *
+		 * By default, astro generates optimized images following the format `filename_hash.ext`. If you want to change the delimiter from 
+		 * `_` to `-`, you can use this option.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     assetsHashDelimiter: '_'
+		 *   }
+		 * }
+		 * ```
+		 *
+		 */
+		assetsHashDelimiter?: string;
+		/**
+		 * @docs
 		 * @name build.serverEntry
 		 * @type {string}
 		 * @default `'entry.mjs'`

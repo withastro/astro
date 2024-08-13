@@ -62,7 +62,7 @@ const addStaticImageFactory = (
 			finalFilePath = prependForwardSlash(
 				joinPaths(
 					isESMImportedImage(options.src) ? '' : settings.config.build.assets,
-					prependForwardSlash(propsToFilename(finalOriginalPath, options, hash)),
+					prependForwardSlash(propsToFilename(finalOriginalPath, options, hash, settings.config.build.assetsHashDelimiter)),
 				),
 			);
 

@@ -5,14 +5,14 @@ import { shorthash } from '../../runtime/server/shorthash.js';
 import type { ImageTransform } from '../types.js';
 import { isESMImportedImage } from './imageKind.js';
 
-export function propsToFilename(filePath: string, transform: ImageTransform, hash: string) {
+export function propsToFilename(filePath: string, transform: ImageTransform, hash: string, hashDelimiter: string) {
 	let filename = decodeURIComponent(removeQueryString(filePath));
 	const ext = extname(filename);
 	filename = basename(filename, ext);
 	const prefixDirname = isESMImportedImage(transform.src) ? dirname(filePath) : '';
 
 	let outputExt = transform.format ? `.${transform.format}` : ext;
-	return decodeURIComponent(`${prefixDirname}/${filename}_${hash}${outputExt}`);
+	return decodeURIComponent(`${prefixDirname}/${filename}${hashDelimiter}${hash}${outputExt}`);
 }
 
 export function hashTransform(
