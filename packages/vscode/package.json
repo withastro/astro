@@ -24,7 +24,7 @@
     "color": "#17191E",
     "theme": "dark"
   },
-  "version": "2.13.2",
+  "version": "2.13.3",
   "author": "withastro",
   "license": "MIT",
   "publisher": "astro-build",
@@ -235,7 +235,7 @@
   },
   "devDependencies": {
     "@astrojs/language-server": "^2.13.2",
-    "@astrojs/ts-plugin": "^1.9.1",
+    "@astrojs/ts-plugin": "^1.9.2",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.17.8",

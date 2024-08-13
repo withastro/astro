@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.13.3
+
+### Patch Changes
+
+- 5186329: Update internal dependencies
+
 ## 2.13.2
 
 ### Patch Changes

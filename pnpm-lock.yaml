@@ -235,7 +235,7 @@ importers:
         specifier: ^2.13.2
         version: link:../language-server
       '@astrojs/ts-plugin':
-        specifier: ^1.9.1
+        specifier: ^1.9.2
         version: link:../ts-plugin
       '@types/glob':
         specifier: ^8.1.0

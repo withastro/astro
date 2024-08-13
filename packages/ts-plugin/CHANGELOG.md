@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.9.2
+
+### Patch Changes
+
+- 5186329: Update internal dependencies
+
 ## 1.9.1
 
 ### Patch Changes
