@@ -13,7 +13,7 @@ describe('Content Intellisense', () => {
 	let manifest = undefined;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/content-Intellisense/' });
+		fixture = await loadFixture({ root: './fixtures/content-intellisense/' });
 		await fixture.build();
 
 		collectionsDir = await fixture.readdir('../.astro/collections');
