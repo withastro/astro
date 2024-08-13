@@ -103,7 +103,14 @@ function resolveClientDir(options: Options) {
 	const clientURLRaw = new URL(options.client);
 	const serverURLRaw = new URL(options.server);
 	const rel = path.relative(url.fileURLToPath(serverURLRaw), url.fileURLToPath(clientURLRaw));
-	const serverEntryURL = new URL(import.meta.url);
+
+	// walk up the parent folders until you find the one that is the root of the server entry folder. This is how we find the client folder relatively.
+	const serverFolder = path.basename(options.server);
+	let serverEntryFolderURL = path.dirname(import.meta.url);
+	while(!serverEntryFolderURL.endsWith(serverFolder)) {
+		serverEntryFolderURL = path.dirname(serverEntryFolderURL);
+	}
+	const serverEntryURL = serverEntryFolderURL + '/entry.mjs';
 	const clientURL = new URL(appendForwardSlash(rel), serverEntryURL);
 	const client = url.fileURLToPath(clientURL);
 	return client;
