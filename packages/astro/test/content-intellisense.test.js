@@ -66,10 +66,9 @@ describe('Content Intellisense', () => {
 
 	it('has entries for content layer', async () => {
 		const collectionEntries = Object.entries(manifest.entries).filter((entry) =>
-			entry[0].includes(
-				'/astro/packages/astro/test/fixtures/content-intellisense/src/content/blog-cl/',
-			),
+			entry[0].includes('/astro/packages/astro/test/fixtures/content-intellisense/src/blog-cl/'),
 		);
+
 		assert.equal(collectionEntries.length, 3, "Expected 3 entries for 'blog-cl' collection");
 		assert.equal(
 			collectionEntries.every((entry) => entry[1] === 'blog-cl'),
