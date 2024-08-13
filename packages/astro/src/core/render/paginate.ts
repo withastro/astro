@@ -5,7 +5,7 @@ import type {
 	Params,
 	Props,
 	RouteData,
-	AstroConfig
+	AstroConfig,
 } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { joinPaths } from '../path.js';
@@ -48,7 +48,7 @@ export function generatePaginateFunction(
 			const next =
 				pageNum === lastPage
 					? undefined
-					: addRouteBase(routeMatch.generate({ ...params, page: String(pageNum + 1) }),  base);
+					: addRouteBase(routeMatch.generate({ ...params, page: String(pageNum + 1) }), base);
 			const prev =
 				pageNum === 1
 					? undefined
@@ -57,7 +57,8 @@ export function generatePaginateFunction(
 								...params,
 								page:
 									!includesFirstPageNumber && pageNum - 1 === 1 ? undefined : String(pageNum - 1),
-							}), base
+							}),
+							base,
 						);
 			const first =
 				pageNum === 1
