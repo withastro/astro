@@ -64,16 +64,16 @@ export class DataStore {
 		this.#collections = new Map();
 	}
 
-	get<T = unknown>(collectionName: string, key: string): T | undefined {
+	get<T = DataEntry>(collectionName: string, key: string): T | undefined {
 		return this.#collections.get(collectionName)?.get(String(key));
 	}
 
-	entries<T = unknown>(collectionName: string): Array<[id: string, T]> {
+	entries<T = DataEntry>(collectionName: string): Array<[id: string, T]> {
 		const collection = this.#collections.get(collectionName) ?? new Map();
 		return [...collection.entries()];
 	}
 
-	values<T = unknown>(collectionName: string): Array<T> {
+	values<T = DataEntry>(collectionName: string): Array<T> {
 		const collection = this.#collections.get(collectionName) ?? new Map();
 		return [...collection.values()];
 	}
@@ -217,7 +217,7 @@ export default new Map([${exports.join(', ')}]);
 		for (const [fileName, specifier] of this.#moduleImports) {
 			lines.push(`['${fileName}', () => import('${specifier}')]`);
 		}
-		const code = /* js */ `
+		const code =  `
 export default new Map([\n${lines.join(',\n')}]);
 		`;
 		try {

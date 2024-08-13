@@ -4,7 +4,7 @@ import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { type ViteDevServer, normalizePath } from 'vite';
-import { z } from 'zod';
+import { z, type ZodSchema } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { printNode, zodToTs } from 'zod-to-ts';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
@@ -358,12 +358,15 @@ function normalizeConfigPath(from: string, to: string) {
 	return `"${isRelativePath(configPath) ? '' : './'}${normalizedPath}"` as const;
 }
 
-async function typeForCollection<T extends keyof ContentConfig['collections']>(
-	collection: ContentConfig['collections'][T] | undefined,
+const schemaCache = new Map<string, ZodSchema>();
+
+async function getContentLayerSchema<T extends keyof ContentConfig['collections']>(
+	collection: ContentConfig['collections'][T],
 	collectionKey: T,
-): Promise<string> {
-	if (collection?.schema) {
-		return `InferEntrySchema<${collectionKey}>`;
+): Promise<ZodSchema | undefined> {
+	const cached = schemaCache.get(collectionKey);
+	if (cached) {
+		return cached;
 	}
 
 	if (
@@ -375,6 +378,23 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 		if (typeof schema === 'function') {
 			schema = await schema();
 		}
+		if (schema) {
+			schemaCache.set(collectionKey, await schema);
+			return schema;
+		}
+	}
+}
+
+async function typeForCollection<T extends keyof ContentConfig['collections']>(
+	collection: ContentConfig['collections'][T] | undefined,
+	collectionKey: T,
+): Promise<string> {
+	if (collection?.schema) {
+		return `InferEntrySchema<${collectionKey}>`;
+	}
+
+	if (collection?.type === CONTENT_LAYER_TYPE) {
+		const schema = await getContentLayerSchema(collection, collectionKey);
 		if (schema) {
 			const ast = zodToTs(schema);
 			return printNode(ast.node);
@@ -453,7 +473,7 @@ async function writeContentFiles({
 			collection.type === 'unknown'
 				? // Add empty / unknown collections to the data type map by default
 					// This ensures `getCollection('empty-collection')` doesn't raise a type error
-					collectionConfig?.type ?? 'data'
+					(collectionConfig?.type ?? 'data')
 				: collection.type;
 
 		const collectionEntryKeys = Object.keys(collection.entries).sort();
@@ -502,7 +522,11 @@ async function writeContentFiles({
 				break;
 		}
 
-		if (collectionConfig?.schema && settings.config.experimental.contentIntellisense) {
+		if (
+			settings.config.experimental.contentIntellisense &&
+			collectionConfig &&
+			(collectionConfig.schema || (await getContentLayerSchema(collectionConfig, collectionKey)))
+		) {
 			await generateJSONSchema(fs, collectionConfig, collectionKey, collectionSchemasDir, logger);
 
 			contentCollectionsMap[collectionKey] = collection;
@@ -522,7 +546,7 @@ async function writeContentFiles({
 			const key = JSON.parse(collectionKey);
 
 			contentCollectionManifest.collections.push({
-				hasSchema: Boolean(collectionConfig?.schema),
+				hasSchema: Boolean(collectionConfig?.schema || schemaCache.has(collectionKey)),
 				name: key,
 			});
 
@@ -581,6 +605,11 @@ async function generateJSONSchema(
 		typeof collectionConfig.schema === 'function'
 			? collectionConfig.schema({ image: () => z.string() })
 			: collectionConfig.schema;
+
+	if (!zodSchemaForJson && collectionConfig.type === CONTENT_LAYER_TYPE) {
+		zodSchemaForJson = await getContentLayerSchema(collectionConfig, collectionKey);
+	}
+
 	if (zodSchemaForJson instanceof z.ZodObject) {
 		zodSchemaForJson = zodSchemaForJson.extend({
 			$schema: z.string().optional(),
