@@ -9,8 +9,8 @@ This allows you to provide a value for [Shiki's `meta` attribute](https://shiki.
 The following example passes an option to highlight lines 1 and 3 to Shiki's `tranformerMetaHighlight`:
 
 ```astro
-// src/pages/index.astro
 ---
+// src/components/Card.astro
 import { Code } from "astro:components";
 import { transformerMetaHighlight } from '@shikijs/transformers';
 ---
