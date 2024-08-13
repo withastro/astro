@@ -9,11 +9,16 @@ Integrations can now use a new `injectTypes()` utility in the `astro:config:done
 Under the hood, it will create a file at `/.astro/integrations/<normalized_integration_name>/<normalized_filename>.d.ts` and create references to it. `injectTypes()` returns a URL to the normalized path.
 
 ```js
-const path = injectTypes({
-  filename: "types.d.ts",
-  content: "declare module 'virtual:integration' {}"
-})
-console.log(path) // URL
+// my-integration/index.js
+export default {
+  name: 'my-integration',
+  'astro:config:done': ({ injectTypes }) => {
+    injectTypes({
+      filename: "types.d.ts",
+      content: "declare module 'virtual:my-integration' {}"
+    })
+  }
+};
 ```
 
 Codegen has been refactored. Although `src/env.d.ts` will continue to work as is, we recommend you update it:
