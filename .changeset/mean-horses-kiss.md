@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds a new `injectTypes()` utility to the Integration API and refactors how type generation works
+Adds a new [`injectTypes()` utility](https://docs.astro.build/en/reference/integrations-reference/#injecttypes-options) to the Integration API and refactors how type generation works
 
 Use `injectTypes()` in the `astro:config:done` hook to inject types into your user's project by adding a new a `*.d.ts` file.
 
