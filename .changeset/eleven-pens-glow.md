@@ -2,9 +2,18 @@
 'astro': minor
 ---
 
-Deprecates exporting `prerender` with dynamic values. Only static values are supported by default. This allows for better treeshaking and bundling configuration in the future.
+Deprecates the option for route-generating files to export a dynamic value for `prerender`. Only static values are now supported (e.g. `export const prerender = true` or `= false`). This allows for better treeshaking and bundling configuration in the future.
 
-To migrate, use an integration with the `"astro:route:setup"` hook and update the route's `prerender` option:
+Adds a new `"astro:route:setup"` hook to the Integrations API to allow you to dynamically set options for a route at build or request time through an integration, such as enabling [on-demand server rendering](/en/guides/server-side-rendering/#opting-in-to-pre-rendering-in-server-mode).
+
+To migrate from a dynamic export to the new hook, update or remove any dynamic `prerender` exports from individual routing files:
+
+```diff
+// src/pages/blog/[slug].astro
+- export const prerender = import.meta.env.PRERENDER
+```
+
+Instead, create an integration with the `"astro:route:setup"` hook and update the route's `prerender` option:
 
 ```js
 // astro.config.mjs
