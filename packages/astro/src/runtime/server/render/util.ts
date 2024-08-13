@@ -8,9 +8,6 @@ export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 const htmlBooleanAttributes =
 	/^(?:allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|itemscope)$/i;
-const htmlEnumAttributes = /^(?:contenteditable|draggable|spellcheck|value)$/i;
-// Note: SVG is case-sensitive!
-const svgEnumAttributes = /^(?:autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
 
 const AMPERSAND_REGEX = /&/g;
 const DOUBLE_QUOTE_REGEX = /"/g;
@@ -67,13 +64,6 @@ export function addAttribute(value: any, key: string, shouldEscape = true) {
 		return '';
 	}
 
-	if (value === false) {
-		if (htmlEnumAttributes.test(key) || svgEnumAttributes.test(key)) {
-			return markHTMLString(` ${key}="false"`);
-		}
-		return '';
-	}
-
 	// compiler directives cannot be applied dynamically, log a warning and ignore.
 	if (STATIC_DIRECTIVES.has(key)) {
 		// eslint-disable-next-line no-console
@@ -115,11 +105,16 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 	}
 
 	// Boolean values only need the key
-	if (value === true && (key.startsWith('data-') || htmlBooleanAttributes.test(key))) {
-		return markHTMLString(` ${key}`);
-	} else {
-		return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
+	if (htmlBooleanAttributes.test(key)) {
+		return markHTMLString(value ? ` ${key}` : '');
 	}
+
+	// Other attributes with an empty string value can omit rendering the value
+	if (value === '') {
+		return markHTMLString(` ${key}`);
+	}
+
+	return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
 }
 
 // Adds support for `<Component {...value} />
