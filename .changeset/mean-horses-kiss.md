@@ -4,9 +4,13 @@
 
 Adds a new `injectTypes()` utility to the Integration API and refactors how type generation works
 
-Integrations can now use a new `injectTypes()` utility in the `astro:config:done` hook. This utility allows an integration to inject types into a user's project. `filename` must end with `".d.ts"` and `content` must be valid TypeScript (it will be formatted).
+Use `injectTypes()` in the `astro:config:done` hook to inject types into your user's project by adding a new a `*.d.ts` file.
 
-Under the hood, it will create a file at `/.astro/integrations/<normalized_integration_name>/<normalized_filename>.d.ts` and create references to it. `injectTypes()` returns a URL to the normalized path.
+The `filename` property will be used to generate a file at `/.astro/integrations/<normalized_integration_name>/<normalized_filename>.d.ts` and must end with `".d.ts"`.
+
+The `content` property will create the body of the file, and must be valid TypeScript.
+
+Additionally, `injectTypes()` returns a URL to the normalized path so you can overwrite its content later on, or manipulate it in any way you want.
 
 ```js
 // my-integration/index.js
