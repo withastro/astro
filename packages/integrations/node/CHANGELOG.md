@@ -1,5 +1,15 @@
 # @astrojs/node
 
+## 8.3.3
+
+### Patch Changes
+
+- [#11535](https://github.com/withastro/astro/pull/11535) [`932bd2e`](https://github.com/withastro/astro/commit/932bd2eb07f1d7cb2c91e7e7d31fe84c919e302b) Thanks [@matthewp](https://github.com/matthewp)! - Move polyfills up before awaiting the env module in the Node.js adapter.
+
+  Previously the env setting was happening before the polyfills were applied. This means that if the Astro env code (or any dependencies) depended on `crypto`, it would not be polyfilled in time.
+
+  Polyfills should be applied ASAP to prevent races. This moves it to the top of the Node adapter.
+
 ## 8.3.2
 
 ### Patch Changes
