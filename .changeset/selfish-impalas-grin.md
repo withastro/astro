@@ -1,6 +1,6 @@
 ---
-'@astrojs/vercel': minor
-'@astrojs/node': minor
+'@astrojs/vercel': major
+'@astrojs/node': major
 ---
 
 Adds stable support for `astro:env`
