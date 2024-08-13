@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { Worker } from 'node:worker_threads';
 import { fileURLToPath } from 'node:url';
+import { Worker } from 'node:worker_threads';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
