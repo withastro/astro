@@ -2256,7 +2256,7 @@ export interface AstroUserConfig {
 		 * The collection can be [queried in the same way as content collections](/en/guides/content-collections/#querying-collections):
 		 *
 		 * ```ts
-		 * // src/content/config.ts
+		 * // src/pages/index.astro
 		 * import { getCollection, getEntry } from 'astro:content';
 		 *
 		 * // Get all entries from a collection.
@@ -2274,7 +2274,7 @@ export interface AstroUserConfig {
 		 * The syntax for rendering collection entries is different from current content collections syntax.
 		 * :::
 		 *
-		 * ```astro title="src/pages/index.astro"
+		 * ```astro title="src/pages/[slug].astro"
 		 * ---
 		 * import { getEntry, render } from 'astro:content';
 		 *
@@ -2312,9 +2312,9 @@ export interface AstroUserConfig {
 		 * export const collections = { countries };
 		 * ```
 		 *
-		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading, and gives full access to the data store. See the API in [the draft Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/content-layer.md#loaders).
+		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading, and gives full access to the data store. See the API in [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md#loaders).
 		 *
-		 * #### Migrating a content collection to content layer
+		 * #### Migrating an existing content collection to use the Content Layer API
 		 *
 		 * You can convert an existing content collection with Markdown, MDX, Markdoc, or JSON entries to use the Content Layer API.
 		 *
@@ -2377,7 +2377,7 @@ export interface AstroUserConfig {
 		 *
 		 * #### Learn more
 		 *
-		 * For a complete overview and the full API reference, see [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/content-layer.md) and [share your feedback on the roadmap discussion](https://github.com/withastro/roadmap/pull/982).
+		 * For a complete overview and the full API reference, see [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md) and [share your feedback](https://github.com/withastro/roadmap/pull/982).
 		 */
 		contentLayer?: boolean;
 	};
