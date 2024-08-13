@@ -32,7 +32,7 @@ import { formatList, internalSpreadAttributes, renderElement, voidElementNames }
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 const rendererAliases = new Map([['solid', 'solid-js']]);
-const clientOnlyValues = new Set(['solid-js', 'react', 'preact', 'vue', 'svelte', 'lit']);
+const clientOnlyValues = new Set(['solid-js', 'react', 'preact', 'vue', 'svelte']);
 
 function guessRenderers(componentUrl?: string): string[] {
 	const extname = componentUrl?.split('.').pop();
@@ -51,7 +51,6 @@ function guessRenderers(componentUrl?: string): string[] {
 				'@astrojs/solid-js',
 				'@astrojs/vue',
 				'@astrojs/svelte',
-				'@astrojs/lit',
 			];
 	}
 }
