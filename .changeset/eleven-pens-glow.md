@@ -18,18 +18,21 @@ Instead, create an integration with the `"astro:route:setup"` hook and update th
 ```js
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
+import { loadEnv } from 'vite';
 
 export default defineConfig({
   integrations: [setPrerender()],
 });
 
 function setPrerender() {
+  const { PRERENDER } = loadEnv(process.env.NODE_ENV, process.cwd(), '');
+
   return {
     name: 'set-prerender',
     hooks: {
       'astro:route:setup': ({ route }) => {
         if (route.component.endsWith('/blog/[slug].astro')) {
-          route.prerender = true;
+          route.prerender = PRERENDER;
         }
       },
     },
