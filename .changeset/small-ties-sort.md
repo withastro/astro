@@ -6,7 +6,7 @@ Fixes attribute rendering for non-[boolean HTML attributes](https://developer.mo
 
 Previously, non-boolean attributes may not have included their values when rendered to HTML. In Astro v5.0, the values are now explicitly rendered as `="true"` or `="false"`
 
-In the following `.astro` examples passed values of `true` and `false`, only `allowfullscreen` is a boolean attribute:
+In the following `.astro` examples, only `allowfullscreen` is a boolean attribute:
 
 ```astro
 <!-- src/pages/index.astro -->
