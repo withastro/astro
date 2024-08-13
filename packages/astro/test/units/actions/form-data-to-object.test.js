@@ -46,9 +46,9 @@ describe('formDataToObject', () => {
 	it('should handle boolean checks', () => {
 		const formData = new FormData();
 		formData.set('isCool', 'yes');
-		formData.set('isTrue', true)
-		formData.set("isFalse", false);
-		formData.set("falseString", 'false')
+		formData.set('isTrue', true);
+		formData.set('isFalse', false);
+		formData.set('falseString', 'false');
 
 		const input = z.object({
 			isCool: z.boolean(),
@@ -63,7 +63,7 @@ describe('formDataToObject', () => {
 		assert.equal(res.isNotCool, false);
 		assert.equal(res.isTrue, true);
 		assert.equal(res.isFalse, false);
-		assert.equal(res.falseString, false)
+		assert.equal(res.falseString, false);
 	});
 
 	it('should handle optional values', () => {
@@ -102,34 +102,34 @@ describe('formDataToObject', () => {
 
 	it('should handle zod default values', () => {
 		const formData = new FormData();
-		
+
 		const input = z.object({
-			name: z.string().default("test"),
+			name: z.string().default('test'),
 			email: z.string().default('test@test.test'),
-			favoriteNumbers: z.array(z.number()).default([1,2])
+			favoriteNumbers: z.array(z.number()).default([1, 2]),
 		});
 
 		const res = formDataToObject(formData, input);
 		assert.equal(res.name, 'test');
 		assert.equal(res.email, 'test@test.test');
 		assert.deepEqual(res.favoriteNumbers, [1, 2]);
-	})
+	});
 
 	it('should handle zod chaining of optional, default, and nullish values', () => {
 		const formData = new FormData();
-		formData.set('email', 'test@test.test')
-		
+		formData.set('email', 'test@test.test');
+
 		const input = z.object({
-			name: z.string().default("test").optional(),
+			name: z.string().default('test').optional(),
 			email: z.string().optional().nullish(),
-			favoriteNumbers: z.array(z.number()).default([1,2]).nullish().optional()
+			favoriteNumbers: z.array(z.number()).default([1, 2]).nullish().optional(),
 		});
 
 		const res = formDataToObject(formData, input);
 		assert.equal(res.name, 'test');
 		assert.equal(res.email, 'test@test.test');
-		assert.deepEqual(res.favoriteNumbers, [1, 2])
-	})
+		assert.deepEqual(res.favoriteNumbers, [1, 2]);
+	});
 
 	it('should handle File objects', () => {
 		const formData = new FormData();
@@ -179,17 +179,17 @@ describe('formDataToObject', () => {
 	it('should handle an array of File objects', () => {
 		const formData = new FormData();
 		const file1 = new File([''], 'test1.txt');
-		const file2 = new File([''], 'test2.txt')
+		const file2 = new File([''], 'test2.txt');
 		formData.append('files', file1);
 		formData.append('files', file2);
 
 		const input = z.object({
-			files: z.array(z.instanceof(File))
+			files: z.array(z.instanceof(File)),
 		});
 
 		const res = formDataToObject(formData, input);
 
 		assert.equal(res.files instanceof Array, true);
-		assert.deepEqual(res.files, [file1, file2])
+		assert.deepEqual(res.files, [file1, file2]);
 	});
 });

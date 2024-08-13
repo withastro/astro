@@ -135,20 +135,24 @@ export function formDataToObject<T extends z.AnyZodObject>(
 	for (const [key, baseValidator] of Object.entries(schema.shape)) {
 		let validator = baseValidator;
 
-		while (validator instanceof z.ZodOptional || validator instanceof z.ZodNullable || validator instanceof z.ZodDefault) {
+		while (
+			validator instanceof z.ZodOptional ||
+			validator instanceof z.ZodNullable ||
+			validator instanceof z.ZodDefault
+		) {
 			// use default value when key is undefined
-			if(validator instanceof z.ZodDefault && !formData.has(key)) {
-				obj[key] = validator._def.defaultValue();				
+			if (validator instanceof z.ZodDefault && !formData.has(key)) {
+				obj[key] = validator._def.defaultValue();
 			}
 			validator = validator._def.innerType;
 		}
 
-    if (!formData.has(key) && key in obj) {
+		if (!formData.has(key) && key in obj) {
 			// continue loop if form input is not found and default value is set
-      continue;
-    } else if (validator instanceof z.ZodBoolean) {	
-			const val = formData.get(key);		
-			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(key)
+			continue;
+		} else if (validator instanceof z.ZodBoolean) {
+			const val = formData.get(key);
+			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(key);
 		} else if (validator instanceof z.ZodArray) {
 			obj[key] = handleFormDataGetAll(key, formData, validator);
 		} else {
