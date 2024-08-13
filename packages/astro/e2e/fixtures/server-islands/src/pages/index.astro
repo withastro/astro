@@ -8,7 +8,7 @@ import Self from '../components/Self.astro';
 		<!-- Head Stuff -->
 	</head>
 	<body>
-		<Island server:defer>
+		<Island server:defer secret="test">
 			<h3 id="children">children</h3>
 		</Island>
 		<Self server:defer />

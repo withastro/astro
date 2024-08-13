@@ -11,7 +11,7 @@ import type {
 } from '../@types/astro.js';
 import type { ActionAPIContext } from '../actions/runtime/utils.js';
 import { deserializeActionResult } from '../actions/runtime/virtual/shared.js';
-import { createCallAction, createGetActionResult, hasActionsInternal } from '../actions/utils.js';
+import { createCallAction, createGetActionResult, hasActionPayload } from '../actions/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
@@ -314,8 +314,8 @@ export class RenderContext {
 			},
 		} satisfies AstroGlobal['response'];
 
-		const actionResult = hasActionsInternal(this.locals)
-			? deserializeActionResult(this.locals._actionsInternal.actionResult)
+		const actionResult = hasActionPayload(this.locals)
+			? deserializeActionResult(this.locals._actionPayload.actionResult)
 			: undefined;
 
 		// Create the result object that will be passed into the renderPage function.
@@ -344,6 +344,7 @@ export class RenderContext {
 			styles,
 			actionResult,
 			serverIslandNameMap: manifest.serverIslandNameMap ?? new Map(),
+			key: manifest.key,
 			trailingSlash: manifest.trailingSlash,
 			_metadata: {
 				hasHydrationScript: false,

@@ -144,7 +144,6 @@ export default [
 		files: ['packages/**/test/*.js', 'packages/**/*.js'],
 		languageOptions: {
 			globals: {
-				mocha: true,
 				globalThis: false, // false means read-only
 			},
 		},

@@ -39,7 +39,7 @@ export type ActionClient<
 				input: TAccept extends 'form' ? FormData : z.input<TInputSchema>,
 			) => Promise<Awaited<TOutput>>;
 		}
-	: (input?: any) => Promise<SafeResult<never, Awaited<TOutput>>> & {
+	: ((input?: any) => Promise<SafeResult<never, Awaited<TOutput>>>) & {
 			orThrow: (input?: any) => Promise<Awaited<TOutput>>;
 		};
 
@@ -134,11 +134,25 @@ export function formDataToObject<T extends z.AnyZodObject>(
 	const obj: Record<string, unknown> = {};
 	for (const [key, baseValidator] of Object.entries(schema.shape)) {
 		let validator = baseValidator;
-		while (validator instanceof z.ZodOptional || validator instanceof z.ZodNullable) {
+
+		while (
+			validator instanceof z.ZodOptional ||
+			validator instanceof z.ZodNullable ||
+			validator instanceof z.ZodDefault
+		) {
+			// use default value when key is undefined
+			if (validator instanceof z.ZodDefault && !formData.has(key)) {
+				obj[key] = validator._def.defaultValue();
+			}
 			validator = validator._def.innerType;
 		}
-		if (validator instanceof z.ZodBoolean) {
-			obj[key] = formData.has(key);
+
+		if (!formData.has(key) && key in obj) {
+			// continue loop if form input is not found and default value is set
+			continue;
+		} else if (validator instanceof z.ZodBoolean) {
+			const val = formData.get(key);
+			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(key);
 		} else if (validator instanceof z.ZodArray) {
 			obj[key] = handleFormDataGetAll(key, formData, validator);
 		} else {
