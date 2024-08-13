@@ -2,89 +2,106 @@
 'astro': minor
 ---
 
-Adds experimental support for the content layer API.
+Adds experimental support for the Content Layer API.
 
-The Content Layer API is a new way to handle content in Astro. It builds upon the content collections, taking them beyond local files in `src/content` and allowing you to fetch content from anywhere, including remote APIs, or files anywhere in your project. As well as being more powerful, the Content Layer is designed to be more performant, helping sites scale to thousands of pages. Data is cached between builds and updated incrementally. Markdown parsing is also 5-10x faster, and uses much less memory.
+The new Content Layer API builds upon content collections, taking them beyond local files in `src/content/` and allowing you to fetch content from anywhere, including remote APIs. These new collections work alongside your existing content collections, and you can migrate them to the new API at your own pace. There are significant improvements to performance with large collections of local files. 
 
-You can try content layer with your existing content, or try a custom loader.
+### Getting started
 
-### Migrating a markdown or MDX collection to content layer
+To try out the new Content Layer API, enable it in your Astro config:
 
-You can try converting an existing content collection to content layer if it uses markdown or MDX, with these steps:
+```js
+import { defineConfig } from 'astro';
 
-1. **Move the collection folder out of `src/content`.** This is so it won't be handled as a current content collection. This example assumes the content has been moved to `src/data`. The `config.ts` file must remain in `src/content`.
-2. **Edit the collection definition**:
+export default defineConfig({
+  experimental: {
+    contentLayer: true
+  }
+})
+```
 
-```diff
+You can then create collections in your `src/content/config.ts` using the Content Layer API.
+
+### Loading your content
+
+The core of the new Content Layer API is the loader, a function that fetches content from a source and caches it in a local data store. Astro 4.14 ships with built-in `glob()` and `file()` loaders to handle your local Markdown, MDX, Markdoc, and JSON files:
+
+```ts {3,7}
+// src/content/config.ts
 import { defineCollection, z } from 'astro:content';
-+ import { glob } from 'astro/loaders';
-
+import { glob } from 'astro/loaders';
+		 
 const blog = defineCollection({
-- type: 'content',
-+ type: "experimental_content",
-+ loader: glob({ pattern: "**/*.md", base: "./src/data/blog" }),	
+  // The ID is a slug generated from the path of the file relative to `base`
+  loader: glob({ pattern: "**/*.md", base: "./src/data/blog" }),
   schema: z.object({
-		title: z.string(),
-		description: z.string(),
-		pubDate: z.coerce.date(),
-		updatedDate: z.coerce.date().optional(),
-	}),
+    title: z.string(),
+    description: z.string(),
+    publishDate: z.coerce.date(),
+  })
 });
+
+export const collections = { blog };
 ```
 
-3. **Change references from `slug` to `id`**. Content layer collections do not have a `slug` field by default. You should use `id` instead.
+You can then use the content in your site:
 
-```diff
+```astro
 ---
-export async function getStaticPaths() {
-	const posts = await getCollection('blog');
-	return posts.map((post) => ({
--   params: { slug: post.slug },
-+   params: { slug: post.id },
-    props: post,
-	}));
-}
----
-```
+import { getEntry, render } from 'astro:content';
 
-4. **Change references to markdown `headings` and switch to the new `render()` function**. Entries no longer have a `render()` method, as they are now serializable plain objects. Instead, import the `render()` function from `astro:content`. Markdown headings in content layer are not returned by `render()`, but are instead a property of `post.rendered.metadata`: 
+const post = await getEntry('blog', Astro.params.slug);
 
-```diff
----
-- import { getEntry } from 'astro:content';
-+ import { getEntry, render } from 'astro:content';
-
-  const post = await getEntry('blog', params.slug);
-
-- const { Content, headings } = await post.render();
-+ const { Content } = await render(entry);
-+ const headings = post.rendered?.metadata?.headings;
+const { Content } = await render(entry);
 ---
 
 <Content />
 ```
 
-The `getEntryBySlug` and `getDataEntryByID` functions are deprecated and cannot be used with content layer collections. Instead, use `getEntry`, which is a drop-in replacement for both.
+### Creating a loader
 
-### Creating a content layer loader
-
-The simplest type of loader is an async function that returns an array of objects, each of which has an `id`:
+You're not restricted to the built-in loaders – we hope you'll try building your own. You can fetch content from anywhere and return an array of entries:
 
 ```ts
+// src/content/config.ts
 const countries = defineCollection({
-  type: "experimental_content",
   loader: async () => {
     const response = await fetch("https://restcountries.com/v3.1/all");
     const data = await response.json();
-    // Must return an array of entries with an id property, or an object with IDs as keys and entries as values
+    // Must return an array of entries with an id property,
+    // or an object with IDs as keys and entries as values
     return data.map((country) => ({
       id: country.cca3,
       ...country,
     }));
   },
+  // optionally add a schema to validate the data and make it type-safe for users
+  // schema: z.object...
 });
 
 export const collections = { countries };
 ```
 
-For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading, and gives full access to the data store. See the API in [the draft RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/content-layer.md#loaders).
+For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading, and gives full access to the data store. It also allows a loader to define its own schema, including generating it dynamically based on the source API. See the [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md#loaders) for more details.
+
+### Sharing your loaders
+
+Loaders are better when they're shared. You can create a package that exports a loader and publish it to npm, and then anyone can use it on their site. We're excited to see what the community comes up with! To get started, [take a look at some examples](https://github.com/ascorbic/astro-loaders/). Here's how to load content using an RSS/Atom feed loader:
+
+```ts
+// src/content/config.ts
+import { defineCollection } from "astro:content";
+import { feedLoader } from "@ascorbic/feed-loader";
+
+const podcasts = defineCollection({
+  loader: feedLoader({
+    url: "https://feeds.99percentinvisible.org/99percentinvisible",
+  }),
+});
+
+export const collections = { podcasts };
+```
+
+### Learn more
+
+To find out more about using the Content Layer API, check out [the Content Layer RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md) and [share your feedback](https://github.com/withastro/roadmap/pull/982).
