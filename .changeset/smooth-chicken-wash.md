@@ -44,7 +44,7 @@ const blog = defineCollection({
 export const collections = { blog };
 ```
 
-You can then use the content in your site:
+You can then query using the existing content collections functions, and enjoy a simplified `render()` function to display your content:
 
 ```astro
 ---
