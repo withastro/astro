@@ -50,6 +50,7 @@ export async function setUpEnvTs({
 		},
 		{
 			filename: ENV_TYPES_FILE,
+			meetsCondition: () => fs.existsSync(new URL(ENV_TYPES_FILE, settings.dotAstroDir)),
 		},
 	];
 
