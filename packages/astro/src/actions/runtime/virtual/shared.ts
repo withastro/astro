@@ -214,7 +214,7 @@ export type SerializedActionResult =
 export function serializeActionResult(res: SafeResult<any, any>): SerializedActionResult {
 	if (res.error) {
 		if (import.meta.env?.DEV) {
-			actionResultErrorStack.set(res.error.stack)
+			actionResultErrorStack.set(res.error.stack);
 		}
 		return {
 			type: 'error',
@@ -222,7 +222,7 @@ export function serializeActionResult(res: SafeResult<any, any>): SerializedActi
 			contentType: 'application/json',
 			body: JSON.stringify({
 				...res.error,
-				message: res.error.message
+				message: res.error.message,
 			}),
 		};
 	}
@@ -251,8 +251,9 @@ export function deserializeActionResult(res: SerializedActionResult): SafeResult
 			const error = ActionError.fromJson(JSON.parse(res.body));
 			error.stack = actionResultErrorStack.get();
 			return {
-				error, data: undefined
-			}
+				error,
+				data: undefined,
+			};
 		}
 	}
 	if (res.type === 'empty') {
@@ -266,8 +267,8 @@ export function deserializeActionResult(res: SerializedActionResult): SafeResult
 	};
 }
 
-// in-memory singleton to save the stack trace 
-const actionResultErrorStack = function actionResultErrorStackFn() {
+// in-memory singleton to save the stack trace
+const actionResultErrorStack = (function actionResultErrorStackFn() {
 	let errorStack: string | undefined;
 	return {
 		set(stack: string | undefined) {
@@ -275,6 +276,6 @@ const actionResultErrorStack = function actionResultErrorStackFn() {
 		},
 		get() {
 			return errorStack;
-		}
-	}
-}();
+		},
+	};
+})();
