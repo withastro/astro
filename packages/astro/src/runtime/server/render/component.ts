@@ -285,24 +285,6 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		}
 	}
 
-	// HACK! The lit renderer doesn't include a clientEntrypoint for custom elements, allow it
-	// to render here until we find a better way to recognize when a client entrypoint isn't required.
-	if (
-		renderer &&
-		!renderer.clientEntrypoint &&
-		renderer.name !== '@astrojs/lit' &&
-		metadata.hydrate
-	) {
-		throw new AstroError({
-			...AstroErrorData.NoClientEntrypoint,
-			message: AstroErrorData.NoClientEntrypoint.message(
-				displayName,
-				metadata.hydrate,
-				renderer.name,
-			),
-		});
-	}
-
 	// This is a custom element without a renderer. Because of that, render it
 	// as a string and the user is responsible for adding a script tag for the component definition.
 	if (!html && typeof Component === 'string') {
