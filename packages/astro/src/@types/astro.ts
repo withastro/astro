@@ -2188,7 +2188,7 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.contentCollectionIntellisense
+		 * @name experimental.contentIntellisense
 		 * @type {boolean}
 		 * @default `false`
 		 * @version 4.14.0
