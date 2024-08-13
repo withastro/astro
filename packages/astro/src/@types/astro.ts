@@ -1032,7 +1032,7 @@ export interface AstroUserConfig {
 		 * @description
 		 * Specifies the delimiter for attaching the hash to the filename.
 		 *
-		 * By default, astro generates optimized images following the format `filename_hash.ext`. If you want to change the delimiter from 
+		 * By default, astro generates optimized images following the format `filename_hash.ext`. If you want to change the delimiter from
 		 * `_` to `-`, you can use this option.
 		 *
 		 * ```js
