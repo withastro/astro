@@ -26,17 +26,17 @@ In the following `.astro` examples passed values of `true` and `false`, only `al
 Astro v5.0 now preserves the full data attribute with its value when rendering the HTML of non-boolean attributes:
 
 ```diff
-  <p allowfullscren></p>
+  <p allowfullscreen></p>
   <p></p>
 
-  <p unknown="true"></p>
-- <p unknown></p>
-+ <p unknown="false"></p>
+  <p inherit="true"></p>
+- <p inherit></p>
++ <p inherit="false"></p>
 
-- <p data-foo></p>
-+ <p data-foo="true"></p>
+- <p data-light></p>
++ <p data-light="true"></p>
 - <p></p>
-+ <p data-foo="false"></p>
++ <p data-light="false"></p>
 ```
 
 If you rely on attribute values, for example to locate elements or to conditionally render, update your code to match the new non-boolean attribute values:
@@ -46,5 +46,5 @@ If you rely on attribute values, for example to locate elements or to conditiona
 + el.getAttribute('inherit') === 'false'
 
 - el.hasAttribute('data-light')
-+ el.dataset.foo === 'true'
++ el.dataset.light === 'true'
 ```
