@@ -18,9 +18,9 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "astro": "^4.13.3",
-    "postcss": "^8.4.40",
+    "postcss": "^8.4.41",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "tailwindcss": "^3.4.7"
+    "tailwindcss": "^3.4.9"
   }
 }

@@ -17,6 +17,7 @@ import type {
 import { getDefaultClientDirectives } from '../core/client-directive/index.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
 import { validateConfig } from '../core/config/validate.js';
+import { createKey } from '../core/encryption.js';
 import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
@@ -130,6 +131,7 @@ function createManifest(
 		checkOrigin: false,
 		middleware: manifest?.middleware ?? middleware ?? defaultMiddleware,
 		experimentalEnvGetSecretEnabled: false,
+		key: createKey(),
 	};
 }
 
