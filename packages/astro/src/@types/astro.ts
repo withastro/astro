@@ -2194,7 +2194,7 @@ export interface AstroUserConfig {
 		 * @version 4.14.0
 		 * @description
 		 *
-		 * The Content Layer API is a new way to handle content and data in Astro. It is similar to and builds upon [content collections](/en/guides/content-collections/), taking them beyond local files in `src/content` and allowing you to fetch content from anywhere, including remote APIs, or files anywhere in your project by adding a `loader` to your collection.
+		 * The Content Layer API is a new way to handle content and data in Astro. It is similar to and builds upon [content collections](/en/guides/content-collections/), taking them beyond local files in `src/content/` and allowing you to fetch content from anywhere, including remote APIs, or files anywhere in your project by adding a `loader` to your collection.
 		 *
 		 * Your existing content collections can be [migrated to the Content Layer API](#migrating-a-content-collection-to-content-layer) with a few small changes. However, it is not necessary to update all your collections at once to add a new collection powered by the Content Layer API. You may have collections using both the existing and new APIs defined in `src/content/config.ts` at the same time.
 		 *
@@ -2217,7 +2217,7 @@ export interface AstroUserConfig {
 		 *
 		 * The `loader` is defined in the collection's schema and returns an array of entries. Astro provides two built-in loader functions (`glob()` and `file()`) for fetching your local content, as well as access to the API to [construct your own loader and fetch remote data](#creating-a-loader).
 		 *
-		 * The `glob()` loader creates entries from directories of Markdown, MDX or JSON files from anywhere on the filesystem. It accepts a `pattern` of entry files to match, and a `base` file path of where your files are located. Use this when you have one file per entry.
+		 * The `glob()` loader creates entries from directories of Markdown, MDX, Markdoc, or JSON files from anywhere on the filesystem. It accepts a `pattern` of entry files to match, and a `base` file path of where your files are located. Use this when you have one file per entry.
 		 *
 		 * The `file()` loader creates multiple entries from a single local file. Use this when all your entries are stored in an array of objects.
 		 *
@@ -2268,7 +2268,7 @@ export interface AstroUserConfig {
 		 *
 		 * Entries generated from markdown or MDX can be rendered directly to a page using the `render()` function.
 		 *
-		 * :::caution
+		 * :::note
 		 * The syntax for rendering collection entries is different from current content collections syntax.
 		 * :::
 		 *
@@ -2315,9 +2315,9 @@ export interface AstroUserConfig {
 		 *
 		 * #### Migrating a content collection to content layer
 		 *
-		 * You can convert an existing content collection with Markdown, MDX, or JSON entries to use the Content Layer API.
+		 * You can convert an existing content collection with Markdown, MDX, Markdoc, or JSON entries to use the Content Layer API.
 		 *
-		 * 1. **Move the collection folder out of `src/content`** (e.g. to `src/data/`). All collections in the `src/content/` folder will use the existing Content Collections API.
+		 * 1. **Move the collection folder out of `src/content/`** (e.g. to `src/data/`). All collections located in the `src/content/` folder will use the existing Content Collections API.
 		 *
 		 *     **Do not move the existing `src/content/config.ts` file**. This file will define all collections, using either API.
 		 *
@@ -2329,7 +2329,7 @@ export interface AstroUserConfig {
 		 *     + import { glob } from 'astro/loaders';
 		 *
 		 *     const blog = defineCollection({
-		 *       // For content layer you do not define a `type`
+		 *       // For content layer you no longer define a `type`
 		 *     - type: 'content',
 		 *     + loader: glob({ pattern: "**\/*.md", base: "./src/data/blog" }),
 		 *       schema: z.object({
