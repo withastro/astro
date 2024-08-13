@@ -2361,7 +2361,7 @@ export type GetDataEntryInfoReturnType = { data: Record<string, unknown>; rawDat
 
 export interface AstroAdapterFeatures {
 	/**
-	 * Creates and edge function that will communiate with the Astro middleware
+	 * Creates an edge function that will communiate with the Astro middleware
 	 */
 	edgeMiddleware: boolean;
 	/**
