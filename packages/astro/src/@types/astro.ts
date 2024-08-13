@@ -2194,7 +2194,7 @@ export interface AstroUserConfig {
 		 * @version 4.14.0
 		 * @description
 		 *
-		 * The Content Layer API is a new way to handle content and data in Astro. It is similar to and builds upon [content collections](/en/guides/content-collections/), taking them beyond local files in `src/content/` and allowing you to fetch content from anywhere, including remote APIs, or files anywhere in your project by adding a `loader` to your collection.
+		 * The Content Layer API is a new way to handle content and data in Astro. It is similar to and builds upon [content collections](/en/guides/content-collections/), taking them beyond local files in `src/content/` and allowing you to fetch content from anywhere, including remote APIs, by adding a `loader` to your collection.
 		 *
 		 * Your existing content collections can be [migrated to the Content Layer API](#migrating-a-content-collection-to-content-layer) with a few small changes. However, it is not necessary to update all your collections at once to add a new collection powered by the Content Layer API. You may have collections using both the existing and new APIs defined in `src/content/config.ts` at the same time.
 		 *
@@ -2253,7 +2253,7 @@ export interface AstroUserConfig {
 		 *
 		 * #### Querying and rendering with the Content Layer API
 		 *
-		 * The collection can be queried in the same way as content collections:
+		 * The collection can be [queried in the same way as content collections](/en/guides/content-collections/#querying-collections):
 		 *
 		 * ```ts
 		 * // src/content/config.ts
@@ -2274,8 +2274,7 @@ export interface AstroUserConfig {
 		 * The syntax for rendering collection entries is different from current content collections syntax.
 		 * :::
 		 *
-		 * ```astro
-		 * // src/pages/index.astro
+		 * ```astro title="src/pages/index.astro"
 		 * ---
 		 * import { getEntry, render } from 'astro:content';
 		 *
