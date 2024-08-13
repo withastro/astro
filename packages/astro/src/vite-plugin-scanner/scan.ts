@@ -1,11 +1,8 @@
-import type { AstroSettings, RouteOptions } from '../@types/astro.js';
+import type { AstroSettings } from '../@types/astro.js';
 import type { PageOptions } from '../vite-plugin-astro/types.js';
 
 import * as eslexer from 'es-module-lexer';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { rootRelativePath } from '../core/viteUtils.js';
-import { runHookRouteSetup } from '../integrations/hooks.js';
-import type { Logger } from '../core/logger/core.js';
 
 const BOOLEAN_EXPORTS = new Set(['prerender']);
 
@@ -39,13 +36,10 @@ function isFalsy(value: string) {
 
 let didInit = false;
 
-// NOTE: `fileURL`, `settings`, and `logger` are only undefined in tests
 export async function scan(
 	code: string,
 	id: string,
-	fileURL?: URL,
 	settings?: AstroSettings,
-	logger?: Logger,
 ): Promise<PageOptions> {
 	if (!includesExport(code)) return {};
 	if (!didInit) {
@@ -86,15 +80,6 @@ export async function scan(
 				pageOptions[name as keyof PageOptions] = isTruthy(suffix);
 			}
 		}
-	}
-
-	if (settings && logger && fileURL) {
-		const route: RouteOptions = {
-			component: rootRelativePath(settings.config.root, fileURL, false),
-			prerender: pageOptions.prerender,
-		};
-		await runHookRouteSetup({ route, settings, logger });
-		pageOptions.prerender = route.prerender;
 	}
 
 	return pageOptions;
