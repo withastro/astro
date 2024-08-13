@@ -123,7 +123,7 @@
     "test:node": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "^2.10.1",
+    "@astrojs/compiler": "^2.10.2",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
@@ -134,6 +134,7 @@
     "@babel/traverse": "^7.25.3",
     "@babel/types": "^7.25.2",
     "@rollup/pluginutils": "^5.1.0",
+    "@oslojs/encoding": "^0.4.1",
     "@types/babel__core": "^7.20.5",
     "@types/cookie": "^0.6.0",
     "acorn": "^8.12.1",
@@ -181,7 +182,7 @@
     "tsconfck": "^3.1.1",
     "unist-util-visit": "^5.0.0",
     "vfile": "^6.0.2",
-    "vite": "^5.3.5",
+    "vite": "^5.4.0",
     "vitefu": "^0.2.5",
     "which-pm": "^3.0.0",
     "xxhash-wasm": "^1.0.2",
@@ -194,8 +195,8 @@
     "sharp": "^0.33.3"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.1",
-    "@playwright/test": "^1.45.3",
+    "@astrojs/check": "^0.9.2",
+    "@playwright/test": "^1.46.0",
     "@types/aria-query": "^5.0.4",
     "@types/babel__generator": "^7.6.8",
     "@types/babel__traverse": "^7.20.6",
@@ -214,7 +215,7 @@
     "@types/semver": "^7.5.8",
     "@types/yargs-parser": "^21.0.3",
     "astro-scripts": "workspace:*",
-    "cheerio": "1.0.0-rc.12",
+    "cheerio": "1.0.0",
     "eol": "^0.9.1",
     "expect-type": "^0.19.0",
     "mdast-util-mdx": "^3.0.0",
@@ -228,7 +229,7 @@
     "remark-code-titles": "^0.1.2",
     "rollup": "^4.20.0",
     "sass": "^1.77.8",
-    "undici": "^6.19.5",
+    "undici": "^6.19.7",
     "unified": "^11.0.5"
   },
   "engines": {

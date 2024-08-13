@@ -2544,7 +2544,7 @@ export type GetDataEntryInfoReturnType = { data: Record<string, unknown>; rawDat
 
 export interface AstroAdapterFeatures {
 	/**
-	 * Creates and edge function that will communiate with the Astro middleware
+	 * Creates an edge function that will communiate with the Astro middleware
 	 */
 	edgeMiddleware: boolean;
 	/**
@@ -3488,6 +3488,7 @@ export interface SSRResult {
 	cookies: AstroCookies | undefined;
 	serverIslandNameMap: Map<string, string>;
 	trailingSlash: AstroConfig['trailingSlash'];
+	key: Promise<CryptoKey>;
 	_metadata: SSRMetadata;
 }
 

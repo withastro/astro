@@ -23,6 +23,7 @@ import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
+import { createKey } from '../encryption.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
@@ -196,6 +197,7 @@ class AstroBuilder {
 			pageNames,
 			teardownCompiler: this.teardownCompiler,
 			viteConfig,
+			key: createKey(),
 		};
 
 		const { internals, ssrOutputChunkNames, contentFileNames } = await viteBuild(opts);
