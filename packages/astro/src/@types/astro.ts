@@ -2586,10 +2586,6 @@ export interface AstroAdapterFeatures {
 	 * Creates an edge function that will communiate with the Astro middleware
 	 */
 	edgeMiddleware: boolean;
-	/**
-	 * SSR only. Each route becomes its own function/file.
-	 */
-	functionPerRoute: boolean;
 }
 
 export interface InjectedType {

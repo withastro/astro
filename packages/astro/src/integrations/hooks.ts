@@ -624,11 +624,3 @@ export async function runHookRouteSetup({
 		);
 	}
 }
-
-export function isFunctionPerRouteEnabled(adapter: AstroAdapter | undefined): boolean {
-	if (adapter?.adapterFeatures?.functionPerRoute === true) {
-		return true;
-	} else {
-		return false;
-	}
-}
