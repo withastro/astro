@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "4.13.3",
+  "version": "4.13.4",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -68,6 +68,7 @@
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/squoosh": "./dist/assets/services/squoosh.js",
     "./assets/services/noop": "./dist/assets/services/noop.js",
+    "./loaders": "./dist/content/loaders/index.js",
     "./content/runtime": "./dist/content/runtime.js",
     "./content/runtime-assets": "./dist/content/runtime-assets.js",
     "./debug": "./components/Debug.astro",
@@ -132,6 +133,7 @@
     "@babel/plugin-transform-react-jsx": "^7.25.2",
     "@babel/traverse": "^7.25.3",
     "@babel/types": "^7.25.2",
+    "@rollup/pluginutils": "^5.1.0",
     "@oslojs/encoding": "^0.4.1",
     "@types/babel__core": "^7.20.5",
     "@types/cookie": "^0.6.0",
@@ -163,7 +165,9 @@
     "js-yaml": "^4.1.0",
     "kleur": "^4.1.5",
     "magic-string": "^0.30.11",
+    "micromatch": "^4.0.7",
     "mrmime": "^2.0.0",
+    "neotraverse": "^0.6.9",
     "ora": "^8.0.1",
     "p-limit": "^6.1.0",
     "p-queue": "^8.0.1",
@@ -181,9 +185,10 @@
     "vite": "^5.4.0",
     "vitefu": "^0.2.5",
     "which-pm": "^3.0.0",
-    "yargs-parser": "^21.1.1",
+    "xxhash-wasm": "^1.0.2",
     "zod": "^3.23.8",
-    "zod-to-json-schema": "^3.23.2"
+    "zod-to-json-schema": "^3.23.2",
+    "zod-to-ts": "^1.2.0"
   },
   "optionalDependencies": {
     "sharp": "^0.33.3"
@@ -204,9 +209,9 @@
     "@types/html-escaper": "^3.0.2",
     "@types/http-cache-semantics": "^4.0.4",
     "@types/js-yaml": "^4.0.9",
+    "@types/micromatch": "^4.0.9",
     "@types/prompts": "^2.4.9",
     "@types/semver": "^7.5.8",
-    "@types/yargs-parser": "^21.0.3",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "eol": "^0.9.1",

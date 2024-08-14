@@ -1,16 +1,17 @@
-import fsMod from 'node:fs';
+import fsMod, { existsSync } from 'node:fs';
 import { performance } from 'node:perf_hooks';
-import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
 import { type HMRPayload, createServer } from 'vite';
 import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
-import { getPackage } from '../../cli/install-package.js';
+import { DATA_STORE_FILE } from '../../content/consts.js';
+import { globalContentLayer } from '../../content/content-layer.js';
+import { DataStore, globalDataStore } from '../../content/data-store.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
-import { runHookConfigSetup } from '../../integrations/hooks.js';
+import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
@@ -27,7 +28,7 @@ import {
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
-import { setUpEnvTs } from './setup-env-ts.js';
+import { writeFiles } from './write-files.js';
 
 export type SyncOptions = {
 	/**
@@ -36,21 +37,17 @@ export type SyncOptions = {
 	fs?: typeof fsMod;
 	logger: Logger;
 	settings: AstroSettings;
+	force?: boolean;
 	skip?: {
 		// Must be skipped in dev
 		content?: boolean;
 	};
 };
 
-type DBPackage = {
-	typegen?: (args: Pick<AstroConfig, 'root' | 'integrations'>) => Promise<void>;
-};
-
-export default async function sync({
-	inlineConfig,
-	fs,
-	telemetry: _telemetry = false,
-}: { inlineConfig: AstroInlineConfig; fs?: typeof fsMod; telemetry?: boolean }) {
+export default async function sync(
+	inlineConfig: AstroInlineConfig,
+	{ fs, telemetry: _telemetry = false }: { fs?: typeof fsMod; telemetry?: boolean } = {},
+) {
 	ensureProcessNodeEnv('production');
 	const logger = createNodeLogger(inlineConfig);
 	const { astroConfig, userConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
@@ -63,7 +60,24 @@ export default async function sync({
 		settings,
 		logger,
 	});
-	return await syncInternal({ settings, logger, fs });
+	await runHookConfigDone({ settings, logger });
+	return await syncInternal({ settings, logger, fs, force: inlineConfig.force });
+}
+
+/**
+ * Clears the content layer and content collection cache, forcing a full rebuild.
+ */
+export async function clearContentLayerCache({
+	astroConfig,
+	logger,
+	fs = fsMod,
+}: { astroConfig: AstroConfig; logger: Logger; fs?: typeof fsMod }) {
+	const dataStore = new URL(DATA_STORE_FILE, astroConfig.cacheDir);
+	if (fs.existsSync(dataStore)) {
+		logger.debug('content', 'clearing data store');
+		await fs.promises.rm(dataStore, { force: true });
+		logger.warn('content', 'data store cleared (force)');
+	}
 }
 
 /**
@@ -77,28 +91,43 @@ export async function syncInternal({
 	fs = fsMod,
 	settings,
 	skip,
+	force,
 }: SyncOptions): Promise<void> {
-	const cwd = fileURLToPath(settings.config.root);
+	if (force) {
+		await clearContentLayerCache({ astroConfig: settings.config, logger, fs });
+	}
 
 	const timerStart = performance.now();
-	const dbPackage = await getPackage<DBPackage>(
-		'@astrojs/db',
-		logger,
-		{
-			optional: true,
-			cwd,
-		},
-		[],
-	);
 
 	try {
-		await dbPackage?.typegen?.(settings.config);
 		if (!skip?.content) {
 			await syncContentCollections(settings, { fs, logger });
+			settings.timer.start('Sync content layer');
+			let store: DataStore | undefined;
+			try {
+				const dataStoreFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
+				if (existsSync(dataStoreFile)) {
+					store = await DataStore.fromFile(dataStoreFile);
+					globalDataStore.set(store);
+				}
+			} catch (err: any) {
+				logger.error('content', err.message);
+			}
+			if (!store) {
+				store = new DataStore();
+				globalDataStore.set(store);
+			}
+			const contentLayer = globalContentLayer.init({
+				settings,
+				logger,
+				store,
+			});
+			await contentLayer.sync();
+			settings.timer.end('Sync content layer');
 		}
 		syncAstroEnv(settings, fs);
 
-		await setUpEnvTs({ settings, logger, fs });
+		await writeFiles(settings, fs, logger);
 		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
 	} catch (err) {
 		const error = createSafeError(err);
