@@ -1,11 +1,10 @@
 import { cyan } from 'kleur/colors';
-import type yargs from 'yargs-parser';
 import devServer from '../../core/dev/index.js';
 import { printHelp } from '../../core/messages.js';
-import { flagsToAstroInlineConfig } from '../flags.js';
+import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface DevOptions {
-	flags: yargs.Arguments;
+	flags: Flags;
 }
 
 export async function dev({ flags }: DevOptions) {
