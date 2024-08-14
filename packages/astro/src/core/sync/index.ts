@@ -125,7 +125,7 @@ export async function syncInternal({
 			await contentLayer.sync();
 			settings.timer.end('Sync content layer');
 		}
-		syncAstroEnv(settings, fs);
+		syncAstroEnv(settings);
 
 		await writeFiles(settings, fs, logger);
 		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
