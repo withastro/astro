@@ -108,6 +108,9 @@ export default function ({
 					supportedAstroFeatures: {
 						serverOutput: 'stable',
 						envGetSecret: 'experimental',
+						hybridOutput: 'stable',
+						assets: 'stable',
+						i18nDomains: 'stable',
 					},
 					...extendAdapter,
 				});

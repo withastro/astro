@@ -42,11 +42,6 @@ function vitePluginSSR(
 				inputs.add(getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component));
 			}
 
-			const adapterServerEntrypoint = options.settings.adapter?.serverEntrypoint;
-			if (adapterServerEntrypoint) {
-				inputs.add(adapterServerEntrypoint);
-			}
-
 			inputs.add(SSR_VIRTUAL_MODULE_ID);
 			return addRollupInput(opts, Array.from(inputs));
 		},
