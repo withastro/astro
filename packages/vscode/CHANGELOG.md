@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.13.4
+
+### Patch Changes
+
+- e5732ff: Updates internal dependencies
+
 ## 2.13.3
 
 ### Patch Changes
