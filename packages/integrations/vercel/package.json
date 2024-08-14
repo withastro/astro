@@ -60,7 +60,7 @@
     "web-vitals": "^3.5.2"
   },
   "peerDependencies": {
-    "astro": "^4.2.0"
+    "astro": "^5.0.0-alpha.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
