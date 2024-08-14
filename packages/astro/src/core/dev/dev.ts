@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import fs, { existsSync } from 'node:fs';
 import type http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { green } from 'kleur/colors';
@@ -6,7 +6,11 @@ import { performance } from 'perf_hooks';
 import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
 import type { AstroInlineConfig } from '../../@types/astro.js';
+import { DATA_STORE_FILE } from '../../content/consts.js';
+import { globalContentLayer } from '../../content/content-layer.js';
+import { DataStore, globalDataStore } from '../../content/data-store.js';
 import { attachContentServerListeners } from '../../content/index.js';
+import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
 import * as msg from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
@@ -101,6 +105,36 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	}
 
 	await attachContentServerListeners(restart.container);
+
+	let store: DataStore | undefined;
+	try {
+		const dataStoreFile = new URL(DATA_STORE_FILE, restart.container.settings.config.cacheDir);
+		if (existsSync(dataStoreFile)) {
+			store = await DataStore.fromFile(dataStoreFile);
+			globalDataStore.set(store);
+		}
+	} catch (err: any) {
+		logger.error('content', err.message);
+	}
+	if (!store) {
+		store = new DataStore();
+		globalDataStore.set(store);
+	}
+
+	const config = globalContentConfigObserver.get();
+	if (config.status === 'error') {
+		logger.error('content', config.error.message);
+	}
+	if (config.status === 'loaded') {
+		const contentLayer = globalContentLayer.init({
+			settings: restart.container.settings,
+			logger,
+			watcher: restart.container.viteServer.watcher,
+			store,
+		});
+		contentLayer.watchContentConfig();
+		await contentLayer.sync();
+	}
 
 	logger.info(null, green('watching for file changes...'));
 

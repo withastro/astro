@@ -3,30 +3,32 @@ import { spec } from 'node:test/reporters';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import arg from 'arg';
+import { parseArgs } from 'node:util';
 import glob from 'tiny-glob';
 
 const isCI = !!process.env.CI;
 const defaultTimeout = isCI ? 1400000 : 600000;
 
 export default async function test() {
-	const args = arg({
-		'--match': String, // aka --test-name-pattern: https://nodejs.org/api/test.html#filtering-tests-by-name
-		'--only': Boolean, // aka --test-only: https://nodejs.org/api/test.html#only-tests
-		'--parallel': Boolean, // aka --test-concurrency: https://nodejs.org/api/test.html#test-runner-execution-model
-		'--watch': Boolean, // experimental: https://nodejs.org/api/test.html#watch-mode
-		'--timeout': Number, // Test timeout in milliseconds (default: 30000ms)
-		'--setup': String, // Test setup file
-		// Aliases
-		'-m': '--match',
-		'-o': '--only',
-		'-p': '--parallel',
-		'-w': '--watch',
-		'-t': '--timeout',
-		'-s': '--setup',
+	const args = parseArgs({
+		allowPositionals: true,
+		options: {
+			// aka --test-name-pattern: https://nodejs.org/api/test.html#filtering-tests-by-name
+			match: { type: 'string', alias: 'm' },
+			// aka --test-only: https://nodejs.org/api/test.html#only-tests
+			only: { type: 'boolean', alias: 'o' },
+			// aka --test-concurrency: https://nodejs.org/api/test.html#test-runner-execution-model
+			parallel: { type: 'boolean', alias: 'p' },
+			// experimental: https://nodejs.org/api/test.html#watch-mode
+			watch: { type: 'boolean', alias: 'w' },
+			// Test timeout in milliseconds (default: 30000ms)
+			timeout: { type: 'string', alias: 't' },
+			// Test setup file
+			setup: { type: 'string', alias: 's' },
+		},
 	});
 
-	const pattern = args._[1];
+	const pattern = args.positionals[1];
 	if (!pattern) throw new Error('Missing test glob pattern');
 
 	const files = await glob(pattern, { filesOnly: true, absolute: true });
@@ -34,12 +36,12 @@ export default async function test() {
 	// For some reason, the `only` option does not work and we need to explicitly set the CLI flag instead.
 	// Node.js requires opt-in to run .only tests :(
 	// https://nodejs.org/api/test.html#only-tests
-	if (args['--only']) {
+	if (args.values.only) {
 		process.env.NODE_OPTIONS ??= '';
 		process.env.NODE_OPTIONS += ' --test-only';
 	}
 
-	if (!args['--parallel']) {
+	if (!args.values.parallel) {
 		// If not parallel, we create a temporary file that imports all the test files
 		// so that it all runs in a single process.
 		const tempTestFile = path.resolve('./node_modules/.astro/test.mjs');
@@ -56,12 +58,12 @@ export default async function test() {
 	// https://nodejs.org/api/test.html#runoptions
 	run({
 		files,
-		testNamePatterns: args['--match'],
-		concurrency: args['--parallel'],
-		only: args['--only'],
-		setup: args['--setup'],
-		watch: args['--watch'],
-		timeout: args['--timeout'] ?? defaultTimeout, // Node.js defaults to Infinity, so set better fallback
+		testNamePatterns: args.values.match,
+		concurrency: args.values.parallel,
+		only: args.values.only,
+		setup: args.values.setup,
+		watch: args.values.watch,
+		timeout: args.values.timeout ? Number(args.values.timeout) : defaultTimeout, // Node.js defaults to Infinity, so set better fallback
 	})
 		.on('test:fail', () => {
 			// For some reason, a test fail using the JS API does not set an exit code of 1,

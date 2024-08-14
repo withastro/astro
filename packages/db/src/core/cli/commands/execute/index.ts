@@ -3,7 +3,6 @@ import { getManagedAppTokenOrExit } from '@astrojs/studio';
 import { LibsqlError } from '@libsql/client';
 import type { AstroConfig } from 'astro';
 import { green } from 'kleur/colors';
-import type { Arguments } from 'yargs-parser';
 import {
 	EXEC_DEFAULT_EXPORT_ERROR,
 	EXEC_ERROR,
@@ -16,6 +15,7 @@ import {
 } from '../../../integration/vite-plugin-db.js';
 import { bundleFile, importBundledFile } from '../../../load-file.js';
 import type { DBConfig } from '../../../types.js';
+import type { YargsArguments } from '../../types.js';
 
 export async function cmd({
 	astroConfig,
@@ -24,7 +24,7 @@ export async function cmd({
 }: {
 	astroConfig: AstroConfig;
 	dbConfig: DBConfig;
-	flags: Arguments;
+	flags: YargsArguments;
 }) {
 	const filePath = flags._[4];
 	if (typeof filePath !== 'string') {
