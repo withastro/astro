@@ -1293,6 +1293,17 @@ export const RewriteWithBodyUsed = {
 
 /**
  * @docs
+ * @description
+ * An unknown error occured while reading or writing files to disk. It can be caused by many things, eg. missing permissions or a file not existing we attempt to read.
+ */
+export const UnknownFilesystemError = {
+	name: 'UnknownFilesystemError',
+	title: 'An unknown error occured while reading or writing files to disk.',
+	hint: 'It can be caused by many things, eg. missing permissions or a file not existing we attempt to read. Check the error cause for more details.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name CSS Errors
  */
@@ -1469,6 +1480,20 @@ export const UnknownContentCollectionError = {
 	name: 'UnknownContentCollectionError',
 	title: 'Unknown Content Collection Error.',
 } satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * The `getDataEntryById` and `getEntryBySlug` functions are deprecated and cannot be used with content layer collections. Use the `getEntry` function instead.
+ */
+export const GetEntryDeprecationError = {
+	name: 'GetEntryDeprecationError',
+	title: 'Invalid use of `getDataEntryById` or `getEntryBySlug` function.',
+	message: (collection: string, method: string) =>
+		`The \`${method}\` function is deprecated and cannot be used to query the "${collection}" collection. Use \`getEntry\` instead.`,
+	hint: 'Use the `getEntry` or `getCollection` functions to query content layer collections.',
+} satisfies ErrorData;
+
 /**
  * @docs
  * @message

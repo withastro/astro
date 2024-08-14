@@ -14,6 +14,10 @@ export async function build({ flags }: BuildOptions) {
 			tables: {
 				Flags: [
 					['--outDir <directory>', `Specify the output directory for the build.`],
+					[
+						'--force',
+						'Clear the content layer and content collection cache, forcing a full rebuild.',
+					],
 					['--help (-h)', 'See all available flags.'],
 				],
 			},
@@ -24,5 +28,5 @@ export async function build({ flags }: BuildOptions) {
 
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 
-	await _build(inlineConfig, { force: !!flags.force });
+	await _build(inlineConfig);
 }

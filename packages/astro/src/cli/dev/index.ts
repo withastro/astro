@@ -18,6 +18,7 @@ export async function dev({ flags }: DevOptions) {
 					['--host', `Listen on all addresses, including LAN and public addresses.`],
 					['--host <custom-address>', `Expose on a network IP address at <custom-address>`],
 					['--open', 'Automatically open the app in the browser on server start'],
+					['--force', 'Clear the content layer cache, forcing a full rebuild.'],
 					['--help (-h)', 'See all available flags.'],
 				],
 			},
