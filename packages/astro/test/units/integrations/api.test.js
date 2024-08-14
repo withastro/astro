@@ -1,7 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { validateSupportedFeatures } from '../../../dist/integrations/features-validation.js';
-import { runHookBuildSetup, runHookConfigSetup } from '../../../dist/integrations/hooks.js';
+import {
+	normalizeInjectedTypeFilename,
+	runHookBuildSetup,
+	runHookConfigSetup,
+} from '../../../dist/integrations/hooks.js';
 import { defaultLogger } from '../test-utils.js';
 
 describe('Integration API', () => {
@@ -310,4 +314,21 @@ describe('Astro feature map', function () {
 			assert.equal(result['assets'], false);
 		});
 	});
+});
+
+describe('normalizeInjectedTypeFilename', () => {
+	// invalid filename
+	assert.throws(() => normalizeInjectedTypeFilename('types', 'integration'));
+	// valid filename
+	assert.doesNotThrow(() => normalizeInjectedTypeFilename('types.d.ts', 'integration'));
+	// filename normalization
+	assert.equal(
+		normalizeInjectedTypeFilename('aA1-*/_"~.d.ts', 'integration'),
+		'./integrations/integration/aA1-_____.d.ts',
+	);
+	// integration name normalization
+	assert.equal(
+		normalizeInjectedTypeFilename('types.d.ts', 'aA1-*/_"~.'),
+		'./integrations/aA1-_____./types.d.ts',
+	);
 });

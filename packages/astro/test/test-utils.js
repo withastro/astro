@@ -24,6 +24,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
 /**
  * @typedef {import('../src/core/dev/dev').DevServer} DevServer
  * @typedef {import('../src/@types/astro').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
+ * @typedef {import('../src/@types/astro').AstroConfig} AstroConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
  * @typedef {import('../src/core/app/index').App} App
  * @typedef {import('../src/cli/check/index').AstroChecker} AstroChecker
@@ -49,6 +50,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @property {() => Promise<void>} onNextChange
  * @property {typeof check} check
  * @property {typeof sync} sync
+ * @property {AstroConfig} config
  *
  * This function returns an instance of the Check
  *
