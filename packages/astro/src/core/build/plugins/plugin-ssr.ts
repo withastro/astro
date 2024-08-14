@@ -27,6 +27,11 @@ function vitePluginSSR(
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr-server',
 		enforce: 'post',
+		augmentChunkHash(chunkInfo) {
+			if (chunkInfo.facadeModuleId === options.settings.adapter?.serverEntrypoint) {
+				return Date.now().toString();
+			}
+		},
 		options(opts) {
 			const inputs = new Set<string>();
 
@@ -170,6 +175,11 @@ function vitePluginSSRSplit(
 			}
 
 			return addRollupInput(opts, Array.from(inputs));
+		},
+		augmentChunkHash(chunkInfo) {
+			if (chunkInfo.facadeModuleId === options.settings.adapter?.serverEntrypoint) {
+				return Date.now().toString();
+			}
 		},
 		resolveId(id) {
 			if (id.startsWith(SPLIT_MODULE_ID)) {
