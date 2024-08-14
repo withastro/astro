@@ -54,6 +54,7 @@ import type {
 } from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type { TransitionAnimationValue } from './view-transitions.js';
 
 export type { AstroIntegrationLogger, ToolbarServerHelpers };
 
@@ -86,47 +87,19 @@ export type {
 	AstroCookies,
 } from '../core/cookies/index.js';
 
-export interface AstroBuiltinProps {
+export interface AstroComponentDirectives extends AstroClientDirectives {
+	'server:defer'?: boolean;
+}
+
+export interface AstroClientDirectives {
 	'client:load'?: boolean;
 	'client:idle'?: boolean;
 	'client:media'?: string;
 	'client:visible'?: ClientVisibleOptions | boolean;
 	'client:only'?: boolean | string;
-	'server:defer'?: boolean;
 }
 
 export type ClientVisibleOptions = Pick<IntersectionObserverInit, 'rootMargin'>;
-
-export interface TransitionAnimation {
-	name: string; // The name of the keyframe
-	delay?: number | string;
-	duration?: number | string;
-	easing?: string;
-	fillMode?: string;
-	direction?: string;
-}
-
-export interface TransitionAnimationPair {
-	old: TransitionAnimation | TransitionAnimation[];
-	new: TransitionAnimation | TransitionAnimation[];
-}
-
-export interface TransitionDirectionalAnimations {
-	forwards: TransitionAnimationPair;
-	backwards: TransitionAnimationPair;
-}
-
-export type TransitionAnimationValue =
-	| 'initial'
-	| 'slide'
-	| 'fade'
-	| 'none'
-	| TransitionDirectionalAnimations;
-
-// Allow users to extend this for astro-jsx.d.ts
-
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface AstroClientDirectives {}
 
 export interface AstroBuiltinAttributes {
 	'class:list'?:
@@ -2261,7 +2234,7 @@ export interface AstroUserConfig {
 		 *     updatedDate: z.coerce.date().optional(),
 		 *   })
 		 * });
-		 * 
+		 *
 		 * const dogs = defineCollection({
 		 *   // The path is relative to the project root, or an absolute path.
 		 *   loader: file("src/data/dogs.json"),
@@ -3303,88 +3276,78 @@ export type HookParameters<
 	Fn = AstroIntegration['hooks'][Hook],
 > = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
 
-declare global {
-	// eslint-disable-next-line  @typescript-eslint/no-namespace
-	namespace Astro {
-		export interface IntegrationHooks {
-			'astro:config:setup': (options: {
-				config: AstroConfig;
-				command: 'dev' | 'build' | 'preview';
-				isRestart: boolean;
-				updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
-				addRenderer: (renderer: AstroRenderer) => void;
-				addWatchFile: (path: URL | string) => void;
-				injectScript: (stage: InjectedScriptStage, content: string) => void;
-				injectRoute: (injectRoute: InjectedRoute) => void;
-				addClientDirective: (directive: ClientDirectiveConfig) => void;
-				/**
-				 * @deprecated Use `addDevToolbarApp` instead.
-				 * TODO: Fully remove in Astro 5.0
-				 */
-				addDevOverlayPlugin: (entrypoint: string) => void;
-				// TODO: Deprecate the `string` overload once a few apps have been migrated to the new API.
-				addDevToolbarApp: (entrypoint: DevToolbarAppEntry | string) => void;
-				addMiddleware: (mid: AstroIntegrationMiddleware) => void;
-				logger: AstroIntegrationLogger;
-				// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
-				// This may require some refactoring of `scripts`, `styles`, and `links` into something
-				// more generalized. Consider the SSR use-case as well.
-				// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
-			}) => void | Promise<void>;
-			'astro:config:done': (options: {
-				config: AstroConfig;
-				setAdapter: (adapter: AstroAdapter) => void;
-				injectTypes: (injectedType: InjectedType) => URL;
-				logger: AstroIntegrationLogger;
-			}) => void | Promise<void>;
-			'astro:server:setup': (options: {
-				server: vite.ViteDevServer;
-				logger: AstroIntegrationLogger;
-				toolbar: ReturnType<typeof getToolbarServerCommunicationHelpers>;
-			}) => void | Promise<void>;
-			'astro:server:start': (options: {
-				address: AddressInfo;
-				logger: AstroIntegrationLogger;
-			}) => void | Promise<void>;
-			'astro:server:done': (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
-			'astro:build:ssr': (options: {
-				manifest: SerializedSSRManifest;
-				/**
-				 * This maps a {@link RouteData} to an {@link URL}, this URL represents
-				 * the physical file you should import.
-				 */
-				entryPoints: Map<RouteData, URL>;
-				/**
-				 * File path of the emitted middleware
-				 */
-				middlewareEntryPoint: URL | undefined;
-				logger: AstroIntegrationLogger;
-			}) => void | Promise<void>;
-			'astro:build:start': (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
-			'astro:build:setup': (options: {
-				vite: vite.InlineConfig;
-				pages: Map<string, PageBuildData>;
-				target: 'client' | 'server';
-				updateConfig: (newConfig: vite.InlineConfig) => void;
-				logger: AstroIntegrationLogger;
-			}) => void | Promise<void>;
-			'astro:build:generated': (options: {
-				dir: URL;
-				logger: AstroIntegrationLogger;
-			}) => void | Promise<void>;
-			'astro:build:done': (options: {
-				pages: { pathname: string }[];
-				dir: URL;
-				routes: RouteData[];
-				logger: AstroIntegrationLogger;
-				cacheManifest: boolean;
-			}) => void | Promise<void>;
-			'astro:route:setup': (options: {
-				route: RouteOptions;
-				logger: AstroIntegrationLogger;
-			}) => void | Promise<void>;
-		}
-	}
+export interface BaseIntegrationHooks {
+	'astro:config:setup': (options: {
+		config: AstroConfig;
+		command: 'dev' | 'build' | 'preview';
+		isRestart: boolean;
+		updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
+		addRenderer: (renderer: AstroRenderer) => void;
+		addWatchFile: (path: URL | string) => void;
+		injectScript: (stage: InjectedScriptStage, content: string) => void;
+		injectRoute: (injectRoute: InjectedRoute) => void;
+		addClientDirective: (directive: ClientDirectiveConfig) => void;
+		// TODO: Deprecate the `string` overload once a few apps have been migrated to the new API.
+		addDevToolbarApp: (entrypoint: DevToolbarAppEntry | string) => void;
+		addMiddleware: (mid: AstroIntegrationMiddleware) => void;
+		logger: AstroIntegrationLogger;
+		// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
+		// This may require some refactoring of `scripts`, `styles`, and `links` into something
+		// more generalized. Consider the SSR use-case as well.
+		// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
+	}) => void | Promise<void>;
+	'astro:config:done': (options: {
+		config: AstroConfig;
+		setAdapter: (adapter: AstroAdapter) => void;
+		injectTypes: (injectedType: InjectedType) => URL;
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
+	'astro:server:setup': (options: {
+		server: vite.ViteDevServer;
+		logger: AstroIntegrationLogger;
+		toolbar: ReturnType<typeof getToolbarServerCommunicationHelpers>;
+	}) => void | Promise<void>;
+	'astro:server:start': (options: {
+		address: AddressInfo;
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
+	'astro:server:done': (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
+	'astro:build:ssr': (options: {
+		manifest: SerializedSSRManifest;
+		/**
+		 * This maps a {@link RouteData} to an {@link URL}, this URL represents
+		 * the physical file you should import.
+		 */
+		entryPoints: Map<RouteData, URL>;
+		/**
+		 * File path of the emitted middleware
+		 */
+		middlewareEntryPoint: URL | undefined;
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
+	'astro:build:start': (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
+	'astro:build:setup': (options: {
+		vite: vite.InlineConfig;
+		pages: Map<string, PageBuildData>;
+		target: 'client' | 'server';
+		updateConfig: (newConfig: vite.InlineConfig) => void;
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
+	'astro:build:generated': (options: {
+		dir: URL;
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
+	'astro:build:done': (options: {
+		pages: { pathname: string }[];
+		dir: URL;
+		routes: RouteData[];
+		logger: AstroIntegrationLogger;
+		cacheManifest: boolean;
+	}) => void | Promise<void>;
+	'astro:route:setup': (options: {
+		route: RouteOptions;
+		logger: AstroIntegrationLogger;
+	}) => void | Promise<void>;
 }
 
 export interface AstroIntegration {
