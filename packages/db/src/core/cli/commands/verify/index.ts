@@ -1,6 +1,5 @@
 import { getManagedAppTokenOrExit } from '@astrojs/studio';
 import type { AstroConfig } from 'astro';
-import type { Arguments } from 'yargs-parser';
 import type { DBConfig } from '../../../types.js';
 import {
 	createCurrentSnapshot,
@@ -9,6 +8,7 @@ import {
 	getMigrationQueries,
 	getProductionCurrentSnapshot,
 } from '../../migration-queries.js';
+import type { YargsArguments } from '../../types.js';
 
 export async function cmd({
 	dbConfig,
@@ -16,7 +16,7 @@ export async function cmd({
 }: {
 	astroConfig: AstroConfig;
 	dbConfig: DBConfig;
-	flags: Arguments;
+	flags: YargsArguments;
 }) {
 	const isJson = flags.json;
 	const appToken = await getManagedAppTokenOrExit(flags.token);
