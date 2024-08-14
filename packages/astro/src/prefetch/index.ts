@@ -215,6 +215,11 @@ export interface PrefetchOptions {
  * @param opts Additional options for prefetching.
  */
 export function prefetch(url: string, opts?: PrefetchOptions) {
+	// Remove url hash to avoid prefetching the same URL multiple times
+	const urlObj = new URL(url, location.href);
+	urlObj.hash = '';
+	url = urlObj.toString();
+
 	const ignoreSlowConnection = opts?.ignoreSlowConnection ?? false;
 	if (!canPrefetchUrl(url, ignoreSlowConnection)) return;
 	prefetchedUrls.add(url);
