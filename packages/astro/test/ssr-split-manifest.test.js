@@ -61,7 +61,10 @@ describe('astro:ssr-manifest, split', () => {
 	});
 
 	it('should correctly emit the the pre render page', async () => {
-		const indexUrl = new URL('./fixtures/ssr-split-manifest/dist/client/prerender/index.html', import.meta.url);
+		const indexUrl = new URL(
+			'./fixtures/ssr-split-manifest/dist/client/prerender/index.html',
+			import.meta.url,
+		);
 		const text = readFileSync(indexUrl, {
 			encoding: 'utf8',
 		});

@@ -32,7 +32,7 @@ function vitePluginAdapter(adapter: AstroAdapter): VitePlugin {
 			}
 		},
 		async load(id) {
-			if(id === RESOLVED_ADAPTER_VIRTUAL_MODULE_ID) {
+			if (id === RESOLVED_ADAPTER_VIRTUAL_MODULE_ID) {
 				return `export * from '${adapter.serverEntrypoint}';`;
 			}
 		},
@@ -145,7 +145,7 @@ export function pluginSSR(
 						? vitePluginSSR(internals, adapter, options)
 						: undefined;
 				const vitePlugin = [vitePluginAdapter(adapter)];
-				if(ssrPlugin) {
+				if (ssrPlugin) {
 					vitePlugin.unshift(ssrPlugin);
 				}
 
@@ -262,7 +262,7 @@ export function pluginSSRSplit(
 						? vitePluginSSRSplit(internals, adapter, options)
 						: undefined;
 				const vitePlugin = [vitePluginAdapter(adapter)];
-				if(ssrPlugin) {
+				if (ssrPlugin) {
 					vitePlugin.unshift(ssrPlugin);
 				}
 
