@@ -13,6 +13,7 @@ import type {
 	DataEntryType,
 	HookParameters,
 	RouteData,
+	RouteOptions,
 } from '../@types/astro.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
@@ -555,6 +556,47 @@ export async function runHookBuildDone({
 				logger: logging,
 			});
 		}
+	}
+}
+
+export async function runHookRouteSetup({
+	route,
+	settings,
+	logger,
+}: {
+	route: RouteOptions;
+	settings: AstroSettings;
+	logger: Logger;
+}) {
+	const prerenderChangeLogs: { integrationName: string; value: boolean | undefined }[] = [];
+
+	for (const integration of settings.config.integrations) {
+		if (integration?.hooks?.['astro:route:setup']) {
+			const originalRoute = { ...route };
+			const integrationLogger = getLogger(integration, logger);
+
+			await withTakingALongTimeMsg({
+				name: integration.name,
+				hookName: 'astro:route:setup',
+				hookResult: integration.hooks['astro:route:setup']({
+					route,
+					logger: integrationLogger,
+				}),
+				logger,
+			});
+
+			if (route.prerender !== originalRoute.prerender) {
+				prerenderChangeLogs.push({ integrationName: integration.name, value: route.prerender });
+			}
+		}
+	}
+
+	if (prerenderChangeLogs.length > 1) {
+		logger.debug(
+			'router',
+			`The ${route.component} route's prerender option has been changed multiple times by integrations:\n` +
+				prerenderChangeLogs.map((log) => `- ${log.integrationName}: ${log.value}`).join('\n'),
+		);
 	}
 }
 

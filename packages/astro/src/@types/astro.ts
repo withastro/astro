@@ -2223,6 +2223,21 @@ export interface ResolvedInjectedRoute extends InjectedRoute {
 	resolvedEntryPoint?: URL;
 }
 
+export interface RouteOptions {
+	/**
+	 * The path to this route relative to the project root. The slash is normalized as forward slash
+	 * across all OS.
+	 * @example "src/pages/blog/[...slug].astro"
+	 */
+	readonly component: string;
+	/**
+	 * Whether this route should be prerendered. If the route has an explicit `prerender` export,
+	 * the value will be passed here. Otherwise, it's undefined and will fallback to a prerender
+	 * default depending on the `output` option.
+	 */
+	prerender?: boolean;
+}
+
 /**
  * Resolved Astro Config
  * Config with user settings along with all defaults filled in.
@@ -3127,6 +3142,10 @@ declare global {
 				routes: RouteData[];
 				logger: AstroIntegrationLogger;
 				cacheManifest: boolean;
+			}) => void | Promise<void>;
+			'astro:route:setup': (options: {
+				route: RouteOptions;
+				logger: AstroIntegrationLogger;
 			}) => void | Promise<void>;
 		}
 	}
