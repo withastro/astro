@@ -12,6 +12,7 @@ import type {
 	SerializedRouteInfo,
 	SerializedSSRManifest,
 } from '../../app/types.js';
+import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
@@ -132,7 +133,8 @@ async function createManifest(
 	}
 
 	const staticFiles = internals.staticFiles;
-	return buildManifest(buildOpts, internals, Array.from(staticFiles));
+	const encodedKey = await encodeKey(await buildOpts.key);
+	return buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
 }
 
 /**
@@ -150,6 +152,7 @@ function buildManifest(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	staticFiles: string[],
+	encodedKey: string,
 ): SerializedSSRManifest {
 	const { settings } = opts;
 
@@ -277,6 +280,7 @@ function buildManifest(
 		buildFormat: settings.config.build.format,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
+		key: encodedKey,
 		experimentalEnvGetSecretEnabled:
 			settings.config.experimental.env !== undefined &&
 			(settings.adapter?.supportedAstroFeatures.envGetSecret ?? 'unsupported') !== 'unsupported',

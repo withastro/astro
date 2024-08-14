@@ -48,7 +48,7 @@
   "dependencies": {
     "@lit-labs/ssr": "^3.2.2",
     "@lit-labs/ssr-client": "^1.1.7",
-    "@lit-labs/ssr-dom-shim": "^1.2.0",
+    "@lit-labs/ssr-dom-shim": "^1.2.1",
     "parse5": "^7.1.2"
   },
   "overrides": {
@@ -59,8 +59,8 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "cheerio": "1.0.0-rc.12",
-    "lit": "^3.1.4",
+    "cheerio": "1.0.0",
+    "lit": "^3.2.0",
     "sass": "^1.77.8"
   },
   "peerDependencies": {

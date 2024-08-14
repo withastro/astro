@@ -344,6 +344,7 @@ export class RenderContext {
 			styles,
 			actionResult,
 			serverIslandNameMap: manifest.serverIslandNameMap ?? new Map(),
+			key: manifest.key,
 			trailingSlash: manifest.trailingSlash,
 			_metadata: {
 				hasHydrationScript: false,
