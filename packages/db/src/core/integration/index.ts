@@ -22,7 +22,7 @@ import { resolveDbConfig } from '../load-file.js';
 import { SEED_DEV_FILE_NAME } from '../queries.js';
 import { type VitePlugin, getDbDirectoryUrl } from '../utils.js';
 import { fileURLIntegration } from './file-url.js';
-import { typegenInternal } from './typegen.js';
+import { getDtsContent } from './typegen.js';
 import {
 	type LateSeedFiles,
 	type LateTables,
@@ -30,7 +30,6 @@ import {
 	resolved,
 	vitePluginDb,
 } from './vite-plugin-db.js';
-import { vitePluginInjectEnvTs } from './vite-plugin-inject-env-ts.js';
 
 function astroDBIntegration(): AstroIntegration {
 	let connectToStudio = false;
@@ -102,11 +101,11 @@ function astroDBIntegration(): AstroIntegration {
 				updateConfig({
 					vite: {
 						assetsInclude: [DB_PATH],
-						plugins: [dbPlugin, vitePluginInjectEnvTs(config, logger)],
+						plugins: [dbPlugin],
 					},
 				});
 			},
-			'astro:config:done': async ({ config }) => {
+			'astro:config:done': async ({ config, injectTypes }) => {
 				if (command === 'preview') return;
 
 				// TODO: refine where we load tables
@@ -122,7 +121,10 @@ function astroDBIntegration(): AstroIntegration {
 					await writeFile(localDbUrl, '');
 				}
 
-				await typegenInternal({ tables: tables.get() ?? {}, root: config.root });
+				injectTypes({
+					filename: 'db.d.ts',
+					content: getDtsContent(tables.get() ?? {}),
+				});
 			},
 			'astro:server:setup': async ({ server, logger }) => {
 				seedHandler.execute = async (fileUrl) => {

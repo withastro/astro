@@ -34,7 +34,7 @@ export const CONTENT_FLAGS = [
 	CONTENT_MODULE_FLAG,
 ] as const;
 
-export const CONTENT_TYPES_FILE = 'types.d.ts';
+export const CONTENT_TYPES_FILE = 'astro/content.d.ts';
 
 export const DATA_STORE_FILE = 'data-store.json';
 export const ASSET_IMPORTS_FILE = 'assets.mjs';

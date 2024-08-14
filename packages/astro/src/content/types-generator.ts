@@ -530,7 +530,7 @@ async function writeContentFiles({
 	}
 
 	const configPathRelativeToCacheDir = normalizeConfigPath(
-		settings.dotAstroDir.pathname,
+		new URL('astro', settings.dotAstroDir).pathname,
 		contentPaths.config.url.pathname,
 	);
 
@@ -546,8 +546,17 @@ async function writeContentFiles({
 		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never',
 	);
 
-	await fs.promises.writeFile(
-		new URL(CONTENT_TYPES_FILE, settings.dotAstroDir),
-		typeTemplateContent,
-	);
+	// If it's the first time, we inject types the usual way. sync() will handle creating files and references. If it's not the first time, we just override the dts content
+	if (settings.injectedTypes.some((t) => t.filename === CONTENT_TYPES_FILE)) {
+		fs.promises.writeFile(
+			new URL(CONTENT_TYPES_FILE, settings.dotAstroDir),
+			typeTemplateContent,
+			'utf-8',
+		);
+	} else {
+		settings.injectedTypes.push({
+			filename: CONTENT_TYPES_FILE,
+			content: typeTemplateContent,
+		});
+	}
 }
