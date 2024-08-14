@@ -10,8 +10,6 @@ import { check } from '../dist/cli/check/index.js';
 import { globalContentLayer } from '../dist/content/content-layer.js';
 import { globalContentConfigObserver } from '../dist/content/utils.js';
 import build from '../dist/core/build/index.js';
-import { getVirtualModulePageName } from '../dist/core/build/plugins/util.js';
-import { makeSplitEntryPointFileName } from '../dist/core/build/static-build.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import { dev, preview } from '../dist/core/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';

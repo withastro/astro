@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import type {
-	AstroAdapter,
 	AstroConfig,
 	AstroIntegration,
 	AstroRenderer,

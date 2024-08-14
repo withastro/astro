@@ -271,7 +271,7 @@ export default function vercelServerless({
 					),
 				});
 			},
-			'astro:config:done': ({ setAdapter, config, logger }) => {
+			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(
 					getAdapter({ edgeMiddleware, middlewareSecret, skewProtection }),
 				);

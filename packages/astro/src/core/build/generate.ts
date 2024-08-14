@@ -39,7 +39,7 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { stringifyParams } from '../routing/params.js';
 import { getOutputFilename, isServerLikeOutput } from '../util.js';
-import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
+import { getOutFile, getOutFolder } from './common.js';
 import { cssOrder, mergeInlineCss } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
 import type {
