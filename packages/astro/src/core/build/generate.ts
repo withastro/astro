@@ -247,8 +247,10 @@ async function getPathsForRoute(
 	const { logger, options, routeCache, serverLike } = pipeline;
 	let paths: Array<string> = [];
 	if (route.pathname) {
-		paths.push(route.pathname);
-		builtPaths.add(removeTrailingForwardSlash(route.pathname));
+		const matchedRoute = matchRoute(route.pathname, options.manifest);
+		if (matchedRoute === route) {
+			paths.push(route.pathname);
+		}
 	} else {
 		const staticPaths = await callGetStaticPaths({
 			mod,
@@ -279,24 +281,19 @@ async function getPathsForRoute(
 				}
 			})
 			.filter((staticPath) => {
-				// The path hasn't been built yet, include it
-				if (!builtPaths.has(removeTrailingForwardSlash(staticPath))) {
-					return true;
-				}
-
-				// The path was already built once. Check the manifest to see if
-				// this route takes priority for the final URL.
+				// Check the manifest to see if this route is the highest priority matching
+				// the final URL. If it isn't, skip it.
 				// NOTE: The same URL may match multiple routes in the manifest.
 				// Routing priority needs to be verified here for any duplicate
 				// paths to ensure routing priority rules are enforced in the final build.
 				const matchedRoute = matchRoute(staticPath, options.manifest);
 				return matchedRoute === route;
 			});
+	}
 
-		// Add each path to the builtPaths set, to avoid building it again later.
-		for (const staticPath of paths) {
-			builtPaths.add(removeTrailingForwardSlash(staticPath));
-		}
+	// Add each path to the builtPaths set, to avoid building it again later.
+	for (const staticPath of paths) {
+		builtPaths.add(removeTrailingForwardSlash(staticPath));
 	}
 
 	return paths;
