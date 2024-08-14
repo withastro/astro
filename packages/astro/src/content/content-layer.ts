@@ -249,7 +249,7 @@ export class ContentLayer {
 						continue;
 					}
 					const entries = this.#store.values(name);
-					if (!entries?.[0]?.filePath || entries[0].filePath.endsWith('.json')) {
+					if (!entries?.[0]?.filePath) {
 						continue;
 					}
 					for (const { filePath } of entries) {
