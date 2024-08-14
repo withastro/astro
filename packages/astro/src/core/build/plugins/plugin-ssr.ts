@@ -22,6 +22,23 @@ export const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
 const ADAPTER_VIRTUAL_MODULE_ID = '@astrojs-ssr-adapter';
 const RESOLVED_ADAPTER_VIRTUAL_MODULE_ID = '\0' + ADAPTER_VIRTUAL_MODULE_ID;
 
+function vitePluginAdapter(adapter: AstroAdapter): VitePlugin {
+	return {
+		name: '@astrojs/vite-plugin-astro-adapter',
+		enforce: 'post',
+		resolveId(id) {
+			if (id === ADAPTER_VIRTUAL_MODULE_ID) {
+				return RESOLVED_ADAPTER_VIRTUAL_MODULE_ID;
+			}
+		},
+		async load(id) {
+			if(id === RESOLVED_ADAPTER_VIRTUAL_MODULE_ID) {
+				return `export * from '${adapter.serverEntrypoint}';`;
+			}
+		},
+	};
+}
+
 function vitePluginSSR(
 	internals: BuildInternals,
 	adapter: AstroAdapter,
@@ -51,9 +68,6 @@ function vitePluginSSR(
 		resolveId(id) {
 			if (id === SSR_VIRTUAL_MODULE_ID) {
 				return RESOLVED_SSR_VIRTUAL_MODULE_ID;
-			}
-			if (id === ADAPTER_VIRTUAL_MODULE_ID) {
-				return RESOLVED_ADAPTER_VIRTUAL_MODULE_ID;
 			}
 		},
 		async load(id) {
@@ -94,11 +108,6 @@ function vitePluginSSR(
 				contents.push(...ssrCode.contents);
 				return [...imports, ...contents, ...exports].join('\n');
 			}
-			if(id === RESOLVED_ADAPTER_VIRTUAL_MODULE_ID) {
-				return `export * from '${adapter.serverEntrypoint}';
-import * as mod from '${adapter.serverEntrypoint}';
-export default mod.default || null;`;
-			}
 		},
 		async generateBundle(_opts, bundle) {
 			// Add assets from this SSR chunk as well.
@@ -130,14 +139,19 @@ export function pluginSSR(
 		targets: ['server'],
 		hooks: {
 			'build:before': () => {
-				let vitePlugin =
+				const adapter = options.settings.adapter!;
+				let ssrPlugin =
 					ssr && functionPerRouteEnabled === false
-						? vitePluginSSR(internals, options.settings.adapter!, options)
+						? vitePluginSSR(internals, adapter, options)
 						: undefined;
+				const vitePlugin = [vitePluginAdapter(adapter)];
+				if(ssrPlugin) {
+					vitePlugin.unshift(ssrPlugin);
+				}
 
 				return {
 					enforce: 'after-user-plugins',
-					vitePlugin,
+					vitePlugin: vitePlugin,
 				};
 			},
 			'build:post': async () => {
@@ -242,10 +256,15 @@ export function pluginSSRSplit(
 		targets: ['server'],
 		hooks: {
 			'build:before': () => {
-				let vitePlugin =
+				const adapter = options.settings.adapter!;
+				let ssrPlugin =
 					ssr && functionPerRouteEnabled
-						? vitePluginSSRSplit(internals, options.settings.adapter!, options)
+						? vitePluginSSRSplit(internals, adapter, options)
 						: undefined;
+				const vitePlugin = [vitePluginAdapter(adapter)];
+				if(ssrPlugin) {
+					vitePlugin.unshift(ssrPlugin);
+				}
 
 				return {
 					enforce: 'after-user-plugins',
