@@ -1,6 +1,6 @@
-import { promises as fs, type PathLike, existsSync } from 'fs';
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import * as devalue from 'devalue';
+import { existsSync, promises as fs, type PathLike } from 'fs';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { CONTENT_MODULE_FLAG, DEFERRED_MODULE } from './consts.js';
@@ -157,10 +157,7 @@ export class DataStore {
 			try {
 				await fs.writeFile(filePath, 'export default new Map();');
 			} catch (err) {
-				throw new AstroError({
-					message: (err as Error).message,
-					...AstroErrorData.ContentLayerWriteError,
-				});
+				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
 		}
 
@@ -184,10 +181,7 @@ export default new Map([${exports.join(', ')}]);
 		try {
 			await fs.writeFile(filePath, code);
 		} catch (err) {
-			throw new AstroError({
-				message: (err as Error).message,
-				...AstroErrorData.ContentLayerWriteError,
-			});
+			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		}
 		this.#assetsDirty = false;
 	}
@@ -199,10 +193,7 @@ export default new Map([${exports.join(', ')}]);
 			try {
 				await fs.writeFile(filePath, 'export default new Map();');
 			} catch (err) {
-				throw new AstroError({
-					message: (err as Error).message,
-					...AstroErrorData.ContentLayerWriteError,
-				});
+				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
 		}
 
@@ -217,16 +208,13 @@ export default new Map([${exports.join(', ')}]);
 		for (const [fileName, specifier] of this.#moduleImports) {
 			lines.push(`['${fileName}', () => import('${specifier}')]`);
 		}
-		const code =  `
+		const code = `
 export default new Map([\n${lines.join(',\n')}]);
 		`;
 		try {
 			await fs.writeFile(filePath, code);
 		} catch (err) {
-			throw new AstroError({
-				message: (err as Error).message,
-				...AstroErrorData.ContentLayerWriteError,
-			});
+			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		}
 		this.#modulesDirty = false;
 	}
@@ -355,10 +343,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			this.#file = filePath;
 			this.#dirty = false;
 		} catch (err) {
-			throw new AstroError({
-				message: (err as Error).message,
-				...AstroErrorData.ContentLayerWriteError,
-			});
+			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		}
 	}
 
