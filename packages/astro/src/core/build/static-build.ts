@@ -255,7 +255,7 @@ async function ssrBuild(
 							return 'renderers.mjs';
 						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
 							return 'manifest_[hash].mjs';
-						} else if (chunkInfo.facadeModuleId === settings.adapter?.serverEntrypoint) {
+						} else if (chunkInfo.facadeModuleId === settings.adapter?.serverEntrypoint && settings.config.experimental.serverIslands) {
 							return 'adapter_[hash].mjs';
 						} else if (
 							settings.config.experimental.contentCollectionCache &&

@@ -27,11 +27,6 @@ function vitePluginSSR(
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr-server',
 		enforce: 'post',
-		augmentChunkHash(chunkInfo) {
-			if (chunkInfo.facadeModuleId === options.settings.adapter?.serverEntrypoint) {
-				return Date.now().toString();
-			}
-		},
 		options(opts) {
 			const inputs = new Set<string>();
 
@@ -40,6 +35,11 @@ function vitePluginSSR(
 					continue;
 				}
 				inputs.add(getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component));
+			}
+
+			const adapterServerEntrypoint = options.settings.adapter?.serverEntrypoint;
+			if (adapterServerEntrypoint && options.settings.config.experimental.serverIslands) {
+				inputs.add(adapterServerEntrypoint);
 			}
 
 			inputs.add(SSR_VIRTUAL_MODULE_ID);
@@ -170,11 +170,6 @@ function vitePluginSSRSplit(
 			}
 
 			return addRollupInput(opts, Array.from(inputs));
-		},
-		augmentChunkHash(chunkInfo) {
-			if (chunkInfo.facadeModuleId === options.settings.adapter?.serverEntrypoint) {
-				return Date.now().toString();
-			}
 		},
 		resolveId(id) {
 			if (id.startsWith(SPLIT_MODULE_ID)) {
