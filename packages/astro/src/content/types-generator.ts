@@ -1,10 +1,10 @@
-import glob from 'fast-glob';
-import { bold, cyan } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import glob from 'fast-glob';
+import { bold, cyan } from 'kleur/colors';
 import { type ViteDevServer, normalizePath } from 'vite';
-import { z, type ZodSchema } from 'zod';
+import { type ZodSchema, z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { printNode, zodToTs } from 'zod-to-ts';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
@@ -473,7 +473,7 @@ async function writeContentFiles({
 			collection.type === 'unknown'
 				? // Add empty / unknown collections to the data type map by default
 					// This ensures `getCollection('empty-collection')` doesn't raise a type error
-					(collectionConfig?.type ?? 'data')
+					collectionConfig?.type ?? 'data'
 				: collection.type;
 
 		const collectionEntryKeys = Object.keys(collection.entries).sort();

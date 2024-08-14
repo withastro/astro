@@ -1,3 +1,5 @@
+import type { OutgoingHttpHeaders } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import type {
 	MarkdownHeading,
 	MarkdownVFile,
@@ -7,8 +9,6 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
-import type { OutgoingHttpHeaders } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
 import type {
@@ -2261,7 +2261,7 @@ export interface AstroUserConfig {
 		 *     updatedDate: z.coerce.date().optional(),
 		 *   })
 		 * });
-		 * 
+		 *
 		 * const dogs = defineCollection({
 		 *   // The path is relative to the project root, or an absolute path.
 		 *   loader: file("src/data/dogs.json"),
