@@ -2237,7 +2237,7 @@ export interface AstroUserConfig {
 		 *
 		 * #### Fetching data with a `loader`
 		 *
-		 * The Content Layer API allows you to fetch your content from outside of the `src/content/` folder (whether stored locally in your project or remotely), and uses a `loader` property to retrieve your data.
+		 * The Content Layer API allows you to fetch your content from outside of the `src/content/` folder (whether stored locally in your project or remotely) and uses a `loader` property to retrieve your data.
 		 *
 		 * The `loader` is defined in the collection's schema and returns an array of entries. Astro provides two built-in loader functions (`glob()` and `file()`) for fetching your local content, as well as access to the API to [construct your own loader and fetch remote data](#creating-a-loader).
 		 *
@@ -2292,10 +2292,10 @@ export interface AstroUserConfig {
 		 * const labradorData = await getEntry('dogs', 'labrador-retriever');
 		 * ```
 		 *
-		 * Entries generated from Markdown, MDX or Markdoc can be rendered directly to a page using the `render()` function.
+		 * Entries generated from Markdown, MDX, or Markdoc can be rendered directly to a page using the `render()` function.
 		 *
 		 * :::note
-		 * The syntax for rendering collection entries is different from current content collections syntax.
+		 * The syntax for rendering collection entries is different from the current content collections syntax.
 		 * :::
 		 *
 		 * ```astro title="src/pages/[slug].astro"
@@ -2336,7 +2336,7 @@ export interface AstroUserConfig {
 		 * export const collections = { countries };
 		 * ```
 		 *
-		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading, and gives full access to the data store. See the API in [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md#loaders).
+		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading while also giving full access to the data store. See the API in [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md#loaders).
 		 *
 		 * #### Migrating an existing content collection to use the Content Layer API
 		 *
