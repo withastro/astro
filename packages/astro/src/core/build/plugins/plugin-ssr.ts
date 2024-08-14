@@ -19,6 +19,9 @@ import { getComponentFromVirtualModulePageName, getVirtualModulePageName } from 
 export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
 export const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
 
+const ADAPTER_VIRTUAL_MODULE_ID = '@astrojs-ssr-adapter';
+const RESOLVED_ADAPTER_VIRTUAL_MODULE_ID = '\0' + ADAPTER_VIRTUAL_MODULE_ID;
+
 function vitePluginSSR(
 	internals: BuildInternals,
 	adapter: AstroAdapter,
@@ -39,7 +42,7 @@ function vitePluginSSR(
 
 			const adapterServerEntrypoint = options.settings.adapter?.serverEntrypoint;
 			if (adapterServerEntrypoint) {
-				inputs.add(adapterServerEntrypoint);
+				inputs.add(ADAPTER_VIRTUAL_MODULE_ID);
 			}
 
 			inputs.add(SSR_VIRTUAL_MODULE_ID);
@@ -48,6 +51,9 @@ function vitePluginSSR(
 		resolveId(id) {
 			if (id === SSR_VIRTUAL_MODULE_ID) {
 				return RESOLVED_SSR_VIRTUAL_MODULE_ID;
+			}
+			if (id === ADAPTER_VIRTUAL_MODULE_ID) {
+				return RESOLVED_ADAPTER_VIRTUAL_MODULE_ID;
 			}
 		},
 		async load(id) {
@@ -87,6 +93,11 @@ function vitePluginSSR(
 				imports.push(...ssrCode.imports);
 				contents.push(...ssrCode.contents);
 				return [...imports, ...contents, ...exports].join('\n');
+			}
+			if(id === RESOLVED_ADAPTER_VIRTUAL_MODULE_ID) {
+				return `export * from '${adapter.serverEntrypoint}';
+import * as mod from '${adapter.serverEntrypoint}';
+export default mod.default || null;`;
 			}
 		},
 		async generateBundle(_opts, bundle) {
@@ -251,7 +262,7 @@ function generateSSRCode(settings: AstroSettings, adapter: AstroAdapter, middlew
 
 	const imports = [
 		`import { renderers } from '${RENDERERS_MODULE_ID}';`,
-		`import * as serverEntrypointModule from '${adapter.serverEntrypoint}';`,
+		`import * as serverEntrypointModule from '${ADAPTER_VIRTUAL_MODULE_ID}';`,
 		`import { manifest as defaultManifest } from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';`,
 		edgeMiddleware ? `` : `import { onRequest as middleware } from '${middlewareId}';`,
 		settings.config.experimental.serverIslands
