@@ -250,6 +250,7 @@ export class RenderContext {
 
 		return {
 			cookies,
+			route: this.routeData.component,
 			get clientAddress() {
 				return renderContext.clientAddress();
 			},
@@ -435,6 +436,7 @@ export class RenderContext {
 		return {
 			generator: astroStaticPartial.generator,
 			glob: astroStaticPartial.glob,
+			route: this.routeData.component,
 			cookies,
 			get clientAddress() {
 				return renderContext.clientAddress();
