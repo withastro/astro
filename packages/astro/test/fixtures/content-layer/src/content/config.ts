@@ -99,11 +99,13 @@ const increment = defineCollection({
 				},
 			});
 		},
+		// Example of a loader that returns an async schema function
+		schema: async () => z.object({
+			lastValue: z.number(),
+			lastUpdated: z.date(),
+		}),
 	},
-	schema: z.object({
-		lastValue: z.number(),
-		lastUpdated: z.date(),
-	}),
+
 });
 
 export const collections = { blog, dogs, cats, numbers, spacecraft, increment };

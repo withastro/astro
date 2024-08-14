@@ -230,6 +230,42 @@ export class ContentLayer {
 		const modulesImportsFile = new URL(MODULES_IMPORTS_FILE, this.#settings.dotAstroDir);
 		await this.#store.writeModuleImports(modulesImportsFile);
 		logger.info('Synced content');
+		if (this.#settings.config.experimental.contentIntellisense) {
+			await this.regenerateCollectionFileManifest();
+		}
+	}
+
+	async regenerateCollectionFileManifest() {
+		const collectionsManifest = new URL('collections/collections.json', this.#settings.dotAstroDir);
+		this.#logger.debug('content', 'Regenerating collection file manifest');
+		if (existsSync(collectionsManifest)) {
+			try {
+				const collections = await fs.readFile(collectionsManifest, 'utf-8');
+				const collectionsJson = JSON.parse(collections);
+				collectionsJson.entries ??= {};
+
+				for (const { hasSchema, name } of collectionsJson.collections) {
+					if (!hasSchema) {
+						continue;
+					}
+					const entries = this.#store.values(name);
+					if (!entries?.[0]?.filePath) {
+						continue;
+					}
+					for (const { filePath } of entries) {
+						if (!filePath) {
+							continue;
+						}
+						const key = new URL(filePath, this.#settings.config.root).href.toLowerCase();
+						collectionsJson.entries[key] = name;
+					}
+				}
+				await fs.writeFile(collectionsManifest, JSON.stringify(collectionsJson, null, 2));
+			} catch {
+				this.#logger.error('content', 'Failed to regenerate collection file manifest');
+			}
+		}
+		this.#logger.debug('content', 'Regenerated collection file manifest');
 	}
 }
 

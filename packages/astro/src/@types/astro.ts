@@ -1,5 +1,3 @@
-import type { OutgoingHttpHeaders } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import type {
 	MarkdownHeading,
 	MarkdownVFile,
@@ -9,6 +7,8 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
+import type { OutgoingHttpHeaders } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
 import type {
@@ -79,7 +79,7 @@ export type {
 	UnresolvedImageTransform,
 } from '../assets/types.js';
 export type { RemotePattern } from '../assets/utils/remotePattern.js';
-export type { SSRManifest, AssetsPrefix } from '../core/app/types.js';
+export type { AssetsPrefix, SSRManifest } from '../core/app/types.js';
 export type {
 	AstroCookieGetOptions,
 	AstroCookieSetOptions,
@@ -2185,6 +2185,30 @@ export interface AstroUserConfig {
 		 * For a complete overview, and to give feedback on this experimental API, see the [Server Islands RFC](https://github.com/withastro/roadmap/pull/963).
 		 */
 		serverIslands?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.contentIntellisense
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.14.0
+		 * @description
+		 *
+		 * Enables Intellisense features (e.g. code completion, quick hints) for your content collection entries in compatible editors.
+		 *
+		 * When enabled, this feature will generate and add JSON schemas to the `.astro` directory in your project. These files can be used by the Astro language server to provide Intellisense inside content files (`.md`, `.mdx`, `.mdoc`).
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     contentIntellisense: true,
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * To use this feature with the Astro VS Code extension, you must also enable the `astro.content-intellisense` option in your VS Code settings. For editors using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature.
+		 */
+		contentIntellisense?: boolean;
 
 		/**
 		 * @docs
