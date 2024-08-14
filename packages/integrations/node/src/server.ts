@@ -6,8 +6,9 @@ import { createStandaloneHandler } from './standalone.js';
 import startServer from './standalone.js';
 import type { Options } from './types.js';
 
-setGetEnv((key) => process.env[key]);
+// This needs to run first because some internals depend on `crypto`
 applyPolyfills();
+setGetEnv((key) => process.env[key]);
 
 export function createExports(manifest: SSRManifest, options: Options) {
 	const app = new NodeApp(manifest);

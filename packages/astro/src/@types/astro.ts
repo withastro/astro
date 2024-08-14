@@ -1,5 +1,3 @@
-import type { OutgoingHttpHeaders } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import type {
 	MarkdownHeading,
 	MarkdownVFile,
@@ -9,6 +7,8 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
+import type { OutgoingHttpHeaders } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
 import type {
@@ -18,6 +18,7 @@ import type {
 	ActionReturnType,
 } from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
+import type { DataEntry, RenderedContent } from '../content/data-store.js';
 import type { AssetsPrefix, SSRManifest, SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import type { AstroConfigType } from '../core/config/index.js';
@@ -78,7 +79,7 @@ export type {
 	UnresolvedImageTransform,
 } from '../assets/types.js';
 export type { RemotePattern } from '../assets/utils/remotePattern.js';
-export type { SSRManifest, AssetsPrefix } from '../core/app/types.js';
+export type { AssetsPrefix, SSRManifest } from '../core/app/types.js';
 export type {
 	AstroCookieGetOptions,
 	AstroCookieSetOptions,
@@ -123,6 +124,7 @@ export type TransitionAnimationValue =
 	| TransitionDirectionalAnimations;
 
 // Allow users to extend this for astro-jsx.d.ts
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface AstroClientDirectives {}
 
@@ -2111,6 +2113,225 @@ export interface AstroUserConfig {
 		 * For a complete overview, and to give feedback on this experimental API, see the [Server Islands RFC](https://github.com/withastro/roadmap/pull/963).
 		 */
 		serverIslands?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.contentIntellisense
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.14.0
+		 * @description
+		 *
+		 * Enables Intellisense features (e.g. code completion, quick hints) for your content collection entries in compatible editors.
+		 *
+		 * When enabled, this feature will generate and add JSON schemas to the `.astro` directory in your project. These files can be used by the Astro language server to provide Intellisense inside content files (`.md`, `.mdx`, `.mdoc`).
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     contentIntellisense: true,
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * To use this feature with the Astro VS Code extension, you must also enable the `astro.content-intellisense` option in your VS Code settings. For editors using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature.
+		 */
+		contentIntellisense?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.contentLayer
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 4.14.0
+		 * @description
+		 *
+		 * The Content Layer API is a new way to handle content and data in Astro. It is similar to and builds upon [content collections](/en/guides/content-collections/), taking them beyond local files in `src/content/` and allowing you to fetch content from anywhere, including remote APIs, by adding a `loader` to your collection.
+		 *
+		 * Your existing content collections can be [migrated to the Content Layer API](#migrating-a-content-collection-to-content-layer) with a few small changes. However, it is not necessary to update all your collections at once to add a new collection powered by the Content Layer API. You may have collections using both the existing and new APIs defined in `src/content/config.ts` at the same time.
+		 *
+		 * The Content Layer API is designed to be more powerful and more performant, helping sites scale to thousands of pages. Data is cached between builds and updated incrementally. Markdown parsing is also 5-10 times faster, with similar scale reductions in memory, and MDX is 2-3 times faster.
+		 *
+		 * To enable, add the `contentLayer` flag to the `experimental` object in your Astro config:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * {
+		 * 	experimental: {
+		 * 		contentLayer: true,
+		 * 	}
+		 * }
+		 * ```
+		 *
+		 * #### Fetching data with a `loader`
+		 *
+		 * The Content Layer API allows you to fetch your content from outside of the `src/content/` folder (whether stored locally in your project or remotely), and uses a `loader` property to retrieve your data.
+		 *
+		 * The `loader` is defined in the collection's schema and returns an array of entries. Astro provides two built-in loader functions (`glob()` and `file()`) for fetching your local content, as well as access to the API to [construct your own loader and fetch remote data](#creating-a-loader).
+		 *
+		 * The `glob()` loader creates entries from directories of Markdown, MDX, Markdoc, or JSON files from anywhere on the filesystem. It accepts a `pattern` of entry files to match, and a `base` file path of where your files are located. Use this when you have one file per entry.
+		 *
+		 * The `file()` loader creates multiple entries from a single local file. Use this when all your entries are stored in an array of objects.
+		 *
+		 * ```ts  {3,8,19}
+		 * // src/content/config.ts
+		 * import { defineCollection, z } from 'astro:content';
+		 * import { glob, file } from 'astro/loaders';
+		 *
+		 * const blog = defineCollection({
+		 *   // By default the ID is a slug generated from
+		 *   // the path of the file relative to `base`
+		 *   loader: glob({ pattern: "**\/*.md", base: "./src/data/blog" }),
+		 *   schema: z.object({
+		 *     title: z.string(),
+		 *     description: z.string(),
+		 *     pubDate: z.coerce.date(),
+		 *     updatedDate: z.coerce.date().optional(),
+		 *   })
+		 * });
+		 * 
+		 * const dogs = defineCollection({
+		 *   // The path is relative to the project root, or an absolute path.
+		 *   loader: file("src/data/dogs.json"),
+		 *   schema: z.object({
+		 *     id: z.string(),
+		 *     breed: z.string(),
+		 *     temperament: z.array(z.string()),
+		 *   }),
+		 * });
+		 *
+		 * export const collections = { blog, dogs };
+		 * ```
+		 *
+		 * #### Querying and rendering with the Content Layer API
+		 *
+		 * The collection can be [queried in the same way as content collections](/en/guides/content-collections/#querying-collections):
+		 *
+		 * ```ts
+		 * // src/pages/index.astro
+		 * import { getCollection, getEntry } from 'astro:content';
+		 *
+		 * // Get all entries from a collection.
+		 * // Requires the name of the collection as an argument.
+		 * const allBlogPosts = await getCollection('blog');
+		 *
+		 * // Get a single entry from a collection.
+		 * // Requires the name of the collection and ID
+		 * const labradorData = await getEntry('dogs', 'labrador-retriever');
+		 * ```
+		 *
+		 * Entries generated from Markdown, MDX or Markdoc can be rendered directly to a page using the `render()` function.
+		 *
+		 * :::note
+		 * The syntax for rendering collection entries is different from current content collections syntax.
+		 * :::
+		 *
+		 * ```astro title="src/pages/[slug].astro"
+		 * ---
+		 * import { getEntry, render } from 'astro:content';
+		 *
+		 * const post = await getEntry('blog', Astro.params.slug);
+		 *
+		 * const { Content, headings } = await render(entry);
+		 * ---
+		 *
+		 * <Content />
+		 * ```
+		 *
+		 * #### Creating a loader
+		 *
+		 * With the Content Layer API, you can build loaders to load or generate content from anywhere.
+		 *
+		 * For example, you can create a loader that fetches collection entries from a remote API.
+		 *
+		 * ```ts
+		 * // src/content/config.ts
+		 * const countries = defineCollection({
+		 *   loader: async () => {
+		 *     const response = await fetch("https://restcountries.com/v3.1/all");
+		 *     const data = await response.json();
+		 *     // Must return an array of entries with an id property,
+		 *     // or an object with IDs as keys and entries as values
+		 *     return data.map((country) => ({
+		 *       id: country.cca3,
+		 *       ...country,
+		 *     }));
+		 *   },
+		 *   // optionally add a schema
+		 *   // schema: z.object...
+		 * });
+		 *
+		 * export const collections = { countries };
+		 * ```
+		 *
+		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading, and gives full access to the data store. See the API in [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md#loaders).
+		 *
+		 * #### Migrating an existing content collection to use the Content Layer API
+		 *
+		 * You can convert an existing content collection with Markdown, MDX, Markdoc, or JSON entries to use the Content Layer API.
+		 *
+		 * 1. **Move the collection folder out of `src/content/`** (e.g. to `src/data/`). All collections located in the `src/content/` folder will use the existing Content Collections API.
+		 *
+		 *     **Do not move the existing `src/content/config.ts` file**. This file will define all collections, using either API.
+		 *
+		 * 2. **Edit the collection definition**. Your updated collection requires a `loader`, and the option to select a collection `type` is no longer available.
+		 *
+		 *     ```diff
+		 *     // src/content/config.ts
+		 *     import { defineCollection, z } from 'astro:content';
+		 *     + import { glob } from 'astro/loaders';
+		 *
+		 *     const blog = defineCollection({
+		 *       // For content layer you no longer define a `type`
+		 *     - type: 'content',
+		 *     + loader: glob({ pattern: "**\/*.md", base: "./src/data/blog" }),
+		 *       schema: z.object({
+		 *         title: z.string(),
+		 *         description: z.string(),
+		 *         pubDate: z.coerce.date(),
+		 *         updatedDate: z.coerce.date().optional(),
+		 *       }),
+		 *     });
+		 *     ```
+		 *
+		 * 3. **Change references from `slug` to `id`**. Content layer collections do not have a `slug` field. Instead, all updated collections will have an `id`.
+		 *
+		 *     ```diff
+		 *     // src/pages/index.astro
+		 *     ---
+		 *     export async function getStaticPaths() {
+		 *       const posts = await getCollection('blog');
+		 *       return posts.map((post) => ({
+		 *     -   params: { slug: post.slug },
+		 *     +   params: { slug: post.id },
+		 *         props: post,
+		 *       }));
+		 *     }
+		 *     ---
+		 *     ```
+		 *
+		 * 4. **Switch to the new `render()` function**. Entries no longer have a `render()` method, as they are now serializable plain objects. Instead, import the `render()` function from `astro:content`.
+		 *
+		 *     ```diff
+		 *     // src/pages/index.astro
+		 *     ---
+		 *     - import { getEntry } from 'astro:content';
+		 *     + import { getEntry, render } from 'astro:content';
+		 *
+		 *       const post = await getEntry('blog', params.slug);
+		 *
+		 *     - const { Content, headings } = await post.render();
+		 *     + const { Content, headings } = await render(post);
+		 *     ---
+		 *
+		 *     <Content />
+		 *     ```
+		 *
+		 * #### Learn more
+		 *
+		 * For a complete overview and the full API reference, see [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md) and [share your feedback](https://github.com/withastro/roadmap/pull/982).
+		 */
+		contentLayer?: boolean;
 	};
 }
 
@@ -2149,6 +2370,21 @@ export interface InjectedRoute {
 
 export interface ResolvedInjectedRoute extends InjectedRoute {
 	resolvedEntryPoint?: URL;
+}
+
+export interface RouteOptions {
+	/**
+	 * The path to this route relative to the project root. The slash is normalized as forward slash
+	 * across all OS.
+	 * @example "src/pages/blog/[...slug].astro"
+	 */
+	readonly component: string;
+	/**
+	 * Whether this route should be prerendered. If the route has an explicit `prerender` export,
+	 * the value will be passed here. Otherwise, it's undefined and will fallback to a prerender
+	 * default depending on the `output` option.
+	 */
+	prerender?: boolean;
 }
 
 /**
@@ -2193,6 +2429,10 @@ export interface AstroInlineOnlyConfig {
 	 */
 	logLevel?: LoggerLevel;
 	/**
+	 * Clear the content layer cache, forcing a rebuild of all content entries.
+	 */
+	force?: boolean;
+	/**
 	 * @internal for testing only, use `logLevel` instead.
 	 */
 	logger?: Logger;
@@ -2220,6 +2460,8 @@ export type DataEntryModule = {
 	};
 };
 
+export type ContentEntryRenderFuction = (entry: DataEntry) => Promise<RenderedContent>;
+
 export interface ContentEntryType {
 	extensions: string[];
 	getEntryInfo(params: {
@@ -2235,6 +2477,8 @@ export interface ContentEntryType {
 		},
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
+	getRenderFunction?(settings: AstroSettings): Promise<ContentEntryRenderFuction>;
+
 	/**
 	 * Handle asset propagation for rendered content to avoid bleed.
 	 * Ex. MDX content can import styles and scripts, so `handlePropagation` should be true.
@@ -2267,13 +2511,18 @@ export type GetDataEntryInfoReturnType = { data: Record<string, unknown>; rawDat
 
 export interface AstroAdapterFeatures {
 	/**
-	 * Creates and edge function that will communiate with the Astro middleware
+	 * Creates an edge function that will communiate with the Astro middleware
 	 */
 	edgeMiddleware: boolean;
 	/**
 	 * SSR only. Each route becomes its own function/file.
 	 */
 	functionPerRoute: boolean;
+}
+
+export interface InjectedType {
+	filename: string;
+	content: string;
 }
 
 export interface AstroSettings {
@@ -2311,6 +2560,7 @@ export interface AstroSettings {
 	latestAstroVersion: string | undefined;
 	serverIslandMap: NonNullable<SSRManifest['serverIslandMap']>;
 	serverIslandNameMap: NonNullable<SSRManifest['serverIslandNameMap']>;
+	injectedTypes: Array<InjectedType>;
 }
 
 export type AsyncRendererComponentFn<U> = (
@@ -3012,6 +3262,7 @@ declare global {
 			'astro:config:done': (options: {
 				config: AstroConfig;
 				setAdapter: (adapter: AstroAdapter) => void;
+				injectTypes: (injectedType: InjectedType) => URL;
 				logger: AstroIntegrationLogger;
 			}) => void | Promise<void>;
 			'astro:server:setup': (options: {
@@ -3055,6 +3306,10 @@ declare global {
 				routes: RouteData[];
 				logger: AstroIntegrationLogger;
 				cacheManifest: boolean;
+			}) => void | Promise<void>;
+			'astro:route:setup': (options: {
+				route: RouteOptions;
+				logger: AstroIntegrationLogger;
 			}) => void | Promise<void>;
 		}
 	}
@@ -3211,6 +3466,7 @@ export interface SSRResult {
 	cookies: AstroCookies | undefined;
 	serverIslandNameMap: Map<string, string>;
 	trailingSlash: AstroConfig['trailingSlash'];
+	key: Promise<CryptoKey>;
 	_metadata: SSRMetadata;
 }
 

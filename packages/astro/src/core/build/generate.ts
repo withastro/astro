@@ -77,6 +77,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 			internals,
 			renderers.renderers as SSRLoadedRenderer[],
 			middleware,
+			options.key,
 		);
 	}
 	const pipeline = BuildPipeline.create({ internals, manifest, options });
@@ -521,6 +522,7 @@ function createBuildManifest(
 	internals: BuildInternals,
 	renderers: SSRLoadedRenderer[],
 	middleware: MiddlewareHandler,
+	key: Promise<CryptoKey>,
 ): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
 	if (settings.config.i18n) {
@@ -551,6 +553,7 @@ function createBuildManifest(
 		buildFormat: settings.config.build.format,
 		middleware,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
+		key,
 		envGetSecretEnabled: false,
 	};
 }
