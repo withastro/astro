@@ -1,6 +1,6 @@
-import https from 'node:https';
 import fs from 'node:fs';
 import http from 'node:http';
+import https from 'node:https';
 import type { PreviewServer } from 'astro';
 import type { NodeApp } from 'astro/app/node';
 import enableDestroy from 'server-destroy';
