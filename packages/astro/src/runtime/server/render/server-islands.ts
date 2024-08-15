@@ -64,7 +64,8 @@ export function renderServerIsland(
 			const propsEncrypted = await encryptString(key, JSON.stringify(props));
 
 			const hostId = crypto.randomUUID();
-			const serverIslandUrl = `${result.base}_server-islands/${componentId}${result.trailingSlash === 'always' ? '/' : ''}`;
+			const slash = result.base.endsWith('/') ? '' : '/';
+			const serverIslandUrl = `${result.base}${slash}_server-islands/${componentId}${result.trailingSlash === 'always' ? '/' : ''}`;
 
 			destination.write(`<script async type="module" data-island-id="${hostId}">
 let componentId = ${safeJsonStringify(componentId)};
@@ -85,9 +86,10 @@ if(response.status === 200 && response.headers.get('content-type') === 'text/htm
 	let html = await response.text();
 
 	// Swap!
-	while(script.previousSibling?.nodeType !== 8 &&
-		script.previousSibling?.data !== 'server-island-start') {
-		script.previousSibling?.remove();
+	while(script.previousSibling &&
+		script.previousSibling.nodeType !== 8 &&
+		script.previousSibling.data !== 'server-island-start') {
+		script.previousSibling.remove();
 	}
 	script.previousSibling?.remove();
 
