@@ -18,10 +18,6 @@ import type {
 import type { RouteData } from './public/internal.js';
 import type { DevToolbarAppEntry } from './public/toolbar.js';
 
-export type RedirectRouteData = RouteData & {
-	redirect: string;
-};
-
 export type SerializedRouteData = Omit<
 	RouteData,
 	'generate' | 'pattern' | 'redirectRoute' | 'fallbackRoutes'

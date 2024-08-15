@@ -6,7 +6,6 @@ export type * from './view-transitions.js';
 export type * from './integrations.js';
 export type * from './internal.js';
 export type * from './context.js';
-export type * from './container.js';
 export type * from './preview.js';
 export type * from './content.js';
 export type * from './common.js';
@@ -42,3 +41,4 @@ export type {
 	AstroCookieSetOptions,
 	AstroCookies,
 } from '../../core/cookies/index.js';
+export type { ContainerRenderer } from '../../container/index.js';

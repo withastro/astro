@@ -13,7 +13,6 @@ import type { AstroComponentFactory } from '../runtime/server/index.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, Props } from '../types/public/common.js';
 import type { AstroConfig, AstroUserConfig } from '../types/public/config.js';
-import type { ContainerRenderer } from '../types/public/container.js';
 import type {
 	NamedSSRLoadedRendererValue,
 	RouteData,
@@ -24,6 +23,18 @@ import type {
 	SSRResult,
 } from '../types/public/internal.js';
 import { ContainerPipeline } from './pipeline.js';
+
+/** Public type, used for integrations to define a renderer for the container API */
+export type ContainerRenderer = {
+	/**
+	 * The name of the renderer.
+	 */
+	name: string;
+	/**
+	 * The entrypoint that is used to render a component on the server
+	 */
+	serverEntrypoint: string;
+};
 
 /**
  * Options to be passed when rendering a route
