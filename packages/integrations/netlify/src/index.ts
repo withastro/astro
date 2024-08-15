@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { appendFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import type { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { emptyDir } from '@astrojs/internal-helpers/fs';
@@ -495,7 +495,7 @@ export default function netlifyIntegration(
 
 			// local dev
 			'astro:server:setup': async ({ server }) => {
-				server.middlewares.use((req, res, next) => {
+				server.middlewares.use((req, _res, next) => {
 					const locals = Symbol.for('astro.locals');
 					Reflect.set(req, locals, {
 						...Reflect.get(req, locals),
