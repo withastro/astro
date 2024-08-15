@@ -84,7 +84,7 @@ jobs:
       - name: Bump Package Versions
         id: changesets
         run: |
-          pnpm exec changeset status --since origin/next --output status.output.json 2>&1
+          pnpm exec changeset status --output status.output.json 2>&1
           pnpm exec changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }}
 
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
