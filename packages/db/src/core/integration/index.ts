@@ -1,11 +1,11 @@
 import { existsSync } from 'node:fs';
-import { parseArgs } from 'node:util';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
 import { type ManagedAppToken, getManagedAppTokenOrExit } from '@astrojs/studio';
 import { LibsqlError } from '@libsql/client';
 import type { AstroConfig, AstroIntegration } from 'astro';
-import { mkdir, writeFile } from 'node:fs/promises';
 import { blue, yellow } from 'kleur/colors';
 import {
 	type HMRPayload,

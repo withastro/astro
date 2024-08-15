@@ -1,8 +1,8 @@
 import { type WriteStream, createWriteStream } from 'node:fs';
+import { mkdir } from 'node:fs/promises';
 import { normalize, resolve } from 'node:path';
 import { Readable, pipeline } from 'node:stream';
 import { promisify } from 'node:util';
-import { mkdir } from 'node:fs/promises';
 import replace from 'stream-replace-string';
 
 import { SitemapAndIndexStream, SitemapStream } from 'sitemap';

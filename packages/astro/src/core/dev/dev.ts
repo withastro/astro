@@ -1,8 +1,8 @@
 import fs, { existsSync } from 'node:fs';
 import type http from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { green } from 'kleur/colors';
 import { performance } from 'node:perf_hooks';
+import { green } from 'kleur/colors';
 import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
 import type { AstroInlineConfig } from '../../@types/astro.js';

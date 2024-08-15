@@ -1,5 +1,6 @@
 import fsMod, { existsSync } from 'node:fs';
 import { performance } from 'node:perf_hooks';
+import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
 import { type HMRPayload, createServer } from 'vite';
 import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
@@ -29,7 +30,6 @@ import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { writeFiles } from './write-files.js';
-import { fileURLToPath } from 'node:url';
 
 export type SyncOptions = {
 	/**
