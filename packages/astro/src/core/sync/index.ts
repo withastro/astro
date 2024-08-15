@@ -1,7 +1,7 @@
 import fsMod, { existsSync } from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { dim } from 'kleur/colors';
-import { type HMRPayload, createServer } from 'vite';
+import { type HMRPayload, createServer, normalizePath } from 'vite';
 import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { CONTENT_TYPES_FILE, DATA_STORE_FILE } from '../../content/consts.js';
 import { globalContentLayer } from '../../content/content-layer.js';
@@ -29,6 +29,7 @@ import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { writeFiles } from './write-files.js';
+import { fileURLToPath } from 'node:url';
 
 export type SyncOptions = {
 	/**
@@ -124,7 +125,9 @@ export async function syncInternal({
 			});
 			await contentLayer.sync();
 			settings.timer.end('Sync content layer');
-		} else if (fs.existsSync(getContentPaths(settings.config, fs).contentDir.href)) {
+		} else if (
+			fs.existsSync(normalizePath(fileURLToPath(getContentPaths(settings.config, fs).contentDir)))
+		) {
 			// Content is synced after writeFiles. That means references are not created
 			// To work around it, we create a stub so the reference is created and content
 			// sync will override the empty file
