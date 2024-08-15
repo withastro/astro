@@ -7,6 +7,10 @@ import { contentModuleToId } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
 
+/**
+ * Extends the DataStore with the ability to change entries and write them to disk.
+ * This is kept as a separate class to avoid needing node builtins at runtime, when read-only access is all that is needed.
+ */
 export class MutableDataStore extends DataStore {
 	#file?: PathLike;
 

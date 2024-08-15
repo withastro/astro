@@ -35,6 +35,11 @@ export interface DataEntry<TData extends Record<string, unknown> = Record<string
 	deferredRender?: boolean;
 }
 
+/**
+ * A read-only data store for content collections. This is used to retrieve data from the content layer at runtime.
+ * To add or modify data, use {@link MutableDataStore} instead.
+ */
+
 export class DataStore {
 	protected _collections = new Map<string, Map<string, any>>();
 
