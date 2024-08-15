@@ -67,7 +67,7 @@ describe('TypeScript - Diagnostics', async () => {
 				data: {},
 				message:
 					"Type '{ \"client:idle\": true; }' is not assignable to type 'HTMLAttributes'.\n  Property 'client:idle' does not exist on type 'HTMLAttributes'.\n\nClient directives are only available on framework components.",
-				range: Range.create(5, 5, 5, 16),
+				range: Range.create(0, 5, 0, 16),
 				severity: DiagnosticSeverity.Error,
 				source: 'ts',
 			},

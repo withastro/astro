@@ -22,7 +22,7 @@
     "@changesets/cli": "^2.26.1",
     "prettier": "^3.2.5",
     "turbo": "1.10.2",
-    "typescript": "^5.2.2",
+    "typescript": "^5.5.4",
     "eslint": "^9.8.0",
     "typescript-eslint": "^8.0.1",
     "eslint-plugin-regexp": "^2.6.0"

@@ -1,9 +1,10 @@
-import type {
-	Connection,
-	LanguagePlugin,
-	LanguageServiceEnvironment,
+import {
+	MessageType,
+	ShowMessageNotification,
+	type Connection,
+	type LanguagePlugin,
+	type LanguageServiceEnvironment,
 } from '@volar/language-server/node';
-import { MessageType, ShowMessageNotification } from '@volar/language-server/node';
 import { URI } from 'vscode-uri';
 import { getAstroLanguagePlugin } from './core';
 import { getSvelteLanguagePlugin } from './core/svelte.js';
@@ -17,16 +18,19 @@ import { create as createEmmetService } from 'volar-service-emmet';
 import { create as createPrettierService } from 'volar-service-prettier';
 import { create as createTypeScriptTwoSlashService } from 'volar-service-typescript-twoslash-queries';
 
+import { type CollectionConfig, getFrontmatterLanguagePlugin } from './core/frontmatterHolders.js';
 import { create as createAstroService } from './plugins/astro.js';
 import { create as createHtmlService } from './plugins/html.js';
 import { create as createTypescriptAddonsService } from './plugins/typescript-addons/index.js';
 import { create as createTypeScriptServices } from './plugins/typescript/index.js';
+import { create as createYAMLService } from './plugins/yaml.js';
 
 export function getLanguagePlugins(
 	connection: Connection,
 	ts: typeof import('typescript'),
 	serviceEnv: LanguageServiceEnvironment,
 	tsconfig: string | undefined,
+	collectionConfigs: CollectionConfig[],
 ) {
 	const languagePlugins: LanguagePlugin<URI>[] = [
 		getVueLanguagePlugin(),
@@ -50,6 +54,10 @@ export function getLanguagePlugins(
 		});
 	}
 
+	if (collectionConfigs.length) {
+		languagePlugins.push(getFrontmatterLanguagePlugin(collectionConfigs));
+	}
+
 	languagePlugins.unshift(
 		getAstroLanguagePlugin(typeof astroInstall === 'string' ? undefined : astroInstall, ts),
 	);
@@ -57,8 +65,12 @@ export function getLanguagePlugins(
 	return languagePlugins;
 }
 
-export function getLanguageServicePlugins(connection: Connection, ts: typeof import('typescript')) {
-	return [
+export function getLanguageServicePlugins(
+	connection: Connection,
+	ts: typeof import('typescript'),
+	collectionConfigs: CollectionConfig[],
+) {
+	const LanguageServicePlugins = [
 		createHtmlService(),
 		createCssService(),
 		createEmmetService(),
@@ -68,6 +80,13 @@ export function getLanguageServicePlugins(connection: Connection, ts: typeof imp
 		createAstroService(ts),
 		getPrettierService(),
 	];
+
+	if (collectionConfigs.length) {
+		LanguageServicePlugins.push(createYAMLService(collectionConfigs));
+	}
+
+	return LanguageServicePlugins;
+
 	function getPrettierService() {
 		let prettier: ReturnType<typeof importPrettier>;
 		let prettierPluginPath: ReturnType<typeof getPrettierPluginPath>;

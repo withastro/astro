@@ -148,6 +148,12 @@
           ],
           "default": "off",
           "description": "Traces the communication between VS Code and the language server."
+        },
+        "astro.content-intellisense": {
+          "scope": "resource",
+          "type": "boolean",
+          "default": false,
+          "description": "Enable experimental support for content collection intellisense inside Markdown, MDX and Markdoc. Note that this require also enabling the feature in your Astro config (experimental.contentCollectionIntellisense) (Astro 4.14+)"
         }
       }
     },

@@ -16,3 +16,5 @@ packages/vscode/meta.json
 
 # do not commit .env files or any files that end with `.env`
 *.env
+
+**/.astro
