@@ -2220,7 +2220,7 @@ export interface AstroUserConfig {
 		 *
 		 * The Content Layer API is a new way to handle content and data in Astro. It is similar to and builds upon [content collections](/en/guides/content-collections/), taking them beyond local files in `src/content/` and allowing you to fetch content from anywhere, including remote APIs, by adding a `loader` to your collection.
 		 *
-		 * Your existing content collections can be [migrated to the Content Layer API](#migrating-a-content-collection-to-content-layer) with a few small changes. However, it is not necessary to update all your collections at once to add a new collection powered by the Content Layer API. You may have collections using both the existing and new APIs defined in `src/content/config.ts` at the same time.
+		 * Your existing content collections can be [migrated to the Content Layer API](#migrating-an-existing-content-collection-to-use-the-content-layer-api) with a few small changes. However, it is not necessary to update all your collections at once to add a new collection powered by the Content Layer API. You may have collections using both the existing and new APIs defined in `src/content/config.ts` at the same time.
 		 *
 		 * The Content Layer API is designed to be more powerful and more performant, helping sites scale to thousands of pages. Data is cached between builds and updated incrementally. Markdown parsing is also 5-10 times faster, with similar scale reductions in memory, and MDX is 2-3 times faster.
 		 *
@@ -2237,7 +2237,7 @@ export interface AstroUserConfig {
 		 *
 		 * #### Fetching data with a `loader`
 		 *
-		 * The Content Layer API allows you to fetch your content from outside of the `src/content/` folder (whether stored locally in your project or remotely), and uses a `loader` property to retrieve your data.
+		 * The Content Layer API allows you to fetch your content from outside of the `src/content/` folder (whether stored locally in your project or remotely) and uses a `loader` property to retrieve your data.
 		 *
 		 * The `loader` is defined in the collection's schema and returns an array of entries. Astro provides two built-in loader functions (`glob()` and `file()`) for fetching your local content, as well as access to the API to [construct your own loader and fetch remote data](#creating-a-loader).
 		 *
@@ -2292,10 +2292,10 @@ export interface AstroUserConfig {
 		 * const labradorData = await getEntry('dogs', 'labrador-retriever');
 		 * ```
 		 *
-		 * Entries generated from Markdown, MDX or Markdoc can be rendered directly to a page using the `render()` function.
+		 * Entries generated from Markdown, MDX, or Markdoc can be rendered directly to a page using the `render()` function.
 		 *
 		 * :::note
-		 * The syntax for rendering collection entries is different from current content collections syntax.
+		 * The syntax for rendering collection entries is different from the current content collections syntax.
 		 * :::
 		 *
 		 * ```astro title="src/pages/[slug].astro"
@@ -2336,7 +2336,7 @@ export interface AstroUserConfig {
 		 * export const collections = { countries };
 		 * ```
 		 *
-		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading, and gives full access to the data store. See the API in [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md#loaders).
+		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading while also giving full access to the data store. See the API in [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md#loaders).
 		 *
 		 * #### Migrating an existing content collection to use the Content Layer API
 		 *
