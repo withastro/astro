@@ -1,5 +1,16 @@
 # @astrojs/language-server
 
+## 2.14.0
+
+### Minor Changes
+
+- d624646: Adds support for Content Collection Intellisense
+
+### Patch Changes
+
+- Updated dependencies [d624646]
+  - @astrojs/yaml2ts@0.2.0
+
 ## 2.13.4
 
 ### Patch Changes
