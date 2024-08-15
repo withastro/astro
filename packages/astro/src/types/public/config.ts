@@ -93,9 +93,8 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 // NOTE(fks): We choose to keep our hand-generated AstroUserConfig interface so that
 // we can add JSDoc-style documentation and link to the definition file in our repo.
 // However, Zod comes with the ability to auto-generate AstroConfig from the schema
-// above. If we ever get to the point where we no longer need the dedicated
-// @types/config.ts file, consider replacing it with the following lines:
-//
+// above. If we ever get to the point where we no longer need the dedicated type,
+// consider replacing it with the following lines:
 // export interface AstroUserConfig extends z.input<typeof AstroConfigSchema> {
 // }
 
