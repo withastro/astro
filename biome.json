@@ -29,7 +29,7 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "all": false,
+      "recommended": false,
       "style": {
         "useNodejsImportProtocol": "error"
       }
