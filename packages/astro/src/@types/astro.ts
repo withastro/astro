@@ -88,7 +88,7 @@ export type {
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
-	'client:idle'?: boolean;
+	'client:idle'?: IdleRequestOptions | boolean;
 	'client:media'?: string;
 	'client:visible'?: ClientVisibleOptions | boolean;
 	'client:only'?: boolean | string;
