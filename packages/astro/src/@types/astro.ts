@@ -3309,7 +3309,7 @@ declare global {
 		export interface IntegrationHooks {
 			'astro:config:setup': (options: {
 				config: AstroConfig;
-				command: 'dev' | 'build' | 'preview';
+				command: 'dev' | 'build' | 'preview' | 'sync';
 				isRestart: boolean;
 				updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
 				addRenderer: (renderer: AstroRenderer) => void;

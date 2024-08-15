@@ -121,7 +121,7 @@ export async function runHookConfigSetup({
 	fs = fsMod,
 }: {
 	settings: AstroSettings;
-	command: 'dev' | 'build' | 'preview';
+	command: 'dev' | 'build' | 'preview' | 'sync';
 	logger: Logger;
 	isRestart?: boolean;
 	fs?: typeof fsMod;
