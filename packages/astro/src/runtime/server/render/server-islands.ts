@@ -64,7 +64,8 @@ export function renderServerIsland(
 			const propsEncrypted = await encryptString(key, JSON.stringify(props));
 
 			const hostId = crypto.randomUUID();
-			const serverIslandUrl = `${result.base}_server-islands/${componentId}${result.trailingSlash === 'always' ? '/' : ''}`;
+			const slash = result.base.endsWith('/') ? '' : '/';
+			const serverIslandUrl = `${result.base}${slash}_server-islands/${componentId}${result.trailingSlash === 'always' ? '/' : ''}`;
 
 			destination.write(`<script async type="module" data-island-id="${hostId}">
 let componentId = ${safeJsonStringify(componentId)};

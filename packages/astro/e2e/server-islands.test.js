@@ -52,6 +52,26 @@ test.describe('Server islands', () => {
 		});
 	});
 
+	test.describe('Development - trailingSlash: ignore', () => {
+		let devServer;
+
+		test.beforeAll(async ({ astro }) => {
+			process.env.TRAILING_SLASH = 'ignore';
+			devServer = await astro.startDevServer();
+		});
+
+		test.afterAll(async () => {
+			await devServer.stop();
+		});
+
+		test('Load content from the server', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/base/'));
+			let el = page.locator('#island');
+
+			await expect(el, 'element rendered').toBeVisible();
+			await expect(el, 'should have content').toHaveText('I am an island');
+		});
+	});
 	test.describe('Production', () => {
 		let previewServer;
 
