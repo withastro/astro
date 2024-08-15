@@ -5,8 +5,8 @@ import { type HMRPayload, createServer } from 'vite';
 import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { CONTENT_TYPES_FILE, DATA_STORE_FILE } from '../../content/consts.js';
 import { globalContentLayer } from '../../content/content-layer.js';
-import { DataStore, globalDataStore } from '../../content/data-store.js';
 import { createContentTypesGenerator } from '../../content/index.js';
+import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { getContentPaths, globalContentConfigObserver } from '../../content/utils.js';
 import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
@@ -103,19 +103,17 @@ export async function syncInternal({
 		if (!skip?.content) {
 			await syncContentCollections(settings, { fs, logger });
 			settings.timer.start('Sync content layer');
-			let store: DataStore | undefined;
+			let store: MutableDataStore | undefined;
 			try {
 				const dataStoreFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
 				if (existsSync(dataStoreFile)) {
-					store = await DataStore.fromFile(dataStoreFile);
-					globalDataStore.set(store);
+					store = await MutableDataStore.fromFile(dataStoreFile);
 				}
 			} catch (err: any) {
 				logger.error('content', err.message);
 			}
 			if (!store) {
-				store = new DataStore();
-				globalDataStore.set(store);
+				store = new MutableDataStore();
 			}
 			const contentLayer = globalContentLayer.init({
 				settings,
