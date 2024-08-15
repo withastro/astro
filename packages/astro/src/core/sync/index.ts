@@ -29,6 +29,7 @@ import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { writeFiles } from './write-files.js';
+import { fileURLToPath } from 'node:url';
 
 export type SyncOptions = {
 	/**
@@ -122,7 +123,7 @@ export async function syncInternal({
 			});
 			await contentLayer.sync();
 			settings.timer.end('Sync content layer');
-		} else if (fs.existsSync(getContentPaths(settings.config, fs).contentDir.href)) {
+		} else if (fs.existsSync(fileURLToPath(getContentPaths(settings.config, fs).contentDir))) {
 			// Content is synced after writeFiles. That means references are not created
 			// To work around it, we create a stub so the reference is created and content
 			// sync will override the empty file
