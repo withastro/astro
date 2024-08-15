@@ -1,6 +1,9 @@
 ---
 import Island from '../components/Island.astro';
 import Self from '../components/Self.astro';
+import { generateLongText } from '../lorem';
+
+const content = generateLongText(5);
 ---
 
 <html>
@@ -8,9 +11,15 @@ import Self from '../components/Self.astro';
 		<!-- Head Stuff -->
 	</head>
 	<body>
-		<Island server:defer secret="test">
-			<h3 id="children">children</h3>
-		</Island>
+		<div id="basics">
+			<Island server:defer secret="test">
+				<h3 id="children">children</h3>
+			</Island>
+		</div>
 		<Self server:defer />
+
+		<div id="big">
+			<Island server:defer secret="test" content={content} />
+		</div>
 	</body>
 </html>

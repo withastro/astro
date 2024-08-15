@@ -17,7 +17,7 @@ test.describe('Server islands', () => {
 
 		test('Load content from the server', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/base/'));
-			let el = page.locator('#island');
+			let el = page.locator('#basics .island');
 
 			await expect(el, 'element rendered').toBeVisible();
 			await expect(el, 'should have content').toHaveText('I am an island');
@@ -25,7 +25,7 @@ test.describe('Server islands', () => {
 
 		test('Can be in an MDX file', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/base/mdx/'));
-			let el = page.locator('#island');
+			let el = page.locator('.island');
 
 			await expect(el, 'element rendered').toBeVisible();
 			await expect(el, 'should have content').toHaveText('I am an island');
@@ -40,7 +40,7 @@ test.describe('Server islands', () => {
 
 		test('Props are encrypted', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/base/'));
-			let el = page.locator('#secret');
+			let el = page.locator('#basics .secret');
 			await expect(el).toHaveText('test');
 		});
 
@@ -49,6 +49,14 @@ test.describe('Server islands', () => {
 			let el = page.locator('.now');
 
 			await expect(el).toHaveCount(2);
+		});
+
+		test('Large islands that exceed URL length still work through POST', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/base/'));
+			let el = page.locator('#basics .island');
+
+			await expect(el, 'element rendered').toBeVisible();
+			await expect(el, 'should have content').toHaveText('I am an island');
 		});
 	});
 
@@ -70,7 +78,7 @@ test.describe('Server islands', () => {
 		test('Only one component in prod', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/base/'));
 
-			let el = page.locator('#island');
+			let el = page.locator('#basics .island');
 
 			await expect(el, 'element rendered').toBeVisible();
 			await expect(el, 'should have content').toHaveText('I am an island');
@@ -78,7 +86,7 @@ test.describe('Server islands', () => {
 
 		test('Props are encrypted', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/'));
-			let el = page.locator('#secret');
+			let el = page.locator('#basics .secret');
 			await expect(el).toHaveText('test');
 		});
 	});
