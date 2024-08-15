@@ -1,13 +1,13 @@
 import { pathToFileURL } from 'node:url';
-import { parseArgs } from 'node:util';
 import { prompt } from '@astrojs/cli-kit';
+import arg from 'arg';
 import detectPackageManager from 'preferred-pm';
 
 export interface Context {
 	help: boolean;
 	prompt: typeof prompt;
 	version: string;
-	dryRun: boolean;
+	dryRun?: boolean;
 	cwd: URL;
 	stdin?: typeof process.stdin;
 	stdout?: typeof process.stdout;
@@ -28,20 +28,22 @@ export interface PackageInfo {
 }
 
 export async function getContext(argv: string[]): Promise<Context> {
-	const args = parseArgs({
-		args: argv,
-		allowPositionals: true,
-		strict: false,
-		options: {
-			'dry-run': { type: 'boolean' },
-			help: { type: 'boolean', short: 'h' },
+	const flags = arg(
+		{
+			'--dry-run': Boolean,
+			'--help': Boolean,
+
+			'-h': '--help',
 		},
-	});
+		{ argv, permissive: true },
+	);
 
 	const packageManager = (await detectPackageManager(process.cwd()))?.name ?? 'npm';
-	const version = args.positionals[0] ?? 'latest';
-	const help = !!args.values.help;
-	const dryRun = !!args.values['dry-run'];
+	const {
+		_: [version = 'latest'] = [],
+		'--help': help = false,
+		'--dry-run': dryRun,
+	} = flags;
 
 	return {
 		help,

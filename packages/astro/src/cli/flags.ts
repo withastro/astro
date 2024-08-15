@@ -1,10 +1,10 @@
-import type { parseArgs } from 'node:util';
+import type { Arguments } from 'yargs-parser';
 import type { AstroInlineConfig } from '../@types/astro.js';
 import { type LogOptions, Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
 
-export type ParsedArgsResult = ReturnType<typeof parseArgs>;
-export type Flags = ParsedArgsResult['values'];
+// Alias for now, but allows easier migration to node's `parseArgs` in the future.
+export type Flags = Arguments;
 
 export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
 	return {
@@ -20,7 +20,7 @@ export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
 		base: typeof flags.base === 'string' ? flags.base : undefined,
 		outDir: typeof flags.outDir === 'string' ? flags.outDir : undefined,
 		server: {
-			port: typeof flags.port === 'string' ? Number(flags.port) : undefined,
+			port: typeof flags.port === 'number' ? flags.port : undefined,
 			host:
 				typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 			open:
