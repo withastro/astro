@@ -2348,15 +2348,15 @@ export interface AstroUserConfig {
 		 *
 		 * 2. **Edit the collection definition**. Your updated collection requires a `loader`, and the option to select a collection `type` is no longer available.
 		 *
-		 *     ```diff
+		 *     ```ts ins={3,8} del={7}
 		 *     // src/content/config.ts
 		 *     import { defineCollection, z } from 'astro:content';
-		 *     + import { glob } from 'astro/loaders';
+		 *      import { glob } from 'astro/loaders';
 		 *
 		 *     const blog = defineCollection({
 		 *       // For content layer you no longer define a `type`
-		 *     - type: 'content',
-		 *     + loader: glob({ pattern: "**\/*.md", base: "./src/data/blog" }),
+		 *      type: 'content',
+		 *      loader: glob({ pattern: "**\/*.md", base: "./src/data/blog" }),
 		 *       schema: z.object({
 		 *         title: z.string(),
 		 *         description: z.string(),
@@ -2368,14 +2368,14 @@ export interface AstroUserConfig {
 		 *
 		 * 3. **Change references from `slug` to `id`**. Content layer collections do not have a `slug` field. Instead, all updated collections will have an `id`.
 		 *
-		 *     ```diff
+		 *     ```astro ins={7} del={6}
 		 *     // src/pages/index.astro
 		 *     ---
 		 *     export async function getStaticPaths() {
 		 *       const posts = await getCollection('blog');
 		 *       return posts.map((post) => ({
-		 *     -   params: { slug: post.slug },
-		 *     +   params: { slug: post.id },
+		 *        params: { slug: post.slug },
+		 *        params: { slug: post.id },
 		 *         props: post,
 		 *       }));
 		 *     }
@@ -2384,16 +2384,16 @@ export interface AstroUserConfig {
 		 *
 		 * 4. **Switch to the new `render()` function**. Entries no longer have a `render()` method, as they are now serializable plain objects. Instead, import the `render()` function from `astro:content`.
 		 *
-		 *     ```diff
+		 *     ```astro ins={4,9} del={3,8}
 		 *     // src/pages/index.astro
 		 *     ---
-		 *     - import { getEntry } from 'astro:content';
-		 *     + import { getEntry, render } from 'astro:content';
+		 *      import { getEntry } from 'astro:content';
+		 *      import { getEntry, render } from 'astro:content';
 		 *
 		 *       const post = await getEntry('blog', params.slug);
 		 *
-		 *     - const { Content, headings } = await post.render();
-		 *     + const { Content, headings } = await render(post);
+		 *      const { Content, headings } = await post.render();
+		 *      const { Content, headings } = await render(post);
 		 *     ---
 		 *
 		 *     <Content />
