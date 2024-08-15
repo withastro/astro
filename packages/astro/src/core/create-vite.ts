@@ -185,7 +185,7 @@ export async function createVite(
 				{
 					// Typings are imported from 'astro' (e.g. import { Type } from 'astro')
 					find: /^astro$/,
-					replacement: fileURLToPath(new URL('../@types/astro.js', import.meta.url)),
+					replacement: fileURLToPath(new URL('../types/public/index.js', import.meta.url)),
 				},
 				{
 					find: 'astro:middleware',

@@ -1,5 +1,5 @@
 // BEFORE ADDING AN ERROR: Please look at the README.md in this folder for general guidelines on writing error messages
-// Additionally, this code, much like `@types/astro.ts`, is used to generate documentation, so make sure to pass
+// Additionally, this code, much like `types/public/config.ts`, is used to generate documentation, so make sure to pass
 // your changes by our wonderful docs team before merging!
 
 import type { ZodError } from 'zod';
