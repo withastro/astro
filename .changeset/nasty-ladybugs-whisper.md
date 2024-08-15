@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Prevents prefetching of the same urls with different hahes.
+Prevents prefetching of the same urls with different hashes.
