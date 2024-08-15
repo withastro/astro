@@ -2189,7 +2189,7 @@ export interface AstroUserConfig {
 		 *     updatedDate: z.coerce.date().optional(),
 		 *   })
 		 * });
-		 * 
+		 *
 		 * const dogs = defineCollection({
 		 *   // The path is relative to the project root, or an absolute path.
 		 *   loader: file("src/data/dogs.json"),
@@ -2332,6 +2332,42 @@ export interface AstroUserConfig {
 		 * For a complete overview and the full API reference, see [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md) and [share your feedback](https://github.com/withastro/roadmap/pull/982).
 		 */
 		contentLayer?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.typescript
+		 * @type {object}
+		 * @default `undefined`
+		 * @version 5.0.0
+		 * @description
+		 *
+		 * TODO:
+		 */
+		typescript?: {
+			/**
+			 * @docs
+			 * @name experimental.typescript.include
+			 * @type {Array<string>}
+			 * @default `undefined`
+			 * @version 5.0.0
+			 * @description
+			 *
+			 * TODO:
+			 */
+			include?: Array<string>;
+
+			/**
+			 * @docs
+			 * @name experimental.typescript.exclude
+			 * @type {Array<string>}
+			 * @default `undefined`
+			 * @version 5.0.0
+			 * @description
+			 *
+			 * TODO:
+			 */
+			exclude?: Array<string>;
+		};
 	};
 }
 
