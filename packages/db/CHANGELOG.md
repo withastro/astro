@@ -1,5 +1,14 @@
 # @astrojs/db
 
+## 0.13.1
+
+### Patch Changes
+
+- [#11733](https://github.com/withastro/astro/pull/11733) [`391324d`](https://github.com/withastro/astro/commit/391324df969db71d1c7ca25c2ed14c9eb6eea5ee) Thanks [@bluwy](https://github.com/bluwy)! - Reverts back to `yargs-parser` package for CLI argument parsing
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
 ## 0.13.0
 
 ### Minor Changes
