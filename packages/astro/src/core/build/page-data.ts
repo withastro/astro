@@ -1,4 +1,4 @@
-import type { AstroSettings, ManifestData } from '../../@types/astro.js';
+import type { AstroSettings, ManifestData } from '../../types/astro.js';
 import type { Logger } from '../logger/core.js';
 import type { AllPagesData } from './types.js';
 

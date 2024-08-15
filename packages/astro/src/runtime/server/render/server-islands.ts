@@ -1,5 +1,5 @@
-import type { SSRResult } from '../../../@types/astro.js';
 import { encryptString } from '../../../core/encryption.js';
+import type { SSRResult } from '../../../types/public/internal.js';
 import { renderChild } from './any.js';
 import type { RenderInstance } from './common.js';
 import { type ComponentSlots, renderSlotToString } from './slot.js';

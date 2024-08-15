@@ -1,5 +1,5 @@
 import './astro-jsx';
-import type { AstroBuiltinAttributes } from './dist/@types/astro.js';
+import type { AstroBuiltinAttributes } from './dist/types/public/elements.js';
 import type { OmitIndexSignature, Simplify } from './dist/type-utils.js';
 
 /** Any supported HTML or SVG element name, as defined by the HTML specification */

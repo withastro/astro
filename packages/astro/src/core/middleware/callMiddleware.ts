@@ -1,9 +1,9 @@
 import type {
-	APIContext,
 	MiddlewareHandler,
 	MiddlewareNext,
 	RewritePayload,
-} from '../../@types/astro.js';
+} from '../../types/public/common.js';
+import type { APIContext } from '../../types/public/context.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
 /**

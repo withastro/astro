@@ -1,4 +1,4 @@
-import type { APIContext } from '../../@types/astro.js';
+import type { APIContext } from '../../types/public/context.js';
 
 export const formContentTypes = ['application/x-www-form-urlencoded', 'multipart/form-data'];
 

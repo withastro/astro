@@ -1,4 +1,4 @@
-import type { AstroSettings } from '../../@types/astro.js';
+import type { AstroSettings } from '../../types/astro.js';
 
 export function injectImageEndpoint(settings: AstroSettings, mode: 'dev' | 'build') {
 	const endpointEntrypoint =

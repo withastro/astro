@@ -1,17 +1,13 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
-import type {
-	APIContext,
-	AstroConfig,
-	Locales,
-	SSRManifest,
-	ValidRedirectStatus,
-} from '../@types/astro.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { REROUTE_DIRECTIVE_HEADER } from '../core/constants.js';
 import { MissingLocale, i18nNoLocaleFoundInPath } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
+import type { AstroConfig, Locales, ValidRedirectStatus } from '../types/public/config.js';
+import type { APIContext } from '../types/public/context.js';
 import { createI18nMiddleware } from './middleware.js';
 import type { RoutingStrategies } from './utils.js';
+import type { SSRManifest } from '../core/app/types.js';
 
 export function requestHasLocale(locales: Locales) {
 	return function (context: APIContext): boolean {

@@ -1,6 +1,7 @@
 import type { FSWatcher } from 'vite';
 import type { ZodSchema } from 'zod';
-import type { AstroIntegrationLogger, AstroSettings } from '../../@types/astro.js';
+import type { AstroIntegrationLogger } from '../../core/logger/core.js';
+import type { AstroSettings } from '../../types/astro.js';
 import type { MetaStore, ScopedDataStore } from '../data-store.js';
 
 export interface ParseDataOptions<TData extends Record<string, unknown>> {

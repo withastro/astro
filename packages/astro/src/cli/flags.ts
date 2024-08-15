@@ -1,7 +1,7 @@
 import type { parseArgs } from 'node:util';
-import type { AstroInlineConfig } from '../@types/astro.js';
 import { type LogOptions, Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
+import type { AstroInlineConfig } from '../types/public/config.js';
 
 export type ParsedArgsResult = ReturnType<typeof parseArgs>;
 export type Flags = ParsedArgsResult['values'];

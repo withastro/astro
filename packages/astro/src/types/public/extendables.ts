@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-
-import type { BaseIntegrationHooks } from './astro.js';
+import type { AstroClientDirectives } from './elements.js';
+import type { BaseIntegrationHooks } from './integrations.js';
 
 // The interfaces in this file can be extended by users
 declare global {
@@ -14,5 +14,8 @@ declare global {
 
 	namespace Astro {
 		export interface IntegrationHooks extends BaseIntegrationHooks {}
+		export interface ClientDirectives extends AstroClientDirectives {}
 	}
 }
+
+export {};

@@ -1,13 +1,13 @@
 import cssesc from 'cssesc';
+import { fade, slide } from '../../transitions/index.js';
 import type {
-	SSRResult,
 	TransitionAnimation,
 	TransitionAnimationPair,
 	TransitionAnimationValue,
 	TransitionDirectionalAnimations,
-} from '../../@types/astro.js';
-import { fade, slide } from '../../transitions/index.js';
+} from '../../types/public/view-transitions.js';
 import { markHTMLString } from './escape.js';
+import type { SSRResult } from '../../types/public/internal.js';
 
 const transitionNameMap = new WeakMap<SSRResult, number>();
 function incrementTransitionNumber(result: SSRResult) {

@@ -6,12 +6,12 @@ import { bold, underline } from 'kleur/colors';
 import stripAnsi from 'strip-ansi';
 import type { ESBuildTransformResult } from 'vite';
 import { normalizePath } from 'vite';
-import type { SSRError } from '../../../@types/astro.js';
 import { removeLeadingForwardSlashWindows } from '../../path.js';
 import { AggregateError, type ErrorWithMetadata } from '../errors.js';
 import { AstroErrorData } from '../index.js';
 import { codeFrame } from '../printer.js';
 import { normalizeLF } from '../utils.js';
+import type { SSRError } from '../../../types/public/internal.js';
 
 type EsbuildMessage = ESBuildTransformResult['warnings'][number];
 

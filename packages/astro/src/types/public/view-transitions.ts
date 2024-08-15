@@ -1,3 +1,8 @@
+import type {
+	TransitionBeforePreparationEvent,
+	TransitionBeforeSwapEvent,
+} from '../../transitions/events.js';
+
 export interface TransitionAnimation {
 	name: string; // The name of the keyframe
 	delay?: number | string;
@@ -23,3 +28,13 @@ export type TransitionAnimationValue =
 	| 'fade'
 	| 'none'
 	| TransitionDirectionalAnimations;
+
+declare global {
+	interface DocumentEventMap {
+		'astro:before-preparation': TransitionBeforePreparationEvent;
+		'astro:after-preparation': Event;
+		'astro:before-swap': TransitionBeforeSwapEvent;
+		'astro:after-swap': Event;
+		'astro:page-load': Event;
+	}
+}

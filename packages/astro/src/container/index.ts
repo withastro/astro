@@ -1,19 +1,4 @@
 import { posix } from 'node:path';
-import type {
-	AstroConfig,
-	AstroUserConfig,
-	ComponentInstance,
-	ContainerImportRendererFn,
-	MiddlewareHandler,
-	NamedSSRLoadedRendererValue,
-	Props,
-	RouteData,
-	RouteType,
-	SSRLoadedRenderer,
-	SSRLoadedRendererValue,
-	SSRManifest,
-	SSRResult,
-} from '../@types/astro.js';
 import { getDefaultClientDirectives } from '../core/client-directive/index.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
 import { validateConfig } from '../core/config/validate.js';
@@ -25,7 +10,20 @@ import { RenderContext } from '../core/render-context.js';
 import { getParts, validateSegment } from '../core/routing/manifest/create.js';
 import { getPattern } from '../core/routing/manifest/pattern.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
+import type { ComponentInstance } from '../types/astro.js';
+import type { MiddlewareHandler, Props } from '../types/public/common.js';
+import type { AstroConfig, AstroUserConfig } from '../types/public/config.js';
+import type {
+	NamedSSRLoadedRendererValue,
+	RouteData,
+	RouteType,
+	SSRLoadedRenderer,
+	SSRLoadedRendererValue,
+	SSRManifest,
+	SSRResult,
+} from '../types/public/internal.js';
 import { ContainerPipeline } from './pipeline.js';
+import type { ContainerRenderer } from '../types/public/container.js';
 
 /**
  * Options to be passed when rendering a route
@@ -102,6 +100,10 @@ export type AddClientRenderer = {
 	name: string;
 	entrypoint: string;
 };
+
+type ContainerImportRendererFn = (
+	containerRenderer: ContainerRenderer,
+) => Promise<SSRLoadedRenderer>;
 
 function createManifest(
 	manifest?: AstroContainerManifest,

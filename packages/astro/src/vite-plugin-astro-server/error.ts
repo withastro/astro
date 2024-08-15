@@ -1,10 +1,10 @@
-import type { AstroConfig } from '../@types/astro.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import type { DevPipeline } from './pipeline.js';
 
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { createSafeError } from '../core/errors/index.js';
 import { formatErrorMessage } from '../core/messages.js';
+import type { AstroConfig } from '../types/public/config.js';
 
 export function recordServerError(
 	loader: ModuleLoader,

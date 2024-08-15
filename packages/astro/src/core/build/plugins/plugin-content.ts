@@ -4,13 +4,13 @@ import { fileURLToPath } from 'node:url';
 import glob from 'fast-glob';
 import pLimit from 'p-limit';
 import { type Plugin as VitePlugin, normalizePath } from 'vite';
-import type { AstroConfig } from '../../../@types/astro.js';
 import { CONTENT_RENDER_FLAG, PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { type ContentLookupMap, hasContentFlag } from '../../../content/utils.js';
 import {
 	generateContentEntryFile,
 	generateLookupMap,
 } from '../../../content/vite-plugin-content-virtual-mod.js';
+import type { AstroConfig } from '../../../types/public/config.js';
 import { configPaths } from '../../config/index.js';
 import { emptyDir } from '../../fs/index.js';
 import {

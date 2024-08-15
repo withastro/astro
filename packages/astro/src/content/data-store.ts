@@ -1,6 +1,6 @@
+import { promises as fs, type PathLike, existsSync } from 'fs';
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import * as devalue from 'devalue';
-import { existsSync, promises as fs, type PathLike } from 'fs';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { CONTENT_MODULE_FLAG, DEFERRED_MODULE } from './consts.js';

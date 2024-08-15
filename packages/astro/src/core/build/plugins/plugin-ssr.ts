@@ -1,8 +1,9 @@
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroAdapter, AstroSettings } from '../../../@types/astro.js';
 import { isFunctionPerRouteEnabled } from '../../../integrations/hooks.js';
+import type { AstroSettings } from '../../../types/astro.js';
+import type { AstroAdapter } from '../../../types/public/integrations.js';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { VIRTUAL_ISLAND_MAP_ID } from '../../server-islands/vite-plugin-server-islands.js';
 import { isServerLikeOutput } from '../../util.js';
