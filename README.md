@@ -51,7 +51,7 @@ Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll 
 ## Directory
 
 | Package                                                                                    | Release Notes                                                                                                                                                                      |
-|--------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [astro](packages/astro)                                                                    | [![astro version](https://img.shields.io/npm/v/astro.svg?label=%20)](packages/astro/CHANGELOG.md)                                                                                  |
 | [create-astro](packages/create-astro)                                                      | [![create-astro version](https://img.shields.io/npm/v/create-astro.svg?label=%20)](packages/create-astro/CHANGELOG.md)                                                             |
 | [@astrojs/react](packages/integrations/react)                                              | [![@astrojs/react version](https://img.shields.io/npm/v/@astrojs/react.svg?label=%20)](packages/integrations/react/CHANGELOG.md)                                                   |
