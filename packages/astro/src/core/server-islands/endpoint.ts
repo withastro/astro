@@ -53,12 +53,52 @@ type RenderOptions = {
 	slots: Record<string, string>;
 };
 
+function badRequest() {
+	return new Response(null, {
+		status: 400,
+		statusText: 'Bad request',
+	});
+}
+
+async function getRequestData(request: Request): Promise<Response | RenderOptions> {
+	switch(request.method) {
+		case 'GET': {
+			const url = new URL(request.url);
+			const params = url.searchParams;
+
+			if(!params.has('s') || !params.has('e') || !params.has('p')) {
+				return badRequest();
+			}
+
+			const rawSlots = params.get('s')!;
+			try {
+				return {
+					componentExport: params.get('e')!,
+					encryptedProps: params.get('p')!,
+					slots: JSON.parse(rawSlots),
+				};
+			} catch {
+				return badRequest();
+			}
+		}
+		case 'POST': {
+			try {
+			const raw = await request.text();
+			const data = JSON.parse(raw) as RenderOptions;
+			return data;
+			} catch {
+				return badRequest();
+			}
+		}
+		default: {
+			return badRequest();
+		}
+	}
+}
+
 export function createEndpoint(manifest: SSRManifest) {
 	const page: AstroComponentFactory = async (result) => {
 		const params = result.params;
-		const request = result.request;
-		const raw = await request.text();
-		const data = JSON.parse(raw) as RenderOptions;
 		if (!params.name) {
 			return new Response(null, {
 				status: 400,
@@ -66,6 +106,12 @@ export function createEndpoint(manifest: SSRManifest) {
 			});
 		}
 		const componentId = params.name;
+
+		// Get the request data from the body or search params
+		const data = await getRequestData(result.request);
+		if(data instanceof Response) {
+			return data;
+		}
 
 		const imp = manifest.serverIslandMap?.get(componentId);
 		if (!imp) {
