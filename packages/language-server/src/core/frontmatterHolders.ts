@@ -1,4 +1,4 @@
-import { yaml2ts, VIRTUAL_CODE_ID } from '@astrojs/yaml2ts';
+import { VIRTUAL_CODE_ID, yaml2ts } from '@astrojs/yaml2ts';
 import {
 	type CodeMapping,
 	type LanguagePlugin,

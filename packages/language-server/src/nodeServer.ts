@@ -6,8 +6,8 @@ import {
 } from '@volar/language-server/node';
 import { URI, Utils } from 'vscode-uri';
 import {
-	SUPPORTED_FRONTMATTER_EXTENSIONS_KEYS,
 	type CollectionConfig,
+	SUPPORTED_FRONTMATTER_EXTENSIONS_KEYS,
 } from './core/frontmatterHolders.js';
 import { getLanguagePlugins, getLanguageServicePlugins } from './languageServerPlugin.js';
 

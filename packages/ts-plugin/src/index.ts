@@ -1,8 +1,8 @@
+import type { LanguagePlugin } from '@volar/language-core';
 import { createLanguageServicePlugin } from '@volar/typescript/lib/quickstart/createLanguageServicePlugin.js';
 import type { CollectionConfig } from './frontmatter.js';
 import { getFrontmatterLanguagePlugin } from './frontmatter.js';
 import { getLanguagePlugin } from './language.js';
-import type { LanguagePlugin } from '@volar/language-core';
 
 export = createLanguageServicePlugin((ts, info) => {
 	let collectionConfig = undefined;

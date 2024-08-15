@@ -1,3 +1,3 @@
 ---
-title: "Article Title"
+title: 'Article Title'
 ---

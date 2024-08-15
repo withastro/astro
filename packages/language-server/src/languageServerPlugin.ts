@@ -1,9 +1,9 @@
 import {
-	MessageType,
-	ShowMessageNotification,
 	type Connection,
 	type LanguagePlugin,
 	type LanguageServiceEnvironment,
+	MessageType,
+	ShowMessageNotification,
 } from '@volar/language-server/node';
 import { URI } from 'vscode-uri';
 import { getAstroLanguagePlugin } from './core';

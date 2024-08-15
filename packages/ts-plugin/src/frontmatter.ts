@@ -1,11 +1,11 @@
-import { yaml2ts, VIRTUAL_CODE_ID } from '@astrojs/yaml2ts';
+import { pathToFileURL } from 'node:url';
+import { VIRTUAL_CODE_ID, yaml2ts } from '@astrojs/yaml2ts';
 import {
 	type CodeMapping,
 	type LanguagePlugin,
 	type VirtualCode,
 	forEachEmbeddedCode,
 } from '@volar/language-core';
-import { pathToFileURL } from 'node:url';
 import type ts from 'typescript';
 
 const SUPPORTED_FRONTMATTER_EXTENSIONS = { md: 'markdown', mdx: 'mdx', mdoc: 'mdoc' };
