@@ -13,6 +13,7 @@ import type { AstroComponentFactory } from '../runtime/server/index.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, Props } from '../types/public/common.js';
 import type { AstroConfig, AstroUserConfig } from '../types/public/config.js';
+import type { ContainerRenderer } from '../types/public/container.js';
 import type {
 	NamedSSRLoadedRendererValue,
 	RouteData,
@@ -23,7 +24,6 @@ import type {
 	SSRResult,
 } from '../types/public/internal.js';
 import { ContainerPipeline } from './pipeline.js';
-import type { ContainerRenderer } from '../types/public/container.js';
 
 /**
  * Options to be passed when rendering a route

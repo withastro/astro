@@ -9,6 +9,7 @@ import type { ModuleLoader } from '../core/module-loader/loader.js';
 import { createViteLoader } from '../core/module-loader/vite.js';
 import { joinPaths, prependForwardSlash } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
+import type { SSRElement } from '../types/public/internal.js';
 import { getStylesForURL } from '../vite-plugin-astro-server/css.js';
 import { getScriptsForURL } from '../vite-plugin-astro-server/scripts.js';
 import {
@@ -20,7 +21,6 @@ import {
 	STYLES_PLACEHOLDER,
 } from './consts.js';
 import { hasContentFlag } from './utils.js';
-import type { SSRElement } from '../types/public/internal.js';
 
 export function astroContentAssetPropagationPlugin({
 	mode,

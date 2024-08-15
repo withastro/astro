@@ -11,6 +11,7 @@ import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
+import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
 import type {
 	AstroAdapter,
 	AstroIntegration,
@@ -20,7 +21,6 @@ import type {
 } from '../types/public/integrations.js';
 import type { RouteData } from '../types/public/internal.js';
 import { validateSupportedFeatures } from './features-validation.js';
-import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,

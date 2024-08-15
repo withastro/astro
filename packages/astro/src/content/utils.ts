@@ -12,6 +12,7 @@ import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
+import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
 import {
 	CONTENT_FLAGS,
 	CONTENT_LAYER_TYPE,
@@ -20,7 +21,6 @@ import {
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
 import { createImage } from './runtime-assets.js';
-import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
 /**
  * Amap from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.

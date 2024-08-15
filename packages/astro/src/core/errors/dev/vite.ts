@@ -3,12 +3,12 @@ import { fileURLToPath } from 'node:url';
 import { codeToHtml, createCssVariablesTheme } from 'shiki';
 import type { ShikiTransformer } from 'shiki';
 import type { ErrorPayload } from 'vite';
+import type { SSRLoadedRenderer } from '../../../types/public/internal.js';
 import type { ModuleLoader } from '../../module-loader/index.js';
 import { FailedToLoadModuleSSR, InvalidGlob, MdxIntegrationMissingError } from '../errors-data.js';
 import { AstroError, type ErrorWithMetadata } from '../errors.js';
 import { createSafeError } from '../utils.js';
 import { getDocsForError, renderErrorMarkdown } from './utils.js';
-import type { SSRLoadedRenderer } from '../../../types/public/internal.js';
 
 export function enhanceViteSSRError({
 	error,

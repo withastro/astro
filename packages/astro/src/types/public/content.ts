@@ -1,8 +1,8 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
-import type { AstroComponentFactory } from '../../runtime/server/index.js';
-import type { DataEntry, RenderedContent } from '../../content/data-store.js';
-import type { AstroConfig } from './config.js';
 import type * as rollup from 'rollup';
+import type { DataEntry, RenderedContent } from '../../content/data-store.js';
+import type { AstroComponentFactory } from '../../runtime/server/index.js';
+import type { AstroConfig } from './config.js';
 
 export interface AstroInstance {
 	file: string;

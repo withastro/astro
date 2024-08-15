@@ -5,8 +5,8 @@ import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 import { getParentModuleInfos, getTopLevelPageModuleInfos } from '../core/build/graph.js';
 import type { BuildInternals } from '../core/build/internal.js';
+import type { SSRComponentMetadata, SSRResult } from '../types/public/internal.js';
 import { getAstroMetadata } from '../vite-plugin-astro/index.js';
-import type { SSRResult, SSRComponentMetadata } from '../types/public/internal.js';
 
 // Detect this in comments, both in .astro components and in js/ts files.
 const injectExp = /(?:^\/\/|\/\/!)\s*astro-head-inject/;

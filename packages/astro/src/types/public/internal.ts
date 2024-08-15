@@ -1,12 +1,12 @@
 // TODO: Should the types here really be public?
 
+import type { ErrorPayload as ViteErrorPayload } from 'vite';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { AstroComponentInstance } from '../../runtime/server/index.js';
 import type { Params } from './common.js';
 import type { AstroConfig, RedirectConfig } from './config.js';
 import type { AstroGlobal, AstroGlobalPartial } from './context.js';
 import type { AstroRenderer } from './integrations.js';
-import type { ErrorPayload as ViteErrorPayload } from 'vite';
 
 export type { SSRManifest } from '../../core/app/types.js';
 

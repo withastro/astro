@@ -1,5 +1,6 @@
 import type { RenderInstruction } from './instruction.js';
 
+import type { SSRResult } from '../../../types/public/internal.js';
 import type { HTMLBytes, HTMLString } from '../escape.js';
 import { markHTMLString } from '../escape.js';
 import {
@@ -11,7 +12,6 @@ import {
 import { renderAllHeadContent } from './head.js';
 import { isRenderInstruction } from './instruction.js';
 import { type SlotString, isSlotString } from './slot.js';
-import type { SSRResult } from '../../../types/public/internal.js';
 
 /**
  * Possible chunk types to be written to the destination, and it'll

@@ -11,6 +11,12 @@ import type { Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
+import type {
+	ContentEntryModule,
+	ContentEntryType,
+	DataEntryModule,
+	DataEntryType,
+} from '../types/public/content.js';
 import { CONTENT_FLAG, DATA_FLAG } from './consts.js';
 import {
 	type ContentConfig,
@@ -30,12 +36,6 @@ import {
 	reloadContentConfigObserver,
 	reverseSymlink,
 } from './utils.js';
-import type {
-	ContentEntryType,
-	DataEntryType,
-	ContentEntryModule,
-	DataEntryModule,
-} from '../types/public/content.js';
 
 function getContentRendererByViteId(
 	viteId: string,

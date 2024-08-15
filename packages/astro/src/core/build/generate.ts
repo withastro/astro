@@ -23,8 +23,8 @@ import type { AstroConfig } from '../../types/public/config.js';
 import type {
 	RouteData,
 	RouteType,
-	SSRLoadedRenderer,
 	SSRError,
+	SSRLoadedRenderer,
 } from '../../types/public/internal.js';
 import type { SSRManifest, SSRManifestI18n } from '../app/types.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';

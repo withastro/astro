@@ -4,10 +4,10 @@ import fastGlob from 'fast-glob';
 import { bold, green } from 'kleur/colors';
 import micromatch from 'micromatch';
 import pLimit from 'p-limit';
+import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';
 import type { RenderedContent } from '../data-store.js';
 import { getContentEntryIdAndSlug, getEntryConfigByExtMap, posixRelative } from '../utils.js';
 import type { Loader } from './types.js';
-import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';
 
 export interface GenerateIdOptions {
 	/** The path to the entry file, relative to the base directory. */

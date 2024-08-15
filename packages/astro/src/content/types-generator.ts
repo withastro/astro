@@ -12,6 +12,7 @@ import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
+import type { ContentEntryType } from '../types/public/content.js';
 import { CONTENT_LAYER_TYPE, CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
 	type CollectionConfig,
@@ -28,7 +29,6 @@ import {
 	getEntryType,
 	reloadContentConfigObserver,
 } from './utils.js';
-import type { ContentEntryType } from '../types/public/content.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
