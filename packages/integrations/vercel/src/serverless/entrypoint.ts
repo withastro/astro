@@ -9,8 +9,8 @@ import {
 	ASTRO_PATH_PARAM,
 } from './adapter.js';
 
-setGetEnv((key) => process.env[key]);
 applyPolyfills();
+setGetEnv((key) => process.env[key]);
 
 export const createExports = (
 	manifest: SSRManifest,
