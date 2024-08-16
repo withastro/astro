@@ -3477,7 +3477,7 @@ export type SerializedRouteData = Omit<
 	};
 };
 
-export type RuntimeMode = 'development' | 'production';
+export type RuntimeMode = 'development' | 'production' | string;
 
 export type SSRError = Error & vite.ErrorPayload['err'];
 

@@ -78,7 +78,7 @@ export default async function build(
 	const builder = new AstroBuilder(settings, {
 		...options,
 		logger,
-		mode: inlineConfig.mode,
+		mode: inlineConfig.mode ?? userConfig.vite?.mode,
 	});
 	await builder.run();
 }
