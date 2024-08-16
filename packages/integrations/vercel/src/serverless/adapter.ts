@@ -292,7 +292,7 @@ export default function vercelServerless({
 
 					logger.warn(
 						`\n` +
-							`\t\`functionPerRoute\` is deprecated and will be removed in a future version of the adapter.\n`
+							`\t\`functionPerRoute\` is deprecated and will be removed in a future version of the adapter.\n`,
 					);
 				}
 
