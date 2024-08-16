@@ -1,8 +1,7 @@
-import { parseArgs } from 'node:util';
 /* eslint-disable no-console */
 import * as colors from 'kleur/colors';
+import yargs from 'yargs-parser';
 import { ASTRO_VERSION } from '../core/constants.js';
-import type { ParsedArgsResult } from './flags.js';
 
 type CLICommand =
 	| 'help'
@@ -66,9 +65,9 @@ function printVersion() {
 }
 
 /** Determine which command the user requested */
-function resolveCommand(args: ParsedArgsResult): CLICommand {
-	const cmd = args.positionals[2] as string;
-	if (args.values.version) return 'version';
+function resolveCommand(flags: yargs.Arguments): CLICommand {
+	const cmd = flags._[2] as string;
+	if (flags.version) return 'version';
 
 	const supportedCommands = new Set([
 		'add',
@@ -98,9 +97,7 @@ function resolveCommand(args: ParsedArgsResult): CLICommand {
  * NOTE: This function provides no error handling, so be sure
  * to present user-friendly error output where the fn is called.
  **/
-async function runCommand(cmd: string, args: ParsedArgsResult) {
-	const flags = args.values;
-
+async function runCommand(cmd: string, flags: yargs.Arguments) {
 	// These commands can run directly without parsing the user config.
 	switch (cmd) {
 		case 'help':
@@ -123,7 +120,7 @@ async function runCommand(cmd: string, args: ParsedArgsResult) {
 			// Do not track session start, since the user may be trying to enable,
 			// disable, or modify telemetry settings.
 			const { update } = await import('./telemetry/index.js');
-			const subcommand = args.positionals[3];
+			const subcommand = flags._[3]?.toString();
 			await update(subcommand, { flags });
 			return;
 		}
@@ -134,7 +131,7 @@ async function runCommand(cmd: string, args: ParsedArgsResult) {
 		}
 		case 'preferences': {
 			const { preferences } = await import('./preferences/index.js');
-			const [subcommand, key, value] = args.positionals.slice(3);
+			const [subcommand, key, value] = flags._.slice(3).map((v) => v.toString());
 			const exitCode = await preferences(subcommand, key, value, { flags });
 			return process.exit(exitCode);
 		}
@@ -154,7 +151,7 @@ async function runCommand(cmd: string, args: ParsedArgsResult) {
 	switch (cmd) {
 		case 'add': {
 			const { add } = await import('./add/index.js');
-			const packages = args.positionals.slice(3);
+			const packages = flags._.slice(3) as string[];
 			await add(packages, { flags });
 			return;
 		}
@@ -164,7 +161,7 @@ async function runCommand(cmd: string, args: ParsedArgsResult) {
 		case 'link':
 		case 'init': {
 			const { db } = await import('./db/index.js');
-			await db({ positionals: args.positionals, flags });
+			await db({ flags });
 			return;
 		}
 		case 'dev': {
@@ -205,20 +202,10 @@ async function runCommand(cmd: string, args: ParsedArgsResult) {
 
 /** The primary CLI action */
 export async function cli(argv: string[]) {
-	const args = parseArgs({
-		args: argv,
-		allowPositionals: true,
-		strict: false,
-		options: {
-			global: { type: 'boolean', short: 'g' },
-			host: { type: 'string' }, // Can be boolean too, which is covered by `strict: false`
-			open: { type: 'string' }, // Can be boolean too, which is covered by `strict: false`
-			// TODO: Add more flags here
-		},
-	});
-	const cmd = resolveCommand(args);
+	const flags = yargs(argv, { boolean: ['global'], alias: { g: 'global' } });
+	const cmd = resolveCommand(flags);
 	try {
-		await runCommand(cmd, args);
+		await runCommand(cmd, flags);
 	} catch (err) {
 		const { throwAndExit } = await import('./throw-and-exit.js');
 		await throwAndExit(cmd, err);

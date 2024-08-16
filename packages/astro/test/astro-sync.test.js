@@ -4,7 +4,6 @@ import * as fs from 'node:fs';
 import { beforeEach, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
-import { normalizePath } from 'vite';
 import { loadFixture } from './test-utils.js';
 
 const createFixture = () => {
@@ -16,8 +15,7 @@ const createFixture = () => {
 	/**
 	 * @param {string} path
 	 */
-	const getExpectedPath = (path) =>
-		normalizePath(fileURLToPath(new URL(path, astroFixture.config.root)));
+	const getExpectedPath = (path) => fileURLToPath(new URL(path, astroFixture.config.root));
 
 	return {
 		/** @param {string} root */

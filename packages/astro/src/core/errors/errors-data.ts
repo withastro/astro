@@ -1294,11 +1294,11 @@ export const RewriteWithBodyUsed = {
 /**
  * @docs
  * @description
- * An unknown error occured while reading or writing files to disk. It can be caused by many things, eg. missing permissions or a file not existing we attempt to read.
+ * An unknown error occurred while reading or writing files to disk. It can be caused by many things, eg. missing permissions or a file not existing we attempt to read.
  */
 export const UnknownFilesystemError = {
 	name: 'UnknownFilesystemError',
-	title: 'An unknown error occured while reading or writing files to disk.',
+	title: 'An unknown error occurred while reading or writing files to disk.',
 	hint: 'It can be caused by many things, eg. missing permissions or a file not existing we attempt to read. Check the error cause for more details.',
 } satisfies ErrorData;
 

@@ -1,3 +1,5 @@
+import type { OutgoingHttpHeaders } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import type {
 	MarkdownHeading,
 	MarkdownVFile,
@@ -7,8 +9,6 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
-import type { OutgoingHttpHeaders } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
 import type {
@@ -2220,7 +2220,7 @@ export interface AstroUserConfig {
 		 *
 		 * The Content Layer API is a new way to handle content and data in Astro. It is similar to and builds upon [content collections](/en/guides/content-collections/), taking them beyond local files in `src/content/` and allowing you to fetch content from anywhere, including remote APIs, by adding a `loader` to your collection.
 		 *
-		 * Your existing content collections can be [migrated to the Content Layer API](#migrating-a-content-collection-to-content-layer) with a few small changes. However, it is not necessary to update all your collections at once to add a new collection powered by the Content Layer API. You may have collections using both the existing and new APIs defined in `src/content/config.ts` at the same time.
+		 * Your existing content collections can be [migrated to the Content Layer API](#migrating-an-existing-content-collection-to-use-the-content-layer-api) with a few small changes. However, it is not necessary to update all your collections at once to add a new collection powered by the Content Layer API. You may have collections using both the existing and new APIs defined in `src/content/config.ts` at the same time.
 		 *
 		 * The Content Layer API is designed to be more powerful and more performant, helping sites scale to thousands of pages. Data is cached between builds and updated incrementally. Markdown parsing is also 5-10 times faster, with similar scale reductions in memory, and MDX is 2-3 times faster.
 		 *
@@ -2237,7 +2237,7 @@ export interface AstroUserConfig {
 		 *
 		 * #### Fetching data with a `loader`
 		 *
-		 * The Content Layer API allows you to fetch your content from outside of the `src/content/` folder (whether stored locally in your project or remotely), and uses a `loader` property to retrieve your data.
+		 * The Content Layer API allows you to fetch your content from outside of the `src/content/` folder (whether stored locally in your project or remotely) and uses a `loader` property to retrieve your data.
 		 *
 		 * The `loader` is defined in the collection's schema and returns an array of entries. Astro provides two built-in loader functions (`glob()` and `file()`) for fetching your local content, as well as access to the API to [construct your own loader and fetch remote data](#creating-a-loader).
 		 *
@@ -2261,7 +2261,7 @@ export interface AstroUserConfig {
 		 *     updatedDate: z.coerce.date().optional(),
 		 *   })
 		 * });
-		 * 
+		 *
 		 * const dogs = defineCollection({
 		 *   // The path is relative to the project root, or an absolute path.
 		 *   loader: file("src/data/dogs.json"),
@@ -2292,10 +2292,10 @@ export interface AstroUserConfig {
 		 * const labradorData = await getEntry('dogs', 'labrador-retriever');
 		 * ```
 		 *
-		 * Entries generated from Markdown, MDX or Markdoc can be rendered directly to a page using the `render()` function.
+		 * Entries generated from Markdown, MDX, or Markdoc can be rendered directly to a page using the `render()` function.
 		 *
 		 * :::note
-		 * The syntax for rendering collection entries is different from current content collections syntax.
+		 * The syntax for rendering collection entries is different from the current content collections syntax.
 		 * :::
 		 *
 		 * ```astro title="src/pages/[slug].astro"
@@ -2336,7 +2336,7 @@ export interface AstroUserConfig {
 		 * export const collections = { countries };
 		 * ```
 		 *
-		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading, and gives full access to the data store. See the API in [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md#loaders).
+		 * For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading while also giving full access to the data store. See the API in [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md#loaders).
 		 *
 		 * #### Migrating an existing content collection to use the Content Layer API
 		 *
@@ -2348,15 +2348,15 @@ export interface AstroUserConfig {
 		 *
 		 * 2. **Edit the collection definition**. Your updated collection requires a `loader`, and the option to select a collection `type` is no longer available.
 		 *
-		 *     ```diff
+		 *     ```ts ins={3,8} del={7}
 		 *     // src/content/config.ts
 		 *     import { defineCollection, z } from 'astro:content';
-		 *     + import { glob } from 'astro/loaders';
+		 *     import { glob } from 'astro/loaders';
 		 *
 		 *     const blog = defineCollection({
 		 *       // For content layer you no longer define a `type`
-		 *     - type: 'content',
-		 *     + loader: glob({ pattern: "**\/*.md", base: "./src/data/blog" }),
+		 *      type: 'content',
+		 *      loader: glob({ pattern: "**\/*.md", base: "./src/data/blog" }),
 		 *       schema: z.object({
 		 *         title: z.string(),
 		 *         description: z.string(),
@@ -2368,14 +2368,14 @@ export interface AstroUserConfig {
 		 *
 		 * 3. **Change references from `slug` to `id`**. Content layer collections do not have a `slug` field. Instead, all updated collections will have an `id`.
 		 *
-		 *     ```diff
+		 *     ```astro ins={7} del={6}
 		 *     // src/pages/index.astro
 		 *     ---
 		 *     export async function getStaticPaths() {
 		 *       const posts = await getCollection('blog');
 		 *       return posts.map((post) => ({
-		 *     -   params: { slug: post.slug },
-		 *     +   params: { slug: post.id },
+		 *         params: { slug: post.slug },
+		 *         params: { slug: post.id },
 		 *         props: post,
 		 *       }));
 		 *     }
@@ -2384,16 +2384,16 @@ export interface AstroUserConfig {
 		 *
 		 * 4. **Switch to the new `render()` function**. Entries no longer have a `render()` method, as they are now serializable plain objects. Instead, import the `render()` function from `astro:content`.
 		 *
-		 *     ```diff
+		 *     ```astro ins={4,9} del={3,8}
 		 *     // src/pages/index.astro
 		 *     ---
-		 *     - import { getEntry } from 'astro:content';
-		 *     + import { getEntry, render } from 'astro:content';
+		 *      import { getEntry } from 'astro:content';
+		 *      import { getEntry, render } from 'astro:content';
 		 *
 		 *       const post = await getEntry('blog', params.slug);
 		 *
-		 *     - const { Content, headings } = await post.render();
-		 *     + const { Content, headings } = await render(post);
+		 *      const { Content, headings } = await post.render();
+		 *      const { Content, headings } = await render(post);
 		 *     ---
 		 *
 		 *     <Content />

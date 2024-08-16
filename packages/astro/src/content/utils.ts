@@ -20,6 +20,7 @@ import {
 	CONTENT_FLAGS,
 	CONTENT_LAYER_TYPE,
 	CONTENT_MODULE_FLAG,
+	DEFERRED_MODULE,
 	IMAGE_IMPORT_PREFIX,
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
@@ -669,4 +670,11 @@ export function posixifyPath(filePath: string) {
  */
 export function posixRelative(from: string, to: string) {
 	return posixifyPath(path.relative(from, to));
+}
+
+export function contentModuleToId(fileName: string) {
+	const params = new URLSearchParams(DEFERRED_MODULE);
+	params.set('fileName', fileName);
+	params.set(CONTENT_MODULE_FLAG, 'true');
+	return `${DEFERRED_MODULE}?${params.toString()}`;
 }

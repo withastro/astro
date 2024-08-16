@@ -1,15 +1,15 @@
 import fs, { existsSync } from 'node:fs';
 import type http from 'node:http';
 import type { AddressInfo } from 'node:net';
+import { performance } from 'node:perf_hooks';
 import { green } from 'kleur/colors';
-import { performance } from 'perf_hooks';
 import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
 import type { AstroInlineConfig } from '../../@types/astro.js';
 import { DATA_STORE_FILE } from '../../content/consts.js';
 import { globalContentLayer } from '../../content/content-layer.js';
-import { DataStore, globalDataStore } from '../../content/data-store.js';
 import { attachContentServerListeners } from '../../content/index.js';
+import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
 import * as msg from '../messages.js';
@@ -106,19 +106,17 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	await attachContentServerListeners(restart.container);
 
-	let store: DataStore | undefined;
+	let store: MutableDataStore | undefined;
 	try {
 		const dataStoreFile = new URL(DATA_STORE_FILE, restart.container.settings.config.cacheDir);
 		if (existsSync(dataStoreFile)) {
-			store = await DataStore.fromFile(dataStoreFile);
-			globalDataStore.set(store);
+			store = await MutableDataStore.fromFile(dataStoreFile);
 		}
 	} catch (err: any) {
 		logger.error('content', err.message);
 	}
 	if (!store) {
-		store = new DataStore();
-		globalDataStore.set(store);
+		store = new MutableDataStore();
 	}
 
 	const config = globalContentConfigObserver.get();

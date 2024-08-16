@@ -1,13 +1,14 @@
 import fsMod, { existsSync } from 'node:fs';
 import { performance } from 'node:perf_hooks';
+import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
 import { type HMRPayload, createServer } from 'vite';
 import type { AstroConfig, AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
-import { DATA_STORE_FILE } from '../../content/consts.js';
+import { CONTENT_TYPES_FILE, DATA_STORE_FILE } from '../../content/consts.js';
 import { globalContentLayer } from '../../content/content-layer.js';
-import { DataStore, globalDataStore } from '../../content/data-store.js';
 import { createContentTypesGenerator } from '../../content/index.js';
-import { globalContentConfigObserver } from '../../content/utils.js';
+import { MutableDataStore } from '../../content/mutable-data-store.js';
+import { getContentPaths, globalContentConfigObserver } from '../../content/utils.js';
 import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
@@ -103,19 +104,17 @@ export async function syncInternal({
 		if (!skip?.content) {
 			await syncContentCollections(settings, { fs, logger });
 			settings.timer.start('Sync content layer');
-			let store: DataStore | undefined;
+			let store: MutableDataStore | undefined;
 			try {
 				const dataStoreFile = new URL(DATA_STORE_FILE, settings.config.cacheDir);
 				if (existsSync(dataStoreFile)) {
-					store = await DataStore.fromFile(dataStoreFile);
-					globalDataStore.set(store);
+					store = await MutableDataStore.fromFile(dataStoreFile);
 				}
 			} catch (err: any) {
 				logger.error('content', err.message);
 			}
 			if (!store) {
-				store = new DataStore();
-				globalDataStore.set(store);
+				store = new MutableDataStore();
 			}
 			const contentLayer = globalContentLayer.init({
 				settings,
@@ -124,6 +123,14 @@ export async function syncInternal({
 			});
 			await contentLayer.sync();
 			settings.timer.end('Sync content layer');
+		} else if (fs.existsSync(fileURLToPath(getContentPaths(settings.config, fs).contentDir))) {
+			// Content is synced after writeFiles. That means references are not created
+			// To work around it, we create a stub so the reference is created and content
+			// sync will override the empty file
+			settings.injectedTypes.push({
+				filename: CONTENT_TYPES_FILE,
+				content: '',
+			});
 		}
 		syncAstroEnv(settings, fs);
 
