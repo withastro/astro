@@ -36,7 +36,7 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 export function getContainerRenderer(): ContainerRenderer {
 	return {
 		name: 'astro:jsx',
-		serverEntrypoint: 'astro/jsx/server.js',
+		serverEntrypoint: '@astrojs/mdx/server.js',
 	};
 }
 
