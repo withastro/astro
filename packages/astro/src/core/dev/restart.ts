@@ -52,7 +52,7 @@ function shouldRestartContainer(
 		const settingsPath = vite.normalizePath(
 			fileURLToPath(new URL('settings.json', settings.dotAstroDir)),
 		);
-		if (settingsPath.match(normalizedChangedFile)) {
+		if (settingsPath.endsWith(normalizedChangedFile)) {
 			shouldRestart = settings.preferences.ignoreNextPreferenceReload ? false : true;
 
 			settings.preferences.ignoreNextPreferenceReload = false;

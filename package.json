@@ -35,7 +35,7 @@
     "test:e2e:match": "cd packages/astro && pnpm playwright install chromium firefox && pnpm run test:e2e:match",
     "test:e2e:hosts": "turbo run test:hosted",
     "benchmark": "astro-benchmark",
-    "lint": "eslint . --report-unused-disable-directives",
+    "lint": "biome lint && eslint . --report-unused-disable-directives",
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",
     "preinstall": "npx only-allow pnpm"
   },
@@ -65,7 +65,7 @@
     "only-allow": "^1.2.1",
     "prettier": "^3.3.3",
     "prettier-plugin-astro": "^0.14.1",
-    "turbo": "^1.13.4",
+    "turbo": "^2.0.12",
     "typescript": "~5.5.4",
     "typescript-eslint": "^8.0.1"
   },
