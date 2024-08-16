@@ -55,6 +55,9 @@ function throwEnhancedErrorIfMdxComponent(error: Error, Component: any) {
 	if (Component[Symbol.for('mdx-component')]) {
 		// if it's an existing AstroError, we don't need to re-throw, keep the original hint
 		if (AstroError.is(error)) return;
+		// Mimic the fields of the internal `AstroError` class (not from `astro/errors`) to
+		// provide better title and hint for the error overlay
+		(error as any).title = error.name;
 		(error as any).hint =
 			`This issue often occurs when your MDX component encounters runtime errors.`;
 		throw error;
