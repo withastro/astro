@@ -1,20 +1,16 @@
-import type {
-	AstroConfig,
-	AstroSettings,
-	ManifestData,
-	RouteData,
-	RoutePart,
-	RoutePriorityOverride,
-} from '../../../@types/astro.js';
+import type { AstroSettings, ManifestData } from '../../../types/astro.js';
 import type { Logger } from '../../logger/core.js';
 
-import { createRequire } from 'module';
 import nodeFs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
+import type { AstroConfig } from '../../../types/public/config.js';
+import type { RoutePriorityOverride } from '../../../types/public/integrations.js';
+import type { RouteData, RoutePart } from '../../../types/public/internal.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { MissingIndexForInternationalization } from '../../errors/errors-data.js';
 import { AstroError } from '../../errors/index.js';

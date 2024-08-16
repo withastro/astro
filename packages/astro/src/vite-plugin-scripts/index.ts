@@ -1,5 +1,6 @@
 import type { ConfigEnv, Plugin as VitePlugin } from 'vite';
-import type { AstroSettings, InjectedScriptStage } from '../@types/astro.js';
+import type { AstroSettings } from '../types/astro.js';
+import type { InjectedScriptStage } from '../types/public/integrations.js';
 
 // NOTE: We can't use the virtual "\0" ID convention because we need to
 // inject these as ESM imports into actual code, where they would not

@@ -1,6 +1,6 @@
 // @ts-expect-error - This module is private and untyped
 import { loadDevToolbarApps } from 'astro:toolbar:internal';
-import type { ResolvedDevToolbarApp as DevToolbarAppDefinition } from '../../../@types/astro.js';
+import type { ResolvedDevToolbarApp as DevToolbarAppDefinition } from '../../../types/public/toolbar.js';
 import { ToolbarAppEventTarget } from './helpers.js';
 import { settings } from './settings.js';
 import type { AstroDevToolbar, DevToolbarApp } from './toolbar.js';

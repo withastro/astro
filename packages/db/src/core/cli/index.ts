@@ -1,13 +1,13 @@
 import type { AstroConfig } from 'astro';
+import type { Arguments } from 'yargs-parser';
 import { resolveDbConfig } from '../load-file.js';
 import { printHelp } from './print-help.js';
-import type { YargsArguments } from './types.js';
 
 export async function cli({
 	flags,
 	config: astroConfig,
 }: {
-	flags: YargsArguments;
+	flags: Arguments;
 	config: AstroConfig;
 }) {
 	const args = flags._ as string[];

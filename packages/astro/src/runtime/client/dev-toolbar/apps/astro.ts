@@ -1,4 +1,4 @@
-import type { DevToolbarApp, DevToolbarMetadata } from '../../../../@types/astro.js';
+import type { DevToolbarApp, DevToolbarMetadata } from '../../../../types/public/toolbar.js';
 import { type Icon, isDefinedIcon } from '../ui-library/icons.js';
 import { colorForIntegration, iconForIntegration } from './utils/icons.js';
 import {

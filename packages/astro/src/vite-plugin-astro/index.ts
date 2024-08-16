@@ -1,7 +1,7 @@
 import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
-import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
+import type { AstroSettings } from '../types/astro.js';
 import type {
 	PluginCssMetadata as AstroPluginCssMetadata,
 	PluginMetadata as AstroPluginMetadata,
@@ -9,6 +9,7 @@ import type {
 } from './types.js';
 
 import { normalizePath } from 'vite';
+import type { AstroConfig } from '../types/public/config.js';
 import { hasSpecialQueries, normalizeFilename } from '../vite-plugin-utils/index.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
