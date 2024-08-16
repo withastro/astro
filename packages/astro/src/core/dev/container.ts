@@ -1,6 +1,6 @@
 import type * as http from 'node:http';
 import type { AddressInfo } from 'node:net';
-import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
+import type { AstroSettings } from '../../types/astro.js';
 
 import nodeFs from 'node:fs';
 import * as vite from 'vite';
@@ -11,6 +11,7 @@ import {
 	runHookServerDone,
 	runHookServerStart,
 } from '../../integrations/hooks.js';
+import type { AstroInlineConfig } from '../../types/public/config.js';
 import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';

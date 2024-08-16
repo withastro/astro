@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "4.13.4",
+  "version": "4.14.2",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -133,8 +133,8 @@
     "@babel/plugin-transform-react-jsx": "^7.25.2",
     "@babel/traverse": "^7.25.3",
     "@babel/types": "^7.25.2",
-    "@rollup/pluginutils": "^5.1.0",
     "@oslojs/encoding": "^0.4.1",
+    "@rollup/pluginutils": "^5.1.0",
     "@types/babel__core": "^7.20.5",
     "@types/cookie": "^0.6.0",
     "acorn": "^8.12.1",
@@ -186,6 +186,7 @@
     "vitefu": "^0.2.5",
     "which-pm": "^3.0.0",
     "xxhash-wasm": "^1.0.2",
+    "yargs-parser": "^21.1.1",
     "zod": "^3.23.8",
     "zod-to-json-schema": "^3.23.2",
     "zod-to-ts": "^1.2.0"
@@ -212,6 +213,7 @@
     "@types/micromatch": "^4.0.9",
     "@types/prompts": "^2.4.9",
     "@types/semver": "^7.5.8",
+    "@types/yargs-parser": "^21.0.3",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "eol": "^0.9.1",

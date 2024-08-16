@@ -1,5 +1,5 @@
 import type * as vite from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings } from '../types/astro.js';
 
 const virtualModuleId = 'astro:transitions';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;

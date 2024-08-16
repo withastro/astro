@@ -1,8 +1,8 @@
 import type fsMod from 'node:fs';
 import type { Plugin, ViteDevServer } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
 import { attachContentServerListeners } from '../content/server-listeners.js';
 import type { Logger } from '../core/logger/core.js';
+import type { AstroSettings } from '../types/astro.js';
 
 /**
  * Listen for Astro content directory changes and generate types.

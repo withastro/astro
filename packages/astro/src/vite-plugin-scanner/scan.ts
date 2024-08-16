@@ -1,4 +1,4 @@
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings } from '../types/astro.js';
 import type { PageOptions } from '../vite-plugin-astro/types.js';
 
 import * as eslexer from 'es-module-lexer';

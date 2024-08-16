@@ -1,6 +1,6 @@
-import type { AstroConfig } from '../@types/astro.js';
 import { getOutDirWithinCwd } from '../core/build/common.js';
 import { isServerLikeOutput } from '../core/util.js';
+import type { AstroConfig } from '../types/public/config.js';
 
 export function getPrerenderDefault(config: AstroConfig) {
 	return config.output !== 'server';

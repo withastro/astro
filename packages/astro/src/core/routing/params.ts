@@ -1,4 +1,5 @@
-import type { GetStaticPathsItem, Params, RouteData } from '../../@types/astro.js';
+import type { GetStaticPathsItem, Params } from '../../types/public/common.js';
+import type { RouteData } from '../../types/public/internal.js';
 import { trimSlashes } from '../path.js';
 import { validateGetStaticPathsParameter } from './validation.js';
 

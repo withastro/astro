@@ -7,8 +7,8 @@ import { cyan } from 'kleur/colors';
 import open from 'open';
 import ora from 'ora';
 import prompt from 'prompts';
+import type { Arguments } from 'yargs-parser';
 import type { DBConfig } from '../../../types.js';
-import type { YargsArguments } from '../../types.js';
 
 const isWebContainer =
 	// Stackblitz heuristic
@@ -21,7 +21,7 @@ export async function cmd({
 }: {
 	astroConfig: AstroConfig;
 	dbConfig: DBConfig;
-	flags: YargsArguments;
+	flags: Arguments;
 }) {
 	let session = flags.session;
 

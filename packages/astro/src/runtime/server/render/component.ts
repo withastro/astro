@@ -1,9 +1,3 @@
-import type {
-	AstroComponentMetadata,
-	RouteData,
-	SSRLoadedRenderer,
-	SSRResult,
-} from '../../../@types/astro.js';
 import { createRenderInstruction } from './instruction.js';
 
 import { clsx } from 'clsx';
@@ -17,6 +11,12 @@ import { type AstroComponentFactory, isAstroComponentFactory } from './astro/fac
 import { renderTemplate } from './astro/index.js';
 import { createAstroComponentInstance } from './astro/instance.js';
 
+import type {
+	AstroComponentMetadata,
+	RouteData,
+	SSRLoadedRenderer,
+	SSRResult,
+} from '../../../types/public/internal.js';
 import {
 	Fragment,
 	type RenderDestination,

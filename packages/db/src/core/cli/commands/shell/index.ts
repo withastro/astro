@@ -1,6 +1,7 @@
 import { getManagedAppTokenOrExit } from '@astrojs/studio';
 import type { AstroConfig } from 'astro';
 import { sql } from 'drizzle-orm';
+import type { Arguments } from 'yargs-parser';
 import {
 	createLocalDatabaseClient,
 	createRemoteDatabaseClient,
@@ -10,7 +11,6 @@ import { DB_PATH } from '../../../consts.js';
 import { SHELL_QUERY_MISSING_ERROR } from '../../../errors.js';
 import type { DBConfigInput } from '../../../types.js';
 import { getAstroEnv, getRemoteDatabaseUrl } from '../../../utils.js';
-import type { YargsArguments } from '../../types.js';
 
 export async function cmd({
 	flags,
@@ -18,7 +18,7 @@ export async function cmd({
 }: {
 	dbConfig: DBConfigInput;
 	astroConfig: AstroConfig;
-	flags: YargsArguments;
+	flags: Arguments;
 }) {
 	const query = flags.query;
 	if (!query) {
