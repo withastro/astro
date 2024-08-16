@@ -7,11 +7,16 @@ import type { AstroSettings } from '../../@types/astro.js';
 import type { Logger } from '../logger/core.js';
 import { REFERENCE_FILE } from './constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { startsWithDotDotSlash, startsWithDotSlash } from '../path.js';
 
 export async function writeFiles(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
 	try {
 		writeInjectedTypes(settings, fs);
-		await setUpEnvTs(settings, fs, logger);
+		if (settings.config.experimental.typescript) {
+			await setupTsconfig(settings, fs, logger);
+		} else {
+			await setupEnvDts(settings, fs, logger);
+		}
 	} catch (e) {
 		throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
 	}
@@ -44,7 +49,7 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 	);
 }
 
-async function setUpEnvTs(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
+async function setupEnvDts(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
 	const envTsPath = normalizePath(fileURLToPath(new URL('env.d.ts', settings.config.srcDir)));
 	const envTsPathRelativetoRoot = normalizePath(
 		relative(fileURLToPath(settings.config.root), envTsPath),
@@ -75,4 +80,40 @@ async function setUpEnvTs(settings: AstroSettings, fs: typeof fsMod, logger: Log
 		await fs.promises.writeFile(envTsPath, expectedTypeReference, 'utf-8');
 		logger.info('types', `Added ${bold(envTsPathRelativetoRoot)} type declarations`);
 	}
+}
+
+async function setupTsconfig(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
+	const tsconfigPath = normalizePath(fileURLToPath(new URL('tsconfig.json', settings.dotAstroDir)));
+	const tsconfigPathRelativetoRoot = normalizePath(
+		relative(fileURLToPath(settings.config.root), tsconfigPath),
+	);
+	let relativeDtsPath = normalizePath(
+		relative(
+			fileURLToPath(settings.dotAstroDir),
+			fileURLToPath(new URL(REFERENCE_FILE, settings.dotAstroDir)),
+		),
+	);
+	if (!startsWithDotSlash(relativeDtsPath) || !startsWithDotDotSlash(relativeDtsPath)) {
+		relativeDtsPath = `./${relativeDtsPath}`;
+	}
+	const relativeOutDirPath = normalizePath(
+		relative(fileURLToPath(settings.dotAstroDir), fileURLToPath(settings.config.outDir)),
+	);
+
+	const expectedContent = JSON.stringify(
+		{
+			include: [...(settings.config.experimental.typescript?.include ?? []), relativeDtsPath],
+			exclude: [...(settings.config.experimental.typescript?.exclude ?? []), relativeOutDirPath],
+		},
+		null,
+		2,
+	);
+
+	if (fs.existsSync(tsconfigPath) && fs.readFileSync(tsconfigPath, 'utf-8') === expectedContent) {
+		return;
+	}
+
+	logger.info('types', `Generated ${bold(tsconfigPathRelativetoRoot)}`);
+
+	fs.promises.writeFile(tsconfigPath, expectedContent, 'utf-8');
 }
