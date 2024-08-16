@@ -106,7 +106,7 @@ export async function loadTSConfig(
 			.then(toJson)
 			.then((content) => JSON.parse(content) as TSConfig);
 
-		return { ...parsedConfig, rawConfig: rawConfig };
+		return { ...parsedConfig, rawConfig };
 	}
 
 	return 'missing-config';
@@ -186,7 +186,7 @@ export type StripEnums<T extends Record<string, any>> = {
 export interface TSConfig {
 	compilerOptions?: StripEnums<CompilerOptions>;
 	compileOnSave?: boolean;
-	extends?: string;
+	extends?: string | Array<string>;
 	files?: string[];
 	include?: string[];
 	exclude?: string[];

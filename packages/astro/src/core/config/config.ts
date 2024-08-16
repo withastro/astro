@@ -165,6 +165,7 @@ export async function resolveConfig(
 		throw e;
 	}
 
+	// TODO: maybe move to core/config/tsconfig.ts?
 	if (astroConfig.experimental.typescript) {
 		const generatedTsConfigUrl = new URL('./.astro/tsconfig.json', astroConfig.root);
 		if (!fsMod.existsSync(generatedTsConfigUrl)) {

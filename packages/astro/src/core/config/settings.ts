@@ -10,7 +10,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { formatYAMLException, isYAMLException } from '../errors/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 import { AstroTimer } from './timer.js';
-import { loadTSConfig } from './tsconfig.js';
+import { loadTSConfig, type TSConfig } from './tsconfig.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	const { contentDir } = getContentPaths(config);
@@ -123,6 +123,7 @@ export async function createSettings(config: AstroConfig, cwd?: string): Promise
 	}
 
 	if (typeof tsconfig !== 'string') {
+		validateTsconfig(settings, tsconfig.rawConfig);
 		watchFiles.push(
 			...[tsconfig.tsconfigFile, ...(tsconfig.extended ?? []).map((e) => e.tsconfigFile)],
 		);
@@ -133,4 +134,26 @@ export async function createSettings(config: AstroConfig, cwd?: string): Promise
 	settings.watchFiles = watchFiles;
 
 	return settings;
+}
+
+function validateTsconfig(settings: AstroSettings, rawConfig: TSConfig) {
+	const { typescript } = settings.config.experimental;
+	if (!typescript) {
+		return;
+	}
+
+	if (!rawConfig.extends) {
+		// TODO: must have extends
+		// must have this content at least (gen path)
+		throw new Error("Must have extends")
+	} else if (
+		typeof rawConfig.extends === 'string' &&
+		rawConfig.extends !== './.astro/tsconfig.json'
+	) {
+		// TODO: must must have this content at least (gen path, array)
+		throw new Error('Must extend generated');
+	} else if (!rawConfig.extends.includes('./.astro/tsconfig.json')) {
+		// TODO: must extends gen path
+		throw new Error('Must extend generated in array');
+	}
 }
