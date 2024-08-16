@@ -20,6 +20,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/mdx/",
   "exports": {
     ".": "./dist/index.js",
+    "./server.js": "./dist/server.js",
     "./package.json": "./package.json"
   },
   "files": [
