@@ -1,4 +1,4 @@
-import { base64, decodeHex, encodeBase64, encodeHexUpperCase } from '@oslojs/encoding';
+import { base64, decodeHex, encodeHex } from 'oslo/encoding';
 
 // Chose this algorithm for no particular reason, can change.
 // This algo does check against text manipulation though. See
@@ -33,7 +33,7 @@ export async function importKey(bytes: Uint8Array): Promise<CryptoKey> {
  */
 export async function encodeKey(key: CryptoKey) {
 	const exported = await crypto.subtle.exportKey('raw', key);
-	const encodedKey = encodeBase64(new Uint8Array(exported));
+	const encodedKey = base64.encode(new Uint8Array(exported));
 	return encodedKey;
 }
 
@@ -66,7 +66,7 @@ export async function encryptString(key: CryptoKey, raw: string) {
 		data,
 	);
 	// iv is 12, hex brings it to 24
-	return encodeHexUpperCase(iv) + encodeBase64(new Uint8Array(buffer));
+	return encodeHex(iv).toUpperCase() + base64.encode(new Uint8Array(buffer));
 }
 
 /**

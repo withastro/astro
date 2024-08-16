@@ -133,7 +133,7 @@
     "@babel/plugin-transform-react-jsx": "^7.25.2",
     "@babel/traverse": "^7.25.3",
     "@babel/types": "^7.25.2",
-    "@oslojs/encoding": "^0.4.1",
+    "oslo": "^1.2.1",
     "@rollup/pluginutils": "^5.1.0",
     "@types/babel__core": "^7.20.5",
     "@types/cookie": "^0.6.0",
