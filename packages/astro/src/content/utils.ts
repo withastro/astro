@@ -7,15 +7,12 @@ import type { PluginContext } from 'rollup';
 import { type ViteDevServer, normalizePath } from 'vite';
 import xxhash from 'xxhash-wasm';
 import { z } from 'zod';
-import type {
-	AstroConfig,
-	AstroSettings,
-	ContentEntryType,
-	DataEntryType,
-} from '../@types/astro.js';
 import { AstroError, AstroErrorData, MarkdownError, errorMap } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
+import type { AstroSettings } from '../types/astro.js';
+import type { AstroConfig } from '../types/public/config.js';
+import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
 import {
 	CONTENT_FLAGS,
 	CONTENT_LAYER_TYPE,

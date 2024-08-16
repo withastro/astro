@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type { AstroSettings } from '../../@types/astro.js';
+import type { AstroSettings } from '../../types/astro.js';
 
 import { fileURLToPath } from 'node:url';
 import { bgGreen, black, bold, dim, yellow } from 'kleur/colors';

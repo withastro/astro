@@ -1,6 +1,6 @@
 // This is the main entrypoint when importing the `astro` package.
 
-import type { AstroInlineConfig } from '../@types/astro.js';
+import type { AstroInlineConfig } from '../types/public/config.js';
 import { default as _build } from './build/index.js';
 import { default as _sync } from './sync/index.js';
 

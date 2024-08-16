@@ -4,8 +4,8 @@ import type {
 	PaginateOptions,
 	Params,
 	Props,
-	RouteData,
-} from '../../@types/astro.js';
+} from '../../types/public/common.js';
+import type { RouteData } from '../../types/public/internal.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
 export function generatePaginateFunction(

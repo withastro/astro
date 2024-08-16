@@ -1,14 +1,9 @@
 import type * as vite from 'vite';
 import type { InlineConfig } from 'vite';
-import type {
-	AstroSettings,
-	ComponentInstance,
-	ManifestData,
-	MiddlewareHandler,
-	RouteData,
-	RuntimeMode,
-	SSRLoadedRenderer,
-} from '../../@types/astro.js';
+import type { AstroSettings, ComponentInstance, ManifestData } from '../../types/astro.js';
+import type { MiddlewareHandler } from '../../types/public/common.js';
+import type { RuntimeMode } from '../../types/public/config.js';
+import type { RouteData, SSRLoadedRenderer } from '../../types/public/internal.js';
 import type { Logger } from '../logger/core.js';
 
 export type ComponentPath = string;
@@ -20,6 +15,7 @@ export type StylesheetAsset =
 
 export type HoistedScriptAsset = { type: 'inline' | 'external'; value: string };
 
+/** Public type exposed through the `astro:build:setup` integration hook */
 export interface PageBuildData {
 	key: string;
 	component: ComponentPath;

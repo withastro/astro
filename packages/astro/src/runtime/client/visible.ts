@@ -1,4 +1,5 @@
-import type { ClientDirective, ClientVisibleOptions } from '../../@types/astro.js';
+import type { ClientVisibleOptions } from '../../types/public/elements.js';
+import type { ClientDirective } from '../../types/public/integrations.js';
 
 /**
  * Hydrate this component when one of it's children becomes visible

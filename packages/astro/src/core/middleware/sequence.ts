@@ -1,4 +1,5 @@
-import type { APIContext, MiddlewareHandler, RewritePayload } from '../../@types/astro.js';
+import type { MiddlewareHandler, RewritePayload } from '../../types/public/common.js';
+import type { APIContext } from '../../types/public/context.js';
 import { AstroCookies } from '../cookies/cookies.js';
 import { defineMiddleware } from './index.js';
 
