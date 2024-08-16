@@ -222,7 +222,7 @@ async function executeSeedFile({
 async function getTempViteServer({ viteConfig }: { viteConfig: UserConfig }) {
 	const tempViteServer = await createServer(
 		mergeConfig(viteConfig, {
-			server: { middlewareMode: true, hmr: false, watch: null },
+			server: { middlewareMode: true, hmr: false, watch: null, ws: false },
 			optimizeDeps: { noDiscovery: true },
 			ssr: { external: [] },
 			logLevel: 'silent',
