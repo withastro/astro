@@ -1,6 +1,6 @@
-import { type APIRoute } from "astro";
+import type { APIRoute, APIContext } from "astro";
 
-export const POST: APIRoute = async (context) => {
+export const POST: APIRoute = async (context: APIContext) => {
   try {
     const data = await context.request.formData();
     return new Response(
