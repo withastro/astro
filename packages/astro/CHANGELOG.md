@@ -1,5 +1,245 @@
 # astro
 
+## 4.14.2
+
+### Patch Changes
+
+- [#11733](https://github.com/withastro/astro/pull/11733) [`391324d`](https://github.com/withastro/astro/commit/391324df969db71d1c7ca25c2ed14c9eb6eea5ee) Thanks [@bluwy](https://github.com/bluwy)! - Reverts back to `yargs-parser` package for CLI argument parsing
+
+## 4.14.1
+
+### Patch Changes
+
+- [#11725](https://github.com/withastro/astro/pull/11725) [`6c1560f`](https://github.com/withastro/astro/commit/6c1560fb0d19ce659bc9f9090f8050254d5c03f3) Thanks [@ascorbic](https://github.com/ascorbic)! - Prevents content layer importing node builtins in runtime
+
+- [#11692](https://github.com/withastro/astro/pull/11692) [`35af73a`](https://github.com/withastro/astro/commit/35af73aace97a7cc898b9aa5040db8bc2ac62687) Thanks [@matthewp](https://github.com/matthewp)! - Prevent errant HTML from crashing server islands
+
+  When an HTML minifier strips away the server island comment, the script can't correctly know where the end of the fallback content is. This makes it so that it simply doesn't remove any DOM in that scenario. This means the fallback isn't removed, but it also doesn't crash the browser.
+
+- [#11727](https://github.com/withastro/astro/pull/11727) [`3c2f93b`](https://github.com/withastro/astro/commit/3c2f93b66c6b8e9d2ab58e2cbe941c14ffab89b5) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a type issue when using the Content Layer in dev
+
+## 4.14.0
+
+### Minor Changes
+
+- [#11657](https://github.com/withastro/astro/pull/11657) [`a23c69d`](https://github.com/withastro/astro/commit/a23c69d0d0bed229bee52a32e61f135f9ebf9122) Thanks [@bluwy](https://github.com/bluwy)! - Deprecates the option for route-generating files to export a dynamic value for `prerender`. Only static values are now supported (e.g. `export const prerender = true` or `= false`). This allows for better treeshaking and bundling configuration in the future.
+
+  Adds a new [`"astro:route:setup"` hook](https://docs.astro.build/en/reference/integrations-reference/#astroroutesetup) to the Integrations API to allow you to dynamically set options for a route at build or request time through an integration, such as enabling [on-demand server rendering](https://docs.astro.build/en/guides/server-side-rendering/#opting-in-to-pre-rendering-in-server-mode).
+
+  To migrate from a dynamic export to the new hook, update or remove any dynamic `prerender` exports from individual routing files:
+
+  ```diff
+  // src/pages/blog/[slug].astro
+  - export const prerender = import.meta.env.PRERENDER
+  ```
+
+  Instead, create an integration with the `"astro:route:setup"` hook and update the route's `prerender` option:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import { loadEnv } from 'vite';
+
+  export default defineConfig({
+    integrations: [setPrerender()],
+  });
+
+  function setPrerender() {
+    const { PRERENDER } = loadEnv(process.env.NODE_ENV, process.cwd(), '');
+
+    return {
+      name: 'set-prerender',
+      hooks: {
+        'astro:route:setup': ({ route }) => {
+          if (route.component.endsWith('/blog/[slug].astro')) {
+            route.prerender = PRERENDER;
+          }
+        },
+      },
+    };
+  }
+  ```
+
+- [#11360](https://github.com/withastro/astro/pull/11360) [`a79a8b0`](https://github.com/withastro/astro/commit/a79a8b0230b06ed32ce1802f2a5f84a6cf92dbe7) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds a new [`injectTypes()` utility](https://docs.astro.build/en/reference/integrations-reference/#injecttypes-options) to the Integration API and refactors how type generation works
+
+  Use `injectTypes()` in the `astro:config:done` hook to inject types into your user's project by adding a new a `*.d.ts` file.
+
+  The `filename` property will be used to generate a file at `/.astro/integrations/<normalized_integration_name>/<normalized_filename>.d.ts` and must end with `".d.ts"`.
+
+  The `content` property will create the body of the file, and must be valid TypeScript.
+
+  Additionally, `injectTypes()` returns a URL to the normalized path so you can overwrite its content later on, or manipulate it in any way you want.
+
+  ```js
+  // my-integration/index.js
+  export default {
+    name: 'my-integration',
+    'astro:config:done': ({ injectTypes }) => {
+      injectTypes({
+        filename: 'types.d.ts',
+        content: "declare module 'virtual:my-integration' {}",
+      });
+    },
+  };
+  ```
+
+  Codegen has been refactored. Although `src/env.d.ts` will continue to work as is, we recommend you update it:
+
+  ```diff
+  - /// <reference types="astro/client" />
+  + /// <reference path="../.astro/types.d.ts" />
+  - /// <reference path="../.astro/env.d.ts" />
+  - /// <reference path="../.astro/actions.d.ts" />
+  ```
+
+- [#11605](https://github.com/withastro/astro/pull/11605) [`d3d99fb`](https://github.com/withastro/astro/commit/d3d99fba269da9e812e748539a11dfed785ef8a4) Thanks [@jcayzac](https://github.com/jcayzac)! - Adds a new property `meta` to Astro's [built-in `<Code />` component](https://docs.astro.build/en/reference/api-reference/#code-).
+
+  This allows you to provide a value for [Shiki's `meta` attribute](https://shiki.style/guide/transformers#meta) to pass options to transformers.
+
+  The following example passes an option to highlight lines 1 and 3 to Shiki's `tranformerMetaHighlight`:
+
+  ```astro
+  ---
+  // src/components/Card.astro
+  import { Code } from 'astro:components';
+  import { transformerMetaHighlight } from '@shikijs/transformers';
+  ---
+
+  <Code code={code} lang="js" transformers={[transformerMetaHighlight()]} meta="{1,3}" />
+  ```
+
+- [#11360](https://github.com/withastro/astro/pull/11360) [`a79a8b0`](https://github.com/withastro/astro/commit/a79a8b0230b06ed32ce1802f2a5f84a6cf92dbe7) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds support for Intellisense features (e.g. code completion, quick hints) for your content collection entries in compatible editors under the `experimental.contentIntellisense` flag.
+
+  ```js
+  import { defineConfig } from 'astro';
+
+  export default defineConfig({
+    experimental: {
+      contentIntellisense: true,
+    },
+  });
+  ```
+
+  When enabled, this feature will generate and add JSON schemas to the `.astro` directory in your project. These files can be used by the Astro language server to provide Intellisense inside content files (`.md`, `.mdx`, `.mdoc`).
+
+  Note that at this time, this also require enabling the `astro.content-intellisense` option in your editor, or passing the `contentIntellisense: true` initialization parameter to the Astro language server for editors using it directly.
+
+  See the [experimental content Intellisense docs](https://docs.astro.build/en/reference/configuration-reference/#experimentalcontentintellisense) for more information updates as this feature develops.
+
+- [#11360](https://github.com/withastro/astro/pull/11360) [`a79a8b0`](https://github.com/withastro/astro/commit/a79a8b0230b06ed32ce1802f2a5f84a6cf92dbe7) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds experimental support for the Content Layer API.
+
+  The new Content Layer API builds upon content collections, taking them beyond local files in `src/content/` and allowing you to fetch content from anywhere, including remote APIs. These new collections work alongside your existing content collections, and you can migrate them to the new API at your own pace. There are significant improvements to performance with large collections of local files.
+
+  ### Getting started
+
+  To try out the new Content Layer API, enable it in your Astro config:
+
+  ```js
+  import { defineConfig } from 'astro';
+
+  export default defineConfig({
+    experimental: {
+      contentLayer: true,
+    },
+  });
+  ```
+
+  You can then create collections in your `src/content/config.ts` using the Content Layer API.
+
+  ### Loading your content
+
+  The core of the new Content Layer API is the loader, a function that fetches content from a source and caches it in a local data store. Astro 4.14 ships with built-in `glob()` and `file()` loaders to handle your local Markdown, MDX, Markdoc, and JSON files:
+
+  ```ts {3,7}
+  // src/content/config.ts
+  import { defineCollection, z } from 'astro:content';
+  import { glob } from 'astro/loaders';
+
+  const blog = defineCollection({
+    // The ID is a slug generated from the path of the file relative to `base`
+    loader: glob({ pattern: '**/*.md', base: './src/data/blog' }),
+    schema: z.object({
+      title: z.string(),
+      description: z.string(),
+      publishDate: z.coerce.date(),
+    }),
+  });
+
+  export const collections = { blog };
+  ```
+
+  You can then query using the existing content collections functions, and enjoy a simplified `render()` function to display your content:
+
+  ```astro
+  ---
+  import { getEntry, render } from 'astro:content';
+
+  const post = await getEntry('blog', Astro.params.slug);
+
+  const { Content } = await render(entry);
+  ---
+
+  <Content />
+  ```
+
+  ### Creating a loader
+
+  You're not restricted to the built-in loaders – we hope you'll try building your own. You can fetch content from anywhere and return an array of entries:
+
+  ```ts
+  // src/content/config.ts
+  const countries = defineCollection({
+    loader: async () => {
+      const response = await fetch('https://restcountries.com/v3.1/all');
+      const data = await response.json();
+      // Must return an array of entries with an id property,
+      // or an object with IDs as keys and entries as values
+      return data.map((country) => ({
+        id: country.cca3,
+        ...country,
+      }));
+    },
+    // optionally add a schema to validate the data and make it type-safe for users
+    // schema: z.object...
+  });
+
+  export const collections = { countries };
+  ```
+
+  For more advanced loading logic, you can define an object loader. This allows incremental updates and conditional loading, and gives full access to the data store. It also allows a loader to define its own schema, including generating it dynamically based on the source API. See the [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md#loaders) for more details.
+
+  ### Sharing your loaders
+
+  Loaders are better when they're shared. You can create a package that exports a loader and publish it to npm, and then anyone can use it on their site. We're excited to see what the community comes up with! To get started, [take a look at some examples](https://github.com/ascorbic/astro-loaders/). Here's how to load content using an RSS/Atom feed loader:
+
+  ```ts
+  // src/content/config.ts
+  import { defineCollection } from 'astro:content';
+  import { feedLoader } from '@ascorbic/feed-loader';
+
+  const podcasts = defineCollection({
+    loader: feedLoader({
+      url: 'https://feeds.99percentinvisible.org/99percentinvisible',
+    }),
+  });
+
+  export const collections = { podcasts };
+  ```
+
+  ### Learn more
+
+  To find out more about using the Content Layer API, check out [the Content Layer RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md) and [share your feedback](https://github.com/withastro/roadmap/pull/982).
+
+### Patch Changes
+
+- [#11716](https://github.com/withastro/astro/pull/11716) [`f4057c1`](https://github.com/withastro/astro/commit/f4057c18c91f969e3e508545fb988aff94c3ff08) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes content types sync in dev
+
+- [#11645](https://github.com/withastro/astro/pull/11645) [`849e4c6`](https://github.com/withastro/astro/commit/849e4c6c23e61f7fa59f583419048b998bef2475) Thanks [@bluwy](https://github.com/bluwy)! - Refactors internally to use `node:util` `parseArgs` instead of `yargs-parser`
+
+- [#11712](https://github.com/withastro/astro/pull/11712) [`791d809`](https://github.com/withastro/astro/commit/791d809cbc22ed30dda1195ca026daa46a54b551) Thanks [@matthewp](https://github.com/matthewp)! - Fix mixed use of base + trailingSlash in Server Islands
+
+- [#11709](https://github.com/withastro/astro/pull/11709) [`3d8ae76`](https://github.com/withastro/astro/commit/3d8ae767fd4952af7332542b58fe98886eb2e99e) Thanks [@matthewp](https://github.com/matthewp)! - Fix adapter causing Netlify to break
+
 ## 4.13.4
 
 ### Patch Changes

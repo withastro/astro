@@ -1,6 +1,6 @@
 /**
   *
-  * @returns {import('../src/@types/astro').AstroIntegration}
+  * @returns {import('../../../../../src/types/public/integrations.js').AstroIntegration}
   */
 export default function () {
   return {

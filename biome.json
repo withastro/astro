@@ -26,7 +26,15 @@
   "organizeImports": {
     "enabled": true
   },
-  "linter": { "enabled": false },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": false,
+      "style": {
+        "useNodejsImportProtocol": "error"
+      }
+    }
+  },
   "javascript": {
     "formatter": {
       "trailingCommas": "all",

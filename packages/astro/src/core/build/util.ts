@@ -1,5 +1,5 @@
 import type { Rollup } from 'vite';
-import type { AstroConfig } from '../../@types/astro.js';
+import type { AstroConfig } from '../../types/public/config.js';
 import type { ViteBuildReturn } from './types.js';
 
 export function getTimeStat(timeStart: number, timeEnd: number) {

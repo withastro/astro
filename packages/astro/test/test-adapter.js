@@ -1,11 +1,11 @@
 import { viteID } from '../dist/core/util.js';
 
 /**
- * @typedef {import('../src/@types/astro.js').AstroAdapter} AstroAdapter
- * @typedef {import('../src/@types/astro.js').AstroIntegration} AstroIntegration
- * @typedef {import('../src/@types/astro.js').HookParameters<"astro:build:ssr">['entryPoints']} EntryPoints
- * @typedef {import('../src/@types/astro.js').HookParameters<"astro:build:ssr">['middlewareEntryPoint']} MiddlewareEntryPoint
- * @typedef {import('../src/@types/astro.js').HookParameters<"astro:build:done">['routes']} Routes
+ * @typedef {import('../src/types/public/integrations.js').AstroAdapter} AstroAdapter
+ * @typedef {import('../src/types/public/integrations.js').AstroIntegration} AstroIntegration
+ * @typedef {import('../src/types/public/integrations.js').HookParameters<"astro:build:ssr">['entryPoints']} EntryPoints
+ * @typedef {import('../src/types/public/integrations.js').HookParameters<"astro:build:ssr">['middlewareEntryPoint']} MiddlewareEntryPoint
+ * @typedef {import('../src/types/public/integrations.js').HookParameters<"astro:build:done">['routes']} Routes
  */
 
 /**
@@ -108,6 +108,10 @@ export default function ({
 					supportedAstroFeatures: {
 						serverOutput: 'stable',
 						envGetSecret: 'experimental',
+						staticOutput: 'stable',
+						hybridOutput: 'stable',
+						assets: 'stable',
+						i18nDomains: 'stable',
 					},
 					...extendAdapter,
 				});

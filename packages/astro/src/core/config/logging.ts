@@ -1,4 +1,4 @@
-import type { AstroInlineConfig } from '../../@types/astro.js';
+import type { AstroInlineConfig } from '../../types/public/config.js';
 import { Logger } from '../logger/core.js';
 import { nodeLogDestination } from '../logger/node.js';
 

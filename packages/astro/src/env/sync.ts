@@ -1,4 +1,4 @@
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings } from '../types/astro.js';
 import { ENV_TYPES_FILE } from './constants.js';
 import { getEnvFieldType } from './validators.js';
 

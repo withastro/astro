@@ -6,13 +6,13 @@ import type {
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
-import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro.js';
 
 import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
 import { EnvSchema } from '../../env/schema.js';
+import type { AstroUserConfig, ViteUserConfig } from '../../types/public/config.js';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,

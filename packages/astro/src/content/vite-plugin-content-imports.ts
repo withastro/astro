@@ -4,19 +4,19 @@ import { pathToFileURL } from 'node:url';
 import * as devalue from 'devalue';
 import type { PluginContext } from 'rollup';
 import type { Plugin } from 'vite';
-import type {
-	AstroConfig,
-	AstroSettings,
-	ContentEntryModule,
-	ContentEntryType,
-	DataEntryModule,
-	DataEntryType,
-} from '../@types/astro.js';
 import { getProxyCode } from '../assets/utils/proxy.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../core/util.js';
+import type { AstroSettings } from '../types/astro.js';
+import type { AstroConfig } from '../types/public/config.js';
+import type {
+	ContentEntryModule,
+	ContentEntryType,
+	DataEntryModule,
+	DataEntryType,
+} from '../types/public/content.js';
 import { CONTENT_FLAG, DATA_FLAG } from './consts.js';
 import {
 	type ContentConfig,

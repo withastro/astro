@@ -4,7 +4,7 @@ import fastGlob from 'fast-glob';
 import { bold, green } from 'kleur/colors';
 import micromatch from 'micromatch';
 import pLimit from 'p-limit';
-import type { ContentEntryRenderFuction, ContentEntryType } from '../../@types/astro.js';
+import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';
 import type { RenderedContent } from '../data-store.js';
 import { getContentEntryIdAndSlug, getEntryConfigByExtMap, posixRelative } from '../utils.js';
 import type { Loader } from './types.js';
@@ -69,7 +69,7 @@ export function glob(globOptions: GlobOptions): Loader {
 		load: async ({ settings, logger, watcher, parseData, store, generateDigest }) => {
 			const renderFunctionByContentType = new WeakMap<
 				ContentEntryType,
-				ContentEntryRenderFuction
+				ContentEntryRenderFunction
 			>();
 
 			const untouchedEntries = new Set(store.keys());
@@ -131,7 +131,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				if (entryType.getRenderFunction) {
 					let render = renderFunctionByContentType.get(entryType);
 					if (!render) {
-						render = await entryType.getRenderFunction(settings);
+						render = await entryType.getRenderFunction(settings.config);
 						// Cache the render function for this content type, so it can re-use parsers and other expensive setup
 						renderFunctionByContentType.set(entryType, render);
 					}

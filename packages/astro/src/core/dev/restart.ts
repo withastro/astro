@@ -1,9 +1,10 @@
 import type nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
-import type { AstroInlineConfig, AstroSettings } from '../../@types/astro.js';
 import { globalContentLayer } from '../../content/content-layer.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
+import type { AstroSettings } from '../../types/astro.js';
+import type { AstroInlineConfig } from '../../types/public/config.js';
 import { createNodeLogger, createSettings, resolveConfig } from '../config/index.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { isAstroConfigZodError } from '../errors/errors.js';
@@ -51,7 +52,7 @@ function shouldRestartContainer(
 		const settingsPath = vite.normalizePath(
 			fileURLToPath(new URL('settings.json', settings.dotAstroDir)),
 		);
-		if (settingsPath.match(normalizedChangedFile)) {
+		if (settingsPath.endsWith(normalizedChangedFile)) {
 			shouldRestart = settings.preferences.ignoreNextPreferenceReload ? false : true;
 
 			settings.preferences.ignoreNextPreferenceReload = false;

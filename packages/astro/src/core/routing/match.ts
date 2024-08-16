@@ -1,4 +1,5 @@
-import type { ManifestData, RouteData } from '../../@types/astro.js';
+import type { ManifestData } from '../../types/astro.js';
+import type { RouteData } from '../../types/public/internal.js';
 
 /** Find matching route from pathname */
 export function matchRoute(pathname: string, manifest: ManifestData): RouteData | undefined {

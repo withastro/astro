@@ -1,5 +1,40 @@
 # @astrojs/db
 
+## 0.13.1
+
+### Patch Changes
+
+- [#11733](https://github.com/withastro/astro/pull/11733) [`391324d`](https://github.com/withastro/astro/commit/391324df969db71d1c7ca25c2ed14c9eb6eea5ee) Thanks [@bluwy](https://github.com/bluwy)! - Reverts back to `yargs-parser` package for CLI argument parsing
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
+## 0.13.0
+
+### Minor Changes
+
+- [#11360](https://github.com/withastro/astro/pull/11360) [`a79a8b0`](https://github.com/withastro/astro/commit/a79a8b0230b06ed32ce1802f2a5f84a6cf92dbe7) Thanks [@ascorbic](https://github.com/ascorbic)! - Changes how type generation works
+
+  The generated `.d.ts` file is now at a new location:
+
+  ```diff
+  - .astro/db-types.d.ts
+  + .astro/integrations/astro_db/db.d.ts
+  ```
+
+  The following line can now be removed from `src/env.d.ts`:
+
+  ```diff
+  - /// <reference path="../.astro/db-types.d.ts" />
+  ```
+
+### Patch Changes
+
+- [#11645](https://github.com/withastro/astro/pull/11645) [`849e4c6`](https://github.com/withastro/astro/commit/849e4c6c23e61f7fa59f583419048b998bef2475) Thanks [@bluwy](https://github.com/bluwy)! - Refactors internally to use `node:util` `parseArgs` instead of `yargs-parser`
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
 ## 0.12.0
 
 ### Minor Changes
