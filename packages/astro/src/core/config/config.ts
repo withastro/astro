@@ -146,6 +146,11 @@ export async function resolveConfig(
 		inlineUserConfig.root = root;
 	}
 
+	const generatedTsConfigUrl = new URL('./.astro/tsconfig.json', inlineUserConfig.root);
+	if (!fsMod.existsSync(generatedTsConfigUrl)) {
+		fsMod.writeFileSync(generatedTsConfigUrl, '{}', 'utf-8');
+	}
+
 	const userConfig = await loadConfig(root, inlineOnlyConfig.configFile, fsMod);
 	const mergedConfig = mergeConfig(userConfig, inlineUserConfig);
 	// First-Pass Validation
