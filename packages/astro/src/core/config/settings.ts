@@ -1,9 +1,10 @@
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import yaml from 'js-yaml';
-import type { AstroConfig, AstroSettings } from '../../@types/astro.js';
 import { getContentPaths } from '../../content/index.js';
 import createPreferences from '../../preferences/index.js';
+import type { AstroSettings } from '../../types/astro.js';
+import type { AstroConfig } from '../../types/public/config.js';
 import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
 import { getDefaultClientDirectives } from '../client-directive/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -14,7 +15,8 @@ import { loadTSConfig } from './tsconfig.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	const { contentDir } = getContentPaths(config);
-	const preferences = createPreferences(config);
+	const dotAstroDir = new URL('.astro/', config.root);
+	const preferences = createPreferences(config, dotAstroDir);
 	return {
 		config,
 		preferences,
@@ -106,8 +108,9 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		watchFiles: [],
 		devToolbarApps: [],
 		timer: new AstroTimer(),
-		dotAstroDir: new URL('.astro/', config.root),
+		dotAstroDir,
 		latestAstroVersion: undefined, // Will be set later if applicable when the dev server starts
+		injectedTypes: [],
 	};
 }
 

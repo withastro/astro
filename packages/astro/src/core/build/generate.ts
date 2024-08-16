@@ -2,18 +2,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import { bgGreen, black, blue, bold, dim, green, magenta, red } from 'kleur/colors';
 import PQueue from 'p-queue';
-import type {
-	AstroConfig,
-	AstroSettings,
-	ComponentInstance,
-	GetStaticPathsItem,
-	MiddlewareHandler,
-	RouteData,
-	RouteType,
-	SSRError,
-	SSRLoadedRenderer,
-	SSRManifest,
-} from '../../@types/astro.js';
 import {
 	generateImagesForPath,
 	getStaticImageList,
@@ -29,7 +17,16 @@ import {
 import { toRoutingStrategy } from '../../i18n/utils.js';
 import { runHookBuildGenerated } from '../../integrations/hooks.js';
 import { getOutputDirectory } from '../../prerender/utils.js';
-import type { SSRManifestI18n } from '../app/types.js';
+import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
+import type { GetStaticPathsItem, MiddlewareHandler } from '../../types/public/common.js';
+import type { AstroConfig } from '../../types/public/config.js';
+import type {
+	RouteData,
+	RouteType,
+	SSRError,
+	SSRLoadedRenderer,
+} from '../../types/public/internal.js';
+import type { SSRManifest, SSRManifestI18n } from '../app/types.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getRedirectLocationOrThrow, routeIsRedirect } from '../redirects/index.js';
@@ -77,6 +74,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 			internals,
 			renderers.renderers as SSRLoadedRenderer[],
 			middleware,
+			options.key,
 		);
 	}
 	const pipeline = BuildPipeline.create({ internals, manifest, options });
@@ -521,6 +519,7 @@ function createBuildManifest(
 	internals: BuildInternals,
 	renderers: SSRLoadedRenderer[],
 	middleware: MiddlewareHandler,
+	key: Promise<CryptoKey>,
 ): SSRManifest {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
 	if (settings.config.i18n) {
@@ -551,6 +550,7 @@ function createBuildManifest(
 		buildFormat: settings.config.build.format,
 		middleware,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
+		key,
 		experimentalEnvGetSecretEnabled: false,
 	};
 }

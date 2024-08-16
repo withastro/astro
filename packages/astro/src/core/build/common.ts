@@ -1,7 +1,8 @@
 import npath from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { AstroConfig, RouteData } from '../../@types/astro.js';
 import { appendForwardSlash } from '../../core/path.js';
+import type { AstroConfig } from '../../types/public/config.js';
+import type { RouteData } from '../../types/public/internal.js';
 
 const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 const FALLBACK_OUT_DIR_NAME = './.astro/';

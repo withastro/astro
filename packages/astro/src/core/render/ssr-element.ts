@@ -1,7 +1,7 @@
-import type { AssetsPrefix, SSRElement } from '../../@types/astro.js';
 import { getAssetsPrefix } from '../../assets/utils/getAssetsPrefix.js';
 import { fileExtension, joinPaths, prependForwardSlash, slash } from '../../core/path.js';
-import type { StylesheetAsset } from '../app/types.js';
+import type { SSRElement } from '../../types/public/internal.js';
+import type { AssetsPrefix, StylesheetAsset } from '../app/types.js';
 
 export function createAssetLink(href: string, base?: string, assetsPrefix?: AssetsPrefix): string {
 	if (assetsPrefix) {

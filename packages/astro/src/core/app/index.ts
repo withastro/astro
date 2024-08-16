@@ -1,5 +1,6 @@
-import type { ManifestData, RouteData, SSRManifest } from '../../@types/astro.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
+import type { ManifestData } from '../../types/astro.js';
+import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import {
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
@@ -416,13 +417,15 @@ export class App {
 					`${this.#baseWithoutTrailingSlash}/${status}${maybeDotHtml}`,
 					url,
 				);
-				const response = await fetch(statusURL.toString());
+				if (statusURL.toString() !== request.url) {
+					const response = await fetch(statusURL.toString());
 
-				// response for /404.html and 500.html is 200, which is not meaningful
-				// so we create an override
-				const override = { status };
+					// response for /404.html and 500.html is 200, which is not meaningful
+					// so we create an override
+					const override = { status };
 
-				return this.#mergeResponses(response, originalResponse, override);
+					return this.#mergeResponses(response, originalResponse, override);
+				}
 			}
 			const mod = await this.#pipeline.getModuleForRoute(errorRouteData);
 			try {

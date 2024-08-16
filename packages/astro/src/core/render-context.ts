@@ -1,14 +1,3 @@
-import type {
-	APIContext,
-	AstroGlobal,
-	AstroGlobalPartial,
-	ComponentInstance,
-	MiddlewareHandler,
-	Props,
-	RewritePayload,
-	RouteData,
-	SSRResult,
-} from '../@types/astro.js';
 import type { ActionAPIContext } from '../actions/runtime/utils.js';
 import { deserializeActionResult } from '../actions/runtime/virtual/shared.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../actions/utils.js';
@@ -19,6 +8,10 @@ import {
 } from '../i18n/utils.js';
 import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
+import type { ComponentInstance } from '../types/astro.js';
+import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
+import type { APIContext, AstroGlobal, AstroGlobalPartial } from '../types/public/context.js';
+import type { RouteData, SSRResult } from '../types/public/internal.js';
 import {
 	ASTRO_VERSION,
 	REROUTE_DIRECTIVE_HEADER,
@@ -344,6 +337,7 @@ export class RenderContext {
 			styles,
 			actionResult,
 			serverIslandNameMap: manifest.serverIslandNameMap ?? new Map(),
+			key: manifest.key,
 			trailingSlash: manifest.trailingSlash,
 			_metadata: {
 				hasHydrationScript: false,

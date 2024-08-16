@@ -5,7 +5,6 @@ import { teardown } from '@astrojs/compiler';
 import glob from 'fast-glob';
 import { bgGreen, bgMagenta, black, green } from 'kleur/colors';
 import * as vite from 'vite';
-import type { RouteData } from '../../@types/astro.js';
 import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 import {
 	getSymlinkedContentCollections,
@@ -22,6 +21,7 @@ import { appendForwardSlash, prependForwardSlash, removeFileExtension } from '..
 import { isModeServerWithNoAdapter, isServerLikeOutput } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/hooks.js';
 import { getOutputDirectory } from '../../prerender/utils.js';
+import type { RouteData } from '../../types/public/internal.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
@@ -255,6 +255,8 @@ async function ssrBuild(
 							return 'renderers.mjs';
 						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
 							return 'manifest_[hash].mjs';
+						} else if (chunkInfo.facadeModuleId === settings.adapter?.serverEntrypoint) {
+							return 'adapter_[hash].mjs';
 						} else if (
 							settings.config.experimental.contentCollectionCache &&
 							chunkInfo.facadeModuleId &&

@@ -1,7 +1,7 @@
 import MagicString from 'magic-string';
 import { type Plugin as VitePlugin, normalizePath } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
 import { isPage } from '../core/util.js';
+import type { AstroSettings } from '../types/astro.js';
 import { PAGE_SSR_SCRIPT_ID } from './index.js';
 
 export default function astroScriptsPostPlugin({

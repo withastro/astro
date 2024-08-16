@@ -4,7 +4,7 @@
 // As such, if the typings you're trying to add should be available inside ex: React components, they should instead
 // be inside `client.d.ts`
 
-type Astro = import('./dist/@types/astro.js').AstroGlobal;
+type Astro = import('./dist/types/public/context.js').AstroGlobal;
 
 // We have to duplicate the description here because editors won't show the JSDoc comment from the imported type
 // However, they will for its properties, ex: Astro.request will show the AstroGlobal.request description

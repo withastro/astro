@@ -69,7 +69,8 @@ Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll 
 | [@astrojs/alpinejs](packages/integrations/alpinejs)                                        | [![@astrojs/alpinejs version](https://img.shields.io/npm/v/@astrojs/alpinejs.svg?label=%20)](packages/integrations/alpinejs/CHANGELOG.md)                                          |
 | [@astrojs/mdx](packages/integrations/mdx)                                                  | [![@astrojs/mdx version](https://img.shields.io/npm/v/@astrojs/mdx.svg?label=%20)](packages/integrations/mdx/CHANGELOG.md)                                                         |
 | [@astrojs/db](packages/db)                                                                 | [![@astrojs/db version](https://img.shields.io/npm/v/@astrojs/db.svg?label=%20)](packages/db/CHANGELOG.md)                                                                         |
-| [@astrojs/rss](packages/integrations/astro-rss)                                            | [![@astrojs/rss version](https://img.shields.io/npm/v/@astrojs/rss.svg?label=%20)](packages/astro-rss/CHANGELOG.md)                                                                |
+| [@astrojs/rss](packages/astro-rss)                                                         | [![@astrojs/rss version](https://img.shields.io/npm/v/@astrojs/rss.svg?label=%20)](packages/astro-rss/CHANGELOG.md)                                                                |
+| [@astrojs/netlify](https://github.com/withastro/adapters/blob/main/packages/netlify)       | [![@astrojs/netlify version](https://img.shields.io/npm/v/@astrojs/netlify.svg?label=%20)](https://github.com/withastro/adapters/blob/main/packages/netlify/CHANGELOG.md)          |
 
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6178/badge)](https://bestpractices.coreinfrastructure.org/projects/6178)
 

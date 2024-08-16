@@ -2,8 +2,8 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import type fs from 'node:fs';
 import { IncomingMessage } from 'node:http';
 import type * as vite from 'vite';
-import type { AstroSettings, ManifestData, SSRManifest } from '../@types/astro.js';
-import type { SSRManifestI18n } from '../core/app/types.js';
+import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
+import { createKey } from '../core/encryption.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { patchOverlay } from '../core/errors/overlay.js';
@@ -12,6 +12,7 @@ import { createViteLoader } from '../core/module-loader/index.js';
 import { injectDefaultRoutes } from '../core/routing/default.js';
 import { createRouteManifest } from '../core/routing/index.js';
 import { toRoutingStrategy } from '../i18n/utils.js';
+import type { AstroSettings, ManifestData } from '../types/astro.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
 import { recordServerError } from './error.js';
@@ -129,6 +130,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			domainLookupTable: {},
 		};
 	}
+
 	return {
 		hrefRoot: settings.config.root.toString(),
 		trailingSlash: settings.config.trailingSlash,
@@ -148,6 +150,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		i18n: i18nManifest,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		experimentalEnvGetSecretEnabled: false,
+		key: createKey(),
 		middleware(_, next) {
 			return next();
 		},

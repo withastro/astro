@@ -213,6 +213,9 @@ export type SerializedActionResult =
 
 export function serializeActionResult(res: SafeResult<any, any>): SerializedActionResult {
 	if (res.error) {
+		if (import.meta.env?.DEV) {
+			actionResultErrorStack.set(res.error.stack);
+		}
 		return {
 			type: 'error',
 			status: res.error.status,
@@ -220,7 +223,6 @@ export function serializeActionResult(res: SafeResult<any, any>): SerializedActi
 			body: JSON.stringify({
 				...res.error,
 				message: res.error.message,
-				stack: import.meta.env.PROD ? undefined : res.error.stack,
 			}),
 		};
 	}
@@ -243,7 +245,16 @@ export function serializeActionResult(res: SafeResult<any, any>): SerializedActi
 
 export function deserializeActionResult(res: SerializedActionResult): SafeResult<any, any> {
 	if (res.type === 'error') {
-		return { error: ActionError.fromJson(JSON.parse(res.body)), data: undefined };
+		if (import.meta.env?.PROD) {
+			return { error: ActionError.fromJson(JSON.parse(res.body)), data: undefined };
+		} else {
+			const error = ActionError.fromJson(JSON.parse(res.body));
+			error.stack = actionResultErrorStack.get();
+			return {
+				error,
+				data: undefined,
+			};
+		}
 	}
 	if (res.type === 'empty') {
 		return { data: undefined, error: undefined };
@@ -255,3 +266,16 @@ export function deserializeActionResult(res: SerializedActionResult): SafeResult
 		error: undefined,
 	};
 }
+
+// in-memory singleton to save the stack trace
+const actionResultErrorStack = (function actionResultErrorStackFn() {
+	let errorStack: string | undefined;
+	return {
+		set(stack: string | undefined) {
+			errorStack = stack;
+		},
+		get() {
+			return errorStack;
+		},
+	};
+})();

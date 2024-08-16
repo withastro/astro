@@ -1,5 +1,4 @@
-import type { SSRResult } from '../../../@types/astro.js';
-
+import type { SSRResult } from '../../../types/public/internal.js';
 import { markHTMLString } from '../escape.js';
 import type { MaybeRenderHeadInstruction, RenderHeadInstruction } from './instruction.js';
 import { createRenderInstruction } from './instruction.js';

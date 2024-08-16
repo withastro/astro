@@ -1,8 +1,8 @@
 import type fsMod from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { type Plugin, loadEnv } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import type { AstroSettings } from '../types/astro.js';
 import {
 	MODULE_TEMPLATE_URL,
 	VIRTUAL_MODULES_IDS,

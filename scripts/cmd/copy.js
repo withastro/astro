@@ -1,19 +1,20 @@
-import arg from 'arg';
 import { globby as glob } from 'globby';
 import { promises as fs, readFileSync } from 'node:fs';
 import { posix } from 'node:path';
+import { parseArgs } from 'node:util';
 import * as tar from 'tar/create';
 
 const { resolve, dirname, sep, join } = posix;
 
-/** @type {import('arg').Spec} */
-const spec = {
-	'--tgz': Boolean,
-};
-
 export default async function copy() {
-	let { _: patterns, ['--tgz']: isCompress } = arg(spec);
-	patterns = patterns.slice(1);
+	const args = parseArgs({
+		allowPositionals: true,
+		options: {
+			tgz: { type: 'boolean' },
+		},
+	});
+	const patterns = args.positionals.slice(1);
+	const isCompress = args.values.tgz;
 
 	if (isCompress) {
 		const files = await glob(patterns, { gitignore: true });

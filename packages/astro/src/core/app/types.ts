@@ -1,14 +1,13 @@
+import type { RoutingStrategies } from '../../i18n/utils.js';
+import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
+import type { MiddlewareHandler } from '../../types/public/common.js';
+import type { Locales } from '../../types/public/config.js';
 import type {
-	ComponentInstance,
-	Locales,
-	MiddlewareHandler,
 	RouteData,
 	SSRComponentMetadata,
 	SSRLoadedRenderer,
 	SSRResult,
-	SerializedRouteData,
-} from '../../@types/astro.js';
-import type { RoutingStrategies } from '../../i18n/utils.js';
+} from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 
 export type ComponentPath = string;
@@ -66,6 +65,7 @@ export type SSRManifest = {
 	pageMap?: Map<ComponentPath, ImportComponentInstance>;
 	serverIslandMap?: Map<string, () => Promise<ComponentInstance>>;
 	serverIslandNameMap?: Map<string, string>;
+	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
 	middleware: MiddlewareHandler;
 	checkOrigin: boolean;
@@ -81,6 +81,7 @@ export type SSRManifestI18n = {
 	domainLookupTable: Record<string, string>;
 };
 
+/** Public type exposed through the `astro:build:ssr` integration hook */
 export type SerializedSSRManifest = Omit<
 	SSRManifest,
 	| 'middleware'
@@ -90,6 +91,7 @@ export type SerializedSSRManifest = Omit<
 	| 'inlinedScripts'
 	| 'clientDirectives'
 	| 'serverIslandNameMap'
+	| 'key'
 > & {
 	routes: SerializedRouteInfo[];
 	assets: string[];
@@ -97,4 +99,5 @@ export type SerializedSSRManifest = Omit<
 	inlinedScripts: [string, string][];
 	clientDirectives: [string, string][];
 	serverIslandNameMap: [string, string][];
+	key: string;
 };

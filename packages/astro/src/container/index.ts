@@ -1,22 +1,8 @@
 import { posix } from 'node:path';
-import type {
-	AstroConfig,
-	AstroUserConfig,
-	ComponentInstance,
-	ContainerImportRendererFn,
-	MiddlewareHandler,
-	NamedSSRLoadedRendererValue,
-	Props,
-	RouteData,
-	RouteType,
-	SSRLoadedRenderer,
-	SSRLoadedRendererValue,
-	SSRManifest,
-	SSRResult,
-} from '../@types/astro.js';
 import { getDefaultClientDirectives } from '../core/client-directive/index.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schema.js';
 import { validateConfig } from '../core/config/validate.js';
+import { createKey } from '../core/encryption.js';
 import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
@@ -24,7 +10,31 @@ import { RenderContext } from '../core/render-context.js';
 import { getParts, validateSegment } from '../core/routing/manifest/create.js';
 import { getPattern } from '../core/routing/manifest/pattern.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
+import type { ComponentInstance } from '../types/astro.js';
+import type { MiddlewareHandler, Props } from '../types/public/common.js';
+import type { AstroConfig, AstroUserConfig } from '../types/public/config.js';
+import type {
+	NamedSSRLoadedRendererValue,
+	RouteData,
+	RouteType,
+	SSRLoadedRenderer,
+	SSRLoadedRendererValue,
+	SSRManifest,
+	SSRResult,
+} from '../types/public/internal.js';
 import { ContainerPipeline } from './pipeline.js';
+
+/** Public type, used for integrations to define a renderer for the container API */
+export type ContainerRenderer = {
+	/**
+	 * The name of the renderer.
+	 */
+	name: string;
+	/**
+	 * The entrypoint that is used to render a component on the server
+	 */
+	serverEntrypoint: string;
+};
 
 /**
  * Options to be passed when rendering a route
@@ -102,6 +112,10 @@ export type AddClientRenderer = {
 	entrypoint: string;
 };
 
+type ContainerImportRendererFn = (
+	containerRenderer: ContainerRenderer,
+) => Promise<SSRLoadedRenderer>;
+
 function createManifest(
 	manifest?: AstroContainerManifest,
 	renderers?: SSRLoadedRenderer[],
@@ -130,6 +144,7 @@ function createManifest(
 		checkOrigin: false,
 		middleware: manifest?.middleware ?? middleware ?? defaultMiddleware,
 		experimentalEnvGetSecretEnabled: false,
+		key: createKey(),
 	};
 }
 
