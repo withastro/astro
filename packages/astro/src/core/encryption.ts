@@ -1,4 +1,4 @@
-import { decodeBase64, decodeHex, encodeBase64, encodeHexUpperCase } from '@oslojs/encoding';
+import { base64, decodeHex, encodeBase64, encodeHexUpperCase } from '@oslojs/encoding';
 
 // Chose this algorithm for no particular reason, can change.
 // This algo does check against text manipulation though. See
@@ -41,7 +41,7 @@ export async function encodeKey(key: CryptoKey) {
  * Decodes a base64 string into bytes and then imports the key.
  */
 export async function decodeKey(encoded: string): Promise<CryptoKey> {
-	const bytes = decodeBase64(encoded);
+	const bytes = base64.decode(encoded);
 	return crypto.subtle.importKey('raw', bytes, ALGORITHM, true, ['encrypt', 'decrypt']);
 }
 
@@ -74,7 +74,7 @@ export async function encryptString(key: CryptoKey, raw: string) {
  */
 export async function decryptString(key: CryptoKey, encoded: string) {
 	const iv = decodeHex(encoded.slice(0, IV_LENGTH));
-	const dataArray = decodeBase64(encoded.slice(IV_LENGTH));
+	const dataArray = base64.decode(encoded.slice(IV_LENGTH));
 	const decryptedBuffer = await crypto.subtle.decrypt(
 		{
 			name: ALGORITHM,
