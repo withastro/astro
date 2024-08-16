@@ -156,4 +156,11 @@ function validateTsconfig(settings: AstroSettings, rawConfig: TSConfig) {
 		// TODO: must extends gen path
 		throw new Error('Must extend generated in array');
 	}
+
+	if (rawConfig.include) {
+		throw new Error("include must be in experimental.typescript.include")
+	}
+	if (rawConfig.exclude) {
+		throw new Error("exclude must be in experimental.typescript.exclude")
+	}
 }
