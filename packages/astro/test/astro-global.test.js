@@ -50,10 +50,10 @@ describe('Astro Global', () => {
 		it("Astro.route has the right value in pages and components", async () => {
 			let html = await fixture.fetch('/blog').then((res) => res.text());
 			let $ = cheerio.load(html);
-			assert.match($("#route").text(),  /Astro route: src\/pages\/index.astro/);
+			assert.match($("#route").text(),  /Astro route: index/);
 			html = await fixture.fetch('/blog/omit-markdown-extensions/').then((res) => res.text());
 			$ = cheerio.load(html);
-			assert.match($("#route").text(),  /Astro route: src\/pages\/omit-markdown-extensions.astro/);
+			assert.match($("#route").text(),  /Astro route: omit-markdown-extensions/);
 		})
 	});
 
@@ -94,10 +94,13 @@ describe('Astro Global', () => {
 		it("Astro.route has the right value in pages and components", async () => {
 			let html = await fixture.readFile('/index.html');
 			let $ = cheerio.load(html);
-			assert.match($("#route").text(),  /Astro route: src\/pages\/index.astro/);
+			assert.match($("#route").text(),  /Astro route: index/);
 			html =await fixture.readFile('/omit-markdown-extensions/index.html');
 			$ = cheerio.load(html);
-			assert.match($("#route").text(),  /Astro route: src\/pages\/omit-markdown-extensions.astro/);
+			assert.match($("#route").text(),  /Astro route: omit-markdown-extensions/);
+			html = await fixture.readFile('/posts/1/index.html');
+			$ = cheerio.load(html);
+			assert.equal($("#route").text(),  "Astro route: posts/[page]");
 		})
 	});
 
@@ -128,11 +131,11 @@ describe('Astro Global', () => {
 			let response = await app.render(new Request('https://example.com/'));
 			let html = await response.text();
 			let $ = cheerio.load(html);
-			assert.match($("#route").text(),  /Astro route: src\/pages\/index.astro/);
+			assert.match($("#route").text(),  /Astro route: index/);
 			response = await app.render(new Request('https://example.com/omit-markdown-extensions'));
 			html = await response.text();
 			$ = cheerio.load(html);
-			assert.match($("#route").text(),  /Astro route: src\/pages\/omit-markdown-extensions.astro/);
+			assert.match($("#route").text(),  /Astro route: omit-markdown-extensions/);
 		})
 	});
 });
