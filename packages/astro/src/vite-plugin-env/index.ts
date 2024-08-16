@@ -176,8 +176,8 @@ export default function envVitePlugin({ settings, logger }: EnvPluginOptions): v
 				// TODO: Remove in Astro 5
 				let exportConstPrerenderStr: string | undefined;
 				s.replace(exportConstPrerenderRe, (m, key) => {
-					exportConstPrerenderStr = m;
 					if (privateEnv[key] != null) {
+						exportConstPrerenderStr = m;
 						return `export const prerender = ${privateEnv[key]}`;
 					} else {
 						return m;
