@@ -8,7 +8,6 @@ import type {
 	AstroInlineConfig,
 	AstroSettings,
 	ManifestData,
-	RuntimeMode,
 } from '../../@types/astro.js';
 import { injectImageEndpoint } from '../../assets/endpoint/config.js';
 import { telemetry } from '../../events/index.js';
@@ -78,20 +77,20 @@ export default async function build(
 	const builder = new AstroBuilder(settings, {
 		...options,
 		logger,
-		mode: inlineConfig.mode,
+		mode: inlineConfig.mode ?? userConfig.vite?.mode,
 	});
 	await builder.run();
 }
 
 interface AstroBuilderOptions extends BuildOptions {
 	logger: Logger;
-	mode?: RuntimeMode;
+	mode?: string;
 }
 
 class AstroBuilder {
 	private settings: AstroSettings;
 	private logger: Logger;
-	private mode: RuntimeMode = 'production';
+	private mode: string = 'production';
 	private origin: string;
 	private manifest: ManifestData;
 	private timer: Record<string, number>;
