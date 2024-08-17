@@ -1,5 +1,5 @@
-import { createRequire } from 'module';
 import * as fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { PartytownConfig } from '@builder.io/partytown/integration';
@@ -44,7 +44,7 @@ export default function createPlugin(options?: PartytownOptions): AstroIntegrati
 						dev: true,
 						etag: true,
 						extensions: [],
-					})
+					}),
 				);
 			},
 			'astro:build:done': async ({ dir }) => {

@@ -39,7 +39,7 @@ async function getDevtoolsPlugin(logger: AstroIntegrationLogger, retrieve: boole
 		return (await import('solid-devtools/vite')).default as DevtoolsPlugin;
 	} catch (_) {
 		logger.warn(
-			'Solid Devtools requires `solid-devtools` as a peer dependency, add it to your project.'
+			'Solid Devtools requires `solid-devtools` as a peer dependency, add it to your project.',
 		);
 		return null;
 	}
@@ -48,7 +48,7 @@ async function getDevtoolsPlugin(logger: AstroIntegrationLogger, retrieve: boole
 async function getViteConfiguration(
 	isDev: boolean,
 	{ include, exclude }: Options,
-	devtoolsPlugin: DevtoolsPlugin | null
+	devtoolsPlugin: DevtoolsPlugin | null,
 ) {
 	// https://github.com/solidjs/vite-plugin-solid
 	// We inject the dev mode only if the user explicitly wants it or if we are in dev (serve) mode
@@ -123,7 +123,7 @@ export default function (options: Options = {}): AstroIntegration {
 			}) => {
 				const devtoolsPlugin = await getDevtoolsPlugin(
 					logger,
-					!!options.devtools && command === 'dev'
+					!!options.devtools && command === 'dev',
 				);
 
 				addRenderer(getRenderer());

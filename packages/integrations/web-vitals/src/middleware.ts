@@ -16,7 +16,7 @@ export const onRequest: MiddlewareHandler = async ({ params, url }, next) => {
 			?.pipeThrough(new TextDecoderStream())
 			.pipeThrough(HeadInjectionTransformStream(webVitalsMetaTag))
 			.pipeThrough(new TextEncoderStream()),
-		response
+		response,
 	);
 };
 

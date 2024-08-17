@@ -27,7 +27,7 @@ describe('dev container', () => {
 				</html>
 			`,
 			},
-			root
+			root,
 		);
 
 		await runInContainer({ fs, inlineConfig: { root: fileURLToPath(root) } }, async (container) => {
@@ -62,7 +62,7 @@ describe('dev container', () => {
 					</html>
 				`,
 			},
-			root
+			root,
 		);
 
 		await runInContainer({ fs, inlineConfig: { root: fileURLToPath(root) } }, async (container) => {
@@ -79,7 +79,7 @@ describe('dev container', () => {
 				'/src/components/Header.astro',
 				`
 				<h1>{Astro.props.title}</h1>
-			`
+			`,
 			);
 			triggerFSEvent(container, fs, '/src/components/Header.astro', 'change');
 
@@ -96,7 +96,7 @@ describe('dev container', () => {
 						<Header title={name} />
 					</body>
 				</html>
-			`
+			`,
 			);
 			triggerFSEvent(container, fs, '/src/pages/index.astro', 'change');
 
@@ -118,7 +118,7 @@ describe('dev container', () => {
 				'/src/components/test.astro': `<h1>{Astro.params.slug}</h1>`,
 				'/src/pages/test-[slug].astro': `<h1>{Astro.params.slug}</h1>`,
 			},
-			root
+			root,
 		);
 
 		await runInContainer(
@@ -159,7 +159,7 @@ describe('dev container', () => {
 				container.handle(r.req, r.res);
 				await r.done;
 				assert.equal(r.res.statusCode, 200);
-			}
+			},
 		);
 	});
 
@@ -169,7 +169,7 @@ describe('dev container', () => {
 				'/src/components/404.astro': `<h1>Custom 404</h1>`,
 				'/src/pages/page.astro': `<h1>Regular page</h1>`,
 			},
-			root
+			root,
 		);
 
 		await runInContainer(
@@ -200,7 +200,7 @@ describe('dev container', () => {
 					container.handle(r.req, r.res);
 					await r.done;
 					const doc = await r.text();
-					assert.equal(/Regular page/.test(doc), true);
+					assert.equal(doc.includes('Regular page'), true);
 					assert.equal(r.res.statusCode, 200);
 				}
 				{
@@ -209,7 +209,7 @@ describe('dev container', () => {
 					container.handle(r.req, r.res);
 					await r.done;
 					const doc = await r.text();
-					assert.equal(/Custom 404/.test(doc), true);
+					assert.equal(doc.includes('Custom 404'), true);
 					assert.equal(r.res.statusCode, 404);
 				}
 				{
@@ -218,10 +218,10 @@ describe('dev container', () => {
 					container.handle(r.req, r.res);
 					await r.done;
 					const doc = await r.text();
-					assert.equal(/Custom 404/.test(doc), true);
+					assert.equal(doc.includes('Custom 404'), true);
 					assert.equal(r.res.statusCode, 404);
 				}
-			}
+			},
 		);
 	});
 
@@ -255,7 +255,7 @@ describe('dev container', () => {
 				await r.done;
 
 				assert.equal(r.res.statusCode, 404);
-			}
+			},
 		);
 	});
 

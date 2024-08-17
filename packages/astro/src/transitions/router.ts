@@ -1,13 +1,5 @@
-import type { TransitionBeforePreparationEvent, TransitionBeforeSwapEvent } from './events.js';
+import type { TransitionBeforePreparationEvent } from './events.js';
 import { TRANSITION_AFTER_SWAP, doPreparation, doSwap } from './events.js';
-import {
-	deselectScripts,
-	restoreFocus,
-	saveFocus,
-	swapBodyElement,
-	swapHeadElements,
-	swapRootAttributes,
-} from './swap-functions.js';
 import type { Direction, Fallback, Options } from './types.js';
 
 type State = {
@@ -74,7 +66,7 @@ const announce = () => {
 		// Much thought went into this magic number; the gist is that screen readers
 		// need to see that the element changed and might not do so if it happens
 		// too quickly.
-		60
+		60,
 	);
 };
 
@@ -108,7 +100,7 @@ if (inBrowser) {
 // returns the contents of the page or null if the router can't deal with it.
 async function fetchHTML(
 	href: string,
-	init?: RequestInit
+	init?: RequestInit,
 ): Promise<null | { html: string; redirected?: string; mediaType: DOMParserSupportedType }> {
 	try {
 		const res = await fetch(href, init);
@@ -126,7 +118,7 @@ async function fetchHTML(
 			redirected: res.redirected ? res.url : undefined,
 			mediaType,
 		};
-	} catch (err) {
+	} catch {
 		// can't fetch, let someone else deal with it.
 		return null;
 	}
@@ -170,7 +162,7 @@ const moveToLocation = (
 	from: URL,
 	options: Options,
 	pageTitleForBrowserHistory: string,
-	historyState?: State
+	historyState?: State,
 ) => {
 	const intraPage = samePage(from, to);
 
@@ -189,13 +181,13 @@ const moveToLocation = (
 					scrollY: current.scrollY,
 				},
 				'',
-				to.href
+				to.href,
 			);
 		} else {
 			pushState(
 				{ ...options.state, index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
 				'',
-				to.href
+				to.href,
 			);
 		}
 	}
@@ -242,8 +234,8 @@ function preloadStyleLinks(newDocument: Document) {
 		if (
 			!document.querySelector(
 				`[${PERSIST_ATTR}="${el.getAttribute(
-					PERSIST_ATTR
-				)}"], link[rel=stylesheet][href="${el.getAttribute('href')}"]`
+					PERSIST_ATTR,
+				)}"], link[rel=stylesheet][href="${el.getAttribute('href')}"]`,
 			)
 		) {
 			const c = document.createElement('link');
@@ -254,7 +246,7 @@ function preloadStyleLinks(newDocument: Document) {
 				new Promise<any>((resolve) => {
 					['load', 'error'].forEach((evName) => c.addEventListener(evName, resolve));
 					document.head.append(c);
-				})
+				}),
 			);
 		}
 	}
@@ -270,7 +262,7 @@ async function updateDOM(
 	options: Options,
 	currentTransition: Transition,
 	historyState?: State,
-	fallback?: Fallback
+	fallback?: Fallback,
 ) {
 	async function animate(phase: string) {
 		function isInfinite(animation: Animation) {
@@ -284,7 +276,7 @@ async function updateDOM(
 		document.documentElement.setAttribute(OLD_NEW_ATTR, phase);
 		const nextAnimations = document.getAnimations();
 		const newAnimations = nextAnimations.filter(
-			(a) => !currentAnimations.includes(a) && !isInfinite(a)
+			(a) => !currentAnimations.includes(a) && !isInfinite(a),
 		);
 		// Wait for all new animations to finish (resolved or rejected).
 		// Do not reject on canceled ones.
@@ -298,7 +290,7 @@ async function updateDOM(
 	) {
 		try {
 			await animate('old');
-		} catch (err) {
+		} catch {
 			// animate might reject as a consequence of a call to skipTransition()
 			// ignored on purpose
 		}
@@ -330,7 +322,7 @@ async function transition(
 	from: URL,
 	to: URL,
 	options: Options,
-	historyState?: State
+	historyState?: State,
 ) {
 	// The most recent navigation always has precedence
 	// Yes, there can be several navigation instances as the user can click links
@@ -373,7 +365,7 @@ async function transition(
 		options.info,
 		currentNavigation!.controller.signal,
 		options.formData,
-		defaultLoader
+		defaultLoader,
 	);
 	if (prepEvent.defaultPrevented || prepEvent.signal.aborted) {
 		if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
@@ -453,7 +445,7 @@ async function transition(
 			await prepareForClientOnlyComponents(
 				preparationEvent.newDocument,
 				preparationEvent.to,
-				preparationEvent.signal
+				preparationEvent.signal,
 			);
 	}
 	async function abortAndRecreateMostRecentTransition(): Promise<Transition> {
@@ -490,7 +482,7 @@ async function transition(
 		// This automatically cancels any previous transition
 		// We also already took care that the earlier update callback got through
 		currentTransition.viewTransition = document.startViewTransition(
-			async () => await updateDOM(prepEvent, options, currentTransition, historyState)
+			async () => await updateDOM(prepEvent, options, currentTransition, historyState),
 		);
 	} else {
 		// Simulation mode requires a bit more manual work
@@ -550,6 +542,7 @@ async function transition(
 		// This log doesn't make it worse than before, where we got error messages about uncaught exceptions, which can't be caught when the trigger was a click or history traversal.
 		// Needs more investigation on root causes if errors still occur sporadically
 		const err = e as Error;
+		// eslint-disable-next-line no-console
 		console.log('[astro]', err.name, err.message, err.stack);
 	}
 }
@@ -561,7 +554,7 @@ export async function navigate(href: string, options?: Options) {
 		if (!navigateOnServerWarned) {
 			// instantiate an error for the stacktrace to show to user.
 			const warning = new Error(
-				'The view transitions client API was called during a server side render. This may be unintentional as the navigate() function is expected to be called in response to user interactions. Please make sure that your usage is correct.'
+				'The view transitions client API was called during a server side render. This may be unintentional as the navigate() function is expected to be called in response to user interactions. Please make sure that your usage is correct.',
 			);
 			warning.name = 'Warning';
 			// eslint-disable-next-line no-console
@@ -646,7 +639,7 @@ if (inBrowser) {
 					(lastIndex = history.state.index), (lastY = scrollY), (lastX = scrollX);
 					intervalId = window.setInterval(scrollInterval, 50);
 				},
-				{ passive: true }
+				{ passive: true },
 			);
 		}
 	}
@@ -660,7 +653,7 @@ if (inBrowser) {
 async function prepareForClientOnlyComponents(
 	newDocument: Document,
 	toLocation: URL,
-	signal: AbortSignal
+	signal: AbortSignal,
 ) {
 	// Any client:only component on the next page?
 	if (newDocument.body.querySelector(`astro-island[client='only']`)) {
@@ -682,7 +675,7 @@ async function prepareForClientOnlyComponents(
 		if (nextHead) {
 			// Collect the vite ids of all styles present in the next head
 			const viteIds = [...nextHead.querySelectorAll(`style[${VITE_ID}]`)].map((style) =>
-				style.getAttribute(VITE_ID)
+				style.getAttribute(VITE_ID),
 			);
 			// Copy required styles to the new document if they are from hydration.
 			viteIds.forEach((id) => {
@@ -697,7 +690,7 @@ async function prepareForClientOnlyComponents(
 		async function hydrationDone(loadingPage: HTMLIFrameElement) {
 			if (!signal.aborted) {
 				await new Promise((r) =>
-					loadingPage.contentWindow?.addEventListener('load', r, { once: true })
+					loadingPage.contentWindow?.addEventListener('load', r, { once: true }),
 				);
 			}
 			return new Promise<void>(async (r) => {

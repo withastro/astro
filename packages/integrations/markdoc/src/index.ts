@@ -26,7 +26,7 @@ export default function markdocIntegration(options?: MarkdocIntegrationOptions):
 				markdocConfigResult = await loadMarkdocConfig(astroConfig);
 
 				addContentEntryType(
-					await getContentEntryType({ markdocConfigResult, astroConfig, options })
+					await getContentEntryType({ markdocConfigResult, astroConfig, options }),
 				);
 
 				updateConfig({

@@ -28,9 +28,9 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 			const find = new RegExp(
 				`^${[...alias]
 					.map((segment) =>
-						segment === '*' ? '(.+)' : segment.replace(/[\\^$*+?.()|[\]{}]/, '\\$&')
+						segment === '*' ? '(.+)' : segment.replace(/[\\^$*+?.()|[\]{}]/, '\\$&'),
 					)
-					.join('')}$`
+					.join('')}$`,
 			);
 
 			/** Internal index used to calculate the matching id in a replacement. */

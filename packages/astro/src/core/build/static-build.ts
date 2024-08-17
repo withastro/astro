@@ -141,7 +141,7 @@ export async function staticBuild(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	ssrOutputChunkNames: string[],
-	contentFileNames?: string[]
+	contentFileNames?: string[],
 ) {
 	const { settings } = opts;
 	switch (true) {
@@ -171,7 +171,7 @@ async function ssrBuild(
 	internals: BuildInternals,
 	input: Set<string>,
 	container: AstroBuildPluginContainer,
-	logger: Logger
+	logger: Logger,
 ) {
 	const buildID = Date.now().toString();
 	const { allPages, settings, viteConfig } = opts;
@@ -245,7 +245,7 @@ async function ssrBuild(
 							return makeAstroPageEntryPointFileName(
 								ASTRO_PAGE_RESOLVED_MODULE_ID,
 								chunkInfo.facadeModuleId,
-								routes
+								routes,
 							);
 						} else if (chunkInfo.facadeModuleId?.startsWith(RESOLVED_SPLIT_MODULE_ID)) {
 							return makeSplitEntryPointFileName(chunkInfo.facadeModuleId, routes);
@@ -255,6 +255,8 @@ async function ssrBuild(
 							return 'renderers.mjs';
 						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
 							return 'manifest_[hash].mjs';
+						} else if (chunkInfo.facadeModuleId === settings.adapter?.serverEntrypoint) {
+							return 'adapter_[hash].mjs';
 						} else if (
 							settings.config.experimental.contentCollectionCache &&
 							chunkInfo.facadeModuleId &&
@@ -303,7 +305,7 @@ async function clientBuild(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	input: Set<string>,
-	container: AstroBuildPluginContainer
+	container: AstroBuildPluginContainer,
 ) {
 	const { settings, viteConfig } = opts;
 	const ssr = isServerLikeOutput(settings.config);
@@ -364,7 +366,7 @@ async function clientBuild(
 async function runPostBuildHooks(
 	container: AstroBuildPluginContainer,
 	ssrOutputs: vite.Rollup.RollupOutput[],
-	clientOutputs: vite.Rollup.RollupOutput[]
+	clientOutputs: vite.Rollup.RollupOutput[],
 ) {
 	const mutations = await container.runPostHook(ssrOutputs, clientOutputs);
 	const config = container.options.settings.config;
@@ -401,7 +403,7 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 					await fs.promises.writeFile(
 						url,
 						"// Contents removed by Astro as it's used for prerendering only",
-						'utf-8'
+						'utf-8',
 					);
 				} else {
 					await fs.promises.unlink(url);
@@ -410,7 +412,7 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 				// Best-effort only. Sometimes some chunks may be deleted by other plugins, like pure CSS chunks,
 				// so they may already not exist.
 			}
-		})
+		}),
 	);
 }
 
@@ -418,7 +420,7 @@ async function cleanServerOutput(
 	opts: StaticBuildOptions,
 	ssrOutputChunkNames: string[],
 	contentFileNames: string[] | undefined,
-	internals: BuildInternals
+	internals: BuildInternals,
 ) {
 	const out = getOutDirWithinCwd(opts.settings.config.outDir);
 	// The SSR output chunks for Astro are all .mjs files
@@ -434,7 +436,7 @@ async function cleanServerOutput(
 			files.map(async (filename) => {
 				const url = new URL(filename, out);
 				await fs.promises.rm(url);
-			})
+			}),
 		);
 
 		removeEmptyDirs(out);
@@ -447,7 +449,7 @@ async function cleanServerOutput(
 		await Promise.all(
 			fileNames
 				.filter((fileName) => fileName.endsWith('.d.ts'))
-				.map((fileName) => fs.promises.rm(new URL(fileName, out)))
+				.map((fileName) => fs.promises.rm(new URL(fileName, out))),
 		);
 		// Copy assets before cleaning directory if outside root
 		await copyFiles(out, opts.settings.config.outDir, true);
@@ -471,7 +473,7 @@ export async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles 
 				const p = await fs.promises.copyFile(from, to, fs.constants.COPYFILE_FICLONE);
 				return p;
 			});
-		})
+		}),
 	);
 }
 
@@ -499,7 +501,7 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 				// that includes the folder paths in `assetFileNames
 				if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
 				return fs.promises.rename(currentUrl, clientUrl);
-			})
+			}),
 		);
 		removeEmptyDirs(serverAssets);
 	}
@@ -526,7 +528,7 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 export function makeAstroPageEntryPointFileName(
 	prefix: string,
 	facadeModuleId: string,
-	routes: RouteData[]
+	routes: RouteData[],
 ) {
 	const pageModuleId = facadeModuleId
 		.replace(prefix, '')
@@ -555,7 +557,7 @@ export function makeSplitEntryPointFileName(facadeModuleId: string, routes: Rout
 	const filePath = `${makeAstroPageEntryPointFileName(
 		RESOLVED_SPLIT_MODULE_ID,
 		facadeModuleId,
-		routes
+		routes,
 	)}`;
 
 	const pathComponents = filePath.split(path.sep);

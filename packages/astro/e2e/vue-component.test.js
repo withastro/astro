@@ -47,7 +47,7 @@ test('hmr works', async ({ page, astro }) => {
 	await expect(span).toHaveText('Count is 1');
 
 	await astro.editFile('./src/components/State.vue', (content) =>
-		content.replace('ref(1)', 'ref(2)')
+		content.replace('ref(1)', 'ref(2)'),
 	);
 
 	await expect(span).toHaveText('Count is 2');

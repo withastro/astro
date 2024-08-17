@@ -38,10 +38,10 @@ export function deselectScripts(doc: Document) {
 export function swapRootAttributes(doc: Document) {
 	const html = document.documentElement;
 	const astroAttributes = [...html.attributes].filter(
-		({ name }) => (html.removeAttribute(name), name.startsWith('data-astro-'))
+		({ name }) => (html.removeAttribute(name), name.startsWith('data-astro-')),
 	);
 	[...doc.documentElement.attributes, ...astroAttributes].forEach(({ name, value }) =>
-		html.setAttribute(name, value)
+		html.setAttribute(name, value),
 	);
 }
 

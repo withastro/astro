@@ -20,7 +20,7 @@ describe('Astro Markdown', () => {
 
 		assert.equal(
 			fixLineEndings(raw).trim(),
-			`# Basic page\n\nLets make sure raw and compiled content look right!`
+			`# Basic page\n\nLets make sure raw and compiled content look right!`,
 		);
 	});
 
@@ -29,7 +29,7 @@ describe('Astro Markdown', () => {
 
 		assert.equal(
 			fixLineEndings(compiled).trim(),
-			`<h1 id="basic-page">Basic page</h1>\n<p>Lets make sure raw and compiled content look right!</p>`
+			`<h1 id="basic-page">Basic page</h1>\n<p>Lets make sure raw and compiled content look right!</p>`,
 		);
 	});
 
@@ -87,7 +87,7 @@ describe('Astro Markdown', () => {
 
 		assert.equal(
 			fixLineEndings(compiledContent.text()).trim(),
-			`<h2 id="section-1">Section 1</h2>\n<h2 id="section-2">Section 2</h2>`
+			`<h2 id="section-1">Section 1</h2>\n<h2 id="section-2">Section 2</h2>`,
 		);
 	});
 
@@ -121,7 +121,7 @@ describe('Astro Markdown', () => {
 		assert.equal(
 			frontmatterFile?.endsWith('with-layout.md'),
 			true,
-			'"file" prop does not end with correct path or is undefined'
+			'"file" prop does not end with correct path or is undefined',
 		);
 		assert.equal(frontmatterUrl, '/with-layout');
 		assert.equal(file, frontmatterFile);

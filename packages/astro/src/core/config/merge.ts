@@ -4,7 +4,7 @@ import { arraify, isObject, isURL } from '../util.js';
 function mergeConfigRecursively(
 	defaults: Record<string, any>,
 	overrides: Record<string, any>,
-	rootPath: string
+	rootPath: string,
 ) {
 	const merged: Record<string, any> = { ...defaults };
 	for (const key in overrides) {
@@ -67,7 +67,7 @@ function mergeConfigRecursively(
 export function mergeConfig(
 	defaults: Record<string, any>,
 	overrides: Record<string, any>,
-	isRoot = true
+	isRoot = true,
 ): Record<string, any> {
 	return mergeConfigRecursively(defaults, overrides, isRoot ? '' : '.');
 }

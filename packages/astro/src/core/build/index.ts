@@ -23,17 +23,18 @@ import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
+import { createKey } from '../encryption.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { createRouteManifest } from '../routing/index.js';
 import { getServerIslandRouteData } from '../server-islands/endpoint.js';
+import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv, isServerLikeOutput } from '../util.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
-
 export interface BuildOptions {
 	/**
 	 * Teardown the compiler WASM instance after build. This can improve performance when
@@ -43,14 +44,6 @@ export interface BuildOptions {
 	 * @default true
 	 */
 	teardownCompiler?: boolean;
-
-	/**
-	 * If `experimental.contentCollectionCache` is enabled, this flag will clear the cache before building
-	 *
-	 * @internal not part of our public api
-	 * @default false
-	 */
-	force?: boolean;
 }
 
 /**
@@ -61,20 +54,23 @@ export interface BuildOptions {
  */
 export default async function build(
 	inlineConfig: AstroInlineConfig,
-	options: BuildOptions = {}
+	options: BuildOptions = {},
 ): Promise<void> {
 	ensureProcessNodeEnv('production');
 	applyPolyfill();
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
 	telemetry.record(eventCliSession('build', userConfig));
-	if (astroConfig.experimental.contentCollectionCache && options.force) {
-		const contentCacheDir = new URL('./content/', astroConfig.cacheDir);
-		if (fs.existsSync(contentCacheDir)) {
-			logger.debug('content', 'clearing content cache');
-			await fs.promises.rm(contentCacheDir, { force: true, recursive: true });
-			logger.warn('content', 'content cache cleared (force)');
+	if (inlineConfig.force) {
+		if (astroConfig.experimental.contentCollectionCache) {
+			const contentCacheDir = new URL('./content/', astroConfig.cacheDir);
+			if (fs.existsSync(contentCacheDir)) {
+				logger.debug('content', 'clearing content cache');
+				await fs.promises.rm(contentCacheDir, { force: true, recursive: true });
+				logger.warn('content', 'content cache cleared (force)');
+			}
 		}
+		await clearContentLayerCache({ astroConfig, logger, fs });
 	}
 
 	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
@@ -140,7 +136,13 @@ class AstroBuilder {
 					middlewareMode: true,
 				},
 			},
-			{ settings: this.settings, logger: this.logger, mode: 'build', command: 'build', sync: false }
+			{
+				settings: this.settings,
+				logger: this.logger,
+				mode: 'build',
+				command: 'build',
+				sync: false,
+			},
 		);
 		await runHookConfigDone({ settings: this.settings, logger: logger });
 
@@ -166,7 +168,7 @@ class AstroBuilder {
 		}
 		this.logger.info('build', 'Collecting build info...');
 		this.timer.loadStart = performance.now();
-		const { assets, allPages } = await collectPagesData({
+		const { assets, allPages } = collectPagesData({
 			settings: this.settings,
 			logger: this.logger,
 			manifest: this.manifest,
@@ -182,7 +184,7 @@ class AstroBuilder {
 		this.timer.buildStart = performance.now();
 		this.logger.info(
 			'build',
-			green(`✓ Completed in ${getTimeStat(this.timer.init, performance.now())}.`)
+			green(`✓ Completed in ${getTimeStat(this.timer.init, performance.now())}.`),
 		);
 
 		const opts: StaticBuildOptions = {
@@ -195,6 +197,7 @@ class AstroBuilder {
 			pageNames,
 			teardownCompiler: this.teardownCompiler,
 			viteConfig,
+			key: createKey(),
 		};
 
 		const { internals, ssrOutputChunkNames, contentFileNames } = await viteBuild(opts);
@@ -221,7 +224,7 @@ class AstroBuilder {
 				.concat(
 					this.settings.config.experimental.serverIslands
 						? [getServerIslandRouteData(this.settings.config)]
-						: []
+						: [],
 				),
 			logging: this.logger,
 			cacheManifest: internals.cacheManifestUsed,
@@ -235,18 +238,21 @@ class AstroBuilder {
 				buildMode: this.settings.config.output,
 			});
 		}
-
-		// Benchmark results
-		this.settings.timer.writeStats();
 	}
 
 	/** Build the given Astro project.  */
 	async run() {
+		this.settings.timer.start('Total build');
+
 		const setupData = await this.setup();
 		try {
 			await this.build(setupData);
 		} catch (_err) {
 			throw _err;
+		} finally {
+			this.settings.timer.end('Total build');
+			// Benchmark results
+			this.settings.timer.writeStats();
 		}
 	}
 
@@ -256,7 +262,7 @@ class AstroBuilder {
 		// outDir gets blown away so it can't be the root.
 		if (config.outDir.toString() === config.root.toString()) {
 			throw new Error(
-				`the outDir cannot be the root folder. Please build to a folder such as dist.`
+				`the outDir cannot be the root folder. Please build to a folder such as dist.`,
 			);
 		}
 	}

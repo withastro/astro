@@ -17,7 +17,7 @@ export function getParentExtendedModuleInfos(
 	order = 0,
 	childId = '',
 	seen = new Set<string>(),
-	accumulated: ExtendedModuleInfo[] = []
+	accumulated: ExtendedModuleInfo[] = [],
 ): ExtendedModuleInfo[] {
 	seen.add(id);
 
@@ -54,7 +54,7 @@ export function getParentModuleInfos(
 	ctx: { getModuleInfo: GetModuleInfo },
 	until?: (importer: string) => boolean,
 	seen = new Set<string>(),
-	accumulated: ModuleInfo[] = []
+	accumulated: ModuleInfo[] = [],
 ): ModuleInfo[] {
 	seen.add(id);
 
@@ -88,7 +88,7 @@ export function moduleIsTopLevelPage(info: ModuleInfo): boolean {
 // This could be a .astro page, a .markdown or a .md (or really any file extension for markdown files) page.
 export function getTopLevelPageModuleInfos(
 	id: string,
-	ctx: { getModuleInfo: GetModuleInfo }
+	ctx: { getModuleInfo: GetModuleInfo },
 ): ModuleInfo[] {
 	return getParentModuleInfos(id, ctx).filter(moduleIsTopLevelPage);
 }

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { Worker } from 'node:worker_threads';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
@@ -29,7 +30,8 @@ describe('Errors', () => {
 
 	it('stays alive after offshoot promise rejections', async () => {
 		// this test needs to happen in a worker because node test runner adds a listener for unhandled rejections in the main thread
-		const worker = new Worker('./test/fixtures/errors/dist/server/entry.mjs', {
+		const url = new URL('./fixtures/errors/dist/server/entry.mjs', import.meta.url);
+		const worker = new Worker(fileURLToPath(url), {
 			type: 'module',
 			env: { ASTRO_NODE_LOGGING: 'enabled' },
 		});
@@ -56,7 +58,7 @@ describe('Errors', () => {
 			const $ = cheerio.load(html);
 
 			assert.equal($('p').text().trim(), 'Internal server error');
-		}
+		},
 	);
 
 	it(
@@ -84,6 +86,6 @@ describe('Errors', () => {
 			} else {
 				throw new Error('The response should take at most 2 chunks.');
 			}
-		}
+		},
 	);
 });

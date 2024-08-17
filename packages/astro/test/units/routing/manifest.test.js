@@ -45,7 +45,7 @@ describe('routing - createRouteManifest', () => {
 			{
 				'/src/pages/index.astro': `<h1>test</h1>`,
 			},
-			root
+			root,
 		);
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
@@ -68,7 +68,7 @@ describe('routing - createRouteManifest', () => {
 				'/src/pages/[contact].astro': `<h1>test</h1>`,
 				'/src/pages/[contact].ts': `<h1>test</h1>`,
 			},
-			root
+			root,
 		);
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
@@ -125,7 +125,7 @@ describe('routing - createRouteManifest', () => {
 				'/src/pages/static-[dynamic].astro': `<h1>test</h1>`,
 				'/src/pages/index.astro': `<h1>test</h1>`,
 			},
-			root
+			root,
 		);
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
@@ -165,7 +165,7 @@ describe('routing - createRouteManifest', () => {
 				'/src/pages/test/index.astro': `<h1>test</h1>`,
 				'/src/pages/index.astro': `<h1>test</h1>`,
 			},
-			root
+			root,
 		);
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
@@ -214,7 +214,7 @@ describe('routing - createRouteManifest', () => {
 				'/src/pages/static.astro': `<h1>test</h1>`,
 				'/src/pages/index.astro': `<h1>test</h1>`,
 			},
-			root
+			root,
 		);
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
@@ -268,7 +268,7 @@ describe('routing - createRouteManifest', () => {
 				'/src/pages/index.astro': `<h1>test</h1>`,
 				'/src/pages/blog/[...slug].astro': `<h1>test</h1>`,
 			},
-			root
+			root,
 		);
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
@@ -320,7 +320,7 @@ describe('routing - createRouteManifest', () => {
 				'/src/pages/index.astro': `<h1>test</h1>`,
 				'/src/pages/blog/[...slug].astro': `<h1>test</h1>`,
 			},
-			root
+			root,
 		);
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
@@ -376,7 +376,7 @@ describe('routing - createRouteManifest', () => {
 				'/src/pages/index.astro': `<h1>test</h1>`,
 				'/src/pages/blog/contributing.astro': `<h1>test</h1>`,
 			},
-			root
+			root,
 		);
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
@@ -423,7 +423,7 @@ describe('routing - createRouteManifest', () => {
 				'/src/pages/index.astro': `<h1>test</h1>`,
 				'/src/pages/blog/contributing.astro': `<h1>test</h1>`,
 			},
-			root
+			root,
 		);
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
@@ -475,7 +475,7 @@ describe('routing - createRouteManifest', () => {
 			{
 				'/src/pages/contributing.astro': `<h1>test</h1>`,
 			},
-			root
+			root,
 		);
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
@@ -528,7 +528,7 @@ describe('routing - createRouteManifest', () => {
 				'/src/pages/[foo].astro': `<h1>test</h1>`,
 				'/src/pages/[bar].astro': `<h1>test</h1>`,
 			},
-			root
+			root,
 		);
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
@@ -574,7 +574,7 @@ describe('routing - createRouteManifest', () => {
 				'/src/pages/a-[b].astro': `<h1>test</h1>`,
 				'/src/pages/blog/a-[b].233.ts': ``,
 			},
-			root
+			root,
 		);
 
 		const settings = await createBasicSettings({

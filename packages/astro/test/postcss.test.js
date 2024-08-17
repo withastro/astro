@@ -24,7 +24,7 @@ describe('PostCSS', () => {
 				.replace(/\s/g, '')
 				.replace('/n', '');
 		},
-		{ timeout: 45000 }
+		{ timeout: 45000 },
 	);
 
 	/** All test cases check whether nested styles (i.e. &.nested {}) are correctly transformed */

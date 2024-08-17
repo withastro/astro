@@ -10,7 +10,7 @@ export async function renderEndpoint(
 	mod: EndpointHandler,
 	context: APIContext,
 	ssr: boolean,
-	logger: Logger
+	logger: Logger,
 ) {
 	const { request, url } = context;
 
@@ -21,8 +21,8 @@ export async function renderEndpoint(
 		logger.warn(
 			'router',
 			`${url.pathname} ${bold(
-				method
-			)} requests are not available for a static site. Update your config to \`output: 'server'\` or \`output: 'hybrid'\` to enable.`
+				method,
+			)} requests are not available for a static site. Update your config to \`output: 'server'\` or \`output: 'hybrid'\` to enable.`,
 		);
 	}
 	if (handler === undefined) {
@@ -34,7 +34,7 @@ export async function renderEndpoint(
 					.join(', ')}\n` +
 				('all' in mod
 					? `One of the exported handlers is "all" (lowercase), did you mean to export 'ALL'?\n`
-					: '')
+					: ''),
 		);
 		// No handler matching the verb found, so this should be a
 		// 404. Should be handled by 404.astro route if possible.
@@ -45,7 +45,7 @@ export async function renderEndpoint(
 			'router',
 			`The route "${
 				url.pathname
-			}" exports a value for the method "${method}", but it is of the type ${typeof handler} instead of a function.`
+			}" exports a value for the method "${method}", but it is of the type ${typeof handler} instead of a function.`,
 		);
 		return new Response(null, { status: 500 });
 	}

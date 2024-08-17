@@ -98,7 +98,7 @@ function testClientDirectivesShared() {
 
 		const clientOptions = page.locator('#options');
 		await expect(clientOptions).toHaveText(
-			'Passed options are: {"message":"Hello! I was passed as an option"}'
+			'Passed options are: {"message":"Hello! I was passed as an option"}',
 		);
 	});
 }

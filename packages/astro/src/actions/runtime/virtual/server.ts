@@ -1,14 +1,12 @@
 import { z } from 'zod';
-import { type ActionAPIContext, getApiContext as _getApiContext } from '../store.js';
-import type { ErrorInferenceObject, MaybePromise } from '../utils.js';
+import { ActionCalledFromServerError } from '../../../core/errors/errors-data.js';
+import { AstroError } from '../../../core/errors/errors.js';
+import type { ActionAPIContext, ErrorInferenceObject, MaybePromise } from '../utils.js';
 import { ActionError, ActionInputError, type SafeResult, callSafely } from './shared.js';
 
 export * from './shared.js';
 
 export { z } from 'zod';
-
-/** @deprecated Access context from the second `handler()` parameter. */
-export const getApiContext = _getApiContext;
 
 export type ActionAccept = 'form' | 'json';
 export type ActionInputSchema<T extends ActionAccept | undefined> = T extends 'form'
@@ -27,21 +25,22 @@ export type ActionClient<
 	TInputSchema extends ActionInputSchema<TAccept> | undefined,
 > = TInputSchema extends z.ZodType
 	? ((
-			input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
-		) => Promise<Awaited<TOutput>>) & {
-			safe: (
-				input: TAccept extends 'form' ? FormData : z.input<TInputSchema>
-			) => Promise<
-				SafeResult<
-					z.input<TInputSchema> extends ErrorInferenceObject
-						? z.input<TInputSchema>
-						: ErrorInferenceObject,
-					Awaited<TOutput>
-				>
-			>;
+			input: TAccept extends 'form' ? FormData : z.input<TInputSchema>,
+		) => Promise<
+			SafeResult<
+				z.input<TInputSchema> extends ErrorInferenceObject
+					? z.input<TInputSchema>
+					: ErrorInferenceObject,
+				Awaited<TOutput>
+			>
+		>) & {
+			queryString: string;
+			orThrow: (
+				input: TAccept extends 'form' ? FormData : z.input<TInputSchema>,
+			) => Promise<Awaited<TOutput>>;
 		}
-	: ((input?: any) => Promise<Awaited<TOutput>>) & {
-			safe: (input?: any) => Promise<SafeResult<never, Awaited<TOutput>>>;
+	: ((input?: any) => Promise<SafeResult<never, Awaited<TOutput>>>) & {
+			orThrow: (input?: any) => Promise<Awaited<TOutput>>;
 		};
 
 export function defineAction<
@@ -59,25 +58,36 @@ export function defineAction<
 	input?: TInputSchema;
 	accept?: TAccept;
 	handler: ActionHandler<TInputSchema, TOutput>;
-}): ActionClient<TOutput, TAccept, TInputSchema> {
+}): ActionClient<TOutput, TAccept, TInputSchema> & string {
 	const serverHandler =
 		accept === 'form'
 			? getFormServerHandler(handler, inputSchema)
 			: getJsonServerHandler(handler, inputSchema);
 
-	Object.assign(serverHandler, {
-		safe: async (unparsedInput: unknown) => {
-			return callSafely(() => serverHandler(unparsedInput));
+	async function safeServerHandler(this: ActionAPIContext, unparsedInput: unknown) {
+		if (typeof this === 'function') {
+			throw new AstroError(ActionCalledFromServerError);
+		}
+		return callSafely(() => serverHandler(unparsedInput, this));
+	}
+
+	Object.assign(safeServerHandler, {
+		orThrow(this: ActionAPIContext, unparsedInput: unknown) {
+			if (typeof this === 'function') {
+				throw new AstroError(ActionCalledFromServerError);
+			}
+			return serverHandler(unparsedInput, this);
 		},
 	});
-	return serverHandler as ActionClient<TOutput, TAccept, TInputSchema>;
+
+	return safeServerHandler as ActionClient<TOutput, TAccept, TInputSchema> & string;
 }
 
 function getFormServerHandler<TOutput, TInputSchema extends ActionInputSchema<'form'>>(
 	handler: ActionHandler<TInputSchema, TOutput>,
-	inputSchema?: TInputSchema
+	inputSchema?: TInputSchema,
 ) {
-	return async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
+	return async (unparsedInput: unknown, context: ActionAPIContext): Promise<Awaited<TOutput>> => {
 		if (!(unparsedInput instanceof FormData)) {
 			throw new ActionError({
 				code: 'UNSUPPORTED_MEDIA_TYPE',
@@ -85,21 +95,21 @@ function getFormServerHandler<TOutput, TInputSchema extends ActionInputSchema<'f
 			});
 		}
 
-		if (!(inputSchema instanceof z.ZodObject)) return await handler(unparsedInput, getApiContext());
+		if (!(inputSchema instanceof z.ZodObject)) return await handler(unparsedInput, context);
 
 		const parsed = await inputSchema.safeParseAsync(formDataToObject(unparsedInput, inputSchema));
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error.issues);
 		}
-		return await handler(parsed.data, getApiContext());
+		return await handler(parsed.data, context);
 	};
 }
 
 function getJsonServerHandler<TOutput, TInputSchema extends ActionInputSchema<'json'>>(
 	handler: ActionHandler<TInputSchema, TOutput>,
-	inputSchema?: TInputSchema
+	inputSchema?: TInputSchema,
 ) {
-	return async (unparsedInput: unknown): Promise<Awaited<TOutput>> => {
+	return async (unparsedInput: unknown, context: ActionAPIContext): Promise<Awaited<TOutput>> => {
 		if (unparsedInput instanceof FormData) {
 			throw new ActionError({
 				code: 'UNSUPPORTED_MEDIA_TYPE',
@@ -107,28 +117,42 @@ function getJsonServerHandler<TOutput, TInputSchema extends ActionInputSchema<'j
 			});
 		}
 
-		if (!inputSchema) return await handler(unparsedInput, getApiContext());
+		if (!inputSchema) return await handler(unparsedInput, context);
 		const parsed = await inputSchema.safeParseAsync(unparsedInput);
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error.issues);
 		}
-		return await handler(parsed.data, getApiContext());
+		return await handler(parsed.data, context);
 	};
 }
 
 /** Transform form data to an object based on a Zod schema. */
 export function formDataToObject<T extends z.AnyZodObject>(
 	formData: FormData,
-	schema: T
+	schema: T,
 ): Record<string, unknown> {
 	const obj: Record<string, unknown> = {};
 	for (const [key, baseValidator] of Object.entries(schema.shape)) {
 		let validator = baseValidator;
-		while (validator instanceof z.ZodOptional || validator instanceof z.ZodNullable) {
+
+		while (
+			validator instanceof z.ZodOptional ||
+			validator instanceof z.ZodNullable ||
+			validator instanceof z.ZodDefault
+		) {
+			// use default value when key is undefined
+			if (validator instanceof z.ZodDefault && !formData.has(key)) {
+				obj[key] = validator._def.defaultValue();
+			}
 			validator = validator._def.innerType;
 		}
-		if (validator instanceof z.ZodBoolean) {
-			obj[key] = formData.has(key);
+
+		if (!formData.has(key) && key in obj) {
+			// continue loop if form input is not found and default value is set
+			continue;
+		} else if (validator instanceof z.ZodBoolean) {
+			const val = formData.get(key);
+			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(key);
 		} else if (validator instanceof z.ZodArray) {
 			obj[key] = handleFormDataGetAll(key, formData, validator);
 		} else {
@@ -141,7 +165,7 @@ export function formDataToObject<T extends z.AnyZodObject>(
 function handleFormDataGetAll(
 	key: string,
 	formData: FormData,
-	validator: z.ZodArray<z.ZodUnknown>
+	validator: z.ZodArray<z.ZodUnknown>,
 ) {
 	const entries = Array.from(formData.getAll(key));
 	const elementValidator = validator._def.type;
@@ -157,7 +181,7 @@ function handleFormDataGet(
 	key: string,
 	formData: FormData,
 	validator: unknown,
-	baseValidator: unknown
+	baseValidator: unknown,
 ) {
 	const value = formData.get(key);
 	if (!value) {

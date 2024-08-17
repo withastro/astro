@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 // Q: Why is this not in @types?
 // A: `@types` is for types that are part of the public API. This is just a bunch of utilities we use throughout the codebase. (Mostly by Erika)
 
@@ -12,7 +11,7 @@ export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 
 // Name is pretty self descriptive, but it removes the index signature of an object
 export type OmitIndexSignature<ObjectType> = {
-	[KeyType in keyof ObjectType as {} extends Record<KeyType, unknown>
+	[KeyType in keyof ObjectType as object extends Record<KeyType, unknown>
 		? never
 		: KeyType]: ObjectType[KeyType];
 };

@@ -43,14 +43,14 @@ export async function highlightCodeBlocks(tree: Root, highlighter: Highlighter) 
 		let languageMatch: RegExpMatchArray | null | undefined;
 		let { className } = node.properties;
 		if (typeof className === 'string') {
-			languageMatch = className.match(languagePattern);
+			languageMatch = languagePattern.exec(className);
 		} else if (Array.isArray(className)) {
 			for (const cls of className) {
 				if (typeof cls !== 'string') {
 					continue;
 				}
 
-				languageMatch = cls.match(languagePattern);
+				languageMatch = languagePattern.exec(cls);
 				if (languageMatch) {
 					break;
 				}

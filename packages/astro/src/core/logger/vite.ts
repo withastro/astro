@@ -1,4 +1,4 @@
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import stripAnsi from 'strip-ansi';
 import type { LogLevel, Rollup, Logger as ViteLogger } from 'vite';
 import { isAstroError } from '../errors/errors.js';
@@ -24,7 +24,7 @@ const viteShortcutHelpMsg = /press (.+?) to (.+)$/s;
 
 export function createViteLogger(
 	astroLogger: AstroLogger,
-	viteLogLevel: LogLevel = 'info'
+	viteLogLevel: LogLevel = 'info',
 ): ViteLogger {
 	const warnedMessages = new Set<string>();
 	const loggedErrors = new WeakSet<Error | Rollup.RollupError>();

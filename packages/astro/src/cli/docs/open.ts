@@ -21,7 +21,7 @@ const getPlatformSpecificCommand = (): [string] | [string, string[]] => {
 			return ['/ide/bin/remote-cli/gitpod-code', ['--openExternal']];
 		default:
 			throw new Error(
-				`It looks like your platform ("${platform}") isn't supported!\nTo view Astro's docs, please visit https://docs.astro.build`
+				`It looks like your platform ("${platform}") isn't supported!\nTo view Astro's docs, please visit https://docs.astro.build`,
 			);
 	}
 };

@@ -28,7 +28,7 @@ describe.skip('Image endpoint', () => {
 		assert.equal(res.status, 200);
 
 		const resImage = await fixture.fetch(
-			'/_image?href=/_astro/some_penguin.97ef5f92.png&w=50&f=webp'
+			'/_image?href=/_astro/some_penguin.97ef5f92.png&w=50&f=webp',
 		);
 
 		assert.equal(resImage.status, 200);
