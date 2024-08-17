@@ -36,7 +36,7 @@ import { getRedirectLocationOrThrow, routeIsRedirect } from '../redirects/index.
 import { RenderContext } from '../render-context.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import { createRequest } from '../request.js';
-import { matchAllRoutes, matchRoute } from '../routing/match.js';
+import { matchAllRoutesOrFallback, matchRoute } from '../routing/match.js';
 import { stringifyParams } from '../routing/params.js';
 import { getOutputFilename, isServerLikeOutput } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
@@ -238,6 +238,10 @@ function* eachRouteInRouteData(data: PageBuildData) {
 	}
 }
 
+function isRoute(target: RouteData, reference: RouteData): boolean {
+	return target === reference || reference.fallbackRoutes.includes(target);
+}
+
 async function getPathsForRoute(
 	route: RouteData,
 	mod: ComponentInstance,
@@ -247,9 +251,12 @@ async function getPathsForRoute(
 	const { logger, options, routeCache, serverLike } = pipeline;
 	let paths: Array<string> = [];
 	if (route.pathname) {
-		const matchedRoute = matchRoute(route.pathname, options.manifest);
-		if (matchedRoute === route) {
-			paths.push(route.pathname);
+		const path = route.generate({});
+		const matchedRoute = matchRoute(path, options.manifest) ?? route;
+		if (isRoute(route, matchedRoute)) {
+			paths.push(path);
+		} else {
+			console.log('Skipping mismatched route', path, route, matchedRoute);
 		}
 	} else {
 		const staticPaths = await callGetStaticPaths({
@@ -286,32 +293,44 @@ async function getPathsForRoute(
 				// NOTE: The same URL may match multiple routes in the manifest.
 				// Routing priority needs to be verified here for any duplicate
 				// paths to ensure routing priority rules are enforced in the final build.
-				const matchedRoutes = matchAllRoutes(staticPath, options.manifest)
+				const matchedRoutes = matchAllRoutesOrFallback(staticPath, options.manifest)
 
 				// Route that previously rendered this path
 				const renderingRoute = builtPaths.get(staticPath);
 
 				for (const matchedRoute of matchedRoutes) {
-						// This is the highest priority matching route
-					if (matchedRoute === route) return true;
+					// This is the highest priority matching route
+					if (isRoute(route, matchedRoute)) {
+						console.log('matchedRoute', staticPath, matchedRoute.pattern);
+						return true;
+					}
 
 					// There is an on-demand route matching this path with a higher priority
 					// skip rendering this path
-					if (!matchedRoute.prerender) return false;
+					if (!matchedRoute.prerender) {
+						console.log('Skipped due to on-demand route', staticPath, matchedRoute.pattern);
+						return false;
+					}
 
 					// Path was already pre-rendered by a higher priority route
-					if (matchedRoute === renderingRoute) return false;
+					if (matchedRoute === renderingRoute) {
+						console.log('Skipped due to higher priority pre-rendered route', staticPath, matchedRoute.pattern);
+						return false;
+					}
 				}
 
 				// Route not matched, skip it
+				console.log('Skipped due to no matching route', staticPath, route.pathname, route.pattern);
 				return false;
 			});
 	}
 
 	// Add each path to the builtPaths set, to avoid building it again later.
 	for (const staticPath of paths) {
-		builtPaths.set(removeTrailingForwardSlash(staticPath), route);
+		builtPaths.set(staticPath, route);
 	}
+
+	console.log('building paths', paths);
 
 	return paths;
 }
