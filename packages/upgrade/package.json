@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/upgrade",
-  "version": "0.3.1",
+  "version": "0.3.3",
   "type": "module",
   "author": "withastro",
   "license": "MIT",

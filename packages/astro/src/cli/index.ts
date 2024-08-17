@@ -201,8 +201,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 }
 
 /** The primary CLI action */
-export async function cli(args: string[]) {
-	const flags = yargs(args, { boolean: ['global'], alias: { g: 'global' } });
+export async function cli(argv: string[]) {
+	const flags = yargs(argv, { boolean: ['global'], alias: { g: 'global' } });
 	const cmd = resolveCommand(flags);
 	try {
 		await runCommand(cmd, flags);

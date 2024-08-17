@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 /* eslint-disable no-console */
 import os from 'node:os';
 import { isAbsolute } from 'node:path';
@@ -5,7 +6,6 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 // @ts-expect-error
 import { assetsDir, imageConfig, outDir } from 'astro:assets';
 import { isRemotePath, removeQueryString } from '@astrojs/internal-helpers/path';
-import { readFile } from 'fs/promises';
 import * as mime from 'mrmime';
 import type { APIRoute } from '../../@types/astro.js';
 import { getConfiguredImageService } from '../internal.js';

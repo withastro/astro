@@ -1,9 +1,9 @@
-import type yargs from 'yargs-parser';
 import { printHelp } from '../../core/messages.js';
+import type { Flags } from '../flags.js';
 import { openInBrowser } from './open.js';
 
 interface DocsOptions {
-	flags: yargs.Arguments;
+	flags: Flags;
 }
 
 export async function docs({ flags }: DocsOptions) {

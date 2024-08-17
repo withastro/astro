@@ -4,15 +4,17 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import glob from 'fast-glob';
 import { bold, cyan } from 'kleur/colors';
 import { type ViteDevServer, normalizePath } from 'vite';
-import { z } from 'zod';
+import { type ZodSchema, z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
+import { printNode, zodToTs } from 'zod-to-ts';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
-import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
+import { CONTENT_LAYER_TYPE, CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
+	type CollectionConfig,
 	type ContentConfig,
 	type ContentObservable,
 	type ContentPaths,
@@ -44,7 +46,7 @@ type CollectionEntryMap = {
 				entries: Record<string, ContentEntryMetadata>;
 		  }
 		| {
-				type: 'data';
+				type: 'data' | typeof CONTENT_LAYER_TYPE;
 				entries: Record<string, DataEntryMetadata>;
 		  };
 };
@@ -245,7 +247,7 @@ export async function createContentTypesGenerator({
 					collectionEntryMap[collectionKey] = {
 						type: 'content',
 						entries: {
-							...collectionInfo.entries,
+							...(collectionInfo.entries as Record<string, ContentEntryMetadata>),
 							[entryKey]: { slug: addedSlug },
 						},
 					};
@@ -356,6 +358,51 @@ function normalizeConfigPath(from: string, to: string) {
 	return `"${isRelativePath(configPath) ? '' : './'}${normalizedPath}"` as const;
 }
 
+const schemaCache = new Map<string, ZodSchema>();
+
+async function getContentLayerSchema<T extends keyof ContentConfig['collections']>(
+	collection: ContentConfig['collections'][T],
+	collectionKey: T,
+): Promise<ZodSchema | undefined> {
+	const cached = schemaCache.get(collectionKey);
+	if (cached) {
+		return cached;
+	}
+
+	if (
+		collection?.type === CONTENT_LAYER_TYPE &&
+		typeof collection.loader === 'object' &&
+		collection.loader.schema
+	) {
+		let schema = collection.loader.schema;
+		if (typeof schema === 'function') {
+			schema = await schema();
+		}
+		if (schema) {
+			schemaCache.set(collectionKey, await schema);
+			return schema;
+		}
+	}
+}
+
+async function typeForCollection<T extends keyof ContentConfig['collections']>(
+	collection: ContentConfig['collections'][T] | undefined,
+	collectionKey: T,
+): Promise<string> {
+	if (collection?.schema) {
+		return `InferEntrySchema<${collectionKey}>`;
+	}
+
+	if (collection?.type === CONTENT_LAYER_TYPE) {
+		const schema = await getContentLayerSchema(collection, collectionKey);
+		if (schema) {
+			const ast = zodToTs(schema);
+			return printNode(ast.node);
+		}
+	}
+	return 'any';
+}
+
 async function writeContentFiles({
 	fs,
 	contentPaths,
@@ -391,12 +438,15 @@ async function writeContentFiles({
 			entries: {},
 		};
 	}
+
+	let contentCollectionsMap: CollectionEntryMap = {};
 	for (const collectionKey of Object.keys(collectionEntryMap).sort()) {
 		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
 		const collection = collectionEntryMap[collectionKey];
 		if (
 			collectionConfig?.type &&
 			collection.type !== 'unknown' &&
+			collectionConfig.type !== CONTENT_LAYER_TYPE &&
 			collection.type !== collectionConfig.type
 		) {
 			viteServer.hot.send({
@@ -419,7 +469,7 @@ async function writeContentFiles({
 			});
 			return;
 		}
-		const resolvedType: 'content' | 'data' =
+		const resolvedType =
 			collection.type === 'unknown'
 				? // Add empty / unknown collections to the data type map by default
 					// This ensures `getCollection('empty-collection')` doesn't raise a type error
@@ -427,7 +477,7 @@ async function writeContentFiles({
 				: collection.type;
 
 		const collectionEntryKeys = Object.keys(collection.entries).sort();
-		const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
+		const dataType = await typeForCollection(collectionConfig, collectionKey);
 		switch (resolvedType) {
 			case 'content':
 				if (collectionEntryKeys.length === 0) {
@@ -446,6 +496,9 @@ async function writeContentFiles({
 				}
 				contentTypesStr += `};\n`;
 				break;
+			case CONTENT_LAYER_TYPE:
+				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent \n}>;\n`;
+				break;
 			case 'data':
 				if (collectionEntryKeys.length === 0) {
 					dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n}>;\n`;
@@ -458,40 +511,60 @@ async function writeContentFiles({
 				}
 
 				if (collectionConfig?.schema) {
-					let zodSchemaForJson =
-						typeof collectionConfig.schema === 'function'
-							? collectionConfig.schema({ image: () => z.string() })
-							: collectionConfig.schema;
-					if (zodSchemaForJson instanceof z.ZodObject) {
-						zodSchemaForJson = zodSchemaForJson.extend({
-							$schema: z.string().optional(),
-						});
-					}
-					try {
-						await fs.promises.writeFile(
-							new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
-							JSON.stringify(
-								zodToJsonSchema(zodSchemaForJson, {
-									name: collectionKey.replace(/"/g, ''),
-									markdownDescription: true,
-									errorMessages: true,
-									// Fix for https://github.com/StefanTerdell/zod-to-json-schema/issues/110
-									dateStrategy: ['format:date-time', 'format:date', 'integer'],
-								}),
-								null,
-								2,
-							),
-						);
-					} catch (err) {
-						// This should error gracefully and not crash the dev server
-						logger.warn(
-							'content',
-							`An error was encountered while creating the JSON schema for the ${collectionKey} collection. Proceeding without it. Error: ${err}`,
-						);
-					}
+					await generateJSONSchema(
+						fs,
+						collectionConfig,
+						collectionKey,
+						collectionSchemasDir,
+						logger,
+					);
 				}
 				break;
 		}
+
+		if (
+			settings.config.experimental.contentIntellisense &&
+			collectionConfig &&
+			(collectionConfig.schema || (await getContentLayerSchema(collectionConfig, collectionKey)))
+		) {
+			await generateJSONSchema(fs, collectionConfig, collectionKey, collectionSchemasDir, logger);
+
+			contentCollectionsMap[collectionKey] = collection;
+		}
+	}
+
+	if (settings.config.experimental.contentIntellisense) {
+		let contentCollectionManifest: {
+			collections: { hasSchema: boolean; name: string }[];
+			entries: Record<string, string>;
+		} = {
+			collections: [],
+			entries: {},
+		};
+		Object.entries(contentCollectionsMap).forEach(([collectionKey, collection]) => {
+			const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
+			const key = JSON.parse(collectionKey);
+
+			contentCollectionManifest.collections.push({
+				hasSchema: Boolean(collectionConfig?.schema || schemaCache.has(collectionKey)),
+				name: key,
+			});
+
+			Object.keys(collection.entries).forEach((entryKey) => {
+				const entryPath = new URL(
+					JSON.parse(entryKey),
+					contentPaths.contentDir + `${key}/`,
+				).toString();
+
+				// Save entry path in lower case to avoid case sensitivity issues between Windows and Unix
+				contentCollectionManifest.entries[entryPath.toLowerCase()] = key;
+			});
+		});
+
+		await fs.promises.writeFile(
+			new URL('./collections.json', collectionSchemasDir),
+			JSON.stringify(contentCollectionManifest, null, 2),
+		);
 	}
 
 	if (!fs.existsSync(settings.dotAstroDir)) {
@@ -499,7 +572,7 @@ async function writeContentFiles({
 	}
 
 	const configPathRelativeToCacheDir = normalizeConfigPath(
-		settings.dotAstroDir.pathname,
+		new URL('astro', settings.dotAstroDir).pathname,
 		contentPaths.config.url.pathname,
 	);
 
@@ -515,8 +588,60 @@ async function writeContentFiles({
 		contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never',
 	);
 
-	await fs.promises.writeFile(
-		new URL(CONTENT_TYPES_FILE, settings.dotAstroDir),
-		typeTemplateContent,
-	);
+	// If it's the first time, we inject types the usual way. sync() will handle creating files and references. If it's not the first time, we just override the dts content
+	if (settings.injectedTypes.some((t) => t.filename === CONTENT_TYPES_FILE)) {
+		const filePath = fileURLToPath(new URL(CONTENT_TYPES_FILE, settings.dotAstroDir));
+		await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
+		await fs.promises.writeFile(filePath, typeTemplateContent, 'utf-8');
+	} else {
+		settings.injectedTypes.push({
+			filename: CONTENT_TYPES_FILE,
+			content: typeTemplateContent,
+		});
+	}
+}
+
+async function generateJSONSchema(
+	fsMod: typeof import('node:fs'),
+	collectionConfig: CollectionConfig,
+	collectionKey: string,
+	collectionSchemasDir: URL,
+	logger: Logger,
+) {
+	let zodSchemaForJson =
+		typeof collectionConfig.schema === 'function'
+			? collectionConfig.schema({ image: () => z.string() })
+			: collectionConfig.schema;
+
+	if (!zodSchemaForJson && collectionConfig.type === CONTENT_LAYER_TYPE) {
+		zodSchemaForJson = await getContentLayerSchema(collectionConfig, collectionKey);
+	}
+
+	if (zodSchemaForJson instanceof z.ZodObject) {
+		zodSchemaForJson = zodSchemaForJson.extend({
+			$schema: z.string().optional(),
+		});
+	}
+	try {
+		await fsMod.promises.writeFile(
+			new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
+			JSON.stringify(
+				zodToJsonSchema(zodSchemaForJson, {
+					name: collectionKey.replace(/"/g, ''),
+					markdownDescription: true,
+					errorMessages: true,
+					// Fix for https://github.com/StefanTerdell/zod-to-json-schema/issues/110
+					dateStrategy: ['format:date-time', 'format:date', 'integer'],
+				}),
+				null,
+				2,
+			),
+		);
+	} catch (err) {
+		// This should error gracefully and not crash the dev server
+		logger.warn(
+			'content',
+			`An error was encountered while creating the JSON schema for the ${collectionKey} collection. Proceeding without it. Error: ${err}`,
+		);
+	}
 }
