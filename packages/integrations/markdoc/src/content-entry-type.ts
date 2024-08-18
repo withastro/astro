@@ -310,8 +310,16 @@ async function emitOptimizedImages(
 		if ((node.type === 'image' || isComponent) && typeof node.attributes.src === 'string') {
 			let attributeName = isComponent ? 'src' : '__optimizedSrc';
 
+			if (node.attributes.src.startsWith('./')) {
+				node.attributes.src = prependForwardSlash(
+					path.relative(
+						ctx.astroConfig.root.pathname,
+						path.join(path.dirname(ctx.filePath), node.attributes.src),
+					),
+				);
+			}
 			// If the image isn't an URL or a link to public, try to resolve it.
-			if (shouldOptimizeImage(node.attributes.src)) {
+			if (shouldOptimizeImage(node.attributes.src, ctx.astroConfig.root.pathname)) {
 				// Attempt to resolve source with Vite.
 				// This handles relative paths and configured aliases
 				const resolved = await ctx.pluginContext.resolve(node.attributes.src, ctx.filePath);
@@ -332,15 +340,8 @@ async function emitOptimizedImages(
 							if (globalThis.astroAsset.referencedImages)
 								globalThis.astroAsset.referencedImages.add(fsPath);
 						}
-
-						const pathToImg = prependForwardSlash(
-							path.relative(
-								ctx.astroConfig.root.pathname,
-								path.join(path.dirname(ctx.filePath), node.attributes.src),
-							),
-						);
 						node.attributes[attributeName] = { ...src, fsPath };
-						node.attributes.src = pathToImg;
+						node.attributes.src = src.src;
 					}
 				} else {
 					throw new MarkdocError({
@@ -359,9 +360,15 @@ async function emitOptimizedImages(
 	}
 }
 
-function shouldOptimizeImage(src: string) {
-	// Optimize anything that is NOT external or an absolute path to `public/`
-	return !isValidUrl(src) && !src.startsWith('/');
+function shouldOptimizeImage(src: string, rootPath: string) {
+	// Optimize anything that is NOT external or a true absolute path to `public/`.
+	if (isValidUrl(src)) return false;
+	const normPath = path.normalize(src);
+	if (normPath.startsWith(rootPath) || normPath.startsWith('/')) {
+		return false;
+	}
+
+	return true;
 }
 
 /**
