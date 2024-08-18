@@ -310,7 +310,7 @@ async function emitOptimizedImages(
 		if ((node.type === 'image' || isComponent) && typeof node.attributes.src === 'string') {
 			let attributeName = isComponent ? 'src' : '__optimizedSrc';
 
-			if (node.attributes.src.startsWith('./')) {
+			if (node.attributes.src.startsWith('./') || node.attributes.src.startsWith('../')) {
 				node.attributes.src = prependForwardSlash(
 					path.relative(
 						ctx.astroConfig.root.pathname,
@@ -341,7 +341,6 @@ async function emitOptimizedImages(
 								globalThis.astroAsset.referencedImages.add(fsPath);
 						}
 						node.attributes[attributeName] = { ...src, fsPath };
-						node.attributes.src = src.src;
 					}
 				} else {
 					throw new MarkdocError({
@@ -361,7 +360,7 @@ async function emitOptimizedImages(
 }
 
 function shouldOptimizeImage(src: string, rootPath: string) {
-	// Optimize anything that is NOT external or a true absolute path to `public/`.
+	// Optimize anything that is NOT external or an absolute path to `public/`
 	if (isValidUrl(src)) return false;
 	const normPath = path.normalize(src);
 	if (normPath.startsWith(rootPath) || normPath.startsWith('/')) {
