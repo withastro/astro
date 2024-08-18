@@ -333,9 +333,12 @@ async function emitOptimizedImages(
 								globalThis.astroAsset.referencedImages.add(fsPath);
 						}
 
+						const pathToImg = prependForwardSlash(path.relative(
+								ctx.astroConfig.root.pathname,
+								path.join(path.dirname(ctx.filePath), node.attributes.src)
+						));
 						node.attributes[attributeName] = { ...src, fsPath };
-						// Serve optimizedSrc as src
-						node.attributes.src = src.src;
+    				node.attributes.src = pathToImg;
 					}
 				} else {
 					throw new MarkdocError({
