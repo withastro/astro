@@ -333,12 +333,14 @@ async function emitOptimizedImages(
 								globalThis.astroAsset.referencedImages.add(fsPath);
 						}
 
-						const pathToImg = prependForwardSlash(path.relative(
+						const pathToImg = prependForwardSlash(
+							path.relative(
 								ctx.astroConfig.root.pathname,
-								path.join(path.dirname(ctx.filePath), node.attributes.src)
-						));
+								path.join(path.dirname(ctx.filePath), node.attributes.src),
+							),
+						);
 						node.attributes[attributeName] = { ...src, fsPath };
-    				node.attributes.src = pathToImg;
+						node.attributes.src = pathToImg;
 					}
 				} else {
 					throw new MarkdocError({
