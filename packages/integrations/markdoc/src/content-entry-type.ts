@@ -334,6 +334,8 @@ async function emitOptimizedImages(
 						}
 
 						node.attributes[attributeName] = { ...src, fsPath };
+						// Serve optimizedSrc as src
+						node.attributes.src = src.src;
 					}
 				} else {
 					throw new MarkdocError({
