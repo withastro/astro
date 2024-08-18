@@ -341,6 +341,8 @@ async function emitOptimizedImages(
 								globalThis.astroAsset.referencedImages.add(fsPath);
 						}
 						node.attributes[attributeName] = { ...src, fsPath };
+						node.attributes.src = src.src;
+
 					}
 				} else {
 					throw new MarkdocError({
