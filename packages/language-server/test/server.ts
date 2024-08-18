@@ -35,10 +35,14 @@ export async function getLanguageServer(): Promise<LanguageServer> {
 						'lib',
 					),
 				},
-				pullModelDiagnostics: true,
 				contentIntellisense: true,
 			},
 			{
+				textDocument: {
+					definition: {
+						linkSupport: true,
+					},
+				},
 				workspace: {
 					// Needed for tests that use didChangeWatchedFiles
 					didChangeWatchedFiles: {},

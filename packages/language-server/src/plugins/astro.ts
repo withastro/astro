@@ -27,7 +27,10 @@ export const create = (ts: typeof import('typescript')): LanguageServicePlugin =
 			completionProvider: {
 				triggerCharacters: ['-'],
 			},
-			diagnosticProvider: {},
+			diagnosticProvider: {
+				interFileDependencies: false,
+				workspaceDiagnostics: false,
+			},
 			codeLensProvider: {},
 		},
 		create(context): LanguageServicePluginInstance {
@@ -51,7 +54,7 @@ export const create = (ts: typeof import('typescript')): LanguageServicePlugin =
 						items: items,
 					};
 				},
-				provideSemanticDiagnostics(document, token) {
+				provideDiagnostics(document, token) {
 					if (token.isCancellationRequested) return [];
 
 					const decoded = context.decodeEmbeddedDocumentUri(URI.parse(document.uri));

@@ -5,6 +5,7 @@ import { pathToFileURL } from 'node:url';
 import * as kit from '@volar/kit';
 import { Diagnostic, DiagnosticSeverity } from '@volar/language-server';
 import fg from 'fast-glob';
+import { URI } from 'vscode-uri';
 import { getAstroLanguagePlugin } from './core/index.js';
 import { getSvelteLanguagePlugin } from './core/svelte.js';
 import { getVueLanguagePlugin } from './core/vue.js';
@@ -61,13 +62,13 @@ export class AstroCheck {
 			  }
 			| undefined;
 	}): Promise<CheckResult> {
-		let files = (
-			fileNames !== undefined ? fileNames : this.linter.projectHost.getScriptFileNames()
-		).filter((file) => {
-			// We don't have the same understanding of Svelte and Vue files as their own respective tools (vue-tsc, svelte-check)
-			// So we don't want to check them here
-			return !file.endsWith('.vue') && !file.endsWith('.svelte');
-		});
+		let files = (fileNames !== undefined ? fileNames : this.linter.getRootFileNames()).filter(
+			(file) => {
+				// We don't have the same understanding of Svelte and Vue files as their own respective tools (vue-tsc, svelte-check)
+				// So we don't want to check them here
+				return !file.endsWith('.vue') && !file.endsWith('.svelte');
+			},
+		);
 
 		const result: CheckResult = {
 			status: undefined,
@@ -104,7 +105,7 @@ export class AstroCheck {
 					console.info(errorText);
 				}
 
-				const fileSnapshot = this.linter.projectHost.getScriptSnapshot(file);
+				const fileSnapshot = this.linter.language.scripts.get(URI.file(file))?.snapshot;
 				const fileContent = fileSnapshot?.getText(0, fileSnapshot.getLength());
 
 				result.fileResult.push({
@@ -145,7 +146,13 @@ export class AstroCheck {
 		const services = [...createTypeScriptServices(this.ts), createAstroService(this.ts)];
 
 		if (tsconfigPath) {
-			this.linter = kit.createTypeScriptChecker(languagePlugins, services, tsconfigPath);
+			const includeProjectReference = false; // #920
+			this.linter = kit.createTypeScriptChecker(
+				languagePlugins,
+				services,
+				tsconfigPath,
+				includeProjectReference,
+			);
 		} else {
 			this.linter = kit.createTypeScriptInferredChecker(languagePlugins, services, () => {
 				return fg.sync('**/*.astro', {

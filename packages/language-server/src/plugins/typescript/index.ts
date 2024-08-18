@@ -56,7 +56,7 @@ export const create = (ts: typeof import('typescript')): LanguageServicePlugin[]
 
 							return enhancedResolveCodeAction(resolvedCodeAction, context);
 						},
-						async provideSemanticDiagnostics(document, token) {
+						async provideDiagnostics(document, token) {
 							const decoded = context.decodeEmbeddedDocumentUri(URI.parse(document.uri));
 							const sourceScript = decoded && context.language.scripts.get(decoded[0]);
 							const root = sourceScript?.generated?.root;
@@ -70,10 +70,7 @@ export const create = (ts: typeof import('typescript')): LanguageServicePlugin[]
 								tsxLineCount = root.astroMeta.tsxRanges.body.end.line;
 							}
 
-							const diagnostics = await typeScriptPlugin.provideSemanticDiagnostics!(
-								document,
-								token,
-							);
+							const diagnostics = await typeScriptPlugin.provideDiagnostics!(document, token);
 							if (!diagnostics) return null;
 
 							return enhancedProvideSemanticDiagnostics(diagnostics, tsxLineCount);

@@ -41,7 +41,7 @@ connection.onInitialize((params) => {
 		collectionConfigs = folders.flatMap((folder) => {
 			try {
 				const folderUri = URI.parse(folder.uri);
-				let config = server.fs.readFile(
+				let config = server.fileSystem.readFile(
 					Utils.joinPath(folderUri, '.astro/collections/collections.json'),
 				);
 
@@ -76,7 +76,6 @@ connection.onInitialize((params) => {
 			};
 		}),
 		getLanguageServicePlugins(connection, typescript, collectionConfigs),
-		{ pullModelDiagnostics: params.initializationOptions?.pullModelDiagnostics },
 	);
 });
 
@@ -102,5 +101,5 @@ connection.onInitialized(() => {
 		extensions.push(...SUPPORTED_FRONTMATTER_EXTENSIONS_KEYS);
 	}
 
-	server.watchFiles([`**/*.{${extensions.join(',')}}`]);
+	server.fileWatcher.watchFiles([`**/*.{${extensions.join(',')}}`]);
 });
