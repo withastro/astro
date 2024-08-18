@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/language-server",
-  "version": "2.14.0",
+  "version": "2.14.1",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@astrojs/compiler": "^2.10.3",
-    "@astrojs/yaml2ts": "^0.2.0",
+    "@astrojs/yaml2ts": "^0.2.1",
     "@jridgewell/sourcemap-codec": "^1.4.15",
     "@volar/kit": "~2.4.0",
     "@volar/language-core": "~2.4.0",

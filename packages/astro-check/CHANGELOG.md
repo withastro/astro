@@ -1,5 +1,13 @@
 # @astrojs/check
 
+## 0.9.3
+
+### Patch Changes
+
+- 28dfebe: Updates to the stable version of Volar 2.4.0
+- Updated dependencies [28dfebe]
+  - @astrojs/language-server@2.14.1
+
 ## 0.9.2
 
 ### Patch Changes
