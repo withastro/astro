@@ -32,7 +32,7 @@ import { formatList, internalSpreadAttributes, renderElement, voidElementNames }
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 const rendererAliases = new Map([['solid', 'solid-js']]);
-const clientOnlyValues = new Set(['solid-js', 'react', 'preact', 'vue', 'svelte', 'lit']);
+const clientOnlyValues = new Set(['solid-js', 'react', 'preact', 'vue', 'svelte']);
 
 function guessRenderers(componentUrl?: string): string[] {
 	const extname = componentUrl?.split('.').pop();
@@ -51,7 +51,6 @@ function guessRenderers(componentUrl?: string): string[] {
 				'@astrojs/solid-js',
 				'@astrojs/vue',
 				'@astrojs/svelte',
-				'@astrojs/lit',
 			];
 	}
 }
@@ -283,24 +282,6 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 			if (process.env.NODE_ENV === 'development')
 				componentServerRenderEndTime = performance.now() - componentRenderStartTime;
 		}
-	}
-
-	// HACK! The lit renderer doesn't include a clientEntrypoint for custom elements, allow it
-	// to render here until we find a better way to recognize when a client entrypoint isn't required.
-	if (
-		renderer &&
-		!renderer.clientEntrypoint &&
-		renderer.name !== '@astrojs/lit' &&
-		metadata.hydrate
-	) {
-		throw new AstroError({
-			...AstroErrorData.NoClientEntrypoint,
-			message: AstroErrorData.NoClientEntrypoint.message(
-				displayName,
-				metadata.hydrate,
-				renderer.name,
-			),
-		});
 	}
 
 	// This is a custom element without a renderer. Because of that, render it

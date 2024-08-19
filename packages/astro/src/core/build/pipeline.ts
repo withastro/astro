@@ -18,7 +18,6 @@ import { isServerLikeOutput } from '../util.js';
 import { getOutDirWithinCwd } from './common.js';
 import { type BuildInternals, cssOrder, getPageData, mergeInlineCss } from './internal.js';
 import { ASTRO_PAGE_MODULE_ID, ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
-import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { getPagesFromVirtualModulePageName, getVirtualModulePageName } from './plugins/util.js';
 import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
@@ -199,32 +198,18 @@ export class BuildPipeline extends Pipeline {
 		const pages = new Map<PageBuildData, string>();
 
 		for (const [virtualModulePageName, filePath] of this.internals.entrySpecifierToBundleMap) {
-			// virtual pages can be emitted with different prefixes:
-			// - the classic way are pages emitted with prefix ASTRO_PAGE_RESOLVED_MODULE_ID -> plugin-pages
-			// - pages emitted using `functionPerRoute`, in this case pages are emitted with prefix RESOLVED_SPLIT_MODULE_ID
+			// virtual pages are emitted with the 'plugin-pages' prefix
 			if (
-				virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
-				virtualModulePageName.includes(RESOLVED_SPLIT_MODULE_ID)
+				virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID)
 			) {
 				let pageDatas: PageBuildData[] = [];
-				if (virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
-					pageDatas.push(
-						...getPagesFromVirtualModulePageName(
-							this.internals,
-							ASTRO_PAGE_RESOLVED_MODULE_ID,
-							virtualModulePageName,
-						),
-					);
-				}
-				if (virtualModulePageName.includes(RESOLVED_SPLIT_MODULE_ID)) {
-					pageDatas.push(
-						...getPagesFromVirtualModulePageName(
-							this.internals,
-							RESOLVED_SPLIT_MODULE_ID,
-							virtualModulePageName,
-						),
-					);
-				}
+				pageDatas.push(
+					...getPagesFromVirtualModulePageName(
+						this.internals,
+						ASTRO_PAGE_RESOLVED_MODULE_ID,
+						virtualModulePageName,
+					),
+				);
 				for (const pageData of pageDatas) {
 					pages.set(pageData, filePath);
 				}
@@ -306,9 +291,9 @@ export class BuildPipeline extends Pipeline {
 		}
 		let entry;
 		if (routeIsRedirect(route)) {
-			entry = await this.#getEntryForRedirectRoute(route, this.internals, this.outFolder);
+			entry = await this.#getEntryForRedirectRoute(route, this.outFolder);
 		} else if (routeIsFallback(route)) {
-			entry = await this.#getEntryForFallbackRoute(route, this.internals, this.outFolder);
+			entry = await this.#getEntryForFallbackRoute(route, this.outFolder);
 		} else {
 			const ssrEntryURLPage = createEntryURL(filePath, this.outFolder);
 			entry = await import(ssrEntryURLPage.toString());
@@ -319,7 +304,6 @@ export class BuildPipeline extends Pipeline {
 
 	async #getEntryForFallbackRoute(
 		route: RouteData,
-		internals: BuildInternals,
 		outFolder: URL,
 	): Promise<SinglePageBuiltModule> {
 		if (route.type !== 'fallback') {
@@ -339,7 +323,6 @@ export class BuildPipeline extends Pipeline {
 
 	async #getEntryForRedirectRoute(
 		route: RouteData,
-		internals: BuildInternals,
 		outFolder: URL,
 	): Promise<SinglePageBuiltModule> {
 		if (route.type !== 'redirect') {

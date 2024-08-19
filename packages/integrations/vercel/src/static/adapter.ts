@@ -35,7 +35,6 @@ function getAdapter(): AstroAdapter {
 		},
 		adapterFeatures: {
 			edgeMiddleware: false,
-			functionPerRoute: false,
 		},
 	};
 }

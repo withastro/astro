@@ -80,12 +80,6 @@ export function validateSupportedFeatures(
 				return config?.output === 'server' && !config?.site;
 			},
 		);
-		if (adapterFeatures?.functionPerRoute) {
-			logger.error(
-				'config',
-				'The Astro feature `i18nDomains` is incompatible with the Adapter feature `functionPerRoute`',
-			);
-		}
 	}
 
 	validationResult.envGetSecret = validateSupportKind(

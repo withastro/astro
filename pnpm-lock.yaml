@@ -180,21 +180,6 @@ importers:
         specifier: ^4.14.2
         version: link:../../packages/astro
 
-  examples/framework-lit:
-    dependencies:
-      '@astrojs/lit':
-        specifier: ^4.3.0
-        version: link:../../packages/integrations/lit
-      '@webcomponents/template-shadowroot':
-        specifier: ^0.2.1
-        version: 0.2.1
-      astro:
-        specifier: ^4.14.2
-        version: link:../../packages/astro
-      lit:
-        specifier: ^3.2.0
-        version: 3.2.0
-
   examples/framework-multiple:
     dependencies:
       '@astrojs/preact':
@@ -1176,21 +1161,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/e2e/fixtures/lit-component:
-    dependencies:
-      '@astrojs/lit':
-        specifier: workspace:*
-        version: link:../../../../integrations/lit
-      '@webcomponents/template-shadowroot':
-        specifier: ^0.2.1
-        version: 0.2.1
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      lit:
-        specifier: ^3.2.0
-        version: 3.2.0
-
   packages/astro/e2e/fixtures/multiple-frameworks:
     dependencies:
       '@webcomponents/template-shadowroot':
@@ -1218,9 +1188,6 @@ importers:
         specifier: ^3.4.38
         version: 3.4.38(typescript@5.5.4)
     devDependencies:
-      '@astrojs/lit':
-        specifier: workspace:*
-        version: link:../../../../integrations/lit
       '@astrojs/preact':
         specifier: workspace:*
         version: link:../../../../integrations/preact
@@ -3361,21 +3328,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/lit-element:
-    dependencies:
-      '@astrojs/lit':
-        specifier: workspace:*
-        version: link:../../../../integrations/lit
-      '@webcomponents/template-shadowroot':
-        specifier: ^0.2.1
-        version: 0.2.1
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      lit:
-        specifier: ^3.2.0
-        version: 3.2.0
-
   packages/astro/test/fixtures/markdown:
     dependencies:
       '@astrojs/preact':
@@ -4537,37 +4489,6 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/cloudflare: {}
-
-  packages/integrations/lit:
-    dependencies:
-      '@lit-labs/ssr':
-        specifier: ^3.2.2
-        version: 3.2.2
-      '@lit-labs/ssr-client':
-        specifier: ^1.1.7
-        version: 1.1.7
-      '@lit-labs/ssr-dom-shim':
-        specifier: ^1.2.1
-        version: 1.2.1
-      parse5:
-        specifier: ^7.1.2
-        version: 7.1.2
-    devDependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../astro
-      astro-scripts:
-        specifier: workspace:*
-        version: link:../../../scripts
-      cheerio:
-        specifier: 1.0.0
-        version: 1.0.0
-      lit:
-        specifier: ^3.2.0
-        version: 3.2.0
-      sass:
-        specifier: ^1.77.8
-        version: 1.77.8
 
   packages/integrations/markdoc:
     dependencies:
@@ -7109,15 +7030,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@lit-labs/ssr-client@1.1.7':
-    resolution: {integrity: sha512-VvqhY/iif3FHrlhkzEPsuX/7h/NqnfxLwVf0p8ghNIlKegRyRqgeaJevZ57s/u/LiFyKgqksRP5n+LmNvpxN+A==}
-
   '@lit-labs/ssr-dom-shim@1.2.1':
     resolution: {integrity: sha512-wx4aBmgeGvFmOKucFKY+8VFJSYZxs9poN3SDNQFF6lT6NrQUnHiPB2PWz2sc4ieEcAaYYzN+1uWahEeTq2aRIQ==}
-
-  '@lit-labs/ssr@3.2.2':
-    resolution: {integrity: sha512-He5TzeNPM9ECmVpgXRYmVlz0UA5YnzHlT43kyLi2Lu6mUidskqJVonk9W5K699+2DKhoXp8Ra4EJmHR6KrcW1Q==}
-    engines: {node: '>=13.9.0'}
 
   '@lit/reactive-element@2.0.4':
     resolution: {integrity: sha512-GFn91inaUa2oHLak8awSIigYz0cU0Payr1rcFsrkf5OJ5eSPxElyZfKh0f2p9FsTiZWXQdWGJeXZICEfXXYSXQ==}
@@ -7221,9 +7135,6 @@ packages:
 
   '@oslojs/encoding@0.4.1':
     resolution: {integrity: sha512-hkjo6MuIK/kQR5CrGNdAPZhS01ZCXuWDRJ187zh6qqF2+yMHZpD9fAYpX8q2bOO6Ryhl3XpCT6kUX76N8hhm4Q==}
-
-  '@parse5/tools@0.3.0':
-    resolution: {integrity: sha512-zxRyTHkqb7WQMV8kTNBKWb1BeOFUKXBXTBWuxg9H9hfvQB3IwP6Iw2U75Ia5eyRxPNltmY7E8YAlz6zWwUnjKg==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -7525,9 +7436,6 @@ packages:
 
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
-
-  '@types/node@16.18.96':
-    resolution: {integrity: sha512-84iSqGXoO+Ha16j8pRZ/L90vDMKX04QTYMTfYeE1WrjWaZXuchBehGUZEpNgx7JnmlrIHdnABmpjrQjhCnNldQ==}
 
   '@types/node@17.0.45':
     resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
@@ -8640,10 +8548,6 @@ packages:
 
   encoding-sniffer@0.2.0:
     resolution: {integrity: sha512-ju7Wq1kg04I3HtiYIOrUrdfdDvkyO9s5XM8QAj/bN61Yo/Vb4vgJxy5vi4Yxk01gWHbrofpPtpxM8bKger9jhg==}
-
-  enhanced-resolve@5.16.0:
-    resolution: {integrity: sha512-O+QWCviPNSSLAD9Ucn8Awv+poAkqn3T1XY5/N7kR7rQO9yfSGWkYZDwpJ+iKF7B8rxaQKWngSqACpgzeapSyoA==}
-    engines: {node: '>=10.13.0'}
 
   enquirer@2.4.1:
     resolution: {integrity: sha512-rRqJg/6gd538VHvR3PSrdRBb/1Vy2YfzHqzvbhGIQpDRKIa4FgV/54b5Q1xYSxOOwKvjXweS26E0Q+nAMwp2pQ==}
@@ -11075,10 +10979,6 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  tapable@2.2.1:
-    resolution: {integrity: sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==}
-    engines: {node: '>=6'}
-
   tar@6.2.1:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
@@ -12999,27 +12899,7 @@ snapshots:
   '@libsql/win32-x64-msvc@0.4.1':
     optional: true
 
-  '@lit-labs/ssr-client@1.1.7':
-    dependencies:
-      '@lit/reactive-element': 2.0.4
-      lit: 3.2.0
-      lit-html: 3.2.0
-
   '@lit-labs/ssr-dom-shim@1.2.1': {}
-
-  '@lit-labs/ssr@3.2.2':
-    dependencies:
-      '@lit-labs/ssr-client': 1.1.7
-      '@lit-labs/ssr-dom-shim': 1.2.1
-      '@lit/reactive-element': 2.0.4
-      '@parse5/tools': 0.3.0
-      '@types/node': 16.18.96
-      enhanced-resolve: 5.16.0
-      lit: 3.2.0
-      lit-element: 4.1.0
-      lit-html: 3.2.0
-      node-fetch: 3.3.2
-      parse5: 7.1.2
 
   '@lit/reactive-element@2.0.4':
     dependencies:
@@ -13174,10 +13054,6 @@ snapshots:
       '@octokit/openapi-types': 22.2.0
 
   '@oslojs/encoding@0.4.1': {}
-
-  '@parse5/tools@0.3.0':
-    dependencies:
-      parse5: 7.1.2
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -13477,8 +13353,6 @@ snapshots:
       '@types/unist': 3.0.3
 
   '@types/node@12.20.55': {}
-
-  '@types/node@16.18.96': {}
 
   '@types/node@17.0.45': {}
 
@@ -14635,11 +14509,6 @@ snapshots:
     dependencies:
       iconv-lite: 0.6.3
       whatwg-encoding: 3.1.1
-
-  enhanced-resolve@5.16.0:
-    dependencies:
-      graceful-fs: 4.2.11
-      tapable: 2.2.1
 
   enquirer@2.4.1:
     dependencies:
@@ -17739,8 +17608,6 @@ snapshots:
       sucrase: 3.35.0
     transitivePeerDependencies:
       - ts-node
-
-  tapable@2.2.1: {}
 
   tar@6.2.1:
     dependencies:
