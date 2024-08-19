@@ -26,7 +26,6 @@ function getAdapter(): AstroAdapter {
 		supportedAstroFeatures: {
 			assets: {
 				supportKind: 'stable',
-				isSquooshCompatible: true,
 				isSharpCompatible: true,
 			},
 			staticOutput: 'stable',

@@ -14,7 +14,6 @@ const EXPERIMENTAL = 'experimental';
 
 const UNSUPPORTED_ASSETS_FEATURE: AstroAssetsFeature = {
 	supportKind: UNSUPPORTED,
-	isSquooshCompatible: false,
 	isSharpCompatible: false,
 };
 
