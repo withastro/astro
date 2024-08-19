@@ -111,17 +111,6 @@ export default async function build(...args) {
 		plugins: [
 			rebuildPlugin,
 			svelte({ isDev }),
-			...(copyWASM
-				? [
-						copy({
-							resolveFrom: 'cwd',
-							assets: {
-								from: ['./src/assets/services/vendor/squoosh/**/*.wasm'],
-								to: ['./dist/assets/services/vendor/squoosh'],
-							},
-						}),
-					]
-				: []),
 		],
 	});
 

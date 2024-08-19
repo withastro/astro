@@ -122,10 +122,6 @@ export interface AstroAssetsFeature {
 	 * Whether if this adapter deploys files in an environment that is compatible with the library `sharp`
 	 */
 	isSharpCompatible?: boolean;
-	/**
-	 * Whether if this adapter deploys files in an environment that is compatible with the library `squoosh`
-	 */
-	isSquooshCompatible?: boolean;
 }
 
 export interface AstroInternationalizationFeature {

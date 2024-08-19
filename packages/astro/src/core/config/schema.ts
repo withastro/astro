@@ -245,11 +245,7 @@ export const AstroConfigSchema = z.object({
 			service: z
 				.object({
 					entrypoint: z
-						.union([
-							z.literal('astro/assets/services/sharp'),
-							z.literal('astro/assets/services/squoosh'),
-							z.string(),
-						])
+						.union([z.literal('astro/assets/services/sharp'), z.string()])
 						.default(ASTRO_CONFIG_DEFAULTS.image.service.entrypoint),
 					config: z.record(z.any()).default({}),
 				})
