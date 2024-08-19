@@ -70,12 +70,10 @@ const SUPPORTED_NODE_VERSIONS: Record<
 
 function getAdapter({
 	edgeMiddleware,
-	functionPerRoute,
 	middlewareSecret,
 	skewProtection,
 }: {
 	edgeMiddleware: boolean;
-	functionPerRoute: boolean;
 	middlewareSecret: string;
 	skewProtection: boolean;
 }): AstroAdapter {
@@ -86,7 +84,6 @@ function getAdapter({
 		args: { middlewareSecret, skewProtection },
 		adapterFeatures: {
 			edgeMiddleware,
-			functionPerRoute,
 		},
 		supportedAstroFeatures: {
 			hybridOutput: 'stable',
@@ -134,12 +131,6 @@ export interface VercelServerlessConfig {
 	/** Whether to create the Vercel Edge middleware from an Astro middleware in your code base. */
 	edgeMiddleware?: boolean;
 
-	/**
-	 * Whether to split builds into a separate function for each route.
-	 * @deprecated `functionPerRoute` is deprecated and will be removed in the next major release of the adapter.
-	 */
-	functionPerRoute?: boolean;
-
 	/** The maximum duration (in seconds) that Serverless Functions can run before timing out. See the [Vercel documentation](https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration) for the default and maximum limit for your account plan. */
 	maxDuration?: number;
 
@@ -186,7 +177,6 @@ export default function vercelServerless({
 	imageService,
 	imagesConfig,
 	devImageService = 'sharp',
-	functionPerRoute = false,
 	edgeMiddleware = false,
 	maxDuration,
 	isr = false,
@@ -281,23 +271,9 @@ export default function vercelServerless({
 					),
 				});
 			},
-			'astro:config:done': ({ setAdapter, config, logger }) => {
-				if (functionPerRoute === true) {
-					logger.warn(
-						`\n` +
-							`\tVercel's hosting plans might have limits to the number of functions you can create.\n` +
-							`\tMake sure to check your plan carefully to avoid incurring additional costs.\n` +
-							`\tYou can set functionPerRoute: false to prevent surpassing the limit.\n`,
-					);
-
-					logger.warn(
-						`\n` +
-							`\t\`functionPerRoute\` is deprecated and will be removed in a future version of the adapter.\n`,
-					);
-				}
-
+			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(
-					getAdapter({ functionPerRoute, edgeMiddleware, middlewareSecret, skewProtection }),
+					getAdapter({ edgeMiddleware, middlewareSecret, skewProtection }),
 				);
 
 				_config = config;
