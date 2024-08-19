@@ -31,6 +31,7 @@ import { eventCliSession, telemetry } from '../../events/index.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
 import { loadFile, generateCode, builders, type ProxifiedModule } from 'magicast';
+import { getDefaultExportOptions } from 'magicast/helpers';
 
 interface AddOptions {
 	flags: Flags;
@@ -264,21 +265,17 @@ export async function add(names: string[], { flags }: AddOptions) {
 		mod = await loadFile(fileURLToPath(configURL));
 		logger.debug('add', 'Parsed astro config');
 
-		mod.imports.$add({ imported: 'defineConfig', from: 'astro/config' });
-		let config: any;
-		if (mod.exports.default.$type === 'function-call') {
-			config = mod.exports.default.$args[0];
-		} else {
-			config = mod.exports.default;
+		if (mod.exports.default.$type !== 'function-call') {
+			mod.imports.$add({ imported: 'defineConfig', from: 'astro/config' });
 			mod.exports.default = builders.functionCall('defineConfig', mod.exports.default);
-			logger.debug('add', 'Astro config ensured `defineConfig`');
 		}
+		logger.debug('add', 'Astro config ensured `defineConfig`');
 
 		for (const integration of integrations) {
 			if (isAdapter(integration)) {
 				const officialExportName = OFFICIAL_ADAPTER_TO_IMPORT_MAP[integration.id];
 				if (officialExportName) {
-					setAdapter(config, integration);
+					setAdapter(mod, integration);
 				} else {
 					logger.info(
 						'SKIP_FORMAT',
@@ -290,7 +287,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					);
 				}
 			} else {
-				addIntegration(config, integration);
+				addIntegration(mod, integration);
 			}
 			logger.debug('add', `Astro config added integration ${integration.id}`);
 		}
@@ -305,7 +302,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 		try {
 			configResult = await updateAstroConfig({
 				configURL,
-				config: mod,
+				mod,
 				flags,
 				logger,
 				logAdapterInstructions: integrations.some(isAdapter),
@@ -421,16 +418,21 @@ Documentation: https://docs.astro.build/en/guides/integrations-guide/`;
 	return err;
 }
 
-function addIntegration(config: any, integration: IntegrationInfo) {
+function addIntegration(mod: ProxifiedModule<any>, integration: IntegrationInfo) {
+	const config = getDefaultExportOptions(mod);
 	const integrationId = toIdent(integration.id);
-	config.imports.$add({ imported: integrationId, from: integration.packageName });
+
+	mod.imports.$add({ imported: integrationId, from: integration.packageName });
+
 	config.integrations ??= [];
 	config.integrations.push(builders.functionCall(integrationId));
 }
 
-export function setAdapter(config: any, adapter: IntegrationInfo) {
+export function setAdapter(mod: ProxifiedModule<any>, adapter: IntegrationInfo) {
+	const config = getDefaultExportOptions(mod);
 	const adapterId = toIdent(adapter.id);
-	config.imports.$add({ imported: adapterId, from: adapter.packageName });
+
+	mod.imports.$add({ imported: adapterId, from: adapter.packageName });
 
 	if (!config.output) {
 		config.output = 'server';
@@ -455,19 +457,25 @@ const enum UpdateResult {
 
 async function updateAstroConfig({
 	configURL,
-	config,
+	mod,
 	flags,
 	logger,
 	logAdapterInstructions,
 }: {
 	configURL: URL;
-	config: ProxifiedModule<any>;
+	mod: ProxifiedModule<any>;
 	flags: Flags;
 	logger: Logger;
 	logAdapterInstructions: boolean;
 }): Promise<UpdateResult> {
 	const input = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
-	let output = generateCode(config, { format: { objectCurlySpacing: true } }).code;
+	let output = generateCode(mod, {
+		format: {
+			objectCurlySpacing: true,
+			useTabs: false,
+			tabWidth: 2,
+		},
+	}).code;
 	const comment = '// https://astro.build/config';
 	const defaultExport = 'export default defineConfig';
 	output = output.replace(`\n${comment}`, '');
