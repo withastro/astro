@@ -53,10 +53,10 @@ type RenderOptions = {
 	slots: Record<string, string>;
 };
 
-function badRequest() {
+function badRequest(reason: string) {
 	return new Response(null, {
 		status: 400,
-		statusText: 'Bad request',
+		statusText: 'Bad request: ' + reason,
 	});
 }
 
@@ -67,7 +67,7 @@ async function getRequestData(request: Request): Promise<Response | RenderOption
 			const params = url.searchParams;
 
 			if(!params.has('s') || !params.has('e') || !params.has('p')) {
-				return badRequest();
+				return badRequest('Missing required query parameters.');
 			}
 
 			const rawSlots = params.get('s')!;
@@ -78,7 +78,7 @@ async function getRequestData(request: Request): Promise<Response | RenderOption
 					slots: JSON.parse(rawSlots),
 				};
 			} catch {
-				return badRequest();
+				return badRequest('Invalid slots format.');
 			}
 		}
 		case 'POST': {
@@ -87,11 +87,12 @@ async function getRequestData(request: Request): Promise<Response | RenderOption
 			const data = JSON.parse(raw) as RenderOptions;
 			return data;
 			} catch {
-				return badRequest();
+				return badRequest('Request format is invalid.');
 			}
 		}
 		default: {
-			return badRequest();
+			// Method not allowed: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/405
+			return new Response(null, { status: 405 });
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ---
-'astro': minor
+'astro': patch
 ---
 
 Use GET requests with preloading for Server Islands
