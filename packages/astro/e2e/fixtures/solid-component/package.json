@@ -6,6 +6,6 @@
     "@astrojs/mdx": "workspace:*",
     "@astrojs/solid-js": "workspace:*",
     "astro": "workspace:*",
-    "solid-js": "^1.8.20"
+    "solid-js": "^1.8.21"
   }
 }
