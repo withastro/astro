@@ -83,7 +83,7 @@ test.describe('Server islands', () => {
 
 		test('Load content from the server', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/base/'));
-			let el = page.locator('#island');
+			let el = page.locator('#basics .island');
 
 			await expect(el, 'element rendered').toBeVisible();
 			await expect(el, 'should have content').toHaveText('I am an island');
