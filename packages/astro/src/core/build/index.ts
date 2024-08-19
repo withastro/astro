@@ -3,13 +3,6 @@ import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { blue, bold, green } from 'kleur/colors';
 import type * as vite from 'vite';
-import type {
-	AstroConfig,
-	AstroInlineConfig,
-	AstroSettings,
-	ManifestData,
-	RuntimeMode,
-} from '../../@types/astro.js';
 import { injectImageEndpoint } from '../../assets/endpoint/config.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
@@ -19,6 +12,8 @@ import {
 	runHookConfigDone,
 	runHookConfigSetup,
 } from '../../integrations/hooks.js';
+import type { AstroSettings, ManifestData } from '../../types/astro.js';
+import type { AstroConfig, AstroInlineConfig, RuntimeMode } from '../../types/public/config.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';

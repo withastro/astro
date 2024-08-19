@@ -1,5 +1,5 @@
 // BEFORE ADDING AN ERROR: Please look at the README.md in this folder for general guidelines on writing error messages
-// Additionally, this code, much like `@types/astro.ts`, is used to generate documentation, so make sure to pass
+// Additionally, this code, much like `types/public/config.ts`, is used to generate documentation, so make sure to pass
 // your changes by our wonderful docs team before merging!
 
 import type { ZodError } from 'zod';
@@ -1294,11 +1294,11 @@ export const RewriteWithBodyUsed = {
 /**
  * @docs
  * @description
- * An unknown error occured while reading or writing files to disk. It can be caused by many things, eg. missing permissions or a file not existing we attempt to read.
+ * An unknown error occurred while reading or writing files to disk. It can be caused by many things, eg. missing permissions or a file not existing we attempt to read.
  */
 export const UnknownFilesystemError = {
 	name: 'UnknownFilesystemError',
-	title: 'An unknown error occured while reading or writing files to disk.',
+	title: 'An unknown error occurred while reading or writing files to disk.',
 	hint: 'It can be caused by many things, eg. missing permissions or a file not existing we attempt to read. Check the error cause for more details.',
 } satisfies ErrorData;
 

@@ -1,8 +1,8 @@
 type ViteUserConfig = import('vite').UserConfig;
 type ViteUserConfigFn = import('vite').UserConfigFn;
-type AstroUserConfig = import('./dist/@types/astro.js').AstroUserConfig;
-type AstroInlineConfig = import('./dist/@types/astro.js').AstroInlineConfig;
-type ImageServiceConfig = import('./dist/@types/astro.js').ImageServiceConfig;
+type AstroUserConfig = import('./dist/types/public/config.js').AstroUserConfig;
+type AstroInlineConfig = import('./dist/types/public/config.js').AstroInlineConfig;
+type ImageServiceConfig = import('./dist/types/public/config.js').ImageServiceConfig;
 type SharpImageServiceConfig = import('./dist/assets/services/sharp.js').SharpImageServiceConfig;
 type EnvField = typeof import('./dist/env/config.js').envField;
 
@@ -42,4 +42,4 @@ export function passthroughImageService(): ImageServiceConfig;
 /**
  * Return a valid env field to use in this Astro config for `experimental.env.schema`.
  */
-export const envField: EnvField;
+export declare const envField: EnvField;

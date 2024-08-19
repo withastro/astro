@@ -3,13 +3,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as colors from 'kleur/colors';
 import { ZodError } from 'zod';
+import { eventConfigError, telemetry } from '../../events/index.js';
 import type {
 	AstroConfig,
 	AstroInlineConfig,
 	AstroInlineOnlyConfig,
 	AstroUserConfig,
-} from '../../@types/astro.js';
-import { eventConfigError, telemetry } from '../../events/index.js';
+} from '../../types/public/config.js';
 import { trackAstroConfigZodError } from '../errors/errors.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { formatConfigErrorMessage } from '../messages.js';

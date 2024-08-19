@@ -1,11 +1,11 @@
+import type { Logger } from '../core/logger/core.js';
+import type { AstroConfig } from '../types/public/config.js';
 import type {
+	AdapterSupportsKind,
+	AstroAdapterFeatureMap,
 	AstroAdapterFeatures,
 	AstroAssetsFeature,
-	AstroConfig,
-	AstroFeatureMap,
-	SupportsKind,
-} from '../@types/astro.js';
-import type { Logger } from '../core/logger/core.js';
+} from '../types/public/integrations.js';
 
 const STABLE = 'stable';
 const DEPRECATED = 'deprecated';
@@ -19,7 +19,7 @@ const UNSUPPORTED_ASSETS_FEATURE: AstroAssetsFeature = {
 };
 
 type ValidationResult = {
-	[Property in keyof AstroFeatureMap]: boolean;
+	[Property in keyof AstroAdapterFeatureMap]: boolean;
 };
 
 /**
@@ -31,7 +31,7 @@ type ValidationResult = {
  */
 export function validateSupportedFeatures(
 	adapterName: string,
-	featureMap: AstroFeatureMap,
+	featureMap: AstroAdapterFeatureMap,
 	config: AstroConfig,
 	adapterFeatures: AstroAdapterFeatures | undefined,
 	logger: Logger,
@@ -81,12 +81,6 @@ export function validateSupportedFeatures(
 				return config?.output === 'server' && !config?.site;
 			},
 		);
-		if (adapterFeatures?.functionPerRoute) {
-			logger.error(
-				'config',
-				'The Astro feature `i18nDomains` is incompatible with the Adapter feature `functionPerRoute`',
-			);
-		}
 	}
 
 	validationResult.envGetSecret = validateSupportKind(
@@ -101,7 +95,7 @@ export function validateSupportedFeatures(
 }
 
 function validateSupportKind(
-	supportKind: SupportsKind,
+	supportKind: AdapterSupportsKind,
 	adapterName: string,
 	logger: Logger,
 	featureName: string,

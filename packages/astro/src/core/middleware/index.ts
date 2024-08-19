@@ -1,10 +1,11 @@
-import type { APIContext, MiddlewareHandler, Params, RewritePayload } from '../../@types/astro.js';
 import { createCallAction, createGetActionResult } from '../../actions/utils.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../../i18n/utils.js';
+import type { MiddlewareHandler, Params, RewritePayload } from '../../types/public/common.js';
+import type { APIContext } from '../../types/public/context.js';
 import { ASTRO_VERSION, clientAddressSymbol, clientLocalsSymbol } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';

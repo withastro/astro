@@ -1,4 +1,5 @@
-import type { ComponentInstance, RouteData } from '../../@types/astro.js';
+import type { ComponentInstance } from '../../types/astro.js';
+import type { RouteData } from '../../types/public/internal.js';
 import type { Pipeline } from '../base-pipeline.js';
 export { Pipeline } from '../base-pipeline.js';
 export { getParams, getProps } from './params-and-props.js';

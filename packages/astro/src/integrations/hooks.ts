@@ -3,24 +3,22 @@ import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
 import type { InlineConfig, ViteDevServer } from 'vite';
-import type {
-	AstroAdapter,
-	AstroConfig,
-	AstroIntegration,
-	AstroRenderer,
-	AstroSettings,
-	ContentEntryType,
-	DataEntryType,
-	HookParameters,
-	RouteData,
-	RouteOptions,
-} from '../@types/astro.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/index.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../core/util.js';
+import type { AstroSettings } from '../types/astro.js';
+import type { AstroConfig } from '../types/public/config.js';
+import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
+import type {
+	AstroIntegration,
+	AstroRenderer,
+	HookParameters,
+	RouteOptions,
+} from '../types/public/integrations.js';
+import type { RouteData } from '../types/public/internal.js';
 import { validateSupportedFeatures } from './features-validation.js';
 
 async function withTakingALongTimeMsg<T>({
@@ -197,10 +195,6 @@ export async function runHookConfigSetup({
 				},
 				addWatchFile: (path) => {
 					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
-				},
-				addDevOverlayPlugin: (entrypoint) => {
-					// TODO add a deprecation warning in Astro 5.
-					hooks.addDevToolbarApp(entrypoint);
 				},
 				addDevToolbarApp: (entrypoint) => {
 					updatedSettings.devToolbarApps.push(entrypoint);
@@ -622,13 +616,5 @@ export async function runHookRouteSetup({
 			`The ${route.component} route's prerender option has been changed multiple times by integrations:\n` +
 				prerenderChangeLogs.map((log) => `- ${log.integrationName}: ${log.value}`).join('\n'),
 		);
-	}
-}
-
-export function isFunctionPerRouteEnabled(adapter: AstroAdapter | undefined): boolean {
-	if (adapter?.adapterFeatures?.functionPerRoute === true) {
-		return true;
-	} else {
-		return false;
 	}
 }

@@ -1,4 +1,5 @@
-import type { ComponentInstance, ManifestData, SSRManifest } from '../../@types/astro.js';
+import type { ComponentInstance, ManifestData } from '../../types/astro.js';
+import type { SSRManifest } from '../app/types.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
 import {
 	SERVER_ISLAND_COMPONENT,

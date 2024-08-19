@@ -1,7 +1,8 @@
 import type * as vite from 'vite';
-import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
+import type { AstroSettings } from '../types/astro.js';
+import type { AstroConfig } from '../types/public/config.js';
 
 const virtualModuleId = 'astro:i18n';
 

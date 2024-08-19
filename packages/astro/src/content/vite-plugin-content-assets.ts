@@ -1,7 +1,6 @@
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
-import type { AstroSettings, SSRElement } from '../@types/astro.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import type { BuildInternals } from '../core/build/internal.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
@@ -9,6 +8,8 @@ import type { StaticBuildOptions } from '../core/build/types.js';
 import type { ModuleLoader } from '../core/module-loader/loader.js';
 import { createViteLoader } from '../core/module-loader/vite.js';
 import { joinPaths, prependForwardSlash } from '../core/path.js';
+import type { AstroSettings } from '../types/astro.js';
+import type { SSRElement } from '../types/public/internal.js';
 import { getStylesForURL } from '../vite-plugin-astro-server/css.js';
 import { getScriptsForURL } from '../vite-plugin-astro-server/scripts.js';
 import {

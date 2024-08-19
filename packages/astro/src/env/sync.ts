@@ -1,5 +1,5 @@
 import fsMod from 'node:fs';
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings } from '../types/astro.js';
 import { TYPES_TEMPLATE_URL } from './constants.js';
 import { getEnvFieldType } from './validators.js';
 

@@ -38,10 +38,10 @@
     "alpinejs": "^3.0.0"
   },
   "devDependencies": {
-    "@playwright/test": "1.46.0",
+    "@playwright/test": "1.46.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "vite": "^5.4.0"
+    "vite": "^5.4.1"
   },
   "publishConfig": {
     "provenance": true

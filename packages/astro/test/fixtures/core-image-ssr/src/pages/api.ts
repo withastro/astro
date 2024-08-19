@@ -1,4 +1,4 @@
-import type { APIRoute } from "../../../../../src/@types/astro";
+import type { APIRoute } from "astro"
 
 export const GET = (async ({ params, request }) => {
 	const url = new URL(request.url);
