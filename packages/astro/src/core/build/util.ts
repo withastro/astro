@@ -24,7 +24,6 @@ export function shouldAppendForwardSlash(
 				case 'directory':
 					return true;
 				case 'preserve':
-				case 'file':
 					return false;
 			}
 		}

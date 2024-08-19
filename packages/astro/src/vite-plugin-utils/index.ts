@@ -22,9 +22,6 @@ export function getFileInfo(id: string, config: AstroConfig) {
 	if (fileUrl && config.trailingSlash === 'always') {
 		fileUrl = appendForwardSlash(fileUrl);
 	}
-	if (fileUrl && config.build.format === 'file') {
-		fileUrl = appendExtension(fileUrl, 'html');
-	}
 	return { fileId, fileUrl };
 }
 

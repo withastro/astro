@@ -37,10 +37,6 @@ export function getOutFolder(
 					}
 					return new URL('.' + appendForwardSlash(pathname), outRoot);
 				}
-				case 'file': {
-					const d = pathname === '' ? pathname : npath.dirname(pathname);
-					return new URL('.' + appendForwardSlash(d), outRoot);
-				}
 				case 'preserve': {
 					let dir;
 					// If the pathname is '' then this is the root index.html
@@ -76,10 +72,6 @@ export function getOutFile(
 						return new URL('./' + (baseName || 'index') + '.html', outFolder);
 					}
 					return new URL('./index.html', outFolder);
-				}
-				case 'file': {
-					const baseName = npath.basename(pathname);
-					return new URL('./' + (baseName || 'index') + '.html', outFolder);
 				}
 				case 'preserve': {
 					let baseName = npath.basename(pathname);
