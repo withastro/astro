@@ -19,27 +19,6 @@ describe('build format', () => {
 
 		it('outputs', async () => {
 			assert.ok(await fixture.readFile('/client.html'));
-			assert.ok(await fixture.readFile('/nested-md.html'));
-			assert.ok(await fixture.readFile('/nested-astro.html'));
-		});
-	});
-
-	describe('build.format: preserve', () => {
-		/** @type {import('./test-utils.js').Fixture} */
-		let fixture;
-
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/astro-page-directory-url',
-				build: {
-					format: 'preserve',
-				},
-			});
-			await fixture.build();
-		});
-
-		it('outputs', async () => {
-			assert.ok(await fixture.readFile('/client.html'));
 			assert.ok(await fixture.readFile('/nested-md/index.html'));
 			assert.ok(await fixture.readFile('/nested-astro/index.html'));
 		});

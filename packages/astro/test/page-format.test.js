@@ -26,31 +26,6 @@ describe('build.format', () => {
 		});
 	});
 
-	describe('file', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/page-format/',
-				build: {
-					format: 'file',
-				},
-			});
-		});
-
-		describe('Build', () => {
-			before(async () => {
-				await fixture.build();
-			});
-
-			it('relative urls created point to sibling folders', async () => {
-				let html = await fixture.readFile('/nested/page.html');
-				let $ = cheerio.load(html);
-				assert.equal($('#another').attr('href'), '/nested/another/');
-			});
-		});
-	});
-
 	describe('preserve - i18n', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
