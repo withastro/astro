@@ -3,7 +3,7 @@ import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings, RefreshContentOptions } from '../@types/astro.js';
 import { AstroUserError } from '../core/errors/errors.js';
 import type { Logger } from '../core/logger/core.js';
 import {
@@ -44,12 +44,6 @@ export class ContentLayer {
 		this.#watcher = watcher;
 	}
 
-	/**
-	 * Whether the content layer is currently loading content
-	 */
-	get loading() {
-		return this.#loading;
-	}
 
 	/**
 	 * Watch for changes to the content config and trigger a sync when it changes.
@@ -71,22 +65,6 @@ export class ContentLayer {
 		this.#unsubscribe?.();
 	}
 
-	/**
-	 * Run the `load()` method of each collection's loader, which will load the data and save it in the data store.
-	 * The loader itself is responsible for deciding whether this will clear and reload the full collection, or
-	 * perform an incremental update. After the data is loaded, the data store is written to disk.
-	 */
-	async sync() {
-		if (this.#loading) {
-			return;
-		}
-		this.#loading = true;
-		try {
-			await this.#doSync();
-		} finally {
-			this.#loading = false;
-		}
-	}
 
 	async #getGenerateDigest() {
 		if (this.#generateDigest) {
@@ -108,10 +86,12 @@ export class ContentLayer {
 		collectionName,
 		loaderName = 'content',
 		parseData,
+		refreshContextData,
 	}: {
 		collectionName: string;
 		loaderName: string;
 		parseData: LoaderContext['parseData'];
+		refreshContextData?: Record<string, unknown>;
 	}): Promise<LoaderContext> {
 		return {
 			collection: collectionName,
@@ -122,10 +102,17 @@ export class ContentLayer {
 			parseData,
 			generateDigest: await this.#getGenerateDigest(),
 			watcher: this.#watcher,
+			refreshContextData
 		};
 	}
 
-	async #doSync() {
+	/**
+	 * Run the `load()` method of each collection's loader, which will load the data and save it in the data store.
+	 * The loader itself is responsible for deciding whether this will clear and reload the full collection, or
+	 * perform an incremental update. After the data is loaded, the data store is written to disk.
+	 */
+	async sync(options?: RefreshContentOptions) {
+		
 		const contentConfig = globalContentConfigObserver.get();
 		const logger = this.#logger.forkIntegrationLogger('content');
 		if (contentConfig?.status !== 'loaded') {
@@ -171,6 +158,14 @@ export class ContentLayer {
 					}
 				}
 
+				// If loaders are specified, only sync the specified loaders
+				if (
+					options?.loaders &&
+					(typeof collection.loader !== 'object' || !options.loaders.includes(collection.loader.name))
+				) {
+					return;
+				}
+
 				const collectionWithResolvedSchema = { ...collection, schema };
 
 				const parseData: LoaderContext['parseData'] = async ({ id, data, filePath = '' }) => {
@@ -204,6 +199,7 @@ export class ContentLayer {
 					collectionName: name,
 					parseData,
 					loaderName: collection.loader.name,
+					refreshContextData: options?.context
 				});
 
 				if (typeof collection.loader === 'function') {
