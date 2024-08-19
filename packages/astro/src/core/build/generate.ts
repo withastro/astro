@@ -99,7 +99,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 				}
 
 				const ssrEntryPage = await pipeline.retrieveSsrEntry(pageData.route, filePath);
-				
+
 				const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
 				await generatePage(pageData, ssrEntry, builtPaths, pipeline);
 			}

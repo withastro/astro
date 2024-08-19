@@ -199,9 +199,7 @@ export class BuildPipeline extends Pipeline {
 
 		for (const [virtualModulePageName, filePath] of this.internals.entrySpecifierToBundleMap) {
 			// virtual pages are emitted with the 'plugin-pages' prefix
-			if (
-				virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID)
-			) {
+			if (virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
 				let pageDatas: PageBuildData[] = [];
 				pageDatas.push(
 					...getPagesFromVirtualModulePageName(

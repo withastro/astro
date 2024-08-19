@@ -17,8 +17,6 @@ describe('Serverless with dynamic routes', () => {
 
 	it('build successful', async () => {
 		assert.ok(await fixture.readFile('../.vercel/output/static/index.html'));
-		assert.ok(
-			await fixture.readFile('../.vercel/output/functions/_render.func/.vc-config.json'),
-		);
+		assert.ok(await fixture.readFile('../.vercel/output/functions/_render.func/.vc-config.json'));
 	});
 });
