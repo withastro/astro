@@ -6,6 +6,6 @@
     "@astrojs/preact": "workspace:*",
     "@preact/signals": "1.3.0",
     "astro": "workspace:*",
-    "preact": "^10.23.1"
+    "preact": "^10.23.2"
   }
 }
