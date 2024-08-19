@@ -2,7 +2,7 @@
 'astro': major
 ---
 
-Removes internal JSX handling as they are now handled by `@astrojs/mdx` directly. The below exports are also now removed:
+Removes internal JSX handling and moves the responsibility to the `@astrojs/mdx` package directly. The following exports are also now removed:
 
 - `astro/jsx/babel.js`
 - `astro/jsx/component.js`
@@ -11,4 +11,4 @@ Removes internal JSX handling as they are now handled by `@astrojs/mdx` directly
 - `astro/jsx/server.js`
 - `astro/jsx/transform-options.js`
 
-Make sure to upgrade `@astrojs/mdx` to latest so that it doesn't rely on these entrypoints.
+If your project includes `.mdx` files, you must upgrade `@astrojs/mdx` to the latest version so that it doesn't rely on these entrypoints to handle your JSX.
