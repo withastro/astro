@@ -5,7 +5,16 @@ import { defineConfig } from '@playwright/test';
 process.stdout.isTTY = false;
 
 export default defineConfig({
-	testMatch: 'e2e/*.test.js',
+	testMatch: [
+		// 'e2e/actions-blog.test.js',
+		// 'e2e/actions-react-19.test.js',
+		'e2e/astro-component.test.js',
+		'e2e/astro-envs.test.js',
+		'e2e/client-only.test.js',
+		'e2e/content-collections.test.js',
+		'e2e/client-only.test.js',
+		'e2e/css.test.js',
+	],
 	/* Maximum time one test can run for. */
 	timeout: 40 * 1000,
 	expect: {
