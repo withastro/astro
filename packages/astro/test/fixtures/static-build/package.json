@@ -6,6 +6,6 @@
     "@astrojs/preact": "workspace:*",
     "@test/static-build-pkg": "workspace:*",
     "astro": "workspace:*",
-    "preact": "^10.23.1"
+    "preact": "^10.23.2"
   }
 }

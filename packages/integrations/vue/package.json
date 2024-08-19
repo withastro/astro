@@ -45,17 +45,17 @@
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^5.1.2",
-    "@vitejs/plugin-vue-jsx": "^4.0.0",
-    "@vue/compiler-sfc": "^3.4.37",
-    "vite-plugin-vue-devtools": "^7.3.7"
+    "@vitejs/plugin-vue-jsx": "^4.0.1",
+    "@vue/compiler-sfc": "^3.4.38",
+    "vite-plugin-vue-devtools": "^7.3.8"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
     "linkedom": "^0.18.4",
-    "vite": "^5.4.0",
-    "vue": "^3.4.37"
+    "vite": "^5.4.1",
+    "vue": "^3.4.38"
   },
   "peerDependencies": {
     "astro": "^4.0.0",
