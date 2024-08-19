@@ -2275,7 +2275,7 @@ export interface AstroUserConfig {
 		 * export const collections = { blog, dogs };
 		 * ```
 		 *
-	   * :::note
+		 * :::note
 		 * Loaders will not automatically [exclude files prefaced with an `_`](/en/guides/routing/#excluding-pages). Use a regular expression such as `pattern: '**\/[^_]*.md` in your loader to ignore these files.
 		 * :::
 		 *
