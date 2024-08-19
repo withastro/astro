@@ -52,7 +52,7 @@
     "fast-glob": "^3.3.2",
     "strip-ansi": "^7.1.0",
     "typescript": "^5.5.2",
-    "vite": "^4.5.3"
+    "vite": "^5.4.1"
   },
   "astro": {
     "external": true
