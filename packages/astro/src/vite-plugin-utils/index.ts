@@ -1,7 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import ancestor from 'common-ancestor-path';
 import {
-	appendExtension,
 	appendForwardSlash,
 	removeLeadingForwardSlashWindows,
 } from '../core/path.js';
