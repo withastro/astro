@@ -6,6 +6,6 @@
     "@astrojs/vue": "workspace:*",
     "astro": "workspace:*",
     "vite-svg-loader": "5.1.0",
-    "vue": "^3.4.37"
+    "vue": "^3.4.38"
   }
 }
