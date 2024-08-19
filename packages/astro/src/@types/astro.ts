@@ -2276,7 +2276,7 @@ export interface AstroUserConfig {
 		 * ```
 		 *
 	   * :::note
-		 * Loaders will not automatically [exclude files prefaced with an `_`](/en/guides/routing/#excluding-pages). Use a regular expression such as `pattern: '**/[^_]*.md'` in your loader to to ignore these files.
+		 * Loaders will not automatically [exclude files prefaced with an `_`](/en/guides/routing/#excluding-pages). Use a regular expression such as `pattern: '**/[^_]*.md' in your loader to to ignore these files.
 		 * :::
 		 *
 		 * #### Querying and rendering with the Content Layer API
