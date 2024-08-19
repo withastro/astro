@@ -115,7 +115,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 					// Only include the code relevant to `astro:assets` if there's images in the file
 					imagePaths.length > 0
 						? getMarkdownCodeForImages(imagePaths, html)
-						: `const html = ${JSON.stringify(html)};`
+						: `const html = () => ${JSON.stringify(html)};`
 				}
 
 				export const frontmatter = ${JSON.stringify(frontmatter)};
@@ -124,8 +124,8 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				export function rawContent() {
 					return ${JSON.stringify(raw.content)};
 				}
-				export function compiledContent() {
-					return html;
+				export async function compiledContent() {
+					return await html;
 				}
 				export function getHeadings() {
 					return ${JSON.stringify(headings)};
