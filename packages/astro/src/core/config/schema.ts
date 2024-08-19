@@ -150,7 +150,7 @@ export const AstroConfigSchema = z.object({
 	build: z
 		.object({
 			format: z
-				.union([z.literal('file'), z.literal('directory'), z.literal('preserve')])
+				.union([z.literal('directory'), z.literal('preserve')])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.format),
 			client: z
@@ -583,7 +583,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 		build: z
 			.object({
 				format: z
-					.union([z.literal('file'), z.literal('directory'), z.literal('preserve')])
+					.union([z.literal('directory'), z.literal('preserve')])
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.format),
 				client: z

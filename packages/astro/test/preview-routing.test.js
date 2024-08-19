@@ -221,7 +221,7 @@ describe('Preview Routing', () => {
 		});
 	});
 
-	describe('build format: file', () => {
+	describe('build format: preserve', () => {
 		describe('Subpath without trailing slash and trailingSlash: never', () => {
 			/** @type {import('./test-utils').Fixture} */
 			let fixture;
@@ -234,7 +234,7 @@ describe('Preview Routing', () => {
 					base: '/blog',
 					outDir: './dist-4003',
 					build: {
-						format: 'file',
+						format: 'preserve',
 					},
 					trailingSlash: 'never',
 					server: {
@@ -294,7 +294,7 @@ describe('Preview Routing', () => {
 					base: '/blog',
 					outDir: './dist-4004',
 					build: {
-						format: 'file',
+						format: 'preserve',
 					},
 					trailingSlash: 'always',
 					server: {
@@ -357,7 +357,7 @@ describe('Preview Routing', () => {
 					base: '/blog',
 					outDir: './dist-4005',
 					build: {
-						format: 'file',
+						format: 'preserve',
 					},
 					trailingSlash: 'ignore',
 					server: {
@@ -420,7 +420,7 @@ describe('Preview Routing', () => {
 					base: '/blog',
 					outDir: './dist-4006',
 					build: {
-						format: 'file',
+						format: 'preserve',
 					},
 					trailingSlash: 'ignore',
 					server: {
@@ -473,7 +473,7 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					root: './fixtures/custom-404-html/',
 					build: {
-						format: 'file',
+						format: 'preserve',
 					},
 					server: {
 						port: 4008,

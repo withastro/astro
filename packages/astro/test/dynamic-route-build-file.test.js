@@ -3,7 +3,7 @@ import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-describe('build.format=file with dynamic routes', () => {
+describe('build.format=preserve with dynamic routes', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
@@ -11,7 +11,7 @@ describe('build.format=file with dynamic routes', () => {
 		fixture = await loadFixture({
 			root: './fixtures/dynamic-route-build-file',
 			build: {
-				format: 'file',
+				format: 'perserve',
 			},
 		});
 		await fixture.build();

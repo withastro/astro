@@ -58,14 +58,14 @@ describe('getLocaleRelativeUrl', () => {
 			'/blog/es/',
 		);
 
-		// file format
+		// preserve format
 		assert.equal(
 			getLocaleRelativeUrl({
 				locale: 'en',
 				base: '/blog/',
 				...config.experimental.i18n,
 				trailingSlash: 'always',
-				format: 'file',
+				format: 'preserve',
 			}),
 			'/blog/',
 		);
@@ -75,7 +75,7 @@ describe('getLocaleRelativeUrl', () => {
 				base: '/blog/',
 				...config.experimental.i18n,
 				trailingSlash: 'always',
-				format: 'file',
+				format: 'preserve',
 			}),
 			'/blog/es/',
 		);
@@ -86,7 +86,7 @@ describe('getLocaleRelativeUrl', () => {
 				base: '/blog/',
 				...config.experimental.i18n,
 				trailingSlash: 'always',
-				format: 'file',
+				format: 'preserve',
 			}),
 			'/blog/italiano/',
 		);
@@ -174,7 +174,7 @@ describe('getLocaleRelativeUrl', () => {
 				base: '/blog/',
 				...config.i18n,
 				trailingSlash: 'always',
-				format: 'file',
+				format: 'preserve',
 			}),
 			'/blog/italiano/',
 		);
@@ -197,7 +197,7 @@ describe('getLocaleRelativeUrl', () => {
 				base: '/blog',
 				...config.i18n,
 				trailingSlash: 'never',
-				format: 'file',
+				format: 'preserve',
 			}),
 			'/blog',
 		);
@@ -207,7 +207,7 @@ describe('getLocaleRelativeUrl', () => {
 				base: '/blog/',
 				...config.i18n,
 				trailingSlash: 'always',
-				format: 'file',
+				format: 'preserve',
 			}),
 			'/blog/es/',
 		);
@@ -219,7 +219,7 @@ describe('getLocaleRelativeUrl', () => {
 				base: '/blog',
 				...config.i18n,
 				trailingSlash: 'ignore',
-				format: 'file',
+				format: 'preserve',
 			}),
 			'/blog',
 		);
@@ -316,14 +316,14 @@ describe('getLocaleRelativeUrl', () => {
 			'/blog/es/',
 		);
 
-		// file format
+		// preserve format
 		assert.equal(
 			getLocaleRelativeUrl({
 				locale: 'en',
 				base: '/blog/',
 				...config.i18n,
 				trailingSlash: 'always',
-				format: 'file',
+				format: 'preserve',
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
 			'/blog/en/',
@@ -334,7 +334,7 @@ describe('getLocaleRelativeUrl', () => {
 				base: '/blog/',
 				...config.i18n,
 				trailingSlash: 'always',
-				format: 'file',
+				format: 'preserve',
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
 			'/blog/es/',
@@ -382,14 +382,14 @@ describe('getLocaleRelativeUrl', () => {
 			'/blog/es/',
 		);
 
-		// file format
+		// preserve format
 		assert.equal(
 			getLocaleRelativeUrl({
 				locale: 'en',
 				base: '/blog/',
 				...config.i18n,
 				trailingSlash: 'always',
-				format: 'file',
+				format: 'preserve',
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
 			'/blog/en/',
@@ -400,7 +400,7 @@ describe('getLocaleRelativeUrl', () => {
 				base: '/blog/',
 				...config.i18n,
 				trailingSlash: 'always',
-				format: 'file',
+				format: 'preserve',
 				strategy: toRoutingStrategy(config.i18n.routing, {}),
 			}),
 			'/blog/es/',
@@ -477,7 +477,7 @@ describe('getLocaleRelativeUrlList', () => {
 		);
 	});
 
-	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: always]', () => {
+	it('should retrieve the correct list of base URL with locales [format: preserve, trailingSlash: always]', () => {
 		/**
 		 *
 		 * @type {import("../../../dist/@types").AstroUserConfig}
@@ -497,13 +497,13 @@ describe('getLocaleRelativeUrlList', () => {
 				base: '/blog/',
 				...config.experimental.i18n,
 				trailingSlash: 'always',
-				format: 'file',
+				format: 'preserve',
 			}),
 			['/blog/', '/blog/en-us/', '/blog/es/'],
 		);
 	});
 
-	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: never]', () => {
+	it('should retrieve the correct list of base URL with locales [format: preserve, trailingSlash: never]', () => {
 		/**
 		 *
 		 * @type {import("../../../dist/@types").AstroUserConfig}
@@ -523,13 +523,13 @@ describe('getLocaleRelativeUrlList', () => {
 				base: '/blog',
 				...config.experimental.i18n,
 				trailingSlash: 'never',
-				format: 'file',
+				format: 'preserve',
 			}),
 			['/blog', '/blog/en-us', '/blog/es'],
 		);
 	});
 
-	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: ignore]', () => {
+	it('should retrieve the correct list of base URL with locales [format: preserve, trailingSlash: ignore]', () => {
 		/**
 		 *
 		 * @type {import("../../../dist/@types").AstroUserConfig}
@@ -549,7 +549,7 @@ describe('getLocaleRelativeUrlList', () => {
 				base: '/blog',
 				...config.experimental.i18n,
 				trailingSlash: 'ignore',
-				format: 'file',
+				format: 'preserve',
 			}),
 			['/blog', '/blog/en-us', '/blog/es'],
 		);
@@ -720,14 +720,14 @@ describe('getLocaleAbsoluteUrl', () => {
 				}),
 			);
 
-			// file format
+			// preserve format
 			assert.equal(
 				getLocaleAbsoluteUrl({
 					locale: 'en',
 					base: '/blog/',
 					...config.i18n,
 					trailingSlash: 'always',
-					format: 'file',
+					format: 'preserve',
 					site: 'https://example.com',
 				}),
 				'https://example.com/blog/',
@@ -738,7 +738,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog/',
 					...config.i18n,
 					trailingSlash: 'always',
-					format: 'file',
+					format: 'preserve',
 					site: 'https://example.com',
 				}),
 				'https://example.com/blog/es/',
@@ -750,7 +750,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog/',
 					...config.i18n,
 					trailingSlash: 'always',
-					format: 'file',
+					format: 'preserve',
 					site: 'https://example.com',
 				}),
 				'https://example.com/blog/italiano/',
@@ -762,7 +762,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog/',
 					...config.i18n,
 					trailingSlash: 'always',
-					format: 'file',
+					format: 'preserve',
 					site: 'https://example.com',
 					isBuild: true,
 				}),
@@ -776,7 +776,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					prependWith: 'some-name',
 					...config.i18n,
 					trailingSlash: 'always',
-					format: 'file',
+					format: 'preserve',
 					site: 'https://example.com',
 					path: 'first-post',
 					isBuild: true,
@@ -792,7 +792,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					prependWith: 'some-name',
 					...config.i18n,
 					trailingSlash: 'always',
-					format: 'file',
+					format: 'preserve',
 					site: 'https://example.com',
 					path: 'first-post',
 					isBuild: true,
@@ -848,14 +848,14 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/es/',
 			);
 
-			// file format
+			// preserve format
 			assert.equal(
 				getLocaleAbsoluteUrl({
 					locale: 'en',
 					base: '/blog/',
 					...config.i18n,
 					trailingSlash: 'always',
-					format: 'file',
+					format: 'preserve',
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -867,7 +867,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog/',
 					...config.i18n,
 					trailingSlash: 'always',
-					format: 'file',
+					format: 'preserve',
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -880,7 +880,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog/',
 					...config.i18n,
 					trailingSlash: 'always',
-					format: 'file',
+					format: 'preserve',
 					site: 'https://example.com',
 					isBuild: true,
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
@@ -895,7 +895,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					prependWith: 'some-name',
 					...config.i18n,
 					trailingSlash: 'always',
-					format: 'file',
+					format: 'preserve',
 					site: 'https://example.com',
 					path: 'first-post',
 					isBuild: true,
@@ -998,14 +998,14 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/en/',
 			);
 
-			// directory file
+			// format preserve
 			assert.equal(
 				getLocaleAbsoluteUrl({
 					locale: 'en',
 					base: '/blog',
 					...config.i18n,
 					trailingSlash: 'never',
-					format: 'file',
+					format: 'preserve',
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -1017,7 +1017,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog/',
 					...config.i18n,
 					trailingSlash: 'always',
-					format: 'file',
+					format: 'preserve',
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -1031,7 +1031,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog',
 					...config.i18n,
 					trailingSlash: 'ignore',
-					format: 'file',
+					format: 'preserve',
 					site: 'https://example.com',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
@@ -1132,7 +1132,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/es/',
 			);
 
-			// file format
+			// preserve format
 			assert.equal(
 				getLocaleAbsoluteUrl({
 					locale: 'en',
@@ -1140,7 +1140,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					...config.i18n,
 					site: 'https://example.com',
 					trailingSlash: 'always',
-					format: 'file',
+					format: 'preserve',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
 				'https://example.com/blog/en/',
@@ -1152,7 +1152,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					...config.i18n,
 					site: 'https://example.com',
 					trailingSlash: 'always',
-					format: 'file',
+					format: 'preserve',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
 				'https://example.com/blog/es/',
@@ -1202,7 +1202,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/es/',
 			);
 
-			// file format
+			// preserve format
 			assert.equal(
 				getLocaleAbsoluteUrl({
 					locale: 'en',
@@ -1210,7 +1210,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					...config.i18n,
 					site: 'https://example.com',
 					trailingSlash: 'always',
-					format: 'file',
+					format: 'preserve',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
 				'https://example.com/blog/en/',
@@ -1222,7 +1222,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					...config.i18n,
 					site: 'https://example.com',
 					trailingSlash: 'always',
-					format: 'file',
+					format: 'preserve',
 					strategy: toRoutingStrategy(config.i18n.routing, {}),
 				}),
 				'https://example.com/blog/es/',
@@ -1342,7 +1342,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog',
 					...config.experimental.i18n,
 					trailingSlash: 'never',
-					format: 'file',
+					format: 'preserve',
 					site: 'https://example.com',
 				}),
 				'https://example.com/blog',
@@ -1353,7 +1353,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog/',
 					...config.experimental.i18n,
 					trailingSlash: 'always',
-					format: 'file',
+					format: 'preserve',
 					site: 'https://example.com',
 				}),
 				'https://example.com/blog/es/',
@@ -1366,7 +1366,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					base: '/blog',
 					...config.experimental.i18n,
 					trailingSlash: 'ignore',
-					format: 'file',
+					format: 'preserve',
 					site: 'https://example.com',
 				}),
 				'https://example.com/blog',
@@ -1582,7 +1582,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 		);
 	});
 
-	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: always]', () => {
+	it('should retrieve the correct list of base URL with locales [format: preserve, trailingSlash: always]', () => {
 		/**
 		 *
 		 * @type {import("../../../dist/@types").AstroUserConfig}
@@ -1608,7 +1608,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				base: '/blog/',
 				...config.i18n,
 				trailingSlash: 'always',
-				format: 'file',
+				format: 'preserve',
 				site: 'https://example.com',
 			}),
 			[
@@ -1620,7 +1620,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 		);
 	});
 
-	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: never]', () => {
+	it('should retrieve the correct list of base URL with locales [format: preserve, trailingSlash: never]', () => {
 		/**
 		 *
 		 * @type {import("../../../dist/@types").AstroUserConfig}
@@ -1640,14 +1640,14 @@ describe('getLocaleAbsoluteUrlList', () => {
 				base: '/blog',
 				...config.experimental.i18n,
 				trailingSlash: 'never',
-				format: 'file',
+				format: 'preserve',
 				site: 'https://example.com',
 			}),
 			['https://example.com/blog', 'https://example.com/blog/en-us', 'https://example.com/blog/es'],
 		);
 	});
 
-	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: ignore]', () => {
+	it('should retrieve the correct list of base URL with locales [format: preserve, trailingSlash: ignore]', () => {
 		/**
 		 *
 		 * @type {import("../../../dist/@types").AstroUserConfig}
@@ -1667,7 +1667,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				base: '/blog',
 				...config.experimental.i18n,
 				trailingSlash: 'ignore',
-				format: 'file',
+				format: 'preserve',
 				site: 'https://example.com',
 			}),
 			['https://example.com/blog', 'https://example.com/blog/en-us', 'https://example.com/blog/es'],

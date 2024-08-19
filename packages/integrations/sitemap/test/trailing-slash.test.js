@@ -29,13 +29,13 @@ describe('Trailing slash', () => {
 			});
 		});
 
-		describe('build.format: file', () => {
+		describe('build.format: preserve', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					root: './fixtures/trailing-slash/',
 					trailingSlash: 'ignore',
 					build: {
-						format: 'file',
+						format: 'preserve',
 					},
 				});
 				await fixture.build();

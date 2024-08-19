@@ -3,7 +3,7 @@ import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('build format', () => {
-	describe('build.format: file', () => {
+	describe('build.format: preserve', () => {
 		/** @type {import('./test-utils.js').Fixture} */
 		let fixture;
 
@@ -11,7 +11,7 @@ describe('build format', () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-page-directory-url',
 				build: {
-					format: 'file',
+					format: 'preserve',
 				},
 			});
 			await fixture.build();

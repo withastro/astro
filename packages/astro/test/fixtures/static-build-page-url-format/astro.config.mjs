@@ -5,6 +5,6 @@ export default defineConfig({
 	site: 'http://example.com/',
 	base: '/subpath',
 	build: {
-		format: 'file',
+		format: 'preserve',
 	},
 });

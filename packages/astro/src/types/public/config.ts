@@ -526,19 +526,18 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name build.format
-		 * @typeraw {('file' | 'directory' | 'preserve')}
+		 * @typeraw {('directory' | 'preserve')}
 		 * @default `'directory'`
 		 * @description
 		 * Control the output file format of each page. This value may be set by an adapter for you.
-		 *   - `'file'`: Astro will generate an HTML file named for each page route. (e.g. `src/pages/about.astro` and `src/pages/about/index.astro` both build the file `/about.html`)
 		 *   - `'directory'`: Astro will generate a directory with a nested `index.html` file for each page. (e.g. `src/pages/about.astro` and `src/pages/about/index.astro` both build the file `/about/index.html`)
 		 *   - `'preserve'`: Astro will generate HTML files exactly as they appear in your source folder. (e.g. `src/pages/about.astro` builds `/about.html` and `src/pages/about/index.astro` builds the file `/about/index.html`)
 		 *
 		 * ```js
 		 * {
 		 *   build: {
-		 *     // Example: Generate `page.html` instead of `page/index.html` during build.
-		 *     format: 'file'
+		 *     // Example: Generate `page.astro` as `page.html` instead of `page/index.html` during build.
+		 *     format: 'preserve'
 		 *   }
 		 * }
 		 * ```
@@ -548,15 +547,15 @@ export interface AstroUserConfig {
 		 * #### Effect on Astro.url
 		 * Setting `build.format` controls what `Astro.url` is set to during the build. When it is:
 		 * - `directory` - The `Astro.url.pathname` will include a trailing slash to mimic folder behavior; ie `/foo/`.
-		 * - `file` - The `Astro.url.pathname` will include `.html`; ie `/foo.html`.
+		 * - `perserve` - The `Astro.url.pathname` will include `.html`; ie `/foo.html`.
 		 *
 		 * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
 		 *
 		 * To prevent inconsistencies with trailing slash behaviour in dev, you can restrict the [`trailingSlash` option](#trailingslash) to `'always'` or `'never'` depending on your build format:
 		 * - `directory` - Set `trailingSlash: 'always'`
-		 * - `file` - Set `trailingSlash: 'never'`
+		 * - `preserve` - Set `trailingSlash: 'never'`
 		 */
-		format?: 'file' | 'directory' | 'preserve';
+		format?: 'directory' | 'preserve';
 		/**
 		 * @docs
 		 * @name build.client

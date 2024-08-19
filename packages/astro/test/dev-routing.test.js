@@ -295,7 +295,7 @@ describe('Development Routing', () => {
 		});
 	});
 
-	describe('file format routing', () => {
+	describe('preserve format routing', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 		/** @type {import('./test-utils').DevServer} */
@@ -304,7 +304,7 @@ describe('Development Routing', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				build: {
-					format: 'file',
+					format: 'preserve',
 				},
 				root: './fixtures/without-site-config/',
 				site: 'http://example.com/',

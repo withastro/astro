@@ -10,7 +10,7 @@ describe('Events', () => {
 			const config = {
 				srcDir: 1,
 				build: {
-					format: 'file',
+					format: 'preserve',
 				},
 			};
 			const [{ payload }] = events.eventCliSession(
@@ -19,7 +19,7 @@ describe('Events', () => {
 				},
 				config,
 			);
-			assert.equal(payload.config.build.format, 'file');
+			assert.equal(payload.config.build.format, 'preserve');
 		});
 
 		it('string literal "markdown.syntaxHighlight" is included', () => {
