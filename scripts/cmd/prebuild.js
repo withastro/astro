@@ -1,9 +1,9 @@
-import esbuild from 'esbuild';
-import { red } from 'kleur/colors';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import glob from 'tiny-glob';
+import esbuild from 'esbuild';
+import glob from 'fast-glob';
+import { red } from 'kleur/colors';
 
 function escapeTemplateLiterals(str) {
 	return str.replace(/\`/g, '\\`').replace(/\$\{/g, '\\${');
@@ -25,8 +25,8 @@ export default async function prebuild(...args) {
 	let patterns = args;
 	let entryPoints = [].concat(
 		...(await Promise.all(
-			patterns.map((pattern) => glob(pattern, { filesOnly: true, absolute: true }))
-		))
+			patterns.map((pattern) => glob(pattern, { onlyFiles: true, absolute: true })),
+		)),
 	);
 
 	function getPrebuildURL(entryfilepath, dev = false) {
@@ -49,14 +49,14 @@ export default async function prebuild(...args) {
 			const newTscode = tscode.replace(
 				/export default (.*?)Directive/,
 				(_, name) =>
-					`(self.Astro || (self.Astro = {})).${name} = ${name}Directive;window.dispatchEvent(new Event('astro:${name}'))`
+					`(self.Astro || (self.Astro = {})).${name} = ${name}Directive;window.dispatchEvent(new Event('astro:${name}'))`,
 			);
 			if (newTscode === tscode) {
 				console.error(
 					red(
 						`${filepath} doesn't follow the \`export default xxxDirective\` convention. The prebuilt output may be wrong. ` +
-							`For more information, check out ${fileURLToPath(import.meta.url)}`
-					)
+							`For more information, check out ${fileURLToPath(import.meta.url)}`,
+					),
 				);
 			}
 			tscode = newTscode;
@@ -91,7 +91,7 @@ export default async function prebuild(...args) {
 							dev: true,
 						}
 					: undefined,
-			].filter((entry) => entry)
+			].filter((entry) => entry),
 		);
 
 		for (const result of results) {

@@ -1,7 +1,7 @@
-import { run } from 'node:test';
-import { spec } from 'node:test/reporters';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { run } from 'node:test';
+import { spec } from 'node:test/reporters';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import glob from 'tiny-glob';
@@ -48,7 +48,7 @@ export default async function test() {
 		await fs.mkdir(path.dirname(tempTestFile), { recursive: true });
 		await fs.writeFile(
 			tempTestFile,
-			files.map((f) => `import ${JSON.stringify(pathToFileURL(f).toString())};`).join('\n')
+			files.map((f) => `import ${JSON.stringify(pathToFileURL(f).toString())};`).join('\n'),
 		);
 
 		files.length = 0;
