@@ -1,5 +1,5 @@
-import type { RouteData, SSRResult } from '../../../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../../../core/errors/index.js';
+import type { RouteData, SSRResult } from '../../../../types/public/internal.js';
 import { type RenderDestination, chunkToByteArray, chunkToString, encoder } from '../common.js';
 import { promiseWithResolvers } from '../util.js';
 import type { AstroComponentFactory } from './factory.js';

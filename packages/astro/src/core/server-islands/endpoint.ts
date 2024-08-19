@@ -1,9 +1,3 @@
-import type {
-	ComponentInstance,
-	ManifestData,
-	RouteData,
-	SSRManifest,
-} from '../../@types/astro.js';
 import {
 	type AstroComponentFactory,
 	type ComponentSlots,
@@ -11,6 +5,8 @@ import {
 	renderTemplate,
 } from '../../runtime/server/index.js';
 import { createSlotValueFromString } from '../../runtime/server/render/slot.js';
+import type { ComponentInstance, ManifestData } from '../../types/astro.js';
+import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import { decryptString } from '../encryption.js';
 import { getPattern } from '../routing/manifest/pattern.js';
 

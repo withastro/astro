@@ -1,7 +1,7 @@
 import babel from '@babel/core';
 import type { TransformResult } from 'rollup';
-import type { JSXTransformConfig } from '../@types/astro.js';
 import { jsxTransformOptions } from '../jsx/transform-options.js';
+import type { JSXTransformConfig } from '../types/astro.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { tagExportsPlugin } from './tag.js';
 

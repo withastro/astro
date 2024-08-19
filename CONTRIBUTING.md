@@ -289,7 +289,7 @@ Server-side rendering (SSR) can be complicated. The Astro package (`packages/ast
 
 - `components/`: Built-in components to use in your project (e.g. `import Code from 'astro/components/Code.astro'`)
 - `src/`: Astro source
-  - `@types/`: TypeScript types. These are centralized to cut down on circular dependencies
+  - `types/`: TypeScript types. These are centralized to cut down on circular dependencies
   - `cli/`: Code that powers the `astro` CLI command
   - `core/`: Code that executes **in the top-level scope** (in Node). Within, you’ll find code that powers the `astro build` and `astro dev` commands, as well as top-level SSR code.
   - `runtime/`: Code that executes **in different scopes** (i.e. not in a pure Node context). You’ll have to think about code differently here.

@@ -1,11 +1,8 @@
-import type { AstroRenderer } from '../@types/astro.js';
-import { jsxTransformOptions } from './transform-options.js';
+import type { AstroRenderer } from '../types/public/integrations.js';
 
 const renderer: AstroRenderer = {
 	name: 'astro:jsx',
 	serverEntrypoint: 'astro/jsx/server.js',
-	jsxImportSource: 'astro',
-	jsxTransformOptions,
 };
 
 export default renderer;

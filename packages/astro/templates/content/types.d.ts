@@ -1,5 +1,4 @@
 declare module 'astro:content' {
-
 	interface RenderResult {
 		Content: import('astro/runtime/server/index.js').AstroComponentFactory;
 		headings: import('astro').MarkdownHeading[];
@@ -8,7 +7,6 @@ declare module 'astro:content' {
 	interface Render {
 		'.md': Promise<RenderResult>;
 	}
-
 
 	export interface RenderedContent {
 		html: string;

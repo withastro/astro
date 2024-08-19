@@ -1,7 +1,7 @@
-import type { SSRElement } from '../../../@types/astro.js';
 import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
 
 import { clsx } from 'clsx';
+import type { SSRElement } from '../../../types/public/internal.js';
 import { HTMLString, markHTMLString } from '../escape.js';
 
 export const voidElementNames =

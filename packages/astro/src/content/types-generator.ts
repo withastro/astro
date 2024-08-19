@@ -1,17 +1,18 @@
-import glob from 'fast-glob';
-import { bold, cyan } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import glob from 'fast-glob';
+import { bold, cyan } from 'kleur/colors';
 import { type ViteDevServer, normalizePath } from 'vite';
-import { z, type ZodSchema } from 'zod';
+import { type ZodSchema, z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { printNode, zodToTs } from 'zod-to-ts';
-import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
+import type { AstroSettings } from '../types/astro.js';
+import type { ContentEntryType } from '../types/public/content.js';
 import { CONTENT_LAYER_TYPE, CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
 	type CollectionConfig,
@@ -473,7 +474,7 @@ async function writeContentFiles({
 			collection.type === 'unknown'
 				? // Add empty / unknown collections to the data type map by default
 					// This ensures `getCollection('empty-collection')` doesn't raise a type error
-					(collectionConfig?.type ?? 'data')
+					collectionConfig?.type ?? 'data'
 				: collection.type;
 
 		const collectionEntryKeys = Object.keys(collection.entries).sort();
@@ -590,11 +591,9 @@ async function writeContentFiles({
 
 	// If it's the first time, we inject types the usual way. sync() will handle creating files and references. If it's not the first time, we just override the dts content
 	if (settings.injectedTypes.some((t) => t.filename === CONTENT_TYPES_FILE)) {
-		fs.promises.writeFile(
-			new URL(CONTENT_TYPES_FILE, settings.dotAstroDir),
-			typeTemplateContent,
-			'utf-8',
-		);
+		const filePath = fileURLToPath(new URL(CONTENT_TYPES_FILE, settings.dotAstroDir));
+		await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
+		await fs.promises.writeFile(filePath, typeTemplateContent, 'utf-8');
 	} else {
 		settings.injectedTypes.push({
 			filename: CONTENT_TYPES_FILE,

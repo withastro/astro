@@ -4,8 +4,9 @@ import { bold } from 'kleur/colors';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import { loadEnv } from 'vite';
-import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import type { Logger } from '../core/logger/core.js';
+import type { AstroSettings } from '../types/astro.js';
+import type { AstroConfig } from '../types/public/config.js';
 
 interface EnvPluginOptions {
 	settings: AstroSettings;
@@ -176,8 +177,8 @@ export default function envVitePlugin({ settings, logger }: EnvPluginOptions): v
 				// TODO: Remove in Astro 5
 				let exportConstPrerenderStr: string | undefined;
 				s.replace(exportConstPrerenderRe, (m, key) => {
-					exportConstPrerenderStr = m;
 					if (privateEnv[key] != null) {
+						exportConstPrerenderStr = m;
 						return `export const prerender = ${privateEnv[key]}`;
 					} else {
 						return m;

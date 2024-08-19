@@ -1,7 +1,7 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createMarkdownProcessor } from '@astrojs/markdown-remark';
-import type { ContentEntryType } from '../@types/astro.js';
 import { safeParseFrontmatter } from '../content/utils.js';
+import type { ContentEntryType } from '../types/public/content.js';
 
 export const markdownContentEntryType: ContentEntryType = {
 	extensions: ['.md'],
@@ -17,8 +17,8 @@ export const markdownContentEntryType: ContentEntryType = {
 	// We need to handle propagation for Markdown because they support layouts which will bring in styles.
 	handlePropagation: true,
 
-	async getRenderFunction(settings) {
-		const processor = await createMarkdownProcessor(settings.config.markdown);
+	async getRenderFunction(config) {
+		const processor = await createMarkdownProcessor(config.markdown);
 		return async function renderToString(entry) {
 			if (!entry.body) {
 				return {

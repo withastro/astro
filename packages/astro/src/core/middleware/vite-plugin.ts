@@ -1,7 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { normalizePath } from 'vite';
-import type { AstroSettings } from '../../@types/astro.js';
 import { getOutputDirectory } from '../../prerender/utils.js';
+import type { AstroSettings } from '../../types/astro.js';
 import { addRollupInput } from '../build/add-rollup-input.js';
 import type { BuildInternals } from '../build/internal.js';
 import type { StaticBuildOptions } from '../build/types.js';

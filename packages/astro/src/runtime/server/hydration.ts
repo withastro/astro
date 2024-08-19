@@ -1,10 +1,10 @@
+import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type {
 	AstroComponentMetadata,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
-} from '../../@types/astro.js';
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+} from '../../types/public/internal.js';
 import { escapeHTML } from './escape.js';
 import { serializeProps } from './serialize.js';
 

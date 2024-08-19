@@ -1,6 +1,6 @@
 import type { UserConfig as ViteUserConfig } from 'vite';
-import type { AstroInlineConfig, AstroUserConfig } from '../@types/astro.js';
 import { Logger } from '../core/logger/core.js';
+import type { AstroInlineConfig, AstroUserConfig } from '../types/public/config.js';
 
 export function defineConfig(config: AstroUserConfig) {
 	return config;
