@@ -13,7 +13,6 @@ import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
 import type {
-	AstroAdapter,
 	AstroIntegration,
 	AstroRenderer,
 	HookParameters,
