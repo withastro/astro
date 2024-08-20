@@ -1974,7 +1974,7 @@ export interface AstroUserConfig {
 		 * @version 5.0.0
 		 * @description
 		 *
-		 * Enables the generation of `.astro/tsconfig.json`. This allows to exclude the `distDir` by default to avoid `astro check` false positives.
+		 * Enables the generation of `.astro/tsconfig.json`. This allows to exclude the `outDir` by default to avoid `astro check` false positives.
 		 *
 		 * If you enable this option, you'll need to update your `tsconfig.json` with a new `extends` value:
 		 *

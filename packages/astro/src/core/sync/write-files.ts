@@ -96,16 +96,41 @@ async function setupTsconfig(settings: AstroSettings, fs: typeof fsMod, logger: 
 		relative(fileURLToPath(settings.dotAstroDir), fileURLToPath(settings.config.outDir)),
 	);
 
-	// TODO: handle relative include/exclude! Users will add values relative to the root,
-	// but here they should be relative to dotAstroDir
-	const expectedContent = JSON.stringify(
-		{
-			include: [...(settings.config.experimental.typescript?.include ?? []), relativeDtsPath],
-			exclude: [...(settings.config.experimental.typescript?.exclude ?? []), relativeOutDirPath],
-		},
-		null,
-		2,
-	);
+	const include = [relativeDtsPath];
+	if (settings.config.experimental.typescript?.include) {
+		for (const value of settings.config.experimental.typescript.include) {
+			if (startsWithDotSlash(value) || startsWithDotDotSlash(value)) {
+				include.push(
+					normalizePath(
+						relative(
+							fileURLToPath(settings.dotAstroDir),
+							fileURLToPath(new URL(value, settings.config.root)),
+						),
+					),
+				);
+			} else {
+				include.push(value);
+			}
+		}
+	}
+	const exclude = [relativeOutDirPath];
+	if (settings.config.experimental.typescript?.exclude) {
+		for (const value of settings.config.experimental.typescript.exclude) {
+			if (startsWithDotSlash(value) || startsWithDotDotSlash(value)) {
+				exclude.push(
+					normalizePath(
+						relative(
+							fileURLToPath(settings.dotAstroDir),
+							fileURLToPath(new URL(value, settings.config.root)),
+						),
+					),
+				);
+			} else {
+				exclude.push(value);
+			}
+		}
+	}
+	const expectedContent = JSON.stringify({ include, exclude }, null, 2);
 
 	if (fs.existsSync(tsconfigPath) && fs.readFileSync(tsconfigPath, 'utf-8') === expectedContent) {
 		return;
