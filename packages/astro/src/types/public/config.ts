@@ -1381,17 +1381,6 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @kind heading
-	 * @name Legacy Flags
-	 * @description
-	 * To help some users migrate between versions of Astro, we occasionally introduce `legacy` flags.
-	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
-	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
-	 */
-	legacy?: object;
-
-	/**
-	 * @docs
 	 * @name env
 	 * @type {object}
 	 * @default `{}`
@@ -1415,13 +1404,11 @@ export interface AstroUserConfig {
 		 * import { defineConfig, envField } from "astro/config"
 		 *
 		 * export default defineConfig({
-		 *   experimental: {
-		 *     env: {
-		 *       schema: {
-		 *         API_URL: envField.string({ context: "client", access: "public", optional: true }),
-		 *         PORT: envField.number({ context: "server", access: "public", default: 4321 }),
-		 *         API_SECRET: envField.string({ context: "server", access: "secret" }),
-		 *       }
+		 *   env: {
+		 *     schema: {
+		 *       API_URL: envField.string({ context: "client", access: "public", optional: true }),
+		 *       PORT: envField.number({ context: "server", access: "public", default: 4321 }),
+		 *       API_SECRET: envField.string({ context: "server", access: "secret" }),
 		 *     }
 		 *   }
 		 * })
@@ -1446,19 +1433,29 @@ export interface AstroUserConfig {
 		 * import { defineConfig, envField } from "astro/config"
 		 *
 		 * export default defineConfig({
-		 *   experimental: {
-		 *     env: {
-		 *       schema: {
-		 *         // ...
-		 *       },
-		 *       validateSecrets: true
-		 *     }
+		 *   env: {
+		 *     schema: {
+		 *       // ...
+		 *     },
+		 *     validateSecrets: true
 		 *   }
 		 * })
 		 * ```
 		 */
 		validateSecrets?: boolean;
 	};
+
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Legacy Flags
+	 * @description
+	 * To help some users migrate between versions of Astro, we occasionally introduce `legacy` flags.
+	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
+	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
+	 */
+	legacy?: object;
 
 	/**
 	 * @docs
