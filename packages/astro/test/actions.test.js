@@ -240,6 +240,27 @@ describe('Astro Actions', () => {
 			assert.ok($('#user'));
 		});
 
+		it('Supports effects on form input validators', async () => {
+			const formData = new FormData();
+			formData.set('password', 'benisawesome');
+			formData.set('confirmPassword', 'benisveryawesome');
+
+			const req = new Request('http://example.com/_actions/validatePassword', {
+				method: 'POST',
+				body: formData,
+			});
+
+			const res = await app.render(req);
+
+			assert.equal(res.ok, false);
+			assert.equal(res.status, 400);
+			assert.equal(res.headers.get('Content-Type'), 'application/json');
+
+			const data = await res.json();
+			assert.equal(data.type, 'AstroActionInputError');
+			assert.equal(data.issues?.[0]?.message, 'Passwords do not match');
+		});
+
 		describe('legacy', () => {
 			it('Response middleware fallback', async () => {
 				const formData = new FormData();

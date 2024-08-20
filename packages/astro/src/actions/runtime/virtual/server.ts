@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z, type AnyZodObject } from 'zod';
 import { ActionCalledFromServerError } from '../../../core/errors/errors-data.js';
 import { AstroError } from '../../../core/errors/errors.js';
 import type { ActionAPIContext, ErrorInferenceObject, MaybePromise } from '../utils.js';
@@ -10,7 +10,7 @@ export { z } from 'zod';
 
 export type ActionAccept = 'form' | 'json';
 export type ActionInputSchema<T extends ActionAccept | undefined> = T extends 'form'
-	? z.AnyZodObject | z.ZodType<FormData>
+	? z.AnyZodObject | z.ZodEffects<AnyZodObject> | z.ZodType<FormData>
 	: z.ZodType;
 
 export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.ZodType
@@ -95,13 +95,18 @@ function getFormServerHandler<TOutput, TInputSchema extends ActionInputSchema<'f
 			});
 		}
 
-		if (!(inputSchema instanceof z.ZodObject)) return await handler(unparsedInput, context);
+		if (!isFormSchema(inputSchema)) return await handler(unparsedInput, context);
 
-		const parsed = await inputSchema.safeParseAsync(formDataToObject(unparsedInput, inputSchema));
+		const parsed = await inputSchema.safeParseAsync(
+			formDataToObject(
+				unparsedInput,
+				inputSchema instanceof z.ZodEffects ? inputSchema._def.schema : inputSchema,
+			),
+		);
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error.issues);
 		}
-		return await handler(parsed.data, context);
+		return await handler(parsed.data as any, context);
 	};
 }
 
@@ -188,4 +193,13 @@ function handleFormDataGet(
 		return baseValidator instanceof z.ZodOptional ? undefined : null;
 	}
 	return validator instanceof z.ZodNumber ? Number(value) : value;
+}
+
+export function isFormSchema(
+	schema?: ActionInputSchema<'form'>,
+): schema is z.ZodEffects<z.AnyZodObject> | AnyZodObject {
+	return (
+		(schema instanceof z.ZodEffects && schema._def.schema instanceof z.ZodObject) ||
+		schema instanceof z.ZodObject
+	);
 }

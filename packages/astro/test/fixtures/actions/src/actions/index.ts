@@ -44,7 +44,18 @@ export const server = {
 		accept: 'form',
 		handler: async (_, { locals }) => {
 			return locals.user;
-		}
+		},
+	}),
+	validatePassword: defineAction({
+		accept: 'form',
+		input: z
+			.object({ password: z.string(), confirmPassword: z.string() })
+			.refine((data) => data.password === data.confirmPassword, {
+				message: 'Passwords do not match',
+			}),
+		handler: async ({ password }) => {
+			return password;
+		},
 	}),
 	getUserOrThrow: defineAction({
 		accept: 'form',
@@ -57,22 +68,22 @@ export const server = {
 				});
 			}
 			return locals.user;
-		}
+		},
 	}),
 	fireAndForget: defineAction({
 		handler: async () => {
 			return;
-		}
+		},
 	}),
 	zero: defineAction({
 		handler: async () => {
 			return 0;
-		}
+		},
 	}),
 	false: defineAction({
 		handler: async () => {
 			return false;
-		}
+		},
 	}),
 	complexValues: defineAction({
 		handler: async () => {
@@ -80,7 +91,7 @@ export const server = {
 				date: new Date(),
 				set: new Set(),
 				url: new URL('https://example.com'),
-			}
-		}
-	})
+			};
+		},
+	}),
 };
