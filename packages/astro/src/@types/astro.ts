@@ -2359,8 +2359,8 @@ export interface AstroUserConfig {
 		 *
 		 *     const blog = defineCollection({
 		 *       // For content layer you no longer define a `type`
-		 *      type: 'content',
-		 *      loader: glob({ pattern: '**\/[^_]*.md', base: "./src/data/blog" }),
+		 *       type: 'content',
+		 *       loader: glob({ pattern: '**\/[^_]*.md', base: "./src/data/blog" }),
 		 *       schema: z.object({
 		 *         title: z.string(),
 		 *         description: z.string(),
@@ -2391,13 +2391,13 @@ export interface AstroUserConfig {
 		 *     ```astro ins={4,9} del={3,8}
 		 *     // src/pages/index.astro
 		 *     ---
-		 *      import { getEntry } from 'astro:content';
-		 *      import { getEntry, render } from 'astro:content';
+		 *     import { getEntry } from 'astro:content';
+		 *     import { getEntry, render } from 'astro:content';
 		 *
-		 *       const post = await getEntry('blog', params.slug);
+		 *     const post = await getEntry('blog', params.slug);
 		 *
-		 *      const { Content, headings } = await post.render();
-		 *      const { Content, headings } = await render(post);
+		 *     const { Content, headings } = await post.render();
+		 *     const { Content, headings } = await render(post);
 		 *     ---
 		 *
 		 *     <Content />
