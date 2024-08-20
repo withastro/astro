@@ -345,7 +345,9 @@ export async function runHookConfigDone({
 							content: injectedType.content,
 						});
 
-						return new URL(normalizedFilename, settings.config.root);
+						// It must be relative to dotAstroDir here and not inside normalizeInjectedTypeFilename
+						// because injectedTypes are handled relatively to the dotAstroDir already
+						return new URL(normalizedFilename, settings.dotAstroDir);
 					},
 					logger: getLogger(integration, logger),
 				}),
