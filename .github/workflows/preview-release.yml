@@ -59,4 +59,4 @@ jobs:
         run: pnpm run build
   
       - name: Publish packages
-        run: pnpx pkg-pr-new publish './packages/*'
+        run: pnpx pkg-pr-new publish --pnpm './packages/*'
