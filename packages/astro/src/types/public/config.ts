@@ -1,10 +1,10 @@
+import type { OutgoingHttpHeaders } from 'node:http';
 import type {
 	RehypePlugins,
 	RemarkPlugins,
 	RemarkRehype,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
-import type { OutgoingHttpHeaders } from 'node:http';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { RemotePattern } from '../../assets/utils/remotePattern.js';
 import type { AssetsPrefix } from '../../core/app/types.js';

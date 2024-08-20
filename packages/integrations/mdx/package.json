@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Add support for MDX pages in your Astro site",
-  "version": "3.1.3",
+  "version": "4.0.0-alpha.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -20,6 +20,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/mdx/",
   "exports": {
     ".": "./dist/index.js",
+    "./server.js": "./dist/server.js",
     "./package.json": "./package.json"
   },
   "files": [
@@ -49,7 +50,7 @@
     "vfile": "^6.0.2"
   },
   "peerDependencies": {
-    "astro": "^4.8.0"
+    "astro": "^5.0.0-alpha.0"
   },
   "devDependencies": {
     "@types/estree": "^1.0.5",

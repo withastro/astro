@@ -78,11 +78,6 @@ export interface ComponentInstance {
 	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 
-export type JSXTransformConfig = Pick<
-	babel.TransformOptions,
-	'presets' | 'plugins' | 'inputSourceMap'
->;
-
 export interface ManifestData {
 	routes: RouteData[];
 }

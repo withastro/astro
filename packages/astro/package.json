@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "4.14.2",
+  "version": "5.0.0-alpha.0",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -39,7 +39,7 @@
     "./astro-jsx": "./astro-jsx.d.ts",
     "./tsconfigs/*.json": "./tsconfigs/*",
     "./tsconfigs/*": "./tsconfigs/*.json",
-    "./jsx/*": "./dist/jsx/*",
+    "./jsx/rehype.js": "./dist/jsx/rehype.js",
     "./jsx-runtime": {
       "types": "./jsx-runtime.d.ts",
       "default": "./dist/jsx-runtime/index.js"
