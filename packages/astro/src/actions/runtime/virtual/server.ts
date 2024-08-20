@@ -136,7 +136,8 @@ export function formDataToObject<T extends z.AnyZodObject>(
 	formData: FormData,
 	schema: T,
 ): Record<string, unknown> {
-	const obj: Record<string, unknown> = {};
+	const obj: Record<string, unknown> =
+		schema._def.unknownKeys === 'passthrough' ? Object.fromEntries(formData.entries()) : {};
 	for (const [key, baseValidator] of Object.entries(schema.shape)) {
 		let validator = baseValidator;
 
