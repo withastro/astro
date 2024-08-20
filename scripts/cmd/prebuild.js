@@ -23,6 +23,7 @@ export default async function prebuild(...args) {
 	}
 
 	let patterns = args;
+	// NOTE: absolute paths returned are forward slashes on windows
 	let entryPoints = [].concat(
 		...(await Promise.all(
 			patterns.map((pattern) => glob(pattern, { onlyFiles: true, absolute: true })),
@@ -43,7 +44,7 @@ export default async function prebuild(...args) {
 		let tscode = await fs.promises.readFile(filepath, 'utf-8');
 		// If we're bundling a client directive, modify the code to match `packages/astro/src/core/client-directive/build.ts`.
 		// If updating this code, make sure to also update that file.
-		if (filepath.includes(`runtime${path.sep}client`)) {
+		if (filepath.includes('runtime/client')) {
 			// `export default xxxDirective` is a convention used in the current client directives that we use
 			// to make sure we bundle this right. We'll error below if this convention isn't followed.
 			const newTscode = tscode.replace(
