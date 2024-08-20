@@ -13,6 +13,7 @@ import glob from 'tiny-glob';
 
 // Copied from https://github.com/withastro/astro/blob/3776ecf0aa9e08a992d3ae76e90682fd04093721/packages/astro/src/core/routing/manifest/create.ts#L45-L70
 // We're not sure how to improve this regex yet
+// eslint-disable-next-line regexp/no-super-linear-backtracking
 const ROUTE_DYNAMIC_SPLIT = /\[(.+?\(.+?\)|.+?)\]/;
 const ROUTE_SPREAD = /^\.{3}.+$/;
 export function getParts(part: string) {
@@ -75,7 +76,7 @@ function segmentsToCfSyntax(segments: RouteData['segments'], _config: AstroConfi
 }
 
 class TrieNode {
-	children: Map<string, TrieNode> = new Map();
+	children = new Map<string, TrieNode>();
 	isEndOfPath = false;
 	hasWildcardChild = false;
 }
