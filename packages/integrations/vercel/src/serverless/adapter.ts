@@ -271,9 +271,7 @@ export default function vercelServerless({
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
-				setAdapter(
-					getAdapter({ edgeMiddleware, middlewareSecret, skewProtection }),
-				);
+				setAdapter(getAdapter({ edgeMiddleware, middlewareSecret, skewProtection }));
 
 				_config = config;
 				_buildTempFolder = config.build.server;
