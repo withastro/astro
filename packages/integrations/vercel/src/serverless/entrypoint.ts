@@ -9,6 +9,7 @@ import {
 	ASTRO_PATH_PARAM,
 } from './adapter.js';
 
+// Run polyfills immediately so any dependent code can use the globals
 applyPolyfills();
 setGetEnv((key) => process.env[key]);
 

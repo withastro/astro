@@ -94,7 +94,7 @@ describe('<Code>', () => {
 				'color:var(--astro-code-foreground)',
 				'color:var(--astro-code-token-string-expression)',
 				'color:var(--astro-code-foreground)',
-			]
+			],
 		);
 	});
 

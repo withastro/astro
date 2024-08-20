@@ -1,10 +1,10 @@
+import type { OutgoingHttpHeaders } from 'node:http';
 import type {
 	RehypePlugins,
 	RemarkPlugins,
 	RemarkRehype,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
-import type { OutgoingHttpHeaders } from 'node:http';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { RemotePattern } from '../../assets/utils/remotePattern.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
@@ -1381,17 +1381,6 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @kind heading
-	 * @name Legacy Flags
-	 * @description
-	 * To help some users migrate between versions of Astro, we occasionally introduce `legacy` flags.
-	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
-	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
-	 */
-	legacy?: object;
-
-	/**
-	 * @docs
 	 * @name env
 	 * @type {object}
 	 * @default `{}`
@@ -1415,13 +1404,11 @@ export interface AstroUserConfig {
 		 * import { defineConfig, envField } from "astro/config"
 		 *
 		 * export default defineConfig({
-		 *   experimental: {
-		 *     env: {
-		 *       schema: {
-		 *         API_URL: envField.string({ context: "client", access: "public", optional: true }),
-		 *         PORT: envField.number({ context: "server", access: "public", default: 4321 }),
-		 *         API_SECRET: envField.string({ context: "server", access: "secret" }),
-		 *       }
+		 *   env: {
+		 *     schema: {
+		 *       API_URL: envField.string({ context: "client", access: "public", optional: true }),
+		 *       PORT: envField.number({ context: "server", access: "public", default: 4321 }),
+		 *       API_SECRET: envField.string({ context: "server", access: "secret" }),
 		 *     }
 		 *   }
 		 * })
@@ -1446,19 +1433,29 @@ export interface AstroUserConfig {
 		 * import { defineConfig, envField } from "astro/config"
 		 *
 		 * export default defineConfig({
-		 *   experimental: {
-		 *     env: {
-		 *       schema: {
-		 *         // ...
-		 *       },
-		 *       validateSecrets: true
-		 *     }
+		 *   env: {
+		 *     schema: {
+		 *       // ...
+		 *     },
+		 *     validateSecrets: true
 		 *   }
 		 * })
 		 * ```
 		 */
 		validateSecrets?: boolean;
 	};
+
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Legacy Flags
+	 * @description
+	 * To help some users migrate between versions of Astro, we occasionally introduce `legacy` flags.
+	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
+	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
+	 */
+	legacy?: object;
 
 	/**
 	 * @docs
@@ -1836,6 +1833,10 @@ export interface AstroUserConfig {
 		 * export const collections = { blog, dogs };
 		 * ```
 		 *
+		 * :::note
+		 * Loaders will not automatically [exclude files prefaced with an `_`](/en/guides/routing/#excluding-pages). Use a regular expression such as `pattern: '**\/[^_]*.md` in your loader to ignore these files.
+		 * :::
+		 *
 		 * #### Querying and rendering with the Content Layer API
 		 *
 		 * The collection can be [queried in the same way as content collections](/en/guides/content-collections/#querying-collections):
@@ -1916,8 +1917,8 @@ export interface AstroUserConfig {
 		 *
 		 *     const blog = defineCollection({
 		 *       // For content layer you no longer define a `type`
-		 *      type: 'content',
-		 *      loader: glob({ pattern: "**\/*.md", base: "./src/data/blog" }),
+		 *       type: 'content',
+		 *       loader: glob({ pattern: '**\/[^_]*.md', base: "./src/data/blog" }),
 		 *       schema: z.object({
 		 *         title: z.string(),
 		 *         description: z.string(),
@@ -1948,13 +1949,13 @@ export interface AstroUserConfig {
 		 *     ```astro ins={4,9} del={3,8}
 		 *     // src/pages/index.astro
 		 *     ---
-		 *      import { getEntry } from 'astro:content';
-		 *      import { getEntry, render } from 'astro:content';
+		 *     import { getEntry } from 'astro:content';
+		 *     import { getEntry, render } from 'astro:content';
 		 *
-		 *       const post = await getEntry('blog', params.slug);
+		 *     const post = await getEntry('blog', params.slug);
 		 *
-		 *      const { Content, headings } = await post.render();
-		 *      const { Content, headings } = await render(post);
+		 *     const { Content, headings } = await post.render();
+		 *     const { Content, headings } = await render(post);
 		 *     ---
 		 *
 		 *     <Content />

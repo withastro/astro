@@ -13,7 +13,6 @@ import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
 import type {
-	AstroAdapter,
 	AstroIntegration,
 	AstroRenderer,
 	HookParameters,
@@ -346,7 +345,9 @@ export async function runHookConfigDone({
 							content: injectedType.content,
 						});
 
-						return new URL(normalizedFilename, settings.config.root);
+						// It must be relative to dotAstroDir here and not inside normalizeInjectedTypeFilename
+						// because injectedTypes are handled relatively to the dotAstroDir already
+						return new URL(normalizedFilename, settings.dotAstroDir);
 					},
 					logger: getLogger(integration, logger),
 				}),
@@ -617,13 +618,5 @@ export async function runHookRouteSetup({
 			`The ${route.component} route's prerender option has been changed multiple times by integrations:\n` +
 				prerenderChangeLogs.map((log) => `- ${log.integrationName}: ${log.value}`).join('\n'),
 		);
-	}
-}
-
-export function isFunctionPerRouteEnabled(adapter: AstroAdapter | undefined): boolean {
-	if (adapter?.adapterFeatures?.functionPerRoute === true) {
-		return true;
-	} else {
-		return false;
 	}
 }

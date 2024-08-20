@@ -18,10 +18,7 @@ interface AstroEnvPluginParams {
 	sync: boolean;
 }
 
-export function astroEnv({ settings, mode, sync }: AstroEnvPluginParams): Plugin | undefined {
-	if (sync) {
-		return;
-	}
+export function astroEnv({ settings, mode, sync }: AstroEnvPluginParams): Plugin {
 	const { schema, validateSecrets } = settings.config.env;
 
 	let templates: { client: string; server: string; internal: string } | null = null;
@@ -45,6 +42,7 @@ export function astroEnv({ settings, mode, sync }: AstroEnvPluginParams): Plugin
 				schema,
 				loadedEnv,
 				validateSecrets,
+				sync,
 			});
 
 			templates = {
@@ -88,10 +86,12 @@ function validatePublicVariables({
 	schema,
 	loadedEnv,
 	validateSecrets,
+	sync,
 }: {
 	schema: EnvSchema;
 	loadedEnv: Record<string, string>;
 	validateSecrets: boolean;
+	sync: boolean;
 }) {
 	const valid: Array<{ key: string; value: any; type: string; context: 'server' | 'client' }> = [];
 	const invalid: Array<InvalidVariable> = [];
@@ -113,7 +113,7 @@ function validatePublicVariables({
 		}
 	}
 
-	if (invalid.length > 0) {
+	if (invalid.length > 0 && !sync) {
 		throw new AstroError({
 			...AstroErrorData.EnvInvalidVariables,
 			message: AstroErrorData.EnvInvalidVariables.message(invalidVariablesToError(invalid)),
