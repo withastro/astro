@@ -1,3 +1,4 @@
+import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../../types/astro.js';
 import type { AstroAdapter } from '../../../types/public/integrations.js';
 import { routeIsRedirect } from '../../redirects/index.js';
@@ -12,7 +13,6 @@ import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 import { getVirtualModulePageName } from './util.js';
-import type { Plugin as VitePlugin } from 'vite';
 
 export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
 export const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
@@ -137,7 +137,7 @@ export function pluginSSR(
 		hooks: {
 			'build:before': () => {
 				const adapter = options.settings.adapter!;
-				const ssrPlugin = ssr && vitePluginSSR(internals, adapter, options)
+				const ssrPlugin = ssr && vitePluginSSR(internals, adapter, options);
 				const vitePlugin = [vitePluginAdapter(adapter)];
 				if (ssrPlugin) {
 					vitePlugin.unshift(ssrPlugin);

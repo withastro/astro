@@ -44,11 +44,11 @@ describe('Attributes', async () => {
 		assert.ok(!/allowfullscreen=/.test(html), 'boolean attributes should not have values');
 		assert.ok(
 			!/id="data-attr-string-falsy"\s+data-foobar=/.test(html),
-			"data attributes should not have values if it's an empty string"
+			"data attributes should not have values if it's an empty string",
 		);
 		assert.ok(
 			!/id="normal-attr-string-falsy"\s+data-foobar=/.test(html),
-			"normal attributes should not have values if it's an empty string"
+			"normal attributes should not have values if it's an empty string",
 		);
 
 		// cheerio will unescape the values, so checking that the url rendered unescaped to begin with has to be done manually

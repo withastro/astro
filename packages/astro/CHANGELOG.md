@@ -1,5 +1,80 @@
 # astro
 
+## 5.0.0-alpha.0
+
+### Major Changes
+
+- [#10742](https://github.com/withastro/astro/pull/10742) [`b6fbdaa`](https://github.com/withastro/astro/commit/b6fbdaa94a9ecec706a99e1938fbf5cd028c72e0) Thanks [@ematipico](https://github.com/ematipico)! - The lowest version of Node supported by Astro is now Node v18.17.1 and higher.
+
+- [#11715](https://github.com/withastro/astro/pull/11715) [`d74617c`](https://github.com/withastro/astro/commit/d74617cbd3278feba05909ec83db2d73d57a153e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Refactor the exported types from the `astro` module. There should normally be no breaking changes, but if you relied on some previously deprecated types, these might now have been fully removed.
+
+  In most cases, updating your code to move away from previously deprecated APIs in previous versions of Astro should be enough to fix any issues.
+
+- [#11660](https://github.com/withastro/astro/pull/11660) [`e90f559`](https://github.com/withastro/astro/commit/e90f5593d23043579611452a84b9e18ad2407ef9) Thanks [@bluwy](https://github.com/bluwy)! - Fixes attribute rendering for non-[boolean HTML attributes](https://developer.mozilla.org/en-US/docs/Glossary/Boolean/HTML) with boolean values to match proper attribute handling in browsers.
+
+  Previously, non-boolean attributes may not have included their values when rendered to HTML. In Astro v5.0, the values are now explicitly rendered as `="true"` or `="false"`
+
+  In the following `.astro` examples, only `allowfullscreen` is a boolean attribute:
+
+  ```astro
+  <!-- src/pages/index.astro --><!-- `allowfullscreen` is a boolean attribute -->
+  <p allowfullscreen={true}></p>
+  <p allowfullscreen={false}></p>
+
+  <!-- `inherit` is *not* a boolean attribute -->
+  <p inherit={true}></p>
+  <p inherit={false}></p>
+
+  <!-- `data-*` attributes are not boolean attributes -->
+  <p data-light={true}></p>
+  <p data-light={false}></p>
+  ```
+
+  Astro v5.0 now preserves the full data attribute with its value when rendering the HTML of non-boolean attributes:
+
+  ```diff
+    <p allowfullscreen></p>
+    <p></p>
+
+    <p inherit="true"></p>
+  - <p inherit></p>
+  + <p inherit="false"></p>
+
+  - <p data-light></p>
+  + <p data-light="true"></p>
+  - <p></p>
+  + <p data-light="false"></p>
+  ```
+
+  If you rely on attribute values, for example to locate elements or to conditionally render, update your code to match the new non-boolean attribute values:
+
+  ```diff
+  - el.getAttribute('inherit') === ''
+  + el.getAttribute('inherit') === 'false'
+
+  - el.hasAttribute('data-light')
+  + el.dataset.light === 'true'
+  ```
+
+- [#11714](https://github.com/withastro/astro/pull/11714) [`8a53517`](https://github.com/withastro/astro/commit/8a5351737d6a14fc55f1dafad8f3b04079e81af6) Thanks [@matthewp](https://github.com/matthewp)! - Remove support for functionPerRoute
+
+  This change removes support for the `functionPerRoute` option both in Astro and `@astrojs/vercel`.
+
+  This option made it so that each route got built as separate entrypoints so that they could be loaded as separate functions. The hope was that by doing this it would decrease the size of each function. However in practice routes use most of the same code, and increases in function size limitations made the potential upsides less important.
+
+  Additionally there are downsides to functionPerRoute, such as hitting limits on the number of functions per project. The feature also never worked with some Astro features like i18n domains and request rewriting.
+
+  Given this, the feature has been removed from Astro.
+
+### Patch Changes
+
+- [#11745](https://github.com/withastro/astro/pull/11745) [`89bab1e`](https://github.com/withastro/astro/commit/89bab1e70786123fbe933a9d7a1b80c9334dcc5f) Thanks [@bluwy](https://github.com/bluwy)! - Prints prerender dynamic value usage warning only if it's used
+
+- [#11730](https://github.com/withastro/astro/pull/11730) [`2df49a6`](https://github.com/withastro/astro/commit/2df49a6fb4f6d92fe45f7429430abe63defeacd6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Simplifies path operations of `astro sync`
+
+- Updated dependencies [[`83a2a64`](https://github.com/withastro/astro/commit/83a2a648418ad30f4eb781d1c1b5f2d8a8ac846e)]:
+  - @astrojs/markdown-remark@6.0.0-alpha.0
+
 ## 4.14.2
 
 ### Patch Changes

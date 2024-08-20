@@ -57,7 +57,7 @@ export function mergeSlots(...slotted: unknown[]) {
 	return slots;
 }
 
-/** @internal Associate JSX components with a specific renderer (see /src/vite-plugin-jsx/tag.ts) */
+/** @internal Associate JSX components with a specific renderer (see /packages/integrations/mdx/src/vite-plugin-mdx-postprocess.ts) */
 export function __astro_tag_component__(Component: unknown, rendererName: string) {
 	if (!Component) return;
 	if (typeof Component !== 'function') return;

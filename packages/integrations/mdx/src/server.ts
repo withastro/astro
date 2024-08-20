@@ -1,7 +1,7 @@
-import { AstroError, AstroUserError } from '../core/errors/errors.js';
-import { AstroJSX, jsx } from '../jsx-runtime/index.js';
-import { renderJSX } from '../runtime/server/jsx.js';
-import type { NamedSSRLoadedRendererValue } from '../types/public/internal.js';
+import type { NamedSSRLoadedRendererValue } from 'astro';
+import { AstroError } from 'astro/errors';
+import { AstroJSX, jsx } from 'astro/jsx-runtime';
+import { renderJSX } from 'astro/runtime/server/index.js';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 
@@ -53,15 +53,14 @@ function throwEnhancedErrorIfMdxComponent(error: Error, Component: any) {
 	// if the exception is from an mdx component
 	// throw an error
 	if (Component[Symbol.for('mdx-component')]) {
-		// if it's an AstroUserError, we don't need to re-throw, keep the original hint
-		if (AstroUserError.is(error)) return;
-		throw new AstroError({
-			message: error.message,
-			title: error.name,
-			hint: `This issue often occurs when your MDX component encounters runtime errors.`,
-			name: error.name,
-			stack: error.stack,
-		});
+		// if it's an existing AstroError, we don't need to re-throw, keep the original hint
+		if (AstroError.is(error)) return;
+		// Mimic the fields of the internal `AstroError` class (not from `astro/errors`) to
+		// provide better title and hint for the error overlay
+		(error as any).title = error.name;
+		(error as any).hint =
+			`This issue often occurs when your MDX component encounters runtime errors.`;
+		throw error;
 	}
 }
 

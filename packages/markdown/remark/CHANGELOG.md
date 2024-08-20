@@ -1,5 +1,16 @@
 # @astrojs/markdown-remark
 
+## 6.0.0-alpha.0
+
+### Major Changes
+
+- [#11661](https://github.com/withastro/astro/pull/11661) [`83a2a64`](https://github.com/withastro/astro/commit/83a2a648418ad30f4eb781d1c1b5f2d8a8ac846e) Thanks [@bluwy](https://github.com/bluwy)! - Renames the following CSS variables theme color token names to better align with the Shiki v1 defaults:
+
+  - `--astro-code-color-text` => `--astro-code-foreground`
+  - `--astro-code-color-background` => `--astro-code-background`
+
+  You can perform a global find and replace in your project to migrate to the new token names.
+
 ## 5.2.0
 
 ### Minor Changes

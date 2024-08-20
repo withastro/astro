@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "5.2.0",
+  "version": "6.0.0-alpha.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -29,7 +29,6 @@
     "prepublish": "pnpm build",
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "postbuild": "astro-scripts copy \"src/**/*.js\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
