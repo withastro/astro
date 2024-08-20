@@ -87,7 +87,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		directRenderScript: false,
 		contentCollectionCache: false,
 		clientPrerender: false,
-		globalRoutePriority: false,
 		serverIslands: false,
 		contentIntellisense: false,
 		env: {
@@ -518,10 +517,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.clientPrerender),
-			globalRoutePriority: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.globalRoutePriority),
 			env: z
 				.object({
 					schema: EnvSchema.optional(),

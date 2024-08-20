@@ -74,9 +74,6 @@ describe('routing - createRouteManifest', () => {
 			root: fileURLToPath(root),
 			base: '/search',
 			trailingSlash: 'never',
-			experimental: {
-				globalRoutePriority: true,
-			},
 		});
 
 		settings.injectedRoutes = [
@@ -131,9 +128,6 @@ describe('routing - createRouteManifest', () => {
 			root: fileURLToPath(root),
 			base: '/search',
 			trailingSlash: 'never',
-			experimental: {
-				globalRoutePriority: true,
-			},
 		});
 
 		const manifest = createRouteManifest({
@@ -171,9 +165,6 @@ describe('routing - createRouteManifest', () => {
 			root: fileURLToPath(root),
 			base: '/search',
 			trailingSlash: 'never',
-			experimental: {
-				globalRoutePriority: true,
-			},
 		});
 
 		const manifest = createRouteManifest({
@@ -220,9 +211,6 @@ describe('routing - createRouteManifest', () => {
 			root: fileURLToPath(root),
 			base: '/search',
 			trailingSlash: 'never',
-			experimental: {
-				globalRoutePriority: true,
-			},
 		});
 
 		const manifest = createRouteManifest({
@@ -262,58 +250,6 @@ describe('routing - createRouteManifest', () => {
 		]);
 	});
 
-	it('injected routes are sorted in legacy mode above filesystem routes', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/index.astro': `<h1>test</h1>`,
-				'/src/pages/blog/[...slug].astro': `<h1>test</h1>`,
-			},
-			root,
-		);
-		const settings = await createBasicSettings({
-			root: fileURLToPath(root),
-			output: 'server',
-			base: '/search',
-			trailingSlash: 'never',
-		});
-
-		settings.injectedRoutes = [
-			{
-				pattern: '/contributing',
-				entrypoint: '@lib/legacy/static.astro',
-			},
-			{
-				pattern: '/[...slug]',
-				entrypoint: '@lib/legacy/dynamic.astro',
-			},
-		];
-
-		const manifest = createRouteManifest({
-			cwd: fileURLToPath(root),
-			settings,
-			fsMod: fs,
-		});
-
-		assert.deepEqual(getManifestRoutes(manifest), [
-			{
-				route: '/contributing',
-				type: 'page',
-			},
-			{
-				route: '/[...slug]',
-				type: 'page',
-			},
-			{
-				route: '/blog/[...slug]',
-				type: 'page',
-			},
-			{
-				route: '/',
-				type: 'page',
-			},
-		]);
-	});
-
 	it('injected routes are sorted alongside filesystem routes', async () => {
 		const fs = createFs(
 			{
@@ -327,9 +263,6 @@ describe('routing - createRouteManifest', () => {
 			output: 'server',
 			base: '/search',
 			trailingSlash: 'never',
-			experimental: {
-				globalRoutePriority: true,
-			},
 		});
 
 		settings.injectedRoutes = [
@@ -370,53 +303,6 @@ describe('routing - createRouteManifest', () => {
 		]);
 	});
 
-	it('redirects are sorted in legacy mode below the filesystem routes', async () => {
-		const fs = createFs(
-			{
-				'/src/pages/index.astro': `<h1>test</h1>`,
-				'/src/pages/blog/contributing.astro': `<h1>test</h1>`,
-			},
-			root,
-		);
-		const settings = await createBasicSettings({
-			root: fileURLToPath(root),
-			output: 'server',
-			base: '/search',
-			trailingSlash: 'never',
-			redirects: {
-				'/blog/[...slug]': '/',
-				'/blog/about': {
-					status: 302,
-					destination: '/another',
-				},
-			},
-		});
-		const manifest = createRouteManifest({
-			cwd: fileURLToPath(root),
-			settings,
-			fsMod: fs,
-		});
-
-		assert.deepEqual(getManifestRoutes(manifest), [
-			{
-				route: '/blog/contributing',
-				type: 'page',
-			},
-			{
-				route: '/',
-				type: 'page',
-			},
-			{
-				route: '/blog/about',
-				type: 'redirect',
-			},
-			{
-				route: '/blog/[...slug]',
-				type: 'redirect',
-			},
-		]);
-	});
-
 	it('redirects are sorted alongside the filesystem routes', async () => {
 		const fs = createFs(
 			{
@@ -439,9 +325,6 @@ describe('routing - createRouteManifest', () => {
 					status: 302,
 					destination: '/another',
 				},
-			},
-			experimental: {
-				globalRoutePriority: true,
 			},
 		});
 		const manifest = createRouteManifest({
@@ -483,9 +366,6 @@ describe('routing - createRouteManifest', () => {
 			base: '/search',
 			trailingSlash: 'never',
 			integrations: [],
-			experimental: {
-				globalRoutePriority: true,
-			},
 		});
 
 		settings.injectedRoutes = [
@@ -536,9 +416,6 @@ describe('routing - createRouteManifest', () => {
 			base: '/search',
 			trailingSlash: 'never',
 			integrations: [],
-			experimental: {
-				globalRoutePriority: true,
-			},
 		});
 
 		const manifestOptions = {
@@ -584,9 +461,6 @@ describe('routing - createRouteManifest', () => {
 			trailingSlash: 'never',
 			redirects: {
 				'/posts/a-[b].233': '/blog/a-[b].233',
-			},
-			experimental: {
-				globalRoutePriority: true,
 			},
 		});
 
