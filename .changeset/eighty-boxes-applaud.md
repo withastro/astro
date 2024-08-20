@@ -22,7 +22,7 @@ export default defineConfig({
 })
 ```
 
-Then, you can import and use your defined variables from the appropriate `/client` or `/server` module:
+You can import and use your defined variables from the appropriate `/client` or `/server` module:
 
 ```astro
 ---
