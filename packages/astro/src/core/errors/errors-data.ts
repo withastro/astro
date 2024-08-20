@@ -1669,21 +1669,6 @@ export const ActionsWithoutServerOutputError = {
  * @see
  * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
  * @description
- * Action was called from a form using a GET request, but only POST requests are supported. This often occurs if `method="POST"` is missing on the form.
- */
-export const ActionsUsedWithForGetError = {
-	name: 'ActionsUsedWithForGetError',
-	title: 'An invalid Action query string was passed by a form.',
-	message: (actionName: string) =>
-		`Action ${actionName} was called from a form using a GET request, but only POST requests are supported. This often occurs if \`method="POST"\` is missing on the form.`,
-	hint: 'Actions are experimental. Visit the RFC for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @see
- * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
- * @description
  * The server received the query string `?_astroAction=name`, but could not find an action with that name. Use the action function's `.queryString` property to retrieve the form `action` URL.
  */
 export const ActionQueryStringInvalidError = {
