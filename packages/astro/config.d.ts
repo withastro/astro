@@ -26,12 +26,6 @@ export function getViteConfig(
 export function sharpImageService(config?: SharpImageServiceConfig): ImageServiceConfig;
 
 /**
- * Return the configuration needed to use the Squoosh-based image service
- * See: https://docs.astro.build/en/guides/images/#configure-squoosh
- */
-export function squooshImageService(): ImageServiceConfig;
-
-/**
  * Return the configuration needed to use the passthrough image service. This image services does not perform
  * any image transformations, and is mainly useful when your platform does not support other image services, or you are
  * not using Astro's built-in image processing.

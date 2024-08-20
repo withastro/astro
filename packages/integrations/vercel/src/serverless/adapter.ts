@@ -92,7 +92,6 @@ function getAdapter({
 			assets: {
 				supportKind: 'stable',
 				isSharpCompatible: true,
-				isSquooshCompatible: true,
 			},
 			i18nDomains: 'experimental',
 			envGetSecret: 'experimental',
