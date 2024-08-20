@@ -124,7 +124,10 @@ function validateSupportKind(
 }
 
 function featureIsUnsupported(adapterName: string, logger: Logger, featureName: string) {
-	logger.error('config', `The adapter ${adapterName} doesn't currently support the feature "${featureName}".`);
+	logger.error(
+		'config',
+		`The adapter ${adapterName} doesn't currently support the feature "${featureName}".`,
+	);
 }
 
 function featureIsExperimental(adapterName: string, logger: Logger, featureName: string) {
