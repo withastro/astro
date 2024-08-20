@@ -12,15 +12,15 @@ async function fetchHTML(fixture, path) {
 	return html;
 }
 
-/** @type {import('./test-utils').AstroInlineConfig} */
+/** @type {import('./test-utils.js').AstroInlineConfig} */
 const defaultFixtureOptions = {
-	root: './fixtures/ssr-hoisted-script/',
+	root: './fixtures/ssr-script/',
 	output: 'server',
 	adapter: testAdapter(),
 };
 
-describe('Hoisted inline scripts in SSR', () => {
-	/** @type {import('./test-utils').Fixture} */
+describe('Inline scripts in SSR', () => {
+	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
 
 	describe('without base path', () => {
@@ -62,13 +62,13 @@ describe('Hoisted inline scripts in SSR', () => {
 		it('Inlined scripts get included without base path in the script', async () => {
 			const html = await fetchHTML(fixture, '/hello/');
 			const $ = cheerioLoad(html);
-			assert.equal($('script').html(), 'console.log("hello world");\n');
+			assert.equal($('script').html(), 'console.log("hello world");');
 		});
 	});
 });
 
-describe('Hoisted external scripts in SSR', () => {
-	/** @type {import('./test-utils').Fixture} */
+describe('External scripts in SSR', () => {
+	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
 
 	describe('without base path', () => {
@@ -92,7 +92,7 @@ describe('Hoisted external scripts in SSR', () => {
 		it('script has correct path', async () => {
 			const html = await fetchHTML(fixture, '/');
 			const $ = cheerioLoad(html);
-			assert.match($('script').attr('src'), /^\/_astro\/hoisted\..{8}\.js$/);
+			assert.match($('script').attr('src'), /^\/_astro\/.*\.js$/);
 		});
 	});
 
@@ -118,7 +118,7 @@ describe('Hoisted external scripts in SSR', () => {
 		it('script has correct path', async () => {
 			const html = await fetchHTML(fixture, '/hello/');
 			const $ = cheerioLoad(html);
-			assert.match($('script').attr('src'), /^\/hello\/_astro\/hoisted\..{8}\.js$/);
+			assert.match($('script').attr('src'), /^\/hello\/_astro\/.*\.js$/);
 		});
 	});
 
@@ -146,7 +146,7 @@ describe('Hoisted external scripts in SSR', () => {
 			const $ = cheerioLoad(html);
 			assert.match(
 				$('script').attr('src'),
-				/^https:\/\/cdn\.example\.com\/_astro\/hoisted\..{8}\.js$/,
+				/^https:\/\/cdn\.example\.com\/_astro\/.*\.js$/,
 			);
 		});
 	});

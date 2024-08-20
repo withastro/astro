@@ -160,7 +160,6 @@ async function generatePage(
 		.reduce(mergeInlineCss, []);
 	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 	const linkIds: [] = [];
-	const scripts = pageData.hoistedScript ?? null;
 	if (!pageModulePromise) {
 		throw new Error(
 			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`,
@@ -170,7 +169,7 @@ async function generatePage(
 	const generationOptions: Readonly<GeneratePathOptions> = {
 		pageData,
 		linkIds,
-		scripts,
+		scripts: null,
 		styles,
 		mod: pageModule,
 	};

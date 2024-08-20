@@ -193,16 +193,6 @@ function buildManifest(
 		const pageData = internals.pagesByKeys.get(makePageDataKey(route.route, route.component));
 		if (route.prerender || !pageData) continue;
 		const scripts: SerializedRouteInfo['scripts'] = [];
-		if (pageData.hoistedScript) {
-			const shouldPrefixAssetPath = pageData.hoistedScript.type === 'external';
-			const hoistedValue = pageData.hoistedScript.value;
-			const value = shouldPrefixAssetPath ? prefixAssetPath(hoistedValue) : hoistedValue;
-			scripts.unshift(
-				Object.assign({}, pageData.hoistedScript, {
-					value,
-				}),
-			);
-		}
 		if (settings.scripts.some((script) => script.stage === 'page')) {
 			const src = entryModules[PAGE_SCRIPT_ID];
 

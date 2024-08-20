@@ -67,15 +67,8 @@ if (!isWindows) {
 				const html = await fixture.readFile('/launch-week-component-scripts/index.html');
 				const $ = cheerio.load(html);
 
-				const allScripts = $('head > script[type="module"]');
-				assert.ok(allScripts.length > 0);
-
-				// Includes hoisted script
-				assert.notEqual(
-					[...allScripts].find((script) => $(script).attr('src')?.includes('/_astro/WithScripts')),
-					undefined,
-					'hoisted script missing from head.',
-				);
+				// Includes script
+				assert.equal($('script[type="module"]').length, 1);
 
 				// Includes inline script
 				assert.equal($('script[data-is-inline]').length, 1);
@@ -87,12 +80,12 @@ if (!isWindows) {
 
 				const allScripts = $('head > script[type="module"]');
 
-				// Excludes hoisted script
+				// Excludes script
 				assert.notEqual(
 					[...allScripts].find((script) =>
 						$(script).text().includes('document.querySelector("#update-me")'),
 					),
-					'`WithScripts.astro` hoisted script included unexpectedly.',
+					'`WithScripts.astro` script included unexpectedly.',
 					undefined,
 				);
 			});
@@ -137,20 +130,20 @@ if (!isWindows) {
 					assert.equal(files.includes('chunks'), false, 'chunks folder removed');
 				});
 
-				it('hoisted script is built', async () => {
+				it('Script is built', async () => {
 					const html = await fixture.readFile('/launch-week-component-scripts/index.html');
 					const $ = cheerio.load(html);
 
-					const allScripts = $('head > script[type="module"]');
+					const allScripts = $('script[type="module"]');
 					assert.ok(allScripts.length > 0);
 
-					// Includes hoisted script
+					// Includes script
 					assert.notEqual(
 						[...allScripts].find((script) =>
 							$(script).attr('src')?.includes('/_astro/WithScripts'),
 						),
 						undefined,
-						'hoisted script missing from head.',
+						'Script missing.',
 					);
 				});
 			});

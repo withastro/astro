@@ -4,7 +4,7 @@ import type { AstroBuildPlugin } from '../plugin.js';
 import { shouldInlineAsset } from './util.js';
 
 /**
- * Used by the `experimental.directRenderScript` option to inline scripts directly into the HTML.
+ * Inline scripts from Astro files directly into the HTML.
  */
 export function vitePluginScripts(internals: BuildInternals): VitePlugin {
 	let assetInlineLimit: NonNullable<BuildOptions['assetsInlineLimit']>;
