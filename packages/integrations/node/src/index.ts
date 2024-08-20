@@ -16,7 +16,6 @@ export function getAdapter(options: Options): AstroAdapter {
 			assets: {
 				supportKind: 'stable',
 				isSharpCompatible: true,
-				isSquooshCompatible: true,
 			},
 			i18nDomains: 'experimental',
 			envGetSecret: 'experimental',
