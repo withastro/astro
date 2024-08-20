@@ -54,6 +54,6 @@ export function getMarkdownCodeForImages(imagePaths: MarkdownImagePath[], html: 
 			});
 		}
 
-		const html = updateImageReferences(${JSON.stringify(html)});
+		const html = async () => await updateImageReferences(${JSON.stringify(html)});
 	`;
 }

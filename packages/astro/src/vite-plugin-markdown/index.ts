@@ -125,7 +125,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 					return ${JSON.stringify(raw.content)};
 				}
 				export async function compiledContent() {
-					return await html;
+					return await html();
 				}
 				export function getHeadings() {
 					return ${JSON.stringify(headings)};
@@ -148,9 +148,9 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 								compiledContent,
 								'server:root': true,
 							}, {
-								'default': () => render\`\${unescapeHTML(html)}\`
+								'default': () => render\`\${unescapeHTML(html())}\`
 							})}\`;`
-							: `render\`\${maybeRenderHead(result)}\${unescapeHTML(html)}\`;`
+							: `render\`\${maybeRenderHead(result)}\${unescapeHTML(html())}\`;`
 					}
 				});
 				export default Content;
