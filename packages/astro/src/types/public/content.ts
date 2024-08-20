@@ -21,7 +21,7 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	/** raw Markdown file content, excluding layout HTML and YAML frontmatter */
 	rawContent(): string;
 	/** Markdown file compiled to HTML, excluding layout HTML */
-	compiledContent(): string;
+	compiledContent(): Promise<string>;
 	/** List of headings (h1 -> h6) with associated metadata */
 	getHeadings(): MarkdownHeading[];
 	default: AstroComponentFactory;
