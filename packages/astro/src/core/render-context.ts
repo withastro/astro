@@ -39,7 +39,7 @@ export class RenderContext {
 	originalRoute: RouteData;
 	
 	// The component pattern to send to the users
-	astroRoute: string;
+	routePattern: string;
 
 	private constructor(
 		readonly pipeline: Pipeline,
@@ -55,7 +55,7 @@ export class RenderContext {
 		public props: Props = {},
 	) {
 		this.originalRoute = routeData;
-		this.astroRoute = getAstroRoute(routeData.component);
+		this.routePattern = getAstroRoutePattern(routeData.component);
 	}
 
 	/**
@@ -238,7 +238,7 @@ export class RenderContext {
 		this.isRewriting = true;
 		// we found a route and a component, we can change the status code to 200
 		this.status = 200;
-		this.astroRoute = getAstroRoute(routeData.component);
+		this.routePattern = getAstroRoutePattern(routeData.component);
 		return await this.render(component);
 	}
 
@@ -255,7 +255,7 @@ export class RenderContext {
 
 		return {
 			cookies,
-			route: this.astroRoute,
+			routePattern: this.routePattern,
 			get clientAddress() {
 				return renderContext.clientAddress();
 			},
@@ -441,7 +441,7 @@ export class RenderContext {
 		return {
 			generator: astroStaticPartial.generator,
 			glob: astroStaticPartial.glob,
-			route: this.astroRoute,
+			routePattern: this.routePattern,
 			cookies,
 			get clientAddress() {
 				return renderContext.clientAddress();
@@ -578,7 +578,7 @@ export class RenderContext {
  * Return the component path without the `srcDir` and `pages`
  * @param component
  */
-function getAstroRoute(component: RouteData['component']): string {
+function getAstroRoutePattern(component: RouteData['component']): string {
 	let splitComponent = component.split("/");
 	while (true) {
 		const currentPart = splitComponent.shift();
