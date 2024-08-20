@@ -2275,6 +2275,10 @@ export interface AstroUserConfig {
 		 * export const collections = { blog, dogs };
 		 * ```
 		 *
+		 * :::note
+		 * Loaders will not automatically [exclude files prefaced with an `_`](/en/guides/routing/#excluding-pages). Use a regular expression such as `pattern: '**\/[^_]*.md` in your loader to ignore these files.
+		 * :::
+		 *
 		 * #### Querying and rendering with the Content Layer API
 		 *
 		 * The collection can be [queried in the same way as content collections](/en/guides/content-collections/#querying-collections):
@@ -2356,7 +2360,7 @@ export interface AstroUserConfig {
 		 *     const blog = defineCollection({
 		 *       // For content layer you no longer define a `type`
 		 *      type: 'content',
-		 *      loader: glob({ pattern: "**\/*.md", base: "./src/data/blog" }),
+		 *      loader: glob({ pattern: '**\/[^_]*.md', base: "./src/data/blog" }),
 		 *       schema: z.object({
 		 *         title: z.string(),
 		 *         description: z.string(),
