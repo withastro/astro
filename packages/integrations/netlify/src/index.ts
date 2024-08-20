@@ -342,7 +342,6 @@ export default function netlifyIntegration(
 		const parseBase64JSON = <T = unknown>(header: string): T | undefined => {
 			if (typeof req.headers[header] === 'string') {
 				try {
-					// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 					return JSON.parse(Buffer.from(req.headers[header] as string, 'base64').toString('utf8'));
 				} catch {}
 			}
