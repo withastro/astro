@@ -144,25 +144,22 @@ function validateTsconfig(settings: AstroSettings, rawConfig: TSConfig) {
 		return;
 	}
 
+	// TODO: show diff each time before error (depends on https://github.com/withastro/astro/pull/11772)
 	if (!rawConfig.extends) {
-		// TODO: must have extends
-		// must have this content at least (gen path)
-		throw new Error("Must have extends")
+		throw new AstroError(AstroErrorData.TSConfigInvalidExtends);
 	} else if (
 		typeof rawConfig.extends === 'string' &&
 		rawConfig.extends !== GENERATED_TSCONFIG_PATH
 	) {
-		// TODO: must must have this content at least (gen path, array)
-		throw new Error('Must extend generated');
+		throw new AstroError(AstroErrorData.TSConfigInvalidExtends);
 	} else if (!rawConfig.extends.includes(GENERATED_TSCONFIG_PATH)) {
-		// TODO: must extends gen path
-		throw new Error('Must extend generated in array');
+		throw new AstroError(AstroErrorData.TSConfigInvalidExtends);
 	}
 
 	if (rawConfig.include) {
-		throw new Error("include must be in experimental.typescript.include")
+		throw new AstroError(AstroErrorData.TSConfigInvalidInclude);
 	}
 	if (rawConfig.exclude) {
-		throw new Error("exclude must be in experimental.typescript.exclude")
+		throw new AstroError(AstroErrorData.TSConfigInvalidExclude);
 	}
 }
