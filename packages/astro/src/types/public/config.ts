@@ -1445,7 +1445,6 @@ export interface AstroUserConfig {
 		validateSecrets?: boolean;
 	};
 
-
 	/**
 	 * @docs
 	 * @kind heading
@@ -1975,7 +1974,38 @@ export interface AstroUserConfig {
 		 * @version 5.0.0
 		 * @description
 		 *
-		 * TODO:
+		 * Enables the generation of `.astro/tsconfig.json`. This allows to exclude the `distDir` by default to avoid `astro check` false positives.
+		 *
+		 * If you enable this option, you'll need to update your `tsconfig.json` with a new `extends` value:
+		 *
+		 * ```json title="tsconfig.json" del={2} ins={3}
+		 * {
+		 *   extends: 'astro/tsconfigs/base',
+		 * 	 extends: ['astro/tsconfigs/base', './.astro/tsconfig.json']
+		 * }
+		 * ```
+		 *
+		 * If you have `include` or `exclude` inside your root `tsconfig.json`, you'll need to move them to your Astro config:
+		 *
+		 * ```json title="tsconfig.json" del={2-3}
+		 * {
+		 *   include: ['foo'],
+		 *   exclude: ['bar']
+		 * }
+		 * ```
+		 *
+		 * ```js title="astro.config.*" ins={6-7}
+		 * import { defineConfig } from 'astro/config'
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *    typescript: {
+		 *      include: ['foo'],
+		 *      exclude: ['bar']
+		 *    }
+		 *   }
+		 * })
+		 * ```
 		 */
 		typescript?: {
 			/**
@@ -1986,7 +2016,25 @@ export interface AstroUserConfig {
 			 * @version 5.0.0
 			 * @description
 			 *
-			 * TODO:
+			 * If you have `include` your root `tsconfig.json`, you'll need to move it to your Astro config:
+			 *
+			 * ```json title="tsconfig.json" del={2}
+			 * {
+			 *   include: ['foo']
+			 * }
+			 * ```
+			 *
+			 * ```js title="astro.config.*" ins={6}
+			 * import { defineConfig } from 'astro/config'
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *    typescript: {
+			 *      include: ['foo']
+			 *    }
+			 *   }
+			 * })
+			 * ```
 			 */
 			include?: Array<string>;
 
@@ -1998,7 +2046,25 @@ export interface AstroUserConfig {
 			 * @version 5.0.0
 			 * @description
 			 *
-			 * TODO:
+			 * If you have `exclude` your root `tsconfig.json`, you'll need to move it to your Astro config:
+			 *
+			 * ```json title="tsconfig.json" del={2}
+			 * {
+			 *   exclude: ['bar']
+			 * }
+			 * ```
+			 *
+			 * ```js title="astro.config.*" ins={6}
+			 * import { defineConfig } from 'astro/config'
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *    typescript: {
+			 *      exclude: ['bar']
+			 *    }
+			 *   }
+			 * })
+			 * ```
 			 */
 			exclude?: Array<string>;
 		};

@@ -96,6 +96,8 @@ async function setupTsconfig(settings: AstroSettings, fs: typeof fsMod, logger: 
 		relative(fileURLToPath(settings.dotAstroDir), fileURLToPath(settings.config.outDir)),
 	);
 
+	// TODO: handle relative include/exclude! Users will add values relative to the root,
+	// but here they should be relative to dotAstroDir
 	const expectedContent = JSON.stringify(
 		{
 			include: [...(settings.config.experimental.typescript?.include ?? []), relativeDtsPath],
