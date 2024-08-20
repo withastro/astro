@@ -31,7 +31,7 @@ export function astroEnv({
 	fs,
 	sync,
 }: AstroEnvVirtualModPluginParams): Plugin | undefined {
-	if (!settings.config.experimental.env || sync) {
+	if (!settings.config.experimental.env) {
 		return;
 	}
 	const schema = settings.config.experimental.env.schema ?? {};
@@ -57,6 +57,7 @@ export function astroEnv({
 				schema,
 				loadedEnv,
 				validateSecrets: settings.config.experimental.env?.validateSecrets ?? false,
+				sync,
 			});
 
 			templates = {
@@ -100,10 +101,12 @@ function validatePublicVariables({
 	schema,
 	loadedEnv,
 	validateSecrets,
+	sync,
 }: {
 	schema: EnvSchema;
 	loadedEnv: Record<string, string>;
 	validateSecrets: boolean;
+	sync: boolean;
 }) {
 	const valid: Array<{ key: string; value: any; type: string; context: 'server' | 'client' }> = [];
 	const invalid: Array<InvalidVariable> = [];
@@ -125,7 +128,7 @@ function validatePublicVariables({
 		}
 	}
 
-	if (invalid.length > 0) {
+	if (invalid.length > 0 && !sync) {
 		throw new AstroError({
 			...AstroErrorData.EnvInvalidVariables,
 			message: AstroErrorData.EnvInvalidVariables.message(invalidVariablesToError(invalid)),
