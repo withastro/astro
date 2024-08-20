@@ -8,6 +8,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { REFERENCE_FILE } from './constants.js';
 import { startsWithDotDotSlash, startsWithDotSlash } from '../path.js';
+import { GENERATED_TSCONFIG_PATH } from '../config/constants.js';
 
 export async function writeFiles(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
 	try {
@@ -82,9 +83,6 @@ async function setupEnvDts(settings: AstroSettings, fs: typeof fsMod, logger: Lo
 
 async function setupTsconfig(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
 	const tsconfigPath = normalizePath(fileURLToPath(new URL('tsconfig.json', settings.dotAstroDir)));
-	const tsconfigPathRelativetoRoot = normalizePath(
-		relative(fileURLToPath(settings.config.root), tsconfigPath),
-	);
 	let relativeDtsPath = normalizePath(
 		relative(
 			fileURLToPath(settings.dotAstroDir),
@@ -111,7 +109,7 @@ async function setupTsconfig(settings: AstroSettings, fs: typeof fsMod, logger: 
 		return;
 	}
 
-	logger.info('types', `Generated ${bold(tsconfigPathRelativetoRoot)}`);
+	logger.info('types', `Generated ${bold(GENERATED_TSCONFIG_PATH)}`);
 
 	fs.promises.writeFile(tsconfigPath, expectedContent, 'utf-8');
 }

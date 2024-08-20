@@ -12,6 +12,7 @@ import { formatYAMLException, isYAMLException } from '../errors/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig, type TSConfig } from './tsconfig.js';
+import { GENERATED_TSCONFIG_PATH } from './constants.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	const { contentDir } = getContentPaths(config);
@@ -149,11 +150,11 @@ function validateTsconfig(settings: AstroSettings, rawConfig: TSConfig) {
 		throw new Error("Must have extends")
 	} else if (
 		typeof rawConfig.extends === 'string' &&
-		rawConfig.extends !== './.astro/tsconfig.json'
+		rawConfig.extends !== GENERATED_TSCONFIG_PATH
 	) {
 		// TODO: must must have this content at least (gen path, array)
 		throw new Error('Must extend generated');
-	} else if (!rawConfig.extends.includes('./.astro/tsconfig.json')) {
+	} else if (!rawConfig.extends.includes(GENERATED_TSCONFIG_PATH)) {
 		// TODO: must extends gen path
 		throw new Error('Must extend generated in array');
 	}
