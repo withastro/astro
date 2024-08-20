@@ -22,10 +22,8 @@ export type Locals = {
 };
 
 export const onRequest = defineMiddleware(async (context, next) => {
-	const { request } = context;
-
 	if ((context as any)._isPrerendered) {
-		if (request.method === 'POST') {
+		if (context.request.method === 'POST') {
 			// eslint-disable-next-line no-console
 			console.warn(
 				yellow('[astro:actions]'),

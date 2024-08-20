@@ -4,6 +4,7 @@ import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
+import { serializeActionResult } from '../dist/actions/runtime/virtual/shared.js';
 
 describe('Astro Actions', () => {
 	let fixture;
@@ -23,6 +24,28 @@ describe('Astro Actions', () => {
 
 		after(async () => {
 			await devServer.stop();
+		});
+
+		it('Does not process middleware cookie for prerendered routes', async () => {
+			const cookie = new URLSearchParams();
+			cookie.append(
+				'_astroActionPayload',
+				JSON.stringify({
+					actionName: 'subscribe',
+					actionResult: serializeActionResult({
+						data: { channel: 'bholmesdev', subscribeButtonState: 'smashed' },
+						error: undefined,
+					}),
+				}),
+			);
+			const res = await fixture.fetch('/subscribe-prerendered', {
+				headers: {
+					Cookie: cookie.toString(),
+				},
+			});
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			assert.equal($('body').text().trim(), 'No cookie found.');
 		});
 
 		it('Exposes subscribe action', async () => {
