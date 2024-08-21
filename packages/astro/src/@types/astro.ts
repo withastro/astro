@@ -1,4 +1,5 @@
 import type { OutgoingHttpHeaders } from 'node:http';
+import type { z } from 'zod';
 import type { AddressInfo } from 'node:net';
 import type {
 	MarkdownHeading,
@@ -14,7 +15,6 @@ import type * as vite from 'vite';
 import type {
 	ActionAccept,
 	ActionClient,
-	ActionInputSchema,
 	ActionReturnType,
 } from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
@@ -3010,7 +3010,7 @@ interface AstroSharedContext<
 	 */
 	getActionResult: <
 		TAccept extends ActionAccept,
-		TInputSchema extends ActionInputSchema<TAccept>,
+		TInputSchema extends z.ZodType,
 		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
 	>(
 		action: TAction,
@@ -3020,7 +3020,7 @@ interface AstroSharedContext<
 	 */
 	callAction: <
 		TAccept extends ActionAccept,
-		TInputSchema extends ActionInputSchema<TAccept>,
+		TInputSchema extends z.ZodType,
 		TOutput,
 		TAction extends
 			| ActionClient<TOutput, TAccept, TInputSchema>
