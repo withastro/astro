@@ -69,7 +69,7 @@ export class RenderContext {
 	 * A safety net in case of loops
 	 */
 	counter = 0;
-
+//this is a test
 	static create({
 		locals = {},
 		middleware,
