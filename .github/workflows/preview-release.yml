@@ -2,7 +2,7 @@ name: Preview release
 
 on:
   workflow_dispatch:
-  pull_request_review_comment:
+  issue_comment:
     types: [created] 
         
 permissions:
