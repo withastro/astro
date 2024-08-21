@@ -84,6 +84,10 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	security: {
 		checkOrigin: true
 	},
+	env: {
+		schema: {},
+		validateSecrets: false,
+	},
 	experimental: {
 		actions: false,
 		directRenderScript: false,
@@ -92,9 +96,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		globalRoutePriority: false,
 		serverIslands: false,
 		contentIntellisense: false,
-		env: {
-			validateSecrets: false,
-		},
 		contentLayer: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
@@ -247,11 +248,7 @@ export const AstroConfigSchema = z.object({
 			service: z
 				.object({
 					entrypoint: z
-						.union([
-							z.literal('astro/assets/services/sharp'),
-							z.literal('astro/assets/services/squoosh'),
-							z.string(),
-						])
+						.union([z.literal('astro/assets/services/sharp'), z.string()])
 						.default(ASTRO_CONFIG_DEFAULTS.image.service.entrypoint),
 					config: z.record(z.any()).default({}),
 				})
@@ -509,6 +506,14 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.security),
+	env: z
+		.object({
+			schema: EnvSchema.optional().default(ASTRO_CONFIG_DEFAULTS.env.schema),
+			validateSecrets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.env.validateSecrets),
+		})
+		.strict()
+		.optional()
+		.default(ASTRO_CONFIG_DEFAULTS.env),
 	experimental: z
 		.object({
 			actions: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.actions),
@@ -528,16 +533,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.globalRoutePriority),
-			env: z
-				.object({
-					schema: EnvSchema.optional(),
-					validateSecrets: z
-						.boolean()
-						.optional()
-						.default(ASTRO_CONFIG_DEFAULTS.experimental.env.validateSecrets),
-				})
-				.strict()
-				.optional(),
 			serverIslands: z
 				.boolean()
 				.optional()

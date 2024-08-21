@@ -133,7 +133,7 @@ export async function syncInternal({
 				content: '',
 			});
 		}
-		syncAstroEnv(settings, fs);
+		syncAstroEnv(settings);
 
 		await writeFiles(settings, fs, logger);
 		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
@@ -170,7 +170,7 @@ async function syncContentCollections(
 	const tempViteServer = await createServer(
 		await createVite(
 			{
-				server: { middlewareMode: true, hmr: false, watch: null },
+				server: { middlewareMode: true, hmr: false, watch: null, ws: false },
 				optimizeDeps: { noDiscovery: true },
 				ssr: { external: [] },
 				logLevel: 'silent',

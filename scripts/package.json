@@ -8,20 +8,12 @@
     "astro-scripts": "./index.js"
   },
   "dependencies": {
-    "arg": "^5.0.2",
     "esbuild": "^0.21.5",
-    "globby": "^14.0.2",
-    "kleur": "^4.1.5",
-    "p-limit": "^6.1.0",
-    "svelte": "^4.2.18",
-    "tar": "^7.4.3",
-    "tiny-glob": "^0.2.9"
-  },
-  "devDependencies": {
-    "@octokit/action": "^7.0.0",
-    "del": "^7.1.0",
     "esbuild-plugin-copy": "^2.1.1",
     "execa": "^8.0.1",
+    "fast-glob": "^3.3.2",
+    "kleur": "^4.1.5",
+    "p-limit": "^6.1.0",
     "tsconfck": "^3.1.1"
   }
 }

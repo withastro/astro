@@ -2,7 +2,6 @@ import { extname } from 'node:path';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
-import { extendManualChunks } from '../core/build/plugins/util.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import {
 	appendForwardSlash,
@@ -106,19 +105,6 @@ export default function assets({
 		// Expose the components and different utilities from `astro:assets` and handle serving images from `/_image` in dev
 		{
 			name: 'astro:assets',
-			outputOptions(outputOptions) {
-				// Specifically split out chunk for asset files to prevent TLA deadlock
-				// caused by `getImage()` for markdown components.
-				// https://github.com/rollup/rollup/issues/4708
-				extendManualChunks(outputOptions, {
-					after(id) {
-						if (id.includes('astro/dist/assets/services/')) {
-							// By convention, library code is emitted to the `chunks/astro/*` directory
-							return `astro/assets-service`;
-						}
-					},
-				});
-			},
 			async resolveId(id) {
 				if (id === VIRTUAL_SERVICE_ID) {
 					return await this.resolve(settings.config.image.service.entrypoint);
