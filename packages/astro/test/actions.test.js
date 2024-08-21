@@ -261,6 +261,30 @@ describe('Astro Actions', () => {
 			assert.equal(data.issues?.[0]?.message, 'Passwords do not match');
 		});
 
+		it('Supports complex chained effects on form input validators', async () => {
+			const formData = new FormData();
+			formData.set('currentPassword', 'benisboring');
+			formData.set('newPassword', 'benisawesome');
+			formData.set('confirmNewPassword', 'benisawesome');
+
+			const req = new Request('http://example.com/_actions/validatePasswordComplex', {
+				method: 'POST',
+				body: formData,
+			});
+
+			const res = await app.render(req);
+
+			assert.equal(res.ok, true);
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+
+			const data = devalue.parse(await res.text());
+			assert.equal(Object.keys(data).length, 2, 'More keys than expected');
+			assert.deepEqual(data, {
+				currentPassword: 'benisboring',
+				newPassword: 'benisawesome',
+			});
+		});
+
 		it('Supports input form data transforms', async () => {
 			const formData = new FormData();
 			formData.set('name', 'ben');

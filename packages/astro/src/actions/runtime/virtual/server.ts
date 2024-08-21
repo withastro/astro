@@ -194,8 +194,13 @@ function handleFormDataGet(
 }
 
 function unwrapSchemaEffects(schema: z.ZodType) {
-	while (schema instanceof z.ZodEffects) {
-		schema = schema._def.schema;
+	while (schema instanceof z.ZodEffects || schema instanceof z.ZodPipeline) {
+		if (schema instanceof z.ZodEffects) {
+			schema = schema._def.schema;
+		}
+		if (schema instanceof z.ZodPipeline) {
+			schema = schema._def.in;
+		}
 	}
 	return schema;
 }
