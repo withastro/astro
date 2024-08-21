@@ -2,7 +2,7 @@
 
 export function onRequest(ctx, next) {
 	ctx.locals = {
-		localsPattern: ctx.route.pattern
+		localsPattern: ctx.routePattern
 	};
 	return next()
 }
