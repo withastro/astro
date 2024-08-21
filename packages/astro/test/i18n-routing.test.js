@@ -1977,11 +1977,11 @@ describe('Fallback rewrite SSG', () => {
 				locales: ['en', 'fr'],
 				routing: {
 					prefixDefaultLocale: false,
+					fallbackType: "rewrite"
 				},
 				fallback: {
 					fr: 'en',
 				},
-				fallbackType: "rewrite"
 			},
 		});
 		await fixture.build();
@@ -2015,11 +2015,11 @@ describe('Fallback rewrite SSR', () => {
 				locales: ['en', 'fr'],
 				routing: {
 					prefixDefaultLocale: false,
+					fallbackType: "rewrite"
 				},
 				fallback: {
 					fr: 'en',
 				},
-				fallbackType: "rewrite"
 			},
 		});
 		await fixture.build();
