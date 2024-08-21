@@ -89,11 +89,8 @@ function getAdapter({
 			hybridOutput: 'stable',
 			staticOutput: 'stable',
 			serverOutput: 'stable',
-			assets: {
-				supportKind: 'stable',
-				isSharpCompatible: true,
-			},
 			i18nDomains: 'experimental',
+			sharpImageService: 'stable',
 			envGetSecret: 'stable',
 		},
 	};

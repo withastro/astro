@@ -247,52 +247,6 @@ describe('Astro feature map', function () {
 			assert.equal(result['serverOutput'], false);
 		});
 	});
-
-	describe('assets', function () {
-		it('should be supported when it is sharp compatible', () => {
-			let result = validateSupportedFeatures(
-				'test',
-				{
-					assets: {
-						supportKind: 'stable',
-						isSharpCompatible: true,
-					},
-				},
-				{
-					image: {
-						service: {
-							entrypoint: 'astro/assets/services/sharp',
-						},
-					},
-				},
-				{},
-				defaultLogger,
-			);
-			assert.equal(result['assets'], true);
-		});
-
-		it("should not be valid if the config is correct, but the it's unsupported", () => {
-			let result = validateSupportedFeatures(
-				'test',
-				{
-					assets: {
-						supportKind: 'unsupported',
-						isNodeCompatible: false,
-					},
-				},
-				{
-					image: {
-						service: {
-							entrypoint: 'astro/assets/services/sharp',
-						},
-					},
-				},
-				{},
-				defaultLogger,
-			);
-			assert.equal(result['assets'], false);
-		});
-	});
 });
 
 describe('normalizeInjectedTypeFilename', () => {
