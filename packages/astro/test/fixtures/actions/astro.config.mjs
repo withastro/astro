@@ -6,4 +6,7 @@ export default defineConfig({
 	experimental: {
 		actions: true,
 	},
+	security: {
+		checkOrigin: false
+	}
 });
