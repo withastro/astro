@@ -94,7 +94,7 @@ function getAdapter({
 				isSharpCompatible: true,
 			},
 			i18nDomains: 'experimental',
-			envGetSecret: 'experimental',
+			envGetSecret: 'stable',
 		},
 	};
 }
