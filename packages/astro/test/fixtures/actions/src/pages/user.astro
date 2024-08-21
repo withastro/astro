@@ -4,4 +4,4 @@ import { actions } from 'astro:actions';
 const res = Astro.getActionResult(actions.getUser);
 ---
 
-<h1 id="user">{res?.data?.name}</h1>
+<h1 id="user">{res?.success ? res.data.name : 'Failed'}</h1>

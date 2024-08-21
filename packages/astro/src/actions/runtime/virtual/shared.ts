@@ -113,10 +113,12 @@ export function isInputError<T extends ErrorInferenceObject>(
 
 export type SafeResult<TInput extends ErrorInferenceObject, TOutput> =
 	| {
+			success: true;
 			data: TOutput;
 			error: undefined;
 	  }
 	| {
+			success: false;
 			data: undefined;
 			error: ActionError<TInput>;
 	  };
@@ -153,12 +155,13 @@ export async function callSafely<TOutput>(
 ): Promise<SafeResult<z.ZodType, TOutput>> {
 	try {
 		const data = await handler();
-		return { data, error: undefined };
+		return { success: true, data, error: undefined };
 	} catch (e) {
 		if (e instanceof ActionError) {
-			return { data: undefined, error: e };
+			return { success: false, data: undefined, error: e };
 		}
 		return {
+			success: false,
 			data: undefined,
 			error: new ActionError({
 				message: e instanceof Error ? e.message : 'Unknown error',
@@ -246,20 +249,22 @@ export function serializeActionResult(res: SafeResult<any, any>): SerializedActi
 export function deserializeActionResult(res: SerializedActionResult): SafeResult<any, any> {
 	if (res.type === 'error') {
 		if (import.meta.env?.PROD) {
-			return { error: ActionError.fromJson(JSON.parse(res.body)), data: undefined };
+			return { success: false, error: ActionError.fromJson(JSON.parse(res.body)), data: undefined };
 		} else {
 			const error = ActionError.fromJson(JSON.parse(res.body));
 			error.stack = actionResultErrorStack.get();
 			return {
+				success: false,
 				error,
 				data: undefined,
 			};
 		}
 	}
 	if (res.type === 'empty') {
-		return { data: undefined, error: undefined };
+		return { success: true, data: undefined, error: undefined };
 	}
 	return {
+		success: true,
 		data: devalueParse(res.body, {
 			URL: (href) => new URL(href),
 		}),
