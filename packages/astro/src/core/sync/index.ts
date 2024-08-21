@@ -133,7 +133,7 @@ export async function syncInternal({
 				content: '',
 			});
 		}
-		syncAstroEnv(settings, fs);
+		syncAstroEnv(settings);
 
 		await writeFiles(settings, fs, logger);
 		logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);

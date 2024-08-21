@@ -1380,6 +1380,73 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @name env
+	 * @type {object}
+	 * @default `{}`
+	 * @version 5.0.0
+	 * @description
+	 *
+	 * Holds `astro:env` options.
+	 */
+	env?: {
+		/**
+		 * @docs
+		 * @name env.schema
+		 * @type {EnvSchema}
+		 * @default `{}`
+		 * @version 5.0.0
+		 * @description
+		 *
+		 * An object that uses `envField` to define the data type (`string`, `number`, or `boolean`) and properties of your environment variables: `context` (client or server), `access` (public or secret), a `default` value to use, and whether or not this environment variable is `optional` (defaults to `false`).
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig, envField } from "astro/config"
+		 *
+		 * export default defineConfig({
+		 *   env: {
+		 *     schema: {
+		 *       API_URL: envField.string({ context: "client", access: "public", optional: true }),
+		 *       PORT: envField.number({ context: "server", access: "public", default: 4321 }),
+		 *       API_SECRET: envField.string({ context: "server", access: "secret" }),
+		 *     }
+		 *   }
+		 * })
+		 * ```
+		 */
+		schema?: EnvSchema;
+
+		/**
+		 * @docs
+		 * @name env.validateSecrets
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.0.0
+		 * @description
+		 *
+		 * Whether or not to validate secrets on the server when starting the dev server or running a build.
+		 *
+		 * By default, only public variables are validated on the server when starting the dev server or a build, and private variables are validated at runtime only. If enabled, private variables will also be checked on start. This is useful in some continuous integration (CI) pipelines to make sure all your secrets are correctly set before deploying.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig, envField } from "astro/config"
+		 *
+		 * export default defineConfig({
+		 *   env: {
+		 *     schema: {
+		 *       // ...
+		 *     },
+		 *     validateSecrets: true
+		 *   }
+		 * })
+		 * ```
+		 */
+		validateSecrets?: boolean;
+	};
+
+
+	/**
+	 * @docs
 	 * @kind heading
 	 * @name Legacy Flags
 	 * @description

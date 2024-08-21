@@ -18,7 +18,7 @@ export function getAdapter(options: Options): AstroAdapter {
 				isSharpCompatible: true,
 			},
 			i18nDomains: 'experimental',
-			envGetSecret: 'experimental',
+			envGetSecret: 'stable',
 		},
 	};
 }
