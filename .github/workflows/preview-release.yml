@@ -2,11 +2,8 @@ name: Preview release
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    tags:
-      - '!**' 
+  issue_comment:
+    types: [created] 
   merge_group:
   pull_request:
     paths-ignore:
