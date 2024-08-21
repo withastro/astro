@@ -172,6 +172,10 @@ declare module 'astro:components' {
 	export * from 'astro/components';
 }
 
+declare module 'astro:schema' {
+	export * from 'astro/zod';
+}
+
 type MD = import('./dist/@types/astro.js').MarkdownInstance<Record<string, any>>;
 interface ExportedMarkdownModuleEntities {
 	frontmatter: MD['frontmatter'];

@@ -6,6 +6,8 @@ import { ActionError, ActionInputError, type SafeResult, callSafely } from './sh
 
 export * from './shared.js';
 
+// TODO: remove for stable.
+/** @deprecated Import `z` from `astro:schema` instead. */
 export { z } from 'zod';
 
 export type ActionAccept = 'form' | 'json';

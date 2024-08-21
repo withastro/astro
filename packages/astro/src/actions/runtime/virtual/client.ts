@@ -4,6 +4,7 @@ export function defineAction() {
 	throw new Error('[astro:action] `defineAction()` unexpectedly used on the client.');
 }
 
+// TODO: remove for stable.
 export const z = new Proxy(
 	{},
 	{

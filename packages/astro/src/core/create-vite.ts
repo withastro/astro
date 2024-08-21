@@ -192,6 +192,10 @@ export async function createVite(
 					replacement: 'astro/virtual-modules/middleware.js',
 				},
 				{
+					find: 'astro:schema',
+					replacement: 'astro/zod',
+				},
+				{
 					find: 'astro:components',
 					replacement: 'astro/components',
 				},
