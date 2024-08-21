@@ -33,7 +33,7 @@ env:
 
 jobs:
   preview:
-    if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && (contains(github.event.comment.body, '!preview')) }}
+    if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && (startsWith(github.event.comment.body, '!preview')) }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
