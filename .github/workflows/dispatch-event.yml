@@ -19,7 +19,7 @@ concurrency:
 env:
   ASTRO_ADAPTERS_REPO: withastro/adapters
   ASTRO_STARLIGHT_REPO: withastro/starlight
-  ASTRO_PUSH_MAIN_EVENT: biome-push-main-event
+  ASTRO_PUSH_MAIN_EVENT: astro-push-main-event
     
 jobs:
   repository-dispatch:

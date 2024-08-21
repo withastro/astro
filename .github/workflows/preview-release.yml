@@ -2,11 +2,8 @@ name: Preview release
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    tags:
-      - '!**' 
+  issue_comment:
+    types: [created] 
   merge_group:
   pull_request:
     paths-ignore:
@@ -33,8 +30,14 @@ env:
 
 jobs:
   preview:
-    name: Publish preview release
+    if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && (startsWith(github.event.comment.body, '!preview')) }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      issues: write
+      pull-requests: write
+    name: Publish preview release
     timeout-minutes: 5
     steps:
       - name: Disable git crlf
