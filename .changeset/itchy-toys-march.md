@@ -2,15 +2,11 @@
 'astro': major
 ---
 
-The option `security.checkOrigin` is `true` by default
+Updates the default value of `security.checkOrigin` to `true`, which enables Cross-Site Request Forgery (CSRF) protection by default for pages rendered on demand.
 
-### Changed: `security.checkOrigin` default value to `true`
-In Astro v4.0, the value of `security.checkOrigin` was `false`, and users needed to opt-in.
+If you had previously configured `security.checkOrigin: true`, you no longer need this set in your Astro config. This is now the default and it is safe to remove.
 
-Astro v5.0, the default value of `security.checkOrigin` is now `true`.
-#### What should I do?
-
-Update `astro.config.mjs` to _opt-out_:
+To disable this behavior and opt out of automatically checking that the “origin” header matches the URL sent by each request, you must explicitly set `security.checkOrigin: false`:
 
 ```diff
 export default defineConfig({
