@@ -2,14 +2,8 @@ name: Preview release
 
 on:
   workflow_dispatch:
-  issue_comment:
+  pull_request_review_comment:
     types: [created] 
-  merge_group:
-  pull_request:
-    paths-ignore:
-      - ".vscode/**"
-      - "**/*.md"
-      - ".github/ISSUE_TEMPLATE/**"
         
 permissions:
   contents: read
