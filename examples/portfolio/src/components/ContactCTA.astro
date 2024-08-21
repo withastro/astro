@@ -4,11 +4,20 @@ import Icon from './Icon.astro';
 ---
 
 <aside>
-	<h2>Interested in working together?</h2>
-	<CallToAction href="mailto:me@example.com">
-		Send Me a Message
-		<Icon icon="paper-plane-tilt" size="1.2em" />
-	</CallToAction>
+	<section>
+		<div class="content">
+			
+			<div class="subscription-box">
+				<h3>Subscribe to our newsletter • Don’t miss out!</h3>
+				<p>Email*</p>
+				<form action="/subscribe" method="post">
+					<input type="email" name="email" placeholder="Your email address" required>
+					<button type="submit">Subscribe</button>
+				</form>
+			</div>
+		</div>
+	</section>
+	
 </aside>
 
 <style>
@@ -23,6 +32,8 @@ import Icon from './Icon.astro';
 		background-color: var(--gray-999_40);
 		box-shadow: var(--shadow-sm);
 	}
+	
+
 
 	h2 {
 		font-size: var(--text-xl);
@@ -32,7 +43,7 @@ import Icon from './Icon.astro';
 
 	@media (min-width: 50em) {
 		aside {
-			padding: 7.5rem;
+			padding: 5rem;
 			flex-direction: row;
 			flex-wrap: wrap;
 			justify-content: space-between;
@@ -43,4 +54,53 @@ import Icon from './Icon.astro';
 			text-align: left;
 		}
 	}
+	.subscription-box {
+    border: 1px solid var(--gray-800);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    background-color: var(--gray-999_40);
+    box-shadow: var(--shadow-sm);
+    text-align: left; /* Centers the text within the box */
+    max-width: 500px; /* Adjust the width as needed */
+    margin: 1rem auto; /* Centers the box horizontally and adds vertical spacing */
+}
+
+.subscription-box h3 {
+    font-size: var(--text-lg); /* Adjust font size as needed */
+    margin-bottom: 1rem;
+}
+
+.subscription-box p {
+    font-size: var(--text-sm); /* Adjust font size as needed */
+    color: var(--gray-400);
+    margin-bottom: 1.5rem;
+}
+
+.subscription-box form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.subscription-box input[type="email"] {
+    padding: 0.75rem;
+    border: 1px solid var(--gray-800);
+    border-radius: 0.375rem;
+    font-size: var(--text-base); /* Adjust font size as needed */
+}
+
+.subscription-box button {
+    padding: 0.75rem;
+    border: none;
+    border-radius: 0.375rem;
+    background-color: var(--accent-regular); /* Adjust color as needed */
+    color: #fff;
+    font-size: var(--text-base); /* Adjust font size as needed */
+    cursor: pointer;
+}
+
+.subscription-box button:hover {
+    background-color: var(--accent-dark); /* Adjust hover color as needed */
+}
+
 </style>

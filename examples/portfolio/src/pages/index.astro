@@ -26,80 +26,71 @@ const projects = (await getCollection('work'))
 ---
 
 <BaseLayout>
-	<div class="stack gap-20 lg:gap-48">
+	<div class="stack gap-20 ">
 		<div class="wrapper stack gap-8 lg:gap-20">
 			<header class="hero">
-				<Hero
-					title="Hello, my name is Jeanine White"
-					tagline="I am a Creative Developer who is currently based in Portland, Oregon."
-					align="start"
-				>
+				<Hero 
+				title="Longhorns Crushing Medical Debt"
+				tagline=""
+				align="start"
+			
+					<section>
+				
+						<div class="content">
+							<p>
+								Our mission is to ensure that a medical crisis should not be followed by a financial crisis. We assist patients in need in eliminating their medical debt through hospital charity care policies.
+							</p>
+							
+			
+						</div>
+					</section>
+				
 					<div class="roles">
-						<Pill><Icon icon="code" size="1.33em" /> Developer</Pill>
-						<Pill><Icon icon="microphone-stage" size="1.33em" /> Speaker</Pill>
-						<Pill><Icon icon="pencil-line" size="1.33em" /> Writer</Pill>
+						<CallToAction href="/about/">
+							About Us
+							
+						</CallToAction>
+						<CallToAction href="https://dollarfor.org">
+							Clear Up Medical Debt
+							
+						</CallToAction>
+						
 					</div>
+					
 				</Hero>
 
 				<img
-					alt="Jeanine White smiling in a red plaid shirt and tortoise shell glasses"
-					width="480"
+					alt="We Crush Medical Bills"
+					width="600"
 					height="620"
-					src="/assets/portrait.jpg"
+					src="/assets/WeCrush.png"
 				/>
 			</header>
 
 			<Skills />
 		</div>
 
-		<main class="wrapper stack gap-20 lg:gap-48">
+		<main class="wrapper stack">
 			<section class="section with-background with-cta">
-				<header class="section-header stack gap-2 lg:gap-4">
-					<h3>Selected Work</h3>
-					<p>Take a look below at some of my featured work for clients from the past few years.</p>
+				<header class="section-header">
+					<h3>No events at the moment</h3>
+					
 				</header>
 
-				<div class="gallery">
-					<Grid variant="offset">
-						{
-							projects.map((project) => (
-								<li>
-									<PortfolioPreview project={project} />
-								</li>
-							))
-						}
-					</Grid>
-				</div>
-
-				<div class="cta">
-					<CallToAction href="/work/">
-						View All
-						<Icon icon="arrow-right" size="1.2em" />
-					</CallToAction>
-				</div>
+				
 			</section>
-
-			<section class="section with-background bg-variant">
-				<header class="section-header stack gap-2 lg:gap-4">
-					<h3>Mentions</h3>
-					<p>
-						I have been fortunate enough to receive praise for my work in several publications. Take
-						a look below to learn more.
-					</p>
-				</header>
-
-				<div class="gallery">
-					<Grid variant="small">
-						{
-							['Medium', 'BuzzFeed', 'The Next Web', 'awwwards.', 'TechCrunch'].map((brand) => (
-								<li class="mention-card">
-									<p>{brand}</p>
-								</li>
-							))
-						}
-					</Grid>
-				</div>
-			</section>
+			<section class="box skills">
+			<div class="stack gap-2 lg:gap-4">
+					
+				<h3>CONTACT US</h3>
+				<p>
+					<a href="/contact" class="mention-link">Have any questions? Get in contact with us here!</a>
+				</p>
+				
+			</div>
+		
+		</section>
+			
 		</main>
 
 		<ContactCTA />
@@ -113,6 +104,15 @@ const projects = (await getCollection('work'))
 		align-items: center;
 		gap: 2rem;
 	}
+	.box {
+		border: 1px solid var(--gray-800);
+		border-radius: 0.75rem;
+		padding: 1.5rem;
+		background-color: var(--gray-999_40);
+		box-shadow: var(--shadow-sm);
+		
+	}
+	
 
 	.roles {
 		display: none;
@@ -141,7 +141,7 @@ const projects = (await getCollection('work'))
 		}
 
 		.hero img {
-			aspect-ratio: 3 / 4;
+			
 			border-radius: 4.5rem;
 			object-fit: cover;
 		}
@@ -183,16 +183,27 @@ const projects = (await getCollection('work'))
 	}
 
 	.section-header {
-		justify-self: center;
-		text-align: center;
-		max-width: 50ch;
-		font-size: var(--text-md);
-		color: var(--gray-300);
-	}
+    display: flex;
+    justify-content: center; /* Center content horizontally */
+    align-items: center;     /* Center content vertically if the container has a fixed height */
+    text-align: center;      /* Center text within the element */
+    max-width: 200ch;        /* Limit maximum width for readability */
+    font-size: var(--text-md); /* Font size variable */
+    color: var(--gray-300);   /* Text color variable */
+   
+    
+}
 
 	.section-header h3 {
-		font-size: var(--text-2xl);
+		font-size: var(--text-l);
+		
 	}
+	.hero-title {
+    font-size: var(--text-md); /* Adjust as needed */
+    color: var(--text-color);
+    margin: 0;
+}
+	
 
 	@media (min-width: 50em) {
 		.section {
@@ -211,7 +222,7 @@ const projects = (await getCollection('work'))
 		}
 
 		.section-header h3 {
-			font-size: var(--text-4xl);
+			font-size: var(--text-3xl);
 		}
 
 		.with-cta .section-header {

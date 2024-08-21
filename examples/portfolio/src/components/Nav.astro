@@ -6,18 +6,20 @@ import type { iconPaths } from './IconPaths';
 /** Main menu items */
 const textLinks: { label: string; href: string }[] = [
 	{ label: 'Home', href: '/' },
-	{ label: 'Work', href: '/work/' },
+	
 	{ label: 'About', href: '/about/' },
+	{ label: 'Join', href: 'https://docs.google.com/forms/d/e/1FAIpQLSdpc5dgzhLR2S_vSnbuV_CNgUz_MRziL9ob0N12GLJrDJQ_ww/viewform' },
+	{ label: 'Resources', href: '/resources/' },
+	{ label: 'Newsletter', href: '/newsletter/' },
+	{ label: 'Calendar', href: '/calendar/' },
+	{ label: 'Contact Us', href: '/contact/' },
 ];
 
 /** Icon links to social media — edit these with links to your profiles! */
 const iconLinks: { label: string; href: string; icon: keyof typeof iconPaths }[] = [
-	{ label: 'Twitter', href: 'https://twitter.com/me', icon: 'twitter-logo' },
-	{ label: 'Twitch', href: 'https://twitch.tv/me', icon: 'twitch-logo' },
-	{ label: 'GitHub', href: 'https://github.com/me', icon: 'github-logo' },
-	{ label: 'CodePen', href: 'https://codepen.io/me', icon: 'codepen-logo' },
-	{ label: 'dribbble', href: 'https://dribbble.com/me', icon: 'dribbble-logo' },
-	{ label: 'YouTube', href: 'https://www.youtube.com/@me/', icon: 'youtube-logo' },
+	{ label: 'Instagram', href: 'https://www.instagram.com/texasdollarfor/', icon: 'instagram-logo' },
+	{ label: 'E-mail', href: 'mailto:texas@dollarfor.org', icon: 'envelope-simple' },
+	
 ];
 ---
 
@@ -25,7 +27,7 @@ const iconLinks: { label: string; href: string; icon: keyof typeof iconPaths }[]
 	<div class="menu-header">
 		<a href="/" class="site-title">
 			<Icon icon="terminal-window" color="var(--accent-regular)" size="1.6em" gradient />
-			Jeanine White
+			Longhorns Crushing Medical Debt
 		</a>
 		<menu-button>
 			<template>

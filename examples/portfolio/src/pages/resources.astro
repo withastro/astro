@@ -1,0 +1,109 @@
+
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ContactCTA from '../components/ContactCTA.astro';
+import Hero from '../components/Hero.astro';
+import Grid from '../components/Grid.astro';
+import Icon from '../components/Icon.astro';
+---
+
+<BaseLayout title="Resources" description="Resources">
+    <div class="stack gap-20">
+        <main class="wrapper about">
+            <Hero
+                title="Resources"
+                tagline=""
+            >
+            </Hero>
+
+            <section>
+                <div class="gallery">
+                    <Grid variant="small">
+                        {
+                            [
+                                { label: 'Meeting Slides', link: '/meeting-slides' },
+                                { label: 'Ambassador Resources', link: '/ambassador-resources' },
+                                { label: 'Member Points', link: 'https://docs.google.com/spreadsheets/d/1D_pNkZF0YAemElDjotiDneZWrIM9lDsp6R-DLTrPUm0/edit?gid=1378293731#gid=1378293731' }
+                            ].map((item) => (
+                                <li class="mention-card">
+                                    <a href={item.link} class="mention-card-content">
+                                        <div class="icon">
+                                            <Icon icon={
+                                                item.label === 'Meeting Slides' ? 'monitor' : 
+                                                item.label === 'Ambassador Resources' ? 'book-open-text' : 'person'
+                                            } size="2.5rem"/>
+                                        </div>
+                                        <p class="mention-text">{item.label}</p>
+                                    </a>
+                                </li>
+                            ))
+                        }
+                    </Grid>
+                </div>
+            </section>
+        </main>
+
+        <ContactCTA />
+    </div>
+</BaseLayout>
+
+
+<style>
+	
+    
+	.hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+.icon {
+    padding-bottom: 0.5rem; 
+}
+
+.mention-card {
+    display: flex;
+    height: 7rem;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border: 1px solid var(--gray-800);
+    border-radius: 1.5rem;
+    color: var(--gray-300);
+    background: var(--gradient-subtle);
+    box-shadow: var(--shadow-sm);
+    padding: 1rem;
+}
+
+.mention-text {
+    font-size: 1.25rem;
+    margin-left: 0.5rem;
+    color: var(--gray-300);
+	text-decoration: underline;
+}
+
+@media (min-width: 50em) {
+    .mention-card {
+        height: 9.5rem;
+    }
+
+    .mention-text {
+        font-size: 1.5rem;
+    }
+}
+
+.gallery {
+    grid-area: gallery;
+    padding: 2rem;
+	padding-left: 15rem;
+    align: center;
+    max-width: 80%;
+}
+
+@media (min-width: 50em) {
+    .gallery {
+        grid-column: 2 / 4;
+    }
+}
+
+</style>

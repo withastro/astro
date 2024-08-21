@@ -4,19 +4,24 @@ import Icon from './Icon.astro';
 
 <section class="box skills">
 	<div class="stack gap-2 lg:gap-4">
-		<Icon icon="terminal-window" color="var(--accent-regular)" size="2.5rem" gradient />
-		<h2>Full Stack</h2>
-		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod.</p>
+		<Icon icon="lightbulb-filament" color="var(--accent-regular)" size="2.5rem" gradient />
+		<h2>PATIENT ADVOCACY</h2>
+		<p>Volunteer to help patients secure debt relief through Dollar For's financial assistance application.</p>
 	</div>
 	<div class="stack gap-2 lg:gap-4">
-		<Icon icon="trophy" color="var(--accent-regular)" size="2.5rem" gradient />
-		<h2>Industry Leader</h2>
-		<p>Neque viverra justo nec ultrices dui. Est ultricies integer quis auctor elit.</p>
+		<Icon icon="megaphone" color="var(--accent-regular)" size="2.5rem" gradient />
+		<h2>OUTREACH</h2>
+		<p>Reach out to our local community and make Dollar For's services accessible to all who need them.</p>
 	</div>
 	<div class="stack gap-2 lg:gap-4">
-		<Icon icon="strategy" color="var(--accent-regular)" size="2.5rem" gradient />
-		<h2>Strategy-Minded</h2>
-		<p>Urna porttitor rhoncus dolor purus non enim praesent ornare.</p>
+		<Icon icon="percent" color="var(--accent-regular)" size="2.5rem" gradient />
+		<h2>MARKETING</h2>
+		<p>Get involved in fundraising money for Dollar for.</p>
+	</div>
+	<div class="stack gap-2 lg:gap-4">
+		<Icon icon="messenger-logo" color="var(--accent-regular)" size="2.5rem" gradient />
+		<h2>COMMUNICATIONS</h2>
+		<p>Collaborate with community leaders to promote and spread information about new policies regarding medical debt.</p>
 	</div>
 </section>
 
@@ -47,16 +52,17 @@ import Icon from './Icon.astro';
 		.box {
 			border-radius: 1.5rem;
 			padding: 2.5rem;
+			
 		}
 
 		.skills {
 			display: grid;
-			grid-template-columns: repeat(3, 1fr);
+			grid-template-columns: repeat(4, 1fr);
 			gap: 5rem;
 		}
 
 		.skills h2 {
-			font-size: var(--text-2xl);
+			font-size: var(--text-xl);
 		}
 	}
 </style>

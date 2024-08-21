@@ -1,0 +1,154 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+import ContactCTA from '../components/ContactCTA.astro';
+import Hero from '../components/Hero.astro';
+---
+
+<BaseLayout title="Contact Us" description="Contact Us">
+    <div class="stack gap-20">
+        <main class="wrapper about">
+            <Hero
+                title="Contact Us"
+                tagline="Have questions about Texas Dollar For, or interested in joining? Please reach out — we’re happy to help."
+            />
+            
+           
+            <section class="contact-section">
+                <div class="content">
+                    <p>Austin, TX, USA</p>
+                    <p><a href="mailto:texasdollarfor@gmail.com">texasdollarfor@gmail.com</a></p>
+                </div>
+            </section>
+            
+            <!-- Contact form goes here -->
+            <section class="contact-form-section">
+                <form action="/submit" method="post" class="contact-form">
+                    <label for="name">Name*</label>
+                    <input type="text" id="name" name="name" placeholder="Enter your name" required>
+
+                    <label for="address">Address</label>
+                    <input type="text" id="address" name="address" placeholder="Enter your address">
+
+                    <label for="email">Email*</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone" name="phone" placeholder="Enter your phone number">
+
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" name="subject" placeholder="Type the subject">
+
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" placeholder="Type your message here..." rows="6"></textarea>
+
+                    <button type="submit">Submit</button>
+                </form>
+            </section>
+        </main>
+
+        <ContactCTA />
+    </div>
+</BaseLayout>
+
+
+<style>
+  .about {
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+}
+
+img {
+    margin-top: 1.5rem;
+    border-radius: 1.5rem;
+    box-shadow: var(--shadow-md);
+}
+
+section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: var(--gray-200);
+}
+
+.contact-form {
+    grid-column: 2/4;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 100%; /* Ensure form uses available width */
+}
+
+.contact-form label {
+    font-weight: bold;
+    margin-bottom: 0.1rem;
+    color: black; /* Set label color to black */
+}
+
+.contact-form input,
+.contact-form textarea {
+    width: 80%; /* Full width of parent container */
+    padding: 0.75rem;
+    border: 1px solid var(--gray-300);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    color: black; /* Set text color inside inputs and textarea to black */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+.contact-form textarea {
+    resize: vertical;
+}
+
+.contact-form button {
+    align-self: start;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    background-color: var(--accent-regular);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.contact-form button:hover {
+    background-color: var(--accent-dark);
+}
+
+
+.content {
+    grid-column: 2 / 4;
+}
+
+.content :global(a) {
+    text-decoration: 1px solid underline transparent;
+    text-underline-offset: 0.25em;
+    transition: text-decoration-color var(--theme-transition);
+}
+
+.content :global(a:hover),
+.content :global(a:focus) {
+    text-decoration-color: currentColor;
+}
+
+@media (min-width: 50em) {
+    .about {
+        display: grid;
+        grid-template-columns: 1fr 60% 1fr;
+    }
+
+    .about > :global(:first-child) {
+        grid-column-start: 2;
+    }
+
+    .contact-section,
+    .contact-form-section {
+        display: contents;
+        font-size: var(--text-lg);
+    }
+}
+
+
+</style>
