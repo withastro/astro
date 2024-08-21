@@ -57,6 +57,13 @@ export const server = {
 			return password;
 		},
 	}),
+	transformFormInput: defineAction({
+		accept: 'form',
+		input: z.instanceof(FormData).transform((formData) => Object.fromEntries(formData.entries())),
+		handler: async (data) => {
+			return data;
+		},
+	}),
 	getUserOrThrow: defineAction({
 		accept: 'form',
 		handler: async (_, { locals }) => {

@@ -261,6 +261,26 @@ describe('Astro Actions', () => {
 			assert.equal(data.issues?.[0]?.message, 'Passwords do not match');
 		});
 
+		it('Supports input form data transforms', async () => {
+			const formData = new FormData();
+			formData.set('name', 'ben');
+			formData.set('age', '42');
+
+			const req = new Request('http://example.com/_actions/transformFormInput', {
+				method: 'POST',
+				body: formData,
+			});
+
+			const res = await app.render(req);
+
+			assert.equal(res.ok, true);
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+
+			const data = devalue.parse(await res.text());
+			assert.equal(data?.name, 'ben');
+			assert.equal(data?.age, '42');
+		});
+
 		describe('legacy', () => {
 			it('Response middleware fallback', async () => {
 				const formData = new FormData();
