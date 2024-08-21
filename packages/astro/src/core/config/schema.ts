@@ -396,7 +396,6 @@ export const AstroConfigSchema = z.object({
 					)
 					.optional(),
 				fallback: z.record(z.string(), z.string()).optional(),
-				fallbackType: z.enum(["redirect", "rewrite"]).optional().default("redirect"),
 				routing: z
 					.literal('manual')
 					.or(
@@ -404,6 +403,7 @@ export const AstroConfigSchema = z.object({
 							.object({
 								prefixDefaultLocale: z.boolean().optional().default(false),
 								redirectToDefaultLocale: z.boolean().optional().default(true),
+								fallbackType: z.enum(["redirect", "rewrite"]).optional().default("redirect"),
 							})
 							.refine(
 								({ prefixDefaultLocale, redirectToDefaultLocale }) => {

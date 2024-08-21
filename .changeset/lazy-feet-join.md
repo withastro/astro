@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds a new option to `i18n` called `fallbackType` that allows to control the fallback logic. The new option accepts
+Adds a new option to `i18n` called `routing.fallbackType` that allows to control the fallback logic. The new option accepts
 `"redirect"` or `"rewrite"`. The `"redirect"` option is the default value and matches the current behaviour of the fallback system.
 
 The option `"rewrite"` uses the new [rewriting system](https://docs.astro.build/en/guides/routing/#rewrites), and it generates
@@ -17,12 +17,12 @@ export default defineConfig({
     locals: ["en", "fr"],
     defaultLocale: "en",
     routing: {
-      prefixDefaultLocale: true
+      prefixDefaultLocale: true,
+      fallbackType: "rewrite"
     },
     fallback: {
       fr: "en"
     },
-    fallbackType: "rewrite"
   }
 })
 ```

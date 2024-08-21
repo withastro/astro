@@ -40,7 +40,7 @@ export function findRouteToRewrite({
 		newUrl = new URL(payload, new URL(request.url).origin);
 	}
 	let pathname = newUrl.pathname;
-	if (base !== '/' && newUrl.pathname.includes(base)) {
+	if (base !== '/' && newUrl.pathname.startsWith(base)) {
 		pathname = shouldAppendForwardSlash(trailingSlash, buildFormat)
 			? appendForwardSlash(newUrl.pathname)
 			: base !== '/'

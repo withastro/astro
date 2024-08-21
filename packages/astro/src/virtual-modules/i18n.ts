@@ -9,7 +9,7 @@ import { IncorrectStrategyForI18n } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
 import * as I18nInternals from '../i18n/index.js';
 import type { RedirectToFallback } from '../i18n/index.js';
-import { toRoutingStrategy } from '../i18n/utils.js';
+import {toFallbackType, toRoutingStrategy} from '../i18n/utils.js';
 import type { I18nInternalConfig } from '../i18n/vite-plugin-i18n.js';
 
 export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
@@ -17,10 +17,11 @@ export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
 const { trailingSlash, format, site, i18n, isBuild } =
 	// @ts-expect-error
 	__ASTRO_INTERNAL_I18N_CONFIG__ as I18nInternalConfig;
-const { defaultLocale, locales, domains, fallback, routing, fallbackType, } = i18n!;
+const { defaultLocale, locales, domains, fallback, routing } = i18n!;
 const base = import.meta.env.BASE_URL;
 
 let strategy = toRoutingStrategy(routing, domains);
+let fallbackType = toFallbackType(routing);
 
 export type GetLocaleOptions = I18nInternals.GetLocaleOptions;
 
@@ -377,11 +378,13 @@ export let middleware: (customOptions: NewAstroRoutingConfigWithoutManual) => Mi
 if (i18n?.routing === 'manual') {
 	middleware = (customOptions: NewAstroRoutingConfigWithoutManual) => {
 		strategy = toRoutingStrategy(customOptions, {});
+		fallbackType = toFallbackType(customOptions);
 		const manifest: SSRManifest['i18n'] = {
 			...i18n,
 			fallback: undefined,
 			strategy,
 			domainLookupTable: {},
+			fallbackType
 		};
 		return I18nInternals.createMiddleware(manifest, base, trailingSlash, format);
 	};

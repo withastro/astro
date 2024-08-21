@@ -282,7 +282,7 @@ export type MiddlewarePayload = {
 	defaultLocale: string;
 	domains: Record<string, string> | undefined;
 	fallback: Record<string, string> | undefined;
-	fallbackType: NonNullable<AstroConfig['i18n']>['fallbackType']
+	fallbackType: "redirect" | "rewrite";	
 };
 
 // NOTE: public function exported to the users via `astro:i18n` module
