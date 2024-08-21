@@ -1,4 +1,6 @@
 ---
-const route = Astro.routePattern;
+const pattern = Astro.routePattern;
+const localsPattern = Astro.locals.localsPattern;
 ---
-<p id="route">Astro route: {route}</p>
+<p id="pattern">Astro route pattern: {pattern}</p>
+<p id="pattern-middleware">Astro route pattern middleware: {localsPattern}</p>
