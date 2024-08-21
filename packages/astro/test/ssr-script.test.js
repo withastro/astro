@@ -144,10 +144,7 @@ describe('External scripts in SSR', () => {
 		it('script has correct path', async () => {
 			const html = await fetchHTML(fixture, '/');
 			const $ = cheerioLoad(html);
-			assert.match(
-				$('script').attr('src'),
-				/^https:\/\/cdn\.example\.com\/_astro\/.*\.js$/,
-			);
+			assert.match($('script').attr('src'), /^https:\/\/cdn\.example\.com\/_astro\/.*\.js$/);
 		});
 	});
 

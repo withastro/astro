@@ -1,7 +1,12 @@
 import { getOutputDirectory } from '../../prerender/utils.js';
 import type { ComponentInstance } from '../../types/astro.js';
 import type { RewritePayload } from '../../types/public/common.js';
-import type { RouteData, SSRElement, SSRLoadedRenderer, SSRResult } from '../../types/public/internal.js';
+import type {
+	RouteData,
+	SSRElement,
+	SSRLoadedRenderer,
+	SSRResult,
+} from '../../types/public/internal.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';

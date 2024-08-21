@@ -1,30 +1,13 @@
-import type { PluginContext } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
 import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin-astro/types.js';
+import { getTopLevelPageModuleInfos } from '../graph.js';
 import type { BuildInternals } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin.js';
-
-import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
-import { prependForwardSlash } from '../../../core/path.js';
-import {
-	getParentModuleInfos,
-	getTopLevelPageModuleInfos,
-	moduleIsTopLevelPage,
-} from '../graph.js';
 import {
 	getPageDataByViteID,
 	trackClientOnlyPageDatas,
 	trackScriptPageDatas,
 } from '../internal.js';
-import type { StaticBuildOptions } from '../types.js';
-
-function isPropagatedAsset(id: string) {
-	try {
-		return new URL('file://' + id).searchParams.has(PROPAGATED_ASSET_FLAG);
-	} catch {
-		return false;
-	}
-}
+import type { AstroBuildPlugin } from '../plugin.js';
 
 export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 	return {
