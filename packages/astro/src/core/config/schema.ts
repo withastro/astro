@@ -532,7 +532,7 @@ export const AstroConfigSchema = z.object({
 					validateSecrets: z
 						.boolean()
 						.optional()
-						.default(ASTRO_CONFIG_DEFAULTS.experimental.env.validateSecrets),
+						.default(ASTRO_CONFIG_DEFAULTS.env.validateSecrets),
 				})
 				.strict()
 				.optional(),
