@@ -167,6 +167,20 @@ export async function resolveConfig(
 	}
 
 	if (astroConfig.experimental.typescript) {
+		const rootTsConfigUrl = new URL('./tsconfig.json', astroConfig.root);
+		if (!fsMod.existsSync(rootTsConfigUrl)) {
+			fsMod.writeFileSync(
+				rootTsConfigUrl,
+				JSON.stringify(
+					{
+						extends: ['astro/tsconfigs/base', GENERATED_TSCONFIG_PATH],
+					},
+					null,
+					2,
+				),
+				'utf-8',
+			);
+		}
 		const generatedTsConfigUrl = new URL(GENERATED_TSCONFIG_PATH, astroConfig.root);
 		if (!fsMod.existsSync(generatedTsConfigUrl)) {
 			fsMod.mkdirSync(path.dirname(fileURLToPath(generatedTsConfigUrl)), { recursive: true });
