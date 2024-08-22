@@ -20,7 +20,7 @@ const createFixture = async (config = {}) => {
 	rmSync(new URL('./.astro', root), { force: true, recursive: true });
 
 	return {
-		sync: () => astroFixture.sync({ root: stringRoot }),
+		sync: () => astroFixture.sync({ root: stringRoot, ...config }),
 		/** @param {string} path */
 		fileExists: (path) => {
 			return existsSync(new URL(path, root));
@@ -35,29 +35,55 @@ describe('experimental.typescript', () => {
 		assert.equal(fixture.fileExists('./.astro/tsconfig.json'), true);
 	});
 
-	it('should not create src/env.d.ts if experimental.typescript is enabled', async () => {});
+	it('should not create src/env.d.ts if experimental.typescript is enabled', async () => {
+		// TODO:
+	});
 
-	it('should not create .astro/tsconfig.json if experimental.typescript is disabled', async () => {});
+	it('should not create .astro/tsconfig.json if experimental.typescript is disabled', async () => {
+		// TODO:
+	});
 
-	it('should create src/env.d.ts if experimental.typescript is disabled', async () => {});
+	it('should create src/env.d.ts if experimental.typescript is disabled', async () => {
+		// TODO:
+	});
 
-	it('should throw if tsconfig.json has invalid extends', async () => {});
+	it('should throw if tsconfig.json has invalid extends', async () => {
+		// TODO:
+	});
 
-	it('should throw if tsconfig.json has invalid include', async () => {});
+	it('should throw if tsconfig.json has invalid include', async () => {
+		// TODO:
+	});
 
-	it('should throw if tsconfig.json has invalid exclude', async () => {});
+	it('should throw if tsconfig.json has invalid exclude', async () => {
+		// TODO:
+	});
 
-	it('should add outDir to .astro/tsconfig.json', async () => {});
+	it('should add outDir to .astro/tsconfig.json', async () => {
+		// TODO:
+	});
 
-	it('should handle include/exclude relative paths', async () => {});
+	it('should handle include/exclude relative paths', async () => {
+		// TODO:
+	});
 
-	it('should work with astro check', async () => {});
+	it('should work with astro check', async () => {
+		// TODO:
+	});
 
-	it('should work in dev', async () => {});
+	it('should work in dev', async () => {
+		// TODO:
+	});
 
-	it('should work in build', async () => {});
+	it('should work in build', async () => {
+		// TODO:
+	});
 
-	it('should work in sync', async () => {});
+	it('should work in sync', async () => {
+		// TODO:
+	});
 
-	it('should create a tsconfig.json if it does not exist yet', async () => {});
+	it('should create a tsconfig.json if it does not exist yet', async () => {
+		// TODO:
+	});
 });
