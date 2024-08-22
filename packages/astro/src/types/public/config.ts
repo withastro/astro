@@ -16,7 +16,7 @@ import type { AstroIntegration, RoutePriorityOverride } from './integrations.js'
 export type Locales = (string | { codes: string[]; path: string })[];
 
 export interface ImageServiceConfig<T extends Record<string, any> = Record<string, any>> {
-	entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
+	entrypoint: 'astro/assets/services/sharp' | (string & {});
 	config?: T;
 }
 
@@ -927,7 +927,7 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name image.service
-		 * @type {{entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | string, config: Record<string, any>}}
+		 * @type {{entrypoint: 'astro/assets/services/sharp' | string, config: Record<string, any>}}
 		 * @default `{entrypoint: 'astro/assets/services/sharp', config?: {}}`
 		 * @version 2.1.0
 		 * @description

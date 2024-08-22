@@ -14,7 +14,6 @@ const EXPERIMENTAL = 'experimental';
 
 const UNSUPPORTED_ASSETS_FEATURE: AstroAssetsFeature = {
 	supportKind: UNSUPPORTED,
-	isSquooshCompatible: false,
 	isSharpCompatible: false,
 };
 
@@ -139,7 +138,6 @@ function featureIsDeprecated(adapterName: string, logger: Logger, featureName: s
 }
 
 const SHARP_SERVICE = 'astro/assets/services/sharp';
-const SQUOOSH_SERVICE = 'astro/assets/services/squoosh';
 
 function validateAssetsFeature(
 	assets: AstroAssetsFeature,
@@ -147,23 +145,11 @@ function validateAssetsFeature(
 	config: AstroConfig,
 	logger: Logger,
 ): boolean {
-	const {
-		supportKind = UNSUPPORTED,
-		isSharpCompatible = false,
-		isSquooshCompatible = false,
-	} = assets;
+	const { supportKind = UNSUPPORTED, isSharpCompatible = false } = assets;
 	if (config?.image?.service?.entrypoint === SHARP_SERVICE && !isSharpCompatible) {
 		logger.warn(
 			null,
 			`The currently selected adapter \`${adapterName}\` is not compatible with the image service "Sharp".`,
-		);
-		return false;
-	}
-
-	if (config?.image?.service?.entrypoint === SQUOOSH_SERVICE && !isSquooshCompatible) {
-		logger.warn(
-			null,
-			`The currently selected adapter \`${adapterName}\` is not compatible with the image service "Squoosh".`,
 		);
 		return false;
 	}
