@@ -240,6 +240,71 @@ describe('Astro Actions', () => {
 			assert.ok($('#user'));
 		});
 
+		it('Supports effects on form input validators', async () => {
+			const formData = new FormData();
+			formData.set('password', 'benisawesome');
+			formData.set('confirmPassword', 'benisveryawesome');
+
+			const req = new Request('http://example.com/_actions/validatePassword', {
+				method: 'POST',
+				body: formData,
+			});
+
+			const res = await app.render(req);
+
+			assert.equal(res.ok, false);
+			assert.equal(res.status, 400);
+			assert.equal(res.headers.get('Content-Type'), 'application/json');
+
+			const data = await res.json();
+			assert.equal(data.type, 'AstroActionInputError');
+			assert.equal(data.issues?.[0]?.message, 'Passwords do not match');
+		});
+
+		it('Supports complex chained effects on form input validators', async () => {
+			const formData = new FormData();
+			formData.set('currentPassword', 'benisboring');
+			formData.set('newPassword', 'benisawesome');
+			formData.set('confirmNewPassword', 'benisawesome');
+
+			const req = new Request('http://example.com/_actions/validatePasswordComplex', {
+				method: 'POST',
+				body: formData,
+			});
+
+			const res = await app.render(req);
+
+			assert.equal(res.ok, true);
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+
+			const data = devalue.parse(await res.text());
+			assert.equal(Object.keys(data).length, 2, 'More keys than expected');
+			assert.deepEqual(data, {
+				currentPassword: 'benisboring',
+				newPassword: 'benisawesome',
+			});
+		});
+
+		it('Supports input form data transforms', async () => {
+			const formData = new FormData();
+			formData.set('name', 'ben');
+			formData.set('age', '42');
+
+			const req = new Request('http://example.com/_actions/transformFormInput', {
+				method: 'POST',
+				body: formData,
+			});
+
+			const res = await app.render(req);
+
+			assert.equal(res.ok, true);
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+
+			const data = devalue.parse(await res.text());
+			assert.equal(data?.name, 'ben');
+			assert.equal(data?.age, '42');
+		});
+
 		describe('legacy', () => {
 			it('Response middleware fallback', async () => {
 				const formData = new FormData();
