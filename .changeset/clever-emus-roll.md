@@ -1,5 +1,5 @@
 ---
-'astro': patch
+'astro': minor
 ---
 
 Adds a new, optional property `timeout` for the `client:idle` directive. 
