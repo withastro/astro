@@ -191,7 +191,7 @@ describe('getRssString', () => {
 							pubDate: phpFeedItem.pubDate,
 							description: phpFeedItem.description,
 						},
-					})
+					}),
 				),
 			'./posts/nested/web1.md': () =>
 				new Promise((resolve) =>
@@ -202,7 +202,7 @@ describe('getRssString', () => {
 							pubDate: web1FeedItem.pubDate,
 							description: web1FeedItem.description,
 						},
-					})
+					}),
 				),
 		};
 

@@ -75,7 +75,7 @@ export const setup = async (app) => {
 		${
 			!isBuild
 				? `console.warn("[@astrojs/vue] appEntrypoint \`" + ${JSON.stringify(
-						appEntrypoint
+						appEntrypoint,
 					)} + "\` does not export a default function. Check out https://docs.astro.build/en/guides/integrations-guide/vue/#appentrypoint.");`
 				: ''
 		}
@@ -104,7 +104,7 @@ export const setup = async (app) => {
 
 async function getViteConfiguration(
 	command: HookParameters<'astro:config:setup'>['command'],
-	options?: Options
+	options?: Options,
 ): Promise<UserConfig> {
 	let vueOptions = {
 		...options,
@@ -138,7 +138,7 @@ async function getViteConfiguration(
 			vueDevTools({
 				...devToolsOptions,
 				appendTo: VIRTUAL_MODULE_ID,
-			})
+			}),
 		);
 	}
 

@@ -63,7 +63,7 @@ export async function getMigrationQueries({
 	const addedTables = getAddedTables(oldSnapshot, newSnapshot);
 	const droppedTables = getDroppedTables(oldSnapshot, newSnapshot);
 	const notDeprecatedDroppedTables = Object.fromEntries(
-		Object.entries(droppedTables).filter(([, table]) => !table.deprecated)
+		Object.entries(droppedTables).filter(([, table]) => !table.deprecated),
 	);
 	if (!isEmpty(addedTables) && !isEmpty(notDeprecatedDroppedTables)) {
 		const oldTable = Object.keys(notDeprecatedDroppedTables)[0];
@@ -87,14 +87,14 @@ export async function getMigrationQueries({
 		const addedColumns = getAdded(oldTable.columns, newTable.columns);
 		const droppedColumns = getDropped(oldTable.columns, newTable.columns);
 		const notDeprecatedDroppedColumns = Object.fromEntries(
-			Object.entries(droppedColumns).filter(([, col]) => !col.schema.deprecated)
+			Object.entries(droppedColumns).filter(([, col]) => !col.schema.deprecated),
 		);
 		if (!isEmpty(addedColumns) && !isEmpty(notDeprecatedDroppedColumns)) {
 			throw new Error(
 				RENAME_COLUMN_ERROR(
 					`${tableName}.${Object.keys(addedColumns)[0]}`,
-					`${tableName}.${Object.keys(notDeprecatedDroppedColumns)[0]}`
-				)
+					`${tableName}.${Object.keys(notDeprecatedDroppedColumns)[0]}`,
+				),
 			);
 		}
 		const result = await getTableChangeQueries({
@@ -148,7 +148,7 @@ export async function getTableChangeQueries({
 				tableName,
 				oldIndexes: oldTable.indexes,
 				newIndexes: newTable.indexes,
-			})
+			}),
 		);
 		return { queries, confirmations };
 	}
@@ -158,17 +158,17 @@ export async function getTableChangeQueries({
 		const { reason, columnName } = dataLossCheck;
 		const reasonMsgs: Record<DataLossReason, string> = {
 			'added-required': `You added new required column '${color.bold(
-				tableName + '.' + columnName
+				tableName + '.' + columnName,
 			)}' with no default value.\n      This cannot be executed on an existing table.`,
 			'updated-type': `Updating existing column ${color.bold(
-				tableName + '.' + columnName
+				tableName + '.' + columnName,
 			)} to a new type that cannot be handled automatically.`,
 		};
 		confirmations.push(reasonMsgs[reason]);
 	}
 
 	const primaryKeyExists = Object.entries(newTable.columns).find(([, column]) =>
-		hasPrimaryKey(column)
+		hasPrimaryKey(column),
 	);
 	const droppedPrimaryKey = Object.entries(dropped).find(([, column]) => hasPrimaryKey(column));
 
@@ -231,7 +231,7 @@ function getDroppedTables(oldTables: DBSnapshot, newTables: DBSnapshot): Resolve
 function getAlterTableQueries(
 	unescTableName: string,
 	added: DBColumns,
-	dropped: DBColumns
+	dropped: DBColumns,
 ): string[] {
 	const queries: string[] = [];
 	const tableName = sqlite.escapeName(unescTableName);
@@ -241,7 +241,7 @@ function getAlterTableQueries(
 		const type = schemaTypeToSqlType(column.type);
 		const q = `ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${type}${getModifiers(
 			columnName,
-			column
+			column,
 		)}`;
 		queries.push(q);
 	}
@@ -324,7 +324,7 @@ type DataLossResponse =
 
 function canRecreateTableWithoutDataLoss(
 	added: DBColumns,
-	updated: UpdatedColumns
+	updated: UpdatedColumns,
 ): DataLossResponse {
 	for (const [columnName, a] of Object.entries(added)) {
 		if (hasPrimaryKey(a) && a.type !== 'number' && !hasDefault(a)) {
@@ -406,7 +406,7 @@ const typeChangesWithoutQuery: Array<{ from: ColumnType; to: ColumnType }> = [
 
 function canChangeTypeWithoutQuery(oldColumn: DBColumn, newColumn: DBColumn) {
 	return typeChangesWithoutQuery.some(
-		({ from, to }) => oldColumn.type === from && newColumn.type === to
+		({ from, to }) => oldColumn.type === from && newColumn.type === to,
 	);
 }
 
@@ -477,7 +477,7 @@ async function getStudioCurrentSnapshot(
 			console.error(`${url.toString()} failed: ${res.status} ${res.statusText}`);
 			console.error(await res.text());
 			throw new Error(`/db/schema fetch failed: ${res.status} ${res.statusText}`);
-		}
+		},
 	);
 
 	const result = (await response.json()) as Result<DBSnapshot>;
@@ -515,7 +515,7 @@ export function formatDataLossMessage(confirmations: string[], isColor = true): 
 	messages.push(``);
 	messages.push(`To resolve, revert these changes or update your schema, and re-run the command.`);
 	messages.push(
-		`You may also run 'astro db push --force-reset' to ignore all warnings and force-push your local database schema to production instead. All data will be lost and the database will be reset.`
+		`You may also run 'astro db push --force-reset' to ignore all warnings and force-push your local database schema to production instead. All data will be lost and the database will be reset.`,
 	);
 	let finalMessage = messages.join('\n');
 	if (!isColor) {

@@ -22,7 +22,7 @@ export function lookup(input: Uint8Array): ISizeCalculationResult {
   const type = detector(input)
 
   if (typeof type !== 'undefined') {
-    if (globalOptions.disabledTypes.indexOf(type) > -1) {
+    if (globalOptions.disabledTypes.includes(type)) {
       throw new TypeError('disabled file type: ' + type)
     }
 

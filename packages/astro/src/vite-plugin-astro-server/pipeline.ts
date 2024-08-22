@@ -46,7 +46,7 @@ export class DevPipeline extends Pipeline {
 		readonly manifest: SSRManifest,
 		readonly settings: AstroSettings,
 		readonly config = settings.config,
-		readonly defaultRoutes = createDefaultRoutes(manifest)
+		readonly defaultRoutes = createDefaultRoutes(manifest),
 	) {
 		const mode = 'development';
 		const resolve = createResolve(loader, config.root);
@@ -64,7 +64,7 @@ export class DevPipeline extends Pipeline {
 			logger,
 			manifest,
 			settings,
-		}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>
+		}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>,
 	) {
 		const pipeline = new DevPipeline(loader, logger, manifest, settings);
 		pipeline.manifestData = manifestData;
@@ -202,7 +202,7 @@ export class DevPipeline extends Pipeline {
 	async tryRewrite(
 		payload: RewritePayload,
 		request: Request,
-		_sourceRoute: RouteData
+		_sourceRoute: RouteData,
 	): Promise<[RouteData, ComponentInstance, URL]> {
 		if (!this.manifestData) {
 			throw new Error('Missing manifest data. This is an internal error, please file an issue.');

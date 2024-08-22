@@ -159,7 +159,7 @@ function selectValidator(options: EnvFieldType): ValueValidator {
 
 export function validateEnvVariable(
 	value: string | undefined,
-	options: EnvFieldType
+	options: EnvFieldType,
 ): ValidationResult {
 	const isOptional = options.optional || options.default !== undefined;
 	if (isOptional && value === undefined) {

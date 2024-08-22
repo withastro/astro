@@ -1,7 +1,6 @@
 import type * as vite from 'vite';
 import type { InlineConfig } from 'vite';
 import type {
-	AstroConfig,
 	AstroSettings,
 	ComponentInstance,
 	ManifestData,
@@ -14,7 +13,6 @@ import type { Logger } from '../logger/core.js';
 
 export type ComponentPath = string;
 export type ViteID = string;
-export type PageOutput = AstroConfig['output'];
 
 export type StylesheetAsset =
 	| { type: 'inline'; content: string }
@@ -44,6 +42,7 @@ export interface StaticBuildOptions {
 	pageNames: string[];
 	viteConfig: InlineConfig;
 	teardownCompiler: boolean;
+	key: Promise<CryptoKey>;
 }
 
 type ImportComponentInstance = () => Promise<ComponentInstance>;
@@ -58,8 +57,3 @@ export interface SinglePageBuiltModule {
 }
 
 export type ViteBuildReturn = Awaited<ReturnType<typeof vite.build>>;
-export type RollupOutput = Extract<
-	Extract<ViteBuildReturn, Exclude<ViteBuildReturn, Array<any>>>,
-	{ output: any }
->;
-export type OutputChunk = Extract<RollupOutput['output'][number], { type: 'chunk' }>;

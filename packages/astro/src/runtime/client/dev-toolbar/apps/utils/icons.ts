@@ -13,7 +13,7 @@ const categoryIcons = new Map(
 		analytics: ['checkCircle', 'compress', 'searchFile'],
 		accessibility: ['approveUser', 'checkCircle'],
 		other: ['checkCircle', 'grid', 'puzzle', 'sitemap'],
-	})
+	}),
 );
 
 export function iconForIntegration(integration: Integration) {

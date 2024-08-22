@@ -53,8 +53,8 @@ const optimizedImages: GetImageResult[] = await Promise.all(
 				format: format,
 				widths: props.widths,
 				densities: props.densities,
-			})
-	)
+			}),
+	),
 );
 
 let resultFallbackFormat = fallbackFormat ?? defaultFallbackFormat;

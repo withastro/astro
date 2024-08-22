@@ -61,12 +61,12 @@ export async function compileAstro({
 
 	const { fileId: file, fileUrl: url } = getFileInfo(
 		compileProps.filename,
-		compileProps.astroConfig
+		compileProps.astroConfig,
 	);
 
 	let SUFFIX = '';
 	SUFFIX += `\nconst $$file = ${JSON.stringify(file)};\nconst $$url = ${JSON.stringify(
-		url
+		url,
 	)};export { $$file as file, $$url as url };\n`;
 
 	// Add HMR handling in dev mode.
@@ -126,7 +126,7 @@ async function enhanceCompileError({
 			if (frontmatterErr?.message) {
 				frontmatterErr.message = frontmatterErr.message.replace(
 					'end of file',
-					'end of frontmatter'
+					'end of frontmatter',
 				);
 			}
 			throw frontmatterErr;

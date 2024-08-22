@@ -80,7 +80,7 @@ function vitePluginContent(
 	opts: StaticBuildOptions,
 	lookupMap: ContentLookupMap,
 	internals: BuildInternals,
-	cachedBuildOutput: Array<{ cached: URL; dist: URL }>
+	cachedBuildOutput: Array<{ cached: URL; dist: URL }>,
 ): VitePlugin {
 	const { config } = opts.settings;
 	const distContentRoot = getContentRoot(config);
@@ -184,7 +184,7 @@ function vitePluginContent(
 						) {
 							const [srcRelativePath] = id.replace(rootPath, '/').split('?');
 							const resultId = encodeName(
-								`${removeLeadingForwardSlash(removeFileExtension(srcRelativePath))}.render.mjs`
+								`${removeLeadingForwardSlash(removeFileExtension(srcRelativePath))}.render.mjs`,
 							);
 							return resultId;
 						}
@@ -192,7 +192,7 @@ function vitePluginContent(
 						const collectionEntry = findEntryFromSrcRelativePath(
 							lookupMap,
 							srcRelativePath,
-							entryCache
+							entryCache,
 						);
 						if (collectionEntry) {
 							let suffix = '.mjs';
@@ -201,7 +201,7 @@ function vitePluginContent(
 							}
 							id =
 								removeLeadingForwardSlash(
-									removeFileExtension(encodeName(id.replace(srcPath, '/')))
+									removeFileExtension(encodeName(id.replace(srcPath, '/'))),
 								) + suffix;
 							return id;
 						}
@@ -284,7 +284,7 @@ function vitePluginContent(
 function findEntryFromSrcRelativePath(
 	lookupMap: ContentLookupMap,
 	srcRelativePath: string,
-	entryCache: Map<string, string>
+	entryCache: Map<string, string>,
 ) {
 	let value = entryCache.get(srcRelativePath);
 	if (value) return value;
@@ -308,7 +308,7 @@ interface ContentEntries {
 
 function getEntriesFromManifests(
 	oldManifest: ContentManifest,
-	newManifest: ContentManifest
+	newManifest: ContentManifest,
 ): ContentEntries {
 	const { entries: oldEntries } = oldManifest;
 	const { entries: newEntries } = newManifest;
@@ -320,7 +320,7 @@ function getEntriesFromManifests(
 		return entries;
 	}
 	const oldEntryHashMap = new Map<string, ContentManifestKey>(
-		oldEntries.map(([key, hash]) => [hash, key])
+		oldEntries.map(([key, hash]) => [hash, key]),
 	);
 
 	for (const [entry, hash] of newEntryMap) {
@@ -367,7 +367,7 @@ function manifestState(oldManifest: ContentManifest, newManifest: ContentManifes
 
 async function generateContentManifest(
 	opts: StaticBuildOptions,
-	lookupMap: ContentLookupMap
+	lookupMap: ContentLookupMap,
 ): Promise<ContentManifest> {
 	let manifest = createContentManifest();
 	manifest.version = CONTENT_MANIFEST_VERSION;
@@ -382,7 +382,7 @@ async function generateContentManifest(
 				limit(async () => {
 					const data = await fsMod.promises.readFile(fileURL, { encoding: 'utf8' });
 					manifest.entries.push([key, checksum(data, fileURL.toString())]);
-				})
+				}),
 			);
 		}
 	}
@@ -480,7 +480,7 @@ export async function copyContentToCache(opts: StaticBuildOptions) {
 
 export function pluginContent(
 	opts: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): AstroBuildPlugin {
 	const { cacheDir, outDir } = opts.settings.config;
 

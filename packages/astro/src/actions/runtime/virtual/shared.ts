@@ -1,5 +1,14 @@
+import { parse as devalueParse, stringify as devalueStringify } from 'devalue';
 import type { z } from 'zod';
-import type { ErrorInferenceObject, MaybePromise } from '../utils.js';
+import { ACTION_QUERY_PARAMS as _ACTION_QUERY_PARAMS } from '../../consts.js';
+import type {
+	ErrorInferenceObject,
+	MaybePromise,
+	ActionAPIContext as _ActionAPIContext,
+} from '../utils.js';
+
+export type ActionAPIContext = _ActionAPIContext;
+export const ACTION_QUERY_PARAMS = _ACTION_QUERY_PARAMS;
 
 export const ACTION_ERROR_CODES = [
 	'BAD_REQUEST',
@@ -40,7 +49,7 @@ const codeToStatusMap: Record<ActionErrorCode, number> = {
 const statusToCodeMap: Record<number, ActionErrorCode> = Object.entries(codeToStatusMap).reduce(
 	// reverse the key-value pairs
 	(acc, [key, value]) => ({ ...acc, [value]: key }),
-	{}
+	{},
 );
 
 // T is used for error inference with SafeInput -> isInputError.
@@ -68,33 +77,43 @@ export class ActionError<T extends ErrorInferenceObject = ErrorInferenceObject> 
 		return statusToCodeMap[status] ?? 'INTERNAL_SERVER_ERROR';
 	}
 
-	static async fromResponse(res: Response) {
-		const body = await res.clone().json();
-		if (
-			typeof body === 'object' &&
-			body?.type === 'AstroActionInputError' &&
-			Array.isArray(body.issues)
-		) {
+	static fromJson(body: any) {
+		if (isInputError(body)) {
 			return new ActionInputError(body.issues);
 		}
-		if (typeof body === 'object' && body?.type === 'AstroActionError') {
+		if (isActionError(body)) {
 			return new ActionError(body);
 		}
 		return new ActionError({
-			message: res.statusText,
-			code: ActionError.statusToCode(res.status),
+			code: 'INTERNAL_SERVER_ERROR',
 		});
 	}
 }
 
+export function isActionError(error?: unknown): error is ActionError {
+	return (
+		typeof error === 'object' &&
+		error != null &&
+		'type' in error &&
+		error.type === 'AstroActionError'
+	);
+}
+
 export function isInputError<T extends ErrorInferenceObject>(
-	error?: ActionError<T>
+	error?: ActionError<T>,
 ): error is ActionInputError<T>;
 export function isInputError(error?: unknown): error is ActionInputError<ErrorInferenceObject>;
 export function isInputError<T extends ErrorInferenceObject>(
-	error?: unknown | ActionError<T>
+	error?: unknown | ActionError<T>,
 ): error is ActionInputError<T> {
-	return error instanceof ActionInputError;
+	return (
+		typeof error === 'object' &&
+		error != null &&
+		'type' in error &&
+		error.type === 'AstroActionInputError' &&
+		'issues' in error &&
+		Array.isArray(error.issues)
+	);
 }
 
 export type SafeResult<TInput extends ErrorInferenceObject, TOutput> =
@@ -135,7 +154,7 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 }
 
 export async function callSafely<TOutput>(
-	handler: () => MaybePromise<TOutput>
+	handler: () => MaybePromise<TOutput>,
 ): Promise<SafeResult<z.ZodType, TOutput>> {
 	try {
 		const data = await handler();
@@ -154,10 +173,114 @@ export async function callSafely<TOutput>(
 	}
 }
 
+export function getActionQueryString(name: string) {
+	const searchParams = new URLSearchParams({ [_ACTION_QUERY_PARAMS.actionName]: name });
+	return `?${searchParams.toString()}`;
+}
+
+/**
+ * @deprecated You can now pass action functions
+ * directly to the `action` attribute on a form.
+ *
+ * Example: `<form action={actions.like} />`
+ */
 export function getActionProps<T extends (args: FormData) => MaybePromise<unknown>>(action: T) {
+	const params = new URLSearchParams(action.toString());
+	const actionName = params.get('_astroAction');
+	if (!actionName) {
+		// No need for AstroError. `getActionProps()` will be removed for stable.
+		throw new Error('Invalid actions function was passed to getActionProps()');
+	}
 	return {
 		type: 'hidden',
 		name: '_astroAction',
-		value: action.toString(),
+		value: actionName,
 	} as const;
 }
+
+export type SerializedActionResult =
+	| {
+			type: 'data';
+			contentType: 'application/json+devalue';
+			status: 200;
+			body: string;
+	  }
+	| {
+			type: 'error';
+			contentType: 'application/json';
+			status: number;
+			body: string;
+	  }
+	| {
+			type: 'empty';
+			status: 204;
+	  };
+
+export function serializeActionResult(res: SafeResult<any, any>): SerializedActionResult {
+	if (res.error) {
+		if (import.meta.env?.DEV) {
+			actionResultErrorStack.set(res.error.stack);
+		}
+		return {
+			type: 'error',
+			status: res.error.status,
+			contentType: 'application/json',
+			body: JSON.stringify({
+				...res.error,
+				message: res.error.message,
+			}),
+		};
+	}
+	if (res.data === undefined) {
+		return {
+			type: 'empty',
+			status: 204,
+		};
+	}
+	return {
+		type: 'data',
+		status: 200,
+		contentType: 'application/json+devalue',
+		body: devalueStringify(res.data, {
+			// Add support for URL objects
+			URL: (value) => value instanceof URL && value.href,
+		}),
+	};
+}
+
+export function deserializeActionResult(res: SerializedActionResult): SafeResult<any, any> {
+	if (res.type === 'error') {
+		if (import.meta.env?.PROD) {
+			return { error: ActionError.fromJson(JSON.parse(res.body)), data: undefined };
+		} else {
+			const error = ActionError.fromJson(JSON.parse(res.body));
+			error.stack = actionResultErrorStack.get();
+			return {
+				error,
+				data: undefined,
+			};
+		}
+	}
+	if (res.type === 'empty') {
+		return { data: undefined, error: undefined };
+	}
+	return {
+		data: devalueParse(res.body, {
+			URL: (href) => new URL(href),
+		}),
+		error: undefined,
+	};
+}
+
+// in-memory singleton to save the stack trace
+const actionResultErrorStack = (function actionResultErrorStackFn() {
+	let errorStack: string | undefined;
+	return {
+		set(stack: string | undefined) {
+			errorStack = stack;
+		},
+		get() {
+			return errorStack;
+		},
+	};
+})();

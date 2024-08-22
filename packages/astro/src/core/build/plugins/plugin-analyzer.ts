@@ -28,7 +28,7 @@ function isPropagatedAsset(id: string) {
 
 export function vitePluginAnalyzer(
 	options: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): VitePlugin {
 	function hoistedScriptScanner() {
 		const uniqueHoistedIds = new Map<string, string>();
@@ -43,7 +43,7 @@ export function vitePluginAnalyzer(
 			async scan(
 				this: PluginContext,
 				scripts: AstroPluginMetadata['astro']['scripts'],
-				from: string
+				from: string,
 			) {
 				const hoistedScripts = new Set<string>();
 				for (let i = 0; i < scripts.length; i++) {
@@ -133,11 +133,6 @@ export function vitePluginAnalyzer(
 
 				const astro = info.meta.astro as AstroPluginMetadata['astro'];
 
-				const pageData = getPageDataByViteID(internals, id);
-				if (pageData) {
-					internals.pageOptionsByPage.set(id, astro.pageOptions);
-				}
-
 				for (const c of astro.hydratedComponents) {
 					const rid = c.resolvedPath ? decodeURI(c.resolvedPath) : c.specifier;
 					if (internals.discoveredHydratedComponents.has(rid)) {
@@ -183,7 +178,7 @@ export function vitePluginAnalyzer(
 				// `discoveredScripts` here, which will eventually be passed as inputs of the client build.
 				if (options.settings.config.experimental.directRenderScript && astro.scripts.length) {
 					const scriptIds = astro.scripts.map(
-						(_, i) => `${id.replace('/@fs', '')}?astro&type=script&index=${i}&lang.ts`
+						(_, i) => `${id.replace('/@fs', '')}?astro&type=script&index=${i}&lang.ts`,
 					);
 
 					// Assign as entrypoints for the client bundle
@@ -209,7 +204,7 @@ export function vitePluginAnalyzer(
 
 export function pluginAnalyzer(
 	options: StaticBuildOptions,
-	internals: BuildInternals
+	internals: BuildInternals,
 ): AstroBuildPlugin {
 	return {
 		targets: ['server'],

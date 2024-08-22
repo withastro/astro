@@ -47,7 +47,7 @@ function getCustom500Route(manifestData: ManifestData): RouteData | undefined {
 export async function matchRoute(
 	pathname: string,
 	manifestData: ManifestData,
-	pipeline: DevPipeline
+	pipeline: DevPipeline,
 ): Promise<MatchedRoute | undefined> {
 	const { config, logger, routeCache, serverLike, settings } = pipeline;
 	const matches = matchAllRoutes(pathname, manifestData);
@@ -97,8 +97,8 @@ export async function matchRoute(
 		logger.warn(
 			'router',
 			`${AstroErrorData.NoMatchingStaticPathFound.message(
-				pathname
-			)}\n\n${AstroErrorData.NoMatchingStaticPathFound.hint(possibleRoutes)}`
+				pathname,
+			)}\n\n${AstroErrorData.NoMatchingStaticPathFound.hint(possibleRoutes)}`,
 		);
 	}
 
@@ -234,7 +234,7 @@ export async function handleRoute({
 				statusCode: isRewrite ? response.status : status ?? response.status,
 				isRewrite,
 				reqTime: timeEnd - timeStart,
-			})
+			}),
 		);
 	}
 	if (response.status === 404 && response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no') {

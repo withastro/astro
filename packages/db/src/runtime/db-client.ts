@@ -12,7 +12,7 @@ function applyTransactionNotSupported(db: SqliteRemoteDatabase) {
 	Object.assign(db, {
 		transaction() {
 			throw new Error(
-				'`db.transaction()` is not currently supported. We recommend `db.batch()` for automatic error rollbacks across multiple queries.'
+				'`db.transaction()` is not currently supported. We recommend `db.batch()` for automatic error rollbacks across multiple queries.',
 			);
 		},
 	});
@@ -95,14 +95,14 @@ function createStudioDatabaseClient(appToken: string, remoteDbURL: URL) {
 				},
 				async (response) => {
 					throw await parseRemoteError(response);
-				}
+				},
 			);
 
 			let remoteResult: z.infer<typeof remoteResultSchema>;
 			try {
 				const json = await res.json();
 				remoteResult = remoteResultSchema.parse(json);
-			} catch (e) {
+			} catch {
 				throw new DetailedLibsqlError({
 					message: await getUnexpectedResponseMessage(res),
 					code: KNOWN_ERROR_CODES.SQL_QUERY_FAILED,
@@ -156,14 +156,14 @@ function createStudioDatabaseClient(appToken: string, remoteDbURL: URL) {
 				},
 				async (response) => {
 					throw await parseRemoteError(response);
-				}
+				},
 			);
 
 			let remoteResults: z.infer<typeof remoteResultSchema>[];
 			try {
 				const json = await res.json();
 				remoteResults = z.array(remoteResultSchema).parse(json);
-			} catch (e) {
+			} catch {
 				throw new DetailedLibsqlError({
 					message: await getUnexpectedResponseMessage(res),
 					code: KNOWN_ERROR_CODES.SQL_QUERY_FAILED,
@@ -192,7 +192,7 @@ function createStudioDatabaseClient(appToken: string, remoteDbURL: URL) {
 				results.push({ rows: rowValues });
 			}
 			return results;
-		}
+		},
 	);
 	applyTransactionNotSupported(db);
 	return db;
@@ -219,7 +219,7 @@ async function parseRemoteError(response: Response): Promise<DetailedLibsqlError
 	let error;
 	try {
 		error = errorSchema.parse(await response.clone().json()).error;
-	} catch (e) {
+	} catch {
 		return new DetailedLibsqlError({
 			message: await getUnexpectedResponseMessage(response),
 			code: KNOWN_ERROR_CODES.SQL_QUERY_FAILED,

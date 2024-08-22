@@ -4,6 +4,7 @@ import { IncomingMessage } from 'node:http';
 import type * as vite from 'vite';
 import type { AstroSettings, ManifestData, SSRManifest } from '../@types/astro.js';
 import type { SSRManifestI18n } from '../core/app/types.js';
+import { createKey } from '../core/encryption.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { patchOverlay } from '../core/errors/overlay.js';
@@ -37,7 +38,7 @@ export default function createVitePluginAstroServer({
 			const manifest = createDevelopmentManifest(settings);
 			let manifestData: ManifestData = injectDefaultRoutes(
 				manifest,
-				createRouteManifest({ settings, fsMod }, logger)
+				createRouteManifest({ settings, fsMod }, logger),
 			);
 			const pipeline = DevPipeline.create(manifestData, { loader, logger, manifest, settings });
 			const controller = createController({ loader });
@@ -70,7 +71,7 @@ export default function createVitePluginAstroServer({
 				const { errorWithMetadata } = recordServerError(loader, settings.config, pipeline, error);
 				setTimeout(
 					async () => loader.webSocketSend(await getViteErrorPayload(errorWithMetadata)),
-					200
+					200,
 				);
 			}
 
@@ -129,6 +130,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			domainLookupTable: {},
 		};
 	}
+
 	return {
 		hrefRoot: settings.config.root.toString(),
 		trailingSlash: settings.config.trailingSlash,
@@ -147,8 +149,8 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		inlinedScripts: new Map(),
 		i18n: i18nManifest,
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
-		rewritingEnabled: settings.config.experimental.rewriting,
 		experimentalEnvGetSecretEnabled: false,
+		key: createKey(),
 		middleware(_, next) {
 			return next();
 		},

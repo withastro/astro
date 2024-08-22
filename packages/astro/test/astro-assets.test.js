@@ -1,11 +1,8 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import srcsetParse from 'srcset-parse';
+import parseSrcset from 'parse-srcset';
 import { loadFixture } from './test-utils.js';
-
-// This package isn't real ESM, so have to coerce it
-const matchSrcset = srcsetParse.default;
 
 // Asset bundling
 describe('Assets', () => {
@@ -30,8 +27,8 @@ describe('Assets', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		const srcset = $('img').attr('srcset');
-		const candidates = matchSrcset(srcset);
-		const match = candidates.find((a) => a.density === 2);
+		const candidates = parseSrcset(srcset);
+		const match = candidates.find((a) => a.d === 2);
 		const data = await fixture.readFile(match.url);
 		assert.equal(!!data, true);
 	});
@@ -40,8 +37,8 @@ describe('Assets', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		const srcset = $('img').attr('srcset');
-		const candidates = matchSrcset(srcset);
-		const match = candidates.find((a) => a.density === 3);
+		const candidates = parseSrcset(srcset);
+		const match = candidates.find((a) => a.d === 3);
 		const data = await fixture.readFile(match.url);
 		assert.equal(!!data, true);
 	});

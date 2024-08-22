@@ -148,7 +148,7 @@ async function pushToStudio(requestBody: RequestBody, appToken: string, remoteUr
 			console.error(`${url.toString()} failed: ${res.status} ${res.statusText}`);
 			console.error(await res.text());
 			throw new Error(`/db/push fetch failed: ${res.status} ${res.statusText}`);
-		}
+		},
 	);
 
 	const result = (await response.json()) as Result<never>;

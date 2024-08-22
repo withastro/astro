@@ -3,15 +3,14 @@ import { arch, platform } from 'node:os';
 /* eslint-disable no-console */
 import * as colors from 'kleur/colors';
 import prompts from 'prompts';
-import type yargs from 'yargs-parser';
 import type { AstroConfig, AstroUserConfig } from '../../@types/astro.js';
 import { resolveConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
-import { flagsToAstroInlineConfig } from '../flags.js';
+import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface InfoOptions {
-	flags: yargs.Arguments;
+	flags: Flags;
 }
 
 export async function getInfoOutput({
@@ -71,7 +70,7 @@ async function copyToClipboard(text: string) {
 				return;
 			}
 			command = 'xclip -sel clipboard -l 1';
-		} catch (e) {
+		} catch {
 			// Did not find xclip, bail out!
 			return;
 		}
@@ -91,9 +90,9 @@ async function copyToClipboard(text: string) {
 			input: text.trim(),
 			encoding: 'utf8',
 		});
-	} catch (e) {
+	} catch {
 		console.error(
-			colors.red(`\nSorry, something went wrong!`) + ` Please copy the text above manually.`
+			colors.red(`\nSorry, something went wrong!`) + ` Please copy the text above manually.`,
 		);
 	}
 }

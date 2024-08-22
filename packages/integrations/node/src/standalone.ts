@@ -1,6 +1,6 @@
-import https from 'https';
 import fs from 'node:fs';
 import http from 'node:http';
+import https from 'node:https';
 import type { PreviewServer } from 'astro';
 import type { NodeApp } from 'astro/app/node';
 import enableDestroy from 'server-destroy';
@@ -59,7 +59,7 @@ export function createServer(listener: http.RequestListener, host: string, port:
 				key: fs.readFileSync(process.env.SERVER_KEY_PATH),
 				cert: fs.readFileSync(process.env.SERVER_CERT_PATH),
 			},
-			listener
+			listener,
 		);
 	} else {
 		httpServer = http.createServer(listener);
