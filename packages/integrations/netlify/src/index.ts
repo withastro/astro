@@ -351,6 +351,7 @@ export default function netlifyIntegration(
 			account: parseBase64JSON('x-nf-account-info') ?? {
 				id: 'mock-netlify-account-id',
 			},
+			// TODO: this has type conflicts with @netlify/functions ^2.8.1
 			deploy: {
 				id:
 					typeof req.headers['x-nf-deploy-id'] === 'string'
