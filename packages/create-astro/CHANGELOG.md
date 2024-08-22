@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.8.4
+
+### Patch Changes
+
+- [#11766](https://github.com/withastro/astro/pull/11766) [`d12dcbf`](https://github.com/withastro/astro/commit/d12dcbff606dd8330075ba77d73ed3cbc79d7421) Thanks [@bluwy](https://github.com/bluwy)! - Fixes initial git commit when initializing git
+
 ## 4.8.3
 
 ### Patch Changes

@@ -22,8 +22,18 @@ export type Locals = {
 };
 
 export const onRequest = defineMiddleware(async (context, next) => {
+	if ((context as any)._isPrerendered) {
+		if (context.request.method === 'POST') {
+			// eslint-disable-next-line no-console
+			console.warn(
+				yellow('[astro:actions]'),
+				'POST requests should not be sent to prerendered pages. If you\'re using Actions, disable prerendering with `export const prerender = "false".',
+			);
+		}
+		return next();
+	}
+
 	const locals = context.locals as Locals;
-	const { request } = context;
 	// Actions middleware may have run already after a path rewrite.
 	// See https://github.com/withastro/roadmap/blob/feat/reroute/proposals/0047-rerouting.md#ctxrewrite
 	// `_actionPayload` is the same for every page,
@@ -36,16 +46,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			throw new Error('Internal: Invalid action payload in cookie.');
 		}
 		return renderResult({ context, next, ...actionPayload });
-	}
-
-	// Heuristic: If body is null, Astro might've reset this for prerendering.
-	if (import.meta.env.DEV && request.method === 'POST' && request.body === null) {
-		// eslint-disable-next-line no-console
-		console.warn(
-			yellow('[astro:actions]'),
-			'POST requests should not be sent to prerendered pages. If you\'re using Actions, disable prerendering with `export const prerender = "false".',
-		);
-		return next();
 	}
 
 	const actionName = context.url.searchParams.get(ACTION_QUERY_PARAMS.actionName);
@@ -92,7 +92,11 @@ async function handlePost({
 	context,
 	next,
 	actionName,
-}: { context: APIContext; next: MiddlewareNext; actionName: string }) {
+}: {
+	context: APIContext;
+	next: MiddlewareNext;
+	actionName: string;
+}) {
 	const { request } = context;
 
 	const baseAction = await getAction(actionName);

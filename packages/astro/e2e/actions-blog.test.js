@@ -125,4 +125,12 @@ test.describe('Astro Actions - Blog', () => {
 		await expect(comments).toBeVisible();
 		await expect(comments).toContainText(body);
 	});
+
+	test('Logout action redirects', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/blog/first-post/'));
+
+		const logoutButton = page.getByTestId('logout-button');
+		await logoutButton.click();
+		await expect(page).toHaveURL(astro.resolveUrl('/blog/'));
+	});
 });

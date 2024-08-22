@@ -1670,6 +1670,7 @@ export const ActionsWithoutServerOutputError = {
  * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
  * @description
  * Action was called from a form using a GET request, but only POST requests are supported. This often occurs if `method="POST"` is missing on the form.
+ * @deprecated Deprecated since version 4.13.2.
  */
 export const ActionsUsedWithForGetError = {
 	name: 'ActionsUsedWithForGetError',

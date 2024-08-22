@@ -93,7 +93,9 @@ async function handleAction(param, path, context) {
 		body,
 		headers,
 	});
-	if (rawResult.status === 204) return;
+	if (rawResult.status === 204) {
+		return deserializeActionResult({ type: 'empty', status: 204 });
+	}
 
 	return deserializeActionResult({
 		type: rawResult.ok ? 'data' : 'error',

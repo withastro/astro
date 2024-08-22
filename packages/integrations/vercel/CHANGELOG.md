@@ -1,5 +1,32 @@
 # @astrojs/vercel
 
+## 7.8.0
+
+### Minor Changes
+
+- [#11728](https://github.com/withastro/astro/pull/11728) [`5ea02b1`](https://github.com/withastro/astro/commit/5ea02b12fdb9b8ca45b1229bb9d04bc3d1270e0f) Thanks [@matthewp](https://github.com/matthewp)! - Deprecates the `functionPerRoute` option
+
+  This option is now deprecated, and will be removed entirely in Astro v5.0. We suggest removing this option from your configuration as soon as you are able to:
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+  import vercel from '@astrojs/vercel/serverless';
+
+  export default defineConfig({
+    // ...
+    output: 'server',
+    adapter: vercel({
+  -     functionPerRoute: true,
+    }),
+  });
+  ```
+
+### Patch Changes
+
+- [#11783](https://github.com/withastro/astro/pull/11783) [`fc81b01`](https://github.com/withastro/astro/commit/fc81b01bcdd43646bcc615b16bf0400a646445c8) Thanks [@matthewp](https://github.com/matthewp)! - Prevent race condition with Node 18
+
+  Using Node 18 there can be a race condition where polyfill for the `crypto` global is not applied in time. This change ensures the polyfills run first.
+
 ## 7.7.2
 
 ### Patch Changes

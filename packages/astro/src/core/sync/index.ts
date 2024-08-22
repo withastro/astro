@@ -169,7 +169,7 @@ async function syncContentCollections(
 	const tempViteServer = await createServer(
 		await createVite(
 			{
-				server: { middlewareMode: true, hmr: false, watch: null },
+				server: { middlewareMode: true, hmr: false, watch: null, ws: false },
 				optimizeDeps: { noDiscovery: true },
 				ssr: { external: [] },
 				logLevel: 'silent',

@@ -9,7 +9,7 @@
       "**/vendor/**",
       "**/.vercel/**"
     ],
-    "include": ["test/**", "e2e/**", "packages/**"]
+    "include": ["test/**", "e2e/**", "packages/**", "/scripts/**"]
   },
   "formatter": {
     "indentStyle": "tab",
