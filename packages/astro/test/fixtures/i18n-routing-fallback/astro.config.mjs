@@ -8,8 +8,8 @@ export default defineConfig({
                 'en', 'pt', 'it'
             ],
             fallback: {
-                // "it": "en",
-                // pt: "en"
+                "it": "en",
+                pt: "en"
             }
         }
 })

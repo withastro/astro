@@ -43,12 +43,8 @@ export function findRouteToRewrite({
 	if (base !== '/' && newUrl.pathname.startsWith(base)) {
 		pathname = shouldAppendForwardSlash(trailingSlash, buildFormat)
 			? appendForwardSlash(newUrl.pathname)
-			: base !== '/'
-				? removeTrailingForwardSlash(newUrl.pathname)
-				: newUrl.pathname;
-		if (base !== '/') {
-			pathname = pathname.slice(base.length);
-		}
+			: removeTrailingForwardSlash(newUrl.pathname);
+		pathname = pathname.slice(base.length);
 	}
 
 	let foundRoute;
