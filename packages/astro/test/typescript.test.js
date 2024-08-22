@@ -27,6 +27,13 @@ const createFixture = async (config = {}) => {
 
 	return {
 		sync: () => astroFixture.sync({ root: stringRoot, ...config }),
+		build: () => astroFixture.build({ root: stringRoot, ...config }),
+		check: async () => {
+			// TODO: check how this thing works
+			// @ts-ignore
+			return await astroFixture.check({ flags: { root: stringRoot, ...config } });
+		},
+		startDevServer: () => astroFixture.startDevServer({ root: stringRoot, ...config }),
 		/** @param {string} path */
 		fileExists: (path) => {
 			return existsSync(new URL(path, root));
@@ -64,6 +71,12 @@ describe('experimental.typescript', () => {
 		const fixture = await createFixture();
 		await fixture.sync();
 		assert.equal(fixture.fileExists(SRC_ENV_DTS), true);
+	});
+
+	it('should create a tsconfig.json if it does not exist yet', async () => {
+		const fixture = await createFixture({ experimental: { typescript: {} } });
+		await fixture.sync();
+		assert.equal(fixture.fileExists(ROOT_TSCONFIG_PATH), true);
 	});
 
 	it('should throw if tsconfig.json has invalid extends', async () => {
@@ -142,13 +155,33 @@ describe('experimental.typescript', () => {
 		}
 	});
 
-	// it('should work with astro check', async () => {});
+    // TODO: check why it fails other tests
+	it.skip('should work in dev', async () => {
+		const fixture = await createFixture({ experimental: { typescript: {} } });
+		try {
+			const devServer = await fixture.startDevServer();
+			await devServer.stop();
+			assert.ok(true);
+		} catch {
+			assert.fail();
+		}
+	});
 
-	// it('should work in dev', async () => {});
+	it('should work in build', async () => {
+		const fixture = await createFixture({ experimental: { typescript: {} } });
+		try {
+			await fixture.build();
+			assert.ok(true);
+		} catch {
+			assert.fail();
+		}
+	});
 
-	// it('should work in build', async () => {});
-
-	// it('should work in sync', async () => {});
-
-	// it('should create a tsconfig.json if it does not exist yet', async () => {});
+    // TODO: check how check works
+	it.skip('should work with astro check', async () => {
+		const fixture = await createFixture({ experimental: { typescript: {} } });
+		await fixture.build();
+		const res = await fixture.check();
+		console.log({ res });
+	});
 });
