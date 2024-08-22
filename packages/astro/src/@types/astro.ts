@@ -1670,15 +1670,37 @@ export interface AstroUserConfig {
 
 					/**
 					 * @docs
-					 * @name i18n.fallbackType
-					 * @type {String}
+					 * @name i18n.routing.fallbackType
+					 * @type {"redirect" | "rewrite"}
 					 * @default `"redirect"`
 					 * @version 4.15.0
 					 * @description
 					 *
-					 * Allows to control how works. By default, it creates pages that will *redirect* to the destination page.
+					 * Allows to control how `i18n.fallback` works. This option works only if some values are provided for `i18n.fallback`. 
+					 * 
+					 * By default, `i18n.routing.fallback` creates pages that will *redirect* to the destination page.
 					 *
 					 * When `"rewrite"` is chosen, Astro will create pages that **render** the contents of the fallback page.
+					 *
+					 * For example, with the following configuration, if you have a page in `src/pages/en/index.astro`, the `astro build` command will generate 
+					 * a page in `dist/fr/index.html` that will contain the same content as the `dist/en/index.html` page.
+					 * 
+					 * ```js
+					 * //astro.config.mjs
+					 * export default defineConfig({
+					 * 	 i18n: {
+					 *     defaultLocale: "en",
+					 *     locales: ["en", "fr"],
+					 *     routing: {
+					 *     	prefixDefaultLocale: false,
+					 *     	fallbackType: "rewrite",
+					 *     },
+					 *     fallback: {
+					 *     	fr: "en",
+					 *     }
+					 *   },
+					 * })
+					 * ```
 					 */
 					fallbackType: "redirect" | "rewrite"
 
