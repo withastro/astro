@@ -44,7 +44,7 @@ describe('astro:db', () => {
 		let remoteDbServer;
 
 		before(async () => {
-			process.env.ASTRO_STUDIO_REMOTE_DB_URL = `memory:`;
+			process.env.ASTRO_DB_REMOTE_URL = `memory:`;
 			await fixture.build();
 		});
 

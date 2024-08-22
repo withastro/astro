@@ -35,7 +35,7 @@ import {
 	type ResolvedIndexes,
 	type TextColumn,
 } from '../types.js';
-import { type Result, getRemoteDatabaseUrl, isRemoteStudio } from '../utils.js';
+import { type Result, getRemoteDatabaseInfo } from '../utils.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
@@ -427,18 +427,22 @@ function hasRuntimeDefault(column: DBColumn): column is DBColumnWithDefault {
 export function getProductionCurrentSnapshot(options: {
 	appToken: string;
 }): Promise<DBSnapshot | undefined> {
-	const remoteUrl = getRemoteDatabaseUrl();
+	const dbInfo = getRemoteDatabaseInfo();
 
-	return isRemoteStudio(remoteUrl)
-		? getStudioCurrentSnapshot(options.appToken, remoteUrl)
-		: getDbCurrentSnapshot(options.appToken, remoteUrl);
+	return dbInfo.type === 'studio'
+		? getStudioCurrentSnapshot(options.appToken, dbInfo.url)
+		: getDbCurrentSnapshot(options.appToken, dbInfo.url);
 }
 
 async function getDbCurrentSnapshot(
 	appToken: string,
 	remoteUrl: string
 ): Promise<DBSnapshot | undefined> {
-	const client = createRemoteDatabaseClient(appToken, remoteUrl);
+	const client = createRemoteDatabaseClient({
+		dbType: 'libsql',
+		appToken,
+		remoteUrl,
+	});
 
 	try {
 		const res = await client.get<{ snapshot: string }>(

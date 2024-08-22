@@ -18,12 +18,17 @@ function applyTransactionNotSupported(db: SqliteRemoteDatabase) {
 	});
 }
 
-export function createLocalDatabaseClient({ dbUrl }: { dbUrl: string }): LibSQLDatabase {
-	const url = isWebContainer ? 'file:content.db' : dbUrl;
+type LocalDbClientOptions = {
+	dbUrl: string;
+	enableTransations: boolean;
+};
+
+export function createLocalDatabaseClient(options: LocalDbClientOptions): LibSQLDatabase {
+	const url = isWebContainer ? 'file:content.db' : options.dbUrl;
 	const client = createClient({ url });
 	const db = drizzleLibsql(client);
 
-	if (!process.env.ASTRO_DB_ENABLE_TRANSACTIONS) {
+	if (!options.enableTransations) {
 		applyTransactionNotSupported(db);
 	}
 	return db;
@@ -37,28 +42,18 @@ const remoteResultSchema = z.object({
 	lastInsertRowid: z.unknown().optional(),
 });
 
-export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string) {
-	const remoteUrl = new URL(remoteDbURL);
+type RemoteDbClientOptions = {
+	dbType: 'studio' | 'libsql',
+	appToken: string,
+	remoteUrl: string | URL,
+}
 
-	switch (remoteUrl.protocol) {
-		case 'http:':
-		case 'https:':
-			return createStudioDatabaseClient(appToken, remoteUrl);
-		case 'libsql+http:':
-			remoteUrl.protocol = 'http:';
-			return createRemoteLibSQLClient(appToken, remoteUrl);
-		case 'libsql+https:':
-			remoteUrl.protocol = 'https:';
-			return createRemoteLibSQLClient(appToken, remoteUrl);
-		case 'ws:':
-		case 'wss:':
-		case 'file:':
-		case 'memory:':
-		case 'libsql:':
-			return createRemoteLibSQLClient(appToken, remoteUrl);
-		default:
-			throw new Error(`Unsupported remote DB: ${remoteDbURL}`);
-	}
+export function createRemoteDatabaseClient(options: RemoteDbClientOptions) {
+	const remoteUrl = new URL(options.remoteUrl);
+
+	return options.dbType === 'studio'
+		? createStudioDatabaseClient(options.appToken, remoteUrl)
+		: createRemoteLibSQLClient(options.appToken, remoteUrl);
 }
 
 function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL) {
@@ -70,7 +65,7 @@ function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL) {
 		authToken: appToken,
 		url: remoteDbURL.protocol === 'memory:' ? ':memory:' : remoteDbURL.toString(),
 	});
- return drizzleLibsql(client);
+  return drizzleLibsql(client);
 }
 
 function createStudioDatabaseClient(appToken: string, remoteDbURL: URL) {

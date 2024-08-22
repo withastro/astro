@@ -6,8 +6,8 @@ Adds support for connecting Astro DB to any remote LibSQL server. This allows As
 
 To connect Astro DB to a remote LibSQL server instead of Studio, set the following environment variables:
 
-- `ASTRO_STUDIO_REMOTE_DB_URL`: the connection URL to your LibSQL server
-- `ASTRO_STUDIO_APP_TOKEN`: the auth token to your LibSQL server
+- `ASTRO_DB_REMOTE_URL`: the connection URL to your LibSQL server
+- `ASTRO_DB_APP_TOKEN`: the auth token to your LibSQL server
 
 Details of the LibSQL connection can be configured using the connection URL.
 

@@ -7,7 +7,7 @@ import { createRemoteDatabaseClient } from '../../../../runtime/index.js';
 import { safeFetch } from '../../../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../../../consts.js';
 import { type DBConfig, type DBSnapshot } from '../../../types.js';
-import { type Result, getRemoteDatabaseUrl, isRemoteStudio } from '../../../utils.js';
+import { type Result, getRemoteDatabaseInfo } from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
@@ -99,11 +99,11 @@ async function pushSchema({
 		return new Response(null, { status: 200 });
 	}
 
-	const remoteUrl = getRemoteDatabaseUrl();
+	const dbInfo = getRemoteDatabaseInfo();
 
-	return isRemoteStudio(remoteUrl)
-		? pushToStudio(requestBody, appToken, remoteUrl)
-		: pushToDb(requestBody, appToken, remoteUrl);
+	return dbInfo.type === 'studio'
+		? pushToStudio(requestBody, appToken, dbInfo.url)
+		: pushToDb(requestBody, appToken, dbInfo.url);
 }
 
 type RequestBody = {
@@ -113,7 +113,11 @@ type RequestBody = {
 };
 
 async function pushToDb(requestBody: RequestBody, appToken: string, remoteUrl: string) {
-	const client = createRemoteDatabaseClient(appToken, remoteUrl);
+	const client = createRemoteDatabaseClient({
+		dbType: 'libsql',
+		appToken,
+		remoteUrl,
+	});
 
 	await client.run(sql`create table if not exists _astro_db_snapshot (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
