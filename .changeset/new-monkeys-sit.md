@@ -4,7 +4,7 @@
 
 Adds a new object `swapFunctions` to expose the necessary utility functions on `astro:transitions/client` that allow you to build custom swap functions to be used with view transitions. 
 
-The example below uses these functions to replace the default `swap` function with one that only swaps the `<main>` part of the page:
+The example below uses these functions to replace Astro's built-in default `swap` function with one that only swaps the `<main>` part of the page:
 
 ```astro
 <script>
