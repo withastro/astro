@@ -8,8 +8,8 @@ import type {
 } from '../../../@types/astro.js';
 import type { Logger } from '../../logger/core.js';
 
-import { createRequire } from 'module';
 import nodeFs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';

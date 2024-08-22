@@ -9,12 +9,12 @@
     "@astrojs/svelte": "workspace:*",
     "@astrojs/vue": "workspace:*",
     "astro": "workspace:*",
-    "preact": "^10.23.1",
+    "preact": "^10.23.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "sass": "^1.77.8",
-    "solid-js": "^1.8.20",
+    "solid-js": "^1.8.21",
     "svelte": "^4.2.18",
-    "vue": "^3.4.37"
+    "vue": "^3.4.38"
   }
 }

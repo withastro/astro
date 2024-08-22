@@ -27,7 +27,7 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 	const references: Array<string> = [];
 
 	for (const { filename, content } of settings.injectedTypes) {
-		const filepath = normalizePath(fileURLToPath(new URL(filename, settings.dotAstroDir)));
+		const filepath = fileURLToPath(new URL(filename, settings.dotAstroDir));
 		fs.mkdirSync(dirname(filepath), { recursive: true });
 		fs.writeFileSync(filepath, content, 'utf-8');
 		references.push(normalizePath(relative(fileURLToPath(settings.dotAstroDir), filepath)));
@@ -38,17 +38,15 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 		fs.mkdirSync(settings.dotAstroDir, { recursive: true });
 	}
 	fs.writeFileSync(
-		normalizePath(fileURLToPath(new URL(REFERENCE_FILE, settings.dotAstroDir))),
+		fileURLToPath(new URL(REFERENCE_FILE, settings.dotAstroDir)),
 		astroDtsContent,
 		'utf-8',
 	);
 }
 
 async function setUpEnvTs(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
-	const envTsPath = normalizePath(fileURLToPath(new URL('env.d.ts', settings.config.srcDir)));
-	const envTsPathRelativetoRoot = normalizePath(
-		relative(fileURLToPath(settings.config.root), envTsPath),
-	);
+	const envTsPath = fileURLToPath(new URL('env.d.ts', settings.config.srcDir));
+	const envTsPathRelativetoRoot = relative(fileURLToPath(settings.config.root), envTsPath);
 	const relativePath = normalizePath(
 		relative(
 			fileURLToPath(settings.config.srcDir),

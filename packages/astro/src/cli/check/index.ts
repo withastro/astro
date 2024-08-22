@@ -8,7 +8,7 @@ export async function check(flags: Flags) {
 	const logger = createLoggerFromFlags(flags);
 	const getPackageOpts = {
 		skipAsk: !!flags.yes || !!flags.y,
-		cwd: typeof flags.root == 'string' ? flags.root : undefined,
+		cwd: flags.root,
 	};
 	const checkPackage = await getPackage<typeof import('@astrojs/check')>(
 		'@astrojs/check',

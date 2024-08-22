@@ -1,7 +1,7 @@
 import os from 'node:os';
-import { parseArgs } from 'node:util';
 import { type Task, prompt } from '@astrojs/cli-kit';
 import { random } from '@astrojs/cli-kit/utils';
+import arg from 'arg';
 
 import getSeasonalData from '../data/seasonal.js';
 import { getName, getVersion } from '../messages.js';
@@ -33,44 +33,47 @@ export interface Context {
 }
 
 export async function getContext(argv: string[]): Promise<Context> {
-	const args = parseArgs({
-		args: argv,
-		allowPositionals: true,
-		strict: false,
-		options: {
-			template: { type: 'string' },
-			ref: { type: 'string' },
-			yes: { type: 'boolean', short: 'y' },
-			no: { type: 'boolean', short: 'n' },
-			install: { type: 'boolean' },
-			'no-install': { type: 'boolean' },
-			git: { type: 'boolean' },
-			'no-git': { type: 'boolean' },
-			typescript: { type: 'string' },
-			'skip-houston': { type: 'boolean' },
-			'dry-run': { type: 'boolean' },
-			help: { type: 'boolean', short: 'h' },
-			fancy: { type: 'boolean' },
+	const flags = arg(
+		{
+			'--template': String,
+			'--ref': String,
+			'--yes': Boolean,
+			'--no': Boolean,
+			'--install': Boolean,
+			'--no-install': Boolean,
+			'--git': Boolean,
+			'--no-git': Boolean,
+			'--typescript': String,
+			'--skip-houston': Boolean,
+			'--dry-run': Boolean,
+			'--help': Boolean,
+			'--fancy': Boolean,
+
+			'-y': '--yes',
+			'-n': '--no',
+			'-h': '--help',
 		},
-	});
+		{ argv, permissive: true },
+	);
 
 	const packageManager = detectPackageManager() ?? 'npm';
-	const projectName = args.positionals[0];
+	let cwd = flags['_'][0];
 	let {
-		help,
-		template,
-		no,
-		yes,
-		install,
-		'no-install': noInstall,
-		git,
-		'no-git': noGit,
-		typescript,
-		fancy,
-		'skip-houston': skipHouston,
-		'dry-run': dryRun,
-		ref,
-	} = args.values;
+		'--help': help = false,
+		'--template': template,
+		'--no': no,
+		'--yes': yes,
+		'--install': install,
+		'--no-install': noInstall,
+		'--git': git,
+		'--no-git': noGit,
+		'--typescript': typescript,
+		'--fancy': fancy,
+		'--skip-houston': skipHouston,
+		'--dry-run': dryRun,
+		'--ref': ref,
+	} = flags;
+	let projectName = cwd;
 
 	if (no) {
 		yes = false;
@@ -79,25 +82,9 @@ export async function getContext(argv: string[]): Promise<Context> {
 		if (typescript == undefined) typescript = 'strict';
 	}
 
-	skipHouston = typeof skipHouston == 'boolean' ? skipHouston : undefined;
 	skipHouston =
 		((os.platform() === 'win32' && !fancy) || skipHouston) ??
 		[yes, no, install, git, typescript].some((v) => v !== undefined);
-
-	// We use `strict: false` in `parseArgs` to allow unknown options, but Node also
-	// simply doesn't guarantee the types anymore, so we need to validate ourselves :(
-	help = !!help;
-	template = typeof template == 'string' ? template : undefined;
-	no = !!no;
-	yes = !!yes;
-	install = !!install;
-	noInstall = !!noInstall;
-	git = !!git;
-	noGit = !!noGit;
-	typescript = typeof typescript == 'string' ? typescript : undefined;
-	fancy = !!fancy;
-	dryRun = !!dryRun;
-	ref = typeof ref == 'string' ? ref : undefined;
 
 	const { messages, hats, ties } = getSeasonalData({ fancy });
 
@@ -120,7 +107,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		install: install ?? (noInstall ? false : undefined),
 		git: git ?? (noGit ? false : undefined),
 		typescript,
-		cwd: projectName,
+		cwd,
 		exit(code) {
 			process.exit(code);
 		},

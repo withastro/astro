@@ -1,8 +1,13 @@
 import { parse as devalueParse, stringify as devalueStringify } from 'devalue';
 import type { z } from 'zod';
 import { ACTION_QUERY_PARAMS as _ACTION_QUERY_PARAMS } from '../../consts.js';
-import type { ErrorInferenceObject, MaybePromise } from '../utils.js';
+import type {
+	ErrorInferenceObject,
+	MaybePromise,
+	ActionAPIContext as _ActionAPIContext,
+} from '../utils.js';
 
+export type ActionAPIContext = _ActionAPIContext;
 export const ACTION_QUERY_PARAMS = _ACTION_QUERY_PARAMS;
 
 export const ACTION_ERROR_CODES = [
