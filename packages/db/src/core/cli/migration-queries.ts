@@ -450,12 +450,11 @@ async function getDbCurrentSnapshot(
 			sql`select snapshot from _astro_db_snapshot order by id desc limit 1;`
 		);
 
-		console.log('DB res:', res);
-
 		return JSON.parse(res.snapshot);
 	} catch (error: any) {
 		if (error.code === 'SQLITE_UNKNOWN') {
-			// Snapshots table was not created yet,
+			// If the schema was never pushed to the database yet the table won't exist.
+			// Treat a missing snapshot table as an empty table.
 			return;
 		}
 
