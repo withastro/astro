@@ -5,6 +5,10 @@ import { loadFixture } from './test-utils.js';
 import { fileURLToPath } from 'node:url';
 import { existsSync, rmSync } from 'node:fs';
 
+const ROOT_TSCONFIG_PATH = './tsconfig.json';
+const SRC_ENV_DTS = './src/env.d.ts';
+const GENERATED_TSCONFIG_PATH = './.astro/tsconfig.json';
+
 /**
  *
  * @param {Omit<import('../dist/types/public/config.js').AstroUserConfig, "root">} config
@@ -15,9 +19,9 @@ const createFixture = async (config = {}) => {
 	const astroFixture = await loadFixture({ root: './fixtures/astro-typescript/', ...config });
 	const { root } = astroFixture.config;
 	const stringRoot = fileURLToPath(root);
-	rmSync(new URL('./tsconfig.json', root), { force: true });
-	rmSync(new URL('./src/env.d.ts', root), { force: true });
-	rmSync(new URL('./.astro', root), { force: true, recursive: true });
+	rmSync(new URL(ROOT_TSCONFIG_PATH, root), { force: true });
+	rmSync(new URL(SRC_ENV_DTS, root), { force: true });
+	rmSync(new URL('./.astro/', root), { force: true, recursive: true });
 
 	return {
 		sync: () => astroFixture.sync({ root: stringRoot, ...config }),
@@ -32,58 +36,44 @@ describe('experimental.typescript', () => {
 	it('should create .astro/tsconfig.json if experimental.typescript is enabled', async () => {
 		const fixture = await createFixture({ experimental: { typescript: {} } });
 		await fixture.sync();
-		assert.equal(fixture.fileExists('./.astro/tsconfig.json'), true);
+		assert.equal(fixture.fileExists(GENERATED_TSCONFIG_PATH), true);
 	});
 
 	it('should not create src/env.d.ts if experimental.typescript is enabled', async () => {
-		// TODO:
+		const fixture = await createFixture({ experimental: { typescript: {} } });
+		await fixture.sync();
+		assert.equal(fixture.fileExists(SRC_ENV_DTS), false);
 	});
 
 	it('should not create .astro/tsconfig.json if experimental.typescript is disabled', async () => {
-		// TODO:
+		const fixture = await createFixture();
+		await fixture.sync();
+		assert.equal(fixture.fileExists(GENERATED_TSCONFIG_PATH), false);
 	});
 
 	it('should create src/env.d.ts if experimental.typescript is disabled', async () => {
-		// TODO:
+		const fixture = await createFixture();
+		await fixture.sync();
+		assert.equal(fixture.fileExists(SRC_ENV_DTS), true);
 	});
 
-	it('should throw if tsconfig.json has invalid extends', async () => {
-		// TODO:
-	});
+	// it('should throw if tsconfig.json has invalid extends', async () => {});
 
-	it('should throw if tsconfig.json has invalid include', async () => {
-		// TODO:
-	});
+	// it('should throw if tsconfig.json has invalid include', async () => {});
 
-	it('should throw if tsconfig.json has invalid exclude', async () => {
-		// TODO:
-	});
+	// it('should throw if tsconfig.json has invalid exclude', async () => {});
 
-	it('should add outDir to .astro/tsconfig.json', async () => {
-		// TODO:
-	});
+	// it('should add outDir to .astro/tsconfig.json', async () => {});
 
-	it('should handle include/exclude relative paths', async () => {
-		// TODO:
-	});
+	// it('should handle include/exclude relative paths', async () => {});
 
-	it('should work with astro check', async () => {
-		// TODO:
-	});
+	// it('should work with astro check', async () => {});
 
-	it('should work in dev', async () => {
-		// TODO:
-	});
+	// it('should work in dev', async () => {});
 
-	it('should work in build', async () => {
-		// TODO:
-	});
+	// it('should work in build', async () => {});
 
-	it('should work in sync', async () => {
-		// TODO:
-	});
+	// it('should work in sync', async () => {});
 
-	it('should create a tsconfig.json if it does not exist yet', async () => {
-		// TODO:
-	});
+	// it('should create a tsconfig.json if it does not exist yet', async () => {});
 });
