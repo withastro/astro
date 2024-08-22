@@ -2457,6 +2457,12 @@ importers:
         specifier: ^3.4.38
         version: 3.4.38(typescript@5.5.4)
 
+  packages/astro/test/fixtures/astro-typescript:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/before-hydration:
     dependencies:
       '@astrojs/preact':
