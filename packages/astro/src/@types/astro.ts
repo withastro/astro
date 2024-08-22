@@ -1676,7 +1676,7 @@ export interface AstroUserConfig {
 					 * @version 4.15.0
 					 * @description
 					 *
-					 * Allows to control how `i18n.fallback` works. This option works only if some values are provided for `i18n.fallback`. 
+					 * Allows to control how `i18n.fallback` works. This option `i18n.routing.fallback` works only if some values are provided for `i18n.fallback`. 
 					 * 
 					 * By default, `i18n.routing.fallback` creates pages that will *redirect* to the destination page.
 					 *
