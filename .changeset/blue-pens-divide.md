@@ -16,7 +16,7 @@ export default defineConfig({
 ```diff
 // src/middleware.js
 export function onRequest(ctx, next) {
--  return ctx.rerwrite("/about")
-+  return ctx.rerwrite("/blog/about")
+-  return ctx.rewrite("/about")
++  return ctx.rewrite("/blog/about")
 }
 ```
