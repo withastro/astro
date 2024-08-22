@@ -28,3 +28,5 @@ function swapMainOnly(doc: Document) {
 };
 <script>
 ```
+
+See the [view transitions guide](https://docs.astro.build/en/guides/view-transitions/#astrobefore-swap) for more information about hooking into the `astro:before-swap` lifecycle event and adding a custom swap implementation.
