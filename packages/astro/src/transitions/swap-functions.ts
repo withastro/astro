@@ -139,7 +139,6 @@ export const swapFunctions = {
 	swapHeadElements,
 	swapBodyElement,
 	saveFocus,
-	restoreFocus,
 };
 
 export const swap = (doc: Document) => {
