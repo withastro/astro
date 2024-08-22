@@ -3,11 +3,16 @@ import { ActionError, defineAction, z } from 'astro:actions';
 import { getCollection } from 'astro:content';
 
 export const server = {
+	logout: defineAction({
+		handler: async () => {
+			await new Promise((r) => setTimeout(r, 500));
+		},
+	}),
 	blog: {
 		like: defineAction({
 			input: z.object({ postId: z.string() }),
 			handler: async ({ postId }) => {
-				await new Promise((r) => setTimeout(r, 1000));
+				await new Promise((r) => setTimeout(r, 500));
 
 				const { likes } = await db
 					.update(Likes)
@@ -30,7 +35,7 @@ export const server = {
 				body: z.string().min(10),
 			}),
 			handler: async ({ postId, author, body }) => {
-				if (!(await getCollection('blog')).find(b => b.id === postId)) {
+				if (!(await getCollection('blog')).find((b) => b.id === postId)) {
 					throw new ActionError({
 						code: 'NOT_FOUND',
 						message: 'Post not found',
