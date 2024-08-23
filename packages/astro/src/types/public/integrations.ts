@@ -69,7 +69,7 @@ export interface AstroAdapterFeatures {
 	/**
 	 * Force Astro to output a server output, even if all the pages are prerendered
 	 */
-	forceServerOutput: boolean;
+	forceServerOutput?: boolean;
 }
 
 export interface AstroAdapter {
