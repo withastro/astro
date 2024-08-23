@@ -42,15 +42,18 @@ import {
 	getExtGlob,
 	isDeferredModule,
 } from './utils.js';
+import type { Logger } from '../core/logger/core.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
 	fs: typeof nodeFs;
+	logger: Logger;
 }
 
 export function astroContentVirtualModPlugin({
 	settings,
 	fs,
+	logger,
 }: AstroContentVirtualModPluginParams): Plugin {
 	let IS_DEV = false;
 	const IS_SERVER = isServerLikeOutput(settings.config);
@@ -116,6 +119,7 @@ export function astroContentVirtualModPlugin({
 				const code = await generateContentEntryFile({
 					settings,
 					fs,
+					logger,
 					lookupMap,
 					IS_DEV,
 					IS_SERVER,
@@ -207,6 +211,7 @@ export function astroContentVirtualModPlugin({
 
 export async function generateContentEntryFile({
 	settings,
+	logger,
 	lookupMap,
 	IS_DEV,
 	IS_SERVER,
@@ -214,6 +219,7 @@ export async function generateContentEntryFile({
 }: {
 	settings: AstroSettings;
 	fs: typeof nodeFs;
+	logger: Logger;
 	lookupMap: ContentLookupMap;
 	IS_DEV: boolean;
 	IS_SERVER: boolean;
@@ -253,18 +259,24 @@ export async function generateContentEntryFile({
 		renderEntryGlobResult = getStringifiedCollectionFromLookup('render', relContentDir, lookupMap);
 	}
 
-	let virtualModContents =
-		nodeFs
-			.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
-			.replace('@@CONTENT_DIR@@', relContentDir)
-			.replace("'@@CONTENT_ENTRY_GLOB_PATH@@'", contentEntryGlobResult)
-			.replace("'@@DATA_ENTRY_GLOB_PATH@@'", dataEntryGlobResult)
-			.replace("'@@RENDER_ENTRY_GLOB_PATH@@'", renderEntryGlobResult)
-			.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`) +
-		(isClient
-			? `
-console.warn('astro:content is only supported running server-side. Using it in the browser will lead to bloated bundles and slow down page load. In the future it will not be supported.');`
-			: '');
+	let virtualModContents: string;
+	if(isClient) {
+		// Empty exports is probably enough to break the build.
+		// If for some reason its being imported as a side-effect ala `import 'astro:content';` then throw an error message.
+		virtualModContents = `export {};
+throw new Error('astro:content is only supported running server-side.');`;
+
+		logger.error('content', 'astro:content is only supported running server-side.');
+	} else {
+		 virtualModContents =
+			nodeFs
+				.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
+				.replace('@@CONTENT_DIR@@', relContentDir)
+				.replace("'@@CONTENT_ENTRY_GLOB_PATH@@'", contentEntryGlobResult)
+				.replace("'@@DATA_ENTRY_GLOB_PATH@@'", dataEntryGlobResult)
+				.replace("'@@RENDER_ENTRY_GLOB_PATH@@'", renderEntryGlobResult)
+				.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`);
+	}
 
 	return virtualModContents;
 }
