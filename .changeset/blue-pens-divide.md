@@ -4,7 +4,7 @@
 
 Fixes a bug in the rewrite logic, where Astro didn't correctly rewrite to website with `base`.
 
-This means that if you used the `rewrite` function on a project that has `base`, you need to include it when using a rewrite:
+If you use the `rewrite()` function on a project that has `base` configured, you must now prepend the base to your existing rewrite URL:
 
 ```js
 // astro.config.mjs

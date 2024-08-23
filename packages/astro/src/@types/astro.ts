@@ -1671,19 +1671,20 @@ export interface AstroUserConfig {
 					/**
 					 * @docs
 					 * @name i18n.routing.fallbackType
+					 * @kind h4
 					 * @type {"redirect" | "rewrite"}
 					 * @default `"redirect"`
 					 * @version 4.15.0
 					 * @description
 					 *
-					 * Allows to control how `i18n.fallback` works. This option `i18n.routing.fallback` works only if some values are provided for `i18n.fallback`. 
+					 * When `i18n.fallback` is configured to avoid showing a 404 page for missing page routes, this option controls whether to [redirect](https://docs.astro.build/en/guides/routing/#redirects) to the fallback page, or to [rewrite](https://docs.astro.build/en/guides/routing/#rewrites) the fallback page's content in place.
 					 * 
-					 * By default, `i18n.routing.fallback` creates pages that will *redirect* to the destination page.
+					 * By default, Astro's i18n routing creates pages that redirect your visitors to a new destination based on your fallback configuration. The browser will refresh and show the destination address in the URL bar.
 					 *
-					 * When `"rewrite"` is chosen, Astro will create pages that **render** the contents of the fallback page.
+					 * When `i18n.routing.fallback: "rewrite"` is configured, Astro will create pages that render the contents of the fallback page on the original, requested URL.
 					 *
-					 * For example, with the following configuration, if you have a page in `src/pages/en/index.astro`, the `astro build` command will generate 
-					 * a page in `dist/fr/index.html` that will contain the same content as the `dist/en/index.html` page.
+					 * With the following configuration, if you have the file `src/pages/en/about.astro` but not `src/pages/fr/about.astro`, the `astro build` command will generate `dist/fr/about.html` with the same content as the `dist/en/index.html` page.
+					 * Your site visitor will see the English version of the page at `https://example.com/fr/about/` and will not be redirected.
 					 * 
 					 * ```js
 					 * //astro.config.mjs
