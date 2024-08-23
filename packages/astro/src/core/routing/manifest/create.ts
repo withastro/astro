@@ -286,13 +286,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 
 	for (const injectedRoute of settings.injectedRoutes) {
 		const { pattern: name, entrypoint, prerender: prerenderInjected } = injectedRoute;
-		let resolved: string;
-		try {
-			resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
-		} catch {
-			resolved = fileURLToPath(new URL(entrypoint, config.root));
-		}
-		const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
+		const { resolved, component } = resolveInjectedRoute(entrypoint, config.root, cwd);
 
 		const segments = removeLeadingForwardSlash(name)
 			.split(path.posix.sep)
@@ -526,7 +520,8 @@ export function createRouteManifest(
 
 	// Scan all the routes to see if they're prerendered or not
 	for (const route of routes) {
-		const content = nodeFs.readFileSync(
+		const localFs = params.fsMod ?? nodeFs;
+		const content = localFs.readFileSync(
 			fileURLToPath(new URL(route.component, config.root)),
 			'utf-8',
 		);
@@ -537,6 +532,11 @@ export function createRouteManifest(
 			route.prerender = match[1] === 'true';
 			if (!route.prerender) settings.buildOutput = 'server';
 		}
+	}
+
+	// Edge case: If there's no routes, but the config is set to server output, assume it's a server
+	if (routes.length === 0 && settings.config.output === 'server') {
+		settings.buildOutput = 'server';
 	}
 
 	// Report route collisions
@@ -741,6 +741,20 @@ export function createRouteManifest(
 
 	return {
 		routes,
+	};
+}
+
+export function resolveInjectedRoute(entrypoint: string, root: URL, cwd?: string) {
+	let resolved;
+	try {
+		resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(root)] });
+	} catch {
+		resolved = fileURLToPath(new URL(entrypoint, root));
+	}
+
+	return {
+		resolved: resolved,
+		component: slash(path.relative(cwd || fileURLToPath(root), resolved)),
 	};
 }
 

@@ -25,12 +25,6 @@ export default function astroActions({
 		name: VIRTUAL_MODULE_ID,
 		hooks: {
 			async 'astro:config:setup'(params) {
-				if (settings.buildOutput !== 'server') {
-					const error = new AstroError(ActionsWithoutServerOutputError);
-					error.stack = undefined;
-					throw error;
-				}
-
 				params.updateConfig({
 					vite: {
 						plugins: [vitePluginUserActions({ settings }), vitePluginActions(fs)],
@@ -49,6 +43,12 @@ export default function astroActions({
 				});
 			},
 			'astro:config:done': (params) => {
+				if (params.buildOutput !== 'server') {
+					const error = new AstroError(ActionsWithoutServerOutputError);
+					error.stack = undefined;
+					throw error;
+				}
+
 				const stringifiedActionsImport = JSON.stringify(
 					viteID(new URL('./actions', params.config.srcDir)),
 				);

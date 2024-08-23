@@ -24,23 +24,27 @@ export interface AstroPluginOptions {
 	settings: AstroSettings;
 	logger: Logger;
 	fs: typeof fs;
+	manifest: ManifestData;
 }
 
 export default function createVitePluginAstroServer({
 	settings,
 	logger,
 	fs: fsMod,
+	manifest: routeManifest,
 }: AstroPluginOptions): vite.Plugin {
 	return {
 		name: 'astro:server',
 		configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
-			const manifest = createDevelopmentManifest(settings);
-			let manifestData: ManifestData = injectDefaultRoutes(
-				manifest,
-				createRouteManifest({ settings, fsMod }, logger),
-			);
-			const pipeline = DevPipeline.create(manifestData, { loader, logger, manifest, settings });
+			const devSSRManifest = createDevelopmentManifest(settings);
+			let manifestData: ManifestData = injectDefaultRoutes(devSSRManifest, routeManifest);
+			const pipeline = DevPipeline.create(manifestData, {
+				loader,
+				logger,
+				manifest: devSSRManifest,
+				settings,
+			});
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();
 
@@ -48,7 +52,10 @@ export default function createVitePluginAstroServer({
 			function rebuildManifest(needsManifestRebuild: boolean) {
 				pipeline.clearRouteCache();
 				if (needsManifestRebuild) {
-					manifestData = injectDefaultRoutes(manifest, createRouteManifest({ settings }, logger));
+					manifestData = injectDefaultRoutes(
+						devSSRManifest,
+						createRouteManifest({ settings, fsMod }, logger),
+					);
 					pipeline.setManifestData(manifestData);
 				}
 			}

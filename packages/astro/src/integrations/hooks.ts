@@ -1,3 +1,4 @@
+import assert from 'node:assert';
 import fsMod from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
@@ -294,6 +295,7 @@ export async function runHookConfigDone({
 }) {
 	for (const integration of settings.config.integrations) {
 		if (integration?.hooks?.['astro:config:done']) {
+			assert(settings.buildOutput, 'buildOutput must be set before running astro:config:done');
 			await withTakingALongTimeMsg({
 				name: integration.name,
 				hookName: 'astro:config:done',
@@ -332,6 +334,10 @@ export async function runHookConfigDone({
 							}
 						}
 						settings.adapter = adapter;
+
+						if (adapter.adapterFeatures?.forceServerOutput) {
+							settings.buildOutput = 'server';
+						}
 					},
 					injectTypes(injectedType) {
 						const normalizedFilename = normalizeInjectedTypeFilename(
@@ -349,6 +355,7 @@ export async function runHookConfigDone({
 						return new URL(normalizedFilename, settings.dotAstroDir);
 					},
 					logger: getLogger(integration, logger),
+					buildOutput: settings.buildOutput,
 				}),
 				logger,
 			});

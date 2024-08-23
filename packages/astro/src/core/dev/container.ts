@@ -15,6 +15,7 @@ import type { AstroInlineConfig } from '../../types/public/config.js';
 import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
+import { createRouteManifest } from '../routing/index.js';
 import { syncInternal } from '../sync/index.js';
 
 export interface Container {
@@ -52,8 +53,6 @@ export async function createContainer({
 		isRestart,
 	});
 
-	settings = injectImageEndpoint(settings, 'dev');
-
 	const {
 		base,
 		server: { host, headers, open: serverOpen },
@@ -81,6 +80,11 @@ export async function createContainer({
 		.map((r) => r.clientEntrypoint)
 		.filter(Boolean) as string[];
 
+	// Create the route manifest already outside of Vite so that `runHookConfigDone` can use it to inform integrations of the build output
+	const manifest = createRouteManifest({ settings, fsMod: fs }, logger);
+
+	injectImageEndpoint(settings, manifest, 'dev');
+
 	const viteConfig = await createVite(
 		{
 			mode: 'development',
@@ -89,8 +93,9 @@ export async function createContainer({
 				include: rendererClientEntries,
 			},
 		},
-		{ settings, logger, mode: 'dev', command: 'dev', fs, sync: false },
+		{ settings, logger, mode: 'dev', command: 'dev', fs, sync: false, manifest },
 	);
+
 	await runHookConfigDone({ settings, logger });
 	await syncInternal({
 		settings,
