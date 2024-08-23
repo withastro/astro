@@ -48,23 +48,6 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @property {typeof check} check
  * @property {typeof sync} sync
  * @property {AstroConfig} config
- *
- * This function returns an instance of the Check
- *
- *
- * When used in a test suite:
- * ```js
- * let fixture = await loadFixture({
- *   root: './fixtures/astro-check-watch/',
- * });
- * ```
- * `opts` will override the options passed to the `AstroChecker`
- *
- * ```js
- * let { check, stop, watch } = fixture.check({
- *   flags: { watch: true },
- * });
- * ```
  */
 
 /** @type {import('../src/core/logger/core').LogOptions} */

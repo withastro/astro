@@ -2459,15 +2459,9 @@ importers:
 
   packages/astro/test/fixtures/astro-typescript:
     dependencies:
-      '@astrojs/check':
-        specifier: ^0.9.3
-        version: 0.9.3(prettier-plugin-astro@0.14.1)(prettier@3.3.3)(typescript@5.5.4)
       astro:
         specifier: workspace:*
         version: link:../../..
-      typescript:
-        specifier: ^5.5.4
-        version: 5.5.4
 
   packages/astro/test/fixtures/before-hydration:
     dependencies:

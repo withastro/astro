@@ -28,11 +28,6 @@ const createFixture = async (config = {}) => {
 	return {
 		sync: () => astroFixture.sync({ root: stringRoot, ...config }),
 		build: () => astroFixture.build({ root: stringRoot, ...config }),
-		check: async () => {
-			// TODO: check how this thing works
-			// @ts-ignore
-			return await astroFixture.check({ flags: { root: stringRoot, ...config } });
-		},
 		startDevServer: () => astroFixture.startDevServer({ root: stringRoot, ...config }),
 		/** @param {string} path */
 		fileExists: (path) => {
@@ -150,13 +145,13 @@ describe('experimental.typescript', () => {
 		for (const { outDir, exclude } of dirs) {
 			const fixture = await createFixture({ experimental: { typescript: {} }, outDir });
 			await fixture.sync();
-			const tsconfig = JSON.parse(await fixture.readFile(GENERATED_TSCONFIG_PATH));
+			const raw = await fixture.readFile(GENERATED_TSCONFIG_PATH);
+			const tsconfig = JSON.parse(raw);
 			assert.equal(tsconfig.exclude.includes(exclude), true);
 		}
 	});
 
-    // TODO: check why it fails other tests
-	it.skip('should work in dev', async () => {
+	it('should work in dev', async () => {
 		const fixture = await createFixture({ experimental: { typescript: {} } });
 		try {
 			const devServer = await fixture.startDevServer();
@@ -175,13 +170,5 @@ describe('experimental.typescript', () => {
 		} catch {
 			assert.fail();
 		}
-	});
-
-    // TODO: check how check works
-	it.skip('should work with astro check', async () => {
-		const fixture = await createFixture({ experimental: { typescript: {} } });
-		await fixture.build();
-		const res = await fixture.check();
-		console.log({ res });
 	});
 });

@@ -3,8 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/check": "^0.9.3",
-    "astro": "workspace:*",
-    "typescript": "^5.5.4"
+    "astro": "workspace:*"
   }
 }
