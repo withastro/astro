@@ -81,7 +81,9 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	vite: {},
 	legacy: {},
 	redirects: {},
-	security: {},
+	security: {
+		checkOrigin: true
+	},
 	env: {
 		schema: {},
 		validateSecrets: false,
@@ -499,7 +501,7 @@ export const AstroConfigSchema = z.object({
 	),
 	security: z
 		.object({
-			checkOrigin: z.boolean().default(false),
+			checkOrigin: z.boolean().default(ASTRO_CONFIG_DEFAULTS.security.checkOrigin),
 		})
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.security),

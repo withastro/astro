@@ -467,11 +467,11 @@ export interface AstroUserConfig {
 		 * @name security.checkOrigin
 		 * @kind h4
 		 * @type {boolean}
-		 * @default 'false'
+		 * @default 'true'
 		 * @version 4.9.0
 		 * @description
 		 *
-		 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`. This is used to provide Cross-Site Request Forgery (CSRF) protection.
+		 * Performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`. This is used to provide Cross-Site Request Forgery (CSRF) protection.
 		 *
 		 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST`, `PATCH`, `DELETE` and `PUT` with
 		 * one of the following `content-type` headers: `'application/x-www-form-urlencoded'`, `'multipart/form-data'`, `'text/plain'`.
@@ -1961,7 +1961,7 @@ export interface AstroInlineOnlyConfig {
 	 * If this value is undefined or unset, Astro will search for an `astro.config.(js,mjs,ts)` file relative to
 	 * the `root` and load the config file if found.
 	 *
-	 * The inline config passed in this object will take highest priority when merging with the loaded user config.
+	 * The inline config passed in this object will take the highest priority when merging with the loaded user config.
 	 */
 	configFile?: string | false;
 	/**
