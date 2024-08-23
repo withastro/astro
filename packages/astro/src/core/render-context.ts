@@ -599,5 +599,5 @@ function getAstroRoutePattern(component: RouteData['component']): string {
 
 	// this should remove the extension
 	splitComponent.pop();
-	return splitComponent.join("/");
+	return "/" + splitComponent.join("/");
 }
