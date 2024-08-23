@@ -526,16 +526,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.clientPrerender),
-			env: z
-				.object({
-					schema: EnvSchema.optional(),
-					validateSecrets: z
-						.boolean()
-						.optional()
-						.default(ASTRO_CONFIG_DEFAULTS.env.validateSecrets),
-				})
-				.strict()
-				.optional(),
 			serverIslands: z
 				.boolean()
 				.optional()
