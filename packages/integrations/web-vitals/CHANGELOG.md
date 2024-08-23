@@ -1,5 +1,12 @@
 # @astrojs/web-vitals
 
+## 2.0.1-alpha.0
+
+### Patch Changes
+
+- Updated dependencies [[`b677429`](https://github.com/withastro/astro/commit/b67742961a384c10e5cd04cf5b02d0f014ea7362)]:
+  - @astrojs/db@0.13.2-alpha.0
+
 ## 2.0.0
 
 ### Patch Changes

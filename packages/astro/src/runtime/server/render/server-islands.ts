@@ -81,26 +81,33 @@ export function renderServerIsland(
 			const hostId = crypto.randomUUID();
 
 			const slash = result.base.endsWith('/') ? '' : '/';
-			let serverIslandUrl = `${result.base}${slash}_server-islands/${componentId}${result.trailingSlash === 'always' ? '/' : ''}`;			
+			let serverIslandUrl = `${result.base}${slash}_server-islands/${componentId}${result.trailingSlash === 'always' ? '/' : ''}`;
 
 			// Determine if its safe to use a GET request
-			const potentialSearchParams = createSearchParams(componentExport, propsEncrypted, safeJsonStringify(renderedSlots));
-			const useGETRequest =isWithinURLLimit(serverIslandUrl, potentialSearchParams);
+			const potentialSearchParams = createSearchParams(
+				componentExport,
+				propsEncrypted,
+				safeJsonStringify(renderedSlots),
+			);
+			const useGETRequest = isWithinURLLimit(serverIslandUrl, potentialSearchParams);
 
-			if(useGETRequest) {
-				serverIslandUrl += ('?' + potentialSearchParams.toString());
-				destination.write(`<link rel="preload" as="fetch" href="${serverIslandUrl}" crossorigin="anonymous">`);
+			if (useGETRequest) {
+				serverIslandUrl += '?' + potentialSearchParams.toString();
+				destination.write(
+					`<link rel="preload" as="fetch" href="${serverIslandUrl}" crossorigin="anonymous">`,
+				);
 			}
-			
+
 			destination.write(`<script async type="module" data-island-id="${hostId}">
 let script = document.querySelector('script[data-island-id="${hostId}"]');
 
-${useGETRequest ?
-// GET request
-`let response = await fetch('${serverIslandUrl}');
-`:
-// POST request
-`let data = {
+${
+	useGETRequest
+		? // GET request
+			`let response = await fetch('${serverIslandUrl}');
+`
+		: // POST request
+			`let data = {
 	componentExport: ${safeJsonStringify(componentExport)},
 	encryptedProps: ${safeJsonStringify(propsEncrypted)},
 	slots: ${safeJsonStringify(renderedSlots)},
@@ -110,7 +117,8 @@ let response = await fetch('${serverIslandUrl}', {
 	method: 'POST',
 	body: JSON.stringify(data),
 });
-`}
+`
+}
 
 if(response.status === 200 && response.headers.get('content-type') === 'text/html') {
 	let html = await response.text();

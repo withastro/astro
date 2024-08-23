@@ -82,7 +82,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	legacy: {},
 	redirects: {},
 	security: {
-		checkOrigin: true
+		checkOrigin: true,
 	},
 	env: {
 		schema: {},
