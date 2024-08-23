@@ -372,7 +372,7 @@ export async function generateLookupMap({
 					const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
 					if (!contentEntryType) throw UnexpectedLookupMapError;
 
-					const { id, slug: generatedSlug } = await getContentEntryIdAndSlug({
+					const { id, slug: generatedSlug } = getContentEntryIdAndSlug({
 						entry: pathToFileURL(filePath),
 						contentDir,
 						collection,
