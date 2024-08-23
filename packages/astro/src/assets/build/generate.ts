@@ -9,7 +9,6 @@ import { AstroError } from '../../core/errors/errors.js';
 import { AstroErrorData } from '../../core/errors/index.js';
 import type { Logger } from '../../core/logger/core.js';
 import { isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
-import { isServerLikeOutput } from '../../core/util.js';
 import type { MapValue } from '../../type-utils.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import { getConfiguredImageService } from '../internal.js';
@@ -50,7 +49,7 @@ export async function prepareAssetsGenerationEnv(
 	pipeline: BuildPipeline,
 	totalCount: number,
 ): Promise<AssetEnv> {
-	const { config, logger } = pipeline;
+	const { config, logger, settings } = pipeline;
 	let useCache = true;
 	const assetsCacheDir = new URL('assets/', config.cacheDir);
 	const count = { total: totalCount, current: 1 };
@@ -66,8 +65,9 @@ export async function prepareAssetsGenerationEnv(
 		useCache = false;
 	}
 
+	const isServerOutput = settings.buildOutput === 'server';
 	let serverRoot: URL, clientRoot: URL;
-	if (isServerLikeOutput(config)) {
+	if (isServerOutput) {
 		serverRoot = config.build.server;
 		clientRoot = config.build.client;
 	} else {
@@ -77,7 +77,7 @@ export async function prepareAssetsGenerationEnv(
 
 	return {
 		logger,
-		isSSR: isServerLikeOutput(config),
+		isSSR: isServerOutput,
 		count,
 		useCache,
 		assetsCacheDir,

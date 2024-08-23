@@ -19,13 +19,13 @@ export default function webVitals({ deprecated }: { deprecated?: boolean } = {})
 					);
 				}
 
-				if (config.output !== 'hybrid' && config.output !== 'server') {
-					throw new AstroError(
-						'No SSR adapter found.',
-						'`@astrojs/web-vitals` requires your site to be built with `hybrid` or `server` output.\n' +
-							'Please add an SSR adapter: https://docs.astro.build/en/guides/server-side-rendering/',
-					);
-				}
+				// if (config.output !== 'hybrid' && config.output !== 'server') {
+				// 	throw new AstroError(
+				// 		'No SSR adapter found.',
+				// 		'`@astrojs/web-vitals` requires your site to be built with `hybrid` or `server` output.\n' +
+				// 			'Please add an SSR adapter: https://docs.astro.build/en/guides/server-side-rendering/',
+				// 	);
+				// }
 
 				// Middleware that adds a `<meta>` tag to each page.
 				addMiddleware({ entrypoint: '@astrojs/web-vitals/middleware', order: 'post' });

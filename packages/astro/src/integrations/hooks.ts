@@ -8,7 +8,6 @@ import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/index.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
-import { isServerLikeOutput } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
@@ -519,15 +518,16 @@ export async function runHookBuildSsr({
 }
 
 export async function runHookBuildGenerated({
-	config,
+	settings,
 	logger,
 }: {
-	config: AstroConfig;
+	settings: AstroSettings;
 	logger: Logger;
 }) {
-	const dir = isServerLikeOutput(config) ? config.build.client : config.outDir;
+	const dir =
+		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
 
-	for (const integration of config.integrations) {
+	for (const integration of settings.config.integrations) {
 		if (integration?.hooks?.['astro:build:generated']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
@@ -543,7 +543,7 @@ export async function runHookBuildGenerated({
 }
 
 type RunHookBuildDone = {
-	config: AstroConfig;
+	settings: AstroSettings;
 	pages: string[];
 	routes: RouteData[];
 	logging: Logger;
@@ -551,16 +551,17 @@ type RunHookBuildDone = {
 };
 
 export async function runHookBuildDone({
-	config,
+	settings,
 	pages,
 	routes,
 	logging,
 	cacheManifest,
 }: RunHookBuildDone) {
-	const dir = isServerLikeOutput(config) ? config.build.client : config.outDir;
+	const dir =
+		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
 	await fsMod.promises.mkdir(dir, { recursive: true });
 
-	for (const integration of config.integrations) {
+	for (const integration of settings.config.integrations) {
 		if (integration?.hooks?.['astro:build:done']) {
 			const logger = getLogger(integration, logging);
 

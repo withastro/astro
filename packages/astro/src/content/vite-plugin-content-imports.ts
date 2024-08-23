@@ -8,7 +8,6 @@ import { getProxyCode } from '../assets/utils/proxy.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
-import { isServerLikeOutput } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type {
@@ -115,7 +114,7 @@ export function astroContentImportPlugin({
 					const code = `
 export const id = ${JSON.stringify(id)};
 export const collection = ${JSON.stringify(collection)};
-export const data = ${stringifyEntryData(data, isServerLikeOutput(settings.config))};
+export const data = ${stringifyEntryData(data, settings.buildOutput === 'server')};
 export const _internal = {
 	type: 'data',
 	filePath: ${JSON.stringify(_internal.filePath)},
@@ -140,7 +139,7 @@ export const _internal = {
 						export const collection = ${JSON.stringify(collection)};
 						export const slug = ${JSON.stringify(slug)};
 						export const body = ${JSON.stringify(body)};
-						export const data = ${stringifyEntryData(data, isServerLikeOutput(settings.config))};
+						export const data = ${stringifyEntryData(data, settings.buildOutput === 'server')};
 						export const _internal = {
 							type: 'content',
 							filePath: ${JSON.stringify(_internal.filePath)},

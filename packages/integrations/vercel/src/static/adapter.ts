@@ -7,7 +7,6 @@ import {
 	getAstroImageConfig,
 	getDefaultImageConfig,
 } from '../image/shared.js';
-import { isServerLikeOutput } from '../lib/prerender.js';
 import { getRedirects } from '../lib/redirects.js';
 import {
 	type VercelSpeedInsightsConfig,
@@ -100,10 +99,6 @@ export default function vercelStatic({
 			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter());
 				_config = config;
-
-				if (isServerLikeOutput(config)) {
-					throw new Error(`${PACKAGE_NAME} should be used with output: 'static'`);
-				}
 			},
 			'astro:build:start': async () => {
 				// Ensure to have `.vercel/output` empty.

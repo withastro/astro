@@ -7,7 +7,7 @@ import node from '@astrojs/node';
 export default defineConfig({
 	site: 'https://example.com',
 	integrations: [db(), react()],
-	output: 'hybrid',
+	output: 'static',
 	adapter: node({
 		mode: 'standalone',
 	}),

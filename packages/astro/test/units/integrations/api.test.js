@@ -128,7 +128,7 @@ describe('Astro feature map', function () {
 				hybridOutput: 'stable',
 			},
 			{
-				output: 'hybrid',
+				output: 'static',
 			},
 			{},
 			defaultLogger,
@@ -141,7 +141,7 @@ describe('Astro feature map', function () {
 			'test',
 			{},
 			{
-				output: 'hybrid',
+				output: 'static',
 			},
 			{},
 			defaultLogger,
@@ -154,7 +154,7 @@ describe('Astro feature map', function () {
 			'test',
 			{},
 			{
-				output: 'hybrid',
+				output: 'static',
 			},
 			{},
 			defaultLogger,
@@ -195,7 +195,7 @@ describe('Astro feature map', function () {
 				'test',
 				{ hybridOutput: 'stable' },
 				{
-					output: 'hybrid',
+					output: 'static',
 				},
 				{},
 				defaultLogger,
@@ -210,7 +210,7 @@ describe('Astro feature map', function () {
 					hybridOutput: 'unsupported',
 				},
 				{
-					output: 'hybrid',
+					output: 'static',
 				},
 				{},
 				defaultLogger,

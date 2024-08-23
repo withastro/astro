@@ -90,7 +90,7 @@ export function pluginPrerender(
 	internals: BuildInternals,
 ): AstroBuildPlugin {
 	// Static output can skip prerender completely because we're already rendering all pages
-	if (opts.settings.config.output === 'static') {
+	if (opts.settings.buildOutput === 'static') {
 		return { targets: ['server'] };
 	}
 

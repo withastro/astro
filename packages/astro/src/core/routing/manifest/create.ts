@@ -521,6 +521,24 @@ export function createRouteManifest(
 		...redirectRoutes['legacy'].sort(routeComparator),
 	];
 
+	// Assume static output unless we find a server-rendered route
+	settings.buildOutput = 'static';
+
+	// Scan all the routes to see if they're prerendered or not
+	for (const route of routes) {
+		const content = nodeFs.readFileSync(
+			fileURLToPath(new URL(route.component, config.root)),
+			'utf-8',
+		);
+
+		// Check if the route is pre-rendered or not
+		const match = /^export\s+const\s+prerender\s*=\s*(true|false);?/m.exec(content);
+		if (match) {
+			route.prerender = match[1] === 'true';
+			if (!route.prerender) settings.buildOutput = 'server';
+		}
+	}
+
 	// Report route collisions
 	if (config.experimental.globalRoutePriority) {
 		for (const [index, higherRoute] of routes.entries()) {

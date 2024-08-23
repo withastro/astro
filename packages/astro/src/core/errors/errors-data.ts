@@ -426,6 +426,7 @@ export const ReservedSlotName = {
 export const NoAdapterInstalled = {
 	name: 'NoAdapterInstalled',
 	title: 'Cannot use Server-side Rendering without an adapter.',
+	// TODO: Update this error message
 	message: `Cannot use \`output: 'server'\` or \`output: 'hybrid'\` without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
 	hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information.',
 } satisfies ErrorData;

@@ -9,7 +9,7 @@ describe('Projects with a underscore in the folder name', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/_underscore in folder name/',
-			output: 'hybrid',
+			output: 'static',
 			adapter: testAdapter(),
 		});
 		await fixture.build();

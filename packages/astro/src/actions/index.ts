@@ -2,7 +2,7 @@ import fsMod from 'node:fs';
 import type { Plugin as VitePlugin } from 'vite';
 import { ActionsWithoutServerOutputError } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
-import { isServerLikeOutput, viteID } from '../core/util.js';
+import { viteID } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroIntegration } from '../types/public/integrations.js';
 import {
@@ -25,7 +25,7 @@ export default function astroActions({
 		name: VIRTUAL_MODULE_ID,
 		hooks: {
 			async 'astro:config:setup'(params) {
-				if (!isServerLikeOutput(params.config)) {
+				if (settings.buildOutput !== 'server') {
 					const error = new AstroError(ActionsWithoutServerOutputError);
 					error.stack = undefined;
 					throw error;

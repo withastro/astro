@@ -135,7 +135,7 @@ describe('Route matching', () => {
 		settings = await createBasicSettings({
 			root: fileURLToPath(root),
 			trailingSlash: 'never',
-			output: 'hybrid',
+			output: 'static',
 			adapter: testAdapter(),
 		});
 		container = await createContainer({

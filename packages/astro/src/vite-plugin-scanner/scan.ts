@@ -78,7 +78,7 @@ export async function scan(
 					message: AstroErrorData.InvalidPrerenderExport.message(
 						prefix,
 						suffix,
-						settings?.config.output === 'hybrid',
+						settings?.config.output === 'static',
 					),
 					location: { file: id },
 				});

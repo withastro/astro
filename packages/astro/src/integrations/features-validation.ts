@@ -58,7 +58,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'hybridOutput',
-		() => config?.output === 'hybrid',
+		() => false,
 	);
 
 	validationResult.serverOutput = validateSupportKind(

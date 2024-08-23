@@ -3,7 +3,7 @@ import { bold } from 'kleur/colors';
 import type { Plugin as VitePlugin } from 'vite';
 import { normalizePath } from 'vite';
 import { type Logger } from '../core/logger/core.js';
-import { isEndpoint, isPage, isServerLikeOutput } from '../core/util.js';
+import { isEndpoint, isPage } from '../core/util.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import { runHookRouteSetup } from '../integrations/hooks.js';
 import { getPrerenderDefault } from '../prerender/utils.js';
@@ -44,10 +44,13 @@ export default function astroScannerPlugin({
 			if (!(fileIsPage || fileIsEndpoint)) return;
 			const pageOptions = await getPageOptions(code, id, fileURL, settings, logger);
 
+			if (pageOptions.prerender === false) {
+				settings.buildOutput = 'server';
+			}
+
 			// `getStaticPaths` warning is just a string check, should be good enough for most cases
 			if (
 				!pageOptions.prerender &&
-				isServerLikeOutput(settings.config) &&
 				code.includes('getStaticPaths') &&
 				// this should only be valid for `.astro`, `.js` and `.ts` files
 				KNOWN_FILE_EXTENSIONS.includes(extname(filename))
