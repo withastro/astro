@@ -1685,6 +1685,21 @@ export const ActionsUsedWithForGetError = {
  * @see
  * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
  * @description
+ * Action handler returned invalid data. Handlers should return serializable data types, and cannot return a Response object.
+ */
+export const ActionsReturnedInvalidDataError = {
+	name: 'ActionsReturnedInvalidDataError',
+	title: 'Action handler returned invalid data.',
+	message: (error: string) =>
+		`Action handler returned invalid data. Handlers should return serializable data types like objects, arrays, strings, and numbers. Parse error: ${error}`,
+	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
+ * @description
  * The server received the query string `?_astroAction=name`, but could not find an action with that name. Use the action function's `.queryString` property to retrieve the form `action` URL.
  */
 export const ActionQueryStringInvalidError = {
