@@ -11,7 +11,7 @@ import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schema.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
-import type { AstroIntegration, RoutePriorityOverride } from './integrations.js';
+import type { AstroIntegration } from './integrations.js';
 
 export type Locales = (string | { codes: string[]; path: string })[];
 
@@ -29,7 +29,6 @@ export type RedirectConfig =
 	| {
 			status: ValidRedirectStatus;
 			destination: string;
-			priority?: RoutePriorityOverride;
 	  };
 
 export type ServerConfig = {
@@ -468,11 +467,11 @@ export interface AstroUserConfig {
 		 * @name security.checkOrigin
 		 * @kind h4
 		 * @type {boolean}
-		 * @default 'false'
+		 * @default 'true'
 		 * @version 4.9.0
 		 * @description
 		 *
-		 * When enabled, performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`. This is used to provide Cross-Site Request Forgery (CSRF) protection.
+		 * Performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`. This is used to provide Cross-Site Request Forgery (CSRF) protection.
 		 *
 		 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST`, `PATCH`, `DELETE` and `PUT` with
 		 * one of the following `content-type` headers: `'application/x-www-form-urlencoded'`, `'multipart/form-data'`, `'text/plain'`.
@@ -1445,7 +1444,6 @@ export interface AstroUserConfig {
 		validateSecrets?: boolean;
 	};
 
-
 	/**
 	 * @docs
 	 * @kind heading
@@ -1648,36 +1646,6 @@ export interface AstroUserConfig {
 		 * See the [Prefetch Guide](https://docs.astro.build/en/guides/prefetch/) for more `prefetch` options and usage.
 		 */
 		clientPrerender?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.globalRoutePriority
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.2.0
-		 * @description
-		 *
-		 * Prioritizes redirects and injected routes equally alongside file-based project routes, following the same [route priority order rules](https://docs.astro.build/en/guides/routing/#route-priority-order) for all routes.
-		 *
-		 * This allows more control over routing in your project by not automatically prioritizing certain types of routes, and standardizes the route priority ordering for all routes.
-		 *
-		 * The following example shows which route will build certain page URLs when file-based routes, injected routes, and redirects are combined as shown below:
-		 * - File-based route: `/blog/post/[pid]`
-		 * - File-based route: `/[page]`
-		 * - Injected route: `/blog/[...slug]`
-		 * - Redirect: `/blog/tags/[tag]` -> `/[tag]`
-		 * - Redirect: `/posts` -> `/blog`
-		 *
-		 * With `experimental.globalRoutingPriority` enabled (instead of Astro 4.0 default route priority order):
-		 *
-		 * - `/blog/tags/astro` is built by the redirect to `/tags/[tag]` (instead of the injected route `/blog/[...slug]`)
-		 * - `/blog/post/0` is built by the file-based route `/blog/post/[pid]` (instead of the injected route `/blog/[...slug]`)
-		 * - `/posts` is built by the redirect to `/blog` (instead of the file-based route `/[page]`)
-		 *
-		 *
-		 * In the event of route collisions, where two routes of equal route priority attempt to build the same URL, Astro will log a warning identifying the conflicting routes.
-		 */
-		globalRoutePriority?: boolean;
 
 		/**
 		 * @docs
@@ -1992,7 +1960,7 @@ export interface AstroInlineOnlyConfig {
 	 * If this value is undefined or unset, Astro will search for an `astro.config.(js,mjs,ts)` file relative to
 	 * the `root` and load the config file if found.
 	 *
-	 * The inline config passed in this object will take highest priority when merging with the loaded user config.
+	 * The inline config passed in this object will take the highest priority when merging with the loaded user config.
 	 */
 	configFile?: string | false;
 	/**
