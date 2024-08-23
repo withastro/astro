@@ -155,6 +155,8 @@ export async function staticBuild(
 			settings.timer.end('Server generate');
 			return;
 		}
+		default: // `settings.buildOutput` will always be one of the above, but TS doesn't know that
+			return;
 	}
 }
 

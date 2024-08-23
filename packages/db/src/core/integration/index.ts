@@ -4,7 +4,7 @@ import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type ManagedAppToken, getManagedAppTokenOrExit } from '@astrojs/studio';
 import { LibsqlError } from '@libsql/client';
-import type { AstroConfig, AstroIntegration } from 'astro';
+import type { AstroIntegration } from 'astro';
 import { blue, yellow } from 'kleur/colors';
 import {
 	type HMRPayload,
@@ -59,14 +59,12 @@ function astroDBIntegration(): AstroIntegration {
 	};
 
 	let command: 'dev' | 'build' | 'preview';
-	let output: AstroConfig['output'] = 'server';
 	return {
 		name: 'astro:db',
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, command: _command, logger }) => {
 				command = _command;
 				root = config.root;
-				output = config.output;
 
 				if (command === 'preview') return;
 
