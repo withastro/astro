@@ -111,13 +111,13 @@ const highlighter = await getCachedHighlighter({
 	],
 	theme,
 	themes,
-	defaultColor,
-	wrap,
-	transformers,
 });
 
-const html = await highlighter.highlight(code, typeof lang === 'string' ? lang : lang.name, {
+const html = await highlighter.codeToHtml(code, typeof lang === 'string' ? lang : lang.name, {
+	defaultColor,
+	wrap,
 	inline,
+	transformers,
 	meta,
 	attributes: rest as any,
 });

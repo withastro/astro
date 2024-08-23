@@ -16,7 +16,7 @@ export default async function shiki(config?: ShikiConfig): Promise<AstroMarkdocC
 					// Only the `js` part is parsed as `attributes.language` and the rest is ignored. This means
 					// some Shiki transformers may not work correctly as it relies on the `meta`.
 					const lang = typeof attributes.language === 'string' ? attributes.language : 'plaintext';
-					const html = await highlighter.highlight(attributes.content, lang);
+					const html = await highlighter.codeToHtml(attributes.content, lang);
 
 					// Use `unescapeHTML` to return `HTMLString` for Astro renderer to inline as HTML
 					return unescapeHTML(html) as any;
