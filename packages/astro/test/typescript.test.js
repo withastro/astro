@@ -26,7 +26,23 @@ const createFixture = async (config = {}) => {
 	rmSync(new URL('./.astro/', root), { force: true, recursive: true });
 
 	return {
-		sync: () => astroFixture.sync({ root: stringRoot, ...config }),
+		sync: async () => {
+			let stdout = '';
+			const originalStdoutWrite = process.stdout.write.bind(process.stdout);
+			// @ts-ignore
+			process.stdout.write = (chunk, encoding, callback) => {
+				if (typeof chunk === 'string') {
+					stdout += chunk;
+				}
+				return originalStdoutWrite(chunk, encoding, callback);
+			};
+
+			await astroFixture.sync({ root: stringRoot, ...config });
+
+			process.stdout.write = originalStdoutWrite;
+
+			return { stdout };
+		},
 		build: () => astroFixture.build({ root: stringRoot, ...config }),
 		startDevServer: () => astroFixture.startDevServer({ root: stringRoot, ...config }),
 		/** @param {string} path */
@@ -94,36 +110,36 @@ describe('experimental.typescript', () => {
 		}
 	});
 
-	it('should throw if tsconfig.json has include', async () => {
+	it('should warn if tsconfig.json has include', async () => {
 		const fixture = await createFixture({ experimental: { typescript: {} } });
 
 		await fixture.writeFile(
 			ROOT_TSCONFIG_PATH,
 			JSON.stringify({ extends: ['./.astro/tsconfig.json'], include: ['foo'] }, null, 2),
 		);
-		try {
-			await fixture.sync();
-			assert.fail();
-		} catch (err) {
-			assert.equal(err instanceof AstroError, true);
-			assert.equal(err.name, 'TSConfigInvalidInclude');
-		}
+		const { stdout } = await fixture.sync();
+		assert.equal(
+			stdout.includes(
+				`Your root "tsconfig.json" has an "include" field. This will break types, please move it to your Astro config experimental.typescript.include option`,
+			),
+			true,
+		);
 	});
 
-	it('should throw if tsconfig.json has exclude', async () => {
+	it('should warn if tsconfig.json has exclude', async () => {
 		const fixture = await createFixture({ experimental: { typescript: {} } });
 
 		await fixture.writeFile(
 			ROOT_TSCONFIG_PATH,
 			JSON.stringify({ extends: ['./.astro/tsconfig.json'], exclude: ['foo'] }, null, 2),
 		);
-		try {
-			await fixture.sync();
-			assert.fail();
-		} catch (err) {
-			assert.equal(err instanceof AstroError, true);
-			assert.equal(err.name, 'TSConfigInvalidExclude');
-		}
+		const { stdout } = await fixture.sync();
+		assert.equal(
+			stdout.includes(
+				`Your root "tsconfig.json" has an "exclude" field. This will break types, please move it to your Astro config experimental.typescript.exclude option`,
+			),
+			true,
+		);
 	});
 
 	it('should add outDir to .astro/tsconfig.json if excludeOutDir is enabled', async () => {

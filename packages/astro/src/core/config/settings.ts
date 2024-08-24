@@ -13,6 +13,7 @@ import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig, type TSConfig } from './tsconfig.js';
 import { GENERATED_TSCONFIG_PATH } from './constants.js';
+import type { Logger } from '../logger/core.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	const { contentDir } = getContentPaths(config);
@@ -115,7 +116,11 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 	};
 }
 
-export async function createSettings(config: AstroConfig, cwd?: string): Promise<AstroSettings> {
+export async function createSettings(
+	config: AstroConfig,
+	logger: Logger,
+	cwd?: string,
+): Promise<AstroSettings> {
 	const tsconfig = await loadTSConfig(cwd);
 	const settings = createBaseSettings(config);
 
@@ -125,7 +130,7 @@ export async function createSettings(config: AstroConfig, cwd?: string): Promise
 	}
 
 	if (typeof tsconfig !== 'string') {
-		validateTsconfig(settings, tsconfig.rawConfig);
+		validateTsconfig(settings, logger, tsconfig.rawConfig);
 		watchFiles.push(
 			...[tsconfig.tsconfigFile, ...(tsconfig.extended ?? []).map((e) => e.tsconfigFile)],
 		);
@@ -138,7 +143,7 @@ export async function createSettings(config: AstroConfig, cwd?: string): Promise
 	return settings;
 }
 
-function validateTsconfig(settings: AstroSettings, rawConfig: TSConfig) {
+function validateTsconfig(settings: AstroSettings, logger: Logger, rawConfig: TSConfig) {
 	const { typescript } = settings.config.experimental;
 	if (!typescript) {
 		return;
@@ -157,9 +162,15 @@ function validateTsconfig(settings: AstroSettings, rawConfig: TSConfig) {
 	}
 
 	if (rawConfig.include) {
-		throw new AstroError(AstroErrorData.TSConfigInvalidInclude);
+		logger.warn(
+			'types',
+			`Your root "tsconfig.json" has an "include" field. This will break types, please move it to your Astro config experimental.typescript.include option`,
+		);
 	}
 	if (rawConfig.exclude) {
-		throw new AstroError(AstroErrorData.TSConfigInvalidExclude);
+		logger.warn(
+			'types',
+			`Your root "tsconfig.json" has an "exclude" field. This will break types, please move it to your Astro config experimental.typescript.exclude option`,
+		);
 	}
 }

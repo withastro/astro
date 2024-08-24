@@ -1315,28 +1315,6 @@ export const TSConfigInvalidExtends = {
 
 /**
  * @docs
- * @description
- * Your `tsconfig.json` `include` property is invalid
- */
-export const TSConfigInvalidInclude = {
-	name: 'TSConfigInvalidInclude',
-	title: 'Your `tsconfig.json` `include` property is invalid',
-	hint: 'Check out what change you need to make in the terminal above.',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
- * Your `tsconfig.json` `exclude` property is invalid
- */
-export const TSConfigInvalidExclude = {
-	name: 'TSConfigInvalidExclude',
-	title: 'Your `tsconfig.json` `exclude` property is invalid',
-	hint: 'Check out what change you need to make in the terminal above.',
-} satisfies ErrorData;
-
-/**
- * @docs
  * @kind heading
  * @name CSS Errors
  */
