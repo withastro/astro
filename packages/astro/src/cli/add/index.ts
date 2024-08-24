@@ -1008,7 +1008,7 @@ async function askToContinue({ flags }: { flags: Flags }): Promise<boolean> {
 	return Boolean(response.askToContinue);
 }
 
-function getDiffContent(input: string, output: string): string | null {
+export function getDiffContent(input: string, output: string): string | null {
 	let changes = [];
 	for (const change of diffWords(input, output)) {
 		let lines = change.value.trim().split('\n').slice(0, change.count);
