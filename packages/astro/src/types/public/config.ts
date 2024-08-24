@@ -2067,6 +2067,30 @@ export interface AstroUserConfig {
 			 * ```
 			 */
 			exclude?: Array<string>;
+
+			/**
+			 * @docs
+			 * @name experimental.typescript.excludeOutDir
+			 * @type {boolean}
+			 * @default `true`
+			 * @version 5.0.0
+			 * @description
+			 *
+			 * By default, `outDir` will be added to excluded typescript files. You can opt-out of this behavior by setting this option to `false`:
+			 *
+			 * ```js title="astro.config.*" ins={6}
+			 * import { defineConfig } from 'astro/config'
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *    typescript: {
+			 *      excludeOutDir: false
+			 *    }
+			 *   }
+			 * })
+			 * ```
+			 */
+			excludeOutDir?: boolean;
 		};
 	};
 }

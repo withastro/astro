@@ -82,6 +82,8 @@ async function setupEnvDts(settings: AstroSettings, fs: typeof fsMod, logger: Lo
 }
 
 async function setupTsconfig(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
+	const typescript = settings.config.experimental.typescript!;
+
 	const tsconfigPath = normalizePath(fileURLToPath(new URL('tsconfig.json', settings.dotAstroDir)));
 	let relativeDtsPath = normalizePath(
 		relative(
@@ -97,8 +99,8 @@ async function setupTsconfig(settings: AstroSettings, fs: typeof fsMod, logger: 
 	);
 
 	const include = [relativeDtsPath];
-	if (settings.config.experimental.typescript?.include) {
-		for (const value of settings.config.experimental.typescript.include) {
+	if (typescript.include) {
+		for (const value of typescript.include) {
 			if (startsWithDotSlash(value) || startsWithDotDotSlash(value)) {
 				include.push(
 					normalizePath(
@@ -113,9 +115,9 @@ async function setupTsconfig(settings: AstroSettings, fs: typeof fsMod, logger: 
 			}
 		}
 	}
-	const exclude = [relativeOutDirPath];
-	if (settings.config.experimental.typescript?.exclude) {
-		for (const value of settings.config.experimental.typescript.exclude) {
+	const exclude = typescript.excludeOutDir ? [relativeOutDirPath] : [];
+	if (typescript.exclude) {
+		for (const value of typescript.exclude) {
 			if (startsWithDotSlash(value) || startsWithDotDotSlash(value)) {
 				exclude.push(
 					normalizePath(

@@ -126,12 +126,26 @@ describe('experimental.typescript', () => {
 		}
 	});
 
-	it('should add outDir to .astro/tsconfig.json', async () => {
+	it('should add outDir to .astro/tsconfig.json if excludeOutDir is enabled', async () => {
 		for (const outDir of ['dist', 'custom']) {
 			const fixture = await createFixture({ experimental: { typescript: {} }, outDir });
 			await fixture.sync();
-			const tsconfig = JSON.parse(await fixture.readFile(GENERATED_TSCONFIG_PATH));
+			const raw = await fixture.readFile(GENERATED_TSCONFIG_PATH);
+			const tsconfig = JSON.parse(raw);
 			assert.equal(tsconfig.exclude.includes(`../${outDir}`), true);
+		}
+	});
+
+	it('should not add outDir to .astro/tsconfig.json if excludeOutDir is disabled', async () => {
+		for (const outDir of ['dist', 'custom']) {
+			const fixture = await createFixture({
+				experimental: { typescript: { excludeOutDir: false } },
+				outDir,
+			});
+			await fixture.sync();
+			const raw = await fixture.readFile(GENERATED_TSCONFIG_PATH);
+			const tsconfig = JSON.parse(raw);
+			assert.equal(tsconfig.exclude.includes(`../${outDir}`), false);
 		}
 	});
 

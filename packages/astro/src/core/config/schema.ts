@@ -95,6 +95,9 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		serverIslands: false,
 		contentIntellisense: false,
 		contentLayer: false,
+		typescript: {
+			excludeOutDir: true,
+		},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -544,6 +547,10 @@ export const AstroConfigSchema = z.object({
 				.object({
 					include: z.array(z.string()).optional(),
 					exclude: z.array(z.string()).optional(),
+					excludeOutDir: z
+						.boolean()
+						.optional()
+						.default(ASTRO_CONFIG_DEFAULTS.experimental.typescript.excludeOutDir),
 				})
 				.optional(),
 		})
