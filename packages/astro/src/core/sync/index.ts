@@ -29,6 +29,7 @@ import {
 } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { formatErrorMessage } from '../messages.js';
+import { createRouteManifest } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { writeFiles } from './write-files.js';
 
@@ -62,6 +63,7 @@ export default async function sync(
 		settings,
 		logger,
 	});
+	createRouteManifest({ settings, fsMod: fs }, logger);
 	await runHookConfigDone({ settings, logger });
 	return await syncInternal({ settings, logger, fs, force: inlineConfig.force });
 }

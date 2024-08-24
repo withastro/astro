@@ -497,11 +497,11 @@ export function createRouteManifest(
 		...[...fileBasedRoutes, ...injectedRoutes, ...redirectRoutes].sort(routeComparator),
 	];
 
-	// Assume static output unless we find a server-rendered route
-	settings.buildOutput = 'static';
+	settings.buildOutput = getPrerenderDefault(config) ? 'static' : 'server';
 
 	// Scan all the routes to see if they're prerendered or not
 	for (const route of routes) {
+		if (route.type !== 'page' && route.type !== 'endpoint') continue;
 		const localFs = params.fsMod ?? nodeFs;
 		const content = localFs.readFileSync(
 			fileURLToPath(new URL(route.component, config.root)),
@@ -514,11 +514,6 @@ export function createRouteManifest(
 			route.prerender = match[1] === 'true';
 			if (!route.prerender) settings.buildOutput = 'server';
 		}
-	}
-
-	// Edge case: If there's no routes, but the config is set to server output, assume it's a server
-	if (routes.length === 0 && settings.config.output === 'server') {
-		settings.buildOutput = 'server';
 	}
 
 	// Report route collisions
