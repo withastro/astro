@@ -2408,6 +2408,133 @@ export interface AstroUserConfig {
 		 * For a complete overview and the full API reference, see [the Content Layer API RFC](https://github.com/withastro/roadmap/blob/content-layer/proposals/0047-content-layer.md) and [share your feedback](https://github.com/withastro/roadmap/pull/982).
 		 */
 		contentLayer?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.typescript
+		 * @type {object}
+		 * @default `undefined`
+		 * @version 4.15.0
+		 * @description
+		 *
+		 * Enables the generation of `.astro/tsconfig.json`. This allows to exclude the `outDir` by default to avoid `astro check` false positives.
+		 *
+		 * If you enable this option, you'll need to update your `tsconfig.json` with a new `extends` value:
+		 *
+		 * ```json title="tsconfig.json" del={2} ins={3}
+		 * {
+		 *   extends: 'astro/tsconfigs/base',
+		 * 	 extends: ['astro/tsconfigs/base', './.astro/tsconfig.json']
+		 * }
+		 * ```
+		 *
+		 * If you have `include` or `exclude` inside your root `tsconfig.json`, you'll need to move them to your Astro config:
+		 *
+		 * ```json title="tsconfig.json" del={2-3}
+		 * {
+		 *   include: ['foo'],
+		 *   exclude: ['bar']
+		 * }
+		 * ```
+		 *
+		 * ```js title="astro.config.*" ins={6-7}
+		 * import { defineConfig } from 'astro/config'
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *    typescript: {
+		 *      include: ['foo'],
+		 *      exclude: ['bar']
+		 *    }
+		 *   }
+		 * })
+		 * ```
+		 */
+		typescript?: {
+			/**
+			 * @docs
+			 * @name experimental.typescript.include
+			 * @type {Array<string>}
+			 * @default `undefined`
+			 * @version 4.15.0
+			 * @description
+			 *
+			 * If you have `include` your root `tsconfig.json`, you'll need to move it to your Astro config:
+			 *
+			 * ```json title="tsconfig.json" del={2}
+			 * {
+			 *   include: ['foo']
+			 * }
+			 * ```
+			 *
+			 * ```js title="astro.config.*" ins={6}
+			 * import { defineConfig } from 'astro/config'
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *    typescript: {
+			 *      include: ['foo']
+			 *    }
+			 *   }
+			 * })
+			 * ```
+			 */
+			include?: Array<string>;
+
+			/**
+			 * @docs
+			 * @name experimental.typescript.exclude
+			 * @type {Array<string>}
+			 * @default `undefined`
+			 * @version 4.15.0
+			 * @description
+			 *
+			 * If you have `exclude` your root `tsconfig.json`, you'll need to move it to your Astro config:
+			 *
+			 * ```json title="tsconfig.json" del={2}
+			 * {
+			 *   exclude: ['bar']
+			 * }
+			 * ```
+			 *
+			 * ```js title="astro.config.*" ins={6}
+			 * import { defineConfig } from 'astro/config'
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *    typescript: {
+			 *      exclude: ['bar']
+			 *    }
+			 *   }
+			 * })
+			 * ```
+			 */
+			exclude?: Array<string>;
+
+			/**
+			 * @docs
+			 * @name experimental.typescript.excludeOutDir
+			 * @type {boolean}
+			 * @default `true`
+			 * @version 4.15.0
+			 * @description
+			 *
+			 * By default, `outDir` will be added to excluded typescript files. You can opt-out of this behavior by setting this option to `false`:
+			 *
+			 * ```js title="astro.config.*" ins={6}
+			 * import { defineConfig } from 'astro/config'
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *    typescript: {
+			 *      excludeOutDir: false
+			 *    }
+			 *   }
+			 * })
+			 * ```
+			 */
+			excludeOutDir?: boolean;
+		};
 	};
 }
 

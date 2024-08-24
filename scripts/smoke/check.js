@@ -76,6 +76,8 @@ function prepareExample(examplePath) {
 	const tsconfig = JSON.parse(toJson(originalConfig));
 
 	// Swap to strictest config to make sure it also passes
+	// TODO: once experimental.typescript is not a thing anymore, this needs to be updated
+	// to replace the first member of the array instead of overriding
 	tsconfig.extends = 'astro/tsconfigs/strictest';
 	tsconfig.compilerOptions ??= {}
 	tsconfig.compilerOptions.types = tsconfig.compilerOptions.types ?? []; // Speeds up tests

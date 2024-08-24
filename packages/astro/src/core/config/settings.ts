@@ -6,11 +6,17 @@ import { getContentPaths } from '../../content/index.js';
 import createPreferences from '../../preferences/index.js';
 import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
 import { getDefaultClientDirectives } from '../client-directive/index.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError, AstroErrorData, createSafeError } from '../errors/index.js';
 import { formatYAMLException, isYAMLException } from '../errors/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 import { AstroTimer } from './timer.js';
-import { loadTSConfig } from './tsconfig.js';
+import { loadTSConfig, type TSConfig } from './tsconfig.js';
+import { GENERATED_TSCONFIG_PATH } from './constants.js';
+import type { Logger } from '../logger/core.js';
+import boxen from 'boxen';
+import { formatErrorMessage } from '../messages.js';
+import { collectErrorMetadata } from '../errors/dev/utils.js';
+import { getDiffContent } from '../../cli/add/index.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	const { contentDir } = getContentPaths(config);
@@ -113,7 +119,11 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 	};
 }
 
-export async function createSettings(config: AstroConfig, cwd?: string): Promise<AstroSettings> {
+export async function createSettings(
+	config: AstroConfig,
+	logger: Logger,
+	cwd?: string,
+): Promise<AstroSettings> {
 	const tsconfig = await loadTSConfig(cwd);
 	const settings = createBaseSettings(config);
 
@@ -123,6 +133,7 @@ export async function createSettings(config: AstroConfig, cwd?: string): Promise
 	}
 
 	if (typeof tsconfig !== 'string') {
+		validateTsconfig(settings, logger, tsconfig.rawConfig);
 		watchFiles.push(
 			...[tsconfig.tsconfigFile, ...(tsconfig.extended ?? []).map((e) => e.tsconfigFile)],
 		);
@@ -133,4 +144,65 @@ export async function createSettings(config: AstroConfig, cwd?: string): Promise
 	settings.watchFiles = watchFiles;
 
 	return settings;
+}
+
+function validateTsconfig(settings: AstroSettings, logger: Logger, rawConfig: TSConfig) {
+	try {
+		const { typescript } = settings.config.experimental;
+		if (!typescript) {
+			return;
+		}
+
+		let newConfig = { ...rawConfig };
+
+		if (!rawConfig.extends) {
+			newConfig.extends = ['astro/tsconfigs/base', GENERATED_TSCONFIG_PATH];
+			throw createTsconfigError(logger, rawConfig, newConfig);
+		} else if (
+			typeof rawConfig.extends === 'string' &&
+			rawConfig.extends !== GENERATED_TSCONFIG_PATH
+		) {
+			newConfig.extends = [rawConfig.extends, GENERATED_TSCONFIG_PATH];
+			throw createTsconfigError(logger, rawConfig, newConfig);
+		} else if (!rawConfig.extends.includes(GENERATED_TSCONFIG_PATH)) {
+			newConfig.extends = [...rawConfig.extends, GENERATED_TSCONFIG_PATH];
+			throw createTsconfigError(logger, rawConfig, newConfig);
+		}
+
+		if (rawConfig.include) {
+			logger.warn(
+				'types',
+				`Your root "tsconfig.json" has an "include" field. This will break types, please move it to your Astro config experimental.typescript.include option`,
+			);
+		}
+		if (rawConfig.exclude) {
+			logger.warn(
+				'types',
+				`Your root "tsconfig.json" has an "exclude" field. This will break types, please move it to your Astro config experimental.typescript.exclude option`,
+			);
+		}
+	} catch (err) {
+		const error = createSafeError(err);
+		logger.error(
+			'config',
+			formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n',
+		);
+		// Will return exit code 1 in CLI
+		throw error;
+	}
+}
+
+function createTsconfigError(logger: Logger, rawConfig: TSConfig, newConfig: TSConfig): AstroError {
+	const diff = getDiffContent(
+		JSON.stringify(rawConfig, null, 2),
+		JSON.stringify(newConfig, null, 2),
+	)!;
+	const message = `\n${boxen(diff, {
+		margin: 0.5,
+		padding: 0.5,
+		borderStyle: 'round',
+		title: 'tsconfig.json',
+	})}\n`;
+	logger.info('SKIP_FORMAT', message);
+	return new AstroError(AstroErrorData.TSConfigInvalidExtends);
 }

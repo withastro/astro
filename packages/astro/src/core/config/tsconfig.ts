@@ -10,6 +10,7 @@ import {
 } from 'tsconfck';
 import type { CompilerOptions, TypeAcquisition } from 'typescript';
 
+// TODO: update when experimental.typescript is out of experimental
 export const defaultTSConfig: TSConfig = { extends: 'astro/tsconfigs/base' };
 
 export type frameworkWithTSSettings = 'vue' | 'react' | 'preact' | 'solid-js';
@@ -106,7 +107,7 @@ export async function loadTSConfig(
 			.then(toJson)
 			.then((content) => JSON.parse(content) as TSConfig);
 
-		return { ...parsedConfig, rawConfig: rawConfig };
+		return { ...parsedConfig, rawConfig };
 	}
 
 	return 'missing-config';
@@ -186,7 +187,7 @@ export type StripEnums<T extends Record<string, any>> = {
 export interface TSConfig {
 	compilerOptions?: StripEnums<CompilerOptions>;
 	compileOnSave?: boolean;
-	extends?: string;
+	extends?: string | Array<string>;
 	files?: string[];
 	include?: string[];
 	exclude?: string[];

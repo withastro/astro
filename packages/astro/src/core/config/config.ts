@@ -16,6 +16,7 @@ import { formatConfigErrorMessage } from '../messages.js';
 import { mergeConfig } from './merge.js';
 import { validateConfig } from './validate.js';
 import { loadConfigWithVite } from './vite-load.js';
+import { GENERATED_TSCONFIG_PATH } from './constants.js';
 
 export function resolveRoot(cwd?: string | URL): string {
 	if (cwd instanceof URL) {
@@ -163,6 +164,29 @@ export async function resolveConfig(
 			telemetry.record(eventConfigError({ cmd: command, err: e, isFatal: true }));
 		}
 		throw e;
+	}
+
+	// TODO: update examples default tsconfigs
+	if (astroConfig.experimental.typescript) {
+		const rootTsConfigUrl = new URL('./tsconfig.json', astroConfig.root);
+		if (!fsMod.existsSync(rootTsConfigUrl)) {
+			fsMod.writeFileSync(
+				rootTsConfigUrl,
+				JSON.stringify(
+					{
+						extends: ['astro/tsconfigs/base', GENERATED_TSCONFIG_PATH],
+					},
+					null,
+					2,
+				),
+				'utf-8',
+			);
+		}
+		const generatedTsConfigUrl = new URL(GENERATED_TSCONFIG_PATH, astroConfig.root);
+		if (!fsMod.existsSync(generatedTsConfigUrl)) {
+			fsMod.mkdirSync(path.dirname(fileURLToPath(generatedTsConfigUrl)), { recursive: true });
+			fsMod.writeFileSync(generatedTsConfigUrl, '{}', 'utf-8');
+		}
 	}
 
 	return { userConfig: mergedConfig, astroConfig };

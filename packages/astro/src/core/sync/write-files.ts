@@ -7,11 +7,17 @@ import type { AstroSettings } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { REFERENCE_FILE } from './constants.js';
+import { startsWithDotDotSlash, startsWithDotSlash } from '../path.js';
+import { GENERATED_TSCONFIG_PATH } from '../config/constants.js';
 
 export async function writeFiles(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
 	try {
 		writeInjectedTypes(settings, fs);
-		await setUpEnvTs(settings, fs, logger);
+		if (settings.config.experimental.typescript) {
+			await setupTsconfig(settings, fs, logger);
+		} else {
+			await setupEnvDts(settings, fs, logger);
+		}
 	} catch (e) {
 		throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: e });
 	}
@@ -44,7 +50,7 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 	);
 }
 
-async function setUpEnvTs(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
+async function setupEnvDts(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
 	const envTsPath = fileURLToPath(new URL('env.d.ts', settings.config.srcDir));
 	const envTsPathRelativetoRoot = relative(fileURLToPath(settings.config.root), envTsPath);
 	const relativePath = normalizePath(
@@ -73,4 +79,37 @@ async function setUpEnvTs(settings: AstroSettings, fs: typeof fsMod, logger: Log
 		await fs.promises.writeFile(envTsPath, expectedTypeReference, 'utf-8');
 		logger.info('types', `Added ${bold(envTsPathRelativetoRoot)} type declarations`);
 	}
+}
+
+async function setupTsconfig(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
+	const typescript = settings.config.experimental.typescript!;
+
+	function relativePath(target: URL): string {
+		const path = normalizePath(
+			relative(fileURLToPath(settings.dotAstroDir), fileURLToPath(target)),
+		);
+		if (startsWithDotSlash(path) || startsWithDotDotSlash(path)) {
+			return path;
+		}
+		return `./${path}`;
+	}
+
+	const tsconfigPath = normalizePath(fileURLToPath(new URL('tsconfig.json', settings.dotAstroDir)));
+
+	const include = [
+		relativePath(new URL(REFERENCE_FILE, settings.dotAstroDir)),
+		...(typescript.include ?? []).map((v) => relativePath(new URL(v, settings.config.root))),
+	];
+	const exclude = [
+		...(typescript.excludeOutDir ? [relativePath(settings.config.outDir)] : []),
+		...(typescript.exclude ?? []).map((v) => relativePath(new URL(v, settings.config.root))),
+	];
+	const expectedContent = JSON.stringify({ include, exclude }, null, 2);
+
+	if (fs.existsSync(tsconfigPath) && fs.readFileSync(tsconfigPath, 'utf-8') === expectedContent) {
+		return;
+	}
+
+	await fs.promises.writeFile(tsconfigPath, expectedContent, 'utf-8');
+	logger.info('types', `Generated ${bold(GENERATED_TSCONFIG_PATH)}`);
 }

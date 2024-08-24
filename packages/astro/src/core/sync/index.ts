@@ -55,7 +55,7 @@ export default async function sync(
 	if (_telemetry) {
 		telemetry.record(eventCliSession('sync', userConfig));
 	}
-	let settings = await createSettings(astroConfig, inlineConfig.root);
+	let settings = await createSettings(astroConfig, logger, inlineConfig.root);
 	settings = await runHookConfigSetup({
 		command: 'build',
 		settings,
