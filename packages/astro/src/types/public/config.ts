@@ -1971,7 +1971,7 @@ export interface AstroUserConfig {
 		 * @name experimental.typescript
 		 * @type {object}
 		 * @default `undefined`
-		 * @version 5.0.0
+		 * @version 4.15.0
 		 * @description
 		 *
 		 * Enables the generation of `.astro/tsconfig.json`. This allows to exclude the `outDir` by default to avoid `astro check` false positives.
@@ -2013,7 +2013,7 @@ export interface AstroUserConfig {
 			 * @name experimental.typescript.include
 			 * @type {Array<string>}
 			 * @default `undefined`
-			 * @version 5.0.0
+			 * @version 4.15.0
 			 * @description
 			 *
 			 * If you have `include` your root `tsconfig.json`, you'll need to move it to your Astro config:
@@ -2043,7 +2043,7 @@ export interface AstroUserConfig {
 			 * @name experimental.typescript.exclude
 			 * @type {Array<string>}
 			 * @default `undefined`
-			 * @version 5.0.0
+			 * @version 4.15.0
 			 * @description
 			 *
 			 * If you have `exclude` your root `tsconfig.json`, you'll need to move it to your Astro config:
@@ -2073,7 +2073,7 @@ export interface AstroUserConfig {
 			 * @name experimental.typescript.excludeOutDir
 			 * @type {boolean}
 			 * @default `true`
-			 * @version 5.0.0
+			 * @version 4.15.0
 			 * @description
 			 *
 			 * By default, `outDir` will be added to excluded typescript files. You can opt-out of this behavior by setting this option to `false`:
