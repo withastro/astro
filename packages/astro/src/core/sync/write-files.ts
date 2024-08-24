@@ -84,61 +84,32 @@ async function setupEnvDts(settings: AstroSettings, fs: typeof fsMod, logger: Lo
 async function setupTsconfig(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
 	const typescript = settings.config.experimental.typescript!;
 
-	const tsconfigPath = normalizePath(fileURLToPath(new URL('tsconfig.json', settings.dotAstroDir)));
-	let relativeDtsPath = normalizePath(
-		relative(
-			fileURLToPath(settings.dotAstroDir),
-			fileURLToPath(new URL(REFERENCE_FILE, settings.dotAstroDir)),
-		),
-	);
-	if (!startsWithDotSlash(relativeDtsPath) || !startsWithDotDotSlash(relativeDtsPath)) {
-		relativeDtsPath = `./${relativeDtsPath}`;
+	function relativePath(target: URL): string {
+		const path = normalizePath(
+			relative(fileURLToPath(settings.dotAstroDir), fileURLToPath(target)),
+		);
+		if (startsWithDotSlash(path) || startsWithDotDotSlash(path)) {
+			return path;
+		}
+		return `./${path}`;
 	}
-	const relativeOutDirPath = normalizePath(
-		relative(fileURLToPath(settings.dotAstroDir), fileURLToPath(settings.config.outDir)),
-	);
 
-	const include = [relativeDtsPath];
-	if (typescript.include) {
-		for (const value of typescript.include) {
-			if (startsWithDotSlash(value) || startsWithDotDotSlash(value)) {
-				include.push(
-					normalizePath(
-						relative(
-							fileURLToPath(settings.dotAstroDir),
-							fileURLToPath(new URL(value, settings.config.root)),
-						),
-					),
-				);
-			} else {
-				include.push(value);
-			}
-		}
-	}
-	const exclude = typescript.excludeOutDir ? [relativeOutDirPath] : [];
-	if (typescript.exclude) {
-		for (const value of typescript.exclude) {
-			if (startsWithDotSlash(value) || startsWithDotDotSlash(value)) {
-				exclude.push(
-					normalizePath(
-						relative(
-							fileURLToPath(settings.dotAstroDir),
-							fileURLToPath(new URL(value, settings.config.root)),
-						),
-					),
-				);
-			} else {
-				exclude.push(value);
-			}
-		}
-	}
+	const tsconfigPath = normalizePath(fileURLToPath(new URL('tsconfig.json', settings.dotAstroDir)));
+
+	const include = [
+		relativePath(new URL(REFERENCE_FILE, settings.dotAstroDir)),
+		...(typescript.include ?? []).map((v) => relativePath(new URL(v, settings.config.root))),
+	];
+	const exclude = [
+		...(typescript.excludeOutDir ? [relativePath(settings.config.outDir)] : []),
+		...(typescript.exclude ?? []).map((v) => relativePath(new URL(v, settings.config.root))),
+	];
 	const expectedContent = JSON.stringify({ include, exclude }, null, 2);
 
 	if (fs.existsSync(tsconfigPath) && fs.readFileSync(tsconfigPath, 'utf-8') === expectedContent) {
 		return;
 	}
 
+	await fs.promises.writeFile(tsconfigPath, expectedContent, 'utf-8');
 	logger.info('types', `Generated ${bold(GENERATED_TSCONFIG_PATH)}`);
-
-	fs.promises.writeFile(tsconfigPath, expectedContent, 'utf-8');
 }

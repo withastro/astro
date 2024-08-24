@@ -152,7 +152,7 @@ describe('experimental.typescript', () => {
 	it('should handle include/exclude relative paths', async () => {
 		const dirs = [
 			{ outDir: 'dist', exclude: '../dist' },
-			{ outDir: './.astro/dist', exclude: 'dist' },
+			{ outDir: './.astro/dist', exclude: './dist' },
 			{ outDir: '../dist', exclude: '../../dist' },
 		];
 
