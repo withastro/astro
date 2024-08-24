@@ -162,7 +162,7 @@ export function isContentCollectionsCacheEnabled(settings: AstroSettings): boole
 	return (
 		settings.config.experimental.contentCollectionCache &&
 		// contentCollectionsCache is an SSG only feature
-		settings.buildOutput !== 'static'
+		settings.buildOutput !== 'server'
 	);
 }
 

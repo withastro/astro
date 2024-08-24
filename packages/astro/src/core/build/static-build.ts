@@ -169,8 +169,6 @@ async function ssrBuild(
 ) {
 	const buildID = Date.now().toString();
 	const { allPages, settings, viteConfig } = opts;
-
-	// TODO: This is inaccurate, we don't know yet if we're building SSR or not
 	const ssr = settings.buildOutput === 'server';
 	const out = getOutputDirectory(settings);
 	const routes = Object.values(allPages).flatMap((pageData) => pageData.route);
@@ -475,7 +473,7 @@ export async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles 
 async function ssrMoveAssets(opts: StaticBuildOptions) {
 	opts.logger.info('build', 'Rearranging server assets...');
 	const serverRoot =
-		opts.settings.config.output === 'static'
+		opts.settings.buildOutput === 'static'
 			? opts.settings.config.build.client
 			: opts.settings.config.build.server;
 	const clientRoot = opts.settings.config.build.client;
