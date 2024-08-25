@@ -1,6 +1,7 @@
 ---
 import { type CollectionEntry, getCollection, getEntry } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
+import { Logout } from '../../components/Logout';
 import { db, eq, Comment, Likes } from 'astro:db';
 import { Like } from '../../components/Like';
 import { PostComment } from '../../components/PostComment';
@@ -38,6 +39,8 @@ const commentPostIdOverride = Astro.url.searchParams.get('commentPostIdOverride'
 
 <BlogPost {...post.data}>
 	<Like postId={post.id} initial={initialLikes?.likes ?? 0} client:load />
+
+	<Logout client:load />
 
 	<form>
 		<input type="hidden" name="like" />
