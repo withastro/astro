@@ -173,6 +173,7 @@ export async function resolveConfig(
 			fsMod.writeFileSync(
 				rootTsConfigUrl,
 				JSON.stringify(
+					// TODO: use default tsconfig in Astro 5
 					{
 						extends: ['astro/tsconfigs/base', GENERATED_TSCONFIG_PATH],
 					},
