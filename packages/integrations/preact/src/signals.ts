@@ -1,6 +1,13 @@
 import type { Context } from './context.js';
 import { incrementId } from './context.js';
-import type { AstroPreactAttrs, PropNameToSignalMap, SignalLike } from './types.js';
+import type {
+	ArrayObjectMapping,
+	AstroPreactAttrs,
+	PropNameToSignalMap,
+	SignalLike,
+	Signals,
+	SignalToKeyOrIndexMap,
+} from './types.js';
 
 function isSignal(x: any): x is SignalLike {
 	return x != null && typeof x === 'object' && typeof x.peek === 'function' && 'value' in x;
@@ -28,18 +35,29 @@ export function serializeSignals(
 	map: PropNameToSignalMap,
 ) {
 	// Check for signals
-	const signals: Record<string, string | [string, number][]> = {};
+	const signals: Signals = {};
 	for (const [key, value] of Object.entries(props)) {
-		if (Array.isArray(value)) {
-			value.forEach((signal, index) => {
-				// find signals in array. The index is important!
-				if (isSignal(signal)) {
-					props[key] = props[key].map((v: SignalLike, i: number) =>
-						i === index ? [signal.peek(), i] : v,
-					);
-					map.set(key, [...((map.get(key) || []) as []), [signal, index]]);
+		const isPropArray = Array.isArray(value);
+		const isPropObject = !isSignal(value) && typeof props[key] === 'object' && !isPropArray;
 
-					signals[key] = [...((signals[key] || []) as []), [getSignalId(ctx, signal), index]];
+		if (isPropObject || isPropArray) {
+			const values = isPropObject ? Object.keys(props[key]) : value;
+			values.forEach((valueKey: number | string, valueIndex: number) => {
+				const signal = isPropObject ? props[key][valueKey] : valueKey;
+				if (isSignal(signal)) {
+					const keyOrIndex = isPropObject ? valueKey.toString() : valueIndex;
+
+					props[key] = isPropObject
+						? Object.assign({}, props[key], { [keyOrIndex]: signal.peek() })
+						: props[key].map((v: SignalLike, i: number) =>
+								i === valueIndex ? [signal.peek(), i] : v,
+							);
+
+					const currentMap = (map.get(key) || []) as SignalToKeyOrIndexMap;
+					map.set(key, [...currentMap, [signal, keyOrIndex]]);
+
+					const currentSignals = (signals[key] || []) as ArrayObjectMapping;
+					signals[key] = [...currentSignals, [getSignalId(ctx, signal), keyOrIndex]];
 				}
 			});
 		} else if (isSignal(value)) {

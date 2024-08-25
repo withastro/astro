@@ -23,13 +23,21 @@ export default (element: HTMLElement) =>
 			);
 			for (const [propName, signalId] of Object.entries(signals)) {
 				if (Array.isArray(signalId)) {
-					signalId.forEach(([id, indexInPropsArray]) => {
-						const [valueOfSignal, indexInProps] = props[propName][indexInPropsArray];
+					signalId.forEach(([id, indexOrKeyInProps]) => {
+						const mapValue = props[propName][indexOrKeyInProps];
+						let valueOfSignal = mapValue;
+
+						// not an property key
+						if(typeof indexOrKeyInProps !== 'string') {
+							valueOfSignal = mapValue[0];
+							indexOrKeyInProps = mapValue[1];
+						}
+
 						if (!sharedSignalMap.has(id)) {
 							const signalValue = signal(valueOfSignal);
 							sharedSignalMap.set(id, signalValue);
 						}
-						props[propName][indexInProps] = sharedSignalMap.get(id);
+						props[propName][indexOrKeyInProps] = sharedSignalMap.get(id);
 					});
 				} else {
 					if (!sharedSignalMap.has(signalId)) {
