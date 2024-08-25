@@ -37,8 +37,8 @@ export function serializeSignals(
 					props[key] = props[key].map((v: SignalLike, i: number) =>
 						i === index ? [signal.peek(), i] : v,
 					);
-
 					map.set(key, [...((map.get(key) || []) as []), [signal, index]]);
+
 					signals[key] = [...((signals[key] || []) as []), [getSignalId(ctx, signal), index]];
 				}
 			});
