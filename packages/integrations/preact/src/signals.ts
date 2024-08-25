@@ -28,26 +28,41 @@ export function serializeSignals(
 	map: PropNameToSignalMap,
 ) {
 	// Check for signals
-	const signals: Record<string, string> = {};
+	const signals: Record<string, string | [string, number][]> = {};
 	for (const [key, value] of Object.entries(props)) {
-		if (isSignal(value)) {
+		if (Array.isArray(value)) {
+			value.forEach((signal, index) => {
+				// find signals in array. The index is important!
+				if (isSignal(signal)) {
+					props[key] = props[key].map((v: SignalLike, i: number) =>
+						i === index ? [signal.peek(), i] : v,
+					);
+
+					map.set(key, [...((map.get(key) || []) as []), [signal, index]]);
+					signals[key] = [...((signals[key] || []) as []), [getSignalId(ctx, signal), index]];
+				}
+			});
+		} else if (isSignal(value)) {
 			// Set the value to the current signal value
 			// This mutates the props on purpose, so that it will be serialized correct.
 			props[key] = value.peek();
 			map.set(key, value);
 
-			let id: string;
-			if (ctx.signals.has(value)) {
-				id = ctx.signals.get(value)!;
-			} else {
-				id = incrementId(ctx);
-				ctx.signals.set(value, id);
-			}
-			signals[key] = id;
+			signals[key] = getSignalId(ctx, value);
 		}
 	}
 
 	if (Object.keys(signals).length) {
 		attrs['data-preact-signals'] = JSON.stringify(signals);
 	}
+}
+
+function getSignalId(ctx: Context, item: SignalLike) {
+	let id = ctx.signals.get(item);
+	if (!id) {
+		id = incrementId(ctx);
+		ctx.signals.set(item, id);
+	}
+
+	return id;
 }

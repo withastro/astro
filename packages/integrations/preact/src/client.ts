@@ -18,13 +18,26 @@ export default (element: HTMLElement) =>
 		let signalsRaw = element.dataset.preactSignals;
 		if (signalsRaw) {
 			const { signal } = await import('@preact/signals');
-			let signals: Record<string, string> = JSON.parse(element.dataset.preactSignals!);
+			let signals: Record<string, string | { id: string; i: number }[]> = JSON.parse(
+				element.dataset.preactSignals!,
+			);
 			for (const [propName, signalId] of Object.entries(signals)) {
-				if (!sharedSignalMap.has(signalId)) {
-					const signalValue = signal(props[propName]);
-					sharedSignalMap.set(signalId, signalValue);
+				if (Array.isArray(signalId)) {
+					signalId.forEach(({ id, i }) => {
+						const [valueOfSignal, indexInProps] = props[propName][i];
+						if (!sharedSignalMap.has(id)) {
+							const signalValue = signal(valueOfSignal);
+							sharedSignalMap.set(id, signalValue);
+						}
+						props[propName][indexInProps] = sharedSignalMap.get(id);
+					});
+				} else {
+					if (!sharedSignalMap.has(signalId)) {
+						const signalValue = signal(props[propName]);
+						sharedSignalMap.set(signalId, signalValue);
+					}
+					props[propName] = sharedSignalMap.get(signalId);
 				}
-				props[propName] = sharedSignalMap.get(signalId);
 			}
 		}
 

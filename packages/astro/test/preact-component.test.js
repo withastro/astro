@@ -100,4 +100,26 @@ describe('Preact component', () => {
 		assert.notEqual(sigs1.count, undefined);
 		assert.equal(sigs1.count, sigs2.count);
 	});
+
+	it('Can use signals in array', async () => {
+		const html = await fixture.readFile('/signals/index.html');
+		const $ = cheerio.load(html);
+		const element = $('.preact-signal-array');
+		assert.equal(element.length, 1);
+
+		const sigs1Raw = $($('astro-island')[2]).attr('data-preact-signals');
+
+		const sigs1 = JSON.parse(sigs1Raw);
+
+		assert.deepEqual(sigs1, {
+			signalsArray: [
+				['p0', 1],
+				['p0', 2],
+				['p1', 4],
+			],
+		});
+
+		assert.equal($('.preact-signal-array h1').text(), "I'm not a signal 12345");
+		assert.equal($('.preact-signal-array p').text(), '112');
+	});
 });

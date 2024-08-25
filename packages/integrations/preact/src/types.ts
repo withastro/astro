@@ -7,7 +7,7 @@ export type SignalLike = {
 	peek(): any;
 };
 
-export type PropNameToSignalMap = Map<string, SignalLike>;
+export type PropNameToSignalMap = Map<string, SignalLike | [SignalLike, number][]>;
 
 export type AstroPreactAttrs = {
 	['data-preact-signals']?: string;
