@@ -2,7 +2,7 @@
 'astro': major
 ---
 
-Changes the data returned for `page.url.next` and `page.url.prev` to include the value set for `base` in your Astro config. 
+Changes the data returned for `page.url.current`, `page.url.next`, `page.url.prev`, `page.url.first` and `page.url.last` to include the value set for `base` in your Astro config. 
 
 Previously, you had to manually prepend your configured value for `base` to the URL path.  Now, Astro automatically includes your `base` value in `next` and `prev` URLs.
 
