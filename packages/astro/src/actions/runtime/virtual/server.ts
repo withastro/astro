@@ -3,7 +3,6 @@ import { ActionCalledFromServerError } from '../../../core/errors/errors-data.js
 import { AstroError } from '../../../core/errors/errors.js';
 import type { ActionAPIContext, ErrorInferenceObject, MaybePromise } from '../utils.js';
 import { ActionError, ActionInputError, type SafeResult, callSafely } from './shared.js';
-import { DEFINE_ACTION_KEY } from '../../consts.js';
 
 export * from './shared.js';
 
