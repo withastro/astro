@@ -156,7 +156,7 @@ function validateTsconfig(settings: AstroSettings, logger: Logger, rawConfig: TS
 		let newConfig = { ...rawConfig };
 
 		if (!rawConfig.extends) {
-			newConfig.extends = ['astro/tsconfigs/base', GENERATED_TSCONFIG_PATH];
+			newConfig.extends = [GENERATED_TSCONFIG_PATH];
 			throw createTsconfigError(logger, rawConfig, newConfig);
 		} else if (
 			typeof rawConfig.extends === 'string' &&
