@@ -216,8 +216,12 @@ export class RenderContext {
 
 	createAPIContext(props: APIContext['props'], isPrerendered: boolean): APIContext {
 		const context = this.createActionAPIContext();
+		const redirect = (path: string, status = 302) =>
+			new Response(null, { status, headers: { Location: path } });
+
 		return Object.assign(context, {
 			props,
+			redirect,
 			getActionResult: createGetActionResult(context.locals),
 			callAction: createCallAction(context),
 			// Used internally by Actions middleware.
@@ -255,8 +259,6 @@ export class RenderContext {
 		const renderContext = this;
 		const { cookies, params, pipeline, url } = this;
 		const generator = `Astro v${ASTRO_VERSION}`;
-		const redirect = (path: string, status = 302) =>
-			new Response(null, { status, headers: { Location: path } });
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			return await this.#executeRewrite(reroutePayload);
@@ -292,7 +294,6 @@ export class RenderContext {
 			get preferredLocaleList() {
 				return renderContext.computePreferredLocaleList();
 			},
-			redirect,
 			rewrite,
 			request: this.request,
 			site: pipeline.site,
