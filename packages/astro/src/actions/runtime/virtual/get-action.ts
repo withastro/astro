@@ -1,5 +1,6 @@
 import type { ZodType } from 'zod';
 import type { ActionAccept, ActionClient } from './server.js';
+import { DEFINE_ACTION_KEY } from '../../consts.js';
 
 /**
  * Get server-side action based on the route path.
@@ -11,7 +12,7 @@ export async function getAction(
 ): Promise<ActionClient<unknown, ActionAccept, ZodType> | undefined> {
 	const pathKeys = path.replace('/_actions/', '').split('.');
 	// @ts-expect-error virtual module
-	let { server: actionLookup } = await import('astro:internal-actions');
+	let { server: actionLookup = {} } = await import('astro:internal-actions');
 
 	for (const key of pathKeys) {
 		if (!(key in actionLookup)) {
@@ -19,7 +20,7 @@ export async function getAction(
 		}
 		actionLookup = actionLookup[key];
 	}
-	if (typeof actionLookup !== 'function') {
+	if (typeof actionLookup !== 'function' || !(DEFINE_ACTION_KEY in actionLookup)) {
 		return undefined;
 	}
 	return actionLookup;
