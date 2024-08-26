@@ -72,11 +72,11 @@ export default function astroActions({
 				});
 			},
 			'astro:server:setup': async (params) => {
-				if (isActionsUsed || !srcDir) return;
+				if (isActionsUsed) return;
 
 				// Watch for the actions file to be created.
 				async function watcherCallback() {
-					if (!isActionsUsed && (await usesActions(fs, srcDir!))) {
+					if (!isActionsUsed && srcDir && (await usesActions(fs, srcDir))) {
 						params.server.restart();
 					}
 				}
