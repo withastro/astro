@@ -5,7 +5,7 @@ import type {
 	Params,
 	Props,
 } from '../../types/public/common.js';
-import type {AstroConfig} from "../../types/public/index.js";
+import type { AstroConfig } from '../../types/public/index.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { joinPaths } from '../path.js';

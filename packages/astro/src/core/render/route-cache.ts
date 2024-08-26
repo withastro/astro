@@ -6,7 +6,7 @@ import type {
 	PaginateFunction,
 	Params,
 } from '../../types/public/common.js';
-import type { RuntimeMode } from '../../types/public/config.js';
+import type { AstroConfig, RuntimeMode } from '../../types/public/config.js';
 import type { RouteData } from '../../types/public/internal.js';
 import type { Logger } from '../logger/core.js';
 
