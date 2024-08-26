@@ -25,15 +25,20 @@ It will create references under the hood, making `env.d.ts` optional if you have
 
 Enabling this option will require a few updates to your root `tsconfig.json`:
 
-1. You'll need to make sure `extends` points to `./.astro/tsconfig.json`. If it's not correctly set, an eror will be thrown with a diff to help you
-2. If you have `include` or `exclude`, you'll have to move them to respectively `experimental.typescript.include` and `experimental.typescript.exclude`:
+1. `extends` must point to `./.astro/tsconfig.json` otherwise an error will be thrown with a diff to help you.
+2. If set, move `include` and `exclude` to `experimental.typescript.include` and `experimental.typescript.exclude` respectively in your Astro config file.
+
+For example, in `tsconfig.json` you'll need to make the following changes:
 
 ```diff
 {
++    "extends": "./.astro/tsconfig.json"
 -    "include": ["foo"],
 -    "exclude": ["bar"]
 }
 ```
+
+Then you'll need to reflect them in `astro.config.mjs`:
 
 ```diff
 import { defineConfig } from "astro/config"
