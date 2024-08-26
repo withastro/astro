@@ -18,7 +18,7 @@ const GENERATED_TSCONFIG_PATH = './.astro/tsconfig.json';
  */
 const createFixture = async (config = {}) => {
 	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
-	const astroFixture = await loadFixture({ root: './fixtures/astro-typescript/', ...config });
+	const astroFixture = await loadFixture({ root: './fixtures/astro-tsconfig/', ...config });
 	const { root } = astroFixture.config;
 	const stringRoot = fileURLToPath(root);
 	rmSync(new URL(ROOT_TSCONFIG_PATH, root), { force: true });
@@ -59,39 +59,39 @@ const createFixture = async (config = {}) => {
 	};
 };
 
-describe('experimental.typescript', () => {
-	it('should create .astro/tsconfig.json if experimental.typescript is enabled', async () => {
-		const fixture = await createFixture({ experimental: { typescript: {} } });
+describe('experimental.tsconfig', () => {
+	it('should create .astro/tsconfig.json if experimental.tsconfig is enabled', async () => {
+		const fixture = await createFixture({ experimental: { tsconfig: {} } });
 		await fixture.sync();
 		assert.equal(fixture.fileExists(GENERATED_TSCONFIG_PATH), true);
 	});
 
-	it('should not create src/env.d.ts if experimental.typescript is enabled', async () => {
-		const fixture = await createFixture({ experimental: { typescript: {} } });
+	it('should not create src/env.d.ts if experimental.tsconfig is enabled', async () => {
+		const fixture = await createFixture({ experimental: { tsconfig: {} } });
 		await fixture.sync();
 		assert.equal(fixture.fileExists(SRC_ENV_DTS), false);
 	});
 
-	it('should not create .astro/tsconfig.json if experimental.typescript is disabled', async () => {
+	it('should not create .astro/tsconfig.json if experimental.tsconfig is disabled', async () => {
 		const fixture = await createFixture();
 		await fixture.sync();
 		assert.equal(fixture.fileExists(GENERATED_TSCONFIG_PATH), false);
 	});
 
-	it('should create src/env.d.ts if experimental.typescript is disabled', async () => {
+	it('should create src/env.d.ts if experimental.tsconfig is disabled', async () => {
 		const fixture = await createFixture();
 		await fixture.sync();
 		assert.equal(fixture.fileExists(SRC_ENV_DTS), true);
 	});
 
 	it('should create a tsconfig.json if it does not exist yet', async () => {
-		const fixture = await createFixture({ experimental: { typescript: {} } });
+		const fixture = await createFixture({ experimental: { tsconfig: {} } });
 		await fixture.sync();
 		assert.equal(fixture.fileExists(ROOT_TSCONFIG_PATH), true);
 	});
 
 	it('should throw if tsconfig.json has invalid extends', async () => {
-		const fixture = await createFixture({ experimental: { typescript: {} } });
+		const fixture = await createFixture({ experimental: { tsconfig: {} } });
 
 		const contents = [
 			{},
@@ -111,7 +111,7 @@ describe('experimental.typescript', () => {
 	});
 
 	it('should warn if tsconfig.json has include', async () => {
-		const fixture = await createFixture({ experimental: { typescript: {} } });
+		const fixture = await createFixture({ experimental: { tsconfig: {} } });
 
 		await fixture.writeFile(
 			ROOT_TSCONFIG_PATH,
@@ -120,14 +120,14 @@ describe('experimental.typescript', () => {
 		const { stdout } = await fixture.sync();
 		assert.equal(
 			stdout.includes(
-				`Your root "tsconfig.json" has an "include" field. This will break types, please move it to your Astro config experimental.typescript.include option`,
+				`Your root "tsconfig.json" has an "include" field. This will break types, please move it to your Astro config experimental.tsconfig.include option`,
 			),
 			true,
 		);
 	});
 
 	it('should warn if tsconfig.json has exclude', async () => {
-		const fixture = await createFixture({ experimental: { typescript: {} } });
+		const fixture = await createFixture({ experimental: { tsconfig: {} } });
 
 		await fixture.writeFile(
 			ROOT_TSCONFIG_PATH,
@@ -136,7 +136,7 @@ describe('experimental.typescript', () => {
 		const { stdout } = await fixture.sync();
 		assert.equal(
 			stdout.includes(
-				`Your root "tsconfig.json" has an "exclude" field. This will break types, please move it to your Astro config experimental.typescript.exclude option`,
+				`Your root "tsconfig.json" has an "exclude" field. This will break types, please move it to your Astro config experimental.tsconfig.exclude option`,
 			),
 			true,
 		);
@@ -144,7 +144,7 @@ describe('experimental.typescript', () => {
 
 	it('should add outDir to .astro/tsconfig.json if excludeOutDir is enabled', async () => {
 		for (const outDir of ['dist', 'custom']) {
-			const fixture = await createFixture({ experimental: { typescript: {} }, outDir });
+			const fixture = await createFixture({ experimental: { tsconfig: {} }, outDir });
 			await fixture.sync();
 			const raw = await fixture.readFile(GENERATED_TSCONFIG_PATH);
 			const tsconfig = JSON.parse(raw);
@@ -155,7 +155,7 @@ describe('experimental.typescript', () => {
 	it('should not add outDir to .astro/tsconfig.json if excludeOutDir is disabled', async () => {
 		for (const outDir of ['dist', 'custom']) {
 			const fixture = await createFixture({
-				experimental: { typescript: { excludeOutDir: false } },
+				experimental: { tsconfig: { excludeOutDir: false } },
 				outDir,
 			});
 			await fixture.sync();
@@ -173,7 +173,7 @@ describe('experimental.typescript', () => {
 		];
 
 		for (const { outDir, exclude } of dirs) {
-			const fixture = await createFixture({ experimental: { typescript: {} }, outDir });
+			const fixture = await createFixture({ experimental: { tsconfig: {} }, outDir });
 			await fixture.sync();
 			const raw = await fixture.readFile(GENERATED_TSCONFIG_PATH);
 			const tsconfig = JSON.parse(raw);
@@ -182,7 +182,7 @@ describe('experimental.typescript', () => {
 	});
 
 	it('should work in dev', async () => {
-		const fixture = await createFixture({ experimental: { typescript: {} } });
+		const fixture = await createFixture({ experimental: { tsconfig: {} } });
 		try {
 			const devServer = await fixture.startDevServer();
 			await devServer.stop();
@@ -193,7 +193,7 @@ describe('experimental.typescript', () => {
 	});
 
 	it('should work in build', async () => {
-		const fixture = await createFixture({ experimental: { typescript: {} } });
+		const fixture = await createFixture({ experimental: { tsconfig: {} } });
 		try {
 			await fixture.build();
 			assert.ok(true);

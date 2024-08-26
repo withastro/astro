@@ -10,7 +10,7 @@ import {
 } from 'tsconfck';
 import type { CompilerOptions, TypeAcquisition } from 'typescript';
 
-// TODO: update when experimental.typescript is out of experimental
+// TODO: update when experimental.tsconfig is out of experimental
 export const defaultTSConfig: TSConfig = { extends: 'astro/tsconfigs/base' };
 
 export type frameworkWithTSSettings = 'vue' | 'react' | 'preact' | 'solid-js';

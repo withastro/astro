@@ -2490,7 +2490,7 @@ importers:
         specifier: ^3.4.38
         version: 3.4.38(typescript@5.5.4)
 
-  packages/astro/test/fixtures/astro-typescript:
+  packages/astro/test/fixtures/astro-tsconfig:
     dependencies:
       astro:
         specifier: workspace:*

@@ -121,7 +121,7 @@ const FILES_TO_UPDATE = {
 			const templateTSConfig = JSON.parse(stripJsonComments(data));
 			if (templateTSConfig && typeof templateTSConfig === 'object') {
 				const result = Object.assign(templateTSConfig, {
-					// TODO: set this to an array when experimental.typescript is not experimental anymore
+					// TODO: set this to an array when experimental.tsconfig is not experimental anymore
 					extends: `astro/tsconfigs/${options.value}`,
 				});
 

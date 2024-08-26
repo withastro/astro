@@ -148,8 +148,7 @@ export async function createSettings(
 
 function validateTsconfig(settings: AstroSettings, logger: Logger, rawConfig: TSConfig) {
 	try {
-		const { typescript } = settings.config.experimental;
-		if (!typescript) {
+		if (!settings.config.experimental.tsconfig) {
 			return;
 		}
 
@@ -172,13 +171,13 @@ function validateTsconfig(settings: AstroSettings, logger: Logger, rawConfig: TS
 		if (rawConfig.include) {
 			logger.warn(
 				'types',
-				`Your root "tsconfig.json" has an "include" field. This will break types, please move it to your Astro config experimental.typescript.include option`,
+				`Your root "tsconfig.json" has an "include" field. This will break types, please move it to your Astro config experimental.tsconfig.include option`,
 			);
 		}
 		if (rawConfig.exclude) {
 			logger.warn(
 				'types',
-				`Your root "tsconfig.json" has an "exclude" field. This will break types, please move it to your Astro config experimental.typescript.exclude option`,
+				`Your root "tsconfig.json" has an "exclude" field. This will break types, please move it to your Astro config experimental.tsconfig.exclude option`,
 			);
 		}
 	} catch (err) {

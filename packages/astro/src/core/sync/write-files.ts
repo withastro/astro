@@ -13,7 +13,7 @@ import { GENERATED_TSCONFIG_PATH } from '../config/constants.js';
 export async function writeFiles(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
 	try {
 		writeInjectedTypes(settings, fs);
-		if (settings.config.experimental.typescript) {
+		if (settings.config.experimental.tsconfig) {
 			await setupTsconfig(settings, fs, logger);
 		} else {
 			await setupEnvDts(settings, fs, logger);
@@ -82,7 +82,7 @@ async function setupEnvDts(settings: AstroSettings, fs: typeof fsMod, logger: Lo
 }
 
 async function setupTsconfig(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
-	const typescript = settings.config.experimental.typescript!;
+	const tsconfig = settings.config.experimental.tsconfig!;
 
 	function relativePath(target: URL): string {
 		const path = normalizePath(
@@ -94,15 +94,15 @@ async function setupTsconfig(settings: AstroSettings, fs: typeof fsMod, logger: 
 		return `./${path}`;
 	}
 
-	const tsconfigPath = normalizePath(fileURLToPath(new URL('tsconfig.json', settings.dotAstroDir)));
+	const tsconfigPath = new URL('tsconfig.json', settings.dotAstroDir);
 
 	const include = [
 		relativePath(new URL(REFERENCE_FILE, settings.dotAstroDir)),
-		...(typescript.include ?? []).map((v) => relativePath(new URL(v, settings.config.root))),
+		...(tsconfig.include ?? []).map((v) => relativePath(new URL(v, settings.config.root))),
 	];
 	const exclude = [
-		...(typescript.excludeOutDir ? [relativePath(settings.config.outDir)] : []),
-		...(typescript.exclude ?? []).map((v) => relativePath(new URL(v, settings.config.root))),
+		...(tsconfig.excludeOutDir ? [relativePath(settings.config.outDir)] : []),
+		...(tsconfig.exclude ?? []).map((v) => relativePath(new URL(v, settings.config.root))),
 	];
 	const expectedContent = JSON.stringify({ include, exclude }, null, 2);
 

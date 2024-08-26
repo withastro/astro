@@ -94,7 +94,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 			validateSecrets: false,
 		},
 		contentLayer: false,
-		typescript: {
+		tsconfig: {
 			excludeOutDir: true,
 		},
 	},
@@ -548,14 +548,14 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
 			contentLayer: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.contentLayer),
-			typescript: z
+			tsconfig: z
 				.object({
 					include: z.array(z.string()).optional(),
 					exclude: z.array(z.string()).optional(),
 					excludeOutDir: z
 						.boolean()
 						.optional()
-						.default(ASTRO_CONFIG_DEFAULTS.experimental.typescript.excludeOutDir),
+						.default(ASTRO_CONFIG_DEFAULTS.experimental.tsconfig.excludeOutDir),
 				})
 				.optional(),
 		})

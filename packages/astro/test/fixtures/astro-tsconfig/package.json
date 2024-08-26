@@ -1,5 +1,5 @@
 {
-  "name": "@test/astro-typescript",
+  "name": "@test/astro-tsconfig",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

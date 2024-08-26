@@ -2411,7 +2411,7 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.typescript
+		 * @name experimental.tsconfig
 		 * @type {object}
 		 * @default `undefined`
 		 * @version 4.15.0
@@ -2442,7 +2442,7 @@ export interface AstroUserConfig {
 		 *
 		 * export default defineConfig({
 		 *   experimental: {
-		 *    typescript: {
+		 *    tsconfig: {
 		 *      include: ['foo'],
 		 *      exclude: ['bar']
 		 *    }
@@ -2450,10 +2450,10 @@ export interface AstroUserConfig {
 		 * })
 		 * ```
 		 */
-		typescript?: {
+		tsconfig?: {
 			/**
 			 * @docs
-			 * @name experimental.typescript.include
+			 * @name experimental.tsconfig.include
 			 * @type {Array<string>}
 			 * @default `undefined`
 			 * @version 4.15.0
@@ -2472,7 +2472,7 @@ export interface AstroUserConfig {
 			 *
 			 * export default defineConfig({
 			 *   experimental: {
-			 *    typescript: {
+			 *    tsconfig: {
 			 *      include: ['foo']
 			 *    }
 			 *   }
@@ -2483,7 +2483,7 @@ export interface AstroUserConfig {
 
 			/**
 			 * @docs
-			 * @name experimental.typescript.exclude
+			 * @name experimental.tsconfig.exclude
 			 * @type {Array<string>}
 			 * @default `undefined`
 			 * @version 4.15.0
@@ -2502,7 +2502,7 @@ export interface AstroUserConfig {
 			 *
 			 * export default defineConfig({
 			 *   experimental: {
-			 *    typescript: {
+			 *    tsconfig: {
 			 *      exclude: ['bar']
 			 *    }
 			 *   }
@@ -2513,20 +2513,20 @@ export interface AstroUserConfig {
 
 			/**
 			 * @docs
-			 * @name experimental.typescript.excludeOutDir
+			 * @name experimental.tsconfig.excludeOutDir
 			 * @type {boolean}
 			 * @default `true`
 			 * @version 4.15.0
 			 * @description
 			 *
-			 * By default, `outDir` will be added to excluded typescript files. You can opt-out of this behavior by setting this option to `false`:
+			 * By default, `outDir` will be added to excluded tsconfig files. You can opt-out of this behavior by setting this option to `false`:
 			 *
 			 * ```js title="astro.config.*" ins={6}
 			 * import { defineConfig } from 'astro/config'
 			 *
 			 * export default defineConfig({
 			 *   experimental: {
-			 *    typescript: {
+			 *    tsconfig: {
 			 *      excludeOutDir: false
 			 *    }
 			 *   }

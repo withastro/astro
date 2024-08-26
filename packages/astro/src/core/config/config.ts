@@ -167,7 +167,7 @@ export async function resolveConfig(
 	}
 
 	// TODO: update examples default tsconfigs
-	if (astroConfig.experimental.typescript) {
+	if (astroConfig.experimental.tsconfig) {
 		const rootTsConfigUrl = new URL('./tsconfig.json', astroConfig.root);
 		if (!fsMod.existsSync(rootTsConfigUrl)) {
 			fsMod.writeFileSync(

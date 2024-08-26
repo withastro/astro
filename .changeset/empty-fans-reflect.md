@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds a new `experimental.typescript` configuration option
+Adds a new `experimental.tsconfig` configuration option
 
 If you enable this option, Astro will generate a `tsconfig.json` file under `./.astro/`:
 
@@ -11,7 +11,7 @@ import { defineConfig } from "astro/config"
 
 export default defineConfig({
 +    experimental: {
-+        typescript: {}
++        tsconfig: {}
 +    }
 })
 ```
@@ -26,7 +26,7 @@ It will create references under the hood, making `env.d.ts` optional if you have
 Enabling this option will require a few updates to your root `tsconfig.json`:
 
 1. `extends` must point to `./.astro/tsconfig.json` otherwise an error will be thrown with a diff to help you.
-2. If set, move `include` and `exclude` to `experimental.typescript.include` and `experimental.typescript.exclude` respectively in your Astro config file.
+2. If set, move `include` and `exclude` to `experimental.tsconfig.include` and `experimental.tsconfig.exclude` respectively in your Astro config file.
 
 For example, in `tsconfig.json` you'll need to make the following changes:
 
@@ -45,7 +45,7 @@ import { defineConfig } from "astro/config"
 
 export default defineConfig({
     experimental: {
-        typescript: {
+        tsconfig: {
 +            include: ["foo"],
 +            exclude: ["bar"]
         }
