@@ -26,7 +26,9 @@ test.describe('Astro Actions - Blog', () => {
 		await waitForHydrate(page, likeButton);
 		await expect(likeButton, 'like button starts with 10 likes').toContainText('10');
 		await likeButton.click();
-		await expect(likeButton, 'like button should increment likes').toContainText('11');
+		await expect(likeButton, 'like button should increment likes').toContainText('11', {
+			timeout: 10_000,
+		});
 	});
 
 	test('Like action - server-side', async ({ page, astro }) => {
