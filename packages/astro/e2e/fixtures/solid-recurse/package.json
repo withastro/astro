@@ -7,6 +7,6 @@
     "astro": "workspace:*"
   },
   "devDependencies": {
-    "solid-js": "^1.8.20"
+    "solid-js": "^1.8.21"
   }
 }
