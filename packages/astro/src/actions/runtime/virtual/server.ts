@@ -6,9 +6,6 @@ import { ActionError, ActionInputError, type SafeResult, callSafely } from './sh
 
 export * from './shared.js';
 
-// TODO: remove for stable.
-export { z } from 'zod';
-
 export type ActionAccept = 'form' | 'json';
 
 export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.ZodType
