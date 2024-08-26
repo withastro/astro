@@ -119,11 +119,13 @@ export function getLocalVirtualModContents({
 	tables: DBTables;
 	root: URL;
 }) {
+	const { ASTRO_DATABASE_FILE } = getAstroEnv();
+	const envDbUrl = ASTRO_DATABASE_FILE ? `'${ASTRO_DATABASE_FILE}'` : undefined;
 	const dbUrl = new URL(DB_PATH, root);
 	return `
 import { asDrizzleTable, createLocalDatabaseClient, normalizeDatabaseUrl } from ${RUNTIME_IMPORT};
 
-const dbUrl = normalizeDatabaseUrl(import.meta.env.ASTRO_DATABASE_FILE, ${JSON.stringify(dbUrl)});
+const dbUrl = normalizeDatabaseUrl(${envDbUrl}, ${JSON.stringify(dbUrl)});
 export const db = createLocalDatabaseClient({ dbUrl });
 
 export * from ${RUNTIME_VIRTUAL_IMPORT};
