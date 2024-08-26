@@ -306,45 +306,6 @@ describe('Astro Actions', () => {
 			assert.equal(data?.age, '42');
 		});
 
-		describe('legacy', () => {
-			it('Response middleware fallback', async () => {
-				const formData = new FormData();
-				formData.append('_astroAction', 'getUser');
-				const req = new Request('http://example.com/user', {
-					method: 'POST',
-					body: formData,
-					headers: {
-						Referer: 'http://example.com/user',
-					},
-				});
-				const res = await followExpectedRedirect(req, app);
-				assert.equal(res.ok, true);
-
-				const html = await res.text();
-				let $ = cheerio.load(html);
-				assert.equal($('#user').text(), 'Houston');
-			});
-
-			it('Respects custom errors', async () => {
-				const formData = new FormData();
-				formData.append('_astroAction', 'getUserOrThrow');
-				const req = new Request('http://example.com/user-or-throw', {
-					method: 'POST',
-					body: formData,
-					headers: {
-						Referer: 'http://example.com/user-or-throw',
-					},
-				});
-				const res = await followExpectedRedirect(req, app);
-				assert.equal(res.status, 401);
-
-				const html = await res.text();
-				let $ = cheerio.load(html);
-				assert.equal($('#error-message').text(), 'Not logged in');
-				assert.equal($('#error-code').text(), 'UNAUTHORIZED');
-			});
-		});
-
 		it('Sets status to 204 when content-length is 0', async () => {
 			const req = new Request('http://example.com/_actions/fireAndForget', {
 				method: 'POST',
