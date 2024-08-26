@@ -10,10 +10,3 @@ export const ACTION_QUERY_PARAMS = {
 	actionPayload: '_astroActionPayload',
 	actionRedirect: '_astroActionRedirect',
 };
-
-/**
- * Used to check whether actions are defined using `defineAction()`.
- * This makes actions non-breaking for users that have an `actions` file
- * but don't use Astro Actions.
- */
-export const DEFINE_ACTION_KEY = Symbol.for('astro:action');

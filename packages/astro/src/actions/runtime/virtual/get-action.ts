@@ -1,6 +1,5 @@
 import type { ZodType } from 'zod';
 import type { ActionAccept, ActionClient } from './server.js';
-import { DEFINE_ACTION_KEY } from '../../consts.js';
 
 /**
  * Get server-side action based on the route path.
@@ -20,7 +19,7 @@ export async function getAction(
 		}
 		actionLookup = actionLookup[key];
 	}
-	if (typeof actionLookup !== 'function' || !(DEFINE_ACTION_KEY in actionLookup)) {
+	if (typeof actionLookup !== 'function') {
 		return undefined;
 	}
 	return actionLookup;
