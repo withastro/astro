@@ -281,8 +281,7 @@ function buildManifest(
 		checkOrigin: settings.config.security?.checkOrigin ?? false,
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		key: encodedKey,
-		experimentalEnvGetSecretEnabled:
-			settings.config.experimental.env !== undefined &&
+		envGetSecretEnabled:
 			(settings.adapter?.supportedAstroFeatures.envGetSecret ?? 'unsupported') !== 'unsupported',
 	};
 }

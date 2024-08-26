@@ -1,5 +1,136 @@
 # astro
 
+## 5.0.0-alpha.1
+
+### Major Changes
+
+- [#11798](https://github.com/withastro/astro/pull/11798) [`e9e2139`](https://github.com/withastro/astro/commit/e9e2139bf788893566f5a3fe58daf1d24076f018) Thanks [@matthewp](https://github.com/matthewp)! - Unflag globalRoutePriority
+
+  The previously [experimental feature `globalRoutePriority`](https://docs.astro.build/en/reference/configuration-reference/#experimentalglobalroutepriority) is now the default in Astro 5.
+
+  This was a refactoring of route prioritization in Astro, making it so that injected routes, file-based routes, and redirects are all prioritized using the same logic. This feature has been enabled for all Starlight projects since it was added and should not affect most users.
+
+- [#11679](https://github.com/withastro/astro/pull/11679) [`ea71b90`](https://github.com/withastro/astro/commit/ea71b90c9c08ddd1d3397c78e2e273fb799f7dbd) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - The [`astro:env` feature introduced behind a flag](https://docs.astro.build/en/reference/configuration-reference/#experimentalglobalroutepriority) in [v4.10.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#x4100) is no longer experimental and is available for general use. If you have been waiting for stabilization before using `astro:env`, you can now do so.
+
+  This feature lets you configure a type-safe schema for your environment variables, and indicate whether they should be available on the server or the client.
+
+  To configure a schema, add the `env` option to your Astro config and define your client and server variables. If you were previously using this feature, please remove the experimental flag from your Astro config and move your entire `env` configuration unchanged to a top-level option.
+
+  ```js
+  import { defineConfig, envField } from 'astro/config';
+
+  export default defineConfig({
+    env: {
+      schema: {
+        API_URL: envField.string({ context: 'client', access: 'public', optional: true }),
+        PORT: envField.number({ context: 'server', access: 'public', default: 4321 }),
+        API_SECRET: envField.string({ context: 'server', access: 'secret' }),
+      },
+    },
+  });
+  ```
+
+  You can import and use your defined variables from the appropriate `/client` or `/server` module:
+
+  ```astro
+  ---
+  import { API_URL } from 'astro:env/client';
+  import { API_SECRET_TOKEN } from 'astro:env/server';
+
+  const data = await fetch(`${API_URL}/users`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${API_SECRET_TOKEN}`,
+    },
+  });
+  ---
+
+  <script>
+    import { API_URL } from 'astro:env/client';
+
+    fetch(`${API_URL}/ping`);
+  </script>
+  ```
+
+
+- [#11788](https://github.com/withastro/astro/pull/11788) [`7c0ccfc`](https://github.com/withastro/astro/commit/7c0ccfc26947b178584e3476584bcaa490c6ba86) Thanks [@ematipico](https://github.com/ematipico)! - Updates the default value of `security.checkOrigin` to `true`, which enables Cross-Site Request Forgery (CSRF) protection by default for pages rendered on demand.
+
+  If you had previously configured `security.checkOrigin: true`, you no longer need this set in your Astro config. This is now the default and it is safe to remove.
+
+  To disable this behavior and opt out of automatically checking that the “origin” header matches the URL sent by each request, you must explicitly set `security.checkOrigin: false`:
+
+  ```diff
+  export default defineConfig({
+  +  security: {
+  +    checkOrigin: false
+  +  }
+  })
+  ```
+
+- [#11741](https://github.com/withastro/astro/pull/11741) [`6617491`](https://github.com/withastro/astro/commit/6617491c3bc2bde87f7867d7dec2580781852cfc) Thanks [@bluwy](https://github.com/bluwy)! - Removes internal JSX handling and moves the responsibility to the `@astrojs/mdx` package directly. The following exports are also now removed:
+
+  - `astro/jsx/babel.js`
+  - `astro/jsx/component.js`
+  - `astro/jsx/index.js`
+  - `astro/jsx/renderer.js`
+  - `astro/jsx/server.js`
+  - `astro/jsx/transform-options.js`
+
+  If your project includes `.mdx` files, you must upgrade `@astrojs/mdx` to the latest version so that it doesn't rely on these entrypoints to handle your JSX.
+
+- [#11782](https://github.com/withastro/astro/pull/11782) [`9a2aaa0`](https://github.com/withastro/astro/commit/9a2aaa01ea427df3844bce8595207809a8d2cb94) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Makes the `compiledContent` property of Markdown content an async function, this change should fix underlying issues where sometimes when using a custom image service and images inside Markdown, Node would exit suddenly without any error message.
+
+  ```diff
+  ---
+  import * as myPost from "../post.md";
+
+  - const content = myPost.compiledContent();
+  + const content = await myPost.compiledContent();
+  ---
+
+  <Fragment set:html={content} />
+  ```
+
+- [#11770](https://github.com/withastro/astro/pull/11770) [`cfa6a47`](https://github.com/withastro/astro/commit/cfa6a47ac7a541f99fdad46a68d0cca6e5816cd5) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Removed support for the Squoosh image service. As the underlying library `libsquoosh` is no longer maintained, and the image service sees very little usage we have decided to remove it from Astro.
+
+  Our recommendation is to use the base Sharp image service, which is more powerful, faster, and more actively maintained.
+
+  ```diff
+  - import { squooshImageService } from "astro/config";
+  import { defineConfig } from "astro/config";
+
+  export default defineConfig({
+  -  image: {
+  -    service: squooshImageService()
+  -  }
+  });
+  ```
+
+  If you are using this service, and cannot migrate to the base Sharp image service, a third-party extraction of the previous service is available here: https://github.com/Princesseuh/astro-image-service-squoosh
+
+### Patch Changes
+
+- [#11780](https://github.com/withastro/astro/pull/11780) [`c6622ad`](https://github.com/withastro/astro/commit/c6622adaeb405e961b12c91f0e5d02c7333d01cf) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Deprecates the Squoosh image service, to be removed in Astro 5.0. We recommend migrating to the default Sharp service.
+
+- [#11732](https://github.com/withastro/astro/pull/11732) [`4cd6c43`](https://github.com/withastro/astro/commit/4cd6c43e221e40345dfb433f9c63395f886091fd) Thanks [@matthewp](https://github.com/matthewp)! - Use GET requests with preloading for Server Islands
+
+  Server Island requests include the props used to render the island as well as any slots passed in (excluding the fallback slot). Since browsers have a max 4mb URL length we default to using a POST request to avoid overflowing this length.
+
+  However in reality most usage of Server Islands are fairly isolated and won't exceed this limit, so a GET request is possible by passing this same information via search parameters.
+
+  Using GET means we can also include a `<link rel="preload">` tag to speed up the request.
+
+  This change implements this, with safe fallback to POST.
+
+- [#11773](https://github.com/withastro/astro/pull/11773) [`86a3391`](https://github.com/withastro/astro/commit/86a33915ff41b23ff6b35bcfb1805fefc0760ca7) Thanks [@ematipico](https://github.com/ematipico)! - Changes messages logged when using unsupported, deprecated, or experimental adapter features for clarity
+
+- [#11774](https://github.com/withastro/astro/pull/11774) [`c6400ab`](https://github.com/withastro/astro/commit/c6400ab99c5e5f4477bc6ef7e801b7869b0aa9ab) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes the path returned by `injectTypes`
+
+- [#11771](https://github.com/withastro/astro/pull/11771) [`49650a4`](https://github.com/withastro/astro/commit/49650a45550af46c70c6cf3f848b7b529103a649) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes an error thrown by `astro sync` when an `astro:env` virtual module is imported inside the Content Collections config
+
+- [#11744](https://github.com/withastro/astro/pull/11744) [`b677429`](https://github.com/withastro/astro/commit/b67742961a384c10e5cd04cf5b02d0f014ea7362) Thanks [@bluwy](https://github.com/bluwy)! - Disables the WebSocket server when creating a Vite server for loading config files
+
 ## 5.0.0-alpha.0
 
 ### Major Changes

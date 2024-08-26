@@ -1,6 +1,7 @@
 /// <reference types="vite/types/import-meta.d.ts" />
 /// <reference path="./types/content.d.ts" />
 /// <reference path="./types/actions.d.ts" />
+/// <reference path="./types/env.d.ts" />
 
 interface ImportMetaEnv {
 	/**

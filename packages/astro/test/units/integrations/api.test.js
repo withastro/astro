@@ -270,27 +270,6 @@ describe('Astro feature map', function () {
 			);
 			assert.equal(result['assets'], true);
 		});
-		it('should be supported when it is squoosh compatible', () => {
-			let result = validateSupportedFeatures(
-				'test',
-				{
-					assets: {
-						supportKind: 'stable',
-						isSquooshCompatible: true,
-					},
-				},
-				{
-					image: {
-						service: {
-							entrypoint: 'astro/assets/services/squoosh',
-						},
-					},
-				},
-				{},
-				defaultLogger,
-			);
-			assert.equal(result['assets'], true);
-		});
 
 		it("should not be valid if the config is correct, but the it's unsupported", () => {
 			let result = validateSupportedFeatures(
