@@ -78,10 +78,6 @@ export function defineAction<
 		},
 	});
 
-	Object.assign(safeServerHandler, {
-		[DEFINE_ACTION_KEY]: true,
-	});
-
 	return safeServerHandler as ActionClient<TOutput, TAccept, TInputSchema> & string;
 }
 
