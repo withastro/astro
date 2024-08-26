@@ -12,6 +12,7 @@ import {
 	VIRTUAL_INTERNAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
+import * as eslexer from 'es-module-lexer';
 
 export default function astroActions({
 	fs = fsMod,
@@ -21,15 +22,13 @@ export default function astroActions({
 	settings: AstroSettings;
 }): AstroIntegration {
 	let isActionsUsed = false;
-	let srcDir: URL;
+	let srcDir: URL | undefined;
 	return {
 		name: VIRTUAL_MODULE_ID,
 		hooks: {
 			async 'astro:config:setup'(params) {
-				isActionsUsed = actionsFileExists(fs, params.config.srcDir);
+				isActionsUsed = await usesActions(fs, params.config.srcDir);
 				srcDir = params.config.srcDir;
-
-				if (!isActionsUsed) return;
 
 				if (!isServerLikeOutput(params.config)) {
 					const error = new AstroError(ActionsWithoutServerOutputError);
@@ -43,6 +42,9 @@ export default function astroActions({
 					},
 				});
 
+				// Only inject routes when actions are used.
+				if (!isActionsUsed) return;
+
 				params.injectRoute({
 					pattern: '/_actions/[...path]',
 					entrypoint: 'astro/actions/runtime/route.js',
@@ -54,7 +56,7 @@ export default function astroActions({
 					order: 'post',
 				});
 			},
-			'astro:config:done': (params) => {
+			'astro:config:done': async (params) => {
 				if (!isActionsUsed) return;
 
 				const stringifiedActionsImport = JSON.stringify(
@@ -70,18 +72,46 @@ export default function astroActions({
 				});
 			},
 			'astro:server:setup': async (params) => {
-				function watcherCallback() {
-					if (!isActionsUsed && actionsFileExists(fs, srcDir)) {
+				if (isActionsUsed || !srcDir) return;
+
+				// Watch for the actions file to be created.
+				async function watcherCallback() {
+					if (!isActionsUsed && (await usesActions(fs, srcDir!))) {
 						params.server.restart();
 					}
 				}
 				params.server.watcher.on('add', watcherCallback);
+				params.server.watcher.on('change', watcherCallback);
 			},
 		},
 	};
 }
 
-function actionsFileExists(fs: typeof fsMod, srcDir: URL) {
+let didInitLexer = false;
+
+async function usesActions(fs: typeof fsMod, srcDir: URL) {
+	if (!didInitLexer) await eslexer.init;
+
+	const actionsFile = search(fs, srcDir);
+	if (!actionsFile) return false;
+
+	let contents: string;
+	try {
+		contents = fs.readFileSync(actionsFile, 'utf-8');
+	} catch {
+		return false;
+	}
+
+	const [, exports] = eslexer.parse(contents, actionsFile.pathname);
+	for (const exp of exports) {
+		if (exp.n === 'server') {
+			return true;
+		}
+	}
+	return false;
+}
+
+function search(fs: typeof fsMod, srcDir: URL) {
 	const paths = [
 		'actions.mjs',
 		'actions.js',
@@ -94,10 +124,10 @@ function actionsFileExists(fs: typeof fsMod, srcDir: URL) {
 	].map((p) => new URL(p, srcDir));
 	for (const file of paths) {
 		if (fs.existsSync(file)) {
-			return true;
+			return file;
 		}
 	}
-	return false;
+	return undefined;
 }
 
 /**
