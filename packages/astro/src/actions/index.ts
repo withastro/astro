@@ -20,10 +20,17 @@ export default function astroActions({
 	fs?: typeof fsMod;
 	settings: AstroSettings;
 }): AstroIntegration {
+	let isActionsUsed = false;
+	let srcDir: URL;
 	return {
 		name: VIRTUAL_MODULE_ID,
 		hooks: {
 			async 'astro:config:setup'(params) {
+				isActionsUsed = actionsFileExists(fs, params.config.srcDir);
+				srcDir = params.config.srcDir;
+
+				if (!isActionsUsed) return;
+
 				if (!isServerLikeOutput(params.config)) {
 					const error = new AstroError(ActionsWithoutServerOutputError);
 					error.stack = undefined;
@@ -48,6 +55,8 @@ export default function astroActions({
 				});
 			},
 			'astro:config:done': (params) => {
+				if (!isActionsUsed) return;
+
 				const stringifiedActionsImport = JSON.stringify(
 					viteID(new URL('./actions', params.config.srcDir)),
 				);
@@ -60,8 +69,35 @@ export default function astroActions({
 }`,
 				});
 			},
+			'astro:server:setup': async (params) => {
+				function watcherCallback() {
+					if (!isActionsUsed && actionsFileExists(fs, srcDir)) {
+						params.server.restart();
+					}
+				}
+				params.server.watcher.on('add', watcherCallback);
+			},
 		},
 	};
+}
+
+function actionsFileExists(fs: typeof fsMod, srcDir: URL) {
+	const paths = [
+		'actions.mjs',
+		'actions.js',
+		'actions.mts',
+		'actions.ts',
+		'actions/index.mjs',
+		'actions/index.js',
+		'actions/index.mts',
+		'actions/index.ts',
+	].map((p) => new URL(p, srcDir));
+	for (const file of paths) {
+		if (fs.existsSync(file)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 /**
