@@ -4,7 +4,7 @@
 
 Changes the data returned for `page.url.next` and `page.url.prev` to include the value set for `base` in your Astro config. 
 
-Previously, you had to manually prepend your configured value for `base`  to the URL path.  Now, Astro automatically includes your `base` value to `next` and `prev` URLs.
+Previously, you had to manually prepend your configured value for `base` to the URL path.  Now, Astro automatically includes your `base` value in `next` and `prev` URLs.
 
 If you are using the `paginate()` function for "previous" and "next" URLs, remove any existing `base` value as it is now added for you:
 
@@ -23,7 +23,7 @@ export async function getStaticPaths({ paginate }) {
   return paginate(astronautPages, { pageSize: 1 });
 }
 const { page } = Astro.props;
-// "docs" is the `base` configured in astro.config.mjs 
+// `base: /'docs'` configured in `astro.config.mjs` 
 - const prev = "/docs" + page.url.prev;
 + const prev = page.url.prev;
 ---
