@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fix typo in `MissingImageDimension` error message
+Fixes a typo in the `MissingImageDimension` error message
