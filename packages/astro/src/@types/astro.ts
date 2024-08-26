@@ -54,8 +54,8 @@ import type {
 } from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
 import type {
-	SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
 	REDIRECT_STATUS_CODES,
+	SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
 } from './../core/constants.js';
 
 export type { AstroIntegrationLogger, ToolbarServerHelpers };
