@@ -3,7 +3,6 @@ import { fileURLToPath } from 'node:url';
 import glob from 'fast-glob';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
-import type { AstroSettings } from '../@types/astro.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
 import astroContainer from '../container/vite-plugin-container.js';
@@ -17,6 +16,7 @@ import astroInternationalization from '../i18n/vite-plugin-i18n.js';
 import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
 import astroDevToolbar from '../toolbar/vite-plugin-dev-toolbar.js';
 import astroTransitions from '../transitions/vite-plugin-transitions.js';
+import type { AstroSettings } from '../types/astro.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
@@ -28,7 +28,6 @@ import htmlVitePlugin from '../vite-plugin-html/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
-import mdxVitePlugin from '../vite-plugin-mdx/index.js';
 import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
@@ -132,11 +131,10 @@ export async function createVite(
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
 			mode !== 'build' && vitePluginAstroServer({ settings, logger, fs }),
-			envVitePlugin({ settings }),
-			astroEnv({ settings, mode, fs, sync }),
+			envVitePlugin({ settings, logger }),
+			astroEnv({ settings, mode, sync }),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
-			mdxVitePlugin(),
 			astroPostprocessVitePlugin(),
 			astroIntegrationsContainerPlugin({ settings, logger }),
 			astroScriptsPageSSRPlugin({ settings }),
@@ -185,7 +183,7 @@ export async function createVite(
 				{
 					// Typings are imported from 'astro' (e.g. import { Type } from 'astro')
 					find: /^astro$/,
-					replacement: fileURLToPath(new URL('../@types/astro.js', import.meta.url)),
+					replacement: fileURLToPath(new URL('../types/public/index.js', import.meta.url)),
 				},
 				{
 					find: 'astro:middleware',

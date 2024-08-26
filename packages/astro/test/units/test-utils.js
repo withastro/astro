@@ -211,8 +211,8 @@ export function createBasicPipeline(options = {}) {
 }
 
 /**
- * @param {import('../../src/@types/astro.js').AstroInlineConfig} inlineConfig
- * @returns {Promise<import('../../src/@types/astro.js').AstroSettings>}
+ * @param {import('../../src/types/public/config.js').AstroInlineConfig} inlineConfig
+ * @returns {Promise<import('../../src/types/astro.js').AstroSettings>}
  */
 export async function createBasicSettings(inlineConfig = {}) {
 	if (!inlineConfig.root) {
@@ -225,7 +225,7 @@ export async function createBasicSettings(inlineConfig = {}) {
 /**
  * @typedef {{
  * 	fs?: typeof realFS,
- * 	inlineConfig?: import('../../src/@types/astro.js').AstroInlineConfig,
+ * 	inlineConfig?: import('../../src/types/public/config.js').AstroInlineConfig,
  *  logging?: import('../../src/core/logger/core').LogOptions,
  * }} RunInContainerOptions
  */

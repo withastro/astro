@@ -1,5 +1,5 @@
-import type { SSRResult } from '../../@types/astro.js';
 import { AstroJSX, type AstroVNode, isVNode } from '../../jsx-runtime/index.js';
+import type { SSRResult } from '../../types/public/internal.js';
 import {
 	HTMLString,
 	escapeHTML,

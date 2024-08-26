@@ -2,8 +2,6 @@ import { extname } from 'node:path';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
-import type { AstroPluginOptions, AstroSettings, ImageTransform } from '../@types/astro.js';
-import { extendManualChunks } from '../core/build/plugins/util.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import {
 	appendForwardSlash,
@@ -13,7 +11,9 @@ import {
 	removeQueryString,
 } from '../core/path.js';
 import { isServerLikeOutput } from '../core/util.js';
+import type { AstroPluginOptions, AstroSettings } from '../types/astro.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
+import type { ImageTransform } from './types.js';
 import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 import { isESMImportedImage } from './utils/imageKind.js';
 import { emitESMImage } from './utils/node/emitAsset.js';
@@ -105,19 +105,6 @@ export default function assets({
 		// Expose the components and different utilities from `astro:assets` and handle serving images from `/_image` in dev
 		{
 			name: 'astro:assets',
-			outputOptions(outputOptions) {
-				// Specifically split out chunk for asset files to prevent TLA deadlock
-				// caused by `getImage()` for markdown components.
-				// https://github.com/rollup/rollup/issues/4708
-				extendManualChunks(outputOptions, {
-					after(id) {
-						if (id.includes('astro/dist/assets/services/')) {
-							// By convention, library code is emitted to the `chunks/astro/*` directory
-							return `astro/assets-service`;
-						}
-					},
-				});
-			},
 			async resolveId(id) {
 				if (id === VIRTUAL_SERVICE_ID) {
 					return await this.resolve(settings.config.image.service.entrypoint);

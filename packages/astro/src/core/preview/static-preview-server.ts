@@ -1,8 +1,8 @@
 import type http from 'node:http';
+import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import { performance } from 'perf_hooks';
 import { type PreviewServer as VitePreviewServer, preview } from 'vite';
-import type { AstroSettings } from '../../@types/astro.js';
+import type { AstroSettings } from '../../types/astro.js';
 import type { Logger } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { getResolvedHostForHttpServer } from './util.js';

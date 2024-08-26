@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
-import type { APIContext } from '../../dist/@types/astro.js';
 import { type ActionReturnType, defineAction } from '../../dist/actions/runtime/virtual/server.js';
+import type { APIContext } from '../../dist/types/public/context.js';
 import { z } from '../../zod.mjs';
 
 describe('Astro.callAction', () => {

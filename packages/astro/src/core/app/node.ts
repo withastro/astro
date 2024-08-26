@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { RouteData } from '../../@types/astro.js';
+import type { RouteData } from '../../types/public/internal.js';
 import { deserializeManifest } from './common.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import { App } from './index.js';

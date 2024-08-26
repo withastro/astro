@@ -1,11 +1,10 @@
 import fs from 'node:fs';
-import path, { extname } from 'node:path';
+import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { teardown } from '@astrojs/compiler';
 import glob from 'fast-glob';
 import { bgGreen, bgMagenta, black, green } from 'kleur/colors';
 import * as vite from 'vite';
-import type { RouteData } from '../../@types/astro.js';
 import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 import {
 	getSymlinkedContentCollections,
@@ -22,6 +21,7 @@ import { appendForwardSlash, prependForwardSlash, removeFileExtension } from '..
 import { isModeServerWithNoAdapter, isServerLikeOutput } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/hooks.js';
 import { getOutputDirectory } from '../../prerender/utils.js';
+import type { RouteData } from '../../types/public/internal.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
@@ -36,7 +36,7 @@ import { copyContentToCache } from './plugins/plugin-content.js';
 import { RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugins/plugin-manifest.js';
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
-import { RESOLVED_SPLIT_MODULE_ID, RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
+import { RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
@@ -247,14 +247,14 @@ async function ssrBuild(
 								chunkInfo.facadeModuleId,
 								routes,
 							);
-						} else if (chunkInfo.facadeModuleId?.startsWith(RESOLVED_SPLIT_MODULE_ID)) {
-							return makeSplitEntryPointFileName(chunkInfo.facadeModuleId, routes);
 						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_VIRTUAL_MODULE_ID) {
 							return opts.settings.config.build.serverEntry;
 						} else if (chunkInfo.facadeModuleId === RESOLVED_RENDERERS_MODULE_ID) {
 							return 'renderers.mjs';
 						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
 							return 'manifest_[hash].mjs';
+						} else if (chunkInfo.facadeModuleId === settings.adapter?.serverEntrypoint) {
+							return 'adapter_[hash].mjs';
 						} else if (
 							settings.config.experimental.contentCollectionCache &&
 							chunkInfo.facadeModuleId &&
@@ -537,35 +537,4 @@ export function makeAstroPageEntryPointFileName(
 		.replace(/\/$/, '/index')
 		.replaceAll(/[[\]]/g, '_')
 		.replaceAll('...', '---')}.astro.mjs`;
-}
-
-/**
- * The `facadeModuleId` has a shape like: \0@astro-serverless-page:src/pages/index@_@astro.
- *
- * 1. We call `makeAstroPageEntryPointFileName` which normalise its name, making it like a file path
- * 2. We split the file path using the file system separator and attempt to retrieve the last entry
- * 3. The last entry should be the file
- * 4. We prepend the file name with `entry.`
- * 5. We built the file path again, using the new en3built in the previous step
- *
- * @param facadeModuleId
- * @param opts
- */
-export function makeSplitEntryPointFileName(facadeModuleId: string, routes: RouteData[]) {
-	const filePath = `${makeAstroPageEntryPointFileName(
-		RESOLVED_SPLIT_MODULE_ID,
-		facadeModuleId,
-		routes,
-	)}`;
-
-	const pathComponents = filePath.split(path.sep);
-	const lastPathComponent = pathComponents.pop();
-	if (lastPathComponent) {
-		const extension = extname(lastPathComponent);
-		if (extension.length > 0) {
-			const newFileName = `entry.${lastPathComponent}`;
-			return [...pathComponents, newFileName].join(path.sep);
-		}
-	}
-	return filePath;
 }

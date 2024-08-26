@@ -1,20 +1,15 @@
-import type {
-	AstroConfig,
-	AstroSettings,
-	ManifestData,
-	RouteData,
-	RoutePart,
-	RoutePriorityOverride,
-} from '../../../@types/astro.js';
+import type { AstroSettings, ManifestData } from '../../../types/astro.js';
 import type { Logger } from '../../logger/core.js';
 
-import { createRequire } from 'module';
 import nodeFs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
+import type { AstroConfig } from '../../../types/public/config.js';
+import type { RouteData, RoutePart } from '../../../types/public/internal.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { MissingIndexForInternationalization } from '../../errors/errors-data.js';
 import { AstroError } from '../../errors/index.js';
@@ -275,18 +270,11 @@ function createFileBasedRoutes(
 	return routes;
 }
 
-type PrioritizedRoutesData = Record<RoutePriorityOverride, RouteData[]>;
-
-function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): PrioritizedRoutesData {
+function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): RouteData[] {
 	const { config } = settings;
 	const prerender = getPrerenderDefault(config);
 
-	const routes: PrioritizedRoutesData = {
-		normal: [],
-		legacy: [],
-	};
-
-	const priority = computeRoutePriority(config);
+	const routes: RouteData[] = [];
 
 	for (const injectedRoute of settings.injectedRoutes) {
 		const { pattern: name, entrypoint, prerender: prerenderInjected } = injectedRoute;
@@ -321,7 +309,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Pri
 			.map((p) => p.content);
 		const route = joinSegments(segments);
 
-		routes[priority].push({
+		routes.push({
 			type,
 			// For backwards compatibility, an injected route is never considered an index route.
 			isIndex: false,
@@ -347,16 +335,12 @@ function createRedirectRoutes(
 	{ settings }: CreateRouteManifestParams,
 	routeMap: Map<string, RouteData>,
 	logger: Logger,
-): PrioritizedRoutesData {
+): RouteData[] {
 	const { config } = settings;
 	const trailingSlash = config.trailingSlash;
 
-	const routes: PrioritizedRoutesData = {
-		normal: [],
-		legacy: [],
-	};
+	const routes: RouteData[] = [];
 
-	const priority = computeRoutePriority(settings.config);
 	for (const [from, to] of Object.entries(settings.config.redirects)) {
 		const segments = removeLeadingForwardSlash(from)
 			.split(path.posix.sep)
@@ -391,7 +375,7 @@ function createRedirectRoutes(
 			);
 		}
 
-		routes[priority].push({
+		routes.push({
 			type: 'redirect',
 			// For backwards compatibility, a redirect is never considered an index route.
 			isIndex: false,
@@ -509,28 +493,20 @@ export function createRouteManifest(
 	}
 
 	const injectedRoutes = createInjectedRoutes(params);
-	for (const [, routes] of Object.entries(injectedRoutes)) {
-		for (const route of routes) {
-			routeMap.set(route.route, route);
-		}
+	for (const route of injectedRoutes) {
+		routeMap.set(route.route, route);
 	}
 
 	const redirectRoutes = createRedirectRoutes(params, routeMap, logger);
 
 	const routes: RouteData[] = [
-		...injectedRoutes['legacy'].sort(routeComparator),
-		...[...fileBasedRoutes, ...injectedRoutes['normal'], ...redirectRoutes['normal']].sort(
-			routeComparator,
-		),
-		...redirectRoutes['legacy'].sort(routeComparator),
+		...[...fileBasedRoutes, ...injectedRoutes, ...redirectRoutes].sort(routeComparator),
 	];
 
 	// Report route collisions
-	if (config.experimental.globalRoutePriority) {
-		for (const [index, higherRoute] of routes.entries()) {
-			for (const lowerRoute of routes.slice(index + 1)) {
-				detectRouteCollision(higherRoute, lowerRoute, config, logger);
-			}
+	for (const [index, higherRoute] of routes.entries()) {
+		for (const lowerRoute of routes.slice(index + 1)) {
+			detectRouteCollision(higherRoute, lowerRoute, config, logger);
 		}
 	}
 
@@ -728,13 +704,6 @@ export function createRouteManifest(
 	return {
 		routes,
 	};
-}
-
-function computeRoutePriority(config: AstroConfig): RoutePriorityOverride {
-	if (config.experimental.globalRoutePriority) {
-		return 'normal';
-	}
-	return 'legacy';
 }
 
 function joinSegments(segments: RoutePart[][]): string {

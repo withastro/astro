@@ -1,12 +1,7 @@
 /// <reference types="vite/types/import-meta.d.ts" />
 /// <reference path="./types/content.d.ts" />
 /// <reference path="./types/actions.d.ts" />
-
-// eslint-disable-next-line  @typescript-eslint/no-namespace
-declare namespace App {
-	// eslint-disable-next-line  @typescript-eslint/no-empty-interface
-	export interface Locals {}
-}
+/// <reference path="./types/env.d.ts" />
 
 interface ImportMetaEnv {
 	/**
@@ -52,7 +47,7 @@ declare module 'astro:assets' {
 		getImage: (
 			options: import('./dist/assets/types.js').UnresolvedImageTransform,
 		) => Promise<import('./dist/assets/types.js').GetImageResult>;
-		imageConfig: import('./dist/@types/astro.js').AstroConfig['image'];
+		imageConfig: import('./dist/types/public/config.js').AstroConfig['image'];
 		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
 		inferRemoteSize: typeof import('./dist/assets/utils/index.js').inferRemoteSize;
 		Image: typeof import('./components/Image.astro').default;
@@ -172,7 +167,7 @@ declare module 'astro:components' {
 	export * from 'astro/components';
 }
 
-type MD = import('./dist/@types/astro.js').MarkdownInstance<Record<string, any>>;
+type MD = import('./dist/types/public/content.js').MarkdownInstance<Record<string, any>>;
 interface ExportedMarkdownModuleEntities {
 	frontmatter: MD['frontmatter'];
 	file: MD['file'];
@@ -191,7 +186,6 @@ declare module '*.md' {
 		file,
 		url,
 		getHeadings,
-		getHeaders,
 		Content,
 		rawContent,
 		compiledContent,
@@ -206,7 +200,6 @@ declare module '*.markdown' {
 		file,
 		url,
 		getHeadings,
-		getHeaders,
 		Content,
 		rawContent,
 		compiledContent,
@@ -221,7 +214,6 @@ declare module '*.mkdn' {
 		file,
 		url,
 		getHeadings,
-		getHeaders,
 		Content,
 		rawContent,
 		compiledContent,
@@ -236,7 +228,6 @@ declare module '*.mkd' {
 		file,
 		url,
 		getHeadings,
-		getHeaders,
 		Content,
 		rawContent,
 		compiledContent,
@@ -251,7 +242,6 @@ declare module '*.mdwn' {
 		file,
 		url,
 		getHeadings,
-		getHeaders,
 		Content,
 		rawContent,
 		compiledContent,
@@ -266,7 +256,6 @@ declare module '*.mdown' {
 		file,
 		url,
 		getHeadings,
-		getHeaders,
 		Content,
 		rawContent,
 		compiledContent,
@@ -275,7 +264,7 @@ declare module '*.mdown' {
 }
 
 declare module '*.mdx' {
-	type MDX = import('./dist/@types/astro.js').MDXInstance<Record<string, any>>;
+	type MDX = import('./dist/types/public/content.js').MDXInstance<Record<string, any>>;
 
 	export const frontmatter: MDX['frontmatter'];
 	export const file: MDX['file'];
@@ -288,7 +277,7 @@ declare module '*.mdx' {
 }
 
 declare module 'astro:ssr-manifest' {
-	export const manifest: import('./dist/@types/astro.js').SSRManifest;
+	export const manifest: import('./dist/types/public/internal.js').SSRManifest;
 }
 
 // Everything below are Vite's types (apart from image types, which are in `client.d.ts`)

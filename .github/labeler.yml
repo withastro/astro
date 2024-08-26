@@ -40,5 +40,5 @@
 - packages/integrations/vue/**
 
 'docs pr':
-- packages/astro/src/@types/astro.ts
+- packages/astro/src/types/public/**
 - packages/astro/src/core/errors/errors-data.ts

@@ -1,5 +1,72 @@
 # @astrojs/vercel
 
+## 8.0.0-alpha.1
+
+### Major Changes
+
+- [#11679](https://github.com/withastro/astro/pull/11679) [`ea71b90`](https://github.com/withastro/astro/commit/ea71b90c9c08ddd1d3397c78e2e273fb799f7dbd) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds stable support for `astro:env`
+
+- [#11770](https://github.com/withastro/astro/pull/11770) [`cfa6a47`](https://github.com/withastro/astro/commit/cfa6a47ac7a541f99fdad46a68d0cca6e5816cd5) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Removed support for the Squoosh image service. As the underlying library `libsquoosh` is no longer maintained, and the image service sees very little usage we have decided to remove it from Astro.
+
+  Our recommendation is to use the base Sharp image service, which is more powerful, faster, and more actively maintained.
+
+  ```diff
+  - import { squooshImageService } from "astro/config";
+  import { defineConfig } from "astro/config";
+
+  export default defineConfig({
+  -  image: {
+  -    service: squooshImageService()
+  -  }
+  });
+  ```
+
+  If you are using this service, and cannot migrate to the base Sharp image service, a third-party extraction of the previous service is available here: https://github.com/Princesseuh/astro-image-service-squoosh
+
+### Patch Changes
+
+- [#11783](https://github.com/withastro/astro/pull/11783) [`fc81b01`](https://github.com/withastro/astro/commit/fc81b01bcdd43646bcc615b16bf0400a646445c8) Thanks [@matthewp](https://github.com/matthewp)! - Prevent race condition with Node 18
+
+  Using Node 18 there can be a race condition where polyfill for the `crypto` global is not applied in time. This change ensures the polyfills run first.
+
+## 8.0.0-alpha.0
+
+### Major Changes
+
+- [#11714](https://github.com/withastro/astro/pull/11714) [`8a53517`](https://github.com/withastro/astro/commit/8a5351737d6a14fc55f1dafad8f3b04079e81af6) Thanks [@matthewp](https://github.com/matthewp)! - Remove support for functionPerRoute
+
+  This change removes support for the `functionPerRoute` option both in Astro and `@astrojs/vercel`.
+
+  This option made it so that each route got built as separate entrypoints so that they could be loaded as separate functions. The hope was that by doing this it would decrease the size of each function. However in practice routes use most of the same code, and increases in function size limitations made the potential upsides less important.
+
+  Additionally there are downsides to functionPerRoute, such as hitting limits on the number of functions per project. The feature also never worked with some Astro features like i18n domains and request rewriting.
+
+  Given this, the feature has been removed from Astro.
+
+### Minor Changes
+
+- [#11728](https://github.com/withastro/astro/pull/11728) [`5ea02b1`](https://github.com/withastro/astro/commit/5ea02b12fdb9b8ca45b1229bb9d04bc3d1270e0f) Thanks [@matthewp](https://github.com/matthewp)! - Deprecates the `functionPerRoute` option
+
+  This option is now deprecated, and will be removed entirely in Astro v5.0. We suggest removing this option from your configuration as soon as you are able to:
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+  import vercel from '@astrojs/vercel/serverless';
+
+  export default defineConfig({
+    // ...
+    output: 'server',
+    adapter: vercel({
+  -     functionPerRoute: true,
+    }),
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`b6fbdaa`](https://github.com/withastro/astro/commit/b6fbdaa94a9ecec706a99e1938fbf5cd028c72e0), [`89bab1e`](https://github.com/withastro/astro/commit/89bab1e70786123fbe933a9d7a1b80c9334dcc5f), [`d74617c`](https://github.com/withastro/astro/commit/d74617cbd3278feba05909ec83db2d73d57a153e), [`e90f559`](https://github.com/withastro/astro/commit/e90f5593d23043579611452a84b9e18ad2407ef9), [`2df49a6`](https://github.com/withastro/astro/commit/2df49a6fb4f6d92fe45f7429430abe63defeacd6), [`8a53517`](https://github.com/withastro/astro/commit/8a5351737d6a14fc55f1dafad8f3b04079e81af6)]:
+  - astro@5.0.0-alpha.0
+
 ## 7.7.2
 
 ### Patch Changes

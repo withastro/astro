@@ -1,5 +1,5 @@
-import type { PropagationHint } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import type { PropagationHint } from '../../types/public/internal.js';
 import type { AstroComponentFactory } from './render/index.js';
 
 function validateArgs(args: unknown[]): args is Parameters<AstroComponentFactory> {

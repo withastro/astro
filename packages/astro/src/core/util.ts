@@ -1,7 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro.js';
+import type { AstroSettings } from '../types/astro.js';
+import type { AstroConfig } from '../types/public/config.js';
+import type { RouteType } from '../types/public/internal.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import { removeTrailingForwardSlash, slash } from './path.js';
 
@@ -153,7 +155,7 @@ export function isPage(file: URL, settings: AstroSettings): boolean {
 export function isEndpoint(file: URL, settings: AstroSettings): boolean {
 	if (!isInPagesDir(file, settings.config)) return false;
 	if (!isPublicRoute(file, settings.config)) return false;
-	return !endsWithPageExt(file, settings);
+	return !endsWithPageExt(file, settings) && !file.toString().includes('?astro');
 }
 
 export function isServerLikeOutput(config: AstroConfig) {

@@ -21,7 +21,7 @@ The emitted file has content similar to:
 ```js
 const renderers = [
   Object.assign(
-    { name: 'astro:jsx', serverEntrypoint: 'astro/jsx/server.js', jsxImportSource: 'astro' },
+    { name: 'astro:framework', serverEntrypoint: '@astrojs/framework/server.js' },
     { ssr: server_default },
   ),
 ];

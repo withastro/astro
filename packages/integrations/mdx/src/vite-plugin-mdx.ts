@@ -44,9 +44,10 @@ export function vitePluginMdx(mdxOptions: MdxOptions): Plugin {
 		async transform(code, id) {
 			if (!id.endsWith('.mdx')) return;
 
-			const { data: frontmatter, content: pageContent } = parseFrontmatter(code, id);
+			const { data: frontmatter, content: pageContent, matter } = parseFrontmatter(code, id);
+			const frontmatterLines = matter ? matter.match(/\n/g)?.join('') + '\n\n' : '';
 
-			const vfile = new VFile({ value: pageContent, path: id });
+			const vfile = new VFile({ value: frontmatterLines + pageContent, path: id });
 			// Ensure `data.astro` is available to all remark plugins
 			setVfileFrontmatter(vfile, frontmatter);
 

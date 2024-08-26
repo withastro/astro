@@ -1,5 +1,5 @@
 // BEFORE ADDING AN ERROR: Please look at the README.md in this folder for general guidelines on writing error messages
-// Additionally, this code, much like `@types/astro.ts`, is used to generate documentation, so make sure to pass
+// Additionally, this code, much like `types/public/config.ts`, is used to generate documentation, so make sure to pass
 // your changes by our wonderful docs team before merging!
 
 import type { ZodError } from 'zod';
@@ -1235,15 +1235,15 @@ export const RouteNotFound = {
 /**
  * @docs
  * @description
- * Some environment variables do not match the data type and/or properties defined in `experimental.env.schema`.
+ * Some environment variables do not match the data type and/or properties defined in `env.schema`.
  * @message
- * The following environment variables defined in `experimental.env.schema` are invalid.
+ * The following environment variables defined in `env.schema` are invalid.
  */
 export const EnvInvalidVariables = {
 	name: 'EnvInvalidVariables',
 	title: 'Invalid Environment Variables',
 	message: (errors: Array<string>) =>
-		`The following environment variables defined in \`experimental.env.schema\` are invalid:\n\n${errors.map((err) => `- ${err}`).join('\n')}\n`,
+		`The following environment variables defined in \`env.schema\` are invalid:\n\n${errors.map((err) => `- ${err}`).join('\n')}\n`,
 } satisfies ErrorData;
 
 /**
@@ -1289,6 +1289,17 @@ export const RewriteWithBodyUsed = {
 	title: 'Cannot use Astro.rewrite after the request body has been read',
 	message:
 		'Astro.rewrite() cannot be used if the request body has already been read. If you need to read the body, first clone the request.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * An unknown error occurred while reading or writing files to disk. It can be caused by many things, eg. missing permissions or a file not existing we attempt to read.
+ */
+export const UnknownFilesystemError = {
+	name: 'UnknownFilesystemError',
+	title: 'An unknown error occurred while reading or writing files to disk.',
+	hint: 'It can be caused by many things, eg. missing permissions or a file not existing we attempt to read. Check the error cause for more details.',
 } satisfies ErrorData;
 
 /**
@@ -1469,6 +1480,20 @@ export const UnknownContentCollectionError = {
 	name: 'UnknownContentCollectionError',
 	title: 'Unknown Content Collection Error.',
 } satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * The `getDataEntryById` and `getEntryBySlug` functions are deprecated and cannot be used with content layer collections. Use the `getEntry` function instead.
+ */
+export const GetEntryDeprecationError = {
+	name: 'GetEntryDeprecationError',
+	title: 'Invalid use of `getDataEntryById` or `getEntryBySlug` function.',
+	message: (collection: string, method: string) =>
+		`The \`${method}\` function is deprecated and cannot be used to query the "${collection}" collection. Use \`getEntry\` instead.`,
+	hint: 'Use the `getEntry` or `getCollection` functions to query content layer collections.',
+} satisfies ErrorData;
+
 /**
  * @docs
  * @message

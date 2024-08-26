@@ -6,13 +6,13 @@ import type {
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
-import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro.js';
 
 import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
 import { EnvSchema } from '../../env/schema.js';
+import type { AstroUserConfig, ViteUserConfig } from '../../types/public/config.js';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
@@ -81,17 +81,21 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	vite: {},
 	legacy: {},
 	redirects: {},
-	security: {},
+	security: {
+		checkOrigin: true,
+	},
+	env: {
+		schema: {},
+		validateSecrets: false,
+	},
 	experimental: {
 		actions: false,
 		directRenderScript: false,
 		contentCollectionCache: false,
 		clientPrerender: false,
-		globalRoutePriority: false,
 		serverIslands: false,
-		env: {
-			validateSecrets: false,
-		},
+		contentIntellisense: false,
+		contentLayer: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -243,11 +247,7 @@ export const AstroConfigSchema = z.object({
 			service: z
 				.object({
 					entrypoint: z
-						.union([
-							z.literal('astro/assets/services/sharp'),
-							z.literal('astro/assets/services/squoosh'),
-							z.string(),
-						])
+						.union([z.literal('astro/assets/services/sharp'), z.string()])
 						.default(ASTRO_CONFIG_DEFAULTS.image.service.entrypoint),
 					config: z.record(z.any()).default({}),
 				})
@@ -501,10 +501,18 @@ export const AstroConfigSchema = z.object({
 	),
 	security: z
 		.object({
-			checkOrigin: z.boolean().default(false),
+			checkOrigin: z.boolean().default(ASTRO_CONFIG_DEFAULTS.security.checkOrigin),
 		})
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.security),
+	env: z
+		.object({
+			schema: EnvSchema.optional().default(ASTRO_CONFIG_DEFAULTS.env.schema),
+			validateSecrets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.env.validateSecrets),
+		})
+		.strict()
+		.optional()
+		.default(ASTRO_CONFIG_DEFAULTS.env),
 	experimental: z
 		.object({
 			actions: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.actions),
@@ -520,24 +528,15 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.clientPrerender),
-			globalRoutePriority: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.globalRoutePriority),
-			env: z
-				.object({
-					schema: EnvSchema.optional(),
-					validateSecrets: z
-						.boolean()
-						.optional()
-						.default(ASTRO_CONFIG_DEFAULTS.experimental.env.validateSecrets),
-				})
-				.strict()
-				.optional(),
 			serverIslands: z
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.serverIslands),
+			contentIntellisense: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
+			contentLayer: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.contentLayer),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for a list of all current experiments.`,

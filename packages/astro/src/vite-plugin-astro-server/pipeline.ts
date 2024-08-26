@@ -1,15 +1,4 @@
 import { fileURLToPath } from 'node:url';
-import type {
-	AstroSettings,
-	ComponentInstance,
-	DevToolbarMetadata,
-	ManifestData,
-	RewritePayload,
-	RouteData,
-	SSRElement,
-	SSRLoadedRenderer,
-	SSRManifest,
-} from '../@types/astro.js';
 import { getInfoOutput } from '../cli/info/index.js';
 import { type HeadElements } from '../core/base-pipeline.js';
 import { ASTRO_VERSION } from '../core/constants.js';
@@ -22,6 +11,15 @@ import { createDefaultRoutes } from '../core/routing/default.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 import { isPage, isServerLikeOutput, viteID } from '../core/util.js';
 import { resolveIdToUrl } from '../core/viteUtils.js';
+import type { AstroSettings, ComponentInstance, ManifestData } from '../types/astro.js';
+import type { RewritePayload } from '../types/public/common.js';
+import type {
+	RouteData,
+	SSRElement,
+	SSRLoadedRenderer,
+	SSRManifest,
+} from '../types/public/internal.js';
+import type { DevToolbarMetadata } from '../types/public/toolbar.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
 import { getComponentMetadata } from './metadata.js';

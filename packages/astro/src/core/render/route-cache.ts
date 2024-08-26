@@ -1,14 +1,13 @@
+import type { ComponentInstance } from '../../types/astro.js';
 import type {
-	ComponentInstance,
 	GetStaticPathsItem,
 	GetStaticPathsResult,
 	GetStaticPathsResultKeyed,
 	PaginateFunction,
 	Params,
-	RouteData,
-	RuntimeMode,
-	AstroConfig,
-} from '../../@types/astro.js';
+} from '../../types/public/common.js';
+import type { RuntimeMode } from '../../types/public/config.js';
+import type { RouteData } from '../../types/public/internal.js';
 import type { Logger } from '../logger/core.js';
 
 import { stringifyParams } from '../routing/params.js';
