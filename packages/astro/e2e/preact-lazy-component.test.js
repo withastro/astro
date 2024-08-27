@@ -1,6 +1,8 @@
 import { prepareTestFactory } from './shared-component-tests.js';
 
-const { test, createTests } = prepareTestFactory({ root: './fixtures/preact-lazy-component/' });
+const { test, createTests } = prepareTestFactory(import.meta.url, {
+	root: './fixtures/preact-lazy-component/',
+});
 
 const config = {
 	counterComponentFilePath: './src/components/Counter.jsx',
