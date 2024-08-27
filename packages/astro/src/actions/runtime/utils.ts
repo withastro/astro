@@ -29,7 +29,8 @@ export type ErrorInferenceObject = Record<string, any>;
 
 /**
  * Clone a request from an already consumed body.
- * This avoids the cost of cloning of a readable stream with `request.clone()`.
+ * This is used instead of `request.clone()` due to an upstream issue in Bun.
+ * https://github.com/oven-sh/bun/issues/6348
  */
 export function cloneRequestFromConsumedBody(request: Request, consumedBody?: BodyInit) {
 	if (consumedBody instanceof FormData) {
