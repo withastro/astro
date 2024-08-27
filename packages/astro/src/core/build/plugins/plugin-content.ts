@@ -82,7 +82,6 @@ function vitePluginContent(
 	internals: BuildInternals,
 	cachedBuildOutput: Array<{ cached: URL; dist: URL }>,
 ): VitePlugin {
-	const logger = opts.logger;
 	const { config } = opts.settings;
 	const distContentRoot = getContentRoot(config);
 	const contentCacheDir = getContentCacheDir(config);
@@ -230,7 +229,6 @@ function vitePluginContent(
 				settings: opts.settings,
 				fs: fsMod,
 				lookupMap,
-				logger,
 				IS_DEV: false,
 				IS_SERVER: false,
 				isClient: false,

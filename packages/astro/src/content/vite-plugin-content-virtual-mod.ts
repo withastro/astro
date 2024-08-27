@@ -42,18 +42,15 @@ import {
 	getExtGlob,
 	isDeferredModule,
 } from './utils.js';
-import type { Logger } from '../core/logger/core.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
 	fs: typeof nodeFs;
-	logger: Logger;
 }
 
 export function astroContentVirtualModPlugin({
 	settings,
 	fs,
-	logger,
 }: AstroContentVirtualModPluginParams): Plugin {
 	let IS_DEV = false;
 	const IS_SERVER = isServerLikeOutput(settings.config);
@@ -119,7 +116,6 @@ export function astroContentVirtualModPlugin({
 				const code = await generateContentEntryFile({
 					settings,
 					fs,
-					logger,
 					lookupMap,
 					IS_DEV,
 					IS_SERVER,
@@ -211,7 +207,6 @@ export function astroContentVirtualModPlugin({
 
 export async function generateContentEntryFile({
 	settings,
-	logger,
 	lookupMap,
 	IS_DEV,
 	IS_SERVER,
@@ -219,7 +214,6 @@ export async function generateContentEntryFile({
 }: {
 	settings: AstroSettings;
 	fs: typeof nodeFs;
-	logger: Logger;
 	lookupMap: ContentLookupMap;
 	IS_DEV: boolean;
 	IS_SERVER: boolean;
@@ -266,7 +260,10 @@ export async function generateContentEntryFile({
 		virtualModContents = `export {};
 throw new Error('astro:content is only supported running server-side.');`;
 
-		logger.error('content', 'astro:content is only supported running server-side.');
+		throw new AstroError({
+			...AstroErrorData.ServerOnlyModule,
+			message: AstroErrorData.ServerOnlyModule.message('astro:content'),
+		});
 	} else {
 		 virtualModContents =
 			nodeFs
