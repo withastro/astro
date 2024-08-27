@@ -61,6 +61,7 @@ function createContext({
 		generator: `Astro v${ASTRO_VERSION}`,
 		props: {},
 		rewrite,
+		routePattern: "",
 		redirect(path, status) {
 			return new Response(null, {
 				status: status || 302,
