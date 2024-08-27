@@ -2457,6 +2457,7 @@ export interface AstroUserConfig {
 			/**
 			 * @docs
 			 * @name experimental.tsconfig.include
+			 * kind: h4
 			 * @type {Array<string>}
 			 * @default `undefined`
 			 * @version 4.15.0
