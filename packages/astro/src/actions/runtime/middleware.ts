@@ -4,7 +4,7 @@ import { ActionQueryStringInvalidError } from '../../core/errors/errors-data.js'
 import { AstroError } from '../../core/errors/errors.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
 import { ACTION_QUERY_PARAMS } from '../consts.js';
-import { formContentTypes, hasContentType } from './utils.js';
+import { cloneRequestFromConsumedBody, formContentTypes, hasContentType } from './utils.js';
 import { getAction } from './virtual/get-action.js';
 import {
 	type SafeResult,
@@ -110,7 +110,8 @@ async function handlePost({
 	const contentType = request.headers.get('content-type');
 	let formData: FormData | undefined;
 	if (contentType && hasContentType(contentType, formContentTypes)) {
-		formData = await request.clone().formData();
+		formData = await request.formData();
+		Object.assign(context, { request: cloneRequestFromConsumedBody(request, formData) });
 	}
 	const action = baseAction.bind(context);
 	const actionResult = await action(formData);

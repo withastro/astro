@@ -26,3 +26,26 @@ export type MaybePromise<T> = T | Promise<T>;
  * `result.error.fields` will be typed with the `name` field.
  */
 export type ErrorInferenceObject = Record<string, any>;
+
+/**
+ * Clone a request from an already consumed body.
+ * This avoids the cost of cloning of a readable stream with `request.clone()`.
+ */
+export function cloneRequestFromConsumedBody(request: Request, consumedBody?: BodyInit) {
+	if (consumedBody instanceof FormData) {
+		// Consuming the body of a urlencoded form request will create a FormData object.
+		// Reset the Content-Type header to 'multipart/form-data' to match this.
+		request.headers.delete('Content-Type');
+	}
+	return new Request(request.url, {
+		method: request.method,
+		headers: request.headers,
+		body: consumedBody,
+		mode: request.mode,
+		credentials: request.credentials,
+		cache: request.cache,
+		redirect: request.redirect,
+		referrer: request.referrer,
+		integrity: request.integrity,
+	});
+}

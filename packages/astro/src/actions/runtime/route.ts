@@ -1,5 +1,5 @@
 import type { APIRoute } from '../../@types/astro.js';
-import { formContentTypes, hasContentType } from './utils.js';
+import { cloneRequestFromConsumedBody, formContentTypes, hasContentType } from './utils.js';
 import { getAction } from './virtual/get-action.js';
 import { serializeActionResult } from './virtual/shared.js';
 
@@ -12,12 +12,19 @@ export const POST: APIRoute = async (context) => {
 	const contentType = request.headers.get('Content-Type');
 	const contentLength = request.headers.get('Content-Length');
 	let args: unknown;
+
 	if (!contentType || contentLength === '0') {
 		args = undefined;
 	} else if (contentType && hasContentType(contentType, formContentTypes)) {
-		args = await request.clone().formData();
+		const formData = await request.formData();
+		args = formData;
+		Object.assign(context, { request: cloneRequestFromConsumedBody(request, formData) });
 	} else if (contentType && hasContentType(contentType, ['application/json'])) {
-		args = await request.clone().json();
+		const json = await request.json();
+		args = json;
+		Object.assign(context, {
+			request: cloneRequestFromConsumedBody(request, JSON.stringify(json)),
+		});
 	} else {
 		// 415: Unsupported media type
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/415
