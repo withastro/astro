@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { slug as githubSlug } from 'github-slugger';
 import matter from 'gray-matter';
 import type { PluginContext } from 'rollup';
-import { type ViteDevServer, normalizePath } from 'vite';
+import type { ViteDevServer } from 'vite';
 import xxhash from 'xxhash-wasm';
 import { z } from 'zod';
 import type {
@@ -25,6 +25,7 @@ import {
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
 import { createImage } from './runtime-assets.js';
+import { normalizePath } from '../core/viteUtils.js';
 /**
  * Amap from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
