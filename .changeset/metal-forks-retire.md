@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes Actions when using the Bun adapter.
+Fixes "unexpected end of JSON input" error when using Actions with Bun.
