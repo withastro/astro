@@ -11,7 +11,7 @@ export async function getAction(
 ): Promise<ActionClient<unknown, ActionAccept, ZodType> | undefined> {
 	const pathKeys = path.replace('/_actions/', '').split('.');
 	// @ts-expect-error virtual module
-	let { server: actionLookup } = await import('astro:internal-actions');
+	let { server: actionLookup = {} } = await import('astro:internal-actions');
 
 	for (const key of pathKeys) {
 		if (!(key in actionLookup)) {

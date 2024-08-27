@@ -1,4 +1,4 @@
-import { getActionProps, actions, isInputError } from 'astro:actions';
+import { actions, isInputError } from 'astro:actions';
 import { useState } from 'react';
 
 export function PostComment({
@@ -17,6 +17,7 @@ export function PostComment({
 			<form
 				method="POST"
 				data-testid="client"
+				action={actions.blog.comment}
 				onSubmit={async (e) => {
 					e.preventDefault();
 					const form = e.target as HTMLFormElement;
@@ -32,12 +33,13 @@ export function PostComment({
 					form.reset();
 				}}
 			>
-				{unexpectedError && <p data-error="unexpected" style={{ color: 'red' }}>{unexpectedError}</p>}
-				<input {...getActionProps(actions.blog.comment)} />
+				{unexpectedError && (
+					<p data-error="unexpected" style={{ color: 'red' }}>
+						{unexpectedError}
+					</p>
+				)}
 				<input type="hidden" name="postId" value={postId} />
-				<label htmlFor="author">
-					Author
-				</label>
+				<label htmlFor="author">Author</label>
 				<input id="author" type="text" name="author" placeholder="Your name" />
 				<textarea rows={10} name="body"></textarea>
 				{bodyError && (
@@ -45,25 +47,23 @@ export function PostComment({
 						{bodyError}
 					</p>
 				)}
-				<button type="submit">
-					Post
-				</button>
+				<button type="submit">Post</button>
 			</form>
 			<div data-testid="client-comments">
-			{comments.map((c) => (
-				<article
-					key={c.body}
-					style={{
-						border: '2px solid color-mix(in srgb, var(--accent), transparent 80%)',
-						padding: '0.3rem 1rem',
-						borderRadius: '0.3rem',
-						marginBlock: '0.3rem',
-					}}
-				>
-					<p>{c.body}</p>
-					<p>{c.author}</p>
-				</article>
-			))}
+				{comments.map((c) => (
+					<article
+						key={c.body}
+						style={{
+							border: '2px solid color-mix(in srgb, var(--accent), transparent 80%)',
+							padding: '0.3rem 1rem',
+							borderRadius: '0.3rem',
+							marginBlock: '0.3rem',
+						}}
+					>
+						<p>{c.body}</p>
+						<p>{c.author}</p>
+					</article>
+				))}
 			</div>
 		</>
 	);

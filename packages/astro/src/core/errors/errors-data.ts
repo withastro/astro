@@ -1667,23 +1667,7 @@ export const ActionsWithoutServerOutputError = {
 /**
  * @docs
  * @see
- * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
- * @description
- * Action was called from a form using a GET request, but only POST requests are supported. This often occurs if `method="POST"` is missing on the form.
- * @deprecated Deprecated since version 4.13.2.
- */
-export const ActionsUsedWithForGetError = {
-	name: 'ActionsUsedWithForGetError',
-	title: 'An invalid Action query string was passed by a form.',
-	message: (actionName: string) =>
-		`Action ${actionName} was called from a form using a GET request, but only POST requests are supported. This often occurs if \`method="POST"\` is missing on the form.`,
-	hint: 'Actions are experimental. Visit the RFC for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @see
- * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
+ * - [Actions handler reference](https://docs.astro.build/en/reference/api-reference/#handler-property)
  * @description
  * Action handler returned invalid data. Handlers should return serializable data types, and cannot return a Response object.
  */
@@ -1698,7 +1682,7 @@ export const ActionsReturnedInvalidDataError = {
 /**
  * @docs
  * @see
- * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
+ * - [Calling actions from an HTML form action](https://docs.astro.build/en/guides/actions/#call-actions-from-an-html-form-action)
  * @description
  * The server received the query string `?_astroAction=name`, but could not find an action with that name. Use the action function's `.queryString` property to retrieve the form `action` URL.
  */
@@ -1707,19 +1691,22 @@ export const ActionQueryStringInvalidError = {
 	title: 'An invalid Action query string was passed by a form.',
 	message: (actionName: string) =>
 		`The server received the query string \`?_astroAction=${actionName}\`, but could not find an action with that name. If you changed an action's name in development, remove this query param from your URL and refresh.`,
-	hint: 'Actions are experimental. Visit the RFC for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md',
+	hint: 'See the HTML form actions guide for usage examples: https://docs.astro.build/en/guides/actions/#call-actions-from-an-html-form-action',
 } satisfies ErrorData;
 
 /**
  * @docs
+ * @see
+ * - [`Astro.callAction()` reference](https://docs.astro.build/en/reference/api-reference/#astrocallaction)
  * @description
  * Action called from a server page or endpoint without using `Astro.callAction()`.
  */
 export const ActionCalledFromServerError = {
 	name: 'ActionCalledFromServerError',
 	title: 'Action unexpected called from the server.',
-	message: 'Action called from a server page or endpoint without using `Astro.callAction()`.',
-	hint: 'See the RFC section on server calls for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md#call-actions-directly-from-server-code',
+	message:
+		'Action called from a server page or endpoint without using `Astro.callAction()`. This wrapper must be used to call actions from server code.',
+	hint: 'See the `Astro.callAction()` reference for usage examples: https://docs.astro.build/en/reference/api-reference/#astrocallaction',
 } satisfies ErrorData;
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.

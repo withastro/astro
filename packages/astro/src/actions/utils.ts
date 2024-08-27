@@ -1,3 +1,5 @@
+import * as eslexer from 'es-module-lexer';
+import type fsMod from 'node:fs';
 import type { APIContext } from '../@types/astro.js';
 import type { Locals } from './runtime/middleware.js';
 import type { ActionAPIContext } from './runtime/utils.js';
@@ -24,4 +26,47 @@ export function createCallAction(context: ActionAPIContext): APIContext['callAct
 		const action = baseAction.bind(context);
 		return action(input) as any;
 	};
+}
+
+let didInitLexer = false;
+
+export async function usesActions(fs: typeof fsMod, srcDir: URL) {
+	if (!didInitLexer) await eslexer.init;
+
+	const actionsFile = search(fs, srcDir);
+	if (!actionsFile) return false;
+
+	let contents: string;
+	try {
+		contents = fs.readFileSync(actionsFile, 'utf-8');
+	} catch {
+		return false;
+	}
+
+	const [, exports] = eslexer.parse(contents, actionsFile.pathname);
+	for (const exp of exports) {
+		if (exp.n === 'server') {
+			return true;
+		}
+	}
+	return false;
+}
+
+function search(fs: typeof fsMod, srcDir: URL) {
+	const paths = [
+		'actions.mjs',
+		'actions.js',
+		'actions.mts',
+		'actions.ts',
+		'actions/index.mjs',
+		'actions/index.js',
+		'actions/index.mts',
+		'actions/index.ts',
+	].map((p) => new URL(p, srcDir));
+	for (const file of paths) {
+		if (fs.existsSync(file)) {
+			return file;
+		}
+	}
+	return undefined;
 }
