@@ -1796,6 +1796,8 @@ export interface AstroUserConfig {
 		 */
 		directRenderScript?: boolean;
 
+		/**
+		 * @docs
 		 * @name experimental.contentCollectionCache
 		 * @type {boolean}
 		 * @default `false`
