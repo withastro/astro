@@ -2435,8 +2435,8 @@ export interface AstroUserConfig {
 		 *
 		 * ```json title="tsconfig.json" del={2-3}
 		 * {
-		 *   include: ['foo'],
-		 *   exclude: ['bar']
+		 *   include: ['src/**/*'],
+		 *   exclude: ['node_modules']
 		 * }
 		 * ```
 		 *
