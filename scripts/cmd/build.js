@@ -1,10 +1,8 @@
-import { deleteAsync } from 'del';
+import fs from 'node:fs/promises';
 import esbuild from 'esbuild';
 import { copy } from 'esbuild-plugin-copy';
+import glob from 'fast-glob';
 import { dim, green, red, yellow } from 'kleur/colors';
-import { promises as fs } from 'node:fs';
-import glob from 'tiny-glob';
-import svelte from '../utils/svelte-plugin.js';
 import prebuild from './prebuild.js';
 
 /** @type {import('esbuild').BuildOptions} */
@@ -44,8 +42,8 @@ export default async function build(...args) {
 		.map((f) => f.replace(/^'/, '').replace(/'$/, '')); // Needed for Windows: glob strings contain surrounding string chars??? remove these
 	let entryPoints = [].concat(
 		...(await Promise.all(
-			patterns.map((pattern) => glob(pattern, { filesOnly: true, absolute: true }))
-		))
+			patterns.map((pattern) => glob(pattern, { filesOnly: true, absolute: true })),
+		)),
 	);
 
 	const noClean = args.includes('--no-clean-dist');
@@ -67,6 +65,16 @@ export default async function build(...args) {
 		await clean(outdir);
 	}
 
+	const copyPlugin = copyWASM
+		? copy({
+				resolveFrom: 'cwd',
+				assets: {
+					from: ['./src/assets/services/vendor/squoosh/**/*.wasm'],
+					to: ['./dist/assets/services/vendor/squoosh'],
+				},
+			})
+		: null;
+
 	if (!isDev) {
 		await esbuild.build({
 			...config,
@@ -76,6 +84,7 @@ export default async function build(...args) {
 			outdir,
 			outExtension: forceCJS ? { '.js': '.cjs' } : {},
 			format,
+			plugins: [copyPlugin].filter(Boolean),
 		});
 		return;
 	}
@@ -93,7 +102,7 @@ export default async function build(...args) {
 				} else {
 					if (result.warnings.length) {
 						console.log(
-							dim(`[${date}] `) + yellow('⚠ updated with warnings:\n' + result.warnings.join('\n'))
+							dim(`[${date}] `) + yellow('⚠ updated with warnings:\n' + result.warnings.join('\n')),
 						);
 					}
 					console.log(dim(`[${date}] `) + green('✔ updated'));
@@ -108,21 +117,7 @@ export default async function build(...args) {
 		outdir,
 		format,
 		sourcemap: 'linked',
-		plugins: [
-			rebuildPlugin,
-			svelte({ isDev }),
-			...(copyWASM
-				? [
-						copy({
-							resolveFrom: 'cwd',
-							assets: {
-								from: ['./src/assets/services/vendor/squoosh/**/*.wasm'],
-								to: ['./dist/assets/services/vendor/squoosh'],
-							},
-						}),
-					]
-				: []),
-		],
+		plugins: [rebuildPlugin, copyPlugin].filter(Boolean),
 	});
 
 	await builder.watch();
@@ -133,9 +128,8 @@ export default async function build(...args) {
 }
 
 async function clean(outdir) {
-	await deleteAsync([`${outdir}/**`, `!${outdir}/**/*.d.ts`], {
-		onlyFiles: true,
-	});
+	const files = await glob([`${outdir}/**`, `!${outdir}/**/*.d.ts`], { filesOnly: true });
+	await Promise.all(files.map((file) => fs.rm(file, { force: true })));
 }
 
 /**
@@ -148,7 +142,7 @@ async function getDefinedEntries() {
 		PACKAGE_VERSION: await getInternalPackageVersion('./package.json'),
 		/** The current version (at the time of building) for `astro` */
 		ASTRO_VERSION: await getInternalPackageVersion(
-			new URL('../../packages/astro/package.json', import.meta.url)
+			new URL('../../packages/astro/package.json', import.meta.url),
 		),
 		/** The current version (at the time of building) for `@astrojs/check` */
 		ASTRO_CHECK_VERSION: await getWorkspacePackageVersion('@astrojs/check'),
@@ -173,13 +167,13 @@ async function getInternalPackageVersion(path) {
 
 async function getWorkspacePackageVersion(packageName) {
 	const { dependencies, devDependencies } = await readPackageJSON(
-		new URL('../../package.json', import.meta.url)
+		new URL('../../package.json', import.meta.url),
 	);
 	const deps = { ...dependencies, ...devDependencies };
 	const version = deps[packageName];
 	if (!version) {
 		throw new Error(
-			`Unable to resolve "${packageName}". Is it a dependency of the workspace root?`
+			`Unable to resolve "${packageName}". Is it a dependency of the workspace root?`,
 		);
 	}
 	return version.replace(/^\D+/, '');

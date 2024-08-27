@@ -114,6 +114,8 @@ export class RenderContext {
 		const { cookies, middleware, pipeline } = this;
 		const { logger, serverLike, streaming } = pipeline;
 
+		const isPrerendered = !serverLike || this.routeData.prerender;
+
 		const props =
 			Object.keys(this.props).length > 0
 				? this.props
@@ -125,7 +127,7 @@ export class RenderContext {
 						logger,
 						serverLike,
 					});
-		const apiContext = this.createAPIContext(props);
+		const apiContext = this.createAPIContext(props, isPrerendered);
 
 		this.counter++;
 		if (this.counter === 4) {
@@ -212,12 +214,21 @@ export class RenderContext {
 		return response;
 	}
 
-	createAPIContext(props: APIContext['props']): APIContext {
+	createAPIContext(props: APIContext['props'], isPrerendered: boolean): APIContext {
 		const context = this.createActionAPIContext();
+		const redirect = (path: string, status = 302) =>
+			new Response(null, { status, headers: { Location: path } });
+
 		return Object.assign(context, {
 			props,
+			redirect,
 			getActionResult: createGetActionResult(context.locals),
 			callAction: createCallAction(context),
+			// Used internally by Actions middleware.
+			// TODO: discuss exposing this information from APIContext.
+			// middleware runs on prerendered routes in the dev server,
+			// so this is useful information to have.
+			_isPrerendered: isPrerendered,
 		});
 	}
 
@@ -248,8 +259,6 @@ export class RenderContext {
 		const renderContext = this;
 		const { cookies, params, pipeline, url } = this;
 		const generator = `Astro v${ASTRO_VERSION}`;
-		const redirect = (path: string, status = 302) =>
-			new Response(null, { status, headers: { Location: path } });
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			return await this.#executeRewrite(reroutePayload);
@@ -285,7 +294,6 @@ export class RenderContext {
 			get preferredLocaleList() {
 				return renderContext.computePreferredLocaleList();
 			},
-			redirect,
 			rewrite,
 			request: this.request,
 			site: pipeline.site,

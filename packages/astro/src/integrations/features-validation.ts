@@ -124,20 +124,23 @@ function validateSupportKind(
 }
 
 function featureIsUnsupported(adapterName: string, logger: Logger, featureName: string) {
-	logger.error('config', `The feature "${featureName}" is not supported (used by ${adapterName}).`);
+	logger.error(
+		'config',
+		`The adapter ${adapterName} doesn't currently support the feature "${featureName}".`,
+	);
 }
 
 function featureIsExperimental(adapterName: string, logger: Logger, featureName: string) {
 	logger.warn(
 		'config',
-		`The feature "${featureName}" is experimental and subject to change (used by ${adapterName}).`,
+		`The adapter ${adapterName} provides experimental support for "${featureName}". You may experience issues or breaking changes until this feature is fully supported by the adapter.`,
 	);
 }
 
 function featureIsDeprecated(adapterName: string, logger: Logger, featureName: string) {
 	logger.warn(
 		'config',
-		`The feature "${featureName}" is deprecated and will be removed in the future (used by ${adapterName}).`,
+		`The adapter ${adapterName} has deprecated its support for "${featureName}", and future compatibility is not guaranteed. The adapter may completely remove support for this feature without warning.`,
 	);
 }
 

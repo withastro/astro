@@ -11,10 +11,10 @@ import type {
 import type * as babel from '@babel/core';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
+import type { z } from 'zod';
 import type {
 	ActionAccept,
 	ActionClient,
-	ActionInputSchema,
 	ActionReturnType,
 } from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
@@ -53,7 +53,10 @@ import type {
 	TransitionBeforeSwapEvent,
 } from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
-import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type {
+	REDIRECT_STATUS_CODES,
+	SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
+} from './../core/constants.js';
 
 export type { AstroIntegrationLogger, ToolbarServerHelpers };
 
@@ -2057,7 +2060,7 @@ export interface AstroUserConfig {
 		 *
 		 * **Note:** Secret client variables are not supported because there is no safe way to send this data to the client. Therefore, it is not possible to configure both `context: "client"` and `access: "secret"` in your schema.
 		 *
-		 * For a complete overview, and to give feedback on this experimental API, see the [Astro Env RFC](https://github.com/withastro/roadmap/blob/feat/astro-env-rfc/proposals/0046-astro-env.md).
+		 * For a complete overview, and to give feedback on this experimental API, see the [Astro Env RFC](https://github.com/withastro/roadmap/blob/main/proposals/0049-astro-env.md).
 		 */
 		env?: {
 			/**
@@ -2275,6 +2278,10 @@ export interface AstroUserConfig {
 		 * export const collections = { blog, dogs };
 		 * ```
 		 *
+		 * :::note
+		 * Loaders will not automatically [exclude files prefaced with an `_`](/en/guides/routing/#excluding-pages). Use a regular expression such as `pattern: '**\/[^_]*.md'` in your loader to ignore these files.
+		 * :::
+		 *
 		 * #### Querying and rendering with the Content Layer API
 		 *
 		 * The collection can be [queried in the same way as content collections](/en/guides/content-collections/#querying-collections):
@@ -2355,8 +2362,8 @@ export interface AstroUserConfig {
 		 *
 		 *     const blog = defineCollection({
 		 *       // For content layer you no longer define a `type`
-		 *      type: 'content',
-		 *      loader: glob({ pattern: "**\/*.md", base: "./src/data/blog" }),
+		 *       type: 'content',
+		 *       loader: glob({ pattern: '**\/[^_]*.md', base: "./src/data/blog" }),
 		 *       schema: z.object({
 		 *         title: z.string(),
 		 *         description: z.string(),
@@ -2387,13 +2394,13 @@ export interface AstroUserConfig {
 		 *     ```astro ins={4,9} del={3,8}
 		 *     // src/pages/index.astro
 		 *     ---
-		 *      import { getEntry } from 'astro:content';
-		 *      import { getEntry, render } from 'astro:content';
+		 *     import { getEntry } from 'astro:content';
+		 *     import { getEntry, render } from 'astro:content';
 		 *
-		 *       const post = await getEntry('blog', params.slug);
+		 *     const post = await getEntry('blog', params.slug);
 		 *
-		 *      const { Content, headings } = await post.render();
-		 *      const { Content, headings } = await render(post);
+		 *     const { Content, headings } = await post.render();
+		 *     const { Content, headings } = await render(post);
 		 *     ---
 		 *
 		 *     <Content />
@@ -2976,7 +2983,7 @@ export interface AstroAdapter {
 	supportedAstroFeatures: AstroFeatureMap;
 }
 
-export type ValidRedirectStatus = 300 | 301 | 302 | 303 | 304 | 307 | 308;
+export type ValidRedirectStatus = (typeof REDIRECT_STATUS_CODES)[number];
 
 // Shared types between `Astro` global and API context object
 interface AstroSharedContext<
@@ -3006,7 +3013,7 @@ interface AstroSharedContext<
 	 */
 	getActionResult: <
 		TAccept extends ActionAccept,
-		TInputSchema extends ActionInputSchema<TAccept>,
+		TInputSchema extends z.ZodType,
 		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
 	>(
 		action: TAction,
@@ -3016,7 +3023,7 @@ interface AstroSharedContext<
 	 */
 	callAction: <
 		TAccept extends ActionAccept,
-		TInputSchema extends ActionInputSchema<TAccept>,
+		TInputSchema extends z.ZodType,
 		TOutput,
 		TAction extends
 			| ActionClient<TOutput, TAccept, TInputSchema>

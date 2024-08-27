@@ -25,7 +25,9 @@ test.describe('Astro Actions - Blog', () => {
 		const likeButton = page.getByLabel('Like');
 		await expect(likeButton, 'like button starts with 10 likes').toContainText('10');
 		await likeButton.click();
-		await expect(likeButton, 'like button should increment likes').toContainText('11');
+		await expect(likeButton, 'like button should increment likes').toContainText('11', {
+			timeout: 6_000,
+		});
 	});
 
 	test('Like action - server-side', async ({ page, astro }) => {
@@ -36,7 +38,9 @@ test.describe('Astro Actions - Blog', () => {
 
 		await expect(likeCount, 'like button starts with 10 likes').toContainText('10');
 		await likeButton.click();
-		await expect(likeCount, 'like button should increment likes').toContainText('11');
+		await expect(likeCount, 'like button should increment likes').toContainText('11', {
+			timeout: 6_000,
+		});
 	});
 
 	test('Comment action - validation error', async ({ page, astro }) => {
@@ -124,5 +128,13 @@ test.describe('Astro Actions - Blog', () => {
 		const comments = page.getByTestId('client-comments');
 		await expect(comments).toBeVisible();
 		await expect(comments).toContainText(body);
+	});
+
+	test('Logout action redirects', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/blog/first-post/'));
+
+		const logoutButton = page.getByTestId('logout-button');
+		await logoutButton.click();
+		await expect(page).toHaveURL(astro.resolveUrl('/blog/'), { timeout: 6_000 });
 	});
 });

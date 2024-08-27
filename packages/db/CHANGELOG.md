@@ -1,5 +1,14 @@
 # @astrojs/db
 
+## 0.13.2
+
+### Patch Changes
+
+- [#11744](https://github.com/withastro/astro/pull/11744) [`b677429`](https://github.com/withastro/astro/commit/b67742961a384c10e5cd04cf5b02d0f014ea7362) Thanks [@bluwy](https://github.com/bluwy)! - Disables the WebSocket server when creating a Vite server for loading config files
+
+- Updated dependencies []:
+  - @astrojs/studio@0.1.1
+
 ## 0.13.1
 
 ### Patch Changes

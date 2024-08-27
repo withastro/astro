@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 3.1.4
+
+### Patch Changes
+
+- [#11717](https://github.com/withastro/astro/pull/11717) [`423614e`](https://github.com/withastro/astro/commit/423614ebb6ddb76cc8d11f3e3b6ae111a4a82662) Thanks [@bluwy](https://github.com/bluwy)! - Fixes stack trace location when failed to parse an MDX file with frontmatter
+
 ## 3.1.3
 
 ### Patch Changes
