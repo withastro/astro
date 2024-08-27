@@ -78,13 +78,13 @@ export async function getContentEntryType({
 			// Only include component imports for tags used in the document.
 			// Avoids style and script bleed.
 			for (const tag of usedTags) {
-				const render = userMarkdocConfig.tags?.[tag]?.render;
+				const render = markdocConfig.tags?.[tag]?.render;
 				if (isComponentConfig(render)) {
 					componentConfigByTagMap[tag] = render;
 				}
 			}
 			let componentConfigByNodeMap: Record<string, ComponentConfig> = {};
-			for (const [nodeType, schema] of Object.entries(userMarkdocConfig.nodes ?? {})) {
+			for (const [nodeType, schema] of Object.entries(markdocConfig.nodes ?? {})) {
 				const render = schema?.render;
 				if (isComponentConfig(render)) {
 					componentConfigByNodeMap[nodeType] = render;
