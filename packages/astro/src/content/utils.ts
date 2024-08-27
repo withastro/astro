@@ -16,6 +16,7 @@ import type {
 import { AstroError, AstroErrorData, MarkdownError, errorMap } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
+import { normalizePath } from '../core/viteUtils.js';
 import {
 	CONTENT_FLAGS,
 	CONTENT_LAYER_TYPE,
@@ -25,7 +26,6 @@ import {
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
 import { createImage } from './runtime-assets.js';
-import { normalizePath } from '../core/viteUtils.js';
 /**
  * Amap from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
