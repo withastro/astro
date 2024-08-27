@@ -2311,7 +2311,7 @@ export interface AstroUserConfig {
 		 *
 		 * const post = await getEntry('blog', Astro.params.slug);
 		 *
-		 * const { Content, headings } = await render(entry);
+		 * const { Content, headings } = await render(post);
 		 * ---
 		 *
 		 * <Content />
