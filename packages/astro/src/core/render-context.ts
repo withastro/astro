@@ -37,6 +37,9 @@ import { type Pipeline, Slots, getParams, getProps } from './render/index.js';
 export class RenderContext {
 	// The first route that this instance of the context attempts to render
 	originalRoute: RouteData;
+	
+	// The component pattern to send to the users
+	routePattern: string;
 
 	private constructor(
 		readonly pipeline: Pipeline,
@@ -52,6 +55,7 @@ export class RenderContext {
 		public props: Props = {},
 	) {
 		this.originalRoute = routeData;
+		this.routePattern = getAstroRoutePattern(routeData.component);
 	}
 
 	/**
@@ -234,6 +238,7 @@ export class RenderContext {
 		this.isRewriting = true;
 		// we found a route and a component, we can change the status code to 200
 		this.status = 200;
+		this.routePattern = getAstroRoutePattern(routeData.component);
 		return await this.render(component);
 	}
 
@@ -250,6 +255,7 @@ export class RenderContext {
 
 		return {
 			cookies,
+			routePattern: this.routePattern,
 			get clientAddress() {
 				return renderContext.clientAddress();
 			},
@@ -435,6 +441,7 @@ export class RenderContext {
 		return {
 			generator: astroStaticPartial.generator,
 			glob: astroStaticPartial.glob,
+			routePattern: this.routePattern,
 			cookies,
 			get clientAddress() {
 				return renderContext.clientAddress();
@@ -565,4 +572,32 @@ export class RenderContext {
 			duplex: 'half',
 		});
 	}
+}
+
+/**
+ * Return the component path without the `srcDir` and `pages`
+ * @param component
+ */
+function getAstroRoutePattern(component: RouteData['component']): string {
+	let splitComponent = component.split("/");
+	while (true) {
+		const currentPart = splitComponent.shift();
+		if (!currentPart) {break}
+		
+		// "pages" isn't configurable, so it's safe to stop here
+		if (currentPart === "pages") {
+			break
+		}
+	}
+	
+	const pathWithoutPages = splitComponent.join("/");
+	// This covers cases where routes don't have extensions, so they can be: [slug] or [...slug]
+	if (pathWithoutPages.endsWith("]")) {
+		return pathWithoutPages;
+	}
+	splitComponent =  splitComponent.join("/").split(".");
+
+	// this should remove the extension
+	splitComponent.pop();
+	return "/" + splitComponent.join("/");
 }

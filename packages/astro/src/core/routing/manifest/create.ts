@@ -500,13 +500,7 @@ export function createRouteManifest(
 	const redirectRoutes = createRedirectRoutes(params, routeMap, logger);
 
 	const routes: RouteData[] = [
-		...[
-			...fileBasedRoutes,
-			...injectedRoutes,
-			...redirectRoutes
-		].sort(
-			routeComparator,
-		),
+		...[...fileBasedRoutes, ...injectedRoutes, ...redirectRoutes].sort(routeComparator),
 	];
 
 	// Report route collisions

@@ -5,6 +5,10 @@ import type { AstroGlobalPartial } from '../../types/public/context.js';
 /** Create the Astro.glob() runtime function. */
 function createAstroGlobFn() {
 	const globHandler = (importMetaGlobResult: Record<string, any>) => {
+		// This is created inside of the runtime so we don't have access to the Astro logger.
+		console.warn(`Astro.glob is deprecated and will be removed in a future major version of Astro.
+Use import.meta.glob instead: https://vitejs.dev/guide/features.html#glob-import`);
+
 		if (typeof importMetaGlobResult === 'string') {
 			throw new AstroError({
 				...AstroErrorData.AstroGlobUsedOutside,
