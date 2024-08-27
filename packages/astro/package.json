@@ -161,7 +161,7 @@
     "js-yaml": "^4.1.0",
     "kleur": "^4.1.5",
     "magic-string": "^0.30.11",
-    "magicast": "^0.3.4",
+    "magicast": "^0.3.5",
     "micromatch": "^4.0.7",
     "mrmime": "^2.0.0",
     "neotraverse": "^0.6.18",

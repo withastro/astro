@@ -266,8 +266,12 @@ export async function add(names: string[], { flags }: AddOptions) {
 		logger.debug('add', 'Parsed astro config');
 
 		if (mod.exports.default.$type !== 'function-call') {
-			mod.imports.$add({ imported: 'defineConfig', from: 'astro/config' });
+			// ensure config is wrapped with `defineConfig`
+			mod.imports.$prepend({ imported: 'defineConfig', from: 'astro/config' });
 			mod.exports.default = builders.functionCall('defineConfig', mod.exports.default);
+		} else if (mod.exports.default.$args[0] == null) {
+			// ensure first argument of `defineConfig` is not empty
+			mod.exports.default.$args[0] = {};
 		}
 		logger.debug('add', 'Astro config ensured `defineConfig`');
 
@@ -422,7 +426,7 @@ function addIntegration(mod: ProxifiedModule<any>, integration: IntegrationInfo)
 	const config = getDefaultExportOptions(mod);
 	const integrationId = toIdent(integration.id);
 
-	mod.imports.$add({ imported: integrationId, from: integration.packageName });
+	mod.imports.$append({ imported: integrationId, from: integration.packageName });
 
 	config.integrations ??= [];
 	config.integrations.push(builders.functionCall(integrationId));
@@ -432,7 +436,7 @@ export function setAdapter(mod: ProxifiedModule<any>, adapter: IntegrationInfo) 
 	const config = getDefaultExportOptions(mod);
 	const adapterId = toIdent(adapter.id);
 
-	mod.imports.$add({ imported: adapterId, from: adapter.packageName });
+	mod.imports.$append({ imported: adapterId, from: adapter.packageName });
 
 	if (!config.output) {
 		config.output = 'server';
