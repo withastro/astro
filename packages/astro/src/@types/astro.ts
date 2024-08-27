@@ -2446,8 +2446,8 @@ export interface AstroUserConfig {
 		 * export default defineConfig({
 		 *   experimental: {
 		 *    tsconfig: {
-		 *      include: ['foo'],
-		 *      exclude: ['bar']
+		 *      include: ['src/**/*'],
+		 *      exclude: ['node_modules']
 		 *    }
 		 *   }
 		 * })
