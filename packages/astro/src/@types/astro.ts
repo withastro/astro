@@ -2431,7 +2431,7 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 *
-		 * If you have `include` or `exclude` inside your root `tsconfig.json`, you'll need to move them to your Astro config:
+		 * If you have `include` or `exclude` inside your root `tsconfig.json`, move them to your Astro config:
 		 *
 		 * ```json title="tsconfig.json" del={2-3}
 		 * {
