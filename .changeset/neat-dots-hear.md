@@ -2,7 +2,7 @@
 'astro': major
 ---
 
-Prevent usage of astro:content in the client
+Prevent usage of `astro:content` in the client
 
 Usage of `astro:content` in the client has always been discouraged because it leads to all of your content winding up in your client bundle, and can possibly leaks secrets.
 
