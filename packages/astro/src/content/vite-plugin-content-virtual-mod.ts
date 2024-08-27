@@ -255,11 +255,6 @@ export async function generateContentEntryFile({
 
 	let virtualModContents: string;
 	if(isClient) {
-		// Empty exports is probably enough to break the build.
-		// If for some reason its being imported as a side-effect ala `import 'astro:content';` then throw an error message.
-		virtualModContents = `export {};
-throw new Error('astro:content is only supported running server-side.');`;
-
 		throw new AstroError({
 			...AstroErrorData.ServerOnlyModule,
 			message: AstroErrorData.ServerOnlyModule.message('astro:content'),
