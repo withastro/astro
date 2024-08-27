@@ -2435,7 +2435,7 @@ export interface AstroUserConfig {
 		 *
 		 * ```json title="tsconfig.json" del={2-3}
 		 * {
-		 *   include: ['src/**/*'],
+		 *   include: ['src/&#42;&#42;/&#42;'],
 		 *   exclude: ['node_modules']
 		 * }
 		 * ```
@@ -2446,7 +2446,7 @@ export interface AstroUserConfig {
 		 * export default defineConfig({
 		 *   experimental: {
 		 *    tsconfig: {
-		 *      include: ['src/**/*'],
+		 *      include: ['src/&#42;&#42;/&#42;'],
 		 *      exclude: ['node_modules']
 		 *    }
 		 *   }
@@ -2471,7 +2471,7 @@ export interface AstroUserConfig {
 			 * export default defineConfig({
 			 *   experimental: {
 			 *    tsconfig: {
-			 *      include: ['src/**/*']
+			 *      include: ['src/&#42;&#42;/&#42;']
 			 *    }
 			 *   }
 			 * })
@@ -2495,8 +2495,8 @@ export interface AstroUserConfig {
 			 * export default defineConfig({
 			 *   experimental: {
 			 *    tsconfig: {
-			 *      include: ['src/**/*'],
-			 *      exclude:['src/**/*.test.ts']
+			 *      include: ['src/&#42;&#42;/&#42;'],
+			 *      exclude:['src/&#42;&#42;/&#42;.test.ts']
 			 *    }
 			 *   }
 			 * })
