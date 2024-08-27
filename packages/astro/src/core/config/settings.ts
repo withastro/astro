@@ -171,13 +171,13 @@ function validateTsconfig(settings: AstroSettings, logger: Logger, rawConfig: TS
 		if (rawConfig.include) {
 			logger.warn(
 				'types',
-				`Your root "tsconfig.json" has an "include" field. This will break types, please move it to your Astro config experimental.tsconfig.include option`,
+				`Your root "tsconfig.json" has an "include" field. Please move it to your Astro config experimental.tsconfig.include option to avoid breaking types.`,
 			);
 		}
 		if (rawConfig.exclude) {
 			logger.warn(
 				'types',
-				`Your root "tsconfig.json" has an "exclude" field. This will break types, please move it to your Astro config experimental.tsconfig.exclude option`,
+				`Your root "tsconfig.json" has an "exclude" field. Please move it to your Astro config experimental.tsconfig.exclude option to avoid breaking types.`,
 			);
 		}
 	} catch (err) {
