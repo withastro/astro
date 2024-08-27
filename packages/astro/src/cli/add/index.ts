@@ -3,12 +3,12 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import boxen from 'boxen';
 import { diffWords } from 'diff';
-import { execa } from 'execa';
 import { bold, cyan, dim, green, magenta, red, yellow } from 'kleur/colors';
 import ora from 'ora';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import maxSatisfying from 'semver/ranges/max-satisfying.js';
+import { exec } from 'tinyexec';
 import {
 	loadTSConfig,
 	resolveConfig,
@@ -755,7 +755,7 @@ async function tryToInstallIntegrations({
 		if (await askToContinue({ flags })) {
 			const spinner = ora('Installing dependencies...').start();
 			try {
-				await execa(
+				await exec(
 					installCommand.pm,
 					[
 						installCommand.command,
@@ -764,10 +764,12 @@ async function tryToInstallIntegrations({
 						...installCommand.dependencies,
 					],
 					{
-						cwd,
-						// reset NODE_ENV to ensure install command run in dev mode
-						env: { NODE_ENV: undefined },
-					},
+						nodeOptions: {
+							cwd,
+							// reset NODE_ENV to ensure install command run in dev mode
+							env: { NODE_ENV: undefined },
+						},
+					}
 				);
 				spinner.succeed();
 				return UpdateResult.updated;
