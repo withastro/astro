@@ -12,7 +12,7 @@ import { bgRed, cyan } from 'kleur/colors';
 import ora from 'ora';
 import prompts from 'prompts';
 import { safeFetch } from '../../../../runtime/utils.js';
-import { type Result } from '../../../utils.js';
+import type { Result } from '../../../utils.js';
 
 export async function cmd() {
 	const sessionToken = await getSessionIdFromFile();
