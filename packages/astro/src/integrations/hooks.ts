@@ -22,7 +22,8 @@ import { mergeConfig } from '../core/config/index.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../core/util.js';
 import { validateSupportedFeatures } from './features-validation.js';
-import actionsIntegration from '../actions/index.js';
+import { usesActions } from '../actions/utils.js';
+import astroIntegrationActionsRouteHandler from '../actions/integration.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -131,7 +132,9 @@ export async function runHookConfigSetup({
 	if (settings.config.adapter) {
 		settings.config.integrations.push(settings.config.adapter);
 	}
-	settings.config.integrations.push(actionsIntegration({ fs, settings }));
+	if (await usesActions(fs, settings.config.srcDir)) {
+		settings.config.integrations.push(astroIntegrationActionsRouteHandler({ settings }));
+	}
 
 	let updatedConfig: AstroConfig = { ...settings.config };
 	let updatedSettings: AstroSettings = { ...settings, config: updatedConfig };
