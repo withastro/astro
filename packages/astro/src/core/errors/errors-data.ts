@@ -1311,7 +1311,7 @@ export const TSConfigInvalidExtends = {
 	name: 'TSConfigInvalidExtends',
 	title: 'Your `tsconfig.json` `extends` property is invalid',
 	message: 'Your `tsconfig.json` `extends` property is invalid',
-	hint: 'Check out what change you need to make in the terminal above.',
+	hint: 'Check the terminal output for more detail.',
 } satisfies ErrorData;
 
 /**
