@@ -1,5 +1,8 @@
 import { parse as devalueParse, stringify as devalueStringify } from 'devalue';
 import type { z } from 'zod';
+import { REDIRECT_STATUS_CODES } from '../../../core/constants.js';
+import { ActionsReturnedInvalidDataError } from '../../../core/errors/errors-data.js';
+import { AstroError } from '../../../core/errors/errors.js';
 import { ACTION_QUERY_PARAMS as _ACTION_QUERY_PARAMS } from '../../consts.js';
 import type {
 	ErrorInferenceObject,
@@ -237,14 +240,30 @@ export function serializeActionResult(res: SafeResult<any, any>): SerializedActi
 			status: 204,
 		};
 	}
+	let body;
+	try {
+		body = devalueStringify(res.data, {
+			// Add support for URL objects
+			URL: (value) => value instanceof URL && value.href,
+		});
+	} catch (e) {
+		let hint = ActionsReturnedInvalidDataError.hint;
+		if (res.data instanceof Response) {
+			hint = REDIRECT_STATUS_CODES.includes(res.data.status as any)
+				? 'If you need to redirect when the action succeeds, trigger a redirect where the action is called. See the Actions guide for server and client redirect examples: https://docs.astro.build/en/guides/actions.'
+				: 'If you need to return a Response object, try using a server endpoint instead. See https://docs.astro.build/en/guides/endpoints/#server-endpoints-api-routes';
+		}
+		throw new AstroError({
+			...ActionsReturnedInvalidDataError,
+			message: ActionsReturnedInvalidDataError.message(String(e)),
+			hint,
+		});
+	}
 	return {
 		type: 'data',
 		status: 200,
 		contentType: 'application/json+devalue',
-		body: devalueStringify(res.data, {
-			// Add support for URL objects
-			URL: (value) => value instanceof URL && value.href,
-		}),
+		body,
 	};
 }
 
