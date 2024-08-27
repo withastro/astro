@@ -219,6 +219,7 @@ export interface AstroGlobalPartial {
 	 * ```
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroglob)
+	 * @deprecated Astro.glob is deprecated and will be removed in the next major version of Astro. Use `import.meta.glob` instead: https://vitejs.dev/guide/features.html#glob-import
 	 */
 	glob(globStr: `${any}.astro`): Promise<AstroInstance[]>;
 	glob<T extends Record<string, any>>(
