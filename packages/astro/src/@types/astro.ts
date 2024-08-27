@@ -2463,21 +2463,15 @@ export interface AstroUserConfig {
 			 * @version 4.15.0
 			 * @description
 			 *
-			 * If you have `include` your root `tsconfig.json`, you'll need to move it to your Astro config:
+			 * Specifies an array of filenames or patterns to include in the program. These filenames are resolved relative to the project root.
 			 *
-			 * ```json title="tsconfig.json" del={2}
-			 * {
-			 *   include: ['foo']
-			 * }
-			 * ```
-			 *
-			 * ```js title="astro.config.*" ins={6}
+			 * ```js title="astro.config.*" {6}
 			 * import { defineConfig } from 'astro/config'
 			 *
 			 * export default defineConfig({
 			 *   experimental: {
 			 *    tsconfig: {
-			 *      include: ['foo']
+			 *      include: ['src/**/*']
 			 *    }
 			 *   }
 			 * })
