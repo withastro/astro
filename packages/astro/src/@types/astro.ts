@@ -2487,21 +2487,16 @@ export interface AstroUserConfig {
 			 * @version 4.15.0
 			 * @description
 			 *
-			 * If you have `exclude` your root `tsconfig.json`, you'll need to move it to your Astro config:
+			 * Specifies an array of filenames or patterns that should be skipped when resolving [`include`](https://docs.astro.build/en/reference/configuration-reference/#experimentaltypescriptinclude). It only excludes items that would otherwise be checked by your `include` settings, and cannot be used to prevent other files from being checked. See [the official TypeScript documentation](https://www.typescriptlang.org/tsconfig/#exclude) for more details.
 			 *
-			 * ```json title="tsconfig.json" del={2}
-			 * {
-			 *   exclude: ['bar']
-			 * }
-			 * ```
-			 *
-			 * ```js title="astro.config.*" ins={6}
+			 * ```js title="astro.config.*" {7}
 			 * import { defineConfig } from 'astro/config'
 			 *
 			 * export default defineConfig({
 			 *   experimental: {
 			 *    tsconfig: {
-			 *      exclude: ['bar']
+			 *      include: ['src/**/*'],
+			 *      exclude:['src/**/*.test.ts']
 			 *    }
 			 *   }
 			 * })
