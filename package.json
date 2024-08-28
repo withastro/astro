@@ -71,18 +71,6 @@
   },
   "pnpm": {
     "peerDependencyRules": {
-      "ignoreMissing": [
-        "rollup",
-        "@babel/core",
-        "@babel/plugin-transform-react-jsx",
-        "vite",
-        "react",
-        "react-dom",
-        "@types/react",
-        "tslib",
-        "quill-delta",
-        "rxjs"
-      ],
       "allowAny": [
         "astro"
       ]

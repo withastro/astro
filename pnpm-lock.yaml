@@ -552,18 +552,12 @@ importers:
       '@astrojs/telemetry':
         specifier: workspace:*
         version: link:../telemetry
-      '@babel/core':
-        specifier: ^7.25.2
-        version: 7.25.2
       '@babel/generator':
         specifier: ^7.25.0
         version: 7.25.0
       '@babel/parser':
         specifier: ^7.25.3
         version: 7.25.3
-      '@babel/plugin-transform-react-jsx':
-        specifier: ^7.25.2
-        version: 7.25.2(@babel/core@7.25.2)
       '@babel/traverse':
         specifier: ^7.25.3
         version: 7.25.3
@@ -576,9 +570,6 @@ importers:
       '@rollup/pluginutils':
         specifier: ^5.1.0
         version: 5.1.0(rollup@4.21.0)
-      '@types/babel__core':
-        specifier: ^7.20.5
-        version: 7.20.5
       '@types/cookie':
         specifier: ^0.6.0
         version: 0.6.0
