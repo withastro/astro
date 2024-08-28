@@ -3,6 +3,8 @@ import { formContentTypes, hasContentType } from './utils.js';
 import { getAction } from './virtual/get-action.js';
 import { serializeActionResult } from './virtual/shared.js';
 
+export const prerender = false;
+
 export const POST: APIRoute = async (context) => {
 	const { request, url } = context;
 	const baseAction = await getAction(url.pathname);

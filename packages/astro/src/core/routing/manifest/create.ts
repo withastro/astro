@@ -277,7 +277,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 	const routes: RouteData[] = [];
 
 	for (const injectedRoute of settings.injectedRoutes) {
-		const { pattern: name, entrypoint, prerender: prerenderInjected } = injectedRoute;
+		const { pattern: name, entrypoint } = injectedRoute;
 		let resolved: string;
 		try {
 			resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(config.root)] });
@@ -320,7 +320,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			component,
 			generate,
 			pathname: pathname || void 0,
-			prerender: prerenderInjected ?? prerender,
+			prerender,
 			fallbackRoutes: [],
 		});
 	}

@@ -33,7 +33,6 @@ export default function webVitals({ deprecated }: { deprecated?: boolean } = {})
 				injectRoute({
 					entrypoint: '@astrojs/web-vitals/endpoint',
 					pattern: WEB_VITALS_ENDPOINT_PATH + '/[...any]',
-					prerender: false,
 				});
 				// Client-side performance measurement script.
 				injectScript('page', `import '@astrojs/web-vitals/client-script';`);

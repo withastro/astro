@@ -40,7 +40,6 @@ export default function astroActions({
 				params.injectRoute({
 					pattern: '/_actions/[...path]',
 					entrypoint: 'astro/actions/runtime/route.js',
-					prerender: false,
 				});
 
 				params.addMiddleware({

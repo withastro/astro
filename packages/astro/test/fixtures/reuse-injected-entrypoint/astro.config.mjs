@@ -10,22 +10,18 @@ export default defineConfig({
 					injectRoute({
 						pattern: `/injected-a`,
 						entrypoint: './src/to-inject.astro',
-						prerender: true,
 					});
 					injectRoute({
 						pattern: `/injected-b`,
 						entrypoint: './src/to-inject.astro',
-						prerender: true,
 					});
 					injectRoute({
 						pattern: `/dynamic-a/[id]`,
 						entrypoint: './src/[id].astro',
-						prerender: true,
 					});
 					injectRoute({
 						pattern: `/dynamic-b/[id]`,
 						entrypoint: './src/[id].astro',
-						prerender: true,
 					});
 				},
 			},

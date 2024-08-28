@@ -139,7 +139,6 @@ export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 
 export interface InjectedRoute {
 	pattern: string;
 	entrypoint: string;
-	prerender?: boolean;
 }
 
 export interface ResolvedInjectedRoute extends InjectedRoute {
