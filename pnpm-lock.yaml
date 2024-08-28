@@ -570,18 +570,9 @@ importers:
       '@babel/core':
         specifier: ^7.25.2
         version: 7.25.2
-      '@babel/generator':
-        specifier: ^7.25.5
-        version: 7.25.5
-      '@babel/parser':
-        specifier: ^7.25.4
-        version: 7.25.4
       '@babel/plugin-transform-react-jsx':
         specifier: ^7.25.2
         version: 7.25.2(@babel/core@7.25.2)
-      '@babel/traverse':
-        specifier: ^7.25.4
-        version: 7.25.4
       '@babel/types':
         specifier: ^7.25.4
         version: 7.25.4
@@ -681,6 +672,9 @@ importers:
       magic-string:
         specifier: ^0.30.11
         version: 0.30.11
+      magicast:
+        specifier: ^0.3.5
+        version: 0.3.5
       micromatch:
         specifier: ^4.0.8
         version: 4.0.8
@@ -9491,6 +9485,9 @@ packages:
     resolution: {integrity: sha512-7xlpfBaQaP/T6Vh8MO/EqXSW5En6INHEvEXQiuff7Gku0PWjU3uf6w/j9o7O+SpB5fOAkrI5HeoNgwjEO0pFsA==}
     engines: {node: '>=12'}
 
+  magicast@0.3.5:
+    resolution: {integrity: sha512-L0WhttDl+2BOsybvEOLK7fW3UA0OQ0IQ2d6Zl2x/a6vVRs3bAY0ECOSHHeL5jD+SbOpOCUEi0y1DgHEn9Qn1AQ==}
+
   make-dir@3.1.0:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}
     engines: {node: '>=8'}
@@ -15569,6 +15566,12 @@ snapshots:
   magic-string@0.30.5:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  magicast@0.3.5:
+    dependencies:
+      '@babel/parser': 7.25.4
+      '@babel/types': 7.25.4
+      source-map-js: 1.2.0
 
   make-dir@3.1.0:
     dependencies:
