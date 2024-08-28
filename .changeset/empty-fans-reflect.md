@@ -43,7 +43,7 @@ export default defineConfig({
 })
 ```
 
-It will create references under the hood, making `env.d.ts` optional if you haven't made any change to it:
+It will create references under the hood, making `env.d.ts` only necessary if you have added custom type declarations:
 
 ```diff
 -/// <reference types="astro/client" />
