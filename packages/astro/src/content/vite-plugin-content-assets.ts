@@ -6,6 +6,7 @@ import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import type { BuildInternals } from '../core/build/internal.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { StaticBuildOptions } from '../core/build/types.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { ModuleLoader } from '../core/module-loader/loader.js';
 import { createViteLoader } from '../core/module-loader/vite.js';
 import { joinPaths, prependForwardSlash } from '../core/path.js';
@@ -42,7 +43,14 @@ export function astroContentAssetPropagationPlugin({
 					? fileURLToPath(new URL(importerParam, settings.config.root))
 					: importer;
 
-				return this.resolve(base, importerPath, { skipSelf: true, ...opts });
+				const resolved = this.resolve(base, importerPath, { skipSelf: true, ...opts });
+				if (!resolved) {
+					throw new AstroError({
+						...AstroErrorData.ImageNotFound,
+						message: AstroErrorData.ImageNotFound.message(base),
+					});
+				}
+				return resolved;
 			}
 			if (hasContentFlag(id, CONTENT_RENDER_FLAG)) {
 				const base = id.split('?')[0];

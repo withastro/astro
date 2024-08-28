@@ -85,6 +85,23 @@ const numbers = defineCollection({
 	loader: glob({ pattern: 'src/data/glob-data/*', base: '.' }),
 });
 
+const images = defineCollection({
+	loader: () => [
+		{
+			id: '1',
+			image: '@images/shuttle.jpg'
+		},
+		{
+			id: '2',
+			image: 'https://images.unsplash.com/photo-1457364887197-9150188c107b?w=800&fm=jpg&fit=crop'
+		}
+	],
+	schema: ({image}) => z.object({
+		id: z.string(),
+		image: image()
+	})
+});
+
 const increment = defineCollection({
 	loader: {
 		name: 'increment-loader',
@@ -108,4 +125,4 @@ const increment = defineCollection({
 
 });
 
-export const collections = { blog, dogs, cats, numbers, spacecraft, increment };
+export const collections = { blog, dogs, cats, numbers, spacecraft, increment, images };

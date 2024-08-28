@@ -84,9 +84,7 @@ export function createGetCollection({
 
 			const result = [];
 			for (const rawEntry of store.values<DataEntry>(collection)) {
-				const data = rawEntry.filePath
-					? updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap)
-					: rawEntry.data;
+				const data = updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap);
 
 				const entry = {
 					...rawEntry,
@@ -303,11 +301,9 @@ export function createGetEntry({
 				return;
 			}
 
-			if (entry.filePath) {
-				// @ts-expect-error	virtual module
-				const { default: imageAssetMap } = await import('astro:asset-imports');
-				entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
-			}
+			// @ts-expect-error	virtual module
+			const { default: imageAssetMap } = await import('astro:asset-imports');
+			entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
 			return {
 				...entry,
 				collection,
@@ -415,18 +411,19 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 
 function updateImageReferencesInData<T extends Record<string, unknown>>(
 	data: T,
-	fileName: string,
-	imageAssetMap: Map<string, ImageMetadata>,
+	fileName?: string,
+	imageAssetMap?: Map<string, ImageMetadata>,
 ): T {
 	return new Traverse(data).map(function (ctx, val) {
 		if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 			const src = val.replace(IMAGE_IMPORT_PREFIX, '');
+
 			const id = imageSrcToImportId(src, fileName);
 			if (!id) {
 				ctx.update(src);
 				return;
 			}
-			const imported = imageAssetMap.get(id);
+			const imported = imageAssetMap?.get(id);
 			if (imported) {
 				ctx.update(imported);
 			} else {
