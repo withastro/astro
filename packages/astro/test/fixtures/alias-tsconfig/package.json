@@ -6,6 +6,6 @@
     "@astrojs/svelte": "workspace:*",
     "@test/namespace-package": "workspace:*",
     "astro": "workspace:*",
-    "svelte": "^4.2.18"
+    "svelte": "^4.2.19"
   }
 }

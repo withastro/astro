@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory, waitForHydrate } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/ts-resolution/' });
+const test = testFactory(import.meta.url, { root: './fixtures/ts-resolution/' });
 
 function runTest(it) {
 	it('client:idle', async ({ page, astro }) => {

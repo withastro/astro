@@ -9,24 +9,24 @@ import Layout from '../components/Layout.astro';
 	<a id="click" href="/keep-two">go to next page</a>
 </Layout>
 <script>
-	import { deselectScripts, saveFocus, swapBodyElement, swapHeadElements, swapRootAttributes } from "../../node_modules/astro/dist/transitions/swap-functions"
+	import { swapFunctions } from 'astro:transitions/client';
 
 	document.addEventListener('astro:before-swap', (e) => {
 		e.swap = () => replaceMain(e.newDocument)
 	});
 
 	function replaceMain(doc:Document){
-		deselectScripts(doc);
-		swapRootAttributes(doc);
-		swapHeadElements(doc);
-		const restoreFocusFunction = saveFocus();
+		swapFunctions.deselectScripts(doc);
+		swapFunctions.swapRootAttributes(doc);
+		swapFunctions.swapHeadElements(doc);
+		const restoreFocusFunction = swapFunctions.saveFocus();
 		{
 			const newMain = doc.body.querySelector('main section');
 				const oldMain = document.body.querySelector('main section');
 				if (newMain && oldMain) {
-					swapBodyElement(newMain, oldMain);
+					swapFunctions.swapBodyElement(newMain, oldMain);
 				} else {
-					swapBodyElement(doc.body, document.body);
+					swapFunctions.swapBodyElement(doc.body, document.body);
 				}
 		}
 		restoreFocusFunction();

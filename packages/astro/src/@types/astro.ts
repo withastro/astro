@@ -53,7 +53,10 @@ import type {
 	TransitionBeforeSwapEvent,
 } from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
-import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type {
+	REDIRECT_STATUS_CODES,
+	SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
+} from './../core/constants.js';
 
 export type { AstroIntegrationLogger, ToolbarServerHelpers };
 
@@ -88,7 +91,7 @@ export type {
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
-	'client:idle'?: boolean;
+	'client:idle'?: IdleRequestOptions | boolean;
 	'client:media'?: string;
 	'client:visible'?: ClientVisibleOptions | boolean;
 	'client:only'?: boolean | string;
@@ -2308,7 +2311,7 @@ export interface AstroUserConfig {
 		 *
 		 * const post = await getEntry('blog', Astro.params.slug);
 		 *
-		 * const { Content, headings } = await render(entry);
+		 * const { Content, headings } = await render(post);
 		 * ---
 		 *
 		 * <Content />
@@ -2980,7 +2983,7 @@ export interface AstroAdapter {
 	supportedAstroFeatures: AstroFeatureMap;
 }
 
-export type ValidRedirectStatus = 300 | 301 | 302 | 303 | 304 | 307 | 308;
+export type ValidRedirectStatus = (typeof REDIRECT_STATUS_CODES)[number];
 
 // Shared types between `Astro` global and API context object
 interface AstroSharedContext<

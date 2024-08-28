@@ -20,20 +20,20 @@ import {
 	schemaTypeToSqlType,
 } from '../queries.js';
 import { columnSchema } from '../schemas.js';
-import {
-	type BooleanColumn,
-	type ColumnType,
-	type DBColumn,
-	type DBColumns,
-	type DBConfig,
-	type DBSnapshot,
-	type DateColumn,
-	type JsonColumn,
-	type NumberColumn,
-	type ResolvedDBTable,
-	type ResolvedDBTables,
-	type ResolvedIndexes,
-	type TextColumn,
+import type {
+	BooleanColumn,
+	ColumnType,
+	DBColumn,
+	DBColumns,
+	DBConfig,
+	DBSnapshot,
+	DateColumn,
+	JsonColumn,
+	NumberColumn,
+	ResolvedDBTable,
+	ResolvedDBTables,
+	ResolvedIndexes,
+	TextColumn,
 } from '../types.js';
 import { type Result, getRemoteDatabaseInfo } from '../utils.js';
 
