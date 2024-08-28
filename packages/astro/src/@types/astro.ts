@@ -2505,6 +2505,7 @@ export interface RouteOptions {
 
 /**
  * Resolved Astro Config
+ *
  * Config with user settings along with all defaults filled in.
  */
 export interface AstroConfig extends AstroConfigType {
@@ -2593,7 +2594,7 @@ export interface ContentEntryType {
 		},
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
-	getRenderFunction?(settings: AstroSettings): Promise<ContentEntryRenderFuction>;
+	getRenderFunction?(config: AstroConfig): Promise<ContentEntryRenderFuction>;
 
 	/**
 	 * Handle asset propagation for rendered content to avoid bleed.
