@@ -62,10 +62,11 @@ export function vitePluginActions({
 			}
 		},
 		async configureServer(server) {
-			const filePresent = await isActionsFilePresent(fs, settings.config.srcDir);
+			const filePresentOnStartup = await isActionsFilePresent(fs, settings.config.srcDir);
 			// Watch for the actions file to be created.
 			async function watcherCallback() {
-				if (!filePresent && (await isActionsFilePresent(fs, settings.config.srcDir))) {
+				const filePresent = await isActionsFilePresent(fs, settings.config.srcDir);
+				if (filePresentOnStartup !== filePresent) {
 					server.restart();
 				}
 			}
