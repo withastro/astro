@@ -827,6 +827,9 @@ importers:
       eol:
         specifier: ^0.9.1
         version: 0.9.1
+      execa:
+        specifier: ^8.0.1
+        version: 8.0.1
       expect-type:
         specifier: ^0.20.0
         version: 0.20.0
