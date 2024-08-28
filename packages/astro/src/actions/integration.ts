@@ -17,12 +17,6 @@ export default function astroIntegrationActionsRouteHandler({
 		name: VIRTUAL_MODULE_ID,
 		hooks: {
 			async 'astro:config:setup'(params) {
-				if (!isServerLikeOutput(params.config)) {
-					const error = new AstroError(ActionsWithoutServerOutputError);
-					error.stack = undefined;
-					throw error;
-				}
-
 				params.injectRoute({
 					pattern: '/_actions/[...path]',
 					entrypoint: 'astro/actions/runtime/route.js',
@@ -35,6 +29,12 @@ export default function astroIntegrationActionsRouteHandler({
 				});
 			},
 			'astro:config:done': async (params) => {
+				if (!isServerLikeOutput(params.config)) {
+					const error = new AstroError(ActionsWithoutServerOutputError);
+					error.stack = undefined;
+					throw error;
+				}
+
 				const stringifiedActionsImport = JSON.stringify(
 					viteID(new URL('./actions', params.config.srcDir)),
 				);
