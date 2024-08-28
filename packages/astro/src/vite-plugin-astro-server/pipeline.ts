@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { getInfoOutput } from '../cli/info/index.js';
-import { type HeadElements } from '../core/base-pipeline.js';
+import type { HeadElements, TryRewriteResult } from '../core/base-pipeline.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
@@ -197,11 +197,11 @@ export class DevPipeline extends Pipeline {
 		payload: RewritePayload,
 		request: Request,
 		_sourceRoute: RouteData,
-	): Promise<[RouteData, ComponentInstance, URL]> {
+	): Promise<TryRewriteResult> {
 		if (!this.manifestData) {
 			throw new Error('Missing manifest data. This is an internal error, please file an issue.');
 		}
-		const [foundRoute, finalUrl] = findRouteToRewrite({
+		const { routeData, pathname, newUrl } = findRouteToRewrite({
 			payload,
 			request,
 			routes: this.manifestData?.routes,
@@ -210,8 +210,8 @@ export class DevPipeline extends Pipeline {
 			base: this.config.base,
 		});
 
-		const componentInstance = await this.getComponentByRoute(foundRoute);
-		return [foundRoute, componentInstance, finalUrl];
+		const componentInstance = await this.getComponentByRoute(routeData);
+		return { newUrl, pathname, componentInstance, routeData };
 	}
 
 	setManifestData(manifestData: ManifestData) {

@@ -9,6 +9,7 @@ import type {
 } from '../../types/public/internal.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
+import type { TryRewriteResult } from '../base-pipeline.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { Pipeline } from '../render/index.js';
@@ -265,8 +266,8 @@ export class BuildPipeline extends Pipeline {
 		payload: RewritePayload,
 		request: Request,
 		_sourceRoute: RouteData,
-	): Promise<[RouteData, ComponentInstance, URL]> {
-		const [foundRoute, finalUrl] = findRouteToRewrite({
+	): Promise<TryRewriteResult> {
+		const { routeData, pathname, newUrl } = findRouteToRewrite({
 			payload,
 			request,
 			routes: this.options.manifest.routes,
@@ -275,8 +276,8 @@ export class BuildPipeline extends Pipeline {
 			base: this.config.base,
 		});
 
-		const componentInstance = await this.getComponentByRoute(foundRoute);
-		return [foundRoute, componentInstance, finalUrl];
+		const componentInstance = await this.getComponentByRoute(routeData);
+		return { routeData, componentInstance, newUrl, pathname };
 	}
 
 	async retrieveSsrEntry(route: RouteData, filePath: string): Promise<SinglePageBuiltModule> {

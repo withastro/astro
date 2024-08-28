@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { testFactory, waitForHydrate } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/actions-blog/' });
+const test = testFactory(import.meta.url, { root: './fixtures/actions-blog/' });
 
 let devServer;
 
@@ -23,6 +23,7 @@ test.describe('Astro Actions - Blog', () => {
 		await page.goto(astro.resolveUrl('/blog/first-post/'));
 
 		const likeButton = page.getByLabel('Like');
+		await waitForHydrate(page, likeButton);
 		await expect(likeButton, 'like button starts with 10 likes').toContainText('10');
 		await likeButton.click();
 		await expect(likeButton, 'like button should increment likes').toContainText('11');
@@ -124,5 +125,14 @@ test.describe('Astro Actions - Blog', () => {
 		const comments = page.getByTestId('client-comments');
 		await expect(comments).toBeVisible();
 		await expect(comments).toContainText(body);
+	});
+
+	test('Logout action redirects', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/blog/first-post/'));
+
+		const logoutButton = page.getByTestId('logout-button');
+		await waitForHydrate(page, logoutButton);
+		await logoutButton.click();
+		await expect(page).toHaveURL(astro.resolveUrl('/blog/'));
 	});
 });

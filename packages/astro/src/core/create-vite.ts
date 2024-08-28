@@ -149,7 +149,7 @@ export async function createVite(
 			astroPrefetch({ settings }),
 			astroTransitions({ settings }),
 			astroDevToolbar({ settings, logger }),
-			vitePluginFileURL({}),
+			vitePluginFileURL(),
 			astroInternationalization({ settings }),
 			settings.config.experimental.serverIslands && vitePluginServerIslands({ settings }),
 			astroContainer(),

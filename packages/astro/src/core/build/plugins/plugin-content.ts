@@ -22,7 +22,7 @@ import {
 import { isContentCollectionsCacheEnabled } from '../../util.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { CHUNKS_PATH, CONTENT_PATH } from '../consts.js';
-import { type BuildInternals } from '../internal.js';
+import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import { copyFiles } from '../static-build.js';
 import type { StaticBuildOptions } from '../types.js';

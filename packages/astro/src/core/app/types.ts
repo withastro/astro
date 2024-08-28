@@ -74,6 +74,7 @@ export type SSRManifest = {
 
 export type SSRManifestI18n = {
 	fallback: Record<string, string> | undefined;
+	fallbackType: 'redirect' | 'rewrite';
 	strategy: RoutingStrategies;
 	locales: Locales;
 	defaultLocale: string;

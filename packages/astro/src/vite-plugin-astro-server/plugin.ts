@@ -11,7 +11,7 @@ import type { Logger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
 import { injectDefaultRoutes } from '../core/routing/default.js';
 import { createRouteManifest } from '../core/routing/index.js';
-import { toRoutingStrategy } from '../i18n/utils.js';
+import { toFallbackType, toRoutingStrategy } from '../i18n/utils.js';
 import type { AstroSettings, ManifestData } from '../types/astro.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
@@ -128,6 +128,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
+			fallbackType: toFallbackType(settings.config.i18n.routing),
 		};
 	}
 

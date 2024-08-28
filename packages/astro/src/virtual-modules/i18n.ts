@@ -3,7 +3,7 @@ import { IncorrectStrategyForI18n } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
 import * as I18nInternals from '../i18n/index.js';
 import type { RedirectToFallback } from '../i18n/index.js';
-import { toRoutingStrategy } from '../i18n/utils.js';
+import { toFallbackType, toRoutingStrategy } from '../i18n/utils.js';
 import type { I18nInternalConfig } from '../i18n/vite-plugin-i18n.js';
 import type { MiddlewareHandler } from '../types/public/common.js';
 import type { AstroConfig, ValidRedirectStatus } from '../types/public/config.js';
@@ -18,6 +18,7 @@ const { defaultLocale, locales, domains, fallback, routing } = i18n!;
 const base = import.meta.env.BASE_URL;
 
 let strategy = toRoutingStrategy(routing, domains);
+let fallbackType = toFallbackType(routing);
 
 export type GetLocaleOptions = I18nInternals.GetLocaleOptions;
 
@@ -264,6 +265,7 @@ if (i18n?.routing === 'manual') {
 		strategy,
 		domains,
 		fallback,
+		fallbackType,
 	});
 } else {
 	redirectToDefaultLocale = noop('redirectToDefaultLocale');
@@ -292,6 +294,7 @@ if (i18n?.routing === 'manual') {
 		strategy,
 		domains,
 		fallback,
+		fallbackType,
 	});
 } else {
 	notFound = noop('notFound');
@@ -314,7 +317,7 @@ if (i18n?.routing === 'manual') {
  * Allows to use the build-in fallback system of Astro
  *
  * @param {APIContext} context The context passed to the middleware
- * @param {Response} response An optional `Response` in case you're handling a `Response` coming from the `next` function.
+ * @param {Promise<Response>} response An optional `Response` in case you're handling a `Response` coming from the `next` function.
  */
 export let redirectToFallback: RedirectToFallback;
 
@@ -328,6 +331,7 @@ if (i18n?.routing === 'manual') {
 		strategy,
 		domains,
 		fallback,
+		fallbackType,
 	});
 } else {
 	redirectToFallback = noop('useFallback');
@@ -371,11 +375,13 @@ export let middleware: (customOptions: NewAstroRoutingConfigWithoutManual) => Mi
 if (i18n?.routing === 'manual') {
 	middleware = (customOptions: NewAstroRoutingConfigWithoutManual) => {
 		strategy = toRoutingStrategy(customOptions, {});
+		fallbackType = toFallbackType(customOptions);
 		const manifest: SSRManifest['i18n'] = {
 			...i18n,
 			fallback: undefined,
 			strategy,
 			domainLookupTable: {},
+			fallbackType,
 		};
 		return I18nInternals.createMiddleware(manifest, base, trailingSlash, format);
 	};

@@ -8,6 +8,12 @@
   - astro@5.0.0-alpha.0
   - @astrojs/markdown-remark@6.0.0-alpha.0
 
+## 0.11.4
+
+### Patch Changes
+
+- [#11846](https://github.com/withastro/astro/pull/11846) [`ed7bbd9`](https://github.com/withastro/astro/commit/ed7bbd990f80cacf9c5ec2a70ad7501631b92d3f) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an issue preventing to use Astro components as Markdoc tags and nodes when configured using the `extends` property.
+
 ## 0.11.3
 
 ### Patch Changes

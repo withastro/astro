@@ -1,5 +1,5 @@
 import { type ColumnBuilderBaseConfig, type ColumnDataType, sql } from 'drizzle-orm';
-import { type LibSQLDatabase } from 'drizzle-orm/libsql';
+import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import {
 	type IndexBuilder,
 	type SQLiteColumnBuilderBase,

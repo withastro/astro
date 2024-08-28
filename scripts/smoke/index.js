@@ -2,7 +2,7 @@
 
 // @ts-check
 
-import { execa } from 'execa';
+import { exec } from 'tinyexec';
 import { promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
@@ -32,10 +32,12 @@ async function run() {
 	console.log('');
 
 	const directories = [...(await getChildDirectories(smokeDir)), ...(await getChildDirectories(exampleDir))];
+	/** @type {Partial<import('tinyexec').Options>} */
+	const execOptions = { nodeOptions: { cwd: fileURLToPath(rootDir), stdio: 'inherit' }};
 
 	console.log('🤖', 'Preparing', 'pnpm');
-
-	await execa('pnpm', ['install', '--frozen-lockfile=false'], { cwd: fileURLToPath(rootDir), stdio: 'inherit' });
+	
+	await exec('pnpm', ['install', '--frozen-lockfile=false'], execOptions);
 
 	for (const directory of directories) {
 		const name = directory.pathname.split('/').at(-1) ?? "";
@@ -43,9 +45,9 @@ async function run() {
 		console.log('🤖', 'Testing', name);
 
 		try {
-			await execa('pnpm', ['install', '--ignore-scripts', '--frozen-lockfile=false'].filter(x => x), { cwd: fileURLToPath(directory), stdio: 'inherit' });
-			await execa('pnpm', ['astro', 'telemetry', 'disable']);
-			await execa('pnpm', ['run', 'build'], { cwd: fileURLToPath(directory), stdio: 'inherit' });
+			await exec('pnpm', ['install', '--ignore-scripts', '--frozen-lockfile=false'], execOptions);
+			await exec('pnpm', ['astro', 'telemetry', 'disable']);
+			await exec('pnpm', ['run', 'build'], execOptions);
 		} catch (err) {
 			console.log(err);
 			process.exit(1);
