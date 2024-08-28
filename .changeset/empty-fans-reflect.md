@@ -50,4 +50,4 @@ It will create references under the hood, making `env.d.ts` optional if you have
 -/// <reference path="../.astro/types.d.ts" />
 ```
 
-To learn more, check out the [documentation](https://docs.astro.build/en/reference/configuration-reference/#experimentaltypescript).
+To learn more, check out the [`experimental.tsconfig` documentation](https://docs.astro.build/en/reference/configuration-reference/#experimentaltypescript).
