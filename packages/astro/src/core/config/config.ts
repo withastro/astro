@@ -168,21 +168,6 @@ export async function resolveConfig(
 
 	// TODO: update examples default tsconfigs
 	if (astroConfig.experimental.tsconfig) {
-		const rootTsConfigUrl = new URL('./tsconfig.json', astroConfig.root);
-		if (!fsMod.existsSync(rootTsConfigUrl)) {
-			fsMod.writeFileSync(
-				rootTsConfigUrl,
-				JSON.stringify(
-					// TODO: use default tsconfig in Astro 5
-					{
-						extends: ['astro/tsconfigs/base', GENERATED_TSCONFIG_PATH],
-					},
-					null,
-					2,
-				),
-				'utf-8',
-			);
-		}
 		const generatedTsConfigUrl = new URL(GENERATED_TSCONFIG_PATH, astroConfig.root);
 		if (!fsMod.existsSync(generatedTsConfigUrl)) {
 			fsMod.mkdirSync(path.dirname(fileURLToPath(generatedTsConfigUrl)), { recursive: true });
