@@ -1,18 +1,16 @@
-import { InvalidAstroDataError } from '@astrojs/markdown-remark';
-import { safelyGetAstroData } from '@astrojs/markdown-remark/dist/internal.js';
+import { isFrontmatterValid } from '@astrojs/markdown-remark';
 import type { VFile } from 'vfile';
 import { jsToTreeNode } from './utils.js';
 
 export function rehypeApplyFrontmatterExport() {
 	return function (tree: any, vfile: VFile) {
-		const astroData = safelyGetAstroData(vfile.data);
-		if (astroData instanceof InvalidAstroDataError)
+		const frontmatter = vfile.data.astro?.frontmatter;
+		if (!frontmatter || !isFrontmatterValid(frontmatter))
 			throw new Error(
 				// Copied from Astro core `errors-data`
 				// TODO: find way to import error data from core
 				'[MDX] A remark or rehype plugin attempted to inject invalid frontmatter. Ensure "astro.frontmatter" is set to a valid JSON object that is not `null` or `undefined`.',
 			);
-		const { frontmatter } = astroData;
 		const exportNodes = [
 			jsToTreeNode(`export const frontmatter = ${JSON.stringify(frontmatter)};`),
 		];
