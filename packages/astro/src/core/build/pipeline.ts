@@ -26,6 +26,7 @@ import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { getPagesFromVirtualModulePageName, getVirtualModulePageName } from './plugins/util.js';
 import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
+import type {TryRewriteResult} from "../base-pipeline.js";
 
 /**
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
@@ -289,8 +290,8 @@ export class BuildPipeline extends Pipeline {
 		payload: RewritePayload,
 		request: Request,
 		_sourceRoute: RouteData,
-	): Promise<[RouteData, ComponentInstance, URL]> {
-		const [foundRoute, finalUrl] = findRouteToRewrite({
+	): Promise<TryRewriteResult> {
+		const { routeData, pathname, newUrl} = findRouteToRewrite({
 			payload,
 			request,
 			routes: this.options.manifest.routes,
@@ -299,8 +300,8 @@ export class BuildPipeline extends Pipeline {
 			base: this.config.base,
 		});
 
-		const componentInstance = await this.getComponentByRoute(foundRoute);
-		return [foundRoute, componentInstance, finalUrl];
+		const componentInstance = await this.getComponentByRoute(routeData);
+		return { routeData, componentInstance, newUrl, pathname };
 	}
 
 	async retrieveSsrEntry(route: RouteData, filePath: string): Promise<SinglePageBuiltModule> {
