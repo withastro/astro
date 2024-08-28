@@ -6,7 +6,7 @@ import micromatch from 'micromatch';
 import pLimit from 'p-limit';
 import type { ContentEntryRenderFuction, ContentEntryType } from '../../@types/astro.js';
 import type { RenderedContent } from '../data-store.js';
-import { getContentEntryIdAndSlug, getEntryConfigByExtMap, posixRelative } from '../utils.js';
+import { getContentEntryIdAndSlug, posixRelative } from '../utils.js';
 import type { Loader } from './types.js';
 
 export interface GenerateIdOptions {
