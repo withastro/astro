@@ -75,7 +75,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 		documentSelector: [
 			{ language: 'astro' },
 			...(hasContentIntellisense
-				? [{ language: 'markdown' }, { language: 'mdx' }, { language: 'mdoc' }]
+				? [{ language: 'markdown' }, { language: 'mdx' }, { language: 'markdoc' }]
 				: []),
 		],
 		initializationOptions,
