@@ -82,6 +82,7 @@ async function setupEnvDts(settings: AstroSettings, fs: typeof fsMod, logger: Lo
 }
 
 async function setupTsconfig(settings: AstroSettings, fs: typeof fsMod, logger: Logger) {
+	// Safe since the function is only executed if tsconfig is defined
 	const tsconfig = settings.config.experimental.tsconfig!;
 
 	function relativePath(target: URL): string {
