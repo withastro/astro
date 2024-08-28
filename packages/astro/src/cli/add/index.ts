@@ -4,6 +4,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import boxen from 'boxen';
 import { diffWords } from 'diff';
 import { bold, cyan, dim, green, magenta, red, yellow } from 'kleur/colors';
+import { type ASTNode, type ProxifiedModule, builders, generateCode, loadFile } from 'magicast';
+import { getDefaultExportOptions } from 'magicast/helpers';
 import ora from 'ora';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
@@ -30,8 +32,6 @@ import { ensureProcessNodeEnv, parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
-import { loadFile, generateCode, builders, type ASTNode, type ProxifiedModule } from 'magicast';
-import { getDefaultExportOptions } from 'magicast/helpers';
 
 interface AddOptions {
 	flags: Flags;
@@ -673,7 +673,7 @@ async function tryToInstallIntegrations({
 							// reset NODE_ENV to ensure install command run in dev mode
 							env: { NODE_ENV: undefined },
 						},
-					}
+					},
 				);
 				spinner.succeed();
 				return UpdateResult.updated;
