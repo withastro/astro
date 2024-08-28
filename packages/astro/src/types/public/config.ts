@@ -9,6 +9,7 @@ import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions
 import type { RemotePattern } from '../../assets/utils/remotePattern.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schema.js';
+import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
@@ -22,7 +23,7 @@ export interface ImageServiceConfig<T extends Record<string, any> = Record<strin
 
 export type RuntimeMode = 'development' | 'production';
 
-export type ValidRedirectStatus = 300 | 301 | 302 | 303 | 304 | 307 | 308;
+export type ValidRedirectStatus = (typeof REDIRECT_STATUS_CODES)[number];
 
 export type RedirectConfig =
 	| string
