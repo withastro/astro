@@ -58,15 +58,15 @@ export function findRouteToRewrite({
 	if (foundRoute) {
 		return {
 			routeData: foundRoute,
-			newUrl, 
-			pathname
+			newUrl,
+			pathname,
 		};
 	} else {
 		const custom404 = routes.find((route) => route.route === '/404');
 		if (custom404) {
 			return { routeData: custom404, newUrl, pathname };
 		} else {
-			return {  routeData: DEFAULT_404_ROUTE, newUrl, pathname };
+			return { routeData: DEFAULT_404_ROUTE, newUrl, pathname };
 		}
 	}
 }

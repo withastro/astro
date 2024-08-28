@@ -1930,8 +1930,6 @@ describe('SSR fallback from missing locale index to default locale index', () =>
 	});
 });
 
-
-
 describe('Fallback rewrite dev server', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -1949,14 +1947,14 @@ describe('Fallback rewrite dev server', () => {
 				fallback: {
 					fr: 'en',
 				},
-				fallbackType: "rewrite"
+				fallbackType: 'rewrite',
 			},
 		});
 		devServer = await fixture.startDevServer();
 	});
 	after(async () => {
-		devServer.stop()
-	})
+		devServer.stop();
+	});
 
 	it('should correctly rewrite to en', async () => {
 		const html = await fixture.fetch('/fr').then((res) => res.text());
@@ -1977,7 +1975,7 @@ describe('Fallback rewrite SSG', () => {
 				locales: ['en', 'fr'],
 				routing: {
 					prefixDefaultLocale: false,
-					fallbackType: "rewrite"
+					fallbackType: 'rewrite',
 				},
 				fallback: {
 					fr: 'en',
@@ -2015,7 +2013,7 @@ describe('Fallback rewrite SSR', () => {
 				locales: ['en', 'fr'],
 				routing: {
 					prefixDefaultLocale: false,
-					fallbackType: "rewrite"
+					fallbackType: 'rewrite',
 				},
 				fallback: {
 					fr: 'en',

@@ -12,7 +12,7 @@ import type { Logger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
 import { injectDefaultRoutes } from '../core/routing/default.js';
 import { createRouteManifest } from '../core/routing/index.js';
-import {toFallbackType, toRoutingStrategy} from '../i18n/utils.js';
+import { toFallbackType, toRoutingStrategy } from '../i18n/utils.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
 import { recordServerError } from './error.js';

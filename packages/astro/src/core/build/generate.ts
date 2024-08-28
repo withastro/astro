@@ -26,7 +26,7 @@ import {
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
-import {toFallbackType, toRoutingStrategy} from '../../i18n/utils.js';
+import { toFallbackType, toRoutingStrategy } from '../../i18n/utils.js';
 import { runHookBuildGenerated } from '../../integrations/hooks.js';
 import { getOutputDirectory } from '../../prerender/utils.js';
 import type { SSRManifestI18n } from '../app/types.js';

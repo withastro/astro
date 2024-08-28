@@ -282,7 +282,7 @@ export type MiddlewarePayload = {
 	defaultLocale: string;
 	domains: Record<string, string> | undefined;
 	fallback: Record<string, string> | undefined;
-	fallbackType: "redirect" | "rewrite";	
+	fallbackType: 'redirect' | 'rewrite';
 };
 
 // NOTE: public function exported to the users via `astro:i18n` module
@@ -341,7 +341,7 @@ export function redirectToFallback({
 	defaultLocale,
 	strategy,
 	base,
-	fallbackType
+	fallbackType,
 }: MiddlewarePayload) {
 	return async function (context: APIContext, response: Response): Promise<Response> {
 		if (response.status >= 300 && fallback) {
@@ -378,7 +378,7 @@ export function redirectToFallback({
 					newPathname = context.url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
 				}
 
-				if (fallbackType === "rewrite") {
+				if (fallbackType === 'rewrite') {
 					return await context.rewrite(newPathname);
 				} else {
 					return context.redirect(newPathname);

@@ -108,8 +108,8 @@ export abstract class Pipeline {
 export interface HeadElements extends Pick<SSRResult, 'scripts' | 'styles' | 'links'> {}
 
 export interface TryRewriteResult {
-	routeData: RouteData, 
-	componentInstance: ComponentInstance,
-	newUrl: URL,
-	pathname: string
+	routeData: RouteData;
+	componentInstance: ComponentInstance;
+	newUrl: URL;
+	pathname: string;
 }

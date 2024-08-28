@@ -43,10 +43,10 @@ const remoteResultSchema = z.object({
 });
 
 type RemoteDbClientOptions = {
-	dbType: 'studio' | 'libsql',
-	appToken: string,
-	remoteUrl: string | URL,
-}
+	dbType: 'studio' | 'libsql';
+	appToken: string;
+	remoteUrl: string | URL;
+};
 
 export function createRemoteDatabaseClient(options: RemoteDbClientOptions) {
 	const remoteUrl = new URL(options.remoteUrl);
@@ -65,7 +65,7 @@ function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL) {
 		authToken: appToken,
 		url: remoteDbURL.protocol === 'memory:' ? ':memory:' : remoteDbURL.toString(),
 	});
-  return drizzleLibsql(client);
+	return drizzleLibsql(client);
 }
 
 function createStudioDatabaseClient(appToken: string, remoteDbURL: URL) {

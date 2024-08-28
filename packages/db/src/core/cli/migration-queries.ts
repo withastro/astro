@@ -436,7 +436,7 @@ export function getProductionCurrentSnapshot(options: {
 
 async function getDbCurrentSnapshot(
 	appToken: string,
-	remoteUrl: string
+	remoteUrl: string,
 ): Promise<DBSnapshot | undefined> {
 	const client = createRemoteDatabaseClient({
 		dbType: 'libsql',
@@ -447,7 +447,7 @@ async function getDbCurrentSnapshot(
 	try {
 		const res = await client.get<{ snapshot: string }>(
 			// Latest snapshot
-			sql`select snapshot from _astro_db_snapshot order by id desc limit 1;`
+			sql`select snapshot from _astro_db_snapshot order by id desc limit 1;`,
 		);
 
 		return JSON.parse(res.snapshot);
@@ -464,7 +464,7 @@ async function getDbCurrentSnapshot(
 
 async function getStudioCurrentSnapshot(
 	appToken: string,
-	remoteUrl: string
+	remoteUrl: string,
 ): Promise<DBSnapshot | undefined> {
 	const url = new URL('/db/schema', remoteUrl);
 

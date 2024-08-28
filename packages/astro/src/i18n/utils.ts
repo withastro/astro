@@ -216,10 +216,11 @@ export function toRoutingStrategy(
 	return strategy;
 }
 
-export function toFallbackType(routing: NonNullable<AstroConfig['i18n']>['routing']): "redirect" | "rewrite" {
+export function toFallbackType(
+	routing: NonNullable<AstroConfig['i18n']>['routing'],
+): 'redirect' | 'rewrite' {
 	if (routing === 'manual') {
 		return 'rewrite';
 	}
 	return routing.fallbackType;
-	
-} 
+}

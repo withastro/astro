@@ -9,7 +9,7 @@ import { IncorrectStrategyForI18n } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
 import * as I18nInternals from '../i18n/index.js';
 import type { RedirectToFallback } from '../i18n/index.js';
-import {toFallbackType, toRoutingStrategy} from '../i18n/utils.js';
+import { toFallbackType, toRoutingStrategy } from '../i18n/utils.js';
 import type { I18nInternalConfig } from '../i18n/vite-plugin-i18n.js';
 
 export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
@@ -268,7 +268,7 @@ if (i18n?.routing === 'manual') {
 		strategy,
 		domains,
 		fallback,
-		fallbackType
+		fallbackType,
 	});
 } else {
 	redirectToDefaultLocale = noop('redirectToDefaultLocale');
@@ -297,7 +297,7 @@ if (i18n?.routing === 'manual') {
 		strategy,
 		domains,
 		fallback,
-		fallbackType
+		fallbackType,
 	});
 } else {
 	notFound = noop('notFound');
@@ -334,7 +334,7 @@ if (i18n?.routing === 'manual') {
 		strategy,
 		domains,
 		fallback,
-		fallbackType
+		fallbackType,
 	});
 } else {
 	redirectToFallback = noop('useFallback');
@@ -384,7 +384,7 @@ if (i18n?.routing === 'manual') {
 			fallback: undefined,
 			strategy,
 			domainLookupTable: {},
-			fallbackType
+			fallbackType,
 		};
 		return I18nInternals.createMiddleware(manifest, base, trailingSlash, format);
 	};

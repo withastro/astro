@@ -142,7 +142,7 @@ export class RenderContext {
 			if (payload) {
 				pipeline.logger.debug('router', 'Called rewriting to:', payload);
 				// we intentionally let the error bubble up
-				const { routeData, componentInstance: newComponent} = await pipeline.tryRewrite(
+				const { routeData, componentInstance: newComponent } = await pipeline.tryRewrite(
 					payload,
 					this.request,
 					this.originalRoute,

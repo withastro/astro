@@ -8,6 +8,7 @@ import type {
 import { getOutputDirectory } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
+import type { TryRewriteResult } from '../base-pipeline.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { Pipeline } from '../render/index.js';
@@ -26,7 +27,6 @@ import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { getPagesFromVirtualModulePageName, getVirtualModulePageName } from './plugins/util.js';
 import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
-import type {TryRewriteResult} from "../base-pipeline.js";
 
 /**
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
@@ -291,7 +291,7 @@ export class BuildPipeline extends Pipeline {
 		request: Request,
 		_sourceRoute: RouteData,
 	): Promise<TryRewriteResult> {
-		const { routeData, pathname, newUrl} = findRouteToRewrite({
+		const { routeData, pathname, newUrl } = findRouteToRewrite({
 			payload,
 			request,
 			routes: this.options.manifest.routes,

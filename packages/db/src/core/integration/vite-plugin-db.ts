@@ -9,7 +9,12 @@ import { DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_MODULE_ID } fr
 import { getResolvedFileUrl } from '../load-file.js';
 import { SEED_DEV_FILE_NAME, getCreateIndexQueries, getCreateTableQuery } from '../queries.js';
 import type { DBTables } from '../types.js';
-import { type VitePlugin, getAstroEnv, getDbDirectoryUrl, getRemoteDatabaseInfo } from '../utils.js';
+import {
+	type VitePlugin,
+	getAstroEnv,
+	getDbDirectoryUrl,
+	getRemoteDatabaseInfo,
+} from '../utils.js';
 
 export const resolved = {
 	module: '\0' + VIRTUAL_MODULE_ID,
