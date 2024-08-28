@@ -11,7 +11,7 @@ import type {
 	SSRManifest,
 } from '../@types/astro.js';
 import { getInfoOutput } from '../cli/info/index.js';
-import type { HeadElements, type TryRewriteResult } from '../core/base-pipeline.js';
+import type { HeadElements, TryRewriteResult } from '../core/base-pipeline.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
