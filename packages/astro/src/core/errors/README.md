@@ -92,7 +92,7 @@ The `@message` property is intended to provide slightly more context when it is 
 
 ### Removing errors
 
-If an error is no longer relevant, it can deprecated by adding a `@deprecated` tag to the JSDoc comment with a message that will be shown in the docs. This is useful for users on previous versions who might still encounter the error to know that perhaps upgrading to a newer version of Astro would solve their issue.
+If the error cannot be triggered at all anymore, it can deprecated by adding a `@deprecated` tag to the JSDoc comment with a message that will be shown in the docs. This message is useful for users on previous versions who might still encounter the error so that they can know that upgrading to a newer version of Astro would perhaps solve their issue.
 
 ```js
 /**
@@ -101,7 +101,7 @@ If an error is no longer relevant, it can deprecated by adding a `@deprecated` t
  */
 ```
 
-Alternatively, if no special message is needed, you can simply remove the error from the `errors-data.ts` file. A basic message will be shown in the docs stating that the error is no longer available.
+Alternatively, if no special deprecation message is needed, errors can be directly removed from the `errors-data.ts` file. A basic message will be shown in the docs stating that the error can no longer appear in the latest version of Astro.
 
 ### Always remember
 
