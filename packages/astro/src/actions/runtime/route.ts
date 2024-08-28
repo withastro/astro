@@ -12,7 +12,7 @@ export const POST: APIRoute = async (context) => {
 		if (import.meta.env.DEV) throw e;
 		// eslint-disable-next-line no-console
 		console.error(e);
-		return new Response(e instanceof Error ? e.message : null, { status: 500 });
+		return new Response(e instanceof Error ? e.message : null, { status: 404 });
 	}
 	const contentType = request.headers.get('Content-Type');
 	const contentLength = request.headers.get('Content-Length');
