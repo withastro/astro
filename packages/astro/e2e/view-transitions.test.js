@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory, waitForHydrate } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/view-transitions/' });
+const test = testFactory(import.meta.url, { root: './fixtures/view-transitions/' });
 
 let devServer;
 
@@ -447,7 +447,9 @@ test.describe('View Transitions', () => {
 		expect(consoleCount).toEqual(1);
 
 		// forward '' to 'hash' (no transition)
-		await page.goForward();
+		// NOTE: the networkidle below is needed for Firefox to consistently
+		// pass the `#longpage` viewport check below
+		await page.goForward({ waitUntil: 'networkidle' });
 		locator = page.locator('#click-one-again');
 		await expect(locator).toBeInViewport();
 		expect(consoleCount).toEqual(1);

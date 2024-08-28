@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { getErrorOverlayContent, testFactory } from './test-utils.js';
 
-const test = testFactory({
+const test = testFactory(import.meta.url, {
 	root: './fixtures/error-cyclic/',
 });
 
