@@ -6,18 +6,18 @@ import Layout from '../components/Layout.astro';
 	<a id="click" href="/keep-two">go to next page</a>
 </Layout>
 <script>
-	import { deselectScripts, saveFocus, swapBodyElement, swapHeadElements, swapRootAttributes } from '../../node_modules/astro/dist/transitions/swap-functions'
+	import { swapFunctions } from 'astro:transitions/client';
 
 	function keepTheme(doc:Document) {
-		deselectScripts(doc);
+		swapFunctions.deselectScripts(doc);
 		{
 			const theme = document.documentElement.getAttribute('data-theme')!;
-			swapRootAttributes(doc);
+			swapFunctions.swapRootAttributes(doc);
 			document.documentElement.setAttribute('data-theme', theme);
 		}
-		swapHeadElements(doc);
-		const restoreFocusFunction = saveFocus();
-		swapBodyElement(doc.body, document.body)
+		swapFunctions.swapHeadElements(doc);
+		const restoreFocusFunction = swapFunctions.saveFocus();
+		swapFunctions.swapBodyElement(doc.body, document.body)
 		restoreFocusFunction();
 	}
 

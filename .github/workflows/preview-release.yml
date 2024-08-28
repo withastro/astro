@@ -1,17 +1,17 @@
 name: Preview release
 
 on:
-  workflow_dispatch:
-  issue_comment:
-    types: [created] 
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, labeled, ready_for_review]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}
+  cancel-in-progress: true
         
 permissions:
   contents: read
   actions: write
-  
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
   
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -24,7 +24,8 @@ env:
 
 jobs:
   preview:
-    if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && (startsWith(github.event.comment.body, '!preview')) }}
+    if: |
+      ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && contains(github.event.pull_request.labels.*.name, 'pr: preview') }}
     runs-on: ubuntu-latest
     permissions:
       contents: read

@@ -403,6 +403,7 @@ export const AstroConfigSchema = z.object({
 							.object({
 								prefixDefaultLocale: z.boolean().optional().default(false),
 								redirectToDefaultLocale: z.boolean().optional().default(true),
+								fallbackType: z.enum(['redirect', 'rewrite']).optional().default('redirect'),
 							})
 							.refine(
 								({ prefixDefaultLocale, redirectToDefaultLocale }) => {
