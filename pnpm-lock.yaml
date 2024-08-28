@@ -1004,6 +1004,22 @@ importers:
         specifier: ^3.4.38
         version: 3.4.38(typescript@5.5.4)
 
+  packages/astro/e2e/fixtures/client-idle-timeout:
+    dependencies:
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/e2e/fixtures/client-only:
     dependencies:
       preact:
