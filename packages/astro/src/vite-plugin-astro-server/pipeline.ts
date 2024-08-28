@@ -24,7 +24,6 @@ import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
 import { getComponentMetadata } from './metadata.js';
 import { createResolve } from './resolve.js';
-import { getScriptsForURL } from './scripts.js';
 
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
@@ -77,10 +76,7 @@ export class DevPipeline extends Pipeline {
 			settings,
 		} = this;
 		const filePath = new URL(`${routeData.component}`, root);
-		// Add hoisted script tags, skip if direct rendering with `directRenderScript`
-		const { scripts } = settings.config.experimental.directRenderScript
-			? { scripts: new Set<SSRElement>() }
-			: await getScriptsForURL(filePath, settings.config.root, loader);
+		const scripts = new Set<SSRElement>();
 
 		// Inject HMR scripts
 		if (isPage(filePath, settings) && mode === 'development') {

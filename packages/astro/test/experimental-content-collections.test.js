@@ -383,7 +383,7 @@ describe('Experimental Content Collections cache', () => {
 			assert.equal($('link').attr('href').startsWith('/docs'), true);
 		});
 
-		it('Includes base in hoisted scripts', async () => {
+		it('Includes base in scripts', async () => {
 			const html = await fixture.readFile('/docs/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('script').attr('src').startsWith('/docs'), true);
