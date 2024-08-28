@@ -4744,6 +4744,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/markdoc/test/fixtures/render-with-extends-components:
+    dependencies:
+      '@astrojs/markdoc':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/markdoc/test/fixtures/render-with-indented-components:
     dependencies:
       '@astrojs/markdoc':

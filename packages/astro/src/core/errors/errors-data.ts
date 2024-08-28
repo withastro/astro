@@ -541,7 +541,7 @@ export const MissingImageDimension = {
 	message: (missingDimension: 'width' | 'height' | 'both', imageURL: string) =>
 		`Missing ${
 			missingDimension === 'both' ? 'width and height attributes' : `${missingDimension} attribute`
-		} for ${imageURL}. When using remote images, both dimensions are required unless in order to avoid CLS.`,
+		} for ${imageURL}. When using remote images, both dimensions are required in order to avoid CLS.`,
 	hint: 'If your image is inside your `src` folder, you probably meant to import it instead. See [the Imports guide for more information](https://docs.astro.build/en/guides/imports/#other-assets). You can also use `inferSize={true}` for remote images to get the original dimensions.',
 } satisfies ErrorData;
 /**
@@ -1678,6 +1678,21 @@ export const ActionsUsedWithForGetError = {
 	message: (actionName: string) =>
 		`Action ${actionName} was called from a form using a GET request, but only POST requests are supported. This often occurs if \`method="POST"\` is missing on the form.`,
 	hint: 'Actions are experimental. Visit the RFC for usage instructions: https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Actions RFC](https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md)
+ * @description
+ * Action handler returned invalid data. Handlers should return serializable data types, and cannot return a Response object.
+ */
+export const ActionsReturnedInvalidDataError = {
+	name: 'ActionsReturnedInvalidDataError',
+	title: 'Action handler returned invalid data.',
+	message: (error: string) =>
+		`Action handler returned invalid data. Handlers should return serializable data types like objects, arrays, strings, and numbers. Parse error: ${error}`,
+	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
 } satisfies ErrorData;
 
 /**

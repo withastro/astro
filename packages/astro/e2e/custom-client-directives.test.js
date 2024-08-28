@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import testAdapter from '../test/test-adapter.js';
 import { testFactory, waitForHydrate } from './test-utils.js';
 
-const test = testFactory({
+const test = testFactory(import.meta.url, {
 	root: './fixtures/custom-client-directives/',
 });
 

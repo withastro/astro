@@ -3,6 +3,7 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
 import { serializeActionResult } from '../dist/actions/runtime/virtual/shared.js';
+import { REDIRECT_STATUS_CODES } from '../dist/core/constants.js';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
@@ -436,8 +437,6 @@ describe('Astro Actions', () => {
 	});
 });
 
-const validRedirectStatuses = new Set([301, 302, 303, 304, 307, 308]);
-
 /**
  * Follow an expected redirect response.
  *
@@ -448,7 +447,7 @@ const validRedirectStatuses = new Set([301, 302, 303, 304, 307, 308]);
 async function followExpectedRedirect(req, app) {
 	const redirect = await app.render(req, { addCookieHeader: true });
 	assert.ok(
-		validRedirectStatuses.has(redirect.status),
+		REDIRECT_STATUS_CODES.includes(redirect.status),
 		`Expected redirect status, got ${redirect.status}`,
 	);
 
