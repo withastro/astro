@@ -1,4 +1,4 @@
-import { execaCommand } from 'execa';
+import { exec } from 'tinyexec';
 import { markdownTable } from 'markdown-table';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -18,11 +18,13 @@ export async function run(projectDir, outputFile) {
 	const outputFilePath = fileURLToPath(outputFile);
 
 	console.log('Building and benchmarking...');
-	await execaCommand(`node --expose-gc --max_old_space_size=10000 ${astroBin} build --silent`, {
-		cwd: root,
-		stdio: 'inherit',
-		env: {
-			ASTRO_TIMER_PATH: outputFilePath,
+	await exec('node', ['--expose-gc', '--max_old_space_size=10000', astroBin, 'build'], {
+		nodeOptions: {
+			cwd: root,
+			stdio: 'inherit',
+			env: {
+				ASTRO_TIMER_PATH: outputFilePath,
+			},
 		},
 	});
 

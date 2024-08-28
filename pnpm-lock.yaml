@@ -78,9 +78,6 @@ importers:
       autocannon:
         specifier: ^7.15.0
         version: 7.15.0
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
       markdown-table:
         specifier: ^3.0.3
         version: 3.0.3
@@ -96,6 +93,9 @@ importers:
       sharp:
         specifier: ^0.33.3
         version: 0.33.3
+      tinyexec:
+        specifier: ^0.3.0
+        version: 0.3.0
 
   benchmark/packages/timer:
     dependencies:
@@ -642,9 +642,6 @@ importers:
       estree-walker:
         specifier: ^3.0.3
         version: 3.0.3
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
       fast-glob:
         specifier: ^3.3.2
         version: 3.3.2
@@ -717,6 +714,9 @@ importers:
       strip-ansi:
         specifier: ^7.1.0
         version: 7.1.0
+      tinyexec:
+        specifier: ^0.3.0
+        version: 0.3.0
       tsconfck:
         specifier: ^3.1.1
         version: 3.1.1(typescript@5.5.4)
@@ -821,6 +821,9 @@ importers:
       eol:
         specifier: ^0.9.1
         version: 0.9.1
+      execa:
+        specifier: ^8.0.1
+        version: 8.0.1
       expect-type:
         specifier: ^0.20.0
         version: 0.20.0
@@ -6007,9 +6010,6 @@ importers:
       esbuild-plugin-copy:
         specifier: ^2.1.1
         version: 2.1.1(esbuild@0.21.5)
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
       fast-glob:
         specifier: ^3.3.2
         version: 3.3.2
@@ -6019,6 +6019,9 @@ importers:
       p-limit:
         specifier: ^6.1.0
         version: 6.1.0
+      tinyexec:
+        specifier: ^0.3.0
+        version: 0.3.0
       tsconfck:
         specifier: ^3.1.1
         version: 3.1.1(typescript@5.5.4)
@@ -11019,6 +11022,9 @@ packages:
 
   tinybench@2.8.0:
     resolution: {integrity: sha512-1/eK7zUnIklz4JUUlL+658n58XO2hHLQfSk1Zf2LKieUjxidN16eKFEoDEfjHc3ohofSSqK3X5yO6VGb6iW8Lw==}
+
+  tinyexec@0.3.0:
+    resolution: {integrity: sha512-tVGE0mVJPGb0chKhqmsoosjsS+qUnJVGJpZgsHYQcGoPlG3B51R3PouqTgEGH2Dc9jjFyOqOpix6ZHNMXp1FZg==}
 
   tinypool@1.0.0:
     resolution: {integrity: sha512-KIKExllK7jp3uvrNtvRBYBWBOAXSX8ZvoaD8T+7KB/QHIuoJW3Pmr60zucywjAlMb5TeXUkcs/MWeWLu0qvuAQ==}
@@ -17559,6 +17565,8 @@ snapshots:
   timestring@6.0.0: {}
 
   tinybench@2.8.0: {}
+
+  tinyexec@0.3.0: {}
 
   tinypool@1.0.0: {}
 
