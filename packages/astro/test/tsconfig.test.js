@@ -4,10 +4,8 @@ import { describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 import { fileURLToPath } from 'node:url';
 import { existsSync, rmSync } from 'node:fs';
-import { AstroError } from '../dist/core/errors/errors.js';
 import { readFile, writeFile } from 'node:fs/promises';
 
-const ROOT_TSCONFIG_PATH = './tsconfig.json';
 const SRC_ENV_DTS = './src/env.d.ts';
 const GENERATED_TSCONFIG_PATH = './.astro/tsconfig.json';
 
@@ -21,28 +19,12 @@ const createFixture = async (config = {}) => {
 	const astroFixture = await loadFixture({ root: './fixtures/astro-tsconfig/', ...config });
 	const { root } = astroFixture.config;
 	const stringRoot = fileURLToPath(root);
-	rmSync(new URL(ROOT_TSCONFIG_PATH, root), { force: true });
+	rmSync(new URL('./tsconfig.json', root), { force: true });
 	rmSync(new URL(SRC_ENV_DTS, root), { force: true });
 	rmSync(new URL('./.astro/', root), { force: true, recursive: true });
 
 	return {
-		sync: async () => {
-			let stdout = '';
-			const originalStdoutWrite = process.stdout.write.bind(process.stdout);
-			// @ts-ignore
-			process.stdout.write = (chunk, encoding, callback) => {
-				if (typeof chunk === 'string') {
-					stdout += chunk;
-				}
-				return originalStdoutWrite(chunk, encoding, callback);
-			};
-
-			await astroFixture.sync({ root: stringRoot, ...config });
-
-			process.stdout.write = originalStdoutWrite;
-
-			return { stdout };
-		},
+		sync: () => astroFixture.sync({ root: stringRoot, ...config }),
 		build: () => astroFixture.build({ root: stringRoot, ...config }),
 		startDevServer: () => astroFixture.startDevServer({ root: stringRoot, ...config }),
 		/** @param {string} path */
@@ -82,64 +64,6 @@ describe('experimental.tsconfig', () => {
 		const fixture = await createFixture();
 		await fixture.sync();
 		assert.equal(fixture.fileExists(SRC_ENV_DTS), true);
-	});
-
-	it('should create a tsconfig.json if it does not exist yet', async () => {
-		const fixture = await createFixture({ experimental: { tsconfig: {} } });
-		await fixture.sync();
-		assert.equal(fixture.fileExists(ROOT_TSCONFIG_PATH), true);
-	});
-
-	it('should throw if tsconfig.json has invalid extends', async () => {
-		const fixture = await createFixture({ experimental: { tsconfig: {} } });
-
-		const contents = [
-			{},
-			{ extends: 'astro/tsconfigs/base' },
-			{ extends: ['astro/tsconfigs/base'] },
-		];
-		for (const content of contents) {
-			await fixture.writeFile(ROOT_TSCONFIG_PATH, JSON.stringify(content, null, 2));
-			try {
-				await fixture.sync();
-				assert.fail();
-			} catch (err) {
-				assert.equal(err instanceof AstroError, true);
-				assert.equal(err.name, 'TSConfigInvalidExtends');
-			}
-		}
-	});
-
-	it('should warn if tsconfig.json has include', async () => {
-		const fixture = await createFixture({ experimental: { tsconfig: {} } });
-
-		await fixture.writeFile(
-			ROOT_TSCONFIG_PATH,
-			JSON.stringify({ extends: ['./.astro/tsconfig.json'], include: ['foo'] }, null, 2),
-		);
-		const { stdout } = await fixture.sync();
-		assert.equal(
-			stdout.includes(
-				`Your root "tsconfig.json" has an "include" field. This will break types, please move it to your Astro config experimental.tsconfig.include option`,
-			),
-			true,
-		);
-	});
-
-	it('should warn if tsconfig.json has exclude', async () => {
-		const fixture = await createFixture({ experimental: { tsconfig: {} } });
-
-		await fixture.writeFile(
-			ROOT_TSCONFIG_PATH,
-			JSON.stringify({ extends: ['./.astro/tsconfig.json'], exclude: ['foo'] }, null, 2),
-		);
-		const { stdout } = await fixture.sync();
-		assert.equal(
-			stdout.includes(
-				`Your root "tsconfig.json" has an "exclude" field. This will break types, please move it to your Astro config experimental.tsconfig.exclude option`,
-			),
-			true,
-		);
 	});
 
 	it('should add outDir to .astro/tsconfig.json if excludeOutDir is enabled', async () => {
@@ -183,6 +107,7 @@ describe('experimental.tsconfig', () => {
 
 	it('should work in dev', async () => {
 		const fixture = await createFixture({ experimental: { tsconfig: {} } });
+		await fixture.writeFile('./tsconfig.json', '{ extends: ["./.astro/tsconfig.json"] }')
 		try {
 			const devServer = await fixture.startDevServer();
 			await devServer.stop();
@@ -194,6 +119,7 @@ describe('experimental.tsconfig', () => {
 
 	it('should work in build', async () => {
 		const fixture = await createFixture({ experimental: { tsconfig: {} } });
+		await fixture.writeFile('./tsconfig.json', '{ extends: ["./.astro/tsconfig.json"] }');
 		try {
 			await fixture.build();
 			assert.ok(true);
