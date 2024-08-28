@@ -30,7 +30,7 @@ import { ensureProcessNodeEnv, parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
-import { loadFile, generateCode, builders, type ProxifiedModule } from 'magicast';
+import { loadFile, generateCode, builders, type ASTNode, type ProxifiedModule } from 'magicast';
 import { getDefaultExportOptions } from 'magicast/helpers';
 
 interface AddOptions {
@@ -426,17 +426,30 @@ function addIntegration(mod: ProxifiedModule<any>, integration: IntegrationInfo)
 	const config = getDefaultExportOptions(mod);
 	const integrationId = toIdent(integration.id);
 
-	mod.imports.$append({ imported: integrationId, from: integration.packageName });
+	if (!mod.imports.$items.some((imp) => imp.local === integrationId)) {
+		mod.imports.$append({ imported: integrationId, from: integration.packageName });
+	}
 
 	config.integrations ??= [];
-	config.integrations.push(builders.functionCall(integrationId));
+	if (
+		!config.integrations.$ast.elements.some(
+			(el: ASTNode) =>
+				el.type === 'CallExpression' &&
+				el.callee.type === 'Identifier' &&
+				el.callee.name === integrationId,
+		)
+	) {
+		config.integrations.push(builders.functionCall(integrationId));
+	}
 }
 
 export function setAdapter(mod: ProxifiedModule<any>, adapter: IntegrationInfo) {
 	const config = getDefaultExportOptions(mod);
 	const adapterId = toIdent(adapter.id);
 
-	mod.imports.$append({ imported: adapterId, from: adapter.packageName });
+	if (!mod.imports.$items.some((imp) => imp.local === adapterId)) {
+		mod.imports.$append({ imported: adapterId, from: adapter.packageName });
+	}
 
 	if (!config.output) {
 		config.output = 'server';
@@ -473,17 +486,13 @@ async function updateAstroConfig({
 	logAdapterInstructions: boolean;
 }): Promise<UpdateResult> {
 	const input = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
-	let output = generateCode(mod, {
+	const output = generateCode(mod, {
 		format: {
 			objectCurlySpacing: true,
 			useTabs: false,
 			tabWidth: 2,
 		},
 	}).code;
-	const comment = '// https://astro.build/config';
-	const defaultExport = 'export default defineConfig';
-	output = output.replace(`\n${comment}`, '');
-	output = output.replace(`${defaultExport}`, `\n${comment}\n${defaultExport}`);
 
 	if (input === output) {
 		return UpdateResult.none;
