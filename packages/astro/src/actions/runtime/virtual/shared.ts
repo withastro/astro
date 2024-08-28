@@ -249,10 +249,22 @@ export function serializeActionResult(res: SafeResult<any, any>): SerializedActi
 
 export function deserializeActionResult(res: SerializedActionResult): SafeResult<any, any> {
 	if (res.type === 'error') {
+		let json;
+		try {
+			json = JSON.parse(res.body);
+		} catch {
+			return {
+				data: undefined,
+				error: new ActionError({
+					message: res.body,
+					code: 'INTERNAL_SERVER_ERROR',
+				}),
+			};
+		}
 		if (import.meta.env?.PROD) {
-			return { error: ActionError.fromJson(JSON.parse(res.body)), data: undefined };
+			return { error: ActionError.fromJson(json), data: undefined };
 		} else {
-			const error = ActionError.fromJson(JSON.parse(res.body));
+			const error = ActionError.fromJson(json);
 			error.stack = actionResultErrorStack.get();
 			return {
 				error,
