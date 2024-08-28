@@ -468,7 +468,11 @@ async function generatePath(
 
 	const outFolder = getOutFolder(config, pathname, route);
 	const outFile = getOutFile(config, outFolder, pathname, route);
-	route.distURL = outFile;
+	if (route.distURL) {
+		route.distURL.push(outFile);
+	} else {
+		route.distURL = [outFile];
+	}
 
 	await fs.promises.mkdir(outFolder, { recursive: true });
 	await fs.promises.writeFile(outFile, body);

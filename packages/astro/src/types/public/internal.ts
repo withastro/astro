@@ -36,23 +36,86 @@ export interface SSRLoadedRendererValue {
 	renderHydrationScript?: () => string;
 }
 
+/**
+ * It contains the information about a route
+ */
 export interface RouteData {
+	/**
+	 * The current **pattern** of the route, 
+	 */
 	route: string;
+	/**
+	 * The file system path of the component that crated this route
+	 */
 	component: string;
+	/**
+	 * TBD
+	 * @param data
+	 */
 	generate: (data?: any) => string;
+	/**
+	 * The parameters of the route. For example, for `[date]/[slug].astro`, the params are `['date', 'slug']`
+	 */
 	params: string[];
+	/**
+	 * The path name of the route. 
+	 */
 	pathname?: string;
-	// expose the real path name on SSG
-	distURL?: URL;
+	/**
+	 * The paths of the physical files emitted by this route.
+	 */
+	distURL?: URL[];
+	/**
+	 * A regular expression that represents this route. Use this expression to match a string to this route:
+	 * 
+	 * ## Example
+	 *
+	 * ```js
+	 * if (route.pattern.test('/blog')) {
+	 *  // do something
+	 * }
+	 * ```
+	 */
 	pattern: RegExp;
+	/**
+	 * A broken down version of the route. For example, for `/site/[blog]/[...slug].astro`, the segments are:
+	 * 
+	 * 1. `{ content: 'site', dynamic: false, spread: false }`
+	 * 2. `{ content: 'blog', dynamic: true, spread: false }`
+	 * 3. `{ content: '...slug', dynamic: true, spread: true }`
+	 */
 	segments: RoutePart[][];
+	/**
+	 * The type of the route. It can be:
+	 * - `page`: a route that lives in the file system, usually an Astro component
+	 * - `endpoint`: a route that lives in the file system, usually a JS file that exposes endpoints methods
+	 * - `redirect`: a route points to another route that lives in the file system
+	 * - `fallback`: a route that doesn't exist in the file system that needs to be handled with other means, usually the middleware
+	 */
 	type: RouteType;
+	/**
+	 * Whether the route is prerendered or not
+	 */
 	prerender: boolean;
+	/**
+	 * The route to redirect to. It holds information regarding the status code and its destination.
+	 */
 	redirect?: RedirectConfig;
+	/**
+	 * The {@link RouteData} to redirect to. It's present when `RouteData.type` is `redirect`.
+	 */
 	redirectRoute?: RouteData;
+	/**
+	 * A list of {@link RouteData} to fallback to. They are present when `i18n.fallback` has a list of locales.
+	 */
 	fallbackRoutes: RouteData[];
+
+	/**
+	 * If this route is the index
+	 */
 	isIndex: boolean;
 }
+
 
 /**
  * - page: a route that lives in the file system, usually an Astro component

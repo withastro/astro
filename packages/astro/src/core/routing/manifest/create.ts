@@ -252,6 +252,7 @@ function createFileBasedRoutes(
 					pathname: pathname || undefined,
 					prerender,
 					fallbackRoutes: [],
+					distURL: []
 				});
 			}
 		}
@@ -322,6 +323,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			pathname: pathname || void 0,
 			prerender: prerenderInjected ?? prerender,
 			fallbackRoutes: [],
+			distURL: []
 		});
 	}
 
@@ -390,6 +392,7 @@ function createRedirectRoutes(
 			redirect: to,
 			redirectRoute: routeMap.get(destination),
 			fallbackRoutes: [],
+			distURL: []
 		});
 	}
 

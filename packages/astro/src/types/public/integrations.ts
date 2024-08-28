@@ -6,8 +6,8 @@ import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { getToolbarServerCommunicationHelpers } from '../../integrations/hooks.js';
 import type { DeepPartial } from '../../type-utils.js';
 import type { AstroConfig } from './config.js';
-import type { RouteData } from './internal.js';
 import type { DevToolbarAppEntry } from './toolbar.js';
+import type {RouteData} from "./internal.js";
 
 export interface RouteOptions {
 	/**
@@ -199,7 +199,7 @@ export interface BaseIntegrationHooks {
 		 * This maps a {@link RouteData} to an {@link URL}, this URL represents
 		 * the physical file you should import.
 		 */
-		entryPoints: Map<RouteData, URL>;
+		entryPoints: Map<IntegrationRouteData, URL>;
 		/**
 		 * File path of the emitted middleware
 		 */
@@ -221,7 +221,7 @@ export interface BaseIntegrationHooks {
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];
 		dir: URL;
-		routes: RouteData[];
+		routes: IntegrationRouteData[];
 		logger: AstroIntegrationLogger;
 		cacheManifest: boolean;
 	}) => void | Promise<void>;
@@ -239,3 +239,8 @@ export interface AstroIntegration {
 		[K in keyof Astro.IntegrationHooks]?: Astro.IntegrationHooks[K];
 	} & Partial<Record<string, unknown>>;
 }
+
+/**
+ * A smaller version of the {@link RouteData} that is used in the integrations.
+ */
+export type IntegrationRouteData = Omit<RouteData, 'isIndex' | 'fallbackRoutes'>;

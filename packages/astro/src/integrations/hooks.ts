@@ -17,7 +17,7 @@ import type { ContentEntryType, DataEntryType } from '../types/public/content.js
 import type {
 	AstroIntegration,
 	AstroRenderer,
-	HookParameters,
+	HookParameters, IntegrationRouteData,
 	RouteOptions,
 } from '../types/public/integrations.js';
 import type { RouteData } from '../types/public/internal.js';
@@ -502,6 +502,11 @@ export async function runHookBuildSsr({
 	entryPoints,
 	middlewareEntryPoint,
 }: RunHookBuildSsr) {
+	
+	const entryPointsMap = new Map();
+	for (const [key, value] of entryPoints) {
+		entryPointsMap.set(toIntegrationRouteData(key), value);
+	}
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:ssr']) {
 			await withTakingALongTimeMsg({
@@ -509,7 +514,7 @@ export async function runHookBuildSsr({
 				hookName: 'astro:build:ssr',
 				hookResult: integration.hooks['astro:build:ssr']({
 					manifest,
-					entryPoints,
+					entryPoints: entryPointsMap,
 					middlewareEntryPoint,
 					logger: getLogger(integration, logger),
 				}),
@@ -560,7 +565,7 @@ export async function runHookBuildDone({
 }: RunHookBuildDone) {
 	const dir = isServerLikeOutput(config) ? config.build.client : config.outDir;
 	await fsMod.promises.mkdir(dir, { recursive: true });
-
+	const integrationRoutes = routes.map(toIntegrationRouteData);
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:done']) {
 			const logger = getLogger(integration, logging);
@@ -571,7 +576,7 @@ export async function runHookBuildDone({
 				hookResult: integration.hooks['astro:build:done']({
 					pages: pages.map((p) => ({ pathname: p })),
 					dir,
-					routes,
+					routes: integrationRoutes,
 					logger,
 					cacheManifest,
 				}),
@@ -620,4 +625,22 @@ export async function runHookRouteSetup({
 				prerenderChangeLogs.map((log) => `- ${log.integrationName}: ${log.value}`).join('\n'),
 		);
 	}
+}
+
+
+function toIntegrationRouteData(route:RouteData): IntegrationRouteData {
+	return {
+		route: route.route,
+		component: route.component,
+		generate: route.generate,
+		params: route.params,
+		pathname: route.pathname,
+		segments: route.segments,
+		prerender: route.prerender,
+		redirect: route.redirect,
+		redirectRoute: route.redirectRoute,
+		type: route.type,
+		pattern: route.pattern,
+		distURL: route.distURL
+	};
 }
