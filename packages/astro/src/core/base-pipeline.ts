@@ -95,7 +95,7 @@ export abstract class Pipeline {
 		rewritePayload: RewritePayload,
 		request: Request,
 		sourceRoute: RouteData,
-	): Promise<[RouteData, ComponentInstance, URL]>;
+	): Promise<TryRewriteResult>;
 
 	/**
 	 * Tells the pipeline how to retrieve a component give a `RouteData`
@@ -106,3 +106,10 @@ export abstract class Pipeline {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface HeadElements extends Pick<SSRResult, 'scripts' | 'styles' | 'links'> {}
+
+export interface TryRewriteResult {
+	routeData: RouteData;
+	componentInstance: ComponentInstance;
+	newUrl: URL;
+	pathname: string;
+}

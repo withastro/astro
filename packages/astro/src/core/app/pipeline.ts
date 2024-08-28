@@ -6,7 +6,7 @@ import type {
 	SSRElement,
 	SSRResult,
 } from '../../@types/astro.js';
-import { Pipeline } from '../base-pipeline.js';
+import { Pipeline, type TryRewriteResult } from '../base-pipeline.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/component.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../render/ssr-element.js';
@@ -94,8 +94,8 @@ export class AppPipeline extends Pipeline {
 		payload: RewritePayload,
 		request: Request,
 		_sourceRoute: RouteData,
-	): Promise<[RouteData, ComponentInstance, URL]> {
-		const [foundRoute, finalUrl] = findRouteToRewrite({
+	): Promise<TryRewriteResult> {
+		const { newUrl, pathname, routeData } = findRouteToRewrite({
 			payload,
 			request,
 			routes: this.manifest?.routes.map((r) => r.routeData),
@@ -104,8 +104,8 @@ export class AppPipeline extends Pipeline {
 			base: this.manifest.base,
 		});
 
-		const componentInstance = await this.getComponentByRoute(foundRoute);
-		return [foundRoute, componentInstance, finalUrl];
+		const componentInstance = await this.getComponentByRoute(routeData);
+		return { newUrl, pathname, componentInstance, routeData };
 	}
 
 	async getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
