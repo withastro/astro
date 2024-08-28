@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 3.1.5
+
+### Patch Changes
+
+- [#11818](https://github.com/withastro/astro/pull/11818) [`88ef1d0`](https://github.com/withastro/astro/commit/88ef1d0e774e8ab8798b9912da1b069f97736623) Thanks [@bluwy](https://github.com/bluwy)! - Fixes CSS in the layout component to be ordered first before any other components in the MDX file
+
 ## 3.1.4
 
 ### Patch Changes
