@@ -1681,17 +1681,15 @@ export const ActionsReturnedInvalidDataError = {
 
 /**
  * @docs
- * @see
- * - [Calling actions from an HTML form action](https://docs.astro.build/en/guides/actions/#call-actions-from-an-html-form-action)
  * @description
- * The server received the query string `?_astroAction=name`, but could not find an action with that name. Use the action function's `.queryString` property to retrieve the form `action` URL.
+ * The server received a request for an action but could not find a match with the same name.
  */
-export const ActionQueryStringInvalidError = {
-	name: 'ActionQueryStringInvalidError',
-	title: 'An invalid Action query string was passed by a form.',
+export const ActionNotFoundError = {
+	name: 'ActionNotFoundError',
+	title: 'Action not found.',
 	message: (actionName: string) =>
-		`The server received the query string \`?_astroAction=${actionName}\`, but could not find an action with that name. If you changed an action's name in development, remove this query param from your URL and refresh.`,
-	hint: 'See the HTML form actions guide for usage examples: https://docs.astro.build/en/guides/actions/#call-actions-from-an-html-form-action',
+		`The server received a request for an action named \`${actionName}\` but could not find a match. If you renamed an action, check that you've updated your \`actions/index\` file and your calling code to match.`,
+	hint: 'You can run `astro check` to detect type errors caused by mismatched action names.',
 } satisfies ErrorData;
 
 /**

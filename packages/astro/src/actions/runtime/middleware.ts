@@ -1,6 +1,5 @@
 import { yellow } from 'kleur/colors';
 import type { APIContext, MiddlewareNext } from '../../@types/astro.js';
-import { ActionQueryStringInvalidError } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
 import { ACTION_QUERY_PARAMS } from '../consts.js';
@@ -94,14 +93,7 @@ async function handlePost({
 	actionName: string;
 }) {
 	const { request } = context;
-
 	const baseAction = await getAction(actionName);
-	if (!baseAction) {
-		throw new AstroError({
-			...ActionQueryStringInvalidError,
-			message: ActionQueryStringInvalidError.message(actionName),
-		});
-	}
 
 	const contentType = request.headers.get('content-type');
 	let formData: FormData | undefined;
