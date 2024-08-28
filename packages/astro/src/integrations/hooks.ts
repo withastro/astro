@@ -22,7 +22,7 @@ import { mergeConfig } from '../core/config/index.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../core/util.js';
 import { validateSupportedFeatures } from './features-validation.js';
-import { usesActions } from '../actions/utils.js';
+import { isActionsFilePresent } from '../actions/utils.js';
 import astroIntegrationActionsRouteHandler from '../actions/integration.js';
 
 async function withTakingALongTimeMsg<T>({
@@ -132,7 +132,7 @@ export async function runHookConfigSetup({
 	if (settings.config.adapter) {
 		settings.config.integrations.push(settings.config.adapter);
 	}
-	if (await usesActions(fs, settings.config.srcDir)) {
+	if (await isActionsFilePresent(fs, settings.config.srcDir)) {
 		settings.config.integrations.push(astroIntegrationActionsRouteHandler({ settings }));
 	}
 

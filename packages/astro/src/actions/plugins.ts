@@ -8,7 +8,7 @@ import {
 	VIRTUAL_INTERNAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
-import { usesActions } from './utils.js';
+import { isActionsFilePresent } from './utils.js';
 
 /**
  * This plugin is responsible to load the known file `actions/index.js` / `actions.js`
@@ -62,10 +62,10 @@ export function vitePluginActions({
 			}
 		},
 		async configureServer(server) {
-			const isActionsUsed = await usesActions(fs, settings.config.srcDir);
+			const filePresent = await isActionsFilePresent(fs, settings.config.srcDir);
 			// Watch for the actions file to be created.
 			async function watcherCallback() {
-				if (!isActionsUsed && (await usesActions(fs, settings.config.srcDir))) {
+				if (!filePresent && (await isActionsFilePresent(fs, settings.config.srcDir))) {
 					server.restart();
 				}
 			}

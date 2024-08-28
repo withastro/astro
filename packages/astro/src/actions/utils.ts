@@ -30,7 +30,10 @@ export function createCallAction(context: ActionAPIContext): APIContext['callAct
 
 let didInitLexer = false;
 
-export async function usesActions(fs: typeof fsMod, srcDir: URL) {
+/**
+ * Check whether the Actions config file is present.
+ */
+export async function isActionsFilePresent(fs: typeof fsMod, srcDir: URL) {
 	if (!didInitLexer) await eslexer.init;
 
 	const actionsFile = search(fs, srcDir);
@@ -43,6 +46,10 @@ export async function usesActions(fs: typeof fsMod, srcDir: URL) {
 		return false;
 	}
 
+	// Check if `server` export is present.
+	// If not, the user may have an empty `actions` file,
+	// or may be using the `actions` file for another purpose
+	// (possible since actions are non-breaking for v4.X).
 	const [, exports] = eslexer.parse(contents, actionsFile.pathname);
 	for (const exp of exports) {
 		if (exp.n === 'server') {
