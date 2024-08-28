@@ -2512,7 +2512,7 @@ export interface AstroUserConfig {
 			 * @version 4.15.0
 			 * @description
 			 *
-			 * Whether or not to skip checking built files located in your `outDir` folder. By default, `outDir` will be excluded during operations such as `astro check`. You can opt-out of this behavior by explicitly setting this option to `false`:
+			 * Whether or not to skip checking built files located in your `outDir` folder. By default, `outDir` will be excluded during operations such as `astro check`. You can opt out of this behavior by explicitly setting this option to `false`:
 			 *
 			 * ```js title="astro.config.*" ins={6}
 			 * import { defineConfig } from 'astro/config'
