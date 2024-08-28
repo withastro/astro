@@ -1,6 +1,6 @@
 import type { APIContext } from '../@types/astro.js';
 import type { Locals } from './runtime/middleware.js';
-import { type ActionAPIContext } from './runtime/utils.js';
+import type { ActionAPIContext } from './runtime/utils.js';
 import { deserializeActionResult, getActionQueryString } from './runtime/virtual/shared.js';
 
 export function hasActionPayload(locals: APIContext['locals']): locals is Locals {
