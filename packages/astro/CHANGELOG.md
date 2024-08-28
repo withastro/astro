@@ -1,5 +1,21 @@
 # astro
 
+## 4.14.6
+
+### Patch Changes
+
+- [#11847](https://github.com/withastro/astro/pull/11847) [`45b599c`](https://github.com/withastro/astro/commit/45b599c4d40ded6a3e03881181b441ae494cbfcf) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a case where Vite would be imported by the SSR runtime, causing bundling errors and bloat.
+
+- [#11822](https://github.com/withastro/astro/pull/11822) [`6fcaab8`](https://github.com/withastro/astro/commit/6fcaab84de1044ff4d186b2dfa5831964460062d) Thanks [@bluwy](https://github.com/bluwy)! - Marks internal `vite-plugin-fileurl` plugin with `enforce: 'pre'`
+
+- [#11713](https://github.com/withastro/astro/pull/11713) [`497324c`](https://github.com/withastro/astro/commit/497324c4e87538dc1dc13aea3ced9bd3642d9ba6) Thanks [@voidfill](https://github.com/voidfill)! - Prevents prefetching of the same urls with different hashes.
+
+- [#11814](https://github.com/withastro/astro/pull/11814) [`2bb72c6`](https://github.com/withastro/astro/commit/2bb72c63969f8f21dd279fa927c32f192ff79a3f) Thanks [@eduardocereto](https://github.com/eduardocereto)! - Updates the documentation for experimental Content Layer API with a corrected code example
+
+- [#11842](https://github.com/withastro/astro/pull/11842) [`1ffaae0`](https://github.com/withastro/astro/commit/1ffaae04cf790390f730bf900b9722b99642adc1) Thanks [@stephan281094](https://github.com/stephan281094)! - Fixes a typo in the `MissingImageDimension` error message
+
+- [#11828](https://github.com/withastro/astro/pull/11828) [`20d47aa`](https://github.com/withastro/astro/commit/20d47aa85a3a0d7ac3390f749715d92de830cf3e) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Improves error message when invalid data is returned by an Action.
+
 ## 4.14.5
 
 ### Patch Changes

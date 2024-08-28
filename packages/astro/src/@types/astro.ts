@@ -91,7 +91,7 @@ export type {
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
-	'client:idle'?: boolean;
+	'client:idle'?: IdleRequestOptions | boolean;
 	'client:media'?: string;
 	'client:visible'?: ClientVisibleOptions | boolean;
 	'client:only'?: boolean | string;
@@ -1669,6 +1669,43 @@ export interface AstroUserConfig {
 					redirectToDefaultLocale?: boolean;
 
 					/**
+					 * @docs
+					 * @name i18n.routing.fallbackType
+					 * @kind h4
+					 * @type {"redirect" | "rewrite"}
+					 * @default `"redirect"`
+					 * @version 4.15.0
+					 * @description
+					 *
+					 * When [`i18n.fallback`](#i18nfallback) is configured to avoid showing a 404 page for missing page routes, this option controls whether to [redirect](https://docs.astro.build/en/guides/routing/#redirects) to the fallback page, or to [rewrite](https://docs.astro.build/en/guides/routing/#rewrites) the fallback page's content in place.
+					 *
+					 * By default, Astro's i18n routing creates pages that redirect your visitors to a new destination based on your fallback configuration. The browser will refresh and show the destination address in the URL bar.
+					 *
+					 * When `i18n.routing.fallback: "rewrite"` is configured, Astro will create pages that render the contents of the fallback page on the original, requested URL.
+					 *
+					 * With the following configuration, if you have the file `src/pages/en/about.astro` but not `src/pages/fr/about.astro`, the `astro build` command will generate `dist/fr/about.html` with the same content as the `dist/en/index.html` page.
+					 * Your site visitor will see the English version of the page at `https://example.com/fr/about/` and will not be redirected.
+					 *
+					 * ```js
+					 * //astro.config.mjs
+					 * export default defineConfig({
+					 * 	 i18n: {
+					 *     defaultLocale: "en",
+					 *     locales: ["en", "fr"],
+					 *     routing: {
+					 *     	prefixDefaultLocale: false,
+					 *     	fallbackType: "rewrite",
+					 *     },
+					 *     fallback: {
+					 *     	fr: "en",
+					 *     }
+					 *   },
+					 * })
+					 * ```
+					 */
+					fallbackType: 'redirect' | 'rewrite';
+
+					/**
 					 * @name i18n.routing.strategy
 					 * @type {"pathname"}
 					 * @default `"pathname"`
@@ -2468,6 +2505,7 @@ export interface RouteOptions {
 
 /**
  * Resolved Astro Config
+ *
  * Config with user settings along with all defaults filled in.
  */
 export interface AstroConfig extends AstroConfigType {
@@ -2556,7 +2594,7 @@ export interface ContentEntryType {
 		},
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
-	getRenderFunction?(settings: AstroSettings): Promise<ContentEntryRenderFuction>;
+	getRenderFunction?(config: AstroConfig): Promise<ContentEntryRenderFuction>;
 
 	/**
 	 * Handle asset propagation for rendered content to avoid bleed.
@@ -3316,7 +3354,7 @@ declare global {
 		export interface IntegrationHooks {
 			'astro:config:setup': (options: {
 				config: AstroConfig;
-				command: 'dev' | 'build' | 'preview';
+				command: 'dev' | 'build' | 'preview' | 'sync';
 				isRestart: boolean;
 				updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
 				addRenderer: (renderer: AstroRenderer) => void;

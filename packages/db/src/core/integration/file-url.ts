@@ -12,7 +12,7 @@ async function copyFile(toDir: URL, fromUrl: URL, toUrl: URL) {
 export function fileURLIntegration(): AstroIntegration {
 	const fileNames: string[] = [];
 
-	function createVitePlugin(command: 'build' | 'preview' | 'dev'): VitePlugin {
+	function createVitePlugin(command: 'build' | 'preview' | 'dev' | 'sync'): VitePlugin {
 		let referenceIds: string[] = [];
 		return {
 			name: '@astrojs/db/file-url',

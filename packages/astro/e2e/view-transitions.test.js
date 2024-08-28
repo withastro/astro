@@ -1447,7 +1447,7 @@ test.describe('View Transitions', () => {
 		await page.click('#click');
 		await expect(page.locator('#name'), 'should have content').toHaveText('Keep 2');
 
-		const styleElement = await page.$('head > style');
+		const styleElement = await page.$('head > style:nth-child(1)');
 		const styleContent = await page.evaluate((style) => style.innerHTML, styleElement);
 		expect(styleContent).toBe('body { background-color: purple; }');
 	});
