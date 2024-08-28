@@ -1,6 +1,5 @@
 import { yellow } from 'kleur/colors';
 import type { APIContext, MiddlewareNext } from '../../@types/astro.js';
-import { AstroError } from '../../core/errors/errors.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
 import { ACTION_QUERY_PARAMS } from '../consts.js';
 import { formContentTypes, hasContentType } from './utils.js';
