@@ -1304,18 +1304,6 @@ export const UnknownFilesystemError = {
 
 /**
  * @docs
- * @description
- * Your `tsconfig.json` `extends` property is invalid
- */
-export const TSConfigInvalidExtends = {
-	name: 'TSConfigInvalidExtends',
-	title: 'Your `tsconfig.json` `extends` property is invalid',
-	message: '`experimental.tsconfig` requires specific `extends` values inside `tsconfig.json`. Check out what change you need to make in the terminal above.',
-	hint: 'Check the terminal output for more detail.',
-} satisfies ErrorData;
-
-/**
- * @docs
  * @kind heading
  * @name CSS Errors
  */
