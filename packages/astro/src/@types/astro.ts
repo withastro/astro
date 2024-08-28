@@ -2425,9 +2425,9 @@ export interface AstroUserConfig {
 		 *
 		 * Your `tsconfig.json` file must now extend the new `/.astro/` file:
 		 *
-		 * ```json title="tsconfig.json" ins="'./.astro/tsconfig.json'"
+		 * ```json title="tsconfig.json" ins="./.astro/tsconfig.json"
 		 * {
-		 * 	 extends: ['astro/tsconfigs/base', './.astro/tsconfig.json']
+		 * 	 "extends": ["astro/tsconfigs/base", "./.astro/tsconfig.json"]
 		 * }
 		 * ```
 		 *
@@ -2435,8 +2435,8 @@ export interface AstroUserConfig {
 		 *
 		 * ```json title="tsconfig.json" del={2-3}
 		 * {
-		 *   include: ['src/&#42;&#42;/&#42;'],
-		 *   exclude: ['node_modules']
+		 *   "include": ["src/&#42;&#42;/&#42;"],
+		 *   "exclude": ["node_modules"]
 		 * }
 		 * ```
 		 *
