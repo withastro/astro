@@ -7,7 +7,7 @@ import Markdoc, {
 } from '@markdoc/markdoc';
 import type { AstroInstance } from 'astro';
 import { createComponent, renderComponent } from 'astro/runtime/server/index.js';
-import { type AstroMarkdocConfig } from './config.js';
+import type { AstroMarkdocConfig } from './config.js';
 import { setupHeadingConfig } from './heading-ids.js';
 import { htmlTag } from './html/tagdefs/html.tag.js';
 import type { MarkdocIntegrationOptions } from './options.js';
