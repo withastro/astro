@@ -3034,8 +3034,8 @@ importers:
   packages/astro/test/fixtures/custom-assets-name:
     dependencies:
       '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../integrations/node
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
       astro:
         specifier: workspace:*
         version: link:../../..
