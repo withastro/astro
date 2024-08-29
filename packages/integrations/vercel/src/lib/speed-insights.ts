@@ -19,6 +19,7 @@ export function getSpeedInsightsViteConfig(enabled?: boolean) {
 export function exposeEnv(envs: string[]): Record<string, unknown> {
 	const mapped: Record<string, unknown> = {};
 
+	// biome-ignore lint/complexity/noForEach: <explanation>
 	envs
 		.filter((env) => process.env[env])
 		.forEach((env) => {

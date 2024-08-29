@@ -72,7 +72,7 @@ export default function vercelStatic({
 						'head-inline',
 						await getInjectableWebAnalyticsContent({
 							mode: command === 'dev' ? 'development' : 'production',
-						}),
+						})
 					);
 				}
 				if (command === 'build' && speedInsights?.enabled) {
@@ -93,7 +93,7 @@ export default function vercelStatic({
 						imagesConfig,
 						command,
 						devImageService,
-						config.image,
+						config.image
 					),
 				});
 			},
@@ -127,7 +127,9 @@ export default function vercelStatic({
 						...(routes.find((route) => route.pathname === '/404')
 							? [
 									{
+										// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 										src: `/.*`,
+										// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 										dest: `/404.html`,
 										status: 404,
 									},

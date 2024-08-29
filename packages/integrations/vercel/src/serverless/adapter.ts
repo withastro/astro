@@ -183,9 +183,11 @@ export default function vercelServerless({
 }: VercelServerlessConfig = {}): AstroIntegration {
 	if (maxDuration) {
 		if (typeof maxDuration !== 'number') {
+			// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 			throw new TypeError(`maxDuration must be a number`, { cause: maxDuration });
 		}
 		if (maxDuration <= 0) {
+			// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 			throw new TypeError(`maxDuration must be a positive number`, { cause: maxDuration });
 		}
 	}
@@ -206,10 +208,11 @@ export default function vercelServerless({
 			'astro:config:setup': async ({ command, config, updateConfig, injectScript, logger }) => {
 				if (maxDuration && maxDuration > 900) {
 					logger.warn(
-						`maxDuration is set to ${maxDuration} seconds, which is longer than the maximum allowed duration of 900 seconds.`,
+						`maxDuration is set to ${maxDuration} seconds, which is longer than the maximum allowed duration of 900 seconds.`
 					);
 					logger.warn(
-						`Please make sure that your plan allows for this duration. See https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration for more information.`,
+						// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
+						`Please make sure that your plan allows for this duration. See https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration for more information.`
 					);
 				}
 
@@ -218,7 +221,7 @@ export default function vercelServerless({
 						'head-inline',
 						await getInjectableWebAnalyticsContent({
 							mode: command === 'dev' ? 'development' : 'production',
-						}),
+						})
 					);
 				}
 				if (command === 'build' && speedInsights?.enabled) {
@@ -233,8 +236,9 @@ export default function vercelServerless({
 							logger.warn(
 								'\n' +
 									`\tYour "vercel.json" \`trailingSlash\` configuration (set to \`true\`) will conflict with your Astro \`trailinglSlash\` configuration (set to \`"always"\`).\n` +
+									// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 									`\tThis would cause infinite redirects under certain conditions and throw an \`ERR_TOO_MANY_REDIRECTS\` error.\n` +
-									`\tTo prevent this, your Astro configuration is updated to \`"ignore"\` during builds.\n`,
+									`\tTo prevent this, your Astro configuration is updated to \`"ignore"\` during builds.\n`
 							);
 							updateConfig({
 								trailingSlash: 'ignore',
@@ -266,7 +270,7 @@ export default function vercelServerless({
 						imagesConfig,
 						command,
 						devImageService,
-						config.image,
+						config.image
 					),
 				});
 			},
@@ -279,13 +283,13 @@ export default function vercelServerless({
 
 				if (config.output === 'static') {
 					throw new AstroError(
-						'`output: "server"` or `output: "hybrid"` is required to use the serverless adapter.',
+						'`output: "server"` or `output: "hybrid"` is required to use the serverless adapter.'
 					);
 				}
 			},
 			'astro:build:ssr': async ({ entryPoints, middlewareEntryPoint }) => {
 				_entryPoints = new Map(
-					Array.from(entryPoints).filter(([routeData]) => !routeData.prerender),
+					Array.from(entryPoints).filter(([routeData]) => !routeData.prerender)
 				);
 				_middlewareEntryPoint = middlewareEntryPoint;
 			},
@@ -370,12 +374,13 @@ export default function vercelServerless({
 					await builder.buildMiddlewareFolder(
 						_middlewareEntryPoint,
 						MIDDLEWARE_PATH,
-						middlewareSecret,
+						middlewareSecret
 					);
 				}
 				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
 				// Output configuration
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
+				// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 				await writeJson(new URL(`./config.json`, _config.outDir), {
 					version: 3,
 					routes: [
@@ -445,7 +450,7 @@ class VercelBuilder {
 		readonly includeFiles: URL[],
 		readonly logger: AstroIntegrationLogger,
 		readonly maxDuration?: number,
-		readonly runtime = getRuntime(process, logger),
+		readonly runtime = getRuntime(process, logger)
 	) {}
 
 	async buildServerlessFolder(entry: URL, functionName: string) {
@@ -464,7 +469,7 @@ class VercelBuilder {
 				excludeFiles,
 				logger,
 			},
-			NTF_CACHE,
+			NTF_CACHE
 		);
 
 		// Enable ESM
@@ -486,7 +491,7 @@ class VercelBuilder {
 		await this.buildServerlessFolder(entry, functionName);
 		const prerenderConfig = new URL(
 			`./functions/${functionName}.prerender-config.json`,
-			this.config.outDir,
+			this.config.outDir
 		);
 		// https://vercel.com/docs/build-output-api/v3/primitives#prerender-configuration-file
 		await writeJson(prerenderConfig, {
@@ -506,9 +511,10 @@ class VercelBuilder {
 			new URL(VERCEL_EDGE_MIDDLEWARE_FILE, this.config.srcDir),
 			new URL('./middleware.mjs', functionFolder),
 			middlewareSecret,
-			this.logger,
+			this.logger
 		);
 
+		// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 		await writeJson(new URL(`./.vc-config.json`, functionFolder), {
 			runtime: 'edge',
 			entrypoint: 'middleware.mjs',
@@ -522,10 +528,14 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 	const support = SUPPORTED_NODE_VERSIONS[major];
 	if (support === undefined) {
 		logger.warn(
+			// biome-ignore lint/style/useTemplate: <explanation>
+			// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 			`\n` +
 				`\tThe local Node.js version (${major}) is not supported by Vercel Serverless Functions.\n` +
+				// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 				`\tYour project will use Node.js 18 as the runtime instead.\n` +
-				`\tConsider switching your local version to 18.\n`,
+				// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
+				`\tConsider switching your local version to 18.\n`
 		);
 		return 'nodejs18.x';
 	}
@@ -535,26 +545,29 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 	if (support.status === 'retiring') {
 		if (support.warnDate && new Date() >= support.warnDate) {
 			logger.warn(
-				`Your project is being built for Node.js ${major} as the runtime, which is retiring by ${support.removal}.`,
+				`Your project is being built for Node.js ${major} as the runtime, which is retiring by ${support.removal}.`
 			);
 		}
 		return `nodejs${major}.x`;
 	}
 	if (support.status === 'beta') {
 		logger.warn(
-			`Your project is being built for Node.js ${major} as the runtime, which is currently in beta for Vercel Serverless Functions.`,
+			`Your project is being built for Node.js ${major} as the runtime, which is currently in beta for Vercel Serverless Functions.`
 		);
 		return `nodejs${major}.x`;
 	}
 	if (support.status === 'deprecated') {
 		const removeDate = new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(
-			support.removal,
+			support.removal
 		);
 		logger.warn(
+			// biome-ignore lint/style/useTemplate: <explanation>
+			// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 			`\n` +
 				`\tYour project is being built for Node.js ${major} as the runtime.\n` +
 				`\tThis version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${removeDate}.\n` +
-				`\tConsider upgrading your local version to 18.\n`,
+				// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
+				`\tConsider upgrading your local version to 18.\n`
 		);
 		return `nodejs${major}.x`;
 	}
