@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
+import { loadFixture as baseLoadFixture } from '@astrojs/test-utils';
 import httpMocks from 'node-mocks-http';
-import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
 
 process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 process.env.ASTRO_NODE_LOGGING = 'disabled';
