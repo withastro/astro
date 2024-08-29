@@ -181,26 +181,6 @@ export function getActionQueryString(name: string) {
 	return `?${searchParams.toString()}`;
 }
 
-/**
- * @deprecated You can now pass action functions
- * directly to the `action` attribute on a form.
- *
- * Example: `<form action={actions.like} />`
- */
-export function getActionProps<T extends (args: FormData) => MaybePromise<unknown>>(action: T) {
-	const params = new URLSearchParams(action.toString());
-	const actionName = params.get('_astroAction');
-	if (!actionName) {
-		// No need for AstroError. `getActionProps()` will be removed for stable.
-		throw new Error('Invalid actions function was passed to getActionProps()');
-	}
-	return {
-		type: 'hidden',
-		name: '_astroAction',
-		value: actionName,
-	} as const;
-}
-
 export type SerializedActionResult =
 	| {
 			type: 'data';
@@ -269,10 +249,22 @@ export function serializeActionResult(res: SafeResult<any, any>): SerializedActi
 
 export function deserializeActionResult(res: SerializedActionResult): SafeResult<any, any> {
 	if (res.type === 'error') {
+		let json;
+		try {
+			json = JSON.parse(res.body);
+		} catch {
+			return {
+				data: undefined,
+				error: new ActionError({
+					message: res.body,
+					code: 'INTERNAL_SERVER_ERROR',
+				}),
+			};
+		}
 		if (import.meta.env?.PROD) {
-			return { error: ActionError.fromJson(JSON.parse(res.body)), data: undefined };
+			return { error: ActionError.fromJson(json), data: undefined };
 		} else {
-			const error = ActionError.fromJson(JSON.parse(res.body));
+			const error = ActionError.fromJson(json);
 			error.stack = actionResultErrorStack.get();
 			return {
 				error,

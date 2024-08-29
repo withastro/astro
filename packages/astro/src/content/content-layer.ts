@@ -6,6 +6,7 @@ import xxhash from 'xxhash-wasm';
 import { AstroUserError } from '../core/errors/errors.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
+import type { ContentEntryType } from '../types/public/content.js';
 import {
 	ASSET_IMPORTS_FILE,
 	CONTENT_LAYER_TYPE,
@@ -14,7 +15,12 @@ import {
 } from './consts.js';
 import type { LoaderContext } from './loaders/types.js';
 import type { MutableDataStore } from './mutable-data-store.js';
-import { getEntryDataAndImages, globalContentConfigObserver, posixRelative } from './utils.js';
+import {
+	getEntryConfigByExtMap,
+	getEntryDataAndImages,
+	globalContentConfigObserver,
+	posixRelative,
+} from './utils.js';
 
 export interface ContentLayerOptions {
 	store: MutableDataStore;
@@ -118,10 +124,14 @@ export class ContentLayer {
 			store: this.#store.scopedStore(collectionName),
 			meta: this.#store.metaStore(collectionName),
 			logger: this.#logger.forkIntegrationLogger(loaderName),
-			settings: this.#settings,
+			config: this.#settings.config,
 			parseData,
 			generateDigest: await this.#getGenerateDigest(),
 			watcher: this.#watcher,
+			entryTypes: getEntryConfigByExtMap([
+				...this.#settings.contentEntryTypes,
+				...this.#settings.dataEntryTypes,
+			] as Array<ContentEntryType>),
 		};
 	}
 
