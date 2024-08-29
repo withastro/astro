@@ -1,7 +1,9 @@
 import { expect } from '@playwright/test';
 import { prepareTestFactory } from './shared-component-tests.js';
 
-const { test, createTests } = prepareTestFactory({ root: './fixtures/react-component/' });
+const { test, createTests } = prepareTestFactory(import.meta.url, {
+	root: './fixtures/react-component/',
+});
 
 const config = {
 	counterComponentFilePath: './src/components/Counter.jsx',

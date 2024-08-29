@@ -1,1 +1,1 @@
-console.log('some hoisted script');
+console.log('some script');

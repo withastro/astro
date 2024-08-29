@@ -24,7 +24,7 @@ describe('Projects with a space in the folder name', () => {
 			await devServer.stop();
 		});
 
-		it('Work with hoisted scripts', async () => {
+		it('Work with scripts', async () => {
 			const html = await fixture.fetch('/').then((r) => r.text());
 			const $ = cheerio.load(html);
 

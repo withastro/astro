@@ -1,17 +1,19 @@
 import { getOutputDirectory } from '../../prerender/utils.js';
 import type { ComponentInstance } from '../../types/astro.js';
 import type { RewritePayload } from '../../types/public/common.js';
-import type { RouteData, SSRLoadedRenderer, SSRResult } from '../../types/public/internal.js';
+import type {
+	RouteData,
+	SSRElement,
+	SSRLoadedRenderer,
+	SSRResult,
+} from '../../types/public/internal.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
+import type { TryRewriteResult } from '../base-pipeline.js';
 import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { Pipeline } from '../render/index.js';
-import {
-	createAssetLink,
-	createModuleScriptsSet,
-	createStylesheetElementSet,
-} from '../render/ssr-element.js';
+import { createAssetLink, createStylesheetElementSet } from '../render/ssr-element.js';
 import { createDefaultRoutes } from '../routing/default.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import { getOutDirWithinCwd } from './common.js';
@@ -150,11 +152,7 @@ export class BuildPipeline extends Pipeline {
 		} = this;
 		const links = new Set<never>();
 		const pageBuildData = getPageData(internals, routeData.route, routeData.component);
-		const scripts = createModuleScriptsSet(
-			pageBuildData?.hoistedScript ? [pageBuildData.hoistedScript] : [],
-			base,
-			assetsPrefix,
-		);
+		const scripts = new Set<SSRElement>();
 		const sortedCssAssets = pageBuildData?.styles
 			.sort(cssOrder)
 			.map(({ sheet }) => sheet)
@@ -265,8 +263,8 @@ export class BuildPipeline extends Pipeline {
 		payload: RewritePayload,
 		request: Request,
 		_sourceRoute: RouteData,
-	): Promise<[RouteData, ComponentInstance, URL]> {
-		const [foundRoute, finalUrl] = findRouteToRewrite({
+	): Promise<TryRewriteResult> {
+		const { routeData, pathname, newUrl } = findRouteToRewrite({
 			payload,
 			request,
 			routes: this.options.manifest.routes,
@@ -275,8 +273,8 @@ export class BuildPipeline extends Pipeline {
 			base: this.config.base,
 		});
 
-		const componentInstance = await this.getComponentByRoute(foundRoute);
-		return [foundRoute, componentInstance, finalUrl];
+		const componentInstance = await this.getComponentByRoute(routeData);
+		return { routeData, componentInstance, newUrl, pathname };
 	}
 
 	async retrieveSsrEntry(route: RouteData, filePath: string): Promise<SinglePageBuiltModule> {

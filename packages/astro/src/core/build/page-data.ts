@@ -39,7 +39,6 @@ export function collectPagesData(opts: CollectPagesDataOptions): CollectPagesDat
 				route,
 				moduleSpecifier: '',
 				styles: [],
-				hoistedScript: undefined,
 			};
 
 			if (settings.buildOutput === 'static') {
@@ -60,7 +59,6 @@ export function collectPagesData(opts: CollectPagesDataOptions): CollectPagesDat
 			route,
 			moduleSpecifier: '',
 			styles: [],
-			hoistedScript: undefined,
 		};
 	}
 

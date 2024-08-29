@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { getInfoOutput } from '../cli/info/index.js';
-import { type HeadElements } from '../core/base-pipeline.js';
+import type { HeadElements, TryRewriteResult } from '../core/base-pipeline.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
@@ -24,7 +24,6 @@ import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getStylesForURL } from './css.js';
 import { getComponentMetadata } from './metadata.js';
 import { createResolve } from './resolve.js';
-import { getScriptsForURL } from './scripts.js';
 
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,
@@ -77,10 +76,7 @@ export class DevPipeline extends Pipeline {
 			settings,
 		} = this;
 		const filePath = new URL(`${routeData.component}`, root);
-		// Add hoisted script tags, skip if direct rendering with `directRenderScript`
-		const { scripts } = settings.config.experimental.directRenderScript
-			? { scripts: new Set<SSRElement>() }
-			: await getScriptsForURL(filePath, settings.config.root, loader);
+		const scripts = new Set<SSRElement>();
 
 		// Inject HMR scripts
 		if (isPage(filePath, settings) && mode === 'development') {
@@ -201,11 +197,11 @@ export class DevPipeline extends Pipeline {
 		payload: RewritePayload,
 		request: Request,
 		_sourceRoute: RouteData,
-	): Promise<[RouteData, ComponentInstance, URL]> {
+	): Promise<TryRewriteResult> {
 		if (!this.manifestData) {
 			throw new Error('Missing manifest data. This is an internal error, please file an issue.');
 		}
-		const [foundRoute, finalUrl] = findRouteToRewrite({
+		const { routeData, pathname, newUrl } = findRouteToRewrite({
 			payload,
 			request,
 			routes: this.manifestData?.routes,
@@ -214,8 +210,8 @@ export class DevPipeline extends Pipeline {
 			base: this.config.base,
 		});
 
-		const componentInstance = await this.getComponentByRoute(foundRoute);
-		return [foundRoute, componentInstance, finalUrl];
+		const componentInstance = await this.getComponentByRoute(routeData);
+		return { newUrl, pathname, componentInstance, routeData };
 	}
 
 	setManifestData(manifestData: ManifestData) {

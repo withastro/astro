@@ -1,4 +1,4 @@
-import { type SQL } from 'drizzle-orm';
+import type { SQL } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { bold } from 'kleur/colors';
 import {

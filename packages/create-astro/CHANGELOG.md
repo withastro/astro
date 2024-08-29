@@ -1,6 +1,6 @@
 # create-astro
 
-## 4.8.4-alpha.0
+## 4.8.4
 
 ### Patch Changes
 

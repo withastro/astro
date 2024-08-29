@@ -1,5 +1,5 @@
 import type { InStatement } from '@libsql/client';
-import { createClient } from '@libsql/client';
+import { type Config as LibSQLConfig, createClient } from '@libsql/client';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
 import { type SqliteRemoteDatabase, drizzle as drizzleProxy } from 'drizzle-orm/sqlite-proxy';
@@ -18,12 +18,19 @@ function applyTransactionNotSupported(db: SqliteRemoteDatabase) {
 	});
 }
 
-export function createLocalDatabaseClient({ dbUrl }: { dbUrl: string }): LibSQLDatabase {
-	const url = isWebContainer ? 'file:content.db' : dbUrl;
+type LocalDbClientOptions = {
+	dbUrl: string;
+	enableTransations: boolean;
+};
+
+export function createLocalDatabaseClient(options: LocalDbClientOptions): LibSQLDatabase {
+	const url = isWebContainer ? 'file:content.db' : options.dbUrl;
 	const client = createClient({ url });
 	const db = drizzleLibsql(client);
 
-	applyTransactionNotSupported(db);
+	if (!options.enableTransations) {
+		applyTransactionNotSupported(db);
+	}
 	return db;
 }
 
@@ -35,7 +42,33 @@ const remoteResultSchema = z.object({
 	lastInsertRowid: z.unknown().optional(),
 });
 
-export function createRemoteDatabaseClient(appToken: string, remoteDbURL: string) {
+type RemoteDbClientOptions = {
+	dbType: 'studio' | 'libsql';
+	appToken: string;
+	remoteUrl: string | URL;
+};
+
+export function createRemoteDatabaseClient(options: RemoteDbClientOptions) {
+	const remoteUrl = new URL(options.remoteUrl);
+
+	return options.dbType === 'studio'
+		? createStudioDatabaseClient(options.appToken, remoteUrl)
+		: createRemoteLibSQLClient(options.appToken, remoteUrl);
+}
+
+function createRemoteLibSQLClient(appToken: string, remoteDbURL: URL) {
+	const options: Partial<LibSQLConfig> = Object.fromEntries(remoteDbURL.searchParams.entries());
+	remoteDbURL.search = '';
+
+	const client = createClient({
+		...options,
+		authToken: appToken,
+		url: remoteDbURL.protocol === 'memory:' ? ':memory:' : remoteDbURL.toString(),
+	});
+	return drizzleLibsql(client);
+}
+
+function createStudioDatabaseClient(appToken: string, remoteDbURL: URL) {
 	if (appToken == null) {
 		throw new Error(`Cannot create a remote client: missing app token.`);
 	}

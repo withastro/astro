@@ -1,5 +1,6 @@
 ---
 import Child from '../components/Child.astro';
+import Route from '../components/Route.astro';
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? `http://example.com`);
 ---
 <html>
@@ -13,5 +14,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? `http://example.c
   <a id="site" href={Astro.site}>Home</a>
 
   <Child />
+	<Route />
 </body>
 </html>

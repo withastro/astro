@@ -1929,3 +1929,106 @@ describe('SSR fallback from missing locale index to default locale index', () =>
 		assert.equal(response.headers.get('location'), '/');
 	});
 });
+
+describe('Fallback rewrite dev server', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing-fallback/',
+			i18n: {
+				defaultLocale: 'en',
+				locales: ['en', 'fr'],
+				routing: {
+					prefixDefaultLocale: false,
+				},
+				fallback: {
+					fr: 'en',
+				},
+				fallbackType: 'rewrite',
+			},
+		});
+		devServer = await fixture.startDevServer();
+	});
+	after(async () => {
+		devServer.stop();
+	});
+
+	it('should correctly rewrite to en', async () => {
+		const html = await fixture.fetch('/fr').then((res) => res.text());
+		assert.match(html, /Hello/);
+		// assert.fail()
+	});
+});
+
+describe('Fallback rewrite SSG', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing-fallback/',
+			i18n: {
+				defaultLocale: 'en',
+				locales: ['en', 'fr'],
+				routing: {
+					prefixDefaultLocale: false,
+					fallbackType: 'rewrite',
+				},
+				fallback: {
+					fr: 'en',
+				},
+			},
+		});
+		await fixture.build();
+		// app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should correctly rewrite to en', async () => {
+		const html = await fixture.readFile('/fr/index.html');
+		assert.match(html, /Hello/);
+		// assert.fail()
+	});
+});
+
+describe('Fallback rewrite SSR', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing-fallback/',
+			output: 'server',
+			outDir: './dist/i18n-routing-fallback',
+			build: {
+				client: './dist/i18n-routing-fallback/client',
+				server: './dist/i18n-routing-fallback/server',
+			},
+			adapter: testAdapter(),
+			i18n: {
+				defaultLocale: 'en',
+				locales: ['en', 'fr'],
+				routing: {
+					prefixDefaultLocale: false,
+					fallbackType: 'rewrite',
+				},
+				fallback: {
+					fr: 'en',
+				},
+			},
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should correctly rewrite to en', async () => {
+		const request = new Request('http://example.com/fr');
+		const response = await app.render(request);
+		assert.equal(response.status, 200);
+		const html = await response.text();
+		assert.match(html, /Hello/);
+	});
+});

@@ -9,6 +9,7 @@ import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions
 import type { RemotePattern } from '../../assets/utils/remotePattern.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schema.js';
+import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
@@ -22,7 +23,7 @@ export interface ImageServiceConfig<T extends Record<string, any> = Record<strin
 
 export type RuntimeMode = 'development' | 'production';
 
-export type ValidRedirectStatus = 300 | 301 | 302 | 303 | 304 | 307 | 308;
+export type ValidRedirectStatus = (typeof REDIRECT_STATUS_CODES)[number];
 
 export type RedirectConfig =
 	| string
@@ -1298,6 +1299,43 @@ export interface AstroUserConfig {
 					redirectToDefaultLocale?: boolean;
 
 					/**
+					 * @docs
+					 * @name i18n.routing.fallbackType
+					 * @kind h4
+					 * @type {"redirect" | "rewrite"}
+					 * @default `"redirect"`
+					 * @version 4.15.0
+					 * @description
+					 *
+					 * When [`i18n.fallback`](#i18nfallback) is configured to avoid showing a 404 page for missing page routes, this option controls whether to [redirect](https://docs.astro.build/en/guides/routing/#redirects) to the fallback page, or to [rewrite](https://docs.astro.build/en/guides/routing/#rewrites) the fallback page's content in place.
+					 *
+					 * By default, Astro's i18n routing creates pages that redirect your visitors to a new destination based on your fallback configuration. The browser will refresh and show the destination address in the URL bar.
+					 *
+					 * When `i18n.routing.fallback: "rewrite"` is configured, Astro will create pages that render the contents of the fallback page on the original, requested URL.
+					 *
+					 * With the following configuration, if you have the file `src/pages/en/about.astro` but not `src/pages/fr/about.astro`, the `astro build` command will generate `dist/fr/about.html` with the same content as the `dist/en/index.html` page.
+					 * Your site visitor will see the English version of the page at `https://example.com/fr/about/` and will not be redirected.
+					 *
+					 * ```js
+					 * //astro.config.mjs
+					 * export default defineConfig({
+					 * 	 i18n: {
+					 *     defaultLocale: "en",
+					 *     locales: ["en", "fr"],
+					 *     routing: {
+					 *     	prefixDefaultLocale: false,
+					 *     	fallbackType: "rewrite",
+					 *     },
+					 *     fallback: {
+					 *     	fr: "en",
+					 *     }
+					 *   },
+					 * })
+					 * ```
+					 */
+					fallbackType: 'redirect' | 'rewrite';
+
+					/**
 					 * @name i18n.routing.strategy
 					 * @type {"pathname"}
 					 * @default `"pathname"`
@@ -1464,33 +1502,6 @@ export interface AstroUserConfig {
 	 * These flags are not guaranteed to be stable.
 	 */
 	experimental?: {
-		/**
-		 * @docs
-		 * @name experimental.directRenderScript
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 4.5.0
-		 * @description
-		 * Enables a more reliable strategy to prevent scripts from being executed in pages where they are not used.
-		 *
-		 * Scripts will directly render as declared in Astro files (including existing features like TypeScript, importing `node_modules`,
-		 * and deduplicating scripts). You can also now conditionally render scripts in your Astro file.
-
-		 * However, this means scripts are no longer hoisted to the `<head>` and multiple scripts on a page are no longer bundled together.
-		 * If you enable this option, you should check that all your `<script>` tags behave as expected.
-		 *
-		 * This option will be enabled by default in Astro 5.0.
-		 *
-		 * ```js
-		 * {
-		 *   experimental: {
-		 *     directRenderScript: true,
-		 *   },
-		 * }
-		 * ```
-		 */
-		directRenderScript?: boolean;
-
 		/**
 		 * @docs
 		 * @name experimental.actions
@@ -1802,7 +1813,7 @@ export interface AstroUserConfig {
 		 * ```
 		 *
 		 * :::note
-		 * Loaders will not automatically [exclude files prefaced with an `_`](/en/guides/routing/#excluding-pages). Use a regular expression such as `pattern: '**\/[^_]*.md` in your loader to ignore these files.
+		 * Loaders will not automatically [exclude files prefaced with an `_`](/en/guides/routing/#excluding-pages). Use a regular expression such as `pattern: '**\/[^_]*.md'` in your loader to ignore these files.
 		 * :::
 		 *
 		 * #### Querying and rendering with the Content Layer API
@@ -1834,7 +1845,7 @@ export interface AstroUserConfig {
 		 *
 		 * const post = await getEntry('blog', Astro.params.slug);
 		 *
-		 * const { Content, headings } = await render(entry);
+		 * const { Content, headings } = await render(post);
 		 * ---
 		 *
 		 * <Content />

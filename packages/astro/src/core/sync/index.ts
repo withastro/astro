@@ -59,7 +59,7 @@ export default async function sync(
 	}
 	let settings = await createSettings(astroConfig, inlineConfig.root);
 	settings = await runHookConfigSetup({
-		command: 'build',
+		command: 'sync',
 		settings,
 		logger,
 	});

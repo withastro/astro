@@ -1,6 +1,6 @@
 # @astrojs/db
 
-## 0.13.2-alpha.0
+## 0.13.2
 
 ### Patch Changes
 

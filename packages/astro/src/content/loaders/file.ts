@@ -26,6 +26,8 @@ export function file(fileName: string): Loader {
 			return;
 		}
 
+		const normalizedFilePath = posixRelative(fileURLToPath(settings.config.root), filePath);
+
 		if (Array.isArray(json)) {
 			if (json.length === 0) {
 				logger.warn(`No items found in ${fileName}`);
@@ -39,11 +41,7 @@ export function file(fileName: string): Loader {
 					continue;
 				}
 				const data = await parseData({ id, data: rawItem, filePath });
-				store.set({
-					id,
-					data,
-					filePath: posixRelative(fileURLToPath(settings.config.root), filePath),
-				});
+				store.set({ id, data, filePath: normalizedFilePath });
 			}
 		} else if (typeof json === 'object') {
 			const entries = Object.entries<Record<string, unknown>>(json);
@@ -51,7 +49,7 @@ export function file(fileName: string): Loader {
 			store.clear();
 			for (const [id, rawItem] of entries) {
 				const data = await parseData({ id, data: rawItem, filePath });
-				store.set({ id, data });
+				store.set({ id, data, filePath: normalizedFilePath });
 			}
 		} else {
 			logger.error(`Invalid data in ${fileName}. Must be an array or object.`);
