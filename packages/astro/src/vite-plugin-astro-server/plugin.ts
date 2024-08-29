@@ -19,7 +19,7 @@ import { recordServerError } from './error.js';
 import { DevPipeline } from './pipeline.js';
 import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
-import {NOOP_MIDDLEWARE_FN}	 from "../core/middleware/noop-middleware.js";
+import { NOOP_MIDDLEWARE_FN }	from "../core/middleware/noop-middleware.js";
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
