@@ -427,7 +427,11 @@ function addIntegration(mod: ProxifiedModule<any>, integration: IntegrationInfo)
 	const integrationId = toIdent(integration.id);
 
 	if (!mod.imports.$items.some((imp) => imp.local === integrationId)) {
-		mod.imports.$append({ imported: integrationId, from: integration.packageName });
+		mod.imports.$append({
+			imported: 'default',
+			local: integrationId,
+			from: integration.packageName,
+		});
 	}
 
 	config.integrations ??= [];
@@ -448,7 +452,11 @@ export function setAdapter(mod: ProxifiedModule<any>, adapter: IntegrationInfo) 
 	const adapterId = toIdent(adapter.id);
 
 	if (!mod.imports.$items.some((imp) => imp.local === adapterId)) {
-		mod.imports.$append({ imported: adapterId, from: adapter.packageName });
+		mod.imports.$append({
+			imported: 'default',
+			local: adapterId,
+			from: adapter.packageName,
+		});
 	}
 
 	if (!config.output) {
