@@ -5,6 +5,7 @@ import { bold } from 'kleur/colors';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import astroIntegrationActionsRouteHandler from '../actions/integration.js';
 import { isActionsFilePresent } from '../actions/utils.js';
+import { globalContentLayer } from '../content/content-layer.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
@@ -13,7 +14,11 @@ import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
-import type { ContentEntryType, DataEntryType, RefreshContentOptions } from '../types/public/content.js';
+import type {
+	ContentEntryType,
+	DataEntryType,
+	RefreshContentOptions,
+} from '../types/public/content.js';
 import type {
 	AstroIntegration,
 	AstroRenderer,
@@ -22,7 +27,6 @@ import type {
 } from '../types/public/integrations.js';
 import type { RouteData } from '../types/public/internal.js';
 import { validateSupportedFeatures } from './features-validation.js';
-import { globalContentLayer } from '../content/content-layer.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,

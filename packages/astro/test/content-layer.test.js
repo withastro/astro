@@ -296,13 +296,16 @@ describe('Content Layer', () => {
 			const initialJson = devalue.parse(await rawJsonResponse.text());
 			assert.equal(initialJson.increment.data.lastValue, 1);
 
-			const refreshResponse = await fixture.fetch('/_refresh', { method: 'POST', body: JSON.stringify({}) });
+			const refreshResponse = await fixture.fetch('/_refresh', {
+				method: 'POST',
+				body: JSON.stringify({}),
+			});
 			const refreshData = await refreshResponse.json();
 			assert.equal(refreshData.message, 'Content refreshed successfully');
 
 			const updatedJsonResponse = await fixture.fetch('/collections.json');
 			const updated = devalue.parse(await updatedJsonResponse.text());
 			assert.equal(updated.increment.data.lastValue, 2);
-		})
+		});
 	});
 });
