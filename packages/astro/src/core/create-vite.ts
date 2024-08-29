@@ -39,6 +39,7 @@ import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
 import { vitePluginServerIslands } from './server-islands/vite-plugin-server-islands.js';
 import { isObject } from './util.js';
+import { vitePluginActions, vitePluginUserActions } from '../actions/plugins.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -153,6 +154,8 @@ export async function createVite(
 			astroDevToolbar({ settings, logger }),
 			vitePluginFileURL(),
 			astroInternationalization({ settings }),
+			vitePluginActions({ fs, settings }),
+			vitePluginUserActions({ settings }),
 			settings.config.experimental.serverIslands && vitePluginServerIslands({ settings }),
 			astroContainer(),
 		],
@@ -190,6 +193,10 @@ export async function createVite(
 				{
 					find: 'astro:middleware',
 					replacement: 'astro/virtual-modules/middleware.js',
+				},
+				{
+					find: 'astro:schema',
+					replacement: 'astro/zod',
 				},
 				{
 					find: 'astro:components',

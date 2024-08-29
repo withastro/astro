@@ -1,7 +1,5 @@
 import { yellow } from 'kleur/colors';
 import type { APIContext, MiddlewareNext } from '../../@types/astro.js';
-import { ActionQueryStringInvalidError } from '../../core/errors/errors-data.js';
-import { AstroError } from '../../core/errors/errors.js';
 import { defineMiddleware } from '../../core/middleware/index.js';
 import { ACTION_QUERY_PARAMS } from '../consts.js';
 import { formContentTypes, hasContentType } from './utils.js';
@@ -54,10 +52,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		return handlePost({ context, next, actionName });
 	}
 
-	if (context.request.method === 'POST') {
-		return handlePostLegacy({ context, next });
-	}
-
 	return next();
 });
 
@@ -98,14 +92,7 @@ async function handlePost({
 	actionName: string;
 }) {
 	const { request } = context;
-
 	const baseAction = await getAction(actionName);
-	if (!baseAction) {
-		throw new AstroError({
-			...ActionQueryStringInvalidError,
-			message: ActionQueryStringInvalidError.message(actionName),
-		});
-	}
 
 	const contentType = request.headers.get('content-type');
 	let formData: FormData | undefined;
@@ -151,38 +138,6 @@ async function redirectWithResult({
 	}
 
 	return context.redirect(context.url.pathname);
-}
-
-async function handlePostLegacy({ context, next }: { context: APIContext; next: MiddlewareNext }) {
-	const { request } = context;
-
-	// We should not run a middleware handler for fetch()
-	// requests directly to the /_actions URL.
-	// Otherwise, we may handle the result twice.
-	if (context.url.pathname.startsWith('/_actions')) return next();
-
-	const contentType = request.headers.get('content-type');
-	let formData: FormData | undefined;
-	if (contentType && hasContentType(contentType, formContentTypes)) {
-		formData = await request.clone().formData();
-	}
-
-	if (!formData) return next();
-
-	const actionName = formData.get(ACTION_QUERY_PARAMS.actionName) as string;
-	if (!actionName) return next();
-
-	const baseAction = await getAction(actionName);
-	if (!baseAction) {
-		throw new AstroError({
-			...ActionQueryStringInvalidError,
-			message: ActionQueryStringInvalidError.message(actionName),
-		});
-	}
-
-	const action = baseAction.bind(context);
-	const actionResult = await action(formData);
-	return redirectWithResult({ context, actionName, actionResult });
 }
 
 function isActionPayload(json: unknown): json is ActionPayload {
