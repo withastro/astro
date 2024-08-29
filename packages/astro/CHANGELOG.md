@@ -1,5 +1,13 @@
 # astro
 
+## 4.15.1
+
+### Patch Changes
+
+- [#11872](https://github.com/withastro/astro/pull/11872) [`9327d56`](https://github.com/withastro/astro/commit/9327d56755404b481993b058bbfc4aa7880b2304) Thanks [@bluwy](https://github.com/bluwy)! - Fixes `astro add` importing adapters and integrations
+
+- [#11767](https://github.com/withastro/astro/pull/11767) [`d1bd1a1`](https://github.com/withastro/astro/commit/d1bd1a11f7aca4d2141d1c4665f2db0440393d03) Thanks [@ascorbic](https://github.com/ascorbic)! - Refactors content layer sync to use a queue
+
 ## 4.15.0
 
 ### Minor Changes
