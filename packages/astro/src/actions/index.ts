@@ -43,7 +43,7 @@ export default function astroActions({
 				});
 			},
 			'astro:config:done': (params) => {
-				if (params.buildOutput !== 'server') {
+				if (params.buildOutput() !== 'server') {
 					const error = new AstroError(ActionsWithoutServerOutputError);
 					error.stack = undefined;
 					throw error;
