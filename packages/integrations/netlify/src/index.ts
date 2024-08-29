@@ -453,7 +453,6 @@ export default function netlifyIntegration(
 					serverEntrypoint: '@astrojs/netlify/ssr-function.js',
 					exports: ['default'],
 					adapterFeatures: {
-						functionPerRoute: false,
 						edgeMiddleware,
 					},
 					args: { middlewareSecret } satisfies Args,
@@ -466,7 +465,6 @@ export default function netlifyIntegration(
 							supportKind: 'experimental',
 							// still using Netlify Image CDN instead
 							isSharpCompatible: true,
-							isSquooshCompatible: true,
 						},
 						envGetSecret: 'experimental',
 					},
