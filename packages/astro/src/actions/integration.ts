@@ -1,7 +1,8 @@
-import type { AstroIntegration, AstroSettings } from '../@types/astro.js';
 import { ActionsWithoutServerOutputError } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
 import { isServerLikeOutput, viteID } from '../core/util.js';
+import type { AstroSettings } from '../types/astro.js';
+import type { AstroIntegration } from '../types/public/integrations.js';
 import { ACTIONS_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 
 /**
