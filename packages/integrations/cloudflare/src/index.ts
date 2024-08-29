@@ -81,8 +81,8 @@ function wrapWithSlashes(path: string): string {
 function setProcessEnv(config: AstroConfig, env: Record<string, unknown>) {
 	const getEnv = createGetEnv(env);
 
-	if (config.experimental.env?.schema) {
-		for (const key of Object.keys(config.experimental.env.schema)) {
+	if (config.env?.schema) {
+		for (const key of Object.keys(config.env.schema)) {
 			const value = getEnv(key);
 			if (value !== undefined) {
 				process.env[key] = value;

@@ -8,7 +8,9 @@ const middlewares: Record<When, MiddlewareHandler> = {
 	[When.DevServer]: (_, next) => next(),
 	[When.Server]: (_, next) => next(),
 	[When.Prerender]: (ctx, next) => {
+		// @ts-expect-error
 		if (ctx.locals.runtime === undefined) {
+			// @ts-expect-error
 			ctx.locals.runtime = {
 				env: process.env,
 			};
