@@ -1,6 +1,6 @@
-import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture as baseLoadFixture } from '@astrojs/test-utils';
 
-export { fixLineEndings } from '../../../astro/test/test-utils.js';
+export { fixLineEndings } from '@astrojs/test-utils';
 
 export function loadFixture(config) {
 	if (config?.root) {
