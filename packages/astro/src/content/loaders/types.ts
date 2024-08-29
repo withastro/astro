@@ -31,6 +31,7 @@ export interface LoaderContext {
 	/** When running in dev, this is a filesystem watcher that can be used to trigger updates */
 	watcher?: FSWatcher;
 
+	refreshContextData?: Record<string, unknown>;
 	entryTypes: Map<string, ContentEntryType>;
 }
 

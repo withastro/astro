@@ -3242,6 +3242,11 @@ export interface SSRLoadedRenderer extends Pick<AstroRenderer, 'name' | 'clientE
 	ssr: SSRLoadedRendererValue;
 }
 
+export interface RefreshContentOptions {
+	loaders?: Array<string>;
+	context?: Record<string, any>;
+}
+
 export type HookParameters<
 	Hook extends keyof AstroIntegration['hooks'],
 	Fn = AstroIntegration['hooks'][Hook],
