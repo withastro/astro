@@ -315,7 +315,7 @@ export async function runHookConfigDone({
 							const validationResult = validateSupportedFeatures(
 								adapter.name,
 								adapter.supportedAstroFeatures,
-								settings.config,
+								settings,
 								// SAFETY: we checked before if it's not present, and we throw an error
 								adapter.adapterFeatures,
 								logger,

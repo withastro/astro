@@ -1,4 +1,5 @@
 import type { Logger } from '../core/logger/core.js';
+import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type {
 	AdapterSupportsKind,
@@ -31,7 +32,7 @@ type ValidationResult = {
 export function validateSupportedFeatures(
 	adapterName: string,
 	featureMap: AstroAdapterFeatureMap,
-	config: AstroConfig,
+	settings: AstroSettings,
 	adapterFeatures: AstroAdapterFeatures | undefined,
 	logger: Logger,
 ): ValidationResult {
@@ -50,7 +51,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'staticOutput',
-		() => config?.output === 'static',
+		() => settings.buildOutput === 'static',
 	);
 
 	// TODO: Update these checks to make sense for the new hybrid output
@@ -60,7 +61,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'hybridOutput',
-		() => false,
+		() => settings.config.output == 'static' && settings.buildOutput === 'server',
 	);
 
 	validationResult.serverOutput = validateSupportKind(
@@ -68,18 +69,18 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'serverOutput',
-		() => config?.output === 'server',
+		() => settings.config?.output === 'server',
 	);
-	validationResult.assets = validateAssetsFeature(assets, adapterName, config, logger);
+	validationResult.assets = validateAssetsFeature(assets, adapterName, settings.config, logger);
 
-	if (config.i18n?.domains) {
+	if (settings.config.i18n?.domains) {
 		validationResult.i18nDomains = validateSupportKind(
 			i18nDomains,
 			adapterName,
 			logger,
 			'i18nDomains',
 			() => {
-				return config?.output === 'server' && !config?.site;
+				return settings.config?.output === 'server' && !settings.config?.site;
 			},
 		);
 	}
@@ -89,7 +90,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'astro:env getSecret',
-		() => Object.keys(config?.env?.schema ?? {}).length !== 0,
+		() => Object.keys(settings.config?.env?.schema ?? {}).length !== 0,
 	);
 
 	return validationResult;
