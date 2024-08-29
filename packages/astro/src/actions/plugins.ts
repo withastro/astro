@@ -1,6 +1,6 @@
 import type fsMod from 'node:fs';
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings } from '../types/astro.js';
 import {
 	NOOP_ACTIONS,
 	RESOLVED_VIRTUAL_INTERNAL_MODULE_ID,
