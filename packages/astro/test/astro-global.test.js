@@ -47,7 +47,7 @@ describe('Astro Global', () => {
 			);
 		});
 		
-		it("Astro.route.pattern has the right value in pages and components", async () => {
+		it("Astro.routePattern has the right value in pages and components", async () => {
 			let html = await fixture.fetch('/blog').then((res) => res.text());
 			let $ = cheerio.load(html);
 			assert.match($("#pattern").text(),  /Astro route pattern: \//);
@@ -93,7 +93,7 @@ describe('Astro Global', () => {
 			assert.equal($('.post-url[href]').length, 8);
 		});
 
-		it("Astro.route.pattern has the right value in pages and components", async () => {
+		it("Astro.routePattern has the right value in pages and components", async () => {
 			let html = await fixture.readFile('/index.html');
 			let $ = cheerio.load(html);
 			assert.match($("#pattern").text(),  /Astro route pattern: \//);
@@ -135,7 +135,7 @@ describe('Astro Global', () => {
 			assert.equal($('#site').attr('href'), 'https://mysite.dev/subsite/');
 		});
 
-		it("Astro.route.pattern has the right value in pages and components", async () => {
+		it("Astro.routePattern has the right value in pages and components", async () => {
 			let response = await app.render(new Request('https://example.com/'));
 			let html = await response.text();
 			let $ = cheerio.load(html);

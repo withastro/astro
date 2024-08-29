@@ -1,0 +1,7 @@
+---
+const prerender = JSON.stringify(Astro.prerender);
+const localsPrerender = JSON.stringify(Astro.locals.localsPrerender);
+---
+
+<p id="prerender">Astro route prerender: {prerender}</p>
+<p id="prerender-middleware">Astro route prerender middleware: {localsPrerender}</p>
