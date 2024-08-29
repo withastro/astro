@@ -13,7 +13,7 @@ import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
-import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
+import type { ContentEntryType, DataEntryType, RefreshContentOptions } from '../types/public/content.js';
 import type {
 	AstroIntegration,
 	AstroRenderer,
@@ -22,6 +22,7 @@ import type {
 } from '../types/public/integrations.js';
 import type { RouteData } from '../types/public/internal.js';
 import { validateSupportedFeatures } from './features-validation.js';
+import { globalContentLayer } from '../content/content-layer.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -367,6 +368,14 @@ export async function runHookServerSetup({
 	server: ViteDevServer;
 	logger: Logger;
 }) {
+	let refreshContent: undefined | ((options: RefreshContentOptions) => Promise<void>);
+	if (config.experimental?.contentLayer) {
+		refreshContent = async (options: RefreshContentOptions) => {
+			const contentLayer = await globalContentLayer.get();
+			await contentLayer?.sync(options);
+		};
+	}
+
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:server:setup']) {
 			await withTakingALongTimeMsg({
@@ -376,6 +385,7 @@ export async function runHookServerSetup({
 					server,
 					logger: getLogger(integration, logger),
 					toolbar: getToolbarServerCommunicationHelpers(server),
+					refreshContent,
 				}),
 				logger,
 			});
