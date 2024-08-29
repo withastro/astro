@@ -115,13 +115,13 @@ async function writeNetlifyFrameworkConfig(config: AstroConfig, logger: AstroInt
 	const headers = config.build.assetsPrefix
 		? undefined
 		: [
-			{
-				for: `${config.base}${config.base.endsWith('/') ? '' : '/'}${config.build.assets}/*`,
-				values: {
-					'Cache-Control': 'public, max-age=31536000, immutable',
+				{
+					for: `${config.base}${config.base.endsWith('/') ? '' : '/'}${config.build.assets}/*`,
+					values: {
+						'Cache-Control': 'public, max-age=31536000, immutable',
+					},
 				},
-			},
-		];
+			];
 
 	// See https://docs.netlify.com/image-cdn/create-integration/
 	const deployConfigDir = new URL('.netlify/v1/', config.root);
@@ -259,9 +259,9 @@ export default function netlifyIntegration(
 			`
 				import createSSRHandler from './${handler}';
 				export default createSSRHandler(${JSON.stringify({
-				cacheOnDemandPages: Boolean(integrationConfig?.cacheOnDemandPages),
-				notFoundContent,
-			})});
+					cacheOnDemandPages: Boolean(integrationConfig?.cacheOnDemandPages),
+					notFoundContent,
+				})});
 				export const config = {
 					includedFiles: ['**/*'],
 					name: 'Astro SSR',
@@ -343,7 +343,7 @@ export default function netlifyIntegration(
 			if (typeof req.headers[header] === 'string') {
 				try {
 					return JSON.parse(Buffer.from(req.headers[header] as string, 'base64').toString('utf8'));
-				} catch { }
+				} catch {}
 			}
 		};
 
@@ -429,8 +429,8 @@ export default function netlifyIntegration(
 						},
 						...((await shouldExternalizeAstroEnvSetup())
 							? {
-								ssr: { external: ['astro/env/setup'] },
-							}
+									ssr: { external: ['astro/env/setup'] },
+								}
 							: {}),
 					},
 					image: {
@@ -481,7 +481,7 @@ export default function netlifyIntegration(
 					let notFoundContent = undefined;
 					try {
 						notFoundContent = await readFile(new URL('./404.html', dir), 'utf8');
-					} catch { }
+					} catch {}
 					await writeSSRFunction({ notFoundContent, logger });
 					logger.info('Generated SSR Function');
 				}
