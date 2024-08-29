@@ -1425,7 +1425,7 @@ export interface AstroUserConfig {
 	 * @version 5.0.0
 	 * @description
 	 *
-	 * Configures i18n routing and allows you to specify some customization options.
+	 * Configuration options for type-safe environment variables.
 	 *
 	 * See our guide for more information on [environment variables in Astro](/en/guides/environment-variables/).
 	 */
