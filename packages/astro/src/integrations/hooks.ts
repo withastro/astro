@@ -12,11 +12,9 @@ import type {
 	ContentEntryType,
 	DataEntryType,
 	HookParameters,
-	RefreshContentOptions,
 	RouteData,
 	RouteOptions,
 } from '../@types/astro.js';
-import { globalContentLayer } from '../content/content-layer.js';
 import astroIntegrationActionsRouteHandler from '../actions/integration.js';
 import { isActionsFilePresent } from '../actions/utils.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
@@ -375,14 +373,6 @@ export async function runHookServerSetup({
 	server: ViteDevServer;
 	logger: Logger;
 }) {
-	let refreshContent: undefined | ((options: RefreshContentOptions) => Promise<void>);
-	if (config.experimental?.contentLayer) {
-		refreshContent = async (options: RefreshContentOptions) => {
-			const contentLayer = await globalContentLayer.get();
-			await contentLayer?.sync(options);
-		};
-	}
-
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:server:setup']) {
 			await withTakingALongTimeMsg({
@@ -392,7 +382,6 @@ export async function runHookServerSetup({
 					server,
 					logger: getLogger(integration, logger),
 					toolbar: getToolbarServerCommunicationHelpers(server),
-					refreshContent,
 				}),
 				logger,
 			});

@@ -3290,7 +3290,6 @@ declare global {
 				server: vite.ViteDevServer;
 				logger: AstroIntegrationLogger;
 				toolbar: ReturnType<typeof getToolbarServerCommunicationHelpers>;
-				refreshContent?: (options: RefreshContentOptions) => Promise<void>;
 			}) => void | Promise<void>;
 			'astro:server:start': (options: {
 				address: AddressInfo;
