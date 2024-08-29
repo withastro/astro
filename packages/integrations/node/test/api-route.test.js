@@ -27,7 +27,7 @@ describe('API routes', () => {
 
 	it('Can get the request body', async () => {
 		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
-		let { req, res, done } = createRequestAndResponse({
+		const { req, res, done } = createRequestAndResponse({
 			method: 'POST',
 			url: '/recipes',
 		});
@@ -38,9 +38,9 @@ describe('API routes', () => {
 
 		handler(req, res);
 
-		let [buffer] = await done;
+		const [buffer] = await done;
 
-		let json = JSON.parse(buffer.toString('utf-8'));
+		const json = JSON.parse(buffer.toString('utf-8'));
 
 		assert.equal(json.length, 1);
 
@@ -50,7 +50,7 @@ describe('API routes', () => {
 	it('Can get binary data', async () => {
 		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
 
-		let { req, res, done } = createRequestAndResponse({
+		const { req, res, done } = createRequestAndResponse({
 			method: 'POST',
 			url: '/binary',
 		});
@@ -61,15 +61,15 @@ describe('API routes', () => {
 
 		handler(req, res);
 
-		let [out] = await done;
-		let arr = Array.from(new Uint8Array(out.buffer));
+		const [out] = await done;
+		const arr = Array.from(new Uint8Array(out.buffer));
 		assert.deepEqual(arr, [5, 4, 3, 2, 1]);
 	});
 
 	it('Can post large binary data', async () => {
 		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
 
-		let { req, res, done } = createRequestAndResponse({
+		const { req, res, done } = createRequestAndResponse({
 			method: 'POST',
 			url: '/hash',
 		});
@@ -95,17 +95,17 @@ describe('API routes', () => {
 			expectedDigest = hash.digest();
 		});
 
-		let [out] = await done;
+		const [out] = await done;
 		assert.deepEqual(new Uint8Array(out.buffer), new Uint8Array(expectedDigest));
 	});
 
 	it('Can bail on streaming', async () => {
 		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
-		let { req, res, done } = createRequestAndResponse({
+		const { req, res, done } = createRequestAndResponse({
 			url: '/streaming',
 		});
 
-		let locals = { cancelledByTheServer: false };
+		const locals = { cancelledByTheServer: false };
 
 		handler(req, res, () => {}, locals);
 		req.send();

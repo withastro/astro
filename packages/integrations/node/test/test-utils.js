@@ -20,18 +20,18 @@ export function loadFixture(inlineConfig) {
 }
 
 export function createRequestAndResponse(reqOptions) {
-	let req = httpMocks.createRequest(reqOptions);
+	const req = httpMocks.createRequest(reqOptions);
 
-	let res = httpMocks.createResponse({
+	const res = httpMocks.createResponse({
 		eventEmitter: EventEmitter,
 		req,
 	});
 
-	let done = toPromise(res);
+	const done = toPromise(res);
 
 	// Get the response as text
 	const text = async () => {
-		let chunks = await done;
+		const chunks = await done;
 		return buffersToString(chunks);
 	};
 
@@ -45,19 +45,20 @@ export function toPromise(res) {
 		const write = res.write;
 		res.write = function (data, encoding) {
 			if (ArrayBuffer.isView(data) && !Buffer.isBuffer(data)) {
+				// biome-ignore lint/style/noParameterAssign: <explanation>
 				data = Buffer.from(data.buffer);
 			}
 			return write.call(this, data, encoding);
 		};
 		res.on('end', () => {
-			let chunks = res._getChunks();
+			const chunks = res._getChunks();
 			resolve(chunks);
 		});
 	});
 }
 
 export function buffersToString(buffers) {
-	let decoder = new TextDecoder();
+	const decoder = new TextDecoder();
 	let str = '';
 	for (const buffer of buffers) {
 		str += decoder.decode(buffer);

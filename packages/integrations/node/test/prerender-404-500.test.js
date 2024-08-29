@@ -34,7 +34,7 @@ describe('Prerender 404', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
-			let res = startServer();
+			const res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
 		});
@@ -42,6 +42,7 @@ describe('Prerender 404', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
+			// biome-ignore lint/performance/noDelete: <explanation>
 			delete process.env.PRERENDER;
 		});
 
@@ -124,7 +125,7 @@ describe('Prerender 404', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
-			let res = startServer();
+			const res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
 		});
@@ -132,6 +133,7 @@ describe('Prerender 404', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
+			// biome-ignore lint/performance/noDelete: <explanation>
 			delete process.env.PRERENDER;
 		});
 
@@ -193,7 +195,7 @@ describe('Hybrid 404', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
-			let res = startServer();
+			const res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
 		});
@@ -201,6 +203,7 @@ describe('Hybrid 404', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
+			// biome-ignore lint/performance/noDelete: <explanation>
 			delete process.env.PRERENDER;
 		});
 
@@ -255,7 +258,7 @@ describe('Hybrid 404', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
-			let res = startServer();
+			const res = startServer();
 			server = res.server;
 			await waitServerListen(server.server);
 		});
@@ -263,6 +266,7 @@ describe('Hybrid 404', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
+			// biome-ignore lint/performance/noDelete: <explanation>
 			delete process.env.PRERENDER;
 		});
 

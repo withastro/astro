@@ -20,7 +20,7 @@ describe('URL', () => {
 
 	it('return http when non-secure', async () => {
 		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
-		let { req, res, text } = createRequestAndResponse({
+		const { req, res, text } = createRequestAndResponse({
 			url: '/',
 		});
 
@@ -33,7 +33,7 @@ describe('URL', () => {
 
 	it('return https when secure', async () => {
 		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
-		let { req, res, text } = createRequestAndResponse({
+		const { req, res, text } = createRequestAndResponse({
 			socket: new TLSSocket(),
 			url: '/',
 		});
@@ -47,7 +47,7 @@ describe('URL', () => {
 
 	it('return http when the X-Forwarded-Proto header is set to http', async () => {
 		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
-		let { req, res, text } = createRequestAndResponse({
+		const { req, res, text } = createRequestAndResponse({
 			headers: { 'X-Forwarded-Proto': 'http' },
 			url: '/',
 		});
@@ -61,7 +61,7 @@ describe('URL', () => {
 
 	it('return https when the X-Forwarded-Proto header is set to https', async () => {
 		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
-		let { req, res, text } = createRequestAndResponse({
+		const { req, res, text } = createRequestAndResponse({
 			headers: { 'X-Forwarded-Proto': 'https' },
 			url: '/',
 		});
@@ -75,7 +75,7 @@ describe('URL', () => {
 
 	it('includes forwarded host and port in the url', async () => {
 		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
-		let { req, res, text } = createRequestAndResponse({
+		const { req, res, text } = createRequestAndResponse({
 			headers: {
 				'X-Forwarded-Proto': 'https',
 				'X-Forwarded-Host': 'abc.xyz',
@@ -95,7 +95,7 @@ describe('URL', () => {
 
 	it('accepts port in forwarded host and forwarded port', async () => {
 		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
-		let { req, res, text } = createRequestAndResponse({
+		const { req, res, text } = createRequestAndResponse({
 			headers: {
 				'X-Forwarded-Proto': 'https',
 				'X-Forwarded-Host': 'abc.xyz:444',

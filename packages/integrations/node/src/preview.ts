@@ -8,7 +8,7 @@ import { createServer } from './standalone.js';
 type ServerModule = ReturnType<typeof createExports>;
 type MaybeServerModule = Partial<ServerModule>;
 
-const createPreviewServer: CreatePreviewServer = async function (preview) {
+const createPreviewServer: CreatePreviewServer = async (preview) => {
 	let ssrHandler: ServerModule['handler'];
 	let options: ServerModule['options'];
 	try {
@@ -16,19 +16,21 @@ const createPreviewServer: CreatePreviewServer = async function (preview) {
 		const ssrModule: MaybeServerModule = await import(preview.serverEntrypoint.toString());
 		if (typeof ssrModule.handler === 'function') {
 			ssrHandler = ssrModule.handler;
+			// biome-ignore lint/style/noNonNullAssertion: <explanation>
 			options = ssrModule.options!;
 		} else {
 			throw new AstroError(
-				`The server entrypoint doesn't have a handler. Are you sure this is the right file?`,
+				`The server entrypoint doesn't have a handler. Are you sure this is the right file?`
 			);
 		}
 	} catch (err) {
 		if ((err as any).code === 'ERR_MODULE_NOT_FOUND') {
 			throw new AstroError(
 				`The server entrypoint ${fileURLToPath(
-					preview.serverEntrypoint,
-				)} does not exist. Have you ran a build yet?`,
+					preview.serverEntrypoint
+				)} does not exist. Have you ran a build yet?`
 			);
+			// biome-ignore lint/style/noUselessElse: <explanation>
 		} else {
 			throw err;
 		}

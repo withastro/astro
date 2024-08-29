@@ -18,7 +18,7 @@ describe('Encoded Pathname', () => {
 
 	it('Can get an Astro file', async () => {
 		const { handler } = await import('./fixtures/encoded/dist/server/entry.mjs');
-		let { req, res, text } = createRequestAndResponse({
+		const { req, res, text } = createRequestAndResponse({
 			url: '/什么',
 		});
 
@@ -32,7 +32,7 @@ describe('Encoded Pathname', () => {
 	it('Can get a Markdown file', async () => {
 		const { handler } = await import('./fixtures/encoded/dist/server/entry.mjs');
 
-		let { req, res, text } = createRequestAndResponse({
+		const { req, res, text } = createRequestAndResponse({
 			url: '/blog/什么',
 		});
 

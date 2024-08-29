@@ -15,7 +15,7 @@ export default function createMiddleware(app: NodeApp): RequestHandler {
 	const logger = app.getAdapterLogger();
 	// using spread args because express trips up if the function's
 	// stringified body includes req, res, next, locals directly
-	return async function (...args) {
+	return async (...args) => {
 		// assume normal invocation at first
 		const [req, res, next, locals] = args;
 		// short circuit if it is an error invocation
@@ -23,6 +23,7 @@ export default function createMiddleware(app: NodeApp): RequestHandler {
 			const error = req;
 			if (next) {
 				return next(error);
+				// biome-ignore lint/style/noUselessElse: <explanation>
 			} else {
 				throw error;
 			}
@@ -33,6 +34,7 @@ export default function createMiddleware(app: NodeApp): RequestHandler {
 			logger.error(`Could not render ${req.url}`);
 			console.error(err);
 			if (!res.headersSent) {
+				// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
 				res.writeHead(500, `Server error`);
 				res.end();
 			}
