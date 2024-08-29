@@ -155,7 +155,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					serverEntrypoint: '@astrojs/cloudflare/entrypoints/server.js',
 					exports: ['default'],
 					adapterFeatures: {
-						functionPerRoute: false,
 						edgeMiddleware: false,
 					},
 					supportedAstroFeatures: {
@@ -166,7 +165,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						assets: {
 							supportKind: 'stable',
 							isSharpCompatible: false,
-							isSquooshCompatible: false,
 						},
 						envGetSecret: 'experimental',
 					},
