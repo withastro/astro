@@ -67,8 +67,8 @@ importers:
         specifier: workspace:*
         version: link:../packages/integrations/mdx
       '@astrojs/node':
-        specifier: workspace:*
-        version: link:../packages/integrations/node
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
       '@benchmark/timer':
         specifier: workspace:*
         version: link:packages/timer
@@ -917,8 +917,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../db
       '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../integrations/node
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -950,8 +950,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../db
       '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../integrations/node
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -1603,8 +1603,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../integrations/mdx
       '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../integrations/node
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -1710,8 +1710,8 @@ importers:
   packages/astro/e2e/fixtures/view-transitions:
     dependencies:
       '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../integrations/node
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -2542,8 +2542,8 @@ importers:
   packages/astro/test/fixtures/client-address-node:
     dependencies:
       '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../integrations/node
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -3881,8 +3881,8 @@ importers:
   packages/astro/test/fixtures/ssr-api-route:
     dependencies:
       '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../integrations/node
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -4087,8 +4087,8 @@ importers:
   packages/astro/test/fixtures/static-build-ssr:
     dependencies:
       '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../integrations/node
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
       '@test/static-build-pkg':
         specifier: workspace:*
         version: link:../static-build/pkg
@@ -4462,8 +4462,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../integrations/node
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
       '@astrojs/react':
         specifier: ^3.6.2
         version: link:../../../../integrations/react
@@ -5162,8 +5162,8 @@ importers:
         version: 3.23.8
     devDependencies:
       '@astrojs/node':
-        specifier: workspace:*
-        version: link:../node
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -5427,8 +5427,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../db
       '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../node
+        specifier: ^8.3.3
+        version: 8.3.3(astro@packages+astro)
       '@astrojs/web-vitals':
         specifier: workspace:*
         version: link:../../..
