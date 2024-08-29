@@ -128,29 +128,29 @@ export default function vercelStatic({
 						{ handle: 'filesystem' },
 						...(routes.find((route) => route.pathname === '/404')
 							? [
-								{
-									// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
-									src: `/.*`,
-									// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
-									dest: `/404.html`,
-									status: 404,
-								},
-							]
+									{
+										// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
+										src: `/.*`,
+										// biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
+										dest: `/404.html`,
+										status: 404,
+									},
+								]
 							: []),
 					],
 					...(imageService || imagesConfig
 						? {
-							images: imagesConfig
-								? {
-									...imagesConfig,
-									domains: [...imagesConfig.domains, ..._config.image.domains],
-									remotePatterns: [
-										...(imagesConfig.remotePatterns ?? []),
-										..._config.image.remotePatterns,
-									],
-								}
-								: getDefaultImageConfig(_config.image),
-						}
+								images: imagesConfig
+									? {
+											...imagesConfig,
+											domains: [...imagesConfig.domains, ..._config.image.domains],
+											remotePatterns: [
+												...(imagesConfig.remotePatterns ?? []),
+												..._config.image.remotePatterns,
+											],
+										}
+									: getDefaultImageConfig(_config.image),
+							}
 						: {}),
 				});
 			},

@@ -11,8 +11,8 @@ const getConnectionSpeed = () => {
 		navigator['connection'] &&
 		// biome-ignore lint/complexity/useLiteralKeys: <explanation>
 		'effectiveType' in (navigator['connection'] as unknown as { effectiveType: string })
-		// biome-ignore lint/complexity/useLiteralKeys: <explanation>
-		? (navigator['connection'] as unknown as { effectiveType: string })['effectiveType']
+		? // biome-ignore lint/complexity/useLiteralKeys: <explanation>
+			(navigator['connection'] as unknown as { effectiveType: string })['effectiveType']
 		: '';
 };
 
