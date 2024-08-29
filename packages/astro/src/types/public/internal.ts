@@ -41,7 +41,10 @@ export interface SSRLoadedRendererValue {
  */
 export interface RouteData {
 	/**
-	 * The current **pattern** of the route,
+	 * The current **pattern** of the route. For example:
+	 * - `src/pages/index.astro` has a pattern of `/`
+	 * - `src/pages/blog/[...slug].astro` has a pattern of `/blog/[...slug]`
+	 * - `src/pages/site/[blog]/[...slug].astro` has a pattern of `/site/[blog]/[...slug]`
 	 */
 	route: string;
 	/**
@@ -62,7 +65,7 @@ export interface RouteData {
 	 */
 	pathname?: string;
 	/**
-	 * The paths of the physical files emitted by this route.
+	 * The paths of the physical files emitted by this route. When a route **isn't** prerendered, the value is either `undefined` or an empty array.
 	 */
 	distURL?: URL[];
 	/**
