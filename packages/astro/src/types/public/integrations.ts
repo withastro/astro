@@ -243,4 +243,9 @@ export interface AstroIntegration {
 /**
  * A smaller version of the {@link RouteData} that is used in the integrations.
  */
-export type IntegrationRouteData = Omit<RouteData, 'isIndex' | 'fallbackRoutes'>;
+export type IntegrationRouteData = Omit<RouteData, 'isIndex' | 'fallbackRoutes' | 'redirectRoute'> & {
+	/**
+	 * {@link RouteData.redirectRoute}
+	 */
+	redirectRoute?: IntegrationRouteData
+};

@@ -637,7 +637,7 @@ function toIntegrationRouteData(route: RouteData): IntegrationRouteData {
 		segments: route.segments,
 		prerender: route.prerender,
 		redirect: route.redirect,
-		redirectRoute: route.redirectRoute,
+		redirectRoute: route.redirectRoute ? toIntegrationRouteData(route.redirectRoute) : undefined,
 		type: route.type,
 		pattern: route.pattern,
 		distURL: route.distURL,
