@@ -17,7 +17,8 @@ import type { ContentEntryType, DataEntryType } from '../types/public/content.js
 import type {
 	AstroIntegration,
 	AstroRenderer,
-	HookParameters, IntegrationRouteData,
+	HookParameters,
+	IntegrationRouteData,
 	RouteOptions,
 } from '../types/public/integrations.js';
 import type { RouteData } from '../types/public/internal.js';
@@ -502,7 +503,6 @@ export async function runHookBuildSsr({
 	entryPoints,
 	middlewareEntryPoint,
 }: RunHookBuildSsr) {
-	
 	const entryPointsMap = new Map();
 	for (const [key, value] of entryPoints) {
 		entryPointsMap.set(toIntegrationRouteData(key), value);
@@ -627,8 +627,7 @@ export async function runHookRouteSetup({
 	}
 }
 
-
-function toIntegrationRouteData(route:RouteData): IntegrationRouteData {
+function toIntegrationRouteData(route: RouteData): IntegrationRouteData {
 	return {
 		route: route.route,
 		component: route.component,
@@ -641,6 +640,6 @@ function toIntegrationRouteData(route:RouteData): IntegrationRouteData {
 		redirectRoute: route.redirectRoute,
 		type: route.type,
 		pattern: route.pattern,
-		distURL: route.distURL
+		distURL: route.distURL,
 	};
 }

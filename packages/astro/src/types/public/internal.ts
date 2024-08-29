@@ -41,7 +41,7 @@ export interface SSRLoadedRendererValue {
  */
 export interface RouteData {
 	/**
-	 * The current **pattern** of the route, 
+	 * The current **pattern** of the route,
 	 */
 	route: string;
 	/**
@@ -58,7 +58,7 @@ export interface RouteData {
 	 */
 	params: string[];
 	/**
-	 * The path name of the route. 
+	 * The path name of the route.
 	 */
 	pathname?: string;
 	/**
@@ -67,7 +67,7 @@ export interface RouteData {
 	distURL?: URL[];
 	/**
 	 * A regular expression that represents this route. Use this expression to match a string to this route:
-	 * 
+	 *
 	 * ## Example
 	 *
 	 * ```js
@@ -79,7 +79,7 @@ export interface RouteData {
 	pattern: RegExp;
 	/**
 	 * A broken down version of the route. For example, for `/site/[blog]/[...slug].astro`, the segments are:
-	 * 
+	 *
 	 * 1. `{ content: 'site', dynamic: false, spread: false }`
 	 * 2. `{ content: 'blog', dynamic: true, spread: false }`
 	 * 3. `{ content: '...slug', dynamic: true, spread: true }`
@@ -115,7 +115,6 @@ export interface RouteData {
 	 */
 	isIndex: boolean;
 }
-
 
 /**
  * - page: a route that lives in the file system, usually an Astro component

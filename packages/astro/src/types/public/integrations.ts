@@ -7,7 +7,7 @@ import type { getToolbarServerCommunicationHelpers } from '../../integrations/ho
 import type { DeepPartial } from '../../type-utils.js';
 import type { AstroConfig } from './config.js';
 import type { DevToolbarAppEntry } from './toolbar.js';
-import type {RouteData} from "./internal.js";
+import type { RouteData } from './internal.js';
 
 export interface RouteOptions {
 	/**
