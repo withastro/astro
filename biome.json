@@ -9,7 +9,7 @@
       "**/vendor/**",
       "**/.vercel/**"
     ],
-    "include": ["test/**", "e2e/**", "packages/**"]
+    "include": ["test/**", "e2e/**", "packages/**", "/scripts/**"]
   },
   "formatter": {
     "indentStyle": "tab",
@@ -31,7 +31,8 @@
     "rules": {
       "recommended": false,
       "style": {
-        "useNodejsImportProtocol": "error"
+        "useNodejsImportProtocol": "error",
+        "useImportType": "error"
       }
     }
   },

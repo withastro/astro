@@ -3,7 +3,7 @@ import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
-import type { AstroSettings, RefreshContentOptions } from '../@types/astro.js';
+import type { AstroSettings, ContentEntryType, RefreshContentOptions } from '../@types/astro.js';
 import { AstroUserError } from '../core/errors/errors.js';
 import type { Logger } from '../core/logger/core.js';
 import {
@@ -14,7 +14,12 @@ import {
 } from './consts.js';
 import type { LoaderContext } from './loaders/types.js';
 import type { MutableDataStore } from './mutable-data-store.js';
-import { getEntryDataAndImages, globalContentConfigObserver, posixRelative } from './utils.js';
+import {
+	getEntryConfigByExtMap,
+	getEntryDataAndImages,
+	globalContentConfigObserver,
+	posixRelative,
+} from './utils.js';
 
 export interface ContentLayerOptions {
 	store: MutableDataStore;
@@ -98,11 +103,15 @@ export class ContentLayer {
 			store: this.#store.scopedStore(collectionName),
 			meta: this.#store.metaStore(collectionName),
 			logger: this.#logger.forkIntegrationLogger(loaderName),
-			settings: this.#settings,
+			config: this.#settings.config,
 			parseData,
 			generateDigest: await this.#getGenerateDigest(),
 			watcher: this.#watcher,
-			refreshContextData
+			refreshContextData,
+			entryTypes: getEntryConfigByExtMap([
+				...this.#settings.contentEntryTypes,
+				...this.#settings.dataEntryTypes,
+			] as Array<ContentEntryType>),
 		};
 	}
 

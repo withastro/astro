@@ -57,7 +57,7 @@ export default async function sync(
 	}
 	let settings = await createSettings(astroConfig, inlineConfig.root);
 	settings = await runHookConfigSetup({
-		command: 'build',
+		command: 'sync',
 		settings,
 		logger,
 	});
@@ -169,7 +169,7 @@ async function syncContentCollections(
 	const tempViteServer = await createServer(
 		await createVite(
 			{
-				server: { middlewareMode: true, hmr: false, watch: null },
+				server: { middlewareMode: true, hmr: false, watch: null, ws: false },
 				optimizeDeps: { noDiscovery: true },
 				ssr: { external: [] },
 				logLevel: 'silent',

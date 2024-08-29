@@ -1,6 +1,6 @@
 import type { FSWatcher } from 'vite';
 import type { ZodSchema } from 'zod';
-import type { AstroIntegrationLogger, AstroSettings } from '../../@types/astro.js';
+import type { AstroConfig, AstroIntegrationLogger, ContentEntryType } from '../../@types/astro.js';
 import type { MetaStore, ScopedDataStore } from '../mutable-data-store.js';
 
 export interface ParseDataOptions<TData extends Record<string, unknown>> {
@@ -20,9 +20,8 @@ export interface LoaderContext {
 	/**  A simple KV store, designed for things like sync tokens */
 	meta: MetaStore;
 	logger: AstroIntegrationLogger;
-
-	settings: AstroSettings;
-
+	/** Astro config, with user config and merged defaults */
+	config: AstroConfig;
 	/** Validates and parses the data according to the collection schema */
 	parseData<TData extends Record<string, unknown>>(props: ParseDataOptions<TData>): Promise<TData>;
 
@@ -34,6 +33,7 @@ export interface LoaderContext {
 
 	/** If the loader has been triggered by an integration, this may optionally contain extra data set by that integration */
 	refreshContextData?: Record<string, unknown>;
+	entryTypes: Map<string, ContentEntryType>;
 }
 
 export interface Loader {

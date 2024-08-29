@@ -58,7 +58,7 @@ function astroDBIntegration(): AstroIntegration {
 		inProgress: false,
 	};
 
-	let command: 'dev' | 'build' | 'preview';
+	let command: 'dev' | 'build' | 'preview' | 'sync';
 	let output: AstroConfig['output'] = 'server';
 	return {
 		name: 'astro:db',
@@ -222,7 +222,7 @@ async function executeSeedFile({
 async function getTempViteServer({ viteConfig }: { viteConfig: UserConfig }) {
 	const tempViteServer = await createServer(
 		mergeConfig(viteConfig, {
-			server: { middlewareMode: true, hmr: false, watch: null },
+			server: { middlewareMode: true, hmr: false, watch: null, ws: false },
 			optimizeDeps: { noDiscovery: true },
 			ssr: { external: [] },
 			logLevel: 'silent',

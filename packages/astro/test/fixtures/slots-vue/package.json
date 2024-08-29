@@ -6,6 +6,6 @@
     "@astrojs/mdx": "workspace:*",
     "@astrojs/vue": "workspace:*",
     "astro": "workspace:*",
-    "vue": "^3.4.37"
+    "vue": "^3.4.38"
   }
 }

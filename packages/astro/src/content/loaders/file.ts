@@ -14,7 +14,7 @@ export function file(fileName: string): Loader {
 		throw new Error('Glob patterns are not supported in `file` loader. Use `glob` loader instead.');
 	}
 
-	async function syncData(filePath: string, { logger, parseData, store, settings }: LoaderContext) {
+	async function syncData(filePath: string, { logger, parseData, store, config }: LoaderContext) {
 		let json: Array<Record<string, unknown>>;
 
 		try {
@@ -25,6 +25,8 @@ export function file(fileName: string): Loader {
 			logger.debug(error.message);
 			return;
 		}
+
+		const normalizedFilePath = posixRelative(fileURLToPath(config.root), filePath);
 
 		if (Array.isArray(json)) {
 			if (json.length === 0) {
@@ -39,11 +41,7 @@ export function file(fileName: string): Loader {
 					continue;
 				}
 				const data = await parseData({ id, data: rawItem, filePath });
-				store.set({
-					id,
-					data,
-					filePath: posixRelative(fileURLToPath(settings.config.root), filePath),
-				});
+				store.set({ id, data, filePath: normalizedFilePath });
 			}
 		} else if (typeof json === 'object') {
 			const entries = Object.entries<Record<string, unknown>>(json);
@@ -51,7 +49,7 @@ export function file(fileName: string): Loader {
 			store.clear();
 			for (const [id, rawItem] of entries) {
 				const data = await parseData({ id, data: rawItem, filePath });
-				store.set({ id, data });
+				store.set({ id, data, filePath: normalizedFilePath });
 			}
 		} else {
 			logger.error(`Invalid data in ${fileName}. Must be an array or object.`);
@@ -60,22 +58,22 @@ export function file(fileName: string): Loader {
 
 	return {
 		name: 'file-loader',
-		load: async (options) => {
-			const { settings, logger, watcher } = options;
+		load: async (context) => {
+			const { config, logger, watcher } = context;
 			logger.debug(`Loading data from ${fileName}`);
-			const url = new URL(fileName, settings.config.root);
+			const url = new URL(fileName, config.root);
 			if (!existsSync(url)) {
 				logger.error(`File not found: ${fileName}`);
 				return;
 			}
 			const filePath = fileURLToPath(url);
 
-			await syncData(filePath, options);
+			await syncData(filePath, context);
 
 			watcher?.on('change', async (changedPath) => {
 				if (changedPath === filePath) {
 					logger.info(`Reloading data from ${fileName}`);
-					await syncData(filePath, options);
+					await syncData(filePath, context);
 				}
 			});
 		},

@@ -1,4 +1,4 @@
-import { execaCommand } from 'execa';
+import { exec } from 'tinyexec';
 import { markdownTable } from 'markdown-table';
 import fs from 'node:fs/promises';
 import http from 'node:http';
@@ -20,15 +20,19 @@ export async function run(projectDir, outputFile) {
 	const root = fileURLToPath(projectDir);
 
 	console.log('Building...');
-	await execaCommand(`${astroBin} build`, {
-		cwd: root,
-		stdio: 'inherit',
+	await exec(astroBin, ['build'], {
+		nodeOptions: {
+			cwd: root,
+			stdio: 'inherit',
+		},
 	});
 
 	console.log('Previewing...');
-	const previewProcess = execaCommand(`${astroBin} preview --port ${port}`, {
-		cwd: root,
-		stdio: 'inherit',
+	const previewProcess = exec(astroBin, ['preview', '--port', port], {
+		nodeOptions: {
+			cwd: root,
+			stdio: 'inherit',
+		},
 	});
 
 	console.log('Waiting for server ready...');

@@ -11,10 +11,10 @@ import type {
 import type * as babel from '@babel/core';
 import type * as rollup from 'rollup';
 import type * as vite from 'vite';
+import type { z } from 'zod';
 import type {
 	ActionAccept,
 	ActionClient,
-	ActionInputSchema,
 	ActionReturnType,
 } from '../actions/runtime/virtual/server.js';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
@@ -53,7 +53,10 @@ import type {
 	TransitionBeforeSwapEvent,
 } from '../transitions/events.js';
 import type { DeepPartial, OmitIndexSignature, Simplify } from '../type-utils.js';
-import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type {
+	REDIRECT_STATUS_CODES,
+	SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
+} from './../core/constants.js';
 
 export type { AstroIntegrationLogger, ToolbarServerHelpers };
 
@@ -88,7 +91,7 @@ export type {
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
-	'client:idle'?: boolean;
+	'client:idle'?: IdleRequestOptions | boolean;
 	'client:media'?: string;
 	'client:visible'?: ClientVisibleOptions | boolean;
 	'client:only'?: boolean | string;
@@ -1666,6 +1669,43 @@ export interface AstroUserConfig {
 					redirectToDefaultLocale?: boolean;
 
 					/**
+					 * @docs
+					 * @name i18n.routing.fallbackType
+					 * @kind h4
+					 * @type {"redirect" | "rewrite"}
+					 * @default `"redirect"`
+					 * @version 4.15.0
+					 * @description
+					 *
+					 * When [`i18n.fallback`](#i18nfallback) is configured to avoid showing a 404 page for missing page routes, this option controls whether to [redirect](https://docs.astro.build/en/guides/routing/#redirects) to the fallback page, or to [rewrite](https://docs.astro.build/en/guides/routing/#rewrites) the fallback page's content in place.
+					 *
+					 * By default, Astro's i18n routing creates pages that redirect your visitors to a new destination based on your fallback configuration. The browser will refresh and show the destination address in the URL bar.
+					 *
+					 * When `i18n.routing.fallback: "rewrite"` is configured, Astro will create pages that render the contents of the fallback page on the original, requested URL.
+					 *
+					 * With the following configuration, if you have the file `src/pages/en/about.astro` but not `src/pages/fr/about.astro`, the `astro build` command will generate `dist/fr/about.html` with the same content as the `dist/en/index.html` page.
+					 * Your site visitor will see the English version of the page at `https://example.com/fr/about/` and will not be redirected.
+					 *
+					 * ```js
+					 * //astro.config.mjs
+					 * export default defineConfig({
+					 * 	 i18n: {
+					 *     defaultLocale: "en",
+					 *     locales: ["en", "fr"],
+					 *     routing: {
+					 *     	prefixDefaultLocale: false,
+					 *     	fallbackType: "rewrite",
+					 *     },
+					 *     fallback: {
+					 *     	fr: "en",
+					 *     }
+					 *   },
+					 * })
+					 * ```
+					 */
+					fallbackType: 'redirect' | 'rewrite';
+
+					/**
 					 * @name i18n.routing.strategy
 					 * @type {"pathname"}
 					 * @default `"pathname"`
@@ -2057,7 +2097,7 @@ export interface AstroUserConfig {
 		 *
 		 * **Note:** Secret client variables are not supported because there is no safe way to send this data to the client. Therefore, it is not possible to configure both `context: "client"` and `access: "secret"` in your schema.
 		 *
-		 * For a complete overview, and to give feedback on this experimental API, see the [Astro Env RFC](https://github.com/withastro/roadmap/blob/feat/astro-env-rfc/proposals/0046-astro-env.md).
+		 * For a complete overview, and to give feedback on this experimental API, see the [Astro Env RFC](https://github.com/withastro/roadmap/blob/main/proposals/0049-astro-env.md).
 		 */
 		env?: {
 			/**
@@ -2275,6 +2315,10 @@ export interface AstroUserConfig {
 		 * export const collections = { blog, dogs };
 		 * ```
 		 *
+		 * :::note
+		 * Loaders will not automatically [exclude files prefaced with an `_`](/en/guides/routing/#excluding-pages). Use a regular expression such as `pattern: '**\/[^_]*.md'` in your loader to ignore these files.
+		 * :::
+		 *
 		 * #### Querying and rendering with the Content Layer API
 		 *
 		 * The collection can be [queried in the same way as content collections](/en/guides/content-collections/#querying-collections):
@@ -2304,7 +2348,7 @@ export interface AstroUserConfig {
 		 *
 		 * const post = await getEntry('blog', Astro.params.slug);
 		 *
-		 * const { Content, headings } = await render(entry);
+		 * const { Content, headings } = await render(post);
 		 * ---
 		 *
 		 * <Content />
@@ -2355,8 +2399,8 @@ export interface AstroUserConfig {
 		 *
 		 *     const blog = defineCollection({
 		 *       // For content layer you no longer define a `type`
-		 *      type: 'content',
-		 *      loader: glob({ pattern: "**\/*.md", base: "./src/data/blog" }),
+		 *       type: 'content',
+		 *       loader: glob({ pattern: '**\/[^_]*.md', base: "./src/data/blog" }),
 		 *       schema: z.object({
 		 *         title: z.string(),
 		 *         description: z.string(),
@@ -2387,13 +2431,13 @@ export interface AstroUserConfig {
 		 *     ```astro ins={4,9} del={3,8}
 		 *     // src/pages/index.astro
 		 *     ---
-		 *      import { getEntry } from 'astro:content';
-		 *      import { getEntry, render } from 'astro:content';
+		 *     import { getEntry } from 'astro:content';
+		 *     import { getEntry, render } from 'astro:content';
 		 *
-		 *       const post = await getEntry('blog', params.slug);
+		 *     const post = await getEntry('blog', params.slug);
 		 *
-		 *      const { Content, headings } = await post.render();
-		 *      const { Content, headings } = await render(post);
+		 *     const { Content, headings } = await post.render();
+		 *     const { Content, headings } = await render(post);
 		 *     ---
 		 *
 		 *     <Content />
@@ -2461,6 +2505,7 @@ export interface RouteOptions {
 
 /**
  * Resolved Astro Config
+ *
  * Config with user settings along with all defaults filled in.
  */
 export interface AstroConfig extends AstroConfigType {
@@ -2549,7 +2594,7 @@ export interface ContentEntryType {
 		},
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
-	getRenderFunction?(settings: AstroSettings): Promise<ContentEntryRenderFuction>;
+	getRenderFunction?(config: AstroConfig): Promise<ContentEntryRenderFuction>;
 
 	/**
 	 * Handle asset propagation for rendered content to avoid bleed.
@@ -2976,7 +3021,7 @@ export interface AstroAdapter {
 	supportedAstroFeatures: AstroFeatureMap;
 }
 
-export type ValidRedirectStatus = 300 | 301 | 302 | 303 | 304 | 307 | 308;
+export type ValidRedirectStatus = (typeof REDIRECT_STATUS_CODES)[number];
 
 // Shared types between `Astro` global and API context object
 interface AstroSharedContext<
@@ -3006,7 +3051,7 @@ interface AstroSharedContext<
 	 */
 	getActionResult: <
 		TAccept extends ActionAccept,
-		TInputSchema extends ActionInputSchema<TAccept>,
+		TInputSchema extends z.ZodType,
 		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
 	>(
 		action: TAction,
@@ -3016,7 +3061,7 @@ interface AstroSharedContext<
 	 */
 	callAction: <
 		TAccept extends ActionAccept,
-		TInputSchema extends ActionInputSchema<TAccept>,
+		TInputSchema extends z.ZodType,
 		TOutput,
 		TAction extends
 			| ActionClient<TOutput, TAccept, TInputSchema>
@@ -3314,7 +3359,7 @@ declare global {
 		export interface IntegrationHooks {
 			'astro:config:setup': (options: {
 				config: AstroConfig;
-				command: 'dev' | 'build' | 'preview';
+				command: 'dev' | 'build' | 'preview' | 'sync';
 				isRestart: boolean;
 				updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
 				addRenderer: (renderer: AstroRenderer) => void;

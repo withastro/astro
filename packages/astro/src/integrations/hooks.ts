@@ -123,7 +123,7 @@ export async function runHookConfigSetup({
 	fs = fsMod,
 }: {
 	settings: AstroSettings;
-	command: 'dev' | 'build' | 'preview';
+	command: 'dev' | 'build' | 'preview' | 'sync';
 	logger: Logger;
 	isRestart?: boolean;
 	fs?: typeof fsMod;
@@ -353,7 +353,9 @@ export async function runHookConfigDone({
 							content: injectedType.content,
 						});
 
-						return new URL(normalizedFilename, settings.config.root);
+						// It must be relative to dotAstroDir here and not inside normalizeInjectedTypeFilename
+						// because injectedTypes are handled relatively to the dotAstroDir already
+						return new URL(normalizedFilename, settings.dotAstroDir);
 					},
 					logger: getLogger(integration, logger),
 				}),
