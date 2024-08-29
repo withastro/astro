@@ -15,6 +15,8 @@ import type {
 	RouteData,
 	RouteOptions,
 } from '../@types/astro.js';
+import astroIntegrationActionsRouteHandler from '../actions/integration.js';
+import { isActionsFilePresent } from '../actions/utils.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
@@ -22,8 +24,6 @@ import { mergeConfig } from '../core/config/index.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../core/util.js';
 import { validateSupportedFeatures } from './features-validation.js';
-import { isActionsFilePresent } from '../actions/utils.js';
-import astroIntegrationActionsRouteHandler from '../actions/integration.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,

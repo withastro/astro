@@ -1,7 +1,7 @@
 import type { ZodType } from 'zod';
-import type { ActionAccept, ActionClient } from './server.js';
 import { ActionNotFoundError } from '../../../core/errors/errors-data.js';
 import { AstroError } from '../../../core/errors/errors.js';
+import type { ActionAccept, ActionClient } from './server.js';
 
 /**
  * Get server-side action based on the route path.
