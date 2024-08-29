@@ -1,5 +1,177 @@
 # astro
 
+## 4.15.0
+
+### Minor Changes
+
+- [#11729](https://github.com/withastro/astro/pull/11729) [`1c54e63`](https://github.com/withastro/astro/commit/1c54e633274ad47f6c83c9a16f375f0caa983fbe) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new variant `sync` for the `astro:config:setup` hook's `command` property. This value is set when calling the command `astro sync`.
+
+  If your integration previously relied on knowing how many variants existed for the `command` property, you must update your logic to account for this new option.
+
+- [#11743](https://github.com/withastro/astro/pull/11743) [`cce0894`](https://github.com/withastro/astro/commit/cce08945340312776a0480fc9ffe43929257639a) Thanks [@ph1p](https://github.com/ph1p)! - Adds a new, optional property `timeout` for the `client:idle` directive.
+
+  This value allows you to specify a maximum time to wait, in milliseconds, before hydrating a UI framework component, even if the page is not yet done with its initial load. This means you can delay hydration for lower-priority UI elements with more control to ensure your element is interactive within a specified time frame.
+
+  ```astro
+  <ShowHideButton client:idle={{ timeout: 500 }} />
+  ```
+
+- [#11677](https://github.com/withastro/astro/pull/11677) [`cb356a5`](https://github.com/withastro/astro/commit/cb356a5db6b1ec2799790a603f931a961883ab31) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new option `fallbackType` to `i18n.routing` configuration that allows you to control how fallback pages are handled.
+
+  When `i18n.fallback` is configured, this new routing option controls whether to [redirect](https://docs.astro.build/en/guides/routing/#redirects) to the fallback page, or to [rewrite](https://docs.astro.build/en/guides/routing/#rewrites) the fallback page's content in place.
+
+  The `"redirect"` option is the default value and matches the current behavior of the existing fallback system.
+
+  The option `"rewrite"` uses the new [rewriting system](https://docs.astro.build/en/guides/routing/#rewrites) to create fallback pages that render content on the original, requested URL without a browser refresh.
+
+  For example, the following configuration will generate a page `/fr/index.html` that will contain the same HTML rendered by the page `/en/index.html` when `src/pages/fr/index.astro` does not exist.
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    i18n: {
+      locals: ['en', 'fr'],
+      defaultLocale: 'en',
+      routing: {
+        prefixDefaultLocale: true,
+        fallbackType: 'rewrite',
+      },
+      fallback: {
+        fr: 'en',
+      },
+    },
+  });
+  ```
+
+- [#11708](https://github.com/withastro/astro/pull/11708) [`62b0d20`](https://github.com/withastro/astro/commit/62b0d20b974dc932769221d210b751627fb4bbc6) Thanks [@martrapp](https://github.com/martrapp)! - Adds a new object `swapFunctions` to expose the necessary utility functions on `astro:transitions/client` that allow you to build custom swap functions to be used with view transitions.
+
+  The example below uses these functions to replace Astro's built-in default `swap` function with one that only swaps the `<main>` part of the page:
+
+  ```html
+  <script>
+    import { swapFunctions } from 'astro:transitions/client';
+
+    document.addEventListener('astro:before-swap', (e) => { e.swap = () => swapMainOnly(e.newDocument) });
+
+    function swapMainOnly(doc: Document) {
+      swapFunctions.deselectScripts(doc);
+      swapFunctions.swapRootAttributes(doc);
+      swapFunctions.swapHeadElements(doc);
+      const restoreFocusFunction = swapFunctions.saveFocus();
+      const newMain = doc.querySelector('main');
+      const oldMain = document.querySelector('main');
+      if (newMain && oldMain) {
+        swapFunctions.swapBodyElement(newMain, oldMain);
+      } else {
+        swapFunctions.swapBodyElement(doc.body, document.body);
+      }
+      restoreFocusFunction();
+    };
+  </script>
+  ```
+
+  See the [view transitions guide](https://docs.astro.build/en/guides/view-transitions/#astrobefore-swap) for more information about hooking into the `astro:before-swap` lifecycle event and adding a custom swap implementation.
+
+- [#11843](https://github.com/withastro/astro/pull/11843) [`5b4070e`](https://github.com/withastro/astro/commit/5b4070efef877a77247bb05a4806b75f22e557c8) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Exposes `z` from the new `astro:schema` module. This is the new recommended import source for all Zod utilities when using Astro Actions.
+
+  ## Migration for Astro Actions users
+
+  `z` will no longer be exposed from `astro:actions`. To use `z` in your actions, import it from `astro:schema` instead:
+
+  ```diff
+  import {
+    defineAction,
+  -  z,
+  } from 'astro:actions';
+  + import { z } from 'astro:schema';
+  ```
+
+- [#11843](https://github.com/withastro/astro/pull/11843) [`5b4070e`](https://github.com/withastro/astro/commit/5b4070efef877a77247bb05a4806b75f22e557c8) Thanks [@bholmesdev](https://github.com/bholmesdev)! - The Astro Actions API introduced behind a flag in [v4.8.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#480) is no longer experimental and is available for general use.
+
+  Astro Actions allow you to define and call backend functions with type-safety, performing data fetching, JSON parsing, and input validation for you.
+
+  Actions can be called from client-side components and HTML forms. This gives you to flexibility to build apps using any technology: React, Svelte, HTMX, or just plain Astro components. This example calls a newsletter action and renders the result using an Astro component:
+
+  ```astro
+  ---
+  // src/pages/newsletter.astro
+  import { actions } from 'astro:actions';
+  const result = Astro.getActionResult(actions.newsletter);
+  ---
+
+  {result && !result.error && <p>Thanks for signing up!</p>}
+  <form method="POST" action={actions.newsletter}>
+    <input type="email" name="email" />
+    <button>Sign up</button>
+  </form>
+  ```
+
+  If you were previously using this feature, please remove the experimental flag from your Astro config:
+
+  ```diff
+  import { defineConfig } from 'astro'
+
+  export default defineConfig({
+  -  experimental: {
+  -    actions: true,
+  -  }
+  })
+  ```
+
+  If you have been waiting for stabilization before using Actions, you can now do so.
+
+  For more information and usage examples, see our [brand new Actions guide](https://docs.astro.build/en/guides/actions).
+
+### Patch Changes
+
+- [#11677](https://github.com/withastro/astro/pull/11677) [`cb356a5`](https://github.com/withastro/astro/commit/cb356a5db6b1ec2799790a603f931a961883ab31) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug in the logic of `Astro.rewrite()` which led to the value for `base`, if configured, being automatically prepended to the rewrite URL passed. This was unintended behavior and has been corrected, and Astro now processes the URLs exactly as passed.
+
+  If you use the `rewrite()` function on a project that has `base` configured, you must now prepend the base to your existing rewrite URL:
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    base: '/blog',
+  });
+  ```
+
+  ```diff
+  // src/middleware.js
+  export function onRequest(ctx, next) {
+  -  return ctx.rewrite("/about")
+  +  return ctx.rewrite("/blog/about")
+  }
+  ```
+
+- [#11862](https://github.com/withastro/astro/pull/11862) [`0e35afe`](https://github.com/withastro/astro/commit/0e35afe44f5a3c9f87b41dc89d5128b02e448895) Thanks [@ascorbic](https://github.com/ascorbic)! - **BREAKING CHANGE to experimental content layer loaders only!**
+
+  Passes `AstroConfig` instead of `AstroSettings` object to content layer loaders.
+
+  This will not affect you unless you have created a loader that uses the `settings` object. If you have, you will need to update your loader to use the `config` object instead.
+
+  ```diff
+  export default function myLoader() {
+    return {
+      name: 'my-loader'
+  -   async load({ settings }) {
+  -     const base = settings.config.base;
+  +   async load({ config }) {
+  +     const base = config.base;
+        // ...
+      }
+    }
+  }
+
+  ```
+
+  Other properties of the settings object are private internals, and should not be accessed directly. If you think you need access to other properties, please open an issue to discuss your use case.
+
+- [#11772](https://github.com/withastro/astro/pull/11772) [`6272e6c`](https://github.com/withastro/astro/commit/6272e6cec07778e81f853754bffaac40e658c700) Thanks [@bluwy](https://github.com/bluwy)! - Uses `magicast` to update the config for `astro add`
+
+- [#11845](https://github.com/withastro/astro/pull/11845) [`440a4be`](https://github.com/withastro/astro/commit/440a4be0a6ca135e47b0d37124c1be03735ba7ff) Thanks [@bluwy](https://github.com/bluwy)! - Replaces `execa` with `tinyexec` internally
+
+- [#11858](https://github.com/withastro/astro/pull/11858) [`8bab233`](https://github.com/withastro/astro/commit/8bab2339374763d19dbc4cc2c7ce4ad8a2a49694) Thanks [@ascorbic](https://github.com/ascorbic)! - Correctly resolves content layer images when filePath is not set
+
 ## 4.14.6
 
 ### Patch Changes
