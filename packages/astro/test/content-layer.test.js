@@ -302,7 +302,7 @@ describe('Content Layer', () => {
 			});
 			const refreshData = await refreshResponse.json();
 			assert.equal(refreshData.message, 'Content refreshed successfully');
-
+			await new Promise((r) => setTimeout(r, 1000));
 			const updatedJsonResponse = await fixture.fetch('/collections.json');
 			const updated = devalue.parse(await updatedJsonResponse.text());
 			assert.equal(updated.increment.data.lastValue, 2);
