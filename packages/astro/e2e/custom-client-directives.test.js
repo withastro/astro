@@ -35,12 +35,13 @@ test.describe('Custom Client Directives - build static', () => {
 	testClientDirectivesShared();
 });
 
-test.describe('Custom Client Directives - build server', () => {
+test.describe('Custom Client Directives - build server zzz', () => {
 	let previewServer;
 
 	test.beforeAll(async ({ astro }) => {
 		await astro.build({
 			adapter: testAdapter(),
+			output: 'server',
 		});
 		previewServer = await astro.preview();
 	});
